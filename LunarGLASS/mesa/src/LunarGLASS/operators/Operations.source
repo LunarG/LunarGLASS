@@ -1,0 +1,303 @@
+//===- IntrinsicsLunarGLASS.td and Operations.source --------- -*- tablegen -*-===//
+//                                                                                 
+// LunarGLASS: An Open Modular Shader Compiler Architecture                        
+// Copyright (C) 2010-2011 LunarG, Inc.                                            
+//                                                                                 
+// This program is free software; you can redistribute it and/or                   
+// modify it under the terms of the GNU General Public License                     
+// as published by the Free Software Foundation; version 2 of the                  
+// License.                                                                        
+//                                                                                 
+// This program is distributed in the hope that it will be useful,                 
+// but WITHOUT ANY WARRANTY; without even the implied warranty of                  
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                   
+// GNU General Public License for more details.                                    
+//                                                                                 
+// You should have received a copy of the GNU General Public License               
+// along with this program; if not, write to the Free Software                     
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA                   
+// 02110-1301, USA.                                                                
+//                                                                                 
+//===--------------------------------------------------------------------------===//
+//                                                                                 
+// This file defines LunarGLASS intrinsics.                             
+//                                                                                 
+//===--------------------------------------------------------------------------===//
+#
+------Floating-Point and Integer Operations#
+Add|I|II|N|C|P|R|W|Integer add.#
+FAdd|F|FF|N|0|P|R|W|Floating-point add.#
+Sub|I|II|N|C|P|R|W|Integer subtract.#
+FSub|F|FF|N|0|P|R|W|Floating-point subtract.#
+Mul|I|II|N|C|P|R|W|Integer multiply.#
+FMul|F|FF|N|0|P|R|W|Floating-point multiply.#
+UDiv|I|II|N|C|P|R|W|Unsigned-integer divide.#
+SDiv|I|II|N|C|P|R|W|Integer divide.#
+FDiv|F|FF|N|2.5 ULP|P|R|W|Floating-point divide.#
+URem|I|II|N|C|P|R|W|Unsigned-integer remainder.#
+SRem|I|II|N|C|P|R|W|Integer remainder.#
+FRem|F|FF|N|A|P|R|W|Floating-point remainder.#
+Neg|I|II|N|C|P|R|W|Integer unary negation.#
+FNeg|F|F|N|C|P|R|W|Floating-point unary negation.
+<BR>TBD: LLVM Turn this into binary operation#
+@abs|D|D|N|C|P|R|W|Absolute value of arg.#
+@min|A|AA|N|C|O|O|W|Test based.#
+@max|A|AA|N|C|O|O|W|Test based.#
+@clamp|A|AAA|N|C|O|O|W|<pre>dst = min (max (arg1, arg2), arg3)</pre>#
+------Floating-Point Only Operations#
+FPTruncate|F|F|N|C|P|R|W|Truncate.#
+@radians|F|F|N|0|D|D|W|Multiply by &pi;/180.#
+@degrees|F|F|N|0|D|D|W|Multiply by 180/&pi;.#
+@sin|F|F|N|F|P|R|W|Sine arg.#
+@cos|F|F|N|F|P|R|W|Cosine arg.#
+@tan|F|F|N|F|P|R|W|Tangent arg.#
+@asin|F|F|N|F|P|R|W|Arc sine arg.#
+@acos|F|F|N|F|P|R|W|Arc cosine arg.#
+@atan|F|F|N|F|P|R|W|Arc tangent arg.#
+@atan2|F|FF|N|F|P|R|W|Arc tangent of arg1/arg2.#
+@sinh|F|F|N|F|P|R|W|Hyperbolic sin arg.#
+@cosh|F|F|N|F|P|R|W|Hyperbolic cos arg.#
+@tanh|F|F|N|F|P|R|W|Hyperbolic tan arg.#
+@asinh|F|F|N|F|P|R|W|Arc hyperbolic sin arg.#
+@acosh|F|F|N|F|P|R|W|Arc hyperbolic cos arg.#
+@atanh|F|F|N|F|P|R|W|Arc hyperbolic tan arg.#
+@pow|F|FF|N|Accumulated from <br> exp2 (arg2 * log2 (arg1))|P|R|W|arg1 ^ arg2#
+@powi|F|FI|N|0|P|R|W|arg1 ^ arg2, for small integers.  Domain restrictions are TBD.#
+@exp|F|F|N|(3 + 2 * abs(arg)) ULP|P|R|W|e ^ arg#
+@log|F|F|N|3 ULP outside [0.5, 2.0]<br> 2^21 inside [0.5, 2.0]|P|R|W|Natural log of arg.#
+@exp2|F|F|N|(3 + 2 * abs(arg)) ULP|P|R|W|2 ^ arg#
+@log2|F|F|N|3 ULP outside [0.5, 2.0]<br> 2^21 inside [0.5, 2.0]|P|R|W|Log base 2 of arg.#
+@exp10|F|F|N|(3 + 2 * abs(arg)) ULP|P|R|W|10 ^ arg#
+@log10|F|F|N|3 ULP outside [0.5, 2.0]<br> 2^21 inside [0.5, 2.0]|P|R|W|Log base 10 of arg.#
+@sqrt|F|F|N|Accumulated from inversesqrt|P|R|W|Square root of arg.#
+@inverseSqrt|F|F|N|2 ULP|O|O|W|1 / sqrt(arg)#
+@sign|F|F|N|0|P|R|W|Sign of arg.#
+@floor|F|F|N|0|P|R|W|Floor arg.#
+@ceiling|F|F|N|0|P|R|W|Ceiling arg.#
+@roundEven|F|F|N|-|P|R|W|.5 goes toward the even whole number.#
+@roundFast|F|F|N|-|P|R|W|.5 can go up or down, whatever is fastest.#
+@fraction|F|F|N|0|O|O|W|<pre>arg - floor(arg)</pre>#
+@modF|FI|F|N|0|O|O|W|
+<pre>dst1 = signed fraction(arg)
+dst2 = signed whole number part
+</pre>#
+@mix|F|FFF|N|A|O|O|W|<pre>arg1 * (1-arg3) + arg2 * arg3</pre>Note: Use select for the Boolean form of mix.#
+@step|F|FF|N|C|O|O|W|<pre>dst = arg2 &lt arg1 ? 0.0 : 1.0</pre>#
+@smoothStep|F|FFF|N|A|O|O|W|
+<pre>t = clamp ((arg3 - arg2) / (arg2 - arg1), 0, 1);
+dst = t * t * (3 - 2 * t);
+</pre>#
+@isNan|I|F|N|C|O|O|W|Decomposition: !(arg == arg) <br>
+Definition: Return true if arg is a NaN.#
+@isInf|I|F|N|C|O|R|W|Return true if arg is an infinity value.#
+@fma|F|FFF|N|A|O|O|W|<pre>dst = arg1 * arg2 + arg3</pre>#
+------Integer-Only Operations#
+@addCarry|II|II|N|C|P|R|W|
+<pre>dst1 = unsigned 32-bit wrapped add (arg1 + arg2)
+dst2 = 1 if add wrapped, 0 if not
+</pre>#
+@subBorrow|II|II|N|C|P|R|W|
+<pre>dst1 = unsigned 32-bit wrapped subtract (arg1 - arg2)
+dst2 = 1 if subtract wrapped, 0 if not
+</pre>#
+@umulExtended|II|II|N|C|P|R|W|32-bit X 32-bit unsigned multiply (arg1 * arg2), 
+yielding 64 bit result
+<pre>dst1 = 32 most-significant bits of unsigned result
+dst2 = 32 least-significant bits
+</pre>#
+@smulExtended|II|II|N|C|P|R|W|32-bit X 32-bit signed multiply (arg1 * arg2), 
+yielding 64 bit result:
+<pre>dst1 = 32 most-significant bits of signed result
+dst2 = 32 least-significant bits
+</pre>#
+------Value Preserving Conversions#
+FPToUI|I|F|N|0|P|R|W|Convert float to unsigned integer.#
+FPToSI|I|F|N|0|P|R|W|Convert float to unsigned integer.#
+UIToFP|F|I|N|0|P|R|W|Convert unsigned integer to float.#
+SIToFP|F|I|N|0|P|R|W|Convert signed integer to float.#
+------Bit Operations#
+Shl|I|II|N|C|P|R|W|Shift bits left.#
+LShr|I|II|N|C|P|R|W|Shift bits right, logical.#
+AShr|I|II|N|C|P|R|W|Shift bits right, arithmetic.#
+And|I|II|N|C|P|R|W|Bit-wise AND.#
+Or|I|II|N|C|P|R|W|Bit-wise OR.#
+Xor|I|II|N|C|P|R|W|Bit-wise XOR.#
+Not|I|I|N|C|P|R|W|Unary bit-wise NOT.
+<br>TBD: LLVM turns this into a binary operation.#
+@floatBitsToInt|I|F|N|C|P|R|W|Reinterpret bits of arg as an integer.  No bits are changed.#
+@intBitsTofloat|I|F|N|C|P|R|W|Reinterpret bits of arg as a floating-point number.#
+@sBitFieldExtract|I|Iii|N|C|P|R|W|Signed bit extraction.  Extracts arg3 bits starting at bit arg2,
+returning them in as the low-order bits of dst, and sign extending them in dst.#
+@uBitFieldExtract|I|Iii|N|C|P|R|W|Unsigned bit extraction.  Extracts arg3 bits starting at bit arg2,
+returning them in as the low-order bits of dst, and zeroing the remaining high-order bits.#
+@bitFieldInsert|II|Iii|N|C|P|R|W|The returned dst will have some bits from arg1 and some bits from arg2.  
+There will be arg4 bits starting at bit arg3 coming from arg2.  All other bits will be from arg1.#
+@bitReverse|I|I|N|C|P|R|W|Return bit reversal of the bits of arg.#
+@bitCount|I|I|N|C|P|R|W|Return number of bits that are set (value is 1, not 0).#
+@findLSB|I|I|N|C|P|R|W|Return location of the lowest order bit that is set.#
+@sFindMSB|I|I|N|C|P|R|W|If arg is positive, return the location of the highest order bit set to one.
+If arg is negative: return the location of the highest order bit set to zero.#
+@uFindMSB|I|I|N|C|P|R|W|Return the location of the highest order bit set to one.#
+@swizzle|D|Di|N|C|P|D|X|Creates a vector whose components are selected from arg1 from the locations specified in arg2 (TBD).#
+------Pack and Unpack#
+@frexp|FI|F|N|0|P|R|W|
+<pre>dst1 = significand in range [0.5, 1.0)
+dst2 = exponent
+</pre>#
+@ldexp|FI|F|N|0|P|R|W|
+<pre>dst1 = significand in range [0.5, 1.0)
+dst2 = exponent
+</pre>#
+@packUnorm2x16|I|F|N|0|O|O|X|Packed components of round(clamp(c, 0, +1) * 65535.0).#
+@packUnorm4x8|I|F|N|0|O|O|X|Packed components of round(clamp(c, 0, +1) * 255.0).#
+@packSnorm4x8|I|F|N|0|O|O|X|Packed components of round(clamp(c, -1, +1) * 127.0).#
+@unpackUnorm2x16|F|I|N|0|O|O|X|Return arg / 65535.0 of unpacked components.#
+@unpackUnorm4x8|F|I|N|0|O|O|X|Return arg / 255.0 of unpacked components.#
+@unpackSnorm4x8|F|I|N|0|O|O|X|Return clamp(arg / 127.0, -1, +1) of unpacked components.#
+@packDouble2x32|F|I|N|0|O|O|X|TBD#
+@unpackDouble2x32|I|F|N|0|O|O|X|TBD#
+------Texture Sampling#
+@textureSample|D|iiiF|N|-|P|RO|X|Sample a texture.
+<br> dst: (R,G,B,A) vector
+<br> arg1: Static enum indicating type of texture (1D, 2D, cube, shadow, etc.)
+<br> arg2: Location of dynamic handle that points to the texture and filter to use
+<br> arg3: Static mask of what form to use; only {projective} applies.
+<br> arg4: Coordinate to sample at.  The projective coordinate is the last component.
+<br> Decomposition:  If projection is requested it can be optionally decomposed to its non-projective form.
+<br> Recomposition:  Turns into rTextureSample form#
+@rTextureSample{1,2,3,4}|DDDD|iiiF|N|-|-|P|T|Sample a texture, recomposition form.
+<br> dst1: vector of R-components returned.
+<br> dst2: vector of G-components returned.
+<br> dst3: vector of B-components returned.
+<br> dst4: vector of A-components returned.
+<br> arg1: Static enum indicating type of texture (1D, 2D, cube, shadow, etc.)
+<br> arg2: Location of dynamic handle that points to the texture and filter to use
+<br> arg3: Static mask of what form to use; only {projective} applies.
+<br> arg4...: One transposed vector for each component taken by textureSample().  
+The ending number in the intrinsic name specifies the number components in the texture coordinate.#
+@textureSampleLod|D|iiiFfIFF|N|-|P|RO|X|Sample a texture.
+<br> dst: (R,G,B,A) vector
+<br> arg1: Static enum indicating type of texture (1D, 2D, cube, shadow, etc.)
+<br> arg2: Location of dynamic handle that points to the texture and filter to use
+<br> arg3: Static mask of what form to use {projective, absolute LoD, LoD Bias}.
+<br> arg4: Coordinate to sample at.  The projective coordinate is the last component.
+<br> arg5: LoD, either absolute or bias
+<br> Decomposition:  If projection is requested it can be optionally decomposed to its non-projective form.
+<br> Recomposition:  Turns into rTextureSampleLod form#
+@rTextureSampleLod{1,2,3,4}|DDDD|iiiF|N|-|-|P|T|Sample a texture, recomposition form.
+<br> dst1: vector of R-components returned.
+<br> dst2: vector of G-components returned.
+<br> dst3: vector of B-components returned.
+<br> dst4: vector of A-components returned.
+<br> arg1: Static enum indicating type of texture (1D, 2D, cube, shadow, etc.)
+<br> arg2: Location of dynamic handle that points to the texture and filter to use
+<br> arg3: Static mask of what form to use {projective, absolute LoD, LoD Bias}.
+<br> arg4...: One transposed vector for each component taken by textureSampleLod(), 
+including a vector for LoD.
+The ending number in the intrinsic name specifies the number components in the texture coordinate.#
+@textureSampleLodOffset|D|iiiFfIFF|N|-|P|RO|X|Sample a texture.
+<br> dst: (R,G,B,A) vector
+<br> arg1: Static enum indicating type of texture (1D, 2D, cube, shadow, etc.)
+<br> arg2: Location of dynamic handle that points to the texture and filter to use
+<br> arg3: Static mask of what form to use {projective, absolute LoD, LoD Bias}.  Offset is assumed.
+<br> arg4: Coordinate to sample at.  The projective coordinate is the last component.
+<br> arg5: LoD, either absolute or bias
+<br> arg6: Offset
+<br> Decomposition:  If projection is requested it can be optionally decomposed to its non-projective form.
+<br> Recomposition:  Turns into rTextureSampleLodOffset form#
+@rTextureSampleLodOffset{1,2,3,4}|DDDD|iiiF|N|-|-|P|T|Sample a texture, recomposition form.
+<br> dst1: vector of R-components returned.
+<br> dst2: vector of G-components returned.
+<br> dst3: vector of B-components returned.
+<br> dst4: vector of A-components returned.
+<br> arg1: Static enum indicating type of texture (1D, 2D, cube, shadow, etc.)
+<br> arg2: Location of dynamic handle that points to the texture and filter to use
+<br> arg3: Static mask of what form to use {projective, absolute LoD, LoD Bias}.  Offset is assumed.
+<br> arg4...: One transposed vector for each component taken by textureSampleLodOffset(), 
+including a vector for LoD and each component of the offset.
+The ending number in the intrinsic name specifies the number components in the texture coordinate, 
+which must match the number of vectors passed in for the texture coordinate and the offset. 
+(Use of a projective coordinate means the last offset component will go unused.)#
+@textureSampleLodOffsetGrad|D|iiiFfIFF|N|-|P|RO|X|Sample a texture.
+<br> dst: (R,G,B,A) vector
+<br> arg1: Static enum indicating type of texture (1D, 2D, cube, shadow, etc.)
+<br> arg2: Location of dynamic handle that points to the texture and filter to use
+<br> arg3: Static mask of what form to use {projective, absolute LoD, LoD Bias, Offset}.  Gradient is assumed.
+<br> arg4: Coordinate to sample at.  The projective coordinate is the last component.
+<br> arg5: LoD, either absolute or bias
+<br> arg6: Offset
+<br> arg7: Gradient for x
+<br> arg8: Gradient for y
+<br> Decomposition:  If projection is requested it can be optionally decomposed to its non-projective form.
+<br> Recomposition:  Turns into rTextureSampleLodOffsetGrad form#
+@rTextureSampleLodOffsetGrad{1,2,3,4}|DDDD|iiiF|N|-|-|P|T|Sample a texture, recomposition form.
+<br> dst1: vector of R-components returned.
+<br> dst2: vector of G-components returned.
+<br> dst3: vector of B-components returned.
+<br> dst4: vector of A-components returned.
+<br> arg1: Static enum indicating type of texture (1D, 2D, cube, shadow, etc.)
+<br> arg2: Location of dynamic handle that points to the texture and filter to use
+<br> arg3: Static mask of what form to use {projective, absolute LoD, LoD Bias, Offset}.  Gradient is assumed.
+<br> arg4...: One transposed vector for each component taken by textureSampleLodOffsetGrad(), 
+including a vector for LoD, each component of the offset, and each component of the gradient.
+The ending number in the intrinsic name specifies the number components in the texture coordinate, 
+which must match the number of vectors passed in for the texture coordinate, the offset, and the gradient.  
+(Use of a projective coordinate means the last offset and gradient components go unused.)#
+@texelFetchOffset|D|iiFF|N|-|P|R|X|fetch a texel from a texture#
+@texelGather|D|iiFI|N|-|P|R|X|fetch multiple texels from a texture, shadows return a float vector, non-shadow return any vector#
+@texelGatherOffset|D|iiFIF|N|-|P|R|X|TBD#
+@texelGatherOffsets|D|iiFIF|N|-|P|R|X|TBD#
+------Texture Query#
+@queryTextureSize|I|ii|N|-|P|R|X|Query texture's size. Dimensions of x, y, and z go into components dst.x (or dst), dst.y, dst.z, respectively#
+@queryTextureLod|F|iiF|N|-|P|R|X|Query texture's level of detail for arg3.#
+------Geometry#
+@length|f|F|N|A|O|D|X|sqrt(x^2 + y^2 + ...)#
+@distance|f|FF|N|A|O|D|X|length(a - b)#
+@dot|f|FF|N|A|O|D|X|Standard dot product.#
+@cross|F|FF|N|A|O|D|X3|Standard cross product.#
+@normalize|F|F|N|A|O|D|X|dst = arg1 / length(arg1)#
+@normalize3D|F|F|N|A|O|D|X4|(normalize(x,y,z), w)#
+@lit|F|F|N|A|O|D|X|
+<pre>dst.x = 1.0
+dst.w = 1.0
+if (arg.x &gt 0)
+  dst.y = arg.x
+  dst.z = max(0, arg.y) ^ clamp(arg.w, -128, 128)
+else
+  dst.y = 0.0
+  dst.z = 0.0
+</pre>#
+@faceForward|F|FFF|N|A|O|D|X|
+<pre>if dot(arg3, arg2) &lt 0 
+  dst = arg1
+else
+  dst = -arg1
+</pre>#
+@reflect|F|FF|N|A|O|D|X|
+<pre>dst = arg1 - 2 * dot(arg2, arg1) * arg2</pre>
+where arg2 is already a normalized normal.#
+@refract|F|FFF|N|A|O|D|X|
+<pre>k = 1.0 - arg3 * arg3 * (1.0 - dot(arg1, arg2) * dot(arg1, arg2))
+if (k &lt 0.0)
+  dst = 0.0
+else
+  dst = arg3 * arg1 - (arg3 * dot(arg1, arg2) + sqrt(k)) * N
+</pre>#
+------Derivative and Transform#
+@dFdx|F|F|N|-|O|R|W|TBD#
+@dFdy|F|F|N|-|O|R|W|TBD#
+@filterWidth|F|F|N|-|O|R|W|abs (dFdx (p)) + abs (dFdy (p))#
+@fixedTransform|F|FF|N|-|P|R|X4|Fixed functionality vertex transform:<br>
+arg1 is the vertex name for consumed vertex<br>
+arg2 is the name of the consumed transformation matrix#
+------Comparison#
+ICmp condition|B|II|N|C|P|R|W|Integer compare.
+<br>LLVM provides all equality, signed, and unsigned conditions: eq, neq, ugt, uge, ult, ule, sgt, sge, slt, and sle.#
+FCmp condition|B|FF|N|C|P|R|W|Floating-point compare.
+<br>LLVM provides floating-point the ordered conditions: oeq, one, ogt, oge, olt, and ole.  It also provides other
+conditions, but it is unclear they would be targets for shading languages.#
+------Vector Logical#
+@not|B|B|N|C|P|R|W|per-component logical (Boolean) not#
+@any|b|B|N|C|P|D|X|Returns true if any components are true.#
+@all|b|B|N|C|P|D|X|Returns true only if all components are true.#
+select|D|DDB|N|C|O|O|W|Test on arg1 to select arg2 or arg3 as source.#
