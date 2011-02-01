@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{62406B27-D1AE-4A84-B468-CA38F81231BA}</ProjectGuid>
+    <RootNamespace>StandAlone</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../mesa;../mesa/program;../mapi;../../include;../talloc;../../include/c99;../LunarGLASS;../glsl;../../../LLVM/llvm-2.8/build/install/include;../mesa/main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4355;4291;4018;4800;4267;4996;4244;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMSystem.lib;LLVMipo.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../../LLVM/llvm-2.8/build/install/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\LunarGLASS\GlslToTop.h" />
+    <ClInclude Include="..\LunarGLASS\LunarGLASSBottomIR.h" />
+    <ClInclude Include="..\LunarGLASS\LunarGLASSTopIR.h" />
+    <ClInclude Include="..\LunarGLASS\Manager.h" />
+    <ClInclude Include="..\mesa\program\ir_to_mesa.h" />
+    <ClInclude Include="ast.h" />
+    <ClInclude Include="builtin_types.h" />
+    <ClInclude Include="builtin_variables.h" />
+    <ClInclude Include="glsl_parser.h" />
+    <ClInclude Include="glsl_parser_extras.h" />
+    <ClInclude Include="glsl_symbol_table.h" />
+    <ClInclude Include="glsl_types.h" />
+    <ClInclude Include="ir.h" />
+    <ClInclude Include="ir_basic_block.h" />
+    <ClInclude Include="ir_expression_flattening.h" />
+    <ClInclude Include="ir_function_inlining.h" />
+    <ClInclude Include="ir_hierarchical_visitor.h" />
+    <ClInclude Include="ir_optimization.h" />
+    <ClInclude Include="ir_print_visitor.h" />
+    <ClInclude Include="ir_reader.h" />
+    <ClInclude Include="ir_rvalue_visitor.h" />
+    <ClInclude Include="ir_variable_refcount.h" />
+    <ClInclude Include="ir_visitor.h" />
+    <ClInclude Include="linker.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="loop_analysis.h" />
+    <ClInclude Include="program.h" />
+    <ClInclude Include="s_expression.h" />
+    <ClInclude Include="..\LunarGLASS\GlslToTopVisitor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\LunarGLASS\BottomToTgsi.cpp" />
+    <ClCompile Include="..\LunarGLASS\LunarGLASS.cpp" />
+    <ClCompile Include="..\LunarGLASS\TopToBottom.cpp" />
+    <ClCompile Include="..\mesa\program\ir_to_mesa.cpp" />
+    <ClCompile Include="..\mesa\program\prog_print.c" />
+    <ClCompile Include="ast_expr.cpp" />
+    <ClCompile Include="ast_function.cpp" />
+    <ClCompile Include="ast_to_hir.cpp" />
+    <ClCompile Include="ast_type.cpp" />
+    <ClCompile Include="builtin_function.cpp" />
+    <ClCompile Include="glcpp\glcpp-lex.c" />
+    <ClCompile Include="glcpp\glcpp-parse.c" />
+    <ClCompile Include="glsl_lexer.cpp" />
+    <ClCompile Include="glsl_parser.cpp" />
+    <ClCompile Include="glsl_parser_extras.cpp" />
+    <ClCompile Include="glsl_symbol_table.cpp" />
+    <ClCompile Include="glsl_types.cpp" />
+    <ClCompile Include="..\mesa\program\hash_table.c" />
+    <ClCompile Include="hir_field_selection.cpp" />
+    <ClCompile Include="ir.cpp" />
+    <ClCompile Include="ir_algebraic.cpp" />
+    <ClCompile Include="ir_basic_block.cpp" />
+    <ClCompile Include="ir_clone.cpp" />
+    <ClCompile Include="ir_constant_expression.cpp" />
+    <ClCompile Include="ir_constant_folding.cpp" />
+    <ClCompile Include="ir_constant_propagation.cpp" />
+    <ClCompile Include="ir_constant_variable.cpp" />
+    <ClCompile Include="ir_copy_propagation.cpp" />
+    <ClCompile Include="ir_dead_code.cpp" />
+    <ClCompile Include="ir_dead_code_local.cpp" />
+    <ClCompile Include="ir_dead_functions.cpp" />
+    <ClCompile Include="ir_div_to_mul_rcp.cpp" />
+    <ClCompile Include="ir_explog_to_explog2.cpp" />
+    <ClCompile Include="ir_expression_flattening.cpp" />
+    <ClCompile Include="ir_function.cpp" />
+    <ClCompile Include="ir_function_can_inline.cpp" />
+    <ClCompile Include="ir_function_inlining.cpp" />
+    <ClCompile Include="ir_hierarchical_visitor.cpp" />
+    <ClCompile Include="ir_hv_accept.cpp" />
+    <ClCompile Include="ir_if_simplification.cpp" />
+    <ClCompile Include="ir_if_to_cond_assign.cpp" />
+    <ClCompile Include="ir_import_prototypes.cpp" />
+    <ClCompile Include="ir_lower_jumps.cpp" />
+    <ClCompile Include="ir_mat_op_to_vec.cpp" />
+    <ClCompile Include="ir_mod_to_fract.cpp" />
+    <ClCompile Include="ir_noop_swizzle.cpp" />
+    <ClCompile Include="ir_print_visitor.cpp" />
+    <ClCompile Include="ir_reader.cpp" />
+    <ClCompile Include="ir_rvalue_visitor.cpp" />
+    <ClCompile Include="ir_set_program_inouts.cpp" />
+    <ClCompile Include="ir_structure_splitting.cpp" />
+    <ClCompile Include="ir_sub_to_add_neg.cpp" />
+    <ClCompile Include="ir_swizzle_swizzle.cpp" />
+    <ClCompile Include="ir_tree_grafting.cpp" />
+    <ClCompile Include="ir_validate.cpp" />
+    <ClCompile Include="ir_variable.cpp" />
+    <ClCompile Include="ir_variable_refcount.cpp" />
+    <ClCompile Include="ir_vec_index_to_cond_assign.cpp" />
+    <ClCompile Include="ir_vec_index_to_swizzle.cpp" />
+    <ClCompile Include="link_functions.cpp" />
+    <ClCompile Include="linker.cpp" />
+    <ClCompile Include="loop_analysis.cpp" />
+    <ClCompile Include="loop_controls.cpp" />
+    <ClCompile Include="loop_unroll.cpp" />
+    <ClCompile Include="lower_noise.cpp" />
+    <ClCompile Include="lower_variable_index_to_cond_assign.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="opt_redundant_jumps.cpp" />
+    <ClCompile Include="glcpp\pp.c" />
+    <ClCompile Include="s_expression.cpp" />
+    <ClCompile Include="..\mesa\program\symbol_table.c" />
+    <ClCompile Include="..\talloc\talloc.c" />
+    <ClCompile Include="..\LunarGLASS\GlslToTop.cpp" />
+    <ClCompile Include="..\LunarGLASS\GlslToTopVisitor.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
