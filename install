@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+
+DESCRIPTION="\
+Description: Fetch, merge, and build the components of the
+             LunarGLASS project
+"
+
+DEPENDENCIES="\
+Dependencies: bash, wget, libffi-dev, flex, bison
+"
+
+USAGE="\
+Usage: ./install [options] [fetch|merge|build|all]
+
+       Just running ./install with no arguments will fetch, then merge, then
+       build the LunarGLASS project. Note for developers: this script will
+       destory any uncommitted changes.
+
+       Options:
+         -h --help        Print out this Usage info
+
+       Commands:
+         fetch            Get the code from the Mesa and the LLVM projects
+         merge            Merge in LunarGLASS changes
+         build            Build LunarGLASS
+         all              [Default] perform a fetch, merge, and build
+"
+
+# Main functionality
+function fetch {
+    echo "Fetching ..."
+    echo "Fetching Mesa"
+    rm -rf mesa || exit 1
+    git clone git://git.freedesktop.org/git/mesa/mesa || exit 1
+    pushd mesa
+    git checkout -f mesa-7.9 || exit 1
+    popd
+    echo "Mesa fetched"
+    echo
+    echo "Fetching LLVM"
+    rm -rf LLVM
+    mkdir LLVM
+    pushd LLVM
+    wget http://llvm.org/releases/2.8/llvm-2.8.tgz || exit 1
+    tar -zxf llvm-2.8.tgz || exit 1
+    rm llvm-2.8.tgz || exit 1
+    popd
+    echo "LLVM fetched"
+    echo "Fetching done"
+    echo
+}
+
+function merge {
+    echo "Merging LunarGLASS changes ..."
+    rm -rf .svn || exit 1
+    svn checkout --force https://lunarglass.googlecode.com/svn/trunk/ . || exit 1
+    svn revert --depth=infinity . || exit 1
+    echo "Merging done"
+    echo
+}
+
+function build {
+    echo "Building ..."
+    echo "Building LLVM, this may take a while"
+    mkdir -p LLVM/llvm-2.8/build || exit 1
+    pushd LLVM/llvm-2.8/build
+    ../configure || exit 1
+    make || exit 1
+    make install DESTDIR=`pwd`/install || exit 1
+    popd
+    echo "LLVM built"
+    echo
+    echo "Building LunarGLASS"
+    pushd mesa/src/glsl
+    make -f StandAlone.makefile StandAlone || exit 1
+    install StandAlone ../../../bin/LunarGLASS || exit 1
+    install ../LunarGLASS/test/*  ../../../tests/ || exit 1
+    popd
+    echo "LunarGLASS built"
+    echo
+    echo "Building done, binary located at bin/LunarGLASS"
+    echo "Tests located in tests"
+    echo "Example run: bin/LunarGLASS tests/test.frag"
+}
+
+function all {
+    fetch
+    merge
+    build
+}
+
+function showHelp {
+    echo "$DESCRIPTION"
+    echo "$DEPENDENCIES"
+    echo "$USAGE"
+}
+
+# Command-line argument Handling
+
+# No arguments passed
+if [[ -z "$*" ]]; then all; fi;
+
+# Arguments passed
+for i in $*; do
+    case $i in
+        fetch)
+            fetch
+            ;;
+        merge)
+            merge
+            ;;
+        build)
+            build
+            ;;
+        all)
+            topInfo
+            all
+            ;;
+        -h|--h)
+            showHelp
+            exit 0
+            ;;
+        *)
+            showHelp
+            exit 1
+            ;;
+    esac
+done
+
+echo "Done"
+
