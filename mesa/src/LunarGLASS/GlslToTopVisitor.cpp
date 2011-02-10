@@ -566,11 +566,13 @@ ir_visitor_status
     lastValue = 0;
     ifNode->condition->accept(this);
     llvm::Value *condValue = lastValue;
-    //??assert (lastValue != 0);
+    assert (condValue != 0);
 
     llvm::Function *function = builder.GetInsertBlock()->getParent();
 
-    // make the blocks, but only put the then-block into the function
+    // make the blocks, but only put the then-block into the function, 
+    // the else-block and merge-block will be added later, in order, after
+    // earlier code is emitted
     llvm::BasicBlock  *ThenBB = llvm::BasicBlock::Create(context, "then", function);
     llvm::BasicBlock  *ElseBB = llvm::BasicBlock::Create(context, "else");
     llvm::BasicBlock *MergeBB = llvm::BasicBlock::Create(context, "ifmerge");
@@ -582,7 +584,6 @@ ir_visitor_status
 
     // emit the then statement
     visit_list_elements(this, &(ifNode->then_instructions));
-    llvm::Value *thenValue = lastValue;
     
     // jump to the merge block
     builder.CreateBr(MergeBB);
@@ -596,22 +597,19 @@ ir_visitor_status
 
     // emit the else statement
     visit_list_elements(this, &(ifNode->else_instructions));
-    llvm::Value *elseValue = lastValue;
 
     // jump to the merge block
     builder.CreateBr(MergeBB);
 
-    // emitting the then-block could change the current block, update
+    // emitting the else-block could change the current block, update
     ElseBB = builder.GetInsertBlock();
 
-    // add the merg block to the function
+    // add the merge block to the function
     function->getBasicBlockList().push_back(MergeBB);
     builder.SetInsertPoint(MergeBB);
-    llvm::PHINode *phiNode = builder.CreatePHI(llvm::Type::getDoubleTy(context), "iftmp");
 
-    phiNode->addIncoming(thenValue, ThenBB);
-    phiNode->addIncoming(elseValue, ElseBB);
-    lastValue = phiNode;
+    // The glsl "value" of an if-else should never be taken (share code with "?:" though?)
+    lastValue = 0;
 
     return visit_continue_with_parent;
 }

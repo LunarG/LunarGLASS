@@ -1,0 +1,260 @@
+compiling flowControl.frag...
+uniform float d ; 
+uniform vec4 bigColor , smallColor ; 
+varying float c ; 
+varying vec4 BaseColor ; 
+void  main (){
+vec4 color = BaseColor ; if ( c > d ) {
+color += bigColor ; }
+else {
+color += smallColor ; }
+gl_FragColor = color ; }
+
+
+
+(
+(declare (in ) vec4 BaseColor)
+(declare (in ) float c)
+(declare (uniform ) vec4 smallColor)
+(declare (uniform ) vec4 bigColor)
+(declare (uniform ) float d)
+(declare (in ) vec4 gl_FragCoord)
+(declare (in ) bool gl_FrontFacing)
+(declare (out ) vec4 gl_FragColor)
+(declare (out ) float gl_FragDepth)
+(declare (in ) vec4 gl_Color)
+(declare (in ) vec4 gl_SecondaryColor)
+(declare (in ) float gl_FogFragCoord)
+(declare (uniform ) mat4 gl_ModelViewMatrix)
+(declare (uniform ) mat4 gl_ProjectionMatrix)
+(declare (uniform ) mat4 gl_ModelViewProjectionMatrix)
+(declare (uniform ) mat3 gl_NormalMatrix)
+(declare (uniform ) mat4 gl_ModelViewMatrixInverse)
+(declare (uniform ) mat4 gl_ProjectionMatrixInverse)
+(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverse)
+(declare (uniform ) mat4 gl_ModelViewMatrixTranspose)
+(declare (uniform ) mat4 gl_ProjectionMatrixTranspose)
+(declare (uniform ) mat4 gl_ModelViewProjectionMatrixTranspose)
+(declare (uniform ) mat4 gl_ModelViewMatrixInverseTranspose)
+(declare (uniform ) mat4 gl_ProjectionMatrixInverseTranspose)
+(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverseTranspose)
+(declare (uniform ) float gl_NormalScale)
+(declare (uniform ) gl_LightModelParameters gl_LightModel)
+(declare () int gl_MaxLights)
+(declare () int gl_MaxClipPlanes)
+(declare () int gl_MaxTextureUnits)
+(declare () int gl_MaxTextureCoords)
+(declare () int gl_MaxVertexAttribs)
+(declare () int gl_MaxVertexUniformComponents)
+(declare () int gl_MaxVaryingFloats)
+(declare () int gl_MaxVertexTextureImageUnits)
+(declare () int gl_MaxCombinedTextureImageUnits)
+(declare () int gl_MaxTextureImageUnits)
+(declare () int gl_MaxFragmentUniformComponents)
+(declare (uniform ) (array mat4 4) gl_TextureMatrix)
+(declare (uniform ) (array mat4 4) gl_TextureMatrixInverse)
+(declare (uniform ) (array mat4 4) gl_TextureMatrixTranspose)
+(declare (uniform ) (array mat4 4) gl_TextureMatrixInverseTranspose)
+(declare (uniform ) gl_DepthRangeParameters gl_DepthRange)
+(declare (uniform ) (array vec4 8) gl_ClipPlane)
+(declare (uniform ) gl_PointParameters gl_Point)
+(declare (uniform ) gl_MaterialParameters gl_FrontMaterial)
+(declare (uniform ) gl_MaterialParameters gl_BackMaterial)
+(declare (uniform ) (array gl_LightSourceParameters 8) gl_LightSource)
+(declare (uniform ) gl_LightModelProducts gl_FrontLightModelProduct)
+(declare (uniform ) gl_LightModelProducts gl_BackLightModelProduct)
+(declare (uniform ) (array gl_LightProducts 8) gl_FrontLightProduct)
+(declare (uniform ) (array gl_LightProducts 8) gl_BackLightProduct)
+(declare (uniform ) (array vec4 2) gl_TextureEnvColor)
+(declare (uniform ) (array vec4 4) gl_EyePlaneS)
+(declare (uniform ) (array vec4 4) gl_EyePlaneT)
+(declare (uniform ) (array vec4 4) gl_EyePlaneR)
+(declare (uniform ) (array vec4 4) gl_EyePlaneQ)
+(declare (uniform ) (array vec4 4) gl_ObjectPlaneS)
+(declare (uniform ) (array vec4 4) gl_ObjectPlaneT)
+(declare (uniform ) (array vec4 4) gl_ObjectPlaneR)
+(declare (uniform ) (array vec4 4) gl_ObjectPlaneQ)
+(declare (uniform ) gl_FogParameters gl_Fog)
+(declare (in ) (array vec4 0) gl_TexCoord)
+(declare () int gl_MaxDrawBuffers)
+(declare (out ) (array vec4 2) gl_FragData)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (declare () vec4 color)
+      (declare (temporary ) vec4 assignment_tmp)
+      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref BaseColor) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
+      (if (expression bool > (var_ref c) (var_ref d) ) (
+        (declare (temporary ) vec4 assignment_tmp)
+        (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref color) (var_ref bigColor) ) ) 
+        (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
+      )
+      (
+        ; ModuleID = 'Top'
+
+@d = external addrspace(1) constant float
+@bigColor = external addrspace(1) constant <4 x float>
+@smallColor = external addrspace(1) constant <4 x float>
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define void @main() {
+entry:
+  %assignment_tmp5 = alloca <4 x float>
+  %assignment_tmp3 = alloca <4 x float>
+  %assignment_tmp2 = alloca <4 x float>
+  %color = alloca <4 x float>
+  %assignment_tmp = alloca <4 x float>
+  %getInterpolant = call <4 x float> @llvm.gla.getInterpolant.v4f32(i32 0)
+  store <4 x float> %getInterpolant, <4 x float>* %assignment_tmp
+  %0 = load <4 x float>* %assignment_tmp
+  store <4 x float> %0, <4 x float>* %color
+  %getInterpolant1 = call float @llvm.gla.getInterpolant.f32(i32 0)
+  %1 = load float addrspace(1)* @d
+  %fCmpGTTmp = fcmp ogt float %getInterpolant1, %1
+  br i1 %fCmpGTTmp, label %then, label %else
+
+then:                                             ; preds = %entry
+  %2 = load <4 x float>* %color
+  %3 = load <4 x float> addrspace(1)* @bigColor
+  %fAddTmp = fadd <4 x float> %2, %3
+  store <4 x float> %fAddTmp, <4 x float>* %assignment_tmp2
+  %4 = load <4 x float>* %assignment_tmp2
+  store <4 x float> %4, <4 x float>* %color
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %5 = load <4 x float>* %color
+  %6 = load <4 x float> addrspace(1)* @smallColor
+  %fAddTmp4 = fadd <4 x float> %5, %6
+  store <4 x float> %fAddTmp4, <4 x float>* %assignment_tmp3
+  %7 = load <4 x float>* %assignment_tmp3
+  store <4 x float> %7, <4 x float>* %color
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %8 = load <4 x float>* %color
+  store <4 x float> %8, <4 x float>* %assignment_tmp5
+  %9 = load <4 x float>* %assignment_tmp5
+  store <4 x float> %9, <4 x float>* @gl_FragColor
+  %10 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %10)
+  ret void
+}
+
+declare <4 x float> @llvm.gla.getInterpolant.v4f32(i32) nounwind readonly
+
+declare float @llvm.gla.getInterpolant.f32(i32) nounwind readonly
+
+declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
+; ModuleID = 'Top'
+
+@d = external addrspace(1) constant float
+@bigColor = external addrspace(1) constant <4 x float>
+@smallColor = external addrspace(1) constant <4 x float>
+
+define void @main() {
+entry:
+  %getInterpolant = call <4 x float> @llvm.gla.getInterpolant.v4f32(i32 0)
+  %getInterpolant1 = call float @llvm.gla.getInterpolant.f32(i32 0)
+  %0 = load float addrspace(1)* @d
+  %fCmpGTTmp = fcmp ogt float %getInterpolant1, %0
+  br i1 %fCmpGTTmp, label %then, label %else
+
+then:                                             ; preds = %entry
+  %1 = load <4 x float> addrspace(1)* @bigColor
+  %fAddTmp = fadd <4 x float> %getInterpolant, %1
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %2 = load <4 x float> addrspace(1)* @smallColor
+  %fAddTmp4 = fadd <4 x float> %getInterpolant, %2
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %color.0 = phi <4 x float> [ %fAddTmp, %then ], [ %fAddTmp4, %else ]
+  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %color.0)
+  ret void
+}
+
+declare <4 x float> @llvm.gla.getInterpolant.v4f32(i32) nounwind readonly
+
+declare float @llvm.gla.getInterpolant.f32(i32) nounwind readonly
+
+declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
+(declare (temporary ) vec4 assignment_tmp)
+        (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref color) (var_ref smallColor) ) ) 
+        (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
+      ))
+
+      (declare (temporary ) vec4 assignment_tmp)
+      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref color) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref assignment_tmp) ) 
+    ))
+
+)
+
+
+)
+===========================================
+Starting translation from glsl2 to Top IR
+Finishing translation from glsl2 to Top IR
+
+===========================================
+Starting translation from Top IR to Bottom IR
+
+First middle-end optimization pass
+Finishing translation from Top IR to Bottom IR
+
+===========================================
+Starting translation from Bottom IR to TGSI
+
+UNSUPPORTED opcode 43
+UNSUPPORTED opcode 2
+UNSUPPORTED opcode 2
+UNSUPPORTED opcode 2
+UNSUPPORTED opcode 44
+
+Mesa program before mesa optimizations
+  0: MOV TEMP[1], INPUT[0];
+  1: MOV TEMP[2].x, INPUT[0].xxxx;
+  2: MOV TEMP[3].x, UNIFORM[1].xxxx;
+  3: NOP;
+  4: NOP;
+  5: MOV TEMP[6], UNIFORM[2];
+  6: ADD TEMP[7], TEMP[1], TEMP[6];
+  7: NOP;
+  8: MOV TEMP[9], UNIFORM[3];
+  9: ADD TEMP[10], TEMP[1], TEMP[9];
+ 10: NOP;
+ 11: NOP;
+ 12: MOV OUTPUT[0], TEMP[12];
+ 13: END
+
+Mesa program after mesa optimizations
+  0: NOP;
+  1: NOP;
+  2: NOP;
+  3: NOP;
+  4: NOP;
+  5: END
+
+Finishing translation from Bottom IR to TGSI
+
+===========================================
+
+Optimized Mesa IR without GLA for linked fragment program 0:
+# Fragment Program/Shader 0
+  0: MOV TEMP[0], INPUT[-1];
+  1: SGT TEMP[1].x, INPUT[-1].xxxx, UNIFORM[2].xxxx;
+  2: IF TEMP[1].xxxx;  # (if false, goto 5);
+  3:    ADD TEMP[1], INPUT[-1], UNIFORM[1];
+  4:    MOV TEMP[0], TEMP[1];
+  5: ELSE; # (goto 8)
+  6:    ADD TEMP[1], TEMP[0], UNIFORM[0];
+  7:    MOV TEMP[0], TEMP[1];
+  8: ENDIF;
+  9: MOV OUTPUT[1], TEMP[0];
+ 10: END

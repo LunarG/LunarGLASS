@@ -197,7 +197,6 @@ public:
             break;
 
         case llvm::Instruction::Store:
-        default:
             if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(llvmInstruction->getOperand(1)->getType())) {
                 mesaOp = OPCODE_MOV;
                 destFromArg = 1;
@@ -205,6 +204,9 @@ public:
                 printf("store instruction is not through pointer\n");
             }
             break;
+
+        default:
+            printf("UNSUPPORTED opcode %d\n", llvmInstruction->getOpcode());
         }
 
         //??mesaInstruction->CondUpdate = inst->cond_update;
