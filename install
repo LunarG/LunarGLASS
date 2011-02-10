@@ -52,7 +52,7 @@ function fetch {
 
 function merge {
     echo "Merging LunarGLASS changes ..."
-    rm -rf .svn || exit 1
+    rm -rf .svn bin tests || exit 1
     svn checkout --force https://lunarglass.googlecode.com/svn/trunk/ . || exit 1
     svn revert --depth=infinity . || exit 1
     echo "Merging done"
