@@ -1,5 +1,6 @@
 uniform float d;
 uniform vec4 bigColor, smallColor;
+uniform vec4 otherColor;
 
 varying float c;
 varying vec4 BaseColor;
@@ -7,12 +8,30 @@ varying vec4 BaseColor;
 void main()
 {
     vec4 color = BaseColor;
+	vec4 color2;
 
-    if (c > d) {
-		color += bigColor;
-	} else {
+	color2 = otherColor;
+/*
+	if (c > d*d) {
+		if (c > d) {
+			color += bigColor;
+			color2 = smallColor;
+		} else {
+			color += smallColor;
+		}
+	} else {	
+		if (c > d) {
+			color += bigColor;
+			color2 = smallColor;
+		} else {
+			color += smallColor;
+		}
+    }
+*/
+    if (c > d)
+	    color += bigColor;
+	else
 	    color += smallColor;
-	}
 
-    gl_FragColor = color;
+    gl_FragColor = color * color2;
 }

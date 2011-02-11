@@ -1,20 +1,18 @@
 compiling flowControl.frag...
 uniform float d ; 
 uniform vec4 bigColor , smallColor ; 
+uniform vec4 otherColor ; 
 varying float c ; 
 varying vec4 BaseColor ; 
 void  main (){
-vec4 color = BaseColor ; if ( c > d ) {
-color += bigColor ; }
-else {
-color += smallColor ; }
-gl_FragColor = color ; }
+vec4 color = BaseColor ; vec4 color2 ; color2 = otherColor ; if ( c > d ) color += bigColor ; else color += smallColor ; gl_FragColor = color * color2 ; }
 
 
 
 (
 (declare (in ) vec4 BaseColor)
 (declare (in ) float c)
+(declare (uniform ) vec4 otherColor)
 (declare (uniform ) vec4 smallColor)
 (declare (uniform ) vec4 bigColor)
 (declare (uniform ) float d)
@@ -83,18 +81,16 @@ gl_FragColor = color ; }
     (parameters
     )
     (
+      (declare () vec4 color2)
       (declare () vec4 color)
       (declare (temporary ) vec4 assignment_tmp)
       (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref BaseColor) ) 
       (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
-      (if (expression bool > (var_ref c) (var_ref d) ) (
-        (declare (temporary ) vec4 assignment_tmp)
-        (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref color) (var_ref bigColor) ) ) 
-        (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
-      )
-      (
-        ; ModuleID = 'Top'
+      (declare (temporary ) vec4 assignment_tmp)
+      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref otherColor) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref color2)  (var_ref assignme; ModuleID = 'Top'
 
+@otherColor = external addrspace(1) constant <4 x float>
 @d = external addrspace(1) constant float
 @bigColor = external addrspace(1) constant <4 x float>
 @smallColor = external addrspace(1) constant <4 x float>
@@ -102,45 +98,53 @@ gl_FragColor = color ; }
 
 define void @main() {
 entry:
-  %assignment_tmp5 = alloca <4 x float>
+  %assignment_tmp6 = alloca <4 x float>
+  %assignment_tmp4 = alloca <4 x float>
   %assignment_tmp3 = alloca <4 x float>
-  %assignment_tmp2 = alloca <4 x float>
+  %color2 = alloca <4 x float>
+  %assignment_tmp1 = alloca <4 x float>
   %color = alloca <4 x float>
   %assignment_tmp = alloca <4 x float>
   %getInterpolant = call <4 x float> @llvm.gla.getInterpolant.v4f32(i32 0)
   store <4 x float> %getInterpolant, <4 x float>* %assignment_tmp
   %0 = load <4 x float>* %assignment_tmp
   store <4 x float> %0, <4 x float>* %color
-  %getInterpolant1 = call float @llvm.gla.getInterpolant.f32(i32 0)
-  %1 = load float addrspace(1)* @d
-  %fCmpGTTmp = fcmp ogt float %getInterpolant1, %1
+  %1 = load <4 x float> addrspace(1)* @otherColor
+  store <4 x float> %1, <4 x float>* %assignment_tmp1
+  %2 = load <4 x float>* %assignment_tmp1
+  store <4 x float> %2, <4 x float>* %color2
+  %getInterpolant2 = call float @llvm.gla.getInterpolant.f32(i32 0)
+  %3 = load float addrspace(1)* @d
+  %fCmpGTTmp = fcmp ogt float %getInterpolant2, %3
   br i1 %fCmpGTTmp, label %then, label %else
 
 then:                                             ; preds = %entry
-  %2 = load <4 x float>* %color
-  %3 = load <4 x float> addrspace(1)* @bigColor
-  %fAddTmp = fadd <4 x float> %2, %3
-  store <4 x float> %fAddTmp, <4 x float>* %assignment_tmp2
-  %4 = load <4 x float>* %assignment_tmp2
-  store <4 x float> %4, <4 x float>* %color
+  %4 = load <4 x float>* %color
+  %5 = load <4 x float> addrspace(1)* @bigColor
+  %fAddTmp = fadd <4 x float> %4, %5
+  store <4 x float> %fAddTmp, <4 x float>* %assignment_tmp3
+  %6 = load <4 x float>* %assignment_tmp3
+  store <4 x float> %6, <4 x float>* %color
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %5 = load <4 x float>* %color
-  %6 = load <4 x float> addrspace(1)* @smallColor
-  %fAddTmp4 = fadd <4 x float> %5, %6
-  store <4 x float> %fAddTmp4, <4 x float>* %assignment_tmp3
-  %7 = load <4 x float>* %assignment_tmp3
-  store <4 x float> %7, <4 x float>* %color
+  %7 = load <4 x float>* %color
+  %8 = load <4 x float> addrspace(1)* @smallColor
+  %fAddTmp5 = fadd <4 x float> %7, %8
+  store <4 x float> %fAddTmp5, <4 x float>* %assignment_tmp4
+  %9 = load <4 x float>* %assignment_tmp4
+  store <4 x float> %9, <4 x float>* %color
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %8 = load <4 x float>* %color
-  store <4 x float> %8, <4 x float>* %assignment_tmp5
-  %9 = load <4 x float>* %assignment_tmp5
-  store <4 x float> %9, <4 x float>* @gl_FragColor
-  %10 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %10)
+  %10 = load <4 x float>* %color
+  %11 = load <4 x float>* %color2
+  %fMulTmp = fmul <4 x float> %10, %11
+  store <4 x float> %fMulTmp, <4 x float>* %assignment_tmp6
+  %12 = load <4 x float>* %assignment_tmp6
+  store <4 x float> %12, <4 x float>* @gl_FragColor
+  %13 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %13)
   ret void
 }
 
@@ -151,6 +155,7 @@ declare float @llvm.gla.getInterpolant.f32(i32) nounwind readonly
 declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
+@otherColor = external addrspace(1) constant <4 x float>
 @d = external addrspace(1) constant float
 @bigColor = external addrspace(1) constant <4 x float>
 @smallColor = external addrspace(1) constant <4 x float>
@@ -158,24 +163,26 @@ declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
 define void @main() {
 entry:
   %getInterpolant = call <4 x float> @llvm.gla.getInterpolant.v4f32(i32 0)
-  %getInterpolant1 = call float @llvm.gla.getInterpolant.f32(i32 0)
-  %0 = load float addrspace(1)* @d
-  %fCmpGTTmp = fcmp ogt float %getInterpolant1, %0
+  %0 = load <4 x float> addrspace(1)* @otherColor
+  %getInterpolant2 = call float @llvm.gla.getInterpolant.f32(i32 0)
+  %1 = load float addrspace(1)* @d
+  %fCmpGTTmp = fcmp ogt float %getInterpolant2, %1
   br i1 %fCmpGTTmp, label %then, label %else
 
 then:                                             ; preds = %entry
-  %1 = load <4 x float> addrspace(1)* @bigColor
-  %fAddTmp = fadd <4 x float> %getInterpolant, %1
+  %2 = load <4 x float> addrspace(1)* @bigColor
+  %fAddTmp = fadd <4 x float> %getInterpolant, %2
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %2 = load <4 x float> addrspace(1)* @smallColor
-  %fAddTmp4 = fadd <4 x float> %getInterpolant, %2
+  %3 = load <4 x float> addrspace(1)* @smallColor
+  %fAddTmp5 = fadd <4 x float> %getInterpolant, %3
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %color.0 = phi <4 x float> [ %fAddTmp, %then ], [ %fAddTmp4, %else ]
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %color.0)
+  %color.0 = phi <4 x float> [ %fAddTmp, %then ], [ %fAddTmp5, %else ]
+  %fMulTmp = fmul <4 x float> %color.0, %0
+  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %fMulTmp)
   ret void
 }
 
@@ -184,13 +191,20 @@ declare <4 x float> @llvm.gla.getInterpolant.v4f32(i32) nounwind readonly
 declare float @llvm.gla.getInterpolant.f32(i32) nounwind readonly
 
 declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
-(declare (temporary ) vec4 assignment_tmp)
+nt_tmp) ) 
+      (if (expression bool > (var_ref c) (var_ref d) ) (
+        (declare (temporary ) vec4 assignment_tmp)
+        (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref color) (var_ref bigColor) ) ) 
+        (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
+      )
+      (
+        (declare (temporary ) vec4 assignment_tmp)
         (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref color) (var_ref smallColor) ) ) 
         (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
       ))
 
       (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref color) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 * (var_ref color) (var_ref color2) ) ) 
       (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref assignment_tmp) ) 
     ))
 
@@ -212,34 +226,39 @@ Finishing translation from Top IR to Bottom IR
 Starting translation from Bottom IR to TGSI
 
 UNSUPPORTED opcode 43
-UNSUPPORTED opcode 2
-UNSUPPORTED opcode 2
-UNSUPPORTED opcode 2
-UNSUPPORTED opcode 44
 
 Mesa program before mesa optimizations
   0: MOV TEMP[1], INPUT[0];
-  1: MOV TEMP[2].x, INPUT[0].xxxx;
-  2: MOV TEMP[3].x, UNIFORM[1].xxxx;
-  3: NOP;
+  1: MOV TEMP[2], UNIFORM[1];
+  2: MOV TEMP[3].x, INPUT[0].xxxx;
+  3: MOV TEMP[4].x, UNIFORM[2].xxxx;
   4: NOP;
-  5: MOV TEMP[6], UNIFORM[2];
-  6: ADD TEMP[7], TEMP[1], TEMP[6];
-  7: NOP;
-  8: MOV TEMP[9], UNIFORM[3];
-  9: ADD TEMP[10], TEMP[1], TEMP[9];
- 10: NOP;
- 11: NOP;
- 12: MOV OUTPUT[0], TEMP[12];
- 13: END
+  5: IF TEMP[0].xxxx;  # (if false, goto 0);
+  6:    MOV TEMP[6], UNIFORM[3];
+  7:    ADD TEMP[7], TEMP[1], TEMP[6];
+  8:    MOV TEMP[8], TEMP[7];
+  9: ELSE; # (goto 0)
+ 10:    MOV TEMP[9], UNIFORM[4];
+ 11:    ADD TEMP[10], TEMP[1], TEMP[9];
+ 12:    MOV TEMP[8], TEMP[10];
+ 13: ENDIF;
+ 14: MUL TEMP[11], TEMP[8], TEMP[2];
+ 15: MOV OUTPUT[0], TEMP[11];
+ 16: END
 
 Mesa program after mesa optimizations
-  0: NOP;
-  1: NOP;
+  0: MOV TEMP[0], INPUT[0];
+  1: MOV TEMP[2], UNIFORM[1];
   2: NOP;
-  3: NOP;
-  4: NOP;
-  5: END
+  3: IF TEMP[1].xxxx;  # (if false, goto 0);
+  4:    ADD TEMP[3], TEMP[0], UNIFORM[3];
+  5:    MOV TEMP[4], TEMP[3];
+  6: ELSE; # (goto 0)
+  7:    ADD TEMP[3], TEMP[0], UNIFORM[4];
+  8:    MOV TEMP[4], TEMP[3];
+  9: ENDIF;
+ 10: MUL OUTPUT[0], TEMP[4], TEMP[2];
+ 11: END
 
 Finishing translation from Bottom IR to TGSI
 
@@ -248,13 +267,13 @@ Finishing translation from Bottom IR to TGSI
 Optimized Mesa IR without GLA for linked fragment program 0:
 # Fragment Program/Shader 0
   0: MOV TEMP[0], INPUT[-1];
-  1: SGT TEMP[1].x, INPUT[-1].xxxx, UNIFORM[2].xxxx;
+  1: SGT TEMP[1].x, INPUT[-1].xxxx, UNIFORM[3].xxxx;
   2: IF TEMP[1].xxxx;  # (if false, goto 5);
-  3:    ADD TEMP[1], INPUT[-1], UNIFORM[1];
+  3:    ADD TEMP[1], INPUT[-1], UNIFORM[2];
   4:    MOV TEMP[0], TEMP[1];
   5: ELSE; # (goto 8)
-  6:    ADD TEMP[1], TEMP[0], UNIFORM[0];
+  6:    ADD TEMP[1], TEMP[0], UNIFORM[1];
   7:    MOV TEMP[0], TEMP[1];
   8: ENDIF;
-  9: MOV OUTPUT[1], TEMP[0];
+  9: MUL OUTPUT[1], TEMP[0], UNIFORM[0];
  10: END
