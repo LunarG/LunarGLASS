@@ -2,17 +2,17 @@
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
-// 
+//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; version 2 of the
 // License.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -24,7 +24,7 @@
 //
 // Translate bottom IR to TGSI by doing a manual traversal of the LLVM
 // while building up the mesa IR.
-// 
+//
 // Note:  modeling after LLVM/llvm-2.8/lib/VMCore/AsmWriter.cpp
 //        and ir_to_mesa_visitor in mesa/src/mesa/program/ir_to_mesa.cpp
 //
@@ -58,17 +58,17 @@ extern "C" {
 #include "program/prog_optimize.h"
 }
 
-class TgsiBackEnd : public gla::BackEnd {    
+class TgsiBackEnd : public gla::BackEnd {
 public:
     TgsiBackEnd() {}
     virtual ~TgsiBackEnd() {};
 
-    virtual void getRegisterForm(int& outerSoA, int& innerAoS) 
-    { 
+    virtual void getRegisterForm(int& outerSoA, int& innerAoS)
+    {
         gla::BackEnd::getRegisterForm(outerSoA, innerAoS);
     }
 
-    virtual void getControlFlowMode(gla::EFlowControlMode& flowControlMode, 
+    virtual void getControlFlowMode(gla::EFlowControlMode& flowControlMode,
         bool& breakOp, bool& continueOp,
         bool& earlyReturnOp, bool& discardOp)
     {
@@ -83,7 +83,7 @@ gla::BackEnd* gla::getBackEnd()
 }
 
 gl_program* LunarGLASSNewMesaProgram(GLcontext *ctx, GLenum target, GLuint id)
-{    
+{
     // gl_fragment_program emulates inheritance by having "base" be
     // its first member
 
@@ -95,7 +95,7 @@ gl_program* LunarGLASSNewMesaProgram(GLcontext *ctx, GLenum target, GLuint id)
     return prog;
 }
 
-namespace gla {    
+namespace gla {
     class BottomTranslator;
 
     enum EControlFlow {
@@ -108,7 +108,7 @@ class gla::BottomTranslator {
 public:
     BottomTranslator(struct gl_program *p, int m) : mesaProgram(p), maxMesaInstructions(m)
     {
-        mesaInstructions = (struct prog_instruction *)calloc(maxMesaInstructions, sizeof(*mesaInstructions));        
+        mesaInstructions = (struct prog_instruction *)calloc(maxMesaInstructions, sizeof(*mesaInstructions));
         mesaInstruction = mesaInstructions;
         for (int file = 0; file < PROGRAM_FILE_MAX; ++file)
             lastIndex[file] = 0;
@@ -120,8 +120,8 @@ public:
     }
 
     int getNumMesaInstructions() const
-    { 
-        return mesaInstruction - mesaInstructions; 
+    {
+        return mesaInstruction - mesaInstructions;
     }
 
     prog_instruction* getMesaInstructions() const
@@ -141,12 +141,13 @@ public:
         operandFrom[1] = 1;
         operandFrom[2] = 2;
         operandFrom[3] = 3;
-                
+
         int temp; // to hold an intermediate (temporary) register
         switch (llvmInstruction->getOpcode()) {
         case llvm::Instruction::FAdd:           mesaOp = OPCODE_ADD;  break;
         case llvm::Instruction::FSub:           mesaOp = OPCODE_SUB;  break;
         case llvm::Instruction::FMul:           mesaOp = OPCODE_MUL;  break;
+
 
         // if it's main, we want an END, if it's a function, we want a RET
         // ?? handle functions that aren't main
@@ -178,7 +179,7 @@ public:
 
             return;
 
-        case llvm::Instruction::Call: // includes intrinsics...            
+        case llvm::Instruction::Call: // includes intrinsics...
             if (const llvm::IntrinsicInst* i = llvm::dyn_cast<llvm::IntrinsicInst>(llvmInstruction)) {
                 mapGlaIntrinsicToMesa(i);
                 if (mesaOp == OPCODE_NOP)
@@ -204,7 +205,7 @@ public:
             if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(llvmInstruction->getOperand(1)->getType())) {
                 mesaOp = OPCODE_MOV;
                 destFromArg = 1;
-            } else {                
+            } else {
                 printf("store instruction is not through pointer\n");
             }
             break;
@@ -216,12 +217,29 @@ public:
             // this got turned into copies in predecessors
             return;
 
+        // Comparison
+        case llvm::Instruction::FCmp:
+            if (const llvm::FCmpInst* fcmp = llvm::dyn_cast<llvm::FCmpInst>(llvmInstruction)) {
+                switch (fcmp->getPredicate()) {
+                case llvm::FCmpInst::FCMP_OGT:
+                    mesaOp = OPCODE_SGT;
+                default:
+                    printf("Undefined (for now) comparison operator used");
+                }
+            }
+            else {
+                printf("FCmp instruction found that cannot dyncast to FCmpInst");
+            }
+
+
+
+
         default:
             printf("UNSUPPORTED opcode %d\n", llvmInstruction->getOpcode());
         }
 
         //??mesaInstruction->CondUpdate = inst->cond_update;
-            
+
         // op code
 
         mesaInstruction->Opcode = mesaOp;
@@ -235,7 +253,7 @@ public:
         // operands
         for (int opNum = 0; opNum < _mesa_num_inst_src_regs(mesaOp); ++opNum) {
             mapGlaOperandToMesa(llvmInstruction->getOperand(operandFrom[opNum]), &mesaInstruction->SrcReg[opNum]);
-        }                    
+        }
 
         //switch (mesaInstruction->Opcode) {
         //case OPCODE_BGNSUB:
@@ -257,7 +275,7 @@ public:
 
         incrementMesaInstruction();
     }
-    
+
     //
     // Handle the subcase of an LLVM instruction being an intrinsic call.
     //
@@ -284,7 +302,7 @@ public:
             mesaInstruction->SrcReg[0].Swizzle = mapGlaComponentCountToMesaSwizzle(llvmInstruction);
             incrementMesaInstruction();
             mesaOp = OPCODE_NOP;
-            return;            
+            return;
         }
 
         // Handle texturing
@@ -301,7 +319,7 @@ public:
             const int samplerLoc = 1;
             const int flagLoc    = 2;
             const int coordLoc   = 3;
-            const int ddxLoc     = 6; 
+            const int ddxLoc     = 6;
             const int ddyLoc     = 7;
 
             operandFrom[0] = coordLoc;
@@ -331,7 +349,7 @@ public:
             mesaInstruction->SrcReg[0].Swizzle = mapGlaSwizzleToMesa(glaSwizzle);
 
             incrementMesaInstruction();
-            mesaOp = OPCODE_NOP; 
+            mesaOp = OPCODE_NOP;
             return;
         }
 
@@ -380,7 +398,7 @@ public:
             operandFrom[0] = 2;
             operandFrom[1] = 0;
             operandFrom[2] = 1;
-            mesaOp = OPCODE_LRP;    
+            mesaOp = OPCODE_LRP;
             break;
 
         //case llvm::Intrinsic::LunarGLASS_XXX:    mesaOp = OPCODE_MAD;    break;
@@ -440,7 +458,7 @@ public:
         assert(mesaOp != OPCODE_NOP);
     }
 
-    
+
 protected:
     void incrementMesaInstruction()
     {
@@ -483,7 +501,7 @@ protected:
             case gla::GlobalAddressSpace:
                 return PROGRAM_TEMPORARY;
             default:
-                assert(!"Unknown gla address space");                
+                assert(!"Unknown gla address space");
             }
         }
 
@@ -499,7 +517,7 @@ protected:
     void mapGlaOperandToMesa(const llvm::Value* value, prog_src_register *mesaRegister)
     {
         mesaRegister->File = mapGlaAddressSpaceToMesa(value);
-        mesaRegister->Index = getValueIndex(mesaRegister->File, value);        
+        mesaRegister->Index = getValueIndex(mesaRegister->File, value);
         mesaRegister->Swizzle = mapGlaComponentCountToMesaSwizzle(value);
         mesaRegister->RelAddr = 0;
         mesaRegister->Abs = 0;
@@ -511,13 +529,13 @@ protected:
 
     void mapGlaDestinationToMesa(const llvm::Value* value, prog_dst_register *mesaRegister)
     {
-        mesaRegister->File = mapGlaAddressSpaceToMesa(value);    
+        mesaRegister->File = mapGlaAddressSpaceToMesa(value);
         mesaRegister->Index = getValueIndex(mesaRegister->File, value);
         mesaRegister->CondMask = COND_TR;
         mesaRegister->RelAddr = 0;
         mesaRegister->CondSwizzle = SWIZZLE_XYZW;
         mesaRegister->CondSrc = 0;
-        
+
         mesaRegister->WriteMask = mapGlaComponentCountToMesaWriteMask(value);
     }
 
@@ -542,7 +560,7 @@ protected:
         case 4:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_W);
         default:  assert(!"Vector too large");
         }
-        
+
         return SWIZZLE_XYZW;
     }
 
@@ -628,14 +646,14 @@ protected:
     }
 
     int getGlaComponentCount(const llvm::Value* value)
-    {        
+    {
         const llvm::Type* type = value->getType();
 
         return getGlaComponentCount(type);
     }
 
     int getGlaComponentCount(const llvm::Type* type)
-    {        
+    {
         const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
 
         if (vectorType)
@@ -678,17 +696,17 @@ protected:
 
     void addFlowControl(const llvm::Instruction* llvmInstruction)
     {
-        // Translate from LLVM CFG style to structured style.  This is done 
+        // Translate from LLVM CFG style to structured style.  This is done
         // using a stack to keep track of what is pending.
 
         // Also, translate from SSA form to non-SSA form (remove phi functions).
-        // This is done by looking ahead for phi funtions and adding copies in 
+        // This is done by looking ahead for phi funtions and adding copies in
         // the phi-predecessor blocks.
 
         // Currently, this is done in a fragile way, assuming no loops are
         // present, and that LLVM branches must be representing if-then-else
         // constructs.
-        
+
         switch (llvmInstruction->getNumOperands()) {
         case 1:
             // Assume we are jumping to what the top of the flow-control stack says
@@ -720,7 +738,7 @@ protected:
         default:
             printf ("UNSUPPORTED llvm flow control number of operands\n");
         }
-        
+
         mesaInstruction->Opcode = mesaOp;
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
@@ -752,7 +770,7 @@ protected:
     struct gl_program *mesaProgram;
     struct prog_instruction *mesaInstructions;
     struct prog_instruction *mesaInstruction;
-    int maxMesaInstructions; 
+    int maxMesaInstructions;
 
     // this block used only temporarily to map operands/destinations between IRs
     prog_opcode mesaOp;
@@ -773,17 +791,17 @@ void gla::PrivateManager::translateBottomToTgsi()
            "Starting translation from Bottom IR to TGSI\n\n");
 
     // Initial creation of target.
-    
-    // In the real driver, this is is done through a call through the function 
-    // pointer ctx->Driver.NewProgram(...), so directly call a funtion here 
+
+    // In the real driver, this is is done through a call through the function
+    // pointer ctx->Driver.NewProgram(...), so directly call a funtion here
     // that does the same thing, and could later be plugged into that pointer.
-        
+
     GLcontext *ctx = 0;
     GLenum target = 0;  //?? need to track original stage through LLVM
     GLuint id = 0;
     struct gl_program *mesaProgram = LunarGLASSNewMesaProgram(0, target, id);
     gla::BottomTranslator translator(mesaProgram, 500);  //?? have to know this number ahead of time, need to refine this
-    
+
     llvm::Module::const_iterator function, lastFunction;
     for (function = module->begin(), lastFunction = module->end(); function != lastFunction; ++function) {
         if (function->isDeclaration()) {
@@ -806,7 +824,7 @@ void gla::PrivateManager::translateBottomToTgsi()
 
                     //?? what are compare llvmInstruction predicates
                     // if (const CmpInst *CI = dyn_cast<CmpInst>(&llvmInstruction))
-                    
+
                     translator.add(llvmInstruction);
                 }
             }
