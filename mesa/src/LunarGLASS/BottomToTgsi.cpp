@@ -223,16 +223,22 @@ public:
                 switch (fcmp->getPredicate()) {
                 case llvm::FCmpInst::FCMP_OGT:
                     mesaOp = OPCODE_SGT;
+                    break;
                 case llvm::FCmpInst::FCMP_OEQ:
                     mesaOp = OPCODE_SEQ;
+                    break;
                 case llvm::FCmpInst::FCMP_OGE:
                     mesaOp = OPCODE_SGE;
+                    break;
                 case llvm::FCmpInst::FCMP_OLT:
                     mesaOp = OPCODE_SLT;
+                    break;
                 case llvm::FCmpInst::FCMP_OLE:
                     mesaOp = OPCODE_SLE;
+                    break;
                 case llvm::FCmpInst::FCMP_ONE:
                     mesaOp = OPCODE_SNE;
+                    break;
                 default:
                     printf("Undefined (for now) comparison operator used");
                 }
