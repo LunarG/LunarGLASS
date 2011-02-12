@@ -212,7 +212,9 @@ public:
 
         case llvm::Instruction::Br:
             addFlowControl(llvmInstruction);
-            return;
+            if (mesaOp == OPCODE_NOP)
+                return;
+            break;
         case llvm::Instruction::PHI:
             // this got turned into copies in predecessors
             return;
@@ -722,6 +724,7 @@ protected:
         // Currently, this is done in a fragile way, assuming no loops are
         // present, and that LLVM branches must be representing if-then-else
         // constructs.
+        mesaOp = OPCODE_NOP;
 
         switch (llvmInstruction->getNumOperands()) {
         case 1:
@@ -730,11 +733,13 @@ protected:
             switch (flowControl.back()) {
             case EFCEndIf:
                 flowControl.pop_back();
-                mesaOp = OPCODE_ENDIF;
+                mesaInstruction->Opcode = OPCODE_ENDIF;
+                incrementMesaInstruction();                
                 break;
             case EFCElse:
                 flowControl.pop_back();
-                mesaOp = OPCODE_ELSE;
+                mesaInstruction->Opcode = OPCODE_ELSE;
+                incrementMesaInstruction();
                 break;
             default:
                 printf ("UNSUPPORTED flow control stack\n");
@@ -754,10 +759,6 @@ protected:
         default:
             printf ("UNSUPPORTED llvm flow control number of operands\n");
         }
-
-        mesaInstruction->Opcode = mesaOp;
-        incrementMesaInstruction();
-        mesaOp = OPCODE_NOP;
     }
 
     void addPhiCopies(const llvm::Instruction* llvmInstruction)
@@ -774,9 +775,9 @@ protected:
             if (phiNode) {
                 // find the operand whose predecessor is us
                 // each phi operand takes up two normal operands
-                int operand = 2 * phiNode->getBasicBlockIndex(llvmInstruction->getParent());
+                int predIndex = phiNode->getBasicBlockIndex(llvmInstruction->getParent());
                 mesaInstruction->Opcode = OPCODE_MOV;
-                mapGlaOperandToMesa(phiNode->getOperand(operand), &mesaInstruction->SrcReg[0]);
+                mapGlaOperandToMesa(phiNode->getIncomingValue(predIndex), &mesaInstruction->SrcReg[0]);
                 mapGlaDestinationToMesa(phiNode, &mesaInstruction->DstReg);
                 incrementMesaInstruction();
             }

@@ -232,25 +232,25 @@ Mesa program before mesa optimizations
   1: MOV TEMP[2], UNIFORM[1];
   2: MOV TEMP[3].x, INPUT[0].xxxx;
   3: MOV TEMP[4].x, UNIFORM[2].xxxx;
-  4: NOP;
-  5: IF TEMP[0].xxxx;  # (if false, goto 0);
-  6:    MOV TEMP[6], UNIFORM[3];
-  7:    ADD TEMP[7], TEMP[1], TEMP[6];
-  8:    MOV TEMP[8], TEMP[7];
+  4: SGT TEMP[5].x, TEMP[3].xxxx, TEMP[4].xxxx;
+  5: IF TEMP[5].xxxx;  # (if false, goto 0);
+  6:    MOV TEMP[7], UNIFORM[3];
+  7:    ADD TEMP[8], TEMP[1], TEMP[7];
+  8:    MOV TEMP[9], TEMP[8];
   9: ELSE; # (goto 0)
- 10:    MOV TEMP[9], UNIFORM[4];
- 11:    ADD TEMP[10], TEMP[1], TEMP[9];
- 12:    MOV TEMP[8], TEMP[10];
+ 10:    MOV TEMP[10], UNIFORM[4];
+ 11:    ADD TEMP[11], TEMP[1], TEMP[10];
+ 12:    MOV TEMP[9], TEMP[11];
  13: ENDIF;
- 14: MUL TEMP[11], TEMP[8], TEMP[2];
- 15: MOV OUTPUT[0], TEMP[11];
+ 14: MUL TEMP[12], TEMP[9], TEMP[2];
+ 15: MOV OUTPUT[0], TEMP[12];
  16: END
 
 Mesa program after mesa optimizations
   0: MOV TEMP[0], INPUT[0];
   1: MOV TEMP[2], UNIFORM[1];
-  2: NOP;
-  3: IF TEMP[1].xxxx;  # (if false, goto 0);
+  2: SGT TEMP[3].x, INPUT[0].xxxx, UNIFORM[2].xxxx;
+  3: IF TEMP[3].xxxx;  # (if false, goto 0);
   4:    ADD TEMP[3], TEMP[0], UNIFORM[3];
   5:    MOV TEMP[4], TEMP[3];
   6: ELSE; # (goto 0)
