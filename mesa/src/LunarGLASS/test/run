@@ -1,3 +1,57 @@
-../../glsl/Debug/StandAlone.exe checkpoint1.frag > checkpoint1.frag.out 2>&1
-../../glsl/Debug/StandAlone.exe test.frag > test.frag.out 2>&1
-../../glsl/Debug/StandAlone.exe flowControl.frag > flowControl.frag.out 2>&1
+#!/usr/bin/env bash
+DESCRIPTION="\
+Description: Run the test suite, record output
+"
+
+USAGE="\
+Usage: ./run [options]
+
+       Options:
+         -h --help        Print out this Usage info
+         -l --linux       Run for linux
+         -w --windows     (default) Run for windows
+"
+
+# Add more tests here as they are created
+TESTS=(checkpoint1.frag test.frag flowControl.frag)
+
+function runTests {
+    for t in ${TESTS[@]}; do
+        echo "  Running $t"
+        $RUNCMD $t > $t.stdout 2> $t.errout || (cat $t.errout ; exit 1)
+        cat $t.stdout $t.errout > $t.out
+        rm $t.stdout $t.errout
+    done
+}
+
+function showHelp {
+    echo "$DESCRIPTION"
+    echo "$USAGE"
+}
+
+# Default is for windows
+RUNCMD=../../glsl/Debug/StandAlone.exe
+
+# Command-line argument Handling
+
+# No arguments passed
+if [[ -z "$*" ]]; then runTests; fi;
+
+# Arguments passed
+for i in $*; do
+    case $i in
+        -l|--linux)
+            RUNCMD=../../glsl/StandAlone
+            runTests
+            ;;
+        -h|--h)
+            showHelp
+            exit 0
+            ;;
+        *)
+            showHelp
+            exit 1
+            ;;
+    esac
+done
+
