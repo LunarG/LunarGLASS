@@ -19,7 +19,7 @@ function runTests {
     for t in ${TESTS[@]}; do
         echo "  Running $t"
         $RUNCMD $t > $t.stdout 2> $t.errout || (cat $t.errout ; exit 1)
-        cat $t.stdout $t.errout > $t.out
+        cat $t.errout $t.stdout > $t.out
         rm $t.stdout $t.errout
     done
 }

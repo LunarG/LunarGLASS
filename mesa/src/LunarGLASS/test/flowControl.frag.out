@@ -1,94 +1,4 @@
-compiling flowControl.frag...
-uniform float d ; 
-uniform vec4 bigColor , smallColor ; 
-uniform vec4 otherColor ; 
-varying float c ; 
-varying vec4 BaseColor ; 
-void  main (){
-vec4 color = BaseColor ; vec4 color2 ; color2 = otherColor ; if ( c > d ) color += bigColor ; else color += smallColor ; gl_FragColor = color * color2 ; }
-
-
-
-(
-(declare (in ) vec4 BaseColor)
-(declare (in ) float c)
-(declare (uniform ) vec4 otherColor)
-(declare (uniform ) vec4 smallColor)
-(declare (uniform ) vec4 bigColor)
-(declare (uniform ) float d)
-(declare (in ) vec4 gl_FragCoord)
-(declare (in ) bool gl_FrontFacing)
-(declare (out ) vec4 gl_FragColor)
-(declare (out ) float gl_FragDepth)
-(declare (in ) vec4 gl_Color)
-(declare (in ) vec4 gl_SecondaryColor)
-(declare (in ) float gl_FogFragCoord)
-(declare (uniform ) mat4 gl_ModelViewMatrix)
-(declare (uniform ) mat4 gl_ProjectionMatrix)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrix)
-(declare (uniform ) mat3 gl_NormalMatrix)
-(declare (uniform ) mat4 gl_ModelViewMatrixInverse)
-(declare (uniform ) mat4 gl_ProjectionMatrixInverse)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverse)
-(declare (uniform ) mat4 gl_ModelViewMatrixTranspose)
-(declare (uniform ) mat4 gl_ProjectionMatrixTranspose)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixTranspose)
-(declare (uniform ) mat4 gl_ModelViewMatrixInverseTranspose)
-(declare (uniform ) mat4 gl_ProjectionMatrixInverseTranspose)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverseTranspose)
-(declare (uniform ) float gl_NormalScale)
-(declare (uniform ) gl_LightModelParameters gl_LightModel)
-(declare () int gl_MaxLights)
-(declare () int gl_MaxClipPlanes)
-(declare () int gl_MaxTextureUnits)
-(declare () int gl_MaxTextureCoords)
-(declare () int gl_MaxVertexAttribs)
-(declare () int gl_MaxVertexUniformComponents)
-(declare () int gl_MaxVaryingFloats)
-(declare () int gl_MaxVertexTextureImageUnits)
-(declare () int gl_MaxCombinedTextureImageUnits)
-(declare () int gl_MaxTextureImageUnits)
-(declare () int gl_MaxFragmentUniformComponents)
-(declare (uniform ) (array mat4 4) gl_TextureMatrix)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixInverse)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixTranspose)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixInverseTranspose)
-(declare (uniform ) gl_DepthRangeParameters gl_DepthRange)
-(declare (uniform ) (array vec4 8) gl_ClipPlane)
-(declare (uniform ) gl_PointParameters gl_Point)
-(declare (uniform ) gl_MaterialParameters gl_FrontMaterial)
-(declare (uniform ) gl_MaterialParameters gl_BackMaterial)
-(declare (uniform ) (array gl_LightSourceParameters 8) gl_LightSource)
-(declare (uniform ) gl_LightModelProducts gl_FrontLightModelProduct)
-(declare (uniform ) gl_LightModelProducts gl_BackLightModelProduct)
-(declare (uniform ) (array gl_LightProducts 8) gl_FrontLightProduct)
-(declare (uniform ) (array gl_LightProducts 8) gl_BackLightProduct)
-(declare (uniform ) (array vec4 2) gl_TextureEnvColor)
-(declare (uniform ) (array vec4 4) gl_EyePlaneS)
-(declare (uniform ) (array vec4 4) gl_EyePlaneT)
-(declare (uniform ) (array vec4 4) gl_EyePlaneR)
-(declare (uniform ) (array vec4 4) gl_EyePlaneQ)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneS)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneT)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneR)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneQ)
-(declare (uniform ) gl_FogParameters gl_Fog)
-(declare (in ) (array vec4 0) gl_TexCoord)
-(declare () int gl_MaxDrawBuffers)
-(declare (out ) (array vec4 2) gl_FragData)
-(function main
-  (signature void
-    (parameters
-    )
-    (
-      (declare () vec4 color2)
-      (declare () vec4 color)
-      (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref BaseColor) ) 
-      (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
-      (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref otherColor) ) 
-      (assign (constant bool (1)) (xyzw) (var_ref color2)  (var_ref assignme; ModuleID = 'Top'
+; ModuleID = 'Top'
 
 @otherColor = external addrspace(1) constant <4 x float>
 @d = external addrspace(1) constant float
@@ -191,7 +101,109 @@ declare <4 x float> @llvm.gla.getInterpolant.v4f32(i32) nounwind readonly
 declare float @llvm.gla.getInterpolant.f32(i32) nounwind readonly
 
 declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
-nt_tmp) ) 
+# Fragment Program/Shader 0
+  0: MOV TEMP[0], INPUT[-1];
+  1: SGT TEMP[1].x, INPUT[-1].xxxx, UNIFORM[3].xxxx;
+  2: IF TEMP[1].xxxx;  # (if false, goto 5);
+  3:    ADD TEMP[1], INPUT[-1], UNIFORM[2];
+  4:    MOV TEMP[0], TEMP[1];
+  5: ELSE; # (goto 8)
+  6:    ADD TEMP[1], TEMP[0], UNIFORM[1];
+  7:    MOV TEMP[0], TEMP[1];
+  8: ENDIF;
+  9: MUL OUTPUT[1], TEMP[0], UNIFORM[0];
+ 10: END
+compiling flowControl.frag...
+uniform float d ; 
+uniform vec4 bigColor , smallColor ; 
+uniform vec4 otherColor ; 
+varying float c ; 
+varying vec4 BaseColor ; 
+void  main (){
+vec4 color = BaseColor ; vec4 color2 ; color2 = otherColor ; if ( c > d ) color += bigColor ; else color += smallColor ; gl_FragColor = color * color2 ; }
+
+
+
+(
+(declare (in ) vec4 BaseColor)
+(declare (in ) float c)
+(declare (uniform ) vec4 otherColor)
+(declare (uniform ) vec4 smallColor)
+(declare (uniform ) vec4 bigColor)
+(declare (uniform ) float d)
+(declare (in ) vec4 gl_FragCoord)
+(declare (in ) bool gl_FrontFacing)
+(declare (out ) vec4 gl_FragColor)
+(declare (out ) float gl_FragDepth)
+(declare (in ) vec4 gl_Color)
+(declare (in ) vec4 gl_SecondaryColor)
+(declare (in ) float gl_FogFragCoord)
+(declare (uniform ) mat4 gl_ModelViewMatrix)
+(declare (uniform ) mat4 gl_ProjectionMatrix)
+(declare (uniform ) mat4 gl_ModelViewProjectionMatrix)
+(declare (uniform ) mat3 gl_NormalMatrix)
+(declare (uniform ) mat4 gl_ModelViewMatrixInverse)
+(declare (uniform ) mat4 gl_ProjectionMatrixInverse)
+(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverse)
+(declare (uniform ) mat4 gl_ModelViewMatrixTranspose)
+(declare (uniform ) mat4 gl_ProjectionMatrixTranspose)
+(declare (uniform ) mat4 gl_ModelViewProjectionMatrixTranspose)
+(declare (uniform ) mat4 gl_ModelViewMatrixInverseTranspose)
+(declare (uniform ) mat4 gl_ProjectionMatrixInverseTranspose)
+(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverseTranspose)
+(declare (uniform ) float gl_NormalScale)
+(declare (uniform ) gl_LightModelParameters gl_LightModel)
+(declare () int gl_MaxLights)
+(declare () int gl_MaxClipPlanes)
+(declare () int gl_MaxTextureUnits)
+(declare () int gl_MaxTextureCoords)
+(declare () int gl_MaxVertexAttribs)
+(declare () int gl_MaxVertexUniformComponents)
+(declare () int gl_MaxVaryingFloats)
+(declare () int gl_MaxVertexTextureImageUnits)
+(declare () int gl_MaxCombinedTextureImageUnits)
+(declare () int gl_MaxTextureImageUnits)
+(declare () int gl_MaxFragmentUniformComponents)
+(declare (uniform ) (array mat4 4) gl_TextureMatrix)
+(declare (uniform ) (array mat4 4) gl_TextureMatrixInverse)
+(declare (uniform ) (array mat4 4) gl_TextureMatrixTranspose)
+(declare (uniform ) (array mat4 4) gl_TextureMatrixInverseTranspose)
+(declare (uniform ) gl_DepthRangeParameters gl_DepthRange)
+(declare (uniform ) (array vec4 8) gl_ClipPlane)
+(declare (uniform ) gl_PointParameters gl_Point)
+(declare (uniform ) gl_MaterialParameters gl_FrontMaterial)
+(declare (uniform ) gl_MaterialParameters gl_BackMaterial)
+(declare (uniform ) (array gl_LightSourceParameters 8) gl_LightSource)
+(declare (uniform ) gl_LightModelProducts gl_FrontLightModelProduct)
+(declare (uniform ) gl_LightModelProducts gl_BackLightModelProduct)
+(declare (uniform ) (array gl_LightProducts 8) gl_FrontLightProduct)
+(declare (uniform ) (array gl_LightProducts 8) gl_BackLightProduct)
+(declare (uniform ) (array vec4 2) gl_TextureEnvColor)
+(declare (uniform ) (array vec4 4) gl_EyePlaneS)
+(declare (uniform ) (array vec4 4) gl_EyePlaneT)
+(declare (uniform ) (array vec4 4) gl_EyePlaneR)
+(declare (uniform ) (array vec4 4) gl_EyePlaneQ)
+(declare (uniform ) (array vec4 4) gl_ObjectPlaneS)
+(declare (uniform ) (array vec4 4) gl_ObjectPlaneT)
+(declare (uniform ) (array vec4 4) gl_ObjectPlaneR)
+(declare (uniform ) (array vec4 4) gl_ObjectPlaneQ)
+(declare (uniform ) gl_FogParameters gl_Fog)
+(declare (in ) (array vec4 0) gl_TexCoord)
+(declare () int gl_MaxDrawBuffers)
+(declare (out ) (array vec4 2) gl_FragData)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (declare () vec4 color2)
+      (declare () vec4 color)
+      (declare (temporary ) vec4 assignment_tmp)
+      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref BaseColor) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
+      (declare (temporary ) vec4 assignment_tmp)
+      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref otherColor) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref color2)  (var_ref assignment_tmp) ) 
       (if (expression bool > (var_ref c) (var_ref d) ) (
         (declare (temporary ) vec4 assignment_tmp)
         (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref color) (var_ref bigColor) ) ) 
@@ -265,15 +277,3 @@ Finishing translation from Bottom IR to TGSI
 ===========================================
 
 Optimized Mesa IR without GLA for linked fragment program 0:
-# Fragment Program/Shader 0
-  0: MOV TEMP[0], INPUT[-1];
-  1: SGT TEMP[1].x, INPUT[-1].xxxx, UNIFORM[3].xxxx;
-  2: IF TEMP[1].xxxx;  # (if false, goto 5);
-  3:    ADD TEMP[1], INPUT[-1], UNIFORM[2];
-  4:    MOV TEMP[0], TEMP[1];
-  5: ELSE; # (goto 8)
-  6:    ADD TEMP[1], TEMP[0], UNIFORM[1];
-  7:    MOV TEMP[0], TEMP[1];
-  8: ENDIF;
-  9: MUL OUTPUT[1], TEMP[0], UNIFORM[0];
- 10: END
