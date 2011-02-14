@@ -69,11 +69,11 @@ public:
     }
 
     virtual void getControlFlowMode(gla::EFlowControlMode& flowControlMode,
-        bool& breakOp, bool& continueOp,
-        bool& earlyReturnOp, bool& discardOp)
+                                    bool& breakOp, bool& continueOp,
+                                    bool& earlyReturnOp, bool& discardOp)
     {
         gla::BackEnd::getControlFlowMode(flowControlMode, breakOp, continueOp,
-            earlyReturnOp, discardOp);
+                                         earlyReturnOp, discardOp);
     }
 };
 
@@ -147,7 +147,6 @@ public:
         case llvm::Instruction::FAdd:           mesaOp = OPCODE_ADD;  break;
         case llvm::Instruction::FSub:           mesaOp = OPCODE_SUB;  break;
         case llvm::Instruction::FMul:           mesaOp = OPCODE_MUL;  break;
-
 
         // if it's main, we want an END, if it's a function, we want a RET
         // ?? handle functions that aren't main
@@ -734,7 +733,7 @@ protected:
             case EFCEndIf:
                 flowControl.pop_back();
                 mesaInstruction->Opcode = OPCODE_ENDIF;
-                incrementMesaInstruction();                
+                incrementMesaInstruction();
                 break;
             case EFCElse:
                 flowControl.pop_back();
@@ -828,8 +827,8 @@ void gla::PrivateManager::translateBottomToTgsi()
 
             // paramaters and arguments
             for (llvm::Function::const_arg_iterator P = function->arg_begin(), E = function->arg_end();
-                P != E; ++P) {
-                    //?? argument is Attrs.getParamAttributes(Idx));  // Idx has to count as you go through the loop
+                 P != E; ++P) {
+                //?? argument is Attrs.getParamAttributes(Idx));  // Idx has to count as you go through the loop
             }
 
             // basic blocks
