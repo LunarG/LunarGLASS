@@ -573,12 +573,16 @@ ir_visitor_status
     // make the blocks, but only put the then-block into the function, 
     // the else-block and merge-block will be added later, in order, after
     // earlier code is emitted
+    bool haveElse = ! ifNode->else_instructions.is_empty();
     llvm::BasicBlock  *ThenBB = llvm::BasicBlock::Create(context, "then", function);
-    llvm::BasicBlock  *ElseBB = llvm::BasicBlock::Create(context, "else");
+    llvm::BasicBlock  *ElseBB = haveElse ? llvm::BasicBlock::Create(context, "else") : 0;
     llvm::BasicBlock *MergeBB = llvm::BasicBlock::Create(context, "ifmerge");
 
     // make the flow control split
-    builder.CreateCondBr(condValue, ThenBB, ElseBB);
+    if (haveElse)
+        builder.CreateCondBr(condValue, ThenBB, ElseBB);
+    else
+        builder.CreateCondBr(condValue, ThenBB, MergeBB);
 
     builder.SetInsertPoint(ThenBB);
 
@@ -592,17 +596,19 @@ ir_visitor_status
     ThenBB = builder.GetInsertBlock();
 
     // add else block to the function
-    function->getBasicBlockList().push_back(ElseBB);
-    builder.SetInsertPoint(ElseBB);
+    if (haveElse) {
+        function->getBasicBlockList().push_back(ElseBB);
+        builder.SetInsertPoint(ElseBB);
 
-    // emit the else statement
-    visit_list_elements(this, &(ifNode->else_instructions));
+        // emit the else statement
+        visit_list_elements(this, &(ifNode->else_instructions));
 
-    // jump to the merge block
-    builder.CreateBr(MergeBB);
+        // jump to the merge block
+        builder.CreateBr(MergeBB);
 
-    // emitting the else-block could change the current block, update
-    ElseBB = builder.GetInsertBlock();
+        // emitting the else block could change the current block, update
+        ElseBB = builder.GetInsertBlock();
+    }
 
     // add the merge block to the function
     function->getBasicBlockList().push_back(MergeBB);

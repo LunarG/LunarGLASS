@@ -97,11 +97,6 @@ gl_program* LunarGLASSNewMesaProgram(GLcontext *ctx, GLenum target, GLuint id)
 
 namespace gla {
     class BottomTranslator;
-
-    enum EControlFlow {
-        EFCElse,
-        EFCEndIf
-    };
 };
 
 class gla::BottomTranslator {
@@ -247,9 +242,7 @@ public:
             else {
                 printf("FCmp instruction found that cannot dyncast to FCmpInst");
             }
-
-
-
+            break;
 
         default:
             printf("UNSUPPORTED opcode %d\n", llvmInstruction->getOpcode());
@@ -725,34 +718,33 @@ protected:
         // constructs.
         mesaOp = OPCODE_NOP;
 
+        // All branches that branch to a block having phi instructions for that 
+        // branch need copies inserted.
+        addPhiCopies(llvmInstruction);
+
         switch (llvmInstruction->getNumOperands()) {
         case 1:
-            // Assume we are jumping to what the top of the flow-control stack says
-            addPhiCopies(llvmInstruction);
-            switch (flowControl.back()) {
-            case EFCEndIf:
-                flowControl.pop_back();
+            // We are doing an unconditional branch
+            // Assume it is to the merge of the if-then-else or the if-then
+            if (flowControl.back() == llvmInstruction->getOperand(0)) {
+                // This must be the end of the if block
                 mesaInstruction->Opcode = OPCODE_ENDIF;
-                incrementMesaInstruction();
-                break;
-            case EFCElse:
                 flowControl.pop_back();
+            } else {
+                // This must be the end of a then that has as else                
                 mesaInstruction->Opcode = OPCODE_ELSE;
-                incrementMesaInstruction();
-                break;
-            default:
-                printf ("UNSUPPORTED flow control stack\n");
+                flowControl.pop_back();
+                flowControl.push_back(llvmInstruction->getOperand(0));
             }
+            incrementMesaInstruction();
             break;
         case 2:
-            // Assume we are entering an if-then statement
-            flowControl.push_back(EFCEndIf);
-            mesaOp = OPCODE_IF;
+            assert (! "Unexpected number of operands for LLVM branch");
             break;
         case 3:
-            // Assume we are entering an if-then-else statement
-            flowControl.push_back(EFCEndIf);
-            flowControl.push_back(EFCElse);
+            // We are splitting into two children.
+            // Assume we are entering an if-then-else statement or if-then statement.
+            flowControl.push_back(llvmInstruction->getOperand(1));
             mesaOp = OPCODE_IF;
             break;
         default:
@@ -762,23 +754,32 @@ protected:
 
     void addPhiCopies(const llvm::Instruction* llvmInstruction)
     {
-        // get the destination block
-        const llvm::BasicBlock *phiBlock = llvm::dyn_cast<llvm::BasicBlock>(llvmInstruction->getOperand(0));
-        assert (phiBlock);
+        // for each child block
+        for (int op = 0; op < llvmInstruction->getNumOperands(); ++op) {
 
-        // for each llvm phi node, add a copy instruction
-        for (llvm::BasicBlock::const_iterator i = phiBlock->begin(), e = phiBlock->end(); i != e; ++i) {
-            const llvm::Instruction* destInstruction = i;
-            const llvm::PHINode *phiNode = llvm::dyn_cast<llvm::PHINode>(destInstruction);
+            // get the destination block (not all operands are blocks, but consider each that is)
+            const llvm::BasicBlock *phiBlock = llvm::dyn_cast<llvm::BasicBlock>(llvmInstruction->getOperand(op));
+            if (! phiBlock)
+                continue;
 
-            if (phiNode) {
-                // find the operand whose predecessor is us
-                // each phi operand takes up two normal operands
-                int predIndex = phiNode->getBasicBlockIndex(llvmInstruction->getParent());
-                mesaInstruction->Opcode = OPCODE_MOV;
-                mapGlaOperandToMesa(phiNode->getIncomingValue(predIndex), &mesaInstruction->SrcReg[0]);
-                mapGlaDestinationToMesa(phiNode, &mesaInstruction->DstReg);
-                incrementMesaInstruction();
+            // for each llvm phi node, add a copy instruction
+            for (llvm::BasicBlock::const_iterator i = phiBlock->begin(), e = phiBlock->end(); i != e; ++i) {
+                const llvm::Instruction* destInstruction = i;
+                const llvm::PHINode *phiNode = llvm::dyn_cast<llvm::PHINode>(destInstruction);
+
+                if (phiNode) {
+                    // find the operand whose predecessor is us
+                    // each phi operand takes up two normal operands, 
+                    // so don't directly access operands; use the Index encapsulation
+                    int predIndex = phiNode->getBasicBlockIndex(llvmInstruction->getParent());
+                    if (predIndex >= 0) {
+                        // then we found ourselves
+                        mesaInstruction->Opcode = OPCODE_MOV;
+                        mapGlaOperandToMesa(phiNode->getIncomingValue(predIndex), &mesaInstruction->SrcReg[0]);
+                        mapGlaDestinationToMesa(phiNode, &mesaInstruction->DstReg);
+                        incrementMesaInstruction();
+                    }
+                }
             }
         }
     }
@@ -797,7 +798,7 @@ protected:
     std::map<const llvm::Value*, int> valueMap[PROGRAM_FILE_MAX];
     int lastIndex[PROGRAM_FILE_MAX];  //?? currently skipping index 0, because 0 means not found in the map
 
-    std::vector<enum EControlFlow> flowControl;
+    std::vector<const llvm::Value*> flowControl;
 };
 
 
