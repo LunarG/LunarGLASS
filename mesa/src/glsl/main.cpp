@@ -356,7 +356,7 @@ main(int argc, char **argv)
       _mesa_print_ir(whole_program->Shaders[0]->ir, 0);
       TranslateGlslToTop(whole_program->Shaders[0], glaManager);
       glaManager->translateTopToBottom();
-      glaManager->translateBottomToTgsi();
+      glaManager->translateBottomToTarget();
       delete glaManager;
    }
 

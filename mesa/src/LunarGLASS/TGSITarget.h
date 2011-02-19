@@ -1,4 +1,4 @@
-//===- LunarGLASS.cpp - Implementation of LunarGLASSBottomIR.h ------------===//
+//===- TGSITarget.h - Implementation of LunarGLASSBottomIR.h --------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -25,30 +25,10 @@
 //===----------------------------------------------------------------------===//
 
 #include "Manager.h"
-#include "LunarGLASSBottomIR.h"
 
-#include "llvm/Module.h"
+namespace gla {
 
-#include "TGSITarget.h"
+    gla::Target* GetTGSITarget();
+    void ReleaseTGSITarget(gla::Target* target);
 
-gla::Manager* gla::getManager()
-{
-    return new gla::PrivateManager();
-}
-
-gla::PrivateManager::PrivateManager() : module(0)
-{
-    target = gla::GetTGSITarget();
-}
-
-gla::PrivateManager::~PrivateManager()
-{
-    delete module;
-    gla::ReleaseTGSITarget(target);
-}
-
-void gla::BackEnd::getRegisterForm(int& outerSoA, int& innerAoS)
-{
-    outerSoA = 1; 
-    innerAoS = 4; 
-}
+};

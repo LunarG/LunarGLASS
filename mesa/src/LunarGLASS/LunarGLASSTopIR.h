@@ -56,7 +56,7 @@ namespace gla {
 
         virtual void setModule(llvm::Module*) = 0;
         virtual void translateTopToBottom() = 0;
-        virtual void translateBottomToTgsi() = 0;
+        virtual void translateBottomToTarget() = 0;
     };
 
     Manager* getManager();

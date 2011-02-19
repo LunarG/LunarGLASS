@@ -108,6 +108,9 @@
     <ClInclude Include="..\LunarGLASS\LunarGLASSBottomIR.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
+    <ClInclude Include="..\LunarGLASS\TGSITarget.h">
+      <Filter>LunarGLASS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ast_expr.cpp">
@@ -331,6 +334,9 @@
     </ClCompile>
     <ClCompile Include="..\mesa\program\ir_to_mesa.cpp">
       <Filter>Source Files\mesa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\BottomTranslator.cpp">
+      <Filter>LunarGLASS</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

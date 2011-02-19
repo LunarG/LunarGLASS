@@ -39,18 +39,33 @@
 
 namespace gla {
 
+    class Target {
+    public:
+        Target() { }
+        virtual ~Target() { }
+        virtual void add(const llvm::Instruction* llvmInstruction) = 0;
+        virtual void addIf(const llvm::Value* cond) = 0;
+        virtual void addElse() = 0;
+        virtual void addEndif() = 0;
+        virtual void addCopy(const llvm::Value* dst, const llvm::Value* src) = 0;
+
+        virtual void print() = 0;
+    };
+
     class PrivateManager : public gla::Manager {
     public:
         PrivateManager();
         virtual ~PrivateManager();
 
-        void setModule(llvm::Module* m) { module = m; }
-        void translateTopToBottom();
-        void translateBottomToTgsi();
+        virtual void setModule(llvm::Module* m) { module = m; }
+        virtual void translateTopToBottom();
+        virtual void translateBottomToTarget();
+        virtual void setTarget(gla::Target* t) { target = t; }
 
     protected:
-        void runLLVMOptimizations1();
+        virtual void runLLVMOptimizations1();
         llvm::Module* module;
+        gla::Target* target;
     };
 
 }

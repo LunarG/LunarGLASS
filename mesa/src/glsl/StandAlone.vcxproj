@@ -85,6 +85,7 @@
     <ClInclude Include="..\LunarGLASS\LunarGLASSBottomIR.h" />
     <ClInclude Include="..\LunarGLASS\LunarGLASSTopIR.h" />
     <ClInclude Include="..\LunarGLASS\Manager.h" />
+    <ClInclude Include="..\LunarGLASS\TGSITarget.h" />
     <ClInclude Include="..\mesa\program\ir_to_mesa.h" />
     <ClInclude Include="ast.h" />
     <ClInclude Include="builtin_types.h" />
@@ -112,6 +113,7 @@
     <ClInclude Include="..\LunarGLASS\GlslToTopVisitor.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\LunarGLASS\BottomTranslator.cpp" />
     <ClCompile Include="..\LunarGLASS\BottomToTgsi.cpp" />
     <ClCompile Include="..\LunarGLASS\LunarGLASS.cpp" />
     <ClCompile Include="..\LunarGLASS\TopToBottom.cpp" />
