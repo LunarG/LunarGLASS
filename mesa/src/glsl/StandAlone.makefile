@@ -19,12 +19,7 @@ talloc_SOURCES := \
 talloc_SOURCES := $(addprefix ../talloc/, $(talloc_SOURCES))
 
 lunarglass_SOURCES := \
-	BottomToTgsi.cpp \
-	GlslToTop.cpp \
-	GlslToTopVisitor.cpp \
-	LunarGLASS.cpp \
-	TopToBottom.cpp
-lunarglass_SOURCES := $(addprefix ../LunarGLASS/, $(lunarglass_SOURCES))
+	$(shell ls ../LunarGLASS/*.cpp)
 
 glsl_SOURCES := \
 	glcpp/glcpp-lex.c \
