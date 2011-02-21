@@ -39,10 +39,12 @@
 
 namespace gla {
 
-    class Target {
+    class BackEndTranslator {
     public:
-        Target() { }
-        virtual ~Target() { }
+        BackEndTranslator() { }
+        virtual ~BackEndTranslator() { }
+        virtual void startFunction() = 0;
+        virtual void endFunction() = 0;
         virtual void add(const llvm::Instruction* llvmInstruction) = 0;
         virtual void addIf(const llvm::Value* cond) = 0;
         virtual void addElse() = 0;
@@ -60,12 +62,12 @@ namespace gla {
         virtual void setModule(llvm::Module* m) { module = m; }
         virtual void translateTopToBottom();
         virtual void translateBottomToTarget();
-        virtual void setTarget(gla::Target* t) { target = t; }
+        virtual void setTarget(gla::BackEndTranslator* t) { backEndTranslator = t; }
 
     protected:
         virtual void runLLVMOptimizations1();
         llvm::Module* module;
-        gla::Target* target;
+        gla::BackEndTranslator* backEndTranslator;
     };
 
 }

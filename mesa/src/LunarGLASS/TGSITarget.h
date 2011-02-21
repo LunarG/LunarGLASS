@@ -1,4 +1,4 @@
-//===- TGSITarget.h - Implementation of LunarGLASSBottomIR.h --------------===//
+//===- TgsiTarget.h - Implementation of LunarGLASSBottomIR.h --------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -28,7 +28,8 @@
 
 namespace gla {
 
-    gla::Target* GetTGSITarget();
-    void ReleaseTGSITarget(gla::Target* target);
-
+    BackEndTranslator* GetTgsiTarget();
+    void ReleaseTgsiTarget(gla::BackEndTranslator*);
+    BackEnd* GetTgsiBackEnd();
+    void ReleaseTgsiBackEnd(gla::BackEnd*);
 };

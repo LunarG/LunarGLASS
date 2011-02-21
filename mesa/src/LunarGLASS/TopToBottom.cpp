@@ -43,6 +43,7 @@
 // LunarGLASS includes
 #include "LunarGLASSBottomIR.h"
 #include "Manager.h"
+#include "TgsiTarget.h"
 
 void gla::PrivateManager::translateTopToBottom()
 {
@@ -55,7 +56,7 @@ void gla::PrivateManager::translateTopToBottom()
 
     module->dump();
 
-    gla::BackEnd* backEnd = gla::getBackEnd();
+    gla::BackEnd* backEnd = gla::GetTgsiBackEnd();
 
     int innerAoS, outerSoA;
     backEnd->getRegisterForm(outerSoA, innerAoS);
@@ -65,6 +66,8 @@ void gla::PrivateManager::translateTopToBottom()
     // make sure we can decompose all the intrisics
     for (int d = 0; d < gla::EDiCount; ++d)
         assert(! backEnd->decomposeIntrinsic(d));
+
+    gla::ReleaseTgsiBackEnd(backEnd);
 
     printf("Finishing translation from Top IR to Bottom IR\n");
 }

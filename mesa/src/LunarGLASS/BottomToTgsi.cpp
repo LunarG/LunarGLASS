@@ -1,4 +1,4 @@
-//===- BottomToTgsi.cpp - Translate bottom IR to TGSI ---------------------===//
+//===- BottomToTgsi.cpp - Translate bottom IR to Tgsi ---------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -48,6 +48,7 @@
 // LunarGLASS includes
 #include "LunarGLASSBottomIR.h"
 #include "Manager.h"
+#include "TgsiTarget.h"
 
 // Mesa includes
 extern "C" {
@@ -59,8 +60,8 @@ extern "C" {
 
 class TgsiBackEnd : public gla::BackEnd {
 public:
-    TgsiBackEnd() {}
-    virtual ~TgsiBackEnd() {};
+    TgsiBackEnd() { }
+    virtual ~TgsiBackEnd() { }
 
     virtual void getRegisterForm(int& outerSoA, int& innerAoS)
     {
@@ -76,9 +77,14 @@ public:
     }
 };
 
-gla::BackEnd* gla::getBackEnd()
+gla::BackEnd* gla::GetTgsiBackEnd()
 {
     return new TgsiBackEnd();
+}
+
+void gla::ReleaseTgsiBackEnd(gla::BackEnd* backEnd)
+{
+    delete backEnd;
 }
 
 gl_program* LunarGLASSNewMesaProgram(GLcontext *ctx, GLenum target, GLuint id)
@@ -98,7 +104,7 @@ namespace gla {
     class MesaTarget;
 };
 
-class gla::MesaTarget : public gla::Target {
+class gla::MesaTarget : public gla::BackEndTranslator {
 public:
     MesaTarget() 
     {
@@ -124,7 +130,10 @@ public:
     {
         // don't free instructions, as they needs to live on
     }
-
+    
+    void startFunction() { }
+    void endFunction() { }
+    
     void add(const llvm::Instruction* llvmInstruction);
 
     //
@@ -426,12 +435,12 @@ protected:
 
 namespace gla {
     
-    gla::Target* GetTGSITarget()
+    gla::BackEndTranslator* GetTgsiTarget()
     {
         return new gla::MesaTarget();
     }
 
-    void ReleaseTGSITarget(gla::Target* target)
+    void ReleaseTgsiTarget(gla::BackEndTranslator* target)
     {
         delete target;
     }
@@ -615,8 +624,6 @@ void gla::MesaTarget::print()
 
     printf("\nMesa program after mesa optimizations\n");
     _mesa_fprint_program_opt(stdout, mesaProgram, PROG_PRINT_DEBUG, true);
-
-    printf("\nFinishing translation from Bottom IR to TGSI\n");
 }
 
 //

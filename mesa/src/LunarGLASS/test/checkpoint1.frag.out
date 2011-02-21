@@ -246,10 +246,6 @@ Starting translation from Top IR to Bottom IR
 First middle-end optimization pass
 Finishing translation from Top IR to Bottom IR
 
-===========================================
-Starting translation from Bottom IR to TGSI
-
-
 Mesa program before mesa optimizations
   0: MOV TEMP[1].x, UNIFORM[1].xxxx;
   1: MOV TEMP[2].xy, INPUT[0].xyyy;
@@ -282,8 +278,6 @@ Mesa program after mesa optimizations
   7: MUL TEMP[0].x, UNIFORM[5].xxxx, UNIFORM[5].xxxx;
   8: LRP OUTPUT[0], TEMP[0].xxxx, TEMP[3], UNIFORM[4];
   9: END
-
-Finishing translation from Bottom IR to TGSI
 
 ===========================================
 

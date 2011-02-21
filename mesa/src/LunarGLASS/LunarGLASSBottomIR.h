@@ -120,8 +120,6 @@ namespace gla {
         bool decompose[EDiCount];
 
     };
-
-    BackEnd* getBackEnd();
 };
 
 #endif /* LunarGLASSBottomIR_H */

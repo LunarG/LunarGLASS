@@ -29,7 +29,7 @@
 
 #include "llvm/Module.h"
 
-#include "TGSITarget.h"
+#include "TgsiTarget.h"
 
 gla::Manager* gla::getManager()
 {
@@ -38,13 +38,13 @@ gla::Manager* gla::getManager()
 
 gla::PrivateManager::PrivateManager() : module(0)
 {
-    target = gla::GetTGSITarget();
+    backEndTranslator = gla::GetTgsiTarget();
 }
 
 gla::PrivateManager::~PrivateManager()
 {
     delete module;
-    gla::ReleaseTGSITarget(target);
+    gla::ReleaseTgsiTarget(backEndTranslator);
 }
 
 void gla::BackEnd::getRegisterForm(int& outerSoA, int& innerAoS)

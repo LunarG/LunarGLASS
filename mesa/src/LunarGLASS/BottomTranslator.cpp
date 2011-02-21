@@ -1,4 +1,4 @@
-//===- BottomConverter.cpp - Translate bottom IR to TGSI ------------------===//
+//===- BottomConverter.cpp - Translate bottom IR to Tgsi ------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -54,7 +54,7 @@ namespace gla {
 
 class gla::BottomTranslator {
 public:
-    BottomTranslator(gla::Target* t) : target(t) { }
+    BottomTranslator(gla::BackEndTranslator* t) : backEndTranslator(t) { }
 
     ~BottomTranslator() { }
 
@@ -81,11 +81,11 @@ public:
             // Assume it is to the merge of the if-then-else or the if-then
             if (flowControl.back() == llvmInstruction->getOperand(0)) {
                 // This must be the end of the if block
-                target->addEndif();
+                backEndTranslator->addEndif();
                 flowControl.pop_back();
             } else {
                 // This must be the end of a then that has as else
-                target->addElse();
+                backEndTranslator->addElse();
                 flowControl.pop_back();
                 flowControl.push_back(llvmInstruction->getOperand(0));
             }
@@ -97,7 +97,7 @@ public:
             // We are splitting into two children.
             // Assume we are entering an if-then-else statement or if-then statement.
             flowControl.push_back(llvmInstruction->getOperand(1));
-            target->addIf(llvmInstruction->getOperand(0));
+            backEndTranslator->addIf(llvmInstruction->getOperand(0));
             break;
         default:
             printf ("UNSUPPORTED llvm flow control number of operands\n");
@@ -128,29 +128,26 @@ protected:
                     int predIndex = phiNode->getBasicBlockIndex(llvmInstruction->getParent());
                     if (predIndex >= 0) {
                         // then we found ourselves
-                        target->addCopy(phiNode, phiNode->getIncomingValue(predIndex));
+                        backEndTranslator->addCopy(phiNode, phiNode->getIncomingValue(predIndex));
                     }
                 }
             }
         }
     }
 
-    gla::Target* target;
+    gla::BackEndTranslator* backEndTranslator;
     std::vector<const llvm::Value*> flowControl;
 };
 
 void gla::PrivateManager::translateBottomToTarget()
 {
-    printf("\n===========================================\n"
-           "Starting translation from Bottom IR to TGSI\n\n");
-
     // Initial creation of target.
 
     // In the real driver, this is is done through a call through the function
     // pointer ctx->Driver.NewProgram(...), so directly call a funtion here
     // that does the same thing, and could later be plugged into that pointer.
 
-    gla::BottomTranslator translator(target);
+    gla::BottomTranslator translator(backEndTranslator);
 
     llvm::Module::const_iterator function, lastFunction;
     for (function = module->begin(), lastFunction = module->end(); function != lastFunction; ++function) {
@@ -158,10 +155,11 @@ void gla::PrivateManager::translateBottomToTarget()
             //?? do we need to handle declarations of functions, or just definitions?
         } else {
             // handle function's with bodies
+            backEndTranslator->startFunction();
 
             // paramaters and arguments
-            for (llvm::Function::const_arg_iterator P = function->arg_begin(), E = function->arg_end();
-                 P != E; ++P) {
+            for (llvm::Function::const_arg_iterator P = function->arg_begin(), E = function->arg_end(); P != E; ++P) {
+                assert (! "function arguments not supported");
                 //?? argument is Attrs.getParamAttributes(Idx));  // Idx has to count as you go through the loop
             }
 
@@ -178,12 +176,14 @@ void gla::PrivateManager::translateBottomToTarget()
                     if (llvmInstruction->getOpcode() == llvm::Instruction::Br)
                         translator.addFlowControl(llvmInstruction);
                     else
-                        target->add(llvmInstruction);
+                        backEndTranslator->add(llvmInstruction);
                 }
             }
         }
+
+        backEndTranslator->endFunction();
     }
 
     //set_branchtargets(&v, currentInstructionructions, num_instructions);
-    target->print();
+    backEndTranslator->print();
 }
