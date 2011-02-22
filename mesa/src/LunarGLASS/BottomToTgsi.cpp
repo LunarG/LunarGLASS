@@ -229,7 +229,7 @@ protected:
             }
         }
 
-        if (const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value)) {
+        if (llvm::isa<llvm::Constant>(value)) {
             return PROGRAM_CONSTANT;
         }
 
@@ -506,7 +506,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
         break;
 
     case llvm::Instruction::Load:
-        if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(llvmInstruction->getOperand(0)->getType())) {
+        if (llvm::isa<llvm::PointerType>(llvmInstruction->getOperand(0)->getType())) {
             mesaOp = OPCODE_MOV;
         } else {
             printf("load instruction is not through pointer\n");
@@ -518,7 +518,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
         break;
 
     case llvm::Instruction::Store:
-        if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(llvmInstruction->getOperand(1)->getType())) {
+        if (llvm::isa<llvm::PointerType>(llvmInstruction->getOperand(1)->getType())) {
             mesaOp = OPCODE_MOV;
             destFromArg = 1;
         } else {
