@@ -19,7 +19,7 @@ talloc_SOURCES := \
 talloc_SOURCES := $(addprefix ../talloc/, $(talloc_SOURCES))
 
 lunarglass_SOURCES := \
-	$(shell ls ../LunarGLASS/*.cpp)
+	$(shell echo ../LunarGLASS/*.cpp)
 
 glsl_SOURCES := \
 	glcpp/glcpp-lex.c \
