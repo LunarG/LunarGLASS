@@ -72,7 +72,7 @@ namespace gla {
         llvm::Value* buildMatrixInverse    (llvm::Value*  matrix);
     };
 
-    enum ESamplerTypes {
+    enum ESamplerType {
         ESamplerBuffer,
         ESampler1D,
         ESampler2D,

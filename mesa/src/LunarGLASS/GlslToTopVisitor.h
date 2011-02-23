@@ -49,6 +49,8 @@
 #include "glsl_types.h"
 #include "glsl_parser_extras.h"
 
+#include "LunarGLASSTopIR.h"
+
 void GlslToTop(struct gl_shader*, llvm::Module*);
 
 //
@@ -103,6 +105,8 @@ public:
     llvm::Function* getLLVMIntrinsicFunction2(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
     llvm::Function* getLLVMIntrinsicFunction3(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
     llvm::Function* getLLVMIntrinsicFunction4(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
+    
+    void createLLVMTextureIntrinsic(llvm::Function* &, int &, llvm::Value**, llvm::Value**, llvm::Type*, llvm::Intrinsic::ID,  gla::ESamplerType, gla::ETextureFlags);
 
 protected:
     llvm::Module* module;

@@ -428,6 +428,7 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
     for(int i = 0; i < GLA_MAX_PARAMETER; i++)
         outParams[i] = llvmParams[i];
 
+    bool isBiased = false;
 
     //?? Figure out a cleaner way to select the correct intrinsic
     //switch(call->get_callee()->function()->name)
@@ -454,42 +455,26 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
         name = "powTmp";
     }
     else if(!strcmp(call->callee_name(), "texture2D")) {
-        outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, gla::ESampler2D, true));
-        outParams[1] = llvmParams[0];
-        outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32, NULL, true));  //flag enum
-        outParams[3] = llvmParams[1];
-        paramCount += 2;
-        intrinsicName = getLLVMIntrinsicFunction2(llvm::Intrinsic::gla_fTextureSample, resultType, llvmParams[1]->getType());
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, 
+                                   llvm::Intrinsic::gla_fTextureSample, gla::ESampler2D, texFlags);
         name = "texture2DTmp";
     } 
     else if(!strcmp(call->callee_name(), "texture3D")) {
-        outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, gla::ESampler3D, true));
-        outParams[1] = llvmParams[0];
-        outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32, NULL, true));  //flag enum
-        outParams[3] = llvmParams[1];
-        paramCount += 2;
-        intrinsicName = getLLVMIntrinsicFunction2(llvm::Intrinsic::gla_fTextureSample, resultType, llvmParams[1]->getType());
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, 
+                                   llvm::Intrinsic::gla_fTextureSample, gla::ESampler3D, texFlags);
         name = "texture3DTmp";
     } 
     else if(!strcmp(call->callee_name(), "texture2DProj")) {
         texFlags.EProjected = true;
-        outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, gla::ESampler2D, true));
-        outParams[1] = llvmParams[0];
-        outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32, *(int*)&texFlags, true));  //flag enum
-        outParams[3] = llvmParams[1];
-        paramCount += 2;
-        intrinsicName = getLLVMIntrinsicFunction2(llvm::Intrinsic::gla_fTextureSample, resultType, llvmParams[1]->getType());
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, 
+                                   llvm::Intrinsic::gla_fTextureSample, gla::ESampler2D, texFlags);
         name = "texture2DProjTmp";
     } 
     else if(!strcmp(call->callee_name(), "texture2DProjLod")) {
         texFlags.EProjected = true;
-        outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, gla::ESampler2D, true));
-        outParams[1] = llvmParams[0];
-        outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32,  *(int*)&texFlags, true));  //flag enum
-        outParams[3] = llvmParams[1];
-        outParams[4] = llvmParams[2];
-        paramCount += 2;
-        intrinsicName = getLLVMIntrinsicFunction2(llvm::Intrinsic::gla_fTextureSampleLod, resultType, llvmParams[1]->getType());
+        texFlags.ELod       = true;
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, 
+                                   llvm::Intrinsic::gla_fTextureSampleLod, gla::ESampler2D, texFlags);
         name = "texture2DProjLodTmp";
     }
     else if(!strcmp(call->callee_name(), "mix")){
@@ -506,6 +491,9 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
     // Create a call to it
     switch(paramCount)
     {
+    case 5:
+        callInst = builder.CreateCall5(intrinsicName, outParams[0] , outParams[1], outParams[2], outParams[3], outParams[4], name);
+        break;
     case 4:
         callInst = builder.CreateCall4(intrinsicName, outParams[0] , outParams[1], outParams[2], outParams[3], name);
         break;
@@ -902,4 +890,33 @@ llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction4(llvm::Intrinsic::ID 
 
     // Look up the intrinsic
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, intrinsicTypeCount);
+}
+
+void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName, int &paramCount, 
+                                                  llvm::Value** outParams, llvm::Value** llvmParams, llvm::Type* resultType, 
+                                                  llvm::Intrinsic::ID intrinsicID, gla::ESamplerType samplerType, gla::ETextureFlags texFlags)
+{
+    switch(intrinsicID) {
+    case llvm::Intrinsic::gla_fTextureSample:
+            outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, samplerType, true));
+            outParams[1] = llvmParams[0];
+            outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32, *(int*)&texFlags, true));  //flag enum
+            outParams[3] = llvmParams[1];
+            paramCount += 2;
+            intrinsicName = getLLVMIntrinsicFunction2(intrinsicID, resultType, llvmParams[1]->getType());
+            break;
+    case llvm::Intrinsic::gla_fTextureSampleLod:
+            outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, samplerType, true));
+            outParams[1] = llvmParams[0];
+            outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32,  *(int*)&texFlags, true));  //flag enum
+            outParams[3] = llvmParams[1];
+            outParams[4] = llvmParams[2];
+            paramCount += 2;
+            intrinsicName = getLLVMIntrinsicFunction2(intrinsicID, resultType, llvmParams[1]->getType());
+            break;
+    default:
+        assert(! "Unsupported texture intrinsic");
+    }
+
+    return;
 }
