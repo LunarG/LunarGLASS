@@ -30,15 +30,7 @@
 //===----------------------------------------------------------------------===//
 
 // LLVM includes
-#include "llvm/DerivedTypes.h"
-#include "llvm/LLVMContext.h"
-#include "llvm/Module.h"
-#include "llvm/PassManager.h"
-#include "llvm/Analysis/Verifier.h"
-#include "llvm/Transforms/Scalar.h"
-#include "llvm/Support/IRBuilder.h"
 #include "llvm/IntrinsicInst.h"
-#include "llvm/Intrinsics.h"
 
 #include <cstdio>
 #include <string>
@@ -144,7 +136,7 @@ public:
     {
         mesaInstruction->Opcode = OPCODE_IF;
         assert (_mesa_num_inst_src_regs(OPCODE_IF) == 1);
-        mapGlaOperandToMesa(cond, &mesaInstruction->SrcReg[0]);
+        mapGlaOperand(cond, &mesaInstruction->SrcReg[0]);
         incrementMesaInstruction();
     }
 
@@ -163,8 +155,8 @@ public:
     void addCopy(const llvm::Value* dst, const llvm::Value* src)
     {
         mesaInstruction->Opcode = OPCODE_MOV;
-        mapGlaOperandToMesa(src, &mesaInstruction->SrcReg[0]);
-        mapGlaDestinationToMesa(dst, &mesaInstruction->DstReg);
+        mapGlaOperand(src, &mesaInstruction->SrcReg[0]);
+        mapGlaDestination(dst, &mesaInstruction->DstReg);
         incrementMesaInstruction();
     }
 
@@ -182,7 +174,7 @@ protected:
         return mesaInstructions;
     }
 
-    void mapGlaIntrinsicToMesa(const llvm::IntrinsicInst* llvmInstruction);
+    void mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction);
 
     void incrementMesaInstruction()
     {
@@ -216,7 +208,7 @@ protected:
         return 0;
     }
 
-    gl_register_file mapGlaAddressSpaceToMesa(const llvm::Value* value)
+    gl_register_file mapGlaAddressSpace(const llvm::Value* value)
     {
         if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
             switch (pointer->getAddressSpace()) {
@@ -238,11 +230,11 @@ protected:
         return PROGRAM_TEMPORARY;
     }
 
-    void mapGlaOperandToMesa(const llvm::Value* value, prog_src_register *mesaRegister)
+    void mapGlaOperand(const llvm::Value* value, prog_src_register *mesaRegister)
     {
-        mesaRegister->File = mapGlaAddressSpaceToMesa(value);
+        mesaRegister->File = mapGlaAddressSpace(value);
         mesaRegister->Index = getValueIndex(mesaRegister->File, value);
-        mesaRegister->Swizzle = mapGlaComponentCountToMesaSwizzle(value);
+        mesaRegister->Swizzle = mapGlaComponentCountSwizzle(value);
         mesaRegister->RelAddr = 0;
         mesaRegister->Abs = 0;
         mesaRegister->Negate = NEGATE_NONE;
@@ -251,19 +243,19 @@ protected:
         mesaRegister->Index2 = 0;
     }
 
-    void mapGlaDestinationToMesa(const llvm::Value* value, prog_dst_register *mesaRegister)
+    void mapGlaDestination(const llvm::Value* value, prog_dst_register *mesaRegister)
     {
-        mesaRegister->File = mapGlaAddressSpaceToMesa(value);
+        mesaRegister->File = mapGlaAddressSpace(value);
         mesaRegister->Index = getValueIndex(mesaRegister->File, value);
         mesaRegister->CondMask = COND_TR;
         mesaRegister->RelAddr = 0;
         mesaRegister->CondSwizzle = SWIZZLE_XYZW;
         mesaRegister->CondSrc = 0;
 
-        mesaRegister->WriteMask = mapGlaComponentCountToMesaWriteMask(value);
+        mesaRegister->WriteMask = mapGlaComponentCountWriteMask(value);
     }
 
-    GLuint mapGlaComponentCountToMesaSwizzle(const llvm::Value* value)
+    GLuint mapGlaComponentCountSwizzle(const llvm::Value* value)
     {
         const llvm::Type* type = value->getType();
         const llvm::PointerType *pointerType = llvm::dyn_cast<llvm::PointerType>(type);
@@ -272,10 +264,10 @@ protected:
             type = pointerType->getContainedType(0);
         }
 
-        return mapComponentCountToMesaSwizzle(getGlaComponentCount(type));
+        return mapComponentCountSwizzle(getGlaComponentCount(type));
     }
 
-    GLuint mapComponentCountToMesaSwizzle(int numComponents)
+    GLuint mapComponentCountSwizzle(int numComponents)
     {
         switch (numComponents) {
         case 1:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_X, SWIZZLE_X, SWIZZLE_X);
@@ -288,7 +280,7 @@ protected:
         return SWIZZLE_XYZW;
     }
 
-    GLuint mapComponentToMesaSwizzle(int component)
+    GLuint mapComponentSwizzle(int component)
     {
         switch (component) {
         case 0: return SWIZZLE_XXXX;
@@ -301,7 +293,7 @@ protected:
         return SWIZZLE_XXXX;
     }
 
-    GLuint mapGlaComponentCountToMesaWriteMask(const llvm::Value* value)
+    GLuint mapGlaComponentCountWriteMask(const llvm::Value* value)
     {
         switch (getGlaComponentCount(value)) {
         case 1:   return WRITEMASK_X;
@@ -314,7 +306,7 @@ protected:
         return WRITEMASK_X;
     }
 
-    GLuint mapComponentToMesaWriteMask(int component)
+    GLuint mapComponentWriteMask(int component)
     {
         switch (component) {
         case 0:   return WRITEMASK_X;
@@ -327,7 +319,7 @@ protected:
         return WRITEMASK_X;
     }
 
-    GLuint mapGlaSamplerTypeToMesa(const llvm::Value* samplerType)
+    GLuint mapGlaSamplerType(const llvm::Value* samplerType)
     {
         switch(mapGlaToConstant(samplerType)) {
         case ESampler1D:        return TEXTURE_1D_INDEX;
@@ -406,7 +398,7 @@ protected:
         return index;
     }
 
-    int mapGlaSwizzleToMesa(int glaSwizzle)
+    int mapGlaSwizzle(int glaSwizzle)
     {
         // Hard coded to four wide AOS vector for graphics
         int components[4];
@@ -433,17 +425,17 @@ protected:
     int lastIndex[PROGRAM_FILE_MAX];  //?? currently skipping index 0, because 0 means not found in the map
 };
 
-namespace gla {
-    
-    gla::BackEndTranslator* GetTgsiTarget()
-    {
-        return new gla::MesaTarget();
-    }
+//
+// Factory for TGSI translator
+//
+gla::BackEndTranslator* gla::GetTgsiTranslator()
+{
+    return new gla::MesaTarget();
+}
 
-    void ReleaseTgsiTarget(gla::BackEndTranslator* target)
-    {
-        delete target;
-    }
+void gla::ReleaseTgsiTranslator(gla::BackEndTranslator* target)
+{
+    delete target;
 }
 
 //
@@ -476,28 +468,28 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
         temp = newIndex(PROGRAM_TEMPORARY);
         for (int c = 0; c < getGlaComponentCount(llvmInstruction->getOperand(1)); ++c) {
             mesaInstruction->Opcode = OPCODE_RCP;
-            mapGlaOperandToMesa(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[0]);
-            mesaInstruction->SrcReg[0].Swizzle = mapComponentToMesaSwizzle(c);
+            mapGlaOperand(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[0]);
+            mesaInstruction->SrcReg[0].Swizzle = mapComponentSwizzle(c);
             // copy the characteristics of the divisor for the result of the reciprocal
-            mapGlaDestinationToMesa(llvmInstruction->getOperand(1), &mesaInstruction->DstReg);
+            mapGlaDestination(llvmInstruction->getOperand(1), &mesaInstruction->DstReg);
             mesaInstruction->DstReg.Index = temp;
-            mesaInstruction->DstReg.WriteMask = mapComponentToMesaWriteMask(c);
+            mesaInstruction->DstReg.WriteMask = mapComponentWriteMask(c);
             incrementMesaInstruction();
         }
 
         // Second, do a multiply.
         mesaInstruction->Opcode = OPCODE_MUL;
-        mapGlaOperandToMesa(llvmInstruction->getOperand(0), &mesaInstruction->SrcReg[0]);
-        mapGlaOperandToMesa(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[1]);
+        mapGlaOperand(llvmInstruction->getOperand(0), &mesaInstruction->SrcReg[0]);
+        mapGlaOperand(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[1]);
         mesaInstruction->SrcReg[1].Index = temp;
-        mapGlaDestinationToMesa(llvmInstruction, &mesaInstruction->DstReg);
+        mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
         incrementMesaInstruction();
 
         return;
 
     case llvm::Instruction::Call: // includes intrinsics...
         if (const llvm::IntrinsicInst* i = llvm::dyn_cast<llvm::IntrinsicInst>(llvmInstruction)) {
-            mapGlaIntrinsicToMesa(i);
+            mapGlaIntrinsic(i);
             if (mesaOp == OPCODE_NOP)
                 return;
         } else {
@@ -573,13 +565,13 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
 
     // destination
     if (destFromArg >= 0)
-        mapGlaDestinationToMesa(llvmInstruction->getOperand(destFromArg), &mesaInstruction->DstReg);
+        mapGlaDestination(llvmInstruction->getOperand(destFromArg), &mesaInstruction->DstReg);
     else
-        mapGlaDestinationToMesa(llvmInstruction, &mesaInstruction->DstReg);
+        mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
 
     // operands
     for (int opNum = 0; opNum < _mesa_num_inst_src_regs(mesaOp); ++opNum) {
-        mapGlaOperandToMesa(llvmInstruction->getOperand(operandFrom[opNum]), &mesaInstruction->SrcReg[opNum]);
+        mapGlaOperand(llvmInstruction->getOperand(operandFrom[opNum]), &mesaInstruction->SrcReg[opNum]);
     }
 
     //switch (mesaInstruction->Opcode) {
@@ -629,7 +621,7 @@ void gla::MesaTarget::print()
 //
 // Handle the subcase of an LLVM instruction being an intrinsic call.
 //
-void gla::MesaTarget::mapGlaIntrinsicToMesa(const llvm::IntrinsicInst* llvmInstruction)
+void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction)
 {
     mesaOp = OPCODE_NOP;
 
@@ -637,8 +629,8 @@ void gla::MesaTarget::mapGlaIntrinsicToMesa(const llvm::IntrinsicInst* llvmInstr
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_writeData:
         mesaInstruction->Opcode = OPCODE_MOV;
-        mapGlaOperandToMesa(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[0]);
-        mapGlaDestinationToMesa(llvmInstruction->getOperand(1), &mesaInstruction->DstReg);
+        mapGlaOperand(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[0]);
+        mapGlaDestination(llvmInstruction->getOperand(1), &mesaInstruction->DstReg);
         mesaInstruction->DstReg.File = PROGRAM_OUTPUT;
         mesaInstruction->DstReg.Index = mapGlaToConstant(llvmInstruction->getOperand(0));
         incrementMesaInstruction();
@@ -646,10 +638,10 @@ void gla::MesaTarget::mapGlaIntrinsicToMesa(const llvm::IntrinsicInst* llvmInstr
         return;
     case llvm::Intrinsic::gla_getInterpolant:
         mesaInstruction->Opcode = OPCODE_MOV;
-        mapGlaDestinationToMesa(llvmInstruction, &mesaInstruction->DstReg);
+        mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
         mesaInstruction->SrcReg[0].File = PROGRAM_INPUT;
         mesaInstruction->SrcReg[0].Index = mapGlaToConstant(llvmInstruction->getOperand(0));
-        mesaInstruction->SrcReg[0].Swizzle = mapGlaComponentCountToMesaSwizzle(llvmInstruction);
+        mesaInstruction->SrcReg[0].Swizzle = mapGlaComponentCountSwizzle(llvmInstruction);
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
         return;
@@ -662,7 +654,7 @@ void gla::MesaTarget::mapGlaIntrinsicToMesa(const llvm::IntrinsicInst* llvmInstr
     case llvm::Intrinsic::gla_fTextureSampleLodOffset:
     case llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad:
         //TODO:  Mesa expects proj/bias/lod to be in coord.w channel.  This is not implemented yet.
-        mesaInstruction->TexSrcTarget = mapGlaSamplerTypeToMesa(llvmInstruction->getOperand(0));
+        mesaInstruction->TexSrcTarget = mapGlaSamplerType(llvmInstruction->getOperand(0));
         mesaInstruction->TexShadow    = 0;   // ?? may be only for the shader to generate the compare itself
         mesaInstruction->TexSrcUnit   = 17;  // ?? may be a linker-created slot number for the sampler
 
@@ -691,12 +683,12 @@ void gla::MesaTarget::mapGlaIntrinsicToMesa(const llvm::IntrinsicInst* llvmInstr
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_fSwizzle:
         mesaInstruction->Opcode = OPCODE_MOV;
-        mapGlaOperandToMesa(llvmInstruction->getOperand(0), &mesaInstruction->SrcReg[0]);
-        mapGlaDestinationToMesa(llvmInstruction, &mesaInstruction->DstReg);
+        mapGlaOperand(llvmInstruction->getOperand(0), &mesaInstruction->SrcReg[0]);
+        mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
 
         // GLA uses 2 bits per channel, Mesa uses 3...
         int glaSwizzle = mapGlaToConstant(llvmInstruction->getOperand(1));
-        mesaInstruction->SrcReg[0].Swizzle = mapGlaSwizzleToMesa(glaSwizzle);
+        mesaInstruction->SrcReg[0].Swizzle = mapGlaSwizzle(glaSwizzle);
 
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;

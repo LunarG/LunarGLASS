@@ -54,6 +54,8 @@ namespace gla {
         virtual void print() = 0;
     };
 
+    class BackEnd;
+
     class PrivateManager : public gla::Manager {
     public:
         PrivateManager();
@@ -68,8 +70,11 @@ namespace gla {
         virtual void runLLVMOptimizations1();
         llvm::Module* module;
         gla::BackEndTranslator* backEndTranslator;
+        gla::BackEnd* backEnd;
     };
 
+    const bool UseTgsiBackend = true;
 }
+
 
 #endif /* GlaManager_H */

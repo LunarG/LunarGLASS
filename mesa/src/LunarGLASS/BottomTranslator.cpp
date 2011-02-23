@@ -148,6 +148,11 @@ void gla::PrivateManager::translateBottomToTarget()
     // that does the same thing, and could later be plugged into that pointer.
 
     gla::BottomTranslator translator(backEndTranslator);
+    bool breakOp, continueOp, earlyReturnOp, discardOp;
+    gla::EFlowControlMode flowControlMode;
+
+    backEnd->getControlFlowMode(flowControlMode, breakOp, continueOp, earlyReturnOp, discardOp);
+    assert(flowControlMode != gla::EFcmExplicitMasking);
 
     llvm::Module::const_iterator function, lastFunction;
     for (function = module->begin(), lastFunction = module->end(); function != lastFunction; ++function) {
@@ -173,15 +178,15 @@ void gla::PrivateManager::translateBottomToTarget()
                     //?? what are compare llvmInstruction predicates
                     // if (const CmpInst *CI = dyn_cast<CmpInst>(&llvmInstruction))
 
-                    if (llvmInstruction->getOpcode() == llvm::Instruction::Br)
+                    if (llvmInstruction->getOpcode() == llvm::Instruction::Br && flowControlMode == EFcmStructuredOpCodes)
                         translator.addFlowControl(llvmInstruction);
                     else
                         backEndTranslator->add(llvmInstruction);
                 }
             }
-        }
 
-        backEndTranslator->endFunction();
+            backEndTranslator->endFunction();
+        }
     }
 
     //set_branchtargets(&v, currentInstructionructions, num_instructions);

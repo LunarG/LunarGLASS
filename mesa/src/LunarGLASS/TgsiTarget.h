@@ -28,8 +28,9 @@
 
 namespace gla {
 
-    BackEndTranslator* GetTgsiTarget();
-    void ReleaseTgsiTarget(gla::BackEndTranslator*);
+    BackEndTranslator* GetTgsiTranslator();
+    void ReleaseTgsiTranslator(gla::BackEndTranslator*);
+
     BackEnd* GetTgsiBackEnd();
     void ReleaseTgsiBackEnd(gla::BackEnd*);
 };

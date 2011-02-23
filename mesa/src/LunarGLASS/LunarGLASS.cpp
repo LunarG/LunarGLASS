@@ -30,6 +30,7 @@
 #include "llvm/Module.h"
 
 #include "TgsiTarget.h"
+#include "GlslTarget.h"
 
 gla::Manager* gla::getManager()
 {
@@ -38,13 +39,26 @@ gla::Manager* gla::getManager()
 
 gla::PrivateManager::PrivateManager() : module(0)
 {
-    backEndTranslator = gla::GetTgsiTarget();
+    if (gla::UseTgsiBackend) {
+        backEndTranslator = gla::GetTgsiTranslator();        
+        backEnd = gla::GetTgsiBackEnd();
+    } else {
+        backEndTranslator = gla::GetGlslTranslator();        
+        backEnd = gla::GetGlslBackEnd();
+    }
 }
 
 gla::PrivateManager::~PrivateManager()
 {
     delete module;
-    gla::ReleaseTgsiTarget(backEndTranslator);
+
+    if (gla::UseTgsiBackend) {
+        gla::ReleaseTgsiTranslator(backEndTranslator);
+        gla::ReleaseTgsiBackEnd(backEnd);
+    } else {
+        gla::ReleaseGlslTranslator(backEndTranslator);
+        gla::ReleaseGlslBackEnd(backEnd);
+    }
 }
 
 void gla::BackEnd::getRegisterForm(int& outerSoA, int& innerAoS)

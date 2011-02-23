@@ -104,7 +104,7 @@ namespace gla {
                                         bool& breakOp, bool& continueOp,
                                         bool& earlyReturnOp, bool& discardOp)
         {
-            flowControlMode = EFcmDynamic;
+            flowControlMode = EFcmStructuredOpCodes;
             breakOp = true;
             continueOp = true;
             earlyReturnOp = true;
@@ -114,6 +114,11 @@ namespace gla {
         virtual bool decomposeIntrinsic(int intrinsic)
         {
             return decompose[intrinsic];
+        }
+         
+        virtual bool preferRegistersOverMemory()
+        {
+            return true;
         }
 
     protected:

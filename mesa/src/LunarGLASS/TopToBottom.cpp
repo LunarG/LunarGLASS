@@ -44,6 +44,7 @@
 #include "LunarGLASSBottomIR.h"
 #include "Manager.h"
 #include "TgsiTarget.h"
+#include "GlslTarget.h"
 
 void gla::PrivateManager::translateTopToBottom()
 {
@@ -56,8 +57,6 @@ void gla::PrivateManager::translateTopToBottom()
 
     module->dump();
 
-    gla::BackEnd* backEnd = gla::GetTgsiBackEnd();
-
     int innerAoS, outerSoA;
     backEnd->getRegisterForm(outerSoA, innerAoS);
     assert(outerSoA == 1);
@@ -67,13 +66,11 @@ void gla::PrivateManager::translateTopToBottom()
     for (int d = 0; d < gla::EDiCount; ++d)
         assert(! backEnd->decomposeIntrinsic(d));
 
-    gla::ReleaseTgsiBackEnd(backEnd);
-
     printf("Finishing translation from Top IR to Bottom IR\n");
 }
 
 void gla::PrivateManager::runLLVMOptimizations1()
-{    
+{
     // Set up the function-level optimizations we want
     llvm::FunctionPassManager passManager(module);
     passManager.add(llvm::createPromoteMemoryToRegisterPass());
@@ -107,5 +104,16 @@ void gla::PrivateManager::runLLVMOptimizations1()
             postGlobalManager.run(*function);
         }
         postGlobalManager.doFinalization();
+    }
+
+    if (! backEnd->preferRegistersOverMemory()) {
+        llvm::FunctionPassManager memoryPassManager(module);
+        memoryPassManager.add(llvm::createDemoteRegisterToMemoryPass());
+
+        memoryPassManager.doInitialization();
+        for (function = module->begin(), lastFunction = module->end(); function != lastFunction; ++function) {
+            memoryPassManager.run(*function);
+        }
+        memoryPassManager.doFinalization();
     }
 }
