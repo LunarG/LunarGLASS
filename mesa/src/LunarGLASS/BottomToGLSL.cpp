@@ -89,6 +89,7 @@ namespace gla {
     class GlslTarget;
 
     enum EVariableQualifier {
+        EVQNone,
         EVQUniform,
         EVQGlobal,
         EVQInput,
@@ -108,6 +109,12 @@ public:
 
     ~GlslTarget()
     {
+    }
+
+    void addGlobal(const llvm::GlobalVariable* global)
+    {
+        addNewVariable(global, global->getNameStr());
+        declareVariable(global, global->getNameStr().c_str());
     }
         
     void startFunction() 
@@ -366,13 +373,15 @@ protected:
         }
     }
 
-    void declareVariable(const llvm::Value* value, const char* varString)
+    void declareVariable(const llvm::Value* value, const char* varString, EVariableQualifier vq = EVQNone)
     {
-        EVariableQualifier vq = mapGlaAddressSpace(value);
+        if (vq == EVQNone)
+            vq = mapGlaAddressSpace(value);
 
         switch (vq) {
         case EVQUniform:
         case EVQConstant:
+        case EVQInput:
             globalDeclarations << mapGlaToQualifierString(vq) << " ";
             mapGlaType(globalDeclarations, value);
             globalDeclarations << " " << varString << ";" << std::endl;
@@ -408,6 +417,17 @@ protected:
         }
 
         shader << valueMap[value]->c_str();
+    }    
+
+    bool addNewVariable(const llvm::Value* value, std::string& name)
+    {
+        if (valueMap[value] == 0) {
+            valueMap[value] = new std::string(name);  //?? need to delete these?
+            return true;
+        } else {
+            assert(name == *valueMap[value]);
+            return false;
+        }
     }
 
     void mapGlaSwizzle(int glaSwizzle)
@@ -561,10 +581,9 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         return;
 
     case llvm::Intrinsic::gla_getInterpolant:
-        mapGlaDestination(llvmInstruction);
-        globalDeclarations << "varying vec4 " << mapGlaToQualifierString(EVQInput) << mapGlaToConstant(llvmInstruction->getOperand(0)) << ";" << std::endl;
-        shader << " = " << mapGlaToQualifierString(EVQInput) << mapGlaToConstant(llvmInstruction->getOperand(0));
-        shader << ";";
+        if (addNewVariable(llvmInstruction, llvmInstruction->getNameStr())) {
+            declareVariable(llvmInstruction, llvmInstruction->getNameStr().c_str(), EVQInput);
+        }
         return;
     }
 

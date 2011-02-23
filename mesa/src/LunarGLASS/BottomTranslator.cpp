@@ -154,6 +154,15 @@ void gla::PrivateManager::translateBottomToTarget()
     backEnd->getControlFlowMode(flowControlMode, breakOp, continueOp, earlyReturnOp, discardOp);
     assert(flowControlMode != gla::EFcmExplicitMasking);
 
+    //
+    // Translate globals.
+    //
+    for (llvm::Module::const_global_iterator global = module->global_begin(), end = module->global_end(); global != end; ++global)
+        backEndTranslator->addGlobal(global);
+
+    //
+    // Translate code.
+    //
     llvm::Module::const_iterator function, lastFunction;
     for (function = module->begin(), lastFunction = module->end(); function != lastFunction; ++function) {
         if (function->isDeclaration()) {

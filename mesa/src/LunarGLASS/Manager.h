@@ -43,9 +43,10 @@ namespace gla {
     public:
         BackEndTranslator() { }
         virtual ~BackEndTranslator() { }
+        virtual void addGlobal(const llvm::GlobalVariable*) { }
         virtual void startFunction() = 0;
         virtual void endFunction() = 0;
-        virtual void add(const llvm::Instruction* llvmInstruction) = 0;
+        virtual void add(const llvm::Instruction*) = 0;
         virtual void addIf(const llvm::Value* cond) = 0;
         virtual void addElse() = 0;
         virtual void addEndif() = 0;

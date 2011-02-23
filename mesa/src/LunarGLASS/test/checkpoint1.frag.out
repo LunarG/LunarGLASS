@@ -9,18 +9,18 @@
 
 define void @main() {
 entry:
-  %assignment_tmp4 = alloca <4 x float>
+  %assignment_tmp3 = alloca <4 x float>
   %mix_retval = alloca <4 x float>
   %w = alloca <4 x float>
-  %assignment_tmp2 = alloca <4 x float>
+  %assignment_tmp1 = alloca <4 x float>
   %texture3D_retval = alloca <4 x float>
   %v = alloca <4 x float>
   %assignment_tmp = alloca <4 x float>
   %texture2D_retval = alloca <4 x float>
   %0 = load i32 addrspace(1)* @texSampler2D
-  %getInterpolant = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
+  %t = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
   %1 = load <2 x float> addrspace(1)* @scale
-  %fAddTmp = fadd <2 x float> %getInterpolant, %1
+  %fAddTmp = fadd <2 x float> %t, %1
   %2 = load <2 x float> addrspace(1)* @scale
   %fDivTmp = fdiv <2 x float> %fAddTmp, %2
   %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %fDivTmp)
@@ -31,14 +31,14 @@ entry:
   %4 = load <4 x float>* %assignment_tmp
   store <4 x float> %4, <4 x float>* %v
   %5 = load i32 addrspace(1)* @texSampler3D
-  %getInterpolant1 = call <3 x float> @llvm.gla.getInterpolant.v3f32(i32 0)
-  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %5, i32 0, <3 x float> %getInterpolant1)
+  %coords = call <3 x float> @llvm.gla.getInterpolant.v3f32(i32 0)
+  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %5, i32 0, <3 x float> %coords)
   store <4 x float> %texture3DTmp, <4 x float>* %texture3D_retval
   %6 = load <4 x float>* %texture3D_retval
   %7 = load <4 x float>* %v
-  %fAddTmp3 = fadd <4 x float> %6, %7
-  store <4 x float> %fAddTmp3, <4 x float>* %assignment_tmp2
-  %8 = load <4 x float>* %assignment_tmp2
+  %fAddTmp2 = fadd <4 x float> %6, %7
+  store <4 x float> %fAddTmp2, <4 x float>* %assignment_tmp1
+  %8 = load <4 x float>* %assignment_tmp1
   store <4 x float> %8, <4 x float>* %w
   %9 = load <4 x float>* %w
   %10 = load <4 x float> addrspace(1)* @u
@@ -48,8 +48,8 @@ entry:
   %mixTmp = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %9, <4 x float> %10, float %fMulTmp)
   store <4 x float> %mixTmp, <4 x float>* %mix_retval
   %13 = load <4 x float>* %mix_retval
-  store <4 x float> %13, <4 x float>* %assignment_tmp4
-  %14 = load <4 x float>* %assignment_tmp4
+  store <4 x float> %13, <4 x float>* %assignment_tmp3
+  %14 = load <4 x float>* %assignment_tmp3
   store <4 x float> %14, <4 x float>* @gl_FragColor
   %15 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %15)
@@ -80,20 +80,20 @@ declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
 define void @main() {
 entry:
   %0 = load i32 addrspace(1)* @texSampler2D
-  %getInterpolant = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
+  %t = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
   %1 = load <2 x float> addrspace(1)* @scale
-  %fAddTmp = fadd <2 x float> %getInterpolant, %1
+  %fAddTmp = fadd <2 x float> %t, %1
   %fDivTmp = fdiv <2 x float> %fAddTmp, %1
   %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %fDivTmp)
   %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float> %texture2DTmp, i32 27)
   %2 = load i32 addrspace(1)* @texSampler3D
-  %getInterpolant1 = call <3 x float> @llvm.gla.getInterpolant.v3f32(i32 0)
-  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %2, i32 0, <3 x float> %getInterpolant1)
-  %fAddTmp3 = fadd <4 x float> %texture3DTmp, %swizzleTmp
+  %coords = call <3 x float> @llvm.gla.getInterpolant.v3f32(i32 0)
+  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %2, i32 0, <3 x float> %coords)
+  %fAddTmp2 = fadd <4 x float> %texture3DTmp, %swizzleTmp
   %3 = load <4 x float> addrspace(1)* @u
   %4 = load float addrspace(1)* @blend
   %fMulTmp = fmul float %4, %4
-  %mixTmp = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %fAddTmp3, <4 x float> %3, float %fMulTmp)
+  %mixTmp = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %fAddTmp2, <4 x float> %3, float %fMulTmp)
   call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %mixTmp)
   ret void
 }

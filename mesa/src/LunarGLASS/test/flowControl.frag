@@ -11,23 +11,7 @@ void main()
 	vec4 color2;
 
 	color2 = otherColor;
-/*
-	if (c > d*d) {
-		if (c > d) {
-			color += bigColor;
-			color2 = smallColor;
-		} else {
-			color += smallColor;
-		}
-	} else {	
-		if (c > d) {
-			color += bigColor;
-			color2 = smallColor;
-		} else {
-			color += smallColor;
-		}
-    }
-*/
+
     if (c > d)
 	    color += bigColor;
 	else

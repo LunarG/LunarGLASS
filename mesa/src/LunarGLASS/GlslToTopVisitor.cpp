@@ -199,7 +199,7 @@ ir_visitor_status
             // For pipeline inputs, and we will generate a fresh pipeline read at each reference, 
             // which we will optimize later.
             llvm::Function *intrinsicName = 0;
-            char *name = NULL;
+            const char *name = NULL;
 
             // TODO:  We're hard coding our output location to 0 for bringup
             llvm::Constant *llvmConstant = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
@@ -208,7 +208,7 @@ ir_visitor_status
             if(glShader->Type == GL_FRAGMENT_SHADER) {
                 intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::gla_getInterpolant,
                                                         convertGLSLToLLVMType(var->type));
-                name = "getInterpolant";
+                name = var->name;
             } else {
                 assert(!"getAttribute not supported yet for VS");
             }
