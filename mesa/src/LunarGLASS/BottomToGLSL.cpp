@@ -26,6 +26,10 @@
 //
 //===----------------------------------------------------------------------===//
 
+#ifdef _WIN32
+#define snprintf _snprintf
+#endif
+
 // LLVM includes
 #include "llvm/IntrinsicInst.h"
 
@@ -370,7 +374,7 @@ protected:
             }
         } else {
             varString->append(mapGlaToQualifierString(mapGlaAddressSpace(value)));
-            _snprintf(buf, bufSize, "%d", lastVariable);
+            snprintf(buf, bufSize, "%d", lastVariable);
             varString->append(buf);
         }
     }
