@@ -45,7 +45,8 @@
 #include "Manager.h"
 #include "GlslTarget.h"
 
-const bool Obfuscate = false;
+const bool Obfuscate = false; // Note:  This should be a command line option
+const int GlslVersion = 130;  // Note:  This should come from the original source
 
 //
 // Implement the GLSL backend
@@ -110,6 +111,7 @@ public:
     {
         indentLevel = 0;
         lastVariable = 20;
+        globalDeclarations << "#version " << GlslVersion << std::endl;
     }
 
     ~GlslTarget()
@@ -244,17 +246,21 @@ protected:
 
     const char* mapGlaToQualifierString(EVariableQualifier vq)
     {
+        const char *string = "UNKNOWN QUALIFIER";
+
         switch (vq) {
-        case EVQUniform:    return "uniform";
-        case EVQGlobal:     return "global";
-        case EVQInput:      return "varying";
-        case EVQOutput:     return "varying";
-        case EVQTemporary:  return "temp";
-        case EVQConstant:   return "const";
+        case EVQUniform:         string = "uniform";                  break;
+        case EVQGlobal:          string = "global";                   break;
+        case EVQInput:      
+            GlslVersion >= 130 ? string = "in" : string = "varying";  break;
+        case EVQOutput:     
+            GlslVersion >= 130 ? string = "out": string = "varying";  break;
+        case EVQTemporary:       string = "temp";                     break;
+        case EVQConstant:        string = "const";                    break;
         default: assert(! "unknown VariableQualifier");
         }
 
-        return "";
+        return string;
     }
 
     void mapGlaOperand(const llvm::Value* value)
