@@ -429,6 +429,8 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
         outParams[i] = llvmParams[i];
 
     bool isBiased = false;
+    llvm::Intrinsic::ID textureIntrinsicID = llvm::Intrinsic::gla_fTextureSample;
+    gla::ESamplerType   samplerType;
 
     //?? Figure out a cleaner way to select the correct intrinsic
     //switch(call->get_callee()->function()->name)
@@ -454,34 +456,161 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
         intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::pow, resultType);
         name = "powTmp";
     }
+    else if(!strcmp(call->callee_name(), "texture1D")) {
+        samplerType    = gla::ESampler1D;
+        texFlags.EBias = (paramCount > 2) ? true : false;
+        name           = "texture1DTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "texture1DProj")) {
+        samplerType         = gla::ESampler1D;
+        texFlags.EProjected = true;
+        texFlags.EBias      = (paramCount > 2) ? true : false;
+        name                = "texture1DProjTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "texture1DLod")) {
+        textureIntrinsicID   = llvm::Intrinsic::gla_fTextureSampleLod;
+        samplerType   = gla::ESampler1D;
+        texFlags.ELod = true;
+        name          = "texture1DLodTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "texture1DProjLod")) {
+        textureIntrinsicID   = llvm::Intrinsic::gla_fTextureSampleLod;
+        samplerType   = gla::ESampler1D;
+        texFlags.ELod = true;
+        name          = "texture1DLodTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
     else if(!strcmp(call->callee_name(), "texture2D")) {
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, 
-                                   llvm::Intrinsic::gla_fTextureSample, gla::ESampler2D, texFlags);
-        name = "texture2DTmp";
-    } 
-    else if(!strcmp(call->callee_name(), "texture3D")) {
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, 
-                                   llvm::Intrinsic::gla_fTextureSample, gla::ESampler3D, texFlags);
-        name = "texture3DTmp";
+        samplerType      = gla::ESampler2D;
+        texFlags.EBias   = (paramCount > 2) ? true : false;
+        name             = "texture2DTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     } 
     else if(!strcmp(call->callee_name(), "texture2DProj")) {
+        samplerType         = gla::ESampler2D;
         texFlags.EProjected = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, 
-                                   llvm::Intrinsic::gla_fTextureSample, gla::ESampler2D, texFlags);
-        name = "texture2DProjTmp";
-    } 
+        texFlags.EBias      = (paramCount > 2) ? true : false;
+        name                = "texture2DProjTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "texture2DLod")) {
+        textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
+        samplerType         = gla::ESampler2D;
+        texFlags.ELod       = true;
+        name                = "texture2DLodTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
     else if(!strcmp(call->callee_name(), "texture2DProjLod")) {
+        textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
+        samplerType         = gla::ESampler2D;
         texFlags.EProjected = true;
         texFlags.ELod       = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, 
-                                   llvm::Intrinsic::gla_fTextureSampleLod, gla::ESampler2D, texFlags);
-        name = "texture2DProjLodTmp";
+        name                = "texture2DProjLodTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "texture3D")) {
+        samplerType     = gla::ESampler3D;
+        texFlags.EBias  = (paramCount > 2) ? true : false;
+        name            = "texture3DTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    } 
+    else if(!strcmp(call->callee_name(), "texture3DProj")) {
+        samplerType         = gla::ESampler3D;
+        texFlags.EProjected = true;
+        texFlags.EBias      = (paramCount > 2) ? true : false;
+        name                = "texture3DProjTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "texture3DLod")) {
+        samplerType     = gla::ESampler3D;
+        texFlags.ELod   = true;
+        name            = "texture3DLodTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "texture3DProjLod")) {
+        textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
+        samplerType         = gla::ESampler3D;
+        texFlags.EProjected = true;
+        texFlags.ELod       = true;
+        name                = "texture3DLodTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "textureCube")) {
+        samplerType     = gla::ESamplerCube;
+        texFlags.EBias  = (paramCount > 2) ? true : false;
+        name            = "textureCubeTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "textureCubeLod ")) {
+        textureIntrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
+        samplerType        = gla::ESamplerCube;
+        texFlags.ELod      = true;
+        name               = "textureCubeLodTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "shadow1D")) {
+        samplerType     = gla::ESampler1DShadow;
+        texFlags.EBias  = (paramCount > 2) ? true : false;
+        name            = "shadow1DTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "shadow2D")) {
+        samplerType     = gla::ESampler2DShadow;
+        texFlags.EBias  = (paramCount > 2) ? true : false;
+        name            = "shadow2DTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "shadow1DProj")) {
+        samplerType         = gla::ESampler1DShadow;
+        texFlags.EProjected = true;
+        texFlags.EBias      = (paramCount > 2) ? true : false;
+        name                = "shadow1DProjTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "shadow2DProj")) {
+        samplerType         = gla::ESampler2DShadow;
+        texFlags.EProjected = true;
+        texFlags.EBias      = (paramCount > 2) ? true : false;
+        name                = "shadow2DProjTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "shadow1DLod")) {
+        textureIntrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
+        samplerType        = gla::ESampler1DShadow;
+        texFlags.ELod      = true;
+        name               = "shadow1DLodTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "shadow2DLod")) {
+        textureIntrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
+        samplerType        = gla::ESampler2DShadow;
+        texFlags.ELod      = true;
+        name               = "shadow2DLodTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "shadow1DProjLod")) {
+        textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
+        samplerType         = gla::ESampler1DShadow;
+        texFlags.EProjected = true;
+        texFlags.ELod       = true;
+        name                = "shadow1DProjLodTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+    }
+    else if(!strcmp(call->callee_name(), "shadow2DProjLod")) {
+        textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
+        samplerType         = gla::ESampler2DShadow;
+        texFlags.EProjected = true;
+        texFlags.ELod       = true;
+        name                = "shadow2DProjLodTmp";
+        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "mix")){
         intrinsicName = getLLVMIntrinsicFunction4(llvm::Intrinsic::gla_fMix, resultType, llvmParams[0]->getType(), llvmParams[1]->getType(), llvmParams[2]->getType());
         name = "mixTmp";
     }
-
     else {
         assert(!"Unsupported built-in");
     }
@@ -896,12 +1025,21 @@ void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName
                                                   llvm::Value** outParams, llvm::Value** llvmParams, llvm::Type* resultType, 
                                                   llvm::Intrinsic::ID intrinsicID, gla::ESamplerType samplerType, gla::ETextureFlags texFlags)
 {
+    bool isBiased = texFlags.EBias;
+
     switch(intrinsicID) {
     case llvm::Intrinsic::gla_fTextureSample:
             outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, samplerType, true));
             outParams[1] = llvmParams[0];
             outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32, *(int*)&texFlags, true));  //flag enum
             outParams[3] = llvmParams[1];
+            
+            if (isBiased) {
+                //Bias requires SampleLod with EBias flag
+                intrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
+                outParams[4] = llvmParams[2];
+            }
+
             paramCount += 2;
             intrinsicName = getLLVMIntrinsicFunction2(intrinsicID, resultType, llvmParams[1]->getType());
             break;
