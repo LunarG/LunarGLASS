@@ -570,7 +570,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
         mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
 
     // operands
-    for (int opNum = 0; opNum < _mesa_num_inst_src_regs(mesaOp); ++opNum) {
+    for (unsigned int opNum = 0; opNum < _mesa_num_inst_src_regs(mesaOp); ++opNum) {
         mapGlaOperand(llvmInstruction->getOperand(operandFrom[opNum]), &mesaInstruction->SrcReg[opNum]);
     }
 

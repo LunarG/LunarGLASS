@@ -109,7 +109,7 @@ protected:
     void addPhiCopies(const llvm::Instruction* llvmInstruction)
     {
         // for each child block
-        for (int op = 0; op < llvmInstruction->getNumOperands(); ++op) {
+        for (unsigned int op = 0; op < llvmInstruction->getNumOperands(); ++op) {
 
             // get the destination block (not all operands are blocks, but consider each that is)
             const llvm::BasicBlock *phiBlock = llvm::dyn_cast<llvm::BasicBlock>(llvmInstruction->getOperand(op));

@@ -84,24 +84,24 @@ llvm::Value* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
         {
         case GLSL_TYPE_UINT:
             destVecTy = llvm::VectorType::get((llvm::Type*)llvm::Type::getInt32Ty(context), vecCount);
-            for(int i = 0; i < vecCount; ++i)
+            for(unsigned int i = 0; i < vecCount; ++i)
                 vals.push_back(llvm::ConstantInt::get(context, llvm::APInt(32, (uint64_t)constant->value.u[i], false)));
             break;
         case GLSL_TYPE_INT:
             destVecTy = llvm::VectorType::get((llvm::Type*)llvm::Type::getInt32Ty(context), vecCount);
-            for(int i = 0; i < vecCount; ++i)
+            for(unsigned int i = 0; i < vecCount; ++i)
                 vals.push_back(llvm::ConstantInt::get(context, llvm::APInt(32, (uint64_t)constant->value.i[i], true)));
             break;
         case GLSL_TYPE_FLOAT:
             destVecTy = llvm::VectorType::get((llvm::Type*)llvm::Type::getFloatTy(context), vecCount);
-            for(int i = 0; i < vecCount; ++i)
+            for(unsigned int i = 0; i < vecCount; ++i)
                 vals.push_back(llvm::ConstantFP::get(context, llvm::APFloat(constant->value.f[i])));
             break;
         case GLSL_TYPE_BOOL:
             //Treat bools as ints for now
             //?? Query the backend for bool width?
             destVecTy = llvm::VectorType::get((llvm::Type*)llvm::Type::getInt32Ty(context), vecCount);
-            for(int i = 0; i < vecCount; ++i)
+            for(unsigned int i = 0; i < vecCount; ++i)
                 vals.push_back(llvm::ConstantInt::get(context, llvm::APInt(32, (uint64_t)constant->value.u[i], false)));
             break;
         case GLSL_TYPE_SAMPLER:

@@ -34,6 +34,7 @@
 #include <sstream>
 #include <map>
 #include <vector>
+#include <cstdio>
 
 // LunarGLASS includes
 #include "LunarGLASSBottomIR.h"
@@ -349,7 +350,8 @@ protected:
     void getNewVariable(const llvm::Value* value, std::string* varString)
     {
         ++lastVariable;
-        char buf[10];
+        const size_t bufSize = 10;
+        char buf[bufSize];
         if (Obfuscate) {
             int i;
             for (i = 0; i <= lastVariable-4; i += 4) {
@@ -368,7 +370,7 @@ protected:
             }
         } else {
             varString->append(mapGlaToQualifierString(mapGlaAddressSpace(value)));
-            sprintf(buf, "%d", lastVariable);
+            _snprintf(buf, bufSize, "%d", lastVariable);
             varString->append(buf);
         }
     }
@@ -644,7 +646,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     assert(callString);
     mapGlaDestination(llvmInstruction);
     shader << " = " << callString << "(";
-    for (int op = 0; op < llvmInstruction->getNumOperands(); ++op) {
+    for (unsigned int op = 0; op < llvmInstruction->getNumOperands(); ++op) {
         if (op > 0)
             shader << ", ";
         mapGlaOperand(llvmInstruction->getOperand(op));
