@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+DESCRIPTION="\
+Description: Run a test, make a graph of the regions
+"
+
+USAGE="\
+Usage: ./runtest [options] test
+
+       Options:
+         -h --help        Print out this Usage info
+         -n --no-sa       Don't do any Structural Analysis
+"
+
+OPTPATH="../../../build/install/usr/local/bin/opt"
+SALIB="../../../Release/lib/StructuralAnalysis.so"
+DEBUG="--debug-pass=Structure"
+SAPASS="-sa"
+DOTPASS="-dot-regions"
+GRAPHFILE="graph.ps"
+
+# Arguments passed
+for i in $*; do
+    case $i in
+        -n|--no-sa)
+            SAPASS=""
+            ;;
+        -h|--h)
+            showHelp
+            exit 0
+            ;;
+        *)
+            TEST=$i
+            ;;
+    esac
+done
+
+$OPTPATH -load $SALIB $DEBUG $SAPASS $DOTPASS < $TEST > /dev/null ; dot -o $GRAPHFILE -Tps reg.main.dot

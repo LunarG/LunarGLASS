@@ -1,0 +1,23 @@
+; ModuleID = 'Top'
+
+define void @main() {
+
+entry:
+  br label %B1
+
+B1:
+  br i1 true, label %B1, label %B3
+
+B3:
+  br i1 true, label %B4, label %B5b
+
+B4:
+  br i1 true, label %exit, label %B4
+
+B5b:
+  br i1 true, label %exit, label %B5b
+
+exit:
+  ret void
+
+}
