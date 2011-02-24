@@ -163,7 +163,7 @@ int use_gla = 0;
 int do_link = 0;
 int do_glsl_to_mesa_ir = 1;
 
-const struct { char* arg; int foo; int* flag; int bar;} compiler_opts[] = {
+const struct { const char* arg; int foo; int* flag; int bar;} compiler_opts[] = {
    { "glsl-es",  0, &glsl_es,  1 },
    { "dump-ast", 0, &dump_ast, 1 },
    { "dump-hir", 0, &dump_hir, 1 },

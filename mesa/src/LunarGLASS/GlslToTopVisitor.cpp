@@ -44,7 +44,7 @@ void GlslToTop(struct gl_shader* glShader, llvm::Module* module)
     }
 }
 
-GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, llvm::Module* m) 
+GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, llvm::Module* m)
     : context(llvm::getGlobalContext()), builder(context), module(m), glShader(s)
 {
 }
@@ -63,7 +63,7 @@ ir_visitor_status
     GlslToTopVisitor::visit(ir_constant *constant)
 {
     lastValue = createLLVMConstant(constant);
-    
+
     return visit_continue;
 }
 
@@ -76,7 +76,7 @@ llvm::Value* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
     unsigned baseType = constant->type->base_type;
 
     if(vecCount > 1) {
-        //Vectors require 
+        //Vectors require
         std::vector<llvm::Constant*> vals;
         const llvm::VectorType *destVecTy;
 
@@ -145,7 +145,7 @@ llvm::Value* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
             break;
         }
     }
-    
+
     return llvmConstant;
 }
 
@@ -174,11 +174,11 @@ ir_visitor_status
             namedValues[var] = createLLVMVariable(var);
 
             // For pipeline outputs, we must still maintain a non-pipeline
-            // variable for reading/writing that happens before the final 
+            // variable for reading/writing that happens before the final
             // copy out.  Make this current variable be that non-pipeline
             // normal variable, but track it as one that now needs a copy out on
             // shader exit.
-            if (var->mode == ir_var_out) {            
+            if (var->mode == ir_var_out) {
                 // Track our copy-out for pipe write
                 glslOuts.push_back(namedValues[var]);
             }
@@ -194,9 +194,9 @@ ir_visitor_status
         lValue = lastValue;
     }
     else
-    {   
-        if (var->mode == ir_var_in) {                    
-            // For pipeline inputs, and we will generate a fresh pipeline read at each reference, 
+    {
+        if (var->mode == ir_var_in) {
+            // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
             // which we will optimize later.
             llvm::Function *intrinsicName = 0;
             const char *name = NULL;
@@ -214,7 +214,7 @@ ir_visitor_status
             }
 
             // Call the selected intrinsic
-            lastValue = builder.CreateCall (intrinsicName, llvmConstant, name);            
+            lastValue = builder.CreateCall (intrinsicName, llvmConstant, name);
         } else {
             lastValue = builder.CreateLoad(lastValue);
         }
@@ -256,7 +256,7 @@ ir_visitor_status
         llvm::FunctionType *functionType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
         llvm::Function *function = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage, f->name, module);
         llvm::BasicBlock *entryBlock = llvm::BasicBlock::Create(context, "entry", function);
-        builder.SetInsertPoint(entryBlock);  
+        builder.SetInsertPoint(entryBlock);
     }
 
     return visit_continue;
@@ -270,19 +270,19 @@ ir_visitor_status
             //Call writeData intrinsic on our outs
             while(!glslOuts.empty()) {
                 llvm::Value* loadVal = builder.CreateLoad(glslOuts.front());
-                
+
                 llvm::Function *intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::gla_writeData,
                                                          loadVal->getType());
 
                 lastValue = builder.CreateCall2 (intrinsicName,
-                                                 llvm::ConstantInt::get(context, llvm::APInt(32, 0, true)), 
+                                                 llvm::ConstantInt::get(context, llvm::APInt(32, 0, true)),
                                                  loadVal);
-                
+
                 glslOuts.pop_front();
             }
         }
 
-        //?? need to return the return value from the right places with the right type, this 
+        //?? need to return the return value from the right places with the right type, this
         // is good just for main
         builder.CreateRet(0);
 
@@ -412,14 +412,14 @@ ir_visitor_status
         // Track the return value for to be consumed by next instruction
         lastValue = intrinsicValue;
     }
-            
+
     return visit_continue_with_parent;
 }
 
 llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** llvmParams, int paramCount)
-{    
+{
     llvm::Function *intrinsicName = 0;
-    char *name = NULL;
+    const char *name = NULL;
     gla::ETextureFlags texFlags = {0};
     llvm::Type* resultType = convertGLSLToLLVMType(call->type);
 
@@ -488,7 +488,7 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
         texFlags.EBias   = (paramCount > 2) ? true : false;
         name             = "texture2DTmp";
         createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    } 
+    }
     else if(!strcmp(call->callee_name(), "texture2DProj")) {
         samplerType         = gla::ESampler2D;
         texFlags.EProjected = true;
@@ -516,7 +516,7 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
         texFlags.EBias  = (paramCount > 2) ? true : false;
         name            = "texture3DTmp";
         createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    } 
+    }
     else if(!strcmp(call->callee_name(), "texture3DProj")) {
         samplerType         = gla::ESampler3D;
         texFlags.EProjected = true;
@@ -614,7 +614,7 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
     else {
         assert(!"Unsupported built-in");
     }
-    
+
     llvm::CallInst *callInst = 0;
 
     // Create a call to it
@@ -687,7 +687,7 @@ ir_visitor_status
 
     llvm::Function *function = builder.GetInsertBlock()->getParent();
 
-    // make the blocks, but only put the then-block into the function, 
+    // make the blocks, but only put the then-block into the function,
     // the else-block and merge-block will be added later, in order, after
     // earlier code is emitted
     bool haveElse = ! ifNode->else_instructions.is_empty();
@@ -705,7 +705,7 @@ ir_visitor_status
 
     // emit the then statement
     visit_list_elements(this, &(ifNode->then_instructions));
-    
+
     // jump to the merge block
     builder.CreateBr(MergeBB);
 
@@ -797,14 +797,14 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
     }
 
     //?? still need to consume the following
-    var->max_array_access;
-    var->centroid;
-    var->invariant;
-    var->interpolation;
-    var->origin_upper_left;
-    var->pixel_center_integer;
-    var->location;
-    var->constant_value;
+    // var->max_array_access;
+    // var->centroid;
+    // var->invariant;
+    // var->interpolation;
+    // var->origin_upper_left;
+    // var->pixel_center_integer;
+    // var->location;
+    // var->constant_value;
 
     if (local) {
         llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();
@@ -821,7 +821,7 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
 }
 
 llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression* opExp)
-{	
+{
     llvm::Value* operands[2];
     llvm::Value* result;
 
@@ -903,13 +903,13 @@ int makeSwizzle(ir_swizzle_mask mask) {
 }
 
 llvm::Value* GlslToTopVisitor::expandGLSLSwizzle(ir_swizzle* swiz)
-{	
+{
     llvm::Value* operand;
 
     // traverse the tree we're swizzling
     swiz->val->accept(this);
     operand = lastValue;
- 
+
     // convert our GLSL mask to an int
     int swizVal = makeSwizzle(swiz->mask);
 
@@ -917,9 +917,9 @@ llvm::Value* GlslToTopVisitor::expandGLSLSwizzle(ir_swizzle* swiz)
     llvm::Function *intrinsicName = getLLVMIntrinsicFunction2(llvm::Intrinsic::gla_fSwizzle,
                                                              convertGLSLToLLVMType(swiz->type),
                                                              operand->getType());
-    
-    llvm::CallInst *callInst = builder.CreateCall2 (intrinsicName, 
-                                                    operand, 
+
+    llvm::CallInst *callInst = builder.CreateCall2 (intrinsicName,
+                                                    operand,
                                                     llvm::ConstantInt::get(context, llvm::APInt(32, swizVal, true)),
                                                     "swizzleTmp");
 
@@ -1021,8 +1021,8 @@ llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction4(llvm::Intrinsic::ID 
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, intrinsicTypeCount);
 }
 
-void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName, int &paramCount, 
-                                                  llvm::Value** outParams, llvm::Value** llvmParams, llvm::Type* resultType, 
+void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName, int &paramCount,
+                                                  llvm::Value** outParams, llvm::Value** llvmParams, llvm::Type* resultType,
                                                   llvm::Intrinsic::ID intrinsicID, gla::ESamplerType samplerType, gla::ETextureFlags texFlags)
 {
     bool isBiased = texFlags.EBias;
@@ -1033,7 +1033,7 @@ void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName
             outParams[1] = llvmParams[0];
             outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32, *(int*)&texFlags, true));  //flag enum
             outParams[3] = llvmParams[1];
-            
+
             if (isBiased) {
                 //Bias requires SampleLod with EBias flag
                 intrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;

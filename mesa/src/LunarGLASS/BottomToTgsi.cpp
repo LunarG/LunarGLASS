@@ -24,7 +24,7 @@
 //
 // Usable by the bottom translator to create mesa IR.
 //
-// Note:  Modeled after ir_to_mesa_visitor in 
+// Note:  Modeled after ir_to_mesa_visitor in
 //        mesa/src/mesa/program/ir_to_mesa.cpp
 //
 //===----------------------------------------------------------------------===//
@@ -98,7 +98,7 @@ namespace gla {
 
 class gla::MesaTarget : public gla::BackEndTranslator {
 public:
-    MesaTarget() 
+    MesaTarget()
     {
         // Initial creation of target.
 
@@ -106,7 +106,7 @@ public:
         // pointer ctx->Driver.NewProgram(...), so directly call a funtion here
         // that does the same thing, and could later be plugged into that pointer.
 
-        GLcontext *ctx = 0;
+        // GLcontext *ctx = 0;
         GLenum target = 0;  //?? need to track original stage through LLVM
         GLuint id = 0;
         maxMesaInstructions = 500;   //?? have to know this number ahead of time, need to refine this
@@ -122,14 +122,14 @@ public:
     {
         // don't free instructions, as they needs to live on
     }
-    
+
     void startFunction() { }
     void endFunction() { }
-    
+
     void add(const llvm::Instruction* llvmInstruction);
 
     //
-    // Motivated by need to convert to structured flow control and 
+    // Motivated by need to convert to structured flow control and
     // eliminate phi functions.
     //
     void addIf(const llvm::Value* cond)

@@ -62,7 +62,7 @@ public:
         gla::BackEnd::getControlFlowMode(flowControlMode, breakOp, continueOp,
                                          earlyReturnOp, discardOp);
     }
-             
+
     virtual bool preferRegistersOverMemory()
     {
         return true;
@@ -96,12 +96,12 @@ namespace gla {
         EVQOutput,
         EVQTemporary,
         EVQConstant
-    };        
+    };
 };
 
 class gla::GlslTarget : public gla::BackEndTranslator {
 public:
-    GlslTarget() 
+    GlslTarget()
     {
         indentLevel = 0;
         lastVariable = 20;
@@ -116,15 +116,15 @@ public:
         addNewVariable(global, global->getNameStr());
         declareVariable(global, global->getNameStr().c_str());
     }
-        
-    void startFunction() 
+
+    void startFunction()
     {
         shader << "void main()";
         newLine();
         newScope();
     }
 
-    void endFunction() 
+    void endFunction()
     {
         leaveScope();
     }
@@ -132,7 +132,7 @@ public:
     void add(const llvm::Instruction* llvmInstruction);
 
     //
-    // Motivated by need to convert to structured flow control and 
+    // Motivated by need to convert to structured flow control and
     // eliminate phi functions.
     //
     void addIf(const llvm::Value* cond)
@@ -233,7 +233,7 @@ protected:
         if (llvm::isa<llvm::Constant>(value)) {
             return EVQConstant;
         }
-        
+
         return EVQTemporary;
     }
 
@@ -276,10 +276,10 @@ protected:
         case 2:   shader << "xy";    break;
         case 3:   shader << "xyz";   break;
         case 4:   shader << "xyzw";  break;
-        default:  
+        default:
                   shader << "xyzw";
                   assert(! "Vector too large");
-        }        
+        }
     }
 
     void mapComponentToSwizzle(int component)
@@ -368,7 +368,7 @@ protected:
             }
         } else {
             varString->append(mapGlaToQualifierString(mapGlaAddressSpace(value)));
-            itoa(lastVariable, buf, 10);
+            sprintf(buf, "%d", lastVariable);
             varString->append(buf);
         }
     }
@@ -417,9 +417,9 @@ protected:
         }
 
         shader << valueMap[value]->c_str();
-    }    
+    }
 
-    bool addNewVariable(const llvm::Value* value, std::string& name)
+    bool addNewVariable(const llvm::Value* value, std::string name)
     {
         if (valueMap[value] == 0) {
             valueMap[value] = new std::string(name);  //?? need to delete these?
@@ -440,7 +440,7 @@ protected:
 
     // mapping from LLVM values to Glsl variables
     std::map<const llvm::Value*, std::string*> valueMap;
-    
+
     std::ostringstream globalDeclarations;
     std::ostringstream shader;
     int indentLevel;
@@ -467,7 +467,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
 {
     newLine();
 
-    char* charOp = 0;
+    const char* charOp = 0;
 
     // first, just look for binary ops
     switch (llvmInstruction->getOpcode()) {
@@ -475,7 +475,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     case llvm::Instruction::FSub:           charOp = "-";  break;
     case llvm::Instruction::FMul:           charOp = "*";  break;
     case llvm::Instruction::FDiv:           charOp = "/";  break;
-        
+
     case llvm::Instruction::FCmp:
         if (const llvm::FCmpInst* fcmp = llvm::dyn_cast<llvm::FCmpInst>(llvmInstruction)) {
             switch (fcmp->getPredicate()) {
@@ -511,7 +511,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     }
 
     switch (llvmInstruction->getOpcode()) {
-        
+
     case llvm::Instruction::PHI:
         // this got turned into copies in predecessors
         return;
@@ -545,7 +545,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         return;
 
     case llvm::Instruction::Store:
-        if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(llvmInstruction->getOperand(1)->getType())) {
+        if (llvm::isa<llvm::PointerType>(llvmInstruction->getOperand(1)->getType())) {
             mapGlaDestination(llvmInstruction->getOperand(1));
             shader << " = ";
             mapGlaOperand(llvmInstruction->getOperand(0));
@@ -599,7 +599,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         const int coordLoc   = 3;
         const int ddxLoc     = 6;
         const int ddyLoc     = 7;
-        
+
         mapGlaDestination(llvmInstruction);
         shader << " = ";
         mapGlaSamplerTypeToMesa(llvmInstruction->getOperand(0));
@@ -633,7 +633,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     }
 
     // Handle the one-to-one mappings
-    char* callString = 0;
+    const char* callString = 0;
 
     switch (llvmInstruction->getIntrinsicID()) {
 

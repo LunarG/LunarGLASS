@@ -54,7 +54,7 @@
 void GlslToTop(struct gl_shader*, llvm::Module*);
 
 //
-// LunarGLASS implementation of abstract base class from 
+// LunarGLASS implementation of abstract base class from
 // ir_hierarchical_visitor.h.
 //
 class GlslToTopVisitor : public ir_hierarchical_visitor {
@@ -95,7 +95,7 @@ public:
 	virtual ir_visitor_status visit_leave(class ir_if *);
 
     // help functions to build LLVM
-    llvm::Value* createLLVMVariable(ir_variable*); 
+    llvm::Value* createLLVMVariable(ir_variable*);
     llvm::Value* expandGLSLOp(ir_expression*);
     llvm::Value* expandGLSLSwizzle(ir_swizzle*);
     llvm::Value* createLLVMIntrinsic(ir_call*, llvm::Value**, int);
@@ -105,19 +105,19 @@ public:
     llvm::Function* getLLVMIntrinsicFunction2(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
     llvm::Function* getLLVMIntrinsicFunction3(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
     llvm::Function* getLLVMIntrinsicFunction4(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
-    
+
     void createLLVMTextureIntrinsic(llvm::Function* &, int &, llvm::Value**, llvm::Value**, llvm::Type*, llvm::Intrinsic::ID,  gla::ESamplerType, gla::ETextureFlags);
 
 protected:
-    llvm::Module* module;
     llvm::LLVMContext &context;
     llvm::IRBuilder<> builder;
+    llvm::Module* module;
+
+    struct gl_shader* glShader;
 
     std::map<ir_variable*, llvm::Value*> namedValues;
     std::list<llvm::Value*> glslOuts;
 
     llvm::Value *lastValue;
     llvm::Value *lValue;
-
-    struct gl_shader* glShader;
 };
