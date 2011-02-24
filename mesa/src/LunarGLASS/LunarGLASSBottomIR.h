@@ -82,6 +82,14 @@ namespace gla {
         EDiCount
     };
 
+    // Texture op constants, for mapping operands
+    const int SamplerLocAOS = 1;
+    const int FlagLocAOS    = 2;
+    const int CoordLocAOS   = 3;
+    const int BiasLocAOS    = 4;
+    const int DdxLocAOS     = 6;
+    const int DdyLocAOS     = 7;
+
     // Abstract class of back-end queries.  Back-end inherits from this to provide
     // correct answers to queries.  Use getBackEndQueries to get a real one.  The
     // methods here can be used by the derived class as defaults or as initial 

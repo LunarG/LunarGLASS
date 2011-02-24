@@ -335,10 +335,10 @@ protected:
         return TEXTURE_2D_INDEX;
     }
 
-    prog_opcode getMesaOpFromGlaInst(const llvm::IntrinsicInst* llvmInstruction, int flagLoc)
+    prog_opcode getMesaOpFromGlaInst(const llvm::IntrinsicInst* llvmInstruction, int FlagLocAOS)
     {
         // Check flags for proj/lod/offset
-        int flags = mapGlaToConstant(llvmInstruction->getOperand(flagLoc));
+        int flags = mapGlaToConstant(llvmInstruction->getOperand(FlagLocAOS));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -658,24 +658,18 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mesaInstruction->TexShadow    = 0;   // ?? may be only for the shader to generate the compare itself
         mesaInstruction->TexSrcUnit   = 17;  // ?? may be a linker-created slot number for the sampler
 
-        const int samplerLoc = 1;
-        const int flagLoc    = 2;
-        const int coordLoc   = 3;
-        const int ddxLoc     = 6;
-        const int ddyLoc     = 7;
-
-        operandFrom[0] = coordLoc;
+        operandFrom[0] = CoordLocAOS;
 
         if(isGradientTexInst(llvmInstruction)) {
-            operandFrom[1] = ddxLoc;
-            operandFrom[2] = ddyLoc;
-            operandFrom[3] = samplerLoc;
+            operandFrom[1] = DdxLocAOS;
+            operandFrom[2] = DdyLocAOS;
+            operandFrom[3] = SamplerLocAOS;
         }
         else {
-            operandFrom[1] = samplerLoc;
+            operandFrom[1] = SamplerLocAOS;
         }
 
-        mesaOp = getMesaOpFromGlaInst(llvmInstruction, flagLoc);
+        mesaOp = getMesaOpFromGlaInst(llvmInstruction, FlagLocAOS);
         return;
     }
 

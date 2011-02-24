@@ -307,25 +307,47 @@ protected:
 
     void mapGlaSamplerTypeToMesa(const llvm::Value* samplerType)
     {
-        shader << "texture";
+        int sampler = mapGlaToConstant(samplerType) ;
+        switch(sampler) {
+        case ESampler1D:        shader << "texture1D";      break;
+        case ESampler2D:        shader << "texture2D";      break;
+        case ESampler3D:        shader << "texture3D";      break;
+        case ESamplerCube:      shader << "textureCube";    break;
+        case ESampler1DShadow:  shader << "shadow1D";       break;
+        case ESampler2DShadow:  shader << "shadow2D";       break;
+        default:                shader << "unsupported";    break;
+        }
+
+        return;
     }
 
-    void mapGlaTextureStyle(const llvm::IntrinsicInst* llvmInstruction, int flagLoc)
+    void mapGlaTextureStyle(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for proj/lod/offset
-        int flags = mapGlaToConstant(llvmInstruction->getOperand(flagLoc));
+        int flags = mapGlaToConstant(llvmInstruction->getOperand(FlagLocAOS));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
         if (texFlags.EProjected)
             shader << "Proj";
-        else if (texFlags.EBias)
-            shader << "Bias";
         else if (texFlags.ELod)
             shader << "Lod";
 
         if(isGradientTexInst(llvmInstruction))
             shader << "Grad";
+    }
+
+    bool needsBiasLod(const llvm::IntrinsicInst* llvmInstruction)
+    {
+        // Check flags for bias/lod
+        int flags = mapGlaToConstant(llvmInstruction->getOperand(FlagLocAOS));
+
+        gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
+
+        if ( texFlags.EBias || texFlags.ELod )
+            return true;
+        else
+            return false;
     }
 
     static int isGradientTexInst(const llvm::IntrinsicInst* llvmInstruction)
@@ -600,26 +622,25 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fTextureSampleLodOffset:
     case llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad:
 
-        const int samplerLoc = 1;  //?? these can move to a place they are shared between back-ends
-        const int flagLoc    = 2;
-        const int coordLoc   = 3;
-        const int ddxLoc     = 6;
-        const int ddyLoc     = 7;
-
         mapGlaDestination(llvmInstruction);
         shader << " = ";
         mapGlaSamplerTypeToMesa(llvmInstruction->getOperand(0));
-        mapGlaTextureStyle(llvmInstruction, flagLoc);
+        mapGlaTextureStyle(llvmInstruction);
         shader << "(";
-        mapGlaOperand(llvmInstruction->getOperand(samplerLoc));
+        mapGlaOperand(llvmInstruction->getOperand(SamplerLocAOS));
         shader << ", ";
-        mapGlaOperand(llvmInstruction->getOperand(coordLoc));
+        mapGlaOperand(llvmInstruction->getOperand(CoordLocAOS));
+
+        if(needsBiasLod(llvmInstruction)) {
+            shader << ", ";
+            mapGlaOperand(llvmInstruction->getOperand(BiasLocAOS));
+        }
 
         if(isGradientTexInst(llvmInstruction)) {  //?? this can move to a place they are shared between back-ends
             shader << ", ";
-            mapGlaOperand(llvmInstruction->getOperand(ddxLoc));
+            mapGlaOperand(llvmInstruction->getOperand(DdxLocAOS));
             shader << ", ";
-            mapGlaOperand(llvmInstruction->getOperand(ddyLoc));
+            mapGlaOperand(llvmInstruction->getOperand(DdyLocAOS));
         }
 
         shader << ");";
