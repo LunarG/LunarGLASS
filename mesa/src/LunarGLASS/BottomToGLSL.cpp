@@ -150,9 +150,9 @@ public:
     void addIf(const llvm::Value* cond)
     {
         newLine();
-        shader << "if (bool(";
+        shader << "if (";
         mapGlaOperand(cond);
-        shader << ")) ";
+        shader << ") ";
         newScope();
     }
 
@@ -256,9 +256,9 @@ protected:
         switch (vq) {
         case EVQUniform:         string = "uniform";                  break;
         case EVQGlobal:          string = "global";                   break;
-        case EVQInput:      
+        case EVQInput:
             GlslVersion >= 130 ? string = "in" : string = "varying";  break;
-        case EVQOutput:     
+        case EVQOutput:
             GlslVersion >= 130 ? string = "out": string = "varying";  break;
         case EVQTemporary:       string = "temp";                     break;
         case EVQConstant:        string = "const";                    break;
@@ -436,10 +436,31 @@ protected:
 
     void mapGlaType(std::ostringstream& out, const llvm::Type* type)
     {
-        if (getGlaComponentCount(type) > 1)
-            out << "vec" << getGlaComponentCount(type);
-        else
-            out << "float";
+        const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
+        if (vectorType) {
+            if (type->getContainedType(0) == type->getFloatTy(type->getContext()))
+                out << "vec";
+            else if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
+                out << "bvec";
+            else if (type->getContainedType(0) == type->getInt32Ty(type->getContext()))
+                out << "ivec";
+            else {
+                printf ("UNKNOWN type\n");
+                assert (0);
+            }
+            out << getGlaComponentCount(type);
+        } else {
+            if (type == type->getFloatTy(type->getContext()))
+                out << "float";
+            else if (type == type->getInt1Ty(type->getContext()))
+                out << "bool";
+            else if (type == type->getInt32Ty(type->getContext()))
+                out << "int";
+            else {
+                printf ("UNKNOWN type\n");
+                assert (0);
+            }
+        }
     }
 
     void mapGlaValue(const llvm::Value* value)
@@ -501,8 +522,6 @@ void gla::ReleaseGlslTranslator(gla::BackEndTranslator* target)
 //
 void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
 {
-    newLine();
-
     const char* charOp = 0;
 
     // first, just look for binary ops
@@ -537,6 +556,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     }
 
     if (charOp) {
+        newLine();
         mapGlaDestination(llvmInstruction);
         shader << " = ";
         mapGlaOperand(llvmInstruction->getOperand(0));
@@ -553,6 +573,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         return;
 
     case llvm::Instruction::Ret:
+        newLine();
         shader << "return;";
         return;
 
@@ -569,12 +590,14 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         return;
 
     case llvm::Instruction::Alloca:
+        newLine();
         mapGlaValue(llvmInstruction);
         shader << ";";
         return;
 
     case llvm::Instruction::Store:
         if (llvm::isa<llvm::PointerType>(llvmInstruction->getOperand(1)->getType())) {
+            newLine();
             mapGlaDestination(llvmInstruction->getOperand(1));
             shader << " = ";
             mapGlaOperand(llvmInstruction->getOperand(0));
@@ -600,6 +623,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         switch (mapGlaToConstant(llvmInstruction->getOperand(0)))
         {
         case 0:
+            newLine();
             shader << "gl_FragColor = ";
             mapGlaOperand(llvmInstruction->getOperand(1));
             shader << ";";
@@ -623,6 +647,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fTextureSampleLodOffset:
     case llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad:
 
+        newLine();
         mapGlaDestination(llvmInstruction);
         shader << " = ";
         mapGlaSamplerTypeToMesa(llvmInstruction->getOperand(0));
@@ -652,6 +677,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     // Handle swizzles
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_fSwizzle:
+        newLine();
         mapGlaDestination(llvmInstruction);
         shader << " = ";
         mapGlaOperand(llvmInstruction->getOperand(0));
@@ -670,6 +696,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     }
 
     assert(callString);
+    newLine();
     mapGlaDestination(llvmInstruction);
     shader << " = " << callString << "(";
     for (unsigned int op = 0; op < llvmInstruction->getNumOperands(); ++op) {
