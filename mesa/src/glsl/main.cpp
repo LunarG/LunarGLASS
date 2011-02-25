@@ -48,6 +48,25 @@ typedef int ssize_t;
 #include "GlslToTop.h"
 #include "ir_to_mesa.h"
 
+// Begin: LunarG
+// STL and C++ utils, used for argument handling
+#include <vector>
+#include <string>
+#include <iostream>
+
+// Description and usage information
+const std::string Description = "\
+Description: The LunarGLASS stand-alone shader compiler\n\
+";
+
+const std::string Usage = "\
+Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
+\n\
+       Options:\n\
+         -h --help    Print out this Usage info\n\
+";
+// End:LunarG
+
 extern "C" struct gl_shader *
 _mesa_new_shader(GLcontext *ctx, GLuint name, GLenum type);
 
@@ -266,6 +285,55 @@ compile_shader(GLcontext *ctx, struct gl_shader *shader)
    return;
 }
 
+// Begin: LunarG
+
+// Is the string an option/flagged argument?
+bool isOption(std::string s) { return !s.compare(0, 1, "-"); }
+
+// Print out description and help
+void printHelp() { std::cout << Description << Usage; }
+
+// Returns the index of the first non-flag argument
+// Assumes that all option/flagged arguments come before non-flagged arguments
+int handleArgs(int argc, char **argv) {
+
+   using std::vector;
+   using std::string;
+   using std::iterator;
+
+   int argIndex = 0;
+
+   // Load up the flagged options
+   vector<string> flaggedArgs;
+   flaggedArgs.clear();
+   for (int i = 1; i < argc; ++i) {
+      if (isOption((string) argv[i])) {
+         flaggedArgs.push_back(argv[i]);
+      } else {
+         argIndex = i;
+         break;
+      }
+   }
+
+   // Handle each option
+   for (vector<string>::iterator i = flaggedArgs.begin(), e = flaggedArgs.end(); i != e; ++i){
+      if (*i == "-h" || *i == "--help") {
+         printHelp();
+         exit(0);
+      }
+      // ... other cases
+      else {
+         std::cout << "Unknown option: " << *i << std::endl;
+         printHelp();
+         exit(0);
+      }
+   }
+
+   return argIndex;
+}
+
+// End: LunarG
+
 int
 main(int argc, char **argv)
 {
@@ -284,13 +352,16 @@ main(int argc, char **argv)
 
    if (argc < 2)
        usage_fail(argv[0]);
-   int optind = 1;
+   //int optind = 1;
    dump_ast = 1;
    dump_hir = 0;
    dump_lir = 0;
    do_link = 1;
    use_gla = 1;
 
+   // Handle some LunarGLASS specific options in a more platform-independent manner
+   // Overwrites argc and argv
+   optind = handleArgs(argc, argv);
 
    initialize_context(ctx, (glsl_es) ? API_OPENGLES2 : API_OPENGL);
 
