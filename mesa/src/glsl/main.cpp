@@ -353,7 +353,6 @@ main(int argc, char **argv)
 
    if (argc < 2)
        usage_fail(argv[0]);
-   //int optind = 1;
    dump_ast = 0;
    dump_hir = 0;
    dump_lir = 0;
@@ -362,7 +361,7 @@ main(int argc, char **argv)
 
    // Handle some LunarGLASS specific options in a more platform-independent manner
    // Overwrites argc and argv
-   optind = handleArgs(argc, argv);
+   int optind = handleArgs(argc, argv);
 
    initialize_context(ctx, (glsl_es) ? API_OPENGLES2 : API_OPENGL);
 
