@@ -18,7 +18,7 @@ TESTS=(checkpoint1.frag test.frag flowControl.frag)
 function runTests {
     for t in ${TESTS[@]}; do
         echo "  Running $t"
-        $RUNCMD $t > $t.stdout 2> $t.errout || (cat $t.errout ; exit 1)
+        $RUNCMD $OPTIONS $t > $t.stdout 2> $t.errout || (cat $t.errout ; exit 1)
         cat $t.errout $t.stdout > $t.out
         rm $t.stdout $t.errout
     done
@@ -31,6 +31,7 @@ function showHelp {
 
 # Default is for windows
 RUNCMD=../../glsl/Debug/StandAlone.exe
+OPTIONS=(--dump-ast)
 
 # Command-line argument Handling
 

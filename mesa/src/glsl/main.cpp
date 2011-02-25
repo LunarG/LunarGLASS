@@ -64,6 +64,7 @@ Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
 \n\
        Options:\n\
          -h --help    Print out this Usage info\n\
+         --dump-ast   Print out the AST\
 ";
 // End:LunarG
 
@@ -320,9 +321,9 @@ int handleArgs(int argc, char **argv) {
       if (*i == "-h" || *i == "--help") {
          printHelp();
          exit(0);
-      }
-      // ... other cases
-      else {
+      } else if (*i == "--dump-ast") {
+         dump_ast = 1;
+      } else {
          std::cout << "Unknown option: " << *i << std::endl;
          printHelp();
          exit(0);
@@ -353,7 +354,7 @@ main(int argc, char **argv)
    if (argc < 2)
        usage_fail(argv[0]);
    //int optind = 1;
-   dump_ast = 1;
+   dump_ast = 0;
    dump_hir = 0;
    dump_lir = 0;
    do_link = 1;
