@@ -120,8 +120,13 @@ public:
 
     void addGlobal(const llvm::GlobalVariable* global)
     {
-        addNewVariable(global, global->getNameStr());
-        declareVariable(global, global->getNameStr().c_str());
+        const llvm::Type* type;
+        if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType()))
+            type = pointer->getContainedType(0);
+        else
+            type = global->getType();
+
+        declareVariable(type, global->getNameStr().c_str(), mapGlaAddressSpace(global));
     }
 
     void startFunction()
@@ -407,35 +412,32 @@ protected:
         }
     }
 
-    void declareVariable(const llvm::Value* value, const char* varString, EVariableQualifier vq = EVQNone)
+    void declareVariable(const llvm::Type* type, const char* varString, EVariableQualifier vq)
     {
-        if (vq == EVQNone)
-            vq = mapGlaAddressSpace(value);
-
         switch (vq) {
         case EVQUniform:
         case EVQConstant:
         case EVQInput:
             globalDeclarations << mapGlaToQualifierString(vq) << " ";
-            mapGlaType(globalDeclarations, value);
+            mapGlaType(globalDeclarations, type);
             globalDeclarations << " " << varString << ";" << std::endl;
             break;
         case EVQGlobal:
-            mapGlaType(globalDeclarations, value);
+            mapGlaType(globalDeclarations, type);
             globalDeclarations << " " << varString << ";" << std::endl;
             break;
         case EVQTemporary:
-            mapGlaType(shader, value);
+            mapGlaType(shader, type);
             shader << " ";
             break;
         default: assert(! "unknown VariableQualifier");
         }
     }
 
-    void mapGlaType(std::ostringstream& out, const llvm::Value* value)
+    void mapGlaType(std::ostringstream& out, const llvm::Type* type)
     {
-        if (getGlaComponentCount(value) > 1)
-            out << "vec" << getGlaComponentCount(value);
+        if (getGlaComponentCount(type) > 1)
+            out << "vec" << getGlaComponentCount(type);
         else
             out << "float";
     }
@@ -446,7 +448,7 @@ protected:
         if (valueMap[value] == 0) {
             std::string* newVariable = new std::string;
             getNewVariable(value, newVariable);
-            declareVariable(value, newVariable->c_str());
+            declareVariable(value->getType(), newVariable->c_str(), mapGlaAddressSpace(value));
             valueMap[value] = newVariable;
         }
 
@@ -563,14 +565,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         return;
 
     case llvm::Instruction::Load:
-        if (llvm::isa<llvm::PointerType>(llvmInstruction->getOperand(0)->getType())) {
-            mapGlaDestination(llvmInstruction);
-            shader << " = ";
-            mapGlaOperand(llvmInstruction->getOperand(0));
-            shader << ";";
-        } else {
-            printf("load instruction is not through pointer\n");
-        }
+        addNewVariable(llvmInstruction, llvmInstruction->getOperand(0)->getNameStr());
         return;
 
     case llvm::Instruction::Alloca:
@@ -616,7 +611,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
     case llvm::Intrinsic::gla_getInterpolant:
         if (addNewVariable(llvmInstruction, llvmInstruction->getNameStr())) {
-            declareVariable(llvmInstruction, llvmInstruction->getNameStr().c_str(), EVQInput);
+            declareVariable(llvmInstruction->getType(), llvmInstruction->getNameStr().c_str(), EVQInput);
         }
         return;
     }
