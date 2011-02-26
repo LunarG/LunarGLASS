@@ -58,7 +58,7 @@ public:
 
     ~BottomTranslator() { }
 
-    void addFlowControl(const llvm::Instruction* llvmInstruction)
+    void addFlowControl(const llvm::Instruction* llvmInstruction, bool removePhiFunctions)
     {
         // Translate from LLVM CFG style to structured style.  This is done
         // using a stack to keep track of what is pending.
@@ -71,9 +71,11 @@ public:
         // present, and that LLVM branches must be representing if-then-else
         // constructs.
 
-        // All branches that branch to a block having phi instructions for that 
-        // branch need copies inserted.
-        addPhiCopies(llvmInstruction);
+        if (removePhiFunctions) {
+            // All branches that branch to a block having phi instructions for that
+            // branch need copies inserted.
+            addPhiCopies(llvmInstruction);
+        }
 
         switch (llvmInstruction->getNumOperands()) {
         case 1:
@@ -104,6 +106,21 @@ public:
         }
     }
 
+    void declarePhiCopies(const llvm::Function* function)
+    {
+        // basic blocks
+        for (llvm::Function::const_iterator bb = function->begin(), E = function->end(); bb != E; ++bb) {
+
+            // instructions in the basic block
+            for (llvm::BasicBlock::const_iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
+                const llvm::Instruction* llvmInstruction = i;
+
+                if (llvmInstruction->getOpcode() == llvm::Instruction::PHI)
+                    backEndTranslator->declarePhiCopy(llvmInstruction);
+            }
+        }
+    }
+
 protected:
 
     void addPhiCopies(const llvm::Instruction* llvmInstruction)
@@ -123,12 +140,12 @@ protected:
 
                 if (phiNode) {
                     // find the operand whose predecessor is us
-                    // each phi operand takes up two normal operands, 
+                    // each phi operand takes up two normal operands,
                     // so don't directly access operands; use the Index encapsulation
                     int predIndex = phiNode->getBasicBlockIndex(llvmInstruction->getParent());
                     if (predIndex >= 0) {
                         // then we found ourselves
-                        backEndTranslator->addCopy(phiNode, phiNode->getIncomingValue(predIndex));
+                        backEndTranslator->addPhiCopy(phiNode, phiNode->getIncomingValue(predIndex));
                     }
                 }
             }
@@ -177,6 +194,10 @@ void gla::PrivateManager::translateBottomToTarget()
                 //?? argument is Attrs.getParamAttributes(Idx));  // Idx has to count as you go through the loop
             }
 
+            // Phi declaration pass
+            if (backEnd->getDeclarePhiCopies())
+                translator.declarePhiCopies(function);
+
             // basic blocks
             for (llvm::Function::const_iterator bb = function->begin(), E = function->end(); bb != E; ++bb) {
 
@@ -188,9 +209,11 @@ void gla::PrivateManager::translateBottomToTarget()
                     // if (const CmpInst *CI = dyn_cast<CmpInst>(&llvmInstruction))
 
                     if (llvmInstruction->getOpcode() == llvm::Instruction::Br && flowControlMode == EFcmStructuredOpCodes)
-                        translator.addFlowControl(llvmInstruction);
-                    else
-                        backEndTranslator->add(llvmInstruction);
+                        translator.addFlowControl(llvmInstruction, backEnd->getRemovePhiFunctions());
+                    else {
+                        if (! (backEnd->getRemovePhiFunctions() && llvmInstruction->getOpcode() == llvm::Instruction::PHI))
+                            backEndTranslator->add(llvmInstruction);
+                    }
                 }
             }
 

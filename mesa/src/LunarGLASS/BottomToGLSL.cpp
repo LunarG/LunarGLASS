@@ -73,6 +73,16 @@ public:
     {
         return true;
     }
+
+    virtual bool getRemovePhiFunctions()
+    {
+        return true;
+    }
+
+    virtual bool getDeclarePhiCopies()
+    {
+        return true;
+    }
 };
 
 //
@@ -143,10 +153,22 @@ public:
 
     void add(const llvm::Instruction* llvmInstruction);
 
-    //
-    // Motivated by need to convert to structured flow control and
-    // eliminate phi functions.
-    //
+    void declarePhiCopy(const llvm::Value* dst)
+    {
+        newLine();
+        mapGlaDestination(dst);
+        shader << ";";
+    }
+
+    void addPhiCopy(const llvm::Value* dst, const llvm::Value* src)
+    {
+        newLine();
+        mapGlaDestination(dst);
+        shader << " = ";
+        mapGlaOperand(src);
+        shader << ";";
+    }
+
     void addIf(const llvm::Value* cond)
     {
         newLine();
@@ -166,15 +188,6 @@ public:
     void addEndif()
     {
         leaveScope();
-    }
-
-    void addCopy(const llvm::Value* dst, const llvm::Value* src)
-    {
-        newLine();
-        mapGlaDestination(dst);
-        shader << " = ";
-        mapGlaOperand(src);
-        shader << ";";
     }
 
     void print();
@@ -567,10 +580,6 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     }
 
     switch (llvmInstruction->getOpcode()) {
-
-    case llvm::Instruction::PHI:
-        // this got turned into copies in predecessors
-        return;
 
     case llvm::Instruction::Ret:
         newLine();

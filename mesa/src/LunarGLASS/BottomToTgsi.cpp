@@ -152,7 +152,7 @@ public:
         incrementMesaInstruction();
     }
 
-    void addCopy(const llvm::Value* dst, const llvm::Value* src)
+    void addPhiCopy(const llvm::Value* dst, const llvm::Value* src)
     {
         mesaInstruction->Opcode = OPCODE_MOV;
         mapGlaOperand(src, &mesaInstruction->SrcReg[0]);
