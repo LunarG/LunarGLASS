@@ -32,6 +32,7 @@
 #include "GlslToTopVisitor.h"
 #include "LunarGLASSTopIR.h"
 #include "mtypes.h"
+#include "Exceptions.h"
 
 void GlslToTop(struct gl_shader* glShader, llvm::Module* module)
 {
@@ -411,6 +412,7 @@ ir_visitor_status
 
         // Track the return value for to be consumed by next instruction
         lastValue = intrinsicValue;
+
     }
 
     return visit_continue_with_parent;
@@ -953,13 +955,14 @@ llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
         //Treating sampler as an integer for now
         llvmVarType = (llvm::Type*)llvm::Type::getInt32Ty(context);
         break;
-    case GLSL_TYPE_ARRAY:
-    case GLSL_TYPE_STRUCT:
-    case GLSL_TYPE_FUNCTION:
-    case GLSL_TYPE_VOID:
-    case GLSL_TYPE_ERROR:
+    case GLSL_TYPE_ARRAY:     gla::UnsupportedFunctionality("arrays");
+    case GLSL_TYPE_STRUCT:    gla::UnsupportedFunctionality("structs");
+    case GLSL_TYPE_FUNCTION:  gla::UnsupportedFunctionality("functions");
+    case GLSL_TYPE_VOID:      gla::UnsupportedFunctionality("void");
+    case GLSL_TYPE_ERROR:     gla::UnsupportedFunctionality("type error");
     default:
-        assert(!"Unknown or unsupported GLSL varType");
+        gla::UnsupportedFunctionality("unknown glsl varType");
+        //assert(!"Unknown or unsupported GLSL varType");
         break;
     }
 
