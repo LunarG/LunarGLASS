@@ -537,12 +537,29 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
 {
     const char* charOp = 0;
 
-    // first, just look for binary ops
+    //
+    // Look for binary ops, where the form would be "operand op operand"
+    //
+
     switch (llvmInstruction->getOpcode()) {
+    case llvm::Instruction:: Add:
     case llvm::Instruction::FAdd:           charOp = "+";  break;
+    case llvm::Instruction:: Sub:
     case llvm::Instruction::FSub:           charOp = "-";  break;
+    case llvm::Instruction:: Mul:
     case llvm::Instruction::FMul:           charOp = "*";  break;
+    case llvm::Instruction::UDiv:
+    case llvm::Instruction::SDiv:
     case llvm::Instruction::FDiv:           charOp = "/";  break;
+    case llvm::Instruction::URem:
+    case llvm::Instruction::SRem:
+    case llvm::Instruction::FRem:           charOp = "%";  break;
+    case llvm::Instruction::Shl:            charOp = "<<"; break;
+    case llvm::Instruction::LShr:           charOp = ">>"; break;
+    case llvm::Instruction::AShr:           charOp = ">>"; break;
+    case llvm::Instruction::And:            charOp = "&";  break;
+    case llvm::Instruction::Or:             charOp = "|";  break;
+    case llvm::Instruction::Xor:            charOp = "^";  break;
 
     case llvm::Instruction::FCmp:
         if (const llvm::FCmpInst* fcmp = llvm::dyn_cast<llvm::FCmpInst>(llvmInstruction)) {
@@ -568,6 +585,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         // fall through to check other ops
     }
 
+    // Handle the binary ops
     if (charOp) {
         newLine();
         mapGlaDestination(llvmInstruction);
@@ -578,6 +596,60 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         shader << ";";
         return;
     }
+
+    //
+    // Look for unary ops, where the form would be "op operand"
+    //
+
+    //switch (llvmInstruction->getOpcode()) {
+    // LLVM turned these into a binary ops, might want to undo that...
+    //case llvm::Instruction:: Neg:
+    //case llvm::Instruction::FNeg:           charOp = "-";  break;
+    //case llvm::Instruction::Not:            charOp = "!";  break;
+    //default:
+    //    break;
+        // fall through to check other ops
+    //}
+
+    // Handle the unary ops
+    if (charOp) {
+        newLine();
+        mapGlaDestination(llvmInstruction);
+        shader << " = " << charOp << " ";
+        mapGlaOperand(llvmInstruction->getOperand(0));
+        shader << ";";
+        return;
+    }
+    
+
+    //
+    // Look for unary ops, where the form would be "op(operand)"
+    //
+
+    switch (llvmInstruction->getOpcode()) {
+    case llvm::Instruction::FPTrunc:        charOp = "trunc";  break;
+    case llvm::Instruction::FPToUI:         charOp = "uint";   break;
+    case llvm::Instruction::FPToSI:         charOp = "int";    break;
+    case llvm::Instruction::UIToFP:         charOp = "float";  break;
+    case llvm::Instruction::SIToFP:         charOp = "float";  break;
+    default:
+        break;
+        // fall through to check other ops
+    }
+
+    // Handle the unary ops
+    if (charOp) {
+        newLine();
+        mapGlaDestination(llvmInstruction);
+        shader << " = " << charOp << "(";
+        mapGlaOperand(llvmInstruction->getOperand(0));
+        shader << ");";
+        return;
+    }
+        
+    //
+    // Handle remaining ops
+    //
 
     switch (llvmInstruction->getOpcode()) {
 
@@ -697,18 +769,125 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
     // Handle the one-to-one mappings
     const char* callString = 0;
+    unsigned int callArgs = 0;
 
     switch (llvmInstruction->getIntrinsicID()) {
 
-    case llvm::Intrinsic::gla_fMix:  callString = "mix";  break;
-        break;
+    // Floating-Point and Integer Operations
+    case llvm::Intrinsic::gla_abs:
+    case llvm::Intrinsic::gla_fAbs:         callString = "abs";   callArgs = 1; break;
+    case llvm::Intrinsic::gla_sMin:
+    case llvm::Intrinsic::gla_uMin:
+    case llvm::Intrinsic::gla_fMin:         callString = "min";   callArgs = 2; break;
+    case llvm::Intrinsic::gla_sMax:
+    case llvm::Intrinsic::gla_uMax:   
+    case llvm::Intrinsic::gla_fMax:         callString = "max";   callArgs = 2; break;
+    case llvm::Intrinsic::gla_sClamp:
+    case llvm::Intrinsic::gla_uClamp:
+    case llvm::Intrinsic::gla_fClamp:       callString = "clamp"; callArgs = 3; break;
+
+    // Floating-Point Only Operations
+    case llvm::Intrinsic::gla_fRadians:     callString = "radians";     callArgs = 1; break;
+    case llvm::Intrinsic::gla_fDegrees:     callString = "degrees";     callArgs = 1; break;
+    case llvm::Intrinsic::gla_fSin:         callString = "sin";         callArgs = 1; break;
+    case llvm::Intrinsic::gla_fCos:         callString = "cos";         callArgs = 1; break;
+    case llvm::Intrinsic::gla_fTan:         callString = "tan";         callArgs = 1; break;
+    case llvm::Intrinsic::gla_fAsin:        callString = "asin";        callArgs = 1; break;
+    case llvm::Intrinsic::gla_fAcos:        callString = "acos";        callArgs = 1; break;
+    case llvm::Intrinsic::gla_fAtan:        callString = "atan";        callArgs = 1; break;
+    case llvm::Intrinsic::gla_fAtan2:       callString = "atan2";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fSinh:        callString = "sinh";        callArgs = 1; break;
+    case llvm::Intrinsic::gla_fCosh:        callString = "cosh";        callArgs = 1; break;
+    case llvm::Intrinsic::gla_fTanh:        callString = "tanh";        callArgs = 1; break;
+    case llvm::Intrinsic::gla_fAsinh:       callString = "asinh";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fAcosh:       callString = "acosh";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fAtanh:       callString = "atanh";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fPow:         callString = "pow";         callArgs = 2; break;
+    //case llvm::Intrinsic::gla_fPowi:        callString = "powi";        callArgs = 2; break;
+    case llvm::Intrinsic::gla_fExp:         callString = "exp";         callArgs = 1; break;
+    case llvm::Intrinsic::gla_fLog:         callString = "log";         callArgs = 1; break;
+    case llvm::Intrinsic::gla_fExp2:        callString = "exp2";        callArgs = 1; break;
+    case llvm::Intrinsic::gla_fLog2:        callString = "log2";        callArgs = 1; break;
+    case llvm::Intrinsic::gla_fExp10:       callString = "exp10";       break; // callArgs = 1;
+    case llvm::Intrinsic::gla_fLog10:       callString = "log10";       break; // callArgs = 1;
+    case llvm::Intrinsic::gla_fSqrt:        callString = "sqrt";        callArgs = 1; break;
+    case llvm::Intrinsic::gla_fInverseSqrt: callString = "inversesqrt"; callArgs = 1; break;
+    case llvm::Intrinsic::gla_fSign:        callString = "sign";        callArgs = 1; break;
+    case llvm::Intrinsic::gla_fFloor:       callString = "floor";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fCeiling:     callString = "ceiling";     callArgs = 1; break;
+    case llvm::Intrinsic::gla_fRoundEven:   callString = "roundEven";   callArgs = 1; break;
+    case llvm::Intrinsic::gla_fRoundFast:   callString = "round";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fFraction:    callString = "fract";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fModF:        callString = "modf";        break; // callArgs = 2;
+    case llvm::Intrinsic::gla_fMix:         callString = "mix";         callArgs = 3; break;
+    case llvm::Intrinsic::gla_fStep:        callString = "step";        callArgs = 2; break;
+    case llvm::Intrinsic::gla_fSmoothStep:  callString = "smoothStep";  callArgs = 3; break;
+    case llvm::Intrinsic::gla_fIsNan:       callString = "isnan";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fIsInf:       callString = "isinf";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fFma:         callString = "fma";         callArgs = 3; break;
+
+    // Integer-Only Operations
+    case llvm::Intrinsic::gla_addCarry:     callString = "addCarry";        callArgs = 2; break;
+    case llvm::Intrinsic::gla_subBorrow:    callString = "subBorrow";       callArgs = 2; break;
+    case llvm::Intrinsic::gla_umulExtended: callString = "umulExtended";    callArgs = 2; break;
+    case llvm::Intrinsic::gla_smulExtended: callString = "smulExtended";    callArgs = 2; break;
+
+    // Bit Operations
+    case llvm::Intrinsic::gla_fFloatBitsToInt:  callString = "floatBitsToInt";      callArgs = 1; break;
+    //case llvm::Intrinsic::gla_sIntBitsTofloat:  callString = "intBitsTofloat";      callArgs = 1; break;
+    //case llvm::Intrinsic::gla_uIntBitsTofloat:  callString = "intBitsTofloat";      callArgs = 1; break;
+    case llvm::Intrinsic::gla_sBitFieldExtract:
+    case llvm::Intrinsic::gla_uBitFieldExtract: callString = "bitFieldExtract";     callArgs = 3; break;
+    case llvm::Intrinsic::gla_bitFieldInsert:   callString = "bitFieldInsert";      callArgs = 3; break;
+    case llvm::Intrinsic::gla_bitReverse:       callString = "bitFieldReverse";     callArgs = 1; break;
+    case llvm::Intrinsic::gla_bitCount:         callString = "bitCount";            callArgs = 1; break;
+    case llvm::Intrinsic::gla_findLSB:          callString = "findLSB";             callArgs = 1; break;
+    case llvm::Intrinsic::gla_sFindMSB:
+    case llvm::Intrinsic::gla_uFindMSB:         callString = "findMSB";             callArgs = 1; break;
+
+    // Pack and Unpack
+    case llvm::Intrinsic::gla_fFrexp:            callString = "frexp";              break;      // callArgs = 
+    case llvm::Intrinsic::gla_fLdexp:            callString = "ldexp";              break;      // callArgs = 
+    case llvm::Intrinsic::gla_fPackUnorm2x16:    callString = "packUnorm2x16";      callArgs = 1; break;
+    case llvm::Intrinsic::gla_fPackUnorm4x8:     callString = "packUnorm4x8";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fPackSnorm4x8:     callString = "packSnorm4x8";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fUnpackUnorm2x16:  callString = "unpackUnorm2x16";    callArgs = 1; break;
+    case llvm::Intrinsic::gla_fUnpackUnorm4x8:   callString = "unpackUnorm4x8";     callArgs = 1; break;
+    case llvm::Intrinsic::gla_fUnpackSnorm4x8:   callString = "unpackSnorm4x8";     callArgs = 1; break;
+    case llvm::Intrinsic::gla_fPackDouble2x32:   callString = "packDouble2x32";     callArgs = 1; break;
+    case llvm::Intrinsic::gla_fUnpackDouble2x32: callString = "unpackDouble2x32";   callArgs = 1; break;
+
+    // Geometry
+    case llvm::Intrinsic::gla_fLength:      callString = "length";      callArgs = 1; break;
+    case llvm::Intrinsic::gla_fDistance:    callString = "distance";    callArgs = 2; break;
+    case llvm::Intrinsic::gla_fDot:         callString = "dot";         callArgs = 2; break;
+    case llvm::Intrinsic::gla_fCross:       callString = "cross";       callArgs = 2; break;
+    case llvm::Intrinsic::gla_fNormalize:   callString = "normalize";   callArgs = 1; break;
+    case llvm::Intrinsic::gla_fNormalize3D: callString = "normalize3D"; break; //     callArgs = 
+    case llvm::Intrinsic::gla_fLit:         callString = "fLit";        break; //     callArgs = 
+    case llvm::Intrinsic::gla_fFaceForward: callString = "faceforward"; callArgs = 3; break;
+    case llvm::Intrinsic::gla_fReflect:     callString = "reflect";     callArgs = 2; break;
+    case llvm::Intrinsic::gla_fRefract:     callString = "refract";     callArgs = 3; break;
+
+    // Derivative and Transform
+    case llvm::Intrinsic::gla_fDFdx:           callString = "dFdx";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fDFdy:           callString = "dFdy";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fFilterWidth:    callString = "fwidth";     callArgs = 1; break;
+    case llvm::Intrinsic::gla_fFixedTransform: callString = "ftransform"; break; // callArgs = 
+
+    // Vector Logical
+    case llvm::Intrinsic::gla_not: callString = "not"; callArgs = 1; break;
+    case llvm::Intrinsic::gla_any: callString = "any"; callArgs = 1; break;
+    case llvm::Intrinsic::gla_all: callString = "all"; callArgs = 1; break;
     }
 
     assert(callString);
+    assert(callArgs); // print for functionality
+    assert(callArgs == llvmInstruction->getNumOperands());
     newLine();
     mapGlaDestination(llvmInstruction);
     shader << " = " << callString << "(";
-    for (unsigned int op = 0; op < llvmInstruction->getNumOperands(); ++op) {
+    for (unsigned int op = 0; op < callArgs; ++op) {
         if (op > 0)
             shader << ", ";
         mapGlaOperand(llvmInstruction->getOperand(op));
