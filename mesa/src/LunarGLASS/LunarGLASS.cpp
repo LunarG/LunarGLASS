@@ -25,7 +25,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Manager.h"
-#include "LunarGLASSBottomIR.h"
+#include "LunarGLASSBackend.h"
 
 #include "llvm/Module.h"
 

@@ -39,6 +39,7 @@
 
 // LunarGLASS includes
 #include "LunarGLASSBottomIR.h"
+#include "LunarGLASSBackend.h"
 #include "Manager.h"
 #include "TgsiTarget.h"
 
@@ -192,22 +193,6 @@ protected:
         ++mesaInstruction;
     }
 
-    int mapGlaToConstant(const llvm::Value* value)
-    {
-        if (const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value)) {
-            if (const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(constant))
-                return constantInt->getValue().getSExtValue();
-            //if (const llvm::ConstantFP *constantFP = llvm::dyn_cast<llvm::ConstantFP>(constant))
-            //    return constantFP->getValueAPF().convertToFloat();
-            else
-                assert(!"can't handle non-integer constants");
-        }
-
-        assert (!"expected constant");
-
-        return 0;
-    }
-
     gl_register_file mapGlaAddressSpace(const llvm::Value* value)
     {
         if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
@@ -264,7 +249,7 @@ protected:
             type = pointerType->getContainedType(0);
         }
 
-        return mapComponentCountSwizzle(getGlaComponentCount(type));
+        return mapComponentCountSwizzle(GetComponentCount (type));
     }
 
     GLuint mapComponentCountSwizzle(int numComponents)
@@ -295,7 +280,7 @@ protected:
 
     GLuint mapGlaComponentCountWriteMask(const llvm::Value* value)
     {
-        switch (getGlaComponentCount(value)) {
+        switch (GetComponentCount(value)) {
         case 1:   return WRITEMASK_X;
         case 2:   return WRITEMASK_XY;
         case 3:   return WRITEMASK_XYZ;
@@ -321,7 +306,7 @@ protected:
 
     GLuint mapGlaSamplerType(const llvm::Value* samplerType)
     {
-        switch(mapGlaToConstant(samplerType)) {
+        switch(GetConstantValue(samplerType)) {
         case ESampler1D:        return TEXTURE_1D_INDEX;
         case ESampler2D:        return TEXTURE_2D_INDEX;
         case ESampler3D:        return TEXTURE_3D_INDEX;
@@ -338,7 +323,7 @@ protected:
     prog_opcode getMesaOpFromGlaInst(const llvm::IntrinsicInst* llvmInstruction, int FlagLocAOS)
     {
         // Check flags for proj/lod/offset
-        int flags = mapGlaToConstant(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = GetConstantValue(llvmInstruction->getOperand(FlagLocAOS));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -349,33 +334,10 @@ protected:
         else if (texFlags.ELod)
             return OPCODE_TXL;
 
-        if(isGradientTexInst(llvmInstruction))
+        if(IsGradientTexInst(llvmInstruction))
             return OPCODE_TXD;
 
         return OPCODE_TEX;
-    }
-
-    static int isGradientTexInst(const llvm::IntrinsicInst* llvmInstruction)
-    {
-        return ( llvmInstruction->getIntrinsicID() ==
-                 llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad );
-    }
-
-    int getGlaComponentCount(const llvm::Value* value)
-    {
-        const llvm::Type* type = value->getType();
-
-        return getGlaComponentCount(type);
-    }
-
-    int getGlaComponentCount(const llvm::Type* type)
-    {
-        const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
-
-        if (vectorType)
-            return vectorType->getNumElements();
-        else
-            return 1;
     }
 
     int newIndex(GLuint file)
@@ -466,7 +428,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
         // First, take the reciprocal.  This is done per component, but all landing in the
         // same temporary vector.
         temp = newIndex(PROGRAM_TEMPORARY);
-        for (int c = 0; c < getGlaComponentCount(llvmInstruction->getOperand(1)); ++c) {
+        for (int c = 0; c < GetComponentCount(llvmInstruction->getOperand(1)); ++c) {
             mesaInstruction->Opcode = OPCODE_RCP;
             mapGlaOperand(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[0]);
             mesaInstruction->SrcReg[0].Swizzle = mapComponentSwizzle(c);
@@ -632,7 +594,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mapGlaOperand(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[0]);
         mapGlaDestination(llvmInstruction->getOperand(1), &mesaInstruction->DstReg);
         mesaInstruction->DstReg.File = PROGRAM_OUTPUT;
-        mesaInstruction->DstReg.Index = mapGlaToConstant(llvmInstruction->getOperand(0));
+        mesaInstruction->DstReg.Index = GetConstantValue(llvmInstruction->getOperand(0));
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
         return;
@@ -640,7 +602,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mesaInstruction->Opcode = OPCODE_MOV;
         mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
         mesaInstruction->SrcReg[0].File = PROGRAM_INPUT;
-        mesaInstruction->SrcReg[0].Index = mapGlaToConstant(llvmInstruction->getOperand(0));
+        mesaInstruction->SrcReg[0].Index = GetConstantValue(llvmInstruction->getOperand(0));
         mesaInstruction->SrcReg[0].Swizzle = mapGlaComponentCountSwizzle(llvmInstruction);
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
@@ -660,7 +622,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
         operandFrom[0] = CoordLocAOS;
 
-        if(isGradientTexInst(llvmInstruction)) {
+        if(IsGradientTexInst(llvmInstruction)) {
             operandFrom[1] = DdxLocAOS;
             operandFrom[2] = DdyLocAOS;
             operandFrom[3] = SamplerLocAOS;
@@ -681,7 +643,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
 
         // GLA uses 2 bits per channel, Mesa uses 3...
-        int glaSwizzle = mapGlaToConstant(llvmInstruction->getOperand(1));
+        int glaSwizzle = GetConstantValue(llvmInstruction->getOperand(1));
         mesaInstruction->SrcReg[0].Swizzle = mapGlaSwizzle(glaSwizzle);
 
         incrementMesaInstruction();

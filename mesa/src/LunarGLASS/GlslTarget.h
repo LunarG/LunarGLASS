@@ -1,4 +1,4 @@
-//===- GslsTarget.h - Implementation of LunarGLASSBottomIR.h --------------===//
+//===- GslsTarget.h - Implementation of LunarGLASSBackend.h --------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.

@@ -41,7 +41,7 @@
 #include <vector>
 
 // LunarGLASS includes
-#include "LunarGLASSBottomIR.h"
+#include "LunarGLASSBackend.h"
 #include "Manager.h"
 #include "TgsiTarget.h"
 #include "GlslTarget.h"

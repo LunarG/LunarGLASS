@@ -114,6 +114,9 @@
     <ClInclude Include="..\LunarGLASS\GlslTarget.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
+    <ClInclude Include="..\LunarGLASS\LunarGLASSBackend.h">
+      <Filter>LunarGLASS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ast_expr.cpp">
@@ -342,6 +345,9 @@
       <Filter>LunarGLASS</Filter>
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\BottomToGLSL.cpp">
+      <Filter>LunarGLASS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\LunarGLASSBottomIR.cpp">
       <Filter>LunarGLASS</Filter>
     </ClCompile>
   </ItemGroup>

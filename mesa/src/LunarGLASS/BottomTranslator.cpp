@@ -45,7 +45,7 @@
 #include <vector>
 
 // LunarGLASS includes
-#include "LunarGLASSBottomIR.h"
+#include "LunarGLASSBackend.h"
 #include "Manager.h"
 
 namespace gla {

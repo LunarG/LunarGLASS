@@ -42,6 +42,7 @@
 
 // LunarGLASS includes
 #include "LunarGLASSBottomIR.h"
+#include "LunarGLASSBackend.h"
 #include "Manager.h"
 #include "GlslTarget.h"
 
@@ -226,22 +227,6 @@ protected:
 
     void mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction);
 
-    int mapGlaToConstant(const llvm::Value* value)
-    {
-        if (const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value)) {
-            if (const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(constant))
-                return constantInt->getValue().getSExtValue();
-            //if (const llvm::ConstantFP *constantFP = llvm::dyn_cast<llvm::ConstantFP>(constant))
-            //    return constantFP->getValueAPF().convertToFloat();
-            else
-                assert(!"can't handle non-integer constants");
-        }
-
-        assert (!"expected constant");
-
-        return 0;
-    }
-
     EVariableQualifier mapGlaAddressSpace(const llvm::Value* value)
     {
         if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
@@ -285,7 +270,7 @@ protected:
     {
         mapGlaValue(value);
         if (Obfuscate) {
-            int count = getGlaComponentCount(value);
+            int count = GetComponentCount(value);
             if (count > 1)
                 mapComponentCountToSwizzle(count);
         }
@@ -331,7 +316,7 @@ protected:
 
     void mapGlaSamplerTypeToMesa(const llvm::Value* samplerType)
     {
-        int sampler = mapGlaToConstant(samplerType) ;
+        int sampler = GetConstantValue(samplerType) ;
         switch(sampler) {
         case ESampler1D:        shader << "texture1D";      break;
         case ESampler2D:        shader << "texture2D";      break;
@@ -348,7 +333,7 @@ protected:
     void mapGlaTextureStyle(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for proj/lod/offset
-        int flags = mapGlaToConstant(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = GetConstantValue(llvmInstruction->getOperand(FlagLocAOS));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -357,14 +342,14 @@ protected:
         else if (texFlags.ELod)
             shader << "Lod";
 
-        if(isGradientTexInst(llvmInstruction))
+        if(IsGradientTexInst(llvmInstruction))
             shader << "Grad";
     }
 
     bool needsBiasLod(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for bias/lod
-        int flags = mapGlaToConstant(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = GetConstantValue(llvmInstruction->getOperand(FlagLocAOS));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -372,29 +357,6 @@ protected:
             return true;
         else
             return false;
-    }
-
-    static int isGradientTexInst(const llvm::IntrinsicInst* llvmInstruction)
-    {
-        return ( llvmInstruction->getIntrinsicID() ==
-                 llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad );
-    }
-
-    int getGlaComponentCount(const llvm::Value* value)
-    {
-        const llvm::Type* type = value->getType();
-
-        return getGlaComponentCount(type);
-    }
-
-    int getGlaComponentCount(const llvm::Type* type)
-    {
-        const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
-
-        if (vectorType)
-            return vectorType->getNumElements();
-        else
-            return 1;
     }
 
     void getNewVariable(const llvm::Value* value, std::string* varString)
@@ -461,7 +423,7 @@ protected:
                 printf ("UNKNOWN type\n");
                 assert (0);
             }
-            out << getGlaComponentCount(type);
+            out << GetComponentCount(type);
         } else {
             if (type == type->getFloatTy(type->getContext()))
                 out << "float";
@@ -701,7 +663,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_writeData:
-        switch (mapGlaToConstant(llvmInstruction->getOperand(0)))
+        switch (GetConstantValue(llvmInstruction->getOperand(0)))
         {
         case 0:
             newLine();
@@ -743,7 +705,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             mapGlaOperand(llvmInstruction->getOperand(BiasLocAOS));
         }
 
-        if(isGradientTexInst(llvmInstruction)) {  //?? this can move to a place they are shared between back-ends
+        if(IsGradientTexInst(llvmInstruction)) {  //?? this can move to a place they are shared between back-ends
             shader << ", ";
             mapGlaOperand(llvmInstruction->getOperand(DdxLocAOS));
             shader << ", ";
@@ -762,7 +724,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mapGlaDestination(llvmInstruction);
         shader << " = ";
         mapGlaOperand(llvmInstruction->getOperand(0));
-        mapGlaSwizzle(mapGlaToConstant(llvmInstruction->getOperand(1)));
+        mapGlaSwizzle(GetConstantValue(llvmInstruction->getOperand(1)));
         shader << ";";
         return;
     }
