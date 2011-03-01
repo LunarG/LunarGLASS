@@ -1,4 +1,4 @@
-//===- Exceptions.h - Exceptions that LunarGLASS might throw --------------===//
+//===- Exceptions.cpp - Exceptions that LunarGLASS might throw ------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright © 2011, LunarG, Inc.
@@ -28,36 +28,37 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <string>
+#include "Exceptions.h"
 
-namespace gla {
-
-    enum EAbortType { EATAbort, EATContinue };
-
-    // Print an exception-like string to stderr, then exit
-    void UnsupportedFunctionality(const char* pre, EAbortType at=EATAbort);
-
-    // Print an exception-like string to stderr, converting num into a
-    // string and appending it.
-    void UnsupportedFunctionality(const char* pre, int n, EAbortType at=EATAbort);
+#include <iostream>
+#include <cstdlib>
 
 
-    // Print an exception-like string to stderr, converting num into a
-    // string and appending it, along with end.
-    void UnsupportedFunctionality(const char* pre, int n, const char* end, EAbortType at=EATAbort);
+const char* UFString = "***Unsupported functionality: ";
+// Print an exception-like string to stderr, then exit
+void gla::UnsupportedFunctionality(const char* pre, EAbortType at)
+{
+    std::cerr << std::endl << UFString << pre << std::endl;
+    if (at == EATAbort)
+        exit(1);
+}
+
+// Print an exception-like string to stderr, converting n into a
+// string and appending it
+void gla::UnsupportedFunctionality(const char* pre, int n, EAbortType at)
+{
+    std::cerr << std::endl << UFString << pre << n << std::endl;
+    if (at == EATAbort)
+        exit(1);
+}
 
 
-    /*  Examples of usage:
+// Print an exception-like string to stderr, converting n into a
+// string and appending it
+void gla::UnsupportedFunctionality(const char* pre, int n, const char* end, EAbortType at)
+{
+    std::cerr << std::endl << UFString << pre << n << end << std::endl;
+    if (at == EATAbort)
+        exit(1);
+}
 
-        gla::UnsupportedFunctionality("arrays, varType=", varType);
-     => ***Unsupported functionality: arrays, varType=6
-
-        gla::UnsupportedFunctionality("arrays <varType=", varType, ">");
-     => ***Unsupported functionality: arrays <varType=6>
-
-     // gla::UnsupportedFunctionality("", varType, ": arrays");
-        ***Unsupported functionality: 6: arrays
-
-    */
-
-} // End gla namespace
