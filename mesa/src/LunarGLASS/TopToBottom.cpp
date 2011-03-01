@@ -2,17 +2,17 @@
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
-// 
+//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; version 2 of the
 // License.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -41,6 +41,7 @@
 #include <vector>
 
 // LunarGLASS includes
+#include "Exceptions.h"
 #include "LunarGLASSBackend.h"
 #include "Manager.h"
 #include "TgsiTarget.h"
@@ -48,25 +49,22 @@
 
 void gla::PrivateManager::translateTopToBottom()
 {
-    printf("\n===========================================\n"
-           "Starting translation from Top IR to Bottom IR\n");
-    
-    printf("\nFirst middle-end optimization pass\n");
-
     runLLVMOptimizations1();
 
     module->dump();
 
     int innerAoS, outerSoA;
     backEnd->getRegisterForm(outerSoA, innerAoS);
-    assert(outerSoA == 1);
-    assert(innerAoS == 4);
+    if (outerSoA != 1)
+        UnsupportedFunctionality("SoA in middle end");
+    if (innerAoS != 4)
+        UnsupportedFunctionality("AoS other than size 4 in middle end");
 
     // make sure we can decompose all the intrisics
-    for (int d = 0; d < gla::EDiCount; ++d)
-        assert(! backEnd->decomposeIntrinsic(d));
-
-    printf("Finishing translation from Top IR to Bottom IR\n");
+    for (int d = 0; d < gla::EDiCount; ++d) {
+        if (backEnd->decomposeIntrinsic(d))
+            UnsupportedFunctionality("intrinsic decomposition in middle end");
+    }
 }
 
 void gla::PrivateManager::runLLVMOptimizations1()

@@ -26,6 +26,7 @@
 
 #include "Manager.h"
 #include "LunarGLASSBackend.h"
+#include "Exceptions.h"
 
 #include "llvm/Module.h"
 
@@ -52,7 +53,7 @@ gla::PrivateManager::PrivateManager() : module(0)
         backEnd = gla::GetGlslBackEnd();
         break;
     default:
-        assert(!"Internal error: unknown backend");
+        UnsupportedFunctionality("Backend not supported");
     }
 }
 
@@ -69,7 +70,7 @@ gla::PrivateManager::~PrivateManager()
         gla::ReleaseGlslBackEnd(backEnd);
         break;
     default:
-        assert(!"Internal error: unknown backend");
+        UnsupportedFunctionality("Backend not supported");
     }
 
 }

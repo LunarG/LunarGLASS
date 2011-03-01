@@ -2,17 +2,17 @@
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
-// 
+//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; version 2 of the
 // License.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -82,12 +82,12 @@ namespace gla {
 
     // Abstract class of back-end queries.  Back-end inherits from this to provide
     // correct answers to queries.  Use getBackEndQueries to get a real one.  The
-    // methods here can be used by the derived class as defaults or as initial 
+    // methods here can be used by the derived class as defaults or as initial
     // values that some of are then overridden.
     class BackEnd {
     public:
 
-        BackEnd() 
+        BackEnd()
         {
             for (int d = 0; d < EDiCount; ++d)
                 decompose[d] = false;
@@ -98,7 +98,7 @@ namespace gla {
         // despite being pure virtual, there is a base implementation available
         virtual void getRegisterForm(int& outerSoA, int& innerAoS) = 0;
 
-        virtual void getControlFlowMode(EFlowControlMode& flowControlMode, 
+        virtual void getControlFlowMode(EFlowControlMode& flowControlMode,
                                         bool& breakOp, bool& continueOp,
                                         bool& earlyReturnOp, bool& discardOp)
         {
@@ -113,7 +113,7 @@ namespace gla {
         {
             return decompose[intrinsic];
         }
-         
+
         virtual bool preferRegistersOverMemory()
         {
             return true;

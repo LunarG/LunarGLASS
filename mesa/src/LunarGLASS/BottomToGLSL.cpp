@@ -41,6 +41,7 @@
 #include <cstdio>
 
 // LunarGLASS includes
+#include "Exceptions.h"
 #include "LunarGLASSBottomIR.h"
 #include "LunarGLASSBackend.h"
 #include "Manager.h"
@@ -236,7 +237,7 @@ protected:
             case gla::GlobalAddressSpace:
                 return EVQGlobal;
             default:
-                assert(!"Unknown gla address space");
+                UnsupportedFunctionality("Address Space in Bottom IR");
             }
         }
 
@@ -260,7 +261,8 @@ protected:
             GlslVersion >= 130 ? string = "out": string = "varying";  break;
         case EVQTemporary:       string = "temp";                     break;
         case EVQConstant:        string = "const";                    break;
-        default: assert(! "unknown VariableQualifier");
+        default: 
+            assert(! "unknown VariableQualifier");
         }
 
         return string;
@@ -303,7 +305,7 @@ protected:
         case 1:   shader << "y";     return;
         case 2:   shader << "z";     return;
         case 3:   shader << "w";     return;
-        default:  assert(!"Vector too large");
+        default:  assert(! "Vector too large");
         }
 
         shader << "x";
@@ -314,7 +316,7 @@ protected:
         mapComponentToSwizzle(component);
     }
 
-    void mapGlaSamplerTypeToMesa(const llvm::Value* samplerType)
+    void mapGlaSamplerType(const llvm::Value* samplerType)
     {
         int sampler = GetConstantValue(samplerType) ;
         switch(sampler) {
@@ -324,7 +326,10 @@ protected:
         case ESamplerCube:      shader << "textureCube";    break;
         case ESampler1DShadow:  shader << "shadow1D";       break;
         case ESampler2DShadow:  shader << "shadow2D";       break;
-        default:                shader << "unsupported";    break;
+        default:
+            shader << "unsupported";
+            UnsupportedFunctionality("Texturing in Bottom IR");
+            break;
         }
 
         return;
@@ -405,7 +410,8 @@ protected:
             mapGlaType(shader, type);
             shader << " ";
             break;
-        default: assert(! "unknown VariableQualifier");
+        default:
+            assert(! "unknown VariableQualifier");
         }
     }
 
@@ -419,10 +425,8 @@ protected:
                 out << "bvec";
             else if (type->getContainedType(0) == type->getInt32Ty(type->getContext()))
                 out << "ivec";
-            else {
-                printf ("UNKNOWN type\n");
-                assert (0);
-            }
+            else
+                UnsupportedFunctionality("Basic Type in Bottom IR");
             out << GetComponentCount(type);
         } else {
             if (type == type->getFloatTy(type->getContext()))
@@ -431,10 +435,8 @@ protected:
                 out << "bool";
             else if (type == type->getInt32Ty(type->getContext()))
                 out << "int";
-            else {
-                printf ("UNKNOWN type\n");
-                assert (0);
-            }
+            else
+                UnsupportedFunctionality("Basic Type in Bottom IR");
         }
     }
 
@@ -533,13 +535,10 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
             case llvm::FCmpInst::FCMP_OLE:  charOp = "<=";  break;
             case llvm::FCmpInst::FCMP_ONE:  charOp = "!=";  break;
             default:
-                printf("Undefined (for now) comparison operator used");
-                return;
+                UnsupportedFunctionality("Comparison Operator in Bottom IR");
             }
-        }
-        else {
-            printf("FCmp instruction found that cannot dyncast to FCmpInst");
-            return;
+        } else {
+            assert(! "FCmp instruction found that cannot dyncast to FCmpInst");
         }
         break;
     default:
@@ -582,7 +581,6 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         shader << ";";
         return;
     }
-    
 
     //
     // Look for unary ops, where the form would be "op(operand)"
@@ -608,7 +606,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         shader << ");";
         return;
     }
-        
+
     //
     // Handle remaining ops
     //
@@ -624,7 +622,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         if (const llvm::IntrinsicInst* i = llvm::dyn_cast<llvm::IntrinsicInst>(llvmInstruction)) {
             mapGlaIntrinsic(i);
         } else {
-            assert(! "Unsupported call (non-intrinsic)");
+            UnsupportedFunctionality("Function Call in Bottom IR");
         }
         return;
 
@@ -646,12 +644,12 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
             mapGlaOperand(llvmInstruction->getOperand(0));
             shader << ";";
         } else {
-            printf("store instruction is not through pointer\n");
+            assert(! "store instruction is not through pointer\n");
         }
         return;
 
     default:
-        printf("UNSUPPORTED opcode %d\n", llvmInstruction->getOpcode());
+        UnsupportedFunctionality("Opcode in Bottom IR");
     }
 }
 
@@ -672,7 +670,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             shader << ";";
             return;
         default:
-            printf ("Unhandled data output\n");
+            UnsupportedFunctionality("Unhandled data output variable in Bottom IR\n");
         }
         return;
 
@@ -693,7 +691,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         newLine();
         mapGlaDestination(llvmInstruction);
         shader << " = ";
-        mapGlaSamplerTypeToMesa(llvmInstruction->getOperand(0));
+        mapGlaSamplerType(llvmInstruction->getOperand(0));
         mapGlaTextureStyle(llvmInstruction);
         shader << "(";
         mapGlaOperand(llvmInstruction->getOperand(SamplerLocAOS));
@@ -742,7 +740,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_uMin:
     case llvm::Intrinsic::gla_fMin:         callString = "min";   callArgs = 2; break;
     case llvm::Intrinsic::gla_sMax:
-    case llvm::Intrinsic::gla_uMax:   
+    case llvm::Intrinsic::gla_uMax:
     case llvm::Intrinsic::gla_fMax:         callString = "max";   callArgs = 2; break;
     case llvm::Intrinsic::gla_sClamp:
     case llvm::Intrinsic::gla_uClamp:
@@ -808,8 +806,8 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_uFindMSB:         callString = "findMSB";             callArgs = 1; break;
 
     // Pack and Unpack
-    case llvm::Intrinsic::gla_fFrexp:            callString = "frexp";              break;      // callArgs = 
-    case llvm::Intrinsic::gla_fLdexp:            callString = "ldexp";              break;      // callArgs = 
+    case llvm::Intrinsic::gla_fFrexp:            callString = "frexp";              break;      // callArgs =
+    case llvm::Intrinsic::gla_fLdexp:            callString = "ldexp";              break;      // callArgs =
     case llvm::Intrinsic::gla_fPackUnorm2x16:    callString = "packUnorm2x16";      callArgs = 1; break;
     case llvm::Intrinsic::gla_fPackUnorm4x8:     callString = "packUnorm4x8";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fPackSnorm4x8:     callString = "packSnorm4x8";       callArgs = 1; break;
@@ -825,8 +823,8 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fDot:         callString = "dot";         callArgs = 2; break;
     case llvm::Intrinsic::gla_fCross:       callString = "cross";       callArgs = 2; break;
     case llvm::Intrinsic::gla_fNormalize:   callString = "normalize";   callArgs = 1; break;
-    case llvm::Intrinsic::gla_fNormalize3D: callString = "normalize3D"; break; //     callArgs = 
-    case llvm::Intrinsic::gla_fLit:         callString = "fLit";        break; //     callArgs = 
+    case llvm::Intrinsic::gla_fNormalize3D: callString = "normalize3D"; break; //     callArgs =
+    case llvm::Intrinsic::gla_fLit:         callString = "fLit";        break; //     callArgs =
     case llvm::Intrinsic::gla_fFaceForward: callString = "faceforward"; callArgs = 3; break;
     case llvm::Intrinsic::gla_fReflect:     callString = "reflect";     callArgs = 2; break;
     case llvm::Intrinsic::gla_fRefract:     callString = "refract";     callArgs = 3; break;
@@ -835,7 +833,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fDFdx:           callString = "dFdx";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fDFdy:           callString = "dFdy";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fFilterWidth:    callString = "fwidth";     callArgs = 1; break;
-    case llvm::Intrinsic::gla_fFixedTransform: callString = "ftransform"; break; // callArgs = 
+    case llvm::Intrinsic::gla_fFixedTransform: callString = "ftransform"; break; // callArgs =
 
     // Vector Logical
     case llvm::Intrinsic::gla_not: callString = "not"; callArgs = 1; break;
@@ -843,9 +841,12 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_all: callString = "all"; callArgs = 1; break;
     }
 
-    assert(callString);
-    assert(callArgs); // print for functionality
-    assert(callArgs == llvmInstruction->getNumOperands());
+    if (callString == 0 || callArgs == 0)
+        UnsupportedFunctionality("Intrinsic in Bottom IR");
+    if (callArgs != llvmInstruction->getNumOperands())
+        printf("WARNING:  callargs %d llvm ops %d\n", callArgs, llvmInstruction->getNumOperands());
+        //?? UnsupportedFunctionality("Intrinsic form in Bottom IR");
+
     newLine();
     mapGlaDestination(llvmInstruction);
     shader << " = " << callString << "(";

@@ -45,6 +45,7 @@
 #include <vector>
 
 // LunarGLASS includes
+#include "Exceptions.h"
 #include "LunarGLASSBackend.h"
 #include "Manager.h"
 
@@ -92,9 +93,6 @@ public:
                 flowControl.push_back(llvmInstruction->getOperand(0));
             }
             break;
-        case 2:
-            assert (! "Unexpected number of operands for LLVM branch");
-            break;
         case 3:
             // We are splitting into two children.
             // Assume we are entering an if-then-else statement or if-then statement.
@@ -102,7 +100,7 @@ public:
             backEndTranslator->addIf(llvmInstruction->getOperand(0));
             break;
         default:
-            printf ("UNSUPPORTED llvm flow control number of operands\n");
+            UnsupportedFunctionality("Flow Control in Bottom IR");
         }
     }
 
@@ -169,7 +167,8 @@ void gla::PrivateManager::translateBottomToTarget()
     gla::EFlowControlMode flowControlMode;
 
     backEnd->getControlFlowMode(flowControlMode, breakOp, continueOp, earlyReturnOp, discardOp);
-    assert(flowControlMode != gla::EFcmExplicitMasking);
+    if (flowControlMode == gla::EFcmExplicitMasking)
+        UnsupportedFunctionality("explicit masking in middle end");
 
     //
     // Translate globals.
@@ -190,7 +189,7 @@ void gla::PrivateManager::translateBottomToTarget()
 
             // paramaters and arguments
             for (llvm::Function::const_arg_iterator P = function->arg_begin(), E = function->arg_end(); P != E; ++P) {
-                assert (! "function arguments not supported");
+                UnsupportedFunctionality ("function arguments in Bottom IR");
                 //?? argument is Attrs.getParamAttributes(Idx));  // Idx has to count as you go through the loop
             }
 

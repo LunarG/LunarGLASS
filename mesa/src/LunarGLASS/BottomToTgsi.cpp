@@ -38,6 +38,7 @@
 #include <vector>
 
 // LunarGLASS includes
+#include "Exceptions.h"
 #include "LunarGLASSBottomIR.h"
 #include "LunarGLASSBackend.h"
 #include "Manager.h"
@@ -136,7 +137,7 @@ public:
     void addIf(const llvm::Value* cond)
     {
         mesaInstruction->Opcode = OPCODE_IF;
-        assert (_mesa_num_inst_src_regs(OPCODE_IF) == 1);
+        assert(_mesa_num_inst_src_regs(OPCODE_IF) == 1);
         mapGlaOperand(cond, &mesaInstruction->SrcReg[0]);
         incrementMesaInstruction();
     }
@@ -202,7 +203,7 @@ protected:
             case gla::GlobalAddressSpace:
                 return PROGRAM_TEMPORARY;
             default:
-                assert(!"Unknown gla address space");
+                UnsupportedFunctionality("address space in Bottom IR");
             }
         }
 
@@ -210,7 +211,7 @@ protected:
             return PROGRAM_CONSTANT;
         }
 
-        //??assert (!"Unhandled address space");
+        ;//??UnsupportedFunctionality("address space in Bottom IR");
 
         return PROGRAM_TEMPORARY;
     }
@@ -259,7 +260,7 @@ protected:
         case 2:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_Y);
         case 3:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_Z);
         case 4:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_W);
-        default:  assert(!"Vector too large");
+        default:  UnsupportedFunctionality("Vector with more than 4 components in Bottom IR");
         }
 
         return SWIZZLE_XYZW;
@@ -272,7 +273,7 @@ protected:
         case 1: return SWIZZLE_YYYY;
         case 2: return SWIZZLE_ZZZZ;
         case 3: return SWIZZLE_WWWW;
-        default:  assert(!"Vector too large");
+        default:  UnsupportedFunctionality("Vector with more than 4 components in Bottom IR");
         }
 
         return SWIZZLE_XXXX;
@@ -285,7 +286,7 @@ protected:
         case 2:   return WRITEMASK_XY;
         case 3:   return WRITEMASK_XYZ;
         case 4:   return WRITEMASK_XYZW;
-        default:  assert(!"Vector too large");
+        default:  UnsupportedFunctionality("Vector with more than 4 components in Bottom IR");
         }
 
         return WRITEMASK_X;
@@ -298,7 +299,7 @@ protected:
         case 1:   return WRITEMASK_Y;
         case 2:   return WRITEMASK_Z;
         case 3:   return WRITEMASK_W;
-        default:  assert(!"Vector too large");
+        default:  UnsupportedFunctionality("Vector with more than 4 components in Bottom IR");
         }
 
         return WRITEMASK_X;
@@ -314,7 +315,7 @@ protected:
         case ESampler2DRect:    return TEXTURE_RECT_INDEX;
         case ESampler1DArray:   return TEXTURE_1D_ARRAY_INDEX;
         case ESampler2DArray:   return TEXTURE_2D_ARRAY_INDEX;
-        default: assert(!"Unsupported samplerType");
+        default:  UnsupportedFunctionality("sampler type in Bottom IR");
         }
 
         return TEXTURE_2D_INDEX;
@@ -455,7 +456,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
             if (mesaOp == OPCODE_NOP)
                 return;
         } else {
-            assert(! "Unsupported call (non-intrinsic)");
+            UnsupportedFunctionality("call, non-intrinsic in Bottom IR");
         }
         break;
 
@@ -463,12 +464,12 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
         if (llvm::isa<llvm::PointerType>(llvmInstruction->getOperand(0)->getType())) {
             mesaOp = OPCODE_MOV;
         } else {
-            printf("load instruction is not through pointer\n");
+            assert(! "Load instruction is not through pointer\n");
         }
         break;
 
     case llvm::Instruction::Alloca:
-        assert(! "Don't handle stack allocations yet");
+        UnsupportedFunctionality("stack allocation in Bottom IR");
         break;
 
     case llvm::Instruction::Store:
@@ -476,7 +477,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
             mesaOp = OPCODE_MOV;
             destFromArg = 1;
         } else {
-            printf("store instruction is not through pointer\n");
+            assert(! "Store instruction is not through pointer\n");
         }
         break;
 
@@ -507,16 +508,16 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
                 mesaOp = OPCODE_SNE;
                 break;
             default:
-                printf("Undefined (for now) comparison operator used");
+                UnsupportedFunctionality("comparison operator in Bottom IR");
             }
         }
         else {
-            printf("FCmp instruction found that cannot dyncast to FCmpInst");
+            assert(! "FCmp instruction found that cannot dyncast to FCmpInst");
         }
         break;
 
     default:
-        printf("UNSUPPORTED opcode %d\n", llvmInstruction->getOpcode());
+        UnsupportedFunctionality("opcode in Bottom IR");
     }
 
     //??mesaInstruction->CondUpdate = inst->cond_update;
@@ -753,5 +754,6 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     //case llvm::Intrinsic::LunarGLASS_XXX:    mesaOp = OPCODE_XPD;    break;
     }
 
-    assert(mesaOp != OPCODE_NOP);
+    if (mesaOp == OPCODE_NOP)
+        UnsupportedFunctionality("intrinsic in Bottom IR");
 }

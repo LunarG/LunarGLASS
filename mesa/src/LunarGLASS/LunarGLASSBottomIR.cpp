@@ -2,17 +2,17 @@
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
-// 
+//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; version 2 of the
 // License.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -28,6 +28,7 @@
 #include "LunarGLASSBottomIR.h"
 
 // LLVM includes
+#include "Exceptions.h"
 #include "llvm/IntrinsicInst.h"
 
 namespace gla {
@@ -40,10 +41,10 @@ namespace gla {
             //if (const llvm::ConstantFP *constantFP = llvm::dyn_cast<llvm::ConstantFP>(constant))
             //    return constantFP->getValueAPF().convertToFloat();
             else
-                assert(!"can't handle non-integer constants");
+                UnsupportedFunctionality("non-integer constants in Bottom IR");
         }
 
-        assert (!"expected constant");
+        assert(! "expected constant");
 
         return 0;
     }
@@ -63,7 +64,7 @@ namespace gla {
         else
             return 1;
     }
-    
+
     int GetComponentCount(const llvm::Value* value)
     {
         const llvm::Type* type = value->getType();

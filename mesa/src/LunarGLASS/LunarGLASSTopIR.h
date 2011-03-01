@@ -103,7 +103,7 @@ namespace gla {
         unsigned EComp      : 1;
         unsigned ERefZ      : 1;
     };
-        
+
     const unsigned int GlobalAddressSpace = 0;
     const unsigned int UniformAddressSpace = 1;
 };

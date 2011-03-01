@@ -26,8 +26,8 @@
 //
 // Author: John Kessenich, LunarG
 //
-// While this outputs the LunarGLASS Top IR, it is properly part of the 
-// front-end, not part of LunarGLASS, so it is not inside the LunarGLASS 
+// While this outputs the LunarGLASS Top IR, it is properly part of the
+// front-end, not part of LunarGLASS, so it is not inside the LunarGLASS
 // namespace.
 //
 //===----------------------------------------------------------------------===//
@@ -51,14 +51,9 @@
 
 void TranslateGlslToTop(struct gl_shader* shader, gla::Manager* manager)
 {
-    printf("\n===========================================\n"
-           "Starting translation from glsl2 to Top IR\n");
-
     llvm::Module* topModule = new llvm::Module("Top", llvm::getGlobalContext());
 
     GlslToTop(shader, topModule);
 
     manager->setModule(topModule);
-
-    printf("Finishing translation from glsl2 to Top IR\n");
 }

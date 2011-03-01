@@ -236,16 +236,6 @@ vec4 v = texture2D ( texSampler2D , t + scale / scale ) . wzyx ; vec4 w = textur
 
 
 )
-===========================================
-Starting translation from glsl2 to Top IR
-Finishing translation from glsl2 to Top IR
-
-===========================================
-Starting translation from Top IR to Bottom IR
-
-First middle-end optimization pass
-Finishing translation from Top IR to Bottom IR
-
 Mesa program before mesa optimizations
   0: MOV TEMP[1].x, UNIFORM[1].xxxx;
   1: MOV TEMP[2].xy, INPUT[0].xyyy;
@@ -268,15 +258,15 @@ Mesa program before mesa optimizations
  18: END
 
 Mesa program after mesa optimizations
-  0: ADD TEMP[1].xy, INPUT[0].xyyy, UNIFORM[2].xyyy;
+  0: ADD TEMP[0].xy, INPUT[0].xyyy, UNIFORM[2].xyyy;
   1: RCP TEMP[2].x, UNIFORM[2].xxxx;
   2: RCP TEMP[2].y, UNIFORM[2].yyyy;
-  3: MUL TEMP[3].xy, TEMP[1].xyyy, TEMP[2].xyyy;
-  4: TEX TEMP[1], TEMP[3].xyyy, texture[17], 2D;
+  3: MUL TEMP[3].xy, TEMP[0].xyyy, TEMP[2].xyyy;
+  4: TEX TEMP[0], TEMP[3].xyyy, texture[17], 2D;
   5: TEX TEMP[2], INPUT[0].xyzz, texture[17], 3D;
-  6: ADD TEMP[3], TEMP[2], TEMP[1].wzyx;
-  7: MUL TEMP[1].x, UNIFORM[5].xxxx, UNIFORM[5].xxxx;
-  8: LRP OUTPUT[0], TEMP[1].xxxx, TEMP[3], UNIFORM[4];
+  6: ADD TEMP[3], TEMP[2], TEMP[0].wzyx;
+  7: MUL TEMP[0].x, UNIFORM[5].xxxx, UNIFORM[5].xxxx;
+  8: LRP OUTPUT[0], TEMP[0].xxxx, TEMP[3], UNIFORM[4];
   9: END
 
 ===========================================

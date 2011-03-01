@@ -112,7 +112,7 @@ llvm::Value* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
         case GLSL_TYPE_VOID:
         case GLSL_TYPE_ERROR:
         default:
-            assert(!"Unknown or unsupported GLSL varType");
+            gla::UnsupportedFunctionality("basic vector type");
             break;
         }
 
@@ -142,7 +142,7 @@ llvm::Value* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
         case GLSL_TYPE_VOID:
         case GLSL_TYPE_ERROR:
         default:
-            assert(!"Unknown or unsupported GLSL varType");
+            gla::UnsupportedFunctionality("basic type");
             break;
         }
     }
@@ -211,7 +211,7 @@ ir_visitor_status
                                                         convertGLSLToLLVMType(var->type));
                 name = var->name;
             } else {
-                assert(!"getAttribute not supported yet for VS");
+                gla::UnsupportedFunctionality("non-fragment shaders");
             }
 
             // Call the selected intrinsic
@@ -311,7 +311,7 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_texture *ir)
 {
-    assert(!"Unhandled visitor ir_texture");
+    gla::UnsupportedFunctionality("texturing");
     return visit_continue;
 }
 
@@ -340,7 +340,7 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_dereference_array *ir)
 {
-    assert(!"Unhandled visitor ir_dereference_array");
+    gla::UnsupportedFunctionality("array dereference");
     return visit_continue;
 }
 
@@ -354,7 +354,7 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_dereference_record *ir)
 {
-    assert(!"Unhandled visitor ir_dereference_record");
+    gla::UnsupportedFunctionality("structure dereference");
     return visit_continue;
 }
 
@@ -385,7 +385,7 @@ ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_call *call)
 {
     if(call->get_callee()->function()->has_user_signature()) {
-        assert(!"Can't handle user functions yet");
+        gla::UnsupportedFunctionality("user functions");
     } else {
         exec_list_iterator iter = call->actual_parameters.iterator();
 
@@ -614,7 +614,7 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
         name = "mixTmp";
     }
     else {
-        assert(!"Unsupported built-in");
+        gla::UnsupportedFunctionality("built-in function");
     }
 
     llvm::CallInst *callInst = 0;
@@ -638,7 +638,7 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
         callInst = builder.CreateCall (intrinsicName, outParams[0], name);
         break;
     default:
-        assert(!"Unsupported parameter count");
+        assert(! "Unsupported parameter count");
     }
 
    return callInst;
@@ -685,7 +685,7 @@ ir_visitor_status
     lastValue = 0;
     ifNode->condition->accept(this);
     llvm::Value *condValue = lastValue;
-    assert (condValue != 0);
+    assert(condValue != 0);
 
     llvm::Function *function = builder.GetInsertBlock()->getParent();
 
@@ -769,13 +769,13 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
         // ?? need to generalize to N objects (constant buffers) for higher shader models
         // ?? link:  we need link info to know how large the memory object is
         addressSpace = gla::UniformAddressSpace;
-        assert (var->read_only == true);
+        assert(var->read_only == true);
         linkage = llvm::GlobalVariable::ExternalLinkage;
         break;
 
     case ir_var_in:
         // inputs should all be pipeline reads
-        assert(!"no memory allocations for inputs");
+        assert(! "no memory allocations for inputs");
         return 0;
 
     case ir_var_out:
@@ -794,7 +794,7 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
         break;
 
     default:
-        assert(!"Unhandled var->mode");
+        assert(! "Unhandled var->mode");
         break;
     }
 
@@ -894,7 +894,7 @@ llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression* opExp)
     case ir_binop_any_nequal:
     case ir_binop_mod:
     default:
-        assert(!"Unknown opcode in expandBinaryOp");
+        gla::UnsupportedFunctionality("Binary Operation");
     }
 
     return result;
@@ -956,13 +956,12 @@ llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
         llvmVarType = (llvm::Type*)llvm::Type::getInt32Ty(context);
         break;
     case GLSL_TYPE_ARRAY:     gla::UnsupportedFunctionality("arrays");
-    case GLSL_TYPE_STRUCT:    gla::UnsupportedFunctionality("structs");
-    case GLSL_TYPE_FUNCTION:  gla::UnsupportedFunctionality("functions");
-    case GLSL_TYPE_VOID:      gla::UnsupportedFunctionality("void");
-    case GLSL_TYPE_ERROR:     gla::UnsupportedFunctionality("type error");
+    case GLSL_TYPE_STRUCT:    gla::UnsupportedFunctionality("structures");
+    case GLSL_TYPE_FUNCTION:  gla::UnsupportedFunctionality("function calls");
+    case GLSL_TYPE_VOID:      gla::UnsupportedFunctionality("void type");
+    case GLSL_TYPE_ERROR:     assert(! "type error");
     default:
-        gla::UnsupportedFunctionality("unknown glsl varType");
-        //assert(!"Unknown or unsupported GLSL varType");
+        gla::UnsupportedFunctionality("basic type");
         break;
     }
 
@@ -1056,7 +1055,7 @@ void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName
             intrinsicName = getLLVMIntrinsicFunction2(intrinsicID, resultType, llvmParams[1]->getType());
             break;
     default:
-        assert(! "Unsupported texture intrinsic");
+        gla::UnsupportedFunctionality("texture");
     }
 
     return;
