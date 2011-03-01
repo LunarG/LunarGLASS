@@ -112,7 +112,7 @@ llvm::Value* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
         case GLSL_TYPE_VOID:
         case GLSL_TYPE_ERROR:
         default:
-            gla::UnsupportedFunctionality("basic vector type");
+            gla::UnsupportedFunctionality("Basic vector type: ", baseType);
             break;
         }
 
@@ -142,7 +142,7 @@ llvm::Value* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
         case GLSL_TYPE_VOID:
         case GLSL_TYPE_ERROR:
         default:
-            gla::UnsupportedFunctionality("basic type");
+            gla::UnsupportedFunctionality("Basic type: ", baseType);
             break;
         }
     }
@@ -614,7 +614,8 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
         name = "mixTmp";
     }
     else {
-        gla::UnsupportedFunctionality("built-in function");
+        gla::UnsupportedFunctionality("Built-in function: ", gla::EATContinue);
+        gla::UnsupportedFunctionality(call->callee_name());
     }
 
     llvm::CallInst *callInst = 0;
@@ -894,7 +895,7 @@ llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression* opExp)
     case ir_binop_any_nequal:
     case ir_binop_mod:
     default:
-        gla::UnsupportedFunctionality("Binary Operation");
+        gla::UnsupportedFunctionality("Binary Operation: ", glslOp);
     }
 
     return result;
@@ -1055,7 +1056,7 @@ void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName
             intrinsicName = getLLVMIntrinsicFunction2(intrinsicID, resultType, llvmParams[1]->getType());
             break;
     default:
-        gla::UnsupportedFunctionality("texture");
+        gla::UnsupportedFunctionality("texture: ", intrinsicID);
     }
 
     return;

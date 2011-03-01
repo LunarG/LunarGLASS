@@ -237,7 +237,7 @@ protected:
             case gla::GlobalAddressSpace:
                 return EVQGlobal;
             default:
-                UnsupportedFunctionality("Address Space in Bottom IR");
+                UnsupportedFunctionality("Address Space in Bottom IR: ", pointer->getAddressSpace());
             }
         }
 
@@ -261,7 +261,7 @@ protected:
             GlslVersion >= 130 ? string = "out": string = "varying";  break;
         case EVQTemporary:       string = "temp";                     break;
         case EVQConstant:        string = "const";                    break;
-        default: 
+        default:
             assert(! "unknown VariableQualifier");
         }
 
@@ -327,8 +327,8 @@ protected:
         case ESampler1DShadow:  shader << "shadow1D";       break;
         case ESampler2DShadow:  shader << "shadow2D";       break;
         default:
-            shader << "unsupported";
-            UnsupportedFunctionality("Texturing in Bottom IR");
+            shader << "texture";
+            UnsupportedFunctionality("Texturing in Bottom IR: ", sampler, EATContinue);
             break;
         }
 
@@ -535,7 +535,8 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
             case llvm::FCmpInst::FCMP_OLE:  charOp = "<=";  break;
             case llvm::FCmpInst::FCMP_ONE:  charOp = "!=";  break;
             default:
-                UnsupportedFunctionality("Comparison Operator in Bottom IR");
+                charOp = "==";
+                UnsupportedFunctionality("Comparison Operator in Bottom IR: ", fcmp->getPredicate(), EATContinue);
             }
         } else {
             assert(! "FCmp instruction found that cannot dyncast to FCmpInst");
@@ -649,7 +650,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         return;
 
     default:
-        UnsupportedFunctionality("Opcode in Bottom IR");
+        UnsupportedFunctionality("Opcode in Bottom IR: ", llvmInstruction->getOpcode());
     }
 }
 
@@ -670,7 +671,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             shader << ";";
             return;
         default:
-            UnsupportedFunctionality("Unhandled data output variable in Bottom IR\n");
+            UnsupportedFunctionality("Unhandled data output variable in Bottom IR: ", GetConstantValue(llvmInstruction->getOperand(0)));
         }
         return;
 
@@ -844,8 +845,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     if (callString == 0 || callArgs == 0)
         UnsupportedFunctionality("Intrinsic in Bottom IR");
     if (callArgs != llvmInstruction->getNumOperands())
-        printf("WARNING:  callargs %d llvm ops %d\n", callArgs, llvmInstruction->getNumOperands());
-        //?? UnsupportedFunctionality("Intrinsic form in Bottom IR");
+        UnsupportedFunctionality("Intrinsic argument count: ", llvmInstruction->getNumOperands(), EATContinue);
 
     newLine();
     mapGlaDestination(llvmInstruction);

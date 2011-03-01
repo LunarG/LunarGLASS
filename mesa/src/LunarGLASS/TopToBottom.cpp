@@ -56,9 +56,9 @@ void gla::PrivateManager::translateTopToBottom()
     int innerAoS, outerSoA;
     backEnd->getRegisterForm(outerSoA, innerAoS);
     if (outerSoA != 1)
-        UnsupportedFunctionality("SoA in middle end");
+        UnsupportedFunctionality("SoA in middle end: ", outerSoA);
     if (innerAoS != 4)
-        UnsupportedFunctionality("AoS other than size 4 in middle end");
+        UnsupportedFunctionality("AoS other than size 4 in middle end: ", innerAoS);
 
     // make sure we can decompose all the intrisics
     for (int d = 0; d < gla::EDiCount; ++d) {

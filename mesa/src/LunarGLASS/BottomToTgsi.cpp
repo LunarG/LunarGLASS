@@ -211,8 +211,6 @@ protected:
             return PROGRAM_CONSTANT;
         }
 
-        ;//??UnsupportedFunctionality("address space in Bottom IR");
-
         return PROGRAM_TEMPORARY;
     }
 
@@ -260,7 +258,8 @@ protected:
         case 2:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_Y);
         case 3:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_Z);
         case 4:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_W);
-        default:  UnsupportedFunctionality("Vector with more than 4 components in Bottom IR");
+        default:  
+            UnsupportedFunctionality("Vector with more than 4 components in Bottom IR: ", numComponents);
         }
 
         return SWIZZLE_XYZW;
@@ -273,7 +272,8 @@ protected:
         case 1: return SWIZZLE_YYYY;
         case 2: return SWIZZLE_ZZZZ;
         case 3: return SWIZZLE_WWWW;
-        default:  UnsupportedFunctionality("Vector with more than 4 components in Bottom IR");
+        default:
+            UnsupportedFunctionality("Component to high in Bottom IR: ", component);
         }
 
         return SWIZZLE_XXXX;
@@ -286,7 +286,8 @@ protected:
         case 2:   return WRITEMASK_XY;
         case 3:   return WRITEMASK_XYZ;
         case 4:   return WRITEMASK_XYZW;
-        default:  UnsupportedFunctionality("Vector with more than 4 components in Bottom IR");
+        default:
+            UnsupportedFunctionality("Vector with more than 4 components in Bottom IR: ", GetComponentCount(value));
         }
 
         return WRITEMASK_X;
@@ -299,7 +300,8 @@ protected:
         case 1:   return WRITEMASK_Y;
         case 2:   return WRITEMASK_Z;
         case 3:   return WRITEMASK_W;
-        default:  UnsupportedFunctionality("Vector with more than 4 components in Bottom IR");
+        default:
+            UnsupportedFunctionality("Component to high in Bottom IR: ", component);
         }
 
         return WRITEMASK_X;
@@ -315,7 +317,8 @@ protected:
         case ESampler2DRect:    return TEXTURE_RECT_INDEX;
         case ESampler1DArray:   return TEXTURE_1D_ARRAY_INDEX;
         case ESampler2DArray:   return TEXTURE_2D_ARRAY_INDEX;
-        default:  UnsupportedFunctionality("sampler type in Bottom IR");
+        default:
+            UnsupportedFunctionality("sampler type in Bottom IR");
         }
 
         return TEXTURE_2D_INDEX;
@@ -508,7 +511,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
                 mesaOp = OPCODE_SNE;
                 break;
             default:
-                UnsupportedFunctionality("comparison operator in Bottom IR");
+                UnsupportedFunctionality("comparison operator in Bottom IR: ", fcmp->getPredicate());
             }
         }
         else {
@@ -517,7 +520,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction)
         break;
 
     default:
-        UnsupportedFunctionality("opcode in Bottom IR");
+        UnsupportedFunctionality("opcode in Bottom IR: ", llvmInstruction->getOpcode());
     }
 
     //??mesaInstruction->CondUpdate = inst->cond_update;
