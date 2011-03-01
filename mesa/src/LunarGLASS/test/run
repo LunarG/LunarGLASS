@@ -18,8 +18,14 @@ TESTS=(checkpoint1.frag test.frag flowControl.frag)
 function runTests {
     for t in ${TESTS[@]}; do
         echo "  Running $t"
-        $RUNCMD $OPTIONS $t > $t.stdout 2> $t.errout || (cat $t.errout ; exit 1)
-        cat $t.errout $t.stdout > $t.out
+
+        # Run for TGSI
+        $RUNCMD ${OPTIONS[@]} $TGSIOP $t > $t.stdout 2> $t.errout || tail -n 1 $t.errout
+        cat $t.errout $t.stdout > tgsi/$t.out
+
+        # Run for GLSL
+        $RUNCMD ${OPTIONS[@]} $GLSLOP $t > $t.stdout 2> $t.errout || tail -n 1 $t.errout
+        cat $t.errout $t.stdout > glsl/$t.out
         rm $t.stdout $t.errout
     done
 }
@@ -31,8 +37,9 @@ function showHelp {
 
 # Default is for windows
 RUNCMD=../../glsl/Debug/StandAlone.exe
-OPTIONS=(--dump-ast)
-
+OPTIONS=(-d)
+TGSIOP="--tgsi"
+GLSLOP="--glsl"
 # Command-line argument Handling
 
 # No arguments passed

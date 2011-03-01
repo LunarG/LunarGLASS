@@ -86,8 +86,6 @@ namespace gla {
         gla::BackEndTranslator* backEndTranslator;
         gla::BackEnd* backEnd;
     };
-
-    const bool UseTgsiBackend = true;
 }
 
 

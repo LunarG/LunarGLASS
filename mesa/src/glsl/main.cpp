@@ -20,6 +20,10 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
+// Define main_cpp, so we can include Options.cpp safely
+#define MAIN_CPP
+
 #include <cstdlib>
 #include <cstdio>
 
@@ -54,19 +58,11 @@ typedef int ssize_t;
 #include <string>
 #include <iostream>
 
-// Description and usage information
-const std::string Description = "\
-Description: The LunarGLASS stand-alone shader compiler\n\
-";
+// LunarGLASS runtime options handling
+#include "Options.cpp"
 
-const std::string Usage = "\
-Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
-\n\
-       Options:\n\
-         -h --help    Print out this Usage info\n\
-         --dump-ast   Print out the AST\
-";
-// End:LunarG
+
+// End: LunarG
 
 extern "C" struct gl_shader *
 _mesa_new_shader(GLcontext *ctx, GLuint name, GLenum type);
@@ -288,50 +284,7 @@ compile_shader(GLcontext *ctx, struct gl_shader *shader)
 
 // Begin: LunarG
 
-// Is the string an option/flagged argument?
-bool isOption(std::string s) { return !s.compare(0, 1, "-"); }
 
-// Print out description and help
-void printHelp() { std::cout << Description << Usage; }
-
-// Returns the index of the first non-flag argument
-// Assumes that all option/flagged arguments come before non-flagged arguments
-int handleArgs(int argc, char **argv) {
-
-   using std::vector;
-   using std::string;
-   using std::iterator;
-
-   int argIndex = 0;
-
-   // Load up the flagged options
-   vector<string> flaggedArgs;
-   flaggedArgs.clear();
-   for (int i = 1; i < argc; ++i) {
-      if (isOption((string) argv[i])) {
-         flaggedArgs.push_back(argv[i]);
-      } else {
-         argIndex = i;
-         break;
-      }
-   }
-
-   // Handle each option
-   for (vector<string>::iterator i = flaggedArgs.begin(), e = flaggedArgs.end(); i != e; ++i){
-      if (*i == "-h" || *i == "--help") {
-         printHelp();
-         exit(0);
-      } else if (*i == "--dump-ast") {
-         dump_ast = 1;
-      } else {
-         std::cout << "Unknown option: " << *i << std::endl;
-         printHelp();
-         exit(0);
-      }
-   }
-
-   return argIndex;
-}
 
 // End: LunarG
 
@@ -352,8 +305,8 @@ main(int argc, char **argv)
    //   usage_fail(argv[0]);
 
    if (argc < 2)
-       usage_fail(argv[0]);
-   dump_ast = 0;
+      gla::PrintHelp();
+
    dump_hir = 0;
    dump_lir = 0;
    do_link = 1;
@@ -361,7 +314,8 @@ main(int argc, char **argv)
 
    // Handle some LunarGLASS specific options in a more platform-independent manner
    // Overwrites argc and argv
-   int optind = handleArgs(argc, argv);
+   int optind = gla::HandleArgs(argc, argv);
+   dump_ast = gla::Options.dumpAst;
 
    initialize_context(ctx, (glsl_es) ? API_OPENGLES2 : API_OPENGL);
 
