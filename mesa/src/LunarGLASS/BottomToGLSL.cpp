@@ -525,23 +525,54 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     case llvm::Instruction::Or:             charOp = "|";  break;
     case llvm::Instruction::Xor:            charOp = "^";  break;
 
+    case llvm::Instruction::ICmp:
     case llvm::Instruction::FCmp:
-        if (const llvm::FCmpInst* fcmp = llvm::dyn_cast<llvm::FCmpInst>(llvmInstruction)) {
-            switch (fcmp->getPredicate()) {
-            case llvm::FCmpInst::FCMP_OGT:  charOp = ">";   break;
-            case llvm::FCmpInst::FCMP_OEQ:  charOp = "==";  break;
-            case llvm::FCmpInst::FCMP_OGE:  charOp = ">=";  break;
-            case llvm::FCmpInst::FCMP_OLT:  charOp = "<";   break;
-            case llvm::FCmpInst::FCMP_OLE:  charOp = "<=";  break;
-            case llvm::FCmpInst::FCMP_ONE:  charOp = "!=";  break;
-            default:
-                charOp = "==";
-                UnsupportedFunctionality("Comparison Operator in Bottom IR: ", fcmp->getPredicate(), EATContinue);
+        if (! llvm::isa<llvm::VectorType>(llvmInstruction->getOperand(0)->getType())) {
+            
+            const llvm::Type* type = llvmInstruction->getOperand(0)->getType();
+            if (type != type->getFloatTy(llvmInstruction->getContext()) &&
+                type != type->getDoubleTy(llvmInstruction->getContext()) &&
+                type != type->getInt32Ty(llvmInstruction->getContext())) {
+
+                UnsupportedFunctionality("Can only compare integers and floats");
+                return;
             }
-        } else {
-            assert(! "FCmp instruction found that cannot dyncast to FCmpInst");
+
+            // Handle float and integer scalars
+            // (Vectors are handled as built-in functions)
+            if (const llvm::CmpInst* cmp = llvm::dyn_cast<llvm::CmpInst>(llvmInstruction)) {
+                switch (cmp->getPredicate()) {
+                case llvm::FCmpInst::FCMP_OEQ:
+                case llvm::ICmpInst::ICMP_EQ:   charOp = "==";  break;
+                
+                case llvm::FCmpInst::FCMP_ONE:
+                case llvm::ICmpInst::ICMP_NE:   charOp = "!=";  break;
+                
+                case llvm::FCmpInst::FCMP_OGT:
+                case llvm::ICmpInst::ICMP_UGT:
+                case llvm::ICmpInst::ICMP_SGT:  charOp = ">";   break;
+                
+                case llvm::FCmpInst::FCMP_OGE:
+                case llvm::ICmpInst::ICMP_UGE:
+                case llvm::ICmpInst::ICMP_SGE:  charOp = ">=";  break;
+                
+                case llvm::FCmpInst::FCMP_OLT:
+                case llvm::ICmpInst::ICMP_ULT:
+                case llvm::ICmpInst::ICMP_SLT:  charOp = "<";   break;
+                
+                case llvm::FCmpInst::FCMP_OLE:
+                case llvm::ICmpInst::ICMP_ULE:
+                case llvm::ICmpInst::ICMP_SLE:  charOp = "<=";  break;
+                default:
+                    charOp = "==";
+                    UnsupportedFunctionality("Comparison Operator in Bottom IR: ", cmp->getPredicate(), EATContinue);
+                }
+            } else {
+                assert(! "Cmp instruction found that cannot dyncast to CmpInst");
+            }
         }
         break;
+
     default:
         break;
         // fall through to check other ops
@@ -624,6 +655,56 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
             mapGlaIntrinsic(i);
         } else {
             UnsupportedFunctionality("Function Call in Bottom IR");
+        }
+        return;
+
+    case llvm::Instruction::ICmp:
+    case llvm::Instruction::FCmp:
+        {
+            if (! llvm::isa<llvm::VectorType>(llvmInstruction->getOperand(0)->getType())) {
+                UnsupportedFunctionality("Can only compare scalars and vectors");
+
+                return;
+            }
+
+            if (const llvm::CmpInst* cmp = llvm::dyn_cast<llvm::CmpInst>(llvmInstruction)) {
+                switch (cmp->getPredicate()) {
+                case llvm::FCmpInst::FCMP_OEQ:
+                case llvm::ICmpInst::ICMP_EQ:   charOp = "equal";             break;
+                
+                case llvm::FCmpInst::FCMP_ONE:
+                case llvm::ICmpInst::ICMP_NE:   charOp = "notEqual";          break;
+                
+                case llvm::FCmpInst::FCMP_OGT:
+                case llvm::ICmpInst::ICMP_UGT:
+                case llvm::ICmpInst::ICMP_SGT:  charOp = "greaterThan";       break;
+                
+                case llvm::FCmpInst::FCMP_OGE:
+                case llvm::ICmpInst::ICMP_UGE:
+                case llvm::ICmpInst::ICMP_SGE:  charOp = "greaterThanEqual";  break;
+                
+                case llvm::FCmpInst::FCMP_OLT:
+                case llvm::ICmpInst::ICMP_ULT:
+                case llvm::ICmpInst::ICMP_SLT:  charOp = "lessThan";          break;
+                
+                case llvm::FCmpInst::FCMP_OLE:
+                case llvm::ICmpInst::ICMP_ULE:
+                case llvm::ICmpInst::ICMP_SLE:  charOp = "lessThanEqual";     break;
+                default:
+                    charOp = "equal";
+                    UnsupportedFunctionality("Comparison Vector Operator in Bottom IR: ", cmp->getPredicate(), EATContinue);
+                }
+            } else {
+                assert(! "Cmp vector instruction found that cannot dyncast to CmpInst");
+            }
+            
+            newLine();
+            mapGlaValue(llvmInstruction);
+            shader << " = " << charOp << "(";
+            mapGlaOperand(llvmInstruction->getOperand(0));
+            shader << ", ";
+            mapGlaOperand(llvmInstruction->getOperand(1));
+            shader << ");";
         }
         return;
 
@@ -775,14 +856,14 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fInverseSqrt: callString = "inversesqrt"; callArgs = 1; break;
     case llvm::Intrinsic::gla_fSign:        callString = "sign";        callArgs = 1; break;
     case llvm::Intrinsic::gla_fFloor:       callString = "floor";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fCeiling:     callString = "ceiling";     callArgs = 1; break;
+    case llvm::Intrinsic::gla_fCeiling:     callString = "ceil";        callArgs = 1; break;
     case llvm::Intrinsic::gla_fRoundEven:   callString = "roundEven";   callArgs = 1; break;
     case llvm::Intrinsic::gla_fRoundFast:   callString = "round";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fFraction:    callString = "fract";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fModF:        callString = "modf";        break; // callArgs = 2;
     case llvm::Intrinsic::gla_fMix:         callString = "mix";         callArgs = 3; break;
     case llvm::Intrinsic::gla_fStep:        callString = "step";        callArgs = 2; break;
-    case llvm::Intrinsic::gla_fSmoothStep:  callString = "smoothStep";  callArgs = 3; break;
+    case llvm::Intrinsic::gla_fSmoothStep:  callString = "smoothstep";  callArgs = 3; break;
     case llvm::Intrinsic::gla_fIsNan:       callString = "isnan";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fIsInf:       callString = "isinf";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fFma:         callString = "fma";         callArgs = 3; break;
@@ -844,16 +925,16 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
     if (callString == 0 || callArgs == 0)
         UnsupportedFunctionality("Intrinsic in Bottom IR");
-    if (callArgs != llvmInstruction->getNumOperands())
+    if (callArgs != llvmInstruction->getNumArgOperands())
         UnsupportedFunctionality("Intrinsic argument count: ", llvmInstruction->getNumOperands(), EATContinue);
 
     newLine();
     mapGlaDestination(llvmInstruction);
     shader << " = " << callString << "(";
-    for (unsigned int op = 0; op < callArgs; ++op) {
-        if (op > 0)
+    for (unsigned int arg = 0; arg < llvmInstruction->getNumArgOperands(); ++arg) {
+        if (arg > 0)
             shader << ", ";
-        mapGlaOperand(llvmInstruction->getOperand(op));
+        mapGlaOperand(llvmInstruction->getOperand(arg));
     }
     shader << ");";
 }

@@ -907,7 +907,7 @@ else131:                                          ; preds = %else128
 ifmerge132:                                       ; preds = %else131, %then129
   %373 = load i1* %and_tmp130
   %374 = load float* %f
-  %375 = fcmp one float %374, 2.000000e+00
+  %375 = fcmp one float %374, 2.000000e+000
   %376 = xor i1 %373, %375
   store i1 %376, i1* %or_tmp127
   br label %ifmerge133
@@ -918,7 +918,7 @@ ifmerge133:                                       ; preds = %ifmerge132, %then12
 
 then134:                                          ; preds = %ifmerge133
   %378 = load float* %f
-  %379 = fadd float %378, 1.000000e+00
+  %379 = fadd float %378, 1.000000e+000
   store float %379, float* %assignment_tmp135
   %380 = load float* %assignment_tmp135
   store float %380, float* %f
@@ -1332,7 +1332,7 @@ else131:                                          ; preds = %else128
   br label %ifmerge132
 
 ifmerge132:                                       ; preds = %else131, %then129
-  %80 = fcmp one float %77, 2.000000e+00
+  %80 = fcmp one float %77, 2.000000e+000
   %81 = xor i1 false, %80
   br label %ifmerge133
 
@@ -1341,7 +1341,7 @@ ifmerge133:                                       ; preds = %ifmerge132, %then12
   br i1 %or_tmp127.0, label %then134, label %ifmerge136
 
 then134:                                          ; preds = %ifmerge133
-  %82 = fadd float %77, 1.000000e+00
+  %82 = fadd float %77, 1.000000e+000
   br label %ifmerge136
 
 ifmerge136:                                       ; preds = %then134, %ifmerge133
@@ -1469,126 +1469,6 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.i32(i32, i32) nounwind readnone
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
 declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 3
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 3
-
-***Unsupported functionality: Intrinsic argument count: 3
-
-***Unsupported functionality: Intrinsic argument count: 4
-
-***Unsupported functionality: Intrinsic argument count: 4
-
-***Unsupported functionality: Intrinsic argument count: 4
-
-***Unsupported functionality: Intrinsic argument count: 3
-
-***Unsupported functionality: Intrinsic argument count: 4
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 4
-
-***Unsupported functionality: Intrinsic argument count: 3
-
-***Unsupported functionality: Intrinsic argument count: 4
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 3
-
-***Unsupported functionality: Intrinsic argument count: 3
-
-***Unsupported functionality: Intrinsic argument count: 4
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Opcode in Bottom IR: 42
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Opcode in Bottom IR: 42
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Opcode in Bottom IR: 42
-
-***Unsupported functionality: Opcode in Bottom IR: 42
-
-***Unsupported functionality: Opcode in Bottom IR: 42
-
-***Unsupported functionality: Intrinsic argument count: 2
-
-***Unsupported functionality: Intrinsic argument count: 3
-
-***Unsupported functionality: Intrinsic argument count: 3
-
-***Unsupported functionality: Intrinsic argument count: 3
 compiling Operations.frag...
 uniform ivec4 uiv4 ; 
 uniform vec4 uv4 ; 
@@ -2195,10 +2075,11 @@ uniform bvec4 ub42;
 const bool const122;
 const bvec4 const134;
 const bool const142;
-const int const147;
-const float const149;
-const float const166;
-const float const169;
+const int const145;
+const int const148;
+const float const150;
+const float const167;
+const float const170;
 
 void main()
 {
@@ -2256,7 +2137,7 @@ void main()
     vec4 temp72 = temp70 + temp71;
     vec4 temp73 = floor(temp72);
     vec4 temp74 = temp72 + temp73;
-    vec4 temp75 = ceiling(temp74);
+    vec4 temp75 = ceil(temp74);
     vec4 temp76 = temp74 + temp75;
     vec4 temp77 = fract(temp76);
     vec4 temp78 = temp76 + temp77;
@@ -2274,7 +2155,7 @@ void main()
     vec4 temp90 = temp88 + temp89;
     vec4 temp91 = step(temp90, temp90);
     vec4 temp92 = temp90 + temp91;
-    vec4 temp93 = smoothStep(temp92, temp92, temp92);
+    vec4 temp93 = smoothstep(temp92, temp92, temp92);
     vec4 temp94 = temp92 + temp93;
     vec4 temp95 = normalize(temp94);
     vec4 temp96 = temp94 + temp95;
@@ -2299,10 +2180,10 @@ void main()
     int temp115 = temp114 + temp113;
     int temp116 = clamp(temp115, ui, ui);
     int temp117 = temp116 + temp115;
-    bvec4 temp118 = temp108 < temp108;
+    bvec4 temp118 = lessThan(temp108, temp108);
     bool temp119 = any(temp118);
     if (temp119) {
-        bvec4 temp120 = temp108 <= temp108;
+        bvec4 temp120 = lessThanEqual(temp108, temp108);
         bool temp121 = any(temp120);
         temp21 = temp121;
     }
@@ -2311,7 +2192,7 @@ void main()
     }
     
     if (temp21) {
-        bvec4 temp123 = temp108 > temp108;
+        bvec4 temp123 = greaterThan(temp108, temp108);
         bool temp124 = any(temp123);
         temp22 = temp124;
     }
@@ -2320,7 +2201,7 @@ void main()
     }
     
     if (temp22) {
-        bvec4 temp125 = temp108 >= temp108;
+        bvec4 temp125 = greaterThanEqual(temp108, temp108);
         bool temp126 = any(temp125);
         temp23 = temp126;
     }
@@ -2329,16 +2210,18 @@ void main()
     }
     
     if (temp23) {
-        bool temp127 = any(bvec4 temp128);
-        temp24 = temp127;
+        bvec4 temp127 = equal(ub41, ub42);
+        bool temp128 = any(temp127);
+        temp24 = temp128;
     }
     else {
         temp24 = const122;
     }
     
     if (temp24) {
-        bool temp129 = any(bvec4 temp130);
-        temp25 = temp129;
+        bvec4 temp129 = notEqual(ub41, ub42);
+        bool temp130 = any(temp129);
+        temp25 = temp130;
     }
     else {
         temp25 = const122;
@@ -2374,67 +2257,70 @@ void main()
     int temp138 = temp137 - ui;
     int temp139 = temp138 / temp117;
     int temp140 = temp139 % ui;
-    if (bool temp141) {
+    bool temp141 = temp140 == ui;
+    if (temp141) {
         temp29 = const142;
     }
     else {
-        if (bool temp143) {
+        bool temp143 = temp140 != ui;
+        if (temp143) {
         }
         else {
         }
         
-        bool temp144 = const122 ^ bool temp145;
-        temp29 = temp144;
+        bool temp144 = temp140 != const145;
+        bool temp146 = const122 ^ temp144;
+        temp29 = temp146;
     }
     
     temp30 = temp140;
     if (temp29) {
-        int temp146 = temp140 + const147;
-        temp30 = temp146;
+        int temp147 = temp140 + const148;
+        temp30 = temp147;
     }
     
-    float temp148 = const149 + uf;
-    float temp150 = temp148 * const149;
-    float temp151 = temp150 - uf;
-    float temp152 = temp151 / const149;
-    float temp153 = length(temp108);
-    float temp154 = temp152 + temp153;
-    float temp155 = distance(temp108, temp108);
-    float temp156 = temp154 + temp155;
-    float temp157 = dot(temp108, temp108);
-    float temp158 = temp156 + temp157;
-    vec3 temp159 = temp108.xyzx;
-    vec3 temp160 = cross(temp159, temp159);
-    float temp161 = temp160.xxxx;
-    float temp162 = temp158 + temp161;
-    bool temp163 = temp162 == uf;
-    if (temp163) {
+    float temp149 = const150 + uf;
+    float temp151 = temp149 * const150;
+    float temp152 = temp151 - uf;
+    float temp153 = temp152 / const150;
+    float temp154 = length(temp108);
+    float temp155 = temp153 + temp154;
+    float temp156 = distance(temp108, temp108);
+    float temp157 = temp155 + temp156;
+    float temp158 = dot(temp108, temp108);
+    float temp159 = temp157 + temp158;
+    vec3 temp160 = temp108.xyzx;
+    vec3 temp161 = cross(temp160, temp160);
+    float temp162 = temp161.xxxx;
+    float temp163 = temp159 + temp162;
+    bool temp164 = temp163 == uf;
+    if (temp164) {
         temp31 = const142;
     }
     else {
-        bool temp164 = temp162 != uf;
-        if (temp164) {
+        bool temp165 = temp163 != uf;
+        if (temp165) {
         }
         else {
         }
         
-        bool temp165 = temp162 != const166;
-        bool temp167 = const122 ^ temp165;
-        temp31 = temp167;
+        bool temp166 = temp163 != const167;
+        bool temp168 = const122 ^ temp166;
+        temp31 = temp168;
     }
     
-    temp32 = temp162;
+    temp32 = temp163;
     if (temp31) {
-        float temp168 = temp162 + const169;
-        temp32 = temp168;
+        float temp169 = temp163 + const170;
+        temp32 = temp169;
     }
     
     if (temp28) {
-        vec4 temp170 = temp30.xxxx;
-        vec4 temp171 = temp32.xxxx;
-        vec4 temp172 = temp170 + temp171;
-        vec4 temp173 = temp172 + temp108;
-        temp33 = temp173;
+        vec4 temp171 = temp30.xxxx;
+        vec4 temp172 = temp32.xxxx;
+        vec4 temp173 = temp171 + temp172;
+        vec4 temp174 = temp173 + temp108;
+        temp33 = temp174;
     }
     else {
         temp33 = temp108;
