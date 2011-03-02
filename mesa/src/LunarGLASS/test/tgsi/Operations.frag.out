@@ -907,7 +907,7 @@ else131:                                          ; preds = %else128
 ifmerge132:                                       ; preds = %else131, %then129
   %373 = load i1* %and_tmp130
   %374 = load float* %f
-  %375 = fcmp one float %374, 2.000000e+000
+  %375 = fcmp one float %374, 2.000000e+00
   %376 = xor i1 %373, %375
   store i1 %376, i1* %or_tmp127
   br label %ifmerge133
@@ -918,7 +918,7 @@ ifmerge133:                                       ; preds = %ifmerge132, %then12
 
 then134:                                          ; preds = %ifmerge133
   %378 = load float* %f
-  %379 = fadd float %378, 1.000000e+000
+  %379 = fadd float %378, 1.000000e+00
   store float %379, float* %assignment_tmp135
   %380 = load float* %assignment_tmp135
   store float %380, float* %f
@@ -1332,7 +1332,7 @@ else131:                                          ; preds = %else128
   br label %ifmerge132
 
 ifmerge132:                                       ; preds = %else131, %then129
-  %80 = fcmp one float %77, 2.000000e+000
+  %80 = fcmp one float %77, 2.000000e+00
   %81 = xor i1 false, %80
   br label %ifmerge133
 
@@ -1341,7 +1341,7 @@ ifmerge133:                                       ; preds = %ifmerge132, %then12
   br i1 %or_tmp127.0, label %then134, label %ifmerge136
 
 then134:                                          ; preds = %ifmerge133
-  %82 = fadd float %77, 1.000000e+000
+  %82 = fadd float %77, 1.000000e+00
   br label %ifmerge136
 
 ifmerge136:                                       ; preds = %then134, %ifmerge133

@@ -38,7 +38,7 @@ namespace gla {
 
     // Options struct
     struct OptionsType {
-        bool dumpAst;
+        bool debug;
         bool obfuscate;
         BackendOption backend;
     };

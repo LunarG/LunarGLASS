@@ -315,7 +315,8 @@ main(int argc, char **argv)
    // Handle some LunarGLASS specific options in a more platform-independent manner
    // Overwrites argc and argv
    int optind = gla::HandleArgs(argc, argv);
-   dump_ast = gla::Options.dumpAst;
+   dump_ast = gla::Options.debug;
+   do_glsl_to_mesa_ir = gla::Options.backend == gla::TGSI;
 
    initialize_context(ctx, (glsl_es) ? API_OPENGLES2 : API_OPENGL);
 
@@ -325,7 +326,8 @@ main(int argc, char **argv)
    assert(whole_program != NULL);
 
    for (/* empty */; argc > optind; optind++) {
-      printf("compiling %s...\n", argv[optind]);
+      if (gla::Options.debug)
+         printf("compiling %s...\n", argv[optind]);
 
       whole_program->Shaders = (struct gl_shader **)
 	 talloc_realloc(whole_program, whole_program->Shaders,
@@ -378,10 +380,15 @@ main(int argc, char **argv)
    if (status == EXIT_SUCCESS && use_gla) {
       gla::Manager* glaManager = gla::getManager();
       assert (whole_program->NumShaders == 1);
-      _mesa_print_ir(whole_program->Shaders[0]->ir, 0);
+      if (gla::Options.debug)
+         _mesa_print_ir(whole_program->Shaders[0]->ir, 0);
+
       TranslateGlslToTop(whole_program->Shaders[0], glaManager);
+
       glaManager->translateTopToBottom();
+
       glaManager->translateBottomToTarget();
+
       delete glaManager;
    }
 

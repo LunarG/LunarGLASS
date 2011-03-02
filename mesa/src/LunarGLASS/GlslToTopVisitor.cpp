@@ -33,6 +33,7 @@
 #include "LunarGLASSTopIR.h"
 #include "mtypes.h"
 #include "Exceptions.h"
+#include "Options.h"
 
 void GlslToTop(struct gl_shader* glShader, llvm::Module* module)
 {
@@ -283,7 +284,8 @@ ir_visitor_status
         // is good just for main
         builder.CreateRet(0);
 
-        module->dump();
+        if (gla::Options.debug)
+            module->dump();
     }
 
     return visit_continue;
@@ -530,7 +532,7 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
     else if(!strcmp(call->callee_name(), "fwidth"))             { intrinsicName = getLLVMIntrinsicFunction2(llvm::Intrinsic::gla_fFilterWidth, resultType, llvmParams[0]->getType()); name = "fwidth"; }
     else if(!strcmp(call->callee_name(), "any"))                { intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::gla_any, llvmParams[0]->getType()); name = "any"; }
     else if(!strcmp(call->callee_name(), "all"))                { intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::gla_all, llvmParams[0]->getType()); name = "all"; }
-    
+
     // Unsupported calls
     //noise*")) { }
     //else if(!strcmp(call->callee_name(), "matrixCompMult"))   { intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::xxxx, resultType); name = "xxxx"; }

@@ -860,5 +860,5 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
 void gla::GlslTarget::print()
 {
-    printf("\nLunarGoo\n%s\n%s", globalDeclarations.str().c_str(), shader.str().c_str());
+    printf("\n// LunarGoo output\n%s\n%s", globalDeclarations.str().c_str(), shader.str().c_str());
 }

@@ -69,7 +69,7 @@ Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
 namespace gla {
 
     // Global Options
-    OptionsType Options = { false   // Dump the ast
+    OptionsType Options = { false   // Debug info
                           , false   // Obfuscate
                           , GLSL    // Backend
                           };
@@ -108,7 +108,7 @@ namespace gla {
                 PrintHelp();
                 exit(0);
             } else if (*i == "-d" || *i == "--debug") {
-                Options.dumpAst = true;
+                Options.debug = true;
             } else if (*i == "--glsl") {
                 Options.backend = GLSL;
             } else if (*i == "--tgsi") {

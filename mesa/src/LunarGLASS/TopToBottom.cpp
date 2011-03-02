@@ -46,12 +46,14 @@
 #include "Manager.h"
 #include "TgsiTarget.h"
 #include "GlslTarget.h"
+#include "Options.h"
 
 void gla::PrivateManager::translateTopToBottom()
 {
     runLLVMOptimizations1();
 
-    module->dump();
+    if (gla::Options.debug)
+        module->dump();
 
     int innerAoS, outerSoA;
     backEnd->getRegisterForm(outerSoA, innerAoS);

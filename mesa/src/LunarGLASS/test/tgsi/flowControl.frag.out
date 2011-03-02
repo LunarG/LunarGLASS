@@ -101,6 +101,18 @@ declare <4 x float> @llvm.gla.getInterpolant.v4f32(i32) nounwind readonly
 declare float @llvm.gla.getInterpolant.f32(i32) nounwind readonly
 
 declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
+# Fragment Program/Shader 0
+  0: MOV TEMP[0], INPUT[-1];
+  1: SGT TEMP[1].x, INPUT[-1].xxxx, UNIFORM[3].xxxx;
+  2: IF TEMP[1].xxxx;  # (if false, goto 5);
+  3:    ADD TEMP[1], INPUT[-1], UNIFORM[2];
+  4:    MOV TEMP[0], TEMP[1];
+  5: ELSE; # (goto 8)
+  6:    ADD TEMP[1], TEMP[0], UNIFORM[1];
+  7:    MOV TEMP[0], TEMP[1];
+  8: ENDIF;
+  9: MUL OUTPUT[1], TEMP[0], UNIFORM[0];
+ 10: END
 compiling flowControl.frag...
 uniform float d ; 
 uniform vec4 bigColor , smallColor ; 
@@ -232,15 +244,19 @@ Mesa program before mesa optimizations
  16: END
 
 Mesa program after mesa optimizations
-  0: MOV TEMP[0], INPUT[0];
+  0: MOV TEMP[1], INPUT[0];
   1: MOV TEMP[2], UNIFORM[1];
   2: SGT TEMP[3].x, INPUT[0].xxxx, UNIFORM[2].xxxx;
   3: IF TEMP[3].xxxx;  # (if false, goto 0);
-  4:    ADD TEMP[3], TEMP[0], UNIFORM[3];
+  4:    ADD TEMP[3], TEMP[1], UNIFORM[3];
   5:    MOV TEMP[4], TEMP[3];
   6: ELSE; # (goto 0)
-  7:    ADD TEMP[3], TEMP[0], UNIFORM[4];
+  7:    ADD TEMP[3], TEMP[1], UNIFORM[4];
   8:    MOV TEMP[4], TEMP[3];
   9: ENDIF;
  10: MUL OUTPUT[0], TEMP[4], TEMP[2];
  11: END
+
+===========================================
+
+Optimized Mesa IR without GLA for linked fragment program 0:
