@@ -177,7 +177,7 @@ int dump_hir = 0;
 int dump_lir = 0;
 int use_gla = 0;
 int do_link = 0;
-int do_glsl_to_mesa_ir = 1;
+int do_glsl_to_mesa_ir = 0;
 
 const struct { const char* arg; int foo; int* flag; int bar;} compiler_opts[] = {
    { "glsl-es",  0, &glsl_es,  1 },

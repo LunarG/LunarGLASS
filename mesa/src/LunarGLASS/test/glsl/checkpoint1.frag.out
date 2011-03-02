@@ -9,7 +9,7 @@
 
 define void @main() {
 entry:
-  %assignment_tmp3 = alloca <4 x float>
+  %assignment_tmp2 = alloca <4 x float>
   %mix_retval = alloca <4 x float>
   %w = alloca <4 x float>
   %assignment_tmp1 = alloca <4 x float>
@@ -20,39 +20,39 @@ entry:
   %0 = load i32 addrspace(1)* @texSampler2D
   %t = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
   %1 = load <2 x float> addrspace(1)* @scale
-  %fAddTmp = fadd <2 x float> %t, %1
-  %2 = load <2 x float> addrspace(1)* @scale
-  %fDivTmp = fdiv <2 x float> %fAddTmp, %2
-  %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %fDivTmp)
+  %2 = fadd <2 x float> %t, %1
+  %3 = load <2 x float> addrspace(1)* @scale
+  %4 = fdiv <2 x float> %2, %3
+  %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %4)
   store <4 x float> %texture2DTmp, <4 x float>* %texture2D_retval
-  %3 = load <4 x float>* %texture2D_retval
-  %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float> %3, i32 27)
+  %5 = load <4 x float>* %texture2D_retval
+  %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float> %5, i32 27)
   store <4 x float> %swizzleTmp, <4 x float>* %assignment_tmp
-  %4 = load <4 x float>* %assignment_tmp
-  store <4 x float> %4, <4 x float>* %v
-  %5 = load i32 addrspace(1)* @texSampler3D
+  %6 = load <4 x float>* %assignment_tmp
+  store <4 x float> %6, <4 x float>* %v
+  %7 = load i32 addrspace(1)* @texSampler3D
   %coords = call <3 x float> @llvm.gla.getInterpolant.v3f32(i32 0)
-  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %5, i32 0, <3 x float> %coords)
+  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %7, i32 0, <3 x float> %coords)
   store <4 x float> %texture3DTmp, <4 x float>* %texture3D_retval
-  %6 = load <4 x float>* %texture3D_retval
-  %7 = load <4 x float>* %v
-  %fAddTmp2 = fadd <4 x float> %6, %7
-  store <4 x float> %fAddTmp2, <4 x float>* %assignment_tmp1
-  %8 = load <4 x float>* %assignment_tmp1
-  store <4 x float> %8, <4 x float>* %w
-  %9 = load <4 x float>* %w
-  %10 = load <4 x float> addrspace(1)* @u
-  %11 = load float addrspace(1)* @blend
-  %12 = load float addrspace(1)* @blend
-  %fMulTmp = fmul float %11, %12
-  %mixTmp = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %9, <4 x float> %10, float %fMulTmp)
-  store <4 x float> %mixTmp, <4 x float>* %mix_retval
-  %13 = load <4 x float>* %mix_retval
-  store <4 x float> %13, <4 x float>* %assignment_tmp3
-  %14 = load <4 x float>* %assignment_tmp3
-  store <4 x float> %14, <4 x float>* @gl_FragColor
-  %15 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %15)
+  %8 = load <4 x float>* %texture3D_retval
+  %9 = load <4 x float>* %v
+  %10 = fadd <4 x float> %8, %9
+  store <4 x float> %10, <4 x float>* %assignment_tmp1
+  %11 = load <4 x float>* %assignment_tmp1
+  store <4 x float> %11, <4 x float>* %w
+  %12 = load <4 x float>* %w
+  %13 = load <4 x float> addrspace(1)* @u
+  %14 = load float addrspace(1)* @blend
+  %15 = load float addrspace(1)* @blend
+  %16 = fmul float %14, %15
+  %mix = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %12, <4 x float> %13, float %16)
+  store <4 x float> %mix, <4 x float>* %mix_retval
+  %17 = load <4 x float>* %mix_retval
+  store <4 x float> %17, <4 x float>* %assignment_tmp2
+  %18 = load <4 x float>* %assignment_tmp2
+  store <4 x float> %18, <4 x float>* @gl_FragColor
+  %19 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %19)
   ret void
 }
 
@@ -82,19 +82,19 @@ entry:
   %0 = load i32 addrspace(1)* @texSampler2D
   %t = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
   %1 = load <2 x float> addrspace(1)* @scale
-  %fAddTmp = fadd <2 x float> %t, %1
-  %fDivTmp = fdiv <2 x float> %fAddTmp, %1
-  %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %fDivTmp)
+  %2 = fadd <2 x float> %t, %1
+  %3 = fdiv <2 x float> %2, %1
+  %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %3)
   %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float> %texture2DTmp, i32 27)
-  %2 = load i32 addrspace(1)* @texSampler3D
+  %4 = load i32 addrspace(1)* @texSampler3D
   %coords = call <3 x float> @llvm.gla.getInterpolant.v3f32(i32 0)
-  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %2, i32 0, <3 x float> %coords)
-  %fAddTmp2 = fadd <4 x float> %texture3DTmp, %swizzleTmp
-  %3 = load <4 x float> addrspace(1)* @u
-  %4 = load float addrspace(1)* @blend
-  %fMulTmp = fmul float %4, %4
-  %mixTmp = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %fAddTmp2, <4 x float> %3, float %fMulTmp)
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %mixTmp)
+  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %4, i32 0, <3 x float> %coords)
+  %5 = fadd <4 x float> %texture3DTmp, %swizzleTmp
+  %6 = load <4 x float> addrspace(1)* @u
+  %7 = load float addrspace(1)* @blend
+  %8 = fmul float %7, %7
+  %mix = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %5, <4 x float> %6, float %8)
+  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %mix)
   ret void
 }
 
@@ -113,19 +113,6 @@ declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float
 declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
 
 ***Unsupported functionality: Intrinsic argument count: 4
-# Fragment Program/Shader 0
-  0: MUL TEMP[0].x, UNIFORM[2].xxxx, UNIFORM[2].xxxx;
-  1: TEX TEMP[1], INPUT[-1].xyzz, texture[0], 3D;
-  2: ADD TEMP[2].xy, INPUT[-1].xyyy, UNIFORM[1].xyyy;
-  3: RCP TEMP[3].x, UNIFORM[1].xxxx;
-  4: RCP TEMP[3].y, UNIFORM[1].yyyy;
-  5: MUL TEMP[4].xy, TEMP[2].xyyy, TEMP[3].xyyy;
-  6: TEX TEMP[2], TEMP[4].xyyy, texture[1], 2D;
-  7: ADD TEMP[3], TEMP[1], TEMP[2].wzyx;
-  8: ADD TEMP[1].x, CONST[5].xxxx, TEMP[0].-x-x-x-x;
-  9: MUL TEMP[2], TEMP[3], TEMP[1].xxxx;
- 10: MAD OUTPUT[1], UNIFORM[0], TEMP[0].xxxx, TEMP[2];
- 11: END
 compiling checkpoint1.frag...
 uniform sampler2D texSampler2D ; 
 uniform sampler3D texSampler3D ; 
@@ -261,7 +248,3 @@ void main()
     gl_FragColor = temp28;
     return;
 }
-
-===========================================
-
-Optimized Mesa IR without GLA for linked fragment program 0:

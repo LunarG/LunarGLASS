@@ -96,7 +96,7 @@ public:
 
     // help functions to build LLVM
     llvm::Value* createLLVMVariable(ir_variable*);
-    llvm::Value* expandGLSLOp(ir_expression*);
+    llvm::Value* expandGLSLOp(ir_expression_operation, llvm::Value**);
     llvm::Value* expandGLSLSwizzle(ir_swizzle*);
     llvm::Value* createLLVMIntrinsic(ir_call*, llvm::Value**, int);
     llvm::Value* createLLVMConstant(ir_constant*);
@@ -107,6 +107,8 @@ public:
     llvm::Function* getLLVMIntrinsicFunction4(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
 
     void createLLVMTextureIntrinsic(llvm::Function* &, int &, llvm::Value**, llvm::Value**, llvm::Type*, llvm::Intrinsic::ID,  gla::ESamplerType, gla::ETextureFlags);
+
+    llvm::Type::TypeID getLLVMBaseType(llvm::Value*);
 
 protected:
     llvm::LLVMContext &context;

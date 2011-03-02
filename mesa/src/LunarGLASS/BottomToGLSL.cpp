@@ -650,7 +650,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         return;
 
     default:
-        UnsupportedFunctionality("Opcode in Bottom IR: ", llvmInstruction->getOpcode());
+        UnsupportedFunctionality("Opcode in Bottom IR: ", llvmInstruction->getOpcode(), EATContinue);
     }
 }
 

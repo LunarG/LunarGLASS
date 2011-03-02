@@ -65,10 +65,6 @@ void main()
     //v += unpackUnorm2x16(v);
     //v += unpackUnorm4x8(v);
     //v += unpackSnorm4x8(v);
-    v += length(v);
-    v += distance(v, v);
-    v += dot(v, v);
-    v.xyz += cross(v.xyz, v.xyz);
     v += normalize(v);
     //v += ftransform();
     v += faceforward(v, v, v);
@@ -127,8 +123,14 @@ void main()
 	    ++i;
 	
 	f = ((f + uf) * f - uf) / f;
+
+	f += length(v);
+    f += distance(v, v);
+    f += dot(v, v);
+	f += cross(v.xyz, v.xyz).x;
+
 	if (f == uf || f != uf && f == uf ^^ f != 2.0)
 	    ++f;
 
-    gl_FragColor = b ? vec4(i) + v : v;
+    gl_FragColor = b ? vec4(i) + vec4(f) + v : v;
 }
