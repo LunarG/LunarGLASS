@@ -13,7 +13,7 @@ Usage: ./run [options]
 "
 
 # Add more tests here as they are created
-TESTS=(checkpoint1.frag test.frag flowControl.frag Operations.frag)
+TESTS=(checkpoint1.frag test.frag flowControl.frag Operations.frag swizzle.frag)
 
 function runTests {
     for t in ${TESTS[@]}; do

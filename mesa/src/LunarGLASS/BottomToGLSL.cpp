@@ -300,20 +300,20 @@ protected:
 
     void mapComponentToSwizzle(int component)
     {
+        shader << mapComponentToSwizzleChar(component);
+    }
+
+    char* mapComponentToSwizzleChar(int component)
+    {
         switch (component) {
-        case 0:   shader << "x";     return;
-        case 1:   shader << "y";     return;
-        case 2:   shader << "z";     return;
-        case 3:   shader << "w";     return;
+        case 0:   return "x";
+        case 1:   return "y";
+        case 2:   return "z";
+        case 3:   return "w";
         default:  assert(! "Vector too large");
         }
 
-        shader << "x";
-    }
-
-    void mapComponentToLSwizzle(int component)
-    {
-        mapComponentToSwizzle(component);
+        return "x";
     }
 
     void mapGlaSamplerType(const llvm::Value* samplerType)
@@ -728,6 +728,36 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         } else {
             assert(! "store instruction is not through pointer\n");
         }
+        return;
+        
+    case llvm::Instruction::ExtractElement:
+        {
+            // copy propagate, by name string, the extracted component
+            std::string swizzled = *valueMap[llvmInstruction->getOperand(0)];
+            swizzled.append(".").append(mapComponentToSwizzleChar(GetConstantValue(llvmInstruction->getOperand(1))));
+            addNewVariable(llvmInstruction, swizzled.c_str());
+        }
+        return;
+
+    case llvm::Instruction::InsertElement:
+        // copy propagate, by name string the, the starting name of the object
+        // addNewVariable(llvmInstruction, valueMap[llvmInstruction->getOperand(0)]->c_str());
+        
+        // first, copy whole the structure "inserted into" to the resulting "value" of the insert
+        newLine();
+        mapGlaDestination(llvmInstruction);
+        shader << " = ";
+        mapGlaOperand(llvmInstruction->getOperand(0));
+        shader << ";";
+        
+        // second, overwrite the element being inserted
+        newLine();
+        mapGlaDestination(llvmInstruction);
+        shader << ".";
+        mapComponentToSwizzle(GetConstantValue(llvmInstruction->getOperand(2)));
+        shader << " = ";
+        mapGlaOperand(llvmInstruction->getOperand(1));
+        shader << ";";
         return;
 
     default:
