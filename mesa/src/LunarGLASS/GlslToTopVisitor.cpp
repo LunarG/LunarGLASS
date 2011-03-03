@@ -386,6 +386,7 @@ ir_visitor_status
         llvm::Value* targetVector;
         int writeMask = assignment->write_mask;
         int sourceElement = 0;
+        llvm::Type::TypeID sourceType = lastValue->getType()->getTypeID();
 
         // Load our target vector
         targetVector = builder.CreateLoad(lValue);
@@ -393,11 +394,18 @@ ir_visitor_status
         // Check each channel of the writemask
         for(int i = 0; i < 4; ++i) {
             if(writeMask & (1 << i)) {
-                // Extract an element to a scalar, then immediately insert to our target
-                targetVector = builder.CreateInsertElement(targetVector, 
-                                        builder.CreateExtractElement(lastValue, 
-                                                llvm::ConstantInt::get(context, llvm::APInt(32, sourceElement++, false))),
-                                        llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
+                if(llvm::Type::VectorTyID == sourceType) {
+                    // Extract an element to a scalar, then immediately insert to our target
+                    targetVector = builder.CreateInsertElement(targetVector, 
+                                            builder.CreateExtractElement(lastValue, 
+                                                    llvm::ConstantInt::get(context, llvm::APInt(32, sourceElement++, false))),
+                                            llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
+                } else {
+                    // Insert the scalar target
+                    targetVector = builder.CreateInsertElement(targetVector, 
+                                            lastValue,
+                                            llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
+                }
             }
         }
         // Track the last use of our extract/insert location to be stored
