@@ -20,10 +20,12 @@ function runTests {
         echo "  Running $t"
 
         # Run for TGSI
+        echo "    Running for TGSI"
         $RUNCMD ${OPTIONS[@]} $TGSIOP $t > $t.stdout 2> $t.errout || tail -n 1 $t.errout
         cat $t.errout $t.stdout > tgsi/$t.out
 
         # Run for GLSL
+        echo "    Running for GLSL"
         $RUNCMD ${OPTIONS[@]} $GLSLOP $t > $t.stdout 2> $t.errout || tail -n 1 $t.errout
         cat $t.errout $t.stdout > glsl/$t.out
         rm $t.stdout $t.errout
