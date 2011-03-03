@@ -6,52 +6,34 @@
 
 define void @main() {
 entry:
-  %assignment_tmp4 = alloca <4 x float>
   %mix_retval = alloca <4 x float>
-  %assignment_tmp2 = alloca <2 x float>
   %w = alloca <4 x float>
-  %assignment_tmp1 = alloca <4 x float>
-  %blendscale = alloca float
-  %assignment_tmp = alloca float
-  store float 0x3FFC9FBE80000000, float* %assignment_tmp
-  %0 = load float* %assignment_tmp
-  store float %0, float* %blendscale
-  %1 = load <4 x float> addrspace(1)* @u
-  store <4 x float> %1, <4 x float>* %assignment_tmp1
-  %2 = load <4 x float>* %assignment_tmp1
-  store <4 x float> %2, <4 x float>* %w
+  %0 = load <4 x float> addrspace(1)* @u
+  store <4 x float> %0, <4 x float>* %w
   %t = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
-  store <2 x float> %t, <2 x float>* %assignment_tmp2
-  %3 = load <2 x float>* %assignment_tmp2
-  %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v2f32(<2 x float> %3, i32 4)
-  %swizzleTmp3 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32(<4 x float> %swizzleTmp, i32 13)
-  %4 = load <4 x float>* %w
-  %5 = extractelement <2 x float> %swizzleTmp3, i32 0
-  %6 = insertelement <4 x float> %4, float %5, i32 1
-  %7 = extractelement <2 x float> %swizzleTmp3, i32 1
-  %8 = insertelement <4 x float> %6, float %7, i32 3
-  store <4 x float> %8, <4 x float>* %w
-  %9 = load <4 x float>* %w
-  %10 = load <4 x float> addrspace(1)* @u
-  %11 = load float addrspace(1)* @blend
-  %12 = load float* %blendscale
-  %13 = fmul float %11, %12
-  %mix = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %9, <4 x float> %10, float %13)
+  %swizzleTmp = call <2 x float> @llvm.gla.fSwizzle.v2f32.v2f32(<2 x float> %t, i32 1)
+  %1 = load <4 x float>* %w
+  %2 = extractelement <2 x float> %swizzleTmp, i32 0
+  %3 = insertelement <4 x float> %1, float %2, i32 1
+  %4 = extractelement <2 x float> %swizzleTmp, i32 1
+  %5 = insertelement <4 x float> %3, float %4, i32 3
+  store <4 x float> %5, <4 x float>* %w
+  %6 = load <4 x float>* %w
+  %7 = load <4 x float> addrspace(1)* @u
+  %8 = load float addrspace(1)* @blend
+  %9 = fmul float %8, 0x3FFC9FBE80000000
+  %mix = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %6, <4 x float> %7, float %9)
   store <4 x float> %mix, <4 x float>* %mix_retval
-  %14 = load <4 x float>* %mix_retval
-  store <4 x float> %14, <4 x float>* %assignment_tmp4
-  %15 = load <4 x float>* %assignment_tmp4
-  store <4 x float> %15, <4 x float>* @gl_FragColor
-  %16 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %16)
+  %10 = load <4 x float>* %mix_retval
+  store <4 x float> %10, <4 x float>* @gl_FragColor
+  %11 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %11)
   ret void
 }
 
 declare <2 x float> @llvm.gla.getInterpolant.v2f32(i32) nounwind readonly
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.v2f32(<2 x float>, i32) nounwind readnone
-
-declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32(<4 x float>, i32) nounwind readnone
+declare <2 x float> @llvm.gla.fSwizzle.v2f32.v2f32(<2 x float>, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
@@ -65,11 +47,10 @@ define void @main() {
 entry:
   %0 = load <4 x float> addrspace(1)* @u
   %t = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
-  %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v2f32(<2 x float> %t, i32 4)
-  %swizzleTmp3 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32(<4 x float> %swizzleTmp, i32 13)
-  %1 = extractelement <2 x float> %swizzleTmp3, i32 0
+  %swizzleTmp = call <2 x float> @llvm.gla.fSwizzle.v2f32.v2f32(<2 x float> %t, i32 1)
+  %1 = extractelement <2 x float> %swizzleTmp, i32 0
   %2 = insertelement <4 x float> %0, float %1, i32 1
-  %3 = extractelement <2 x float> %swizzleTmp3, i32 1
+  %3 = extractelement <2 x float> %swizzleTmp, i32 1
   %4 = insertelement <4 x float> %2, float %3, i32 3
   %5 = load float addrspace(1)* @blend
   %6 = fmul float %5, 0x3FFC9FBE80000000
@@ -80,9 +61,7 @@ entry:
 
 declare <2 x float> @llvm.gla.getInterpolant.v2f32(i32) nounwind readonly
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.v2f32(<2 x float>, i32) nounwind readnone
-
-declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32(<4 x float>, i32) nounwind readnone
+declare <2 x float> @llvm.gla.fSwizzle.v2f32.v2f32(<2 x float>, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
@@ -166,22 +145,12 @@ float blendscale = 1.789000 ; vec4 w = u ; w . wy = t ; gl_FragColor = mix ( w ,
     )
     (
       (declare () vec4 w)
-      (declare () float blendscale)
-      (declare (temporary ) float assignment_tmp)
-      (assign (constant bool (1)) (x) (var_ref assignment_tmp)  (constant float (1.789000)) ) 
-      (assign (constant bool (1)) (x) (var_ref blendscale)  (var_ref assignment_tmp) ) 
-      (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref u) ) 
-      (assign (constant bool (1)) (xyzw) (var_ref w)  (var_ref assignment_tmp) ) 
-      (declare (temporary ) vec2 assignment_tmp)
-      (assign (constant bool (1)) (xy) (var_ref assignment_tmp)  (var_ref t) ) 
-      (assign (constant bool (1)) (yw) (var_ref w)  (swiz yw (swiz xyxx (var_ref assignment_tmp) ))) 
+      (assign (constant bool (1)) (xyzw) (var_ref w)  (var_ref u) ) 
+      (assign (constant bool (1)) (yw) (var_ref w)  (swiz yx (var_ref t) )) 
       (declare (temporary ) vec4 mix_retval)
-      (assign (constant bool (1)) (xyzw) (var_ref mix_retval)  (call mix ((var_ref w) (var_ref u) (expression float * (var_ref blend) (var_ref blendscale) ) ))
+      (assign (constant bool (1)) (xyzw) (var_ref mix_retval)  (call mix ((var_ref w) (var_ref u) (expression float * (var_ref blend) (constant float (1.789000)) ) ))
 ) 
-      (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref mix_retval) ) 
-      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref assignment_tmp) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref mix_retval) ) 
     ))
 
 )
@@ -193,18 +162,17 @@ float blendscale = 1.789000 ; vec4 w = u ; w . wy = t ; gl_FragColor = mix ( w ,
 uniform vec4 u;
 uniform float blend;
 in vec2 t;
-const float const26;
+const float const25;
 
 void main()
 {
-    vec4 temp21 = t.xyxx;
-    vec2 temp22 = temp21.ywxx;
-    vec4 temp23 = u;
-    temp23.y = temp22.x;
-    vec4 temp24 = temp23;
-    temp24.w = temp22.y;
-    float temp25 = blend * const26;
-    vec4 temp27 = mix(temp24, u, temp25);
-    gl_FragColor = temp27;
+    vec2 temp21 = t.yxxx;
+    vec4 temp22 = u;
+    temp22.y = temp21.x;
+    vec4 temp23 = temp22;
+    temp23.w = temp21.y;
+    float temp24 = blend * const25;
+    vec4 temp26 = mix(temp23, u, temp24);
+    gl_FragColor = temp26;
     return;
 }

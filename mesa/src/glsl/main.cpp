@@ -232,21 +232,21 @@ compile_shader(GLcontext *ctx, struct gl_shader *shader)
      // These mimic the optimizations done in the real stack.  For reference, see
      // do_common_optimization() in glsl_parser_extras.cpp.
 	 //progress = do_function_inlining(shader->ir) || progress;
-	 //progress = do_if_simplification(shader->ir) || progress;
-	 //progress = do_copy_propagation(shader->ir) || progress;
-	 //progress = do_dead_code_local(shader->ir) || progress;
-  //   progress = do_tree_grafting(shader->ir) || progress;
-	 //progress = do_dead_code_unlinked(shader->ir) || progress;
-	 //progress = do_tree_grafting(shader->ir) || progress;
-	 //progress = do_constant_propagation(shader->ir) || progress;
-	 //progress = do_constant_variable_unlinked(shader->ir) || progress;
-	 //progress = do_constant_folding(shader->ir) || progress;
-	 //progress = do_algebraic(shader->ir) || progress;
-  //   progress = do_lower_jumps(shader->ir) || progress;
-	 //progress = do_vec_index_to_swizzle(shader->ir) || progress;
-	 //progress = do_vec_index_to_cond_assign(shader->ir) || progress;
-	 //progress = do_swizzle_swizzle(shader->ir) || progress;
-  //   progress = do_noop_swizzle(shader->ir) || progress;
+	 progress = do_if_simplification(shader->ir) || progress;
+	 progress = do_copy_propagation(shader->ir) || progress;
+	 progress = do_dead_code_local(shader->ir) || progress;
+     progress = do_tree_grafting(shader->ir) || progress;
+	 progress = do_dead_code_unlinked(shader->ir) || progress;
+	 progress = do_tree_grafting(shader->ir) || progress;
+	 progress = do_constant_propagation(shader->ir) || progress;
+	 progress = do_constant_variable_unlinked(shader->ir) || progress;
+	 progress = do_constant_folding(shader->ir) || progress;
+	 progress = do_algebraic(shader->ir) || progress;
+     progress = do_lower_jumps(shader->ir) || progress;
+	 progress = do_vec_index_to_swizzle(shader->ir) || progress;
+	 progress = do_vec_index_to_cond_assign(shader->ir) || progress;
+	 progress = do_swizzle_swizzle(shader->ir) || progress;
+     progress = do_noop_swizzle(shader->ir) || progress;
 
 	 loop_state *ls = analyze_loop_variables(shader->ir);
 	 progress = set_loop_controls(shader->ir, ls) || progress;

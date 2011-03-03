@@ -1,60 +1,42 @@
 ; ModuleID = 'Top'
 
-@otherColor = external addrspace(1) constant <4 x float>
 @d = external addrspace(1) constant float
 @bigColor = external addrspace(1) constant <4 x float>
 @smallColor = external addrspace(1) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
+@otherColor = external addrspace(1) constant <4 x float>
 
 define void @main() {
 entry:
-  %assignment_tmp4 = alloca <4 x float>
-  %assignment_tmp3 = alloca <4 x float>
-  %assignment_tmp2 = alloca <4 x float>
-  %color2 = alloca <4 x float>
-  %assignment_tmp1 = alloca <4 x float>
   %color = alloca <4 x float>
-  %assignment_tmp = alloca <4 x float>
   %BaseColor = call <4 x float> @llvm.gla.getInterpolant.v4f32(i32 0)
-  store <4 x float> %BaseColor, <4 x float>* %assignment_tmp
-  %0 = load <4 x float>* %assignment_tmp
-  store <4 x float> %0, <4 x float>* %color
-  %1 = load <4 x float> addrspace(1)* @otherColor
-  store <4 x float> %1, <4 x float>* %assignment_tmp1
-  %2 = load <4 x float>* %assignment_tmp1
-  store <4 x float> %2, <4 x float>* %color2
+  store <4 x float> %BaseColor, <4 x float>* %color
   %c = call float @llvm.gla.getInterpolant.f32(i32 0)
-  %3 = load float addrspace(1)* @d
-  %4 = fcmp ogt float %c, %3
-  br i1 %4, label %then, label %else
+  %0 = load float addrspace(1)* @d
+  %1 = fcmp ogt float %c, %0
+  br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %5 = load <4 x float>* %color
-  %6 = load <4 x float> addrspace(1)* @bigColor
-  %7 = fadd <4 x float> %5, %6
-  store <4 x float> %7, <4 x float>* %assignment_tmp2
-  %8 = load <4 x float>* %assignment_tmp2
-  store <4 x float> %8, <4 x float>* %color
+  %BaseColor1 = call <4 x float> @llvm.gla.getInterpolant.v4f32(i32 0)
+  %2 = load <4 x float> addrspace(1)* @bigColor
+  %3 = fadd <4 x float> %BaseColor1, %2
+  store <4 x float> %3, <4 x float>* %color
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %9 = load <4 x float>* %color
-  %10 = load <4 x float> addrspace(1)* @smallColor
-  %11 = fadd <4 x float> %9, %10
-  store <4 x float> %11, <4 x float>* %assignment_tmp3
-  %12 = load <4 x float>* %assignment_tmp3
-  store <4 x float> %12, <4 x float>* %color
+  %4 = load <4 x float>* %color
+  %5 = load <4 x float> addrspace(1)* @smallColor
+  %6 = fadd <4 x float> %4, %5
+  store <4 x float> %6, <4 x float>* %color
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %13 = load <4 x float>* %color
-  %14 = load <4 x float>* %color2
-  %15 = fmul <4 x float> %13, %14
-  store <4 x float> %15, <4 x float>* %assignment_tmp4
-  %16 = load <4 x float>* %assignment_tmp4
-  store <4 x float> %16, <4 x float>* @gl_FragColor
-  %17 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %17)
+  %7 = load <4 x float>* %color
+  %8 = load <4 x float> addrspace(1)* @otherColor
+  %9 = fmul <4 x float> %7, %8
+  store <4 x float> %9, <4 x float>* @gl_FragColor
+  %10 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %10)
   ret void
 }
 
@@ -65,33 +47,33 @@ declare float @llvm.gla.getInterpolant.f32(i32) nounwind readonly
 declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
-@otherColor = external addrspace(1) constant <4 x float>
 @d = external addrspace(1) constant float
 @bigColor = external addrspace(1) constant <4 x float>
 @smallColor = external addrspace(1) constant <4 x float>
+@otherColor = external addrspace(1) constant <4 x float>
 
 define void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.getInterpolant.v4f32(i32 0)
-  %0 = load <4 x float> addrspace(1)* @otherColor
   %c = call float @llvm.gla.getInterpolant.f32(i32 0)
-  %1 = load float addrspace(1)* @d
-  %2 = fcmp ogt float %c, %1
-  br i1 %2, label %then, label %else
+  %0 = load float addrspace(1)* @d
+  %1 = fcmp ogt float %c, %0
+  br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %3 = load <4 x float> addrspace(1)* @bigColor
-  %4 = fadd <4 x float> %BaseColor, %3
+  %2 = load <4 x float> addrspace(1)* @bigColor
+  %3 = fadd <4 x float> %BaseColor, %2
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %5 = load <4 x float> addrspace(1)* @smallColor
-  %6 = fadd <4 x float> %BaseColor, %5
+  %4 = load <4 x float> addrspace(1)* @smallColor
+  %5 = fadd <4 x float> %BaseColor, %4
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %color.0 = phi <4 x float> [ %4, %then ], [ %6, %else ]
-  %7 = fmul <4 x float> %color.0, %0
+  %color.0 = phi <4 x float> [ %3, %then ], [ %5, %else ]
+  %6 = load <4 x float> addrspace(1)* @otherColor
+  %7 = fmul <4 x float> %color.0, %6
   call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %7)
   ret void
 }
@@ -196,28 +178,16 @@ vec4 color = BaseColor ; vec4 color2 ; color2 = otherColor ; if ( c > d ) color 
     (parameters
     )
     (
-      (declare () vec4 color2)
       (declare () vec4 color)
-      (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref BaseColor) ) 
-      (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
-      (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref otherColor) ) 
-      (assign (constant bool (1)) (xyzw) (var_ref color2)  (var_ref assignment_tmp) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref BaseColor) ) 
       (if (expression bool > (var_ref c) (var_ref d) ) (
-        (declare (temporary ) vec4 assignment_tmp)
-        (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref color) (var_ref bigColor) ) ) 
-        (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
+        (assign (constant bool (1)) (xyzw) (var_ref color)  (expression vec4 + (var_ref BaseColor) (var_ref bigColor) ) ) 
       )
       (
-        (declare (temporary ) vec4 assignment_tmp)
-        (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref color) (var_ref smallColor) ) ) 
-        (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
+        (assign (constant bool (1)) (xyzw) (var_ref color)  (expression vec4 + (var_ref color) (var_ref smallColor) ) ) 
       ))
 
-      (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 * (var_ref color) (var_ref color2) ) ) 
-      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref assignment_tmp) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 * (var_ref color) (var_ref otherColor) ) ) 
     ))
 
 )
@@ -226,36 +196,35 @@ vec4 color = BaseColor ; vec4 color2 ; color2 = otherColor ; if ( c > d ) color 
 )
 Mesa program before mesa optimizations
   0: MOV TEMP[1], INPUT[0];
-  1: MOV TEMP[2], UNIFORM[1];
-  2: MOV TEMP[3].x, INPUT[0].xxxx;
-  3: MOV TEMP[4].x, UNIFORM[2].xxxx;
-  4: SGT TEMP[5].x, TEMP[3].xxxx, TEMP[4].xxxx;
-  5: IF TEMP[5].xxxx;  # (if false, goto 0);
-  6:    MOV TEMP[6], UNIFORM[3];
-  7:    ADD TEMP[7], TEMP[1], TEMP[6];
-  8:    MOV TEMP[8], TEMP[7];
-  9: ELSE; # (goto 0)
- 10:    MOV TEMP[9], UNIFORM[4];
- 11:    ADD TEMP[10], TEMP[1], TEMP[9];
- 12:    MOV TEMP[8], TEMP[10];
- 13: ENDIF;
- 14: MUL TEMP[11], TEMP[8], TEMP[2];
+  1: MOV TEMP[2].x, INPUT[0].xxxx;
+  2: MOV TEMP[3].x, UNIFORM[1].xxxx;
+  3: SGT TEMP[4].x, TEMP[2].xxxx, TEMP[3].xxxx;
+  4: IF TEMP[4].xxxx;  # (if false, goto 0);
+  5:    MOV TEMP[5], UNIFORM[2];
+  6:    ADD TEMP[6], TEMP[1], TEMP[5];
+  7:    MOV TEMP[7], TEMP[6];
+  8: ELSE; # (goto 0)
+  9:    MOV TEMP[8], UNIFORM[3];
+ 10:    ADD TEMP[9], TEMP[1], TEMP[8];
+ 11:    MOV TEMP[7], TEMP[9];
+ 12: ENDIF;
+ 13: MOV TEMP[10], UNIFORM[4];
+ 14: MUL TEMP[11], TEMP[7], TEMP[10];
  15: MOV OUTPUT[0], TEMP[11];
  16: END
 
 Mesa program after mesa optimizations
-  0: MOV TEMP[1], INPUT[0];
-  1: MOV TEMP[2], UNIFORM[1];
-  2: SGT TEMP[3].x, INPUT[0].xxxx, UNIFORM[2].xxxx;
-  3: IF TEMP[3].xxxx;  # (if false, goto 0);
-  4:    ADD TEMP[3], TEMP[1], UNIFORM[3];
-  5:    MOV TEMP[4], TEMP[3];
-  6: ELSE; # (goto 0)
-  7:    ADD TEMP[3], TEMP[1], UNIFORM[4];
-  8:    MOV TEMP[4], TEMP[3];
-  9: ENDIF;
- 10: MUL OUTPUT[0], TEMP[4], TEMP[2];
- 11: END
+  0: MOV TEMP[0], INPUT[0];
+  1: SGT TEMP[2].x, INPUT[0].xxxx, UNIFORM[1].xxxx;
+  2: IF TEMP[2].xxxx;  # (if false, goto 0);
+  3:    ADD TEMP[2], TEMP[0], UNIFORM[2];
+  4:    MOV TEMP[3], TEMP[2];
+  5: ELSE; # (goto 0)
+  6:    ADD TEMP[2], TEMP[0], UNIFORM[3];
+  7:    MOV TEMP[3], TEMP[2];
+  8: ENDIF;
+  9: MUL OUTPUT[0], TEMP[3], UNIFORM[4];
+ 10: END
 
 ===========================================
 

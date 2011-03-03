@@ -9,55 +9,40 @@
 
 define void @main() {
 entry:
-  %assignment_tmp3 = alloca <4 x float>
   %mix_retval = alloca <4 x float>
-  %w = alloca <4 x float>
-  %assignment_tmp2 = alloca <4 x float>
   %texture3D_retval = alloca <4 x float>
   %v = alloca <4 x float>
-  %assignment_tmp1 = alloca <4 x float>
   %texture2D_retval = alloca <4 x float>
   %blendscale = alloca float
-  %assignment_tmp = alloca float
-  store float 0x3FFC9FBE80000000, float* %assignment_tmp
-  %0 = load float* %assignment_tmp
-  store float %0, float* %blendscale
-  %1 = load i32 addrspace(1)* @texSampler2D
+  store float 0x3FFC9FBE80000000, float* %blendscale
+  %0 = load i32 addrspace(1)* @texSampler2D
   %t = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
-  %2 = load <2 x float> addrspace(1)* @scale
-  %3 = fadd <2 x float> %t, %2
-  %4 = load <2 x float> addrspace(1)* @scale
-  %5 = fdiv <2 x float> %3, %4
-  %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %5)
+  %1 = load <2 x float> addrspace(1)* @scale
+  %2 = fadd <2 x float> %t, %1
+  %3 = load <2 x float> addrspace(1)* @scale
+  %4 = fdiv <2 x float> %2, %3
+  %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %4)
   store <4 x float> %texture2DTmp, <4 x float>* %texture2D_retval
-  %6 = load <4 x float>* %texture2D_retval
-  %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float> %6, i32 27)
-  store <4 x float> %swizzleTmp, <4 x float>* %assignment_tmp1
-  %7 = load <4 x float>* %assignment_tmp1
-  store <4 x float> %7, <4 x float>* %v
-  %8 = load i32 addrspace(1)* @texSampler3D
+  %5 = load <4 x float>* %texture2D_retval
+  %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float> %5, i32 27)
+  store <4 x float> %swizzleTmp, <4 x float>* %v
+  %6 = load i32 addrspace(1)* @texSampler3D
   %coords = call <3 x float> @llvm.gla.getInterpolant.v3f32(i32 0)
-  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %8, i32 0, <3 x float> %coords)
+  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %6, i32 0, <3 x float> %coords)
   store <4 x float> %texture3DTmp, <4 x float>* %texture3D_retval
-  %9 = load <4 x float>* %texture3D_retval
-  %10 = load <4 x float>* %v
-  %11 = fadd <4 x float> %9, %10
-  store <4 x float> %11, <4 x float>* %assignment_tmp2
-  %12 = load <4 x float>* %assignment_tmp2
-  store <4 x float> %12, <4 x float>* %w
-  %13 = load <4 x float>* %w
-  %14 = load <4 x float> addrspace(1)* @u
-  %15 = load float addrspace(1)* @blend
-  %16 = load float* %blendscale
-  %17 = fmul float %15, %16
-  %mix = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %13, <4 x float> %14, float %17)
+  %7 = load <4 x float>* %texture3D_retval
+  %8 = load <4 x float>* %v
+  %9 = fadd <4 x float> %7, %8
+  %10 = load <4 x float> addrspace(1)* @u
+  %11 = load float addrspace(1)* @blend
+  %12 = load float* %blendscale
+  %13 = fmul float %11, %12
+  %mix = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %9, <4 x float> %10, float %13)
   store <4 x float> %mix, <4 x float>* %mix_retval
-  %18 = load <4 x float>* %mix_retval
-  store <4 x float> %18, <4 x float>* %assignment_tmp3
-  %19 = load <4 x float>* %assignment_tmp3
-  store <4 x float> %19, <4 x float>* @gl_FragColor
-  %20 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %20)
+  %14 = load <4 x float>* %mix_retval
+  store <4 x float> %14, <4 x float>* @gl_FragColor
+  %15 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %15)
   ret void
 }
 
@@ -202,30 +187,20 @@ float blendscale = 1.789000 ; vec4 v = texture2D ( texSampler2D , t + scale / sc
     (parameters
     )
     (
-      (declare () vec4 w)
       (declare () vec4 v)
       (declare () float blendscale)
-      (declare (temporary ) float assignment_tmp)
-      (assign (constant bool (1)) (x) (var_ref assignment_tmp)  (constant float (1.789000)) ) 
-      (assign (constant bool (1)) (x) (var_ref blendscale)  (var_ref assignment_tmp) ) 
+      (assign (constant bool (1)) (x) (var_ref blendscale)  (constant float (1.789000)) ) 
       (declare (temporary ) vec4 texture2D_retval)
       (assign (constant bool (1)) (xyzw) (var_ref texture2D_retval)  (call texture2D ((var_ref texSampler2D) (expression vec2 / (expression vec2 + (var_ref t) (var_ref scale) ) (var_ref scale) ) ))
 ) 
-      (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (swiz wzyx (var_ref texture2D_retval) )) 
-      (assign (constant bool (1)) (xyzw) (var_ref v)  (var_ref assignment_tmp) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref v)  (swiz wzyx (var_ref texture2D_retval) )) 
       (declare (temporary ) vec4 texture3D_retval)
       (assign (constant bool (1)) (xyzw) (var_ref texture3D_retval)  (call texture3D ((var_ref texSampler3D) (var_ref coords) ))
 ) 
-      (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref texture3D_retval) (var_ref v) ) ) 
-      (assign (constant bool (1)) (xyzw) (var_ref w)  (var_ref assignment_tmp) ) 
       (declare (temporary ) vec4 mix_retval)
-      (assign (constant bool (1)) (xyzw) (var_ref mix_retval)  (call mix ((var_ref w) (var_ref u) (expression float * (var_ref blend) (var_ref blendscale) ) ))
+      (assign (constant bool (1)) (xyzw) (var_ref mix_retval)  (call mix ((expression vec4 + (var_ref texture3D_retval) (var_ref v) ) (var_ref u) (expression float * (var_ref blend) (var_ref blendscale) ) ))
 ) 
-      (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (var_ref mix_retval) ) 
-      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref assignment_tmp) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref mix_retval) ) 
     ))
 
 )
