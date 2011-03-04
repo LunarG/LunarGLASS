@@ -52,9 +52,10 @@ void main()
     f3 /= vec3(i3) + vec3(b3);
     f4 += vec4(i4) + vec4(b4);
     
-    f2 += vec2(f, i);
-    f3 += vec3(f, i, f);
-    f4 += vec4(b, i, f, i);
+    f = f                  - i;
+    f2 += vec2(f, i)       + i2;
+    f3 += vec3(f, i, f)    + i3;
+    f4 += vec4(b, i, f, i) + i4;
 
     i2 += ivec2(f, i);
     i3 += ivec3(f, i, f);
