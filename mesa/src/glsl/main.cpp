@@ -393,7 +393,7 @@ main(int argc, char **argv)
    }
 
 
-   if(do_glsl_to_mesa_ir) {
+   if(status == EXIT_SUCCESS && do_glsl_to_mesa_ir) {
        ctx->Shader.Flags |= GLSL_DUMP;
        // Turn on this flag to disable Mesa IR optimizations
        //ctx->Shader.Flags |= GLSL_NO_OPT;

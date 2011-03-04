@@ -150,6 +150,8 @@ llvm::Value* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
 ir_visitor_status
     GlslToTopVisitor::visit(ir_loop_jump *ir)
 {
+    gla::UnsupportedFunctionality("Loops (loop jump found)");
+
     return visit_continue;
 }
 
@@ -224,6 +226,8 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_loop *ir)
 {
+    gla::UnsupportedFunctionality("Loops");
+
     return visit_continue;
 }
 
