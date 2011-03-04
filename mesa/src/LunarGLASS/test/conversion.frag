@@ -52,16 +52,20 @@ void main()
     f3 /= vec3(i3) + vec3(b3);
     f4 += vec4(i4) + vec4(b4);
     
-    f = f                  - i;
+    f  += f                 - i;
     f2 += vec2(f, i)       + i2;
-    f3 += vec3(f, i, f)    + i3;
+    f3 += i3 + vec3(f, i, f);
     f4 += vec4(b, i, f, i) + i4;
+    
+    f2 += vec2(f, i)       * i;
+    f3 += vec3(f, i, f)    + i;
+    f4 += i - vec4(b, i, f, i);
 
     i2 += ivec2(f, i);
     i3 += ivec3(f, i, f);
     i4 += ivec4(b, i, f, i);
 
-    if (f < i || 
+    if (f < i || i < f ||
         f2 == i2 ||
         i3 != f3)
         f = (b ? i : f2.x) + (b2.x ? f3.x : i2.y);
