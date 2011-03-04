@@ -929,6 +929,12 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
         llvm::IRBuilder<> entryBuilder(entryBlock, entryBlock->begin());
         value = entryBuilder.CreateAlloca(llvmVarType, 0, var->name);
     } else {
+        if (strcmp(var->name, "gl_FragDepth") == 0)
+            gla::UnsupportedFunctionality("gl_FragDepth");
+
+        if (strcmp(var->name, "gl_FragData") == 0)
+            gla::UnsupportedFunctionality("gl_FragData");
+
         llvm::GlobalVariable* globalValue = new llvm::GlobalVariable(llvmVarType, constant, linkage,
                                          initializer, var->name, false /* ThreadLocal */, addressSpace);
         module->getGlobalList().push_back(globalValue);
@@ -1069,7 +1075,10 @@ llvm::Value* GlslToTopVisitor::expandGLSLSwizzle(ir_swizzle* swiz)
 llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
 {
     const unsigned varType = type->base_type;
-    //unsigned isMatrix = var->type->is_matrix();
+    unsigned isMatrix = type->is_matrix();
+
+    if (isMatrix)
+        gla::UnsupportedFunctionality("matrices");
 
     llvm::Type *llvmVarType;
 
