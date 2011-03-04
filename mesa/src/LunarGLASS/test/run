@@ -17,16 +17,21 @@ TESTS=(checkpoint1.frag test.frag flowControl.frag Operations.frag swizzle.frag)
 
 function runTests {
     for t in ${TESTS[@]}; do
-        echo "  Running $t"
+        printf "Running $t"
+        LENSTR=$((${#t} + 8))
+        INDENTLVL=$((35 - $LENSTR))
+        GLSLLVL=39 # Magic number
 
         # Run for TGSI
-        echo "    Running for TGSI"
-        $RUNCMD ${OPTIONS[@]} $TGSIOP $t > $t.stdout 2> $t.errout || tail -n 1 $t.errout
+        printf "%${INDENTLVL}s" "TGSI "
+        $RUNCMD ${OPTIONS[@]} $TGSIOP $t > $t.stdout 2> $t.errout && echo -n "[OK]" \
+            || (tail -n 1 $t.errout ; printf "%${GLSLLVL}s" " ")
         cat $t.errout $t.stdout > tgsi/$t.out
 
         # Run for GLSL
-        echo "    Running for GLSL"
-        $RUNCMD ${OPTIONS[@]} $GLSLOP $t > $t.stdout 2> $t.errout || tail -n 1 $t.errout
+         echo -n "        GLSL "
+        $RUNCMD ${OPTIONS[@]} $GLSLOP $t > $t.stdout 2> $t.errout  && echo "[OK]" \
+            || (echo -n " [FAIL] " ; tail -n 1 $t.errout)
         cat $t.errout $t.stdout > glsl/$t.out
         rm $t.stdout $t.errout
     done
