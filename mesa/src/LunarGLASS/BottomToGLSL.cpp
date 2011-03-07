@@ -46,9 +46,7 @@
 #include "LunarGLASSBackend.h"
 #include "Manager.h"
 #include "GlslTarget.h"
-
-const bool Obfuscate = false; // Note:  This should be a command line option
-const int GlslVersion = 130;  // Note:  This should come from the original source
+#include "Options.h"
 
 //
 // Implement the GLSL backend
@@ -123,7 +121,10 @@ public:
     {
         indentLevel = 0;
         lastVariable = 20;
-        globalDeclarations << "#version " << GlslVersion << std::endl;
+        obfuscate = Options.obfuscate;
+        if (Options.backendVersion == DefaultBackendVersion)
+            version = 130;
+        globalDeclarations << "#version " << version << std::endl;
     }
 
     ~GlslTarget()
@@ -199,7 +200,7 @@ protected:
     void newLine()
     {
         static int count = 0;
-        if (Obfuscate) {
+        if (obfuscate) {
             ++count;
             if (count > 4) {
                 shader << std::endl;
@@ -256,9 +257,9 @@ protected:
         case EVQUniform:         string = "uniform";                  break;
         case EVQGlobal:          string = "global";                   break;
         case EVQInput:
-            GlslVersion >= 130 ? string = "in" : string = "varying";  break;
+                version >= 130 ? string = "in" : string = "varying";  break;
         case EVQOutput:
-            GlslVersion >= 130 ? string = "out": string = "varying";  break;
+                version >= 130 ? string = "out": string = "varying";  break;
         case EVQTemporary:       string = "temp";                     break;
         case EVQConstant:        string = "const";                    break;
         default:
@@ -271,7 +272,7 @@ protected:
     void mapGlaOperand(const llvm::Value* value)
     {
         mapGlaValue(value);
-        if (Obfuscate) {
+        if (obfuscate) {
             int count = GetComponentCount(value);
             if (count > 1)
                 mapComponentCountToSwizzle(count);
@@ -369,7 +370,7 @@ protected:
         ++lastVariable;
         const size_t bufSize = 10;
         char buf[bufSize];
-        if (Obfuscate) {
+        if (obfuscate) {
             int i;
             for (i = 0; i <= lastVariable-4; i += 4) {
                 switch ((i/4) % 4) {
@@ -479,6 +480,8 @@ protected:
     std::ostringstream shader;
     int indentLevel;
     int lastVariable;
+    bool obfuscate;
+    int version;
 };
 
 //

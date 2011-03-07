@@ -31,6 +31,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Options.h"
+#include "OptionParse.h"
 #include <string>
 
 // Function prototypes, so that main.cpp can include this file safely
@@ -72,6 +73,7 @@ namespace gla {
     OptionsType Options = { false   // Debug info
                           , false   // Obfuscate
                           , GLSL    // Backend
+                          , DefaultBackendVersion    // no backend version yet
                           };
 
     // Is the string an option/flagged argument?
@@ -113,6 +115,8 @@ namespace gla {
                 Options.backend = GLSL;
             } else if (*i == "--tgsi") {
                 Options.backend = TGSI;
+            } else if (*i == "-f" || *i == "--obfuscate") {
+                Options.obfuscate = true;
             } else {
                 std::cout << "Unknown option: " << *i << std::endl;
                 PrintHelp();

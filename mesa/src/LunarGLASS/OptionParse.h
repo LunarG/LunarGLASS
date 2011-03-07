@@ -1,4 +1,4 @@
-//===- Options.h - Help Translate GLSL IR to LunarGLASS Top IR -===//
+//===- Options.cpp - Global run-time options ------------------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright © 2011, LunarG, Inc.
@@ -30,27 +30,16 @@
 //
 //===----------------------------------------------------------------------===//
 
-
 #pragma once
-#ifndef OPTIONS_H
-#define OPTIONS_H
+#ifndef OPTIONPARSE_H
+#define OPTIONPARSE_H
+
+#include <string>
 
 namespace gla {
-    enum BackendOption { GLSL      // GLSL backed
-                       , TGSI      // TGSI backend
-                       };
+    extern bool IsOption(std::string);
+    extern void PrintHelp();
+    extern int HandleArgs(int, char**);
+};
 
-    const int DefaultBackendVersion = -1;
-
-    // Options struct
-    struct OptionsType {
-        bool debug;
-        bool obfuscate;
-        BackendOption backend;
-        int backendVersion;    // what version output should the backend generate?
-    };
-
-    extern OptionsType Options;
-}
-
-#endif // OPTIONS_H
+#endif // OPTIONPARSE_H

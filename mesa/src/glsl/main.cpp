@@ -21,9 +21,6 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-// Define main_cpp, so we can include Options.cpp safely
-#define MAIN_CPP
-
 #include <cstdlib>
 #include <cstdio>
 
@@ -59,8 +56,8 @@ typedef int ssize_t;
 #include <iostream>
 
 // LunarGLASS runtime options handling
-#include "Options.cpp"
-
+#include "OptionParse.h"
+#include "Options.h"
 
 // End: LunarG
 
