@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+DESCRIPTION="\
+Description: Update the LunarGLASS project, and rebuild the needed files.
+             This is a quicker option than doing './install build'.
+             If a new LLVM intrinsic was added, you may have to do the
+             more general './install' build.
+"
+
+DEPENDENCIES="\
+Dependencies: LunarGLASS
+"
+
+USAGE="\
+Usage: ./update [options]
+
+       Options:
+         -h --help        Print out this Usage info
+"
+
+# Main functionality
+function showHelp {
+    echo "$DESCRIPTION"
+    echo "$DEPENDENCIES"
+    echo "$USAGE"
+}
+
+function all {
+    echo "Updating SVN"
+    svn update
+
+    echo "Building LunarGLASS"
+    pushd mesa/src/glsl
+    make -f StandAlone.makefile clean || exit 1
+    make -f StandAlone.makefile StandAlone || exit 1
+
+    rm -rf ../../../bin/LunarGLASS || exit 1
+    rm -rf ../../../tests || exit 1
+    mkdir -p ../../../tests/glsl || exit 1
+    mkdir -p ../../../tests/tgsi || exit 1
+
+    install StandAlone ../../../bin/LunarGLASS || exit 1
+    install ../LunarGLASS/test/*  ../../../tests/ || exit 1
+    popd
+    echo "LunarGLASS built"
+    echo
+    echo "Building done, binary located at bin/LunarGLASS"
+    echo "Tests located in tests"
+    echo "Example run: bin/LunarGLASS tests/test.frag"
+}
+
+# Command-line argument Handling
+
+# No arguments passed
+if [[ -z "$*" ]]; then all; fi;
+
+# Arguments passed
+for i in $*; do
+    case $i in
+        -h|--h)
+            showHelp
+            exit 0
+            ;;
+        *)
+            showHelp
+            exit 1
+            ;;
+    esac
+done
+
+echo "Done"
+
