@@ -73,6 +73,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
 {
     // Set up the function-level optimizations we want
     llvm::FunctionPassManager passManager(module);
+    passManager.add(llvm::createVerifierPass());
     passManager.add(llvm::createPromoteMemoryToRegisterPass());
     passManager.add(llvm::createReassociatePass());
     passManager.add(llvm::createAggressiveDCEPass());

@@ -83,7 +83,7 @@ void main()
 	// signed integer
 	i = 0;
 	i += abs(ui);
-	i += sign(i);
+	//i += sign(i);
 	i += min(i, ui);
 	i += max(i, ui);
 	i += clamp(i, ui, ui);
