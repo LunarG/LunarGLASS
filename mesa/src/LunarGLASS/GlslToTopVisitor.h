@@ -110,6 +110,7 @@ public:
     void findAndSmearScalars(llvm::Value**, int);
 
     llvm::Type::TypeID getLLVMBaseType(llvm::Value*);
+    llvm::Type::TypeID getLLVMBaseType(llvm::Type*);
 
 protected:
     llvm::LLVMContext &context;

@@ -593,7 +593,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
-    case llvm::Intrinsic::gla_writeData:
+    case llvm::Intrinsic::gla_fWriteData:
         mesaInstruction->Opcode = OPCODE_MOV;
         mapGlaOperand(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[0]);
         mapGlaDestination(llvmInstruction->getOperand(1), &mesaInstruction->DstReg);
@@ -602,7 +602,8 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
         return;
-    case llvm::Intrinsic::gla_getInterpolant:
+    case llvm::Intrinsic::gla_readData:
+    case llvm::Intrinsic::gla_fReadInterpolant:
         mesaInstruction->Opcode = OPCODE_MOV;
         mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
         mesaInstruction->SrcReg[0].File = PROGRAM_INPUT;
@@ -641,6 +642,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
     // Handle swizzles
     switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_swizzle:
     case llvm::Intrinsic::gla_fSwizzle:
         mesaInstruction->Opcode = OPCODE_MOV;
         mapGlaOperand(llvmInstruction->getOperand(0), &mesaInstruction->SrcReg[0]);

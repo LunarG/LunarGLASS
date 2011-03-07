@@ -9,15 +9,15 @@
 define void @main() {
 entry:
   %color = alloca <4 x float>
-  %BaseColor = call <4 x float> @llvm.gla.getInterpolant.v4f32(i32 0)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
   store <4 x float> %BaseColor, <4 x float>* %color
-  %c = call float @llvm.gla.getInterpolant.f32(i32 0)
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 0)
   %0 = load float addrspace(1)* @d
   %1 = fcmp ogt float %c, %0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %BaseColor1 = call <4 x float> @llvm.gla.getInterpolant.v4f32(i32 0)
+  %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
   %2 = load <4 x float> addrspace(1)* @bigColor
   %3 = fadd <4 x float> %BaseColor1, %2
   store <4 x float> %3, <4 x float>* %color
@@ -36,15 +36,15 @@ ifmerge:                                          ; preds = %else, %then
   %9 = fmul <4 x float> %7, %8
   store <4 x float> %9, <4 x float>* @gl_FragColor
   %10 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %10)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %10)
   ret void
 }
 
-declare <4 x float> @llvm.gla.getInterpolant.v4f32(i32) nounwind readonly
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
 
-declare float @llvm.gla.getInterpolant.f32(i32) nounwind readonly
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readonly
 
-declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
 @d = external addrspace(1) constant float
@@ -54,8 +54,8 @@ declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
 
 define void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.getInterpolant.v4f32(i32 0)
-  %c = call float @llvm.gla.getInterpolant.f32(i32 0)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 0)
   %0 = load float addrspace(1)* @d
   %1 = fcmp ogt float %c, %0
   br i1 %1, label %then, label %else
@@ -74,15 +74,15 @@ ifmerge:                                          ; preds = %else, %then
   %color.0 = phi <4 x float> [ %3, %then ], [ %5, %else ]
   %6 = load <4 x float> addrspace(1)* @otherColor
   %7 = fmul <4 x float> %color.0, %6
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %7)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %7)
   ret void
 }
 
-declare <4 x float> @llvm.gla.getInterpolant.v4f32(i32) nounwind readonly
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
 
-declare float @llvm.gla.getInterpolant.f32(i32) nounwind readonly
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readonly
 
-declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 compiling flowControl.frag...
 uniform float d ; 
 uniform vec4 bigColor , smallColor ; 

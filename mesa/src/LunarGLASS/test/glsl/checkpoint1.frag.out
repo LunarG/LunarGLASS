@@ -14,7 +14,7 @@ entry:
   %v = alloca <4 x float>
   %texture2D_retval = alloca <4 x float>
   %0 = load i32 addrspace(1)* @texSampler2D
-  %t = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
   %1 = load <2 x float> addrspace(1)* @scale
   %2 = fadd <2 x float> %t, %1
   %3 = load <2 x float> addrspace(1)* @scale
@@ -25,7 +25,7 @@ entry:
   %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float> %5, i32 27)
   store <4 x float> %swizzleTmp, <4 x float>* %v
   %6 = load i32 addrspace(1)* @texSampler3D
-  %coords = call <3 x float> @llvm.gla.getInterpolant.v3f32(i32 0)
+  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 0)
   %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %6, i32 0, <3 x float> %coords)
   store <4 x float> %texture3DTmp, <4 x float>* %texture3D_retval
   %7 = load <4 x float>* %texture3D_retval
@@ -40,23 +40,23 @@ entry:
   %14 = load <4 x float>* %mix_retval
   store <4 x float> %14, <4 x float>* @gl_FragColor
   %15 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %15)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %15)
   ret void
 }
 
-declare <2 x float> @llvm.gla.getInterpolant.v2f32(i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float>, i32) nounwind readnone
 
-declare <3 x float> @llvm.gla.getInterpolant.v3f32(i32) nounwind readonly
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readonly
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32, i32, i32, <3 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
-declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
 @texSampler2D = external addrspace(1) constant i32
@@ -68,37 +68,37 @@ declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
 define void @main() {
 entry:
   %0 = load i32 addrspace(1)* @texSampler2D
-  %t = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
   %1 = load <2 x float> addrspace(1)* @scale
   %2 = fadd <2 x float> %t, %1
   %3 = fdiv <2 x float> %2, %1
   %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %3)
   %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float> %texture2DTmp, i32 27)
   %4 = load i32 addrspace(1)* @texSampler3D
-  %coords = call <3 x float> @llvm.gla.getInterpolant.v3f32(i32 0)
+  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 0)
   %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %4, i32 0, <3 x float> %coords)
   %5 = fadd <4 x float> %texture3DTmp, %swizzleTmp
   %6 = load <4 x float> addrspace(1)* @u
   %7 = load float addrspace(1)* @blend
   %8 = fmul float %7, %7
   %mix = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %5, <4 x float> %6, float %8)
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %mix)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix)
   ret void
 }
 
-declare <2 x float> @llvm.gla.getInterpolant.v2f32(i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float>, i32) nounwind readnone
 
-declare <3 x float> @llvm.gla.getInterpolant.v3f32(i32) nounwind readonly
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readonly
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32, i32, i32, <3 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
-declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 compiling checkpoint1.frag...
 uniform sampler2D texSampler2D ; 
 uniform sampler3D texSampler3D ; 

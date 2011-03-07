@@ -874,7 +874,7 @@ ifmerge118:                                       ; preds = %else117, %then114
   %364 = load <4 x float>* %conditional_tmp
   store <4 x float> %364, <4 x float>* @gl_FragColor
   %365 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %365)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %365)
   ret void
 }
 
@@ -978,7 +978,7 @@ declare float @llvm.gla.fSwizzle.f32.v3f32(<3 x float>, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
-declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
 @uv4 = external addrspace(1) constant <4 x float>
@@ -1276,7 +1276,7 @@ else117:                                          ; preds = %ifmerge113
 
 ifmerge118:                                       ; preds = %else117, %then114
   %conditional_tmp.0 = phi <4 x float> [ %85, %then114 ], [ %41, %else117 ]
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %conditional_tmp.0)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %conditional_tmp.0)
   ret void
 }
 
@@ -1380,7 +1380,7 @@ declare float @llvm.gla.fSwizzle.f32.v3f32(<3 x float>, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
-declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 ***Unsupported functionality: intrinsic in Bottom IR
 compiling Operations.frag...

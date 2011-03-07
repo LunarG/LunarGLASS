@@ -775,7 +775,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 {
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
-    case llvm::Intrinsic::gla_writeData:
+    case llvm::Intrinsic::gla_fWriteData:
         switch (GetConstantValue(llvmInstruction->getOperand(0)))
         {
         case 0:
@@ -789,7 +789,8 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         }
         return;
 
-    case llvm::Intrinsic::gla_getInterpolant:
+    case llvm::Intrinsic::gla_readData:
+    case llvm::Intrinsic::gla_fReadInterpolant:
         if (addNewVariable(llvmInstruction, llvmInstruction->getNameStr())) {
             declareVariable(llvmInstruction->getType(), llvmInstruction->getNameStr().c_str(), EVQInput);
         }
@@ -832,6 +833,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
     // Handle swizzles
     switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_swizzle:
     case llvm::Intrinsic::gla_fSwizzle:
         newLine();
         mapGlaDestination(llvmInstruction);

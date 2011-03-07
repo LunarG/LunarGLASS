@@ -10,7 +10,7 @@ entry:
   %w = alloca <4 x float>
   %0 = load <4 x float> addrspace(1)* @u
   store <4 x float> %0, <4 x float>* %w
-  %t = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
   %swizzleTmp = call <2 x float> @llvm.gla.fSwizzle.v2f32.v2f32(<2 x float> %t, i32 1)
   %1 = load <4 x float>* %w
   %2 = extractelement <2 x float> %swizzleTmp, i32 0
@@ -27,17 +27,17 @@ entry:
   %10 = load <4 x float>* %mix_retval
   store <4 x float> %10, <4 x float>* @gl_FragColor
   %11 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %11)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %11)
   ret void
 }
 
-declare <2 x float> @llvm.gla.getInterpolant.v2f32(i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
 
 declare <2 x float> @llvm.gla.fSwizzle.v2f32.v2f32(<2 x float>, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
-declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
 @u = external addrspace(1) constant <4 x float>
@@ -46,7 +46,7 @@ declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
 define void @main() {
 entry:
   %0 = load <4 x float> addrspace(1)* @u
-  %t = call <2 x float> @llvm.gla.getInterpolant.v2f32(i32 0)
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
   %swizzleTmp = call <2 x float> @llvm.gla.fSwizzle.v2f32.v2f32(<2 x float> %t, i32 1)
   %1 = extractelement <2 x float> %swizzleTmp, i32 0
   %2 = insertelement <4 x float> %0, float %1, i32 1
@@ -55,17 +55,17 @@ entry:
   %5 = load float addrspace(1)* @blend
   %6 = fmul float %5, 0x3FFC9FBE80000000
   %mix = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %4, <4 x float> %0, float %6)
-  call void @llvm.gla.writeData.v4f32(i32 0, <4 x float> %mix)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix)
   ret void
 }
 
-declare <2 x float> @llvm.gla.getInterpolant.v2f32(i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
 
 declare <2 x float> @llvm.gla.fSwizzle.v2f32.v2f32(<2 x float>, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
-declare void @llvm.gla.writeData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 compiling swizzle.frag...
 uniform float blend ; 
 uniform vec4 u ; 

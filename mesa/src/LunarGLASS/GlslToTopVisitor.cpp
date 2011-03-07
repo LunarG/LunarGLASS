@@ -202,19 +202,28 @@ ir_visitor_status
             const char *name = NULL;
 
             // TODO:  We're hard coding our output location to 0 for bringup
+            int paramCount = 0;
             llvm::Constant *llvmConstant = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
 
             // Select intrinsic based on target stage
             if(glShader->Type == GL_FRAGMENT_SHADER) {
-                intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::gla_getInterpolant,
-                                                        convertGLSLToLLVMType(var->type));
+                llvm::Intrinsic::ID intrinsicID;
+                llvm::Type* readType = convertGLSLToLLVMType(var->type);
+                switch(getLLVMBaseType(readType)) {
+                case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_readData;            paramCount = 1; break;
+                case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fReadInterpolant;    paramCount = 2; break;
+                }
+                intrinsicName = getLLVMIntrinsicFunction1(intrinsicID, readType);
                 name = var->name;
             } else {
                 gla::UnsupportedFunctionality("non-fragment shaders");
             }
 
             // Call the selected intrinsic
-            lastValue = builder.CreateCall (intrinsicName, llvmConstant, name);
+            switch(paramCount) {
+            case 2:  lastValue = builder.CreateCall2 (intrinsicName, llvmConstant, llvmConstant, name); break;
+            case 1:  lastValue = builder.CreateCall  (intrinsicName, llvmConstant, name);               break;
+            }
         } else {
             lastValue = builder.CreateLoad(lastValue);
         }
@@ -269,12 +278,18 @@ ir_visitor_status
 {
     if (f->has_user_signature()) {
         if(!strcmp(f->name, "main")) {
+            llvm::Intrinsic::ID intrinsicID;
+                
             //Call writeData intrinsic on our outs
             while(!glslOuts.empty()) {
                 llvm::Value* loadVal = builder.CreateLoad(glslOuts.front());
 
-                llvm::Function *intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::gla_writeData,
-                                                         loadVal->getType());
+                switch(getLLVMBaseType(loadVal)) {
+                case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
+                case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fWriteData;  break;
+                }
+
+                llvm::Function *intrinsicName = getLLVMIntrinsicFunction1(intrinsicID, loadVal->getType());
 
                 lastValue = builder.CreateCall2 (intrinsicName,
                                                  llvm::ConstantInt::get(context, llvm::APInt(32, 0, true)),
@@ -1291,6 +1306,14 @@ llvm::Type::TypeID GlslToTopVisitor::getLLVMBaseType(llvm::Value* value)
         return value->getType()->getContainedType(0)->getTypeID();
     else
         return value->getType()->getTypeID();
+}
+
+llvm::Type::TypeID GlslToTopVisitor::getLLVMBaseType(llvm::Type* type)
+{
+    if(llvm::Type::VectorTyID == type->getTypeID())
+        return type->getContainedType(0)->getTypeID();
+    else
+        return type->getTypeID();
 }
 
 void GlslToTopVisitor::findAndSmearScalars(llvm::Value** operands, int numOperands) {
