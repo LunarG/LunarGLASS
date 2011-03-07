@@ -29,6 +29,12 @@ function all {
     echo "Updating SVN"
     svn update
 
+    echo "Building LLVM"
+    pushd LLVM/llvm-2.8/build || exit 1
+    make
+    popd
+    echo "LLVM built"
+
     echo "Building LunarGLASS"
     pushd mesa/src/glsl
     make -f StandAlone.makefile clean || exit 1
