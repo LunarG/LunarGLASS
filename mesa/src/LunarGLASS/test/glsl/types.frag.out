@@ -944,42 +944,42 @@ void main()
     bool temp28;
     bool temp29;
     vec4 temp30;
-    bool temp31 = u_b2.xxxx;
-    bool temp32 = i_b2.xxxx;
+    bool temp31 = u_b2.x;
+    bool temp32 = i_b2.x;
     bool temp33 = temp31 ^ temp32;
-    bool temp34 = u_b2.yxxx;
+    bool temp34 = u_b2.y;
     bool temp35 = temp33 ^ temp34;
-    bool temp36 = i_b2.yxxx;
+    bool temp36 = i_b2.y;
     bool temp37 = temp35 ^ temp36;
-    bvec2 temp38 = temp37.xxxx;
-    bool temp39 = u_b3.xxxx;
-    bool temp40 = i_b3.xxxx;
+    bvec2 temp38 = temp37;
+    bool temp39 = u_b3.x;
+    bool temp40 = i_b3.x;
     bool temp41 = temp39 ^ temp40;
-    bool temp42 = u_b3.yxxx;
+    bool temp42 = u_b3.y;
     bool temp43 = temp41 ^ temp42;
-    bool temp44 = i_b3.yxxx;
+    bool temp44 = i_b3.y;
     bool temp45 = temp43 ^ temp44;
-    bool temp46 = u_b3.zxxx;
+    bool temp46 = u_b3.z;
     bool temp47 = temp45 ^ temp46;
-    bool temp48 = i_b3.zxxx;
+    bool temp48 = i_b3.z;
     bool temp49 = temp47 ^ temp48;
-    bvec3 temp50 = temp49.xxxx;
-    bool temp51 = u_b4.xxxx;
-    bool temp52 = i_b4.xxxx;
+    bvec3 temp50 = temp49;
+    bool temp51 = u_b4.x;
+    bool temp52 = i_b4.x;
     bool temp53 = temp51 ^ temp52;
-    bool temp54 = u_b4.yxxx;
+    bool temp54 = u_b4.y;
     bool temp55 = temp53 ^ temp54;
-    bool temp56 = i_b4.yxxx;
+    bool temp56 = i_b4.y;
     bool temp57 = temp55 ^ temp56;
-    bool temp58 = u_b4.zxxx;
+    bool temp58 = u_b4.z;
     bool temp59 = temp57 ^ temp58;
-    bool temp60 = i_b4.zxxx;
+    bool temp60 = i_b4.z;
     bool temp61 = temp59 ^ temp60;
-    bool temp62 = u_b4.wxxx;
+    bool temp62 = u_b4.w;
     bool temp63 = temp61 ^ temp62;
-    bool temp64 = i_b4.wxxx;
+    bool temp64 = i_b4.w;
     bool temp65 = temp63 ^ temp64;
-    bvec4 temp66 = temp65.xxxx;
+    bvec4 temp66 = temp65;
     ivec2 temp67 = u_i2 + i_i2;
     ivec3 temp68 = u_i3 + i_i3;
     ivec4 temp69 = u_i4 + i_i4;
@@ -992,7 +992,7 @@ void main()
         temp21 = const75;
     }
     else {
-        bool temp76 = temp38.xxxx;
+        bool temp76 = temp38.x;
         temp21 = temp76;
     }
     
@@ -1000,7 +1000,7 @@ void main()
         temp22 = const75;
     }
     else {
-        bool temp77 = temp38.yxxx;
+        bool temp77 = temp38.y;
         temp22 = temp77;
     }
     
@@ -1008,7 +1008,7 @@ void main()
         temp23 = const75;
     }
     else {
-        bool temp78 = temp50.xxxx;
+        bool temp78 = temp50.x;
         temp23 = temp78;
     }
     
@@ -1016,7 +1016,7 @@ void main()
         temp24 = const75;
     }
     else {
-        bool temp79 = temp50.yxxx;
+        bool temp79 = temp50.y;
         temp24 = temp79;
     }
     
@@ -1024,7 +1024,7 @@ void main()
         temp25 = const75;
     }
     else {
-        bool temp80 = temp50.zxxx;
+        bool temp80 = temp50.z;
         temp25 = temp80;
     }
     
@@ -1032,7 +1032,7 @@ void main()
         temp26 = const75;
     }
     else {
-        bool temp81 = temp66.xxxx;
+        bool temp81 = temp66.x;
         temp26 = temp81;
     }
     
@@ -1040,7 +1040,7 @@ void main()
         temp27 = const75;
     }
     else {
-        bool temp82 = temp66.yxxx;
+        bool temp82 = temp66.y;
         temp27 = temp82;
     }
     
@@ -1048,7 +1048,7 @@ void main()
         temp28 = const75;
     }
     else {
-        bool temp83 = temp66.zxxx;
+        bool temp83 = temp66.z;
         temp28 = temp83;
     }
     
@@ -1056,20 +1056,20 @@ void main()
         temp29 = const75;
     }
     else {
-        bool temp84 = temp66.wxxx;
+        bool temp84 = temp66.w;
         temp29 = temp84;
     }
     
     if (temp29) {
-        int temp85 = temp67.xxxx;
-        int temp86 = temp67.yxxx;
-        int temp87 = temp68.xxxx;
-        int temp88 = temp68.yxxx;
-        int temp89 = temp68.zxxx;
-        int temp90 = temp69.xxxx;
-        int temp91 = temp69.yxxx;
-        int temp92 = temp69.zxxx;
-        int temp93 = temp69.wxxx;
+        int temp85 = temp67.x;
+        int temp86 = temp67.y;
+        int temp87 = temp68.x;
+        int temp88 = temp68.y;
+        int temp89 = temp68.z;
+        int temp90 = temp69.x;
+        int temp91 = temp69.y;
+        int temp92 = temp69.z;
+        int temp93 = temp69.w;
         int temp94 = i_i + u_i;
         int temp95 = temp94 + temp85;
         int temp96 = temp95 + temp86;
@@ -1082,25 +1082,25 @@ void main()
         int temp103 = temp102 + temp93;
         float temp104 = float(temp103);
         float temp105 = temp104 + temp70;
-        float temp106 = temp71.xxxx;
+        float temp106 = temp71.x;
         float temp107 = temp105 + temp106;
-        float temp108 = temp71.yxxx;
+        float temp108 = temp71.y;
         float temp109 = temp107 + temp108;
-        float temp110 = temp72.xxxx;
+        float temp110 = temp72.x;
         float temp111 = temp109 + temp110;
-        float temp112 = temp72.yxxx;
+        float temp112 = temp72.y;
         float temp113 = temp111 + temp112;
-        float temp114 = temp72.zxxx;
+        float temp114 = temp72.z;
         float temp115 = temp113 + temp114;
-        float temp116 = temp73.xxxx;
+        float temp116 = temp73.x;
         float temp117 = temp115 + temp116;
-        float temp118 = temp73.yxxx;
+        float temp118 = temp73.y;
         float temp119 = temp117 + temp118;
-        float temp120 = temp73.zxxx;
+        float temp120 = temp73.z;
         float temp121 = temp119 + temp120;
-        float temp122 = temp73.wxxx;
+        float temp122 = temp73.w;
         float temp123 = temp121 + temp122;
-        vec4 temp124 = temp123.xxxx;
+        vec4 temp124 = temp123;
         temp30 = temp124;
     }
     else {

@@ -472,11 +472,11 @@ protected:
         }
     }
 
-    void mapGlaSwizzle(int glaSwizzle)
+    void mapGlaSwizzle(int glaSwizzle, int width)
     {
         shader << ".";
         // Pull each two bit channel out of the integer
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < width; i++)
             mapComponentToSwizzle((glaSwizzle >> i*2) & 0x3);
     }
 
@@ -846,7 +846,8 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mapGlaDestination(llvmInstruction);
         shader << " = ";
         mapGlaOperand(llvmInstruction->getOperand(0));
-        mapGlaSwizzle(GetConstantValue(llvmInstruction->getOperand(1)));
+        if (GetComponentCount(llvmInstruction->getOperand(0)) > 1)
+            mapGlaSwizzle(GetConstantValue(llvmInstruction->getOperand(1)), GetComponentCount(llvmInstruction));
         shader << ";";
         return;
     }
