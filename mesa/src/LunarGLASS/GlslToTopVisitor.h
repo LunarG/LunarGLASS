@@ -96,6 +96,7 @@ public:
 
     // help functions to build LLVM
     llvm::Value* createLLVMVariable(ir_variable*);
+    const char* getSamplerDeclaration(ir_variable*);
     llvm::Value* expandGLSLOp(ir_expression_operation, llvm::Value**);
     llvm::Value* expandGLSLSwizzle(ir_swizzle*);
     llvm::Value* createLLVMIntrinsic(ir_call*, llvm::Value**, int);

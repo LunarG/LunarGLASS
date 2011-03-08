@@ -139,7 +139,7 @@ public:
         else
             type = global->getType();
 
-        declareVariable(type, global->getNameStr().c_str(), mapGlaAddressSpace(global));
+        declareVariable(type, global->getNameStr(), mapGlaAddressSpace(global));
     }
 
     void startFunction()
@@ -393,14 +393,17 @@ protected:
         }
     }
 
-    void declareVariable(const llvm::Type* type, const char* varString, EVariableQualifier vq)
+    void declareVariable(const llvm::Type* type, const std::string& varString, EVariableQualifier vq)
     {
         switch (vq) {
         case EVQUniform:
         case EVQConstant:
         case EVQInput:
-            globalDeclarations << mapGlaToQualifierString(vq) << " ";
-            mapGlaType(globalDeclarations, type);
+            globalDeclarations << mapGlaToQualifierString(vq);
+            if (varString.find_first_of(' ') == std::string::npos) {
+                globalDeclarations << " ";
+                mapGlaType(globalDeclarations, type);
+            }
             globalDeclarations << " " << varString << ";" << std::endl;
             break;
         case EVQGlobal:
@@ -447,7 +450,7 @@ protected:
         if (valueMap[value] == 0) {
             std::string* newVariable = new std::string;
             getNewVariable(value, newVariable);
-            declareVariable(value->getType(), newVariable->c_str(), mapGlaAddressSpace(value));
+            declareVariable(value->getType(), *newVariable, mapGlaAddressSpace(value));
             valueMap[value] = newVariable;
         }
 
@@ -457,7 +460,11 @@ protected:
     bool addNewVariable(const llvm::Value* value, std::string name)
     {
         if (valueMap[value] == 0) {
-            valueMap[value] = new std::string(name);  //?? need to delete these?
+            int spaceLoc = name.find_first_of(' ');
+            if (spaceLoc == std::string::npos)
+                valueMap[value] = new std::string(name);  //?? need to delete these?
+            else
+                valueMap[value] = new std::string(name.substr(spaceLoc+1));
             return true;
         } else {
             assert(name == *valueMap[value]);
@@ -792,7 +799,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_readData:
     case llvm::Intrinsic::gla_fReadInterpolant:
         if (addNewVariable(llvmInstruction, llvmInstruction->getNameStr())) {
-            declareVariable(llvmInstruction->getType(), llvmInstruction->getNameStr().c_str(), EVQInput);
+            declareVariable(llvmInstruction->getType(), llvmInstruction->getNameStr(), EVQInput);
         }
         return;
     }
@@ -976,5 +983,5 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
 void gla::GlslTarget::print()
 {
-    printf("\n// LunarGoo output\n%s\n%s", globalDeclarations.str().c_str(), shader.str().c_str());
+    printf("\n// LunarGOO output\n%s\n%s", globalDeclarations.str().c_str(), shader.str().c_str());
 }

@@ -14,7 +14,7 @@ Usage: ./run [options]
 
 # Add more tests here as they are created
 TESTS=(checkpoint1.frag test.frag flowControl.frag Operations.frag swizzle.frag functionCall.frag forLoop.frag whileLoop.frag doWhileLoop.frag syntaxError.frag
-       depthOut.frag dataOut.frag matrix.frag newTexture.frag structure.frag)
+       depthOut.frag dataOut.frag matrix.frag newTexture.frag structure.frag texture.frag types.frag)
 
 function runTests {
     for t in ${TESTS[@]}; do

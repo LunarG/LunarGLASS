@@ -905,9 +905,12 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
     bool local = false;
     llvm::Constant* initializer = 0;
     llvm::GlobalValue::LinkageTypes linkage = llvm::GlobalVariable::InternalLinkage;
-    llvm::Type *llvmVarType = convertGLSLToLLVMType(var->type);
-
+    llvm::Type *llvmVarType = convertGLSLToLLVMType(var->type);    
     llvm::Value* value = 0;
+
+    const char* typePrefix = 0;
+    if (var->type->base_type == GLSL_TYPE_SAMPLER)
+        typePrefix = getSamplerDeclaration(var);
 
     switch (var->mode) {
     case ir_var_auto:
@@ -971,13 +974,48 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
         if (strcmp(var->name, "gl_FragData") == 0)
             gla::UnsupportedFunctionality("gl_FragData");
 
+        std::string name = var->name;
+        if (gla::Options.backend == gla::GLSL && typePrefix) {
+            name = typePrefix;
+            name.append(" ");
+            name.append(var->name);
+        } else
+            name = var->name;
+
         llvm::GlobalVariable* globalValue = new llvm::GlobalVariable(llvmVarType, constant, linkage,
-                                         initializer, var->name, false /* ThreadLocal */, addressSpace);
+                                         initializer, name, false /* ThreadLocal */, addressSpace);
         module->getGlobalList().push_back(globalValue);
         value = globalValue;
     }
 
     return value;
+}
+
+const char* GlslToTopVisitor::getSamplerDeclaration(ir_variable* var)
+{
+    if (var->type->sampler_shadow) {
+        switch (var->type->sampler_dimensionality) {
+        case GLSL_SAMPLER_DIM_1D:   return "sampler1DShadow";
+        case GLSL_SAMPLER_DIM_2D:   return "sampler2DShadow";
+        case GLSL_SAMPLER_DIM_3D:   return "sampler3DShadow";
+        case GLSL_SAMPLER_DIM_CUBE: return "samplerCubeShadow";
+        case GLSL_SAMPLER_DIM_RECT: return "sampler2DRectShadow";
+        default:
+            gla::UnsupportedFunctionality("shadow sampler type");
+        }
+    } else {
+        switch (var->type->sampler_dimensionality) {
+        case GLSL_SAMPLER_DIM_1D:   return "sampler1D";
+        case GLSL_SAMPLER_DIM_2D:   return "sampler2D";
+        case GLSL_SAMPLER_DIM_3D:   return "sampler3D";
+        case GLSL_SAMPLER_DIM_CUBE: return "samplerCube";
+        case GLSL_SAMPLER_DIM_RECT: return "sampler2DRect";
+        default:
+            gla::UnsupportedFunctionality("sampler type");
+        }
+    }
+
+    return 0;
 }
 
 llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm::Value** operands)
