@@ -3,6 +3,8 @@
 DESCRIPTION="\
 Description: Update the LunarGLASS project, and rebuild the needed files.
              This is a quicker option than doing './install build'.
+             If you get an error message talking about intrinsics, try running
+             with the -f option.
 "
 
 DEPENDENCIES="\
@@ -14,6 +16,7 @@ Usage: ./update [options]
 
        Options:
          -h --help        Print out this Usage info
+         -f --force-llvm  Force a clean recompilation of LLVM
 "
 
 # Main functionality
@@ -29,7 +32,18 @@ function all {
 
     echo "Building LLVM"
     pushd LLVM/llvm-2.8/build || exit 1
-    make
+
+    if [[ -n $FORCE ]]; then
+        cd ..
+        rm -rf build
+        mkdir -p build
+        cd build
+        ../configure || exit 1
+        make || exit 1
+        make install DESTDIR=`pwd`/install || exit 1
+    else
+        make || exit 1
+    fi
     popd
     echo "LLVM built"
 
@@ -44,7 +58,7 @@ function all {
     mkdir -p ../../../tests/tgsi || exit 1
 
     install StandAlone ../../../bin/LunarGLASS || exit 1
-    install ../LunarGLASS/test/*  ../../../tests/ || exit 1
+    install -d ../LunarGLASS/test  ../../../tests || exit 1
     popd
     echo "LunarGLASS built"
     echo
@@ -58,9 +72,15 @@ function all {
 # No arguments passed
 if [[ -z "$*" ]]; then all; fi;
 
+FORCE=""
 # Arguments passed
 for i in $*; do
     case $i in
+        -f|--force-llvm)
+            FORCE="true"
+            echo "Forcing a recompilation of LLVM"
+            all
+            ;;
         -h|--h)
             showHelp
             exit 0
