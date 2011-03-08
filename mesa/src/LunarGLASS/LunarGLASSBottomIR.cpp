@@ -72,4 +72,13 @@ namespace gla {
         return GetComponentCount(type);
     }
 
+    bool IsConsecutiveSwizzle(int glaSwizzle, int width)
+    {
+        for (int i = 0; i < width; ++i) {
+            if (((glaSwizzle >> i*2) & 0x3) != i)
+                return false;
+        }
+
+        return true;
+    }
 };

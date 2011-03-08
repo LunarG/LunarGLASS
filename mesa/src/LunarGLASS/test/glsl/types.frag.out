@@ -951,7 +951,7 @@ void main()
     bool temp35 = temp33 ^ temp34;
     bool temp36 = i_b2.y;
     bool temp37 = temp35 ^ temp36;
-    bvec2 temp38 = temp37;
+    bvec2 temp38 = bvec2(temp37);
     bool temp39 = u_b3.x;
     bool temp40 = i_b3.x;
     bool temp41 = temp39 ^ temp40;
@@ -963,7 +963,7 @@ void main()
     bool temp47 = temp45 ^ temp46;
     bool temp48 = i_b3.z;
     bool temp49 = temp47 ^ temp48;
-    bvec3 temp50 = temp49;
+    bvec3 temp50 = bvec3(temp49);
     bool temp51 = u_b4.x;
     bool temp52 = i_b4.x;
     bool temp53 = temp51 ^ temp52;
@@ -979,7 +979,7 @@ void main()
     bool temp63 = temp61 ^ temp62;
     bool temp64 = i_b4.w;
     bool temp65 = temp63 ^ temp64;
-    bvec4 temp66 = temp65;
+    bvec4 temp66 = bvec4(temp65);
     ivec2 temp67 = u_i2 + i_i2;
     ivec3 temp68 = u_i3 + i_i3;
     ivec4 temp69 = u_i4 + i_i4;
@@ -1100,7 +1100,7 @@ void main()
         float temp121 = temp119 + temp120;
         float temp122 = temp73.w;
         float temp123 = temp121 + temp122;
-        vec4 temp124 = temp123;
+        vec4 temp124 = vec4(temp123);
         temp30 = temp124;
     }
     else {

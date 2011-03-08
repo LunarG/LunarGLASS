@@ -2143,7 +2143,7 @@ void main()
     float temp156 = temp154 + temp155;
     float temp157 = dot(temp109, temp109);
     float temp158 = temp156 + temp157;
-    vec3 temp159 = temp109.xyz;
+    vec3 temp159 = vec3(temp109);
     vec3 temp160 = cross(temp159, temp159);
     float temp161 = temp160.x;
     float temp162 = temp158 + temp161;
@@ -2171,8 +2171,8 @@ void main()
     
     if (temp28) {
         float temp170 = float(temp30);
-        vec4 temp171 = temp170;
-        vec4 temp172 = temp32;
+        vec4 temp171 = vec4(temp170);
+        vec4 temp172 = vec4(temp32);
         vec4 temp173 = temp171 + temp172;
         vec4 temp174 = temp173 + temp109;
         temp33 = temp174;

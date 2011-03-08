@@ -538,7 +538,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     case llvm::Instruction::ICmp:
     case llvm::Instruction::FCmp:
         if (! llvm::isa<llvm::VectorType>(llvmInstruction->getOperand(0)->getType())) {
-            
+
             const llvm::Type* type = llvmInstruction->getOperand(0)->getType();
             if (type != type->getFloatTy(llvmInstruction->getContext()) &&
                 type != type->getDoubleTy(llvmInstruction->getContext()) &&
@@ -554,22 +554,22 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
                 switch (cmp->getPredicate()) {
                 case llvm::FCmpInst::FCMP_OEQ:
                 case llvm::ICmpInst::ICMP_EQ:   charOp = "==";  break;
-                
+
                 case llvm::FCmpInst::FCMP_ONE:
                 case llvm::ICmpInst::ICMP_NE:   charOp = "!=";  break;
-                
+
                 case llvm::FCmpInst::FCMP_OGT:
                 case llvm::ICmpInst::ICMP_UGT:
                 case llvm::ICmpInst::ICMP_SGT:  charOp = ">";   break;
-                
+
                 case llvm::FCmpInst::FCMP_OGE:
                 case llvm::ICmpInst::ICMP_UGE:
                 case llvm::ICmpInst::ICMP_SGE:  charOp = ">=";  break;
-                
+
                 case llvm::FCmpInst::FCMP_OLT:
                 case llvm::ICmpInst::ICMP_ULT:
                 case llvm::ICmpInst::ICMP_SLT:  charOp = "<";   break;
-                
+
                 case llvm::FCmpInst::FCMP_OLE:
                 case llvm::ICmpInst::ICMP_ULE:
                 case llvm::ICmpInst::ICMP_SLE:  charOp = "<=";  break;
@@ -681,22 +681,22 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
                 switch (cmp->getPredicate()) {
                 case llvm::FCmpInst::FCMP_OEQ:
                 case llvm::ICmpInst::ICMP_EQ:   charOp = "equal";             break;
-                
+
                 case llvm::FCmpInst::FCMP_ONE:
                 case llvm::ICmpInst::ICMP_NE:   charOp = "notEqual";          break;
-                
+
                 case llvm::FCmpInst::FCMP_OGT:
                 case llvm::ICmpInst::ICMP_UGT:
                 case llvm::ICmpInst::ICMP_SGT:  charOp = "greaterThan";       break;
-                
+
                 case llvm::FCmpInst::FCMP_OGE:
                 case llvm::ICmpInst::ICMP_UGE:
                 case llvm::ICmpInst::ICMP_SGE:  charOp = "greaterThanEqual";  break;
-                
+
                 case llvm::FCmpInst::FCMP_OLT:
                 case llvm::ICmpInst::ICMP_ULT:
                 case llvm::ICmpInst::ICMP_SLT:  charOp = "lessThan";          break;
-                
+
                 case llvm::FCmpInst::FCMP_OLE:
                 case llvm::ICmpInst::ICMP_ULE:
                 case llvm::ICmpInst::ICMP_SLE:  charOp = "lessThanEqual";     break;
@@ -707,7 +707,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
             } else {
                 assert(! "Cmp vector instruction found that cannot dyncast to CmpInst");
             }
-            
+
             newLine();
             mapGlaValue(llvmInstruction);
             shader << " = " << charOp << "(";
@@ -739,7 +739,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
             assert(! "store instruction is not through pointer\n");
         }
         return;
-        
+
     case llvm::Instruction::ExtractElement:
         {
             // copy propagate, by name string, the extracted component
@@ -752,14 +752,14 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     case llvm::Instruction::InsertElement:
         // copy propagate, by name string the, the starting name of the object
         // addNewVariable(llvmInstruction, valueMap[llvmInstruction->getOperand(0)]->c_str());
-        
+
         // first, copy whole the structure "inserted into" to the resulting "value" of the insert
         newLine();
         mapGlaDestination(llvmInstruction);
         shader << " = ";
         mapGlaOperand(llvmInstruction->getOperand(0));
         shader << ";";
-        
+
         // second, overwrite the element being inserted
         newLine();
         mapGlaDestination(llvmInstruction);
@@ -845,6 +845,39 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         newLine();
         mapGlaDestination(llvmInstruction);
         shader << " = ";
+
+        // Case 0:  it's scalar making a scalar.
+        // use nothing, just copy
+        if (GetComponentCount(llvmInstruction->getOperand(0)) == 1 && GetComponentCount(llvmInstruction) == 1) {
+            mapGlaOperand(llvmInstruction->getOperand(0));
+            shader << ";";
+            return;
+        }
+
+        // Case 1:  it's a scalar with multiple ".x" to expand it to a vector.
+        // use a constructor to turn a scalar into a vector
+        if (GetComponentCount(llvmInstruction->getOperand(0)) == 1 && GetComponentCount(llvmInstruction) > 1) {
+            mapGlaType(shader, llvmInstruction->getType());
+            shader << "(";
+            mapGlaOperand(llvmInstruction->getOperand(0));
+            shader << ");";
+            return;
+        }
+
+        // Case 2:  it's sequential .xy...  subsetting a vector.
+        // use a constructor to subset the vectorto a vector
+        if (GetComponentCount(llvmInstruction->getOperand(0)) > 1 && GetComponentCount(llvmInstruction) > 1 &&
+            IsConsecutiveSwizzle(GetConstantValue(llvmInstruction->getOperand(1)), GetComponentCount(llvmInstruction))) {
+
+            mapGlaType(shader, llvmInstruction->getType());
+            shader << "(";
+            mapGlaOperand(llvmInstruction->getOperand(0));
+            shader << ");";
+            return;
+        }
+
+        // Case 3:  it's a non-sequential subsetting of a vector.
+        // use GLSL swizzles
         mapGlaOperand(llvmInstruction->getOperand(0));
         if (GetComponentCount(llvmInstruction->getOperand(0)) > 1)
             mapGlaSwizzle(GetConstantValue(llvmInstruction->getOperand(1)), GetComponentCount(llvmInstruction));

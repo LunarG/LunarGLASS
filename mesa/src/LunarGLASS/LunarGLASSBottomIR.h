@@ -45,7 +45,7 @@ namespace gla {
     int IsGradientTexInst(const llvm::IntrinsicInst*);
     int GetComponentCount(const llvm::Type*);
     int GetComponentCount(const llvm::Value*);
-
+    bool IsConsecutiveSwizzle(int glaSwizzle, int width);
 };
 
 #endif /* LunarGLASSBottomIR_H */
