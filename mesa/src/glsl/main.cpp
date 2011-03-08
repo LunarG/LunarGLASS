@@ -314,6 +314,8 @@ main(int argc, char **argv)
    int optind = gla::HandleArgs(argc, argv);
    dump_ast = gla::Options.debug;
    do_glsl_to_mesa_ir = gla::Options.backend == gla::TGSI;
+   if (gla::Options.backend == gla::GLSL)
+       do_link = 0;
 
    initialize_context(ctx, (glsl_es) ? API_OPENGLES2 : API_OPENGL);
 
