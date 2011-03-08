@@ -58,7 +58,7 @@ function all {
     mkdir -p ../../../tests/tgsi || exit 1
 
     install StandAlone ../../../bin/LunarGLASS || exit 1
-    install -d ../LunarGLASS/test  ../../../tests || exit 1
+    install ../LunarGLASS/test/*  ../../../tests || exit 1
     popd
     echo "LunarGLASS built"
     echo
