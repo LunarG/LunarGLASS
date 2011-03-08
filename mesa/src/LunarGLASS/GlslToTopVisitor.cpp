@@ -1385,12 +1385,24 @@ void GlslToTopVisitor::findAndSmearScalars(llvm::Value** operands, int numOperan
     llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();
     llvm::IRBuilder<> entryBuilder(entryBlock, entryBlock->begin());
     operands[scalarIndex] = builder.CreateLoad(entryBuilder.CreateAlloca(vectorType[vectorIndex], 0));
-        
-    // Fill it with the scalar value
-    for (int i = 0; i < vectorSize; ++i) {
-        operands[scalarIndex] = builder.CreateInsertElement(operands[scalarIndex], 
-                                        scalarVal,
-                                        llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
+
+    // Use a swizzle to expand the scalar to a vector
+    llvm::Intrinsic::ID intrinsicID;
+    llvm::Type::TypeID scalarType = getLLVMBaseType(scalarVal);
+    switch(scalarType) {
+    case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_swizzle;     break;
+    case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fSwizzle;    break;
     }
+    
+    llvm::Function *intrinsicName = getLLVMIntrinsicFunction2(intrinsicID, operands[vectorIndex]->getType(), scalarVal->getType());
+
+    // Broadcast x
+    int swizVal = 0;
+
+    llvm::CallInst *callInst = builder.CreateCall2 (intrinsicName,
+                                                    scalarVal,
+                                                    llvm::ConstantInt::get(context, llvm::APInt(32, swizVal, true)));
+
+    operands[scalarIndex] = callInst;
 
 }
