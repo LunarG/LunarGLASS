@@ -32,10 +32,10 @@ in vec4 i_f4;
 
 void main()
 {
-    bool  b = u_b ^^ i_b;
-    bvec2 b2 = bvec2(u_b2.x ^^ i_b2.x ^^ u_b2.y ^^ i_b2.y);
-    bvec3 b3 = bvec3(u_b3.x ^^ i_b3.x ^^ u_b3.y ^^ i_b3.y ^^ u_b3.z ^^ i_b3.z);
-    bvec4 b4 = bvec4(u_b4.x ^^ i_b4.x ^^ u_b4.y ^^ i_b4.y ^^ u_b4.z ^^ i_b4.z ^^ u_b4.w ^^ i_b4.w);
+    bool  b = u_b && i_b;
+    bvec2 b2 = bvec2(u_b2.x && i_b2.x && u_b2.y && i_b2.y);
+    bvec3 b3 = bvec3(u_b3.x && i_b3.x && u_b3.y && i_b3.y && u_b3.z && i_b3.z);
+    bvec4 b4 = bvec4(u_b4.x && i_b4.x && u_b4.y && i_b4.y && u_b4.z && i_b4.z && u_b4.w && i_b4.w);
 
     int   i = u_i + i_i;
     ivec2 i2 = u_i2 + i_i2;
