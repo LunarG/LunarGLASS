@@ -759,14 +759,14 @@ then99:                                           ; preds = %ifmerge98
   br label %ifmerge100
 
 ifmerge100:                                       ; preds = %then99, %ifmerge98
-  %311 = load float* %f
+  %311 = load float addrspace(1)* @uf
   %312 = load float addrspace(1)* @uf
   %313 = fadd float %311, %312
-  %314 = load float* %f
+  %314 = load float addrspace(1)* @uf
   %315 = fmul float %313, %314
   %316 = load float addrspace(1)* @uf
   %317 = fsub float %315, %316
-  %318 = load float* %f
+  %318 = load float addrspace(1)* @uf
   %319 = fdiv float %317, %318
   store float %319, float* %f
   %320 = load <4 x float>* %v
@@ -822,9 +822,8 @@ else106:                                          ; preds = %ifmerge100
 
 then107:                                          ; preds = %else106
   %346 = load float* %assignment_tmp102
-  %347 = load float addrspace(1)* @uf
-  %348 = fcmp oeq float %346, %347
-  store i1 %348, i1* %and_tmp108
+  %347 = fcmp one float %346, 2.000000e+000
+  store i1 %347, i1* %and_tmp108
   br label %ifmerge110
 
 else109:                                          ; preds = %else106
@@ -832,49 +831,46 @@ else109:                                          ; preds = %else106
   br label %ifmerge110
 
 ifmerge110:                                       ; preds = %else109, %then107
-  %349 = load i1* %and_tmp108
-  %350 = load float* %assignment_tmp102
-  %351 = fcmp one float %350, 2.000000e+000
-  %352 = xor i1 %349, %351
-  store i1 %352, i1* %or_tmp105
+  %348 = load i1* %and_tmp108
+  store i1 %348, i1* %or_tmp105
   br label %ifmerge111
 
 ifmerge111:                                       ; preds = %ifmerge110, %then104
-  %353 = load i1* %or_tmp105
-  br i1 %353, label %then112, label %ifmerge113
+  %349 = load i1* %or_tmp105
+  br i1 %349, label %then112, label %ifmerge113
 
 then112:                                          ; preds = %ifmerge111
-  %354 = load float* %assignment_tmp102
-  %355 = fadd float %354, 1.000000e+000
-  store float %355, float* %f
+  %350 = load float* %assignment_tmp102
+  %351 = fadd float %350, 1.000000e+000
+  store float %351, float* %f
   br label %ifmerge113
 
 ifmerge113:                                       ; preds = %then112, %ifmerge111
-  %356 = load i1* %b
-  br i1 %356, label %then114, label %else117
+  %352 = load i1* %b
+  br i1 %352, label %then114, label %else117
 
 then114:                                          ; preds = %ifmerge113
-  %357 = load i32* %i
-  %358 = sitofp i32 %357 to float
-  %swizzleTmp115 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %358, i32 0)
-  %359 = load float* %f
-  %swizzleTmp116 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %359, i32 0)
-  %360 = fadd <4 x float> %swizzleTmp115, %swizzleTmp116
-  %361 = load <4 x float>* %v
-  %362 = fadd <4 x float> %360, %361
-  store <4 x float> %362, <4 x float>* %conditional_tmp
+  %353 = load i32* %i
+  %354 = sitofp i32 %353 to float
+  %swizzleTmp115 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %354, i32 0)
+  %355 = load float* %f
+  %swizzleTmp116 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %355, i32 0)
+  %356 = fadd <4 x float> %swizzleTmp115, %swizzleTmp116
+  %357 = load <4 x float>* %v
+  %358 = fadd <4 x float> %356, %357
+  store <4 x float> %358, <4 x float>* %conditional_tmp
   br label %ifmerge118
 
 else117:                                          ; preds = %ifmerge113
-  %363 = load <4 x float>* %v
-  store <4 x float> %363, <4 x float>* %conditional_tmp
+  %359 = load <4 x float>* %v
+  store <4 x float> %359, <4 x float>* %conditional_tmp
   br label %ifmerge118
 
 ifmerge118:                                       ; preds = %else117, %then114
-  %364 = load <4 x float>* %conditional_tmp
-  store <4 x float> %364, <4 x float>* @gl_FragColor
-  %365 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %365)
+  %360 = load <4 x float>* %conditional_tmp
+  store <4 x float> %360, <4 x float>* @gl_FragColor
+  %361 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %361)
   ret void
 }
 
@@ -1216,10 +1212,10 @@ then99:                                           ; preds = %ifmerge98
 
 ifmerge100:                                       ; preds = %then99, %ifmerge98
   %i.0 = phi i32 [ %69, %then99 ], [ %64, %ifmerge98 ]
-  %70 = fadd float undef, %37
-  %71 = fmul float %70, undef
+  %70 = fadd float %37, %37
+  %71 = fmul float %70, %37
   %72 = fsub float %71, %37
-  %73 = fdiv float %72, undef
+  %73 = fdiv float %72, %37
   %length = call float @llvm.gla.fLength.v4f32(<4 x float> %41)
   %74 = fadd float %73, %length
   %distance = call float @llvm.gla.fDistance.v4f32.v4f32(<4 x float> %41, <4 x float> %41)
@@ -1241,41 +1237,41 @@ else106:                                          ; preds = %ifmerge100
   br i1 %79, label %then107, label %else109
 
 then107:                                          ; preds = %else106
+  %80 = fcmp one float %77, 2.000000e+000
   br label %ifmerge110
 
 else109:                                          ; preds = %else106
   br label %ifmerge110
 
 ifmerge110:                                       ; preds = %else109, %then107
-  %80 = fcmp one float %77, 2.000000e+000
-  %81 = xor i1 false, %80
+  %and_tmp108.0 = phi i1 [ %80, %then107 ], [ false, %else109 ]
   br label %ifmerge111
 
 ifmerge111:                                       ; preds = %ifmerge110, %then104
-  %or_tmp105.0 = phi i1 [ true, %then104 ], [ %81, %ifmerge110 ]
+  %or_tmp105.0 = phi i1 [ true, %then104 ], [ %and_tmp108.0, %ifmerge110 ]
   br i1 %or_tmp105.0, label %then112, label %ifmerge113
 
 then112:                                          ; preds = %ifmerge111
-  %82 = fadd float %77, 1.000000e+000
+  %81 = fadd float %77, 1.000000e+000
   br label %ifmerge113
 
 ifmerge113:                                       ; preds = %then112, %ifmerge111
-  %f.0 = phi float [ %82, %then112 ], [ %77, %ifmerge111 ]
+  %f.0 = phi float [ %81, %then112 ], [ %77, %ifmerge111 ]
   br i1 %and_tmp88.0, label %then114, label %else117
 
 then114:                                          ; preds = %ifmerge113
-  %83 = sitofp i32 %i.0 to float
-  %swizzleTmp115 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %83, i32 0)
+  %82 = sitofp i32 %i.0 to float
+  %swizzleTmp115 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %82, i32 0)
   %swizzleTmp116 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %f.0, i32 0)
-  %84 = fadd <4 x float> %swizzleTmp115, %swizzleTmp116
-  %85 = fadd <4 x float> %84, %41
+  %83 = fadd <4 x float> %swizzleTmp115, %swizzleTmp116
+  %84 = fadd <4 x float> %83, %41
   br label %ifmerge118
 
 else117:                                          ; preds = %ifmerge113
   br label %ifmerge118
 
 ifmerge118:                                       ; preds = %else117, %then114
-  %conditional_tmp.0 = phi <4 x float> [ %85, %then114 ], [ %41, %else117 ]
+  %conditional_tmp.0 = phi <4 x float> [ %84, %then114 ], [ %41, %else117 ]
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %conditional_tmp.0)
   ret void
 }
@@ -1391,7 +1387,7 @@ uniform bvec4 ub41 , ub42 ;
 uniform float uf ; 
 uniform int ui ; 
 void  main (){
-vec4 v ; float f ; bool b ; bvec4 bv4 ; int i ; v = radians ( uv4 ) ; v += degrees ( v ) ; v += sin ( v ) ; v += cos ( v ) ; v += tan ( v ) ; v += asin ( v ) ; v += acos ( v ) ; v += atan ( v ) ; v += sinh ( v ) ; v += cosh ( v ) ; v += tanh ( v ) ; v += pow ( v , v ) ; v += exp ( v ) ; v += log ( v ) ; v += exp2 ( v ) ; v += log2 ( v ) ; v += sqrt ( v ) ; v += inversesqrt ( v ) ; v += abs ( v ) ; v += sign ( v ) ; v += floor ( v ) ; v += ceil ( v ) ; v += fract ( v ) ; v += mod ( v , v ) ; v += min ( v , uv4 ) ; v += max ( v , uv4 ) ; v += clamp ( v , uv4 , uv4 ) ; v += mix ( v , v , v ) ; v += mix ( v , v , ub ) ; v += step ( v , v ) ; v += smoothstep ( v , v , v ) ; v += normalize ( v ) ; v += faceforward ( v , v , v ) ; v += reflect ( v , v ) ; v += refract ( v , v , uf ) ; v += dFdx ( v ) ; v += dFdy ( v ) ; v += fwidth ( v ) ; i = 0 ; i += abs ( ui ) ; i += min ( i , ui ) ; i += max ( i , ui ) ; i += clamp ( i , ui , ui ) ; b = any ( lessThan ( v , v ) ) ; b = b && any ( lessThanEqual ( v , v ) ) ; b = b && any ( greaterThan ( v , v ) ) ; b = b && any ( greaterThanEqual ( v , v ) ) ; b = b && any ( equal ( ub41 , ub42 ) ) ; b = b && any ( notEqual ( ub41 , ub42 ) ) ; b = b && any ( ub41 ) ; b = b && all ( ub41 ) ; b = b && any ( not ( ub41 ) ) ; i = i + ui * i - ui / i ; i = i % ui ; if ( i == ui || i != ui && i == ui ^^ i != 2 ) ++ i ; f = f + uf * f - uf / f ; f += length ( v ) ; f += distance ( v , v ) ; f += dot ( v , v ) ; f += cross ( v . xyz , v . xyz ) . x ; if ( f == uf || f != uf && f == uf ^^ f != 2.000000 ) ++ f ; gl_FragColor = b ? vec4 ( i ) + vec4 ( f ) + v : vec4 ( i ) + vec4 ( f ) + v ; }
+vec4 v ; float f ; bool b ; bvec4 bv4 ; int i ; v = radians ( uv4 ) ; v += degrees ( v ) ; v += sin ( v ) ; v += cos ( v ) ; v += tan ( v ) ; v += asin ( v ) ; v += acos ( v ) ; v += atan ( v ) ; v += sinh ( v ) ; v += cosh ( v ) ; v += tanh ( v ) ; v += pow ( v , v ) ; v += exp ( v ) ; v += log ( v ) ; v += exp2 ( v ) ; v += log2 ( v ) ; v += sqrt ( v ) ; v += inversesqrt ( v ) ; v += abs ( v ) ; v += sign ( v ) ; v += floor ( v ) ; v += ceil ( v ) ; v += fract ( v ) ; v += mod ( v , v ) ; v += min ( v , uv4 ) ; v += max ( v , uv4 ) ; v += clamp ( v , uv4 , uv4 ) ; v += mix ( v , v , v ) ; v += mix ( v , v , ub ) ; v += step ( v , v ) ; v += smoothstep ( v , v , v ) ; v += normalize ( v ) ; v += faceforward ( v , v , v ) ; v += reflect ( v , v ) ; v += refract ( v , v , uf ) ; v += dFdx ( v ) ; v += dFdy ( v ) ; v += fwidth ( v ) ; i = 0 ; i += abs ( ui ) ; i += min ( i , ui ) ; i += max ( i , ui ) ; i += clamp ( i , ui , ui ) ; b = any ( lessThan ( v , v ) ) ; b = b && any ( lessThanEqual ( v , v ) ) ; b = b && any ( greaterThan ( v , v ) ) ; b = b && any ( greaterThanEqual ( v , v ) ) ; b = b && any ( equal ( ub41 , ub42 ) ) ; b = b && any ( notEqual ( ub41 , ub42 ) ) ; b = b && any ( ub41 ) ; b = b && all ( ub41 ) ; b = b && any ( not ( ub41 ) ) ; i = i + ui * i - ui / i ; i = i % ui ; if ( i == ui || i != ui && i == ui ^^ i != 2 ) ++ i ; f = uf + uf * uf - uf / uf ; f += length ( v ) ; f += distance ( v , v ) ; f += dot ( v , v ) ; f += cross ( v . xyz , v . xyz ) . x ; if ( f == uf || f != uf && f != 2.000000 ) ++ f ; gl_FragColor = b ? vec4 ( i ) + vec4 ( f ) + v : vec4 ( i ) + vec4 ( f ) + v ; }
 
 
 
@@ -1869,7 +1865,7 @@ error: unresolved reference to function `abs'
       )
       ())
 
-      (assign (constant bool (1)) (x) (var_ref f)  (expression float / (expression float - (expression float * (expression float + (var_ref f) (var_ref uf) ) (var_ref f) ) (var_ref uf) ) (var_ref f) ) ) 
+      (assign (constant bool (1)) (x) (var_ref f)  (expression float / (expression float - (expression float * (expression float + (var_ref uf) (var_ref uf) ) (var_ref uf) ) (var_ref uf) ) (var_ref uf) ) ) 
       (declare (temporary ) float length_retval)
       (assign (constant bool (1)) (x) (var_ref length_retval)  (call length ((var_ref v) ))
 ) 
@@ -1895,13 +1891,13 @@ error: unresolved reference to function `abs'
       (
         (declare (temporary ) bool and_tmp)
         (if (expression bool any_nequal (var_ref assignment_tmp) (var_ref uf) ) (
-          (assign (constant bool (1)) (x) (var_ref and_tmp)  (expression bool all_equal (var_ref assignment_tmp) (var_ref uf) ) ) 
+          (assign (constant bool (1)) (x) (var_ref and_tmp)  (expression bool any_nequal (var_ref assignment_tmp) (constant float (2.000000)) ) ) 
         )
         (
           (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
         ))
 
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (expression bool ^^ (var_ref and_tmp) (expression bool any_nequal (var_ref assignment_tmp) (constant float (2.000000)) ) ) ) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (var_ref and_tmp) ) 
       ))
 
       (if (var_ref or_tmp) (

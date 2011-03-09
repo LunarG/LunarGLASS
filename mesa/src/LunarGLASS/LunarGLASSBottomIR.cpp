@@ -33,20 +33,22 @@
 
 namespace gla {
 
-    int GetConstantValue(const llvm::Value* value)
+    int GetConstantInt(const llvm::Value* value)
     {
-        if (const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value)) {
-            if (const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(constant))
-                return constantInt->getValue().getSExtValue();
-            //if (const llvm::ConstantFP *constantFP = llvm::dyn_cast<llvm::ConstantFP>(constant))
-            //    return constantFP->getValueAPF().convertToFloat();
-            else
-                UnsupportedFunctionality("non-integer constants in Bottom IR");
-        }
+        const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
+        assert(constant);
+        const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(constant);
+        assert(constantInt);
+        return constantInt->getValue().getSExtValue();
+    }
 
-        assert(! "expected constant");
-
-        return 0;
+    float GetConstantFloat(const llvm::Value* value)
+    {
+        const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
+        assert(constant);
+        const llvm::ConstantFP *constantFP = llvm::dyn_cast<llvm::ConstantFP>(constant);
+        assert(constantFP);
+        return constantFP->getValueAPF().convertToFloat();
     }
 
     int IsGradientTexInst(const llvm::IntrinsicInst* llvmInstruction)

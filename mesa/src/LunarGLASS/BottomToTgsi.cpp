@@ -309,7 +309,7 @@ protected:
 
     GLuint mapGlaSamplerType(const llvm::Value* samplerType)
     {
-        switch(GetConstantValue(samplerType)) {
+        switch(GetConstantInt(samplerType)) {
         case ESampler1D:        return TEXTURE_1D_INDEX;
         case ESampler2D:        return TEXTURE_2D_INDEX;
         case ESampler3D:        return TEXTURE_3D_INDEX;
@@ -327,7 +327,7 @@ protected:
     prog_opcode getMesaOpFromGlaInst(const llvm::IntrinsicInst* llvmInstruction, int FlagLocAOS)
     {
         // Check flags for proj/lod/offset
-        int flags = GetConstantValue(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = GetConstantInt(llvmInstruction->getOperand(FlagLocAOS));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -598,7 +598,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mapGlaOperand(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[0]);
         mapGlaDestination(llvmInstruction->getOperand(1), &mesaInstruction->DstReg);
         mesaInstruction->DstReg.File = PROGRAM_OUTPUT;
-        mesaInstruction->DstReg.Index = GetConstantValue(llvmInstruction->getOperand(0));
+        mesaInstruction->DstReg.Index = GetConstantInt(llvmInstruction->getOperand(0));
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
         return;
@@ -607,7 +607,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mesaInstruction->Opcode = OPCODE_MOV;
         mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
         mesaInstruction->SrcReg[0].File = PROGRAM_INPUT;
-        mesaInstruction->SrcReg[0].Index = GetConstantValue(llvmInstruction->getOperand(0));
+        mesaInstruction->SrcReg[0].Index = GetConstantInt(llvmInstruction->getOperand(0));
         mesaInstruction->SrcReg[0].Swizzle = mapGlaComponentCountSwizzle(llvmInstruction);
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
@@ -649,7 +649,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
 
         // GLA uses 2 bits per channel, Mesa uses 3...
-        int glaSwizzle = GetConstantValue(llvmInstruction->getOperand(1));
+        int glaSwizzle = GetConstantInt(llvmInstruction->getOperand(1));
         mesaInstruction->SrcReg[0].Swizzle = mapGlaSwizzle(glaSwizzle);
 
         incrementMesaInstruction();

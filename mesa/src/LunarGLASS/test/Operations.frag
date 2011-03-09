@@ -122,14 +122,14 @@ void main()
 	if (i == ui || i != ui && i == ui ^^ i != 2)
 	    ++i;
 	
-	f = ((f + uf) * f - uf) / f;
+	f = ((uf + uf) * uf - uf) / uf;
 
 	f += length(v);
     f += distance(v, v);
     f += dot(v, v);
 	f += cross(v.xyz, v.xyz).x;
 
-	if (f == uf || f != uf && f == uf ^^ f != 2.0)
+	if (f == uf || f != uf && f != 2.0)
 	    ++f;
 
     gl_FragColor = b ? vec4(i) + vec4(f) + v : v;

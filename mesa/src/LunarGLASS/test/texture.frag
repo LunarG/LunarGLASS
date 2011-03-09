@@ -10,7 +10,7 @@ uniform vec2 scale;
 uniform vec4 u;
 
 varying vec2 t;
-varying vec3 coords;
+varying vec2 coords2D;
 
 void main()
 {  
@@ -18,7 +18,6 @@ void main()
 	float bias       = 2.0;
 	float lod		 = 3.0;
 	float coords1D   = 1.789;
-	vec2  coords2D   = vec2(1.789, 2.718);
 	vec3  coords3D   = vec3(1.789, 2.718, 3.453);
 	vec4  coords4D   = vec4(1.789, 2.718, 3.453, 2.0);
 	vec4  color      = vec4(0.0, 0.0, 0.0, 0.0);

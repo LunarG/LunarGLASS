@@ -162,7 +162,7 @@ float blendscale = 1.789000 ; vec4 w = u ; w . wy = t ; gl_FragColor = mix ( w ,
 uniform vec4 u;
 uniform float blend;
 in vec2 t;
-const float const25;
+const float const25 = 1.789;
 
 void main()
 {

@@ -319,7 +319,7 @@ protected:
 
     void mapGlaSamplerType(const llvm::Value* samplerType)
     {
-        int sampler = GetConstantValue(samplerType) ;
+        int sampler = GetConstantInt(samplerType) ;
         switch(sampler) {
         case ESampler1D:        shader << "texture1D";      break;
         case ESampler2D:        shader << "texture2D";      break;
@@ -339,7 +339,7 @@ protected:
     void mapGlaTextureStyle(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for proj/lod/offset
-        int flags = GetConstantValue(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = GetConstantInt(llvmInstruction->getOperand(FlagLocAOS));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -355,7 +355,7 @@ protected:
     bool needsBiasLod(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for bias/lod
-        int flags = GetConstantValue(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = GetConstantInt(llvmInstruction->getOperand(FlagLocAOS));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -393,11 +393,38 @@ protected:
         }
     }
 
-    void declareVariable(const llvm::Type* type, const std::string& varString, EVariableQualifier vq)
+    void declareVariable(const llvm::Type* type, const std::string& varString, EVariableQualifier vq, const llvm::Constant* constant = 0)
     {
         if (varString.substr(0,3) == std::string("gl_"))
             return;
 
+        // if it has an initializer
+        if (constant) {
+            globalDeclarations << mapGlaToQualifierString(vq);
+            globalDeclarations << " ";
+            mapGlaType(globalDeclarations, type);
+            globalDeclarations << " " << varString << " = ";
+            
+            switch(constant->getType()->getTypeID()) {
+            case llvm::Type::IntegerTyID:
+            case llvm::Type::FloatTyID:  
+                emitScalarConstant(globalDeclarations, constant);
+                break;
+
+            case llvm::Type::VectorTyID:
+                emitVectorConstant(globalDeclarations, constant);
+                break;
+            
+            default:
+                UnsupportedFunctionality("constant type in Bottom IR", EATContinue);
+                globalDeclarations << 0;
+            }
+
+            globalDeclarations << ";" << std::endl;
+            return;
+        }
+
+        // no initializer
         switch (vq) {
         case EVQUniform:
         case EVQConstant:
@@ -449,15 +476,69 @@ protected:
 
     void mapGlaValue(const llvm::Value* value)
     {
-        // if it isn't already there, add it
+        const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
         if (valueMap[value] == 0) {
             std::string* newVariable = new std::string;
             getNewVariable(value, newVariable);
-            declareVariable(value->getType(), *newVariable, mapGlaAddressSpace(value));
+            declareVariable(value->getType(), *newVariable, mapGlaAddressSpace(value), constant);
             valueMap[value] = newVariable;
         }
 
         shader << valueMap[value]->c_str();
+    }
+    
+    void emitScalarConstant(std::ostringstream& out, const llvm::Constant* constant)
+    {
+        assert(constant);
+        switch(constant->getType()->getTypeID()) {
+        case llvm::Type::IntegerTyID:
+            {
+                const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(constant);
+
+                if (constantInt->getBitWidth() == 1) {
+                    if (constantInt->isZero())
+                        out << "false";
+                    else
+                        out << "true";
+                } else
+                    out << GetConstantInt(constant);
+            }
+            break;
+            
+        case llvm::Type::FloatTyID:  
+            out << GetConstantFloat(constant);   
+            break;
+            
+        default:
+            UnsupportedFunctionality("constant type in Bottom IR", EATContinue);
+            out << 0;
+        }
+    }
+
+    void emitVectorConstant(std::ostringstream& out, const llvm::Constant* constant)
+    {
+        assert(constant);
+        const llvm::ConstantVector* vector = llvm::dyn_cast<llvm::ConstantVector>(constant);
+        if (vector) {
+            mapGlaType(out, vector->getType());
+            out << "(";
+            for (int op = 0; op < vector->getNumOperands(); ++op) {
+                if (op > 0)
+                    out << ", ";
+                emitScalarConstant(out, llvm::dyn_cast<const llvm::Constant>(vector->getOperand(op)));
+            }
+            out << ")";
+            return;
+        }
+            
+        const llvm::ConstantAggregateZero* aggregate = llvm::dyn_cast<llvm::ConstantAggregateZero>(constant);
+        if (aggregate) {
+            mapGlaType(out, constant->getType());
+            out << "(0)";
+            return;
+        }
+        
+        UnsupportedFunctionality("Vector Constant");
     }
 
     bool addNewVariable(const llvm::Value* value, std::string name)
@@ -747,7 +828,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         {
             // copy propagate, by name string, the extracted component
             std::string swizzled = *valueMap[llvmInstruction->getOperand(0)];
-            swizzled.append(".").append(mapComponentToSwizzleChar(GetConstantValue(llvmInstruction->getOperand(1))));
+            swizzled.append(".").append(mapComponentToSwizzleChar(GetConstantInt(llvmInstruction->getOperand(1))));
             addNewVariable(llvmInstruction, swizzled.c_str());
         }
         return;
@@ -767,7 +848,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         newLine();
         mapGlaDestination(llvmInstruction);
         shader << ".";
-        mapComponentToSwizzle(GetConstantValue(llvmInstruction->getOperand(2)));
+        mapComponentToSwizzle(GetConstantInt(llvmInstruction->getOperand(2)));
         shader << " = ";
         mapGlaOperand(llvmInstruction->getOperand(1));
         shader << ";";
@@ -786,7 +867,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_fWriteData:
-        switch (GetConstantValue(llvmInstruction->getOperand(0)))
+        switch (GetConstantInt(llvmInstruction->getOperand(0)))
         {
         case 0:
             newLine();
@@ -795,7 +876,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             shader << ";";
             return;
         default:
-            UnsupportedFunctionality("Unhandled data output variable in Bottom IR: ", GetConstantValue(llvmInstruction->getOperand(0)));
+            UnsupportedFunctionality("Unhandled data output variable in Bottom IR: ", GetConstantInt(llvmInstruction->getOperand(0)));
         }
         return;
 
@@ -870,7 +951,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // Case 2:  it's sequential .xy...  subsetting a vector.
         // use a constructor to subset the vectorto a vector
         if (GetComponentCount(llvmInstruction->getOperand(0)) > 1 && GetComponentCount(llvmInstruction) > 1 &&
-            IsConsecutiveSwizzle(GetConstantValue(llvmInstruction->getOperand(1)), GetComponentCount(llvmInstruction))) {
+            IsConsecutiveSwizzle(GetConstantInt(llvmInstruction->getOperand(1)), GetComponentCount(llvmInstruction))) {
 
             mapGlaType(shader, llvmInstruction->getType());
             shader << "(";
@@ -883,7 +964,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // use GLSL swizzles
         mapGlaOperand(llvmInstruction->getOperand(0));
         if (GetComponentCount(llvmInstruction->getOperand(0)) > 1)
-            mapGlaSwizzle(GetConstantValue(llvmInstruction->getOperand(1)), GetComponentCount(llvmInstruction));
+            mapGlaSwizzle(GetConstantInt(llvmInstruction->getOperand(1)), GetComponentCount(llvmInstruction));
         shader << ";";
         return;
     }
