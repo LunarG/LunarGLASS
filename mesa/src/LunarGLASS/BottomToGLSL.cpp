@@ -395,6 +395,9 @@ protected:
 
     void declareVariable(const llvm::Type* type, const std::string& varString, EVariableQualifier vq)
     {
+        if (varString.substr(0,3) == std::string("gl_"))
+            return;
+
         switch (vq) {
         case EVQUniform:
         case EVQConstant:
