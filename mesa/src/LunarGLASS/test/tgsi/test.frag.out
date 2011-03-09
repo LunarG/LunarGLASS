@@ -27,7 +27,7 @@ entry:
   %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float> %5, i32 27)
   store <4 x float> %swizzleTmp, <4 x float>* %v
   %6 = load i32 addrspace(1)* @texSampler3D
-  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 0)
+  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 0)
   %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %6, i32 0, <3 x float> %coords)
   store <4 x float> %texture3DTmp, <4 x float>* %texture3D_retval
   %7 = load <4 x float>* %texture3D_retval
@@ -77,7 +77,7 @@ entry:
   %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %3)
   %swizzleTmp = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32(<4 x float> %texture2DTmp, i32 27)
   %4 = load i32 addrspace(1)* @texSampler3D
-  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 0)
+  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 0)
   %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %4, i32 0, <3 x float> %coords)
   %5 = fadd <4 x float> %texture3DTmp, %swizzleTmp
   %6 = load <4 x float> addrspace(1)* @u
@@ -231,7 +231,7 @@ Mesa program before mesa optimizations
   7: TEX TEMP[7], TEMP[6].xyyy, texture[17], 2D;
   8: MOV TEMP[8], TEMP[7].wzyx;
   9: MOV TEMP[9].x, UNIFORM[3].xxxx;
- 10: MOV TEMP[10].xyz, INPUT[0].xyzz;
+ 10: MOV TEMP[10].xyz, INPUT[1].xyzz;
  11: TEX TEMP[11], TEMP[10].xyzz, texture[17], 3D;
  12: ADD TEMP[12], TEMP[11], TEMP[8];
  13: MOV TEMP[13], UNIFORM[4];
@@ -247,7 +247,7 @@ Mesa program after mesa optimizations
   2: RCP TEMP[2].y, UNIFORM[2].yyyy;
   3: MUL TEMP[3].xy, TEMP[0].xyyy, TEMP[2].xyyy;
   4: TEX TEMP[0], TEMP[3].xyyy, texture[17], 2D;
-  5: TEX TEMP[2], INPUT[0].xyzz, texture[17], 3D;
+  5: TEX TEMP[2], INPUT[1].xyzz, texture[17], 3D;
   6: ADD TEMP[3], TEMP[2], TEMP[0].wzyx;
   7: MUL TEMP[0].x, UNIFORM[5].xxxx, CONST[1].xxxx;
   8: LRP OUTPUT[0], TEMP[0].xxxx, TEMP[3], UNIFORM[4];

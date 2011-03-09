@@ -47,7 +47,7 @@ void GlslToTop(struct gl_shader* glShader, llvm::Module* module)
 }
 
 GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, llvm::Module* m)
-    : context(llvm::getGlobalContext()), builder(context), module(m), glShader(s)
+    : context(llvm::getGlobalContext()), builder(context), module(m), glShader(s), interpIndex(0)
 {
 }
 
@@ -155,6 +155,19 @@ ir_visitor_status
     return visit_continue;
 }
 
+int GlslToTopVisitor::getNextInterpIndex(ir_variable* var)
+{
+    // Get the index for this interpolant, or create a new unique one
+    std::map<ir_variable*, int>::iterator iter;
+    iter = interpMap.find(var);
+
+    if (interpMap.end() == iter) {
+        interpMap[var] = interpIndex++;
+    }
+
+    return interpMap[var];
+}
+
 ir_visitor_status
     GlslToTopVisitor::visit(ir_dereference_variable *derefVariable)
 {
@@ -201,9 +214,10 @@ ir_visitor_status
             llvm::Function *intrinsicName = 0;
             const char *name = NULL;
 
-            // TODO:  We're hard coding our output location to 0 for bringup
+            // Give each interpolant a temporary unique index
             int paramCount = 0;
-            llvm::Constant *llvmConstant = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
+            llvm::Constant *interpLoc    = llvm::ConstantInt::get(context, llvm::APInt(32, getNextInterpIndex(var), true));
+            llvm::Constant *interpOffset = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
 
             // Select intrinsic based on target stage
             if(glShader->Type == GL_FRAGMENT_SHADER) {
@@ -221,8 +235,8 @@ ir_visitor_status
 
             // Call the selected intrinsic
             switch(paramCount) {
-            case 2:  lastValue = builder.CreateCall2 (intrinsicName, llvmConstant, llvmConstant, name); break;
-            case 1:  lastValue = builder.CreateCall  (intrinsicName, llvmConstant, name);               break;
+            case 2:  lastValue = builder.CreateCall2 (intrinsicName, interpLoc, interpOffset, name); break;
+            case 1:  lastValue = builder.CreateCall  (intrinsicName, interpLoc, name);               break;
             }
         } else {
             lastValue = builder.CreateLoad(lastValue);

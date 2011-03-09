@@ -11,7 +11,7 @@ entry:
   %color = alloca <4 x float>
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
   store <4 x float> %BaseColor, <4 x float>* %color
-  %c = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 0)
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 0)
   %0 = load float addrspace(1)* @d
   %1 = fcmp ogt float %c, %0
   br i1 %1, label %then, label %else
@@ -55,7 +55,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 define void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
-  %c = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 0)
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 0)
   %0 = load float addrspace(1)* @d
   %1 = fcmp ogt float %c, %0
   br i1 %1, label %then, label %else
@@ -196,7 +196,7 @@ vec4 color = BaseColor ; vec4 color2 ; color2 = otherColor ; if ( c > d ) color 
 )
 Mesa program before mesa optimizations
   0: MOV TEMP[1], INPUT[0];
-  1: MOV TEMP[2].x, INPUT[0].xxxx;
+  1: MOV TEMP[2].x, INPUT[1].xxxx;
   2: MOV TEMP[3].x, UNIFORM[1].xxxx;
   3: SGT TEMP[4].x, TEMP[2].xxxx, TEMP[3].xxxx;
   4: IF TEMP[4].xxxx;  # (if false, goto 0);
@@ -215,7 +215,7 @@ Mesa program before mesa optimizations
 
 Mesa program after mesa optimizations
   0: MOV TEMP[0], INPUT[0];
-  1: SGT TEMP[2].x, INPUT[0].xxxx, UNIFORM[1].xxxx;
+  1: SGT TEMP[2].x, INPUT[1].xxxx, UNIFORM[1].xxxx;
   2: IF TEMP[2].xxxx;  # (if false, goto 0);
   3:    ADD TEMP[2], TEMP[0], UNIFORM[2];
   4:    MOV TEMP[3], TEMP[2];
