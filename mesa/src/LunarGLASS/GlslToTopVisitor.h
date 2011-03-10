@@ -114,7 +114,10 @@ public:
     llvm::Type::TypeID getLLVMBaseType(llvm::Type*);
 
     int getNextInterpIndex(ir_variable*);
-protected:
+
+protected:    
+    llvm::BasicBlock* GlslToTopVisitor::getShaderEntry();
+
     llvm::LLVMContext &context;
     llvm::IRBuilder<> builder;
     llvm::Module* module;
@@ -129,4 +132,6 @@ protected:
     llvm::Value *lValue;
 
     int interpIndex;
+
+    llvm::BasicBlock* shaderEntry;
 };
