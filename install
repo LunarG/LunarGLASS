@@ -31,10 +31,9 @@ function fetch {
     echo "Fetching ..."
     echo "Fetching Mesa"
     rm -rf mesa || exit 1
-    git clone git://git.freedesktop.org/git/mesa/mesa || exit 1
-    pushd mesa
-    git checkout -f mesa-7.9 || exit 1
-    popd
+    wget ftp://freedesktop.org/pub/mesa/7.10.1/MesaLib-7.10.1.tar.bz2 || exit 1
+    tar -xjf MesaLib-7.10.1.tar.bz2 || exit 1
+    mv Mesa-7.10.1 mesa || exit 1
     echo "Mesa fetched"
     echo
     echo "Fetching LLVM"
