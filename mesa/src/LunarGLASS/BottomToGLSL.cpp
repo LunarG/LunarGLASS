@@ -522,11 +522,27 @@ protected:
         if (vector) {
             mapGlaType(out, vector->getType());
             out << "(";
-            for (int op = 0; op < vector->getNumOperands(); ++op) {
-                if (op > 0)
-                    out << ", ";
-                emitScalarConstant(out, llvm::dyn_cast<const llvm::Constant>(vector->getOperand(op)));
+
+            // are they all the same?
+            bool same = true;
+            for (int op = 1; op < vector->getNumOperands(); ++op) {
+                if (llvm::dyn_cast<const llvm::Constant>(vector->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(vector->getOperand(op))) {
+                    same = false;
+                    break;
+                }
             }
+
+            // write out the constants
+            if (same)
+                emitScalarConstant(out, llvm::dyn_cast<const llvm::Constant>(vector->getOperand(0)));
+            else {
+                for (int op = 0; op < vector->getNumOperands(); ++op) {
+                    if (op > 0)
+                        out << ", ";
+                    emitScalarConstant(out, llvm::dyn_cast<const llvm::Constant>(vector->getOperand(op)));
+                }
+            }
+
             out << ")";
             return;
         }
