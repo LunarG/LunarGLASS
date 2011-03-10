@@ -116,7 +116,7 @@ public:
     int getNextInterpIndex(ir_variable*);
 
 protected:    
-    llvm::BasicBlock* GlslToTopVisitor::getShaderEntry();
+    llvm::BasicBlock* getShaderEntry();
 
     llvm::LLVMContext &context;
     llvm::IRBuilder<> builder;
