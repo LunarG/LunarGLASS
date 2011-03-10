@@ -107,7 +107,6 @@ llvm::Value* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
         case GLSL_TYPE_SAMPLER:
         case GLSL_TYPE_ARRAY:
         case GLSL_TYPE_STRUCT:
-        case GLSL_TYPE_FUNCTION:
         case GLSL_TYPE_VOID:
         case GLSL_TYPE_ERROR:
         default:
@@ -135,7 +134,6 @@ llvm::Value* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
         case GLSL_TYPE_SAMPLER:
         case GLSL_TYPE_ARRAY:
         case GLSL_TYPE_STRUCT:
-        case GLSL_TYPE_FUNCTION:
         case GLSL_TYPE_VOID:
         case GLSL_TYPE_ERROR:
         default:
@@ -1158,7 +1156,6 @@ llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm
     case ir_binop_max:
     case ir_binop_pow:
     case ir_binop_dot:
-    case ir_binop_cross:
     case ir_binop_bit_and:
     case ir_binop_bit_xor:
     case ir_binop_bit_or:
@@ -1234,7 +1231,6 @@ llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
         break;
     case GLSL_TYPE_ARRAY:     gla::UnsupportedFunctionality("arrays");
     case GLSL_TYPE_STRUCT:    gla::UnsupportedFunctionality("structures");
-    case GLSL_TYPE_FUNCTION:  gla::UnsupportedFunctionality("function calls");
     case GLSL_TYPE_VOID:      gla::UnsupportedFunctionality("void type");
     case GLSL_TYPE_ERROR:     assert(! "type error");
     default:

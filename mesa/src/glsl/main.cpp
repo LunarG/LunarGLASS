@@ -20,9 +20,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-
-#include <cstdlib>
-#include <cstdio>
+#include <stdlib.h>
+#include <stdio.h>
 
 //johnk: no getopt, just read directly
 //#include <getopt.h>
@@ -60,21 +59,31 @@ typedef int ssize_t;
 #include "Options.h"
 
 // End: LunarG
-
 extern "C" struct gl_shader *
-_mesa_new_shader(GLcontext *ctx, GLuint name, GLenum type);
+_mesa_new_shader(struct gl_context *ctx, GLuint name, GLenum type);
+
+extern "C" void
+_mesa_reference_shader(struct gl_context *ctx, struct gl_shader **ptr,
+                       struct gl_shader *sh);
 
 /* Copied from shader_api.c for the stand-alone compiler.
  */
+void
+_mesa_reference_shader(struct gl_context *ctx, struct gl_shader **ptr,
+                       struct gl_shader *sh)
+{
+   *ptr = sh;
+}
+
 struct gl_shader *
-_mesa_new_shader(GLcontext *ctx, GLuint name, GLenum type)
+_mesa_new_shader(struct gl_context *ctx, GLuint name, GLenum type)
 {
    struct gl_shader *shader;
 
    (void) ctx;
 
    assert(type == GL_FRAGMENT_SHADER || type == GL_VERTEX_SHADER);
-   shader = talloc_zero(NULL, struct gl_shader);
+   shader = rzalloc(NULL, struct gl_shader);
    if (shader) {
       shader->Type = type;
       shader->Name = name;
@@ -84,16 +93,22 @@ _mesa_new_shader(GLcontext *ctx, GLuint name, GLenum type)
 }
 
 static void
-initialize_context(GLcontext *ctx, gl_api api)
+initialize_context(struct gl_context *ctx, gl_api api)
 {
    memset(ctx, 0, sizeof(*ctx));
 
    ctx->API = api;
 
+   ctx->Extensions.ARB_ES2_compatibility = GL_TRUE;
    ctx->Extensions.ARB_draw_buffers = GL_TRUE;
    ctx->Extensions.ARB_fragment_coord_conventions = GL_TRUE;
    ctx->Extensions.EXT_texture_array = GL_TRUE;
    ctx->Extensions.NV_texture_rectangle = GL_TRUE;
+
+   /* GLSL 1.30 isn't fully supported, but we need to advertise 1.30 so that
+    * the built-in functions for 1.30 can be built.
+    */
+   ctx->Const.GLSLVersion = 130;
 
    /* 1.10 minimums. */
    ctx->Const.MaxLights = 8;
@@ -118,7 +133,7 @@ initialize_context(GLcontext *ctx, gl_api api)
    ctx->Driver.NewShader = _mesa_new_shader;
 }
 
-/* Returned string will have 'ctx' as its talloc owner. */
+/* Returned string will have 'ctx' as its ralloc owner. */
 static char *
 load_text_file(void *ctx, const char *file_name)
 {
@@ -132,7 +147,7 @@ load_text_file(void *ctx, const char *file_name)
 	}
 
 	if (fstat(fd, & st) == 0) {
-	   text = (char *) talloc_size(ctx, st.st_size + 1);
+	   text = (char *) ralloc_size(ctx, st.st_size + 1);
 		if (text != NULL) {
 			do {
 				ssize_t bytes = read(fd, text + total_read,
@@ -159,15 +174,6 @@ load_text_file(void *ctx, const char *file_name)
 	return text;
 }
 
-
-void
-usage_fail(const char *name)
-{
-      printf("%s <filename.frag|filename.vert>\n", name);
-      exit(EXIT_FAILURE);
-}
-
-
 int glsl_es = 0;
 int dump_ast = 0;
 int dump_hir = 0;
@@ -186,7 +192,15 @@ const struct { const char* arg; int foo; int* flag; int bar;} compiler_opts[] = 
 };
 
 void
-compile_shader(GLcontext *ctx, struct gl_shader *shader)
+usage_fail(const char *name)
+{
+      printf("%s <filename.frag|filename.vert>\n", name);
+      exit(EXIT_FAILURE);
+}
+
+
+void
+compile_shader(struct gl_context *ctx, struct gl_shader *shader)
 {
    struct _mesa_glsl_parse_state *state =
       new(shader) _mesa_glsl_parse_state(ctx, shader->Type, shader);
@@ -228,8 +242,10 @@ compile_shader(GLcontext *ctx, struct gl_shader *shader)
 
      // These mimic the optimizations done in the real stack.  For reference, see
      // do_common_optimization() in glsl_parser_extras.cpp.
+     //progress = lower_instructions(shader->ir, SUB_TO_ADD_NEG) || progress;
 	 //progress = do_function_inlining(shader->ir) || progress;
 	 progress = do_if_simplification(shader->ir) || progress;
+     progress = do_discard_simplification(shader->ir) || progress;
 	 progress = do_copy_propagation(shader->ir) || progress;
 	 progress = do_dead_code_local(shader->ir) || progress;
      progress = do_tree_grafting(shader->ir) || progress;
@@ -254,6 +270,7 @@ compile_shader(GLcontext *ctx, struct gl_shader *shader)
       validate_ir_tree(shader->ir);
    }
 
+
    /* Print out the resulting IR */
    if (!state->error && dump_lir) {
       _mesa_print_ir(shader->ir, state);
@@ -267,14 +284,14 @@ compile_shader(GLcontext *ctx, struct gl_shader *shader)
    shader->num_builtins_to_link = state->num_builtins_to_link;
 
    if (shader->InfoLog)
-      talloc_free(shader->InfoLog);
+      ralloc_free(shader->InfoLog);
 
    shader->InfoLog = state->info_log;
 
    /* Retain any live IR, but trash the rest. */
    reparent_ir(shader->ir, shader);
 
-   talloc_free(state);
+   ralloc_free(state);
 
    return;
 }
@@ -289,8 +306,8 @@ int
 main(int argc, char **argv)
 {
    int status = EXIT_SUCCESS;
-   GLcontext local_ctx;
-   GLcontext *ctx = &local_ctx;
+   struct gl_context local_ctx;
+   struct gl_context *ctx = &local_ctx;
 
    int idx = 0;
 
@@ -321,7 +338,7 @@ main(int argc, char **argv)
 
    struct gl_shader_program *whole_program;
 
-   whole_program = talloc_zero (NULL, struct gl_shader_program);
+   whole_program = rzalloc (NULL, struct gl_shader_program);
    assert(whole_program != NULL);
 
    for (/* empty */; argc > optind; optind++) {
@@ -329,11 +346,11 @@ main(int argc, char **argv)
          printf("compiling %s...\n", argv[optind]);
 
       whole_program->Shaders = (struct gl_shader **)
-	 talloc_realloc(whole_program, whole_program->Shaders,
+	 reralloc(whole_program, whole_program->Shaders,
 			struct gl_shader *, whole_program->NumShaders + 1);
       assert(whole_program->Shaders != NULL);
 
-      struct gl_shader *shader = talloc_zero(whole_program, gl_shader);
+      struct gl_shader *shader = rzalloc(whole_program, gl_shader);
 
       whole_program->Shaders[whole_program->NumShaders] = shader;
       whole_program->NumShaders++;
@@ -399,10 +416,10 @@ main(int argc, char **argv)
        _mesa_ir_link_shader(ctx, whole_program);
    }
 
-   for (unsigned i = 0; i < whole_program->_NumLinkedShaders; i++)
-      talloc_free(whole_program->_LinkedShaders[i]);
+   for (unsigned i = 0; i < MESA_SHADER_TYPES; i++)
+      ralloc_free(whole_program->_LinkedShaders[i]);
 
-   talloc_free(whole_program);
+   ralloc_free(whole_program);
    _mesa_glsl_release_types();
    _mesa_glsl_release_functions();
 

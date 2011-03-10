@@ -26,20 +26,14 @@
 #ifndef IR_H
 #define IR_H
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 
-extern "C" {
-#include <talloc.h>
-}
-
+#include "ralloc.h"
+#include "glsl_types.h"
 #include "list.h"
 #include "ir_visitor.h"
 #include "ir_hierarchical_visitor.h"
-
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-#endif
 
 /**
  * \defgroup IR Intermediate representation nodes
@@ -125,6 +119,7 @@ public:
    virtual class ir_if *                as_if()               { return NULL; }
    virtual class ir_swizzle *           as_swizzle()          { return NULL; }
    virtual class ir_constant *          as_constant()         { return NULL; }
+   virtual class ir_discard *           as_discard()          { return NULL; }
    /*@}*/
 
 protected:
@@ -146,6 +141,8 @@ public:
    {
       return this;
    }
+
+   ir_rvalue *as_rvalue_to_saturate();
 
    virtual bool is_lvalue()
    {
@@ -174,6 +171,42 @@ public:
    {
       return NULL;
    }
+
+   /**
+    * Determine if an r-value has the value zero
+    *
+    * The base implementation of this function always returns \c false.  The
+    * \c ir_constant class over-rides this function to return \c true \b only
+    * for vector and scalar types that have all elements set to the value
+    * zero (or \c false for booleans).
+    *
+    * \sa ir_constant::has_value, ir_rvalue::is_one, ir_rvalue::is_negative_one
+    */
+   virtual bool is_zero() const;
+
+   /**
+    * Determine if an r-value has the value one
+    *
+    * The base implementation of this function always returns \c false.  The
+    * \c ir_constant class over-rides this function to return \c true \b only
+    * for vector and scalar types that have all elements set to the value
+    * one (or \c true for booleans).
+    *
+    * \sa ir_constant::has_value, ir_rvalue::is_zero, ir_rvalue::is_negative_one
+    */
+   virtual bool is_one() const;
+
+   /**
+    * Determine if an r-value has the value negative one
+    *
+    * The base implementation of this function always returns \c false.  The
+    * \c ir_constant class over-rides this function to return \c true \b only
+    * for vector and scalar types that have all elements set to the value
+    * negative one.  For boolean times, the result is always \c false.
+    *
+    * \sa ir_constant::has_value, ir_rvalue::is_zero, ir_rvalue::is_one
+    */
+   virtual bool is_negative_one() const;
 
 protected:
    ir_rvalue();
@@ -259,6 +292,15 @@ public:
    unsigned invariant:1;
 
    /**
+    * Has this variable been used for reading or writing?
+    *
+    * Several GLSL semantic checks require knowledge of whether or not a
+    * variable has been used.  For example, it is an error to redeclare a
+    * variable as invariant after it has been used.
+    */
+   unsigned used:1;
+
+   /**
     * Storage class of the variable.
     *
     * \sa ir_variable_mode
@@ -287,6 +329,15 @@ public:
    unsigned origin_upper_left:1;
    unsigned pixel_center_integer:1;
    /*@}*/
+
+   /**
+    * Was the location explicitly set in the shader?
+    *
+    * If the location is explicitly set in the shader, it \b cannot be changed
+    * by the linker or by the API (e.g., calls to \c glBindAttribLocation have
+    * no effect).
+    */
+   unsigned explicit_location:1;
 
    /**
     * Storage location of the base of this variable
@@ -331,6 +382,8 @@ public:
 
    virtual ir_function_signature *clone(void *mem_ctx,
 					struct hash_table *ht) const;
+   ir_function_signature *clone_prototype(void *mem_ctx,
+					  struct hash_table *ht) const;
 
    virtual void accept(ir_visitor *v)
    {
@@ -693,6 +746,7 @@ enum ir_expression_operation {
    ir_unop_ceil,
    ir_unop_floor,
    ir_unop_fract,
+   ir_unop_round_even,
    /*@}*/
 
    /**
@@ -701,6 +755,8 @@ enum ir_expression_operation {
    /*@{*/
    ir_unop_sin,
    ir_unop_cos,
+   ir_unop_sin_reduced,    /**< Reduced range sin. [-pi, pi] */
+   ir_unop_cos_reduced,    /**< Reduced range cos. [-pi, pi] */
    /*@}*/
 
    /**
@@ -712,6 +768,11 @@ enum ir_expression_operation {
    /*@}*/
 
    ir_unop_noise,
+
+   /**
+    * A sentinel marking the last of the unary operations.
+    */
+   ir_last_unop = ir_unop_noise,
 
    ir_binop_add,
    ir_binop_sub,
@@ -767,17 +828,44 @@ enum ir_expression_operation {
    ir_binop_logic_or,
 
    ir_binop_dot,
-   ir_binop_cross,
    ir_binop_min,
    ir_binop_max,
 
-   ir_binop_pow
+   ir_binop_pow,
+
+   /**
+    * A sentinel marking the last of the binary operations.
+    */
+   ir_last_binop = ir_binop_pow,
+
+   ir_quadop_vector,
+
+   /**
+    * A sentinel marking the last of all operations.
+    */
+   ir_last_opcode = ir_last_binop
 };
 
 class ir_expression : public ir_rvalue {
 public:
+   /**
+    * Constructor for unary operation expressions
+    */
+   ir_expression(int op, const struct glsl_type *type, ir_rvalue *);
+   ir_expression(int op, ir_rvalue *);
+
+   /**
+    * Constructor for binary operation expressions
+    */
    ir_expression(int op, const struct glsl_type *type,
 		 ir_rvalue *, ir_rvalue *);
+   ir_expression(int op, ir_rvalue *op0, ir_rvalue *op1);
+
+   /**
+    * Constructor for quad operator expressions
+    */
+   ir_expression(int op, const struct glsl_type *type,
+		 ir_rvalue *, ir_rvalue *, ir_rvalue *, ir_rvalue *);
 
    virtual ir_expression *as_expression()
    {
@@ -804,7 +892,8 @@ public:
     */
    unsigned int get_num_operands() const
    {
-      return get_num_operands(operation);
+      return (this->operation == ir_quadop_vector)
+	 ? this->type->vector_elements : get_num_operands(operation);
    }
 
    /**
@@ -831,7 +920,7 @@ public:
    virtual ir_visitor_status accept(ir_hierarchical_visitor *);
 
    ir_expression_operation operation;
-   ir_rvalue *operands[2];
+   ir_rvalue *operands[4];
 };
 
 
@@ -868,7 +957,7 @@ public:
    /**
     * Get a generic ir_call object when an error occurs
     *
-    * Any allocation will be performed with 'ctx' as talloc owner.
+    * Any allocation will be performed with 'ctx' as ralloc owner.
     */
    static ir_call *get_error_instruction(void *ctx);
 
@@ -1045,6 +1134,11 @@ public:
    }
 
    virtual ir_visitor_status accept(ir_hierarchical_visitor *);
+
+   virtual ir_discard *as_discard()
+   {
+      return this;
+   }
 
    ir_rvalue *condition;
 };
@@ -1437,8 +1531,15 @@ public:
 
    /**
     * Determine whether a constant has the same value as another constant
+    *
+    * \sa ir_constant::is_zero, ir_constant::is_one,
+    * ir_constant::is_negative_one
     */
    bool has_value(const ir_constant *) const;
+
+   virtual bool is_zero() const;
+   virtual bool is_one() const;
+   virtual bool is_negative_one() const;
 
    /**
     * Value of the constant.

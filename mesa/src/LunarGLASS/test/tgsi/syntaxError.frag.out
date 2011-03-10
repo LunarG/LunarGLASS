@@ -2,20 +2,8 @@ compiling syntaxError.frag...
 uniform vec4 bigColor ; 
 varying vec4 BaseColor ; 
 uniform float d ; 
-void  main (){
-vec5 color = BaseColor ; do {
-color += bigColor ; }
-while ( color . x < d ); gl_FragColor = color ; }
-
 
 
 Info log for syntaxError.frag:
-0:7(24): error: invalid type `vec5' in declaration of `color'
-0:10(8): error: `color' undeclared
-0:10(19): error: Operands to arithmetic operators must be numeric
-0:11(16): error: `color' undeclared
-0:11(19): error: type mismatch
-0:11(22): error: Operands to relational operators must be scalar and numeric
-0:11(22): error: loop condition must be scalar boolean
-0:13(22): error: `color' undeclared
+0:7(7): error: syntax error, unexpected NEW_IDENTIFIER, expecting ',' or ';'
 

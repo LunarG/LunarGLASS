@@ -81,7 +81,7 @@ void gla::ReleaseTgsiBackEnd(gla::BackEnd* backEnd)
     delete backEnd;
 }
 
-gl_program* LunarGLASSNewMesaProgram(GLcontext *ctx, GLenum target, GLuint id)
+gl_program* LunarGLASSNewMesaProgram(struct gl_context *ctx, GLenum target, GLuint id)
 {
     // gl_fragment_program emulates inheritance by having "base" be
     // its first member

@@ -123,6 +123,9 @@
     <ClInclude Include="..\LunarGLASS\OptionParse.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
+    <ClInclude Include="ralloc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ast_expr.cpp">
@@ -170,9 +173,6 @@
     <ClCompile Include="ir.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_algebraic.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ir_basic_block.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -180,33 +180,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ir_constant_expression.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_constant_folding.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_constant_propagation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_constant_variable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_copy_propagation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_dead_code.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_dead_code_local.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_dead_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_div_to_mul_rcp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_explog_to_explog2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ir_expression_flattening.cpp">
@@ -218,34 +191,13 @@
     <ClCompile Include="ir_function_can_inline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_function_inlining.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ir_hierarchical_visitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ir_hv_accept.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_if_simplification.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_if_to_cond_assign.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ir_import_prototypes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_lower_jumps.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_mat_op_to_vec.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_mod_to_fract.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_noop_swizzle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ir_print_visitor.cpp">
@@ -260,18 +212,6 @@
     <ClCompile Include="ir_set_program_inouts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_structure_splitting.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_sub_to_add_neg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_swizzle_swizzle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_tree_grafting.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ir_validate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -279,12 +219,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ir_variable_refcount.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_vec_index_to_cond_assign.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ir_vec_index_to_swizzle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="link_functions.cpp">
@@ -323,9 +257,6 @@
     <ClCompile Include="..\mesa\program\symbol_table.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\talloc\talloc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\LunarGLASS\GlslToTop.cpp">
       <Filter>LunarGLASS</Filter>
     </ClCompile>
@@ -361,6 +292,87 @@
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\Exceptions.cpp">
       <Filter>LunarGLASS</Filter>
+    </ClCompile>
+    <ClCompile Include="ralloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_algebraic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_constant_folding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_constant_propagation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_constant_variable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_copy_propagation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_dead_code.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_dead_code_local.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_dead_functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_discard_simplification.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_function_inlining.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_if_simplification.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_noop_swizzle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_structure_splitting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_swizzle_swizzle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opt_tree_grafting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lower_discard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lower_if_to_cond_assign.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lower_instructions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lower_jumps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lower_mat_op_to_vec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lower_texture_projection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lower_vec_index_to_cond_assign.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lower_vec_index_to_swizzle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lower_vector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mesa\program\sampler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="strtod.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

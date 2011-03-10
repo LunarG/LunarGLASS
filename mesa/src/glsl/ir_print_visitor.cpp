@@ -182,11 +182,9 @@ void ir_print_visitor::visit(ir_expression *ir)
 
    printf(" %s ", ir->operator_string());
 
-   if (ir->operands[0])
-      ir->operands[0]->accept(this);
+   for (unsigned i = 0; i < ir->get_num_operands(); i++)
+      ir->operands[i]->accept(this);
 
-   if (ir->operands[1])
-      ir->operands[1]->accept(this);
    printf(") ");
 }
 
@@ -326,6 +324,15 @@ void ir_print_visitor::visit(ir_constant *ir)
    if (ir->type->is_array()) {
       for (unsigned i = 0; i < ir->type->length; i++)
 	 ir->get_array_element(i)->accept(this);
+   } else if (ir->type->is_record()) {
+      ir_constant *value = (ir_constant *) ir->components.get_head();
+      for (unsigned i = 0; i < ir->type->length; i++) {
+	 printf("(%s ", ir->type->fields.structure->name);
+	 value->accept(this);
+	 printf(")");
+
+	 value = (ir_constant *) value->next;
+      }
    } else {
       for (unsigned i = 0; i < ir->type->components(); i++) {
 	 if (i != 0)

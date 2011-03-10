@@ -103,8 +103,8 @@ declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 # Fragment Program/Shader 0
   0: MUL TEMP[0].x, UNIFORM[2].xxxx, CONST[5].xxxx;
-  1: TEX TEMP[1], INPUT[-1].xyzz, texture[0], 3D;
-  2: ADD TEMP[2].xy, INPUT[-1].xyyy, UNIFORM[1].xyyy;
+  1: TEX TEMP[1], TEMP[2].xyzz, texture[0], 3D;
+  2: ADD TEMP[2].xy, TEMP[3].xyyy, UNIFORM[1].xyyy;
   3: RCP TEMP[3].x, UNIFORM[1].xxxx;
   4: RCP TEMP[3].y, UNIFORM[1].yyyy;
   5: MUL TEMP[4].xy, TEMP[2].xyyy, TEMP[3].xyyy;
@@ -112,7 +112,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
   7: ADD TEMP[3], TEMP[1], TEMP[2].wzyx;
   8: ADD TEMP[1].x, CONST[5].yyyy, TEMP[0].-x-x-x-x;
   9: MUL TEMP[2], TEMP[3], TEMP[1].xxxx;
- 10: MAD OUTPUT[1], UNIFORM[0], TEMP[0].xxxx, TEMP[2];
+ 10: MAD OUTPUT[2], UNIFORM[0], TEMP[0].xxxx, TEMP[2];
  11: END
 compiling test.frag...
 uniform sampler2D texSampler2D ; 

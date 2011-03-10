@@ -437,6 +437,8 @@ float blendscale = 1.789000 ; float bias = 2.000000 ; float lod = 3.000000 ; flo
 (declare (in ) (array vec4 0) gl_TexCoord)
 (declare () int gl_MaxDrawBuffers)
 (declare (out ) (array vec4 2) gl_FragData)
+(declare (in ) vec2 gl_PointCoord)
+(declare (in ) (array float 8) gl_ClipDistance)
 (function main
   (signature void
     (parameters
