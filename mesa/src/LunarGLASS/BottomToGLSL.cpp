@@ -626,8 +626,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     case llvm::Instruction::SDiv:
     case llvm::Instruction::FDiv:           charOp = "/";  break;
     case llvm::Instruction::URem:
-    case llvm::Instruction::SRem:
-    case llvm::Instruction::FRem:           charOp = "%";  break;
+    case llvm::Instruction::SRem:           charOp = "%";  break;
     case llvm::Instruction::Shl:            charOp = "<<"; break;
     case llvm::Instruction::LShr:           charOp = ">>"; break;
     case llvm::Instruction::AShr:           charOp = ">>"; break;
@@ -766,6 +765,16 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         } else {
             UnsupportedFunctionality("Function Call in Bottom IR");
         }
+        return;
+        
+    case llvm::Instruction::FRem:        
+        newLine();
+        mapGlaDestination(llvmInstruction);
+        shader << " = mod(";
+        mapGlaOperand(llvmInstruction->getOperand(0));
+        shader << ", ";
+        mapGlaOperand(llvmInstruction->getOperand(1));
+        shader << ");";
         return;
 
     case llvm::Instruction::ICmp:

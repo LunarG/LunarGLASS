@@ -1992,7 +1992,7 @@ void main()
     vec4 temp77 = temp75 + temp76;
     vec4 temp78 = fract(temp77);
     vec4 temp79 = temp77 + temp78;
-    vec4 temp80 = temp79 % temp79;
+    vec4 temp80 = mod(temp79, temp79);
     vec4 temp81 = temp79 + temp80;
     vec4 temp82 = min(temp81, uv4);
     vec4 temp83 = temp81 + temp82;

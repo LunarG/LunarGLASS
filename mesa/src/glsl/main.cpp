@@ -296,12 +296,6 @@ compile_shader(struct gl_context *ctx, struct gl_shader *shader)
    return;
 }
 
-// Begin: LunarG
-
-
-
-// End: LunarG
-
 int
 main(int argc, char **argv)
 {
@@ -310,13 +304,6 @@ main(int argc, char **argv)
    struct gl_context *ctx = &local_ctx;
 
    int idx = 0;
-
-   //johnk: no getopt, just read directly
-   //int c;
-   //while ((c = getopt_long(argc, argv, "", compiler_opts, &idx)) != -1)
-   //   /* empty */ ;
-   //if (argc <= optind)
-   //   usage_fail(argv[0]);
 
    if (argc < 2)
       gla::PrintHelp();
