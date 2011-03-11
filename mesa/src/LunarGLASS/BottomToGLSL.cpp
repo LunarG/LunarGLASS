@@ -304,6 +304,13 @@ protected:
         shader << mapComponentToSwizzleChar(component);
     }
 
+    void mapMaskToSwizzle(int mask)
+    {
+        for (int component = 0; component < 4; ++component)
+            if (mask & (1 << component))
+                shader << mapComponentToSwizzleChar(component);
+    }
+
     char* mapComponentToSwizzleChar(int component)
     {
         switch (component) {
