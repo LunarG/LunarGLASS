@@ -455,9 +455,10 @@ protected:
             assert(! "unknown VariableQualifier");
         }
     }
-
-    void mapGlaType(std::ostringstream& out, const llvm::Type* type)
+    
+    void mapGlaType(std::ostringstream& out, const llvm::Type* type, int count = -1)
     {
+        // if it's a vector, output a vector type
         const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
         if (vectorType) {
             if (type->getContainedType(0) == type->getFloatTy(type->getContext()))
@@ -468,8 +469,14 @@ protected:
                 out << "ivec";
             else
                 UnsupportedFunctionality("Basic Type in Bottom IR");
-            out << GetComponentCount(type);
+
+            // output the size of the vecto
+            if (count == -1)
+                out << GetComponentCount(type);
+            else
+                out << count;
         } else {
+            // just output a scalar
             if (type == type->getFloatTy(type->getContext()))
                 out << "float";
             else if (type == type->getInt1Ty(type->getContext()))
