@@ -19,6 +19,12 @@
     <Filter Include="Source Files\mesa">
       <UniqueIdentifier>{dab25d77-a291-43fe-b007-1d5db45c7ffe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LunarGLASS\Passes">
+      <UniqueIdentifier>{10660ab4-0e1b-4f71-b4ea-c791360b5e14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LunarGLASS\Passes\Transforms">
+      <UniqueIdentifier>{da4a373f-7fe3-41c9-a4aa-c93de23ee048}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ast.h">
@@ -125,6 +131,9 @@
     </ClInclude>
     <ClInclude Include="ralloc.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts\CoalesceInserts.h">
+      <Filter>LunarGLASS\Passes\Transforms</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -373,6 +382,9 @@
     </ClCompile>
     <ClCompile Include="strtod.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts\CoalesceInserts.cpp">
+      <Filter>LunarGLASS\Passes\Transforms</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
