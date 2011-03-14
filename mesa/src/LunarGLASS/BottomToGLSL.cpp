@@ -411,17 +411,17 @@ protected:
             globalDeclarations << " ";
             mapGlaType(globalDeclarations, type);
             globalDeclarations << " " << varString << " = ";
-            
+
             switch(constant->getType()->getTypeID()) {
             case llvm::Type::IntegerTyID:
-            case llvm::Type::FloatTyID:  
+            case llvm::Type::FloatTyID:
                 emitScalarConstant(globalDeclarations, constant);
                 break;
 
             case llvm::Type::VectorTyID:
                 emitVectorConstant(globalDeclarations, constant);
                 break;
-            
+
             default:
                 UnsupportedFunctionality("constant type in Bottom IR", EATContinue);
                 globalDeclarations << 0;
@@ -455,7 +455,7 @@ protected:
             assert(! "unknown VariableQualifier");
         }
     }
-    
+
     void mapGlaType(std::ostringstream& out, const llvm::Type* type, int count = -1)
     {
         // if it's a vector, output a vector type
@@ -500,7 +500,7 @@ protected:
 
         shader << valueMap[value]->c_str();
     }
-    
+
     void emitScalarConstant(std::ostringstream& out, const llvm::Constant* constant)
     {
         assert(constant);
@@ -518,11 +518,11 @@ protected:
                     out << GetConstantInt(constant);
             }
             break;
-            
-        case llvm::Type::FloatTyID:  
-            out << GetConstantFloat(constant);   
+
+        case llvm::Type::FloatTyID:
+            out << GetConstantFloat(constant);
             break;
-            
+
         default:
             UnsupportedFunctionality("constant type in Bottom IR", EATContinue);
             out << 0;
@@ -560,14 +560,14 @@ protected:
             out << ")";
             return;
         }
-            
+
         const llvm::ConstantAggregateZero* aggregate = llvm::dyn_cast<llvm::ConstantAggregateZero>(constant);
         if (aggregate) {
             mapGlaType(out, constant->getType());
             out << "(0)";
             return;
         }
-        
+
         UnsupportedFunctionality("Vector Constant");
     }
 
@@ -592,6 +592,97 @@ protected:
         // Pull each two bit channel out of the integer
         for(int i = 0; i < width; i++)
             mapComponentToSwizzle((glaSwizzle >> i*2) & 0x3);
+    }
+
+    // Whether the given intrinsic's specified operand is the same as
+    // the passed value, and its type is a vector.
+    bool isSameSource(llvm::Value *source, const llvm::IntrinsicInst *inst, int operand)
+    {
+        return (inst->getOperand(operand) == source)
+            && (source->getType()->getTypeID() == llvm::Type::VectorTyID);
+    }
+
+    // Writes out the vector arguments for the RHS of a
+    // multiInsert. Sets its first argument to false upon first execution
+    void writeVecArgs(bool &firstArg, const llvm::IntrinsicInst *inst, int operand)
+    {
+        if (firstArg)
+            firstArg = false;
+        else
+            shader << ", ";
+
+        mapGlaDestination(inst->getOperand(operand));
+
+        // If it's a vector, extract the value
+        if (inst->getOperand(operand)->getType()->getTypeID() == llvm::Type::VectorTyID) {
+            shader << ".";
+            mapComponentToSwizzle(GetConstantInt(inst->getOperand(operand+1)));
+        }
+    }
+
+    void mapGlaMultiInsert(const llvm::IntrinsicInst *inst)
+    {
+        int wmask = GetConstantInt(inst->getOperand(1));
+        int argCount = 0;
+        llvm::Value *source = NULL;
+        bool sameSource = true;
+
+        newLine();
+        mapGlaDestination(inst);
+
+        // If the origin of the insert is defined and the write mask
+        // is not all 1s, then initialize to it, otherwise just
+        // declare it
+        llvm::Value* op = inst->getOperand(0);
+
+        if ((false == llvm::isa<llvm::UndefValue>(op)) && (wmask != 0xF)) {
+            shader << " = ";
+            mapGlaDestination(op);
+        }
+
+        shader << ";";
+        newLine();
+
+        // Output LHS, set up what bits are set, and see if we have the same source
+        mapGlaDestination(inst);
+
+        // If wmask is all 1s, then don't both with a lhs swizzle
+        if (wmask != 0xF) {
+            shader << ".";
+            mapMaskToSwizzle(wmask);
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            if (wmask & (1 << i)) {
+                int operandIndex = (i+1) * 2;
+                ++argCount;
+                if (source)
+                    sameSource = sameSource && isSameSource(source, inst, operandIndex);
+                else
+                    source = inst->getOperand(operandIndex);
+            }
+        }
+
+        shader << " = ";
+
+        // If they're all from the same source just get it. Otherwise construct a new vector
+        if (sameSource) {
+            mapGlaDestination(source);
+        } else {
+            mapGlaType(shader, inst->getType(), argCount);
+            shader << "(";
+            bool firstArg = true;
+
+            for (int i = 0; i < 4; ++i) {
+                if (wmask & (1 << i)) {
+                    int operandIndex = (i+1) * 2;
+                    writeVecArgs(firstArg, inst, operandIndex);
+                }
+            }
+
+            shader << ");";
+        }
+
     }
 
     // mapping from LLVM values to Glsl variables
@@ -780,8 +871,8 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
             UnsupportedFunctionality("Function Call in Bottom IR");
         }
         return;
-        
-    case llvm::Instruction::FRem:        
+
+    case llvm::Instruction::FRem:
         newLine();
         mapGlaDestination(llvmInstruction);
         shader << " = mod(";
@@ -1007,6 +1098,15 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         shader << ";";
         return;
     }
+
+    // Handle multiInserts
+    switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_fMultiInsert:
+    case llvm::Intrinsic::gla_multiInsert:
+        mapGlaMultiInsert(llvmInstruction);
+        return;
+    }
+
 
     // Handle the one-to-one mappings
     const char* callString = 0;

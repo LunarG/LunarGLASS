@@ -1,7 +1,7 @@
 //===- GlslToTopVisitor.cpp - Help Translate GLSL IR to LunarGLASS Top IR -===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
-// Copyright © 2011, LunarG, Inc.
+// Copyright ï¿½ 2011, LunarG, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),

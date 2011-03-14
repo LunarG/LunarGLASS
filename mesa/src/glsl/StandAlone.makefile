@@ -15,8 +15,11 @@ mesa_SOURCES := \
 	sampler.cpp
 mesa_SOURCES := $(addprefix ../mesa/program/, $(mesa_SOURCES))
 
+passes_SOURCES := \
+    $(shell find ../LunarGLASS/Passes -type f -name "*.cpp")
 lunarglass_SOURCES := \
-	$(wildcard ../LunarGLASS/*.cpp)
+	$(wildcard ../LunarGLASS/*.cpp) \
+	$(passes_SOURCES)
 
 glsl_SOURCES := \
 	strtod.c \
