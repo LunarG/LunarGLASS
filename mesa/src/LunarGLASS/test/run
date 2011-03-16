@@ -7,9 +7,10 @@ USAGE="\
 Usage: ./run [options]
 
        Options:
-         -h --help        Print out this Usage info
-         -l --linux       Run for linux
-         -w --windows     (default) Run for windows
+         -h --help          Print out this Usage info
+         -l --linux         Run for linux
+         -w --windows       (default) Run for windows
+         -s --suppress-tgsi Suppress the running of tgsi tests
 "
 
 # Add more tests here as they are created
@@ -24,11 +25,16 @@ function runTests {
         OBFUSCATE_INDENTLVL=$(($INDENTLVL + 5))
         GLSLLVL=41 # Magic number
 
-        # Run for TGSI
-        printf "%${INDENTLVL}s" "TGSI "
-        $RUNCMD ${OPTIONS[@]} $TGSI_OP $t > $t.stdout 2> $t.errout && echo -n "[OK]" \
-            || (echo "[FAIL] " ; tail -n 1 $t.errout ; printf "%${GLSLLVL}s" " ")
-        cat $t.errout $t.stdout > tgsi/$t.out
+        if [[ -z DO_TGSI ]]; then
+            # Run for TGSI
+            printf "%${INDENTLVL}s" "TGSI "
+            $RUNCMD ${OPTIONS[@]} $TGSI_OP $t > $t.stdout 2> $t.errout && echo -n "[OK]" \
+                || (echo "[FAIL] " ; tail -n 1 $t.errout ; printf "%${GLSLLVL}s" " ")
+            cat $t.errout $t.stdout > tgsi/$t.out
+        else
+            printf "%${INDENTLVL}s" " "
+            printf "    "
+        fi
 
         # Run for GLSL
         echo -n "        GLSL "
@@ -38,11 +44,16 @@ function runTests {
 
         printf "    Obfuscating:                "
 
-        # Run obfuscated TGSI
-        printf "TGSI "
-        $RUNCMD ${OPTIONS[@]} $TGSI_OP $OBFUSCATE_OP $t > $t.stdout 2> $t.errout && echo -n "[OK]" \
-            || (echo "[FAIL] " ; tail -n 1 $t.errout ; printf "%${GLSLLVL}s" " ")
-        cat $t.errout $t.stdout > tgsi/$t.out.obfuscated
+        if [[ -z DO_TGSI ]]; then
+            # Run obfuscated TGSI
+            printf "TGSI "
+            $RUNCMD ${OPTIONS[@]} $TGSI_OP $OBFUSCATE_OP $t > $t.stdout 2> $t.errout && echo -n "[OK]" \
+                || (echo "[FAIL] " ; tail -n 1 $t.errout ; printf "%${GLSLLVL}s" " ")
+            cat $t.errout $t.stdout > tgsi/$t.out.obfuscated
+        else
+            printf "         "
+        fi
+
 
         # Run obfuscated GLSL
         echo -n "        GLSL "
@@ -86,6 +97,8 @@ OPTIONS=(-d)
 TGSI_OP="--tgsi"
 GLSL_OP="--glsl"
 OBFUSCATE_OP="-f"
+DO_TGSI="true"
+
 # Command-line argument Handling
 
 # No arguments passed
@@ -101,6 +114,9 @@ for i in $*; do
         -h|--h)
             showHelp
             exit 0
+            ;;
+        -s|--suppress-tgsi)
+            DO_TGSI=""
             ;;
         *)
             showHelp
