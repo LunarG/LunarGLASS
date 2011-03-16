@@ -116,8 +116,9 @@ StandAlone_CFLAGS := \
 
 StandAlone_CXXFLAGS := \
 	$(shell $(LLVM)/bin/llvm-config --cxxflags) \
-	-Wall -g -O0 -Wno-overloaded-virtual \
-	-Wno-sign-compare -Wno-switch -Wno-cast-qual
+	-Wall -U NDEBUG -g -O0 -Wno-overloaded-virtual \
+	-Wno-sign-compare -Wno-switch -Wno-cast-qual \
+	-D GLA_REVISION=\"$(shell svnversion)\"
 
 StandAlone_LDFLAGS := \
 	$(shell $(LLVM)/bin/llvm-config --ldflags)

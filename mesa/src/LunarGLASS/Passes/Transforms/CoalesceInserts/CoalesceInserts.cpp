@@ -375,7 +375,7 @@ void MultiInsertIntrinsic::insertIntrinsic()
     BasicBlock::InstListType& instList = basicblock.getInstList();
     for (BasicBlock::InstListType::iterator instI = instList.begin(), instE = instList.end(); instI != instE; ++instI)
         if (instI->isIdenticalTo(toReplace)) {
-            assert(CoalesceInserts::IsInsertElement(*instI));
+            assert(IsInsertElement(*instI));
 
             instList.insertAfter(instI, intrinsic);
             instI->replaceAllUsesWith(intrinsic);

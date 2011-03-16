@@ -34,15 +34,6 @@
 #include "OptionParse.h"
 #include <string>
 
-// Function prototypes, so that main.cpp can include this file safely
-namespace gla {
-    bool IsOption(std::string);
-    void PrintHelp();
-    int HandleArgs(int, char**);
-}
-
-#ifndef MAIN_CPP
-
 #include <iostream>
 #include <vector>
 #include <cstdio>
@@ -57,13 +48,14 @@ const std::string Usage = "\
 Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
 \n\
        Options:\n\
-         -h, --help      Print out this Usage info\n\
-         -d, --debug     Print out debugging info\n\
-         --glsl          Use the glsl backend (default)\n\
-         --tgsi          Use the TGSI backed\n\
+         -h, --help           Print out this Usage info\n\
+         -d, --debug          Print out debugging info\n\
+         --glsl               Use the glsl backend (default)\n\
+         --tgsi               Use the TGSI backed\n\
 \n\
        GLSL-backed options:\n\
-         -f --obfuscate  Obfuscate the output\n\
+         -f --obfuscate       Obfuscate the output\n\
+         -n, --no-revision    Don't put the revision in the output\n\
 ";
 
 
@@ -72,20 +64,28 @@ namespace gla {
     // Global Options
     OptionsType Options = { false   // Debug info
                           , false   // Obfuscate
+                          , false   // No revision
                           , GLSL    // Backend
                           , DefaultBackendVersion    // no backend version yet
                           };
 
     // Is the string an option/flagged argument?
-    bool IsOption(std::string s) { return !s.compare(0, 1, "-"); }
+    bool IsOption(std::string s)
+    {
+        return !s.compare(0, 1, "-");
+    }
 
 
     // Print out description and help
-    void PrintHelp() { std::cout << Description << Usage; }
+    void PrintHelp()
+    {
+        std::cout << Description << Usage;
+    }
 
     // Returns the index of the first non-flag argument
     // Assumes that all option/flagged arguments come before non-flagged arguments
-    int HandleArgs(int argc, char **argv) {
+    int HandleArgs(int argc, char **argv)
+    {
         using std::vector;
         using std::string;
         using std::iterator;
@@ -105,7 +105,7 @@ namespace gla {
         }
 
         // Handle each option
-        for (vector<string>::iterator i = flaggedArgs.begin(), e = flaggedArgs.end(); i != e; ++i){
+        for (vector<string>::iterator i = flaggedArgs.begin(), e = flaggedArgs.end(); i != e; ++i) {
             if (*i == "-h" || *i == "--help") {
                 PrintHelp();
                 exit(0);
@@ -117,6 +117,8 @@ namespace gla {
                 Options.backend = TGSI;
             } else if (*i == "-f" || *i == "--obfuscate") {
                 Options.obfuscate = true;
+            } else if (*i == "-n" || *i == "--no-revision") {
+                Options.noRevision = true;
             } else {
                 std::cout << "Unknown option: " << *i << std::endl;
                 PrintHelp();
@@ -128,5 +130,3 @@ namespace gla {
     }
 
 }
-
-#endif

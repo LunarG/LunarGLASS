@@ -1242,5 +1242,15 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
 void gla::GlslTarget::print()
 {
+    // If we've supplied the revision number (on linux it's via a
+    // compiler option), and if we don't have the noRevision options
+    // set, then output the revision.
+#ifdef GLA_REVISION
+    if (Options.noRevision)
+        printf("\n// LunarGOO output\n%s\n%s", globalDeclarations.str().c_str(), shader.str().c_str());
+    else
+        printf("\n// LunarGOO(r%s) output\n%s\n%s", GLA_REVISION, globalDeclarations.str().c_str(), shader.str().c_str());
+#else
     printf("\n// LunarGOO output\n%s\n%s", globalDeclarations.str().c_str(), shader.str().c_str());
+#endif
 }

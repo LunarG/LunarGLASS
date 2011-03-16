@@ -30,7 +30,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-
 #pragma once
 #ifndef OPTIONS_H
 #define OPTIONS_H
@@ -46,6 +45,7 @@ namespace gla {
     struct OptionsType {
         bool debug;
         bool obfuscate;
+        bool noRevision;
         BackendOption backend;
         int backendVersion;    // what version output should the backend generate?
     };
