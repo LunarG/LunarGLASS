@@ -143,7 +143,7 @@ remove_line_continuations(glcpp_parser_t *ctx, const char *shader)
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
-#define YY_BUF_SIZE 16384
+#define YY_BUF_SIZE 0x4000
 #endif
 
 // Check for any input buffer overflow
@@ -154,10 +154,8 @@ check_line_lengths(const char *shader)
 	const char *search_start = shader;
 	const char *newline;
 	while ((newline = strchr(search_start, '\n')) != NULL) {
-		const char *backslash = NULL;
-
 		/* # of characters preceding the newline. */
-		int n = newline - shader;
+		int n = newline - search_start;
 
         // If this condition is true, the glsl parser will 
         // crash downstream
