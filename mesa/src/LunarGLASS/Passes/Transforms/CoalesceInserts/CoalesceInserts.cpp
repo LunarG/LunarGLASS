@@ -44,6 +44,9 @@
 #include "llvm/Intrinsics.h"
 #include "llvm/Instructions.h"
 
+// LunarGLASS helpers
+#include "LunarGLASSBottomIR.h"
+
 #define VERBOSE(exp) if (VerboseP) exp;
 
 using namespace llvm;
@@ -71,269 +74,109 @@ namespace {
         virtual bool runOnFunction(Function&);
         void print(raw_ostream&, const Module* = 0) const;
         virtual void getAnalysisUsage(AnalysisUsage&) const;
+    };
 
-        // Printing class methods
-        static void PrintBlock(BasicBlock&);
-        static void PrintCandidates(InstVec&);
-        static void PrintGroups(GroupVec&);
-        static void PrintMultiInsertIntrinsic(Instruction&);
+    class MultiInsertIntrinsic {
+    public:
+        // Construct the MultiInsertIntrinsic. If last runIt is true,
+        // then also run after constructing.
+        MultiInsertIntrinsic(Module* m, LLVMContext& c, BasicBlock& bb, InstVec& g, bool runIt=false)
+                            : module(m)
+                            , llvmcontext(c)
+                            , basicblock(bb)
+                            , group(g)
+                            , intrinsic(NULL)
+                            , writeMask(0)
+                            , toReplace(NULL)
+                            , originalSource(NULL)
+        {
+            // Initialize each element (for pre-c++0x compliance)
+            for (int i = 0; i < 4; ++i) {
+                values[i] = NULL;
+                offsets[i] = -1;
+            }
+        }
 
-        // Gather all insert instructions together, putting them in
-        // the InstVec
-        static void GatherInserts(BasicBlock::InstListType&, InstVec&);
+        // Print the multi-insert intrinsic to stderr
+        void dump() const;
 
-        // Group instructions into the individual multiInserts,
-        // putting them in the GroupVec
-        static void GroupInserts(InstVec&, GroupVec&);
+        // Run this class's methods to make and insert the intrinsic
+        void run()
+        {
+            buildFromGroup();
+            makeIntrinsic();
+            insertIntrinsic();
+        }
 
-        // Add the entire insert chain specified by the value to the
-        // provided set and vector.
-        static void AddInsertChain(Value*, InstSet&, InstVec&);
+        // Get the intrinsic instruction
+        Instruction* getIntrinsic()
+        {
+            return intrinsic;
+        }
 
-        // Predicate for whether the instruction is an insert
-        static bool IsInsertElement(Instruction&);
+    private:
+        Module* module;
+        LLVMContext& llvmcontext;
+        BasicBlock& basicblock;
+        InstVec& group;
 
-        // Predicate for whether the instruction is an extract
-        static bool IsExtract(Instruction&);
+        Instruction* intrinsic;
 
-        // Extract an int from the given value. Assumes that value is
-        // a ConstantInt
-        static int GetConstantInt(Value*);
+        int writeMask;
+        Instruction* toReplace;
+        Value* originalSource;
+        Value* values[4];
+        int offsets[4];
 
-        // Given a value, if it's an extract return its offset
-        // Return -1 if not an extract
-        static int GetOffset(Value*);
+        // Build this class's members up.
+        void buildFromGroup();
 
-        // If the value is an extract instruction, then get the vector
-        // extraced from, else return the given value
-        static Value* GetExtractFrom(Value*);
+        // Make the intrinsic
+        void makeIntrinsic();
+
+        // Insert the instruction in, replacing uses for toReplace
+        // with the new instruction
+        void insertIntrinsic();
+
+        // Unimplemented unwanted copy and assignment
+        MultiInsertIntrinsic(MultiInsertIntrinsic&);
+        MultiInsertIntrinsic& operator=(const MultiInsertIntrinsic&);
 
     };
-} // End  namespace
+} // end namespace
 
 // Helpers
-namespace  {
-    // Struct representing the eventual intrinsic
-    struct MultiInsertOp {
-        int mask;
-        Value* xV;
-        Value* yV;
-        Value* zV;
-        Value* wV;
-        int xOffset;
-        int yOffset;
-        int zOffset;
-        int wOffset;
-        Value* inst;
-        Value* original;
-    };
-
-    // MultiInsertOp initialize
-    void InitSOp(MultiInsertOp& sop, InstVec& vec)
-    {
-        sop.xOffset = -1;
-        sop.yOffset = -1;
-        sop.zOffset = -1;
-        sop.wOffset = -1;
-
-        sop.xV = NULL;
-        sop.yV = NULL;
-        sop.zV = NULL;
-        sop.wV = NULL;
-
-        sop.mask = 0;
-        sop.inst = *(vec.begin());
-        sop.original = NULL;
-    }
-
-    // Print out a textual representation of the multiInsert operand
-    void PrintOperand(Value* v)
-    {
-        if (v)
-            errs() << "|" << *v << " ";
-        else
-            errs() << "|  null  ";
-    }
-
-    // Print out the struct representing a multiInsert
-    void PrintMultiInsertOp(MultiInsertOp& sop)
-    {
-        errs() << "\nMultiInsertOp for" << *sop.inst << ":\n";
-        errs() << "  Write mask and offset:\n";
-        errs() << "    " << sop.mask;
-        errs() << " <| " << sop.xOffset << "  |  " << sop.yOffset << "  |  " << sop.zOffset << "  |  " << sop.wOffset;
-        errs() << "\n       <";
-        PrintOperand(sop.xV);
-        PrintOperand(sop.yV);
-        PrintOperand(sop.zV);
-        PrintOperand(sop.wV);
-        errs() << "\n";
-        errs() << "  Original insert destination: " << *sop.original << "\n";
-    }
-
-    // Build up the struct representing a multiInsert
-    void BuildMultiInsertOp(InstVec& vec, MultiInsertOp& sop)
-    {
-        // Initialize
-        InitSOp(sop, vec);
-
-        // Find the orignal insert destination. It will be the last one
-        // listed, due to the groups being in depth-first order
-        sop.original = vec.back()->getOperand(0);
-
-        // For each member of the group, set the relevant fields.
-        for (InstVec::iterator instI = vec.begin(), instE = vec.end(); instI != instE; ++instI) {
-            // Only operate on inserts at the top
-            assert(CoalesceInserts::IsInsertElement(**instI));
-
-            // The source operand
-            Value* src = (*instI)->getOperand(1);
-
-            // Find the access offset of the underlying extract intrinsic
-            int offset = CoalesceInserts::GetOffset(src);
-
-            // The value the extract statement is extracting from
-            // If it isn't an extract statement, make it be the scalar
-            Value* extractFrom = CoalesceInserts::GetExtractFrom(src);
-
-            // Match up the data with the corresponding field specified in
-            // the insert
-            int maskOffset = CoalesceInserts::GetConstantInt((*instI)->getOperand(2));
-            switch (maskOffset) {
-            case 0:
-                sop.xOffset = offset;
-                sop.xV = extractFrom;
-                break;
-            case 1:
-                sop.yOffset = offset;
-                sop.yV = extractFrom;
-                break;
-            case 2:
-                sop.zOffset = offset;
-                sop.zV = extractFrom;
-                break;
-            case 3:
-                sop.wOffset = offset;
-                sop.wV = extractFrom;
-                break;
-            default:
-                assert(!" Unknown access mask found");
-            }
-
-            // Update the mask
-            sop.mask |= (1 << maskOffset);
-        }
-    }
-
-    // Create an intrinsic
-    Instruction* MakeMultiInsertIntrinsic(MultiInsertOp& sop, Module* M, LLVMContext& C)
-    {
-        // Set up types array
-        const llvm::Type* intrinsicTypes[6] = {0};
-
-        // Default type to choose
-        const llvm::Type* defaultType;
-
-        // Determine if it's a fWriteMask or writeMask, and set types accordingly
-        Intrinsic::ID intrinsicID;
-        unsigned vecCount = 4;
-        switch (sop.inst->getType()->getContainedType(0)->getTypeID()) {
-        case Type::FloatTyID:
-            defaultType = Type::getFloatTy(C);
-            intrinsicID = Intrinsic::gla_fMultiInsert;
-            intrinsicTypes[0] = VectorType::get(defaultType, vecCount);
-
-            break;
-        case Type::IntegerTyID:
-            if (sop.inst->getType()->getContainedType(0)->isIntegerTy(1))
-                defaultType = Type::getInt1Ty(C);
-            else
-                defaultType = Type::getInt32Ty(C);
-
-            intrinsicID = Intrinsic::gla_multiInsert;
-            intrinsicTypes[0] = VectorType::get(defaultType, vecCount);
-            break;
-        default:
-            assert(!"Unknown multiInsert intrinsic type");
-        }
-
-        // Set up each of the operand types
-        intrinsicTypes[1] = sop.original ? sop.original->getType() : defaultType;
-        intrinsicTypes[2] = sop.xV       ? sop.xV->getType()       : defaultType;
-        intrinsicTypes[3] = sop.yV       ? sop.yV->getType()       : defaultType;
-        intrinsicTypes[4] = sop.zV       ? sop.zV->getType()       : defaultType;
-        intrinsicTypes[5] = sop.wV       ? sop.wV->getType()       : defaultType;
-
-        int typesCount = 6;
-
-        // Get the function declaration for this intrinsic
-        Value* callee = llvm::Intrinsic::getDeclaration(M, intrinsicID, intrinsicTypes, typesCount);
-
-        Value* mask    = ConstantInt::get(Type::getInt32Ty(C), sop.mask);
-        Value* xOffset = ConstantInt::get(Type::getInt32Ty(C), sop.xOffset);
-        Value* yOffset = ConstantInt::get(Type::getInt32Ty(C), sop.yOffset);
-        Value* zOffset = ConstantInt::get(Type::getInt32Ty(C), sop.zOffset);
-        Value* wOffset = ConstantInt::get(Type::getInt32Ty(C), sop.wOffset);
-
-        Value* xV = sop.xV ? sop.xV : Constant::getNullValue(defaultType);
-        Value* yV = sop.yV ? sop.yV : Constant::getNullValue(defaultType);
-        Value* zV = sop.zV ? sop.zV : Constant::getNullValue(defaultType);
-        Value* wV = sop.wV ? sop.wV : Constant::getNullValue(defaultType);
-
-        Value* args[] = { sop.original, mask, xV, xOffset, yV, yOffset, zV, zOffset, wV, wOffset };
-
-        return CallInst::Create(callee, args, args+10);
-    }
-
-    // Insert the new instruction
-    void InsertMultiInsertIntrinsic(InstVec& vec, Instruction* newInst, BasicBlock& bb)
-    {
-        BasicBlock::InstListType& instList = bb.getInstList();
-        for (BasicBlock::InstListType::iterator instI = instList.begin(), instE = instList.end(); instI != instE; ++instI) {
-            if (instI->isIdenticalTo(*vec.begin())) {
-                assert(CoalesceInserts::IsInsertElement(*instI));
-
-                instList.insertAfter(instI, newInst);
-                instI->replaceAllUsesWith(newInst);
-            }
-        }
-    }
-
-} // End  namespace
-
-bool CoalesceInserts::IsInsertElement(Instruction& i)
+// Predicate for whether the instruction is an insert
+static bool IsInsertElement(Instruction& i)
 {
     return strcmp(i.getOpcodeName(), "insertelement") == 0;
 }
 
-bool CoalesceInserts::IsExtract(Instruction& i)
+// Predicate for whether the instruction is an extract
+static bool IsExtract(Instruction& i)
 {
     return strcmp(i.getOpcodeName(), "extractelement") == 0;
 }
 
-int CoalesceInserts::GetConstantInt(Value* val)
-{
-    ConstantInt* c = dyn_cast<ConstantInt>(val);
-    assert(c);
-
-    return c->getSExtValue();
-}
-
-int CoalesceInserts::GetOffset(Value* v)
+// Given a value, if it's an extract return its offset
+// Return -1 if not an extract
+static int GetOffset(Value* v)
 {
     int offset = -1;
 
     // If the operand is an extract instruction, then get the offset
     if (Instruction* inst = dyn_cast<Instruction>(v)) {
         if (IsExtract(*inst)) {
-            offset = GetConstantInt(inst->getOperand(1));
+            offset = gla::GetConstantInt(inst->getOperand(1));
         }
     }
 
     return offset;
 }
 
-Value* CoalesceInserts::GetExtractFrom(Value* v)
+// If the value is an extract instruction, then get the vector
+// extraced from, else return the given value
+static Value* GetExtractFrom(Value* v)
 {
     Value* ret = v;
     if (Instruction* inst = dyn_cast<Instruction>(v)) {
@@ -345,19 +188,12 @@ Value* CoalesceInserts::GetExtractFrom(Value* v)
     return ret;
 }
 
-void CoalesceInserts::PrintMultiInsertIntrinsic(Instruction& inst)
-{
-    errs() << "MultiInsert intrinsic: ";
-    errs() << inst << "\n";
-    errs() << "\n";
-}
-
-void CoalesceInserts::PrintBlock(BasicBlock& bb)
+static void PrintBlock(BasicBlock& bb)
 {
     errs() << "processing basic block " << bb.getName() << "\n" << bb;
 }
 
-void CoalesceInserts::PrintCandidates(InstVec& v)
+static void PrintCandidates(InstVec& v)
 {
     errs() << "\nThis block's candidates for intrinsic substitution: \n";
     for (InstVec::iterator i = v.begin(), e = v.end(); i != e; ++i) {
@@ -365,7 +201,7 @@ void CoalesceInserts::PrintCandidates(InstVec& v)
     }
 }
 
-void CoalesceInserts::PrintGroups(GroupVec& groupVec)
+static void PrintGroups(GroupVec& groupVec)
 {
     errs() << "\nThis block's groups: \n";
     int i = 0;
@@ -383,7 +219,9 @@ void CoalesceInserts::PrintGroups(GroupVec& groupVec)
 
 }
 
-void CoalesceInserts::GatherInserts(BasicBlock::InstListType& instList, InstVec& result)
+// Gather all insert instructions together, putting them in
+// the InstVec
+static void GatherInserts(BasicBlock::InstListType& instList, InstVec& result)
 {
     for (reverse_iterator i = instList.rbegin(), e = instList.rend(); i != e; ++i) {
         if (IsInsertElement(*i)) {
@@ -392,7 +230,9 @@ void CoalesceInserts::GatherInserts(BasicBlock::InstListType& instList, InstVec&
     }
 }
 
-void CoalesceInserts::AddInsertChain(Value* v, InstSet& s, InstVec& vec)
+// Add the entire insert chain specified by the value to the
+// provided set and vector.
+static void AddInsertChain(Value* v, InstSet& s, InstVec& vec)
 {
     // If it's an instruction and an insert, put it into s and vec,
     // and continue recursively traversing the chain
@@ -409,7 +249,9 @@ void CoalesceInserts::AddInsertChain(Value* v, InstSet& s, InstVec& vec)
     return;
 }
 
-void CoalesceInserts::GroupInserts(InstVec& vec, GroupVec& result)
+// Group instructions into the individual multiInserts,
+// putting them in the GroupVec
+static void GroupInserts(InstVec& vec, GroupVec& result)
 {
     InstSet instSet;
     for (InstVec::iterator i = vec.begin(), e = vec.end(); i != e; ++i) {
@@ -432,6 +274,142 @@ void CoalesceInserts::GroupInserts(InstVec& vec, GroupVec& result)
         result.push_back(newGroup);
     }
 }
+
+// MultiInsertIntrinsic implementation
+
+void MultiInsertIntrinsic::buildFromGroup()
+{
+    // The instruction we're replacing is at the front
+    toReplace = group.front();
+
+    // Find the orignal insert destination. It will be the last one
+    // listed, due to the groups being in depth-first order
+    originalSource = group.back()->getOperand(0);
+
+    // For each member of the group, set the relevant fields.
+    for (InstVec::iterator instI = group.begin(), instE = group.end(); instI != instE; ++instI) {
+        // Only operate on inserts
+        assert(IsInsertElement(**instI) && "buildFromGroup supposed to only operate on inserts");
+
+        // The source operand
+        Value* src = (*instI)->getOperand(1);
+
+        // Find the access offset of the underlying extract intrinsic
+        int offset = GetOffset(src);
+
+        // The value the extract statement is extracting from
+        // If it isn't an extract statement, make it be the scalar
+        Value* extractFrom = GetExtractFrom(src);
+
+        // Match up the data with the corresponding field specified in
+        // the insert
+        int maskOffset = gla::GetConstantInt((*instI)->getOperand(2));
+        assert(maskOffset <= 4 && " Unknown access mask found");
+
+        offsets[maskOffset] = offset;
+        values[maskOffset] = extractFrom;
+
+        // Update the mask
+        writeMask |= (1 << maskOffset);
+    }
+}
+
+void MultiInsertIntrinsic::makeIntrinsic() {
+    // Set up types array
+    int typesCount = 6;
+    const llvm::Type* intrinsicTypes[6] = {0};
+
+    // Default type to choose
+    const llvm::Type* defaultType;
+
+    // Determine if it's a fWriteMask or writeMask, and set types accordingly
+    Intrinsic::ID intrinsicID;
+    unsigned vecCount = 4;
+    switch (toReplace->getType()->getContainedType(0)->getTypeID()) {
+    case Type::FloatTyID:
+        defaultType = Type::getFloatTy(llvmcontext);
+        intrinsicID = Intrinsic::gla_fMultiInsert;
+        intrinsicTypes[0] = VectorType::get(defaultType, vecCount);
+        break;
+    case Type::IntegerTyID:
+        if (toReplace->getType()->getContainedType(0)->isIntegerTy(1))
+            defaultType = Type::getInt1Ty(llvmcontext);
+        else
+            defaultType = Type::getInt32Ty(llvmcontext);
+        intrinsicID = Intrinsic::gla_multiInsert;
+        intrinsicTypes[0] = VectorType::get(defaultType, vecCount);
+        break;
+    default:
+        assert(!"Unknown multiInsert intrinsic type");
+    }
+
+    // Set up each of the operand types
+    intrinsicTypes[1] = originalSource ? originalSource->getType() : defaultType;
+    intrinsicTypes[2] = values[0]      ? values[0]->getType()      : defaultType;
+    intrinsicTypes[3] = values[1]      ? values[1]->getType()      : defaultType;
+    intrinsicTypes[4] = values[2]      ? values[2]->getType()      : defaultType;
+    intrinsicTypes[5] = values[3]      ? values[3]->getType()      : defaultType;
+
+    // Get the function declaration for this intrinsic
+    Value* callee = llvm::Intrinsic::getDeclaration(module, intrinsicID, intrinsicTypes, typesCount);
+
+    Value* mask    = ConstantInt::get(Type::getInt32Ty(llvmcontext), writeMask);
+    Value* xOffset = ConstantInt::get(Type::getInt32Ty(llvmcontext), offsets[0]);
+    Value* yOffset = ConstantInt::get(Type::getInt32Ty(llvmcontext), offsets[1]);
+    Value* zOffset = ConstantInt::get(Type::getInt32Ty(llvmcontext), offsets[2]);
+    Value* wOffset = ConstantInt::get(Type::getInt32Ty(llvmcontext), offsets[3]);
+
+    Value* xV = values[0] ? values[0] : Constant::getNullValue(defaultType);
+    Value* yV = values[1] ? values[1] : Constant::getNullValue(defaultType);
+    Value* zV = values[2] ? values[2] : Constant::getNullValue(defaultType);
+    Value* wV = values[3] ? values[3] : Constant::getNullValue(defaultType);
+
+    Value* args[] = { originalSource, mask, xV, xOffset, yV, yOffset, zV, zOffset, wV, wOffset };
+
+    // Create it
+    intrinsic = CallInst::Create(callee, args, args+10);
+}
+
+void MultiInsertIntrinsic::insertIntrinsic()
+{
+    BasicBlock::InstListType& instList = basicblock.getInstList();
+    for (BasicBlock::InstListType::iterator instI = instList.begin(), instE = instList.end(); instI != instE; ++instI)
+        if (instI->isIdenticalTo(toReplace)) {
+            assert(CoalesceInserts::IsInsertElement(*instI));
+
+            instList.insertAfter(instI, intrinsic);
+            instI->replaceAllUsesWith(intrinsic);
+        }
+}
+
+void MultiInsertIntrinsic::dump() const {
+    errs() << "\nMultiInsertIntrinsic for" << toReplace << ":\n";
+    errs() << "  Write mask and offset:\n";
+    errs() << "    " << writeMask;
+
+    errs() << " <";
+    for (int i = 0; i < 4; ++i) {
+        errs() << "|  " << offsets[i] << "  ";
+    }
+
+    errs() << "\n       <";
+    for (int i = 0; i < 4; ++i) {
+        errs() << "|  ";
+        if (values[i])
+            errs() << *values[i];
+        else
+            errs() << "null";
+        errs() << "  ";
+    }
+
+    errs() << "\n";
+    errs() << "  Original insert destination: " << *originalSource << "\n";
+
+    errs() << "\n";
+    errs() << "Instrinsic: " << intrinsic;
+}
+
+// CoalesceInserts implementation
 
 bool CoalesceInserts::runOnFunction(Function& F)
 {
@@ -457,19 +435,12 @@ bool CoalesceInserts::runOnFunction(Function& F)
 
         // For each group, make a MultiInsertOp
         for (GroupVec::iterator gI = groupVec.begin(), gE = groupVec.end(); gI != gE; ++gI) {
-            MultiInsertOp sop;
+            MultiInsertIntrinsic mii(M, C, *bb, **gI);
+            mii.run();
 
-            BuildMultiInsertOp(**gI, sop);
-
-            VERBOSE(PrintMultiInsertOp(sop));
-
-            Instruction* inst = MakeMultiInsertIntrinsic(sop, M, C);
-
-            InsertMultiInsertIntrinsic(**gI, inst, *bb);
+            VERBOSE(mii.dump());
 
             wasModified = true;
-
-            VERBOSE(PrintMultiInsertIntrinsic(*inst));
 
             // We're done with the group, so delete it
             // TODO: find a more RAII handling of this

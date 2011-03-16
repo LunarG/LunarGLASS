@@ -680,9 +680,11 @@ protected:
                 }
             }
 
-            shader << ");";
+            shader << ")";
         }
 
+        // Finished with the statement
+        shader << ";";
     }
 
     // mapping from LLVM values to Glsl variables
