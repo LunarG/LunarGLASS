@@ -311,7 +311,7 @@ protected:
                 shader << mapComponentToSwizzleChar(component);
     }
 
-    char* mapComponentToSwizzleChar(int component)
+    const char* mapComponentToSwizzleChar(int component)
     {
         switch (component) {
         case 0:   return "x";
@@ -594,16 +594,16 @@ protected:
             mapComponentToSwizzle((glaSwizzle >> i*2) & 0x3);
     }
 
-    // Whether the given intrinsic's specified operand is the same as
-    // the passed value, and its type is a vector.
+    // Whether the given intrinsic's specified operand is the same as the passed
+    // value, and its type is a vector.
     bool isSameSource(llvm::Value *source, const llvm::IntrinsicInst *inst, int operand)
     {
         return (inst->getOperand(operand) == source)
             && (source->getType()->getTypeID() == llvm::Type::VectorTyID);
     }
 
-    // Writes out the vector arguments for the RHS of a
-    // multiInsert. Sets its first argument to false upon first execution
+    // Writes out the vector arguments for the RHS of a multiInsert. Sets its
+    // first argument to false upon first execution
     void writeVecArgs(bool &firstArg, const llvm::IntrinsicInst *inst, int operand)
     {
         if (firstArg)
@@ -620,42 +620,16 @@ protected:
         }
     }
 
-    void mapGlaMultiInsert(const llvm::IntrinsicInst *inst)
-    {
-        int wmask = GetConstantInt(inst->getOperand(1));
-        int argCount = 0;
-        llvm::Value *source = NULL;
+    // Returns a pointer to the common source of the multiinsert if they're all
+    // the same, otherwise returns null.
+    llvm::Value* getCommonSourceMultiInsert(const llvm::IntrinsicInst* inst) {
+        llvm::Value* source = NULL;
         bool sameSource = true;
-
-        newLine();
-        mapGlaDestination(inst);
-
-        // If the origin of the insert is defined and the write mask
-        // is not all 1s, then initialize to it, otherwise just
-        // declare it
-        llvm::Value* op = inst->getOperand(0);
-
-        if ((false == llvm::isa<llvm::UndefValue>(op)) && (wmask != 0xF)) {
-            shader << " = ";
-            mapGlaDestination(op);
-        }
-
-        shader << ";";
-        newLine();
-
-        // Output LHS, set up what bits are set, and see if we have the same source
-        mapGlaDestination(inst);
-
-        // If wmask is all 1s, then don't both with a lhs swizzle
-        if (wmask != 0xF) {
-            shader << ".";
-            mapMaskToSwizzle(wmask);
-        }
+        int wmask = GetConstantInt(inst->getOperand(1));
 
         for (int i = 0; i < 4; ++i) {
             if (wmask & (1 << i)) {
                 int operandIndex = (i+1) * 2;
-                ++argCount;
                 if (source)
                     sameSource = sameSource && isSameSource(source, inst, operandIndex);
                 else
@@ -663,11 +637,40 @@ protected:
             }
         }
 
-        shader << " = ";
+        return sameSource ? source : NULL;
 
-        // If they're all from the same source just get it. Otherwise construct a new vector
-        if (sameSource) {
+    }
+
+    void mapGlaMultiInsertRHS(const llvm::IntrinsicInst* inst)
+    {
+        int wmask = GetConstantInt(inst->getOperand(1));
+        assert(wmask <= 0xF);
+        int argCount = 0;
+
+        // Count the args
+        for (int i = 0; i < 4; ++i) {
+            if (wmask & (1 << i))
+                ++argCount;
+        }
+
+        // If they're all from the same source just use/swizzle it. Otherwise
+        // construct a new vector
+        llvm::Value* source = getCommonSourceMultiInsert(inst);
+        if (source) {
             mapGlaDestination(source);
+
+            // Build up the rhs mask
+            int singleSourceMask = 0;
+            for (int i = 0, pos = 0; i < 4; ++i) {
+                // If it's not -1, then add it to our swizzle.
+                int swizOffset = GetConstantInt(inst->getOperand(i*2 + 3));
+                if (swizOffset != -1) {
+                    singleSourceMask |= ( swizOffset << (pos*2));
+                    ++pos;
+                }
+            }
+            assert (singleSourceMask <= 0xFF);
+            mapGlaSwizzle(singleSourceMask, argCount);
         } else {
             mapGlaType(shader, inst->getType(), argCount);
             shader << "(";
@@ -682,6 +685,47 @@ protected:
 
             shader << ")";
         }
+    }
+
+    void mapGlaMultiInsert(const llvm::IntrinsicInst* inst)
+    {
+        int wmask = GetConstantInt(inst->getOperand(1));
+
+        newLine();
+
+        // Declare it.
+        mapGlaDestination(inst);
+
+        llvm::Value* op = inst->getOperand(0);
+
+        // If the writemask is full, then just initialize it, and we're done
+        if (wmask == 0xF) {
+            shader << " = ";
+            mapGlaMultiInsertRHS(inst);
+            shader << ";";
+            return;
+        }
+
+        // If the origin is defined, initialize the new instruction to be the
+        // origin. If undefined, leave it declared and uninitialized.
+        if (IsDefined(op)) {
+            // Initialize it to be the origin.
+            shader << " = ";
+            mapGlaDestination(op);
+        }
+
+        shader << ";";
+        newLine();
+
+        // If wmask is not all 1s, then do a lhs swizzle
+        mapGlaDestination(inst);
+        if (wmask != 0xF) {
+            shader << ".";
+            mapMaskToSwizzle(wmask);
+        }
+        shader << " = ";
+
+        mapGlaMultiInsertRHS(inst);
 
         // Finished with the statement
         shader << ";";
@@ -952,7 +996,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
             mapGlaOperand(llvmInstruction->getOperand(0));
             shader << ";";
         } else {
-            assert(! "store instruction is not through pointer\n");
+            assert(! "store instruction is not through pointer");
         }
         return;
 

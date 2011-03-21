@@ -3,16 +3,14 @@
 define void @foo() {
 entry:
   %bar = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
-  %swizzleTmp = call float @llvm.gla.fSwizzle.f32.v4f32(<4 x float> %bar, i32 0)
+  %0 = extractelement <4 x float> %bar, i32 0
   %bar1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
-  %swizzleTmp2 = call float @llvm.gla.fSwizzle.f32.v4f32(<4 x float> %bar1, i32 1)
-  %0 = fadd float %swizzleTmp, %swizzleTmp2
+  %1 = extractelement <4 x float> %bar1, i32 1
+  %2 = fadd float %0, %1
   ret void
 }
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
-
-declare float @llvm.gla.fSwizzle.f32.v4f32(<4 x float>, i32) nounwind readnone
 
 ***Unsupported functionality: user functions
 compiling functionCall.frag...

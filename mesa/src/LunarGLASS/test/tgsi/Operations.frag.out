@@ -11,9 +11,9 @@
 define void @main() {
 entry:
   %conditional_tmp = alloca <4 x float>
-  %and_tmp108 = alloca i1
-  %or_tmp105 = alloca i1
-  %assignment_tmp102 = alloca float
+  %and_tmp106 = alloca i1
+  %or_tmp103 = alloca i1
+  %assignment_tmp101 = alloca float
   %cross_retval = alloca <3 x float>
   %dot_retval = alloca float
   %distance_retval = alloca float
@@ -793,84 +793,100 @@ ifmerge100:                                       ; preds = %then99, %ifmerge98
   %333 = fadd float %331, %332
   store float %333, float* %f
   %334 = load <4 x float>* %v
-  %swizzleTmp = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32(<4 x float> %334, i32 36)
-  %335 = load <4 x float>* %v
-  %swizzleTmp101 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32(<4 x float> %335, i32 36)
-  %cross = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %swizzleTmp, <3 x float> %swizzleTmp101)
+  %335 = extractelement <4 x float> %334, i32 0
+  %336 = insertelement <3 x float> undef, float %335, i32 0
+  %337 = extractelement <4 x float> %334, i32 1
+  %338 = insertelement <3 x float> %336, float %337, i32 1
+  %339 = extractelement <4 x float> %334, i32 2
+  %340 = insertelement <3 x float> %338, float %339, i32 2
+  %341 = load <4 x float>* %v
+  %342 = extractelement <4 x float> %341, i32 0
+  %343 = insertelement <3 x float> undef, float %342, i32 0
+  %344 = extractelement <4 x float> %341, i32 1
+  %345 = insertelement <3 x float> %343, float %344, i32 1
+  %346 = extractelement <4 x float> %341, i32 2
+  %347 = insertelement <3 x float> %345, float %346, i32 2
+  %cross = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %340, <3 x float> %347)
   store <3 x float> %cross, <3 x float>* %cross_retval
-  %336 = load float* %f
-  %337 = load <3 x float>* %cross_retval
-  %swizzleTmp103 = call float @llvm.gla.fSwizzle.f32.v3f32(<3 x float> %337, i32 0)
-  %338 = fadd float %336, %swizzleTmp103
-  store float %338, float* %assignment_tmp102
-  %339 = load float* %assignment_tmp102
-  store float %339, float* %f
-  %340 = load float* %assignment_tmp102
-  %341 = load float addrspace(1)* @uf
-  %342 = fcmp oeq float %340, %341
-  br i1 %342, label %then104, label %else106
+  %348 = load float* %f
+  %349 = load <3 x float>* %cross_retval
+  %350 = extractelement <3 x float> %349, i32 0
+  %351 = fadd float %348, %350
+  store float %351, float* %assignment_tmp101
+  %352 = load float* %assignment_tmp101
+  store float %352, float* %f
+  %353 = load float* %assignment_tmp101
+  %354 = load float addrspace(1)* @uf
+  %355 = fcmp oeq float %353, %354
+  br i1 %355, label %then102, label %else104
 
-then104:                                          ; preds = %ifmerge100
-  store i1 true, i1* %or_tmp105
+then102:                                          ; preds = %ifmerge100
+  store i1 true, i1* %or_tmp103
+  br label %ifmerge109
+
+else104:                                          ; preds = %ifmerge100
+  %356 = load float* %assignment_tmp101
+  %357 = load float addrspace(1)* @uf
+  %358 = fcmp one float %356, %357
+  br i1 %358, label %then105, label %else107
+
+then105:                                          ; preds = %else104
+  %359 = load float* %assignment_tmp101
+  %360 = fcmp one float %359, 2.000000e+00
+  store i1 %360, i1* %and_tmp106
+  br label %ifmerge108
+
+else107:                                          ; preds = %else104
+  store i1 false, i1* %and_tmp106
+  br label %ifmerge108
+
+ifmerge108:                                       ; preds = %else107, %then105
+  %361 = load i1* %and_tmp106
+  store i1 %361, i1* %or_tmp103
+  br label %ifmerge109
+
+ifmerge109:                                       ; preds = %ifmerge108, %then102
+  %362 = load i1* %or_tmp103
+  br i1 %362, label %then110, label %ifmerge111
+
+then110:                                          ; preds = %ifmerge109
+  %363 = load float* %assignment_tmp101
+  %364 = fadd float %363, 1.000000e+00
+  store float %364, float* %f
   br label %ifmerge111
 
-else106:                                          ; preds = %ifmerge100
-  %343 = load float* %assignment_tmp102
-  %344 = load float addrspace(1)* @uf
-  %345 = fcmp one float %343, %344
-  br i1 %345, label %then107, label %else109
-
-then107:                                          ; preds = %else106
-  %346 = load float* %assignment_tmp102
-  %347 = fcmp one float %346, 2.000000e+00
-  store i1 %347, i1* %and_tmp108
-  br label %ifmerge110
-
-else109:                                          ; preds = %else106
-  store i1 false, i1* %and_tmp108
-  br label %ifmerge110
-
-ifmerge110:                                       ; preds = %else109, %then107
-  %348 = load i1* %and_tmp108
-  store i1 %348, i1* %or_tmp105
-  br label %ifmerge111
-
-ifmerge111:                                       ; preds = %ifmerge110, %then104
-  %349 = load i1* %or_tmp105
-  br i1 %349, label %then112, label %ifmerge113
+ifmerge111:                                       ; preds = %then110, %ifmerge109
+  %365 = load i1* %b
+  br i1 %365, label %then112, label %else113
 
 then112:                                          ; preds = %ifmerge111
-  %350 = load float* %assignment_tmp102
-  %351 = fadd float %350, 1.000000e+00
-  store float %351, float* %f
-  br label %ifmerge113
+  %366 = load i32* %i
+  %367 = sitofp i32 %366 to float
+  %368 = insertelement <4 x float> undef, float %367, i32 0
+  %369 = insertelement <4 x float> %368, float %367, i32 1
+  %370 = insertelement <4 x float> %369, float %367, i32 2
+  %371 = insertelement <4 x float> %370, float %367, i32 3
+  %372 = load float* %f
+  %373 = insertelement <4 x float> undef, float %372, i32 0
+  %374 = insertelement <4 x float> %373, float %372, i32 1
+  %375 = insertelement <4 x float> %374, float %372, i32 2
+  %376 = insertelement <4 x float> %375, float %372, i32 3
+  %377 = fadd <4 x float> %371, %376
+  %378 = load <4 x float>* %v
+  %379 = fadd <4 x float> %377, %378
+  store <4 x float> %379, <4 x float>* %conditional_tmp
+  br label %ifmerge114
 
-ifmerge113:                                       ; preds = %then112, %ifmerge111
-  %352 = load i1* %b
-  br i1 %352, label %then114, label %else117
+else113:                                          ; preds = %ifmerge111
+  %380 = load <4 x float>* %v
+  store <4 x float> %380, <4 x float>* %conditional_tmp
+  br label %ifmerge114
 
-then114:                                          ; preds = %ifmerge113
-  %353 = load i32* %i
-  %354 = sitofp i32 %353 to float
-  %swizzleTmp115 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %354, i32 0)
-  %355 = load float* %f
-  %swizzleTmp116 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %355, i32 0)
-  %356 = fadd <4 x float> %swizzleTmp115, %swizzleTmp116
-  %357 = load <4 x float>* %v
-  %358 = fadd <4 x float> %356, %357
-  store <4 x float> %358, <4 x float>* %conditional_tmp
-  br label %ifmerge118
-
-else117:                                          ; preds = %ifmerge113
-  %359 = load <4 x float>* %v
-  store <4 x float> %359, <4 x float>* %conditional_tmp
-  br label %ifmerge118
-
-ifmerge118:                                       ; preds = %else117, %then114
-  %360 = load <4 x float>* %conditional_tmp
-  store <4 x float> %360, <4 x float>* @gl_FragColor
-  %361 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %361)
+ifmerge114:                                       ; preds = %else113, %then112
+  %381 = load <4 x float>* %conditional_tmp
+  store <4 x float> %381, <4 x float>* @gl_FragColor
+  %382 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %382)
   ret void
 }
 
@@ -966,13 +982,7 @@ declare float @llvm.gla.fDistance.v4f32.v4f32(<4 x float>, <4 x float>) nounwind
 
 declare float @llvm.gla.fDot.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
-declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32(<4 x float>, i32) nounwind readnone
-
 declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
-
-declare float @llvm.gla.fSwizzle.f32.v3f32(<3 x float>, i32) nounwind readnone
-
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
@@ -1222,56 +1232,56 @@ ifmerge100:                                       ; preds = %then99, %ifmerge98
   %75 = fadd float %74, %distance
   %dot = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %41, <4 x float> %41)
   %76 = fadd float %75, %dot
-  %swizzleTmp = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32(<4 x float> %41, i32 36)
-  %cross = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %swizzleTmp, <3 x float> %swizzleTmp)
-  %swizzleTmp103 = call float @llvm.gla.fSwizzle.f32.v3f32(<3 x float> %cross, i32 0)
-  %77 = fadd float %76, %swizzleTmp103
-  %78 = fcmp oeq float %77, %37
-  br i1 %78, label %then104, label %else106
+  %77 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> undef, i32 7, <4 x float> %41, i32 0, <4 x float> %41, i32 1, <4 x float> %41, i32 2, float 0.000000e+00, i32 -1)
+  %cross = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %77, <3 x float> %77)
+  %78 = extractelement <3 x float> %cross, i32 0
+  %79 = fadd float %76, %78
+  %80 = fcmp oeq float %79, %37
+  br i1 %80, label %then102, label %else104
 
-then104:                                          ; preds = %ifmerge100
+then102:                                          ; preds = %ifmerge100
+  br label %ifmerge109
+
+else104:                                          ; preds = %ifmerge100
+  %81 = fcmp one float %79, %37
+  br i1 %81, label %then105, label %else107
+
+then105:                                          ; preds = %else104
+  %82 = fcmp one float %79, 2.000000e+00
+  br label %ifmerge108
+
+else107:                                          ; preds = %else104
+  br label %ifmerge108
+
+ifmerge108:                                       ; preds = %else107, %then105
+  %and_tmp106.0 = phi i1 [ %82, %then105 ], [ false, %else107 ]
+  br label %ifmerge109
+
+ifmerge109:                                       ; preds = %ifmerge108, %then102
+  %or_tmp103.0 = phi i1 [ true, %then102 ], [ %and_tmp106.0, %ifmerge108 ]
+  br i1 %or_tmp103.0, label %then110, label %ifmerge111
+
+then110:                                          ; preds = %ifmerge109
+  %83 = fadd float %79, 1.000000e+00
   br label %ifmerge111
 
-else106:                                          ; preds = %ifmerge100
-  %79 = fcmp one float %77, %37
-  br i1 %79, label %then107, label %else109
-
-then107:                                          ; preds = %else106
-  %80 = fcmp one float %77, 2.000000e+00
-  br label %ifmerge110
-
-else109:                                          ; preds = %else106
-  br label %ifmerge110
-
-ifmerge110:                                       ; preds = %else109, %then107
-  %and_tmp108.0 = phi i1 [ %80, %then107 ], [ false, %else109 ]
-  br label %ifmerge111
-
-ifmerge111:                                       ; preds = %ifmerge110, %then104
-  %or_tmp105.0 = phi i1 [ true, %then104 ], [ %and_tmp108.0, %ifmerge110 ]
-  br i1 %or_tmp105.0, label %then112, label %ifmerge113
+ifmerge111:                                       ; preds = %then110, %ifmerge109
+  %f.0 = phi float [ %83, %then110 ], [ %79, %ifmerge109 ]
+  br i1 %and_tmp88.0, label %then112, label %else113
 
 then112:                                          ; preds = %ifmerge111
-  %81 = fadd float %77, 1.000000e+00
-  br label %ifmerge113
+  %84 = sitofp i32 %i.0 to float
+  %85 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %84, i32 -1, float %84, i32 -1, float %84, i32 -1, float %84, i32 -1)
+  %86 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1)
+  %87 = fadd <4 x float> %85, %86
+  %88 = fadd <4 x float> %87, %41
+  br label %ifmerge114
 
-ifmerge113:                                       ; preds = %then112, %ifmerge111
-  %f.0 = phi float [ %81, %then112 ], [ %77, %ifmerge111 ]
-  br i1 %and_tmp88.0, label %then114, label %else117
+else113:                                          ; preds = %ifmerge111
+  br label %ifmerge114
 
-then114:                                          ; preds = %ifmerge113
-  %82 = sitofp i32 %i.0 to float
-  %swizzleTmp115 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %82, i32 0)
-  %swizzleTmp116 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %f.0, i32 0)
-  %83 = fadd <4 x float> %swizzleTmp115, %swizzleTmp116
-  %84 = fadd <4 x float> %83, %41
-  br label %ifmerge118
-
-else117:                                          ; preds = %ifmerge113
-  br label %ifmerge118
-
-ifmerge118:                                       ; preds = %else117, %then114
-  %conditional_tmp.0 = phi <4 x float> [ %84, %then114 ], [ %41, %else117 ]
+ifmerge114:                                       ; preds = %else113, %then112
+  %conditional_tmp.0 = phi <4 x float> [ %88, %then112 ], [ %41, %else113 ]
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %conditional_tmp.0)
   ret void
 }
@@ -1368,15 +1378,13 @@ declare float @llvm.gla.fDistance.v4f32.v4f32(<4 x float>, <4 x float>) nounwind
 
 declare float @llvm.gla.fDot.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
-declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32(<4 x float>, i32) nounwind readnone
-
 declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
-declare float @llvm.gla.fSwizzle.f32.v3f32(<3 x float>, i32) nounwind readnone
-
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
-
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float>, i32, <4 x float>, i32, <4 x float>, i32, <4 x float>, i32, float, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
 ***Unsupported functionality: intrinsic in Bottom IR
 compiling Operations.frag...

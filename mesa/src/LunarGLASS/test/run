@@ -14,8 +14,29 @@ Usage: ./run [options]
 "
 
 # Add more tests here as they are created
-TESTS=(test.frag flowControl.frag Operations.frag swizzle.frag functionCall.frag forLoop.frag whileLoop.frag doWhileLoop.frag syntaxError.frag
-       depthOut.frag dataOut.frag matrix.frag newTexture.frag structure.frag texture.frag types.frag)
+TESTS=(test.frag \
+       flowControl.frag \
+       Operations.frag \
+       swizzle.frag \
+       functionCall.frag \
+       forLoop.frag \
+       whileLoop.frag \
+       doWhileLoop.frag \
+       syntaxError.frag \
+       depthOut.frag \
+       dataOut.frag \
+       matrix.frag \
+       newTexture.frag \
+       structure.frag \
+       texture.frag \
+       types.frag \
+      )
+
+# $1 is the test
+# Rest are options to the runcommand
+function runSingleTest {
+    $RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > $1.stdout 2> $1.errout
+}
 
 function runTests {
     for t in ${TESTS[@]}; do
@@ -29,7 +50,7 @@ function runTests {
         then
             # Run for TGSI
             printf "%${INDENTLVL}s" "TGSI "
-            $RUNCMD ${OPTIONS[@]} $TGSI_OP $t > $t.stdout 2> $t.errout && echo -n "[OK]" \
+            runSingleTest $t $TGSI_OP && echo -n "[OK]" \
                 || (echo "[FAIL] " ; tail -n 1 $t.errout ; printf "%${GLSLLVL}s" " ")
             cat $t.errout $t.stdout > tgsi/$t.out
         else
@@ -39,7 +60,7 @@ function runTests {
 
         # Run for GLSL
         echo -n "        GLSL "
-        $RUNCMD ${OPTIONS[@]} $GLSL_OP $t > $t.stdout 2> $t.errout  && echo "[OK]" \
+        runSingleTest $t $GLSL_OP && echo "[OK]" \
             || (echo "[FAIL] " ; tail -n 1 $t.errout)
         cat $t.errout $t.stdout > glsl/$t.out
 
@@ -49,7 +70,7 @@ function runTests {
         then
             # Run obfuscated TGSI
             printf "TGSI "
-            $RUNCMD ${OPTIONS[@]} $TGSI_OP $OBFUSCATE_OP $t > $t.stdout 2> $t.errout && echo -n "[OK]" \
+            runSingleTest $t $TGSI_OP $OBFUSCATE_OP && echo -n "[OK]" \
                 || (echo "[FAIL] " ; tail -n 1 $t.errout ; printf "%${GLSLLVL}s" " ")
             cat $t.errout $t.stdout > tgsi/$t.out.obfuscated
         else
@@ -59,32 +80,36 @@ function runTests {
 
         # Run obfuscated GLSL
         echo -n "        GLSL "
-        $RUNCMD ${OPTIONS[@]} $GLSL_OP $OBFUSCATE_OP $t > $t.stdout 2> $t.errout && echo "[OK]" \
+        runSingleTest $t $GLSL_OP $OBFUSCATE_OP && echo "[OK]" \
             || (echo "[FAIL] " ; tail -n 1 $t.errout)
         cat $t.errout $t.stdout > glsl/$t.out.obfuscated
 
         printf "    Feeding back in:                     "
         printf "        GLSL "
-        ($RUNCMD $GLSL_OP $t > $t.stdout.frag 2> $t.errout && $RUNCMD $GLSL_OP $t.stdout.frag > $t.stdout 2> $t.errout && echo "[OK]") \
+        ($RUNCMD $GLSL_OP $t > $t.stdout.frag 2> $t.errout \
+            && $RUNCMD $GLSL_OP $t.stdout.frag > $t.stdout 2> $t.errout && echo "[OK]") \
             || (echo "[FAIL] " ; tail -n 1 $t.errout)
         cat $t.stdout > glsl/$t.out.rerun
 
         printf "    De-obfuscating:                      "
         printf "        GLSL "
-        ($RUNCMD $GLSL_OP $OBFUSCATE_OP $t > $t.stdout.obfuscated.frag 2> $t.errout && $RUNCMD $GLSL_OP $t.stdout.obfuscated.frag > $t.stdout 2> $t.errout && echo "[OK]") \
+        ($RUNCMD $GLSL_OP $OBFUSCATE_OP $t > $t.stdout.obfuscated.frag 2> $t.errout \
+            && $RUNCMD $GLSL_OP $t.stdout.obfuscated.frag > $t.stdout 2> $t.errout && echo "[OK]") \
             || (echo "[FAIL] " ; tail -n 1 $t.errout)
         cat $t.stdout > glsl/$t.out.de-obfuscated
 
         # Diff them
         printf "    Diffing rerun and de-obfuscate:      "
         printf "        GLSL "
-        (diff --side-by-side --suppress-common-lines glsl/$t.out.rerun glsl/$t.out.de-obfuscated > $t.diff && echo "[OK]") \
+        (diff --side-by-side --suppress-common-lines glsl/$t.out.rerun glsl/$t.out.de-obfuscated > $t.diff \
+            && echo "[OK]") \
             || (echo "[FAIL]" ; cat $t.diff)
 
         echo
         rm $t.stdout.obfuscated.frag
         rm $t.stdout.frag
         rm $t.stdout $t.errout
+        rm $t.diff
     done
 }
 

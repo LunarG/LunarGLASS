@@ -40,13 +40,23 @@ namespace gla {
     const int BiasLocAOS    = 4;
     const int DdxLocAOS     = 6;
     const int DdyLocAOS     = 7;
-    
+
     int GetConstantInt(const llvm::Value*);
     float GetConstantFloat(const llvm::Value*);
-    int IsGradientTexInst(const llvm::IntrinsicInst*);
     int GetComponentCount(const llvm::Type*);
     int GetComponentCount(const llvm::Value*);
     bool IsConsecutiveSwizzle(int glaSwizzle, int width);
+
+    // LLVM Value predicates:
+
+    // Whether the argument is undefined (an undef in llvm)
+    bool IsUndef(llvm::Value*);
+
+    // Returns true if the passed value is defined (not an undef)
+    bool IsDefined(llvm::Value*);
+
+    int IsGradientTexInst(const llvm::IntrinsicInst*);
+
 };
 
 #endif /* LunarGLASSBottomIR_H */

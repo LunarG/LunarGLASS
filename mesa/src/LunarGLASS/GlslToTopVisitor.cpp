@@ -35,6 +35,8 @@
 #include "Exceptions.h"
 #include "Options.h"
 
+#include "llvm/Support/raw_ostream.h"
+
 void GlslToTop(struct gl_shader* glShader, llvm::Module* module)
 {
     GlslToTopVisitor v(glShader, module);
@@ -295,7 +297,7 @@ ir_visitor_status
     if (f->has_user_signature()) {
         if(strcmp(f->name, "main") == 0) {
             llvm::Intrinsic::ID intrinsicID;
-                
+
             //Call writeData intrinsic on our outs
             while(!glslOuts.empty()) {
                 llvm::Value* loadVal = builder.CreateLoad(glslOuts.front());
@@ -435,13 +437,13 @@ ir_visitor_status
             if(writeMask & (1 << i)) {
                 if(llvm::Type::VectorTyID == sourceType) {
                     // Extract an element to a scalar, then immediately insert to our target
-                    targetVector = builder.CreateInsertElement(targetVector, 
-                                            builder.CreateExtractElement(lastValue, 
+                    targetVector = builder.CreateInsertElement(targetVector,
+                                            builder.CreateExtractElement(lastValue,
                                                     llvm::ConstantInt::get(context, llvm::APInt(32, sourceElement++, false))),
                                             llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
                 } else {
                     // Insert the scalar target
-                    targetVector = builder.CreateInsertElement(targetVector, 
+                    targetVector = builder.CreateInsertElement(targetVector,
                                             lastValue,
                                             llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
                 }
@@ -539,7 +541,6 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
     for(int i = 0; i < GLA_MAX_PARAMETER; i++)
         outParams[i] = llvmParams[i];
 
-    bool isBiased = false;
     llvm::Intrinsic::ID textureIntrinsicID = llvm::Intrinsic::gla_fTextureSample;
     gla::ESamplerType   samplerType;
 
@@ -599,23 +600,23 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** 
     else if(!strcmp(call->callee_name(), "all"))                { intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::gla_all, llvmParams[0]->getType()); name = "all"; }
 
     // Select intrinsic based on parameter types
-    else if(!strcmp(call->callee_name(), "abs"))                { 
+    else if(!strcmp(call->callee_name(), "abs"))                {
         switch(getLLVMBaseType(llvmParams[0]))                  {
         case llvm::Type::IntegerTyID:                           { intrinsicName = getLLVMIntrinsicFunction2(llvm::Intrinsic::gla_abs, resultType, llvmParams[0]->getType()); name = "abs";   break;  }
         case llvm::Type::FloatTyID:                             { intrinsicName = getLLVMIntrinsicFunction2(llvm::Intrinsic::gla_fAbs, resultType, llvmParams[0]->getType()); name = "abs";  break;  }  }  }
-    else if(!strcmp(call->callee_name(), "sign"))               { 
+    else if(!strcmp(call->callee_name(), "sign"))               {
         switch(getLLVMBaseType(llvmParams[0]))                  {
         case llvm::Type::IntegerTyID:                           { gla::UnsupportedFunctionality("Integer sign() ");  break;  }
         case llvm::Type::FloatTyID:                             { intrinsicName = getLLVMIntrinsicFunction2(llvm::Intrinsic::gla_fSign, resultType, llvmParams[0]->getType()); name = "sign"; break;  }  }  }
-    else if(!strcmp(call->callee_name(), "min"))                { 
+    else if(!strcmp(call->callee_name(), "min"))                {
         switch(getLLVMBaseType(llvmParams[0]))                  {
         case llvm::Type::IntegerTyID:                           { intrinsicName = getLLVMIntrinsicFunction3(llvm::Intrinsic::gla_sMin, resultType, llvmParams[0]->getType(), llvmParams[1]->getType()); name = "min";  break;  }
         case llvm::Type::FloatTyID:                             { intrinsicName = getLLVMIntrinsicFunction3(llvm::Intrinsic::gla_fMin, resultType, llvmParams[0]->getType(), llvmParams[1]->getType()); name = "min";  break;  }  }  }
-    else if(!strcmp(call->callee_name(), "max"))                { 
+    else if(!strcmp(call->callee_name(), "max"))                {
         switch(getLLVMBaseType(llvmParams[0]))                  {
         case llvm::Type::IntegerTyID:                           { intrinsicName = getLLVMIntrinsicFunction3(llvm::Intrinsic::gla_sMax, resultType, llvmParams[0]->getType(), llvmParams[1]->getType()); name = "max";  break;  }
         case llvm::Type::FloatTyID:                             { intrinsicName = getLLVMIntrinsicFunction3(llvm::Intrinsic::gla_fMax, resultType, llvmParams[0]->getType(), llvmParams[1]->getType()); name = "max";  break;  }  }  }
-    else if(!strcmp(call->callee_name(), "clamp"))              { 
+    else if(!strcmp(call->callee_name(), "clamp"))              {
         switch(getLLVMBaseType(llvmParams[0]))                  {
         case llvm::Type::IntegerTyID:                           { intrinsicName = getLLVMIntrinsicFunction4(llvm::Intrinsic::gla_sClamp, resultType, llvmParams[0]->getType(), llvmParams[1]->getType(), llvmParams[2]->getType()); name = "clamp";  break;  }
         case llvm::Type::FloatTyID:                             { intrinsicName = getLLVMIntrinsicFunction4(llvm::Intrinsic::gla_fClamp, resultType, llvmParams[0]->getType(), llvmParams[1]->getType(), llvmParams[2]->getType()); name = "clamp";  break;  }  }  }
@@ -921,7 +922,7 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
     bool local = false;
     llvm::Constant* initializer = 0;
     llvm::GlobalValue::LinkageTypes linkage = llvm::GlobalVariable::InternalLinkage;
-    llvm::Type *llvmVarType = convertGLSLToLLVMType(var->type);    
+    llvm::Type *llvmVarType = convertGLSLToLLVMType(var->type);
     llvm::Value* value = 0;
 
     const char* typePrefix = 0;
@@ -984,7 +985,7 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
             llvm::BasicBlock* entryBlock = getShaderEntry();
         //?? else.
             //llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();
-        
+
         llvm::IRBuilder<> entryBuilder(entryBlock, entryBlock->begin());
         value = entryBuilder.CreateAlloca(llvmVarType, 0, var->name);
     } else {
@@ -1152,7 +1153,7 @@ llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm
         else            return result;
 
     case ir_binop_any_nequal:
-        // Returns single boolean for whether any component of operands[0] is 
+        // Returns single boolean for whether any component of operands[0] is
         // not equal to the corresponding component of operands[1].
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         result = builder.CreateFCmpONE(operands[0], operands[1]);  break;
@@ -1182,31 +1183,54 @@ int makeSwizzle(ir_swizzle_mask mask) {
 llvm::Value* GlslToTopVisitor::expandGLSLSwizzle(ir_swizzle* swiz)
 {
     llvm::Value* operand;
+    llvm::Value* target;
 
     // traverse the tree we're swizzling
     swiz->val->accept(this);
     operand = lastValue;
 
     // convert our GLSL mask to an int
-    int swizVal = makeSwizzle(swiz->mask);
+    int swizValMask = makeSwizzle(swiz->mask);
 
-    // swizzle needs the source type and dest type
-    llvm::Intrinsic::ID intrinsicID;
-    switch(getLLVMBaseType(operand)) {
-    case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_swizzle;     break;
-    case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fSwizzle;    break;
+    const llvm::Type* sourceType = operand->getType();
+    llvm::Type* finalType = convertGLSLToLLVMType(swiz->type);
+
+    llvm::VectorType* vt = llvm::dyn_cast<llvm::VectorType>(finalType);
+
+    // If we are dealing with a scalar, just put it in a register and return
+    if (!vt) {
+        target = builder.CreateExtractElement(lastValue,
+                                              llvm::ConstantInt::get(context,
+                                                                     llvm::APInt(32, swizValMask, false)));
+        return target;
     }
-    
-    llvm::Function *intrinsicName = getLLVMIntrinsicFunction2(intrinsicID,
-                                                            convertGLSLToLLVMType(swiz->type),
-                                                            operand->getType());
+    assert(vt);
 
-    llvm::CallInst *callInst = builder.CreateCall2 (intrinsicName,
-                                                    operand,
-                                                    llvm::ConstantInt::get(context, llvm::APInt(32, swizVal, true)),
-                                                    "swizzleTmp");
+    // Else we are dealing with a vector
 
-    return callInst;
+    // We start out with an undef to insert into
+    target = llvm::UndefValue::get(finalType);
+
+    for(int i = 0, end = vt->getNumElements(); i < end; ++i) {
+
+        // If we're constructing a vector from a scalar, then just
+        // make inserts. Otherwise make insert/extract pairs
+        if (false == llvm::isa<llvm::VectorType>(sourceType)) {
+            target = builder.CreateInsertElement(target,
+                                                 operand,
+                                                 llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
+        } else {
+            // Extract an element to a scalar, then immediately insert to our target
+            llvm::Value* extractInst = builder.CreateExtractElement(lastValue,
+                                                                    llvm::ConstantInt::get(context,
+                                                                                           llvm::APInt(32, (swizValMask >> (2*i)) & 0x3, false)));
+            target = builder.CreateInsertElement(target,
+                                                 extractInst,
+                                                 llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
+        }
+    }
+
+    return target;
 }
 
 llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
@@ -1372,15 +1396,14 @@ llvm::Type::TypeID GlslToTopVisitor::getLLVMBaseType(llvm::Type* type)
         return type->getTypeID();
 }
 
-void GlslToTopVisitor::findAndSmearScalars(llvm::Value** operands, int numOperands) 
-{    
+void GlslToTopVisitor::findAndSmearScalars(llvm::Value** operands, int numOperands)
+{
     assert(numOperands == 2);
 
     int vectorSize = 0;
     int scalarIndex = 0;
     int vectorIndex = 0;
     llvm::Value* scalarVal = 0;
-    llvm::Value* vectorVal = 0;
     const llvm::VectorType* vectorType[2];
 
     // Find the scalar index and vector size
@@ -1404,9 +1427,9 @@ void GlslToTopVisitor::findAndSmearScalars(llvm::Value** operands, int numOperan
         llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();
     //?? else
         //llvm::BasicBlock* entryBlock = getShaderEntry();
-        
+
     llvm::IRBuilder<> entryBuilder(entryBlock, entryBlock->begin());
-    operands[scalarIndex] = builder.CreateLoad(entryBuilder.CreateAlloca(vectorType[vectorIndex], 0));
+    operands[scalarIndex] = llvm::UndefValue::get(vectorType[vectorIndex]);
 
     // Use a swizzle to expand the scalar to a vector
     llvm::Intrinsic::ID intrinsicID;
@@ -1415,7 +1438,7 @@ void GlslToTopVisitor::findAndSmearScalars(llvm::Value** operands, int numOperan
     case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_swizzle;     break;
     case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fSwizzle;    break;
     }
-    
+
     llvm::Function *intrinsicName = getLLVMIntrinsicFunction2(intrinsicID, operands[vectorIndex]->getType(), scalarVal->getType());
 
     // Broadcast x

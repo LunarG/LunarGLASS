@@ -83,4 +83,15 @@ namespace gla {
 
         return true;
     }
+
+    bool IsUndef(llvm::Value* val)
+    {
+        return llvm::isa<llvm::UndefValue>(val);
+    }
+
+    bool IsDefined(llvm::Value* val)
+    {
+        return !IsUndef(val);
+    }
+
 };

@@ -31,21 +31,24 @@
 //===----------------------------------------------------------------------===//
 
 
-#include "llvm/Pass.h"
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/InstIterator.h"
-#include "CoalesceInserts.h"
 #include "llvm/ADT/ilist.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/SmallSet.h"
-#include "llvm/Type.h"
-#include "llvm/DerivedTypes.h"
 #include "llvm/Constants.h"
+#include "llvm/DerivedTypes.h"
 #include "llvm/Intrinsics.h"
 #include "llvm/Instructions.h"
+#include "llvm/Pass.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/InstIterator.h"
+#include "llvm/Type.h"
+
+#include "CoalesceInserts.h"
 
 // LunarGLASS helpers
 #include "LunarGLASSBottomIR.h"
+
+#include <utility>
 
 #define VERBOSE(exp) if (VerboseP) exp;
 
@@ -58,12 +61,14 @@ namespace {
     // Initial sizes for our data structures
     const int NumTypicalInserts = 32;
     const int NumTypicalIntrinsics = 8;
+    const int GroupSize = 4;
 
     // Typedefs
     typedef iplist<Instruction>::reverse_iterator reverse_iterator;
     typedef SmallVector<Instruction*,NumTypicalInserts> InstVec;
     typedef SmallSet<Instruction*, NumTypicalInserts> InstSet;
-    typedef SmallVector<InstVec*, NumTypicalIntrinsics> GroupVec;
+    typedef SmallVector<Instruction*, GroupSize> Group;
+    typedef SmallVector<Group*, NumTypicalIntrinsics> GroupVec;
 
     // Coalesce Inserts/Extracts Pass
     class CoalesceInserts : public FunctionPass {
@@ -76,14 +81,66 @@ namespace {
         virtual void getAnalysisUsage(AnalysisUsage&) const;
     };
 
+    // Class to make all the multiinsert intrinsics in a basic block
+    class BBMIIMaker {
+    public:
+        BBMIIMaker(Module* M, LLVMContext& C, BasicBlock& basicblock)
+                  : module(M)
+                  , context(C)
+                  , bb(basicblock)
+                  , modified(false)
+        { }
+
+        void run();
+
+        // Whether the BBMIIMaker modificed the basic block
+        bool didModify()
+        {
+            return modified;
+        }
+
+        ~BBMIIMaker();
+
+    private:
+        GroupVec groups;
+        InstVec inserts;
+        InstSet handledInsts;
+
+        Module* module;
+        LLVMContext& context;
+        BasicBlock& bb;
+        bool modified;
+
+        // Group instructions into the individual multiInserts
+        void groupInserts();
+
+        // Add the entire insert chain specified by the value to instSet
+        void addEntireInsertChain(Value* v);
+
+        // Add the left-most insert chain specified by v and not already in s to the
+        // provided vector in depth-first pre-order
+        void addLeftInsertChain(Value* v, Group& vec);
+
+        // Gather all insert instructions together
+        void gatherInserts();
+
+        // Output convenience methods
+        void printGroups();
+        void printCandidates();
+        void printBlock();
+
+        // Unimplemented unwanted copy and assignment
+        BBMIIMaker(BBMIIMaker&);
+        BBMIIMaker& operator=(const BBMIIMaker&);
+
+    };
+
     class MultiInsertIntrinsic {
     public:
-        // Construct the MultiInsertIntrinsic. If last runIt is true,
-        // then also run after constructing.
-        MultiInsertIntrinsic(Module* m, LLVMContext& c, BasicBlock& bb, InstVec& g, bool runIt=false)
+        MultiInsertIntrinsic(Module* m, LLVMContext& c, BasicBlock& basicblock, Group& g)
                             : module(m)
                             , llvmcontext(c)
-                            , basicblock(bb)
+                            , bb(basicblock)
                             , group(g)
                             , intrinsic(NULL)
                             , writeMask(0)
@@ -117,8 +174,8 @@ namespace {
     private:
         Module* module;
         LLVMContext& llvmcontext;
-        BasicBlock& basicblock;
-        InstVec& group;
+        BasicBlock& bb;
+        Group& group;
 
         Instruction* intrinsic;
 
@@ -134,8 +191,8 @@ namespace {
         // Make the intrinsic
         void makeIntrinsic();
 
-        // Insert the instruction in, replacing uses for toReplace
-        // with the new instruction
+        // Insert the instruction in, replacing uses for toReplace with the new
+        // instruction
         void insertIntrinsic();
 
         // Unimplemented unwanted copy and assignment
@@ -147,68 +204,122 @@ namespace {
 
 // Helpers
 // Predicate for whether the instruction is an insert
-static bool IsInsertElement(Instruction& i)
+static bool IsInsertElement(Value* i)
 {
-    return strcmp(i.getOpcodeName(), "insertelement") == 0;
+    return isa<InsertElementInst>(i);
 }
 
 // Predicate for whether the instruction is an extract
-static bool IsExtract(Instruction& i)
+static bool IsExtractElement(Value* i)
 {
-    return strcmp(i.getOpcodeName(), "extractelement") == 0;
+    return isa<ExtractElementInst>(i);
 }
 
-// Given a value, if it's an extract return its offset
-// Return -1 if not an extract
-static int GetOffset(Value* v)
-{
-    int offset = -1;
+// Predicate telling whether the instruction is an insert or extract
+static bool IsEitherIE(Value* i) {
+    return IsInsertElement(i) || IsExtractElement(i);
+}
 
-    // If the operand is an extract instruction, then get the offset
-    if (Instruction* inst = dyn_cast<Instruction>(v)) {
-        if (IsExtract(*inst)) {
-            offset = gla::GetConstantInt(inst->getOperand(1));
+// Given a value, get the underlying offset and value. If the value is a
+// constant, return -1 and the constant. If the value is an extract of a vector,
+// then return the vector and the offset into it. If the extract is extracting
+// from an insert, then traverse all the way down, eventually returning the
+// underlying vector and offset.
+static void GetUnderlyingOffsetAndValue(std::pair<Value*,int>& ov)
+{
+    Instruction* inst = dyn_cast<Instruction>(ov.first);
+
+    // If it's a constant, we're done here.
+    if (!inst) {
+        return;
+    }
+
+    // If it's not an extract or insert, we're done here
+    if (!IsExtractElement(inst) && !IsInsertElement(inst)) {
+        return;
+    }
+
+    // If it's an extract, then traverse down it
+    if (IsExtractElement(inst)) {
+        // Set the value and offset
+        ov.first = inst->getOperand(0);
+        ov.second = gla::GetConstantInt(inst->getOperand(1));
+        // Continue traversing
+        GetUnderlyingOffsetAndValue(ov);
+        return;
+    }
+
+    // If it's an insert, then see what its offset is and what it's pointing to
+    // in order to determine how to traverse it
+    if (IsInsertElement(inst)) {
+
+        // The insert instruction's offset that it is writing to
+        int insertOffset = gla::GetConstantInt(inst->getOperand(2));
+
+        // If the insert is overwriting the field that we are trying to get at,
+        // then continue with it's value, otherwise continue with the insert's
+        // target and the same offset.
+        if (insertOffset == ov.second) {
+            ov.first = inst->getOperand(1);
+            ov.second = -1;
+        } else {
+            ov.first = inst->getOperand(0);
+        }
+
+        // If we're still dealing with an insert or extract, keep traversing,
+        // otherwise we're done.
+        if (IsInsertElement(ov.first) || IsExtractElement(ov.first)) {
+            GetUnderlyingOffsetAndValue(ov);
+        }
+        return;
+    }
+}
+
+static Value* GetOriginalSource(Value* val)
+{
+    // If it's an insert, traverse it
+    if (Instruction* inst = dyn_cast<Instruction>(val)) {
+        if (IsInsertElement(inst)) {
+            return GetOriginalSource(inst->getOperand(0));
         }
     }
 
-    return offset;
+    // Else return what we have
+    return val;
 }
 
-// If the value is an extract instruction, then get the vector
-// extraced from, else return the given value
-static Value* GetExtractFrom(Value* v)
+void BBMIIMaker::gatherInserts()
 {
-    Value* ret = v;
-    if (Instruction* inst = dyn_cast<Instruction>(v)) {
-        if (IsExtract(*inst)) {
-            ret = (inst->getOperand(0));
+    BasicBlock::InstListType& instList = bb.getInstList();
+    for (reverse_iterator i = instList.rbegin(), e = instList.rend(); i != e; ++i) {
+        if (IsInsertElement(&*i)) {
+            inserts.push_back(&*i);
         }
     }
-
-    return ret;
 }
 
-static void PrintBlock(BasicBlock& bb)
+
+void BBMIIMaker::printBlock()
 {
-    errs() << "processing basic block " << bb.getName() << "\n" << bb;
+    errs() << "processing basic block " << bb.getName() << "\n" << bb << "\n";
 }
 
-static void PrintCandidates(InstVec& v)
+void BBMIIMaker::printCandidates()
 {
     errs() << "\nThis block's candidates for intrinsic substitution: \n";
-    for (InstVec::iterator i = v.begin(), e = v.end(); i != e; ++i) {
+    for (InstVec::iterator i = inserts.begin(), e = inserts.end(); i != e; ++i) {
         errs() << **i << "\n";
     }
 }
 
-static void PrintGroups(GroupVec& groupVec)
+void BBMIIMaker::printGroups()
 {
     errs() << "\nThis block's groups: \n";
     int i = 0;
-    for (GroupVec::iterator gI = groupVec.begin(), gE = groupVec.end(); gI != gE; ++gI) {
+    for (GroupVec::iterator gI = groups.begin(), gE = groups.end(); gI != gE; ++gI) {
         ++i;
         errs() << "Group " << i << ":";
-        for (InstVec::iterator instI = (*gI)->begin(), instE = (*gI)->end(); instI != instE; ++instI) {
+        for (Group::iterator instI = (*gI)->begin(), instE = (*gI)->end(); instI != instE; ++instI) {
             if (instI == ((*gI)->begin()))
                 errs() << **instI;
             else
@@ -216,64 +327,66 @@ static void PrintGroups(GroupVec& groupVec)
         }
         errs() << "\n";
     }
-
 }
 
-// Gather all insert instructions together, putting them in
-// the InstVec
-static void GatherInserts(BasicBlock::InstListType& instList, InstVec& result)
+void BBMIIMaker::addLeftInsertChain(Value* v, Group& vec)
 {
-    for (reverse_iterator i = instList.rbegin(), e = instList.rend(); i != e; ++i) {
-        if (IsInsertElement(*i)) {
-            result.push_back(&*i);
-        }
-    }
-}
+    Instruction* inst = dyn_cast<Instruction>(v);
 
-// Add the entire insert chain specified by the value to the
-// provided set and vector.
-static void AddInsertChain(Value* v, InstSet& s, InstVec& vec)
-{
-    // If it's an instruction and an insert, put it into s and vec,
-    // and continue recursively traversing the chain
-    if (Instruction* inst = dyn_cast<Instruction>(v)) {
-        if (IsInsertElement(*inst)) {
-            s.insert(inst);
-            vec.push_back(inst);
-
-            AddInsertChain(inst->getOperand(0), s, vec);
-        }
+    // If it's not an insert, or if we've already seen it before,
+    // we're done
+    if (!inst || !IsInsertElement(inst) || handledInsts.count(inst)) {
+        return;
     }
 
-    // Base case: not a candidate instruction
-    return;
+    // Otherwise, put it in the vector and continue
+    vec.push_back(inst);
+    addLeftInsertChain(inst->getOperand(0), vec);
 }
 
-// Group instructions into the individual multiInserts,
-// putting them in the GroupVec
-static void GroupInserts(InstVec& vec, GroupVec& result)
+void BBMIIMaker::addEntireInsertChain(Value* v)
 {
-    InstSet instSet;
-    for (InstVec::iterator i = vec.begin(), e = vec.end(); i != e; ++i) {
+    Instruction* inst = dyn_cast<Instruction>(v);
+
+    // If it's not an insert or extract, or if we've already seen it before,
+    // we're done
+    if (!inst || !IsEitherIE(inst) || handledInsts.count(inst)) {
+        return;
+    }
+
+    // If it's an insert, add it
+    if (IsInsertElement(inst)) {
+        handledInsts.insert(inst);
+    }
+
+    // Continue on
+    addEntireInsertChain(inst->getOperand(0));
+}
+
+void BBMIIMaker::groupInserts()
+{
+    for (InstVec::iterator i = inserts.begin(), e = inserts.end(); i != e; ++i) {
 
         // Convert to an instruction (should not fail)
         Instruction* inst = dyn_cast<Instruction>(&**i);
         assert(inst);
 
         // If we've already seen it, continue
-        if (instSet.count(inst)) {
+        if (handledInsts.count(inst)) {
             continue;
         }
 
         // Else this is a new group
 
-        // TODO: find a more RAII handling of this
-        InstVec* newGroup = new InstVec();
+        Group* newGroup = new Group();       // note: deallocation handled in destructor
 
-        AddInsertChain(inst, instSet, *newGroup);
-        result.push_back(newGroup);
+        addLeftInsertChain(inst, *newGroup);
+        addEntireInsertChain(inst);
+        assert(newGroup->size() <= 4);
+        groups.push_back(newGroup);
     }
 }
+
 
 // MultiInsertIntrinsic implementation
 
@@ -282,27 +395,28 @@ void MultiInsertIntrinsic::buildFromGroup()
     // The instruction we're replacing is at the front
     toReplace = group.front();
 
-    // Find the orignal insert destination. It will be the last one
-    // listed, due to the groups being in depth-first order
-    originalSource = group.back()->getOperand(0);
+    // Find the original insert source.
+    originalSource = GetOriginalSource(group.front());
 
     // For each member of the group, set the relevant fields.
     for (InstVec::iterator instI = group.begin(), instE = group.end(); instI != instE; ++instI) {
         // Only operate on inserts
-        assert(IsInsertElement(**instI) && "buildFromGroup supposed to only operate on inserts");
+        assert(IsInsertElement(*instI) && "buildFromGroup supposed to only operate on inserts");
 
         // The source operand
         Value* src = (*instI)->getOperand(1);
 
         // Find the access offset of the underlying extract intrinsic
-        int offset = GetOffset(src);
+        std::pair<Value*,int> p(src, -1);
+        GetUnderlyingOffsetAndValue(p);
 
-        // The value the extract statement is extracting from
-        // If it isn't an extract statement, make it be the scalar
-        Value* extractFrom = GetExtractFrom(src);
+        int offset = p.second;
+        Value* extractFrom = p.first;
+        assert (offset <= 15 && "offset is too big");
+        assert (extractFrom);
 
-        // Match up the data with the corresponding field specified in
-        // the insert
+        // Match up the data with the corresponding field specified in the
+        // insert
         int maskOffset = gla::GetConstantInt((*instI)->getOperand(2));
         assert(maskOffset <= 4 && " Unknown access mask found");
 
@@ -311,10 +425,12 @@ void MultiInsertIntrinsic::buildFromGroup()
 
         // Update the mask
         writeMask |= (1 << maskOffset);
+        assert(writeMask <= 15 && "writeMask is too big");
     }
 }
 
-void MultiInsertIntrinsic::makeIntrinsic() {
+void MultiInsertIntrinsic::makeIntrinsic()
+{
     // Set up types array
     int typesCount = 6;
     const llvm::Type* intrinsicTypes[6] = {0};
@@ -324,12 +440,11 @@ void MultiInsertIntrinsic::makeIntrinsic() {
 
     // Determine if it's a fWriteMask or writeMask, and set types accordingly
     Intrinsic::ID intrinsicID;
-    unsigned vecCount = 4;
+    //unsigned vecCount = 4;
     switch (toReplace->getType()->getContainedType(0)->getTypeID()) {
     case Type::FloatTyID:
         defaultType = Type::getFloatTy(llvmcontext);
         intrinsicID = Intrinsic::gla_fMultiInsert;
-        intrinsicTypes[0] = VectorType::get(defaultType, vecCount);
         break;
     case Type::IntegerTyID:
         if (toReplace->getType()->getContainedType(0)->isIntegerTy(1))
@@ -337,13 +452,13 @@ void MultiInsertIntrinsic::makeIntrinsic() {
         else
             defaultType = Type::getInt32Ty(llvmcontext);
         intrinsicID = Intrinsic::gla_multiInsert;
-        intrinsicTypes[0] = VectorType::get(defaultType, vecCount);
         break;
     default:
         assert(!"Unknown multiInsert intrinsic type");
     }
 
     // Set up each of the operand types
+    intrinsicTypes[0] = originalSource ? originalSource->getType() : defaultType;
     intrinsicTypes[1] = originalSource ? originalSource->getType() : defaultType;
     intrinsicTypes[2] = values[0]      ? values[0]->getType()      : defaultType;
     intrinsicTypes[3] = values[1]      ? values[1]->getType()      : defaultType;
@@ -372,18 +487,19 @@ void MultiInsertIntrinsic::makeIntrinsic() {
 
 void MultiInsertIntrinsic::insertIntrinsic()
 {
-    BasicBlock::InstListType& instList = basicblock.getInstList();
+    BasicBlock::InstListType& instList = bb.getInstList();
     for (BasicBlock::InstListType::iterator instI = instList.begin(), instE = instList.end(); instI != instE; ++instI)
         if (instI->isIdenticalTo(toReplace)) {
-            assert(IsInsertElement(*instI));
+            assert(IsInsertElement(instI));
 
             instList.insertAfter(instI, intrinsic);
             instI->replaceAllUsesWith(intrinsic);
         }
 }
 
-void MultiInsertIntrinsic::dump() const {
-    errs() << "\nMultiInsertIntrinsic for" << toReplace << ":\n";
+void MultiInsertIntrinsic::dump() const
+{
+    errs() << "\nMultiInsertIntrinsic for " << *toReplace << ":\n";
     errs() << "  Write mask and offset:\n";
     errs() << "    " << writeMask;
 
@@ -404,9 +520,41 @@ void MultiInsertIntrinsic::dump() const {
 
     errs() << "\n";
     errs() << "  Original insert destination: " << *originalSource << "\n";
-
+    errs() << "Instrinsic: " << *intrinsic;
     errs() << "\n";
-    errs() << "Instrinsic: " << intrinsic;
+}
+
+void BBMIIMaker::run()
+{
+    VERBOSE(printBlock());
+
+    // Gather the candidate instructions
+    gatherInserts();
+    VERBOSE(printCandidates());
+
+    // Group them
+    groupInserts();
+    VERBOSE(printGroups());
+
+    // For each group, make a MultiInsertOp
+    for (GroupVec::iterator gI = groups.begin(), gE = groups.end(); gI != gE; ++gI) {
+        MultiInsertIntrinsic mii(module, context, bb, **gI);
+        mii.run();
+
+        VERBOSE(mii.dump());
+
+        modified = true;
+
+    }
+
+    VERBOSE(printBlock());
+}
+
+BBMIIMaker::~BBMIIMaker()
+{
+    for (GroupVec::iterator gI = groups.begin(), gE = groups.end(); gI != gE; ++gI) {
+        delete *gI;
+    }
 }
 
 // CoalesceInserts implementation
@@ -420,34 +568,9 @@ bool CoalesceInserts::runOnFunction(Function& F)
 
     // For each Basic Block
     for (Function::iterator bb = F.begin(), ebb = F.end(); bb != ebb; ++bb) {
-
-        VERBOSE(PrintBlock(*bb));
-
-        // Gather the candidate instructions
-        InstVec v;
-        GatherInserts(bb->getInstList(), v);
-        VERBOSE(PrintCandidates(v));
-
-        // Group them
-        GroupVec groupVec;
-        GroupInserts(v, groupVec);
-        VERBOSE(PrintGroups(groupVec));
-
-        // For each group, make a MultiInsertOp
-        for (GroupVec::iterator gI = groupVec.begin(), gE = groupVec.end(); gI != gE; ++gI) {
-            MultiInsertIntrinsic mii(M, C, *bb, **gI);
-            mii.run();
-
-            VERBOSE(mii.dump());
-
-            wasModified = true;
-
-            // We're done with the group, so delete it
-            // TODO: find a more RAII handling of this
-            delete *gI;
-        }
-
-        // VERBOSE(PrintBlock(*bb));
+        BBMIIMaker maker(M, C, *bb);
+        maker.run();
+        wasModified = maker.didModify();
     }
 
     return wasModified;
@@ -456,7 +579,7 @@ bool CoalesceInserts::runOnFunction(Function& F)
 
 void CoalesceInserts::getAnalysisUsage(AnalysisUsage& AU) const
 {
-    return;
+    AU.setPreservesCFG();
 }
 
 void CoalesceInserts::print(raw_ostream &out, const Module* M) const
