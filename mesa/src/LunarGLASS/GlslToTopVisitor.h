@@ -113,6 +113,8 @@ public:
     llvm::Type::TypeID getLLVMBaseType(llvm::Value*);
     llvm::Type::TypeID getLLVMBaseType(llvm::Type*);
 
+    bool isBooleanLLVM(const llvm::Type*);
+
     int getNextInterpIndex(ir_variable*);
 
 protected:    

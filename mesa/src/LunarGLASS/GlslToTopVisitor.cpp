@@ -492,30 +492,32 @@ ir_visitor_status
         if(!strcmp(call->callee_name(), "mod")) {
             returnValue = expandGLSLOp(ir_binop_mod, llvmParams);
         }
-        if(!strcmp(call->callee_name(), "mix")) {
+        else if(!strcmp(call->callee_name(), "mix")) {
             if(llvm::Type::IntegerTyID == getLLVMBaseType(llvmParams[0]))
                 returnValue = builder.CreateSelect(llvmParams[2], llvmParams[0], llvmParams[1]);
         }
-        if(!strcmp(call->callee_name(), "lessThan")) {
+        else if(!strcmp(call->callee_name(), "lessThan")) {
             returnValue = expandGLSLOp(ir_binop_less, llvmParams);
         }
-        if(!strcmp(call->callee_name(), "lessThanEqual")) {
+        else if(!strcmp(call->callee_name(), "lessThanEqual")) {
             returnValue = expandGLSLOp(ir_binop_lequal, llvmParams);
         }
-        if(!strcmp(call->callee_name(), "greaterThan")) {
+        else if(!strcmp(call->callee_name(), "greaterThan")) {
             returnValue = expandGLSLOp(ir_binop_greater, llvmParams);
         }
-        if(!strcmp(call->callee_name(), "greaterThanEqual")) {
+        else if(!strcmp(call->callee_name(), "greaterThanEqual")) {
             returnValue = expandGLSLOp(ir_binop_gequal, llvmParams);
         }
-        if(!strcmp(call->callee_name(), "equal")) {
+        else if(!strcmp(call->callee_name(), "equal")) {
             returnValue = expandGLSLOp(ir_binop_equal, llvmParams);
         }
-        if(!strcmp(call->callee_name(), "notEqual")) {
+        else if(!strcmp(call->callee_name(), "notEqual")) {
             returnValue = expandGLSLOp(ir_binop_nequal, llvmParams);
         }
-        if(!strcmp(call->callee_name(), "not")) {
-            returnValue = builder.CreateNot(llvmParams[0]);
+        else if(!strcmp(call->callee_name(), "not")) {
+            // Set return value to operand 0 for pass through
+            returnValue = llvmParams[0];
+            gla::UnsupportedFunctionality("logical not", gla::EATContinue);
         }
 
         // If this call requires an intrinsic
@@ -1041,7 +1043,9 @@ const char* GlslToTopVisitor::getSamplerDeclaration(ir_variable* var)
 
 llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm::Value** operands)
 {
-    llvm::Value* result = 0;
+    // Initialize result to pass through unsupported ops
+    llvm::Value* result = operands[0];
+
     const llvm::Type* varType;
     const llvm::VectorType* vectorType;
 
@@ -1077,6 +1081,11 @@ llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm
         if(vectorType)  varType = llvm::VectorType::get(llvm::Type::getFloatTy(context), vectorType->getNumElements());
         else            varType = llvm::Type::getFloatTy(context);
         return          builder.CreateUIToFP(operands[0], varType);
+    case ir_unop_neg:
+        switch(getLLVMBaseType(operands[0])) {
+        case llvm::Type::FloatTyID:         return builder.CreateFNeg(operands[0]);
+        case llvm::Type::IntegerTyID:       return builder.CreateNeg (operands[0]);
+        }
     case ir_binop_add:
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFAdd(operands[0], operands[1]);
@@ -1127,16 +1136,27 @@ llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm
         case llvm::Type::FloatTyID:         return builder.CreateFCmpONE(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpNE (operands[0], operands[1]);
         }
-    case ir_binop_lshift:
-        return builder.CreateLShr(operands[0], operands[1]);
-    case ir_binop_rshift:
-        return builder.CreateLShr(operands[0], operands[1]);
-    case ir_binop_logic_and:
-        return builder.CreateAnd(operands[0], operands[1]);
+
+    case ir_binop_lshift:                   return builder.CreateLShr(operands[0], operands[1]);
+    case ir_binop_rshift:                   return builder.CreateLShr(operands[0], operands[1]);
+    case ir_binop_bit_and:                  return builder.CreateAnd (operands[0], operands[1]);
+    case ir_binop_bit_or:                   return builder.CreateOr  (operands[0], operands[1]);
+    case ir_binop_bit_xor:                  return builder.CreateXor (operands[0], operands[1]);
+    case ir_unop_bit_not:                   return builder.CreateNot (operands[0]);    
+
+    case ir_binop_logic_and:    
+        gla::UnsupportedFunctionality("logical and", gla::EATContinue);   
+        break;
     case ir_binop_logic_xor:
-        return builder.CreateXor(operands[0], operands[1]);
+        gla::UnsupportedFunctionality("logical xor", gla::EATContinue);  
+        break;
     case ir_binop_logic_or:
-        return builder.CreateOr(operands[0], operands[1]);
+        gla::UnsupportedFunctionality("logical or", gla::EATContinue);  
+        break;
+    case ir_unop_logic_not:
+        gla::UnsupportedFunctionality("logical not", gla::EATContinue);  
+        break;
+
     case ir_binop_mod:
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFRem(operands[0], operands[1]);
@@ -1161,16 +1181,12 @@ llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm
         }
         if(vectorType)  return builder.CreateCall(getLLVMIntrinsicFunction1(llvm::Intrinsic::gla_any, result->getType()), result);
         else            return result;
-    case ir_binop_min:
-    case ir_binop_max:
-    case ir_binop_pow:
-    case ir_binop_dot:
-    case ir_binop_bit_and:
-    case ir_binop_bit_xor:
-    case ir_binop_bit_or:
-
-    default:
-        gla::UnsupportedFunctionality("Binary Operation: ", glslOp);
+   
+    case ir_binop_min:      gla::UnsupportedFunctionality("min",    gla::EATContinue);  break;
+    case ir_binop_max:      gla::UnsupportedFunctionality("max",    gla::EATContinue);  break;
+    case ir_binop_pow:      gla::UnsupportedFunctionality("pow",    gla::EATContinue);  break;
+    case ir_binop_dot:      gla::UnsupportedFunctionality("dot",    gla::EATContinue);  break;
+            
     }
 
     return result;

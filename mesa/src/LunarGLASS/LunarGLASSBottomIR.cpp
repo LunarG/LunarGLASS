@@ -94,4 +94,16 @@ namespace gla {
         return !IsUndef(val);
     }
 
+    bool isBoolean(const llvm::Type* type)
+    {
+        if (llvm::Type::VectorTyID == type->getTypeID()) {
+            if ( type->getContainedType(0) == type->getInt1Ty(type->getContext()))
+                return true;
+        } else {
+            if ( type == type->getInt1Ty(type->getContext()))
+                return true;
+        }
+
+        return false;
+    }
 };
