@@ -48,18 +48,37 @@ const std::string Usage = "\
 Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
 \n\
        Options:\n\
-         -h, --help           Print out this Usage info\n\
-         -d, --debug          Print out debugging info\n\
-         --glsl               Use the glsl backend (default)\n\
-         --tgsi               Use the TGSI backed\n\
+         -h, --help                 Print out this Usage info\n\
+         -d, --debug                Print out debugging info\n\
+         --glsl                     Use the glsl backend (default)\n\
+         --tgsi                     Use the TGSI backed\n\
+         --disable <optimization>   Disable the optimization (see below)\n\
+         --enable <optimization>    Enable the optimization (see below)\n\
 \n\
        GLSL-backed options:\n\
-         -f --obfuscate       Obfuscate the output\n\
-         -n, --no-revision    Don't put the revision in the output\n\
+         -f --obfuscate             Obfuscate the output\n\
+         -n, --no-revision          Don't put the revision in the output\n\
+\n\
+       Optimizations/transformations that can be enabled/disabled. Default is \n\
+       to enable them all\n\
+         adce                       Aggressive dead code elimination\n\
+         coalesce                   Coalesce Inserts into MultiInserts\n\
+         gvn                        Global Value Numbering\n\
+         mem2reg                    Promote memory to registers\n\
+         reassociate                Reassociate/commute expressions\n\
+         verify                     Verification passes\n\
 ";
 
 
 namespace gla {
+
+    Optimizations opts = { true   // adce
+                         , true   // coalesce
+                         , true   // gvn
+                         , true   // mem2reg
+                         , true   // reassociate
+                         , true   // verify
+                         };
 
     // Global Options
     OptionsType Options = { false   // Debug info
@@ -67,6 +86,7 @@ namespace gla {
                           , false   // No revision
                           , GLSL    // Backend
                           , DefaultBackendVersion    // no backend version yet
+                          , opts    // Optimizations
                           };
 
     // Is the string an option/flagged argument?
@@ -75,11 +95,41 @@ namespace gla {
         return !s.compare(0, 1, "-");
     }
 
+    // Is the string setting an option that takes an argument?
+    bool IsArgumentOption(std::string s)
+    {
+        return s == "--enable" || s == "--disable";
+    }
+
 
     // Print out description and help
     void PrintHelp()
     {
         std::cout << Description << Usage;
+    }
+
+    // Given a string and a bool, assign the option
+    void AssignOptimization(std::string opt, bool val)
+    {
+        if (opt == "adce") {
+            Options.optimizations.adce        = val;
+        } else if (opt == "coalesce") {
+            Options.optimizations.coalesce    = val;
+        } else if (opt == "gvn") {
+            Options.optimizations.gvn         = val;
+        } else if (opt == "mem2reg") {
+            Options.optimizations.mem2reg     = val;
+        } else if (opt == "reassociate") {
+            Options.optimizations.reassociate = val;
+        } else if (opt == "verify") {
+            Options.optimizations.verify      = val;
+        } else {
+            std::cout << "Unkown optimization" << opt << std::endl;
+            PrintHelp();
+            exit(1);
+        }
+
+        return;
     }
 
     // Returns the index of the first non-flag argument
@@ -98,6 +148,10 @@ namespace gla {
         for (int i = 1; i < argc; ++i) {
             if (IsOption((string) argv[i])) {
                 flaggedArgs.push_back(argv[i]);
+                if (IsArgumentOption((string) argv[i])) {
+                    ++i;
+                    flaggedArgs.push_back(argv[i]);
+                }
             } else {
                 argIndex = i;
                 break;
@@ -119,10 +173,16 @@ namespace gla {
                 Options.obfuscate = true;
             } else if (*i == "-n" || *i == "--no-revision") {
                 Options.noRevision = true;
+            } else if (*i == "--disable") {
+                ++i;
+                AssignOptimization(*i, false);
+            } else if (*i == "--enable") {
+                ++i;
+                AssignOptimization(*i, true);
             } else {
                 std::cout << "Unknown option: " << *i << std::endl;
                 PrintHelp();
-                exit(0);
+                exit(1);
             }
         }
 

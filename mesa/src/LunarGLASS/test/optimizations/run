@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+DESCRIPTION="\
+Description: Run the optimizations, prints OK diff, FAIL otherwise
+"
+
+USAGE="\
+Usage: ./run [options]
+
+       Options:
+         -h --help          Print out this Usage info
+         -l --linux         Run for linux
+         -w --windows       (default) Run for windows
+         -s --show-diffs    Show the diffs
+"
+
+OPTIMIZATIONS=( coalesce mem2reg )
+
+# $1 is the test
+# Rest are options to the runcommand
+function runSingleTest {
+    $RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > $1.stdout 2> $1.errout
+}
+
+function runTests {
+    for t in ${OPTIMIZATIONS[@]}; do
+        printf "Diffing $t"
+        LENSTR=$((${#t} + 8))
+        INDENTLVL=$((27 - $LENSTR))
+        OBFUSCATE_INDENTLVL=$(($INDENTLVL + 5))
+        GLSLLVL=41 # Magic number
+
+        runSingleTest $t.frag $GLSL_OP
+        cat $t.frag.errout $t.frag.stdout > $t.out
+
+        runSingleTest $t.frag $GLSL_OP "--disable" $t
+        cat $t.frag.errout $t.frag.stdout > $t.out.unopt
+
+        printf "%${INDENTLVL}s"
+        if [ -f $t.out ]; then
+            (diff --side-by-side --suppress-common-lines $t.out $t.out.unopt > $t.diff \
+                && echo "[FAIL]") \
+                || echo "[OK]"
+        fi
+
+        if [ -n "$SHOW" ]; then
+            cat $t.diff
+        fi
+
+        rm $t.frag.stdout $t.frag.errout
+        rm $t.diff
+    done
+}
+
+function showHelp {
+    echo "$DESCRIPTION"
+    echo "$USAGE"
+}
+
+# Default is for windows
+RUNCMD=../../../glsl/Debug/StandAlone.exe
+OPTIONS=(-n)
+TGSI_OP="--tgsi"
+GLSL_OP="--glsl"
+SHOW=""
+
+# Command-line argument Handling
+
+# Arguments passed
+for i in $*; do
+    case $i in
+        -l|--linux)
+            RUNCMD=../../../glsl/StandAlone
+            ;;
+        -h|--h)
+            showHelp
+            exit 0
+            ;;
+        -s|--show-diffs)
+            SHOW="true"
+            ;;
+        *)
+            showHelp
+            exit 1
+            ;;
+    esac
+done
+
+runTests

@@ -41,6 +41,16 @@ namespace gla {
 
     const int DefaultBackendVersion = -1;
 
+    // Optimizations struct
+    struct Optimizations {
+        bool adce;
+        bool coalesce;
+        bool gvn;
+        bool mem2reg;
+        bool reassociate;
+        bool verify;
+    };
+
     // Options struct
     struct OptionsType {
         bool debug;
@@ -48,6 +58,7 @@ namespace gla {
         bool noRevision;
         BackendOption backend;
         int backendVersion;    // what version output should the backend generate?
+        Optimizations optimizations;
     };
 
     extern OptionsType Options;
