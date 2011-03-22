@@ -410,21 +410,26 @@ protected:
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
             mapGlaType(globalDeclarations, type);
-            globalDeclarations << " " << varString << " = ";
 
-            switch(constant->getType()->getTypeID()) {
-            case llvm::Type::IntegerTyID:
-            case llvm::Type::FloatTyID:
-                emitScalarConstant(globalDeclarations, constant);
-                break;
+            // If it's defined, output a RHS
+            if (IsDefined(constant)) {
 
-            case llvm::Type::VectorTyID:
-                emitVectorConstant(globalDeclarations, constant);
-                break;
+                globalDeclarations << " " << varString << " = ";
 
-            default:
-                UnsupportedFunctionality("constant type in Bottom IR", EATContinue);
-                globalDeclarations << 0;
+                switch(constant->getType()->getTypeID()) {
+                case llvm::Type::IntegerTyID:
+                case llvm::Type::FloatTyID:
+                    emitScalarConstant(globalDeclarations, constant);
+                    break;
+
+                case llvm::Type::VectorTyID:
+                    emitVectorConstant(globalDeclarations, constant);
+                    break;
+
+                default:
+                    UnsupportedFunctionality("constant type in Bottom IR", EATContinue);
+                    globalDeclarations << 0;
+                }
             }
 
             globalDeclarations << ";" << std::endl;
@@ -532,6 +537,7 @@ protected:
     void emitVectorConstant(std::ostringstream& out, const llvm::Constant* constant)
     {
         assert(constant);
+        assert(IsDefined(constant));
         const llvm::ConstantVector* vector = llvm::dyn_cast<llvm::ConstantVector>(constant);
         if (vector) {
             mapGlaType(out, vector->getType());
@@ -1016,6 +1022,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         // first, copy whole the structure "inserted into" to the resulting "value" of the insert
         newLine();
         mapGlaDestination(llvmInstruction);
+
         shader << " = ";
         mapGlaOperand(llvmInstruction->getOperand(0));
         shader << ";";

@@ -50,10 +50,10 @@ namespace gla {
     // LLVM Value predicates:
 
     // Whether the argument is undefined (an undef in llvm)
-    bool IsUndef(llvm::Value*);
+    bool IsUndef(const llvm::Value*);
 
     // Returns true if the passed value is defined (not an undef)
-    bool IsDefined(llvm::Value*);
+    bool IsDefined(const llvm::Value*);
 
     int IsGradientTexInst(const llvm::IntrinsicInst*);
 

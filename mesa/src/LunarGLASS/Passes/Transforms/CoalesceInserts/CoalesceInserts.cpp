@@ -26,7 +26,8 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Coalesce insert/extracts into multiInserts
+// Coalesce insert/extracts into multiInserts. This pass works best if
+// preceeded by instcombine and proceeded by adce.
 //
 //===----------------------------------------------------------------------===//
 
@@ -118,7 +119,7 @@ namespace {
         void addEntireInsertChain(Value* v);
 
         // Add the left-most insert chain specified by v and not already in s to the
-        // provided vector in depth-first pre-order
+        // provided vector in depth-first pre-order.
         void addLeftInsertChain(Value* v, Group& vec);
 
         // Gather all insert instructions together
@@ -382,7 +383,6 @@ void BBMIIMaker::groupInserts()
 
         addLeftInsertChain(inst, *newGroup);
         addEntireInsertChain(inst);
-        assert(newGroup->size() <= 4);
         groups.push_back(newGroup);
     }
 }
