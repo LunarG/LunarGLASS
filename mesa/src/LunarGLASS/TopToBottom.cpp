@@ -53,10 +53,15 @@
 
 void gla::PrivateManager::translateTopToBottom()
 {
+    unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
+    if (gla::Options.debug)
+        module->dump();
+        
     runLLVMOptimizations1();
 
     if (gla::Options.debug)
         module->dump();
+    _set_output_format(oldFormat);
 
     int innerAoS, outerSoA;
     backEnd->getRegisterForm(outerSoA, innerAoS);

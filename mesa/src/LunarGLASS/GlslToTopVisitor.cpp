@@ -320,9 +320,6 @@ ir_visitor_status
         //?? need to return the return value from the right places with the right type, this
         // is good just for main
         builder.CreateRet(0);
-
-        if (gla::Options.debug)
-            module->dump();
     }
 
     return visit_continue;
