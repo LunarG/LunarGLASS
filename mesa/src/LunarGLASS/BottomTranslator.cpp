@@ -156,16 +156,13 @@ protected:
 
 void gla::PrivateManager::translateBottomToTarget()
 {
-    // Initial creation of target.
-
-    // In the real driver, this is is done through a call through the function
-    // pointer ctx->Driver.NewProgram(...), so directly call a funtion here
-    // that does the same thing, and could later be plugged into that pointer.
-
     gla::BottomTranslator translator(backEndTranslator);
+
+    //
+    // Query the back end about its flow control
+    //
     bool breakOp, continueOp, earlyReturnOp, discardOp;
     gla::EFlowControlMode flowControlMode;
-
     backEnd->getControlFlowMode(flowControlMode, breakOp, continueOp, earlyReturnOp, discardOp);
     if (flowControlMode == gla::EFcmExplicitMasking)
         UnsupportedFunctionality("explicit masking in middle end");
@@ -199,6 +196,7 @@ void gla::PrivateManager::translateBottomToTarget()
 
             // basic blocks
             for (llvm::Function::const_iterator bb = function->begin(), E = function->end(); bb != E; ++bb) {
+                bool lastBlock = (bb->getNextNode() == E);
 
                 // instructions in the basic block
                 for (llvm::BasicBlock::const_iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
@@ -211,7 +209,7 @@ void gla::PrivateManager::translateBottomToTarget()
                         translator.addFlowControl(llvmInstruction, backEnd->getRemovePhiFunctions());
                     else {
                         if (! (backEnd->getRemovePhiFunctions() && llvmInstruction->getOpcode() == llvm::Instruction::PHI))
-                            backEndTranslator->add(llvmInstruction);
+                            backEndTranslator->add(llvmInstruction, lastBlock);
                     }
                 }
             }

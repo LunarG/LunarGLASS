@@ -155,7 +155,7 @@ public:
         leaveScope();
     }
 
-    void add(const llvm::Instruction* llvmInstruction);
+    void add(const llvm::Instruction* llvmInstruction, bool lastBlock);
 
     void declarePhiCopy(const llvm::Value* dst)
     {
@@ -773,7 +773,7 @@ void gla::ReleaseGlslTranslator(gla::BackEndTranslator* target)
 //
 // Add an LLVM instruction to the end of the mesa instructions.
 //
-void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
+void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlock)
 {
     const char* charOp = 0;
 
@@ -923,7 +923,12 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
 
     case llvm::Instruction::Ret:
         newLine();
-        shader << "return;";
+        if (llvmInstruction->getNumOperands() > 0)
+            UnsupportedFunctionality("return expressions", EATContinue);
+        if (! lastBlock) {
+            UnsupportedFunctionality("early return", EATContinue);
+            shader << "return;";
+        }
         return;
 
     case llvm::Instruction::Call: // includes intrinsics...

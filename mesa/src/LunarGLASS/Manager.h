@@ -46,7 +46,7 @@ namespace gla {
         virtual void addGlobal(const llvm::GlobalVariable*) { }
         virtual void startFunction() = 0;
         virtual void endFunction() = 0;
-        virtual void add(const llvm::Instruction*) = 0;
+        virtual void add(const llvm::Instruction*, bool lastBlock) = 0;
 
         //
         // The following set of functions is motivated by need to convert to
