@@ -112,30 +112,22 @@ namespace gla {
         return llvm::Type::VectorTyID != type->getTypeID();
     }
 
-    bool ScalarHasAllSet(const llvm::Value* value)
-    {
-        if (IsGlaBoolean(value->getType())) {
-            if (GetConstantInt(value) == -1)
-                return true;
-        } else if (GetConstantInt(value) == 0xFFFFFFFF)
-            return true;
-
-        return false;
-    }
-        
+    //
+    // Return true if all bits in the argument are set.
+    //
     bool HasAllSet(const llvm::Value* value)
     {
         if (! llvm::isa<llvm::Constant>(value))
             return false;
 
         if (IsGlaScalar(value->getType())) {
-            return ScalarHasAllSet(value);
+            return GetConstantInt(value) == -1;
         } else {
             const llvm::ConstantVector* vector = llvm::dyn_cast<llvm::ConstantVector>(value);
             assert(vector);
 
             for (int op = 0; op < vector->getNumOperands(); ++op) {
-                if (!ScalarHasAllSet(vector->getOperand(op)))
+                if (GetConstantInt(vector->getOperand(op)) != -1)
                     return false;
             }
 

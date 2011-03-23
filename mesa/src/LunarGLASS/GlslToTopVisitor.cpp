@@ -1142,13 +1142,13 @@ llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm
     case ir_binop_logic_xor:
     case ir_binop_bit_xor:                  return builder.CreateXor (operands[0], operands[1]);
     case ir_unop_logic_not:
-    case ir_unop_bit_not:                   return builder.CreateNot (operands[0]);    
+    case ir_unop_bit_not:                   return builder.CreateNot (operands[0]);
 
     case ir_binop_logic_and:
-        gla::UnsupportedFunctionality("logical and", gla::EATContinue);   
+        gla::UnsupportedFunctionality("logical and", gla::EATContinue);
         break;
     case ir_binop_logic_or:
-        gla::UnsupportedFunctionality("logical or", gla::EATContinue);  
+        gla::UnsupportedFunctionality("logical or", gla::EATContinue);
         break;
 
     case ir_binop_mod:
@@ -1175,12 +1175,11 @@ llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm
         }
         if(vectorType)  return builder.CreateCall(getLLVMIntrinsicFunction1(llvm::Intrinsic::gla_any, result->getType()), result);
         else            return result;
-   
+
     case ir_binop_min:      gla::UnsupportedFunctionality("min",    gla::EATContinue);  break;
     case ir_binop_max:      gla::UnsupportedFunctionality("max",    gla::EATContinue);  break;
     case ir_binop_pow:      gla::UnsupportedFunctionality("pow",    gla::EATContinue);  break;
     case ir_binop_dot:      gla::UnsupportedFunctionality("dot",    gla::EATContinue);  break;
-            
     }
 
     return result;

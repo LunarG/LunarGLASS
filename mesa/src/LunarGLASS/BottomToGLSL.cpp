@@ -859,7 +859,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     //
     // Look for unary ops, where the form would be "op operand"
     //
-    
+
     // LLVM turned these into a binary ops, might want to undo that...
     int unaryOperand;
     switch (llvmInstruction->getOpcode()) {
@@ -1051,7 +1051,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
 //  - for scalar and vector integers, it looks like "^"
 //  - if an integer operand is all 1s, it can be represented as unary "~" on the other operand
 //  - if a scalar Boolean operand is true, it can be represented as unary "!" on the other operand
-//  - if a vector Boolean operand is all true, it can be represented as "not(...)" 
+//  - if a vector Boolean operand is all true, it can be represented as "not(...)"
 //
 // Assumes things are tried in the order
 //  1.  binary op
@@ -1062,17 +1062,17 @@ const char* gla::GlslTarget::mapGlaXor(const llvm::Instruction* llvmInstruction,
 {
     bool scalar = gla::IsGlaScalar(llvmInstruction->getType());
     bool boolean = gla::IsGlaBoolean(llvmInstruction->getType());
-    
+
     bool op0AllSet = HasAllSet(llvmInstruction->getOperand(0));
     bool op1AllSet = HasAllSet(llvmInstruction->getOperand(1));
-    
+
     if (unaryOperand == 0) {
         // try a binary op
 
         // if it could be done as a unary op, return 0 so that can happen later
         if (op0AllSet || op1AllSet)
             return 0;
-        
+
         if (scalar && boolean)
             return "^^";
 
