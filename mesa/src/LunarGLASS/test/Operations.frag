@@ -132,5 +132,14 @@ void main()
 	if (f == uf || f != uf && f != 2.0)
 	    ++f;
 
+    i &= ui;
+    i |= 0x42;
+    i ^= ui;
+    i %= 17;
+    i >>= 2;
+    i <<= ui;
+    i = ~i;
+    b = !b;
+
     gl_FragColor = b ? vec4(i) + vec4(f) + v : v;
 }

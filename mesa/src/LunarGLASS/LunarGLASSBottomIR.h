@@ -43,6 +43,7 @@ namespace gla {
 
     int GetConstantInt(const llvm::Value*);
     float GetConstantFloat(const llvm::Value*);
+    int IsGradientTexInst(const llvm::IntrinsicInst*);
     int GetComponentCount(const llvm::Type*);
     int GetComponentCount(const llvm::Value*);
     bool IsConsecutiveSwizzle(int glaSwizzle, int width);
@@ -55,8 +56,9 @@ namespace gla {
     // Returns true if the passed value is defined (not an undef)
     bool IsDefined(const llvm::Value*);
 
-    int IsGradientTexInst(const llvm::IntrinsicInst*);
-
+    bool IsGlaBoolean(const llvm::Type*);
+    bool IsGlaScalar(const llvm::Type*);
+    bool HasAllSet(const llvm::Value*);
 };
 
 #endif /* LunarGLASSBottomIR_H */

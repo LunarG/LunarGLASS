@@ -94,16 +94,52 @@ namespace gla {
         return !IsUndef(val);
     }
 
-    bool isBoolean(const llvm::Type* type)
+    bool IsGlaBoolean(const llvm::Type* type)
     {
         if (llvm::Type::VectorTyID == type->getTypeID()) {
-            if ( type->getContainedType(0) == type->getInt1Ty(type->getContext()))
+            if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
                 return true;
         } else {
-            if ( type == type->getInt1Ty(type->getContext()))
+            if (type == type->getInt1Ty(type->getContext()))
                 return true;
         }
 
         return false;
     }
-};
+
+    bool IsGlaScalar(const llvm::Type* type)
+    {
+        return llvm::Type::VectorTyID != type->getTypeID();
+    }
+
+    bool ScalarHasAllSet(const llvm::Value* value)
+    {
+        if (IsGlaBoolean(value->getType())) {
+            if (GetConstantInt(value) == -1)
+                return true;
+        } else if (GetConstantInt(value) == 0xFFFFFFFF)
+            return true;
+
+        return false;
+    }
+        
+    bool HasAllSet(const llvm::Value* value)
+    {
+        if (! llvm::isa<llvm::Constant>(value))
+            return false;
+
+        if (IsGlaScalar(value->getType())) {
+            return ScalarHasAllSet(value);
+        } else {
+            const llvm::ConstantVector* vector = llvm::dyn_cast<llvm::ConstantVector>(value);
+            assert(vector);
+
+            for (int op = 0; op < vector->getNumOperands(); ++op) {
+                if (!ScalarHasAllSet(vector->getOperand(op)))
+                    return false;
+            }
+
+            return true;
+        }
+    }
+};  // end gla namespace

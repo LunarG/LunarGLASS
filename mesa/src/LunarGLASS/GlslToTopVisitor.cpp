@@ -515,9 +515,7 @@ ir_visitor_status
             returnValue = expandGLSLOp(ir_binop_nequal, llvmParams);
         }
         else if(!strcmp(call->callee_name(), "not")) {
-            // Set return value to operand 0 for pass through
-            returnValue = llvmParams[0];
-            gla::UnsupportedFunctionality("logical not", gla::EATContinue);
+            returnValue = expandGLSLOp(ir_unop_logic_not, llvmParams);
         }
 
         // If this call requires an intrinsic
@@ -1137,24 +1135,20 @@ llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm
         case llvm::Type::IntegerTyID:       return builder.CreateICmpNE (operands[0], operands[1]);
         }
 
-    case ir_binop_lshift:                   return builder.CreateLShr(operands[0], operands[1]);
+    case ir_binop_lshift:                   return builder.CreateShl (operands[0], operands[1]);
     case ir_binop_rshift:                   return builder.CreateLShr(operands[0], operands[1]);
     case ir_binop_bit_and:                  return builder.CreateAnd (operands[0], operands[1]);
     case ir_binop_bit_or:                   return builder.CreateOr  (operands[0], operands[1]);
+    case ir_binop_logic_xor:
     case ir_binop_bit_xor:                  return builder.CreateXor (operands[0], operands[1]);
+    case ir_unop_logic_not:
     case ir_unop_bit_not:                   return builder.CreateNot (operands[0]);    
 
-    case ir_binop_logic_and:    
+    case ir_binop_logic_and:
         gla::UnsupportedFunctionality("logical and", gla::EATContinue);   
-        break;
-    case ir_binop_logic_xor:
-        gla::UnsupportedFunctionality("logical xor", gla::EATContinue);  
         break;
     case ir_binop_logic_or:
         gla::UnsupportedFunctionality("logical or", gla::EATContinue);  
-        break;
-    case ir_unop_logic_not:
-        gla::UnsupportedFunctionality("logical not", gla::EATContinue);  
         break;
 
     case ir_binop_mod:

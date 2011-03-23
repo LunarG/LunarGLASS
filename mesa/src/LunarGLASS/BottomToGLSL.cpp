@@ -228,6 +228,7 @@ protected:
     }
 
     void mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction);
+    const char* mapGlaXor(const llvm::Instruction* llvmInstruction, bool intrinsic = false, int* unaryOperand = 0);
 
     EVariableQualifier mapGlaAddressSpace(const llvm::Value* value)
     {
@@ -789,8 +790,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     case llvm::Instruction::AShr:           charOp = ">>"; break;
     case llvm::Instruction::And:            charOp = "&";  break;
     case llvm::Instruction::Or:             charOp = "|";  break;
-    case llvm::Instruction::Xor:            charOp = "^";  break;
-
+    case llvm::Instruction::Xor:            charOp = mapGlaXor(llvmInstruction); break;
     case llvm::Instruction::ICmp:
     case llvm::Instruction::FCmp:
         if (! llvm::isa<llvm::VectorType>(llvmInstruction->getOperand(0)->getType())) {
@@ -859,23 +859,21 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     //
     // Look for unary ops, where the form would be "op operand"
     //
-
-    //switch (llvmInstruction->getOpcode()) {
+    
     // LLVM turned these into a binary ops, might want to undo that...
-    //case llvm::Instruction:: Neg:
-    //case llvm::Instruction::FNeg:           charOp = "-";  break;
-    //case llvm::Instruction::Not:            charOp = "!";  break;
-    //default:
-    //    break;
-        // fall through to check other ops
-    //}
+    int unaryOperand;
+    switch (llvmInstruction->getOpcode()) {
+    case llvm::Instruction::Xor:
+        charOp = mapGlaXor(llvmInstruction, false /* intrinsic */, &unaryOperand);
+        break;
+    }
 
     // Handle the unary ops
     if (charOp) {
         newLine();
         mapGlaDestination(llvmInstruction);
         shader << " = " << charOp << " ";
-        mapGlaOperand(llvmInstruction->getOperand(0));
+        mapGlaOperand(llvmInstruction->getOperand(unaryOperand));
         shader << ";";
         return;
     }
@@ -884,12 +882,16 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
     // Look for unary ops, where the form would be "op(operand)"
     //
 
+    unaryOperand = 0;
     switch (llvmInstruction->getOpcode()) {
     case llvm::Instruction::FPTrunc:        charOp = "trunc";  break;
     case llvm::Instruction::FPToUI:         charOp = "uint";   break;
     case llvm::Instruction::FPToSI:         charOp = "int";    break;
     case llvm::Instruction::UIToFP:         charOp = "float";  break;
     case llvm::Instruction::SIToFP:         charOp = "float";  break;
+    case llvm::Instruction::Xor:
+        charOp = mapGlaXor(llvmInstruction, true /* intrinsic */, &unaryOperand);
+        break;
     default:
         break;
         // fall through to check other ops
@@ -900,7 +902,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
         newLine();
         mapGlaDestination(llvmInstruction);
         shader << " = " << charOp << "(";
-        mapGlaOperand(llvmInstruction->getOperand(0));
+        mapGlaOperand(llvmInstruction->getOperand(unaryOperand));
         shader << ");";
         return;
     }
@@ -1039,6 +1041,66 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction)
 
     default:
         UnsupportedFunctionality("Opcode in Bottom IR: ", llvmInstruction->getOpcode(), EATContinue);
+    }
+}
+
+//
+// Xor is a strange thing:
+//  - for scalar Booleans, it looks like "^^"
+//  - for vector Booleans, GLSL doesn't have one
+//  - for scalar and vector integers, it looks like "^"
+//  - if an integer operand is all 1s, it can be represented as unary "~" on the other operand
+//  - if a scalar Boolean operand is true, it can be represented as unary "!" on the other operand
+//  - if a vector Boolean operand is all true, it can be represented as "not(...)" 
+//
+// Assumes things are tried in the order
+//  1.  binary op
+//  2.  unary op
+//  3.  intrinsic
+//
+const char* gla::GlslTarget::mapGlaXor(const llvm::Instruction* llvmInstruction, bool intrinsic, int* unaryOperand)
+{
+    bool scalar = gla::IsGlaScalar(llvmInstruction->getType());
+    bool boolean = gla::IsGlaBoolean(llvmInstruction->getType());
+    
+    bool op0AllSet = HasAllSet(llvmInstruction->getOperand(0));
+    bool op1AllSet = HasAllSet(llvmInstruction->getOperand(1));
+    
+    if (unaryOperand == 0) {
+        // try a binary op
+
+        // if it could be done as a unary op, return 0 so that can happen later
+        if (op0AllSet || op1AllSet)
+            return 0;
+        
+        if (scalar && boolean)
+            return "^^";
+
+        if (!boolean)
+            return "^";
+
+        UnsupportedFunctionality("xor", EATContinue);
+        return "^";
+    } else {
+        // unary; either an op or an intrinsic
+
+        assert(!op0AllSet && !op0AllSet);
+
+        if (op0AllSet)
+            *unaryOperand = 1;
+        else
+            *unaryOperand = 0;
+
+        if (scalar && boolean)
+            return "!";
+
+        if (!boolean)
+            return "~";
+
+        if (intrinsic)
+            return "not";
+
+        return 0;
     }
 }
 
