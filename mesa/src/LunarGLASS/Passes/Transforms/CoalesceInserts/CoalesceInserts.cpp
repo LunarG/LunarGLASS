@@ -120,7 +120,7 @@ namespace {
 
         // Add the left-most insert chain specified by v and not already in s to the
         // provided vector in depth-first pre-order.
-        void addLeftInsertChain(Value* v, Group& vec);
+        void addLeftInsertChain(Value* v, Group& g, int width, int mask);
 
         // Gather all insert instructions together
         void gatherInserts();
@@ -307,19 +307,19 @@ void BBMIIMaker::printBlock()
 
 void BBMIIMaker::printCandidates()
 {
-    errs() << "\nThis block's candidates for intrinsic substitution: \n";
+    errs() << "\n  This block's candidates for intrinsic substitution: \n";
     for (InstVec::iterator i = inserts.begin(), e = inserts.end(); i != e; ++i) {
-        errs() << **i << "\n";
+        errs() << "  " << **i << "\n";
     }
 }
 
 void BBMIIMaker::printGroups()
 {
-    errs() << "\nThis block's groups: \n";
+    errs() << "\n  This block's groups: \n";
     int i = 0;
     for (GroupVec::iterator gI = groups.begin(), gE = groups.end(); gI != gE; ++gI) {
         ++i;
-        errs() << "Group " << i << ":";
+        errs() << "    Group " << i << ":";
         for (Group::iterator instI = (*gI)->begin(), instE = (*gI)->end(); instI != instE; ++instI) {
             if (instI == ((*gI)->begin()))
                 errs() << **instI;
@@ -330,7 +330,7 @@ void BBMIIMaker::printGroups()
     }
 }
 
-void BBMIIMaker::addLeftInsertChain(Value* v, Group& vec)
+void BBMIIMaker::addLeftInsertChain(Value* v, Group& vec, int width, int mask)
 {
     Instruction* inst = dyn_cast<Instruction>(v);
 
@@ -340,9 +340,15 @@ void BBMIIMaker::addLeftInsertChain(Value* v, Group& vec)
         return;
     }
 
-    // Otherwise, put it in the vector and continue
+    // If mask is finished, we're done
+    if (mask == 0) {
+        return;
+    }
+
+    // Otherwise, put it in the vector, turn off mask's bit, and continue
     vec.push_back(inst);
-    addLeftInsertChain(inst->getOperand(0), vec);
+    mask &= ~(1 << gla::GetConstantInt(inst->getOperand(2)));
+    addLeftInsertChain(inst->getOperand(0), vec, width, mask);
 }
 
 void BBMIIMaker::addEntireInsertChain(Value* v)
@@ -381,7 +387,11 @@ void BBMIIMaker::groupInserts()
 
         Group* newGroup = new Group();       // note: deallocation handled in destructor
 
-        addLeftInsertChain(inst, *newGroup);
+        // Get the width and set up mask to be all 1s
+        int width = gla::GetComponentCount(inst->getType());
+        int mask = (1 << width) - 1;
+
+        addLeftInsertChain(inst, *newGroup, width, mask);
         addEntireInsertChain(inst);
         groups.push_back(newGroup);
     }
@@ -499,16 +509,16 @@ void MultiInsertIntrinsic::insertIntrinsic()
 
 void MultiInsertIntrinsic::dump() const
 {
-    errs() << "\nMultiInsertIntrinsic for " << *toReplace << ":\n";
-    errs() << "  Write mask and offset:\n";
+    errs() << "\n  MultiInsertIntrinsic for " << *toReplace << ":\n";
+    errs() << "    Write mask and offset:\n";
     errs() << "    " << writeMask;
 
-    errs() << " <";
+    errs() << "   <";
     for (int i = 0; i < 4; ++i) {
         errs() << "|  " << offsets[i] << "  ";
     }
 
-    errs() << "\n       <";
+    errs() << "\n         <";
     for (int i = 0; i < 4; ++i) {
         errs() << "|  ";
         if (values[i])
@@ -519,8 +529,8 @@ void MultiInsertIntrinsic::dump() const
     }
 
     errs() << "\n";
-    errs() << "  Original insert destination: " << *originalSource << "\n";
-    errs() << "Instrinsic: " << *intrinsic;
+    errs() << "    Original insert destination: " << *originalSource << "\n";
+    errs() << "    Instrinsic: " << *intrinsic;
     errs() << "\n";
 }
 

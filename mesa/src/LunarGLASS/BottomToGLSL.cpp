@@ -111,7 +111,8 @@ namespace gla {
         EVQInput,
         EVQOutput,
         EVQTemporary,
-        EVQConstant
+        EVQConstant,
+        EVQUndef
     };
 };
 
@@ -243,6 +244,12 @@ protected:
             }
         }
 
+        // Check for an undef before a constant (since Undef is a
+        // subclass of Constant)
+        if (IsUndef(value)) {
+            return EVQUndef;
+        }
+
         if (llvm::isa<llvm::Constant>(value)) {
             return EVQConstant;
         }
@@ -263,6 +270,7 @@ protected:
                 version >= 130 ? string = "out": string = "varying";  break;
         case EVQTemporary:       string = "temp";                     break;
         case EVQConstant:        string = "const";                    break;
+        case EVQUndef:           string = "undef";                    break;
         default:
             assert(! "unknown VariableQualifier");
         }
@@ -406,31 +414,27 @@ protected:
         if (varString.substr(0,3) == std::string("gl_"))
             return;
 
-        // if it has an initializer
-        if (constant) {
+        // If it has an initializer (is a constant and not an undef)
+        if (constant && IsDefined(constant)) {
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
             mapGlaType(globalDeclarations, type);
 
-            // If it's defined, output a RHS
-            if (IsDefined(constant)) {
+            globalDeclarations << " " << varString << " = ";
 
-                globalDeclarations << " " << varString << " = ";
+            switch(constant->getType()->getTypeID()) {
+            case llvm::Type::IntegerTyID:
+            case llvm::Type::FloatTyID:
+                emitScalarConstant(globalDeclarations, constant);
+                break;
 
-                switch(constant->getType()->getTypeID()) {
-                case llvm::Type::IntegerTyID:
-                case llvm::Type::FloatTyID:
-                    emitScalarConstant(globalDeclarations, constant);
-                    break;
+            case llvm::Type::VectorTyID:
+                emitVectorConstant(globalDeclarations, constant);
+                break;
 
-                case llvm::Type::VectorTyID:
-                    emitVectorConstant(globalDeclarations, constant);
-                    break;
-
-                default:
-                    UnsupportedFunctionality("constant type in Bottom IR", EATContinue);
-                    globalDeclarations << 0;
-                }
+            default:
+                UnsupportedFunctionality("constant type in Bottom IR", EATContinue);
+                globalDeclarations << 0;
             }
 
             globalDeclarations << ";" << std::endl;
@@ -456,6 +460,10 @@ protected:
         case EVQTemporary:
             mapGlaType(shader, type);
             shader << " ";
+            break;
+        case EVQUndef:
+            mapGlaType(globalDeclarations, type);
+            globalDeclarations << " " << varString << ";" << std::endl;
             break;
         default:
             assert(! "unknown VariableQualifier");

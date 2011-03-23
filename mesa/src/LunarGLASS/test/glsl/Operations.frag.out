@@ -834,7 +834,7 @@ else104:                                          ; preds = %ifmerge100
 
 then105:                                          ; preds = %else104
   %359 = load float* %assignment_tmp101
-  %360 = fcmp one float %359, 2.000000e+000
+  %360 = fcmp one float %359, 2.000000e+00
   store i1 %360, i1* %and_tmp106
   br label %ifmerge108
 
@@ -853,7 +853,7 @@ ifmerge109:                                       ; preds = %ifmerge108, %then10
 
 then110:                                          ; preds = %ifmerge109
   %363 = load float* %assignment_tmp101
-  %364 = fadd float %363, 1.000000e+000
+  %364 = fadd float %363, 1.000000e+00
   store float %364, float* %f
   br label %ifmerge111
 
@@ -1253,7 +1253,7 @@ ifmerge100:                                       ; preds = %then99, %ifmerge98
   %75 = fadd float %74, %distance
   %dot = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %41, <4 x float> %41)
   %76 = fadd float %75, %dot
-  %77 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> undef, i32 7, <4 x float> %41, i32 0, <4 x float> %41, i32 1, <4 x float> %41, i32 2, float 0.000000e+000, i32 -1)
+  %77 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> undef, i32 7, <4 x float> %41, i32 0, <4 x float> %41, i32 1, <4 x float> %41, i32 2, float 0.000000e+00, i32 -1)
   %cross = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %77, <3 x float> %77)
   %78 = extractelement <3 x float> %cross, i32 0
   %79 = fadd float %76, %78
@@ -1268,7 +1268,7 @@ else104:                                          ; preds = %ifmerge100
   br i1 %81, label %then105, label %else107
 
 then105:                                          ; preds = %else104
-  %82 = fcmp one float %79, 2.000000e+000
+  %82 = fcmp one float %79, 2.000000e+00
   br label %ifmerge108
 
 else107:                                          ; preds = %else104
@@ -1283,7 +1283,7 @@ ifmerge109:                                       ; preds = %ifmerge108, %then10
   br i1 %or_tmp103.0, label %then110, label %ifmerge111
 
 then110:                                          ; preds = %ifmerge109
-  %83 = fadd float %79, 1.000000e+000
+  %83 = fadd float %79, 1.000000e+00
   br label %ifmerge111
 
 ifmerge111:                                       ; preds = %then110, %ifmerge109
