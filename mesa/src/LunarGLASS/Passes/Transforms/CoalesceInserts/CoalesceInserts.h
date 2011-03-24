@@ -1,7 +1,5 @@
 //===- CoalesceInsertsPass.h - Coalesce insert/extracts into multiInserts -===//
 //
-//                     The LLVM Compiler Infrastructure
-//
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
 //

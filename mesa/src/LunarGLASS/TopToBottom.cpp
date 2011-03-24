@@ -53,15 +53,20 @@
 
 void gla::PrivateManager::translateTopToBottom()
 {
+#ifdef _WIN32
     unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
+
     if (gla::Options.debug)
         module->dump();
-        
+
     runLLVMOptimizations1();
 
     if (gla::Options.debug)
         module->dump();
+#ifdef _WIN32
     _set_output_format(oldFormat);
+#endif
 
     int innerAoS, outerSoA;
     backEnd->getRegisterForm(outerSoA, innerAoS);
@@ -87,6 +92,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     if (Options.optimizations.gvn)         passManager.add(llvm::createGVNPass());
     if (Options.optimizations.coalesce)    passManager.add(llvm::createCoalesceInsertsPass());
     if (Options.optimizations.adce)        passManager.add(llvm::createAggressiveDCEPass());
+    //    passManager.add(llvm::createCFGSimplificationPass());
     if (Options.optimizations.verify)      passManager.add(llvm::createVerifierPass());
     llvm::Module::iterator function, lastFunction;
 
