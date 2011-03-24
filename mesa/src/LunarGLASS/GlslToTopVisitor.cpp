@@ -49,7 +49,7 @@ void GlslToTop(struct gl_shader* glShader, llvm::Module* module)
 }
 
 GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, llvm::Module* m)
-    : context(llvm::getGlobalContext()), builder(context), module(m), glShader(s), interpIndex(0), shaderEntry(0)
+    : context(llvm::getGlobalContext()), builder(context), module(m), glShader(s), interpIndex(0), shaderEntry(0), inMain(false)
 {
 }
 
@@ -262,31 +262,65 @@ ir_visitor_status
 }
 
 ir_visitor_status
-    GlslToTopVisitor::visit_enter(ir_function_signature *)
+    GlslToTopVisitor::visit_enter(ir_function_signature *sig)
 {
+    // For now, don't build parameter list or call for main()
+    if (strcmp(sig->function_name(), "main") == 0) {
+        inMain = true;
+        builder.SetInsertPoint(getShaderEntry());
+        return visit_continue;
+    }
+
+    if (!sig->is_builtin) {
+        std::vector<const llvm::Type*> paramTypes;
+        ir_variable* parameter;
+
+        exec_list_iterator iterParam = sig->parameters.iterator();
+
+        while(iterParam.has_next())
+        {
+            parameter = (ir_variable *) iterParam.get();
+            paramTypes.push_back(convertGLSLToLLVMType(parameter->type));
+            iterParam.next();
+        }
+
+        llvm::FunctionType *functionType = llvm::FunctionType::get(convertGLSLToLLVMType(sig->return_type), paramTypes, false);
+        llvm::Function *function = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage, sig->function_name(), module);
+
+        // For shaders, we want everything passed in registers
+        function->setCallingConv(llvm::CallingConv::Fast);
+
+        llvm::BasicBlock *functionBlock = llvm::BasicBlock::Create(context, sig->function_name(), function);
+        builder.SetInsertPoint(functionBlock);
+
+        // Track our user function to call later
+        functionMap[sig] = function;
+    }
     return visit_continue;
 }
 
 ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_function_signature *)
 {
+    if (inMain) {
+        // Write out our pipeline data
+        writePipelineOuts();
+        // Return void for main
+        builder.CreateRet(0);
+    }
+
+    // Reset our tracker for main
+    inMain = false;
+
     return visit_continue;
 }
 
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_function *f)
 {
-    if (f->has_user_signature()) {
-        if (strcmp(f->name, "main") == 0)
-            builder.SetInsertPoint(getShaderEntry());
-        else {
-            //?? still need to use correct signature
-            llvm::FunctionType *functionType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
-            llvm::Function *function = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage, f->name, module);
-            llvm::BasicBlock *entryBlock = llvm::BasicBlock::Create(context, "entry", function);
-            builder.SetInsertPoint(entryBlock);
-        }
-    }
+    // In GLSL2 tree, functions are a collection of signatures
+    // For LunarGLASS, we treat each signature as a function
+    // Thus, nothing to do for visiting an ir_function
 
     return visit_continue;
 }
@@ -294,34 +328,9 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_function *f)
 {
-    if (f->has_user_signature()) {
-        if(strcmp(f->name, "main") == 0) {
-            llvm::Intrinsic::ID intrinsicID;
-
-            //Call writeData intrinsic on our outs
-            while(!glslOuts.empty()) {
-                llvm::Value* loadVal = builder.CreateLoad(glslOuts.front());
-
-                switch(getLLVMBaseType(loadVal)) {
-                case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
-                case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fWriteData;  break;
-                }
-
-                llvm::Function *intrinsicName = getLLVMIntrinsicFunction1(intrinsicID, loadVal->getType());
-
-                lastValue = builder.CreateCall2 (intrinsicName,
-                                                 llvm::ConstantInt::get(context, llvm::APInt(32, 0, true)),
-                                                 loadVal);
-
-                glslOuts.pop_front();
-            }
-        }
-
-        //?? need to return the return value from the right places with the right type, this
-        // is good just for main
-        builder.CreateRet(0);
-    }
-
+    // Nothing to do here.  
+    // See comment in visit_enter(ir_function *f)
+    
     return visit_continue;
 }
 
@@ -460,29 +469,50 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_call *call)
 {
+    exec_list_iterator iter = call->actual_parameters.iterator();
+
+    // Stick this somewhere that makes sense, with a real value
+    #define GLA_MAX_PARAMETERS 10
+
+    llvm::Value* llvmParams[GLA_MAX_PARAMETERS];
+    ir_rvalue *param = NULL;
+    int paramCount = 0;
+
+    // Build a list of actual parameters
+    while(iter.has_next())
+    {
+        param = (ir_rvalue *) iter.get();
+        param->accept(this);
+        llvmParams[paramCount] = lastValue;
+        paramCount++;
+        iter.next();
+    }
+
+    assert(paramCount < GLA_MAX_PARAMETERS);
+
     if(call->get_callee()->function()->has_user_signature()) {
-        gla::UnsupportedFunctionality("user functions");
-    } else {
-        exec_list_iterator iter = call->actual_parameters.iterator();
+        const char *name = call->callee_name();
+        llvm::CallInst *callInst = 0;
 
-        // Stick this somewhere that makes sense, with a real value
-        #define GLA_MAX_PARAMETERS 10
+       // Grab the pointer from the previous created function
+        llvm::Function* function = functionMap[call->get_callee()];
+        assert(function);
 
-        llvm::Value* llvmParams[GLA_MAX_PARAMETERS];
-        ir_rvalue *param = NULL;
-        int paramCount = 0;
-
-        // Build a list of actual parameters
-        while(iter.has_next())
-        {
-            param = (ir_rvalue *) iter.get();
-            param->accept(this);
-            llvmParams[paramCount] = lastValue;
-            paramCount++;
-            iter.next();
+       // Create a call to it
+        switch(paramCount) {
+        case 5:     callInst = builder.CreateCall5(function, llvmParams[0], llvmParams[1], llvmParams[2], llvmParams[3], llvmParams[4], name);      break;
+        case 4:     callInst = builder.CreateCall4(function, llvmParams[0], llvmParams[1], llvmParams[2], llvmParams[3], name);                     break;
+        case 3:     callInst = builder.CreateCall3(function, llvmParams[0], llvmParams[1], llvmParams[2], name);                                    break;
+        case 2:     callInst = builder.CreateCall2(function, llvmParams[0], llvmParams[1], name);                                                   break;
+        case 1:     callInst = builder.CreateCall (function, llvmParams[0], name);                                                                  break;
+        case 0:     callInst = builder.CreateCall (function, name);                                                                                 break;
+        default:    assert(! "Unsupported parameter count");
         }
 
-        assert(paramCount < GLA_MAX_PARAMETERS);
+        // Track the return value for to be consumed by next instruction
+        lastValue = callInst;
+ 
+    } else {
 
         llvm::Value* returnValue = 0;
 
@@ -826,7 +856,19 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_return *ir)
 {
-    (void) ir;
+    if (inMain) {
+        gla::UnsupportedFunctionality("return from main");
+        return visit_continue;
+    }
+    
+    // Return the expression result, which is tracked in lastValue
+    if (ir->get_value()) {
+        builder.CreateRet(lastValue);
+    } else {
+        gla::UnsupportedFunctionality("return without expression");
+        builder.CreateRet(0);
+    }
+
     return visit_continue;
 }
 
@@ -1469,4 +1511,27 @@ llvm::BasicBlock* GlslToTopVisitor::getShaderEntry()
     builder.SetInsertPoint(shaderEntry);
 
     return shaderEntry;
+}
+
+void GlslToTopVisitor::writePipelineOuts()
+{
+    llvm::Intrinsic::ID intrinsicID;
+
+    //Call writeData intrinsic on our outs
+    while(!glslOuts.empty()) {
+        llvm::Value* loadVal = builder.CreateLoad(glslOuts.front());
+
+        switch(getLLVMBaseType(loadVal)) {
+        case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
+        case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fWriteData;  break;
+        }
+
+        llvm::Function *intrinsicName = getLLVMIntrinsicFunction1(intrinsicID, loadVal->getType());
+
+        lastValue = builder.CreateCall2 (intrinsicName,
+                                            llvm::ConstantInt::get(context, llvm::APInt(32, 0, true)),
+                                            loadVal);
+
+        glslOuts.pop_front();
+    }
 }

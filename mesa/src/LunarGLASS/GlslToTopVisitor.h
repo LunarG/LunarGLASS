@@ -109,6 +109,7 @@ public:
 
     void createLLVMTextureIntrinsic(llvm::Function* &, int &, llvm::Value**, llvm::Value**, llvm::Type*, llvm::Intrinsic::ID,  gla::ESamplerType, gla::ETextureFlags);
     void findAndSmearScalars(llvm::Value**, int);
+    void writePipelineOuts(void);
 
     llvm::Type::TypeID getLLVMBaseType(llvm::Value*);
     llvm::Type::TypeID getLLVMBaseType(llvm::Type*);
@@ -126,12 +127,15 @@ protected:
 
     std::map<ir_variable*, llvm::Value*> namedValues;
     std::map<ir_variable*, int> interpMap;
+    std::map<ir_function_signature *, llvm::Function*> functionMap;
+
     std::list<llvm::Value*> glslOuts;
 
     llvm::Value *lastValue;
     llvm::Value *lValue;
 
     int interpIndex;
+    bool inMain;
 
     llvm::BasicBlock* shaderEntry;
 };
