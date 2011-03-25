@@ -124,9 +124,11 @@ public:
     {
         // don't free instructions, as they needs to live on
     }
-
-    void startFunction() { }
-    void endFunction() { }
+    
+    void startFunctionDeclaration(const llvm::Type*, std::string&) { }
+    void endFunctionDeclaration() { }
+    void startFunctionBody() { }
+    void endFunctionBody() { }
 
     void add(const llvm::Instruction* llvmInstruction, bool lastBlock);
 

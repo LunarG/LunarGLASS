@@ -41,10 +41,6 @@ entry:
 }
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
-
-***Unsupported functionality: return expressions
-
-***Unsupported functionality: Function Call in Bottom IR
 compiling simpleFunctionCall.frag...
 uniform vec4 bigColor ; 
 varying vec4 BaseColor ; 
@@ -146,3 +142,18 @@ gl_FragColor = foo ( ) ; }
 
 
 )
+// LunarGOO output
+#version 130
+in vec4 BaseColor;
+
+void foo()
+{
+    return BaseColor;
+}
+
+void main()
+{
+    vec4 temp21 = foo();
+    gl_FragColor = temp21;
+    
+}

@@ -216,13 +216,18 @@ bool CodeGeneration::runOnModule(llvm::Module& module)
             //?? do we need to handle declarations of functions, or just definitions?
         } else {
             // handle function's with bodies
-            backEndTranslator->startFunction();
+
+            backEndTranslator->startFunctionDeclaration(function->getType(), function->getNameStr());
 
             // paramaters and arguments
             for (llvm::Function::const_arg_iterator P = function->arg_begin(), E = function->arg_end(); P != E; ++P) {
-                gla::UnsupportedFunctionality ("function arguments in Bottom IR");
+                gla::UnsupportedFunctionality("function arguments in Bottom IR");
                 //?? argument is Attrs.getParamAttributes(Idx));  // Idx has to count as you go through the loop
             }
+
+            backEndTranslator->endFunctionDeclaration();
+            
+            backEndTranslator->startFunctionBody();
 
             // Phi declaration pass
             if (backEnd->getDeclarePhiCopies())
@@ -248,7 +253,7 @@ bool CodeGeneration::runOnModule(llvm::Module& module)
                 }
             }
 
-            backEndTranslator->endFunction();
+            backEndTranslator->endFunctionBody();
         }
     }
 

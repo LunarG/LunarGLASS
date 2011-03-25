@@ -143,14 +143,24 @@ public:
         declareVariable(type, global->getNameStr(), mapGlaAddressSpace(global));
     }
 
-    void startFunction()
+    void startFunctionDeclaration(const llvm::Type* type, std::string& name)
     {
-        shader << "void main()";
+        newLine();
+        shader << "void " << name << "(";
+    }
+
+    void endFunctionDeclaration()
+    {
+        shader << ")";
+    }
+
+    void startFunctionBody()
+    {
         newLine();
         newScope();
     }
 
-    void endFunction()
+    void endFunctionBody()
     {
         leaveScope();
     }
@@ -228,7 +238,8 @@ protected:
         newLine();
     }
 
-    void mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction);
+    void mapGlaIntrinsic(const llvm::IntrinsicInst*);
+    void mapGlaCall(const llvm::CallInst*);
     const char* mapGlaXor(const llvm::Instruction* llvmInstruction, bool intrinsic = false, int* unaryOperand = 0);
 
     EVariableQualifier mapGlaAddressSpace(const llvm::Value* value)
@@ -923,19 +934,24 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
     case llvm::Instruction::Ret:
         newLine();
-        if (llvmInstruction->getNumOperands() > 0)
-            UnsupportedFunctionality("return expressions", EATContinue);
         if (! lastBlock) {
             UnsupportedFunctionality("early return", EATContinue);
             shader << "return;";
         }
+        if (llvmInstruction->getNumOperands() > 0) {
+            shader << "return ";
+            mapGlaOperand(llvmInstruction->getOperand(0));
+            shader << ";";
+        }        
         return;
 
     case llvm::Instruction::Call: // includes intrinsics...
-        if (const llvm::IntrinsicInst* i = llvm::dyn_cast<llvm::IntrinsicInst>(llvmInstruction)) {
-            mapGlaIntrinsic(i);
+        if (const llvm::IntrinsicInst* intrinsic = llvm::dyn_cast<llvm::IntrinsicInst>(llvmInstruction)) {
+            mapGlaIntrinsic(intrinsic);
         } else {
-            UnsupportedFunctionality("Function Call in Bottom IR");
+            const llvm::CallInst* call = llvm::dyn_cast<llvm::CallInst>(llvmInstruction);
+            assert(call);
+            mapGlaCall(call);
         }
         return;
 
@@ -1366,6 +1382,23 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     shader << ");";
 }
 
+//
+// Handle real function calls.
+//
+void gla::GlslTarget::mapGlaCall(const llvm::CallInst* call)
+{
+    newLine();
+    mapGlaDestination(call);
+    shader << " = " << call->getNameStr() << "(";
+    for (int arg = 0; arg < call->getNumArgOperands(); ++arg) {
+        mapGlaOperand(call->getArgOperand(arg));
+        if (arg + 1 < call->getNumArgOperands())
+            shader << ", ";
+    }
+
+    shader << ");";
+}
+
 void gla::GlslTarget::print()
 {
     // If we've supplied the revision number (on linux it's via a
@@ -1373,10 +1406,12 @@ void gla::GlslTarget::print()
     // set, then output the revision.
 #ifdef GLA_REVISION
     if (Options.noRevision)
-        printf("\n// LunarGOO output\n%s\n%s", globalDeclarations.str().c_str(), shader.str().c_str());
+        printf("\n// LunarGOO output\n");
     else
-        printf("\n// LunarGOO(r%s) output\n%s\n%s", GLA_REVISION, globalDeclarations.str().c_str(), shader.str().c_str());
+        printf("\n// LunarGOO(r%s) output\n", GLA_REVISION);
 #else
-    printf("\n// LunarGOO output\n%s\n%s", globalDeclarations.str().c_str(), shader.str().c_str());
+    printf("\n// LunarGOO output\n");
 #endif
+    
+    printf("%s%s", globalDeclarations.str().c_str(), shader.str().c_str());
 }
