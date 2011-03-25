@@ -171,35 +171,40 @@ int GlslToTopVisitor::getNextInterpIndex(ir_variable* var)
 ir_visitor_status
     GlslToTopVisitor::visit(ir_dereference_variable *derefVariable)
 {
+    bool isPipelineInput = false;
+
     // Grab the actual variable
     ir_variable *var = derefVariable->variable_referenced();
 
-    // for pipeline reads, we don't create an LLVM variable storage
-    if (var->mode != ir_var_in) {
+    // Search our value map for existing entry
+    std::map<ir_variable*, llvm::Value*>::iterator iter;
+    iter = namedValues.find(var);
 
-        // Search our value map for existing entry
-        std::map<ir_variable*, llvm::Value*>::iterator iter;
-        iter = namedValues.find(var);
+    if (namedValues.end() == iter) {
 
-        if (namedValues.end() == iter) {
-
+        // If we don't find the variable, and it is considered input
+        // it is a pipeline read
+        if (var->mode != ir_var_in) {
             // it was not found, create it
             namedValues[var] = createLLVMVariable(var);
-
-            // For pipeline outputs, we must still maintain a non-pipeline
-            // variable for reading/writing that happens before the final
-            // copy out.  Make this current variable be that non-pipeline
-            // normal variable, but track it as one that now needs a copy out on
-            // shader exit.
-            if (var->mode == ir_var_out) {
-                // Track our copy-out for pipe write
-                glslOuts.push_back(namedValues[var]);
-            }
+        } else {
+            isPipelineInput = true;
         }
 
-        // Track the current value
-        lastValue = namedValues[var];
+        // For pipeline outputs, we must still maintain a non-pipeline
+        // variable for reading/writing that happens before the final
+        // copy out.  Make this current variable be that non-pipeline
+        // normal variable, but track it as one that now needs a copy out on
+        // shader exit.
+        if (var->mode == ir_var_out) {
+            // Track our copy-out for pipe write
+            glslOuts.push_back(namedValues[var]);
+        }
     }
+
+    // Track the current value
+    if(! isPipelineInput)
+        lastValue = namedValues[var];
 
     if (in_assignee)
     {
@@ -208,7 +213,7 @@ ir_visitor_status
     }
     else
     {
-        if (var->mode == ir_var_in) {
+        if (isPipelineInput) {
             // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
             // which we will optimize later.
             llvm::Function *intrinsicName = 0;
@@ -238,7 +243,9 @@ ir_visitor_status
             case 2:  lastValue = builder.CreateCall2 (intrinsicName, interpLoc, interpOffset, name); break;
             case 1:  lastValue = builder.CreateCall  (intrinsicName, interpLoc, name);               break;
             }
-        } else {
+        } 
+        else if (var->mode != ir_var_in) {
+            // Don't load inputs again... just use them
             lastValue = builder.CreateLoad(lastValue);
         }
     }
@@ -278,8 +285,7 @@ ir_visitor_status
 
         exec_list_iterator iterParam = sig->parameters.iterator();
 
-        while(iterParam.has_next())
-        {
+        while (iterParam.has_next()) {
             parameter = (ir_variable *) iterParam.get();
             paramTypes.push_back(convertGLSLToLLVMType(parameter->type));
             iterParam.next();
@@ -293,6 +299,20 @@ ir_visitor_status
 
         llvm::BasicBlock *functionBlock = llvm::BasicBlock::Create(context, sig->function_name(), function);
         builder.SetInsertPoint(functionBlock);
+
+        // Visit parameter list again to create local variables
+        iterParam = sig->parameters.iterator();
+
+        llvm::Function::arg_iterator arg = function->arg_begin();
+        llvm::Function::arg_iterator endArg = function->arg_end(); 
+        
+        while (iterParam.has_next() && arg != endArg) {
+            // Create a variable for our formal parameter
+            parameter = (ir_variable *) iterParam.get();
+            namedValues[parameter] = &(*arg);
+            ++arg;
+            iterParam.next();
+        }
 
         // Track our user function to call later
         functionMap[sig] = function;
@@ -997,7 +1017,6 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
         break;
 
     case ir_var_in:
-        // inputs should all be pipeline reads
         assert(! "no memory allocations for inputs");
         return 0;
 
