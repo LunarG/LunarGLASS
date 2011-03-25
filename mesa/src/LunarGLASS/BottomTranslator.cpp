@@ -217,12 +217,13 @@ bool CodeGeneration::runOnModule(llvm::Module& module)
         } else {
             // handle function's with bodies
 
-            backEndTranslator->startFunctionDeclaration(function->getType(), function->getNameStr());
+            backEndTranslator->startFunctionDeclaration(function->getFunctionType(), function->getNameStr());
 
             // paramaters and arguments
-            for (llvm::Function::const_arg_iterator P = function->arg_begin(), E = function->arg_end(); P != E; ++P) {
-                gla::UnsupportedFunctionality("function arguments in Bottom IR");
-                //?? argument is Attrs.getParamAttributes(Idx));  // Idx has to count as you go through the loop
+            for (llvm::Function::const_arg_iterator arg = function->arg_begin(), endArg = function->arg_end(); arg != endArg; ++arg) {
+                llvm::Function::const_arg_iterator nextArg = arg;
+                ++nextArg;                
+                backEndTranslator->addArgument(arg, nextArg == endArg);
             }
 
             backEndTranslator->endFunctionDeclaration();

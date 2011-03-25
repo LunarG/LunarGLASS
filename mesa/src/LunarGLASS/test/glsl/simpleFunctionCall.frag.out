@@ -146,14 +146,14 @@ gl_FragColor = foo ( ) ; }
 #version 130
 in vec4 BaseColor;
 
-void foo()
+vec4 foo()
 {
     return BaseColor;
 }
 
 void main()
 {
-    vec4 temp21 = ();
+    vec4 temp21 = foo();
     gl_FragColor = temp21;
     
 }

@@ -57,8 +57,6 @@ entry:
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
-
-***Unsupported functionality: function arguments in Bottom IR
 compiling functionCall.frag...
 uniform vec4 bigColor ; 
 varying vec4 BaseColor ; 
@@ -161,3 +159,21 @@ vec4 color = vec4 ( foo ( BaseColor ) ) ; gl_FragColor = color ; }
 
 
 )
+// LunarGOO output
+#version 130
+in vec4 bar;
+in vec4 BaseColor;
+
+float foo(vec4 temp21)
+{
+    float temp22 = bar.x + bar.y;
+    return temp22;
+}
+
+void main()
+{
+    float temp23 = foo(BaseColor);
+    vec4 temp24 = vec4(temp23, temp23, temp23, temp23);
+    gl_FragColor = temp24;
+    
+}

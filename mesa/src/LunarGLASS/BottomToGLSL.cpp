@@ -146,7 +146,15 @@ public:
     void startFunctionDeclaration(const llvm::Type* type, const std::string& name)
     {
         newLine();
-        shader << "void " << name << "(";
+        mapGlaType(shader, type->getContainedType(0));
+        shader << " " << name << "(";
+    }
+    
+    virtual void addArgument(const llvm::Value* value, bool last)
+    {
+        mapGlaDestination(value);
+        if (! last)
+            shader << ", ";
     }
 
     void endFunctionDeclaration()
@@ -484,8 +492,10 @@ protected:
     void mapGlaType(std::ostringstream& out, const llvm::Type* type, int count = -1)
     {
         // if it's a vector, output a vector type
-        const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
-        if (vectorType) {
+        if (type->getTypeID() == llvm::Type::VectorTyID) {            
+            const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
+            assert(vectorType);
+
             if (type->getContainedType(0) == type->getFloatTy(type->getContext()))
                 out << "vec";
             else if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
@@ -508,6 +518,8 @@ protected:
                 out << "bool";
             else if (type == type->getInt32Ty(type->getContext()))
                 out << "int";
+            else if (type == type->getVoidTy(type->getContext()))
+                out << "void";
             else
                 UnsupportedFunctionality("Basic Type in Bottom IR");
         }
@@ -1389,7 +1401,7 @@ void gla::GlslTarget::mapGlaCall(const llvm::CallInst* call)
 {
     newLine();
     mapGlaDestination(call);
-    shader << " = " << call->getNameStr() << "(";
+    shader << " = " << call->getCalledFunction()->getNameStr() << "(";
     for (int arg = 0; arg < call->getNumArgOperands(); ++arg) {
         mapGlaOperand(call->getArgOperand(arg));
         if (arg + 1 < call->getNumArgOperands())

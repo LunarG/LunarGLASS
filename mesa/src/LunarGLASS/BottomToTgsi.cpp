@@ -126,6 +126,7 @@ public:
     }
     
     void startFunctionDeclaration(const llvm::Type*, const std::string&) { }
+    void addArgument(const llvm::Value*, bool last) { }
     void endFunctionDeclaration() { }
     void startFunctionBody() { }
     void endFunctionBody() { }

@@ -58,7 +58,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
-***Unsupported functionality: function arguments in Bottom IR
+***Unsupported functionality: opcode in Bottom IR: 50
 compiling functionCall.frag...
 uniform vec4 bigColor ; 
 varying vec4 BaseColor ; 
