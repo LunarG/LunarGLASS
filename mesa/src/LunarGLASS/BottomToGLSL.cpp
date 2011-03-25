@@ -143,7 +143,7 @@ public:
         declareVariable(type, global->getNameStr(), mapGlaAddressSpace(global));
     }
 
-    void startFunctionDeclaration(const llvm::Type* type, std::string& name)
+    void startFunctionDeclaration(const llvm::Type* type, const std::string& name)
     {
         newLine();
         shader << "void " << name << "(";

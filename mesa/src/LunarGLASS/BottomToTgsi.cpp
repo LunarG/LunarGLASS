@@ -125,7 +125,7 @@ public:
         // don't free instructions, as they needs to live on
     }
     
-    void startFunctionDeclaration(const llvm::Type*, std::string&) { }
+    void startFunctionDeclaration(const llvm::Type*, const std::string&) { }
     void endFunctionDeclaration() { }
     void startFunctionBody() { }
     void endFunctionBody() { }
