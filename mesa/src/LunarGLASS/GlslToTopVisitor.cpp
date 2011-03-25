@@ -264,14 +264,15 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_function_signature *sig)
 {
-    // For now, don't build parameter list or call for main()
-    if (strcmp(sig->function_name(), "main") == 0) {
-        inMain = true;
-        builder.SetInsertPoint(getShaderEntry());
-        return visit_continue;
-    }
-
     if (!sig->is_builtin) {
+
+        // For now, don't build parameter list or call for main()
+        if (strcmp(sig->function_name(), "main") == 0) {
+            inMain = true;
+            builder.SetInsertPoint(getShaderEntry());
+            return visit_continue;
+        }
+
         std::vector<const llvm::Type*> paramTypes;
         ir_variable* parameter;
 
@@ -300,17 +301,28 @@ ir_visitor_status
 }
 
 ir_visitor_status
-    GlslToTopVisitor::visit_leave(ir_function_signature *)
+    GlslToTopVisitor::visit_leave(ir_function_signature *sig)
 {
-    if (inMain) {
-        // Write out our pipeline data
-        writePipelineOuts();
-        // Return void for main
-        builder.CreateRet(0);
-    }
+    // Ignore builtins for now
+    if (!sig->is_builtin) {
+           
+        llvm::BasicBlock* BB = builder.GetInsertBlock();
+        assert(BB);
 
-    // Reset our tracker for main
-    inMain = false;
+        // If our function did not contain a return,
+        // return void now
+        if (0 == BB->getTerminator()) {
+            
+            if (inMain) {
+                // If we're leaving main and it is not terminated,
+                // generate our pipeline writes
+                writePipelineOuts();
+                inMain = false;
+            }
+
+            builder.CreateRet(0);
+        }
+    }
 
     return visit_continue;
 }
@@ -500,12 +512,12 @@ ir_visitor_status
 
        // Create a call to it
         switch(paramCount) {
-        case 5:     callInst = builder.CreateCall5(function, llvmParams[0], llvmParams[1], llvmParams[2], llvmParams[3], llvmParams[4], name);      break;
-        case 4:     callInst = builder.CreateCall4(function, llvmParams[0], llvmParams[1], llvmParams[2], llvmParams[3], name);                     break;
-        case 3:     callInst = builder.CreateCall3(function, llvmParams[0], llvmParams[1], llvmParams[2], name);                                    break;
-        case 2:     callInst = builder.CreateCall2(function, llvmParams[0], llvmParams[1], name);                                                   break;
-        case 1:     callInst = builder.CreateCall (function, llvmParams[0], name);                                                                  break;
-        case 0:     callInst = builder.CreateCall (function, name);                                                                                 break;
+        case 5:     callInst = builder.CreateCall5(function, llvmParams[0], llvmParams[1], llvmParams[2], llvmParams[3], llvmParams[4]);      break;
+        case 4:     callInst = builder.CreateCall4(function, llvmParams[0], llvmParams[1], llvmParams[2], llvmParams[3]);                     break;
+        case 3:     callInst = builder.CreateCall3(function, llvmParams[0], llvmParams[1], llvmParams[2]);                                    break;
+        case 2:     callInst = builder.CreateCall2(function, llvmParams[0], llvmParams[1]);                                                   break;
+        case 1:     callInst = builder.CreateCall (function, llvmParams[0]);                                                                  break;
+        case 0:     callInst = builder.CreateCall (function);                                                                                 break;
         default:    assert(! "Unsupported parameter count");
         }
 
@@ -856,16 +868,16 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_return *ir)
 {
+    // If we're traversing a return in main,
+    // generate pipeline writes
     if (inMain) {
-        gla::UnsupportedFunctionality("return from main");
-        return visit_continue;
+        writePipelineOuts();
     }
     
     // Return the expression result, which is tracked in lastValue
     if (ir->get_value()) {
         builder.CreateRet(lastValue);
     } else {
-        gla::UnsupportedFunctionality("return without expression");
         builder.CreateRet(0);
     }
 
@@ -1309,9 +1321,11 @@ llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
         //Treating sampler as an integer for now
         llvmVarType = (llvm::Type*)llvm::Type::getInt32Ty(context);
         break;
+    case GLSL_TYPE_VOID:
+        llvmVarType = (llvm::Type*)llvm::Type::getVoidTy(context);
+        break;
     case GLSL_TYPE_ARRAY:     gla::UnsupportedFunctionality("arrays");
     case GLSL_TYPE_STRUCT:    gla::UnsupportedFunctionality("structures");
-    case GLSL_TYPE_VOID:      gla::UnsupportedFunctionality("void type");
     case GLSL_TYPE_ERROR:     assert(! "type error");
     default:
         gla::UnsupportedFunctionality("basic type");
@@ -1517,9 +1531,11 @@ void GlslToTopVisitor::writePipelineOuts()
 {
     llvm::Intrinsic::ID intrinsicID;
 
+     std::list<llvm::Value*>::iterator outIter;
+
     //Call writeData intrinsic on our outs
-    while(!glslOuts.empty()) {
-        llvm::Value* loadVal = builder.CreateLoad(glslOuts.front());
+    for ( outIter = glslOuts.begin(); outIter != glslOuts.end(); outIter++ ) {
+        llvm::Value* loadVal = builder.CreateLoad(*outIter);
 
         switch(getLLVMBaseType(loadVal)) {
         case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
@@ -1531,7 +1547,5 @@ void GlslToTopVisitor::writePipelineOuts()
         lastValue = builder.CreateCall2 (intrinsicName,
                                             llvm::ConstantInt::get(context, llvm::APInt(32, 0, true)),
                                             loadVal);
-
-        glslOuts.pop_front();
     }
 }
