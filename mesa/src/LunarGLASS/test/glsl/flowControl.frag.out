@@ -1,5 +1,17 @@
 ; ModuleID = 'Top'
 
+@gl_MaxLights = internal constant i32 8
+@gl_MaxClipPlanes = internal constant i32 8
+@gl_MaxTextureUnits = internal constant i32 2
+@gl_MaxTextureCoords = internal constant i32 4
+@gl_MaxVertexAttribs = internal constant i32 16
+@gl_MaxVertexUniformComponents = internal constant i32 512
+@gl_MaxVaryingFloats = internal constant i32 32
+@gl_MaxVertexTextureImageUnits = internal constant i32 0
+@gl_MaxCombinedTextureImageUnits = internal constant i32 2
+@gl_MaxTextureImageUnits = internal constant i32 2
+@gl_MaxFragmentUniformComponents = internal constant i32 64
+@gl_MaxDrawBuffers = internal constant i32 2
 @d = external addrspace(1) constant float
 @bigColor = external addrspace(1) constant <4 x float>
 @smallColor = external addrspace(1) constant <4 x float>
@@ -47,6 +59,18 @@ declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readonly
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
+@gl_MaxLights = internal constant i32 8
+@gl_MaxClipPlanes = internal constant i32 8
+@gl_MaxTextureUnits = internal constant i32 2
+@gl_MaxTextureCoords = internal constant i32 4
+@gl_MaxVertexAttribs = internal constant i32 16
+@gl_MaxVertexUniformComponents = internal constant i32 512
+@gl_MaxVaryingFloats = internal constant i32 32
+@gl_MaxVertexTextureImageUnits = internal constant i32 0
+@gl_MaxCombinedTextureImageUnits = internal constant i32 2
+@gl_MaxTextureImageUnits = internal constant i32 2
+@gl_MaxFragmentUniformComponents = internal constant i32 64
+@gl_MaxDrawBuffers = internal constant i32 2
 @d = external addrspace(1) constant float
 @bigColor = external addrspace(1) constant <4 x float>
 @smallColor = external addrspace(1) constant <4 x float>

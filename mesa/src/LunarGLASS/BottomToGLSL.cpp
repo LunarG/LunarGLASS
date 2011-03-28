@@ -149,7 +149,7 @@ public:
         mapGlaType(shader, type->getContainedType(0));
         shader << " " << name << "(";
     }
-    
+
     virtual void addArgument(const llvm::Value* value, bool last)
     {
         mapGlaDestination(value);
@@ -492,7 +492,7 @@ protected:
     void mapGlaType(std::ostringstream& out, const llvm::Type* type, int count = -1)
     {
         // if it's a vector, output a vector type
-        if (type->getTypeID() == llvm::Type::VectorTyID) {            
+        if (type->getTypeID() == llvm::Type::VectorTyID) {
             const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
             assert(vectorType);
 
@@ -946,15 +946,13 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
     case llvm::Instruction::Ret:
         newLine();
-        if (! lastBlock) {
-            UnsupportedFunctionality("early return", EATContinue);
+        if (! lastBlock && llvmInstruction->getNumOperands() == 0) {
             shader << "return;";
-        }
-        if (llvmInstruction->getNumOperands() > 0) {
+        } else if (llvmInstruction->getNumOperands() > 0) {
             shader << "return ";
             mapGlaOperand(llvmInstruction->getOperand(0));
             shader << ";";
-        }        
+        }
         return;
 
     case llvm::Instruction::Call: // includes intrinsics...
@@ -1424,6 +1422,6 @@ void gla::GlslTarget::print()
 #else
     printf("\n// LunarGOO output\n");
 #endif
-    
+
     printf("%s%s", globalDeclarations.str().c_str(), shader.str().c_str());
 }

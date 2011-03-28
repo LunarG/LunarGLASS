@@ -1,5 +1,17 @@
 ; ModuleID = 'Top'
 
+@gl_MaxLights = internal constant i32 8
+@gl_MaxClipPlanes = internal constant i32 8
+@gl_MaxTextureUnits = internal constant i32 2
+@gl_MaxTextureCoords = internal constant i32 4
+@gl_MaxVertexAttribs = internal constant i32 16
+@gl_MaxVertexUniformComponents = internal constant i32 512
+@gl_MaxVaryingFloats = internal constant i32 32
+@gl_MaxVertexTextureImageUnits = internal constant i32 0
+@gl_MaxCombinedTextureImageUnits = internal constant i32 2
+@gl_MaxTextureImageUnits = internal constant i32 2
+@gl_MaxFragmentUniformComponents = internal constant i32 64
+@gl_MaxDrawBuffers = internal constant i32 2
 @uv4 = external addrspace(1) constant <4 x float>
 @ub = external addrspace(1) constant i1
 @uf = external addrspace(1) constant float
@@ -13,40 +25,38 @@ entry:
   %conditional_tmp = alloca <4 x float>
   %assignment_tmp113 = alloca i1
   %assignment_tmp112 = alloca i32
-  %and_tmp106 = alloca i1
-  %or_tmp103 = alloca i1
+  %and_tmp105 = alloca i1
+  %or_tmp102 = alloca i1
   %assignment_tmp101 = alloca float
   %cross_retval = alloca <3 x float>
   %dot_retval = alloca float
   %distance_retval = alloca float
   %length_retval = alloca float
-  %f = alloca float
-  %and_tmp95 = alloca i1
+  %and_tmp94 = alloca i1
   %or_tmp = alloca i1
   %assignment_tmp91 = alloca i32
-  %and_tmp88 = alloca i1
-  %any_retval86 = alloca i1
+  %any_retval87 = alloca i1
   %not_retval = alloca <4 x i1>
-  %and_tmp82 = alloca i1
+  %and_tmp85 = alloca i1
   %all_retval = alloca i1
-  %and_tmp78 = alloca i1
-  %any_retval76 = alloca i1
-  %and_tmp72 = alloca i1
-  %any_retval70 = alloca i1
+  %and_tmp81 = alloca i1
+  %any_retval77 = alloca i1
+  %and_tmp75 = alloca i1
+  %any_retval71 = alloca i1
   %notEqual_retval = alloca <4 x i1>
-  %and_tmp66 = alloca i1
-  %any_retval64 = alloca i1
+  %and_tmp69 = alloca i1
+  %any_retval65 = alloca i1
   %equal_retval = alloca <4 x i1>
-  %and_tmp60 = alloca i1
-  %any_retval58 = alloca i1
+  %and_tmp63 = alloca i1
+  %any_retval59 = alloca i1
   %greaterThanEqual_retval = alloca <4 x i1>
-  %and_tmp54 = alloca i1
-  %any_retval52 = alloca i1
+  %and_tmp57 = alloca i1
+  %any_retval53 = alloca i1
   %greaterThan_retval = alloca <4 x i1>
-  %and_tmp = alloca i1
+  %and_tmp51 = alloca i1
   %any_retval49 = alloca i1
   %lessThanEqual_retval = alloca <4 x i1>
-  %b = alloca i1
+  %and_tmp = alloca i1
   %any_retval = alloca i1
   %lessThan_retval = alloca <4 x i1>
   %clamp_retval47 = alloca i32
@@ -56,7 +66,6 @@ entry:
   %min_retval41 = alloca i32
   %assignment_tmp40 = alloca i32
   %abs_retval38 = alloca i32
-  %i = alloca i32
   %fwidth_retval = alloca <4 x float>
   %assignment_tmp37 = alloca <4 x float>
   %dFdy_retval = alloca <4 x float>
@@ -130,8 +139,11 @@ entry:
   %sin_retval = alloca <4 x float>
   %assignment_tmp = alloca <4 x float>
   %degrees_retval = alloca <4 x float>
-  %v = alloca <4 x float>
   %radians_retval = alloca <4 x float>
+  %v = alloca <4 x float>
+  %f = alloca float
+  %b = alloca i1
+  %i = alloca i32
   %0 = load <4 x float> addrspace(1)* @uv4
   %radians = call <4 x float> @llvm.gla.fRadians.v4f32.v4f32(<4 x float> %0)
   store <4 x float> %radians, <4 x float>* %radians_retval
@@ -558,149 +570,149 @@ ifmerge:                                          ; preds = %else, %then
   %240 = load i1* %and_tmp
   store i1 %240, i1* %b
   %241 = load i1* %and_tmp
-  br i1 %241, label %then51, label %else55
+  br i1 %241, label %then52, label %else55
 
-then51:                                           ; preds = %ifmerge
+then52:                                           ; preds = %ifmerge
   %242 = load <4 x float>* %v
   %243 = load <4 x float>* %v
   %244 = fcmp ogt <4 x float> %242, %243
   store <4 x i1> %244, <4 x i1>* %greaterThan_retval
   %245 = load <4 x i1>* %greaterThan_retval
-  %any53 = call i1 @llvm.gla.any.v4i1(<4 x i1> %245)
-  store i1 %any53, i1* %any_retval52
-  %246 = load i1* %any_retval52
-  store i1 %246, i1* %and_tmp54
+  %any54 = call i1 @llvm.gla.any.v4i1(<4 x i1> %245)
+  store i1 %any54, i1* %any_retval53
+  %246 = load i1* %any_retval53
+  store i1 %246, i1* %and_tmp51
   br label %ifmerge56
 
 else55:                                           ; preds = %ifmerge
-  store i1 false, i1* %and_tmp54
+  store i1 false, i1* %and_tmp51
   br label %ifmerge56
 
-ifmerge56:                                        ; preds = %else55, %then51
-  %247 = load i1* %and_tmp54
+ifmerge56:                                        ; preds = %else55, %then52
+  %247 = load i1* %and_tmp51
   store i1 %247, i1* %b
-  %248 = load i1* %and_tmp54
-  br i1 %248, label %then57, label %else61
+  %248 = load i1* %and_tmp51
+  br i1 %248, label %then58, label %else61
 
-then57:                                           ; preds = %ifmerge56
+then58:                                           ; preds = %ifmerge56
   %249 = load <4 x float>* %v
   %250 = load <4 x float>* %v
   %251 = fcmp oge <4 x float> %249, %250
   store <4 x i1> %251, <4 x i1>* %greaterThanEqual_retval
   %252 = load <4 x i1>* %greaterThanEqual_retval
-  %any59 = call i1 @llvm.gla.any.v4i1(<4 x i1> %252)
-  store i1 %any59, i1* %any_retval58
-  %253 = load i1* %any_retval58
-  store i1 %253, i1* %and_tmp60
+  %any60 = call i1 @llvm.gla.any.v4i1(<4 x i1> %252)
+  store i1 %any60, i1* %any_retval59
+  %253 = load i1* %any_retval59
+  store i1 %253, i1* %and_tmp57
   br label %ifmerge62
 
 else61:                                           ; preds = %ifmerge56
-  store i1 false, i1* %and_tmp60
+  store i1 false, i1* %and_tmp57
   br label %ifmerge62
 
-ifmerge62:                                        ; preds = %else61, %then57
-  %254 = load i1* %and_tmp60
+ifmerge62:                                        ; preds = %else61, %then58
+  %254 = load i1* %and_tmp57
   store i1 %254, i1* %b
-  %255 = load i1* %and_tmp60
-  br i1 %255, label %then63, label %else67
+  %255 = load i1* %and_tmp57
+  br i1 %255, label %then64, label %else67
 
-then63:                                           ; preds = %ifmerge62
+then64:                                           ; preds = %ifmerge62
   %256 = load <4 x i1> addrspace(1)* @ub41
   %257 = load <4 x i1> addrspace(1)* @ub42
   %258 = icmp eq <4 x i1> %256, %257
   store <4 x i1> %258, <4 x i1>* %equal_retval
   %259 = load <4 x i1>* %equal_retval
-  %any65 = call i1 @llvm.gla.any.v4i1(<4 x i1> %259)
-  store i1 %any65, i1* %any_retval64
-  %260 = load i1* %any_retval64
-  store i1 %260, i1* %and_tmp66
+  %any66 = call i1 @llvm.gla.any.v4i1(<4 x i1> %259)
+  store i1 %any66, i1* %any_retval65
+  %260 = load i1* %any_retval65
+  store i1 %260, i1* %and_tmp63
   br label %ifmerge68
 
 else67:                                           ; preds = %ifmerge62
-  store i1 false, i1* %and_tmp66
+  store i1 false, i1* %and_tmp63
   br label %ifmerge68
 
-ifmerge68:                                        ; preds = %else67, %then63
-  %261 = load i1* %and_tmp66
+ifmerge68:                                        ; preds = %else67, %then64
+  %261 = load i1* %and_tmp63
   store i1 %261, i1* %b
-  %262 = load i1* %and_tmp66
-  br i1 %262, label %then69, label %else73
+  %262 = load i1* %and_tmp63
+  br i1 %262, label %then70, label %else73
 
-then69:                                           ; preds = %ifmerge68
+then70:                                           ; preds = %ifmerge68
   %263 = load <4 x i1> addrspace(1)* @ub41
   %264 = load <4 x i1> addrspace(1)* @ub42
   %265 = icmp ne <4 x i1> %263, %264
   store <4 x i1> %265, <4 x i1>* %notEqual_retval
   %266 = load <4 x i1>* %notEqual_retval
-  %any71 = call i1 @llvm.gla.any.v4i1(<4 x i1> %266)
-  store i1 %any71, i1* %any_retval70
-  %267 = load i1* %any_retval70
-  store i1 %267, i1* %and_tmp72
+  %any72 = call i1 @llvm.gla.any.v4i1(<4 x i1> %266)
+  store i1 %any72, i1* %any_retval71
+  %267 = load i1* %any_retval71
+  store i1 %267, i1* %and_tmp69
   br label %ifmerge74
 
 else73:                                           ; preds = %ifmerge68
-  store i1 false, i1* %and_tmp72
+  store i1 false, i1* %and_tmp69
   br label %ifmerge74
 
-ifmerge74:                                        ; preds = %else73, %then69
-  %268 = load i1* %and_tmp72
+ifmerge74:                                        ; preds = %else73, %then70
+  %268 = load i1* %and_tmp69
   store i1 %268, i1* %b
-  %269 = load i1* %and_tmp72
-  br i1 %269, label %then75, label %else79
+  %269 = load i1* %and_tmp69
+  br i1 %269, label %then76, label %else79
 
-then75:                                           ; preds = %ifmerge74
+then76:                                           ; preds = %ifmerge74
   %270 = load <4 x i1> addrspace(1)* @ub41
-  %any77 = call i1 @llvm.gla.any.v4i1(<4 x i1> %270)
-  store i1 %any77, i1* %any_retval76
-  %271 = load i1* %any_retval76
-  store i1 %271, i1* %and_tmp78
+  %any78 = call i1 @llvm.gla.any.v4i1(<4 x i1> %270)
+  store i1 %any78, i1* %any_retval77
+  %271 = load i1* %any_retval77
+  store i1 %271, i1* %and_tmp75
   br label %ifmerge80
 
 else79:                                           ; preds = %ifmerge74
-  store i1 false, i1* %and_tmp78
+  store i1 false, i1* %and_tmp75
   br label %ifmerge80
 
-ifmerge80:                                        ; preds = %else79, %then75
-  %272 = load i1* %and_tmp78
+ifmerge80:                                        ; preds = %else79, %then76
+  %272 = load i1* %and_tmp75
   store i1 %272, i1* %b
-  %273 = load i1* %and_tmp78
-  br i1 %273, label %then81, label %else83
+  %273 = load i1* %and_tmp75
+  br i1 %273, label %then82, label %else83
 
-then81:                                           ; preds = %ifmerge80
+then82:                                           ; preds = %ifmerge80
   %274 = load <4 x i1> addrspace(1)* @ub41
   %all = call i1 @llvm.gla.all.v4i1(<4 x i1> %274)
   store i1 %all, i1* %all_retval
   %275 = load i1* %all_retval
-  store i1 %275, i1* %and_tmp82
+  store i1 %275, i1* %and_tmp81
   br label %ifmerge84
 
 else83:                                           ; preds = %ifmerge80
-  store i1 false, i1* %and_tmp82
+  store i1 false, i1* %and_tmp81
   br label %ifmerge84
 
-ifmerge84:                                        ; preds = %else83, %then81
-  %276 = load i1* %and_tmp82
+ifmerge84:                                        ; preds = %else83, %then82
+  %276 = load i1* %and_tmp81
   store i1 %276, i1* %b
-  %277 = load i1* %and_tmp82
-  br i1 %277, label %then85, label %else89
+  %277 = load i1* %and_tmp81
+  br i1 %277, label %then86, label %else89
 
-then85:                                           ; preds = %ifmerge84
+then86:                                           ; preds = %ifmerge84
   %278 = load <4 x i1> addrspace(1)* @ub41
   %279 = xor <4 x i1> %278, <i1 true, i1 true, i1 true, i1 true>
   store <4 x i1> %279, <4 x i1>* %not_retval
   %280 = load <4 x i1>* %not_retval
-  %any87 = call i1 @llvm.gla.any.v4i1(<4 x i1> %280)
-  store i1 %any87, i1* %any_retval86
-  %281 = load i1* %any_retval86
-  store i1 %281, i1* %and_tmp88
+  %any88 = call i1 @llvm.gla.any.v4i1(<4 x i1> %280)
+  store i1 %any88, i1* %any_retval87
+  %281 = load i1* %any_retval87
+  store i1 %281, i1* %and_tmp85
   br label %ifmerge90
 
 else89:                                           ; preds = %ifmerge84
-  store i1 false, i1* %and_tmp88
+  store i1 false, i1* %and_tmp85
   br label %ifmerge90
 
-ifmerge90:                                        ; preds = %else89, %then85
-  %282 = load i1* %and_tmp88
+ifmerge90:                                        ; preds = %else89, %then86
+  %282 = load i1* %and_tmp85
   store i1 %282, i1* %b
   %283 = load i32* %i
   %284 = load i32 addrspace(1)* @ui
@@ -729,21 +741,21 @@ else93:                                           ; preds = %ifmerge90
   %298 = load i32* %assignment_tmp91
   %299 = load i32 addrspace(1)* @ui
   %300 = icmp ne i32 %298, %299
-  br i1 %300, label %then94, label %else96
+  br i1 %300, label %then95, label %else96
 
-then94:                                           ; preds = %else93
+then95:                                           ; preds = %else93
   %301 = load i32* %assignment_tmp91
   %302 = load i32 addrspace(1)* @ui
   %303 = icmp eq i32 %301, %302
-  store i1 %303, i1* %and_tmp95
+  store i1 %303, i1* %and_tmp94
   br label %ifmerge97
 
 else96:                                           ; preds = %else93
-  store i1 false, i1* %and_tmp95
+  store i1 false, i1* %and_tmp94
   br label %ifmerge97
 
-ifmerge97:                                        ; preds = %else96, %then94
-  %304 = load i1* %and_tmp95
+ifmerge97:                                        ; preds = %else96, %then95
+  %304 = load i1* %and_tmp94
   %305 = load i32* %assignment_tmp91
   %306 = icmp ne i32 %305, 2
   %307 = xor i1 %304, %306
@@ -820,35 +832,35 @@ ifmerge100:                                       ; preds = %then99, %ifmerge98
   %353 = load float* %assignment_tmp101
   %354 = load float addrspace(1)* @uf
   %355 = fcmp oeq float %353, %354
-  br i1 %355, label %then102, label %else104
+  br i1 %355, label %then103, label %else104
 
-then102:                                          ; preds = %ifmerge100
-  store i1 true, i1* %or_tmp103
+then103:                                          ; preds = %ifmerge100
+  store i1 true, i1* %or_tmp102
   br label %ifmerge109
 
 else104:                                          ; preds = %ifmerge100
   %356 = load float* %assignment_tmp101
   %357 = load float addrspace(1)* @uf
   %358 = fcmp one float %356, %357
-  br i1 %358, label %then105, label %else107
+  br i1 %358, label %then106, label %else107
 
-then105:                                          ; preds = %else104
+then106:                                          ; preds = %else104
   %359 = load float* %assignment_tmp101
   %360 = fcmp one float %359, 2.000000e+00
-  store i1 %360, i1* %and_tmp106
+  store i1 %360, i1* %and_tmp105
   br label %ifmerge108
 
 else107:                                          ; preds = %else104
-  store i1 false, i1* %and_tmp106
+  store i1 false, i1* %and_tmp105
   br label %ifmerge108
 
-ifmerge108:                                       ; preds = %else107, %then105
-  %361 = load i1* %and_tmp106
-  store i1 %361, i1* %or_tmp103
+ifmerge108:                                       ; preds = %else107, %then106
+  %361 = load i1* %and_tmp105
+  store i1 %361, i1* %or_tmp102
   br label %ifmerge109
 
-ifmerge109:                                       ; preds = %ifmerge108, %then102
-  %362 = load i1* %or_tmp103
+ifmerge109:                                       ; preds = %ifmerge108, %then103
+  %362 = load i1* %or_tmp102
   br i1 %362, label %then110, label %ifmerge111
 
 then110:                                          ; preds = %ifmerge109
@@ -1008,6 +1020,18 @@ declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>)
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
+@gl_MaxLights = internal constant i32 8
+@gl_MaxClipPlanes = internal constant i32 8
+@gl_MaxTextureUnits = internal constant i32 2
+@gl_MaxTextureCoords = internal constant i32 4
+@gl_MaxVertexAttribs = internal constant i32 16
+@gl_MaxVertexUniformComponents = internal constant i32 512
+@gl_MaxVaryingFloats = internal constant i32 32
+@gl_MaxVertexTextureImageUnits = internal constant i32 0
+@gl_MaxCombinedTextureImageUnits = internal constant i32 2
+@gl_MaxTextureImageUnits = internal constant i32 2
+@gl_MaxFragmentUniformComponents = internal constant i32 64
+@gl_MaxDrawBuffers = internal constant i32 2
 @uv4 = external addrspace(1) constant <4 x float>
 @ub = external addrspace(1) constant i1
 @uf = external addrspace(1) constant float
@@ -1118,73 +1142,73 @@ else:                                             ; preds = %entry
 
 ifmerge:                                          ; preds = %else, %then
   %and_tmp.0 = phi i1 [ %any50, %then ], [ false, %else ]
-  br i1 %and_tmp.0, label %then51, label %else55
+  br i1 %and_tmp.0, label %then52, label %else55
 
-then51:                                           ; preds = %ifmerge
+then52:                                           ; preds = %ifmerge
   %48 = fcmp ogt <4 x float> %41, %41
-  %any53 = call i1 @llvm.gla.any.v4i1(<4 x i1> %48)
+  %any54 = call i1 @llvm.gla.any.v4i1(<4 x i1> %48)
   br label %ifmerge56
 
 else55:                                           ; preds = %ifmerge
   br label %ifmerge56
 
-ifmerge56:                                        ; preds = %else55, %then51
-  %and_tmp54.0 = phi i1 [ %any53, %then51 ], [ false, %else55 ]
-  br i1 %and_tmp54.0, label %then57, label %else61
+ifmerge56:                                        ; preds = %else55, %then52
+  %and_tmp51.0 = phi i1 [ %any54, %then52 ], [ false, %else55 ]
+  br i1 %and_tmp51.0, label %then58, label %else61
 
-then57:                                           ; preds = %ifmerge56
+then58:                                           ; preds = %ifmerge56
   %49 = fcmp oge <4 x float> %41, %41
-  %any59 = call i1 @llvm.gla.any.v4i1(<4 x i1> %49)
+  %any60 = call i1 @llvm.gla.any.v4i1(<4 x i1> %49)
   br label %ifmerge62
 
 else61:                                           ; preds = %ifmerge56
   br label %ifmerge62
 
-ifmerge62:                                        ; preds = %else61, %then57
-  %and_tmp60.0 = phi i1 [ %any59, %then57 ], [ false, %else61 ]
-  br i1 %and_tmp60.0, label %then63, label %else67
+ifmerge62:                                        ; preds = %else61, %then58
+  %and_tmp57.0 = phi i1 [ %any60, %then58 ], [ false, %else61 ]
+  br i1 %and_tmp57.0, label %then64, label %else67
 
-then63:                                           ; preds = %ifmerge62
+then64:                                           ; preds = %ifmerge62
   %50 = load <4 x i1> addrspace(1)* @ub41
   %51 = load <4 x i1> addrspace(1)* @ub42
   %52 = icmp eq <4 x i1> %50, %51
-  %any65 = call i1 @llvm.gla.any.v4i1(<4 x i1> %52)
+  %any66 = call i1 @llvm.gla.any.v4i1(<4 x i1> %52)
   br label %ifmerge68
 
 else67:                                           ; preds = %ifmerge62
   br label %ifmerge68
 
-ifmerge68:                                        ; preds = %else67, %then63
-  %and_tmp66.0 = phi i1 [ %any65, %then63 ], [ false, %else67 ]
-  br i1 %and_tmp66.0, label %then69, label %else73
+ifmerge68:                                        ; preds = %else67, %then64
+  %and_tmp63.0 = phi i1 [ %any66, %then64 ], [ false, %else67 ]
+  br i1 %and_tmp63.0, label %then70, label %else73
 
-then69:                                           ; preds = %ifmerge68
+then70:                                           ; preds = %ifmerge68
   %53 = load <4 x i1> addrspace(1)* @ub41
   %54 = load <4 x i1> addrspace(1)* @ub42
   %55 = icmp ne <4 x i1> %53, %54
-  %any71 = call i1 @llvm.gla.any.v4i1(<4 x i1> %55)
+  %any72 = call i1 @llvm.gla.any.v4i1(<4 x i1> %55)
   br label %ifmerge74
 
 else73:                                           ; preds = %ifmerge68
   br label %ifmerge74
 
-ifmerge74:                                        ; preds = %else73, %then69
-  %and_tmp72.0 = phi i1 [ %any71, %then69 ], [ false, %else73 ]
-  br i1 %and_tmp72.0, label %then75, label %else79
+ifmerge74:                                        ; preds = %else73, %then70
+  %and_tmp69.0 = phi i1 [ %any72, %then70 ], [ false, %else73 ]
+  br i1 %and_tmp69.0, label %then76, label %else79
 
-then75:                                           ; preds = %ifmerge74
+then76:                                           ; preds = %ifmerge74
   %56 = load <4 x i1> addrspace(1)* @ub41
-  %any77 = call i1 @llvm.gla.any.v4i1(<4 x i1> %56)
+  %any78 = call i1 @llvm.gla.any.v4i1(<4 x i1> %56)
   br label %ifmerge80
 
 else79:                                           ; preds = %ifmerge74
   br label %ifmerge80
 
-ifmerge80:                                        ; preds = %else79, %then75
-  %and_tmp78.0 = phi i1 [ %any77, %then75 ], [ false, %else79 ]
-  br i1 %and_tmp78.0, label %then81, label %else83
+ifmerge80:                                        ; preds = %else79, %then76
+  %and_tmp75.0 = phi i1 [ %any78, %then76 ], [ false, %else79 ]
+  br i1 %and_tmp75.0, label %then82, label %else83
 
-then81:                                           ; preds = %ifmerge80
+then82:                                           ; preds = %ifmerge80
   %57 = load <4 x i1> addrspace(1)* @ub41
   %all = call i1 @llvm.gla.all.v4i1(<4 x i1> %57)
   br label %ifmerge84
@@ -1192,21 +1216,21 @@ then81:                                           ; preds = %ifmerge80
 else83:                                           ; preds = %ifmerge80
   br label %ifmerge84
 
-ifmerge84:                                        ; preds = %else83, %then81
-  %and_tmp82.0 = phi i1 [ %all, %then81 ], [ false, %else83 ]
-  br i1 %and_tmp82.0, label %then85, label %else89
+ifmerge84:                                        ; preds = %else83, %then82
+  %and_tmp81.0 = phi i1 [ %all, %then82 ], [ false, %else83 ]
+  br i1 %and_tmp81.0, label %then86, label %else89
 
-then85:                                           ; preds = %ifmerge84
+then86:                                           ; preds = %ifmerge84
   %58 = load <4 x i1> addrspace(1)* @ub41
   %59 = xor <4 x i1> %58, <i1 true, i1 true, i1 true, i1 true>
-  %any87 = call i1 @llvm.gla.any.v4i1(<4 x i1> %59)
+  %any88 = call i1 @llvm.gla.any.v4i1(<4 x i1> %59)
   br label %ifmerge90
 
 else89:                                           ; preds = %ifmerge84
   br label %ifmerge90
 
-ifmerge90:                                        ; preds = %else89, %then85
-  %and_tmp88.0 = phi i1 [ %any87, %then85 ], [ false, %else89 ]
+ifmerge90:                                        ; preds = %else89, %then86
+  %and_tmp85.0 = phi i1 [ %any88, %then86 ], [ false, %else89 ]
   %60 = add i32 %42, %45
   %61 = mul i32 %60, %45
   %62 = sub i32 %61, %42
@@ -1220,15 +1244,15 @@ then92:                                           ; preds = %ifmerge90
 
 else93:                                           ; preds = %ifmerge90
   %66 = icmp ne i32 %64, %42
-  br i1 %66, label %then94, label %else96
+  br i1 %66, label %then95, label %else96
 
-then94:                                           ; preds = %else93
+then95:                                           ; preds = %else93
   br label %ifmerge97
 
 else96:                                           ; preds = %else93
   br label %ifmerge97
 
-ifmerge97:                                        ; preds = %else96, %then94
+ifmerge97:                                        ; preds = %else96, %then95
   %67 = icmp ne i32 %64, 2
   %68 = xor i1 false, %67
   br label %ifmerge98
@@ -1258,29 +1282,29 @@ ifmerge100:                                       ; preds = %then99, %ifmerge98
   %78 = extractelement <3 x float> %cross, i32 0
   %79 = fadd float %76, %78
   %80 = fcmp oeq float %79, %37
-  br i1 %80, label %then102, label %else104
+  br i1 %80, label %then103, label %else104
 
-then102:                                          ; preds = %ifmerge100
+then103:                                          ; preds = %ifmerge100
   br label %ifmerge109
 
 else104:                                          ; preds = %ifmerge100
   %81 = fcmp one float %79, %37
-  br i1 %81, label %then105, label %else107
+  br i1 %81, label %then106, label %else107
 
-then105:                                          ; preds = %else104
+then106:                                          ; preds = %else104
   %82 = fcmp one float %79, 2.000000e+00
   br label %ifmerge108
 
 else107:                                          ; preds = %else104
   br label %ifmerge108
 
-ifmerge108:                                       ; preds = %else107, %then105
-  %and_tmp106.0 = phi i1 [ %82, %then105 ], [ false, %else107 ]
+ifmerge108:                                       ; preds = %else107, %then106
+  %and_tmp105.0 = phi i1 [ %82, %then106 ], [ false, %else107 ]
   br label %ifmerge109
 
-ifmerge109:                                       ; preds = %ifmerge108, %then102
-  %or_tmp103.0 = phi i1 [ true, %then102 ], [ %and_tmp106.0, %ifmerge108 ]
-  br i1 %or_tmp103.0, label %then110, label %ifmerge111
+ifmerge109:                                       ; preds = %ifmerge108, %then103
+  %or_tmp102.0 = phi i1 [ true, %then103 ], [ %and_tmp105.0, %ifmerge108 ]
+  br i1 %or_tmp102.0, label %then110, label %ifmerge111
 
 then110:                                          ; preds = %ifmerge109
   %83 = fadd float %79, 1.000000e+00
@@ -1295,7 +1319,7 @@ ifmerge111:                                       ; preds = %then110, %ifmerge10
   %88 = lshr i32 %87, 2
   %89 = shl i32 %88, %42
   %90 = xor i32 %89, -1
-  %91 = xor i1 %and_tmp88.0, true
+  %91 = xor i1 %and_tmp85.0, true
   br i1 %91, label %then114, label %else115
 
 then114:                                          ; preds = %ifmerge111

@@ -49,8 +49,10 @@ void GlslToTop(struct gl_shader* glShader, llvm::Module* module)
 }
 
 GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, llvm::Module* m)
-    : context(llvm::getGlobalContext()), builder(context), module(m), glShader(s), interpIndex(0), shaderEntry(0), inMain(false)
+    : context(llvm::getGlobalContext()), builder(context), module(m), glShader(s), interpIndex(0), shaderEntry(0), inMain(false),
+      localScope(false)
 {
+    builder.SetInsertPoint(getShaderEntry());
 }
 
 GlslToTopVisitor::~GlslToTopVisitor()
@@ -60,6 +62,15 @@ GlslToTopVisitor::~GlslToTopVisitor()
 ir_visitor_status
     GlslToTopVisitor::visit(ir_variable *variable)
 {
+    // If it's an auto or temporary, we allocate it now, at declaration time
+    // to get the scoping correct.
+    //
+    // Otherwise, we do deferred evaluation, so that we don't deal with things
+    // that are never used.
+
+    if (variable->mode == ir_var_auto || variable->mode == ir_var_temporary)
+        namedValues[variable] = createLLVMVariable(variable);
+
     return visit_continue;
 }
 
@@ -71,7 +82,7 @@ ir_visitor_status
     return visit_continue;
 }
 
-llvm::Value* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
+llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
 {
     // XXXX Ints are 32-bit, bools are 1-bit
     llvm::Constant* llvmConstant;
@@ -271,12 +282,15 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_function_signature *sig)
 {
+    localScope = true;
+
     if (!sig->is_builtin) {
 
         // For now, don't build parameter list or call for main()
         if (strcmp(sig->function_name(), "main") == 0) {
             inMain = true;
             builder.SetInsertPoint(getShaderEntry());
+
             return visit_continue;
         }
 
@@ -317,6 +331,7 @@ ir_visitor_status
         // Track our user function to call later
         functionMap[sig] = function;
     }
+
     return visit_continue;
 }
 
@@ -343,6 +358,9 @@ ir_visitor_status
             builder.CreateRet(0);
         }
     }
+
+    localScope = false;
+    builder.SetInsertPoint(getShaderEntry());
 
     return visit_continue;
 }
@@ -990,11 +1008,11 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
 {
     unsigned int addressSpace = gla::GlobalAddressSpace;
     bool constant = var->read_only;
-    bool local = false;
     llvm::Constant* initializer = 0;
     llvm::GlobalValue::LinkageTypes linkage = llvm::GlobalVariable::InternalLinkage;
     llvm::Type *llvmVarType = convertGLSLToLLVMType(var->type);
     llvm::Value* value = 0;
+    bool globalQualifier = false;
 
     const char* typePrefix = 0;
     if (var->type->base_type == GLSL_TYPE_SAMPLER)
@@ -1002,37 +1020,40 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
 
     switch (var->mode) {
     case ir_var_auto:
-        //?? want to distinguish between globals and locals
-        //?? this will break for a global accessed by multiple functions
-        // a global needs an initializer so it will get eliminated by LLVM
-        local = true;
+        if (constant)
+            initializer = createLLVMConstant(var->constant_value);
+        else if (! localScope)
+            initializer = llvm::Constant::getNullValue(llvmVarType);
         break;
 
     case ir_var_uniform:
         // ?? need to generalize to N objects (constant buffers) for higher shader models
         // ?? link:  we need link info to know how large the memory object is
+        linkage = llvm::GlobalVariable::ExternalLinkage;
+        globalQualifier = true;
         addressSpace = gla::UniformAddressSpace;
         assert(var->read_only == true);
-        linkage = llvm::GlobalVariable::ExternalLinkage;
         break;
 
     case ir_var_in:
+        // inputs should all be pipeline reads or created at function creation time
         assert(! "no memory allocations for inputs");
         return 0;
 
     case ir_var_out:
-        // keep internal linkage, because epilogue will to the write out to the pipe
+        // use internal linkage, because epilogue will to the write out to the pipe
         // internal linkage helps with global optimizations, so does having an initializer
+        globalQualifier = true;
         initializer = llvm::Constant::getNullValue(llvmVarType);
         break;
 
     case ir_var_inout:
         // can only be for function parameters
-        local = true;
         break;
 
     case ir_var_temporary:
-        local = true;
+        if (! localScope)
+            initializer = llvm::Constant::getNullValue(llvmVarType);
         break;
 
     default:
@@ -1048,14 +1069,13 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
     // var->origin_upper_left;
     // var->pixel_center_integer;
     // var->location;
-    // var->constant_value;
 
-    if (local) {
-        //?? if global scope
-            llvm::BasicBlock* entryBlock = getShaderEntry();
-        //?? else.
-            //llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();
+    if (localScope && ! globalQualifier) {
 
+        // LLVM promote memory to registers pass only works when alloca 
+        // is in the entry block.
+
+        llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();
         llvm::IRBuilder<> entryBuilder(entryBlock, entryBlock->begin());
         value = entryBuilder.CreateAlloca(llvmVarType, 0, var->name);
     } else {
@@ -1503,13 +1523,6 @@ void GlslToTopVisitor::findAndSmearScalars(llvm::Value** operands, int numOperan
     if( (vectorType[0] && vectorType[1]) || (!vectorType[0] && !vectorType[1]) )
         return;
 
-    // Create a new, same size vector
-    //?? if local scope
-        llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();
-    //?? else
-        //llvm::BasicBlock* entryBlock = getShaderEntry();
-
-    llvm::IRBuilder<> entryBuilder(entryBlock, entryBlock->begin());
     operands[scalarIndex] = llvm::UndefValue::get(vectorType[vectorIndex]);
 
     // Use a swizzle to expand the scalar to a vector
@@ -1541,7 +1554,6 @@ llvm::BasicBlock* GlslToTopVisitor::getShaderEntry()
     llvm::FunctionType *functionType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
     llvm::Function *function = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage, "main", module);
     shaderEntry = llvm::BasicBlock::Create(context, "entry", function);
-    builder.SetInsertPoint(shaderEntry);
 
     return shaderEntry;
 }

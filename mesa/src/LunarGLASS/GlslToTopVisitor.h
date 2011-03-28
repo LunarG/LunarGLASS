@@ -100,7 +100,7 @@ public:
     llvm::Value* expandGLSLOp(ir_expression_operation, llvm::Value**);
     llvm::Value* expandGLSLSwizzle(ir_swizzle*);
     llvm::Value* createLLVMIntrinsic(ir_call*, llvm::Value**, int);
-    llvm::Value* createLLVMConstant(ir_constant*);
+    llvm::Constant* createLLVMConstant(ir_constant*);
     llvm::Type*  convertGLSLToLLVMType(const glsl_type*);
     llvm::Function* getLLVMIntrinsicFunction1(llvm::Intrinsic::ID, const llvm::Type*);
     llvm::Function* getLLVMIntrinsicFunction2(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
@@ -136,6 +136,7 @@ protected:
 
     int interpIndex;
     bool inMain;
+    bool localScope;
 
     llvm::BasicBlock* shaderEntry;
 };

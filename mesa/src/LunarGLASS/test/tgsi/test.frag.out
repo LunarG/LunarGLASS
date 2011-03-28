@@ -1,5 +1,17 @@
 ; ModuleID = 'Top'
 
+@gl_MaxLights = internal constant i32 8
+@gl_MaxClipPlanes = internal constant i32 8
+@gl_MaxTextureUnits = internal constant i32 2
+@gl_MaxTextureCoords = internal constant i32 4
+@gl_MaxVertexAttribs = internal constant i32 16
+@gl_MaxVertexUniformComponents = internal constant i32 512
+@gl_MaxVaryingFloats = internal constant i32 32
+@gl_MaxVertexTextureImageUnits = internal constant i32 0
+@gl_MaxCombinedTextureImageUnits = internal constant i32 2
+@gl_MaxTextureImageUnits = internal constant i32 2
+@gl_MaxFragmentUniformComponents = internal constant i32 64
+@gl_MaxDrawBuffers = internal constant i32 2
 @texSampler2D = external addrspace(1) constant i32
 @scale = external addrspace(1) constant <2 x float>
 @texSampler3D = external addrspace(1) constant i32
@@ -11,9 +23,9 @@ define void @main() {
 entry:
   %mix_retval = alloca <4 x float>
   %texture3D_retval = alloca <4 x float>
-  %v = alloca <4 x float>
   %texture2D_retval = alloca <4 x float>
   %blendscale = alloca float
+  %v = alloca <4 x float>
   store float 0x3FFC9FBE80000000, float* %blendscale
   %0 = load i32 addrspace(1)* @texSampler2D
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
@@ -66,6 +78,18 @@ declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
+@gl_MaxLights = internal constant i32 8
+@gl_MaxClipPlanes = internal constant i32 8
+@gl_MaxTextureUnits = internal constant i32 2
+@gl_MaxTextureCoords = internal constant i32 4
+@gl_MaxVertexAttribs = internal constant i32 16
+@gl_MaxVertexUniformComponents = internal constant i32 512
+@gl_MaxVaryingFloats = internal constant i32 32
+@gl_MaxVertexTextureImageUnits = internal constant i32 0
+@gl_MaxCombinedTextureImageUnits = internal constant i32 2
+@gl_MaxTextureImageUnits = internal constant i32 2
+@gl_MaxFragmentUniformComponents = internal constant i32 64
+@gl_MaxDrawBuffers = internal constant i32 2
 @texSampler2D = external addrspace(1) constant i32
 @scale = external addrspace(1) constant <2 x float>
 @texSampler3D = external addrspace(1) constant i32

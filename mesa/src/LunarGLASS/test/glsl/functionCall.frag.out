@@ -1,14 +1,18 @@
 ; ModuleID = 'Top'
 
+@gl_MaxLights = internal constant i32 8
+@gl_MaxClipPlanes = internal constant i32 8
+@gl_MaxTextureUnits = internal constant i32 2
+@gl_MaxTextureCoords = internal constant i32 4
+@gl_MaxVertexAttribs = internal constant i32 16
+@gl_MaxVertexUniformComponents = internal constant i32 512
+@gl_MaxVaryingFloats = internal constant i32 32
+@gl_MaxVertexTextureImageUnits = internal constant i32 0
+@gl_MaxCombinedTextureImageUnits = internal constant i32 2
+@gl_MaxTextureImageUnits = internal constant i32 2
+@gl_MaxFragmentUniformComponents = internal constant i32 64
+@gl_MaxDrawBuffers = internal constant i32 2
 @gl_FragColor = internal global <4 x float> zeroinitializer
-
-define fastcc float @foo(<4 x float>) {
-foo:
-  %1 = extractelement <4 x float> %0, i32 0
-  %2 = extractelement <4 x float> %0, i32 1
-  %3 = fadd float %1, %2
-  ret float %3
-}
 
 define void @main() {
 entry:
@@ -27,11 +31,6 @@ entry:
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
-
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
-; ModuleID = 'Top'
-
 define fastcc float @foo(<4 x float>) {
 foo:
   %1 = extractelement <4 x float> %0, i32 0
@@ -40,6 +39,24 @@ foo:
   ret float %3
 }
 
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+; ModuleID = 'Top'
+
+@gl_MaxLights = internal constant i32 8
+@gl_MaxClipPlanes = internal constant i32 8
+@gl_MaxTextureUnits = internal constant i32 2
+@gl_MaxTextureCoords = internal constant i32 4
+@gl_MaxVertexAttribs = internal constant i32 16
+@gl_MaxVertexUniformComponents = internal constant i32 512
+@gl_MaxVaryingFloats = internal constant i32 32
+@gl_MaxVertexTextureImageUnits = internal constant i32 0
+@gl_MaxCombinedTextureImageUnits = internal constant i32 2
+@gl_MaxTextureImageUnits = internal constant i32 2
+@gl_MaxFragmentUniformComponents = internal constant i32 64
+@gl_MaxDrawBuffers = internal constant i32 2
+
 define void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
@@ -47,6 +64,14 @@ entry:
   %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %0, i32 -1, float %0, i32 -1, float %0, i32 -1, float %0, i32 -1)
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %1)
   ret void
+}
+
+define fastcc float @foo(<4 x float>) {
+foo:
+  %1 = extractelement <4 x float> %0, i32 0
+  %2 = extractelement <4 x float> %0, i32 1
+  %3 = fadd float %1, %2
+  ret float %3
 }
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
@@ -160,16 +185,16 @@ vec4 color = vec4 ( foo ( BaseColor ) ) ; gl_FragColor = color ; }
 #version 130
 in vec4 BaseColor;
 
-float foo(vec4 temp21)
-{
-    float temp22 = temp21.x + temp21.y;
-    return temp22;
-}
-
 void main()
 {
-    float temp23 = foo(BaseColor);
-    vec4 temp24 = vec4(temp23, temp23, temp23, temp23);
-    gl_FragColor = temp24;
+    float temp21 = foo(BaseColor);
+    vec4 temp22 = vec4(temp21, temp21, temp21, temp21);
+    gl_FragColor = temp22;
     
+}
+
+float foo(vec4 temp23)
+{
+    float temp24 = temp23.x + temp23.y;
+    return temp24;
 }
