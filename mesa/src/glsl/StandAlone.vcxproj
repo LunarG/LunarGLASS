@@ -90,6 +90,7 @@
     <ClInclude Include="..\LunarGLASS\Manager.h" />
     <ClInclude Include="..\LunarGLASS\OptionParse.h" />
     <ClInclude Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts\CoalesceInserts.h" />
+    <ClInclude Include="..\LunarGLASS\Revision.h" />
     <ClInclude Include="..\LunarGLASS\TGSITarget.h" />
     <ClInclude Include="..\mesa\program\ir_to_mesa.h" />
     <ClInclude Include="ast.h" />
@@ -202,6 +203,18 @@
     <ClCompile Include="..\mesa\program\symbol_table.c" />
     <ClCompile Include="..\LunarGLASS\GlslToTop.cpp" />
     <ClCompile Include="..\LunarGLASS\GlslToTopVisitor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\LunarGLASS\RevisionPrefix">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">type ..\LunarGLASS\RevisionPrefix &gt; ..\LunarGLASS\Revision.h &amp; type ..\..\..\LastKnownGood &gt;&gt; ..\LunarGLASS\Revision.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Revision.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\LunarGLASS\Revision.h</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\LastKnownGood</AdditionalInputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\LastKnownGood" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

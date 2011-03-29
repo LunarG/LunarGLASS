@@ -41,6 +41,7 @@
 #include <cstdio>
 
 // LunarGLASS includes
+#include "Revision.h"
 #include "Exceptions.h"
 #include "LunarGLASSBottomIR.h"
 #include "LunarGLASSBackend.h"
@@ -1411,17 +1412,13 @@ void gla::GlslTarget::mapGlaCall(const llvm::CallInst* call)
 
 void gla::GlslTarget::print()
 {
-    // If we've supplied the revision number (on linux it's via a
-    // compiler option), and if we don't have the noRevision options
+    // If we don't have the noRevision options
     // set, then output the revision.
-#ifdef GLA_REVISION
+
     if (Options.noRevision)
         printf("\n// LunarGOO output\n");
     else
-        printf("\n// LunarGOO(r%s) output\n", GLA_REVISION);
-#else
-    printf("\n// LunarGOO output\n");
-#endif
+        printf("\n// LunarGOO(r%d) output\n", GLA_REVISION);
 
     printf("%s%s", globalDeclarations.str().c_str(), shader.str().c_str());
 }
