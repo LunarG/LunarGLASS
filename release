@@ -13,5 +13,5 @@ Usage: ./release
 "
 
 TMP=`tempfile`
-wget http://lunarglass.googlecode.com/svn/trunk/LastKnownGood -O $TMP
-./install --version=`cat $TMP`
+wget http://lunarglass.googlecode.com/svn/trunk/LastKnownGood -O $TMP || exit 1
+./install --version=`cat $TMP` all || exit 1
