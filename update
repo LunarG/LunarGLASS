@@ -28,6 +28,7 @@ function showHelp {
 
 function all {
     echo "Updating SVN"
+    rm -rf tests                # TODO: make less hackish
     svn update
 
     echo "Building LLVM"

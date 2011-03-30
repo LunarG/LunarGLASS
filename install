@@ -17,13 +17,14 @@ Usage: ./install [options] [fetch|merge|build|all]
        destory any uncommitted changes.
 
        Options:
-         -h --help        Print out this Usage info
+         -h --help            Print out this Usage info
+         --version=<version>  Specify a revision to use
 
        Commands:
-         fetch            Get the code from the Mesa and the LLVM projects
-         merge            Merge in LunarGLASS changes
-         build            Build LunarGLASS
-         all              [Default] perform a fetch, merge, and build
+         fetch                Get the code from the Mesa and the LLVM projects
+         merge                Merge in LunarGLASS changes
+         build                Build LunarGLASS
+         all                  [Default] perform a fetch, merge, and build
 "
 
 # Main functionality
@@ -52,7 +53,7 @@ function fetch {
 function merge {
     echo "Merging LunarGLASS changes ..."
     rm -rf .svn bin tests || exit 1
-    svn checkout --force https://lunarglass.googlecode.com/svn/trunk/ . || exit 1
+    svn checkout -r $VERSION --force https://lunarglass.googlecode.com/svn/trunk/ . || exit 1
     svn revert --depth=infinity . || exit 1
     echo "Merging done"
     echo
@@ -94,6 +95,8 @@ function showHelp {
     echo "$USAGE"
 }
 
+VERSION="HEAD"
+
 # Command-line argument Handling
 
 # No arguments passed
@@ -118,6 +121,9 @@ for i in $*; do
         -h|--h)
             showHelp
             exit 0
+            ;;
+        --version=*)
+            VERSION=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
             ;;
         *)
             showHelp

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+DESCRIPTION="\
+Description: Install a release build for the last known good version
+"
+
+DEPENDENCIES="\
+Dependencies: same as install
+"
+
+USAGE="\
+Usage: ./release
+"
+
+TMP=`tempfile`
+wget http://lunarglass.googlecode.com/svn/trunk/LastKnownGood -O $TMP
+./install --version=`cat $TMP`
