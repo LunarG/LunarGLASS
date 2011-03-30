@@ -134,4 +134,10 @@ namespace gla {
             return true;
         }
     }
+
+    bool IsTempName(const std::string& name)
+    {
+        return name.length() < 2 || (name[1] >= '0' && name[1] <= '9');
+    }
+
 };  // end gla namespace

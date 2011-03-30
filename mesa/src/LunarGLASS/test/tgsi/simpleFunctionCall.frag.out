@@ -17,12 +17,12 @@
 define void @main() {
 entry:
   %foo_retval = alloca <4 x float>
-  %0 = call <4 x float> @foo()
-  store <4 x float> %0, <4 x float>* %foo_retval
-  %1 = load <4 x float>* %foo_retval
-  store <4 x float> %1, <4 x float>* @gl_FragColor
-  %2 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %2)
+  %foo_retval1 = call <4 x float> @foo()
+  store <4 x float> %foo_retval1, <4 x float>* %foo_retval
+  %gl_FragColor = load <4 x float>* %foo_retval
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %0 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %0)
   ret void
 }
 
@@ -52,8 +52,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 define void @main() {
 entry:
-  %0 = call <4 x float> @foo()
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %0)
+  %foo_retval1 = call <4 x float> @foo()
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %foo_retval1)
   ret void
 }
 

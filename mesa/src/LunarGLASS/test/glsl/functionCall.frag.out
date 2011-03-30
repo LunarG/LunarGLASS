@@ -18,16 +18,16 @@ define void @main() {
 entry:
   %foo_retval = alloca float
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
-  %0 = call float @foo(<4 x float> %BaseColor)
-  store float %0, float* %foo_retval
-  %1 = load float* %foo_retval
-  %2 = insertelement <4 x float> undef, float %1, i32 0
-  %3 = insertelement <4 x float> %2, float %1, i32 1
-  %4 = insertelement <4 x float> %3, float %1, i32 2
-  %5 = insertelement <4 x float> %4, float %1, i32 3
-  store <4 x float> %5, <4 x float>* @gl_FragColor
-  %6 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %6)
+  %foo_retval1 = call float @foo(<4 x float> %BaseColor)
+  store float %foo_retval1, float* %foo_retval
+  %0 = load float* %foo_retval
+  %1 = insertelement <4 x float> undef, float %0, i32 0
+  %2 = insertelement <4 x float> %1, float %0, i32 1
+  %3 = insertelement <4 x float> %2, float %0, i32 2
+  %gl_FragColor = insertelement <4 x float> %3, float %0, i32 3
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %4 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %4)
   ret void
 }
 
@@ -60,9 +60,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 define void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
-  %0 = call float @foo(<4 x float> %BaseColor)
-  %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %0, i32 -1, float %0, i32 -1, float %0, i32 -1, float %0, i32 -1)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %1)
+  %foo_retval1 = call float @foo(<4 x float> %BaseColor)
+  %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %foo_retval1, i32 -1, float %foo_retval1, i32 -1, float %foo_retval1, i32 -1, float %foo_retval1, i32 -1)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %0)
   ret void
 }
 
@@ -187,8 +187,8 @@ in vec4 BaseColor;
 
 void main()
 {
-    float temp21 = foo(BaseColor);
-    vec4 temp22 = vec4(temp21, temp21, temp21, temp21);
+    float foo_retval1 = foo(BaseColor);
+    vec4 temp22 = vec4(foo_retval1, foo_retval1, foo_retval1, foo_retval1);
     gl_FragColor = temp22;
     
 }

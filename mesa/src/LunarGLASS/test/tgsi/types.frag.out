@@ -29,40 +29,40 @@
 define void @main() {
 entry:
   %conditional_tmp = alloca <4 x float>
+  %or_tmp142 = alloca i1
+  %or_tmp137 = alloca i1
+  %or_tmp132 = alloca i1
+  %or_tmp127 = alloca i1
+  %or_tmp122 = alloca i1
+  %or_tmp117 = alloca i1
+  %or_tmp112 = alloca i1
   %or_tmp107 = alloca i1
-  %or_tmp103 = alloca i1
-  %or_tmp99 = alloca i1
-  %or_tmp95 = alloca i1
-  %or_tmp91 = alloca i1
-  %or_tmp87 = alloca i1
-  %or_tmp83 = alloca i1
-  %or_tmp79 = alloca i1
   %or_tmp = alloca i1
-  %assignment_tmp75 = alloca <4 x float>
-  %assignment_tmp74 = alloca <3 x float>
-  %assignment_tmp73 = alloca <2 x float>
-  %assignment_tmp72 = alloca float
-  %assignment_tmp71 = alloca <4 x i32>
-  %assignment_tmp70 = alloca <3 x i32>
-  %assignment_tmp69 = alloca <2 x i32>
+  %assignment_tmp101 = alloca <4 x float>
+  %assignment_tmp99 = alloca <3 x float>
+  %assignment_tmp97 = alloca <2 x float>
+  %assignment_tmp95 = alloca float
+  %assignment_tmp93 = alloca <4 x i32>
+  %assignment_tmp91 = alloca <3 x i32>
+  %assignment_tmp89 = alloca <2 x i32>
   %assignment_tmp = alloca i32
-  %vec_ctor68 = alloca <4 x i1>
+  %vec_ctor86 = alloca <4 x i1>
+  %and_tmp80 = alloca i1
+  %and_tmp75 = alloca i1
+  %and_tmp69 = alloca i1
   %and_tmp63 = alloca i1
-  %and_tmp59 = alloca i1
-  %and_tmp54 = alloca i1
-  %and_tmp50 = alloca i1
-  %and_tmp45 = alloca i1
-  %and_tmp41 = alloca i1
-  %and_tmp37 = alloca i1
-  %vec_ctor36 = alloca <3 x i1>
-  %and_tmp31 = alloca i1
-  %and_tmp27 = alloca i1
-  %and_tmp22 = alloca i1
+  %and_tmp57 = alloca i1
+  %and_tmp52 = alloca i1
+  %and_tmp47 = alloca i1
+  %vec_ctor45 = alloca <3 x i1>
+  %and_tmp39 = alloca i1
+  %and_tmp34 = alloca i1
+  %and_tmp28 = alloca i1
+  %and_tmp23 = alloca i1
   %and_tmp18 = alloca i1
-  %and_tmp14 = alloca i1
   %vec_ctor = alloca <2 x i1>
-  %and_tmp9 = alloca i1
-  %and_tmp5 = alloca i1
+  %and_tmp11 = alloca i1
+  %and_tmp6 = alloca i1
   %and_tmp1 = alloca i1
   %and_tmp = alloca i1
   %0 = load i1 addrspace(1)* @u_b
@@ -80,219 +80,177 @@ else:                                             ; preds = %entry
 ifmerge:                                          ; preds = %else, %then
   %1 = load <2 x i1> addrspace(1)* @u_b2
   %2 = extractelement <2 x i1> %1, i32 0
-  br i1 %2, label %then2, label %else3
+  br i1 %2, label %then2, label %else4
 
 then2:                                            ; preds = %ifmerge
   %i_b2 = call <2 x i1> @llvm.gla.readData.v2i1(i32 1)
-  %3 = extractelement <2 x i1> %i_b2, i32 0
-  store i1 %3, i1* %and_tmp1
-  br label %ifmerge4
+  %and_tmp13 = extractelement <2 x i1> %i_b2, i32 0
+  store i1 %and_tmp13, i1* %and_tmp1
+  br label %ifmerge5
 
-else3:                                            ; preds = %ifmerge
+else4:                                            ; preds = %ifmerge
   store i1 false, i1* %and_tmp1
-  br label %ifmerge4
+  br label %ifmerge5
 
-ifmerge4:                                         ; preds = %else3, %then2
-  %4 = load i1* %and_tmp1
-  br i1 %4, label %then6, label %else7
+ifmerge5:                                         ; preds = %else4, %then2
+  %3 = load i1* %and_tmp1
+  br i1 %3, label %then7, label %else9
 
-then6:                                            ; preds = %ifmerge4
-  %5 = load <2 x i1> addrspace(1)* @u_b2
-  %6 = extractelement <2 x i1> %5, i32 1
-  store i1 %6, i1* %and_tmp5
-  br label %ifmerge8
+then7:                                            ; preds = %ifmerge5
+  %4 = load <2 x i1> addrspace(1)* @u_b2
+  %and_tmp68 = extractelement <2 x i1> %4, i32 1
+  store i1 %and_tmp68, i1* %and_tmp6
+  br label %ifmerge10
 
-else7:                                            ; preds = %ifmerge4
-  store i1 false, i1* %and_tmp5
-  br label %ifmerge8
+else9:                                            ; preds = %ifmerge5
+  store i1 false, i1* %and_tmp6
+  br label %ifmerge10
 
-ifmerge8:                                         ; preds = %else7, %then6
-  %7 = load i1* %and_tmp5
-  br i1 %7, label %then10, label %else12
+ifmerge10:                                        ; preds = %else9, %then7
+  %5 = load i1* %and_tmp6
+  br i1 %5, label %then12, label %else15
 
-then10:                                           ; preds = %ifmerge8
-  %i_b211 = call <2 x i1> @llvm.gla.readData.v2i1(i32 1)
-  %8 = extractelement <2 x i1> %i_b211, i32 1
-  store i1 %8, i1* %and_tmp9
-  br label %ifmerge13
+then12:                                           ; preds = %ifmerge10
+  %i_b213 = call <2 x i1> @llvm.gla.readData.v2i1(i32 1)
+  %and_tmp1114 = extractelement <2 x i1> %i_b213, i32 1
+  store i1 %and_tmp1114, i1* %and_tmp11
+  br label %ifmerge16
 
-else12:                                           ; preds = %ifmerge8
-  store i1 false, i1* %and_tmp9
-  br label %ifmerge13
+else15:                                           ; preds = %ifmerge10
+  store i1 false, i1* %and_tmp11
+  br label %ifmerge16
 
-ifmerge13:                                        ; preds = %else12, %then10
-  %9 = load i1* %and_tmp9
-  %10 = insertelement <2 x i1> undef, i1 %9, i32 0
-  %11 = insertelement <2 x i1> %10, i1 %9, i32 1
-  store <2 x i1> %11, <2 x i1>* %vec_ctor
-  %12 = load <3 x i1> addrspace(1)* @u_b3
-  %13 = extractelement <3 x i1> %12, i32 0
-  br i1 %13, label %then15, label %else16
+ifmerge16:                                        ; preds = %else15, %then12
+  %6 = load i1* %and_tmp11
+  %7 = insertelement <2 x i1> undef, i1 %6, i32 0
+  %vec_ctor17 = insertelement <2 x i1> %7, i1 %6, i32 1
+  store <2 x i1> %vec_ctor17, <2 x i1>* %vec_ctor
+  %8 = load <3 x i1> addrspace(1)* @u_b3
+  %9 = extractelement <3 x i1> %8, i32 0
+  br i1 %9, label %then19, label %else21
 
-then15:                                           ; preds = %ifmerge13
+then19:                                           ; preds = %ifmerge16
   %i_b3 = call <3 x i1> @llvm.gla.readData.v3i1(i32 2)
-  %14 = extractelement <3 x i1> %i_b3, i32 0
-  store i1 %14, i1* %and_tmp14
-  br label %ifmerge17
+  %and_tmp1820 = extractelement <3 x i1> %i_b3, i32 0
+  store i1 %and_tmp1820, i1* %and_tmp18
+  br label %ifmerge22
 
-else16:                                           ; preds = %ifmerge13
-  store i1 false, i1* %and_tmp14
-  br label %ifmerge17
-
-ifmerge17:                                        ; preds = %else16, %then15
-  %15 = load i1* %and_tmp14
-  br i1 %15, label %then19, label %else20
-
-then19:                                           ; preds = %ifmerge17
-  %16 = load <3 x i1> addrspace(1)* @u_b3
-  %17 = extractelement <3 x i1> %16, i32 1
-  store i1 %17, i1* %and_tmp18
-  br label %ifmerge21
-
-else20:                                           ; preds = %ifmerge17
+else21:                                           ; preds = %ifmerge16
   store i1 false, i1* %and_tmp18
-  br label %ifmerge21
+  br label %ifmerge22
 
-ifmerge21:                                        ; preds = %else20, %then19
-  %18 = load i1* %and_tmp18
-  br i1 %18, label %then23, label %else25
+ifmerge22:                                        ; preds = %else21, %then19
+  %10 = load i1* %and_tmp18
+  br i1 %10, label %then24, label %else26
 
-then23:                                           ; preds = %ifmerge21
-  %i_b324 = call <3 x i1> @llvm.gla.readData.v3i1(i32 2)
-  %19 = extractelement <3 x i1> %i_b324, i32 1
-  store i1 %19, i1* %and_tmp22
-  br label %ifmerge26
+then24:                                           ; preds = %ifmerge22
+  %11 = load <3 x i1> addrspace(1)* @u_b3
+  %and_tmp2325 = extractelement <3 x i1> %11, i32 1
+  store i1 %and_tmp2325, i1* %and_tmp23
+  br label %ifmerge27
 
-else25:                                           ; preds = %ifmerge21
-  store i1 false, i1* %and_tmp22
-  br label %ifmerge26
+else26:                                           ; preds = %ifmerge22
+  store i1 false, i1* %and_tmp23
+  br label %ifmerge27
 
-ifmerge26:                                        ; preds = %else25, %then23
-  %20 = load i1* %and_tmp22
-  br i1 %20, label %then28, label %else29
+ifmerge27:                                        ; preds = %else26, %then24
+  %12 = load i1* %and_tmp23
+  br i1 %12, label %then29, label %else32
 
-then28:                                           ; preds = %ifmerge26
-  %21 = load <3 x i1> addrspace(1)* @u_b3
-  %22 = extractelement <3 x i1> %21, i32 2
-  store i1 %22, i1* %and_tmp27
-  br label %ifmerge30
+then29:                                           ; preds = %ifmerge27
+  %i_b330 = call <3 x i1> @llvm.gla.readData.v3i1(i32 2)
+  %and_tmp2831 = extractelement <3 x i1> %i_b330, i32 1
+  store i1 %and_tmp2831, i1* %and_tmp28
+  br label %ifmerge33
 
-else29:                                           ; preds = %ifmerge26
-  store i1 false, i1* %and_tmp27
-  br label %ifmerge30
+else32:                                           ; preds = %ifmerge27
+  store i1 false, i1* %and_tmp28
+  br label %ifmerge33
 
-ifmerge30:                                        ; preds = %else29, %then28
-  %23 = load i1* %and_tmp27
-  br i1 %23, label %then32, label %else34
+ifmerge33:                                        ; preds = %else32, %then29
+  %13 = load i1* %and_tmp28
+  br i1 %13, label %then35, label %else37
 
-then32:                                           ; preds = %ifmerge30
-  %i_b333 = call <3 x i1> @llvm.gla.readData.v3i1(i32 2)
-  %24 = extractelement <3 x i1> %i_b333, i32 2
-  store i1 %24, i1* %and_tmp31
-  br label %ifmerge35
+then35:                                           ; preds = %ifmerge33
+  %14 = load <3 x i1> addrspace(1)* @u_b3
+  %and_tmp3436 = extractelement <3 x i1> %14, i32 2
+  store i1 %and_tmp3436, i1* %and_tmp34
+  br label %ifmerge38
 
-else34:                                           ; preds = %ifmerge30
-  store i1 false, i1* %and_tmp31
-  br label %ifmerge35
+else37:                                           ; preds = %ifmerge33
+  store i1 false, i1* %and_tmp34
+  br label %ifmerge38
 
-ifmerge35:                                        ; preds = %else34, %then32
-  %25 = load i1* %and_tmp31
-  %26 = insertelement <3 x i1> undef, i1 %25, i32 0
-  %27 = insertelement <3 x i1> %26, i1 %25, i32 1
-  %28 = insertelement <3 x i1> %27, i1 %25, i32 2
-  store <3 x i1> %28, <3 x i1>* %vec_ctor36
-  %29 = load <4 x i1> addrspace(1)* @u_b4
-  %30 = extractelement <4 x i1> %29, i32 0
-  br i1 %30, label %then38, label %else39
+ifmerge38:                                        ; preds = %else37, %then35
+  %15 = load i1* %and_tmp34
+  br i1 %15, label %then40, label %else43
 
-then38:                                           ; preds = %ifmerge35
+then40:                                           ; preds = %ifmerge38
+  %i_b341 = call <3 x i1> @llvm.gla.readData.v3i1(i32 2)
+  %and_tmp3942 = extractelement <3 x i1> %i_b341, i32 2
+  store i1 %and_tmp3942, i1* %and_tmp39
+  br label %ifmerge44
+
+else43:                                           ; preds = %ifmerge38
+  store i1 false, i1* %and_tmp39
+  br label %ifmerge44
+
+ifmerge44:                                        ; preds = %else43, %then40
+  %16 = load i1* %and_tmp39
+  %17 = insertelement <3 x i1> undef, i1 %16, i32 0
+  %18 = insertelement <3 x i1> %17, i1 %16, i32 1
+  %vec_ctor4546 = insertelement <3 x i1> %18, i1 %16, i32 2
+  store <3 x i1> %vec_ctor4546, <3 x i1>* %vec_ctor45
+  %19 = load <4 x i1> addrspace(1)* @u_b4
+  %20 = extractelement <4 x i1> %19, i32 0
+  br i1 %20, label %then48, label %else50
+
+then48:                                           ; preds = %ifmerge44
   %i_b4 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
-  %31 = extractelement <4 x i1> %i_b4, i32 0
-  store i1 %31, i1* %and_tmp37
-  br label %ifmerge40
+  %and_tmp4749 = extractelement <4 x i1> %i_b4, i32 0
+  store i1 %and_tmp4749, i1* %and_tmp47
+  br label %ifmerge51
 
-else39:                                           ; preds = %ifmerge35
-  store i1 false, i1* %and_tmp37
-  br label %ifmerge40
+else50:                                           ; preds = %ifmerge44
+  store i1 false, i1* %and_tmp47
+  br label %ifmerge51
 
-ifmerge40:                                        ; preds = %else39, %then38
-  %32 = load i1* %and_tmp37
-  br i1 %32, label %then42, label %else43
+ifmerge51:                                        ; preds = %else50, %then48
+  %21 = load i1* %and_tmp47
+  br i1 %21, label %then53, label %else55
 
-then42:                                           ; preds = %ifmerge40
-  %33 = load <4 x i1> addrspace(1)* @u_b4
-  %34 = extractelement <4 x i1> %33, i32 1
-  store i1 %34, i1* %and_tmp41
-  br label %ifmerge44
+then53:                                           ; preds = %ifmerge51
+  %22 = load <4 x i1> addrspace(1)* @u_b4
+  %and_tmp5254 = extractelement <4 x i1> %22, i32 1
+  store i1 %and_tmp5254, i1* %and_tmp52
+  br label %ifmerge56
 
-else43:                                           ; preds = %ifmerge40
-  store i1 false, i1* %and_tmp41
-  br label %ifmerge44
+else55:                                           ; preds = %ifmerge51
+  store i1 false, i1* %and_tmp52
+  br label %ifmerge56
 
-ifmerge44:                                        ; preds = %else43, %then42
-  %35 = load i1* %and_tmp41
-  br i1 %35, label %then46, label %else48
+ifmerge56:                                        ; preds = %else55, %then53
+  %23 = load i1* %and_tmp52
+  br i1 %23, label %then58, label %else61
 
-then46:                                           ; preds = %ifmerge44
-  %i_b447 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
-  %36 = extractelement <4 x i1> %i_b447, i32 1
-  store i1 %36, i1* %and_tmp45
-  br label %ifmerge49
-
-else48:                                           ; preds = %ifmerge44
-  store i1 false, i1* %and_tmp45
-  br label %ifmerge49
-
-ifmerge49:                                        ; preds = %else48, %then46
-  %37 = load i1* %and_tmp45
-  br i1 %37, label %then51, label %else52
-
-then51:                                           ; preds = %ifmerge49
-  %38 = load <4 x i1> addrspace(1)* @u_b4
-  %39 = extractelement <4 x i1> %38, i32 2
-  store i1 %39, i1* %and_tmp50
-  br label %ifmerge53
-
-else52:                                           ; preds = %ifmerge49
-  store i1 false, i1* %and_tmp50
-  br label %ifmerge53
-
-ifmerge53:                                        ; preds = %else52, %then51
-  %40 = load i1* %and_tmp50
-  br i1 %40, label %then55, label %else57
-
-then55:                                           ; preds = %ifmerge53
-  %i_b456 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
-  %41 = extractelement <4 x i1> %i_b456, i32 2
-  store i1 %41, i1* %and_tmp54
-  br label %ifmerge58
-
-else57:                                           ; preds = %ifmerge53
-  store i1 false, i1* %and_tmp54
-  br label %ifmerge58
-
-ifmerge58:                                        ; preds = %else57, %then55
-  %42 = load i1* %and_tmp54
-  br i1 %42, label %then60, label %else61
-
-then60:                                           ; preds = %ifmerge58
-  %43 = load <4 x i1> addrspace(1)* @u_b4
-  %44 = extractelement <4 x i1> %43, i32 3
-  store i1 %44, i1* %and_tmp59
+then58:                                           ; preds = %ifmerge56
+  %i_b459 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
+  %and_tmp5760 = extractelement <4 x i1> %i_b459, i32 1
+  store i1 %and_tmp5760, i1* %and_tmp57
   br label %ifmerge62
 
-else61:                                           ; preds = %ifmerge58
-  store i1 false, i1* %and_tmp59
+else61:                                           ; preds = %ifmerge56
+  store i1 false, i1* %and_tmp57
   br label %ifmerge62
 
-ifmerge62:                                        ; preds = %else61, %then60
-  %45 = load i1* %and_tmp59
-  br i1 %45, label %then64, label %else66
+ifmerge62:                                        ; preds = %else61, %then58
+  %24 = load i1* %and_tmp57
+  br i1 %24, label %then64, label %else66
 
 then64:                                           ; preds = %ifmerge62
-  %i_b465 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
-  %46 = extractelement <4 x i1> %i_b465, i32 3
-  store i1 %46, i1* %and_tmp63
+  %25 = load <4 x i1> addrspace(1)* @u_b4
+  %and_tmp6365 = extractelement <4 x i1> %25, i32 2
+  store i1 %and_tmp6365, i1* %and_tmp63
   br label %ifmerge67
 
 else66:                                           ; preds = %ifmerge62
@@ -300,248 +258,290 @@ else66:                                           ; preds = %ifmerge62
   br label %ifmerge67
 
 ifmerge67:                                        ; preds = %else66, %then64
-  %47 = load i1* %and_tmp63
-  %48 = insertelement <4 x i1> undef, i1 %47, i32 0
-  %49 = insertelement <4 x i1> %48, i1 %47, i32 1
-  %50 = insertelement <4 x i1> %49, i1 %47, i32 2
-  %51 = insertelement <4 x i1> %50, i1 %47, i32 3
-  store <4 x i1> %51, <4 x i1>* %vec_ctor68
-  %52 = load i32 addrspace(1)* @u_i
+  %26 = load i1* %and_tmp63
+  br i1 %26, label %then70, label %else73
+
+then70:                                           ; preds = %ifmerge67
+  %i_b471 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
+  %and_tmp6972 = extractelement <4 x i1> %i_b471, i32 2
+  store i1 %and_tmp6972, i1* %and_tmp69
+  br label %ifmerge74
+
+else73:                                           ; preds = %ifmerge67
+  store i1 false, i1* %and_tmp69
+  br label %ifmerge74
+
+ifmerge74:                                        ; preds = %else73, %then70
+  %27 = load i1* %and_tmp69
+  br i1 %27, label %then76, label %else78
+
+then76:                                           ; preds = %ifmerge74
+  %28 = load <4 x i1> addrspace(1)* @u_b4
+  %and_tmp7577 = extractelement <4 x i1> %28, i32 3
+  store i1 %and_tmp7577, i1* %and_tmp75
+  br label %ifmerge79
+
+else78:                                           ; preds = %ifmerge74
+  store i1 false, i1* %and_tmp75
+  br label %ifmerge79
+
+ifmerge79:                                        ; preds = %else78, %then76
+  %29 = load i1* %and_tmp75
+  br i1 %29, label %then81, label %else84
+
+then81:                                           ; preds = %ifmerge79
+  %i_b482 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
+  %and_tmp8083 = extractelement <4 x i1> %i_b482, i32 3
+  store i1 %and_tmp8083, i1* %and_tmp80
+  br label %ifmerge85
+
+else84:                                           ; preds = %ifmerge79
+  store i1 false, i1* %and_tmp80
+  br label %ifmerge85
+
+ifmerge85:                                        ; preds = %else84, %then81
+  %30 = load i1* %and_tmp80
+  %31 = insertelement <4 x i1> undef, i1 %30, i32 0
+  %32 = insertelement <4 x i1> %31, i1 %30, i32 1
+  %33 = insertelement <4 x i1> %32, i1 %30, i32 2
+  %vec_ctor8687 = insertelement <4 x i1> %33, i1 %30, i32 3
+  store <4 x i1> %vec_ctor8687, <4 x i1>* %vec_ctor86
+  %34 = load i32 addrspace(1)* @u_i
   %i_i = call i32 @llvm.gla.readData.i32(i32 4)
-  %53 = add i32 %52, %i_i
-  store i32 %53, i32* %assignment_tmp
-  %54 = load <2 x i32> addrspace(1)* @u_i2
+  %assignment_tmp88 = add i32 %34, %i_i
+  store i32 %assignment_tmp88, i32* %assignment_tmp
+  %35 = load <2 x i32> addrspace(1)* @u_i2
   %i_i2 = call <2 x i32> @llvm.gla.readData.v2i32(i32 5)
-  %55 = add <2 x i32> %54, %i_i2
-  store <2 x i32> %55, <2 x i32>* %assignment_tmp69
-  %56 = load <3 x i32> addrspace(1)* @u_i3
+  %assignment_tmp8990 = add <2 x i32> %35, %i_i2
+  store <2 x i32> %assignment_tmp8990, <2 x i32>* %assignment_tmp89
+  %36 = load <3 x i32> addrspace(1)* @u_i3
   %i_i3 = call <3 x i32> @llvm.gla.readData.v3i32(i32 6)
-  %57 = add <3 x i32> %56, %i_i3
-  store <3 x i32> %57, <3 x i32>* %assignment_tmp70
-  %58 = load <4 x i32> addrspace(1)* @u_i4
+  %assignment_tmp9192 = add <3 x i32> %36, %i_i3
+  store <3 x i32> %assignment_tmp9192, <3 x i32>* %assignment_tmp91
+  %37 = load <4 x i32> addrspace(1)* @u_i4
   %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 7)
-  %59 = add <4 x i32> %58, %i_i4
-  store <4 x i32> %59, <4 x i32>* %assignment_tmp71
-  %60 = load float addrspace(1)* @u_f
+  %assignment_tmp9394 = add <4 x i32> %37, %i_i4
+  store <4 x i32> %assignment_tmp9394, <4 x i32>* %assignment_tmp93
+  %38 = load float addrspace(1)* @u_f
   %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 8, i32 0)
-  %61 = fadd float %60, %i_f
-  store float %61, float* %assignment_tmp72
-  %62 = load <2 x float> addrspace(1)* @u_f2
+  %assignment_tmp9596 = fadd float %38, %i_f
+  store float %assignment_tmp9596, float* %assignment_tmp95
+  %39 = load <2 x float> addrspace(1)* @u_f2
   %i_f2 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 9, i32 0)
-  %63 = fadd <2 x float> %62, %i_f2
-  store <2 x float> %63, <2 x float>* %assignment_tmp73
-  %64 = load <3 x float> addrspace(1)* @u_f3
+  %assignment_tmp9798 = fadd <2 x float> %39, %i_f2
+  store <2 x float> %assignment_tmp9798, <2 x float>* %assignment_tmp97
+  %40 = load <3 x float> addrspace(1)* @u_f3
   %i_f3 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 10, i32 0)
-  %65 = fadd <3 x float> %64, %i_f3
-  store <3 x float> %65, <3 x float>* %assignment_tmp74
-  %66 = load <4 x float> addrspace(1)* @u_f4
+  %assignment_tmp99100 = fadd <3 x float> %40, %i_f3
+  store <3 x float> %assignment_tmp99100, <3 x float>* %assignment_tmp99
+  %41 = load <4 x float> addrspace(1)* @u_f4
   %i_f4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 11, i32 0)
-  %67 = fadd <4 x float> %66, %i_f4
-  store <4 x float> %67, <4 x float>* %assignment_tmp75
-  %68 = load i1* %and_tmp
-  br i1 %68, label %then76, label %else77
+  %assignment_tmp101102 = fadd <4 x float> %41, %i_f4
+  store <4 x float> %assignment_tmp101102, <4 x float>* %assignment_tmp101
+  %42 = load i1* %and_tmp
+  br i1 %42, label %then103, label %else104
 
-then76:                                           ; preds = %ifmerge67
+then103:                                          ; preds = %ifmerge85
   store i1 true, i1* %or_tmp
-  br label %ifmerge78
-
-else77:                                           ; preds = %ifmerge67
-  %69 = load <2 x i1>* %vec_ctor
-  %70 = extractelement <2 x i1> %69, i32 0
-  store i1 %70, i1* %or_tmp
-  br label %ifmerge78
-
-ifmerge78:                                        ; preds = %else77, %then76
-  %71 = load i1* %or_tmp
-  br i1 %71, label %then80, label %else81
-
-then80:                                           ; preds = %ifmerge78
-  store i1 true, i1* %or_tmp79
-  br label %ifmerge82
-
-else81:                                           ; preds = %ifmerge78
-  %72 = load <2 x i1>* %vec_ctor
-  %73 = extractelement <2 x i1> %72, i32 1
-  store i1 %73, i1* %or_tmp79
-  br label %ifmerge82
-
-ifmerge82:                                        ; preds = %else81, %then80
-  %74 = load i1* %or_tmp79
-  br i1 %74, label %then84, label %else85
-
-then84:                                           ; preds = %ifmerge82
-  store i1 true, i1* %or_tmp83
-  br label %ifmerge86
-
-else85:                                           ; preds = %ifmerge82
-  %75 = load <3 x i1>* %vec_ctor36
-  %76 = extractelement <3 x i1> %75, i32 0
-  store i1 %76, i1* %or_tmp83
-  br label %ifmerge86
-
-ifmerge86:                                        ; preds = %else85, %then84
-  %77 = load i1* %or_tmp83
-  br i1 %77, label %then88, label %else89
-
-then88:                                           ; preds = %ifmerge86
-  store i1 true, i1* %or_tmp87
-  br label %ifmerge90
-
-else89:                                           ; preds = %ifmerge86
-  %78 = load <3 x i1>* %vec_ctor36
-  %79 = extractelement <3 x i1> %78, i32 1
-  store i1 %79, i1* %or_tmp87
-  br label %ifmerge90
-
-ifmerge90:                                        ; preds = %else89, %then88
-  %80 = load i1* %or_tmp87
-  br i1 %80, label %then92, label %else93
-
-then92:                                           ; preds = %ifmerge90
-  store i1 true, i1* %or_tmp91
-  br label %ifmerge94
-
-else93:                                           ; preds = %ifmerge90
-  %81 = load <3 x i1>* %vec_ctor36
-  %82 = extractelement <3 x i1> %81, i32 2
-  store i1 %82, i1* %or_tmp91
-  br label %ifmerge94
-
-ifmerge94:                                        ; preds = %else93, %then92
-  %83 = load i1* %or_tmp91
-  br i1 %83, label %then96, label %else97
-
-then96:                                           ; preds = %ifmerge94
-  store i1 true, i1* %or_tmp95
-  br label %ifmerge98
-
-else97:                                           ; preds = %ifmerge94
-  %84 = load <4 x i1>* %vec_ctor68
-  %85 = extractelement <4 x i1> %84, i32 0
-  store i1 %85, i1* %or_tmp95
-  br label %ifmerge98
-
-ifmerge98:                                        ; preds = %else97, %then96
-  %86 = load i1* %or_tmp95
-  br i1 %86, label %then100, label %else101
-
-then100:                                          ; preds = %ifmerge98
-  store i1 true, i1* %or_tmp99
-  br label %ifmerge102
-
-else101:                                          ; preds = %ifmerge98
-  %87 = load <4 x i1>* %vec_ctor68
-  %88 = extractelement <4 x i1> %87, i32 1
-  store i1 %88, i1* %or_tmp99
-  br label %ifmerge102
-
-ifmerge102:                                       ; preds = %else101, %then100
-  %89 = load i1* %or_tmp99
-  br i1 %89, label %then104, label %else105
-
-then104:                                          ; preds = %ifmerge102
-  store i1 true, i1* %or_tmp103
   br label %ifmerge106
 
-else105:                                          ; preds = %ifmerge102
-  %90 = load <4 x i1>* %vec_ctor68
-  %91 = extractelement <4 x i1> %90, i32 2
-  store i1 %91, i1* %or_tmp103
+else104:                                          ; preds = %ifmerge85
+  %43 = load <2 x i1>* %vec_ctor
+  %or_tmp105 = extractelement <2 x i1> %43, i32 0
+  store i1 %or_tmp105, i1* %or_tmp
   br label %ifmerge106
 
-ifmerge106:                                       ; preds = %else105, %then104
-  %92 = load i1* %or_tmp103
-  br i1 %92, label %then108, label %else109
+ifmerge106:                                       ; preds = %else104, %then103
+  %44 = load i1* %or_tmp
+  br i1 %44, label %then108, label %else109
 
 then108:                                          ; preds = %ifmerge106
   store i1 true, i1* %or_tmp107
-  br label %ifmerge110
+  br label %ifmerge111
 
 else109:                                          ; preds = %ifmerge106
-  %93 = load <4 x i1>* %vec_ctor68
-  %94 = extractelement <4 x i1> %93, i32 3
-  store i1 %94, i1* %or_tmp107
-  br label %ifmerge110
+  %45 = load <2 x i1>* %vec_ctor
+  %or_tmp107110 = extractelement <2 x i1> %45, i32 1
+  store i1 %or_tmp107110, i1* %or_tmp107
+  br label %ifmerge111
 
-ifmerge110:                                       ; preds = %else109, %then108
-  %95 = load i1* %or_tmp107
-  br i1 %95, label %then111, label %else112
+ifmerge111:                                       ; preds = %else109, %then108
+  %46 = load i1* %or_tmp107
+  br i1 %46, label %then113, label %else114
 
-then111:                                          ; preds = %ifmerge110
-  %96 = load i32* %assignment_tmp
-  %97 = load <2 x i32>* %assignment_tmp69
-  %98 = extractelement <2 x i32> %97, i32 0
-  %99 = add i32 %96, %98
-  %100 = load <2 x i32>* %assignment_tmp69
-  %101 = extractelement <2 x i32> %100, i32 1
-  %102 = add i32 %99, %101
-  %103 = load <3 x i32>* %assignment_tmp70
-  %104 = extractelement <3 x i32> %103, i32 0
-  %105 = add i32 %102, %104
-  %106 = load <3 x i32>* %assignment_tmp70
-  %107 = extractelement <3 x i32> %106, i32 1
-  %108 = add i32 %105, %107
-  %109 = load <3 x i32>* %assignment_tmp70
-  %110 = extractelement <3 x i32> %109, i32 2
-  %111 = add i32 %108, %110
-  %112 = load <4 x i32>* %assignment_tmp71
-  %113 = extractelement <4 x i32> %112, i32 0
-  %114 = add i32 %111, %113
-  %115 = load <4 x i32>* %assignment_tmp71
-  %116 = extractelement <4 x i32> %115, i32 1
-  %117 = add i32 %114, %116
-  %118 = load <4 x i32>* %assignment_tmp71
-  %119 = extractelement <4 x i32> %118, i32 2
-  %120 = add i32 %117, %119
-  %121 = load <4 x i32>* %assignment_tmp71
-  %122 = extractelement <4 x i32> %121, i32 3
-  %123 = add i32 %120, %122
-  %124 = sitofp i32 %123 to float
-  %125 = load float* %assignment_tmp72
-  %126 = fadd float %124, %125
-  %127 = load <2 x float>* %assignment_tmp73
-  %128 = extractelement <2 x float> %127, i32 0
-  %129 = fadd float %126, %128
-  %130 = load <2 x float>* %assignment_tmp73
-  %131 = extractelement <2 x float> %130, i32 1
-  %132 = fadd float %129, %131
-  %133 = load <3 x float>* %assignment_tmp74
-  %134 = extractelement <3 x float> %133, i32 0
-  %135 = fadd float %132, %134
-  %136 = load <3 x float>* %assignment_tmp74
-  %137 = extractelement <3 x float> %136, i32 1
-  %138 = fadd float %135, %137
-  %139 = load <3 x float>* %assignment_tmp74
-  %140 = extractelement <3 x float> %139, i32 2
-  %141 = fadd float %138, %140
-  %142 = load <4 x float>* %assignment_tmp75
-  %143 = extractelement <4 x float> %142, i32 0
-  %144 = fadd float %141, %143
-  %145 = load <4 x float>* %assignment_tmp75
-  %146 = extractelement <4 x float> %145, i32 1
-  %147 = fadd float %144, %146
-  %148 = load <4 x float>* %assignment_tmp75
-  %149 = extractelement <4 x float> %148, i32 2
-  %150 = fadd float %147, %149
-  %151 = load <4 x float>* %assignment_tmp75
-  %152 = extractelement <4 x float> %151, i32 3
-  %153 = fadd float %150, %152
-  %154 = insertelement <4 x float> undef, float %153, i32 0
-  %155 = insertelement <4 x float> %154, float %153, i32 1
-  %156 = insertelement <4 x float> %155, float %153, i32 2
-  %157 = insertelement <4 x float> %156, float %153, i32 3
-  store <4 x float> %157, <4 x float>* %conditional_tmp
-  br label %ifmerge113
+then113:                                          ; preds = %ifmerge111
+  store i1 true, i1* %or_tmp112
+  br label %ifmerge116
 
-else112:                                          ; preds = %ifmerge110
+else114:                                          ; preds = %ifmerge111
+  %47 = load <3 x i1>* %vec_ctor45
+  %or_tmp112115 = extractelement <3 x i1> %47, i32 0
+  store i1 %or_tmp112115, i1* %or_tmp112
+  br label %ifmerge116
+
+ifmerge116:                                       ; preds = %else114, %then113
+  %48 = load i1* %or_tmp112
+  br i1 %48, label %then118, label %else119
+
+then118:                                          ; preds = %ifmerge116
+  store i1 true, i1* %or_tmp117
+  br label %ifmerge121
+
+else119:                                          ; preds = %ifmerge116
+  %49 = load <3 x i1>* %vec_ctor45
+  %or_tmp117120 = extractelement <3 x i1> %49, i32 1
+  store i1 %or_tmp117120, i1* %or_tmp117
+  br label %ifmerge121
+
+ifmerge121:                                       ; preds = %else119, %then118
+  %50 = load i1* %or_tmp117
+  br i1 %50, label %then123, label %else124
+
+then123:                                          ; preds = %ifmerge121
+  store i1 true, i1* %or_tmp122
+  br label %ifmerge126
+
+else124:                                          ; preds = %ifmerge121
+  %51 = load <3 x i1>* %vec_ctor45
+  %or_tmp122125 = extractelement <3 x i1> %51, i32 2
+  store i1 %or_tmp122125, i1* %or_tmp122
+  br label %ifmerge126
+
+ifmerge126:                                       ; preds = %else124, %then123
+  %52 = load i1* %or_tmp122
+  br i1 %52, label %then128, label %else129
+
+then128:                                          ; preds = %ifmerge126
+  store i1 true, i1* %or_tmp127
+  br label %ifmerge131
+
+else129:                                          ; preds = %ifmerge126
+  %53 = load <4 x i1>* %vec_ctor86
+  %or_tmp127130 = extractelement <4 x i1> %53, i32 0
+  store i1 %or_tmp127130, i1* %or_tmp127
+  br label %ifmerge131
+
+ifmerge131:                                       ; preds = %else129, %then128
+  %54 = load i1* %or_tmp127
+  br i1 %54, label %then133, label %else134
+
+then133:                                          ; preds = %ifmerge131
+  store i1 true, i1* %or_tmp132
+  br label %ifmerge136
+
+else134:                                          ; preds = %ifmerge131
+  %55 = load <4 x i1>* %vec_ctor86
+  %or_tmp132135 = extractelement <4 x i1> %55, i32 1
+  store i1 %or_tmp132135, i1* %or_tmp132
+  br label %ifmerge136
+
+ifmerge136:                                       ; preds = %else134, %then133
+  %56 = load i1* %or_tmp132
+  br i1 %56, label %then138, label %else139
+
+then138:                                          ; preds = %ifmerge136
+  store i1 true, i1* %or_tmp137
+  br label %ifmerge141
+
+else139:                                          ; preds = %ifmerge136
+  %57 = load <4 x i1>* %vec_ctor86
+  %or_tmp137140 = extractelement <4 x i1> %57, i32 2
+  store i1 %or_tmp137140, i1* %or_tmp137
+  br label %ifmerge141
+
+ifmerge141:                                       ; preds = %else139, %then138
+  %58 = load i1* %or_tmp137
+  br i1 %58, label %then143, label %else144
+
+then143:                                          ; preds = %ifmerge141
+  store i1 true, i1* %or_tmp142
+  br label %ifmerge146
+
+else144:                                          ; preds = %ifmerge141
+  %59 = load <4 x i1>* %vec_ctor86
+  %or_tmp142145 = extractelement <4 x i1> %59, i32 3
+  store i1 %or_tmp142145, i1* %or_tmp142
+  br label %ifmerge146
+
+ifmerge146:                                       ; preds = %else144, %then143
+  %60 = load i1* %or_tmp142
+  br i1 %60, label %then147, label %else149
+
+then147:                                          ; preds = %ifmerge146
+  %61 = load i32* %assignment_tmp
+  %62 = load <2 x i32>* %assignment_tmp89
+  %63 = extractelement <2 x i32> %62, i32 0
+  %64 = add i32 %61, %63
+  %65 = load <2 x i32>* %assignment_tmp89
+  %66 = extractelement <2 x i32> %65, i32 1
+  %67 = add i32 %64, %66
+  %68 = load <3 x i32>* %assignment_tmp91
+  %69 = extractelement <3 x i32> %68, i32 0
+  %70 = add i32 %67, %69
+  %71 = load <3 x i32>* %assignment_tmp91
+  %72 = extractelement <3 x i32> %71, i32 1
+  %73 = add i32 %70, %72
+  %74 = load <3 x i32>* %assignment_tmp91
+  %75 = extractelement <3 x i32> %74, i32 2
+  %76 = add i32 %73, %75
+  %77 = load <4 x i32>* %assignment_tmp93
+  %78 = extractelement <4 x i32> %77, i32 0
+  %79 = add i32 %76, %78
+  %80 = load <4 x i32>* %assignment_tmp93
+  %81 = extractelement <4 x i32> %80, i32 1
+  %82 = add i32 %79, %81
+  %83 = load <4 x i32>* %assignment_tmp93
+  %84 = extractelement <4 x i32> %83, i32 2
+  %85 = add i32 %82, %84
+  %86 = load <4 x i32>* %assignment_tmp93
+  %87 = extractelement <4 x i32> %86, i32 3
+  %88 = add i32 %85, %87
+  %89 = sitofp i32 %88 to float
+  %90 = load float* %assignment_tmp95
+  %91 = fadd float %89, %90
+  %92 = load <2 x float>* %assignment_tmp97
+  %93 = extractelement <2 x float> %92, i32 0
+  %94 = fadd float %91, %93
+  %95 = load <2 x float>* %assignment_tmp97
+  %96 = extractelement <2 x float> %95, i32 1
+  %97 = fadd float %94, %96
+  %98 = load <3 x float>* %assignment_tmp99
+  %99 = extractelement <3 x float> %98, i32 0
+  %100 = fadd float %97, %99
+  %101 = load <3 x float>* %assignment_tmp99
+  %102 = extractelement <3 x float> %101, i32 1
+  %103 = fadd float %100, %102
+  %104 = load <3 x float>* %assignment_tmp99
+  %105 = extractelement <3 x float> %104, i32 2
+  %106 = fadd float %103, %105
+  %107 = load <4 x float>* %assignment_tmp101
+  %108 = extractelement <4 x float> %107, i32 0
+  %109 = fadd float %106, %108
+  %110 = load <4 x float>* %assignment_tmp101
+  %111 = extractelement <4 x float> %110, i32 1
+  %112 = fadd float %109, %111
+  %113 = load <4 x float>* %assignment_tmp101
+  %114 = extractelement <4 x float> %113, i32 2
+  %115 = fadd float %112, %114
+  %116 = load <4 x float>* %assignment_tmp101
+  %117 = extractelement <4 x float> %116, i32 3
+  %118 = fadd float %115, %117
+  %119 = insertelement <4 x float> undef, float %118, i32 0
+  %120 = insertelement <4 x float> %119, float %118, i32 1
+  %121 = insertelement <4 x float> %120, float %118, i32 2
+  %conditional_tmp148 = insertelement <4 x float> %121, float %118, i32 3
+  store <4 x float> %conditional_tmp148, <4 x float>* %conditional_tmp
+  br label %ifmerge150
+
+else149:                                          ; preds = %ifmerge146
   store <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float>* %conditional_tmp
-  br label %ifmerge113
+  br label %ifmerge150
 
-ifmerge113:                                       ; preds = %else112, %then111
-  %158 = load <4 x float>* %conditional_tmp
-  store <4 x float> %158, <4 x float>* @gl_FragColor
-  %159 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %159)
+ifmerge150:                                       ; preds = %else149, %then147
+  %gl_FragColor = load <4 x float>* %conditional_tmp
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %122 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %122)
   ret void
 }
 
@@ -613,359 +613,359 @@ ifmerge:                                          ; preds = %else, %then
   %and_tmp.0 = phi i1 [ %i_b, %then ], [ false, %else ]
   %1 = load <2 x i1> addrspace(1)* @u_b2
   %2 = extractelement <2 x i1> %1, i32 0
-  br i1 %2, label %then2, label %else3
+  br i1 %2, label %then2, label %else4
 
 then2:                                            ; preds = %ifmerge
   %i_b2 = call <2 x i1> @llvm.gla.readData.v2i1(i32 1)
-  %3 = extractelement <2 x i1> %i_b2, i32 0
-  br label %ifmerge4
+  %and_tmp13 = extractelement <2 x i1> %i_b2, i32 0
+  br label %ifmerge5
 
-else3:                                            ; preds = %ifmerge
-  br label %ifmerge4
+else4:                                            ; preds = %ifmerge
+  br label %ifmerge5
 
-ifmerge4:                                         ; preds = %else3, %then2
-  %and_tmp1.0 = phi i1 [ %3, %then2 ], [ false, %else3 ]
-  br i1 %and_tmp1.0, label %then6, label %else7
+ifmerge5:                                         ; preds = %else4, %then2
+  %and_tmp1.0 = phi i1 [ %and_tmp13, %then2 ], [ false, %else4 ]
+  br i1 %and_tmp1.0, label %then7, label %else9
 
-then6:                                            ; preds = %ifmerge4
-  %4 = extractelement <2 x i1> %1, i32 1
-  br label %ifmerge8
+then7:                                            ; preds = %ifmerge5
+  %and_tmp68 = extractelement <2 x i1> %1, i32 1
+  br label %ifmerge10
 
-else7:                                            ; preds = %ifmerge4
-  br label %ifmerge8
+else9:                                            ; preds = %ifmerge5
+  br label %ifmerge10
 
-ifmerge8:                                         ; preds = %else7, %then6
-  %and_tmp5.0 = phi i1 [ %4, %then6 ], [ false, %else7 ]
-  br i1 %and_tmp5.0, label %then10, label %else12
+ifmerge10:                                        ; preds = %else9, %then7
+  %and_tmp6.0 = phi i1 [ %and_tmp68, %then7 ], [ false, %else9 ]
+  br i1 %and_tmp6.0, label %then12, label %else15
 
-then10:                                           ; preds = %ifmerge8
-  %i_b211 = call <2 x i1> @llvm.gla.readData.v2i1(i32 1)
-  %5 = extractelement <2 x i1> %i_b211, i32 1
-  br label %ifmerge13
+then12:                                           ; preds = %ifmerge10
+  %i_b213 = call <2 x i1> @llvm.gla.readData.v2i1(i32 1)
+  %and_tmp1114 = extractelement <2 x i1> %i_b213, i32 1
+  br label %ifmerge16
 
-else12:                                           ; preds = %ifmerge8
-  br label %ifmerge13
+else15:                                           ; preds = %ifmerge10
+  br label %ifmerge16
 
-ifmerge13:                                        ; preds = %else12, %then10
-  %and_tmp9.0 = phi i1 [ %5, %then10 ], [ false, %else12 ]
-  %6 = call <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1> undef, i32 3, i1 %and_tmp9.0, i32 -1, i1 %and_tmp9.0, i32 -1, i1 false, i32 -1, i1 false, i32 -1)
-  %7 = load <3 x i1> addrspace(1)* @u_b3
-  %8 = extractelement <3 x i1> %7, i32 0
-  br i1 %8, label %then15, label %else16
+ifmerge16:                                        ; preds = %else15, %then12
+  %and_tmp11.0 = phi i1 [ %and_tmp1114, %then12 ], [ false, %else15 ]
+  %3 = call <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1> undef, i32 3, i1 %and_tmp11.0, i32 -1, i1 %and_tmp11.0, i32 -1, i1 false, i32 -1, i1 false, i32 -1)
+  %4 = load <3 x i1> addrspace(1)* @u_b3
+  %5 = extractelement <3 x i1> %4, i32 0
+  br i1 %5, label %then19, label %else21
 
-then15:                                           ; preds = %ifmerge13
+then19:                                           ; preds = %ifmerge16
   %i_b3 = call <3 x i1> @llvm.gla.readData.v3i1(i32 2)
-  %9 = extractelement <3 x i1> %i_b3, i32 0
-  br label %ifmerge17
+  %and_tmp1820 = extractelement <3 x i1> %i_b3, i32 0
+  br label %ifmerge22
 
-else16:                                           ; preds = %ifmerge13
-  br label %ifmerge17
+else21:                                           ; preds = %ifmerge16
+  br label %ifmerge22
 
-ifmerge17:                                        ; preds = %else16, %then15
-  %and_tmp14.0 = phi i1 [ %9, %then15 ], [ false, %else16 ]
-  br i1 %and_tmp14.0, label %then19, label %else20
+ifmerge22:                                        ; preds = %else21, %then19
+  %and_tmp18.0 = phi i1 [ %and_tmp1820, %then19 ], [ false, %else21 ]
+  br i1 %and_tmp18.0, label %then24, label %else26
 
-then19:                                           ; preds = %ifmerge17
-  %10 = extractelement <3 x i1> %7, i32 1
-  br label %ifmerge21
+then24:                                           ; preds = %ifmerge22
+  %and_tmp2325 = extractelement <3 x i1> %4, i32 1
+  br label %ifmerge27
 
-else20:                                           ; preds = %ifmerge17
-  br label %ifmerge21
+else26:                                           ; preds = %ifmerge22
+  br label %ifmerge27
 
-ifmerge21:                                        ; preds = %else20, %then19
-  %and_tmp18.0 = phi i1 [ %10, %then19 ], [ false, %else20 ]
-  br i1 %and_tmp18.0, label %then23, label %else25
+ifmerge27:                                        ; preds = %else26, %then24
+  %and_tmp23.0 = phi i1 [ %and_tmp2325, %then24 ], [ false, %else26 ]
+  br i1 %and_tmp23.0, label %then29, label %else32
 
-then23:                                           ; preds = %ifmerge21
-  %i_b324 = call <3 x i1> @llvm.gla.readData.v3i1(i32 2)
-  %11 = extractelement <3 x i1> %i_b324, i32 1
-  br label %ifmerge26
+then29:                                           ; preds = %ifmerge27
+  %i_b330 = call <3 x i1> @llvm.gla.readData.v3i1(i32 2)
+  %and_tmp2831 = extractelement <3 x i1> %i_b330, i32 1
+  br label %ifmerge33
 
-else25:                                           ; preds = %ifmerge21
-  br label %ifmerge26
+else32:                                           ; preds = %ifmerge27
+  br label %ifmerge33
 
-ifmerge26:                                        ; preds = %else25, %then23
-  %and_tmp22.0 = phi i1 [ %11, %then23 ], [ false, %else25 ]
-  br i1 %and_tmp22.0, label %then28, label %else29
+ifmerge33:                                        ; preds = %else32, %then29
+  %and_tmp28.0 = phi i1 [ %and_tmp2831, %then29 ], [ false, %else32 ]
+  br i1 %and_tmp28.0, label %then35, label %else37
 
-then28:                                           ; preds = %ifmerge26
-  %12 = extractelement <3 x i1> %7, i32 2
-  br label %ifmerge30
+then35:                                           ; preds = %ifmerge33
+  %and_tmp3436 = extractelement <3 x i1> %4, i32 2
+  br label %ifmerge38
 
-else29:                                           ; preds = %ifmerge26
-  br label %ifmerge30
+else37:                                           ; preds = %ifmerge33
+  br label %ifmerge38
 
-ifmerge30:                                        ; preds = %else29, %then28
-  %and_tmp27.0 = phi i1 [ %12, %then28 ], [ false, %else29 ]
-  br i1 %and_tmp27.0, label %then32, label %else34
+ifmerge38:                                        ; preds = %else37, %then35
+  %and_tmp34.0 = phi i1 [ %and_tmp3436, %then35 ], [ false, %else37 ]
+  br i1 %and_tmp34.0, label %then40, label %else43
 
-then32:                                           ; preds = %ifmerge30
-  %i_b333 = call <3 x i1> @llvm.gla.readData.v3i1(i32 2)
-  %13 = extractelement <3 x i1> %i_b333, i32 2
-  br label %ifmerge35
+then40:                                           ; preds = %ifmerge38
+  %i_b341 = call <3 x i1> @llvm.gla.readData.v3i1(i32 2)
+  %and_tmp3942 = extractelement <3 x i1> %i_b341, i32 2
+  br label %ifmerge44
 
-else34:                                           ; preds = %ifmerge30
-  br label %ifmerge35
+else43:                                           ; preds = %ifmerge38
+  br label %ifmerge44
 
-ifmerge35:                                        ; preds = %else34, %then32
-  %and_tmp31.0 = phi i1 [ %13, %then32 ], [ false, %else34 ]
-  %14 = call <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1> undef, i32 7, i1 %and_tmp31.0, i32 -1, i1 %and_tmp31.0, i32 -1, i1 %and_tmp31.0, i32 -1, i1 false, i32 -1)
-  %15 = load <4 x i1> addrspace(1)* @u_b4
-  %16 = extractelement <4 x i1> %15, i32 0
-  br i1 %16, label %then38, label %else39
+ifmerge44:                                        ; preds = %else43, %then40
+  %and_tmp39.0 = phi i1 [ %and_tmp3942, %then40 ], [ false, %else43 ]
+  %6 = call <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1> undef, i32 7, i1 %and_tmp39.0, i32 -1, i1 %and_tmp39.0, i32 -1, i1 %and_tmp39.0, i32 -1, i1 false, i32 -1)
+  %7 = load <4 x i1> addrspace(1)* @u_b4
+  %8 = extractelement <4 x i1> %7, i32 0
+  br i1 %8, label %then48, label %else50
 
-then38:                                           ; preds = %ifmerge35
+then48:                                           ; preds = %ifmerge44
   %i_b4 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
-  %17 = extractelement <4 x i1> %i_b4, i32 0
-  br label %ifmerge40
+  %and_tmp4749 = extractelement <4 x i1> %i_b4, i32 0
+  br label %ifmerge51
 
-else39:                                           ; preds = %ifmerge35
-  br label %ifmerge40
+else50:                                           ; preds = %ifmerge44
+  br label %ifmerge51
 
-ifmerge40:                                        ; preds = %else39, %then38
-  %and_tmp37.0 = phi i1 [ %17, %then38 ], [ false, %else39 ]
-  br i1 %and_tmp37.0, label %then42, label %else43
+ifmerge51:                                        ; preds = %else50, %then48
+  %and_tmp47.0 = phi i1 [ %and_tmp4749, %then48 ], [ false, %else50 ]
+  br i1 %and_tmp47.0, label %then53, label %else55
 
-then42:                                           ; preds = %ifmerge40
-  %18 = extractelement <4 x i1> %15, i32 1
-  br label %ifmerge44
+then53:                                           ; preds = %ifmerge51
+  %and_tmp5254 = extractelement <4 x i1> %7, i32 1
+  br label %ifmerge56
 
-else43:                                           ; preds = %ifmerge40
-  br label %ifmerge44
+else55:                                           ; preds = %ifmerge51
+  br label %ifmerge56
 
-ifmerge44:                                        ; preds = %else43, %then42
-  %and_tmp41.0 = phi i1 [ %18, %then42 ], [ false, %else43 ]
-  br i1 %and_tmp41.0, label %then46, label %else48
+ifmerge56:                                        ; preds = %else55, %then53
+  %and_tmp52.0 = phi i1 [ %and_tmp5254, %then53 ], [ false, %else55 ]
+  br i1 %and_tmp52.0, label %then58, label %else61
 
-then46:                                           ; preds = %ifmerge44
-  %i_b447 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
-  %19 = extractelement <4 x i1> %i_b447, i32 1
-  br label %ifmerge49
-
-else48:                                           ; preds = %ifmerge44
-  br label %ifmerge49
-
-ifmerge49:                                        ; preds = %else48, %then46
-  %and_tmp45.0 = phi i1 [ %19, %then46 ], [ false, %else48 ]
-  br i1 %and_tmp45.0, label %then51, label %else52
-
-then51:                                           ; preds = %ifmerge49
-  %20 = extractelement <4 x i1> %15, i32 2
-  br label %ifmerge53
-
-else52:                                           ; preds = %ifmerge49
-  br label %ifmerge53
-
-ifmerge53:                                        ; preds = %else52, %then51
-  %and_tmp50.0 = phi i1 [ %20, %then51 ], [ false, %else52 ]
-  br i1 %and_tmp50.0, label %then55, label %else57
-
-then55:                                           ; preds = %ifmerge53
-  %i_b456 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
-  %21 = extractelement <4 x i1> %i_b456, i32 2
-  br label %ifmerge58
-
-else57:                                           ; preds = %ifmerge53
-  br label %ifmerge58
-
-ifmerge58:                                        ; preds = %else57, %then55
-  %and_tmp54.0 = phi i1 [ %21, %then55 ], [ false, %else57 ]
-  br i1 %and_tmp54.0, label %then60, label %else61
-
-then60:                                           ; preds = %ifmerge58
-  %22 = extractelement <4 x i1> %15, i32 3
+then58:                                           ; preds = %ifmerge56
+  %i_b459 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
+  %and_tmp5760 = extractelement <4 x i1> %i_b459, i32 1
   br label %ifmerge62
 
-else61:                                           ; preds = %ifmerge58
+else61:                                           ; preds = %ifmerge56
   br label %ifmerge62
 
-ifmerge62:                                        ; preds = %else61, %then60
-  %and_tmp59.0 = phi i1 [ %22, %then60 ], [ false, %else61 ]
-  br i1 %and_tmp59.0, label %then64, label %else66
+ifmerge62:                                        ; preds = %else61, %then58
+  %and_tmp57.0 = phi i1 [ %and_tmp5760, %then58 ], [ false, %else61 ]
+  br i1 %and_tmp57.0, label %then64, label %else66
 
 then64:                                           ; preds = %ifmerge62
-  %i_b465 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
-  %23 = extractelement <4 x i1> %i_b465, i32 3
+  %and_tmp6365 = extractelement <4 x i1> %7, i32 2
   br label %ifmerge67
 
 else66:                                           ; preds = %ifmerge62
   br label %ifmerge67
 
 ifmerge67:                                        ; preds = %else66, %then64
-  %and_tmp63.0 = phi i1 [ %23, %then64 ], [ false, %else66 ]
-  %24 = call <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1> undef, i32 15, i1 %and_tmp63.0, i32 -1, i1 %and_tmp63.0, i32 -1, i1 %and_tmp63.0, i32 -1, i1 %and_tmp63.0, i32 -1)
-  %25 = load i32 addrspace(1)* @u_i
+  %and_tmp63.0 = phi i1 [ %and_tmp6365, %then64 ], [ false, %else66 ]
+  br i1 %and_tmp63.0, label %then70, label %else73
+
+then70:                                           ; preds = %ifmerge67
+  %i_b471 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
+  %and_tmp6972 = extractelement <4 x i1> %i_b471, i32 2
+  br label %ifmerge74
+
+else73:                                           ; preds = %ifmerge67
+  br label %ifmerge74
+
+ifmerge74:                                        ; preds = %else73, %then70
+  %and_tmp69.0 = phi i1 [ %and_tmp6972, %then70 ], [ false, %else73 ]
+  br i1 %and_tmp69.0, label %then76, label %else78
+
+then76:                                           ; preds = %ifmerge74
+  %and_tmp7577 = extractelement <4 x i1> %7, i32 3
+  br label %ifmerge79
+
+else78:                                           ; preds = %ifmerge74
+  br label %ifmerge79
+
+ifmerge79:                                        ; preds = %else78, %then76
+  %and_tmp75.0 = phi i1 [ %and_tmp7577, %then76 ], [ false, %else78 ]
+  br i1 %and_tmp75.0, label %then81, label %else84
+
+then81:                                           ; preds = %ifmerge79
+  %i_b482 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3)
+  %and_tmp8083 = extractelement <4 x i1> %i_b482, i32 3
+  br label %ifmerge85
+
+else84:                                           ; preds = %ifmerge79
+  br label %ifmerge85
+
+ifmerge85:                                        ; preds = %else84, %then81
+  %and_tmp80.0 = phi i1 [ %and_tmp8083, %then81 ], [ false, %else84 ]
+  %9 = call <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1> undef, i32 15, i1 %and_tmp80.0, i32 -1, i1 %and_tmp80.0, i32 -1, i1 %and_tmp80.0, i32 -1, i1 %and_tmp80.0, i32 -1)
+  %10 = load i32 addrspace(1)* @u_i
   %i_i = call i32 @llvm.gla.readData.i32(i32 4)
-  %26 = load <2 x i32> addrspace(1)* @u_i2
+  %11 = load <2 x i32> addrspace(1)* @u_i2
   %i_i2 = call <2 x i32> @llvm.gla.readData.v2i32(i32 5)
-  %27 = add <2 x i32> %26, %i_i2
-  %28 = load <3 x i32> addrspace(1)* @u_i3
+  %assignment_tmp8990 = add <2 x i32> %11, %i_i2
+  %12 = load <3 x i32> addrspace(1)* @u_i3
   %i_i3 = call <3 x i32> @llvm.gla.readData.v3i32(i32 6)
-  %29 = add <3 x i32> %28, %i_i3
-  %30 = load <4 x i32> addrspace(1)* @u_i4
+  %assignment_tmp9192 = add <3 x i32> %12, %i_i3
+  %13 = load <4 x i32> addrspace(1)* @u_i4
   %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 7)
-  %31 = add <4 x i32> %30, %i_i4
-  %32 = load float addrspace(1)* @u_f
+  %assignment_tmp9394 = add <4 x i32> %13, %i_i4
+  %14 = load float addrspace(1)* @u_f
   %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 8, i32 0)
-  %33 = fadd float %32, %i_f
-  %34 = load <2 x float> addrspace(1)* @u_f2
+  %assignment_tmp9596 = fadd float %14, %i_f
+  %15 = load <2 x float> addrspace(1)* @u_f2
   %i_f2 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 9, i32 0)
-  %35 = fadd <2 x float> %34, %i_f2
-  %36 = load <3 x float> addrspace(1)* @u_f3
+  %assignment_tmp9798 = fadd <2 x float> %15, %i_f2
+  %16 = load <3 x float> addrspace(1)* @u_f3
   %i_f3 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 10, i32 0)
-  %37 = fadd <3 x float> %36, %i_f3
-  %38 = load <4 x float> addrspace(1)* @u_f4
+  %assignment_tmp99100 = fadd <3 x float> %16, %i_f3
+  %17 = load <4 x float> addrspace(1)* @u_f4
   %i_f4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 11, i32 0)
-  %39 = fadd <4 x float> %38, %i_f4
-  br i1 %and_tmp.0, label %then76, label %else77
+  %assignment_tmp101102 = fadd <4 x float> %17, %i_f4
+  br i1 %and_tmp.0, label %then103, label %else104
 
-then76:                                           ; preds = %ifmerge67
-  br label %ifmerge78
-
-else77:                                           ; preds = %ifmerge67
-  %40 = extractelement <2 x i1> %6, i32 0
-  br label %ifmerge78
-
-ifmerge78:                                        ; preds = %else77, %then76
-  %or_tmp.0 = phi i1 [ true, %then76 ], [ %40, %else77 ]
-  br i1 %or_tmp.0, label %then80, label %else81
-
-then80:                                           ; preds = %ifmerge78
-  br label %ifmerge82
-
-else81:                                           ; preds = %ifmerge78
-  %41 = extractelement <2 x i1> %6, i32 1
-  br label %ifmerge82
-
-ifmerge82:                                        ; preds = %else81, %then80
-  %or_tmp79.0 = phi i1 [ true, %then80 ], [ %41, %else81 ]
-  br i1 %or_tmp79.0, label %then84, label %else85
-
-then84:                                           ; preds = %ifmerge82
-  br label %ifmerge86
-
-else85:                                           ; preds = %ifmerge82
-  %42 = extractelement <3 x i1> %14, i32 0
-  br label %ifmerge86
-
-ifmerge86:                                        ; preds = %else85, %then84
-  %or_tmp83.0 = phi i1 [ true, %then84 ], [ %42, %else85 ]
-  br i1 %or_tmp83.0, label %then88, label %else89
-
-then88:                                           ; preds = %ifmerge86
-  br label %ifmerge90
-
-else89:                                           ; preds = %ifmerge86
-  %43 = extractelement <3 x i1> %14, i32 1
-  br label %ifmerge90
-
-ifmerge90:                                        ; preds = %else89, %then88
-  %or_tmp87.0 = phi i1 [ true, %then88 ], [ %43, %else89 ]
-  br i1 %or_tmp87.0, label %then92, label %else93
-
-then92:                                           ; preds = %ifmerge90
-  br label %ifmerge94
-
-else93:                                           ; preds = %ifmerge90
-  %44 = extractelement <3 x i1> %14, i32 2
-  br label %ifmerge94
-
-ifmerge94:                                        ; preds = %else93, %then92
-  %or_tmp91.0 = phi i1 [ true, %then92 ], [ %44, %else93 ]
-  br i1 %or_tmp91.0, label %then96, label %else97
-
-then96:                                           ; preds = %ifmerge94
-  br label %ifmerge98
-
-else97:                                           ; preds = %ifmerge94
-  %45 = extractelement <4 x i1> %24, i32 0
-  br label %ifmerge98
-
-ifmerge98:                                        ; preds = %else97, %then96
-  %or_tmp95.0 = phi i1 [ true, %then96 ], [ %45, %else97 ]
-  br i1 %or_tmp95.0, label %then100, label %else101
-
-then100:                                          ; preds = %ifmerge98
-  br label %ifmerge102
-
-else101:                                          ; preds = %ifmerge98
-  %46 = extractelement <4 x i1> %24, i32 1
-  br label %ifmerge102
-
-ifmerge102:                                       ; preds = %else101, %then100
-  %or_tmp99.0 = phi i1 [ true, %then100 ], [ %46, %else101 ]
-  br i1 %or_tmp99.0, label %then104, label %else105
-
-then104:                                          ; preds = %ifmerge102
+then103:                                          ; preds = %ifmerge85
   br label %ifmerge106
 
-else105:                                          ; preds = %ifmerge102
-  %47 = extractelement <4 x i1> %24, i32 2
+else104:                                          ; preds = %ifmerge85
+  %or_tmp105 = extractelement <2 x i1> %3, i32 0
   br label %ifmerge106
 
-ifmerge106:                                       ; preds = %else105, %then104
-  %or_tmp103.0 = phi i1 [ true, %then104 ], [ %47, %else105 ]
-  br i1 %or_tmp103.0, label %then108, label %else109
+ifmerge106:                                       ; preds = %else104, %then103
+  %or_tmp.0 = phi i1 [ true, %then103 ], [ %or_tmp105, %else104 ]
+  br i1 %or_tmp.0, label %then108, label %else109
 
 then108:                                          ; preds = %ifmerge106
-  br label %ifmerge110
+  br label %ifmerge111
 
 else109:                                          ; preds = %ifmerge106
-  %48 = extractelement <4 x i1> %24, i32 3
-  br label %ifmerge110
+  %or_tmp107110 = extractelement <2 x i1> %3, i32 1
+  br label %ifmerge111
 
-ifmerge110:                                       ; preds = %else109, %then108
-  %or_tmp107.0 = phi i1 [ true, %then108 ], [ %48, %else109 ]
-  br i1 %or_tmp107.0, label %then111, label %else112
+ifmerge111:                                       ; preds = %else109, %then108
+  %or_tmp107.0 = phi i1 [ true, %then108 ], [ %or_tmp107110, %else109 ]
+  br i1 %or_tmp107.0, label %then113, label %else114
 
-then111:                                          ; preds = %ifmerge110
-  %49 = extractelement <2 x i32> %27, i32 0
-  %50 = extractelement <2 x i32> %27, i32 1
-  %51 = extractelement <3 x i32> %29, i32 0
-  %52 = extractelement <3 x i32> %29, i32 1
-  %53 = extractelement <3 x i32> %29, i32 2
-  %54 = extractelement <4 x i32> %31, i32 0
-  %55 = extractelement <4 x i32> %31, i32 1
-  %56 = extractelement <4 x i32> %31, i32 2
-  %57 = extractelement <4 x i32> %31, i32 3
-  %58 = add i32 %i_i, %25
-  %59 = add i32 %58, %50
-  %60 = add i32 %59, %49
-  %61 = add i32 %60, %53
-  %62 = add i32 %61, %52
-  %63 = add i32 %62, %51
-  %64 = add i32 %63, %57
-  %65 = add i32 %64, %56
-  %66 = add i32 %65, %55
-  %67 = add i32 %66, %54
-  %68 = sitofp i32 %67 to float
-  %69 = fadd float %68, %33
-  %70 = extractelement <2 x float> %35, i32 0
-  %71 = fadd float %69, %70
-  %72 = extractelement <2 x float> %35, i32 1
-  %73 = fadd float %71, %72
-  %74 = extractelement <3 x float> %37, i32 0
-  %75 = fadd float %73, %74
-  %76 = extractelement <3 x float> %37, i32 1
-  %77 = fadd float %75, %76
-  %78 = extractelement <3 x float> %37, i32 2
-  %79 = fadd float %77, %78
-  %80 = extractelement <4 x float> %39, i32 0
-  %81 = fadd float %79, %80
-  %82 = extractelement <4 x float> %39, i32 1
-  %83 = fadd float %81, %82
-  %84 = extractelement <4 x float> %39, i32 2
-  %85 = fadd float %83, %84
-  %86 = extractelement <4 x float> %39, i32 3
-  %87 = fadd float %85, %86
-  %88 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %87, i32 -1, float %87, i32 -1, float %87, i32 -1, float %87, i32 -1)
-  br label %ifmerge113
+then113:                                          ; preds = %ifmerge111
+  br label %ifmerge116
 
-else112:                                          ; preds = %ifmerge110
-  br label %ifmerge113
+else114:                                          ; preds = %ifmerge111
+  %or_tmp112115 = extractelement <3 x i1> %6, i32 0
+  br label %ifmerge116
 
-ifmerge113:                                       ; preds = %else112, %then111
-  %conditional_tmp.0 = phi <4 x float> [ %88, %then111 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %else112 ]
+ifmerge116:                                       ; preds = %else114, %then113
+  %or_tmp112.0 = phi i1 [ true, %then113 ], [ %or_tmp112115, %else114 ]
+  br i1 %or_tmp112.0, label %then118, label %else119
+
+then118:                                          ; preds = %ifmerge116
+  br label %ifmerge121
+
+else119:                                          ; preds = %ifmerge116
+  %or_tmp117120 = extractelement <3 x i1> %6, i32 1
+  br label %ifmerge121
+
+ifmerge121:                                       ; preds = %else119, %then118
+  %or_tmp117.0 = phi i1 [ true, %then118 ], [ %or_tmp117120, %else119 ]
+  br i1 %or_tmp117.0, label %then123, label %else124
+
+then123:                                          ; preds = %ifmerge121
+  br label %ifmerge126
+
+else124:                                          ; preds = %ifmerge121
+  %or_tmp122125 = extractelement <3 x i1> %6, i32 2
+  br label %ifmerge126
+
+ifmerge126:                                       ; preds = %else124, %then123
+  %or_tmp122.0 = phi i1 [ true, %then123 ], [ %or_tmp122125, %else124 ]
+  br i1 %or_tmp122.0, label %then128, label %else129
+
+then128:                                          ; preds = %ifmerge126
+  br label %ifmerge131
+
+else129:                                          ; preds = %ifmerge126
+  %or_tmp127130 = extractelement <4 x i1> %9, i32 0
+  br label %ifmerge131
+
+ifmerge131:                                       ; preds = %else129, %then128
+  %or_tmp127.0 = phi i1 [ true, %then128 ], [ %or_tmp127130, %else129 ]
+  br i1 %or_tmp127.0, label %then133, label %else134
+
+then133:                                          ; preds = %ifmerge131
+  br label %ifmerge136
+
+else134:                                          ; preds = %ifmerge131
+  %or_tmp132135 = extractelement <4 x i1> %9, i32 1
+  br label %ifmerge136
+
+ifmerge136:                                       ; preds = %else134, %then133
+  %or_tmp132.0 = phi i1 [ true, %then133 ], [ %or_tmp132135, %else134 ]
+  br i1 %or_tmp132.0, label %then138, label %else139
+
+then138:                                          ; preds = %ifmerge136
+  br label %ifmerge141
+
+else139:                                          ; preds = %ifmerge136
+  %or_tmp137140 = extractelement <4 x i1> %9, i32 2
+  br label %ifmerge141
+
+ifmerge141:                                       ; preds = %else139, %then138
+  %or_tmp137.0 = phi i1 [ true, %then138 ], [ %or_tmp137140, %else139 ]
+  br i1 %or_tmp137.0, label %then143, label %else144
+
+then143:                                          ; preds = %ifmerge141
+  br label %ifmerge146
+
+else144:                                          ; preds = %ifmerge141
+  %or_tmp142145 = extractelement <4 x i1> %9, i32 3
+  br label %ifmerge146
+
+ifmerge146:                                       ; preds = %else144, %then143
+  %or_tmp142.0 = phi i1 [ true, %then143 ], [ %or_tmp142145, %else144 ]
+  br i1 %or_tmp142.0, label %then147, label %else149
+
+then147:                                          ; preds = %ifmerge146
+  %18 = extractelement <2 x i32> %assignment_tmp8990, i32 0
+  %19 = extractelement <2 x i32> %assignment_tmp8990, i32 1
+  %20 = extractelement <3 x i32> %assignment_tmp9192, i32 0
+  %21 = extractelement <3 x i32> %assignment_tmp9192, i32 1
+  %22 = extractelement <3 x i32> %assignment_tmp9192, i32 2
+  %23 = extractelement <4 x i32> %assignment_tmp9394, i32 0
+  %24 = extractelement <4 x i32> %assignment_tmp9394, i32 1
+  %25 = extractelement <4 x i32> %assignment_tmp9394, i32 2
+  %26 = extractelement <4 x i32> %assignment_tmp9394, i32 3
+  %assignment_tmp88 = add i32 %i_i, %10
+  %27 = add i32 %assignment_tmp88, %19
+  %28 = add i32 %27, %18
+  %29 = add i32 %28, %22
+  %30 = add i32 %29, %21
+  %31 = add i32 %30, %20
+  %32 = add i32 %31, %26
+  %33 = add i32 %32, %25
+  %34 = add i32 %33, %24
+  %35 = add i32 %34, %23
+  %36 = sitofp i32 %35 to float
+  %37 = fadd float %36, %assignment_tmp9596
+  %38 = extractelement <2 x float> %assignment_tmp9798, i32 0
+  %39 = fadd float %37, %38
+  %40 = extractelement <2 x float> %assignment_tmp9798, i32 1
+  %41 = fadd float %39, %40
+  %42 = extractelement <3 x float> %assignment_tmp99100, i32 0
+  %43 = fadd float %41, %42
+  %44 = extractelement <3 x float> %assignment_tmp99100, i32 1
+  %45 = fadd float %43, %44
+  %46 = extractelement <3 x float> %assignment_tmp99100, i32 2
+  %47 = fadd float %45, %46
+  %48 = extractelement <4 x float> %assignment_tmp101102, i32 0
+  %49 = fadd float %47, %48
+  %50 = extractelement <4 x float> %assignment_tmp101102, i32 1
+  %51 = fadd float %49, %50
+  %52 = extractelement <4 x float> %assignment_tmp101102, i32 2
+  %53 = fadd float %51, %52
+  %54 = extractelement <4 x float> %assignment_tmp101102, i32 3
+  %55 = fadd float %53, %54
+  %56 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %55, i32 -1, float %55, i32 -1, float %55, i32 -1, float %55, i32 -1)
+  br label %ifmerge150
+
+else149:                                          ; preds = %ifmerge146
+  br label %ifmerge150
+
+ifmerge150:                                       ; preds = %else149, %then147
+  %conditional_tmp.0 = phi <4 x float> [ %56, %then147 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %else149 ]
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %conditional_tmp.0)
   ret void
 }

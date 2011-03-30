@@ -423,9 +423,18 @@ protected:
             case 3:   varString->append("w"); break;
             }
         } else {
-            varString->append(mapGlaToQualifierString(mapGlaAddressSpace(value)));
-            snprintf(buf, bufSize, "%d", lastVariable);
-            varString->append(buf);
+            if (IsTempName(value->getNameStr())) {
+                varString->append(mapGlaToQualifierString(mapGlaAddressSpace(value)));
+                snprintf(buf, bufSize, "%d", lastVariable);
+                varString->append(buf);
+            } else {
+                varString->append(value->getNameStr());
+                // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
+                for (int c = 0; c < varString->length(); ++c) {
+                    if ((*varString)[c] == '.')
+                        (*varString)[c] = '_';
+                }
+            }
         }
     }
 

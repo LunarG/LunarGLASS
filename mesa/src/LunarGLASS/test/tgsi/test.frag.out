@@ -33,8 +33,8 @@ entry:
   %2 = fadd <2 x float> %t, %1
   %3 = load <2 x float> addrspace(1)* @scale
   %4 = fdiv <2 x float> %2, %3
-  %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %4)
-  store <4 x float> %texture2DTmp, <4 x float>* %texture2D_retval
+  %texture2D_retval1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %4)
+  store <4 x float> %texture2D_retval1, <4 x float>* %texture2D_retval
   %5 = load <4 x float>* %texture2D_retval
   %6 = extractelement <4 x float> %5, i32 3
   %7 = insertelement <4 x float> undef, float %6, i32 0
@@ -43,25 +43,25 @@ entry:
   %10 = extractelement <4 x float> %5, i32 1
   %11 = insertelement <4 x float> %9, float %10, i32 2
   %12 = extractelement <4 x float> %5, i32 0
-  %13 = insertelement <4 x float> %11, float %12, i32 3
-  store <4 x float> %13, <4 x float>* %v
-  %14 = load i32 addrspace(1)* @texSampler3D
+  %v2 = insertelement <4 x float> %11, float %12, i32 3
+  store <4 x float> %v2, <4 x float>* %v
+  %13 = load i32 addrspace(1)* @texSampler3D
   %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 0)
-  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %14, i32 0, <3 x float> %coords)
-  store <4 x float> %texture3DTmp, <4 x float>* %texture3D_retval
-  %15 = load <4 x float>* %texture3D_retval
-  %16 = load <4 x float>* %v
-  %17 = fadd <4 x float> %15, %16
-  %18 = load <4 x float> addrspace(1)* @u
-  %19 = load float addrspace(1)* @blend
-  %20 = load float* %blendscale
-  %21 = fmul float %19, %20
-  %mix = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %17, <4 x float> %18, float %21)
-  store <4 x float> %mix, <4 x float>* %mix_retval
-  %22 = load <4 x float>* %mix_retval
-  store <4 x float> %22, <4 x float>* @gl_FragColor
-  %23 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %23)
+  %texture3D_retval3 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %13, i32 0, <3 x float> %coords)
+  store <4 x float> %texture3D_retval3, <4 x float>* %texture3D_retval
+  %14 = load <4 x float>* %texture3D_retval
+  %15 = load <4 x float>* %v
+  %16 = fadd <4 x float> %14, %15
+  %17 = load <4 x float> addrspace(1)* @u
+  %18 = load float addrspace(1)* @blend
+  %19 = load float* %blendscale
+  %20 = fmul float %18, %19
+  %mix_retval4 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %16, <4 x float> %17, float %20)
+  store <4 x float> %mix_retval4, <4 x float>* %mix_retval
+  %gl_FragColor = load <4 x float>* %mix_retval
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %21 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %21)
   ret void
 }
 
@@ -103,17 +103,17 @@ entry:
   %1 = load <2 x float> addrspace(1)* @scale
   %2 = fadd <2 x float> %t, %1
   %3 = fdiv <2 x float> %2, %1
-  %texture2DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %3)
-  %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> undef, i32 15, <4 x float> %texture2DTmp, i32 3, <4 x float> %texture2DTmp, i32 2, <4 x float> %texture2DTmp, i32 1, <4 x float> %texture2DTmp, i32 0)
+  %texture2D_retval1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %3)
+  %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> undef, i32 15, <4 x float> %texture2D_retval1, i32 3, <4 x float> %texture2D_retval1, i32 2, <4 x float> %texture2D_retval1, i32 1, <4 x float> %texture2D_retval1, i32 0)
   %5 = load i32 addrspace(1)* @texSampler3D
   %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 0)
-  %texture3DTmp = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %5, i32 0, <3 x float> %coords)
-  %6 = fadd <4 x float> %texture3DTmp, %4
+  %texture3D_retval3 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %5, i32 0, <3 x float> %coords)
+  %6 = fadd <4 x float> %texture3D_retval3, %4
   %7 = load <4 x float> addrspace(1)* @u
   %8 = load float addrspace(1)* @blend
   %9 = fmul float %8, 0x3FFC9FBE80000000
-  %mix = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %6, <4 x float> %7, float %9)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix)
+  %mix_retval4 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %6, <4 x float> %7, float %9)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix_retval4)
   ret void
 }
 

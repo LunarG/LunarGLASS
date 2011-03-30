@@ -59,6 +59,8 @@ namespace gla {
     bool IsGlaBoolean(const llvm::Type*);
     bool IsGlaScalar(const llvm::Type*);
     bool HasAllSet(const llvm::Value*);
+        
+    bool IsTempName(const std::string& name);
 };
 
 #endif /* LunarGLASSBottomIR_H */

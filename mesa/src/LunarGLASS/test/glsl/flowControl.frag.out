@@ -31,24 +31,24 @@ entry:
 then:                                             ; preds = %entry
   %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
   %2 = load <4 x float> addrspace(1)* @bigColor
-  %3 = fadd <4 x float> %BaseColor1, %2
-  store <4 x float> %3, <4 x float>* %color
+  %color2 = fadd <4 x float> %BaseColor1, %2
+  store <4 x float> %color2, <4 x float>* %color
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %4 = load <4 x float>* %color
-  %5 = load <4 x float> addrspace(1)* @smallColor
-  %6 = fadd <4 x float> %4, %5
-  store <4 x float> %6, <4 x float>* %color
+  %3 = load <4 x float>* %color
+  %4 = load <4 x float> addrspace(1)* @smallColor
+  %color3 = fadd <4 x float> %3, %4
+  store <4 x float> %color3, <4 x float>* %color
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %7 = load <4 x float>* %color
-  %8 = load <4 x float> addrspace(1)* @otherColor
-  %9 = fmul <4 x float> %7, %8
-  store <4 x float> %9, <4 x float>* @gl_FragColor
-  %10 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %10)
+  %5 = load <4 x float>* %color
+  %6 = load <4 x float> addrspace(1)* @otherColor
+  %gl_FragColor = fmul <4 x float> %5, %6
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %7 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %7)
   ret void
 }
 
@@ -86,19 +86,19 @@ entry:
 
 then:                                             ; preds = %entry
   %2 = load <4 x float> addrspace(1)* @bigColor
-  %3 = fadd <4 x float> %BaseColor, %2
+  %color2 = fadd <4 x float> %BaseColor, %2
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %4 = load <4 x float> addrspace(1)* @smallColor
-  %5 = fadd <4 x float> %BaseColor, %4
+  %3 = load <4 x float> addrspace(1)* @smallColor
+  %color3 = fadd <4 x float> %BaseColor, %3
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %color.0 = phi <4 x float> [ %3, %then ], [ %5, %else ]
-  %6 = load <4 x float> addrspace(1)* @otherColor
-  %7 = fmul <4 x float> %color.0, %6
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %7)
+  %color.0 = phi <4 x float> [ %color2, %then ], [ %color3, %else ]
+  %4 = load <4 x float> addrspace(1)* @otherColor
+  %gl_FragColor = fmul <4 x float> %color.0, %4
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   ret void
 }
 
@@ -217,18 +217,18 @@ in float c;
 
 void main()
 {
-    vec4 temp21;
+    vec4 color_0;
     bool temp22 = c > d;
     if (temp22) {
-        vec4 temp23 = BaseColor + bigColor;
-        temp21 = temp23;
+        vec4 color2 = BaseColor + bigColor;
+        color_0 = color2;
     }
     else {
-        vec4 temp24 = BaseColor + smallColor;
-        temp21 = temp24;
+        vec4 color3 = BaseColor + smallColor;
+        color_0 = color3;
     }
     
-    vec4 temp25 = temp21 * otherColor;
-    gl_FragColor = temp25;
+    gl_FragColor = color_0 * otherColor;
+    gl_FragColor = gl_FragColor;
     
 }
