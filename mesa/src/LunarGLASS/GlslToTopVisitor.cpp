@@ -509,13 +509,14 @@ ir_visitor_status
         lastValue = targetVector;
     }
 
-    // Store the last value into the l-value, using dest we track in base class.
     // Retroactively change the name of the last-value temp to the name of the
     // l-value, to help debuggability, if it's just an llvm temp name.
-
     if (lastValue->getNameStr().length() < 2 || (lastValue->getNameStr()[1] >= '0' && lastValue->getNameStr()[1] <= '9'))
         lastValue->setName(lValue->getName());
+    
+    // Store the last value into the l-value, using dest we track in base class.
     llvm::StoreInst *store = builder.CreateStore(lastValue, lValue);
+
     lastValue = store;
 
     return visit_continue;
