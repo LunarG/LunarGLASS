@@ -30,9 +30,6 @@
 #define snprintf _snprintf
 #endif
 
-// LLVM includes
-#include "llvm/IntrinsicInst.h"
-
 #include <cstdio>
 #include <string>
 #include <sstream>
@@ -43,6 +40,7 @@
 // LunarGLASS includes
 #include "Revision.h"
 #include "Exceptions.h"
+#include "LunarGLASSLlvmInterface.h"
 #include "LunarGLASSBottomIR.h"
 #include "LunarGLASSBackend.h"
 #include "Manager.h"
@@ -266,7 +264,7 @@ protected:
 
         // Check for an undef before a constant (since Undef is a
         // subclass of Constant)
-        if (IsUndef(value)) {
+        if (Util::isUndef(value)) {
             return EVQUndef;
         }
 
@@ -302,7 +300,7 @@ protected:
     {
         mapGlaValue(value);
         if (obfuscate) {
-            int count = GetComponentCount(value);
+            int count = Util::getComponentCount(value);
             if (count > 1)
                 mapComponentCountToSwizzle(count);
         }
@@ -355,7 +353,7 @@ protected:
 
     void mapGlaSamplerType(const llvm::Value* samplerType)
     {
-        int sampler = GetConstantInt(samplerType) ;
+        int sampler = Util::getConstantInt(samplerType) ;
         switch(sampler) {
         case ESampler1D:        shader << "texture1D";      break;
         case ESampler2D:        shader << "texture2D";      break;
@@ -375,7 +373,7 @@ protected:
     void mapGlaTextureStyle(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for proj/lod/offset
-        int flags = GetConstantInt(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = Util::getConstantInt(llvmInstruction->getOperand(FlagLocAOS));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -384,14 +382,14 @@ protected:
         else if (texFlags.ELod)
             shader << "Lod";
 
-        if(IsGradientTexInst(llvmInstruction))
+        if(Util::isGradientTexInst(llvmInstruction))
             shader << "Grad";
     }
 
     bool needsBiasLod(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for bias/lod
-        int flags = GetConstantInt(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = Util::getConstantInt(llvmInstruction->getOperand(FlagLocAOS));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -423,7 +421,7 @@ protected:
             case 3:   varString->append("w"); break;
             }
         } else {
-            if (IsTempName(value->getNameStr())) {
+            if (Util::isTempName(value->getNameStr())) {
                 varString->append(mapGlaToQualifierString(mapGlaAddressSpace(value)));
                 snprintf(buf, bufSize, "%d", lastVariable);
                 varString->append(buf);
@@ -444,7 +442,7 @@ protected:
             return;
 
         // If it has an initializer (is a constant and not an undef)
-        if (constant && IsDefined(constant)) {
+        if (constant && Util::isDefined(constant)) {
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
             mapGlaType(globalDeclarations, type);
@@ -517,7 +515,7 @@ protected:
 
             // output the size of the vecto
             if (count == -1)
-                out << GetComponentCount(type);
+                out << Util::getComponentCount(type);
             else
                 out << count;
         } else {
@@ -562,12 +560,12 @@ protected:
                     else
                         out << "true";
                 } else
-                    out << GetConstantInt(constant);
+                    out << Util::getConstantInt(constant);
             }
             break;
 
         case llvm::Type::FloatTyID:
-            out << GetConstantFloat(constant);
+            out << Util::GetConstantFloat(constant);
             break;
 
         default:
@@ -579,7 +577,7 @@ protected:
     void emitVectorConstant(std::ostringstream& out, const llvm::Constant* constant)
     {
         assert(constant);
-        assert(IsDefined(constant));
+        assert(Util::isDefined(constant));
         const llvm::ConstantVector* vector = llvm::dyn_cast<llvm::ConstantVector>(constant);
         if (vector) {
             mapGlaType(out, vector->getType());
@@ -664,7 +662,7 @@ protected:
         // If it's a vector, extract the value
         if (inst->getOperand(operand)->getType()->getTypeID() == llvm::Type::VectorTyID) {
             shader << ".";
-            mapComponentToSwizzle(GetConstantInt(inst->getOperand(operand+1)));
+            mapComponentToSwizzle(Util::getConstantInt(inst->getOperand(operand+1)));
         }
     }
 
@@ -673,7 +671,7 @@ protected:
     llvm::Value* getCommonSourceMultiInsert(const llvm::IntrinsicInst* inst) {
         llvm::Value* source = NULL;
         bool sameSource = true;
-        int wmask = GetConstantInt(inst->getOperand(1));
+        int wmask = Util::getConstantInt(inst->getOperand(1));
 
         for (int i = 0; i < 4; ++i) {
             if (wmask & (1 << i)) {
@@ -691,7 +689,7 @@ protected:
 
     void mapGlaMultiInsertRHS(const llvm::IntrinsicInst* inst)
     {
-        int wmask = GetConstantInt(inst->getOperand(1));
+        int wmask = Util::getConstantInt(inst->getOperand(1));
         assert(wmask <= 0xF);
         int argCount = 0;
 
@@ -711,7 +709,7 @@ protected:
             int singleSourceMask = 0;
             for (int i = 0, pos = 0; i < 4; ++i) {
                 // If it's not -1, then add it to our swizzle.
-                int swizOffset = GetConstantInt(inst->getOperand(i*2 + 3));
+                int swizOffset = Util::getConstantInt(inst->getOperand(i*2 + 3));
                 if (swizOffset != -1) {
                     singleSourceMask |= ( swizOffset << (pos*2));
                     ++pos;
@@ -737,7 +735,7 @@ protected:
 
     void mapGlaMultiInsert(const llvm::IntrinsicInst* inst)
     {
-        int wmask = GetConstantInt(inst->getOperand(1));
+        int wmask = Util::getConstantInt(inst->getOperand(1));
 
         newLine();
 
@@ -756,7 +754,7 @@ protected:
 
         // If the origin is defined, initialize the new instruction to be the
         // origin. If undefined, leave it declared and uninitialized.
-        if (IsDefined(op)) {
+        if (Util::isDefined(op)) {
             // Initialize it to be the origin.
             shader << " = ";
             mapGlaDestination(op);
@@ -1061,7 +1059,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         {
             // copy propagate, by name string, the extracted component
             std::string swizzled = *valueMap[llvmInstruction->getOperand(0)];
-            swizzled.append(".").append(mapComponentToSwizzleChar(GetConstantInt(llvmInstruction->getOperand(1))));
+            swizzled.append(".").append(mapComponentToSwizzleChar(Util::getConstantInt(llvmInstruction->getOperand(1))));
             addNewVariable(llvmInstruction, swizzled.c_str());
         }
         return;
@@ -1082,7 +1080,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         newLine();
         mapGlaDestination(llvmInstruction);
         shader << ".";
-        mapComponentToSwizzle(GetConstantInt(llvmInstruction->getOperand(2)));
+        mapComponentToSwizzle(Util::getConstantInt(llvmInstruction->getOperand(2)));
         shader << " = ";
         mapGlaOperand(llvmInstruction->getOperand(1));
         shader << ";";
@@ -1109,11 +1107,11 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 //
 const char* gla::GlslTarget::mapGlaXor(const llvm::Instruction* llvmInstruction, bool intrinsic, int* unaryOperand)
 {
-    bool scalar = gla::IsGlaScalar(llvmInstruction->getType());
-    bool boolean = gla::IsGlaBoolean(llvmInstruction->getType());
+    bool scalar = gla::Util::isGlaScalar(llvmInstruction->getType());
+    bool boolean = gla::Util::isGlaBoolean(llvmInstruction->getType());
 
-    bool op0AllSet = HasAllSet(llvmInstruction->getOperand(0));
-    bool op1AllSet = HasAllSet(llvmInstruction->getOperand(1));
+    bool op0AllSet = Util::hasAllSet(llvmInstruction->getOperand(0));
+    bool op1AllSet = Util::hasAllSet(llvmInstruction->getOperand(1));
 
     if (unaryOperand == 0) {
         // try a binary op
@@ -1161,7 +1159,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_fWriteData:
-        switch (GetConstantInt(llvmInstruction->getOperand(0)))
+        switch (Util::getConstantInt(llvmInstruction->getOperand(0)))
         {
         case 0:
             newLine();
@@ -1170,7 +1168,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             shader << ";";
             return;
         default:
-            UnsupportedFunctionality("Unhandled data output variable in Bottom IR: ", GetConstantInt(llvmInstruction->getOperand(0)));
+            UnsupportedFunctionality("Unhandled data output variable in Bottom IR: ", Util::getConstantInt(llvmInstruction->getOperand(0)));
         }
         return;
 
@@ -1204,7 +1202,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             mapGlaOperand(llvmInstruction->getOperand(BiasLocAOS));
         }
 
-        if(IsGradientTexInst(llvmInstruction)) {  //?? this can move to a place they are shared between back-ends
+        if(Util::isGradientTexInst(llvmInstruction)) {  //?? this can move to a place they are shared between back-ends
             shader << ", ";
             mapGlaOperand(llvmInstruction->getOperand(DdxLocAOS));
             shader << ", ";
@@ -1226,7 +1224,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
         // Case 0:  it's scalar making a scalar.
         // use nothing, just copy
-        if (GetComponentCount(llvmInstruction->getOperand(0)) == 1 && GetComponentCount(llvmInstruction) == 1) {
+        if (Util::getComponentCount(llvmInstruction->getOperand(0)) == 1 && Util::getComponentCount(llvmInstruction) == 1) {
             mapGlaOperand(llvmInstruction->getOperand(0));
             shader << ";";
             return;
@@ -1234,7 +1232,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
         // Case 1:  it's a scalar with multiple ".x" to expand it to a vector.
         // use a constructor to turn a scalar into a vector
-        if (GetComponentCount(llvmInstruction->getOperand(0)) == 1 && GetComponentCount(llvmInstruction) > 1) {
+        if (Util::getComponentCount(llvmInstruction->getOperand(0)) == 1 && Util::getComponentCount(llvmInstruction) > 1) {
             mapGlaType(shader, llvmInstruction->getType());
             shader << "(";
             mapGlaOperand(llvmInstruction->getOperand(0));
@@ -1244,8 +1242,8 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
         // Case 2:  it's sequential .xy...  subsetting a vector.
         // use a constructor to subset the vectorto a vector
-        if (GetComponentCount(llvmInstruction->getOperand(0)) > 1 && GetComponentCount(llvmInstruction) > 1 &&
-            IsConsecutiveSwizzle(GetConstantInt(llvmInstruction->getOperand(1)), GetComponentCount(llvmInstruction))) {
+        if (Util::getComponentCount(llvmInstruction->getOperand(0)) > 1 && Util::getComponentCount(llvmInstruction) > 1 &&
+            Util::isConsecutiveSwizzle(Util::getConstantInt(llvmInstruction->getOperand(1)), Util::getComponentCount(llvmInstruction))) {
 
             mapGlaType(shader, llvmInstruction->getType());
             shader << "(";
@@ -1257,8 +1255,8 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // Case 3:  it's a non-sequential subsetting of a vector.
         // use GLSL swizzles
         mapGlaOperand(llvmInstruction->getOperand(0));
-        if (GetComponentCount(llvmInstruction->getOperand(0)) > 1)
-            mapGlaSwizzle(GetConstantInt(llvmInstruction->getOperand(1)), GetComponentCount(llvmInstruction));
+        if (Util::getComponentCount(llvmInstruction->getOperand(0)) > 1)
+            mapGlaSwizzle(Util::getConstantInt(llvmInstruction->getOperand(1)), Util::getComponentCount(llvmInstruction));
         shader << ";";
         return;
     }

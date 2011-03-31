@@ -61,17 +61,6 @@ namespace gla {
 
     Manager* getManager();
 
-    // the Top Interface to help build (along with LLVM) the top IR
-    class top {
-    public:
-        llvm::Value* buildMatrixTimesVector(llvm::Value* lmatrix, llvm::Value* rvector);
-        llvm::Value* buildVectorTimesMatrix(llvm::Value* lvector, llvm::Value* rmatrix);
-        llvm::Value* buildMatrixTimesMatrix(llvm::Value* lmatrix, llvm::Value* rmatrix);
-        llvm::Value* buildOuterProduct     (llvm::Value* lvector, llvm::Value* rvector);
-        llvm::Value* buildMatrixTranspose  (llvm::Value*  matrix);
-        llvm::Value* buildMatrixInverse    (llvm::Value*  matrix);
-    };
-
     enum ESamplerType {
         ESamplerBuffer,
         ESampler1D,
@@ -103,6 +92,14 @@ namespace gla {
         unsigned EComp      : 1;
         unsigned ERefZ      : 1;
     };
+
+    // Texture op constants, for mapping operands
+    const int SamplerLocAOS = 1;
+    const int FlagLocAOS    = 2;
+    const int CoordLocAOS   = 3;
+    const int BiasLocAOS    = 4;
+    const int DdxLocAOS     = 6;
+    const int DdyLocAOS     = 7;
 
     const unsigned int GlobalAddressSpace = 0;
     const unsigned int UniformAddressSpace = 1;

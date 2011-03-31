@@ -29,9 +29,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-// LLVM includes
-#include "llvm/IntrinsicInst.h"
-
 #include <cstdio>
 #include <string>
 #include <map>
@@ -39,6 +36,7 @@
 
 // LunarGLASS includes
 #include "Exceptions.h"
+#include "LunarGLASSLlvmInterface.h"
 #include "LunarGLASSBottomIR.h"
 #include "LunarGLASSBackend.h"
 #include "Manager.h"
@@ -124,7 +122,7 @@ public:
     {
         // don't free instructions, as they needs to live on
     }
-    
+
     void startFunctionDeclaration(const llvm::Type*, const std::string&) { }
     void addArgument(const llvm::Value*, bool last) { }
     void endFunctionDeclaration() { }
@@ -251,7 +249,7 @@ protected:
             type = pointerType->getContainedType(0);
         }
 
-        return mapComponentCountSwizzle(GetComponentCount (type));
+        return mapComponentCountSwizzle(Util::getComponentCount (type));
     }
 
     GLuint mapComponentCountSwizzle(int numComponents)
@@ -261,7 +259,7 @@ protected:
         case 2:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_Y);
         case 3:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_Z);
         case 4:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_W);
-        default:  
+        default:
             UnsupportedFunctionality("Vector with more than 4 components in Bottom IR: ", numComponents);
         }
 
@@ -284,13 +282,13 @@ protected:
 
     GLuint mapGlaComponentCountWriteMask(const llvm::Value* value)
     {
-        switch (GetComponentCount(value)) {
+        switch (Util::getComponentCount(value)) {
         case 1:   return WRITEMASK_X;
         case 2:   return WRITEMASK_XY;
         case 3:   return WRITEMASK_XYZ;
         case 4:   return WRITEMASK_XYZW;
         default:
-            UnsupportedFunctionality("Vector with more than 4 components in Bottom IR: ", GetComponentCount(value));
+            UnsupportedFunctionality("Vector with more than 4 components in Bottom IR: ", Util::getComponentCount(value));
         }
 
         return WRITEMASK_X;
@@ -312,7 +310,7 @@ protected:
 
     GLuint mapGlaSamplerType(const llvm::Value* samplerType)
     {
-        switch(GetConstantInt(samplerType)) {
+        switch(Util::getConstantInt(samplerType)) {
         case ESampler1D:        return TEXTURE_1D_INDEX;
         case ESampler2D:        return TEXTURE_2D_INDEX;
         case ESampler3D:        return TEXTURE_3D_INDEX;
@@ -330,7 +328,7 @@ protected:
     prog_opcode getMesaOpFromGlaInst(const llvm::IntrinsicInst* llvmInstruction, int FlagLocAOS)
     {
         // Check flags for proj/lod/offset
-        int flags = GetConstantInt(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = Util::getConstantInt(llvmInstruction->getOperand(FlagLocAOS));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -341,7 +339,7 @@ protected:
         else if (texFlags.ELod)
             return OPCODE_TXL;
 
-        if(IsGradientTexInst(llvmInstruction))
+        if(Util::isGradientTexInst(llvmInstruction))
             return OPCODE_TXD;
 
         return OPCODE_TEX;
@@ -435,7 +433,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         // First, take the reciprocal.  This is done per component, but all landing in the
         // same temporary vector.
         temp = newIndex(PROGRAM_TEMPORARY);
-        for (int c = 0; c < GetComponentCount(llvmInstruction->getOperand(1)); ++c) {
+        for (int c = 0; c < Util::getComponentCount(llvmInstruction->getOperand(1)); ++c) {
             mesaInstruction->Opcode = OPCODE_RCP;
             mapGlaOperand(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[0]);
             mesaInstruction->SrcReg[0].Swizzle = mapComponentSwizzle(c);
@@ -601,7 +599,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mapGlaOperand(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[0]);
         mapGlaDestination(llvmInstruction->getOperand(1), &mesaInstruction->DstReg);
         mesaInstruction->DstReg.File = PROGRAM_OUTPUT;
-        mesaInstruction->DstReg.Index = GetConstantInt(llvmInstruction->getOperand(0));
+        mesaInstruction->DstReg.Index = Util::getConstantInt(llvmInstruction->getOperand(0));
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
         return;
@@ -610,7 +608,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mesaInstruction->Opcode = OPCODE_MOV;
         mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
         mesaInstruction->SrcReg[0].File = PROGRAM_INPUT;
-        mesaInstruction->SrcReg[0].Index = GetConstantInt(llvmInstruction->getOperand(0));
+        mesaInstruction->SrcReg[0].Index = Util::getConstantInt(llvmInstruction->getOperand(0));
         mesaInstruction->SrcReg[0].Swizzle = mapGlaComponentCountSwizzle(llvmInstruction);
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
@@ -630,7 +628,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
         operandFrom[0] = CoordLocAOS;
 
-        if(IsGradientTexInst(llvmInstruction)) {
+        if(Util::isGradientTexInst(llvmInstruction)) {
             operandFrom[1] = DdxLocAOS;
             operandFrom[2] = DdyLocAOS;
             operandFrom[3] = SamplerLocAOS;
@@ -652,7 +650,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mapGlaDestination(llvmInstruction, &mesaInstruction->DstReg);
 
         // GLA uses 2 bits per channel, Mesa uses 3...
-        int glaSwizzle = GetConstantInt(llvmInstruction->getOperand(1));
+        int glaSwizzle = Util::getConstantInt(llvmInstruction->getOperand(1));
         mesaInstruction->SrcReg[0].Swizzle = mapGlaSwizzle(glaSwizzle);
 
         incrementMesaInstruction();

@@ -254,7 +254,7 @@ ir_visitor_status
             case 2:  lastValue = builder.CreateCall2 (intrinsicName, interpLoc, interpOffset, name); break;
             case 1:  lastValue = builder.CreateCall  (intrinsicName, interpLoc, name);               break;
             }
-        } 
+        }
         else if (var->mode != ir_var_in) {
             // Don't load inputs again... just use them
             lastValue = builder.CreateLoad(lastValue);
@@ -318,8 +318,8 @@ ir_visitor_status
         iterParam = sig->parameters.iterator();
 
         llvm::Function::arg_iterator arg = function->arg_begin();
-        llvm::Function::arg_iterator endArg = function->arg_end(); 
-        
+        llvm::Function::arg_iterator endArg = function->arg_end();
+
         while (iterParam.has_next() && arg != endArg) {
             // Create a variable for our formal parameter
             parameter = (ir_variable *) iterParam.get();
@@ -340,14 +340,14 @@ ir_visitor_status
 {
     // Ignore builtins for now
     if (!sig->is_builtin) {
-           
+
         llvm::BasicBlock* BB = builder.GetInsertBlock();
         assert(BB);
 
         // If our function did not contain a return,
         // return void now
         if (0 == BB->getTerminator()) {
-            
+
             if (inMain) {
                 // If we're leaving main and it is not terminated,
                 // generate our pipeline writes
@@ -378,9 +378,9 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_function *f)
 {
-    // Nothing to do here.  
+    // Nothing to do here.
     // See comment in visit_enter(ir_function *f)
-    
+
     return visit_continue;
 }
 
@@ -513,7 +513,7 @@ ir_visitor_status
     // l-value, to help debuggability, if it's just an llvm temp name.
     if (lastValue->getNameStr().length() < 2 || (lastValue->getNameStr()[1] >= '0' && lastValue->getNameStr()[1] <= '9'))
         lastValue->setName(lValue->getName());
-    
+
     // Store the last value into the l-value, using dest we track in base class.
     llvm::StoreInst *store = builder.CreateStore(lastValue, lValue);
 
@@ -567,7 +567,7 @@ ir_visitor_status
 
         // Track the return value for to be consumed by next instruction
         lastValue = callInst;
- 
+
     } else {
 
         llvm::Value* returnValue = 0;
@@ -894,7 +894,7 @@ ir_visitor_status
     if (inMain) {
         writePipelineOuts();
     }
-    
+
     // Return the expression result, which is tracked in lastValue
     if (ir->get_value()) {
         builder.CreateRet(lastValue);
@@ -1055,7 +1055,7 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
 
     if (localScope && ! globalQualifier) {
 
-        // LLVM promote memory to registers pass only works when alloca 
+        // LLVM promote memory to registers pass only works when alloca
         // is in the entry block.
 
         llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();

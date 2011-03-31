@@ -45,7 +45,7 @@
 #include "CoalesceInserts.h"
 
 // LunarGLASS helpers
-#include "LunarGLASSBottomIR.h"
+#include "LunarGLASSLlvmInterface.h"
 
 #include <utility>
 
@@ -242,7 +242,7 @@ static void GetUnderlyingOffsetAndValue(std::pair<Value*,int>& ov)
     if (IsExtractElement(inst)) {
         // Set the value and offset
         ov.first = inst->getOperand(0);
-        ov.second = gla::GetConstantInt(inst->getOperand(1));
+        ov.second = gla::Util::getConstantInt(inst->getOperand(1));
         // Continue traversing
         GetUnderlyingOffsetAndValue(ov);
         return;
@@ -253,7 +253,7 @@ static void GetUnderlyingOffsetAndValue(std::pair<Value*,int>& ov)
     if (IsInsertElement(inst)) {
 
         // The insert instruction's offset that it is writing to
-        int insertOffset = gla::GetConstantInt(inst->getOperand(2));
+        int insertOffset = gla::Util::getConstantInt(inst->getOperand(2));
 
         // If the insert is overwriting the field that we are trying to get at,
         // then continue with it's value, otherwise continue with the insert's
@@ -345,7 +345,7 @@ void BBMIIMaker::addLeftInsertChain(Value* v, Group& vec, int width, int mask)
 
     // Otherwise, put it in the vector, turn off mask's bit, and continue
     vec.push_back(inst);
-    mask &= ~(1 << gla::GetConstantInt(inst->getOperand(2)));
+    mask &= ~(1 << gla::Util::getConstantInt(inst->getOperand(2)));
     addLeftInsertChain(inst->getOperand(0), vec, width, mask);
 }
 
@@ -386,7 +386,7 @@ void BBMIIMaker::groupInserts()
         Group* newGroup = new Group();       // note: deallocation handled in destructor
 
         // Get the width and set up mask to be all 1s
-        int width = gla::GetComponentCount(inst->getType());
+        int width = gla::Util::getComponentCount(inst->getType());
         int mask = (1 << width) - 1;
 
         addLeftInsertChain(inst, *newGroup, width, mask);
@@ -425,7 +425,7 @@ void MultiInsertIntrinsic::buildFromGroup()
 
         // Match up the data with the corresponding field specified in the
         // insert
-        int maskOffset = gla::GetConstantInt((*instI)->getOperand(2));
+        int maskOffset = gla::Util::getConstantInt((*instI)->getOperand(2));
         assert(maskOffset <= 4 && " Unknown access mask found");
 
         offsets[maskOffset] = offset;

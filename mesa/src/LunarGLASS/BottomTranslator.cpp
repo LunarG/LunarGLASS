@@ -222,12 +222,12 @@ bool CodeGeneration::runOnModule(llvm::Module& module)
             // paramaters and arguments
             for (llvm::Function::const_arg_iterator arg = function->arg_begin(), endArg = function->arg_end(); arg != endArg; ++arg) {
                 llvm::Function::const_arg_iterator nextArg = arg;
-                ++nextArg;                
+                ++nextArg;
                 backEndTranslator->addArgument(arg, nextArg == endArg);
             }
 
             backEndTranslator->endFunctionDeclaration();
-            
+
             backEndTranslator->startFunctionBody();
 
             // Phi declaration pass

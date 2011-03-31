@@ -138,6 +138,9 @@
     <ClInclude Include="..\LunarGLASS\Revision.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
+    <ClInclude Include="..\LunarGLASS\LunarGLASSLlvmInterface.h">
+      <Filter>LunarGLASS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ast_expr.cpp">
@@ -388,6 +391,9 @@
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts\CoalesceInserts.cpp">
       <Filter>LunarGLASS\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\LunarGLASSLlvmInterface.cpp">
+      <Filter>LunarGLASS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
