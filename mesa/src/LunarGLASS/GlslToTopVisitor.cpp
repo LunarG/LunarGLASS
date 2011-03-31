@@ -31,6 +31,7 @@
 
 #include "GlslToTopVisitor.h"
 #include "LunarGLASSTopIR.h"
+#include "LunarGLASSLlvmInterface.h"
 #include "mtypes.h"
 #include "Exceptions.h"
 #include "Options.h"
@@ -166,17 +167,17 @@ ir_visitor_status
     return visit_continue;
 }
 
-int GlslToTopVisitor::getNextInterpIndex(ir_variable* var)
+int GlslToTopVisitor::getNextInterpIndex(std::string name)
 {
     // Get the index for this interpolant, or create a new unique one
-    std::map<ir_variable*, int>::iterator iter;
-    iter = interpMap.find(var);
+    std::map<std::string, int>::iterator iter;
+    iter = interpMap.find(name);
 
     if (interpMap.end() == iter) {
-        interpMap[var] = interpIndex++;
+        interpMap[name] = interpIndex++;
     }
 
-    return interpMap[var];
+    return interpMap[name];
 }
 
 ir_visitor_status
@@ -225,35 +226,7 @@ ir_visitor_status
     else
     {
         if (isPipelineInput) {
-            // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
-            // which we will optimize later.
-            llvm::Function *intrinsicName = 0;
-            const char *name = NULL;
-
-            // Give each interpolant a temporary unique index
-            int paramCount = 0;
-            llvm::Constant *interpLoc    = llvm::ConstantInt::get(context, llvm::APInt(32, getNextInterpIndex(var), true));
-            llvm::Constant *interpOffset = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
-
-            // Select intrinsic based on target stage
-            if(glShader->Type == GL_FRAGMENT_SHADER) {
-                llvm::Intrinsic::ID intrinsicID;
-                llvm::Type* readType = convertGLSLToLLVMType(var->type);
-                switch(getLLVMBaseType(readType)) {
-                case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_readData;            paramCount = 1; break;
-                case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fReadInterpolant;    paramCount = 2; break;
-                }
-                intrinsicName = getLLVMIntrinsicFunction1(intrinsicID, readType);
-                name = var->name;
-            } else {
-                gla::UnsupportedFunctionality("non-fragment shaders");
-            }
-
-            // Call the selected intrinsic
-            switch(paramCount) {
-            case 2:  lastValue = builder.CreateCall2 (intrinsicName, interpLoc, interpOffset, name); break;
-            case 1:  lastValue = builder.CreateCall  (intrinsicName, interpLoc, name);               break;
-            }
+            lastValue = createPipelineRead(var, 0);
         }
         else if (var->mode != ir_var_in) {
             // Don't load inputs again... just use them
@@ -444,8 +417,24 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_dereference_array *ir)
 {
-    gla::UnsupportedFunctionality("array dereference");
-    return visit_continue;
+    if(ir_var_in != ir->variable_referenced()->mode)
+        gla::UnsupportedFunctionality("non-pipeline array deref");
+    
+    if(0 == ir->array_index->constant_expression_value())
+        gla::UnsupportedFunctionality("non-constant array index");
+
+    int index = ir->array_index->constant_expression_value()->value.u[0];
+
+    lastValue = createPipelineRead(ir->variable_referenced(), index);
+
+    // Array notes
+    // Index will be tracked in lastValue...
+    // ir->array_index->accept(this);
+    // ... then consumed by the array deref
+    // ir->array->accept(this);
+
+    // Continue to parent or parser will revisit the array
+    return visit_continue_with_parent;
 }
 
 ir_visitor_status
@@ -1472,12 +1461,16 @@ llvm::Type::TypeID GlslToTopVisitor::getLLVMBaseType(llvm::Value* value)
         return value->getType()->getTypeID();
 }
 
-llvm::Type::TypeID GlslToTopVisitor::getLLVMBaseType(llvm::Type* type)
+llvm::Type::TypeID GlslToTopVisitor::getLLVMBaseType(const llvm::Type* type)
 {
     if(llvm::Type::VectorTyID == type->getTypeID())
-        return type->getContainedType(0)->getTypeID();
-    else
+        return getLLVMBaseType(type->getContainedType(0));
+    else if (llvm::Type::ArrayTyID == type->getTypeID())
+        return getLLVMBaseType(type->getContainedType(0));
+    else {
+        assert(gla::Util::isGlaScalar(type));
         return type->getTypeID();
+    }
 }
 
 void GlslToTopVisitor::findAndSmearScalars(llvm::Value** operands, int numOperands)
@@ -1562,4 +1555,59 @@ void GlslToTopVisitor::writePipelineOuts()
                                             llvm::ConstantInt::get(context, llvm::APInt(32, 0, true)),
                                             loadVal);
     }
+}
+
+void GlslToTopVisitor::appendArrayIndexToName(std::string &arrayName, int index)
+{
+    arrayName.append("[");
+    llvm::raw_string_ostream out(arrayName);
+    out << index;
+    arrayName = out.str();
+    arrayName.append("]");
+}
+
+llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
+{
+    // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
+    // which we will optimize later.
+    llvm::Function *intrinsicName = 0;
+    std::string name(var->name);
+    int paramCount = 0;
+    const llvm::Type* readType;
+
+    if (GLSL_TYPE_ARRAY == var->type->base_type) {
+        // If we're reading from an array, we just finished traversing the index
+        // interpLoc = (llvm::Constant*)lastValue;
+        // Return the type contained within the array
+        
+        readType = convertGLSLToLLVMType(var->type->fields.array);
+        appendArrayIndexToName(name, index);
+    } else {
+        readType = convertGLSLToLLVMType(var->type);
+    }
+
+    // Give each interpolant a temporary unique index
+    llvm::Constant *interpLoc = llvm::ConstantInt::get(context, llvm::APInt(32, getNextInterpIndex(name), true));
+    llvm::Constant *interpOffset = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
+
+    // Select intrinsic based on target stage
+    if(glShader->Type == GL_FRAGMENT_SHADER) {
+        llvm::Intrinsic::ID intrinsicID;
+        switch(getLLVMBaseType(readType)) {
+        case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_readData;            paramCount = 1; break;
+        case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fReadInterpolant;    paramCount = 2; break;
+        }
+        intrinsicName = getLLVMIntrinsicFunction1(intrinsicID, readType);
+    } else {
+        gla::UnsupportedFunctionality("non-fragment shaders");
+    }
+
+    // Call the selected intrinsic
+    llvm::Value* retVal;
+    switch(paramCount) {
+    case 2:  retVal = builder.CreateCall2 (intrinsicName, interpLoc, interpOffset, name); break;
+    case 1:  retVal = builder.CreateCall  (intrinsicName, interpLoc, name);               break;
+    }
+
+    return retVal;
 }
