@@ -80,7 +80,7 @@ Builder::SuperValue Builder::createMatrixOp(llvm::IRBuilder<>& builder, unsigned
 
         return createSmearedMatrixOp(builder, llvmOpcode, left.getValue(), right.getMatrix());
     }
-    
+
     assert(! "nonsensical matrix operation");
 
     return ret;
@@ -99,7 +99,7 @@ Builder::SuperValue Builder::createMatrixMultiply(llvm::IRBuilder<>& builder, Bu
     }
 
     assert(left.isMatrix() || right.isMatrix());
-    
+
     // matrix times matrix
     if (left.isMatrix() && right.isMatrix()) {
         assert(left.getMatrix()->getNumRows()    == right.getMatrix()->getNumColumns());
@@ -203,10 +203,10 @@ llvm::Value* Builder::createSmearedMatrixOp  (llvm::IRBuilder<>&, unsigned llvmO
 
     return 0;
 }
-        
+
 Builder::Matrix* Builder::createMatrixTimesMatrix(llvm::IRBuilder<>&, Matrix* lmatrix, Matrix* rmatrix)
 {
-    assert(lmatrix->getNumColumns() == rmatrix->getNumRows() && 
+    assert(lmatrix->getNumColumns() == rmatrix->getNumRows() &&
            rmatrix->getNumColumns() == lmatrix->getNumRows());
 
     return 0;

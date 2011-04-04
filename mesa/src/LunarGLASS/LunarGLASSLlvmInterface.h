@@ -68,7 +68,7 @@ namespace gla {
             int numRows;
             const llvm::Value* columns[4];
         };
-        
+
         class SuperValue {
         public:
             SuperValue() : type(ELlvm) { value.llvm = 0; }
@@ -76,22 +76,22 @@ namespace gla {
             // These are both constructors and implicit conversions
             SuperValue(llvm::Value* llvm) : type(ELlvm) { value.llvm = llvm; } // implicitly make a SuperValue out of a Value
             SuperValue(Matrix* m) : type(EMatrix) { value.matrix = m; }        // implicitly make a SuperValue out of a Matrix
-            
+
             // implicitly make a Value out of a SuperValue
-            operator llvm::Value*() const 
+            operator llvm::Value*() const
             {
-                assert(type == ELlvm); 
-                return value.llvm;
-            }
-            
-            // make a Value when derefencing a SuperValue
-            llvm::Value* operator->() const
-            {
-                assert(type == ELlvm); 
+                assert(type == ELlvm);
                 return value.llvm;
             }
 
-            void clear() 
+            // make a Value when derefencing a SuperValue
+            llvm::Value* operator->() const
+            {
+                assert(type == ELlvm);
+                return value.llvm;
+            }
+
+            void clear()
             {
                 type = ELlvm;
                 value.llvm = 0;
@@ -100,18 +100,18 @@ namespace gla {
             bool isMatrix() const { return type == EMatrix; }
             bool isValue() const { return type == ELlvm; }
 
-            llvm::Value* getValue() const 
+            llvm::Value* getValue() const
             {
                 assert(type == ELlvm);
                 return value.llvm;
             }
 
-            Matrix* getMatrix() const 
+            Matrix* getMatrix() const
             {
                 assert(type == EMatrix);
                 return value.matrix;
             }
-            
+
         protected:
             enum {
                 EMatrix,
@@ -123,14 +123,14 @@ namespace gla {
                 llvm::Value* llvm;
             } value;
         };
-        
+
         // handle component-wise matrix operations for either a
         // pair of matrices or a matrix and a scalar
         static SuperValue createMatrixOp(llvm::IRBuilder<>&, unsigned llvmopcode, SuperValue left, SuperValue right);
-        
-        // handle all the possible matrix-related multiply operations 
-        // (non component wise; linear algebraic) for all combinations 
-        // of matrices, scalars, and vectors that either consume or 
+
+        // handle all the possible matrix-related multiply operations
+        // (non component wise; linear algebraic) for all combinations
+        // of matrices, scalars, and vectors that either consume or
         // create a matrix
         static SuperValue createMatrixMultiply(llvm::IRBuilder<>&, SuperValue left, SuperValue right);
 
@@ -144,7 +144,7 @@ namespace gla {
         static llvm::Value* createVectorTimesMatrix(llvm::IRBuilder<>&, llvm::Value*, Matrix*);
         static llvm::Value* createSmearedMatrixOp  (llvm::IRBuilder<>&, unsigned llvmopcode, Matrix*, llvm::Value*);
         static llvm::Value* createSmearedMatrixOp  (llvm::IRBuilder<>&, unsigned llvmopcode, llvm::Value*, Matrix*);
-        
+
         static Matrix* createMatrixTimesMatrix(llvm::IRBuilder<>&, Matrix*, Matrix*);
         static Matrix* createOuterProduct     (llvm::IRBuilder<>&, llvm::Value* lvector, llvm::Value* rvector);
     };
@@ -162,7 +162,7 @@ namespace gla {
         // get floating point value or assert trying
         static float GetConstantFloat(const llvm::Value*);
 
-        static int isGradientTexInst(const llvm::IntrinsicInst* instruction) 
+        static int isGradientTexInst(const llvm::IntrinsicInst* instruction)
         {
             return (instruction->getIntrinsicID() == llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad);
         }
@@ -188,9 +188,9 @@ namespace gla {
         static bool hasAllSet(const llvm::Value*);
 
         // is the name something like "%42"?
-        static bool isTempName(const std::string& name) 
-        { 
-            return name.length() < 2 || (name[1] >= '0' && name[1] <= '9'); 
+        static bool isTempName(const std::string& name)
+        {
+            return name.length() < 2 || (name[1] >= '0' && name[1] <= '9');
         }
     };
 };
