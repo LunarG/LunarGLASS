@@ -29,39 +29,199 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "Exceptions.h"
 #include "LunarGLASSLlvmInterface.h"
 
 namespace gla {
 
-llvm::Value* Top::buildMatrixTimesVector(llvm::Value* lmatrix, llvm::Value* rvector)
+//
+// Builder::Matrix definitions
+//
+
+Builder::Matrix::Matrix(int c, int r, llvm::Value* vectors[]) : numColumns(c), numRows(r)
 {
+    for (int column = 0; column < numColumns; ++column)
+        columns[column] = vectors[column];
+}
+
+Builder::Matrix::Matrix(int c, int r, Matrix* oldMatrix) : numColumns(c), numRows(r)
+{
+    UnsupportedFunctionality("construction of matrix from matrix");
+}
+
+Builder::SuperValue Builder::createMatrixOp(llvm::IRBuilder<>& builder, unsigned llvmOpcode, Builder::SuperValue left, Builder::SuperValue right)
+{
+    Builder::SuperValue ret;
+
+    assert(left.isMatrix() || right.isMatrix());
+
+    // component-wise matrix operations on same-shape matrices
+    if (left.isMatrix() && right.isMatrix()) {
+        assert(left.getMatrix()->getNumColumns() == right.getMatrix()->getNumColumns());
+        assert(left.getMatrix()->getNumRows() == right.getMatrix()->getNumRows());
+
+        // spit out the component-wise operations
+
+        UnsupportedFunctionality("component-wise matrix operation");
+
+        return ret;
+    }
+
+    // matrix <op> smeared scalar
+    if (left.isMatrix()) {
+        assert(Util::isGlaScalar(right.getValue()));
+
+        return createSmearedMatrixOp(builder, llvmOpcode, left.getMatrix(), right.getValue());
+    }
+
+    // smeared scalar <op> matrix
+    if (right.isMatrix()) {
+        assert(Util::isGlaScalar(left.getValue()));
+
+        return createSmearedMatrixOp(builder, llvmOpcode, left.getValue(), right.getMatrix());
+    }
+    
+    assert(! "nonsensical matrix operation");
+
+    return ret;
+}
+
+Builder::SuperValue Builder::createMatrixMultiply(llvm::IRBuilder<>& builder, Builder::SuperValue left, Builder::SuperValue right)
+{
+    Builder::SuperValue ret;
+
+    // outer product
+    if (left.isValue() && right.isValue()) {
+        assert(Util::getComponentCount(left) == Util::getComponentCount(right));
+        UnsupportedFunctionality("outer product");
+
+        return ret;
+    }
+
+    assert(left.isMatrix() || right.isMatrix());
+    
+    // matrix times matrix
+    if (left.isMatrix() && right.isMatrix()) {
+        assert(left.getMatrix()->getNumRows()    == right.getMatrix()->getNumColumns());
+        assert(left.getMatrix()->getNumColumns() == right.getMatrix()->getNumRows());
+
+        createMatrixTimesMatrix(builder, left.getMatrix(), right.getMatrix());
+
+        return ret;
+    }
+
+    // matrix times vector
+    if (left.isMatrix() && Util::isVector(right.getValue()->getType())) {
+        assert(left.getMatrix()->getNumColumns() == Util::getComponentCount(right.getValue()));
+
+        createMatrixTimesVector(builder, left.getMatrix(), right.getValue());
+
+        return ret;
+    }
+
+    // vector times matrix
+    if (Util::isVector(left.getValue()->getType()) && right.isMatrix()) {
+        assert(right.getMatrix()->getNumRows() == Util::getComponentCount(left.getValue()));
+
+        createVectorTimesMatrix(builder, left.getValue(), right.getMatrix());
+
+        return ret;
+    }
+
+    // matrix times scalar
+    if (left.isMatrix() && Util::isGlaScalar(right.getValue()))
+        return createSmearedMatrixOp(builder, llvm::Instruction::FMul, left.getMatrix(), right.getValue());
+
+    // scalar times matrix
+    if (Util::isGlaScalar(left.getValue()) && right.isMatrix())
+        return createSmearedMatrixOp(builder, llvm::Instruction::FMul, left.getValue(), right.getMatrix());
+
+    assert(! "nonsensical matrix multiply");
+
+    return ret;
+}
+
+Builder::Matrix* Builder::createMatrixTranspose(llvm::IRBuilder<>&, Matrix* matrix)
+{
+    UnsupportedFunctionality("matrix transpose");
+
     return 0;
 }
 
-llvm::Value* Top::buildVectorTimesMatrix(llvm::Value* lvector, llvm::Value* rmatrix)
+Builder::Matrix* Builder::createMatrixInverse(llvm::IRBuilder<>&, Matrix* matrix)
 {
+    UnsupportedFunctionality("matrix inverse");
+
     return 0;
 }
 
-llvm::Value* Top::buildMatrixTimesMatrix(llvm::Value* lmatrix, llvm::Value* rmatrix)
+Builder::Matrix* Builder::createMatrixDeterminant(llvm::IRBuilder<>&, Matrix* matrix)
 {
+    UnsupportedFunctionality("matrix determinant");
+
     return 0;
 }
 
-llvm::Value* Top::buildOuterProduct(llvm::Value* lvector, llvm::Value* rvector)
+llvm::Value* Builder::createMatrixTimesVector(llvm::IRBuilder<>&, Matrix* matrix, llvm::Value* rvector)
 {
+    assert(matrix->getNumColumns() == Util::getComponentCount(rvector));
+
     return 0;
 }
 
-llvm::Value* Top::buildMatrixTranspose(llvm::Value*  matrix)
+llvm::Value* Builder::createVectorTimesMatrix(llvm::IRBuilder<>&, llvm::Value* lvector, Matrix* matrix)
 {
+    assert(matrix->getNumRows() == Util::getComponentCount(lvector));
+
     return 0;
 }
 
-llvm::Value* Top::buildMatrixInverse(llvm::Value*  matrix)
+llvm::Value* Builder::createSmearedMatrixOp(llvm::IRBuilder<>&, unsigned llvmOpcode, Matrix*, llvm::Value*)
 {
+    switch (llvmOpcode) {
+    case llvm::Instruction::FAdd: break;
+    case llvm::Instruction::FSub: break;
+    case llvm::Instruction::FMul: break;
+    case llvm::Instruction::FDiv: break;
+    default:
+        UnsupportedFunctionality("matrix operation", llvmOpcode);
+    }
+
     return 0;
 }
+
+llvm::Value* Builder::createSmearedMatrixOp  (llvm::IRBuilder<>&, unsigned llvmOpcode, llvm::Value*, Matrix*)
+{
+    switch (llvmOpcode) {
+    case llvm::Instruction::FAdd: break;
+    case llvm::Instruction::FSub: break;
+    case llvm::Instruction::FMul: break;
+    case llvm::Instruction::FDiv: break;
+    default:
+        UnsupportedFunctionality("matrix operation", llvmOpcode);
+    }
+
+    return 0;
+}
+        
+Builder::Matrix* Builder::createMatrixTimesMatrix(llvm::IRBuilder<>&, Matrix* lmatrix, Matrix* rmatrix)
+{
+    assert(lmatrix->getNumColumns() == rmatrix->getNumRows() && 
+           rmatrix->getNumColumns() == lmatrix->getNumRows());
+
+    return 0;
+}
+
+Builder::Matrix* Builder::createOuterProduct(llvm::IRBuilder<>&, llvm::Value* lvector, llvm::Value* rvector)
+{
+    UnsupportedFunctionality("outer product");
+
+    return 0;
+}
+
+//
+// Util definitions
+//
 
 int Util::getConstantInt(const llvm::Value* value)
 {

@@ -365,7 +365,7 @@ ir_visitor_status
 {
     int numOperands = expression->get_num_operands();
     assert(numOperands <= 2);
-    llvm::Value* operands[2];
+    gla::Builder::SuperValue operands[2];
 
     for (int i = 0; i < numOperands; ++i) {
         expression->operands[i]->accept(this);
@@ -540,7 +540,7 @@ ir_visitor_status
     // Stick this somewhere that makes sense, with a real value
     #define GLA_MAX_PARAMETERS 10
 
-    llvm::Value* llvmParams[GLA_MAX_PARAMETERS];
+    gla::Builder::SuperValue llvmParams[GLA_MAX_PARAMETERS];
     ir_rvalue *param = NULL;
     int paramCount = 0;
 
@@ -580,7 +580,7 @@ ir_visitor_status
 
     } else {
 
-        llvm::Value* returnValue = 0;
+        gla::Builder::SuperValue returnValue;
 
         if(!strcmp(call->callee_name(), "mod")) {
             returnValue = expandGLSLOp(ir_binop_mod, llvmParams);
@@ -622,14 +622,14 @@ ir_visitor_status
     return visit_continue_with_parent;
 }
 
-llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, llvm::Value** llvmParams, int paramCount)
+llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, gla::Builder::SuperValue* llvmParams, int paramCount)
 {
     llvm::Function *intrinsicName = 0;
     gla::ETextureFlags texFlags = {0};
     llvm::Type* resultType = convertGLSLToLLVMType(call->type);
 
     #define GLA_MAX_PARAMETER 5
-    llvm::Value* outParams[GLA_MAX_PARAMETER];
+    gla::Builder::SuperValue outParams[GLA_MAX_PARAMETER];
     for(int i = 0; i < GLA_MAX_PARAMETER; i++)
         outParams[i] = llvmParams[i];
 
@@ -933,7 +933,7 @@ ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_if *ifNode)
 {
     // emit condition into current block
-    lastValue = 0;
+    lastValue.clear();
     ifNode->condition->accept(this);
     llvm::Value *condValue = lastValue;
     assert(condValue != 0);
@@ -985,7 +985,7 @@ ir_visitor_status
     builder.SetInsertPoint(MergeBB);
 
     // The glsl "value" of an if-else should never be taken (share code with "?:" though?)
-    lastValue = 0;
+    lastValue.clear();
 
     return visit_continue_with_parent;
 }
@@ -1122,7 +1122,7 @@ const char* GlslToTopVisitor::getSamplerDeclaration(ir_variable* var)
     return 0;
 }
 
-llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm::Value** operands)
+gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, gla::Builder::SuperValue* operands)
 {
     // Initialize result to pass through unsupported ops
     llvm::Value* result = operands[0];
@@ -1178,9 +1178,13 @@ llvm::Value* GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, llvm
         case llvm::Type::IntegerTyID:       return builder.CreateSub (operands[0], operands[1]);
         }
     case ir_binop_mul:
-        switch(getLLVMBaseType(operands[0])) {
-        case llvm::Type::FloatTyID:         return builder.CreateFMul(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return builder.CreateMul (operands[0], operands[1]);
+        if (operands[0].isMatrix() || operands[1].isMatrix())
+            return gla::Builder::createMatrixMultiply(builder, operands[0], operands[1]);
+        else {
+            switch(getLLVMBaseType(operands[0])) {
+            case llvm::Type::FloatTyID:         return builder.CreateFMul(operands[0], operands[1]);
+            case llvm::Type::IntegerTyID:       return builder.CreateMul (operands[0], operands[1]);
+            }
         }
     case ir_binop_div:
         switch(getLLVMBaseType(operands[0])) {
@@ -1439,7 +1443,7 @@ llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction4(llvm::Intrinsic::ID 
 }
 
 void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName, int &paramCount,
-                                                  llvm::Value** outParams, llvm::Value** llvmParams, llvm::Type* resultType,
+                                                  gla::Builder::SuperValue* outParams, gla::Builder::SuperValue* llvmParams, llvm::Type* resultType,
                                                   llvm::Intrinsic::ID intrinsicID, gla::ESamplerType samplerType, gla::ETextureFlags texFlags)
 {
     bool isBiased = texFlags.EBias;
@@ -1496,7 +1500,7 @@ llvm::Type::TypeID GlslToTopVisitor::getLLVMBaseType(const llvm::Type* type)
     }
 }
 
-void GlslToTopVisitor::findAndSmearScalars(llvm::Value** operands, int numOperands)
+void GlslToTopVisitor::findAndSmearScalars(gla::Builder::SuperValue* operands, int numOperands)
 {
     assert(numOperands == 2);
 
