@@ -228,6 +228,9 @@ ir_visitor_status
         if (isPipelineInput) {
             lastValue = createPipelineRead(var, 0);
         }
+        else if (GLSL_TYPE_ARRAY == var->type->base_type) {
+            // Just leave lastValue as a pointer to the array
+        }
         else if (var->mode != ir_var_in) {
             // Don't load inputs again... just use them
             lastValue = builder.CreateLoad(lastValue);
@@ -417,15 +420,33 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_dereference_array *ir)
 {
-    if(ir_var_in != ir->variable_referenced()->mode)
-        gla::UnsupportedFunctionality("non-pipeline array deref");
-    
-    if(0 == ir->array_index->constant_expression_value())
+    if (0 == ir->array_index->constant_expression_value())
         gla::UnsupportedFunctionality("non-constant array index");
 
-    int index = ir->array_index->constant_expression_value()->value.u[0];
+    std::string name;
+    llvm::Value* uniformPtr;
+    llvm::Value* indexPtr;
 
-    lastValue = createPipelineRead(ir->variable_referenced(), index);
+    const int index = ir->array_index->constant_expression_value()->value.u[0];
+
+    switch (ir->variable_referenced()->mode) {
+    case ir_var_in:
+        lastValue = createPipelineRead(ir->variable_referenced(), index);
+        break;
+    case ir_var_uniform:
+        // Traverse the array to get base address
+        ir->array->accept(this);
+        uniformPtr = lastValue;
+
+        // Offset to our index
+        indexPtr = builder.CreateConstGEP2_32(uniformPtr, 0, index);
+        name = ir->variable_referenced()->name;
+        appendArrayIndexToName(name, index);
+        lastValue = builder.CreateLoad(indexPtr, name);
+        break;
+    default:
+        gla::UnsupportedFunctionality("unsupported array dereference");
+    }
 
     // Array notes
     // Index will be tracked in lastValue...
@@ -1335,7 +1356,9 @@ llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
     case GLSL_TYPE_VOID:
         llvmVarType = (llvm::Type*)llvm::Type::getVoidTy(context);
         break;
-    case GLSL_TYPE_ARRAY:     gla::UnsupportedFunctionality("arrays");
+    case GLSL_TYPE_ARRAY:
+        llvmVarType = (llvm::Type*)llvm::ArrayType::get(convertGLSLToLLVMType(type->fields.array), type->array_size());
+        break;
     case GLSL_TYPE_STRUCT:    gla::UnsupportedFunctionality("structures");
     case GLSL_TYPE_ERROR:     assert(! "type error");
     default:
