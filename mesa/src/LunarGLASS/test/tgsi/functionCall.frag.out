@@ -16,18 +16,18 @@
 
 define void @main() {
 entry:
-  %foo_retval = alloca float
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
-  %foo_retval1 = call float @foo(<4 x float> %BaseColor)
-  store float %foo_retval1, float* %foo_retval
-  %0 = load float* %foo_retval
-  %1 = insertelement <4 x float> undef, float %0, i32 0
-  %2 = insertelement <4 x float> %1, float %0, i32 1
-  %3 = insertelement <4 x float> %2, float %0, i32 2
-  %gl_FragColor = insertelement <4 x float> %3, float %0, i32 3
+  %0 = extractelement <4 x float> %BaseColor, i32 0
+  %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  %1 = extractelement <4 x float> %BaseColor1, i32 1
+  %2 = fadd float %0, %1
+  %3 = insertelement <4 x float> undef, float %2, i32 0
+  %4 = insertelement <4 x float> %3, float %2, i32 1
+  %5 = insertelement <4 x float> %4, float %2, i32 2
+  %gl_FragColor = insertelement <4 x float> %5, float %2, i32 3
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  %4 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %4)
+  %6 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %6)
   ret void
 }
 
@@ -60,9 +60,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 define void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
-  %foo_retval1 = call float @foo(<4 x float> %BaseColor)
-  %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %foo_retval1, i32 -1, float %foo_retval1, i32 -1, float %foo_retval1, i32 -1, float %foo_retval1, i32 -1)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %0)
+  %0 = extractelement <4 x float> %BaseColor, i32 0
+  %1 = extractelement <4 x float> %BaseColor, i32 1
+  %2 = fadd float %0, %1
+  %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %2, i32 -1, float %2, i32 -1, float %2, i32 -1, float %2, i32 -1)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %3)
   ret void
 }
 
@@ -80,7 +82,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
-***Unsupported functionality: call, non-intrinsic in Bottom IR
+***Unsupported functionality: opcode in Bottom IR: 50
 compiling functionCall.frag...
 uniform vec4 bigColor ; 
 varying vec4 BaseColor ; 
@@ -173,10 +175,7 @@ vec4 color = vec4 ( foo ( BaseColor ) ) ; gl_FragColor = color ; }
     (parameters
     )
     (
-      (declare (temporary ) float foo_retval)
-      (assign (constant bool (1)) (x) (var_ref foo_retval)  (call foo ((var_ref BaseColor) ))
-) 
-      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (swiz xxxx (var_ref foo_retval) )) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (swiz xxxx (expression float + (swiz x (var_ref BaseColor) )(swiz y (var_ref BaseColor) )) )) 
     ))
 
 )

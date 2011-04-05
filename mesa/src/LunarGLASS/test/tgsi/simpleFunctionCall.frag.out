@@ -16,11 +16,8 @@
 
 define void @main() {
 entry:
-  %foo_retval = alloca <4 x float>
-  %foo_retval1 = call <4 x float> @foo()
-  store <4 x float> %foo_retval1, <4 x float>* %foo_retval
-  %gl_FragColor = load <4 x float>* %foo_retval
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  store <4 x float> %BaseColor, <4 x float>* @gl_FragColor
   %0 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %0)
   ret void
@@ -52,8 +49,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 define void @main() {
 entry:
-  %foo_retval1 = call <4 x float> @foo()
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %foo_retval1)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %BaseColor)
   ret void
 }
 
@@ -66,8 +63,9 @@ foo:
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
-
-***Unsupported functionality: call, non-intrinsic in Bottom IR
+# Fragment Program/Shader 0
+  0: MOV OUTPUT[2], TEMP[1];
+  1: END
 compiling simpleFunctionCall.frag...
 uniform vec4 bigColor ; 
 varying vec4 BaseColor ; 
@@ -159,13 +157,25 @@ gl_FragColor = foo ( ) ; }
     (parameters
     )
     (
-      (declare (temporary ) vec4 foo_retval)
-      (assign (constant bool (1)) (xyzw) (var_ref foo_retval)  (call foo ())
-) 
-      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref foo_retval) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref BaseColor) ) 
     ))
 
 )
 
 
 )
+Mesa program before mesa optimizations
+  0: MOV TEMP[1], INPUT[0];
+  1: MOV OUTPUT[0], TEMP[1];
+  2: END
+  3: MOV TEMP[3], INPUT[0];
+  4: END
+
+Mesa program after mesa optimizations
+  0: MOV OUTPUT[0], INPUT[0];
+  1: END
+  2: END
+
+===========================================
+
+Optimized Mesa IR without GLA for linked fragment program 0:

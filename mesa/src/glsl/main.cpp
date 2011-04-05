@@ -243,7 +243,7 @@ compile_shader(struct gl_context *ctx, struct gl_shader *shader)
      // These mimic the optimizations done in the real stack.  For reference, see
      // do_common_optimization() in glsl_parser_extras.cpp.
      //progress = lower_instructions(shader->ir, SUB_TO_ADD_NEG) || progress;
-	 //progress = do_function_inlining(shader->ir) || progress;
+	 progress = do_function_inlining(shader->ir) || progress;
 	 progress = do_if_simplification(shader->ir) || progress;
      progress = do_discard_simplification(shader->ir) || progress;
 	 progress = do_copy_propagation(shader->ir) || progress;

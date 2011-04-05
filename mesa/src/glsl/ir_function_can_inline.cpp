@@ -60,7 +60,13 @@ can_inline(ir_call *call)
 {
    ir_function_can_inline_visitor v;
    const ir_function_signature *callee = call->get_callee();
-   if (!callee->is_defined)
+
+   //
+   // LunarGLASS: added callee->is_builtin because inlining
+   // built-in functions breaks things numerous ways, at least
+   // in the stand alone environment.
+   //
+   if (!callee->is_defined || callee->is_builtin)
       return false;
 
    v.run((exec_list *) &callee->body);
