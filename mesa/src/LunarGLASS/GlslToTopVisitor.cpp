@@ -372,11 +372,7 @@ ir_visitor_status
         operands[i] = lastValue;
     }
 
-    // Check for operand width consistency
-    if(numOperands > 1)
-        findAndSmearScalars(operands, numOperands);
-
-    lastValue = expandGLSLOp(expression->operation, operands);
+    lastValue = expandGLSLOp(expression->operation, operands, numOperands);
 
     return visit_continue_with_parent;
 }
@@ -583,32 +579,32 @@ ir_visitor_status
         gla::Builder::SuperValue returnValue;
 
         if(!strcmp(call->callee_name(), "mod")) {
-            returnValue = expandGLSLOp(ir_binop_mod, llvmParams);
+            returnValue = expandGLSLOp(ir_binop_mod, llvmParams, paramCount);
         }
         else if(!strcmp(call->callee_name(), "mix")) {
             if(llvm::Type::IntegerTyID == getLLVMBaseType(llvmParams[0]))
                 returnValue = builder.CreateSelect(llvmParams[2], llvmParams[0], llvmParams[1]);
         }
         else if(!strcmp(call->callee_name(), "lessThan")) {
-            returnValue = expandGLSLOp(ir_binop_less, llvmParams);
+            returnValue = expandGLSLOp(ir_binop_less, llvmParams, paramCount);
         }
         else if(!strcmp(call->callee_name(), "lessThanEqual")) {
-            returnValue = expandGLSLOp(ir_binop_lequal, llvmParams);
+            returnValue = expandGLSLOp(ir_binop_lequal, llvmParams, paramCount);
         }
         else if(!strcmp(call->callee_name(), "greaterThan")) {
-            returnValue = expandGLSLOp(ir_binop_greater, llvmParams);
+            returnValue = expandGLSLOp(ir_binop_greater, llvmParams, paramCount);
         }
         else if(!strcmp(call->callee_name(), "greaterThanEqual")) {
-            returnValue = expandGLSLOp(ir_binop_gequal, llvmParams);
+            returnValue = expandGLSLOp(ir_binop_gequal, llvmParams, paramCount);
         }
         else if(!strcmp(call->callee_name(), "equal")) {
-            returnValue = expandGLSLOp(ir_binop_equal, llvmParams);
+            returnValue = expandGLSLOp(ir_binop_equal, llvmParams, paramCount);
         }
         else if(!strcmp(call->callee_name(), "notEqual")) {
-            returnValue = expandGLSLOp(ir_binop_nequal, llvmParams);
+            returnValue = expandGLSLOp(ir_binop_nequal, llvmParams, paramCount);
         }
         else if(!strcmp(call->callee_name(), "not")) {
-            returnValue = expandGLSLOp(ir_unop_logic_not, llvmParams);
+            returnValue = expandGLSLOp(ir_unop_logic_not, llvmParams, paramCount);
         }
 
         // If this call requires an intrinsic
@@ -1122,7 +1118,7 @@ const char* GlslToTopVisitor::getSamplerDeclaration(ir_variable* var)
     return 0;
 }
 
-gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, gla::Builder::SuperValue* operands)
+gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, gla::Builder::SuperValue* operands, int numOperands)
 {
     // Initialize result to pass through unsupported ops
     llvm::Value* result = operands[0];
@@ -1131,6 +1127,10 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
     const llvm::VectorType* vectorType;
 
     vectorType = llvm::dyn_cast<llvm::VectorType>(operands[0]->getType());
+
+    // Check for operand width consistency
+    if(numOperands > 1)
+        findAndSmearScalars(operands, numOperands);
 
     switch(glslOp) {
 
@@ -1500,6 +1500,30 @@ llvm::Type::TypeID GlslToTopVisitor::getLLVMBaseType(const llvm::Type* type)
     }
 }
 
+llvm::Value* GlslToTopVisitor::smearScalar(llvm::Value* scalarVal, const llvm::Type* vectorType)
+{
+    llvm::UndefValue::get(vectorType);
+
+    // Use a swizzle to expand the scalar to a vector
+    llvm::Intrinsic::ID intrinsicID;
+    llvm::Type::TypeID scalarType = getLLVMBaseType(scalarVal);
+    switch(scalarType) {
+    case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_swizzle;     break;
+    case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fSwizzle;    break;
+    }
+
+    llvm::Function *intrinsicName = getLLVMIntrinsicFunction2(intrinsicID, vectorType, scalarVal->getType());
+
+    // Broadcast x
+    int swizVal = 0;
+
+    llvm::CallInst *callInst = builder.CreateCall2 (intrinsicName,
+                                                    scalarVal,
+                                                    llvm::ConstantInt::get(context, llvm::APInt(32, swizVal, true)));
+
+    return callInst;
+}
+
 void GlslToTopVisitor::findAndSmearScalars(gla::Builder::SuperValue* operands, int numOperands)
 {
     assert(numOperands == 2);
@@ -1526,27 +1550,7 @@ void GlslToTopVisitor::findAndSmearScalars(gla::Builder::SuperValue* operands, i
     if( (vectorType[0] && vectorType[1]) || (!vectorType[0] && !vectorType[1]) )
         return;
 
-    operands[scalarIndex] = llvm::UndefValue::get(vectorType[vectorIndex]);
-
-    // Use a swizzle to expand the scalar to a vector
-    llvm::Intrinsic::ID intrinsicID;
-    llvm::Type::TypeID scalarType = getLLVMBaseType(scalarVal);
-    switch(scalarType) {
-    case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_swizzle;     break;
-    case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fSwizzle;    break;
-    }
-
-    llvm::Function *intrinsicName = getLLVMIntrinsicFunction2(intrinsicID, operands[vectorIndex]->getType(), scalarVal->getType());
-
-    // Broadcast x
-    int swizVal = 0;
-
-    llvm::CallInst *callInst = builder.CreateCall2 (intrinsicName,
-                                                    scalarVal,
-                                                    llvm::ConstantInt::get(context, llvm::APInt(32, swizVal, true)));
-
-    operands[scalarIndex] = callInst;
-
+    operands[scalarIndex] = smearScalar(scalarVal, operands[vectorIndex]->getType());
 }
 
 llvm::BasicBlock* GlslToTopVisitor::getShaderEntry()

@@ -98,10 +98,11 @@ public:
     // help functions to build LLVM
     llvm::Value* createLLVMVariable(ir_variable*);
     const char* getSamplerDeclaration(ir_variable*);
-    gla::Builder::SuperValue expandGLSLOp(ir_expression_operation, gla::Builder::SuperValue*);
+    gla::Builder::SuperValue expandGLSLOp(ir_expression_operation, gla::Builder::SuperValue*, int);
     llvm::Value* expandGLSLSwizzle(ir_swizzle*);
     llvm::Value* createLLVMIntrinsic(ir_call*, gla::Builder::SuperValue*, int);
     llvm::Value* createPipelineRead(ir_variable*, int);
+    llvm::Value* smearScalar(llvm::Value*, const llvm::Type*);
     llvm::Constant* createLLVMConstant(ir_constant*);
     llvm::Type*  convertGLSLToLLVMType(const glsl_type*);
     llvm::Function* getLLVMIntrinsicFunction1(llvm::Intrinsic::ID, const llvm::Type*);
