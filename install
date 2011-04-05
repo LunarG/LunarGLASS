@@ -31,10 +31,11 @@ Usage: ./install [options] [fetch|merge|build|all]
 function fetch {
     echo "Fetching ..."
     echo "Fetching Mesa"
-    rm -rf mesa || exit 1
+    rm -rf mesa MesaLib-7.10.1* || exit 1
     wget ftp://freedesktop.org/pub/mesa/7.10.1/MesaLib-7.10.1.tar.bz2 || exit 1
     tar -xjf MesaLib-7.10.1.tar.bz2 || exit 1
     mv Mesa-7.10.1 mesa || exit 1
+    rm MesaLib-7.10.1* || exit 1
     echo "Mesa fetched"
     echo
     echo "Fetching LLVM"
