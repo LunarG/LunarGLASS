@@ -1082,7 +1082,11 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
         } else
             name = var->name;
 
-        llvm::GlobalVariable* globalValue = new llvm::GlobalVariable(llvmVarType, constant, linkage,
+        //
+        // The GLSL2 front-end confusingly writes to constants, so we can't 
+        // actually declare the llvm variable to be a constant.
+        //
+        llvm::GlobalVariable* globalValue = new llvm::GlobalVariable(llvmVarType, false /* constant */, linkage,
                                          initializer, name, false /* ThreadLocal */, addressSpace);
         module->getGlobalList().push_back(globalValue);
         value = globalValue;
