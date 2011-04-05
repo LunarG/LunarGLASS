@@ -1,29 +1,29 @@
 ; ModuleID = 'Top'
 
-@gl_MaxLights = internal constant i32 8
-@gl_MaxClipPlanes = internal constant i32 8
-@gl_MaxTextureUnits = internal constant i32 2
-@gl_MaxTextureCoords = internal constant i32 4
-@gl_MaxVertexAttribs = internal constant i32 16
-@gl_MaxVertexUniformComponents = internal constant i32 512
-@gl_MaxVaryingFloats = internal constant i32 32
-@gl_MaxVertexTextureImageUnits = internal constant i32 0
-@gl_MaxCombinedTextureImageUnits = internal constant i32 2
-@gl_MaxTextureImageUnits = internal constant i32 2
-@gl_MaxFragmentUniformComponents = internal constant i32 64
-@gl_MaxDrawBuffers = internal constant i32 2
-@u_b = external addrspace(1) constant i1
-@u_b2 = external addrspace(1) constant <2 x i1>
-@u_b3 = external addrspace(1) constant <3 x i1>
-@u_b4 = external addrspace(1) constant <4 x i1>
-@u_i = external addrspace(1) constant i32
-@u_i2 = external addrspace(1) constant <2 x i32>
-@u_i3 = external addrspace(1) constant <3 x i32>
-@u_i4 = external addrspace(1) constant <4 x i32>
-@u_f = external addrspace(1) constant float
-@u_f2 = external addrspace(1) constant <2 x float>
-@u_f3 = external addrspace(1) constant <3 x float>
-@u_f4 = external addrspace(1) constant <4 x float>
+@gl_MaxLights = internal global i32 8
+@gl_MaxClipPlanes = internal global i32 8
+@gl_MaxTextureUnits = internal global i32 2
+@gl_MaxTextureCoords = internal global i32 4
+@gl_MaxVertexAttribs = internal global i32 16
+@gl_MaxVertexUniformComponents = internal global i32 512
+@gl_MaxVaryingFloats = internal global i32 32
+@gl_MaxVertexTextureImageUnits = internal global i32 0
+@gl_MaxCombinedTextureImageUnits = internal global i32 2
+@gl_MaxTextureImageUnits = internal global i32 2
+@gl_MaxFragmentUniformComponents = internal global i32 64
+@gl_MaxDrawBuffers = internal global i32 2
+@u_b = external addrspace(1) global i1
+@u_b2 = external addrspace(1) global <2 x i1>
+@u_b3 = external addrspace(1) global <3 x i1>
+@u_b4 = external addrspace(1) global <4 x i1>
+@u_i = external addrspace(1) global i32
+@u_i2 = external addrspace(1) global <2 x i32>
+@u_i3 = external addrspace(1) global <3 x i32>
+@u_i4 = external addrspace(1) global <4 x i32>
+@u_f = external addrspace(1) global float
+@u_f2 = external addrspace(1) global <2 x float>
+@u_f3 = external addrspace(1) global <3 x float>
+@u_f4 = external addrspace(1) global <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define void @main() {
@@ -572,30 +572,18 @@ declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
-@gl_MaxLights = internal constant i32 8
-@gl_MaxClipPlanes = internal constant i32 8
-@gl_MaxTextureUnits = internal constant i32 2
-@gl_MaxTextureCoords = internal constant i32 4
-@gl_MaxVertexAttribs = internal constant i32 16
-@gl_MaxVertexUniformComponents = internal constant i32 512
-@gl_MaxVaryingFloats = internal constant i32 32
-@gl_MaxVertexTextureImageUnits = internal constant i32 0
-@gl_MaxCombinedTextureImageUnits = internal constant i32 2
-@gl_MaxTextureImageUnits = internal constant i32 2
-@gl_MaxFragmentUniformComponents = internal constant i32 64
-@gl_MaxDrawBuffers = internal constant i32 2
-@u_b = external addrspace(1) constant i1
-@u_b2 = external addrspace(1) constant <2 x i1>
-@u_b3 = external addrspace(1) constant <3 x i1>
-@u_b4 = external addrspace(1) constant <4 x i1>
-@u_i = external addrspace(1) constant i32
-@u_i2 = external addrspace(1) constant <2 x i32>
-@u_i3 = external addrspace(1) constant <3 x i32>
-@u_i4 = external addrspace(1) constant <4 x i32>
-@u_f = external addrspace(1) constant float
-@u_f2 = external addrspace(1) constant <2 x float>
-@u_f3 = external addrspace(1) constant <3 x float>
-@u_f4 = external addrspace(1) constant <4 x float>
+@u_b = external addrspace(1) global i1
+@u_b2 = external addrspace(1) global <2 x i1>
+@u_b3 = external addrspace(1) global <3 x i1>
+@u_b4 = external addrspace(1) global <4 x i1>
+@u_i = external addrspace(1) global i32
+@u_i2 = external addrspace(1) global <2 x i32>
+@u_i3 = external addrspace(1) global <3 x i32>
+@u_i4 = external addrspace(1) global <4 x i32>
+@u_f = external addrspace(1) global float
+@u_f2 = external addrspace(1) global <2 x float>
+@u_f3 = external addrspace(1) global <3 x float>
+@u_f4 = external addrspace(1) global <4 x float>
 
 define void @main() {
 entry:

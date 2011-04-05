@@ -1,23 +1,23 @@
 ; ModuleID = 'Top'
 
-@gl_MaxLights = internal constant i32 8
-@gl_MaxClipPlanes = internal constant i32 8
-@gl_MaxTextureUnits = internal constant i32 2
-@gl_MaxTextureCoords = internal constant i32 4
-@gl_MaxVertexAttribs = internal constant i32 16
-@gl_MaxVertexUniformComponents = internal constant i32 512
-@gl_MaxVaryingFloats = internal constant i32 32
-@gl_MaxVertexTextureImageUnits = internal constant i32 0
-@gl_MaxCombinedTextureImageUnits = internal constant i32 2
-@gl_MaxTextureImageUnits = internal constant i32 2
-@gl_MaxFragmentUniformComponents = internal constant i32 64
-@gl_MaxDrawBuffers = internal constant i32 2
-@uv4 = external addrspace(1) constant <4 x float>
-@ub = external addrspace(1) constant i1
-@uf = external addrspace(1) constant float
-@ui = external addrspace(1) constant i32
-@ub41 = external addrspace(1) constant <4 x i1>
-@ub42 = external addrspace(1) constant <4 x i1>
+@gl_MaxLights = internal global i32 8
+@gl_MaxClipPlanes = internal global i32 8
+@gl_MaxTextureUnits = internal global i32 2
+@gl_MaxTextureCoords = internal global i32 4
+@gl_MaxVertexAttribs = internal global i32 16
+@gl_MaxVertexUniformComponents = internal global i32 512
+@gl_MaxVaryingFloats = internal global i32 32
+@gl_MaxVertexTextureImageUnits = internal global i32 0
+@gl_MaxCombinedTextureImageUnits = internal global i32 2
+@gl_MaxTextureImageUnits = internal global i32 2
+@gl_MaxFragmentUniformComponents = internal global i32 64
+@gl_MaxDrawBuffers = internal global i32 2
+@uv4 = external addrspace(1) global <4 x float>
+@ub = external addrspace(1) global i1
+@uf = external addrspace(1) global float
+@ui = external addrspace(1) global i32
+@ub41 = external addrspace(1) global <4 x i1>
+@ub42 = external addrspace(1) global <4 x i1>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define void @main() {
@@ -1036,24 +1036,12 @@ declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>)
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
-@gl_MaxLights = internal constant i32 8
-@gl_MaxClipPlanes = internal constant i32 8
-@gl_MaxTextureUnits = internal constant i32 2
-@gl_MaxTextureCoords = internal constant i32 4
-@gl_MaxVertexAttribs = internal constant i32 16
-@gl_MaxVertexUniformComponents = internal constant i32 512
-@gl_MaxVaryingFloats = internal constant i32 32
-@gl_MaxVertexTextureImageUnits = internal constant i32 0
-@gl_MaxCombinedTextureImageUnits = internal constant i32 2
-@gl_MaxTextureImageUnits = internal constant i32 2
-@gl_MaxFragmentUniformComponents = internal constant i32 64
-@gl_MaxDrawBuffers = internal constant i32 2
-@uv4 = external addrspace(1) constant <4 x float>
-@ub = external addrspace(1) constant i1
-@uf = external addrspace(1) constant float
-@ui = external addrspace(1) constant i32
-@ub41 = external addrspace(1) constant <4 x i1>
-@ub42 = external addrspace(1) constant <4 x i1>
+@uv4 = external addrspace(1) global <4 x float>
+@ub = external addrspace(1) global i1
+@uf = external addrspace(1) global float
+@ui = external addrspace(1) global i32
+@ub41 = external addrspace(1) global <4 x i1>
+@ub42 = external addrspace(1) global <4 x i1>
 
 define void @main() {
 entry:
