@@ -12,6 +12,6 @@ USAGE="\
 Usage: ./release
 "
 
-TMP=`tempfile`
+TMP=`mktemp`
 wget http://lunarglass.googlecode.com/svn/trunk/LastKnownGood -O $TMP || exit 1
 ./install --version=`cat $TMP` all || exit 1
