@@ -117,8 +117,8 @@ StandAlone_CFLAGS := \
 StandAlone_CXXFLAGS := \
 	$(shell $(LLVM)/bin/llvm-config --cxxflags) \
 	-Wall -U NDEBUG -g -O0 -Wno-overloaded-virtual \
-	-Wno-sign-compare -Wno-switch -Wno-cast-qual \
-	-D GLA_REVISION=\"$(shell svnversion)\"
+	-Wno-sign-compare -Wno-switch -Wno-cast-qual
+#	-D GLA_REVISION=\"$(shell svnversion)\"
 
 StandAlone_LDFLAGS := \
 	$(shell $(LLVM)/bin/llvm-config --ldflags)
@@ -133,6 +133,7 @@ StandAlone: $(StandAlone_OBJECTS)
 		$(StandAlone_OBJECTS) $(StandAlone_LIBS)
 
 .c.o:
+	cat ../LunarGLASS/RevisionPrefix ../../../LastKnownGood > ../LunarGLASS/Revision.h
 	$(CC) -c -o $@ $(StandAlone_CPPFLAGS) $(StandAlone_CFLAGS) \
 		-Dtrue=1 -Dfalse=0 -Dbool=char $(CPPFLAGS) $(CFLAGS) $<
 
