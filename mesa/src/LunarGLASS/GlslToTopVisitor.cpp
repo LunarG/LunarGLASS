@@ -372,7 +372,7 @@ ir_visitor_status
         operands[i] = lastValue;
     }
 
-    lastValue = expandGLSLOp(expression->operation, operands, numOperands);
+    lastValue = expandGLSLOp(expression->operation, operands);
 
     return visit_continue_with_parent;
 }
@@ -579,32 +579,32 @@ ir_visitor_status
         gla::Builder::SuperValue returnValue;
 
         if(!strcmp(call->callee_name(), "mod")) {
-            returnValue = expandGLSLOp(ir_binop_mod, llvmParams, paramCount);
+            returnValue = expandGLSLOp(ir_binop_mod, llvmParams);
         }
         else if(!strcmp(call->callee_name(), "mix")) {
             if(llvm::Type::IntegerTyID == getLLVMBaseType(llvmParams[0]))
                 returnValue = builder.CreateSelect(llvmParams[2], llvmParams[0], llvmParams[1]);
         }
         else if(!strcmp(call->callee_name(), "lessThan")) {
-            returnValue = expandGLSLOp(ir_binop_less, llvmParams, paramCount);
+            returnValue = expandGLSLOp(ir_binop_less, llvmParams);
         }
         else if(!strcmp(call->callee_name(), "lessThanEqual")) {
-            returnValue = expandGLSLOp(ir_binop_lequal, llvmParams, paramCount);
+            returnValue = expandGLSLOp(ir_binop_lequal, llvmParams);
         }
         else if(!strcmp(call->callee_name(), "greaterThan")) {
-            returnValue = expandGLSLOp(ir_binop_greater, llvmParams, paramCount);
+            returnValue = expandGLSLOp(ir_binop_greater, llvmParams);
         }
         else if(!strcmp(call->callee_name(), "greaterThanEqual")) {
-            returnValue = expandGLSLOp(ir_binop_gequal, llvmParams, paramCount);
+            returnValue = expandGLSLOp(ir_binop_gequal, llvmParams);
         }
         else if(!strcmp(call->callee_name(), "equal")) {
-            returnValue = expandGLSLOp(ir_binop_equal, llvmParams, paramCount);
+            returnValue = expandGLSLOp(ir_binop_equal, llvmParams);
         }
         else if(!strcmp(call->callee_name(), "notEqual")) {
-            returnValue = expandGLSLOp(ir_binop_nequal, llvmParams, paramCount);
+            returnValue = expandGLSLOp(ir_binop_nequal, llvmParams);
         }
         else if(!strcmp(call->callee_name(), "not")) {
-            returnValue = expandGLSLOp(ir_unop_logic_not, llvmParams, paramCount);
+            returnValue = expandGLSLOp(ir_unop_logic_not, llvmParams);
         }
 
         // If this call requires an intrinsic
@@ -1122,7 +1122,7 @@ const char* GlslToTopVisitor::getSamplerDeclaration(ir_variable* var)
     return 0;
 }
 
-gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, gla::Builder::SuperValue* operands, int numOperands)
+gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, gla::Builder::SuperValue* operands)
 {
     // Initialize result to pass through unsupported ops
     llvm::Value* result = operands[0];
@@ -1131,10 +1131,6 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
     const llvm::VectorType* vectorType;
 
     vectorType = llvm::dyn_cast<llvm::VectorType>(operands[0]->getType());
-
-    // Check for operand width consistency
-    if(numOperands > 1)
-        findAndSmearScalars(operands, numOperands);
 
     switch(glslOp) {
 
@@ -1172,11 +1168,13 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
         case llvm::Type::IntegerTyID:       return builder.CreateNeg (operands[0]);
         }
     case ir_binop_add:
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFAdd(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateAdd (operands[0], operands[1]);
         }
     case ir_binop_sub:
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFSub(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateSub (operands[0], operands[1]);
@@ -1185,53 +1183,72 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
         if (operands[0].isMatrix() || operands[1].isMatrix())
             return gla::Builder::createMatrixMultiply(builder, operands[0], operands[1]);
         else {
+            findAndSmearScalars(operands, 2);
             switch(getLLVMBaseType(operands[0])) {
             case llvm::Type::FloatTyID:         return builder.CreateFMul(operands[0], operands[1]);
             case llvm::Type::IntegerTyID:       return builder.CreateMul (operands[0], operands[1]);
             }
         }
     case ir_binop_div:
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFDiv(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateSDiv(operands[0], operands[1]);
         }
     case ir_binop_less:
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpOLT(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpSLT(operands[0], operands[1]);
         }
     case ir_binop_greater:
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpOGT(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpSGT(operands[0], operands[1]);
         }
     case ir_binop_lequal:
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpOLE(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpSLE(operands[0], operands[1]);
         }
     case ir_binop_gequal:
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpOGE(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpSGE(operands[0], operands[1]);
         }
     case ir_binop_equal:
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpOEQ(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpEQ (operands[0], operands[1]);
         }
     case ir_binop_nequal:
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpONE(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpNE (operands[0], operands[1]);
         }
 
-    case ir_binop_lshift:                   return builder.CreateShl (operands[0], operands[1]);
-    case ir_binop_rshift:                   return builder.CreateLShr(operands[0], operands[1]);
-    case ir_binop_bit_and:                  return builder.CreateAnd (operands[0], operands[1]);
-    case ir_binop_bit_or:                   return builder.CreateOr  (operands[0], operands[1]);
+    case ir_binop_lshift:
+        findAndSmearScalars(operands, 2);
+        return builder.CreateShl (operands[0], operands[1]);
+    case ir_binop_rshift:
+        findAndSmearScalars(operands, 2);
+        return builder.CreateLShr(operands[0], operands[1]);
+    case ir_binop_bit_and:
+        findAndSmearScalars(operands, 2);
+        return builder.CreateAnd (operands[0], operands[1]);
+    case ir_binop_bit_or:
+        findAndSmearScalars(operands, 2);
+        return builder.CreateOr  (operands[0], operands[1]);
     case ir_binop_logic_xor:
-    case ir_binop_bit_xor:                  return builder.CreateXor (operands[0], operands[1]);
+    case ir_binop_bit_xor:
+        findAndSmearScalars(operands, 2);
+        return builder.CreateXor (operands[0], operands[1]);
+
     case ir_unop_logic_not:
     case ir_unop_bit_not:                   return builder.CreateNot (operands[0]);
 
@@ -1243,6 +1260,7 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
         break;
 
     case ir_binop_mod:
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFRem(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateSRem(operands[0], operands[1]);
@@ -1250,6 +1268,7 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
     case ir_binop_all_equal:
         // Returns single boolean for whether all components of operands[0] equal the
         // components of operands[1]
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         result = builder.CreateFCmpOEQ(operands[0], operands[1]);  break;
         case llvm::Type::IntegerTyID:       result = builder.CreateICmpEQ (operands[0], operands[1]);  break;
@@ -1260,6 +1279,7 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
     case ir_binop_any_nequal:
         // Returns single boolean for whether any component of operands[0] is
         // not equal to the corresponding component of operands[1].
+        findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
         case llvm::Type::FloatTyID:         result = builder.CreateFCmpONE(operands[0], operands[1]);  break;
         case llvm::Type::IntegerTyID:       result = builder.CreateICmpNE (operands[0], operands[1]);  break;

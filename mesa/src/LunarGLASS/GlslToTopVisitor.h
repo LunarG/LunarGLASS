@@ -98,7 +98,7 @@ public:
     // help functions to build LLVM
     llvm::Value* createLLVMVariable(ir_variable*);
     const char* getSamplerDeclaration(ir_variable*);
-    gla::Builder::SuperValue expandGLSLOp(ir_expression_operation, gla::Builder::SuperValue*, int);
+    gla::Builder::SuperValue expandGLSLOp(ir_expression_operation, gla::Builder::SuperValue*);
     llvm::Value* expandGLSLSwizzle(ir_swizzle*);
     llvm::Value* createLLVMIntrinsic(ir_call*, gla::Builder::SuperValue*, int);
     llvm::Value* createPipelineRead(ir_variable*, int);
