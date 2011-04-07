@@ -132,8 +132,10 @@ StandAlone: $(StandAlone_OBJECTS)
 	$(CXX) -o $@ $(StandAlone_LDFLAGS) $(LDFLAGS) \
 		$(StandAlone_OBJECTS) $(StandAlone_LIBS)
 
-.c.o:
+../LunarGLASS/Revision.h: ../LunarGLASS/RevisionPrefix ../../../LastKnownGood
 	cat ../LunarGLASS/RevisionPrefix ../../../LastKnownGood > ../LunarGLASS/Revision.h
+
+.c.o:
 	$(CC) -c -o $@ $(StandAlone_CPPFLAGS) $(StandAlone_CFLAGS) \
 		-Dtrue=1 -Dfalse=0 -Dbool=char $(CPPFLAGS) $(CFLAGS) $<
 
