@@ -50,6 +50,7 @@
 
 // LunarGLASS Passes
 #include "Passes/Transforms/CoalesceInserts/CoalesceInserts.h"
+#include "Passes/Transforms/CanonicalizeCFG/CanonicalizeCFG.h"
 
 void gla::PrivateManager::translateTopToBottom()
 {
@@ -91,8 +92,11 @@ void gla::PrivateManager::runLLVMOptimizations1()
     if (Options.optimizations.reassociate) passManager.add(llvm::createReassociatePass());
     if (Options.optimizations.gvn)         passManager.add(llvm::createGVNPass());
     if (Options.optimizations.coalesce)    passManager.add(llvm::createCoalesceInsertsPass());
+    // passManager.add(llvm::createInstructionCombiningPass());
+    // passManager.add(llvm::createSinkingPass());
+    // passManager.add(llvm::createSCCPPass());
+    // passManager.add(llvm::createCFGSimplificationPass());
     if (Options.optimizations.adce)        passManager.add(llvm::createAggressiveDCEPass());
-    //    passManager.add(llvm::createCFGSimplificationPass());
     if (Options.optimizations.verify)      passManager.add(llvm::createVerifierPass());
     llvm::Module::iterator function, lastFunction;
 
@@ -133,4 +137,8 @@ void gla::PrivateManager::runLLVMOptimizations1()
         }
         memoryPassManager.doFinalization();
     }
+
+    llvm::PassManager canonicalize;
+    canonicalize.add(llvm::createCanonicalizeCFGPass());
+    canonicalize.run(*module);
 }

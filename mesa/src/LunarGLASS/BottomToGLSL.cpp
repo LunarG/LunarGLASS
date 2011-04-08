@@ -190,11 +190,15 @@ public:
         shader << ";";
     }
 
-    void addIf(const llvm::Value* cond)
+    void addIf(const llvm::Value* cond, bool invert=false)
     {
         newLine();
         shader << "if (";
+
+        if (invert)
+            shader << "! ";
         emitGlaOperand(cond);
+
         shader << ") ";
         newScope();
     }

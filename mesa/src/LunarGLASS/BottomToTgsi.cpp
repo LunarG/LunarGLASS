@@ -135,8 +135,11 @@ public:
     // Motivated by need to convert to structured flow control and
     // eliminate phi functions.
     //
-    void addIf(const llvm::Value* cond)
+    void addIf(const llvm::Value* cond, bool invert=false)
     {
+        if (invert)
+            UnsupportedFunctionality("condition inversion");
+
         mesaInstruction->Opcode = OPCODE_IF;
         assert(_mesa_num_inst_src_regs(OPCODE_IF) == 1);
         mapGlaOperand(cond, &mesaInstruction->SrcReg[0]);

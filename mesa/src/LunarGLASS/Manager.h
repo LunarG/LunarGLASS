@@ -64,7 +64,7 @@ namespace gla {
         virtual void addPhiCopy(const llvm::Value* dst, const llvm::Value* src) = 0;
 
         // Called to build structured flow control.
-        virtual void addIf(const llvm::Value* cond) = 0;
+        virtual void addIf(const llvm::Value* cond, bool invert=false) = 0;
         virtual void addElse() = 0;
         virtual void addEndif() = 0;
 

@@ -37,6 +37,14 @@
 #include "llvm/Support/IRBuilder.h"
 #include "llvm/IntrinsicInst.h"
 
+// Forward decls
+namespace llvm {
+    class BasicBlock;
+    class Loop;
+    class PostDominatorTree;
+    class DominanceFrontier;
+} // end namespace llvm
+
 namespace gla {
 
     //
@@ -192,6 +200,12 @@ namespace gla {
         {
             return name.length() < 2 || (name[1] >= '0' && name[1] <= '9');
         }
+
+        // Return the single merge point of the given conditional basic block. Returns
+        // null if there is no merge point, or if there are more than 1 merge
+        // points. Note that the presense of backedges or exitedges in the then and else
+        // branchs' subgraphs may cause there to be multiple potential merge points.
+        static llvm::BasicBlock* getSingleMergePoint(const llvm::BasicBlock* condBB, llvm::DominanceFrontier& domFront);
     };
 };
 

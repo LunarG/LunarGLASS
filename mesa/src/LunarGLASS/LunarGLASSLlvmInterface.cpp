@@ -26,11 +26,22 @@
 //
 // Author: John Kessenich, LunarG
 // Author: Cody Northrop, LunarG
+// Author: Michael Ilseman, LunarG
 //
 //===----------------------------------------------------------------------===//
 
 #include "Exceptions.h"
 #include "LunarGLASSLlvmInterface.h"
+
+// LLVM includes
+#include "llvm/BasicBlock.h"
+#include "llvm/Instructions.h"
+#include "llvm/Analysis/LoopInfo.h"
+#include "llvm/Analysis/Dominators.h"
+#include "llvm/Analysis/PostDominators.h"
+#include "llvm/ADT/SmallPtrSet.h"
+#include "llvm/ADT/SmallVector.h"
+#include "llvm/Support/CFG.h"
 
 namespace gla {
 
@@ -300,5 +311,42 @@ bool Util::hasAllSet(const llvm::Value* value)
         return true;
     }
 }
+
+// Return the single merge point of the given conditional basic block. Returns
+// null if there is no merge point, or if there are more than 1 merge
+// points. Note that the presense of backedges or exitedges in the then and else
+// branchs' subgraphs may cause there to be multiple potential merge points.
+llvm::BasicBlock* Util::getSingleMergePoint(const llvm::BasicBlock* condBB, llvm::DominanceFrontier& domFront)
+{
+    const llvm::BranchInst* branchInst = llvm::dyn_cast<llvm::BranchInst>(condBB->getTerminator());
+    assert(branchInst && branchInst->getNumSuccessors() == 2 && "writeMergePoints called with improper terminator");
+
+    llvm::BasicBlock* left  = branchInst->getSuccessor(0);
+    llvm::BasicBlock* right = branchInst->getSuccessor(1);
+
+    llvm::DominanceFrontier::DomSetType leftDomFront  = (*domFront.find(left)).second;
+    llvm::DominanceFrontier::DomSetType rightDomFront = (*domFront.find(right)).second;
+
+    bool isLeft  = rightDomFront.count(left);
+    bool isRight = leftDomFront.count(right);
+    assert(!(isLeft && isRight) && "Noncanonical control flow: cross edges");
+
+    if (isLeft)
+        return left;
+    if (isRight)
+        return right;
+
+    std::vector<llvm::BasicBlock*> merges;
+    merges.reserve(leftDomFront.size() + rightDomFront.size());
+
+    std::vector<llvm::BasicBlock*>::iterator it = std::set_intersection(leftDomFront.begin(), leftDomFront.end(), rightDomFront.begin(), rightDomFront.end(), merges.begin());
+
+    // If we got no merge points, or if we got multiple merge points, return null
+    if (it == merges.begin() || it != ++merges.begin())
+        return NULL;
+
+    return merges[0];
+}
+
 
 }; // end gla namespace

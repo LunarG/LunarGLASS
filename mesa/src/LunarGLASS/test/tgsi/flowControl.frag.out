@@ -96,16 +96,16 @@ declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 # Fragment Program/Shader 0
-  0: MOV TEMP[0], TEMP[1];
-  1: SGT TEMP[2].x, TEMP[3].xxxx, UNIFORM[3].xxxx;
-  2: IF TEMP[2].xxxx;  # (if false, goto 5);
-  3:    ADD TEMP[2], TEMP[1], UNIFORM[2];
-  4:    MOV TEMP[0], TEMP[2];
+  0: MOV TEMP[1], TEMP[0];
+  1: SGT TEMP[3].x, TEMP[2].xxxx, UNIFORM[3].xxxx;
+  2: IF TEMP[3].xxxx;  # (if false, goto 5);
+  3:    ADD TEMP[2], TEMP[0], UNIFORM[2];
+  4:    MOV TEMP[1], TEMP[2];
   5: ELSE; # (goto 8)
-  6:    ADD TEMP[1], TEMP[0], UNIFORM[1];
-  7:    MOV TEMP[0], TEMP[1];
+  6:    ADD TEMP[0], TEMP[1], UNIFORM[1];
+  7:    MOV TEMP[1], TEMP[0];
   8: ENDIF;
-  9: MUL OUTPUT[2], TEMP[0], UNIFORM[0];
+  9: MUL OUTPUT[2], TEMP[1], UNIFORM[0];
  10: END
 compiling flowControl.frag...
 uniform float d ; 
@@ -226,13 +226,13 @@ Mesa program before mesa optimizations
  16: END
 
 Mesa program after mesa optimizations
-  0: MOV TEMP[0], INPUT[0];
+  0: MOV TEMP[1], INPUT[0];
   1: SGT TEMP[2].x, INPUT[1].xxxx, UNIFORM[1].xxxx;
   2: IF TEMP[2].xxxx;  # (if false, goto 0);
-  3:    ADD TEMP[2], TEMP[0], UNIFORM[2];
+  3:    ADD TEMP[2], TEMP[1], UNIFORM[2];
   4:    MOV TEMP[3], TEMP[2];
   5: ELSE; # (goto 0)
-  6:    ADD TEMP[2], TEMP[0], UNIFORM[3];
+  6:    ADD TEMP[2], TEMP[1], UNIFORM[3];
   7:    MOV TEMP[3], TEMP[2];
   8: ENDIF;
   9: MUL OUTPUT[0], TEMP[3], UNIFORM[4];
