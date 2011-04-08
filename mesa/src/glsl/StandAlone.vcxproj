@@ -90,7 +90,9 @@
     <ClInclude Include="..\LunarGLASS\LunarGLASSTopIR.h" />
     <ClInclude Include="..\LunarGLASS\Manager.h" />
     <ClInclude Include="..\LunarGLASS\OptionParse.h" />
-    <ClInclude Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts\CoalesceInserts.h" />
+    <ClInclude Include="..\LunarGLASS\Passes\Analysis\IdentifyConditionals.h" />
+    <ClInclude Include="..\LunarGLASS\Passes\Transforms\CanonicalizeCFG.h" />
+    <ClInclude Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts.h" />
     <ClInclude Include="..\LunarGLASS\Revision.h" />
     <ClInclude Include="..\LunarGLASS\TGSITarget.h" />
     <ClInclude Include="..\mesa\program\ir_to_mesa.h" />
@@ -129,7 +131,9 @@
     <ClCompile Include="..\LunarGLASS\LunarGLASSBottomIR.cpp" />
     <ClCompile Include="..\LunarGLASS\LunarGLASSLlvmInterface.cpp" />
     <ClCompile Include="..\LunarGLASS\Options.cpp" />
-    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts\CoalesceInserts.cpp" />
+    <ClCompile Include="..\LunarGLASS\Passes\Analysis\IdentifyConditionals.cpp" />
+    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeCFG.cpp" />
+    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts.cpp" />
     <ClCompile Include="..\LunarGLASS\TopToBottom.cpp" />
     <ClCompile Include="..\mesa\program\ir_to_mesa.cpp" />
     <ClCompile Include="..\mesa\program\prog_print.c" />

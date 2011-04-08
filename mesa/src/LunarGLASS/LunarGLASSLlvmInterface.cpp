@@ -337,7 +337,7 @@ llvm::BasicBlock* Util::getSingleMergePoint(const llvm::BasicBlock* condBB, llvm
         return right;
 
     std::vector<llvm::BasicBlock*> merges;
-    merges.reserve(leftDomFront.size() + rightDomFront.size());
+    merges.resize(leftDomFront.size() + rightDomFront.size());
 
     std::vector<llvm::BasicBlock*>::iterator it = std::set_intersection(leftDomFront.begin(), leftDomFront.end(), rightDomFront.begin(), rightDomFront.end(), merges.begin());
 

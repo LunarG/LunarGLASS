@@ -49,8 +49,8 @@
 #include "Options.h"
 
 // LunarGLASS Passes
-#include "Passes/Transforms/CoalesceInserts/CoalesceInserts.h"
-#include "Passes/Transforms/CanonicalizeCFG/CanonicalizeCFG.h"
+#include "Passes/Transforms/CoalesceInserts.h"
+#include "Passes/Transforms/CanonicalizeCFG.h"
 
 void gla::PrivateManager::translateTopToBottom()
 {

@@ -41,7 +41,7 @@
 namespace llvm {
     class BasicBlock;
     class Loop;
-    class PostDominatorTree;
+    struct PostDominatorTree;
     class DominanceFrontier;
 } // end namespace llvm
 

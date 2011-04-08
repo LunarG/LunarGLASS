@@ -90,7 +90,7 @@
 #include "Manager.h"
 
 // LunarGLASS Passes
-#include "Passes/Analysis/IdentifyConditionals/IdentifyConditionals.h"
+#include "Passes/Analysis/IdentifyConditionals.h"
 
 
 namespace {
