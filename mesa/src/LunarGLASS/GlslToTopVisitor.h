@@ -43,6 +43,7 @@
 #include <map>
 #include <list>
 #include <vector>
+#include <stack>
 
 #include "ir.h"
 #include "ir_hierarchical_visitor.h"
@@ -120,7 +121,7 @@ public:
 
     int getNextInterpIndex(std::string);
 
-protected:    
+protected:
     llvm::BasicBlock* getShaderEntry();
 
     llvm::LLVMContext &context;
@@ -141,6 +142,13 @@ protected:
     int interpIndex;
     bool inMain;
     bool localScope;
+
+    // Stack of the header blocks of loops, so that 'continue' knows where to
+    // go.
+    std::stack<llvm::BasicBlock*> headerStack;
+
+    // Stack of the exit blocks of loops, so that 'break' knows where to go.
+    std::stack<llvm::BasicBlock*> exitStack;
 
     llvm::BasicBlock* shaderEntry;
 };

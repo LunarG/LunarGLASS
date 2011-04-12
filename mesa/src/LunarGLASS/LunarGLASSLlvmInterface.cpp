@@ -312,6 +312,37 @@ bool Util::hasAllSet(const llvm::Value* value)
     }
 }
 
+// true if provided basic block is one of the (possibly many) latches in the provided loop
+bool Util::isLatch(const llvm::BasicBlock* bb, llvm::Loop* loop)
+{
+    if (!loop)
+        return false;
+
+    llvm::BasicBlock* header = loop->getHeader();
+    for (llvm::succ_const_iterator sI = succ_begin(bb), sE = succ_end(bb); sI != sE; ++sI) {
+        if (*sI == header)
+            return true;
+    }
+
+    return false;
+}
+
+// Return the number of latches in a loop
+int Util::getNumLatches(llvm::Loop* loop)
+{
+    if (!loop)
+        return 0;
+
+    int count = 0;
+    for (llvm::Loop::block_iterator bbI = loop->block_begin(), bbE = loop->block_end(); bbI != bbE; ++bbI) {
+        if (isLatch(*bbI, loop)) {
+            count++;
+        }
+    }
+
+    return count;
+}
+
 // Return the single merge point of the given conditional basic block. Returns
 // null if there is no merge point, or if there are more than 1 merge
 // points. Note that the presense of backedges or exitedges in the then and else

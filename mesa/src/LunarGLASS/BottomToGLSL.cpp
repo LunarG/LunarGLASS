@@ -197,8 +197,8 @@ public:
 
         if (invert)
             shader << "! ";
-        emitGlaOperand(cond);
 
+        emitGlaOperand(cond);
         shader << ") ";
         newScope();
     }
@@ -213,6 +213,53 @@ public:
     void addEndif()
     {
         leaveScope();
+    }
+
+    void beginConditionalLoop()
+    {
+        UnsupportedFunctionality("conditional loops");
+    }
+
+    void beginInductiveLoop()
+    {
+        UnsupportedFunctionality("inductive loops");
+    }
+
+    void beginLoop()
+    {
+        newLine();
+        shader << "while (true) ";
+
+        newScope();
+    }
+
+    void endLoop()
+    {
+        leaveScope();
+    }
+
+    void addLoopExit(const llvm::Value* condition=NULL, bool invert=false)
+    {
+        if (condition)
+            addIf(condition, invert);
+
+        newLine();
+        shader << "break;";
+
+        if (condition)
+            addEndif();
+    }
+
+    void addLoopBack(const llvm::Value* condition=NULL, bool invert=false)
+    {
+        if (condition)
+            addIf(condition, invert);
+
+        newLine();
+        shader << "continue;";
+
+        if (condition)
+            addEndif();
     }
 
     void print();

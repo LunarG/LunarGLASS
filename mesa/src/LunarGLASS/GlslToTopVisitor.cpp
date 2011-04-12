@@ -162,9 +162,26 @@ llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
 ir_visitor_status
     GlslToTopVisitor::visit(ir_loop_jump *ir)
 {
-    gla::UnsupportedFunctionality("Loops (loop jump found)");
+    // Create a block for the parent to continue inserting stuff into (e.g. this
+    // break/continue is inside an if-then-else)
+    llvm::Function *function = builder.GetInsertBlock()->getParent();
+    llvm::BasicBlock* postLoopJump = llvm::BasicBlock::Create(context, "post-loopjump", function);
 
-    return visit_continue;
+    if (ir->is_break()) {
+        builder.CreateBr(exitStack.top());
+    }
+
+    if (ir->is_continue()) {
+        builder.CreateBr(headerStack.top());
+    }
+
+    builder.SetInsertPoint(postLoopJump);
+
+    lastValue.clear();
+
+    // Continue on with the parent (any further statements discarded)
+    return visit_continue_with_parent;
+
 }
 
 int GlslToTopVisitor::getNextInterpIndex(std::string name)
@@ -243,9 +260,46 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_loop *ir)
 {
-    gla::UnsupportedFunctionality("Loops");
+    llvm::Function* function = builder.GetInsertBlock()->getParent();
 
-    return visit_continue;
+    llvm::BasicBlock* headerBB = llvm::BasicBlock::Create(context, "loop-header", function);
+    llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "loop-merge");
+
+    // Push the blocks onto the stacks, so that breaks/continues inside the loop
+    // know where to go
+    exitStack.push(mergeBB);
+    headerStack.push(headerBB);
+
+    // It seems like the AST we get from GLSL does not have anything in the loop
+    // filled in except it's body. Assert on these assumptions
+    assert(!ir->from && "Loop has from field set");
+    assert(!ir->to && "Loop has from field set");
+    assert(!ir->increment && "Loop has from field set");
+
+    // Branch into the loop
+    builder.CreateBr(headerBB);
+
+    // Set ourselves inside the loop
+    builder.SetInsertPoint(headerBB);
+
+    visit_list_elements(this, &ir->body_instructions);
+
+    // Branch back through the loop
+    builder.CreateBr(headerBB);
+
+    // Now, create a new block for the rest of the post-loop program
+    function->getBasicBlockList().push_back(mergeBB);
+    builder.SetInsertPoint(mergeBB);
+
+    // Remove ourselves from the stacks
+    exitStack.pop();
+    headerStack.pop();
+
+    // lastValue may not be up-to-date, and we shouldn't be referenced
+    // anyways
+    lastValue.clear();
+
+    return visit_continue_with_parent;
 }
 
 ir_visitor_status
@@ -1634,7 +1688,7 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
         // If we're reading from an array, we just finished traversing the index
         // interpLoc = (llvm::Constant*)lastValue;
         // Return the type contained within the array
-        
+
         readType = convertGLSLToLLVMType(var->type->fields.array);
         appendArrayIndexToName(name, index);
     } else {

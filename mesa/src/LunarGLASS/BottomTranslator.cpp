@@ -36,13 +36,41 @@
 //   control construct they represent.
 //
 // * Each block is passed to handleBlock, which dispatches it depending on
-//   available info.If it's a branch, dispatch to handleBranchingBlock. If none
-//   of the above apply, then it will get passed to handleReturnBlock.
-//   handleBlock keeps track of blocks it's already seen, so it wont process the
-//   same block twice, allowing it to be called by other handlers when a certain
-//   basic block processing order must be maintained. This also allows
-//   handleBlock to know when it's handling the last program order (not
-//   neccessarily llvm order) block.
+//   available info. If it's a loop header, latch, or exit, then it will
+//   dispatch it to handleLoopBlock. Otherwise, if it's a branch, dispatch to
+//   handleBranchingBlock. If none of the above apply, then it will get passed
+//   to handleReturnBlock. handleBlock keeps track of blocks it's already seen,
+//   so it wont process the same block twice, allowing it to be called by other
+//   handlers when a certain basic block processing order must be
+//   maintained. This also allows handleBlock to know when it's handling the
+//   last program order (not neccessarily llvm order) block.
+//
+// * Loops in LLVM are a set of blocks, possibly tagged with 3 properties. A
+//   block tagged as a loop header (there is only 1 per loop) has the loop's
+//   backedge branching to it. It also is the first block encountered in program
+//   or LLVM IR order. An exit block is a block that exits the loop. A latch is
+//   a block with a backedge. There may be many exit blocks and many latches,
+//   and any given block could have multiple tags. Any untagged blocks can be
+//   handled normally, as though they weren't even in a loop.
+//
+// * Loops are presented to the backend using the loop interfaces present in
+//   Manager.h. Nested loops are currently not supported.
+//
+// * handleLoopBlock proceeds as follows for the following loop block types:
+//
+//     - Header:  Call beginLoop interface. If the header is not also a latch or
+//                exiting block, then it's the start of some internal control
+//                flow, so pass it off to handleBranchingBlock.  Otherwise
+//                handle its instructions, handle it as a latch or exit if it's
+//                also a latch or exit, and pass every block in the loop to
+//                handleBlock. This is done to make sure that all loop internal
+//                blocks are handled before further loop external blocks are.
+//                Finally, end the loop.
+//
+//     - Latch:   Handle its instructions, add phi copies if applicable, call
+//                addLoopBack interface.
+//
+//     - Exiting: Handle its instructions, call addLoopExit interface
 //
 // * handleBranching handles it's instructions, and adds phi nodes if specified
 //   by the backend. On an unconditional branch, it checks to see if the block
@@ -58,6 +86,10 @@
 //   handleReturnBlock interface
 //
 //===----------------------------------------------------------------------===//
+
+// TODO: - test for multi-exit loops.
+//       - test for return statements inside a loop.
+//       - see if we need phi copies for (multiple) breaks
 
 // LLVM includes
 #include "llvm/DerivedTypes.h"
@@ -91,7 +123,6 @@
 
 // LunarGLASS Passes
 #include "Passes/Analysis/IdentifyConditionals.h"
-
 
 namespace {
 
@@ -142,6 +173,10 @@ namespace {
         // Send off all the non-terminating instructions in a basic block to the
         // backend
         void handleNonTerminatingInstructions(const llvm::BasicBlock*);
+
+        // Given a loop block, handle it. Dispatches to other methods and ends
+        // up handling all blocks in the loop.
+        void handleLoopBlock(const llvm::BasicBlock*);
 
         // Given a block ending in return, output it and the return
         void handleReturnBlock(const llvm::BasicBlock*);
@@ -207,6 +242,79 @@ void BottomTranslator::handleNonTerminatingInstructions(const llvm::BasicBlock* 
     }
 }
 
+void BottomTranslator::handleLoopBlock(const llvm::BasicBlock* bb)
+{
+    llvm::Loop* loop = loopInfo->getLoopFor(bb);
+    const llvm::BranchInst* branchInst = llvm::dyn_cast<llvm::BranchInst>(bb->getTerminator());
+    assert(loop && "handleLoopBlock called on non-loop");
+    assert(branchInst && "handleLoopsBlock called with non-branch terminator");
+
+    llvm::BasicBlock* exit = loop->getExitBlock();
+    assert(exit && "unstructured control flow");
+
+    llvm::BasicBlock* header = loop->getHeader();
+
+    llvm::Value* condition = branchInst->isConditional() ? branchInst->getCondition() : NULL;
+
+    // We don't handle nested loops yet
+    if (loop->getLoopDepth() > 1) {
+        gla::UnsupportedFunctionality("Nested loops");
+    }
+
+    bool isHeader  = header == bb;
+    bool isExiting = loop->isLoopExiting(bb);
+    bool isLatch   = gla::Util::isLatch(bb, loop);
+
+    // If it's a loop header, have the back-end add it
+    if (isHeader) {
+        backEndTranslator->beginLoop();
+    }
+
+    // If the branch is conditional and not a latch or exiting, we're dealing
+    // with conditional (e.g. if-then-else) flow control. Otherwise handle it's
+    // instructions ourselves.
+    if (condition && !isLatch && !isExiting) {
+        assert(isHeader);
+        handleBranchingBlock(bb);
+    } else
+        handleNonTerminatingInstructions(bb);
+
+    // Add phi copies (if applicable)
+    if (isLatch && backEnd->getRemovePhiFunctions())
+        addPhiCopies(branchInst);
+
+    // If we're exiting, add the (possibly conditional) exit.
+    if (isExiting) {
+        backEndTranslator->addLoopExit(condition, branchInst->getSuccessor(0) != exit);
+        assert((branchInst->getSuccessor(0) == exit) || (condition && (branchInst->getSuccessor(1) == exit)));
+    }
+
+    // If it's a latch, add the (possibly conditional) loop-back
+    if (isLatch) {
+        backEndTranslator->addLoopBack(condition, branchInst->getSuccessor(0) != header);
+        assert((branchInst->getSuccessor(0) == header) || (condition && (branchInst->getSuccessor(1) == header)));
+    }
+
+    // If it's a header, then add all of the other blocks in the loop. This is
+    // because we want to finish the entire loop before we consider any blocks
+    // outside the loop (as other blocks may be before the loop blocks in the
+    // LLVM-IR's lineralization).
+    if (isHeader) {
+        // We want to handle the blocks in LLVM IR order, instead of LoopInfo
+        // order (which may be out of order, e.g. put an else before the if
+        // block).
+        // TODO: Find more cleaver/efficient way to do the below.
+        for (llvm::Function::const_iterator i = bb->getParent()->begin(), e = bb->getParent()->end(); i != e; ++i) {
+            if (loop->contains(i)) {
+                handleBlock(i);
+            }
+        }
+        backEndTranslator->endLoop();
+    }
+
+    return;
+}
+
 void BottomTranslator::handleIfBlock(const llvm::BasicBlock* bb)
 {
 
@@ -235,7 +343,7 @@ void BottomTranslator::handleIfBlock(const llvm::BasicBlock* bb)
 
     // We'd like to now shedule the handling of the merge block, just in case
     // the order we get the blocks in doesn't have it next.
-    handleBlock(cond->getMergePoint());
+    handleBlock(cond->getMergeBlock());
 
     return;
 }
@@ -284,7 +392,16 @@ void BottomTranslator::handleBlock(const llvm::BasicBlock* bb)
     if (handledBlocks.size() == bb->getParent()->getBasicBlockList().size())
         lastBlock = true;
 
-    // If the block's a branching block, then handle it.
+    // If the block exhibits loop-relevant control flow,
+    // handle it specially
+    llvm::Loop* loop = loopInfo->getLoopFor(bb);
+    if (loop && (loop->getHeader() == bb || gla::Util::isLatch(bb, loop) || loop->isLoopExiting(bb))
+             && flowControlMode == gla::EFcmStructuredOpCodes) {
+        handleLoopBlock(bb);
+        return;
+    }
+
+    // If the block's a branching block, handle it specially.
     if (llvm::isa<llvm::BranchInst>(bb->getTerminator())) {
         handleBranchingBlock(bb);
         return;

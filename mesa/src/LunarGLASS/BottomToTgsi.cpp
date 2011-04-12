@@ -158,6 +158,36 @@ public:
         incrementMesaInstruction();
     }
 
+    void beginConditionalLoop()
+    {
+        gla::UnsupportedFunctionality("Loops");
+    }
+
+    void beginInductiveLoop()
+    {
+        gla::UnsupportedFunctionality("Loops");
+    }
+
+    void beginLoop()
+    {
+        gla::UnsupportedFunctionality("Loops");
+    }
+
+    void endLoop()
+    {
+        gla::UnsupportedFunctionality("Loops");
+    }
+
+    void addLoopExit(const llvm::Value* condition=NULL, bool invert=false)
+    {
+        gla::UnsupportedFunctionality("break");
+    }
+
+    void addLoopBack(const llvm::Value* condition=NULL, bool invert=false)
+    {
+        gla::UnsupportedFunctionality("continue");
+    }
+
     void addPhiCopy(const llvm::Value* dst, const llvm::Value* src)
     {
         mesaInstruction->Opcode = OPCODE_MOV;

@@ -21,6 +21,7 @@
 //===----------------------------------------------------------------------===//
 //
 // Author: John Kessenich, LunarG
+// Author: Michael Ilseman, LunarG
 //
 // Private to LunarGLASS implementation, see LunarGLASSTopIR.h for public
 // interface.
@@ -41,6 +42,7 @@ namespace gla {
 
     class BackEndTranslator {
     public:
+
         BackEndTranslator() { }
         virtual ~BackEndTranslator() { }
         virtual void addGlobal(const llvm::GlobalVariable*) { }
@@ -67,6 +69,34 @@ namespace gla {
         virtual void addIf(const llvm::Value* cond, bool invert=false) = 0;
         virtual void addElse() = 0;
         virtual void addEndif() = 0;
+
+
+        // Specialized loop constructs
+
+        // Add a conditional (e.g. while) loop. Currently unimplemented.
+        virtual void beginConditionalLoop(/* TBD */) = 0;
+
+        // Add an inductive loop (e.g. for). Currently unimplemented.
+        virtual void beginInductiveLoop(/* TBD */) = 0;
+
+
+        // Generic loop constructs
+
+        // Add a generic looping construct (e.g. while (true))
+        virtual void beginLoop() = 0;
+
+        // Add an end of the loop (e.g. closing bracket)
+        virtual void endLoop() = 0;
+
+        // Exit the loop (e.g. break). Recieves the condition if it's a
+        // conditional exit. If it's conditional, and the condition should be
+        // inverted for the exit, then invert will be true.
+        virtual void addLoopExit(const llvm::Value* condition=NULL, bool invert=false) = 0;
+
+        // Add a loop backedge (e.g. continue). Receives the condition if it's a
+        // conditional loop-back. If it's conditional, and the condition should
+        // be inverted for the loop-back, then invert will be true.
+        virtual void addLoopBack(const llvm::Value* condition=NULL, bool invert=false) = 0;
 
         virtual void print() = 0;
     };

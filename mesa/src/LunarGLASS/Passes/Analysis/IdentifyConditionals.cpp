@@ -31,6 +31,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "IdentifyConditionals.h"
+
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Support/raw_ostream.h"
@@ -60,7 +61,7 @@ bool IdentifyConditionals::runOnFunction(Function &F)
         BasicBlock* left  = branchInst->getSuccessor(0);
         BasicBlock* right = branchInst->getSuccessor(1);
 
-        std::pair<const BasicBlock*, const Conditional*> pair(bb, new Conditional(bb, merge, left, right));
+        std::pair<const BasicBlock*, const Conditional*> pair(bb, new Conditional(bb, merge, left, right, &domFront));
 
         conditionals.insert(pair);
     }
@@ -87,6 +88,46 @@ void IdentifyConditionals::releaseMemory()
         delete i->second;
     }
     conditionals.clear();
+}
+
+// Whether from unconditionaly branches to to.
+inline static bool uncondBranchesTo(BasicBlock* from, BasicBlock* to)
+{
+    BranchInst* bi = dyn_cast<BranchInst>(from->getTerminator());
+    return bi && bi->isUnconditional() && (bi->getSuccessor(0) == to);
+}
+
+// Whether a basic block has no constituent instructions, other than
+// it's phi-nodes and terminator.
+inline static bool isEmptyBB(const llvm::BasicBlock* bb)
+{
+    return bb->getFirstNonPHIOrDbg() == bb->getTerminator();
+}
+
+
+bool Conditional::isEmptyConditional() const
+{
+    if (!isSelfContained())
+        return false;
+
+    // Todo: test the case when the then or else have underlying subgraphs
+
+    bool isLeftEmpty  = (left  == merge) || (uncondBranchesTo(left, merge)  && isEmptyBB(left));
+    bool isRightEmpty = (right == merge) || (uncondBranchesTo(right, merge) && isEmptyBB(right));
+
+    return isLeftEmpty && isRightEmpty;
+}
+
+bool Conditional::isSelfContained() const
+{
+    DominanceFrontier::DomSetType leftDomFront  = domFront->find(left)->second;
+    DominanceFrontier::DomSetType rightDomFront = domFront->find(right)->second;
+
+    bool leftPure  = (left  == merge) || (leftDomFront.count(merge)  && leftDomFront.size() == 1);
+    bool rightPure = (right == merge) || (rightDomFront.count(merge) && rightDomFront.size() == 1);
+
+    return leftPure && rightPure;
+
 }
 
 char IdentifyConditionals::ID = 0;

@@ -1,3 +1,94 @@
+; ModuleID = 'Top'
+
+@gl_MaxLights = internal global i32 8
+@gl_MaxClipPlanes = internal global i32 8
+@gl_MaxTextureUnits = internal global i32 2
+@gl_MaxTextureCoords = internal global i32 4
+@gl_MaxVertexAttribs = internal global i32 16
+@gl_MaxVertexUniformComponents = internal global i32 512
+@gl_MaxVaryingFloats = internal global i32 32
+@gl_MaxVertexTextureImageUnits = internal global i32 0
+@gl_MaxCombinedTextureImageUnits = internal global i32 2
+@gl_MaxTextureImageUnits = internal global i32 2
+@gl_MaxFragmentUniformComponents = internal global i32 64
+@gl_MaxDrawBuffers = internal global i32 2
+@Count = external addrspace(1) global i32
+@bigColor = external addrspace(1) global <4 x float>
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define void @main() {
+entry:
+  %color = alloca <4 x float>
+  %i = alloca i32
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  store <4 x float> %BaseColor, <4 x float>* %color
+  store i32 0, i32* %i
+  br label %loop-header
+
+loop-header:                                      ; preds = %ifmerge, %entry
+  %0 = load i32* %i
+  %1 = load i32 addrspace(1)* @Count
+  %2 = icmp sge i32 %0, %1
+  br i1 %2, label %then, label %ifmerge
+
+then:                                             ; preds = %loop-header
+  br label %loop-merge
+
+post-loopjump:                                    ; No predecessors!
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %post-loopjump, %loop-header
+  %3 = load <4 x float>* %color
+  %4 = load <4 x float> addrspace(1)* @bigColor
+  %color1 = fadd <4 x float> %3, %4
+  store <4 x float> %color1, <4 x float>* %color
+  %5 = load i32* %i
+  %i2 = add i32 %5, 1
+  store i32 %i2, i32* %i
+  br label %loop-header
+
+loop-merge:                                       ; preds = %then
+  %gl_FragColor = load <4 x float>* %color
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %6 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %6)
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+; ModuleID = 'Top'
+
+@Count = external addrspace(1) global i32
+@bigColor = external addrspace(1) global <4 x float>
+
+define void @main() {
+entry:
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  br label %loop-header
+
+loop-header:                                      ; preds = %ifmerge, %entry
+  %i.0 = phi i32 [ 0, %entry ], [ %i2, %ifmerge ]
+  %color.0 = phi <4 x float> [ %BaseColor, %entry ], [ %color1, %ifmerge ]
+  %0 = load i32 addrspace(1)* @Count
+  %1 = icmp sge i32 %i.0, %0
+  br i1 %1, label %then, label %ifmerge
+
+then:                                             ; preds = %loop-header
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %color.0)
+  ret void
+
+ifmerge:                                          ; preds = %loop-header
+  %2 = load <4 x float> addrspace(1)* @bigColor
+  %color1 = fadd <4 x float> %color.0, %2
+  %i2 = add i32 %i.0, 1
+  br label %loop-header
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 ***Unsupported functionality: Loops
 compiling forLoop.frag...
