@@ -104,6 +104,7 @@ public:
     llvm::Value* createLLVMIntrinsic(ir_call*, gla::Builder::SuperValue*, int);
     llvm::Value* createPipelineRead(ir_variable*, int);
     llvm::Value* smearScalar(llvm::Value*, const llvm::Type*);
+    llvm::Value* collapseIndexChain(llvm::Value*);
     llvm::Constant* createLLVMConstant(ir_constant*);
     llvm::Type*  convertGLSLToLLVMType(const glsl_type*);
     llvm::Function* getLLVMIntrinsicFunction1(llvm::Intrinsic::ID, const llvm::Type*);
@@ -132,9 +133,12 @@ protected:
 
     std::map<ir_variable*, llvm::Value*> namedValues;
     std::map<std::string, int> interpMap;
+    std::map<std::string, llvm::StructType*> structMap;
     std::map<ir_function_signature *, llvm::Function*> functionMap;
 
     std::list<llvm::Value*> glslOuts;
+    
+    std::vector<const unsigned> elementIndexChain;
 
     gla::Builder::SuperValue lastValue;
     gla::Builder::SuperValue lValue;

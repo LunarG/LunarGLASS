@@ -247,6 +247,8 @@ ir_visitor_status
         }
         else if (GLSL_TYPE_ARRAY == var->type->base_type) {
             // Just leave lastValue as a pointer to the array
+            // TODO:  With support for struct dereference chains,
+            // we should be able to clean this up.
         }
         else if (var->mode != ir_var_in) {
             // Don't load inputs again... just use them
@@ -423,7 +425,7 @@ ir_visitor_status
 
     for (int i = 0; i < numOperands; ++i) {
         expression->operands[i]->accept(this);
-        operands[i] = lastValue;
+        operands[i] = collapseIndexChain(lastValue);
     }
 
     lastValue = expandGLSLOp(expression->operation, operands);
@@ -489,10 +491,18 @@ ir_visitor_status
         uniformPtr = lastValue;
 
         // Offset to our index
-        indexPtr = builder.CreateConstGEP2_32(uniformPtr, 0, index);
-        name = ir->variable_referenced()->name;
-        appendArrayIndexToName(name, index);
-        lastValue = builder.CreateLoad(indexPtr, name);
+        if (llvm::isa<llvm::StructType>(lastValue->getType())) {
+            elementIndexChain.push_back(index);
+        } else {
+            // TODO:  With support for struct dereference chains,
+            // we should be able to clean this up and treat these
+            // uniformly
+            indexPtr = builder.CreateConstGEP2_32(lastValue, 0, index);
+            name = ir->variable_referenced()->name;
+            appendArrayIndexToName(name, index);
+            lastValue = builder.CreateLoad(indexPtr, name);
+        }
+
         break;
     default:
         gla::UnsupportedFunctionality("unsupported array dereference");
@@ -518,14 +528,31 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_dereference_record *ir)
 {
-    gla::UnsupportedFunctionality("structure dereference");
+    (void) ir;
     return visit_continue;
 }
 
 ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_dereference_record *ir)
 {
-    (void) ir;
+    const glsl_type *struct_type = ir->record->type;
+    int offset = 0;
+
+    if (in_assignee)
+        gla::UnsupportedFunctionality("structure dereference in l-value");
+
+
+    // Find and push the index that matches the requested field
+    for (int i = 0; i < struct_type->length; i++) {
+        if (strcmp(struct_type->fields.structure[i].name, ir->field) == 0)
+            break;
+        offset++;
+    }
+
+    assert(offset < struct_type->length);
+
+    elementIndexChain.push_back(offset);
+
     return visit_continue;
 }
 
@@ -538,6 +565,11 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_assignment *assignment)
 {
+    if(llvm::isa<llvm::StructType>(lValue->getType()->getContainedType(0)))
+        gla::UnsupportedFunctionality("structure assignment");
+
+    lastValue = collapseIndexChain(lastValue);
+
     //Handle writemask
     if(!assignment->whole_variable_written()) {
         llvm::Value* targetVector;
@@ -599,6 +631,7 @@ ir_visitor_status
     {
         param = (ir_rvalue *) iter.get();
         param->accept(this);
+        lastValue = collapseIndexChain(lastValue);
         llvmParams[paramCount] = lastValue;
         paramCount++;
         iter.next();
@@ -957,6 +990,7 @@ ir_visitor_status
 
     // Return the expression result, which is tracked in lastValue
     if (ir->get_value()) {
+        lastValue = collapseIndexChain(lastValue);
         builder.CreateRet(lastValue);
     } else {
         builder.CreateRet(0);
@@ -1361,6 +1395,7 @@ llvm::Value* GlslToTopVisitor::expandGLSLSwizzle(ir_swizzle* swiz)
 
     // traverse the tree we're swizzling
     swiz->val->accept(this);
+    lastValue = collapseIndexChain(lastValue);
     operand = lastValue;
 
     // convert our GLSL mask to an int
@@ -1416,6 +1451,8 @@ llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
         gla::UnsupportedFunctionality("matrices");
 
     llvm::Type *llvmVarType;
+    std::vector<const llvm::Type*> structFields;
+    llvm::StructType* structType;
 
     switch(varType) {
     case GLSL_TYPE_UINT:
@@ -1441,7 +1478,21 @@ llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
     case GLSL_TYPE_ARRAY:
         llvmVarType = (llvm::Type*)llvm::ArrayType::get(convertGLSLToLLVMType(type->fields.array), type->array_size());
         break;
-    case GLSL_TYPE_STRUCT:    gla::UnsupportedFunctionality("structures");
+    case GLSL_TYPE_STRUCT:
+        if (structType = structMap[type->name]) {
+            // If we've seen this struct type, return it
+            llvmVarType = structType;
+        } else {
+            // Create a vector of struct types for LLVM to consume
+            for (int i = 0; i < type->length; i++) {
+                structFields.push_back(convertGLSLToLLVMType(type->fields.structure[i].type));
+            }
+            structType = llvm::StructType::get(context, structFields, false);
+            module->addTypeName(type->name, structType);
+            structMap[type->name] = structType;
+            llvmVarType = (llvm::Type*)structType;
+        }
+        break;
     case GLSL_TYPE_ERROR:     assert(! "type error");
     default:
         gla::UnsupportedFunctionality("basic type");
@@ -1560,22 +1611,26 @@ void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName
 
 llvm::Type::TypeID GlslToTopVisitor::getLLVMBaseType(llvm::Value* value)
 {
-    if(llvm::Type::VectorTyID == value->getType()->getTypeID())
-        return value->getType()->getContainedType(0)->getTypeID();
-    else
-        return value->getType()->getTypeID();
+    switch(value->getType()->getTypeID()) {
+    case llvm::Type::VectorTyID:
+    case llvm::Type::ArrayTyID:
+        return getLLVMBaseType(value->getType()->getContainedType(0));
+    }
+
+    assert(gla::Util::isGlaScalar(value->getType()));
+    return value->getType()->getTypeID();
 }
 
 llvm::Type::TypeID GlslToTopVisitor::getLLVMBaseType(const llvm::Type* type)
 {
-    if(llvm::Type::VectorTyID == type->getTypeID())
+    switch(type->getTypeID()) {
+    case llvm::Type::VectorTyID:
+    case llvm::Type::ArrayTyID:
         return getLLVMBaseType(type->getContainedType(0));
-    else if (llvm::Type::ArrayTyID == type->getTypeID())
-        return getLLVMBaseType(type->getContainedType(0));
-    else {
-        assert(gla::Util::isGlaScalar(type));
-        return type->getTypeID();
     }
+
+    assert(gla::Util::isGlaScalar(type));
+    return type->getTypeID();
 }
 
 llvm::Value* GlslToTopVisitor::smearScalar(llvm::Value* scalarVal, const llvm::Type* vectorType)
@@ -1720,3 +1775,21 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
 
     return retVal;
 }
+
+llvm::Value* GlslToTopVisitor::collapseIndexChain(llvm::Value* val)
+{
+    // Turn the vector of indices we've been building into an extract value
+    // TODO:  Maybe create a GEP for arrays here when we unify?
+    llvm::Value* retVal = val;
+
+    if (llvm::isa<llvm::StructType>(val->getType())) {
+        int chainSize = elementIndexChain.size();
+        if (chainSize > 0) {
+            retVal = builder.CreateExtractValue(val, &elementIndexChain.front(), &elementIndexChain.back() + 1);
+            elementIndexChain.clear();
+        }
+    }
+
+    return retVal;
+}
+
