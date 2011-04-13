@@ -448,10 +448,6 @@ bool BottomTranslator::runOnModule(llvm::Module& module)
 
             // handle function's with bodies
 
-            // fast HACK for LunarGOO to not emit functions, because they were all inlined, but still lying around
-            if (function->getNameStr() != std::string("main"))
-                continue;
-
             backEndTranslator->startFunctionDeclaration(function->getFunctionType(), function->getNameStr());
 
             // paramaters and arguments

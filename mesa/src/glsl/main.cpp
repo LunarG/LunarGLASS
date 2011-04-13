@@ -178,9 +178,9 @@ int glsl_es = 0;
 int dump_ast = 0;
 int dump_hir = 0;
 int dump_lir = 0;
-int use_gla = 0;
 int do_link = 0;
 int do_glsl_to_mesa_ir = 0;
+bool do_cross_stage;
 
 const struct { const char* arg; int foo; int* flag; int bar;} compiler_opts[] = {
    { "glsl-es",  0, &glsl_es,  1 },
@@ -311,15 +311,24 @@ main(int argc, char **argv)
    dump_hir = 0;
    dump_lir = 0;
    do_link = 1;
-   use_gla = 1;
+
+   // LunarGOO will sometimes want to translate a single stage
+   // without seeing other stages, but still not "optimize"
+   // as if that stage is truly missing in the pipeline.
+   do_cross_stage = gla::Options.optimizations.crossStage;
+
+   // LunarGLASS cannot yet translate the linked version of a stage.
+   // But, we need to make progress doing so.  This is the flag to
+   // set to switch from unlinked to linked.
+   bool translate_linked_shader = false;
 
    // Handle some LunarGLASS specific options in a more platform-independent manner
    // Overwrites argc and argv
    int optind = gla::HandleArgs(argc, argv);
    dump_ast = gla::Options.debug;
    do_glsl_to_mesa_ir = gla::Options.backend == gla::TGSI;
-   if (gla::Options.backend == gla::GLSL)
-       do_link = 0;
+   if (do_glsl_to_mesa_ir)
+       do_cross_stage = true;
 
    initialize_context(ctx, (glsl_es) ? API_OPENGLES2 : API_OPENGL);
 
@@ -380,13 +389,20 @@ main(int argc, char **argv)
    }
 
    // Insert the LunarGLASS path into this process...
-   if (status == EXIT_SUCCESS && use_gla) {
+   if (status == EXIT_SUCCESS) {
       gla::Manager* glaManager = gla::getManager();
-      assert (whole_program->NumShaders == 1);
-      if (gla::Options.debug)
-         _mesa_print_ir(whole_program->Shaders[0]->ir, 0);
 
-      TranslateGlslToTop(whole_program->Shaders[0], glaManager);
+      assert(whole_program->NumShaders == 1);
+      struct gl_shader *Shader;
+      if (translate_linked_shader)
+         Shader = whole_program->_LinkedShaders[1];
+      else
+         Shader = whole_program->Shaders[0];
+
+      if (gla::Options.debug)
+         _mesa_print_ir(Shader->ir, 0);
+
+      TranslateGlslToTop(Shader, glaManager);
 
       glaManager->translateTopToBottom();
 

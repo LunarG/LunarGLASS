@@ -151,9 +151,15 @@ gl_FragColor = foo ( ) ; }
 // LunarGOO output
 #version 130
 in vec4 BaseColor;
+in vec4 BaseColor;
 
 void main()
 {
     gl_FragColor = BaseColor;
     
+}
+
+vec4 foo()
+{
+    return BaseColor;
 }

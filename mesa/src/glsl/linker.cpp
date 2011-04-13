@@ -1643,6 +1643,9 @@ link_shaders(struct gl_context *ctx, struct gl_shader_program *prog)
 			       prog->_LinkedShaders[i]);
       prev = i;
    }
+   
+extern bool do_cross_stage;
+if (do_cross_stage) {
 
    if (prog->_LinkedShaders[MESA_SHADER_VERTEX] != NULL) {
       demote_shader_inputs_and_outputs(prog->_LinkedShaders[MESA_SHADER_VERTEX],
@@ -1676,6 +1679,7 @@ link_shaders(struct gl_context *ctx, struct gl_shader_program *prog)
 	 prog->LinkStatus = false;
       }
    }
+}
 
    /* FINISHME: Assign fragment shader output locations. */
 

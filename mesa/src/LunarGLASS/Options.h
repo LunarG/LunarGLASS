@@ -49,6 +49,7 @@ namespace gla {
         bool mem2reg;
         bool reassociate;
         bool verify;
+        bool crossStage;
     };
 
     // Options struct

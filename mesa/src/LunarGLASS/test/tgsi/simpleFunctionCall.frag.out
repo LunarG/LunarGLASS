@@ -155,10 +155,13 @@ Mesa program before mesa optimizations
   0: MOV TEMP[1], INPUT[0];
   1: MOV OUTPUT[0], TEMP[1];
   2: END
+  3: MOV TEMP[3], INPUT[0];
+  4: END
 
 Mesa program after mesa optimizations
   0: MOV OUTPUT[0], INPUT[0];
   1: END
+  2: END
 
 ===========================================
 

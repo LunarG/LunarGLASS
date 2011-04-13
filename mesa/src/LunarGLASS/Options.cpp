@@ -67,6 +67,7 @@ Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
          mem2reg                    Promote memory to registers\n\
          reassociate                Reassociate/commute expressions\n\
          verify                     Verification passes\n\
+         cross-stage                Do cross-stage optimizations\n\
 ";
 
 
@@ -78,6 +79,7 @@ namespace gla {
                          , true   // mem2reg
                          , true   // reassociate
                          , true   // verify
+                         , false  // crossStage
                          };
 
     // Global Options
@@ -123,6 +125,8 @@ namespace gla {
             Options.optimizations.reassociate = val;
         } else if (opt == "verify") {
             Options.optimizations.verify      = val;
+        } else if (opt == "cross-stage") {
+            Options.optimizations.crossStage  = val;
         } else {
             std::cout << "Unkown optimization" << opt << std::endl;
             PrintHelp();
