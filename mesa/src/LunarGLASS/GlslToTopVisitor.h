@@ -137,8 +137,8 @@ protected:
     std::map<ir_function_signature *, llvm::Function*> functionMap;
 
     std::list<llvm::Value*> glslOuts;
-    
-    std::vector<const unsigned> elementIndexChain;
+
+    std::vector<unsigned> elementIndexChain;
 
     gla::Builder::SuperValue lastValue;
     gla::Builder::SuperValue lValue;
