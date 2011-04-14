@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+DESCRIPTION="\
+Description: Add in the correct #version for ES, replacing it if it already exists
+"
+
+USAGE="\
+Usage: ./glsl-to-es <in-file> <out-file>
+"
+
+function showHelp {
+    echo "$DESCRIPTION"
+    echo "$USAGE"
+}
+
+VERSION="#version 100"
+VERSION_FILE=`mktemp`
+echo $VERSION > $VERSION_FILE
+
+if [ -z $1 ] || [ -z $2 ] # || [ -n $3 ]
+then
+    showHelp
+    exit 1
+fi
+
+for i in $*; do
+    case $i in
+        -h|--h)
+            showHelp
+            exit 0
+            ;;
+    esac
+done
+
+IN=$1
+OUT=$2
+
+echo "Processing $IN, writing output to $OUT"
+
+# Remove comments and then lines of nothing but whitespace
+cat $IN | sed 's/\/\/.*$//g' | sed '/^\s*$/d' > $OUT
+
+# Ensure a proper newline ending (so tail can be alright)
+echo "" >> $OUT
+
+if (head $OUT -n 1 | grep "^\#version" >/dev/null)
+then
+    LINES=`wc -l $OUT | awk '{print $1}'`
+    TAIL_LINES=$((${LINES} - 1))
+
+    TMP=`mktemp`
+
+    tail -n $TAIL_LINES $OUT > $TMP
+    mv $TMP $OUT
+fi
+
+TMP=`mktemp`
+cat $VERSION_FILE $OUT > $TMP
+mv $TMP $OUT
+
+echo "Output written to $OUT"
