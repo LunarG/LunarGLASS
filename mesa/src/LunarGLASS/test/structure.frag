@@ -4,7 +4,7 @@ varying vec2 coord;
 
 struct lunarStruct1 {
     int i;
-    float f[4];
+	float f[4];
 	vec4 color[5];
 };
 
