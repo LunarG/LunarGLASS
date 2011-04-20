@@ -97,7 +97,7 @@ public:
 	virtual ir_visitor_status visit_leave(class ir_if *);
 
     // help functions to build LLVM
-    llvm::Value* createLLVMVariable(ir_variable*);
+    gla::Builder::SuperValue createLLVMVariable(ir_variable*);
     const char* getSamplerDeclaration(ir_variable*);
     gla::Builder::SuperValue expandGLSLOp(ir_expression_operation, gla::Builder::SuperValue*);
     llvm::Value* expandGLSLSwizzle(ir_swizzle*);
@@ -106,13 +106,13 @@ public:
     llvm::Value* smearScalar(llvm::Value*, const llvm::Type*);
     llvm::Value* collapseIndexChain(llvm::Value*);
     llvm::Constant* createLLVMConstant(ir_constant*);
-    llvm::Type*  convertGLSLToLLVMType(const glsl_type*);
+    const llvm::Type* convertGLSLToLLVMType(const glsl_type*);
     llvm::Function* getLLVMIntrinsicFunction1(llvm::Intrinsic::ID, const llvm::Type*);
     llvm::Function* getLLVMIntrinsicFunction2(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
     llvm::Function* getLLVMIntrinsicFunction3(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
     llvm::Function* getLLVMIntrinsicFunction4(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
 
-    void createLLVMTextureIntrinsic(llvm::Function* &, int &, gla::Builder::SuperValue*, gla::Builder::SuperValue*, llvm::Type*, llvm::Intrinsic::ID,  gla::ESamplerType, gla::ETextureFlags);
+    void createLLVMTextureIntrinsic(llvm::Function* &, int &, gla::Builder::SuperValue*, gla::Builder::SuperValue*, const llvm::Type*, llvm::Intrinsic::ID,  gla::ESamplerType, gla::ETextureFlags);
     void findAndSmearScalars(gla::Builder::SuperValue*, int);
     void writePipelineOuts(void);
     void appendArrayIndexToName(std::string &, int);
@@ -131,7 +131,7 @@ protected:
 
     struct gl_shader* glShader;
 
-    std::map<ir_variable*, llvm::Value*> namedValues;
+    std::map<ir_variable*, gla::Builder::SuperValue> namedValues;
     std::map<std::string, int> interpMap;
     std::map<std::string, llvm::StructType*> structMap;
     std::map<ir_function_signature *, llvm::Function*> functionMap;

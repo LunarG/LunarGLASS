@@ -206,7 +206,7 @@ ir_visitor_status
     ir_variable *var = derefVariable->variable_referenced();
 
     // Search our value map for existing entry
-    std::map<ir_variable*, llvm::Value*>::iterator iter;
+    std::map<ir_variable*, gla::Builder::SuperValue>::iterator iter;
     iter = namedValues.find(var);
 
     if (namedValues.end() == iter) {
@@ -272,7 +272,12 @@ ir_visitor_status
         }
         else if (var->mode != ir_var_in) {
             // Don't load inputs again... just use them
-            lastValue = builder.CreateLoad(lastValue);
+            if (lastValue.isMatrix()) {
+                llvm::Value* newValue = builder.CreateLoad(lastValue.getMatrix()->getMatrixValue(), "__matrix");
+                gla::Builder::Matrix* loadedMatrix = new gla::Builder::Matrix(newValue);
+                lastValue = gla::Builder::SuperValue(loadedMatrix);
+            } else
+                lastValue = builder.CreateLoad(lastValue);
         }
     }
 
@@ -693,8 +698,26 @@ ir_visitor_status
             returnValue = expandGLSLOp(ir_unop_logic_not, llvmParams);
         }
 
+        // matrix built-ins that get decomposed into operations
+        // rather than translated to an intrinsic
+        else if (!strcmp(call->callee_name(), "matrixCompMult")) {
+            returnValue = gla::Builder::createMatrixOp(builder, llvm::BinaryOperator::FMul, llvmParams[0], llvmParams[1]);
+        }
+        else if (!strcmp(call->callee_name(), "outerProduct")) {
+            returnValue = gla::Builder::createMatrixMultiply(builder, llvmParams[0], llvmParams[1]);
+        }
+        else if (!strcmp(call->callee_name(), "transpose")) {
+            returnValue = gla::Builder::createMatrixTranspose(builder, llvmParams[0].getMatrix());
+        }
+        else if (!strcmp(call->callee_name(), "inverse")) {
+            returnValue = gla::Builder::createMatrixInverse(builder, llvmParams[0].getMatrix());
+        }
+        else if (!strcmp(call->callee_name(), "determinant")) {
+            returnValue = gla::Builder::createMatrixDeterminant(builder, llvmParams[0].getMatrix());
+        }
+
         // If this call requires an intrinsic
-        if(!returnValue)
+        if(returnValue.getValue() == 0)
             returnValue = createLLVMIntrinsic(call, llvmParams, paramCount);
 
         // Track the return value for to be consumed by next instruction
@@ -708,7 +731,7 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, gla::Builder::
 {
     llvm::Function *intrinsicName = 0;
     gla::ETextureFlags texFlags = {0};
-    llvm::Type* resultType = convertGLSLToLLVMType(call->type);
+    const llvm::Type* resultType = convertGLSLToLLVMType(call->type);
 
     #define GLA_MAX_PARAMETER 5
     gla::Builder::SuperValue outParams[GLA_MAX_PARAMETER];
@@ -797,11 +820,6 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, gla::Builder::
 
     // Unsupported calls
     //noise*")) { }
-    //else if(!strcmp(call->callee_name(), "matrixCompMult"))   { intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::xxxx, resultType); }
-    //else if(!strcmp(call->callee_name(), "outerProduct"))     { intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::xxxx, resultType); }
-    //else if(!strcmp(call->callee_name(), "transpose"))        { intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::xxxx, resultType); }
-    //else if(!strcmp(call->callee_name(), "determinant"))      { intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::xxxx, resultType); }
-    //else if(!strcmp(call->callee_name(), "inverse"))          { intrinsicName = getLLVMIntrinsicFunction1(llvm::Intrinsic::xxxx, resultType); }
 
     // Texture calls
     else if(!strcmp(call->callee_name(), "texture1D")) {
@@ -1079,13 +1097,13 @@ ir_visitor_status
     return visit_continue;
 }
 
-llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
+gla::Builder::SuperValue GlslToTopVisitor::createLLVMVariable(ir_variable* var)
 {
     unsigned int addressSpace = gla::GlobalAddressSpace;
     bool constant = var->read_only;
     llvm::Constant* initializer = 0;
     llvm::GlobalValue::LinkageTypes linkage = llvm::GlobalVariable::InternalLinkage;
-    llvm::Type *llvmVarType = convertGLSLToLLVMType(var->type);
+    const llvm::Type *llvmVarType = convertGLSLToLLVMType(var->type);
     llvm::Value* value = 0;
     bool globalQualifier = false;
 
@@ -1113,7 +1131,7 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
     case ir_var_in:
         // inputs should all be pipeline reads or created at function creation time
         assert(! "no memory allocations for inputs");
-        return 0;
+        return value;
 
     case ir_var_out:
         // use internal linkage, because epilogue will to the write out to the pipe
@@ -1178,6 +1196,9 @@ llvm::Value* GlslToTopVisitor::createLLVMVariable(ir_variable* var)
         value = globalValue;
     }
 
+    if (var->type->is_matrix())
+        return new gla::Builder::Matrix(value);
+
     return value;
 }
 
@@ -1210,16 +1231,43 @@ const char* GlslToTopVisitor::getSamplerDeclaration(ir_variable* var)
 
 gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, gla::Builder::SuperValue* operands)
 {
-    // Initialize result to pass through unsupported ops
-    llvm::Value* result = operands[0];
-
+    gla::Builder::SuperValue result;
     const llvm::Type* varType;
-    const llvm::VectorType* vectorType;
 
-    vectorType = llvm::dyn_cast<llvm::VectorType>(operands[0]->getType());
+    //
+    // 0 or more operands
+    //
+
+    // no 0-only operand operations yet
+
+    //
+    // 1 or more operands
+    //
+
+    // Initialize result to first operand to pass through unsupported ops
+    result = operands[0];
+
+    bool haveMatrix = operands[0].isMatrix();
+    const llvm::VectorType* vectorType =  haveMatrix ? 0 : llvm::dyn_cast<llvm::VectorType>(operands[0]->getType());
+
+    if (haveMatrix) {
+        switch(glslOp) {
+        case ir_unop_f2i:
+        case ir_unop_i2f:
+        case ir_unop_f2b:
+        case ir_unop_b2f:
+        case ir_unop_i2b:
+        case ir_unop_b2i:
+        case ir_unop_u2f:
+            assert(! "Can't change matrix type");
+            break;
+        case ir_unop_neg:
+            gla::UnsupportedFunctionality("Matrix negation", gla::EATContinue);
+            return result;
+        }
+    }
 
     switch(glslOp) {
-
     case ir_unop_f2i:
         if(vectorType)  varType = llvm::VectorType::get(llvm::Type::getInt32Ty(context), vectorType->getNumElements());
         else            varType = llvm::Type::getInt32Ty(context);
@@ -1253,6 +1301,50 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
         case llvm::Type::FloatTyID:         return builder.CreateFNeg(operands[0]);
         case llvm::Type::IntegerTyID:       return builder.CreateNeg (operands[0]);
         }
+    }
+
+    //
+    // 2 or more operands
+    //
+
+    haveMatrix = operands[0].isMatrix() || operands[1].isMatrix();
+
+    if (haveMatrix) {
+        llvm::Instruction::BinaryOps llvmOp;
+        bool componentWise = true;
+
+        switch(glslOp) {
+        case ir_binop_add:
+            llvmOp = llvm::BinaryOperator::FAdd;
+            break;
+        case ir_binop_sub:
+            llvmOp = llvm::BinaryOperator::FSub;
+            break;
+        case ir_binop_mul:
+            componentWise = false;
+            llvmOp = llvm::BinaryOperator::FMul;
+            break;
+        case ir_binop_div:
+            llvmOp = llvm::BinaryOperator::FDiv;
+            break;
+        case ir_binop_all_equal:
+            return gla::Builder::createMatrixCompare(builder, operands[0], operands[1], true);
+        case ir_binop_any_nequal:
+            return gla::Builder::createMatrixCompare(builder, operands[0], operands[1], false);
+        default:
+            gla::UnsupportedFunctionality("Matrix operation");
+        }
+
+        if (componentWise)
+            return gla::Builder::createMatrixOp(builder, llvmOp, operands[0], operands[1]);
+        else
+            return gla::Builder::createMatrixMultiply(builder, operands[0], operands[1]);
+    }
+
+    // we now know we don't have a matrix
+    assert(! haveMatrix);
+
+    switch(glslOp) {
     case ir_binop_add:
         findAndSmearScalars(operands, 2);
         switch(getLLVMBaseType(operands[0])) {
@@ -1266,14 +1358,10 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
         case llvm::Type::IntegerTyID:       return builder.CreateSub (operands[0], operands[1]);
         }
     case ir_binop_mul:
-        if (operands[0].isMatrix() || operands[1].isMatrix())
-            return gla::Builder::createMatrixMultiply(builder, operands[0], operands[1]);
-        else {
-            findAndSmearScalars(operands, 2);
-            switch(getLLVMBaseType(operands[0])) {
-            case llvm::Type::FloatTyID:         return builder.CreateFMul(operands[0], operands[1]);
-            case llvm::Type::IntegerTyID:       return builder.CreateMul (operands[0], operands[1]);
-            }
+        findAndSmearScalars(operands, 2);
+        switch(getLLVMBaseType(operands[0])) {
+        case llvm::Type::FloatTyID:         return builder.CreateFMul(operands[0], operands[1]);
+        case llvm::Type::IntegerTyID:       return builder.CreateMul (operands[0], operands[1]);
         }
     case ir_binop_div:
         findAndSmearScalars(operands, 2);
@@ -1399,9 +1487,9 @@ llvm::Value* GlslToTopVisitor::expandGLSLSwizzle(ir_swizzle* swiz)
     int swizValMask = makeSwizzle(swiz->mask);
 
     const llvm::Type* sourceType = operand->getType();
-    llvm::Type* finalType = convertGLSLToLLVMType(swiz->type);
+    const llvm::Type* finalType = convertGLSLToLLVMType(swiz->type);
 
-    llvm::VectorType* vt = llvm::dyn_cast<llvm::VectorType>(finalType);
+    const llvm::VectorType* vt = llvm::dyn_cast<const llvm::VectorType>(finalType);
 
     // If we are dealing with a scalar, just put it in a register and return
     if (!vt) {
@@ -1439,13 +1527,9 @@ llvm::Value* GlslToTopVisitor::expandGLSLSwizzle(ir_swizzle* swiz)
     return target;
 }
 
-llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
+const llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
 {
     const unsigned varType = type->base_type;
-    unsigned isMatrix = type->is_matrix();
-
-    if (isMatrix)
-        gla::UnsupportedFunctionality("matrices");
 
     llvm::Type *llvmVarType;
     std::vector<const llvm::Type*> structFields;
@@ -1496,6 +1580,9 @@ llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
         break;
     }
 
+    if (type->is_matrix())
+        return gla::Builder::Matrix::getType(llvmVarType, type->column_type()->vector_elements, type->row_type()->vector_elements);
+
     // If this variable has a vector element count greater than 1, create an LLVM vector
     unsigned vecCount = type->vector_elements;
     if(vecCount > 1)
@@ -1504,72 +1591,28 @@ llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
     return llvmVarType;
 }
 
-//llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction(llvm::Intrinsic::ID ID, const llvm::Type* resultType, llvm::Value** paramTypes, int paramCount)
-//{
-//    int intrinsicTypeCount = paramCount;
-//    const llvm::Type* intrinsicTypes[GLA_MAX_PARAMETERS] = {0};
-//
-//    intrinsicTypes[0] = resultType;
-//
-//    for(int i = 0; i < paramCount; ++i)
-//        intrinsicTypes[i + 1] = paramTypes[i]->getType();
-//
-//    // Look up the intrinsic
-//    return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, intrinsicTypeCount);
-//}
-
 llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction1(llvm::Intrinsic::ID ID, const llvm::Type* type1)
 {
-    int intrinsicTypeCount = 1;
-    const llvm::Type* intrinsicTypes[1] = {0};
-
-    intrinsicTypes[0] = type1;
-
-    // Look up the intrinsic
-    return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, intrinsicTypeCount);
+    return gla::Util::getIntrinsic(module, ID, type1);
 }
 
 llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction2(llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2)
 {
-    int intrinsicTypeCount = 2;
-    const llvm::Type* intrinsicTypes[2] = {0};
-
-    intrinsicTypes[0] = type1;
-    intrinsicTypes[1] = type2;
-
-    // Look up the intrinsic
-    return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, intrinsicTypeCount);
+    return gla::Util::getIntrinsic(module, ID, type1, type2);
 }
 
 llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction3(llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3)
 {
-    int intrinsicTypeCount = 3;
-    const llvm::Type* intrinsicTypes[3] = {0};
-
-    intrinsicTypes[0] = type1;
-    intrinsicTypes[1] = type2;
-    intrinsicTypes[2] = type3;
-
-    // Look up the intrinsic
-    return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, intrinsicTypeCount);
+    return gla::Util::getIntrinsic(module, ID, type1, type2, type3);
 }
 
 llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction4(llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3, const llvm::Type* type4)
 {
-    int intrinsicTypeCount = 4;
-    const llvm::Type* intrinsicTypes[4] = {0};
-
-    intrinsicTypes[0] = type1;
-    intrinsicTypes[1] = type2;
-    intrinsicTypes[2] = type3;
-    intrinsicTypes[3] = type4;
-
-    // Look up the intrinsic
-    return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, intrinsicTypeCount);
+    return gla::Util::getIntrinsic(module, ID, type1, type2, type3, type4);
 }
 
 void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName, int &paramCount,
-                                                  gla::Builder::SuperValue* outParams, gla::Builder::SuperValue* llvmParams, llvm::Type* resultType,
+                                                  gla::Builder::SuperValue* outParams, gla::Builder::SuperValue* llvmParams, const llvm::Type* resultType,
                                                   llvm::Intrinsic::ID intrinsicID, gla::ESamplerType samplerType, gla::ETextureFlags texFlags)
 {
     bool isBiased = texFlags.EBias;
@@ -1640,6 +1683,8 @@ llvm::Value* GlslToTopVisitor::smearScalar(llvm::Value* scalarVal, const llvm::T
     switch(scalarType) {
     case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_swizzle;     break;
     case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fSwizzle;    break;
+    default:
+        gla::UnsupportedFunctionality("smear type");
     }
 
     llvm::Function *intrinsicName = getLLVMIntrinsicFunction2(intrinsicID, vectorType, scalarVal->getType());

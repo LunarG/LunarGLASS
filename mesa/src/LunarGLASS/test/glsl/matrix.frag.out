@@ -1,5 +1,89 @@
+; ModuleID = 'Top'
 
-***Unsupported functionality: matrices
+@gl_MaxLights = internal global i32 8
+@gl_MaxClipPlanes = internal global i32 8
+@gl_MaxTextureUnits = internal global i32 2
+@gl_MaxTextureCoords = internal global i32 4
+@gl_MaxVertexAttribs = internal global i32 16
+@gl_MaxVertexUniformComponents = internal global i32 512
+@gl_MaxVaryingFloats = internal global i32 32
+@gl_MaxVertexTextureImageUnits = internal global i32 0
+@gl_MaxCombinedTextureImageUnits = internal global i32 2
+@gl_MaxTextureImageUnits = internal global i32 2
+@gl_MaxFragmentUniformComponents = internal global i32 64
+@gl_MaxDrawBuffers = internal global i32 2
+@colorTransform = external addrspace(1) global [3 x <3 x float>]
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define void @main() {
+entry:
+  %vec_ctor = alloca <4 x float>
+  %0 = load <4 x float>* %vec_ctor
+  %vec_ctor1 = insertelement <4 x float> %0, float 1.000000e+00, i32 3
+  store <4 x float> %vec_ctor1, <4 x float>* %vec_ctor
+  %Color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 0)
+  %__matrix = load [3 x <3 x float>] addrspace(1)* @colorTransform
+  %1 = alloca <3 x float>
+  %2 = load <3 x float>* %1
+  %__column = extractvalue [3 x <3 x float>] %__matrix, 0
+  %__dot = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column)
+  %3 = insertelement <3 x float> %2, float %__dot, i32 0
+  %__column2 = extractvalue [3 x <3 x float>] %__matrix, 1
+  %__dot3 = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column2)
+  %4 = insertelement <3 x float> %3, float %__dot3, i32 1
+  %__column4 = extractvalue [3 x <3 x float>] %__matrix, 2
+  %__dot5 = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column4)
+  %5 = insertelement <3 x float> %4, float %__dot5, i32 2
+  %6 = load <4 x float>* %vec_ctor
+  %7 = extractelement <3 x float> %5, i32 0
+  %8 = insertelement <4 x float> %6, float %7, i32 0
+  %9 = extractelement <3 x float> %5, i32 1
+  %10 = insertelement <4 x float> %8, float %9, i32 1
+  %11 = extractelement <3 x float> %5, i32 2
+  %vec_ctor6 = insertelement <4 x float> %10, float %11, i32 2
+  store <4 x float> %vec_ctor6, <4 x float>* %vec_ctor
+  %gl_FragColor = load <4 x float>* %vec_ctor
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %12 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %12)
+  ret void
+}
+
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readonly
+
+declare float @llvm.gla.fDot.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+; ModuleID = 'Top'
+
+@colorTransform = external addrspace(1) global [3 x <3 x float>]
+
+define void @main() {
+entry:
+  %Color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 0)
+  %__matrix = load [3 x <3 x float>] addrspace(1)* @colorTransform
+  %__column = extractvalue [3 x <3 x float>] %__matrix, 0
+  %__dot = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column)
+  %__column2 = extractvalue [3 x <3 x float>] %__matrix, 1
+  %__dot3 = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column2)
+  %__column4 = extractvalue [3 x <3 x float>] %__matrix, 2
+  %__dot5 = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column4)
+  %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dot, i32 -1, float %__dot3, i32 -1, float %__dot5, i32 -1, float 1.000000e+00, i32 -1)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %0)
+  ret void
+}
+
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readonly
+
+declare float @llvm.gla.fDot.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+
+declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+
+***Unsupported functionality: Basic Type in Bottom IR
 compiling matrix.frag...
 uniform mat3 colorTransform ; 
 varying vec3 Color ; 

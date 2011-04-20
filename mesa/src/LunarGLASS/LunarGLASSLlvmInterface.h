@@ -61,19 +61,20 @@ namespace gla {
         //
         class Matrix {
         public:
-            Matrix(int c, int r, llvm::Value* vectors[]);
+            explicit Matrix(llvm::Value* m);
             Matrix(int c, int r, Matrix*);
+            static const llvm::Type* getType(llvm::Type* elementType, int numColumns, int numRows);
 
             int getNumRows() const { return numRows; }
             int getNumColumns() const { return numColumns; }
 
-            void setColumn(int column, const llvm::Value* vector) { columns[column] = vector; }
-            const llvm::Value* getMatrixColumn(int c) const { return columns[c]; }
+            llvm::Value* getMatrixValue() const { return matrix; }
 
         protected:
-            int numColumns;
             int numRows;
-            const llvm::Value* columns[4];
+            int numColumns;
+
+            llvm::Value* matrix;
         };
 
         class SuperValue {
@@ -133,13 +134,14 @@ namespace gla {
 
         // handle component-wise matrix operations for either a
         // pair of matrices or a matrix and a scalar
-        static SuperValue createMatrixOp(llvm::IRBuilder<>&, unsigned llvmopcode, SuperValue left, SuperValue right);
+        static SuperValue createMatrixOp(llvm::IRBuilder<>&, llvm::Instruction::BinaryOps, SuperValue left, SuperValue right);
 
         // handle all the possible matrix-related multiply operations
         // (non component wise; linear algebraic) for all combinations
         // of matrices, scalars, and vectors that either consume or
         // create a matrix
         static SuperValue createMatrixMultiply(llvm::IRBuilder<>&, SuperValue left, SuperValue right);
+        static SuperValue createMatrixCompare (llvm::IRBuilder<>&, SuperValue left, SuperValue right, bool allEqual);
 
         // handle matrix to matrix operations
         static Matrix* createMatrixTranspose  (llvm::IRBuilder<>&, Matrix*);
@@ -149,9 +151,8 @@ namespace gla {
     protected:
         static llvm::Value* createMatrixTimesVector(llvm::IRBuilder<>&, Matrix*, llvm::Value*);
         static llvm::Value* createVectorTimesMatrix(llvm::IRBuilder<>&, llvm::Value*, Matrix*);
-        static llvm::Value* createSmearedMatrixOp  (llvm::IRBuilder<>&, unsigned llvmopcode, Matrix*, llvm::Value*);
-        static llvm::Value* createSmearedMatrixOp  (llvm::IRBuilder<>&, unsigned llvmopcode, llvm::Value*, Matrix*);
 
+        static Matrix* createSmearedMatrixOp  (llvm::IRBuilder<>&, llvm::Instruction::BinaryOps, Matrix*, llvm::Value*, bool reverseOrder);
         static Matrix* createMatrixTimesMatrix(llvm::IRBuilder<>&, Matrix*, Matrix*);
         static Matrix* createOuterProduct     (llvm::IRBuilder<>&, llvm::Value* lvector, llvm::Value* rvector);
     };
@@ -163,8 +164,12 @@ namespace gla {
     class Util {
     public:
 
-        // get integer value or assert trying
+        // extract integer value or assert trying
         static int getConstantInt(const llvm::Value*);
+
+        // create integer constant
+        static llvm::Value* makeUnsignedIntConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, false)); }
+        static llvm::Value* makeIntConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, true)); }
 
         // get floating point value or assert trying
         static float GetConstantFloat(const llvm::Value*);
@@ -213,6 +218,11 @@ namespace gla {
         // branchs' subgraphs may cause there to be multiple potential merge points.
         static llvm::BasicBlock* getSingleMergePoint(const llvm::BasicBlock* condBB, llvm::DominanceFrontier& domFront);
 
+        // Handy way to get intrinsics
+        static llvm::Function* getIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*);
+        static llvm::Function* getIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
+        static llvm::Function* getIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
+        static llvm::Function* getIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
     };
 };
 
