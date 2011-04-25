@@ -53,6 +53,10 @@ GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, llvm::Module* m)
     : context(llvm::getGlobalContext()), builder(context), module(m), glShader(s), interpIndex(0), shaderEntry(0), inMain(false),
       localScope(false)
 {
+    // Init the first GEP index chain
+    std::vector<llvm::Value*> firstChain;
+    gepIndexChainStack.push(firstChain);
+
     builder.SetInsertPoint(getShaderEntry());
 }
 
@@ -248,27 +252,27 @@ ir_visitor_status
             lastValue = createPipelineRead(var, 0);
         }
         else if (GLSL_TYPE_ARRAY == baseType || GLSL_TYPE_STRUCT == baseType) {
-            assert(gepIndexChain.size() >= 0);
+            assert(gepIndexChainStack.top().size() >= 0);
 
             // Since we're using GEP, but not supporting pointers, we can hard code the
             // first index to zero.
-            gepIndexChain.push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0));
+            gepIndexChainStack.top().push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0));
 
             // Reverse the index order.  A deque would be great, but LLVM requires indices in
             // contiguous memory
-            std::vector<llvm::Value*>::iterator start = gepIndexChain.begin();
-            std::vector<llvm::Value*>::iterator end   = gepIndexChain.end();
+            std::vector<llvm::Value*>::iterator start = gepIndexChainStack.top().begin();
+            std::vector<llvm::Value*>::iterator end   = gepIndexChainStack.top().end();
 
             std::reverse(start, end);
 
             // Use the indices we've built up to finally dereference the base type
             lastValue = builder.CreateGEP(lastValue,
-                                          gepIndexChain.begin(),
-                                          gepIndexChain.end());
+                                          gepIndexChainStack.top().begin(),
+                                          gepIndexChainStack.top().end());
 
             lastValue = builder.CreateLoad(lastValue);
 
-            gepIndexChain.clear();
+            gepIndexChainStack.top().clear();
         }
         else if (var->mode != ir_var_in) {
             // Don't load inputs again... just use them
@@ -497,31 +501,55 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_dereference_array *ir)
 {
-    if (0 == ir->array_index->constant_expression_value())
-        gla::UnsupportedFunctionality("non-constant array index");
+    // Derefences of array indexes could multiple base variables that
+    // require multiple GEP instructions.
+    // To support this, we create a new GEP index chain for each index.
+    // The algorithm to support this is as follows:
+    // - Startup: Init top of stack with empty chain
+    // - Struct field dereference: Visit struct field and add to chain on top of stack
+    // - Before evaluating array index:  Push new chain onto stack.
+    // - After evaluating array index:  Pop a chain from the stack and push lastValue 
+    //   to the new top chain
+    // - Visit base:  collapse and clear current top GEP chain
 
-    const int index = ir->array_index->constant_expression_value()->value.u[0];
+    int indexInt;
+    llvm::Value* indexVal;
+    std::vector<llvm::Value*> newChain;
 
     switch (ir->variable_referenced()->mode) {
     case ir_var_in:
-        lastValue = createPipelineRead(ir->variable_referenced(), index);
+        if (0 == ir->array_index->constant_expression_value())
+            gla::UnsupportedFunctionality("input using non-constant array index");
+
+        indexInt = ir->array_index->constant_expression_value()->value.u[0];
+        lastValue = createPipelineRead(ir->variable_referenced(), indexInt);
         break;
     case ir_var_uniform:
-        gepIndexChain.push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), index));
 
-        // Traverse the array to get base address
+        // The index could be a nested chain, so start a new one
+        gepIndexChainStack.push(newChain);
+
+        // Traverse the index, which could be a complicated expression
+        if (ir->array_index->constant_expression_value()) {
+            indexInt = ir->array_index->constant_expression_value()->value.u[0];
+            indexVal = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), indexInt);
+        } else {
+            ir->array_index->accept(this);
+            assert(llvm::isa<llvm::IntegerType>(lastValue->getType()));
+            indexVal = lastValue;
+        }
+
+        // Add the result of previous chain to current one
+        gepIndexChainStack.pop();
+        assert(gepIndexChainStack.size());
+        gepIndexChainStack.top().push_back(indexVal);
+
         ir->array->accept(this);
 
         break;
     default:
         gla::UnsupportedFunctionality("unsupported array dereference");
     }
-
-    // Array notes
-    // Index will be tracked in lastValue...
-    // ir->array_index->accept(this);
-    // ... then consumed by the array deref
-    // ir->array->accept(this);
 
     // Continue to parent or parser will revisit the array
     return visit_continue_with_parent;
@@ -552,7 +580,8 @@ ir_visitor_status
 
     assert(offset < struct_type->length);
 
-    gepIndexChain.push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), offset));
+    // Track the offset for collapse during variable dereference
+    gepIndexChainStack.top().push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), offset));
 
     return visit_continue;
 }

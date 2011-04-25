@@ -1,0 +1,59 @@
+
+***Unsupported functionality: structure assignment
+compiling structAssignment.frag...
+uniform sampler2D sampler ; 
+varying vec2 coord ; 
+struct lunarStruct1 { int i ; float f ; } ; 
+struct lunarStruct2 { int i ; float f ; lunarStruct1 s1_1 ; } ; 
+struct lunarStruct3 { lunarStruct2 s2_1 ; int i ; float f ; lunarStruct1 s1_1 ; } ; 
+uniform lunarStruct1 foo ; 
+uniform lunarStruct2 foo2 ; 
+uniform lunarStruct3 foo3 ; 
+void  main (){
+lunarStruct2 locals2 ; if ( foo3 . s2_1 . i > 0 ) locals2 = foo3 . s2_1 ; else locals2 = foo2 ; gl_FragColor = locals2 . s1_1 . f * texture2D ( sampler , coord ) ; }
+
+
+
+(
+(declare (uniform ) lunarStruct3 foo3)
+(declare (uniform ) lunarStruct2 foo2)
+(declare (uniform ) lunarStruct1 foo)
+(declare (in ) vec2 coord)
+(declare (uniform ) sampler2D sampler)
+(declare (in ) vec4 gl_FragCoord)
+(declare (in ) bool gl_FrontFacing)
+(declare (out ) vec4 gl_FragColor)
+(declare (in ) vec2 gl_PointCoord)
+(declare () int gl_MaxVertexAttribs)
+(declare () int gl_MaxVertexUniformVectors)
+(declare () int gl_MaxVaryingVectors)
+(declare () int gl_MaxVertexTextureImageUnits)
+(declare () int gl_MaxCombinedTextureImageUnits)
+(declare () int gl_MaxTextureImageUnits)
+(declare () int gl_MaxFragmentUniformVectors)
+(declare (uniform ) gl_DepthRangeParameters gl_DepthRange)
+(declare () int gl_MaxDrawBuffers)
+(declare (out ) (array vec4 2) gl_FragData)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (declare () lunarStruct2 locals2)
+      (if (expression bool > (record_ref (record_ref (var_ref foo3)  s2_1)  i) (constant int (0)) ) (
+        (assign (constant bool (1)) () (var_ref locals2)  (record_ref (var_ref foo3)  s2_1) ) 
+      )
+      (
+        (assign (constant bool (1)) () (var_ref locals2)  (var_ref foo2) ) 
+      ))
+
+      (declare (temporary ) vec4 texture2D_retval)
+      (assign (constant bool (1)) (xyzw) (var_ref texture2D_retval)  (call texture2D ((var_ref sampler) (var_ref coord) ))
+) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 * (record_ref (record_ref (var_ref locals2)  s1_1)  f) (var_ref texture2D_retval) ) ) 
+    ))
+
+)
+
+
+)

@@ -138,7 +138,7 @@ protected:
 
     std::list<llvm::Value*> glslOuts;
 
-    std::vector<llvm::Value*> gepIndexChain;
+    std::stack<std::vector<llvm::Value*>> gepIndexChainStack;
 
     gla::Builder::SuperValue lastValue;
     gla::Builder::SuperValue lValue;
