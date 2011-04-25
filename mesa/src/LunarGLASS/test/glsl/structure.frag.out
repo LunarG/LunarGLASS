@@ -15,8 +15,8 @@
 @gl_MaxTextureImageUnits = internal global i32 2
 @gl_MaxFragmentUniformComponents = internal global i32 64
 @gl_MaxDrawBuffers = internal global i32 2
-@foo2 = external addrspace(1) global [5 x %lunarStruct2]
-@"sampler2D sampler" = external addrspace(1) global i32
+@foo2 = external addrspace(1) constant [5 x %lunarStruct2]
+@"sampler2D sampler" = external addrspace(1) constant i32
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define void @main() {
@@ -66,8 +66,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 %lunarStruct1 = type { i32, [4 x float], [5 x <4 x float>] }
 %lunarStruct2 = type { [5 x i32], float, [7 x %lunarStruct1] }
 
-@foo2 = external addrspace(1) global [5 x %lunarStruct2]
-@"sampler2D sampler" = external addrspace(1) global i32
+@foo2 = external addrspace(1) constant [5 x %lunarStruct2]
+@"sampler2D sampler" = external addrspace(1) constant i32
 
 define void @main() {
 entry:

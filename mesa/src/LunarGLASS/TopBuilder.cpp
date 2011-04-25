@@ -66,7 +66,7 @@ gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, ESt
         addressSpace = gla::UniformAddressSpace;        
         linkage = llvm::GlobalVariable::ExternalLinkage;
         global = true;
-        //readOnly = true;
+        readOnly = true;
         break;
 
     case ESQInput:

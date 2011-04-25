@@ -14,7 +14,7 @@
 @gl_MaxFragmentUniformComponents = internal global i32 64
 @gl_MaxDrawBuffers = internal global i32 2
 @assignment_tmp = internal global float 0.000000e+00
-@bigColor = external addrspace(1) global <4 x float>
+@bigColor = external addrspace(1) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define void @main() {
@@ -63,7 +63,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
 @bar = internal global float 0.000000e+00
-@bigColor = external addrspace(1) global <4 x float>
+@bigColor = external addrspace(1) constant <4 x float>
 
 define void @main() {
 entry:

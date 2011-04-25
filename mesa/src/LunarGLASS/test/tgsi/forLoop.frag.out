@@ -12,8 +12,8 @@
 @gl_MaxTextureImageUnits = internal global i32 2
 @gl_MaxFragmentUniformComponents = internal global i32 64
 @gl_MaxDrawBuffers = internal global i32 2
-@Count = external addrspace(1) global i32
-@bigColor = external addrspace(1) global <4 x float>
+@Count = external addrspace(1) constant i32
+@bigColor = external addrspace(1) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define void @main() {
@@ -60,8 +60,8 @@ declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
-@Count = external addrspace(1) global i32
-@bigColor = external addrspace(1) global <4 x float>
+@Count = external addrspace(1) constant i32
+@bigColor = external addrspace(1) constant <4 x float>
 
 define void @main() {
 entry:
