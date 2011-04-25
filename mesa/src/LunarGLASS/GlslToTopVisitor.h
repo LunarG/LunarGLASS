@@ -52,6 +52,7 @@
 
 #include "LunarGLASSTopIR.h"
 #include "LunarGLASSLlvmInterface.h"
+#include "TopBuilder.h"
 
 void GlslToTop(struct gl_shader*, llvm::Module*);
 
@@ -96,14 +97,14 @@ public:
 	virtual ir_visitor_status visit_enter(class ir_if *);
 	virtual ir_visitor_status visit_leave(class ir_if *);
 
+protected:
     // help functions to build LLVM
     gla::Builder::SuperValue createLLVMVariable(ir_variable*);
-    const char* getSamplerDeclaration(ir_variable*);
+    const char* getSamplerTypeName(ir_variable*);
     gla::Builder::SuperValue expandGLSLOp(ir_expression_operation, gla::Builder::SuperValue*);
     llvm::Value* expandGLSLSwizzle(ir_swizzle*);
     llvm::Value* createLLVMIntrinsic(ir_call*, gla::Builder::SuperValue*, int);
     llvm::Value* createPipelineRead(ir_variable*, int);
-    llvm::Value* smearScalar(llvm::Value*, const llvm::Type*);
     llvm::Value* collapseIndexChain(llvm::Value*);
     llvm::Constant* createLLVMConstant(ir_constant*);
     const llvm::Type* convertGLSLToLLVMType(const glsl_type*);
@@ -122,7 +123,6 @@ public:
 
     int getNextInterpIndex(std::string);
 
-protected:
     llvm::BasicBlock* getShaderEntry();
 
     llvm::LLVMContext &context;

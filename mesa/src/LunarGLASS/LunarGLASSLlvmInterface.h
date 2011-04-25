@@ -47,123 +47,11 @@ namespace llvm {
 namespace gla {
 
     //
-    // Builder is an interface to help build (along with LLVM) the top IR.
-    // These structures are not part of the definition of the top IR;
-    // just helpers to build the Top IR.
-    //
-
-    class Builder {
-    public:
-
-        //
-        // Matrix is a structure to encapsulate a set of LLVM values
-        // comprising a source-level (above TopIR) matrix.
-        //
-        class Matrix {
-        public:
-            explicit Matrix(llvm::Value* m);
-            Matrix(int c, int r, Matrix*);
-            static const llvm::Type* getType(llvm::Type* elementType, int numColumns, int numRows);
-
-            int getNumRows() const { return numRows; }
-            int getNumColumns() const { return numColumns; }
-
-            llvm::Value* getMatrixValue() const { return matrix; }
-
-        protected:
-            int numRows;
-            int numColumns;
-
-            llvm::Value* matrix;
-        };
-
-        class SuperValue {
-        public:
-            SuperValue() : type(ELlvm) { value.llvm = 0; }
-
-            // These are both constructors and implicit conversions
-            SuperValue(llvm::Value* llvm) : type(ELlvm) { value.llvm = llvm; } // implicitly make a SuperValue out of a Value
-            SuperValue(Matrix* m) : type(EMatrix) { value.matrix = m; }        // implicitly make a SuperValue out of a Matrix
-
-            // implicitly make a Value out of a SuperValue
-            operator llvm::Value*() const
-            {
-                assert(type == ELlvm);
-                return value.llvm;
-            }
-
-            // make a Value when derefencing a SuperValue
-            llvm::Value* operator->() const
-            {
-                assert(type == ELlvm);
-                return value.llvm;
-            }
-
-            void clear()
-            {
-                type = ELlvm;
-                value.llvm = 0;
-            }
-
-            bool isMatrix() const { return type == EMatrix; }
-            bool isValue() const { return type == ELlvm; }
-
-            llvm::Value* getValue() const
-            {
-                assert(type == ELlvm);
-                return value.llvm;
-            }
-
-            Matrix* getMatrix() const
-            {
-                assert(type == EMatrix);
-                return value.matrix;
-            }
-
-        protected:
-            enum {
-                EMatrix,
-                ELlvm
-            } type;
-
-            union {
-                Matrix* matrix;
-                llvm::Value* llvm;
-            } value;
-        };
-
-        // handle component-wise matrix operations for either a
-        // pair of matrices or a matrix and a scalar
-        static SuperValue createMatrixOp(llvm::IRBuilder<>&, llvm::Instruction::BinaryOps, SuperValue left, SuperValue right);
-
-        // handle all the possible matrix-related multiply operations
-        // (non component wise; linear algebraic) for all combinations
-        // of matrices, scalars, and vectors that either consume or
-        // create a matrix
-        static SuperValue createMatrixMultiply(llvm::IRBuilder<>&, SuperValue left, SuperValue right);
-        static SuperValue createMatrixCompare (llvm::IRBuilder<>&, SuperValue left, SuperValue right, bool allEqual);
-
-        // handle matrix to matrix operations
-        static Matrix* createMatrixTranspose  (llvm::IRBuilder<>&, Matrix*);
-        static Matrix* createMatrixInverse    (llvm::IRBuilder<>&, Matrix*);
-        static Matrix* createMatrixDeterminant(llvm::IRBuilder<>&, Matrix*);
-
-    protected:
-        static llvm::Value* createMatrixTimesVector(llvm::IRBuilder<>&, Matrix*, llvm::Value*);
-        static llvm::Value* createVectorTimesMatrix(llvm::IRBuilder<>&, llvm::Value*, Matrix*);
-
-        static Matrix* createSmearedMatrixOp  (llvm::IRBuilder<>&, llvm::Instruction::BinaryOps, Matrix*, llvm::Value*, bool reverseOrder);
-        static Matrix* createMatrixTimesMatrix(llvm::IRBuilder<>&, Matrix*, Matrix*);
-        static Matrix* createOuterProduct     (llvm::IRBuilder<>&, llvm::Value* lvector, llvm::Value* rvector);
-    };
-
-    //
-    // some utility query functions
+    // Some utility query/make functions.
     //
 
     class Util {
     public:
-
         // extract integer value or assert trying
         static int getConstantInt(const llvm::Value*);
 
@@ -217,13 +105,8 @@ namespace gla {
         // points. Note that the presense of backedges or exitedges in the then and else
         // branchs' subgraphs may cause there to be multiple potential merge points.
         static llvm::BasicBlock* getSingleMergePoint(const llvm::BasicBlock* condBB, llvm::DominanceFrontier& domFront);
+    };  // end Util class
 
-        // Handy way to get intrinsics
-        static llvm::Function* getIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*);
-        static llvm::Function* getIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
-        static llvm::Function* getIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
-        static llvm::Function* getIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
-    };
-};
+};  // end gla namespace
 
 #endif // LunarGLASSLlvmInterface_H

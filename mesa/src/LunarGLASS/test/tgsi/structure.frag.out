@@ -16,7 +16,7 @@
 @gl_MaxFragmentUniformComponents = internal global i32 64
 @gl_MaxDrawBuffers = internal global i32 2
 @foo2 = external addrspace(1) global [5 x %lunarStruct2]
-@sampler = external addrspace(1) global i32
+@"sampler2D sampler" = external addrspace(1) global i32
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define void @main() {
@@ -40,7 +40,7 @@ else:                                             ; preds = %entry
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %3 = load i32 addrspace(1)* @sampler
+  %3 = load i32 addrspace(1)* @"sampler2D sampler"
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
   %texture2D_retval3 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %3, i32 0, <2 x float> %coord)
   store <4 x float> %texture2D_retval3, <4 x float>* %texture2D_retval
@@ -67,7 +67,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 %lunarStruct2 = type { [5 x i32], float, [7 x %lunarStruct1] }
 
 @foo2 = external addrspace(1) global [5 x %lunarStruct2]
-@sampler = external addrspace(1) global i32
+@"sampler2D sampler" = external addrspace(1) global i32
 
 define void @main() {
 entry:
@@ -86,7 +86,7 @@ else:                                             ; preds = %entry
 
 ifmerge:                                          ; preds = %else, %then
   %scale.0 = phi float [ %scale1, %then ], [ %scale2, %else ]
-  %3 = load i32 addrspace(1)* @sampler
+  %3 = load i32 addrspace(1)* @"sampler2D sampler"
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
   %texture2D_retval3 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %3, i32 0, <2 x float> %coord)
   %4 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.0, i32 0)

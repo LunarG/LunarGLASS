@@ -1128,61 +1128,57 @@ ir_visitor_status
 
 gla::Builder::SuperValue GlslToTopVisitor::createLLVMVariable(ir_variable* var)
 {
-    unsigned int addressSpace = gla::GlobalAddressSpace;
-    bool constant = var->read_only;
+    if (strcmp(var->name, "gl_FragDepth") == 0)
+        gla::UnsupportedFunctionality("gl_FragDepth");
+
+    if (strcmp(var->name, "gl_FragData") == 0)
+        gla::UnsupportedFunctionality("gl_FragData");
+
     llvm::Constant* initializer = 0;
-    llvm::GlobalValue::LinkageTypes linkage = llvm::GlobalVariable::InternalLinkage;
-    const llvm::Type *llvmVarType = convertGLSLToLLVMType(var->type);
-    llvm::Value* value = 0;
-    bool globalQualifier = false;
-
-    const char* typePrefix = 0;
-    if (var->type->base_type == GLSL_TYPE_SAMPLER)
-        typePrefix = getSamplerDeclaration(var);
-
+    gla::Builder::EStorageQualifier storageQualifier;
+    int constantBuffer = 0;
+ 
     switch (var->mode) {
+    case ir_var_temporary:
     case ir_var_auto:
-        if (constant)
+        if (localScope)
+            storageQualifier = gla::Builder::ESQLocal;
+        else
+            storageQualifier = gla::Builder::ESQGlobal;
+        if (var->read_only) {
+            // The GLSL2 front-end confusingly writes to constants, so we can't
+            // actually treat them as constants.  Instead, they are just
+            // initialized variables.
             initializer = createLLVMConstant(var->constant_value);
-        else if (! localScope)
-            initializer = llvm::Constant::getNullValue(llvmVarType);
+        }
         break;
 
     case ir_var_uniform:
+        storageQualifier = gla::Builder::ESQUniform;
         // ?? need to generalize to N objects (constant buffers) for higher shader models
-        // ?? link:  we need link info to know how large the memory object is
-        linkage = llvm::GlobalVariable::ExternalLinkage;
-        globalQualifier = true;
-        addressSpace = gla::UniformAddressSpace;
-        assert(var->read_only == true);
+        constantBuffer = 0;
         break;
 
     case ir_var_in:
         // inputs should all be pipeline reads or created at function creation time
         assert(! "no memory allocations for inputs");
-        return value;
+        break;
 
     case ir_var_out:
-        // use internal linkage, because epilogue will to the write out to the pipe
-        // internal linkage helps with global optimizations, so does having an initializer
-        globalQualifier = true;
-        initializer = llvm::Constant::getNullValue(llvmVarType);
-        break;
-
-    case ir_var_inout:
-        // can only be for function parameters
-        break;
-
-    case ir_var_temporary:
-        if (! localScope)
-            initializer = llvm::Constant::getNullValue(llvmVarType);
+        storageQualifier = gla::Builder::ESQOutput;
         break;
 
     default:
         assert(! "Unhandled var->mode");
-        break;
     }
-
+    
+    std::string* annotationAddr = 0;
+    std::string annotation;
+    if (var->type->base_type == GLSL_TYPE_SAMPLER) {
+        annotation = std::string(getSamplerTypeName(var));
+        annotationAddr = &annotation;
+    }
+    
     //?? still need to consume the following
     // var->max_array_access;
     // var->centroid;
@@ -1192,46 +1188,12 @@ gla::Builder::SuperValue GlslToTopVisitor::createLLVMVariable(ir_variable* var)
     // var->pixel_center_integer;
     // var->location;
 
-    if (localScope && ! globalQualifier) {
+    const llvm::Type *llvmType = convertGLSLToLLVMType(var->type);
 
-        // LLVM promote memory to registers pass only works when alloca
-        // is in the entry block.
-
-        llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();
-        llvm::IRBuilder<> entryBuilder(entryBlock, entryBlock->begin());
-        value = entryBuilder.CreateAlloca(llvmVarType, 0, var->name);
-    } else {
-        if (strcmp(var->name, "gl_FragDepth") == 0)
-            gla::UnsupportedFunctionality("gl_FragDepth");
-
-        if (strcmp(var->name, "gl_FragData") == 0)
-            gla::UnsupportedFunctionality("gl_FragData");
-
-        std::string name = var->name;
-        if (gla::Options.backend == gla::GLSL && typePrefix) {
-            name = typePrefix;
-            name.append(" ");
-            name.append(var->name);
-        } else
-            name = var->name;
-
-        //
-        // The GLSL2 front-end confusingly writes to constants, so we can't
-        // actually declare the llvm variable to be a constant.
-        //
-        llvm::GlobalVariable* globalValue = new llvm::GlobalVariable(llvmVarType, false /* constant */, linkage,
-                                         initializer, name, false /* ThreadLocal */, addressSpace);
-        module->getGlobalList().push_back(globalValue);
-        value = globalValue;
-    }
-
-    if (var->type->is_matrix())
-        return new gla::Builder::Matrix(value);
-
-    return value;
+    return gla::Builder::createVariable(builder, storageQualifier, constantBuffer, llvmType, var->type->is_matrix(), initializer, annotationAddr, var->name);
 }
 
-const char* GlslToTopVisitor::getSamplerDeclaration(ir_variable* var)
+const char* GlslToTopVisitor::getSamplerTypeName(ir_variable* var)
 {
     if (var->type->sampler_shadow) {
         switch (var->type->sampler_dimensionality) {
@@ -1622,22 +1584,22 @@ const llvm::Type* GlslToTopVisitor::convertGLSLToLLVMType(const glsl_type* type)
 
 llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction1(llvm::Intrinsic::ID ID, const llvm::Type* type1)
 {
-    return gla::Util::getIntrinsic(module, ID, type1);
+    return gla::Builder::makeIntrinsic(module, ID, type1);
 }
 
 llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction2(llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2)
 {
-    return gla::Util::getIntrinsic(module, ID, type1, type2);
+    return gla::Builder::makeIntrinsic(module, ID, type1, type2);
 }
 
 llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction3(llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3)
 {
-    return gla::Util::getIntrinsic(module, ID, type1, type2, type3);
+    return gla::Builder::makeIntrinsic(module, ID, type1, type2, type3);
 }
 
 llvm::Function* GlslToTopVisitor::getLLVMIntrinsicFunction4(llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3, const llvm::Type* type4)
 {
-    return gla::Util::getIntrinsic(module, ID, type1, type2, type3, type4);
+    return gla::Builder::makeIntrinsic(module, ID, type1, type2, type3, type4);
 }
 
 void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName, int &paramCount,
@@ -1702,32 +1664,6 @@ llvm::Type::TypeID GlslToTopVisitor::getLLVMBaseType(const llvm::Type* type)
     return type->getTypeID();
 }
 
-llvm::Value* GlslToTopVisitor::smearScalar(llvm::Value* scalarVal, const llvm::Type* vectorType)
-{
-    llvm::UndefValue::get(vectorType);
-
-    // Use a swizzle to expand the scalar to a vector
-    llvm::Intrinsic::ID intrinsicID;
-    llvm::Type::TypeID scalarType = getLLVMBaseType(scalarVal);
-    switch(scalarType) {
-    case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_swizzle;     break;
-    case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fSwizzle;    break;
-    default:
-        gla::UnsupportedFunctionality("smear type");
-    }
-
-    llvm::Function *intrinsicName = getLLVMIntrinsicFunction2(intrinsicID, vectorType, scalarVal->getType());
-
-    // Broadcast x
-    int swizVal = 0;
-
-    llvm::CallInst *callInst = builder.CreateCall2 (intrinsicName,
-                                                    scalarVal,
-                                                    llvm::ConstantInt::get(context, llvm::APInt(32, swizVal, true)));
-
-    return callInst;
-}
-
 void GlslToTopVisitor::findAndSmearScalars(gla::Builder::SuperValue* operands, int numOperands)
 {
     assert(numOperands == 2);
@@ -1754,7 +1690,7 @@ void GlslToTopVisitor::findAndSmearScalars(gla::Builder::SuperValue* operands, i
     if( (vectorType[0] && vectorType[1]) || (!vectorType[0] && !vectorType[1]) )
         return;
 
-    operands[scalarIndex] = smearScalar(scalarVal, operands[vectorIndex]->getType());
+    operands[scalarIndex] = gla::Builder::smearScalar(builder, scalarVal, operands[vectorIndex]->getType());
 }
 
 llvm::BasicBlock* GlslToTopVisitor::getShaderEntry()
@@ -1802,12 +1738,10 @@ void GlslToTopVisitor::appendArrayIndexToName(std::string &arrayName, int index)
 }
 
 llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
-{
+{    
     // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
     // which we will optimize later.
-    llvm::Function *intrinsicName = 0;
     std::string name(var->name);
-    int paramCount = 0;
     const llvm::Type* readType;
 
     if (GLSL_TYPE_ARRAY == var->type->base_type) {
@@ -1826,6 +1760,8 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
     llvm::Constant *interpOffset = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
 
     // Select intrinsic based on target stage
+    llvm::Function *intrinsicName = 0;
+    int paramCount = 0;
     if(glShader->Type == GL_FRAGMENT_SHADER) {
         llvm::Intrinsic::ID intrinsicID;
         switch(getLLVMBaseType(readType)) {
@@ -1840,8 +1776,8 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
     // Call the selected intrinsic
     llvm::Value* retVal;
     switch(paramCount) {
-    case 2:  retVal = builder.CreateCall2 (intrinsicName, interpLoc, interpOffset, name); break;
-    case 1:  retVal = builder.CreateCall  (intrinsicName, interpLoc, name);               break;
+    case 2:  retVal = builder.CreateCall2(intrinsicName, interpLoc, interpOffset, name); break;
+    case 1:  retVal = builder.CreateCall (intrinsicName, interpLoc, name);               break;
     }
 
     return retVal;

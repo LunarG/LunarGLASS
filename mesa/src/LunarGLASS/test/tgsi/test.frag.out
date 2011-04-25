@@ -12,9 +12,9 @@
 @gl_MaxTextureImageUnits = internal global i32 2
 @gl_MaxFragmentUniformComponents = internal global i32 64
 @gl_MaxDrawBuffers = internal global i32 2
-@texSampler2D = external addrspace(1) global i32
+@"sampler2D texSampler2D" = external addrspace(1) global i32
 @scale = external addrspace(1) global <2 x float>
-@texSampler3D = external addrspace(1) global i32
+@"sampler3D texSampler3D" = external addrspace(1) global i32
 @u = external addrspace(1) global <4 x float>
 @blend = external addrspace(1) global float
 @gl_FragColor = internal global <4 x float> zeroinitializer
@@ -27,7 +27,7 @@ entry:
   %blendscale = alloca float
   %v = alloca <4 x float>
   store float 0x3FFC9FBE80000000, float* %blendscale
-  %0 = load i32 addrspace(1)* @texSampler2D
+  %0 = load i32 addrspace(1)* @"sampler2D texSampler2D"
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
   %1 = load <2 x float> addrspace(1)* @scale
   %2 = fadd <2 x float> %t, %1
@@ -45,7 +45,7 @@ entry:
   %12 = extractelement <4 x float> %5, i32 0
   %v2 = insertelement <4 x float> %11, float %12, i32 3
   store <4 x float> %v2, <4 x float>* %v
-  %13 = load i32 addrspace(1)* @texSampler3D
+  %13 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 0)
   %texture3D_retval3 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %13, i32 0, <3 x float> %coords)
   store <4 x float> %texture3D_retval3, <4 x float>* %texture3D_retval
@@ -78,22 +78,22 @@ declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 ; ModuleID = 'Top'
 
-@texSampler2D = external addrspace(1) global i32
+@"sampler2D texSampler2D" = external addrspace(1) global i32
 @scale = external addrspace(1) global <2 x float>
-@texSampler3D = external addrspace(1) global i32
+@"sampler3D texSampler3D" = external addrspace(1) global i32
 @u = external addrspace(1) global <4 x float>
 @blend = external addrspace(1) global float
 
 define void @main() {
 entry:
-  %0 = load i32 addrspace(1)* @texSampler2D
+  %0 = load i32 addrspace(1)* @"sampler2D texSampler2D"
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
   %1 = load <2 x float> addrspace(1)* @scale
   %2 = fadd <2 x float> %t, %1
   %3 = fdiv <2 x float> %2, %1
   %texture2D_retval1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %3)
   %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> undef, i32 15, <4 x float> %texture2D_retval1, i32 3, <4 x float> %texture2D_retval1, i32 2, <4 x float> %texture2D_retval1, i32 1, <4 x float> %texture2D_retval1, i32 0)
-  %5 = load i32 addrspace(1)* @texSampler3D
+  %5 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 0)
   %texture3D_retval3 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %5, i32 0, <3 x float> %coords)
   %6 = fadd <4 x float> %texture3D_retval3, %4

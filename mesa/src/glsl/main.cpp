@@ -44,8 +44,6 @@ typedef int ssize_t;
 #include "program.h"
 #include "loop_analysis.h"
 
-#include "LunarGLASSTopIR.h"
-#include "GlslToTop.h"
 #include "ir_to_mesa.h"
 
 // Begin: LunarG
@@ -57,6 +55,10 @@ typedef int ssize_t;
 // LunarGLASS runtime options handling
 #include "OptionParse.h"
 #include "Options.h"
+
+// LunarGLASS includes
+#include "LunarGLASSTopIR.h"
+#include "GlslToTop.h"
 
 // End: LunarG
 extern "C" struct gl_shader *

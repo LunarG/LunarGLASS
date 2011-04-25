@@ -20,7 +20,7 @@
 @foo3 = external addrspace(1) global %lunarStruct3
 @foo = external addrspace(1) global %lunarStruct1
 @foo2 = external addrspace(1) global [5 x %lunarStruct2]
-@sampler = external addrspace(1) global i32
+@"sampler2D sampler" = external addrspace(1) global i32
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define void @main() {
@@ -87,7 +87,7 @@ ifmerge7:                                         ; preds = %post-loopjump, %loo
   br label %loop-header
 
 loop-merge:                                       ; preds = %then6
-  %18 = load i32 addrspace(1)* @sampler
+  %18 = load i32 addrspace(1)* @"sampler2D sampler"
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
   %texture2D_retval10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %18, i32 0, <2 x float> %coord)
   store <4 x float> %texture2D_retval10, <4 x float>* %texture2D_retval
@@ -118,7 +118,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 @foo3 = external addrspace(1) global %lunarStruct3
 @foo = external addrspace(1) global %lunarStruct1
 @foo2 = external addrspace(1) global [5 x %lunarStruct2]
-@sampler = external addrspace(1) global i32
+@"sampler2D sampler" = external addrspace(1) global i32
 
 define void @main() {
 entry:
@@ -154,7 +154,7 @@ loop-header:                                      ; preds = %ifmerge7, %ifmerge
   br i1 %8, label %then6, label %ifmerge7
 
 then6:                                            ; preds = %loop-header
-  %9 = load i32 addrspace(1)* @sampler
+  %9 = load i32 addrspace(1)* @"sampler2D sampler"
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
   %texture2D_retval10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %coord)
   %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.1, i32 0)
