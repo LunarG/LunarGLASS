@@ -16,7 +16,7 @@
 
 define void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   store <4 x float> %BaseColor, <4 x float>* @gl_FragColor
   %0 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %0)
@@ -25,7 +25,7 @@ entry:
 
 define fastcc <4 x float> @foo() {
 foo:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   ret <4 x float> %BaseColor
 }
 
@@ -36,14 +36,14 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 define void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %BaseColor)
   ret void
 }
 
 define fastcc <4 x float> @foo() {
 foo:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   ret <4 x float> %BaseColor
 }
 

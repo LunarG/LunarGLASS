@@ -36,7 +36,7 @@ entry:
   %0 = load <4 x float>* %w_reorder
   %w_reorder5 = insertelement <4 x float> %0, float 0x3FFC9FBE80000000, i32 2
   store <4 x float> %w_reorder5, <4 x float>* %w_reorder
-  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %1 = extractelement <2 x float> %t, i32 1
   %2 = insertelement <2 x float> undef, float %1, i32 0
   %3 = extractelement <2 x float> %t, i32 0
@@ -74,7 +74,7 @@ entry:
   %27 = extractelement <2 x float> %23, i32 1
   %w_dep10 = insertelement <4 x float> %26, float %27, i32 1
   store <4 x float> %w_dep10, <4 x float>* %w_dep
-  %t11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
+  %t11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %28 = load <4 x float>* %w_dep
   %29 = extractelement <2 x float> %t11, i32 0
   %30 = insertelement <4 x float> %28, float %29, i32 2
@@ -96,7 +96,7 @@ entry:
   br i1 %41, label %then, label %else
 
 then:                                             ; preds = %entry
-  %t14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
+  %t14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %42 = extractelement <2 x float> %t14, i32 0
   %43 = load <4 x float>* %w_flow
   %w_flow15 = insertelement <4 x float> %43, float %42, i32 0
@@ -104,7 +104,7 @@ then:                                             ; preds = %entry
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %t16 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
+  %t16 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %44 = extractelement <2 x float> %t16, i32 1
   %45 = load <4 x float>* %w_flow
   %w_flow17 = insertelement <4 x float> %45, float %44, i32 0
@@ -143,7 +143,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 define void @main() {
 entry:
   %w1 = load <4 x float> addrspace(1)* @u
-  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x float> %w1, i32 10, float 0.000000e+00, i32 -1, <2 x float> %t, i32 1, float 0.000000e+00, i32 -1, <2 x float> %t, i32 0)
   %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> undef, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, <4 x float> %w1, i32 0, <4 x float> %w1, i32 1)
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %w1, i32 7, float 0x3FFC9FBE80000000, i32 -1, float 0x3FFC9FBE80000000, i32 -1, float 0x3FFC9FBE80000000, i32 -1, float 0.000000e+00, i32 -1)

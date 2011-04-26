@@ -21,15 +21,15 @@
 define void @main() {
 entry:
   %color = alloca <4 x float>
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   store <4 x float> %BaseColor, <4 x float>* %color
-  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 0)
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
   %0 = load float addrspace(1)* @d
   %1 = fcmp ogt float %c, %0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
+  %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   %2 = load <4 x float> addrspace(1)* @bigColor
   %color2 = fadd <4 x float> %BaseColor1, %2
   store <4 x float> %color2, <4 x float>* %color
@@ -66,8 +66,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 define void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 0)
-  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 0)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
   %0 = load float addrspace(1)* @d
   %1 = fcmp ogt float %c, %0
   br i1 %1, label %then, label %else

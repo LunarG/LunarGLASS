@@ -88,7 +88,7 @@ ifmerge7:                                         ; preds = %post-loopjump, %loo
 
 loop-merge:                                       ; preds = %then6
   %18 = load i32 addrspace(1)* @"sampler2D sampler"
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %texture2D_retval10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %18, i32 0, <2 x float> %coord)
   store <4 x float> %texture2D_retval10, <4 x float>* %texture2D_retval
   %19 = load float* %scale
@@ -155,7 +155,7 @@ loop-header:                                      ; preds = %ifmerge7, %ifmerge
 
 then6:                                            ; preds = %loop-header
   %9 = load i32 addrspace(1)* @"sampler2D sampler"
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 0)
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %texture2D_retval10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %coord)
   %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.1, i32 0)
   %gl_FragColor = fmul <4 x float> %10, %texture2D_retval10

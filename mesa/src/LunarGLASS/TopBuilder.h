@@ -153,7 +153,9 @@ public:
     gla::Builder::SuperValue createVariable(llvm::IRBuilder<>&, EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
                                                     llvm::Constant* initializer, const std::string* annotation, const std::string& name);
     // Copy out to the pipeline the outputs we've been caching in variables
-    void Builder::copyOutPipeline(llvm::IRBuilder<>& builder);
+    void copyOutPipeline(llvm::IRBuilder<>& builder);
+
+    static llvm::Value* readPipeline(llvm::IRBuilder<>&, const llvm::Type*, std::string& name, int slot, EInterpolationMode mode = EIMNone, float offsetx = 0.0, float offsety = 0.0);
 
     // Matrix factory that tracks what to delete
     Matrix* newMatrix(llvm::Value*);
@@ -184,7 +186,7 @@ public:
     static void promoteScalar(llvm::IRBuilder<>&, SuperValue& left, SuperValue& right);
 
     // make a value by smearing the scalar to fill the type
-    static llvm::Value* Builder::smearScalar(llvm::IRBuilder<>&, llvm::Value* scalarVal, const llvm::Type*);
+    static llvm::Value* smearScalar(llvm::IRBuilder<>&, llvm::Value* scalarVal, const llvm::Type*);
 
 protected:
     static llvm::Value* createMatrixTimesVector(llvm::IRBuilder<>&, Matrix*, llvm::Value*);

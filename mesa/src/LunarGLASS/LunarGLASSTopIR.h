@@ -103,6 +103,12 @@ namespace gla {
 
     const unsigned int GlobalAddressSpace = 0;
     const unsigned int UniformAddressSpace = 1;
+
+    enum EInterpolationMode {
+        EIMNone,  // also for flat
+        EIMSmooth,
+        EIMNoperspective
+    };
 };
 
 #endif /* LunarGLASSTopIR_H */

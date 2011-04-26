@@ -1627,31 +1627,25 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
     } else {
         readType = convertGLSLToLLVMType(var->type);
     }
+    
+    gla::EInterpolationMode mode = gla::EIMNone;
+    if (glShader->Type != GL_FRAGMENT_SHADER)
+        gla::UnsupportedFunctionality("non-fragment shader pipeline read");
 
+    switch (var->interpolation) {
+    case ir_var_smooth:
+        mode = gla::EIMSmooth;
+        break;
+    case ir_var_noperspective:
+        mode = gla::EIMNoperspective;
+        break;
+    case ir_var_flat:
+        mode = gla::EIMNone;
+        break;
+    default:
+        gla::UnsupportedFunctionality("interpolation mode");
+    }
+        
     // Give each interpolant a temporary unique index
-    llvm::Constant *interpLoc = llvm::ConstantInt::get(context, llvm::APInt(32, getNextInterpIndex(name), true));
-    llvm::Constant *interpOffset = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
-
-    // Select intrinsic based on target stage
-    llvm::Function *intrinsicName = 0;
-    int paramCount = 0;
-    if(glShader->Type == GL_FRAGMENT_SHADER) {
-        llvm::Intrinsic::ID intrinsicID;
-        switch(gla::Util::getBasicType(readType)) {
-        case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_readData;            paramCount = 1; break;
-        case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fReadInterpolant;    paramCount = 2; break;
-        }
-        intrinsicName = getLLVMIntrinsicFunction1(intrinsicID, readType);
-    } else {
-        gla::UnsupportedFunctionality("non-fragment shaders");
-    }
-
-    // Call the selected intrinsic
-    llvm::Value* retVal;
-    switch(paramCount) {
-    case 2:  retVal = builder.CreateCall2(intrinsicName, interpLoc, interpOffset, name); break;
-    case 1:  retVal = builder.CreateCall (intrinsicName, interpLoc, name);               break;
-    }
-
-    return retVal;
+    return gla::Builder::readPipeline(builder, readType, name, getNextInterpIndex(name), mode);
 }

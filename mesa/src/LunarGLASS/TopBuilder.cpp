@@ -159,6 +159,40 @@ void Builder::copyOutPipeline(llvm::IRBuilder<>& builder)
     }
 }
 
+llvm::Value* Builder::readPipeline(llvm::IRBuilder<>& builder, const llvm::Type* type, std::string& name, int slot, EInterpolationMode mode, float offsetX, float offsetY)
+{
+    llvm::Constant *slotConstant = Util::makeUnsignedConstant(builder.getContext(), slot);
+
+    // This correction is necessary for some front ends, which might allow
+    // "interpolated" integers or Booleans.
+    if (Util::getBasicType(type) != llvm::Type::FloatTyID)
+        mode = EIMNone;
+
+    llvm::Function *intrinsic;
+    if (mode != EIMNone) {
+        llvm::Constant *modeConstant = Util::makeUnsignedConstant(builder.getContext(), mode);
+
+        if (offsetX != 0.0 || offsetY != 0.0) {
+            std::vector<llvm::Constant*> offsets;
+            offsets.push_back(Util::makeFloatConstant(builder.getContext(), offsetX));
+            offsets.push_back(Util::makeFloatConstant(builder.getContext(), offsetY));
+            llvm::Constant* offset = makeConstant(offsets);
+            intrinsic = makeIntrinsic(builder, llvm::Intrinsic::gla_fReadInterpolantOffset, type, offset->getType());
+            return builder.CreateCall3(intrinsic, slotConstant, modeConstant, offset, name);
+        } else {
+            intrinsic = makeIntrinsic(builder, llvm::Intrinsic::gla_fReadInterpolant, type);
+            return builder.CreateCall2(intrinsic, slotConstant, modeConstant, name);
+        }
+    } else {
+        switch (Util::getBasicType(type)) {
+        case llvm::Type::IntegerTyID:   intrinsic = makeIntrinsic(builder, llvm::Intrinsic::gla_readData, type); break;
+        case llvm::Type::FloatTyID:     intrinsic = makeIntrinsic(builder, llvm::Intrinsic::gla_fReadData, type); break;
+        }
+
+        return builder.CreateCall(intrinsic, slotConstant, name);
+    }
+}
+
 //
 // Builder::Matrix definitions
 //

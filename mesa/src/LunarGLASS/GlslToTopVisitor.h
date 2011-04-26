@@ -132,7 +132,7 @@ protected:
     std::map<std::string, llvm::StructType*> structMap;
     std::map<ir_function_signature *, llvm::Function*> functionMap;
 
-    std::stack<std::vector<llvm::Value*>> gepIndexChainStack;
+    std::stack<std::vector<llvm::Value*> > gepIndexChainStack;
 
     gla::Builder::SuperValue lastValue;
     gla::Builder::SuperValue lValue;

@@ -323,19 +323,19 @@ ifmerge85:                                        ; preds = %else84, %then81
   %assignment_tmp9394 = add <4 x i32> %37, %i_i4
   store <4 x i32> %assignment_tmp9394, <4 x i32>* %assignment_tmp93
   %38 = load float addrspace(1)* @u_f
-  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 8, i32 0)
+  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 8, i32 1)
   %assignment_tmp9596 = fadd float %38, %i_f
   store float %assignment_tmp9596, float* %assignment_tmp95
   %39 = load <2 x float> addrspace(1)* @u_f2
-  %i_f2 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 9, i32 0)
+  %i_f2 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 9, i32 1)
   %assignment_tmp9798 = fadd <2 x float> %39, %i_f2
   store <2 x float> %assignment_tmp9798, <2 x float>* %assignment_tmp97
   %40 = load <3 x float> addrspace(1)* @u_f3
-  %i_f3 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 10, i32 0)
+  %i_f3 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 10, i32 1)
   %assignment_tmp99100 = fadd <3 x float> %40, %i_f3
   store <3 x float> %assignment_tmp99100, <3 x float>* %assignment_tmp99
   %41 = load <4 x float> addrspace(1)* @u_f4
-  %i_f4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 11, i32 0)
+  %i_f4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 11, i32 1)
   %assignment_tmp101102 = fadd <4 x float> %41, %i_f4
   store <4 x float> %assignment_tmp101102, <4 x float>* %assignment_tmp101
   %42 = load i1* %and_tmp
@@ -794,16 +794,16 @@ ifmerge85:                                        ; preds = %else84, %then81
   %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 7)
   %assignment_tmp9394 = add <4 x i32> %13, %i_i4
   %14 = load float addrspace(1)* @u_f
-  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 8, i32 0)
+  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 8, i32 1)
   %assignment_tmp9596 = fadd float %14, %i_f
   %15 = load <2 x float> addrspace(1)* @u_f2
-  %i_f2 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 9, i32 0)
+  %i_f2 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 9, i32 1)
   %assignment_tmp9798 = fadd <2 x float> %15, %i_f2
   %16 = load <3 x float> addrspace(1)* @u_f3
-  %i_f3 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 10, i32 0)
+  %i_f3 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 10, i32 1)
   %assignment_tmp99100 = fadd <3 x float> %16, %i_f3
   %17 = load <4 x float> addrspace(1)* @u_f4
-  %i_f4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 11, i32 0)
+  %i_f4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 11, i32 1)
   %assignment_tmp101102 = fadd <4 x float> %17, %i_f4
   br i1 %and_tmp.0, label %then103, label %else104
 
@@ -1006,14 +1006,14 @@ uniform float u_f ;
 uniform vec2 u_f2 ; 
 uniform vec3 u_f3 ; 
 uniform vec4 u_f4 ; 
-in bool i_b ; 
-in bvec2 i_b2 ; 
-in bvec3 i_b3 ; 
-in bvec4 i_b4 ; 
-in int i_i ; 
-in ivec2 i_i2 ; 
-in ivec3 i_i3 ; 
-in ivec4 i_i4 ; 
+in flat bool i_b ; 
+in flat bvec2 i_b2 ; 
+in flat bvec3 i_b3 ; 
+in flat bvec4 i_b4 ; 
+in flat int i_i ; 
+in flat ivec2 i_i2 ; 
+in flat ivec3 i_i3 ; 
+in flat ivec4 i_i4 ; 
 in float i_f ; 
 in vec2 i_f2 ; 
 in vec3 i_f3 ; 
@@ -1028,14 +1028,14 @@ bool b = u_b && i_b ; bvec2 b2 = bvec2 ( u_b2 . x && i_b2 . x && u_b2 . y && i_b
 (declare (in ) vec3 i_f3)
 (declare (in ) vec2 i_f2)
 (declare (in ) float i_f)
-(declare (in ) ivec4 i_i4)
-(declare (in ) ivec3 i_i3)
-(declare (in ) ivec2 i_i2)
-(declare (in ) int i_i)
-(declare (in ) bvec4 i_b4)
-(declare (in ) bvec3 i_b3)
-(declare (in ) bvec2 i_b2)
-(declare (in ) bool i_b)
+(declare (in flat) ivec4 i_i4)
+(declare (in flat) ivec3 i_i3)
+(declare (in flat) ivec2 i_i2)
+(declare (in flat) int i_i)
+(declare (in flat) bvec4 i_b4)
+(declare (in flat) bvec3 i_b3)
+(declare (in flat) bvec2 i_b2)
+(declare (in flat) bool i_b)
 (declare (uniform ) vec4 u_f4)
 (declare (uniform ) vec3 u_f3)
 (declare (uniform ) vec2 u_f2)
