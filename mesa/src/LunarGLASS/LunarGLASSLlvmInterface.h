@@ -56,8 +56,11 @@ namespace gla {
         static int getConstantInt(const llvm::Value*);
 
         // create integer constant
-        static llvm::Value* makeUnsignedIntConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, false)); }
-        static llvm::Value* makeIntConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, true)); }
+        static llvm::Constant* makeBoolConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(1, i, false)); }
+        static llvm::Constant* makeBoolConstant(llvm::LLVMContext& context, bool True) { return llvm::ConstantInt::get(context, llvm::APInt(True ? 1 : 0, false)); }
+        static llvm::Constant* makeUnsignedConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, false)); }
+        static llvm::Constant* makeIntConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, true)); }
+        static llvm::Constant* makeFloatConstant(llvm::LLVMContext& context, float f) { return llvm::ConstantFP::get(context, llvm::APFloat(f)); };
 
         // get floating point value or assert trying
         static float GetConstantFloat(const llvm::Value*);

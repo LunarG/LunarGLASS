@@ -45,13 +45,22 @@
 namespace gla {
 
 gla::Builder::~Builder()
-{    
+{
     for (std::vector<Matrix*>::iterator i = matrixList.begin(); i != matrixList.end(); ++i)
         delete *i;
 }
 
-gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, EStorageQualifier storageQualifier, int storageInstance, 
-                                                 const llvm::Type* type, bool isMatrix, llvm::Constant* initializer, const std::string* annotation, 
+
+llvm::Constant* Builder::makeConstant(std::vector<llvm::Constant*>& constants)
+{
+    if (constants.size() == 1)
+        return constants[0];
+
+    return llvm::ConstantVector::get(constants);
+}
+
+gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, EStorageQualifier storageQualifier, int storageInstance,
+                                                 const llvm::Type* type, bool isMatrix, llvm::Constant* initializer, const std::string* annotation,
                                                  const std::string& name)
 {
     std::string annotatedName;
@@ -67,10 +76,10 @@ gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, ESt
     llvm::GlobalValue::LinkageTypes linkage = llvm::GlobalVariable::InternalLinkage;
     bool global = false;
     bool readOnly = false;
-    
+
     switch (storageQualifier) {
     case ESQUniform:
-        addressSpace = gla::UniformAddressSpace;        
+        addressSpace = gla::UniformAddressSpace;
         linkage = llvm::GlobalVariable::ExternalLinkage;
         global = true;
         readOnly = true;
@@ -83,7 +92,7 @@ gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, ESt
     case ESQOutput:
         // This isn't for the actual pipeline output, but for the variable
         // holding the value up until when the epilogue writes out to the pipe.
-        // Internal linkage helps with global optimizations, 
+        // Internal linkage helps with global optimizations,
         // so does having an initializer.
         global = true;
         if (initializer == 0)
@@ -108,7 +117,7 @@ gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, ESt
         llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
         module->getGlobalList().push_back(globalValue);
         value = globalValue;
-        
+
         if (storageQualifier == ESQOutput) {
             // Track the value that must be copied out to the pipeline at
             // the end of the shader.
@@ -116,7 +125,7 @@ gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, ESt
         }
 
     } else {
-        // LLVM's promote memory to registers only works when 
+        // LLVM's promote memory to registers only works when
         // alloca is in the entry block.
         llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();
         llvm::IRBuilder<> entryBuilder(entryBlock, entryBlock->begin());
@@ -389,7 +398,7 @@ llvm::Value* Builder::createVectorTimesMatrix(llvm::IRBuilder<>& builder, llvm::
     for (int c = 0; c < matrix->getNumColumns(); ++c) {
         llvm::Value* column = builder.CreateExtractValue(matrix->getMatrixValue(), c, "__column");
         llvm::Value* comp = builder.CreateCall2(dot, lvector, column, "__dot");
-        result = builder.CreateInsertElement(result, comp, Util::makeUnsignedIntConstant(result->getContext(), c));
+        result = builder.CreateInsertElement(result, comp, Util::makeUnsignedConstant(result->getContext(), c));
     }
 
     return result;
@@ -407,12 +416,12 @@ Builder::Matrix* Builder::createSmearedMatrixOp(llvm::IRBuilder<>& builder, llvm
         llvm::Value* column = builder.CreateExtractValue(matrix->getMatrixValue(), c, "__column");
 
         for (int r = 0; r < matrix->getNumRows(); ++r) {
-            llvm::Value* element = builder.CreateExtractElement(column, Util::makeUnsignedIntConstant(result->getContext(), r), "__row");
+            llvm::Value* element = builder.CreateExtractElement(column, Util::makeUnsignedConstant(result->getContext(), r), "__row");
             if (reverseOrder)
                 element = builder.CreateBinOp(op, scalar, element);
             else
                 element = builder.CreateBinOp(op, element, scalar);
-            column = builder.CreateInsertElement(column, element, Util::makeUnsignedIntConstant(result->getContext(), r));
+            column = builder.CreateInsertElement(column, element, Util::makeUnsignedConstant(result->getContext(), r));
         }
 
         result = builder.CreateInsertValue(result, column, c);
@@ -483,8 +492,20 @@ llvm::Function* Builder::makeIntrinsic(llvm::IRBuilder<>& builder, llvm::Intrins
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, 4);
 }
 
+void Builder::promoteScalar(llvm::IRBuilder<>& builder, SuperValue& left, SuperValue& right)
+{
+    int direction = Util::getComponentCount(right) - Util::getComponentCount(left);
+
+    if (direction > 0)
+        left = gla::Builder::smearScalar(builder, left, right->getType());
+    else if (direction < 0)
+        right = gla::Builder::smearScalar(builder, right, left->getType());
+
+    return;
+}
+
 llvm::Value* Builder::smearScalar(llvm::IRBuilder<>& builder, llvm::Value* scalar, const llvm::Type* vectorType)
-{    
+{
     assert(gla::Util::isGlaScalar(scalar->getType()));
 
     // Use a swizzle to expand the scalar to a vector
@@ -498,7 +519,7 @@ llvm::Value* Builder::smearScalar(llvm::IRBuilder<>& builder, llvm::Value* scala
 
     llvm::Function *intrinsicName = makeIntrinsic(builder, intrinsicID, vectorType, scalar->getType());
 
-    return  builder.CreateCall2(intrinsicName, scalar, gla::Util::makeIntConstant(builder.getContext(), 0));
+    return builder.CreateCall2(intrinsicName, scalar, gla::Util::makeIntConstant(builder.getContext(), 0));
 }
 
 }; // end gla namespace

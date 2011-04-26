@@ -92,78 +92,42 @@ ir_visitor_status
 
 llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
 {
-    // XXXX Ints are 32-bit, bools are 1-bit
-    llvm::Constant* llvmConstant;
+    if (constant->type->matrix_columns > 1)
+        gla::UnsupportedFunctionality("Matrix constants");
 
-    unsigned vecCount = constant->type->vector_elements;
-    unsigned baseType = constant->type->base_type;
+    // vector of constants for LLVM
+    std::vector<llvm::Constant*> vals;
 
-    if(vecCount > 1) {
-        //Vectors require
-        std::vector<llvm::Constant*> vals;
-        const llvm::VectorType *destVecTy;
-
-        switch(baseType)
+    for (unsigned int i = 0; i < constant->type->vector_elements; ++i) {
+        switch(constant->type->base_type)
         {
         case GLSL_TYPE_UINT:
-            destVecTy = llvm::VectorType::get((llvm::Type*)llvm::Type::getInt32Ty(context), vecCount);
-            for(unsigned int i = 0; i < vecCount; ++i)
-                vals.push_back(llvm::ConstantInt::get(context, llvm::APInt(32, (uint64_t)constant->value.u[i], false)));
+            vals.push_back(gla::Util::makeUnsignedConstant(context, constant->value.i[i]));
             break;
         case GLSL_TYPE_INT:
-            destVecTy = llvm::VectorType::get((llvm::Type*)llvm::Type::getInt32Ty(context), vecCount);
-            for(unsigned int i = 0; i < vecCount; ++i)
-                vals.push_back(llvm::ConstantInt::get(context, llvm::APInt(32, (uint64_t)constant->value.i[i], true)));
+            vals.push_back(gla::Util::makeIntConstant(context, constant->value.u[i]));
             break;
         case GLSL_TYPE_FLOAT:
-            destVecTy = llvm::VectorType::get((llvm::Type*)llvm::Type::getFloatTy(context), vecCount);
-            for(unsigned int i = 0; i < vecCount; ++i)
-                vals.push_back(llvm::ConstantFP::get(context, llvm::APFloat(constant->value.f[i])));
+            vals.push_back(gla::Util::makeFloatConstant(context, constant->value.f[i]));
             break;
         case GLSL_TYPE_BOOL:
-            destVecTy = llvm::VectorType::get((llvm::Type*)llvm::Type::getInt1Ty(context), vecCount);
-            for(unsigned int i = 0; i < vecCount; ++i)
-                vals.push_back(llvm::ConstantInt::get(context, llvm::APInt(1, (uint64_t)constant->value.u[i], false)));
+            vals.push_back(gla::Util::makeBoolConstant(context, constant->value.i[i]));
             break;
-        case GLSL_TYPE_SAMPLER:
-        case GLSL_TYPE_ARRAY:
-        case GLSL_TYPE_STRUCT:
-        case GLSL_TYPE_VOID:
-        case GLSL_TYPE_ERROR:
-        default:
-            gla::UnsupportedFunctionality("Basic vector type: ", baseType);
-            break;
-        }
 
-        llvmConstant = llvm::ConstantVector::get(destVecTy, vals);
-    }
-    else {
-        switch(baseType)
-        {
-        case GLSL_TYPE_UINT:
-            llvmConstant = llvm::ConstantInt::get(context, llvm::APInt(32, (uint64_t)constant->value.u[0], false));
-            break;
-        case GLSL_TYPE_INT:
-            llvmConstant = llvm::ConstantInt::get(context, llvm::APInt(32, (uint64_t)constant->value.i[0], true));
-            break;
-        case GLSL_TYPE_FLOAT:
-            llvmConstant = llvm::ConstantFP::get(context, llvm::APFloat(constant->value.f[0]));
-            break;
-        case GLSL_TYPE_BOOL:
-           llvmConstant = llvm::ConstantInt::get(context, llvm::APInt(1, (uint64_t)constant->value.u[0], false));
-            break;
-        case GLSL_TYPE_SAMPLER:
         case GLSL_TYPE_ARRAY:
         case GLSL_TYPE_STRUCT:
+            gla::UnsupportedFunctionality("array or struct constant");
+            break;
+
+        case GLSL_TYPE_SAMPLER:
         case GLSL_TYPE_VOID:
         case GLSL_TYPE_ERROR:
-        default:
-            gla::UnsupportedFunctionality("Basic type: ", baseType);
+            assert(! "Bad vector constant type");
             break;
         }
     }
 
-    return llvmConstant;
+    return gla::Builder::makeConstant(vals);
 }
 
 ir_visitor_status
@@ -1130,7 +1094,7 @@ gla::Builder::SuperValue GlslToTopVisitor::createLLVMVariable(ir_variable* var)
     llvm::Constant* initializer = 0;
     gla::Builder::EStorageQualifier storageQualifier;
     int constantBuffer = 0;
- 
+
     switch (var->mode) {
     case ir_var_temporary:
     case ir_var_auto:
@@ -1164,14 +1128,14 @@ gla::Builder::SuperValue GlslToTopVisitor::createLLVMVariable(ir_variable* var)
     default:
         assert(! "Unhandled var->mode");
     }
-    
+
     std::string* annotationAddr = 0;
     std::string annotation;
     if (var->type->base_type == GLSL_TYPE_SAMPLER) {
         annotation = std::string(getSamplerTypeName(var));
         annotationAddr = &annotation;
     }
-    
+
     //?? still need to consume the following
     // var->max_array_access;
     // var->centroid;
@@ -1330,81 +1294,75 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
 
     switch(glslOp) {
     case ir_binop_add:
-        findAndSmearScalars(operands, 2);
+        gla::Builder::promoteScalar(builder, operands[0], operands[1]);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFAdd(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateAdd (operands[0], operands[1]);
         }
     case ir_binop_sub:
-        findAndSmearScalars(operands, 2);
+        gla::Builder::promoteScalar(builder, operands[0], operands[1]);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFSub(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateSub (operands[0], operands[1]);
         }
     case ir_binop_mul:
-        findAndSmearScalars(operands, 2);
+        gla::Builder::promoteScalar(builder, operands[0], operands[1]);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFMul(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateMul (operands[0], operands[1]);
         }
     case ir_binop_div:
-        findAndSmearScalars(operands, 2);
+        gla::Builder::promoteScalar(builder, operands[0], operands[1]);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFDiv(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateSDiv(operands[0], operands[1]);
         }
     case ir_binop_less:
-        findAndSmearScalars(operands, 2);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpOLT(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpSLT(operands[0], operands[1]);
         }
     case ir_binop_greater:
-        findAndSmearScalars(operands, 2);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpOGT(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpSGT(operands[0], operands[1]);
         }
     case ir_binop_lequal:
-        findAndSmearScalars(operands, 2);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpOLE(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpSLE(operands[0], operands[1]);
         }
     case ir_binop_gequal:
-        findAndSmearScalars(operands, 2);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpOGE(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpSGE(operands[0], operands[1]);
         }
     case ir_binop_equal:
-        findAndSmearScalars(operands, 2);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpOEQ(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpEQ (operands[0], operands[1]);
         }
     case ir_binop_nequal:
-        findAndSmearScalars(operands, 2);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFCmpONE(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateICmpNE (operands[0], operands[1]);
         }
 
     case ir_binop_lshift:
-        findAndSmearScalars(operands, 2);
+        gla::Builder::promoteScalar(builder, operands[0], operands[1]);
         return builder.CreateShl (operands[0], operands[1]);
     case ir_binop_rshift:
-        findAndSmearScalars(operands, 2);
+        gla::Builder::promoteScalar(builder, operands[0], operands[1]);
         return builder.CreateLShr(operands[0], operands[1]);
     case ir_binop_bit_and:
-        findAndSmearScalars(operands, 2);
+        gla::Builder::promoteScalar(builder, operands[0], operands[1]);
         return builder.CreateAnd (operands[0], operands[1]);
     case ir_binop_bit_or:
-        findAndSmearScalars(operands, 2);
+        gla::Builder::promoteScalar(builder, operands[0], operands[1]);
         return builder.CreateOr  (operands[0], operands[1]);
     case ir_binop_logic_xor:
     case ir_binop_bit_xor:
-        findAndSmearScalars(operands, 2);
+        gla::Builder::promoteScalar(builder, operands[0], operands[1]);
         return builder.CreateXor (operands[0], operands[1]);
 
     case ir_unop_logic_not:
@@ -1418,7 +1376,7 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
         break;
 
     case ir_binop_mod:
-        findAndSmearScalars(operands, 2);
+        gla::Builder::promoteScalar(builder, operands[0], operands[1]);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return builder.CreateFRem(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return builder.CreateSRem(operands[0], operands[1]);
@@ -1426,7 +1384,6 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
     case ir_binop_all_equal:
         // Returns single boolean for whether all components of operands[0] equal the
         // components of operands[1]
-        findAndSmearScalars(operands, 2);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         result = builder.CreateFCmpOEQ(operands[0], operands[1]);  break;
         case llvm::Type::IntegerTyID:       result = builder.CreateICmpEQ (operands[0], operands[1]);  break;
@@ -1437,7 +1394,6 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
     case ir_binop_any_nequal:
         // Returns single boolean for whether any component of operands[0] is
         // not equal to the corresponding component of operands[1].
-        findAndSmearScalars(operands, 2);
         switch(gla::Util::getBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         result = builder.CreateFCmpONE(operands[0], operands[1]);  break;
         case llvm::Type::IntegerTyID:       result = builder.CreateICmpNE (operands[0], operands[1]);  break;
@@ -1633,35 +1589,6 @@ void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName
     return;
 }
 
-void GlslToTopVisitor::findAndSmearScalars(gla::Builder::SuperValue* operands, int numOperands)
-{
-    assert(numOperands == 2);
-
-    int vectorSize = 0;
-    int scalarIndex = 0;
-    int vectorIndex = 0;
-    llvm::Value* scalarVal = 0;
-    const llvm::VectorType* vectorType[2];
-
-    // Find the scalar index and vector size
-    for (int i = 0; i < numOperands; ++i) {
-        vectorType[i] = llvm::dyn_cast<llvm::VectorType>(operands[i]->getType());
-        if(vectorType[i]) {
-            vectorSize = vectorType[i]->getNumElements();
-            vectorIndex = i;
-        } else {
-            scalarVal = operands[i];
-            scalarIndex = i;
-        }
-    }
-
-    // If both were vectors or both were scalar, just return
-    if( (vectorType[0] && vectorType[1]) || (!vectorType[0] && !vectorType[1]) )
-        return;
-
-    operands[scalarIndex] = gla::Builder::smearScalar(builder, scalarVal, operands[vectorIndex]->getType());
-}
-
 llvm::BasicBlock* GlslToTopVisitor::getShaderEntry()
 {
     if (shaderEntry)
@@ -1684,7 +1611,7 @@ void GlslToTopVisitor::appendArrayIndexToName(std::string &arrayName, int index)
 }
 
 llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
-{    
+{
     // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
     // which we will optimize later.
     std::string name(var->name);

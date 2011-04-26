@@ -114,7 +114,6 @@ protected:
     llvm::Function* getLLVMIntrinsicFunction4(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
 
     void createLLVMTextureIntrinsic(llvm::Function* &, int &, gla::Builder::SuperValue*, gla::Builder::SuperValue*, const llvm::Type*, llvm::Intrinsic::ID,  gla::ESamplerType, gla::ETextureFlags);
-    void findAndSmearScalars(gla::Builder::SuperValue*, int);
     void writePipelineOuts(void);
     void appendArrayIndexToName(std::string &, int);
 

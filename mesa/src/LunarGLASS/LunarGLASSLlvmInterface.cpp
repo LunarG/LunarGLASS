@@ -72,10 +72,8 @@ float Util::GetConstantFloat(const llvm::Value* value)
 
 int Util::getComponentCount(const llvm::Type* type)
 {
-    const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
-
-    if (vectorType)
-        return vectorType->getNumElements();
+    if (type->getTypeID() == llvm::Type::VectorTyID)
+        return llvm::dyn_cast<llvm::VectorType>(type)->getNumElements();
     else
         return 1;
 }

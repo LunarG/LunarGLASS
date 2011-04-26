@@ -50,8 +50,8 @@ public:
     //
     // There is not matrix type in or added to LLVM for Top IR.
     //
-    // The Matrix class is a structure to encapsulate a choice of 
-    // how to represent a matrix in LLVM.  It is the best way to 
+    // The Matrix class is a structure to encapsulate a choice of
+    // how to represent a matrix in LLVM.  It is the best way to
     // form correct Top IR for operating on matrices.
     //
     class Matrix {
@@ -73,9 +73,9 @@ public:
     };
 
     //
-    // SuperValue can hold either an LLVM value or something else, 
-    // automatically converting to/from an LLVM value when needed, 
-    // and automatically converting from the 'something else', but 
+    // SuperValue can hold either an LLVM value or something else,
+    // automatically converting to/from an LLVM value when needed,
+    // and automatically converting from the 'something else', but
     // requiring manual access of the 'something else'
     //
     class SuperValue {
@@ -133,6 +133,8 @@ public:
         } value;
     };  // end class SuperValue
 
+    static llvm::Constant* makeConstant(std::vector<llvm::Constant*>&);
+
     //
     // Storage qualifiers for communicating the basic storage class
     // of shader-style variable (not all possible qualification types in the
@@ -146,7 +148,7 @@ public:
         ESQLocal,
     };
 
-    // Create an LLVM variable out of a generic "shader-style" description of a 
+    // Create an LLVM variable out of a generic "shader-style" description of a
     // variable.
     gla::Builder::SuperValue createVariable(llvm::IRBuilder<>&, EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
                                                     llvm::Constant* initializer, const std::string* annotation, const std::string& name);
@@ -177,6 +179,9 @@ public:
     static llvm::Function* makeIntrinsic(llvm::IRBuilder<>&, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
     static llvm::Function* makeIntrinsic(llvm::IRBuilder<>&, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
     static llvm::Function* makeIntrinsic(llvm::IRBuilder<>&, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
+
+    // if one operand is a scalar and the other is a vector, promote the scalar to match
+    static void promoteScalar(llvm::IRBuilder<>&, SuperValue& left, SuperValue& right);
 
     // make a value by smearing the scalar to fill the type
     static llvm::Value* Builder::smearScalar(llvm::IRBuilder<>&, llvm::Value* scalarVal, const llvm::Type*);
