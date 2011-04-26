@@ -51,7 +51,7 @@ gla::Builder::~Builder()
 }
 
 
-llvm::Constant* Builder::makeConstant(std::vector<llvm::Constant*>& constants)
+llvm::Constant* Builder::getConstant(std::vector<llvm::Constant*>& constants)
 {
     if (constants.size() == 1)
         return constants[0];
@@ -59,7 +59,7 @@ llvm::Constant* Builder::makeConstant(std::vector<llvm::Constant*>& constants)
     return llvm::ConstantVector::get(constants);
 }
 
-gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, EStorageQualifier storageQualifier, int storageInstance,
+gla::Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, int storageInstance,
                                                  const llvm::Type* type, bool isMatrix, llvm::Constant* initializer, const std::string* annotation,
                                                  const std::string& name)
 {
@@ -114,7 +114,6 @@ gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, ESt
     llvm::Value* value;
     if (global) {
         llvm::GlobalVariable* globalValue = new llvm::GlobalVariable(type, readOnly, linkage, initializer, annotatedName, false /* ThreadLocal */, addressSpace);
-        llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
         module->getGlobalList().push_back(globalValue);
         value = globalValue;
 
@@ -153,13 +152,13 @@ void Builder::copyOutPipeline(llvm::IRBuilder<>& builder)
         case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fWriteData;  break;
         }
 
-        llvm::Function *intrinsicName = makeIntrinsic(builder, intrinsicID, loadVal->getType());
+        llvm::Function *intrinsicName = getIntrinsic(intrinsicID, loadVal->getType());
 
         builder.CreateCall2(intrinsicName, Util::makeIntConstant(loadVal->getContext(), 0), loadVal);
     }
 }
 
-llvm::Value* Builder::readPipeline(llvm::IRBuilder<>& builder, const llvm::Type* type, std::string& name, int slot, EInterpolationMode mode, float offsetX, float offsetY)
+llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, int slot, EInterpolationMode mode, float offsetX, float offsetY)
 {
     llvm::Constant *slotConstant = Util::makeUnsignedConstant(builder.getContext(), slot);
 
@@ -176,17 +175,17 @@ llvm::Value* Builder::readPipeline(llvm::IRBuilder<>& builder, const llvm::Type*
             std::vector<llvm::Constant*> offsets;
             offsets.push_back(Util::makeFloatConstant(builder.getContext(), offsetX));
             offsets.push_back(Util::makeFloatConstant(builder.getContext(), offsetY));
-            llvm::Constant* offset = makeConstant(offsets);
-            intrinsic = makeIntrinsic(builder, llvm::Intrinsic::gla_fReadInterpolantOffset, type, offset->getType());
+            llvm::Constant* offset = getConstant(offsets);
+            intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolantOffset, type, offset->getType());
             return builder.CreateCall3(intrinsic, slotConstant, modeConstant, offset, name);
         } else {
-            intrinsic = makeIntrinsic(builder, llvm::Intrinsic::gla_fReadInterpolant, type);
+            intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolant, type);
             return builder.CreateCall2(intrinsic, slotConstant, modeConstant, name);
         }
     } else {
         switch (Util::getBasicType(type)) {
-        case llvm::Type::IntegerTyID:   intrinsic = makeIntrinsic(builder, llvm::Intrinsic::gla_readData, type); break;
-        case llvm::Type::FloatTyID:     intrinsic = makeIntrinsic(builder, llvm::Intrinsic::gla_fReadData, type); break;
+        case llvm::Type::IntegerTyID:   intrinsic = getIntrinsic(llvm::Intrinsic::gla_readData, type); break;
+        case llvm::Type::FloatTyID:     intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadData, type); break;
         }
 
         return builder.CreateCall(intrinsic, slotConstant, name);
@@ -249,7 +248,7 @@ const llvm::Type* Builder::Matrix::getType(llvm::Type* elementType, int numColum
     return *type;
 }
 
-Builder::SuperValue Builder::createMatrixOp(llvm::IRBuilder<>& builder, llvm::Instruction::BinaryOps llvmOpcode, Builder::SuperValue left, Builder::SuperValue right)
+Builder::SuperValue Builder::createMatrixOp(llvm::Instruction::BinaryOps llvmOpcode, Builder::SuperValue left, Builder::SuperValue right)
 {
     Builder::SuperValue ret;
 
@@ -271,14 +270,14 @@ Builder::SuperValue Builder::createMatrixOp(llvm::IRBuilder<>& builder, llvm::In
     if (left.isMatrix()) {
         assert(Util::isGlaScalar(right.getValue()));
 
-        return createSmearedMatrixOp(builder, llvmOpcode, left.getMatrix(), right.getValue(), false);
+        return createSmearedMatrixOp(llvmOpcode, left.getMatrix(), right.getValue(), false);
     }
 
     // smeared scalar <op> matrix
     if (right.isMatrix()) {
         assert(Util::isGlaScalar(left.getValue()));
 
-        return createSmearedMatrixOp(builder, llvmOpcode, right.getMatrix(), left.getValue(), true);
+        return createSmearedMatrixOp(llvmOpcode, right.getMatrix(), left.getValue(), true);
     }
 
     assert(! "nonsensical matrix operation");
@@ -286,7 +285,7 @@ Builder::SuperValue Builder::createMatrixOp(llvm::IRBuilder<>& builder, llvm::In
     return ret;
 }
 
-Builder::SuperValue Builder::createMatrixMultiply(llvm::IRBuilder<>& builder, Builder::SuperValue left, Builder::SuperValue right)
+Builder::SuperValue Builder::createMatrixMultiply(Builder::SuperValue left, Builder::SuperValue right)
 {
     Builder::SuperValue ret;
 
@@ -305,37 +304,37 @@ Builder::SuperValue Builder::createMatrixMultiply(llvm::IRBuilder<>& builder, Bu
         assert(left.getMatrix()->getNumRows()    == right.getMatrix()->getNumColumns());
         assert(left.getMatrix()->getNumColumns() == right.getMatrix()->getNumRows());
 
-        return createMatrixTimesMatrix(builder, left.getMatrix(), right.getMatrix());
+        return createMatrixTimesMatrix(left.getMatrix(), right.getMatrix());
     }
 
     // matrix times vector
     if (left.isMatrix() && Util::isVector(right.getValue()->getType())) {
         assert(left.getMatrix()->getNumColumns() == Util::getComponentCount(right.getValue()));
 
-        return createMatrixTimesVector(builder, left.getMatrix(), right.getValue());
+        return createMatrixTimesVector(left.getMatrix(), right.getValue());
     }
 
     // vector times matrix
     if (Util::isVector(left.getValue()->getType()) && right.isMatrix()) {
         assert(right.getMatrix()->getNumRows() == Util::getComponentCount(left.getValue()));
 
-        return createVectorTimesMatrix(builder, left.getValue(), right.getMatrix());
+        return createVectorTimesMatrix(left.getValue(), right.getMatrix());
     }
 
     // matrix times scalar
     if (left.isMatrix() && Util::isGlaScalar(right.getValue()))
-        return createSmearedMatrixOp(builder, llvm::Instruction::FMul, left.getMatrix(), right.getValue(), true);
+        return createSmearedMatrixOp(llvm::Instruction::FMul, left.getMatrix(), right.getValue(), true);
 
     // scalar times matrix
     if (Util::isGlaScalar(left.getValue()) && right.isMatrix())
-        return createSmearedMatrixOp(builder, llvm::Instruction::FMul, right.getMatrix(), left.getValue(), false);
+        return createSmearedMatrixOp(llvm::Instruction::FMul, right.getMatrix(), left.getValue(), false);
 
     assert(! "nonsensical matrix multiply");
 
     return ret;
 }
 
-Builder::SuperValue Builder::createMatrixCompare(llvm::IRBuilder<>& builder, SuperValue left, SuperValue right, bool allEqual)
+Builder::SuperValue Builder::createMatrixCompare(SuperValue left, SuperValue right, bool allEqual)
 {
     assert(left.isMatrix() && right.isMatrix());
     assert(left.getMatrix()->getNumColumns() == right.getMatrix()->getNumColumns());
@@ -362,7 +361,7 @@ Builder::SuperValue Builder::createMatrixCompare(llvm::IRBuilder<>& builder, Sup
 
             // first time, get our intrinsics to finish off the compares
             if (c == 0)
-                all = Builder::makeIntrinsic(builder, llvm::Intrinsic::gla_all, interm->getType());
+                all = Builder::getIntrinsic(llvm::Intrinsic::gla_all, interm->getType());
 
             interm = builder.CreateCall(all, interm);
         } else {
@@ -370,7 +369,7 @@ Builder::SuperValue Builder::createMatrixCompare(llvm::IRBuilder<>& builder, Sup
 
             // first time, get our intrinsics to finish off the compares
             if (c == 0)
-                any = Builder::makeIntrinsic(builder, llvm::Intrinsic::gla_any, interm->getType());
+                any = Builder::getIntrinsic(llvm::Intrinsic::gla_any, interm->getType());
 
             interm = builder.CreateCall(any, interm);
         }
@@ -389,28 +388,28 @@ Builder::SuperValue Builder::createMatrixCompare(llvm::IRBuilder<>& builder, Sup
     return result;
 }
 
-Builder::Matrix* Builder::createMatrixTranspose(llvm::IRBuilder<>&, Matrix* matrix)
+Builder::Matrix* Builder::createMatrixTranspose(Matrix* matrix)
 {
     UnsupportedFunctionality("matrix transpose");
 
     return 0;
 }
 
-Builder::Matrix* Builder::createMatrixInverse(llvm::IRBuilder<>&, Matrix* matrix)
+Builder::Matrix* Builder::createMatrixInverse(Matrix* matrix)
 {
     UnsupportedFunctionality("matrix inverse");
 
     return 0;
 }
 
-Builder::Matrix* Builder::createMatrixDeterminant(llvm::IRBuilder<>&, Matrix* matrix)
+Builder::Matrix* Builder::createMatrixDeterminant(Matrix* matrix)
 {
     UnsupportedFunctionality("matrix determinant");
 
     return 0;
 }
 
-llvm::Value* Builder::createMatrixTimesVector(llvm::IRBuilder<>& builder, Matrix* matrix, llvm::Value* rvector)
+llvm::Value* Builder::createMatrixTimesVector(Matrix* matrix, llvm::Value* rvector)
 {
     assert(matrix->getNumColumns() == Util::getComponentCount(rvector));
 
@@ -419,10 +418,10 @@ llvm::Value* Builder::createMatrixTimesVector(llvm::IRBuilder<>& builder, Matrix
     return 0;
 }
 
-llvm::Value* Builder::createVectorTimesMatrix(llvm::IRBuilder<>& builder, llvm::Value* lvector, Matrix* matrix)
+llvm::Value* Builder::createVectorTimesMatrix(llvm::Value* lvector, Matrix* matrix)
 {
     // Get the dot product intrinsic for these operands
-    llvm::Function *dot = Builder::makeIntrinsic(builder, llvm::Intrinsic::gla_fDot, lvector->getType(), lvector->getType());
+    llvm::Function *dot = Builder::getIntrinsic(llvm::Intrinsic::gla_fDot, lvector->getType(), lvector->getType());
 
     // Allocate a vector to build the result in
     llvm::Value* result = builder.CreateAlloca(lvector->getType());
@@ -438,7 +437,7 @@ llvm::Value* Builder::createVectorTimesMatrix(llvm::IRBuilder<>& builder, llvm::
     return result;
 }
 
-Builder::Matrix* Builder::createSmearedMatrixOp(llvm::IRBuilder<>& builder, llvm::Instruction::BinaryOps op, Matrix* matrix, llvm::Value* scalar, bool reverseOrder)
+Builder::Matrix* Builder::createSmearedMatrixOp(llvm::Instruction::BinaryOps op, Matrix* matrix, llvm::Value* scalar, bool reverseOrder)
 {
     // ?? better to smear the scalar to a column-like vector, and apply that vector multiple times
     // Allocate a matrix to build the result in
@@ -465,7 +464,7 @@ Builder::Matrix* Builder::createSmearedMatrixOp(llvm::IRBuilder<>& builder, llvm
     return newMatrix(result);
 }
 
-Builder::Matrix* Builder::createMatrixTimesMatrix(llvm::IRBuilder<>&, Matrix* lmatrix, Matrix* rmatrix)
+Builder::Matrix* Builder::createMatrixTimesMatrix(Matrix* lmatrix, Matrix* rmatrix)
 {
     assert(lmatrix->getNumColumns() == rmatrix->getNumRows() &&
            rmatrix->getNumColumns() == lmatrix->getNumRows());
@@ -473,7 +472,7 @@ Builder::Matrix* Builder::createMatrixTimesMatrix(llvm::IRBuilder<>&, Matrix* lm
     return 0;
 }
 
-Builder::Matrix* Builder::createOuterProduct(llvm::IRBuilder<>&, llvm::Value* lvector, llvm::Value* rvector)
+Builder::Matrix* Builder::createOuterProduct(llvm::Value* lvector, llvm::Value* rvector)
 {
     UnsupportedFunctionality("outer product");
 
@@ -483,25 +482,23 @@ Builder::Matrix* Builder::createOuterProduct(llvm::IRBuilder<>&, llvm::Value* lv
 // Get intrinsic declarations
 // ?? LLVM issue: each time we lookup, LLVM makes a whole copy of all intrinsic name addresses
 //    see Intrinsic::getName() in function.cpp
-llvm::Function* Builder::makeIntrinsic(llvm::IRBuilder<>& builder, llvm::Intrinsic::ID ID, const llvm::Type* type1)
+llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, const llvm::Type* type1)
 {
     // Look up the intrinsic
-    llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
     return llvm::Intrinsic::getDeclaration(module, ID, &type1, 1);
 }
 
-llvm::Function* Builder::makeIntrinsic(llvm::IRBuilder<>& builder, llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2)
+llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2)
 {
     const llvm::Type* intrinsicTypes[] = {
         type1,
         type2 };
 
     // Look up the intrinsic
-    llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, 2);
 }
 
-llvm::Function* Builder::makeIntrinsic(llvm::IRBuilder<>& builder, llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3)
+llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3)
 {
     const llvm::Type* intrinsicTypes[] = {
         type1,
@@ -509,11 +506,10 @@ llvm::Function* Builder::makeIntrinsic(llvm::IRBuilder<>& builder, llvm::Intrins
         type3 };
 
     // Look up the intrinsic
-    llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, 3);
 }
 
-llvm::Function* Builder::makeIntrinsic(llvm::IRBuilder<>& builder, llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3, const llvm::Type* type4)
+llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3, const llvm::Type* type4)
 {
     const llvm::Type* intrinsicTypes[] = {
         type1,
@@ -522,23 +518,22 @@ llvm::Function* Builder::makeIntrinsic(llvm::IRBuilder<>& builder, llvm::Intrins
         type4 };
 
     // Look up the intrinsic
-    llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, 4);
 }
 
-void Builder::promoteScalar(llvm::IRBuilder<>& builder, SuperValue& left, SuperValue& right)
+void Builder::promoteScalar(SuperValue& left, SuperValue& right)
 {
     int direction = Util::getComponentCount(right) - Util::getComponentCount(left);
 
     if (direction > 0)
-        left = gla::Builder::smearScalar(builder, left, right->getType());
+        left = gla::Builder::smearScalar(left, right->getType());
     else if (direction < 0)
-        right = gla::Builder::smearScalar(builder, right, left->getType());
+        right = gla::Builder::smearScalar(right, left->getType());
 
     return;
 }
 
-llvm::Value* Builder::smearScalar(llvm::IRBuilder<>& builder, llvm::Value* scalar, const llvm::Type* vectorType)
+llvm::Value* Builder::smearScalar(llvm::Value* scalar, const llvm::Type* vectorType)
 {
     assert(gla::Util::isGlaScalar(scalar->getType()));
 
@@ -551,7 +546,7 @@ llvm::Value* Builder::smearScalar(llvm::IRBuilder<>& builder, llvm::Value* scala
         gla::UnsupportedFunctionality("smear type");
     }
 
-    llvm::Function *intrinsicName = makeIntrinsic(builder, intrinsicID, vectorType, scalar->getType());
+    llvm::Function *intrinsicName = getIntrinsic(intrinsicID, vectorType, scalar->getType());
 
     return builder.CreateCall2(intrinsicName, scalar, gla::Util::makeIntConstant(builder.getContext(), 0));
 }

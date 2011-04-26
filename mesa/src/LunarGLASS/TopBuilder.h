@@ -44,7 +44,7 @@ namespace gla {
 
 class Builder {
 public:
-    Builder() { }
+    explicit Builder(llvm::IRBuilder<>& b) : builder(b) { module = builder.GetInsertBlock()->getParent()->getParent(); }
     ~Builder();
 
     //
@@ -133,7 +133,7 @@ public:
         } value;
     };  // end class SuperValue
 
-    static llvm::Constant* makeConstant(std::vector<llvm::Constant*>&);
+    static llvm::Constant* getConstant(std::vector<llvm::Constant*>&);
 
     //
     // Storage qualifiers for communicating the basic storage class
@@ -150,51 +150,54 @@ public:
 
     // Create an LLVM variable out of a generic "shader-style" description of a
     // variable.
-    gla::Builder::SuperValue createVariable(llvm::IRBuilder<>&, EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
+    gla::Builder::SuperValue createVariable(EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
                                                     llvm::Constant* initializer, const std::string* annotation, const std::string& name);
     // Copy out to the pipeline the outputs we've been caching in variables
     void copyOutPipeline(llvm::IRBuilder<>& builder);
 
-    static llvm::Value* readPipeline(llvm::IRBuilder<>&, const llvm::Type*, std::string& name, int slot, EInterpolationMode mode = EIMNone, float offsetx = 0.0, float offsety = 0.0);
+    llvm::Value* readPipeline(const llvm::Type*, std::string& name, int slot, EInterpolationMode mode = EIMNone, float offsetx = 0.0, float offsety = 0.0);
 
     // Matrix factory that tracks what to delete
     Matrix* newMatrix(llvm::Value*);
 
     // handle component-wise matrix operations for either a
     // pair of matrices or a matrix and a scalar
-    SuperValue createMatrixOp(llvm::IRBuilder<>&, llvm::Instruction::BinaryOps, SuperValue left, SuperValue right);
+    SuperValue createMatrixOp(llvm::Instruction::BinaryOps, SuperValue left, SuperValue right);
 
     // handle all the possible matrix-related multiply operations
     // (non component wise; linear algebraic) for all combinations
     // of matrices, scalars, and vectors that either consume or
     // create a matrix
-    SuperValue createMatrixMultiply(llvm::IRBuilder<>&, SuperValue left, SuperValue right);
-    static SuperValue createMatrixCompare (llvm::IRBuilder<>&, SuperValue left, SuperValue right, bool allEqual);
+    SuperValue createMatrixMultiply(SuperValue left, SuperValue right);
+    SuperValue createMatrixCompare (SuperValue left, SuperValue right, bool allEqual);
 
     // handle matrix to matrix operations
-    Matrix* createMatrixTranspose  (llvm::IRBuilder<>&, Matrix*);
-    Matrix* createMatrixInverse    (llvm::IRBuilder<>&, Matrix*);
-    Matrix* createMatrixDeterminant(llvm::IRBuilder<>&, Matrix*);
+    Matrix* createMatrixTranspose  (Matrix*);
+    Matrix* createMatrixInverse    (Matrix*);
+    Matrix* createMatrixDeterminant(Matrix*);
 
     // Handy way to get intrinsics
-    static llvm::Function* makeIntrinsic(llvm::IRBuilder<>&, llvm::Intrinsic::ID, const llvm::Type*);
-    static llvm::Function* makeIntrinsic(llvm::IRBuilder<>&, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
-    static llvm::Function* makeIntrinsic(llvm::IRBuilder<>&, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
-    static llvm::Function* makeIntrinsic(llvm::IRBuilder<>&, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
+    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*);
+    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
+    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
+    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
 
     // if one operand is a scalar and the other is a vector, promote the scalar to match
-    static void promoteScalar(llvm::IRBuilder<>&, SuperValue& left, SuperValue& right);
+    void promoteScalar(SuperValue& left, SuperValue& right);
 
     // make a value by smearing the scalar to fill the type
-    static llvm::Value* smearScalar(llvm::IRBuilder<>&, llvm::Value* scalarVal, const llvm::Type*);
+    llvm::Value* smearScalar(llvm::Value* scalarVal, const llvm::Type*);
 
 protected:
-    static llvm::Value* createMatrixTimesVector(llvm::IRBuilder<>&, Matrix*, llvm::Value*);
-    static llvm::Value* createVectorTimesMatrix(llvm::IRBuilder<>&, llvm::Value*, Matrix*);
+    llvm::Value* createMatrixTimesVector(Matrix*, llvm::Value*);
+    llvm::Value* createVectorTimesMatrix(llvm::Value*, Matrix*);
 
-    Matrix* createSmearedMatrixOp  (llvm::IRBuilder<>&, llvm::Instruction::BinaryOps, Matrix*, llvm::Value*, bool reverseOrder);
-    static Matrix* createMatrixTimesMatrix(llvm::IRBuilder<>&, Matrix*, Matrix*);
-    static Matrix* createOuterProduct     (llvm::IRBuilder<>&, llvm::Value* lvector, llvm::Value* rvector);
+    Matrix* createSmearedMatrixOp(llvm::Instruction::BinaryOps, Matrix*, llvm::Value*, bool reverseOrder);
+    Matrix* createMatrixTimesMatrix(Matrix*, Matrix*);
+    Matrix* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
+
+    llvm::IRBuilder<>& builder;
+    llvm::Module* module;
 
     // accumulate values that must be copied out at the end
     std::list<llvm::Value*> copyOuts;

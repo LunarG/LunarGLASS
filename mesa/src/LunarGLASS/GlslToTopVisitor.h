@@ -122,7 +122,7 @@ protected:
     llvm::BasicBlock* getShaderEntry();
 
     llvm::LLVMContext &context;
-    llvm::IRBuilder<> builder;
+    llvm::IRBuilder<> llvmBuilder;
     llvm::Module* module;
 
     struct gl_shader* glShader;
