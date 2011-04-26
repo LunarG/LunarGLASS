@@ -197,4 +197,21 @@ llvm::BasicBlock* Util::getSingleMergePoint(const llvm::BasicBlock* condBB, llvm
     return merges[0];
 }
 
+llvm::Type::TypeID Util::getBasicType(llvm::Value* value)
+{
+    return getBasicType(value->getType());
+}
+
+llvm::Type::TypeID Util::getBasicType(const llvm::Type* type)
+{
+    switch(type->getTypeID()) {
+    case llvm::Type::VectorTyID:
+    case llvm::Type::ArrayTyID:
+        return getBasicType(type->getContainedType(0));
+    }
+
+    assert(gla::Util::isGlaScalar(type));
+    return type->getTypeID();
+}
+
 }; // end gla namespace

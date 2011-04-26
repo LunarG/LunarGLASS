@@ -32,12 +32,7 @@
 #include "llvm/Support/IRBuilder.h"
 #include "llvm/IntrinsicInst.h"
 
-// Forward decls
-namespace llvm {
-    class BasicBlock;
-    class Loop;
-    class DominanceFrontier;
-} // end namespace llvm
+#include <list>
 
 namespace gla {
 
@@ -49,6 +44,8 @@ namespace gla {
 
 class Builder {
 public:
+    Builder() { }
+    ~Builder();
 
     //
     // There is not matrix type in or added to LLVM for Top IR.
@@ -134,23 +131,7 @@ public:
             Matrix* matrix;
             llvm::Value* llvm;
         } value;
-    };
-
-    // handle component-wise matrix operations for either a
-    // pair of matrices or a matrix and a scalar
-    static SuperValue createMatrixOp(llvm::IRBuilder<>&, llvm::Instruction::BinaryOps, SuperValue left, SuperValue right);
-
-    // handle all the possible matrix-related multiply operations
-    // (non component wise; linear algebraic) for all combinations
-    // of matrices, scalars, and vectors that either consume or
-    // create a matrix
-    static SuperValue createMatrixMultiply(llvm::IRBuilder<>&, SuperValue left, SuperValue right);
-    static SuperValue createMatrixCompare (llvm::IRBuilder<>&, SuperValue left, SuperValue right, bool allEqual);
-
-    // handle matrix to matrix operations
-    static Matrix* createMatrixTranspose  (llvm::IRBuilder<>&, Matrix*);
-    static Matrix* createMatrixInverse    (llvm::IRBuilder<>&, Matrix*);
-    static Matrix* createMatrixDeterminant(llvm::IRBuilder<>&, Matrix*);
+    };  // end class SuperValue
 
     //
     // Storage qualifiers for communicating the basic storage class
@@ -167,14 +148,35 @@ public:
 
     // Create an LLVM variable out of a generic "shader-style" description of a 
     // variable.
-    static gla::Builder::SuperValue createVariable(llvm::IRBuilder<>&, EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
+    gla::Builder::SuperValue createVariable(llvm::IRBuilder<>&, EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
                                                     llvm::Constant* initializer, const std::string* annotation, const std::string& name);
+    // Copy out to the pipeline the outputs we've been caching in variables
+    void Builder::copyOutPipeline(llvm::IRBuilder<>& builder);
+
+    // Matrix factory that tracks what to delete
+    Matrix* newMatrix(llvm::Value*);
+
+    // handle component-wise matrix operations for either a
+    // pair of matrices or a matrix and a scalar
+    SuperValue createMatrixOp(llvm::IRBuilder<>&, llvm::Instruction::BinaryOps, SuperValue left, SuperValue right);
+
+    // handle all the possible matrix-related multiply operations
+    // (non component wise; linear algebraic) for all combinations
+    // of matrices, scalars, and vectors that either consume or
+    // create a matrix
+    SuperValue createMatrixMultiply(llvm::IRBuilder<>&, SuperValue left, SuperValue right);
+    static SuperValue createMatrixCompare (llvm::IRBuilder<>&, SuperValue left, SuperValue right, bool allEqual);
+
+    // handle matrix to matrix operations
+    Matrix* createMatrixTranspose  (llvm::IRBuilder<>&, Matrix*);
+    Matrix* createMatrixInverse    (llvm::IRBuilder<>&, Matrix*);
+    Matrix* createMatrixDeterminant(llvm::IRBuilder<>&, Matrix*);
 
     // Handy way to get intrinsics
-    static llvm::Function* makeIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*);
-    static llvm::Function* makeIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
-    static llvm::Function* makeIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
-    static llvm::Function* makeIntrinsic(llvm::Module*, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
+    static llvm::Function* makeIntrinsic(llvm::IRBuilder<>&, llvm::Intrinsic::ID, const llvm::Type*);
+    static llvm::Function* makeIntrinsic(llvm::IRBuilder<>&, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
+    static llvm::Function* makeIntrinsic(llvm::IRBuilder<>&, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
+    static llvm::Function* makeIntrinsic(llvm::IRBuilder<>&, llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
 
     // make a value by smearing the scalar to fill the type
     static llvm::Value* Builder::smearScalar(llvm::IRBuilder<>&, llvm::Value* scalarVal, const llvm::Type*);
@@ -183,9 +185,16 @@ protected:
     static llvm::Value* createMatrixTimesVector(llvm::IRBuilder<>&, Matrix*, llvm::Value*);
     static llvm::Value* createVectorTimesMatrix(llvm::IRBuilder<>&, llvm::Value*, Matrix*);
 
-    static Matrix* createSmearedMatrixOp  (llvm::IRBuilder<>&, llvm::Instruction::BinaryOps, Matrix*, llvm::Value*, bool reverseOrder);
+    Matrix* createSmearedMatrixOp  (llvm::IRBuilder<>&, llvm::Instruction::BinaryOps, Matrix*, llvm::Value*, bool reverseOrder);
     static Matrix* createMatrixTimesMatrix(llvm::IRBuilder<>&, Matrix*, Matrix*);
     static Matrix* createOuterProduct     (llvm::IRBuilder<>&, llvm::Value* lvector, llvm::Value* rvector);
+
+    // accumulate values that must be copied out at the end
+    std::list<llvm::Value*> copyOuts;
+
+    // accumulate matrices that must be deleted at the end
+    std::vector<Matrix*> matrixList;
+
 };  // end Builder class
 
 };  // end gla namespace

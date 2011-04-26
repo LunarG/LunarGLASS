@@ -105,6 +105,10 @@ namespace gla {
         // points. Note that the presense of backedges or exitedges in the then and else
         // branchs' subgraphs may cause there to be multiple potential merge points.
         static llvm::BasicBlock* getSingleMergePoint(const llvm::BasicBlock* condBB, llvm::DominanceFrontier& domFront);
+
+        static llvm::Type::TypeID getBasicType(llvm::Value*);
+        static llvm::Type::TypeID getBasicType(const llvm::Type*);
+
     };  // end Util class
 
 };  // end gla namespace

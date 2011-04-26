@@ -118,9 +118,6 @@ protected:
     void writePipelineOuts(void);
     void appendArrayIndexToName(std::string &, int);
 
-    llvm::Type::TypeID getLLVMBaseType(llvm::Value*);
-    llvm::Type::TypeID getLLVMBaseType(const llvm::Type*);
-
     int getNextInterpIndex(std::string);
 
     llvm::BasicBlock* getShaderEntry();
@@ -135,8 +132,6 @@ protected:
     std::map<std::string, int> interpMap;
     std::map<std::string, llvm::StructType*> structMap;
     std::map<ir_function_signature *, llvm::Function*> functionMap;
-
-    std::list<llvm::Value*> glslOuts;
 
     std::stack<std::vector<llvm::Value*>> gepIndexChainStack;
 
@@ -155,4 +150,6 @@ protected:
     std::stack<llvm::BasicBlock*> exitStack;
 
     llvm::BasicBlock* shaderEntry;
+
+    gla::Builder* glaBuilder;
 };

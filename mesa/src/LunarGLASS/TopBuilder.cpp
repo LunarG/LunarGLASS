@@ -21,6 +21,7 @@
 //===----------------------------------------------------------------------===//
 //
 // Author: John Kessenich, LunarG
+// Author: Cody Northrop, LunarG
 //
 //===----------------------------------------------------------------------===//
 
@@ -43,11 +44,16 @@
 
 namespace gla {
 
+gla::Builder::~Builder()
+{    
+    for (std::vector<Matrix*>::iterator i = matrixList.begin(); i != matrixList.end(); ++i)
+        delete *i;
+}
+
 gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, EStorageQualifier storageQualifier, int storageInstance, 
                                                  const llvm::Type* type, bool isMatrix, llvm::Constant* initializer, const std::string* annotation, 
                                                  const std::string& name)
 {
-
     std::string annotatedName;
     if (annotation != 0) {
         annotatedName = *annotation;
@@ -56,6 +62,7 @@ gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, ESt
     } else
         annotatedName = name;
 
+    // Set some common default values, which the switch will override
     unsigned int addressSpace = gla::GlobalAddressSpace;
     llvm::GlobalValue::LinkageTypes linkage = llvm::GlobalVariable::InternalLinkage;
     bool global = false;
@@ -101,6 +108,13 @@ gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, ESt
         llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
         module->getGlobalList().push_back(globalValue);
         value = globalValue;
+        
+        if (storageQualifier == ESQOutput) {
+            // Track the value that must be copied out to the pipeline at
+            // the end of the shader.
+            copyOuts.push_back(value);
+        }
+
     } else {
         // LLVM's promote memory to registers only works when 
         // alloca is in the entry block.
@@ -110,14 +124,43 @@ gla::Builder::SuperValue Builder::createVariable(llvm::IRBuilder<>& builder, ESt
     }
 
     if (isMatrix)
-        return new gla::Builder::Matrix(value);
+        return newMatrix(value);
 
     return value;
+}
+
+void Builder::copyOutPipeline(llvm::IRBuilder<>& builder)
+{
+    llvm::Intrinsic::ID intrinsicID;
+
+    std::list<llvm::Value*>::iterator outIter;
+
+    // Call writeData intrinsic on our outs
+    for ( outIter = copyOuts.begin(); outIter != copyOuts.end(); outIter++ ) {
+        llvm::Value* loadVal = builder.CreateLoad(*outIter);
+
+        switch(Util::getBasicType(loadVal)) {
+        case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
+        case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fWriteData;  break;
+        }
+
+        llvm::Function *intrinsicName = makeIntrinsic(builder, intrinsicID, loadVal->getType());
+
+        builder.CreateCall2(intrinsicName, Util::makeIntConstant(loadVal->getContext(), 0), loadVal);
+    }
 }
 
 //
 // Builder::Matrix definitions
 //
+
+Builder::Matrix* Builder::newMatrix(llvm::Value* value)
+{
+    gla::Builder::Matrix* matrix = new gla::Builder::Matrix(value);
+    matrixList.push_back(matrix);
+
+    return matrix;
+}
 
 Builder::Matrix::Matrix(llvm::Value* m) : matrix(m)
 {
@@ -258,8 +301,6 @@ Builder::SuperValue Builder::createMatrixCompare(llvm::IRBuilder<>& builder, Sup
     llvm::Value* value1 =  left.getMatrix()->getMatrixValue();
     llvm::Value* value2 = right.getMatrix()->getMatrixValue();
 
-    llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
-
     // Get a boolean to accumulate the results in
     llvm::Value* result = builder.CreateAlloca(llvm::IntegerType::get(builder.getContext(), 1), 0, "__Matrix-Compare");
     result = builder.CreateLoad(result, "__Matrix-Compare");
@@ -278,7 +319,7 @@ Builder::SuperValue Builder::createMatrixCompare(llvm::IRBuilder<>& builder, Sup
 
             // first time, get our intrinsics to finish off the compares
             if (c == 0)
-                all = Builder::makeIntrinsic(module, llvm::Intrinsic::gla_all, interm->getType());
+                all = Builder::makeIntrinsic(builder, llvm::Intrinsic::gla_all, interm->getType());
 
             interm = builder.CreateCall(all, interm);
         } else {
@@ -286,7 +327,7 @@ Builder::SuperValue Builder::createMatrixCompare(llvm::IRBuilder<>& builder, Sup
 
             // first time, get our intrinsics to finish off the compares
             if (c == 0)
-                any = Builder::makeIntrinsic(module, llvm::Intrinsic::gla_any, interm->getType());
+                any = Builder::makeIntrinsic(builder, llvm::Intrinsic::gla_any, interm->getType());
 
             interm = builder.CreateCall(any, interm);
         }
@@ -338,8 +379,7 @@ llvm::Value* Builder::createMatrixTimesVector(llvm::IRBuilder<>& builder, Matrix
 llvm::Value* Builder::createVectorTimesMatrix(llvm::IRBuilder<>& builder, llvm::Value* lvector, Matrix* matrix)
 {
     // Get the dot product intrinsic for these operands
-    llvm::Function *dot = Builder::makeIntrinsic(builder.GetInsertBlock()->getParent()->getParent(),
-                                                 llvm::Intrinsic::gla_fDot, lvector->getType(), lvector->getType());
+    llvm::Function *dot = Builder::makeIntrinsic(builder, llvm::Intrinsic::gla_fDot, lvector->getType(), lvector->getType());
 
     // Allocate a vector to build the result in
     llvm::Value* result = builder.CreateAlloca(lvector->getType());
@@ -379,7 +419,7 @@ Builder::Matrix* Builder::createSmearedMatrixOp(llvm::IRBuilder<>& builder, llvm
     }
 
     //?? what about deleting all these matrices?
-    return new Matrix(result);
+    return newMatrix(result);
 }
 
 Builder::Matrix* Builder::createMatrixTimesMatrix(llvm::IRBuilder<>&, Matrix* lmatrix, Matrix* rmatrix)
@@ -397,23 +437,28 @@ Builder::Matrix* Builder::createOuterProduct(llvm::IRBuilder<>&, llvm::Value* lv
     return 0;
 }
 
-llvm::Function* Builder::makeIntrinsic(llvm::Module* module, llvm::Intrinsic::ID ID, const llvm::Type* type1)
+// Get intrinsic declarations
+// ?? LLVM issue: each time we lookup, LLVM makes a whole copy of all intrinsic name addresses
+//    see Intrinsic::getName() in function.cpp
+llvm::Function* Builder::makeIntrinsic(llvm::IRBuilder<>& builder, llvm::Intrinsic::ID ID, const llvm::Type* type1)
 {
     // Look up the intrinsic
+    llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
     return llvm::Intrinsic::getDeclaration(module, ID, &type1, 1);
 }
 
-llvm::Function* Builder::makeIntrinsic(llvm::Module* module, llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2)
+llvm::Function* Builder::makeIntrinsic(llvm::IRBuilder<>& builder, llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2)
 {
     const llvm::Type* intrinsicTypes[] = {
         type1,
         type2 };
 
     // Look up the intrinsic
+    llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, 2);
 }
 
-llvm::Function* Builder::makeIntrinsic(llvm::Module* module, llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3)
+llvm::Function* Builder::makeIntrinsic(llvm::IRBuilder<>& builder, llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3)
 {
     const llvm::Type* intrinsicTypes[] = {
         type1,
@@ -421,10 +466,11 @@ llvm::Function* Builder::makeIntrinsic(llvm::Module* module, llvm::Intrinsic::ID
         type3 };
 
     // Look up the intrinsic
+    llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, 3);
 }
 
-llvm::Function* Builder::makeIntrinsic(llvm::Module* module, llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3, const llvm::Type* type4)
+llvm::Function* Builder::makeIntrinsic(llvm::IRBuilder<>& builder, llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3, const llvm::Type* type4)
 {
     const llvm::Type* intrinsicTypes[] = {
         type1,
@@ -433,6 +479,7 @@ llvm::Function* Builder::makeIntrinsic(llvm::Module* module, llvm::Intrinsic::ID
         type4 };
 
     // Look up the intrinsic
+    llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, 4);
 }
 
@@ -449,8 +496,7 @@ llvm::Value* Builder::smearScalar(llvm::IRBuilder<>& builder, llvm::Value* scala
         gla::UnsupportedFunctionality("smear type");
     }
 
-    llvm::Module* module = builder.GetInsertBlock()->getParent()->getParent();
-    llvm::Function *intrinsicName = makeIntrinsic(module, intrinsicID, vectorType, scalar->getType());
+    llvm::Function *intrinsicName = makeIntrinsic(builder, intrinsicID, vectorType, scalar->getType());
 
     return  builder.CreateCall2(intrinsicName, scalar, gla::Util::makeIntConstant(builder.getContext(), 0));
 }
