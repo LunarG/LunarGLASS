@@ -1,5 +1,108 @@
+; ModuleID = 'Top'
 
-***Unsupported functionality: structure assignment
+%lunarStruct1 = type { i32, float }
+%lunarStruct2 = type { i32, float, %lunarStruct1 }
+%lunarStruct3 = type { %lunarStruct2, i32, float, %lunarStruct1 }
+
+@gl_MaxVertexAttribs = internal global i32 16
+@gl_MaxVertexUniformVectors = internal global i32 512
+@gl_MaxVaryingVectors = internal global i32 8
+@gl_MaxVertexTextureImageUnits = internal global i32 0
+@gl_MaxCombinedTextureImageUnits = internal global i32 2
+@gl_MaxTextureImageUnits = internal global i32 2
+@gl_MaxFragmentUniformVectors = internal global i32 64
+@gl_MaxDrawBuffers = internal global i32 2
+@foo3 = external addrspace(1) constant %lunarStruct3
+@foo2 = external addrspace(1) constant %lunarStruct2
+@"sampler2D sampler" = external addrspace(1) constant i32
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define void @main() {
+entry:
+  %texture2D_retval = alloca <4 x float>
+  %locals2 = alloca %lunarStruct2
+  %0 = load i32 addrspace(1)* getelementptr inbounds (%lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 0)
+  %1 = icmp sgt i32 %0, 0
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %entry
+  %locals21 = load %lunarStruct2 addrspace(1)* getelementptr inbounds (%lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0)
+  store %lunarStruct2 %locals21, %lunarStruct2* %locals2
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %locals22 = load %lunarStruct2 addrspace(1)* @foo2
+  store %lunarStruct2 %locals22, %lunarStruct2* %locals2
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %2 = load i32 addrspace(1)* @"sampler2D sampler"
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %texture2D_retval3 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %2, i32 0, <2 x float> %coord)
+  store <4 x float> %texture2D_retval3, <4 x float>* %texture2D_retval
+  %3 = load %lunarStruct2* %locals2
+  %4 = extractvalue %lunarStruct2 %3, 2, 1
+  %5 = load <4 x float>* %texture2D_retval
+  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %4, i32 0)
+  %gl_FragColor = fmul <4 x float> %6, %5
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %7 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %7)
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+; ModuleID = 'Top'
+
+%lunarStruct1 = type { i32, float }
+%lunarStruct2 = type { i32, float, %lunarStruct1 }
+%lunarStruct3 = type { %lunarStruct2, i32, float, %lunarStruct1 }
+
+@foo3 = external addrspace(1) constant %lunarStruct3
+@foo2 = external addrspace(1) constant %lunarStruct2
+@"sampler2D sampler" = external addrspace(1) constant i32
+
+define void @main() {
+entry:
+  %0 = load i32 addrspace(1)* getelementptr inbounds (%lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 0)
+  %1 = icmp sgt i32 %0, 0
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %entry
+  %locals21 = load %lunarStruct2 addrspace(1)* getelementptr inbounds (%lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0)
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %locals22 = load %lunarStruct2 addrspace(1)* @foo2
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %locals2.0 = phi %lunarStruct2 [ %locals21, %then ], [ %locals22, %else ]
+  %2 = load i32 addrspace(1)* @"sampler2D sampler"
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %texture2D_retval3 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %2, i32 0, <2 x float> %coord)
+  %3 = extractvalue %lunarStruct2 %locals2.0, 2, 1
+  %4 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %3, i32 0)
+  %gl_FragColor = fmul <4 x float> %4, %texture2D_retval3
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+***Unsupported functionality: Basic Type in Bottom IR
 compiling structAssignment.frag...
 uniform sampler2D sampler ; 
 varying vec2 coord ; 

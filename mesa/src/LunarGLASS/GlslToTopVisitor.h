@@ -116,6 +116,7 @@ protected:
     void createLLVMTextureIntrinsic(llvm::Function* &, int &, gla::Builder::SuperValue*, gla::Builder::SuperValue*, const llvm::Type*, llvm::Intrinsic::ID,  gla::ESamplerType, gla::ETextureFlags);
     void writePipelineOuts(void);
     void appendArrayIndexToName(std::string &, int);
+    bool convertValuesToUnsigned(unsigned*, int &, std::vector<llvm::Value*>);
 
     int getNextInterpIndex(std::string);
 
@@ -135,7 +136,11 @@ protected:
     std::stack<std::vector<llvm::Value*> > gepIndexChainStack;
 
     gla::Builder::SuperValue lastValue;
-    gla::Builder::SuperValue lValue;
+
+    struct {
+        gla::Builder::SuperValue base;
+        std::vector<llvm::Value*> indexChain;
+    } lValue;
 
     int interpIndex;
     bool inMain;
@@ -147,6 +152,9 @@ protected:
 
     // Stack of the exit blocks of loops, so that 'break' knows where to go.
     std::stack<llvm::BasicBlock*> exitStack;
+
+    // Used to init arrays of constant indices for ExtractValue/InsertValue
+    static const int maxGepIndices = 16;
 
     llvm::BasicBlock* shaderEntry;
 

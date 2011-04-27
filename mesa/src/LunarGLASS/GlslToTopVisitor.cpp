@@ -98,23 +98,28 @@ llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
 
     // vector of constants for LLVM
     std::vector<llvm::Constant*> vals;
-
-    for (unsigned int i = 0; i < constant->type->vector_elements; ++i) {
+    
+    if (constant->type->vector_elements) {
+        for (unsigned int i = 0; i < constant->type->vector_elements; ++i) {
+            switch(constant->type->base_type)
+            {
+            case GLSL_TYPE_UINT:
+                vals.push_back(gla::Util::makeUnsignedConstant(context, constant->value.i[i]));
+                break;
+            case GLSL_TYPE_INT:
+                vals.push_back(gla::Util::makeIntConstant(context, constant->value.u[i]));
+                break;
+            case GLSL_TYPE_FLOAT:
+                vals.push_back(gla::Util::makeFloatConstant(context, constant->value.f[i]));
+                break;
+            case GLSL_TYPE_BOOL:
+                vals.push_back(gla::Util::makeBoolConstant(context, constant->value.i[i]));
+                break;
+            }
+        } 
+    } else {
         switch(constant->type->base_type)
         {
-        case GLSL_TYPE_UINT:
-            vals.push_back(gla::Util::makeUnsignedConstant(context, constant->value.i[i]));
-            break;
-        case GLSL_TYPE_INT:
-            vals.push_back(gla::Util::makeIntConstant(context, constant->value.u[i]));
-            break;
-        case GLSL_TYPE_FLOAT:
-            vals.push_back(gla::Util::makeFloatConstant(context, constant->value.f[i]));
-            break;
-        case GLSL_TYPE_BOOL:
-            vals.push_back(gla::Util::makeBoolConstant(context, constant->value.i[i]));
-            break;
-
         case GLSL_TYPE_ARRAY:
         case GLSL_TYPE_STRUCT:
             gla::UnsupportedFunctionality("array or struct constant");
@@ -197,10 +202,11 @@ ir_visitor_status
     if(! isPipelineInput)
         lastValue = namedValues[var];
 
-    if (in_assignee)
-    {
-        // Track the dest so we can Store later
-        lValue = lastValue;
+    if (in_assignee) {
+        // Track the base and chain so we can store later
+        lValue.base = lastValue;
+        lValue.indexChain = gepIndexChainStack.top();
+        gepIndexChainStack.top().clear();
     }
     else
     {
@@ -211,24 +217,49 @@ ir_visitor_status
         }
         else if (GLSL_TYPE_ARRAY == baseType || GLSL_TYPE_STRUCT == baseType) {
             assert(gepIndexChainStack.top().size() >= 0);
+            unsigned indices[maxGepIndices];
+            int indexCount = 0;
 
-            // Since we're using GEP, but not supporting pointers, we can hard code the
-            // first index to zero.
-            gepIndexChainStack.top().push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0));
+            switch (var->mode) {
+            case ir_var_uniform:
 
-            // Reverse the index order.  A deque would be great, but LLVM requires indices in
-            // contiguous memory
-            std::vector<llvm::Value*>::iterator start = gepIndexChainStack.top().begin();
-            std::vector<llvm::Value*>::iterator end   = gepIndexChainStack.top().end();
+                // Since we're using GEP for uniforms, but not supporting pointers, we can hard code the
+                // first index to zero.
+                gepIndexChainStack.top().push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0));
 
-            std::reverse(start, end);
+                std::reverse(gepIndexChainStack.top().begin(), gepIndexChainStack.top().end());
 
-            // Use the indices we've built up to finally dereference the base type
-            lastValue = llvmBuilder.CreateGEP(lastValue,
-                                          gepIndexChainStack.top().begin(),
-                                          gepIndexChainStack.top().end());
 
-            lastValue = llvmBuilder.CreateLoad(lastValue);
+                // Use the indices we've built up to finally dereference the base type
+                lastValue = llvmBuilder.CreateGEP(lastValue,
+                                              gepIndexChainStack.top().begin(),
+                                              gepIndexChainStack.top().end());
+
+
+
+                lastValue = llvmBuilder.CreateLoad(lastValue);
+                break;
+
+            case ir_var_auto:
+            case ir_var_temporary:
+
+                std::reverse(gepIndexChainStack.top().begin(), gepIndexChainStack.top().end());
+
+                if (convertValuesToUnsigned(indices, indexCount, gepIndexChainStack.top())) {
+                    // If we're dereferencing an element in a local array or structure, we must 
+                    // load the entire aggregate and extract the element, otherwise 
+                    // promoteMemToReg will not drop the pointer references.
+                    lastValue = llvmBuilder.CreateLoad(lastValue);
+                    lastValue = llvmBuilder.CreateExtractValue(lastValue, indices, indices + indexCount);
+                } else {
+                    gla::UnsupportedFunctionality("non-constant dereference in local array");
+                }
+
+                break;
+
+            default:
+                gla::UnsupportedFunctionality("struct or array dereference mode");
+            }
 
             gepIndexChainStack.top().clear();
         }
@@ -483,6 +514,8 @@ ir_visitor_status
         lastValue = createPipelineRead(ir->variable_referenced(), indexInt);
         break;
     case ir_var_uniform:
+    case ir_var_auto:
+    case ir_var_temporary:
 
         // The index could be a nested chain, so start a new one
         gepIndexChainStack.push(newChain);
@@ -492,7 +525,12 @@ ir_visitor_status
             indexInt = ir->array_index->constant_expression_value()->value.u[0];
             indexVal = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), indexInt);
         } else {
+            // Turn off in_assignee for the l-value index
+            const bool was_in_assignee = in_assignee;
+            in_assignee = false;
             ir->array_index->accept(this);
+            in_assignee = was_in_assignee;
+
             assert(llvm::isa<llvm::IntegerType>(lastValue->getType()));
             indexVal = lastValue;
         }
@@ -526,9 +564,6 @@ ir_visitor_status
     const glsl_type *struct_type = ir->record->type;
     int offset = 0;
 
-    if (in_assignee)
-        gla::UnsupportedFunctionality("structure dereference in l-value");
-
     // Find and push the index that matches the requested field
     for (int i = 0; i < struct_type->length; i++) {
         if (strcmp(struct_type->fields.structure[i].name, ir->field) == 0)
@@ -559,22 +594,42 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_assignment *assignment)
 {
-    if(llvm::isa<llvm::StructType>(lValue->getType()->getContainedType(0)))
-        gla::UnsupportedFunctionality("structure assignment");
+    llvm::Value* lValueAggregate = NULL;
+    unsigned indices[maxGepIndices];
+    int indexCount = 0;
 
-    //Handle writemask
-    if(!assignment->whole_variable_written()) {
+    // If we're assigning to an element in a local array or structure, we must 
+    // load the entire aggregate, insert the new value, and store the whole thing.
+    // Otherwise, promoteMemToReg will not drop the pointer references.
+    // If we're assigning to an entire struct or array, we'll have no GEP indices
+    // and we'll store directly to the l-value.
+    if (lValue.indexChain.size()) {
+        std::reverse(lValue.indexChain.begin(), lValue.indexChain.end());
+        if (convertValuesToUnsigned(indices, indexCount, lValue.indexChain)) {
+            lValueAggregate = llvmBuilder.CreateLoad(lValue.base);
+            lValue.indexChain.clear();
+        } else {
+            gla::UnsupportedFunctionality("non-constant dereference in local array");
+        }
+    }
+
+    // Handle writemask
+    // Only execute the write mask code if we're assigning to a vector without a
+    // full write mask.
+    if (assignment->lhs->type->vector_elements > 1 && 0 == assignment->whole_variable_written()) {
         llvm::Value* targetVector;
-        int writeMask = assignment->write_mask;
         int sourceElement = 0;
-        llvm::Type::TypeID sourceType = lastValue->getType()->getTypeID();
+        llvm::Type::TypeID sourceType = lastValue->getType()->getTypeID();        
 
         // Load our target vector
-        targetVector = llvmBuilder.CreateLoad(lValue);
+        if (lValueAggregate)
+            targetVector = llvmBuilder.CreateExtractValue(lValueAggregate, indices, indices + indexCount);
+        else
+            targetVector = llvmBuilder.CreateLoad(lValue.base);
 
         // Check each channel of the writemask
         for(int i = 0; i < 4; ++i) {
-            if(writeMask & (1 << i)) {
+            if(assignment->write_mask & (1 << i)) {
                 if(llvm::Type::VectorTyID == sourceType) {
                     // Extract an element to a scalar, then immediately insert to our target
                     targetVector = llvmBuilder.CreateInsertElement(targetVector,
@@ -596,10 +651,14 @@ ir_visitor_status
     // Retroactively change the name of the last-value temp to the name of the
     // l-value, to help debuggability, if it's just an llvm temp name.
     if (lastValue->getNameStr().length() < 2 || (lastValue->getNameStr()[1] >= '0' && lastValue->getNameStr()[1] <= '9'))
-        lastValue->setName(lValue->getName());
+        lastValue->setName(lValue.base->getName());
+
+    // If we loaded the whole l-value, then insert our r-value
+    if (lValueAggregate)
+        lastValue = llvmBuilder.CreateInsertValue(lValueAggregate, lastValue, indices, indices + indexCount);
 
     // Store the last value into the l-value, using dest we track in base class.
-    llvm::StoreInst *store = llvmBuilder.CreateStore(lastValue, lValue);
+    llvm::StoreInst *store = llvmBuilder.CreateStore(lastValue, lValue.base);
 
     lastValue = store;
 
@@ -1649,4 +1708,27 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
         
     // Give each interpolant a temporary unique index
     return glaBuilder->readPipeline(readType, name, getNextInterpIndex(name), mode);
+}
+
+// Some interfaces to our LLVM builder require unsigned indices instead of a vector.
+// i.e. llvm::IRBuilder::CreateExtractValue()
+// This method will do the conversion and inform the caller if not every element was
+// a constant integer.
+bool GlslToTopVisitor::convertValuesToUnsigned(unsigned* indices, int &count, std::vector<llvm::Value*> chain)
+{
+    std::vector<llvm::Value*>::iterator start = chain.begin();
+
+    for (count = 0; start != chain.end(); ++start, ++count) {
+        assert(count < maxGepIndices);
+        if (llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(*start)) {
+            if (llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(constant))
+                indices[count] = constantInt->getValue().getSExtValue();
+            else
+                return false;
+        } else {
+            return false;
+        }
+    }
+    
+    return true;
 }
