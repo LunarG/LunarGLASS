@@ -1,3 +1,5 @@
+
+Top IR:
 ; ModuleID = 'Top'
 
 @gl_MaxLights = internal global i32 8
@@ -1034,6 +1036,9 @@ declare float @llvm.gla.fDot.v4f32.v4f32(<4 x float>, <4 x float>) nounwind read
 declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+
+Bottom IR:
 ; ModuleID = 'Top'
 
 @uv4 = external addrspace(1) constant <4 x float>
@@ -1136,8 +1141,7 @@ entry:
   %assignment_tmp166167 = add i32 %max_retval164165, %assignment_tmp161162
   %clamp_retval169170 = call i32 @llvm.gla.sClamp.i32.i32.i32.i32(i32 %assignment_tmp166167, i32 %6, i32 %6)
   %i171 = add i32 %clamp_retval169170, %assignment_tmp166167
-  %lessThan_retval172 = fcmp olt <4 x float> %v153, %v153
-  %any_retval173 = call i1 @llvm.gla.any.v4i1(<4 x i1> %lessThan_retval172)
+  %any_retval173 = call i1 @llvm.gla.any.v4i1(<4 x i1> zeroinitializer)
   br i1 %any_retval173, label %then, label %else
 
 then:                                             ; preds = %entry
@@ -1153,8 +1157,7 @@ ifmerge:                                          ; preds = %else, %then
   br i1 %and_tmp.0, label %then181, label %else186
 
 then181:                                          ; preds = %ifmerge
-  %greaterThan_retval182 = fcmp ogt <4 x float> %v153, %v153
-  %any_retval183184 = call i1 @llvm.gla.any.v4i1(<4 x i1> %greaterThan_retval182)
+  %any_retval183184 = call i1 @llvm.gla.any.v4i1(<4 x i1> zeroinitializer)
   br label %ifmerge187
 
 else186:                                          ; preds = %ifmerge
@@ -1251,18 +1254,11 @@ then243:                                          ; preds = %ifmerge238
   br label %ifmerge251
 
 else244:                                          ; preds = %ifmerge238
-  %19 = icmp ne i32 %assignment_tmp240241, %6
-  br i1 %19, label %then246, label %else248
-
-then246:                                          ; preds = %else244
   br label %ifmerge249
 
-else248:                                          ; preds = %else244
-  br label %ifmerge249
-
-ifmerge249:                                       ; preds = %else248, %then246
-  %20 = icmp ne i32 %assignment_tmp240241, 2
-  %or_tmp250 = xor i1 false, %20
+ifmerge249:                                       ; preds = %else244
+  %19 = icmp ne i32 %assignment_tmp240241, 2
+  %or_tmp250 = xor i1 false, %19
   br label %ifmerge251
 
 ifmerge251:                                       ; preds = %ifmerge249, %then243
@@ -1275,29 +1271,29 @@ then252:                                          ; preds = %ifmerge251
 
 ifmerge254:                                       ; preds = %then252, %ifmerge251
   %i.0 = phi i32 [ %i253, %then252 ], [ %assignment_tmp240241, %ifmerge251 ]
-  %21 = fadd float %5, %5
-  %22 = fmul float %21, %5
-  %23 = fsub float %22, %5
-  %f255 = fdiv float %23, %5
+  %20 = fadd float %5, %5
+  %21 = fmul float %20, %5
+  %22 = fsub float %21, %5
+  %f255 = fdiv float %22, %5
   %length_retval256 = call float @llvm.gla.fLength.v4f32(<4 x float> %v153)
   %f257 = fadd float %f255, %length_retval256
   %distance_retval258 = call float @llvm.gla.fDistance.v4f32.v4f32(<4 x float> %v153, <4 x float> %v153)
   %f259 = fadd float %f257, %distance_retval258
   %dot_retval260 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %v153, <4 x float> %v153)
   %f261 = fadd float %f259, %dot_retval260
-  %24 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> undef, i32 7, <4 x float> %v153, i32 0, <4 x float> %v153, i32 1, <4 x float> %v153, i32 2, float 0.000000e+00, i32 -1)
-  %cross_retval262 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %24, <3 x float> %24)
-  %25 = extractelement <3 x float> %cross_retval262, i32 0
-  %assignment_tmp263264 = fadd float %f261, %25
-  %26 = fcmp oeq float %assignment_tmp263264, %5
-  br i1 %26, label %then267, label %else268
+  %23 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> undef, i32 7, <4 x float> %v153, i32 0, <4 x float> %v153, i32 1, <4 x float> %v153, i32 2, float 0.000000e+00, i32 -1)
+  %cross_retval262 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %23, <3 x float> %23)
+  %24 = extractelement <3 x float> %cross_retval262, i32 0
+  %assignment_tmp263264 = fadd float %f261, %24
+  %25 = fcmp oeq float %assignment_tmp263264, %5
+  br i1 %25, label %then267, label %else268
 
 then267:                                          ; preds = %ifmerge254
   br label %ifmerge275
 
 else268:                                          ; preds = %ifmerge254
-  %27 = fcmp one float %assignment_tmp263264, %5
-  br i1 %27, label %then270, label %else272
+  %26 = fcmp one float %assignment_tmp263264, %5
+  br i1 %26, label %then270, label %else272
 
 then270:                                          ; preds = %else268
   %and_tmp269271 = fcmp one float %assignment_tmp263264, 2.000000e+00
@@ -1320,22 +1316,22 @@ then276:                                          ; preds = %ifmerge275
 
 ifmerge278:                                       ; preds = %then276, %ifmerge275
   %f.0 = phi float [ %f277, %then276 ], [ %assignment_tmp263264, %ifmerge275 ]
-  %28 = and i32 %6, %i.0
-  %29 = or i32 %28, 66
-  %30 = xor i32 %29, %6
-  %31 = srem i32 %30, 17
-  %32 = lshr i32 %31, 2
-  %33 = shl i32 %32, %6
-  %assignment_tmp279280 = xor i32 %33, -1
   %assignment_tmp282283 = xor i1 %and_tmp231.0, true
   br i1 %assignment_tmp282283, label %then285, label %else287
 
 then285:                                          ; preds = %ifmerge278
-  %34 = sitofp i32 %assignment_tmp279280 to float
-  %35 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %34, i32 -1, float %34, i32 -1, float %34, i32 -1, float %34, i32 -1)
-  %36 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1)
-  %37 = fadd <4 x float> %35, %36
-  %conditional_tmp286 = fadd <4 x float> %37, %v153
+  %27 = and i32 %6, %i.0
+  %28 = or i32 %27, 66
+  %29 = xor i32 %28, %6
+  %30 = srem i32 %29, 17
+  %31 = lshr i32 %30, 2
+  %32 = shl i32 %31, %6
+  %assignment_tmp279280 = xor i32 %32, -1
+  %33 = sitofp i32 %assignment_tmp279280 to float
+  %34 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %33, i32 -1, float %33, i32 -1, float %33, i32 -1, float %33, i32 -1)
+  %35 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1)
+  %36 = fadd <4 x float> %34, %35
+  %conditional_tmp286 = fadd <4 x float> %36, %v153
   br label %ifmerge289
 
 else287:                                          ; preds = %ifmerge278
@@ -2009,14 +2005,15 @@ uniform float uf;
 uniform int ui;
 uniform bvec4 ub41;
 uniform bvec4 ub42;
+const bvec4 const122 = bvec4(0);
 const bool const125 = false;
-const bool const144 = true;
-const int const147 = 2;
-const int const150 = 1;
-const float const167 = 2;
-const float const169 = 1;
-const int const172 = 66;
-const int const175 = 17;
+const bool const143 = true;
+const int const145 = 2;
+const int const148 = 1;
+const float const165 = 2;
+const float const167 = 1;
+const int const171 = 66;
+const int const174 = 17;
 
 void main()
 {
@@ -2120,8 +2117,7 @@ void main()
     int assignment_tmp166167 = max_retval164165 + assignment_tmp161162;
     int clamp_retval169170 = clamp(assignment_tmp166167, ui, ui);
     int temp120 = clamp_retval169170 + assignment_tmp166167;
-    bvec4 lessThan_retval172 = lessThan(temp113, temp113);
-    bool any_retval173 = any(lessThan_retval172);
+    bool any_retval173 = any(const122);
     if (any_retval173) {
         bvec4 lessThanEqual_retval175 = lessThanEqual(temp113, temp113);
         bool any_retval176177 = any(lessThanEqual_retval175);
@@ -2132,8 +2128,7 @@ void main()
     }
     
     if (and_tmp_0) {
-        bvec4 greaterThan_retval182 = greaterThan(temp113, temp113);
-        bool any_retval183184 = any(greaterThan_retval182);
+        bool any_retval183184 = any(const122);
         and_tmp180_0 = any_retval183184;
     }
     else {
@@ -2192,55 +2187,49 @@ void main()
         and_tmp231_0 = const125;
     }
     
-    int temp138 = ui + temp120;
-    int temp139 = temp138 * temp120;
-    int temp140 = temp139 - ui;
-    int temp141 = temp140 / temp120;
-    int assignment_tmp240241 = temp141 % ui;
-    bool temp143 = assignment_tmp240241 == ui;
-    if (temp143) {
-        or_tmp_0 = const144;
+    int temp137 = ui + temp120;
+    int temp138 = temp137 * temp120;
+    int temp139 = temp138 - ui;
+    int temp140 = temp139 / temp120;
+    int assignment_tmp240241 = temp140 % ui;
+    bool temp142 = assignment_tmp240241 == ui;
+    if (temp142) {
+        or_tmp_0 = const143;
     }
     else {
-        bool temp145 = assignment_tmp240241 != ui;
-        if (temp145) {
-        }
-        else {
-        }
-        
-        bool temp146 = assignment_tmp240241 != const147;
-        bool or_tmp250 = const125 ^^ temp146;
+        bool temp144 = assignment_tmp240241 != const145;
+        bool or_tmp250 = !(const125);
         or_tmp_0 = or_tmp250;
     }
     
     i_0 = assignment_tmp240241;
     if (or_tmp_0) {
-        int temp149 = assignment_tmp240241 + const150;
-        i_0 = temp149;
+        int temp147 = assignment_tmp240241 + const148;
+        i_0 = temp147;
     }
     
-    float temp151 = uf + uf;
-    float temp152 = temp151 * uf;
-    float temp153 = temp152 - uf;
-    float temp154 = temp153 / uf;
+    float temp149 = uf + uf;
+    float temp150 = temp149 * uf;
+    float temp151 = temp150 - uf;
+    float temp152 = temp151 / uf;
     float length_retval256 = length(temp113);
-    float temp156 = temp154 + length_retval256;
+    float temp154 = temp152 + length_retval256;
     float distance_retval258 = distance(temp113, temp113);
-    float temp158 = temp156 + distance_retval258;
+    float temp156 = temp154 + distance_retval258;
     float dot_retval260 = dot(temp113, temp113);
-    float temp160 = temp158 + dot_retval260;
-    vec3 temp161;
-    temp161.xyz = temp113.xyz;
-    vec3 cross_retval262 = cross(temp161, temp161);
-    float assignment_tmp263264 = temp160 + cross_retval262.x;
-    bool temp164 = assignment_tmp263264 == uf;
-    if (temp164) {
-        or_tmp266_0 = const144;
+    float temp158 = temp156 + dot_retval260;
+    vec3 temp159;
+    temp159.xyz = temp113.xyz;
+    vec3 cross_retval262 = cross(temp159, temp159);
+    float assignment_tmp263264 = temp158 + cross_retval262.x;
+    bool temp162 = assignment_tmp263264 == uf;
+    if (temp162) {
+        or_tmp266_0 = const143;
     }
     else {
-        bool temp165 = assignment_tmp263264 != uf;
-        if (temp165) {
-            bool and_tmp269271 = assignment_tmp263264 != const167;
+        bool temp163 = assignment_tmp263264 != uf;
+        if (temp163) {
+            bool and_tmp269271 = assignment_tmp263264 != const165;
             and_tmp269_0 = and_tmp269271;
         }
         else {
@@ -2252,24 +2241,24 @@ void main()
     
     f_0 = assignment_tmp263264;
     if (or_tmp266_0) {
-        float temp168 = assignment_tmp263264 + const169;
-        f_0 = temp168;
+        float temp166 = assignment_tmp263264 + const167;
+        f_0 = temp166;
     }
     
-    int temp170 = ui & i_0;
-    int temp171 = temp170 | const172;
-    int temp173 = temp171 ^ ui;
-    int temp174 = temp173 % const175;
-    int temp176 = temp174 >> const147;
-    int temp177 = temp176 << ui;
-    int assignment_tmp279280 = ~ temp177;
-    bool assignment_tmp282283 = ! and_tmp231_0;
+    bool assignment_tmp282283 = !(and_tmp231_0);
     if (assignment_tmp282283) {
-        float temp180 = float(assignment_tmp279280);
-        vec4 temp181 = vec4(temp180, temp180, temp180, temp180);
-        vec4 temp182 = vec4(f_0, f_0, f_0, f_0);
-        vec4 temp183 = temp181 + temp182;
-        vec4 conditional_tmp286 = temp183 + temp113;
+        int temp169 = ui & i_0;
+        int temp170 = temp169 | const171;
+        int temp172 = ~(temp170);
+        int temp173 = temp172 % const174;
+        int temp175 = temp173 >> const145;
+        int temp176 = temp175 << ui;
+        int assignment_tmp279280 = ~(temp176);
+        float temp178 = float(assignment_tmp279280);
+        vec4 temp179 = vec4(temp178, temp178, temp178, temp178);
+        vec4 temp180 = vec4(f_0, f_0, f_0, f_0);
+        vec4 temp181 = temp179 + temp180;
+        vec4 conditional_tmp286 = temp181 + temp113;
         conditional_tmp_0 = conditional_tmp286;
     }
     else {

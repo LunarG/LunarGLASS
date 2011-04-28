@@ -1,3 +1,5 @@
+
+Top IR:
 ; ModuleID = 'Top'
 
 %lunarStruct1 = type { i32, float }
@@ -108,6 +110,9 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+
+Bottom IR:
 ; ModuleID = 'Top'
 
 %lunarStruct1 = type { i32, float }
@@ -145,28 +150,32 @@ else:                                             ; preds = %entry
 ifmerge:                                          ; preds = %else, %then
   %scale.0 = phi float [ %scale4, %then ], [ %scale5, %else ]
   %iLocal.0 = phi i32 [ %assignment_tmp2, %then ], [ %iLocal1, %else ]
+  %tmp = icmp sgt i32 %iLocal.0, 0
+  %smax = select i1 %tmp, i32 %iLocal.0, i32 0
+  %tmp21 = zext i32 %smax to i64
   br label %loop-header
 
 loop-header:                                      ; preds = %ifmerge7, %ifmerge
+  %indvar = phi i64 [ %indvar.next, %ifmerge7 ], [ 0, %ifmerge ]
   %scale.1 = phi float [ %scale.0, %ifmerge ], [ %scale8, %ifmerge7 ]
-  %i.0 = phi i32 [ 0, %ifmerge ], [ %i9, %ifmerge7 ]
-  %8 = icmp sge i32 %i.0, %iLocal.0
-  br i1 %8, label %then6, label %ifmerge7
+  %tmp23 = mul i64 %indvar, ptrtoint (i8* getelementptr (i8* null, i32 1) to i64)
+  %lsr.iv14 = getelementptr [5 x %lunarStruct2] addrspace(1)* @foo2, i64 0, i64 %tmp23, i32 1
+  %exitcond22 = icmp eq i64 %indvar, %tmp21
+  br i1 %exitcond22, label %then6, label %ifmerge7
 
 then6:                                            ; preds = %loop-header
-  %9 = load i32 addrspace(1)* @"sampler2D sampler"
+  %8 = load i32 addrspace(1)* @"sampler2D sampler"
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
-  %texture2D_retval10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %coord)
-  %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.1, i32 0)
-  %gl_FragColor = fmul <4 x float> %10, %texture2D_retval10
+  %texture2D_retval10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %8, i32 0, <2 x float> %coord)
+  %9 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.1, i32 0)
+  %gl_FragColor = fmul <4 x float> %9, %texture2D_retval10
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   ret void
 
 ifmerge7:                                         ; preds = %loop-header
-  %11 = getelementptr [5 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 %i.0, i32 1
-  %12 = load float addrspace(1)* %11
-  %scale8 = fadd float %scale.1, %12
-  %i9 = add i32 %i.0, 1
+  %10 = load float addrspace(1)* %lsr.iv14
+  %scale8 = fadd float %scale.1, %10
+  %indvar.next = add i64 %indvar, 1
   br label %loop-header
 }
 
@@ -177,6 +186,10 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+
+Loop info:
+Loop at depth 1 containing: %loop-header<header><exiting>,%ifmerge7<latch>
 
 ***Unsupported functionality: opcode in Bottom IR: 42
 compiling variableArrayIndex.frag...

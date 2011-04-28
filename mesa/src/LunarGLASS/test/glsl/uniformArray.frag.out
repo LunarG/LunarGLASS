@@ -1,3 +1,5 @@
+
+Top IR:
 ; ModuleID = 'Top'
 
 @gl_MaxLights = internal global i32 8
@@ -59,6 +61,9 @@ entry:
 }
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+
+Bottom IR:
 ; ModuleID = 'Top'
 
 @color = external addrspace(1) constant [6 x <4 x float>]

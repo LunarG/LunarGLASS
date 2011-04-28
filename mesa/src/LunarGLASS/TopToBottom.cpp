@@ -35,6 +35,7 @@
 #include "llvm/Transforms/IPO.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Support/IRBuilder.h"
+#include "llvm/Support/raw_ostream.h"
 #include <cstdio>
 #include <string>
 #include <map>
@@ -51,6 +52,7 @@
 // LunarGLASS Passes
 #include "Passes/Transforms/CoalesceInserts.h"
 #include "Passes/Transforms/CanonicalizeCFG.h"
+#include "Passes/Transforms/FlattenConditionalAssignments.h"
 
 void gla::PrivateManager::translateTopToBottom()
 {
@@ -58,13 +60,18 @@ void gla::PrivateManager::translateTopToBottom()
     unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
 
-    if (gla::Options.debug)
+    if (gla::Options.debug) {
+        llvm::errs() << "\nTop IR:\n";
         module->dump();
+    }
 
     runLLVMOptimizations1();
 
-    if (gla::Options.debug)
+    if (gla::Options.debug) {
+        llvm::errs() << "\n\nBottom IR:\n";
         module->dump();
+    }
+
 #ifdef _WIN32
     _set_output_format(oldFormat);
 #endif
@@ -89,14 +96,24 @@ void gla::PrivateManager::runLLVMOptimizations1()
     llvm::FunctionPassManager passManager(module);
     if (Options.optimizations.verify)      passManager.add(llvm::createVerifierPass());
     if (Options.optimizations.mem2reg)     passManager.add(llvm::createPromoteMemoryToRegisterPass());
+    passManager.add(llvm::createCanonicalizeCFGPass());
     if (Options.optimizations.reassociate) passManager.add(llvm::createReassociatePass());
     if (Options.optimizations.gvn)         passManager.add(llvm::createGVNPass());
     if (Options.optimizations.coalesce)    passManager.add(llvm::createCoalesceInsertsPass());
-    // passManager.add(llvm::createInstructionCombiningPass());
-    // passManager.add(llvm::createSinkingPass());
-    // passManager.add(llvm::createSCCPPass());
-    // passManager.add(llvm::createCFGSimplificationPass());
+    passManager.add(llvm::createSinkingPass());
+    passManager.add(llvm::createSCCPPass());
+
+    // // passManager.add(llvm::createInstructionCombiningPass());
+
     if (Options.optimizations.adce)        passManager.add(llvm::createAggressiveDCEPass());
+    passManager.add(llvm::createFlattenConditionalAssignmentsPass());
+
+    // Loop optimizations
+    passManager.add(llvm::createIndVarSimplifyPass());
+    passManager.add(llvm::createLoopStrengthReducePass());
+    passManager.add(llvm::createLICMPass());
+
+    // if (Options.optimizations.adce)        passManager.add(llvm::createAggressiveDCEPass());
     if (Options.optimizations.verify)      passManager.add(llvm::createVerifierPass());
     llvm::Module::iterator function, lastFunction;
 
@@ -139,6 +156,8 @@ void gla::PrivateManager::runLLVMOptimizations1()
     }
 
     llvm::PassManager canonicalize;
+
+    canonicalize.add(llvm::createIndVarSimplifyPass());
     canonicalize.add(llvm::createCanonicalizeCFGPass());
     canonicalize.run(*module);
 }

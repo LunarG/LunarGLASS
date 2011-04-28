@@ -36,7 +36,9 @@
 #include "Exceptions.h"
 #include "Options.h"
 
+#include "llvm/Support/CFG.h"
 #include "llvm/Support/raw_ostream.h"
+
 
 void GlslToTop(struct gl_shader* glShader, llvm::Module* module)
 {
@@ -98,7 +100,7 @@ llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
 
     // vector of constants for LLVM
     std::vector<llvm::Constant*> vals;
-    
+
     if (constant->type->vector_elements) {
         for (unsigned int i = 0; i < constant->type->vector_elements; ++i) {
             switch(constant->type->base_type)
@@ -116,7 +118,7 @@ llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
                 vals.push_back(gla::Util::makeBoolConstant(context, constant->value.i[i]));
                 break;
             }
-        } 
+        }
     } else {
         switch(constant->type->base_type)
         {
@@ -136,6 +138,60 @@ llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
     return glaBuilder->getConstant(vals);
 }
 
+// TODO: abstract into TopBuilder
+
+// If the loop is an inductive loop (to the front-end), set up the increment and
+// the condition test. Returns whether it did anything. For now, the front end inserts the increment into the
+// loop body, so don't do that yet.
+bool GlslToTopVisitor::setUpLatch()
+{
+    LoopData ld = loops.top();
+
+    // TODO: do the test outside this function
+
+    if (ld.isInductive) {
+        assert(ld.counter && ld.counter->getType()->isPointerTy() && ld.increment && ld.finish);
+
+        llvm::Value* iPrev = llvmBuilder.CreateLoad(ld.counter);
+        llvm::Value* cmp   = NULL;
+
+        // TODO: add in bool for when a front end increments it itself
+
+        // For now, the front end puts the increment inside the body of the
+        // loop, so don't do it
+        // llvm::Value* iNext = NULL;
+        // switch(ld.counter->getType()->getContainedType(0)->getTypeID()) {
+        // case llvm::Type::FloatTyID:       iNext = builder.CreateFAdd(iPrev, ld.increment);     break;
+        // case llvm::Type::IntegerTyID:     iNext = builder.CreateAdd( iPrev, ld.increment);     break;
+
+        // default: gla::UnsupportedFunctionality("unknown type in inductive variable");
+        // }
+
+        // builder.CreateStore(iNext, ld.counter);
+
+        // TODO: If we do the increment ourselves, change iPrev to be iNext
+        switch(ld.counter->getType()->getContainedType(0)->getTypeID()) {
+        case llvm::Type::FloatTyID:       cmp = llvmBuilder.CreateFCmpOGE(iPrev, ld.finish);     break;
+        case llvm::Type::IntegerTyID:     cmp = llvmBuilder.CreateICmpSGE(iPrev, ld.finish);     break;
+
+        default: gla::UnsupportedFunctionality("unknown type in inductive variable [2]");
+        }
+
+        // If iNext exceeds ld.finish, exit the loop, else branch back to
+        // the header
+        llvmBuilder.CreateCondBr(cmp, ld.exit, ld.header);
+
+        // Not going to dreate dummy basic block, as our callers should see if
+        // we set up the latch
+
+        lastValue.clear();
+
+        return true;
+    }
+
+    return false;
+}
+
 ir_visitor_status
     GlslToTopVisitor::visit(ir_loop_jump *ir)
 {
@@ -145,11 +201,13 @@ ir_visitor_status
     llvm::BasicBlock* postLoopJump = llvm::BasicBlock::Create(context, "post-loopjump", function);
 
     if (ir->is_break()) {
-        llvmBuilder.CreateBr(exitStack.top());
+        llvmBuilder.CreateBr(loops.top().exit);
     }
 
     if (ir->is_continue()) {
-        llvmBuilder.CreateBr(headerStack.top());
+        bool done = setUpLatch();
+        if (! done)
+            llvmBuilder.CreateBr(loops.top().header);
     }
 
     llvmBuilder.SetInsertPoint(postLoopJump);
@@ -246,8 +304,8 @@ ir_visitor_status
                 std::reverse(gepIndexChainStack.top().begin(), gepIndexChainStack.top().end());
 
                 if (convertValuesToUnsigned(indices, indexCount, gepIndexChainStack.top())) {
-                    // If we're dereferencing an element in a local array or structure, we must 
-                    // load the entire aggregate and extract the element, otherwise 
+                    // If we're dereferencing an element in a local array or structure, we must
+                    // load the entire aggregate and extract the element, otherwise
                     // promoteMemToReg will not drop the pointer references.
                     lastValue = llvmBuilder.CreateLoad(lastValue);
                     lastValue = llvmBuilder.CreateExtractValue(lastValue, indices, indices + indexCount);
@@ -282,19 +340,34 @@ ir_visitor_status
 {
     llvm::Function* function = llvmBuilder.GetInsertBlock()->getParent();
 
-    llvm::BasicBlock* headerBB = llvm::BasicBlock::Create(context, "loop-header", function);
-    llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "loop-merge");
+    llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(context, "loop-header", function);
+    llvm::BasicBlock *mergeBB  = llvm::BasicBlock::Create(context, "loop-merge");
 
-    // Push the blocks onto the stacks, so that breaks/continues inside the loop
-    // know where to go
-    exitStack.push(mergeBB);
-    headerStack.push(headerBB);
+    // Remember the blocks, so that breaks/continues inside the loop know where
+    // to go
+    LoopData ld = { };
+    ld.exit   = mergeBB;
+    ld.header = headerBB;
 
-    // It seems like the AST we get from GLSL does not have anything in the loop
-    // filled in except it's body. Assert on these assumptions
-    assert(!ir->from && "Loop has from field set");
-    assert(!ir->to && "Loop has from field set");
-    assert(!ir->increment && "Loop has from field set");
+    if (ir->counter) {
+        // I've not seen the compare field used, only from+to+increment
+        assert(ir->from && ir->to && ir->increment && "partially undefined static inductive loop");
+        assert(ir->from->as_constant() && ir->to->as_constant() && ir->increment->as_constant()
+               && "non-constant fields for static inductive loop");
+
+        ld.finish      = createLLVMConstant(ir->to->as_constant());
+        ld.increment   = createLLVMConstant(ir->increment->as_constant());
+        ld.counter     = createLLVMVariable(ir->counter);
+        ld.isInductive = true;
+
+        namedValues[ir->counter] = ld.counter;
+
+        llvm::Constant* from = createLLVMConstant(ir->from->as_constant());
+
+        llvmBuilder.CreateStore(from, ld.counter);
+    }
+
+    loops.push(ld);
 
     // Branch into the loop
     llvmBuilder.CreateBr(headerBB);
@@ -305,15 +378,16 @@ ir_visitor_status
     visit_list_elements(this, &ir->body_instructions);
 
     // Branch back through the loop
-    llvmBuilder.CreateBr(headerBB);
+    bool done = setUpLatch();
+    if (! done)
+        llvmBuilder.CreateBr(headerBB);
 
     // Now, create a new block for the rest of the post-loop program
     function->getBasicBlockList().push_back(mergeBB);
     llvmBuilder.SetInsertPoint(mergeBB);
 
     // Remove ourselves from the stacks
-    exitStack.pop();
-    headerStack.pop();
+    loops.pop();
 
     // lastValue may not be up-to-date, and we shouldn't be referenced
     // anyways
@@ -392,20 +466,31 @@ ir_visitor_status
     if (!sig->is_builtin) {
 
         llvm::BasicBlock* BB = llvmBuilder.GetInsertBlock();
-        assert(BB);
+        llvm::Function* F = llvmBuilder.GetInsertBlock()->getParent();
+        assert(BB && F);
 
         // If our function did not contain a return,
         // return void now
         if (0 == BB->getTerminator()) {
 
-            if (inMain) {
+            // Whether we're in an unreachable (non-entry) block
+            bool unreachable = &*F->begin() != BB && pred_begin(BB) == pred_end(BB);
+
+            if (inMain && !unreachable) {
                 // If we're leaving main and it is not terminated,
                 // generate our pipeline writes
                 glaBuilder->copyOutPipeline(llvmBuilder);
                 inMain = false;
             }
 
-            llvmBuilder.CreateRet(0);
+            // If we're not the entry block, and we have no predecessors, we're
+            // unreachable, so don't bother adding a return instruction in
+            // (e.g. we're in a post-return block). Otherwise add a ret void.
+            if (unreachable)
+                llvmBuilder.CreateUnreachable();
+            else
+                llvmBuilder.CreateRet(0);
+
         }
     }
 
@@ -497,7 +582,7 @@ ir_visitor_status
     // - Startup: Init top of stack with empty chain
     // - Struct field dereference: Visit struct field and add to chain on top of stack
     // - Before evaluating array index:  Push new chain onto stack.
-    // - After evaluating array index:  Pop a chain from the stack and push lastValue 
+    // - After evaluating array index:  Pop a chain from the stack and push lastValue
     //   to the new top chain
     // - Visit base:  collapse and clear current top GEP chain
 
@@ -598,7 +683,7 @@ ir_visitor_status
     unsigned indices[maxGepIndices];
     int indexCount = 0;
 
-    // If we're assigning to an element in a local array or structure, we must 
+    // If we're assigning to an element in a local array or structure, we must
     // load the entire aggregate, insert the new value, and store the whole thing.
     // Otherwise, promoteMemToReg will not drop the pointer references.
     // If we're assigning to an entire struct or array, we'll have no GEP indices
@@ -619,7 +704,7 @@ ir_visitor_status
     if (assignment->lhs->type->vector_elements > 1 && 0 == assignment->whole_variable_written()) {
         llvm::Value* targetVector;
         int sourceElement = 0;
-        llvm::Type::TypeID sourceType = lastValue->getType()->getTypeID();        
+        llvm::Type::TypeID sourceType = lastValue->getType()->getTypeID();
 
         // Load our target vector
         if (lValueAggregate)
@@ -1058,6 +1143,8 @@ ir_visitor_status
         llvmBuilder.CreateRet(0);
     }
 
+    lastValue.clear();
+
     return visit_continue;
 }
 
@@ -1494,8 +1581,8 @@ llvm::Value* GlslToTopVisitor::expandGLSLSwizzle(ir_swizzle* swiz)
     // If we are dealing with a scalar, just put it in a register and return
     if (!vt) {
         target = llvmBuilder.CreateExtractElement(lastValue,
-                                              llvm::ConstantInt::get(context,
-                                                                     llvm::APInt(32, swizValMask, false)));
+                                                  llvm::ConstantInt::get(context,
+                                                                         llvm::APInt(32, swizValMask, false)));
         return target;
     }
     assert(vt);
@@ -1511,16 +1598,16 @@ llvm::Value* GlslToTopVisitor::expandGLSLSwizzle(ir_swizzle* swiz)
         // make inserts. Otherwise make insert/extract pairs
         if (false == llvm::isa<llvm::VectorType>(sourceType)) {
             target = llvmBuilder.CreateInsertElement(target,
-                                                 operand,
-                                                 llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
+                                                     operand,
+                                                     llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
         } else {
             // Extract an element to a scalar, then immediately insert to our target
             llvm::Value* extractInst = llvmBuilder.CreateExtractElement(lastValue,
-                                                                    llvm::ConstantInt::get(context,
-                                                                                           llvm::APInt(32, (swizValMask >> (2*i)) & 0x3, false)));
+                                                                        llvm::ConstantInt::get(context,
+                                                                                               llvm::APInt(32, (swizValMask >> (2*i)) & 0x3, false)));
             target = llvmBuilder.CreateInsertElement(target,
-                                                 extractInst,
-                                                 llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
+                                                     extractInst,
+                                                     llvm::ConstantInt::get(context, llvm::APInt(32, i, false)));
         }
     }
 
@@ -1687,7 +1774,7 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
     } else {
         readType = convertGLSLToLLVMType(var->type);
     }
-    
+
     gla::EInterpolationMode mode = gla::EIMNone;
     if (glShader->Type != GL_FRAGMENT_SHADER)
         gla::UnsupportedFunctionality("non-fragment shader pipeline read");
@@ -1705,7 +1792,7 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
     default:
         gla::UnsupportedFunctionality("interpolation mode");
     }
-        
+
     // Give each interpolant a temporary unique index
     return glaBuilder->readPipeline(readType, name, getNextInterpIndex(name), mode);
 }
@@ -1729,6 +1816,6 @@ bool GlslToTopVisitor::convertValuesToUnsigned(unsigned* indices, int &count, st
             return false;
         }
     }
-    
+
     return true;
 }

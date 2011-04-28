@@ -1,7 +1,7 @@
 //===- GlslToTopVisitor.h - Header for GlslToTopVisitor.cpp ---------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
-// Copyright © 2011, LunarG, Inc.
+// Copyright ï¿½ 2011, LunarG, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -146,15 +146,29 @@ protected:
     bool inMain;
     bool localScope;
 
-    // Stack of the header blocks of loops, so that 'continue' knows where to
-    // go.
-    std::stack<llvm::BasicBlock*> headerStack;
-
-    // Stack of the exit blocks of loops, so that 'break' knows where to go.
-    std::stack<llvm::BasicBlock*> exitStack;
-
     // Used to init arrays of constant indices for ExtractValue/InsertValue
     static const int maxGepIndices = 16;
+
+    // TODO: abstract into TopBuilder
+
+    // Struct representing data that needs to be kept in order to properly
+    // handle loops.
+    struct LoopData {
+        llvm::BasicBlock* header;
+        llvm::BasicBlock* exit;
+
+        bool isInductive;
+
+        llvm::Value* counter;
+        llvm::Constant* finish;
+        llvm::Constant* increment;
+    };
+    std::stack<LoopData> loops;
+
+    // If the loop is an inductive loop (to the front-end), set up the
+    // incrementing and condition test. Returns whether it did anything
+    // (i.e. whether the loop was inductive).
+    bool setUpLatch();
 
     llvm::BasicBlock* shaderEntry;
 

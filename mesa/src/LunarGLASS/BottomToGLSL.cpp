@@ -220,6 +220,77 @@ public:
         UnsupportedFunctionality("conditional loops");
     }
 
+    void beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const llvm::Value* op1, const llvm::Value* op2, bool invert=false)
+    {
+        newLine();
+        std::string str;
+        std::string opStr;
+        int pos = -1;
+        getOp(cmp, opStr, pos);
+
+        bool binOp = false;
+        if (pos == -1)
+            binOp = true;
+
+        // TODO: add support for unary ops (and xor)
+
+        if (! binOp)
+            UnsupportedFunctionality("unary op for simple conditional loops");
+
+        shader << "while (";
+
+        if (invert)
+            shader << "! (";
+
+        if (const llvm::Instruction* opInst1 = llvm::dyn_cast<llvm::Instruction>(op1)) {
+            getExtractElementStr(opInst1, str);
+            if (! str.empty())
+                shader << str;
+            else
+                emitGlaValue(op1);
+        } else
+            emitGlaValue(op1);
+        str.clear();
+
+        shader << " " << opStr << " ";
+
+        if (const llvm::Instruction* opInst2 = llvm::dyn_cast<llvm::Instruction>(op2)) {
+            getExtractElementStr(opInst2, str);
+            if (! str.empty())
+                shader << str;
+            else
+                emitGlaValue(op2);
+        } else
+            emitGlaValue(op2);
+        str.clear();
+
+        if (invert)
+            shader << ")";
+
+        shader << ")";
+
+        newScope();
+    }
+
+    void beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count)
+    {
+        newLine();
+
+        shader << "for (";
+        emitGlaValue(phi);
+
+        shader << " = 0; ";
+
+        emitGlaValue(phi);
+        shader << " >= " << count;
+
+        shader << "; ++";
+        emitGlaValue(phi);
+        shader << ") ";
+
+        newScope();
+    }
+
     void beginInductiveLoop()
     {
         UnsupportedFunctionality("inductive loops");
@@ -297,6 +368,9 @@ protected:
     }
 
     void mapGlaIntrinsic(const llvm::IntrinsicInst*);
+
+    void getOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryOperand);
+
     void mapGlaCall(const llvm::CallInst*);
     const char* mapGlaXor(const llvm::Instruction* llvmInstruction, bool intrinsic = false, int* unaryOperand = 0);
 
@@ -826,6 +900,18 @@ protected:
         shader << ";";
     }
 
+    // Gets a string representation for the given swizzling ExtractElement
+    // instruction, and sets str to it. Does nothing if passed something that
+    // isn't an ExtractElement
+    void getExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str)
+    {
+        if (! llvm::isa<llvm::ExtractElementInst>(llvmInstruction))
+            return;
+
+        str.assign(*valueMap[llvmInstruction->getOperand(0)]);
+        str.append(".").append(mapComponentToSwizzleChar(Util::getConstantInt(llvmInstruction->getOperand(1))));
+    }
+
     // mapping from LLVM values to Glsl variables
     std::map<const llvm::Value*, std::string*> valueMap;
 
@@ -850,35 +936,33 @@ void gla::ReleaseGlslTranslator(gla::BackEndTranslator* target)
     delete target;
 }
 
-//
-// Add an LLVM instruction to the end of the mesa instructions.
-//
-void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlock)
+// Write the string representation of an operator. If it's an xor of some
+// register and true, then unaryOperand will be set to the index for the
+// non-true operand, and s will contain "!".
+void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryOperand)
 {
-    const char* charOp = 0;
-
     //
     // Look for binary ops, where the form would be "operand op operand"
     //
 
     switch (llvmInstruction->getOpcode()) {
     case llvm::Instruction:: Add:
-    case llvm::Instruction::FAdd:           charOp = "+";  break;
+    case llvm::Instruction::FAdd:           s = "+";  break;
     case llvm::Instruction:: Sub:
-    case llvm::Instruction::FSub:           charOp = "-";  break;
+    case llvm::Instruction::FSub:           s = "-";  break;
     case llvm::Instruction:: Mul:
-    case llvm::Instruction::FMul:           charOp = "*";  break;
+    case llvm::Instruction::FMul:           s = "*";  break;
     case llvm::Instruction::UDiv:
     case llvm::Instruction::SDiv:
-    case llvm::Instruction::FDiv:           charOp = "/";  break;
+    case llvm::Instruction::FDiv:           s = "/";  break;
     case llvm::Instruction::URem:
-    case llvm::Instruction::SRem:           charOp = "%";  break;
-    case llvm::Instruction::Shl:            charOp = "<<"; break;
-    case llvm::Instruction::LShr:           charOp = ">>"; break;
-    case llvm::Instruction::AShr:           charOp = ">>"; break;
-    case llvm::Instruction::And:            charOp = "&";  break;
-    case llvm::Instruction::Or:             charOp = "|";  break;
-    case llvm::Instruction::Xor:            charOp = mapGlaXor(llvmInstruction); break;
+    case llvm::Instruction::SRem:           s = "%";  break;
+    case llvm::Instruction::Shl:            s = "<<"; break;
+    case llvm::Instruction::LShr:           s = ">>"; break;
+    case llvm::Instruction::AShr:           s = ">>"; break;
+    case llvm::Instruction::And:            s = "&";  break;
+    case llvm::Instruction::Or:             s = "|";  break;
+    case llvm::Instruction::Xor:            s = mapGlaXor(llvmInstruction, true, &unaryOperand); break;
     case llvm::Instruction::ICmp:
     case llvm::Instruction::FCmp:
         if (! llvm::isa<llvm::VectorType>(llvmInstruction->getOperand(0)->getType())) {
@@ -897,28 +981,28 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             if (const llvm::CmpInst* cmp = llvm::dyn_cast<llvm::CmpInst>(llvmInstruction)) {
                 switch (cmp->getPredicate()) {
                 case llvm::FCmpInst::FCMP_OEQ:
-                case llvm::ICmpInst::ICMP_EQ:   charOp = "==";  break;
+                case llvm::ICmpInst::ICMP_EQ:   s = "==";  break;
 
                 case llvm::FCmpInst::FCMP_ONE:
-                case llvm::ICmpInst::ICMP_NE:   charOp = "!=";  break;
+                case llvm::ICmpInst::ICMP_NE:   s = "!=";  break;
 
                 case llvm::FCmpInst::FCMP_OGT:
                 case llvm::ICmpInst::ICMP_UGT:
-                case llvm::ICmpInst::ICMP_SGT:  charOp = ">";   break;
+                case llvm::ICmpInst::ICMP_SGT:  s = ">";   break;
 
                 case llvm::FCmpInst::FCMP_OGE:
                 case llvm::ICmpInst::ICMP_UGE:
-                case llvm::ICmpInst::ICMP_SGE:  charOp = ">=";  break;
+                case llvm::ICmpInst::ICMP_SGE:  s = ">=";  break;
 
                 case llvm::FCmpInst::FCMP_OLT:
                 case llvm::ICmpInst::ICMP_ULT:
-                case llvm::ICmpInst::ICMP_SLT:  charOp = "<";   break;
+                case llvm::ICmpInst::ICMP_SLT:  s = "<";   break;
 
                 case llvm::FCmpInst::FCMP_OLE:
                 case llvm::ICmpInst::ICMP_ULE:
-                case llvm::ICmpInst::ICMP_SLE:  charOp = "<=";  break;
+                case llvm::ICmpInst::ICMP_SLE:  s = "<=";  break;
                 default:
-                    charOp = "==";
+                    s = "==";
                     UnsupportedFunctionality("Comparison Operator in Bottom IR: ", cmp->getPredicate(), EATContinue);
                 }
             } else {
@@ -927,13 +1011,30 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         }
         break;
 
+    case llvm::Instruction::FPTrunc:        s = "trunc";  unaryOperand = 0; break;
+    case llvm::Instruction::FPToUI:         s = "uint";   unaryOperand = 0; break;
+    case llvm::Instruction::FPToSI:         s = "int";    unaryOperand = 0; break;
+    case llvm::Instruction::UIToFP:         s = "float";  unaryOperand = 0; break;
+    case llvm::Instruction::SIToFP:         s = "float";  unaryOperand = 0; break;
+
     default:
         break;
         // fall through to check other ops
     }
+}
+
+//
+// Add an LLVM instruction to the end of the mesa instructions.
+//
+void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlock)
+{
+    std::string charOp;
+    int unaryOperand = -1;
+
+    getOp(llvmInstruction, charOp, unaryOperand);
 
     // Handle the binary ops
-    if (charOp) {
+    if (! charOp.empty() && unaryOperand == -1) {
         newLine();
         emitGlaValue(llvmInstruction);
         shader << " = ";
@@ -944,49 +1045,8 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         return;
     }
 
-    //
-    // Look for unary ops, where the form would be "op operand"
-    //
-
-    // LLVM turned these into a binary ops, might want to undo that...
-    int unaryOperand;
-    switch (llvmInstruction->getOpcode()) {
-    case llvm::Instruction::Xor:
-        charOp = mapGlaXor(llvmInstruction, false /* intrinsic */, &unaryOperand);
-        break;
-    }
-
     // Handle the unary ops
-    if (charOp) {
-        newLine();
-        emitGlaValue(llvmInstruction);
-        shader << " = " << charOp << " ";
-        emitGlaOperand(llvmInstruction->getOperand(unaryOperand));
-        shader << ";";
-        return;
-    }
-
-    //
-    // Look for unary ops, where the form would be "op(operand)"
-    //
-
-    unaryOperand = 0;
-    switch (llvmInstruction->getOpcode()) {
-    case llvm::Instruction::FPTrunc:        charOp = "trunc";  break;
-    case llvm::Instruction::FPToUI:         charOp = "uint";   break;
-    case llvm::Instruction::FPToSI:         charOp = "int";    break;
-    case llvm::Instruction::UIToFP:         charOp = "float";  break;
-    case llvm::Instruction::SIToFP:         charOp = "float";  break;
-    case llvm::Instruction::Xor:
-        charOp = mapGlaXor(llvmInstruction, true /* intrinsic */, &unaryOperand);
-        break;
-    default:
-        break;
-        // fall through to check other ops
-    }
-
-    // Handle the unary ops
-    if (charOp) {
+    if (! charOp.empty()) {
         newLine();
         emitGlaValue(llvmInstruction);
         shader << " = " << charOp << "(";
@@ -1109,8 +1169,9 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             mapGlaValue(llvmInstruction->getOperand(0));
 
             // copy propagate, by name string, the extracted component
-            std::string swizzled = *valueMap[llvmInstruction->getOperand(0)];
-            swizzled.append(".").append(mapComponentToSwizzleChar(Util::getConstantInt(llvmInstruction->getOperand(1))));
+            std::string swizzled;
+            getExtractElementStr(llvmInstruction, swizzled);
+
             addNewVariable(llvmInstruction, swizzled.c_str());
         }
         return;

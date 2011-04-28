@@ -1,3 +1,5 @@
+
+Top IR:
 ; ModuleID = 'Top'
 
 @gl_MaxLights = internal global i32 8
@@ -54,6 +56,9 @@ declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readonly
 declare float @llvm.gla.fDot.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+
+Bottom IR:
 ; ModuleID = 'Top'
 
 @colorTransform = external addrspace(1) constant [3 x <3 x float>]

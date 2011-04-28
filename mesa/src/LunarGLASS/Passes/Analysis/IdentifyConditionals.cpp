@@ -38,7 +38,10 @@
 
 #include "LunarGLASSLlvmInterface.h"
 
+#include "Passes/Util/BasicBlockUtil.h"
+
 using namespace llvm;
+using namespace gla_llvm;
 
 bool IdentifyConditionals::runOnFunction(Function &F)
 {
@@ -53,13 +56,17 @@ bool IdentifyConditionals::runOnFunction(Function &F)
         if (branchInst->isUnconditional())
             continue;
 
-        // If there's not a single merge point exclude this bb
-        BasicBlock* merge = gla::Util::getSingleMergePoint(bb, domFront);
-        if (!merge)
-            continue;
-
         BasicBlock* left  = branchInst->getSuccessor(0);
         BasicBlock* right = branchInst->getSuccessor(1);
+
+        SmallVector<BasicBlock*, 2> children;
+        children.push_back(left);
+        children.push_back(right);
+
+        // If there's not a single merge point exclude this bb
+        BasicBlock* merge = GetSingleMergePoint(children, domFront);
+        if (!merge)
+            continue;
 
         std::pair<const BasicBlock*, const Conditional*> pair(bb, new Conditional(bb, merge, left, right, &domFront));
 

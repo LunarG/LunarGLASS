@@ -27,14 +27,29 @@
 // Canonicalize the CFG for LunarGLASS, this includes the following:
 //   * All basic blocks without predecessors are removed.
 //
+//   * All single predecessor/single successor sequences of basic blocks are
+//     condensed into one block. Currently unimplemented.
+//
+//   * Pointless phi nodes are removed (invalidating LCSSA).
+//
 //===----------------------------------------------------------------------===//
 
 #include "llvm/Pass.h"
+#include "llvm/ADT/SmallVector.h"
+#include "llvm/Analysis/Dominators.h"
+#include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Support/CFG.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Transforms/Utils/BasicBlockUtils.h"
+#include "llvm/Transforms/Utils/Local.h"
 
 #include "CanonicalizeCFG.h"
+#include "LunarGLASSLlvmInterface.h"
+
+#include "Passes/Util/BasicBlockUtil.h"
 
 using namespace llvm;
+using namespace gla_llvm;
 
 namespace  {
     class CanonicalizeCFG : public FunctionPass {
@@ -45,30 +60,87 @@ namespace  {
         virtual bool runOnFunction(Function&);
         void print(raw_ostream&, const Module* = 0) const;
         virtual void getAnalysisUsage(AnalysisUsage&) const;
+
+    protected:
+        bool removeNoPredecessorBlocks(Function& F);
+
+        bool removeUnneededPHIs(Function& F);
+
+        LoopInfo* loopInfo;
+        DominatorTree* domTree;
+
     };
 } // end namespace
 
 bool CanonicalizeCFG::runOnFunction(Function& F)
 {
-    // Loop over all but the entry block
-    for (Function::iterator bbI = ++F.begin(), bbE = F.end(); bbI != bbE; ++bbI) {
+    bool changed = false;
 
-        // If the block has no predecessors, remove it from the function
-        if (pred_begin(bbI) == pred_end(bbI)) {
-            for (succ_iterator sI = succ_begin(bbI), sE = succ_end(bbI); sI != sE; ++sI) {
-                (*sI)->removePredecessor(bbI);
-            }
-            bbI->dropAllReferences();
-            bbI = F.getBasicBlockList().erase(bbI);
+    loopInfo = &getAnalysis<LoopInfo>();
+    domTree  = &getAnalysis<DominatorTree>();
+
+    changed |= removeNoPredecessorBlocks(F);
+
+    // TODO: do it in one pass
+    while (removeUnneededPHIs(F)) {
+        changed = true;
+    }
+
+    return changed;
+}
+
+bool CanonicalizeCFG::removeUnneededPHIs(Function& F)
+{
+    SmallVector<PHINode*, 64> deadPHIs;
+    for (Function::iterator bbI = F.begin(), bbE = F.end(); bbI != bbE; ++bbI) {
+        for (BasicBlock::iterator instI = bbI->begin(), instE = bbI->end(); instI != instE; ++instI) {
+            PHINode* pn = dyn_cast<PHINode>(instI);
+            if (!pn)
+                break;
+
+            Value* v = pn->hasConstantValue(domTree);
+            if (!v)
+                continue;
+
+            pn->replaceAllUsesWith(v);
+
+            // Remove it
+            deadPHIs.push_back(pn);
         }
     }
 
-    return true;
+    for (SmallVector<PHINode*, 64>::iterator i = deadPHIs.begin(), e = deadPHIs.end(); i != e; ++i) {
+        (*i)->eraseFromParent();
+    }
+
+    return deadPHIs.empty();
+}
+
+bool CanonicalizeCFG::removeNoPredecessorBlocks(Function& F)
+{
+    bool changed = false;
+
+    for (Function::iterator bbI = F.begin(), bbE = F.end(); bbI != bbE; ++bbI) {
+
+        // Removing it seems to invalidate the iterator, so start over
+        // again. Note that the for-loop incrementation is ok, as all functions
+        // have an entry block and we don't mind incrementing past it right
+        // away.
+        // TODO: do it in one pass, perhaps by just having a set/vector of all
+        // the blocks in the function
+        if (RemoveNoPredecessorBlock(bbI)) {
+            changed = true;
+            bbI = F.begin();
+        }
+    }
+
+    return changed;
 }
 
 void CanonicalizeCFG::getAnalysisUsage(AnalysisUsage& AU) const
 {
-    return;
+    AU.addRequired<LoopInfo>();
+    AU.addRequired<DominatorTree>();
 }
 
 void CanonicalizeCFG::print(raw_ostream&, const Module*) const

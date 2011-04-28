@@ -1,3 +1,5 @@
+
+Top IR:
 ; ModuleID = 'Top'
 
 @gl_MaxLights = internal global i32 8
@@ -263,6 +265,9 @@ declare <4 x float> @llvm.gla.fTextureSampleLod.v4f32.v3f32(i32, i32, i32, <3 x 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+
+Bottom IR:
 ; ModuleID = 'Top'
 
 @"sampler1D texSampler1D" = external addrspace(1) constant i32

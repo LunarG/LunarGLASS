@@ -163,6 +163,17 @@ public:
         gla::UnsupportedFunctionality("Loops");
     }
 
+    void beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const llvm::Value* op1, const llvm::Value* op2, bool invert=false)
+    {
+        gla::UnsupportedFunctionality("simple conditional loops");
+    }
+
+
+    void beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count)
+    {
+        UnsupportedFunctionality("inductive loops");
+    }
+
     void beginInductiveLoop()
     {
         gla::UnsupportedFunctionality("Loops");

@@ -1,3 +1,5 @@
+
+Top IR:
 ; ModuleID = 'Top'
 
 @bar = internal global float 0.000000e+00
@@ -60,6 +62,9 @@ foo2:
 }
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+
+Bottom IR:
 ; ModuleID = 'Top'
 
 @bar = internal global float 0.000000e+00
@@ -69,10 +74,9 @@ define void @main() {
 entry:
   store float 2.000000e+00, float* @bar
   %outColor1 = load <4 x float> addrspace(1)* @bigColor
-  %assignment_tmp2 = fadd float 2.000000e+00, 2.000000e+00
-  store float %assignment_tmp2, float* @bar
+  store float 4.000000e+00, float* @bar
   %0 = extractelement <4 x float> %outColor1, i32 0
-  %1 = fadd float %0, %assignment_tmp2
+  %1 = fadd float %0, 4.000000e+00
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outColor1, i32 1, float %1, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %2)
   ret void

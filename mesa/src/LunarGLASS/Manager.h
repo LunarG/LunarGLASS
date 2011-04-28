@@ -38,6 +38,13 @@
 // LunarGLASS includes
 #include "LunarGLASSTopIR.h"
 
+// Forward decls
+namespace llvm {
+    class PHINode;
+    class Value;
+    class CmpInst;
+} // end namespace llvm
+
 namespace gla {
 
     class BackEndTranslator {
@@ -73,19 +80,37 @@ namespace gla {
 
         // Specialized loop constructs
 
-        // Add a conditional (e.g. while) loop. Currently unimplemented.
-        virtual void beginConditionalLoop(/* TBD */) = 0;
+        // TODO: add more loop constructs here
 
-        // Add an inductive loop (e.g. for). Currently unimplemented.
-        virtual void beginInductiveLoop(/* TBD */) = 0;
+        // TODO: add backend queries for each of these forms
 
+        // TODO: figure out how to name things, as this for now simpleInductive
+        // really means "simpleStaticInductive". Alternatively, you could remove
+        // all the static constraints.
+
+        // Add a simple conditional loop. A simple conditional loop has a simple
+        // conditional expression, which consists of a comparison operation and
+        // two arguments that must either be constants, extracts (from a vector),
+        // or loads (for uniforms). Receives the comparison instruction, the
+        // first operand, and the second operand. If the result of the
+        // comparison should be inverted, invert will be passed as true.
+        virtual void beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const llvm::Value* op1, const llvm::Value* op2, bool invert=false) = 0;
+
+        // Add a simple inductive loop. A simple inductive loop is a loop with
+        // an inductive variable starting at 0, and incrementing by 1 through
+        // the loop until some statically known final value. A simple inductive
+        // loop also has a statically known trip count (how many times it will
+        // be executed). It is given the phi node corresponding to the induction
+        // variable, and how many times the body will be executed.
+        virtual void beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count) = 0;
 
         // Generic loop constructs
 
+        // TODO: change name to be generic loop
         // Add a generic looping construct (e.g. while (true))
         virtual void beginLoop() = 0;
 
-        // Add an end of the loop (e.g. closing bracket)
+        // Add an end for any of these loops (e.g. '}')
         virtual void endLoop() = 0;
 
         // Exit the loop (e.g. break). Recieves the condition if it's a
