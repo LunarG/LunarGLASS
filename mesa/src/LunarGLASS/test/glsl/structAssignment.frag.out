@@ -1,3 +1,5 @@
+
+Top IR:
 ; ModuleID = 'Top'
 
 %lunarStruct1 = type { i32, float }
@@ -58,6 +60,9 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+
+Bottom IR:
 ; ModuleID = 'Top'
 
 %lunarStruct1 = type { i32, float }

@@ -113,7 +113,7 @@ bool CanonicalizeCFG::removeUnneededPHIs(Function& F)
         (*i)->eraseFromParent();
     }
 
-    return deadPHIs.empty();
+    return ! deadPHIs.empty();
 }
 
 bool CanonicalizeCFG::removeNoPredecessorBlocks(Function& F)
