@@ -85,16 +85,6 @@ int Util::getComponentCount(const llvm::Value* value)
     return Util::getComponentCount(type);
 }
 
-bool Util::isConsecutiveSwizzle(int glaSwizzle, int width)
-{
-    for (int i = 0; i < width; ++i) {
-        if (((glaSwizzle >> i*2) & 0x3) != i)
-            return false;
-    }
-
-    return true;
-}
-
 bool Util::isGlaBoolean(const llvm::Type* type)
 {
     if (llvm::Type::VectorTyID == type->getTypeID()) {

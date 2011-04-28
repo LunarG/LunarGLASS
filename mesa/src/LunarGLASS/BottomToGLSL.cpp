@@ -47,6 +47,18 @@
 #include "GlslTarget.h"
 #include "Options.h"
 
+namespace gla {
+    bool IsIdentitySwizzle(int glaSwizzle, int width)
+    {
+        for (int i = 0; i < width; ++i) {
+            if (GetSwizzle(glaSwizzle, i) != i)
+                return false;
+        }
+
+        return true;
+    }
+}
+
 //
 // Implement the GLSL backend
 //
@@ -760,7 +772,7 @@ protected:
         shader << ".";
         // Pull each two bit channel out of the integer
         for(int i = 0; i < width; i++)
-            emitComponentToSwizzle((glaSwizzle >> i*2) & 0x3);
+            emitComponentToSwizzle(GetSwizzle(glaSwizzle, i));
     }
 
     // Whether the given intrinsic's specified operand is the same as the passed
@@ -1355,7 +1367,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // Case 2:  it's sequential .xy...  subsetting a vector.
         // use a constructor to subset the vectorto a vector
         if (Util::getComponentCount(llvmInstruction->getOperand(0)) > 1 && Util::getComponentCount(llvmInstruction) > 1 &&
-            Util::isConsecutiveSwizzle(Util::getConstantInt(llvmInstruction->getOperand(1)), Util::getComponentCount(llvmInstruction))) {
+            IsIdentitySwizzle(Util::getConstantInt(llvmInstruction->getOperand(1)), Util::getComponentCount(llvmInstruction))) {
 
             emitGlaType(shader, llvmInstruction->getType());
             shader << "(";

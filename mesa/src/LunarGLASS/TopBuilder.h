@@ -58,7 +58,7 @@ public:
     public:
         explicit Matrix(llvm::Value* m);
         Matrix(int c, int r, Matrix*);
-        static const llvm::Type* getType(llvm::Type* elementType, int numColumns, int numRows);
+        static const llvm::Type* getType(const llvm::Type* elementType, int numColumns, int numRows);
 
         int getNumRows() const { return numRows; }
         int getNumColumns() const { return numColumns; }
@@ -156,6 +156,8 @@ public:
     void copyOutPipeline(llvm::IRBuilder<>& builder);
 
     llvm::Value* readPipeline(const llvm::Type*, std::string& name, int slot, EInterpolationMode mode = EIMNone, float offsetx = 0.0, float offsety = 0.0);
+    
+    llvm::Value* createSwizzle(llvm::Value* source, int swizzleMask, const llvm::Type* finalType);
 
     // Matrix factory that tracks what to delete
     Matrix* newMatrix(llvm::Value*);

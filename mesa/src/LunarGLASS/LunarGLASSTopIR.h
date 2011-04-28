@@ -109,6 +109,19 @@ namespace gla {
         EIMSmooth,
         EIMNoperspective
     };
+
+    // Encode where components come from.
+    // E.g. 'c2' is the index (0..3) of where component 2 comes from
+    inline int MakeSwizzleMask(int c0, int c1, int c2, int c3) 
+    {
+        return (c0 << 0) | (c1 << 2) | (c2 << 4) | (c3 << 6);
+    }
+
+    // Decode where component c comes from.
+    inline int GetSwizzle(int glaSwizzle, int c)
+    {
+        return (glaSwizzle >> c*2) & 0x3;
+    }
 };
 
 #endif /* LunarGLASSTopIR_H */

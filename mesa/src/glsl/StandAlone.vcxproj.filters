@@ -28,6 +28,9 @@
     <Filter Include="LunarGLASS\Passes\Analysis">
       <UniqueIdentifier>{7989d6ce-9a84-40c6-b293-8b6fab38bbfa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LunarGLASS\Passes\Util">
+      <UniqueIdentifier>{bf133732-b6de-4cf0-89ee-43ea510be42d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ast.h">
@@ -152,6 +155,21 @@
     </ClInclude>
     <ClInclude Include="..\LunarGLASS\TopBuilder.h">
       <Filter>LunarGLASS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Passes\Util\ADT.h">
+      <Filter>LunarGLASS\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Passes\Util\BasicBlockUtil.h">
+      <Filter>LunarGLASS\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Passes\Util\FunctionUtil.h">
+      <Filter>LunarGLASS\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Passes\Util\LoopUtil.h">
+      <Filter>LunarGLASS\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Passes\Transforms\FlattenConditionalAssignments.h">
+      <Filter>LunarGLASS\Passes\Transforms</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -415,6 +433,12 @@
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\TopBuilder.cpp">
       <Filter>LunarGLASS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Passes\Util\BasicBlockUtil.cpp">
+      <Filter>LunarGLASS\Passes\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Passes\Transforms\FlattenConditionalAssignments.cpp">
+      <Filter>LunarGLASS\Passes\Transforms</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

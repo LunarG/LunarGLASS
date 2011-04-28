@@ -54,6 +54,11 @@ namespace gla {
     public:
         // extract integer value or assert trying
         static int getConstantInt(const llvm::Value*);
+        
+        static const llvm::Type* getVoidType (llvm::LLVMContext& context)    { return llvm::Type::getVoidTy (context); }
+        static const llvm::Type* getIntType  (llvm::LLVMContext& context)    { return llvm::Type::getInt32Ty(context); }
+        static const llvm::Type* getBoolType (llvm::LLVMContext& context)    { return llvm::Type::getInt1Ty (context); }
+        static const llvm::Type* getFloatType(llvm::LLVMContext& context)    { return llvm::Type::getFloatTy(context); }
 
         // create integer constant
         static llvm::Constant* makeBoolConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(1, i, false)); }
@@ -72,7 +77,6 @@ namespace gla {
 
         static int getComponentCount(const llvm::Type*);
         static int getComponentCount(const llvm::Value*);
-        static bool isConsecutiveSwizzle(int glaSwizzle, int width);
 
         // Whether the argument is undefined or defined (an undef in llvm)
         static bool isUndef(const llvm::Value* val) { return llvm::isa<llvm::UndefValue>(val); }

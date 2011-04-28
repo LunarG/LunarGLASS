@@ -107,7 +107,7 @@ protected:
     llvm::Value* createPipelineRead(ir_variable*, int);
     llvm::Value* collapseIndexChain(llvm::Value*);
     llvm::Constant* createLLVMConstant(ir_constant*);
-    const llvm::Type* convertGLSLToLLVMType(const glsl_type*);
+    const llvm::Type* convertGlslToGlaType(const glsl_type*);
     llvm::Function* getLLVMIntrinsicFunction1(llvm::Intrinsic::ID, const llvm::Type*);
     llvm::Function* getLLVMIntrinsicFunction2(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
     llvm::Function* getLLVMIntrinsicFunction3(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);

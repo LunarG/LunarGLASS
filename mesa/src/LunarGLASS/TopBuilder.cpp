@@ -192,6 +192,35 @@ llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, in
     }
 }
 
+llvm::Value* Builder::createSwizzle(llvm::Value* source, int swizzleMask, const llvm::Type* finalType)
+{
+    const int numComponents = gla::Util::getComponentCount(finalType);
+
+    // If we are dealing with a scalar, just put it in a register and return
+    if (numComponents == 1)
+        return builder.CreateExtractElement(source, gla::Util::makeIntConstant(builder.getContext(), gla::GetSwizzle(swizzleMask, 0)));
+
+    // Else we are dealing with a vector
+
+    // We start out with an undef to insert into
+    llvm::Value* target = llvm::UndefValue::get(finalType);
+
+    for (int i = 0; i < numComponents; ++i) {
+
+        // If we're constructing a vector from a scalar, then just
+        // make inserts. Otherwise make insert/extract pairs
+        if (Util::isGlaScalar(source)) {
+            target = builder.CreateInsertElement(target, source, gla::Util::makeIntConstant(builder.getContext(), i));
+        } else {
+            // Extract an element to a scalar, then immediately insert to our target
+            llvm::Value* extractInst = builder.CreateExtractElement(source, gla::Util::makeIntConstant(builder.getContext(), gla::GetSwizzle(swizzleMask, i)));
+            target = builder.CreateInsertElement(target, extractInst, gla::Util::makeIntConstant(builder.getContext(), i));
+        }
+    }
+
+    return target;
+}
+
 //
 // Builder::Matrix definitions
 //
@@ -225,7 +254,7 @@ Builder::Matrix::Matrix(int c, int r, Matrix* oldMatrix) : numColumns(c), numRow
     UnsupportedFunctionality("construction of matrix from matrix");
 }
 
-const llvm::Type* Builder::Matrix::getType(llvm::Type* elementType, int numColumns, int numRows)
+const llvm::Type* Builder::Matrix::getType(const llvm::Type* elementType, int numColumns, int numRows)
 {
     // This is not a matrix... it's a cache of types for all possible matrix sizes.
     static const int minSize = 2;
