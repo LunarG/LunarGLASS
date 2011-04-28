@@ -53,6 +53,7 @@ namespace gla_llvm {
             , preservedBackedge(IsConditional(latch) || latch->getSinglePredecessor())
             , inductiveVar(loop->getCanonicalInductionVariable())
             , tripCount(loop->getTripCount())
+            , simpleConditional(-1)
         {
             loop->getUniqueExitBlocks(exits);
 
@@ -81,7 +82,8 @@ namespace gla_llvm {
 
         // New functionality
 
-        // TODO: cache the results of the more complicated queries
+        // TODO: cache the results of the more complicated queries (implemented
+        // for isSimpleConditional())
 
         // Is the loop simple inductive one. A simple inductive loop is one
         // where the backedge is preserved, a canonical induction variable
@@ -100,6 +102,10 @@ namespace gla_llvm {
         // be phis.
         bool isSimpleConditional() const
         {
+            // Check the cache
+            if (simpleConditional != -1)
+                return simpleConditional;
+
             // It has to be conditional, comparison operator and the header has
             // to be exiting
             Value* v = GetCondition(header);
@@ -133,7 +139,8 @@ namespace gla_llvm {
             }
 
             // Our total has to be the number of instructions in the header.
-            return header->size() == count;
+            simpleConditional = header->size() == count;
+            return simpleConditional;
         }
 
         // Whether the loop is a canonical, structured loop.  In a canonical,
@@ -219,6 +226,9 @@ namespace gla_llvm {
         SmallVector<BasicBlock*, 4> exits;
 
         BasicBlock* exitMerge;
+
+        // Cache
+        mutable int simpleConditional;
 
     private:
         LoopWrapper(const LoopWrapper&);       // do not implement

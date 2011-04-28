@@ -53,11 +53,13 @@
 #include "llvm/Transforms/Utils/Local.h"
 
 #include "LunarGLASSLlvmInterface.h"
-#include "FlattenConditionalAssignments.h"
+#include "Transforms.h"
 
 #include "Passes/Analysis/IdentifyConditionals.h"
 
 using namespace llvm;
+using namespace gla_llvm;
+
 
 namespace  {
     class FlattenCondAssn : public FunctionPass {
@@ -207,7 +209,7 @@ INITIALIZE_PASS(FlattenCondAssn,
                 true,   // Whether it preserves the CFG
                 false); // Whether it is an analysis pass
 
-FunctionPass* llvm::createFlattenConditionalAssignmentsPass()
+FunctionPass* gla_llvm::createFlattenConditionalAssignmentsPass()
 {
     return new FlattenCondAssn();
 }

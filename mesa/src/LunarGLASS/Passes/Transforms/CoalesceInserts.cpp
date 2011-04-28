@@ -42,7 +42,7 @@
 #include "llvm/Support/InstIterator.h"
 #include "llvm/Type.h"
 
-#include "CoalesceInserts.h"
+#include "Transforms.h"
 
 // LunarGLASS helpers
 #include "LunarGLASSLlvmInterface.h"
@@ -52,6 +52,7 @@
 #define VERBOSE(exp) if (VerboseP) exp;
 
 using namespace llvm;
+using namespace gla_llvm;
 
 namespace {
     // Whether we should print out verbose stuff as the pass runs
@@ -605,7 +606,7 @@ INITIALIZE_PASS(CoalesceInserts,
                 false); // Whether it is an analysis pass
 
 
-FunctionPass* llvm::createCoalesceInsertsPass()
+FunctionPass* gla_llvm::createCoalesceInsertsPass()
 {
     return new CoalesceInserts();
 }

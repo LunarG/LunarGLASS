@@ -43,7 +43,7 @@
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Local.h"
 
-#include "CanonicalizeCFG.h"
+#include "Transforms.h"
 #include "LunarGLASSLlvmInterface.h"
 
 #include "Passes/Util/BasicBlockUtil.h"
@@ -154,7 +154,7 @@ INITIALIZE_PASS(CanonicalizeCFG,
                 "Canonicalize the CFG for LunarGLASS",
                 false,  // Whether it preserves the CFG
                 false); // Whether it is an analysis pass
-FunctionPass* llvm::createCanonicalizeCFGPass()
+FunctionPass* gla_llvm::createCanonicalizeCFGPass()
 {
     return new CanonicalizeCFG();
 }

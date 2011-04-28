@@ -264,11 +264,27 @@ static void CreateSimpleConditionalLoop(const Value* condition, gla::BackEndTran
 }
 
 // Are all the blocks in the loop present in handledBlocks
-static bool AreAllHandled(const LoopWrapper* loop, SmallPtrSet<const BasicBlock*, 8>& handledBlocks)
+template <unsigned SIZE>
+static bool AreAllHandled(const LoopWrapper* loop, SmallPtrSet<const BasicBlock*, SIZE>& handledBlocks)
 {
     for (Loop::block_iterator i = loop->block_begin(), e = loop->block_end(); i != e; ++i)
-        if (! handledBlocks.count(*i))
+        if (! handledBlocks.count(*i)) {
+            errs() << "Internal Error: Unhandled Basic Block "<< **i;
             return false;
+        }
+
+    return true;
+}
+
+template <unsigned SIZE>
+static bool AreAllHandled(Function &f, SmallPtrSet<const BasicBlock*, SIZE>& handledBlocks)
+{
+    for (Function::const_iterator i = f.begin(), e = f.end(); i != e; ++i) {
+        if (! handledBlocks.count(i)) {
+            errs() << "Internal Error: Unhandled Basic Block "<< *i;
+            return false;
+        }
+    }
 
     return true;
 }
@@ -782,14 +798,11 @@ bool BottomTranslator::runOnModule(Module& module)
 
             // basic blocks
 
-            // TODO: only the first block should have to be handled, as every
-            // subgraph knows how to handle itself. Make sure this is true for
-            // subgraphs handling their merge points (it is for loop exits, but
-            // what about conditional merges?). Then this would become a
-            // handleBlock for the entry, and an assert that bb has been handled
-            for (Function::const_iterator bb = function->begin(), E = function->end(); bb != E; ++bb) {
-                handleBlock(bb);
-            }
+            handleBlock(function->begin());
+
+            // Only the first block should have to be handled, as every
+            // subgraph knows how to handle itself.
+            assert(AreAllHandled(*function, handledBlocks));
 
             backEndTranslator->endFunctionBody();
         }

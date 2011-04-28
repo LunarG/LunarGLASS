@@ -50,9 +50,7 @@
 #include "Options.h"
 
 // LunarGLASS Passes
-#include "Passes/Transforms/CoalesceInserts.h"
-#include "Passes/Transforms/CanonicalizeCFG.h"
-#include "Passes/Transforms/FlattenConditionalAssignments.h"
+#include "Passes/Transforms/Transforms.h"
 
 void gla::PrivateManager::translateTopToBottom()
 {
@@ -96,17 +94,17 @@ void gla::PrivateManager::runLLVMOptimizations1()
     llvm::FunctionPassManager passManager(module);
     if (Options.optimizations.verify)      passManager.add(llvm::createVerifierPass());
     if (Options.optimizations.mem2reg)     passManager.add(llvm::createPromoteMemoryToRegisterPass());
-    passManager.add(llvm::createCanonicalizeCFGPass());
+    passManager.add(gla_llvm::createCanonicalizeCFGPass());
     if (Options.optimizations.reassociate) passManager.add(llvm::createReassociatePass());
     if (Options.optimizations.gvn)         passManager.add(llvm::createGVNPass());
-    if (Options.optimizations.coalesce)    passManager.add(llvm::createCoalesceInsertsPass());
+    if (Options.optimizations.coalesce)    passManager.add(gla_llvm::createCoalesceInsertsPass());
     passManager.add(llvm::createSinkingPass());
     passManager.add(llvm::createSCCPPass());
 
     // // passManager.add(llvm::createInstructionCombiningPass());
 
     if (Options.optimizations.adce)        passManager.add(llvm::createAggressiveDCEPass());
-    passManager.add(llvm::createFlattenConditionalAssignmentsPass());
+    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass());
 
     // Loop optimizations
     passManager.add(llvm::createIndVarSimplifyPass());
@@ -158,6 +156,6 @@ void gla::PrivateManager::runLLVMOptimizations1()
     llvm::PassManager canonicalize;
 
     canonicalize.add(llvm::createIndVarSimplifyPass());
-    canonicalize.add(llvm::createCanonicalizeCFGPass());
+    canonicalize.add(gla_llvm::createCanonicalizeCFGPass());
     canonicalize.run(*module);
 }
