@@ -85,7 +85,7 @@ int Util::getComponentCount(const llvm::Value* value)
     return Util::getComponentCount(type);
 }
 
-bool Util::isGlaBoolean(const llvm::Type* type)
+bool Util::isBoolean(const llvm::Type* type)
 {
     if (llvm::Type::VectorTyID == type->getTypeID()) {
         if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
@@ -103,7 +103,7 @@ bool Util::hasAllSet(const llvm::Value* value)
     if (! llvm::isa<llvm::Constant>(value))
         return false;
 
-    if (isGlaScalar(value->getType())) {
+    if (isScalar(value->getType())) {
         return Util::getConstantInt(value) == -1;
     } else {
         const llvm::ConstantVector* vector = llvm::dyn_cast<llvm::ConstantVector>(value);
@@ -131,7 +131,7 @@ llvm::Type::TypeID Util::getBasicType(const llvm::Type* type)
         return getBasicType(type->getContainedType(0));
     }
 
-    assert(gla::Util::isGlaScalar(type));
+    assert(gla::Util::isScalar(type));
     return type->getTypeID();
 }
 

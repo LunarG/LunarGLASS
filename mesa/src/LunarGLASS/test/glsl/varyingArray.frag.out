@@ -17,7 +17,7 @@ Top IR:
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %texture2D_retval = alloca <4 x float>
   %texColor = alloca <4 x float>
@@ -64,7 +64,7 @@ Bottom IR:
 
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(1)* @"sampler2D texSampler2D"
   %"gl_TexCoord[4]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)

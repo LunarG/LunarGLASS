@@ -24,7 +24,7 @@ Top IR:
 @blend = external addrspace(1) constant float
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %mix_retval = alloca <4 x float>
   %assignment_tmp = alloca <4 x float>
@@ -279,7 +279,7 @@ Bottom IR:
 @u = external addrspace(1) constant <4 x float>
 @blend = external addrspace(1) constant float
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(1)* @"sampler1D texSampler1D"
   %texture1D_retval1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.f32(i32 1, i32 %0, i32 0, float 0x3FFC9FBE80000000)

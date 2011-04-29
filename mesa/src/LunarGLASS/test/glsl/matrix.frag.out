@@ -17,7 +17,7 @@ Top IR:
 @colorTransform = external addrspace(1) constant [3 x <3 x float>]
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %vec_ctor = alloca <4 x float>
   %0 = load <4 x float>* %vec_ctor
@@ -63,7 +63,7 @@ Bottom IR:
 
 @colorTransform = external addrspace(1) constant [3 x <3 x float>]
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %Color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 1)
   %__matrix = load [3 x <3 x float>] addrspace(1)* @colorTransform

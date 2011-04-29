@@ -44,7 +44,7 @@ namespace gla {
 
 class Builder {
 public:
-    explicit Builder(llvm::IRBuilder<>& b) : builder(b) { module = builder.GetInsertBlock()->getParent()->getParent(); }
+    explicit Builder(llvm::IRBuilder<>& b, llvm::Module* m);
     ~Builder();
 
     //
@@ -135,6 +135,10 @@ public:
 
     static llvm::Constant* getConstant(std::vector<llvm::Constant*>&);
 
+    // Make a shader-style function, create its entry block.
+    // Return the function, pass back the entry.
+    llvm::Function* Builder::makeFunctionEntry(const llvm::Type* type, const char* name, std::vector<const llvm::Type*> paramTypes, llvm::BasicBlock*& entry);
+
     //
     // Storage qualifiers for communicating the basic storage class
     // of shader-style variable (not all possible qualification types in the
@@ -189,6 +193,9 @@ public:
 
     // make a value by smearing the scalar to fill the type
     llvm::Value* smearScalar(llvm::Value* scalarVal, const llvm::Type*);
+    void createTextureIntrinsic(llvm::Function* &, int& paramCount,
+                                SuperValue* outParams, SuperValue* llvmParams, const llvm::Type* resultType,
+                                llvm::Intrinsic::ID intrinsicID, gla::ESamplerType samplerType, gla::ETextureFlags texFlags);
 
 protected:
     llvm::Value* createMatrixTimesVector(Matrix*, llvm::Value*);
@@ -198,7 +205,8 @@ protected:
     Matrix* createMatrixTimesMatrix(Matrix*, Matrix*);
     Matrix* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
 
-    llvm::IRBuilder<>& builder;
+    llvm::IRBuilder<>& builder;    
+    llvm::LLVMContext &context;
     llvm::Module* module;
 
     // accumulate values that must be copied out at the end

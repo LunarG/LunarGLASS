@@ -83,10 +83,10 @@ namespace gla {
         static bool isDefined(const llvm::Value* val) { return !isUndef(val); }
 
         // true if a scalar Boolean or vector of Boolean
-        static bool isGlaBoolean(const llvm::Type*);
+        static bool isBoolean(const llvm::Type*);
 
-        static bool isGlaScalar(const llvm::Type* type) { return llvm::Type::VectorTyID != type->getTypeID(); }
-        static bool isGlaScalar(const llvm::Value* value) { return isGlaScalar(value->getType()); }
+        static bool isScalar(const llvm::Type* type) { return llvm::Type::VectorTyID != type->getTypeID(); }
+        static bool isScalar(const llvm::Value* value) { return isScalar(value->getType()); }
 
         static bool isVector(const llvm::Type* type) { return type->getTypeID() == llvm::Type::VectorTyID; }
         static bool isVector(const llvm::Value* value) { return isVector(value->getType()); }

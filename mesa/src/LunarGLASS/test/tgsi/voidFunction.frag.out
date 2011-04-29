@@ -19,7 +19,7 @@ Top IR:
 @bigColor = external addrspace(1) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %assignment_tmp = alloca float
   %outColor = alloca <4 x float>
@@ -46,7 +46,7 @@ entry:
 }
 
 define fastcc void @foo() {
-foo:
+entry:
   %0 = load float* @bar
   %bar = fadd float %0, 1.000000e+00
   store float %bar, float* @bar
@@ -54,7 +54,7 @@ foo:
 }
 
 define fastcc void @foo2() {
-foo2:
+entry:
   %0 = load float* @bar
   %bar = fadd float %0, 1.000000e+00
   store float %bar, float* @bar
@@ -70,7 +70,7 @@ Bottom IR:
 @bar = internal global float 0.000000e+00
 @bigColor = external addrspace(1) constant <4 x float>
 
-define void @main() {
+define fastcc void @main() {
 entry:
   store float 2.000000e+00, float* @bar
   %outColor1 = load <4 x float> addrspace(1)* @bigColor
@@ -83,7 +83,7 @@ entry:
 }
 
 define fastcc void @foo() {
-foo:
+entry:
   %0 = load float* @bar
   %bar = fadd float %0, 1.000000e+00
   store float %bar, float* @bar
@@ -91,7 +91,7 @@ foo:
 }
 
 define fastcc void @foo2() {
-foo2:
+entry:
   %0 = load float* @bar
   %bar = fadd float %0, 1.000000e+00
   store float %bar, float* @bar

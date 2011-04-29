@@ -44,12 +44,31 @@
 
 namespace gla {
 
+gla::Builder::Builder(llvm::IRBuilder<>& b, llvm::Module* m) : 
+    builder(b),
+    module(m),
+    context(builder.getContext())
+{
+}
+
 gla::Builder::~Builder()
 {
     for (std::vector<Matrix*>::iterator i = matrixList.begin(); i != matrixList.end(); ++i)
         delete *i;
 }
 
+llvm::Function* Builder::makeFunctionEntry(const llvm::Type* type, const char* name, std::vector<const llvm::Type*> paramTypes, llvm::BasicBlock*& entry)
+{
+    llvm::FunctionType *functionType = llvm::FunctionType::get(type, paramTypes, false);
+    llvm::Function *function = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage, name, module);
+
+    // For shaders, we want everything passed in registers
+    function->setCallingConv(llvm::CallingConv::Fast);
+
+    entry = llvm::BasicBlock::Create(context, "entry", function);
+
+    return function;
+}
 
 llvm::Constant* Builder::getConstant(std::vector<llvm::Constant*>& constants)
 {
@@ -160,7 +179,7 @@ void Builder::copyOutPipeline(llvm::IRBuilder<>& builder)
 
 llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, int slot, EInterpolationMode mode, float offsetX, float offsetY)
 {
-    llvm::Constant *slotConstant = Util::makeUnsignedConstant(builder.getContext(), slot);
+    llvm::Constant *slotConstant = Util::makeUnsignedConstant(context, slot);
 
     // This correction is necessary for some front ends, which might allow
     // "interpolated" integers or Booleans.
@@ -169,12 +188,12 @@ llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, in
 
     llvm::Function *intrinsic;
     if (mode != EIMNone) {
-        llvm::Constant *modeConstant = Util::makeUnsignedConstant(builder.getContext(), mode);
+        llvm::Constant *modeConstant = Util::makeUnsignedConstant(context, mode);
 
         if (offsetX != 0.0 || offsetY != 0.0) {
             std::vector<llvm::Constant*> offsets;
-            offsets.push_back(Util::makeFloatConstant(builder.getContext(), offsetX));
-            offsets.push_back(Util::makeFloatConstant(builder.getContext(), offsetY));
+            offsets.push_back(Util::makeFloatConstant(context, offsetX));
+            offsets.push_back(Util::makeFloatConstant(context, offsetY));
             llvm::Constant* offset = getConstant(offsets);
             intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolantOffset, type, offset->getType());
             return builder.CreateCall3(intrinsic, slotConstant, modeConstant, offset, name);
@@ -198,7 +217,7 @@ llvm::Value* Builder::createSwizzle(llvm::Value* source, int swizzleMask, const 
 
     // If we are dealing with a scalar, just put it in a register and return
     if (numComponents == 1)
-        return builder.CreateExtractElement(source, gla::Util::makeIntConstant(builder.getContext(), gla::GetSwizzle(swizzleMask, 0)));
+        return builder.CreateExtractElement(source, gla::Util::makeIntConstant(context, gla::GetSwizzle(swizzleMask, 0)));
 
     // Else we are dealing with a vector
 
@@ -209,12 +228,12 @@ llvm::Value* Builder::createSwizzle(llvm::Value* source, int swizzleMask, const 
 
         // If we're constructing a vector from a scalar, then just
         // make inserts. Otherwise make insert/extract pairs
-        if (Util::isGlaScalar(source)) {
-            target = builder.CreateInsertElement(target, source, gla::Util::makeIntConstant(builder.getContext(), i));
+        if (Util::isScalar(source)) {
+            target = builder.CreateInsertElement(target, source, gla::Util::makeIntConstant(context, i));
         } else {
             // Extract an element to a scalar, then immediately insert to our target
-            llvm::Value* extractInst = builder.CreateExtractElement(source, gla::Util::makeIntConstant(builder.getContext(), gla::GetSwizzle(swizzleMask, i)));
-            target = builder.CreateInsertElement(target, extractInst, gla::Util::makeIntConstant(builder.getContext(), i));
+            llvm::Value* extractInst = builder.CreateExtractElement(source, gla::Util::makeIntConstant(context, gla::GetSwizzle(swizzleMask, i)));
+            target = builder.CreateInsertElement(target, extractInst, gla::Util::makeIntConstant(context, i));
         }
     }
 
@@ -297,14 +316,14 @@ Builder::SuperValue Builder::createMatrixOp(llvm::Instruction::BinaryOps llvmOpc
 
     // matrix <op> smeared scalar
     if (left.isMatrix()) {
-        assert(Util::isGlaScalar(right.getValue()));
+        assert(Util::isScalar(right.getValue()));
 
         return createSmearedMatrixOp(llvmOpcode, left.getMatrix(), right.getValue(), false);
     }
 
     // smeared scalar <op> matrix
     if (right.isMatrix()) {
-        assert(Util::isGlaScalar(left.getValue()));
+        assert(Util::isScalar(left.getValue()));
 
         return createSmearedMatrixOp(llvmOpcode, right.getMatrix(), left.getValue(), true);
     }
@@ -351,11 +370,11 @@ Builder::SuperValue Builder::createMatrixMultiply(Builder::SuperValue left, Buil
     }
 
     // matrix times scalar
-    if (left.isMatrix() && Util::isGlaScalar(right.getValue()))
+    if (left.isMatrix() && Util::isScalar(right.getValue()))
         return createSmearedMatrixOp(llvm::Instruction::FMul, left.getMatrix(), right.getValue(), true);
 
     // scalar times matrix
-    if (Util::isGlaScalar(left.getValue()) && right.isMatrix())
+    if (Util::isScalar(left.getValue()) && right.isMatrix())
         return createSmearedMatrixOp(llvm::Instruction::FMul, right.getMatrix(), left.getValue(), false);
 
     assert(! "nonsensical matrix multiply");
@@ -373,7 +392,7 @@ Builder::SuperValue Builder::createMatrixCompare(SuperValue left, SuperValue rig
     llvm::Value* value2 = right.getMatrix()->getMatrixValue();
 
     // Get a boolean to accumulate the results in
-    llvm::Value* result = builder.CreateAlloca(llvm::IntegerType::get(builder.getContext(), 1), 0, "__Matrix-Compare");
+    llvm::Value* result = builder.CreateAlloca(llvm::IntegerType::get(context, 1), 0, "__Matrix-Compare");
     result = builder.CreateLoad(result, "__Matrix-Compare");
     llvm::Function* any;
     llvm::Function* all;
@@ -564,7 +583,7 @@ void Builder::promoteScalar(SuperValue& left, SuperValue& right)
 
 llvm::Value* Builder::smearScalar(llvm::Value* scalar, const llvm::Type* vectorType)
 {
-    assert(gla::Util::isGlaScalar(scalar->getType()));
+    assert(gla::Util::isScalar(scalar->getType()));
 
     // Use a swizzle to expand the scalar to a vector
     llvm::Intrinsic::ID intrinsicID;
@@ -577,7 +596,47 @@ llvm::Value* Builder::smearScalar(llvm::Value* scalar, const llvm::Type* vectorT
 
     llvm::Function *intrinsicName = getIntrinsic(intrinsicID, vectorType, scalar->getType());
 
-    return builder.CreateCall2(intrinsicName, scalar, gla::Util::makeIntConstant(builder.getContext(), 0));
+    return builder.CreateCall2(intrinsicName, scalar, gla::Util::makeIntConstant(context, 0));
+}
+
+//?? unusual practice to have returns be parameters
+//?? unusual practice to have returns be listed first
+void Builder::createTextureIntrinsic(llvm::Function* &intrinsic, int &paramCount,
+                                     gla::Builder::SuperValue* outParams, gla::Builder::SuperValue* llvmParams, const llvm::Type* resultType,
+                                     llvm::Intrinsic::ID intrinsicID, gla::ESamplerType samplerType, gla::ETextureFlags texFlags)
+{
+    bool isBiased = texFlags.EBias;
+
+    switch(intrinsicID) {
+    case llvm::Intrinsic::gla_fTextureSample:
+            outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, samplerType, true));
+            outParams[1] = llvmParams[0];
+            outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32, *(int*)&texFlags, true));  //flag enum
+            outParams[3] = llvmParams[1];
+
+            if (isBiased) {
+                //Bias requires SampleLod with EBias flag
+                intrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
+                outParams[4] = llvmParams[2];
+            }
+
+            paramCount += 2;
+            intrinsic = getIntrinsic(intrinsicID, resultType, llvmParams[1]->getType());
+            break;
+    case llvm::Intrinsic::gla_fTextureSampleLod:
+            outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, samplerType, true));
+            outParams[1] = llvmParams[0];
+            outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32,  *(int*)&texFlags, true));  //flag enum
+            outParams[3] = llvmParams[1];
+            outParams[4] = llvmParams[2];
+            paramCount += 2;
+            intrinsic = getIntrinsic(intrinsicID, resultType, llvmParams[1]->getType());
+            break;
+    default:
+        gla::UnsupportedFunctionality("texture: ", intrinsicID);
+    }
+
+    return;
 }
 
 }; // end gla namespace

@@ -16,7 +16,7 @@ Top IR:
 @gl_MaxDrawBuffers = internal global i32 2
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   %0 = extractelement <4 x float> %BaseColor, i32 0
@@ -34,7 +34,7 @@ entry:
 }
 
 define fastcc float @foo(<4 x float>) {
-foo:
+entry:
   %1 = extractelement <4 x float> %0, i32 0
   %2 = extractelement <4 x float> %0, i32 1
   %3 = fadd float %1, %2
@@ -49,7 +49,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   %0 = extractelement <4 x float> %BaseColor, i32 0
@@ -61,7 +61,7 @@ entry:
 }
 
 define fastcc float @foo(<4 x float>) {
-foo:
+entry:
   %1 = extractelement <4 x float> %0, i32 0
   %2 = extractelement <4 x float> %0, i32 1
   %3 = fadd float %1, %2

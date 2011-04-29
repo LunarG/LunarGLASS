@@ -22,7 +22,7 @@ Top IR:
 @ub42 = external addrspace(1) constant <4 x i1>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %conditional_tmp = alloca <4 x float>
   %assignment_tmp282 = alloca i1
@@ -1048,7 +1048,7 @@ Bottom IR:
 @ub41 = external addrspace(1) constant <4 x i1>
 @ub42 = external addrspace(1) constant <4 x i1>
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %0 = load <4 x float> addrspace(1)* @uv4
   %radians_retval1 = call <4 x float> @llvm.gla.fRadians.v4f32.v4f32(<4 x float> %0)

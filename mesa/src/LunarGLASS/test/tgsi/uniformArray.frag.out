@@ -19,7 +19,7 @@ Top IR:
 @alpha = external addrspace(1) constant [16 x float]
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %assignment_tmp = alloca <4 x float>
   %texColor = alloca <4 x float>
@@ -70,7 +70,7 @@ Bottom IR:
 @inColor = external addrspace(1) constant <3 x float>
 @alpha = external addrspace(1) constant [16 x float]
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %0 = load <4 x float> addrspace(1)* getelementptr inbounds ([6 x <4 x float>] addrspace(1)* @color, i32 0, i32 1)
   %assignment_tmp1 = fadd <4 x float> %0, %0

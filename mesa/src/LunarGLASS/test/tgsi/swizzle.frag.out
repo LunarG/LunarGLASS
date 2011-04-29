@@ -18,7 +18,7 @@ Top IR:
 @p = external addrspace(1) constant i1
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %mix_retval = alloca <4 x float>
   %w = alloca <4 x float>
@@ -145,7 +145,7 @@ Bottom IR:
 @u = external addrspace(1) constant <4 x float>
 @p = external addrspace(1) constant i1
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %w1 = load <4 x float> addrspace(1)* @u
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)

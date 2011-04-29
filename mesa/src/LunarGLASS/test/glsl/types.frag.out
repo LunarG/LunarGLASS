@@ -28,7 +28,7 @@ Top IR:
 @u_f4 = external addrspace(1) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %conditional_tmp = alloca <4 x float>
   %or_tmp142 = alloca i1
@@ -590,7 +590,7 @@ Bottom IR:
 @u_f3 = external addrspace(1) constant <3 x float>
 @u_f4 = external addrspace(1) constant <4 x float>
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %0 = load i1 addrspace(1)* @u_b
   br i1 %0, label %then, label %else

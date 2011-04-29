@@ -20,7 +20,7 @@ Top IR:
 @gl_FragColor = internal global <4 x float> zeroinitializer
 @otherColor = external addrspace(1) constant <4 x float>
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %color = alloca <4 x float>
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
@@ -69,7 +69,7 @@ Bottom IR:
 @smallColor = external addrspace(1) constant <4 x float>
 @otherColor = external addrspace(1) constant <4 x float>
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)

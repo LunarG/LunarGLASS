@@ -113,14 +113,11 @@ protected:
     llvm::Function* getLLVMIntrinsicFunction3(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
     llvm::Function* getLLVMIntrinsicFunction4(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
 
-    void createLLVMTextureIntrinsic(llvm::Function* &, int &, gla::Builder::SuperValue*, gla::Builder::SuperValue*, const llvm::Type*, llvm::Intrinsic::ID,  gla::ESamplerType, gla::ETextureFlags);
     void writePipelineOuts(void);
     void appendArrayIndexToName(std::string &, int);
     bool convertValuesToUnsigned(unsigned*, int &, std::vector<llvm::Value*>);
 
     int getNextInterpIndex(std::string);
-
-    llvm::BasicBlock* getShaderEntry();
 
     llvm::LLVMContext &context;
     llvm::IRBuilder<> llvmBuilder;

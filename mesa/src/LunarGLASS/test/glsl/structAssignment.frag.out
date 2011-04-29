@@ -19,7 +19,7 @@ Top IR:
 @"sampler2D sampler" = external addrspace(1) constant i32
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %texture2D_retval = alloca <4 x float>
   %locals2 = alloca %lunarStruct2
@@ -73,7 +73,7 @@ Bottom IR:
 @foo2 = external addrspace(1) constant %lunarStruct2
 @"sampler2D sampler" = external addrspace(1) constant i32
 
-define void @main() {
+define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(1)* getelementptr inbounds (%lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 0)
   %1 = icmp sgt i32 %0, 0

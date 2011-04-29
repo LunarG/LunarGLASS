@@ -59,10 +59,12 @@ GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, llvm::Module* m)
     std::vector<llvm::Value*> firstChain;
     gepIndexChainStack.push(firstChain);
 
-    llvmBuilder.SetInsertPoint(getShaderEntry());
-
     // do this after the builder knows the module
-    glaBuilder = new gla::Builder(llvmBuilder);
+    glaBuilder = new gla::Builder(llvmBuilder, module);
+
+    std::vector<const llvm::Type*> mainParams;
+    glaBuilder->makeFunctionEntry(gla::Util::getVoidType(context), "main", mainParams, shaderEntry);
+    llvmBuilder.SetInsertPoint(shaderEntry);
 }
 
 GlslToTopVisitor::~GlslToTopVisitor()
@@ -286,15 +288,12 @@ ir_visitor_status
                 gepIndexChainStack.top().push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0));
 
                 std::reverse(gepIndexChainStack.top().begin(), gepIndexChainStack.top().end());
-
-
+                
                 // Use the indices we've built up to finally dereference the base type
                 lastValue = llvmBuilder.CreateGEP(lastValue,
                                               gepIndexChainStack.top().begin(),
                                               gepIndexChainStack.top().end());
-
-
-
+                
                 lastValue = llvmBuilder.CreateLoad(lastValue);
                 break;
 
@@ -410,10 +409,10 @@ ir_visitor_status
 
     if (!sig->is_builtin) {
 
-        // For now, don't build parameter list or call for main()
+        // We already made main for code outside of functions
         if (strcmp(sig->function_name(), "main") == 0) {
             inMain = true;
-            llvmBuilder.SetInsertPoint(getShaderEntry());
+            llvmBuilder.SetInsertPoint(shaderEntry);
 
             return visit_continue;
         }
@@ -429,13 +428,8 @@ ir_visitor_status
             iterParam.next();
         }
 
-        llvm::FunctionType *functionType = llvm::FunctionType::get(convertGlslToGlaType(sig->return_type), paramTypes, false);
-        llvm::Function *function = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage, sig->function_name(), module);
-
-        // For shaders, we want everything passed in registers
-        function->setCallingConv(llvm::CallingConv::Fast);
-
-        llvm::BasicBlock *functionBlock = llvm::BasicBlock::Create(context, sig->function_name(), function);
+        llvm::BasicBlock* functionBlock;
+        llvm::Function *function = glaBuilder->makeFunctionEntry(convertGlslToGlaType(sig->return_type), sig->function_name(), paramTypes, functionBlock);
         llvmBuilder.SetInsertPoint(functionBlock);
 
         // Visit parameter list again to create local variables
@@ -495,7 +489,7 @@ ir_visitor_status
     }
 
     localScope = false;
-    llvmBuilder.SetInsertPoint(getShaderEntry());
+    llvmBuilder.SetInsertPoint(shaderEntry);
 
     return visit_continue;
 }
@@ -956,131 +950,131 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, gla::Builder::
     else if(!strcmp(call->callee_name(), "texture1D")) {
         samplerType    = gla::ESampler1D;
         texFlags.EBias = (paramCount > 2) ? true : false;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "texture1DProj")) {
         samplerType         = gla::ESampler1D;
         texFlags.EProjected = true;
         texFlags.EBias      = (paramCount > 2) ? true : false;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "texture1DLod")) {
         textureIntrinsicID   = llvm::Intrinsic::gla_fTextureSampleLod;
         samplerType   = gla::ESampler1D;
         texFlags.ELod = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "texture1DProjLod")) {
         textureIntrinsicID   = llvm::Intrinsic::gla_fTextureSampleLod;
         samplerType   = gla::ESampler1D;
         texFlags.ELod = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "texture2D")) {
         samplerType      = gla::ESampler2D;
         texFlags.EBias   = (paramCount > 2) ? true : false;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "texture2DProj")) {
         samplerType         = gla::ESampler2D;
         texFlags.EProjected = true;
         texFlags.EBias      = (paramCount > 2) ? true : false;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "texture2DLod")) {
         textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
         samplerType         = gla::ESampler2D;
         texFlags.ELod       = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "texture2DProjLod")) {
         textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
         samplerType         = gla::ESampler2D;
         texFlags.EProjected = true;
         texFlags.ELod       = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "texture3D")) {
         samplerType     = gla::ESampler3D;
         texFlags.EBias  = (paramCount > 2) ? true : false;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "texture3DProj")) {
         samplerType         = gla::ESampler3D;
         texFlags.EProjected = true;
         texFlags.EBias      = (paramCount > 2) ? true : false;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "texture3DLod")) {
         samplerType     = gla::ESampler3D;
         texFlags.ELod   = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "texture3DProjLod")) {
         textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
         samplerType         = gla::ESampler3D;
         texFlags.EProjected = true;
         texFlags.ELod       = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "textureCube")) {
         samplerType     = gla::ESamplerCube;
         texFlags.EBias  = (paramCount > 2) ? true : false;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "textureCubeLod ")) {
         textureIntrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
         samplerType        = gla::ESamplerCube;
         texFlags.ELod      = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "shadow1D")) {
         samplerType     = gla::ESampler1DShadow;
         texFlags.EBias  = (paramCount > 2) ? true : false;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "shadow2D")) {
         samplerType     = gla::ESampler2DShadow;
         texFlags.EBias  = (paramCount > 2) ? true : false;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "shadow1DProj")) {
         samplerType         = gla::ESampler1DShadow;
         texFlags.EProjected = true;
         texFlags.EBias      = (paramCount > 2) ? true : false;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "shadow2DProj")) {
         samplerType         = gla::ESampler2DShadow;
         texFlags.EProjected = true;
         texFlags.EBias      = (paramCount > 2) ? true : false;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "shadow1DLod")) {
         textureIntrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
         samplerType        = gla::ESampler1DShadow;
         texFlags.ELod      = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "shadow2DLod")) {
         textureIntrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
         samplerType        = gla::ESampler2DShadow;
         texFlags.ELod      = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "shadow1DProjLod")) {
         textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
         samplerType         = gla::ESampler1DShadow;
         texFlags.EProjected = true;
         texFlags.ELod       = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else if(!strcmp(call->callee_name(), "shadow2DProjLod")) {
         textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
         samplerType         = gla::ESampler2DShadow;
         texFlags.EProjected = true;
         texFlags.ELod       = true;
-        createLLVMTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
+        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
     }
     else {
         gla::UnsupportedFunctionality("Built-in function: ", gla::EATContinue);
@@ -1627,56 +1621,6 @@ const llvm::Type* GlslToTopVisitor::convertGlslToGlaType(const glsl_type* type)
         glaType = llvm::VectorType::get(glaType, vecCount);
 
     return glaType;
-}
-
-void GlslToTopVisitor::createLLVMTextureIntrinsic(llvm::Function* &intrinsicName, int &paramCount,
-                                                  gla::Builder::SuperValue* outParams, gla::Builder::SuperValue* llvmParams, const llvm::Type* resultType,
-                                                  llvm::Intrinsic::ID intrinsicID, gla::ESamplerType samplerType, gla::ETextureFlags texFlags)
-{
-    bool isBiased = texFlags.EBias;
-
-    switch(intrinsicID) {
-    case llvm::Intrinsic::gla_fTextureSample:
-            outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, samplerType, true));
-            outParams[1] = llvmParams[0];
-            outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32, *(int*)&texFlags, true));  //flag enum
-            outParams[3] = llvmParams[1];
-
-            if (isBiased) {
-                //Bias requires SampleLod with EBias flag
-                intrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
-                outParams[4] = llvmParams[2];
-            }
-
-            paramCount += 2;
-            intrinsicName = glaBuilder->getIntrinsic(intrinsicID, resultType, llvmParams[1]->getType());
-            break;
-    case llvm::Intrinsic::gla_fTextureSampleLod:
-            outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, samplerType, true));
-            outParams[1] = llvmParams[0];
-            outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32,  *(int*)&texFlags, true));  //flag enum
-            outParams[3] = llvmParams[1];
-            outParams[4] = llvmParams[2];
-            paramCount += 2;
-            intrinsicName = glaBuilder->getIntrinsic(intrinsicID, resultType, llvmParams[1]->getType());
-            break;
-    default:
-        gla::UnsupportedFunctionality("texture: ", intrinsicID);
-    }
-
-    return;
-}
-
-llvm::BasicBlock* GlslToTopVisitor::getShaderEntry()
-{
-    if (shaderEntry)
-        return shaderEntry;
-
-    llvm::FunctionType *functionType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
-    llvm::Function *function = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage, "main", module);
-    shaderEntry = llvm::BasicBlock::Create(context, "entry", function);
-
-    return shaderEntry;
 }
 
 void GlslToTopVisitor::appendArrayIndexToName(std::string &arrayName, int index)

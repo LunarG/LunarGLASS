@@ -1231,8 +1231,8 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 //
 const char* gla::GlslTarget::mapGlaXor(const llvm::Instruction* llvmInstruction, bool intrinsic, int* unaryOperand)
 {
-    bool scalar = gla::Util::isGlaScalar(llvmInstruction->getType());
-    bool boolean = gla::Util::isGlaBoolean(llvmInstruction->getType());
+    bool scalar = gla::Util::isScalar(llvmInstruction->getType());
+    bool boolean = gla::Util::isBoolean(llvmInstruction->getType());
 
     bool op0AllSet = Util::hasAllSet(llvmInstruction->getOperand(0));
     bool op1AllSet = Util::hasAllSet(llvmInstruction->getOperand(1));
