@@ -31,6 +31,21 @@
     <Filter Include="LunarGLASS\Passes\Util">
       <UniqueIdentifier>{bf133732-b6de-4cf0-89ee-43ea510be42d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LunarGLASS\Backends">
+      <UniqueIdentifier>{b339e086-d8b2-4925-a49c-eff520da50ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LunarGLASS\Frontends">
+      <UniqueIdentifier>{f965b0f4-72d1-456d-b406-07a2eee30284}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LunarGLASS\Frontends\Glsl2">
+      <UniqueIdentifier>{bff67a2f-1bb1-4df7-bb49-48650c6b92ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LunarGLASS\Backends\GLSL">
+      <UniqueIdentifier>{b65a1461-97c7-4f20-8d9b-74da4102af3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LunarGLASS\Backends\TGSI">
+      <UniqueIdentifier>{03617591-4e47-4621-8d3f-5f8f5ab0baee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ast.h">
@@ -306,9 +321,6 @@
       <Filter>LunarGLASS</Filter>
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\TopToBottom.cpp">
-      <Filter>LunarGLASS</Filter>
-    </ClCompile>
-    <ClCompile Include="..\LunarGLASS\LunarGLASS.cpp">
       <Filter>LunarGLASS</Filter>
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\BottomToTgsi.cpp">

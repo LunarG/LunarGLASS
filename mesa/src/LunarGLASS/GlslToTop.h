@@ -26,6 +26,16 @@
 //
 // Author:  John Kessenich, LunarG
 //
+// Public interface to LunarGLASS.
+//
+// Don't include Mesa or other user's headers here.  LunarGLASS is not 
+// Mesa-dependent nor dependent on other uses of it.
+//
+// Don't include LLVM headers here.  At the highest level use of LunarGLASS,
+// LLVM headers are not needed or desire.
+//
 //===----------------------------------------------------------------------===//
+
+#include "LunarGLASSManager.h"
 
 void TranslateGlslToTop(struct gl_shader*, gla::Manager* manager);
