@@ -137,7 +137,7 @@ public:
 
     // Make a shader-style function, create its entry block.
     // Return the function, pass back the entry.
-    llvm::Function* Builder::makeFunctionEntry(const llvm::Type* type, const char* name, std::vector<const llvm::Type*> paramTypes, llvm::BasicBlock*& entry);
+    llvm::Function* makeFunctionEntry(const llvm::Type* type, const char* name, std::vector<const llvm::Type*> paramTypes, llvm::BasicBlock*& entry);
 
     //
     // Storage qualifiers for communicating the basic storage class
@@ -160,7 +160,7 @@ public:
     void copyOutPipeline(llvm::IRBuilder<>& builder);
 
     llvm::Value* readPipeline(const llvm::Type*, std::string& name, int slot, EInterpolationMode mode = EIMNone, float offsetx = 0.0, float offsety = 0.0);
-    
+
     llvm::Value* createSwizzle(llvm::Value* source, int swizzleMask, const llvm::Type* finalType);
 
     // Matrix factory that tracks what to delete
@@ -205,7 +205,7 @@ protected:
     Matrix* createMatrixTimesMatrix(Matrix*, Matrix*);
     Matrix* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
 
-    llvm::IRBuilder<>& builder;    
+    llvm::IRBuilder<>& builder;
     llvm::LLVMContext &context;
     llvm::Module* module;
 
