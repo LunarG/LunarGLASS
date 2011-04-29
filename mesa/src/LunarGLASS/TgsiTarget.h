@@ -1,4 +1,4 @@
-//===- TgsiTarget.h - Implementation of LunarGLASSBackend.h --------------===//
+//===- TgsiTarget.h - Implementation of Backend.h -------------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -24,7 +24,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Manager.h"
+#include "PrivateManager.h"
 
 namespace gla {
 

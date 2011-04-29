@@ -36,7 +36,7 @@
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Support/raw_ostream.h"
 
-#include "LunarGLASSLlvmInterface.h"
+#include "Util.h"
 
 #include "Passes/Util/BasicBlockUtil.h"
 

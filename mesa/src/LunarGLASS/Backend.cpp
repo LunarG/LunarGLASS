@@ -1,4 +1,4 @@
-//===- Backend.cpp - Implementation of LunarGLASSBackend.h ----------------===//
+//===- Backend.cpp - Implementation of Backend.h --------------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -24,7 +24,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "LunarGLASSBackend.h"
+#include "Backend.h"
 
 void gla::BackEnd::getRegisterForm(int& outerSoA, int& innerAoS)
 {

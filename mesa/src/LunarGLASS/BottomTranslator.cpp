@@ -60,7 +60,7 @@
 //   properties can be handled normally, as though they weren't even in a loop.
 //
 // * Loops are presented to the backend using the loop interfaces present in
-//   Manager.h.  Nested loops are currently not supported.
+//   PrivateManager.h.  Nested loops are currently not supported.
 //
 // * handleBranching handles it's instructions, and adds phi nodes if specified
 //   by the backend. On an unconditional branch, it checks to see if the block
@@ -106,9 +106,9 @@
 
 // LunarGLASS includes
 #include "Exceptions.h"
-#include "LunarGLASSBackend.h"
-#include "LunarGLASSLlvmInterface.h"
-#include "Manager.h"
+#include "Backend.h"
+#include "Util.h"
+#include "PrivateManager.h"
 #include "Options.h"
 
 // LunarGLASS Passes and Utils

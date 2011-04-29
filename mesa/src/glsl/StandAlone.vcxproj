@@ -81,15 +81,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\LunarGLASS\Backend.h" />
     <ClInclude Include="..\LunarGLASS\Exceptions.h" />
     <ClInclude Include="..\LunarGLASS\GlslTarget.h" />
     <ClInclude Include="..\LunarGLASS\GlslToTop.h" />
-    <ClInclude Include="..\LunarGLASS\LunarGLASSBackend.h" />
-    <ClInclude Include="..\LunarGLASS\LunarGLASSBottomIR.h" />
-    <ClInclude Include="..\LunarGLASS\LunarGLASSLlvmInterface.h" />
     <ClInclude Include="..\LunarGLASS\LunarGLASSManager.h" />
     <ClInclude Include="..\LunarGLASS\LunarGLASSTopIR.h" />
-    <ClInclude Include="..\LunarGLASS\Manager.h" />
     <ClInclude Include="..\LunarGLASS\OptionParse.h" />
     <ClInclude Include="..\LunarGLASS\Passes\Analysis\IdentifyConditionals.h" />
     <ClInclude Include="..\LunarGLASS\Passes\Transforms\Transforms.h" />
@@ -97,9 +94,11 @@
     <ClInclude Include="..\LunarGLASS\Passes\Util\BasicBlockUtil.h" />
     <ClInclude Include="..\LunarGLASS\Passes\Util\FunctionUtil.h" />
     <ClInclude Include="..\LunarGLASS\Passes\Util\LoopUtil.h" />
+    <ClInclude Include="..\LunarGLASS\PrivateManager.h" />
     <ClInclude Include="..\LunarGLASS\Revision.h" />
     <ClInclude Include="..\LunarGLASS\TGSITarget.h" />
     <ClInclude Include="..\LunarGLASS\TopBuilder.h" />
+    <ClInclude Include="..\LunarGLASS\Util.h" />
     <ClInclude Include="..\mesa\program\ir_to_mesa.h" />
     <ClInclude Include="ast.h" />
     <ClInclude Include="builtin_types.h" />
@@ -133,17 +132,16 @@
     <ClCompile Include="..\LunarGLASS\BottomTranslator.cpp" />
     <ClCompile Include="..\LunarGLASS\BottomToTgsi.cpp" />
     <ClCompile Include="..\LunarGLASS\Exceptions.cpp" />
-    <ClCompile Include="..\LunarGLASS\LunarGLASSBottomIR.cpp" />
-    <ClCompile Include="..\LunarGLASS\LunarGLASSLlvmInterface.cpp" />
-    <ClCompile Include="..\LunarGLASS\Manager.cpp" />
     <ClCompile Include="..\LunarGLASS\Options.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Analysis\IdentifyConditionals.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeCFG.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\FlattenConditionalAssignments.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Util\BasicBlockUtil.cpp" />
+    <ClCompile Include="..\LunarGLASS\PrivateManager.cpp" />
     <ClCompile Include="..\LunarGLASS\TopBuilder.cpp" />
     <ClCompile Include="..\LunarGLASS\TopToBottom.cpp" />
+    <ClCompile Include="..\LunarGLASS\Util.cpp" />
     <ClCompile Include="..\mesa\program\ir_to_mesa.cpp" />
     <ClCompile Include="..\mesa\program\prog_print.c" />
     <ClCompile Include="..\mesa\program\sampler.cpp" />

@@ -40,10 +40,10 @@
 // LunarGLASS includes
 #include "Revision.h"
 #include "Exceptions.h"
-#include "LunarGLASSLlvmInterface.h"
-#include "LunarGLASSBottomIR.h"
-#include "LunarGLASSBackend.h"
-#include "Manager.h"
+#include "Util.h"
+#include "BottomIR.h"
+#include "Backend.h"
+#include "PrivateManager.h"
 #include "GlslTarget.h"
 #include "Options.h"
 

@@ -51,7 +51,7 @@
 #include "glsl_parser_extras.h"
 
 #include "LunarGLASSTopIR.h"
-#include "LunarGLASSLlvmInterface.h"
+#include "Util.h"
 #include "TopBuilder.h"
 
 void GlslToTop(struct gl_shader*, llvm::Module*);

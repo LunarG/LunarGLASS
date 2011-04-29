@@ -43,8 +43,8 @@
 
 // LunarGLASS includes
 #include "Exceptions.h"
-#include "LunarGLASSBackend.h"
-#include "Manager.h"
+#include "Backend.h"
+#include "PrivateManager.h"
 #include "TgsiTarget.h"
 #include "GlslTarget.h"
 #include "Options.h"

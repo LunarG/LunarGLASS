@@ -52,7 +52,7 @@
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Local.h"
 
-#include "LunarGLASSLlvmInterface.h"
+#include "Util.h"
 #include "Transforms.h"
 
 #include "Passes/Analysis/IdentifyConditionals.h"

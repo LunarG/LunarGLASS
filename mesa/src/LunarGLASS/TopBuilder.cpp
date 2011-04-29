@@ -26,7 +26,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Exceptions.h"
-#include "LunarGLASSLlvmInterface.h"
+#include "Util.h"
 #include "LunarGLASSTopIR.h"
 #include "TopBuilder.h"
 

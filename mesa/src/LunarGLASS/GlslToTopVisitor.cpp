@@ -31,7 +31,7 @@
 
 #include "GlslToTopVisitor.h"
 #include "LunarGLASSTopIR.h"
-#include "LunarGLASSLlvmInterface.h"
+#include "Util.h"
 #include "mtypes.h"
 #include "Exceptions.h"
 #include "Options.h"

@@ -120,9 +120,6 @@
     <ClInclude Include="..\LunarGLASS\GlslToTopVisitor.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Manager.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
     <ClInclude Include="..\LunarGLASS\GlslToTop.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
@@ -132,16 +129,10 @@
     <ClInclude Include="..\LunarGLASS\LunarGLASSTopIR.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
-    <ClInclude Include="..\LunarGLASS\LunarGLASSBottomIR.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
     <ClInclude Include="..\LunarGLASS\TGSITarget.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
     <ClInclude Include="..\LunarGLASS\GlslTarget.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\LunarGLASSBackend.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
     <ClInclude Include="..\LunarGLASS\Exceptions.h">
@@ -154,9 +145,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\LunarGLASS\Revision.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\LunarGLASSLlvmInterface.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
     <ClInclude Include="..\LunarGLASS\Passes\Analysis\IdentifyConditionals.h">
@@ -180,7 +168,16 @@
     <ClInclude Include="..\LunarGLASS\Passes\Transforms\Transforms.h">
       <Filter>LunarGLASS\Passes\Transforms</Filter>
     </ClInclude>
+    <ClInclude Include="..\LunarGLASS\PrivateManager.h">
+      <Filter>LunarGLASS</Filter>
+    </ClInclude>
     <ClInclude Include="..\LunarGLASS\LunarGLASSManager.h">
+      <Filter>LunarGLASS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Util.h">
+      <Filter>LunarGLASS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Backend.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
   </ItemGroup>
@@ -338,9 +335,6 @@
     <ClCompile Include="..\LunarGLASS\BottomToGLSL.cpp">
       <Filter>LunarGLASS</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\LunarGLASSBottomIR.cpp">
-      <Filter>LunarGLASS</Filter>
-    </ClCompile>
     <ClCompile Include="..\LunarGLASS\Options.cpp">
       <Filter>LunarGLASS</Filter>
     </ClCompile>
@@ -428,9 +422,6 @@
     <ClCompile Include="strtod.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\LunarGLASSLlvmInterface.cpp">
-      <Filter>LunarGLASS</Filter>
-    </ClCompile>
     <ClCompile Include="..\LunarGLASS\Passes\Analysis\IdentifyConditionals.cpp">
       <Filter>LunarGLASS\Passes\Analysis</Filter>
     </ClCompile>
@@ -449,10 +440,13 @@
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\FlattenConditionalAssignments.cpp">
       <Filter>LunarGLASS\Passes\Transforms</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Manager.cpp">
+    <ClCompile Include="..\LunarGLASS\Backend.cpp">
       <Filter>LunarGLASS</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Backend.cpp">
+    <ClCompile Include="..\LunarGLASS\PrivateManager.cpp">
+      <Filter>LunarGLASS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Util.cpp">
       <Filter>LunarGLASS</Filter>
     </ClCompile>
   </ItemGroup>

@@ -44,7 +44,7 @@
 #include "llvm/Transforms/Utils/Local.h"
 
 #include "Transforms.h"
-#include "LunarGLASSLlvmInterface.h"
+#include "Util.h"
 
 #include "Passes/Util/BasicBlockUtil.h"
 
