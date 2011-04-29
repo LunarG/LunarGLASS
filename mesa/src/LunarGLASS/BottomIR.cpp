@@ -24,7 +24,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "LunarGLASSBottomIR.h"
+#include "BottomIR.h"
 #include "Exceptions.h"
 
 // LLVM includes

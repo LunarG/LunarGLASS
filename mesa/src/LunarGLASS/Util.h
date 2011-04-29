@@ -1,4 +1,4 @@
-//===- LunarGLASSLlvmInterface.h - Help build/query LLVM for LunarGLASS -=====//
+//===- Util.h - Help build/query LLVM for LunarGLASS --------------------=====//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (c) 2011, LunarG, Inc.
@@ -30,8 +30,8 @@
 //===----------------------------------------------------------------------===//
 
 #pragma once
-#ifndef LunarGLASSLlvmInterface_H
-#define LunarGLASSLlvmInterface_H
+#ifndef Util_H
+#define Util_H
 
 // LLVM includes
 #include "llvm/Support/IRBuilder.h"
@@ -93,4 +93,4 @@ namespace gla {
 
 };  // end gla namespace
 
-#endif // LunarGLASSLlvmInterface_H
+#endif // Util_H

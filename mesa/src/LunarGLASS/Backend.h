@@ -1,4 +1,4 @@
-//===- LunarGLASSBackend.h - Public interface to LunarGLASS Backends ------===//
+//===- Backend.h - Public interface to LunarGLASS Backends ----------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -33,8 +33,8 @@
 //===----------------------------------------------------------------------===//
 
 #pragma once
-#ifndef LunarGLASSBackend_H
-#define LunarGLASSBackend_H
+#ifndef Backend_H
+#define Backend_H
 
 // LLVM includes
 #include "llvm/Module.h"
@@ -227,4 +227,4 @@ namespace gla {
     };
 };
 
-#endif /* LunarGLASSBackend_H */
+#endif /* Backend_H */

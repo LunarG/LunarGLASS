@@ -1,4 +1,4 @@
-//===- LunarGLASSLlvmInterface.cpp - Help build/query LLVM for LunarGLASS -===//
+//===- Util.cpp - Help build/query LLVM for LunarGLASS --------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (c) 2011, LunarG, Inc.
@@ -31,7 +31,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Exceptions.h"
-#include "LunarGLASSLlvmInterface.h"
+#include "Util.h"
 #include "LunarGLASSTopIR.h"
 
 // LLVM includes

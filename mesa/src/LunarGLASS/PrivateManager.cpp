@@ -1,4 +1,4 @@
-//===- Manager.cpp - Private implementation of Manager.h ------------------===//
+//===- PrivateManager.cpp - Private implementation of PrivateManager.h ----===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -24,7 +24,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Manager.h"
+#include "PrivateManager.h"
 #include "Exceptions.h"
 
 #include "llvm/Module.h"

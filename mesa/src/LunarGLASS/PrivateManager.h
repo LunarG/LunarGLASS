@@ -1,4 +1,4 @@
-//===- Manager.h - private implementation of public manager ---------------===//
+//===- PrivateManager.h - private implementation of public manager --------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -28,12 +28,12 @@
 //===----------------------------------------------------------------------===//
 
 #pragma once
-#ifndef GlaManager_H
-#define GlaManager_H
+#ifndef PrivateManager_H
+#define PrivateManager_H
 
 // LunarGLASS includes
 #include "LunarGLASSManager.h"
-#include "LunarGLASSBackend.h"
+#include "Backend.h"
 
 namespace gla {
 
@@ -58,4 +58,4 @@ namespace gla {
 }
 
 
-#endif /* GlaManager_H */
+#endif /* PrivateManager_H */
