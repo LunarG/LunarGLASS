@@ -50,60 +50,46 @@ namespace gla {
     // Some utility query/make functions.
     //
 
-    class Util {
-    public:
-        // extract integer value or assert trying
-        static int getConstantInt(const llvm::Value*);
+    // Helpers to make constants
+    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(1, i, false)); }
+    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, bool True) { return llvm::ConstantInt::get(context, llvm::APInt(True ? 1 : 0, false)); }
+    inline llvm::Constant* MakeUnsignedConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, false)); }
+    inline llvm::Constant* MakeIntConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, true)); }
+    inline llvm::Constant* MakeFloatConstant(llvm::LLVMContext& context, float f) { return llvm::ConstantFP::get(context, llvm::APFloat(f)); };
         
-        static const llvm::Type* getVoidType (llvm::LLVMContext& context)    { return llvm::Type::getVoidTy (context); }
-        static const llvm::Type* getIntType  (llvm::LLVMContext& context)    { return llvm::Type::getInt32Ty(context); }
-        static const llvm::Type* getBoolType (llvm::LLVMContext& context)    { return llvm::Type::getInt1Ty (context); }
-        static const llvm::Type* getFloatType(llvm::LLVMContext& context)    { return llvm::Type::getFloatTy(context); }
+    // extract integer value or assert trying
+    int GetConstantInt(const llvm::Value*);
 
-        // create integer constant
-        static llvm::Constant* makeBoolConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(1, i, false)); }
-        static llvm::Constant* makeBoolConstant(llvm::LLVMContext& context, bool True) { return llvm::ConstantInt::get(context, llvm::APInt(True ? 1 : 0, false)); }
-        static llvm::Constant* makeUnsignedConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, false)); }
-        static llvm::Constant* makeIntConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, true)); }
-        static llvm::Constant* makeFloatConstant(llvm::LLVMContext& context, float f) { return llvm::ConstantFP::get(context, llvm::APFloat(f)); };
+    // Get floating point value or assert trying
+    float GetConstantFloat(const llvm::Value*);
 
-        // get floating point value or assert trying
-        static float GetConstantFloat(const llvm::Value*);
+    int GetComponentCount(const llvm::Type*);
+    int GetComponentCount(const llvm::Value*);
 
-        static int isGradientTexInst(const llvm::IntrinsicInst* instruction)
-        {
-            return (instruction->getIntrinsicID() == llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad);
-        }
+    // Whether the argument is undefined or defined (an undef in llvm)
+    inline bool IsUndef(const llvm::Value* val) { return llvm::isa<llvm::UndefValue>(val); }
+    inline bool IsDefined(const llvm::Value* val) { return !IsUndef(val); }
 
-        static int getComponentCount(const llvm::Type*);
-        static int getComponentCount(const llvm::Value*);
+    // true if a scalar Boolean or vector of Boolean
+    bool IsBoolean(const llvm::Type*);
 
-        // Whether the argument is undefined or defined (an undef in llvm)
-        static bool isUndef(const llvm::Value* val) { return llvm::isa<llvm::UndefValue>(val); }
-        static bool isDefined(const llvm::Value* val) { return !isUndef(val); }
+    inline bool IsScalar(const llvm::Type* type) { return llvm::Type::VectorTyID != type->getTypeID(); }
+    inline bool IsScalar(const llvm::Value* value) { return IsScalar(value->getType()); }
 
-        // true if a scalar Boolean or vector of Boolean
-        static bool isBoolean(const llvm::Type*);
+    inline bool IsVector(const llvm::Type* type) { return type->getTypeID() == llvm::Type::VectorTyID; }
+    inline bool IsVector(const llvm::Value* value) { return IsVector(value->getType()); }
 
-        static bool isScalar(const llvm::Type* type) { return llvm::Type::VectorTyID != type->getTypeID(); }
-        static bool isScalar(const llvm::Value* value) { return isScalar(value->getType()); }
+    // true if all bits in the argument are set
+    bool HasAllSet(const llvm::Value*);
 
-        static bool isVector(const llvm::Type* type) { return type->getTypeID() == llvm::Type::VectorTyID; }
-        static bool isVector(const llvm::Value* value) { return isVector(value->getType()); }
+    // is the name something like "%42"?
+    inline bool IsTempName(const std::string& name)
+    {
+        return name.length() < 2 || (name[1] >= '0' && name[1] <= '9');
+    }
 
-        // true if all bits in the argument are set
-        static bool hasAllSet(const llvm::Value*);
-
-        // is the name something like "%42"?
-        static bool isTempName(const std::string& name)
-        {
-            return name.length() < 2 || (name[1] >= '0' && name[1] <= '9');
-        }
-
-        static llvm::Type::TypeID getBasicType(llvm::Value*);
-        static llvm::Type::TypeID getBasicType(const llvm::Type*);
-
-    };  // end Util class
+    llvm::Type::TypeID GetBasicType(llvm::Value*);
+    llvm::Type::TypeID GetBasicType(const llvm::Type*);
 
 };  // end gla namespace
 

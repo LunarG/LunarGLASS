@@ -52,7 +52,7 @@ namespace gla {
 // Util definitions
 //
 
-int Util::getConstantInt(const llvm::Value* value)
+int GetConstantInt(const llvm::Value* value)
 {
     const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
     assert(constant);
@@ -61,7 +61,7 @@ int Util::getConstantInt(const llvm::Value* value)
     return constantInt->getValue().getSExtValue();
 }
 
-float Util::GetConstantFloat(const llvm::Value* value)
+float GetConstantFloat(const llvm::Value* value)
 {
     const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
     assert(constant);
@@ -70,7 +70,7 @@ float Util::GetConstantFloat(const llvm::Value* value)
     return constantFP->getValueAPF().convertToFloat();
 }
 
-int Util::getComponentCount(const llvm::Type* type)
+int GetComponentCount(const llvm::Type* type)
 {
     if (type->getTypeID() == llvm::Type::VectorTyID)
         return llvm::dyn_cast<llvm::VectorType>(type)->getNumElements();
@@ -78,14 +78,14 @@ int Util::getComponentCount(const llvm::Type* type)
         return 1;
 }
 
-int Util::getComponentCount(const llvm::Value* value)
+int GetComponentCount(const llvm::Value* value)
 {
     const llvm::Type* type = value->getType();
 
-    return Util::getComponentCount(type);
+    return GetComponentCount(type);
 }
 
-bool Util::isBoolean(const llvm::Type* type)
+bool IsBoolean(const llvm::Type* type)
 {
     if (llvm::Type::VectorTyID == type->getTypeID()) {
         if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
@@ -98,19 +98,19 @@ bool Util::isBoolean(const llvm::Type* type)
     return false;
 }
 
-bool Util::hasAllSet(const llvm::Value* value)
+bool HasAllSet(const llvm::Value* value)
 {
     if (! llvm::isa<llvm::Constant>(value))
         return false;
 
-    if (isScalar(value->getType())) {
-        return Util::getConstantInt(value) == -1;
+    if (IsScalar(value->getType())) {
+        return GetConstantInt(value) == -1;
     } else {
         const llvm::ConstantVector* vector = llvm::dyn_cast<llvm::ConstantVector>(value);
         assert(vector);
 
         for (int op = 0; op < vector->getNumOperands(); ++op) {
-            if (Util::getConstantInt(vector->getOperand(op)) != -1)
+            if (GetConstantInt(vector->getOperand(op)) != -1)
                 return false;
         }
 
@@ -118,20 +118,20 @@ bool Util::hasAllSet(const llvm::Value* value)
     }
 }
 
-llvm::Type::TypeID Util::getBasicType(llvm::Value* value)
+llvm::Type::TypeID GetBasicType(llvm::Value* value)
 {
-    return getBasicType(value->getType());
+    return GetBasicType(value->getType());
 }
 
-llvm::Type::TypeID Util::getBasicType(const llvm::Type* type)
+llvm::Type::TypeID GetBasicType(const llvm::Type* type)
 {
     switch(type->getTypeID()) {
     case llvm::Type::VectorTyID:
     case llvm::Type::ArrayTyID:
-        return getBasicType(type->getContainedType(0));
+        return GetBasicType(type->getContainedType(0));
     }
 
-    assert(gla::Util::isScalar(type));
+    assert(gla::IsScalar(type));
     return type->getTypeID();
 }
 

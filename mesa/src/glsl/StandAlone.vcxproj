@@ -87,6 +87,7 @@
     <ClInclude Include="..\LunarGLASS\LunarGLASSBackend.h" />
     <ClInclude Include="..\LunarGLASS\LunarGLASSBottomIR.h" />
     <ClInclude Include="..\LunarGLASS\LunarGLASSLlvmInterface.h" />
+    <ClInclude Include="..\LunarGLASS\LunarGLASSManager.h" />
     <ClInclude Include="..\LunarGLASS\LunarGLASSTopIR.h" />
     <ClInclude Include="..\LunarGLASS\Manager.h" />
     <ClInclude Include="..\LunarGLASS\OptionParse.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="..\LunarGLASS\GlslToTopVisitor.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\LunarGLASS\Backend.cpp" />
     <ClCompile Include="..\LunarGLASS\BottomToGLSL.cpp" />
     <ClCompile Include="..\LunarGLASS\BottomTranslator.cpp" />
     <ClCompile Include="..\LunarGLASS\BottomToTgsi.cpp" />
@@ -134,6 +136,7 @@
     <ClCompile Include="..\LunarGLASS\LunarGLASS.cpp" />
     <ClCompile Include="..\LunarGLASS\LunarGLASSBottomIR.cpp" />
     <ClCompile Include="..\LunarGLASS\LunarGLASSLlvmInterface.cpp" />
+    <ClCompile Include="..\LunarGLASS\Manager.cpp" />
     <ClCompile Include="..\LunarGLASS\Options.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Analysis\IdentifyConditionals.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeCFG.cpp" />

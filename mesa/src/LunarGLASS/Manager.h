@@ -23,7 +23,7 @@
 // Author: John Kessenich, LunarG
 // Author: Michael Ilseman, LunarG
 //
-// Private to LunarGLASS implementation, see LunarGLASSTopIR.h for public
+// Private to LunarGLASS implementation, see LunarGLASSManager.h for public
 // interface.
 //
 //===----------------------------------------------------------------------===//
@@ -36,7 +36,7 @@
 #include "llvm/Module.h"
 
 // LunarGLASS includes
-#include "LunarGLASSTopIR.h"
+#include "LunarGLASSManager.h"
 
 // Forward decls
 namespace llvm {

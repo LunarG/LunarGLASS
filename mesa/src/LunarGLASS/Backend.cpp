@@ -1,4 +1,4 @@
-//===- LunarGLASSBottomIR.h - GLA functions for BottomIR ------------------===//
+//===- Backend.cpp - Implementation of LunarGLASSBackend.h ----------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -21,24 +21,13 @@
 //===----------------------------------------------------------------------===//
 //
 // Author: John Kessenich, LunarG
-// Author: Cody Northrop, LunarG
 //
 //===----------------------------------------------------------------------===//
 
-#pragma once
-#ifndef LunarGLASSBottomIR_H
-#define LunarGLASSBottomIR_H
+#include "LunarGLASSBackend.h"
 
-#include "LunarGLASSTopIR.h"
-#include "llvm/IntrinsicInst.h"
-
-namespace gla {
-
-    inline int IsGradientTexInst(const llvm::IntrinsicInst* instruction)
-    {
-        return (instruction->getIntrinsicID() == llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad);
-    }
-
-};
-
-#endif /* LunarGLASSBottomIR_H */
+void gla::BackEnd::getRegisterForm(int& outerSoA, int& innerAoS)
+{
+    outerSoA = 1;
+    innerAoS = 4;
+}

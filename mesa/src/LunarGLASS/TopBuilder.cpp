@@ -166,34 +166,34 @@ void Builder::copyOutPipeline(llvm::IRBuilder<>& builder)
     for ( outIter = copyOuts.begin(); outIter != copyOuts.end(); outIter++ ) {
         llvm::Value* loadVal = builder.CreateLoad(*outIter);
 
-        switch(Util::getBasicType(loadVal)) {
+        switch(GetBasicType(loadVal)) {
         case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
         case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fWriteData;  break;
         }
 
         llvm::Function *intrinsicName = getIntrinsic(intrinsicID, loadVal->getType());
 
-        builder.CreateCall2(intrinsicName, Util::makeIntConstant(loadVal->getContext(), 0), loadVal);
+        builder.CreateCall2(intrinsicName, MakeIntConstant(loadVal->getContext(), 0), loadVal);
     }
 }
 
 llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, int slot, EInterpolationMode mode, float offsetX, float offsetY)
 {
-    llvm::Constant *slotConstant = Util::makeUnsignedConstant(context, slot);
+    llvm::Constant *slotConstant = MakeUnsignedConstant(context, slot);
 
     // This correction is necessary for some front ends, which might allow
     // "interpolated" integers or Booleans.
-    if (Util::getBasicType(type) != llvm::Type::FloatTyID)
+    if (GetBasicType(type) != llvm::Type::FloatTyID)
         mode = EIMNone;
 
     llvm::Function *intrinsic;
     if (mode != EIMNone) {
-        llvm::Constant *modeConstant = Util::makeUnsignedConstant(context, mode);
+        llvm::Constant *modeConstant = MakeUnsignedConstant(context, mode);
 
         if (offsetX != 0.0 || offsetY != 0.0) {
             std::vector<llvm::Constant*> offsets;
-            offsets.push_back(Util::makeFloatConstant(context, offsetX));
-            offsets.push_back(Util::makeFloatConstant(context, offsetY));
+            offsets.push_back(MakeFloatConstant(context, offsetX));
+            offsets.push_back(MakeFloatConstant(context, offsetY));
             llvm::Constant* offset = getConstant(offsets);
             intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolantOffset, type, offset->getType());
             return builder.CreateCall3(intrinsic, slotConstant, modeConstant, offset, name);
@@ -202,7 +202,7 @@ llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, in
             return builder.CreateCall2(intrinsic, slotConstant, modeConstant, name);
         }
     } else {
-        switch (Util::getBasicType(type)) {
+        switch (GetBasicType(type)) {
         case llvm::Type::IntegerTyID:   intrinsic = getIntrinsic(llvm::Intrinsic::gla_readData, type); break;
         case llvm::Type::FloatTyID:     intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadData, type); break;
         }
@@ -213,11 +213,11 @@ llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, in
 
 llvm::Value* Builder::createSwizzle(llvm::Value* source, int swizzleMask, const llvm::Type* finalType)
 {
-    const int numComponents = gla::Util::getComponentCount(finalType);
+    const int numComponents = gla::GetComponentCount(finalType);
 
     // If we are dealing with a scalar, just put it in a register and return
     if (numComponents == 1)
-        return builder.CreateExtractElement(source, gla::Util::makeIntConstant(context, gla::GetSwizzle(swizzleMask, 0)));
+        return builder.CreateExtractElement(source, gla::MakeIntConstant(context, gla::GetSwizzle(swizzleMask, 0)));
 
     // Else we are dealing with a vector
 
@@ -228,12 +228,12 @@ llvm::Value* Builder::createSwizzle(llvm::Value* source, int swizzleMask, const 
 
         // If we're constructing a vector from a scalar, then just
         // make inserts. Otherwise make insert/extract pairs
-        if (Util::isScalar(source)) {
-            target = builder.CreateInsertElement(target, source, gla::Util::makeIntConstant(context, i));
+        if (IsScalar(source)) {
+            target = builder.CreateInsertElement(target, source, gla::MakeIntConstant(context, i));
         } else {
             // Extract an element to a scalar, then immediately insert to our target
-            llvm::Value* extractInst = builder.CreateExtractElement(source, gla::Util::makeIntConstant(context, gla::GetSwizzle(swizzleMask, i)));
-            target = builder.CreateInsertElement(target, extractInst, gla::Util::makeIntConstant(context, i));
+            llvm::Value* extractInst = builder.CreateExtractElement(source, gla::MakeIntConstant(context, gla::GetSwizzle(swizzleMask, i)));
+            target = builder.CreateInsertElement(target, extractInst, gla::MakeIntConstant(context, i));
         }
     }
 
@@ -316,14 +316,14 @@ Builder::SuperValue Builder::createMatrixOp(llvm::Instruction::BinaryOps llvmOpc
 
     // matrix <op> smeared scalar
     if (left.isMatrix()) {
-        assert(Util::isScalar(right.getValue()));
+        assert(IsScalar(right.getValue()));
 
         return createSmearedMatrixOp(llvmOpcode, left.getMatrix(), right.getValue(), false);
     }
 
     // smeared scalar <op> matrix
     if (right.isMatrix()) {
-        assert(Util::isScalar(left.getValue()));
+        assert(IsScalar(left.getValue()));
 
         return createSmearedMatrixOp(llvmOpcode, right.getMatrix(), left.getValue(), true);
     }
@@ -339,7 +339,7 @@ Builder::SuperValue Builder::createMatrixMultiply(Builder::SuperValue left, Buil
 
     // outer product
     if (left.isValue() && right.isValue()) {
-        assert(Util::getComponentCount(left) == Util::getComponentCount(right));
+        assert(GetComponentCount(left) == GetComponentCount(right));
         UnsupportedFunctionality("outer product");
 
         return ret;
@@ -356,25 +356,25 @@ Builder::SuperValue Builder::createMatrixMultiply(Builder::SuperValue left, Buil
     }
 
     // matrix times vector
-    if (left.isMatrix() && Util::isVector(right.getValue()->getType())) {
-        assert(left.getMatrix()->getNumColumns() == Util::getComponentCount(right.getValue()));
+    if (left.isMatrix() && IsVector(right.getValue()->getType())) {
+        assert(left.getMatrix()->getNumColumns() == GetComponentCount(right.getValue()));
 
         return createMatrixTimesVector(left.getMatrix(), right.getValue());
     }
 
     // vector times matrix
-    if (Util::isVector(left.getValue()->getType()) && right.isMatrix()) {
-        assert(right.getMatrix()->getNumRows() == Util::getComponentCount(left.getValue()));
+    if (IsVector(left.getValue()->getType()) && right.isMatrix()) {
+        assert(right.getMatrix()->getNumRows() == GetComponentCount(left.getValue()));
 
         return createVectorTimesMatrix(left.getValue(), right.getMatrix());
     }
 
     // matrix times scalar
-    if (left.isMatrix() && Util::isScalar(right.getValue()))
+    if (left.isMatrix() && IsScalar(right.getValue()))
         return createSmearedMatrixOp(llvm::Instruction::FMul, left.getMatrix(), right.getValue(), true);
 
     // scalar times matrix
-    if (Util::isScalar(left.getValue()) && right.isMatrix())
+    if (IsScalar(left.getValue()) && right.isMatrix())
         return createSmearedMatrixOp(llvm::Instruction::FMul, right.getMatrix(), left.getValue(), false);
 
     assert(! "nonsensical matrix multiply");
@@ -459,7 +459,7 @@ Builder::Matrix* Builder::createMatrixDeterminant(Matrix* matrix)
 
 llvm::Value* Builder::createMatrixTimesVector(Matrix* matrix, llvm::Value* rvector)
 {
-    assert(matrix->getNumColumns() == Util::getComponentCount(rvector));
+    assert(matrix->getNumColumns() == GetComponentCount(rvector));
 
     UnsupportedFunctionality("matrix times vector");
 
@@ -479,7 +479,7 @@ llvm::Value* Builder::createVectorTimesMatrix(llvm::Value* lvector, Matrix* matr
     for (int c = 0; c < matrix->getNumColumns(); ++c) {
         llvm::Value* column = builder.CreateExtractValue(matrix->getMatrixValue(), c, "__column");
         llvm::Value* comp = builder.CreateCall2(dot, lvector, column, "__dot");
-        result = builder.CreateInsertElement(result, comp, Util::makeUnsignedConstant(result->getContext(), c));
+        result = builder.CreateInsertElement(result, comp, MakeUnsignedConstant(result->getContext(), c));
     }
 
     return result;
@@ -497,12 +497,12 @@ Builder::Matrix* Builder::createSmearedMatrixOp(llvm::Instruction::BinaryOps op,
         llvm::Value* column = builder.CreateExtractValue(matrix->getMatrixValue(), c, "__column");
 
         for (int r = 0; r < matrix->getNumRows(); ++r) {
-            llvm::Value* element = builder.CreateExtractElement(column, Util::makeUnsignedConstant(result->getContext(), r), "__row");
+            llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(result->getContext(), r), "__row");
             if (reverseOrder)
                 element = builder.CreateBinOp(op, scalar, element);
             else
                 element = builder.CreateBinOp(op, element, scalar);
-            column = builder.CreateInsertElement(column, element, Util::makeUnsignedConstant(result->getContext(), r));
+            column = builder.CreateInsertElement(column, element, MakeUnsignedConstant(result->getContext(), r));
         }
 
         result = builder.CreateInsertValue(result, column, c);
@@ -571,7 +571,7 @@ llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, const llvm::Type* 
 
 void Builder::promoteScalar(SuperValue& left, SuperValue& right)
 {
-    int direction = Util::getComponentCount(right) - Util::getComponentCount(left);
+    int direction = GetComponentCount(right) - GetComponentCount(left);
 
     if (direction > 0)
         left = gla::Builder::smearScalar(left, right->getType());
@@ -583,7 +583,7 @@ void Builder::promoteScalar(SuperValue& left, SuperValue& right)
 
 llvm::Value* Builder::smearScalar(llvm::Value* scalar, const llvm::Type* vectorType)
 {
-    assert(gla::Util::isScalar(scalar->getType()));
+    assert(gla::IsScalar(scalar->getType()));
 
     // Use a swizzle to expand the scalar to a vector
     llvm::Intrinsic::ID intrinsicID;
@@ -596,7 +596,7 @@ llvm::Value* Builder::smearScalar(llvm::Value* scalar, const llvm::Type* vectorT
 
     llvm::Function *intrinsicName = getIntrinsic(intrinsicID, vectorType, scalar->getType());
 
-    return builder.CreateCall2(intrinsicName, scalar, gla::Util::makeIntConstant(context, 0));
+    return builder.CreateCall2(intrinsicName, scalar, gla::MakeIntConstant(context, 0));
 }
 
 //?? unusual practice to have returns be parameters

@@ -63,7 +63,7 @@ GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, llvm::Module* m)
     glaBuilder = new gla::Builder(llvmBuilder, module);
 
     std::vector<const llvm::Type*> mainParams;
-    glaBuilder->makeFunctionEntry(gla::Util::getVoidType(context), "main", mainParams, shaderEntry);
+    glaBuilder->makeFunctionEntry(gla::GetVoidType(context), "main", mainParams, shaderEntry);
     llvmBuilder.SetInsertPoint(shaderEntry);
 }
 
@@ -108,16 +108,16 @@ llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
             switch(constant->type->base_type)
             {
             case GLSL_TYPE_UINT:
-                vals.push_back(gla::Util::makeUnsignedConstant(context, constant->value.i[i]));
+                vals.push_back(gla::MakeUnsignedConstant(context, constant->value.i[i]));
                 break;
             case GLSL_TYPE_INT:
-                vals.push_back(gla::Util::makeIntConstant(context, constant->value.u[i]));
+                vals.push_back(gla::MakeIntConstant(context, constant->value.u[i]));
                 break;
             case GLSL_TYPE_FLOAT:
-                vals.push_back(gla::Util::makeFloatConstant(context, constant->value.f[i]));
+                vals.push_back(gla::MakeFloatConstant(context, constant->value.f[i]));
                 break;
             case GLSL_TYPE_BOOL:
-                vals.push_back(gla::Util::makeBoolConstant(context, constant->value.i[i]));
+                vals.push_back(gla::MakeBoolConstant(context, constant->value.i[i]));
                 break;
             }
         }
@@ -798,7 +798,7 @@ ir_visitor_status
             returnValue = expandGLSLOp(ir_binop_mod, llvmParams);
         }
         else if(!strcmp(call->callee_name(), "mix")) {
-            if(llvm::Type::IntegerTyID == gla::Util::getBasicType(llvmParams[0]))
+            if(llvm::Type::IntegerTyID == gla::GetBasicType(llvmParams[0]))
                 returnValue = llvmBuilder.CreateSelect(llvmParams[2], llvmParams[0], llvmParams[1]);
         }
         else if(!strcmp(call->callee_name(), "lessThan")) {
@@ -923,23 +923,23 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, gla::Builder::
 
     // Select intrinsic based on parameter types
     else if(!strcmp(call->callee_name(), "abs"))                {
-        switch(gla::Util::getBasicType(llvmParams[0]))                  {
+        switch(gla::GetBasicType(llvmParams[0]))                  {
         case llvm::Type::IntegerTyID:                           { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_abs, resultType, llvmParams[0]->getType()); break; }
         case llvm::Type::FloatTyID:                             { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_fAbs, resultType, llvmParams[0]->getType()); break; }  }  }
     else if(!strcmp(call->callee_name(), "sign"))               {
-        switch(gla::Util::getBasicType(llvmParams[0]))                  {
+        switch(gla::GetBasicType(llvmParams[0]))                  {
         case llvm::Type::IntegerTyID:                           { gla::UnsupportedFunctionality("Integer sign() ");  break;  }
         case llvm::Type::FloatTyID:                             { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_fSign, resultType, llvmParams[0]->getType());  break; }  }  }
     else if(!strcmp(call->callee_name(), "min"))                {
-        switch(gla::Util::getBasicType(llvmParams[0]))                  {
+        switch(gla::GetBasicType(llvmParams[0]))                  {
         case llvm::Type::IntegerTyID:                           { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_sMin, resultType, llvmParams[0]->getType(), llvmParams[1]->getType()); break; }
         case llvm::Type::FloatTyID:                             { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_fMin, resultType, llvmParams[0]->getType(), llvmParams[1]->getType()); break; }  }  }
     else if(!strcmp(call->callee_name(), "max"))                {
-        switch(gla::Util::getBasicType(llvmParams[0]))                  {
+        switch(gla::GetBasicType(llvmParams[0]))                  {
         case llvm::Type::IntegerTyID:                           { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_sMax, resultType, llvmParams[0]->getType(), llvmParams[1]->getType()); break; }
         case llvm::Type::FloatTyID:                             { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_fMax, resultType, llvmParams[0]->getType(), llvmParams[1]->getType()); break; }  }  }
     else if(!strcmp(call->callee_name(), "clamp"))              {
-        switch(gla::Util::getBasicType(llvmParams[0]))                  {
+        switch(gla::GetBasicType(llvmParams[0]))                  {
         case llvm::Type::IntegerTyID:                           { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_sClamp, resultType, llvmParams[0]->getType(), llvmParams[1]->getType(), llvmParams[2]->getType()); break; }
         case llvm::Type::FloatTyID:                             { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_fClamp, resultType, llvmParams[0]->getType(), llvmParams[1]->getType(), llvmParams[2]->getType()); break; }  }  }
 
@@ -1386,7 +1386,7 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
         else            varType = llvm::Type::getFloatTy(context);
         return          llvmBuilder.CreateUIToFP(operands[0], varType);
     case ir_unop_neg:
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFNeg(operands[0]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateNeg (operands[0]);
         }
@@ -1436,55 +1436,55 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
     switch(glslOp) {
     case ir_binop_add:
         glaBuilder->promoteScalar(operands[0], operands[1]);
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFAdd(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateAdd (operands[0], operands[1]);
         }
     case ir_binop_sub:
         glaBuilder->promoteScalar(operands[0], operands[1]);
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFSub(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateSub (operands[0], operands[1]);
         }
     case ir_binop_mul:
         glaBuilder->promoteScalar(operands[0], operands[1]);
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFMul(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateMul (operands[0], operands[1]);
         }
     case ir_binop_div:
         glaBuilder->promoteScalar(operands[0], operands[1]);
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFDiv(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateSDiv(operands[0], operands[1]);
         }
     case ir_binop_less:
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpOLT(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpSLT(operands[0], operands[1]);
         }
     case ir_binop_greater:
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpOGT(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpSGT(operands[0], operands[1]);
         }
     case ir_binop_lequal:
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpOLE(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpSLE(operands[0], operands[1]);
         }
     case ir_binop_gequal:
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpOGE(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpSGE(operands[0], operands[1]);
         }
     case ir_binop_equal:
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpOEQ(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpEQ (operands[0], operands[1]);
         }
     case ir_binop_nequal:
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpONE(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpNE (operands[0], operands[1]);
         }
@@ -1518,14 +1518,14 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
 
     case ir_binop_mod:
         glaBuilder->promoteScalar(operands[0], operands[1]);
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFRem(operands[0], operands[1]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateSRem(operands[0], operands[1]);
         }
     case ir_binop_all_equal:
         // Returns single boolean for whether all components of operands[0] equal the
         // components of operands[1]
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         result = llvmBuilder.CreateFCmpOEQ(operands[0], operands[1]);  break;
         case llvm::Type::IntegerTyID:       result = llvmBuilder.CreateICmpEQ (operands[0], operands[1]);  break;
         }
@@ -1535,7 +1535,7 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
     case ir_binop_any_nequal:
         // Returns single boolean for whether any component of operands[0] is
         // not equal to the corresponding component of operands[1].
-        switch(gla::Util::getBasicType(operands[0])) {
+        switch(gla::GetBasicType(operands[0])) {
         case llvm::Type::FloatTyID:         result = llvmBuilder.CreateFCmpONE(operands[0], operands[1]);  break;
         case llvm::Type::IntegerTyID:       result = llvmBuilder.CreateICmpNE (operands[0], operands[1]);  break;
         }
@@ -1572,16 +1572,16 @@ const llvm::Type* GlslToTopVisitor::convertGlslToGlaType(const glsl_type* type)
     case GLSL_TYPE_UINT:
     case GLSL_TYPE_INT:
     case GLSL_TYPE_SAMPLER:
-        glaType = gla::Util::getIntType(context);
+        glaType = gla::GetIntType(context);
         break;
     case GLSL_TYPE_FLOAT:
-        glaType = gla::Util::getFloatType(context);
+        glaType = gla::GetFloatType(context);
         break;
     case GLSL_TYPE_BOOL:
-        glaType = gla::Util::getBoolType(context);
+        glaType = gla::GetBoolType(context);
         break;
     case GLSL_TYPE_VOID:
-        glaType = gla::Util::getVoidType(context);
+        glaType = gla::GetVoidType(context);
         break;
     case GLSL_TYPE_ARRAY:
         glaType = llvm::ArrayType::get(convertGlslToGlaType(type->fields.array), type->array_size());

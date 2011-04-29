@@ -165,6 +165,9 @@
     <ClInclude Include="..\LunarGLASS\Passes\Transforms\Transforms.h">
       <Filter>LunarGLASS\Passes\Transforms</Filter>
     </ClInclude>
+    <ClInclude Include="..\LunarGLASS\LunarGLASSManager.h">
+      <Filter>LunarGLASS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ast_expr.cpp">
@@ -433,6 +436,12 @@
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\FlattenConditionalAssignments.cpp">
       <Filter>LunarGLASS\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Manager.cpp">
+      <Filter>LunarGLASS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Backend.cpp">
+      <Filter>LunarGLASS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

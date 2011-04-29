@@ -57,7 +57,7 @@ typedef int ssize_t;
 #include "Options.h"
 
 // LunarGLASS includes
-#include "LunarGLASSTopIR.h"
+#include "LunarGLASSManager.h"
 #include "GlslToTop.h"
 
 // End: LunarG

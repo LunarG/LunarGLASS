@@ -239,7 +239,7 @@ static void CreateSimpleInductiveLoop(LoopWrapper* loop, gla::BackEndTranslator*
     const Value* count = loop->getTripCount();
     assert(pn && count);
 
-    int tripCount = gla::Util::getConstantInt(count);
+    int tripCount = gla::GetConstantInt(count);
     assert (tripCount  >= 0);
 
     if (gla::Options.debug) {

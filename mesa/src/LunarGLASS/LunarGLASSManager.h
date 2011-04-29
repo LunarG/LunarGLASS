@@ -1,7 +1,7 @@
-//===- GlslToTop.cpp - Translate GLSL IR to LunarGLASS Top IR -------------===//
+//===- LunarGLASSManager.h - Public interface to LunarGLASS ----------========//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
-// Copyright © 2011, LunarG, Inc.
+// Copyright (C) 2010-2011 LunarG, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -26,34 +26,40 @@
 //
 // Author: John Kessenich, LunarG
 //
-// While this outputs the LunarGLASS Top IR, it is properly part of the
-// front-end, not part of LunarGLASS, so it is not inside the LunarGLASS
-// namespace.
+// Public interface to LunarGLASS.
+//
+// Don't include Mesa or other user's headers here.  LunarGLASS is not 
+// Mesa-dependent nor dependent on other uses of it.
+//
+// Don't include LLVM headers here.  At the highest level use of LunarGLASS,
+// LLVM headers are not needed or desire.
 //
 //===----------------------------------------------------------------------===//
 
-// LLVM includes
-#include "llvm/DerivedTypes.h"
-#include "llvm/LLVMContext.h"
-#include "llvm/Module.h"
-#include "llvm/PassManager.h"
-#include "llvm/Analysis/Verifier.h"
-#include "llvm/Transforms/Scalar.h"
-#include "llvm/Support/IRBuilder.h"
-#include <cstdio>
-#include <string>
-#include <map>
-#include <vector>
+#pragma once
+#ifndef LunarGLASSManager_H
+#define LunarGLASSManager_H
 
-// LunarGLASS includes
-#include "LunarGLASSManager.h"
-#include "GlslToTopVisitor.h"
+namespace llvm {
+    class Module;
+    class Value;
+};
 
-void TranslateGlslToTop(struct gl_shader* shader, gla::Manager* manager)
-{
-    llvm::Module* topModule = new llvm::Module("Top", llvm::getGlobalContext());
+namespace gla {
 
-    GlslToTop(shader, topModule);
+    // Abstract class of external manager of translations within LunarGLASS.
+    // Use getManager() to get a concrete manager.
+    class Manager {
+    public:
+        Manager() {}
+        virtual ~Manager() {};
 
-    manager->setModule(topModule);
-}
+        virtual void setModule(llvm::Module*) = 0;
+        virtual void translateTopToBottom() = 0;
+        virtual void translateBottomToTarget() = 0;
+    };
+
+    Manager* getManager();
+};
+
+#endif /* LunarGLASSManager_H */

@@ -25,14 +25,8 @@
 //===----------------------------------------------------------------------===//
 //
 // Author: John Kessenich, LunarG
-// Author: Cody Northrop, LunarG
 //
-// Public interface to LunarGLASS.
-//
-// Don't include Mesa headers here.  LunarGLASS is not Mesa-dependent.
-//
-// Don't include LLVM headers here.  Users of LunarGLASS don't need to
-// pull in LLVM headers.
+// Public interface to LunarGLASS Top IR.
 //
 //===----------------------------------------------------------------------===//
 
@@ -40,26 +34,9 @@
 #ifndef LunarGLASSTopIR_H
 #define LunarGLASSTopIR_H
 
-namespace llvm {
-    class Module;
-    class Value;
-};
+#include "llvm/Support/IRBuilder.h"
 
 namespace gla {
-
-    // Abstract class of external manager of translations within LunarGLASS.
-    // Use getManager() to get a concrete manager.
-    class Manager {
-    public:
-        Manager() {}
-        virtual ~Manager() {};
-
-        virtual void setModule(llvm::Module*) = 0;
-        virtual void translateTopToBottom() = 0;
-        virtual void translateBottomToTarget() = 0;
-    };
-
-    Manager* getManager();
 
     enum ESamplerType {
         ESamplerBuffer,
@@ -109,6 +86,12 @@ namespace gla {
         EIMSmooth,
         EIMNoperspective
     };
+    
+    // This is the Top IR definition of shader types
+    inline const llvm::Type* GetVoidType (llvm::LLVMContext& context)    { return llvm::Type::getVoidTy (context); }
+    inline const llvm::Type* GetIntType  (llvm::LLVMContext& context)    { return llvm::Type::getInt32Ty(context); }
+    inline const llvm::Type* GetBoolType (llvm::LLVMContext& context)    { return llvm::Type::getInt1Ty (context); }
+    inline const llvm::Type* GetFloatType(llvm::LLVMContext& context)    { return llvm::Type::getFloatTy(context); }
 
     // Encode where components come from.
     // E.g. 'c2' is the index (0..3) of where component 2 comes from
