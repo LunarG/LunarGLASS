@@ -58,7 +58,7 @@ typedef int ssize_t;
 
 // LunarGLASS includes
 #include "LunarGLASSManager.h"
-#include "GlslToTop.h"
+#include "Frontends/Glsl2/GlslToTop.h"
 
 // End: LunarG
 extern "C" struct gl_shader *

@@ -117,22 +117,10 @@
     <ClInclude Include="s_expression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\LunarGLASS\GlslToTopVisitor.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\GlslToTop.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
     <ClInclude Include="..\mesa\program\ir_to_mesa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\LunarGLASS\LunarGLASSTopIR.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\TGSITarget.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\GlslTarget.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
     <ClInclude Include="..\LunarGLASS\Exceptions.h">
@@ -182,6 +170,18 @@
     </ClInclude>
     <ClInclude Include="..\LunarGLASS\BottomIR.h">
       <Filter>LunarGLASS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Frontends\Glsl2\GlslToTop.h">
+      <Filter>LunarGLASS\Frontends\Glsl2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Frontends\Glsl2\GlslToTopVisitor.h">
+      <Filter>LunarGLASS\Frontends\Glsl2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Backends\GLSL\GlslTarget.h">
+      <Filter>LunarGLASS\Backends\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Backends\TGSI\TgsiTarget.h">
+      <Filter>LunarGLASS\Backends\TGSI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -314,16 +314,7 @@
     <ClCompile Include="..\mesa\program\symbol_table.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\GlslToTop.cpp">
-      <Filter>LunarGLASS</Filter>
-    </ClCompile>
-    <ClCompile Include="..\LunarGLASS\GlslToTopVisitor.cpp">
-      <Filter>LunarGLASS</Filter>
-    </ClCompile>
     <ClCompile Include="..\LunarGLASS\TopToBottom.cpp">
-      <Filter>LunarGLASS</Filter>
-    </ClCompile>
-    <ClCompile Include="..\LunarGLASS\BottomToTgsi.cpp">
       <Filter>LunarGLASS</Filter>
     </ClCompile>
     <ClCompile Include="..\mesa\program\prog_print.c">
@@ -333,9 +324,6 @@
       <Filter>Source Files\mesa</Filter>
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\BottomTranslator.cpp">
-      <Filter>LunarGLASS</Filter>
-    </ClCompile>
-    <ClCompile Include="..\LunarGLASS\BottomToGLSL.cpp">
       <Filter>LunarGLASS</Filter>
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\Options.cpp">
@@ -454,6 +442,18 @@
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\BottomIR.cpp">
       <Filter>LunarGLASS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Frontends\Glsl2\GlslToTop.cpp">
+      <Filter>LunarGLASS\Frontends\Glsl2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Frontends\Glsl2\GlslToTopVisitor.cpp">
+      <Filter>LunarGLASS\Frontends\Glsl2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Backends\GLSL\BottomToGLSL.cpp">
+      <Filter>LunarGLASS\Backends\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Backends\TGSI\BottomToTgsi.cpp">
+      <Filter>LunarGLASS\Backends\TGSI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

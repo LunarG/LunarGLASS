@@ -29,8 +29,8 @@
 
 #include "llvm/Module.h"
 
-#include "TgsiTarget.h"
-#include "GlslTarget.h"
+#include "Backends/TGSI/TgsiTarget.h"
+#include "Backends/GLSL/GlslTarget.h"
 
 #include "Options.h"
 

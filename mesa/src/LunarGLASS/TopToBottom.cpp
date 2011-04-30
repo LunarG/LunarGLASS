@@ -45,8 +45,6 @@
 #include "Exceptions.h"
 #include "Backend.h"
 #include "PrivateManager.h"
-#include "TgsiTarget.h"
-#include "GlslTarget.h"
 #include "Options.h"
 
 // LunarGLASS Passes
