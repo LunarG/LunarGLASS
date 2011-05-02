@@ -16,7 +16,11 @@ mesa_SOURCES := \
 mesa_SOURCES := $(addprefix ../mesa/program/, $(mesa_SOURCES))
 
 passes_SOURCES := \
-    $(shell find ../LunarGLASS/Passes -type f -name "*.cpp")
+    $(shell find ../LunarGLASS/Passes -type f -name "*.cpp") \
+    $(shell find ../LunarGLASS/Backends -type f -name "*.cpp") \
+    $(shell find ../LunarGLASS/Frontends -type f -name "*.cpp")
+
+
 lunarglass_SOURCES := \
 	$(wildcard ../LunarGLASS/*.cpp) \
 	$(passes_SOURCES)
