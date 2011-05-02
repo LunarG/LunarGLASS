@@ -37,25 +37,26 @@
 #include "llvm/Instructions.h"
 #include "llvm/Pass.h"
 #include "llvm/ADT/DenseMap.h"
+#include "llvm/Analysis/Dominators.h"
 
-namespace llvm {
+#include "Passes/Util/ConditionalUtil.h"
 
-    class Conditional;
-    class DominanceFrontier;
+namespace gla_llvm {
+    using namespace llvm;
 
     class IdentifyConditionals : public FunctionPass {
     private:
-        DenseMap<const BasicBlock*, const Conditional*> conditionals;
+        DenseMap<const BasicBlock*, Conditional*> conditionals;
     public:
         // Iterators for this class provide a pair of <entryBlock*, Conditional*>
-        typedef DenseMap<const BasicBlock*, const Conditional*>::const_iterator const_iterator;
-        const_iterator begin() const { return conditionals.begin(); }
-        const_iterator end()   const { return conditionals.end(); }
-        bool           empty() const { return conditionals.empty(); }
+        typedef DenseMap<const BasicBlock*, Conditional*>::iterator iterator;
+        iterator begin() { return conditionals.begin(); }
+        iterator end()   { return conditionals.end(); }
+        bool     empty() { return conditionals.empty(); }
 
         // Returns the Conditional that the passed BasicBlock is the entry for
-        const Conditional* getConditional(const BasicBlock* entry) const { return conditionals.lookup(entry); }
-        const Conditional* operator[](const BasicBlock* entry)     const { return getConditional(entry); }
+        Conditional* getConditional(const BasicBlock* entry) const { return conditionals.lookup(entry); }
+        Conditional* operator[](const BasicBlock* entry)     const { return getConditional(entry); }
 
         // Erase the conditional from our analysis. Does not modify the actual program.
         void eraseConditional(const BasicBlock* bb) { conditionals.erase(bb); }
@@ -71,62 +72,6 @@ namespace llvm {
         virtual void getAnalysisUsage(AnalysisUsage&) const;
         virtual void releaseMemory();
     };
-
-    // Class providing analysis inquiries about a conditional expression.
-    class Conditional {
-    private:
-        // IdentifyConditionals is the only one allowed to construct a Conditional
-        friend class IdentifyConditionals;
-
-        Conditional(BasicBlock* entryBlock, BasicBlock* mergeBlock,
-                    BasicBlock* thenBlock, BasicBlock* elseBlock,
-                    DominanceFrontier* frontiers)
-            : entry(entryBlock)
-            , merge(mergeBlock)
-            , left(thenBlock)
-            , right(elseBlock)
-            , domFront(frontiers)
-        { }
-
-        BasicBlock* entry;
-        BasicBlock* merge;
-        BasicBlock* left;
-        BasicBlock* right;
-
-        DominanceFrontier* domFront;
-
-    public:
-        // Whether there is no "then" block, only an "else" one. This may be
-        // useful information, e.g. if a transformation wishes to invert a
-        // condition and flip branches around.
-        bool isIfElse() const { return left == merge; }
-
-        bool isIfThen() const { return right == merge; }
-
-        bool isIfThenElse() const { return !(isIfElse() || isIfThen()); }
-
-        // Whether the conditional is self-contained. This means that each the
-        // then and else blocks, if they are distinct from the merge block,
-        // point to subgraphs whose only exit is the merge block.
-        bool isSelfContained() const;
-
-        // Whether the conditional is empty. An empty conditional is a
-        // self-contained conditional in which the then and else subgraphs, if
-        // they exist, are all empty blocks. Currently unimplemented in the case
-        // of then or else subgraphs, for which is currently will return false.
-        bool isEmptyConditional() const;
-
-        BasicBlock* getEntryBlock() const { return entry; }
-        BasicBlock* getMergeBlock() const { return merge; }
-        BasicBlock* getThenBlock()  const { return left; }
-        BasicBlock* getElseBlock()  const { return right; }
-
-        BranchInst* getBranchInst() const { return dyn_cast<BranchInst>(entry->getTerminator()); }
-
-        Value* getCondition() const { return getBranchInst()->getCondition(); };
-    };
-
-
-} // end namespace llvm
+} // end namespace gla_llvm
 
 #endif // IDENTIFY_CONDITIONALS_H

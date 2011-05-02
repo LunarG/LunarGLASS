@@ -30,16 +30,15 @@
 #ifndef ADT_H
 #define ADT_H
 
-
 namespace gla_llvm {
     using namespace llvm;
 
     // Whether a SmallVector contains the given element
     template<typename T>
-    inline bool SmallVectorContains(SmallVectorImpl<T>& vec, T val)
+    inline bool SmallVectorContains(const SmallVectorImpl<T>& vec, const T val)
     {
         // We need to typedef it (with a typename) to access its iterator
-        for (typename SmallVectorImpl<T>::iterator i = vec.begin(), e = vec.end(); i != e; ++i) {
+        for (typename SmallVectorImpl<T>::const_iterator i = vec.begin(), e = vec.end(); i != e; ++i) {
             if (&**i == &*val)
                 return true;
         }

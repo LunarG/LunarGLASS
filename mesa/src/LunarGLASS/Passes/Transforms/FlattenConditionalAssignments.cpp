@@ -37,7 +37,8 @@
 //
 // This pass may modify the CFG. After all (or zero) conditional assignments
 // have been removed, it will then see if the conditional is blank, and if so,
-// remove it.
+// remove it. Currently the flattening itself is unimplemented, just the code
+// simplification and removal of empty conditionals
 //
 //===----------------------------------------------------------------------===//
 
@@ -56,6 +57,7 @@
 #include "Transforms.h"
 
 #include "Passes/Analysis/IdentifyConditionals.h"
+#include "Passes/Util/BasicBlockUtil.h"
 
 using namespace llvm;
 using namespace gla_llvm;
@@ -75,9 +77,9 @@ namespace  {
         IdentifyConditionals* idConds;
         DominatorTree* domTree;
 
-        bool moveCondAssns(const Conditional*);
-        bool removeDeadCode(const Conditional*);
-        bool removeEmptyConditional(const Conditional*);
+        bool moveCondAssns(Conditional*);
+        bool simplifyAndRemoveDeadCode(Conditional*);
+        bool removeEmptyConditional(Conditional*);
 
         bool flattenConds();
     };
@@ -100,8 +102,8 @@ bool FlattenCondAssn::flattenConds()
 {
     bool changed = false;
 
-    for (IdentifyConditionals::const_iterator i = idConds->begin(), e = idConds->end(); i != e; ++i) {
-        const Conditional* cond = i->second;
+    for (IdentifyConditionals::iterator i = idConds->begin(), e = idConds->end(); i != e; ++i) {
+        Conditional* cond = i->second;
 
         if (!cond)
             continue;
@@ -120,8 +122,8 @@ bool FlattenCondAssn::flattenConds()
         // while (moveCondAssns(cond))
         //     changed = true;
 
-        // Eliminate any and all remaining dead code in the branches
-        while (removeDeadCode(cond))
+        // Simplify/Eliminate instructions in the branches
+        while (simplifyAndRemoveDeadCode(cond))
             changed = true;
 
         // Remove empty conditionals.
@@ -147,7 +149,7 @@ bool FlattenCondAssn::flattenConds()
 //     return false;
 // }
 
-bool FlattenCondAssn::removeDeadCode(const Conditional* cond)
+bool FlattenCondAssn::simplifyAndRemoveDeadCode(Conditional* cond)
 {
     bool changed = false;
     changed |= SimplifyInstructionsInBlock(cond->getEntryBlock());
@@ -160,13 +162,17 @@ bool FlattenCondAssn::removeDeadCode(const Conditional* cond)
     return false;
 }
 
-bool FlattenCondAssn::removeEmptyConditional(const Conditional* cond)
+bool FlattenCondAssn::removeEmptyConditional(Conditional* cond)
 {
+    // TODO: remove next line after updating affected conditionals has been
+    // added
+    cond->recalculate();
+
     if (!cond->isSelfContained() || !cond->isEmptyConditional())
         return false;
 
-    // BasicBlock* left  = cond->getThenBlock();
-    // BasicBlock* right = cond->getElseBlock();
+    BasicBlock* left  = cond->getThenBlock();
+    BasicBlock* right = cond->getElseBlock();
     BasicBlock* merge = cond->getMergeBlock();
     BasicBlock* entry = cond->getEntryBlock();
 
@@ -180,9 +186,10 @@ bool FlattenCondAssn::removeEmptyConditional(const Conditional* cond)
     changed |= SimplifyInstructionsInBlock(entry);
     changed |= SimplifyInstructionsInBlock(merge);
 
-    // TODO: Be more hygenic by removing the empty subgraphs ourselves
+    RecursivelyRemoveNoPredecessorBlocks(left);
+    RecursivelyRemoveNoPredecessorBlocks(right);
 
-    // Future work: merge the block into the predecessor, and update any
+    // TODO: merge the block into the predecessor, and update any
     // affected conditionals
     // MergeBasicBlockIntoOnlyPred(merge);
 

@@ -171,6 +171,9 @@ namespace {
 
         bool lastBlock;
 
+        // How many basic blocks are in the current function being handled
+        int numBBs;
+
         SmallPtrSet<const BasicBlock*, 8> handledBlocks;
 
         // Data for handling loops
@@ -191,6 +194,8 @@ namespace {
         // Send off all the non-terminating instructions in a basic block to the
         // backend
         void handleNonTerminatingInstructions(const BasicBlock*);
+
+        void handleInstructions(const BasicBlock* bb);
 
         // Call add (except for phis when applicable) on all the instructions
         // provided in insts.
@@ -345,6 +350,28 @@ void BottomTranslator::addPhiCopy(const PHINode* phi, const BasicBlock* curBB)
     }
 }
 
+void BottomTranslator::handleInstructions(const BasicBlock* bb)
+{
+    const LoopWrapper* loop = NULL;
+
+    if (! loops->empty())
+        loop = loops->top();
+    else {
+        handleNonTerminatingInstructions(bb);
+        return;
+    }
+
+    if (loop->isSimpleInductive() && (bb == loop->getLatch() || loop->isLoopExiting(bb)))
+        // Simple inductive latch/exiting block
+        handleSimpleInductiveInstructions(bb);
+    else if (loop->isSimpleConditional() && bb == loop->getHeader())
+        // Simple conditional header
+        handleSimpleConditionalInstructions(bb);
+    else
+        // Normal block
+        handleNonTerminatingInstructions(bb);
+}
+
 void BottomTranslator::handleNonTerminatingInstructions(const BasicBlock* bb)
 {
     // Add the non-terminating instructions
@@ -377,10 +404,7 @@ void BottomTranslator::newLoop(const BasicBlock* bb)
 
 void BottomTranslator::attemptHandleDominatee(const BasicBlock* dominator, const BasicBlock* dominatee)
 {
-    BasicBlock* unconstTor = const_cast<BasicBlock*>(dominator); // Necessary
-    BasicBlock* unconstTee = const_cast<BasicBlock*>(dominatee); // Necessary
-
-    if (domTree->properlyDominates(unconstTor, unconstTee)) {
+    if (ProperlyDominates(dominator, dominatee, *domTree)) {
         addPhiCopies(dominator, dominatee);
         handleBlock(dominatee);
     }
@@ -404,36 +428,25 @@ void BottomTranslator::handleLoopBlock(const BasicBlock* bb)
     assert(isHeader || isLatch || isExiting);
 
     bool preserved         = loop->preservesBackedge();
-    bool simpleInductive   = loop->isSimpleInductive();
-    bool simpleConditional = loop->isSimpleConditional() && isHeader;
 
     // TODO: have calculating exit merge take into account when some of the
     // exit blocks merge into a return (that is, you can have return statements
     // inside loops, with some exiting blocks going to it).
 
-    assert(!isLatch || preserved); // isLatch => preserved
+    assert(! isLatch || preserved); // isLatch => preserved
 
     // If it's a loop header, have the back-end add it
     if (isHeader)
         setUpLoopBegin(condition);
 
-    // TODO: extract into method
     // If the branch is conditional and not a latch nor exiting, we're dealing
     // with conditional (e.g. if-then-else) flow control from a header.
     // Otherwise handle it's instructions ourselves.
     if (condition && ! (isLatch || isExiting)) {
         assert(idConds->getConditional(bb));
         handleBranchingBlock(bb);
-    } else {
-        if ((isExiting || isLatch) && simpleInductive) {
-            handleSimpleInductiveInstructions(bb);
-        } else if (simpleConditional && isHeader) {
-            handleSimpleConditionalInstructions(bb);
-        } else {
-            // Otherwise output them all
-            handleNonTerminatingInstructions(bb);
-        }
-    }
+    } else
+        handleInstructions(bb);
 
     // If we're exiting, add the (possibly conditional) exit.
     if (isExiting) {
@@ -461,7 +474,6 @@ void BottomTranslator::handleLoopBlock(const BasicBlock* bb)
     // been handled.
     assert(AreAllHandled(loop, handledBlocks));
 
-
     const BasicBlock* exitMerge = loop->getExitMerge();
 
     // TODO: hoist into own method
@@ -487,8 +499,9 @@ void BottomTranslator::handleLoopBlock(const BasicBlock* bb)
     closeLoop();
 
     // Schedule the handling of the exit merge block now, to make sure it occurs
-    // immediately. This is ok to do right now, because canonicalization breaks
-    // critical edges
+    // immediately. It should be ok to immediately schedule exitMerge, because
+    // the exitMerge should be dominated by the loop header.
+    assert(ProperlyDominates(header, exitMerge, *domTree));
     handleBlock(exitMerge);
 
     return;
@@ -504,7 +517,7 @@ void BottomTranslator::forceOutputLatch()
 
     assert(IsUnconditional(latch));
 
-    handleNonTerminatingInstructions(latch);
+    handleInstructions(latch);
 
     addPhiCopies(latch);
 }
@@ -558,7 +571,7 @@ void BottomTranslator::handleReturnBlock(const BasicBlock* bb)
 {
     assert(isa<ReturnInst>(bb->getTerminator()));
 
-    handleNonTerminatingInstructions(bb);
+    handleInstructions(bb);
     backEndTranslator->add(bb->getTerminator(), lastBlock);
 
     return;
@@ -567,7 +580,7 @@ void BottomTranslator::handleReturnBlock(const BasicBlock* bb)
 void BottomTranslator::handleBranchingBlock(const BasicBlock* bb)
 {
     // Handle it's instructions and do phi node removal if appropriate
-    handleNonTerminatingInstructions(bb);
+    handleInstructions(bb);
     addPhiCopies(bb);
 
     // If it's unconditional, we'll want to handle any subtrees (and introduced
@@ -602,9 +615,7 @@ void BottomTranslator::handleBlock(const BasicBlock* bb)
     handledBlocks.insert(bb);
 
     // Are we on the last block?
-    // TODO: I think the size method for ilist and iplists are linear in size,
-    // so save the result earlier (assuming we never modify the list).
-    if (handledBlocks.size() == bb->getParent()->getBasicBlockList().size())
+    if (handledBlocks.size() == numBBs)
         lastBlock = true;
 
     // If the block exhibits loop-relevant control flow, handle it specially
@@ -633,7 +644,7 @@ void BottomTranslator::handleBlock(const BasicBlock* bb)
 
 void BottomTranslator::handleSimpleInductiveInstructions(const BasicBlock* bb)
 {
-    assert(loops->size() != 0);
+    assert(! loops->empty());
 
     // If we're simple inductive, then don't do the instructions computing
     // the inductive variable or the exit condition
@@ -687,17 +698,21 @@ void BottomTranslator::setUpLoopExit(const Value* condition, const BasicBlock* b
 
     assert(loop->isLoopExiting(bb));
 
+    const BasicBlock* exitMerge = loop->getExitMerge();
+    if (! exitMerge)
+        gla::UnsupportedFunctionality("complex exits/continues in loops");
+
+    // Don't output if it's simple-conditional(and the header) or
+    // simple-inductive (and given the inductive exit condition)
+    bool shouldOutput = ! ((loop->isSimpleInductive() && condition == loop->getInductiveExitCondition())
+                        || (loop->isSimpleConditional() && bb == loop->getHeader() ));
+
     int exitPos = loop->exitSuccNumber(bb);
     assert(exitPos != -1);
     if (exitPos == 2)
         gla::UnsupportedFunctionality("complex loop exits (two exit branches from same block)");
 
     const BasicBlock* exit      = GetSuccessor(exitPos, bb);
-    const BasicBlock* exitMerge = loop->getExitMerge();
-    if (! exitMerge)
-        gla::UnsupportedFunctionality("complex exits/continues in loops");
-
-    bool shouldOutput = ! (loop->isSimpleInductive() || (loop->isSimpleConditional() && loop->getHeader() == bb));
 
     // Set up the conditional, and add the exit block subgraph if it isn't
     // the exit merge.
@@ -714,7 +729,6 @@ void BottomTranslator::setUpLoopExit(const Value* condition, const BasicBlock* b
         }
 
         if (exit != exitMerge) {
-            assert(! loop->isSimpleInductive() && "distinct merge point from exitBlock");
             handleBlock(exit);
         }
 
@@ -798,6 +812,7 @@ bool BottomTranslator::runOnModule(Module& module)
 
             // basic blocks
 
+            numBBs = function->size();
             handleBlock(function->begin());
 
             // Only the first block should have to be handled, as every

@@ -79,6 +79,9 @@ bool CanonicalizeCFG::runOnFunction(Function& F)
     loopInfo = &getAnalysis<LoopInfo>();
     domTree  = &getAnalysis<DominatorTree>();
 
+    // TODO: combine the removing of no-predecessor blocks with the removing of
+    // phis into a single traversal
+
     changed |= removeNoPredecessorBlocks(F);
 
     // TODO: do it in one pass
@@ -122,13 +125,15 @@ bool CanonicalizeCFG::removeNoPredecessorBlocks(Function& F)
 
     for (Function::iterator bbI = F.begin(), bbE = F.end(); bbI != bbE; ++bbI) {
 
-        // Removing it seems to invalidate the iterator, so start over
+        // Removing blocks seems to invalidate the iterator, so start over
         // again. Note that the for-loop incrementation is ok, as all functions
         // have an entry block and we don't mind incrementing past it right
         // away.
+
         // TODO: do it in one pass, perhaps by just having a set/vector of all
-        // the blocks in the function
-        if (RemoveNoPredecessorBlock(bbI)) {
+        // the blocks in the function. Currently O(n*m) where m is the number of
+        // no-predecessor subgraphs.
+        if (RecursivelyRemoveNoPredecessorBlocks(bbI)) {
             changed = true;
             bbI = F.begin();
         }

@@ -46,6 +46,7 @@ using namespace gla_llvm;
 bool IdentifyConditionals::runOnFunction(Function &F)
 {
     DominanceFrontier& domFront = getAnalysis<DominanceFrontier>();
+    DominatorTree& domTree = getAnalysis<DominatorTree>();
 
     for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
 
@@ -59,16 +60,7 @@ bool IdentifyConditionals::runOnFunction(Function &F)
         BasicBlock* left  = branchInst->getSuccessor(0);
         BasicBlock* right = branchInst->getSuccessor(1);
 
-        SmallVector<BasicBlock*, 2> children;
-        children.push_back(left);
-        children.push_back(right);
-
-        // If there's not a single merge point exclude this bb
-        BasicBlock* merge = GetSingleMergePoint(children, domFront);
-        if (!merge)
-            continue;
-
-        std::pair<const BasicBlock*, const Conditional*> pair(bb, new Conditional(bb, merge, left, right, &domFront));
+        std::pair<const BasicBlock*, Conditional*> pair(bb, new Conditional(bb, left, right, domFront, domTree));
 
         conditionals.insert(pair);
     }
@@ -80,6 +72,7 @@ bool IdentifyConditionals::runOnFunction(Function &F)
 void IdentifyConditionals::getAnalysisUsage(AnalysisUsage& AU) const
 {
     AU.addRequired<DominanceFrontier>();
+    AU.addRequired<DominatorTree>();
     AU.setPreservesAll();
     return;
 }
@@ -91,50 +84,10 @@ void IdentifyConditionals::print(raw_ostream&, const Module*) const
 
 void IdentifyConditionals::releaseMemory()
 {
-    for (DenseMap<const BasicBlock*, const Conditional*>::iterator i = conditionals.begin(), e = conditionals.end(); i != e; ++i) {
+    for (DenseMap<const BasicBlock*, Conditional*>::iterator i = conditionals.begin(), e = conditionals.end(); i != e; ++i) {
         delete i->second;
     }
     conditionals.clear();
-}
-
-// Whether from unconditionaly branches to to.
-inline static bool uncondBranchesTo(BasicBlock* from, BasicBlock* to)
-{
-    BranchInst* bi = dyn_cast<BranchInst>(from->getTerminator());
-    return bi && bi->isUnconditional() && (bi->getSuccessor(0) == to);
-}
-
-// Whether a basic block has no constituent instructions, other than
-// it's phi-nodes and terminator.
-inline static bool isEmptyBB(const llvm::BasicBlock* bb)
-{
-    return bb->getFirstNonPHIOrDbg() == bb->getTerminator();
-}
-
-
-bool Conditional::isEmptyConditional() const
-{
-    if (!isSelfContained())
-        return false;
-
-    // Todo: test the case when the then or else have underlying subgraphs
-
-    bool isLeftEmpty  = (left  == merge) || (uncondBranchesTo(left, merge)  && isEmptyBB(left));
-    bool isRightEmpty = (right == merge) || (uncondBranchesTo(right, merge) && isEmptyBB(right));
-
-    return isLeftEmpty && isRightEmpty;
-}
-
-bool Conditional::isSelfContained() const
-{
-    DominanceFrontier::DomSetType leftDomFront  = domFront->find(left)->second;
-    DominanceFrontier::DomSetType rightDomFront = domFront->find(right)->second;
-
-    bool leftPure  = (left  == merge) || (leftDomFront.count(merge)  && leftDomFront.size() == 1);
-    bool rightPure = (right == merge) || (rightDomFront.count(merge) && rightDomFront.size() == 1);
-
-    return leftPure && rightPure;
-
 }
 
 char IdentifyConditionals::ID = 0;

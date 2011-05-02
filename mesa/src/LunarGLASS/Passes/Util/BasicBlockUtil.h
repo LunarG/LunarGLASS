@@ -26,6 +26,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+#ifndef BASICBLOCK_UTIL_H
+#define BASICBLOCK_UTIL_H
+
 #include "llvm/BasicBlock.h"
 #include "llvm/Instructions.h"
 #include "llvm/ADT/DepthFirstIterator.h"
@@ -104,45 +107,64 @@ namespace gla_llvm {
         return false;
     }
 
-    // If the passed block has no predecessors, remove it, updating and
-    // unlinking everything that needs to be updated/unlinked. Will not remove
-    // the entry block
-    inline bool RemoveNoPredecessorBlock(BasicBlock* bb)
+    // Whether the passed block has no predecessors (and is not the entry).
+    inline bool IsNoPredecessorBlock(BasicBlock* bb)
     {
-        if (&*bb->getParent()->begin() == bb || pred_begin(bb) != pred_end(bb))
-            return false;
-
-        for (succ_iterator sI = succ_begin(bb), sE = succ_end(bb); sI != sE; ++sI) {
-            (*sI)->removePredecessor(bb);
-        }
-        bb->dropAllReferences();
-        bb->getParent()->getBasicBlockList().erase(bb);
-
-        return true;
+        // Not the entry, and no predecessors
+        return &*bb->getParent()->begin() != bb && pred_begin(bb) == pred_end(bb);
     }
 
-    // // Returns true if the only purpose of the block's instructions is to
-    // // compute the terminator (except for phis, which can have other uses
-    // // outside the Basic Block). Operates by looking at each instruction (except
-    // // for phis), and sees if all of its uses lie only within the BB.
-    // inline bool SolelyComputesTerminator(const BasicBlock* bb)
-    // {
-    //     for (BasicBlock::const_iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
-    //         if (isa<PHINode>(i))
-    //             continue;
-    //         if (i->isUsedOutsideOfBlock(bb))
-    //             return false;
-    //     }
+    // Remove bb if it's a no-predecessor block, and continue on to its
+    // successors. Returns the number removed.
+    inline int RecursivelyRemoveNoPredecessorBlocks(BasicBlock* bb)
+    {
+        if (! IsNoPredecessorBlock(bb))
+            return 0;
 
-    //     return true;
-    // }
+        int removed = 0;
+        SmallVector<BasicBlock*, 16> toRemove;
+        toRemove.push_back(bb);
+
+        while (! toRemove.empty()) {
+            BasicBlock* next = toRemove.pop_back_val();
+            for (succ_iterator sI = succ_begin(next), sE = succ_end(next); sI != sE; ++sI) {
+                (*sI)->removePredecessor(bb);
+                if (IsNoPredecessorBlock(*sI))
+                    toRemove.push_back(*sI);
+            }
+
+            next->dropAllReferences();
+            next->getParent()->getBasicBlockList().erase(bb);
+            ++removed;
+        }
+
+        return removed;
+    }
+
+    // Const version of properlyDominates
+    inline bool ProperlyDominates(const BasicBlock* dominator, const BasicBlock* dominatee, const DominatorTree& dt)
+    {
+        BasicBlock* unconstTor = const_cast<BasicBlock*>(dominator); // Necessary
+        BasicBlock* unconstTee = const_cast<BasicBlock*>(dominatee); // Necessary
+
+        return dt.properlyDominates(unconstTor, unconstTee);
+    }
 
     // Gather up all the children of the passed basic block that are dominated
     // by it.
-    inline void GetDominatedChildren(const DominatorTree* dt, const BasicBlock* bb, SmallVectorImpl<const BasicBlock*>& children)
+    inline void GetDominatedChildren(const DominatorTree& dt, BasicBlock* bb, SmallVectorImpl<BasicBlock*>& children)
+    {
+        for (df_iterator<BasicBlock*> i = df_begin(bb), e = df_end(bb); i != e; ++i) {
+            if (! dt.dominates(bb, *i))
+                continue;
+
+            children.push_back(*i);
+        }
+    }
+    inline void GetDominatedChildren(const DominatorTree& dt, const BasicBlock* bb, SmallVectorImpl<const BasicBlock*>& children)
     {
         for (df_iterator<const BasicBlock*> i = df_begin(bb), e = df_end(bb); i != e; ++i) {
-            if (! dt->dominates(bb, *i))
+            if (! dt.dominates(bb, *i))
                 continue;
 
             children.push_back(*i);
@@ -168,3 +190,6 @@ namespace gla_llvm {
 
 
 } // end namespace gla_llvm
+
+#endif // BASICBLOCK_UTIL_H
+

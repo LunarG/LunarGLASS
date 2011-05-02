@@ -148,6 +148,19 @@ void main()
             color.z += bigColor6.z;
     }
 
+    // If then multi-exit
+    if (color.x < d6) {
+        while (color.y < d6) {
+            color += bigColor6;
+            if (d7 < 1.0)
+                break;
+        }
+
+    } else {
+        while (color.z < d6)
+            color.z += bigColor6.z;
+    }
+
 
     // Multi-exit
     do {
@@ -188,7 +201,7 @@ void main()
     } while (color.z < d8);
 
 
-    // // // Broken:
+    // // // Currently Unsupported:
     // // // Multi-continue
     // // while (color.x < 10) {
     // //     color += bigColor8;

@@ -40,10 +40,13 @@
 
 namespace gla_llvm {
     using namespace llvm;
+    class LoopStack;
 
     // Loop wrapper providing more queries/information
     class LoopWrapper {
-    public:
+        friend class LoopStack;
+
+        // LoopStack is the only one who can construct us
         LoopWrapper(Loop* l, DominanceFrontier* df /*, ScalarEvolution* se*/)
             : loop(l)
             , domFront(df)
@@ -60,6 +63,8 @@ namespace gla_llvm {
             // TODO: update to consider the presence of return
             exitMerge = GetSingleMergePoint(exits, *domFront);
         }
+
+    public:
 
         // Accessors
         BasicBlock* getHeader()    const { return header; }
@@ -91,8 +96,8 @@ namespace gla_llvm {
         // no breaks or continues)
         bool isSimpleInductive() const
         {
-            // TODO: extend functionality to support early exit and continue.
-            return preservedBackedge && loop->getCanonicalInductionVariable() && loop->getTripCount();
+            // TODO: extend functionality to support early exit
+            return loop->getCanonicalInductionVariable() && loop->getTripCount();
         }
 
         // Is the loop a simple conditional loop. A simple conditional loop is a
@@ -254,6 +259,8 @@ namespace gla_llvm {
         LoopWrapper* top() { return st.top(); }
 
         int size() { return st.size(); }
+
+        bool empty() { return st.empty(); }
 
         void clear()
         {
