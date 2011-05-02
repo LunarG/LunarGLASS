@@ -1,4 +1,4 @@
-//===- LunarGLASSBottomIR.cpp - Shared public functions for Bottom IR -----===//
+//===- BottomIR.cpp - Shared public functions for Bottom IR ---------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.

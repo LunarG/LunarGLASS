@@ -1,4 +1,4 @@
-//===- PrivateManager.h - private implementation of public manager --------===//
+//===- PrivateManager.h - internal implementation of public manager -------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -23,7 +23,7 @@
 // Author: John Kessenich, LunarG
 //
 // Private to LunarGLASS implementation, see LunarGLASSManager.h for public
-// interface.
+// interface.  Inherit from gla::PrivateManager to customize your own manager.
 //
 //===----------------------------------------------------------------------===//
 
@@ -41,21 +41,18 @@ namespace gla {
 
     class PrivateManager : public gla::Manager {
     public:
-        PrivateManager();
-        virtual ~PrivateManager();
+        virtual ~PrivateManager() { }
 
-        virtual void setModule(llvm::Module* m) { module = m; }
         virtual void translateTopToBottom();
         virtual void translateBottomToTarget();
-        virtual void setTarget(gla::BackEndTranslator* t) { backEndTranslator = t; }
 
     protected:
+        PrivateManager() { }
+
         virtual void runLLVMOptimizations1();
-        llvm::Module* module;
         gla::BackEndTranslator* backEndTranslator;
         gla::BackEnd* backEnd;
     };
 }
-
 
 #endif /* PrivateManager_H */

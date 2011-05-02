@@ -1,4 +1,4 @@
-//===- LunarGLASSManager.h - Public interface to LunarGLASS ----------========//
+//===- LunarGLASSManager.h - Public interface to using LunarGLASS ----========//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -32,7 +32,7 @@
 // Mesa-dependent nor dependent on other uses of it.
 //
 // Don't include LLVM headers here.  At the highest level use of LunarGLASS,
-// LLVM headers are not needed or desire.
+// LLVM headers are neither needed nor desired.
 //
 //===----------------------------------------------------------------------===//
 
@@ -48,15 +48,20 @@ namespace llvm {
 namespace gla {
 
     // Abstract class of external manager of translations within LunarGLASS.
-    // Use getManager() to get a concrete manager.
+    // Use getManager() to get a concrete manager, which should be derived 
+    // from gla::PrivateManager.
     class Manager {
     public:
-        Manager() {}
-        virtual ~Manager() {};
+        virtual ~Manager() { }
 
-        virtual void setModule(llvm::Module*) = 0;
+        virtual void setModule(llvm::Module* m) { module = m; }
         virtual void translateTopToBottom() = 0;
         virtual void translateBottomToTarget() = 0;
+
+    protected:
+        Manager() : module(0) { }
+
+        llvm::Module* module;
     };
 
     Manager* getManager();

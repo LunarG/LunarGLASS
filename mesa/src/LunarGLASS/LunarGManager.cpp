@@ -1,4 +1,4 @@
-//===- PrivateManager.cpp - Private implementation of PrivateManager.h ----===//
+//===- LunarGManager.cpp - LunarG's customization of PrivateManager.h -----===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -22,6 +22,9 @@
 //
 // Author: John Kessenich, LunarG
 //
+// LunarG's customization of gla::PrivateManager, to manage the back ends
+// LunarG is working on.
+//
 //===----------------------------------------------------------------------===//
 
 #include "PrivateManager.h"
@@ -34,12 +37,21 @@
 
 #include "Options.h"
 
-gla::Manager* gla::getManager()
-{
-    return new gla::PrivateManager();
+namespace gla {
+
+    class LunarGManager : public gla::PrivateManager {
+    public:
+        LunarGManager();
+        virtual ~LunarGManager();
+    };
 }
 
-gla::PrivateManager::PrivateManager() : module(0)
+gla::Manager* gla::getManager()
+{
+    return new gla::LunarGManager();
+}
+
+gla::LunarGManager::LunarGManager()
 {
     switch (Options.backend) {
     case TGSI:
@@ -55,7 +67,7 @@ gla::PrivateManager::PrivateManager() : module(0)
     }
 }
 
-gla::PrivateManager::~PrivateManager()
+gla::LunarGManager::~LunarGManager()
 {
     delete module;
     switch (Options.backend) {

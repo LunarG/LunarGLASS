@@ -1,4 +1,4 @@
-//===- LunarGLASSBottomIR.h - GLA functions for BottomIR ------------------===//
+//===- BottomIR.h - GLA functions for BottomIR ----------------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
