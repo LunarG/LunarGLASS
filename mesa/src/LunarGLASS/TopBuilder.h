@@ -193,9 +193,27 @@ public:
 
     // make a value by smearing the scalar to fill the type
     llvm::Value* smearScalar(llvm::Value* scalarVal, const llvm::Type*);
-    void createTextureIntrinsic(llvm::Function* &, int& paramCount,
-                                SuperValue* outParams, SuperValue* llvmParams, const llvm::Type* resultType,
-                                llvm::Intrinsic::ID intrinsicID, gla::ESamplerType samplerType, gla::ETextureFlags texFlags);
+    
+    // List of parameters used to create a texture intrinsic
+    struct TextureParameters { 
+        llvm::Value* ETPCoords; 
+        llvm::Value* ETPBiasLod; 
+        llvm::Value* ETPProj; 
+        llvm::Value* ETPOffset; 
+        llvm::Value* ETPShadowRef; 
+        llvm::Value* ETPGradX; 
+        llvm::Value* ETPGradY; 
+        llvm::Value* ETPArrayIndex; 
+        llvm::Value* ETPSampleNum;
+        llvm::Value* ETPSampler;
+        llvm::Value* ETPDimensions;
+    };
+        
+    // Select the correct intrinsic based on all inputs, and make the call
+    llvm::Value* createTextureCall(const llvm::Type*, gla::ESamplerType, gla::ETextureFlags, const TextureParameters&);
+
+    // LLVM does not support recip
+    llvm::Value* createRecip(llvm::Value*);
 
 protected:
     llvm::Value* createMatrixTimesVector(Matrix*, llvm::Value*);

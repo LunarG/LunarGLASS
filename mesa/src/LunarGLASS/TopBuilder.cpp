@@ -599,44 +599,37 @@ llvm::Value* Builder::smearScalar(llvm::Value* scalar, const llvm::Type* vectorT
     return builder.CreateCall2(intrinsicName, scalar, gla::MakeIntConstant(context, 0));
 }
 
-//?? unusual practice to have returns be parameters
-//?? unusual practice to have returns be listed first
-void Builder::createTextureIntrinsic(llvm::Function* &intrinsic, int &paramCount,
-                                     gla::Builder::SuperValue* outParams, gla::Builder::SuperValue* llvmParams, const llvm::Type* resultType,
-                                     llvm::Intrinsic::ID intrinsicID, gla::ESamplerType samplerType, gla::ETextureFlags texFlags)
+// Accept all parameters needed to create LunarGLASS texture intrinsics
+// Select the correct intrinsic based on the inputs, and make the call
+// TODO:  Expand this beyond current level of GLSL 1.2 functionality
+llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamplerType samplerType, gla::ETextureFlags texFlags, const TextureParameters& parameters)
 {
-    bool isBiased = texFlags.EBias;
+    // Based on our texFlags, set the intrinsicID
+    static const int maxTextureArgs = 40;
+    llvm::Value* texArgs[maxTextureArgs] = {0};
 
-    switch(intrinsicID) {
-    case llvm::Intrinsic::gla_fTextureSample:
-            outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, samplerType, true));
-            outParams[1] = llvmParams[0];
-            outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32, *(int*)&texFlags, true));  //flag enum
-            outParams[3] = llvmParams[1];
+    texArgs[GetTextureOpIndex(ETOSamplerType)] = MakeIntConstant(context, samplerType);
+    texArgs[GetTextureOpIndex(ETOSamplerLoc)]  = parameters.ETPSampler;
+    texArgs[GetTextureOpIndex(ETOFlag)]     = MakeUnsignedConstant(context, *(int*)&texFlags);
+    texArgs[GetTextureOpIndex(ETOCoord)] = parameters.ETPCoords;
+    int numArgs = 4;
 
-            if (isBiased) {
-                //Bias requires SampleLod with EBias flag
-                intrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
-                outParams[4] = llvmParams[2];
-            }
-
-            paramCount += 2;
-            intrinsic = getIntrinsic(intrinsicID, resultType, llvmParams[1]->getType());
-            break;
-    case llvm::Intrinsic::gla_fTextureSampleLod:
-            outParams[0] = llvm::ConstantInt::get(context, llvm::APInt(32, samplerType, true));
-            outParams[1] = llvmParams[0];
-            outParams[2] = llvm::ConstantInt::get(context, llvm::APInt(32,  *(int*)&texFlags, true));  //flag enum
-            outParams[3] = llvmParams[1];
-            outParams[4] = llvmParams[2];
-            paramCount += 2;
-            intrinsic = getIntrinsic(intrinsicID, resultType, llvmParams[1]->getType());
-            break;
-    default:
-        gla::UnsupportedFunctionality("texture: ", intrinsicID);
+    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::gla_fTextureSample;
+    if (texFlags.EBias || texFlags.ELod) {
+        intrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
+        texArgs[GetTextureOpIndex(ETOBias)] = parameters.ETPBiasLod;
+        numArgs = 5;
     }
 
-    return;
+    llvm::Function* intrinsic = getIntrinsic(intrinsicID, resultType, parameters.ETPCoords->getType());
+    assert(intrinsic);
+
+    return builder.CreateCall(intrinsic, texArgs, texArgs + numArgs);
+}
+
+llvm::Value* Builder::createRecip(llvm::Value* operand)
+{
+    return builder.CreateFDiv(MakeFloatConstant(context, 1.0), operand);
 }
 
 }; // end gla namespace

@@ -352,16 +352,16 @@ protected:
         return WRITEMASK_X;
     }
 
-    GLuint mapGlaSamplerType(const llvm::Value* samplerType)
+    GLuint mapGlaSamplerType(const llvm::Value* samplerType, int flags)
     {
+        gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
+
         switch(GetConstantInt(samplerType)) {
-        case ESampler1D:        return TEXTURE_1D_INDEX;
-        case ESampler2D:        return TEXTURE_2D_INDEX;
+        case ESampler1D:        return (texFlags.EArrayed) ? TEXTURE_1D_ARRAY_INDEX : TEXTURE_1D_INDEX;
+        case ESampler2D:        return (texFlags.EArrayed) ? TEXTURE_2D_ARRAY_INDEX : TEXTURE_2D_INDEX;
         case ESampler3D:        return TEXTURE_3D_INDEX;
         case ESamplerCube:      return TEXTURE_CUBE_INDEX;
         case ESampler2DRect:    return TEXTURE_RECT_INDEX;
-        case ESampler1DArray:   return TEXTURE_1D_ARRAY_INDEX;
-        case ESampler2DArray:   return TEXTURE_2D_ARRAY_INDEX;
         default:
             UnsupportedFunctionality("sampler type in Bottom IR");
         }
@@ -369,10 +369,10 @@ protected:
         return TEXTURE_2D_INDEX;
     }
 
-    prog_opcode getMesaOpFromGlaInst(const llvm::IntrinsicInst* llvmInstruction, int FlagLocAOS)
+    prog_opcode getMesaOpFromGlaInst(const llvm::IntrinsicInst* llvmInstruction, int FlagLocOpIndex)
     {
         // Check flags for proj/lod/offset
-        int flags = GetConstantInt(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = GetConstantInt(llvmInstruction->getOperand(FlagLocOpIndex));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -666,22 +666,23 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fTextureSampleLodOffset:
     case llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad:
         //TODO:  Mesa expects proj/bias/lod to be in coord.w channel.  This is not implemented yet.
-        mesaInstruction->TexSrcTarget = mapGlaSamplerType(llvmInstruction->getOperand(0));
+        mesaInstruction->TexSrcTarget = mapGlaSamplerType(llvmInstruction->getOperand(0), 
+                                                          GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
         mesaInstruction->TexShadow    = 0;   // ?? may be only for the shader to generate the compare itself
         mesaInstruction->TexSrcUnit   = 17;  // ?? may be a linker-created slot number for the sampler
 
-        operandFrom[0] = CoordLocAOS;
+        operandFrom[0] = GetTextureOpIndex(ETOCoord);
 
         if(IsGradientTexInst(llvmInstruction)) {
-            operandFrom[1] = DdxLocAOS;
-            operandFrom[2] = DdyLocAOS;
-            operandFrom[3] = SamplerLocAOS;
+            operandFrom[1] = GetTextureOpIndex(ETODPdx);
+            operandFrom[2] = GetTextureOpIndex(ETODPdy);
+            operandFrom[3] = GetTextureOpIndex(ETOSamplerLoc);
         }
         else {
-            operandFrom[1] = SamplerLocAOS;
+            operandFrom[1] = GetTextureOpIndex(ETOSamplerLoc);
         }
 
-        mesaOp = getMesaOpFromGlaInst(llvmInstruction, FlagLocAOS);
+        mesaOp = getMesaOpFromGlaInst(llvmInstruction, GetTextureOpIndex(ETOFlag));
         return;
     }
 

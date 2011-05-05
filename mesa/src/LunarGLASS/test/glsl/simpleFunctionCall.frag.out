@@ -2,18 +2,6 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@gl_MaxLights = internal global i32 8
-@gl_MaxClipPlanes = internal global i32 8
-@gl_MaxTextureUnits = internal global i32 2
-@gl_MaxTextureCoords = internal global i32 4
-@gl_MaxVertexAttribs = internal global i32 16
-@gl_MaxVertexUniformComponents = internal global i32 512
-@gl_MaxVaryingFloats = internal global i32 32
-@gl_MaxVertexTextureImageUnits = internal global i32 0
-@gl_MaxCombinedTextureImageUnits = internal global i32 2
-@gl_MaxTextureImageUnits = internal global i32 2
-@gl_MaxFragmentUniformComponents = internal global i32 64
-@gl_MaxDrawBuffers = internal global i32 2
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -23,12 +11,6 @@ entry:
   %0 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %0)
   ret void
-}
-
-define fastcc <4 x float> @foo() {
-entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
-  ret <4 x float> %BaseColor
 }
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
@@ -44,12 +26,6 @@ entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %BaseColor)
   ret void
-}
-
-define fastcc <4 x float> @foo() {
-entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
-  ret <4 x float> %BaseColor
 }
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
@@ -68,79 +44,8 @@ gl_FragColor = foo ( ) ; }
 
 
 (
-(declare (uniform ) float d)
 (declare (in ) vec4 BaseColor)
-(declare (uniform ) vec4 bigColor)
-(declare (in ) vec4 gl_FragCoord)
-(declare (in ) bool gl_FrontFacing)
 (declare (out ) vec4 gl_FragColor)
-(declare (out ) float gl_FragDepth)
-(declare (in ) vec4 gl_Color)
-(declare (in ) vec4 gl_SecondaryColor)
-(declare (in ) float gl_FogFragCoord)
-(declare (uniform ) mat4 gl_ModelViewMatrix)
-(declare (uniform ) mat4 gl_ProjectionMatrix)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrix)
-(declare (uniform ) mat3 gl_NormalMatrix)
-(declare (uniform ) mat4 gl_ModelViewMatrixInverse)
-(declare (uniform ) mat4 gl_ProjectionMatrixInverse)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverse)
-(declare (uniform ) mat4 gl_ModelViewMatrixTranspose)
-(declare (uniform ) mat4 gl_ProjectionMatrixTranspose)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixTranspose)
-(declare (uniform ) mat4 gl_ModelViewMatrixInverseTranspose)
-(declare (uniform ) mat4 gl_ProjectionMatrixInverseTranspose)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverseTranspose)
-(declare (uniform ) float gl_NormalScale)
-(declare (uniform ) gl_LightModelParameters gl_LightModel)
-(declare () int gl_MaxLights)
-(declare () int gl_MaxClipPlanes)
-(declare () int gl_MaxTextureUnits)
-(declare () int gl_MaxTextureCoords)
-(declare () int gl_MaxVertexAttribs)
-(declare () int gl_MaxVertexUniformComponents)
-(declare () int gl_MaxVaryingFloats)
-(declare () int gl_MaxVertexTextureImageUnits)
-(declare () int gl_MaxCombinedTextureImageUnits)
-(declare () int gl_MaxTextureImageUnits)
-(declare () int gl_MaxFragmentUniformComponents)
-(declare (uniform ) (array mat4 4) gl_TextureMatrix)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixInverse)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixTranspose)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixInverseTranspose)
-(declare (uniform ) gl_DepthRangeParameters gl_DepthRange)
-(declare (uniform ) (array vec4 8) gl_ClipPlane)
-(declare (uniform ) gl_PointParameters gl_Point)
-(declare (uniform ) gl_MaterialParameters gl_FrontMaterial)
-(declare (uniform ) gl_MaterialParameters gl_BackMaterial)
-(declare (uniform ) (array gl_LightSourceParameters 8) gl_LightSource)
-(declare (uniform ) gl_LightModelProducts gl_FrontLightModelProduct)
-(declare (uniform ) gl_LightModelProducts gl_BackLightModelProduct)
-(declare (uniform ) (array gl_LightProducts 8) gl_FrontLightProduct)
-(declare (uniform ) (array gl_LightProducts 8) gl_BackLightProduct)
-(declare (uniform ) (array vec4 2) gl_TextureEnvColor)
-(declare (uniform ) (array vec4 4) gl_EyePlaneS)
-(declare (uniform ) (array vec4 4) gl_EyePlaneT)
-(declare (uniform ) (array vec4 4) gl_EyePlaneR)
-(declare (uniform ) (array vec4 4) gl_EyePlaneQ)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneS)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneT)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneR)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneQ)
-(declare (uniform ) gl_FogParameters gl_Fog)
-(declare (in ) (array vec4 0) gl_TexCoord)
-(declare () int gl_MaxDrawBuffers)
-(declare (out ) (array vec4 2) gl_FragData)
-(function foo
-  (signature vec4
-    (parameters
-    )
-    (
-      (return (var_ref BaseColor) )
-    ))
-
-)
-
 (function main
   (signature void
     (parameters
@@ -156,15 +61,9 @@ gl_FragColor = foo ( ) ; }
 // LunarGOO output
 #version 130
 in vec4 BaseColor;
-in vec4 BaseColor;
 
 void main()
 {
     gl_FragColor = BaseColor;
     
-}
-
-vec4 foo()
-{
-    return BaseColor;
 }

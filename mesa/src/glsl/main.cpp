@@ -240,33 +240,10 @@ compile_shader(struct gl_context *ctx, struct gl_shader *shader)
    if (!state->error && !shader->ir->is_empty()) {
       bool progress;
       do {
-	 progress = false;
 
-     // These mimic the optimizations done in the real stack.  For reference, see
-     // do_common_optimization() in glsl_parser_extras.cpp.
-     //progress = lower_instructions(shader->ir, SUB_TO_ADD_NEG) || progress;
-	 progress = do_function_inlining(shader->ir) || progress;
-	 progress = do_if_simplification(shader->ir) || progress;
-     progress = do_discard_simplification(shader->ir) || progress;
-	 progress = do_copy_propagation(shader->ir) || progress;
-	 progress = do_dead_code_local(shader->ir) || progress;
-     progress = do_tree_grafting(shader->ir) || progress;
-	 progress = do_dead_code_unlinked(shader->ir) || progress;
-	 progress = do_tree_grafting(shader->ir) || progress;
-	 progress = do_constant_propagation(shader->ir) || progress;
-	 progress = do_constant_variable_unlinked(shader->ir) || progress;
-	 progress = do_constant_folding(shader->ir) || progress;
-	 progress = do_algebraic(shader->ir) || progress;
-     progress = do_lower_jumps(shader->ir) || progress;
-	 progress = do_vec_index_to_swizzle(shader->ir) || progress;
-	 progress = do_vec_index_to_cond_assign(shader->ir) || progress;
-	 progress = do_swizzle_swizzle(shader->ir) || progress;
-     progress = do_noop_swizzle(shader->ir) || progress;
-
-	 loop_state *ls = analyze_loop_variables(shader->ir);
-	 progress = set_loop_controls(shader->ir, ls) || progress;
-	 progress = unroll_loops(shader->ir, ls, 32) || progress;
-	 delete ls;
+     //progress = false;
+     progress = do_common_optimization(shader->ir, false, 0);
+     
       } while (progress);
 
       validate_ir_tree(shader->ir);
@@ -314,15 +291,10 @@ main(int argc, char **argv)
    dump_lir = 0;
    do_link = 1;
 
-   // LunarGOO will sometimes want to translate a single stage
-   // without seeing other stages, but still not "optimize"
-   // as if that stage is truly missing in the pipeline.
-   do_cross_stage = gla::Options.optimizations.crossStage;
-
    // LunarGLASS cannot yet translate the linked version of a stage.
    // But, we need to make progress doing so.  This is the flag to
    // set to switch from unlinked to linked.
-   bool translate_linked_shader = false;
+   bool translate_linked_shader = true;
 
    // Handle some LunarGLASS specific options in a more platform-independent manner
    // Overwrites argc and argv
@@ -331,6 +303,11 @@ main(int argc, char **argv)
    do_glsl_to_mesa_ir = gla::Options.backend == gla::TGSI;
    if (do_glsl_to_mesa_ir)
        do_cross_stage = true;
+
+   // LunarGOO will sometimes want to translate a single stage
+   // without seeing other stages, but still not "optimize"
+   // as if that stage is truly missing in the pipeline.
+   do_cross_stage = gla::Options.optimizations.crossStage;
 
    initialize_context(ctx, (glsl_es) ? API_OPENGLES2 : API_OPENGL);
 

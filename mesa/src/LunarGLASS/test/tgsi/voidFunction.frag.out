@@ -2,62 +2,24 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@bar = internal global float 0.000000e+00
-@gl_MaxLights = internal global i32 8
-@gl_MaxClipPlanes = internal global i32 8
-@gl_MaxTextureUnits = internal global i32 2
-@gl_MaxTextureCoords = internal global i32 4
-@gl_MaxVertexAttribs = internal global i32 16
-@gl_MaxVertexUniformComponents = internal global i32 512
-@gl_MaxVaryingFloats = internal global i32 32
-@gl_MaxVertexTextureImageUnits = internal global i32 0
-@gl_MaxCombinedTextureImageUnits = internal global i32 2
-@gl_MaxTextureImageUnits = internal global i32 2
-@gl_MaxFragmentUniformComponents = internal global i32 64
-@gl_MaxDrawBuffers = internal global i32 2
-@assignment_tmp = internal global float 0.000000e+00
 @bigColor = external addrspace(1) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
-  %assignment_tmp = alloca float
   %outColor = alloca <4 x float>
-  store float 2.000000e+00, float* @bar
   %outColor1 = load <4 x float> addrspace(1)* @bigColor
   store <4 x float> %outColor1, <4 x float>* %outColor
-  %0 = load float* @bar
-  %assignment_tmp2 = fadd float 2.000000e+00, %0
-  store float %assignment_tmp2, float* %assignment_tmp
-  %bar = load float* %assignment_tmp
-  store float %bar, float* @bar
-  %1 = load <4 x float> addrspace(1)* @bigColor
-  %2 = extractelement <4 x float> %1, i32 0
-  %3 = load float* %assignment_tmp
-  %4 = fadd float %2, %3
-  %5 = load <4 x float>* %outColor
-  %outColor3 = insertelement <4 x float> %5, float %4, i32 0
-  store <4 x float> %outColor3, <4 x float>* %outColor
+  %0 = load <4 x float> addrspace(1)* @bigColor
+  %1 = extractelement <4 x float> %0, i32 0
+  %2 = fadd float %1, 4.000000e+00
+  %3 = load <4 x float>* %outColor
+  %outColor2 = insertelement <4 x float> %3, float %2, i32 0
+  store <4 x float> %outColor2, <4 x float>* %outColor
   %gl_FragColor = load <4 x float>* %outColor
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  %6 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %6)
-  ret void
-}
-
-define fastcc void @foo() {
-entry:
-  %0 = load float* @bar
-  %bar = fadd float %0, 1.000000e+00
-  store float %bar, float* @bar
-  ret void
-}
-
-define fastcc void @foo2() {
-entry:
-  %0 = load float* @bar
-  %bar = fadd float %0, 1.000000e+00
-  store float %bar, float* @bar
+  %4 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %4)
   ret void
 }
 
@@ -67,34 +29,15 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@bar = internal global float 0.000000e+00
 @bigColor = external addrspace(1) constant <4 x float>
 
 define fastcc void @main() {
 entry:
-  store float 2.000000e+00, float* @bar
   %outColor1 = load <4 x float> addrspace(1)* @bigColor
-  store float 4.000000e+00, float* @bar
   %0 = extractelement <4 x float> %outColor1, i32 0
   %1 = fadd float %0, 4.000000e+00
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outColor1, i32 1, float %1, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %2)
-  ret void
-}
-
-define fastcc void @foo() {
-entry:
-  %0 = load float* @bar
-  %bar = fadd float %0, 1.000000e+00
-  store float %bar, float* @bar
-  ret void
-}
-
-define fastcc void @foo2() {
-entry:
-  %0 = load float* @bar
-  %bar = fadd float %0, 1.000000e+00
-  store float %bar, float* @bar
   ret void
 }
 
@@ -120,93 +63,8 @@ vec4 outColor = bigColor ; foo ( ) ; foo2 ( ) ; outColor . x += bar ; gl_FragCol
 
 
 (
-(declare () float bar)
-(declare (uniform ) float d)
-(declare (in ) vec4 BaseColor)
 (declare (uniform ) vec4 bigColor)
-(declare (in ) vec4 gl_FragCoord)
-(declare (in ) bool gl_FrontFacing)
 (declare (out ) vec4 gl_FragColor)
-(declare (out ) float gl_FragDepth)
-(declare (in ) vec4 gl_Color)
-(declare (in ) vec4 gl_SecondaryColor)
-(declare (in ) float gl_FogFragCoord)
-(declare (uniform ) mat4 gl_ModelViewMatrix)
-(declare (uniform ) mat4 gl_ProjectionMatrix)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrix)
-(declare (uniform ) mat3 gl_NormalMatrix)
-(declare (uniform ) mat4 gl_ModelViewMatrixInverse)
-(declare (uniform ) mat4 gl_ProjectionMatrixInverse)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverse)
-(declare (uniform ) mat4 gl_ModelViewMatrixTranspose)
-(declare (uniform ) mat4 gl_ProjectionMatrixTranspose)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixTranspose)
-(declare (uniform ) mat4 gl_ModelViewMatrixInverseTranspose)
-(declare (uniform ) mat4 gl_ProjectionMatrixInverseTranspose)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverseTranspose)
-(declare (uniform ) float gl_NormalScale)
-(declare (uniform ) gl_LightModelParameters gl_LightModel)
-(declare () int gl_MaxLights)
-(declare () int gl_MaxClipPlanes)
-(declare () int gl_MaxTextureUnits)
-(declare () int gl_MaxTextureCoords)
-(declare () int gl_MaxVertexAttribs)
-(declare () int gl_MaxVertexUniformComponents)
-(declare () int gl_MaxVaryingFloats)
-(declare () int gl_MaxVertexTextureImageUnits)
-(declare () int gl_MaxCombinedTextureImageUnits)
-(declare () int gl_MaxTextureImageUnits)
-(declare () int gl_MaxFragmentUniformComponents)
-(declare (uniform ) (array mat4 4) gl_TextureMatrix)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixInverse)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixTranspose)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixInverseTranspose)
-(declare (uniform ) gl_DepthRangeParameters gl_DepthRange)
-(declare (uniform ) (array vec4 8) gl_ClipPlane)
-(declare (uniform ) gl_PointParameters gl_Point)
-(declare (uniform ) gl_MaterialParameters gl_FrontMaterial)
-(declare (uniform ) gl_MaterialParameters gl_BackMaterial)
-(declare (uniform ) (array gl_LightSourceParameters 8) gl_LightSource)
-(declare (uniform ) gl_LightModelProducts gl_FrontLightModelProduct)
-(declare (uniform ) gl_LightModelProducts gl_BackLightModelProduct)
-(declare (uniform ) (array gl_LightProducts 8) gl_FrontLightProduct)
-(declare (uniform ) (array gl_LightProducts 8) gl_BackLightProduct)
-(declare (uniform ) (array vec4 2) gl_TextureEnvColor)
-(declare (uniform ) (array vec4 4) gl_EyePlaneS)
-(declare (uniform ) (array vec4 4) gl_EyePlaneT)
-(declare (uniform ) (array vec4 4) gl_EyePlaneR)
-(declare (uniform ) (array vec4 4) gl_EyePlaneQ)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneS)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneT)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneR)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneQ)
-(declare (uniform ) gl_FogParameters gl_Fog)
-(declare (in ) (array vec4 0) gl_TexCoord)
-(declare () int gl_MaxDrawBuffers)
-(declare (out ) (array vec4 2) gl_FragData)
-(declare (temporary ) float assignment_tmp)
-(assign (constant bool (1)) (x) (var_ref bar)  (constant float (2.000000)) ) 
-(function foo
-  (signature void
-    (parameters
-    )
-    (
-      (assign (constant bool (1)) (x) (var_ref bar)  (expression float + (var_ref bar) (constant float (1.000000)) ) ) 
-      (return)
-    ))
-
-)
-
-(function foo2
-  (signature void
-    (parameters
-    )
-    (
-      (assign (constant bool (1)) (x) (var_ref bar)  (expression float + (var_ref bar) (constant float (1.000000)) ) ) 
-    ))
-
-)
-
 (function main
   (signature void
     (parameters
@@ -214,10 +72,7 @@ vec4 outColor = bigColor ; foo ( ) ; foo2 ( ) ; outColor . x += bar ; gl_FragCol
     (
       (declare () vec4 outColor)
       (assign (constant bool (1)) (xyzw) (var_ref outColor)  (var_ref bigColor) ) 
-      (declare (temporary ) float assignment_tmp)
-      (assign (constant bool (1)) (x) (var_ref assignment_tmp)  (expression float + (constant float (2.000000)) (var_ref bar) ) ) 
-      (assign (constant bool (1)) (x) (var_ref bar)  (var_ref assignment_tmp) ) 
-      (assign (constant bool (1)) (x) (var_ref outColor)  (expression float + (swiz x (var_ref bigColor) )(var_ref assignment_tmp) ) ) 
+      (assign (constant bool (1)) (x) (var_ref outColor)  (expression float + (swiz x (var_ref bigColor) )(constant float (4.000000)) ) ) 
       (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref outColor) ) 
       (return)
     ))

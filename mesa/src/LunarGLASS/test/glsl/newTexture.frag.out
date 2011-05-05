@@ -1,7 +1,47 @@
 
-***Unsupported functionality: Built-in function: 
+Top IR:
+; ModuleID = 'Top'
 
-***Unsupported functionality: texture
+@gl_FragColor = internal global <4 x float> zeroinitializer
+@"sampler2D sampler" = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %0 = load i32 addrspace(1)* @"sampler2D sampler"
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %1 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %1)
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@"sampler2D sampler" = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %0 = load i32 addrspace(1)* @"sampler2D sampler"
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 compiling newTexture.frag...
 uniform sampler2D sampler ; 
 varying vec2 coord ; 
@@ -13,80 +53,27 @@ gl_FragColor = texture ( sampler , coord ) ; }
 (
 (declare (in ) vec2 coord)
 (declare (uniform ) sampler2D sampler)
-(declare (in ) vec4 gl_FragCoord)
-(declare (in ) bool gl_FrontFacing)
 (declare (out ) vec4 gl_FragColor)
-(declare (out ) float gl_FragDepth)
-(declare (in ) vec4 gl_Color)
-(declare (in ) vec4 gl_SecondaryColor)
-(declare (in ) float gl_FogFragCoord)
-(declare (uniform ) mat4 gl_ModelViewMatrix)
-(declare (uniform ) mat4 gl_ProjectionMatrix)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrix)
-(declare (uniform ) mat3 gl_NormalMatrix)
-(declare (uniform ) mat4 gl_ModelViewMatrixInverse)
-(declare (uniform ) mat4 gl_ProjectionMatrixInverse)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverse)
-(declare (uniform ) mat4 gl_ModelViewMatrixTranspose)
-(declare (uniform ) mat4 gl_ProjectionMatrixTranspose)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixTranspose)
-(declare (uniform ) mat4 gl_ModelViewMatrixInverseTranspose)
-(declare (uniform ) mat4 gl_ProjectionMatrixInverseTranspose)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverseTranspose)
-(declare (uniform ) float gl_NormalScale)
-(declare (uniform ) gl_LightModelParameters gl_LightModel)
-(declare () int gl_MaxLights)
-(declare () int gl_MaxClipPlanes)
-(declare () int gl_MaxTextureUnits)
-(declare () int gl_MaxTextureCoords)
-(declare () int gl_MaxVertexAttribs)
-(declare () int gl_MaxVertexUniformComponents)
-(declare () int gl_MaxVaryingFloats)
-(declare () int gl_MaxVertexTextureImageUnits)
-(declare () int gl_MaxCombinedTextureImageUnits)
-(declare () int gl_MaxTextureImageUnits)
-(declare () int gl_MaxFragmentUniformComponents)
-(declare (uniform ) (array mat4 4) gl_TextureMatrix)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixInverse)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixTranspose)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixInverseTranspose)
-(declare (uniform ) gl_DepthRangeParameters gl_DepthRange)
-(declare (uniform ) (array vec4 8) gl_ClipPlane)
-(declare (uniform ) gl_PointParameters gl_Point)
-(declare (uniform ) gl_MaterialParameters gl_FrontMaterial)
-(declare (uniform ) gl_MaterialParameters gl_BackMaterial)
-(declare (uniform ) (array gl_LightSourceParameters 8) gl_LightSource)
-(declare (uniform ) gl_LightModelProducts gl_FrontLightModelProduct)
-(declare (uniform ) gl_LightModelProducts gl_BackLightModelProduct)
-(declare (uniform ) (array gl_LightProducts 8) gl_FrontLightProduct)
-(declare (uniform ) (array gl_LightProducts 8) gl_BackLightProduct)
-(declare (uniform ) (array vec4 2) gl_TextureEnvColor)
-(declare (uniform ) (array vec4 4) gl_EyePlaneS)
-(declare (uniform ) (array vec4 4) gl_EyePlaneT)
-(declare (uniform ) (array vec4 4) gl_EyePlaneR)
-(declare (uniform ) (array vec4 4) gl_EyePlaneQ)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneS)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneT)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneR)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneQ)
-(declare (uniform ) gl_FogParameters gl_Fog)
-(declare (in ) (array vec4 0) gl_TexCoord)
-(declare () int gl_MaxDrawBuffers)
-(declare (out ) (array vec4 2) gl_FragData)
-(declare (in ) vec2 gl_PointCoord)
-(declare (in ) (array float 8) gl_ClipDistance)
 (function main
   (signature void
     (parameters
     )
     (
-      (declare (temporary ) vec4 texture_retval)
-      (assign (constant bool (1)) (xyzw) (var_ref texture_retval)  (call texture ((var_ref sampler) (var_ref coord) ))
-) 
-      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref texture_retval) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (tex (var_ref sampler)  (var_ref coord)  (0 0 0) 1 () )) 
     ))
 
 )
 
 
 )
+// LunarGOO output
+#version 130
+uniform sampler2D sampler;
+in vec2 coord;
+
+void main()
+{
+    gl_FragColor = texture2D(sampler, coord);
+    gl_FragColor = gl_FragColor;
+    
+}

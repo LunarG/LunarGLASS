@@ -483,16 +483,23 @@ protected:
         return "x";
     }
 
-    void emitGlaSamplerType(const llvm::Value* samplerType)
+    void emitGlaSamplerType(const llvm::Value* samplerType, int flags)
     {
+        gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
+        const char *texture;
+
+        // Select texture type based on GLA flag
+        if (texFlags.EShadow)
+            texture = "shadow";
+        else
+            texture = "texture";
+
         int sampler = GetConstantInt(samplerType) ;
         switch(sampler) {
-        case ESampler1D:        shader << "texture1D";      break;
-        case ESampler2D:        shader << "texture2D";      break;
+        case ESampler1D:        shader << texture << "1D";  break;
+        case ESampler2D:        shader << texture << "2D";  break;
         case ESampler3D:        shader << "texture3D";      break;
         case ESamplerCube:      shader << "textureCube";    break;
-        case ESampler1DShadow:  shader << "shadow1D";       break;
-        case ESampler2DShadow:  shader << "shadow2D";       break;
         default:
             shader << "texture";
             UnsupportedFunctionality("Texturing in Bottom IR: ", sampler, EATContinue);
@@ -505,7 +512,7 @@ protected:
     void emitGlaTextureStyle(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for proj/lod/offset
-        int flags = GetConstantInt(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -521,7 +528,7 @@ protected:
     bool needsBiasLod(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for bias/lod
-        int flags = GetConstantInt(llvmInstruction->getOperand(FlagLocAOS));
+        int flags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
 
         gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
 
@@ -1314,23 +1321,23 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         newLine();
         emitGlaValue(llvmInstruction);
         shader << " = ";
-        emitGlaSamplerType(llvmInstruction->getOperand(0));
+        emitGlaSamplerType(llvmInstruction->getOperand(0), GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
         emitGlaTextureStyle(llvmInstruction);
         shader << "(";
-        emitGlaOperand(llvmInstruction->getOperand(SamplerLocAOS));
+        emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         shader << ", ";
-        emitGlaOperand(llvmInstruction->getOperand(CoordLocAOS));
+        emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
 
         if(needsBiasLod(llvmInstruction)) {
             shader << ", ";
-            emitGlaOperand(llvmInstruction->getOperand(BiasLocAOS));
+            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBias)));
         }
 
         if(IsGradientTexInst(llvmInstruction)) {  //?? this can move to a place they are shared between back-ends
             shader << ", ";
-            emitGlaOperand(llvmInstruction->getOperand(DdxLocAOS));
+            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETODPdx)));
             shader << ", ";
-            emitGlaOperand(llvmInstruction->getOperand(DdyLocAOS));
+            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETODPdy)));
         }
 
         shader << ");";

@@ -6,28 +6,15 @@ Top IR:
 %lunarStruct2 = type { i32, float, %lunarStruct1 }
 %lunarStruct3 = type { [3 x %lunarStruct2], i32, float, %lunarStruct1 }
 
-@gl_MaxLights = internal global i32 8
-@gl_MaxClipPlanes = internal global i32 8
-@gl_MaxTextureUnits = internal global i32 2
-@gl_MaxTextureCoords = internal global i32 4
-@gl_MaxVertexAttribs = internal global i32 16
-@gl_MaxVertexUniformComponents = internal global i32 512
-@gl_MaxVaryingFloats = internal global i32 32
-@gl_MaxVertexTextureImageUnits = internal global i32 0
-@gl_MaxCombinedTextureImageUnits = internal global i32 2
-@gl_MaxTextureImageUnits = internal global i32 2
-@gl_MaxFragmentUniformComponents = internal global i32 64
-@gl_MaxDrawBuffers = internal global i32 2
 @Count = external addrspace(1) constant i32
 @foo3 = external addrspace(1) constant %lunarStruct3
 @foo = external addrspace(1) constant %lunarStruct1
-@foo2 = external addrspace(1) constant [5 x %lunarStruct2]
-@"sampler2D sampler" = external addrspace(1) constant i32
+@foo2 = external addrspace(1) constant [6 x %lunarStruct2]
 @gl_FragColor = internal global <4 x float> zeroinitializer
+@"sampler2D sampler" = external addrspace(1) constant i32
 
 define fastcc void @main() {
 entry:
-  %texture2D_retval = alloca <4 x float>
   %assignment_tmp = alloca i32
   %scale = alloca float
   %iLocal = alloca i32
@@ -50,7 +37,7 @@ then:                                             ; preds = %entry
   %6 = add i32 %5, 2
   %7 = load i32* %assignment_tmp
   %8 = add i32 %6, %7
-  %9 = getelementptr [5 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 %8, i32 2, i32 1
+  %9 = getelementptr [6 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 %8, i32 2, i32 1
   %scale4 = load float addrspace(1)* %9
   store float %scale4, float* %scale
   br label %ifmerge
@@ -79,7 +66,7 @@ post-loopjump:                                    ; No predecessors!
 ifmerge7:                                         ; preds = %post-loopjump, %loop-header
   %13 = load float* %scale
   %14 = load i32* %i
-  %15 = getelementptr [5 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 %14, i32 1
+  %15 = getelementptr [6 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 %14, i32 1
   %16 = load float addrspace(1)* %15
   %scale8 = fadd float %13, %16
   store float %scale8, float* %scale
@@ -89,13 +76,11 @@ ifmerge7:                                         ; preds = %post-loopjump, %loo
   br label %loop-header
 
 loop-merge:                                       ; preds = %then6
-  %18 = load i32 addrspace(1)* @"sampler2D sampler"
+  %18 = load float* %scale
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
-  %texture2D_retval10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %18, i32 0, <2 x float> %coord)
-  store <4 x float> %texture2D_retval10, <4 x float>* %texture2D_retval
-  %19 = load float* %scale
-  %20 = load <4 x float>* %texture2D_retval
-  %21 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %19, i32 0)
+  %19 = load i32 addrspace(1)* @"sampler2D sampler"
+  %20 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %19, i32 0, <2 x float> %coord)
+  %21 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %18, i32 0)
   %gl_FragColor = fmul <4 x float> %21, %20
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   %22 = load <4 x float>* @gl_FragColor
@@ -122,7 +107,7 @@ Bottom IR:
 @Count = external addrspace(1) constant i32
 @foo3 = external addrspace(1) constant %lunarStruct3
 @foo = external addrspace(1) constant %lunarStruct1
-@foo2 = external addrspace(1) constant [5 x %lunarStruct2]
+@foo2 = external addrspace(1) constant [6 x %lunarStruct2]
 @"sampler2D sampler" = external addrspace(1) constant i32
 
 define fastcc void @main() {
@@ -139,7 +124,7 @@ then:                                             ; preds = %entry
   %4 = load i32 addrspace(1)* %3
   %5 = add i32 %assignment_tmp2, 2
   %6 = add i32 %5, %4
-  %7 = getelementptr [5 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 %6, i32 2, i32 1
+  %7 = getelementptr [6 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 %6, i32 2, i32 1
   %scale4 = load float addrspace(1)* %7
   br label %ifmerge
 
@@ -148,33 +133,33 @@ else:                                             ; preds = %entry
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %scale.0 = phi float [ %scale4, %then ], [ %scale5, %else ]
   %iLocal.0 = phi i32 [ %assignment_tmp2, %then ], [ %iLocal1, %else ]
+  %scale.0 = phi float [ %scale4, %then ], [ %scale5, %else ]
   %tmp = icmp sgt i32 %iLocal.0, 0
   %smax = select i1 %tmp, i32 %iLocal.0, i32 0
-  %tmp21 = zext i32 %smax to i64
+  %tmp20 = zext i32 %smax to i64
   br label %loop-header
 
 loop-header:                                      ; preds = %ifmerge7, %ifmerge
   %indvar = phi i64 [ %indvar.next, %ifmerge7 ], [ 0, %ifmerge ]
   %scale.1 = phi float [ %scale.0, %ifmerge ], [ %scale8, %ifmerge7 ]
-  %tmp23 = mul i64 %indvar, ptrtoint (i8* getelementptr (i8* null, i32 1) to i64)
-  %lsr.iv14 = getelementptr [5 x %lunarStruct2] addrspace(1)* @foo2, i64 0, i64 %tmp23, i32 1
-  %exitcond22 = icmp eq i64 %indvar, %tmp21
-  br i1 %exitcond22, label %then6, label %ifmerge7
+  %tmp22 = mul i64 %indvar, ptrtoint (i8* getelementptr (i8* null, i32 1) to i64)
+  %lsr.iv13 = getelementptr [6 x %lunarStruct2] addrspace(1)* @foo2, i64 0, i64 %tmp22, i32 1
+  %exitcond21 = icmp eq i64 %indvar, %tmp20
+  br i1 %exitcond21, label %then6, label %ifmerge7
 
 then6:                                            ; preds = %loop-header
-  %8 = load i32 addrspace(1)* @"sampler2D sampler"
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
-  %texture2D_retval10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %8, i32 0, <2 x float> %coord)
-  %9 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.1, i32 0)
-  %gl_FragColor = fmul <4 x float> %9, %texture2D_retval10
+  %8 = load i32 addrspace(1)* @"sampler2D sampler"
+  %9 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %8, i32 0, <2 x float> %coord)
+  %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.1, i32 0)
+  %gl_FragColor = fmul <4 x float> %10, %9
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   ret void
 
 ifmerge7:                                         ; preds = %loop-header
-  %10 = load float addrspace(1)* %lsr.iv14
-  %scale8 = fadd float %scale.1, %10
+  %11 = load float addrspace(1)* %lsr.iv13
+  %scale8 = fadd float %scale.1, %11
   %indvar.next = add i64 %indvar, 1
   br label %loop-header
 }
@@ -208,72 +193,11 @@ gl_FragColor = scale * texture2D ( sampler , coord ) ; }
 (
 (declare (uniform ) int Count)
 (declare (uniform ) lunarStruct3 foo3)
-(declare (uniform ) (array lunarStruct2 5) foo2)
+(declare (uniform ) (array lunarStruct2 6) foo2)
 (declare (uniform ) lunarStruct1 foo)
 (declare (in ) vec2 coord)
 (declare (uniform ) sampler2D sampler)
-(declare (in ) vec4 gl_FragCoord)
-(declare (in ) bool gl_FrontFacing)
 (declare (out ) vec4 gl_FragColor)
-(declare (out ) float gl_FragDepth)
-(declare (in ) vec4 gl_Color)
-(declare (in ) vec4 gl_SecondaryColor)
-(declare (in ) float gl_FogFragCoord)
-(declare (uniform ) mat4 gl_ModelViewMatrix)
-(declare (uniform ) mat4 gl_ProjectionMatrix)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrix)
-(declare (uniform ) mat3 gl_NormalMatrix)
-(declare (uniform ) mat4 gl_ModelViewMatrixInverse)
-(declare (uniform ) mat4 gl_ProjectionMatrixInverse)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverse)
-(declare (uniform ) mat4 gl_ModelViewMatrixTranspose)
-(declare (uniform ) mat4 gl_ProjectionMatrixTranspose)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixTranspose)
-(declare (uniform ) mat4 gl_ModelViewMatrixInverseTranspose)
-(declare (uniform ) mat4 gl_ProjectionMatrixInverseTranspose)
-(declare (uniform ) mat4 gl_ModelViewProjectionMatrixInverseTranspose)
-(declare (uniform ) float gl_NormalScale)
-(declare (uniform ) gl_LightModelParameters gl_LightModel)
-(declare () int gl_MaxLights)
-(declare () int gl_MaxClipPlanes)
-(declare () int gl_MaxTextureUnits)
-(declare () int gl_MaxTextureCoords)
-(declare () int gl_MaxVertexAttribs)
-(declare () int gl_MaxVertexUniformComponents)
-(declare () int gl_MaxVaryingFloats)
-(declare () int gl_MaxVertexTextureImageUnits)
-(declare () int gl_MaxCombinedTextureImageUnits)
-(declare () int gl_MaxTextureImageUnits)
-(declare () int gl_MaxFragmentUniformComponents)
-(declare (uniform ) (array mat4 4) gl_TextureMatrix)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixInverse)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixTranspose)
-(declare (uniform ) (array mat4 4) gl_TextureMatrixInverseTranspose)
-(declare (uniform ) gl_DepthRangeParameters gl_DepthRange)
-(declare (uniform ) (array vec4 8) gl_ClipPlane)
-(declare (uniform ) gl_PointParameters gl_Point)
-(declare (uniform ) gl_MaterialParameters gl_FrontMaterial)
-(declare (uniform ) gl_MaterialParameters gl_BackMaterial)
-(declare (uniform ) (array gl_LightSourceParameters 8) gl_LightSource)
-(declare (uniform ) gl_LightModelProducts gl_FrontLightModelProduct)
-(declare (uniform ) gl_LightModelProducts gl_BackLightModelProduct)
-(declare (uniform ) (array gl_LightProducts 8) gl_FrontLightProduct)
-(declare (uniform ) (array gl_LightProducts 8) gl_BackLightProduct)
-(declare (uniform ) (array vec4 2) gl_TextureEnvColor)
-(declare (uniform ) (array vec4 4) gl_EyePlaneS)
-(declare (uniform ) (array vec4 4) gl_EyePlaneT)
-(declare (uniform ) (array vec4 4) gl_EyePlaneR)
-(declare (uniform ) (array vec4 4) gl_EyePlaneQ)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneS)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneT)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneR)
-(declare (uniform ) (array vec4 4) gl_ObjectPlaneQ)
-(declare (uniform ) gl_FogParameters gl_Fog)
-(declare (in ) (array vec4 0) gl_TexCoord)
-(declare () int gl_MaxDrawBuffers)
-(declare (out ) (array vec4 2) gl_FragData)
-(declare (in ) vec2 gl_PointCoord)
-(declare (in ) (array float 8) gl_ClipDistance)
 (function main
   (signature void
     (parameters
@@ -304,10 +228,7 @@ gl_FragColor = scale * texture2D ( sampler , coord ) ; }
         (assign (constant bool (1)) (x) (var_ref i)  (expression int + (var_ref i) (constant int (1)) ) ) 
       ))
 
-      (declare (temporary ) vec4 texture2D_retval)
-      (assign (constant bool (1)) (xyzw) (var_ref texture2D_retval)  (call texture2D ((var_ref sampler) (var_ref coord) ))
-) 
-      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 * (var_ref scale) (var_ref texture2D_retval) ) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 * (var_ref scale) (tex (var_ref sampler)  (var_ref coord)  (0 0 0) 1 () )) ) 
     ))
 
 )

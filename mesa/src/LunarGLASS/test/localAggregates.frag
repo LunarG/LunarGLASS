@@ -57,11 +57,16 @@ void main()
 	int x = 5;
 	localArray[x] = coord.x;
 
+	float[16] a;
+
+	for (int i = 0; i < 16; i++)
+		a[i] = 0.0;
+	
 	if (condition == 1)
-		localArray = uFloatArray;
+		a = localArray;
 	
 	locals2.bleh = color;
 	locals2.bleh.z = coord.y;
 
-	gl_FragColor = locals2.bleh * (localFArray[4] + locals2.s1_1.f + localArray[x]) * texture2D(sampler, coord);
+	gl_FragColor = locals2.bleh * (localFArray[4] + locals2.s1_1.f + localArray[x] + a[x]) * texture2D(sampler, coord);
 }

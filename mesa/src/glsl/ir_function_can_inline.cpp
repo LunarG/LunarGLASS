@@ -55,6 +55,19 @@ ir_function_can_inline_visitor::visit_enter(ir_return *ir)
    return visit_continue;
 }
 
+bool isNonTextureBuiltin(ir_call* call)
+{
+    if (call->get_callee()->is_builtin) {
+        if (0 == strncmp(call->callee_name(), "texture", 7) ||
+            0 == strncmp(call->callee_name(), "shadow", 6) )
+            return false;
+        else
+            return true;
+    }
+
+    return false;
+}
+
 bool
 can_inline(ir_call *call)
 {
@@ -66,7 +79,7 @@ can_inline(ir_call *call)
    // built-in functions breaks things numerous ways, at least
    // in the stand alone environment.
    //
-   if (!callee->is_defined || callee->is_builtin)
+   if (!callee->is_defined || isNonTextureBuiltin(call))
       return false;
 
    v.run((exec_list *) &callee->body);

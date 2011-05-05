@@ -45,38 +45,50 @@ namespace gla {
         ESampler3D,
         ESamplerCube,
         ESampler2DRect,
-        ESampler1DShadow,
-        ESampler2DShadow,
-        ESamplerCubeShadow,
-        ESampler2DRectShadow,
-        ESampler1DArray,
-        ESampler2DArray,
-        ESamplerCubeArray,
-        ESampler1DArrayShadow,
-        ESampler2DArrayShadow,
-        ESamplerCubeArrayShadow,
         ESampler2DMS,
-        ESampler2DMSArray,
     };
 
     struct ETextureFlags {
-        unsigned EProjected : 1;
-        unsigned EBias      : 1;
-        unsigned ELod       : 1;
-        unsigned ECompare   : 1;
-        unsigned EOffset    : 1;
-        unsigned ESample    : 1;
-        unsigned EComp      : 1;
-        unsigned ERefZ      : 1;
+        unsigned EProjected            : 1;
+        unsigned EBias                 : 1;
+        unsigned ELod                  : 1;
+        unsigned EShadow               : 1;
+        unsigned EArrayed              : 1;
+        unsigned ECompare              : 1;
+        unsigned EOffset               : 1;
+        unsigned ESample               : 1;
+        unsigned EComp                 : 1;
+        unsigned ERefZ                 : 1;
     };
 
-    // Texture op constants, for mapping operands
-    const int SamplerLocAOS = 1;
-    const int FlagLocAOS    = 2;
-    const int CoordLocAOS   = 3;
-    const int BiasLocAOS    = 4;
-    const int DdxLocAOS     = 6;
-    const int DdyLocAOS     = 7;
+    // Texture op, for mapping operands
+    enum ETextureOperand {
+        ETOSamplerType = 0,  // These numbers match the LunarGLASS IR spec
+        ETOSamplerLoc  = 1,
+        ETOFlag        = 2,
+        ETOCoord       = 3,
+        ETOBias        = 4,
+        ETOOffset      = 5,
+        ETODPdx        = 6,
+        ETODPdy        = 7,
+    };
+
+    inline int GetTextureOpIndex(ETextureOperand operand, bool SoA = false, int numComps = 0, int comp = 0)
+    {
+        if (!SoA)
+            return operand;
+
+        if (operand < ETOCoord)
+            return operand;
+
+        if (operand == ETOCoord)
+            return ETOCoord + comp;
+
+        if (operand == ETOBias)
+            return ETOCoord + numComps;
+
+        return ETOCoord + numComps + 1 + (operand - ETOOffset) * numComps + comp;
+    }
 
     const unsigned int GlobalAddressSpace = 0;
     const unsigned int UniformAddressSpace = 1;

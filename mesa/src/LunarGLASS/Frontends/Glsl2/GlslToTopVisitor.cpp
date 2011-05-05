@@ -288,12 +288,12 @@ ir_visitor_status
                 gepIndexChainStack.top().push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0));
 
                 std::reverse(gepIndexChainStack.top().begin(), gepIndexChainStack.top().end());
-                
+
                 // Use the indices we've built up to finally dereference the base type
                 lastValue = llvmBuilder.CreateGEP(lastValue,
                                               gepIndexChainStack.top().begin(),
                                               gepIndexChainStack.top().end());
-                
+              
                 lastValue = llvmBuilder.CreateLoad(lastValue);
                 break;
 
@@ -307,7 +307,8 @@ ir_visitor_status
                     // load the entire aggregate and extract the element, otherwise
                     // promoteMemToReg will not drop the pointer references.
                     lastValue = llvmBuilder.CreateLoad(lastValue);
-                    lastValue = llvmBuilder.CreateExtractValue(lastValue, indices, indices + indexCount);
+                    if (indexCount > 0)
+                        lastValue = llvmBuilder.CreateExtractValue(lastValue, indices, indices + indexCount);
                 } else {
                     gla::UnsupportedFunctionality("non-constant dereference in local array");
                 }
@@ -448,9 +449,13 @@ ir_visitor_status
 
         // Track our user function to call later
         functionMap[sig] = function;
-    }
 
-    return visit_continue;
+        return visit_continue;
+    } else {
+        
+        // Don't traverse the bodies of built-in functions
+        return visit_continue_with_parent;
+    }
 }
 
 ir_visitor_status
@@ -540,14 +545,90 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_texture *ir)
 {
-    gla::UnsupportedFunctionality("texturing");
-    return visit_continue;
+    // Build up an array of dynamic texture parameters to pass to TopBuilder
+    gla::Builder::TextureParameters textureParameters;
+
+    // Traverse coordinates
+    ir->coordinate->accept(this);
+    textureParameters.ETPCoords = lastValue;
+
+    // Select texture op and traverse required info, set some flags
+    gla::ETextureFlags texFlags = {0};
+    switch (ir->op) {
+    case ir_tex:
+        break;
+    case ir_txb:
+        ir->lod_info.bias->accept(this);
+        textureParameters.ETPBiasLod = lastValue;
+        texFlags.EBias = true;
+        break;
+    case ir_txl:
+        ir->lod_info.lod->accept(this);
+        textureParameters.ETPBiasLod = lastValue;
+        texFlags.ELod = true;
+        break;
+    case ir_txd:
+    case ir_txf:
+        gla::UnsupportedFunctionality("texture opcode", (int)ir->op, ir->opcode_string()); 
+        break;
+    }
+
+    // Detect and traverse projection
+    if (ir->projector) {
+        ir->projector->accept(this);
+        textureParameters.ETPProj = lastValue;
+        texFlags.EProjected = true;
+    }
+
+    // Detect and traverse shadow comparison
+    if (ir->shadow_comparitor) {
+        ir->shadow_comparitor->accept(this);
+        textureParameters.ETPShadowRef = lastValue;
+        texFlags.EShadow = true;
+    }
+
+    // Detect array index
+    if (ir->sampler->type->sampler_array)
+        gla::UnsupportedFunctionality("arrayed sampler index");
+
+    // Traverse the sampler
+    ir->sampler->accept(this);
+    textureParameters.ETPSampler = lastValue;
+
+    // Convert the sampler type to gla enum
+    gla::ESamplerType samplerType;
+    switch (ir->sampler->type->sampler_dimensionality) {
+    case GLSL_SAMPLER_DIM_1D:
+        samplerType = gla::ESampler1D;
+        break;
+    case GLSL_SAMPLER_DIM_2D:
+        samplerType = gla::ESampler2D;
+        break;
+    case GLSL_SAMPLER_DIM_3D:
+        samplerType = gla::ESampler3D;
+        break;
+    case GLSL_SAMPLER_DIM_CUBE:
+        samplerType = gla::ESamplerCube;
+        break;
+    case GLSL_SAMPLER_DIM_RECT:
+        samplerType = gla::ESampler2DRect;
+        break;
+    case GLSL_SAMPLER_DIM_BUF:
+        samplerType = gla::ESamplerBuffer;
+        break;
+    default:
+        gla::UnsupportedFunctionality("sampler type", ir->sampler->type->sampler_dimensionality);
+    }
+
+    // Pass all the compile time and run time info to TopBuilder to select the correct intrinsic and make the call
+    lastValue = glaBuilder->createTextureCall(convertGlslToGlaType(ir->type), samplerType, texFlags, textureParameters);
+
+    return visit_continue_with_parent;
 }
 
 ir_visitor_status
-    GlslToTopVisitor::visit_leave(ir_texture *ir)
+    GlslToTopVisitor::visit_leave(ir_texture*)
 {
-    (void) ir;
     return visit_continue;
 }
 
@@ -855,16 +936,12 @@ ir_visitor_status
 llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, gla::Builder::SuperValue* llvmParams, int paramCount)
 {
     llvm::Function *intrinsicName = 0;
-    gla::ETextureFlags texFlags = {0};
     const llvm::Type* resultType = convertGlslToGlaType(call->type);
 
     #define GLA_MAX_PARAMETER 5
     gla::Builder::SuperValue outParams[GLA_MAX_PARAMETER];
     for(int i = 0; i < GLA_MAX_PARAMETER; i++)
         outParams[i] = llvmParams[i];
-
-    llvm::Intrinsic::ID textureIntrinsicID = llvm::Intrinsic::gla_fTextureSample;
-    gla::ESamplerType   samplerType;
 
     // Based on the name of the callee, create the appropriate intrinsicID
     if(!strcmp(call->callee_name(), "radians"))                 { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_fRadians, resultType, llvmParams[0]->getType());  }
@@ -942,140 +1019,8 @@ llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, gla::Builder::
         switch(gla::GetBasicType(llvmParams[0]))                  {
         case llvm::Type::IntegerTyID:                           { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_sClamp, resultType, llvmParams[0]->getType(), llvmParams[1]->getType(), llvmParams[2]->getType()); break; }
         case llvm::Type::FloatTyID:                             { intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_fClamp, resultType, llvmParams[0]->getType(), llvmParams[1]->getType(), llvmParams[2]->getType()); break; }  }  }
-
     // Unsupported calls
-    //noise*")) { }
-
-    // Texture calls
-    else if(!strcmp(call->callee_name(), "texture1D")) {
-        samplerType    = gla::ESampler1D;
-        texFlags.EBias = (paramCount > 2) ? true : false;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "texture1DProj")) {
-        samplerType         = gla::ESampler1D;
-        texFlags.EProjected = true;
-        texFlags.EBias      = (paramCount > 2) ? true : false;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "texture1DLod")) {
-        textureIntrinsicID   = llvm::Intrinsic::gla_fTextureSampleLod;
-        samplerType   = gla::ESampler1D;
-        texFlags.ELod = true;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "texture1DProjLod")) {
-        textureIntrinsicID   = llvm::Intrinsic::gla_fTextureSampleLod;
-        samplerType   = gla::ESampler1D;
-        texFlags.ELod = true;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "texture2D")) {
-        samplerType      = gla::ESampler2D;
-        texFlags.EBias   = (paramCount > 2) ? true : false;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "texture2DProj")) {
-        samplerType         = gla::ESampler2D;
-        texFlags.EProjected = true;
-        texFlags.EBias      = (paramCount > 2) ? true : false;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "texture2DLod")) {
-        textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
-        samplerType         = gla::ESampler2D;
-        texFlags.ELod       = true;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "texture2DProjLod")) {
-        textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
-        samplerType         = gla::ESampler2D;
-        texFlags.EProjected = true;
-        texFlags.ELod       = true;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "texture3D")) {
-        samplerType     = gla::ESampler3D;
-        texFlags.EBias  = (paramCount > 2) ? true : false;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "texture3DProj")) {
-        samplerType         = gla::ESampler3D;
-        texFlags.EProjected = true;
-        texFlags.EBias      = (paramCount > 2) ? true : false;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "texture3DLod")) {
-        samplerType     = gla::ESampler3D;
-        texFlags.ELod   = true;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "texture3DProjLod")) {
-        textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
-        samplerType         = gla::ESampler3D;
-        texFlags.EProjected = true;
-        texFlags.ELod       = true;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "textureCube")) {
-        samplerType     = gla::ESamplerCube;
-        texFlags.EBias  = (paramCount > 2) ? true : false;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "textureCubeLod ")) {
-        textureIntrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
-        samplerType        = gla::ESamplerCube;
-        texFlags.ELod      = true;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "shadow1D")) {
-        samplerType     = gla::ESampler1DShadow;
-        texFlags.EBias  = (paramCount > 2) ? true : false;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "shadow2D")) {
-        samplerType     = gla::ESampler2DShadow;
-        texFlags.EBias  = (paramCount > 2) ? true : false;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "shadow1DProj")) {
-        samplerType         = gla::ESampler1DShadow;
-        texFlags.EProjected = true;
-        texFlags.EBias      = (paramCount > 2) ? true : false;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "shadow2DProj")) {
-        samplerType         = gla::ESampler2DShadow;
-        texFlags.EProjected = true;
-        texFlags.EBias      = (paramCount > 2) ? true : false;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "shadow1DLod")) {
-        textureIntrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
-        samplerType        = gla::ESampler1DShadow;
-        texFlags.ELod      = true;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "shadow2DLod")) {
-        textureIntrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
-        samplerType        = gla::ESampler2DShadow;
-        texFlags.ELod      = true;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "shadow1DProjLod")) {
-        textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
-        samplerType         = gla::ESampler1DShadow;
-        texFlags.EProjected = true;
-        texFlags.ELod       = true;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
-    else if(!strcmp(call->callee_name(), "shadow2DProjLod")) {
-        textureIntrinsicID  = llvm::Intrinsic::gla_fTextureSampleLod;
-        samplerType         = gla::ESampler2DShadow;
-        texFlags.EProjected = true;
-        texFlags.ELod       = true;
-        glaBuilder->createTextureIntrinsic(intrinsicName, paramCount, outParams, llvmParams, resultType, textureIntrinsicID, samplerType, texFlags);
-    }
+    // i.e. noise
     else {
         gla::UnsupportedFunctionality("Built-in function: ", gla::EATContinue);
         gla::UnsupportedFunctionality(call->callee_name());
@@ -1390,6 +1335,82 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
         case llvm::Type::FloatTyID:         return llvmBuilder.CreateFNeg(operands[0]);
         case llvm::Type::IntegerTyID:       return llvmBuilder.CreateNeg (operands[0]);
         }
+    case ir_unop_rcp:
+        return glaBuilder->createRecip(operands[0]);
+    }
+  
+    // Unary ops that require an intrinsic
+    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
+    bool fixedResultType = false;
+    switch(glslOp) {
+    case ir_unop_sin:
+        intrinsicID = llvm::Intrinsic::gla_fSin;
+        break;
+    case ir_unop_cos:
+        intrinsicID = llvm::Intrinsic::gla_fCos;
+        break;
+    case ir_unop_sqrt:
+        intrinsicID = llvm::Intrinsic::gla_fSqrt;
+        break;
+    case ir_unop_rsq:
+        intrinsicID = llvm::Intrinsic::gla_fInverseSqrt;
+        break;
+    case ir_unop_exp:
+        intrinsicID = llvm::Intrinsic::gla_fExp;
+        break;
+    case ir_unop_log:
+        intrinsicID = llvm::Intrinsic::gla_fLog;
+        break;
+    case ir_unop_exp2:
+        intrinsicID = llvm::Intrinsic::gla_fExp2;
+        break;
+    case ir_unop_log2:
+        intrinsicID = llvm::Intrinsic::gla_fLog2;
+        break;
+    case ir_unop_floor:
+        intrinsicID = llvm::Intrinsic::gla_fFloor;
+        break;
+    case ir_unop_ceil:
+        intrinsicID = llvm::Intrinsic::gla_fCeiling;
+        break;
+    case ir_unop_fract:
+        intrinsicID = llvm::Intrinsic::gla_fFraction;
+        break;
+    case ir_unop_dFdx:
+        intrinsicID = llvm::Intrinsic::gla_fDFdx;
+        break;
+    case ir_unop_dFdy:
+        intrinsicID = llvm::Intrinsic::gla_fDFdy;
+        break;
+    case ir_unop_any:
+        intrinsicID = llvm::Intrinsic::gla_any;
+        fixedResultType = true;
+        break;
+    case ir_unop_abs:
+        switch(gla::GetBasicType(operands[0])) {
+        case llvm::Type::IntegerTyID:
+            intrinsicID = llvm::Intrinsic::gla_abs; break;
+        case llvm::Type::FloatTyID:
+            intrinsicID = llvm::Intrinsic::gla_fAbs; break;
+        }
+        break;
+    case ir_unop_sign:
+        switch(gla::GetBasicType(operands[0])) {
+        case llvm::Type::IntegerTyID:
+            gla::UnsupportedFunctionality("Integer sign()"); break;
+        case llvm::Type::FloatTyID:
+            intrinsicID = llvm::Intrinsic::gla_fSign; break;
+        }
+        break;
+    }
+
+    // If intrinsic was assigned, then call the function and return
+    if (intrinsicID != 0) {
+        llvm::Value* llvmOperands[] = { operands[0].getValue() };
+        llvm::Function* intrinsicName = fixedResultType ?
+            glaBuilder->getIntrinsic(intrinsicID, llvmOperands[0]->getType()) :
+            glaBuilder->getIntrinsic(intrinsicID,  result->getType(), llvmOperands[0]->getType());
+        return llvmBuilder.CreateCall(intrinsicName, llvmOperands, llvmOperands + 1);
     }
 
     //
@@ -1505,16 +1526,13 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
     case ir_binop_bit_xor:
         glaBuilder->promoteScalar(operands[0], operands[1]);
         return llvmBuilder.CreateXor (operands[0], operands[1]);
-
     case ir_unop_logic_not:
-    case ir_unop_bit_not:                   return llvmBuilder.CreateNot (operands[0]);
-
+    case ir_unop_bit_not:                   
+        return llvmBuilder.CreateNot (operands[0]);
     case ir_binop_logic_and:
-        gla::UnsupportedFunctionality("logical and", gla::EATContinue);
-        break;
-    case ir_binop_logic_or:
-        gla::UnsupportedFunctionality("logical or", gla::EATContinue);
-        break;
+        assert(gla::IsBoolean(operands[0]->getType()) && gla::IsScalar(operands[0]->getType()));
+        assert(gla::IsBoolean(operands[1]->getType()) && gla::IsScalar(operands[1]->getType()));
+        return llvmBuilder.CreateAnd (operands[0], operands[1]);
 
     case ir_binop_mod:
         glaBuilder->promoteScalar(operands[0], operands[1]);
@@ -1541,11 +1559,55 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
         }
         if(vectorType)  return llvmBuilder.CreateCall(glaBuilder->getIntrinsic(llvm::Intrinsic::gla_any, result->getType()), result);
         else            return result;
+    }
 
-    case ir_binop_min:      gla::UnsupportedFunctionality("min",    gla::EATContinue);  break;
-    case ir_binop_max:      gla::UnsupportedFunctionality("max",    gla::EATContinue);  break;
-    case ir_binop_pow:      gla::UnsupportedFunctionality("pow",    gla::EATContinue);  break;
-    case ir_binop_dot:      gla::UnsupportedFunctionality("dot",    gla::EATContinue);  break;
+    // Binary ops that require an intrinsic
+    switch(glslOp) {
+    case ir_binop_min:
+        switch(gla::GetBasicType(operands[0])) {
+        case llvm::Type::IntegerTyID:
+            intrinsicID = llvm::Intrinsic::gla_sMin;
+            break;
+        case llvm::Type::FloatTyID:
+            intrinsicID = llvm::Intrinsic::gla_fMin;
+            break;
+        }
+        break;
+    case ir_binop_max:
+        switch(gla::GetBasicType(operands[0])) {
+        case llvm::Type::IntegerTyID:
+            intrinsicID = llvm::Intrinsic::gla_sMax;
+            break;
+        case llvm::Type::FloatTyID:
+            intrinsicID = llvm::Intrinsic::gla_fMax;
+            break;
+        }
+        break;
+    case ir_binop_pow:
+        switch(gla::GetBasicType(operands[0])) {
+        case llvm::Type::IntegerTyID:
+            intrinsicID = llvm::Intrinsic::gla_fPowi;
+            break;
+        case llvm::Type::FloatTyID:
+            intrinsicID = llvm::Intrinsic::gla_fPow;
+            break;
+        }
+        break;
+    case ir_binop_dot:
+        intrinsicID = llvm::Intrinsic::gla_fDot;
+        fixedResultType = true;
+        break;
+    default:
+        gla::UnsupportedFunctionality("glslOp ", glslOp);
+    }
+
+    // If intrinsic was assigned, then call the function and return
+    if (intrinsicID != 0) {
+        llvm::Value* llvmOperands[] = { operands[0], operands[1] };
+        llvm::Function* intrinsicName = fixedResultType ?
+            glaBuilder->getIntrinsic(intrinsicID, llvmOperands[0]->getType(), llvmOperands[1]->getType()) :
+            glaBuilder->getIntrinsic(intrinsicID, result->getType(), llvmOperands[0]->getType(), llvmOperands[1]->getType());
+        return llvmBuilder.CreateCall(intrinsicName, llvmOperands, llvmOperands + 2);
     }
 
     return result;
