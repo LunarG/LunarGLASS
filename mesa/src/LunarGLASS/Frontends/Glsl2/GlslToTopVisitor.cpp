@@ -159,17 +159,23 @@ bool GlslToTopVisitor::setUpLatch()
 
         // TODO: add in bool for when a front end increments it itself
 
-        // For now, the front end puts the increment inside the body of the
-        // loop, so don't do it
-        // llvm::Value* iNext = NULL;
-        // switch(ld.counter->getType()->getContainedType(0)->getTypeID()) {
-        // case llvm::Type::FloatTyID:       iNext = builder.CreateFAdd(iPrev, ld.increment);     break;
-        // case llvm::Type::IntegerTyID:     iNext = builder.CreateAdd( iPrev, ld.increment);     break;
+        // In non-linking IR, the front end puts the increment inside the body of the
+        // loop. In linking IR, the increment inside the body of the loop does
+        // not have the same address as the declaration in the loop header, thus
+        // we have to insert it ourselves. Adding the increment in the case of
+        // non-linking IR is erroneous, and not adding it in the case of
+        // linking IR is also erroneous.
+        // TODO: Resolve this problem
 
-        // default: gla::UnsupportedFunctionality("unknown type in inductive variable");
-        // }
+        llvm::Value* iNext = NULL;
+        switch(ld.counter->getType()->getContainedType(0)->getTypeID()) {
+        case llvm::Type::FloatTyID:       iNext = llvmBuilder.CreateFAdd(iPrev, ld.increment);     break;
+        case llvm::Type::IntegerTyID:     iNext = llvmBuilder.CreateAdd( iPrev, ld.increment);     break;
 
-        // builder.CreateStore(iNext, ld.counter);
+        default: gla::UnsupportedFunctionality("unknown type in inductive variable");
+        }
+
+        llvmBuilder.CreateStore(iNext, ld.counter);
 
         // TODO: If we do the increment ourselves, change iPrev to be iNext
         switch(ld.counter->getType()->getContainedType(0)->getTypeID()) {
@@ -293,7 +299,7 @@ ir_visitor_status
                 lastValue = llvmBuilder.CreateGEP(lastValue,
                                               gepIndexChainStack.top().begin(),
                                               gepIndexChainStack.top().end());
-              
+
                 lastValue = llvmBuilder.CreateLoad(lastValue);
                 break;
 
@@ -452,7 +458,7 @@ ir_visitor_status
 
         return visit_continue;
     } else {
-        
+
         // Don't traverse the bodies of built-in functions
         return visit_continue_with_parent;
     }
@@ -569,7 +575,7 @@ ir_visitor_status
         break;
     case ir_txd:
     case ir_txf:
-        gla::UnsupportedFunctionality("texture opcode", (int)ir->op, ir->opcode_string()); 
+        gla::UnsupportedFunctionality("texture opcode", (int)ir->op, ir->opcode_string());
         break;
     }
 
@@ -1338,7 +1344,7 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
     case ir_unop_rcp:
         return glaBuilder->createRecip(operands[0]);
     }
-  
+
     // Unary ops that require an intrinsic
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
     bool fixedResultType = false;
@@ -1527,7 +1533,7 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
         glaBuilder->promoteScalar(operands[0], operands[1]);
         return llvmBuilder.CreateXor (operands[0], operands[1]);
     case ir_unop_logic_not:
-    case ir_unop_bit_not:                   
+    case ir_unop_bit_not:
         return llvmBuilder.CreateNot (operands[0]);
     case ir_binop_logic_and:
         assert(gla::IsBoolean(operands[0]->getType()) && gla::IsScalar(operands[0]->getType()));
@@ -1667,7 +1673,7 @@ const llvm::Type* GlslToTopVisitor::convertGlslToGlaType(const glsl_type* type)
             }
         }
         break;
-    case GLSL_TYPE_ERROR:     
+    case GLSL_TYPE_ERROR:
         assert(! "type error");
     default:
         gla::UnsupportedFunctionality("basic type");
