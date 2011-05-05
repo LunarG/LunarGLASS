@@ -588,9 +588,11 @@ ir_visitor_status
 
     // Detect and traverse shadow comparison
     if (ir->shadow_comparitor) {
-        ir->shadow_comparitor->accept(this);
-        textureParameters.ETPShadowRef = lastValue;
-        texFlags.EShadow = true;
+        // TODO:  Renable shadow samples when ref and coords are reunited.
+        gla::UnsupportedFunctionality("shadow comparison in texture sample", gla::EATContinue);
+        //ir->shadow_comparitor->accept(this);
+        //textureParameters.ETPShadowRef = lastValue;
+        //texFlags.EShadow = true;
     }
 
     // Detect array index
@@ -1244,7 +1246,8 @@ gla::Builder::SuperValue GlslToTopVisitor::createLLVMVariable(ir_variable* var)
 
 const char* GlslToTopVisitor::getSamplerTypeName(ir_variable* var)
 {
-    if (var->type->sampler_shadow) {
+    // TODO:  Renable shadow samples when ref and coords are reunited.
+    if (false /*var->type->sampler_shadow*/) {
         switch (var->type->sampler_dimensionality) {
         case GLSL_SAMPLER_DIM_1D:   return "sampler1DShadow";
         case GLSL_SAMPLER_DIM_2D:   return "sampler2DShadow";
