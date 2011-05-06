@@ -58,7 +58,9 @@ function runTests {
             printf "%${INDENTLVL}s" "TGSI "
             runSingleTest $t $TGSI_OP && echo -n "[OK]" \
                 || (echo "[FAIL] " ; tail -n 1 $t.errout ; printf "%${GLSLLVL}s" " ")
-            cat $t.errout $t.stdout > tgsi/$t.out
+            cat $t.errout $t.stdout > tgsi/$t.out.tmp
+            tr -d '\r' < tgsi/$t.out.tmp > tgsi/$t.out
+
         else
             printf "%${INDENTLVL}s" " "
             printf "    "
@@ -68,7 +70,8 @@ function runTests {
         echo -n "        GLSL "
         runSingleTest $t $GLSL_OP && echo "[OK]" \
             || (echo "[FAIL] " ; tail -n 1 $t.errout)
-        cat $t.errout $t.stdout > glsl/$t.out
+        cat $t.errout $t.stdout > glsl/$t.out.tmp
+        tr -d '\r' < glsl/$t.out.tmp > glsl/$t.out
 
         printf "    Obfuscating:                "
 
