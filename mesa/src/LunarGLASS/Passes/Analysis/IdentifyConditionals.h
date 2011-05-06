@@ -37,8 +37,10 @@
 #include "llvm/Instructions.h"
 #include "llvm/Pass.h"
 #include "llvm/ADT/DenseMap.h"
+#include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/Dominators.h"
 
+#include "Passes/PassSupport.h"
 #include "Passes/Util/ConditionalUtil.h"
 
 namespace gla_llvm {
@@ -66,7 +68,13 @@ namespace gla_llvm {
 
         // Standard pass stuff
         static char ID;
-        IdentifyConditionals() : FunctionPass(ID) {}
+
+        IdentifyConditionals() : FunctionPass(ID)
+        {
+            initializeIdentifyConditionalsPass(*PassRegistry::getPassRegistry());
+        }
+
+
         virtual bool runOnFunction(Function&);
         void print(raw_ostream&, const Module* = 0) const;
         virtual void getAnalysisUsage(AnalysisUsage&) const;

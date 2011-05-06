@@ -42,7 +42,7 @@
 #include "llvm/Support/InstIterator.h"
 #include "llvm/Type.h"
 
-#include "Transforms.h"
+#include "Passes/PassSupport.h"
 
 // LunarGLASS helpers
 #include "Util.h"
@@ -75,7 +75,12 @@ namespace {
     public:
         // Standard pass stuff
         static char ID;
-        CoalesceInserts() : FunctionPass(ID) {}
+
+        CoalesceInserts() : FunctionPass(ID)
+        {
+            initializeCoalesceInsertsPass(*PassRegistry::getPassRegistry());
+        }
+
         virtual bool runOnFunction(Function&);
         void print(raw_ostream&, const Module* = 0) const;
         virtual void getAnalysisUsage(AnalysisUsage&) const;

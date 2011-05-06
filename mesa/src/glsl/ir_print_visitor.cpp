@@ -44,8 +44,12 @@ _mesa_print_ir(exec_list *instructions,
       for (unsigned i = 0; i < state->num_user_structures; i++) {
 	 const glsl_type *const s = state->user_structures[i];
 
+     // LunarG: commented out to make diffs better
+	 // printf("(structure (%s) (%s@%p) (%u) (\n",
+	 //    s->name, s->name, (void *) s, s->length);
+
 	 printf("(structure (%s) (%s) (%u) (\n",
-		s->name, s->name, s->length);
+	    s->name, s->name, s->length);
 
 	 for (unsigned j = 0; j < s->length; j++) {
 	    printf("\t((");
@@ -104,6 +108,10 @@ void ir_print_visitor::visit(ir_variable *ir)
 	  cent, inv, mode[ir->mode], interp[ir->interpolation]);
 
    print_type(ir->type);
+
+   // LunarG: commented out to make diffs better
+   // printf(" %s@%p)", ir->name, (void *) ir);
+
    printf(" %s)", ir->name);
 }
 
@@ -260,6 +268,10 @@ void ir_print_visitor::visit(ir_swizzle *ir)
 void ir_print_visitor::visit(ir_dereference_variable *ir)
 {
    ir_variable *var = ir->variable_referenced();
+
+   // LunarG: commented out to make diffs better
+   // printf("(var_ref %s@%p) ", var->name, (void *) var);
+
    printf("(var_ref %s) ", var->name);
 }
 

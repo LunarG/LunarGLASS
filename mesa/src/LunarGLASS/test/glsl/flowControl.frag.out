@@ -42,9 +42,9 @@ ifmerge:                                          ; preds = %else, %then
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readonly
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
@@ -83,9 +83,9 @@ ifmerge:                                          ; preds = %else, %then
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readonly
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 compiling flowControl.frag...

@@ -46,6 +46,7 @@
 #include "llvm/BasicBlock.h"
 #include "llvm/Instructions.h"
 #include "llvm/Pass.h"
+#include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Support/CFG.h"
@@ -53,22 +54,24 @@
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Local.h"
 
-#include "Util.h"
-#include "Transforms.h"
-
+#include "Passes/PassSupport.h"
 #include "Passes/Analysis/IdentifyConditionals.h"
 #include "Passes/Util/BasicBlockUtil.h"
 
 using namespace llvm;
 using namespace gla_llvm;
 
-
 namespace  {
     class FlattenCondAssn : public FunctionPass {
     public:
         // Standard pass stuff
         static char ID;
-        FlattenCondAssn() : FunctionPass(ID) {}
+
+        FlattenCondAssn() : FunctionPass(ID)
+        {
+            initializeFlattenCondAssnPass(*PassRegistry::getPassRegistry());
+        }
+
         virtual bool runOnFunction(Function&);
         void print(raw_ostream&, const Module* = 0) const;
         virtual void getAnalysisUsage(AnalysisUsage&) const;
@@ -176,15 +179,34 @@ bool FlattenCondAssn::removeEmptyConditional(Conditional* cond)
     BasicBlock* merge = cond->getMergeBlock();
     BasicBlock* entry = cond->getEntryBlock();
 
+    // We don't yet handle phis in the merge block
+    // TODO: update once handling of phis in merge block has been taken care of.
+    if (HasPHINodes(merge))
+        return false;
+
+    // TODO: change to an assert when conditionals are properly updated
+    if (! entry->getParent())
+        return false;
+
     BranchInst* entryBranch = dyn_cast<BranchInst>(entry->getTerminator());
     assert(entryBranch);
 
     bool changed = true;
 
+    // errs() << " \n\n"
+    //        << "RemoveEmptyConditional:\n"
+    //        << "Entry: " << *entry
+    //        << "Left:  " << *left
+    //        << "Right: " << *right
+    //        << "Merge: " << *merge;
+
     ReplaceInstWithInst(entryBranch, BranchInst::Create(merge));
 
     changed |= SimplifyInstructionsInBlock(entry);
     changed |= SimplifyInstructionsInBlock(merge);
+
+    // TODO: check for the case where there's a phi node in merge, and handle it
+    // appropriately
 
     RecursivelyRemoveNoPredecessorBlocks(left);
     RecursivelyRemoveNoPredecessorBlocks(right);
@@ -210,11 +232,18 @@ void FlattenCondAssn::print(raw_ostream&, const Module*) const
 }
 
 char FlattenCondAssn::ID = 0;
-INITIALIZE_PASS(FlattenCondAssn,
-                "flatten-conditional-assignments",
-                "Flatten conditional assignments into select instructions",
-                true,   // Whether it preserves the CFG
-                false); // Whether it is an analysis pass
+INITIALIZE_PASS_BEGIN(FlattenCondAssn,
+                      "flatten-conditional-assignments",
+                      "Flatten conditional assignments into select instructions",
+                      true,   // Whether it preserves the CFG
+                      false); // Whether it is an analysis pass
+INITIALIZE_PASS_DEPENDENCY(DominatorTree)
+INITIALIZE_PASS_DEPENDENCY(IdentifyConditionals)
+INITIALIZE_PASS_END(FlattenCondAssn,
+                    "flatten-conditional-assignments",
+                    "Flatten conditional assignments into select instructions",
+                    true,   // Whether it preserves the CFG
+                    false); // Whether it is an analysis pass
 
 FunctionPass* gla_llvm::createFlattenConditionalAssignmentsPass()
 {

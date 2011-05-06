@@ -32,7 +32,7 @@ function all {
     svn update
 
     echo "Building LLVM"
-    pushd LLVM/llvm-2.8/build || exit 1
+    pushd LLVM/llvm-2.9/build || exit 1
 
     if [[ -n $FORCE ]]; then
         cd ..

@@ -1,7 +1,7 @@
 # Makefile for Linux
 
 TOP := ../..
-LLVM := $(TOP)/../LLVM/llvm-2.8/build/install/usr/local
+LLVM := $(TOP)/../LLVM/llvm-2.9/build/install/usr/local
 
 ifeq ($(wildcard $(LLVM)/bin/llvm-config),)
 $(error Invalid path to LLVM: $(LLVM))

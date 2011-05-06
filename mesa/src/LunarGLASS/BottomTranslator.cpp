@@ -88,6 +88,7 @@
 #include "llvm/Pass.h"
 #include "llvm/PassManager.h"
 #include "llvm/ADT/SmallVector.h"
+#include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/LazyValueInfo.h"
 #include "llvm/Analysis/LoopInfo.h"
@@ -112,6 +113,7 @@
 #include "Options.h"
 
 // LunarGLASS Passes and Utils
+#include "Passes/PassSupport.h"
 #include "Passes/Analysis/IdentifyConditionals.h"
 #include "Passes/Util/LoopUtil.h"
 
@@ -123,7 +125,9 @@ namespace {
     class BottomTranslator : public ModulePass {
     public:
         BottomTranslator() : ModulePass(ID)
-        { }
+        {
+            initializeBottomTranslatorPass(*PassRegistry::getPassRegistry());
+        }
 
         ~BottomTranslator()
         { }
@@ -599,6 +603,11 @@ void BottomTranslator::handleBranchingBlock(const BasicBlock* bb)
 
 void BottomTranslator::handleBlock(const BasicBlock* bb)
 {
+    // TODO: eliminate the below, replacing it with an assert, and do
+    // checking/special handling in the callers of handleBlock
+    if (!bb)
+        return;
+
     // If handleBlock is called on a non-preserved latch, then force its output
     // to happen.
     // TODO: keep around a "lastLoopBlock" member so that final continues need
@@ -831,23 +840,31 @@ bool BottomTranslator::runOnModule(Module& module)
 
 void BottomTranslator::getAnalysisUsage(AnalysisUsage& AU) const
 {
-    AU.addRequired<LoopInfo>();
     AU.addRequired<DominatorTree>();
+    AU.addRequired<LoopInfo>();
     AU.addRequired<DominanceFrontier>();
     AU.addRequired<IdentifyConditionals>();
     // AU.addRequired<ScalarEvolution>();
     // AU.addRequired<LazyValueInfo>();
+
+    AU.setPreservesAll();
 }
 
 char BottomTranslator::ID = 0;
-
-namespace llvm {
-    INITIALIZE_PASS(BottomTranslator,
+INITIALIZE_PASS_BEGIN(BottomTranslator,
+                      "bottom-transl",
+                      "LunarGLASS bottom translator pass",
+                      true,   // Whether it preserves the CFG
+                      true); // Whether it is an analysis pass
+INITIALIZE_PASS_DEPENDENCY(LoopInfo)
+INITIALIZE_PASS_DEPENDENCY(DominatorTree)
+// INITIALIZE_PASS_DEPENDENCY(DominanceFrontier)
+INITIALIZE_PASS_DEPENDENCY(IdentifyConditionals)
+INITIALIZE_PASS_END(BottomTranslator,
                     "bottom-transl",
                     "LunarGLASS bottom translator pass",
                     true,   // Whether it preserves the CFG
-                    false); // Whether it is an analysis pass
-} // end namespace llvm
+                    true); // Whether it is an analysis pass
 
 static ModulePass* createBottomTranslatorPass(gla::BackEndTranslator* bet, gla::BackEnd* be)
 {
@@ -865,3 +882,4 @@ void gla::PrivateManager::translateBottomToTarget()
     passManager.add(createBottomTranslatorPass(backEndTranslator, backEnd));
     passManager.run(*module);
 }
+

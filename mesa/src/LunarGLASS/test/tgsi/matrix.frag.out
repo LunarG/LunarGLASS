@@ -39,7 +39,7 @@ entry:
   ret void
 }
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readonly
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readnone
 
 declare float @llvm.gla.fDot.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
@@ -61,20 +61,18 @@ entry:
   %__dot3 = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column2)
   %__column4 = extractvalue [3 x <3 x float>] %__matrix, 2
   %__dot5 = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column4)
-  %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dot, i32 -1, float %__dot3, i32 -1, float %__dot5, i32 -1, float 1.000000e+00, i32 -1)
+  %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> <float undef, float undef, float undef, float 1.000000e+00>, i32 7, float %__dot, i32 -1, float %__dot3, i32 -1, float %__dot5, i32 -1, float 0.000000e+00, i32 -1)
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %0)
   ret void
 }
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readonly
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readnone
 
 declare float @llvm.gla.fDot.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
-
-declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
 ***Unsupported functionality: opcode in Bottom IR: 53
 compiling matrix.frag...

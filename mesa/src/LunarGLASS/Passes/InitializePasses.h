@@ -1,4 +1,4 @@
-//===- Transforms.h - Expose transformation passes ------------------------===//
+//===- InitializePasses.h - Expose pass initialization declarations -------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -24,29 +24,26 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Define protypes for accessor functions that expose LunarGLASS transformation
-// passes
+// Expose pass initialization declarations
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef TRANSFORMS_H
-#define TRANSFORMS_H
+#ifndef GLA_INIT_PASSES_H
+#define GLA_INIT_PASSES_H
 
-#include "llvm/Pass.h"
-namespace gla_llvm {
-    using namespace llvm;
+// Use of llvm namespace required
+namespace llvm {
 
-    // Coalesce insert/extracts into multiInserts
-    FunctionPass* createCoalesceInsertsPass();
+    void initializeBottomTranslatorPass(PassRegistry&);
 
-    // Flatten conditional assignments into select instructions. Currently only
-    // simplifies instructions, deletes dead code, and then removes empty
-    // conditionals
-    FunctionPass* createFlattenConditionalAssignmentsPass();
+    void initializeCanonicalizeCFGPass(PassRegistry&);
 
-    // Canonicalize the CFG for LunarGLASS
-    FunctionPass* createCanonicalizeCFGPass();
+    void initializeCoalesceInsertsPass(PassRegistry&);
 
-} // end namespace gla_llvm
+    void initializeFlattenCondAssnPass(PassRegistry&);
 
-#endif // TRANSFORMS_H
+    void initializeIdentifyConditionalsPass(PassRegistry&);
+
+} // end namespace llvm
+
+#endif // GLA_INIT_PASSES_H

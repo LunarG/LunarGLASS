@@ -42,9 +42,9 @@ function fetch {
     rm -rf LLVM
     mkdir LLVM
     pushd LLVM
-    wget http://llvm.org/releases/2.8/llvm-2.8.tgz || exit 1
-    tar -zxf llvm-2.8.tgz || exit 1
-    rm llvm-2.8.tgz || exit 1
+    wget http://llvm.org/releases/2.9/llvm-2.9.tgz || exit 1
+    tar -zxf llvm-2.9.tgz || exit 1
+    rm llvm-2.9.tgz || exit 1
     popd
     echo "LLVM fetched"
     echo "Fetching done"
@@ -64,8 +64,8 @@ function merge {
 function build {
     echo "Building ..."
     echo "Building LLVM, this may take a while"
-    mkdir -p LLVM/llvm-2.8/build || exit 1
-    pushd LLVM/llvm-2.8/build
+    mkdir -p LLVM/llvm-2.9/build || exit 1
+    pushd LLVM/llvm-2.9/build
     ../configure || exit 1
     make || exit 1
     make install DESTDIR=`pwd`/install || exit 1

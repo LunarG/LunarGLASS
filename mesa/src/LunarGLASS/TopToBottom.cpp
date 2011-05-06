@@ -31,6 +31,7 @@
 #include "llvm/LLVMContext.h"
 #include "llvm/Module.h"
 #include "llvm/PassManager.h"
+#include "llvm/Analysis/Passes.h"
 #include "llvm/Analysis/Verifier.h"
 #include "llvm/Transforms/IPO.h"
 #include "llvm/Transforms/Scalar.h"
@@ -48,7 +49,7 @@
 #include "Options.h"
 
 // LunarGLASS Passes
-#include "Passes/Transforms/Transforms.h"
+#include "Passes/Passes.h"
 
 void gla::PrivateManager::translateTopToBottom()
 {
@@ -86,41 +87,124 @@ void gla::PrivateManager::translateTopToBottom()
     }
 }
 
+static inline void RunOnModule(llvm::FunctionPassManager& pm, llvm::Module* m)
+{
+    pm.doInitialization();
+    for (llvm::Module::iterator f = m->begin(), e = m->end(); f != e; ++f)
+        pm.run(*f);
+    pm.doFinalization();
+}
+
+// Verify each function
+static inline void VerifyModule(llvm::Module* module)
+{
+    llvm::FunctionPassManager verifier(module);
+    verifier.add(llvm::createVerifierPass());
+
+    RunOnModule(verifier, module);
+}
+
 void gla::PrivateManager::runLLVMOptimizations1()
 {
+    // TODO: turn off for release builds
+    VerifyModule(module);
+
+    // TODO: If we can turn on InstCombine, then replace many of the occurances
+    // of InstSimplify with InstCombine.
+
+    // First, do some global (module-level) optimizations, which can free up
+    // function passes to do more.
+    llvm::PassManager globalPM;
+    globalPM.add(llvm::createGlobalOptimizerPass());
+    globalPM.add(llvm::createIPSCCPPass());
+    globalPM.add(llvm::createConstantMergePass());
+    globalPM.add(llvm::createInstructionSimplifierPass());
+    globalPM.run(*module);
+
+    // Next, do interprocedural passes
+    // Future work: If we ever have non-inlined functions, we'll want to add some
+
+    // TODO: turn off for release builds
+    VerifyModule(module);
+
     // Set up the function-level optimizations we want
+    // TODO: explore ordering of passes more
     llvm::FunctionPassManager passManager(module);
-    if (Options.optimizations.verify)      passManager.add(llvm::createVerifierPass());
-    if (Options.optimizations.mem2reg)     passManager.add(llvm::createPromoteMemoryToRegisterPass());
+
+    // TODO: explore ScalarReplAggregates more
+    passManager.add(llvm::createPromoteMemoryToRegisterPass());
+
+    // TODO: explore SimplifyLibCalls
+    // TODO: see if we can avoid running gvn/sccp multiple times
+
+    // Early, simple optimizations to enable others/make others more efficient
+    passManager.add(llvm::createInstructionSimplifierPass());
+    passManager.add(llvm::createEarlyCSEPass());
+    passManager.add(llvm::createCorrelatedValuePropagationPass());
+
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
-    if (Options.optimizations.reassociate) passManager.add(llvm::createReassociatePass());
-    if (Options.optimizations.gvn)         passManager.add(llvm::createGVNPass());
-    if (Options.optimizations.coalesce)    passManager.add(gla_llvm::createCoalesceInsertsPass());
-    passManager.add(llvm::createSinkingPass());
+    passManager.add(llvm::createReassociatePass());
+    passManager.add(llvm::createInstructionSimplifierPass());
+
+    // Run GVN and SCCP using BasicAliasAnalysis
+    passManager.add(llvm::createBasicAliasAnalysisPass());
+    passManager.add(llvm::createGVNPass());
     passManager.add(llvm::createSCCPPass());
 
-    // // passManager.add(llvm::createInstructionCombiningPass());
+    // Make multiinsert intrinsics, and clean up afterwards
+    passManager.add(gla_llvm::createCoalesceInsertsPass());
+    passManager.add(llvm::createAggressiveDCEPass());
 
-    if (Options.optimizations.adce)        passManager.add(llvm::createAggressiveDCEPass());
+    // Loop optimizations, and clean up afterwards
+    passManager.add(llvm::createIndVarSimplifyPass());
+    passManager.add(llvm::createLICMPass());
+    passManager.add(llvm::createLoopStrengthReducePass());
+    passManager.add(llvm::createAggressiveDCEPass());
+
+    // Run GVN and SCCP using BasicAliasAnalysis
+    passManager.add(llvm::createBasicAliasAnalysisPass());
+    passManager.add(llvm::createGVNPass());
+    passManager.add(llvm::createSCCPPass());
+
+    // TODO: Consider if we really want it. For some reason StandardPasses.h
+    // doesn't have it listed.
+    // passManager.add(llvm::createSinkingPass());
+
+    // Run some post-redancy-elimination passes
+    passManager.add(llvm::createInstructionSimplifierPass());
+    passManager.add(llvm::createCorrelatedValuePropagationPass());
+    passManager.add(llvm::createAggressiveDCEPass());
+
+    // LunarGLASS CFG optimizations
     passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass());
 
-    // Loop optimizations
-    passManager.add(llvm::createIndVarSimplifyPass());
-    passManager.add(llvm::createLoopStrengthReducePass());
-    passManager.add(llvm::createLICMPass());
+    // TODO: Figure out if we can use InstCombine, or if we have to make our own
+    // // passManager.add(llvm::createInstructionCombiningPass());
 
-    // if (Options.optimizations.adce)        passManager.add(llvm::createAggressiveDCEPass());
-    if (Options.optimizations.verify)      passManager.add(llvm::createVerifierPass());
-    llvm::Module::iterator function, lastFunction;
+    RunOnModule(passManager, module);
 
-    // run them across all functions
-    passManager.doInitialization();
-    for (function = module->begin(), lastFunction = module->end(); function != lastFunction; ++function) {
-        passManager.run(*function);
-    }
-    passManager.doFinalization();
+    // TODO: turn off for release builds
+    VerifyModule(module);
 
-    // Set up the module-level optimizations we want
+    // Post Function passes cleanup
+    llvm::PassManager pm;
+    pm.add(llvm::createInstructionSimplifierPass());
+    pm.add(llvm::createDeadStoreEliminationPass());
+    pm.add(llvm::createAggressiveDCEPass());
+    pm.add(llvm::createStripDeadPrototypesPass());
+    pm.add(llvm::createDeadTypeEliminationPass());
+
+    // TODO: Consider using the below in the presense of functions
+    // pm.add(llvm::createGlobalDCEPass());
+
+    pm.run(*module);
+
+    // TODO: turn off for release builds
+    VerifyModule(module);
+
+    // TODO: Refactor the below use of GlobalOpt. Perhaps we want to repeat our
+    // some function passes?
+
     llvm::PassManager modulePassManager;
     modulePassManager.add(llvm::createGlobalOptimizerPass());
 
@@ -134,7 +218,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
 
         // run across all functions
         postGlobalManager.doInitialization();
-        for (function = module->begin(), lastFunction = module->end(); function != lastFunction; ++function) {
+        for (llvm::Module::iterator function = module->begin(), lastFunction = module->end(); function != lastFunction; ++function) {
             postGlobalManager.run(*function);
         }
         postGlobalManager.doFinalization();
@@ -145,15 +229,22 @@ void gla::PrivateManager::runLLVMOptimizations1()
         memoryPassManager.add(llvm::createDemoteRegisterToMemoryPass());
 
         memoryPassManager.doInitialization();
-        for (function = module->begin(), lastFunction = module->end(); function != lastFunction; ++function) {
+        for (llvm::Module::iterator function = module->begin(), lastFunction = module->end(); function != lastFunction; ++function) {
             memoryPassManager.run(*function);
         }
         memoryPassManager.doFinalization();
     }
+
+    // TODO: turn off for release builds
+    VerifyModule(module);
 
     llvm::PassManager canonicalize;
 
     canonicalize.add(llvm::createIndVarSimplifyPass());
     canonicalize.add(gla_llvm::createCanonicalizeCFGPass());
     canonicalize.run(*module);
+
+    // TODO: turn off for release builds
+    VerifyModule(module);
+
 }

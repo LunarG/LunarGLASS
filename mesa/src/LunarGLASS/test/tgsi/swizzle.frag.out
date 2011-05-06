@@ -120,7 +120,7 @@ ifmerge:                                          ; preds = %else, %then
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
 
@@ -163,15 +163,13 @@ ifmerge:                                          ; preds = %else, %then
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.f32.f32(<4 x float>, i32, <4 x float>, i32, <4 x float>, i32, float, i32, float, i32) nounwind readnone
-
-declare <2 x float> @llvm.gla.fMultiInsert.v2f32.v2f32.v4f32.v4f32.f32.f32(<2 x float>, i32, <4 x float>, i32, <4 x float>, i32, float, i32, float, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v2f32.v2f32(<4 x float>, i32, <4 x float>, i32, <4 x float>, i32, <2 x float>, i32, <2 x float>, i32) nounwind readnone
 
@@ -180,8 +178,6 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float>, i32, <4 x float>, i32, <4 x float>, i32, <4 x float>, i32, <4 x float>, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x float>, i32, float, i32, <2 x float>, i32, float, i32, <2 x float>, i32) nounwind readnone
-
-declare <2 x float> @llvm.gla.fMultiInsert.v2f32.v2f32.v2f32.v2f32.f32.f32(<2 x float>, i32, <2 x float>, i32, <2 x float>, i32, float, i32, float, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float>, i32, <2 x float>, i32, float, i32, float, i32, float, i32) nounwind readnone
 

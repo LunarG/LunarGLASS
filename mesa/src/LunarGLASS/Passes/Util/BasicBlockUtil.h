@@ -33,6 +33,7 @@
 #include "llvm/Instructions.h"
 #include "llvm/ADT/DepthFirstIterator.h"
 #include "llvm/ADT/SmallPtrSet.h"
+#include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Support/CFG.h"
 
@@ -95,6 +96,15 @@ namespace gla_llvm {
         for (BasicBlock::const_iterator i = bb->begin(), e = bb->end(); i != e; ++i)
             if (const PHINode* pn = dyn_cast<PHINode>(i))
                 phis.insert(pn);
+    }
+
+    inline bool HasPHINodes(const BasicBlock* bb)
+    {
+        for (BasicBlock::const_iterator i = bb->begin(), e = bb->end(); i != e; ++i)
+            if (isa<PHINode>(i))
+                return true;
+
+        return false;
     }
 
     // Whether block A is a predecessor of B

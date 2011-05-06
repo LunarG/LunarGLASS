@@ -42,9 +42,9 @@ ifmerge:                                          ; preds = %else, %then
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readonly
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
@@ -83,9 +83,9 @@ ifmerge:                                          ; preds = %else, %then
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readonly
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 # Fragment Program/Shader 0
@@ -160,13 +160,13 @@ Mesa program before mesa optimizations
  16: END
 
 Mesa program after mesa optimizations
-  0: MOV TEMP[0], INPUT[0];
+  0: MOV TEMP[1], INPUT[0];
   1: SGT TEMP[2].x, INPUT[1].xxxx, UNIFORM[1].xxxx;
   2: IF TEMP[2].xxxx;  # (if false, goto 0);
-  3:    ADD TEMP[2], TEMP[0], UNIFORM[2];
+  3:    ADD TEMP[2], TEMP[1], UNIFORM[2];
   4:    MOV TEMP[3], TEMP[2];
   5: ELSE; # (goto 0)
-  6:    ADD TEMP[2], TEMP[0], UNIFORM[3];
+  6:    ADD TEMP[2], TEMP[1], UNIFORM[3];
   7:    MOV TEMP[3], TEMP[2];
   8: ENDIF;
   9: MUL OUTPUT[0], TEMP[3], UNIFORM[4];

@@ -36,6 +36,7 @@
 
 #include "llvm/Pass.h"
 #include "llvm/ADT/SmallVector.h"
+#include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Support/CFG.h"
@@ -43,9 +44,7 @@
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Local.h"
 
-#include "Transforms.h"
-#include "Util.h"
-
+#include "Passes/PassSupport.h"
 #include "Passes/Util/BasicBlockUtil.h"
 
 using namespace llvm;
@@ -56,7 +55,12 @@ namespace  {
     public:
         // Standard pass stuff
         static char ID;
-        CanonicalizeCFG() : FunctionPass(ID) {}
+
+        CanonicalizeCFG() : FunctionPass(ID)
+        {
+            initializeCanonicalizeCFGPass(*PassRegistry::getPassRegistry());
+        }
+
         virtual bool runOnFunction(Function&);
         void print(raw_ostream&, const Module* = 0) const;
         virtual void getAnalysisUsage(AnalysisUsage&) const;
@@ -101,7 +105,7 @@ bool CanonicalizeCFG::removeUnneededPHIs(Function& F)
             if (!pn)
                 break;
 
-            Value* v = pn->hasConstantValue(domTree);
+            Value* v = pn->hasConstantValue();
             if (!v)
                 continue;
 
@@ -154,11 +158,20 @@ void CanonicalizeCFG::print(raw_ostream&, const Module*) const
 }
 
 char CanonicalizeCFG::ID = 0;
-INITIALIZE_PASS(CanonicalizeCFG,
-                "canonicalize-cfg",
-                "Canonicalize the CFG for LunarGLASS",
-                false,  // Whether it preserves the CFG
-                false); // Whether it is an analysis pass
+INITIALIZE_PASS_BEGIN(CanonicalizeCFG,
+                      "canonicalize-cfg",
+                      "Canonicalize the CFG for LunarGLASS",
+                      false,  // Whether it preserves the CFG
+                      false); // Whether it is an analysis pass
+INITIALIZE_PASS_DEPENDENCY(LoopInfo)
+INITIALIZE_PASS_DEPENDENCY(DominatorTree)
+INITIALIZE_PASS_END(CanonicalizeCFG,
+                    "canonicalize-cfg",
+                    "Canonicalize the CFG for LunarGLASS",
+                    false,  // Whether it preserves the CFG
+                    false); // Whether it is an analysis pass
+
+
 FunctionPass* gla_llvm::createCanonicalizeCFGPass()
 {
     return new CanonicalizeCFG();

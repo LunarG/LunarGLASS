@@ -88,7 +88,7 @@ loop-merge:                                       ; preds = %then6
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
@@ -144,7 +144,7 @@ loop-header:                                      ; preds = %ifmerge7, %ifmerge
   %indvar = phi i64 [ %indvar.next, %ifmerge7 ], [ 0, %ifmerge ]
   %scale.1 = phi float [ %scale.0, %ifmerge ], [ %scale8, %ifmerge7 ]
   %tmp22 = mul i64 %indvar, ptrtoint (i8* getelementptr (i8* null, i32 1) to i64)
-  %lsr.iv13 = getelementptr [6 x %lunarStruct2] addrspace(1)* @foo2, i64 0, i64 %tmp22, i32 1
+  %lsr.iv14 = getelementptr [6 x %lunarStruct2] addrspace(1)* @foo2, i64 0, i64 %tmp22, i32 1
   %exitcond21 = icmp eq i64 %indvar, %tmp20
   br i1 %exitcond21, label %then6, label %ifmerge7
 
@@ -158,13 +158,13 @@ then6:                                            ; preds = %loop-header
   ret void
 
 ifmerge7:                                         ; preds = %loop-header
-  %11 = load float addrspace(1)* %lsr.iv13
+  %11 = load float addrspace(1)* %lsr.iv14
   %scale8 = fadd float %scale.1, %11
   %indvar.next = add i64 %indvar, 1
   br label %loop-header
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 

@@ -33,10 +33,9 @@
 #include "IdentifyConditionals.h"
 
 #include "llvm/ADT/DenseMap.h"
+#include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Support/raw_ostream.h"
-
-#include "Util.h"
 
 #include "Passes/Util/BasicBlockUtil.h"
 
@@ -91,8 +90,15 @@ void IdentifyConditionals::releaseMemory()
 }
 
 char IdentifyConditionals::ID = 0;
-INITIALIZE_PASS(IdentifyConditionals,
-                "identify-conditionals",
-                "Identify the conditional expressions",
-                true,  // Whether it preserves the CFG
-                true); // Whether it is an analysis pass
+INITIALIZE_PASS_BEGIN(IdentifyConditionals,
+                      "identify-conditionals",
+                      "Identify the conditional expressions",
+                      true,  // Whether it preserves the CFG
+                      true); // Whether it is an analysis pass
+INITIALIZE_PASS_DEPENDENCY(DominanceFrontier)
+INITIALIZE_PASS_DEPENDENCY(DominatorTree)
+INITIALIZE_PASS_END(IdentifyConditionals,
+                    "identify-conditionals",
+                    "Identify the conditional expressions",
+                    true,  // Whether it preserves the CFG
+                    true); // Whether it is an analysis pass

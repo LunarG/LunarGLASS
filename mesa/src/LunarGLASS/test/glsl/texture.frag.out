@@ -184,7 +184,7 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.f32(i32, i32, i32, float) nou
 
 declare <4 x float> @llvm.gla.fTextureSampleLod.v4f32.f32(i32, i32, i32, float, float) nounwind readnone
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
@@ -283,7 +283,7 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.f32(i32, i32, i32, float) nou
 
 declare <4 x float> @llvm.gla.fTextureSampleLod.v4f32.f32(i32, i32, i32, float, float) nounwind readnone
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 

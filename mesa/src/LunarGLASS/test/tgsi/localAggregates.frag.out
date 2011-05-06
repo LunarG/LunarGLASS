@@ -171,9 +171,9 @@ ifmerge15:                                        ; preds = %then13, %ifmerge10
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
@@ -213,69 +213,57 @@ else:                                             ; preds = %entry
   %coord6 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %locals2_s1_17 = extractelement <2 x float> %coord6, i32 0
   %5 = insertvalue %s1 %locals2_s1_12, float %locals2_s1_17, 1
-  %6 = insertvalue [16 x float] undef, float 1.000000e+00, 4
-  %7 = insertvalue [8 x i32] undef, i32 0, 2
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %localIArray.0 = phi [8 x i32] [ %4, %then ], [ %7, %else ]
-  %localFArray.0 = phi [16 x float] [ %3, %then ], [ %6, %else ]
+  %localIArray.0 = phi [8 x i32] [ %4, %then ], [ [i32 undef, i32 undef, i32 0, i32 undef, i32 undef, i32 undef, i32 undef, i32 undef], %else ]
+  %localFArray.0 = phi [16 x float] [ %3, %then ], [ [float undef, float undef, float undef, float undef, float 1.000000e+00, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef], %else ]
   %locals2_s1_1.0 = phi %s1 [ %2, %then ], [ %5, %else ]
-  %8 = extractvalue [8 x i32] %localIArray.0, 2
-  %9 = icmp eq i32 %8, 0
-  br i1 %9, label %then8, label %ifmerge10
+  %6 = extractvalue [8 x i32] %localIArray.0, 2
+  %7 = icmp eq i32 %6, 0
+  br i1 %7, label %then8, label %ifmerge10
 
 then8:                                            ; preds = %ifmerge
-  %10 = extractvalue [16 x float] %localFArray.0, 4
-  %localFArray9 = fadd float %10, 1.000000e+00
-  %11 = insertvalue [16 x float] %localFArray.0, float %localFArray9, 4
+  %8 = extractvalue [16 x float] %localFArray.0, 4
+  %localFArray9 = fadd float %8, 1.000000e+00
+  %9 = insertvalue [16 x float] %localFArray.0, float %localFArray9, 4
   br label %ifmerge10
 
 ifmerge10:                                        ; preds = %then8, %ifmerge
-  %localFArray.1 = phi [16 x float] [ %11, %then8 ], [ %localFArray.0, %ifmerge ]
+  %localFArray.1 = phi [16 x float] [ %9, %then8 ], [ %localFArray.0, %ifmerge ]
   %coord11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %localArray12 = extractelement <2 x float> %coord11, i32 0
-  %12 = insertvalue [16 x float] undef, float %localArray12, 5
-  %13 = insertvalue [16 x float] undef, float 0.000000e+00, 0
-  %14 = insertvalue [16 x float] %13, float 0.000000e+00, 1
-  %15 = insertvalue [16 x float] %14, float 0.000000e+00, 2
-  %16 = insertvalue [16 x float] %15, float 0.000000e+00, 3
-  %17 = insertvalue [16 x float] %16, float 0.000000e+00, 4
-  %18 = insertvalue [16 x float] %17, float 0.000000e+00, 5
-  %19 = insertvalue [16 x float] %18, float 0.000000e+00, 6
-  %20 = insertvalue [16 x float] %19, float 0.000000e+00, 7
-  %21 = insertvalue [16 x float] %20, float 0.000000e+00, 8
-  %22 = insertvalue [16 x float] %21, float 0.000000e+00, 9
-  %23 = insertvalue [16 x float] %22, float 0.000000e+00, 10
-  %24 = insertvalue [16 x float] %23, float 0.000000e+00, 11
-  %25 = insertvalue [16 x float] %24, float 0.000000e+00, 12
-  %26 = insertvalue [16 x float] %25, float 0.000000e+00, 13
-  %27 = insertvalue [16 x float] %26, float 0.000000e+00, 14
-  %28 = insertvalue [16 x float] %27, float 0.000000e+00, 15
+  %10 = insertvalue [16 x float] undef, float %localArray12, 5
+  %11 = load i32 addrspace(1)* @condition
+  %12 = icmp eq i32 %11, 1
+  br i1 %12, label %then13, label %ifmerge15
+
+then13:                                           ; preds = %ifmerge10
   br label %ifmerge15
 
-ifmerge15:                                        ; preds = %ifmerge10
+ifmerge15:                                        ; preds = %then13, %ifmerge10
+  %a.0 = phi [16 x float] [ %10, %then13 ], [ zeroinitializer, %ifmerge10 ]
   %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
-  %29 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %color, i32 4, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, <2 x float> %coord11, i32 1, float 0.000000e+00, i32 -1)
-  %30 = extractvalue [16 x float] %localFArray.1, 4
-  %31 = extractvalue %s1 %locals2_s1_1.0, 1
-  %32 = fadd float %30, %31
-  %33 = extractvalue [16 x float] %12, 5
-  %34 = fadd float %32, %33
-  %35 = extractvalue [16 x float] %28, 5
-  %36 = fadd float %34, %35
-  %37 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %36, i32 0)
-  %38 = fmul <4 x float> %29, %37
-  %39 = load i32 addrspace(1)* @"sampler2D sampler"
-  %40 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %39, i32 0, <2 x float> %coord11)
-  %gl_FragColor = fmul <4 x float> %38, %40
+  %13 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %color, i32 4, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, <2 x float> %coord11, i32 1, float 0.000000e+00, i32 -1)
+  %14 = extractvalue [16 x float] %localFArray.1, 4
+  %15 = extractvalue %s1 %locals2_s1_1.0, 1
+  %16 = fadd float %14, %15
+  %17 = extractvalue [16 x float] %10, 5
+  %18 = fadd float %16, %17
+  %19 = extractvalue [16 x float] %a.0, 5
+  %20 = fadd float %18, %19
+  %21 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %20, i32 0)
+  %22 = fmul <4 x float> %13, %21
+  %23 = load i32 addrspace(1)* @"sampler2D sampler"
+  %24 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %23, i32 0, <2 x float> %coord11)
+  %gl_FragColor = fmul <4 x float> %22, %24
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readonly
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
