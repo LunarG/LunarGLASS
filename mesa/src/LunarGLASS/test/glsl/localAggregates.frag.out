@@ -235,7 +235,7 @@ ifmerge10:                                        ; preds = %then8, %ifmerge
   %localArray12 = extractelement <2 x float> %coord11, i32 0
   %10 = insertvalue [16 x float] undef, float %localArray12, 5
   %11 = load i32 addrspace(1)* @condition
-  %12 = icmp eq i32 %11, 1pn
+  %12 = icmp eq i32 %11, 1
   br i1 %12, label %then13, label %ifmerge15
 
 then13:                                           ; preds = %ifmerge10
@@ -275,17 +275,17 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x fl
 
 ***Unsupported functionality: Basic Type in Bottom IR
 compiling localAggregates.frag...
-uniform sampler2D sampler ;
-varying vec2 coord ;
-varying vec4 color ;
-struct s1 { int i ; float f ; } ;
-struct s2 { int i ; float f ; s1 s1_1 ; vec4 bleh ; } ;
-struct s3 { s2 s2_1 ; int i ; float f ; s1 s1_1 ; } ;
-uniform s1 foo ;
-uniform s2 foo2 ;
-uniform s3 foo3 ;
-uniform float [ 16 ] uFloatArray ;
-uniform int condition ;
+uniform sampler2D sampler ; 
+varying vec2 coord ; 
+varying vec4 color ; 
+struct s1 { int i ; float f ; } ; 
+struct s2 { int i ; float f ; s1 s1_1 ; vec4 bleh ; } ; 
+struct s3 { s2 s2_1 ; int i ; float f ; s1 s1_1 ; } ; 
+uniform s1 foo ; 
+uniform s2 foo2 ; 
+uniform s3 foo3 ; 
+uniform float [ 16 ] uFloatArray ; 
+uniform int condition ; 
 void  main (){
 s2 locals2 ; s3 locals3 ; float localFArray [ 16 ] ; int localIArray [ 8 ] ; locals2 = foo3 . s2_1 ; if ( foo3 . s2_1 . i > 0 ) {
 locals2 . s1_1 . f = 1.000000 ; localFArray [ 4 ] = coord . x ; localIArray [ 2 ] = foo3 . s2_1 . i ; }
@@ -314,50 +314,50 @@ if ( localIArray [ 2 ] == 0 ) ++ localFArray [ 4 ] ; float localArray [ 16 ] ; i
       (declare (temporary ) s1 locals2_s1_1)
       (declare (temporary ) vec4 locals2_bleh)
       (declare (temporary ) s2 assignment_tmp)
-      (assign (constant bool (1)) () (var_ref assignment_tmp)  (record_ref (var_ref foo3)  s2_1) )
-      (assign (constant bool (1)) () (var_ref locals2_s1_1)  (record_ref (var_ref assignment_tmp)  s1_1) )
-      (assign (constant bool (1)) (xyzw) (var_ref locals2_bleh)  (record_ref (var_ref assignment_tmp)  bleh) )
+      (assign (constant bool (1)) () (var_ref assignment_tmp)  (record_ref (var_ref foo3)  s2_1) ) 
+      (assign (constant bool (1)) () (var_ref locals2_s1_1)  (record_ref (var_ref assignment_tmp)  s1_1) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref locals2_bleh)  (record_ref (var_ref assignment_tmp)  bleh) ) 
       (if (expression bool > (record_ref (record_ref (var_ref foo3)  s2_1)  i) (constant int (0)) ) (
-        (assign (constant bool (1)) (x) (record_ref (var_ref locals2_s1_1)  f)  (constant float (1.000000)) )
-        (assign (constant bool (1)) (x) (array_ref (var_ref localFArray) (constant int (4)) )  (swiz x (var_ref coord) ))
-        (assign (constant bool (1)) (x) (array_ref (var_ref localIArray) (constant int (2)) )  (record_ref (record_ref (var_ref foo3)  s2_1)  i) )
+        (assign (constant bool (1)) (x) (record_ref (var_ref locals2_s1_1)  f)  (constant float (1.000000)) ) 
+        (assign (constant bool (1)) (x) (array_ref (var_ref localFArray) (constant int (4)) )  (swiz x (var_ref coord) )) 
+        (assign (constant bool (1)) (x) (array_ref (var_ref localIArray) (constant int (2)) )  (record_ref (record_ref (var_ref foo3)  s2_1)  i) ) 
       )
       (
-        (assign (constant bool (1)) (x) (record_ref (var_ref locals2_s1_1)  f)  (swiz x (var_ref coord) ))
-        (assign (constant bool (1)) (x) (array_ref (var_ref localFArray) (constant int (4)) )  (constant float (1.000000)) )
-        (assign (constant bool (1)) (x) (array_ref (var_ref localIArray) (constant int (2)) )  (constant int (0)) )
+        (assign (constant bool (1)) (x) (record_ref (var_ref locals2_s1_1)  f)  (swiz x (var_ref coord) )) 
+        (assign (constant bool (1)) (x) (array_ref (var_ref localFArray) (constant int (4)) )  (constant float (1.000000)) ) 
+        (assign (constant bool (1)) (x) (array_ref (var_ref localIArray) (constant int (2)) )  (constant int (0)) ) 
       ))
 
       (if (expression bool all_equal (array_ref (var_ref localIArray) (constant int (2)) ) (constant int (0)) ) (
-        (assign (constant bool (1)) (x) (array_ref (var_ref localFArray) (constant int (4)) )  (expression float + (array_ref (var_ref localFArray) (constant int (4)) ) (constant float (1.000000)) ) )
+        (assign (constant bool (1)) (x) (array_ref (var_ref localFArray) (constant int (4)) )  (expression float + (array_ref (var_ref localFArray) (constant int (4)) ) (constant float (1.000000)) ) ) 
       )
       ())
 
-      (assign (constant bool (1)) (x) (array_ref (var_ref localArray) (constant int (5)) )  (swiz x (var_ref coord) ))
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (0)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (1)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (2)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (3)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (4)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (5)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (6)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (7)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (8)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (9)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (10)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (11)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (12)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (13)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (14)) )  (constant float (0.000000)) )
-      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (15)) )  (constant float (0.000000)) )
+      (assign (constant bool (1)) (x) (array_ref (var_ref localArray) (constant int (5)) )  (swiz x (var_ref coord) )) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (0)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (1)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (2)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (3)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (4)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (5)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (6)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (7)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (8)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (9)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (10)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (11)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (12)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (13)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (14)) )  (constant float (0.000000)) ) 
+      (assign (constant bool (1)) (x) (array_ref (var_ref a) (constant int (15)) )  (constant float (0.000000)) ) 
       (if (expression bool all_equal (var_ref condition) (constant int (1)) ) (
-        (assign (constant bool (1)) () (var_ref a)  (var_ref localArray) )
+        (assign (constant bool (1)) () (var_ref a)  (var_ref localArray) ) 
       )
       ())
 
-      (assign (constant bool (1)) (xyzw) (var_ref locals2_bleh)  (var_ref color) )
-      (assign (constant bool (1)) (z) (var_ref locals2_bleh)  (swiz y (var_ref coord) ))
-      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 * (expression vec4 * (var_ref locals2_bleh) (expression float + (expression float + (expression float + (array_ref (var_ref localFArray) (constant int (4)) ) (record_ref (var_ref locals2_s1_1)  f) ) (array_ref (var_ref localArray) (constant int (5)) ) ) (array_ref (var_ref a) (constant int (5)) ) ) ) (tex (var_ref sampler)  (var_ref coord)  (0 0 0) 1 () )) )
+      (assign (constant bool (1)) (xyzw) (var_ref locals2_bleh)  (var_ref color) ) 
+      (assign (constant bool (1)) (z) (var_ref locals2_bleh)  (swiz y (var_ref coord) )) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 * (expression vec4 * (var_ref locals2_bleh) (expression float + (expression float + (expression float + (array_ref (var_ref localFArray) (constant int (4)) ) (record_ref (var_ref locals2_s1_1)  f) ) (array_ref (var_ref localArray) (constant int (5)) ) ) (array_ref (var_ref a) (constant int (5)) ) ) ) (tex (var_ref sampler)  (var_ref coord)  (0 0 0) 1 () )) ) 
     ))
 
 )
