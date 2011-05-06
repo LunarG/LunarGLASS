@@ -632,4 +632,48 @@ llvm::Value* Builder::createRecip(llvm::Value* operand)
     return builder.CreateFDiv(MakeFloatConstant(context, 1.0), operand);
 }
 
+Builder::If::If(llvm::Value* condition, bool withElse, Builder* gb) : glaBuilder(gb)
+{
+    function = glaBuilder->builder.GetInsertBlock()->getParent();
+
+    // make the blocks, but only put the then-block into the function,
+    // the else-block and merge-block will be added later, in order, after
+    // earlier code is emitted
+    thenBB = llvm::BasicBlock::Create(glaBuilder->context, "then", function);
+    elseBB = withElse ? llvm::BasicBlock::Create(glaBuilder->context, "else") : 0;
+    mergeBB = llvm::BasicBlock::Create(glaBuilder->context, "ifmerge");
+
+    // make the flow control split
+    if (withElse)
+        glaBuilder->builder.CreateCondBr(condition, thenBB, elseBB);
+    else
+        glaBuilder->builder.CreateCondBr(condition, thenBB, mergeBB);
+
+    glaBuilder->builder.SetInsertPoint(thenBB);
+}
+
+void Builder::If::makeEndThen()
+{    
+    // jump to the merge block
+    glaBuilder->builder.CreateBr(mergeBB);
+
+    if (elseBB) {
+        // add else block to the function
+        function->getBasicBlockList().push_back(elseBB);
+        glaBuilder->builder.SetInsertPoint(elseBB);
+    }
+}
+
+void Builder::If::makeEndIf()
+{
+    if (elseBB) {        
+        // jump to the merge block
+        glaBuilder->builder.CreateBr(mergeBB);
+    }
+
+    // add the merge block to the function
+    function->getBasicBlockList().push_back(mergeBB);
+    glaBuilder->builder.SetInsertPoint(mergeBB);
+}
+
 }; // end gla namespace

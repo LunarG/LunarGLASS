@@ -215,6 +215,22 @@ public:
     // LLVM does not support recip
     llvm::Value* createRecip(llvm::Value*);
 
+    class If {
+    public:
+        If(llvm::Value* condition, bool withElse, Builder* glaBuilder);
+        ~If() {}
+        
+        void makeEndThen();
+        void makeEndIf();
+
+    private:
+        Builder* glaBuilder;
+        llvm::Function* function;
+        llvm::BasicBlock* thenBB;
+        llvm::BasicBlock* elseBB;
+        llvm::BasicBlock* mergeBB;
+    };
+    
 protected:
     llvm::Value* createMatrixTimesVector(Matrix*, llvm::Value*);
     llvm::Value* createVectorTimesMatrix(llvm::Value*, Matrix*);

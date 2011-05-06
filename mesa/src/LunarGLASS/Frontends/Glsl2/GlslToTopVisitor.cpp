@@ -1106,65 +1106,26 @@ ir_visitor_status
 {
     (void) ir;
     return visit_continue;
-
 }
 
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_if *ifNode)
 {
     // emit condition into current block
-    lastValue.clear();
     ifNode->condition->accept(this);
-    llvm::Value *condValue = lastValue;
-    assert(condValue != 0);
-
-    llvm::Function *function = llvmBuilder.GetInsertBlock()->getParent();
-
-    // make the blocks, but only put the then-block into the function,
-    // the else-block and merge-block will be added later, in order, after
-    // earlier code is emitted
-    bool haveElse = ! ifNode->else_instructions.is_empty();
-    llvm::BasicBlock  *ThenBB = llvm::BasicBlock::Create(context, "then", function);
-    llvm::BasicBlock  *ElseBB = haveElse ? llvm::BasicBlock::Create(context, "else") : 0;
-    llvm::BasicBlock *MergeBB = llvm::BasicBlock::Create(context, "ifmerge");
-
-    // make the flow control split
-    if (haveElse)
-        llvmBuilder.CreateCondBr(condValue, ThenBB, ElseBB);
-    else
-        llvmBuilder.CreateCondBr(condValue, ThenBB, MergeBB);
-
-    llvmBuilder.SetInsertPoint(ThenBB);
+    gla::Builder::If ifBuilder(lastValue, ! ifNode->else_instructions.is_empty(), glaBuilder);
 
     // emit the then statement
     visit_list_elements(this, &(ifNode->then_instructions));
+    ifBuilder.makeEndThen();
 
-    // jump to the merge block
-    llvmBuilder.CreateBr(MergeBB);
-
-    // emitting the then-block could change the current block, update
-    ThenBB = llvmBuilder.GetInsertBlock();
-
-    // add else block to the function
-    if (haveElse) {
-        function->getBasicBlockList().push_back(ElseBB);
-        llvmBuilder.SetInsertPoint(ElseBB);
-
-        // emit the else statement
+    // emit the else statement
+    if (! ifNode->else_instructions.is_empty())
         visit_list_elements(this, &(ifNode->else_instructions));
 
-        // jump to the merge block
-        llvmBuilder.CreateBr(MergeBB);
+    ifBuilder.makeEndIf();
 
-        // emitting the else block could change the current block, update
-        ElseBB = llvmBuilder.GetInsertBlock();
-    }
-
-    // add the merge block to the function
-    function->getBasicBlockList().push_back(MergeBB);
-    llvmBuilder.SetInsertPoint(MergeBB);
-
-    // The glsl "value" of an if-else should never be taken (share code with "?:" though?)
+    // The glsl "value" of an if-else should never be taken
     lastValue.clear();
 
     return visit_continue_with_parent;
