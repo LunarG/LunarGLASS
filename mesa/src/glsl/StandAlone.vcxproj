@@ -44,7 +44,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../mesa;../mesa/program;../mapi;../../include;../talloc;../../include/c99;../LunarGLASS;../glsl;../../../LLVM/llvm-2.8/build/install/include;../mesa/main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../mesa;../mesa/program;../mapi;../../include;../talloc;../../include/c99;../LunarGLASS;../glsl;../../../LLVM/llvm-2.9/build/install/include;../mesa/main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -56,8 +56,8 @@
       <DisableSpecificWarnings>4355;4291;4018;4800;4267;4996;4244;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMSystem.lib;LLVMipo.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../../LLVM/llvm-2.8/build/install/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../../LLVM/llvm-2.9/build/install/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
