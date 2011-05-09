@@ -769,10 +769,24 @@ enum ir_expression_operation {
 
    ir_unop_noise,
 
+   // Begin: LunarG added
+   ir_unop_all,
+   ir_unop_acos,
+   ir_unop_acosh,
+   ir_unop_asin,
+   ir_unop_asinh,
+   ir_unop_atan,
+   ir_unop_atanh,
+   ir_unop_tan,
+   ir_unop_tanh,
+   ir_unop_cosh,
+   ir_unop_sinh,
+   // End: LunarG added
+
    /**
     * A sentinel marking the last of the unary operations.
     */
-   ir_last_unop = ir_unop_noise,
+   ir_last_unop = ir_unop_sinh,
 
    ir_binop_add,
    ir_binop_sub,
@@ -833,10 +847,15 @@ enum ir_expression_operation {
 
    ir_binop_pow,
 
+    // Begin: LunarG added
+    ir_binop_atan2,
+    ir_binop_ftransform,
+    // End: LunarG added
+
    /**
     * A sentinel marking the last of the binary operations.
     */
-   ir_last_binop = ir_binop_pow,
+   ir_last_binop = ir_binop_ftransform,
 
    ir_quadop_vector,
 

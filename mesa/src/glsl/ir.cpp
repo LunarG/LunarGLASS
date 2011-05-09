@@ -351,6 +351,7 @@ ir_expression::get_num_operands(ir_expression_operation op)
    return 0;
 }
 
+// LunarG modified
 static const char *const operator_strs[] = {
    "~",
    "!",
@@ -384,6 +385,17 @@ static const char *const operator_strs[] = {
    "dFdx",
    "dFdy",
    "noise",
+   "all",
+   "acos",
+   "acosh",
+   "asin",
+   "asinh",
+   "atan",
+   "atanh",
+   "tan",
+   "tanh",
+   "cosh",
+   "sinh",
    "+",
    "-",
    "*",
@@ -409,6 +421,8 @@ static const char *const operator_strs[] = {
    "min",
    "max",
    "pow",
+   "atan2",
+   "ftransform",
    "vector",
 };
 

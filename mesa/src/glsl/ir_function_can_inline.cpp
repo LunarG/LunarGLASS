@@ -55,13 +55,12 @@ ir_function_can_inline_visitor::visit_enter(ir_return *ir)
    return visit_continue;
 }
 
-bool isNonTextureBuiltin(ir_call* call)
+// LunarG added
+bool isUnwantedDecomposition(ir_call* call)
 {
     if (call->get_callee()->is_builtin) {
-        if (0 == strncmp(call->callee_name(), "texture", 7) ||
-            0 == strncmp(call->callee_name(), "shadow", 6) )
-            return false;
-        else
+        // Prefer mix to not be decomposed
+        if (0 == strcmp(call->callee_name(), "mix"))
             return true;
     }
 
@@ -74,12 +73,8 @@ can_inline(ir_call *call)
    ir_function_can_inline_visitor v;
    const ir_function_signature *callee = call->get_callee();
 
-   //
-   // LunarGLASS: added callee->is_builtin because inlining
-   // built-in functions breaks things numerous ways, at least
-   // in the stand alone environment.
-   //
-   if (!callee->is_defined || isNonTextureBuiltin(call))
+   // LunarG modified
+   if (!callee->is_defined || isUnwantedDecomposition(call)) 
       return false;
 
    v.run((exec_list *) &callee->body);
