@@ -80,8 +80,14 @@ namespace  {
         IdentifyConditionals* idConds;
         DominatorTree* domTree;
 
-        bool moveCondAssns(Conditional*);
+
+        // Have conditional assignments be select instructions in the merge
+        // block. Currently only creates selects from phi nodes that receive
+        // their values from empty left and right blocks.
+        bool createSelects(const Conditional*);
+
         bool simplifyAndRemoveDeadCode(Conditional*);
+
         bool removeEmptyConditional(Conditional*);
 
         bool flattenConds();
@@ -95,6 +101,7 @@ bool FlattenCondAssn::runOnFunction(Function& F)
 
     bool changed = false;
 
+    // TODO: Refactor this file to eliminate some of these loops
     while (flattenConds())
         changed = true;
 
@@ -120,10 +127,10 @@ bool FlattenCondAssn::flattenConds()
                 && domTree->dominates(entry, cond->getMergeBlock())))
             continue;
 
-        // // Move all the conditional assignments out, iteratively in case of some
-        // // interdependence
-        // while (moveCondAssns(cond))
-        //     changed = true;
+        // Move all the conditional assignments out, iteratively in case of some
+        // interdependence
+        while (createSelects(cond))
+            changed = true;
 
         // Simplify/Eliminate instructions in the branches
         while (simplifyAndRemoveDeadCode(cond))
@@ -139,18 +146,69 @@ bool FlattenCondAssn::flattenConds()
     return changed;
 }
 
-// bool FlattenCondAssn::moveCondAssns(const Conditional* cond)
-// {
-//     BasicBlock* merge = cond->getMergeBlock();
+// Have conditional assignments be select instructions in the merge
+// block. Currently only creates selects from phi nodes that receive their
+// values from empty left and right blocks.
 
-//     // For each phi node, try to move the definitions into the merge block
-//     for (BasicBlock::iterator i = merge->begin(); PHINode* pn = dyn_cast<PHINode>(i); ++i) {
-//         // <do stuff>
-//     }
+// TODO: Revise and test for the case that the phi gets its value from the left
+// or right subgraphs, but the value still is just contingent on the entry's
+// condition. Also, handle the case where the left and right blocks are not
+// empty, but the value is not defined in them.
+bool FlattenCondAssn::createSelects(const Conditional* cond)
+{
+    bool changed = false;
 
+    BasicBlock* left  = cond->getThenBlock();
+    BasicBlock* right = cond->getElseBlock();
+    BasicBlock* merge = cond->getMergeBlock();
+    BasicBlock* entry = cond->getEntryBlock();
 
-//     return false;
-// }
+    // We only work on empty left and right blocks for now.
+    if (! IsEmptyBB(left) || ! IsEmptyBB(right))
+        return changed;
+
+    // Check all the phis, and change any of the ones that receive their value
+    // from left and right into selects on the entry's condition.
+    for (BasicBlock::iterator instI = merge->begin(), instE = merge->end(), nextInst; instI != instE; instI = nextInst) {
+        nextInst = instI;
+        ++nextInst;
+
+        PHINode* pn = dyn_cast<PHINode>(instI);
+        if (!pn)
+            break;
+
+        // We only want phis from left and right
+        if (pn->getNumIncomingValues() != 2) {
+            continue;
+        }
+
+        Value* leftVal = NULL;
+        Value* rightVal = NULL;
+
+        for (int i = 0; i < 2; ++i) {
+            if (pn->getIncomingBlock(i) == left)
+                leftVal = pn->getIncomingValue(i);
+            else if (pn->getIncomingBlock(i) == right)
+                rightVal = pn->getIncomingValue(i);
+        }
+
+        if (! leftVal || ! rightVal) {
+            continue;
+        }
+
+        // If we've made it this far, we have a phi we want to convert into a
+        // select.
+
+        BranchInst* br = dyn_cast<BranchInst>(entry->getTerminator());
+        assert(br->isConditional());
+
+        SelectInst* si = SelectInst::Create(br->getCondition(), leftVal, rightVal);
+        ReplaceInstWithInst(pn, si);
+        changed = true;
+    }
+
+    return changed;
+}
 
 bool FlattenCondAssn::simplifyAndRemoveDeadCode(Conditional* cond)
 {

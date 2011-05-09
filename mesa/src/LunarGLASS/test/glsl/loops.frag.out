@@ -1524,8 +1524,6 @@ Loop at depth 1 containing: %loop-header192<header><exiting>,%ifmerge214<latch>,
 Loop at depth 1 containing: %loop-header171<header><exiting>,%ifmerge174<latch>
 Loop at depth 1 containing: %loop-header153<header><exiting>,%ifmerge156<latch>
 
-***Unsupported functionality: Opcode in Bottom IR: 46
-
 inductive variable:  %indvar262 = phi i32 [ %indvar.next263, %loop-header59 ], [ 0, %then55 ]
   trip count:        43
   increment:         %indvar.next263 = add i32 %indvar262, 1
@@ -2125,10 +2123,11 @@ void main()
     }
     
     bool tmp = Count > const85;
+    int smax = tmp ? Count : const85
     indvar264 = const85;
     color_6 = color_5;
     while (true) {
-        bool exitcond266 = indvar264 == int smax;
+        bool exitcond266 = indvar264 == smax;
         if (exitcond266) {
             break;
         }

@@ -1217,6 +1217,23 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         shader << ";";
         return;
 
+    case llvm::Instruction::Select: {
+        const llvm::SelectInst* si = llvm::dyn_cast<const llvm::SelectInst>(llvmInstruction);
+        assert(si);
+
+        newLine();
+
+        emitGlaValue(llvmInstruction);
+        shader << " = ";
+        emitGlaValue(si->getCondition());
+        shader << " ? ";
+        emitGlaValue(si->getTrueValue());
+        shader << " : ";
+        emitGlaValue(si->getFalseValue());
+
+        return;
+    }
+
     default:
         UnsupportedFunctionality("Opcode in Bottom IR: ", llvmInstruction->getOpcode(), EATContinue);
     }
