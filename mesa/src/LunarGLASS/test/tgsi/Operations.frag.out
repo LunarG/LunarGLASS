@@ -1142,16 +1142,10 @@ else:                                             ; preds = %entry
 
 ifmerge:                                          ; preds = %else, %then
   %and_tmp.0 = phi i1 [ %any_retval176177, %then ], [ false, %else ]
-  br i1 %and_tmp.0, label %then181, label %else186
-
-then181:                                          ; preds = %ifmerge
   br label %ifmerge187
 
-else186:                                          ; preds = %ifmerge
-  br label %ifmerge187
-
-ifmerge187:                                       ; preds = %else186, %then181
-  %and_tmp180.0 = phi i1 [ %any_retval173, %then181 ], [ false, %else186 ]
+ifmerge187:                                       ; preds = %ifmerge
+  %and_tmp180.0 = select i1 %and_tmp.0, i1 %any_retval173, i1 false
   br i1 %and_tmp180.0, label %then190, label %else195
 
 then190:                                          ; preds = %ifmerge187
@@ -1242,16 +1236,10 @@ then243:                                          ; preds = %ifmerge238
 
 else244:                                          ; preds = %ifmerge238
   %19 = icmp ne i32 %assignment_tmp240241, %6
-  br i1 %19, label %then246, label %else248
-
-then246:                                          ; preds = %else244
   br label %ifmerge249
 
-else248:                                          ; preds = %else244
-  br label %ifmerge249
-
-ifmerge249:                                       ; preds = %else248, %then246
-  %and_tmp245.0 = phi i1 [ %18, %then246 ], [ false, %else248 ]
+ifmerge249:                                       ; preds = %else244
+  %and_tmp245.0 = select i1 %19, i1 %18, i1 false
   %20 = icmp ne i32 %assignment_tmp240241, 2
   %or_tmp250 = xor i1 %and_tmp245.0, %20
   br label %ifmerge251
