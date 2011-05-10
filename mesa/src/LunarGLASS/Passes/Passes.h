@@ -47,6 +47,9 @@ namespace gla_llvm {
     // Canonicalize the CFG for LunarGLASS
     FunctionPass* createCanonicalizeCFGPass();
 
+    // Canonicalize instructions for LunarGLASS
+    FunctionPass* createCanonicalizeInstsPass();
+
     // // Alias Analysis that says nothing ever aliases.
     // ImmutablePass* createNeverAliasPass();
 

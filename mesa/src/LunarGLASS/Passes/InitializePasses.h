@@ -38,6 +38,8 @@ namespace llvm {
 
     void initializeCanonicalizeCFGPass(PassRegistry&);
 
+    void initializeCanonicalizeInstsPass(PassRegistry&);
+
     void initializeCoalesceInsertsPass(PassRegistry&);
 
     void initializeFlattenCondAssnPass(PassRegistry&);

@@ -59,26 +59,19 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
-  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %entry
   %0 = load float addrspace(1)* @d
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
   %1 = fcmp ogt float %c, %0
-  br i1 %1, label %then, label %else
-
-then:                                             ; preds = %entry
-  %2 = load <4 x float> addrspace(1)* @bigColor
-  %color2 = fadd <4 x float> %BaseColor, %2
-  br label %ifmerge
-
-else:                                             ; preds = %entry
-  %3 = load <4 x float> addrspace(1)* @smallColor
-  %color3 = fadd <4 x float> %BaseColor, %3
-  br label %ifmerge
-
-ifmerge:                                          ; preds = %else, %then
-  %color.0 = phi <4 x float> [ %color2, %then ], [ %color3, %else ]
-  %4 = load <4 x float> addrspace(1)* @otherColor
-  %gl_FragColor = fmul <4 x float> %color.0, %4
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
+  %bigColor.val = load <4 x float> addrspace(1)* @bigColor
+  %smallColor.val = load <4 x float> addrspace(1)* @smallColor
+  %.pn = select i1 %1, <4 x float> %bigColor.val, <4 x float> %smallColor.val
+  %color.0 = fadd <4 x float> %BaseColor, %.pn
+  %2 = load <4 x float> addrspace(1)* @otherColor
+  %gl_FragColor = fmul <4 x float> %color.0, %2
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   ret void
 }
@@ -134,22 +127,14 @@ uniform float d;
 uniform vec4 bigColor;
 uniform vec4 smallColor;
 uniform vec4 otherColor;
-in vec4 BaseColor;
 in float c;
+in vec4 BaseColor;
 
 void main()
 {
-    vec4 color_0;
-    bool temp22 = c > d;
-    if (temp22) {
-        vec4 color2 = BaseColor + bigColor;
-        color_0 = color2;
-    }
-    else {
-        vec4 color3 = BaseColor + smallColor;
-        color_0 = color3;
-    }
-    
+    bool temp21 = c > d;
+    vec4 _pn = temp21 ? bigColor : smallColor
+    vec4 color_0 = BaseColor + _pn;
     gl_FragColor = color_0 * otherColor;
     gl_FragColor = gl_FragColor;
     

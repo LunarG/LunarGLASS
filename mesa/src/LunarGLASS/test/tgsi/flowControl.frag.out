@@ -59,26 +59,19 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
-  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %entry
   %0 = load float addrspace(1)* @d
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
   %1 = fcmp ogt float %c, %0
-  br i1 %1, label %then, label %else
-
-then:                                             ; preds = %entry
-  %2 = load <4 x float> addrspace(1)* @bigColor
-  %color2 = fadd <4 x float> %BaseColor, %2
-  br label %ifmerge
-
-else:                                             ; preds = %entry
-  %3 = load <4 x float> addrspace(1)* @smallColor
-  %color3 = fadd <4 x float> %BaseColor, %3
-  br label %ifmerge
-
-ifmerge:                                          ; preds = %else, %then
-  %color.0 = phi <4 x float> [ %color2, %then ], [ %color3, %else ]
-  %4 = load <4 x float> addrspace(1)* @otherColor
-  %gl_FragColor = fmul <4 x float> %color.0, %4
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
+  %bigColor.val = load <4 x float> addrspace(1)* @bigColor
+  %smallColor.val = load <4 x float> addrspace(1)* @smallColor
+  %.pn = select i1 %1, <4 x float> %bigColor.val, <4 x float> %smallColor.val
+  %color.0 = fadd <4 x float> %BaseColor, %.pn
+  %2 = load <4 x float> addrspace(1)* @otherColor
+  %gl_FragColor = fmul <4 x float> %color.0, %2
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   ret void
 }
@@ -88,18 +81,8 @@ declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
 declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
-# Fragment Program/Shader 0
-  0: MOV TEMP[0], INPUT[-1];
-  1: SGT TEMP[1].x, INPUT[-1].xxxx, UNIFORM[3].xxxx;
-  2: IF TEMP[1].xxxx;  # (if false, goto 5);
-  3:    ADD TEMP[1], INPUT[-1], UNIFORM[2];
-  4:    MOV TEMP[0], TEMP[1];
-  5: ELSE; # (goto 8)
-  6:    ADD TEMP[1], TEMP[0], UNIFORM[1];
-  7:    MOV TEMP[0], TEMP[1];
-  8: ENDIF;
-  9: MUL OUTPUT[2], TEMP[0], UNIFORM[0];
- 10: END
+
+***Unsupported functionality: opcode in Bottom IR: 46
 compiling flowControl.frag...
 uniform float d ; 
 uniform vec4 bigColor , smallColor ; 
@@ -140,38 +123,3 @@ vec4 color = BaseColor ; vec4 color2 ; color2 = otherColor ; if ( c > d ) color 
 
 
 )
-Mesa program before mesa optimizations
-  0: MOV TEMP[1], INPUT[0];
-  1: MOV TEMP[2].x, INPUT[1].xxxx;
-  2: MOV TEMP[3].x, UNIFORM[1].xxxx;
-  3: SGT TEMP[4].x, TEMP[2].xxxx, TEMP[3].xxxx;
-  4: IF TEMP[4].xxxx;  # (if false, goto 0);
-  5:    MOV TEMP[5], UNIFORM[2];
-  6:    ADD TEMP[6], TEMP[1], TEMP[5];
-  7:    MOV TEMP[7], TEMP[6];
-  8: ELSE; # (goto 0)
-  9:    MOV TEMP[8], UNIFORM[3];
- 10:    ADD TEMP[9], TEMP[1], TEMP[8];
- 11:    MOV TEMP[7], TEMP[9];
- 12: ENDIF;
- 13: MOV TEMP[10], UNIFORM[4];
- 14: MUL TEMP[11], TEMP[7], TEMP[10];
- 15: MOV OUTPUT[0], TEMP[11];
- 16: END
-
-Mesa program after mesa optimizations
-  0: MOV TEMP[1], INPUT[0];
-  1: SGT TEMP[2].x, INPUT[1].xxxx, UNIFORM[1].xxxx;
-  2: IF TEMP[2].xxxx;  # (if false, goto 0);
-  3:    ADD TEMP[2], TEMP[1], UNIFORM[2];
-  4:    MOV TEMP[3], TEMP[2];
-  5: ELSE; # (goto 0)
-  6:    ADD TEMP[2], TEMP[1], UNIFORM[3];
-  7:    MOV TEMP[3], TEMP[2];
-  8: ENDIF;
-  9: MUL OUTPUT[0], TEMP[3], UNIFORM[4];
- 10: END
-
-===========================================
-
-Optimized Mesa IR without GLA for linked fragment program 0:

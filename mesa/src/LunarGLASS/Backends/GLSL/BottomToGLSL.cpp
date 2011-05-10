@@ -1000,24 +1000,30 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
             if (const llvm::CmpInst* cmp = llvm::dyn_cast<llvm::CmpInst>(llvmInstruction)) {
                 switch (cmp->getPredicate()) {
                 case llvm::FCmpInst::FCMP_OEQ:
+                case llvm::FCmpInst::FCMP_UEQ: // Possibly revise later
                 case llvm::ICmpInst::ICMP_EQ:   s = "==";  break;
 
                 case llvm::FCmpInst::FCMP_ONE:
+                case llvm::FCmpInst::FCMP_UNE: // Possibly revise later
                 case llvm::ICmpInst::ICMP_NE:   s = "!=";  break;
 
                 case llvm::FCmpInst::FCMP_OGT:
+                case llvm::FCmpInst::FCMP_UGT: // Possibly revise later
                 case llvm::ICmpInst::ICMP_UGT:
                 case llvm::ICmpInst::ICMP_SGT:  s = ">";   break;
 
                 case llvm::FCmpInst::FCMP_OGE:
+                case llvm::FCmpInst::FCMP_UGE: // Possibly revise laterw
                 case llvm::ICmpInst::ICMP_UGE:
                 case llvm::ICmpInst::ICMP_SGE:  s = ">=";  break;
 
                 case llvm::FCmpInst::FCMP_OLT:
+                case llvm::FCmpInst::FCMP_ULT: // Possibly revise later
                 case llvm::ICmpInst::ICMP_ULT:
                 case llvm::ICmpInst::ICMP_SLT:  s = "<";   break;
 
                 case llvm::FCmpInst::FCMP_OLE:
+                case llvm::FCmpInst::FCMP_ULE: // Possibly revise later
                 case llvm::ICmpInst::ICMP_ULE:
                 case llvm::ICmpInst::ICMP_SLE:  s = "<=";  break;
                 default:
@@ -1123,24 +1129,30 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             if (const llvm::CmpInst* cmp = llvm::dyn_cast<llvm::CmpInst>(llvmInstruction)) {
                 switch (cmp->getPredicate()) {
                 case llvm::FCmpInst::FCMP_OEQ:
+                case llvm::FCmpInst::FCMP_UEQ: // Possibly revise later
                 case llvm::ICmpInst::ICMP_EQ:   charOp = "equal";             break;
 
                 case llvm::FCmpInst::FCMP_ONE:
+                case llvm::FCmpInst::FCMP_UNE: // Possibly revise later
                 case llvm::ICmpInst::ICMP_NE:   charOp = "notEqual";          break;
 
                 case llvm::FCmpInst::FCMP_OGT:
+                case llvm::FCmpInst::FCMP_UGT: // Possibly revise later
                 case llvm::ICmpInst::ICMP_UGT:
                 case llvm::ICmpInst::ICMP_SGT:  charOp = "greaterThan";       break;
 
                 case llvm::FCmpInst::FCMP_OGE:
+                case llvm::FCmpInst::FCMP_UGE: // Possibly revise later
                 case llvm::ICmpInst::ICMP_UGE:
                 case llvm::ICmpInst::ICMP_SGE:  charOp = "greaterThanEqual";  break;
 
                 case llvm::FCmpInst::FCMP_OLT:
+                case llvm::FCmpInst::FCMP_ULT: // Possibly revise later
                 case llvm::ICmpInst::ICMP_ULT:
                 case llvm::ICmpInst::ICMP_SLT:  charOp = "lessThan";          break;
 
                 case llvm::FCmpInst::FCMP_OLE:
+                case llvm::FCmpInst::FCMP_ULE: // Possibly revise later
                 case llvm::ICmpInst::ICMP_ULE:
                 case llvm::ICmpInst::ICMP_SLE:  charOp = "lessThanEqual";     break;
                 default:

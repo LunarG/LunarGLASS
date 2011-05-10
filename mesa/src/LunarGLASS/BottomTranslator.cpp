@@ -242,10 +242,10 @@ namespace {
 
 } // end namespace
 
-static void CreateSimpleInductiveLoop(LoopWrapper* loop, gla::BackEndTranslator* bet)
+static void CreateSimpleInductiveLoop(LoopWrapper& loop, gla::BackEndTranslator& bet)
 {
-    const PHINode* pn  = loop->getCanonicalInductionVariable();
-    const Value* count = loop->getTripCount();
+    const PHINode* pn  = loop.getCanonicalInductionVariable();
+    const Value* count = loop.getTripCount();
     assert(pn && count);
 
     int tripCount = gla::GetConstantInt(count);
@@ -254,22 +254,25 @@ static void CreateSimpleInductiveLoop(LoopWrapper* loop, gla::BackEndTranslator*
     if (gla::Options.debug) {
         errs() << "\ninductive variable:"   << *pn;
         errs() << "\n  trip count:        " << tripCount;
-        errs() << "\n  increment:       "   << *loop->getIncrement();
-        errs() << "\n  exit condition:  "   << *loop->getInductiveExitCondition();
+        errs() << "\n  increment:       "   << *loop.getIncrement();
+        errs() << "\n  exit condition:  "   << *loop.getInductiveExitCondition();
         errs() << "\n";
     }
 
-    bet->beginSimpleInductiveLoop(pn, tripCount);
+    bet.beginSimpleInductiveLoop(pn, tripCount);
 }
 
-static void CreateSimpleConditionalLoop(const Value* condition, gla::BackEndTranslator* bet)
+static void CreateSimpleConditionalLoop(LoopWrapper& loop, const Value& condition, gla::BackEndTranslator& bet)
 {
-    assert(condition);
-    const CmpInst* cmp = dyn_cast<CmpInst>(condition);
-    assert(cmp && cmp->getNumOperands() == 2);
+    BasicBlock* header = loop.getHeader();
+    assert(loop.isLoopExiting(header) && (loop.contains(GetSuccessor(0, header))
+                                          || loop.contains(GetSuccessor(1, header))));
 
-    // FIXME: do inversion/no inversion if need be
-    bet->beginSimpleConditionalLoop(cmp, cmp->getOperand(0), cmp->getOperand(1), true);
+    const CmpInst* cmp = dyn_cast<CmpInst>(&condition);
+    assert(cmp && cmp->getNumOperands() == 2 && cmp == GetCondition(header));
+
+    bet.beginSimpleConditionalLoop(cmp, cmp->getOperand(0), cmp->getOperand(1),
+                                   loop.contains(GetSuccessor(1, header)));
 }
 
 // Are all the blocks in the loop present in handledBlocks
@@ -538,7 +541,7 @@ void BottomTranslator::handleIfBlock(const BasicBlock* bb)
     if (! cond) {
         gla::UnsupportedFunctionality("complex continues in loops");
 
-        // TODO: have idconditionls recognizing latching conditionals, then add
+        // TODO: have idconditionals recognizing latching conditionals, then add
         // support for complex continues.
 
         return;
@@ -692,9 +695,10 @@ void BottomTranslator::setUpLoopBegin(const Value* condition)
     // TODO: add more loop constructs here
     // TODO: stick body in here
     if (loop->isSimpleInductive()) {
-        CreateSimpleInductiveLoop(loop, backEndTranslator);
+        CreateSimpleInductiveLoop(*loop, *backEndTranslator);
     } else if (loop->isSimpleConditional()) {
-        CreateSimpleConditionalLoop(condition, backEndTranslator);
+        CreateSimpleConditionalLoop(*loop, *condition, *backEndTranslator);
+
     } else {
         backEndTranslator->beginLoop();
     }

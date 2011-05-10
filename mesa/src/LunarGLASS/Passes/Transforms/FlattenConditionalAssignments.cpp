@@ -202,7 +202,7 @@ bool FlattenCondAssn::createSelects(const Conditional* cond)
         BranchInst* br = dyn_cast<BranchInst>(entry->getTerminator());
         assert(br->isConditional());
 
-        SelectInst* si = SelectInst::Create(br->getCondition(), leftVal, rightVal);
+        SelectInst* si = SelectInst::Create(br->getCondition(), leftVal, rightVal, "select");
         ReplaceInstWithInst(pn, si);
         changed = true;
     }

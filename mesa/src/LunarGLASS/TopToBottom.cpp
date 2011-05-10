@@ -109,8 +109,9 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // TODO: turn off for release builds
     VerifyModule(module);
 
-    // TODO: If we can turn on InstCombine, then replace many of the occurances
-    // of InstSimplify with InstCombine.
+    // TODO: When we have backend support for shuffles, or we canonicalie
+    // shuffles into multiinserts, we can replace the InstSimplify passes with
+    // InstCombine passes.
 
     // First, do some global (module-level) optimizations, which can free up
     // function passes to do more.
@@ -154,6 +155,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // Make multiinsert intrinsics, and clean up afterwards
     passManager.add(gla_llvm::createCoalesceInsertsPass());
     passManager.add(llvm::createAggressiveDCEPass());
+    passManager.add(llvm::createInstructionCombiningPass());
 
     // Loop optimizations, and clean up afterwards
     passManager.add(llvm::createIndVarSimplifyPass());
@@ -171,7 +173,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // passManager.add(llvm::createSinkingPass());
 
     // Run some post-redancy-elimination passes
-    passManager.add(llvm::createInstructionSimplifierPass());
+    passManager.add(llvm::createInstructionCombiningPass());
     passManager.add(llvm::createCorrelatedValuePropagationPass());
     passManager.add(llvm::createAggressiveDCEPass());
 
@@ -188,7 +190,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
 
     // Post Function passes cleanup
     llvm::PassManager pm;
-    pm.add(llvm::createInstructionSimplifierPass());
+    pm.add(llvm::createInstructionCombiningPass());
     pm.add(llvm::createDeadStoreEliminationPass());
     pm.add(llvm::createAggressiveDCEPass());
     pm.add(llvm::createStripDeadPrototypesPass());
@@ -242,6 +244,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
 
     canonicalize.add(llvm::createIndVarSimplifyPass());
     canonicalize.add(gla_llvm::createCanonicalizeCFGPass());
+    canonicalize.add(gla_llvm::createCanonicalizeInstsPass());
     canonicalize.run(*module);
 
     // TODO: turn off for release builds

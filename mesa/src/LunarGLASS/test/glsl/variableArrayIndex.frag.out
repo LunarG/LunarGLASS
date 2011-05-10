@@ -122,44 +122,45 @@ then:                                             ; preds = %entry
   %2 = load i32 addrspace(1)* getelementptr inbounds (%lunarStruct1 addrspace(1)* @foo, i32 0, i32 0)
   %3 = getelementptr %lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 %2, i32 0
   %4 = load i32 addrspace(1)* %3
-  %5 = add i32 %assignment_tmp2, 2
+  %5 = add i32 %iLocal1, 3
   %6 = add i32 %5, %4
   %7 = getelementptr [6 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 %6, i32 2, i32 1
-  %scale4 = load float addrspace(1)* %7
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %scale5 = load float addrspace(1)* getelementptr inbounds (%lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 0, i32 2, i32 1)
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
   %iLocal.0 = phi i32 [ %assignment_tmp2, %then ], [ %iLocal1, %else ]
-  %scale.0 = phi float [ %scale4, %then ], [ %scale5, %else ]
-  %tmp = icmp sgt i32 %iLocal.0, 0
-  %smax = select i1 %tmp, i32 %iLocal.0, i32 0
-  %tmp20 = zext i32 %smax to i64
+  %scale.0.in = phi float addrspace(1)* [ %7, %then ], [ getelementptr inbounds (%lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 0, i32 2, i32 1), %else ]
+  %scale.0 = load float addrspace(1)* %scale.0.in
+  %tmp15 = icmp sgt i32 %iLocal.0, 0
+  %8 = zext i32 %iLocal.0 to i64
+  %.op = add i64 %8, 1
+  %tmp18 = select i1 %tmp15, i64 %.op, i64 1
+  %tmp = add i64 %tmp18, -1
   br label %loop-header
 
 loop-header:                                      ; preds = %ifmerge7, %ifmerge
   %indvar = phi i64 [ %indvar.next, %ifmerge7 ], [ 0, %ifmerge ]
-  %scale.1 = phi float [ %scale.0, %ifmerge ], [ %scale8, %ifmerge7 ]
-  %tmp22 = mul i64 %indvar, ptrtoint (i8* getelementptr (i8* null, i32 1) to i64)
-  %lsr.iv14 = getelementptr [6 x %lunarStruct2] addrspace(1)* @foo2, i64 0, i64 %tmp22, i32 1
-  %exitcond21 = icmp eq i64 %indvar, %tmp20
-  br i1 %exitcond21, label %then6, label %ifmerge7
+  %scale.1 = phi float [ %scale8, %ifmerge7 ], [ %scale.0, %ifmerge ]
+  %tmp21 = mul i64 %indvar, ptrtoint (i8* getelementptr (i8* null, i32 1) to i64)
+  %lsr.iv14 = getelementptr [6 x %lunarStruct2] addrspace(1)* @foo2, i64 0, i64 %tmp21, i32 1
+  %exitcond20 = icmp eq i64 %indvar, %tmp
+  br i1 %exitcond20, label %then6, label %ifmerge7
 
 then6:                                            ; preds = %loop-header
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
-  %8 = load i32 addrspace(1)* @"sampler2D sampler"
-  %9 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %8, i32 0, <2 x float> %coord)
-  %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.1, i32 0)
-  %gl_FragColor = fmul <4 x float> %10, %9
+  %9 = load i32 addrspace(1)* @"sampler2D sampler"
+  %10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %coord)
+  %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.1, i32 0)
+  %gl_FragColor = fmul <4 x float> %11, %10
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   ret void
 
 ifmerge7:                                         ; preds = %loop-header
-  %11 = load float addrspace(1)* %lsr.iv14
-  %scale8 = fadd float %scale.1, %11
+  %12 = load float addrspace(1)* %lsr.iv14
+  %scale8 = fadd float %scale.1, %12
   %indvar.next = add i64 %indvar, 1
   br label %loop-header
 }
