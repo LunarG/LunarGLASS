@@ -1172,27 +1172,23 @@ ifmerge142:                                       ; preds = %else141, %then139
   %103 = sub i32 %102, %85
   %104 = sdiv i32 %103, %i103
   %assignment_tmp143144 = srem i32 %104, %85
-  br i1 false, label %then146, label %else147
-
-then146:                                          ; preds = %ifmerge142
-  br label %ifmerge154
+  br label %else147
 
 else147:                                          ; preds = %ifmerge142
   br label %ifmerge152
 
 ifmerge152:                                       ; preds = %else147
-  %105 = icmp ne i32 %assignment_tmp143144, 2
   br label %ifmerge154
 
-ifmerge154:                                       ; preds = %ifmerge152, %then146
-  %or_tmp.0 = phi i1 [ true, %then146 ], [ %105, %ifmerge152 ]
-  br i1 %or_tmp.0, label %then155, label %ifmerge157
+ifmerge154:                                       ; preds = %ifmerge152
+  %105 = icmp eq i32 %assignment_tmp143144, 2
+  br i1 %105, label %ifmerge157, label %then155
 
 then155:                                          ; preds = %ifmerge154
   %i156 = add i32 %assignment_tmp143144, 1
   br label %ifmerge157
 
-ifmerge157:                                       ; preds = %then155, %ifmerge154
+ifmerge157:                                       ; preds = %ifmerge154, %then155
   %i.0 = phi i32 [ %i156, %then155 ], [ %assignment_tmp143144, %ifmerge154 ]
   %106 = fadd float %64, %64
   %107 = fmul float %106, %64

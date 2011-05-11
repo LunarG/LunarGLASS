@@ -171,6 +171,7 @@ namespace gla_llvm {
             children.push_back(*i);
         }
     }
+
     inline void GetDominatedChildren(const DominatorTree& dt, const BasicBlock* bb, SmallVectorImpl<const BasicBlock*>& children)
     {
         for (df_iterator<const BasicBlock*> i = df_begin(bb), e = df_end(bb); i != e; ++i) {

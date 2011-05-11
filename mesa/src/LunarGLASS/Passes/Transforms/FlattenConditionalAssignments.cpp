@@ -80,17 +80,23 @@ namespace  {
         IdentifyConditionals* idConds;
         DominatorTree* domTree;
 
-
-        // Have conditional assignments be select instructions in the merge
-        // block. Currently only creates selects from phi nodes that receive
-        // their values from empty left and right blocks.
-        bool createSelects(const Conditional*);
-
-        bool simplifyAndRemoveDeadCode(Conditional*);
-
-        bool removeEmptyConditional(Conditional*);
-
         bool flattenConds();
+
+        bool createSelects(Conditional* cond)
+        {
+            return cond->createMergeSelects();
+        }
+
+        bool simplifyAndRemoveDeadCode(Conditional* cond)
+        {
+            return cond->simplifyInsts();
+        }
+
+        bool removeEmptyConditional(Conditional* cond)
+        {
+            cond->recalculate();
+            return cond->removeIfEmpty() || cond->removeIfUnconditional();
+        }
     };
 } // end namespace
 
@@ -118,7 +124,7 @@ bool FlattenCondAssn::flattenConds()
         if (!cond)
             continue;
 
-        BasicBlock* entry = cond->getEntryBlock();
+        const BasicBlock* entry = cond->getEntryBlock();
 
         // See if the then, else, and merge blocks are all dominated by the
         // entry. If this doesn't hold, we're not interested in it.
@@ -142,136 +148,6 @@ bool FlattenCondAssn::flattenConds()
             idConds->nullConditional(entry);
         };
     }
-
-    return changed;
-}
-
-// Have conditional assignments be select instructions in the merge
-// block. Currently only creates selects from phi nodes that receive their
-// values from empty left and right blocks.
-
-// TODO: Revise and test for the case that the phi gets its value from the left
-// or right subgraphs, but the value still is just contingent on the entry's
-// condition. Also, handle the case where the left and right blocks are not
-// empty, but the value is not defined in them.
-bool FlattenCondAssn::createSelects(const Conditional* cond)
-{
-    bool changed = false;
-
-    BasicBlock* left  = cond->getThenBlock();
-    BasicBlock* right = cond->getElseBlock();
-    BasicBlock* merge = cond->getMergeBlock();
-    BasicBlock* entry = cond->getEntryBlock();
-
-    // We only work on empty left and right blocks for now.
-    if (! IsEmptyBB(left) || ! IsEmptyBB(right))
-        return changed;
-
-    // Check all the phis, and change any of the ones that receive their value
-    // from left and right into selects on the entry's condition.
-    for (BasicBlock::iterator instI = merge->begin(), instE = merge->end(), nextInst; instI != instE; instI = nextInst) {
-        nextInst = instI;
-        ++nextInst;
-
-        PHINode* pn = dyn_cast<PHINode>(instI);
-        if (!pn)
-            break;
-
-        // We only want phis from left and right
-        if (pn->getNumIncomingValues() != 2) {
-            continue;
-        }
-
-        Value* leftVal = NULL;
-        Value* rightVal = NULL;
-
-        for (int i = 0; i < 2; ++i) {
-            if (pn->getIncomingBlock(i) == left)
-                leftVal = pn->getIncomingValue(i);
-            else if (pn->getIncomingBlock(i) == right)
-                rightVal = pn->getIncomingValue(i);
-        }
-
-        if (! leftVal || ! rightVal) {
-            continue;
-        }
-
-        // If we've made it this far, we have a phi we want to convert into a
-        // select.
-
-        BranchInst* br = dyn_cast<BranchInst>(entry->getTerminator());
-        assert(br->isConditional());
-
-        SelectInst* si = SelectInst::Create(br->getCondition(), leftVal, rightVal, "select");
-        ReplaceInstWithInst(pn, si);
-        changed = true;
-    }
-
-    return changed;
-}
-
-bool FlattenCondAssn::simplifyAndRemoveDeadCode(Conditional* cond)
-{
-    bool changed = false;
-    changed |= SimplifyInstructionsInBlock(cond->getEntryBlock());
-    changed |= SimplifyInstructionsInBlock(cond->getThenBlock());
-    changed |= SimplifyInstructionsInBlock(cond->getElseBlock());
-
-    // TODO: Remove dead code in the then and else subgraphs
-
-    // <do stuff>
-    return false;
-}
-
-bool FlattenCondAssn::removeEmptyConditional(Conditional* cond)
-{
-    // TODO: remove next line after updating affected conditionals has been
-    // added
-    cond->recalculate();
-
-    if (!cond->isSelfContained() || !cond->isEmptyConditional())
-        return false;
-
-    BasicBlock* left  = cond->getThenBlock();
-    BasicBlock* right = cond->getElseBlock();
-    BasicBlock* merge = cond->getMergeBlock();
-    BasicBlock* entry = cond->getEntryBlock();
-
-    // We don't yet handle phis in the merge block
-    // TODO: update once handling of phis in merge block has been taken care of.
-    if (HasPHINodes(merge))
-        return false;
-
-    // TODO: change to an assert when conditionals are properly updated
-    if (! entry->getParent())
-        return false;
-
-    BranchInst* entryBranch = dyn_cast<BranchInst>(entry->getTerminator());
-    assert(entryBranch);
-
-    bool changed = true;
-
-    // errs() << " \n\n"
-    //        << "RemoveEmptyConditional:\n"
-    //        << "Entry: " << *entry
-    //        << "Left:  " << *left
-    //        << "Right: " << *right
-    //        << "Merge: " << *merge;
-
-    ReplaceInstWithInst(entryBranch, BranchInst::Create(merge));
-
-    changed |= SimplifyInstructionsInBlock(entry);
-    changed |= SimplifyInstructionsInBlock(merge);
-
-    // TODO: check for the case where there's a phi node in merge, and handle it
-    // appropriately
-
-    RecursivelyRemoveNoPredecessorBlocks(left);
-    RecursivelyRemoveNoPredecessorBlocks(right);
-
-    // TODO: merge the block into the predecessor, and update any
-    // affected conditionals
-    // MergeBasicBlockIntoOnlyPred(merge);
 
     return changed;
 }

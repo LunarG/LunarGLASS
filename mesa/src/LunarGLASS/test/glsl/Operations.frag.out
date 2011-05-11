@@ -1172,27 +1172,23 @@ ifmerge142:                                       ; preds = %else141, %then139
   %103 = sub i32 %102, %85
   %104 = sdiv i32 %103, %i103
   %assignment_tmp143144 = srem i32 %104, %85
-  br i1 false, label %then146, label %else147
-
-then146:                                          ; preds = %ifmerge142
-  br label %ifmerge154
+  br label %else147
 
 else147:                                          ; preds = %ifmerge142
   br label %ifmerge152
 
 ifmerge152:                                       ; preds = %else147
-  %105 = icmp ne i32 %assignment_tmp143144, 2
   br label %ifmerge154
 
-ifmerge154:                                       ; preds = %ifmerge152, %then146
-  %or_tmp.0 = phi i1 [ true, %then146 ], [ %105, %ifmerge152 ]
-  br i1 %or_tmp.0, label %then155, label %ifmerge157
+ifmerge154:                                       ; preds = %ifmerge152
+  %105 = icmp eq i32 %assignment_tmp143144, 2
+  br i1 %105, label %ifmerge157, label %then155
 
 then155:                                          ; preds = %ifmerge154
   %i156 = add i32 %assignment_tmp143144, 1
   br label %ifmerge157
 
-ifmerge157:                                       ; preds = %then155, %ifmerge154
+ifmerge157:                                       ; preds = %ifmerge154, %then155
   %i.0 = phi i32 [ %i156, %then155 ], [ %assignment_tmp143144, %ifmerge154 ]
   %106 = fadd float %64, %64
   %107 = fmul float %106, %64
@@ -1646,21 +1642,21 @@ uniform float uf;
 uniform int ui;
 uniform bvec4 ub41;
 uniform bvec4 ub42;
-const float const37 = 0.017453;
-const float const40 = 57.2958;
-const float const115 = 1;
-const float const117 = 0;
-const float const119 = 2;
-const float const122 = 3;
-const vec4 const135 = vec4(-0);
-const vec4 const150 = vec4(0);
-const bvec4 const179 = bvec4(0);
-const bool const182 = false;
-const bool const195 = true;
-const int const202 = 2;
-const int const204 = 1;
-const int const229 = 66;
-const int const232 = 17;
+const float const36 = 0.017453;
+const float const39 = 57.2958;
+const float const114 = 1;
+const float const116 = 0;
+const float const118 = 2;
+const float const121 = 3;
+const vec4 const134 = vec4(-0);
+const vec4 const149 = vec4(0);
+const bvec4 const178 = bvec4(0);
+const bool const181 = false;
+const bool const194 = true;
+const int const201 = 2;
+const int const203 = 1;
+const int const228 = 66;
+const int const231 = 17;
 
 void main()
 {
@@ -1673,196 +1669,195 @@ void main()
     bool and_tmp128_0;
     bool and_tmp133_0;
     bool and_tmp138_0;
-    bool or_tmp_0;
     int i_0;
     bool and_tmp171_0;
     bool or_tmp168_0;
     float f_0;
     vec4 conditional_tmp_0;
-    vec4 temp36 = vec4(const37);
-    vec4 _ret_val1 = uv4 * temp36;
-    vec4 temp39 = vec4(const40);
-    vec4 temp41 = _ret_val1 * temp39;
-    vec4 assignment_tmp2 = _ret_val1 + temp41;
-    vec4 temp43 = sin(assignment_tmp2);
-    vec4 assignment_tmp34 = assignment_tmp2 + temp43;
-    vec4 temp45 = cos(assignment_tmp34);
-    vec4 assignment_tmp56 = assignment_tmp34 + temp45;
-    vec4 temp47 = tan(assignment_tmp56);
-    vec4 assignment_tmp78 = assignment_tmp56 + temp47;
-    vec4 temp49 = asin(assignment_tmp78);
-    vec4 assignment_tmp910 = assignment_tmp78 + temp49;
-    vec4 temp51 = acos(assignment_tmp910);
-    vec4 assignment_tmp1112 = assignment_tmp910 + temp51;
-    vec4 temp53 = atan(assignment_tmp1112);
-    vec4 assignment_tmp1314 = assignment_tmp1112 + temp53;
-    vec4 temp55 = sinh(assignment_tmp1314);
-    vec4 assignment_tmp1516 = assignment_tmp1314 + temp55;
-    vec4 temp57 = cosh(assignment_tmp1516);
-    vec4 assignment_tmp1718 = assignment_tmp1516 + temp57;
-    vec4 temp59 = tanh(assignment_tmp1718);
-    vec4 assignment_tmp1920 = assignment_tmp1718 + temp59;
-    vec4 temp61 = pow(assignment_tmp1920, assignment_tmp1920);
-    vec4 assignment_tmp2122 = assignment_tmp1920 + temp61;
-    vec4 temp63 = exp(assignment_tmp2122);
-    vec4 assignment_tmp2324 = assignment_tmp2122 + temp63;
-    vec4 temp65 = log(assignment_tmp2324);
-    vec4 assignment_tmp2526 = assignment_tmp2324 + temp65;
-    vec4 temp67 = exp2(assignment_tmp2526);
-    vec4 assignment_tmp2728 = assignment_tmp2526 + temp67;
-    vec4 temp69 = log2(assignment_tmp2728);
-    vec4 assignment_tmp2930 = assignment_tmp2728 + temp69;
-    vec4 temp71 = sqrt(assignment_tmp2930);
-    vec4 assignment_tmp3132 = assignment_tmp2930 + temp71;
-    vec4 temp73 = inversesqrt(assignment_tmp3132);
-    vec4 assignment_tmp3334 = assignment_tmp3132 + temp73;
-    vec4 temp75 = abs(assignment_tmp3334);
-    vec4 assignment_tmp3536 = assignment_tmp3334 + temp75;
-    vec4 temp77 = sign(assignment_tmp3536);
-    vec4 assignment_tmp3738 = assignment_tmp3536 + temp77;
-    vec4 temp79 = floor(assignment_tmp3738);
-    vec4 assignment_tmp3940 = assignment_tmp3738 + temp79;
-    vec4 temp81 = ceil(assignment_tmp3940);
-    vec4 assignment_tmp4142 = assignment_tmp3940 + temp81;
-    vec4 temp83 = fract(assignment_tmp4142);
-    vec4 assignment_tmp4344 = assignment_tmp4142 + temp83;
-    vec4 temp85 = mod(assignment_tmp4344, assignment_tmp4344);
-    vec4 assignment_tmp4546 = assignment_tmp4344 + temp85;
-    vec4 temp87 = vec4(assignment_tmp4546.x);
-    vec4 temp88 = mod(assignment_tmp4546, temp87);
-    vec4 assignment_tmp4748 = assignment_tmp4546 + temp88;
-    vec4 temp90 = min(assignment_tmp4748, uv4);
-    vec4 assignment_tmp4950 = assignment_tmp4748 + temp90;
-    vec4 temp92 = max(assignment_tmp4950, uv4);
-    vec4 assignment_tmp5152 = assignment_tmp4950 + temp92;
-    vec4 temp94 = min(assignment_tmp5152, uv4);
-    vec4 temp95 = max(temp94, uv4);
-    vec4 assignment_tmp5354 = assignment_tmp5152 + temp95;
+    vec4 temp35 = vec4(const36);
+    vec4 _ret_val1 = uv4 * temp35;
+    vec4 temp38 = vec4(const39);
+    vec4 temp40 = _ret_val1 * temp38;
+    vec4 assignment_tmp2 = _ret_val1 + temp40;
+    vec4 temp42 = sin(assignment_tmp2);
+    vec4 assignment_tmp34 = assignment_tmp2 + temp42;
+    vec4 temp44 = cos(assignment_tmp34);
+    vec4 assignment_tmp56 = assignment_tmp34 + temp44;
+    vec4 temp46 = tan(assignment_tmp56);
+    vec4 assignment_tmp78 = assignment_tmp56 + temp46;
+    vec4 temp48 = asin(assignment_tmp78);
+    vec4 assignment_tmp910 = assignment_tmp78 + temp48;
+    vec4 temp50 = acos(assignment_tmp910);
+    vec4 assignment_tmp1112 = assignment_tmp910 + temp50;
+    vec4 temp52 = atan(assignment_tmp1112);
+    vec4 assignment_tmp1314 = assignment_tmp1112 + temp52;
+    vec4 temp54 = sinh(assignment_tmp1314);
+    vec4 assignment_tmp1516 = assignment_tmp1314 + temp54;
+    vec4 temp56 = cosh(assignment_tmp1516);
+    vec4 assignment_tmp1718 = assignment_tmp1516 + temp56;
+    vec4 temp58 = tanh(assignment_tmp1718);
+    vec4 assignment_tmp1920 = assignment_tmp1718 + temp58;
+    vec4 temp60 = pow(assignment_tmp1920, assignment_tmp1920);
+    vec4 assignment_tmp2122 = assignment_tmp1920 + temp60;
+    vec4 temp62 = exp(assignment_tmp2122);
+    vec4 assignment_tmp2324 = assignment_tmp2122 + temp62;
+    vec4 temp64 = log(assignment_tmp2324);
+    vec4 assignment_tmp2526 = assignment_tmp2324 + temp64;
+    vec4 temp66 = exp2(assignment_tmp2526);
+    vec4 assignment_tmp2728 = assignment_tmp2526 + temp66;
+    vec4 temp68 = log2(assignment_tmp2728);
+    vec4 assignment_tmp2930 = assignment_tmp2728 + temp68;
+    vec4 temp70 = sqrt(assignment_tmp2930);
+    vec4 assignment_tmp3132 = assignment_tmp2930 + temp70;
+    vec4 temp72 = inversesqrt(assignment_tmp3132);
+    vec4 assignment_tmp3334 = assignment_tmp3132 + temp72;
+    vec4 temp74 = abs(assignment_tmp3334);
+    vec4 assignment_tmp3536 = assignment_tmp3334 + temp74;
+    vec4 temp76 = sign(assignment_tmp3536);
+    vec4 assignment_tmp3738 = assignment_tmp3536 + temp76;
+    vec4 temp78 = floor(assignment_tmp3738);
+    vec4 assignment_tmp3940 = assignment_tmp3738 + temp78;
+    vec4 temp80 = ceil(assignment_tmp3940);
+    vec4 assignment_tmp4142 = assignment_tmp3940 + temp80;
+    vec4 temp82 = fract(assignment_tmp4142);
+    vec4 assignment_tmp4344 = assignment_tmp4142 + temp82;
+    vec4 temp84 = mod(assignment_tmp4344, assignment_tmp4344);
+    vec4 assignment_tmp4546 = assignment_tmp4344 + temp84;
+    vec4 temp86 = vec4(assignment_tmp4546.x);
+    vec4 temp87 = mod(assignment_tmp4546, temp86);
+    vec4 assignment_tmp4748 = assignment_tmp4546 + temp87;
+    vec4 temp89 = min(assignment_tmp4748, uv4);
+    vec4 assignment_tmp4950 = assignment_tmp4748 + temp89;
+    vec4 temp91 = max(assignment_tmp4950, uv4);
+    vec4 assignment_tmp5152 = assignment_tmp4950 + temp91;
+    vec4 temp93 = min(assignment_tmp5152, uv4);
+    vec4 temp94 = max(temp93, uv4);
+    vec4 assignment_tmp5354 = assignment_tmp5152 + temp94;
     vec4 mix_retval56 = mix(assignment_tmp5354, assignment_tmp5354, assignment_tmp5354);
     vec4 assignment_tmp5758 = assignment_tmp5354 + mix_retval56;
-    float temp99 = float(ub);
-    vec4 mix_retval6061 = mix(assignment_tmp5758, assignment_tmp5758, temp99);
+    float temp98 = float(ub);
+    vec4 mix_retval6061 = mix(assignment_tmp5758, assignment_tmp5758, temp98);
     vec4 assignment_tmp6263 = assignment_tmp5758 + mix_retval6061;
     bool ord = assignment_tmp6263.x == assignment_tmp6263.x;
-    float temp103 = float(ord);
+    float temp102 = float(ord);
     bool ord190 = assignment_tmp6263.y == assignment_tmp6263.y;
-    float temp105 = float(ord190);
+    float temp104 = float(ord190);
     bool ord191 = assignment_tmp6263.z == assignment_tmp6263.z;
-    float temp107 = float(ord191);
+    float temp106 = float(ord191);
     bool ord192 = assignment_tmp6263.w == assignment_tmp6263.w;
-    float temp109 = float(ord192);
-    vec4 temp110 = vec4(temp103, temp105, temp107, temp109);
-    vec4 assignment_tmp6869 = assignment_tmp6263 + temp110;
-    vec4 temp112 = assignment_tmp6869 - assignment_tmp6869;
-    vec4 temp113 = temp112 / temp112;
-    vec4 temp114 = min(temp113, const115);
-    vec4 temp116 = max(temp114, const117);
-    vec4 temp118 = vec4(const119);
-    vec4 temp120 = temp118 * temp116;
-    vec4 temp121 = vec4(const122);
-    vec4 temp123 = temp121 - temp120;
-    vec4 temp124 = temp116 * temp123;
-    vec4 temp125 = temp116 * temp124;
-    vec4 assignment_tmp7273 = assignment_tmp6869 + temp125;
-    float temp127 = dot(assignment_tmp7273, assignment_tmp7273);
-    float temp128 = inversesqrt(temp127);
-    vec4 temp129 = vec4(temp128);
-    vec4 temp130 = assignment_tmp7273 * temp129;
-    vec4 assignment_tmp7475 = assignment_tmp7273 + temp130;
-    float temp132 = dot(assignment_tmp7475, assignment_tmp7475);
-    bool temp133 = temp132 < const117;
-    if (temp133) {
+    float temp108 = float(ord192);
+    vec4 temp109 = vec4(temp102, temp104, temp106, temp108);
+    vec4 assignment_tmp6869 = assignment_tmp6263 + temp109;
+    vec4 temp111 = assignment_tmp6869 - assignment_tmp6869;
+    vec4 temp112 = temp111 / temp111;
+    vec4 temp113 = min(temp112, const114);
+    vec4 temp115 = max(temp113, const116);
+    vec4 temp117 = vec4(const118);
+    vec4 temp119 = temp117 * temp115;
+    vec4 temp120 = vec4(const121);
+    vec4 temp122 = temp120 - temp119;
+    vec4 temp123 = temp115 * temp122;
+    vec4 temp124 = temp115 * temp123;
+    vec4 assignment_tmp7273 = assignment_tmp6869 + temp124;
+    float temp126 = dot(assignment_tmp7273, assignment_tmp7273);
+    float temp127 = inversesqrt(temp126);
+    vec4 temp128 = vec4(temp127);
+    vec4 temp129 = assignment_tmp7273 * temp128;
+    vec4 assignment_tmp7475 = assignment_tmp7273 + temp129;
+    float temp131 = dot(assignment_tmp7475, assignment_tmp7475);
+    bool temp132 = temp131 < const116;
+    if (temp132) {
         return_value_0 = assignment_tmp7475;
     }
     else {
-        vec4 return_value78 = const135 - assignment_tmp7475;
+        vec4 return_value78 = const134 - assignment_tmp7475;
         return_value_0 = return_value78;
     }
     
     vec4 assignment_tmp7980 = assignment_tmp7475 + return_value_0;
-    float temp137 = dot(assignment_tmp7980, assignment_tmp7980);
-    vec4 temp138 = vec4(temp137);
-    vec4 temp139 = temp138 * assignment_tmp7980;
-    vec4 temp140 = temp118 * temp139;
-    vec4 temp141 = assignment_tmp7980 - temp140;
-    vec4 assignment_tmp8182 = assignment_tmp7980 + temp141;
-    float temp143 = dot(assignment_tmp8182, assignment_tmp8182);
-    float temp144 = temp143 * temp143;
-    float temp145 = const115 - temp144;
+    float temp136 = dot(assignment_tmp7980, assignment_tmp7980);
+    vec4 temp137 = vec4(temp136);
+    vec4 temp138 = temp137 * assignment_tmp7980;
+    vec4 temp139 = temp117 * temp138;
+    vec4 temp140 = assignment_tmp7980 - temp139;
+    vec4 assignment_tmp8182 = assignment_tmp7980 + temp140;
+    float temp142 = dot(assignment_tmp8182, assignment_tmp8182);
+    float temp143 = temp142 * temp142;
+    float temp144 = const114 - temp143;
+    float temp145 = uf * temp144;
     float temp146 = uf * temp145;
-    float temp147 = uf * temp146;
-    float temp148 = const115 - temp147;
-    bool temp149 = temp148 < const117;
-    if (temp149) {
-        return_value84_0 = const150;
+    float temp147 = const114 - temp146;
+    bool temp148 = temp147 < const116;
+    if (temp148) {
+        return_value84_0 = const149;
     }
     else {
-        vec4 temp151 = vec4(uf);
-        vec4 temp152 = temp151 * assignment_tmp8182;
-        float temp153 = uf * temp143;
-        float temp154 = sqrt(temp148);
-        float temp155 = temp153 + temp154;
-        vec4 temp156 = vec4(temp155);
-        vec4 temp157 = temp156 * assignment_tmp8182;
-        vec4 return_value8488 = temp152 - temp157;
+        vec4 temp150 = vec4(uf);
+        vec4 temp151 = temp150 * assignment_tmp8182;
+        float temp152 = uf * temp142;
+        float temp153 = sqrt(temp147);
+        float temp154 = temp152 + temp153;
+        vec4 temp155 = vec4(temp154);
+        vec4 temp156 = temp155 * assignment_tmp8182;
+        vec4 return_value8488 = temp151 - temp156;
         return_value84_0 = return_value8488;
     }
     
     vec4 assignment_tmp9091 = assignment_tmp8182 + return_value84_0;
-    vec4 temp160 = dFdx(assignment_tmp9091);
-    vec4 assignment_tmp9293 = assignment_tmp9091 + temp160;
-    vec4 temp162 = dFdy(assignment_tmp9293);
-    vec4 assignment_tmp9495 = assignment_tmp9293 + temp162;
-    vec4 temp164 = dFdx(assignment_tmp9495);
-    vec4 temp165 = abs(temp164);
-    vec4 temp166 = dFdy(assignment_tmp9495);
-    vec4 temp167 = abs(temp166);
-    vec4 temp168 = temp165 + temp167;
-    vec4 temp169 = assignment_tmp9495 + temp168;
+    vec4 temp159 = dFdx(assignment_tmp9091);
+    vec4 assignment_tmp9293 = assignment_tmp9091 + temp159;
+    vec4 temp161 = dFdy(assignment_tmp9293);
+    vec4 assignment_tmp9495 = assignment_tmp9293 + temp161;
+    vec4 temp163 = dFdx(assignment_tmp9495);
+    vec4 temp164 = abs(temp163);
+    vec4 temp165 = dFdy(assignment_tmp9495);
+    vec4 temp166 = abs(temp165);
+    vec4 temp167 = temp164 + temp166;
+    vec4 temp168 = assignment_tmp9495 + temp167;
     int assignment_tmp9798 = abs(ui);
-    int temp171 = min(assignment_tmp9798, ui);
-    int assignment_tmp99100 = temp171 + assignment_tmp9798;
-    int temp173 = max(assignment_tmp99100, ui);
-    int assignment_tmp101102 = assignment_tmp99100 + temp173;
-    int temp175 = min(assignment_tmp101102, ui);
-    int temp176 = max(temp175, ui);
-    int temp177 = temp176 + assignment_tmp101102;
-    bool temp178 = any(const179);
-    if (temp178) {
-        bvec4 ord193 = equal(temp169, temp169);
+    int temp170 = min(assignment_tmp9798, ui);
+    int assignment_tmp99100 = temp170 + assignment_tmp9798;
+    int temp172 = max(assignment_tmp99100, ui);
+    int assignment_tmp101102 = assignment_tmp99100 + temp172;
+    int temp174 = min(assignment_tmp101102, ui);
+    int temp175 = max(temp174, ui);
+    int temp176 = temp175 + assignment_tmp101102;
+    bool temp177 = any(const178);
+    if (temp177) {
+        bvec4 ord193 = equal(temp168, temp168);
         bool and_tmp105 = any(ord193);
         and_tmp_0 = and_tmp105;
     }
     else {
-        and_tmp_0 = const182;
+        and_tmp_0 = const181;
     }
     
-    bool select = and_tmp_0 & temp178;
+    bool select = and_tmp_0 & temp177;
     if (select) {
-        bvec4 ord194 = equal(temp169, temp169);
+        bvec4 ord194 = equal(temp168, temp168);
         bool and_tmp113115 = any(ord194);
         and_tmp113_0 = and_tmp113115;
     }
     else {
-        and_tmp113_0 = const182;
+        and_tmp113_0 = const181;
     }
     
     if (and_tmp113_0) {
-        bvec4 temp186 = equal(ub41, ub42);
-        bool and_tmp118120 = any(temp186);
+        bvec4 temp185 = equal(ub41, ub42);
+        bool and_tmp118120 = any(temp185);
         and_tmp118_0 = and_tmp118120;
     }
     else {
-        and_tmp118_0 = const182;
+        and_tmp118_0 = const181;
     }
     
     if (and_tmp118_0) {
-        bvec4 temp188 = notEqual(ub41, ub42);
-        bool and_tmp123125 = any(temp188);
+        bvec4 temp187 = notEqual(ub41, ub42);
+        bool and_tmp123125 = any(temp187);
         and_tmp123_0 = and_tmp123125;
     }
     else {
-        and_tmp123_0 = const182;
+        and_tmp123_0 = const181;
     }
     
     if (and_tmp123_0) {
@@ -1870,7 +1865,7 @@ void main()
         and_tmp128_0 = and_tmp128130;
     }
     else {
-        and_tmp128_0 = const182;
+        and_tmp128_0 = const181;
     }
     
     if (and_tmp128_0) {
@@ -1878,69 +1873,62 @@ void main()
         and_tmp133_0 = and_tmp133135;
     }
     else {
-        and_tmp133_0 = const182;
+        and_tmp133_0 = const181;
     }
     
     if (and_tmp133_0) {
-        bvec4 temp192 = not(ub41);
-        bool and_tmp138140 = any(temp192);
+        bvec4 temp191 = not(ub41);
+        bool and_tmp138140 = any(temp191);
         bool phitmp = !(and_tmp138140);
         and_tmp138_0 = phitmp;
     }
     else {
-        and_tmp138_0 = const195;
+        and_tmp138_0 = const194;
     }
     
-    int temp196 = ui + temp177;
-    int temp197 = temp196 * temp177;
-    int temp198 = temp197 - ui;
-    int temp199 = temp198 / temp177;
-    int assignment_tmp143144 = temp199 % ui;
-    if (const182) {
-        or_tmp_0 = const195;
-    }
-    else {
-        bool temp201 = assignment_tmp143144 != const202;
-        or_tmp_0 = temp201;
-    }
-    
+    int temp195 = ui + temp176;
+    int temp196 = temp195 * temp176;
+    int temp197 = temp196 - ui;
+    int temp198 = temp197 / temp176;
+    int assignment_tmp143144 = temp198 % ui;
+    bool temp200 = assignment_tmp143144 == const201;
     i_0 = assignment_tmp143144;
-    if (or_tmp_0) {
-        int temp203 = assignment_tmp143144 + const204;
-        i_0 = temp203;
+    if (! temp200) {
+        int temp202 = assignment_tmp143144 + const203;
+        i_0 = temp202;
     }
     
-    float temp205 = uf + uf;
-    float temp206 = temp205 * uf;
-    float temp207 = temp206 - uf;
-    float temp208 = temp207 / uf;
-    float temp209 = dot(temp169, temp169);
-    float temp210 = sqrt(temp209);
-    float temp211 = temp208 + temp210;
-    vec4 temp212 = temp169 - temp169;
-    float temp213 = dot(temp212, temp212);
-    float temp214 = sqrt(temp213);
-    float temp215 = temp211 + temp214;
-    float temp216 = temp215 + temp209;
+    float temp204 = uf + uf;
+    float temp205 = temp204 * uf;
+    float temp206 = temp205 - uf;
+    float temp207 = temp206 / uf;
+    float temp208 = dot(temp168, temp168);
+    float temp209 = sqrt(temp208);
+    float temp210 = temp207 + temp209;
+    vec4 temp211 = temp168 - temp168;
+    float temp212 = dot(temp211, temp211);
+    float temp213 = sqrt(temp212);
+    float temp214 = temp210 + temp213;
+    float temp215 = temp214 + temp208;
+    vec3 temp216;
+    temp216.xyz = temp168.yzx;
     vec3 temp217;
-    temp217.xyz = temp169.yzx;
-    vec3 temp218;
-    temp218.xyz = temp169.zxy;
-    vec3 temp219 = temp217 * temp218;
-    vec3 temp220 = temp218 * temp217;
-    vec3 temp221 = temp219 - temp220;
-    float assignment_tmp165166 = temp216 + temp221.x;
-    bool temp223 = assignment_tmp165166 == uf;
-    if (temp223) {
-        or_tmp168_0 = const195;
+    temp217.xyz = temp168.zxy;
+    vec3 temp218 = temp216 * temp217;
+    vec3 temp219 = temp217 * temp216;
+    vec3 temp220 = temp218 - temp219;
+    float assignment_tmp165166 = temp215 + temp220.x;
+    bool temp222 = assignment_tmp165166 == uf;
+    if (temp222) {
+        or_tmp168_0 = const194;
     }
     else {
-        bool temp224 = assignment_tmp165166 == uf;
-        if (temp224) {
-            and_tmp171_0 = const182;
+        bool temp223 = assignment_tmp165166 == uf;
+        if (temp223) {
+            and_tmp171_0 = const181;
         }
         else {
-            bool and_tmp171173 = assignment_tmp165166 != const119;
+            bool and_tmp171173 = assignment_tmp165166 != const118;
             and_tmp171_0 = and_tmp171173;
         }
         
@@ -1949,27 +1937,27 @@ void main()
     
     f_0 = assignment_tmp165166;
     if (or_tmp168_0) {
-        float temp226 = assignment_tmp165166 + const115;
-        f_0 = temp226;
+        float temp225 = assignment_tmp165166 + const114;
+        f_0 = temp225;
     }
     
     if (and_tmp138_0) {
-        int temp227 = ui & i_0;
-        int temp228 = temp227 | const229;
-        int temp230 = ~(temp228);
-        int temp231 = temp230 % const232;
-        int temp233 = temp231 >> const202;
-        int temp234 = temp233 << ui;
-        int assignment_tmp181182 = ~(temp234);
-        float temp236 = float(assignment_tmp181182);
-        vec4 temp237 = vec4(temp236, temp236, temp236, temp236);
-        vec4 temp238 = vec4(f_0, f_0, f_0, f_0);
-        vec4 temp239 = temp237 + temp238;
-        vec4 conditional_tmp185 = temp239 + temp169;
+        int temp226 = ui & i_0;
+        int temp227 = temp226 | const228;
+        int temp229 = ~(temp227);
+        int temp230 = temp229 % const231;
+        int temp232 = temp230 >> const201;
+        int temp233 = temp232 << ui;
+        int assignment_tmp181182 = ~(temp233);
+        float temp235 = float(assignment_tmp181182);
+        vec4 temp236 = vec4(temp235, temp235, temp235, temp235);
+        vec4 temp237 = vec4(f_0, f_0, f_0, f_0);
+        vec4 temp238 = temp236 + temp237;
+        vec4 conditional_tmp185 = temp238 + temp168;
         conditional_tmp_0 = conditional_tmp185;
     }
     else {
-        conditional_tmp_0 = temp169;
+        conditional_tmp_0 = temp168;
     }
     
     gl_FragColor = conditional_tmp_0;
