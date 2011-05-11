@@ -35,7 +35,7 @@ using namespace gla_llvm;
 
 void Conditional::recalculate()
 {
-    clear();
+    children.clear();
     children.push_back(left);
     children.push_back(right);
 
