@@ -530,13 +530,55 @@ ir_visitor_status
     int numOperands = expression->get_num_operands();
     assert(numOperands <= 2);
     gla::Builder::SuperValue operands[2];
+    bool haveMatrix = false;
+    bool isFloat = false;
+    bool isSigned = false;
 
     for (int i = 0; i < numOperands; ++i) {
         expression->operands[i]->accept(this);
         operands[i] = lastValue;
+        haveMatrix |= lastValue.isMatrix();
     }
 
-    lastValue = expandGLSLOp(expression->operation, operands);
+    switch (expression->operands[0]->type->base_type) {
+    //case GLSL_TYPE_DOUBLE:
+    case GLSL_TYPE_FLOAT:
+        isFloat = true;
+        break;
+    case GLSL_TYPE_INT:
+        isSigned = true;
+        break;
+    }
+
+    gla::Builder::SuperValue result;
+
+    switch (numOperands) {
+    case 1:
+        if (haveMatrix)
+            result = createUnaryMatrixOperation(expression->operation, operands[0]);
+        
+        if (result.isClear())
+            result = createUnaryOperation(expression->operation, expression->type, operands[0], isFloat, isSigned);
+            
+        if (result.isClear())
+            result = createUnaryIntrinsic(expression->operation, operands[0], isFloat, isSigned);
+
+        break;
+    case 2:
+        if (haveMatrix)
+            result = createBinaryMatrixOperation(expression->operation, operands[0], operands[1]);
+
+        if (result.isClear())
+            result = createBinaryOperation(expression->operation, operands[0], operands[1], isFloat, isSigned);
+
+        if (result.isClear())
+            result = createBinaryIntrinsic (expression->operation, operands[0], operands[1], isFloat, isSigned);
+    }
+
+    if (result.isClear())
+        gla::UnsupportedFunctionality("glslOp ", expression->operation);
+
+    lastValue = result;
 
     return visit_continue_with_parent;
 }
@@ -588,7 +630,7 @@ ir_visitor_status
 
     // Detect and traverse shadow comparison
     if (ir->shadow_comparitor) {
-        // TODO:  Renable shadow samples when ref and coords are reunited.
+        // TODO:  Re-enable shadow samples when ref and coords are reunited.
         gla::UnsupportedFunctionality("shadow comparison in texture sample", gla::EATContinue);
         //ir->shadow_comparitor->accept(this);
         //textureParameters.ETPShadowRef = lastValue;
@@ -880,69 +922,19 @@ ir_visitor_status
         lastValue = callInst;
 
     } else {
-
-        gla::Builder::SuperValue returnValue;
-
         if(!strcmp(call->callee_name(), "mix")) {
-            if(llvm::Type::IntegerTyID == gla::GetBasicType(llvmParams[0]))
-                returnValue = llvmBuilder.CreateSelect(llvmParams[2], llvmParams[0], llvmParams[1]);
+            if(llvm::Type::IntegerTyID == gla::GetBasicType(llvmParams[0])) {
+                lastValue = llvmBuilder.CreateSelect(llvmParams[2], llvmParams[0], llvmParams[1]);
+            } else {
+                lastValue = glaBuilder->createIntrinsicCall(llvm::Intrinsic::gla_fMix, llvmParams[0], llvmParams[1], llvmParams[2]);
+            }
+        } else {
+            gla::UnsupportedFunctionality("Built-in function: ", gla::EATContinue);
+            gla::UnsupportedFunctionality(call->callee_name());
         }
-
-        // If this call requires an intrinsic
-        if(returnValue.getValue() == 0)
-            returnValue = createLLVMIntrinsic(call, llvmParams, paramCount);
-
-        // Track the return value for to be consumed by next instruction
-        lastValue = returnValue;
     }
 
     return visit_continue_with_parent;
-}
-
-llvm::Value* GlslToTopVisitor::createLLVMIntrinsic(ir_call *call, gla::Builder::SuperValue* llvmParams, int paramCount)
-{
-    llvm::Function *intrinsicName = 0;
-    const llvm::Type* resultType = convertGlslToGlaType(call->type);
-
-    #define GLA_MAX_PARAMETER 5
-    gla::Builder::SuperValue outParams[GLA_MAX_PARAMETER];
-    for(int i = 0; i < GLA_MAX_PARAMETER; i++)
-        outParams[i] = llvmParams[i];
-
-    // Based on the name of the callee, create the appropriate intrinsicID
-    if(!strcmp(call->callee_name(), "mix")) { 
-        intrinsicName = glaBuilder->getIntrinsic(llvm::Intrinsic::gla_fMix, resultType, llvmParams[0]->getType(), llvmParams[1]->getType(), llvmParams[2]->getType());
-    }
-    else {
-        gla::UnsupportedFunctionality("Built-in function: ", gla::EATContinue);
-        gla::UnsupportedFunctionality(call->callee_name());
-    }
-
-    llvm::CallInst *callInst = 0;
-
-    // Create a call to it
-    switch(paramCount)
-    {
-    case 5:
-        callInst = llvmBuilder.CreateCall5(intrinsicName, outParams[0] , outParams[1], outParams[2], outParams[3], outParams[4]);
-        break;
-    case 4:
-        callInst = llvmBuilder.CreateCall4(intrinsicName, outParams[0] , outParams[1], outParams[2], outParams[3]);
-        break;
-    case 3:
-        callInst = llvmBuilder.CreateCall3(intrinsicName, outParams[0] , outParams[1], outParams[2]);
-        break;
-    case 2:
-        callInst = llvmBuilder.CreateCall2(intrinsicName, outParams[0], outParams[1]);
-        break;
-    case 1:
-        callInst = llvmBuilder.CreateCall (intrinsicName, outParams[0]);
-        break;
-    default:
-        assert(! "Unsupported parameter count");
-    }
-
-   return callInst;
 }
 
 ir_visitor_status
@@ -1117,86 +1109,122 @@ const char* GlslToTopVisitor::getSamplerTypeName(ir_variable* var)
     return 0;
 }
 
-gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation glslOp, gla::Builder::SuperValue* operands)
+gla::Builder::SuperValue GlslToTopVisitor::createUnaryMatrixOperation(ir_expression_operation op, gla::Builder::SuperValue operand)
 {
     gla::Builder::SuperValue result;
-    const llvm::Type* varType;
 
-    //
-    // 0 or more operands
-    //
-
-    // no 0-only operand operations yet
-
-    //
-    // 1 or more operands
-    //
-
-    // Initialize result to first operand to pass through unsupported ops
-    result = operands[0];
-
-    bool haveMatrix = operands[0].isMatrix();
-    const llvm::VectorType* vectorType =  haveMatrix ? 0 : llvm::dyn_cast<llvm::VectorType>(operands[0]->getType());
-
-    if (haveMatrix) {
-        switch(glslOp) {
-        case ir_unop_f2i:
-        case ir_unop_i2f:
-        case ir_unop_f2b:
-        case ir_unop_b2f:
-        case ir_unop_i2b:
-        case ir_unop_b2i:
-        case ir_unop_u2f:
-            assert(! "Can't change matrix type");
-            break;
-        case ir_unop_neg:
-            gla::UnsupportedFunctionality("Matrix negation", gla::EATContinue);
-            return result;
-        }
-    }
-
-    switch(glslOp) {
+    switch(op) {
     case ir_unop_f2i:
-        if(vectorType)  varType = llvm::VectorType::get(llvm::Type::getInt32Ty(context), vectorType->getNumElements());
-        else            varType = llvm::Type::getInt32Ty(context);
-        return          llvmBuilder.CreateFPToUI(operands[0], varType);
     case ir_unop_i2f:
-        if(vectorType)  varType = llvm::VectorType::get(llvm::Type::getFloatTy(context), vectorType->getNumElements());
-        else            varType = llvm::Type::getFloatTy(context);
-        return          llvmBuilder.CreateSIToFP(operands[0], varType);
     case ir_unop_f2b:
-        if(vectorType)  varType = llvm::VectorType::get(llvm::Type::getInt1Ty(context), vectorType->getNumElements());
-        else            varType = llvm::Type::getInt1Ty(context);
-        return          llvmBuilder.CreateFPToUI(operands[0], varType);
     case ir_unop_b2f:
-        if(vectorType)  varType = llvm::VectorType::get(llvm::Type::getFloatTy(context), vectorType->getNumElements());
-        else            varType = llvm::Type::getFloatTy(context);
-        return          llvmBuilder.CreateUIToFP(operands[0], varType);
     case ir_unop_i2b:
-        if(vectorType)  varType = llvm::VectorType::get(llvm::Type::getInt1Ty(context), vectorType->getNumElements());
-        else            varType = llvm::Type::getInt1Ty(context);
-        return          llvmBuilder.CreateIntCast(operands[0], varType, false);
     case ir_unop_b2i:
-        if(vectorType)  varType = llvm::VectorType::get(llvm::Type::getInt32Ty(context), vectorType->getNumElements());
-        else            varType = llvm::Type::getInt32Ty(context);
-        return          llvmBuilder.CreateIntCast(operands[0], varType, true);
     case ir_unop_u2f:
-        if(vectorType)  varType = llvm::VectorType::get(llvm::Type::getFloatTy(context), vectorType->getNumElements());
-        else            varType = llvm::Type::getFloatTy(context);
-        return          llvmBuilder.CreateUIToFP(operands[0], varType);
+        assert(! "Can't change matrix type");
+        break;
     case ir_unop_neg:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFNeg(operands[0]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateNeg (operands[0]);
-        }
-    case ir_unop_rcp:
-        return glaBuilder->createRecip(operands[0]);
+        gla::UnsupportedFunctionality("Matrix negation", gla::EATContinue);
     }
 
+    return result;
+}
+
+gla::Builder::SuperValue GlslToTopVisitor::createBinaryMatrixOperation(ir_expression_operation op, gla::Builder::SuperValue lhs, gla::Builder::SuperValue rhs)
+{
+    gla::Builder::SuperValue result;
+
+    llvm::Instruction::BinaryOps llvmOp = llvm::Instruction::BinaryOps(0);
+    bool componentWise = true;
+
+    switch(op) {
+    case ir_binop_add:
+        llvmOp = llvm::BinaryOperator::FAdd;
+        break;
+    case ir_binop_sub:
+        llvmOp = llvm::BinaryOperator::FSub;
+        break;
+    case ir_binop_mul:
+        componentWise = false;
+        llvmOp = llvm::BinaryOperator::FMul;
+        break;
+    case ir_binop_div:
+        llvmOp = llvm::BinaryOperator::FDiv;
+        break;
+    case ir_binop_all_equal:
+        return glaBuilder->createMatrixCompare(lhs, rhs, true);
+    case ir_binop_any_nequal:
+        return glaBuilder->createMatrixCompare(lhs, rhs, false);
+    default:
+        gla::UnsupportedFunctionality("Matrix operation");
+    }
+
+    if (componentWise)
+        return glaBuilder->createMatrixOp(llvmOp, lhs, rhs);
+    else
+        return glaBuilder->createMatrixMultiply(lhs, rhs);
+
+    return result;
+}
+
+
+gla::Builder::SuperValue GlslToTopVisitor::createUnaryOperation(ir_expression_operation op, const glsl_type* destType, gla::Builder::SuperValue operand, bool isFloat, bool isSigned)
+{
+    gla::Builder::SuperValue result;
+
+    // Cast ops
+    llvm::Instruction::CastOps castOp = llvm::Instruction::CastOps(0);
+    switch(op) {
+    case ir_unop_f2i:
+        castOp = llvm::Instruction::FPToSI;
+        break;
+    case ir_unop_i2f:
+        castOp = llvm::Instruction::SIToFP;
+        break;
+    case ir_unop_f2b:
+        castOp = llvm::Instruction::FPToUI;
+        break;
+    case ir_unop_b2f:
+        castOp = llvm::Instruction::UIToFP;
+        break;
+    case ir_unop_i2b:
+        // any non-zero integer should return true
+        return createBinaryOperation(ir_binop_nequal, operand, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), false, false);
+    case ir_unop_b2i:
+        castOp = llvm::Instruction::ZExt;
+        break;
+    case ir_unop_u2f:
+        castOp = llvm::Instruction::UIToFP;
+        break;
+    }
+
+    if (castOp != 0)
+        return llvmBuilder.CreateCast(castOp, operand, convertGlslToGlaType(destType));
+
+    // Unary ops that map to llvm operations
+    switch (op) {
+    case ir_unop_neg:
+        if (isFloat)
+            return llvmBuilder.CreateFNeg(operand);
+        else
+            return llvmBuilder.CreateNeg (operand);
+    case ir_unop_logic_not:
+    case ir_unop_bit_not:
+        return llvmBuilder.CreateNot(operand);
+    case ir_unop_rcp:
+        return glaBuilder->createRecip(operand);
+    }
+
+    return result;
+}
+
+gla::Builder::SuperValue GlslToTopVisitor::createUnaryIntrinsic(ir_expression_operation op, gla::Builder::SuperValue operand, bool isFloat, bool isSigned)
+{
     // Unary ops that require an intrinsic
+    gla::Builder::SuperValue result;
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
-    bool fixedResultType = false;
-    switch(glslOp) {
+
+    switch(op) {
     case ir_unop_sin:
         intrinsicID = llvm::Intrinsic::gla_fSin;
         break;
@@ -1268,222 +1296,208 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
         break;
     case ir_unop_any:
         intrinsicID = llvm::Intrinsic::gla_any;
-        fixedResultType = true;
         break;
     case ir_unop_all:
         intrinsicID = llvm::Intrinsic::gla_all;
-        fixedResultType = true;
         break;
     case ir_unop_abs:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::IntegerTyID:
-            intrinsicID = llvm::Intrinsic::gla_abs; break;
-        case llvm::Type::FloatTyID:
-            intrinsicID = llvm::Intrinsic::gla_fAbs; break;
-        }
+        if (isFloat)
+            intrinsicID = llvm::Intrinsic::gla_fAbs;
+        else
+            intrinsicID = llvm::Intrinsic::gla_abs;
         break;
     case ir_unop_sign:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::IntegerTyID:
-            gla::UnsupportedFunctionality("Integer sign()"); break;
-        case llvm::Type::FloatTyID:
-            intrinsicID = llvm::Intrinsic::gla_fSign; break;
-        }
+        if (isFloat)
+            intrinsicID = llvm::Intrinsic::gla_fSign;
+        else
+            gla::UnsupportedFunctionality("Integer sign()");
         break;
     }
 
-    // If intrinsic was assigned, then call the function and return
-    if (intrinsicID != 0) {
-        llvm::Value* llvmOperands[] = { operands[0].getValue() };
-        llvm::Function* intrinsicName = fixedResultType ?
-            glaBuilder->getIntrinsic(intrinsicID, llvmOperands[0]->getType()) :
-            glaBuilder->getIntrinsic(intrinsicID,  result->getType(), llvmOperands[0]->getType());
-        return llvmBuilder.CreateCall(intrinsicName, llvmOperands, llvmOperands + 1);
-    }
+    if (intrinsicID != 0)
+        return glaBuilder->createIntrinsicCall(intrinsicID, operand);
 
-    //
-    // 2 or more operands
-    //
+    return result;
+}
 
-    haveMatrix = operands[0].isMatrix() || operands[1].isMatrix();
+gla::Builder::SuperValue GlslToTopVisitor::createBinaryOperation(ir_expression_operation op, gla::Builder::SuperValue lhs, gla::Builder::SuperValue rhs, bool isFloat, bool isSigned)
+{
+    gla::Builder::SuperValue result;
+    llvm::Instruction::BinaryOps binOp = llvm::Instruction::BinaryOps(0);
+    bool needsPromotion = true;
 
-    if (haveMatrix) {
-        llvm::Instruction::BinaryOps llvmOp;
-        bool componentWise = true;
-
-        switch(glslOp) {
-        case ir_binop_add:
-            llvmOp = llvm::BinaryOperator::FAdd;
-            break;
-        case ir_binop_sub:
-            llvmOp = llvm::BinaryOperator::FSub;
-            break;
-        case ir_binop_mul:
-            componentWise = false;
-            llvmOp = llvm::BinaryOperator::FMul;
-            break;
-        case ir_binop_div:
-            llvmOp = llvm::BinaryOperator::FDiv;
-            break;
-        case ir_binop_all_equal:
-            return glaBuilder->createMatrixCompare(operands[0], operands[1], true);
-        case ir_binop_any_nequal:
-            return glaBuilder->createMatrixCompare(operands[0], operands[1], false);
-        default:
-            gla::UnsupportedFunctionality("Matrix operation");
-        }
-
-        if (componentWise)
-            return glaBuilder->createMatrixOp(llvmOp, operands[0], operands[1]);
-        else
-            return glaBuilder->createMatrixMultiply(operands[0], operands[1]);
-    }
-
-    // we now know we don't have a matrix
-    assert(! haveMatrix);
-
-    switch(glslOp) {
+    switch(op) {
     case ir_binop_add:
-        glaBuilder->promoteScalar(operands[0], operands[1]);
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFAdd(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateAdd (operands[0], operands[1]);
-        }
+        if (isFloat)
+            binOp = llvm::Instruction::FAdd;
+        else
+            binOp = llvm::Instruction::Add;
+        break;
     case ir_binop_sub:
-        glaBuilder->promoteScalar(operands[0], operands[1]);
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFSub(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateSub (operands[0], operands[1]);
-        }
+        if (isFloat)
+            binOp = llvm::Instruction::FSub;
+        else
+            binOp = llvm::Instruction::Sub;
+        break;
     case ir_binop_mul:
-        glaBuilder->promoteScalar(operands[0], operands[1]);
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFMul(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateMul (operands[0], operands[1]);
-        }
+        if (isFloat)
+            binOp = llvm::Instruction::FMul;
+        else       
+            binOp = llvm::Instruction::Mul;
+        break;
     case ir_binop_div:
-        glaBuilder->promoteScalar(operands[0], operands[1]);
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFDiv(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateSDiv(operands[0], operands[1]);
-        }
-    case ir_binop_less:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpOLT(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpSLT(operands[0], operands[1]);
-        }
-    case ir_binop_greater:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpOGT(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpSGT(operands[0], operands[1]);
-        }
-    case ir_binop_lequal:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpOLE(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpSLE(operands[0], operands[1]);
-        }
-    case ir_binop_gequal:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpOGE(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpSGE(operands[0], operands[1]);
-        }
-    case ir_binop_equal:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpOEQ(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpEQ (operands[0], operands[1]);
-        }
-    case ir_binop_nequal:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFCmpONE(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateICmpNE (operands[0], operands[1]);
-        }
-
+        if (isFloat)
+            binOp = llvm::Instruction::FDiv;
+        else if (isSigned)
+            binOp = llvm::Instruction::SDiv;
+        else
+            binOp = llvm::Instruction::UDiv;
+        break;
     case ir_binop_lshift:
-        glaBuilder->promoteScalar(operands[0], operands[1]);
-        return llvmBuilder.CreateShl (operands[0], operands[1]);
+        binOp = llvm::Instruction::Shl;
+        break;
     case ir_binop_rshift:
-        glaBuilder->promoteScalar(operands[0], operands[1]);
-        return llvmBuilder.CreateLShr(operands[0], operands[1]);
+        binOp = llvm::Instruction::LShr;
+        break;
     case ir_binop_bit_and:
-        glaBuilder->promoteScalar(operands[0], operands[1]);
-        return llvmBuilder.CreateAnd (operands[0], operands[1]);
+        binOp = llvm::Instruction::And;
+        break;
     case ir_binop_bit_or:
-        glaBuilder->promoteScalar(operands[0], operands[1]);
-        return llvmBuilder.CreateOr  (operands[0], operands[1]);
+        binOp = llvm::Instruction::Or;
+        break;
     case ir_binop_logic_xor:
     case ir_binop_bit_xor:
-        glaBuilder->promoteScalar(operands[0], operands[1]);
-        return llvmBuilder.CreateXor (operands[0], operands[1]);
-    case ir_unop_logic_not:
-    case ir_unop_bit_not:
-        return llvmBuilder.CreateNot (operands[0]);
+        binOp = llvm::Instruction::Xor;
+        break;
     case ir_binop_logic_and:
-        assert(gla::IsBoolean(operands[0]->getType()) && gla::IsScalar(operands[0]->getType()));
-        assert(gla::IsBoolean(operands[1]->getType()) && gla::IsScalar(operands[1]->getType()));
-        return llvmBuilder.CreateAnd (operands[0], operands[1]);
-
+        assert(gla::IsBoolean(lhs->getType()) && gla::IsScalar(lhs->getType()));
+        assert(gla::IsBoolean(rhs->getType()) && gla::IsScalar(rhs->getType()));
+        needsPromotion = false;
+        binOp = llvm::Instruction::And;
+        break;
     case ir_binop_mod:
-        glaBuilder->promoteScalar(operands[0], operands[1]);
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         return llvmBuilder.CreateFRem(operands[0], operands[1]);
-        case llvm::Type::IntegerTyID:       return llvmBuilder.CreateSRem(operands[0], operands[1]);
-        }
-    case ir_binop_all_equal:
-        // Returns single boolean for whether all components of operands[0] equal the
-        // components of operands[1]
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         result = llvmBuilder.CreateFCmpOEQ(operands[0], operands[1]);  break;
-        case llvm::Type::IntegerTyID:       result = llvmBuilder.CreateICmpEQ (operands[0], operands[1]);  break;
-        }
-        if(vectorType)  return llvmBuilder.CreateCall(glaBuilder->getIntrinsic(llvm::Intrinsic::gla_all, result->getType()), result);
-        else            return result;
-
-    case ir_binop_any_nequal:
-        // Returns single boolean for whether any component of operands[0] is
-        // not equal to the corresponding component of operands[1].
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::FloatTyID:         result = llvmBuilder.CreateFCmpONE(operands[0], operands[1]);  break;
-        case llvm::Type::IntegerTyID:       result = llvmBuilder.CreateICmpNE (operands[0], operands[1]);  break;
-        }
-        if(vectorType)  return llvmBuilder.CreateCall(glaBuilder->getIntrinsic(llvm::Intrinsic::gla_any, result->getType()), result);
-        else            return result;
+        if (isFloat)
+            binOp = llvm::Instruction::FRem;
+        else if (isSigned)
+            binOp = llvm::Instruction::SRem;
+        else
+            binOp = llvm::Instruction::URem;
+        break;
     }
 
-    // Binary ops that require an intrinsic
-    switch(glslOp) {
-    case ir_binop_min:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::IntegerTyID:
-            intrinsicID = llvm::Intrinsic::gla_sMin;
+    if (binOp != 0) {
+        if (needsPromotion)
+            glaBuilder->promoteScalar(lhs, rhs);
+
+        return llvmBuilder.CreateBinOp(binOp, lhs, rhs);
+    }
+
+    // Comparison instructions
+    if (isFloat) {
+        llvm::FCmpInst::Predicate pred = llvm::FCmpInst::Predicate(0);
+        switch (op) {
+        case ir_binop_less:
+            pred = llvm::FCmpInst::FCMP_OLT;
             break;
-        case llvm::Type::FloatTyID:
-            intrinsicID = llvm::Intrinsic::gla_fMin;
+        case ir_binop_greater:
+            pred = llvm::FCmpInst::FCMP_OGT;
+            break;
+        case ir_binop_lequal:
+            pred = llvm::FCmpInst::FCMP_OLE;
+            break;
+        case ir_binop_gequal:
+            pred = llvm::FCmpInst::FCMP_OGE;
+            break;
+        case ir_binop_equal:
+            pred = llvm::FCmpInst::FCMP_OEQ;
+            break;
+        case ir_binop_nequal:
+            pred = llvm::FCmpInst::FCMP_ONE;
             break;
         }
+
+        if (pred != 0)
+            return llvmBuilder.CreateFCmp(pred, lhs, rhs);
+    } else {
+        llvm::ICmpInst::Predicate pred = llvm::ICmpInst::Predicate(0);
+        if (isSigned) {        
+            switch (op) {
+            case ir_binop_less:
+                pred = llvm::ICmpInst::ICMP_SLT;
+                break;
+            case ir_binop_greater:
+                pred = llvm::ICmpInst::ICMP_SGT;
+                break;
+            case ir_binop_lequal:
+                pred = llvm::ICmpInst::ICMP_SLE;
+                break;
+            case ir_binop_gequal:
+                pred = llvm::ICmpInst::ICMP_SGE;
+                break;
+            case ir_binop_equal:
+                pred = llvm::ICmpInst::ICMP_EQ;
+                break;
+            case ir_binop_nequal:
+                pred = llvm::ICmpInst::ICMP_NE;
+                break;
+            } 
+        } else {
+            switch (op) {
+            case ir_binop_less:
+                pred = llvm::ICmpInst::ICMP_ULT;
+                break;
+            case ir_binop_greater:
+                pred = llvm::ICmpInst::ICMP_UGT;
+                break;
+            case ir_binop_lequal:
+                pred = llvm::ICmpInst::ICMP_ULE;
+                break;
+            case ir_binop_gequal:
+                pred = llvm::ICmpInst::ICMP_UGE;
+                break;
+            case ir_binop_equal:
+                pred = llvm::ICmpInst::ICMP_EQ;
+                break;
+            case ir_binop_nequal:
+                pred = llvm::ICmpInst::ICMP_NE;
+                break;
+            }
+        }
+
+        if (pred != 0)
+            return llvmBuilder.CreateICmp(pred, lhs, rhs);
+    }
+
+    return result;
+}
+
+gla::Builder::SuperValue GlslToTopVisitor::createBinaryIntrinsic(ir_expression_operation op, gla::Builder::SuperValue lhs, gla::Builder::SuperValue rhs, bool isFloat, bool isSigned)
+{
+    // Binary ops that require an intrinsic
+    gla::Builder::SuperValue result;
+    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
+
+    switch (op) {
+    case ir_binop_min:
+        if (isFloat)
+            intrinsicID = llvm::Intrinsic::gla_fMin;
+        else
+            intrinsicID = llvm::Intrinsic::gla_sMin;
         break;
     case ir_binop_max:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::IntegerTyID:
-            intrinsicID = llvm::Intrinsic::gla_sMax;
-            break;
-        case llvm::Type::FloatTyID:
+        if (isFloat)
             intrinsicID = llvm::Intrinsic::gla_fMax;
-            break;
-        }
+        else
+            intrinsicID = llvm::Intrinsic::gla_sMax;
         break;
     case ir_binop_pow:
-        switch(gla::GetBasicType(operands[0])) {
-        case llvm::Type::IntegerTyID:
-            intrinsicID = llvm::Intrinsic::gla_fPowi;
-            break;
-        case llvm::Type::FloatTyID:
+        if (isFloat)
             intrinsicID = llvm::Intrinsic::gla_fPow;
-            break;
-        }
+        else
+            intrinsicID = llvm::Intrinsic::gla_fPowi;
         break;
     case ir_binop_dot:
         intrinsicID = llvm::Intrinsic::gla_fDot;
-        fixedResultType = true;
         break;
     case ir_binop_atan2:
         intrinsicID = llvm::Intrinsic::gla_fAtan2;
@@ -1491,18 +1505,15 @@ gla::Builder::SuperValue GlslToTopVisitor::expandGLSLOp(ir_expression_operation 
     case ir_binop_ftransform:
         intrinsicID = llvm::Intrinsic::gla_fFixedTransform;
         break;
-    default:
-        gla::UnsupportedFunctionality("glslOp ", glslOp);
+    case ir_binop_all_equal:
+        return glaBuilder->createCompare(lhs, rhs, true, isFloat, isSigned);
+    case ir_binop_any_nequal:
+        return glaBuilder->createCompare(lhs, rhs, false, isFloat, isSigned);
     }
 
     // If intrinsic was assigned, then call the function and return
-    if (intrinsicID != 0) {
-        llvm::Value* llvmOperands[] = { operands[0], operands[1] };
-        llvm::Function* intrinsicName = fixedResultType ?
-            glaBuilder->getIntrinsic(intrinsicID, llvmOperands[0]->getType(), llvmOperands[1]->getType()) :
-            glaBuilder->getIntrinsic(intrinsicID, result->getType(), llvmOperands[0]->getType(), llvmOperands[1]->getType());
-        return llvmBuilder.CreateCall(intrinsicName, llvmOperands, llvmOperands + 2);
-    }
+    if (intrinsicID != 0)
+        return glaBuilder->createIntrinsicCall(intrinsicID, lhs, rhs);
 
     return result;
 }

@@ -101,7 +101,12 @@ protected:
     // help functions to build LLVM
     gla::Builder::SuperValue createLLVMVariable(ir_variable*);
     const char* getSamplerTypeName(ir_variable*);
-    gla::Builder::SuperValue expandGLSLOp(ir_expression_operation, gla::Builder::SuperValue*);
+    gla::Builder::SuperValue createUnaryMatrixOperation(ir_expression_operation, gla::Builder::SuperValue);
+    gla::Builder::SuperValue createBinaryMatrixOperation(ir_expression_operation, gla::Builder::SuperValue, gla::Builder::SuperValue);
+    gla::Builder::SuperValue createUnaryOperation(ir_expression_operation, const glsl_type*, gla::Builder::SuperValue, bool isFloat, bool isSigned);
+    gla::Builder::SuperValue createBinaryOperation(ir_expression_operation, gla::Builder::SuperValue, gla::Builder::SuperValue, bool isFloat, bool isSigned);
+    gla::Builder::SuperValue createUnaryIntrinsic(ir_expression_operation, gla::Builder::SuperValue, bool isFloat, bool isSigned);
+    gla::Builder::SuperValue createBinaryIntrinsic(ir_expression_operation, gla::Builder::SuperValue, gla::Builder::SuperValue, bool isFloat, bool isSigned);
     llvm::Value* expandGLSLSwizzle(ir_swizzle*);
     llvm::Value* createLLVMIntrinsic(ir_call*, gla::Builder::SuperValue*, int);
     llvm::Value* createPipelineRead(ir_variable*, int);

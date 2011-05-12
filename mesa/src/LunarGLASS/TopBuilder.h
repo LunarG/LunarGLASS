@@ -108,6 +108,7 @@ public:
 
         bool isMatrix() const { return type == EMatrix; }
         bool isValue() const { return type == ELlvm; }
+        bool isClear() const { return type == ELlvm && value.llvm == 0; }
 
         llvm::Value* getValue() const
         {
@@ -211,9 +212,11 @@ public:
         
     // Select the correct intrinsic based on all inputs, and make the call
     llvm::Value* createTextureCall(const llvm::Type*, gla::ESamplerType, gla::ETextureFlags, const TextureParameters&);
-
-    // LLVM does not support recip
+    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue);
+    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue);
+    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue, SuperValue);
     llvm::Value* createRecip(llvm::Value*);
+    llvm::Value* createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned);
 
     class If {
     public:

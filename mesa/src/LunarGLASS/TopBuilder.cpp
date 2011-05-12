@@ -632,6 +632,108 @@ llvm::Value* Builder::createRecip(llvm::Value* operand)
     return builder.CreateFDiv(MakeFloatConstant(context, 1.0), operand);
 }
 
+llvm::Value* Builder::createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned)
+{
+    llvm::Value* result = 0;
+    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::gla_all;
+
+    if (isFloat) {
+        if (equal) {
+            result = builder.CreateFCmpOEQ(lhs, rhs);
+        } else {
+            result = builder.CreateFCmpONE(lhs, rhs);
+            intrinsicID = llvm::Intrinsic::gla_any;
+        }
+    } else {
+        if (equal) {
+            result = builder.CreateICmpEQ(lhs, rhs);
+        } else {
+            result = builder.CreateICmpNE(lhs, rhs);
+            intrinsicID = llvm::Intrinsic::gla_any;
+        }
+    }
+
+    if (llvm::dyn_cast<llvm::VectorType>(result->getType()))
+        return createIntrinsicCall(intrinsicID, result);
+    
+    return result;
+}
+
+llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, SuperValue operand)
+{
+    llvm::Function* intrinsicName = 0;
+
+    // Handle special return types here.  Things that don't have same result type as parameter
+    switch (intrinsicID) {
+    case llvm::Intrinsic::gla_fModF:
+    case llvm::Intrinsic::gla_fIsNan:
+    case llvm::Intrinsic::gla_fIsInf:
+    case llvm::Intrinsic::gla_fFloatBitsToInt:
+    case llvm::Intrinsic::gla_fIntBitsTofloat:
+    case llvm::Intrinsic::gla_fFrexp:
+    case llvm::Intrinsic::gla_fLdexp:
+    case llvm::Intrinsic::gla_fPackUnorm2x16:
+    case llvm::Intrinsic::gla_fPackUnorm4x8 :
+    case llvm::Intrinsic::gla_fPackSnorm4x8 :
+    case llvm::Intrinsic::gla_fUnpackUnorm2x16:
+    case llvm::Intrinsic::gla_fUnpackUnorm4x8:
+    case llvm::Intrinsic::gla_fUnpackSnorm4x8:
+    case llvm::Intrinsic::gla_fPackDouble2x32:
+    case llvm::Intrinsic::gla_fUnpackDouble2x32 :
+        // TODO:  Hook these up
+        gla::UnsupportedFunctionality("unary intrinsic", intrinsicID);
+        break;
+    case llvm::Intrinsic::gla_fLength:
+    case llvm::Intrinsic::gla_any:
+    case llvm::Intrinsic::gla_all:
+        // fixed result type
+        intrinsicName = getIntrinsic(intrinsicID, operand->getType());
+        break;
+    default:
+        // Unary intrinsics that have operand and dest with same flexible type
+        intrinsicName = getIntrinsic(intrinsicID,  operand->getType(), operand->getType());
+    }
+
+    assert(intrinsicName);
+
+    return builder.CreateCall(intrinsicName, operand.getValue());
+}
+
+llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, SuperValue lhs, SuperValue rhs)
+{
+    llvm::Function* intrinsicName = 0;
+
+    // Handle special return types here.  Things that don't have same result type as parameter
+    switch (intrinsicID) {
+    case llvm::Intrinsic::gla_fDistance:
+        // TODO:  Hook this up
+        gla::UnsupportedFunctionality("binary intrinsic", intrinsicID);
+        break;
+    case llvm::Intrinsic::gla_fDot:
+        // fixed result type
+        intrinsicName = getIntrinsic(intrinsicID, lhs->getType(), rhs->getType());
+        break;
+    default:
+        // Binary intrinsics that have operand and dest with same flexible type
+        intrinsicName = getIntrinsic(intrinsicID,  lhs->getType(), lhs->getType(), rhs->getType());
+    }
+
+    assert(intrinsicName);
+    
+    return builder.CreateCall2(intrinsicName, lhs, rhs);
+}
+
+llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, SuperValue operand0, SuperValue operand1, SuperValue operand2)
+{
+
+    // Use operand0 type as result type
+    llvm::Function* intrinsicName =  getIntrinsic(intrinsicID, operand0->getType(), operand0->getType(), operand1->getType(), operand2->getType());
+
+    assert(intrinsicName);
+
+    return builder.CreateCall3(intrinsicName, operand0, operand1, operand2);
+}
+
 Builder::If::If(llvm::Value* condition, bool withElse, Builder* gb) : glaBuilder(gb)
 {
     function = glaBuilder->builder.GetInsertBlock()->getParent();
