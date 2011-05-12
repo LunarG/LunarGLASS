@@ -21,6 +21,7 @@
 //===----------------------------------------------------------------------===//
 //
 // Author: John Kessenich, LunarG
+// Author: Michael Ilseman, LunarG
 //
 //===----------------------------------------------------------------------===//
 
@@ -33,6 +34,7 @@
 #include "llvm/IntrinsicInst.h"
 
 #include <list>
+#include <stack>
 
 namespace gla {
 
@@ -66,8 +68,8 @@ public:
         llvm::Value* getMatrixValue() const { return matrix; }
 
     protected:
-        int numRows;
         int numColumns;
+        int numRows;
 
         llvm::Value* matrix;
     };
@@ -194,22 +196,22 @@ public:
 
     // make a value by smearing the scalar to fill the type
     llvm::Value* smearScalar(llvm::Value* scalarVal, const llvm::Type*);
-    
+
     // List of parameters used to create a texture intrinsic
-    struct TextureParameters { 
-        llvm::Value* ETPCoords; 
-        llvm::Value* ETPBiasLod; 
-        llvm::Value* ETPProj; 
-        llvm::Value* ETPOffset; 
-        llvm::Value* ETPShadowRef; 
-        llvm::Value* ETPGradX; 
-        llvm::Value* ETPGradY; 
-        llvm::Value* ETPArrayIndex; 
+    struct TextureParameters {
+        llvm::Value* ETPCoords;
+        llvm::Value* ETPBiasLod;
+        llvm::Value* ETPProj;
+        llvm::Value* ETPOffset;
+        llvm::Value* ETPShadowRef;
+        llvm::Value* ETPGradX;
+        llvm::Value* ETPGradY;
+        llvm::Value* ETPArrayIndex;
         llvm::Value* ETPSampleNum;
         llvm::Value* ETPSampler;
         llvm::Value* ETPDimensions;
     };
-        
+
     // Select the correct intrinsic based on all inputs, and make the call
     llvm::Value* createTextureCall(const llvm::Type*, gla::ESamplerType, gla::ETextureFlags, const TextureParameters&);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue);
@@ -222,7 +224,7 @@ public:
     public:
         If(llvm::Value* condition, bool withElse, Builder* glaBuilder);
         ~If() {}
-        
+
         void makeEndThen();
         void makeEndIf();
 
@@ -233,7 +235,26 @@ public:
         llvm::BasicBlock* elseBB;
         llvm::BasicBlock* mergeBB;
     };
-    
+
+    // Start the beginning of a new loop. For inductive loops, specify the
+    // inductive variable, what value it starts at, when it finishes, and how
+    // much it increments by on each iteration. Also specify whether you want
+    // this Builder to do the increment (true), or if you will do it yourself
+    // (false).
+    void makeNewLoop();
+    void makeNewLoop(llvm::Value* inductiveVariable, llvm::Constant* from, llvm::Constant* finish,
+                     llvm::Constant* increment,  bool builderDoesIncrement);
+
+    // Add a back-edge (e.g "continue") for the innermost loop that you're in
+    void makeLoopBackEdge();
+
+    // Add an exit (e.g. "break") for the innermost loop that you're in
+    void makeLoopExit();
+
+    // Close the innermost loop that you're in
+    void closeLoop();
+
+
 protected:
     llvm::Value* createMatrixTimesVector(Matrix*, llvm::Value*);
     llvm::Value* createVectorTimesMatrix(llvm::Value*, Matrix*);
@@ -243,14 +264,31 @@ protected:
     Matrix* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
 
     llvm::IRBuilder<>& builder;
-    llvm::LLVMContext &context;
     llvm::Module* module;
+    llvm::LLVMContext &context;
 
     // accumulate values that must be copied out at the end
     std::list<llvm::Value*> copyOuts;
 
     // accumulate matrices that must be deleted at the end
     std::vector<Matrix*> matrixList;
+
+    // Data that needs to be kept in order to properly handle loops.
+    struct LoopData {
+        llvm::BasicBlock* header;
+        llvm::BasicBlock* exit;
+
+        llvm::Function* function;
+
+        bool isInductive;
+        bool builderDoesIncrement;
+
+        llvm::Value* counter;
+        llvm::Constant* finish;
+        llvm::Constant* increment;
+    };
+
+    std::stack<LoopData> loops;
 
 };  // end Builder class
 

@@ -151,28 +151,15 @@ protected:
     // Used to init arrays of constant indices for ExtractValue/InsertValue
     static const int maxGepIndices = 16;
 
-    // TODO: abstract into TopBuilder
-
-    // Struct representing data that needs to be kept in order to properly
-    // handle loops.
-    struct LoopData {
-        llvm::BasicBlock* header;
-        llvm::BasicBlock* exit;
-
-        bool isInductive;
-
-        llvm::Value* counter;
-        llvm::Constant* finish;
-        llvm::Constant* increment;
-    };
-    std::stack<LoopData> loops;
-
-    // If the loop is an inductive loop (to the front-end), set up the
-    // incrementing and condition test. Returns whether it did anything
-    // (i.e. whether the loop was inductive).
-    bool setUpLatch();
-
     llvm::BasicBlock* shaderEntry;
 
     gla::Builder* glaBuilder;
+
+    // In non-linking IR, the front end puts the increment inside the body of the
+    // loop. In linking IR, the increment inside the body of the loop does
+    // not have the same address as the declaration in the loop header, thus
+    // we have to insert it ourselves. Adding the increment in the case of
+    // non-linking IR is erroneous, and not adding it in the case of
+    // linking IR is also erroneous.
+    static const bool haveBuilderIncrementInductiveVariable = true;
 };

@@ -531,7 +531,6 @@ void BottomTranslator::forceOutputLatch()
 
 void BottomTranslator::handleIfBlock(const BasicBlock* bb)
 {
-
     const Conditional* cond = idConds->getConditional(bb);
 
     // If we don't have a conditional entry for bb, then we're dealing with
@@ -543,8 +542,6 @@ void BottomTranslator::handleIfBlock(const BasicBlock* bb)
 
         // TODO: have idconditionals recognizing latching conditionals, then add
         // support for complex continues.
-
-        return;
     }
 
     bool invert = cond->isIfElse();

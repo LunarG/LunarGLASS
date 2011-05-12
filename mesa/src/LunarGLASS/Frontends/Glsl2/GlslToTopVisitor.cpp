@@ -26,6 +26,7 @@
 //
 // Author: John Kessenich, LunarG
 // Author: Cody Northrop, LunarG
+// Author: Michael Ilseman, LunarG
 //
 //===----------------------------------------------------------------------===//
 
@@ -52,8 +53,8 @@ void GlslToTop(struct gl_shader* glShader, llvm::Module* module)
 }
 
 GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, llvm::Module* m)
-    : context(llvm::getGlobalContext()), llvmBuilder(context), module(m), glShader(s), interpIndex(0), shaderEntry(0), inMain(false),
-      localScope(false)
+    : context(llvm::getGlobalContext()), llvmBuilder(context),
+      module(m), glShader(s), interpIndex(0), inMain(false), localScope(false), shaderEntry(0)
 {
     // Init the first GEP index chain
     std::vector<llvm::Value*> firstChain;
@@ -140,89 +141,24 @@ llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
     return glaBuilder->getConstant(vals);
 }
 
-// TODO: abstract into TopBuilder
-
-// If the loop is an inductive loop (to the front-end), set up the increment and
-// the condition test. Returns whether it did anything. For now, the front end inserts the increment into the
-// loop body, so don't do that yet.
-bool GlslToTopVisitor::setUpLatch()
-{
-    LoopData ld = loops.top();
-
-    // TODO: do the test outside this function
-
-    if (ld.isInductive) {
-        assert(ld.counter && ld.counter->getType()->isPointerTy() && ld.increment && ld.finish);
-
-        llvm::Value* iPrev = llvmBuilder.CreateLoad(ld.counter);
-        llvm::Value* cmp   = NULL;
-
-        // TODO: add in bool for when a front end increments it itself
-
-        // In non-linking IR, the front end puts the increment inside the body of the
-        // loop. In linking IR, the increment inside the body of the loop does
-        // not have the same address as the declaration in the loop header, thus
-        // we have to insert it ourselves. Adding the increment in the case of
-        // non-linking IR is erroneous, and not adding it in the case of
-        // linking IR is also erroneous.
-        // TODO: Resolve this problem
-
-        llvm::Value* iNext = NULL;
-        switch(ld.counter->getType()->getContainedType(0)->getTypeID()) {
-        case llvm::Type::FloatTyID:       iNext = llvmBuilder.CreateFAdd(iPrev, ld.increment);     break;
-        case llvm::Type::IntegerTyID:     iNext = llvmBuilder.CreateAdd( iPrev, ld.increment);     break;
-
-        default: gla::UnsupportedFunctionality("unknown type in inductive variable");
-        }
-
-        llvmBuilder.CreateStore(iNext, ld.counter);
-
-        // TODO: If we do the increment ourselves, change iPrev to be iNext
-        switch(ld.counter->getType()->getContainedType(0)->getTypeID()) {
-        case llvm::Type::FloatTyID:       cmp = llvmBuilder.CreateFCmpOGE(iPrev, ld.finish);     break;
-        case llvm::Type::IntegerTyID:     cmp = llvmBuilder.CreateICmpSGE(iPrev, ld.finish);     break;
-
-        default: gla::UnsupportedFunctionality("unknown type in inductive variable [2]");
-        }
-
-        // If iNext exceeds ld.finish, exit the loop, else branch back to
-        // the header
-        llvmBuilder.CreateCondBr(cmp, ld.exit, ld.header);
-
-        // Not going to dreate dummy basic block, as our callers should see if
-        // we set up the latch
-
-        lastValue.clear();
-
-        return true;
-    }
-
-    return false;
-}
-
 ir_visitor_status
     GlslToTopVisitor::visit(ir_loop_jump *ir)
 {
-    // Create a block for the parent to continue inserting stuff into (e.g. this
-    // break/continue is inside an if-then-else)
-    llvm::Function *function = llvmBuilder.GetInsertBlock()->getParent();
-    llvm::BasicBlock* postLoopJump = llvm::BasicBlock::Create(context, "post-loopjump", function);
+    assert(ir->is_break() ^ ir->is_continue());
 
     if (ir->is_break()) {
-        llvmBuilder.CreateBr(loops.top().exit);
+        glaBuilder->makeLoopExit();
+    } else {
+        glaBuilder->makeLoopBackEdge();
     }
 
-    if (ir->is_continue()) {
-        bool done = setUpLatch();
-        if (! done)
-            llvmBuilder.CreateBr(loops.top().header);
-    }
-
-    llvmBuilder.SetInsertPoint(postLoopJump);
-
+    // Create a place (a no predecessor block) for callers (e.g. IfThenElse) to
+    // stick finalizing instructions
+    llvmBuilder.SetInsertPoint(llvm::BasicBlock::Create(context, "post-loopjump",
+                                                        llvmBuilder.GetInsertBlock()->getParent()));
     lastValue.clear();
 
-    // Continue on with the parent (any further statements discarded)
+    // Continue on with the parent
     return visit_continue_with_parent;
 
 }
@@ -344,59 +280,32 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_loop *ir)
 {
-    llvm::Function* function = llvmBuilder.GetInsertBlock()->getParent();
-
-    llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(context, "loop-header", function);
-    llvm::BasicBlock *mergeBB  = llvm::BasicBlock::Create(context, "loop-merge");
-
-    // Remember the blocks, so that breaks/continues inside the loop know where
-    // to go
-    LoopData ld = { };
-    ld.exit   = mergeBB;
-    ld.header = headerBB;
-
+    // If we're inductive, then make a new inductive loop, else just a generic one.
     if (ir->counter) {
         // I've not seen the compare field used, only from+to+increment
         assert(ir->from && ir->to && ir->increment && "partially undefined static inductive loop");
         assert(ir->from->as_constant() && ir->to->as_constant() && ir->increment->as_constant()
                && "non-constant fields for static inductive loop");
 
-        ld.finish      = createLLVMConstant(ir->to->as_constant());
-        ld.increment   = createLLVMConstant(ir->increment->as_constant());
-        ld.counter     = createLLVMVariable(ir->counter);
-        ld.isInductive = true;
+        llvm::Constant* finish    = createLLVMConstant(ir->to->as_constant());
+        llvm::Constant* increment = createLLVMConstant(ir->increment->as_constant());
+        llvm::Value*    counter   = createLLVMVariable(ir->counter);
+        llvm::Constant* from      = createLLVMConstant(ir->from->as_constant());
 
-        namedValues[ir->counter] = ld.counter;
+        namedValues[ir->counter] = counter;
 
-        llvm::Constant* from = createLLVMConstant(ir->from->as_constant());
-
-        llvmBuilder.CreateStore(from, ld.counter);
+        glaBuilder->makeNewLoop(counter, from, finish, increment, haveBuilderIncrementInductiveVariable);
+    } else {
+        glaBuilder->makeNewLoop();
     }
 
-    loops.push(ld);
-
-    // Branch into the loop
-    llvmBuilder.CreateBr(headerBB);
-
-    // Set ourselves inside the loop
-    llvmBuilder.SetInsertPoint(headerBB);
-
+    // Do the body
     visit_list_elements(this, &ir->body_instructions);
 
-    // Branch back through the loop
-    bool done = setUpLatch();
-    if (! done)
-        llvmBuilder.CreateBr(headerBB);
+    // Finish the loop
+    glaBuilder->closeLoop();
 
-    // Now, create a new block for the rest of the post-loop program
-    function->getBasicBlockList().push_back(mergeBB);
-    llvmBuilder.SetInsertPoint(mergeBB);
-
-    // Remove ourselves from the stacks
-    loops.pop();
-
-    // lastValue may not be up-to-date, and we shouldn't be referenced
-    // anyways
+    // lastValue may not be up-to-date, and we shouldn't be referenced anyways
     lastValue.clear();
 
     return visit_continue_with_parent;
@@ -556,10 +465,10 @@ ir_visitor_status
     case 1:
         if (haveMatrix)
             result = createUnaryMatrixOperation(expression->operation, operands[0]);
-        
+
         if (result.isClear())
             result = createUnaryOperation(expression->operation, expression->type, operands[0], isFloat, isSigned);
-            
+
         if (result.isClear())
             result = createUnaryIntrinsic(expression->operation, operands[0], isFloat, isSigned);
 
@@ -900,7 +809,6 @@ ir_visitor_status
     assert(paramCount < GLA_MAX_PARAMETERS);
 
     if(call->get_callee()->function()->has_user_signature()) {
-        const char *name = call->callee_name();
         llvm::CallInst *callInst = 0;
 
        // Grab the pointer from the previous created function
@@ -1348,7 +1256,7 @@ gla::Builder::SuperValue GlslToTopVisitor::createBinaryOperation(ir_expression_o
     case ir_binop_mul:
         if (isFloat)
             binOp = llvm::Instruction::FMul;
-        else       
+        else
             binOp = llvm::Instruction::Mul;
         break;
     case ir_binop_div:
@@ -1426,7 +1334,7 @@ gla::Builder::SuperValue GlslToTopVisitor::createBinaryOperation(ir_expression_o
             return llvmBuilder.CreateFCmp(pred, lhs, rhs);
     } else {
         llvm::ICmpInst::Predicate pred = llvm::ICmpInst::Predicate(0);
-        if (isSigned) {        
+        if (isSigned) {
             switch (op) {
             case ir_binop_less:
                 pred = llvm::ICmpInst::ICMP_SLT;
@@ -1446,7 +1354,7 @@ gla::Builder::SuperValue GlslToTopVisitor::createBinaryOperation(ir_expression_o
             case ir_binop_nequal:
                 pred = llvm::ICmpInst::ICMP_NE;
                 break;
-            } 
+            }
         } else {
             switch (op) {
             case ir_binop_less:

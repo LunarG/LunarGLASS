@@ -22,6 +22,7 @@
 //
 // Author: John Kessenich, LunarG
 // Author: Cody Northrop, LunarG
+// Author: Michael Ilseman, LunarG
 //
 //===----------------------------------------------------------------------===//
 
@@ -44,7 +45,7 @@
 
 namespace gla {
 
-gla::Builder::Builder(llvm::IRBuilder<>& b, llvm::Module* m) : 
+gla::Builder::Builder(llvm::IRBuilder<>& b, llvm::Module* m) :
     builder(b),
     module(m),
     context(builder.getContext())
@@ -655,7 +656,7 @@ llvm::Value* Builder::createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equ
 
     if (llvm::dyn_cast<llvm::VectorType>(result->getType()))
         return createIntrinsicCall(intrinsicID, result);
-    
+
     return result;
 }
 
@@ -719,7 +720,7 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
     }
 
     assert(intrinsicName);
-    
+
     return builder.CreateCall2(intrinsicName, lhs, rhs);
 }
 
@@ -755,7 +756,7 @@ Builder::If::If(llvm::Value* condition, bool withElse, Builder* gb) : glaBuilder
 }
 
 void Builder::If::makeEndThen()
-{    
+{
     // jump to the merge block
     glaBuilder->builder.CreateBr(mergeBB);
 
@@ -768,7 +769,7 @@ void Builder::If::makeEndThen()
 
 void Builder::If::makeEndIf()
 {
-    if (elseBB) {        
+    if (elseBB) {
         // jump to the merge block
         glaBuilder->builder.CreateBr(mergeBB);
     }
@@ -777,5 +778,113 @@ void Builder::If::makeEndIf()
     function->getBasicBlockList().push_back(mergeBB);
     glaBuilder->builder.SetInsertPoint(mergeBB);
 }
+
+// Start the beginning of a new loop. For inductive loops, specify the
+// inductive variable, what value it starts at, when it finishes, and how
+// much it increments by on each iteration. Also specify whether you want
+// this Builder to do the increment (true), or if you will do it yourself
+// (false).
+void Builder::makeNewLoop()
+{
+    makeNewLoop(NULL, NULL, NULL, NULL, false);
+}
+
+void Builder::makeNewLoop(llvm::Value* inductiveVariable, llvm::Constant* from, llvm::Constant* finish,
+                          llvm::Constant* increment,  bool builderDoesIncrement)
+{
+    llvm::Function* function = builder.GetInsertBlock()->getParent();
+
+    llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(context, "loop-header", function);
+    llvm::BasicBlock *mergeBB  = llvm::BasicBlock::Create(context, "loop-merge");
+
+    LoopData ld = { };
+    ld.exit   = mergeBB;
+    ld.header = headerBB;
+    ld.counter = inductiveVariable;
+    ld.finish = finish;
+    ld.increment = increment;
+    ld.function = function;
+    ld.builderDoesIncrement = builderDoesIncrement;
+
+    // If we were passed a non-null inductive variable, then we're inductive
+    if (inductiveVariable) {
+        ld.isInductive = true;
+        builder.CreateStore(from, inductiveVariable);
+    }
+
+    // If we were passed an inductive variable, all other arguments should be defined
+    assert(! ld.isInductive || (inductiveVariable && from && finish && increment));
+
+    loops.push(ld);
+
+    // Branch into the loop
+    builder.CreateBr(headerBB);
+
+    // Set ourselves inside the loop
+    builder.SetInsertPoint(headerBB);
+}
+
+// Add a back-edge (e.g "continue") for the innermost loop that you're in
+void Builder::makeLoopBackEdge()
+{
+    LoopData ld = loops.top();
+
+    // If we're not inductive, just branch back.
+    if (! ld.isInductive) {
+        builder.CreateBr(ld.header);
+        return;
+    }
+
+    //  Otherwise we have to (possibly) increment the inductive variable, and
+    // set up a conditional exit.
+    assert(ld.counter && ld.counter->getType()->isPointerTy() && ld.increment && ld.finish);
+
+    llvm::Value* iPrev = builder.CreateLoad(ld.counter);
+    llvm::Value* cmp   = NULL;
+    llvm::Value* iNext = NULL;
+
+    // iNext is either iPrev if the user did the increment theirselves, or it is
+    // the result of the increment if we have to do it ourselves.
+    switch (ld.counter->getType()->getContainedType(0)->getTypeID()) {
+    case llvm::Type::FloatTyID:
+        iNext = ! ld.builderDoesIncrement ? iPrev : builder.CreateFAdd(iPrev, ld.increment);
+        cmp   = builder.CreateFCmpOGE(iNext, ld.finish);
+        break;
+    case llvm::Type::IntegerTyID:
+        iNext = ! ld.builderDoesIncrement ? iPrev : builder.CreateAdd(iPrev, ld.increment);
+        cmp   = builder.CreateICmpSGE(iNext, ld.finish);
+        break;
+    default: gla::UnsupportedFunctionality("unknown type in inductive variable");
+    }
+
+    // Store the new value for the inductive variable back in
+    if (ld.builderDoesIncrement)
+        builder.CreateStore(iNext, ld.counter);
+
+    // If iNext exceeds ld.finish, exit the loop, else branch back to
+    // the header
+    builder.CreateCondBr(cmp, ld.exit, ld.header);
+}
+
+// Add an exit (e.g. "break") for the innermost loop that you're in
+void Builder::makeLoopExit()
+{
+    builder.CreateBr(loops.top().exit);
+}
+
+// Close the innermost loop that you're in
+void Builder::closeLoop()
+{
+    // Branch back through the loop
+    makeLoopBackEdge();
+
+    LoopData ld = loops.top();
+
+    ld.function->getBasicBlockList().push_back(ld.exit);
+    builder.SetInsertPoint(ld.exit);
+
+    loops.pop();
+}
+
 
 }; // end gla namespace
