@@ -30,9 +30,9 @@ void main()
     v += sinh(v);
     v += cosh(v);
     v += tanh(v);
-    //v += asinh(v);
-    //v += acosh(v);
-    //v += atanh(v);
+    v += asinh(v);
+    v += acosh(v);
+    v += atanh(v);
     v += pow(v, v);
     v += exp(v);
     v += log(v);
@@ -44,8 +44,8 @@ void main()
     v += sign(v);
     v += floor(v);
     //v += trunc(v);  // defect in glsl2
-    //v += round(v);
-    //v += roundEven(v);
+    v += round(v);
+    v += roundEven(v);
     v += ceil(v);
     v += fract(v);
     v += mod(v, v);

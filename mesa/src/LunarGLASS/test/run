@@ -7,10 +7,11 @@ USAGE="\
 Usage: ./run [options]
 
        Options:
-         -h --help          Print out this Usage info
-         -l --linux         Run for linux
-         -w --windows       (default) Run for windows
-         -s --suppress-tgsi Suppress the running of tgsi tests
+         -h --help                 Print out this Usage info
+         -l --linux                Run for linux
+         -w --windows              (default) Run for windows
+         -s --suppress-tgsi        Suppress the running of tgsi tests
+         -t --testfile <testfile>  Run on a single test file     
 "
 
 # Add more tests here as they are created
@@ -138,8 +139,8 @@ DO_TGSI="true"
 # Command-line argument Handling
 
 # Arguments passed
-for i in $*; do
-    case $i in
+while [ $# -gt 0 ]; do
+    case "$1" in
         -l|--linux)
             RUNCMD=../../glsl/StandAlone
             ;;
@@ -150,11 +151,21 @@ for i in $*; do
         -s|--suppress-tgsi)
             DO_TGSI=""
             ;;
+        -t|--testfile)
+            TESTS=("$2")
+            if [ ! -e "$2" ]
+            then
+                echo "Error: testfile "$2" not found"
+                exit 1
+            fi
+            shift
+            ;;
         *)
             showHelp
             exit 1
             ;;
     esac
+    shift
 done
 
 runTests
