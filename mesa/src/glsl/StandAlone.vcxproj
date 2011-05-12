@@ -53,10 +53,10 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <DisableSpecificWarnings>4355;4291;4018;4800;4267;4996;4244;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4624;4355;4291;4018;4800;4267;4996;4244;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;LLVMInstCombine.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../../LLVM/llvm-2.9/build/install/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
@@ -95,6 +95,7 @@
     <ClInclude Include="..\LunarGLASS\Passes\Transforms\Transforms.h" />
     <ClInclude Include="..\LunarGLASS\Passes\Util\ADT.h" />
     <ClInclude Include="..\LunarGLASS\Passes\Util\BasicBlockUtil.h" />
+    <ClInclude Include="..\LunarGLASS\Passes\Util\ConditionalUtil.h" />
     <ClInclude Include="..\LunarGLASS\Passes\Util\FunctionUtil.h" />
     <ClInclude Include="..\LunarGLASS\Passes\Util\LoopUtil.h" />
     <ClInclude Include="..\LunarGLASS\PrivateManager.h" />
@@ -140,9 +141,11 @@
     <ClCompile Include="..\LunarGLASS\Options.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Analysis\IdentifyConditionals.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeCFG.cpp" />
+    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeInsts.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\FlattenConditionalAssignments.cpp" />
     <ClCompile Include="..\LunarGLASS\Passes\Util\BasicBlockUtil.cpp" />
+    <ClCompile Include="..\LunarGLASS\Passes\Util\ConditionalUtil.cpp" />
     <ClCompile Include="..\LunarGLASS\TopBuilder.cpp" />
     <ClCompile Include="..\LunarGLASS\TopToBottom.cpp" />
     <ClCompile Include="..\LunarGLASS\Util.cpp" />

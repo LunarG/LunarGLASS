@@ -183,6 +183,9 @@
     <ClInclude Include="..\LunarGLASS\Backends\TGSI\TgsiTarget.h">
       <Filter>LunarGLASS\Backends\TGSI</Filter>
     </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Passes\Util\ConditionalUtil.h">
+      <Filter>LunarGLASS\Passes\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ast_expr.cpp">
@@ -454,6 +457,12 @@
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\LunarGManager.cpp">
       <Filter>LunarGLASS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Passes\Util\ConditionalUtil.cpp">
+      <Filter>LunarGLASS\Passes\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeInsts.cpp">
+      <Filter>LunarGLASS\Passes\Transforms</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
