@@ -423,6 +423,7 @@ static const char *const operator_strs[] = {
    "pow",
    "atan2",
    "ftransform",
+   "outerProduct",
    "vector",
 };
 

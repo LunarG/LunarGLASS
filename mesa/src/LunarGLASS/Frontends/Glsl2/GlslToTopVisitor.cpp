@@ -1423,6 +1423,8 @@ gla::Builder::SuperValue GlslToTopVisitor::createBinaryIntrinsic(ir_expression_o
         return glaBuilder->createCompare(lhs, rhs, true, isFloat, isSigned);
     case ir_binop_any_nequal:
         return glaBuilder->createCompare(lhs, rhs, false, isFloat, isSigned);
+    case ir_binop_outerProduct:
+        return glaBuilder->createMatrixMultiply(lhs, rhs);
     }
 
     // If intrinsic was assigned, then call the function and return

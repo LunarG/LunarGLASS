@@ -850,12 +850,13 @@ enum ir_expression_operation {
     // Begin: LunarG added
     ir_binop_atan2,
     ir_binop_ftransform,
+    ir_binop_outerProduct,
     // End: LunarG added
 
    /**
     * A sentinel marking the last of the binary operations.
     */
-   ir_last_binop = ir_binop_ftransform,
+   ir_last_binop = ir_binop_outerProduct,
 
    ir_quadop_vector,
 
