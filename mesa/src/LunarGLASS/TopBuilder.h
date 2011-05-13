@@ -160,7 +160,7 @@ public:
     gla::Builder::SuperValue createVariable(EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
                                                     llvm::Constant* initializer, const std::string* annotation, const std::string& name);
     // Copy out to the pipeline the outputs we've been caching in variables
-    void copyOutPipeline(llvm::IRBuilder<>& builder);
+    void copyOutPipeline();
 
     llvm::Value* readPipeline(const llvm::Type*, std::string& name, int slot, EInterpolationMode mode = EIMNone, float offsetx = 0.0, float offsety = 0.0);
 

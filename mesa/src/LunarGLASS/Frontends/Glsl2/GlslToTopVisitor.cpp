@@ -393,7 +393,7 @@ ir_visitor_status
             if (inMain && !unreachable) {
                 // If we're leaving main and it is not terminated,
                 // generate our pipeline writes
-                glaBuilder->copyOutPipeline(llvmBuilder);
+                glaBuilder->copyOutPipeline();
                 inMain = false;
             }
 
@@ -864,7 +864,7 @@ ir_visitor_status
     // If we're traversing a return in main,
     // generate pipeline writes
     if (inMain) {
-        glaBuilder->copyOutPipeline(llvmBuilder);
+        glaBuilder->copyOutPipeline();
     }
 
     // Return the expression result, which is tracked in lastValue

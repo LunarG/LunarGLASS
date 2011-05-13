@@ -4,6 +4,8 @@ Top IR:
 
 @colorTransform = external addrspace(1) constant [3 x <3 x float>]
 @gl_FragColor = internal global <4 x float> zeroinitializer
+@m = external addrspace(1) constant [4 x <4 x float>]
+@n = external addrspace(1) constant [4 x <4 x float>]
 
 define fastcc void @main() {
 entry:
@@ -34,14 +36,122 @@ entry:
   store <4 x float> %vec_ctor6, <4 x float>* %vec_ctor
   %gl_FragColor = load <4 x float>* %vec_ctor
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  %12 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %12)
+  %__matrix7 = load [4 x <4 x float>] addrspace(1)* @m
+  %__matrix8 = load [4 x <4 x float>] addrspace(1)* @n
+  %__Matrix-Compare = alloca i1
+  %__Matrix-Compare9 = load i1* %__Matrix-Compare
+  %__column10 = extractvalue [4 x <4 x float>] %__matrix7, 0
+  %__column11 = extractvalue [4 x <4 x float>] %__matrix8, 0
+  %12 = fcmp one <4 x float> %__column10, %__column11
+  %13 = call i1 @llvm.gla.any.v4i1(<4 x i1> %12)
+  %__column12 = extractvalue [4 x <4 x float>] %__matrix7, 1
+  %__column13 = extractvalue [4 x <4 x float>] %__matrix8, 1
+  %14 = fcmp one <4 x float> %__column12, %__column13
+  %15 = call i1 @llvm.gla.any.v4i1(<4 x i1> %14)
+  %16 = or i1 %13, %15
+  %__column14 = extractvalue [4 x <4 x float>] %__matrix7, 2
+  %__column15 = extractvalue [4 x <4 x float>] %__matrix8, 2
+  %17 = fcmp one <4 x float> %__column14, %__column15
+  %18 = call i1 @llvm.gla.any.v4i1(<4 x i1> %17)
+  %19 = or i1 %16, %18
+  %__column16 = extractvalue [4 x <4 x float>] %__matrix7, 3
+  %__column17 = extractvalue [4 x <4 x float>] %__matrix8, 3
+  %20 = fcmp one <4 x float> %__column16, %__column17
+  %21 = call i1 @llvm.gla.any.v4i1(<4 x i1> %20)
+  %22 = or i1 %19, %21
+  br i1 %22, label %then, label %ifmerge
+
+then:                                             ; preds = %entry
+  %23 = load <4 x float>* %vec_ctor
+  %__matrix18 = load [4 x <4 x float>] addrspace(1)* @m
+  %v = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %24 = alloca <4 x float>
+  %25 = load <4 x float>* %24
+  %__component = extractelement <4 x float> %v, i32 0
+  %__component19 = extractelement <4 x float> %v, i32 1
+  %__component20 = extractelement <4 x float> %v, i32 2
+  %__component21 = extractelement <4 x float> %v, i32 3
+  %__column22 = extractvalue [4 x <4 x float>] %__matrix18, 0
+  %__element = extractelement <4 x float> %__column22, i32 0
+  %__product = fmul float %__element, %__component
+  %__column23 = extractvalue [4 x <4 x float>] %__matrix18, 1
+  %__element24 = extractelement <4 x float> %__column23, i32 0
+  %__product25 = fmul float %__element24, %__component19
+  %__dotProduct = fadd float %__product, %__product25
+  %__column26 = extractvalue [4 x <4 x float>] %__matrix18, 2
+  %__element27 = extractelement <4 x float> %__column26, i32 0
+  %__product28 = fmul float %__element27, %__component20
+  %__dotProduct29 = fadd float %__dotProduct, %__product28
+  %__column30 = extractvalue [4 x <4 x float>] %__matrix18, 3
+  %__element31 = extractelement <4 x float> %__column30, i32 0
+  %__product32 = fmul float %__element31, %__component21
+  %__dotProduct33 = fadd float %__dotProduct29, %__product32
+  %26 = insertelement <4 x float> %25, float %__dotProduct33, i32 0
+  %__column34 = extractvalue [4 x <4 x float>] %__matrix18, 0
+  %__element35 = extractelement <4 x float> %__column34, i32 1
+  %__product36 = fmul float %__element35, %__component
+  %__column37 = extractvalue [4 x <4 x float>] %__matrix18, 1
+  %__element38 = extractelement <4 x float> %__column37, i32 1
+  %__product39 = fmul float %__element38, %__component19
+  %__dotProduct40 = fadd float %__product36, %__product39
+  %__column41 = extractvalue [4 x <4 x float>] %__matrix18, 2
+  %__element42 = extractelement <4 x float> %__column41, i32 1
+  %__product43 = fmul float %__element42, %__component20
+  %__dotProduct44 = fadd float %__dotProduct40, %__product43
+  %__column45 = extractvalue [4 x <4 x float>] %__matrix18, 3
+  %__element46 = extractelement <4 x float> %__column45, i32 1
+  %__product47 = fmul float %__element46, %__component21
+  %__dotProduct48 = fadd float %__dotProduct44, %__product47
+  %27 = insertelement <4 x float> %26, float %__dotProduct48, i32 1
+  %__column49 = extractvalue [4 x <4 x float>] %__matrix18, 0
+  %__element50 = extractelement <4 x float> %__column49, i32 2
+  %__product51 = fmul float %__element50, %__component
+  %__column52 = extractvalue [4 x <4 x float>] %__matrix18, 1
+  %__element53 = extractelement <4 x float> %__column52, i32 2
+  %__product54 = fmul float %__element53, %__component19
+  %__dotProduct55 = fadd float %__product51, %__product54
+  %__column56 = extractvalue [4 x <4 x float>] %__matrix18, 2
+  %__element57 = extractelement <4 x float> %__column56, i32 2
+  %__product58 = fmul float %__element57, %__component20
+  %__dotProduct59 = fadd float %__dotProduct55, %__product58
+  %__column60 = extractvalue [4 x <4 x float>] %__matrix18, 3
+  %__element61 = extractelement <4 x float> %__column60, i32 2
+  %__product62 = fmul float %__element61, %__component21
+  %__dotProduct63 = fadd float %__dotProduct59, %__product62
+  %28 = insertelement <4 x float> %27, float %__dotProduct63, i32 2
+  %__column64 = extractvalue [4 x <4 x float>] %__matrix18, 0
+  %__element65 = extractelement <4 x float> %__column64, i32 3
+  %__product66 = fmul float %__element65, %__component
+  %__column67 = extractvalue [4 x <4 x float>] %__matrix18, 1
+  %__element68 = extractelement <4 x float> %__column67, i32 3
+  %__product69 = fmul float %__element68, %__component19
+  %__dotProduct70 = fadd float %__product66, %__product69
+  %__column71 = extractvalue [4 x <4 x float>] %__matrix18, 2
+  %__element72 = extractelement <4 x float> %__column71, i32 3
+  %__product73 = fmul float %__element72, %__component20
+  %__dotProduct74 = fadd float %__dotProduct70, %__product73
+  %__column75 = extractvalue [4 x <4 x float>] %__matrix18, 3
+  %__element76 = extractelement <4 x float> %__column75, i32 3
+  %__product77 = fmul float %__element76, %__component21
+  %__dotProduct78 = fadd float %__dotProduct74, %__product77
+  %29 = insertelement <4 x float> %28, float %__dotProduct78, i32 3
+  %gl_FragColor79 = fadd <4 x float> %23, %29
+  store <4 x float> %gl_FragColor79, <4 x float>* @gl_FragColor
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %then, %entry
+  %30 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %30)
   ret void
 }
 
 declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readnone
 
 declare float @llvm.gla.fDot.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+
+declare i1 @llvm.gla.any.v4i1(<4 x i1>) nounwind readnone
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
@@ -50,6 +160,8 @@ Bottom IR:
 ; ModuleID = 'Top'
 
 @colorTransform = external addrspace(1) constant [3 x <3 x float>]
+@m = external addrspace(1) constant [4 x <4 x float>]
+@n = external addrspace(1) constant [4 x <4 x float>]
 
 define fastcc void @main() {
 entry:
@@ -62,13 +174,96 @@ entry:
   %__column4 = extractvalue [3 x <3 x float>] %__matrix, 2
   %__dot5 = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column4)
   %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> <float undef, float undef, float undef, float 1.000000e+00>, i32 7, float %__dot, i32 -1, float %__dot3, i32 -1, float %__dot5, i32 -1, float 0.000000e+00, i32 -1)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %0)
+  %__matrix7 = load [4 x <4 x float>] addrspace(1)* @m
+  %__matrix8 = load [4 x <4 x float>] addrspace(1)* @n
+  %__column10 = extractvalue [4 x <4 x float>] %__matrix7, 0
+  %__column11 = extractvalue [4 x <4 x float>] %__matrix8, 0
+  %1 = fcmp one <4 x float> %__column10, %__column11
+  %2 = call i1 @llvm.gla.any.v4i1(<4 x i1> %1)
+  %__column12 = extractvalue [4 x <4 x float>] %__matrix7, 1
+  %__column13 = extractvalue [4 x <4 x float>] %__matrix8, 1
+  %3 = fcmp one <4 x float> %__column12, %__column13
+  %4 = call i1 @llvm.gla.any.v4i1(<4 x i1> %3)
+  %5 = or i1 %2, %4
+  %__column14 = extractvalue [4 x <4 x float>] %__matrix7, 2
+  %__column15 = extractvalue [4 x <4 x float>] %__matrix8, 2
+  %6 = fcmp one <4 x float> %__column14, %__column15
+  %7 = call i1 @llvm.gla.any.v4i1(<4 x i1> %6)
+  %8 = or i1 %5, %7
+  %__column16 = extractvalue [4 x <4 x float>] %__matrix7, 3
+  %__column17 = extractvalue [4 x <4 x float>] %__matrix8, 3
+  %9 = fcmp one <4 x float> %__column16, %__column17
+  %10 = call i1 @llvm.gla.any.v4i1(<4 x i1> %9)
+  %11 = or i1 %8, %10
+  br i1 %11, label %then, label %ifmerge
+
+then:                                             ; preds = %entry
+  %v = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %__component = extractelement <4 x float> %v, i32 0
+  %__component19 = extractelement <4 x float> %v, i32 1
+  %__component20 = extractelement <4 x float> %v, i32 2
+  %__component21 = extractelement <4 x float> %v, i32 3
+  %__element = extractelement <4 x float> %__column10, i32 0
+  %__product = fmul float %__element, %__component
+  %__element24 = extractelement <4 x float> %__column12, i32 0
+  %__product25 = fmul float %__element24, %__component19
+  %__dotProduct = fadd float %__product, %__product25
+  %__element27 = extractelement <4 x float> %__column14, i32 0
+  %__product28 = fmul float %__element27, %__component20
+  %__dotProduct29 = fadd float %__dotProduct, %__product28
+  %__element31 = extractelement <4 x float> %__column16, i32 0
+  %__product32 = fmul float %__element31, %__component21
+  %__dotProduct33 = fadd float %__dotProduct29, %__product32
+  %__element35 = extractelement <4 x float> %__column10, i32 1
+  %__product36 = fmul float %__element35, %__component
+  %__element38 = extractelement <4 x float> %__column12, i32 1
+  %__product39 = fmul float %__element38, %__component19
+  %__dotProduct40 = fadd float %__product36, %__product39
+  %__element42 = extractelement <4 x float> %__column14, i32 1
+  %__product43 = fmul float %__element42, %__component20
+  %__dotProduct44 = fadd float %__dotProduct40, %__product43
+  %__element46 = extractelement <4 x float> %__column16, i32 1
+  %__product47 = fmul float %__element46, %__component21
+  %__dotProduct48 = fadd float %__dotProduct44, %__product47
+  %__element50 = extractelement <4 x float> %__column10, i32 2
+  %__product51 = fmul float %__element50, %__component
+  %__element53 = extractelement <4 x float> %__column12, i32 2
+  %__product54 = fmul float %__element53, %__component19
+  %__dotProduct55 = fadd float %__product51, %__product54
+  %__element57 = extractelement <4 x float> %__column14, i32 2
+  %__product58 = fmul float %__element57, %__component20
+  %__dotProduct59 = fadd float %__dotProduct55, %__product58
+  %__element61 = extractelement <4 x float> %__column16, i32 2
+  %__product62 = fmul float %__element61, %__component21
+  %__dotProduct63 = fadd float %__dotProduct59, %__product62
+  %__element65 = extractelement <4 x float> %__column10, i32 3
+  %__product66 = fmul float %__element65, %__component
+  %__element68 = extractelement <4 x float> %__column12, i32 3
+  %__product69 = fmul float %__element68, %__component19
+  %__dotProduct70 = fadd float %__product66, %__product69
+  %__element72 = extractelement <4 x float> %__column14, i32 3
+  %__product73 = fmul float %__element72, %__component20
+  %__dotProduct74 = fadd float %__dotProduct70, %__product73
+  %__element76 = extractelement <4 x float> %__column16, i32 3
+  %__product77 = fmul float %__element76, %__component21
+  %__dotProduct78 = fadd float %__dotProduct74, %__product77
+  %12 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dotProduct33, i32 -1, float %__dotProduct48, i32 -1, float %__dotProduct63, i32 -1, float %__dotProduct78, i32 -1)
+  %gl_FragColor79 = fadd <4 x float> %0, %12
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %then, %entry
+  %gl_FragColor80.0 = phi <4 x float> [ %gl_FragColor79, %then ], [ %0, %entry ]
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor80.0)
   ret void
 }
 
 declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readnone
 
 declare float @llvm.gla.fDot.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+
+declare i1 @llvm.gla.any.v4i1(<4 x i1>) nounwind readnone
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
@@ -78,12 +273,17 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 compiling matrix.frag...
 uniform mat3 colorTransform ; 
 varying vec3 Color ; 
+uniform mat4 m , n ; 
+varying vec4 v ; 
 void  main (){
-gl_FragColor = vec4 ( Color * colorTransform , 1.000000 ) ; }
+gl_FragColor = vec4 ( Color * colorTransform , 1.000000 ) ; if ( m != n ) gl_FragColor += m * v ; }
 
 
 
 (
+(declare (in ) vec4 v)
+(declare (uniform ) mat4 n)
+(declare (uniform ) mat4 m)
 (declare (in ) vec3 Color)
 (declare (uniform ) mat3 colorTransform)
 (declare (out ) vec4 gl_FragColor)
@@ -96,6 +296,11 @@ gl_FragColor = vec4 ( Color * colorTransform , 1.000000 ) ; }
       (assign (constant bool (1)) (w) (var_ref vec_ctor)  (constant float (1.000000)) ) 
       (assign (constant bool (1)) (xyz) (var_ref vec_ctor)  (expression vec3 * (var_ref Color) (var_ref colorTransform) ) ) 
       (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref vec_ctor) ) 
+      (if (expression bool any_nequal (var_ref m) (var_ref n) ) (
+        (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 + (var_ref vec_ctor) (expression vec4 * (var_ref m) (var_ref v) ) ) ) 
+      )
+      ())
+
     ))
 
 )

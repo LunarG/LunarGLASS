@@ -157,7 +157,7 @@ gla::Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualif
     return value;
 }
 
-void Builder::copyOutPipeline(llvm::IRBuilder<>& builder)
+void Builder::copyOutPipeline()
 {
     llvm::Intrinsic::ID intrinsicID;
 
@@ -287,7 +287,7 @@ const llvm::Type* Builder::Matrix::getType(const llvm::Type* elementType, int nu
     assert(numColumns >= minSize && numRows >= minSize);
     assert(numColumns <= maxSize && numRows <= maxSize);
 
-    static const llvm::Type** type = &typeCache[numColumns-minSize][numRows-minSize];
+    const llvm::Type** type = &typeCache[numColumns-minSize][numRows-minSize];
     if (*type == 0) {
         // a matrix is an array of vectors
         llvm::VectorType* columnType = llvm::VectorType::get(elementType, numRows);
@@ -462,9 +462,31 @@ llvm::Value* Builder::createMatrixTimesVector(Matrix* matrix, llvm::Value* rvect
 {
     assert(matrix->getNumColumns() == GetComponentCount(rvector));
 
-    UnsupportedFunctionality("matrix times vector");
+    // Allocate a vector to build the result in
+    llvm::Value* result = builder.CreateAlloca(llvm::VectorType::get(rvector->getType()->getContainedType(0), matrix->getNumRows()));
+    result = builder.CreateLoad(result);
 
-    return 0;
+    // Cache the components of the vector; they'll be revisited multiple times
+    llvm::Value* components[4];
+    for (int comp = 0; comp < GetComponentCount(rvector); ++comp)
+        components[comp] = builder.CreateExtractElement(rvector,  MakeUnsignedConstant(context, comp), "__component");
+
+    // Go row by row, manually forming the cross-column "dot product"
+    for (int row = 0; row < matrix->getNumRows(); ++row) {
+        llvm::Value* dotProduct;
+        for (int col = 0; col < matrix->getNumColumns(); ++col) {
+            llvm::Value* column = builder.CreateExtractValue(matrix->getMatrixValue(), col, "__column");
+            llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
+            llvm::Value* product = builder.CreateFMul(element, components[col], "__product");
+            if (col == 0)
+                dotProduct = product;
+            else
+                dotProduct = builder.CreateFAdd(dotProduct, product, "__dotProduct");
+        }
+        result = builder.CreateInsertElement(result, dotProduct, MakeUnsignedConstant(context, row));
+    }
+
+    return result;
 }
 
 llvm::Value* Builder::createVectorTimesMatrix(llvm::Value* lvector, Matrix* matrix)
