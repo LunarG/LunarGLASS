@@ -115,8 +115,14 @@ ifmerge:                                          ; preds = %else, %then
   store <4 x float> %mix_retval18, <4 x float>* %mix_retval
   %gl_FragColor = load <4 x float>* %mix_retval
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %main-copy-out
+
+main-copy-out:                                    ; preds = %ifmerge
   %55 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %55)
+  br label %main-exit
+
+main-exit:                                        ; preds = %main-copy-out
   ret void
 }
 

@@ -155,11 +155,11 @@ protected:
 
     gla::Builder* glaBuilder;
 
-    // In non-linking IR, the front end puts the increment inside the body of the
-    // loop. In linking IR, the increment inside the body of the loop does
-    // not have the same address as the declaration in the loop header, thus
-    // we have to insert it ourselves. Adding the increment in the case of
-    // non-linking IR is erroneous, and not adding it in the case of
-    // linking IR is also erroneous.
+    // In non-linking IR, the front end puts the increment inside the body of
+    // the loop. In linking IR, the increment inside the body of the loop does
+    // not have the same address as the declaration in the loop header, thus we
+    // have to insert it ourselves. Adding the increment in the case of
+    // non-linking IR is erroneous, and not adding it in the case of linking IR
+    // is also erroneous.
     static const bool haveBuilderIncrementInductiveVariable = true;
 };

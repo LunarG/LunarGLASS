@@ -138,6 +138,24 @@ public:
 
     static llvm::Constant* getConstant(std::vector<llvm::Constant*>&);
 
+    // Make the main function. Returns the entry block
+    llvm::BasicBlock* makeMain();
+
+    // Close the main function.
+    void closeMain();
+
+    void makeMainReturn() { makeReturn(NULL, true); }
+
+    // Create a return. Pass whether it is a return form main, and the return
+    // value (if applicable).
+    void makeReturn(llvm::Value* retVal=NULL, bool isMain = false);
+
+    // Create a discard. Pass whether this is occuring in main. Currently,
+    // non-main functions are unsupported, and so are discards occuring in them.
+    // TODO: support discards in non-main functions
+    void makeDiscard(bool isMain);
+
+
     // Make a shader-style function, create its entry block.
     // Return the function, pass back the entry.
     llvm::Function* makeFunctionEntry(const llvm::Type* type, const char* name, std::vector<const llvm::Type*> paramTypes, llvm::BasicBlock*& entry);
@@ -159,6 +177,7 @@ public:
     // variable.
     gla::Builder::SuperValue createVariable(EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
                                                     llvm::Constant* initializer, const std::string* annotation, const std::string& name);
+
     // Copy out to the pipeline the outputs we've been caching in variables
     void copyOutPipeline();
 
@@ -288,7 +307,18 @@ protected:
         llvm::Constant* increment;
     };
 
+    // Our loop stack.
     std::stack<LoopData> loops;
+
+
+    // Special data for the main function to use. For GLSL-style returns, we
+    // want to branch to copyOut, which then branches to exit. For GLSL-style
+    // discards, we want to directly branch to exit.
+    llvm::Function*   mainFunction;
+    llvm::BasicBlock* mainCopyOut;
+    llvm::BasicBlock* mainExit;
+
+
 
 };  // end Builder class
 

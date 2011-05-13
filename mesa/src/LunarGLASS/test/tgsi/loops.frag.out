@@ -897,8 +897,14 @@ ifmerge214:                                       ; preds = %post-loopjump213, %
 loop-merge215:                                    ; preds = %then212, %ifmerge205, %then193
   %gl_FragColor = load <4 x float>* %color
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %main-copy-out
+
+main-copy-out:                                    ; preds = %loop-merge215
   %277 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %277)
+  br label %main-exit
+
+main-exit:                                        ; preds = %main-copy-out
   ret void
 }
 

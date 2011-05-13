@@ -530,8 +530,14 @@ else149:                                          ; preds = %ifmerge146
 ifmerge150:                                       ; preds = %else149, %then147
   %gl_FragColor = load <4 x float>* %conditional_tmp
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %main-copy-out
+
+main-copy-out:                                    ; preds = %ifmerge150
   %122 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %122)
+  br label %main-exit
+
+main-exit:                                        ; preds = %main-copy-out
   ret void
 }
 

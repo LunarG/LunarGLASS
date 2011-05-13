@@ -63,8 +63,7 @@ GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, llvm::Module* m)
     // do this after the builder knows the module
     glaBuilder = new gla::Builder(llvmBuilder, module);
 
-    std::vector<const llvm::Type*> mainParams;
-    glaBuilder->makeFunctionEntry(gla::GetVoidType(context), "main", mainParams, shaderEntry);
+    shaderEntry = glaBuilder->makeMain();
     llvmBuilder.SetInsertPoint(shaderEntry);
 }
 
@@ -393,18 +392,20 @@ ir_visitor_status
             if (inMain && !unreachable) {
                 // If we're leaving main and it is not terminated,
                 // generate our pipeline writes
-                glaBuilder->copyOutPipeline();
-                inMain = false;
-            }
-
-            // If we're not the entry block, and we have no predecessors, we're
-            // unreachable, so don't bother adding a return instruction in
-            // (e.g. we're in a post-return block). Otherwise add a ret void.
-            if (unreachable)
+                glaBuilder->makeMainReturn();
+            } else if (unreachable)
+                // If we're not the entry block, and we have no predecessors, we're
+                // unreachable, so don't bother adding a return instruction in
+                // (e.g. we're in a post-return block). Otherwise add a ret void.
                 llvmBuilder.CreateUnreachable();
             else
-                llvmBuilder.CreateRet(0);
+                glaBuilder->makeReturn();
 
+        }
+
+        if (inMain) {
+            glaBuilder->closeMain();
+            inMain=false;
         }
     }
 
@@ -861,18 +862,16 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_return *ir)
 {
-    // If we're traversing a return in main,
-    // generate pipeline writes
-    if (inMain) {
-        glaBuilder->copyOutPipeline();
-    }
+    if (inMain)
+        glaBuilder->makeMainReturn();
+    else if (ir->get_value())
+        glaBuilder->makeReturn(lastValue);
+    else
+        glaBuilder->makeReturn();
 
-    // Return the expression result, which is tracked in lastValue
-    if (ir->get_value()) {
-        llvmBuilder.CreateRet(lastValue);
-    } else {
-        llvmBuilder.CreateRet(0);
-    }
+    // Make a dummy block for others (e.g. IfThenElse) to put stuff in
+    llvmBuilder.SetInsertPoint(llvm::BasicBlock::Create(context, "post-return",
+                                                        llvmBuilder.GetInsertBlock()->getParent()));
 
     lastValue.clear();
 
@@ -888,7 +887,14 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_discard *ir)
 {
-    (void) ir;
+    glaBuilder->makeDiscard(inMain);
+
+    // Make a dummy block for others (e.g. IfThenElse) to put stuff in
+    llvmBuilder.SetInsertPoint(llvm::BasicBlock::Create(context, "post-discard",
+                                                        llvmBuilder.GetInsertBlock()->getParent()));
+
+    lastValue.clear();
+
     return visit_continue;
 }
 

@@ -18,8 +18,17 @@ entry:
   store <4 x float> %outColor2, <4 x float>* %outColor
   %gl_FragColor = load <4 x float>* %outColor
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %main-copy-out
+
+post-return:                                      ; No predecessors!
+  unreachable
+
+main-copy-out:                                    ; preds = %entry
   %4 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %4)
+  br label %main-exit
+
+main-exit:                                        ; preds = %main-copy-out
   ret void
 }
 

@@ -140,8 +140,14 @@ then:                                             ; preds = %entry
   br label %ifmerge
 
 ifmerge:                                          ; preds = %then, %entry
+  br label %main-copy-out
+
+main-copy-out:                                    ; preds = %ifmerge
   %30 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %30)
+  br label %main-exit
+
+main-exit:                                        ; preds = %main-copy-out
   ret void
 }
 

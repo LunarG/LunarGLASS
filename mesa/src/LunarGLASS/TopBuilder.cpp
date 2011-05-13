@@ -48,7 +48,10 @@ namespace gla {
 gla::Builder::Builder(llvm::IRBuilder<>& b, llvm::Module* m) :
     builder(b),
     module(m),
-    context(builder.getContext())
+    context(builder.getContext()),
+    mainFunction(0),
+    mainCopyOut(0),
+    mainExit(0)
 {
 }
 
@@ -56,6 +59,52 @@ gla::Builder::~Builder()
 {
     for (std::vector<Matrix*>::iterator i = matrixList.begin(); i != matrixList.end(); ++i)
         delete *i;
+}
+
+llvm::BasicBlock* Builder::makeMain()
+{
+    assert(! mainFunction);
+
+    llvm::BasicBlock* entry;
+    std::vector<const llvm::Type*> params;
+
+    mainCopyOut = llvm::BasicBlock::Create(context, "main-copy-out");
+    mainExit    = llvm::BasicBlock::Create(context, "main-exit");
+
+    mainFunction = makeFunctionEntry(gla::GetVoidType(context), "main", params, entry);
+
+    return entry;
+}
+
+void Builder::closeMain()
+{
+    // Add our instructions to mainCopyOut, and mainExit
+    builder.SetInsertPoint(mainCopyOut);
+    copyOutPipeline();
+    builder.CreateBr(mainExit);
+
+    builder.SetInsertPoint(mainExit);
+    builder.CreateRet(0);
+
+    mainFunction->getBasicBlockList().push_back(mainCopyOut);
+    mainFunction->getBasicBlockList().push_back(mainExit);
+}
+
+
+void Builder::makeReturn(llvm::Value* retVal, bool isMain)
+{
+    if (! isMain || retVal)
+        gla::UnsupportedFunctionality("return from non-main functions");
+
+    builder.CreateBr(mainCopyOut);
+}
+
+void Builder::makeDiscard(bool isMain)
+{
+    if (! isMain)
+        gla::UnsupportedFunctionality("discard from non-main functions");
+
+    builder.CreateBr(mainExit);
 }
 
 llvm::Function* Builder::makeFunctionEntry(const llvm::Type* type, const char* name, std::vector<const llvm::Type*> paramTypes, llvm::BasicBlock*& entry)

@@ -16,8 +16,14 @@ entry:
   %5 = insertelement <4 x float> %4, float %2, i32 2
   %gl_FragColor = insertelement <4 x float> %5, float %2, i32 3
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %main-copy-out
+
+main-copy-out:                                    ; preds = %entry
   %6 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %6)
+  br label %main-exit
+
+main-exit:                                        ; preds = %main-copy-out
   ret void
 }
 

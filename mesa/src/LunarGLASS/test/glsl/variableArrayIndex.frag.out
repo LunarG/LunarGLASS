@@ -83,8 +83,14 @@ loop-merge:                                       ; preds = %then6
   %21 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %18, i32 0)
   %gl_FragColor = fmul <4 x float> %21, %20
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %main-copy-out
+
+main-copy-out:                                    ; preds = %loop-merge
   %22 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %22)
+  br label %main-exit
+
+main-exit:                                        ; preds = %main-copy-out
   ret void
 }
 

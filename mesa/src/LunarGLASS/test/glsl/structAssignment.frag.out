@@ -41,8 +41,14 @@ ifmerge:                                          ; preds = %else, %then
   %7 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %4, i32 0)
   %gl_FragColor = fmul <4 x float> %7, %6
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %main-copy-out
+
+main-copy-out:                                    ; preds = %ifmerge
   %8 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %8)
+  br label %main-exit
+
+main-exit:                                        ; preds = %main-copy-out
   ret void
 }
 
