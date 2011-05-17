@@ -65,7 +65,9 @@ public:
         int getNumRows() const { return numRows; }
         int getNumColumns() const { return numColumns; }
 
-        llvm::Value* getMatrixValue() const { return matrix; }
+        llvm::Value* getValue() const { return matrix; }
+        const llvm::Type* getColumnType() const { return matrix->getType()->getContainedType(0); }
+        const llvm::Type* getElementType() const { return getColumnType()->getContainedType(0); }
 
     protected:
         int numColumns;
@@ -175,8 +177,15 @@ public:
 
     // Create an LLVM variable out of a generic "shader-style" description of a
     // variable.
-    gla::Builder::SuperValue createVariable(EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
-                                                    llvm::Constant* initializer, const std::string* annotation, const std::string& name);
+    SuperValue createVariable(EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
+                              llvm::Constant* initializer, const std::string* annotation, const std::string& name);
+    
+    // Store SuperValue into another SuperValue and return the l-value
+    SuperValue createStore(SuperValue rValue, SuperValue lValue);
+
+    // Load SuperValue from a SuperValue and return it
+    SuperValue createLoad(SuperValue);
+    
 
     // Copy out to the pipeline the outputs we've been caching in variables
     void copyOutPipeline();
@@ -277,7 +286,8 @@ public:
 protected:
     llvm::Value* createMatrixTimesVector(Matrix*, llvm::Value*);
     llvm::Value* createVectorTimesMatrix(llvm::Value*, Matrix*);
-
+    
+    Matrix* createMatrixOp(llvm::Instruction::BinaryOps llvmOpcode, Matrix* left, Matrix* right);
     Matrix* createSmearedMatrixOp(llvm::Instruction::BinaryOps, Matrix*, llvm::Value*, bool reverseOrder);
     Matrix* createMatrixTimesMatrix(Matrix*, Matrix*);
     Matrix* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);

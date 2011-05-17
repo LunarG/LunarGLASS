@@ -45,7 +45,7 @@
 
 namespace gla {
 
-gla::Builder::Builder(llvm::IRBuilder<>& b, llvm::Module* m) :
+Builder::Builder(llvm::IRBuilder<>& b, llvm::Module* m) :
     builder(b),
     module(m),
     context(builder.getContext()),
@@ -55,7 +55,7 @@ gla::Builder::Builder(llvm::IRBuilder<>& b, llvm::Module* m) :
 {
 }
 
-gla::Builder::~Builder()
+Builder::~Builder()
 {
     for (std::vector<Matrix*>::iterator i = matrixList.begin(); i != matrixList.end(); ++i)
         delete *i;
@@ -128,9 +128,9 @@ llvm::Constant* Builder::getConstant(std::vector<llvm::Constant*>& constants)
     return llvm::ConstantVector::get(constants);
 }
 
-gla::Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, int storageInstance,
-                                                 const llvm::Type* type, bool isMatrix, llvm::Constant* initializer, const std::string* annotation,
-                                                 const std::string& name)
+Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, int storageInstance,
+                                            const llvm::Type* type, bool isMatrix, llvm::Constant* initializer, const std::string* annotation,
+                                            const std::string& name)
 {
     std::string annotatedName;
     if (annotation != 0) {
@@ -206,6 +206,43 @@ gla::Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualif
     return value;
 }
 
+Builder::SuperValue Builder::createStore(SuperValue rValue, SuperValue lValue)
+{
+    llvm::Value* llvmRValue;
+    llvm::Value* llvmLValue;
+
+    if (lValue.isMatrix()) {
+        assert(rValue.isMatrix());
+        assert(lValue.getMatrix()->getNumColumns() == rValue.getMatrix()->getNumColumns() &&
+               lValue.getMatrix()->getNumRows()    == rValue.getMatrix()->getNumRows());
+
+        llvmRValue = rValue.getMatrix()->getValue();
+        llvmLValue = lValue.getMatrix()->getValue();
+    } else {
+        llvmRValue = rValue;
+        llvmLValue = lValue;
+    }
+
+    // Retroactively change the name of the last-value temp to the name of the
+    // l-value, to help debuggability, if it's just an llvm temp name.
+    if (llvmRValue->getNameStr().length() < 2 || (llvmRValue->getNameStr()[1] >= '0' && llvmRValue->getNameStr()[1] <= '9'))
+        llvmRValue->setName(llvmLValue->getName());
+
+    builder.CreateStore(llvmRValue, llvmLValue);
+ 
+    return lValue;
+}
+
+Builder::SuperValue Builder::createLoad(SuperValue lValue)
+{   
+    if (lValue.isMatrix()) {
+        llvm::Value* newValue = builder.CreateLoad(lValue.getMatrix()->getValue(), "__matrix");
+        gla::Builder::Matrix* loadedMatrix = new gla::Builder::Matrix(newValue);
+        return gla::Builder::SuperValue(loadedMatrix);
+    } else
+        return builder.CreateLoad(lValue);
+}
+
 void Builder::copyOutPipeline()
 {
     llvm::Intrinsic::ID intrinsicID;
@@ -223,7 +260,7 @@ void Builder::copyOutPipeline()
 
         llvm::Function *intrinsicName = getIntrinsic(intrinsicID, loadVal->getType());
 
-        builder.CreateCall2(intrinsicName, MakeIntConstant(loadVal->getContext(), 0), loadVal);
+        builder.CreateCall2(intrinsicName, MakeIntConstant(context, 0), loadVal);
     }
 }
 
@@ -357,11 +394,7 @@ Builder::SuperValue Builder::createMatrixOp(llvm::Instruction::BinaryOps llvmOpc
         assert(left.getMatrix()->getNumColumns() == right.getMatrix()->getNumColumns());
         assert(left.getMatrix()->getNumRows() == right.getMatrix()->getNumRows());
 
-        // spit out the component-wise operations
-
-        UnsupportedFunctionality("component-wise matrix operation");
-
-        return ret;
+        return createMatrixOp(llvmOpcode, left.getMatrix(), right.getMatrix());
     }
 
     // matrix <op> smeared scalar
@@ -388,12 +421,8 @@ Builder::SuperValue Builder::createMatrixMultiply(Builder::SuperValue left, Buil
     Builder::SuperValue ret;
 
     // outer product
-    if (left.isValue() && right.isValue()) {
-        assert(GetComponentCount(left) == GetComponentCount(right));
-        UnsupportedFunctionality("outer product");
-
-        return ret;
-    }
+    if (left.isValue() && right.isValue())
+        return createOuterProduct(left.getValue(), right.getValue());
 
     assert(left.isMatrix() || right.isMatrix());
 
@@ -438,8 +467,8 @@ Builder::SuperValue Builder::createMatrixCompare(SuperValue left, SuperValue rig
     assert(left.getMatrix()->getNumColumns() == right.getMatrix()->getNumColumns());
     assert(left.getMatrix()->getNumRows() == right.getMatrix()->getNumRows());
 
-    llvm::Value* value1 =  left.getMatrix()->getMatrixValue();
-    llvm::Value* value2 = right.getMatrix()->getMatrixValue();
+    llvm::Value* value1 =  left.getMatrix()->getValue();
+    llvm::Value* value2 = right.getMatrix()->getValue();
 
     // Get a boolean to accumulate the results in
     llvm::Value* result = builder.CreateAlloca(llvm::IntegerType::get(context, 1), 0, "__Matrix-Compare");
@@ -524,7 +553,7 @@ llvm::Value* Builder::createMatrixTimesVector(Matrix* matrix, llvm::Value* rvect
     for (int row = 0; row < matrix->getNumRows(); ++row) {
         llvm::Value* dotProduct;
         for (int col = 0; col < matrix->getNumColumns(); ++col) {
-            llvm::Value* column = builder.CreateExtractValue(matrix->getMatrixValue(), col, "__column");
+            llvm::Value* column = builder.CreateExtractValue(matrix->getValue(), col, "__column");
             llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
             llvm::Value* product = builder.CreateFMul(element, components[col], "__product");
             if (col == 0)
@@ -549,54 +578,117 @@ llvm::Value* Builder::createVectorTimesMatrix(llvm::Value* lvector, Matrix* matr
 
     // Compute the dot products for the result
     for (int c = 0; c < matrix->getNumColumns(); ++c) {
-        llvm::Value* column = builder.CreateExtractValue(matrix->getMatrixValue(), c, "__column");
+        llvm::Value* column = builder.CreateExtractValue(matrix->getValue(), c, "__column");
         llvm::Value* comp = builder.CreateCall2(dot, lvector, column, "__dot");
-        result = builder.CreateInsertElement(result, comp, MakeUnsignedConstant(result->getContext(), c));
+        result = builder.CreateInsertElement(result, comp, MakeUnsignedConstant(context, c));
     }
 
     return result;
+}
+
+Builder::Matrix* Builder::createMatrixOp(llvm::Instruction::BinaryOps op, Matrix* left, Matrix* right)
+{
+    // Allocate a matrix to hold the result in
+    llvm::Value* result = builder.CreateAlloca(left->getValue()->getType());
+    result = builder.CreateLoad(result);
+
+    // Compute the component-wise operation per column vector
+    for (int c = 0; c < left->getNumColumns(); ++c) {
+        llvm::Value*  leftColumn = builder.CreateExtractValue( left->getValue(), c,  "__leftColumn");
+        llvm::Value* rightColumn = builder.CreateExtractValue(right->getValue(), c, "__rightColumn");
+        llvm::Value* column = builder.CreateBinOp(op, leftColumn, rightColumn, "__column");
+        result = builder.CreateInsertValue(result, column, c);
+    }
+
+    return newMatrix(result);
 }
 
 Builder::Matrix* Builder::createSmearedMatrixOp(llvm::Instruction::BinaryOps op, Matrix* matrix, llvm::Value* scalar, bool reverseOrder)
 {
     // ?? better to smear the scalar to a column-like vector, and apply that vector multiple times
     // Allocate a matrix to build the result in
-    llvm::Value* result = builder.CreateAlloca(matrix->getMatrixValue()->getType());
+    llvm::Value* result = builder.CreateAlloca(matrix->getValue()->getType());
     result = builder.CreateLoad(result);
 
     // Compute per column vector
     for (int c = 0; c < matrix->getNumColumns(); ++c) {
-        llvm::Value* column = builder.CreateExtractValue(matrix->getMatrixValue(), c, "__column");
+        llvm::Value* column = builder.CreateExtractValue(matrix->getValue(), c, "__column");
 
         for (int r = 0; r < matrix->getNumRows(); ++r) {
-            llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(result->getContext(), r), "__row");
+            llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(context, r), "__row");
             if (reverseOrder)
                 element = builder.CreateBinOp(op, scalar, element);
             else
                 element = builder.CreateBinOp(op, element, scalar);
-            column = builder.CreateInsertElement(column, element, MakeUnsignedConstant(result->getContext(), r));
+            column = builder.CreateInsertElement(column, element, MakeUnsignedConstant(context, r));
         }
 
         result = builder.CreateInsertValue(result, column, c);
     }
 
-    //?? what about deleting all these matrices?
     return newMatrix(result);
 }
 
-Builder::Matrix* Builder::createMatrixTimesMatrix(Matrix* lmatrix, Matrix* rmatrix)
+Builder::Matrix* Builder::createMatrixTimesMatrix(Matrix* left, Matrix* right)
 {
-    assert(lmatrix->getNumColumns() == rmatrix->getNumRows() &&
-           rmatrix->getNumColumns() == lmatrix->getNumRows());
+    // Allocate a matrix to hold the result in
+    int rows = left->getNumRows();
+    int columns =  right->getNumColumns();
+    llvm::Value* result = builder.CreateAlloca(Matrix::getType(left->getElementType(), columns, rows));
+    result = builder.CreateLoad(result, "__resultMatrix");
 
-    return 0;
+    // Allocate a column for intermediate results
+    llvm::Value* column = builder.CreateAlloca(llvm::VectorType::get(left->getElementType(), rows));
+    column = builder.CreateLoad(column, "__tempColumn");
+
+    for (int col = 0; col < columns; ++col) {
+        llvm::Value* rightColumn = builder.CreateExtractValue(right->getValue(), col, "__rightColumn");
+        for (int row = 0; row < rows; ++row) {
+            llvm::Value* dotProduct;
+
+            for (int dotRow = 0; dotRow < right->getNumRows(); ++dotRow) {
+                llvm::Value* leftColumn = builder.CreateExtractValue(left->getValue(), dotRow,  "__leftColumn");
+                llvm::Value* leftComp = builder.CreateExtractElement(leftColumn, MakeUnsignedConstant(context, row), "__leftComp");
+                llvm::Value* rightComp = builder.CreateExtractElement(rightColumn, MakeUnsignedConstant(context, dotRow), "__rightComp");
+                llvm::Value* product = builder.CreateFMul(leftComp, rightComp, "__product");
+                if (dotRow == 0)
+                    dotProduct = product;
+                else
+                    dotProduct = builder.CreateFAdd(dotProduct, product, "__dotProduct");
+            }
+            column = builder.CreateInsertElement(column, dotProduct, MakeUnsignedConstant(context, row), "__column");
+        }
+
+        result = builder.CreateInsertValue(result, column, col, "__resultMatrix");
+    }
+
+    return newMatrix(result);
 }
 
-Builder::Matrix* Builder::createOuterProduct(llvm::Value* lvector, llvm::Value* rvector)
-{
-    UnsupportedFunctionality("outer product");
+Builder::Matrix* Builder::createOuterProduct(llvm::Value* left, llvm::Value* right)
+{   
+    // Allocate a matrix to hold the result in
+    int rows = GetComponentCount(left);
+    int columns =  GetComponentCount(right);
+    llvm::Value* result = builder.CreateAlloca(Matrix::getType(left->getType()->getContainedType(0), columns, rows));
+    result = builder.CreateLoad(result);
 
-    return 0;
+    // Allocate a column for intermediate results
+    llvm::Value* column = builder.CreateAlloca(left->getType());
+    column = builder.CreateLoad(column);
+
+    // Build it up column by column, element by element
+    for (int col = 0; col < columns; ++col) {
+        llvm::Value* rightComp = builder.CreateExtractElement(right, MakeUnsignedConstant(context, col), "__rightComp");
+        for (int row = 0; row < rows; ++row) {
+            llvm::Value*  leftComp = builder.CreateExtractElement( left, MakeUnsignedConstant(context, row),  "__leftComp");
+            llvm::Value* element = builder.CreateFMul(leftComp, rightComp, "__element");
+            column = builder.CreateInsertElement(column, element, MakeUnsignedConstant(context, row), "__column");
+        }
+        result = builder.CreateInsertValue(result, column, col, "__matrix");
+    }
+
+    return newMatrix(result);
 }
 
 // Get intrinsic declarations

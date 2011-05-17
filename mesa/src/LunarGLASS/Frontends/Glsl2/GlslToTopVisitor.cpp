@@ -208,15 +208,12 @@ ir_visitor_status
         lValue.base = lastValue;
         lValue.indexChain = gepIndexChainStack.top();
         gepIndexChainStack.top().clear();
-    }
-    else
-    {
+    } else {
         glsl_base_type baseType = var->type->base_type;
 
         if (isPipelineInput) {
             lastValue = createPipelineRead(var, 0);
-        }
-        else if (GLSL_TYPE_ARRAY == baseType || GLSL_TYPE_STRUCT == baseType) {
+        } else if (GLSL_TYPE_ARRAY == baseType || GLSL_TYPE_STRUCT == baseType) {
             assert(gepIndexChainStack.top().size() >= 0);
             unsigned indices[maxGepIndices];
             int indexCount = 0;
@@ -235,7 +232,7 @@ ir_visitor_status
                                               gepIndexChainStack.top().begin(),
                                               gepIndexChainStack.top().end());
 
-                lastValue = llvmBuilder.CreateLoad(lastValue);
+                lastValue = glaBuilder->createLoad(lastValue);
                 break;
 
             case ir_var_auto:
@@ -247,7 +244,7 @@ ir_visitor_status
                     // If we're dereferencing an element in a local array or structure, we must
                     // load the entire aggregate and extract the element, otherwise
                     // promoteMemToReg will not drop the pointer references.
-                    lastValue = llvmBuilder.CreateLoad(lastValue);
+                    lastValue = glaBuilder->createLoad(lastValue);
                     if (indexCount > 0)
                         lastValue = llvmBuilder.CreateExtractValue(lastValue, indices, indices + indexCount);
                 } else {
@@ -261,15 +258,9 @@ ir_visitor_status
             }
 
             gepIndexChainStack.top().clear();
-        }
-        else if (var->mode != ir_var_in) {
+        } else if (var->mode != ir_var_in) {
             // Don't load inputs again... just use them
-            if (lastValue.isMatrix()) {
-                llvm::Value* newValue = llvmBuilder.CreateLoad(lastValue.getMatrix()->getMatrixValue(), "__matrix");
-                gla::Builder::Matrix* loadedMatrix = new gla::Builder::Matrix(newValue);
-                lastValue = gla::Builder::SuperValue(loadedMatrix);
-            } else
-                lastValue = llvmBuilder.CreateLoad(lastValue);
+            lastValue = glaBuilder->createLoad(lastValue);
         }
     }
 
@@ -726,7 +717,7 @@ ir_visitor_status
     if (lValue.indexChain.size()) {
         std::reverse(lValue.indexChain.begin(), lValue.indexChain.end());
         if (convertValuesToUnsigned(indices, indexCount, lValue.indexChain)) {
-            lValueAggregate = llvmBuilder.CreateLoad(lValue.base);
+            lValueAggregate = glaBuilder->createLoad(lValue.base);
             lValue.indexChain.clear();
         } else {
             gla::UnsupportedFunctionality("non-constant dereference in local array");
@@ -745,7 +736,7 @@ ir_visitor_status
         if (lValueAggregate)
             targetVector = llvmBuilder.CreateExtractValue(lValueAggregate, indices, indices + indexCount);
         else
-            targetVector = llvmBuilder.CreateLoad(lValue.base);
+            targetVector = glaBuilder->createLoad(lValue.base);
 
         // Check each channel of the writemask
         for(int i = 0; i < 4; ++i) {
@@ -768,19 +759,12 @@ ir_visitor_status
         lastValue = targetVector;
     }
 
-    // Retroactively change the name of the last-value temp to the name of the
-    // l-value, to help debuggability, if it's just an llvm temp name.
-    if (lastValue->getNameStr().length() < 2 || (lastValue->getNameStr()[1] >= '0' && lastValue->getNameStr()[1] <= '9'))
-        lastValue->setName(lValue.base->getName());
-
     // If we loaded the whole l-value, then insert our r-value
     if (lValueAggregate)
         lastValue = llvmBuilder.CreateInsertValue(lValueAggregate, lastValue, indices, indices + indexCount);
 
-    // Store the last value into the l-value, using dest we track in base class.
-    llvm::StoreInst *store = llvmBuilder.CreateStore(lastValue, lValue.base);
-
-    lastValue = store;
+    // Store the last value into the l-value, using destination we tracked in base.
+    lastValue = glaBuilder->createStore(lastValue, lValue.base);
 
     return visit_continue;
 }
@@ -1502,7 +1486,7 @@ const llvm::Type* GlslToTopVisitor::convertGlslToGlaType(const glsl_type* type)
     }
 
     if (type->is_matrix())
-        return gla::Builder::Matrix::getType(glaType, type->column_type()->vector_elements, type->row_type()->vector_elements);
+        return gla::Builder::Matrix::getType(glaType, type->matrix_columns, type->vector_elements);
 
     // If this variable has a vector element count greater than 1, create an LLVM vector
     unsigned vecCount = type->vector_elements;
