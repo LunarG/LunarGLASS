@@ -83,14 +83,14 @@ loop-merge:                                       ; preds = %then6
   %21 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %18, i32 0)
   %gl_FragColor = fmul <4 x float> %21, %20
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  br label %main-copy-out
+  br label %stage-epilogue
 
-main-copy-out:                                    ; preds = %loop-merge
+stage-epilogue:                                   ; preds = %loop-merge
   %22 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %22)
-  br label %main-exit
+  br label %stage-exit
 
-main-exit:                                        ; preds = %main-copy-out
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -161,7 +161,13 @@ then6:                                            ; preds = %loop-header
   %10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %coord)
   %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.1, i32 0)
   %gl_FragColor = fmul <4 x float> %11, %10
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %then6
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 
 ifmerge7:                                         ; preds = %loop-header

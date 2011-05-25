@@ -24,6 +24,29 @@ uniform float d8;
 uniform float d9;
 uniform float d10;
 uniform float d11;
+uniform float d12;
+uniform float d13;
+uniform float d14;
+uniform float d15;
+uniform float d16;
+uniform float d17;
+uniform float d18;
+uniform float d19;
+uniform float d20;
+uniform float d21;
+uniform float d22;
+uniform float d23;
+uniform float d24;
+uniform float d25;
+uniform float d26;
+uniform float d27;
+uniform float d28;
+uniform float d29;
+uniform float d30;
+uniform float d31;
+uniform float d32;
+uniform float d33;
+uniform float d34;
 
 uniform int Count;
 
@@ -181,6 +204,9 @@ void main()
 
     // Multi-exit2
     do {
+        // invariant conditional break at the top of the loop. This could be a
+        // situation where unswitching the loop has no real increases in code
+        // size.
        if (d8 < 0.0)
            break;
 
@@ -200,19 +226,109 @@ void main()
 
     } while (color.z < d8);
 
+    // Deep exit
+    while (color.w < d9) {
+        if (d9 > d8) {
+            if (color.x <= d7) {
+                if (color.z == 5.0)
+                    color.w++;
+                else
+                    break;
+            }
+        }
 
-    // // // Currently Unsupported:
-    // // // Multi-continue
-    // // while (color.x < 10) {
-    // //     color += bigColor8;
+    }
 
-    // //     if (color.z < d8)
-    // //         if (color.w < d6)
-    // //             continue;
+    // No end loop-back.
+    while (color.z < d10) {
+        color.y++;
+        if (color.y < d11) {
+            color.z++;
+            if (color.w < d12)
+                color.w++;
+            else
+                color.x++;
+            continue;
+        }
 
-    // //     color.y += bigColor8.x;
-    // // }
+        color++;
+        break;
+    }
 
+    // Multi-continue
+    while (color.x < 10) {
+        color += bigColor8;
+
+        if (color.z < d8)
+            if (color.w < d6)
+                continue;
+
+        color.y += bigColor8.x;
+    }
+
+    // Immediate dominator
+    while (color.w < d13) {
+        if (color.z < d13)
+            color++;
+        else
+            color--;
+        // code from Latchy 2
+        color += bigColor4;
+        if (color.x < d4) {
+            color.z += 2.0;
+            if (color.z < d4) {
+                color.x++;
+                continue;
+            }
+        }
+        if (color.y < d4)
+            color.y += d4;
+        else
+            color.x += d4;
+    }
+
+    color++;
+    gl_FragColor = color;
+
+    // Early Return
+    while (color.x < d14) {
+        if (color.y < d15) {
+            return;
+        }
+        else
+            color++;
+    }
+
+    color++;
+
+    while (color.w < d16) {
+        color.w++;
+    }
+
+
+    // While (complicated-conditional)
+    while (color.w < d2 && color.y < d3) {
+        color += bigColor1_2;
+        if (color.z < d3)
+            return;
+    }
+
+
+    do {
+        if (color.y < d18)
+            return;
+        color++;
+    } while (color.x < d17);
+
+    // Early Discard
+    while (color.y < d16) {
+        if (color.w < d16) {
+            discard;
+        } else
+            color++;
+    }
+
+    color++;
 
     gl_FragColor = color;
 }

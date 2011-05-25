@@ -166,14 +166,14 @@ ifmerge34:                                        ; preds = %then32, %ifmerge13
   %57 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %56, i32 0, <2 x float> %coord37)
   %gl_FragColor = fmul <4 x float> %55, %57
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  br label %main-copy-out
+  br label %stage-epilogue
 
-main-copy-out:                                    ; preds = %ifmerge34
+stage-epilogue:                                   ; preds = %ifmerge34
   %58 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %58)
-  br label %main-exit
+  br label %stage-exit
 
-main-exit:                                        ; preds = %main-copy-out
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -261,7 +261,13 @@ ifmerge34:                                        ; preds = %then32, %ifmerge13
   %21 = load i32 addrspace(1)* @"sampler2D sampler"
   %22 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %21, i32 0, <2 x float> %coord14)
   %gl_FragColor = fmul <4 x float> %20, %22
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge34
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 

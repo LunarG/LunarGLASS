@@ -50,8 +50,8 @@ Builder::Builder(llvm::IRBuilder<>& b, llvm::Module* m) :
     module(m),
     context(builder.getContext()),
     mainFunction(0),
-    mainCopyOut(0),
-    mainExit(0)
+    stageEpilogue(0),
+    stageExit(0)
 {
 }
 
@@ -68,8 +68,8 @@ llvm::BasicBlock* Builder::makeMain()
     llvm::BasicBlock* entry;
     std::vector<const llvm::Type*> params;
 
-    mainCopyOut = llvm::BasicBlock::Create(context, "main-copy-out");
-    mainExit    = llvm::BasicBlock::Create(context, "main-exit");
+    stageEpilogue = llvm::BasicBlock::Create(context, "stage-epilogue");
+    stageExit    = llvm::BasicBlock::Create(context, "stage-exit");
 
     mainFunction = makeFunctionEntry(gla::GetVoidType(context), "main", params, entry);
 
@@ -78,16 +78,16 @@ llvm::BasicBlock* Builder::makeMain()
 
 void Builder::closeMain()
 {
-    // Add our instructions to mainCopyOut, and mainExit
-    builder.SetInsertPoint(mainCopyOut);
+    // Add our instructions to stageEpilogue, and stageExit
+    builder.SetInsertPoint(stageEpilogue);
     copyOutPipeline();
-    builder.CreateBr(mainExit);
+    builder.CreateBr(stageExit);
 
-    builder.SetInsertPoint(mainExit);
+    builder.SetInsertPoint(stageExit);
     builder.CreateRet(0);
 
-    mainFunction->getBasicBlockList().push_back(mainCopyOut);
-    mainFunction->getBasicBlockList().push_back(mainExit);
+    mainFunction->getBasicBlockList().push_back(stageEpilogue);
+    mainFunction->getBasicBlockList().push_back(stageExit);
 }
 
 
@@ -96,7 +96,7 @@ void Builder::makeReturn(llvm::Value* retVal, bool isMain)
     if (! isMain || retVal)
         gla::UnsupportedFunctionality("return from non-main functions");
 
-    builder.CreateBr(mainCopyOut);
+    builder.CreateBr(stageEpilogue);
 }
 
 void Builder::makeDiscard(bool isMain)
@@ -104,7 +104,7 @@ void Builder::makeDiscard(bool isMain)
     if (! isMain)
         gla::UnsupportedFunctionality("discard from non-main functions");
 
-    builder.CreateBr(mainExit);
+    builder.CreateBr(stageExit);
 }
 
 llvm::Function* Builder::makeFunctionEntry(const llvm::Type* type, const char* name, std::vector<const llvm::Type*> paramTypes, llvm::BasicBlock*& entry)
@@ -229,12 +229,12 @@ Builder::SuperValue Builder::createStore(SuperValue rValue, SuperValue lValue)
         llvmRValue->setName(llvmLValue->getName());
 
     builder.CreateStore(llvmRValue, llvmLValue);
- 
+
     return lValue;
 }
 
 Builder::SuperValue Builder::createLoad(SuperValue lValue)
-{   
+{
     if (lValue.isMatrix()) {
         llvm::Value* newValue = builder.CreateLoad(lValue.getMatrix()->getValue(), "__matrix");
         gla::Builder::Matrix* loadedMatrix = new gla::Builder::Matrix(newValue);
@@ -666,7 +666,7 @@ Builder::Matrix* Builder::createMatrixTimesMatrix(Matrix* left, Matrix* right)
 }
 
 Builder::Matrix* Builder::createOuterProduct(llvm::Value* left, llvm::Value* right)
-{   
+{
     // Allocate a matrix to hold the result in
     int rows = GetComponentCount(left);
     int columns =  GetComponentCount(right);

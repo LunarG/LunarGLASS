@@ -31,25 +31,49 @@
 #define CONDITIONAL_UTIL_H
 
 #include "llvm/Analysis/Dominators.h"
+#include "llvm/Analysis/DominanceFrontier.h"
+#include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Local.h"
 
 #include "Passes/Util/ADT.h"
 #include "Passes/Util/BasicBlockUtil.h"
+#include "Passes/Util/FunctionUtil.h"
 
 namespace gla_llvm {
     using namespace llvm;
 
     // Class providing analysis info about a conditional expression.
     class Conditional {
+        typedef SmallPtrSet<BasicBlock*,8> Filter;
     public:
-        Conditional(BasicBlock* entryBlock, BasicBlock* thenBlock, BasicBlock* elseBlock, DominanceFrontier& dfs, DominatorTree& dt)
+        Conditional(BasicBlock* entryBlock, BasicBlock* thenBlock, BasicBlock* elseBlock, DominanceFrontier& dfs, DominatorTree& dt, Loop* loop)
             : entry(entryBlock)
             , left(thenBlock)
             , right(elseBlock)
-            , domFront(dfs)
-            , domTree(dt)
+            , domFront(&dfs)
+            , domTree(&dt)
+            , mergesFilter(loop ? Filter(loop->getBlocks().begin(), loop->getBlocks().end()) : Filter())
+            , function(*entryBlock->getParent())
+            , isMain(IsMain(function))
+            , stageExit(0)
+            , stageEpilogue(0)
         {
+            if (isMain) {
+                stageExit    = GetMainExit(function);
+                stageEpilogue = GetMainCopyOut(function);
+            }
+
+            // Set up our excludes. If we're in a loop, thenwe exclude the
+            // loop's latch, otherwise we exclude stage-epilogue and stage-exit
+            if (loop) {
+                assert(loop->getLoopLatch());
+                mergesExcludes.insert(loop->getLoopLatch());
+            } else {
+                mergesExcludes.insert(stageExit);
+                mergesExcludes.insert(stageEpilogue);
+            }
+
             recalculate();
         }
 
@@ -60,13 +84,24 @@ namespace gla_llvm {
         {
             entry = left = right = merge = NULL;
             selfContained = emptyConditional = false;
-            children.clear();
+            leftChildren.clear();
+            rightChildren.clear();
+            merges.clear();
         }
 
         // Recalculate all the analysis information (e.g. if the CFG has been
         // modified so as to render it incorrect).
         // TODO: figure out interaction with stale domfront/domtree info
         void recalculate();
+
+        // Whether the respective branch subgraphs contains returns/discards
+        // bool hasThenReturn()      const { return leftReturns; }
+        // bool hasElseReturn()      const { return rightReturns; }
+        // bool hasThenDiscard()     const { return leftDiscards; }
+        // bool hasElseDiscard()     const { return rightDiscards; }
+        // bool hasDiscard()         const { return leftDiscards || rightDiscards; }
+        // bool hasReturn()          const { return leftReturns || rightReturns; }
+        // bool hasReturnOrDiscard() const { return hasReturn() || hasDiscard(); }
 
         // Whether there is no "then" block, only an "else" one. This may be
         // useful information, e.g. if a transformation wishes to invert a
@@ -88,7 +123,16 @@ namespace gla_llvm {
         // of then or else subgraphs, for which is currently will return false.
         bool isEmptyConditional() const { return emptyConditional; }
 
-        bool contains(BasicBlock* bb) const { return SmallVectorContains(children, bb); }
+        // Whether the union of the dominance frontiers of the two children
+        // contains anything not found in their intersection (except for the
+        // blocks themselves).
+        bool isIncompleteMerges() const { return incompleteMerges; }
+
+        bool contains(BasicBlock* bb) const
+        {
+            return entry == bb || merge == bb
+                || SmallVectorContains(leftChildren, bb) || SmallVectorContains(rightChildren, bb);
+        }
 
         // Accessors.
         // TODO: consider whether these should be const
@@ -119,9 +163,11 @@ namespace gla_llvm {
         bool simplifyInsts()
         {
             bool changed = false;
-            for (SmallVectorImpl<BasicBlock*>::iterator i = children.begin(), e = children.end(); i != e; ++i) {
-                changed |= SimplifyInstructionsInBlock(entry);
-            }
+            for (SmallVectorImpl<BasicBlock*>::iterator i = leftChildren.begin(), e = leftChildren.end(); i != e; ++i)
+                changed |= SimplifyInstructionsInBlock(*i);
+
+            for (SmallVectorImpl<BasicBlock*>::iterator i = rightChildren.begin(), e = rightChildren.end(); i != e; ++i)
+                changed |= SimplifyInstructionsInBlock(*i);
 
             return changed;
         }
@@ -137,13 +183,15 @@ namespace gla_llvm {
         {
             // We only do it if we're empty conditional, selfcontained, have no
             // phi nodes, and are linked to a function
-            if (! emptyConditional || ! selfContained || HasPHINodes(merge) || ! entry->getParent())
+            // TODO: can clean up when conditional trees are implemented
+            if (! entry || ! emptyConditional || ! selfContained || HasPHINodes(merge) || ! entry->getParent()) {
                 return false;
+            }
 
             ReplaceInstWithInst(entry->getTerminator(), BranchInst::Create(merge));
 
-            RecursivelyRemoveNoPredecessorBlocks(left);
-            RecursivelyRemoveNoPredecessorBlocks(right);
+            RecursivelyRemoveNoPredecessorBlocks(left, domTree);
+            RecursivelyRemoveNoPredecessorBlocks(right, domTree);
 
             SimplifyInstructionsInBlock(entry);
             SimplifyInstructionsInBlock(merge);
@@ -158,13 +206,20 @@ namespace gla_llvm {
         // function. Returns whether it did anything.
         bool removeIfUnconditional()
         {
-            ConstantInt* p = dyn_cast<ConstantInt>(GetCondition(entry));
-            if (!p)
+            // We only run if we're linked to a function
+            // TODO: can clean up when conditional trees are implemented
+            if (! entry || ! entry->getParent()) {
                 return false;
+            }
+
+            ConstantInt* p = dyn_cast<ConstantInt>(GetCondition(entry));
+            if (! p) {
+                return false;
+            }
 
             ReplaceInstWithInst(entry->getTerminator(), BranchInst::Create(p->isOne() ? left : right));
 
-            RecursivelyRemoveNoPredecessorBlocks(p->isOne() ? right : left);
+            RecursivelyRemoveNoPredecessorBlocks(p->isOne() ? right : left, domTree);
 
             SimplifyInstructionsInBlock(entry);
             SimplifyInstructionsInBlock(merge);
@@ -175,21 +230,41 @@ namespace gla_llvm {
         }
 
     private:
-
         BasicBlock* entry;
         BasicBlock* left;
         BasicBlock* right;
 
-        DominanceFrontier& domFront;
-        DominatorTree& domTree;
+        DominanceFrontier* domFront;
+        DominatorTree* domTree;
+
+        bool filterExcludes;
+
+        Filter mergesFilter;
+
+        Function& function;
+        bool isMain;
+
+        BasicBlock* stageExit;
+        BasicBlock* stageEpilogue;
+
+        SmallPtrSet<BasicBlock*,3> merges;
+        SmallPtrSet<BasicBlock*,2> mergesExcludes;
 
         BasicBlock* merge;
 
         bool selfContained;
         bool emptyConditional;
 
-        SmallVector<BasicBlock*, 32> children;
+        // bool leftReturns;
+        // bool leftDiscards;
+        // bool rightReturns;
+        // bool rightDiscards;
 
+        bool incompleteMerges;
+
+        // Children of the left and right blocks (including the blocks themselves)
+        SmallVector<BasicBlock*, 32> leftChildren;
+        SmallVector<BasicBlock*, 32> rightChildren;
 
     };
 

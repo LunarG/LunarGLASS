@@ -37,6 +37,8 @@
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Support/CFG.h"
 
+#include "Passes/Util/ADT.h"
+
 namespace gla_llvm {
     using namespace llvm;
 
@@ -47,8 +49,24 @@ namespace gla_llvm {
         return bb->getFirstNonPHIOrDbg() == bb->getTerminator();
     }
 
+    inline bool AreEmptyBB(SmallVectorImpl<BasicBlock*>& bbs)
+    {
+        if (bbs.empty())
+            return true;
+
+        for (SmallVectorImpl<BasicBlock*>::iterator i = bbs.begin(), e = bbs.end(); i != e; ++i)
+            if (! IsEmptyBB(*i))
+                return false;
+
+        return true;
+    }
+
+    // const version
     inline bool AreEmptyBB(SmallVectorImpl<const BasicBlock*>& bbs)
     {
+        if (bbs.empty())
+            return true;
+
         for (SmallVectorImpl<const BasicBlock*>::iterator i = bbs.begin(), e = bbs.end(); i != e; ++i)
             if (! IsEmptyBB(*i))
                 return false;
@@ -57,9 +75,9 @@ namespace gla_llvm {
     }
 
     // Whether from unconditionaly branches to to.
-    inline bool UncondBranchesTo(BasicBlock* from, BasicBlock* to)
+    inline bool UncondBranchesTo(const BasicBlock* from, const BasicBlock* to)
     {
-        BranchInst* bi = dyn_cast<BranchInst>(from->getTerminator());
+        const BranchInst* bi = dyn_cast<BranchInst>(from->getTerminator());
         return bi && bi->isUnconditional() && (bi->getSuccessor(0) == to);
     }
 
@@ -87,6 +105,16 @@ namespace gla_llvm {
             return NULL;
 
         return br->getCondition();
+    }
+
+    // Two BasicBlocks are equivalent if they are the same BB, or one
+    // unconditionally branches to the other and is empty. Equivalence thus is
+    // transitive, but currently unimplemented for this function.
+    inline bool AreEquivalent(const BasicBlock* bb1, const BasicBlock* bb2)
+    {
+        return bb1 == bb2
+            || (IsEmptyBB(bb1) && (UncondBranchesTo(bb1, bb2)))
+            || (IsEmptyBB(bb2) && (UncondBranchesTo(bb2, bb1)));
     }
 
     // Collect all the phi nodes in bb into a phis
@@ -124,9 +152,69 @@ namespace gla_llvm {
         return &*bb->getParent()->begin() != bb && pred_begin(bb) == pred_end(bb);
     }
 
+    // If dt is not NULL, will recursively remove any children and bb from it
+    // that are leaves, or that become leaves due to this function being run.
+    // TODO: extract into .cpp file if it remains big (and no-inline).
+    // TODO: document complexity
+    inline bool RecursivelyRemoveBlockFromDominatorTree(BasicBlock* bb, DominatorTree* dt = 0)
+    {
+        if (! dt)
+            return false;
+
+        DomTreeNode* dtn = dt->getNode(bb);
+        if (! dtn)
+            return false;
+
+        // Build up a vector of all the nodes to try to remove
+        SmallVector<DomTreeNode*, 32> nodes;
+
+        SmallVector<DomTreeNode*, 32> toAdd;
+
+        toAdd.push_back(dtn);
+
+        while (! toAdd.empty()) {
+            DomTreeNode* dtn = toAdd.pop_back_val();
+
+            // If it's already a leaf, go ahead and remove it right now.
+            if (dtn->getNumChildren() == 0) {
+                dt->eraseNode(dtn->getBlock());
+                continue;
+            }
+
+            nodes.push_back(dtn);
+
+            for (DomTreeNode::iterator i = dtn->begin(), e = dtn->end(); i != e; ++i) {
+                toAdd.push_back(*i);
+            }
+        }
+
+        // Try to remove all the nodes
+        // TODO: do in a more intelligent order (currently O(n^2)). Perhaps make
+        // this function be aggressive, and clearAllChildren(), or else provide
+        // a removeUnlinkedBlocks traversal
+        bool updated = true;
+        while (updated) {
+            updated = false;
+            for (SmallVector<DomTreeNode*,32>::iterator dtn = nodes.begin(), e = nodes.end(); dtn != e; ++dtn) {
+                if (dt->getNode(bb) && (*dtn)->getNumChildren() == 0) {
+                    updated = true;
+                    dt->eraseNode((*dtn)->getBlock());
+                }
+            }
+        }
+
+        return true;
+    }
+
     // Remove bb if it's a no-predecessor block, and continue on to its
-    // successors. Returns the number removed.
-    inline int RecursivelyRemoveNoPredecessorBlocks(BasicBlock* bb)
+    // successors. Returns the number removed. If a DominatorTree is passes in,
+    // it will update it as it removes blocks.
+    // TODO: consider simply recursively removing all of the dominated children
+    // if the domTree is provided. This may also facilitate efficient and easy
+    // updating of the domtree.
+    // TODO: extract into .cpp file if it remains big (and no-inline).
+    // TODO: document complexity
+    inline int RecursivelyRemoveNoPredecessorBlocks(BasicBlock* bb, DominatorTree* dt = 0)
     {
         if (! IsNoPredecessorBlock(bb))
             return 0;
@@ -144,12 +232,58 @@ namespace gla_llvm {
             }
 
             next->dropAllReferences();
-            next->getParent()->getBasicBlockList().erase(bb);
+
+            RecursivelyRemoveBlockFromDominatorTree(next, dt);
+
+            next->eraseFromParent();
+
             ++removed;
         }
 
         return removed;
     }
+
+    // // Prune bb from its function, and from the dominator tree. This will
+    // // unlink/erase bb, and any block that it dominates, updating the dominator
+    // // tree as it goes along.
+    // inline void PruneBB(BasicBlock* bb, DominatorTree& dt)
+    // {
+    //     DomTreeNode* dtn = dt.getNode(bb);
+    //     if (! dtn)
+    //         return;
+
+    //     SmallVector<DomTreeNode*,32> workList;
+    //     for (GraphTraits<DomTreeNode*>::df_iterator i = nodes_begin(dtn), e = nodes_end(dtn); i != e; ++i) {
+    //         workList.push_back(*i);
+    //     }
+
+    //     for (SmallVector<DomTreeNode*,32>::iterator dtn = workList.begin(), e = workList.end(); i != e; ++i) {
+    //         dtn->clearAllChildren();
+    //         BasicBlock* toRemove = dtn->getBlock();
+    //         dt.eraseNode(toRemove);
+    //         // now, erase from the function
+    //     }
+
+    // }
+
+    // Whether bb's dominance frontier contains any of the targets, and only the
+    // targets. It must contain at least 1.
+    inline bool ContainedDominanceFrontier(const BasicBlock* bb, SmallVectorImpl<const BasicBlock*>& targets, DominanceFrontier& df)
+    {
+        int num = 0;
+
+        BasicBlock* unconstBB = const_cast<BasicBlock*>(bb); // Necessary
+        DominanceFrontier::DomSetType dst = df.find(unconstBB)->second;
+
+        for (SmallVectorImpl<const BasicBlock*>::iterator target = targets.begin(), e = targets.end(); target != e; ++target) {
+            BasicBlock* unconstTarget = const_cast<BasicBlock*>(*target); // Necessary
+            if (dst.count(unconstTarget))
+                ++num;
+        }
+
+        return num != 0 && dst.size() == num;
+    }
+
 
     // Const version of properlyDominates
     inline bool ProperlyDominates(const BasicBlock* dominator, const BasicBlock* dominatee, const DominatorTree& dt)
@@ -164,21 +298,24 @@ namespace gla_llvm {
     // by it.
     inline void GetDominatedChildren(const DominatorTree& dt, BasicBlock* bb, SmallVectorImpl<BasicBlock*>& children)
     {
-        for (df_iterator<BasicBlock*> i = df_begin(bb), e = df_end(bb); i != e; ++i) {
-            if (! dt.dominates(bb, *i))
-                continue;
+        // Get the node in the tree for bb
+        DomTreeNode* n = dt.getNode(bb);
+        assert(n);
 
-            children.push_back(*i);
+        for (df_iterator<DomTreeNode*> i = GraphTraits<DomTreeNode*>::nodes_begin(n), e = GraphTraits<DomTreeNode*>::nodes_end(n); i != e; ++i) {
+            children.push_back((*i)->getBlock());
         }
     }
 
+    // const version
     inline void GetDominatedChildren(const DominatorTree& dt, const BasicBlock* bb, SmallVectorImpl<const BasicBlock*>& children)
     {
-        for (df_iterator<const BasicBlock*> i = df_begin(bb), e = df_end(bb); i != e; ++i) {
-            if (! dt.dominates(bb, *i))
-                continue;
+        // Get the node in the tree for bb
+        DomTreeNode* n = dt.getNode(const_cast<BasicBlock*>(bb)); // Safe
+        assert(n);
 
-            children.push_back(*i);
+        for (df_iterator<DomTreeNode*> i = GraphTraits<DomTreeNode*>::nodes_begin(n), e = GraphTraits<DomTreeNode*>::nodes_end(n); i != e; ++i) {
+            children.push_back((*i)->getBlock());
         }
     }
 
@@ -193,12 +330,65 @@ namespace gla_llvm {
         return br->getSuccessor(i);
     }
 
-    // Return the single merge point of the given basic blocks.  Returns null if
-    // there is no merge point, or if there are more than 1 merge points.  Note
-    // that the presense of backedges or exitedges may cause there to be
-    // multiple potential merge points.
-    BasicBlock* GetSingleMergePoint(SmallVectorImpl<BasicBlock*>&, DominanceFrontier&);
+    // Add all the merge points of the given basic blocks to the (empty) merges
+    // set. Clears merges first if non-empty.
+    // Note: body must appear in this header file, or else explicit
+    // instantiations must be given.
+    // O(n*m*log(m)) where n is the size of bbVec, and m is the size of the
+    // average dominance frontier for each bb in bbVec.
+    template<unsigned S>
+    void GetMergePoints(SmallVectorImpl<BasicBlock*>& bbVec, DominanceFrontier& domFront,
+                        SmallPtrSet<BasicBlock*, S>& merges)
+    {
+        merges.clear();
 
+        if (bbVec.size() == 0) {
+            return;
+        }
+
+        merges.insert(bbVec[0]);
+
+        if (bbVec.size() == 1) {
+            return;
+        }
+
+        // Initialize merges to contain the first domFront (and the first
+        // element)
+        DominanceFrontier::DomSetType firstDomFront = (*domFront.find(bbVec[0])).second;
+        for (DominanceFrontier::DomSetType::iterator i = firstDomFront.begin(), e = firstDomFront.end(); i != e; ++i) {
+            merges.insert(*i);
+        }
+
+        // Take the set_intersection of them all (starting on the second one)
+        SmallVectorImpl<BasicBlock*>::iterator bb = bbVec.begin(), e = bbVec.end();
+        ++bb;
+        for (/* empty */; bb != e; ++bb) {
+            // If merges contains bb itself, then we need to add it to our set
+            // of merge points so that each block can itself be a merge point.
+            bool contains = merges.count(*bb);
+
+            SetIntersect(merges, (*domFront.find(*bb)).second);
+
+            // Restore bb to being in merges, since a basic block wont be in its
+            // own dominance frontier.
+            if (contains)
+                merges.insert(*bb);
+
+        }
+
+        return;
+    }
+
+    // TODO: const version
+
+    template<unsigned S>
+    inline void GetMergePoints(BasicBlock* bb1, BasicBlock* bb2, DominanceFrontier& domFront, SmallPtrSet<BasicBlock*, S>& merges)
+    {
+        SmallVector<BasicBlock*,2> bbs;
+        bbs.push_back(bb1);
+        bbs.push_back(bb2);
+        GetMergePoints(bbs, domFront, merges);
+    }
 
 } // end namespace gla_llvm
 

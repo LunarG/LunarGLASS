@@ -27,14 +27,15 @@
 // Canonicalize the CFG for LunarGLASS, this includes the following:
 //   * All basic blocks without predecessors are removed.
 //
-//   * All single predecessor/single successor sequences of basic blocks are
-//     condensed into one block. Currently unimplemented.
+//   * Restore stage-exit and stage-epilogue blocks (GVN combines them if it
+//     can).
 //
 //   * Pointless phi nodes are removed (invalidating LCSSA).
 //
 //===----------------------------------------------------------------------===//
 
 #include "llvm/Pass.h"
+#include "llvm/IntrinsicInst.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/Dominators.h"
@@ -46,6 +47,7 @@
 
 #include "Passes/PassSupport.h"
 #include "Passes/Util/BasicBlockUtil.h"
+#include "Passes/Util/FunctionUtil.h"
 
 using namespace llvm;
 using namespace gla_llvm;
@@ -70,8 +72,13 @@ namespace  {
 
         bool removeUnneededPHIs(Function& F);
 
+        bool restoreMainBlocks(Function& F);
+
         LoopInfo* loopInfo;
         DominatorTree* domTree;
+
+        BasicBlock* exit;
+        BasicBlock* epilogue;
 
     };
 } // end namespace
@@ -93,7 +100,69 @@ bool CanonicalizeCFG::runOnFunction(Function& F)
         changed = true;
     }
 
+    if (IsMain(F)) {
+        changed |= restoreMainBlocks(F);
+    }
+
     return changed;
+}
+
+bool CanonicalizeCFG::restoreMainBlocks(Function& F)
+{
+    assert(CountReturnBlocks(F) == 1 && "main function does not have exactly 1 return block");
+
+    // Try to get existing exit and copy-out. If they exist, no need to restore.
+    exit    = GetMainExit(F);
+    epilogue = GetMainCopyOut(F);
+    if (exit && epilogue)
+        return false;
+
+    BasicBlock* ret = GetReturnBlock(F);
+
+    // Create the exit if it's missing, and sink the ret into it
+    if (! exit) {
+        // Get an interator to the terminator, and split the block based on it
+        BasicBlock::iterator term = ret->end();
+        --term;
+
+        ret->splitBasicBlock(term, "stage-exit");
+        exit = GetMainExit(F);
+        assert(exit);
+    }
+
+    // TODO: revise design for multiple/no fWriteDatas (other than
+    // gl_FragColor). Also, assert that the intrinsic does not appears elsewhere
+    // in function.
+    // Create the copy-out block if it's missing
+    if (! epilogue) {
+        // An iterator that will hold the position of the fWriteData instruction.
+        BasicBlock::iterator fwrite;
+
+        // stage-exit should have 1 and only 1 predecessor whose last
+        // non-terminating instruction is an fWriteData, find that predecessor
+        // NOTE: This may not be the case for geometry shaders, but they won't
+        // have discards.
+        BasicBlock* oldCopyOut = NULL;
+        for (pred_iterator pred = pred_begin(exit), e = pred_end(exit); pred != e; ++pred) {
+            // Get the copy-out instruction iterator
+            fwrite = (*pred)->end();
+            --fwrite;
+            assert(&*fwrite == (*pred)->getTerminator() && "missing/improper sentinel");
+            --fwrite;
+            IntrinsicInst* intrin = dyn_cast<IntrinsicInst>(fwrite);
+            if (intrin && intrin->getIntrinsicID() == Intrinsic::gla_fWriteData) {
+                oldCopyOut = *pred;
+                break;
+            }
+        }
+        assert(oldCopyOut && fwrite);
+
+        oldCopyOut->splitBasicBlock(fwrite, "stage-epilogue");
+        epilogue = GetMainCopyOut(F);
+        assert(epilogue);
+    }
+
+    return true;
 }
 
 bool CanonicalizeCFG::removeUnneededPHIs(Function& F)
@@ -137,7 +206,7 @@ bool CanonicalizeCFG::removeNoPredecessorBlocks(Function& F)
         // TODO: do it in one pass, perhaps by just having a set/vector of all
         // the blocks in the function. Currently O(n*m) where m is the number of
         // no-predecessor subgraphs.
-        if (RecursivelyRemoveNoPredecessorBlocks(bbI)) {
+        if (RecursivelyRemoveNoPredecessorBlocks(bbI, domTree)) {
             changed = true;
             bbI = F.begin();
         }
@@ -161,14 +230,14 @@ char CanonicalizeCFG::ID = 0;
 INITIALIZE_PASS_BEGIN(CanonicalizeCFG,
                       "canonicalize-cfg",
                       "Canonicalize the CFG for LunarGLASS",
-                      false,  // Whether it preserves the CFG
+                      false,  // Whether it looks only at CFG
                       false); // Whether it is an analysis pass
 INITIALIZE_PASS_DEPENDENCY(LoopInfo)
 INITIALIZE_PASS_DEPENDENCY(DominatorTree)
 INITIALIZE_PASS_END(CanonicalizeCFG,
                     "canonicalize-cfg",
                     "Canonicalize the CFG for LunarGLASS",
-                    false,  // Whether it preserves the CFG
+                    false,  // Whether it looks only at CFG
                     false); // Whether it is an analysis pass
 
 

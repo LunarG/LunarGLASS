@@ -43,14 +43,14 @@ entry:
   store <4 x float> %texColor4, <4 x float>* %texColor
   %gl_FragColor = load <4 x float>* %texColor
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  br label %main-copy-out
+  br label %stage-epilogue
 
-main-copy-out:                                    ; preds = %entry
+stage-epilogue:                                   ; preds = %entry
   %22 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %22)
-  br label %main-exit
+  br label %stage-exit
 
-main-exit:                                        ; preds = %main-copy-out
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -75,7 +75,13 @@ entry:
   %5 = load float addrspace(1)* getelementptr inbounds ([13 x float] addrspace(1)* @alpha, i32 0, i32 12)
   %6 = fadd float %4, %5
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> %assignment_tmp1, i32 15, <3 x float> %3, i32 0, <3 x float> %3, i32 1, <3 x float> %3, i32 2, float %6, i32 -1)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %7)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 

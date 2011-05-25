@@ -41,14 +41,14 @@ ifmerge:                                          ; preds = %else, %then
   %7 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %4, i32 0)
   %gl_FragColor = fmul <4 x float> %7, %6
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  br label %main-copy-out
+  br label %stage-epilogue
 
-main-copy-out:                                    ; preds = %ifmerge
+stage-epilogue:                                   ; preds = %ifmerge
   %8 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %8)
-  br label %main-exit
+  br label %stage-exit
 
-main-exit:                                        ; preds = %main-copy-out
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -74,9 +74,6 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  br label %ifmerge
-
-ifmerge:                                          ; preds = %entry
   %0 = load i32 addrspace(1)* getelementptr inbounds (%lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 0)
   %1 = icmp sgt i32 %0, 0
   %select = select i1 %1, %lunarStruct1 addrspace(1)* getelementptr inbounds (%lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 2), %lunarStruct1 addrspace(1)* getelementptr inbounds (%lunarStruct2 addrspace(1)* @foo2, i32 0, i32 2)
@@ -87,7 +84,13 @@ ifmerge:                                          ; preds = %entry
   %5 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %coord)
   %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %3, i32 0)
   %gl_FragColor = fmul <4 x float> %6, %5
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 

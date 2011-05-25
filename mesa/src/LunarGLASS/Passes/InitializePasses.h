@@ -46,6 +46,8 @@ namespace llvm {
 
     void initializeIdentifyConditionalsPass(PassRegistry&);
 
+    void initializeIdentifyStructuresPass(PassRegistry&);
+
 } // end namespace llvm
 
 #endif // GLA_INIT_PASSES_H

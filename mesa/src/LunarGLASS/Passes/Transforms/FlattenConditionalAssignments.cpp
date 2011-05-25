@@ -55,7 +55,7 @@
 #include "llvm/Transforms/Utils/Local.h"
 
 #include "Passes/PassSupport.h"
-#include "Passes/Analysis/IdentifyConditionals.h"
+#include "Passes/Analysis/IdentifyStructures.h"
 #include "Passes/Util/BasicBlockUtil.h"
 
 using namespace llvm;
@@ -77,7 +77,7 @@ namespace  {
         virtual void getAnalysisUsage(AnalysisUsage&) const;
 
     protected:
-        IdentifyConditionals* idConds;
+        IdentifyStructures* idStructures;
         DominatorTree* domTree;
 
         bool flattenConds();
@@ -103,7 +103,7 @@ namespace  {
 bool FlattenCondAssn::runOnFunction(Function& F)
 {
     domTree = &getAnalysis<DominatorTree>();
-    idConds = &getAnalysis<IdentifyConditionals>();
+    idStructures = &getAnalysis<IdentifyStructures>();
 
     bool changed = false;
 
@@ -118,10 +118,10 @@ bool FlattenCondAssn::flattenConds()
 {
     bool changed = false;
 
-    for (IdentifyConditionals::iterator i = idConds->begin(), e = idConds->end(); i != e; ++i) {
+    for (IdentifyStructures::conditional_iterator i = idStructures->conditional_begin(), e = idStructures->conditional_end(); i != e; ++i) {
         Conditional* cond = i->second;
 
-        if (!cond)
+        if (!cond || !cond->getMergeBlock())
             continue;
 
         const BasicBlock* entry = cond->getEntryBlock();
@@ -129,9 +129,10 @@ bool FlattenCondAssn::flattenConds()
         // See if the then, else, and merge blocks are all dominated by the
         // entry. If this doesn't hold, we're not interested in it.
         if ( ! (   domTree->dominates(entry, cond->getThenBlock())
-                && domTree->dominates(entry, cond->getThenBlock())
-                && domTree->dominates(entry, cond->getMergeBlock())))
+                && domTree->dominates(entry, cond->getElseBlock())
+                && domTree->dominates(entry, cond->getMergeBlock()))) {
             continue;
+        }
 
         // Move all the conditional assignments out, iteratively in case of some
         // interdependence
@@ -145,8 +146,8 @@ bool FlattenCondAssn::flattenConds()
         // Remove empty conditionals.
         if (removeEmptyConditional(cond)) {
             changed = true;
-            idConds->nullConditional(entry);
-        };
+            idStructures->nullConditional(entry);
+        }
     }
 
     return changed;
@@ -155,7 +156,7 @@ bool FlattenCondAssn::flattenConds()
 void FlattenCondAssn::getAnalysisUsage(AnalysisUsage& AU) const
 {
     AU.addRequired<DominatorTree>();
-    AU.addRequired<IdentifyConditionals>();
+    AU.addRequired<IdentifyStructures>();
 
     return;
 }
@@ -169,14 +170,14 @@ char FlattenCondAssn::ID = 0;
 INITIALIZE_PASS_BEGIN(FlattenCondAssn,
                       "flatten-conditional-assignments",
                       "Flatten conditional assignments into select instructions",
-                      true,   // Whether it preserves the CFG
+                      false,  // Whether it looks only at CFG
                       false); // Whether it is an analysis pass
 INITIALIZE_PASS_DEPENDENCY(DominatorTree)
-INITIALIZE_PASS_DEPENDENCY(IdentifyConditionals)
+INITIALIZE_PASS_DEPENDENCY(IdentifyStructures)
 INITIALIZE_PASS_END(FlattenCondAssn,
                     "flatten-conditional-assignments",
                     "Flatten conditional assignments into select instructions",
-                    true,   // Whether it preserves the CFG
+                    false,  // Whether it looks only at CFG
                     false); // Whether it is an analysis pass
 
 FunctionPass* gla_llvm::createFlattenConditionalAssignmentsPass()

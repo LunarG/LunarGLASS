@@ -843,14 +843,14 @@ else197:                                          ; preds = %ifmerge191
 ifmerge199:                                       ; preds = %else197, %then195
   %gl_FragColor = load <4 x float>* %conditional_tmp
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  br label %main-copy-out
+  br label %stage-epilogue
 
-main-copy-out:                                    ; preds = %ifmerge199
+stage-epilogue:                                   ; preds = %ifmerge199
   %410 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %410)
-  br label %main-exit
+  br label %stage-exit
 
-main-exit:                                        ; preds = %main-copy-out
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -1139,18 +1139,15 @@ else117:                                          ; preds = %ifmerge100
 
 ifmerge118:                                       ; preds = %else117, %then115
   %and_tmp.0 = phi i1 [ %and_tmp116, %then115 ], [ false, %else117 ]
-  br label %ifmerge123
-
-ifmerge123:                                       ; preds = %ifmerge118
   %select = and i1 %and_tmp.0, %95
   br i1 %select, label %then125, label %else127
 
-then125:                                          ; preds = %ifmerge123
+then125:                                          ; preds = %ifmerge118
   %ord205 = fcmp oeq <4 x float> %v107, %v107
   %and_tmp124126 = call i1 @llvm.gla.any.v4i1(<4 x i1> %ord205)
   br label %ifmerge128
 
-else127:                                          ; preds = %ifmerge123
+else127:                                          ; preds = %ifmerge118
   br label %ifmerge128
 
 ifmerge128:                                       ; preds = %else127, %then125
@@ -1226,24 +1223,15 @@ ifmerge153:                                       ; preds = %else152, %then150
   %108 = sub i32 %107, %90
   %109 = sdiv i32 %108, %i114
   %assignment_tmp154155 = srem i32 %109, %90
-  br label %else158
-
-else158:                                          ; preds = %ifmerge153
-  br label %ifmerge163
-
-ifmerge163:                                       ; preds = %else158
-  br label %ifmerge165
-
-ifmerge165:                                       ; preds = %ifmerge163
   %110 = icmp eq i32 %assignment_tmp154155, 2
   br i1 %110, label %ifmerge168, label %then166
 
-then166:                                          ; preds = %ifmerge165
+then166:                                          ; preds = %ifmerge153
   %i167 = add i32 %assignment_tmp154155, 1
   br label %ifmerge168
 
-ifmerge168:                                       ; preds = %ifmerge165, %then166
-  %i.0 = phi i32 [ %i167, %then166 ], [ %assignment_tmp154155, %ifmerge165 ]
+ifmerge168:                                       ; preds = %ifmerge153, %then166
+  %i.0 = phi i32 [ %i167, %then166 ], [ %assignment_tmp154155, %ifmerge153 ]
   %111 = fadd float %69, %69
   %112 = fmul float %111, %69
   %113 = fsub float %112, %69
@@ -1316,7 +1304,13 @@ else197:                                          ; preds = %ifmerge191
 
 ifmerge199:                                       ; preds = %else197, %then195
   %conditional_tmp.0 = phi <4 x float> [ %conditional_tmp196, %then195 ], [ %v107, %else197 ]
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge199
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %conditional_tmp.0)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 

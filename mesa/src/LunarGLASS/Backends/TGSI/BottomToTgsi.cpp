@@ -199,6 +199,12 @@ public:
         gla::UnsupportedFunctionality("continue");
     }
 
+    void addDiscard()
+    {
+        gla::UnsupportedFunctionality("discard");
+    }
+
+
     void addPhiCopy(const llvm::Value* dst, const llvm::Value* src)
     {
         mesaInstruction->Opcode = OPCODE_MOV;
@@ -666,7 +672,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fTextureSampleLodOffset:
     case llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad:
         //TODO:  Mesa expects proj/bias/lod to be in coord.w channel.  This is not implemented yet.
-        mesaInstruction->TexSrcTarget = mapGlaSamplerType(llvmInstruction->getOperand(0), 
+        mesaInstruction->TexSrcTarget = mapGlaSamplerType(llvmInstruction->getOperand(0),
                                                           GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
         mesaInstruction->TexShadow    = 0;   // ?? may be only for the shader to generate the compare itself
         mesaInstruction->TexSrcUnit   = 17;  // ?? may be a linker-created slot number for the sampler

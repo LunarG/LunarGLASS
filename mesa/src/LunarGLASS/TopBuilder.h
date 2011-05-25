@@ -179,13 +179,13 @@ public:
     // variable.
     SuperValue createVariable(EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
                               llvm::Constant* initializer, const std::string* annotation, const std::string& name);
-    
+
     // Store SuperValue into another SuperValue and return the l-value
     SuperValue createStore(SuperValue rValue, SuperValue lValue);
 
     // Load SuperValue from a SuperValue and return it
     SuperValue createLoad(SuperValue);
-    
+
 
     // Copy out to the pipeline the outputs we've been caching in variables
     void copyOutPipeline();
@@ -286,7 +286,7 @@ public:
 protected:
     llvm::Value* createMatrixTimesVector(Matrix*, llvm::Value*);
     llvm::Value* createVectorTimesMatrix(llvm::Value*, Matrix*);
-    
+
     Matrix* createMatrixOp(llvm::Instruction::BinaryOps llvmOpcode, Matrix* left, Matrix* right);
     Matrix* createSmearedMatrixOp(llvm::Instruction::BinaryOps, Matrix*, llvm::Value*, bool reverseOrder);
     Matrix* createMatrixTimesMatrix(Matrix*, Matrix*);
@@ -325,8 +325,8 @@ protected:
     // want to branch to copyOut, which then branches to exit. For GLSL-style
     // discards, we want to directly branch to exit.
     llvm::Function*   mainFunction;
-    llvm::BasicBlock* mainCopyOut;
-    llvm::BasicBlock* mainExit;
+    llvm::BasicBlock* stageEpilogue;
+    llvm::BasicBlock* stageExit;
 
 
 

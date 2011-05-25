@@ -175,14 +175,14 @@ entry:
   store <4 x float> %mix_retval31, <4 x float>* %mix_retval
   %gl_FragColor = load <4 x float>* %mix_retval
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  br label %main-copy-out
+  br label %stage-epilogue
 
-main-copy-out:                                    ; preds = %entry
+stage-epilogue:                                   ; preds = %entry
   %82 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %82)
-  br label %main-exit
+  br label %stage-exit
 
-main-exit:                                        ; preds = %main-copy-out
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -281,7 +281,13 @@ entry:
   %34 = load float addrspace(1)* @blend
   %35 = fmul float %34, 0x3FFC9FBE80000000
   %mix_retval31 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %assignment_tmp29, <4 x float> %33, float %35)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix_retval31)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -382,11 +388,11 @@ uniform sampler1D shadowSampler1D;
 uniform sampler2D shadowSampler2D;
 uniform vec4 u;
 uniform float blend;
-const float const22 = 1.789;
-const float const24 = 2;
+const float const22_2f = 1.789;
+const float const24_2f = 2;
 in vec2 coords2D;
-const float const27 = 1;
-const float const32 = 0.8945;
+const float const27_1f = 1;
+const float const32_1f = 0.8945;
 const vec2 const43 = vec2(0.5181, 0.787142);
 const vec2 const46 = vec2(0.8945, 1.359);
 const vec3 const49 = vec3(1.789, 2.718, 3.453);
@@ -395,56 +401,56 @@ const vec2 const67 = vec2(1.789, 2.718);
 
 void main()
 {
-    vec4 color1 = texture1D(texSampler1D, const22);
-    vec4 temp23 = texture1D(texSampler1D, const22, const24);
+    vec4 color1 = texture1D(texSampler1D, const22_2f);
+    vec4 temp23 = texture1D(texSampler1D, const22_2f, const24_2f);
     vec4 color2 = color1 + temp23;
-    float temp26 = const27 / coords2D.y;
+    float temp26 = const27_1f / coords2D.y;
     float temp28 = coords2D.x * temp26;
     vec4 temp29 = texture1D(texSampler1D, temp28);
     vec4 color4 = color2 + temp29;
-    vec4 temp31 = texture1D(texSampler1D, const32);
+    vec4 temp31 = texture1D(texSampler1D, const32_1f);
     vec4 color5 = color4 + temp31;
-    vec4 temp34 = texture1D(texSampler1D, temp28, const24);
+    vec4 temp34 = texture1D(texSampler1D, temp28, const24_2f);
     vec4 color8 = color5 + temp34;
-    vec4 temp36 = texture1D(texSampler1D, const32, const24);
+    vec4 temp36 = texture1D(texSampler1D, const32_1f, const24_2f);
     vec4 color9 = color8 + temp36;
     vec4 temp38 = texture2D(texSampler2D, coords2D);
     vec4 color11 = color9 + temp38;
-    vec4 temp40 = texture2D(texSampler2D, coords2D, const24);
+    vec4 temp40 = texture2D(texSampler2D, coords2D, const24_2f);
     vec4 color13 = color11 + temp40;
     vec4 temp42 = texture2D(texSampler2D, const43);
     vec4 color14 = color13 + temp42;
-    vec4 temp45 = texture2D(texSampler2D, const46, const24);
+    vec4 temp45 = texture2D(texSampler2D, const46, const24_2f);
     vec4 color15 = color14 + temp45;
     vec4 temp48 = texture3D(texSampler3D, const49);
     vec4 color16 = color15 + temp48;
-    vec4 temp51 = texture3D(texSampler3D, const49, const24);
+    vec4 temp51 = texture3D(texSampler3D, const49, const24_2f);
     vec4 color17 = color16 + temp51;
     vec4 temp53 = texture3D(texSampler3D, const54);
     vec4 color18 = color17 + temp53;
-    vec4 temp56 = texture3D(texSampler3D, const54, const24);
+    vec4 temp56 = texture3D(texSampler3D, const54, const24_2f);
     vec4 color19 = color18 + temp56;
     vec4 temp58 = textureCube(texSamplerCube, const49);
     vec4 color20 = color19 + temp58;
-    vec4 temp60 = textureCube(texSamplerCube, const49, const24);
+    vec4 temp60 = textureCube(texSamplerCube, const49, const24_2f);
     vec4 color21 = color20 + temp60;
-    vec4 temp62 = texture1D(shadowSampler1D, const22);
+    vec4 temp62 = texture1D(shadowSampler1D, const22_2f);
     vec4 color22 = color21 + temp62;
-    vec4 temp64 = texture1D(shadowSampler1D, const22, const24);
+    vec4 temp64 = texture1D(shadowSampler1D, const22_2f, const24_2f);
     vec4 color23 = color22 + temp64;
     vec4 temp66 = texture2D(shadowSampler2D, const67);
     vec4 color24 = color23 + temp66;
-    vec4 temp69 = texture2D(shadowSampler2D, const67, const24);
+    vec4 temp69 = texture2D(shadowSampler2D, const67, const24_2f);
     vec4 color25 = color24 + temp69;
-    vec4 temp71 = texture1D(shadowSampler1D, const32);
+    vec4 temp71 = texture1D(shadowSampler1D, const32_1f);
     vec4 color26 = color25 + temp71;
-    vec4 temp73 = texture1D(shadowSampler1D, const32, const24);
+    vec4 temp73 = texture1D(shadowSampler1D, const32_1f, const24_2f);
     vec4 color27 = color26 + temp73;
     vec4 temp75 = texture2D(shadowSampler2D, const46);
     vec4 color28 = color27 + temp75;
-    vec4 temp77 = texture2D(shadowSampler2D, const46, const24);
+    vec4 temp77 = texture2D(shadowSampler2D, const46, const24_2f);
     vec4 assignment_tmp29 = color28 + temp77;
-    float temp79 = blend * const22;
+    float temp79 = blend * const22_2f;
     vec4 mix_retval31 = mix(assignment_tmp29, u, temp79);
     gl_FragColor = mix_retval31;
     

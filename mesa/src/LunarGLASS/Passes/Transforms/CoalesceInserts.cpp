@@ -607,7 +607,7 @@ char CoalesceInserts::ID = 0;
 INITIALIZE_PASS(CoalesceInserts,
                 "coalesce-inserts",
                 "Construct multiInserts out of multiple insert/extracts",
-                true,   // Whether it preserves the CFG
+                false,  // Whether it looks only at CFG
                 false); // Whether it is an analysis pass
 
 

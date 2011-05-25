@@ -530,14 +530,14 @@ else149:                                          ; preds = %ifmerge146
 ifmerge150:                                       ; preds = %else149, %then147
   %gl_FragColor = load <4 x float>* %conditional_tmp
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  br label %main-copy-out
+  br label %stage-epilogue
 
-main-copy-out:                                    ; preds = %ifmerge150
+stage-epilogue:                                   ; preds = %ifmerge150
   %122 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %122)
-  br label %main-exit
+  br label %stage-exit
 
-main-exit:                                        ; preds = %main-copy-out
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -953,7 +953,13 @@ else149:                                          ; preds = %ifmerge146
 
 ifmerge150:                                       ; preds = %else149, %then147
   %conditional_tmp.0 = phi <4 x float> [ %56, %then147 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %else149 ]
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge150
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %conditional_tmp.0)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -1303,7 +1309,7 @@ uniform vec2 u_f2;
 uniform vec3 u_f3;
 uniform vec4 u_f4;
 in bool i_b;
-const bool const47 = false;
+const bool const47_false = false;
 in bvec2 i_b2;
 in bvec2 i_b213;
 in bvec3 i_b3;
@@ -1321,7 +1327,7 @@ in float i_f;
 in vec2 i_f2;
 in vec3 i_f3;
 in vec4 i_f4;
-const bool const58 = true;
+const bool const58_true = true;
 const vec4 const81 = vec4(1);
 
 void main()
@@ -1356,28 +1362,28 @@ void main()
         and_tmp_0 = i_b;
     }
     else {
-        and_tmp_0 = const47;
+        and_tmp_0 = const47_false;
     }
     
     if (u_b2.x) {
         and_tmp1_0 = i_b2.x;
     }
     else {
-        and_tmp1_0 = const47;
+        and_tmp1_0 = const47_false;
     }
     
     if (and_tmp1_0) {
         and_tmp6_0 = u_b2.y;
     }
     else {
-        and_tmp6_0 = const47;
+        and_tmp6_0 = const47_false;
     }
     
     if (and_tmp6_0) {
         and_tmp11_0 = i_b213.y;
     }
     else {
-        and_tmp11_0 = const47;
+        and_tmp11_0 = const47_false;
     }
     
     bvec2 temp48;
@@ -1386,35 +1392,35 @@ void main()
         and_tmp18_0 = i_b3.x;
     }
     else {
-        and_tmp18_0 = const47;
+        and_tmp18_0 = const47_false;
     }
     
     if (and_tmp18_0) {
         and_tmp23_0 = u_b3.y;
     }
     else {
-        and_tmp23_0 = const47;
+        and_tmp23_0 = const47_false;
     }
     
     if (and_tmp23_0) {
         and_tmp28_0 = i_b330.y;
     }
     else {
-        and_tmp28_0 = const47;
+        and_tmp28_0 = const47_false;
     }
     
     if (and_tmp28_0) {
         and_tmp34_0 = u_b3.z;
     }
     else {
-        and_tmp34_0 = const47;
+        and_tmp34_0 = const47_false;
     }
     
     if (and_tmp34_0) {
         and_tmp39_0 = i_b341.z;
     }
     else {
-        and_tmp39_0 = const47;
+        and_tmp39_0 = const47_false;
     }
     
     bvec3 temp49;
@@ -1423,49 +1429,49 @@ void main()
         and_tmp47_0 = i_b4.x;
     }
     else {
-        and_tmp47_0 = const47;
+        and_tmp47_0 = const47_false;
     }
     
     if (and_tmp47_0) {
         and_tmp52_0 = u_b4.y;
     }
     else {
-        and_tmp52_0 = const47;
+        and_tmp52_0 = const47_false;
     }
     
     if (and_tmp52_0) {
         and_tmp57_0 = i_b459.y;
     }
     else {
-        and_tmp57_0 = const47;
+        and_tmp57_0 = const47_false;
     }
     
     if (and_tmp57_0) {
         and_tmp63_0 = u_b4.z;
     }
     else {
-        and_tmp63_0 = const47;
+        and_tmp63_0 = const47_false;
     }
     
     if (and_tmp63_0) {
         and_tmp69_0 = i_b471.z;
     }
     else {
-        and_tmp69_0 = const47;
+        and_tmp69_0 = const47_false;
     }
     
     if (and_tmp69_0) {
         and_tmp75_0 = u_b4.w;
     }
     else {
-        and_tmp75_0 = const47;
+        and_tmp75_0 = const47_false;
     }
     
     if (and_tmp75_0) {
         and_tmp80_0 = i_b482.w;
     }
     else {
-        and_tmp80_0 = const47;
+        and_tmp80_0 = const47_false;
     }
     
     bvec4 temp50 = bvec4(and_tmp80_0, and_tmp80_0, and_tmp80_0, and_tmp80_0);
@@ -1477,63 +1483,63 @@ void main()
     vec3 assignment_tmp99100 = u_f3 + i_f3;
     vec4 assignment_tmp101102 = u_f4 + i_f4;
     if (and_tmp_0) {
-        or_tmp_0 = const58;
+        or_tmp_0 = const58_true;
     }
     else {
         or_tmp_0 = temp48.x;
     }
     
     if (or_tmp_0) {
-        or_tmp107_0 = const58;
+        or_tmp107_0 = const58_true;
     }
     else {
         or_tmp107_0 = temp48.y;
     }
     
     if (or_tmp107_0) {
-        or_tmp112_0 = const58;
+        or_tmp112_0 = const58_true;
     }
     else {
         or_tmp112_0 = temp49.x;
     }
     
     if (or_tmp112_0) {
-        or_tmp117_0 = const58;
+        or_tmp117_0 = const58_true;
     }
     else {
         or_tmp117_0 = temp49.y;
     }
     
     if (or_tmp117_0) {
-        or_tmp122_0 = const58;
+        or_tmp122_0 = const58_true;
     }
     else {
         or_tmp122_0 = temp49.z;
     }
     
     if (or_tmp122_0) {
-        or_tmp127_0 = const58;
+        or_tmp127_0 = const58_true;
     }
     else {
         or_tmp127_0 = temp50.x;
     }
     
     if (or_tmp127_0) {
-        or_tmp132_0 = const58;
+        or_tmp132_0 = const58_true;
     }
     else {
         or_tmp132_0 = temp50.y;
     }
     
     if (or_tmp132_0) {
-        or_tmp137_0 = const58;
+        or_tmp137_0 = const58_true;
     }
     else {
         or_tmp137_0 = temp50.z;
     }
     
     if (or_tmp137_0) {
-        or_tmp142_0 = const58;
+        or_tmp142_0 = const58_true;
     }
     else {
         or_tmp142_0 = temp50.w;

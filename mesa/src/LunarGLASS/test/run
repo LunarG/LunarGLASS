@@ -11,32 +11,33 @@ Usage: ./run [options]
          -l --linux                Run for linux
          -w --windows              (default) Run for windows
          -s --suppress-tgsi        Suppress the running of tgsi tests
-         -t --testfile <testfile>  Run on a single test file     
+         -t --testfile <testfile>  Run on a single test file
 "
 
 # Add more tests here as they are created
-TESTS=(test.frag \
-       flowControl.frag \
-       Operations.frag \
-       swizzle.frag \
+TESTS=(test.frag               \
+       flowControl.frag        \
+       Operations.frag         \
+       swizzle.frag            \
        simpleFunctionCall.frag \
-       functionCall.frag \
-       voidFunction.frag \
-       loops.frag \
-       syntaxError.frag \
-       depthOut.frag \
-       dataOut.frag \
-       varyingArray.frag \
-       uniformArray.frag \
+       functionCall.frag       \
+       voidFunction.frag       \
+       loops.frag              \
+       earlyReturnDiscard.frag \
+       syntaxError.frag        \
+       depthOut.frag           \
+       dataOut.frag            \
+       varyingArray.frag       \
+       uniformArray.frag       \
        variableArrayIndex.frag \
-       matrix.frag \
-       newTexture.frag \
-       structure.frag \
-       structAssignment.frag
-       structDeref.frag \
-	   localAggregates.frag \
-       texture.frag \
-       types.frag \
+       matrix.frag             \
+       newTexture.frag         \
+       structure.frag          \
+       structAssignment.frag   \
+       structDeref.frag        \
+	   localAggregates.frag    \
+       texture.frag            \
+       types.frag              \
       )
 
 # $1 is the test
@@ -155,7 +156,7 @@ while [ $# -gt 0 ]; do
             TESTS=("$2")
             if [ ! -e "$2" ]
             then
-                echo "Error: testfile "$2" not found"
+                echo "Error: testfile $2 not found"
                 exit 1
             fi
             shift

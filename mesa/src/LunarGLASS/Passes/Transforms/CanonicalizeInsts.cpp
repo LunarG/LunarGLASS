@@ -106,12 +106,12 @@ char CanonicalizeInsts::ID = 0;
 INITIALIZE_PASS_BEGIN(CanonicalizeInsts,
                       "canonicalize-insts",
                       "Canonicalize instructions for LunarGLASS",
-                      true,   // Whether it preserves the CFG
+                      false,  // Whether it looks only at CFG
                       false); // Whether it is an analysis pass
 INITIALIZE_PASS_END(CanonicalizeInsts,
                     "canonicalize-insts",
                     "Canonicalize instructions for LunarGLASS",
-                    true,   // Whether it preserves the CFG
+                    false,  // Whether it looks only at CFG
                     false); // Whether it is an analysis pass
 
 

@@ -59,6 +59,7 @@ namespace gla {
         bool noRevision;
         BackendOption backend;
         int backendVersion;    // what version output should the backend generate?
+        bool bottomIROnly;
         Optimizations optimizations;
     };
 

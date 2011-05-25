@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+DESCRIPTION="\
+Description: Make a CFG of Bottom IR for the given test file
+
+Dependencies: dot, perl, LunarGLASS
+"
+
+USAGE="\
+Usage: ./make-cfg <test-file>
+"
+
+RUNCMD=../../glsl/StandAlone
+
+PDF_FILE=cfg.pdf
+
+OPT=../../../../LLVM/llvm-2.9/build/install/usr/local/bin/opt
+OPT_ARGS=(-dot-cfg tmp.bc -analyze -S)
+
+PERL=perl
+PERL_ARGS=(-pe 's|MultiInsert.*?\\l|MultiInsert...\\l|g' cfg.main.dot)
+
+DOT=dot
+DOT_ARGS=(-Tpdf -o $PDF_FILE tmp)
+
+VIEWER=okular
+
+function runLunarGLASS {
+    TEST=$1
+
+    echo "Running LunarGLASS for $TEST"
+    $RUNCMD -b $TEST 2> tmp.bc
+
+    $OPT ${OPT_ARGS[@]} || exit 1
+
+    $PERL ${PERL_ARGS[@]} > tmp
+
+    $DOT ${DOT_ARGS[@]} || exit 1
+
+    echo "CFG printed to file $PDF_FILE"
+
+    $VIEWER $PDF_FILE 2> /dev/null &
+}
+
+if [ -z "$1" ]
+then
+    echo "$DESCRIPTION"
+    echo "$USAGE"
+    exit 1
+fi
+
+runLunarGLASS $1

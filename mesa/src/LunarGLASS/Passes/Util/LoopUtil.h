@@ -27,8 +27,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LOOP_UTIL_H
-#define LOOP_UTIL_H
+#ifndef GLA_LOOP_UTIL_H
+#define GLA_LOOP_UTIL_H
 
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/LoopInfo.h"
@@ -44,60 +44,111 @@ namespace gla_llvm {
 
     // Loop wrapper providing more queries/information
     class LoopWrapper {
-        friend class LoopStack;
-
-        // LoopStack is the only one who can construct us
-        LoopWrapper(Loop* l, DominanceFrontier* df /*, ScalarEvolution* se*/)
-            : loop(l)
-            , domFront(df)
-            // , scalarEvo(se)
+    public:
+        LoopWrapper(Loop* loop, DominanceFrontier* df, bool simpleBE)
+            : domFront(df)
+            , simpleLatch(simpleBE)
             , header(loop->getHeader())
             , latch(loop->getLoopLatch())
-            , preservedBackedge(IsConditional(latch) || latch->getSinglePredecessor())
+            , blocks(loop->getBlocks().begin(), loop->getBlocks().end())
+            , uniqueExiting(loop->getExitingBlock())
             , inductiveVar(loop->getCanonicalInductionVariable())
             , tripCount(loop->getTripCount())
+            , loopDepth(loop->getLoopDepth())
             , simpleConditional(-1)
+            , function(loop->getHeader()->getParent())
+            , isMain(IsMain(*function))
+            , stageExit(0)
+            , stageEpilogue(0)
         {
+            if (isMain) {
+                stageExit    = GetMainExit(*function);
+                stageEpilogue = GetMainCopyOut(*function);
+            }
+
             loop->getUniqueExitBlocks(exits);
 
-            // TODO: update to consider the presence of return
-            exitMerge = GetSingleMergePoint(exits, *domFront);
-        }
+            SmallPtrSet<BasicBlock*,3> merges;
+            GetMergePoints(exits, *domFront, merges);
+            merges.erase(stageExit);
+            merges.erase(stageEpilogue);
 
-    public:
+            // See if any of the exit subgraphs go directly to stage-epilogue or
+            // stage-exit
+            discards = false;
+            returns  = false;
+            for (SmallVector<BasicBlock*,4>::iterator bb = exits.begin(), e = exits.end(); bb != e; ++bb) {
+                if (!returns && domFront->find(*bb)->second.count(stageEpilogue)) {
+                    returns = true;
+                }
+                if (!discards && domFront->find(*bb)->second.count(stageExit)) {
+                    discards = true;
+                }
+            }
+
+            assert(merges.size() <= 1 && "Unstructured control flow");
+
+            if (merges.size() == 1)
+                exitMerge = *merges.begin();
+            else
+                exitMerge = NULL;
+
+        }
 
         // Accessors
         BasicBlock* getHeader()    const { return header; }
         BasicBlock* getLatch()     const { return latch; }
         BasicBlock* getExitMerge() const { return exitMerge; }
-        bool preservesBackedge()   const { return preservedBackedge; }
 
-        // Wrapped functionality
-        unsigned getLoopDepth()                  const { return loop->getLoopDepth(); }
-        bool isLoopExiting(const BasicBlock* bb) const { return loop->isLoopExiting(bb); }
+        // Queries
+        bool isSimpleLatching() const { return simpleLatch; }
+        bool hasDiscard()       const { return discards; }
+        bool hasReturn()        const { return returns; }
+
+        bool isLatch(const BasicBlock* bb)   const { return latch == bb; }
+        bool isHeader(const BasicBlock* bb)  const { return header == bb; }
+        bool isExiting(const BasicBlock* bb) const { return isLoopExiting(bb); }
+
+        // A loop-relevant block is one whose control-flow (e.g. successors)
+        // makes this loop specially recognizable. This will be true for
+        // headers, latches, and exiting blocks.
+        bool isLoopRelevant(const BasicBlock* bb) const
+        {
+            return contains(bb) && (isExiting(bb) || isLatch(bb) || isHeader(bb));
+        }
+
+        // Provide interfaces from the Loop class
+        unsigned getLoopDepth()                  const { return loopDepth; }
         PHINode* getCanonicalInductionVariable() const { return inductiveVar; }
-        bool contains(const BasicBlock* bb)      const { return loop->contains(bb); }
-        Loop::block_iterator block_begin()       const { return loop->block_begin(); }
-        Loop::block_iterator block_end()         const { return loop->block_end(); }
-        Value* getTripCount()                    const { return tripCount; }
+        bool     contains(const BasicBlock* bb)  const { return blocks.count(bb); }
+        Value*   getTripCount()                  const { return tripCount; }
+
+        const SmallPtrSet<const BasicBlock*,16>& getBlocks() const { return blocks; }
+
+        bool isLoopExiting(const BasicBlock* bb) const
+        {
+            for (succ_const_iterator i = succ_begin(bb), e = succ_end(bb); i != e; ++i)
+                if (!contains(*i))
+                    return true;
+
+            return false;
+        }
+
 
         // Note, we may want to move away from only wrapping LoopInfo and wrap
         // ScalarEvolution as well
-
-
-        // New functionality
 
         // TODO: cache the results of the more complicated queries (implemented
         // for isSimpleConditional())
 
         // Is the loop simple inductive one. A simple inductive loop is one
-        // where the backedge is preserved, a canonical induction variable
-        // exists, and the execution count is known statically (e.g. there are
-        // no breaks or continues)
+        // where the backedge is simple, a canonical induction variable exists,
+        // and the execution count is known statically (e.g. there are no breaks
+        // or continues)
         bool isSimpleInductive() const
         {
             // TODO: extend functionality to support early exit
-            return loop->getCanonicalInductionVariable() && loop->getTripCount();
+            return inductiveVar && tripCount;
         }
 
         // Is the loop a simple conditional loop. A simple conditional loop is a
@@ -150,7 +201,7 @@ namespace gla_llvm {
 
         // Whether the loop is a canonical, structured loop.  In a canonical,
         // structured loop there should only be one latch.  Tf the latch is
-        // conditional (and thus preserved), the other branch should be an
+        // conditional (and thus simple), the other branch should be an
         // exiting branch (enforces bottom-latching semantics).  If there are
         // multiple exit blocks, they should all eventually merge to a single
         // point that lies in the intersection of each of their dominance
@@ -158,7 +209,7 @@ namespace gla_llvm {
         bool isCanonical() const
         {
             return header && latch && exitMerge
-                && (IsUnconditional(latch) || loop->isLoopExiting(latch));
+                && (IsUnconditional(latch) || isLoopExiting(latch));
         }
 
         // If the loop is simple inductive, then returns the instruction
@@ -168,10 +219,10 @@ namespace gla_llvm {
             if (! isSimpleInductive())
                 return NULL;
 
-            BasicBlock* exit = loop->getExitingBlock();
-            assert(exit);
+            // We currently only support inductive loops without early exit
+            assert(uniqueExiting);
 
-            BranchInst* br = dyn_cast<BranchInst>(exit->getTerminator());
+            BranchInst* br = dyn_cast<BranchInst>(uniqueExiting->getTerminator());
             assert(br && br->isConditional());
 
             return dyn_cast<Instruction>(br->getCondition());
@@ -216,24 +267,38 @@ namespace gla_llvm {
 
     protected:
         // LoopInfo* loopInfo;
-        Loop* loop;
         DominanceFrontier* domFront;
-        ScalarEvolution* scalarEvo;
+        // ScalarEvolution* scalarEvo;
+
+        bool simpleLatch;
 
         BasicBlock* header;
         BasicBlock* latch;
 
-        bool preservedBackedge;
+        SmallPtrSet<const BasicBlock*, 16> blocks;
+
+        BasicBlock* uniqueExiting;
 
         PHINode* inductiveVar;
         Value*   tripCount;
 
-        SmallVector<BasicBlock*, 4> exits;
-
-        BasicBlock* exitMerge;
+        unsigned loopDepth;
 
         // Cache
         mutable int simpleConditional;
+
+        Function* function;
+        bool isMain;
+
+        SmallVector<BasicBlock*, 4> exits;
+
+        bool discards;
+        bool returns;
+
+        BasicBlock* stageExit;
+        BasicBlock* stageEpilogue;
+
+        BasicBlock* exitMerge;
 
     private:
         LoopWrapper(const LoopWrapper&);       // do not implement
@@ -241,61 +306,7 @@ namespace gla_llvm {
 
     };
 
-    class LoopStack {
-    public:
-        LoopStack()
-        { }
-
-        ~LoopStack()
-        {
-            clear();
-        }
-
-        void pushNewLoop(const BasicBlock* bb)
-        {
-            st.push(new LoopWrapper(loopInfo->getLoopFor(bb), domFront));
-        }
-
-        LoopWrapper* top() { return st.top(); }
-
-        int size() { return st.size(); }
-
-        bool empty() { return st.empty(); }
-
-        void clear()
-        {
-            while (size())
-                pop();
-        }
-
-        void pop()
-        {
-            LoopWrapper* lw = top();
-            st.pop();
-            delete lw;
-        }
-
-        void setDominanceFrontier(DominanceFrontier* df) { domFront = df; }
-        void setLoopInfo(LoopInfo* li)                   { loopInfo = li; }
-        // void setScalarEvolution(ScalarEvolution* se)     { scalarEvo = se; }
-
-
-    protected:
-        DominanceFrontier* domFront;
-        LoopInfo* loopInfo;
-        // ScalarEvolution* scalarEvo;
-
-        std::stack<LoopWrapper*> st;
-
-
-    private:
-        LoopStack(const LoopStack&);      // do not implement
-        void operator=(const LoopStack&); // do not implement
-
-    };
-
-
 } // end namespace llvm_gla
 
 
-#endif // LOOP_UTIL_H
+#endif // GLA_LOOP_UTIL_H

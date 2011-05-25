@@ -843,14 +843,14 @@ else197:                                          ; preds = %ifmerge191
 ifmerge199:                                       ; preds = %else197, %then195
   %gl_FragColor = load <4 x float>* %conditional_tmp
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  br label %main-copy-out
+  br label %stage-epilogue
 
-main-copy-out:                                    ; preds = %ifmerge199
+stage-epilogue:                                   ; preds = %ifmerge199
   %410 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %410)
-  br label %main-exit
+  br label %stage-exit
 
-main-exit:                                        ; preds = %main-copy-out
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -1139,18 +1139,15 @@ else117:                                          ; preds = %ifmerge100
 
 ifmerge118:                                       ; preds = %else117, %then115
   %and_tmp.0 = phi i1 [ %and_tmp116, %then115 ], [ false, %else117 ]
-  br label %ifmerge123
-
-ifmerge123:                                       ; preds = %ifmerge118
   %select = and i1 %and_tmp.0, %95
   br i1 %select, label %then125, label %else127
 
-then125:                                          ; preds = %ifmerge123
+then125:                                          ; preds = %ifmerge118
   %ord205 = fcmp oeq <4 x float> %v107, %v107
   %and_tmp124126 = call i1 @llvm.gla.any.v4i1(<4 x i1> %ord205)
   br label %ifmerge128
 
-else127:                                          ; preds = %ifmerge123
+else127:                                          ; preds = %ifmerge118
   br label %ifmerge128
 
 ifmerge128:                                       ; preds = %else127, %then125
@@ -1226,24 +1223,15 @@ ifmerge153:                                       ; preds = %else152, %then150
   %108 = sub i32 %107, %90
   %109 = sdiv i32 %108, %i114
   %assignment_tmp154155 = srem i32 %109, %90
-  br label %else158
-
-else158:                                          ; preds = %ifmerge153
-  br label %ifmerge163
-
-ifmerge163:                                       ; preds = %else158
-  br label %ifmerge165
-
-ifmerge165:                                       ; preds = %ifmerge163
   %110 = icmp eq i32 %assignment_tmp154155, 2
   br i1 %110, label %ifmerge168, label %then166
 
-then166:                                          ; preds = %ifmerge165
+then166:                                          ; preds = %ifmerge153
   %i167 = add i32 %assignment_tmp154155, 1
   br label %ifmerge168
 
-ifmerge168:                                       ; preds = %ifmerge165, %then166
-  %i.0 = phi i32 [ %i167, %then166 ], [ %assignment_tmp154155, %ifmerge165 ]
+ifmerge168:                                       ; preds = %ifmerge153, %then166
+  %i.0 = phi i32 [ %i167, %then166 ], [ %assignment_tmp154155, %ifmerge153 ]
   %111 = fadd float %69, %69
   %112 = fmul float %111, %69
   %113 = fsub float %112, %69
@@ -1316,7 +1304,13 @@ else197:                                          ; preds = %ifmerge191
 
 ifmerge199:                                       ; preds = %else197, %then195
   %conditional_tmp.0 = phi <4 x float> [ %conditional_tmp196, %then195 ], [ %v107, %else197 ]
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge199
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %conditional_tmp.0)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -1714,21 +1708,21 @@ uniform float uf;
 uniform int ui;
 uniform bvec4 ub41;
 uniform bvec4 ub42;
-const float const36 = 0.017453;
-const float const39 = 57.2958;
-const float const124 = 1;
-const float const126 = 0;
-const float const128 = 2;
-const float const131 = 3;
+const float const36_0f = 0.017453;
+const float const39_57f = 57.2958;
+const float const124_1f = 1;
+const float const126_0f = 0;
+const float const128_2f = 2;
+const float const131_3f = 3;
 const vec4 const144 = vec4(-0);
 const vec4 const159 = vec4(0);
 const bvec4 const188 = bvec4(0);
-const bool const191 = false;
-const bool const204 = true;
-const int const211 = 2;
-const int const213 = 1;
-const int const238 = 66;
-const int const241 = 17;
+const bool const191_false = false;
+const bool const204_true = true;
+const int const211_2 = 2;
+const int const213_1 = 1;
+const int const238_66 = 66;
+const int const241_17 = 17;
 
 void main()
 {
@@ -1746,9 +1740,9 @@ void main()
     bool or_tmp179_0;
     float f_0;
     vec4 conditional_tmp_0;
-    vec4 temp35 = vec4(const36);
+    vec4 temp35 = vec4(const36_0f);
     vec4 _ret_val1 = uv4 * temp35;
-    vec4 temp38 = vec4(const39);
+    vec4 temp38 = vec4(const39_57f);
     vec4 temp40 = _ret_val1 * temp38;
     vec4 assignment_tmp2 = _ret_val1 + temp40;
     vec4 temp42 = sin(assignment_tmp2);
@@ -1832,11 +1826,11 @@ void main()
     vec4 assignment_tmp7980 = assignment_tmp7273 + temp119;
     vec4 temp121 = assignment_tmp7980 - assignment_tmp7980;
     vec4 temp122 = temp121 / temp121;
-    vec4 temp123 = min(temp122, const124);
-    vec4 temp125 = max(temp123, const126);
-    vec4 temp127 = vec4(const128);
+    vec4 temp123 = min(temp122, const124_1f);
+    vec4 temp125 = max(temp123, const126_0f);
+    vec4 temp127 = vec4(const128_2f);
     vec4 temp129 = temp127 * temp125;
-    vec4 temp130 = vec4(const131);
+    vec4 temp130 = vec4(const131_3f);
     vec4 temp132 = temp130 - temp129;
     vec4 temp133 = temp125 * temp132;
     vec4 temp134 = temp125 * temp133;
@@ -1847,7 +1841,7 @@ void main()
     vec4 temp139 = assignment_tmp8384 * temp138;
     vec4 assignment_tmp8586 = assignment_tmp8384 + temp139;
     float temp141 = dot(assignment_tmp8586, assignment_tmp8586);
-    bool temp142 = temp141 < const126;
+    bool temp142 = temp141 < const126_0f;
     if (temp142) {
         return_value_0 = assignment_tmp8586;
     }
@@ -1865,11 +1859,11 @@ void main()
     vec4 assignment_tmp9293 = assignment_tmp9091 + temp150;
     float temp152 = dot(assignment_tmp9293, assignment_tmp9293);
     float temp153 = temp152 * temp152;
-    float temp154 = const124 - temp153;
+    float temp154 = const124_1f - temp153;
     float temp155 = uf * temp154;
     float temp156 = uf * temp155;
-    float temp157 = const124 - temp156;
-    bool temp158 = temp157 < const126;
+    float temp157 = const124_1f - temp156;
+    bool temp158 = temp157 < const126_0f;
     if (temp158) {
         return_value95_0 = const159;
     }
@@ -1911,7 +1905,7 @@ void main()
         and_tmp_0 = and_tmp116;
     }
     else {
-        and_tmp_0 = const191;
+        and_tmp_0 = const191_false;
     }
     
     bool select = and_tmp_0 & temp187;
@@ -1921,7 +1915,7 @@ void main()
         and_tmp124_0 = and_tmp124126;
     }
     else {
-        and_tmp124_0 = const191;
+        and_tmp124_0 = const191_false;
     }
     
     if (and_tmp124_0) {
@@ -1930,7 +1924,7 @@ void main()
         and_tmp129_0 = and_tmp129131;
     }
     else {
-        and_tmp129_0 = const191;
+        and_tmp129_0 = const191_false;
     }
     
     if (and_tmp129_0) {
@@ -1939,7 +1933,7 @@ void main()
         and_tmp134_0 = and_tmp134136;
     }
     else {
-        and_tmp134_0 = const191;
+        and_tmp134_0 = const191_false;
     }
     
     if (and_tmp134_0) {
@@ -1947,7 +1941,7 @@ void main()
         and_tmp139_0 = and_tmp139141;
     }
     else {
-        and_tmp139_0 = const191;
+        and_tmp139_0 = const191_false;
     }
     
     if (and_tmp139_0) {
@@ -1955,7 +1949,7 @@ void main()
         and_tmp144_0 = and_tmp144146;
     }
     else {
-        and_tmp144_0 = const191;
+        and_tmp144_0 = const191_false;
     }
     
     if (and_tmp144_0) {
@@ -1965,7 +1959,7 @@ void main()
         and_tmp149_0 = phitmp;
     }
     else {
-        and_tmp149_0 = const204;
+        and_tmp149_0 = const204_true;
     }
     
     int temp205 = ui + temp186;
@@ -1973,10 +1967,10 @@ void main()
     int temp207 = temp206 - ui;
     int temp208 = temp207 / temp186;
     int assignment_tmp154155 = temp208 % ui;
-    bool temp210 = assignment_tmp154155 == const211;
+    bool temp210 = assignment_tmp154155 == const211_2;
     i_0 = assignment_tmp154155;
     if (! temp210) {
-        int temp212 = assignment_tmp154155 + const213;
+        int temp212 = assignment_tmp154155 + const213_1;
         i_0 = temp212;
     }
     
@@ -2002,15 +1996,15 @@ void main()
     float assignment_tmp176177 = temp225 + temp230.x;
     bool temp232 = assignment_tmp176177 == uf;
     if (temp232) {
-        or_tmp179_0 = const204;
+        or_tmp179_0 = const204_true;
     }
     else {
         bool temp233 = assignment_tmp176177 == uf;
         if (temp233) {
-            and_tmp182_0 = const191;
+            and_tmp182_0 = const191_false;
         }
         else {
-            bool and_tmp182184 = assignment_tmp176177 != const128;
+            bool and_tmp182184 = assignment_tmp176177 != const128_2f;
             and_tmp182_0 = and_tmp182184;
         }
         
@@ -2019,16 +2013,16 @@ void main()
     
     f_0 = assignment_tmp176177;
     if (or_tmp179_0) {
-        float temp235 = assignment_tmp176177 + const124;
+        float temp235 = assignment_tmp176177 + const124_1f;
         f_0 = temp235;
     }
     
     if (and_tmp149_0) {
         int temp236 = ui & i_0;
-        int temp237 = temp236 | const238;
+        int temp237 = temp236 | const238_66;
         int temp239 = ~(temp237);
-        int temp240 = temp239 % const241;
-        int temp242 = temp240 >> const211;
+        int temp240 = temp239 % const241_17;
+        int temp242 = temp240 >> const211_2;
         int temp243 = temp242 << ui;
         int assignment_tmp192193 = ~(temp243);
         float temp245 = float(assignment_tmp192193);

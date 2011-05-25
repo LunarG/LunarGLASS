@@ -57,15 +57,17 @@ void gla::PrivateManager::translateTopToBottom()
     unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
 
-    if (gla::Options.debug) {
+    if (gla::Options.debug && ! gla::Options.bottomIROnly) {
         llvm::errs() << "\nTop IR:\n";
         module->dump();
     }
 
     runLLVMOptimizations1();
 
-    if (gla::Options.debug) {
-        llvm::errs() << "\n\nBottom IR:\n";
+    if (gla::Options.debug || gla::Options.bottomIROnly) {
+        if (! gla::Options.bottomIROnly)
+            llvm::errs() << "\n\nBottom IR:\n";
+
         module->dump();
     }
 
@@ -109,7 +111,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // TODO: turn off for release builds
     VerifyModule(module);
 
-    // TODO: When we have backend support for shuffles, or we canonicalie
+    // TODO: When we have backend support for shuffles, or we canonicalize
     // shuffles into multiinserts, we can replace the InstSimplify passes with
     // InstCombine passes.
 
@@ -178,10 +180,15 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createAggressiveDCEPass());
 
     // LunarGLASS CFG optimizations
+    passManager.add(gla_llvm::createCanonicalizeCFGPass());
     passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass());
 
-    // TODO: Figure out if we can use InstCombine, or if we have to make our own
-    // // passManager.add(llvm::createInstructionCombiningPass());
+    // Run GVN again for some cleanup post CFG cleanup
+    passManager.add(llvm::createBasicAliasAnalysisPass());
+    passManager.add(llvm::createGVNPass());
+
+    passManager.add(llvm::createInstructionCombiningPass());
+    passManager.add(llvm::createAggressiveDCEPass());
 
     RunOnModule(passManager, module);
 

@@ -167,6 +167,9 @@ namespace gla {
         // be inverted for the loop-back, then invert will be true.
         virtual void addLoopBack(const llvm::Value* condition=NULL, bool invert=false) = 0;
 
+        // Discard instructions
+        virtual void addDiscard() = 0;
+
         virtual void print() = 0;
     };
 

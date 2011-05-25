@@ -50,6 +50,7 @@ Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
        Options:\n\
          -h, --help                 Print out this Usage info\n\
          -d, --debug                Print out debugging info\n\
+         -b, --bottom-ir-only       Only print out Bottom IR\n\
          --glsl                     Use the glsl backend (default)\n\
          --tgsi                     Use the TGSI backed\n\
          --disable <optimization>   Disable the optimization (see below)\n\
@@ -88,6 +89,7 @@ namespace gla {
                           , false   // No revision
                           , GLSL    // Backend
                           , DefaultBackendVersion    // no backend version yet
+                          , false   // Bottom IR Only
                           , opts    // Optimizations
                           };
 
@@ -177,6 +179,8 @@ namespace gla {
                 Options.obfuscate = true;
             } else if (*i == "-n" || *i == "--no-revision") {
                 Options.noRevision = true;
+            } else if (*i == "-b" || *i == "--bottom-ir-only") {
+                Options.bottomIROnly = true;
             } else if (*i == "--disable") {
                 ++i;
                 AssignOptimization(*i, false);

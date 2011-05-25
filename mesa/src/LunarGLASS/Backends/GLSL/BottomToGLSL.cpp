@@ -294,7 +294,7 @@ public:
         shader << " = 0; ";
 
         emitGlaValue(phi);
-        shader << " >= " << count;
+        shader << " < " << count;
 
         shader << "; ++";
         emitGlaValue(phi);
@@ -343,6 +343,12 @@ public:
 
         if (condition)
             addEndif();
+    }
+
+    void addDiscard()
+    {
+        newLine();
+        shader << "discard;";
     }
 
     void print();
@@ -541,7 +547,7 @@ protected:
     void getNewVariable(const llvm::Value* value, std::string* varString)
     {
         ++lastVariable;
-        const size_t bufSize = 10;
+        const size_t bufSize = 20;
         char buf[bufSize];
         if (obfuscate) {
             int i;
@@ -564,13 +570,37 @@ protected:
                 varString->append(mapGlaToQualifierString(mapGlaAddressSpace(value)));
                 snprintf(buf, bufSize, "%d", lastVariable);
                 varString->append(buf);
+
+                // If it's a constant int or float, make the name contain the
+                // value
+                if (llvm::isa<llvm::ConstantInt>(value)) {
+                    varString->append("_");
+
+                    int val = GetConstantInt(value);
+
+                    // If it's an i1, that is a bool, then have it say true or
+                    // false, else have it have the integer value.
+                    if (IsBoolean(value->getType()))
+                        snprintf(buf, bufSize, val ? "true" : "false");
+                    else
+                        snprintf(buf, bufSize, "%d", GetConstantInt(value));
+
+                    varString->append(buf);
+
+                } else if (llvm::isa<llvm::ConstantFP>(value)) {
+                    varString->append("_");
+                    snprintf(buf, bufSize, "%.0f", GetConstantFloat(value));
+                    varString->append(buf);
+                    varString->append("f");
+                }
             } else {
                 varString->append(value->getNameStr());
-                // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
-                for (int c = 0; c < varString->length(); ++c) {
-                    if ((*varString)[c] == '.')
-                        (*varString)[c] = '_';
-                }
+            }
+
+            // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
+            for (int c = 0; c < varString->length(); ++c) {
+                if ((*varString)[c] == '.' || (*varString)[c] == '-'  )
+                    (*varString)[c] = '_';
             }
         }
     }

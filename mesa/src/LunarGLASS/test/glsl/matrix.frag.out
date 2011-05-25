@@ -648,14 +648,14 @@ else205:                                          ; preds = %ifmerge
   br label %ifmerge522
 
 ifmerge522:                                       ; preds = %else205, %then154
-  br label %main-copy-out
+  br label %stage-epilogue
 
-main-copy-out:                                    ; preds = %ifmerge522
+stage-epilogue:                                   ; preds = %ifmerge522
   %72 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %72)
-  br label %main-exit
+  br label %stage-exit
 
-main-exit:                                        ; preds = %main-copy-out
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -1012,7 +1012,13 @@ else205:                                          ; preds = %ifmerge
 ifmerge522:                                       ; preds = %else205, %then154
   %.pn = phi <4 x float> [ %24, %then154 ], [ %26, %else205 ]
   %gl_FragColor523.1 = fadd <4 x float> %gl_FragColor523.0, %.pn
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge522
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor523.1)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 

@@ -26,7 +26,77 @@
 //
 //===----------------------------------------------------------------------===//
 
+#ifndef GLA_FUNTION_UTIL_H
+#define GLA_FUNTION_UTIL_H
+
+#include "llvm/Function.h"
+
 namespace gla_llvm {
     using namespace llvm;
 
+    // Whether the given function is the main one
+    inline bool IsMain(Function& fun)
+    {
+        return fun.getNameStr() == "main";
+    }
+
+    // Get the block from the function with the passed name. Returns NULL if it
+    // doesn't exist.
+    inline BasicBlock* GetNamedBlock(Function& fun, std::string name)
+    {
+        for (Function::iterator bb = fun.begin(), e = fun.end(); bb != e; ++bb)
+            if (bb->getNameStr() == name)
+                return bb;
+
+        return NULL;
+    }
+
+    // Returns the stage-exit block if the function is main and it exists, NULL
+    // otherwise.
+    inline BasicBlock* GetMainExit(Function& fun)
+    {
+        if (! IsMain(fun))
+            return NULL;
+
+        return GetNamedBlock(fun, "stage-exit");
+    }
+
+    // Returns the stage-epilogue block if the function is main and it exists,
+    // NULL otherwise.
+    inline BasicBlock* GetMainCopyOut(Function& fun)
+    {
+        if (! IsMain(fun))
+            return NULL;
+
+        return GetNamedBlock(fun, "stage-epilogue");
+    }
+
+    // Returns the (first) returning block in the Function. NULL if the function
+    // does not return.
+    inline BasicBlock* GetReturnBlock(Function& fun)
+    {
+        for (Function::iterator bb = fun.begin(), e = fun.end(); bb != e; ++bb) {
+            if (isa<ReturnInst>(bb->getTerminator()))
+                return bb;
+        }
+
+        return NULL;
+    }
+
+    // Returns the number of returning blocks in the function.
+    inline int CountReturnBlocks(Function& fun)
+    {
+        int count = 0;
+        for (Function::iterator bb = fun.begin(), e = fun.end(); bb != e; ++bb) {
+            if (isa<ReturnInst>(bb->getTerminator()))
+                ++count;
+        }
+
+        return count;
+    }
+
 } // end namespace gla_llvm
+
+
+#endif // GLA_FUNTION_UTIL_H
+

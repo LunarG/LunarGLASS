@@ -38,14 +38,14 @@ entry:
   store <4 x float> %mix_retval1, <4 x float>* %mix_retval
   %gl_FragColor = load <4 x float>* %mix_retval
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  br label %main-copy-out
+  br label %stage-epilogue
 
-main-copy-out:                                    ; preds = %entry
+stage-epilogue:                                   ; preds = %entry
   %20 = load <4 x float>* @gl_FragColor
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %20)
-  br label %main-exit
+  br label %stage-exit
 
-main-exit:                                        ; preds = %main-copy-out
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -88,7 +88,13 @@ entry:
   %10 = load float addrspace(1)* @blend
   %11 = fmul float %10, 0x3FFC9FBE80000000
   %mix_retval1 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %8, <4 x float> %9, float %11)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix_retval1)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
@@ -151,7 +157,7 @@ uniform vec4 u;
 uniform float blend;
 in vec3 coords;
 in vec2 t;
-const float const28 = 1.789;
+const float const28_2f = 1.789;
 
 void main()
 {
@@ -161,7 +167,7 @@ void main()
     vec4 temp24 = texture2D(texSampler2D, temp23);
     vec4 temp25 = temp24.wzyx;
     vec4 temp26 = temp21 + temp25;
-    float temp27 = blend * const28;
+    float temp27 = blend * const28_2f;
     vec4 mix_retval1 = mix(temp26, u, temp27);
     gl_FragColor = mix_retval1;
     
