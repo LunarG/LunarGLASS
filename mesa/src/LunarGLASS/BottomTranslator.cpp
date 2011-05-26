@@ -329,6 +329,10 @@ void BottomTranslator::addPhiCopies(SmallPtrSet<const PHINode*, Size>& phis, con
 
 void BottomTranslator::addPhiCopy(const PHINode* phi, const BasicBlock* curBB)
 {
+    // Exclude phi copies for our inductive variables
+    if (! loops.empty() && loops.top()->isSimpleInductive() && phi == loops.top()->getCanonicalInductionVariable())
+        return;
+
     // Find the operand whose predecessor is curBB.
     int predIndex = phi->getBasicBlockIndex(curBB);
     if (predIndex >= 0) {
@@ -708,15 +712,10 @@ void BottomTranslator::handleSimpleInductiveInstructions(const BasicBlock* bb)
 void BottomTranslator::setUpSimpleLatch()
 {
     // If it's a latch, we must be simple and thus only need to add phi copies
+    assert(! loops.empty() && loops.top()->isSimpleLatching());
 
-    // Add phi copies (if applicable) excluding the one for the inductive variable
-    SmallPtrSet<const PHINode*, 8> phis;
-    GetPHINodes(loops.top()->getHeader(), phis);
-
-    if (loops.top()->isSimpleInductive())
-        phis.erase(loops.top()->getCanonicalInductionVariable());
-
-    addPhiCopies(phis, loops.top()->getLatch());
+    // Add phi copies (if applicable)
+    addPhiCopies(loops.top()->getLatch(), loops.top()->getHeader());
 }
 
 void BottomTranslator::setUpLoopBegin(const Value* condition)
