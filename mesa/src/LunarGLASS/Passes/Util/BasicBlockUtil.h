@@ -42,6 +42,12 @@
 namespace gla_llvm {
     using namespace llvm;
 
+    // Whether bb is NULL or has no instructions
+    inline bool InvalidatedBB(const BasicBlock* bb)
+    {
+        return ! bb || bb->empty();
+    }
+
     // Whether a basic block has no constituent instructions, other than
     // it's phi-nodes and terminator.
     inline bool IsEmptyBB(const BasicBlock* bb)
@@ -153,13 +159,14 @@ namespace gla_llvm {
     }
 
     // Remove bb from each successor's predecessor list, from it's function, and
-    // NULL out its parent.
+    // drop all references. Clears its instruction list.
     inline void EraseBB(BasicBlock* bb)
     {
         for (succ_iterator i = succ_begin(bb), e = succ_end(bb); i != e; ++i)
             (*i)->removePredecessor(bb);
 
         bb->dropAllReferences();
+        bb->getInstList().clear();
         bb->eraseFromParent();
     }
 
@@ -224,6 +231,7 @@ namespace gla_llvm {
             }
 
             next->dropAllReferences();
+            next->getInstList().clear();
             next->eraseFromParent();
         }
 

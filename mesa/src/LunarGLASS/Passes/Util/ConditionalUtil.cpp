@@ -36,7 +36,7 @@ void Conditional::recalculate()
 {
     // For now, since we don't have a conditional tree, if the entry is not
     // linked to a function, then clear us out
-    if (! entry->getParent()) {
+    if (InvalidatedBB(entry)) {
         clear();
         return;
     }
@@ -154,7 +154,7 @@ void Conditional::recalculate()
 
 bool Conditional::createMergeSelects()
 {
-    if (! entry || ! entry->getParent())
+    if (InvalidatedBB(entry) || InvalidatedBB(merge))
         return false;
 
     bool changed = false;

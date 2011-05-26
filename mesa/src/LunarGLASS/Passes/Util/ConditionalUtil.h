@@ -162,7 +162,7 @@ namespace gla_llvm {
         // it. Returns whether anything happened.
         bool simplifyInsts()
         {
-            if (! entry || ! entry->getParent()) {
+            if (InvalidatedBB(entry)) {
                 return false;
             }
 
@@ -171,17 +171,16 @@ namespace gla_llvm {
             // up after themselves. The lists currently may contain
             // unlinked/invalid blocks in them, so skip over them.
             for (SmallVectorImpl<BasicBlock*>::iterator i = leftChildren.begin(), e = leftChildren.end(); i != e; ++i) {
-                if ((*i)->getParent() == entry->getParent()) {
+                if (! InvalidatedBB(*i)) {
                     changed |= SimplifyInstructionsInBlock(*i);
                 }
             }
 
             for (SmallVectorImpl<BasicBlock*>::iterator i = rightChildren.begin(), e = rightChildren.end(); i != e; ++i) {
-                if ((*i)->getParent() == entry->getParent()) {
+                if (! InvalidatedBB(*i)) {
                     changed |= SimplifyInstructionsInBlock(*i);
                 }
             }
-
 
             return changed;
         }
@@ -198,7 +197,7 @@ namespace gla_llvm {
             // We only do it if we're empty conditional, selfcontained, have no
             // phi nodes, and are linked to a function
             // TODO: can clean up when conditional trees are implemented
-            if (! entry || ! emptyConditional || ! selfContained || HasPHINodes(merge) || ! entry->getParent()) {
+            if (InvalidatedBB(entry) || ! emptyConditional || ! selfContained || HasPHINodes(merge)) {
                 return false;
             }
 
@@ -222,7 +221,7 @@ namespace gla_llvm {
         {
             // We only run if we're linked to a function
             // TODO: can clean up when conditional trees are implemented
-            if (! entry || ! entry->getParent()) {
+            if (InvalidatedBB(entry)) {
                 return false;
             }
 
