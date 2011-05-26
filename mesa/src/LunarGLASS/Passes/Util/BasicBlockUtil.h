@@ -152,74 +152,66 @@ namespace gla_llvm {
         return &*bb->getParent()->begin() != bb && pred_begin(bb) == pred_end(bb);
     }
 
-    // If dt is not NULL, will recursively remove any children and bb from it
-    // that are leaves, or that become leaves due to this function being run.
-    // TODO: extract into .cpp file if it remains big (and no-inline).
-    // TODO: document complexity
-    inline bool RecursivelyRemoveBlockFromDominatorTree(BasicBlock* bb, DominatorTree* dt = 0)
+    // Remove bb from each successor's predecessor list, from it's function, and
+    // NULL out its parent.
+    inline void EraseBB(BasicBlock* bb)
     {
-        if (! dt)
-            return false;
+        for (succ_iterator i = succ_begin(bb), e = succ_end(bb); i != e; ++i)
+            (*i)->removePredecessor(bb);
 
-        DomTreeNode* dtn = dt->getNode(bb);
+        bb->dropAllReferences();
+        bb->eraseFromParent();
+    }
+
+    // Prune bb from its function, and from the dominator tree. This will
+    // unlink/erase bb, and any block that it dominates, updating the dominator
+    // tree as it goes along. It may be advisable to call this only with a
+    // no-predecessor block.
+    // TODO: consider first checking to see if it's no-predecessor, and doing
+    // nothing otherwise.
+    // O(n*erase(BasicBlock)) where n is the size of the subgraph to be removed,
+    // and erase(BasicBlock) is the cost of erasing a basic block from a function.
+    inline void PruneCFG(BasicBlock* bb, DominatorTree& dt)
+    {
+        DomTreeNode* dtn = dt.getNode(bb);
         if (! dtn)
-            return false;
+            return;
 
-        // Build up a vector of all the nodes to try to remove
-        SmallVector<DomTreeNode*, 32> nodes;
-
-        SmallVector<DomTreeNode*, 32> toAdd;
-
-        toAdd.push_back(dtn);
-
-        while (! toAdd.empty()) {
-            DomTreeNode* dtn = toAdd.pop_back_val();
-
-            // If it's already a leaf, go ahead and remove it right now.
-            if (dtn->getNumChildren() == 0) {
-                dt->eraseNode(dtn->getBlock());
-                continue;
-            }
-
-            nodes.push_back(dtn);
-
-            for (DomTreeNode::iterator i = dtn->begin(), e = dtn->end(); i != e; ++i) {
-                toAdd.push_back(*i);
-            }
+        SmallVector<DomTreeNode*,32> workList;
+        for (df_iterator<DomTreeNode*> i =  GraphTraits<DomTreeNode*>::nodes_begin(dtn), e =  GraphTraits<DomTreeNode*>::nodes_end(dtn); i != e; ++i) {
+            workList.push_back(*i);
         }
 
-        // Try to remove all the nodes
-        // TODO: do in a more intelligent order (currently O(n^2)). Perhaps make
-        // this function be aggressive, and clearAllChildren(), or else provide
-        // a removeUnlinkedBlocks traversal
-        bool updated = true;
-        while (updated) {
-            updated = false;
-            for (SmallVector<DomTreeNode*,32>::iterator dtn = nodes.begin(), e = nodes.end(); dtn != e; ++dtn) {
-                if (dt->getNode(bb) && (*dtn)->getNumChildren() == 0) {
-                    updated = true;
-                    dt->eraseNode((*dtn)->getBlock());
-                }
-            }
+        // Efficiency note: Since we're operating in depth-first pre-order,
+        // erasing the domTreeNode is constant for all but the first iteration,
+        // where it's linear in the number of the immediate dominator's
+        // children.
+        // TODO: consider finding a clever way of seeing if we need bother
+        // removing ourselves as a predecessor while erasing the bb.
+        for (SmallVector<DomTreeNode*,32>::iterator dtn = workList.begin(), e = workList.end(); dtn != e; ++dtn) {
+            (*dtn)->clearAllChildren();
+            BasicBlock* toRemove = (*dtn)->getBlock();
+            dt.eraseNode(toRemove);
+            EraseBB(toRemove);
         }
-
-        return true;
     }
 
     // Remove bb if it's a no-predecessor block, and continue on to its
     // successors. Returns the number removed. If a DominatorTree is passes in,
     // it will update it as it removes blocks.
-    // TODO: consider simply recursively removing all of the dominated children
-    // if the domTree is provided. This may also facilitate efficient and easy
-    // updating of the domtree.
     // TODO: extract into .cpp file if it remains big (and no-inline).
     // TODO: document complexity
-    inline int RecursivelyRemoveNoPredecessorBlocks(BasicBlock* bb, DominatorTree* dt = 0)
+    inline bool RecursivelyRemoveNoPredecessorBlocks(BasicBlock* bb, DominatorTree* dt = 0)
     {
         if (! IsNoPredecessorBlock(bb))
-            return 0;
+            return false;
 
-        int removed = 0;
+        // If we're given a dominator tree, then we can just prune
+        if (dt) {
+            PruneCFG(bb, *dt);
+            return true;
+        }
+
         SmallVector<BasicBlock*, 16> toRemove;
         toRemove.push_back(bb);
 
@@ -232,42 +224,15 @@ namespace gla_llvm {
             }
 
             next->dropAllReferences();
-
-            RecursivelyRemoveBlockFromDominatorTree(next, dt);
-
             next->eraseFromParent();
-
-            ++removed;
         }
 
-        return removed;
+        return true;
     }
-
-    // // Prune bb from its function, and from the dominator tree. This will
-    // // unlink/erase bb, and any block that it dominates, updating the dominator
-    // // tree as it goes along.
-    // inline void PruneBB(BasicBlock* bb, DominatorTree& dt)
-    // {
-    //     DomTreeNode* dtn = dt.getNode(bb);
-    //     if (! dtn)
-    //         return;
-
-    //     SmallVector<DomTreeNode*,32> workList;
-    //     for (GraphTraits<DomTreeNode*>::df_iterator i = nodes_begin(dtn), e = nodes_end(dtn); i != e; ++i) {
-    //         workList.push_back(*i);
-    //     }
-
-    //     for (SmallVector<DomTreeNode*,32>::iterator dtn = workList.begin(), e = workList.end(); i != e; ++i) {
-    //         dtn->clearAllChildren();
-    //         BasicBlock* toRemove = dtn->getBlock();
-    //         dt.eraseNode(toRemove);
-    //         // now, erase from the function
-    //     }
-
-    // }
 
     // Whether bb's dominance frontier contains any of the targets, and only the
     // targets. It must contain at least 1.
+    // TODO: document complexity
     inline bool ContainedDominanceFrontier(const BasicBlock* bb, SmallVectorImpl<const BasicBlock*>& targets, DominanceFrontier& df)
     {
         int num = 0;

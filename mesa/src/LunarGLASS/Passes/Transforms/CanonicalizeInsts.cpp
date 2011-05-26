@@ -27,7 +27,7 @@
 // Canonicalize instructions for LunarGLASS, this includes the following:
 //
 //   * fcmp ord %foo <some-constant> --> fcmp oeq %foo %foo
-//   * operand hoisting: constant expressions and partial or 
+//   * operand hoisting: constant expressions and partial or
 //                       undefined aggregates moved to separate inst
 //
 //===----------------------------------------------------------------------===//
@@ -104,7 +104,7 @@ bool CanonicalizeInsts::runOnFunction(Function& F)
             for (User::op_iterator constIter = inst->op_begin(), end = inst->op_end();  constIter != end; ++constIter) {
 
                 if (ConstantExpr* constExpr = dyn_cast<ConstantExpr>(*constIter)) {
-                    
+
                     if (constExpr->isGEPWithNoNotionalOverIndexing()) {
 
                         if (PHINode* phi = dyn_cast<PHINode>(inst))
@@ -114,8 +114,8 @@ bool CanonicalizeInsts::runOnFunction(Function& F)
                         std::vector<llvm::Value*> gepIndices;
                         ConstantExpr::op_iterator expIter = constExpr->op_begin(), end = constExpr->op_end();
                         // Skip the first GEP index
-                        ++expIter;
-                        for (expIter; expIter != end; ++expIter)
+
+                        for (++expIter; expIter != end; ++expIter)
                             gepIndices.push_back(*expIter);
 
                         // Insert new instruction and replace operand

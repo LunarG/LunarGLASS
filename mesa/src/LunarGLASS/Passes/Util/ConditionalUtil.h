@@ -167,7 +167,9 @@ namespace gla_llvm {
             }
 
             bool changed = false;
-            // TODO: remove the below checks after conditionals properly clean up after themselves
+            // TODO: remove the below checks after conditionals properly clean
+            // up after themselves. The lists currently may contain
+            // unlinked/invalid blocks in them, so skip over them.
             for (SmallVectorImpl<BasicBlock*>::iterator i = leftChildren.begin(), e = leftChildren.end(); i != e; ++i) {
                 if ((*i)->getParent() == entry->getParent()) {
                     changed |= SimplifyInstructionsInBlock(*i);

@@ -243,7 +243,7 @@ compile_shader(struct gl_context *ctx, struct gl_shader *shader)
 
      //progress = false;
      progress = do_common_optimization(shader->ir, false, 0);
-     
+
       } while (progress);
 
       validate_ir_tree(shader->ir);
@@ -317,7 +317,7 @@ main(int argc, char **argv)
    assert(whole_program != NULL);
 
    for (/* empty */; argc > optind; optind++) {
-      if (gla::Options.debug)
+       if (gla::Options.debug && ! gla::Options.bottomIROnly)
          printf("compiling %s...\n", argv[optind]);
 
       whole_program->Shaders = (struct gl_shader **)
@@ -378,7 +378,7 @@ main(int argc, char **argv)
       else
          Shader = whole_program->Shaders[0];
 
-      if (gla::Options.debug)
+      if (gla::Options.debug && ! gla::Options.bottomIROnly)
          _mesa_print_ir(Shader->ir, 0);
 
       TranslateGlslToTop(Shader, glaManager);

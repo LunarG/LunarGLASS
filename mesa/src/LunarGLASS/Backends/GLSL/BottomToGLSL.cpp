@@ -129,7 +129,7 @@ namespace gla {
 
 class gla::GlslTarget : public gla::BackEndTranslator {
 public:
-    GlslTarget() : appendInitializers(false), indentLevel(0), lastVariable(20), 
+    GlslTarget() : appendInitializers(false), indentLevel(0), lastVariable(20),
                    obfuscate(Options.obfuscate)
     {
         if (Options.backendVersion == DefaultBackendVersion)
@@ -659,7 +659,7 @@ protected:
             case llvm::Type::VectorTyID:
                 emitVectorConstant(globalDeclarations, constant);
                 break;
-            
+
             case llvm::Type::ArrayTyID:
                 emitArrayConstant(type, globalDeclarations, constant);
                 break;
@@ -768,7 +768,7 @@ protected:
     void emitGlaValue(const llvm::Value* value)
     {
         assert(! llvm::isa<llvm::ConstantExpr>(value));
-        
+
         mapGlaValue(value);
 
         shader << valueMap[value]->c_str();
@@ -897,7 +897,7 @@ protected:
         if (aggregate) {
             emitGlaType(out, constant->getType());
             out << "(";
-            
+
             for (int op = 0; op < arrayType->getNumElements(); ++op) {
                 if (op > 0)
                     out << ", ";
@@ -1031,7 +1031,7 @@ protected:
         llvm::Value* source = getCommonSourceMultiInsert(inst);
         if (source) {
             emitGlaValue(source);
-            
+
             // Build up the rhs mask
             int singleSourceMask = 0;
             for (int i = 0, pos = 0; i < 4; ++i) {
@@ -1135,7 +1135,7 @@ protected:
                     gepType = getGEPDeref(gepType, -1, &gepChain, gepInst->getOperand(index));
                 }
             }
-        
+
         } else if (const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(value)) {
 
             const llvm::Type* gepType = insertValueInst->getAggregateOperand()->getType();
@@ -1460,7 +1460,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         {
             assert(! llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)));
 
-            if (llvm::GetElementPtrInst* gep = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0))) {
+            if (llvm::isa<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0))) {
                 // If we're loading from the result of a GEP, assign it to a new variable
                 newLine();
                 emitGlaValue(llvmInstruction);
@@ -1529,7 +1529,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         shader << ";";
         return;
 
-    case llvm::Instruction::Select: 
+    case llvm::Instruction::Select:
     {
         const llvm::SelectInst* si = llvm::dyn_cast<const llvm::SelectInst>(llvmInstruction);
         assert(si);
@@ -1572,7 +1572,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
     case llvm::Instruction::InsertValue:
     {
         newLine();
-          
+
         //emit base
         const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(llvmInstruction);
         emitGlaValue(insertValueInst->getAggregateOperand());
