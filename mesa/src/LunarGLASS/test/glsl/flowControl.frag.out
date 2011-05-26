@@ -142,9 +142,9 @@ in float c;
 void main()
 {
     bool temp21 = c > d;
-    vec4 _pn = temp21 ? bigColor : smallColor
+    vec4 _pn = temp21 ? bigColor : smallColor;
     vec4 color_0 = BaseColor + _pn;
-    gl_FragColor = color_0 * otherColor;
-    gl_FragColor = gl_FragColor;
+    vec4 gla_copyout_gl_FragColor = color_0 * otherColor;
+    gl_FragColor = gla_copyout_gl_FragColor;
     
 }

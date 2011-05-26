@@ -85,6 +85,29 @@ int GetComponentCount(const llvm::Value* value)
     return GetComponentCount(type);
 }
 
+// Returns false if base value is undef, or if any member is undef
+bool AreAllDefined(const llvm::Value* value)
+{
+    if (IsUndef(value))
+        return false;
+
+    if (const llvm::User* user = llvm::dyn_cast<llvm::User>(value)) {
+        switch(user->getType()->getTypeID()) {
+        case llvm::Type::VectorTyID:
+        case llvm::Type::ArrayTyID:
+        case llvm::Type::StructTyID:
+            if (user->getNumOperands() > 0) {
+                for (llvm::User::const_op_iterator i = user->op_begin(), e = user->op_end(); i != e; ++i) {
+                    if (IsUndef(*i))
+                        return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 bool IsBoolean(const llvm::Type* type)
 {
     if (llvm::Type::VectorTyID == type->getTypeID()) {

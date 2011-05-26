@@ -85,7 +85,7 @@ in vec2 coord;
 
 void main()
 {
-    gl_FragColor = texture2D(sampler, coord);
-    gl_FragColor = gl_FragColor;
+    vec4 gla_copyout_gl_FragColor = texture2D(sampler, coord);
+    gl_FragColor = gla_copyout_gl_FragColor;
     
 }

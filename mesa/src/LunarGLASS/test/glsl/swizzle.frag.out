@@ -138,16 +138,20 @@ Bottom IR:
 
 @u = external addrspace(1) constant <4 x float>
 @p = external addrspace(1) constant i1
+@gla_globalAgg = internal global <4 x float> undef
+@gla_globalAgg1 = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
   %w1 = load <4 x float> addrspace(1)* @u
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x float> %w1, i32 10, float 0.000000e+00, i32 -1, <2 x float> %t, i32 1, float 0.000000e+00, i32 -1, <2 x float> %t, i32 0)
-  %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> undef, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, <4 x float> %w1, i32 0, <4 x float> %w1, i32 1)
+  %aggregate = load <4 x float>* @gla_globalAgg
+  %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> %aggregate, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, <4 x float> %w1, i32 0, <4 x float> %w1, i32 1)
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %w1, i32 7, float 0x3FFC9FBE80000000, i32 -1, float 0x3FFC9FBE80000000, i32 -1, float 0x3FFC9FBE80000000, i32 -1, float 0.000000e+00, i32 -1)
   %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v2f32.v2f32(<4 x float> %w1, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 0, <2 x float> %t, i32 0, <2 x float> %t, i32 1)
-  %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.f32.f32(<4 x float> undef, i32 3, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
+  %aggregate20 = load <4 x float>* @gla_globalAgg1
+  %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.f32.f32(<4 x float> %aggregate20, i32 3, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
   %5 = load i1 addrspace(1)* @p
   br i1 %5, label %then, label %else
 
@@ -251,6 +255,8 @@ float blendscale = 1.789000 ; vec4 w = u ; vec4 w_undef ; vec4 w_dep = u ; vec4 
 #version 130
 uniform vec4 u;
 uniform bool p;
+vec4 gla_globalAgg;
+vec4 gla_globalAgg1;
 in vec2 t;
 const float const25_2f = 1.789;
 
@@ -263,7 +269,7 @@ void main()
     vec4 temp24 = u;
     temp24.xyz = vec3(const25_2f, const25_2f, const25_2f);
     vec4 temp26 = vec4(u.z, u.x, t.x, t.y);
-    vec4 temp27;
+    vec4 temp27 = gla_globalAgg1;
     temp27.xy = u.zw;
     if (p) {
         vec4 temp28 = u;

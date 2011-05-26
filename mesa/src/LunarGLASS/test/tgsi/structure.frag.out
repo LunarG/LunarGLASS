@@ -67,17 +67,20 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load i32 addrspace(1)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 0, i32 4)
+  %gla_constGEP = getelementptr [4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 0, i32 4
+  %0 = load i32 addrspace(1)* %gla_constGEP
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %2 = load <4 x float> addrspace(1)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3)
+  %gla_constGEP4 = getelementptr [4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3
+  %2 = load <4 x float> addrspace(1)* %gla_constGEP4
   %scale1 = extractelement <4 x float> %2, i32 0
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %scale2 = load float addrspace(1)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3)
+  %gla_constGEP5 = getelementptr [4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3
+  %scale2 = load float addrspace(1)* %gla_constGEP5
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
@@ -105,7 +108,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
-***Unsupported functionality: opcode in Bottom IR: 42
+***Unsupported functionality: opcode in Bottom IR: 29
 compiling structure.frag...
 uniform sampler2D sampler ; 
 varying vec2 coord ; 

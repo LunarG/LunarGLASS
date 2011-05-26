@@ -950,6 +950,11 @@ Bottom IR:
 @ui = external addrspace(1) constant i32
 @ub41 = external addrspace(1) constant <4 x i1>
 @ub42 = external addrspace(1) constant <4 x i1>
+@gla_globalAgg = internal global <4 x float> undef
+@gla_globalAgg1 = internal global <3 x float> undef
+@gla_globalAgg2 = internal global <3 x float> undef
+@gla_globalAgg3 = internal global <4 x float> undef
+@gla_globalAgg4 = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
@@ -1042,7 +1047,8 @@ entry:
   %46 = extractelement <4 x float> %assignment_tmp7273, i32 3
   %ord203 = fcmp oeq float %46, %46
   %47 = uitofp i1 %ord203 to float
-  %48 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %41, i32 -1, float %43, i32 -1, float %45, i32 -1, float %47, i32 -1)
+  %aggregate = load <4 x float>* @gla_globalAgg
+  %48 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate, i32 15, float %41, i32 -1, float %43, i32 -1, float %45, i32 -1, float %47, i32 -1)
   %assignment_tmp7980 = fadd <4 x float> %assignment_tmp7273, %48
   %49 = fsub <4 x float> %assignment_tmp7980, %assignment_tmp7980
   %50 = fdiv <4 x float> %49, %49
@@ -1244,8 +1250,10 @@ ifmerge168:                                       ; preds = %ifmerge153, %then16
   %117 = call float @llvm.gla.fSqrt.f32.f32(float %116)
   %f172 = fadd float %f170, %117
   %f173 = fadd float %f172, %114
-  %118 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> undef, i32 7, <4 x float> %v107, i32 1, <4 x float> %v107, i32 2, <4 x float> %v107, i32 0, float 0.000000e+00, i32 -1)
-  %119 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> undef, i32 7, <4 x float> %v107, i32 2, <4 x float> %v107, i32 0, <4 x float> %v107, i32 1, float 0.000000e+00, i32 -1)
+  %aggregate206 = load <3 x float>* @gla_globalAgg1
+  %118 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> %aggregate206, i32 7, <4 x float> %v107, i32 1, <4 x float> %v107, i32 2, <4 x float> %v107, i32 0, float 0.000000e+00, i32 -1)
+  %aggregate207 = load <3 x float>* @gla_globalAgg2
+  %119 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> %aggregate207, i32 7, <4 x float> %v107, i32 2, <4 x float> %v107, i32 0, <4 x float> %v107, i32 1, float 0.000000e+00, i32 -1)
   %120 = fmul <3 x float> %118, %119
   %121 = fmul <3 x float> %119, %118
   %122 = fsub <3 x float> %120, %121
@@ -1293,8 +1301,10 @@ then195:                                          ; preds = %ifmerge191
   %131 = shl i32 %130, %90
   %assignment_tmp192193 = xor i32 %131, -1
   %132 = sitofp i32 %assignment_tmp192193 to float
-  %133 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %132, i32 -1, float %132, i32 -1, float %132, i32 -1, float %132, i32 -1)
-  %134 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1)
+  %aggregate208 = load <4 x float>* @gla_globalAgg3
+  %133 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate208, i32 15, float %132, i32 -1, float %132, i32 -1, float %132, i32 -1, float %132, i32 -1)
+  %aggregate209 = load <4 x float>* @gla_globalAgg4
+  %134 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate209, i32 15, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1)
   %135 = fadd <4 x float> %133, %134
   %conditional_tmp196 = fadd <4 x float> %135, %v107
   br label %ifmerge199

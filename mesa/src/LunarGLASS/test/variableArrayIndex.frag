@@ -36,9 +36,9 @@ void main()
 	else
 		scale = foo3.s2_1[0].s1_1.f;
 
-	for (int i = 0; i < iLocal; ++i) {
-		scale += foo2[i].f;
-	}
+	//for (int i = 0; i < iLocal; ++i) {
+	//	scale += foo2[i].f;
+	//}
 
 	gl_FragColor =  scale * texture2D(sampler, coord);
 }

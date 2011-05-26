@@ -682,6 +682,15 @@ Bottom IR:
 @n = external addrspace(1) constant [4 x <4 x float>]
 @un34 = external addrspace(1) constant [3 x <4 x float>]
 @um43 = external addrspace(1) constant [4 x <3 x float>]
+@gla_globalAgg = internal global <4 x float> <float undef, float undef, float undef, float 1.000000e+00>
+@gla_globalAgg1 = internal global <4 x float> undef
+@gla_globalAgg2 = internal global <4 x float> undef
+@gla_globalAgg3 = internal global <4 x float> undef
+@gla_globalAgg4 = internal global <4 x float> undef
+@gla_globalAgg5 = internal global <4 x float> undef
+@gla_globalAgg6 = internal global <4 x float> undef
+@gla_globalAgg7 = internal global <4 x float> undef
+@gla_globalAgg8 = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
@@ -693,7 +702,8 @@ entry:
   %__dot3 = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column2)
   %__column4 = extractvalue [3 x <3 x float>] %__matrix, 2
   %__dot5 = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column4)
-  %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> <float undef, float undef, float undef, float 1.000000e+00>, i32 7, float %__dot, i32 -1, float %__dot3, i32 -1, float %__dot5, i32 -1, float 0.000000e+00, i32 -1)
+  %aggregate = load <4 x float>* @gla_globalAgg
+  %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate, i32 7, float %__dot, i32 -1, float %__dot3, i32 -1, float %__dot5, i32 -1, float 0.000000e+00, i32 -1)
   %__matrix7 = load [4 x <4 x float>] addrspace(1)* @m
   %__matrix8 = load [4 x <4 x float>] addrspace(1)* @n
   %__column10 = extractvalue [4 x <4 x float>] %__matrix7, 0
@@ -776,7 +786,8 @@ else:                                             ; preds = %entry
   %__element78 = extractelement <4 x float> %__column16, i32 3
   %__product79 = fmul float %__element78, %__component23
   %__dotProduct80 = fadd float %__dotProduct76, %__product79
-  %12 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dotProduct35, i32 -1, float %__dotProduct50, i32 -1, float %__dotProduct65, i32 -1, float %__dotProduct80, i32 -1)
+  %aggregate524 = load <4 x float>* @gla_globalAgg1
+  %12 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate524, i32 15, float %__dotProduct35, i32 -1, float %__dotProduct50, i32 -1, float %__dotProduct65, i32 -1, float %__dotProduct80, i32 -1)
   %13 = fadd <4 x float> %0, %12
   %__column84 = fsub <4 x float> %__column10, %__column11
   %__column87 = fsub <4 x float> %__column12, %__column13
@@ -786,7 +797,8 @@ else:                                             ; preds = %entry
   %__dot97 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %v20, <4 x float> %__column87)
   %__dot99 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %v20, <4 x float> %__column90)
   %__dot101 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %v20, <4 x float> %__column93)
-  %14 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dot95, i32 -1, float %__dot97, i32 -1, float %__dot99, i32 -1, float %__dot101, i32 -1)
+  %aggregate525 = load <4 x float>* @gla_globalAgg2
+  %14 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate525, i32 15, float %__dot95, i32 -1, float %__dot97, i32 -1, float %__dot99, i32 -1, float %__dot101, i32 -1)
   %gl_FragColor102 = fadd <4 x float> %13, %14
   br label %ifmerge
 
@@ -799,7 +811,8 @@ ifmerge:                                          ; preds = %else, %then
   %u = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 2, i32 1)
   %__rightComp = extractelement <3 x float> %u, i32 0
   %__element104 = fmul float %__leftComp.pre-phi, %__rightComp
-  %__column105 = insertelement <4 x float> undef, float %__element104, i32 0
+  %aggregate526 = load <4 x float>* @gla_globalAgg3
+  %__column105 = insertelement <4 x float> %aggregate526, float %__element104, i32 0
   %__element107 = fmul float %__leftComp106.pre-phi, %__rightComp
   %__column108 = insertelement <4 x float> %__column105, float %__element107, i32 1
   %__element110 = fmul float %__leftComp109.pre-phi, %__rightComp
@@ -808,7 +821,8 @@ ifmerge:                                          ; preds = %else, %then
   %__column114 = insertelement <4 x float> %__column111, float %__element113, i32 3
   %__rightComp116 = extractelement <3 x float> %u, i32 1
   %__element118 = fmul float %__leftComp.pre-phi, %__rightComp116
-  %__column119 = insertelement <4 x float> undef, float %__element118, i32 0
+  %aggregate527 = load <4 x float>* @gla_globalAgg4
+  %__column119 = insertelement <4 x float> %aggregate527, float %__element118, i32 0
   %__element121 = fmul float %__leftComp106.pre-phi, %__rightComp116
   %__column122 = insertelement <4 x float> %__column119, float %__element121, i32 1
   %__element124 = fmul float %__leftComp109.pre-phi, %__rightComp116
@@ -820,7 +834,8 @@ ifmerge:                                          ; preds = %else, %then
   %__element135 = fmul float %__leftComp106.pre-phi, %__rightComp130
   %__element138 = fmul float %__leftComp109.pre-phi, %__rightComp130
   %__element141 = fmul float %__leftComp112.pre-phi, %__rightComp130
-  %15 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__element132, i32 -1, float %__element135, i32 -1, float %__element138, i32 -1, float %__element141, i32 -1)
+  %aggregate528 = load <4 x float>* @gla_globalAgg5
+  %15 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate528, i32 15, float %__element132, i32 -1, float %__element135, i32 -1, float %__element138, i32 -1, float %__element141, i32 -1)
   %__matrix145 = load [3 x <4 x float>] addrspace(1)* @un34
   %__column149 = extractvalue [3 x <4 x float>] %__matrix145, 0
   %16 = fcmp oeq <4 x float> %__column114, %__column149
@@ -860,7 +875,8 @@ then154:                                          ; preds = %ifmerge
   %__element201 = extractelement <4 x float> %15, i32 3
   %__product202 = fmul float %__element201, %__rightComp130
   %__dotProduct203 = fadd float %__dotProduct199, %__product202
-  %24 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dotProduct170, i32 -1, float %__dotProduct181, i32 -1, float %__dotProduct192, i32 -1, float %__dotProduct203, i32 -1)
+  %aggregate529 = load <4 x float>* @gla_globalAgg6
+  %24 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate529, i32 15, float %__dotProduct170, i32 -1, float %__dotProduct181, i32 -1, float %__dotProduct192, i32 -1, float %__dotProduct203, i32 -1)
   br label %ifmerge522
 
 else205:                                          ; preds = %ifmerge
@@ -973,7 +989,8 @@ else205:                                          ; preds = %ifmerge
   %__dotProduct448 = fadd float %__product443, %__product447
   %__product452 = fmul float %__leftComp264, %__rightComp406
   %__dotProduct453 = fadd float %__dotProduct448, %__product452
-  %25 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dotProduct408, i32 -1, float %__dotProduct423, i32 -1, float %__dotProduct438, i32 -1, float %__dotProduct453, i32 -1)
+  %aggregate530 = load <4 x float>* @gla_globalAgg7
+  %25 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate530, i32 15, float %__dotProduct408, i32 -1, float %__dotProduct423, i32 -1, float %__dotProduct438, i32 -1, float %__dotProduct453, i32 -1)
   %__product463 = fmul float %__dotProduct222, %__leftComp.pre-phi
   %__product466 = fmul float %__dotProduct284, %__leftComp106.pre-phi
   %__dotProduct467 = fadd float %__product463, %__product466
@@ -1006,7 +1023,8 @@ else205:                                          ; preds = %ifmerge
   %__element518 = extractelement <4 x float> %25, i32 3
   %__product519 = fmul float %__element518, %__leftComp112.pre-phi
   %__dotProduct520 = fadd float %__dotProduct516, %__product519
-  %26 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dotProduct475, i32 -1, float %__dotProduct490, i32 -1, float %__dotProduct505, i32 -1, float %__dotProduct520, i32 -1)
+  %aggregate531 = load <4 x float>* @gla_globalAgg8
+  %26 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate531, i32 15, float %__dotProduct475, i32 -1, float %__dotProduct490, i32 -1, float %__dotProduct505, i32 -1, float %__dotProduct520, i32 -1)
   br label %ifmerge522
 
 ifmerge522:                                       ; preds = %else205, %then154

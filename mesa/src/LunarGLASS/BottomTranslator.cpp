@@ -95,6 +95,7 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Support/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/TypeSymbolTable.h"
 
 #include <cstdio>
 #include <string>
@@ -806,6 +807,13 @@ bool BottomTranslator::runOnModule(Module& module)
     backEnd->getControlFlowMode(flowControlMode, breakOp, continueOp, earlyReturnOp, discardOp);
     if (flowControlMode == gla::EFcmExplicitMasking)
         gla::UnsupportedFunctionality("explicit masking in middle end");
+
+    //
+    // Translate named struct types.
+    //
+    const TypeSymbolTable& symbolTable = module.getTypeSymbolTable();
+    for (TypeSymbolTable::const_iterator tableIter = symbolTable.begin(), tableEnd = symbolTable.end(); tableIter != tableEnd; ++tableIter)
+        backEndTranslator->addStructType(tableIter->first, tableIter->second);
 
     //
     // Translate globals.

@@ -27,16 +27,25 @@
 // Canonicalize instructions for LunarGLASS, this includes the following:
 //
 //   * fcmp ord %foo <some-constant> --> fcmp oeq %foo %foo
+//   * operand hoisting: constant expressions and partial or 
+//                       undefined aggregates moved to separate inst
 //
 //===----------------------------------------------------------------------===//
 
+#include "llvm/GlobalVariable.h"
 #include "llvm/Instructions.h"
+#include "llvm/Module.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/CFG.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
+#include "llvm/Use.h"
+#include "llvm/User.h"
 
 #include "Passes/PassSupport.h"
+
+// LunarGLASS helpers
+#include "Util.h"
 
 using namespace llvm;
 using namespace gla_llvm;
@@ -83,6 +92,56 @@ bool CanonicalizeInsts::runOnFunction(Function& F)
                     Value* arg = cmp->getOperand(isLeftConstant ? 1 : 0);
                     FCmpInst* newCmp = new FCmpInst(CmpInst::FCMP_OEQ, arg, arg, "ord");
                     ReplaceInstWithInst(cmp, newCmp);
+                }
+            }
+        }
+
+        for (BasicBlock::iterator instI = bbI->begin(), instE = bbI->end(); instI != instE; ++instI) {
+            Instruction* inst = instI;
+            Instruction* insertLoc = inst;
+
+            // Find operands that are constant expressions and hoist them into a new instruction
+            for (User::op_iterator constIter = inst->op_begin(), end = inst->op_end();  constIter != end; ++constIter) {
+
+                if (ConstantExpr* constExpr = dyn_cast<ConstantExpr>(*constIter)) {
+                    
+                    if (constExpr->isGEPWithNoNotionalOverIndexing()) {
+
+                        if (PHINode* phi = dyn_cast<PHINode>(inst))
+                            insertLoc = phi->getIncomingBlock(*constIter)->getTerminator();
+
+                        // Convert the ConstantExpr to a GetElementPtrInst
+                        std::vector<llvm::Value*> gepIndices;
+                        ConstantExpr::op_iterator expIter = constExpr->op_begin(), end = constExpr->op_end();
+                        // Skip the first GEP index
+                        ++expIter;
+                        for (expIter; expIter != end; ++expIter)
+                            gepIndices.push_back(*expIter);
+
+                        // Insert new instruction and replace operand
+                        *constIter = GetElementPtrInst::Create(constExpr->getOperand(0), gepIndices.begin(), gepIndices.end(), "gla_constGEP", insertLoc);
+
+                    } else {
+                        assert(0 && "Non-GEP constant expression");
+                    }
+                }
+            }
+
+            // Find operands that are undefined, or partially defined, and hoist them to globals
+            for (User::op_iterator aggIter = inst->op_begin(), end = inst->op_end();  aggIter != end; ++aggIter) {
+
+                if (gla::IsAggregate(*aggIter) && !gla::AreAllDefined(*aggIter)) {
+
+                    if (PHINode* phi = dyn_cast<PHINode>(inst))
+                        insertLoc = phi->getIncomingBlock(*aggIter)->getTerminator();
+
+                    // Create a global var representing the aggregate
+                    Constant* agg = dyn_cast<Constant>(*aggIter);
+                    GlobalVariable* var = new GlobalVariable(agg->getType(), false, GlobalVariable::InternalLinkage, agg, "gla_globalAgg");
+                    F.getParent()->getGlobalList().push_back(var);
+
+                    // Insert new instruction and replace operand
+                    *aggIter = new LoadInst(var, "aggregate", insertLoc);
                 }
             }
         }

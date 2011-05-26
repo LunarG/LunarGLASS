@@ -415,20 +415,20 @@ const float const29_1f = 1;
 void main()
 {
     vec4 color_1;
-    gl_FragColor32_0;
+    vec4 gla_copyout_gl_FragColor32_0;
     bool temp23 = c > d;
-    vec4 _pn = temp23 ? bigColor : smallColor
+    vec4 _pn = temp23 ? bigColor : smallColor;
     vec4 color_0 = BaseColor + _pn;
     bool temp26 = color_0.z < minimum;
     if (temp26) {
-        gl_FragColor32_0 = const27;
-        gl_FragColor = gl_FragColor32_0;
+        gla_copyout_gl_FragColor32_0 = const27;
+        gl_FragColor = gla_copyout_gl_FragColor32_0;
         return;
     }
     else {
         float temp28 = color_0.z + const29_1f;
         vec4 temp30 = color_0;
-        temp30.z = temp28.x;
+        temp30.z = temp28;
         bool temp31 = temp30.z > threshhold;
         if (temp31) {
             discard;
@@ -440,15 +440,15 @@ void main()
             if (temp34) {
                 bool temp35 = assignment_tmp9.z > threshhold2;
                 if (temp35) {
-                    gl_FragColor32_0 = const27;
-                    gl_FragColor = gl_FragColor32_0;
+                    gla_copyout_gl_FragColor32_0 = const27;
+                    gl_FragColor = gla_copyout_gl_FragColor32_0;
                     return;
                 }
                 else {
                     if (b) {
                         float temp36 = assignment_tmp9.z + const29_1f;
                         vec4 temp37 = assignment_tmp9;
-                        temp37.z = temp36.x;
+                        temp37.z = temp36;
                         color_1 = temp37;
                     }
                     else {
@@ -463,9 +463,9 @@ void main()
                         
                     }
                     
-                    gl_FragColor = color_1 * otherColor;
-                    gl_FragColor32_0 = gl_FragColor;
-                    gl_FragColor = gl_FragColor32_0;
+                    vec4 gla_copyout_gl_FragColor = color_1 * otherColor;
+                    gla_copyout_gl_FragColor32_0 = gla_copyout_gl_FragColor;
+                    gl_FragColor = gla_copyout_gl_FragColor32_0;
                     return;
                 }
                 
@@ -475,8 +475,8 @@ void main()
                     discard;
                 }
                 else {
-                    gl_FragColor32_0 = const27;
-                    gl_FragColor = gl_FragColor32_0;
+                    gla_copyout_gl_FragColor32_0 = const27;
+                    gl_FragColor = gla_copyout_gl_FragColor32_0;
                     
                 }
                 

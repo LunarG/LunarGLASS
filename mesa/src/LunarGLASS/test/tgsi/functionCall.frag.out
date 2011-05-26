@@ -35,13 +35,16 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
+@gla_globalAgg = internal global <4 x float> undef
+
 define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   %0 = extractelement <4 x float> %BaseColor, i32 0
   %1 = extractelement <4 x float> %BaseColor, i32 1
   %2 = fadd float %0, %1
-  %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %2, i32 -1, float %2, i32 -1, float %2, i32 -1, float %2, i32 -1)
+  %aggregate = load <4 x float>* @gla_globalAgg
+  %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate, i32 15, float %2, i32 -1, float %2, i32 -1, float %2, i32 -1, float %2, i32 -1)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry

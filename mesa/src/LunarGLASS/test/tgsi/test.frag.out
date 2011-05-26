@@ -70,6 +70,7 @@ Bottom IR:
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
 @u = external addrspace(1) constant <4 x float>
 @blend = external addrspace(1) constant float
+@gla_globalAgg = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
@@ -82,7 +83,8 @@ entry:
   %4 = fdiv <2 x float> %3, %2
   %5 = load i32 addrspace(1)* @"sampler2D texSampler2D"
   %6 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %5, i32 0, <2 x float> %4)
-  %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> undef, i32 15, <4 x float> %6, i32 3, <4 x float> %6, i32 2, <4 x float> %6, i32 1, <4 x float> %6, i32 0)
+  %aggregate = load <4 x float>* @gla_globalAgg
+  %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> %aggregate, i32 15, <4 x float> %6, i32 3, <4 x float> %6, i32 2, <4 x float> %6, i32 1, <4 x float> %6, i32 0)
   %8 = fadd <4 x float> %1, %7
   %9 = load <4 x float> addrspace(1)* @u
   %10 = load float addrspace(1)* @blend

@@ -198,11 +198,18 @@ Bottom IR:
 @foo3 = external addrspace(1) constant %s3
 @condition = external addrspace(1) constant i32
 @"sampler2D sampler" = external addrspace(1) constant i32
+@gla_globalAgg = internal global [16 x float] undef
+@gla_globalAgg1 = internal global [8 x i32] undef
+@gla_globalAgg2 = internal global [8 x i32] [i32 undef, i32 undef, i32 0, i32 undef, i32 undef, i32 undef, i32 undef, i32 undef]
+@gla_globalAgg3 = internal global [16 x float] [float undef, float undef, float undef, float undef, float 1.000000e+00, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef]
+@gla_globalAgg4 = internal global [16 x float] undef
 
 define fastcc void @main() {
 entry:
-  %0 = load %s1 addrspace(1)* getelementptr inbounds (%s3 addrspace(1)* @foo3, i32 0, i32 0, i32 2)
-  %1 = load i32 addrspace(1)* getelementptr inbounds (%s3 addrspace(1)* @foo3, i32 0, i32 0, i32 0)
+  %gla_constGEP = getelementptr %s3 addrspace(1)* @foo3, i32 0, i32 0, i32 2
+  %0 = load %s1 addrspace(1)* %gla_constGEP
+  %gla_constGEP39 = getelementptr %s3 addrspace(1)* @foo3, i32 0, i32 0, i32 0
+  %1 = load i32 addrspace(1)* %gla_constGEP39
   %2 = icmp sgt i32 %1, 0
   br i1 %2, label %then, label %else
 
@@ -210,19 +217,23 @@ then:                                             ; preds = %entry
   %locals2_s1_14 = insertvalue %s1 %0, float 1.000000e+00, 1
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %3 = extractelement <2 x float> %coord, i32 0
-  %localFArray5 = insertvalue [16 x float] undef, float %3, 4
-  %localIArray6 = insertvalue [8 x i32] undef, i32 %1, 2
+  %aggregate = load [16 x float]* @gla_globalAgg
+  %localFArray5 = insertvalue [16 x float] %aggregate, float %3, 4
+  %aggregate40 = load [8 x i32]* @gla_globalAgg1
+  %localIArray6 = insertvalue [8 x i32] %aggregate40, i32 %1, 2
   br label %ifmerge
 
 else:                                             ; preds = %entry
   %coord7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %4 = extractelement <2 x float> %coord7, i32 0
   %locals2_s1_18 = insertvalue %s1 %0, float %4, 1
+  %aggregate41 = load [8 x i32]* @gla_globalAgg2
+  %aggregate42 = load [16 x float]* @gla_globalAgg3
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %localIArray.0 = phi [8 x i32] [ %localIArray6, %then ], [ [i32 undef, i32 undef, i32 0, i32 undef, i32 undef, i32 undef, i32 undef, i32 undef], %else ]
-  %localFArray.0 = phi [16 x float] [ %localFArray5, %then ], [ [float undef, float undef, float undef, float undef, float 1.000000e+00, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef], %else ]
+  %localIArray.0 = phi [8 x i32] [ %localIArray6, %then ], [ %aggregate41, %else ]
+  %localFArray.0 = phi [16 x float] [ %localFArray5, %then ], [ %aggregate42, %else ]
   %locals2_s1_1.0 = phi %s1 [ %locals2_s1_14, %then ], [ %locals2_s1_18, %else ]
   %5 = extractvalue [8 x i32] %localIArray.0, 2
   %6 = icmp eq i32 %5, 0
@@ -243,7 +254,8 @@ ifmerge13:                                        ; preds = %then11, %ifmerge
   br i1 %11, label %then32, label %ifmerge34
 
 then32:                                           ; preds = %ifmerge13
-  %localArray15 = insertvalue [16 x float] undef, float %9, 5
+  %aggregate43 = load [16 x float]* @gla_globalAgg4
+  %localArray15 = insertvalue [16 x float] %aggregate43, float %9, 5
   br label %ifmerge34
 
 ifmerge34:                                        ; preds = %then32, %ifmerge13
@@ -283,7 +295,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float>, i32, float, i32, float, i32, <2 x float>, i32, float, i32) nounwind readnone
 
-***Unsupported functionality: opcode in Bottom IR: 42
+***Unsupported functionality: opcode in Bottom IR: 29
 compiling localAggregates.frag...
 uniform sampler2D sampler ; 
 varying vec2 coord ; 

@@ -198,11 +198,18 @@ Bottom IR:
 @foo3 = external addrspace(1) constant %s3
 @condition = external addrspace(1) constant i32
 @"sampler2D sampler" = external addrspace(1) constant i32
+@gla_globalAgg = internal global [16 x float] undef
+@gla_globalAgg1 = internal global [8 x i32] undef
+@gla_globalAgg2 = internal global [8 x i32] [i32 undef, i32 undef, i32 0, i32 undef, i32 undef, i32 undef, i32 undef, i32 undef]
+@gla_globalAgg3 = internal global [16 x float] [float undef, float undef, float undef, float undef, float 1.000000e+00, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef]
+@gla_globalAgg4 = internal global [16 x float] undef
 
 define fastcc void @main() {
 entry:
-  %0 = load %s1 addrspace(1)* getelementptr inbounds (%s3 addrspace(1)* @foo3, i32 0, i32 0, i32 2)
-  %1 = load i32 addrspace(1)* getelementptr inbounds (%s3 addrspace(1)* @foo3, i32 0, i32 0, i32 0)
+  %gla_constGEP = getelementptr %s3 addrspace(1)* @foo3, i32 0, i32 0, i32 2
+  %0 = load %s1 addrspace(1)* %gla_constGEP
+  %gla_constGEP39 = getelementptr %s3 addrspace(1)* @foo3, i32 0, i32 0, i32 0
+  %1 = load i32 addrspace(1)* %gla_constGEP39
   %2 = icmp sgt i32 %1, 0
   br i1 %2, label %then, label %else
 
@@ -210,19 +217,23 @@ then:                                             ; preds = %entry
   %locals2_s1_14 = insertvalue %s1 %0, float 1.000000e+00, 1
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %3 = extractelement <2 x float> %coord, i32 0
-  %localFArray5 = insertvalue [16 x float] undef, float %3, 4
-  %localIArray6 = insertvalue [8 x i32] undef, i32 %1, 2
+  %aggregate = load [16 x float]* @gla_globalAgg
+  %localFArray5 = insertvalue [16 x float] %aggregate, float %3, 4
+  %aggregate40 = load [8 x i32]* @gla_globalAgg1
+  %localIArray6 = insertvalue [8 x i32] %aggregate40, i32 %1, 2
   br label %ifmerge
 
 else:                                             ; preds = %entry
   %coord7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %4 = extractelement <2 x float> %coord7, i32 0
   %locals2_s1_18 = insertvalue %s1 %0, float %4, 1
+  %aggregate41 = load [8 x i32]* @gla_globalAgg2
+  %aggregate42 = load [16 x float]* @gla_globalAgg3
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %localIArray.0 = phi [8 x i32] [ %localIArray6, %then ], [ [i32 undef, i32 undef, i32 0, i32 undef, i32 undef, i32 undef, i32 undef, i32 undef], %else ]
-  %localFArray.0 = phi [16 x float] [ %localFArray5, %then ], [ [float undef, float undef, float undef, float undef, float 1.000000e+00, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef, float undef], %else ]
+  %localIArray.0 = phi [8 x i32] [ %localIArray6, %then ], [ %aggregate41, %else ]
+  %localFArray.0 = phi [16 x float] [ %localFArray5, %then ], [ %aggregate42, %else ]
   %locals2_s1_1.0 = phi %s1 [ %locals2_s1_14, %then ], [ %locals2_s1_18, %else ]
   %5 = extractvalue [8 x i32] %localIArray.0, 2
   %6 = icmp eq i32 %5, 0
@@ -243,7 +254,8 @@ ifmerge13:                                        ; preds = %then11, %ifmerge
   br i1 %11, label %then32, label %ifmerge34
 
 then32:                                           ; preds = %ifmerge13
-  %localArray15 = insertvalue [16 x float] undef, float %9, 5
+  %aggregate43 = load [16 x float]* @gla_globalAgg4
+  %localArray15 = insertvalue [16 x float] %aggregate43, float %9, 5
   br label %ifmerge34
 
 ifmerge34:                                        ; preds = %then32, %ifmerge13
@@ -282,8 +294,6 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float>, i32, float, i32, float, i32, <2 x float>, i32, float, i32) nounwind readnone
-
-***Unsupported functionality: Basic Type in Bottom IR
 compiling localAggregates.frag...
 uniform sampler2D sampler ; 
 varying vec2 coord ; 
@@ -374,3 +384,101 @@ if ( localIArray [ 2 ] == 0 ) ++ localFArray [ 4 ] ; float localArray [ 16 ] ; i
 
 
 )
+// LunarGOO output
+#version 130
+struct s1 {
+    int member0;
+    float member1;
+};
+
+struct s2 {
+    int member0;
+    float member1;
+    s1 member2;
+    vec4 member3;
+};
+
+struct s3 {
+    s2 member0;
+    int member1;
+    float member2;
+    s1 member3;
+};
+
+uniform s3 foo3;
+uniform int condition;
+uniform sampler2D sampler;
+float[16] gla_globalAgg;
+int[8] gla_globalAgg1;
+int[8] gla_globalAgg2;
+const int const21_0 = 0;
+float[16] gla_globalAgg3;
+const float const22_1f = 1;
+float[16] gla_globalAgg4;
+in vec2 coord;
+in vec2 coord7;
+in vec2 coord14;
+const int const36_1 = 1;
+const float[16] const37 = float[16](0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+in vec4 color;
+
+void main()
+{
+    gla_globalAgg2[2] = const21_0;
+    gla_globalAgg3[4] = const22_1f;
+    
+    int[8] localIArray_0;
+    float[16] localFArray_0;
+    s1 locals2_s1_1_0;
+    float[16] localFArray_1;
+    float[16] a_0;
+    s1 temp28 = foo3.member0.member2;
+    int temp29 = foo3.member0.member0;
+    bool temp30 = temp29 > const21_0;
+    if (temp30) {
+        temp28.member1 = const22_1f;
+        gla_globalAgg[4] = coord.x;
+        gla_globalAgg1[2] = temp29;
+        localIArray_0 = gla_globalAgg1;
+        localFArray_0 = gla_globalAgg;
+        locals2_s1_1_0 = temp28;
+    }
+    else {
+        temp28.member1 = coord7.x;
+        localIArray_0 = gla_globalAgg2;
+        localFArray_0 = gla_globalAgg3;
+        locals2_s1_1_0 = temp28;
+    }
+    
+    int temp31 = localIArray_0[2];
+    bool temp32 = temp31 == const21_0;
+    localFArray_1 = localFArray_0;
+    if (temp32) {
+        float temp33 = localFArray_0[4];
+        float temp34 = temp33 + const22_1f;
+        localFArray_0[4] = temp34;
+        localFArray_1 = localFArray_0;
+    }
+    
+    bool temp35 = condition == const36_1;
+    a_0 = const37;
+    if (temp35) {
+        gla_globalAgg4[5] = coord14.x;
+        a_0 = gla_globalAgg4;
+    }
+    
+    vec4 temp38 = color;
+    temp38.z = coord14.y;
+    float temp39 = localFArray_1[4];
+    float temp40 = locals2_s1_1_0.member1;
+    float temp41 = temp39 + temp40;
+    float temp42 = temp41 + coord14.x;
+    float temp43 = a_0[5];
+    float temp44 = temp42 + temp43;
+    vec4 temp45 = vec4(temp44);
+    vec4 temp46 = temp38 * temp45;
+    vec4 temp47 = texture2D(sampler, coord14);
+    vec4 gla_copyout_gl_FragColor = temp46 * temp47;
+    gl_FragColor = gla_copyout_gl_FragColor;
+    
+}

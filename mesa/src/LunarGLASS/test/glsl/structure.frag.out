@@ -67,17 +67,20 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load i32 addrspace(1)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 0, i32 4)
+  %gla_constGEP = getelementptr [4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 0, i32 4
+  %0 = load i32 addrspace(1)* %gla_constGEP
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %2 = load <4 x float> addrspace(1)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3)
+  %gla_constGEP4 = getelementptr [4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3
+  %2 = load <4 x float> addrspace(1)* %gla_constGEP4
   %scale1 = extractelement <4 x float> %2, i32 0
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %scale2 = load float addrspace(1)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3)
+  %gla_constGEP5 = getelementptr [4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3
+  %scale2 = load float addrspace(1)* %gla_constGEP5
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
@@ -104,8 +107,6 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
-
-***Unsupported functionality: Basic Type in Bottom IR
 compiling structure.frag...
 uniform sampler2D sampler ; 
 varying vec2 coord ; 
@@ -144,3 +145,42 @@ float scale = 0.000000 ; if ( foo2 [ 3 ] . i [ 4 ] > 0 ) scale = foo2 [ 3 ] . s1
 
 
 )
+// LunarGOO output
+#version 130
+struct lunarStruct1 {
+    int member0;
+    float[4] member1;
+    vec4[5] member2;
+};
+
+struct lunarStruct2 {
+    int[5] member0;
+    float member1;
+    lunarStruct1[7] member2;
+};
+
+uniform lunarStruct2[4] foo2;
+uniform sampler2D sampler;
+const int const24_0 = 0;
+in vec2 coord;
+
+void main()
+{
+    float scale_0;
+    int temp22 = foo2[3].member0[4];
+    bool temp23 = temp22 > const24_0;
+    if (temp23) {
+        vec4 temp25 = foo2[3].member2[2].member2[3];
+        scale_0 = temp25.x;
+    }
+    else {
+        float scale2 = foo2[3].member2[2].member1[3];
+        scale_0 = scale2;
+    }
+    
+    vec4 temp27 = texture2D(sampler, coord);
+    vec4 temp28 = vec4(scale_0);
+    vec4 gla_copyout_gl_FragColor = temp28 * temp27;
+    gl_FragColor = gla_copyout_gl_FragColor;
+    
+}

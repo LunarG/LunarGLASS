@@ -74,9 +74,12 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load i32 addrspace(1)* getelementptr inbounds (%lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 0)
+  %gla_constGEP = getelementptr %lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 0
+  %0 = load i32 addrspace(1)* %gla_constGEP
   %1 = icmp sgt i32 %0, 0
-  %select = select i1 %1, %lunarStruct1 addrspace(1)* getelementptr inbounds (%lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 2), %lunarStruct1 addrspace(1)* getelementptr inbounds (%lunarStruct2 addrspace(1)* @foo2, i32 0, i32 2)
+  %gla_constGEP5 = getelementptr %lunarStruct3 addrspace(1)* @foo3, i32 0, i32 0, i32 2
+  %gla_constGEP6 = getelementptr %lunarStruct2 addrspace(1)* @foo2, i32 0, i32 2
+  %select = select i1 %1, %lunarStruct1 addrspace(1)* %gla_constGEP5, %lunarStruct1 addrspace(1)* %gla_constGEP6
   %2 = getelementptr inbounds %lunarStruct1 addrspace(1)* %select, i32 0, i32 1
   %3 = load float addrspace(1)* %2
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
@@ -102,7 +105,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 
-***Unsupported functionality: opcode in Bottom IR: 42
+***Unsupported functionality: opcode in Bottom IR: 29
 compiling structAssignment.frag...
 uniform sampler2D sampler ; 
 varying vec2 coord ; 

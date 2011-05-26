@@ -135,9 +135,6 @@
     <ClInclude Include="..\LunarGLASS\Revision.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Passes\Analysis\IdentifyConditionals.h">
-      <Filter>LunarGLASS\Passes\Analysis</Filter>
-    </ClInclude>
     <ClInclude Include="..\LunarGLASS\TopBuilder.h">
       <Filter>LunarGLASS</Filter>
     </ClInclude>
@@ -185,6 +182,9 @@
     </ClInclude>
     <ClInclude Include="..\LunarGLASS\Passes\Util\ConditionalUtil.h">
       <Filter>LunarGLASS\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Passes\Analysis\IdentifyStructures.h">
+      <Filter>LunarGLASS\Passes\Analysis</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -416,9 +416,6 @@
     <ClCompile Include="strtod.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Passes\Analysis\IdentifyConditionals.cpp">
-      <Filter>LunarGLASS\Passes\Analysis</Filter>
-    </ClCompile>
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeCFG.cpp">
       <Filter>LunarGLASS\Passes\Transforms</Filter>
     </ClCompile>
@@ -463,6 +460,9 @@
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeInsts.cpp">
       <Filter>LunarGLASS\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Passes\Analysis\IdentifyStructures.cpp">
+      <Filter>LunarGLASS\Passes\Analysis</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

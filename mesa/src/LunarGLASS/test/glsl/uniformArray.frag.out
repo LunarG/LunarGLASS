@@ -63,16 +63,20 @@ Bottom IR:
 @color = external addrspace(1) constant [2 x <4 x float>]
 @inColor = external addrspace(1) constant <3 x float>
 @alpha = external addrspace(1) constant [13 x float]
+@gla_globalAgg = internal global <3 x float> undef
 
 define fastcc void @main() {
 entry:
-  %0 = load <4 x float> addrspace(1)* getelementptr inbounds ([2 x <4 x float>] addrspace(1)* @color, i32 0, i32 1)
+  %gla_constGEP = getelementptr [2 x <4 x float>] addrspace(1)* @color, i32 0, i32 1
+  %0 = load <4 x float> addrspace(1)* %gla_constGEP
   %assignment_tmp1 = fadd <4 x float> %0, %0
-  %1 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> undef, i32 7, <4 x float> %assignment_tmp1, i32 0, <4 x float> %assignment_tmp1, i32 1, <4 x float> %assignment_tmp1, i32 2, float 0.000000e+00, i32 -1)
+  %aggregate = load <3 x float>* @gla_globalAgg
+  %1 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> %aggregate, i32 7, <4 x float> %assignment_tmp1, i32 0, <4 x float> %assignment_tmp1, i32 1, <4 x float> %assignment_tmp1, i32 2, float 0.000000e+00, i32 -1)
   %2 = load <3 x float> addrspace(1)* @inColor
   %3 = fadd <3 x float> %1, %2
   %4 = extractelement <4 x float> %assignment_tmp1, i32 3
-  %5 = load float addrspace(1)* getelementptr inbounds ([13 x float] addrspace(1)* @alpha, i32 0, i32 12)
+  %gla_constGEP6 = getelementptr [13 x float] addrspace(1)* @alpha, i32 0, i32 12
+  %5 = load float addrspace(1)* %gla_constGEP6
   %6 = fadd float %4, %5
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> %assignment_tmp1, i32 15, <3 x float> %3, i32 0, <3 x float> %3, i32 1, <3 x float> %3, i32 2, float %6, i32 -1)
   br label %stage-epilogue
@@ -90,8 +94,6 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float>, i32, <3 x float>, i32, <3 x float>, i32, <3 x float>, i32, float, i32) nounwind readnone
 
 declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float>, i32, <4 x float>, i32, <4 x float>, i32, <4 x float>, i32, float, i32) nounwind readnone
-
-***Unsupported functionality: Basic Type in Bottom IR
 compiling uniformArray.frag...
 uniform sampler2D texSampler2D ; 
 uniform vec3 inColor ; 
@@ -125,3 +127,23 @@ vec4 texColor = color [ 1 ] + color [ 1 ] ; texColor . xyz += inColor ; texColor
 
 
 )
+// LunarGOO output
+#version 130
+uniform vec4[2] color;
+uniform vec3 inColor;
+uniform float[13] alpha;
+vec3 gla_globalAgg;
+
+void main()
+{
+    vec4 temp21 = color[1];
+    vec4 assignment_tmp1 = temp21 + temp21;
+    vec3 temp23 = gla_globalAgg;
+    temp23.xyz = assignment_tmp1.xyz;
+    vec3 temp24 = temp23 + inColor;
+    float temp25 = alpha[12];
+    float temp26 = assignment_tmp1.w + temp25;
+    vec4 temp27 = vec4(temp24.x, temp24.y, temp24.z, temp26);
+    gl_FragColor = temp27;
+    
+}

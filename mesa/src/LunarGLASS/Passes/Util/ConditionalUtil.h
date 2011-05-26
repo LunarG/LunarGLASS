@@ -162,12 +162,24 @@ namespace gla_llvm {
         // it. Returns whether anything happened.
         bool simplifyInsts()
         {
-            bool changed = false;
-            for (SmallVectorImpl<BasicBlock*>::iterator i = leftChildren.begin(), e = leftChildren.end(); i != e; ++i)
-                changed |= SimplifyInstructionsInBlock(*i);
+            if (! entry || ! entry->getParent()) {
+                return false;
+            }
 
-            for (SmallVectorImpl<BasicBlock*>::iterator i = rightChildren.begin(), e = rightChildren.end(); i != e; ++i)
-                changed |= SimplifyInstructionsInBlock(*i);
+            bool changed = false;
+            // TODO: remove the below checks after conditionals properly clean up after themselves
+            for (SmallVectorImpl<BasicBlock*>::iterator i = leftChildren.begin(), e = leftChildren.end(); i != e; ++i) {
+                if ((*i)->getParent() == entry->getParent()) {
+                    changed |= SimplifyInstructionsInBlock(*i);
+                }
+            }
+
+            for (SmallVectorImpl<BasicBlock*>::iterator i = rightChildren.begin(), e = rightChildren.end(); i != e; ++i) {
+                if ((*i)->getParent() == entry->getParent()) {
+                    changed |= SimplifyInstructionsInBlock(*i);
+                }
+            }
+
 
             return changed;
         }

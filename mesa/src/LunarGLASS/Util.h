@@ -69,15 +69,29 @@ namespace gla {
     // Whether the argument is undefined or defined (an undef in llvm)
     inline bool IsUndef(const llvm::Value* val) { return llvm::isa<llvm::UndefValue>(val); }
     inline bool IsDefined(const llvm::Value* val) { return !IsUndef(val); }
+    bool AreAllDefined(const llvm::Value* val);
+
 
     // true if a scalar Boolean or vector of Boolean
     bool IsBoolean(const llvm::Type*);
 
-    inline bool IsScalar(const llvm::Type* type) { return llvm::Type::VectorTyID != type->getTypeID(); }
+    inline bool IsAggregate(const llvm::Type* type)
+    {
+        return (llvm::Type::VectorTyID == type->getTypeID() ||
+                llvm::Type::ArrayTyID == type->getTypeID() ||
+                llvm::Type::StructTyID == type->getTypeID() ); 
+    }
+
+    inline bool IsAggregate(const llvm::Value* value) { return IsAggregate(value->getType()); }
+
+    inline bool IsScalar(const llvm::Type* type) { return ! IsAggregate(type); }
+
     inline bool IsScalar(const llvm::Value* value) { return IsScalar(value->getType()); }
 
     inline bool IsVector(const llvm::Type* type) { return type->getTypeID() == llvm::Type::VectorTyID; }
     inline bool IsVector(const llvm::Value* value) { return IsVector(value->getType()); }
+
+
 
     // true if all bits in the argument are set
     bool HasAllSet(const llvm::Value*);

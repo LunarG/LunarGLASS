@@ -129,11 +129,9 @@ namespace gla {
 
 class gla::GlslTarget : public gla::BackEndTranslator {
 public:
-    GlslTarget()
+    GlslTarget() : appendInitializers(false), indentLevel(0), lastVariable(20), 
+                   obfuscate(Options.obfuscate)
     {
-        indentLevel = 0;
-        lastVariable = 20;
-        obfuscate = Options.obfuscate;
         if (Options.backendVersion == DefaultBackendVersion)
             version = 130;
         globalDeclarations << "#version " << version << std::endl;
@@ -141,6 +139,21 @@ public:
 
     ~GlslTarget()
     {
+    }
+
+    void addStructType(const std::string name, const llvm::Type* structType)
+    {
+        structNameMap[structType] = name;
+        globalDeclarations << "struct " << name << " {" << std::endl;
+
+        for (int index = 0; index < structType->getNumContainedTypes(); ++index) {
+            globalDeclarations << "    ";
+            emitGlaType(globalDeclarations, structType->getContainedType(index), -1);
+            globalDeclarations << " " << getGlaStructField(structType, index);
+            globalDeclarations << ";" << std::endl;
+        }
+
+        globalDeclarations << "};" << std::endl << std::endl;
     }
 
     void addGlobal(const llvm::GlobalVariable* global)
@@ -151,7 +164,13 @@ public:
         else
             type = global->getType();
 
+        addNewVariable(global, global->getNameStr());
         declareVariable(type, global->getNameStr(), mapGlaAddressSpace(global));
+
+        if (global->hasInitializer()) {
+            llvm::Constant* constant = global->getInitializer();
+            emitInitializeAggregate(globalInitializers, global->getNameStr(), constant);
+        }
     }
 
     void startFunctionDeclaration(const llvm::Type* type, const std::string& name)
@@ -159,6 +178,9 @@ public:
         newLine();
         emitGlaType(shader, type->getContainedType(0));
         shader << " " << name << "(";
+
+        if (name == std::string("main"))
+            appendInitializers = true;
     }
 
     virtual void addArgument(const llvm::Value* value, bool last)
@@ -177,6 +199,11 @@ public:
     {
         newLine();
         newScope();
+
+        if (appendInitializers && globalInitializers.str().length() > 0) {
+            shader << globalInitializers.str();
+            newLine();
+        }
     }
 
     void endFunctionBody()
@@ -407,7 +434,7 @@ protected:
 
         // Check for an undef before a constant (since Undef is a
         // subclass of Constant)
-        if (IsUndef(value)) {
+        if (!AreAllDefined(value)) {
             return EVQUndef;
         }
 
@@ -599,8 +626,13 @@ protected:
 
             // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
             for (int c = 0; c < varString->length(); ++c) {
-                if ((*varString)[c] == '.' || (*varString)[c] == '-'  )
+                if ((*varString)[c] == '.' || (*varString)[c] == '-')
                     (*varString)[c] = '_';
+            }
+
+            // Variables starting with gl_ are illegal in GLSL
+            if (varString->substr(0,3) == std::string("gl_")) {
+                varString->insert(0, "gla_copyout_");
             }
         }
     }
@@ -611,7 +643,7 @@ protected:
             return;
 
         // If it has an initializer (is a constant and not an undef)
-        if (constant && IsDefined(constant)) {
+        if (constant && AreAllDefined(constant)) {
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
             emitGlaType(globalDeclarations, type);
@@ -626,6 +658,10 @@ protected:
 
             case llvm::Type::VectorTyID:
                 emitVectorConstant(globalDeclarations, constant);
+                break;
+            
+            case llvm::Type::ArrayTyID:
+                emitArrayConstant(type, globalDeclarations, constant);
                 break;
 
             default:
@@ -658,8 +694,11 @@ protected:
             shader << " ";
             break;
         case EVQUndef:
-            emitGlaType(globalDeclarations, type);
-            globalDeclarations << " " << varString << ";" << std::endl;
+            newLine();
+            emitGlaType(shader, type);
+            shader << " " << varString;
+            shader << ";";
+            emitInitializeAggregate(shader, varString, constant);
             break;
         default:
             assert(! "unknown VariableQualifier");
@@ -687,6 +726,16 @@ protected:
                 out << GetComponentCount(type);
             else
                 out << count;
+        } else if (type->getTypeID() == llvm::Type::StructTyID) {
+            const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
+            out << structNameMap[structType];
+        } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
+            const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
+            emitGlaType(out, arrayType->getContainedType(0));
+            out << "[" << arrayType->getNumElements() << "]";
+        //} else if (type->getTypeID() == llvm::Type::PointerTyID) {
+        //    const llvm::PointerType* pointerType = llvm::dyn_cast<const llvm::PointerType>(type);
+        //    emitGlaType(out, pointerType->getContainedType(0));
         } else {
             // just output a scalar
             if (type == type->getFloatTy(type->getContext()))
@@ -707,15 +756,47 @@ protected:
         if (valueMap[value] == 0) {
             std::string* newVariable = new std::string;
             getNewVariable(value, newVariable);
-            declareVariable(value->getType(), *newVariable, mapGlaAddressSpace(value), llvm::dyn_cast<llvm::Constant>(value));
+            if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
+                declareVariable(pointerType->getContainedType(0), *newVariable, gla::EVQTemporary);
+            } else {
+                declareVariable(value->getType(), *newVariable, mapGlaAddressSpace(value), llvm::dyn_cast<llvm::Constant>(value));
+            }
             valueMap[value] = newVariable;
         }
     }
 
     void emitGlaValue(const llvm::Value* value)
     {
+        assert(! llvm::isa<llvm::ConstantExpr>(value));
+        
         mapGlaValue(value);
+
         shader << valueMap[value]->c_str();
+    }
+
+
+    void emitGlaStructName(std::ostringstream& out, const llvm::Type* structType)
+    {
+        std::string name = structNameMap[structType];
+        assert(name.c_str());
+        out << name;
+    }
+
+    std::string getGlaStructField(const llvm::Type* structType, int index)
+    {
+        std::string name;
+        const size_t bufSize = 10;
+        char buf[bufSize];
+        name.append("member");
+        snprintf(buf, bufSize, "%d", index);
+        name.append(buf);
+        return name;
+    }
+
+    std::string getGlaValue(const llvm::Value* value)
+    {
+        mapGlaValue(value);
+        return valueMap[value]->c_str();
     }
 
     void emitScalarConstant(std::ostringstream& out, const llvm::Constant* constant)
@@ -789,6 +870,77 @@ protected:
         UnsupportedFunctionality("Vector Constant");
     }
 
+    void emitArrayConstant(const llvm::Type* type, std::ostringstream& out, const llvm::Constant* constant)
+    {
+        assert(constant);
+        assert(AreAllDefined(constant));
+        const llvm::ConstantArray* constArray = llvm::dyn_cast<llvm::ConstantArray>(constant);
+        if (constArray) {
+            emitGlaType(out, constArray->getType());
+            out << "(";
+
+            for (int op = 0; op < constArray->getNumOperands(); ++op) {
+                if (op > 0)
+                    out << ", ";
+
+                // For now, only handle constant arrays of scalars.  If struct or vector comes through,
+                // UnsupportedFunctionality will trigger in emitScalarConstant
+                emitScalarConstant(out, llvm::dyn_cast<const llvm::Constant>(constArray->getOperand(op)));
+            }
+
+            out << ")";
+            return;
+        }
+
+        const llvm::ConstantAggregateZero* aggregate = llvm::dyn_cast<llvm::ConstantAggregateZero>(constant);
+        const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
+        if (aggregate) {
+            emitGlaType(out, constant->getType());
+            out << "(";
+            
+            for (int op = 0; op < arrayType->getNumElements(); ++op) {
+                if (op > 0)
+                    out << ", ";
+                out << "0";
+            }
+
+            out << ")";
+            return;
+        }
+
+        UnsupportedFunctionality("Array Constant");
+    }
+
+    void emitInitializeAggregate(std::ostringstream& out, std::string varString, const llvm::Constant* constant)
+    {
+        if (constant && IsDefined(constant) && IsAggregate(constant) && !AreAllDefined(constant)) {
+            // For a vector or array with undefined elements, propagate the defined elements
+            if (const llvm::ConstantVector* constVec = llvm::dyn_cast<llvm::ConstantVector>(constant)) {
+                for (int op = 0; op < constVec->getNumOperands(); ++op) {
+                    if (IsDefined(constVec->getOperand(op))) {
+                        out << std::endl << "    " << varString;
+                        out << "." << mapComponentToSwizzleChar(op) << " = ";
+                        out << getGlaValue(constVec->getOperand(op));
+                        out << ";";
+                    }
+                }
+            } else if (const llvm::ConstantArray* constArray = llvm::dyn_cast<llvm::ConstantArray>(constant)) {
+                for (int op = 0; op < constArray->getNumOperands(); ++op) {
+                    if (IsDefined(constArray->getOperand(op))) {
+                        out << std::endl << "    " << varString;
+                        out << "[" << op << "] = ";
+                        out << getGlaValue(constArray->getOperand(op));
+                        out << ";";
+                    }
+                }
+            } else {
+                gla::UnsupportedFunctionality("Partially defined aggregate type");
+            }
+        } else {
+            // This case is always handled by constant propagation
+        }
+    }
+
     bool addNewVariable(const llvm::Value* value, std::string name)
     {
         if (valueMap[value] == 0) {
@@ -804,8 +956,11 @@ protected:
         }
     }
 
-    void emitGlaSwizzle(int glaSwizzle, int width)
+    void emitGlaSwizzle(int glaSwizzle, int width, llvm::Value* source = 0)
     {
+        if (source && gla::IsScalar(source))
+            return;
+
         shader << ".";
         // Pull each two bit channel out of the integer
         for(int i = 0; i < width; i++)
@@ -876,7 +1031,7 @@ protected:
         llvm::Value* source = getCommonSourceMultiInsert(inst);
         if (source) {
             emitGlaValue(source);
-
+            
             // Build up the rhs mask
             int singleSourceMask = 0;
             for (int i = 0, pos = 0; i < 4; ++i) {
@@ -888,7 +1043,7 @@ protected:
                 }
             }
             assert (singleSourceMask <= 0xFF);
-            emitGlaSwizzle(singleSourceMask, argCount);
+            emitGlaSwizzle(singleSourceMask, argCount, source);
         } else {
             emitGlaType(shader, inst->getType(), argCount);
             shader << "(";
@@ -961,10 +1116,87 @@ protected:
         str.append(".").append(mapComponentToSwizzleChar(GetConstantInt(llvmInstruction->getOperand(1))));
     }
 
+    // Traverse the indices used in either GEP or Insert/ExtractValue, and return a string representing
+    // it, not including the base.
+    std::string traverseGEPChain(const llvm::Value* value)
+    {
+        std::string gepChain;
+
+        if (const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(value)) {
+
+            // Start at index 2 since indices 0 and 1 give you the base and are handled before traverseGEP
+            const llvm::Type* gepType = gepInst->getPointerOperandType()->getContainedType(0);
+            for (int index = 2; index < gepInst->getNumOperands(); ++index) {
+                int gepIndex = 0;
+                if (llvm::isa<const llvm::ConstantInt>(gepInst->getOperand(index))) {
+                    gepIndex = GetConstantInt(gepInst->getOperand(index));
+                    gepType = getGEPDeref(gepType, gepIndex, &gepChain);
+                } else  {
+                    gepType = getGEPDeref(gepType, -1, &gepChain, gepInst->getOperand(index));
+                }
+            }
+        
+        } else if (const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(value)) {
+
+            const llvm::Type* gepType = insertValueInst->getAggregateOperand()->getType();
+            for (llvm::InsertValueInst::idx_iterator iter = insertValueInst->idx_begin(), end = insertValueInst->idx_end();  iter != end; ++iter)
+                gepType = getGEPDeref(gepType, *iter, &gepChain);
+
+        } else if (const llvm::ExtractValueInst* extractValueInst = llvm::dyn_cast<const llvm::ExtractValueInst>(value)) {
+
+            const llvm::Type* gepType = extractValueInst->getAggregateOperand()->getType();
+            for (llvm::ExtractValueInst::idx_iterator iter = extractValueInst->idx_begin(), end = extractValueInst->idx_end();  iter != end; ++iter)
+                gepType = getGEPDeref(gepType, *iter, &gepChain);
+
+        } else {
+            assert(0 && "non-GEP in traverseGEP");
+        }
+
+        return gepChain;
+    }
+
+    // Traverse one step of a dereference chain and append to a string
+    // For constant indices, pass it in index.  Otherwise, provide it through gepOp (index will not be used)
+    const llvm::Type* getGEPDeref(const llvm::Type* type, unsigned index, std::string* chain, const llvm::Value* gepOp = 0)
+    {
+        switch (type->getTypeID()) {
+        case llvm::Type::ArrayTyID:
+            {
+                chain->append("[");
+                if (gepOp) {
+                    chain->append(getGlaValue(gepOp));
+                } else {
+                    const size_t bufSize = 10;
+                    char buf[bufSize];
+                    snprintf(buf, bufSize, "%d", index);
+                    chain->append(buf);
+                }
+                chain->append("]");
+
+                return type->getContainedType(0);
+            }
+        case llvm::Type::StructTyID:
+            assert(! gepOp);
+            chain->append(".");
+            chain->append(getGlaStructField(type, index));
+
+            return type->getContainedType(index);
+        default:
+            assert(0 && "Dereferencing non array/struct");
+        }
+
+        return 0;
+    }
+
     // mapping from LLVM values to Glsl variables
     std::map<const llvm::Value*, std::string*> valueMap;
 
+    // map to track structure names tracked in the module
+    std::map<const llvm::Type*, std::string> structNameMap;
+
     std::ostringstream globalDeclarations;
+    std::ostringstream globalInitializers;
+    bool appendInitializers;
     std::ostringstream shader;
     int indentLevel;
     int lastVariable;
@@ -1009,8 +1241,20 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
     case llvm::Instruction::Shl:            s = "<<"; break;
     case llvm::Instruction::LShr:           s = ">>"; break;
     case llvm::Instruction::AShr:           s = ">>"; break;
-    case llvm::Instruction::And:            s = "&";  break;
-    case llvm::Instruction::Or:             s = "|";  break;
+    case llvm::Instruction::And:
+        if (gla::IsBoolean(llvmInstruction->getOperand(0)->getType())) {
+            s = "&&";
+        } else {
+            s = "&";
+        }
+        break;
+    case llvm::Instruction::Or:
+        if (gla::IsBoolean(llvmInstruction->getOperand(0)->getType())) {
+            s = "||";
+        } else {
+            s = "|";
+        }
+        break;
     case llvm::Instruction::Xor:            s = mapGlaXor(llvmInstruction, true, &unaryOperand); break;
     case llvm::Instruction::ICmp:
     case llvm::Instruction::FCmp:
@@ -1079,12 +1323,21 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
 }
 
 //
-// Add an LLVM instruction to the end of the mesa instructions.
+// Add an LLVM instruction to the end of the GLSL instructions.
 //
 void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlock)
 {
     std::string charOp;
     int unaryOperand = -1;
+
+    // TODO:  This loop will disappear when conditional loops in BottomToGLSL properly updates valueMap
+    for (llvm::Instruction::const_op_iterator i = llvmInstruction->op_begin(), e = llvmInstruction->op_end(); i != e; ++i) {
+        llvm::Instruction* inst = llvm::dyn_cast<llvm::Instruction>(*i);
+        if (inst) {
+            if (valueMap[*i] == 0)
+                add(inst, lastBlock);
+            }
+    }
 
     getOp(llvmInstruction, charOp, unaryOperand);
 
@@ -1204,7 +1457,24 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         return;
 
     case llvm::Instruction::Load:
-        addNewVariable(llvmInstruction, llvmInstruction->getOperand(0)->getNameStr());
+        {
+            assert(! llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)));
+
+            if (llvm::GetElementPtrInst* gep = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0))) {
+                // If we're loading from the result of a GEP, assign it to a new variable
+                newLine();
+                emitGlaValue(llvmInstruction);
+                shader << " = ";
+                emitGlaValue(llvmInstruction->getOperand(0));
+                shader << ";";
+            } else if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {
+                // We want phis to use the same variable name created during phi declaration
+                addNewVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
+                //valueMap[llvmInstruction] = valueMap[llvmInstruction->getOperand(0)];
+            } else {
+                addNewVariable(llvmInstruction, llvmInstruction->getOperand(0)->getNameStr());
+            }
+        }
         return;
 
     case llvm::Instruction::Alloca:
@@ -1259,12 +1529,11 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         shader << ";";
         return;
 
-    case llvm::Instruction::Select: {
+    case llvm::Instruction::Select: 
+    {
         const llvm::SelectInst* si = llvm::dyn_cast<const llvm::SelectInst>(llvmInstruction);
         assert(si);
-
         newLine();
-
         emitGlaValue(llvmInstruction);
         shader << " = ";
         emitGlaValue(si->getCondition());
@@ -1272,10 +1541,56 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         emitGlaValue(si->getTrueValue());
         shader << " : ";
         emitGlaValue(si->getFalseValue());
+        shader << ";";
+        return;
+    }
+    case llvm::Instruction::GetElementPtr:
+    {
+        // For GEP, which always returns a pointer, traverse the dereference chain and store it.
+        std::string* newVariable = new std::string(*valueMap[llvmInstruction->getOperand(0)]);
+        newVariable->append(traverseGEPChain(llvmInstruction));
+        addNewVariable(llvmInstruction, *newVariable);
 
         return;
     }
+    case llvm::Instruction::ExtractValue:
+    {
+        newLine();
+        emitGlaValue(llvmInstruction);
+        shader << " = ";
 
+        // emit base
+        const llvm::ExtractValueInst* extractValueInst = llvm::dyn_cast<const llvm::ExtractValueInst>(llvmInstruction);
+        emitGlaValue(extractValueInst->getAggregateOperand());
+
+        // emit chain
+        shader << traverseGEPChain(extractValueInst);
+        shader << ";";
+
+        return;
+    }
+    case llvm::Instruction::InsertValue:
+    {
+        newLine();
+          
+        //emit base
+        const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(llvmInstruction);
+        emitGlaValue(insertValueInst->getAggregateOperand());
+
+        // emit chain
+        shader << traverseGEPChain(insertValueInst);
+
+        shader << " = ";
+        emitGlaValue(insertValueInst->getInsertedValueOperand());
+        shader << ";";
+
+        // propagate aggregate name
+        llvm::Value* dest = llvmInstruction->getOperand(0);
+        //valueMap[llvmInstruction] = valueMap[dest];
+        addNewVariable(llvmInstruction, *valueMap[dest]);
+
+        return;
+    }
     default:
         UnsupportedFunctionality("Opcode in Bottom IR: ", llvmInstruction->getOpcode(), EATContinue);
     }

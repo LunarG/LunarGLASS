@@ -138,16 +138,20 @@ Bottom IR:
 
 @u = external addrspace(1) constant <4 x float>
 @p = external addrspace(1) constant i1
+@gla_globalAgg = internal global <4 x float> undef
+@gla_globalAgg1 = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
   %w1 = load <4 x float> addrspace(1)* @u
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x float> %w1, i32 10, float 0.000000e+00, i32 -1, <2 x float> %t, i32 1, float 0.000000e+00, i32 -1, <2 x float> %t, i32 0)
-  %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> undef, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, <4 x float> %w1, i32 0, <4 x float> %w1, i32 1)
+  %aggregate = load <4 x float>* @gla_globalAgg
+  %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> %aggregate, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, <4 x float> %w1, i32 0, <4 x float> %w1, i32 1)
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %w1, i32 7, float 0x3FFC9FBE80000000, i32 -1, float 0x3FFC9FBE80000000, i32 -1, float 0x3FFC9FBE80000000, i32 -1, float 0.000000e+00, i32 -1)
   %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v2f32.v2f32(<4 x float> %w1, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 0, <2 x float> %t, i32 0, <2 x float> %t, i32 1)
-  %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.f32.f32(<4 x float> undef, i32 3, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
+  %aggregate20 = load <4 x float>* @gla_globalAgg1
+  %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.f32.f32(<4 x float> %aggregate20, i32 3, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
   %5 = load i1 addrspace(1)* @p
   br i1 %5, label %then, label %else
 
