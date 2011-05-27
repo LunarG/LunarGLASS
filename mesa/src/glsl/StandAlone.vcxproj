@@ -44,7 +44,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../mesa;../mesa/program;../mapi;../../include;../talloc;../../include/c99;../LunarGLASS;../glsl;../../../LLVM/llvm-2.9/build/install/include;../mesa/main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../mesa;../mesa/program;../mapi;../../include;../talloc;../../include/c99;../LunarGLASS;../glsl;../../../LLVM/llvm-2.9/build/install/Debug/include;../mesa/main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -57,7 +57,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;LLVMInstCombine.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../../LLVM/llvm-2.9/build/install/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../LLVM/llvm-2.9/build/install/Debug/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -71,6 +71,9 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>../mesa;../mesa/program;../mapi;../../include;../talloc;../../include/c99;../LunarGLASS;../glsl;../../../LLVM/llvm-2.9/build/install/Release/include;../mesa/main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4624;4355;4291;4018;4800;4267;4996;4244;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -78,6 +81,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalLibraryDirectories>../../../LLVM/llvm-2.9/build/install/Release/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;LLVMInstCombine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
