@@ -213,7 +213,7 @@ ir_visitor_status
 
         if (isPipelineInput) {
             lastValue = createPipelineRead(var, 0);
-        } else if (GLSL_TYPE_ARRAY == baseType || GLSL_TYPE_STRUCT == baseType) {
+        } else if (GLSL_TYPE_ARRAY == baseType || GLSL_TYPE_STRUCT == baseType || lastValue.isMatrix()) {
             assert(gepIndexChainStack.top().size() >= 0);
             unsigned indices[maxGepIndices];
             int indexCount = 0;
@@ -227,12 +227,12 @@ ir_visitor_status
 
                 std::reverse(gepIndexChainStack.top().begin(), gepIndexChainStack.top().end());
 
+
                 // Use the indices we've built up to finally dereference the base type
-                lastValue = llvmBuilder.CreateGEP(lastValue,
-                                              gepIndexChainStack.top().begin(),
-                                              gepIndexChainStack.top().end());
+                lastValue = glaBuilder->createGEP(lastValue, gepIndexChainStack.top());
 
                 lastValue = glaBuilder->createLoad(lastValue);
+
                 break;
 
             case ir_var_auto:
@@ -705,7 +705,8 @@ ir_visitor_status
 ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_assignment *assignment)
 {
-    llvm::Value* lValueAggregate = NULL;
+    gla::Builder::SuperValue lValueAggregate;
+
     unsigned indices[maxGepIndices];
     int indexCount = 0;
 
@@ -733,10 +734,10 @@ ir_visitor_status
         llvm::Type::TypeID sourceType = lastValue->getType()->getTypeID();
 
         // Load our target vector
-        if (lValueAggregate)
-            targetVector = llvmBuilder.CreateExtractValue(lValueAggregate, indices, indices + indexCount);
-        else
+        if (lValueAggregate.isClear())
             targetVector = glaBuilder->createLoad(lValue.base);
+        else
+            targetVector = llvmBuilder.CreateExtractValue(lValueAggregate, indices, indices + indexCount);
 
         // Check each channel of the writemask
         for(int i = 0; i < 4; ++i) {
@@ -760,8 +761,8 @@ ir_visitor_status
     }
 
     // If we loaded the whole l-value, then insert our r-value
-    if (lValueAggregate)
-        lastValue = llvmBuilder.CreateInsertValue(lValueAggregate, lastValue, indices, indices + indexCount);
+    if (! lValueAggregate.isClear())
+        lastValue = glaBuilder->createInsertValue(lValueAggregate, lastValue, indices, indexCount);
 
     // Store the last value into the l-value, using destination we tracked in base.
     lastValue = glaBuilder->createStore(lastValue, lValue.base);

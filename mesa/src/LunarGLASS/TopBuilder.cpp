@@ -208,19 +208,13 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
 
 Builder::SuperValue Builder::createStore(SuperValue rValue, SuperValue lValue)
 {
-    llvm::Value* llvmRValue;
-    llvm::Value* llvmLValue;
+    llvm::Value* llvmRValue = rValue;
+    llvm::Value* llvmLValue = lValue;
 
     if (lValue.isMatrix()) {
         assert(rValue.isMatrix());
         assert(lValue.getMatrix()->getNumColumns() == rValue.getMatrix()->getNumColumns() &&
                lValue.getMatrix()->getNumRows()    == rValue.getMatrix()->getNumRows());
-
-        llvmRValue = rValue.getMatrix()->getValue();
-        llvmLValue = lValue.getMatrix()->getValue();
-    } else {
-        llvmRValue = rValue;
-        llvmLValue = lValue;
     }
 
     // Retroactively change the name of the last-value temp to the name of the
@@ -241,6 +235,34 @@ Builder::SuperValue Builder::createLoad(SuperValue lValue)
         return gla::Builder::SuperValue(loadedMatrix);
     } else
         return builder.CreateLoad(lValue);
+}
+
+Builder::SuperValue Builder::createGEP(SuperValue gepValue, std::vector<llvm::Value*> gepIndexChain)
+{
+    if (gepValue.isMatrix()) {
+        llvm::Value* newValue = builder.CreateGEP(gepValue.getMatrix()->getValue(),
+                                gepIndexChain.begin(),
+                                gepIndexChain.end());
+
+        if (gepIndexChain.size() == 1) {
+            gla::Builder::Matrix* gepMatrix = new gla::Builder::Matrix(newValue);
+            return gla::Builder::SuperValue(gepMatrix);
+        } else {
+            return newValue;
+        }
+
+    } else
+         return builder.CreateGEP(gepValue, gepIndexChain.begin(), gepIndexChain.end());
+}
+
+Builder::SuperValue Builder::createInsertValue(SuperValue target, SuperValue source, unsigned* indices, int indexCount)
+{
+    if (target.isMatrix()) {
+        llvm::Value* newValue = builder.CreateInsertValue(target.getMatrix()->getValue(), source, indices, indices + indexCount);
+        gla::Builder::Matrix* insertValMatrix = new gla::Builder::Matrix(newValue);
+        return gla::Builder::SuperValue(insertValMatrix);
+    } else
+        return builder.CreateInsertValue(target, source, indices, indices + indexCount);
 }
 
 void Builder::copyOutPipeline()

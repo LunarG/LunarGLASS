@@ -1470,7 +1470,6 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             } else if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {
                 // We want phis to use the same variable name created during phi declaration
                 addNewVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
-                //valueMap[llvmInstruction] = valueMap[llvmInstruction->getOperand(0)];
             } else {
                 addNewVariable(llvmInstruction, llvmInstruction->getOperand(0)->getNameStr());
             }
@@ -1803,7 +1802,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fAsin:        callString = "asin";        callArgs = 1; break;
     case llvm::Intrinsic::gla_fAcos:        callString = "acos";        callArgs = 1; break;
     case llvm::Intrinsic::gla_fAtan:        callString = "atan";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fAtan2:       callString = "atan2";       callArgs = 2; break;
+    case llvm::Intrinsic::gla_fAtan2:       callString = "atan";        callArgs = 2; break;
     case llvm::Intrinsic::gla_fSinh:        callString = "sinh";        callArgs = 1; break;
     case llvm::Intrinsic::gla_fCosh:        callString = "cosh";        callArgs = 1; break;
     case llvm::Intrinsic::gla_fTanh:        callString = "tanh";        callArgs = 1; break;

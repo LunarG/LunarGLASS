@@ -93,15 +93,13 @@ public:
         // implicitly make a Value out of a SuperValue
         operator llvm::Value*() const
         {
-            assert(type == ELlvm);
-            return value.llvm;
+            return getValue();
         }
 
         // make a Value when derefencing a SuperValue
         llvm::Value* operator->() const
         {
-            assert(type == ELlvm);
-            return value.llvm;
+            return getValue();
         }
 
         void clear()
@@ -116,8 +114,13 @@ public:
 
         llvm::Value* getValue() const
         {
-            assert(type == ELlvm);
-            return value.llvm;
+            switch (type) {
+            case ELlvm:   return value.llvm;
+            case EMatrix: return value.matrix->getValue();
+            default:
+                assert(0);
+                return value.llvm;
+            }
         }
 
         Matrix* getMatrix() const
@@ -186,6 +189,11 @@ public:
     // Load SuperValue from a SuperValue and return it
     SuperValue createLoad(SuperValue);
 
+    // Create a GEP to dereference structs, arrays, or matrices
+    SuperValue createGEP(SuperValue, std::vector<llvm::Value*>);
+
+    // Create a InsertValue to handle structs, arrays, or matrices
+    SuperValue createInsertValue(SuperValue, SuperValue, unsigned* indices, int indexCount);
 
     // Copy out to the pipeline the outputs we've been caching in variables
     void copyOutPipeline();
