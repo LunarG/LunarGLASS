@@ -57,6 +57,7 @@ Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
          --enable <optimization>    Enable the optimization (see below)\n\
 \n\
        GLSL-backed options:\n\
+         -i --iterate               Iterate LunarGLASS 1000 times\n\
          -f --obfuscate             Obfuscate the output\n\
          -n, --no-revision          Don't put the revision in the output\n\
 \n\
@@ -85,6 +86,7 @@ namespace gla {
 
     // Global Options
     OptionsType Options = { false   // Debug info
+                          , false   // Iterate
                           , false   // Obfuscate
                           , false   // No revision
                           , GLSL    // Backend
@@ -175,6 +177,8 @@ namespace gla {
                 Options.backend = GLSL;
             } else if (*i == "--tgsi") {
                 Options.backend = TGSI;
+            } else if (*i == "-i" || *i == "--iterate") {
+                Options.iterate = true;
             } else if (*i == "-f" || *i == "--obfuscate") {
                 Options.obfuscate = true;
             } else if (*i == "-n" || *i == "--no-revision") {

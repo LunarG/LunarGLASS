@@ -369,7 +369,6 @@ main(int argc, char **argv)
 
    // Insert the LunarGLASS path into this process...
    if (status == EXIT_SUCCESS) {
-      gla::Manager* glaManager = gla::getManager();
 
       assert(whole_program->NumShaders == 1);
       struct gl_shader *Shader;
@@ -380,14 +379,19 @@ main(int argc, char **argv)
 
       if (gla::Options.debug && ! gla::Options.bottomIROnly)
          _mesa_print_ir(Shader->ir, 0);
+      
+      int compileCount = gla::Options.iterate ? 1000 : 1;
+      for (int i = 0; i < compileCount; ++i) {
+          gla::Manager* glaManager = gla::getManager();
 
-      TranslateGlslToTop(Shader, glaManager);
+          TranslateGlslToTop(Shader, glaManager);
 
-      glaManager->translateTopToBottom();
+          glaManager->translateTopToBottom();
 
-      glaManager->translateBottomToTarget();
+          glaManager->translateBottomToTarget();
 
-      delete glaManager;
+          delete glaManager;
+      }
    }
 
 

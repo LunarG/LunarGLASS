@@ -55,6 +55,7 @@ namespace gla {
     // Options struct
     struct OptionsType {
         bool debug;
+        bool iterate;
         bool obfuscate;
         bool noRevision;
         BackendOption backend;
