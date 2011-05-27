@@ -10,7 +10,7 @@ Usage: ./run [options]
          -h --help                 Print out this Usage info
          -l --linux                Run for linux
          -w --windows              (default) Run for windows
-         -s --suppress-tgsi        Suppress the running of tgsi tests
+         -s --enable-tgsi          Enable the running of tgsi tests
          -t --testfile <testfile>  Run on a single test file
          -r --release              Run with release build
 "
@@ -39,6 +39,8 @@ TESTS=(test.frag               \
 	   localAggregates.frag    \
        texture.frag            \
        types.frag              \
+       ps_shader.frag          \
+       sw_shader.frag          \
       )
 
 # $1 is the test
@@ -118,9 +120,9 @@ function runTests {
         #     || (echo "[FAIL]" ; cat $t.diff)
 
         # echo
-        rm $t.stdout.obfuscated.frag
-        rm $t.stdout.frag
-        rm $t.stdout $t.errout
+        # rm $t.stdout.obfuscated.frag
+        # rm $t.stdout.frag
+        # rm $t.stdout $t.errout
         # rm $t.diff
     done
 }
@@ -136,7 +138,7 @@ OPTIONS=(-d -n)
 TGSI_OP="--tgsi"
 GLSL_OP="--glsl"
 OBFUSCATE_OP="-f"
-DO_TGSI="true"
+DO_TGSI=""
 
 # Command-line argument Handling
 
@@ -150,8 +152,8 @@ while [ $# -gt 0 ]; do
             showHelp
             exit 0
             ;;
-        -s|--suppress-tgsi)
-            DO_TGSI=""
+        -s|--enable-tgsi)
+            DO_TGSI="true"
             ;;
         -t|--testfile)
             TESTS=("$2")
@@ -174,5 +176,3 @@ while [ $# -gt 0 ]; do
 done
 
 runTests
-
-
