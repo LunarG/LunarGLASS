@@ -158,6 +158,18 @@ namespace gla_llvm {
         return &*bb->getParent()->begin() != bb && pred_begin(bb) == pred_end(bb);
     }
 
+    // Drop all references, clear it's instruction list, and remove from the 
+    // Parent
+    inline void UnlinkBB(BasicBlock* bb)
+    {
+        bb->dropAllReferences();
+        bb->getInstList().clear();
+        // TODO: change to eraseFromParent whem structures are capable of 
+        // updating themselves
+        bb->removeFromParent();
+        assert(bb->empty());
+    }
+
     // Remove bb from each successor's predecessor list, from it's function, and
     // drop all references. Clears its instruction list.
     inline void EraseBB(BasicBlock* bb)
@@ -165,9 +177,7 @@ namespace gla_llvm {
         for (succ_iterator i = succ_begin(bb), e = succ_end(bb); i != e; ++i)
             (*i)->removePredecessor(bb);
 
-        bb->dropAllReferences();
-        bb->getInstList().clear();
-        bb->eraseFromParent();
+        UnlinkBB(bb);
     }
 
     // Prune bb from its function, and from the dominator tree. This will
@@ -230,9 +240,7 @@ namespace gla_llvm {
                     toRemove.push_back(*sI);
             }
 
-            next->dropAllReferences();
-            next->getInstList().clear();
-            next->eraseFromParent();
+            UnlinkBB(bb);
         }
 
         return true;
