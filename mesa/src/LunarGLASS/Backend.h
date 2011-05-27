@@ -103,7 +103,7 @@ namespace gla {
         virtual void endFunctionDeclaration() = 0;
         virtual void startFunctionBody() = 0;
         virtual void endFunctionBody() = 0;
-        virtual void add(const llvm::Instruction*, bool lastBlock) = 0;
+        virtual void add(const llvm::Instruction*, bool lastBlock, bool referencedOutsideScope=false) = 0;
 
         //
         // The following set of functions is motivated by need to convert to

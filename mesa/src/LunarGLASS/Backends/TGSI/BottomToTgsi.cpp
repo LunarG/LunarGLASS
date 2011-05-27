@@ -129,7 +129,7 @@ public:
     void startFunctionBody() { }
     void endFunctionBody() { }
 
-    void add(const llvm::Instruction* llvmInstruction, bool lastBlock);
+    void add(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope=false);
 
     //
     // Motivated by need to convert to structured flow control and
@@ -458,7 +458,7 @@ void gla::ReleaseTgsiTranslator(gla::BackEndTranslator* target)
 //
 // Add an LLVM instruction to the end of the mesa instructions.
 //
-void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlock)
+void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope)
 {
     // create a map for the typcial case, overridden as necessary
     mesaOp = OPCODE_NOP;

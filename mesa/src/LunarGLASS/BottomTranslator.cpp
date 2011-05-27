@@ -196,13 +196,23 @@ namespace {
 
         // Send off all the non-terminating instructions in a basic block to the
         // backend
-        void handleNonTerminatingInstructions(const BasicBlock*);
+        void handleNonTerminatingInstructions(const BasicBlock*, bool forceGlobals=false);
 
-        void handleInstructions(const BasicBlock* bb);
+        void handleInstructions(const BasicBlock* bb, bool forceGlobals=false);
+
+        // Call backEndTranslator's add.
+        void addInstruction(const Instruction* inst, bool forceGlobal=false)
+        {
+            // TODO: update the below to work with nested loops. Basically, it
+            // will have to find the loop on the stack that corresponds to inst,
+            // and query it rather than the top one.
+            bool externallyReferenced = forceGlobal || (! loops.empty() && loops.top()->isExternallyReferenced(inst));
+            backEndTranslator->add(inst, lastBlock, externallyReferenced);
+        }
 
         // Call add (except for phis when applicable) on all the instructions
         // provided in insts.
-        void addInstructions(SmallVectorImpl<const Instruction*>& insts);
+        void addInstructions(SmallVectorImpl<const Instruction*>& insts, bool forceGlobals=false);
 
         void handleSimpleInductiveInstructions(const BasicBlock* bb);
 
@@ -341,7 +351,7 @@ void BottomTranslator::addPhiCopy(const PHINode* phi, const BasicBlock* curBB)
     }
 }
 
-void BottomTranslator::handleInstructions(const BasicBlock* bb)
+void BottomTranslator::handleInstructions(const BasicBlock* bb, bool forceGlobals)
 {
     const LoopWrapper* loop = NULL;
 
@@ -360,25 +370,25 @@ void BottomTranslator::handleInstructions(const BasicBlock* bb)
         handleSimpleConditionalInstructions(bb);
     else
         // Normal block
-        handleNonTerminatingInstructions(bb);
+        handleNonTerminatingInstructions(bb, forceGlobals);
 }
 
-void BottomTranslator::handleNonTerminatingInstructions(const BasicBlock* bb)
+void BottomTranslator::handleNonTerminatingInstructions(const BasicBlock* bb, bool forceGlobals)
 {
     // Add the non-terminating instructions
     for (BasicBlock::const_iterator i = bb->begin(), e = bb->getTerminator(); i != e; ++i) {
         const Instruction* inst = i;
 
         if (! (backEnd->getRemovePhiFunctions() && inst->getOpcode() == Instruction::PHI))
-            backEndTranslator->add(inst, lastBlock);
+            addInstruction(i, forceGlobals);
     }
 }
 
-void BottomTranslator::addInstructions(SmallVectorImpl<const Instruction*>& insts)
+void BottomTranslator::addInstructions(SmallVectorImpl<const Instruction*>& insts, bool forceGlobals)
 {
     for (SmallVectorImpl<const Instruction*>::iterator i = insts.begin(), e = insts.end(); i != e; ++i)
         if (! (backEnd->getRemovePhiFunctions() && (*i)->getOpcode() == Instruction::PHI))
-            backEndTranslator->add(*i, lastBlock);
+            addInstruction(*i, forceGlobals);
 }
 
 void BottomTranslator::newLoop(const BasicBlock* bb)
@@ -471,6 +481,12 @@ void BottomTranslator::handleLoopBlock(const BasicBlock* bb, bool instructionsHa
         handleBlock(GetSuccessor(0, bb));
     }
 
+    // If we're simple-latching, schedule the latch (if it's not been seen
+    // before)
+    if (simpleLatch) {
+        handleBlock(latch);
+    }
+
     // By this point, we're a header and all of our blocks in our loop should of
     // been handled.
     assert(IsSubset(loop->getBlocks(), handledBlocks));
@@ -529,7 +545,7 @@ void BottomTranslator::forceOutputLatch()
 
     assert(IsUnconditional(latch));
 
-    handleInstructions(latch);
+    handleInstructions(latch, true);
 
     addPhiCopies(latch);
 }
@@ -671,6 +687,9 @@ void BottomTranslator::handleBlock(const BasicBlock* bb)
 
     // If the block exhibits loop-relevant control flow, handle it specially
     LoopWrapper* loop = idStructs->getLoopFor(bb);
+    if (! loop && ! loops.empty())
+        loop = loops.top();
+
     if (loop && loop->isLoopRelevant(bb) && flowControlMode == gla::EFcmStructuredOpCodes) {
         if (loop->isHeader(bb))
             newLoop(bb);
@@ -772,6 +791,8 @@ void BottomTranslator::setUpLoopExit(const Value* condition, const BasicBlock* b
             gla::UnsupportedFunctionality("complex loop exits (shared exit block)");
         }
 
+        // Handle our intermediary exit graph, unless we go directly to
+        // exitMerge.
         if (exit != exitMerge) {
             handleBlock(exit);
         }

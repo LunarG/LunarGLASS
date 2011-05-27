@@ -109,6 +109,32 @@ namespace gla_llvm {
         bool isHeader(const BasicBlock* bb)  const { return header == bb; }
         bool isExiting(const BasicBlock* bb) const { return isLoopExiting(bb); }
 
+        // Whether the given instruction is inside the loop and referenced
+        // outside the loop. Instructions not in the loop are trivially
+        // externally referenced.
+        // Linear in the number of uses
+        bool isExternallyReferenced(const Instruction* inst) const
+        {
+            if (! contains(inst))
+                return false;
+
+            if (inst->use_empty())
+                return false;
+
+            for (Value::const_use_iterator i = inst->use_begin(), e = inst->use_end(); i != e; ++i) {
+                const Instruction* use = dyn_cast<const Instruction>(*i);
+                assert(use);
+                // TODO: in some cases, it can appear in PHINodes where the phi
+                // copies will be added prior to exiting the loop. Figure out
+                // logic for this
+                if (! contains(use))
+                    return true;
+            }
+
+            return false;
+        }
+
+
         // A loop-relevant block is one whose control-flow (e.g. successors)
         // makes this loop specially recognizable. This will be true for
         // headers, latches, and exiting blocks.
@@ -121,6 +147,7 @@ namespace gla_llvm {
         unsigned getLoopDepth()                  const { return loopDepth; }
         PHINode* getCanonicalInductionVariable() const { return inductiveVar; }
         bool     contains(const BasicBlock* bb)  const { return blocks.count(bb); }
+        bool     contains(const Instruction* i)  const { return blocks.count(i->getParent()); }
         Value*   getTripCount()                  const { return tripCount; }
 
         const SmallPtrSet<const BasicBlock*,16>& getBlocks() const { return blocks; }

@@ -211,7 +211,7 @@ public:
         leaveScope();
     }
 
-    void add(const llvm::Instruction* llvmInstruction, bool lastBlock);
+    void add(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope=false);
 
     void declarePhiCopy(const llvm::Value* dst)
     {
@@ -751,15 +751,27 @@ protected:
         }
     }
 
-    void mapGlaValue(const llvm::Value* value)
+    // If valueMap has no entry for value, generate a name and declaration, and
+    // store it in valueMap. If forceGlobal is true, then it will make the
+    // declaration occur as a global.
+    void mapGlaValue(const llvm::Value* value, bool forceGlobal=false)
     {
         if (valueMap[value] == 0) {
+            // Figure out where our declaration should go
+            EVariableQualifier evq;
+            if (forceGlobal)
+                evq = gla::EVQGlobal;
+            else if (llvm::isa<llvm::PointerType>(value->getType()))
+                evq = gla::EVQTemporary;
+            else
+                evq = mapGlaAddressSpace(value);
+
             std::string* newVariable = new std::string;
             getNewVariable(value, newVariable);
             if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
-                declareVariable(pointerType->getContainedType(0), *newVariable, gla::EVQTemporary);
+                declareVariable(pointerType->getContainedType(0), *newVariable, evq);
             } else {
-                declareVariable(value->getType(), *newVariable, mapGlaAddressSpace(value), llvm::dyn_cast<llvm::Constant>(value));
+                declareVariable(value->getType(), *newVariable, evq, llvm::dyn_cast<llvm::Constant>(value));
             }
             valueMap[value] = newVariable;
         }
@@ -1325,7 +1337,7 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
 //
 // Add an LLVM instruction to the end of the GLSL instructions.
 //
-void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlock)
+void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope)
 {
     std::string charOp;
     int unaryOperand = -1;
@@ -1337,6 +1349,12 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             if (valueMap[*i] == 0)
                 add(inst, lastBlock);
             }
+    }
+
+    // If the instruction is referenced outside of the current scope
+    // (e.g. inside a loop body), then add a (global) declaration for it.
+    if (referencedOutsideScope){
+        mapGlaValue(llvmInstruction, referencedOutsideScope);
     }
 
     getOp(llvmInstruction, charOp, unaryOperand);
@@ -1502,7 +1520,13 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             std::string swizzled;
             getExtractElementStr(llvmInstruction, swizzled);
 
-            addNewVariable(llvmInstruction, swizzled.c_str());
+            // If we're globally referenced, then we should have a name for
+            // ourselves inside valueMap. In that case, update it to be our
+            // propagated swizzle name
+            if (referencedOutsideScope)
+                valueMap[llvmInstruction] = new std::string(swizzled);
+            else
+                addNewVariable(llvmInstruction, swizzled.c_str());
         }
         return;
 

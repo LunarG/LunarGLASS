@@ -112,6 +112,14 @@ void main()
                 0;              // do nothing
     }
 
+    // For (static) flow-control with latch merge
+    for (int i = 0; i < 120; ++i) {
+        if (color.z < 20.0)
+            color.x++;
+        else
+            color.y++;
+    }
+
     // For (static) latchy
     for (int i = 0; i < 42; ++i) {
         color.z += d3;
