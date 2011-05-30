@@ -11,8 +11,10 @@ Usage: ./run [options]
          -l --linux                Run for linux
          -w --windows              (default) Run for windows
          -s --enable-tgsi          Enable the running of tgsi tests
+         -o --enable-obfuscate     Do obfuscation tests
          -t --testfile <testfile>  Run on a single test file
          -r --release              Run with release build
+         -v --verbose              Prints more info
 "
 
 # Add more tests here as they are created
@@ -46,85 +48,100 @@ TESTS=(test.frag               \
 # $1 is the test
 # Rest are options to the runcommand
 function runSingleTest {
-    $RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > $1.stdout 2> $1.errout
+    $RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > temp.stdout 2> temp.errout
+}
+
+function printVerbose {
+    if [ -n "$VERBOSE" ]
+    then
+        printf "$@"
+    fi
+}
+
+function printVerboseNL {
+    printVerbose "$@"
+    printVerbose "\n"
 }
 
 function runTests {
     for t in ${TESTS[@]}; do
         printf "Running $t"
-        LENSTR=$((${#t} + 8))
-        INDENTLVL=$((37 - $LENSTR))
-        OBFUSCATE_INDENTLVL=$(($INDENTLVL + 5))
-        GLSLLVL=41 # Magic number
+        if [ -z "$VERBOSE" ]
+        then
+            echo
+        fi
+
+        if [ -n "$VERBOSE" ]
+        then
+            LENSTR=$((${#t} + 8))
+            INDENTLVL=$((37 - $LENSTR))
+            OBFUSCATE_INDENTLVL=$(($INDENTLVL + 5))
+            GLSLLVL=41 # Magic number
+        fi
 
         if [ -n "$DO_TGSI" ]
         then
             # Run for TGSI
-            printf "%${INDENTLVL}s" "TGSI "
-            runSingleTest $t $TGSI_OP && echo -n "[OK]" \
-                || (echo "[FAIL] " ; tail -n 1 $t.errout ; printf "%${GLSLLVL}s" " ")
-            cat $t.errout $t.stdout > tgsi/$t.out.tmp
+            printVerbose "%${INDENTLVL}s" "TGSI "
+            runSingleTest $t $TGSI_OP && printVerbose "[OK]" \
+                || (printVerboseNL "[FAIL] " ; tail -n 1 temp.errout ; printVerbose "%${GLSLLVL}s" " ")
+            cat temp.errout temp.stdout > tgsi/$t.out.tmp
             tr -d '\r' < tgsi/$t.out.tmp > tgsi/$t.out
 
         else
-            printf "%${INDENTLVL}s" " "
-            printf "    "
+            printVerbose "%${INDENTLVL}s" " "
+            printVerbose "    "
         fi
 
         # Run for GLSL
-        echo -n "        GLSL "
-        runSingleTest $t $GLSL_OP && echo "[OK]" \
-            || (echo "[FAIL] " ; tail -n 1 $t.errout)
-        cat $t.errout $t.stdout > glsl/$t.out.tmp
+        printVerbose "        GLSL "
+        runSingleTest $t $GLSL_OP && printVerboseNL "[OK]" \
+            || (printVerboseNL "[FAIL] " ; tail -n 1 temp.errout)
+        cat temp.errout temp.stdout > glsl/$t.out.tmp
         tr -d '\r' < glsl/$t.out.tmp > glsl/$t.out
 
-        printf "    Obfuscating:                "
-
-        if [ -n "$DO_TGSI" ]
+        if [ -n "$DO_OBFUSCATE" ]
         then
-            # Run obfuscated TGSI
-            printf "TGSI "
-            runSingleTest $t $TGSI_OP $OBFUSCATE_OP && echo -n "[OK]" \
-                || (echo "[FAIL] " ; tail -n 1 $t.errout ; printf "%${GLSLLVL}s" " ")
-            cat $t.errout $t.stdout > tgsi/$t.out.obfuscated
-        else
-            printf "         "
+            printVerbose "    Obfuscating:                "
+
+            if [ -n "$DO_TGSI" ]
+            then
+                # Run obfuscated TGSI
+                printVerbose "TGSI "
+                runSingleTest $t $TGSI_OP $OBFUSCATE_OP && printVerbose "[OK]" \
+                    || (printVerboseNL "[FAIL] " ; tail -n 1 temp.errout ; printVerbose "%${GLSLLVL}s" " ")
+                cat temp.errout temp.stdout > tgsi/$t.out.obfuscated
+            else
+                printVerbose "         "
+            fi
+
+
+            # Run obfuscated GLSL
+            printVerbose "        GLSL "
+            runSingleTest $t $GLSL_OP $OBFUSCATE_OP && printVerboseNL "[OK]" \
+                || (printVerboseNL "[FAIL] " ; tail -n 1 temp.errout)
+            cat temp.errout temp.stdout > glsl/$t.out.obfuscated
         fi
 
+        printVerbose "    Feeding back in:                     "
+        printVerbose "        GLSL "
+        ($RUNCMD $GLSL_OP $t > temp.stdout.frag 2> temp.errout \
+            && $RUNCMD $GLSL_OP temp.stdout.frag > temp.stdout 2> temp.errout && printVerboseNL "[OK]") \
+            || (printVerboseNL "[FAIL] " ; tail -n 1 temp.errout)
+        cat temp.stdout > glsl/$t.out.rerun
 
-        # Run obfuscated GLSL
-        echo -n "        GLSL "
-        runSingleTest $t $GLSL_OP $OBFUSCATE_OP && echo "[OK]" \
-            || (echo "[FAIL] " ; tail -n 1 $t.errout)
-        cat $t.errout $t.stdout > glsl/$t.out.obfuscated
+        if [ -n "$DO_OBFUSCATE" ]
+        then
+            printVerbose "    De-obfuscating:                      "
+            printVerbose "        GLSL "
+            ($RUNCMD $GLSL_OP $OBFUSCATE_OP $t > temp.stdout.obfuscated.frag 2> temp.errout \
+                && $RUNCMD $GLSL_OP temp.stdout.obfuscated.frag > temp.stdout 2> temp.errout && printVerboseNL "[OK]") \
+                || (printVerboseNL "[FAIL] " ; tail -n 1 temp.errout)
+            cat temp.stdout > glsl/$t.out.de-obfuscated
+        fi
 
-        printf "    Feeding back in:                     "
-        printf "        GLSL "
-        ($RUNCMD $GLSL_OP $t > $t.stdout.frag 2> $t.errout \
-            && $RUNCMD $GLSL_OP $t.stdout.frag > $t.stdout 2> $t.errout && echo "[OK]") \
-            || (echo "[FAIL] " ; tail -n 1 $t.errout)
-        cat $t.stdout > glsl/$t.out.rerun
-
-        printf "    De-obfuscating:                      "
-        printf "        GLSL "
-        ($RUNCMD $GLSL_OP $OBFUSCATE_OP $t > $t.stdout.obfuscated.frag 2> $t.errout \
-            && $RUNCMD $GLSL_OP $t.stdout.obfuscated.frag > $t.stdout 2> $t.errout && echo "[OK]") \
-            || (echo "[FAIL] " ; tail -n 1 $t.errout)
-        cat $t.stdout > glsl/$t.out.de-obfuscated
-
-        # # Diff them
-        # printf "    Diffing rerun and de-obfuscate:      "
-        # printf "        GLSL "
-        # (diff --side-by-side --suppress-common-lines glsl/$t.out.rerun glsl/$t.out.de-obfuscated > $t.diff \
-        #     && echo "[OK]") \
-        #     || (echo "[FAIL]" ; cat $t.diff)
-
-        # echo
-        # rm $t.stdout.obfuscated.frag
-        # rm $t.stdout.frag
-        # rm $t.stdout $t.errout
-        # rm $t.diff
     done
+    rm temp.stdout* temp.errout
 }
 
 function showHelp {
@@ -139,6 +156,8 @@ TGSI_OP="--tgsi"
 GLSL_OP="--glsl"
 OBFUSCATE_OP="-f"
 DO_TGSI=""
+DO_OBFUSCATE=""
+VERBOSE=""
 
 # Command-line argument Handling
 
@@ -166,6 +185,12 @@ while [ $# -gt 0 ]; do
             ;;
         -r|--release)
             RUNCMD=../../glsl/Release/StandAlone.exe
+            ;;
+        -v|--verbose)
+            VERBOSE="true"
+            ;;
+        -o|--do-obfuscate)
+            DO_OBFUSCATE="true"
             ;;
         *)
             showHelp

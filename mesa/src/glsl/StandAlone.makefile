@@ -114,6 +114,19 @@ StandAlone_CPPFLAGS := \
 	-I$(TOP)/src/mesa/program \
 	-I$(TOP)/src/LunarGLASS
 
+ifeq ($(BUILD),release)
+
+StandAlone_CFLAGS := \
+	$(shell $(LLVM)/bin/llvm-config --cflags) \
+	-Wall -s -O2
+
+StandAlone_CXXFLAGS := \
+	$(shell $(LLVM)/bin/llvm-config --cxxflags) \
+	-Wall -DNDEBUG -s -O2 -Wno-overloaded-virtual \
+	-Wno-sign-compare -Wno-switch -Wno-cast-qual
+
+else
+
 StandAlone_CFLAGS := \
 	$(shell $(LLVM)/bin/llvm-config --cflags) \
 	-Wall -g -O0
@@ -122,7 +135,9 @@ StandAlone_CXXFLAGS := \
 	$(shell $(LLVM)/bin/llvm-config --cxxflags) \
 	-Wall -U NDEBUG -g -O0 -Wno-overloaded-virtual \
 	-Wno-sign-compare -Wno-switch -Wno-cast-qual
-#	-D GLA_REVISION=\"$(shell svnversion)\"
+
+endif
+
 
 StandAlone_LDFLAGS := \
 	$(shell $(LLVM)/bin/llvm-config --ldflags)
@@ -130,7 +145,25 @@ StandAlone_LDFLAGS := \
 StandAlone_LIBS := \
 	$(shell $(LLVM)/bin/llvm-config --libs)
 
-all: StandAlone
+.PHONY: all
+all: debugTime StandAlone
+
+.PHONY: release
+release: releaseTime
+	make -f StandAlone.makefile "BUILD=release" StandAlone
+
+debugTime: buildTime
+	make -f StandAlone.makefile clean
+	touch buildTime
+	touch debugTime
+
+releaseTime: buildTime
+	make -f StandAlone.makefile clean
+	touch buildTime
+	touch releaseTime
+
+buildTime:
+	touch buildTime
 
 StandAlone: $(StandAlone_OBJECTS)
 	$(CXX) -o $@ $(StandAlone_LDFLAGS) $(LDFLAGS) \
@@ -147,6 +180,7 @@ StandAlone: $(StandAlone_OBJECTS)
 	$(CXX) -c -o $@ $(StandAlone_CPPFLAGS) $(StandAlone_CXXFLAGS) \
 		$(CPPFLAGS) $(CXXFLAGS) $<
 
+.PHONY: clean
 clean:
 	rm -f StandAlone
 	rm -f $(StandAlone_OBJECTS)
