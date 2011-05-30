@@ -43,6 +43,7 @@ namespace gla {
     public:
         LunarGManager();
         virtual ~LunarGManager();
+        virtual void clear();
     };
 }
 
@@ -55,11 +56,11 @@ gla::LunarGManager::LunarGManager()
 {
     switch (Options.backend) {
     case TGSI:
-        backEndTranslator = gla::GetTgsiTranslator();
+        backEndTranslator = gla::GetTgsiTranslator(this);
         backEnd = gla::GetTgsiBackEnd();
         break;
     case GLSL:
-        backEndTranslator = gla::GetGlslTranslator();
+        backEndTranslator = gla::GetGlslTranslator(this);
         backEnd = gla::GetGlslBackEnd();
         break;
     default:
@@ -67,9 +68,19 @@ gla::LunarGManager::LunarGManager()
     }
 }
 
-gla::LunarGManager::~LunarGManager()
+void gla::LunarGManager::clear()
 {
     delete module;
+    module = 0;
+
+    delete pipeOutSymbols;
+    pipeOutSymbols = 0;
+}
+
+gla::LunarGManager::~LunarGManager()
+{
+    clear();
+
     switch (Options.backend) {
     case TGSI:
         gla::ReleaseTgsiTranslator(backEndTranslator);

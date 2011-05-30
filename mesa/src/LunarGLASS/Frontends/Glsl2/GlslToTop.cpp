@@ -52,8 +52,10 @@
 void TranslateGlslToTop(struct gl_shader* shader, gla::Manager* manager)
 {
     llvm::Module* topModule = new llvm::Module("Top", llvm::getGlobalContext());
-
-    GlslToTop(shader, topModule);
-
+    gla::PipelineSymbols* pipeOuts = new gla::PipelineSymbols;
+    
     manager->setModule(topModule);
+    manager->setPipeOutSymbols(pipeOuts);
+
+    GlslToTop(shader, manager);
 }

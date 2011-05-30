@@ -42,6 +42,7 @@ namespace gla {
     class PrivateManager : public gla::Manager {
     public:
         virtual ~PrivateManager() { }
+        virtual void clear() = 0;
 
         virtual void translateTopToBottom();
         virtual void translateBottomToTarget();

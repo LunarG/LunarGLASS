@@ -122,7 +122,12 @@ namespace {
 
     class BottomTranslator : public ModulePass {
     public:
-        BottomTranslator() : ModulePass(ID)
+        BottomTranslator() : ModulePass(ID), backEndTranslator(0), backEnd(0) { }
+
+        BottomTranslator(gla::BackEndTranslator* bet, gla::BackEnd* be) : 
+            ModulePass(ID), 
+            backEndTranslator(bet), 
+            backEnd(be)
         {
             initializeBottomTranslatorPass(*PassRegistry::getPassRegistry());
         }
@@ -148,9 +153,6 @@ namespace {
 
         // For the specified phi node for currBB
         void addPhiCopy(const PHINode* phi, const BasicBlock* curBB);
-
-        void setBackEndTranslator(gla::BackEndTranslator* bet) { backEndTranslator = bet; }
-        void setBackEnd(gla::BackEnd* be)                      { backEnd = be; }
 
         // Module Pass implementation
         static char ID;
@@ -920,7 +922,7 @@ INITIALIZE_PASS_BEGIN(BottomTranslator,
                       "bottom-transl",
                       "LunarGLASS bottom translator pass",
                       false,  // Whether it looks only at CFG
-                      true); // Whether it is an analysis pass
+                      false); // Whether it is an analysis pass
 INITIALIZE_PASS_DEPENDENCY(DominatorTree)
 // INITIALIZE_PASS_DEPENDENCY(DominanceFrontier)
 INITIALIZE_PASS_DEPENDENCY(IdentifyStructures)
@@ -928,15 +930,7 @@ INITIALIZE_PASS_END(BottomTranslator,
                     "bottom-transl",
                     "LunarGLASS bottom translator pass",
                     false,  // Whether it looks only at CFG
-                    true); // Whether it is an analysis pass
-
-static ModulePass* createBottomTranslatorPass(gla::BackEndTranslator* bet, gla::BackEnd* be)
-{
-    BottomTranslator* bot = new BottomTranslator();
-    bot->setBackEndTranslator(bet);
-    bot->setBackEnd(be);
-    return bot;
-}
+                    false); // Whether it is an analysis pass
 
 // The below are the only externally exposed functionality
 
@@ -944,8 +938,8 @@ void gla::PrivateManager::translateBottomToTarget()
 {
     if (! Options.bottomIROnly) {
         PassManager passManager;
-        passManager.add(createBottomTranslatorPass(backEndTranslator, backEnd));
+        // llvm will delete what we pass to add, so that has be newed
+        passManager.add(new BottomTranslator(backEndTranslator, backEnd));
         passManager.run(*module);
     }
 }
-

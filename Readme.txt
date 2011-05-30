@@ -6,15 +6,21 @@ Modes of use:
 
     Use a LunarGLASS stack to compile from a driver:
 
+	    [per driver initialization...]
         1. Include LunarGLASSManager.h.  This header includes no other headers.
         2. Use gla::getManager() to get a manager.  (From below, your compiler 
            implementation will have derived a concrete class and factory for
-           it.)  
+           it.)
+
+		[per compile...]
         3. Pass this manager to a front end that builds LunarGLASS Top IR and 
-           saves the llvm module into the manager using manager->setModule().
+           saves the llvm module into the manager using manager->setModule()
+		   and saves symbol tables using manager->set*Symbols().
         4. Use manager->translateTopToBottom() to create bottom IR.
         5. Use manager->translateBottomToTarget() to translate that to the
 		   compiler's back end target language.
+		6. Use manager->clear() to free up structures specific to the 
+		   compile, e.g., things set in step 3.
 
     Make a LunarGLASS back end:
 

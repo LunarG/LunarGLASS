@@ -129,8 +129,8 @@ namespace gla {
 
 class gla::GlslTarget : public gla::BackEndTranslator {
 public:
-    GlslTarget() : appendInitializers(false), indentLevel(0), lastVariable(20),
-                   obfuscate(Options.obfuscate)
+    GlslTarget(Manager* m) : BackEndTranslator(m), appendInitializers(false), indentLevel(0), lastVariable(20),
+                             obfuscate(Options.obfuscate)
     {
         if (Options.backendVersion == DefaultBackendVersion)
             version = 130;
@@ -1219,9 +1219,9 @@ protected:
 //
 // Factory for GLSL back-end translator
 //
-gla::BackEndTranslator* gla::GetGlslTranslator()
+gla::BackEndTranslator* gla::GetGlslTranslator(Manager* manager)
 {
-    return new gla::GlslTarget();
+    return new gla::GlslTarget(manager);
 }
 
 void gla::ReleaseGlslTranslator(gla::BackEndTranslator* target)
@@ -1686,20 +1686,14 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 {
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
-    case llvm::Intrinsic::gla_fWriteData:
-        switch (GetConstantInt(llvmInstruction->getOperand(0)))
-        {
-        case 0:
-            newLine();
-            shader << "gl_FragColor = ";
-            emitGlaOperand(llvmInstruction->getOperand(1));
-            shader << ";";
-            return;
-        default:
-            UnsupportedFunctionality("Unhandled data output variable in Bottom IR: ", GetConstantInt(llvmInstruction->getOperand(0)));
-        }
+    case llvm::Intrinsic::gla_fWriteData: {
+        newLine();
+        int location = GetConstantInt(llvmInstruction->getOperand(0));
+        shader << manager->getPipeOutSymbols()[location] << " = ";
+        emitGlaOperand(llvmInstruction->getOperand(1));
+        shader << ";";
         return;
-
+    }
     case llvm::Intrinsic::gla_readData:
     case llvm::Intrinsic::gla_fReadInterpolant:
         if (addNewVariable(llvmInstruction, llvmInstruction->getNameStr())) {

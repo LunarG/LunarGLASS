@@ -28,7 +28,7 @@
 
 namespace gla {
 
-    BackEndTranslator* GetGlslTranslator();
+    BackEndTranslator* GetGlslTranslator(Manager*);
     void ReleaseGlslTranslator(gla::BackEndTranslator*);
 
     gla::BackEnd* GetGlslBackEnd();

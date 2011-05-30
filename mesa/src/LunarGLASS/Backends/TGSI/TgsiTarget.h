@@ -28,7 +28,7 @@
 
 namespace gla {
 
-    BackEndTranslator* GetTgsiTranslator();
+    BackEndTranslator* GetTgsiTranslator(Manager*);
     void ReleaseTgsiTranslator(gla::BackEndTranslator*);
 
     BackEnd* GetTgsiBackEnd();

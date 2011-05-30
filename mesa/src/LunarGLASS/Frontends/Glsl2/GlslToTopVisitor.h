@@ -51,10 +51,11 @@
 #include "glsl_parser_extras.h"
 
 #include "LunarGLASSTopIR.h"
+#include "LunarGLASSManager.h"
 #include "Util.h"
 #include "TopBuilder.h"
 
-void GlslToTop(struct gl_shader*, llvm::Module*);
+void GlslToTop(struct gl_shader*, gla::Manager*);
 
 //
 // LunarGLASS implementation of abstract base class from
@@ -62,7 +63,7 @@ void GlslToTop(struct gl_shader*, llvm::Module*);
 //
 class GlslToTopVisitor : public ir_hierarchical_visitor {
 public:
-    GlslToTopVisitor(struct gl_shader*, llvm::Module*);
+    GlslToTopVisitor(struct gl_shader*, gla::Manager*);
 
     virtual ~GlslToTopVisitor();
 

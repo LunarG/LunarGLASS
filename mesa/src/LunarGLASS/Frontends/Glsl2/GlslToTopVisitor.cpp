@@ -32,6 +32,7 @@
 
 #include "GlslToTopVisitor.h"
 #include "LunarGLASSTopIR.h"
+#include "LunarGLASSManager.h"
 #include "Util.h"
 #include "mtypes.h"
 #include "Exceptions.h"
@@ -41,9 +42,9 @@
 #include "llvm/Support/raw_ostream.h"
 
 
-void GlslToTop(struct gl_shader* glShader, llvm::Module* module)
+void GlslToTop(struct gl_shader* glShader, gla::Manager* manager)
 {
-    GlslToTopVisitor v(glShader, module);
+    GlslToTopVisitor v(glShader, manager);
 
     foreach_iter(exec_list_iterator, iter, *glShader->ir) {
         ir_instruction *ir = (ir_instruction *)iter.get();
@@ -52,16 +53,16 @@ void GlslToTop(struct gl_shader* glShader, llvm::Module* module)
     }
 }
 
-GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, llvm::Module* m)
+GlslToTopVisitor::GlslToTopVisitor(struct gl_shader* s, gla::Manager* manager)
     : context(llvm::getGlobalContext()), llvmBuilder(context),
-      module(m), glShader(s), interpIndex(0), inMain(false), localScope(false), shaderEntry(0)
+      module(manager->getModule()), glShader(s), interpIndex(0), inMain(false), localScope(false), shaderEntry(0)
 {
     // Init the first GEP index chain
     std::vector<llvm::Value*> firstChain;
     gepIndexChainStack.push(firstChain);
 
     // do this after the builder knows the module
-    glaBuilder = new gla::Builder(llvmBuilder, module);
+    glaBuilder = new gla::Builder(llvmBuilder, manager);
 
     shaderEntry = glaBuilder->makeMain();
     llvmBuilder.SetInsertPoint(shaderEntry);
@@ -915,12 +916,6 @@ ir_visitor_status
 
 gla::Builder::SuperValue GlslToTopVisitor::createLLVMVariable(ir_variable* var)
 {
-    if (strcmp(var->name, "gl_FragDepth") == 0)
-        gla::UnsupportedFunctionality("gl_FragDepth");
-
-    if (strcmp(var->name, "gl_FragData") == 0)
-        gla::UnsupportedFunctionality("gl_FragData");
-
     llvm::Constant* initializer = 0;
     gla::Builder::EStorageQualifier storageQualifier;
     int constantBuffer = 0;

@@ -98,7 +98,7 @@ namespace gla {
 
 class gla::MesaTarget : public gla::BackEndTranslator {
 public:
-    MesaTarget()
+    MesaTarget(Manager* m) : BackEndTranslator(m)
     {
         // Initial creation of target.
 
@@ -445,9 +445,9 @@ protected:
 //
 // Factory for TGSI translator
 //
-gla::BackEndTranslator* gla::GetTgsiTranslator()
+gla::BackEndTranslator* gla::GetTgsiTranslator(Manager* manager)
 {
-    return new gla::MesaTarget();
+    return new gla::MesaTarget(manager);
 }
 
 void gla::ReleaseTgsiTranslator(gla::BackEndTranslator* target)

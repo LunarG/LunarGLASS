@@ -39,6 +39,8 @@
 // LLVM includes
 #include "llvm/Module.h"
 
+#include "LunarGLASSManager.h"
+
 // Forward decls
 namespace llvm {
     class PHINode;
@@ -94,7 +96,7 @@ namespace gla {
     class BackEndTranslator {
     public:
 
-        BackEndTranslator() { }
+        explicit BackEndTranslator(Manager* m) : manager(m) { }
         virtual ~BackEndTranslator() { }
         virtual void addStructType(const std::string, const llvm::Type*) { }
         virtual void addGlobal(const llvm::GlobalVariable*) { }
@@ -172,6 +174,9 @@ namespace gla {
         virtual void addDiscard() = 0;
 
         virtual void print() = 0;
+
+    protected:
+        Manager* manager;
     };
 
     // Abstract class of back-end queries.  Back-end inherits from this to provide

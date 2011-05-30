@@ -40,6 +40,8 @@
 #ifndef LunarGLASSManager_H
 #define LunarGLASSManager_H
 
+#include "vector"
+
 namespace llvm {
     class Module;
     class Value;
@@ -47,21 +49,31 @@ namespace llvm {
 
 namespace gla {
 
+    typedef std::vector<std::string> PipelineSymbols;
+
     // Abstract class of external manager of translations within LunarGLASS.
     // Use getManager() to get a concrete manager, which should be derived 
     // from gla::PrivateManager.
     class Manager {
     public:
-        virtual ~Manager() { }
-
+        virtual ~Manager() { }    // the concrete class is expected to delete everything
+        virtual void clear() = 0; // implement per-compile clear, so a manager object can be re-used
+        
         virtual void setModule(llvm::Module* m) { module = m; }
+        virtual llvm::Module* getModule() { return module; }
+        
+        virtual void setPipeOutSymbols(PipelineSymbols* s) { pipeOutSymbols = s; }
+        virtual PipelineSymbols& getPipeOutSymbols() { return *pipeOutSymbols; }
+
         virtual void translateTopToBottom() = 0;
         virtual void translateBottomToTarget() = 0;
 
     protected:
-        Manager() : module(0) { }
+        Manager() : module(0), pipeOutSymbols(0) { }
 
         llvm::Module* module;
+
+        PipelineSymbols* pipeOutSymbols;
     };
 
     Manager* getManager();

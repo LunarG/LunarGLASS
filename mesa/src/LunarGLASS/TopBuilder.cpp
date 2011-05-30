@@ -45,9 +45,10 @@
 
 namespace gla {
 
-Builder::Builder(llvm::IRBuilder<>& b, llvm::Module* m) :
+Builder::Builder(llvm::IRBuilder<>& b, gla::Manager* m) :
     builder(b),
-    module(m),
+    manager(m),
+    module(manager->getModule()),
     context(builder.getContext()),
     mainFunction(0),
     stageEpilogue(0),
@@ -190,6 +191,7 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
             // Track the value that must be copied out to the pipeline at
             // the end of the shader.
             copyOuts.push_back(value);
+            manager->getPipeOutSymbols().push_back(value->getName());
         }
 
     } else {
@@ -272,8 +274,9 @@ void Builder::copyOutPipeline()
     std::list<llvm::Value*>::iterator outIter;
 
     // Call writeData intrinsic on our outs
-    for ( outIter = copyOuts.begin(); outIter != copyOuts.end(); outIter++ ) {
-        llvm::Value* loadVal = builder.CreateLoad(*outIter);
+    for (int out = 0; out < copyOuts.size(); ++out) {
+        llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);
+        //?? lookup the location in the symbol table
 
         switch(GetBasicType(loadVal)) {
         case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
@@ -282,7 +285,7 @@ void Builder::copyOutPipeline()
 
         llvm::Function *intrinsicName = getIntrinsic(intrinsicID, loadVal->getType());
 
-        builder.CreateCall2(intrinsicName, MakeIntConstant(context, 0), loadVal);
+        builder.CreateCall2(intrinsicName, MakeIntConstant(context, out), loadVal);
     }
 }
 

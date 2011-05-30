@@ -33,6 +33,8 @@
 #include "llvm/Support/IRBuilder.h"
 #include "llvm/IntrinsicInst.h"
 
+#include "LunarGLASSManager.h"
+
 #include <list>
 #include <stack>
 
@@ -46,7 +48,7 @@ namespace gla {
 
 class Builder {
 public:
-    explicit Builder(llvm::IRBuilder<>& b, llvm::Module* m);
+    explicit Builder(llvm::IRBuilder<>& b, gla::Manager*);
     ~Builder();
 
     //
@@ -301,11 +303,12 @@ protected:
     Matrix* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
 
     llvm::IRBuilder<>& builder;
+    gla::Manager* manager;
     llvm::Module* module;
     llvm::LLVMContext &context;
 
     // accumulate values that must be copied out at the end
-    std::list<llvm::Value*> copyOuts;
+    std::vector<llvm::Value*> copyOuts;
 
     // accumulate matrices that must be deleted at the end
     std::vector<Matrix*> matrixList;
@@ -327,17 +330,13 @@ protected:
 
     // Our loop stack.
     std::stack<LoopData> loops;
-
-
+    
     // Special data for the main function to use. For GLSL-style returns, we
     // want to branch to copyOut, which then branches to exit. For GLSL-style
     // discards, we want to directly branch to exit.
     llvm::Function*   mainFunction;
     llvm::BasicBlock* stageEpilogue;
     llvm::BasicBlock* stageExit;
-
-
-
 };  // end Builder class
 
 };  // end gla namespace

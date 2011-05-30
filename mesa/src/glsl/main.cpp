@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-//johnk: no getopt, just read directly
+//LunarGLASS uses its own option parsing
 //#include <getopt.h>
 
 #include <sys/types.h>
@@ -380,18 +380,19 @@ main(int argc, char **argv)
       if (gla::Options.debug && ! gla::Options.bottomIROnly)
          _mesa_print_ir(Shader->ir, 0);
       
+      gla::Manager* glaManager = gla::getManager();
       int compileCount = gla::Options.iterate ? 1000 : 1;
       for (int i = 0; i < compileCount; ++i) {
-          gla::Manager* glaManager = gla::getManager();
-
           TranslateGlslToTop(Shader, glaManager);
 
           glaManager->translateTopToBottom();
 
           glaManager->translateBottomToTarget();
 
-          delete glaManager;
+          glaManager->clear();
       }
+
+      delete glaManager;
    }
 
 
