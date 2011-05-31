@@ -53,6 +53,7 @@ Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
          -b, --bottom-ir-only       Only print out Bottom IR\n\
          --glsl                     Use the glsl backend (default)\n\
          --tgsi                     Use the TGSI backed\n\
+         --dummy                    Use the Dummy backed\n\
          --disable <optimization>   Disable the optimization (see below)\n\
          --enable <optimization>    Enable the optimization (see below)\n\
 \n\
@@ -177,6 +178,8 @@ namespace gla {
                 Options.backend = GLSL;
             } else if (*i == "--tgsi") {
                 Options.backend = TGSI;
+            } else if (*i == "--dummy") {
+                Options.backend = Dummy;
             } else if (*i == "-i" || *i == "--iterate") {
                 Options.iterate = true;
             } else if (*i == "-f" || *i == "--obfuscate") {

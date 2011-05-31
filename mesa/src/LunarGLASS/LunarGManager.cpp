@@ -34,6 +34,7 @@
 
 #include "Backends/TGSI/TgsiTarget.h"
 #include "Backends/GLSL/GlslTarget.h"
+#include "Backends/Dummy/DummyTarget.h"
 
 #include "Options.h"
 
@@ -63,6 +64,10 @@ gla::LunarGManager::LunarGManager()
         backEndTranslator = gla::GetGlslTranslator(this);
         backEnd = gla::GetGlslBackEnd();
         break;
+    case Dummy:
+        backEndTranslator = gla::GetDummyTranslator(this);
+        backEnd = gla::GetDummyBackEnd();
+        break;
     default:
         UnsupportedFunctionality("Backend not supported");
     }
@@ -89,6 +94,10 @@ gla::LunarGManager::~LunarGManager()
     case GLSL:
         gla::ReleaseGlslTranslator(backEndTranslator);
         gla::ReleaseGlslBackEnd(backEnd);
+        break;
+    case Dummy:
+        gla::ReleaseDummyTranslator(backEndTranslator);
+        gla::ReleaseDummyBackEnd(backEnd);
         break;
     default:
         UnsupportedFunctionality("Backend not supported");

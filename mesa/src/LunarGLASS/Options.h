@@ -37,6 +37,7 @@
 namespace gla {
     enum BackendOption { GLSL      // GLSL backed
                        , TGSI      // TGSI backend
+                       , Dummy     // Dummy backend
                        };
 
     const int DefaultBackendVersion = -1;
