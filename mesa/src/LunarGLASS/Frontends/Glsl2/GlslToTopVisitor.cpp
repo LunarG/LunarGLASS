@@ -104,6 +104,9 @@ llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
     // vector of constants for LLVM
     std::vector<llvm::Constant*> vals;
 
+    // Type is used for struct and array constants
+    const llvm::Type* type = convertGlslToGlaType(constant->type);
+
     if (constant->type->vector_elements) {
         for (unsigned int i = 0; i < constant->type->vector_elements; ++i) {
             switch(constant->type->base_type)
@@ -126,8 +129,15 @@ llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
         switch(constant->type->base_type)
         {
         case GLSL_TYPE_ARRAY:
+            for (int i = 0; i < constant->type->array_size(); ++i) {
+                vals.push_back(createLLVMConstant(constant->array_elements[i]));
+            }
+            break;
+
         case GLSL_TYPE_STRUCT:
-            gla::UnsupportedFunctionality("array or struct constant");
+            foreach_iter(exec_list_iterator, iter, constant->components) {
+                vals.push_back(createLLVMConstant((ir_constant *)iter.get()));
+            }
             break;
 
         case GLSL_TYPE_SAMPLER:
@@ -138,7 +148,7 @@ llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
         }
     }
 
-    return glaBuilder->getConstant(vals);
+    return glaBuilder->getConstant(vals, type);
 }
 
 ir_visitor_status

@@ -99,7 +99,6 @@ public:
     {
         return true;
     }
-
 };
 
 //
@@ -207,6 +206,8 @@ public:
         newScope();
 
         if (appendInitializers && globalInitializers.str().length() > 0) {
+            // Reset bool so these are only emitted in main()
+            appendInitializers = false;
             shader << globalInitializers.str();
             newLine();
         }
@@ -653,28 +654,8 @@ protected:
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
             emitGlaType(globalDeclarations, type);
-
             globalDeclarations << " " << varString << " = ";
-
-            switch(constant->getType()->getTypeID()) {
-            case llvm::Type::IntegerTyID:
-            case llvm::Type::FloatTyID:
-                emitScalarConstant(globalDeclarations, constant);
-                break;
-
-            case llvm::Type::VectorTyID:
-                emitVectorConstant(globalDeclarations, constant);
-                break;
-
-            case llvm::Type::ArrayTyID:
-                emitArrayConstant(type, globalDeclarations, constant);
-                break;
-
-            default:
-                UnsupportedFunctionality("constant type in Bottom IR", EATContinue);
-                globalDeclarations << 0;
-            }
-
+            emitConstantInitializer(globalDeclarations, constant, constant->getType());
             globalDeclarations << ";" << std::endl;
             return;
         }
@@ -817,116 +798,91 @@ protected:
         return valueMap[value]->c_str();
     }
 
-    void emitScalarConstant(std::ostringstream& out, const llvm::Constant* constant)
+    // emitConstantInitializer will be called recursively for aggregate types.
+    // If the aggregate is zero initialized, sub-elements will not have a 
+    // constant associated with them. For that case, and for ConstantAggregateZero, 
+    // we only use the type to generate correct initializers.
+    void emitConstantInitializer(std::ostringstream& out, const llvm::Constant* constant, const llvm::Type* type)
     {
-        assert(constant);
-        switch(constant->getType()->getTypeID()) {
-        case llvm::Type::IntegerTyID:
-            {
-                const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(constant);
+        bool isZero;
 
-                if (constantInt->getBitWidth() == 1) {
-                    if (constantInt->isZero())
-                        out << "false";
-                    else
+        if (! constant)
+            isZero = true;
+        else if (const llvm::ConstantAggregateZero* zero = llvm::dyn_cast<llvm::ConstantAggregateZero>(constant))
+            isZero = true;
+        else
+            isZero = false;
+
+        switch (type->getTypeID()) {
+        
+        case llvm::Type::IntegerTyID: {
+            if (isZero) {
+                if (gla::IsBoolean(type))
+                    out << "false";
+                else
+                    out << "0";
+            } else {
+                if (gla::IsBoolean(type)) {
+                    if (GetConstantInt(constant))
                         out << "true";
+                    else
+                        out << "false";
                 } else
                     out << GetConstantInt(constant);
             }
             break;
+        }
 
-        case llvm::Type::FloatTyID:
-            out << GetConstantFloat(constant);
+        case llvm::Type::FloatTyID: {
+            if (isZero)
+                out << "0.0";
+            else
+                out << GetConstantFloat(constant);
             break;
+        }
+
+        case llvm::Type::VectorTyID:
+        case llvm::Type::ArrayTyID:
+        case llvm::Type::StructTyID: {
+            emitGlaType(out, type);
+            out << "(";
+            
+            int numElements = 0;
+
+            if(const llvm::VectorType* vectorType = llvm::dyn_cast<llvm::VectorType>(type)) {
+                // If all vector elements are equal, we only need to emit one
+                bool same = true;
+                if (! isZero) {
+                    for (int op = 1; op < vectorType->getNumElements(); ++op) {
+                        if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
+                            same = false;
+                            break;
+                        }
+                    }
+                }
+                numElements = same ? 1 : vectorType->getNumElements();
+            } else if (const llvm::ArrayType*  arrayType = llvm::dyn_cast<llvm::ArrayType>(type))
+                numElements = arrayType->getNumElements();
+            else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(type))
+                numElements = structType->getNumElements();
+            else
+                assert(0 && "Constant aggregate type");
+
+            for (int op = 0; op < numElements; ++op) {
+                if (op > 0)
+                    out << ", ";
+                emitConstantInitializer(out, 
+                                        isZero ? 0 : llvm::dyn_cast<llvm::Constant>(constant->getOperand(op)), 
+                                        type->getContainedType(type->getNumContainedTypes() > 1 ? op : 0));
+            }
+
+            out << ")";
+            break;
+        }
 
         default:
-            UnsupportedFunctionality("constant type in Bottom IR", EATContinue);
-            out << 0;
+            assert(0 && "Constant type in Bottom IR");
         }
-    }
-
-    void emitVectorConstant(std::ostringstream& out, const llvm::Constant* constant)
-    {
-        assert(constant);
-        assert(IsDefined(constant));
-        const llvm::ConstantVector* vector = llvm::dyn_cast<llvm::ConstantVector>(constant);
-        if (vector) {
-            emitGlaType(out, vector->getType());
-            out << "(";
-
-            // are they all the same?
-            bool same = true;
-            for (int op = 1; op < vector->getNumOperands(); ++op) {
-                if (llvm::dyn_cast<const llvm::Constant>(vector->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(vector->getOperand(op))) {
-                    same = false;
-                    break;
-                }
-            }
-
-            // write out the constants
-            if (same)
-                emitScalarConstant(out, llvm::dyn_cast<const llvm::Constant>(vector->getOperand(0)));
-            else {
-                for (int op = 0; op < vector->getNumOperands(); ++op) {
-                    if (op > 0)
-                        out << ", ";
-                    emitScalarConstant(out, llvm::dyn_cast<const llvm::Constant>(vector->getOperand(op)));
-                }
-            }
-
-            out << ")";
-            return;
-        }
-
-        const llvm::ConstantAggregateZero* aggregate = llvm::dyn_cast<llvm::ConstantAggregateZero>(constant);
-        if (aggregate) {
-            emitGlaType(out, constant->getType());
-            out << "(0)";
-            return;
-        }
-
-        UnsupportedFunctionality("Vector Constant");
-    }
-
-    void emitArrayConstant(const llvm::Type* type, std::ostringstream& out, const llvm::Constant* constant)
-    {
-        assert(constant);
-        assert(AreAllDefined(constant));
-        const llvm::ConstantArray* constArray = llvm::dyn_cast<llvm::ConstantArray>(constant);
-        if (constArray) {
-            emitGlaType(out, constArray->getType());
-            out << "(";
-
-            for (int op = 0; op < constArray->getNumOperands(); ++op) {
-                if (op > 0)
-                    out << ", ";
-
-                // For now, only handle constant arrays of scalars.  If struct or vector comes through,
-                // UnsupportedFunctionality will trigger in emitScalarConstant
-                emitScalarConstant(out, llvm::dyn_cast<const llvm::Constant>(constArray->getOperand(op)));
-            }
-
-            out << ")";
-            return;
-        }
-
-        const llvm::ConstantAggregateZero* aggregate = llvm::dyn_cast<llvm::ConstantAggregateZero>(constant);
-        const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
-        if (aggregate) {
-            emitGlaType(out, constant->getType());
-            out << "(";
-
-            for (int op = 0; op < arrayType->getNumElements(); ++op) {
-                if (op > 0)
-                    out << ", ";
-                out << "0";
-            }
-
-            out << ")";
-            return;
-        }
-
-        UnsupportedFunctionality("Array Constant");
     }
 
     void emitInitializeAggregate(std::ostringstream& out, std::string varString, const llvm::Constant* constant)
@@ -948,6 +904,15 @@ protected:
                         out << std::endl << "    " << varString;
                         out << "[" << op << "] = ";
                         out << getGlaValue(constArray->getOperand(op));
+                        out << ";";
+                    }
+                }
+            } else if (const llvm::ConstantStruct* constStruct = llvm::dyn_cast<llvm::ConstantStruct>(constant)) {
+                for (int op = 0; op < constStruct->getNumOperands(); ++op) {
+                    if (IsDefined(constStruct->getOperand(op))) {
+                        out << std::endl << "    " << varString;
+                        out << "." << getGlaStructField(constant->getType(), op) << " = ";
+                        out << getGlaValue(constStruct->getOperand(op));
                         out << ";";
                     }
                 }

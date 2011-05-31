@@ -1,25 +1,239 @@
 
-***Unsupported functionality: array or struct constant
+Top IR:
+; ModuleID = 'Top'
+
+%s0 = type { i32 }
+%s00 = type { %s0 }
+%s1 = type { i32, float, %s0 }
+%s2 = type { i32, float, %s1 }
+%s3 = type { [12 x %s2], i32, float, %s1 }
+
+@foo3 = external addrspace(1) constant %s3
+@foo1 = external addrspace(1) constant %s1
+@foo0 = external addrspace(1) constant %s0
+@foo00 = external addrspace(1) constant %s00
+@gl_FragColor = internal global <4 x float> zeroinitializer
+@"sampler2D sampler" = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %assignment_tmp7 = alloca %s0
+  %assignment_tmp = alloca %s1
+  %locals0_i = alloca i32
+  %locals2_s1_1 = alloca %s1
+  %locals00_s0_0 = alloca %s0
+  %fArray = alloca [6 x float]
+  %locals1Array = alloca [10 x %s1]
+  %0 = load i32 addrspace(1)* getelementptr inbounds (%s3 addrspace(1)* @foo3, i32 0, i32 0, i32 9, i32 0)
+  %1 = icmp sgt i32 %0, 0
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %entry
+  store %s1 { i32 0, float 1.000000e+00, %s0 zeroinitializer }, %s1* %locals2_s1_1
+  store [6 x float] zeroinitializer, [6 x float]* %fArray
+  %2 = load %s1 addrspace(1)* @foo1
+  %3 = load [10 x %s1]* %locals1Array
+  %locals1Array1 = insertvalue [10 x %s1] %3, %s1 %2, 6
+  store [10 x %s1] %locals1Array1, [10 x %s1]* %locals1Array
+  store i32 0, i32* %locals0_i
+  store %s0 zeroinitializer, %s0* %locals00_s0_0
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %4 = load %s1* %assignment_tmp
+  %assignment_tmp2 = insertvalue %s1 %4, i32 1, 0
+  store %s1 %assignment_tmp2, %s1* %assignment_tmp
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %5 = extractelement <2 x float> %coord, i32 1
+  %6 = load %s1* %assignment_tmp
+  %assignment_tmp3 = insertvalue %s1 %6, float %5, 1
+  store %s1 %assignment_tmp3, %s1* %assignment_tmp
+  %7 = load %s0 addrspace(1)* @foo0
+  %8 = load %s1* %assignment_tmp
+  %assignment_tmp4 = insertvalue %s1 %8, %s0 %7, 2
+  store %s1 %assignment_tmp4, %s1* %assignment_tmp
+  %locals2_s1_15 = load %s1* %assignment_tmp
+  store %s1 %locals2_s1_15, %s1* %locals2_s1_1
+  store [6 x float] [float 0.000000e+00, float 1.000000e+00, float 2.000000e+00, float 3.000000e+00, float 4.000000e+00, float 5.000000e+00], [6 x float]* %fArray
+  %9 = load %s1* %assignment_tmp
+  %10 = load [10 x %s1]* %locals1Array
+  %locals1Array6 = insertvalue [10 x %s1] %10, %s1 %9, 6
+  store [10 x %s1] %locals1Array6, [10 x %s1]* %locals1Array
+  %assignment_tmp78 = load %s0 addrspace(1)* getelementptr inbounds (%s1 addrspace(1)* @foo1, i32 0, i32 2)
+  store %s0 %assignment_tmp78, %s0* %assignment_tmp7
+  %11 = load %s0* %assignment_tmp7
+  %locals0_i9 = extractvalue %s0 %11, 0
+  store i32 %locals0_i9, i32* %locals0_i
+  %locals00_s0_010 = load %s0 addrspace(1)* getelementptr inbounds (%s00 addrspace(1)* @foo00, i32 0, i32 0)
+  store %s0 %locals00_s0_010, %s0* %locals00_s0_0
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %12 = load i32* %locals0_i
+  %13 = icmp sgt i32 %12, 5
+  br i1 %13, label %then11, label %ifmerge13
+
+then11:                                           ; preds = %ifmerge
+  %14 = load %s0* %locals00_s0_0
+  %locals0_i12 = extractvalue %s0 %14, 0
+  store i32 %locals0_i12, i32* %locals0_i
+  br label %ifmerge13
+
+ifmerge13:                                        ; preds = %then11, %ifmerge
+  %15 = load i32* %locals0_i
+  %16 = sitofp i32 %15 to float
+  %17 = load [10 x %s1]* %locals1Array
+  %18 = extractvalue [10 x %s1] %17, 6, 1
+  %19 = fadd float %16, %18
+  %20 = load [6 x float]* %fArray
+  %21 = extractvalue [6 x float] %20, 3
+  %22 = fadd float %19, %21
+  %23 = load %s1* %locals2_s1_1
+  %24 = extractvalue %s1 %23, 1
+  %25 = fadd float %22, %24
+  %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %26 = load i32 addrspace(1)* @"sampler2D sampler"
+  %27 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %26, i32 0, <2 x float> %coord14)
+  %28 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %25, i32 0)
+  %gl_FragColor = fmul <4 x float> %28, %27
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge13
+  %29 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %29)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+%s0 = type { i32 }
+%s00 = type { %s0 }
+%s1 = type { i32, float, %s0 }
+%s2 = type { i32, float, %s1 }
+%s3 = type { [12 x %s2], i32, float, %s1 }
+
+@foo3 = external addrspace(1) constant %s3
+@foo1 = external addrspace(1) constant %s1
+@foo0 = external addrspace(1) constant %s0
+@foo00 = external addrspace(1) constant %s00
+@"sampler2D sampler" = external addrspace(1) constant i32
+@gla_globalAgg = internal global [10 x %s1] undef
+@gla_globalAgg1 = internal global %s1 { i32 1, float undef, %s0 undef }
+@gla_globalAgg2 = internal global [10 x %s1] undef
+
+define fastcc void @main() {
+entry:
+  %gla_constGEP = getelementptr %s3 addrspace(1)* @foo3, i32 0, i32 0, i32 9, i32 0
+  %0 = load i32 addrspace(1)* %gla_constGEP
+  %1 = icmp sgt i32 %0, 0
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %entry
+  %2 = load %s1 addrspace(1)* @foo1
+  %aggregate = load [10 x %s1]* @gla_globalAgg
+  %locals1Array1 = insertvalue [10 x %s1] %aggregate, %s1 %2, 6
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %3 = extractelement <2 x float> %coord, i32 1
+  %aggregate16 = load %s1* @gla_globalAgg1
+  %assignment_tmp3 = insertvalue %s1 %aggregate16, float %3, 1
+  %4 = load %s0 addrspace(1)* @foo0
+  %assignment_tmp4 = insertvalue %s1 %assignment_tmp3, %s0 %4, 2
+  %aggregate17 = load [10 x %s1]* @gla_globalAgg2
+  %locals1Array6 = insertvalue [10 x %s1] %aggregate17, %s1 %assignment_tmp4, 6
+  %gla_constGEP18 = getelementptr %s1 addrspace(1)* @foo1, i32 0, i32 2, i32 0
+  %5 = load i32 addrspace(1)* %gla_constGEP18
+  %gla_constGEP19 = getelementptr %s00 addrspace(1)* @foo00, i32 0, i32 0
+  %locals00_s0_010 = load %s0 addrspace(1)* %gla_constGEP19
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %fArray.0 = phi [6 x float] [ zeroinitializer, %then ], [ [float 0.000000e+00, float 1.000000e+00, float 2.000000e+00, float 3.000000e+00, float 4.000000e+00, float 5.000000e+00], %else ]
+  %locals00_s0_0.0 = phi %s0 [ zeroinitializer, %then ], [ %locals00_s0_010, %else ]
+  %locals2_s1_1.0 = phi %s1 [ { i32 0, float 1.000000e+00, %s0 zeroinitializer }, %then ], [ %assignment_tmp4, %else ]
+  %locals0_i.0 = phi i32 [ 0, %then ], [ %5, %else ]
+  %locals1Array.0 = phi [10 x %s1] [ %locals1Array1, %then ], [ %locals1Array6, %else ]
+  %6 = icmp sgt i32 %locals0_i.0, 5
+  br i1 %6, label %then11, label %ifmerge13
+
+then11:                                           ; preds = %ifmerge
+  %locals0_i12 = extractvalue %s0 %locals00_s0_0.0, 0
+  br label %ifmerge13
+
+ifmerge13:                                        ; preds = %then11, %ifmerge
+  %locals0_i.1 = phi i32 [ %locals0_i12, %then11 ], [ %locals0_i.0, %ifmerge ]
+  %7 = sitofp i32 %locals0_i.1 to float
+  %8 = extractvalue [10 x %s1] %locals1Array.0, 6, 1
+  %9 = fadd float %7, %8
+  %10 = extractvalue [6 x float] %fArray.0, 3
+  %11 = fadd float %9, %10
+  %12 = extractvalue %s1 %locals2_s1_1.0, 1
+  %13 = fadd float %11, %12
+  %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %14 = load i32 addrspace(1)* @"sampler2D sampler"
+  %15 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %14, i32 0, <2 x float> %coord14)
+  %16 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %13, i32 0)
+  %gl_FragColor = fmul <4 x float> %16, %15
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge13
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 compiling structDeref.frag...
 uniform sampler2D sampler ; 
 varying vec2 coord ; 
-struct s1 { int i ; float f ; } ; 
+struct s0 { int i ; } ; 
+struct s00 { s0 s0_0 ; } ; 
+struct s1 { int i ; float f ; s0 s0_1 ; } ; 
 struct s2 { int i ; float f ; s1 s1_1 ; } ; 
-struct s3 { s2 s2_1 ; int i ; float f ; s1 s1_1 ; } ; 
-uniform s1 foo ; 
+struct s3 { s2 [ 12 ] s2_1 ; int i ; float f ; s1 s1_1 ; } ; 
+uniform s0 foo0 ; 
+uniform s1 foo1 ; 
 uniform s2 foo2 ; 
 uniform s3 foo3 ; 
+uniform s00 foo00 ; 
 void  main (){
-s2 locals2 ; if ( foo3 . s2_1 . i > 0 ) {
-locals2 . f = 1.000000 ; locals2 . s1_1 = s1 ( 0 , 0.000000 ) ; }
+s0 locals0 ; s2 locals2 ; s00 locals00 ; float [ 6 ] fArray ; s1 [ 10 ] locals1Array ; if ( foo3 . s2_1 [ 9 ] . i > 0 ) {
+locals2 . f = 1.000000 ; locals2 . s1_1 = s1 ( 0 , 1.000000 , s0 ( 0 ) ) ; fArray = float [ 6 ] ( 0.000000 , 0.000000 , 0.000000 , 0.000000 , 0.000000 , 0.000000 ) ; locals1Array [ 6 ] = foo1 ; locals0 = s0 ( 0 ) ; locals00 = s00 ( s0 ( 0 ) ) ; }
 else {
-locals2 . f = coord . x ; locals2 . s1_1 = s1 ( 1 , coord . y ) ; }
-gl_FragColor = locals2 . s1_1 . f * texture2D ( sampler , coord ) ; }
+locals2 . f = coord . x ; locals2 . s1_1 = s1 ( 1 , coord . y , foo0 ) ; fArray = float [ 6 ] ( 0.000000 , 1.000000 , 2.000000 , 3.000000 , 4.000000 , 5.000000 ) ; locals1Array [ 6 ] = locals2 . s1_1 ; locals0 = foo1 . s0_1 ; locals00 = foo00 ; }
+if ( locals0 . i > 5 ) locals0 = locals00 . s0_0 ; gl_FragColor = float ( locals0 . i ) + locals1Array [ 6 ] . f + fArray [ 3 ] + locals2 . s1_1 . f * texture2D ( sampler , coord ) ; }
 
 
 
 (
+(declare (uniform ) s00 foo00)
 (declare (uniform ) s3 foo3)
+(declare (uniform ) s1 foo1)
+(declare (uniform ) s0 foo0)
 (declare (in ) vec2 coord)
 (declare (uniform ) sampler2D sampler)
 (declare (out ) vec4 gl_FragColor)
@@ -28,19 +242,141 @@ gl_FragColor = locals2 . s1_1 . f * texture2D ( sampler , coord ) ; }
     (parameters
     )
     (
+      (declare () (array s1 10) locals1Array)
+      (declare () (array float 6) fArray)
+      (declare (temporary ) s0 locals00_s0_0)
       (declare (temporary ) s1 locals2_s1_1)
-      (if (expression bool > (record_ref (record_ref (var_ref foo3)  s2_1)  i) (constant int (0)) ) (
-        (assign (constant bool (1)) () (var_ref locals2_s1_1)  (constant s1 ((i (constant int (0)) )(i (constant float (0.000000)) ))) ) 
+      (declare (temporary ) int locals0_i)
+      (if (expression bool > (record_ref (array_ref (record_ref (var_ref foo3)  s2_1) (constant int (9)) )  i) (constant int (0)) ) (
+        (assign (constant bool (1)) () (var_ref locals2_s1_1)  (constant s1 ((i (constant int (0)) )(i (constant float (1.000000)) )(i (constant s0 ((i (constant int (0)) ))) ))) ) 
+        (assign (constant bool (1)) () (var_ref fArray)  (constant (array float 6) ((constant float (0.000000)) (constant float (0.000000)) (constant float (0.000000)) (constant float (0.000000)) (constant float (0.000000)) (constant float (0.000000)) )) ) 
+        (assign (constant bool (1)) () (array_ref (var_ref locals1Array) (constant int (6)) )  (var_ref foo1) ) 
+        (assign (constant bool (1)) (x) (var_ref locals0_i)  (constant int (0)) ) 
+        (assign (constant bool (1)) () (var_ref locals00_s0_0)  (constant s0 ((i (constant int (0)) ))) ) 
       )
       (
-        (assign (constant bool (1)) (x) (record_ref (var_ref locals2_s1_1)  i)  (constant int (1)) ) 
-        (assign (constant bool (1)) (x) (record_ref (var_ref locals2_s1_1)  f)  (swiz y (var_ref coord) )) 
+        (declare (temporary ) s1 assignment_tmp)
+        (assign (constant bool (1)) (x) (record_ref (var_ref assignment_tmp)  i)  (constant int (1)) ) 
+        (assign (constant bool (1)) (x) (record_ref (var_ref assignment_tmp)  f)  (swiz y (var_ref coord) )) 
+        (assign (constant bool (1)) () (record_ref (var_ref assignment_tmp)  s0_1)  (var_ref foo0) ) 
+        (assign (constant bool (1)) () (var_ref locals2_s1_1)  (var_ref assignment_tmp) ) 
+        (assign (constant bool (1)) () (var_ref fArray)  (constant (array float 6) ((constant float (0.000000)) (constant float (1.000000)) (constant float (2.000000)) (constant float (3.000000)) (constant float (4.000000)) (constant float (5.000000)) )) ) 
+        (assign (constant bool (1)) () (array_ref (var_ref locals1Array) (constant int (6)) )  (var_ref assignment_tmp) ) 
+        (declare (temporary ) s0 assignment_tmp)
+        (assign (constant bool (1)) () (var_ref assignment_tmp)  (record_ref (var_ref foo1)  s0_1) ) 
+        (assign (constant bool (1)) (x) (var_ref locals0_i)  (record_ref (var_ref assignment_tmp)  i) ) 
+        (assign (constant bool (1)) () (var_ref locals00_s0_0)  (record_ref (var_ref foo00)  s0_0) ) 
       ))
 
-      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 * (record_ref (var_ref locals2_s1_1)  f) (tex (var_ref sampler)  (var_ref coord)  (0 0 0) 1 () )) ) 
+      (if (expression bool > (var_ref locals0_i) (constant int (5)) ) (
+        (assign (constant bool (1)) (x) (var_ref locals0_i)  (record_ref (var_ref locals00_s0_0)  i) ) 
+      )
+      ())
+
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 * (expression float + (expression float + (expression float + (expression float i2f (var_ref locals0_i) ) (record_ref (array_ref (var_ref locals1Array) (constant int (6)) )  f) ) (array_ref (var_ref fArray) (constant int (3)) ) ) (record_ref (var_ref locals2_s1_1)  f) ) (tex (var_ref sampler)  (var_ref coord)  (0 0 0) 1 () )) ) 
     ))
 
 )
 
 
 )
+// LunarGOO output
+#version 130
+struct s0 {
+    int member0;
+};
+
+struct s00 {
+    s0 member0;
+};
+
+struct s1 {
+    int member0;
+    float member1;
+    s0 member2;
+};
+
+struct s2 {
+    int member0;
+    float member1;
+    s1 member2;
+};
+
+struct s3 {
+    s2[12] member0;
+    int member1;
+    float member2;
+    s1 member3;
+};
+
+uniform s3 foo3;
+uniform s1 foo1;
+uniform s0 foo0;
+uniform s00 foo00;
+uniform sampler2D sampler;
+s1[10] gla_globalAgg;
+s1 gla_globalAgg1;
+const int const21_1 = 1;
+s1[10] gla_globalAgg2;
+const int const30_0 = 0;
+const float[6] const31 = float[6](0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+const s0 const32 = s0(0);
+const s1 const33 = s1(0, 1, s0(0));
+in vec2 coord;
+const float[6] const36 = float[6](0, 1, 2, 3, 4, 5);
+const int const38_5 = 5;
+in vec2 coord14;
+
+void main()
+{
+    gla_globalAgg1.member0 = const21_1;
+    
+    float[6] fArray_0;
+    s0 locals00_s0_0_0;
+    s1 locals2_s1_1_0;
+    int locals0_i_0;
+    s1[10] locals1Array_0;
+    int locals0_i_1;
+    int temp28 = foo3.member0[9].member0;
+    bool temp29 = temp28 > const30_0;
+    if (temp29) {
+        gla_globalAgg[6] = foo1;
+        fArray_0 = const31;
+        locals00_s0_0_0 = const32;
+        locals2_s1_1_0 = const33;
+        locals0_i_0 = const30_0;
+        locals1Array_0 = gla_globalAgg;
+    }
+    else {
+        gla_globalAgg1.member1 = coord.y;
+        gla_globalAgg1.member2 = foo0;
+        gla_globalAgg2[6] = gla_globalAgg1;
+        int temp34 = foo1.member2.member0;
+        s0 locals00_s0_010 = foo00.member0;
+        fArray_0 = const36;
+        locals00_s0_0_0 = locals00_s0_010;
+        locals2_s1_1_0 = gla_globalAgg1;
+        locals0_i_0 = temp34;
+        locals1Array_0 = gla_globalAgg2;
+    }
+    
+    bool temp37 = locals0_i_0 > const38_5;
+    locals0_i_1 = locals0_i_0;
+    if (temp37) {
+        int locals0_i12 = locals00_s0_0_0.member0;
+        locals0_i_1 = locals0_i12;
+    }
+    
+    float temp40 = float(locals0_i_1);
+    float temp41 = locals1Array_0[6].member1;
+    float temp42 = temp40 + temp41;
+    float temp43 = fArray_0[3];
+    float temp44 = temp42 + temp43;
+    float temp45 = locals2_s1_1_0.member1;
+    float temp46 = temp44 + temp45;
+    vec4 temp47 = texture2D(sampler, coord14);
+    vec4 temp48 = vec4(temp46);
+    vec4 gla_copyout_gl_FragColor = temp48 * temp47;
+    gl_FragColor = gla_copyout_gl_FragColor;
+    
+}

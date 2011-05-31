@@ -143,7 +143,7 @@ public:
         } value;
     };  // end class SuperValue
 
-    static llvm::Constant* getConstant(std::vector<llvm::Constant*>&);
+    static llvm::Constant* getConstant(std::vector<llvm::Constant*>&, const llvm::Type*);
 
     // Make the main function. Returns the entry block
     llvm::BasicBlock* makeMain();

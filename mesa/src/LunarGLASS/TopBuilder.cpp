@@ -121,12 +121,25 @@ llvm::Function* Builder::makeFunctionEntry(const llvm::Type* type, const char* n
     return function;
 }
 
-llvm::Constant* Builder::getConstant(std::vector<llvm::Constant*>& constants)
+llvm::Constant* Builder::getConstant(std::vector<llvm::Constant*>& constants, const llvm::Type* type)
 {
-    if (constants.size() == 1)
+    assert(type);
+    
+    switch (type->getTypeID()) {
+    case llvm::Type::IntegerTyID:
+    case llvm::Type::FloatTyID:
         return constants[0];
+    case llvm::Type::VectorTyID:
+        return llvm::ConstantVector::get(constants);
+    case llvm::Type::ArrayTyID:
+        return llvm::ConstantArray::get(llvm::dyn_cast<llvm::ArrayType>(type), constants);
+    case llvm::Type::StructTyID:
+        return llvm::ConstantStruct::get(llvm::dyn_cast<llvm::StructType>(type), constants);
+    default:
+        assert(0 && "Constant type in TopBuilder");
+    }
 
-    return llvm::ConstantVector::get(constants);
+    return 0;
 }
 
 Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, int storageInstance,
@@ -306,7 +319,7 @@ llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, in
             std::vector<llvm::Constant*> offsets;
             offsets.push_back(MakeFloatConstant(context, offsetX));
             offsets.push_back(MakeFloatConstant(context, offsetY));
-            llvm::Constant* offset = getConstant(offsets);
+            llvm::Constant* offset = getConstant(offsets, llvm::VectorType::get(gla::GetFloatType(context), 2));
             intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolantOffset, type, offset->getType());
             return builder.CreateCall3(intrinsic, slotConstant, modeConstant, offset, name);
         } else {
