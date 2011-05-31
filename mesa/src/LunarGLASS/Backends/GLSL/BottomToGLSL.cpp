@@ -797,7 +797,16 @@ protected:
         mapGlaValue(value);
         return valueMap[value]->c_str();
     }
-
+    
+    void emitFloatConstant(std::ostringstream& out, float f)
+    {
+        if (floor(f) == f) {
+            out << static_cast<int>(floor(f));
+            out << ".0";
+        } else
+            out << f;
+    }
+    
     // emitConstantInitializer will be called recursively for aggregate types.
     // If the aggregate is zero initialized, sub-elements will not have a 
     // constant associated with them. For that case, and for ConstantAggregateZero, 
@@ -818,8 +827,8 @@ protected:
         case llvm::Type::IntegerTyID: {
             if (isZero) {
                 if (gla::IsBoolean(type))
-                    out << "false";
-                else
+                        out << "false";
+                    else
                     out << "0";
             } else {
                 if (gla::IsBoolean(type)) {
@@ -835,9 +844,9 @@ protected:
 
         case llvm::Type::FloatTyID: {
             if (isZero)
-                out << "0.0";
+                emitFloatConstant(out, 0.0);
             else
-                out << GetConstantFloat(constant);
+                emitFloatConstant(out, GetConstantFloat(constant));
             break;
         }
 
@@ -846,19 +855,19 @@ protected:
         case llvm::Type::StructTyID: {
             emitGlaType(out, type);
             out << "(";
-            
+
             int numElements = 0;
 
             if(const llvm::VectorType* vectorType = llvm::dyn_cast<llvm::VectorType>(type)) {
                 // If all vector elements are equal, we only need to emit one
-                bool same = true;
+            bool same = true;
                 if (! isZero) {
                     for (int op = 1; op < vectorType->getNumElements(); ++op) {
                         if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
-                            same = false;
-                            break;
-                        }
-                    }
+                    same = false;
+                    break;
+                }
+            }
                 }
                 numElements = same ? 1 : vectorType->getNumElements();
             } else if (const llvm::ArrayType*  arrayType = llvm::dyn_cast<llvm::ArrayType>(type))
@@ -882,8 +891,8 @@ protected:
 
         default:
             assert(0 && "Constant type in Bottom IR");
+            }
         }
-    }
 
     void emitInitializeAggregate(std::ostringstream& out, std::string varString, const llvm::Constant* constant)
     {
