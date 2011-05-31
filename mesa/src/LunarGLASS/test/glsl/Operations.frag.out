@@ -1314,10 +1314,10 @@ else197:                                          ; preds = %ifmerge191
 
 ifmerge199:                                       ; preds = %else197, %then195
   %conditional_tmp.0 = phi <4 x float> [ %conditional_tmp196, %then195 ], [ %v107, %else197 ]
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %conditional_tmp.0)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge199
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %conditional_tmp.0)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

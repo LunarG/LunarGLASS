@@ -79,10 +79,10 @@ entry:
   %5 = load float addrspace(1)* %gla_constGEP6
   %6 = fadd float %4, %5
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> %assignment_tmp1, i32 15, <3 x float> %3, i32 0, <3 x float> %3, i32 1, <3 x float> %3, i32 2, float %6, i32 -1)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %7)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %7)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

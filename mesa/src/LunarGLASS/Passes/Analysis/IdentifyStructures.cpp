@@ -55,8 +55,8 @@ bool IdentifyStructures::runOnFunction(Function &F)
     DominatorTree& domTree      = getAnalysis<DominatorTree>();
 
     // Set up stageExit and mainCopyOut
-    stageExit    = GetMainExit(F);
-    mainCopyOut = GetMainCopyOut(F);
+    stageExit   = GetMainExit(F);
+    mainCopyOut = GetMainEpilogue(F);
 
     // Identify conditionals
     for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {

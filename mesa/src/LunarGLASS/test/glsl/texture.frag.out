@@ -281,10 +281,10 @@ entry:
   %34 = load float addrspace(1)* @blend
   %35 = fmul float %34, 0x3FFC9FBE80000000
   %mix_retval31 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %assignment_tmp29, <4 x float> %33, float %35)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix_retval31)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix_retval31)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

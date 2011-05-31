@@ -41,10 +41,10 @@ entry:
   %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 1)
   %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
   call void @llvm.gla.fWriteData.f32(i32 0, float %Depth)
+  call void @llvm.gla.fWriteData.v4f32(i32 1, <4 x float> %Color)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  call void @llvm.gla.fWriteData.v4f32(i32 1, <4 x float> %Color)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

@@ -32,6 +32,8 @@
 //
 //   * Pointless phi nodes are removed (invalidating LCSSA).
 //
+//   * Merge unconditional branch chains
+//
 //===----------------------------------------------------------------------===//
 
 #include "llvm/Pass.h"
@@ -100,6 +102,12 @@ bool CanonicalizeCFG::runOnFunction(Function& F)
         changed = true;
     }
 
+    // Merge unconditional branch chains
+    for (Function::iterator bbI = F.begin(), e = F.end(); bbI != e; /* empty */ ) {
+        BasicBlock *bb = bbI++;
+        changed |= MergeBlockIntoPredecessor(bb);
+    }
+
     if (IsMain(F)) {
         changed |= restoreMainBlocks(F);
     }
@@ -111,9 +119,9 @@ bool CanonicalizeCFG::restoreMainBlocks(Function& F)
 {
     assert(CountReturnBlocks(F) == 1 && "main function does not have exactly 1 return block");
 
-    // Try to get existing exit and copy-out. If they exist, no need to restore.
-    exit    = GetMainExit(F);
-    epilogue = GetMainCopyOut(F);
+    // Try to get existing exit and epilogue. If they exist, no need to restore.
+    exit     = GetMainExit(F);
+    epilogue = GetMainEpilogue(F);
     if (exit && epilogue)
         return false;
 
@@ -130,35 +138,13 @@ bool CanonicalizeCFG::restoreMainBlocks(Function& F)
         assert(exit);
     }
 
-    // TODO: revise design for multiple/no fWriteDatas (other than
-    // gl_FragColor). Also, assert that the intrinsic does not appears elsewhere
-    // in function.
-    // Create the copy-out block if it's missing
+    // Create the epilogue block if it's missing
     if (! epilogue) {
-        // An iterator that will hold the position of the fWriteData instruction.
-        BasicBlock::iterator fwrite;
+        BasicBlock::iterator term = ret->end();
+        --term;
 
-        // stage-exit should have 1 and only 1 predecessor whose last
-        // non-terminating instruction is an fWriteData, find that predecessor
-        // NOTE: This may not be the case for geometry shaders, but they won't
-        // have discards.
-        BasicBlock* oldCopyOut = NULL;
-        for (pred_iterator pred = pred_begin(exit), e = pred_end(exit); pred != e; ++pred) {
-            // Get the copy-out instruction iterator
-            fwrite = (*pred)->end();
-            --fwrite;
-            assert(&*fwrite == (*pred)->getTerminator() && "missing/improper sentinel");
-            --fwrite;
-            IntrinsicInst* intrin = dyn_cast<IntrinsicInst>(fwrite);
-            if (intrin && intrin->getIntrinsicID() == Intrinsic::gla_fWriteData) {
-                oldCopyOut = *pred;
-                break;
-            }
-        }
-        assert(oldCopyOut && fwrite);
-
-        oldCopyOut->splitBasicBlock(fwrite, "stage-epilogue");
-        epilogue = GetMainCopyOut(F);
+        ret->splitBasicBlock(term, "stage-epilogue");
+        epilogue = GetMainEpilogue(F);
         assert(epilogue);
     }
 

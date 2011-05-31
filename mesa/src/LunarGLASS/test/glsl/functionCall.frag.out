@@ -45,10 +45,10 @@ entry:
   %2 = fadd float %0, %1
   %aggregate = load <4 x float>* @gla_globalAgg
   %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate, i32 15, float %2, i32 -1, float %2, i32 -1, float %2, i32 -1, float %2, i32 -1)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %3)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %3)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

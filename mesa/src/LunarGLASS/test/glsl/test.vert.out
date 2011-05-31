@@ -41,10 +41,10 @@ entry:
   %uv_in = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0)
   %position = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1)
   call void @llvm.gla.fWriteData.v2f32(i32 0, <2 x float> %uv_in)
+  call void @llvm.gla.fWriteData.v4f32(i32 1, <4 x float> %position)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  call void @llvm.gla.fWriteData.v4f32(i32 1, <4 x float> %position)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

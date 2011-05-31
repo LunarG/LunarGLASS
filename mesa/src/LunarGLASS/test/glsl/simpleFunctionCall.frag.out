@@ -30,10 +30,10 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %BaseColor)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %BaseColor)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

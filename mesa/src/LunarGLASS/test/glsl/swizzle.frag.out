@@ -169,10 +169,10 @@ ifmerge:                                          ; preds = %else, %then
   %9 = fmul <4 x float> %8, %3
   %10 = fmul <4 x float> %9, %w_flow.0
   %mix_retval18 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %2, <4 x float> %4, <4 x float> %10)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix_retval18)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix_retval18)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

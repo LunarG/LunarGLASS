@@ -61,7 +61,7 @@ namespace gla_llvm {
         {
             if (isMain) {
                 stageExit    = GetMainExit(function);
-                stageEpilogue = GetMainCopyOut(function);
+                stageEpilogue = GetMainEpilogue(function);
             }
 
             // Set up our excludes. If we're in a loop, thenwe exclude the

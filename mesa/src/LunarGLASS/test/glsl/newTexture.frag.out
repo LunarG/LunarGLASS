@@ -39,10 +39,10 @@ entry:
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %0 = load i32 addrspace(1)* @"sampler2D sampler"
   %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

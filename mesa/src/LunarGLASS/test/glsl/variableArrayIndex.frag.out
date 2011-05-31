@@ -109,10 +109,10 @@ ifmerge:                                          ; preds = %else, %then
   %10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %coord)
   %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.0, i32 0)
   %gl_FragColor = fmul <4 x float> %11, %10
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

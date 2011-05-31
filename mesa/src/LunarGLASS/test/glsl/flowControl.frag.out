@@ -75,10 +75,10 @@ entry:
   %color.0 = fadd <4 x float> %BaseColor, %.pn
   %2 = load <4 x float> addrspace(1)* @otherColor
   %gl_FragColor = fmul <4 x float> %color.0, %2
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

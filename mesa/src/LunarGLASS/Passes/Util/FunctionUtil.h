@@ -63,7 +63,7 @@ namespace gla_llvm {
 
     // Returns the stage-epilogue block if the function is main and it exists,
     // NULL otherwise.
-    inline BasicBlock* GetMainCopyOut(Function& fun)
+    inline BasicBlock* GetMainEpilogue(Function& fun)
     {
         if (! IsMain(fun))
             return NULL;
