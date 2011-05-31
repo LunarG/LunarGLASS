@@ -28,7 +28,7 @@
 //
 // Public interface to LunarGLASS.
 //
-// Don't include Mesa or other user's headers here.  LunarGLASS is not 
+// Don't include Mesa or other user's headers here.  LunarGLASS is not
 // Mesa-dependent nor dependent on other uses of it.
 //
 // Don't include LLVM headers here.  At the highest level use of LunarGLASS,
@@ -41,6 +41,7 @@
 #define LunarGLASSManager_H
 
 #include "vector"
+#include <string>
 
 namespace llvm {
     class Module;
@@ -52,16 +53,16 @@ namespace gla {
     typedef std::vector<std::string> PipelineSymbols;
 
     // Abstract class of external manager of translations within LunarGLASS.
-    // Use getManager() to get a concrete manager, which should be derived 
+    // Use getManager() to get a concrete manager, which should be derived
     // from gla::PrivateManager.
     class Manager {
     public:
         virtual ~Manager() { }    // the concrete class is expected to delete everything
         virtual void clear() = 0; // implement per-compile clear, so a manager object can be re-used
-        
+
         virtual void setModule(llvm::Module* m) { module = m; }
         virtual llvm::Module* getModule() { return module; }
-        
+
         virtual void setPipeOutSymbols(PipelineSymbols* s) { pipeOutSymbols = s; }
         virtual PipelineSymbols& getPipeOutSymbols() { return *pipeOutSymbols; }
 
