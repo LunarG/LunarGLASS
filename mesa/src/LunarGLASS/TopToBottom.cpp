@@ -100,12 +100,13 @@ static inline void RunOnModule(llvm::FunctionPassManager& pm, llvm::Module* m)
 // Verify each function
 static inline void VerifyModule(llvm::Module* module)
 {
-    // TODO: turn off for release builds
+#ifndef NDEBUG
 
     llvm::FunctionPassManager verifier(module);
     verifier.add(llvm::createVerifierPass());
-
     RunOnModule(verifier, module);
+
+#endif // NDEBUG
 }
 
 void gla::PrivateManager::runLLVMOptimizations1()
@@ -257,5 +258,4 @@ void gla::PrivateManager::runLLVMOptimizations1()
     canonicalize2.run(*module);
 
     VerifyModule(module);
-
 }
