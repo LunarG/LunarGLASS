@@ -372,8 +372,14 @@ main(int argc, char **argv)
 
       assert(whole_program->NumShaders == 1);
       struct gl_shader *Shader;
-      if (translate_linked_shader)
-         Shader = whole_program->_LinkedShaders[1];
+      if (translate_linked_shader) {
+          // assuming just one stage for now...  find it
+          for (int i = 0; i < MESA_SHADER_TYPES; ++i) {
+              Shader = whole_program->_LinkedShaders[i];
+              if (Shader)
+                  break;
+          }
+      }
       else
          Shader = whole_program->Shaders[0];
 

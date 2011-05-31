@@ -1520,21 +1520,20 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
     }
 
     gla::EInterpolationMode mode = gla::EIMNone;
-    if (glShader->Type != GL_FRAGMENT_SHADER)
-        gla::UnsupportedFunctionality("non-fragment shader pipeline read");
-
-    switch (var->interpolation) {
-    case ir_var_smooth:
-        mode = gla::EIMSmooth;
-        break;
-    case ir_var_noperspective:
-        mode = gla::EIMNoperspective;
-        break;
-    case ir_var_flat:
-        mode = gla::EIMNone;
-        break;
-    default:
-        gla::UnsupportedFunctionality("interpolation mode");
+    if (glShader->Type == GL_FRAGMENT_SHADER) {
+        switch (var->interpolation) {
+        case ir_var_smooth:
+            mode = gla::EIMSmooth;
+            break;
+        case ir_var_noperspective:
+            mode = gla::EIMNoperspective;
+            break;
+        case ir_var_flat:
+            mode = gla::EIMNone;
+            break;
+        default:
+            gla::UnsupportedFunctionality("interpolation mode");
+        }
     }
 
     // Give each interpolant a temporary unique index

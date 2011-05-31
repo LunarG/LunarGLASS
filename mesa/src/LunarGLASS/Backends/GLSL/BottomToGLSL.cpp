@@ -1695,6 +1695,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         return;
     }
     case llvm::Intrinsic::gla_readData:
+    case llvm::Intrinsic::gla_fReadData:
     case llvm::Intrinsic::gla_fReadInterpolant:
         if (addNewVariable(llvmInstruction, llvmInstruction->getNameStr())) {
             declareVariable(llvmInstruction->getType(), llvmInstruction->getNameStr(), EVQInput);
