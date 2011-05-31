@@ -195,7 +195,7 @@ namespace gla {
         virtual ~BackEnd() {};
 
         // despite being pure virtual, there is a base implementation available
-        virtual void getRegisterForm(int& outerSoA, int& innerAoS) = 0;
+        virtual void getRegisterForm(int& outerSoA, int& innerAoS)  = 0;
 
         virtual void getControlFlowMode(EFlowControlMode& flowControlMode,
                                         bool& breakOp, bool& continueOp,
@@ -229,6 +229,28 @@ namespace gla {
         {
             return false;
         }
+
+        // Does the backend want to see fcmp ord ..., or would it rather have
+        // LunarGLASS decompose it into fcmp eq %foo %foo?
+        virtual bool decomposeNaNCompares()
+        {
+            return false;
+        }
+
+        // Does the backend want GEP constant expressions to be hoisted into
+        // their own instructions?
+        virtual bool hoistGEPConstantOperands()
+        {
+            return true;
+        }
+
+        // Does the backend want LunarGLASS to hoist undef operands into
+        // globals?
+        virtual bool hoistUndefOperands()
+        {
+            return true;
+        }
+
 
     protected:
         bool decompose[EDiCount];

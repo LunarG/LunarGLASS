@@ -100,6 +100,8 @@ static inline void RunOnModule(llvm::FunctionPassManager& pm, llvm::Module* m)
 // Verify each function
 static inline void VerifyModule(llvm::Module* module)
 {
+    // TODO: turn off for release builds
+
     llvm::FunctionPassManager verifier(module);
     verifier.add(llvm::createVerifierPass());
 
@@ -108,7 +110,6 @@ static inline void VerifyModule(llvm::Module* module)
 
 void gla::PrivateManager::runLLVMOptimizations1()
 {
-    // TODO: turn off for release builds
     VerifyModule(module);
 
     // TODO: When we have backend support for shuffles, or we canonicalize
@@ -127,7 +128,6 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // Next, do interprocedural passes
     // Future work: If we ever have non-inlined functions, we'll want to add some
 
-    // TODO: turn off for release builds
     VerifyModule(module);
 
     // Set up the function-level optimizations we want
@@ -182,17 +182,13 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // LunarGLASS CFG optimizations
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
     passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass());
-
-    // Run GVN again for some cleanup post CFG cleanup
-    passManager.add(llvm::createBasicAliasAnalysisPass());
-    passManager.add(llvm::createGVNPass());
+    passManager.add(gla_llvm::createCanonicalizeCFGPass());
 
     passManager.add(llvm::createInstructionCombiningPass());
     passManager.add(llvm::createAggressiveDCEPass());
 
     RunOnModule(passManager, module);
 
-    // TODO: turn off for release builds
     VerifyModule(module);
 
     // Post Function passes cleanup
@@ -208,7 +204,6 @@ void gla::PrivateManager::runLLVMOptimizations1()
 
     pm.run(*module);
 
-    // TODO: turn off for release builds
     VerifyModule(module);
 
     // TODO: Refactor the below use of GlobalOpt. Perhaps we want to repeat our
@@ -244,17 +239,23 @@ void gla::PrivateManager::runLLVMOptimizations1()
         memoryPassManager.doFinalization();
     }
 
-    // TODO: turn off for release builds
     VerifyModule(module);
 
+    // Put the IR into a canonical form for BottomTranslator. The use of two
+    // seperate managers is a workaround for what appears to be a llvm 2.9 bug.
+
     llvm::PassManager canonicalize;
+    llvm::PassManager canonicalize2;
 
     canonicalize.add(llvm::createIndVarSimplifyPass());
-    canonicalize.add(gla_llvm::createCanonicalizeCFGPass());
-    canonicalize.add(gla_llvm::createCanonicalizeInstsPass());
+
     canonicalize.run(*module);
 
-    // TODO: turn off for release builds
+    canonicalize2.add(gla_llvm::createCanonicalizeCFGPass());
+    canonicalize2.add(gla_llvm::createBackEndPointerPass(backEnd));
+    canonicalize2.add(gla_llvm::createCanonicalizeInstsPass());
+    canonicalize2.run(*module);
+
     VerifyModule(module);
 
 }

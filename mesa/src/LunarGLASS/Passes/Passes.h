@@ -33,6 +33,10 @@
 
 #include "llvm/Pass.h"
 
+namespace gla {
+    class BackEnd;
+} // end namespace gla
+
 namespace gla_llvm {
     using namespace llvm;
 
@@ -52,6 +56,9 @@ namespace gla_llvm {
 
     // // Alias Analysis that says nothing ever aliases.
     // ImmutablePass* createNeverAliasPass();
+
+    // BackEnd queries
+    ImmutablePass* createBackEndPointerPass(gla::BackEnd*);
 
 } // end namespace gla_llvm
 

@@ -43,6 +43,7 @@
 #include "llvm/User.h"
 
 #include "Passes/PassSupport.h"
+#include "Passes/Immutable/BackEndPointer.h"
 
 // LunarGLASS helpers
 #include "Util.h"
@@ -65,86 +66,143 @@ namespace  {
         virtual void getAnalysisUsage(AnalysisUsage&) const;
 
     private:
+        void decomposeOrd(BasicBlock*);
+
+        void hoistOperands(BasicBlock*);
+
+        void hoistConstantGEPs(Instruction*);
+
+        void hoistUndefOps(Instruction*);
+
         CanonicalizeInsts(const CanonicalizeInsts&); // do not implement
         void operator=(const CanonicalizeInsts&); // do not implement
+
+        BackEnd* backEnd;
+        bool changed;
     };
 } // end namespace
 
+void CanonicalizeInsts::decomposeOrd(BasicBlock* bb)
+{
+    if (! backEnd->decomposeNaNCompares())
+        return;
+
+    for (BasicBlock::iterator instI = bb->begin(), instE = bb->end(); instI != instE; /* empty */) {
+        Instruction* inst = instI;
+        ++instI;
+
+        FCmpInst* cmp = dyn_cast<FCmpInst>(inst);
+        if (cmp && cmp->getPredicate() == CmpInst::FCMP_ORD) {
+            // See if/which one of the aguments is constant
+            bool isLeftConstant  = isa<Constant>(cmp->getOperand(0));
+            bool isRightConstant = isa<Constant>(cmp->getOperand(1));
+
+            if (isLeftConstant ^ isRightConstant) {
+                Value* arg = cmp->getOperand(isLeftConstant ? 1 : 0);
+                FCmpInst* newCmp = new FCmpInst(CmpInst::FCMP_OEQ, arg, arg, "ord");
+                ReplaceInstWithInst(cmp, newCmp);
+                changed = true;
+            }
+        }
+    }
+}
+
+void CanonicalizeInsts::hoistConstantGEPs(Instruction* inst)
+{
+    if (! backEnd->hoistGEPConstantOperands())
+        return;
+
+    Instruction* insertLoc = inst;
+
+    for (User::op_iterator constIter = inst->op_begin(), end = inst->op_end();  constIter != end; ++constIter) {
+
+        if (ConstantExpr* constExpr = dyn_cast<ConstantExpr>(*constIter)) {
+
+            if (constExpr->isGEPWithNoNotionalOverIndexing()) {
+
+                if (PHINode* phi = dyn_cast<PHINode>(inst))
+                    insertLoc = phi->getIncomingBlock(*constIter)->getTerminator();
+
+                // Convert the ConstantExpr to a GetElementPtrInst
+                std::vector<llvm::Value*> gepIndices;
+                ConstantExpr::op_iterator expIter = constExpr->op_begin(), end = constExpr->op_end();
+                // Skip the first GEP index
+
+                for (++expIter; expIter != end; ++expIter)
+                    gepIndices.push_back(*expIter);
+
+                // Insert new instruction and replace operand
+                *constIter = GetElementPtrInst::Create(constExpr->getOperand(0), gepIndices.begin(), gepIndices.end(), "gla_constGEP", insertLoc);
+                changed = true;
+
+            } else {
+                assert(0 && "Non-GEP constant expression");
+            }
+        }
+    }
+}
+
+void CanonicalizeInsts::hoistUndefOps(Instruction* inst)
+{
+    if (! backEnd->hoistUndefOperands())
+        return;
+
+    Instruction* insertLoc = inst;
+
+    for (User::op_iterator aggIter = inst->op_begin(), end = inst->op_end();  aggIter != end; ++aggIter) {
+
+        if (gla::IsAggregate(*aggIter) && !gla::AreAllDefined(*aggIter)) {
+
+            if (PHINode* phi = dyn_cast<PHINode>(inst))
+                insertLoc = phi->getIncomingBlock(*aggIter)->getTerminator();
+
+            // Create a global var representing the aggregate
+            Constant* agg = dyn_cast<Constant>(*aggIter);
+            GlobalVariable* var = new GlobalVariable(agg->getType(), false, GlobalVariable::InternalLinkage, agg, "gla_globalAgg");
+            inst->getParent()->getParent()->getParent()->getGlobalList().push_back(var);
+
+            // Insert new instruction and replace operand
+            *aggIter = new LoadInst(var, "aggregate", insertLoc);
+            changed = true;
+        }
+    }
+}
+
+void CanonicalizeInsts::hoistOperands(BasicBlock* bb)
+{
+    for (BasicBlock::iterator instI = bb->begin(), instE = bb->end(); instI != instE; ++instI) {
+        Instruction* inst = instI;
+
+        // Find operands that are GEP constant expressions and hoist them into a
+        // new instruction
+        hoistConstantGEPs(inst);
+
+        // Find operands that are undefined, or partially defined, and hoist
+        // them to globals
+        hoistUndefOps(inst);
+
+    }
+}
+
 bool CanonicalizeInsts::runOnFunction(Function& F)
 {
-    bool changed = false;
+    BackEndPointer* bep = getAnalysisIfAvailable<BackEndPointer>();
+    if (! bep) {
+        return false;
+    }
+    backEnd = *bep;
+
+    // Start off having not changed anything, our methods will set this to be
+    // true if they perform any changes
+    changed = false;
 
     for (Function::iterator bbI = F.begin(), bbE = F.end(); bbI != bbE; ++bbI) {
-        for (BasicBlock::iterator instI = bbI->begin(), instE = bbI->end(); instI != instE; /* empty */) {
-            Instruction* inst = instI;
-            ++instI;
+        // fcmp ord %foo <some-constant> --> fcmp oeq %foo %foo
+        // TODO: explore: fcmp ord %foo %bar --> fcmp oeq %foo %foo ; fcmp oeq %bar %bar
+        decomposeOrd(bbI);
 
-            // TODO: explore: fcmp ord %foo %bar --> fcmp oeq %foo %foo ; fcmp oeq %bar %bar
-
-            // fcmp ord %foo <some-constant> --> fcmp oeq %foo %foo
-            FCmpInst* cmp = dyn_cast<FCmpInst>(inst);
-            if (cmp && cmp->getPredicate() == CmpInst::FCMP_ORD) {
-                // See if/which one of the aguments is constant
-                bool isLeftConstant  = isa<Constant>(cmp->getOperand(0));
-                bool isRightConstant = isa<Constant>(cmp->getOperand(1));
-
-                if (isLeftConstant ^ isRightConstant) {
-                    Value* arg = cmp->getOperand(isLeftConstant ? 1 : 0);
-                    FCmpInst* newCmp = new FCmpInst(CmpInst::FCMP_OEQ, arg, arg, "ord");
-                    ReplaceInstWithInst(cmp, newCmp);
-                }
-            }
-        }
-
-        for (BasicBlock::iterator instI = bbI->begin(), instE = bbI->end(); instI != instE; ++instI) {
-            Instruction* inst = instI;
-            Instruction* insertLoc = inst;
-
-            // Find operands that are constant expressions and hoist them into a new instruction
-            for (User::op_iterator constIter = inst->op_begin(), end = inst->op_end();  constIter != end; ++constIter) {
-
-                if (ConstantExpr* constExpr = dyn_cast<ConstantExpr>(*constIter)) {
-
-                    if (constExpr->isGEPWithNoNotionalOverIndexing()) {
-
-                        if (PHINode* phi = dyn_cast<PHINode>(inst))
-                            insertLoc = phi->getIncomingBlock(*constIter)->getTerminator();
-
-                        // Convert the ConstantExpr to a GetElementPtrInst
-                        std::vector<llvm::Value*> gepIndices;
-                        ConstantExpr::op_iterator expIter = constExpr->op_begin(), end = constExpr->op_end();
-                        // Skip the first GEP index
-
-                        for (++expIter; expIter != end; ++expIter)
-                            gepIndices.push_back(*expIter);
-
-                        // Insert new instruction and replace operand
-                        *constIter = GetElementPtrInst::Create(constExpr->getOperand(0), gepIndices.begin(), gepIndices.end(), "gla_constGEP", insertLoc);
-
-                    } else {
-                        assert(0 && "Non-GEP constant expression");
-                    }
-                }
-            }
-
-            // Find operands that are undefined, or partially defined, and hoist them to globals
-            for (User::op_iterator aggIter = inst->op_begin(), end = inst->op_end();  aggIter != end; ++aggIter) {
-
-                if (gla::IsAggregate(*aggIter) && !gla::AreAllDefined(*aggIter)) {
-
-                    if (PHINode* phi = dyn_cast<PHINode>(inst))
-                        insertLoc = phi->getIncomingBlock(*aggIter)->getTerminator();
-
-                    // Create a global var representing the aggregate
-                    Constant* agg = dyn_cast<Constant>(*aggIter);
-                    GlobalVariable* var = new GlobalVariable(agg->getType(), false, GlobalVariable::InternalLinkage, agg, "gla_globalAgg");
-                    F.getParent()->getGlobalList().push_back(var);
-
-                    // Insert new instruction and replace operand
-                    *aggIter = new LoadInst(var, "aggregate", insertLoc);
-                }
-            }
-        }
+        // hoist constant GEPs and undefined operands.
+        hoistOperands(bbI);
     }
 
     return changed;

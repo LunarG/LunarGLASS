@@ -1,4 +1,4 @@
-//===- InitializePasses.h - Expose pass initialization declarations -------===//
+//===- BackEndPointer.cpp - Expose backend queries  -----------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -24,32 +24,29 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Expose pass initialization declarations
+// Expose backend queries to passes through the BackEndPointer class, which is
+// an immutable pass and behaves as a pointer to a BackEnd object.
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef GLA_INIT_PASSES_H
-#define GLA_INIT_PASSES_H
+#include "Passes/Immutable/BackEndPointer.h"
 
-// Use of llvm namespace required
-namespace llvm {
+#include "llvm/Pass.h"
 
-    void initializeBottomTranslatorPass(PassRegistry&);
+using namespace llvm;
+using namespace gla_llvm;
 
-    void initializeCanonicalizeCFGPass(PassRegistry&);
+char BackEndPointer::ID = 0;
+INITIALIZE_PASS(BackEndPointer,
+                "back-end-pointer",
+                "Exposes backend queries",
+                false, // Whether it looks only at CFG
+                true) // Whether it is an analysis pass
 
-    void initializeCanonicalizeInstsPass(PassRegistry&);
+namespace gla_llvm {
+    ImmutablePass* createBackEndPointerPass(gla::BackEnd* be)
+    {
+        return new BackEndPointer(be);
+    }
 
-    void initializeCoalesceInsertsPass(PassRegistry&);
-
-    void initializeFlattenCondAssnPass(PassRegistry&);
-
-    void initializeIdentifyConditionalsPass(PassRegistry&);
-
-    void initializeIdentifyStructuresPass(PassRegistry&);
-
-    void initializeBackEndPointerPass(PassRegistry&);
-
-} // end namespace llvm
-
-#endif // GLA_INIT_PASSES_H
+} // end namespace gla_llvm

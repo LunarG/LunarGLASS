@@ -94,6 +94,12 @@ public:
     {
         return true;
     }
+
+    virtual bool decomposeNaNCompares()
+    {
+        return true;
+    }
+
 };
 
 //
