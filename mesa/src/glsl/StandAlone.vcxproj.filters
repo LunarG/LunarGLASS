@@ -46,6 +46,9 @@
     <Filter Include="LunarGLASS\Backends\TGSI">
       <UniqueIdentifier>{03617591-4e47-4621-8d3f-5f8f5ab0baee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LunarGLASS\Backends\Dummy">
+      <UniqueIdentifier>{5a7758d8-8efa-4a5b-a30b-c5bad6914d1b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ast.h">
@@ -185,6 +188,9 @@
     </ClInclude>
     <ClInclude Include="..\LunarGLASS\Passes\Analysis\IdentifyStructures.h">
       <Filter>LunarGLASS\Passes\Analysis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Backends\Dummy\DummyTarget.h">
+      <Filter>LunarGLASS\Backends\Dummy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -463,6 +469,9 @@
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\Passes\Analysis\IdentifyStructures.cpp">
       <Filter>LunarGLASS\Passes\Analysis</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Backends\Dummy\BottomToDummy.cpp">
+      <Filter>LunarGLASS\Backends\Dummy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

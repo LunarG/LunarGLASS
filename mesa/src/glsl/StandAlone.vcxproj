@@ -87,6 +87,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\LunarGLASS\Backend.h" />
+    <ClInclude Include="..\LunarGLASS\Backends\Dummy\DummyTarget.h" />
     <ClInclude Include="..\LunarGLASS\Backends\GLSL\GlslTarget.h" />
     <ClInclude Include="..\LunarGLASS\Backends\TGSI\TgsiTarget.h" />
     <ClInclude Include="..\LunarGLASS\BottomIR.h" />
@@ -135,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\LunarGLASS\Backend.cpp" />
+    <ClCompile Include="..\LunarGLASS\Backends\Dummy\BottomToDummy.cpp" />
     <ClCompile Include="..\LunarGLASS\Backends\GLSL\BottomToGLSL.cpp" />
     <ClCompile Include="..\LunarGLASS\Backends\TGSI\BottomToTgsi.cpp" />
     <ClCompile Include="..\LunarGLASS\BottomIR.cpp" />

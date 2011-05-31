@@ -51,20 +51,20 @@ public:
     DummyBackEnd() { }
     virtual ~DummyBackEnd() { }
 
-    virtual void getRegisterForm(int& outerSoA, int& innerAoS) const
+    virtual void getRegisterForm(int& outerSoA, int& innerAoS)
     {
         gla::BackEnd::getRegisterForm(outerSoA, innerAoS);
     }
 
     virtual void getControlFlowMode(gla::EFlowControlMode& flowControlMode,
                                     bool& breakOp, bool& continueOp,
-                                    bool& earlyReturnOp, bool& discardOp) const
+                                    bool& earlyReturnOp, bool& discardOp)
     {
         gla::BackEnd::getControlFlowMode(flowControlMode, breakOp, continueOp,
                                          earlyReturnOp, discardOp);
     }
 
-    virtual bool getDeclarePhiCopies() const
+    virtual bool getDeclarePhiCopies()
     {
         return true;
     }
