@@ -49,6 +49,9 @@
     <Filter Include="LunarGLASS\Backends\Dummy">
       <UniqueIdentifier>{5a7758d8-8efa-4a5b-a30b-c5bad6914d1b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LunarGLASS\Passes\Immutable">
+      <UniqueIdentifier>{a20fb42e-3427-4b5f-a70c-3419c6a5eae3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ast.h">
@@ -191,6 +194,9 @@
     </ClInclude>
     <ClInclude Include="..\LunarGLASS\Backends\Dummy\DummyTarget.h">
       <Filter>LunarGLASS\Backends\Dummy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LunarGLASS\Passes\Immutable\BackEndPointer.h">
+      <Filter>LunarGLASS\Passes\Immutable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -472,6 +478,9 @@
     </ClCompile>
     <ClCompile Include="..\LunarGLASS\Backends\Dummy\BottomToDummy.cpp">
       <Filter>LunarGLASS\Backends\Dummy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LunarGLASS\Passes\Immutable\BackEndPointer.cpp">
+      <Filter>LunarGLASS\Passes\Immutable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
