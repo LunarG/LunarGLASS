@@ -80,6 +80,24 @@ void gla::LunarGManager::clear()
 
     delete pipeOutSymbols;
     pipeOutSymbols = 0;
+
+    //
+    // Note this is likely not the best design example for a driver backend,
+    // but that is between the private manager and the backend it is managing,
+    // so this code is sufficient for LunarG's current standalone backends.
+    // (The dummy backend does not use memory.)
+    //
+
+    switch (Options.backend) {
+    case TGSI:
+        gla::ReleaseTgsiTranslator(backEndTranslator);
+        backEndTranslator = gla::GetTgsiTranslator(this);
+        break;
+    case GLSL:
+        gla::ReleaseGlslTranslator(backEndTranslator);
+        backEndTranslator = gla::GetGlslTranslator(this);
+        break;
+    }
 }
 
 gla::LunarGManager::~LunarGManager()
