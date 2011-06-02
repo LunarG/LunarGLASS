@@ -136,6 +136,12 @@ void IdentifyStructures::releaseMemory()
     loopWrappers.clear();
 }
 
+IdentifyStructures::~IdentifyStructures()
+{
+    assert(conditionals.empty());
+    assert(loopWrappers.empty());
+}
+
 char IdentifyStructures::ID = 0;
 INITIALIZE_PASS_BEGIN(IdentifyStructures,
                       "identify-structures",

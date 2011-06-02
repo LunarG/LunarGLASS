@@ -56,6 +56,17 @@ namespace gla_llvm {
 
     class IdentifyStructures : public FunctionPass {
     public:
+        IdentifyStructures()
+            : FunctionPass(ID)
+            , loopInfo(0)
+            , mainCopyOut(0)
+            , stageExit(0)
+        {
+            initializeIdentifyStructuresPass(*PassRegistry::getPassRegistry());
+        }
+
+        ~IdentifyStructures();
+
         // Iterators for contained conditionals
         typedef DenseMap<const BasicBlock*, Conditional*>::iterator conditional_iterator;
         conditional_iterator conditional_begin() { return conditionals.begin(); }
@@ -68,15 +79,6 @@ namespace gla_llvm {
         // Returns the innermost loop that bb is in
         LoopWrapper* getLoopFor(const BasicBlock* bb) const { return loopWrappers.lookup(bb); }
 
-        // TODO: The below two methods can be removed after a more sophisticated update or
-        // recalcuate methods are created
-
-        // Erase the conditional from our analysis. Does not modify the actual program.
-        void eraseConditional(const BasicBlock* bb) { conditionals.erase(bb); }
-
-        // Set the underlying conditional to NULL (so as to potentially keep iterators valid)
-        void nullConditional(const BasicBlock* bb) { conditionals[bb] = NULL; }
-
         bool isMain() const { return stageExit; } // stageExit is only defined when in main
 
         bool isMainExit(const BasicBlock* bb)    const { return stageExit    && bb == stageExit; }
@@ -88,14 +90,6 @@ namespace gla_llvm {
         // Standard pass stuff
         static char ID;
 
-        IdentifyStructures()
-            : FunctionPass(ID)
-            , loopInfo(0)
-            , mainCopyOut(0)
-            , stageExit(0)
-        {
-            initializeIdentifyStructuresPass(*PassRegistry::getPassRegistry());
-        }
 
         bool runOnFunction(Function&);
         void print(raw_ostream&, const Module* = 0) const;

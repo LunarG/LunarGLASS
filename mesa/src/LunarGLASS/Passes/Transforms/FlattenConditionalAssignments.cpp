@@ -146,7 +146,6 @@ bool FlattenCondAssn::flattenConds()
         // Remove empty conditionals.
         if (removeEmptyConditional(cond)) {
             changed = true;
-            idStructures->nullConditional(entry);
         }
     }
 
