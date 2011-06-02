@@ -178,6 +178,12 @@ public:
         }
     }
 
+    void addOutputs(const gla::PipelineSymbols& outputs)
+    {
+        for (int i = 0; i < outputs.size(); ++i)
+            declareVariable(outputs[i].type, outputs[i].name, EVQOutput);
+    }
+
     void startFunctionDeclaration(const llvm::Type* type, const std::string& name)
     {
         newLine();
@@ -665,6 +671,7 @@ protected:
         case EVQUniform:
         case EVQConstant:
         case EVQInput:
+        case EVQOutput:
             globalDeclarations << mapGlaToQualifierString(vq);
             if (varString.find_first_of(' ') == std::string::npos) {
                 globalDeclarations << " ";
@@ -1669,7 +1676,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fWriteData: {
         newLine();
         int location = GetConstantInt(llvmInstruction->getOperand(0));
-        shader << manager->getPipeOutSymbols()[location] << " = ";
+        shader << manager->getPipeOutSymbols()[location].name << " = ";
         emitGlaOperand(llvmInstruction->getOperand(1));
         shader << ";";
         return;

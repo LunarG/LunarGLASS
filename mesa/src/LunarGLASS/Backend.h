@@ -100,6 +100,7 @@ namespace gla {
         virtual ~BackEndTranslator() { }
         virtual void addStructType(const std::string, const llvm::Type*) { }
         virtual void addGlobal(const llvm::GlobalVariable*) { }
+        virtual void addOutputs(const PipelineSymbols&) { }
         virtual void startFunctionDeclaration(const llvm::Type*, const std::string&) = 0;
         virtual void addArgument(const llvm::Value*, bool last) = 0;
         virtual void endFunctionDeclaration() = 0;

@@ -88,6 +88,7 @@ uv = uv_in ; gl_Position = position ; }
 )
 // LunarGOO output
 #version 130
+out vec2 uv;
 in vec2 uv_in;
 in vec4 position;
 

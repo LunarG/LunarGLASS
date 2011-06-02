@@ -124,10 +124,11 @@ namespace {
     public:
         BottomTranslator() : ModulePass(ID), backEndTranslator(0), backEnd(0) { }
 
-        BottomTranslator(gla::BackEndTranslator* bet, gla::BackEnd* be) : 
+        BottomTranslator(gla::BackEndTranslator* bet, gla::BackEnd* be, gla::Manager* m) : 
             ModulePass(ID), 
             backEndTranslator(bet), 
-            backEnd(be)
+            backEnd(be),
+            manager(m)
         {
             initializeBottomTranslatorPass(*PassRegistry::getPassRegistry());
         }
@@ -163,6 +164,7 @@ namespace {
     protected:
         gla::BackEndTranslator* backEndTranslator;
         gla::BackEnd* backEnd;
+        gla::Manager* manager;
         gla::EFlowControlMode flowControlMode;
 
         DominatorTree* domTree;
@@ -843,6 +845,9 @@ bool BottomTranslator::runOnModule(Module& module)
     for (Module::const_global_iterator global = module.global_begin(), end = module.global_end(); global != end; ++global)
         backEndTranslator->addGlobal(global);
 
+    // include shader pipeline outputs
+    backEndTranslator->addOutputs(manager->getPipeOutSymbols());
+
     //
     // Translate code.
     //
@@ -939,7 +944,7 @@ void gla::PrivateManager::translateBottomToTarget()
     if (! Options.bottomIROnly) {
         PassManager passManager;
         // llvm will delete what we pass to add, so that has be newed
-        passManager.add(new BottomTranslator(backEndTranslator, backEnd));
+        passManager.add(new BottomTranslator(backEndTranslator, backEnd, this));
         passManager.run(*module);
     }
 }

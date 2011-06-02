@@ -204,7 +204,8 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
             // Track the value that must be copied out to the pipeline at
             // the end of the shader.
             copyOuts.push_back(value);
-            manager->getPipeOutSymbols().push_back(value->getName());
+            PipelineSymbol symbol = {value->getName(), value->getType()->getContainedType(0)};
+            manager->getPipeOutSymbols().push_back(symbol);
         }
 
     } else {
