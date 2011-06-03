@@ -136,7 +136,10 @@ void CanonicalizeInsts::hoistConstantGEPs(Instruction* inst)
                 changed = true;
 
             } else {
-                assert(0 && "Non-GEP constant expression");
+                // TODO: add support for more constant expressions
+                // (e.g. involving undef)
+
+                // assert(0 && "Non-GEP constant expression");
             }
         }
     }
