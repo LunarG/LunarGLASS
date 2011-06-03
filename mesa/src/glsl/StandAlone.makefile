@@ -165,7 +165,7 @@ releaseTime: buildTime
 buildTime:
 	touch buildTime
 
-StandAlone: $(StandAlone_OBJECTS)
+StandAlone: ../src/../LunarGLASS/Revision.h $(StandAlone_OBJECTS)
 	$(CXX) -o $@ $(StandAlone_LDFLAGS) $(LDFLAGS) \
 		$(StandAlone_OBJECTS) $(StandAlone_LIBS)
 
