@@ -169,7 +169,7 @@ StandAlone: $(StandAlone_OBJECTS)
 	$(CXX) -o $@ $(StandAlone_LDFLAGS) $(LDFLAGS) \
 		$(StandAlone_OBJECTS) $(StandAlone_LIBS)
 
-../LunarGLASS/Revision.h: ../LunarGLASS/RevisionPrefix ../../../LastKnownGood
+../src/../LunarGLASS/Revision.h: ../LunarGLASS/RevisionPrefix ../../../LastKnownGood
 	cat ../LunarGLASS/RevisionPrefix ../../../LastKnownGood > ../LunarGLASS/Revision.h
 
 .c.o:

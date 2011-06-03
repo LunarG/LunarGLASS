@@ -1,1 +1,0 @@
-#define GLA_REVISION 465
