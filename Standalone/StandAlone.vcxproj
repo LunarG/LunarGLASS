@@ -44,7 +44,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../mesa;../mesa/program;../mapi;../../include;../talloc;../../include/c99;../LunarGLASS;../glsl;../../../LLVM/llvm-2.9/build/install/Debug/include;../mesa/main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../;../Core;../Standalone;../mesa/src/mesa;../mesa/src/mapi;../mesa/include;../mesa/include/c99;../mesa/src/mesa/program;../mesa/src/mesa/main;../mesa/src/glsl;../Core/LLVM/llvm-2.9/build/install/Debug/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -57,7 +57,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;LLVMInstCombine.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../../LLVM/llvm-2.9/build/install/Debug/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Core/LLVM/llvm-2.9/build/install/Debug/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -71,7 +71,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>../mesa;../mesa/program;../mapi;../../include;../talloc;../../include/c99;../LunarGLASS;../glsl;../../../LLVM/llvm-2.9/build/install/Release/include;../mesa/main;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../;../Core;../Standalone;../mesa/src/mesa;../mesa/src/mesa/main;../mesa/src/mesa/program;../mesa/src/mapi;../mesa/include;../mesa/include/c99;../mesa/src/glsl;../Core/LLVM/llvm-2.9/build/install/Release/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4624;4355;4291;4018;4800;4267;4996;4244;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <Optimization>MaxSpeed</Optimization>
     </ClCompile>
@@ -81,167 +81,167 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>../../../LLVM/llvm-2.9/build/install/Release/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Core/LLVM/llvm-2.9/build/install/Release/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;LLVMInstCombine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\LunarGLASS\Backend.h" />
-    <ClInclude Include="..\LunarGLASS\Backends\Dummy\DummyTarget.h" />
-    <ClInclude Include="..\LunarGLASS\Backends\GLSL\GlslTarget.h" />
-    <ClInclude Include="..\LunarGLASS\Backends\TGSI\TgsiTarget.h" />
-    <ClInclude Include="..\LunarGLASS\BottomIR.h" />
-    <ClInclude Include="..\LunarGLASS\Exceptions.h" />
-    <ClInclude Include="..\LunarGLASS\Frontends\Glsl2\GlslToTop.h" />
-    <ClInclude Include="..\LunarGLASS\Frontends\Glsl2\GlslToTopVisitor.h" />
-    <ClInclude Include="..\LunarGLASS\LunarGLASSManager.h" />
-    <ClInclude Include="..\LunarGLASS\LunarGLASSTopIR.h" />
-    <ClInclude Include="..\LunarGLASS\OptionParse.h" />
-    <ClInclude Include="..\LunarGLASS\Passes\Analysis\IdentifyStructures.h" />
-    <ClInclude Include="..\LunarGLASS\Passes\Immutable\BackEndPointer.h" />
-    <ClInclude Include="..\LunarGLASS\Passes\Transforms\Transforms.h" />
-    <ClInclude Include="..\LunarGLASS\Passes\Util\ADT.h" />
-    <ClInclude Include="..\LunarGLASS\Passes\Util\BasicBlockUtil.h" />
-    <ClInclude Include="..\LunarGLASS\Passes\Util\ConditionalUtil.h" />
-    <ClInclude Include="..\LunarGLASS\Passes\Util\FunctionUtil.h" />
-    <ClInclude Include="..\LunarGLASS\Passes\Util\LoopUtil.h" />
-    <ClInclude Include="..\LunarGLASS\PrivateManager.h" />
-    <ClInclude Include="..\LunarGLASS\Revision.h" />
-    <ClInclude Include="..\LunarGLASS\TopBuilder.h" />
-    <ClInclude Include="..\LunarGLASS\Util.h" />
-    <ClInclude Include="..\mesa\program\ir_to_mesa.h" />
-    <ClInclude Include="ast.h" />
-    <ClInclude Include="builtin_types.h" />
-    <ClInclude Include="builtin_variables.h" />
-    <ClInclude Include="glsl_parser.h" />
-    <ClInclude Include="glsl_parser_extras.h" />
-    <ClInclude Include="glsl_symbol_table.h" />
-    <ClInclude Include="glsl_types.h" />
-    <ClInclude Include="ir.h" />
-    <ClInclude Include="ir_basic_block.h" />
-    <ClInclude Include="ir_expression_flattening.h" />
-    <ClInclude Include="ir_function_inlining.h" />
-    <ClInclude Include="ir_hierarchical_visitor.h" />
-    <ClInclude Include="ir_optimization.h" />
-    <ClInclude Include="ir_print_visitor.h" />
-    <ClInclude Include="ir_reader.h" />
-    <ClInclude Include="ir_rvalue_visitor.h" />
-    <ClInclude Include="ir_variable_refcount.h" />
-    <ClInclude Include="ir_visitor.h" />
-    <ClInclude Include="linker.h" />
-    <ClInclude Include="list.h" />
-    <ClInclude Include="loop_analysis.h" />
-    <ClInclude Include="program.h" />
-    <ClInclude Include="ralloc.h" />
-    <ClInclude Include="s_expression.h" />
+    <ClInclude Include="..\Core\Backend.h" />
+    <ClInclude Include="..\Backends\Dummy\DummyTarget.h" />
+    <ClInclude Include="..\Backends\GLSL\GlslTarget.h" />
+    <ClInclude Include="..\Backends\TGSI\TgsiTarget.h" />
+    <ClInclude Include="..\Core\BottomIR.h" />
+    <ClInclude Include="..\Core\Exceptions.h" />
+    <ClInclude Include="..\Frontends\Glsl2\GlslToTop.h" />
+    <ClInclude Include="..\Frontends\Glsl2\GlslToTopVisitor.h" />
+    <ClInclude Include="..\Core\LunarGLASSManager.h" />
+    <ClInclude Include="..\Core\LunarGLASSTopIR.h" />
+    <ClInclude Include="OptionParse.h" />
+    <ClInclude Include="..\Core\Passes\Analysis\IdentifyStructures.h" />
+    <ClInclude Include="..\Core\Passes\Immutable\BackEndPointer.h" />
+    <ClInclude Include="..\Core\Passes\Transforms\Transforms.h" />
+    <ClInclude Include="..\Core\Passes\Util\ADT.h" />
+    <ClInclude Include="..\Core\Passes\Util\BasicBlockUtil.h" />
+    <ClInclude Include="..\Core\Passes\Util\ConditionalUtil.h" />
+    <ClInclude Include="..\Core\Passes\Util\FunctionUtil.h" />
+    <ClInclude Include="..\Core\Passes\Util\LoopUtil.h" />
+    <ClInclude Include="..\Core\PrivateManager.h" />
+    <ClInclude Include="..\Core\Revision.h" />
+    <ClInclude Include="..\Core\TopBuilder.h" />
+    <ClInclude Include="..\Core\Util.h" />
+    <ClInclude Include="..\mesa\src\mesa\program\ir_to_mesa.h" />
+    <ClInclude Include="..\mesa\src\glsl\ast.h" />
+    <ClInclude Include="..\mesa\src\glsl\builtin_types.h" />
+    <ClInclude Include="..\mesa\src\glsl\builtin_variables.h" />
+    <ClInclude Include="..\mesa\src\glsl\glsl_parser.h" />
+    <ClInclude Include="..\mesa\src\glsl\glsl_parser_extras.h" />
+    <ClInclude Include="..\mesa\src\glsl\glsl_symbol_table.h" />
+    <ClInclude Include="..\mesa\src\glsl\glsl_types.h" />
+    <ClInclude Include="..\mesa\src\glsl\ir.h" />
+    <ClInclude Include="..\mesa\src\glsl\ir_basic_block.h" />
+    <ClInclude Include="..\mesa\src\glsl\ir_expression_flattening.h" />
+    <ClInclude Include="..\mesa\src\glsl\ir_function_inlining.h" />
+    <ClInclude Include="..\mesa\src\glsl\ir_hierarchical_visitor.h" />
+    <ClInclude Include="..\mesa\src\glsl\ir_optimization.h" />
+    <ClInclude Include="..\mesa\src\glsl\ir_print_visitor.h" />
+    <ClInclude Include="..\mesa\src\glsl\ir_reader.h" />
+    <ClInclude Include="..\mesa\src\glsl\ir_rvalue_visitor.h" />
+    <ClInclude Include="..\mesa\src\glsl\ir_variable_refcount.h" />
+    <ClInclude Include="..\mesa\src\glsl\ir_visitor.h" />
+    <ClInclude Include="..\mesa\src\glsl\linker.h" />
+    <ClInclude Include="..\mesa\src\glsl\list.h" />
+    <ClInclude Include="..\mesa\src\glsl\loop_analysis.h" />
+    <ClInclude Include="..\mesa\src\glsl\program.h" />
+    <ClInclude Include="..\mesa\src\glsl\ralloc.h" />
+    <ClInclude Include="..\mesa\src\glsl\s_expression.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\LunarGLASS\Backend.cpp" />
-    <ClCompile Include="..\LunarGLASS\Backends\Dummy\BottomToDummy.cpp" />
-    <ClCompile Include="..\LunarGLASS\Backends\GLSL\BottomToGLSL.cpp" />
-    <ClCompile Include="..\LunarGLASS\Backends\TGSI\BottomToTgsi.cpp" />
-    <ClCompile Include="..\LunarGLASS\BottomIR.cpp" />
-    <ClCompile Include="..\LunarGLASS\BottomTranslator.cpp" />
-    <ClCompile Include="..\LunarGLASS\Exceptions.cpp" />
-    <ClCompile Include="..\LunarGLASS\Frontends\Glsl2\GlslToTop.cpp" />
-    <ClCompile Include="..\LunarGLASS\Frontends\Glsl2\GlslToTopVisitor.cpp" />
-    <ClCompile Include="..\LunarGLASS\LunarGManager.cpp" />
-    <ClCompile Include="..\LunarGLASS\Options.cpp" />
-    <ClCompile Include="..\LunarGLASS\Passes\Analysis\IdentifyStructures.cpp" />
-    <ClCompile Include="..\LunarGLASS\Passes\Immutable\BackEndPointer.cpp" />
-    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeCFG.cpp" />
-    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeInsts.cpp" />
-    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts.cpp" />
-    <ClCompile Include="..\LunarGLASS\Passes\Transforms\FlattenConditionalAssignments.cpp" />
-    <ClCompile Include="..\LunarGLASS\Passes\Util\BasicBlockUtil.cpp" />
-    <ClCompile Include="..\LunarGLASS\Passes\Util\ConditionalUtil.cpp" />
-    <ClCompile Include="..\LunarGLASS\TopBuilder.cpp" />
-    <ClCompile Include="..\LunarGLASS\TopToBottom.cpp" />
-    <ClCompile Include="..\LunarGLASS\Util.cpp" />
-    <ClCompile Include="..\mesa\program\ir_to_mesa.cpp" />
-    <ClCompile Include="..\mesa\program\prog_print.c" />
-    <ClCompile Include="..\mesa\program\sampler.cpp" />
-    <ClCompile Include="ast_expr.cpp" />
-    <ClCompile Include="ast_function.cpp" />
-    <ClCompile Include="ast_to_hir.cpp" />
-    <ClCompile Include="ast_type.cpp" />
-    <ClCompile Include="builtin_function.cpp" />
-    <ClCompile Include="glcpp\glcpp-lex.c" />
-    <ClCompile Include="glcpp\glcpp-parse.c" />
-    <ClCompile Include="glsl_lexer.cpp" />
-    <ClCompile Include="glsl_parser.cpp" />
-    <ClCompile Include="glsl_parser_extras.cpp" />
-    <ClCompile Include="glsl_symbol_table.cpp" />
-    <ClCompile Include="glsl_types.cpp" />
-    <ClCompile Include="..\mesa\program\hash_table.c" />
-    <ClCompile Include="hir_field_selection.cpp" />
-    <ClCompile Include="ir.cpp" />
-    <ClCompile Include="ir_basic_block.cpp" />
-    <ClCompile Include="ir_clone.cpp" />
-    <ClCompile Include="ir_constant_expression.cpp" />
-    <ClCompile Include="ir_expression_flattening.cpp" />
-    <ClCompile Include="ir_function.cpp" />
-    <ClCompile Include="ir_function_can_inline.cpp" />
-    <ClCompile Include="ir_hierarchical_visitor.cpp" />
-    <ClCompile Include="ir_hv_accept.cpp" />
-    <ClCompile Include="ir_import_prototypes.cpp" />
-    <ClCompile Include="ir_print_visitor.cpp" />
-    <ClCompile Include="ir_reader.cpp" />
-    <ClCompile Include="ir_rvalue_visitor.cpp" />
-    <ClCompile Include="ir_set_program_inouts.cpp" />
-    <ClCompile Include="ir_validate.cpp" />
-    <ClCompile Include="ir_variable.cpp" />
-    <ClCompile Include="ir_variable_refcount.cpp" />
-    <ClCompile Include="link_functions.cpp" />
-    <ClCompile Include="linker.cpp" />
-    <ClCompile Include="loop_analysis.cpp" />
-    <ClCompile Include="loop_controls.cpp" />
-    <ClCompile Include="loop_unroll.cpp" />
-    <ClCompile Include="lower_discard.cpp" />
-    <ClCompile Include="lower_if_to_cond_assign.cpp" />
-    <ClCompile Include="lower_instructions.cpp" />
-    <ClCompile Include="lower_jumps.cpp" />
-    <ClCompile Include="lower_mat_op_to_vec.cpp" />
-    <ClCompile Include="lower_noise.cpp" />
-    <ClCompile Include="lower_texture_projection.cpp" />
-    <ClCompile Include="lower_variable_index_to_cond_assign.cpp" />
-    <ClCompile Include="lower_vector.cpp" />
-    <ClCompile Include="lower_vec_index_to_cond_assign.cpp" />
-    <ClCompile Include="lower_vec_index_to_swizzle.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="opt_algebraic.cpp" />
-    <ClCompile Include="opt_constant_folding.cpp" />
-    <ClCompile Include="opt_constant_propagation.cpp" />
-    <ClCompile Include="opt_constant_variable.cpp" />
-    <ClCompile Include="opt_copy_propagation.cpp" />
-    <ClCompile Include="opt_dead_code.cpp" />
-    <ClCompile Include="opt_dead_code_local.cpp" />
-    <ClCompile Include="opt_dead_functions.cpp" />
-    <ClCompile Include="opt_discard_simplification.cpp" />
-    <ClCompile Include="opt_function_inlining.cpp" />
-    <ClCompile Include="opt_if_simplification.cpp" />
-    <ClCompile Include="opt_noop_swizzle.cpp" />
-    <ClCompile Include="opt_redundant_jumps.cpp" />
-    <ClCompile Include="glcpp\pp.c" />
-    <ClCompile Include="opt_structure_splitting.cpp" />
-    <ClCompile Include="opt_swizzle_swizzle.cpp" />
-    <ClCompile Include="opt_tree_grafting.cpp" />
-    <ClCompile Include="ralloc.c" />
-    <ClCompile Include="strtod.c" />
-    <ClCompile Include="s_expression.cpp" />
-    <ClCompile Include="..\mesa\program\symbol_table.c" />
+    <ClCompile Include="..\Core\Backend.cpp" />
+    <ClCompile Include="..\Backends\Dummy\BottomToDummy.cpp" />
+    <ClCompile Include="..\Backends\GLSL\BottomToGLSL.cpp" />
+    <ClCompile Include="..\Backends\TGSI\BottomToTgsi.cpp" />
+    <ClCompile Include="..\Core\BottomIR.cpp" />
+    <ClCompile Include="..\Core\BottomTranslator.cpp" />
+    <ClCompile Include="..\Core\Exceptions.cpp" />
+    <ClCompile Include="..\Frontends\Glsl2\GlslToTop.cpp" />
+    <ClCompile Include="..\Frontends\Glsl2\GlslToTopVisitor.cpp" />
+    <ClCompile Include="LunarGManager.cpp" />
+    <ClCompile Include="..\Core\Options.cpp" />
+    <ClCompile Include="..\Core\Passes\Analysis\IdentifyStructures.cpp" />
+    <ClCompile Include="..\Core\Passes\Immutable\BackEndPointer.cpp" />
+    <ClCompile Include="..\Core\Passes\Transforms\CanonicalizeCFG.cpp" />
+    <ClCompile Include="..\Core\Passes\Transforms\CanonicalizeInsts.cpp" />
+    <ClCompile Include="..\Core\Passes\Transforms\CoalesceInserts.cpp" />
+    <ClCompile Include="..\Core\Passes\Transforms\FlattenConditionalAssignments.cpp" />
+    <ClCompile Include="..\Core\Passes\Util\BasicBlockUtil.cpp" />
+    <ClCompile Include="..\Core\Passes\Util\ConditionalUtil.cpp" />
+    <ClCompile Include="..\Core\TopBuilder.cpp" />
+    <ClCompile Include="..\Core\TopToBottom.cpp" />
+    <ClCompile Include="..\Core\Util.cpp" />
+    <ClCompile Include="..\mesa\src\mesa\program\ir_to_mesa.cpp" />
+    <ClCompile Include="..\mesa\src\mesa\program\prog_print.c" />
+    <ClCompile Include="..\mesa\src\mesa\program\sampler.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ast_expr.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ast_function.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ast_to_hir.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ast_type.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\builtin_function.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\glcpp\glcpp-lex.c" />
+    <ClCompile Include="..\mesa\src\glsl\glcpp\glcpp-parse.c" />
+    <ClCompile Include="..\mesa\src\glsl\glsl_lexer.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\glsl_parser.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\glsl_parser_extras.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\glsl_symbol_table.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\glsl_types.cpp" />
+    <ClCompile Include="..\mesa\src\mesa\program\hash_table.c" />
+    <ClCompile Include="..\mesa\src\glsl\hir_field_selection.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_basic_block.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_clone.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_constant_expression.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_expression_flattening.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_function.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_function_can_inline.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_hierarchical_visitor.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_hv_accept.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_import_prototypes.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_print_visitor.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_reader.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_rvalue_visitor.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_set_program_inouts.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_validate.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_variable.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ir_variable_refcount.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\link_functions.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\linker.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\loop_analysis.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\loop_controls.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\loop_unroll.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\lower_discard.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\lower_if_to_cond_assign.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\lower_instructions.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\lower_jumps.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\lower_mat_op_to_vec.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\lower_noise.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\lower_texture_projection.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\lower_variable_index_to_cond_assign.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\lower_vector.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\lower_vec_index_to_cond_assign.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\lower_vec_index_to_swizzle.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\main.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_algebraic.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_constant_folding.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_constant_propagation.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_constant_variable.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_copy_propagation.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_dead_code.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_dead_code_local.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_dead_functions.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_discard_simplification.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_function_inlining.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_if_simplification.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_noop_swizzle.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_redundant_jumps.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\glcpp\pp.c" />
+    <ClCompile Include="..\mesa\src\glsl\opt_structure_splitting.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_swizzle_swizzle.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\opt_tree_grafting.cpp" />
+    <ClCompile Include="..\mesa\src\glsl\ralloc.c" />
+    <ClCompile Include="..\mesa\src\glsl\strtod.c" />
+    <ClCompile Include="..\mesa\src\glsl\s_expression.cpp" />
+    <ClCompile Include="..\mesa\src\mesa\program\symbol_table.c" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\LunarGLASS\RevisionPrefix">
+    <CustomBuild Include="..\Core\RevisionPrefix">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">type ..\LunarGLASS\RevisionPrefix &gt; ..\LunarGLASS\Revision.h &amp; type ..\..\..\LastKnownGood &gt;&gt; ..\LunarGLASS\Revision.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">type ..\Core\RevisionPrefix &gt; ..\Core\Revision.h &amp; type ..\LastKnownGood &gt;&gt; ..\Core\Revision.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Revision.h</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\LunarGLASS\Revision.h</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\LastKnownGood</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\Core\Revision.h</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\LastKnownGood</AdditionalInputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\LastKnownGood" />
+    <None Include="..\LastKnownGood" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,484 +13,487 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="LunarGLASS">
+    <Filter Include="Core">
       <UniqueIdentifier>{3b99a378-26fc-408f-b395-609e8e6ede4b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\mesa">
       <UniqueIdentifier>{dab25d77-a291-43fe-b007-1d5db45c7ffe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LunarGLASS\Passes">
+    <Filter Include="Core\Passes">
       <UniqueIdentifier>{10660ab4-0e1b-4f71-b4ea-c791360b5e14}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LunarGLASS\Passes\Transforms">
+    <Filter Include="Core\Passes\Transforms">
       <UniqueIdentifier>{da4a373f-7fe3-41c9-a4aa-c93de23ee048}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LunarGLASS\Passes\Analysis">
+    <Filter Include="Core\Passes\Analysis">
       <UniqueIdentifier>{7989d6ce-9a84-40c6-b293-8b6fab38bbfa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LunarGLASS\Passes\Util">
+    <Filter Include="Core\Passes\Util">
       <UniqueIdentifier>{bf133732-b6de-4cf0-89ee-43ea510be42d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LunarGLASS\Backends">
+    <Filter Include="Backends">
       <UniqueIdentifier>{b339e086-d8b2-4925-a49c-eff520da50ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LunarGLASS\Frontends">
+    <Filter Include="Frontends">
       <UniqueIdentifier>{f965b0f4-72d1-456d-b406-07a2eee30284}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LunarGLASS\Frontends\Glsl2">
+    <Filter Include="Frontends\Glsl2">
       <UniqueIdentifier>{bff67a2f-1bb1-4df7-bb49-48650c6b92ac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LunarGLASS\Backends\GLSL">
+    <Filter Include="Backends\GLSL">
       <UniqueIdentifier>{b65a1461-97c7-4f20-8d9b-74da4102af3e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LunarGLASS\Backends\TGSI">
+    <Filter Include="Backends\TGSI">
       <UniqueIdentifier>{03617591-4e47-4621-8d3f-5f8f5ab0baee}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LunarGLASS\Backends\Dummy">
+    <Filter Include="Backends\Dummy">
       <UniqueIdentifier>{5a7758d8-8efa-4a5b-a30b-c5bad6914d1b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LunarGLASS\Passes\Immutable">
+    <Filter Include="Core\Passes\Immutable">
       <UniqueIdentifier>{a20fb42e-3427-4b5f-a70c-3419c6a5eae3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Standalone">
+      <UniqueIdentifier>{7347952d-fbf3-4351-b30f-847c942b2fb1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ast.h">
+    <ClInclude Include="..\Core\LunarGLASSTopIR.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Exceptions.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Revision.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\TopBuilder.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Passes\Util\ADT.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Passes\Util\BasicBlockUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Passes\Util\FunctionUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Passes\Util\LoopUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Passes\Transforms\Transforms.h">
+      <Filter>Core\Passes\Transforms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\PrivateManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\LunarGLASSManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Util.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Backend.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\BottomIR.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Frontends\Glsl2\GlslToTop.h">
+      <Filter>Frontends\Glsl2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Frontends\Glsl2\GlslToTopVisitor.h">
+      <Filter>Frontends\Glsl2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Backends\GLSL\GlslTarget.h">
+      <Filter>Backends\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Backends\TGSI\TgsiTarget.h">
+      <Filter>Backends\TGSI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Passes\Util\ConditionalUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Passes\Analysis\IdentifyStructures.h">
+      <Filter>Core\Passes\Analysis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Backends\Dummy\DummyTarget.h">
+      <Filter>Backends\Dummy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Passes\Immutable\BackEndPointer.h">
+      <Filter>Core\Passes\Immutable</Filter>
+    </ClInclude>
+    <ClInclude Include="OptionParse.h">
+      <Filter>Standalone</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mesa\src\glsl\ast.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="builtin_types.h">
+    <ClInclude Include="..\mesa\src\glsl\builtin_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="builtin_variables.h">
+    <ClInclude Include="..\mesa\src\glsl\builtin_variables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="glsl_parser.h">
+    <ClInclude Include="..\mesa\src\glsl\glsl_parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="glsl_parser_extras.h">
+    <ClInclude Include="..\mesa\src\glsl\glsl_parser_extras.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="glsl_symbol_table.h">
+    <ClInclude Include="..\mesa\src\glsl\glsl_symbol_table.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="glsl_types.h">
+    <ClInclude Include="..\mesa\src\glsl\glsl_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ir.h">
+    <ClInclude Include="..\mesa\src\glsl\ir.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ir_basic_block.h">
+    <ClInclude Include="..\mesa\src\glsl\ir_basic_block.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ir_expression_flattening.h">
+    <ClInclude Include="..\mesa\src\glsl\ir_expression_flattening.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ir_function_inlining.h">
+    <ClInclude Include="..\mesa\src\glsl\ir_function_inlining.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ir_hierarchical_visitor.h">
+    <ClInclude Include="..\mesa\src\glsl\ir_hierarchical_visitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ir_optimization.h">
+    <ClInclude Include="..\mesa\src\glsl\ir_optimization.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ir_print_visitor.h">
+    <ClInclude Include="..\mesa\src\glsl\ir_print_visitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ir_reader.h">
+    <ClInclude Include="..\mesa\src\glsl\ir_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ir_rvalue_visitor.h">
+    <ClInclude Include="..\mesa\src\glsl\ir_rvalue_visitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ir_variable_refcount.h">
+    <ClInclude Include="..\mesa\src\glsl\ir_variable_refcount.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ir_visitor.h">
+    <ClInclude Include="..\mesa\src\glsl\ir_visitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="linker.h">
+    <ClInclude Include="..\mesa\src\glsl\linker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="list.h">
+    <ClInclude Include="..\mesa\src\glsl\list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="loop_analysis.h">
+    <ClInclude Include="..\mesa\src\glsl\loop_analysis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="program.h">
+    <ClInclude Include="..\mesa\src\glsl\program.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="s_expression.h">
+    <ClInclude Include="..\mesa\src\glsl\ralloc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\mesa\program\ir_to_mesa.h">
+    <ClInclude Include="..\mesa\src\glsl\s_expression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\LunarGLASS\LunarGLASSTopIR.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Exceptions.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\OptionParse.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="ralloc.h">
+    <ClInclude Include="..\mesa\src\mesa\program\ir_to_mesa.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Revision.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\TopBuilder.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Passes\Util\ADT.h">
-      <Filter>LunarGLASS\Passes\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Passes\Util\BasicBlockUtil.h">
-      <Filter>LunarGLASS\Passes\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Passes\Util\FunctionUtil.h">
-      <Filter>LunarGLASS\Passes\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Passes\Util\LoopUtil.h">
-      <Filter>LunarGLASS\Passes\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Passes\Transforms\Transforms.h">
-      <Filter>LunarGLASS\Passes\Transforms</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\PrivateManager.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\LunarGLASSManager.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Util.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Backend.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\BottomIR.h">
-      <Filter>LunarGLASS</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Frontends\Glsl2\GlslToTop.h">
-      <Filter>LunarGLASS\Frontends\Glsl2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Frontends\Glsl2\GlslToTopVisitor.h">
-      <Filter>LunarGLASS\Frontends\Glsl2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Backends\GLSL\GlslTarget.h">
-      <Filter>LunarGLASS\Backends\GLSL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Backends\TGSI\TgsiTarget.h">
-      <Filter>LunarGLASS\Backends\TGSI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Passes\Util\ConditionalUtil.h">
-      <Filter>LunarGLASS\Passes\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Passes\Analysis\IdentifyStructures.h">
-      <Filter>LunarGLASS\Passes\Analysis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Backends\Dummy\DummyTarget.h">
-      <Filter>LunarGLASS\Backends\Dummy</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LunarGLASS\Passes\Immutable\BackEndPointer.h">
-      <Filter>LunarGLASS\Passes\Immutable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ast_expr.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\TopToBottom.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="ast_function.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\BottomTranslator.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="ast_to_hir.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Options.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="ast_type.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Exceptions.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="builtin_function.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Passes\Transforms\CanonicalizeCFG.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
     </ClCompile>
-    <ClCompile Include="glcpp\glcpp-lex.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Passes\Transforms\CoalesceInserts.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
     </ClCompile>
-    <ClCompile Include="glcpp\glcpp-parse.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\TopBuilder.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="glsl_lexer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Passes\Util\BasicBlockUtil.cpp">
+      <Filter>Core\Passes\Util</Filter>
     </ClCompile>
-    <ClCompile Include="glsl_parser.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Passes\Transforms\FlattenConditionalAssignments.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
     </ClCompile>
-    <ClCompile Include="glsl_parser_extras.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Backend.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="glsl_symbol_table.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Util.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="glsl_types.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\BottomIR.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\mesa\program\hash_table.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Frontends\Glsl2\GlslToTop.cpp">
+      <Filter>Frontends\Glsl2</Filter>
     </ClCompile>
-    <ClCompile Include="hir_field_selection.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Frontends\Glsl2\GlslToTopVisitor.cpp">
+      <Filter>Frontends\Glsl2</Filter>
     </ClCompile>
-    <ClCompile Include="ir.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Backends\GLSL\BottomToGLSL.cpp">
+      <Filter>Backends\GLSL</Filter>
     </ClCompile>
-    <ClCompile Include="ir_basic_block.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Backends\TGSI\BottomToTgsi.cpp">
+      <Filter>Backends\TGSI</Filter>
     </ClCompile>
-    <ClCompile Include="ir_clone.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Passes\Util\ConditionalUtil.cpp">
+      <Filter>Core\Passes\Util</Filter>
     </ClCompile>
-    <ClCompile Include="ir_constant_expression.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Passes\Transforms\CanonicalizeInsts.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
     </ClCompile>
-    <ClCompile Include="ir_expression_flattening.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Passes\Analysis\IdentifyStructures.cpp">
+      <Filter>Core\Passes\Analysis</Filter>
     </ClCompile>
-    <ClCompile Include="ir_function.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Backends\Dummy\BottomToDummy.cpp">
+      <Filter>Backends\Dummy</Filter>
     </ClCompile>
-    <ClCompile Include="ir_function_can_inline.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Core\Passes\Immutable\BackEndPointer.cpp">
+      <Filter>Core\Passes\Immutable</Filter>
     </ClCompile>
-    <ClCompile Include="ir_hierarchical_visitor.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="LunarGManager.cpp">
+      <Filter>Standalone</Filter>
     </ClCompile>
-    <ClCompile Include="ir_hv_accept.cpp">
+    <ClCompile Include="..\mesa\src\glsl\ast_expr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_import_prototypes.cpp">
+    <ClCompile Include="..\mesa\src\glsl\ast_to_hir.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_print_visitor.cpp">
+    <ClCompile Include="..\mesa\src\glsl\ast_type.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_reader.cpp">
+    <ClCompile Include="..\mesa\src\glsl\builtin_function.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_rvalue_visitor.cpp">
+    <ClCompile Include="..\mesa\src\glsl\glcpp\glcpp-lex.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_set_program_inouts.cpp">
+    <ClCompile Include="..\mesa\src\glsl\glcpp\glcpp-parse.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_validate.cpp">
+    <ClCompile Include="..\mesa\src\glsl\glsl_lexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_variable.cpp">
+    <ClCompile Include="..\mesa\src\glsl\glsl_parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ir_variable_refcount.cpp">
+    <ClCompile Include="..\mesa\src\glsl\glsl_parser_extras.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="link_functions.cpp">
+    <ClCompile Include="..\mesa\src\glsl\glsl_symbol_table.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="linker.cpp">
+    <ClCompile Include="..\mesa\src\glsl\glsl_types.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="loop_analysis.cpp">
+    <ClCompile Include="..\mesa\src\glsl\hir_field_selection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="loop_controls.cpp">
+    <ClCompile Include="..\mesa\src\glsl\ir.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="loop_unroll.cpp">
+    <ClCompile Include="..\mesa\src\glsl\ir_basic_block.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lower_noise.cpp">
+    <ClCompile Include="..\mesa\src\glsl\ir_clone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lower_variable_index_to_cond_assign.cpp">
+    <ClCompile Include="..\mesa\src\glsl\ir_constant_expression.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="..\mesa\src\glsl\ir_expression_flattening.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_redundant_jumps.cpp">
+    <ClCompile Include="..\mesa\src\glsl\ir_function.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="glcpp\pp.c">
+    <ClCompile Include="..\mesa\src\glsl\ir_function_can_inline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="s_expression.cpp">
+    <ClCompile Include="..\mesa\src\glsl\ir_hierarchical_visitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\mesa\program\symbol_table.c">
+    <ClCompile Include="..\mesa\src\glsl\ir_hv_accept.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\TopToBottom.cpp">
-      <Filter>LunarGLASS</Filter>
+    <ClCompile Include="..\mesa\src\glsl\ir_import_prototypes.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\mesa\program\prog_print.c">
+    <ClCompile Include="..\mesa\src\glsl\ir_print_visitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\mesa\program\ir_to_mesa.cpp">
-      <Filter>Source Files\mesa</Filter>
+    <ClCompile Include="..\mesa\src\glsl\ir_reader.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\BottomTranslator.cpp">
-      <Filter>LunarGLASS</Filter>
+    <ClCompile Include="..\mesa\src\glsl\ir_rvalue_visitor.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Options.cpp">
-      <Filter>LunarGLASS</Filter>
+    <ClCompile Include="..\mesa\src\glsl\ir_set_program_inouts.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Exceptions.cpp">
-      <Filter>LunarGLASS</Filter>
+    <ClCompile Include="..\mesa\src\glsl\ir_validate.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ralloc.c">
+    <ClCompile Include="..\mesa\src\glsl\ir_variable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_algebraic.cpp">
+    <ClCompile Include="..\mesa\src\glsl\ir_variable_refcount.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_constant_folding.cpp">
+    <ClCompile Include="..\mesa\src\glsl\link_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_constant_propagation.cpp">
+    <ClCompile Include="..\mesa\src\glsl\linker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_constant_variable.cpp">
+    <ClCompile Include="..\mesa\src\glsl\loop_analysis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_copy_propagation.cpp">
+    <ClCompile Include="..\mesa\src\glsl\loop_controls.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_dead_code.cpp">
+    <ClCompile Include="..\mesa\src\glsl\loop_unroll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_dead_code_local.cpp">
+    <ClCompile Include="..\mesa\src\glsl\lower_discard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_dead_functions.cpp">
+    <ClCompile Include="..\mesa\src\glsl\lower_if_to_cond_assign.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_discard_simplification.cpp">
+    <ClCompile Include="..\mesa\src\glsl\lower_instructions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_function_inlining.cpp">
+    <ClCompile Include="..\mesa\src\glsl\lower_jumps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_if_simplification.cpp">
+    <ClCompile Include="..\mesa\src\glsl\lower_mat_op_to_vec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_noop_swizzle.cpp">
+    <ClCompile Include="..\mesa\src\glsl\lower_noise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_structure_splitting.cpp">
+    <ClCompile Include="..\mesa\src\glsl\lower_texture_projection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_swizzle_swizzle.cpp">
+    <ClCompile Include="..\mesa\src\glsl\lower_variable_index_to_cond_assign.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="opt_tree_grafting.cpp">
+    <ClCompile Include="..\mesa\src\glsl\lower_vector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lower_discard.cpp">
+    <ClCompile Include="..\mesa\src\glsl\lower_vec_index_to_cond_assign.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lower_if_to_cond_assign.cpp">
+    <ClCompile Include="..\mesa\src\glsl\lower_vec_index_to_swizzle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lower_instructions.cpp">
+    <ClCompile Include="..\mesa\src\glsl\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lower_jumps.cpp">
+    <ClCompile Include="..\mesa\src\glsl\opt_algebraic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lower_mat_op_to_vec.cpp">
+    <ClCompile Include="..\mesa\src\glsl\opt_constant_folding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lower_texture_projection.cpp">
+    <ClCompile Include="..\mesa\src\glsl\opt_constant_propagation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lower_vec_index_to_cond_assign.cpp">
+    <ClCompile Include="..\mesa\src\glsl\opt_constant_variable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lower_vec_index_to_swizzle.cpp">
+    <ClCompile Include="..\mesa\src\glsl\opt_copy_propagation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lower_vector.cpp">
+    <ClCompile Include="..\mesa\src\glsl\opt_dead_code.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\mesa\program\sampler.cpp">
+    <ClCompile Include="..\mesa\src\glsl\opt_dead_code_local.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="strtod.c">
+    <ClCompile Include="..\mesa\src\glsl\opt_dead_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeCFG.cpp">
-      <Filter>LunarGLASS\Passes\Transforms</Filter>
+    <ClCompile Include="..\mesa\src\glsl\opt_discard_simplification.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CoalesceInserts.cpp">
-      <Filter>LunarGLASS\Passes\Transforms</Filter>
+    <ClCompile Include="..\mesa\src\glsl\opt_function_inlining.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\TopBuilder.cpp">
-      <Filter>LunarGLASS</Filter>
+    <ClCompile Include="..\mesa\src\glsl\opt_if_simplification.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Passes\Util\BasicBlockUtil.cpp">
-      <Filter>LunarGLASS\Passes\Util</Filter>
+    <ClCompile Include="..\mesa\src\glsl\opt_noop_swizzle.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Passes\Transforms\FlattenConditionalAssignments.cpp">
-      <Filter>LunarGLASS\Passes\Transforms</Filter>
+    <ClCompile Include="..\mesa\src\glsl\opt_redundant_jumps.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Backend.cpp">
-      <Filter>LunarGLASS</Filter>
+    <ClCompile Include="..\mesa\src\glsl\glcpp\pp.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Util.cpp">
-      <Filter>LunarGLASS</Filter>
+    <ClCompile Include="..\mesa\src\glsl\opt_structure_splitting.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\BottomIR.cpp">
-      <Filter>LunarGLASS</Filter>
+    <ClCompile Include="..\mesa\src\glsl\opt_swizzle_swizzle.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Frontends\Glsl2\GlslToTop.cpp">
-      <Filter>LunarGLASS\Frontends\Glsl2</Filter>
+    <ClCompile Include="..\mesa\src\glsl\opt_tree_grafting.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Frontends\Glsl2\GlslToTopVisitor.cpp">
-      <Filter>LunarGLASS\Frontends\Glsl2</Filter>
+    <ClCompile Include="..\mesa\src\glsl\ralloc.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Backends\GLSL\BottomToGLSL.cpp">
-      <Filter>LunarGLASS\Backends\GLSL</Filter>
+    <ClCompile Include="..\mesa\src\glsl\strtod.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Backends\TGSI\BottomToTgsi.cpp">
-      <Filter>LunarGLASS\Backends\TGSI</Filter>
+    <ClCompile Include="..\mesa\src\glsl\s_expression.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\LunarGManager.cpp">
-      <Filter>LunarGLASS</Filter>
+    <ClCompile Include="..\mesa\src\mesa\program\ir_to_mesa.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Passes\Util\ConditionalUtil.cpp">
-      <Filter>LunarGLASS\Passes\Util</Filter>
+    <ClCompile Include="..\mesa\src\mesa\program\prog_print.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Passes\Transforms\CanonicalizeInsts.cpp">
-      <Filter>LunarGLASS\Passes\Transforms</Filter>
+    <ClCompile Include="..\mesa\src\mesa\program\sampler.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Passes\Analysis\IdentifyStructures.cpp">
-      <Filter>LunarGLASS\Passes\Analysis</Filter>
+    <ClCompile Include="..\mesa\src\glsl\ast_function.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Backends\Dummy\BottomToDummy.cpp">
-      <Filter>LunarGLASS\Backends\Dummy</Filter>
+    <ClCompile Include="..\mesa\src\mesa\program\hash_table.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\LunarGLASS\Passes\Immutable\BackEndPointer.cpp">
-      <Filter>LunarGLASS\Passes\Immutable</Filter>
+    <ClCompile Include="..\mesa\src\mesa\program\symbol_table.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\LunarGLASS\RevisionPrefix">
-      <Filter>LunarGLASS</Filter>
+    <CustomBuild Include="..\Core\RevisionPrefix">
+      <Filter>Core</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\LastKnownGood">
-      <Filter>LunarGLASS</Filter>
+    <None Include="..\LastKnownGood">
+      <Filter>Standalone</Filter>
     </None>
   </ItemGroup>
 </Project>

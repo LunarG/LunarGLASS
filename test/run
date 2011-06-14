@@ -151,7 +151,7 @@ function showHelp {
 }
 
 # Default is for windows
-RUNCMD=../../glsl/Debug/StandAlone.exe
+RUNCMD=../Standalone/Debug/StandAlone.exe
 OPTIONS=(-d -n)
 TGSI_OP="--tgsi"
 GLSL_OP="--glsl"
@@ -166,7 +166,7 @@ VERBOSE=""
 while [ $# -gt 0 ]; do
     case "$1" in
         -l|--linux)
-            RUNCMD=../../glsl/StandAlone
+            RUNCMD=../Standalone/StandAlone
             ;;
         -h|--h)
             showHelp
@@ -185,7 +185,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -r|--release)
-            RUNCMD=../../glsl/Release/StandAlone.exe
+            RUNCMD=../Standalone/Release/StandAlone.exe
             ;;
         -v|--verbose)
             VERBOSE="true"
