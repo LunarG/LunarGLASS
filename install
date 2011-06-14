@@ -39,12 +39,14 @@ function fetch {
     echo "Mesa fetched"
     echo
     echo "Fetching LLVM"
+    pushd Core
     rm -rf LLVM
     mkdir LLVM
     pushd LLVM
     wget http://llvm.org/releases/2.9/llvm-2.9.tgz || exit 1
     tar -zxf llvm-2.9.tgz || exit 1
     rm llvm-2.9.tgz || exit 1
+    popd
     popd
     echo "LLVM fetched"
     echo "Fetching done"
@@ -65,7 +67,7 @@ function build {
     echo "Building ..."
     echo "Building LLVM, this may take a while"
     mkdir -p LLVM/llvm-2.9/build || exit 1
-    pushd LLVM/llvm-2.9/build
+    pushd Core/LLVM/llvm-2.9/build
     ../configure || exit 1
     make || exit 1
     make install DESTDIR=`pwd`/install || exit 1
@@ -73,10 +75,9 @@ function build {
     echo "LLVM built"
     echo
     echo "Building LunarGLASS"
-    pushd mesa/src/glsl
-    make -f StandAlone.makefile StandAlone || exit 1
-    install StandAlone ../../../bin/LunarGLASS || exit 1
-    install ../LunarGLASS/test/*  ../../../tests/ || exit 1
+    pushd Standalone
+    make || exit 1
+    install StandAlone ../tools/LunarGLASS || exit 1
     popd
     echo "LunarGLASS built"
     echo
