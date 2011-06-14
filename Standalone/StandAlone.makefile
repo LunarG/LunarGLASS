@@ -1,7 +1,7 @@
 # Makefile for Linux
 
-TOP := ../..
-LLVM := $(TOP)/../LLVM/llvm-2.9/build/install/usr/local
+MESA_TOP := ../mesa
+LLVM := ../Core/LLVM/llvm-2.9/build/install/usr/local
 
 ifeq ($(wildcard $(LLVM)/bin/llvm-config),)
 $(error Invalid path to LLVM: $(LLVM))
@@ -13,16 +13,16 @@ mesa_SOURCES := \
 	prog_print.c \
 	symbol_table.c \
 	sampler.cpp
-mesa_SOURCES := $(addprefix ../mesa/program/, $(mesa_SOURCES))
+mesa_SOURCES := $(addprefix $(MESA_TOP)/src/mesa/program/, $(mesa_SOURCES))
 
 passes_SOURCES := \
-    $(shell find ../LunarGLASS/Passes -type f -name "*.cpp") \
-    $(shell find ../LunarGLASS/Backends -type f -name "*.cpp") \
-    $(shell find ../LunarGLASS/Frontends -type f -name "*.cpp")
+    $(shell find ../Core/Passes -type f -name "*.cpp") \
+    $(shell find ../Backends -type f -name "*.cpp") \
+    $(shell find ../Frontends -type f -name "*.cpp")
 
 
 lunarglass_SOURCES := \
-	$(wildcard ../LunarGLASS/*.cpp) \
+	$(wildcard ../Core/*.cpp) \
 	$(passes_SOURCES)
 
 glsl_SOURCES := \
@@ -106,13 +106,13 @@ StandAlone_OBJECTS := \
 	$(StandAlone_CXX_SOURCES:.cpp=.o)
 
 StandAlone_CPPFLAGS := \
-	-I$(TOP)/include \
-	-I$(TOP)/src/glsl \
-	-I$(TOP)/src/mapi \
-	-I$(TOP)/src/mesa \
-	-I$(TOP)/src/mesa/main \
-	-I$(TOP)/src/mesa/program \
-	-I$(TOP)/src/LunarGLASS
+	-I$(MESA_TOP)/include \
+	-I$(MESA_TOP)/src/glsl \
+	-I$(MESA_TOP)/src/mapi \
+	-I$(MESA_TOP)/src/mesa \
+	-I$(MESA_TOP)/src/mesa/main \
+	-I$(MESA_TOP)/src/mesa/program \
+	-I$(MESA_TOP)/src/LunarGLASS
 
 ifeq ($(BUILD),release)
 
