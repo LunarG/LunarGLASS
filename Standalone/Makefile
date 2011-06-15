@@ -1,7 +1,13 @@
 # Makefile for Linux
 
 MESA_TOP := ../mesa
-LLVM := ../Core/LLVM/llvm-2.9/build/install/usr/local
+GLSL_DIR := $(MESA_TOP)/src/glsl/
+CORE := ../Core
+LLVM := $(CORE)/LLVM/llvm-2.9/build/install/usr/local
+LunarGLASS_INCLUDES := \
+	-I$(CORE) \
+	-I. \
+	-I..
 
 ifeq ($(wildcard $(LLVM)/bin/llvm-config),)
 $(error Invalid path to LLVM: $(LLVM))
@@ -16,13 +22,14 @@ mesa_SOURCES := \
 mesa_SOURCES := $(addprefix $(MESA_TOP)/src/mesa/program/, $(mesa_SOURCES))
 
 passes_SOURCES := \
-    $(shell find ../Core/Passes -type f -name "*.cpp") \
+    $(shell find $(CORE)/Passes -type f -name "*.cpp") \
     $(shell find ../Backends -type f -name "*.cpp") \
     $(shell find ../Frontends -type f -name "*.cpp")
 
-
 lunarglass_SOURCES := \
-	$(wildcard ../Core/*.cpp) \
+	$(wildcard $(CORE)/*.cpp) \
+	$(wildcard ./*.cpp) \
+	$(wildcard ../*ends/*.cpp) \
 	$(passes_SOURCES)
 
 glsl_SOURCES := \
@@ -93,6 +100,7 @@ glsl_SOURCES := \
 	opt_swizzle_swizzle.cpp \
 	opt_tree_grafting.cpp \
 	s_expression.cpp
+glsl_SOURCES := $(addprefix $(GLSL_DIR), $(glsl_SOURCES))
 
 StandAlone_SOURCES := \
 	$(mesa_SOURCES) \
@@ -112,7 +120,7 @@ StandAlone_CPPFLAGS := \
 	-I$(MESA_TOP)/src/mesa \
 	-I$(MESA_TOP)/src/mesa/main \
 	-I$(MESA_TOP)/src/mesa/program \
-	-I$(MESA_TOP)/src/LunarGLASS
+	$(LunarGLASS_INCLUDES)
 
 ifeq ($(BUILD),release)
 
@@ -150,27 +158,27 @@ all: debugTime StandAlone
 
 .PHONY: release
 release: releaseTime
-	make -f StandAlone.makefile "BUILD=release" StandAlone
+	make "BUILD=release" StandAlone
 
 debugTime: buildTime
-	make -f StandAlone.makefile clean
+	make clean
 	touch buildTime
 	touch debugTime
 
 releaseTime: buildTime
-	make -f StandAlone.makefile clean
+	make  clean
 	touch buildTime
 	touch releaseTime
 
 buildTime:
 	touch buildTime
 
-StandAlone: ../src/../LunarGLASS/Revision.h $(StandAlone_OBJECTS)
+StandAlone: $(CORE)/Revision.h $(StandAlone_OBJECTS)
 	$(CXX) -o $@ $(StandAlone_LDFLAGS) $(LDFLAGS) \
 		$(StandAlone_OBJECTS) $(StandAlone_LIBS)
 
-../src/../LunarGLASS/Revision.h: ../LunarGLASS/RevisionPrefix ../../../LastKnownGood
-	cat ../LunarGLASS/RevisionPrefix ../../../LastKnownGood > ../LunarGLASS/Revision.h
+$(CORE)/Revision.h: $(CORE)/RevisionPrefix ../LastKnownGood
+	cat $(CORE)/RevisionPrefix ../LastKnownGood > $(CORE)/Revision.h
 
 .c.o:
 	$(CC) -c -o $@ $(StandAlone_CPPFLAGS) $(StandAlone_CFLAGS) \

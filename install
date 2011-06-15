@@ -70,7 +70,7 @@ function merge {
 function build {
     echo "Building ..."
     echo "Building LLVM, this may take a while"
-    mkdir -p LLVM/llvm-2.9/build || exit 1
+    mkdir -p Core/LLVM/llvm-2.9/build || exit 1
     pushd Core/LLVM/llvm-2.9/build
     ../configure || exit 1
     make || exit 1
