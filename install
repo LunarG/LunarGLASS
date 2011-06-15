@@ -55,10 +55,14 @@ function fetch {
 
 function merge {
     echo "Merging LunarGLASS changes ..."
-    rm -rf .svn bin tests || exit 1
+
+    # Undo the effect of having checked out LunarGLASS before
+    find . -name ".svn" | while read i; do rm -rf $i; done
+
     svn checkout -r $VERSION --force https://lunarglass.googlecode.com/svn/trunk/ . || exit 1
-    svn revert --depth=infinity mesa || exit 1
-    svn revert --depth=infinity LLVM || exit 1
+
+    # Revert all the directories (but leave the scripts intact to preserve local changes)
+    find ./* -prune -type d -exec svn revert --depth=infinity {} \+ || exit 1
     echo "Merging done"
     echo
 }
