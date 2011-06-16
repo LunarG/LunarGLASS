@@ -1,4 +1,4 @@
-//===- Options.cpp - Global run-time options ------------------------------===//
+//===- OptionsParse.h - Global run-time options ---------------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright © 2011, LunarG, Inc.
