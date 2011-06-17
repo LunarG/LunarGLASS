@@ -28,7 +28,6 @@
 
 #include "Exceptions.h"
 #include "Util.h"
-#include "LunarGLASSTopIR.h"
 #include "TopBuilder.h"
 
 // LLVM includes
@@ -124,7 +123,7 @@ llvm::Function* Builder::makeFunctionEntry(const llvm::Type* type, const char* n
 llvm::Constant* Builder::getConstant(std::vector<llvm::Constant*>& constants, const llvm::Type* type)
 {
     assert(type);
-    
+
     switch (type->getTypeID()) {
     case llvm::Type::IntegerTyID:
     case llvm::Type::FloatTyID:

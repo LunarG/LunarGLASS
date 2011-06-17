@@ -34,6 +34,7 @@
 #include "llvm/IntrinsicInst.h"
 
 #include "LunarGLASSManager.h"
+#include "LunarGLASSTopIR.h"
 
 #include <list>
 #include <stack>
@@ -330,7 +331,7 @@ protected:
 
     // Our loop stack.
     std::stack<LoopData> loops;
-    
+
     // Special data for the main function to use. For GLSL-style returns, we
     // want to branch to copyOut, which then branches to exit. For GLSL-style
     // discards, we want to directly branch to exit.
