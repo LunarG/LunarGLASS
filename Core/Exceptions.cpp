@@ -25,40 +25,84 @@
 //===----------------------------------------------------------------------===//
 //
 // Author: Michael Ilseman, LunarG
+// Author: John Kessenich, LunarG
 //
 //===----------------------------------------------------------------------===//
+
+#ifdef _WIN32
+#define snprintf _snprintf
+#endif
 
 #include "Exceptions.h"
 
 #include <iostream>
 #include <cstdlib>
 
-
 const char* UFString = "***Unsupported functionality: ";
-// Print an exception-like string to stderr, then exit
+
+// use anonymous namespace to scope these to this file
+namespace {
+
+    // the handler; 0 means default handling
+    gla::UnsupportedFunctionalityHandler Handler = 0;
+
+    // called always, dispatches to handler if one is registered
+    void ProcessMessage(std::string message, gla::EAbortType at)
+    {
+        if (Handler) {
+            // let the registered handler do what it wants the built up message
+            (*Handler)(message, at);
+        } else {
+            // Print an exception-like string to stderr
+            std::cerr << std::endl << message << std::endl;
+            if (at == gla::EATAbort)
+                exit(1);
+        }
+    }
+}
+
+void gla::RegisterUnsupportedFunctionalityHandler(gla::UnsupportedFunctionalityHandler h)
+{
+    Handler = h;
+}
+
+// format basic string
 void gla::UnsupportedFunctionality(const char* pre, EAbortType at)
 {
-    std::cerr << std::endl << UFString << pre << std::endl;
-    if (at == EATAbort)
-        exit(1);
+    std::string message(UFString);
+
+    message.append(pre);
+
+    ProcessMessage(message, at);
 }
 
-// Print an exception-like string to stderr, converting n into a
-// string and appending it
+// format, converting n into a string and appending it
 void gla::UnsupportedFunctionality(const char* pre, int n, EAbortType at)
-{
-    std::cerr << std::endl << UFString << pre << n << std::endl;
-    if (at == EATAbort)
-        exit(1);
+{    
+    std::string message(UFString);
+
+    message.append(pre);
+
+    char buf[20];
+    snprintf(buf, 20, "%d", n);
+
+    message.append(buf);
+
+    ProcessMessage(message, at);
 }
 
-
-// Print an exception-like string to stderr, converting n into a
-// string and appending it
+// format, converting n into a string and appending it
 void gla::UnsupportedFunctionality(const char* pre, int n, const char* end, EAbortType at)
-{
-    std::cerr << std::endl << UFString << pre << n << end << std::endl;
-    if (at == EATAbort)
-        exit(1);
-}
+{    
+    std::string message(UFString);
 
+    message.append(pre);
+
+    char buf[20];
+    snprintf(buf, 20, "%d", n);
+
+    message.append(buf);
+    message.append(end);
+
+    ProcessMessage(message, at);
+}

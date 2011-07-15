@@ -46,6 +46,9 @@ namespace gla {
     // string and appending it, along with end.
     void UnsupportedFunctionality(const char* pre, int n, const char* end, EAbortType at=EATAbort);
 
+    typedef void (*UnsupportedFunctionalityHandler)(std::string&, EAbortType);
+
+    void RegisterUnsupportedFunctionalityHandler(UnsupportedFunctionalityHandler);
 
     /*  Examples of usage:
 
