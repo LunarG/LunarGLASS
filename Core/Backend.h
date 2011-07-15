@@ -60,13 +60,13 @@ namespace gla {
     enum EDecomposableIntrinsic {
         EDiInverseSqrt,
         EDiFraction,
-        EDiMod,
+        //EDiMod,   currently using native LLVM
         EDiModF,
         EDiMin,
         EDiMax,
         EDiClamp,
         EDiMix,
-        EDiSelect,
+        // EDiSelect,  currently using native LLVM
         EDiStep,
         EDiSmoothStep,
         EDiIsNan,
@@ -85,12 +85,12 @@ namespace gla {
         EDiCross,
         EDiNormalize,
         EDiNormalize3D,
-        EDiFTransform,
+        EDiFixedTransform,
         EDiFaceForward,
         EDiReflect,
         EDiRefract,
-        EDiFWidth,
-        EDiCount
+        EDiFilterWidth,
+        EDiCount // number of entries in this table
     };
 
     class BackEndTranslator {

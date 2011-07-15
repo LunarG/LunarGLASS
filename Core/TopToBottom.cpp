@@ -81,12 +81,6 @@ void gla::PrivateManager::translateTopToBottom()
         UnsupportedFunctionality("SoA in middle end: ", outerSoA);
     if (innerAoS != 4)
         UnsupportedFunctionality("AoS other than size 4 in middle end: ", innerAoS);
-
-    // make sure we can decompose all the intrisics
-    for (int d = 0; d < gla::EDiCount; ++d) {
-        if (backEnd->decomposeIntrinsic(d))
-            UnsupportedFunctionality("intrinsic decomposition in middle end");
-    }
 }
 
 static inline void RunOnModule(llvm::FunctionPassManager& pm, llvm::Module* m)
