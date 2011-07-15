@@ -37,6 +37,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 
 const char* UFString = "***Unsupported functionality: ";
 
@@ -78,7 +79,7 @@ void gla::UnsupportedFunctionality(const char* pre, EAbortType at)
 
 // format, converting n into a string and appending it
 void gla::UnsupportedFunctionality(const char* pre, int n, EAbortType at)
-{    
+{
     std::string message(UFString);
 
     message.append(pre);
@@ -93,7 +94,7 @@ void gla::UnsupportedFunctionality(const char* pre, int n, EAbortType at)
 
 // format, converting n into a string and appending it
 void gla::UnsupportedFunctionality(const char* pre, int n, const char* end, EAbortType at)
-{    
+{
     std::string message(UFString);
 
     message.append(pre);
