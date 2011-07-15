@@ -1,0 +1,134 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@"sampler2D tex" = external addrspace(1) constant i32
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %_ret_val = alloca <4 x float>
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %0 = load i32 addrspace(1)* @"sampler2D tex"
+  %_ret_val1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
+  store <4 x float> %_ret_val1, <4 x float>* %_ret_val
+  %1 = load <4 x float>* %_ret_val
+  %2 = fcmp oeq <4 x float> %1, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
+  %3 = call i1 @llvm.gla.all.v4i1(<4 x i1> %2)
+  br i1 %3, label %then, label %ifmerge
+
+then:                                             ; preds = %entry
+  br label %stage-exit
+
+post-discard:                                     ; No predecessors!
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %post-discard, %entry
+  %gl_FragColor = load <4 x float>* %_ret_val
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge
+  %4 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %4)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue, %then
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@"sampler2D tex" = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %0 = load i32 addrspace(1)* @"sampler2D tex"
+  %_ret_val1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
+  %1 = fcmp oeq <4 x float> %_ret_val1, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
+  %2 = call i1 @llvm.gla.all.v4i1(<4 x i1> %1)
+  br i1 %2, label %then, label %ifmerge
+
+then:                                             ; preds = %entry
+  br label %stage-exit
+
+ifmerge:                                          ; preds = %entry
+  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %_ret_val1)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue, %then
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+compiling conditionalDiscard.frag...
+uniform sampler2D tex ; 
+varying vec2 coord ; 
+void  main (void ){
+vec4 v = texture2D ( tex , coord ) ; if ( v == vec4 ( 0.100000 , 0.200000 , 0.300000 , 0.400000 ) ) discard; gl_FragColor = v ; }
+
+
+
+(
+(declare (in ) vec2 coord)
+(declare (uniform ) sampler2D tex)
+(declare (out ) vec4 gl_FragColor)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (declare () vec4 _ret_val)
+      (assign (constant bool (1)) (xyzw) (var_ref _ret_val)  (tex (var_ref tex)  (var_ref coord)  (0 0 0) 1 () )) 
+      (if (expression bool all_equal (var_ref _ret_val) (constant vec4 (0.100000 0.200000 0.300000 0.400000)) ) (
+        (discard )
+      )
+      ())
+
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref _ret_val) ) 
+    ))
+
+)
+
+
+)
+// LunarGOO output
+#version 130
+uniform sampler2D tex;
+in vec2 coord;
+const vec4 const23 = vec4(0.1, 0.2, 0.3, 0.4);
+
+void main()
+{
+    vec4 _ret_val1 = texture2D(tex, coord);
+    bvec4 temp22 = equal(_ret_val1, const23);
+    bool temp24 = all(temp22);
+    if (temp24) {
+        discard;
+    }
+    else {
+        gl_FragColor = _ret_val1;
+        
+    }
+    
+}

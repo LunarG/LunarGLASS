@@ -50,6 +50,7 @@
 #include "Passes/PassSupport.h"
 #include "Passes/Util/BasicBlockUtil.h"
 #include "Passes/Util/FunctionUtil.h"
+#include "Passes/Util/InstructionUtil.h"
 
 using namespace llvm;
 using namespace gla_llvm;
@@ -138,14 +139,33 @@ bool CanonicalizeCFG::restoreMainBlocks(Function& F)
         assert(exit);
     }
 
-    // Create the epilogue block if it's missing
+    // If there's no existing epilogue, then there was no early returns. One and
+    // only one of the exit block's predecessors should be the effective
+    // epilogue, so split it.
     if (! epilogue) {
-        BasicBlock::iterator term = ret->end();
-        --term;
+        bool hasOutput = false;
+        for (pred_iterator bbI = pred_begin(exit), e = pred_end(exit); bbI != e; ++bbI) {
+            BasicBlock* bb = *bbI;
+            for (BasicBlock::iterator instI = bb->begin(), e = bb->end(); instI != e; ++instI) {
+                if (IsOutputInstruction(instI)) {
+                    hasOutput = true;
+                    break;
+                }
+            }
 
-        ret->splitBasicBlock(term, "stage-epilogue");
-        epilogue = GetMainEpilogue(F);
-        assert(epilogue);
+            if (! hasOutput) {
+                continue;
+            }
+
+            BasicBlock::iterator term = bb->end();
+            --term;
+
+            bb->splitBasicBlock(term, "stage-epilogue");
+            epilogue = GetMainEpilogue(F);
+            assert(epilogue);
+            break;
+        }
+        assert(hasOutput && "no FWriteData in shader (as a predecessor to the exit)");
     }
 
     return true;
