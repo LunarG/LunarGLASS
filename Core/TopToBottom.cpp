@@ -236,20 +236,14 @@ void gla::PrivateManager::runLLVMOptimizations1()
 
     VerifyModule(module);
 
-    // Put the IR into a canonical form for BottomTranslator. The use of two
-    // seperate managers is a workaround for what appears to be a llvm 2.9 bug.
-
+    // Put the IR into a canonical form for BottomTranslator.
     llvm::PassManager canonicalize;
-    llvm::PassManager canonicalize2;
 
     canonicalize.add(llvm::createIndVarSimplifyPass());
-
+    canonicalize.add(gla_llvm::createCanonicalizeCFGPass());
+    canonicalize.add(gla_llvm::createBackEndPointerPass(backEnd));
+    canonicalize.add(gla_llvm::createCanonicalizeInstsPass());
     canonicalize.run(*module);
-
-    canonicalize2.add(gla_llvm::createCanonicalizeCFGPass());
-    canonicalize2.add(gla_llvm::createBackEndPointerPass(backEnd));
-    canonicalize2.add(gla_llvm::createCanonicalizeInstsPass());
-    canonicalize2.run(*module);
 
     VerifyModule(module);
 }

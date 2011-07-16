@@ -56,7 +56,9 @@ namespace gla_llvm {
 
         explicit BackEndPointer(BackEnd* be) : ImmutablePass(ID)
                                              , backEnd(be)
-        { }
+        {
+            initializeBackEndPointerPass(*PassRegistry::getPassRegistry());
+        }
 
         // Provide the interface to make this be just like a pointer
         operator pointer() const
