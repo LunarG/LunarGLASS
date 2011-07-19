@@ -114,6 +114,7 @@
 #include "Passes/PassSupport.h"
 #include "Passes/Analysis/IdentifyStructures.h"
 #include "Passes/Util/LoopUtil.h"
+#include "Passes/Util/InstructionUtil.h"
 
 using namespace llvm;
 using namespace gla_llvm;
@@ -124,11 +125,12 @@ namespace {
     public:
         BottomTranslator() : ModulePass(ID), backEndTranslator(0), backEnd(0) { }
 
-        BottomTranslator(gla::BackEndTranslator* bet, gla::BackEnd* be, gla::Manager* m) : 
-            ModulePass(ID), 
-            backEndTranslator(bet), 
-            backEnd(be),
-            manager(m)
+        BottomTranslator(gla::BackEndTranslator* bet, gla::BackEnd* be, gla::Manager* m)
+            : ModulePass(ID)
+            , backEndTranslator(bet)
+            , backEnd(be)
+            , manager(m)
+            , outputInstOnly(be->addOutputInstructionsOnly())
         {
             initializeBottomTranslatorPass(*PassRegistry::getPassRegistry());
         }
@@ -138,7 +140,6 @@ namespace {
 
         // Translate from LLVM CFG style to structured style.
         void declarePhiCopies(const Function*);
-
 
         // Add phi copies if the backend wants us to:
 
@@ -175,6 +176,10 @@ namespace {
 
         bool lastBlock;
 
+        // Whether we should call add on all instructions, or only on output
+        // ones
+        bool outputInstOnly;
+
         const BasicBlock* stageEpilogue;
         const BasicBlock* stageExit;
 
@@ -207,6 +212,10 @@ namespace {
         // Call backEndTranslator's add.
         void addInstruction(const Instruction* inst, bool forceGlobal=false)
         {
+            if (outputInstOnly && ! IsOutputInstruction(inst)) {
+                return;
+            }
+
             // TODO: update the below to work with nested loops. Basically, it
             // will have to find the loop on the stack that corresponds to inst,
             // and query it rather than the top one.

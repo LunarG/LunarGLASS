@@ -252,6 +252,13 @@ namespace gla {
             return true;
         }
 
+        // Would the back-end translator like to only have "add" called on
+        // output instructions (e.g. fWriteData)?
+        virtual bool addOutputInstructionsOnly()
+        {
+            return false;
+        }
+
 
     protected:
         bool decompose[EDiCount];

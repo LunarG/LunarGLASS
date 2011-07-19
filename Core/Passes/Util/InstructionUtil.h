@@ -35,9 +35,9 @@ namespace gla_llvm {
     using namespace llvm;
 
     // Whether the given instruction is a pipeline output
-    inline bool IsOutputInstruction(Instruction* inst)
+    inline bool IsOutputInstruction(const Instruction* inst)
     {
-        if (IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst)) {
+        if (const IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst)) {
             switch (intr->getIntrinsicID()) {
             case llvm::Intrinsic::gla_fWriteData:
             case llvm::Intrinsic::gla_fWriteInterpolant:
