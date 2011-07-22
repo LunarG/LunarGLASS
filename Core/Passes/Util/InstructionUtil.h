@@ -39,14 +39,34 @@ namespace gla_llvm {
     {
         if (const IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst)) {
             switch (intr->getIntrinsicID()) {
-            case llvm::Intrinsic::gla_fWriteData:
-            case llvm::Intrinsic::gla_fWriteInterpolant:
-            case llvm::Intrinsic::gla_writeData:
+            case Intrinsic::gla_fWriteData:
+            case Intrinsic::gla_fWriteInterpolant:
+            case Intrinsic::gla_writeData:
                 return true;
             }
         }
 
         return false;
+    }
+
+    inline bool IsInputInstruction(const Instruction* inst)
+    {
+        if (const IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst)) {
+            switch (intr->getIntrinsicID()) {
+            case Intrinsic::gla_fReadInterpolant:
+            case Intrinsic::gla_fReadInterpolantOffset:
+            case Intrinsic::gla_readData:
+            case Intrinsic::gla_fReadData:
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    inline bool IsLoad(const Instruction* inst)
+    {
+        return inst->getOpcode() == Instruction::Load;
     }
 
 } // end namespace gla_llvm
