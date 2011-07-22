@@ -174,6 +174,7 @@ public:
     // various source languages, nor the way LLVM looks at things).
     //
     enum EStorageQualifier {
+        ESQResource,
         ESQUniform,
         ESQInput,       // from a shader, not a function
         ESQOutput,      // from a shader, not a function

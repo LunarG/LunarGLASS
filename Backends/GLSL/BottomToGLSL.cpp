@@ -436,11 +436,14 @@ protected:
     {
         if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
             switch (pointer->getAddressSpace()) {
-            case gla::UniformAddressSpace:
+            case gla::ResourceAddressSpace:
                 return EVQUniform;
             case gla::GlobalAddressSpace:
                 return EVQGlobal;
             default:
+                if (pointer->getAddressSpace() >= gla::ConstantAddressSpaceBase)
+                    return EVQUniform;
+
                 UnsupportedFunctionality("Address Space in Bottom IR: ", pointer->getAddressSpace());
             }
         }

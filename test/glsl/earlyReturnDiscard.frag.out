@@ -2,15 +2,15 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@d = external addrspace(1) constant float
-@bigColor = external addrspace(1) constant <4 x float>
-@smallColor = external addrspace(1) constant <4 x float>
-@minimum = external addrspace(1) constant float
-@threshhold = external addrspace(1) constant float
-@threshhold2 = external addrspace(1) constant float
-@b = external addrspace(1) constant i1
+@d = external addrspace(2) constant float
+@bigColor = external addrspace(2) constant <4 x float>
+@smallColor = external addrspace(2) constant <4 x float>
+@minimum = external addrspace(2) constant float
+@threshhold = external addrspace(2) constant float
+@threshhold2 = external addrspace(2) constant float
+@b = external addrspace(2) constant i1
 @gl_FragColor = internal global <4 x float> zeroinitializer
-@otherColor = external addrspace(1) constant <4 x float>
+@otherColor = external addrspace(2) constant <4 x float>
 
 define fastcc void @main() {
 entry:
@@ -19,20 +19,20 @@ entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   store <4 x float> %BaseColor, <4 x float>* %color
   %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
-  %0 = load float addrspace(1)* @d
+  %0 = load float addrspace(2)* @d
   %1 = fcmp ogt float %c, %0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
   %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
-  %2 = load <4 x float> addrspace(1)* @bigColor
+  %2 = load <4 x float> addrspace(2)* @bigColor
   %color2 = fadd <4 x float> %BaseColor1, %2
   store <4 x float> %color2, <4 x float>* %color
   br label %ifmerge
 
 else:                                             ; preds = %entry
   %3 = load <4 x float>* %color
-  %4 = load <4 x float> addrspace(1)* @smallColor
+  %4 = load <4 x float> addrspace(2)* @smallColor
   %color3 = fadd <4 x float> %3, %4
   store <4 x float> %color3, <4 x float>* %color
   br label %ifmerge
@@ -40,7 +40,7 @@ else:                                             ; preds = %entry
 ifmerge:                                          ; preds = %else, %then
   %5 = load <4 x float>* %color
   %6 = extractelement <4 x float> %5, i32 2
-  %7 = load float addrspace(1)* @minimum
+  %7 = load float addrspace(2)* @minimum
   %8 = fcmp olt float %6, %7
   br i1 %8, label %then4, label %ifmerge5
 
@@ -59,7 +59,7 @@ ifmerge5:                                         ; preds = %post-return, %ifmer
   store <4 x float> %color6, <4 x float>* %color
   %13 = load <4 x float>* %color
   %14 = extractelement <4 x float> %13, i32 2
-  %15 = load float addrspace(1)* @threshhold
+  %15 = load float addrspace(2)* @threshhold
   %16 = fcmp ogt float %14, %15
   br i1 %16, label %then7, label %ifmerge8
 
@@ -78,14 +78,14 @@ ifmerge8:                                         ; preds = %post-discard, %ifme
   store <4 x float> %color10, <4 x float>* %color
   %19 = load <4 x float>* %assignment_tmp
   %20 = extractelement <4 x float> %19, i32 3
-  %21 = load float addrspace(1)* @threshhold2
+  %21 = load float addrspace(2)* @threshhold2
   %22 = fcmp ogt float %20, %21
   br i1 %22, label %then11, label %else25
 
 then11:                                           ; preds = %ifmerge8
   %23 = load <4 x float>* %assignment_tmp
   %24 = extractelement <4 x float> %23, i32 2
-  %25 = load float addrspace(1)* @threshhold2
+  %25 = load float addrspace(2)* @threshhold2
   %26 = fcmp ogt float %24, %25
   br i1 %26, label %then12, label %else14
 
@@ -96,7 +96,7 @@ post-return13:                                    ; No predecessors!
   br label %ifmerge24
 
 else14:                                           ; preds = %then11
-  %27 = load i1 addrspace(1)* @b
+  %27 = load i1 addrspace(2)* @b
   br i1 %27, label %then15, label %else17
 
 then15:                                           ; preds = %else14
@@ -111,7 +111,7 @@ then15:                                           ; preds = %else14
 else17:                                           ; preds = %else14
   %32 = load <4 x float>* %color
   %33 = extractelement <4 x float> %32, i32 0
-  %34 = load float addrspace(1)* @minimum
+  %34 = load float addrspace(2)* @minimum
   %35 = fcmp olt float %33, %34
   br i1 %35, label %then18, label %else20
 
@@ -138,7 +138,7 @@ ifmerge24:                                        ; preds = %ifmerge23, %post-re
   br label %ifmerge31
 
 else25:                                           ; preds = %ifmerge8
-  %38 = load i1 addrspace(1)* @b
+  %38 = load i1 addrspace(2)* @b
   br i1 %38, label %then26, label %else28
 
 then26:                                           ; preds = %else25
@@ -158,7 +158,7 @@ ifmerge30:                                        ; preds = %post-return29, %pos
 
 ifmerge31:                                        ; preds = %ifmerge30, %ifmerge24
   %39 = load <4 x float>* %color
-  %40 = load <4 x float> addrspace(1)* @otherColor
+  %40 = load <4 x float> addrspace(2)* @otherColor
   %gl_FragColor = fmul <4 x float> %39, %40
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
@@ -184,27 +184,27 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@d = external addrspace(1) constant float
-@bigColor = external addrspace(1) constant <4 x float>
-@smallColor = external addrspace(1) constant <4 x float>
-@minimum = external addrspace(1) constant float
-@threshhold = external addrspace(1) constant float
-@threshhold2 = external addrspace(1) constant float
-@b = external addrspace(1) constant i1
-@otherColor = external addrspace(1) constant <4 x float>
+@d = external addrspace(2) constant float
+@bigColor = external addrspace(2) constant <4 x float>
+@smallColor = external addrspace(2) constant <4 x float>
+@minimum = external addrspace(2) constant float
+@threshhold = external addrspace(2) constant float
+@threshhold2 = external addrspace(2) constant float
+@b = external addrspace(2) constant i1
+@otherColor = external addrspace(2) constant <4 x float>
 
 define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
-  %0 = load float addrspace(1)* @d
+  %0 = load float addrspace(2)* @d
   %1 = fcmp ogt float %c, %0
-  %bigColor.val = load <4 x float> addrspace(1)* @bigColor
-  %smallColor.val = load <4 x float> addrspace(1)* @smallColor
+  %bigColor.val = load <4 x float> addrspace(2)* @bigColor
+  %smallColor.val = load <4 x float> addrspace(2)* @smallColor
   %.pn = select i1 %1, <4 x float> %bigColor.val, <4 x float> %smallColor.val
   %color.0 = fadd <4 x float> %BaseColor, %.pn
   %2 = extractelement <4 x float> %color.0, i32 2
-  %3 = load float addrspace(1)* @minimum
+  %3 = load float addrspace(2)* @minimum
   %4 = fcmp olt float %2, %3
   br i1 %4, label %then4, label %ifmerge5
 
@@ -215,7 +215,7 @@ ifmerge5:                                         ; preds = %entry
   %5 = fadd float %2, 1.000000e+00
   %6 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.0, i32 4, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float %5, i32 -1, float 0.000000e+00, i32 -1)
   %7 = extractelement <4 x float> %6, i32 2
-  %8 = load float addrspace(1)* @threshhold
+  %8 = load float addrspace(2)* @threshhold
   %9 = fcmp ogt float %7, %8
   br i1 %9, label %then7, label %ifmerge8
 
@@ -226,7 +226,7 @@ ifmerge8:                                         ; preds = %ifmerge5
   %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
   %assignment_tmp9 = fadd <4 x float> %6, %10
   %11 = extractelement <4 x float> %assignment_tmp9, i32 3
-  %12 = load float addrspace(1)* @threshhold2
+  %12 = load float addrspace(2)* @threshhold2
   %13 = fcmp ogt float %11, %12
   br i1 %13, label %then11, label %else25
 
@@ -239,7 +239,7 @@ then12:                                           ; preds = %then11
   br label %stage-epilogue
 
 else14:                                           ; preds = %then11
-  %16 = load i1 addrspace(1)* @b
+  %16 = load i1 addrspace(2)* @b
   br i1 %16, label %then15, label %else17
 
 then15:                                           ; preds = %else14
@@ -261,12 +261,12 @@ else20:                                           ; preds = %else17
 
 ifmerge23:                                        ; preds = %else20, %then15
   %color.1 = phi <4 x float> [ %18, %then15 ], [ %color21, %else20 ]
-  %21 = load <4 x float> addrspace(1)* @otherColor
+  %21 = load <4 x float> addrspace(2)* @otherColor
   %gl_FragColor = fmul <4 x float> %color.1, %21
   br label %stage-epilogue
 
 else25:                                           ; preds = %ifmerge8
-  %22 = load i1 addrspace(1)* @b
+  %22 = load i1 addrspace(2)* @b
   br i1 %22, label %then26, label %else28
 
 then26:                                           ; preds = %else25

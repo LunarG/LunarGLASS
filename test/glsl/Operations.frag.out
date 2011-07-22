@@ -2,12 +2,12 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@uv4 = external addrspace(1) constant <4 x float>
-@ub = external addrspace(1) constant i1
-@uf = external addrspace(1) constant float
-@ui = external addrspace(1) constant i32
-@ub41 = external addrspace(1) constant <4 x i1>
-@ub42 = external addrspace(1) constant <4 x i1>
+@uv4 = external addrspace(2) constant <4 x float>
+@ub = external addrspace(2) constant i1
+@uf = external addrspace(2) constant float
+@ui = external addrspace(2) constant i32
+@ub41 = external addrspace(2) constant <4 x i1>
+@ub42 = external addrspace(2) constant <4 x i1>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -87,7 +87,7 @@ entry:
   %v = alloca <4 x float>
   %f = alloca float
   %i = alloca i32
-  %0 = load <4 x float> addrspace(1)* @uv4
+  %0 = load <4 x float> addrspace(2)* @uv4
   %1 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 0x3F91DF3300000000, i32 0)
   %_ret_val1 = fmul <4 x float> %0, %1
   store <4 x float> %_ret_val1, <4 x float>* %_ret_val
@@ -244,21 +244,21 @@ entry:
   store <4 x float> %assignment_tmp5758, <4 x float>* %assignment_tmp57
   %95 = load <4 x float>* %assignment_tmp57
   %96 = load <4 x float>* %assignment_tmp57
-  %97 = load <4 x float> addrspace(1)* @uv4
+  %97 = load <4 x float> addrspace(2)* @uv4
   %98 = call <4 x float> @llvm.gla.fMin.v4f32.v4f32.v4f32(<4 x float> %96, <4 x float> %97)
   %assignment_tmp5960 = fadd <4 x float> %95, %98
   store <4 x float> %assignment_tmp5960, <4 x float>* %assignment_tmp59
   %99 = load <4 x float>* %assignment_tmp59
   %100 = load <4 x float>* %assignment_tmp59
-  %101 = load <4 x float> addrspace(1)* @uv4
+  %101 = load <4 x float> addrspace(2)* @uv4
   %102 = call <4 x float> @llvm.gla.fMax.v4f32.v4f32.v4f32(<4 x float> %100, <4 x float> %101)
   %assignment_tmp6162 = fadd <4 x float> %99, %102
   store <4 x float> %assignment_tmp6162, <4 x float>* %assignment_tmp61
   %103 = load <4 x float>* %assignment_tmp61
   %104 = load <4 x float>* %assignment_tmp61
-  %105 = load <4 x float> addrspace(1)* @uv4
+  %105 = load <4 x float> addrspace(2)* @uv4
   %106 = call <4 x float> @llvm.gla.fMin.v4f32.v4f32.v4f32(<4 x float> %104, <4 x float> %105)
-  %107 = load <4 x float> addrspace(1)* @uv4
+  %107 = load <4 x float> addrspace(2)* @uv4
   %108 = call <4 x float> @llvm.gla.fMax.v4f32.v4f32.v4f32(<4 x float> %106, <4 x float> %107)
   %assignment_tmp6364 = fadd <4 x float> %103, %108
   store <4 x float> %assignment_tmp6364, <4 x float>* %assignment_tmp63
@@ -277,7 +277,7 @@ entry:
   store <4 x float> %v69, <4 x float>* %v
   %114 = load <4 x float>* %assignment_tmp67
   %115 = load <4 x float>* %assignment_tmp67
-  %116 = load i1 addrspace(1)* @ub
+  %116 = load i1 addrspace(2)* @ub
   %117 = uitofp i1 %116 to float
   %mix_retval7071 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %114, <4 x float> %115, float %117)
   store <4 x float> %mix_retval7071, <4 x float>* %mix_retval70
@@ -396,8 +396,8 @@ ifmerge:                                          ; preds = %else, %then
   store <4 x float> %assignment_tmp9293, <4 x float>* %assignment_tmp92
   %v94 = load <4 x float>* %assignment_tmp92
   store <4 x float> %v94, <4 x float>* %v
-  %194 = load float addrspace(1)* @uf
-  %195 = load float addrspace(1)* @uf
+  %194 = load float addrspace(2)* @uf
+  %195 = load float addrspace(2)* @uf
   %196 = load <4 x float>* %assignment_tmp92
   %197 = load <4 x float>* %assignment_tmp92
   %198 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %196, <4 x float> %197)
@@ -419,11 +419,11 @@ then97:                                           ; preds = %ifmerge
   br label %ifmerge100
 
 else98:                                           ; preds = %ifmerge
-  %208 = load float addrspace(1)* @uf
+  %208 = load float addrspace(2)* @uf
   %209 = load <4 x float>* %assignment_tmp92
   %210 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %208, i32 0)
   %211 = fmul <4 x float> %210, %209
-  %212 = load float addrspace(1)* @uf
+  %212 = load float addrspace(2)* @uf
   %213 = load <4 x float>* %assignment_tmp92
   %214 = load <4 x float>* %assignment_tmp92
   %215 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %213, <4 x float> %214)
@@ -463,26 +463,26 @@ ifmerge100:                                       ; preds = %else98, %then97
   %238 = fadd <4 x float> %234, %237
   %v107 = fadd <4 x float> %231, %238
   store <4 x float> %v107, <4 x float>* %v
-  %239 = load i32 addrspace(1)* @ui
+  %239 = load i32 addrspace(2)* @ui
   %assignment_tmp108109 = call i32 @llvm.gla.abs.i32.i32(i32 %239)
   store i32 %assignment_tmp108109, i32* %assignment_tmp108
   %240 = load i32* %assignment_tmp108
   %241 = load i32* %assignment_tmp108
-  %242 = load i32 addrspace(1)* @ui
+  %242 = load i32 addrspace(2)* @ui
   %243 = call i32 @llvm.gla.sMin.i32.i32.i32(i32 %241, i32 %242)
   %assignment_tmp110111 = add i32 %240, %243
   store i32 %assignment_tmp110111, i32* %assignment_tmp110
   %244 = load i32* %assignment_tmp110
   %245 = load i32* %assignment_tmp110
-  %246 = load i32 addrspace(1)* @ui
+  %246 = load i32 addrspace(2)* @ui
   %247 = call i32 @llvm.gla.sMax.i32.i32.i32(i32 %245, i32 %246)
   %assignment_tmp112113 = add i32 %244, %247
   store i32 %assignment_tmp112113, i32* %assignment_tmp112
   %248 = load i32* %assignment_tmp112
   %249 = load i32* %assignment_tmp112
-  %250 = load i32 addrspace(1)* @ui
+  %250 = load i32 addrspace(2)* @ui
   %251 = call i32 @llvm.gla.sMin.i32.i32.i32(i32 %249, i32 %250)
-  %252 = load i32 addrspace(1)* @ui
+  %252 = load i32 addrspace(2)* @ui
   %253 = call i32 @llvm.gla.sMax.i32.i32.i32(i32 %251, i32 %252)
   %i114 = add i32 %248, %253
   store i32 %i114, i32* %i
@@ -541,8 +541,8 @@ ifmerge128:                                       ; preds = %else127, %then125
   br i1 %269, label %then130, label %else132
 
 then130:                                          ; preds = %ifmerge128
-  %270 = load <4 x i1> addrspace(1)* @ub41
-  %271 = load <4 x i1> addrspace(1)* @ub42
+  %270 = load <4 x i1> addrspace(2)* @ub41
+  %271 = load <4 x i1> addrspace(2)* @ub42
   %272 = icmp eq <4 x i1> %270, %271
   %and_tmp129131 = call i1 @llvm.gla.any.v4i1(<4 x i1> %272)
   store i1 %and_tmp129131, i1* %and_tmp129
@@ -557,8 +557,8 @@ ifmerge133:                                       ; preds = %else132, %then130
   br i1 %273, label %then135, label %else137
 
 then135:                                          ; preds = %ifmerge133
-  %274 = load <4 x i1> addrspace(1)* @ub41
-  %275 = load <4 x i1> addrspace(1)* @ub42
+  %274 = load <4 x i1> addrspace(2)* @ub41
+  %275 = load <4 x i1> addrspace(2)* @ub42
   %276 = icmp ne <4 x i1> %274, %275
   %and_tmp134136 = call i1 @llvm.gla.any.v4i1(<4 x i1> %276)
   store i1 %and_tmp134136, i1* %and_tmp134
@@ -573,7 +573,7 @@ ifmerge138:                                       ; preds = %else137, %then135
   br i1 %277, label %then140, label %else142
 
 then140:                                          ; preds = %ifmerge138
-  %278 = load <4 x i1> addrspace(1)* @ub41
+  %278 = load <4 x i1> addrspace(2)* @ub41
   %and_tmp139141 = call i1 @llvm.gla.any.v4i1(<4 x i1> %278)
   store i1 %and_tmp139141, i1* %and_tmp139
   br label %ifmerge143
@@ -587,7 +587,7 @@ ifmerge143:                                       ; preds = %else142, %then140
   br i1 %279, label %then145, label %else147
 
 then145:                                          ; preds = %ifmerge143
-  %280 = load <4 x i1> addrspace(1)* @ub41
+  %280 = load <4 x i1> addrspace(2)* @ub41
   %and_tmp144146 = call i1 @llvm.gla.all.v4i1(<4 x i1> %280)
   store i1 %and_tmp144146, i1* %and_tmp144
   br label %ifmerge148
@@ -601,7 +601,7 @@ ifmerge148:                                       ; preds = %else147, %then145
   br i1 %281, label %then150, label %else152
 
 then150:                                          ; preds = %ifmerge148
-  %282 = load <4 x i1> addrspace(1)* @ub41
+  %282 = load <4 x i1> addrspace(2)* @ub41
   %283 = xor <4 x i1> %282, <i1 true, i1 true, i1 true, i1 true>
   %and_tmp149151 = call i1 @llvm.gla.any.v4i1(<4 x i1> %283)
   store i1 %and_tmp149151, i1* %and_tmp149
@@ -613,21 +613,21 @@ else152:                                          ; preds = %ifmerge148
 
 ifmerge153:                                       ; preds = %else152, %then150
   %284 = load i32* %i
-  %285 = load i32 addrspace(1)* @ui
+  %285 = load i32 addrspace(2)* @ui
   %286 = add i32 %284, %285
   %287 = load i32* %i
   %288 = mul i32 %286, %287
-  %289 = load i32 addrspace(1)* @ui
+  %289 = load i32 addrspace(2)* @ui
   %290 = sub i32 %288, %289
   %291 = load i32* %i
   %292 = sdiv i32 %290, %291
-  %293 = load i32 addrspace(1)* @ui
+  %293 = load i32 addrspace(2)* @ui
   %assignment_tmp154155 = srem i32 %292, %293
   store i32 %assignment_tmp154155, i32* %assignment_tmp154
   %i156 = load i32* %assignment_tmp154
   store i32 %i156, i32* %i
   %294 = load i32* %assignment_tmp154
-  %295 = load i32 addrspace(1)* @ui
+  %295 = load i32 addrspace(2)* @ui
   %296 = icmp eq i32 %294, %295
   br i1 %296, label %then157, label %else158
 
@@ -637,13 +637,13 @@ then157:                                          ; preds = %ifmerge153
 
 else158:                                          ; preds = %ifmerge153
   %297 = load i32* %assignment_tmp154
-  %298 = load i32 addrspace(1)* @ui
+  %298 = load i32 addrspace(2)* @ui
   %299 = icmp ne i32 %297, %298
   br i1 %299, label %then160, label %else162
 
 then160:                                          ; preds = %else158
   %300 = load i32* %assignment_tmp154
-  %301 = load i32 addrspace(1)* @ui
+  %301 = load i32 addrspace(2)* @ui
   %and_tmp159161 = icmp eq i32 %300, %301
   store i1 %and_tmp159161, i1* %and_tmp159
   br label %ifmerge163
@@ -671,14 +671,14 @@ then166:                                          ; preds = %ifmerge165
   br label %ifmerge168
 
 ifmerge168:                                       ; preds = %then166, %ifmerge165
-  %307 = load float addrspace(1)* @uf
-  %308 = load float addrspace(1)* @uf
+  %307 = load float addrspace(2)* @uf
+  %308 = load float addrspace(2)* @uf
   %309 = fadd float %307, %308
-  %310 = load float addrspace(1)* @uf
+  %310 = load float addrspace(2)* @uf
   %311 = fmul float %309, %310
-  %312 = load float addrspace(1)* @uf
+  %312 = load float addrspace(2)* @uf
   %313 = fsub float %311, %312
-  %314 = load float addrspace(1)* @uf
+  %314 = load float addrspace(2)* @uf
   %f169 = fdiv float %313, %314
   store float %f169, float* %f
   %315 = load float* %f
@@ -759,7 +759,7 @@ ifmerge168:                                       ; preds = %then166, %ifmerge16
   %f178 = load float* %assignment_tmp176
   store float %f178, float* %f
   %376 = load float* %assignment_tmp176
-  %377 = load float addrspace(1)* @uf
+  %377 = load float addrspace(2)* @uf
   %378 = fcmp oeq float %376, %377
   br i1 %378, label %then180, label %else181
 
@@ -769,7 +769,7 @@ then180:                                          ; preds = %ifmerge168
 
 else181:                                          ; preds = %ifmerge168
   %379 = load float* %assignment_tmp176
-  %380 = load float addrspace(1)* @uf
+  %380 = load float addrspace(2)* @uf
   %381 = fcmp one float %379, %380
   br i1 %381, label %then183, label %else185
 
@@ -800,14 +800,14 @@ then189:                                          ; preds = %ifmerge188
 
 ifmerge191:                                       ; preds = %then189, %ifmerge188
   %385 = load i32* %i
-  %386 = load i32 addrspace(1)* @ui
+  %386 = load i32 addrspace(2)* @ui
   %387 = and i32 %385, %386
   %388 = or i32 %387, 66
-  %389 = load i32 addrspace(1)* @ui
+  %389 = load i32 addrspace(2)* @ui
   %390 = xor i32 %388, %389
   %391 = srem i32 %390, 17
   %392 = lshr i32 %391, 2
-  %393 = load i32 addrspace(1)* @ui
+  %393 = load i32 addrspace(2)* @ui
   %394 = shl i32 %392, %393
   %assignment_tmp192193 = xor i32 %394, -1
   store i32 %assignment_tmp192193, i32* %assignment_tmp192
@@ -944,12 +944,12 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@uv4 = external addrspace(1) constant <4 x float>
-@ub = external addrspace(1) constant i1
-@uf = external addrspace(1) constant float
-@ui = external addrspace(1) constant i32
-@ub41 = external addrspace(1) constant <4 x i1>
-@ub42 = external addrspace(1) constant <4 x i1>
+@uv4 = external addrspace(2) constant <4 x float>
+@ub = external addrspace(2) constant i1
+@uf = external addrspace(2) constant float
+@ui = external addrspace(2) constant i32
+@ub41 = external addrspace(2) constant <4 x i1>
+@ub42 = external addrspace(2) constant <4 x i1>
 @gla_globalAgg = internal global <4 x float> undef
 @gla_globalAgg1 = internal global <3 x float> undef
 @gla_globalAgg2 = internal global <3 x float> undef
@@ -958,7 +958,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load <4 x float> addrspace(1)* @uv4
+  %0 = load <4 x float> addrspace(2)* @uv4
   %1 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 0x3F91DF3300000000, i32 0)
   %_ret_val1 = fmul <4 x float> %0, %1
   %2 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 0x404CA5DC20000000, i32 0)
@@ -1031,7 +1031,7 @@ entry:
   %assignment_tmp6364 = fadd <4 x float> %assignment_tmp6162, %37
   %mix_retval66 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %assignment_tmp6364, <4 x float> %assignment_tmp6364, <4 x float> %assignment_tmp6364)
   %assignment_tmp6768 = fadd <4 x float> %assignment_tmp6364, %mix_retval66
-  %38 = load i1 addrspace(1)* @ub
+  %38 = load i1 addrspace(2)* @ub
   %39 = uitofp i1 %38 to float
   %mix_retval7071 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %assignment_tmp6768, <4 x float> %assignment_tmp6768, float %39)
   %assignment_tmp7273 = fadd <4 x float> %assignment_tmp6768, %mix_retval7071
@@ -1086,7 +1086,7 @@ ifmerge:                                          ; preds = %else, %then
   %67 = fmul <4 x float> %52, %66
   %68 = fsub <4 x float> %assignment_tmp9091, %67
   %assignment_tmp9293 = fadd <4 x float> %assignment_tmp9091, %68
-  %69 = load float addrspace(1)* @uf
+  %69 = load float addrspace(2)* @uf
   %70 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %assignment_tmp9293, <4 x float> %assignment_tmp9293)
   %71 = fmul float %70, %70
   %72 = fsub float 1.000000e+00, %71
@@ -1123,7 +1123,7 @@ ifmerge100:                                       ; preds = %else98, %then97
   %88 = call <4 x float> @llvm.gla.fAbs.v4f32.v4f32(<4 x float> %87)
   %89 = fadd <4 x float> %86, %88
   %v107 = fadd <4 x float> %assignment_tmp105106, %89
-  %90 = load i32 addrspace(1)* @ui
+  %90 = load i32 addrspace(2)* @ui
   %assignment_tmp108109 = call i32 @llvm.gla.abs.i32.i32(i32 %90)
   %91 = call i32 @llvm.gla.sMin.i32.i32.i32(i32 %assignment_tmp108109, i32 %90)
   %assignment_tmp110111 = add i32 %91, %assignment_tmp108109
@@ -1161,8 +1161,8 @@ ifmerge128:                                       ; preds = %else127, %then125
   br i1 %and_tmp124.0, label %then130, label %else132
 
 then130:                                          ; preds = %ifmerge128
-  %96 = load <4 x i1> addrspace(1)* @ub41
-  %97 = load <4 x i1> addrspace(1)* @ub42
+  %96 = load <4 x i1> addrspace(2)* @ub41
+  %97 = load <4 x i1> addrspace(2)* @ub42
   %98 = icmp eq <4 x i1> %96, %97
   %and_tmp129131 = call i1 @llvm.gla.any.v4i1(<4 x i1> %98)
   br label %ifmerge133
@@ -1175,8 +1175,8 @@ ifmerge133:                                       ; preds = %else132, %then130
   br i1 %and_tmp129.0, label %then135, label %else137
 
 then135:                                          ; preds = %ifmerge133
-  %99 = load <4 x i1> addrspace(1)* @ub41
-  %100 = load <4 x i1> addrspace(1)* @ub42
+  %99 = load <4 x i1> addrspace(2)* @ub41
+  %100 = load <4 x i1> addrspace(2)* @ub42
   %101 = icmp ne <4 x i1> %99, %100
   %and_tmp134136 = call i1 @llvm.gla.any.v4i1(<4 x i1> %101)
   br label %ifmerge138
@@ -1189,7 +1189,7 @@ ifmerge138:                                       ; preds = %else137, %then135
   br i1 %and_tmp134.0, label %then140, label %else142
 
 then140:                                          ; preds = %ifmerge138
-  %102 = load <4 x i1> addrspace(1)* @ub41
+  %102 = load <4 x i1> addrspace(2)* @ub41
   %and_tmp139141 = call i1 @llvm.gla.any.v4i1(<4 x i1> %102)
   br label %ifmerge143
 
@@ -1201,7 +1201,7 @@ ifmerge143:                                       ; preds = %else142, %then140
   br i1 %and_tmp139.0, label %then145, label %else147
 
 then145:                                          ; preds = %ifmerge143
-  %103 = load <4 x i1> addrspace(1)* @ub41
+  %103 = load <4 x i1> addrspace(2)* @ub41
   %and_tmp144146 = call i1 @llvm.gla.all.v4i1(<4 x i1> %103)
   br label %ifmerge148
 
@@ -1213,7 +1213,7 @@ ifmerge148:                                       ; preds = %else147, %then145
   br i1 %and_tmp144.0, label %then150, label %else152
 
 then150:                                          ; preds = %ifmerge148
-  %104 = load <4 x i1> addrspace(1)* @ub41
+  %104 = load <4 x i1> addrspace(2)* @ub41
   %105 = xor <4 x i1> %104, <i1 true, i1 true, i1 true, i1 true>
   %and_tmp149151 = call i1 @llvm.gla.any.v4i1(<4 x i1> %105)
   %phitmp = xor i1 %and_tmp149151, true

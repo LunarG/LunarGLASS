@@ -2,17 +2,17 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@color = external addrspace(1) constant [2 x <4 x float>]
-@inColor = external addrspace(1) constant <3 x float>
-@alpha = external addrspace(1) constant [13 x float]
+@color = external addrspace(2) constant [2 x <4 x float>]
+@inColor = external addrspace(2) constant <3 x float>
+@alpha = external addrspace(2) constant [13 x float]
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
   %assignment_tmp = alloca <4 x float>
   %texColor = alloca <4 x float>
-  %0 = load <4 x float> addrspace(1)* getelementptr inbounds ([2 x <4 x float>] addrspace(1)* @color, i32 0, i32 1)
-  %1 = load <4 x float> addrspace(1)* getelementptr inbounds ([2 x <4 x float>] addrspace(1)* @color, i32 0, i32 1)
+  %0 = load <4 x float> addrspace(2)* getelementptr inbounds ([2 x <4 x float>] addrspace(2)* @color, i32 0, i32 1)
+  %1 = load <4 x float> addrspace(2)* getelementptr inbounds ([2 x <4 x float>] addrspace(2)* @color, i32 0, i32 1)
   %assignment_tmp1 = fadd <4 x float> %0, %1
   store <4 x float> %assignment_tmp1, <4 x float>* %assignment_tmp
   %texColor2 = load <4 x float>* %assignment_tmp
@@ -24,7 +24,7 @@ entry:
   %6 = insertelement <3 x float> %4, float %5, i32 1
   %7 = extractelement <4 x float> %2, i32 2
   %8 = insertelement <3 x float> %6, float %7, i32 2
-  %9 = load <3 x float> addrspace(1)* @inColor
+  %9 = load <3 x float> addrspace(2)* @inColor
   %10 = fadd <3 x float> %8, %9
   %11 = load <4 x float>* %texColor
   %12 = extractelement <3 x float> %10, i32 0
@@ -36,7 +36,7 @@ entry:
   store <4 x float> %texColor3, <4 x float>* %texColor
   %17 = load <4 x float>* %texColor
   %18 = extractelement <4 x float> %17, i32 3
-  %19 = load float addrspace(1)* getelementptr inbounds ([13 x float] addrspace(1)* @alpha, i32 0, i32 12)
+  %19 = load float addrspace(2)* getelementptr inbounds ([13 x float] addrspace(2)* @alpha, i32 0, i32 12)
   %20 = fadd float %18, %19
   %21 = load <4 x float>* %texColor
   %texColor4 = insertelement <4 x float> %21, float %20, i32 3
@@ -60,23 +60,23 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@color = external addrspace(1) constant [2 x <4 x float>]
-@inColor = external addrspace(1) constant <3 x float>
-@alpha = external addrspace(1) constant [13 x float]
+@color = external addrspace(2) constant [2 x <4 x float>]
+@inColor = external addrspace(2) constant <3 x float>
+@alpha = external addrspace(2) constant [13 x float]
 @gla_globalAgg = internal global <3 x float> undef
 
 define fastcc void @main() {
 entry:
-  %gla_constGEP = getelementptr [2 x <4 x float>] addrspace(1)* @color, i32 0, i32 1
-  %0 = load <4 x float> addrspace(1)* %gla_constGEP
+  %gla_constGEP = getelementptr [2 x <4 x float>] addrspace(2)* @color, i32 0, i32 1
+  %0 = load <4 x float> addrspace(2)* %gla_constGEP
   %assignment_tmp1 = fadd <4 x float> %0, %0
   %aggregate = load <3 x float>* @gla_globalAgg
   %1 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> %aggregate, i32 7, <4 x float> %assignment_tmp1, i32 0, <4 x float> %assignment_tmp1, i32 1, <4 x float> %assignment_tmp1, i32 2, float 0.000000e+00, i32 -1)
-  %2 = load <3 x float> addrspace(1)* @inColor
+  %2 = load <3 x float> addrspace(2)* @inColor
   %3 = fadd <3 x float> %1, %2
   %4 = extractelement <4 x float> %assignment_tmp1, i32 3
-  %gla_constGEP6 = getelementptr [13 x float] addrspace(1)* @alpha, i32 0, i32 12
-  %5 = load float addrspace(1)* %gla_constGEP6
+  %gla_constGEP6 = getelementptr [13 x float] addrspace(2)* @alpha, i32 0, i32 12
+  %5 = load float addrspace(2)* %gla_constGEP6
   %6 = fadd float %4, %5
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> %assignment_tmp1, i32 15, <3 x float> %3, i32 0, <3 x float> %3, i32 1, <3 x float> %3, i32 2, float %6, i32 -1)
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %7)

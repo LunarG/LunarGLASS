@@ -2,12 +2,12 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@colorTransform = external addrspace(1) constant [3 x <3 x float>]
+@colorTransform = external addrspace(2) constant [3 x <3 x float>]
 @gl_FragColor = internal global <4 x float> zeroinitializer
-@m = external addrspace(1) constant [4 x <4 x float>]
-@n = external addrspace(1) constant [4 x <4 x float>]
-@un34 = external addrspace(1) constant [3 x <4 x float>]
-@um43 = external addrspace(1) constant [4 x <3 x float>]
+@m = external addrspace(2) constant [4 x <4 x float>]
+@n = external addrspace(2) constant [4 x <4 x float>]
+@un34 = external addrspace(2) constant [3 x <4 x float>]
+@um43 = external addrspace(2) constant [4 x <3 x float>]
 
 define fastcc void @main() {
 entry:
@@ -17,7 +17,7 @@ entry:
   %vec_ctor1 = insertelement <4 x float> %0, float 1.000000e+00, i32 3
   store <4 x float> %vec_ctor1, <4 x float>* %vec_ctor
   %Color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 1)
-  %__matrix = load [3 x <3 x float>] addrspace(1)* @colorTransform
+  %__matrix = load [3 x <3 x float>] addrspace(2)* @colorTransform
   %1 = alloca <3 x float>
   %2 = load <3 x float>* %1
   %__column = extractvalue [3 x <3 x float>] %__matrix, 0
@@ -39,8 +39,8 @@ entry:
   store <4 x float> %vec_ctor6, <4 x float>* %vec_ctor
   %gl_FragColor = load <4 x float>* %vec_ctor
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  %__matrix7 = load [4 x <4 x float>] addrspace(1)* @m
-  %__matrix8 = load [4 x <4 x float>] addrspace(1)* @n
+  %__matrix7 = load [4 x <4 x float>] addrspace(2)* @m
+  %__matrix8 = load [4 x <4 x float>] addrspace(2)* @n
   %__Matrix-Compare = alloca i1
   %__Matrix-Compare9 = load i1* %__Matrix-Compare
   %__column10 = extractvalue [4 x <4 x float>] %__matrix7, 0
@@ -73,7 +73,7 @@ then:                                             ; preds = %entry
 
 else:                                             ; preds = %entry
   %24 = load <4 x float>* @gl_FragColor
-  %__matrix19 = load [4 x <4 x float>] addrspace(1)* @m
+  %__matrix19 = load [4 x <4 x float>] addrspace(2)* @m
   %v20 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
   %25 = alloca <4 x float>
   %26 = load <4 x float>* %25
@@ -147,8 +147,8 @@ else:                                             ; preds = %entry
   %30 = insertelement <4 x float> %29, float %__dotProduct80, i32 3
   %31 = fadd <4 x float> %24, %30
   %v81 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
-  %__matrix82 = load [4 x <4 x float>] addrspace(1)* @m
-  %__matrix83 = load [4 x <4 x float>] addrspace(1)* @n
+  %__matrix82 = load [4 x <4 x float>] addrspace(2)* @m
+  %__matrix83 = load [4 x <4 x float>] addrspace(2)* @n
   %32 = alloca [4 x <4 x float>]
   %33 = load [4 x <4 x float>]* %32
   %__leftColumn = extractvalue [4 x <4 x float>] %__matrix82, 0
@@ -236,7 +236,7 @@ ifmerge:                                          ; preds = %else, %then
   %__matrix143 = insertvalue [3 x <4 x float>] %__matrix129, <4 x float> %__column142, 2
   store [3 x <4 x float>] %__matrix143, [3 x <4 x float>]* %_ret_val
   %__matrix144 = load [3 x <4 x float>]* %_ret_val
-  %__matrix145 = load [3 x <4 x float>] addrspace(1)* @un34
+  %__matrix145 = load [3 x <4 x float>] addrspace(2)* @un34
   %__Matrix-Compare146 = alloca i1
   %__Matrix-Compare147 = load i1* %__Matrix-Compare146
   %__column148 = extractvalue [3 x <4 x float>] %__matrix144, 0
@@ -318,8 +318,8 @@ then154:                                          ; preds = %ifmerge
 
 else205:                                          ; preds = %ifmerge
   %63 = load <4 x float>* @gl_FragColor
-  %__matrix206 = load [3 x <4 x float>] addrspace(1)* @un34
-  %__matrix207 = load [4 x <3 x float>] addrspace(1)* @um43
+  %__matrix206 = load [3 x <4 x float>] addrspace(2)* @un34
+  %__matrix207 = load [4 x <3 x float>] addrspace(2)* @um43
   %64 = alloca [4 x <4 x float>]
   %__resultMatrix = load [4 x <4 x float>]* %64
   %65 = alloca <4 x float>
@@ -677,11 +677,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@colorTransform = external addrspace(1) constant [3 x <3 x float>]
-@m = external addrspace(1) constant [4 x <4 x float>]
-@n = external addrspace(1) constant [4 x <4 x float>]
-@un34 = external addrspace(1) constant [3 x <4 x float>]
-@um43 = external addrspace(1) constant [4 x <3 x float>]
+@colorTransform = external addrspace(2) constant [3 x <3 x float>]
+@m = external addrspace(2) constant [4 x <4 x float>]
+@n = external addrspace(2) constant [4 x <4 x float>]
+@un34 = external addrspace(2) constant [3 x <4 x float>]
+@um43 = external addrspace(2) constant [4 x <3 x float>]
 @gla_globalAgg = internal global <4 x float> <float undef, float undef, float undef, float 1.000000e+00>
 @gla_globalAgg1 = internal global <4 x float> undef
 @gla_globalAgg2 = internal global <4 x float> undef
@@ -695,7 +695,7 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %Color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 1)
-  %__matrix = load [3 x <3 x float>] addrspace(1)* @colorTransform
+  %__matrix = load [3 x <3 x float>] addrspace(2)* @colorTransform
   %__column = extractvalue [3 x <3 x float>] %__matrix, 0
   %__dot = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column)
   %__column2 = extractvalue [3 x <3 x float>] %__matrix, 1
@@ -704,8 +704,8 @@ entry:
   %__dot5 = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column4)
   %aggregate = load <4 x float>* @gla_globalAgg
   %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate, i32 7, float %__dot, i32 -1, float %__dot3, i32 -1, float %__dot5, i32 -1, float 0.000000e+00, i32 -1)
-  %__matrix7 = load [4 x <4 x float>] addrspace(1)* @m
-  %__matrix8 = load [4 x <4 x float>] addrspace(1)* @n
+  %__matrix7 = load [4 x <4 x float>] addrspace(2)* @m
+  %__matrix8 = load [4 x <4 x float>] addrspace(2)* @n
   %__column10 = extractvalue [4 x <4 x float>] %__matrix7, 0
   %__column11 = extractvalue [4 x <4 x float>] %__matrix8, 0
   %1 = fcmp one <4 x float> %__column10, %__column11
@@ -836,7 +836,7 @@ ifmerge:                                          ; preds = %else, %then
   %__element141 = fmul float %__leftComp112.pre-phi, %__rightComp130
   %aggregate528 = load <4 x float>* @gla_globalAgg5
   %15 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate528, i32 15, float %__element132, i32 -1, float %__element135, i32 -1, float %__element138, i32 -1, float %__element141, i32 -1)
-  %__matrix145 = load [3 x <4 x float>] addrspace(1)* @un34
+  %__matrix145 = load [3 x <4 x float>] addrspace(2)* @un34
   %__column149 = extractvalue [3 x <4 x float>] %__matrix145, 0
   %16 = fcmp oeq <4 x float> %__column114, %__column149
   %17 = call i1 @llvm.gla.all.v4i1(<4 x i1> %16)
@@ -880,7 +880,7 @@ then154:                                          ; preds = %ifmerge
   br label %ifmerge522
 
 else205:                                          ; preds = %ifmerge
-  %__matrix207 = load [4 x <3 x float>] addrspace(1)* @um43
+  %__matrix207 = load [4 x <3 x float>] addrspace(2)* @um43
   %__rightColumn208 = extractvalue [4 x <3 x float>] %__matrix207, 0
   %__leftComp210 = extractelement <4 x float> %__column149, i32 0
   %__rightComp211 = extractelement <3 x float> %__rightColumn208, i32 0

@@ -2,11 +2,11 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@d = external addrspace(1) constant float
-@bigColor = external addrspace(1) constant <4 x float>
-@smallColor = external addrspace(1) constant <4 x float>
+@d = external addrspace(2) constant float
+@bigColor = external addrspace(2) constant <4 x float>
+@smallColor = external addrspace(2) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
-@otherColor = external addrspace(1) constant <4 x float>
+@otherColor = external addrspace(2) constant <4 x float>
 
 define fastcc void @main() {
 entry:
@@ -14,27 +14,27 @@ entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   store <4 x float> %BaseColor, <4 x float>* %color
   %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
-  %0 = load float addrspace(1)* @d
+  %0 = load float addrspace(2)* @d
   %1 = fcmp ogt float %c, %0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
   %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
-  %2 = load <4 x float> addrspace(1)* @bigColor
+  %2 = load <4 x float> addrspace(2)* @bigColor
   %color2 = fadd <4 x float> %BaseColor1, %2
   store <4 x float> %color2, <4 x float>* %color
   br label %ifmerge
 
 else:                                             ; preds = %entry
   %3 = load <4 x float>* %color
-  %4 = load <4 x float> addrspace(1)* @smallColor
+  %4 = load <4 x float> addrspace(2)* @smallColor
   %color3 = fadd <4 x float> %3, %4
   store <4 x float> %color3, <4 x float>* %color
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
   %5 = load <4 x float>* %color
-  %6 = load <4 x float> addrspace(1)* @otherColor
+  %6 = load <4 x float> addrspace(2)* @otherColor
   %gl_FragColor = fmul <4 x float> %5, %6
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
@@ -58,22 +58,22 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@d = external addrspace(1) constant float
-@bigColor = external addrspace(1) constant <4 x float>
-@smallColor = external addrspace(1) constant <4 x float>
-@otherColor = external addrspace(1) constant <4 x float>
+@d = external addrspace(2) constant float
+@bigColor = external addrspace(2) constant <4 x float>
+@smallColor = external addrspace(2) constant <4 x float>
+@otherColor = external addrspace(2) constant <4 x float>
 
 define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
   %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
-  %0 = load float addrspace(1)* @d
+  %0 = load float addrspace(2)* @d
   %1 = fcmp ogt float %c, %0
-  %bigColor.val = load <4 x float> addrspace(1)* @bigColor
-  %smallColor.val = load <4 x float> addrspace(1)* @smallColor
+  %bigColor.val = load <4 x float> addrspace(2)* @bigColor
+  %smallColor.val = load <4 x float> addrspace(2)* @smallColor
   %.pn = select i1 %1, <4 x float> %bigColor.val, <4 x float> %smallColor.val
   %color.0 = fadd <4 x float> %BaseColor, %.pn
-  %2 = load <4 x float> addrspace(1)* @otherColor
+  %2 = load <4 x float> addrspace(2)* @otherColor
   %gl_FragColor = fmul <4 x float> %color.0, %2
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
   br label %stage-epilogue

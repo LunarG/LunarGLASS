@@ -2,15 +2,15 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@bigColor = external addrspace(1) constant <4 x float>
+@bigColor = external addrspace(2) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
   %outColor = alloca <4 x float>
-  %outColor1 = load <4 x float> addrspace(1)* @bigColor
+  %outColor1 = load <4 x float> addrspace(2)* @bigColor
   store <4 x float> %outColor1, <4 x float>* %outColor
-  %0 = load <4 x float> addrspace(1)* @bigColor
+  %0 = load <4 x float> addrspace(2)* @bigColor
   %1 = extractelement <4 x float> %0, i32 0
   %2 = fadd float %1, 4.000000e+00
   %3 = load <4 x float>* %outColor
@@ -38,11 +38,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@bigColor = external addrspace(1) constant <4 x float>
+@bigColor = external addrspace(2) constant <4 x float>
 
 define fastcc void @main() {
 entry:
-  %outColor1 = load <4 x float> addrspace(1)* @bigColor
+  %outColor1 = load <4 x float> addrspace(2)* @bigColor
   %0 = extractelement <4 x float> %outColor1, i32 0
   %1 = fadd float %0, 4.000000e+00
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outColor1, i32 1, float %1, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)

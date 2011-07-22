@@ -5,7 +5,7 @@ Top IR:
 %lunarStruct1 = type { i32, [4 x float], [5 x <4 x float>] }
 %lunarStruct2 = type { [5 x i32], float, [7 x %lunarStruct1] }
 
-@foo2 = external addrspace(1) constant [4 x %lunarStruct2]
+@foo2 = external addrspace(2) constant [4 x %lunarStruct2]
 @gl_FragColor = internal global <4 x float> zeroinitializer
 @"sampler2D sampler" = external addrspace(1) constant i32
 
@@ -13,18 +13,18 @@ define fastcc void @main() {
 entry:
   %scale = alloca float
   store float 0.000000e+00, float* %scale
-  %0 = load i32 addrspace(1)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 0, i32 4)
+  %0 = load i32 addrspace(2)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 0, i32 4)
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %2 = load <4 x float> addrspace(1)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3)
+  %2 = load <4 x float> addrspace(2)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3)
   %scale1 = extractelement <4 x float> %2, i32 0
   store float %scale1, float* %scale
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %scale2 = load float addrspace(1)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3)
+  %scale2 = load float addrspace(2)* getelementptr inbounds ([4 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3)
   store float %scale2, float* %scale
   br label %ifmerge
 
@@ -62,25 +62,25 @@ Bottom IR:
 %lunarStruct1 = type { i32, [4 x float], [5 x <4 x float>] }
 %lunarStruct2 = type { [5 x i32], float, [7 x %lunarStruct1] }
 
-@foo2 = external addrspace(1) constant [4 x %lunarStruct2]
+@foo2 = external addrspace(2) constant [4 x %lunarStruct2]
 @"sampler2D sampler" = external addrspace(1) constant i32
 
 define fastcc void @main() {
 entry:
-  %gla_constGEP = getelementptr [4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 0, i32 4
-  %0 = load i32 addrspace(1)* %gla_constGEP
+  %gla_constGEP = getelementptr [4 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 0, i32 4
+  %0 = load i32 addrspace(2)* %gla_constGEP
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %gla_constGEP4 = getelementptr [4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3
-  %2 = load <4 x float> addrspace(1)* %gla_constGEP4
+  %gla_constGEP4 = getelementptr [4 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3
+  %2 = load <4 x float> addrspace(2)* %gla_constGEP4
   %scale1 = extractelement <4 x float> %2, i32 0
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %gla_constGEP5 = getelementptr [4 x %lunarStruct2] addrspace(1)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3
-  %scale2 = load float addrspace(1)* %gla_constGEP5
+  %gla_constGEP5 = getelementptr [4 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3
+  %scale2 = load float addrspace(2)* %gla_constGEP5
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then

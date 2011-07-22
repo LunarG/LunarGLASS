@@ -8,10 +8,10 @@ Top IR:
 %s2 = type { i32, float, %s1 }
 %s3 = type { [12 x %s2], i32, float, %s1 }
 
-@foo3 = external addrspace(1) constant %s3
-@foo1 = external addrspace(1) constant %s1
-@foo0 = external addrspace(1) constant %s0
-@foo00 = external addrspace(1) constant %s00
+@foo3 = external addrspace(2) constant %s3
+@foo1 = external addrspace(2) constant %s1
+@foo0 = external addrspace(2) constant %s0
+@foo00 = external addrspace(2) constant %s00
 @gl_FragColor = internal global <4 x float> zeroinitializer
 @"sampler2D sampler" = external addrspace(1) constant i32
 
@@ -24,14 +24,14 @@ entry:
   %locals00_s0_0 = alloca %s0
   %fArray = alloca [6 x float]
   %locals1Array = alloca [10 x %s1]
-  %0 = load i32 addrspace(1)* getelementptr inbounds (%s3 addrspace(1)* @foo3, i32 0, i32 0, i32 9, i32 0)
+  %0 = load i32 addrspace(2)* getelementptr inbounds (%s3 addrspace(2)* @foo3, i32 0, i32 0, i32 9, i32 0)
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
   store %s1 { i32 0, float 1.000000e+00, %s0 zeroinitializer }, %s1* %locals2_s1_1
   store [6 x float] zeroinitializer, [6 x float]* %fArray
-  %2 = load %s1 addrspace(1)* @foo1
+  %2 = load %s1 addrspace(2)* @foo1
   %3 = load [10 x %s1]* %locals1Array
   %locals1Array1 = insertvalue [10 x %s1] %3, %s1 %2, 6
   store [10 x %s1] %locals1Array1, [10 x %s1]* %locals1Array
@@ -48,7 +48,7 @@ else:                                             ; preds = %entry
   %6 = load %s1* %assignment_tmp
   %assignment_tmp3 = insertvalue %s1 %6, float %5, 1
   store %s1 %assignment_tmp3, %s1* %assignment_tmp
-  %7 = load %s0 addrspace(1)* @foo0
+  %7 = load %s0 addrspace(2)* @foo0
   %8 = load %s1* %assignment_tmp
   %assignment_tmp4 = insertvalue %s1 %8, %s0 %7, 2
   store %s1 %assignment_tmp4, %s1* %assignment_tmp
@@ -59,12 +59,12 @@ else:                                             ; preds = %entry
   %10 = load [10 x %s1]* %locals1Array
   %locals1Array6 = insertvalue [10 x %s1] %10, %s1 %9, 6
   store [10 x %s1] %locals1Array6, [10 x %s1]* %locals1Array
-  %assignment_tmp78 = load %s0 addrspace(1)* getelementptr inbounds (%s1 addrspace(1)* @foo1, i32 0, i32 2)
+  %assignment_tmp78 = load %s0 addrspace(2)* getelementptr inbounds (%s1 addrspace(2)* @foo1, i32 0, i32 2)
   store %s0 %assignment_tmp78, %s0* %assignment_tmp7
   %11 = load %s0* %assignment_tmp7
   %locals0_i9 = extractvalue %s0 %11, 0
   store i32 %locals0_i9, i32* %locals0_i
-  %locals00_s0_010 = load %s0 addrspace(1)* getelementptr inbounds (%s00 addrspace(1)* @foo00, i32 0, i32 0)
+  %locals00_s0_010 = load %s0 addrspace(2)* getelementptr inbounds (%s00 addrspace(2)* @foo00, i32 0, i32 0)
   store %s0 %locals00_s0_010, %s0* %locals00_s0_0
   br label %ifmerge
 
@@ -126,10 +126,10 @@ Bottom IR:
 %s2 = type { i32, float, %s1 }
 %s3 = type { [12 x %s2], i32, float, %s1 }
 
-@foo3 = external addrspace(1) constant %s3
-@foo1 = external addrspace(1) constant %s1
-@foo0 = external addrspace(1) constant %s0
-@foo00 = external addrspace(1) constant %s00
+@foo3 = external addrspace(2) constant %s3
+@foo1 = external addrspace(2) constant %s1
+@foo0 = external addrspace(2) constant %s0
+@foo00 = external addrspace(2) constant %s00
 @"sampler2D sampler" = external addrspace(1) constant i32
 @gla_globalAgg = internal global [10 x %s1] undef
 @gla_globalAgg1 = internal global %s1 { i32 1, float undef, %s0 undef }
@@ -137,13 +137,13 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %gla_constGEP = getelementptr %s3 addrspace(1)* @foo3, i32 0, i32 0, i32 9, i32 0
-  %0 = load i32 addrspace(1)* %gla_constGEP
+  %gla_constGEP = getelementptr %s3 addrspace(2)* @foo3, i32 0, i32 0, i32 9, i32 0
+  %0 = load i32 addrspace(2)* %gla_constGEP
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %2 = load %s1 addrspace(1)* @foo1
+  %2 = load %s1 addrspace(2)* @foo1
   %aggregate = load [10 x %s1]* @gla_globalAgg
   %locals1Array1 = insertvalue [10 x %s1] %aggregate, %s1 %2, 6
   br label %ifmerge
@@ -153,14 +153,14 @@ else:                                             ; preds = %entry
   %3 = extractelement <2 x float> %coord, i32 1
   %aggregate16 = load %s1* @gla_globalAgg1
   %assignment_tmp3 = insertvalue %s1 %aggregate16, float %3, 1
-  %4 = load %s0 addrspace(1)* @foo0
+  %4 = load %s0 addrspace(2)* @foo0
   %assignment_tmp4 = insertvalue %s1 %assignment_tmp3, %s0 %4, 2
   %aggregate17 = load [10 x %s1]* @gla_globalAgg2
   %locals1Array6 = insertvalue [10 x %s1] %aggregate17, %s1 %assignment_tmp4, 6
-  %gla_constGEP18 = getelementptr %s1 addrspace(1)* @foo1, i32 0, i32 2, i32 0
-  %5 = load i32 addrspace(1)* %gla_constGEP18
-  %gla_constGEP19 = getelementptr %s00 addrspace(1)* @foo00, i32 0, i32 0
-  %locals00_s0_010 = load %s0 addrspace(1)* %gla_constGEP19
+  %gla_constGEP18 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
+  %5 = load i32 addrspace(2)* %gla_constGEP18
+  %gla_constGEP19 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0
+  %locals00_s0_010 = load %s0 addrspace(2)* %gla_constGEP19
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then

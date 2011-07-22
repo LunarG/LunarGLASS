@@ -249,11 +249,12 @@ protected:
     {
         if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
             switch (pointer->getAddressSpace()) {
-            case gla::UniformAddressSpace:
-                return PROGRAM_UNIFORM;
             case gla::GlobalAddressSpace:
                 return PROGRAM_TEMPORARY;
             default:
+                if (pointer->getAddressSpace() >= gla::ConstantAddressSpaceBase)
+                    return PROGRAM_UNIFORM;
+
                 UnsupportedFunctionality("address space in Bottom IR");
             }
         }

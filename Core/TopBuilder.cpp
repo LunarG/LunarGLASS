@@ -160,8 +160,15 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
     bool readOnly = false;
 
     switch (storageQualifier) {
+    case ESQResource:
+        addressSpace = gla::ResourceAddressSpace;
+        linkage = llvm::GlobalVariable::ExternalLinkage;
+        global = true;
+        readOnly = true;
+        break;
+
     case ESQUniform:
-        addressSpace = gla::UniformAddressSpace;
+        addressSpace = gla::ConstantAddressSpaceBase + storageInstance;
         linkage = llvm::GlobalVariable::ExternalLinkage;
         global = true;
         readOnly = true;

@@ -969,6 +969,7 @@ gla::Builder::SuperValue GlslToTopVisitor::createLLVMVariable(ir_variable* var)
     if (var->type->base_type == GLSL_TYPE_SAMPLER) {
         annotation = std::string(getSamplerTypeName(var));
         annotationAddr = &annotation;
+        storageQualifier = gla::Builder::ESQResource;
     }
 
     //?? still need to consume the following

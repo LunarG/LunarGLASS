@@ -2,8 +2,8 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@u = external addrspace(1) constant <4 x float>
-@p = external addrspace(1) constant i1
+@u = external addrspace(2) constant <4 x float>
+@p = external addrspace(2) constant i1
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -15,13 +15,13 @@ entry:
   %w_reorder = alloca <4 x float>
   %w2 = alloca <4 x float>
   %w_flow = alloca <4 x float>
-  %w1 = load <4 x float> addrspace(1)* @u
+  %w1 = load <4 x float> addrspace(2)* @u
   store <4 x float> %w1, <4 x float>* %w
-  %w_dep2 = load <4 x float> addrspace(1)* @u
+  %w_dep2 = load <4 x float> addrspace(2)* @u
   store <4 x float> %w_dep2, <4 x float>* %w_dep
-  %w_reorder3 = load <4 x float> addrspace(1)* @u
+  %w_reorder3 = load <4 x float> addrspace(2)* @u
   store <4 x float> %w_reorder3, <4 x float>* %w_reorder
-  %w_flow4 = load <4 x float> addrspace(1)* @u
+  %w_flow4 = load <4 x float> addrspace(2)* @u
   store <4 x float> %w_flow4, <4 x float>* %w_flow
   %0 = load <4 x float>* %w_reorder
   %w_reorder5 = insertelement <4 x float> %0, float 0x3FFC9FBE80000000, i32 2
@@ -40,7 +40,7 @@ entry:
   %9 = load <4 x float>* %w_reorder
   %w_reorder7 = insertelement <4 x float> %9, float 0x3FFC9FBE80000000, i32 0
   store <4 x float> %w_reorder7, <4 x float>* %w_reorder
-  %10 = load <4 x float> addrspace(1)* @u
+  %10 = load <4 x float> addrspace(2)* @u
   %11 = extractelement <4 x float> %10, i32 2
   %12 = insertelement <4 x float> undef, float %11, i32 0
   %13 = extractelement <4 x float> %10, i32 3
@@ -71,7 +71,7 @@ entry:
   %31 = extractelement <2 x float> %t11, i32 1
   %w_dep12 = insertelement <4 x float> %30, float %31, i32 3
   store <4 x float> %w_dep12, <4 x float>* %w_dep
-  %32 = load <4 x float> addrspace(1)* @u
+  %32 = load <4 x float> addrspace(2)* @u
   %33 = extractelement <4 x float> %32, i32 2
   %34 = insertelement <2 x float> undef, float %33, i32 0
   %35 = extractelement <4 x float> %32, i32 3
@@ -82,7 +82,7 @@ entry:
   %40 = extractelement <2 x float> %36, i32 1
   %w_undef13 = insertelement <4 x float> %39, float %40, i32 1
   store <4 x float> %w_undef13, <4 x float>* %w_undef
-  %41 = load i1 addrspace(1)* @p
+  %41 = load i1 addrspace(2)* @p
   br i1 %41, label %then, label %else
 
 then:                                             ; preds = %entry
@@ -136,14 +136,14 @@ declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@u = external addrspace(1) constant <4 x float>
-@p = external addrspace(1) constant i1
+@u = external addrspace(2) constant <4 x float>
+@p = external addrspace(2) constant i1
 @gla_globalAgg = internal global <4 x float> undef
 @gla_globalAgg1 = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
-  %w1 = load <4 x float> addrspace(1)* @u
+  %w1 = load <4 x float> addrspace(2)* @u
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x float> %w1, i32 10, float 0.000000e+00, i32 -1, <2 x float> %t, i32 1, float 0.000000e+00, i32 -1, <2 x float> %t, i32 0)
   %aggregate = load <4 x float>* @gla_globalAgg
@@ -152,7 +152,7 @@ entry:
   %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v2f32.v2f32(<4 x float> %w1, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 0, <2 x float> %t, i32 0, <2 x float> %t, i32 1)
   %aggregate20 = load <4 x float>* @gla_globalAgg1
   %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.f32.f32(<4 x float> %aggregate20, i32 3, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
-  %5 = load i1 addrspace(1)* @p
+  %5 = load i1 addrspace(2)* @p
   br i1 %5, label %then, label %else
 
 then:                                             ; preds = %entry

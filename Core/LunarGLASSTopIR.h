@@ -91,7 +91,9 @@ namespace gla {
     }
 
     const unsigned int GlobalAddressSpace = 0;
-    const unsigned int UniformAddressSpace = 1;
+    const unsigned int ResourceAddressSpace = 1;
+    const unsigned int ConstantAddressSpaceBase = 2;  // use multiple constant spaces through...
+    // ConstantAddressSpaceBase + space, where 'space' is 0, 1, 2, ...
 
     enum EInterpolationMode {
         EIMNone,  // also for flat

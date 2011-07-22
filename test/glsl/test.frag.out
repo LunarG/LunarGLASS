@@ -3,10 +3,10 @@ Top IR:
 ; ModuleID = 'Top'
 
 @"sampler3D texSampler3D" = external addrspace(1) constant i32
-@scale = external addrspace(1) constant <2 x float>
+@scale = external addrspace(2) constant <2 x float>
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
-@u = external addrspace(1) constant <4 x float>
-@blend = external addrspace(1) constant float
+@u = external addrspace(2) constant <4 x float>
+@blend = external addrspace(2) constant float
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -16,9 +16,9 @@ entry:
   %0 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %0, i32 0, <3 x float> %coords)
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 1)
-  %2 = load <2 x float> addrspace(1)* @scale
+  %2 = load <2 x float> addrspace(2)* @scale
   %3 = fadd <2 x float> %t, %2
-  %4 = load <2 x float> addrspace(1)* @scale
+  %4 = load <2 x float> addrspace(2)* @scale
   %5 = fdiv <2 x float> %3, %4
   %6 = load i32 addrspace(1)* @"sampler2D texSampler2D"
   %7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %6, i32 0, <2 x float> %5)
@@ -31,8 +31,8 @@ entry:
   %14 = extractelement <4 x float> %7, i32 0
   %15 = insertelement <4 x float> %13, float %14, i32 3
   %16 = fadd <4 x float> %1, %15
-  %17 = load <4 x float> addrspace(1)* @u
-  %18 = load float addrspace(1)* @blend
+  %17 = load <4 x float> addrspace(2)* @u
+  %18 = load float addrspace(2)* @blend
   %19 = fmul float %18, 0x3FFC9FBE80000000
   %mix_retval1 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %16, <4 x float> %17, float %19)
   store <4 x float> %mix_retval1, <4 x float>* %mix_retval
@@ -66,10 +66,10 @@ Bottom IR:
 ; ModuleID = 'Top'
 
 @"sampler3D texSampler3D" = external addrspace(1) constant i32
-@scale = external addrspace(1) constant <2 x float>
+@scale = external addrspace(2) constant <2 x float>
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
-@u = external addrspace(1) constant <4 x float>
-@blend = external addrspace(1) constant float
+@u = external addrspace(2) constant <4 x float>
+@blend = external addrspace(2) constant float
 @gla_globalAgg = internal global <4 x float> undef
 
 define fastcc void @main() {
@@ -78,7 +78,7 @@ entry:
   %0 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %0, i32 0, <3 x float> %coords)
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 1)
-  %2 = load <2 x float> addrspace(1)* @scale
+  %2 = load <2 x float> addrspace(2)* @scale
   %3 = fadd <2 x float> %t, %2
   %4 = fdiv <2 x float> %3, %2
   %5 = load i32 addrspace(1)* @"sampler2D texSampler2D"
@@ -86,8 +86,8 @@ entry:
   %aggregate = load <4 x float>* @gla_globalAgg
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> %aggregate, i32 15, <4 x float> %6, i32 3, <4 x float> %6, i32 2, <4 x float> %6, i32 1, <4 x float> %6, i32 0)
   %8 = fadd <4 x float> %1, %7
-  %9 = load <4 x float> addrspace(1)* @u
-  %10 = load float addrspace(1)* @blend
+  %9 = load <4 x float> addrspace(2)* @u
+  %10 = load float addrspace(2)* @blend
   %11 = fmul float %10, 0x3FFC9FBE80000000
   %mix_retval1 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %8, <4 x float> %9, float %11)
   call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix_retval1)
