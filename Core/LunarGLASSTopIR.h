@@ -48,17 +48,17 @@ namespace gla {
         ESampler2DMS,
     };
 
-    struct ETextureFlags {
-        unsigned EProjected            : 1;
-        unsigned EBias                 : 1;
-        unsigned ELod                  : 1;
-        unsigned EShadow               : 1;
-        unsigned EArrayed              : 1;
-        unsigned ECompare              : 1;
-        unsigned EOffset               : 1;
-        unsigned ESample               : 1;
-        unsigned EComp                 : 1;
-        unsigned ERefZ                 : 1;
+    enum ETextureFlags {
+        ETFProjected  = 0x001,
+        ETFBias       = 0x002,
+        ETFLod        = 0x004,
+        ETFShadow     = 0x008,
+        ETFArrayed    = 0x010,
+        ETFCompare    = 0x020,
+        ETFOffset     = 0x040,
+        ETFSample     = 0x080,
+        ETFComp       = 0x100,
+        ETFRefZ       = 0x200,
     };
 
     // Texture op, for mapping operands

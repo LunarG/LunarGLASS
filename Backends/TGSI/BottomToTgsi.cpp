@@ -359,18 +359,25 @@ protected:
         return WRITEMASK_X;
     }
 
-    GLuint mapGlaSamplerType(const llvm::Value* samplerType, int flags)
+    GLuint mapGlaSamplerType(const llvm::Value* samplerType, int texFlags)
     {
-        gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
-
-        switch(GetConstantInt(samplerType)) {
-        case ESampler1D:        return (texFlags.EArrayed) ? TEXTURE_1D_ARRAY_INDEX : TEXTURE_1D_INDEX;
-        case ESampler2D:        return (texFlags.EArrayed) ? TEXTURE_2D_ARRAY_INDEX : TEXTURE_2D_INDEX;
-        case ESampler3D:        return TEXTURE_3D_INDEX;
-        case ESamplerCube:      return TEXTURE_CUBE_INDEX;
-        case ESampler2DRect:    return TEXTURE_RECT_INDEX;
-        default:
-            UnsupportedFunctionality("sampler type in Bottom IR");
+        if (texFlags & ETFArrayed) {
+            switch(GetConstantInt(samplerType)) {
+            case ESampler1D:        return TEXTURE_1D_ARRAY_INDEX;
+            case ESampler2D:        return TEXTURE_2D_ARRAY_INDEX;
+            default:
+                UnsupportedFunctionality("sampler type in Bottom IR");
+            }
+        } else {
+            switch(GetConstantInt(samplerType)) {
+            case ESampler1D:        return TEXTURE_1D_INDEX;
+            case ESampler2D:        return TEXTURE_2D_INDEX;
+            case ESampler3D:        return TEXTURE_3D_INDEX;
+            case ESamplerCube:      return TEXTURE_CUBE_INDEX;
+            case ESampler2DRect:    return TEXTURE_RECT_INDEX;
+            default:
+                UnsupportedFunctionality("sampler type in Bottom IR");
+            }
         }
 
         return TEXTURE_2D_INDEX;
@@ -379,15 +386,13 @@ protected:
     prog_opcode getMesaOpFromGlaInst(const llvm::IntrinsicInst* llvmInstruction, int FlagLocOpIndex)
     {
         // Check flags for proj/lod/offset
-        int flags = GetConstantInt(llvmInstruction->getOperand(FlagLocOpIndex));
+        int texFlags = GetConstantInt(llvmInstruction->getOperand(FlagLocOpIndex));
 
-        gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
-
-        if (texFlags.EProjected)
+        if (texFlags & ETFProjected)
             return OPCODE_TXP;
-        else if (texFlags.EBias)
+        else if (texFlags & ETFBias)
             return OPCODE_TXB;
-        else if (texFlags.ELod)
+        else if (texFlags & ETFLod)
             return OPCODE_TXL;
 
         if(IsGradientTexInst(llvmInstruction))

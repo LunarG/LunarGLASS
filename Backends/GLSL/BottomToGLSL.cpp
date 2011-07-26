@@ -532,13 +532,12 @@ protected:
         return "x";
     }
 
-    void emitGlaSamplerType(const llvm::Value* samplerType, int flags)
+    void emitGlaSamplerType(const llvm::Value* samplerType, int texFlags)
     {
-        gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
         const char *texture;
 
         // Select texture type based on GLA flag
-        if (texFlags.EShadow)
+        if (texFlags & ETFShadow)
             texture = "shadow";
         else
             texture = "texture";
@@ -561,30 +560,23 @@ protected:
     void emitGlaTextureStyle(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for proj/lod/offset
-        int flags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
-
-        gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
-
-        if (texFlags.EProjected)
+        int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
+        
+        if (texFlags & ETFProjected)
             shader << "Proj";
-        else if (texFlags.ELod)
+        else if (texFlags & ETFLod)
             shader << "Lod";
 
-        if(IsGradientTexInst(llvmInstruction))
+        if (IsGradientTexInst(llvmInstruction))
             shader << "Grad";
     }
 
     bool needsBiasLod(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for bias/lod
-        int flags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
-
-        gla::ETextureFlags texFlags = *(gla::ETextureFlags*)&flags;
-
-        if ( texFlags.EBias || texFlags.ELod )
-            return true;
-        else
-            return false;
+        int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
+        
+        return (texFlags & ETFBias) || (texFlags & ETFLod);
     }
 
     void getNewVariable(const llvm::Value* value, std::string* varString)

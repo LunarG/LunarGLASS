@@ -513,19 +513,19 @@ ir_visitor_status
     textureParameters.ETPCoords = lastValue;
 
     // Select texture op and traverse required info, set some flags
-    gla::ETextureFlags texFlags = {0};
+    int texFlags = 0;
     switch (ir->op) {
     case ir_tex:
         break;
     case ir_txb:
         ir->lod_info.bias->accept(this);
         textureParameters.ETPBiasLod = lastValue;
-        texFlags.EBias = true;
+        texFlags |= gla::ETFBias;
         break;
     case ir_txl:
         ir->lod_info.lod->accept(this);
         textureParameters.ETPBiasLod = lastValue;
-        texFlags.ELod = true;
+        texFlags |= gla::ETFLod;
         break;
     case ir_txd:
     case ir_txf:
@@ -537,7 +537,7 @@ ir_visitor_status
     if (ir->projector) {
         ir->projector->accept(this);
         textureParameters.ETPProj = lastValue;
-        texFlags.EProjected = true;
+        texFlags |= gla::ETFProjected;
     }
 
     // Detect and traverse shadow comparison

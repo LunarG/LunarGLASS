@@ -811,7 +811,7 @@ llvm::Value* Builder::smearScalar(llvm::Value* scalar, const llvm::Type* vectorT
 // Accept all parameters needed to create LunarGLASS texture intrinsics
 // Select the correct intrinsic based on the inputs, and make the call
 // TODO:  Expand this beyond current level of GLSL 1.2 functionality
-llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamplerType samplerType, gla::ETextureFlags texFlags, const TextureParameters& parameters)
+llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamplerType samplerType, int texFlags, const TextureParameters& parameters)
 {
     // Based on our texFlags, set the intrinsicID
     static const int maxTextureArgs = 40;
@@ -824,7 +824,7 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
     int numArgs = 4;
 
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::gla_fTextureSample;
-    if (texFlags.EBias || texFlags.ELod) {
+    if ((texFlags & ETFBias) || (texFlags & ETFLod)) {
         intrinsicID = llvm::Intrinsic::gla_fTextureSampleLod;
         texArgs[GetTextureOpIndex(ETOBias)] = parameters.ETPBiasLod;
         numArgs = 5;
