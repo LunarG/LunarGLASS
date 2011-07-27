@@ -34,7 +34,7 @@
 
 namespace gla {
 
-    inline int IsGradientTexInst(const llvm::IntrinsicInst* instruction)
+    inline bool IsGradientTexInst(const llvm::IntrinsicInst* instruction)
     {
         return (instruction->getIntrinsicID() == llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad);
     }
