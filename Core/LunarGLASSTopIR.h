@@ -59,6 +59,7 @@ namespace gla {
         ETFSample     = 0x080,
         ETFComp       = 0x100,
         ETFRefZ       = 0x200,
+        ETFWUsed      = 0x400,
     };
 
     // Texture op, for mapping operands
