@@ -152,11 +152,13 @@ public:
     // Close the main function.
     void closeMain();
 
-    void makeMainReturn() { makeReturn(NULL, true); }
+    // Return from main. Implicit denotes a return at the very end of main.
+    void makeMainReturn(bool implicit=false) { makeReturn(implicit, NULL, true); }
 
     // Create a return. Pass whether it is a return form main, and the return
-    // value (if applicable).
-    void makeReturn(llvm::Value* retVal=NULL, bool isMain = false);
+    // value (if applicable). In the case of an implicit return, no post-return
+    // block is inserted.
+    void makeReturn(bool implicit=false, llvm::Value* retVal=NULL, bool isMain = false);
 
     // Create a discard. Pass whether this is occuring in main. Currently,
     // non-main functions are unsupported, and so are discards occuring in them.
@@ -288,7 +290,7 @@ public:
                      llvm::Constant* increment,  bool builderDoesIncrement);
 
     // Add a back-edge (e.g "continue") for the innermost loop that you're in
-    void makeLoopBackEdge();
+    void makeLoopBackEdge(bool implicit=false);
 
     // Add an exit (e.g. "break") for the innermost loop that you're in
     void makeLoopExit();
@@ -305,6 +307,11 @@ protected:
     Matrix* createSmearedMatrixOp(llvm::Instruction::BinaryOps, Matrix*, llvm::Value*, bool reverseOrder);
     Matrix* createMatrixTimesMatrix(Matrix*, Matrix*);
     Matrix* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
+
+    // Utility method for creating a new block and setting the insert point to
+    // be in it. This is useful for flow-control operations that need a "dummy"
+    // block proceeding them (e.g. instructions after a discard, etc).
+    void createAndSetNoPredecessorBlock(std::string name);
 
     llvm::IRBuilder<>& builder;
     gla::Manager* manager;

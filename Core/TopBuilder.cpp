@@ -91,12 +91,15 @@ void Builder::closeMain()
 }
 
 
-void Builder::makeReturn(llvm::Value* retVal, bool isMain)
+void Builder::makeReturn(bool implicit, llvm::Value* retVal, bool isMain)
 {
     if (! isMain || retVal)
         gla::UnsupportedFunctionality("return from non-main functions");
 
     builder.CreateBr(stageEpilogue);
+
+    if (! implicit)
+        createAndSetNoPredecessorBlock("post-return");
 }
 
 void Builder::makeDiscard(bool isMain)
@@ -105,6 +108,15 @@ void Builder::makeDiscard(bool isMain)
         gla::UnsupportedFunctionality("discard from non-main functions");
 
     builder.CreateBr(stageExit);
+
+    createAndSetNoPredecessorBlock("post-discard");
+}
+
+void Builder::createAndSetNoPredecessorBlock(std::string name)
+{
+    builder.SetInsertPoint(llvm::BasicBlock::Create(context, name,
+                                                    builder.GetInsertBlock()->getParent()));
+
 }
 
 llvm::Function* Builder::makeFunctionEntry(const llvm::Type* type, const char* name, std::vector<const llvm::Type*> paramTypes, llvm::BasicBlock*& entry)
@@ -1040,13 +1052,16 @@ void Builder::makeNewLoop(llvm::Value* inductiveVariable, llvm::Constant* from, 
 }
 
 // Add a back-edge (e.g "continue") for the innermost loop that you're in
-void Builder::makeLoopBackEdge()
+void Builder::makeLoopBackEdge(bool implicit)
 {
     LoopData ld = loops.top();
 
     // If we're not inductive, just branch back.
     if (! ld.isInductive) {
         builder.CreateBr(ld.header);
+        if (! implicit)
+            createAndSetNoPredecessorBlock("post-loop-continue");
+
         return;
     }
 
@@ -1079,19 +1094,25 @@ void Builder::makeLoopBackEdge()
     // If iNext exceeds ld.finish, exit the loop, else branch back to
     // the header
     builder.CreateCondBr(cmp, ld.exit, ld.header);
+
+    if (! implicit) {
+        createAndSetNoPredecessorBlock("post-loop-continue");
+    }
 }
 
 // Add an exit (e.g. "break") for the innermost loop that you're in
 void Builder::makeLoopExit()
 {
     builder.CreateBr(loops.top().exit);
+
+    createAndSetNoPredecessorBlock("post-loop-break");
 }
 
 // Close the innermost loop that you're in
 void Builder::closeLoop()
 {
     // Branch back through the loop
-    makeLoopBackEdge();
+    makeLoopBackEdge(true);
 
     LoopData ld = loops.top();
 

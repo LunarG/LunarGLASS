@@ -162,10 +162,6 @@ ir_visitor_status
         glaBuilder->makeLoopBackEdge();
     }
 
-    // Create a place (a no predecessor block) for callers (e.g. IfThenElse) to
-    // stick finalizing instructions
-    llvmBuilder.SetInsertPoint(llvm::BasicBlock::Create(context, "post-loopjump",
-                                                        llvmBuilder.GetInsertBlock()->getParent()));
     lastValue.clear();
 
     // Continue on with the parent
@@ -394,14 +390,14 @@ ir_visitor_status
             if (inMain && !unreachable) {
                 // If we're leaving main and it is not terminated,
                 // generate our pipeline writes
-                glaBuilder->makeMainReturn();
+                glaBuilder->makeMainReturn(true);
             } else if (unreachable)
                 // If we're not the entry block, and we have no predecessors, we're
                 // unreachable, so don't bother adding a return instruction in
                 // (e.g. we're in a post-return block). Otherwise add a ret void.
                 llvmBuilder.CreateUnreachable();
             else
-                glaBuilder->makeReturn();
+                glaBuilder->makeReturn(true);
 
         }
 
@@ -861,13 +857,9 @@ ir_visitor_status
     if (inMain)
         glaBuilder->makeMainReturn();
     else if (ir->get_value())
-        glaBuilder->makeReturn(lastValue);
+        glaBuilder->makeReturn(false, lastValue);
     else
         glaBuilder->makeReturn();
-
-    // Make a dummy block for others (e.g. IfThenElse) to put stuff in
-    llvmBuilder.SetInsertPoint(llvm::BasicBlock::Create(context, "post-return",
-                                                        llvmBuilder.GetInsertBlock()->getParent()));
 
     lastValue.clear();
 
@@ -884,10 +876,6 @@ ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_discard *ir)
 {
     glaBuilder->makeDiscard(inMain);
-
-    // Make a dummy block for others (e.g. IfThenElse) to put stuff in
-    llvmBuilder.SetInsertPoint(llvm::BasicBlock::Create(context, "post-discard",
-                                                        llvmBuilder.GetInsertBlock()->getParent()));
 
     lastValue.clear();
 
