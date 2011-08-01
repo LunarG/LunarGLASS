@@ -670,7 +670,7 @@ then166:                                          ; preds = %ifmerge165
   store i32 %i167, i32* %i
   br label %ifmerge168
 
-ifmerge168:                                       ; preds = %then166, %ifmerge165
+ifmerge168:                                       ; preds = %ifmerge165, %then166
   %307 = load float addrspace(2)* @uf
   %308 = load float addrspace(2)* @uf
   %309 = fadd float %307, %308
@@ -798,7 +798,7 @@ then189:                                          ; preds = %ifmerge188
   store float %f190, float* %f
   br label %ifmerge191
 
-ifmerge191:                                       ; preds = %then189, %ifmerge188
+ifmerge191:                                       ; preds = %ifmerge188, %then189
   %385 = load i32* %i
   %386 = load i32 addrspace(2)* @ui
   %387 = and i32 %385, %386
@@ -1288,7 +1288,7 @@ then189:                                          ; preds = %ifmerge188
   %f190 = fadd float %assignment_tmp176177, 1.000000e+00
   br label %ifmerge191
 
-ifmerge191:                                       ; preds = %then189, %ifmerge188
+ifmerge191:                                       ; preds = %ifmerge188, %then189
   %f.0 = phi float [ %f190, %then189 ], [ %assignment_tmp176177, %ifmerge188 ]
   br i1 %and_tmp149.0, label %then195, label %else197
 

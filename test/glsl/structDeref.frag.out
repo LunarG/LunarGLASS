@@ -79,7 +79,7 @@ then11:                                           ; preds = %ifmerge
   store i32 %locals0_i12, i32* %locals0_i
   br label %ifmerge13
 
-ifmerge13:                                        ; preds = %then11, %ifmerge
+ifmerge13:                                        ; preds = %ifmerge, %then11
   %15 = load i32* %locals0_i
   %16 = sitofp i32 %15 to float
   %17 = load [10 x %s1]* %locals1Array
@@ -176,7 +176,7 @@ then11:                                           ; preds = %ifmerge
   %locals0_i12 = extractvalue %s0 %locals00_s0_0.0, 0
   br label %ifmerge13
 
-ifmerge13:                                        ; preds = %then11, %ifmerge
+ifmerge13:                                        ; preds = %ifmerge, %then11
   %locals0_i.1 = phi i32 [ %locals0_i12, %then11 ], [ %locals0_i.0, %ifmerge ]
   %7 = sitofp i32 %locals0_i.1 to float
   %8 = extractvalue [10 x %s1] %locals1Array.0, 6, 1

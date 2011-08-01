@@ -76,7 +76,7 @@ then11:                                           ; preds = %ifmerge
   store [16 x float] %localFArray12, [16 x float]* %localFArray
   br label %ifmerge13
 
-ifmerge13:                                        ; preds = %then11, %ifmerge
+ifmerge13:                                        ; preds = %ifmerge, %then11
   %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %20 = extractelement <2 x float> %coord14, i32 0
   %21 = load [16 x float]* %localArray
@@ -139,7 +139,7 @@ then32:                                           ; preds = %ifmerge13
   store [16 x float] %a33, [16 x float]* %a
   br label %ifmerge34
 
-ifmerge34:                                        ; preds = %then32, %ifmerge13
+ifmerge34:                                        ; preds = %ifmerge13, %then32
   %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
   store <4 x float> %color, <4 x float>* %locals2_bleh
   %coord35 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
@@ -245,7 +245,7 @@ then11:                                           ; preds = %ifmerge
   %localFArray12 = insertvalue [16 x float] %localFArray.0, float %8, 4
   br label %ifmerge13
 
-ifmerge13:                                        ; preds = %then11, %ifmerge
+ifmerge13:                                        ; preds = %ifmerge, %then11
   %localFArray.1 = phi [16 x float] [ %localFArray12, %then11 ], [ %localFArray.0, %ifmerge ]
   %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
   %9 = extractelement <2 x float> %coord14, i32 0
@@ -258,7 +258,7 @@ then32:                                           ; preds = %ifmerge13
   %localArray15 = insertvalue [16 x float] %aggregate43, float %9, 5
   br label %ifmerge34
 
-ifmerge34:                                        ; preds = %then32, %ifmerge13
+ifmerge34:                                        ; preds = %ifmerge13, %then32
   %a.0 = phi [16 x float] [ %localArray15, %then32 ], [ zeroinitializer, %ifmerge13 ]
   %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
   %12 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %color, i32 4, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, <2 x float> %coord14, i32 1, float 0.000000e+00, i32 -1)

@@ -899,15 +899,16 @@ ir_visitor_status
 {
     // emit condition into current block
     ifNode->condition->accept(this);
-    gla::Builder::If ifBuilder(lastValue, ! ifNode->else_instructions.is_empty(), glaBuilder);
+    gla::Builder::If ifBuilder(lastValue, glaBuilder);
 
     // emit the then statement
     visit_list_elements(this, &(ifNode->then_instructions));
-    ifBuilder.makeEndThen();
 
     // emit the else statement
-    if (! ifNode->else_instructions.is_empty())
+    if (! ifNode->else_instructions.is_empty()) {
+        ifBuilder.makeBeginElse();
         visit_list_elements(this, &(ifNode->else_instructions));
+    }
 
     ifBuilder.makeEndIf();
 

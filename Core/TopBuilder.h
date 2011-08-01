@@ -262,15 +262,17 @@ public:
 
     class If {
     public:
-        If(llvm::Value* condition, bool withElse, Builder* glaBuilder);
+        If(llvm::Value* condition, Builder* glaBuilder);
         ~If() {}
 
-        void makeEndThen();
+        void makeBeginElse();
         void makeEndIf();
 
     private:
         Builder* glaBuilder;
+        llvm::Value* condition;
         llvm::Function* function;
+        llvm::BasicBlock* headerBB;
         llvm::BasicBlock* thenBB;
         llvm::BasicBlock* elseBB;
         llvm::BasicBlock* mergeBB;

@@ -943,7 +943,11 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
     return builder.CreateCall3(intrinsicName, operand0, operand1, operand2);
 }
 
-Builder::If::If(llvm::Value* condition, bool withElse, Builder* gb) : glaBuilder(gb)
+Builder::If::If(llvm::Value* cond, Builder* gb)
+    : glaBuilder(gb)
+    , condition(cond)
+    , elseBB(0)
+
 {
     function = glaBuilder->builder.GetInsertBlock()->getParent();
 
@@ -951,36 +955,39 @@ Builder::If::If(llvm::Value* condition, bool withElse, Builder* gb) : glaBuilder
     // the else-block and merge-block will be added later, in order, after
     // earlier code is emitted
     thenBB = llvm::BasicBlock::Create(glaBuilder->context, "then", function);
-    elseBB = withElse ? llvm::BasicBlock::Create(glaBuilder->context, "else") : 0;
     mergeBB = llvm::BasicBlock::Create(glaBuilder->context, "ifmerge");
 
-    // make the flow control split
-    if (withElse)
-        glaBuilder->builder.CreateCondBr(condition, thenBB, elseBB);
-    else
-        glaBuilder->builder.CreateCondBr(condition, thenBB, mergeBB);
+    // Save the current block, so that we can add in the flow control split when
+    // makeEndIf is called.
+    headerBB = glaBuilder->builder.GetInsertBlock();
 
     glaBuilder->builder.SetInsertPoint(thenBB);
 }
 
-void Builder::If::makeEndThen()
+void Builder::If::makeBeginElse()
 {
-    // jump to the merge block
+    // Close out the "then" by having it jump to the mergeBB
     glaBuilder->builder.CreateBr(mergeBB);
 
-    if (elseBB) {
-        // add else block to the function
-        function->getBasicBlockList().push_back(elseBB);
-        glaBuilder->builder.SetInsertPoint(elseBB);
-    }
+    // Make the else
+    elseBB = llvm::BasicBlock::Create(glaBuilder->context, "else");
+
+    // add else block to the function
+    function->getBasicBlockList().push_back(elseBB);
+    glaBuilder->builder.SetInsertPoint(elseBB);
 }
 
 void Builder::If::makeEndIf()
 {
-    if (elseBB) {
-        // jump to the merge block
-        glaBuilder->builder.CreateBr(mergeBB);
-    }
+    // jump to the merge block
+    glaBuilder->builder.CreateBr(mergeBB);
+
+    // Go back the the headerBB and make the flow control split
+    glaBuilder->builder.SetInsertPoint(headerBB);
+    if (elseBB)
+        glaBuilder->builder.CreateCondBr(condition, thenBB, elseBB);
+    else
+        glaBuilder->builder.CreateCondBr(condition, thenBB, mergeBB);
 
     // add the merge block to the function
     function->getBasicBlockList().push_back(mergeBB);
