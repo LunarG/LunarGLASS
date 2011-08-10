@@ -52,11 +52,11 @@ namespace gla {
 
     // Helpers to make constants
     inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(1, i, false)); }
-    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, bool True) { return llvm::ConstantInt::get(context, llvm::APInt(True ? 1 : 0, false)); }
+    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, bool True) { return llvm::ConstantInt::get(context, llvm::APInt(1, True ? 1 : 0, false)); }
     inline llvm::Constant* MakeUnsignedConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, false)); }
     inline llvm::Constant* MakeIntConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, true)); }
     inline llvm::Constant* MakeFloatConstant(llvm::LLVMContext& context, float f) { return llvm::ConstantFP::get(context, llvm::APFloat(f)); };
-        
+
     // extract integer value or assert trying
     int GetConstantInt(const llvm::Value*);
 
@@ -79,7 +79,7 @@ namespace gla {
     {
         return (llvm::Type::VectorTyID == type->getTypeID() ||
                 llvm::Type::ArrayTyID == type->getTypeID() ||
-                llvm::Type::StructTyID == type->getTypeID() ); 
+                llvm::Type::StructTyID == type->getTypeID() );
     }
 
     inline bool IsAggregate(const llvm::Value* value) { return IsAggregate(value->getType()); }
