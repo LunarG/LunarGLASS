@@ -204,6 +204,11 @@ public:
     // Copy out to the pipeline the outputs we've been caching in variables
     void copyOutPipeline();
 
+    // Write to the pipeline directly, without caching through variables
+    // (User likely needs to select between the variable/copyOutPipeline 
+    //  model and the writePipeline model.)
+    void writePipeline(llvm::Value*, int slot, EInterpolationMode mode = EIMNone);
+
     llvm::Value* readPipeline(const llvm::Type*, std::string& name, int slot, EInterpolationMode mode = EIMNone, float offsetx = 0.0, float offsety = 0.0);
 
     llvm::Value* createSwizzle(llvm::Value* source, int swizzleMask, const llvm::Type* finalType);

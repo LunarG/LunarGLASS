@@ -301,23 +301,40 @@ Builder::SuperValue Builder::createInsertValue(SuperValue target, SuperValue sou
 
 void Builder::copyOutPipeline()
 {
-    llvm::Intrinsic::ID intrinsicID;
-
-    std::list<llvm::Value*>::iterator outIter;
-
-    // Call writeData intrinsic on our outs
     for (int out = 0; out < copyOuts.size(); ++out) {
         llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);
         //?? lookup the location in the symbol table
+        //?? lookup interpolation mode, (currently not triggering 
+        //   interpolation on outputs)
 
-        switch(GetBasicType(loadVal)) {
+        writePipeline(loadVal, out);
+    }
+}
+
+void Builder::writePipeline(llvm::Value* outValue, int slot, EInterpolationMode mode)
+{
+    llvm::Constant *slotConstant = MakeUnsignedConstant(context, slot);
+
+    // This correction is necessary for some front ends, which might allow
+    // "interpolated" integers or Booleans.
+    if (GetBasicType(outValue->getType()) != llvm::Type::FloatTyID)
+        mode = EIMNone;
+
+    llvm::Function *intrinsic;
+    if (mode == EIMNone) {
+        llvm::Intrinsic::ID intrinsicID;
+        switch(GetBasicType(outValue)) {
         case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
         case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fWriteData;  break;
+        default:                        assert(! "Unsupported type in writePipeline");
         }
-
-        llvm::Function *intrinsicName = getIntrinsic(intrinsicID, loadVal->getType());
-
-        builder.CreateCall2(intrinsicName, MakeIntConstant(context, out), loadVal);
+        
+        intrinsic = getIntrinsic(intrinsicID, outValue->getType());
+        builder.CreateCall2(intrinsic, MakeIntConstant(context, slot), outValue);
+    } else {
+        llvm::Constant *modeConstant = MakeUnsignedConstant(context, mode);
+        intrinsic = getIntrinsic(llvm::Intrinsic::gla_fWriteInterpolant, outValue->getType());
+        builder.CreateCall3(intrinsic, MakeIntConstant(context, slot), modeConstant, outValue);
     }
 }
 
