@@ -25,14 +25,14 @@ post-return:                                      ; No predecessors!
 
 stage-epilogue:                                   ; preds = %entry
   %4 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %4)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %4)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
 Bottom IR:
@@ -46,7 +46,7 @@ entry:
   %0 = extractelement <4 x float> %outColor1, i32 0
   %1 = fadd float %0, 4.000000e+00
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outColor1, i32 1, float %1, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %2)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %2)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -56,7 +56,7 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 compiling voidFunction.frag...

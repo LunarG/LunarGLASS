@@ -16,7 +16,7 @@ entry:
   %0 = load <4 x float>* %vec_ctor
   %vec_ctor1 = insertelement <4 x float> %0, float 1.000000e+00, i32 3
   store <4 x float> %vec_ctor1, <4 x float>* %vec_ctor
-  %Color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 1)
+  %Color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
   %__matrix = load [3 x <3 x float>] addrspace(2)* @colorTransform
   %1 = alloca <3 x float>
   %2 = load <3 x float>* %1
@@ -66,7 +66,7 @@ entry:
 
 then:                                             ; preds = %entry
   %23 = load <4 x float>* %vec_ctor
-  %v = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %v = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   %gl_FragColor18 = fadd <4 x float> %23, %v
   store <4 x float> %gl_FragColor18, <4 x float>* @gl_FragColor
   br label %ifmerge
@@ -74,7 +74,7 @@ then:                                             ; preds = %entry
 else:                                             ; preds = %entry
   %24 = load <4 x float>* @gl_FragColor
   %__matrix19 = load [4 x <4 x float>] addrspace(2)* @m
-  %v20 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %v20 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   %25 = alloca <4 x float>
   %26 = load <4 x float>* %25
   %__component = extractelement <4 x float> %v20, i32 0
@@ -146,7 +146,7 @@ else:                                             ; preds = %entry
   %__dotProduct80 = fadd float %__dotProduct76, %__product79
   %30 = insertelement <4 x float> %29, float %__dotProduct80, i32 3
   %31 = fadd <4 x float> %24, %30
-  %v81 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %v81 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   %__matrix82 = load [4 x <4 x float>] addrspace(2)* @m
   %__matrix83 = load [4 x <4 x float>] addrspace(2)* @n
   %32 = alloca [4 x <4 x float>]
@@ -186,8 +186,8 @@ else:                                             ; preds = %entry
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %v103 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
-  %u = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 2, i32 1)
+  %v103 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  %u = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 2, i32 -1, i32 1)
   %44 = alloca [3 x <4 x float>]
   %45 = load [3 x <4 x float>]* %44
   %46 = alloca <4 x float>
@@ -258,7 +258,7 @@ ifmerge:                                          ; preds = %else, %then
 then154:                                          ; preds = %ifmerge
   %56 = load <4 x float>* @gl_FragColor
   %__matrix155 = load [3 x <4 x float>]* %_ret_val
-  %u156 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 2, i32 1)
+  %u156 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 2, i32 -1, i32 1)
   %57 = alloca <4 x float>
   %58 = load <4 x float>* %57
   %__component157 = extractelement <3 x float> %u156, i32 0
@@ -572,7 +572,7 @@ else205:                                          ; preds = %ifmerge
   %__dotProduct453 = fadd float %__dotProduct448, %__product452
   %__column454 = insertelement <4 x float> %__column439, float %__dotProduct453, i32 3
   %__resultMatrix455 = insertvalue [4 x <4 x float>] %__resultMatrix393, <4 x float> %__column454, 3
-  %v456 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %v456 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   %66 = alloca <4 x float>
   %67 = load <4 x float>* %66
   %__component457 = extractelement <4 x float> %v456, i32 0
@@ -652,26 +652,26 @@ ifmerge522:                                       ; preds = %else205, %then154
 
 stage-epilogue:                                   ; preds = %ifmerge522
   %72 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %72)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %72)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readnone
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
 
 declare float @llvm.gla.fDot.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
 declare i1 @llvm.gla.any.v4i1(<4 x i1>) nounwind readnone
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare float @llvm.gla.fDot.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
 declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
 Bottom IR:
@@ -694,7 +694,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %Color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 1)
+  %Color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
   %__matrix = load [3 x <3 x float>] addrspace(2)* @colorTransform
   %__column = extractvalue [3 x <3 x float>] %__matrix, 0
   %__dot = call float @llvm.gla.fDot.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column)
@@ -728,7 +728,7 @@ entry:
   br i1 %11, label %then, label %else
 
 then:                                             ; preds = %entry
-  %v = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %v = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   %gl_FragColor18 = fadd <4 x float> %0, %v
   %__leftComp.pre = extractelement <4 x float> %v, i32 0
   %__leftComp106.pre = extractelement <4 x float> %v, i32 1
@@ -737,7 +737,7 @@ then:                                             ; preds = %entry
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %v20 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %v20 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   %__component = extractelement <4 x float> %v20, i32 0
   %__component21 = extractelement <4 x float> %v20, i32 1
   %__component22 = extractelement <4 x float> %v20, i32 2
@@ -808,7 +808,7 @@ ifmerge:                                          ; preds = %else, %then
   %__leftComp106.pre-phi = phi float [ %__component21, %else ], [ %__leftComp106.pre, %then ]
   %__leftComp.pre-phi = phi float [ %__component, %else ], [ %__leftComp.pre, %then ]
   %gl_FragColor523.0 = phi <4 x float> [ %gl_FragColor102, %else ], [ %gl_FragColor18, %then ]
-  %u = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 2, i32 1)
+  %u = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 2, i32 -1, i32 1)
   %__rightComp = extractelement <3 x float> %u, i32 0
   %__element104 = fmul float %__leftComp.pre-phi, %__rightComp
   %aggregate526 = load <4 x float>* @gla_globalAgg3
@@ -1030,7 +1030,7 @@ else205:                                          ; preds = %ifmerge
 ifmerge522:                                       ; preds = %else205, %then154
   %.pn = phi <4 x float> [ %24, %then154 ], [ %26, %else205 ]
   %gl_FragColor523.1 = fadd <4 x float> %gl_FragColor523.0, %.pn
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor523.1)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor523.1)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge522
@@ -1040,19 +1040,19 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readnone
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
 
 declare float @llvm.gla.fDot.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
 declare i1 @llvm.gla.any.v4i1(<4 x i1>) nounwind readnone
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare float @llvm.gla.fDot.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
 declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 compiling matrix.frag...

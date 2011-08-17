@@ -36,7 +36,7 @@ then:                                             ; preds = %entry
   %4 = load %s1* %locals2_s1_1
   %locals2_s1_14 = insertvalue %s1 %4, float 1.000000e+00, 1
   store %s1 %locals2_s1_14, %s1* %locals2_s1_1
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %5 = extractelement <2 x float> %coord, i32 0
   %6 = load [16 x float]* %localFArray
   %localFArray5 = insertvalue [16 x float] %6, float %5, 4
@@ -48,7 +48,7 @@ then:                                             ; preds = %entry
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %coord7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %coord7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %9 = extractelement <2 x float> %coord7, i32 0
   %10 = load %s1* %locals2_s1_1
   %locals2_s1_18 = insertvalue %s1 %10, float %9, 1
@@ -77,7 +77,7 @@ then11:                                           ; preds = %ifmerge
   br label %ifmerge13
 
 ifmerge13:                                        ; preds = %ifmerge, %then11
-  %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %20 = extractelement <2 x float> %coord14, i32 0
   %21 = load [16 x float]* %localArray
   %localArray15 = insertvalue [16 x float] %21, float %20, 5
@@ -140,9 +140,9 @@ then32:                                           ; preds = %ifmerge13
   br label %ifmerge34
 
 ifmerge34:                                        ; preds = %ifmerge13, %then32
-  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   store <4 x float> %color, <4 x float>* %locals2_bleh
-  %coord35 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %coord35 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %40 = extractelement <2 x float> %coord35, i32 1
   %41 = load <4 x float>* %locals2_bleh
   %locals2_bleh36 = insertelement <4 x float> %41, float %40, i32 2
@@ -161,7 +161,7 @@ ifmerge34:                                        ; preds = %ifmerge13, %then32
   %53 = fadd float %50, %52
   %54 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %53, i32 0)
   %55 = fmul <4 x float> %42, %54
-  %coord37 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %coord37 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %56 = load i32 addrspace(1)* @"sampler2D sampler"
   %57 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %56, i32 0, <2 x float> %coord37)
   %gl_FragColor = fmul <4 x float> %55, %57
@@ -170,22 +170,22 @@ ifmerge34:                                        ; preds = %ifmerge13, %then32
 
 stage-epilogue:                                   ; preds = %ifmerge34
   %58 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %58)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %58)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
 Bottom IR:
@@ -215,7 +215,7 @@ entry:
 
 then:                                             ; preds = %entry
   %locals2_s1_14 = insertvalue %s1 %0, float 1.000000e+00, 1
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %3 = extractelement <2 x float> %coord, i32 0
   %aggregate = load [16 x float]* @gla_globalAgg
   %localFArray5 = insertvalue [16 x float] %aggregate, float %3, 4
@@ -224,7 +224,7 @@ then:                                             ; preds = %entry
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %coord7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %coord7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %4 = extractelement <2 x float> %coord7, i32 0
   %locals2_s1_18 = insertvalue %s1 %0, float %4, 1
   %aggregate41 = load [8 x i32]* @gla_globalAgg2
@@ -247,7 +247,7 @@ then11:                                           ; preds = %ifmerge
 
 ifmerge13:                                        ; preds = %ifmerge, %then11
   %localFArray.1 = phi [16 x float] [ %localFArray12, %then11 ], [ %localFArray.0, %ifmerge ]
-  %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %9 = extractelement <2 x float> %coord14, i32 0
   %10 = load i32 addrspace(2)* @condition
   %11 = icmp eq i32 %10, 1
@@ -260,7 +260,7 @@ then32:                                           ; preds = %ifmerge13
 
 ifmerge34:                                        ; preds = %ifmerge13, %then32
   %a.0 = phi [16 x float] [ %localArray15, %then32 ], [ zeroinitializer, %ifmerge13 ]
-  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   %12 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %color, i32 4, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, <2 x float> %coord14, i32 1, float 0.000000e+00, i32 -1)
   %13 = extractvalue [16 x float] %localFArray.1, 4
   %14 = extractvalue %s1 %locals2_s1_1.0, 1
@@ -273,7 +273,7 @@ ifmerge34:                                        ; preds = %ifmerge13, %then32
   %21 = load i32 addrspace(1)* @"sampler2D sampler"
   %22 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %21, i32 0, <2 x float> %coord14)
   %gl_FragColor = fmul <4 x float> %20, %22
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge34
@@ -283,15 +283,15 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float>, i32, float, i32, float, i32, <2 x float>, i32, float, i32) nounwind readnone
 compiling localAggregates.frag...

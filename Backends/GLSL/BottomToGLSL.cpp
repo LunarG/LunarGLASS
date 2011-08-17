@@ -1672,7 +1672,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         newLine();
         int location = GetConstantInt(llvmInstruction->getOperand(0));
         shader << manager->getPipeOutSymbols()[location].name << " = ";
-        emitGlaOperand(llvmInstruction->getOperand(1));
+        emitGlaOperand(llvmInstruction->getOperand(2));
         shader << ";";
         return;
     }

@@ -8,34 +8,34 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 1)
+  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 -1, i32 1)
   store float %Depth, float* @gl_FragDepth
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   store <4 x float> %Color, <4 x float>* @gl_FragColor
-  %Color1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
+  %Color1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   store <4 x float> %Color1, <4 x float>* @foo
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
   %0 = load float* @gl_FragDepth
-  call void @llvm.gla.fWriteData.f32(i32 0, float %0)
+  call void @llvm.gla.fWriteData.f32(i32 0, i32 -1, float %0)
   %1 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 1, <4 x float> %1)
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %1)
   %2 = load <4 x float>* @foo
-  call void @llvm.gla.fWriteData.v4f32(i32 2, <4 x float> %2)
+  call void @llvm.gla.fWriteData.v4f32(i32 2, i32 -1, <4 x float> %2)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
-declare void @llvm.gla.fWriteData.f32(i32, float) nounwind
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
 Bottom IR:
@@ -43,11 +43,11 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 1)
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 1)
-  call void @llvm.gla.fWriteData.f32(i32 0, float %Depth)
-  call void @llvm.gla.fWriteData.v4f32(i32 1, <4 x float> %Color)
-  call void @llvm.gla.fWriteData.v4f32(i32 2, <4 x float> %Color)
+  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 -1, i32 1)
+  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  call void @llvm.gla.fWriteData.f32(i32 0, i32 -1, float %Depth)
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %Color)
+  call void @llvm.gla.fWriteData.v4f32(i32 2, i32 -1, <4 x float> %Color)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -57,13 +57,13 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
-declare void @llvm.gla.fWriteData.f32(i32, float) nounwind
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 compiling depthOut.frag...
 varying vec4 Color ; 
 varying float Depth ; 

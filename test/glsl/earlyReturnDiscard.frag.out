@@ -16,15 +16,15 @@ define fastcc void @main() {
 entry:
   %assignment_tmp = alloca <4 x float>
   %color = alloca <4 x float>
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   store <4 x float> %BaseColor, <4 x float>* %color
-  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
   %0 = load float addrspace(2)* @d
   %1 = fcmp ogt float %c, %0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
+  %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %2 = load <4 x float> addrspace(2)* @bigColor
   %color2 = fadd <4 x float> %BaseColor1, %2
   store <4 x float> %color2, <4 x float>* %color
@@ -165,20 +165,20 @@ ifmerge31:                                        ; preds = %ifmerge30, %ifmerge
 
 stage-epilogue:                                   ; preds = %ifmerge31, %else28, %then12, %then4
   %41 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %41)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %41)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then26, %then18, %then7
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
 Bottom IR:
@@ -195,8 +195,8 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
-  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 1)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
   %0 = load float addrspace(2)* @d
   %1 = fcmp ogt float %c, %0
   %bigColor.val = load <4 x float> addrspace(2)* @bigColor
@@ -277,20 +277,20 @@ else28:                                           ; preds = %else25
 
 stage-epilogue:                                   ; preds = %ifmerge23, %else28, %then12, %then4
   %gl_FragColor32.0 = phi <4 x float> [ zeroinitializer, %then4 ], [ zeroinitializer, %then12 ], [ %gl_FragColor, %ifmerge23 ], [ zeroinitializer, %else28 ]
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %gl_FragColor32.0)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor32.0)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then26, %then18, %then7
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32) nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 compiling earlyReturnDiscard.frag...

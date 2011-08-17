@@ -7,30 +7,30 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %uv_in = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0)
+  %uv_in = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0, i32 -1)
   store <2 x float> %uv_in, <2 x float>* @uv
-  %position = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1)
+  %position = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1, i32 -1)
   store <4 x float> %position, <4 x float>* @gl_Position
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
   %0 = load <2 x float>* @uv
-  call void @llvm.gla.fWriteData.v2f32(i32 0, <2 x float> %0)
+  call void @llvm.gla.fWriteData.v2f32(i32 0, i32 -1, <2 x float> %0)
   %1 = load <4 x float>* @gl_Position
-  call void @llvm.gla.fWriteData.v4f32(i32 1, <4 x float> %1)
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %1)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadData.v2f32(i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadData.v2f32(i32, i32) nounwind readonly
 
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32) nounwind readonly
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
-declare void @llvm.gla.fWriteData.v2f32(i32, <2 x float>) nounwind
+declare void @llvm.gla.fWriteData.v2f32(i32, i32, <2 x float>) nounwind
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
 Bottom IR:
@@ -38,10 +38,10 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %uv_in = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0)
-  %position = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1)
-  call void @llvm.gla.fWriteData.v2f32(i32 0, <2 x float> %uv_in)
-  call void @llvm.gla.fWriteData.v4f32(i32 1, <4 x float> %position)
+  %uv_in = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0, i32 -1)
+  %position = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1, i32 -1)
+  call void @llvm.gla.fWriteData.v2f32(i32 0, i32 -1, <2 x float> %uv_in)
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %position)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -51,13 +51,13 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadData.v2f32(i32) nounwind readonly
+declare <2 x float> @llvm.gla.fReadData.v2f32(i32, i32) nounwind readonly
 
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32) nounwind readonly
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
-declare void @llvm.gla.fWriteData.v2f32(i32, <2 x float>) nounwind
+declare void @llvm.gla.fWriteData.v2f32(i32, i32, <2 x float>) nounwind
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 compiling test.vert...
 uniform mat4 transform ; 
 attribute vec4 position ; 

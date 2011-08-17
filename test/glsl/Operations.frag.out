@@ -847,7 +847,7 @@ ifmerge199:                                       ; preds = %else197, %then195
 
 stage-epilogue:                                   ; preds = %ifmerge199
   %410 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %410)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %410)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -938,7 +938,7 @@ declare i1 @llvm.gla.any.v4i1(<4 x i1>) nounwind readnone
 
 declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
 Bottom IR:
@@ -1314,7 +1314,7 @@ else197:                                          ; preds = %ifmerge191
 
 ifmerge199:                                       ; preds = %else197, %then195
   %conditional_tmp.0 = phi <4 x float> [ %conditional_tmp196, %then195 ], [ %v107, %else197 ]
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %conditional_tmp.0)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %conditional_tmp.0)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge199
@@ -1408,7 +1408,7 @@ declare i1 @llvm.gla.any.v4i1(<4 x i1>) nounwind readnone
 
 declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 

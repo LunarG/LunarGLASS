@@ -12,10 +12,10 @@ Top IR:
 define fastcc void @main() {
 entry:
   %mix_retval = alloca <4 x float>
-  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 1)
+  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
   %0 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %0, i32 0, <3 x float> %coords)
-  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 1)
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
   %2 = load <2 x float> addrspace(2)* @scale
   %3 = fadd <2 x float> %t, %2
   %4 = load <2 x float> addrspace(2)* @scale
@@ -42,24 +42,24 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %20 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %20)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %20)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readnone
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32, i32, i32, <3 x float>) nounwind readnone
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
 Bottom IR:
@@ -74,10 +74,10 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 1)
+  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
   %0 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %0, i32 0, <3 x float> %coords)
-  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 1)
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
   %2 = load <2 x float> addrspace(2)* @scale
   %3 = fadd <2 x float> %t, %2
   %4 = fdiv <2 x float> %3, %2
@@ -90,7 +90,7 @@ entry:
   %10 = load float addrspace(2)* @blend
   %11 = fmul float %10, 0x3FFC9FBE80000000
   %mix_retval1 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %8, <4 x float> %9, float %11)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix_retval1)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %mix_retval1)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -100,17 +100,17 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32) nounwind readnone
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32, i32, i32, <3 x float>) nounwind readnone
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float>, i32, <4 x float>, i32, <4 x float>, i32, <4 x float>, i32, <4 x float>, i32) nounwind readnone
 compiling test.frag...

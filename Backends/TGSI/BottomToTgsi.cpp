@@ -652,10 +652,11 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_fWriteData:
         mesaInstruction->Opcode = OPCODE_MOV;
-        mapGlaOperand(llvmInstruction->getOperand(1), &mesaInstruction->SrcReg[0]);
-        mapGlaDestination(llvmInstruction->getOperand(1), &mesaInstruction->DstReg);
+        mapGlaOperand(llvmInstruction->getOperand(2), &mesaInstruction->SrcReg[0]);
+        mapGlaDestination(llvmInstruction->getOperand(2), &mesaInstruction->DstReg);
         mesaInstruction->DstReg.File = PROGRAM_OUTPUT;
         mesaInstruction->DstReg.Index = GetConstantInt(llvmInstruction->getOperand(0));
+        //?? mask should be in operand 1
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
         return;

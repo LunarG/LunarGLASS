@@ -6,22 +6,22 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   store <4 x float> %BaseColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
   %0 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %0)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %0)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
 Bottom IR:
@@ -29,8 +29,8 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 1)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %BaseColor)
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %BaseColor)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -40,9 +40,9 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 compiling simpleFunctionCall.frag...
 uniform vec4 bigColor ; 
 varying vec4 BaseColor ; 

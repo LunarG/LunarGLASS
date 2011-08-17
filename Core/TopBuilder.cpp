@@ -311,9 +311,10 @@ void Builder::copyOutPipeline()
     }
 }
 
-void Builder::writePipeline(llvm::Value* outValue, int slot, EInterpolationMode mode)
+void Builder::writePipeline(llvm::Value* outValue, int slot, int mask, EInterpolationMode mode)
 {
     llvm::Constant *slotConstant = MakeUnsignedConstant(context, slot);
+    llvm::Constant *maskConstant = MakeIntConstant(context, mask);
 
     // This correction is necessary for some front ends, which might allow
     // "interpolated" integers or Booleans.
@@ -330,17 +331,18 @@ void Builder::writePipeline(llvm::Value* outValue, int slot, EInterpolationMode 
         }
         
         intrinsic = getIntrinsic(intrinsicID, outValue->getType());
-        builder.CreateCall2(intrinsic, MakeIntConstant(context, slot), outValue);
+        builder.CreateCall3(intrinsic, slotConstant, maskConstant, outValue);
     } else {
         llvm::Constant *modeConstant = MakeUnsignedConstant(context, mode);
         intrinsic = getIntrinsic(llvm::Intrinsic::gla_fWriteInterpolant, outValue->getType());
-        builder.CreateCall3(intrinsic, MakeIntConstant(context, slot), modeConstant, outValue);
+        builder.CreateCall4(intrinsic, slotConstant, maskConstant, modeConstant, outValue);
     }
 }
 
-llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, int slot, EInterpolationMode mode, float offsetX, float offsetY)
+llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, int slot, int mask, EInterpolationMode mode, float offsetX, float offsetY)
 {
     llvm::Constant *slotConstant = MakeUnsignedConstant(context, slot);
+    llvm::Constant *maskConstant = MakeIntConstant(context, mask);
 
     // This correction is necessary for some front ends, which might allow
     // "interpolated" integers or Booleans.
@@ -357,10 +359,10 @@ llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, in
             offsets.push_back(MakeFloatConstant(context, offsetY));
             llvm::Constant* offset = getConstant(offsets, llvm::VectorType::get(gla::GetFloatType(context), 2));
             intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolantOffset, type, offset->getType());
-            return builder.CreateCall3(intrinsic, slotConstant, modeConstant, offset, name);
+            return builder.CreateCall4(intrinsic, slotConstant, maskConstant, modeConstant, offset, name);
         } else {
             intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolant, type);
-            return builder.CreateCall2(intrinsic, slotConstant, modeConstant, name);
+            return builder.CreateCall3(intrinsic, slotConstant, maskConstant, modeConstant, name);
         }
     } else {
         switch (GetBasicType(type)) {
@@ -368,7 +370,7 @@ llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, in
         case llvm::Type::FloatTyID:     intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadData, type); break;
         }
 
-        return builder.CreateCall(intrinsic, slotConstant, name);
+        return builder.CreateCall2(intrinsic, slotConstant, maskConstant, name);
     }
 }
 

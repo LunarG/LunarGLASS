@@ -26,7 +26,7 @@ entry:
   %0 = load <4 x float>* %w_reorder
   %w_reorder5 = insertelement <4 x float> %0, float 0x3FFC9FBE80000000, i32 2
   store <4 x float> %w_reorder5, <4 x float>* %w_reorder
-  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %1 = extractelement <2 x float> %t, i32 1
   %2 = insertelement <2 x float> undef, float %1, i32 0
   %3 = extractelement <2 x float> %t, i32 0
@@ -64,7 +64,7 @@ entry:
   %27 = extractelement <2 x float> %23, i32 1
   %w_dep10 = insertelement <4 x float> %26, float %27, i32 1
   store <4 x float> %w_dep10, <4 x float>* %w_dep
-  %t11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %t11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %28 = load <4 x float>* %w_dep
   %29 = extractelement <2 x float> %t11, i32 0
   %30 = insertelement <4 x float> %28, float %29, i32 2
@@ -86,7 +86,7 @@ entry:
   br i1 %41, label %then, label %else
 
 then:                                             ; preds = %entry
-  %t14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %t14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %42 = extractelement <2 x float> %t14, i32 0
   %43 = load <4 x float>* %w_flow
   %w_flow15 = insertelement <4 x float> %43, float %42, i32 0
@@ -94,7 +94,7 @@ then:                                             ; preds = %entry
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %t16 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %t16 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %44 = extractelement <2 x float> %t16, i32 1
   %45 = load <4 x float>* %w_flow
   %w_flow17 = insertelement <4 x float> %45, float %44, i32 0
@@ -119,18 +119,18 @@ ifmerge:                                          ; preds = %else, %then
 
 stage-epilogue:                                   ; preds = %ifmerge
   %55 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %55)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %55)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
 Bottom IR:
@@ -144,7 +144,7 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %w1 = load <4 x float> addrspace(2)* @u
-  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 1)
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x float> %w1, i32 10, float 0.000000e+00, i32 -1, <2 x float> %t, i32 1, float 0.000000e+00, i32 -1, <2 x float> %t, i32 0)
   %aggregate = load <4 x float>* @gla_globalAgg
   %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> %aggregate, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, <4 x float> %w1, i32 0, <4 x float> %w1, i32 1)
@@ -169,7 +169,7 @@ ifmerge:                                          ; preds = %else, %then
   %9 = fmul <4 x float> %8, %3
   %10 = fmul <4 x float> %9, %w_flow.0
   %mix_retval18 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %2, <4 x float> %4, <4 x float> %10)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, <4 x float> %mix_retval18)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %mix_retval18)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -179,11 +179,11 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32) nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, <4 x float>) nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.f32.f32(<4 x float>, i32, <4 x float>, i32, <4 x float>, i32, float, i32, float, i32) nounwind readnone
 

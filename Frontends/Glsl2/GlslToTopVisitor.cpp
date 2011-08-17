@@ -1537,7 +1537,7 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
     }
 
     // Give each interpolant a temporary unique index
-    return glaBuilder->readPipeline(readType, name, getNextInterpIndex(name), mode);
+    return glaBuilder->readPipeline(readType, name, getNextInterpIndex(name), -1 /*mask*/, mode);
 }
 
 // Some interfaces to our LLVM builder require unsigned indices instead of a vector.
