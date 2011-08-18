@@ -307,14 +307,21 @@ void Builder::copyOutPipeline()
         //?? lookup interpolation mode, (currently not triggering 
         //   interpolation on outputs)
 
-        writePipeline(loadVal, out);
+        writePipeline(loadVal, MakeUnsignedConstant(context, out));
     }
 }
 
 void Builder::writePipeline(llvm::Value* outValue, int slot, int mask, EInterpolationMode mode)
 {
-    llvm::Constant *slotConstant = MakeUnsignedConstant(context, slot);
+    writePipeline(outValue, MakeUnsignedConstant(context, slot), mask, mode);
+}
+
+void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, EInterpolationMode mode)
+{
     llvm::Constant *maskConstant = MakeIntConstant(context, mask);
+
+    if (! llvm::isa<llvm::IntegerType>(slot->getType()))
+        gla::UnsupportedFunctionality("Pipeline write using non-integer index");
 
     // This correction is necessary for some front ends, which might allow
     // "interpolated" integers or Booleans.
@@ -329,13 +336,13 @@ void Builder::writePipeline(llvm::Value* outValue, int slot, int mask, EInterpol
         case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fWriteData;  break;
         default:                        assert(! "Unsupported type in writePipeline");
         }
-        
+
         intrinsic = getIntrinsic(intrinsicID, outValue->getType());
-        builder.CreateCall3(intrinsic, slotConstant, maskConstant, outValue);
+        builder.CreateCall3(intrinsic, slot, maskConstant, outValue);
     } else {
         llvm::Constant *modeConstant = MakeUnsignedConstant(context, mode);
         intrinsic = getIntrinsic(llvm::Intrinsic::gla_fWriteInterpolant, outValue->getType());
-        builder.CreateCall4(intrinsic, slotConstant, maskConstant, modeConstant, outValue);
+        builder.CreateCall4(intrinsic, slot, maskConstant, modeConstant, outValue);
     }
 }
 

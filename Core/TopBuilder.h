@@ -208,6 +208,7 @@ public:
     // (User likely needs to select between the variable/copyOutPipeline 
     //  model and the writePipeline model.)
     void writePipeline(llvm::Value*, int slot, int mask = -1, EInterpolationMode mode = EIMNone);
+    void writePipeline(llvm::Value*, llvm::Value* slot, int mask = -1, EInterpolationMode mode = EIMNone);
 
     llvm::Value* readPipeline(const llvm::Type*, std::string& name, int slot, int mask = -1, EInterpolationMode mode = EIMNone, float offsetx = 0.0, float offsety = 0.0);
 
