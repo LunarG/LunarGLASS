@@ -79,7 +79,7 @@ namespace gla_llvm {
         // Returns the innermost loop that bb is in
         LoopWrapper* getLoopFor(const BasicBlock* bb) const { return loopWrappers.lookup(bb); }
 
-        bool isMain() const { return stageExit; } // stageExit is only defined when in main
+        bool isMain() const { return stageExit != 0; } // stageExit is only defined when in main
 
         bool isMainExit(const BasicBlock* bb)    const { return stageExit    && bb == stageExit; }
         bool isMainCopyOut(const BasicBlock* bb) const { return mainCopyOut && bb == mainCopyOut; }

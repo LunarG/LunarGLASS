@@ -187,7 +187,7 @@ namespace gla_llvm {
         {
             // Check the cache
             if (simpleConditional != -1)
-                return simpleConditional;
+                return simpleConditional > 0;
 
             // It has to be conditional, comparison operator and the header has
             // to be exiting
@@ -222,8 +222,8 @@ namespace gla_llvm {
             }
 
             // Our total has to be the number of instructions in the header.
-            simpleConditional = header->size() == count;
-            return simpleConditional;
+            simpleConditional = header->size() == count ? 1 : 0;
+            return simpleConditional > 0;
         }
 
         // Whether the loop is a canonical, structured loop.  In a canonical,

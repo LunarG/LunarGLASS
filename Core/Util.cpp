@@ -132,7 +132,7 @@ bool HasAllSet(const llvm::Value* value)
         const llvm::ConstantVector* vector = llvm::dyn_cast<llvm::ConstantVector>(value);
         assert(vector);
 
-        for (int op = 0; op < vector->getNumOperands(); ++op) {
+        for (unsigned int op = 0; op < vector->getNumOperands(); ++op) {
             if (GetConstantInt(vector->getOperand(op)) != -1)
                 return false;
         }

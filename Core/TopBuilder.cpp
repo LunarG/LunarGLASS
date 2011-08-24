@@ -301,7 +301,7 @@ Builder::SuperValue Builder::createInsertValue(SuperValue target, SuperValue sou
 
 void Builder::copyOutPipeline()
 {
-    for (int out = 0; out < copyOuts.size(); ++out) {
+    for (unsigned int out = 0; out < copyOuts.size(); ++out) {
         llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);
         //?? lookup the location in the symbol table
         //?? lookup interpolation mode, (currently not triggering 
