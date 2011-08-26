@@ -18,6 +18,7 @@ entry:
   br i1 %3, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
@@ -43,6 +44,8 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 
 declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
 
+declare void @llvm.gla.discard() nounwind
+
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
@@ -61,6 +64,7 @@ entry:
   br i1 %2, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 ifmerge:                                          ; preds = %entry
@@ -79,6 +83,8 @@ declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind rea
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
 declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
+
+declare void @llvm.gla.discard() nounwind
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 compiling conditionalDiscard.frag...

@@ -69,6 +69,24 @@ namespace gla_llvm {
         return inst->getOpcode() == Instruction::Load;
     }
 
+    inline bool IsDiscard(const Instruction* inst)
+    {
+        const IntrinsicInst* intrInst = dyn_cast<IntrinsicInst>(inst);
+        return intrInst && intrInst->getIntrinsicID() == llvm::Intrinsic::gla_discard;
+    }
+
+    inline bool HasDiscard(const BasicBlock* bb)
+    {
+        for (BasicBlock::const_iterator instI = bb->begin(), e = bb->end(); instI != e; ++instI) {
+            if (IsDiscard(instI)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
 } // end namespace gla_llvm
 
 #endif /* GLA_INSTRUCTIONUTIL_H */

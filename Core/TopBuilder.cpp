@@ -107,6 +107,7 @@ void Builder::makeDiscard(bool isMain)
     if (! isMain)
         gla::UnsupportedFunctionality("discard from non-main functions");
 
+    builder.CreateCall(getIntrinsic(llvm::Intrinsic::gla_discard));
     builder.CreateBr(stageExit);
 
     createAndSetNoPredecessorBlock("post-discard");
@@ -304,7 +305,7 @@ void Builder::copyOutPipeline()
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
         llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);
         //?? lookup the location in the symbol table
-        //?? lookup interpolation mode, (currently not triggering 
+        //?? lookup interpolation mode, (currently not triggering
         //   interpolation on outputs)
 
         writePipeline(loadVal, MakeUnsignedConstant(context, out));
@@ -777,6 +778,12 @@ Builder::Matrix* Builder::createOuterProduct(llvm::Value* left, llvm::Value* rig
 // Get intrinsic declarations
 // ?? LLVM issue: each time we lookup, LLVM makes a whole copy of all intrinsic name addresses
 //    see Intrinsic::getName() in function.cpp
+llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID)
+{
+    // Look up the intrinsic
+    return llvm::Intrinsic::getDeclaration(module, ID);
+}
+
 llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, const llvm::Type* type1)
 {
     // Look up the intrinsic

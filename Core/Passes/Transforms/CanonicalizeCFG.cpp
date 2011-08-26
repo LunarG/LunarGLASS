@@ -154,17 +154,9 @@ bool CanonicalizeCFG::restoreMainBlocks(Function& F)
             epilogue = GetMainEpilogue(F);
             assert(epilogue);
         } else {
-            bool hasOutput = false;
             for (pred_iterator bbI = pred_begin(exit), e = pred_end(exit); bbI != e; ++bbI) {
                 BasicBlock* bb = *bbI;
-                for (BasicBlock::iterator instI = bb->begin(), e = bb->end(); instI != e; ++instI) {
-                    if (IsOutputInstruction(instI)) {
-                        hasOutput = true;
-                        break;
-                    }
-                }
-
-                if (! hasOutput) {
+                if (HasDiscard(bb)) {
                     continue;
                 }
 
@@ -176,7 +168,7 @@ bool CanonicalizeCFG::restoreMainBlocks(Function& F)
                 assert(epilogue);
                 break;
             }
-            assert(hasOutput && "no FWriteData in shader (as a predecessor to the exit)");
+            assert(epilogue && "no non-discarding shader exit path");
         }
     }
 

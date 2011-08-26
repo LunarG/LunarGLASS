@@ -205,7 +205,7 @@ public:
     void copyOutPipeline();
 
     // Write to the pipeline directly, without caching through variables
-    // (User likely needs to select between the variable/copyOutPipeline 
+    // (User likely needs to select between the variable/copyOutPipeline
     //  model and the writePipeline model.)
     void writePipeline(llvm::Value*, int slot, int mask = -1, EInterpolationMode mode = EIMNone);
     void writePipeline(llvm::Value*, llvm::Value* slot, int mask = -1, EInterpolationMode mode = EIMNone);
@@ -234,6 +234,7 @@ public:
     Matrix* createMatrixDeterminant(Matrix*);
 
     // Handy way to get intrinsics
+    llvm::Function* getIntrinsic(llvm::Intrinsic::ID);
     llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*);
     llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
     llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);

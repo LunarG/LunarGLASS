@@ -1444,6 +1444,7 @@ ifmerge344:                                       ; preds = %loop-header341, %po
   br i1 %457, label %then345, label %else346
 
 then345:                                          ; preds = %ifmerge344
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
@@ -1482,6 +1483,8 @@ stage-exit:                                       ; preds = %stage-epilogue, %th
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+
+declare void @llvm.gla.discard() nounwind
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
@@ -2430,6 +2433,7 @@ ifmerge344:                                       ; preds = %loop-header341
   br i1 %226, label %then345, label %else346
 
 then345:                                          ; preds = %ifmerge344
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 else346:                                          ; preds = %ifmerge344
@@ -2448,6 +2452,8 @@ stage-exit:                                       ; preds = %stage-epilogue, %th
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+
+declare void @llvm.gla.discard() nounwind
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 

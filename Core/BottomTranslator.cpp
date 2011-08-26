@@ -216,6 +216,12 @@ namespace {
                 return;
             }
 
+            // We're already handling discards by analyzing flow control, so no
+            // need to pass them on
+            if (IsDiscard(inst)) {
+                return;
+            }
+
             // TODO: update the below to work with nested loops. Basically, it
             // will have to find the loop on the stack that corresponds to inst,
             // and query it rather than the top one.

@@ -64,6 +64,7 @@ ifmerge5:                                         ; preds = %ifmerge, %post-retu
   br i1 %16, label %then7, label %ifmerge8
 
 then7:                                            ; preds = %ifmerge5
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
@@ -116,6 +117,7 @@ else17:                                           ; preds = %else14
   br i1 %35, label %then18, label %else20
 
 then18:                                           ; preds = %else17
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard19:                                   ; No predecessors!
@@ -142,6 +144,7 @@ else25:                                           ; preds = %ifmerge8
   br i1 %38, label %then26, label %else28
 
 then26:                                           ; preds = %else25
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard27:                                   ; No predecessors!
@@ -175,6 +178,8 @@ stage-exit:                                       ; preds = %stage-epilogue, %th
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.discard() nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
@@ -220,6 +225,7 @@ ifmerge5:                                         ; preds = %entry
   br i1 %9, label %then7, label %ifmerge8
 
 then7:                                            ; preds = %ifmerge5
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 ifmerge8:                                         ; preds = %ifmerge5
@@ -253,6 +259,7 @@ else17:                                           ; preds = %else14
   br i1 %20, label %then18, label %else20
 
 then18:                                           ; preds = %else17
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 else20:                                           ; preds = %else17
@@ -270,6 +277,7 @@ else25:                                           ; preds = %ifmerge8
   br i1 %22, label %then26, label %else28
 
 then26:                                           ; preds = %else25
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 else28:                                           ; preds = %else25
@@ -287,6 +295,8 @@ stage-exit:                                       ; preds = %stage-epilogue, %th
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.discard() nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
 
