@@ -127,6 +127,7 @@ bool CanonicalizeCFG::restoreMainBlocks(Function& F)
         return false;
 
     BasicBlock* ret = GetReturnBlock(F);
+    bool bothRestored = ! (exit || epilogue);
 
     // Create the exit if it's missing, and sink the ret into it
     if (! exit) {
@@ -143,29 +144,40 @@ bool CanonicalizeCFG::restoreMainBlocks(Function& F)
     // only one of the exit block's predecessors should be the effective
     // epilogue, so split it.
     if (! epilogue) {
-        bool hasOutput = false;
-        for (pred_iterator bbI = pred_begin(exit), e = pred_end(exit); bbI != e; ++bbI) {
-            BasicBlock* bb = *bbI;
-            for (BasicBlock::iterator instI = bb->begin(), e = bb->end(); instI != e; ++instI) {
-                if (IsOutputInstruction(instI)) {
-                    hasOutput = true;
-                    break;
-                }
-            }
-
-            if (! hasOutput) {
-                continue;
-            }
-
-            BasicBlock::iterator term = bb->end();
+        // If we're restoring both, we can merely split the original return
+        // block yet again, otherwise we have to actually search for the
+        // non-discarding predecessor of exit
+        if (bothRestored) {
+            BasicBlock::iterator term = ret->end();
             --term;
-
-            bb->splitBasicBlock(term, "stage-epilogue");
+            ret->splitBasicBlock(term, "stage-epilogue");
             epilogue = GetMainEpilogue(F);
             assert(epilogue);
-            break;
+        } else {
+            bool hasOutput = false;
+            for (pred_iterator bbI = pred_begin(exit), e = pred_end(exit); bbI != e; ++bbI) {
+                BasicBlock* bb = *bbI;
+                for (BasicBlock::iterator instI = bb->begin(), e = bb->end(); instI != e; ++instI) {
+                    if (IsOutputInstruction(instI)) {
+                        hasOutput = true;
+                        break;
+                    }
+                }
+
+                if (! hasOutput) {
+                    continue;
+                }
+
+                BasicBlock::iterator term = bb->end();
+                --term;
+
+                bb->splitBasicBlock(term, "stage-epilogue");
+                epilogue = GetMainEpilogue(F);
+                assert(epilogue);
+                break;
+            }
+            assert(hasOutput && "no FWriteData in shader (as a predecessor to the exit)");
         }
-        assert(hasOutput && "no FWriteData in shader (as a predecessor to the exit)");
     }
 
     return true;
@@ -223,6 +235,8 @@ bool CanonicalizeCFG::removeNoPredecessorBlocks(Function& F)
 
 void CanonicalizeCFG::getAnalysisUsage(AnalysisUsage& AU) const
 {
+    // TODO: Preservation analysis info (e.g. using BasicBlockUtils.h's methods)
+
     AU.addRequired<LoopInfo>();
     AU.addRequired<DominatorTree>();
 }
