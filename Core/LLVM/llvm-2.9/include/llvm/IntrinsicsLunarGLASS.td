@@ -227,3 +227,8 @@ let TargetPrefix = "gla" in {
   def int_gla_any : Intrinsic<[llvm_i1_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_all : Intrinsic<[llvm_i1_ty], [llvm_anyint_ty], [IntrNoMem]>;
 }
+
+// Flow control
+let TargetPrefix = "gla" in {
+  def int_gla_discard : Intrinsic<[], [], []>;
+}
