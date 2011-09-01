@@ -561,7 +561,7 @@ protected:
     {
         // Check flags for proj/lod/offset
         int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
-        
+
         if (texFlags & ETFProjected)
             shader << "Proj";
         else if (texFlags & ETFLod)
@@ -575,7 +575,7 @@ protected:
     {
         // Check flags for bias/lod
         int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
-        
+
         return (texFlags & ETFBias) || (texFlags & ETFLod);
     }
 
@@ -799,7 +799,7 @@ protected:
         mapGlaValue(value);
         return valueMap[value]->c_str();
     }
-    
+
     void emitFloatConstant(std::ostringstream& out, float f)
     {
         if (floor(f) == f) {
@@ -808,10 +808,10 @@ protected:
         } else
             out << f;
     }
-    
+
     // emitConstantInitializer will be called recursively for aggregate types.
-    // If the aggregate is zero initialized, sub-elements will not have a 
-    // constant associated with them. For that case, and for ConstantAggregateZero, 
+    // If the aggregate is zero initialized, sub-elements will not have a
+    // constant associated with them. For that case, and for ConstantAggregateZero,
     // we only use the type to generate correct initializers.
     void emitConstantInitializer(std::ostringstream& out, const llvm::Constant* constant, const llvm::Type* type)
     {
@@ -825,7 +825,7 @@ protected:
             isZero = false;
 
         switch (type->getTypeID()) {
-        
+
         case llvm::Type::IntegerTyID: {
             if (isZero) {
                 if (gla::IsBoolean(type))
@@ -882,8 +882,8 @@ protected:
             for (int op = 0; op < numElements; ++op) {
                 if (op > 0)
                     out << ", ";
-                emitConstantInitializer(out, 
-                                        isZero ? 0 : llvm::dyn_cast<llvm::Constant>(constant->getOperand(op)), 
+                emitConstantInitializer(out,
+                                        isZero ? 0 : llvm::dyn_cast<llvm::Constant>(constant->getOperand(op)),
                                         type->getContainedType(type->getNumContainedTypes() > 1 ? op : 0));
             }
 
@@ -1596,6 +1596,52 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
         return;
     }
+    case llvm::Instruction::ShuffleVector: {
+        newLine();
+        emitGlaValue(llvmInstruction);
+
+        shader << " = ";
+
+        emitGlaType(shader, llvmInstruction->getType());
+        shader << "(";
+
+        int sourceWidth = gla::GetComponentCount(llvmInstruction->getOperand(0));
+        int resultWidth = gla::GetComponentCount(llvmInstruction);
+
+        const llvm::Constant* mask = llvm::dyn_cast<const llvm::Constant>(llvmInstruction->getOperand(2));
+        assert(llvm::isa<llvm::ConstantVector>(mask) || llvm::isa<llvm::ConstantAggregateZero>(mask));
+
+        llvm::SmallVector<llvm::Constant*,4> elts;
+        mask->getVectorElements(elts);
+
+        for (int i = 0; i < resultWidth; ++i) {
+            if (i != 0)
+                shader << ", ";
+
+            // If we're undef, then use ourselves
+            if (! IsDefined(elts[i])) {
+                emitGlaValue(llvmInstruction);
+                shader << ".";
+                emitComponentToSwizzle(i);
+                continue;
+            }
+
+            int comp = GetConstantInt(elts[i]);
+            bool useSecond = comp > sourceWidth-1;
+
+            if (useSecond)
+                comp -= sourceWidth-1;
+
+            emitGlaValue(llvmInstruction->getOperand(useSecond ? 1 : 0));
+            shader << ".";
+            emitComponentToSwizzle(comp);
+        }
+
+        shader << ");";
+
+        return;
+    }
+
     default:
         UnsupportedFunctionality("Opcode in Bottom IR: ", llvmInstruction->getOpcode(), EATContinue);
     }

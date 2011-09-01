@@ -70,26 +70,24 @@ Bottom IR:
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
 @u = external addrspace(2) constant <4 x float>
 @blend = external addrspace(2) constant float
-@gla_globalAgg = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
-  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
-  %0 = load i32 addrspace(1)* @"sampler3D texSampler3D"
-  %1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %0, i32 0, <3 x float> %coords)
+  %0 = load <2 x float> addrspace(2)* @scale
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
-  %2 = load <2 x float> addrspace(2)* @scale
-  %3 = fadd <2 x float> %t, %2
-  %4 = fdiv <2 x float> %3, %2
-  %5 = load i32 addrspace(1)* @"sampler2D texSampler2D"
-  %6 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %5, i32 0, <2 x float> %4)
-  %aggregate = load <4 x float>* @gla_globalAgg
-  %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> %aggregate, i32 15, <4 x float> %6, i32 3, <4 x float> %6, i32 2, <4 x float> %6, i32 1, <4 x float> %6, i32 0)
-  %8 = fadd <4 x float> %1, %7
-  %9 = load <4 x float> addrspace(2)* @u
-  %10 = load float addrspace(2)* @blend
-  %11 = fmul float %10, 0x3FFC9FBE80000000
-  %mix_retval1 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %8, <4 x float> %9, float %11)
+  %1 = fadd <2 x float> %t, %0
+  %2 = load i32 addrspace(1)* @"sampler2D texSampler2D"
+  %3 = fdiv <2 x float> %1, %0
+  %4 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %2, i32 0, <2 x float> %3)
+  %5 = load i32 addrspace(1)* @"sampler3D texSampler3D"
+  %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
+  %6 = load float addrspace(2)* @blend
+  %7 = shufflevector <4 x float> %4, <4 x float> undef, <4 x i32> <i32 3, i32 2, i32 1, i32 0>
+  %8 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %5, i32 0, <3 x float> %coords)
+  %9 = fmul float %6, 0x3FFC9FBE80000000
+  %10 = load <4 x float> addrspace(2)* @u
+  %11 = fadd <4 x float> %8, %7
+  %mix_retval1 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %11, <4 x float> %10, float %9)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %mix_retval1)
   br label %stage-epilogue
 
@@ -111,8 +109,6 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
-
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float>, i32, <4 x float>, i32, <4 x float>, i32, <4 x float>, i32, <4 x float>, i32) nounwind readnone
 compiling test.frag...
 uniform sampler2D texSampler2D ; 
 uniform sampler3D texSampler3D ; 
@@ -157,21 +153,21 @@ uniform vec2 scale;
 uniform sampler2D texSampler2D;
 uniform vec4 u;
 uniform float blend;
-vec4 gla_globalAgg;
-in vec3 coords;
 in vec2 t;
-const float const28_2f = 1.789;
+in vec3 coords;
+const float const27_2f = 1.789;
 
 void main()
 {
-    vec4 temp21 = texture3D(texSampler3D, coords);
-    vec2 temp22 = t + scale;
-    vec2 temp23 = temp22 / scale;
-    vec4 temp24 = texture2D(texSampler2D, temp23);
-    vec4 temp25 = temp24.wzyx;
-    vec4 temp26 = temp21 + temp25;
-    float temp27 = blend * const28_2f;
-    vec4 mix_retval1 = mix(temp26, u, temp27);
+    vec2 temp21 = t + scale;
+    vec2 temp22 = temp21 / scale;
+    vec4 temp23 = texture2D(texSampler2D, temp22);
+    
+    vec4 undef24;undef24 = vec4(temp23.w, temp23.z, temp23.y, temp23.x);
+    vec4 temp25 = texture3D(texSampler3D, coords);
+    float temp26 = blend * const27_2f;
+    vec4 temp28 = temp25 + undef24;
+    vec4 mix_retval1 = mix(temp28, u, temp26);
     gl_FragColor = mix_retval1;
     
 }

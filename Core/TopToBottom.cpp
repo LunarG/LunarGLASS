@@ -136,13 +136,13 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // TODO: see if we can avoid running gvn/sccp multiple times
 
     // Early, simple optimizations to enable others/make others more efficient
-    passManager.add(llvm::createInstructionSimplifierPass());
+    passManager.add(llvm::createInstructionCombiningPass());
     passManager.add(llvm::createEarlyCSEPass());
     passManager.add(llvm::createCorrelatedValuePropagationPass());
 
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
     passManager.add(llvm::createReassociatePass());
-    passManager.add(llvm::createInstructionSimplifierPass());
+    passManager.add(llvm::createInstructionCombiningPass());
 
     // Run GVN and SCCP using BasicAliasAnalysis
     passManager.add(llvm::createBasicAliasAnalysisPass());
@@ -150,6 +150,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createSCCPPass());
 
     // Make multiinsert intrinsics, and clean up afterwards
+    passManager.add(llvm::createInstructionCombiningPass());
     passManager.add(gla_llvm::createCoalesceInsertsPass());
     passManager.add(llvm::createAggressiveDCEPass());
     passManager.add(llvm::createInstructionCombiningPass());

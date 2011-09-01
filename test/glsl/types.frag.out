@@ -583,10 +583,7 @@ Bottom IR:
 @u_f2 = external addrspace(2) constant <2 x float>
 @u_f3 = external addrspace(2) constant <3 x float>
 @u_f4 = external addrspace(2) constant <4 x float>
-@gla_globalAgg = internal global <2 x i1> undef
-@gla_globalAgg1 = internal global <3 x i1> undef
-@gla_globalAgg2 = internal global <4 x i1> undef
-@gla_globalAgg3 = internal global <4 x float> undef
+@gla_globalAgg = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
@@ -639,11 +636,9 @@ else15:                                           ; preds = %ifmerge10
 
 ifmerge16:                                        ; preds = %else15, %then12
   %and_tmp11.0 = phi i1 [ %and_tmp1114, %then12 ], [ false, %else15 ]
-  %aggregate = load <2 x i1>* @gla_globalAgg
-  %3 = call <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1> %aggregate, i32 3, i1 %and_tmp11.0, i32 -1, i1 %and_tmp11.0, i32 -1, i1 false, i32 -1, i1 false, i32 -1)
-  %4 = load <3 x i1> addrspace(2)* @u_b3
-  %5 = extractelement <3 x i1> %4, i32 0
-  br i1 %5, label %then19, label %else21
+  %3 = load <3 x i1> addrspace(2)* @u_b3
+  %4 = extractelement <3 x i1> %3, i32 0
+  br i1 %4, label %then19, label %else21
 
 then19:                                           ; preds = %ifmerge16
   %i_b3 = call <3 x i1> @llvm.gla.readData.v3i1(i32 2, i32 -1)
@@ -658,7 +653,7 @@ ifmerge22:                                        ; preds = %else21, %then19
   br i1 %and_tmp18.0, label %then24, label %else26
 
 then24:                                           ; preds = %ifmerge22
-  %and_tmp2325 = extractelement <3 x i1> %4, i32 1
+  %and_tmp2325 = extractelement <3 x i1> %3, i32 1
   br label %ifmerge27
 
 else26:                                           ; preds = %ifmerge22
@@ -681,7 +676,7 @@ ifmerge33:                                        ; preds = %else32, %then29
   br i1 %and_tmp28.0, label %then35, label %else37
 
 then35:                                           ; preds = %ifmerge33
-  %and_tmp3436 = extractelement <3 x i1> %4, i32 2
+  %and_tmp3436 = extractelement <3 x i1> %3, i32 2
   br label %ifmerge38
 
 else37:                                           ; preds = %ifmerge33
@@ -701,11 +696,9 @@ else43:                                           ; preds = %ifmerge38
 
 ifmerge44:                                        ; preds = %else43, %then40
   %and_tmp39.0 = phi i1 [ %and_tmp3942, %then40 ], [ false, %else43 ]
-  %aggregate152 = load <3 x i1>* @gla_globalAgg1
-  %6 = call <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1> %aggregate152, i32 7, i1 %and_tmp39.0, i32 -1, i1 %and_tmp39.0, i32 -1, i1 %and_tmp39.0, i32 -1, i1 false, i32 -1)
-  %7 = load <4 x i1> addrspace(2)* @u_b4
-  %8 = extractelement <4 x i1> %7, i32 0
-  br i1 %8, label %then48, label %else50
+  %5 = load <4 x i1> addrspace(2)* @u_b4
+  %6 = extractelement <4 x i1> %5, i32 0
+  br i1 %6, label %then48, label %else50
 
 then48:                                           ; preds = %ifmerge44
   %i_b4 = call <4 x i1> @llvm.gla.readData.v4i1(i32 3, i32 -1)
@@ -720,7 +713,7 @@ ifmerge51:                                        ; preds = %else50, %then48
   br i1 %and_tmp47.0, label %then53, label %else55
 
 then53:                                           ; preds = %ifmerge51
-  %and_tmp5254 = extractelement <4 x i1> %7, i32 1
+  %and_tmp5254 = extractelement <4 x i1> %5, i32 1
   br label %ifmerge56
 
 else55:                                           ; preds = %ifmerge51
@@ -743,7 +736,7 @@ ifmerge62:                                        ; preds = %else61, %then58
   br i1 %and_tmp57.0, label %then64, label %else66
 
 then64:                                           ; preds = %ifmerge62
-  %and_tmp6365 = extractelement <4 x i1> %7, i32 2
+  %and_tmp6365 = extractelement <4 x i1> %5, i32 2
   br label %ifmerge67
 
 else66:                                           ; preds = %ifmerge62
@@ -766,7 +759,7 @@ ifmerge74:                                        ; preds = %else73, %then70
   br i1 %and_tmp69.0, label %then76, label %else78
 
 then76:                                           ; preds = %ifmerge74
-  %and_tmp7577 = extractelement <4 x i1> %7, i32 3
+  %and_tmp7577 = extractelement <4 x i1> %5, i32 3
   br label %ifmerge79
 
 else78:                                           ; preds = %ifmerge74
@@ -786,181 +779,83 @@ else84:                                           ; preds = %ifmerge79
 
 ifmerge85:                                        ; preds = %else84, %then81
   %and_tmp80.0 = phi i1 [ %and_tmp8083, %then81 ], [ false, %else84 ]
-  %aggregate153 = load <4 x i1>* @gla_globalAgg2
-  %9 = call <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1> %aggregate153, i32 15, i1 %and_tmp80.0, i32 -1, i1 %and_tmp80.0, i32 -1, i1 %and_tmp80.0, i32 -1, i1 %and_tmp80.0, i32 -1)
-  %10 = load i32 addrspace(2)* @u_i
-  %i_i = call i32 @llvm.gla.readData.i32(i32 4, i32 -1)
-  %11 = load <2 x i32> addrspace(2)* @u_i2
+  %7 = load <2 x i32> addrspace(2)* @u_i2
   %i_i2 = call <2 x i32> @llvm.gla.readData.v2i32(i32 5, i32 -1)
-  %assignment_tmp8990 = add <2 x i32> %11, %i_i2
-  %12 = load <3 x i32> addrspace(2)* @u_i3
+  %assignment_tmp8990 = add <2 x i32> %7, %i_i2
+  %8 = load <3 x i32> addrspace(2)* @u_i3
   %i_i3 = call <3 x i32> @llvm.gla.readData.v3i32(i32 6, i32 -1)
-  %assignment_tmp9192 = add <3 x i32> %12, %i_i3
-  %13 = load <4 x i32> addrspace(2)* @u_i4
+  %assignment_tmp9192 = add <3 x i32> %8, %i_i3
+  %9 = load <4 x i32> addrspace(2)* @u_i4
   %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 7, i32 -1)
-  %assignment_tmp9394 = add <4 x i32> %13, %i_i4
-  %14 = load float addrspace(2)* @u_f
-  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 8, i32 -1, i32 1)
-  %assignment_tmp9596 = fadd float %14, %i_f
-  %15 = load <2 x float> addrspace(2)* @u_f2
+  %assignment_tmp9394 = add <4 x i32> %9, %i_i4
+  %10 = load <2 x float> addrspace(2)* @u_f2
   %i_f2 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 9, i32 -1, i32 1)
-  %assignment_tmp9798 = fadd <2 x float> %15, %i_f2
-  %16 = load <3 x float> addrspace(2)* @u_f3
+  %assignment_tmp9798 = fadd <2 x float> %10, %i_f2
+  %11 = load <3 x float> addrspace(2)* @u_f3
   %i_f3 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 10, i32 -1, i32 1)
-  %assignment_tmp99100 = fadd <3 x float> %16, %i_f3
-  %17 = load <4 x float> addrspace(2)* @u_f4
+  %assignment_tmp99100 = fadd <3 x float> %11, %i_f3
+  %12 = load <4 x float> addrspace(2)* @u_f4
   %i_f4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 11, i32 -1, i32 1)
-  %assignment_tmp101102 = fadd <4 x float> %17, %i_f4
-  br i1 %and_tmp.0, label %then103, label %else104
+  %assignment_tmp101102 = fadd <4 x float> %12, %i_f4
+  %select159 = or i1 %and_tmp.0, %and_tmp11.0
+  %select154 = or i1 %select159, %and_tmp39.0
+  %select158 = or i1 %select154, %and_tmp80.0
+  br i1 %select158, label %then147, label %else149
 
-then103:                                          ; preds = %ifmerge85
-  br label %ifmerge106
-
-else104:                                          ; preds = %ifmerge85
-  %or_tmp105 = extractelement <2 x i1> %3, i32 0
-  br label %ifmerge106
-
-ifmerge106:                                       ; preds = %else104, %then103
-  %or_tmp.0 = phi i1 [ true, %then103 ], [ %or_tmp105, %else104 ]
-  br i1 %or_tmp.0, label %then108, label %else109
-
-then108:                                          ; preds = %ifmerge106
-  br label %ifmerge111
-
-else109:                                          ; preds = %ifmerge106
-  %or_tmp107110 = extractelement <2 x i1> %3, i32 1
-  br label %ifmerge111
-
-ifmerge111:                                       ; preds = %else109, %then108
-  %or_tmp107.0 = phi i1 [ true, %then108 ], [ %or_tmp107110, %else109 ]
-  br i1 %or_tmp107.0, label %then113, label %else114
-
-then113:                                          ; preds = %ifmerge111
-  br label %ifmerge116
-
-else114:                                          ; preds = %ifmerge111
-  %or_tmp112115 = extractelement <3 x i1> %6, i32 0
-  br label %ifmerge116
-
-ifmerge116:                                       ; preds = %else114, %then113
-  %or_tmp112.0 = phi i1 [ true, %then113 ], [ %or_tmp112115, %else114 ]
-  br i1 %or_tmp112.0, label %then118, label %else119
-
-then118:                                          ; preds = %ifmerge116
-  br label %ifmerge121
-
-else119:                                          ; preds = %ifmerge116
-  %or_tmp117120 = extractelement <3 x i1> %6, i32 1
-  br label %ifmerge121
-
-ifmerge121:                                       ; preds = %else119, %then118
-  %or_tmp117.0 = phi i1 [ true, %then118 ], [ %or_tmp117120, %else119 ]
-  br i1 %or_tmp117.0, label %then123, label %else124
-
-then123:                                          ; preds = %ifmerge121
-  br label %ifmerge126
-
-else124:                                          ; preds = %ifmerge121
-  %or_tmp122125 = extractelement <3 x i1> %6, i32 2
-  br label %ifmerge126
-
-ifmerge126:                                       ; preds = %else124, %then123
-  %or_tmp122.0 = phi i1 [ true, %then123 ], [ %or_tmp122125, %else124 ]
-  br i1 %or_tmp122.0, label %then128, label %else129
-
-then128:                                          ; preds = %ifmerge126
-  br label %ifmerge131
-
-else129:                                          ; preds = %ifmerge126
-  %or_tmp127130 = extractelement <4 x i1> %9, i32 0
-  br label %ifmerge131
-
-ifmerge131:                                       ; preds = %else129, %then128
-  %or_tmp127.0 = phi i1 [ true, %then128 ], [ %or_tmp127130, %else129 ]
-  br i1 %or_tmp127.0, label %then133, label %else134
-
-then133:                                          ; preds = %ifmerge131
-  br label %ifmerge136
-
-else134:                                          ; preds = %ifmerge131
-  %or_tmp132135 = extractelement <4 x i1> %9, i32 1
-  br label %ifmerge136
-
-ifmerge136:                                       ; preds = %else134, %then133
-  %or_tmp132.0 = phi i1 [ true, %then133 ], [ %or_tmp132135, %else134 ]
-  br i1 %or_tmp132.0, label %then138, label %else139
-
-then138:                                          ; preds = %ifmerge136
-  br label %ifmerge141
-
-else139:                                          ; preds = %ifmerge136
-  %or_tmp137140 = extractelement <4 x i1> %9, i32 2
-  br label %ifmerge141
-
-ifmerge141:                                       ; preds = %else139, %then138
-  %or_tmp137.0 = phi i1 [ true, %then138 ], [ %or_tmp137140, %else139 ]
-  br i1 %or_tmp137.0, label %then143, label %else144
-
-then143:                                          ; preds = %ifmerge141
-  br label %ifmerge146
-
-else144:                                          ; preds = %ifmerge141
-  %or_tmp142145 = extractelement <4 x i1> %9, i32 3
-  br label %ifmerge146
-
-ifmerge146:                                       ; preds = %else144, %then143
-  %or_tmp142.0 = phi i1 [ true, %then143 ], [ %or_tmp142145, %else144 ]
-  br i1 %or_tmp142.0, label %then147, label %else149
-
-then147:                                          ; preds = %ifmerge146
-  %18 = extractelement <2 x i32> %assignment_tmp8990, i32 0
-  %19 = extractelement <2 x i32> %assignment_tmp8990, i32 1
-  %20 = extractelement <3 x i32> %assignment_tmp9192, i32 0
-  %21 = extractelement <3 x i32> %assignment_tmp9192, i32 1
-  %22 = extractelement <3 x i32> %assignment_tmp9192, i32 2
-  %23 = extractelement <4 x i32> %assignment_tmp9394, i32 0
-  %24 = extractelement <4 x i32> %assignment_tmp9394, i32 1
-  %25 = extractelement <4 x i32> %assignment_tmp9394, i32 2
-  %26 = extractelement <4 x i32> %assignment_tmp9394, i32 3
-  %assignment_tmp88 = add i32 %i_i, %10
-  %27 = add i32 %assignment_tmp88, %19
-  %28 = add i32 %27, %18
-  %29 = add i32 %28, %22
-  %30 = add i32 %29, %21
-  %31 = add i32 %30, %20
-  %32 = add i32 %31, %26
-  %33 = add i32 %32, %25
-  %34 = add i32 %33, %24
-  %35 = add i32 %34, %23
-  %36 = sitofp i32 %35 to float
-  %37 = fadd float %36, %assignment_tmp9596
-  %38 = extractelement <2 x float> %assignment_tmp9798, i32 0
-  %39 = fadd float %37, %38
-  %40 = extractelement <2 x float> %assignment_tmp9798, i32 1
-  %41 = fadd float %39, %40
-  %42 = extractelement <3 x float> %assignment_tmp99100, i32 0
-  %43 = fadd float %41, %42
-  %44 = extractelement <3 x float> %assignment_tmp99100, i32 1
-  %45 = fadd float %43, %44
-  %46 = extractelement <3 x float> %assignment_tmp99100, i32 2
-  %47 = fadd float %45, %46
-  %48 = extractelement <4 x float> %assignment_tmp101102, i32 0
-  %49 = fadd float %47, %48
-  %50 = extractelement <4 x float> %assignment_tmp101102, i32 1
-  %51 = fadd float %49, %50
-  %52 = extractelement <4 x float> %assignment_tmp101102, i32 2
-  %53 = fadd float %51, %52
-  %54 = extractelement <4 x float> %assignment_tmp101102, i32 3
-  %55 = fadd float %53, %54
-  %aggregate154 = load <4 x float>* @gla_globalAgg3
-  %56 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate154, i32 15, float %55, i32 -1, float %55, i32 -1, float %55, i32 -1, float %55, i32 -1)
+then147:                                          ; preds = %ifmerge85
+  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 8, i32 -1, i32 1)
+  %13 = load float addrspace(2)* @u_f
+  %assignment_tmp9596 = fadd float %13, %i_f
+  %i_i = call i32 @llvm.gla.readData.i32(i32 4, i32 -1)
+  %14 = load i32 addrspace(2)* @u_i
+  %15 = extractelement <2 x i32> %assignment_tmp8990, i32 0
+  %16 = extractelement <2 x i32> %assignment_tmp8990, i32 1
+  %17 = extractelement <3 x i32> %assignment_tmp9192, i32 0
+  %18 = extractelement <3 x i32> %assignment_tmp9192, i32 1
+  %19 = extractelement <3 x i32> %assignment_tmp9192, i32 2
+  %20 = extractelement <4 x i32> %assignment_tmp9394, i32 0
+  %21 = extractelement <4 x i32> %assignment_tmp9394, i32 1
+  %22 = extractelement <4 x i32> %assignment_tmp9394, i32 2
+  %23 = extractelement <4 x i32> %assignment_tmp9394, i32 3
+  %assignment_tmp88 = add i32 %i_i, %14
+  %24 = add i32 %assignment_tmp88, %16
+  %25 = add i32 %24, %15
+  %26 = add i32 %25, %19
+  %27 = add i32 %26, %18
+  %28 = add i32 %27, %17
+  %29 = add i32 %28, %23
+  %30 = add i32 %29, %22
+  %31 = add i32 %30, %21
+  %32 = add i32 %31, %20
+  %33 = sitofp i32 %32 to float
+  %34 = fadd float %33, %assignment_tmp9596
+  %35 = extractelement <2 x float> %assignment_tmp9798, i32 0
+  %36 = fadd float %34, %35
+  %37 = extractelement <2 x float> %assignment_tmp9798, i32 1
+  %38 = fadd float %36, %37
+  %39 = extractelement <3 x float> %assignment_tmp99100, i32 0
+  %40 = fadd float %38, %39
+  %41 = extractelement <3 x float> %assignment_tmp99100, i32 1
+  %42 = fadd float %40, %41
+  %43 = extractelement <3 x float> %assignment_tmp99100, i32 2
+  %44 = fadd float %42, %43
+  %45 = extractelement <4 x float> %assignment_tmp101102, i32 0
+  %46 = fadd float %44, %45
+  %47 = extractelement <4 x float> %assignment_tmp101102, i32 1
+  %48 = fadd float %46, %47
+  %49 = extractelement <4 x float> %assignment_tmp101102, i32 2
+  %50 = fadd float %48, %49
+  %51 = extractelement <4 x float> %assignment_tmp101102, i32 3
+  %52 = fadd float %50, %51
+  %aggregate = load <4 x float>* @gla_globalAgg
+  %53 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate, i32 15, float %52, i32 -1, float %52, i32 -1, float %52, i32 -1, float %52, i32 -1)
   br label %ifmerge150
 
-else149:                                          ; preds = %ifmerge146
+else149:                                          ; preds = %ifmerge85
   br label %ifmerge150
 
 ifmerge150:                                       ; preds = %else149, %then147
-  %conditional_tmp.0 = phi <4 x float> [ %56, %then147 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %else149 ]
+  %conditional_tmp.0 = phi <4 x float> [ %53, %then147 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %else149 ]
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %conditional_tmp.0)
   br label %stage-epilogue
 
@@ -996,12 +891,6 @@ declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind rea
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
-
-declare <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) nounwind readnone
-
-declare <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) nounwind readnone
-
-declare <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 compiling types.frag...
@@ -1316,12 +1205,9 @@ uniform float u_f;
 uniform vec2 u_f2;
 uniform vec3 u_f3;
 uniform vec4 u_f4;
-bvec2 gla_globalAgg;
-bvec3 gla_globalAgg1;
-bvec4 gla_globalAgg2;
-vec4 gla_globalAgg3;
+vec4 gla_globalAgg;
 in bool i_b;
-const bool const47_false = false;
+const bool const38_false = false;
 in bvec2 i_b2;
 in bvec2 i_b213;
 in bvec3 i_b3;
@@ -1331,16 +1217,15 @@ in bvec4 i_b4;
 in bvec4 i_b459;
 in bvec4 i_b471;
 in bvec4 i_b482;
-in int i_i;
 in ivec2 i_i2;
 in ivec3 i_i3;
 in ivec4 i_i4;
-in float i_f;
 in vec2 i_f2;
 in vec3 i_f3;
 in vec4 i_f4;
-const bool const58_true = true;
-const vec4 const81 = vec4(1.0);
+in float i_f;
+in int i_i;
+const vec4 const71 = vec4(1.0);
 
 void main()
 {
@@ -1360,230 +1245,156 @@ void main()
     bool and_tmp69_0;
     bool and_tmp75_0;
     bool and_tmp80_0;
-    bool or_tmp_0;
-    bool or_tmp107_0;
-    bool or_tmp112_0;
-    bool or_tmp117_0;
-    bool or_tmp122_0;
-    bool or_tmp127_0;
-    bool or_tmp132_0;
-    bool or_tmp137_0;
-    bool or_tmp142_0;
     vec4 conditional_tmp_0;
     if (u_b) {
         and_tmp_0 = i_b;
     }
     else {
-        and_tmp_0 = const47_false;
+        and_tmp_0 = const38_false;
     }
     
     if (u_b2.x) {
         and_tmp1_0 = i_b2.x;
     }
     else {
-        and_tmp1_0 = const47_false;
+        and_tmp1_0 = const38_false;
     }
     
     if (and_tmp1_0) {
         and_tmp6_0 = u_b2.y;
     }
     else {
-        and_tmp6_0 = const47_false;
+        and_tmp6_0 = const38_false;
     }
     
     if (and_tmp6_0) {
         and_tmp11_0 = i_b213.y;
     }
     else {
-        and_tmp11_0 = const47_false;
+        and_tmp11_0 = const38_false;
     }
     
-    bvec2 temp48 = gla_globalAgg;
-    temp48.xy = bvec2(and_tmp11_0, and_tmp11_0);
     if (u_b3.x) {
         and_tmp18_0 = i_b3.x;
     }
     else {
-        and_tmp18_0 = const47_false;
+        and_tmp18_0 = const38_false;
     }
     
     if (and_tmp18_0) {
         and_tmp23_0 = u_b3.y;
     }
     else {
-        and_tmp23_0 = const47_false;
+        and_tmp23_0 = const38_false;
     }
     
     if (and_tmp23_0) {
         and_tmp28_0 = i_b330.y;
     }
     else {
-        and_tmp28_0 = const47_false;
+        and_tmp28_0 = const38_false;
     }
     
     if (and_tmp28_0) {
         and_tmp34_0 = u_b3.z;
     }
     else {
-        and_tmp34_0 = const47_false;
+        and_tmp34_0 = const38_false;
     }
     
     if (and_tmp34_0) {
         and_tmp39_0 = i_b341.z;
     }
     else {
-        and_tmp39_0 = const47_false;
+        and_tmp39_0 = const38_false;
     }
     
-    bvec3 temp49 = gla_globalAgg1;
-    temp49.xyz = bvec3(and_tmp39_0, and_tmp39_0, and_tmp39_0);
     if (u_b4.x) {
         and_tmp47_0 = i_b4.x;
     }
     else {
-        and_tmp47_0 = const47_false;
+        and_tmp47_0 = const38_false;
     }
     
     if (and_tmp47_0) {
         and_tmp52_0 = u_b4.y;
     }
     else {
-        and_tmp52_0 = const47_false;
+        and_tmp52_0 = const38_false;
     }
     
     if (and_tmp52_0) {
         and_tmp57_0 = i_b459.y;
     }
     else {
-        and_tmp57_0 = const47_false;
+        and_tmp57_0 = const38_false;
     }
     
     if (and_tmp57_0) {
         and_tmp63_0 = u_b4.z;
     }
     else {
-        and_tmp63_0 = const47_false;
+        and_tmp63_0 = const38_false;
     }
     
     if (and_tmp63_0) {
         and_tmp69_0 = i_b471.z;
     }
     else {
-        and_tmp69_0 = const47_false;
+        and_tmp69_0 = const38_false;
     }
     
     if (and_tmp69_0) {
         and_tmp75_0 = u_b4.w;
     }
     else {
-        and_tmp75_0 = const47_false;
+        and_tmp75_0 = const38_false;
     }
     
     if (and_tmp75_0) {
         and_tmp80_0 = i_b482.w;
     }
     else {
-        and_tmp80_0 = const47_false;
+        and_tmp80_0 = const38_false;
     }
     
-    bvec4 temp50 = bvec4(and_tmp80_0, and_tmp80_0, and_tmp80_0, and_tmp80_0);
     ivec2 assignment_tmp8990 = u_i2 + i_i2;
     ivec3 assignment_tmp9192 = u_i3 + i_i3;
     ivec4 assignment_tmp9394 = u_i4 + i_i4;
-    float assignment_tmp9596 = u_f + i_f;
     vec2 assignment_tmp9798 = u_f2 + i_f2;
     vec3 assignment_tmp99100 = u_f3 + i_f3;
     vec4 assignment_tmp101102 = u_f4 + i_f4;
-    if (and_tmp_0) {
-        or_tmp_0 = const58_true;
-    }
-    else {
-        or_tmp_0 = temp48.x;
-    }
-    
-    if (or_tmp_0) {
-        or_tmp107_0 = const58_true;
-    }
-    else {
-        or_tmp107_0 = temp48.y;
-    }
-    
-    if (or_tmp107_0) {
-        or_tmp112_0 = const58_true;
-    }
-    else {
-        or_tmp112_0 = temp49.x;
-    }
-    
-    if (or_tmp112_0) {
-        or_tmp117_0 = const58_true;
-    }
-    else {
-        or_tmp117_0 = temp49.y;
-    }
-    
-    if (or_tmp117_0) {
-        or_tmp122_0 = const58_true;
-    }
-    else {
-        or_tmp122_0 = temp49.z;
-    }
-    
-    if (or_tmp122_0) {
-        or_tmp127_0 = const58_true;
-    }
-    else {
-        or_tmp127_0 = temp50.x;
-    }
-    
-    if (or_tmp127_0) {
-        or_tmp132_0 = const58_true;
-    }
-    else {
-        or_tmp132_0 = temp50.y;
-    }
-    
-    if (or_tmp132_0) {
-        or_tmp137_0 = const58_true;
-    }
-    else {
-        or_tmp137_0 = temp50.z;
-    }
-    
-    if (or_tmp137_0) {
-        or_tmp142_0 = const58_true;
-    }
-    else {
-        or_tmp142_0 = temp50.w;
-    }
-    
-    if (or_tmp142_0) {
+    bool select159 = and_tmp_0 || and_tmp11_0;
+    bool select154 = select159 || and_tmp39_0;
+    bool select158 = select154 || and_tmp80_0;
+    if (select158) {
+        float assignment_tmp9596 = u_f + i_f;
         int assignment_tmp88 = i_i + u_i;
-        int temp60 = assignment_tmp88 + assignment_tmp8990.y;
-        int temp61 = temp60 + assignment_tmp8990.x;
-        int temp62 = temp61 + assignment_tmp9192.z;
-        int temp63 = temp62 + assignment_tmp9192.y;
-        int temp64 = temp63 + assignment_tmp9192.x;
-        int temp65 = temp64 + assignment_tmp9394.w;
-        int temp66 = temp65 + assignment_tmp9394.z;
-        int temp67 = temp66 + assignment_tmp9394.y;
-        int temp68 = temp67 + assignment_tmp9394.x;
-        float temp69 = float(temp68);
-        float temp70 = temp69 + assignment_tmp9596;
-        float temp71 = temp70 + assignment_tmp9798.x;
-        float temp72 = temp71 + assignment_tmp9798.y;
-        float temp73 = temp72 + assignment_tmp99100.x;
-        float temp74 = temp73 + assignment_tmp99100.y;
-        float temp75 = temp74 + assignment_tmp99100.z;
-        float temp76 = temp75 + assignment_tmp101102.x;
-        float temp77 = temp76 + assignment_tmp101102.y;
-        float temp78 = temp77 + assignment_tmp101102.z;
-        float temp79 = temp78 + assignment_tmp101102.w;
-        vec4 temp80 = vec4(temp79, temp79, temp79, temp79);
-        conditional_tmp_0 = temp80;
+        int temp50 = assignment_tmp88 + assignment_tmp8990.y;
+        int temp51 = temp50 + assignment_tmp8990.x;
+        int temp52 = temp51 + assignment_tmp9192.z;
+        int temp53 = temp52 + assignment_tmp9192.y;
+        int temp54 = temp53 + assignment_tmp9192.x;
+        int temp55 = temp54 + assignment_tmp9394.w;
+        int temp56 = temp55 + assignment_tmp9394.z;
+        int temp57 = temp56 + assignment_tmp9394.y;
+        int temp58 = temp57 + assignment_tmp9394.x;
+        float temp59 = float(temp58);
+        float temp60 = temp59 + assignment_tmp9596;
+        float temp61 = temp60 + assignment_tmp9798.x;
+        float temp62 = temp61 + assignment_tmp9798.y;
+        float temp63 = temp62 + assignment_tmp99100.x;
+        float temp64 = temp63 + assignment_tmp99100.y;
+        float temp65 = temp64 + assignment_tmp99100.z;
+        float temp66 = temp65 + assignment_tmp101102.x;
+        float temp67 = temp66 + assignment_tmp101102.y;
+        float temp68 = temp67 + assignment_tmp101102.z;
+        float temp69 = temp68 + assignment_tmp101102.w;
+        vec4 temp70 = vec4(temp69, temp69, temp69, temp69);
+        conditional_tmp_0 = temp70;
     }
     else {
-        conditional_tmp_0 = const81;
+        conditional_tmp_0 = const71;
     }
     
     gl_FragColor = conditional_tmp_0;

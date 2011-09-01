@@ -178,18 +178,18 @@ then11:                                           ; preds = %ifmerge
 
 ifmerge13:                                        ; preds = %ifmerge, %then11
   %locals0_i.1 = phi i32 [ %locals0_i12, %then11 ], [ %locals0_i.0, %ifmerge ]
-  %7 = sitofp i32 %locals0_i.1 to float
-  %8 = extractvalue [10 x %s1] %locals1Array.0, 6, 1
-  %9 = fadd float %7, %8
-  %10 = extractvalue [6 x float] %fArray.0, 3
-  %11 = fadd float %9, %10
-  %12 = extractvalue %s1 %locals2_s1_1.0, 1
-  %13 = fadd float %11, %12
+  %7 = extractvalue [10 x %s1] %locals1Array.0, 6, 1
+  %8 = sitofp i32 %locals0_i.1 to float
+  %9 = extractvalue [6 x float] %fArray.0, 3
+  %10 = fadd float %8, %7
+  %11 = extractvalue %s1 %locals2_s1_1.0, 1
+  %12 = fadd float %10, %9
+  %13 = load i32 addrspace(1)* @"sampler2D sampler"
   %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %14 = load i32 addrspace(1)* @"sampler2D sampler"
-  %15 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %14, i32 0, <2 x float> %coord14)
-  %16 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %13, i32 0)
-  %gl_FragColor = fmul <4 x float> %16, %15
+  %14 = fadd float %12, %11
+  %15 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %14, i32 0)
+  %16 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %13, i32 0, <2 x float> %coord14)
+  %gl_FragColor = fmul <4 x float> %15, %16
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
@@ -367,16 +367,16 @@ void main()
         locals0_i_1 = locals0_i12;
     }
     
-    float temp40 = float(locals0_i_1);
-    float temp41 = locals1Array_0[6].member1;
-    float temp42 = temp40 + temp41;
-    float temp43 = fArray_0[3];
-    float temp44 = temp42 + temp43;
-    float temp45 = locals2_s1_1_0.member1;
-    float temp46 = temp44 + temp45;
-    vec4 temp47 = texture2D(sampler, coord14);
-    vec4 temp48 = vec4(temp46);
-    vec4 gla_copyout_gl_FragColor = temp48 * temp47;
+    float temp40 = locals1Array_0[6].member1;
+    float temp41 = float(locals0_i_1);
+    float temp42 = fArray_0[3];
+    float temp43 = temp41 + temp40;
+    float temp44 = locals2_s1_1_0.member1;
+    float temp45 = temp43 + temp42;
+    float temp46 = temp45 + temp44;
+    vec4 temp47 = vec4(temp46);
+    vec4 temp48 = texture2D(sampler, coord14);
+    vec4 gla_copyout_gl_FragColor = temp47 * temp48;
     gl_FragColor = gla_copyout_gl_FragColor;
     
 }

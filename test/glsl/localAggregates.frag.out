@@ -260,19 +260,19 @@ then32:                                           ; preds = %ifmerge13
 
 ifmerge34:                                        ; preds = %ifmerge13, %then32
   %a.0 = phi [16 x float] [ %localArray15, %then32 ], [ zeroinitializer, %ifmerge13 ]
-  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
-  %12 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %color, i32 4, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, <2 x float> %coord14, i32 1, float 0.000000e+00, i32 -1)
+  %12 = extractvalue %s1 %locals2_s1_1.0, 1
   %13 = extractvalue [16 x float] %localFArray.1, 4
-  %14 = extractvalue %s1 %locals2_s1_1.0, 1
-  %15 = fadd float %13, %14
-  %16 = fadd float %15, %9
-  %17 = extractvalue [16 x float] %a.0, 5
-  %18 = fadd float %16, %17
-  %19 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %18, i32 0)
-  %20 = fmul <4 x float> %12, %19
-  %21 = load i32 addrspace(1)* @"sampler2D sampler"
-  %22 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %21, i32 0, <2 x float> %coord14)
-  %gl_FragColor = fmul <4 x float> %20, %22
+  %14 = fadd float %13, %12
+  %15 = extractvalue [16 x float] %a.0, 5
+  %16 = fadd float %14, %9
+  %17 = fadd float %16, %15
+  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  %18 = load i32 addrspace(1)* @"sampler2D sampler"
+  %19 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %17, i32 0)
+  %20 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %color, i32 4, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, <2 x float> %coord14, i32 1, float 0.000000e+00, i32 -1)
+  %21 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %18, i32 0, <2 x float> %coord14)
+  %22 = fmul <4 x float> %20, %19
+  %gl_FragColor = fmul <4 x float> %22, %21
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
@@ -467,18 +467,18 @@ void main()
         a_0 = gla_globalAgg4;
     }
     
-    vec4 temp38 = color;
-    temp38.z = coord14.y;
+    float temp38 = locals2_s1_1_0.member1;
     float temp39 = localFArray_1[4];
-    float temp40 = locals2_s1_1_0.member1;
-    float temp41 = temp39 + temp40;
-    float temp42 = temp41 + coord14.x;
-    float temp43 = a_0[5];
-    float temp44 = temp42 + temp43;
-    vec4 temp45 = vec4(temp44);
-    vec4 temp46 = temp38 * temp45;
-    vec4 temp47 = texture2D(sampler, coord14);
-    vec4 gla_copyout_gl_FragColor = temp46 * temp47;
+    float temp40 = temp39 + temp38;
+    float temp41 = a_0[5];
+    float temp42 = temp40 + coord14.x;
+    float temp43 = temp42 + temp41;
+    vec4 temp44 = vec4(temp43);
+    vec4 temp45 = color;
+    temp45.z = coord14.y;
+    vec4 temp46 = texture2D(sampler, coord14);
+    vec4 temp47 = temp45 * temp44;
+    vec4 gla_copyout_gl_FragColor = temp47 * temp46;
     gl_FragColor = gla_copyout_gl_FragColor;
     
 }

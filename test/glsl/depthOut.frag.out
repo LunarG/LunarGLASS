@@ -43,11 +43,11 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
+  %Color1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 -1, i32 1)
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   call void @llvm.gla.fWriteData.f32(i32 0, i32 -1, float %Depth)
-  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %Color)
-  call void @llvm.gla.fWriteData.v4f32(i32 2, i32 -1, <4 x float> %Color)
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %Color1)
+  call void @llvm.gla.fWriteData.v4f32(i32 2, i32 -1, <4 x float> %Color1)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -96,13 +96,13 @@ gl_FragDepth = Depth ; gl_FragColor = Color ; foo = gl_FragColor ; }
 // LunarGOO output
 #version 130
 out vec4 foo;
+in vec4 Color1;
 in float Depth;
-in vec4 Color;
 
 void main()
 {
     gl_FragDepth = Depth;
-    gl_FragColor = Color;
-    foo = Color;
+    gl_FragColor = Color1;
+    foo = Color1;
     
 }

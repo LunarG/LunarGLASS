@@ -103,12 +103,12 @@ else:                                             ; preds = %entry
 
 ifmerge:                                          ; preds = %else, %then
   %scale.0.in = phi float addrspace(2)* [ %8, %then ], [ %gla_constGEP5, %else ]
-  %scale.0 = load float addrspace(2)* %scale.0.in
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %9 = load i32 addrspace(1)* @"sampler2D sampler"
-  %10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %coord)
-  %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.0, i32 0)
-  %gl_FragColor = fmul <4 x float> %11, %10
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %scale.0 = load float addrspace(2)* %scale.0.in
+  %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %scale.0, i32 0)
+  %11 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %coord)
+  %gl_FragColor = fmul <4 x float> %10, %11
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
@@ -214,9 +214,9 @@ void main()
         scale_0_in = foo3.member0[0].member2.member1;
     }
     
-    vec4 temp30 = texture2D(sampler, coord);
-    vec4 temp31 = vec4(scale_0_in);
-    vec4 gla_copyout_gl_FragColor = temp31 * temp30;
+    vec4 temp30 = vec4(scale_0_in);
+    vec4 temp31 = texture2D(sampler, coord);
+    vec4 gla_copyout_gl_FragColor = temp30 * temp31;
     gl_FragColor = gla_copyout_gl_FragColor;
     
 }

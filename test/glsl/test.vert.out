@@ -38,8 +38,8 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %uv_in = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0, i32 -1)
   %position = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1, i32 -1)
+  %uv_in = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0, i32 -1)
   call void @llvm.gla.fWriteData.v2f32(i32 0, i32 -1, <2 x float> %uv_in)
   call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %position)
   br label %stage-epilogue
@@ -89,8 +89,8 @@ uv = uv_in ; gl_Position = position ; }
 // LunarGOO output
 #version 130
 out vec2 uv;
-in vec2 uv_in;
 in vec4 position;
+in vec2 uv_in;
 
 void main()
 {

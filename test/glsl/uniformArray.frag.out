@@ -64,6 +64,7 @@ Bottom IR:
 @inColor = external addrspace(2) constant <3 x float>
 @alpha = external addrspace(2) constant [13 x float]
 @gla_globalAgg = internal global <3 x float> undef
+@gla_globalAgg1 = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
@@ -74,11 +75,12 @@ entry:
   %1 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> %aggregate, i32 7, <4 x float> %assignment_tmp1, i32 0, <4 x float> %assignment_tmp1, i32 1, <4 x float> %assignment_tmp1, i32 2, float 0.000000e+00, i32 -1)
   %2 = load <3 x float> addrspace(2)* @inColor
   %3 = fadd <3 x float> %1, %2
-  %4 = extractelement <4 x float> %assignment_tmp1, i32 3
   %gla_constGEP6 = getelementptr [13 x float] addrspace(2)* @alpha, i32 0, i32 12
-  %5 = load float addrspace(2)* %gla_constGEP6
-  %6 = fadd float %4, %5
-  %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> %assignment_tmp1, i32 15, <3 x float> %3, i32 0, <3 x float> %3, i32 1, <3 x float> %3, i32 2, float %6, i32 -1)
+  %4 = load float addrspace(2)* %gla_constGEP6
+  %5 = extractelement <4 x float> %assignment_tmp1, i32 3
+  %6 = fadd float %5, %4
+  %aggregate7 = load <4 x float>* @gla_globalAgg1
+  %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> %aggregate7, i32 15, <3 x float> %3, i32 0, <3 x float> %3, i32 1, <3 x float> %3, i32 2, float %6, i32 -1)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %7)
   br label %stage-epilogue
 
@@ -133,6 +135,7 @@ uniform vec4[2] color;
 uniform vec3 inColor;
 uniform float[13] alpha;
 vec3 gla_globalAgg;
+vec4 gla_globalAgg1;
 
 void main()
 {

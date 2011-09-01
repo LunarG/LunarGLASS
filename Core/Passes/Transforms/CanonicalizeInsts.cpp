@@ -90,7 +90,7 @@ void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
     for (BasicBlock::iterator instI = bb->begin(), instE = bb->end(); instI != instE; /* empty */) {
         Instruction* inst = instI;
         ++instI;
-        
+
         IntrinsicInst* intrinsic = dyn_cast<IntrinsicInst>(inst);
         if (intrinsic) {
             switch (intrinsic->getIntrinsicID()) {
@@ -275,7 +275,7 @@ void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
                     }
                     break;
                 default:
-                    // The cases above needs to be comprehensive in terms of 
+                    // The cases above needs to be comprehensive in terms of
                     // checking for what intrinsics to decompose.  If not there
                     // the assumption is it never needs to be decomposed.
                     ;
@@ -352,17 +352,23 @@ void CanonicalizeInsts::hoistUndefOps(Instruction* inst)
     if (! backEnd->hoistUndefOperands())
         return;
 
+    // Don't do it for shufflevector, which requires a constant vector as a mask
+    // and will be interpreted specially by a backend and
+    if (inst->getOpcode() == llvm::Instruction::ShuffleVector) {
+        return;
+    }
+
     Instruction* insertLoc = inst;
 
     for (User::op_iterator aggIter = inst->op_begin(), end = inst->op_end();  aggIter != end; ++aggIter) {
+        Constant* agg = dyn_cast<Constant>(*aggIter);
 
-        if (gla::IsAggregate(*aggIter) && !gla::AreAllDefined(*aggIter)) {
+        if (agg && gla::IsAggregate(*aggIter) && !gla::AreAllDefined(*aggIter)) {
 
             if (PHINode* phi = dyn_cast<PHINode>(inst))
                 insertLoc = phi->getIncomingBlock(*aggIter)->getTerminator();
 
             // Create a global var representing the aggregate
-            Constant* agg = dyn_cast<Constant>(*aggIter);
             GlobalVariable* var = new GlobalVariable(agg->getType(), false, GlobalVariable::InternalLinkage, agg, "gla_globalAgg");
             inst->getParent()->getParent()->getParent()->getGlobalList().push_back(var);
 

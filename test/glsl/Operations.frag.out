@@ -951,10 +951,8 @@ Bottom IR:
 @ub41 = external addrspace(2) constant <4 x i1>
 @ub42 = external addrspace(2) constant <4 x i1>
 @gla_globalAgg = internal global <4 x float> undef
-@gla_globalAgg1 = internal global <3 x float> undef
-@gla_globalAgg2 = internal global <3 x float> undef
-@gla_globalAgg3 = internal global <4 x float> undef
-@gla_globalAgg4 = internal global <4 x float> undef
+@gla_globalAgg1 = internal global <4 x float> undef
+@gla_globalAgg2 = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
@@ -1250,24 +1248,21 @@ ifmerge168:                                       ; preds = %ifmerge153, %then16
   %117 = call float @llvm.gla.fSqrt.f32.f32(float %116)
   %f172 = fadd float %f170, %117
   %f173 = fadd float %f172, %114
-  %aggregate206 = load <3 x float>* @gla_globalAgg1
-  %118 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> %aggregate206, i32 7, <4 x float> %v107, i32 1, <4 x float> %v107, i32 2, <4 x float> %v107, i32 0, float 0.000000e+00, i32 -1)
-  %aggregate207 = load <3 x float>* @gla_globalAgg2
-  %119 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float> %aggregate207, i32 7, <4 x float> %v107, i32 2, <4 x float> %v107, i32 0, <4 x float> %v107, i32 1, float 0.000000e+00, i32 -1)
-  %120 = fmul <3 x float> %118, %119
-  %121 = fmul <3 x float> %119, %118
-  %122 = fsub <3 x float> %120, %121
-  %123 = extractelement <3 x float> %122, i32 0
-  %assignment_tmp176177 = fadd float %f173, %123
-  %124 = fcmp oeq float %assignment_tmp176177, %69
-  br i1 %124, label %then180, label %else181
+  %118 = extractelement <4 x float> %v107, i32 1
+  %119 = extractelement <4 x float> %v107, i32 2
+  %.lhs = fmul float %118, %119
+  %.rhs = fmul float %119, %118
+  %120 = fsub float %.lhs, %.rhs
+  %assignment_tmp176177 = fadd float %f173, %120
+  %121 = fcmp oeq float %assignment_tmp176177, %69
+  br i1 %121, label %then180, label %else181
 
 then180:                                          ; preds = %ifmerge168
   br label %ifmerge188
 
 else181:                                          ; preds = %ifmerge168
-  %125 = fcmp ueq float %assignment_tmp176177, %69
-  br i1 %125, label %else185, label %then183
+  %122 = fcmp ueq float %assignment_tmp176177, %69
+  br i1 %122, label %else185, label %then183
 
 then183:                                          ; preds = %else181
   %and_tmp182184 = fcmp one float %assignment_tmp176177, 2.000000e+00
@@ -1293,20 +1288,20 @@ ifmerge191:                                       ; preds = %ifmerge188, %then18
   br i1 %and_tmp149.0, label %then195, label %else197
 
 then195:                                          ; preds = %ifmerge191
-  %126 = and i32 %90, %i.0
-  %127 = or i32 %126, 66
-  %128 = xor i32 %127, %90
-  %129 = srem i32 %128, 17
-  %130 = lshr i32 %129, 2
-  %131 = shl i32 %130, %90
-  %assignment_tmp192193 = xor i32 %131, -1
-  %132 = sitofp i32 %assignment_tmp192193 to float
-  %aggregate208 = load <4 x float>* @gla_globalAgg3
-  %133 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate208, i32 15, float %132, i32 -1, float %132, i32 -1, float %132, i32 -1, float %132, i32 -1)
-  %aggregate209 = load <4 x float>* @gla_globalAgg4
-  %134 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate209, i32 15, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1)
-  %135 = fadd <4 x float> %133, %134
-  %conditional_tmp196 = fadd <4 x float> %135, %v107
+  %123 = and i32 %90, %i.0
+  %124 = or i32 %123, 66
+  %125 = xor i32 %124, %90
+  %126 = srem i32 %125, 17
+  %127 = lshr i32 %126, 2
+  %128 = shl i32 %127, %90
+  %assignment_tmp192193 = xor i32 %128, -1
+  %129 = sitofp i32 %assignment_tmp192193 to float
+  %aggregate206 = load <4 x float>* @gla_globalAgg1
+  %130 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate206, i32 15, float %129, i32 -1, float %129, i32 -1, float %129, i32 -1, float %129, i32 -1)
+  %aggregate207 = load <4 x float>* @gla_globalAgg2
+  %131 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate207, i32 15, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1, float %f.0, i32 -1)
+  %132 = fadd <4 x float> %130, %131
+  %conditional_tmp196 = fadd <4 x float> %132, %v107
   br label %ifmerge199
 
 else197:                                          ; preds = %ifmerge191
@@ -1411,8 +1406,6 @@ declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
-
-declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v4f32.v4f32.v4f32.f32(<3 x float>, i32, <4 x float>, i32, <4 x float>, i32, <4 x float>, i32, float, i32) nounwind readnone
 compiling Operations.frag...
 uniform ivec4 uiv4 ; 
 uniform vec4 uv4 ; 
@@ -1719,10 +1712,8 @@ uniform int ui;
 uniform bvec4 ub41;
 uniform bvec4 ub42;
 vec4 gla_globalAgg;
-vec3 gla_globalAgg1;
-vec3 gla_globalAgg2;
-vec4 gla_globalAgg3;
-vec4 gla_globalAgg4;
+vec4 gla_globalAgg1;
+vec4 gla_globalAgg2;
 const float const36_0f = 0.017453;
 const float const39_57f = 57.2958;
 const float const124_1f = 1.0;
@@ -1736,8 +1727,8 @@ const bool const191_false = false;
 const bool const204_true = true;
 const int const211_2 = 2;
 const int const213_1 = 1;
-const int const238_66 = 66;
-const int const241_17 = 17;
+const int const236_66 = 66;
+const int const239_17 = 17;
 
 void main()
 {
@@ -2001,21 +1992,17 @@ void main()
     float temp223 = sqrt(temp222);
     float temp224 = temp220 + temp223;
     float temp225 = temp224 + temp218;
-    vec3 temp226 = gla_globalAgg1;
-    temp226.xyz = temp178.yzx;
-    vec3 temp227 = gla_globalAgg2;
-    temp227.xyz = temp178.zxy;
-    vec3 temp228 = temp226 * temp227;
-    vec3 temp229 = temp227 * temp226;
-    vec3 temp230 = temp228 - temp229;
-    float assignment_tmp176177 = temp225 + temp230.x;
-    bool temp232 = assignment_tmp176177 == uf;
-    if (temp232) {
+    float _lhs = temp178.y * temp178.z;
+    float _rhs = temp178.z * temp178.y;
+    float temp228 = _lhs - _rhs;
+    float assignment_tmp176177 = temp225 + temp228;
+    bool temp230 = assignment_tmp176177 == uf;
+    if (temp230) {
         or_tmp179_0 = const204_true;
     }
     else {
-        bool temp233 = assignment_tmp176177 == uf;
-        if (temp233) {
+        bool temp231 = assignment_tmp176177 == uf;
+        if (temp231) {
             and_tmp182_0 = const191_false;
         }
         else {
@@ -2028,23 +2015,23 @@ void main()
     
     f_0 = assignment_tmp176177;
     if (or_tmp179_0) {
-        float temp235 = assignment_tmp176177 + const124_1f;
-        f_0 = temp235;
+        float temp233 = assignment_tmp176177 + const124_1f;
+        f_0 = temp233;
     }
     
     if (and_tmp149_0) {
-        int temp236 = ui & i_0;
-        int temp237 = temp236 | const238_66;
-        int temp239 = ~(temp237);
-        int temp240 = temp239 % const241_17;
-        int temp242 = temp240 >> const211_2;
-        int temp243 = temp242 << ui;
-        int assignment_tmp192193 = ~(temp243);
-        float temp245 = float(assignment_tmp192193);
-        vec4 temp246 = vec4(temp245, temp245, temp245, temp245);
-        vec4 temp247 = vec4(f_0, f_0, f_0, f_0);
-        vec4 temp248 = temp246 + temp247;
-        vec4 conditional_tmp196 = temp248 + temp178;
+        int temp234 = ui & i_0;
+        int temp235 = temp234 | const236_66;
+        int temp237 = ~(temp235);
+        int temp238 = temp237 % const239_17;
+        int temp240 = temp238 >> const211_2;
+        int temp241 = temp240 << ui;
+        int assignment_tmp192193 = ~(temp241);
+        float temp243 = float(assignment_tmp192193);
+        vec4 temp244 = vec4(temp243, temp243, temp243, temp243);
+        vec4 temp245 = vec4(f_0, f_0, f_0, f_0);
+        vec4 temp246 = temp244 + temp245;
+        vec4 conditional_tmp196 = temp246 + temp178;
         conditional_tmp_0 = conditional_tmp196;
     }
     else {

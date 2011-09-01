@@ -246,7 +246,8 @@ namespace gla {
         }
 
         // Does the backend want LunarGLASS to hoist undef operands into
-        // globals?
+        // globals? Doesn't hoist operands to shufflevector (which requires a
+        // constant vector for it's 3rd argument).
         virtual bool hoistUndefOperands()
         {
             return true;

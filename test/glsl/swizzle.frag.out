@@ -139,36 +139,34 @@ Bottom IR:
 @u = external addrspace(2) constant <4 x float>
 @p = external addrspace(2) constant i1
 @gla_globalAgg = internal global <4 x float> undef
-@gla_globalAgg1 = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
   %w1 = load <4 x float> addrspace(2)* @u
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x float> %w1, i32 10, float 0.000000e+00, i32 -1, <2 x float> %t, i32 1, float 0.000000e+00, i32 -1, <2 x float> %t, i32 0)
+  %w28 = shufflevector <4 x float> %w1, <4 x float> undef, <4 x i32> <i32 2, i32 3, i32 0, i32 1>
+  %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %w1, i32 7, float 0x3FFC9FBE80000000, i32 -1, float 0x3FFC9FBE80000000, i32 -1, float 0x3FFC9FBE80000000, i32 -1, float 0.000000e+00, i32 -1)
   %aggregate = load <4 x float>* @gla_globalAgg
-  %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float> %aggregate, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, <4 x float> %w1, i32 0, <4 x float> %w1, i32 1)
-  %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %w1, i32 7, float 0x3FFC9FBE80000000, i32 -1, float 0x3FFC9FBE80000000, i32 -1, float 0x3FFC9FBE80000000, i32 -1, float 0.000000e+00, i32 -1)
-  %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v2f32.v2f32(<4 x float> %w1, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 0, <2 x float> %t, i32 0, <2 x float> %t, i32 1)
-  %aggregate20 = load <4 x float>* @gla_globalAgg1
-  %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.f32.f32(<4 x float> %aggregate20, i32 3, <4 x float> %w1, i32 2, <4 x float> %w1, i32 3, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
-  %5 = load i1 addrspace(2)* @p
-  br i1 %5, label %then, label %else
+  %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v2f32.v2f32(<4 x float> %aggregate, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 0, <2 x float> %t, i32 0, <2 x float> %t, i32 1)
+  %w_undef13 = shufflevector <4 x float> %w1, <4 x float> undef, <4 x i32> <i32 2, i32 3, i32 undef, i32 undef>
+  %3 = load i1 addrspace(2)* @p
+  br i1 %3, label %then, label %else
 
 then:                                             ; preds = %entry
-  %6 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 0, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
+  %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 0, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
+  %5 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %w_flow.0 = phi <4 x float> [ %6, %then ], [ %7, %else ]
-  %8 = fmul <4 x float> %0, %1
-  %9 = fmul <4 x float> %8, %3
-  %10 = fmul <4 x float> %9, %w_flow.0
-  %mix_retval18 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %2, <4 x float> %4, <4 x float> %10)
+  %w_flow.0 = phi <4 x float> [ %4, %then ], [ %5, %else ]
+  %6 = fmul <4 x float> %0, %w28
+  %7 = fmul <4 x float> %6, %2
+  %8 = fmul <4 x float> %7, %w_flow.0
+  %mix_retval18 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %1, <4 x float> %w_undef13, <4 x float> %8)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %mix_retval18)
   br label %stage-epilogue
 
@@ -185,13 +183,9 @@ declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x flo
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.f32.f32(<4 x float>, i32, <4 x float>, i32, <4 x float>, i32, float, i32, float, i32) nounwind readnone
-
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v2f32.v2f32(<4 x float>, i32, <4 x float>, i32, <4 x float>, i32, <2 x float>, i32, <2 x float>, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
-
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v4f32.v4f32(<4 x float>, i32, <4 x float>, i32, <4 x float>, i32, <4 x float>, i32, <4 x float>, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x float>, i32, float, i32, <2 x float>, i32, float, i32, <2 x float>, i32) nounwind readnone
 
@@ -256,7 +250,6 @@ float blendscale = 1.789000 ; vec4 w = u ; vec4 w_undef ; vec4 w_dep = u ; vec4 
 uniform vec4 u;
 uniform bool p;
 vec4 gla_globalAgg;
-vec4 gla_globalAgg1;
 in vec2 t;
 const float const25_2f = 1.789;
 
@@ -265,12 +258,13 @@ void main()
     vec4 w_flow_0;
     vec4 temp22 = u;
     temp22.yw = t.yx;
-    vec4 temp23 = u.zwxy;
+    
+    vec4 undef23;undef23 = vec4(u.z, u.w, u.x, u.y);
     vec4 temp24 = u;
     temp24.xyz = vec3(const25_2f, const25_2f, const25_2f);
     vec4 temp26 = vec4(u.z, u.x, t.x, t.y);
-    vec4 temp27 = gla_globalAgg1;
-    temp27.xy = u.zw;
+    
+    vec4 w_undef13;w_undef13 = vec4(u.z, u.w, w_undef13.z, w_undef13.w);
     if (p) {
         vec4 temp28 = u;
         temp28.x = t.x;
@@ -282,10 +276,10 @@ void main()
         w_flow_0 = temp29;
     }
     
-    vec4 temp30 = temp22 * temp23;
+    vec4 temp30 = temp22 * undef23;
     vec4 temp31 = temp30 * temp26;
     vec4 temp32 = temp31 * w_flow_0;
-    vec4 mix_retval18 = mix(temp24, temp27, temp32);
+    vec4 mix_retval18 = mix(temp24, w_undef13, temp32);
     gl_FragColor = mix_retval18;
     
 }

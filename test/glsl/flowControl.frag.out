@@ -65,20 +65,31 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
   %0 = load float addrspace(2)* @d
   %1 = fcmp ogt float %c, %0
-  %bigColor.val = load <4 x float> addrspace(2)* @bigColor
-  %smallColor.val = load <4 x float> addrspace(2)* @smallColor
-  %.pn = select i1 %1, <4 x float> %bigColor.val, <4 x float> %smallColor.val
-  %color.0 = fadd <4 x float> %BaseColor, %.pn
-  %2 = load <4 x float> addrspace(2)* @otherColor
-  %gl_FragColor = fmul <4 x float> %color.0, %2
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %entry
+  %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %2 = load <4 x float> addrspace(2)* @bigColor
+  %color2 = fadd <4 x float> %BaseColor1, %2
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %3 = load <4 x float> addrspace(2)* @smallColor
+  %color3 = fadd <4 x float> %BaseColor, %3
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %color.0 = phi <4 x float> [ %color2, %then ], [ %color3, %else ]
+  %4 = load <4 x float> addrspace(2)* @otherColor
+  %gl_FragColor = fmul <4 x float> %color.0, %4
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %ifmerge
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -136,14 +147,23 @@ uniform float d;
 uniform vec4 bigColor;
 uniform vec4 smallColor;
 uniform vec4 otherColor;
-in vec4 BaseColor;
 in float c;
+in vec4 BaseColor1;
+in vec4 BaseColor;
 
 void main()
 {
-    bool temp21 = c > d;
-    vec4 _pn = temp21 ? bigColor : smallColor;
-    vec4 color_0 = BaseColor + _pn;
+    vec4 color_0;
+    bool temp22 = c > d;
+    if (temp22) {
+        vec4 color2 = BaseColor1 + bigColor;
+        color_0 = color2;
+    }
+    else {
+        vec4 color3 = BaseColor + smallColor;
+        color_0 = color3;
+    }
+    
     vec4 gla_copyout_gl_FragColor = color_0 * otherColor;
     gl_FragColor = gla_copyout_gl_FragColor;
     
