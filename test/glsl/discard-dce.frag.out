@@ -1,0 +1,235 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %_ret_val = alloca float
+  %assignment_tmp2 = alloca float
+  %assignment_tmp = alloca float
+  %color = alloca <4 x float>
+  store <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float>* %color
+  %tex_coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %0 = extractelement <2 x float> %tex_coord, i32 0
+  %1 = fmul float %0, 2.000000e+00
+  %assignment_tmp1 = fsub float %1, 1.000000e+00
+  store float %assignment_tmp1, float* %assignment_tmp
+  %tex_coord3 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %2 = extractelement <2 x float> %tex_coord3, i32 1
+  %3 = fmul float %2, 2.000000e+00
+  %assignment_tmp24 = fsub float %3, 1.000000e+00
+  store float %assignment_tmp24, float* %assignment_tmp2
+  %4 = load float* %assignment_tmp
+  %5 = load float* %assignment_tmp
+  %6 = fmul float %4, %5
+  %7 = load float* %assignment_tmp2
+  %8 = load float* %assignment_tmp2
+  %9 = fmul float %7, %8
+  %10 = fadd float %6, %9
+  %_ret_val5 = call float @llvm.gla.fSqrt.f32.f32(float %10)
+  store float %_ret_val5, float* %_ret_val
+  %11 = load float* %_ret_val
+  %12 = fcmp ogt float %11, 1.000000e+00
+  br i1 %12, label %then, label %ifmerge
+
+then:                                             ; preds = %entry
+  call void @llvm.gla.discard()
+  br label %stage-exit
+
+post-discard:                                     ; No predecessors!
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %entry, %post-discard
+  %13 = load float* %_ret_val
+  %14 = fcmp oge float %13, 7.500000e-01
+  br i1 %14, label %then6, label %ifmerge8
+
+then6:                                            ; preds = %ifmerge
+  %15 = load float* %_ret_val
+  %16 = call float @llvm.gla.fPow.f32.f32.f32(float %15, float 1.600000e+01)
+  %17 = fdiv float %16, 2.000000e+00
+  %18 = call float @llvm.gla.fAbs.f32.f32(float %17)
+  %19 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %18, i32 0)
+  %color7 = fsub <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %19
+  store <4 x float> %color7, <4 x float>* %color
+  br label %ifmerge8
+
+ifmerge8:                                         ; preds = %ifmerge, %then6
+  %gl_FragColor = load <4 x float>* %color
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge8
+  %20 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %20)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue, %then
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+
+declare float @llvm.gla.fSqrt.f32.f32(float) nounwind readnone
+
+declare void @llvm.gla.discard() nounwind
+
+declare float @llvm.gla.fPow.f32.f32.f32(float, float) nounwind readnone
+
+declare float @llvm.gla.fAbs.f32.f32(float) nounwind readnone
+
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+define fastcc void @main() {
+entry:
+  %tex_coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %0 = extractelement <2 x float> %tex_coord, i32 0
+  %1 = fmul float %0, 2.000000e+00
+  %assignment_tmp1 = fadd float %1, -1.000000e+00
+  %2 = extractelement <2 x float> %tex_coord, i32 1
+  %3 = fmul float %2, 2.000000e+00
+  %assignment_tmp24 = fadd float %3, -1.000000e+00
+  %4 = fmul float %assignment_tmp1, %assignment_tmp1
+  %5 = fmul float %assignment_tmp24, %assignment_tmp24
+  %6 = fadd float %4, %5
+  %_ret_val5 = call float @llvm.gla.fSqrt.f32.f32(float %6)
+  %7 = fcmp ogt float %_ret_val5, 1.000000e+00
+  br i1 %7, label %then, label %ifmerge
+
+then:                                             ; preds = %entry
+  call void @llvm.gla.discard()
+  br label %stage-exit
+
+ifmerge:                                          ; preds = %entry
+  %8 = fcmp ult float %_ret_val5, 7.500000e-01
+  br i1 %8, label %ifmerge8, label %then6
+
+then6:                                            ; preds = %ifmerge
+  %9 = call float @llvm.gla.fPow.f32.f32.f32(float %_ret_val5, float 1.600000e+01)
+  %10 = fdiv float %9, 2.000000e+00
+  %11 = call float @llvm.gla.fAbs.f32.f32(float %10)
+  %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %11, i32 0)
+  %color7 = fsub <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %12
+  br label %ifmerge8
+
+ifmerge8:                                         ; preds = %ifmerge, %then6
+  %color.0 = phi <4 x float> [ %color7, %then6 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %ifmerge ]
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %color.0)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge8
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue, %then
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+
+declare float @llvm.gla.fSqrt.f32.f32(float) nounwind readnone
+
+declare void @llvm.gla.discard() nounwind
+
+declare float @llvm.gla.fPow.f32.f32.f32(float, float) nounwind readnone
+
+declare float @llvm.gla.fAbs.f32.f32(float) nounwind readnone
+
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+compiling discard-dce.frag...
+varying vec2 tex_coord ; 
+void  main (void ){
+vec4 white = vec4 ( 1.000000 ) ; vec4 black = vec4 ( 0.200000 ) ; vec4 color = white ; float x = tex_coord . x * 2.000000 - 1.000000 ; float y = tex_coord . y * 2.000000 - 1.000000 ; float radius = sqrt ( x * x + y * y ) ; if ( radius > 1.000000 ) {
+if ( radius > 1.100000 ) {
+++ color ; }
+gl_FragColor = color ; if ( radius > 1.200000 ) {
+++ color ; }
+discard; }
+if ( radius >= 0.750000 ) color -= abs ( pow ( radius , 16.000000 ) / 2.000000 ) ; gl_FragColor = color ; }
+
+
+
+(
+(declare (in ) vec2 tex_coord)
+(declare (out ) vec4 gl_FragColor)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (declare () vec4 color)
+      (assign (constant bool (1)) (xyzw) (var_ref color)  (constant vec4 (1.000000 1.000000 1.000000 1.000000)) ) 
+      (declare (temporary ) float assignment_tmp)
+      (assign (constant bool (1)) (x) (var_ref assignment_tmp)  (expression float - (expression float * (swiz x (var_ref tex_coord) )(constant float (2.000000)) ) (constant float (1.000000)) ) ) 
+      (declare (temporary ) float assignment_tmp)
+      (assign (constant bool (1)) (x) (var_ref assignment_tmp)  (expression float - (expression float * (swiz y (var_ref tex_coord) )(constant float (2.000000)) ) (constant float (1.000000)) ) ) 
+      (declare () float _ret_val)
+      (assign (constant bool (1)) (x) (var_ref _ret_val)  (expression float sqrt (expression float + (expression float * (var_ref assignment_tmp) (var_ref assignment_tmp) ) (expression float * (var_ref assignment_tmp) (var_ref assignment_tmp) ) ) ) ) 
+      (if (expression bool > (var_ref _ret_val) (constant float (1.000000)) ) (
+        (discard )
+      )
+      ())
+
+      (if (expression bool >= (var_ref _ret_val) (constant float (0.750000)) ) (
+        (assign (constant bool (1)) (xyzw) (var_ref color)  (expression vec4 - (constant vec4 (1.000000 1.000000 1.000000 1.000000)) (expression float abs (expression float / (expression float pow (var_ref _ret_val) (constant float (16.000000)) ) (constant float (2.000000)) ) ) ) ) 
+      )
+      ())
+
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref color) ) 
+    ))
+
+)
+
+
+)
+// LunarGOO output
+#version 130
+in vec2 tex_coord;
+const float const23_2f = 2.0;
+const float const25__1f = -1.0;
+const float const33_1f = 1.0;
+const float const35_1f = 0.75;
+const vec4 const36 = vec4(1.0);
+const float const38_16f = 16.0;
+
+void main()
+{
+    vec4 color_0;
+    float temp22 = tex_coord.x * const23_2f;
+    float assignment_tmp1 = temp22 + const25__1f;
+    float temp26 = tex_coord.y * const23_2f;
+    float assignment_tmp24 = temp26 + const25__1f;
+    float temp28 = assignment_tmp1 * assignment_tmp1;
+    float temp29 = assignment_tmp24 * assignment_tmp24;
+    float temp30 = temp28 + temp29;
+    float _ret_val5 = sqrt(temp30);
+    bool temp32 = _ret_val5 > const33_1f;
+    if (temp32) {
+        discard;
+    }
+    else {
+        bool temp34 = _ret_val5 < const35_1f;
+        color_0 = const36;
+        if (! temp34) {
+            float temp37 = pow(_ret_val5, const38_16f);
+            float temp39 = temp37 / const23_2f;
+            float temp40 = abs(temp39);
+            vec4 temp41 = vec4(temp40);
+            vec4 color7 = const36 - temp41;
+            color_0 = color7;
+        }
+        
+        gl_FragColor = color_0;
+        
+    }
+    
+}

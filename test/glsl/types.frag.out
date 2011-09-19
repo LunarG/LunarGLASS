@@ -797,10 +797,10 @@ ifmerge85:                                        ; preds = %else84, %then81
   %12 = load <4 x float> addrspace(2)* @u_f4
   %i_f4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 11, i32 -1, i32 1)
   %assignment_tmp101102 = fadd <4 x float> %12, %i_f4
-  %select159 = or i1 %and_tmp.0, %and_tmp11.0
-  %select154 = or i1 %select159, %and_tmp39.0
-  %select158 = or i1 %select154, %and_tmp80.0
-  br i1 %select158, label %then147, label %else149
+  %select158 = or i1 %and_tmp.0, %and_tmp11.0
+  %select154 = or i1 %select158, %and_tmp39.0
+  %select = or i1 %select154, %and_tmp80.0
+  br i1 %select, label %then147, label %else149
 
 then147:                                          ; preds = %ifmerge85
   %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 8, i32 -1, i32 1)
@@ -1364,10 +1364,10 @@ void main()
     vec2 assignment_tmp9798 = u_f2 + i_f2;
     vec3 assignment_tmp99100 = u_f3 + i_f3;
     vec4 assignment_tmp101102 = u_f4 + i_f4;
-    bool select159 = and_tmp_0 || and_tmp11_0;
-    bool select154 = select159 || and_tmp39_0;
-    bool select158 = select154 || and_tmp80_0;
-    if (select158) {
+    bool select158 = and_tmp_0 || and_tmp11_0;
+    bool select154 = select158 || and_tmp39_0;
+    bool select = select154 || and_tmp80_0;
+    if (select) {
         float assignment_tmp9596 = u_f + i_f;
         int assignment_tmp88 = i_i + u_i;
         int temp50 = assignment_tmp88 + assignment_tmp8990.y;

@@ -30,6 +30,7 @@
 #define GLA_INSTRUCTIONUTIL_H
 
 #include "llvm/Instructions.h"
+#include "llvm/IntrinsicInst.h"
 
 namespace gla_llvm {
     using namespace llvm;
@@ -69,10 +70,17 @@ namespace gla_llvm {
         return inst->getOpcode() == Instruction::Load;
     }
 
-    inline bool IsDiscard(const Instruction* inst)
+    inline bool IsDiscardConditional(const Instruction* inst)
     {
         const IntrinsicInst* intrInst = dyn_cast<IntrinsicInst>(inst);
-        return intrInst && intrInst->getIntrinsicID() == llvm::Intrinsic::gla_discard;
+        return intrInst && intrInst->getIntrinsicID() == llvm::Intrinsic::gla_discardConditional;
+    }
+
+    inline bool IsDiscard(const Instruction* inst, bool ignoreDiscardConditionals=true)
+    {
+        const IntrinsicInst* intrInst = dyn_cast<IntrinsicInst>(inst);
+        return intrInst && (intrInst->getIntrinsicID() == llvm::Intrinsic::gla_discard
+                            || (! ignoreDiscardConditionals && IsDiscardConditional(inst)));
     }
 
     inline bool HasDiscard(const BasicBlock* bb)

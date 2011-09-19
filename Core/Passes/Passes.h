@@ -60,6 +60,9 @@ namespace gla_llvm {
     // BackEnd queries
     ImmutablePass* createBackEndPointerPass(gla::BackEnd*);
 
+    // Combine Intrinsics for LunarGLASS
+    FunctionPass* createIntrinsicCombinePass();
+
 } // end namespace gla_llvm
 
 #endif // GLA_PASSES_H

@@ -1235,7 +1235,7 @@ then166:                                          ; preds = %ifmerge153
   br label %ifmerge168
 
 ifmerge168:                                       ; preds = %ifmerge153, %then166
-  %i.0 = phi i32 [ %i167, %then166 ], [ %assignment_tmp154155, %ifmerge153 ]
+  %i.0 = phi i32 [ %i167, %then166 ], [ 2, %ifmerge153 ]
   %111 = fadd float %69, %69
   %112 = fmul float %111, %69
   %113 = fsub float %112, %69
@@ -1974,7 +1974,7 @@ void main()
     int temp208 = temp207 / temp186;
     int assignment_tmp154155 = temp208 % ui;
     bool temp210 = assignment_tmp154155 == const211_2;
-    i_0 = assignment_tmp154155;
+    i_0 = const211_2;
     if (! temp210) {
         int temp212 = assignment_tmp154155 + const213_1;
         i_0 = temp212;

@@ -231,4 +231,5 @@ let TargetPrefix = "gla" in {
 // Flow control
 let TargetPrefix = "gla" in {
   def int_gla_discard : Intrinsic<[], [], []>;
+  def int_gla_discardConditional : Intrinsic<[], [llvm_anyint_ty], []>;
 }

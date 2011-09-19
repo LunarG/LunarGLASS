@@ -260,6 +260,13 @@ namespace gla {
             return false;
         }
 
+        // Would the back-end trnaslator like to see discards hoisted into
+        // discardConditional?
+        virtual bool hoistDiscards()
+        {
+            return true;
+        }
+
 
     protected:
         bool decompose[EDiCount];

@@ -50,6 +50,8 @@ namespace llvm {
 
     void initializeBackEndPointerPass(PassRegistry&);
 
+    void initializeIntrinsicCombinePass(PassRegistry&);
+
 } // end namespace llvm
 
 #endif // GLA_INIT_PASSES_H

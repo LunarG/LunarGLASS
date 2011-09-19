@@ -99,6 +99,11 @@ public:
     {
         return true;
     }
+
+    virtual bool hoistDiscards()
+    {
+        return false;
+    }
 };
 
 //
