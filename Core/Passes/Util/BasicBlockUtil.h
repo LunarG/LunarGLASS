@@ -32,6 +32,7 @@
 #include "llvm/BasicBlock.h"
 #include "llvm/Instructions.h"
 #include "llvm/ADT/DepthFirstIterator.h"
+#include "llvm/ADT/PostOrderIterator.h"
 #include "llvm/ADT/SmallPtrSet.h"
 #include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/Dominators.h"
@@ -158,13 +159,13 @@ namespace gla_llvm {
         return &*bb->getParent()->begin() != bb && pred_begin(bb) == pred_end(bb);
     }
 
-    // Drop all references, clear it's instruction list, and remove from the 
+    // Drop all references, clear it's instruction list, and remove from the
     // Parent
     inline void UnlinkBB(BasicBlock* bb)
     {
         bb->dropAllReferences();
         bb->getInstList().clear();
-        // TODO: change to eraseFromParent whem structures are capable of 
+        // TODO: change to eraseFromParent whem structures are capable of
         // updating themselves
         bb->removeFromParent();
         assert(bb->empty());
@@ -195,7 +196,7 @@ namespace gla_llvm {
             return;
 
         SmallVector<DomTreeNode*,32> workList;
-        for (df_iterator<DomTreeNode*> i =  GraphTraits<DomTreeNode*>::nodes_begin(dtn), e =  GraphTraits<DomTreeNode*>::nodes_end(dtn); i != e; ++i) {
+        for (po_iterator<DomTreeNode*> i = po_begin(dtn), e = po_end(dtn); i != e; ++i) {
             workList.push_back(*i);
         }
 
@@ -205,7 +206,8 @@ namespace gla_llvm {
         // children.
         // TODO: consider finding a clever way of seeing if we need bother
         // removing ourselves as a predecessor while erasing the bb.
-        for (SmallVector<DomTreeNode*,32>::iterator dtn = workList.begin(), e = workList.end(); dtn != e; ++dtn) {
+        for (SmallVector<DomTreeNode*,32>::iterator dtn = workList.begin(),
+                 e = workList.end(); dtn != e; ++dtn) {
             (*dtn)->clearAllChildren();
             BasicBlock* toRemove = (*dtn)->getBlock();
             dt.eraseNode(toRemove);
@@ -277,15 +279,15 @@ namespace gla_llvm {
 
     // Gather up all the children of the passed basic block that are dominated
     // by it.
-    inline void GetDominatedChildren(const DominatorTree& dt, BasicBlock* bb, SmallVectorImpl<BasicBlock*>& children)
+    inline void GetDominatedChildren(DomTreeNode* dtn, BasicBlock* bb, SmallVectorImpl<BasicBlock*>& children)
     {
-        // Get the node in the tree for bb
-        DomTreeNode* n = dt.getNode(bb);
-        assert(n);
-
-        for (df_iterator<DomTreeNode*> i = GraphTraits<DomTreeNode*>::nodes_begin(n), e = GraphTraits<DomTreeNode*>::nodes_end(n); i != e; ++i) {
+        for (df_iterator<DomTreeNode*> i = GraphTraits<DomTreeNode*>::nodes_begin(dtn), e = GraphTraits<DomTreeNode*>::nodes_end(dtn); i != e; ++i) {
             children.push_back((*i)->getBlock());
         }
+    }
+    inline void GetDominatedChildren(DominatorTree& dt, BasicBlock* bb, SmallVectorImpl<BasicBlock*>& children)
+    {
+        GetDominatedChildren(dt.getNode(bb), bb, children);
     }
 
     // const version

@@ -219,6 +219,8 @@ namespace {
             // We're already handling discards by analyzing flow control, so no
             // need to pass them on
             if (IsDiscard(inst)) {
+                forceDiscard();
+
                 return;
             }
 
@@ -427,7 +429,6 @@ void BottomTranslator::attemptHandleDominatee(const BasicBlock* dominator, const
     // If the dominatee is a early return or a discard, then force it's output
     // accordingly
     if (dominatee == stageExit) {
-        forceDiscard();
         return;
     }
     if (dominatee == stageEpilogue) {
@@ -670,9 +671,7 @@ void BottomTranslator::handleBlock(const BasicBlock* bb)
         if (handledBlocks.size() == numBBs)
             lastBlock = true;
 
-        if (bb == stageExit)
-            forceDiscard();
-        else // bb == stageEpilogue
+        if (bb == stageEpilogue)
             forceReturn();
 
         return;
