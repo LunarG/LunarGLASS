@@ -65,8 +65,10 @@
 #include "Passes/Util/InstructionUtil.h"
 
 // LunarGLASS helpers
-#include "Util.h"
 #include "Exceptions.h"
+#include "LunarGLASSTopIR.h"
+#include "Util.h"
+
 
 using namespace llvm;
 using namespace gla_llvm;
@@ -192,7 +194,9 @@ bool IntrinsicCombine::hoistDiscards(Function& F)
             cond = builder.CreateNot(cond);
         }
 
-        builder.CreateCall(Intrinsic::getDeclaration(module, Intrinsic::gla_discardConditional), cond);
+        const Type* boolTy = gla::GetBoolType(*context);
+        builder.CreateCall(Intrinsic::getDeclaration(module, Intrinsic::gla_discardConditional, &boolTy, 1 ),
+                           cond);
 
         // Make the branch now branch on a constant
         br->setCondition(isRight ? ConstantInt::getTrue(*context) : ConstantInt::getFalse(*context));
