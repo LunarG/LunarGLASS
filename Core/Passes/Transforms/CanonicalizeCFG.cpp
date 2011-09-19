@@ -37,12 +37,14 @@
 //===----------------------------------------------------------------------===//
 
 #include "llvm/Pass.h"
+#include "llvm/Instructions.h"
 #include "llvm/IntrinsicInst.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Support/CFG.h"
+#include "llvm/Support/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Local.h"
@@ -71,6 +73,8 @@ namespace  {
         virtual void getAnalysisUsage(AnalysisUsage&) const;
 
     protected:
+        bool convertConstantBranches(Function& F);
+
         bool removeNoPredecessorBlocks(Function& F);
 
         bool removeUnneededPHIs(Function& F);
@@ -96,6 +100,8 @@ bool CanonicalizeCFG::runOnFunction(Function& F)
     // TODO: combine the removing of no-predecessor blocks with the removing of
     // phis into a single traversal
 
+    changed |= convertConstantBranches(F);
+
     changed |= removeNoPredecessorBlocks(F);
 
     // TODO: do it in one pass
@@ -114,6 +120,32 @@ bool CanonicalizeCFG::runOnFunction(Function& F)
     }
 
     return changed;
+}
+
+bool CanonicalizeCFG::convertConstantBranches(Function& F)
+{
+    for (Function::iterator bbI = F.begin(), bbE = F.end(); bbI != bbE; ++bbI) {
+        BranchInst* br = dyn_cast<BranchInst>(bbI->getTerminator());
+        if (! br || br->isUnconditional())
+            continue;
+
+        ConstantInt* c = dyn_cast<ConstantInt>(br->getCondition());
+        if (! c) {
+            continue;
+        }
+
+        IRBuilder<> builder(F.getContext());
+        builder.SetInsertPoint(br);
+
+        // Create a new unconditional branch
+        builder.CreateBr(br->getSuccessor(c->isOne() ? 0 : 1));
+
+        // DCE the old one
+        br->dropAllReferences();
+        br->eraseFromParent();
+    }
+
+    return false;
 }
 
 bool CanonicalizeCFG::restoreMainBlocks(Function& F)
