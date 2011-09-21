@@ -34,7 +34,10 @@
 //     condition is computed. TODO: only do based on backend query. TODO:
 //     migrate the condition as high as it can go.
 //
-//   * TODO: Constant-fold intrinsics
+//   * Constant-fold intrinsics. TODO: Fold more intrinsics.
+//
+//   * TODO: Combine multiple successive fWrites to the same output but with
+//     different masks into a single fWrite.
 //
 //   * TODO: hoist all reading of inputs or instructions involving constants
 //     into the header, or at the very least try to migrate discard as far
@@ -101,26 +104,46 @@ namespace  {
         // then becomes an unconditional branch to the non-discarding path.
         bool hoistDiscards(Function&);
 
+        // Visit an instruction, trying to optimize it
+        bool visit(Instruction*);
+
+        // Empty out the deadList
+        void emptyDeadList();
+
         typedef SmallVector<Instruction*, 4> DiscardList;
 
         // Hold on to a list of our discards
         DiscardList discards;
 
+        // When combining/optimizing intrinsics, use the deadList to keep around
+        // instructions to remove from the function. This allows iterators to be
+        // preserved when iterating over instructions.
+        std::vector<Instruction*> deadList;
+
         DominatorTree* domTree;
         PostDominatorTree* postDomTree;
         PostDominanceFrontier* postDomFront;
-
-        int numDiscardDCE;
 
         Module* module;
         LLVMContext* context;
 
         BackEnd* backEnd;
 
+        // Statistic info
+        int numDiscardDCE;
+        int numConstantFolded;
+        int numCombined;
+
         IntrinsicCombine(const IntrinsicCombine&); // do not implement
         void operator=(const IntrinsicCombine&); // do not implement
     };
 } // end namespace
+
+void IntrinsicCombine::emptyDeadList()
+{
+    for (std::vector<Instruction*>::iterator i = deadList.begin(), e = deadList.end(); i != e; ++i)
+        (*i)->eraseFromParent();
+}
 
 bool IntrinsicCombine::getDiscards(Function& F)
 {
@@ -142,7 +165,6 @@ bool IntrinsicCombine::discardAwareDCE(Function& F)
     // TODO: Revise for side-effects that aren't killed by a discard
 
     // Build up deadList to be all the dominated and post-dominated instructions
-    std::vector<Instruction*> deadList;
     for (DiscardList::iterator i = discards.begin(), e = discards.end(); i != e; ++i) {
         GetAllDominatedInstructions(*i, *domTree->DT, deadList);
         // GetAllDominatedInstructions(*i, *postDomTree->DT, deadList); // See TODO
@@ -158,8 +180,7 @@ bool IntrinsicCombine::discardAwareDCE(Function& F)
     }
 
     // DCE: erase
-    for (std::vector<Instruction*>::iterator i = deadList.begin(), e = deadList.end(); i != e; ++i)
-        (*i)->eraseFromParent();
+    emptyDeadList();
 
     return changed;
 }
@@ -238,6 +259,35 @@ bool IntrinsicCombine::runOnFunction(Function& F)
         changed |= discardAwareDCE(F);
         changed |= hoistDiscards(F);
     }
+
+    // Visit each instruction, trying to optimize
+    for (Function::iterator bbI = F.begin(), bbE = F.end(); bbI != bbE; ++bbI) {
+        for (BasicBlock::iterator instI = bbI->begin(), instE = bbI->end(); instI != instE; ++instI) {
+            changed |= visit(instI);
+        }
+    }
+
+    emptyDeadList();
+
+    return changed;
+}
+
+bool IntrinsicCombine::visit(Instruction* inst)
+{
+    bool changed = false;
+
+    // Try to constant fold it
+    if (Constant* c = ConstantFoldIntrinsic(inst)) {
+        inst->replaceAllUsesWith(c);
+        inst->dropAllReferences();
+        deadList.push_back(inst);
+
+        ++numConstantFolded;
+        return true;
+    }
+
+    // Try to combine it
+    // TODO: intrinsic combining
 
     return changed;
 }

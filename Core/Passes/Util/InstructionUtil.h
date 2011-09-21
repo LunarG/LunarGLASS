@@ -1,4 +1,4 @@
-//===- InstructionUtil.h - Utility functions for basic blocks -------------===//
+//===- InstructionUtil.h - Utility functions for instructions -------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -94,6 +94,9 @@ namespace gla_llvm {
         return false;
     }
 
+    // If the given instruction is an intrinsic that can be constant folded,
+    // returns the constant result. Returns 0 if it can't do anything.
+    Constant* ConstantFoldIntrinsic(const Instruction*);
 
 } // end namespace gla_llvm
 
