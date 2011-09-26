@@ -654,7 +654,22 @@ llvm::Value* Builder::createMatrixTimesVector(Matrix* matrix, llvm::Value* rvect
 llvm::Value* Builder::createVectorTimesMatrix(llvm::Value* lvector, Matrix* matrix)
 {
     // Get the dot product intrinsic for these operands
-    llvm::Function *dot = Builder::getIntrinsic(llvm::Intrinsic::gla_fDot, lvector->getType(), lvector->getType());
+    llvm::Intrinsic::ID dotIntrinsic;
+    switch (matrix->getNumRows()) {
+    case 2:
+        dotIntrinsic = llvm::Intrinsic::gla_fDot2;
+        break;
+    case 3:
+        dotIntrinsic = llvm::Intrinsic::gla_fDot3;
+        break;
+    case 4:
+        dotIntrinsic = llvm::Intrinsic::gla_fDot4;
+        break;
+    default:
+        assert(! "bad matrix size in createVectorTimesMatrix");
+    }
+
+    llvm::Function *dot = Builder::getIntrinsic(dotIntrinsic, lvector->getType(), lvector->getType());
 
     // Allocate a vector to build the result in
     llvm::Value* result = builder.CreateAlloca(lvector->getType());
@@ -963,7 +978,9 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
         // TODO:  Hook this up
         gla::UnsupportedFunctionality("binary intrinsic", intrinsicID);
         break;
-    case llvm::Intrinsic::gla_fDot:
+    case llvm::Intrinsic::gla_fDot2:
+    case llvm::Intrinsic::gla_fDot3:
+    case llvm::Intrinsic::gla_fDot4:
         // fixed result type
         intrinsicName = getIntrinsic(intrinsicID, lhs->getType(), rhs->getType());
         break;

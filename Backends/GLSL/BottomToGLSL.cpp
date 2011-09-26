@@ -1829,6 +1829,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     // Handle the one-to-one mappings
     const char* callString = 0;
     unsigned int callArgs = 0;
+    int forceWidth = 0;
 
     switch (llvmInstruction->getIntrinsicID()) {
 
@@ -1919,11 +1920,13 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     // Geometry
     case llvm::Intrinsic::gla_fLength:      callString = "length";      callArgs = 1; break;
     case llvm::Intrinsic::gla_fDistance:    callString = "distance";    callArgs = 2; break;
-    case llvm::Intrinsic::gla_fDot:         callString = "dot";         callArgs = 2; break;
+    case llvm::Intrinsic::gla_fDot2:
+    case llvm::Intrinsic::gla_fDot3:
+    case llvm::Intrinsic::gla_fDot4:        callString = "dot";         callArgs = 2; break;
     case llvm::Intrinsic::gla_fCross:       callString = "cross";       callArgs = 2; break;
     case llvm::Intrinsic::gla_fNormalize:   callString = "normalize";   callArgs = 1; break;
-    case llvm::Intrinsic::gla_fNormalize3D: callString = "normalize3D"; break; //     callArgs =
-    case llvm::Intrinsic::gla_fLit:         callString = "fLit";        break; //     callArgs =
+    case llvm::Intrinsic::gla_fNormalize3D:                                           break;
+    case llvm::Intrinsic::gla_fLit:                                                   break;
     case llvm::Intrinsic::gla_fFaceForward: callString = "faceforward"; callArgs = 3; break;
     case llvm::Intrinsic::gla_fReflect:     callString = "reflect";     callArgs = 2; break;
     case llvm::Intrinsic::gla_fRefract:     callString = "refract";     callArgs = 3; break;
@@ -1932,7 +1935,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fDFdx:           callString = "dFdx";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fDFdy:           callString = "dFdy";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fFilterWidth:    callString = "fwidth";     callArgs = 1; break;
-    case llvm::Intrinsic::gla_fFixedTransform: callString = "ftransform"; break; // callArgs =
+    case llvm::Intrinsic::gla_fFixedTransform: callString = "ftransform"; callArgs = 0; break;
 
     // Vector Logical
     case llvm::Intrinsic::gla_not: callString = "not"; callArgs = 1; break;
@@ -1940,6 +1943,12 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_all: callString = "all"; callArgs = 1; break;
     }
 
+    switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_fDot2:  forceWidth = 2;  break;
+    case llvm::Intrinsic::gla_fDot3:  forceWidth = 3;  break;
+    case llvm::Intrinsic::gla_fDot4:  forceWidth = 4;  break;
+    }
+    
     if (callString == 0 || callArgs == 0)
         UnsupportedFunctionality("Intrinsic in Bottom IR");
     if (callArgs != llvmInstruction->getNumArgOperands())
@@ -1952,6 +1961,8 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         if (arg > 0)
             shader << ", ";
         emitGlaOperand(llvmInstruction->getOperand(arg));
+        if (forceWidth && forceWidth < GetComponentCount(llvmInstruction->getOperand(arg)))
+            emitComponentCountToSwizzle(forceWidth);
     }
     shader << ");";
 }

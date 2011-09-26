@@ -81,9 +81,6 @@
     <ClInclude Include="..\Core\Passes\Util\LoopUtil.h">
       <Filter>Core\Passes\Util</Filter>
     </ClInclude>
-    <ClInclude Include="..\Core\Passes\Transforms\Transforms.h">
-      <Filter>Core\Passes\Transforms</Filter>
-    </ClInclude>
     <ClInclude Include="..\Core\PrivateManager.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -200,6 +197,12 @@
     </ClInclude>
     <ClInclude Include="..\mesa\src\mesa\program\ir_to_mesa.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Passes\Util\DominatorsUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Core\Passes\Util\InstructionUtil.h">
+      <Filter>Core\Passes\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -487,6 +490,12 @@
     </ClCompile>
     <ClCompile Include="OptionParse.cpp">
       <Filter>Standalone</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Core\Passes\Transforms\IntrinsicCombine.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Core\Passes\Util\InstructionUtil.cpp">
+      <Filter>Core\Passes\Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

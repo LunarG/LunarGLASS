@@ -220,9 +220,21 @@ void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
                         //changed = true;
                     }
                     break;
-                case llvm::Intrinsic::gla_fDot:
+                case llvm::Intrinsic::gla_fDot2:
                     if (backEnd->decomposeIntrinsic(EDiDot)) {
-                        UnsupportedFunctionality("decomposition of gla_fDot");
+                        UnsupportedFunctionality("decomposition of gla_fDot2");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fDot3:
+                    if (backEnd->decomposeIntrinsic(EDiDot)) {
+                        UnsupportedFunctionality("decomposition of gla_fDot3");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fDot4:
+                    if (backEnd->decomposeIntrinsic(EDiDot)) {
+                        UnsupportedFunctionality("decomposition of gla_fDot4");
                         //changed = true;
                     }
                     break;

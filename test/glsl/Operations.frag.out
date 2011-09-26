@@ -351,7 +351,7 @@ entry:
   %169 = load <4 x float>* %assignment_tmp83
   %170 = load <4 x float>* %assignment_tmp83
   %171 = load <4 x float>* %assignment_tmp83
-  %172 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %170, <4 x float> %171)
+  %172 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %170, <4 x float> %171)
   %173 = call float @llvm.gla.fInverseSqrt.f32.f32(float %172)
   %174 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %173, i32 0)
   %175 = fmul <4 x float> %169, %174
@@ -361,7 +361,7 @@ entry:
   store <4 x float> %v87, <4 x float>* %v
   %176 = load <4 x float>* %assignment_tmp85
   %177 = load <4 x float>* %assignment_tmp85
-  %178 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %176, <4 x float> %177)
+  %178 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %176, <4 x float> %177)
   %179 = fcmp olt float %178, 0.000000e+00
   br i1 %179, label %then, label %else
 
@@ -385,7 +385,7 @@ ifmerge:                                          ; preds = %else, %then
   %184 = load <4 x float>* %assignment_tmp90
   %185 = load <4 x float>* %assignment_tmp90
   %186 = load <4 x float>* %assignment_tmp90
-  %187 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %185, <4 x float> %186)
+  %187 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %185, <4 x float> %186)
   %188 = load <4 x float>* %assignment_tmp90
   %189 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %187, i32 0)
   %190 = fmul <4 x float> %189, %188
@@ -400,10 +400,10 @@ ifmerge:                                          ; preds = %else, %then
   %195 = load float addrspace(2)* @uf
   %196 = load <4 x float>* %assignment_tmp92
   %197 = load <4 x float>* %assignment_tmp92
-  %198 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %196, <4 x float> %197)
+  %198 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %196, <4 x float> %197)
   %199 = load <4 x float>* %assignment_tmp92
   %200 = load <4 x float>* %assignment_tmp92
-  %201 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %199, <4 x float> %200)
+  %201 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %199, <4 x float> %200)
   %202 = fmul float %198, %201
   %203 = fsub float 1.000000e+00, %202
   %204 = fmul float %195, %203
@@ -426,7 +426,7 @@ else98:                                           ; preds = %ifmerge
   %212 = load float addrspace(2)* @uf
   %213 = load <4 x float>* %assignment_tmp92
   %214 = load <4 x float>* %assignment_tmp92
-  %215 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %213, <4 x float> %214)
+  %215 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %213, <4 x float> %214)
   %216 = fmul float %212, %215
   %217 = load float* %k
   %218 = call float @llvm.gla.fSqrt.f32.f32(float %217)
@@ -684,7 +684,7 @@ ifmerge168:                                       ; preds = %ifmerge165, %then16
   %315 = load float* %f
   %316 = load <4 x float>* %v
   %317 = load <4 x float>* %v
-  %318 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %316, <4 x float> %317)
+  %318 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %316, <4 x float> %317)
   %319 = call float @llvm.gla.fSqrt.f32.f32(float %318)
   %f170 = fadd float %315, %319
   store float %f170, float* %f
@@ -695,14 +695,14 @@ ifmerge168:                                       ; preds = %ifmerge165, %then16
   %322 = load float* %f
   %323 = load <4 x float>* %p
   %324 = load <4 x float>* %p
-  %325 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %323, <4 x float> %324)
+  %325 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %323, <4 x float> %324)
   %326 = call float @llvm.gla.fSqrt.f32.f32(float %325)
   %f172 = fadd float %322, %326
   store float %f172, float* %f
   %327 = load float* %f
   %328 = load <4 x float>* %v
   %329 = load <4 x float>* %v
-  %330 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %328, <4 x float> %329)
+  %330 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %328, <4 x float> %329)
   %f173 = fadd float %327, %330
   store float %f173, float* %f
   %331 = load <4 x float>* %v
@@ -918,7 +918,7 @@ declare <4 x float> @llvm.gla.fMin.v4f32.v4f32.f32(<4 x float>, float) nounwind 
 
 declare <4 x float> @llvm.gla.fMax.v4f32.v4f32.f32(<4 x float>, float) nounwind readnone
 
-declare float @llvm.gla.fDot.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+declare float @llvm.gla.fDot4.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
 declare float @llvm.gla.fInverseSqrt.f32.f32(float) nounwind readnone
 
@@ -1059,12 +1059,12 @@ entry:
   %56 = fmul <4 x float> %t8182, %55
   %57 = fmul <4 x float> %t8182, %56
   %assignment_tmp8384 = fadd <4 x float> %assignment_tmp7980, %57
-  %58 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %assignment_tmp8384, <4 x float> %assignment_tmp8384)
+  %58 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %assignment_tmp8384, <4 x float> %assignment_tmp8384)
   %59 = call float @llvm.gla.fInverseSqrt.f32.f32(float %58)
   %60 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %59, i32 0)
   %61 = fmul <4 x float> %assignment_tmp8384, %60
   %assignment_tmp8586 = fadd <4 x float> %assignment_tmp8384, %61
-  %62 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %assignment_tmp8586, <4 x float> %assignment_tmp8586)
+  %62 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %assignment_tmp8586, <4 x float> %assignment_tmp8586)
   %63 = fcmp olt float %62, 0.000000e+00
   br i1 %63, label %then, label %else
 
@@ -1078,14 +1078,14 @@ else:                                             ; preds = %entry
 ifmerge:                                          ; preds = %else, %then
   %return_value.0 = phi <4 x float> [ %assignment_tmp8586, %then ], [ %return_value89, %else ]
   %assignment_tmp9091 = fadd <4 x float> %assignment_tmp8586, %return_value.0
-  %64 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %assignment_tmp9091, <4 x float> %assignment_tmp9091)
+  %64 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %assignment_tmp9091, <4 x float> %assignment_tmp9091)
   %65 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %64, i32 0)
   %66 = fmul <4 x float> %65, %assignment_tmp9091
   %67 = fmul <4 x float> %52, %66
   %68 = fsub <4 x float> %assignment_tmp9091, %67
   %assignment_tmp9293 = fadd <4 x float> %assignment_tmp9091, %68
   %69 = load float addrspace(2)* @uf
-  %70 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %assignment_tmp9293, <4 x float> %assignment_tmp9293)
+  %70 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %assignment_tmp9293, <4 x float> %assignment_tmp9293)
   %71 = fmul float %70, %70
   %72 = fsub float 1.000000e+00, %71
   %73 = fmul float %69, %72
@@ -1240,11 +1240,11 @@ ifmerge168:                                       ; preds = %ifmerge153, %then16
   %112 = fmul float %111, %69
   %113 = fsub float %112, %69
   %f169 = fdiv float %113, %69
-  %114 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %v107, <4 x float> %v107)
+  %114 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %v107, <4 x float> %v107)
   %115 = call float @llvm.gla.fSqrt.f32.f32(float %114)
   %f170 = fadd float %f169, %115
   %p171 = fsub <4 x float> %v107, %v107
-  %116 = call float @llvm.gla.fDot.v4f32.v4f32(<4 x float> %p171, <4 x float> %p171)
+  %116 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %p171, <4 x float> %p171)
   %117 = call float @llvm.gla.fSqrt.f32.f32(float %116)
   %f172 = fadd float %f170, %117
   %f173 = fadd float %f172, %114
@@ -1383,7 +1383,7 @@ declare <4 x float> @llvm.gla.fMin.v4f32.v4f32.f32(<4 x float>, float) nounwind 
 
 declare <4 x float> @llvm.gla.fMax.v4f32.v4f32.f32(<4 x float>, float) nounwind readnone
 
-declare float @llvm.gla.fDot.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+declare float @llvm.gla.fDot4.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
 declare float @llvm.gla.fInverseSqrt.f32.f32(float) nounwind readnone
 

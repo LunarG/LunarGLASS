@@ -92,6 +92,8 @@
     <ClInclude Include="..\Backends\TGSI\TgsiTarget.h" />
     <ClInclude Include="..\Core\BottomIR.h" />
     <ClInclude Include="..\Core\Exceptions.h" />
+    <ClInclude Include="..\Core\Passes\Util\DominatorsUtil.h" />
+    <ClInclude Include="..\Core\Passes\Util\InstructionUtil.h" />
     <ClInclude Include="..\Frontends\Glsl2\GlslToTop.h" />
     <ClInclude Include="..\Frontends\Glsl2\GlslToTopVisitor.h" />
     <ClInclude Include="..\Core\LunarGLASSManager.h" />
@@ -99,7 +101,6 @@
     <ClInclude Include="OptionParse.h" />
     <ClInclude Include="..\Core\Passes\Analysis\IdentifyStructures.h" />
     <ClInclude Include="..\Core\Passes\Immutable\BackEndPointer.h" />
-    <ClInclude Include="..\Core\Passes\Transforms\Transforms.h" />
     <ClInclude Include="..\Core\Passes\Util\ADT.h" />
     <ClInclude Include="..\Core\Passes\Util\BasicBlockUtil.h" />
     <ClInclude Include="..\Core\Passes\Util\ConditionalUtil.h" />
@@ -143,6 +144,8 @@
     <ClCompile Include="..\Core\BottomIR.cpp" />
     <ClCompile Include="..\Core\BottomTranslator.cpp" />
     <ClCompile Include="..\Core\Exceptions.cpp" />
+    <ClCompile Include="..\Core\Passes\Transforms\IntrinsicCombine.cpp" />
+    <ClCompile Include="..\Core\Passes\Util\InstructionUtil.cpp" />
     <ClCompile Include="..\Frontends\Glsl2\GlslToTop.cpp" />
     <ClCompile Include="..\Frontends\Glsl2\GlslToTopVisitor.cpp" />
     <ClCompile Include="LunarGManager.cpp" />

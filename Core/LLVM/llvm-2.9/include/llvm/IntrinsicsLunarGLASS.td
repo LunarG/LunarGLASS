@@ -199,7 +199,9 @@ let TargetPrefix = "gla" in {
 let TargetPrefix = "gla" in {
   def int_gla_fLength : Intrinsic<[llvm_float_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fDistance : Intrinsic<[llvm_float_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fDot : Intrinsic<[llvm_float_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fDot2 : Intrinsic<[llvm_float_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fDot3 : Intrinsic<[llvm_float_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fDot4 : Intrinsic<[llvm_float_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fCross : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fNormalize : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fNormalize3D : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;

@@ -1397,7 +1397,19 @@ gla::Builder::SuperValue GlslToTopVisitor::createBinaryIntrinsic(ir_expression_o
             intrinsicID = llvm::Intrinsic::gla_fPowi;
         break;
     case ir_binop_dot:
-        intrinsicID = llvm::Intrinsic::gla_fDot;
+        switch (gla::GetComponentCount(lhs)) {
+        case 2:
+            intrinsicID = llvm::Intrinsic::gla_fDot2;
+            break;
+        case 3:
+            intrinsicID = llvm::Intrinsic::gla_fDot3;
+            break;
+        case 4:
+            intrinsicID = llvm::Intrinsic::gla_fDot4;
+            break;
+        default:
+            assert(! "bad component count for dot");
+        }
         break;
     case ir_binop_atan2:
         intrinsicID = llvm::Intrinsic::gla_fAtan2;
