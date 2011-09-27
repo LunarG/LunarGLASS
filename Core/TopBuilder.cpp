@@ -898,7 +898,18 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
 
 llvm::Value* Builder::createRecip(llvm::Value* operand)
 {
-    return builder.CreateFDiv(MakeFloatConstant(context, 1.0), operand);
+    const llvm::Type* ty = operand->getType();
+
+    if (ty->isFloatTy())
+        return builder.CreateFDiv(MakeFloatConstant(context, 1.0), operand);
+
+    if (ty->isVectorTy()) {
+        assert(ty->getContainedType(0)->isFloatTy() && "attempted to take the reciprocal of a non-float vector");
+        return builder.CreateFDiv(llvm::Constant::getAllOnesValue(ty), operand);
+    }
+
+    UnsupportedFunctionality("Unknown type to be taking the reciprocal of: ", ty->getTypeID());
+    return 0;
 }
 
 llvm::Value* Builder::createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned)
