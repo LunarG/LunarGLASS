@@ -675,9 +675,9 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     // Handle texturing
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_fTextureSample:
-    case llvm::Intrinsic::gla_fTextureSampleLod:
-    case llvm::Intrinsic::gla_fTextureSampleLodOffset:
-    case llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad:
+    case llvm::Intrinsic::gla_fTextureSampleLodRefZ:
+    case llvm::Intrinsic::gla_fTextureSampleLodRefZOffset:
+    case llvm::Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
         //TODO:  Mesa expects proj/bias/lod to be in coord.w channel.  This is not implemented yet.
         mesaInstruction->TexSrcTarget = mapGlaSamplerType(llvmInstruction->getOperand(0),
                                                           GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));

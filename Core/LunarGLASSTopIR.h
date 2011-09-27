@@ -49,17 +49,17 @@ namespace gla {
     };
 
     enum ETextureFlags {
-        ETFProjected  = 0x001,
-        ETFBias       = 0x002,
-        ETFLod        = 0x004,
-        ETFShadow     = 0x008,
-        ETFArrayed    = 0x010,
-        ETFCompare    = 0x020,
-        ETFOffset     = 0x040,
-        ETFSample     = 0x080,
-        ETFComp       = 0x100,
-        ETFRefZ       = 0x200,
-        ETFWUsed      = 0x400,
+        ETFProjected    = 0x001,
+        ETFBias         = 0x002,
+        ETFLod          = 0x004,
+        ETFShadow       = 0x008,
+        ETFArrayed      = 0x010,
+        ETFBiasLodArg   = 0x020,
+        ETFOffsetArg    = 0x040,
+        ETFSampleArg    = 0x080,
+        ETFComponentArg = 0x100,
+        ETFRefZArg      = 0x200,
+        ETFProjectedArg = 0x400,   
     };
 
     // Texture op, for mapping operands
@@ -68,10 +68,11 @@ namespace gla {
         ETOSamplerLoc  = 1,
         ETOFlag        = 2,
         ETOCoord       = 3,
-        ETOBias        = 4,
-        ETOOffset      = 5,
-        ETODPdx        = 6,
-        ETODPdy        = 7,
+        ETOBiasLod     = 4,
+        ETORefZ        = 5,
+        ETOOffset      = 6,
+        ETODPdx        = 7,
+        ETODPdy        = 8,
     };
 
     inline int GetTextureOpIndex(ETextureOperand operand, bool SoA = false, int numComps = 0, int comp = 0)
@@ -85,8 +86,11 @@ namespace gla {
         if (operand == ETOCoord)
             return ETOCoord + comp;
 
-        if (operand == ETOBias)
+        if (operand == ETOBiasLod)
             return ETOCoord + numComps;
+
+        if (operand == ETORefZ)
+            return ETOCoord + numComps + 1;
 
         return ETOCoord + numComps + 1 + (operand - ETOOffset) * numComps + comp;
     }

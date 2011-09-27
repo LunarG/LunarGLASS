@@ -514,14 +514,16 @@ ir_visitor_status
     case ir_tex:
         break;
     case ir_txb:
+        texFlags |= gla::ETFBias;
         ir->lod_info.bias->accept(this);
         textureParameters.ETPBiasLod = lastValue;
-        texFlags |= gla::ETFBias;
+        texFlags |= gla::ETFBiasLodArg;
         break;
     case ir_txl:
+        texFlags |= gla::ETFLod;
         ir->lod_info.lod->accept(this);
         textureParameters.ETPBiasLod = lastValue;
-        texFlags |= gla::ETFLod;
+        texFlags |= gla::ETFBiasLodArg;
         break;
     case ir_txd:
     case ir_txf:
@@ -531,18 +533,18 @@ ir_visitor_status
 
     // Detect and traverse projection
     if (ir->projector) {
+        texFlags |= gla::ETFProjected;
         ir->projector->accept(this);
         textureParameters.ETPProj = lastValue;
-        texFlags |= gla::ETFProjected;
+        texFlags |= gla::ETFProjectedArg;
     }
 
     // Detect and traverse shadow comparison
     if (ir->shadow_comparitor) {
-        // TODO:  Re-enable shadow samples when ref and coords are reunited.
-        gla::UnsupportedFunctionality("shadow comparison in texture sample", gla::EATContinue);
-        //ir->shadow_comparitor->accept(this);
-        //textureParameters.ETPShadowRef = lastValue;
-        //texFlags.EShadow = true;
+        texFlags |= gla::ETFShadow;
+        ir->shadow_comparitor->accept(this);
+        textureParameters.ETPShadowRef = lastValue;
+        texFlags |= gla::ETFRefZArg;
     }
 
     // Detect array index

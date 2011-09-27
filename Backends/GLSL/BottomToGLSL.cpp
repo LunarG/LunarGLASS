@@ -453,6 +453,10 @@ protected:
             }
         }
 
+        if (llvm::isa<llvm::Instruction>(value)) {
+            return EVQTemporary;
+        }
+
         // Check for an undef before a constant (since Undef is a
         // subclass of Constant)
         if (!AreAllDefined(value)) {
@@ -576,12 +580,20 @@ protected:
             shader << "Grad";
     }
 
-    bool needsBiasLod(const llvm::IntrinsicInst* llvmInstruction)
+    bool needsShadowRefZArg(const llvm::IntrinsicInst* llvmInstruction)
+    {
+        // Check flags for RefZ
+        int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
+
+        return (texFlags & ETFRefZArg);
+    }
+
+    bool needsBiasLodArg(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for bias/lod
         int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
 
-        return (texFlags & ETFBias) || (texFlags & ETFLod);
+        return (texFlags & ETFBiasLodArg);
     }
 
     void getNewVariable(const llvm::Value* value, std::string* varString)
@@ -1739,9 +1751,9 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     // Handle texturing
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_fTextureSample:
-    case llvm::Intrinsic::gla_fTextureSampleLod:
-    case llvm::Intrinsic::gla_fTextureSampleLodOffset:
-    case llvm::Intrinsic::gla_fTextureSampleLodOffsetGrad:
+    case llvm::Intrinsic::gla_fTextureSampleLodRefZ:
+    case llvm::Intrinsic::gla_fTextureSampleLodRefZOffset:
+    case llvm::Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
 
         newLine();
         emitGlaValue(llvmInstruction);
@@ -1751,11 +1763,41 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         shader << "(";
         emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         shader << ", ";
-        emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
 
-        if(needsBiasLod(llvmInstruction)) {
+        if(needsShadowRefZArg(llvmInstruction)) {
+
+            // Construct a new vector of size coords+1 to hold coords and shadow ref
+            int coordWidth = gla::GetComponentCount(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
+            assert(coordWidth < 4);
+
+            const llvm::Type* coordType = llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord))->getType();
+
+            if (coordType->isVectorTy())
+                coordType = coordType->getContainedType(0);
+
+            const llvm::Type* vecType = llvm::VectorType::get(coordType, coordWidth + 1);
+
+            emitGlaType(shader, vecType);
+
+            shader << "(";
+
+            // Texcoords first
+            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
+
             shader << ", ";
-            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBias)));
+
+            // Followed by scalar shadow ref
+            assert(gla::IsScalar(llvmInstruction->getOperand(GetTextureOpIndex(ETORefZ))));
+            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETORefZ)));
+
+            shader << ")";
+        } else {
+            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
+        }
+
+        if(needsBiasLodArg(llvmInstruction)) {
+            shader << ", ";
+            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBiasLod)));
         }
 
         if(IsGradientTexInst(llvmInstruction)) {  //?? this can move to a place they are shared between back-ends

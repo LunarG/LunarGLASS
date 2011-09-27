@@ -162,11 +162,10 @@ void main()
     vec2 temp21 = t + scale;
     vec2 temp22 = temp21 / scale;
     vec4 temp23 = texture2D(texSampler2D, temp22);
-    
-    vec4 undef24;undef24 = vec4(temp23.w, temp23.z, temp23.y, temp23.x);
+    vec4 temp24 = vec4(temp23.w, temp23.z, temp23.y, temp23.x);
     vec4 temp25 = texture3D(texSampler3D, coords);
     float temp26 = blend * const27_2f;
-    vec4 temp28 = temp25 + undef24;
+    vec4 temp28 = temp25 + temp24;
     vec4 mix_retval1 = mix(temp28, u, temp26);
     gl_FragColor = mix_retval1;
     
