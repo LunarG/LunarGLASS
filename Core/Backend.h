@@ -58,15 +58,24 @@ namespace gla {
     };
 
     enum EDecomposableIntrinsic {
-        EDiInverseSqrt,
-        EDiFraction,
-        //EDiMod,   currently using native LLVM
-        EDiModF,
         EDiMin,
         EDiMax,
         EDiClamp,
+        EDiTruncate,
+        EDiAtan2,
+        EDiSinh,
+        EDiCosh,
+        EDiTanh,
+        EDiASinh,
+        EDiACosh,
+        EDiATanh,
+        EDiPowi,
+        EDiExp10,
+        EDiLog10,
+        EDiInverseSqrt,
+        EDiFraction,
+        EDiModF,
         EDiMix,
-        // EDiSelect,  currently using native LLVM
         EDiStep,
         EDiSmoothStep,
         EDiIsNan,
@@ -85,11 +94,12 @@ namespace gla {
         EDiCross,
         EDiNormalize,
         EDiNormalize3D,
-        EDiFixedTransform,
+        EDiLit,
         EDiFaceForward,
         EDiReflect,
         EDiRefract,
         EDiFilterWidth,
+        EDiFixedTransform,
         EDiCount // number of entries in this table
     };
 

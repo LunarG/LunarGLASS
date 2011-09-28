@@ -21,6 +21,7 @@
 //===----------------------------------------------------------------------===//
 //
 // Author: Michael Ilseman, LunarG
+// Author: John Kessenich, LunarG
 //
 //===----------------------------------------------------------------------===//
 //
@@ -94,24 +95,6 @@ void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
         IntrinsicInst* intrinsic = dyn_cast<IntrinsicInst>(inst);
         if (intrinsic) {
             switch (intrinsic->getIntrinsicID()) {
-                case llvm::Intrinsic::gla_fInverseSqrt:
-                    if (backEnd->decomposeIntrinsic(EDiInverseSqrt)) {
-                        UnsupportedFunctionality("decomposition of gla_fInverseSqrt");
-                        //changed = true;
-                    }
-                    break;
-                case llvm::Intrinsic::gla_fFraction:
-                    if (backEnd->decomposeIntrinsic(EDiFraction)) {
-                        UnsupportedFunctionality("decomposition of gla_fFraction");
-                        //changed = true;
-                    }
-                    break;
-                case llvm::Intrinsic::gla_fModF:
-                    if (backEnd->decomposeIntrinsic(EDiModF)) {
-                        UnsupportedFunctionality("decomposition of gla_fModF");
-                        //changed = true;
-                    }
-                    break;
                 case llvm::Intrinsic::gla_fMin:
                     if (backEnd->decomposeIntrinsic(EDiMin)) {
                         UnsupportedFunctionality("decomposition of gla_fMin");
@@ -127,6 +110,93 @@ void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
                 case llvm::Intrinsic::gla_fClamp:
                     if (backEnd->decomposeIntrinsic(EDiClamp)) {
                         UnsupportedFunctionality("decomposition of gla_fClamp");
+                        //changed = true;
+                    }
+                    break;
+                //case llvm::Intrinsic::gla_fTruncate:
+                //    if (backEnd->decomposeIntrinsic(EDiTruncate)) {
+                //        UnsupportedFunctionality("decomposition of gla_fTruncate");
+                //        //changed = true;
+                //    }
+                //    break;
+                case llvm::Intrinsic::gla_fAtan2:
+                    if (backEnd->decomposeIntrinsic(EDiAtan2)) {
+                        UnsupportedFunctionality("decomposition of gla_fAtan2");
+                        //changed = true;
+                    }
+                    break;
+
+                case llvm::Intrinsic::gla_fCosh:
+                    if (backEnd->decomposeIntrinsic(EDiCosh)) {
+                        UnsupportedFunctionality("decomposition of gla_fCosh");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fSinh:
+                    if (backEnd->decomposeIntrinsic(EDiSinh)) {
+                        UnsupportedFunctionality("decomposition of gla_fSinh");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fTanh:
+                    if (backEnd->decomposeIntrinsic(EDiTanh)) {
+                        UnsupportedFunctionality("decomposition of gla_fTanh");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fAcosh:
+                    if (backEnd->decomposeIntrinsic(EDiACosh)) {
+                        UnsupportedFunctionality("decomposition of gla_fACosh");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fAsinh:
+                    if (backEnd->decomposeIntrinsic(EDiASinh)) {
+                        UnsupportedFunctionality("decomposition of gla_fASinh");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fAtanh:
+                    if (backEnd->decomposeIntrinsic(EDiATanh)) {
+                        UnsupportedFunctionality("decomposition of gla_fATanh");
+                        //changed = true;
+                    }
+                    break;
+
+                case llvm::Intrinsic::gla_fPowi:
+                    if (backEnd->decomposeIntrinsic(EDiPowi)) {
+                        UnsupportedFunctionality("decomposition of gla_fPowi");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fExp10:
+                    if (backEnd->decomposeIntrinsic(EDiExp10)) {
+                        UnsupportedFunctionality("decomposition of gla_fExp10");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fLog10:
+                    if (backEnd->decomposeIntrinsic(EDiLog10)) {
+                        UnsupportedFunctionality("decomposition of gla_fLog10");
+                        //changed = true;
+                    }
+                    break;
+
+                case llvm::Intrinsic::gla_fInverseSqrt:
+                    if (backEnd->decomposeIntrinsic(EDiInverseSqrt)) {
+                        UnsupportedFunctionality("decomposition of gla_fInverseSqrt");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fFraction:
+                    if (backEnd->decomposeIntrinsic(EDiFraction)) {
+                        UnsupportedFunctionality("decomposition of gla_fFraction");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fModF:
+                    if (backEnd->decomposeIntrinsic(EDiModF)) {
+                        UnsupportedFunctionality("decomposition of gla_fModF");
                         //changed = true;
                     }
                     break;
@@ -256,9 +326,9 @@ void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
                         //changed = true;
                     }
                     break;
-                case llvm::Intrinsic::gla_fFixedTransform:
-                    if (backEnd->decomposeIntrinsic(EDiFixedTransform)) {
-                        UnsupportedFunctionality("decomposition of gla_fFixedTransform");
+                case llvm::Intrinsic::gla_fLit:
+                    if (backEnd->decomposeIntrinsic(EDiLit)) {
+                        UnsupportedFunctionality("decomposition of gla_fLit");
                         //changed = true;
                     }
                     break;
@@ -283,6 +353,12 @@ void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
                 case llvm::Intrinsic::gla_fFilterWidth:
                     if (backEnd->decomposeIntrinsic(EDiFilterWidth)) {
                         UnsupportedFunctionality("decomposition of gla_fFilterWidth");
+                        //changed = true;
+                    }
+                    break;
+                case llvm::Intrinsic::gla_fFixedTransform:
+                    if (backEnd->decomposeIntrinsic(EDiFixedTransform)) {
+                        UnsupportedFunctionality("decomposition of gla_fFixedTransform");
                         //changed = true;
                     }
                     break;
