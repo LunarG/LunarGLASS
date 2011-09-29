@@ -1647,7 +1647,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             bool useSecond = comp > sourceWidth-1;
 
             if (useSecond)
-                comp -= sourceWidth-1;
+                comp -= sourceWidth;
 
             emitGlaValue(llvmInstruction->getOperand(useSecond ? 1 : 0));
             shader << ".";
@@ -1990,7 +1990,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fDot3:  forceWidth = 3;  break;
     case llvm::Intrinsic::gla_fDot4:  forceWidth = 4;  break;
     }
-    
+
     if (callString == 0 || callArgs == 0)
         UnsupportedFunctionality("Intrinsic in Bottom IR");
     if (callArgs != llvmInstruction->getNumArgOperands())
