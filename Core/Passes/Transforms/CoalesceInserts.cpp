@@ -66,7 +66,7 @@ namespace {
     // Typedefs
     typedef iplist<Instruction>::reverse_iterator reverse_iterator;
     typedef SmallVector<Instruction*,NumTypicalInserts> InstVec;
-    typedef SmallSet<Instruction*, NumTypicalInserts> InstSet;
+    typedef SmallPtrSet<Instruction*, NumTypicalInserts> InstSet;
     typedef SmallVector<Instruction*, GroupSize> Group;
     typedef SmallVector<Group*, NumTypicalIntrinsics> GroupVec;
 
@@ -119,12 +119,9 @@ namespace {
         // Group instructions into the individual multiInserts
         void groupInserts();
 
-        // Add the entire insert chain specified by the value to instSet
-        void addEntireInsertChain(Value* v);
-
-        // Add the left-most insert chain specified by v and not already in s to the
-        // provided vector in depth-first pre-order.
-        void addLeftInsertChain(Value* v, Group& g, int width, int mask);
+        // Add the insert chain specified by v and not already in s to the
+        // provided group in depth-first pre-order.
+        void addInsertChain(Value* v, Group& g, int width, int mask);
 
         // Gather all insert instructions together
         void gatherInserts();
@@ -334,53 +331,36 @@ void BBMIIMaker::printGroups()
     }
 }
 
-void BBMIIMaker::addLeftInsertChain(Value* v, Group& vec, int width, int mask)
+void BBMIIMaker::addInsertChain(Value* v, Group& vec, int width, int mask)
 {
-    Instruction* inst = dyn_cast<Instruction>(v);
+    // Go until the mask has been fully accounted for.
+    while (mask != 0) {
+        Instruction* inst = dyn_cast<Instruction>(v);
 
-    // If it's not an insert, or if we've already seen it before,
-    // we're done
-    if (!inst || !IsInsertElement(inst) || handledInsts.count(inst)) {
-        return;
+        // If it's not an insert, or if we've already seen it before,
+        // we're done
+        if (!inst || !IsInsertElement(inst) || handledInsts.count(inst)) {
+            return;
+        }
+
+        // If it only has one use, then we won't need to make another
+        // MultiInsert for it, as it will be part of the current one.
+        if (inst->hasOneUse()) {
+            handledInsts.insert(inst);
+        }
+
+        // Otherwise, put it in the vector, turn off mask's bit, and continue
+        vec.push_back(inst);
+        mask &= ~(1 << gla::GetConstantInt(inst->getOperand(2)));
+        v = inst->getOperand(0);
     }
-
-    // If mask is finished, we're done
-    if (mask == 0) {
-        return;
-    }
-
-    // Otherwise, put it in the vector, turn off mask's bit, and continue
-    vec.push_back(inst);
-    mask &= ~(1 << gla::GetConstantInt(inst->getOperand(2)));
-    addLeftInsertChain(inst->getOperand(0), vec, width, mask);
-}
-
-void BBMIIMaker::addEntireInsertChain(Value* v)
-{
-    Instruction* inst = dyn_cast<Instruction>(v);
-
-    // If it's not an insert or extract, or if we've already seen it before,
-    // we're done
-    if (!inst || !IsEitherIE(inst) || handledInsts.count(inst)) {
-        return;
-    }
-
-    // If it's an insert, add it
-    if (IsInsertElement(inst)) {
-        handledInsts.insert(inst);
-    }
-
-    // Continue on
-    addEntireInsertChain(inst->getOperand(0));
 }
 
 void BBMIIMaker::groupInserts()
 {
     for (InstVec::iterator i = inserts.begin(), e = inserts.end(); i != e; ++i) {
 
-        // Convert to an instruction (should not fail)
-        Instruction* inst = dyn_cast<Instruction>(&**i);
-        assert(inst);
+        Instruction* inst = *i;
 
         // If we've already seen it, continue
         if (handledInsts.count(inst)) {
@@ -395,9 +375,9 @@ void BBMIIMaker::groupInserts()
         int width = gla::GetComponentCount(inst->getType());
         int mask = (1 << width) - 1;
 
-        addLeftInsertChain(inst, *newGroup, width, mask);
-        addEntireInsertChain(inst);
+        addInsertChain(inst, *newGroup, width, mask);
         groups.push_back(newGroup);
+        handledInsts.insert(inst);
     }
 }
 
@@ -550,15 +530,14 @@ void BBMIIMaker::run()
     groupInserts();
     VERBOSE(printGroups());
 
+    modified = ! groups.empty();
+
     // For each group, make a MultiInsertOp
     for (GroupVec::iterator gI = groups.begin(), gE = groups.end(); gI != gE; ++gI) {
         MultiInsertIntrinsic mii(module, context, bb, **gI);
         mii.run();
 
         VERBOSE(mii.dump());
-
-        modified = true;
-
     }
 
     VERBOSE(printBlock());
