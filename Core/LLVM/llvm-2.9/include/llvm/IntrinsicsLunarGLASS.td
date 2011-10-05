@@ -117,8 +117,8 @@ let TargetPrefix = "gla" in {
   def int_gla_findLSB : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_sFindMSB : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_uFindMSB : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty], [IntrNoMem]>;
-  def int_gla_swizzle : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_i32_ty], [IntrNoMem]>;
-  def int_gla_fSwizzle : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_i32_ty], [IntrNoMem]>;
+  def int_gla_swizzle : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty], [IntrNoMem]>;
+  def int_gla_fSwizzle : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_multiInsert : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty], [IntrNoMem]>;
   def int_gla_fMultiInsert : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty], [IntrNoMem]>;
 }

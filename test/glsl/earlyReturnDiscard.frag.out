@@ -72,7 +72,7 @@ post-discard:                                     ; No predecessors!
 
 ifmerge8:                                         ; preds = %ifmerge5, %post-discard
   %17 = load <4 x float>* %color
-  %18 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %18 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %assignment_tmp9 = fadd <4 x float> %17, %18
   store <4 x float> %assignment_tmp9, <4 x float>* %assignment_tmp
   %color10 = load <4 x float>* %assignment_tmp
@@ -125,7 +125,7 @@ post-discard19:                                   ; No predecessors!
 
 else20:                                           ; preds = %else17
   %36 = load <4 x float>* %color
-  %37 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %37 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color21 = fadd <4 x float> %36, %37
   store <4 x float> %color21, <4 x float>* %color
   br label %ifmerge22
@@ -181,7 +181,7 @@ declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
 
 declare void @llvm.gla.discard() nounwind
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
@@ -239,7 +239,7 @@ then7:                                            ; preds = %ifmerge5
 
 ifmerge8:                                         ; preds = %ifmerge5
   %10 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.0, i32 4, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float %7, i32 -1, float 0.000000e+00, i32 -1)
-  %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %assignment_tmp9 = fadd <4 x float> %10, %11
   %12 = extractelement <4 x float> %assignment_tmp9, i32 3
   %13 = load float addrspace(2)* @threshhold2
@@ -308,7 +308,7 @@ declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
 
 declare void @llvm.gla.discard() nounwind
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 

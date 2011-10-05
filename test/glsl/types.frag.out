@@ -583,7 +583,6 @@ Bottom IR:
 @u_f2 = external addrspace(2) constant <2 x float>
 @u_f3 = external addrspace(2) constant <3 x float>
 @u_f4 = external addrspace(2) constant <4 x float>
-@gla_globalAgg = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
@@ -797,10 +796,10 @@ ifmerge85:                                        ; preds = %else84, %then81
   %12 = load <4 x float> addrspace(2)* @u_f4
   %i_f4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 11, i32 -1, i32 1)
   %assignment_tmp101102 = fadd <4 x float> %12, %i_f4
-  %select154 = or i1 %and_tmp.0, %and_tmp11.0
-  %select155 = or i1 %select154, %and_tmp39.0
-  %select = or i1 %select155, %and_tmp80.0
-  br i1 %select, label %then147, label %else149
+  %select157 = or i1 %and_tmp.0, %and_tmp11.0
+  %select153 = or i1 %select157, %and_tmp39.0
+  %select156 = or i1 %select153, %and_tmp80.0
+  br i1 %select156, label %then147, label %else149
 
 then147:                                          ; preds = %ifmerge85
   %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 8, i32 -1, i32 1)
@@ -847,8 +846,7 @@ then147:                                          ; preds = %ifmerge85
   %50 = fadd float %48, %49
   %51 = extractelement <4 x float> %assignment_tmp101102, i32 3
   %52 = fadd float %50, %51
-  %aggregate = load <4 x float>* @gla_globalAgg
-  %53 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate, i32 15, float %52, i32 -1, float %52, i32 -1, float %52, i32 -1, float %52, i32 -1)
+  %53 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %52, <4 x i32> <i32 -1, i32 -1, i32 -1, i32 -1>)
   br label %ifmerge150
 
 else149:                                          ; preds = %ifmerge85
@@ -893,6 +891,8 @@ declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind rea
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 compiling types.frag...
 uniform bool u_b ; 
 uniform bvec2 u_b2 ; 
@@ -1205,7 +1205,6 @@ uniform float u_f;
 uniform vec2 u_f2;
 uniform vec3 u_f3;
 uniform vec4 u_f4;
-vec4 gla_globalAgg;
 in bool i_b;
 const bool const38_false = false;
 in bvec2 i_b2;
@@ -1364,10 +1363,10 @@ void main()
     vec2 assignment_tmp9798 = u_f2 + i_f2;
     vec3 assignment_tmp99100 = u_f3 + i_f3;
     vec4 assignment_tmp101102 = u_f4 + i_f4;
-    bool select154 = and_tmp_0 || and_tmp11_0;
-    bool select155 = select154 || and_tmp39_0;
-    bool select = select155 || and_tmp80_0;
-    if (select) {
+    bool select157 = and_tmp_0 || and_tmp11_0;
+    bool select153 = select157 || and_tmp39_0;
+    bool select156 = select153 || and_tmp80_0;
+    if (select156) {
         float assignment_tmp9596 = u_f + i_f;
         int assignment_tmp88 = i_i + u_i;
         int temp50 = assignment_tmp88 + assignment_tmp8990.y;
@@ -1390,7 +1389,7 @@ void main()
         float temp67 = temp66 + assignment_tmp101102.y;
         float temp68 = temp67 + assignment_tmp101102.z;
         float temp69 = temp68 + assignment_tmp101102.w;
-        vec4 temp70 = vec4(temp69, temp69, temp69, temp69);
+        vec4 temp70 = vec4(temp69);
         conditional_tmp_0 = temp70;
     }
     else {

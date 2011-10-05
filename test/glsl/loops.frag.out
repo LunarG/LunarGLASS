@@ -147,7 +147,7 @@ post-loop-break19:                                ; No predecessors!
 
 ifmerge20:                                        ; preds = %loop-header17, %post-loop-break19
   %21 = load <4 x float>* %color
-  %22 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %22 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color21 = fadd <4 x float> %21, %22
   store <4 x float> %color21, <4 x float>* %color
   br label %loop-header17
@@ -1080,7 +1080,7 @@ post-loop-continue251:                            ; No predecessors!
 
 ifmerge252:                                       ; preds = %ifmerge242, %post-loop-continue251
   %338 = load <4 x float>* %color
-  %339 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %339 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color253 = fadd <4 x float> %338, %339
   store <4 x float> %color253, <4 x float>* %color
   br label %loop-merge255
@@ -1168,14 +1168,14 @@ ifmerge273:                                       ; preds = %loop-header270, %po
 
 then274:                                          ; preds = %ifmerge273
   %367 = load <4 x float>* %color
-  %368 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %368 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color275 = fadd <4 x float> %367, %368
   store <4 x float> %color275, <4 x float>* %color
   br label %ifmerge278
 
 else276:                                          ; preds = %ifmerge273
   %369 = load <4 x float>* %color
-  %370 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %370 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color277 = fsub <4 x float> %369, %370
   store <4 x float> %color277, <4 x float>* %color
   br label %ifmerge278
@@ -1253,7 +1253,7 @@ ifmerge293:                                       ; preds = %else291, %then289
 
 loop-merge294:                                    ; preds = %then271
   %403 = load <4 x float>* %color
-  %404 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %404 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %assignment_tmp295296 = fadd <4 x float> %403, %404
   store <4 x float> %assignment_tmp295296, <4 x float>* %assignment_tmp295
   %color297 = load <4 x float>* %assignment_tmp295
@@ -1290,7 +1290,7 @@ post-return:                                      ; No predecessors!
 
 else303:                                          ; preds = %ifmerge301
   %413 = load <4 x float>* %color
-  %414 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %414 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color304 = fadd <4 x float> %413, %414
   store <4 x float> %color304, <4 x float>* %color
   br label %ifmerge305
@@ -1300,7 +1300,7 @@ ifmerge305:                                       ; preds = %else303, %post-retu
 
 loop-merge306:                                    ; preds = %then299
   %415 = load <4 x float>* %color
-  %416 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %416 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color307 = fadd <4 x float> %415, %416
   store <4 x float> %color307, <4 x float>* %color
   br label %loop-header308
@@ -1400,7 +1400,7 @@ post-return332:                                   ; No predecessors!
 
 ifmerge333:                                       ; preds = %loop-header330, %post-return332
   %444 = load <4 x float>* %color
-  %445 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %445 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %assignment_tmp334335 = fadd <4 x float> %444, %445
   store <4 x float> %assignment_tmp334335, <4 x float>* %assignment_tmp334
   %color336 = load <4 x float>* %assignment_tmp334
@@ -1452,7 +1452,7 @@ post-discard:                                     ; No predecessors!
 
 else346:                                          ; preds = %ifmerge344
   %458 = load <4 x float>* %color
-  %459 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %459 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color347 = fadd <4 x float> %458, %459
   store <4 x float> %color347, <4 x float>* %color
   br label %ifmerge348
@@ -1462,7 +1462,7 @@ ifmerge348:                                       ; preds = %else346, %post-disc
 
 loop-merge349:                                    ; preds = %then342
   %460 = load <4 x float>* %color
-  %461 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %461 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %assignment_tmp350351 = fadd <4 x float> %460, %461
   store <4 x float> %assignment_tmp350351, <4 x float>* %assignment_tmp350
   %color352 = load <4 x float>* %assignment_tmp350
@@ -1482,7 +1482,7 @@ stage-exit:                                       ; preds = %stage-epilogue, %th
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare void @llvm.gla.discard() nounwind
 
@@ -1583,7 +1583,7 @@ then18:                                           ; preds = %loop-header17
   br label %loop-header23
 
 ifmerge20:                                        ; preds = %loop-header17
-  %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color21 = fadd <4 x float> %color.2, %12
   br label %loop-header17
 
@@ -2196,7 +2196,7 @@ ifmerge250:                                       ; preds = %else248, %then246
   br label %loop-header239
 
 ifmerge252:                                       ; preds = %ifmerge242
-  %164 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %164 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color253 = fadd <4 x float> %153, %164
   br label %loop-merge255
 
@@ -2250,7 +2250,7 @@ loop-header270:                                   ; preds = %loop-header270.back
   br i1 %177, label %ifmerge273, label %then271
 
 then271:                                          ; preds = %loop-header270
-  %178 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %178 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %assignment_tmp295296 = fadd <4 x float> %color.42, %178
   %.pre369 = load float addrspace(2)* @d14
   %179 = load float addrspace(2)* @d15
@@ -2262,12 +2262,12 @@ ifmerge273:                                       ; preds = %loop-header270
   br i1 %181, label %then274, label %else276
 
 then274:                                          ; preds = %ifmerge273
-  %182 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %182 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color275 = fadd <4 x float> %color.42, %182
   br label %ifmerge278
 
 else276:                                          ; preds = %ifmerge273
-  %183 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %183 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color277 = fsub <4 x float> %color.42, %183
   br label %ifmerge278
 
@@ -2445,7 +2445,7 @@ stage-exit:                                       ; preds = %stage-epilogue, %th
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare void @llvm.gla.discard() nounwind
 

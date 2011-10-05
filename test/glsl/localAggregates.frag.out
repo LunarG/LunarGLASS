@@ -159,7 +159,7 @@ ifmerge34:                                        ; preds = %ifmerge13, %then32
   %51 = load [16 x float]* %a
   %52 = extractvalue [16 x float] %51, 5
   %53 = fadd float %50, %52
-  %54 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %53, i32 0)
+  %54 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %53, <4 x i32> zeroinitializer)
   %55 = fmul <4 x float> %42, %54
   %coord37 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %56 = load i32 addrspace(1)* @"sampler2D sampler"
@@ -181,7 +181,7 @@ declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind rea
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
@@ -268,7 +268,7 @@ ifmerge34:                                        ; preds = %ifmerge13, %then32
   %17 = fadd float %16, %15
   %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   %18 = load i32 addrspace(1)* @"sampler2D sampler"
-  %19 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %17, i32 0)
+  %19 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %17, <4 x i32> zeroinitializer)
   %20 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %color, i32 4, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, <2 x float> %coord14, i32 1, float 0.000000e+00, i32 -1)
   %21 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %18, i32 0, <2 x float> %coord14)
   %22 = fmul <4 x float> %20, %19
@@ -287,7 +287,7 @@ declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind rea
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 

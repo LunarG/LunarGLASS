@@ -54,18 +54,16 @@ Bottom IR:
 ; ModuleID = 'Top'
 
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
-@gla_globalAgg = internal global <2 x float> undef
 
 define fastcc void @main() {
 entry:
   %"gl_TexCoord[4]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %"gl_TexCoord[5]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   %0 = fadd <4 x float> %"gl_TexCoord[4]", %"gl_TexCoord[5]"
-  %1 = load i32 addrspace(1)* @"sampler2D texSampler2D"
-  %aggregate = load <2 x float>* @gla_globalAgg
-  %2 = call <2 x float> @llvm.gla.fMultiInsert.v2f32.v2f32.v4f32.v4f32.f32.f32(<2 x float> %aggregate, i32 3, <4 x float> %0, i32 0, <4 x float> %0, i32 1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1)
+  %1 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %0, <2 x i32> <i32 0, i32 1>)
+  %2 = load i32 addrspace(1)* @"sampler2D texSampler2D"
   %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 2, i32 -1, i32 1)
-  %3 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %2)
+  %3 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %2, i32 0, <2 x float> %1)
   %"gl_TexCoord[0]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 4, i32 -1, i32 1)
   %alpha = call float @llvm.gla.fReadInterpolant.f32(i32 3, i32 -1, i32 1)
   %texColor1 = fadd <4 x float> %3, %color
@@ -93,6 +91,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
 declare <2 x float> @llvm.gla.fMultiInsert.v2f32.v2f32.v4f32.v4f32.f32.f32(<2 x float>, i32, <4 x float>, i32, <4 x float>, i32, float, i32, float, i32) nounwind readnone
+
+declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>) nounwind readnone
 compiling varyingArray.frag...
 uniform sampler2D texSampler2D ; 
 varying vec4 color ; 
@@ -126,15 +126,13 @@ vec4 texColor = texture2D ( texSampler2D , vec2 ( gl_TexCoord [ 4 ] + gl_TexCoor
 // LunarGOO output
 #version 130
 uniform sampler2D texSampler2D;
-vec2 gla_globalAgg;
 in vec4 color;
 in float alpha;
 
 void main()
 {
     vec4 temp21 = gl_TexCoord[4] + gl_TexCoord[5];
-    vec2 temp22 = gla_globalAgg;
-    temp22.xy = temp21.xy;
+    vec2 temp22 = vec2(temp21);
     vec4 temp23 = texture2D(texSampler2D, temp22);
     vec4 texColor1 = temp23 + color;
     vec4 temp25 = gl_TexCoord[0] + gl_TexCoord[4];

@@ -100,6 +100,10 @@ namespace gla {
         EDiRefract,
         EDiFilterWidth,
         EDiFixedTransform,
+
+        // Intrinsic preferences (decompose to simpler form when possible)
+        EDiPreferSwizzle,       // Make swizzles when possible
+
         EDiCount // number of entries in this table
     };
 
@@ -201,6 +205,8 @@ namespace gla {
         {
             for (int d = 0; d < EDiCount; ++d)
                 decompose[d] = false;
+
+            decompose[EDiPreferSwizzle] = true;
         }
 
         virtual ~BackEnd() {};
@@ -256,8 +262,8 @@ namespace gla {
         }
 
         // Does the backend want LunarGLASS to hoist undef operands into
-        // globals? Doesn't hoist operands to shufflevector (which requires a
-        // constant vector for it's 3rd argument).
+        // globals? Doesn't hoist operands for vector instructions/intrinsics
+        // that require a constant vector for their masks.
         virtual bool hoistUndefOperands()
         {
             return true;

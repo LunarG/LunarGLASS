@@ -79,14 +79,14 @@ entry:
   %2 = load i32 addrspace(1)* @"sampler2D texSampler2D"
   %3 = fdiv <2 x float> %1, %0
   %4 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %2, i32 0, <2 x float> %3)
-  %5 = load i32 addrspace(1)* @"sampler3D texSampler3D"
+  %5 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float> %4, <4 x i32> <i32 3, i32 2, i32 1, i32 0>)
+  %6 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
-  %6 = load float addrspace(2)* @blend
-  %7 = shufflevector <4 x float> %4, <4 x float> undef, <4 x i32> <i32 3, i32 2, i32 1, i32 0>
-  %8 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %5, i32 0, <3 x float> %coords)
-  %9 = fmul float %6, 0x3FFC9FBE80000000
+  %7 = load float addrspace(2)* @blend
+  %8 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %6, i32 0, <3 x float> %coords)
+  %9 = fmul float %7, 0x3FFC9FBE80000000
   %10 = load <4 x float> addrspace(2)* @u
-  %11 = fadd <4 x float> %8, %7
+  %11 = fadd <4 x float> %8, %5
   %mix_retval1 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %11, <4 x float> %10, float %9)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %mix_retval1)
   br label %stage-epilogue
@@ -109,6 +109,8 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>) nounwind readnone
 compiling test.frag...
 uniform sampler2D texSampler2D ; 
 uniform sampler3D texSampler3D ; 
@@ -162,7 +164,7 @@ void main()
     vec2 temp21 = t + scale;
     vec2 temp22 = temp21 / scale;
     vec4 temp23 = texture2D(texSampler2D, temp22);
-    vec4 temp24 = vec4(temp23.w, temp23.z, temp23.y, temp23.x);
+    vec4 temp24 = temp23.wzyx;
     vec4 temp25 = texture3D(texSampler3D, coords);
     float temp26 = blend * const27_2f;
     vec4 temp28 = temp25 + temp24;

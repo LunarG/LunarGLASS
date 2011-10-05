@@ -682,14 +682,6 @@ Bottom IR:
 @n = external addrspace(2) constant [4 x <4 x float>]
 @un34 = external addrspace(2) constant [3 x <4 x float>]
 @um43 = external addrspace(2) constant [4 x <3 x float>]
-@gla_globalAgg = internal global <4 x float> <float undef, float undef, float undef, float 1.000000e+00>
-@gla_globalAgg1 = internal global <4 x float> undef
-@gla_globalAgg2 = internal global <4 x float> undef
-@gla_globalAgg3 = internal global <4 x float> undef
-@gla_globalAgg4 = internal global <4 x float> undef
-@gla_globalAgg5 = internal global <4 x float> undef
-@gla_globalAgg6 = internal global <4 x float> undef
-@gla_globalAgg7 = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
@@ -701,8 +693,7 @@ entry:
   %__dot3 = call float @llvm.gla.fDot3.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column2)
   %__column4 = extractvalue [3 x <3 x float>] %__matrix, 2
   %__dot5 = call float @llvm.gla.fDot3.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column4)
-  %aggregate = load <4 x float>* @gla_globalAgg
-  %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate, i32 7, float %__dot, i32 -1, float %__dot3, i32 -1, float %__dot5, i32 -1, float 0.000000e+00, i32 -1)
+  %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> <float undef, float undef, float undef, float 1.000000e+00>, i32 7, float %__dot, i32 -1, float %__dot3, i32 -1, float %__dot5, i32 -1, float 0.000000e+00, i32 -1)
   %__matrix7 = load [4 x <4 x float>] addrspace(2)* @m
   %__matrix8 = load [4 x <4 x float>] addrspace(2)* @n
   %__column10 = extractvalue [4 x <4 x float>] %__matrix7, 0
@@ -785,8 +776,7 @@ else:                                             ; preds = %entry
   %__element78 = extractelement <4 x float> %__column16, i32 3
   %__product79 = fmul float %__element78, %__component23
   %__dotProduct80 = fadd float %__dotProduct76, %__product79
-  %aggregate524 = load <4 x float>* @gla_globalAgg1
-  %12 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate524, i32 15, float %__dotProduct35, i32 -1, float %__dotProduct50, i32 -1, float %__dotProduct65, i32 -1, float %__dotProduct80, i32 -1)
+  %12 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dotProduct35, i32 -1, float %__dotProduct50, i32 -1, float %__dotProduct65, i32 -1, float %__dotProduct80, i32 -1)
   %13 = fadd <4 x float> %0, %12
   %__column84 = fsub <4 x float> %__column10, %__column11
   %__column87 = fsub <4 x float> %__column12, %__column13
@@ -796,8 +786,7 @@ else:                                             ; preds = %entry
   %__dot97 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %v20, <4 x float> %__column87)
   %__dot99 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %v20, <4 x float> %__column90)
   %__dot101 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %v20, <4 x float> %__column93)
-  %aggregate525 = load <4 x float>* @gla_globalAgg2
-  %14 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate525, i32 15, float %__dot95, i32 -1, float %__dot97, i32 -1, float %__dot99, i32 -1, float %__dot101, i32 -1)
+  %14 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dot95, i32 -1, float %__dot97, i32 -1, float %__dot99, i32 -1, float %__dot101, i32 -1)
   %gl_FragColor102 = fadd <4 x float> %13, %14
   br label %ifmerge
 
@@ -813,22 +802,19 @@ ifmerge:                                          ; preds = %else, %then
   %__element107 = fmul float %__leftComp106.pre-phi, %__rightComp
   %__element110 = fmul float %__leftComp109.pre-phi, %__rightComp
   %__element113 = fmul float %__leftComp112.pre-phi, %__rightComp
-  %aggregate526 = load <4 x float>* @gla_globalAgg3
-  %15 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate526, i32 15, float %__element104, i32 -1, float %__element107, i32 -1, float %__element110, i32 -1, float %__element113, i32 -1)
+  %15 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__element104, i32 -1, float %__element107, i32 -1, float %__element110, i32 -1, float %__element113, i32 -1)
   %__rightComp116 = extractelement <3 x float> %u, i32 1
   %__element118 = fmul float %__leftComp.pre-phi, %__rightComp116
   %__element121 = fmul float %__leftComp106.pre-phi, %__rightComp116
   %__element124 = fmul float %__leftComp109.pre-phi, %__rightComp116
   %__element127 = fmul float %__leftComp112.pre-phi, %__rightComp116
-  %aggregate527 = load <4 x float>* @gla_globalAgg4
-  %16 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate527, i32 15, float %__element118, i32 -1, float %__element121, i32 -1, float %__element124, i32 -1, float %__element127, i32 -1)
+  %16 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__element118, i32 -1, float %__element121, i32 -1, float %__element124, i32 -1, float %__element127, i32 -1)
   %__rightComp130 = extractelement <3 x float> %u, i32 2
   %__element132 = fmul float %__leftComp.pre-phi, %__rightComp130
   %__element135 = fmul float %__leftComp106.pre-phi, %__rightComp130
   %__element138 = fmul float %__leftComp109.pre-phi, %__rightComp130
   %__element141 = fmul float %__leftComp112.pre-phi, %__rightComp130
-  %aggregate528 = load <4 x float>* @gla_globalAgg5
-  %17 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate528, i32 15, float %__element132, i32 -1, float %__element135, i32 -1, float %__element138, i32 -1, float %__element141, i32 -1)
+  %17 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__element132, i32 -1, float %__element135, i32 -1, float %__element138, i32 -1, float %__element141, i32 -1)
   %__matrix145 = load [3 x <4 x float>] addrspace(2)* @un34
   %__column149 = extractvalue [3 x <4 x float>] %__matrix145, 0
   %18 = fcmp oeq <4 x float> %15, %__column149
@@ -864,8 +850,7 @@ then154:                                          ; preds = %ifmerge
   %__dotProduct199 = fadd float %__product195, %__product198
   %__product202 = fmul float %__element141, %__rightComp130
   %__dotProduct203 = fadd float %__dotProduct199, %__product202
-  %aggregate529 = load <4 x float>* @gla_globalAgg6
-  %26 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate529, i32 15, float %__dotProduct170, i32 -1, float %__dotProduct181, i32 -1, float %__dotProduct192, i32 -1, float %__dotProduct203, i32 -1)
+  %26 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dotProduct170, i32 -1, float %__dotProduct181, i32 -1, float %__dotProduct192, i32 -1, float %__dotProduct203, i32 -1)
   br label %ifmerge522
 
 else205:                                          ; preds = %ifmerge
@@ -1006,8 +991,7 @@ else205:                                          ; preds = %ifmerge
   %__dotProduct516 = fadd float %__dotProduct512, %__product515
   %__product519 = fmul float %__dotProduct453, %__leftComp112.pre-phi
   %__dotProduct520 = fadd float %__dotProduct516, %__product519
-  %aggregate530 = load <4 x float>* @gla_globalAgg7
-  %27 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %aggregate530, i32 15, float %__dotProduct475, i32 -1, float %__dotProduct490, i32 -1, float %__dotProduct505, i32 -1, float %__dotProduct520, i32 -1)
+  %27 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dotProduct475, i32 -1, float %__dotProduct490, i32 -1, float %__dotProduct505, i32 -1, float %__dotProduct520, i32 -1)
   br label %ifmerge522
 
 ifmerge522:                                       ; preds = %else205, %then154
@@ -1101,24 +1085,14 @@ uniform vec4[4] m;
 uniform vec4[4] n;
 uniform vec4[3] un34;
 uniform vec3[4] um43;
-vec4 gla_globalAgg;
-const float const21_1f = 1.0;
-vec4 gla_globalAgg1;
-vec4 gla_globalAgg2;
-vec4 gla_globalAgg3;
-vec4 gla_globalAgg4;
-vec4 gla_globalAgg5;
-vec4 gla_globalAgg6;
-vec4 gla_globalAgg7;
 in vec3 Color;
+const float const35_1f = 1.0;
 in vec4 v;
 in vec4 v20;
 in vec3 u;
 
 void main()
 {
-    gla_globalAgg.w = const21_1f;
-    
     float __leftComp112_pre_phi;
     float __leftComp109_pre_phi;
     float __leftComp106_pre_phi;
@@ -1131,29 +1105,31 @@ void main()
     float __dot3 = dot(Color, __column2);
     vec3 __column4 = colorTransform[2];
     float __dot5 = dot(Color, __column4);
-    vec4 temp34 = gla_globalAgg;
-    temp34.xyz = vec3(__dot, __dot3, __dot5);
+    vec4 temp33 = 
+    vec4 undef34;
+    undef34.w = const35_1f;undef34;
+    temp33.xyz = vec3(__dot, __dot3, __dot5);
     vec4 __column10 = m[0];
     vec4 __column11 = n[0];
-    bvec4 temp37 = notEqual(__column10, __column11);
-    bool temp38 = any(temp37);
+    bvec4 temp38 = notEqual(__column10, __column11);
+    bool temp39 = any(temp38);
     vec4 __column12 = m[1];
     vec4 __column13 = n[1];
-    bvec4 temp41 = notEqual(__column12, __column13);
-    bool temp42 = any(temp41);
-    bool temp43 = temp38 || temp42;
+    bvec4 temp42 = notEqual(__column12, __column13);
+    bool temp43 = any(temp42);
+    bool temp44 = temp39 || temp43;
     vec4 __column14 = m[2];
     vec4 __column15 = n[2];
-    bvec4 temp46 = notEqual(__column14, __column15);
-    bool temp47 = any(temp46);
-    bool temp48 = temp43 || temp47;
+    bvec4 temp47 = notEqual(__column14, __column15);
+    bool temp48 = any(temp47);
+    bool temp49 = temp44 || temp48;
     vec4 __column16 = m[3];
     vec4 __column17 = n[3];
-    bvec4 temp51 = notEqual(__column16, __column17);
-    bool temp52 = any(temp51);
-    bool temp53 = temp48 || temp52;
-    if (temp53) {
-        vec4 gla_copyout_gl_FragColor18 = temp34 + v;
+    bvec4 temp52 = notEqual(__column16, __column17);
+    bool temp53 = any(temp52);
+    bool temp54 = temp49 || temp53;
+    if (temp54) {
+        vec4 gla_copyout_gl_FragColor18 = temp33 + v;
         __leftComp112_pre_phi = v.w;
         __leftComp109_pre_phi = v.z;
         __leftComp106_pre_phi = v.y;
@@ -1189,8 +1165,8 @@ void main()
         float __dotProduct76 = __dotProduct72 + __product75;
         float __product79 = __column16.w * v20.w;
         float __dotProduct80 = __dotProduct76 + __product79;
-        vec4 temp83 = vec4(__dotProduct35, __dotProduct50, __dotProduct65, __dotProduct80);
-        vec4 temp84 = temp34 + temp83;
+        vec4 temp84 = vec4(__dotProduct35, __dotProduct50, __dotProduct65, __dotProduct80);
+        vec4 temp85 = temp33 + temp84;
         vec4 __column84 = __column10 - __column11;
         vec4 __column87 = __column12 - __column13;
         vec4 __column90 = __column14 - __column15;
@@ -1199,8 +1175,8 @@ void main()
         float __dot97 = dot(v20, __column87);
         float __dot99 = dot(v20, __column90);
         float __dot101 = dot(v20, __column93);
-        vec4 temp93 = vec4(__dot95, __dot97, __dot99, __dot101);
-        vec4 gla_copyout_gl_FragColor102 = temp84 + temp93;
+        vec4 temp94 = vec4(__dot95, __dot97, __dot99, __dot101);
+        vec4 gla_copyout_gl_FragColor102 = temp85 + temp94;
         __leftComp112_pre_phi = v20.w;
         __leftComp109_pre_phi = v20.z;
         __leftComp106_pre_phi = v20.y;
@@ -1212,29 +1188,29 @@ void main()
     float __element107 = __leftComp106_pre_phi * u.x;
     float __element110 = __leftComp109_pre_phi * u.x;
     float __element113 = __leftComp112_pre_phi * u.x;
-    vec4 temp99 = vec4(__element104, __element107, __element110, __element113);
+    vec4 temp100 = vec4(__element104, __element107, __element110, __element113);
     float __element118 = __leftComp_pre_phi * u.y;
     float __element121 = __leftComp106_pre_phi * u.y;
     float __element124 = __leftComp109_pre_phi * u.y;
     float __element127 = __leftComp112_pre_phi * u.y;
-    vec4 temp104 = vec4(__element118, __element121, __element124, __element127);
+    vec4 temp105 = vec4(__element118, __element121, __element124, __element127);
     float __element132 = __leftComp_pre_phi * u.z;
     float __element135 = __leftComp106_pre_phi * u.z;
     float __element138 = __leftComp109_pre_phi * u.z;
     float __element141 = __leftComp112_pre_phi * u.z;
-    vec4 temp109 = vec4(__element132, __element135, __element138, __element141);
+    vec4 temp110 = vec4(__element132, __element135, __element138, __element141);
     vec4 __column149 = un34[0];
-    bvec4 temp111 = equal(temp99, __column149);
-    bool temp112 = all(temp111);
+    bvec4 temp112 = equal(temp100, __column149);
+    bool temp113 = all(temp112);
     vec4 __column151 = un34[1];
-    bvec4 temp114 = equal(temp104, __column151);
-    bool temp115 = all(temp114);
-    bool temp116 = temp112 && temp115;
+    bvec4 temp115 = equal(temp105, __column151);
+    bool temp116 = all(temp115);
+    bool temp117 = temp113 && temp116;
     vec4 __column153 = un34[2];
-    bvec4 temp118 = equal(temp109, __column153);
-    bool temp119 = all(temp118);
-    bool temp120 = temp116 && temp119;
-    if (temp120) {
+    bvec4 temp119 = equal(temp110, __column153);
+    bool temp120 = all(temp119);
+    bool temp121 = temp117 && temp120;
+    if (temp121) {
         float __product162 = __element104 * u.x;
         float __product165 = __element118 * u.y;
         float __dotProduct166 = __product162 + __product165;
@@ -1255,8 +1231,8 @@ void main()
         float __dotProduct199 = __product195 + __product198;
         float __product202 = __element141 * u.z;
         float __dotProduct203 = __dotProduct199 + __product202;
-        vec4 temp141 = vec4(__dotProduct170, __dotProduct181, __dotProduct192, __dotProduct203);
-        _pn = temp141;
+        vec4 temp142 = vec4(__dotProduct170, __dotProduct181, __dotProduct192, __dotProduct203);
+        _pn = temp142;
     }
     else {
         vec3 __rightColumn208 = um43[0];
@@ -1371,8 +1347,8 @@ void main()
         float __dotProduct516 = __dotProduct512 + __product515;
         float __product519 = __dotProduct453 * __leftComp112_pre_phi;
         float __dotProduct520 = __dotProduct516 + __product519;
-        vec4 temp254 = vec4(__dotProduct475, __dotProduct490, __dotProduct505, __dotProduct520);
-        _pn = temp254;
+        vec4 temp255 = vec4(__dotProduct475, __dotProduct490, __dotProduct505, __dotProduct520);
+        _pn = temp255;
     }
     
     vec4 gla_copyout_gl_FragColor523_1 = gla_copyout_gl_FragColor523_0 + _pn;

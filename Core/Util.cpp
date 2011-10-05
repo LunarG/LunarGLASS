@@ -54,19 +54,17 @@ namespace gla {
 
 int GetConstantInt(const llvm::Value* value)
 {
-    const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
-    assert(constant);
-    const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(constant);
+    const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(value);
     assert(constantInt);
+
     return constantInt->getValue().getSExtValue();
 }
 
 float GetConstantFloat(const llvm::Value* value)
 {
-    const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
-    assert(constant);
-    const llvm::ConstantFP *constantFP = llvm::dyn_cast<llvm::ConstantFP>(constant);
+    const llvm::ConstantFP *constantFP = llvm::dyn_cast<llvm::ConstantFP>(value);
     assert(constantFP);
+
     return constantFP->getValueAPF().convertToFloat();
 }
 
@@ -80,9 +78,7 @@ int GetComponentCount(const llvm::Type* type)
 
 int GetComponentCount(const llvm::Value* value)
 {
-    const llvm::Type* type = value->getType();
-
-    return GetComponentCount(type);
+    return GetComponentCount(value->getType());
 }
 
 // Returns false if base value is undef, or if any member is undef
@@ -141,12 +137,12 @@ bool HasAllSet(const llvm::Value* value)
     }
 }
 
-llvm::Type::TypeID GetBasicType(llvm::Value* value)
+const llvm::Type* GetBasicType(const llvm::Value* value)
 {
     return GetBasicType(value->getType());
 }
 
-llvm::Type::TypeID GetBasicType(const llvm::Type* type)
+const llvm::Type* GetBasicType(const llvm::Type* type)
 {
     switch(type->getTypeID()) {
     case llvm::Type::VectorTyID:
@@ -155,7 +151,18 @@ llvm::Type::TypeID GetBasicType(const llvm::Type* type)
     }
 
     assert(gla::IsScalar(type));
-    return type->getTypeID();
+    return type;
 }
+
+llvm::Type::TypeID GetBasicTypeID(const llvm::Value* value)
+{
+    return GetBasicTypeID(value->getType());
+}
+
+llvm::Type::TypeID GetBasicTypeID(const llvm::Type* type)
+{
+    return GetBasicType(type)->getTypeID();
+}
+
 
 }; // end gla namespace

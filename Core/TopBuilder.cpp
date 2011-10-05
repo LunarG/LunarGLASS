@@ -326,13 +326,13 @@ void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, 
 
     // This correction is necessary for some front ends, which might allow
     // "interpolated" integers or Booleans.
-    if (GetBasicType(outValue->getType()) != llvm::Type::FloatTyID)
+    if (! GetBasicType(outValue)->isFloatTy())
         mode = EIMNone;
 
     llvm::Function *intrinsic;
     if (mode == EIMNone) {
         llvm::Intrinsic::ID intrinsicID;
-        switch(GetBasicType(outValue)) {
+        switch(GetBasicTypeID(outValue)) {
         case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
         case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fWriteData;  break;
         default:                        assert(! "Unsupported type in writePipeline");
@@ -354,7 +354,7 @@ llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, in
 
     // This correction is necessary for some front ends, which might allow
     // "interpolated" integers or Booleans.
-    if (GetBasicType(type) != llvm::Type::FloatTyID)
+    if (! GetBasicType(type)->isFloatTy())
         mode = EIMNone;
 
     llvm::Function *intrinsic;
@@ -373,7 +373,7 @@ llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, in
             return builder.CreateCall3(intrinsic, slotConstant, maskConstant, modeConstant, name);
         }
     } else {
-        switch (GetBasicType(type)) {
+        switch (GetBasicTypeID(type)) {
         case llvm::Type::IntegerTyID:   intrinsic = getIntrinsic(llvm::Intrinsic::gla_readData, type); break;
         case llvm::Type::FloatTyID:     intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadData, type); break;
         }
@@ -863,9 +863,10 @@ llvm::Value* Builder::smearScalar(llvm::Value* scalar, const llvm::Type* vectorT
         gla::UnsupportedFunctionality("smear type");
     }
 
-    llvm::Function *intrinsicName = getIntrinsic(intrinsicID, vectorType, scalar->getType());
+    const llvm::Type* maskTy = llvm::VectorType::get(GetIntType(context), GetComponentCount(vectorType));
+    llvm::Function *intrinsicName = getIntrinsic(intrinsicID, vectorType, scalar->getType(), maskTy);
 
-    return builder.CreateCall2(intrinsicName, scalar, gla::MakeIntConstant(context, 0));
+    return builder.CreateCall2(intrinsicName, scalar, llvm::ConstantAggregateZero::get(maskTy));
 }
 
 // Accept all parameters needed to create LunarGLASS texture intrinsics
@@ -873,7 +874,7 @@ llvm::Value* Builder::smearScalar(llvm::Value* scalar, const llvm::Type* vectorT
 // TODO:  Expand this beyond current level of GLSL 1.2 functionality
 llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamplerType samplerType, int texFlags, const TextureParameters& parameters)
 {
-    if (gla::GetBasicType(resultType) != llvm::Type::FloatTyID)
+    if (! gla::GetBasicType(resultType)->isFloatTy())
         gla::UnsupportedFunctionality("Integer texture sampling");
 
     // Max args based on LunarGLASS TopIR, no SOA
@@ -925,7 +926,7 @@ llvm::Value* Builder::createRecip(llvm::Value* operand)
 {
     const llvm::Type* ty = operand->getType();
 
-    if (ty->isFloatTy() || ty->isVectorTy() && ty->getContainedType(0)->isFloatTy())
+    if (GetBasicType(ty)->isFloatTy())
         return builder.CreateFDiv(llvm::ConstantFP::get(ty, 1.0), operand);
 
     UnsupportedFunctionality("Unknown type to be taking the reciprocal of: ", ty->getTypeID());

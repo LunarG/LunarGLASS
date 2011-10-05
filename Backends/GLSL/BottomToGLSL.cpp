@@ -57,6 +57,17 @@ namespace gla {
 
         return true;
     }
+
+    bool IsIdentitySwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
+    {
+        for (int i = 0; i < elts.size(); ++i) {
+            if (IsUndef(elts[i]) || i != GetConstantInt(elts[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 //
@@ -978,6 +989,35 @@ protected:
             emitComponentToSwizzle(GetSwizzle(glaSwizzle, i));
     }
 
+    // Emit the swizzle represented by the vector of channel selections
+    void emitGlaSwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
+    {
+        shader << ".";
+
+        // Output the components for all defined channels
+        for (int i = 0; i < elts.size(); ++i) {
+            if (! IsDefined(elts[i]))
+                continue;
+
+            emitComponentToSwizzle(GetConstantInt(elts[i]));
+        }
+    }
+
+    // Emit a writemask. Emits a component for each defined element of the
+    // passed vector
+    void emitGlaWriteMask(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
+    {
+        shader << ".";
+
+        // Output the components for all defined channels
+        for (int i = 0; i < elts.size(); ++i) {
+            if (! IsDefined(elts[i]))
+                continue;
+
+            emitComponentToSwizzle(i);
+        }
+    }
+
     // Whether the given intrinsic's specified operand is the same as the passed
     // value, and its type is a vector.
     bool isSameSource(llvm::Value *source, const llvm::IntrinsicInst *inst, int operand)
@@ -1818,44 +1858,68 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fSwizzle:
         newLine();
         emitGlaValue(llvmInstruction);
+
+        llvm::Constant* mask = llvm::dyn_cast<llvm::Constant>(llvmInstruction->getOperand(1));
+        assert(mask);
+
+        llvm::SmallVector<llvm::Constant*, 8> elts;
+        mask->getVectorElements(elts);
+
+        if (! AreAllDefined(mask)) {
+            shader << ";";
+            newLine();
+
+            // Set our writemask to correspond to defined components
+            emitGlaValue(llvmInstruction);
+            emitGlaWriteMask(elts);
+        }
+
         shader << " = ";
+
+        llvm::Value* src = llvmInstruction->getOperand(0);
+        int srcVectorWidth = GetComponentCount(src);
+
+        int dstVectorWidth = GetComponentCount(mask);
+        assert(dstVectorWidth == GetComponentCount(llvmInstruction));
 
         // Case 0:  it's scalar making a scalar.
         // use nothing, just copy
-        if (GetComponentCount(llvmInstruction->getOperand(0)) == 1 && GetComponentCount(llvmInstruction) == 1) {
-            emitGlaOperand(llvmInstruction->getOperand(0));
+        if (srcVectorWidth == 1 && dstVectorWidth == 1) {
+            emitGlaOperand(src);
             shader << ";";
+
             return;
         }
 
         // Case 1:  it's a scalar with multiple ".x" to expand it to a vector.
         // use a constructor to turn a scalar into a vector
-        if (GetComponentCount(llvmInstruction->getOperand(0)) == 1 && GetComponentCount(llvmInstruction) > 1) {
+        if (srcVectorWidth == 1 && dstVectorWidth > 1) {
             emitGlaType(shader, llvmInstruction->getType());
             shader << "(";
-            emitGlaOperand(llvmInstruction->getOperand(0));
+            emitGlaOperand(src);
             shader << ");";
+
             return;
         }
 
         // Case 2:  it's sequential .xy...  subsetting a vector.
-        // use a constructor to subset the vectorto a vector
-        if (GetComponentCount(llvmInstruction->getOperand(0)) > 1 && GetComponentCount(llvmInstruction) > 1 &&
-            IsIdentitySwizzle(GetConstantInt(llvmInstruction->getOperand(1)), GetComponentCount(llvmInstruction))) {
-
+        // use a constructor to subset the vector to a vector
+        if (srcVectorWidth > 1 && dstVectorWidth > 1 && IsIdentitySwizzle(elts)) {
             emitGlaType(shader, llvmInstruction->getType());
             shader << "(";
-            emitGlaOperand(llvmInstruction->getOperand(0));
+            emitGlaOperand(src);
             shader << ");";
+
             return;
         }
 
         // Case 3:  it's a non-sequential subsetting of a vector.
         // use GLSL swizzles
-        emitGlaOperand(llvmInstruction->getOperand(0));
-        if (GetComponentCount(llvmInstruction->getOperand(0)) > 1)
-            emitGlaSwizzle(GetConstantInt(llvmInstruction->getOperand(1)), GetComponentCount(llvmInstruction));
+        assert(srcVectorWidth > 1);
+        emitGlaOperand(src);
+        emitGlaSwizzle(elts);
         shader << ";";
+
         return;
     }
 

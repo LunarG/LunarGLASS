@@ -52,7 +52,7 @@ ifmerge:                                          ; preds = %then, %then6
 
 then7:                                            ; preds = %ifmerge
   %17 = load <4 x float>* %color
-  %18 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float 1.000000e+00, i32 0)
+  %18 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %color8 = fadd <4 x float> %17, %18
   store <4 x float> %color8, <4 x float>* %color
   br label %ifmerge9
@@ -75,7 +75,7 @@ then11:                                           ; preds = %post-discard
   %23 = call float @llvm.gla.fPow.f32.f32.f32(float %22, float 1.600000e+01)
   %24 = fdiv float %23, 2.000000e+00
   %25 = call float @llvm.gla.fAbs.f32.f32(float %24)
-  %26 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %25, i32 0)
+  %26 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %25, <4 x i32> zeroinitializer)
   %color12 = fsub <4 x float> %21, %26
   store <4 x float> %color12, <4 x float>* %color
   br label %ifmerge13
@@ -98,7 +98,7 @@ declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind rea
 
 declare float @llvm.gla.fSqrt.f32.f32(float) nounwind readnone
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare void @llvm.gla.discard() nounwind
 

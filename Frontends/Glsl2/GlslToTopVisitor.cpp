@@ -825,8 +825,8 @@ ir_visitor_status
         lastValue = callInst;
 
     } else {
-        if(!strcmp(call->callee_name(), "mix")) {
-            if(llvm::Type::IntegerTyID == gla::GetBasicType(llvmParams[0])) {
+        if (! strcmp(call->callee_name(), "mix")) {
+            if(GetBasicType(llvmParams[0])->isIntegerTy()) {
                 lastValue = llvmBuilder.CreateSelect(llvmParams[2], llvmParams[0], llvmParams[1]);
             } else {
                 lastValue = glaBuilder->createIntrinsicCall(llvm::Intrinsic::gla_fMix, llvmParams[0], llvmParams[1], llvmParams[2]);

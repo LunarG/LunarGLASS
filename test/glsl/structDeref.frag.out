@@ -94,7 +94,7 @@ ifmerge13:                                        ; preds = %ifmerge, %then11
   %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %26 = load i32 addrspace(1)* @"sampler2D sampler"
   %27 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %26, i32 0, <2 x float> %coord14)
-  %28 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %25, i32 0)
+  %28 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %25, <4 x i32> zeroinitializer)
   %gl_FragColor = fmul <4 x float> %28, %27
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
@@ -112,7 +112,7 @@ declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind rea
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
@@ -187,7 +187,7 @@ ifmerge13:                                        ; preds = %ifmerge, %then11
   %13 = load i32 addrspace(1)* @"sampler2D sampler"
   %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %14 = fadd float %12, %11
-  %15 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float %14, i32 0)
+  %15 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %14, <4 x i32> zeroinitializer)
   %16 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %13, i32 0, <2 x float> %coord14)
   %gl_FragColor = fmul <4 x float> %15, %16
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
@@ -204,7 +204,7 @@ declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind rea
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32(float, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 compiling structDeref.frag...

@@ -70,16 +70,50 @@ namespace gla_llvm {
         return inst->getOpcode() == Instruction::Load;
     }
 
+    inline bool IsStore(const Instruction* inst)
+    {
+        return inst->getOpcode() == Instruction::Store;
+    }
+
+    inline bool IsGEP(const Instruction* inst)
+    {
+        return inst->getOpcode() == Instruction::GetElementPtr;
+    }
+
+    inline bool IsAbs(const Instruction* inst)
+    {
+        const IntrinsicInst* intrInst = dyn_cast<const IntrinsicInst>(inst);
+
+        return intrInst && (intrInst->getIntrinsicID() == Intrinsic::gla_fAbs
+                            || intrInst->getIntrinsicID() == Intrinsic::gla_abs);
+    }
+
+    inline bool IsMultiInsert(const Instruction* inst)
+    {
+        const IntrinsicInst* miInst = dyn_cast<const IntrinsicInst>(inst);
+
+        return miInst && (miInst->getIntrinsicID() == Intrinsic::gla_multiInsert
+                          || miInst->getIntrinsicID() == Intrinsic::gla_fMultiInsert);
+    }
+
+    inline bool IsGlaSwizzle(const Instruction* inst)
+    {
+        const IntrinsicInst* swInst = dyn_cast<const IntrinsicInst>(inst);
+
+        return swInst && (swInst->getIntrinsicID() == Intrinsic::gla_swizzle
+                          || swInst->getIntrinsicID() == Intrinsic::gla_fSwizzle);
+    }
+
     inline bool IsDiscardConditional(const Instruction* inst)
     {
         const IntrinsicInst* intrInst = dyn_cast<IntrinsicInst>(inst);
-        return intrInst && intrInst->getIntrinsicID() == llvm::Intrinsic::gla_discardConditional;
+        return intrInst && intrInst->getIntrinsicID() == Intrinsic::gla_discardConditional;
     }
 
     inline bool IsDiscard(const Instruction* inst, bool ignoreDiscardConditionals=true)
     {
         const IntrinsicInst* intrInst = dyn_cast<IntrinsicInst>(inst);
-        return intrInst && (intrInst->getIntrinsicID() == llvm::Intrinsic::gla_discard
+        return intrInst && (intrInst->getIntrinsicID() == Intrinsic::gla_discard
                             || (! ignoreDiscardConditionals && IsDiscardConditional(inst)));
     }
 
@@ -93,6 +127,20 @@ namespace gla_llvm {
 
         return false;
     }
+
+    bool IsNegation(const Instruction* inst);
+
+    // Given a MultiInsert, returns the channel selects designated by its
+    // writemask.
+    void GetMultiInsertSelects(const Instruction* miInst, SmallVectorImpl<Constant*>& channelSelects);
+
+    // Given a MultiInsert, if all the sources designated by its writemask are
+    // the same, return the source, else returns 0
+    Value* GetMultiInsertUniqueSource(const Instruction* miInst);
+
+    // Whether the given instruction really represents a swizzle. ShuffleVectors
+    // over an undef and single-source MultiInserts into an undef represent swizles.
+    bool RepresentsSwizzle(const Instruction* inst);
 
     // If the given instruction is an intrinsic that can be constant folded,
     // returns the constant result. Returns 0 if it can't do anything.
