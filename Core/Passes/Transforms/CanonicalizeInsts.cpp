@@ -114,9 +114,12 @@ CallInst* CanonicalizeInsts::createSwizzleIntrinsic(Value* val, const SmallVecto
 
     const Type* tys[] = { retTy, inst->getType(), maskArg->getType() };
 
-    // Make a builder ready to insert right after the value
+    // Make a builder ready to insert right after the value, or after all the
+    // PHINodes if the value is the result of a PHI.
+    Instruction* insertPoint = isa<PHINode>(inst) ? inst->getParent()->getFirstNonPHI() : inst->getNextNode();
+
     IRBuilder<> builder(module->getContext());
-    builder.SetInsertPoint(inst->getNextNode());
+    builder.SetInsertPoint(insertPoint);
 
     Function* sig = Intrinsic::getDeclaration(module, id, tys, 3);
     return builder.CreateCall2(sig, inst, maskArg);

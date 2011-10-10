@@ -846,7 +846,7 @@ then147:                                          ; preds = %ifmerge85
   %50 = fadd float %48, %49
   %51 = extractelement <4 x float> %assignment_tmp101102, i32 3
   %52 = fadd float %50, %51
-  %53 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %52, <4 x i32> <i32 -1, i32 -1, i32 -1, i32 -1>)
+  %53 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %52, <4 x i32> zeroinitializer)
   br label %ifmerge150
 
 else149:                                          ; preds = %ifmerge85
@@ -894,30 +894,30 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 compiling types.frag...
-uniform bool u_b ; 
-uniform bvec2 u_b2 ; 
-uniform bvec3 u_b3 ; 
-uniform bvec4 u_b4 ; 
-uniform int u_i ; 
-uniform ivec2 u_i2 ; 
-uniform ivec3 u_i3 ; 
-uniform ivec4 u_i4 ; 
-uniform float u_f ; 
-uniform vec2 u_f2 ; 
-uniform vec3 u_f3 ; 
-uniform vec4 u_f4 ; 
-in flat bool i_b ; 
-in flat bvec2 i_b2 ; 
-in flat bvec3 i_b3 ; 
-in flat bvec4 i_b4 ; 
-in flat int i_i ; 
-in flat ivec2 i_i2 ; 
-in flat ivec3 i_i3 ; 
-in flat ivec4 i_i4 ; 
-in float i_f ; 
-in vec2 i_f2 ; 
-in vec3 i_f3 ; 
-in vec4 i_f4 ; 
+uniform bool u_b ;
+uniform bvec2 u_b2 ;
+uniform bvec3 u_b3 ;
+uniform bvec4 u_b4 ;
+uniform int u_i ;
+uniform ivec2 u_i2 ;
+uniform ivec3 u_i3 ;
+uniform ivec4 u_i4 ;
+uniform float u_f ;
+uniform vec2 u_f2 ;
+uniform vec3 u_f3 ;
+uniform vec4 u_f4 ;
+in flat bool i_b ;
+in flat bvec2 i_b2 ;
+in flat bvec3 i_b3 ;
+in flat bvec4 i_b4 ;
+in flat int i_i ;
+in flat ivec2 i_i2 ;
+in flat ivec3 i_i3 ;
+in flat ivec4 i_i4 ;
+in float i_f ;
+in vec2 i_f2 ;
+in vec3 i_f3 ;
+in vec4 i_f4 ;
 void  main (){
 bool b = u_b && i_b ; bvec2 b2 = bvec2 ( u_b2 . x && i_b2 . x && u_b2 . y && i_b2 . y ) ; bvec3 b3 = bvec3 ( u_b3 . x && i_b3 . x && u_b3 . y && i_b3 . y && u_b3 . z && i_b3 . z ) ; bvec4 b4 = bvec4 ( u_b4 . x && i_b4 . x && u_b4 . y && i_b4 . y && u_b4 . z && i_b4 . z && u_b4 . w && i_b4 . w ) ; int i = u_i + i_i ; ivec2 i2 = u_i2 + i_i2 ; ivec3 i3 = u_i3 + i_i3 ; ivec4 i4 = u_i4 + i_i4 ; float f = u_f + i_f ; vec2 f2 = u_f2 + i_f2 ; vec3 f3 = u_f3 + i_f3 ; vec4 f4 = u_f4 + i_f4 ; gl_FragColor = b || b2 . x || b2 . y || b3 . x || b3 . y || b3 . z || b4 . x || b4 . y || b4 . z || b4 . w ? vec4 ( i + i2 . x + i2 . y + i3 . x + i3 . y + i3 . z + i4 . x + i4 . y + i4 . z + i4 . w + f + f2 . x + f2 . y + f3 . x + f3 . y + f3 . z + f4 . x + f4 . y + f4 . z + f4 . w ) : vec4 ( i + i2 . x + i2 . y + i3 . x + i3 . y + i3 . z + i4 . x + i4 . y + i4 . z + i4 . w + f + f2 . x + f2 . y + f3 . x + f3 . y + f3 . z + f4 . x + f4 . y + f4 . z + f4 . w ) ; }
 
@@ -956,235 +956,235 @@ bool b = u_b && i_b ; bvec2 b2 = bvec2 ( u_b2 . x && i_b2 . x && u_b2 . y && i_b
     (
       (declare (temporary ) bool and_tmp)
       (if (var_ref u_b) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (var_ref i_b) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (var_ref i_b) )
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (swiz x (var_ref u_b2) )(
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz x (var_ref i_b2) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz x (var_ref i_b2) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref u_b2) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref u_b2) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref i_b2) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref i_b2) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bvec2 vec_ctor)
-      (assign (constant bool (1)) (xy) (var_ref vec_ctor)  (swiz xx (var_ref and_tmp) )) 
+      (assign (constant bool (1)) (xy) (var_ref vec_ctor)  (swiz xx (var_ref and_tmp) ))
       (declare (temporary ) bool and_tmp)
       (if (swiz x (var_ref u_b3) )(
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz x (var_ref i_b3) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz x (var_ref i_b3) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref u_b3) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref u_b3) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref i_b3) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref i_b3) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz z (var_ref u_b3) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz z (var_ref u_b3) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz z (var_ref i_b3) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz z (var_ref i_b3) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bvec3 vec_ctor)
-      (assign (constant bool (1)) (xyz) (var_ref vec_ctor)  (swiz xxx (var_ref and_tmp) )) 
+      (assign (constant bool (1)) (xyz) (var_ref vec_ctor)  (swiz xxx (var_ref and_tmp) ))
       (declare (temporary ) bool and_tmp)
       (if (swiz x (var_ref u_b4) )(
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz x (var_ref i_b4) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz x (var_ref i_b4) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref u_b4) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref u_b4) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref i_b4) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz y (var_ref i_b4) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz z (var_ref u_b4) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz z (var_ref u_b4) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz z (var_ref i_b4) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz z (var_ref i_b4) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz w (var_ref u_b4) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz w (var_ref u_b4) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bool and_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz w (var_ref i_b4) )) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (swiz w (var_ref i_b4) ))
       )
       (
-        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) ) 
+        (assign (constant bool (1)) (x) (var_ref and_tmp)  (constant bool (0)) )
       ))
 
       (declare (temporary ) bvec4 vec_ctor)
-      (assign (constant bool (1)) (xyzw) (var_ref vec_ctor)  (swiz xxxx (var_ref and_tmp) )) 
+      (assign (constant bool (1)) (xyzw) (var_ref vec_ctor)  (swiz xxxx (var_ref and_tmp) ))
       (declare (temporary ) int assignment_tmp)
-      (assign (constant bool (1)) (x) (var_ref assignment_tmp)  (expression int + (var_ref u_i) (var_ref i_i) ) ) 
+      (assign (constant bool (1)) (x) (var_ref assignment_tmp)  (expression int + (var_ref u_i) (var_ref i_i) ) )
       (declare (temporary ) ivec2 assignment_tmp)
-      (assign (constant bool (1)) (xy) (var_ref assignment_tmp)  (expression ivec2 + (var_ref u_i2) (var_ref i_i2) ) ) 
+      (assign (constant bool (1)) (xy) (var_ref assignment_tmp)  (expression ivec2 + (var_ref u_i2) (var_ref i_i2) ) )
       (declare (temporary ) ivec3 assignment_tmp)
-      (assign (constant bool (1)) (xyz) (var_ref assignment_tmp)  (expression ivec3 + (var_ref u_i3) (var_ref i_i3) ) ) 
+      (assign (constant bool (1)) (xyz) (var_ref assignment_tmp)  (expression ivec3 + (var_ref u_i3) (var_ref i_i3) ) )
       (declare (temporary ) ivec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression ivec4 + (var_ref u_i4) (var_ref i_i4) ) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression ivec4 + (var_ref u_i4) (var_ref i_i4) ) )
       (declare (temporary ) float assignment_tmp)
-      (assign (constant bool (1)) (x) (var_ref assignment_tmp)  (expression float + (var_ref u_f) (var_ref i_f) ) ) 
+      (assign (constant bool (1)) (x) (var_ref assignment_tmp)  (expression float + (var_ref u_f) (var_ref i_f) ) )
       (declare (temporary ) vec2 assignment_tmp)
-      (assign (constant bool (1)) (xy) (var_ref assignment_tmp)  (expression vec2 + (var_ref u_f2) (var_ref i_f2) ) ) 
+      (assign (constant bool (1)) (xy) (var_ref assignment_tmp)  (expression vec2 + (var_ref u_f2) (var_ref i_f2) ) )
       (declare (temporary ) vec3 assignment_tmp)
-      (assign (constant bool (1)) (xyz) (var_ref assignment_tmp)  (expression vec3 + (var_ref u_f3) (var_ref i_f3) ) ) 
+      (assign (constant bool (1)) (xyz) (var_ref assignment_tmp)  (expression vec3 + (var_ref u_f3) (var_ref i_f3) ) )
       (declare (temporary ) vec4 assignment_tmp)
-      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref u_f4) (var_ref i_f4) ) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref u_f4) (var_ref i_f4) ) )
       (declare (temporary ) bool or_tmp)
       (if (var_ref and_tmp) (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) ) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) )
       )
       (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz x (var_ref vec_ctor) )) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz x (var_ref vec_ctor) ))
       ))
 
       (declare (temporary ) bool or_tmp)
       (if (var_ref or_tmp) (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) ) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) )
       )
       (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz y (var_ref vec_ctor) )) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz y (var_ref vec_ctor) ))
       ))
 
       (declare (temporary ) bool or_tmp)
       (if (var_ref or_tmp) (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) ) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) )
       )
       (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz x (var_ref vec_ctor) )) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz x (var_ref vec_ctor) ))
       ))
 
       (declare (temporary ) bool or_tmp)
       (if (var_ref or_tmp) (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) ) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) )
       )
       (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz y (var_ref vec_ctor) )) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz y (var_ref vec_ctor) ))
       ))
 
       (declare (temporary ) bool or_tmp)
       (if (var_ref or_tmp) (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) ) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) )
       )
       (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz z (var_ref vec_ctor) )) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz z (var_ref vec_ctor) ))
       ))
 
       (declare (temporary ) bool or_tmp)
       (if (var_ref or_tmp) (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) ) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) )
       )
       (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz x (var_ref vec_ctor) )) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz x (var_ref vec_ctor) ))
       ))
 
       (declare (temporary ) bool or_tmp)
       (if (var_ref or_tmp) (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) ) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) )
       )
       (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz y (var_ref vec_ctor) )) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz y (var_ref vec_ctor) ))
       ))
 
       (declare (temporary ) bool or_tmp)
       (if (var_ref or_tmp) (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) ) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) )
       )
       (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz z (var_ref vec_ctor) )) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz z (var_ref vec_ctor) ))
       ))
 
       (declare (temporary ) bool or_tmp)
       (if (var_ref or_tmp) (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) ) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (constant bool (1)) )
       )
       (
-        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz w (var_ref vec_ctor) )) 
+        (assign (constant bool (1)) (x) (var_ref or_tmp)  (swiz w (var_ref vec_ctor) ))
       ))
 
       (declare (temporary ) vec4 conditional_tmp)
       (if (var_ref or_tmp) (
-        (assign (constant bool (1)) (xyzw) (var_ref conditional_tmp)  (swiz xxxx (expression float + (expression float + (expression float + (expression float + (expression float + (expression float + (expression float + (expression float + (expression float + (expression float + (expression float i2f (expression int + (expression int + (expression int + (expression int + (expression int + (expression int + (expression int + (expression int + (expression int + (var_ref assignment_tmp) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz z (var_ref assignment_tmp) )) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz z (var_ref assignment_tmp) )) (swiz w (var_ref assignment_tmp) )) ) (var_ref assignment_tmp) ) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz z (var_ref assignment_tmp) )) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz z (var_ref assignment_tmp) )) (swiz w (var_ref assignment_tmp) )) )) 
+        (assign (constant bool (1)) (xyzw) (var_ref conditional_tmp)  (swiz xxxx (expression float + (expression float + (expression float + (expression float + (expression float + (expression float + (expression float + (expression float + (expression float + (expression float + (expression float i2f (expression int + (expression int + (expression int + (expression int + (expression int + (expression int + (expression int + (expression int + (expression int + (var_ref assignment_tmp) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz z (var_ref assignment_tmp) )) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz z (var_ref assignment_tmp) )) (swiz w (var_ref assignment_tmp) )) ) (var_ref assignment_tmp) ) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz z (var_ref assignment_tmp) )) (swiz x (var_ref assignment_tmp) )) (swiz y (var_ref assignment_tmp) )) (swiz z (var_ref assignment_tmp) )) (swiz w (var_ref assignment_tmp) )) ))
       )
       (
-        (assign (constant bool (1)) (xyzw) (var_ref conditional_tmp)  (constant vec4 (1.000000 1.000000 1.000000 1.000000)) ) 
+        (assign (constant bool (1)) (xyzw) (var_ref conditional_tmp)  (constant vec4 (1.000000 1.000000 1.000000 1.000000)) )
       ))
 
-      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref conditional_tmp) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref conditional_tmp) )
     ))
 
 )
@@ -1251,112 +1251,112 @@ void main()
     else {
         and_tmp_0 = const38_false;
     }
-    
+
     if (u_b2.x) {
         and_tmp1_0 = i_b2.x;
     }
     else {
         and_tmp1_0 = const38_false;
     }
-    
+
     if (and_tmp1_0) {
         and_tmp6_0 = u_b2.y;
     }
     else {
         and_tmp6_0 = const38_false;
     }
-    
+
     if (and_tmp6_0) {
         and_tmp11_0 = i_b213.y;
     }
     else {
         and_tmp11_0 = const38_false;
     }
-    
+
     if (u_b3.x) {
         and_tmp18_0 = i_b3.x;
     }
     else {
         and_tmp18_0 = const38_false;
     }
-    
+
     if (and_tmp18_0) {
         and_tmp23_0 = u_b3.y;
     }
     else {
         and_tmp23_0 = const38_false;
     }
-    
+
     if (and_tmp23_0) {
         and_tmp28_0 = i_b330.y;
     }
     else {
         and_tmp28_0 = const38_false;
     }
-    
+
     if (and_tmp28_0) {
         and_tmp34_0 = u_b3.z;
     }
     else {
         and_tmp34_0 = const38_false;
     }
-    
+
     if (and_tmp34_0) {
         and_tmp39_0 = i_b341.z;
     }
     else {
         and_tmp39_0 = const38_false;
     }
-    
+
     if (u_b4.x) {
         and_tmp47_0 = i_b4.x;
     }
     else {
         and_tmp47_0 = const38_false;
     }
-    
+
     if (and_tmp47_0) {
         and_tmp52_0 = u_b4.y;
     }
     else {
         and_tmp52_0 = const38_false;
     }
-    
+
     if (and_tmp52_0) {
         and_tmp57_0 = i_b459.y;
     }
     else {
         and_tmp57_0 = const38_false;
     }
-    
+
     if (and_tmp57_0) {
         and_tmp63_0 = u_b4.z;
     }
     else {
         and_tmp63_0 = const38_false;
     }
-    
+
     if (and_tmp63_0) {
         and_tmp69_0 = i_b471.z;
     }
     else {
         and_tmp69_0 = const38_false;
     }
-    
+
     if (and_tmp69_0) {
         and_tmp75_0 = u_b4.w;
     }
     else {
         and_tmp75_0 = const38_false;
     }
-    
+
     if (and_tmp75_0) {
         and_tmp80_0 = i_b482.w;
     }
     else {
         and_tmp80_0 = const38_false;
     }
-    
+
     ivec2 assignment_tmp8990 = u_i2 + i_i2;
     ivec3 assignment_tmp9192 = u_i3 + i_i3;
     ivec4 assignment_tmp9394 = u_i4 + i_i4;
@@ -1395,7 +1395,7 @@ void main()
     else {
         conditional_tmp_0 = const71;
     }
-    
+
     gl_FragColor = conditional_tmp_0;
-    
+
 }

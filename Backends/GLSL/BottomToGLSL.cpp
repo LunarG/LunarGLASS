@@ -1086,10 +1086,10 @@ protected:
             // Build up the rhs mask
             int singleSourceMask = 0;
             for (int i = 0, pos = 0; i < 4; ++i) {
-                // If it's not -1, then add it to our swizzle.
-                int swizOffset = GetConstantInt(inst->getOperand(i*2 + 3));
-                if (swizOffset != -1) {
-                    singleSourceMask |= ( swizOffset << (pos*2));
+                // Get the component select
+                llvm::Constant* swizOffset = llvm::dyn_cast<llvm::Constant>(inst->getOperand(i*2 + 3));
+                if (IsDefined(swizOffset)) {
+                    singleSourceMask |= (GetConstantInt(swizOffset) << (pos*2));
                     ++pos;
                 }
             }

@@ -1042,7 +1042,7 @@ entry:
   %46 = extractelement <4 x float> %assignment_tmp7273, i32 3
   %ord203 = fcmp oeq float %46, %46
   %47 = uitofp i1 %ord203 to float
-  %48 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %41, i32 -1, float %43, i32 -1, float %45, i32 -1, float %47, i32 -1)
+  %48 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %41, i32 0, float %43, i32 0, float %45, i32 0, float %47, i32 0)
   %assignment_tmp7980 = fadd <4 x float> %assignment_tmp7273, %48
   %49 = fsub <4 x float> %assignment_tmp7980, %assignment_tmp7980
   %50 = fdiv <4 x float> %49, %49
@@ -1281,7 +1281,7 @@ then189:                                          ; preds = %ifmerge188
 
 ifmerge191:                                       ; preds = %ifmerge188, %then189
   %f.0 = phi float [ %f190, %then189 ], [ %assignment_tmp176177, %ifmerge188 ]
-  %123 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %f.0, <4 x i32> <i32 -1, i32 -1, i32 -1, i32 -1>)
+  %123 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %f.0, <4 x i32> zeroinitializer)
   br i1 %and_tmp149.0, label %then195, label %else197
 
 then195:                                          ; preds = %ifmerge191
@@ -1293,7 +1293,7 @@ then195:                                          ; preds = %ifmerge191
   %129 = shl i32 %128, %90
   %assignment_tmp192193 = xor i32 %129, -1
   %130 = sitofp i32 %assignment_tmp192193 to float
-  %131 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %130, <4 x i32> <i32 -1, i32 -1, i32 -1, i32 -1>)
+  %131 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %130, <4 x i32> zeroinitializer)
   %132 = fadd <4 x float> %131, %123
   %conditional_tmp196 = fadd <4 x float> %132, %v107
   br label %ifmerge199

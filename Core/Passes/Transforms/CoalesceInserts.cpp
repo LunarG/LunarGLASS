@@ -401,7 +401,7 @@ void MultiInsertIntrinsic::buildFromGroup()
         Value* src = (*instI)->getOperand(1);
 
         // Find the access offset of the underlying extract intrinsic
-        std::pair<Value*,int> p(src, -1);
+        std::pair<Value*,int> p(src, 0);
         GetUnderlyingOffsetAndValue(p);
 
         int offset = p.second;
@@ -459,19 +459,21 @@ void MultiInsertIntrinsic::makeIntrinsic()
     intrinsicTypes[4] = values[2]      ? values[2]->getType()      : defaultType;
     intrinsicTypes[5] = values[3]      ? values[3]->getType()      : defaultType;
 
+    const Type* i32Ty = Type::getInt32Ty(llvmcontext);
+
     // Get the function declaration for this intrinsic
     Value* callee = llvm::Intrinsic::getDeclaration(module, intrinsicID, intrinsicTypes, typesCount);
 
-    Value* mask    = ConstantInt::get(Type::getInt32Ty(llvmcontext), writeMask);
-    Value* xOffset = ConstantInt::get(Type::getInt32Ty(llvmcontext), offsets[0]);
-    Value* yOffset = ConstantInt::get(Type::getInt32Ty(llvmcontext), offsets[1]);
-    Value* zOffset = ConstantInt::get(Type::getInt32Ty(llvmcontext), offsets[2]);
-    Value* wOffset = ConstantInt::get(Type::getInt32Ty(llvmcontext), offsets[3]);
+    Value* mask    = ConstantInt::get(i32Ty, writeMask);
+    Value* xOffset = offsets[0] == -1 ? UndefValue::get(i32Ty) : ConstantInt::get(i32Ty, offsets[0]);
+    Value* yOffset = offsets[1] == -1 ? UndefValue::get(i32Ty) : ConstantInt::get(i32Ty, offsets[1]);
+    Value* zOffset = offsets[2] == -1 ? UndefValue::get(i32Ty) : ConstantInt::get(i32Ty, offsets[2]);
+    Value* wOffset = offsets[3] == -1 ? UndefValue::get(i32Ty) : ConstantInt::get(i32Ty, offsets[3]);
 
-    Value* xV = values[0] ? values[0] : Constant::getNullValue(defaultType);
-    Value* yV = values[1] ? values[1] : Constant::getNullValue(defaultType);
-    Value* zV = values[2] ? values[2] : Constant::getNullValue(defaultType);
-    Value* wV = values[3] ? values[3] : Constant::getNullValue(defaultType);
+    Value* xV = values[0] ? values[0] : UndefValue::get(defaultType);
+    Value* yV = values[1] ? values[1] : UndefValue::get(defaultType);
+    Value* zV = values[2] ? values[2] : UndefValue::get(defaultType);
+    Value* wV = values[3] ? values[3] : UndefValue::get(defaultType);
 
     Value* args[] = { originalSource, mask, xV, xOffset, yV, yOffset, zV, zOffset, wV, wOffset };
 

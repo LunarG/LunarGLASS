@@ -68,7 +68,7 @@ entry:
   %alpha = call float @llvm.gla.fReadInterpolant.f32(i32 3, i32 -1, i32 1)
   %texColor1 = fadd <4 x float> %3, %color
   %4 = fadd <4 x float> %"gl_TexCoord[0]", %"gl_TexCoord[4]"
-  %5 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor1, i32 8, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float %alpha, i32 -1)
+  %5 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor1, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %alpha, i32 0)
   %gl_FragColor = fadd <4 x float> %4, %5
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue

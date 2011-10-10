@@ -238,7 +238,7 @@ then7:                                            ; preds = %ifmerge5
   br label %stage-exit
 
 ifmerge8:                                         ; preds = %ifmerge5
-  %10 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.0, i32 4, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float %7, i32 -1, float 0.000000e+00, i32 -1)
+  %10 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.0, i32 4, float undef, i32 undef, float undef, i32 undef, float %7, i32 0, float undef, i32 undef)
   %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
   %assignment_tmp9 = fadd <4 x float> %10, %11
   %12 = extractelement <4 x float> %assignment_tmp9, i32 3
@@ -260,7 +260,7 @@ else14:                                           ; preds = %then11
 
 then15:                                           ; preds = %else14
   %18 = fadd float %15, 1.000000e+00
-  %19 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %assignment_tmp9, i32 4, float 0.000000e+00, i32 -1, float 0.000000e+00, i32 -1, float %18, i32 -1, float 0.000000e+00, i32 -1)
+  %19 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %assignment_tmp9, i32 4, float undef, i32 undef, float undef, i32 undef, float %18, i32 0, float undef, i32 undef)
   br label %ifmerge23
 
 else17:                                           ; preds = %else14
