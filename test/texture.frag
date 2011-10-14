@@ -75,5 +75,10 @@ void main()
     //color += shadow1DProjLod(shadowSampler1D, coords4D, lod);
     //color += shadow2DProjLod(shadowSampler2D, coords4D, lod);
 
+    ivec2 iCoords2D = ivec2(0, 5);
+    int iLod = 1;
+
+    color += texelFetch(texSampler2D, iCoords2D, iLod);
+
     gl_FragColor = mix(color, u, blend * blendscale);
 }

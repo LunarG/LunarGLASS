@@ -49,17 +49,19 @@ namespace gla {
     };
 
     enum ETextureFlags {
-        ETFProjected    = 0x001,
-        ETFBias         = 0x002,
-        ETFLod          = 0x004,
-        ETFShadow       = 0x008,
-        ETFArrayed      = 0x010,
-        ETFBiasLodArg   = 0x020,
-        ETFOffsetArg    = 0x040,
-        ETFSampleArg    = 0x080,
-        ETFComponentArg = 0x100,
-        ETFRefZArg      = 0x200,
-        ETFProjectedArg = 0x400,   
+        ETFProjected    = 0x0001,
+        ETFBias         = 0x0002,
+        ETFLod          = 0x0004,
+        ETFShadow       = 0x0008,
+        ETFArrayed      = 0x0010,
+        ETFFetch        = 0x0020,
+        ETFGather       = 0x0040,
+        ETFBiasLodArg   = 0x0080,
+        ETFOffsetArg    = 0x0100,
+        ETFSampleArg    = 0x0200,
+        ETFComponentArg = 0x0400,
+        ETFRefZArg      = 0x0800,
+        ETFProjectedArg = 0x1000,
     };
 
     // Texture op, for mapping operands

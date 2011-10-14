@@ -525,8 +525,13 @@ ir_visitor_status
         textureParameters.ETPBiasLod = lastValue;
         texFlags |= gla::ETFBiasLodArg;
         break;
-    case ir_txd:
     case ir_txf:
+        texFlags |= gla::ETFFetch;
+        ir->lod_info.lod->accept(this);
+        textureParameters.ETPBiasLod = lastValue;
+        texFlags |= gla::ETFBiasLodArg;
+        break;
+    case ir_txd:
         gla::UnsupportedFunctionality("texture opcode", (int)ir->op, ir->opcode_string());
         break;
     }

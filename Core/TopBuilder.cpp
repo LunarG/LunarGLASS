@@ -874,36 +874,70 @@ llvm::Value* Builder::smearScalar(llvm::Value* scalar, const llvm::Type* vectorT
 // TODO:  Expand this beyond current level of GLSL 1.2 functionality
 llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamplerType samplerType, int texFlags, const TextureParameters& parameters)
 {
-    if (! gla::GetBasicType(resultType)->isFloatTy())
-        gla::UnsupportedFunctionality("Integer texture sampling");
+    bool floatReturn = gla::GetBasicType(resultType)->isFloatTy();
 
     // Max args based on LunarGLASS TopIR, no SOA
     static const int maxTextureArgs = 9;
     llvm::Value* texArgs[maxTextureArgs] = {0};
 
-    // Base case: First texture arguments are fixed for all intrinsics
+    // Base case: First texture arguments are fixed for most intrinsics
     int numArgs = 4;
-    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::gla_fTextureSample;
+    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::not_intrinsic;
 
     texArgs[GetTextureOpIndex(ETOSamplerType)] = MakeIntConstant(context, samplerType);
     texArgs[GetTextureOpIndex(ETOSamplerLoc)]  = parameters.ETPSampler;
     texArgs[GetTextureOpIndex(ETOFlag)]        = MakeUnsignedConstant(context, *(int*)&texFlags);
     texArgs[GetTextureOpIndex(ETOCoord)]       = parameters.ETPCoords;
 
-    // Look at feature flags to determine whether different intrinsic is needed
+    // Look at feature flags to determine which intrinsic is needed
     if (texFlags & ETFBias || texFlags & ETFLod || texFlags & ETFShadow) {
-        numArgs = 6;
-        intrinsicID = llvm::Intrinsic::gla_fTextureSampleLodRefZ;
+        intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTextureSampleLodRefZ
+                                    : llvm::Intrinsic::gla_textureSampleLodRefZ;
+
+    } else if (texFlags & ETFFetch) {
+        intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelFetchOffset
+                                    : llvm::Intrinsic::gla_texelFetchOffset;
+
+    } else {
+        intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTextureSample
+                                    : llvm::Intrinsic::gla_textureSample;
     }
+
+    llvm::Function* intrinsic = 0;
 
     // Initialize required operands based on intrinsic
     switch (intrinsicID) {
+    case llvm::Intrinsic::gla_textureSample:
     case llvm::Intrinsic::gla_fTextureSample:
+        // Base case
         break;
+
+    case llvm::Intrinsic::gla_textureSampleLodRefZ:
     case llvm::Intrinsic::gla_fTextureSampleLodRefZ:
+        
+        numArgs = 6;
         texArgs[GetTextureOpIndex(ETOBiasLod)] = llvm::UndefValue::get(llvm::Type::getFloatTy(context));
         texArgs[GetTextureOpIndex(ETORefZ)]    = llvm::UndefValue::get(llvm::Type::getFloatTy(context));
+
+        // Texcoords are the only flexible parameter for this intrinsic, no need to getIntrinsic here
+
         break;
+
+    case llvm::Intrinsic::gla_texelFetchOffset:
+    case llvm::Intrinsic::gla_fTexelFetchOffset:
+        
+        // LOD and sample can share the BiasLod field, stick Offset RefZ
+        numArgs = 6;
+        texArgs[GetTextureOpIndex(ETOBiasLod)] = llvm::UndefValue::get(llvm::Type::getInt32Ty(context));
+        texArgs[GetTextureOpIndex(ETORefZ)]    = llvm::UndefValue::get(llvm::Type::getInt32Ty(context));
+
+        // We know our flexible types when looking at the intrinsicID, so create our intrinsic here
+        intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(), 
+                                                          texArgs[GetTextureOpIndex(ETOBiasLod)]->getType(), 
+                                                          texArgs[GetTextureOpIndex(ETORefZ)]->getType());
+
+        break;
+
     default:
         gla::UnsupportedFunctionality("Texture intrinsic: ", intrinsicID);
     }
@@ -915,8 +949,11 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
     if (texFlags & ETFRefZArg)
         texArgs[GetTextureOpIndex(ETORefZ)] = parameters.ETPShadowRef;
 
-    // Look up our texture intrinsic and call it
-    llvm::Function* intrinsic = getIntrinsic(intrinsicID, resultType, parameters.ETPCoords->getType());
+
+    // If we haven't already set our intrinsic, do so now with coordinates
+    if (! intrinsic)
+        intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType());
+
     assert(intrinsic);
 
     return builder.CreateCall(intrinsic, texArgs, texArgs + numArgs);

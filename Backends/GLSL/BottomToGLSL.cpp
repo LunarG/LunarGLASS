@@ -557,6 +557,16 @@ protected:
         const char *texture;
 
         // Select texture type based on GLA flag
+        
+        if (texFlags & ETFFetch) {
+            shader << "texelFetch";
+            
+            // For 1.3 and beyond texture functions, no need for the
+            // extra logic below, so just return
+
+            return;
+        }
+        
         if (texFlags & ETFShadow)
             texture = "shadow";
         else
@@ -1794,6 +1804,9 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fTextureSampleLodRefZ:
     case llvm::Intrinsic::gla_fTextureSampleLodRefZOffset:
     case llvm::Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
+    case llvm::Intrinsic::gla_texelFetchOffset:
+    case llvm::Intrinsic::gla_fTexelFetchOffset:
+
 
         newLine();
         emitGlaValue(llvmInstruction);
