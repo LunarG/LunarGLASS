@@ -1,4 +1,4 @@
-//===- CoalesceInserts.cpp - Coalesce insert/extracts into multiInserts -----===//
+//===- CoalesceInserts.cpp - Coalesce inserts/shuffles into multiInserts --===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -24,11 +24,13 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Coalesce insert/extracts into multiInserts. This pass works best if
-// preceeded by instcombine and proceeded by adce.
+// Creates multiInserts for inserts and shuffles. Traces each value to its
+// origin by reading through inserts/extracts/shuffles. This works best when
+// preceeded by instcombine and proceeded by adce. After this pass and adce,
+// there should be no insertElements or shuffleVectors constructing 4-wide or
+// smaller vectors.
 //
 //===----------------------------------------------------------------------===//
-
 
 #include "llvm/ADT/ilist.h"
 #include "llvm/ADT/SmallVector.h"
@@ -108,7 +110,7 @@ namespace {
 
     private:
         GroupVec groups;
-        InstVec inserts;
+        InstVec vecConstructors;
         InstSet handledInsts;
 
         Module* module;
@@ -117,14 +119,15 @@ namespace {
         bool modified;
 
         // Group instructions into the individual multiInserts
-        void groupInserts();
+        void groupVectorConstructors();
 
-        // Add the insert chain specified by v and not already in s to the
-        // provided group in depth-first pre-order.
-        void addInsertChain(Value* v, Group& g, int width, int mask);
+        // Add the insertElements that fully specify a multiInsert into the
+        // group, and add any subsumed instructions to our handledInsts set so
+        // that we don't make multiInserts for them too.
+        void addInsertChain(Value* v, Group& g, int mask);
 
-        // Gather all insert instructions together
-        void gatherInserts();
+        // Gather all vector constructors together
+        void gatherVectorConstructors();
 
         // Output convenience methods
         void printGroups();
@@ -140,14 +143,14 @@ namespace {
     class MultiInsertIntrinsic {
     public:
         MultiInsertIntrinsic(Module* m, LLVMContext& c, BasicBlock& basicblock, Group& g)
-                            : module(m)
-                            , llvmcontext(c)
-                            , bb(basicblock)
-                            , group(g)
-                            , intrinsic(NULL)
-                            , writeMask(0)
-                            , toReplace(NULL)
-                            , originalSource(NULL)
+            : module(m)
+            , llvmcontext(c)
+            , bb(basicblock)
+            , group(g)
+            , intrinsic(NULL)
+            , writeMask(0)
+            , toReplace(NULL)
+            , originalSource(NULL)
         {
             // Initialize each element (for pre-c++0x compliance)
             for (int i = 0; i < 4; ++i) {
@@ -205,6 +208,13 @@ namespace {
 } // end namespace
 
 // Helpers
+// Predicate for whether the instruction constructs a vector. Currently handles
+// inserts and shuffles.
+static bool IsVectorConstructor(Value* i)
+{
+    return isa<InsertElementInst>(i) || (isa<ShuffleVectorInst>(i) && gla::GetComponentCount(i) <= 4);
+}
+
 // Predicate for whether the instruction is an insert
 static bool IsInsertElement(Value* i)
 {
@@ -223,79 +233,116 @@ static bool IsEitherIE(Value* i) {
 }
 
 // Given a value, get the underlying offset and value. If the value is a
-// constant, return -1 and the constant. If the value is an extract of a vector,
+// scalar, return 0 and the scalar. If the value is an extract of a vector,
 // then return the vector and the offset into it. If the extract is extracting
 // from an insert, then traverse all the way down, eventually returning the
 // underlying vector and offset.
-static void GetUnderlyingOffsetAndValue(std::pair<Value*,int>& ov)
+static void GetUnderlyingOffsetAndValue(Value*& value, int& offset)
 {
-    Instruction* inst = dyn_cast<Instruction>(ov.first);
+    while (true) {
+        Instruction* inst = dyn_cast<Instruction>(value);
 
-    // If it's a constant, we're done here.
-    if (!inst) {
-        return;
-    }
-
-    // If it's not an extract or insert, we're done here
-    if (!IsExtractElement(inst) && !IsInsertElement(inst)) {
-        return;
-    }
-
-    // If it's an extract, then traverse down it
-    if (IsExtractElement(inst)) {
-        // Set the value and offset
-        ov.first = inst->getOperand(0);
-        ov.second = gla::GetConstantInt(inst->getOperand(1));
-        // Continue traversing
-        GetUnderlyingOffsetAndValue(ov);
-        return;
-    }
-
-    // If it's an insert, then see what its offset is and what it's pointing to
-    // in order to determine how to traverse it
-    if (IsInsertElement(inst)) {
-
-        // The insert instruction's offset that it is writing to
-        int insertOffset = gla::GetConstantInt(inst->getOperand(2));
-
-        // If the insert is overwriting the field that we are trying to get at,
-        // then continue with it's value, otherwise continue with the insert's
-        // target and the same offset.
-        if (insertOffset == ov.second) {
-            ov.first = inst->getOperand(1);
-            ov.second = -1;
-        } else {
-            ov.first = inst->getOperand(0);
+        // If it's a constant, we're done here.
+        if (!inst) {
+            return;
         }
 
-        // If we're still dealing with an insert or extract, keep traversing,
-        // otherwise we're done.
-        if (IsInsertElement(ov.first) || IsExtractElement(ov.first)) {
-            GetUnderlyingOffsetAndValue(ov);
+        // If it's not an insert/extract/shuffle, we're done here
+        if (! IsExtractElement(inst) && ! IsInsertElement(inst) && ! isa<ShuffleVectorInst>(inst)) {
+            return;
         }
-        return;
+
+        // If it's an extract, then traverse down it
+        if (IsExtractElement(inst)) {
+            // Set the value and offset
+            value  = inst->getOperand(0);
+            offset = gla::GetConstantInt(inst->getOperand(1));
+
+            continue;
+        }
+
+        // If it's a ShuffleVector, then continue on the appropriate source and with
+        // the appropriate offset
+        if (isa<ShuffleVectorInst>(inst)) {
+            SmallVector<Constant*, 8> elts;
+            Constant* shuffleMask = dyn_cast<Constant>(inst->getOperand(2));
+            assert(shuffleMask);
+
+            int sourceSize = gla::GetComponentCount(inst->getOperand(0));
+
+            shuffleMask->getVectorElements(elts);
+            assert(elts.size() >= offset && "out-of-range offset");
+
+            // Get the offset, if it's undef, then return back an undef value.
+            Constant* cOffset = elts[offset];
+            if (gla::IsUndef(cOffset)) {
+                value = UndefValue::get(value->getType());
+                offset = 0;
+
+                return;
+            }
+
+            int shuffleOffset = gla::GetConstantInt(cOffset);
+
+            // If we're refering to the second op, adjust the offset, and use that
+            // value, otherwise use the first operand.
+            if (shuffleOffset > sourceSize - 1) {
+                value = inst->getOperand(1);
+                offset = shuffleOffset - sourceSize;
+            } else {
+                value = inst->getOperand(0);
+                offset = shuffleOffset;
+            }
+
+            continue;
+        }
+
+        // If it's an insert, then see what its offset is and what it's pointing to
+        // in order to determine how to traverse it
+        if (IsInsertElement(inst)) {
+            // The insert instruction's offset that it is writing to
+            int insertOffset = gla::GetConstantInt(inst->getOperand(2));
+
+            // If the insert is overwriting the field that we are trying to get at,
+            // then continue with it's value, otherwise continue with the insert's
+            // target and the same offset.
+            if (insertOffset == offset) {
+                value = inst->getOperand(1);
+                offset = 0;
+            } else {
+                value = inst->getOperand(0);
+            }
+
+            continue;
+        }
     }
 }
 
 static Value* GetOriginalSource(Value* val)
 {
-    // If it's an insert, traverse it
     if (Instruction* inst = dyn_cast<Instruction>(val)) {
+        // If it's an insert, traverse it
         if (IsInsertElement(inst)) {
             return GetOriginalSource(inst->getOperand(0));
         }
+
+        // We don't traverse through (single-defined-operand) shuffle vectors,
+        // but rather use them as our original sources. This greatly simplifies
+        // multiInsert construction logic, and still wont potentiate swizzles of
+        // swizzles during instruction-canonicalization. The shuffle will have
+        // its own multiInsert created for it.
     }
 
     // Else return what we have
     return val;
 }
 
-void BBMIIMaker::gatherInserts()
+void BBMIIMaker::gatherVectorConstructors()
 {
     BasicBlock::InstListType& instList = bb.getInstList();
     for (reverse_iterator i = instList.rbegin(), e = instList.rend(); i != e; ++i) {
-        if (IsInsertElement(&*i)) {
-            inserts.push_back(&*i);
+        if (IsVectorConstructor(&*i)) {
+            vecConstructors.push_back(&*i);
         }
     }
 }
@@ -309,7 +356,7 @@ void BBMIIMaker::printBlock()
 void BBMIIMaker::printCandidates()
 {
     errs() << "\n  This block's candidates for intrinsic substitution: \n";
-    for (InstVec::iterator i = inserts.begin(), e = inserts.end(); i != e; ++i) {
+    for (InstVec::iterator i = vecConstructors.begin(), e = vecConstructors.end(); i != e; ++i) {
         errs() << "  " << **i << "\n";
     }
 }
@@ -331,7 +378,7 @@ void BBMIIMaker::printGroups()
     }
 }
 
-void BBMIIMaker::addInsertChain(Value* v, Group& vec, int width, int mask)
+void BBMIIMaker::addInsertChain(Value* v, Group& vec, int mask)
 {
     // Go until the mask has been fully accounted for.
     while (mask != 0) {
@@ -339,7 +386,7 @@ void BBMIIMaker::addInsertChain(Value* v, Group& vec, int width, int mask)
 
         // If it's not an insert, or if we've already seen it before,
         // we're done
-        if (!inst || !IsInsertElement(inst) || handledInsts.count(inst)) {
+        if (! inst || ! IsInsertElement(inst) || handledInsts.count(inst)) {
             return;
         }
 
@@ -356,9 +403,9 @@ void BBMIIMaker::addInsertChain(Value* v, Group& vec, int width, int mask)
     }
 }
 
-void BBMIIMaker::groupInserts()
+void BBMIIMaker::groupVectorConstructors()
 {
-    for (InstVec::iterator i = inserts.begin(), e = inserts.end(); i != e; ++i) {
+    for (InstVec::iterator i = vecConstructors.begin(), e = vecConstructors.end(); i != e; ++i) {
 
         Instruction* inst = *i;
 
@@ -371,11 +418,18 @@ void BBMIIMaker::groupInserts()
 
         Group* newGroup = new Group();       // note: deallocation handled in destructor
 
-        // Get the width and set up mask to be all 1s
-        int width = gla::GetComponentCount(inst->getType());
-        int mask = (1 << width) - 1;
+        // If we're making a group out of inserts, then group them all
+        // together. For shuffles, just put the shuffle in the group.
+        if (IsInsertElement(inst)) {
+            // Get the width and set up mask to be all 1s
+            int width = gla::GetComponentCount(inst->getType());
+            int mask = (1 << width) - 1;
+            addInsertChain(inst, *newGroup, mask);
+        } else {
+            assert(isa<ShuffleVectorInst>(inst));
+            newGroup->push_back(inst);
+        }
 
-        addInsertChain(inst, *newGroup, width, mask);
         groups.push_back(newGroup);
         handledInsts.insert(inst);
     }
@@ -389,8 +443,53 @@ void MultiInsertIntrinsic::buildFromGroup()
     // The instruction we're replacing is at the front
     toReplace = group.front();
 
+    // If we're replacing a shuffle, make a multiInsert into undef where each
+    // source is determined by the shuffle's mask (if defined over that
+    // component), adjusting the write mask appropriately.
+    if (isa<ShuffleVectorInst>(toReplace)) {
+        originalSource = UndefValue::get(toReplace->getType());
+
+        SmallVector<Constant*, 4> elts;
+        Constant* shuffleMask = dyn_cast<Constant>(toReplace->getOperand(2));
+        assert(shuffleMask);
+
+        shuffleMask->getVectorElements(elts);
+        assert(elts.size() <= 4);
+
+        int sourceSize = gla::GetComponentCount(toReplace->getOperand(0));
+        for (unsigned i = 0; i < elts.size(); ++i) {
+            // Don't do anything for undef values
+            if (gla::IsUndef(elts[i])) {
+                continue;
+            }
+
+            writeMask |= (1 << i);
+
+            int shuffleOffset = gla::GetConstantInt(elts[i]);
+
+            Value* value;
+            int offset;
+
+            // If we're refering to the second op, adjust the offset, and use that
+            // value, otherwise use the first operand.
+            if (shuffleOffset > sourceSize - 1) {
+                value  = toReplace->getOperand(1);
+                offset = shuffleOffset - sourceSize;
+            } else {
+                value  = toReplace->getOperand(0);
+                offset = shuffleOffset;
+            }
+
+            GetUnderlyingOffsetAndValue(value, offset);
+            values[i]  = value;
+            offsets[i] = offset;
+        }
+
+        return;
+    }
+
     // Find the original insert source.
-    originalSource = GetOriginalSource(group.front());
+    originalSource = GetOriginalSource(toReplace);
 
     // For each member of the group, set the relevant fields.
     for (InstVec::iterator instI = group.begin(), instE = group.end(); instI != instE; ++instI) {
@@ -401,13 +500,12 @@ void MultiInsertIntrinsic::buildFromGroup()
         Value* src = (*instI)->getOperand(1);
 
         // Find the access offset of the underlying extract intrinsic
-        std::pair<Value*,int> p(src, 0);
-        GetUnderlyingOffsetAndValue(p);
+        Value* extractFrom = src;
+        int offset = 0;
+        GetUnderlyingOffsetAndValue(extractFrom, offset);
 
-        int offset = p.second;
-        Value* extractFrom = p.first;
-        assert (offset <= 15 && "offset is too big");
-        assert (extractFrom);
+        assert(offset <= 15 && "offset is too big");
+        assert(extractFrom);
 
         // Match up the data with the corresponding field specified in the
         // insert
@@ -415,7 +513,7 @@ void MultiInsertIntrinsic::buildFromGroup()
         assert(maskOffset <= 4 && " Unknown access mask found");
 
         offsets[maskOffset] = offset;
-        values[maskOffset] = extractFrom;
+        values[maskOffset]  = extractFrom;
 
         // Update the mask
         writeMask |= (1 << maskOffset);
@@ -486,7 +584,7 @@ void MultiInsertIntrinsic::insertIntrinsic()
     BasicBlock::InstListType& instList = bb.getInstList();
     for (BasicBlock::InstListType::iterator instI = instList.begin(), instE = instList.end(); instI != instE; ++instI)
         if (instI->isIdenticalTo(toReplace)) {
-            assert(IsInsertElement(instI));
+            assert(IsVectorConstructor(instI));
 
             instList.insertAfter(instI, intrinsic);
             instI->replaceAllUsesWith(intrinsic);
@@ -525,11 +623,11 @@ void BBMIIMaker::run()
     VERBOSE(printBlock());
 
     // Gather the candidate instructions
-    gatherInserts();
+    gatherVectorConstructors();
     VERBOSE(printCandidates());
 
     // Group them
-    groupInserts();
+    groupVectorConstructors();
     VERBOSE(printGroups());
 
     modified = ! groups.empty();
