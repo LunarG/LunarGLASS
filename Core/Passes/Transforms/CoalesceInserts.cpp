@@ -396,9 +396,14 @@ void BBMIIMaker::addInsertChain(Value* v, Group& vec, int mask)
             handledInsts.insert(inst);
         }
 
-        // Otherwise, put it in the vector, turn off mask's bit, and continue
-        vec.push_back(inst);
-        mask &= ~(1 << gla::GetConstantInt(inst->getOperand(2)));
+        // Only put it in our vector if it's defining a new component, i.e. mask
+        // hasn't been turned off for that component yet
+        int selectBit = 1 << gla::GetConstantInt(inst->getOperand(2));
+        if (mask & selectBit) {
+            vec.push_back(inst);
+            mask &= ~selectBit;
+        }
+
         v = inst->getOperand(0);
     }
 }
