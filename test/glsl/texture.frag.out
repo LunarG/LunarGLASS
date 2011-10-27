@@ -151,7 +151,7 @@ entry:
   store <4 x float> %color29, <4 x float>* %color
   %78 = load <4 x float>* %color
   %79 = load i32 addrspace(1)* @"sampler2D texSampler2D"
-  %80 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.i32.i32(i32 2, i32 %79, i32 160, <2 x i32> <i32 0, i32 5>, i32 1, i32 undef)
+  %80 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.i32.i32(i32 2, i32 %79, i32 160, <2 x i32> <i32 0, i32 5>, i32 1, float undef, i32 undef)
   %assignment_tmp30 = fadd <4 x float> %78, %80
   store <4 x float> %assignment_tmp30, <4 x float>* %assignment_tmp
   %color31 = load <4 x float>* %assignment_tmp
@@ -189,7 +189,7 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32, i32, i32, <3 x flo
 
 declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <3 x float>, float, float) nounwind readnone
 
-declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.i32.i32(i32, i32, i32, <2 x i32>, i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.i32.i32(i32, i32, i32, <2 x i32>, i32, float, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
@@ -268,7 +268,7 @@ entry:
   %32 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32 2, i32 %5, i32 2186, <2 x float> <float 0x3FEC9FBE80000000, float 0x3FF5BE76C0000000>, float 2.000000e+00, float 0x3FFB9FBE80000000)
   %color28 = fadd <4 x float> %color27, %31
   %33 = load float addrspace(2)* @blend
-  %34 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.i32.i32(i32 2, i32 %1, i32 160, <2 x i32> <i32 0, i32 5>, i32 1, i32 undef)
+  %34 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.i32.i32(i32 2, i32 %1, i32 160, <2 x i32> <i32 0, i32 5>, i32 1, float undef, i32 undef)
   %color29 = fadd <4 x float> %color28, %32
   %35 = fmul float %33, 0x3FFC9FBE80000000
   %36 = load <4 x float> addrspace(2)* @u
@@ -298,7 +298,7 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32, i32, i32, <3 x flo
 
 declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <3 x float>, float, float) nounwind readnone
 
-declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.i32.i32(i32, i32, i32, <2 x i32>, i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.i32.i32(i32, i32, i32, <2 x i32>, i32, float, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 

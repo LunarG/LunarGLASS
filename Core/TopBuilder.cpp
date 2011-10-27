@@ -969,19 +969,23 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
     case llvm::Intrinsic::gla_texelFetchOffset:
     case llvm::Intrinsic::gla_fTexelFetchOffset:
 
-        // LOD and sample can share the BiasLod field, stick Offset RefZ
-        numArgs = 6;
+        // LOD and sample can share the BiasLod field
+        // RefZ is provided so our operand order matches every other texture op
+        numArgs = 7;
 
         if (! texArgs[GetTextureOpIndex(ETOBiasLod)])
             texArgs[GetTextureOpIndex(ETOBiasLod)] = llvm::UndefValue::get(GetIntType(context));
 
         if (! texArgs[GetTextureOpIndex(ETORefZ)])
-            texArgs[GetTextureOpIndex(ETORefZ)]    = llvm::UndefValue::get(GetIntType(context));
+            texArgs[GetTextureOpIndex(ETORefZ)]    = llvm::UndefValue::get(GetFloatType(context));
+
+        if (! texArgs[GetTextureOpIndex(ETOOffset)])
+            texArgs[GetTextureOpIndex(ETOOffset)]  = llvm::UndefValue::get(GetIntType(context));
 
         // We know our flexible types when looking at the intrinsicID, so create our intrinsic here
         intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(), 
                                                           texArgs[GetTextureOpIndex(ETOBiasLod)]->getType(), 
-                                                          texArgs[GetTextureOpIndex(ETORefZ)]->getType());
+                                                          texArgs[GetTextureOpIndex(ETOOffset)]->getType());
 
         break;
 
