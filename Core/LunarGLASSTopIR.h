@@ -109,10 +109,12 @@ namespace gla {
     };
     
     // This is the Top IR definition of shader types
-    inline const llvm::Type* GetVoidType (llvm::LLVMContext& context)    { return llvm::Type::getVoidTy (context); }
-    inline const llvm::Type* GetIntType  (llvm::LLVMContext& context)    { return llvm::Type::getInt32Ty(context); }
-    inline const llvm::Type* GetBoolType (llvm::LLVMContext& context)    { return llvm::Type::getInt1Ty (context); }
-    inline const llvm::Type* GetFloatType(llvm::LLVMContext& context)    { return llvm::Type::getFloatTy(context); }
+    inline const llvm::Type* GetVoidType  (llvm::LLVMContext& context)   { return llvm::Type::getVoidTy  (context); }
+    inline const llvm::Type* GetIntType   (llvm::LLVMContext& context)   { return llvm::Type::getInt32Ty (context); }
+    inline const llvm::Type* GetUintType  (llvm::LLVMContext& context)   { return llvm::Type::getInt32Ty (context); }
+    inline const llvm::Type* GetBoolType  (llvm::LLVMContext& context)   { return llvm::Type::getInt1Ty  (context); }
+    inline const llvm::Type* GetFloatType (llvm::LLVMContext& context)   { return llvm::Type::getFloatTy (context); }
+    inline const llvm::Type* GetDoubleType(llvm::LLVMContext& context)   { return llvm::Type::getDoubleTy(context); }
 
     // Encode where components come from.
     // E.g. 'c2' is the index (0..3) of where component 2 comes from
