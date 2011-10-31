@@ -237,7 +237,7 @@ static bool IsEitherIE(Value* i) {
 // then return the vector and the offset into it. If the extract is extracting
 // from an insert, then traverse all the way down, eventually returning the
 // underlying vector and offset.
-static void GetUnderlyingOffsetAndValue(Value*& value, int& offset)
+static void GetUnderlyingOffsetAndValue(Value*& value, unsigned& offset)
 {
     while (true) {
         Instruction* inst = dyn_cast<Instruction>(value);
@@ -473,7 +473,7 @@ void MultiInsertIntrinsic::buildFromGroup()
             int shuffleOffset = gla::GetConstantInt(elts[i]);
 
             Value* value;
-            int offset;
+            unsigned offset;
 
             // If we're refering to the second op, adjust the offset, and use that
             // value, otherwise use the first operand.
@@ -506,7 +506,7 @@ void MultiInsertIntrinsic::buildFromGroup()
 
         // Find the access offset of the underlying extract intrinsic
         Value* extractFrom = src;
-        int offset = 0;
+        unsigned offset = 0;
         GetUnderlyingOffsetAndValue(extractFrom, offset);
 
         assert(offset <= 15 && "offset is too big");
