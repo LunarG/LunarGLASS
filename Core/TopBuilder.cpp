@@ -838,6 +838,19 @@ llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, const llvm::Type* 
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, 4);
 }
 
+llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, const llvm::Type* type1, const llvm::Type* type2, const llvm::Type* type3, const llvm::Type* type4, const llvm::Type* type5)
+{
+    const llvm::Type* intrinsicTypes[] = {
+        type1,
+        type2,
+        type3,
+        type4,
+        type5};
+
+    // Look up the intrinsic
+    return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes, 5);
+}
+
 void Builder::promoteScalar(SuperValue& left, SuperValue& right)
 {
     int direction = GetComponentCount(right) - GetComponentCount(left);
@@ -895,6 +908,11 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
 
         intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelFetchOffset
                                     : llvm::Intrinsic::gla_texelFetchOffset;
+
+    } else if (parameters.ETPGradX || parameters.ETPGradY) {
+
+        intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTextureSampleLodRefZOffsetGrad
+                                    : llvm::Intrinsic::gla_textureSampleLodRefZOffsetGrad;
 
     } else if (texFlags & ETFOffsetArg) {
 
@@ -963,6 +981,34 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
         // We know our flexible types when looking at the intrinsicID, so create our intrinsic here
         intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(), 
                                                           texArgs[GetTextureOpIndex(ETOOffset)]->getType());
+
+        break;
+
+    case llvm::Intrinsic::gla_textureSampleLodRefZOffsetGrad:
+    case llvm::Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
+
+        numArgs = 9;
+
+        if (! texArgs[GetTextureOpIndex(ETOBiasLod)])
+            texArgs[GetTextureOpIndex(ETOBiasLod)] = llvm::UndefValue::get(GetFloatType(context));
+
+        if (! texArgs[GetTextureOpIndex(ETORefZ)])
+            texArgs[GetTextureOpIndex(ETORefZ)]    = llvm::UndefValue::get(GetFloatType(context));
+
+        if (! texArgs[GetTextureOpIndex(ETOOffset)])
+            texArgs[GetTextureOpIndex(ETOOffset)]  = llvm::UndefValue::get(GetIntType(context));
+
+        assert(parameters.ETPGradX);
+        assert(parameters.ETPGradY);
+
+        texArgs[GetTextureOpIndex(ETODPdx)] = parameters.ETPGradX;
+        texArgs[GetTextureOpIndex(ETODPdy)] = parameters.ETPGradY;
+
+        // We know our flexible types when looking at the intrinsicID, so create our intrinsic here
+        intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(), 
+                                                          texArgs[GetTextureOpIndex(ETOOffset)]->getType(),
+                                                          texArgs[GetTextureOpIndex(ETODPdx)]->getType(),
+                                                          texArgs[GetTextureOpIndex(ETODPdy)]->getType());
 
         break;
 

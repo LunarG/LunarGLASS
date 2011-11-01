@@ -552,9 +552,10 @@ protected:
         return "x";
     }
 
-    void emitGlaSamplerType(const llvm::Value* samplerType, int texFlags)
+    void emitGlaSamplerType(const llvm::IntrinsicInst* llvmInstruction, int texFlags)
     {
         const char *texture;
+        const llvm::Value* samplerType = llvmInstruction->getOperand(0);
 
         // Select texture type based on GLA flag
         
@@ -566,6 +567,15 @@ protected:
 
             return;
         }
+
+        if (IsGradientTexInst(llvmInstruction) || texFlags & ETFOffsetArg) {
+            // This opcodes are only available with 1.3 and beyond, so
+            // skip the legacy dimension code below.
+            shader << "texture";
+
+            return;
+        }
+
         
         if (texFlags & ETFShadow)
             texture = "shadow";
@@ -599,6 +609,9 @@ protected:
 
         if (IsGradientTexInst(llvmInstruction))
             shader << "Grad";
+
+        if (texFlags & ETFOffsetArg)
+            shader << "Offset";
     }
 
     bool needsShadowRefZArg(const llvm::IntrinsicInst* llvmInstruction)
@@ -615,6 +628,14 @@ protected:
         int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
 
         return (texFlags & ETFBiasLodArg);
+    }
+
+    bool needsOffsetArg(const llvm::IntrinsicInst* llvmInstruction)
+    {
+        // Check flags for offset arg
+        int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
+
+        return (texFlags & ETFOffsetArg);
     }
 
     void getNewVariable(const llvm::Value* value, std::string* varString)
@@ -1811,7 +1832,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         newLine();
         emitGlaValue(llvmInstruction);
         shader << " = ";
-        emitGlaSamplerType(llvmInstruction->getOperand(0), GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
+        emitGlaSamplerType(llvmInstruction, GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
         emitGlaTextureStyle(llvmInstruction);
         shader << "(";
         emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
@@ -1828,7 +1849,10 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             if (coordType->isVectorTy())
                 coordType = coordType->getContainedType(0);
 
-            const llvm::Type* vecType = llvm::VectorType::get(coordType, coordWidth + 1);
+            // RefZ must reside in 3rd component or higher, so detect single component case
+            int buffer = (coordWidth == 1) ? 1 : 0;
+
+            const llvm::Type* vecType = llvm::VectorType::get(coordType, coordWidth + buffer + 1);
 
             emitGlaType(shader, vecType);
 
@@ -1838,6 +1862,10 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
 
             shader << ", ";
+
+            // Insert unused channel for 1D coordinate
+            if (buffer > 0)
+                shader << "0, ";
 
             // Followed by scalar shadow ref
             assert(gla::IsScalar(llvmInstruction->getOperand(GetTextureOpIndex(ETORefZ))));
@@ -1858,6 +1886,11 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETODPdx)));
             shader << ", ";
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETODPdy)));
+        }
+
+        if (needsOffsetArg(llvmInstruction)) {
+            shader << ", ";
+            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOOffset)));
         }
 
         shader << ");";

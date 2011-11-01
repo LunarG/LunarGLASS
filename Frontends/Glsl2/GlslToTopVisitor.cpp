@@ -502,7 +502,7 @@ ir_visitor_status
     GlslToTopVisitor::visit_enter(ir_texture *ir)
 {
     // Build up an array of dynamic texture parameters to pass to TopBuilder
-    gla::Builder::TextureParameters textureParameters;
+    gla::Builder::TextureParameters textureParameters = {};
 
     // Traverse coordinates
     ir->coordinate->accept(this);
@@ -532,8 +532,30 @@ ir_visitor_status
         texFlags |= gla::ETFBiasLodArg;
         break;
     case ir_txd:
+        // There's no feature flag for gradient.  Parameter presence alone 
+        // will trigger TopBuilder to select the right intrinsic.
+        ir->lod_info.grad.dPdx->accept(this);
+        textureParameters.ETPGradX = lastValue;
+        ir->lod_info.grad.dPdy->accept(this);
+        textureParameters.ETPGradY = lastValue;
+        break;
+    default:
         gla::UnsupportedFunctionality("texture opcode", (int)ir->op, ir->opcode_string());
         break;
+    }
+
+    // Texel offsets
+    if (ir->offsets[0] || ir->offsets[1] || ir->offsets[2]) {
+        int coordWidth = gla::GetComponentCount(textureParameters.ETPCoords);
+        assert(coordWidth > 0 && coordWidth < 4);
+
+        llvm::Constant* offset[3];
+        offset[0] = gla::MakeIntConstant(context, ir->offsets[0]);
+        offset[1] = gla::MakeIntConstant(context, ir->offsets[1]);
+        offset[2] = gla::MakeIntConstant(context, ir->offsets[2]);
+
+        texFlags |= gla::ETFOffsetArg;
+        textureParameters.ETPOffset = llvm::ConstantVector::get(llvm::ArrayRef<llvm::Constant*>(offset, coordWidth));
     }
 
     // Detect and traverse projection
@@ -984,8 +1006,7 @@ gla::Builder::SuperValue GlslToTopVisitor::createLLVMVariable(ir_variable* var)
 
 const char* GlslToTopVisitor::getSamplerTypeName(ir_variable* var)
 {
-    // TODO:  Renable shadow samples when ref and coords are reunited.
-    if (false /*var->type->sampler_shadow*/) {
+    if (var->type->sampler_shadow) {
         switch (var->type->sampler_dimensionality) {
         case GLSL_SAMPLER_DIM_1D:   return "sampler1DShadow";
         case GLSL_SAMPLER_DIM_2D:   return "sampler2DShadow";

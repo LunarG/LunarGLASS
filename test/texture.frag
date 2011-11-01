@@ -18,6 +18,7 @@ void main()
     float blendscale = 1.789;
 	float bias       = 2.0;
 	float lod		 = 3.0;
+    float proj       = 2.0;
 	float coords1D   = 1.789;
 	vec3  coords3D   = vec3(1.789, 2.718, 3.453);
 	vec4  coords4D   = vec4(1.789, 2.718, 3.453, 2.0);
@@ -80,5 +81,17 @@ void main()
 
     color += texelFetch(texSampler2D, iCoords2D, iLod);
 
+    vec2 gradX = dFdx(coords2D);
+    vec2 gradY = dFdy(coords2D);
+    ivec2 offset = ivec2(3, -7);
+    
+    color += textureGrad(texSampler2D, coords2D, gradX, gradY);
+    color += textureProjGrad(texSampler2D, vec3(coords2D, proj), gradX, gradY);
+
+    // Unsupported in GLSL2
+    //color += textureGradOffset(texSampler2D, coords2D, gradX, gradY, offset);
+    //color += textureProjGradOffset(texSampler2D, coords3D, gradX, gradY, offset);
+    //color += textureGrad(shadowSampler2D, vec3(coords2D, lod), gradX, gradY);
+    
     gl_FragColor = mix(color, u, blend * blendscale);
 }
