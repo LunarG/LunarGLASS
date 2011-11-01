@@ -1118,9 +1118,6 @@ gla::Builder::SuperValue GlslToTopVisitor::createUnaryOperation(ir_expression_op
     case ir_unop_u2f:
         castOp = llvm::Instruction::UIToFP;
         break;
-    case ir_unop_trunc:
-        gla::UnsupportedFunctionality("trunc");
-        break;
     }
 
     if (castOp != 0)
@@ -1239,6 +1236,9 @@ gla::Builder::SuperValue GlslToTopVisitor::createUnaryIntrinsic(ir_expression_op
             intrinsicID = llvm::Intrinsic::gla_fSign;
         else
             gla::UnsupportedFunctionality("Integer sign()");
+        break;
+    case ir_unop_trunc:
+        intrinsicID = llvm::Intrinsic::gla_fRoundZero;
         break;
     }
 

@@ -61,7 +61,6 @@ namespace gla {
         EDiMin,
         EDiMax,
         EDiClamp,
-        EDiTruncate,
         EDiAtan2,
         EDiSinh,
         EDiCosh,

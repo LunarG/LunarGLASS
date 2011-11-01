@@ -1392,7 +1392,6 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
         }
         break;
 
-    case llvm::Instruction::FPTrunc:        s = "trunc";  unaryOperand = 0; break;
     case llvm::Instruction::FPToUI:         s = "uint";   unaryOperand = 0; break;
     case llvm::Instruction::FPToSI:         s = "int";    unaryOperand = 0; break;
     case llvm::Instruction::UIToFP:         s = "float";  unaryOperand = 0; break;
@@ -2028,6 +2027,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fFloor:       callString = "floor";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fCeiling:     callString = "ceil";        callArgs = 1; break;
     case llvm::Intrinsic::gla_fRoundEven:   callString = "roundEven";   callArgs = 1; break;
+    case llvm::Intrinsic::gla_fRoundZero:   callString = "trunc";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fRoundFast:   callString = "round";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fFraction:    callString = "fract";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fModF:        callString = "modf";        break; // callArgs = 2;

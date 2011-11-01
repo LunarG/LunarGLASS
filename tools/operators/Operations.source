@@ -45,7 +45,6 @@ FNeg|F|F|N|C|P|R|W|Floating-point unary negation.
 @max|A|AA|N|C|O|O|W|Test based.#
 @clamp|A|AAA|N|C|O|O|W|<pre>dst = min (max (arg1, arg2), arg3)</pre>#
 ------Floating-Point Only Operations#
-@trunc|F|F|N|C|P|R|W|Truncate.#
 @radians|F|F|N|0|D|D|W|Multiply by &pi;/180.#
 @degrees|F|F|N|0|D|D|W|Multiply by 180/&pi;.#
 @sin|F|F|N|F|P|R|W|Sine arg.#
@@ -75,6 +74,7 @@ FNeg|F|F|N|C|P|R|W|Floating-point unary negation.
 @floor|F|F|N|0|P|R|W|Floor arg.#
 @ceiling|F|F|N|0|P|R|W|Ceiling arg.#
 @roundEven|F|F|N|-|P|R|W|.5 goes toward the even whole number.#
+@roundZero|F|F|N|-|P|R|W|Round toward the whole number closest to zero.#
 @roundFast|F|F|N|-|P|R|W|.5 can go up or down, whatever is fastest.#
 @fraction|F|F|N|0|O|O|W|<pre>arg - floor(arg)</pre>#
 @modF|FI|F|N|0|O|O|W|

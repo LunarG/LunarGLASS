@@ -43,7 +43,7 @@ void main()
     v += abs(v);
     v += sign(v);
     v += floor(v);
-    //v += trunc(v);  // defect in glsl2
+    v += trunc(v);
     v += round(v);
     v += roundEven(v);
     v += ceil(v);

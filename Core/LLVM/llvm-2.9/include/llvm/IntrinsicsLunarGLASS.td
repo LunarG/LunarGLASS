@@ -82,6 +82,7 @@ let TargetPrefix = "gla" in {
   def int_gla_fFloor : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fCeiling : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fRoundEven : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fRoundZero : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fRoundFast : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fFraction : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fModF : Intrinsic<[llvm_anyfloat_ty, llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;

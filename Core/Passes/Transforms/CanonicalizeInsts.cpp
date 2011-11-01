@@ -154,19 +154,13 @@ void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
                 //changed = true;
             }
             break;
-            //case Intrinsic::gla_fTruncate:
-            //    if (backEnd->decomposeIntrinsic(EDiTruncate)) {
-            //        UnsupportedFunctionality("decomposition of gla_fTruncate");
-            //        //changed = true;
-            //    }
-            //    break;
+
         case Intrinsic::gla_fAtan2:
             if (backEnd->decomposeIntrinsic(EDiAtan2)) {
                 UnsupportedFunctionality("decomposition of gla_fAtan2");
                 //changed = true;
             }
             break;
-
         case Intrinsic::gla_fCosh:
             if (backEnd->decomposeIntrinsic(EDiCosh)) {
                 UnsupportedFunctionality("decomposition of gla_fCosh");
