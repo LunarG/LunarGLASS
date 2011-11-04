@@ -264,6 +264,7 @@ public:
 
     // Select the correct intrinsic based on all inputs, and make the call
     llvm::Value* createTextureCall(const llvm::Type*, gla::ESamplerType, int texFlags, const TextureParameters&);
+    llvm::Value* createTextureSizeCall(const llvm::Type*, llvm::Value*, llvm::Value*);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue, SuperValue);

@@ -1048,6 +1048,17 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
     return builder.CreateCall(intrinsic, texArgs, texArgs + numArgs);
 }
 
+llvm::Value* Builder::createTextureSizeCall(const llvm::Type* returnType, llvm::Value* sampler, llvm::Value* lod)
+{
+    llvm::Function* intrinsicName = 0;
+
+    intrinsicName = getIntrinsic(llvm::Intrinsic::gla_queryTextureSize, returnType);
+
+    assert(intrinsicName);
+
+    return builder.CreateCall2(intrinsicName, sampler, lod);
+}
+
 llvm::Value* Builder::createRecip(llvm::Value* operand)
 {
     const llvm::Type* ty = operand->getType();
