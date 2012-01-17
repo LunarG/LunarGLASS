@@ -36,9 +36,6 @@
 #ifndef Backend_H
 #define Backend_H
 
-// LLVM includes
-#include "llvm/Module.h"
-
 #include "LunarGLASSManager.h"
 
 // Forward decls
@@ -46,6 +43,8 @@ namespace llvm {
     class PHINode;
     class Value;
     class CmpInst;
+    class GlobalVariable;
+    class Instruction;
 } // end namespace llvm
 
 namespace gla {
