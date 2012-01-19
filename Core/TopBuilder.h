@@ -146,6 +146,8 @@ public:
 
     static llvm::Constant* getConstant(std::vector<llvm::Constant*>&, const llvm::Type*);
 
+    void leaveFunction(bool main);
+
     // Make the main function. Returns the entry block
     llvm::BasicBlock* makeMain();
 

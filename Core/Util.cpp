@@ -137,6 +137,15 @@ bool HasAllSet(const llvm::Value* value)
     }
 }
 
+void AppendArrayIndexToName(std::string &arrayName, int index)
+{
+    arrayName.append("[");
+    llvm::raw_string_ostream out(arrayName);
+    out << index;
+    arrayName = out.str();
+    arrayName.append("]");
+}
+
 const llvm::Type* GetBasicType(const llvm::Value* value)
 {
     return GetBasicType(value->getType());
@@ -164,5 +173,26 @@ llvm::Type::TypeID GetBasicTypeID(const llvm::Type* type)
     return GetBasicType(type)->getTypeID();
 }
 
+// Some interfaces to LLVM builder require unsigned indices instead of a vector.
+// i.e. llvm::IRBuilder::CreateExtractValue()
+// This method will do the conversion and inform the caller if not every element was
+// a constant integer.
+bool ConvertValuesToUnsigned(unsigned* indices, int &count, std::vector<llvm::Value*> chain)
+{
+    std::vector<llvm::Value*>::iterator start = chain.begin();
+
+    for (count = 0; start != chain.end(); ++start, ++count) {
+        if (llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(*start)) {
+            if (llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(constant))
+                indices[count] = constantInt->getValue().getSExtValue();
+            else
+                return false;
+        } else {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 }; // end gla namespace

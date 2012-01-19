@@ -102,11 +102,15 @@ namespace gla {
         return name.length() < 2 || (name[1] >= '0' && name[1] <= '9');
     }
 
+    void AppendArrayIndexToName(std::string &, int);
+
     const llvm::Type* GetBasicType(const llvm::Value*);
     const llvm::Type* GetBasicType(const llvm::Type*);
 
     llvm::Type::TypeID GetBasicTypeID(const llvm::Value*);
     llvm::Type::TypeID GetBasicTypeID(const llvm::Type*);
+
+    bool ConvertValuesToUnsigned(unsigned*, int &, std::vector<llvm::Value*>);
 
 };  // end gla namespace
 

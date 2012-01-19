@@ -120,8 +120,6 @@ protected:
     llvm::Function* getLLVMIntrinsicFunction4(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
 
     void writePipelineOuts(void);
-    void appendArrayIndexToName(std::string &, int);
-    bool convertValuesToUnsigned(unsigned*, int &, std::vector<llvm::Value*>);
 
     int getNextInterpIndex(std::string);
 

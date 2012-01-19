@@ -247,7 +247,7 @@ ir_visitor_status
 
                 std::reverse(gepIndexChainStack.top().begin(), gepIndexChainStack.top().end());
 
-                if (convertValuesToUnsigned(indices, indexCount, gepIndexChainStack.top())) {
+                if (gla::ConvertValuesToUnsigned(indices, indexCount, gepIndexChainStack.top())) {
                     // If we're dereferencing an element in a local array or structure, we must
                     // load the entire aggregate and extract the element, otherwise
                     // promoteMemToReg will not drop the pointer references.
@@ -374,37 +374,11 @@ ir_visitor_status
     GlslToTopVisitor::visit_leave(ir_function_signature *sig)
 {
     // Ignore builtins for now
-    if (!sig->is_builtin) {
+    if (! sig->is_builtin) {
+        glaBuilder->leaveFunction(inMain);
 
-        llvm::BasicBlock* BB = llvmBuilder.GetInsertBlock();
-        llvm::Function* F = llvmBuilder.GetInsertBlock()->getParent();
-        assert(BB && F);
-
-        // If our function did not contain a return,
-        // return void now
-        if (0 == BB->getTerminator()) {
-
-            // Whether we're in an unreachable (non-entry) block
-            bool unreachable = &*F->begin() != BB && pred_begin(BB) == pred_end(BB);
-
-            if (inMain && !unreachable) {
-                // If we're leaving main and it is not terminated,
-                // generate our pipeline writes
-                glaBuilder->makeMainReturn(true);
-            } else if (unreachable)
-                // If we're not the entry block, and we have no predecessors, we're
-                // unreachable, so don't bother adding a return instruction in
-                // (e.g. we're in a post-return block). Otherwise add a ret void.
-                llvmBuilder.CreateUnreachable();
-            else
-                glaBuilder->makeReturn(true);
-
-        }
-
-        if (inMain) {
-            glaBuilder->closeMain();
-            inMain=false;
-        }
+        if (inMain)
+            inMain = false;
     }
 
     localScope = false;
@@ -753,7 +727,7 @@ ir_visitor_status
     // and we'll store directly to the l-value.
     if (lValue.indexChain.size()) {
         std::reverse(lValue.indexChain.begin(), lValue.indexChain.end());
-        if (convertValuesToUnsigned(indices, indexCount, lValue.indexChain)) {
+        if (gla::ConvertValuesToUnsigned(indices, indexCount, lValue.indexChain)) {
             lValueAggregate = glaBuilder->createLoad(lValue.base);
             lValue.indexChain.clear();
         } else {
@@ -1534,15 +1508,6 @@ const llvm::Type* GlslToTopVisitor::convertGlslToGlaType(const glsl_type* type)
     return glaType;
 }
 
-void GlslToTopVisitor::appendArrayIndexToName(std::string &arrayName, int index)
-{
-    arrayName.append("[");
-    llvm::raw_string_ostream out(arrayName);
-    out << index;
-    arrayName = out.str();
-    arrayName.append("]");
-}
-
 llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
 {
     // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
@@ -1556,7 +1521,7 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
         // Return the type contained within the array
 
         readType = convertGlslToGlaType(var->type->fields.array);
-        appendArrayIndexToName(name, index);
+        gla::AppendArrayIndexToName(name, index);
     } else {
         readType = convertGlslToGlaType(var->type);
     }
@@ -1580,27 +1545,4 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
 
     // Give each interpolant a temporary unique index
     return glaBuilder->readPipeline(readType, name, getNextInterpIndex(name), -1 /*mask*/, mode);
-}
-
-// Some interfaces to our LLVM builder require unsigned indices instead of a vector.
-// i.e. llvm::IRBuilder::CreateExtractValue()
-// This method will do the conversion and inform the caller if not every element was
-// a constant integer.
-bool GlslToTopVisitor::convertValuesToUnsigned(unsigned* indices, int &count, std::vector<llvm::Value*> chain)
-{
-    std::vector<llvm::Value*>::iterator start = chain.begin();
-
-    for (count = 0; start != chain.end(); ++start, ++count) {
-        assert(count < maxGepIndices);
-        if (llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(*start)) {
-            if (llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(constant))
-                indices[count] = constantInt->getValue().getSExtValue();
-            else
-                return false;
-        } else {
-            return false;
-        }
-    }
-
-    return true;
 }

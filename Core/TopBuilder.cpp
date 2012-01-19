@@ -61,6 +61,36 @@ Builder::~Builder()
         delete *i;
 }
 
+void Builder::leaveFunction(bool main)
+{
+    llvm::BasicBlock* BB = builder.GetInsertBlock();
+    llvm::Function* F = builder.GetInsertBlock()->getParent();
+    assert(BB && F);
+
+    // If our function did not contain a return,
+    // return void now
+    if (0 == BB->getTerminator()) {
+
+        // Whether we're in an unreachable (non-entry) block
+        bool unreachable = &*F->begin() != BB && pred_begin(BB) == pred_end(BB);
+
+        if (main && !unreachable) {
+            // If we're leaving main and it is not terminated,
+            // generate our pipeline writes
+            makeMainReturn(true);
+        } else if (unreachable)
+            // If we're not the entry block, and we have no predecessors, we're
+            // unreachable, so don't bother adding a return instruction in
+            // (e.g. we're in a post-return block). Otherwise add a ret void.
+            builder.CreateUnreachable();
+        else
+            makeReturn(true);
+    }
+
+    if (main)
+        closeMain();
+}
+
 llvm::BasicBlock* Builder::makeMain()
 {
     assert(! mainFunction);
