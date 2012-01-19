@@ -47,6 +47,9 @@
 #include "GlslTarget.h"
 #include "Options.h"
 
+// LLVM includes
+#include "llvm/Module.h"
+
 namespace gla {
     bool IsIdentitySwizzle(int glaSwizzle, int width)
     {

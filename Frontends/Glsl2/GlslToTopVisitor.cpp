@@ -1047,6 +1047,7 @@ gla::Builder::SuperValue GlslToTopVisitor::createUnaryMatrixOperation(ir_express
         break;
     case ir_unop_neg:
         gla::UnsupportedFunctionality("Matrix negation", gla::EATContinue);
+        break;
     }
 
     return result;
@@ -1113,6 +1114,7 @@ gla::Builder::SuperValue GlslToTopVisitor::createUnaryOperation(ir_expression_op
         // any non-zero integer should return true
         return createBinaryOperation(ir_binop_nequal, operand, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), false, false);
     case ir_unop_b2i:
+    //?? case ir_unop_f2u seems missing
         castOp = llvm::Instruction::ZExt;
         break;
     case ir_unop_u2f:
