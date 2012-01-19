@@ -1204,6 +1204,40 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
     return builder.CreateCall3(intrinsicName, operand0, operand1, operand2);
 }
 
+llvm::Value* Builder::createConstructor(const std::vector<SuperValue>& sources, llvm::Value* constructee)
+{
+    unsigned int numTargetComponents = GetComponentCount(constructee);
+    unsigned int targetComponent = 0;
+
+    for (unsigned int i = 0; i < sources.size(); ++i) {
+        if (sources[i].isMatrix())
+            gla::UnsupportedFunctionality("matrix in constructor");
+
+        unsigned int sourceSize = GetComponentCount(sources[i]);
+
+        unsigned int sourcesToUse = sourceSize;
+        if (sourcesToUse + targetComponent > numTargetComponents)
+            sourcesToUse = numTargetComponents - targetComponent;
+
+        for (unsigned int s = 0; s < sourcesToUse; ++s) {
+            llvm::Value* arg = sources[i];
+            if (sourceSize > 1) {
+                arg = builder.CreateExtractElement(arg, MakeIntConstant(context, s));
+            }
+            if (numTargetComponents > 1)
+                constructee = builder.CreateInsertElement(constructee, arg, MakeIntConstant(context, targetComponent));
+            else
+                constructee = arg;
+            ++targetComponent;
+        }
+
+        if (targetComponent >= numTargetComponents)
+            break;
+    }
+
+    return constructee;
+}
+
 Builder::If::If(llvm::Value* cond, Builder* gb)
     : glaBuilder(gb)
     , condition(cond)

@@ -201,7 +201,7 @@ public:
     SuperValue createGEP(SuperValue, std::vector<llvm::Value*>);
 
     // Create a InsertValue to handle structs, arrays, or matrices
-    SuperValue createInsertValue(SuperValue, SuperValue, unsigned* indices, int indexCount);
+    SuperValue createInsertValue(SuperValue target, SuperValue source, unsigned* indices, int indexCount);
 
     // Copy out to the pipeline the outputs we've been caching in variables
     void copyOutPipeline();
@@ -272,6 +272,7 @@ public:
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue, SuperValue);
     llvm::Value* createRecip(llvm::Value*);
     llvm::Value* createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned);
+    llvm::Value* createConstructor(const std::vector<SuperValue>& sources, llvm::Value* constructee);
 
     class If {
     public:
