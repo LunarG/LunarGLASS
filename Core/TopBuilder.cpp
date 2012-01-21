@@ -441,6 +441,16 @@ llvm::Value* Builder::createSwizzle(llvm::Value* source, int swizzleMask, const 
     return target;
 }
 
+llvm::Value* Builder::createSwizzle(llvm::Value* source, const std::vector<int>& channels, const llvm::Type* finalType)
+{
+    int swizMask = 0;
+    for (unsigned int i = 0; i < channels.size(); ++i) {
+        swizMask |= channels[i] << i*2;
+    }
+
+    return createSwizzle(source, swizMask, finalType);
+}
+
 //
 // Builder::Matrix definitions
 //
@@ -896,20 +906,7 @@ void Builder::promoteScalar(SuperValue& left, SuperValue& right)
 llvm::Value* Builder::smearScalar(llvm::Value* scalar, const llvm::Type* vectorType)
 {
     assert(gla::IsScalar(scalar->getType()));
-
-    // Use a swizzle to expand the scalar to a vector
-    llvm::Intrinsic::ID intrinsicID;
-    switch(scalar->getType()->getTypeID()) {
-    case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_swizzle;     break;
-    case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fSwizzle;    break;
-    default:
-        gla::UnsupportedFunctionality("smear type");
-    }
-
-    const llvm::Type* maskTy = llvm::VectorType::get(GetIntType(context), GetComponentCount(vectorType));
-    llvm::Function *intrinsicName = getIntrinsic(intrinsicID, vectorType, scalar->getType(), maskTy);
-
-    return builder.CreateCall2(intrinsicName, scalar, llvm::ConstantAggregateZero::get(maskTy));
+    return createSwizzle(scalar, 0x00, vectorType);
 }
 
 // Accept all parameters needed to create LunarGLASS texture intrinsics
@@ -1009,7 +1006,7 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
 
 
         // We know our flexible types when looking at the intrinsicID, so create our intrinsic here
-        intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(), 
+        intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(),
                                                           texArgs[GetTextureOpIndex(ETOOffset)]->getType());
 
         break;
@@ -1035,7 +1032,7 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
         texArgs[GetTextureOpIndex(ETODPdy)] = parameters.ETPGradY;
 
         // We know our flexible types when looking at the intrinsicID, so create our intrinsic here
-        intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(), 
+        intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(),
                                                           texArgs[GetTextureOpIndex(ETOOffset)]->getType(),
                                                           texArgs[GetTextureOpIndex(ETODPdx)]->getType(),
                                                           texArgs[GetTextureOpIndex(ETODPdy)]->getType());
@@ -1059,8 +1056,8 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
             texArgs[GetTextureOpIndex(ETOOffset)]  = llvm::UndefValue::get(GetIntType(context));
 
         // We know our flexible types when looking at the intrinsicID, so create our intrinsic here
-        intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(), 
-                                                          texArgs[GetTextureOpIndex(ETOBiasLod)]->getType(), 
+        intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(),
+                                                          texArgs[GetTextureOpIndex(ETOBiasLod)]->getType(),
                                                           texArgs[GetTextureOpIndex(ETOOffset)]->getType());
 
         break;
@@ -1068,7 +1065,7 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
     default:
         gla::UnsupportedFunctionality("Texture intrinsic: ", intrinsicID);
     }
-    
+
     // If we haven't already set our intrinsic, do so now with coordinates
     if (! intrinsic)
         intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType());

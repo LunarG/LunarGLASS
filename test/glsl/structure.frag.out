@@ -33,14 +33,17 @@ ifmerge:                                          ; preds = %else, %then
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %4 = load i32 addrspace(1)* @"sampler2D sampler"
   %5 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %coord)
-  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %3, <4 x i32> zeroinitializer)
-  %gl_FragColor = fmul <4 x float> %6, %5
+  %6 = insertelement <4 x float> undef, float %3, i32 0
+  %7 = insertelement <4 x float> %6, float %3, i32 1
+  %8 = insertelement <4 x float> %7, float %3, i32 2
+  %9 = insertelement <4 x float> %8, float %3, i32 3
+  %gl_FragColor = fmul <4 x float> %9, %5
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
-  %7 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %7)
+  %10 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %10)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -50,8 +53,6 @@ stage-exit:                                       ; preds = %stage-epilogue
 declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
-
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
@@ -85,11 +86,11 @@ else:                                             ; preds = %entry
 
 ifmerge:                                          ; preds = %else, %then
   %scale.0 = phi float [ %scale1, %then ], [ %scale2, %else ]
-  %3 = load i32 addrspace(1)* @"sampler2D sampler"
+  %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %scale.0, <4 x i32> zeroinitializer)
+  %4 = load i32 addrspace(1)* @"sampler2D sampler"
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %4 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %scale.0, <4 x i32> zeroinitializer)
-  %5 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %3, i32 0, <2 x float> %coord)
-  %gl_FragColor = fmul <4 x float> %4, %5
+  %5 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %coord)
+  %gl_FragColor = fmul <4 x float> %3, %5
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
@@ -104,9 +105,9 @@ declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind rea
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
-
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 compiling structure.frag...
 uniform sampler2D sampler ; 
 varying vec2 coord ; 

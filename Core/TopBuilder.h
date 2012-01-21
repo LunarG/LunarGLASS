@@ -216,6 +216,8 @@ public:
 
     llvm::Value* createSwizzle(llvm::Value* source, int swizzleMask, const llvm::Type* finalType);
 
+    llvm::Value* createSwizzle(llvm::Value* source, const std::vector<int>& channels, const llvm::Type* finalType);
+
     // Matrix factory that tracks what to delete
     Matrix* newMatrix(llvm::Value*);
 

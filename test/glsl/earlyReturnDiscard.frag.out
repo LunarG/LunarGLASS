@@ -72,23 +72,22 @@ post-discard:                                     ; No predecessors!
 
 ifmerge8:                                         ; preds = %ifmerge5, %post-discard
   %17 = load <4 x float>* %color
-  %18 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
-  %assignment_tmp9 = fadd <4 x float> %17, %18
+  %assignment_tmp9 = fadd <4 x float> %17, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %assignment_tmp9, <4 x float>* %assignment_tmp
   %color10 = load <4 x float>* %assignment_tmp
   store <4 x float> %color10, <4 x float>* %color
-  %19 = load <4 x float>* %assignment_tmp
-  %20 = extractelement <4 x float> %19, i32 3
-  %21 = load float addrspace(2)* @threshhold2
-  %22 = fcmp ogt float %20, %21
-  br i1 %22, label %then11, label %else25
+  %18 = load <4 x float>* %assignment_tmp
+  %19 = extractelement <4 x float> %18, i32 3
+  %20 = load float addrspace(2)* @threshhold2
+  %21 = fcmp ogt float %19, %20
+  br i1 %21, label %then11, label %else25
 
 then11:                                           ; preds = %ifmerge8
-  %23 = load <4 x float>* %assignment_tmp
-  %24 = extractelement <4 x float> %23, i32 2
-  %25 = load float addrspace(2)* @threshhold2
-  %26 = fcmp ogt float %24, %25
-  br i1 %26, label %then12, label %else14
+  %22 = load <4 x float>* %assignment_tmp
+  %23 = extractelement <4 x float> %22, i32 2
+  %24 = load float addrspace(2)* @threshhold2
+  %25 = fcmp ogt float %23, %24
+  br i1 %25, label %then12, label %else14
 
 then12:                                           ; preds = %then11
   br label %stage-epilogue
@@ -97,24 +96,24 @@ post-return13:                                    ; No predecessors!
   br label %ifmerge24
 
 else14:                                           ; preds = %then11
-  %27 = load i1 addrspace(2)* @b
-  br i1 %27, label %then15, label %else17
+  %26 = load i1 addrspace(2)* @b
+  br i1 %26, label %then15, label %else17
 
 then15:                                           ; preds = %else14
-  %28 = load <4 x float>* %assignment_tmp
-  %29 = extractelement <4 x float> %28, i32 2
-  %30 = fadd float %29, 1.000000e+00
-  %31 = load <4 x float>* %color
-  %color16 = insertelement <4 x float> %31, float %30, i32 2
+  %27 = load <4 x float>* %assignment_tmp
+  %28 = extractelement <4 x float> %27, i32 2
+  %29 = fadd float %28, 1.000000e+00
+  %30 = load <4 x float>* %color
+  %color16 = insertelement <4 x float> %30, float %29, i32 2
   store <4 x float> %color16, <4 x float>* %color
   br label %ifmerge23
 
 else17:                                           ; preds = %else14
-  %32 = load <4 x float>* %color
-  %33 = extractelement <4 x float> %32, i32 0
-  %34 = load float addrspace(2)* @minimum
-  %35 = fcmp olt float %33, %34
-  br i1 %35, label %then18, label %else20
+  %31 = load <4 x float>* %color
+  %32 = extractelement <4 x float> %31, i32 0
+  %33 = load float addrspace(2)* @minimum
+  %34 = fcmp olt float %32, %33
+  br i1 %34, label %then18, label %else20
 
 then18:                                           ; preds = %else17
   call void @llvm.gla.discard()
@@ -124,9 +123,8 @@ post-discard19:                                   ; No predecessors!
   br label %ifmerge22
 
 else20:                                           ; preds = %else17
-  %36 = load <4 x float>* %color
-  %37 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
-  %color21 = fadd <4 x float> %36, %37
+  %35 = load <4 x float>* %color
+  %color21 = fadd <4 x float> %35, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %color21, <4 x float>* %color
   br label %ifmerge22
 
@@ -140,8 +138,8 @@ ifmerge24:                                        ; preds = %ifmerge23, %post-re
   br label %ifmerge31
 
 else25:                                           ; preds = %ifmerge8
-  %38 = load i1 addrspace(2)* @b
-  br i1 %38, label %then26, label %else28
+  %36 = load i1 addrspace(2)* @b
+  br i1 %36, label %then26, label %else28
 
 then26:                                           ; preds = %else25
   call void @llvm.gla.discard()
@@ -160,15 +158,15 @@ ifmerge30:                                        ; preds = %post-return29, %pos
   br label %ifmerge31
 
 ifmerge31:                                        ; preds = %ifmerge30, %ifmerge24
-  %39 = load <4 x float>* %color
-  %40 = load <4 x float> addrspace(2)* @otherColor
-  %gl_FragColor = fmul <4 x float> %39, %40
+  %37 = load <4 x float>* %color
+  %38 = load <4 x float> addrspace(2)* @otherColor
+  %gl_FragColor = fmul <4 x float> %37, %38
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge31, %else28, %then12, %then4
-  %41 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %41)
+  %39 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %39)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then26, %then18, %then7
@@ -180,8 +178,6 @@ declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind rea
 declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
 
 declare void @llvm.gla.discard() nounwind
-
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
@@ -239,52 +235,51 @@ then7:                                            ; preds = %ifmerge5
 
 ifmerge8:                                         ; preds = %ifmerge5
   %10 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.0, i32 4, float undef, i32 undef, float undef, i32 undef, float %7, i32 0, float undef, i32 undef)
-  %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
-  %assignment_tmp9 = fadd <4 x float> %10, %11
-  %12 = extractelement <4 x float> %assignment_tmp9, i32 3
-  %13 = load float addrspace(2)* @threshhold2
-  %14 = fcmp ogt float %12, %13
-  br i1 %14, label %then11, label %else25
+  %assignment_tmp9 = fadd <4 x float> %10, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  %11 = extractelement <4 x float> %assignment_tmp9, i32 3
+  %12 = load float addrspace(2)* @threshhold2
+  %13 = fcmp ogt float %11, %12
+  br i1 %13, label %then11, label %else25
 
 then11:                                           ; preds = %ifmerge8
-  %15 = extractelement <4 x float> %assignment_tmp9, i32 2
-  %16 = fcmp ogt float %15, %13
-  br i1 %16, label %then12, label %else14
+  %14 = extractelement <4 x float> %assignment_tmp9, i32 2
+  %15 = fcmp ogt float %14, %12
+  br i1 %15, label %then12, label %else14
 
 then12:                                           ; preds = %then11
   br label %stage-epilogue
 
 else14:                                           ; preds = %then11
-  %17 = load i1 addrspace(2)* @b
-  br i1 %17, label %then15, label %else17
+  %16 = load i1 addrspace(2)* @b
+  br i1 %16, label %then15, label %else17
 
 then15:                                           ; preds = %else14
-  %18 = fadd float %15, 1.000000e+00
-  %19 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %assignment_tmp9, i32 4, float undef, i32 undef, float undef, i32 undef, float %18, i32 0, float undef, i32 undef)
+  %17 = fadd float %14, 1.000000e+00
+  %18 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %assignment_tmp9, i32 4, float undef, i32 undef, float undef, i32 undef, float %17, i32 0, float undef, i32 undef)
   br label %ifmerge23
 
 else17:                                           ; preds = %else14
-  %20 = extractelement <4 x float> %assignment_tmp9, i32 0
-  %21 = fcmp olt float %20, %5
-  br i1 %21, label %then18, label %else20
+  %19 = extractelement <4 x float> %assignment_tmp9, i32 0
+  %20 = fcmp olt float %19, %5
+  br i1 %20, label %then18, label %else20
 
 then18:                                           ; preds = %else17
   call void @llvm.gla.discard()
   br label %stage-exit
 
 else20:                                           ; preds = %else17
-  %color21 = fadd <4 x float> %assignment_tmp9, %11
+  %color21 = fadd <4 x float> %assignment_tmp9, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   br label %ifmerge23
 
 ifmerge23:                                        ; preds = %else20, %then15
-  %color.1 = phi <4 x float> [ %19, %then15 ], [ %color21, %else20 ]
-  %22 = load <4 x float> addrspace(2)* @otherColor
-  %gl_FragColor = fmul <4 x float> %color.1, %22
+  %color.1 = phi <4 x float> [ %18, %then15 ], [ %color21, %else20 ]
+  %21 = load <4 x float> addrspace(2)* @otherColor
+  %gl_FragColor = fmul <4 x float> %color.1, %21
   br label %stage-epilogue
 
 else25:                                           ; preds = %ifmerge8
-  %23 = load i1 addrspace(2)* @b
-  br i1 %23, label %then26, label %else28
+  %22 = load i1 addrspace(2)* @b
+  br i1 %22, label %then26, label %else28
 
 then26:                                           ; preds = %else25
   call void @llvm.gla.discard()
@@ -307,8 +302,6 @@ declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind rea
 declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
 
 declare void @llvm.gla.discard() nounwind
-
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
@@ -432,6 +425,7 @@ in vec4 BaseColor1;
 in vec4 BaseColor;
 const vec4 const28 = vec4(0.0);
 const float const30_1f = 1.0;
+const vec4 const34 = vec4(1.0);
 
 void main()
 {
@@ -463,8 +457,7 @@ void main()
         else {
             vec4 temp32 = color_0;
             temp32.z = temp29;
-            vec4 temp33 = vec4(const30_1f);
-            vec4 assignment_tmp9 = temp32 + temp33;
+            vec4 assignment_tmp9 = temp32 + const34;
             bool temp35 = assignment_tmp9.w > threshhold2;
             if (temp35) {
                 bool temp36 = assignment_tmp9.z > threshhold2;
@@ -486,7 +479,7 @@ void main()
                             discard;
                         }
                         else {
-                            vec4 color21 = assignment_tmp9 + temp33;
+                            vec4 color21 = assignment_tmp9 + const34;
                             color_1 = color21;
                         }
                         

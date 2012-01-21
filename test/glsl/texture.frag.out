@@ -187,29 +187,28 @@ entry:
   %94 = insertelement <2 x float> undef, float %93, i32 0
   %95 = extractelement <3 x float> %92, i32 1
   %96 = insertelement <2 x float> %94, float %95, i32 1
-  %97 = call <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float 5.000000e-01, <2 x i32> zeroinitializer)
-  %98 = fmul <2 x float> %96, %97
-  %99 = load <2 x float>* %_ret_val
-  %100 = load <2 x float>* %_ret_val33
-  %101 = load i32 addrspace(1)* @"sampler2D texSampler2D"
-  %102 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.i32.v2f32.v2f32(i32 2, i32 %101, i32 0, <2 x float> %98, float undef, float undef, i32 undef, <2 x float> %99, <2 x float> %100)
-  %assignment_tmp41 = fadd <4 x float> %91, %102
+  %97 = fmul <2 x float> %96, <float 5.000000e-01, float 5.000000e-01>
+  %98 = load <2 x float>* %_ret_val
+  %99 = load <2 x float>* %_ret_val33
+  %100 = load i32 addrspace(1)* @"sampler2D texSampler2D"
+  %101 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.i32.v2f32.v2f32(i32 2, i32 %100, i32 0, <2 x float> %97, float undef, float undef, i32 undef, <2 x float> %98, <2 x float> %99)
+  %assignment_tmp41 = fadd <4 x float> %91, %101
   store <4 x float> %assignment_tmp41, <4 x float>* %assignment_tmp
   %color42 = load <4 x float>* %assignment_tmp
   store <4 x float> %color42, <4 x float>* %color
-  %103 = load <4 x float>* %assignment_tmp
-  %104 = load <4 x float> addrspace(2)* @u
-  %105 = load float addrspace(2)* @blend
-  %106 = fmul float %105, 0x3FFC9FBE80000000
-  %mix_retval43 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %103, <4 x float> %104, float %106)
+  %102 = load <4 x float>* %assignment_tmp
+  %103 = load <4 x float> addrspace(2)* @u
+  %104 = load float addrspace(2)* @blend
+  %105 = fmul float %104, 0x3FFC9FBE80000000
+  %mix_retval43 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %102, <4 x float> %103, float %105)
   store <4 x float> %mix_retval43, <4 x float>* %mix_retval
   %gl_FragColor = load <4 x float>* %mix_retval
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %107 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %107)
+  %106 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %106)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -237,8 +236,6 @@ declare <2 x float> @llvm.gla.fDFdx.v2f32.v2f32(<2 x float>) nounwind readnone
 declare <2 x float> @llvm.gla.fDFdy.v2f32.v2f32(<2 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.i32.v2f32.v2f32(i32, i32, i32, <2 x float>, float, float, i32, <2 x float>, <2 x float>) nounwind readnone
-
-declare <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float, <2 x i32>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
@@ -318,19 +315,18 @@ entry:
   %color27 = fadd <4 x float> %color26, %30
   %32 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32 2, i32 %5, i32 2186, <2 x float> <float 0x3FEC9FBE80000000, float 0x3FF5BE76C0000000>, float 2.000000e+00, float 0x3FFB9FBE80000000)
   %color28 = fadd <4 x float> %color27, %31
-  %33 = call <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float 5.000000e-01, <2 x i32> zeroinitializer)
-  %34 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.i32.i32(i32 2, i32 %1, i32 160, <2 x i32> <i32 0, i32 5>, i32 1, float undef, i32 undef)
+  %33 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.i32.i32(i32 2, i32 %1, i32 160, <2 x i32> <i32 0, i32 5>, i32 1, float undef, i32 undef)
   %color29 = fadd <4 x float> %color28, %32
-  %35 = fmul <2 x float> %coords2D31, %33
-  %36 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.i32.v2f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %coords2D31, float undef, float undef, i32 undef, <2 x float> %_ret_val32, <2 x float> %_ret_val3335)
-  %color30 = fadd <4 x float> %color29, %34
-  %37 = load float addrspace(2)* @blend
-  %38 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.i32.v2f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %35, float undef, float undef, i32 undef, <2 x float> %_ret_val32, <2 x float> %_ret_val3335)
-  %color37 = fadd <4 x float> %color30, %36
-  %39 = fmul float %37, 0x3FFC9FBE80000000
-  %40 = load <4 x float> addrspace(2)* @u
-  %assignment_tmp41 = fadd <4 x float> %color37, %38
-  %mix_retval43 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %assignment_tmp41, <4 x float> %40, float %39)
+  %34 = fmul <2 x float> %coords2D31, <float 5.000000e-01, float 5.000000e-01>
+  %35 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.i32.v2f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %coords2D31, float undef, float undef, i32 undef, <2 x float> %_ret_val32, <2 x float> %_ret_val3335)
+  %color30 = fadd <4 x float> %color29, %33
+  %36 = load float addrspace(2)* @blend
+  %37 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.i32.v2f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %34, float undef, float undef, i32 undef, <2 x float> %_ret_val32, <2 x float> %_ret_val3335)
+  %color37 = fadd <4 x float> %color30, %35
+  %38 = fmul float %36, 0x3FFC9FBE80000000
+  %39 = load <4 x float> addrspace(2)* @u
+  %assignment_tmp41 = fadd <4 x float> %color37, %37
+  %mix_retval43 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %assignment_tmp41, <4 x float> %39, float %38)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %mix_retval43)
   br label %stage-epilogue
 
@@ -362,8 +358,6 @@ declare <2 x float> @llvm.gla.fDFdx.v2f32.v2f32(<2 x float>) nounwind readnone
 declare <2 x float> @llvm.gla.fDFdy.v2f32.v2f32(<2 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.i32.v2f32.v2f32(i32, i32, i32, <2 x float>, float, float, i32, <2 x float>, <2 x float>) nounwind readnone
-
-declare <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float, <2 x i32>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
@@ -470,9 +464,9 @@ const vec3 const55 = vec3(0.8945, 1.359, 1.7265);
 const float const64_3f = 3.453;
 const vec2 const69 = vec2(1.789, 2.718);
 const float const74_2f = 1.7265;
-const float const83_1f = 0.5;
-const ivec2 const85 = ivec2(0, 5);
-const int const86_1 = 1;
+const ivec2 const83 = ivec2(0, 5);
+const int const84_1 = 1;
+const vec2 const87 = vec2(0.5);
 
 void main()
 {
@@ -526,17 +520,16 @@ void main()
     vec4 color27 = color26 + temp76;
     vec4 temp80 = shadow2D(shadowSampler2D, vec3(const47, const74_2f), const28_2f);
     vec4 color28 = color27 + temp78;
-    vec2 temp82 = vec2(const83_1f);
-    vec4 temp84 = texelFetch(texSampler2D, const85, const86_1);
+    vec4 temp82 = texelFetch(texSampler2D, const83, const84_1);
     vec4 color29 = color28 + temp80;
-    vec2 temp88 = coords2D31 * temp82;
-    vec4 temp89 = textureGrad(texSampler2D, coords2D31, _ret_val32, _ret_val3335);
-    vec4 color30 = color29 + temp84;
-    vec4 temp91 = textureGrad(texSampler2D, temp88, _ret_val32, _ret_val3335);
-    vec4 color37 = color30 + temp89;
-    float temp93 = blend * const27_2f;
-    vec4 assignment_tmp41 = color37 + temp91;
-    vec4 mix_retval43 = mix(assignment_tmp41, u, temp93);
+    vec2 temp86 = coords2D31 * const87;
+    vec4 temp88 = textureGrad(texSampler2D, coords2D31, _ret_val32, _ret_val3335);
+    vec4 color30 = color29 + temp82;
+    vec4 temp90 = textureGrad(texSampler2D, temp86, _ret_val32, _ret_val3335);
+    vec4 color37 = color30 + temp88;
+    float temp92 = blend * const27_2f;
+    vec4 assignment_tmp41 = color37 + temp90;
+    vec4 mix_retval43 = mix(assignment_tmp41, u, temp92);
     gl_FragColor = mix_retval43;
     
 }

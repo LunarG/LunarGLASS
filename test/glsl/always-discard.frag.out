@@ -52,8 +52,7 @@ ifmerge:                                          ; preds = %then, %then6
 
 then7:                                            ; preds = %ifmerge
   %17 = load <4 x float>* %color
-  %18 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float 1.000000e+00, <4 x i32> zeroinitializer)
-  %color8 = fadd <4 x float> %17, %18
+  %color8 = fadd <4 x float> %17, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %color8, <4 x float>* %color
   br label %ifmerge9
 
@@ -65,18 +64,21 @@ ifmerge10:                                        ; preds = %entry, %ifmerge9
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
-  %19 = load float* %_ret_val
-  %20 = fcmp oge float %19, 7.500000e-01
-  br i1 %20, label %then11, label %ifmerge13
+  %18 = load float* %_ret_val
+  %19 = fcmp oge float %18, 7.500000e-01
+  br i1 %19, label %then11, label %ifmerge13
 
 then11:                                           ; preds = %post-discard
-  %21 = load <4 x float>* %color
-  %22 = load float* %_ret_val
-  %23 = call float @llvm.gla.fPow.f32.f32.f32(float %22, float 1.600000e+01)
-  %24 = fdiv float %23, 2.000000e+00
-  %25 = call float @llvm.gla.fAbs.f32.f32(float %24)
-  %26 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %25, <4 x i32> zeroinitializer)
-  %color12 = fsub <4 x float> %21, %26
+  %20 = load <4 x float>* %color
+  %21 = load float* %_ret_val
+  %22 = call float @llvm.gla.fPow.f32.f32.f32(float %21, float 1.600000e+01)
+  %23 = fdiv float %22, 2.000000e+00
+  %24 = call float @llvm.gla.fAbs.f32.f32(float %23)
+  %25 = insertelement <4 x float> undef, float %24, i32 0
+  %26 = insertelement <4 x float> %25, float %24, i32 1
+  %27 = insertelement <4 x float> %26, float %24, i32 2
+  %28 = insertelement <4 x float> %27, float %24, i32 3
+  %color12 = fsub <4 x float> %20, %28
   store <4 x float> %color12, <4 x float>* %color
   br label %ifmerge13
 
@@ -86,8 +88,8 @@ ifmerge13:                                        ; preds = %post-discard, %then
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge13
-  %27 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %27)
+  %29 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %29)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %ifmerge10
@@ -97,8 +99,6 @@ stage-exit:                                       ; preds = %stage-epilogue, %if
 declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
 declare float @llvm.gla.fSqrt.f32.f32(float) nounwind readnone
-
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 declare void @llvm.gla.discard() nounwind
 
