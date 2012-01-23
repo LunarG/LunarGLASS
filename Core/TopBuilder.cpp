@@ -1206,6 +1206,15 @@ llvm::Value* Builder::createConstructor(const std::vector<SuperValue>& sources, 
     unsigned int numTargetComponents = GetComponentCount(constructee);
     unsigned int targetComponent = 0;
 
+    // Special case: when calling a vector constructor with a single scalar
+    // argument, smear the scalar
+    if (sources.size() == 1 && numTargetComponents > 1) {
+        if (sources[0].isMatrix())
+            gla::UnsupportedFunctionality("matrix in constructor");
+
+        return smearScalar(sources[0], constructee->getType());
+    }
+
     for (unsigned int i = 0; i < sources.size(); ++i) {
         if (sources[i].isMatrix())
             gla::UnsupportedFunctionality("matrix in constructor");
