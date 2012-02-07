@@ -100,6 +100,8 @@ let TargetPrefix = "gla" in {
   def int_gla_subBorrow : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_umulExtended : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_smulExtended : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty], [IntrNoMem]>;
+  def int_gla_uFma : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [IntrNoMem]>;
+  def int_gla_sFma : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [IntrNoMem]>;  
 }
 
 // Value Preserving Conversions
