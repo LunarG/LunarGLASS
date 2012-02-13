@@ -386,7 +386,7 @@ void BBMIIMaker::addInsertChain(Value* v, Group& vec, int mask)
 
         // If it's not an insert, or if we've already seen it before,
         // we're done
-        if (! inst || ! IsInsertElement(inst) || handledInsts.count(inst)) {
+        if (! inst || ! IsInsertElement(inst)) {
             return;
         }
 
