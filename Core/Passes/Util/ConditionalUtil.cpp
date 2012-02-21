@@ -53,9 +53,6 @@ void Conditional::recalculate()
     if (mergesFilter.size())
         SetIntersect(merges, mergesFilter);
 
-    SetDifference(merges, mergesExcludes);
-
-
     DominanceFrontier::DomSetType leftDomFront  = domFront->find(left)->second;
     DominanceFrontier::DomSetType rightDomFront = domFront->find(right)->second;
 
@@ -85,40 +82,50 @@ void Conditional::recalculate()
     //     rightDiscards = rightDomFront.count(stageExit);
     // }
 
-    // See if the dominance frontiers contain things not in merges, and that aren't
-    // each other.
+    merge = 0;
 
-
-    // If it's if-else, then the right dom front should contain and only
-    // contain left. Similarly for if-then. If it's if-then-else, then we have
-    // to look at each of the dominance frontiers and make sure they don't
-    // contain anything that isn't in merges.
-    if (isIfElse())
-        incompleteMerges = ! (rightDomFront.count(left) && rightDomFront.size() == 1);
-    else if (isIfThen())
-        incompleteMerges = ! (leftDomFront.count(right) && leftDomFront.size() == 1);
-    else {
-        incompleteMerges = false;
-
-        for (DominanceFrontier::DomSetType::iterator bb = rightDomFront.begin(), e = rightDomFront.end(); bb != e; ++bb) {
-            incompleteMerges |= ! merges.count(*bb);
-        }
-
-        for (DominanceFrontier::DomSetType::iterator bb = leftDomFront.begin(), e = leftDomFront.end(); bb != e; ++bb) {
-            incompleteMerges |= ! merges.count(*bb);
-        }
+    // If merges consists solely of the exit block, then one of the branches is
+    // an early discard. The non-discard branch either dominates the return
+    // block or the return block is in its dominance frontier. Structure this an
+    // an if-then, where the then is the discard branch and the merge (i.e. the
+    // "rest of the program") is the non-discard branch.
+    if (merges.size() == 1 && merges.count(stageExit)) {
+        bool leftIsMerge = leftDomFront.count(stageEpilogue) || domTree->dominates(left, stageEpilogue);
+        merge = leftIsMerge ? left : right;
     }
 
-    // Remove the stageExit and stageEpilogue blocks from merges
-    merges.erase(stageEpilogue);
+    // Always exclude the exit from the merges.If there are other merge points,
+    // then those should be used.
     merges.erase(stageExit);
+
+    // TODO: Do something similar to the latch for the stage epilogue. This is a
+    // bit more involved and would require some modifications to
+    // BottomTranslator.
+    // // Exclude the epilogue when we have more than one merge. If the epilogue is
+    // // the sole merge point, then this can be structured as an if-then-else
+    // // without the need for early returns (thus the epilogue shouldn't be
+    // // excluded). If there are other merge points, then this represents an
+    // // early-return scenario, and those other merge points should be used.
+    // if (merges.size() > 1 && merges.count(stageEpilogue)) {
+    //     merges.erase(stageEpilogue);
+    // }
+    merges.erase(stageEpilogue);
+
+    // If we're a conditional in a loop and merges contains the latch, there are
+    // two scenarios:
+    //   1) This a loop with a simple latch; thus merges contains only the
+    //      latch.
+    //   2) This is a continuing conditional (thus, no simple latch); thus
+    //      merges contains the real merge point along with the latch
+    // Exclude the latch in scenario 2.
+    if (latch && merges.size() > 1 && merges.count(latch)) {
+        merges.erase(latch);
+    }
 
     // If merges now contains one element, then the conditional has a merge
     // point
     if (merges.size() == 1)
         merge = *merges.begin();
-    else
-        merge = NULL;
 
     // If we're if-then, does the then block's dominance
 

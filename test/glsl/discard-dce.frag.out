@@ -217,20 +217,18 @@ void main()
     if (temp32) {
         discard;
     }
-    else {
-        bool temp34 = _ret_val5 < const35_1f;
-        color_0 = const36;
-        if (! temp34) {
-            float temp37 = pow(_ret_val5, const38_16f);
-            float temp39 = temp37 / const23_2f;
-            float temp40 = abs(temp39);
-            vec4 temp41 = vec4(temp40);
-            vec4 color7 = const36 - temp41;
-            color_0 = color7;
-        }
-        
-        gl_FragColor = color_0;
-        
+    
+    bool temp34 = _ret_val5 < const35_1f;
+    color_0 = const36;
+    if (! temp34) {
+        float temp37 = pow(_ret_val5, const38_16f);
+        float temp39 = temp37 / const23_2f;
+        float temp40 = abs(temp39);
+        vec4 temp41 = vec4(temp40);
+        vec4 color7 = const36 - temp41;
+        color_0 = color7;
     }
+    
+    gl_FragColor = color_0;
     
 }

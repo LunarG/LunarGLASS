@@ -454,53 +454,51 @@ void main()
         if (temp31) {
             discard;
         }
-        else {
-            vec4 temp32 = color_0;
-            temp32.z = temp29;
-            vec4 assignment_tmp9 = temp32 + const34;
-            bool temp35 = assignment_tmp9.w > threshhold2;
-            if (temp35) {
-                bool temp36 = assignment_tmp9.z > threshhold2;
-                if (temp36) {
-                    gla_copyout_gl_FragColor32_0 = const28;
-                    gl_FragColor = gla_copyout_gl_FragColor32_0;
-                    return;
-                }
-                else {
-                    if (b) {
-                        float temp37 = assignment_tmp9.z + const30_1f;
-                        vec4 temp38 = assignment_tmp9;
-                        temp38.z = temp37;
-                        color_1 = temp38;
-                    }
-                    else {
-                        bool temp39 = assignment_tmp9.x < minimum;
-                        if (temp39) {
-                            discard;
-                        }
-                        else {
-                            vec4 color21 = assignment_tmp9 + const34;
-                            color_1 = color21;
-                        }
-                        
-                    }
-                    
-                    vec4 gla_copyout_gl_FragColor = color_1 * otherColor;
-                    gla_copyout_gl_FragColor32_0 = gla_copyout_gl_FragColor;
-                    gl_FragColor = gla_copyout_gl_FragColor32_0;
-                    return;
-                }
-                
+        
+        vec4 temp32 = color_0;
+        temp32.z = temp29;
+        vec4 assignment_tmp9 = temp32 + const34;
+        bool temp35 = assignment_tmp9.w > threshhold2;
+        if (temp35) {
+            bool temp36 = assignment_tmp9.z > threshhold2;
+            if (temp36) {
+                gla_copyout_gl_FragColor32_0 = const28;
+                gl_FragColor = gla_copyout_gl_FragColor32_0;
+                return;
             }
             else {
                 if (b) {
-                    discard;
+                    float temp37 = assignment_tmp9.z + const30_1f;
+                    vec4 temp38 = assignment_tmp9;
+                    temp38.z = temp37;
+                    color_1 = temp38;
                 }
                 else {
-                    gla_copyout_gl_FragColor32_0 = const28;
-                    gl_FragColor = gla_copyout_gl_FragColor32_0;
+                    bool temp39 = assignment_tmp9.x < minimum;
+                    if (temp39) {
+                        discard;
+                    }
+                    else {
+                        vec4 color21 = assignment_tmp9 + const34;
+                        color_1 = color21;
+                    }
                     
                 }
+                
+                vec4 gla_copyout_gl_FragColor = color_1 * otherColor;
+                gla_copyout_gl_FragColor32_0 = gla_copyout_gl_FragColor;
+                gl_FragColor = gla_copyout_gl_FragColor32_0;
+                return;
+            }
+            
+        }
+        else {
+            if (b) {
+                discard;
+            }
+            else {
+                gla_copyout_gl_FragColor32_0 = const28;
+                gl_FragColor = gla_copyout_gl_FragColor32_0;
                 
             }
             

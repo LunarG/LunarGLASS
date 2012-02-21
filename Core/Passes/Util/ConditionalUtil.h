@@ -54,6 +54,7 @@ namespace gla_llvm {
             , domFront(&dfs)
             , domTree(&dt)
             , mergesFilter(loop ? Filter(loop->getBlocks().begin(), loop->getBlocks().end()) : Filter())
+            , latch(loop ? loop->getLoopLatch() : 0)
             , function(*entryBlock->getParent())
             , isMain(IsMain(function))
             , stageExit(0)
@@ -62,16 +63,6 @@ namespace gla_llvm {
             if (isMain) {
                 stageExit    = GetMainExit(function);
                 stageEpilogue = GetMainEpilogue(function);
-            }
-
-            // Set up our excludes. If we're in a loop, thenwe exclude the
-            // loop's latch, otherwise we exclude stage-epilogue and stage-exit
-            if (loop) {
-                assert(loop->getLoopLatch());
-                mergesExcludes.insert(loop->getLoopLatch());
-            } else {
-                mergesExcludes.insert(stageExit);
-                mergesExcludes.insert(stageEpilogue);
             }
 
             recalculate();
@@ -122,11 +113,6 @@ namespace gla_llvm {
         // they exist, are all empty blocks. Currently unimplemented in the case
         // of then or else subgraphs, for which is currently will return false.
         bool isEmptyConditional() const { return emptyConditional; }
-
-        // Whether the union of the dominance frontiers of the two children
-        // contains anything not found in their intersection (except for the
-        // blocks themselves).
-        bool isIncompleteMerges() const { return incompleteMerges; }
 
         bool contains(BasicBlock* bb) const
         {
@@ -254,6 +240,8 @@ namespace gla_llvm {
 
         Filter mergesFilter;
 
+        BasicBlock* latch;
+
         Function& function;
         bool isMain;
 
@@ -261,7 +249,6 @@ namespace gla_llvm {
         BasicBlock* stageEpilogue;
 
         SmallPtrSet<BasicBlock*,3> merges;
-        SmallPtrSet<BasicBlock*,2> mergesExcludes;
 
         BasicBlock* merge;
 
