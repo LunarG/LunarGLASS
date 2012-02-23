@@ -750,6 +750,21 @@ Constant *llvm::ConstantFoldInstruction(Instruction *I, const TargetData *TD) {
     return CommonValue ? CommonValue : UndefValue::get(PN->getType());
   }
 
+  // GLSL allows constant folding floating point multipily by zero
+  if (I->getOpcode() == Instruction::FMul) {
+      Constant* C0 = dyn_cast<Constant>(I->getOperand(0));
+      Constant* C1 = dyn_cast<Constant>(I->getOperand(1));
+
+      // Return the constant that is (+/-)0
+      if (!C0 && C1 || C0 && !C1) { // C1 xor C2
+          if (C0 && (C0->isNullValue() || C0->isNegativeZeroValue()))
+              return C0;
+
+          if (C1 && (C1->isNullValue() || C1->isNegativeZeroValue()))
+              return C1;
+      }
+  }
+
   // Scan the operand list, checking to see if they are all constants, if so,
   // hand off to ConstantFoldInstOperands.
   SmallVector<Constant*, 8> Ops;
@@ -1042,6 +1057,103 @@ Constant *llvm::ConstantFoldLoadThroughGEPConstantExpr(Constant *C,
 bool
 llvm::canConstantFoldCallTo(const Function *F) {
   switch (F->getIntrinsicID()) {
+  case Intrinsic::gla_abs:
+  case Intrinsic::gla_addCarry:
+  case Intrinsic::gla_all:
+  case Intrinsic::gla_any:
+  case Intrinsic::gla_bitCount:
+  case Intrinsic::gla_bitFieldInsert:
+  case Intrinsic::gla_bitReverse:
+  case Intrinsic::gla_fAbs:
+  case Intrinsic::gla_fAcos:
+  case Intrinsic::gla_fAcosh:
+  case Intrinsic::gla_fAsin:
+  case Intrinsic::gla_fAsinh:
+  case Intrinsic::gla_fAtan:
+  case Intrinsic::gla_fAtan2:
+  case Intrinsic::gla_fAtanh:
+  case Intrinsic::gla_fCeiling:
+  case Intrinsic::gla_fClamp:
+  case Intrinsic::gla_fCos:
+  case Intrinsic::gla_fCosh:
+  case Intrinsic::gla_fCross:
+  case Intrinsic::gla_fDegrees:
+  case Intrinsic::gla_fDistance:
+  case Intrinsic::gla_fDot2:
+  case Intrinsic::gla_fDot3:
+  case Intrinsic::gla_fDot4:
+  case Intrinsic::gla_fExp:
+  case Intrinsic::gla_fExp10:
+  case Intrinsic::gla_fExp2:
+  case Intrinsic::gla_fFaceForward:
+  case Intrinsic::gla_fFixedTransform:
+  case Intrinsic::gla_fFloatBitsToInt:
+  case Intrinsic::gla_fFloor:
+  case Intrinsic::gla_fFma:
+  case Intrinsic::gla_fFraction:
+  case Intrinsic::gla_fFrexp:
+  case Intrinsic::gla_fIntBitsTofloat:
+  case Intrinsic::gla_fInverseSqrt:
+  case Intrinsic::gla_fIsInf:
+  case Intrinsic::gla_fIsNan:
+  case Intrinsic::gla_fLdexp:
+  case Intrinsic::gla_fLength:
+  case Intrinsic::gla_fLit:
+  case Intrinsic::gla_fLog:
+  case Intrinsic::gla_fLog10:
+  case Intrinsic::gla_fLog2:
+  case Intrinsic::gla_fMax:
+  case Intrinsic::gla_fMin:
+  case Intrinsic::gla_fMix:
+  case Intrinsic::gla_fModF:
+  case Intrinsic::gla_fMultiInsert:
+  case Intrinsic::gla_fNormalize:
+  case Intrinsic::gla_fNormalize3D:
+  case Intrinsic::gla_fPackDouble2x32:
+  case Intrinsic::gla_fPackSnorm4x8:
+  case Intrinsic::gla_fPackUnorm2x16:
+  case Intrinsic::gla_fPackUnorm4x8:
+  case Intrinsic::gla_fPow:
+  case Intrinsic::gla_fPowi:
+  case Intrinsic::gla_fRadians:
+  case Intrinsic::gla_fReflect:
+  case Intrinsic::gla_fRefract:
+  case Intrinsic::gla_fRoundEven:
+  case Intrinsic::gla_fRoundFast:
+  case Intrinsic::gla_fRoundZero:
+  case Intrinsic::gla_fSign:
+  case Intrinsic::gla_fSin:
+  case Intrinsic::gla_fSinh:
+  case Intrinsic::gla_fSmoothStep:
+  case Intrinsic::gla_fSqrt:
+  case Intrinsic::gla_fStep:
+  case Intrinsic::gla_fSwizzle:
+  case Intrinsic::gla_fTan:
+  case Intrinsic::gla_fTanh:
+  case Intrinsic::gla_fUnpackDouble2x32:
+  case Intrinsic::gla_fUnpackSnorm4x8:
+  case Intrinsic::gla_fUnpackUnorm2x16:
+  case Intrinsic::gla_fUnpackUnorm4x8:
+  case Intrinsic::gla_findLSB:
+  case Intrinsic::gla_multiInsert:
+  case Intrinsic::gla_not:
+  case Intrinsic::gla_sBitFieldExtract:
+  case Intrinsic::gla_sClamp:
+  case Intrinsic::gla_sFindMSB:
+  case Intrinsic::gla_sFma:
+  case Intrinsic::gla_sMax:
+  case Intrinsic::gla_sMin:
+  case Intrinsic::gla_smulExtended:
+  case Intrinsic::gla_subBorrow:
+  case Intrinsic::gla_swizzle:
+  case Intrinsic::gla_uBitFieldExtract:
+  case Intrinsic::gla_uClamp:
+  case Intrinsic::gla_uFindMSB:
+  case Intrinsic::gla_uFma:
+  case Intrinsic::gla_uMax:
+  case Intrinsic::gla_uMin:
+  case Intrinsic::gla_umulExtended:
+
   case Intrinsic::sqrt:
   case Intrinsic::powi:
   case Intrinsic::bswap:
@@ -1162,13 +1274,147 @@ static Constant *ConstantFoldConvertToInt(ConstantFP *Op, bool roundTowardZero,
   return ConstantInt::get(Ty, UIntVal, /*isSigned=*/true);
 }
 
+static Constant *ConstantFoldGlaIntrinsic(Function *F, Constant *const *Operands, unsigned NumOperands)
+{
+  const Type *Ty = F->getReturnType();
+
+  if (NumOperands == 1) {
+    if (ConstantFP *Op = dyn_cast<ConstantFP>(Operands[0])) {
+
+      /// Currently APFloat versions of these functions do not exist, so we use
+      /// the host native double versions.  Float versions are not called
+      /// directly but for all these it is true (float)(f((double)arg)) ==
+      /// f(arg).  Long double not supported yet.
+      double V = Ty->isFloatTy() ? (double)Op->getValueAPF().convertToFloat() :
+                                     Op->getValueAPF().convertToDouble();
+
+      switch (F->getIntrinsicID()) {
+      case Intrinsic::gla_fAbs:
+          return ConstantFoldFP(fabs, V, Ty);
+
+      case Intrinsic::gla_fAcos:
+          return ConstantFoldFP(acos, V, Ty);
+
+      case Intrinsic::gla_fAcosh:
+          return 0; // TODO
+
+      case Intrinsic::gla_fAsin:
+          return ConstantFoldFP(asin, V, Ty);
+
+      case Intrinsic::gla_fAsinh:
+          return 0; // TODO
+
+      case Intrinsic::gla_fAtan:
+          return ConstantFoldFP(atan, V, Ty);
+
+      case Intrinsic::gla_fAtanh:
+          return 0; // TODO
+
+      case Intrinsic::gla_fCeiling:
+          return ConstantFoldFP(ceil, V, Ty);
+
+      case Intrinsic::gla_fCos:
+          return ConstantFoldFP(cos, V, Ty);
+
+      case Intrinsic::gla_fCosh:
+          return ConstantFoldFP(cosh, V, Ty);
+
+      case Intrinsic::gla_fDegrees:
+          return 0; // TODO
+
+      case Intrinsic::gla_fExp:
+          return ConstantFoldFP(exp, V, Ty);
+
+      case Intrinsic::gla_fExp10:
+          return 0; // TODO
+
+      case Intrinsic::gla_fExp2:
+          return 0; // TODO
+
+      case Intrinsic::gla_fFloatBitsToInt:
+          return 0; // TODO
+
+      case Intrinsic::gla_fFloor:
+          return ConstantFoldFP(floor, V, Ty);
+
+      case Intrinsic::gla_fFraction:
+      case Intrinsic::gla_fFrexp:
+      case Intrinsic::gla_fIntBitsTofloat:
+      case Intrinsic::gla_fInverseSqrt:
+      case Intrinsic::gla_fIsInf:
+      case Intrinsic::gla_fIsNan:
+      case Intrinsic::gla_fLdexp:
+      case Intrinsic::gla_fLength:
+      case Intrinsic::gla_fLit:
+          return 0; // TODO
+
+      case Intrinsic::gla_fLog:
+          return ConstantFoldFP(log, V, Ty);
+
+      case Intrinsic::gla_fLog10:
+          return ConstantFoldFP(log10, V, Ty);
+
+      case Intrinsic::gla_fLog2:
+          return 0; // TODO
+
+      case Intrinsic::gla_fNormalize:
+      case Intrinsic::gla_fNormalize3D:
+      case Intrinsic::gla_fPackDouble2x32:
+      case Intrinsic::gla_fPackSnorm4x8:
+      case Intrinsic::gla_fPackUnorm2x16:
+      case Intrinsic::gla_fPackUnorm4x8:
+      case Intrinsic::gla_fRadians:
+      case Intrinsic::gla_fRoundEven:
+      case Intrinsic::gla_fRoundFast:
+      case Intrinsic::gla_fRoundZero:
+      case Intrinsic::gla_fSign:
+          return 0; // TODO
+
+      case Intrinsic::gla_fSin:
+          return ConstantFoldFP(sin, V, Ty);
+
+      case Intrinsic::gla_fSinh:
+          return ConstantFoldFP(sinh, V, Ty);
+
+      case Intrinsic::gla_fSqrt:
+          return ConstantFoldFP(sqrt, V, Ty);
+
+      case Intrinsic::gla_fTan:
+          return ConstantFoldFP(tan, V, Ty);
+
+      case Intrinsic::gla_fTanh:
+          return ConstantFoldFP(tanh, V, Ty);
+
+      default:
+          return 0;
+      }
+    }
+
+    // TODO: ConstantInts
+
+    // TODO: ConstantVectors
+
+    // TODO: ConstantAggregateZero
+
+  }
+
+  // TODO: non-unary ops
+
+  return 0;
+}
+
 /// ConstantFoldCall - Attempt to constant fold a call to the specified function
 /// with the specified arguments, returning null if unsuccessful.
 Constant *
-llvm::ConstantFoldCall(Function *F, 
+llvm::ConstantFoldCall(Function *F,
                        Constant *const *Operands, unsigned NumOperands) {
   if (!F->hasName()) return 0;
   StringRef Name = F->getName();
+
+  // Constant fold LunarGLASS intrinsics
+  Constant* GlaFolded = ConstantFoldGlaIntrinsic(F, Operands, NumOperands);
+  if (GlaFolded)
+      return GlaFolded;
 
   const Type *Ty = F->getReturnType();
   if (NumOperands == 1) {

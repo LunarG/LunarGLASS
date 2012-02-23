@@ -327,6 +327,11 @@ Instruction *InstCombiner::visitFAdd(BinaryOperator &I) {
 
   if (Constant *RHSC = dyn_cast<Constant>(RHS)) {
     // X + 0 --> X
+
+    // In GLSL, FADD x (+/-)0 is always x
+    if (RHSC->isNullValue() || RHSC->isNegativeZeroValue())
+        return ReplaceInstUsesWith(I, LHS);
+
     if (ConstantFP *CFP = dyn_cast<ConstantFP>(RHSC)) {
       if (CFP->isExactlyValue(ConstantFP::getNegativeZero
                               (I.getType())->getValueAPF()))

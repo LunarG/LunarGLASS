@@ -140,31 +140,8 @@ void Constant::destroyConstantImpl() {
 /// canTrap - Return true if evaluation of this constant could trap.  This is
 /// true for things like constant expressions that could divide by zero.
 bool Constant::canTrap() const {
-  assert(getType()->isFirstClassType() && "Cannot evaluate aggregate vals!");
-  // The only thing that could possibly trap are constant exprs.
-  const ConstantExpr *CE = dyn_cast<ConstantExpr>(this);
-  if (!CE) return false;
-  
-  // ConstantExpr traps if any operands can trap. 
-  for (unsigned i = 0, e = getNumOperands(); i != e; ++i)
-    if (CE->getOperand(i)->canTrap()) 
-      return true;
-
-  // Otherwise, only specific operations can trap.
-  switch (CE->getOpcode()) {
-  default:
-    return false;
-  case Instruction::UDiv:
-  case Instruction::SDiv:
-  case Instruction::FDiv:
-  case Instruction::URem:
-  case Instruction::SRem:
-  case Instruction::FRem:
-    // Div and rem can trap if the RHS is not known to be non-zero.
-    if (!isa<ConstantInt>(CE->getOperand(1)) ||CE->getOperand(1)->isNullValue())
-      return true;
-    return false;
-  }
+  // LunarGLASS constants don't trap
+  return false;
 }
 
 /// isConstantUsed - Return true if the constant has users other than constant
