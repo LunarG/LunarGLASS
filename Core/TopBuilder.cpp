@@ -253,7 +253,7 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
             // Track the value that must be copied out to the pipeline at
             // the end of the shader.
             copyOuts.push_back(value);
-            PipelineSymbol symbol = {value->getName(), value->getType()->getContainedType(0)};
+            PipelineSymbol symbol = {annotatedName, value->getType()->getContainedType(0)};
             manager->getPipeOutSymbols().push_back(symbol);
         }
 
@@ -333,11 +333,7 @@ Builder::SuperValue Builder::createInsertValue(SuperValue target, SuperValue sou
 void Builder::copyOutPipeline()
 {
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
-        llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);
-        //?? lookup the location in the symbol table
-        //?? lookup interpolation mode, (currently not triggering
-        //   interpolation on outputs)
-
+        llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);        
         writePipeline(loadVal, MakeUnsignedConstant(context, out));
     }
 }
