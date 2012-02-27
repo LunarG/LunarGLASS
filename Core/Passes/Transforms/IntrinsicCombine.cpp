@@ -34,8 +34,6 @@
 //     condition is computed. TODO: only do based on backend query. TODO:
 //     migrate the condition as high as it can go.
 //
-//   * Constant-fold intrinsics. TODO: Fold more intrinsics.
-//
 //   * TODO: Combine multiple successive fWrites to the same output but with
 //     different masks into a single fWrite.
 //
@@ -131,7 +129,6 @@ namespace  {
 
         // Statistic info
         int numDiscardDCE;
-        int numConstantFolded;
         int numCombined;
 
         IntrinsicCombine(const IntrinsicCombine&); // do not implement
@@ -275,16 +272,6 @@ bool IntrinsicCombine::runOnFunction(Function& F)
 bool IntrinsicCombine::visit(Instruction* inst)
 {
     bool changed = false;
-
-    // Try to constant fold it
-    if (Constant* c = ConstantFoldIntrinsic(inst)) {
-        inst->replaceAllUsesWith(c);
-        inst->dropAllReferences();
-        deadList.push_back(inst);
-
-        ++numConstantFolded;
-        return true;
-    }
 
     // Try to combine it
     // TODO: intrinsic combining

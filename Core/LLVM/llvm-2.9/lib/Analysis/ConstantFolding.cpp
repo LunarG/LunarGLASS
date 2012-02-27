@@ -1244,6 +1244,23 @@ static Constant *ConstantFoldBinaryFP(double (*NativeFP)(double, double),
   return 0; // dummy return to suppress warning
 }
 
+static Constant *ConstantFoldTernaryFP(double (*NativeFP)(double, double, double),
+                                       double V, double W, double X, const Type *Ty) {
+  sys::llvm_fenv_clearexcept();
+  V = NativeFP(V, W, X);
+  if (sys::llvm_fenv_testexcept()) {
+    sys::llvm_fenv_clearexcept();
+    return 0;
+  }
+
+  if (Ty->isFloatTy())
+    return ConstantFP::get(Ty->getContext(), APFloat((float)V));
+  if (Ty->isDoubleTy())
+    return ConstantFP::get(Ty->getContext(), APFloat(V));
+  llvm_unreachable("Can only constant fold float/double");
+  return 0; // dummy return to suppress warning
+}
+
 /// ConstantFoldConvertToInt - Attempt to an SSE floating point to integer
 /// conversion of a constant floating point. If roundTowardZero is false, the
 /// default IEEE rounding is used (toward nearest, ties to even). This matches
@@ -1274,12 +1291,31 @@ static Constant *ConstantFoldConvertToInt(ConstantFP *Op, bool roundTowardZero,
   return ConstantInt::get(Ty, UIntVal, /*isSigned=*/true);
 }
 
-static Constant *ConstantFoldGlaIntrinsic(Function *F, Constant *const *Operands, unsigned NumOperands)
+static double Min(double V1, double V2)
 {
-  const Type *Ty = F->getReturnType();
+  return V1 < V2 ? V1 : V2;
+}
+
+static double Max(double V1, double V2)
+{
+  return V1 > V2 ? V1 : V2;
+}
+
+static double Clamp(double V1, double V2, double V3)
+{
+  return Min(Max(V1, V2), V3);
+}
+
+static Constant *ConstantFoldGlaScalarCall(Function* F, Constant *const *Operands, unsigned NumOperands)
+{
+  const Type* RetTy = F->getReturnType()->getScalarType();
 
   if (NumOperands == 1) {
     if (ConstantFP *Op = dyn_cast<ConstantFP>(Operands[0])) {
+
+      const Type *Ty = Op->getType();
+      if (Ty != RetTy)
+        return 0; // TODO
 
       /// Currently APFloat versions of these functions do not exist, so we use
       /// the host native double versions.  Float versions are not called
@@ -1290,40 +1326,40 @@ static Constant *ConstantFoldGlaIntrinsic(Function *F, Constant *const *Operands
 
       switch (F->getIntrinsicID()) {
       case Intrinsic::gla_fAbs:
-          return ConstantFoldFP(fabs, V, Ty);
+          return ConstantFoldFP(fabs, V, RetTy);
 
       case Intrinsic::gla_fAcos:
-          return ConstantFoldFP(acos, V, Ty);
+          return ConstantFoldFP(acos, V, RetTy);
 
       case Intrinsic::gla_fAcosh:
           return 0; // TODO
 
       case Intrinsic::gla_fAsin:
-          return ConstantFoldFP(asin, V, Ty);
+          return ConstantFoldFP(asin, V, RetTy);
 
       case Intrinsic::gla_fAsinh:
           return 0; // TODO
 
       case Intrinsic::gla_fAtan:
-          return ConstantFoldFP(atan, V, Ty);
+          return ConstantFoldFP(atan, V, RetTy);
 
       case Intrinsic::gla_fAtanh:
           return 0; // TODO
 
       case Intrinsic::gla_fCeiling:
-          return ConstantFoldFP(ceil, V, Ty);
+          return ConstantFoldFP(ceil, V, RetTy);
 
       case Intrinsic::gla_fCos:
-          return ConstantFoldFP(cos, V, Ty);
+          return ConstantFoldFP(cos, V, RetTy);
 
       case Intrinsic::gla_fCosh:
-          return ConstantFoldFP(cosh, V, Ty);
+          return ConstantFoldFP(cosh, V, RetTy);
 
       case Intrinsic::gla_fDegrees:
           return 0; // TODO
 
       case Intrinsic::gla_fExp:
-          return ConstantFoldFP(exp, V, Ty);
+          return ConstantFoldFP(exp, V, RetTy);
 
       case Intrinsic::gla_fExp10:
           return 0; // TODO
@@ -1335,7 +1371,7 @@ static Constant *ConstantFoldGlaIntrinsic(Function *F, Constant *const *Operands
           return 0; // TODO
 
       case Intrinsic::gla_fFloor:
-          return ConstantFoldFP(floor, V, Ty);
+          return ConstantFoldFP(floor, V, RetTy);
 
       case Intrinsic::gla_fFraction:
       case Intrinsic::gla_fFrexp:
@@ -1349,10 +1385,10 @@ static Constant *ConstantFoldGlaIntrinsic(Function *F, Constant *const *Operands
           return 0; // TODO
 
       case Intrinsic::gla_fLog:
-          return ConstantFoldFP(log, V, Ty);
+          return ConstantFoldFP(log, V, RetTy);
 
       case Intrinsic::gla_fLog10:
-          return ConstantFoldFP(log10, V, Ty);
+          return ConstantFoldFP(log10, V, RetTy);
 
       case Intrinsic::gla_fLog2:
           return 0; // TODO
@@ -1371,19 +1407,19 @@ static Constant *ConstantFoldGlaIntrinsic(Function *F, Constant *const *Operands
           return 0; // TODO
 
       case Intrinsic::gla_fSin:
-          return ConstantFoldFP(sin, V, Ty);
+          return ConstantFoldFP(sin, V, RetTy);
 
       case Intrinsic::gla_fSinh:
-          return ConstantFoldFP(sinh, V, Ty);
+          return ConstantFoldFP(sinh, V, RetTy);
 
       case Intrinsic::gla_fSqrt:
-          return ConstantFoldFP(sqrt, V, Ty);
+          return ConstantFoldFP(sqrt, V, RetTy);
 
       case Intrinsic::gla_fTan:
-          return ConstantFoldFP(tan, V, Ty);
+          return ConstantFoldFP(tan, V, RetTy);
 
       case Intrinsic::gla_fTanh:
-          return ConstantFoldFP(tanh, V, Ty);
+          return ConstantFoldFP(tanh, V, RetTy);
 
       default:
           return 0;
@@ -1391,16 +1427,121 @@ static Constant *ConstantFoldGlaIntrinsic(Function *F, Constant *const *Operands
     }
 
     // TODO: ConstantInts
+  } else if (NumOperands == 2) {
 
-    // TODO: ConstantVectors
+    // TODO
+    return 0;
+  } else if (NumOperands == 3) {
 
-    // TODO: ConstantAggregateZero
+    ConstantFP *Op1 = dyn_cast<ConstantFP>(Operands[0]);
+    ConstantFP *Op2 = dyn_cast<ConstantFP>(Operands[1]);
+    ConstantFP *Op3 = dyn_cast<ConstantFP>(Operands[2]);
 
+    if (Op1 && Op2 && Op3) {
+
+      const Type *Ty1 = Op1->getType();
+      const Type *Ty2 = Op2->getType();
+      const Type *Ty3 = Op3->getType();
+
+      if (RetTy != Ty1 || Ty1 != Ty2 || Ty2 != Ty3)
+        return 0; // TODO
+
+      /// Currently APFloat versions of these functions do not exist, so we use
+      /// the host native double versions.  Float versions are not called
+      /// directly but for all these it is true (float)(f((double)arg)) ==
+      /// f(arg).  Long double not supported yet.
+      double V1 = Ty1->isFloatTy() ? (double)Op1->getValueAPF().convertToFloat() :
+                                     Op1->getValueAPF().convertToDouble();
+      double V2 = Ty2->isFloatTy() ? (double)Op2->getValueAPF().convertToFloat() :
+                                     Op2->getValueAPF().convertToDouble();
+      double V3 = Ty3->isFloatTy() ? (double)Op3->getValueAPF().convertToFloat() :
+                                     Op3->getValueAPF().convertToDouble();
+
+      switch (F->getIntrinsicID()) {
+      case Intrinsic::gla_fClamp:
+        return ConstantFoldTernaryFP(Clamp, V1, V2, V3, RetTy);
+
+      case Intrinsic::gla_fFma:
+      case Intrinsic::gla_fMix:
+      case Intrinsic::gla_fSmoothStep:
+        return 0; // TODO
+
+
+      default:
+        return 0;
+      } // end of switch (F->getIntrinsicID())
+
+      // TODO: ConstantInts
+    }
   }
 
   // TODO: non-unary ops
+}
 
+static int GetNumElements(const Type* Ty)
+{
+  if (const VectorType* VTy = dyn_cast<const VectorType>(Ty))
+    return VTy->getNumElements();
+  else
+    return 1;
+}
+
+// Constant Fold non-per-component, struct returning, and other misc. intrinsics
+static Constant *ConstantFoldGlaMiscCall(Function *F, Constant *const *Operands, unsigned NumOperands)
+{
+  // TODO
   return 0;
+}
+
+static Constant *ConstantFoldGlaCall(Function *F, Constant *const *Operands, unsigned NumOperands)
+{
+  const Type* Ty = F->getReturnType();
+  unsigned IntrID = F->getIntrinsicID();
+
+  if (Ty->isStructTy())
+    return ConstantFoldGlaMiscCall(F, Operands, NumOperands);
+
+  // Find the common component count, if any.
+  int NumComponents = GetNumElements(Ty);
+  for (unsigned int i = 0; i < NumOperands; ++i) {
+    const Type* CTy = Operands[i]->getType();
+
+    // All gla intrinsics take scalars or vectors as arguments
+    if (CTy->getNumContainedTypes() != 0 && ! CTy->isVectorTy())
+      return 0;
+
+    if (NumComponents != GetNumElements(CTy))
+      return ConstantFoldGlaMiscCall(F, Operands, NumOperands);
+  }
+
+  // Handle the scalar case
+  if (NumComponents == 1)
+    return ConstantFoldGlaScalarCall(F, Operands, NumOperands);
+
+  // Do per-component constant folding, and gather up the results
+  SmallVector<Constant*, 4> Results;
+  SmallVector<Constant*, 4> Arguments;
+  for (int Comp = 0; Comp < NumComponents; ++Comp) {
+    // Get the corresponding component from each operand
+    Arguments.clear();
+    for (unsigned Op = 0; Op < NumOperands; ++Op) {
+      if (const ConstantVector* CV = dyn_cast<ConstantVector>(Operands[Op])) {
+        Arguments.push_back(CV->getOperand(Comp));
+      } else if (isa<ConstantAggregateZero>(Operands[Op])) {
+        Arguments.push_back(Constant::getNullValue(Operands[Op]->getType()->getScalarType()));
+      } else {
+        return 0;
+      }
+    }
+
+    Constant* Res = ConstantFoldGlaScalarCall(F, Arguments.begin(), Arguments.size());
+    if (!Res)
+      return 0;
+
+    Results.push_back(Res);
+  }
+
+  return ConstantVector::get(Results);
 }
 
 /// ConstantFoldCall - Attempt to constant fold a call to the specified function
@@ -1412,7 +1553,7 @@ llvm::ConstantFoldCall(Function *F,
   StringRef Name = F->getName();
 
   // Constant fold LunarGLASS intrinsics
-  Constant* GlaFolded = ConstantFoldGlaIntrinsic(F, Operands, NumOperands);
+  Constant* GlaFolded = ConstantFoldGlaCall(F, Operands, NumOperands);
   if (GlaFolded)
       return GlaFolded;
 

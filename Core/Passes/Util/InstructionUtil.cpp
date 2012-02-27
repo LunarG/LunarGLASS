@@ -125,68 +125,6 @@ Value* GetMultiInsertUniqueSource(const Instruction* miInst)
 
     return source;
 }
-
-// Calculate and return the absolute value of c.
-static Constant* CalculateAbs(const Constant* c)
-{
-    const Type* ty = c->getType();
-
-    // Aggregate Zero is it's own abs
-    if (isa<ConstantAggregateZero>(c))
-        return ConstantAggregateZero::get(ty);
-
-    // Fold a scalar float
-    if (const ConstantFP* cFloat = dyn_cast<const ConstantFP>(c))
-        return ConstantFP::get(ty, abs(cFloat->getValueAPF().convertToFloat()));
-
-    // Fold a scalar int
-    if (const ConstantInt* cInt = dyn_cast<const ConstantInt>(c))
-        return ConstantInt::get(ty, cInt->getValue().abs());
-
-    // Fold a constant vector
-    if (const ConstantVector* cVec = dyn_cast<const ConstantVector>(c)) {
-        SmallVector<Constant*, 8> elts;
-        cVec->getVectorElements(elts);
-
-        SmallVector<Constant*, 8> newElts;
-        for (SmallVector<Constant*,8>::iterator i = elts.begin(), e = elts.end(); i != e; ++i) {
-            newElts.push_back(CalculateAbs(*i));
-        }
-
-        return ConstantVector::get(newElts);
-    }
-
-    assert(0 && "Unknown constant type");
-    return 0;
-}
-
-Constant* ConstantFoldIntrinsic(const Instruction* inst)
-{
-    const IntrinsicInst* intr = dyn_cast<const IntrinsicInst>(inst);
-    if (! intr)
-        return 0;
-
-    // Gather all the operands, return 0 if any are not constants
-    SmallVector<Constant*, 8> ops;
-    for (Instruction::const_op_iterator i = intr->op_begin(), e = intr->op_end(); i != e; ++i) {
-        Constant *cOp = dyn_cast<Constant>(*i);
-        if (!cOp)
-            return 0;
-
-        ops.push_back(cOp);
-    }
-
-    switch (intr->getIntrinsicID()) {
-    case Intrinsic::gla_abs:
-    case Intrinsic::gla_fAbs:
-        return CalculateAbs(ops[0]);
-
-    default:
-        return 0;
-
-    } // end of switch (intr->getIntrinsicID())
-}
-
 } // end namespace gla_llvm
 
 

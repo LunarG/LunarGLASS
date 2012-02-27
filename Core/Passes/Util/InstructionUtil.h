@@ -141,11 +141,6 @@ namespace gla_llvm {
     // Whether the given instruction really represents a swizzle. ShuffleVectors
     // over an undef and single-source MultiInserts into an undef represent swizles.
     bool RepresentsSwizzle(const Instruction* inst);
-
-    // If the given instruction is an intrinsic that can be constant folded,
-    // returns the constant result. Returns 0 if it can't do anything.
-    Constant* ConstantFoldIntrinsic(const Instruction*);
-
 } // end namespace gla_llvm
 
 #endif /* GLA_INSTRUCTIONUTIL_H */
