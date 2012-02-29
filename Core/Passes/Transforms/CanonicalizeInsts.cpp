@@ -147,7 +147,7 @@ void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
         llvm::Value* arg1 = 0;
         if (inst->getNumOperands() >= 1)
             arg0 = inst->getOperand(0);
-        if (inst->getNumOperands() >= 1)
+        if (inst->getNumOperands() >= 2)
             arg1 = inst->getOperand(1);
         llvm::Value* newInst = 0;
         const Type* instTypes[] = { inst->getType(), inst->getType(), inst->getType(), inst->getType() };
