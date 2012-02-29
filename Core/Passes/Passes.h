@@ -40,6 +40,9 @@ namespace gla {
 namespace gla_llvm {
     using namespace llvm;
 
+    // Decompose instructions for LunarGLASS
+    FunctionPass* createDecomposeInstsPass();
+
     // Coalesce insert/extracts into multiInserts
     FunctionPass* createCoalesceInsertsPass();
 

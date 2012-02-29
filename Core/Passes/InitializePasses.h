@@ -34,6 +34,8 @@
 // Use of llvm namespace required
 namespace llvm {
 
+    void initializeDecomposeInstsPass(PassRegistry&);
+
     void initializeBottomTranslatorPass(PassRegistry&);
 
     void initializeCanonicalizeCFGPass(PassRegistry&);
