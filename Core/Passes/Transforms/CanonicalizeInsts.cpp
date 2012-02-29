@@ -127,13 +127,31 @@ CallInst* CanonicalizeInsts::createSwizzleIntrinsic(Value* val, const SmallVecto
 
 void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
 {
+    IRBuilder<> builder(module->getContext());
+
     for (BasicBlock::iterator instI = bb->begin(), instE = bb->end(); instI != instE; /* empty */) {
         Instruction* inst = instI;
+
+        // Note this increment of instI will skip decompositions of the code
+        // inserted to decompose.  E.g., if length -> dot, and dot is also to
+        // be decomposed, then the decomposition of dot will be skipped
+        // unless instI is reset.
         ++instI;
 
         IntrinsicInst* intrinsic = dyn_cast<IntrinsicInst>(inst);
         if (! intrinsic)
             continue;
+
+        // Useful preamble for most case
+        llvm::Value* arg0 = 0;
+        llvm::Value* arg1 = 0;
+        if (inst->getNumOperands() >= 1)
+            arg0 = inst->getOperand(0);
+        if (inst->getNumOperands() >= 1)
+            arg1 = inst->getOperand(1);
+        llvm::Value* newInst = 0;
+        const Type* instTypes[] = { inst->getType(), inst->getType(), inst->getType(), inst->getType() };
+        builder.SetInsertPoint(instI);
 
         switch (intrinsic->getIntrinsicID()) {
         case Intrinsic::gla_fMin:
@@ -314,33 +332,83 @@ void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
             break;
         case Intrinsic::gla_fLength:
-            if (backEnd->decomposeIntrinsic(EDiLength)) {
-                UnsupportedFunctionality("decomposition of gla_fLength");
-                //changed = true;
+            if (backEnd->decomposeIntrinsic(EDiLength)) {                
+                const Type* argTypes[] = { arg0->getType(), arg0->getType() };
+                if (GetComponentCount(arg0) > 1) {
+                    Intrinsic::ID dotID;
+                    switch (GetComponentCount(arg0)) {
+                    case 2: 
+                        dotID = Intrinsic::gla_fDot2; 
+                        break;
+                    case 3: 
+                        dotID = Intrinsic::gla_fDot3; 
+                        break;
+                    case 4: 
+                        dotID = Intrinsic::gla_fDot4; 
+                        break;
+                    default: 
+                        assert(! "Bad component count");
+                    }
+
+                    Function* dot = Intrinsic::getDeclaration(module, dotID, argTypes, 2);
+                    newInst = builder.CreateCall2(dot, arg0, arg0);
+
+                    Function* sqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fSqrt, instTypes, 2);
+                    newInst = builder.CreateCall(sqrt, newInst);
+                } else {
+                    Function* abs = Intrinsic::getDeclaration(module, Intrinsic::gla_fAbs, instTypes, 2);
+                    newInst = builder.CreateCall(abs, arg0);
+                }
+
+                // Make next iteration revisit this decomposition, in case dot is 
+                // decomposed.
+                instI = inst;
+                ++instI;
             }
             break;
         case Intrinsic::gla_fDistance:
             if (backEnd->decomposeIntrinsic(EDiDistance)) {
-                UnsupportedFunctionality("decomposition of gla_fDistance");
-                //changed = true;
+                newInst = builder.CreateFSub(arg0, arg1);
+                const llvm::Type* type = newInst->getType();
+                Function* length = Intrinsic::getDeclaration(module, Intrinsic::gla_fLength, &type, 1);
+                newInst = builder.CreateCall(length, newInst);
+
+                // Make next iteration revisit this decomposition, in case length is 
+                // decomposed.
+                instI = inst;
+                ++instI;
             }
             break;
         case Intrinsic::gla_fDot2:
             if (backEnd->decomposeIntrinsic(EDiDot)) {
-                UnsupportedFunctionality("decomposition of gla_fDot2");
-                //changed = true;
+                newInst = builder.CreateFMul(arg0, arg1);
+                llvm::Value* element0 = builder.CreateExtractElement(newInst, MakeUnsignedConstant(module->getContext(), 0));
+                llvm::Value* element1 = builder.CreateExtractElement(newInst, MakeUnsignedConstant(module->getContext(), 1));
+                newInst = builder.CreateFAdd(element0, element1);
             }
             break;
         case Intrinsic::gla_fDot3:
             if (backEnd->decomposeIntrinsic(EDiDot)) {
-                UnsupportedFunctionality("decomposition of gla_fDot3");
-                //changed = true;
+                newInst = builder.CreateFMul(arg0, arg1);
+                arg0 = newInst;
+                llvm::Value* element0 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 0));
+                llvm::Value* element1 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 1));
+                newInst = builder.CreateFAdd(element0, element1);
+                llvm::Value* element = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 2));
+                newInst = builder.CreateFAdd(newInst, element);
             }
             break;
         case Intrinsic::gla_fDot4:
             if (backEnd->decomposeIntrinsic(EDiDot)) {
-                UnsupportedFunctionality("decomposition of gla_fDot4");
-                //changed = true;
+                newInst = builder.CreateFMul(arg0, arg1);
+                arg0 = newInst;
+                llvm::Value* element0 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 0));
+                llvm::Value* element1 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 1));
+                newInst = builder.CreateFAdd(element0, element1);
+                for (int el = 2; el < 4; ++el) {
+                    llvm::Value* element = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), el));
+                    newInst = builder.CreateFAdd(newInst, element);
+                }
             }
             break;
         case Intrinsic::gla_fCross:
@@ -402,6 +470,13 @@ void CanonicalizeInsts::decomposeIntrinsics(BasicBlock* bb)
             // for what intrinsics to decompose.  If not there the assumption is
             // it never needs to be decomposed.
             ;
+        }
+
+        if (newInst) {
+            inst->replaceAllUsesWith(newInst);
+            inst->dropAllReferences();
+            inst->eraseFromParent();
+            changed = true;
         }
     }
 }
@@ -619,4 +694,3 @@ FunctionPass* gla_llvm::createCanonicalizeInstsPass()
 {
     return new CanonicalizeInsts();
 }
-

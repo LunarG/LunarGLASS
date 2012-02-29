@@ -1167,9 +1167,6 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
     // Handle special return types here.  Things that don't have same result type as parameter
     switch (intrinsicID) {
     case llvm::Intrinsic::gla_fDistance:
-        // TODO:  Hook this up
-        gla::UnsupportedFunctionality("binary intrinsic", intrinsicID);
-        break;
     case llvm::Intrinsic::gla_fDot2:
     case llvm::Intrinsic::gla_fDot3:
     case llvm::Intrinsic::gla_fDot4:
