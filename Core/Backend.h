@@ -68,8 +68,10 @@ namespace gla {
         EDiACosh,
         EDiATanh,
         EDiPowi,
-        EDiExp10,
-        EDiLog10,
+        EDiExp10,       // decompose to base 10 to base 2
+        EDiLog10,       // decompose to base 10 to base 2
+        EDiExp,         // decompose to base e to base 2
+        EDiLog,         // decompose to base e to base 2
         EDiInverseSqrt,
         EDiFraction,
         EDiModF,

@@ -184,31 +184,26 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
             break;
         case Intrinsic::gla_fExp10:
-        case Intrinsic::gla_fExp2:
         case Intrinsic::gla_fExp:
-            if (intrinsic->getIntrinsicID() == Intrinsic::gla_fExp10 && backEnd->decomposeIntrinsic(EDiExp10)) 
-            {
-                //    10^X = e^(X /(log base 10 of e))
-                // -> 10^X = e^(X * 2.3025850929940456840179914546844)
-                //
+            if (intrinsic->getIntrinsicID() == Intrinsic::gla_fExp10 && backEnd->decomposeIntrinsic(EDiExp10) ||
+                intrinsic->getIntrinsicID() == Intrinsic::gla_fExp   && backEnd->decomposeIntrinsic(EDiExp)) {
                 //    10^X = 2^(X /(log base 10 of 2))
                 // -> 10^X = 2^(X * 3.3219280948873623478703194294894)
-                
-                const double inv_log10_e = 2.3025850929940456840179914546844;  // 10 -> e
+                //
+                //     e^X = 2^(X /(log base e of 2))
+                // ->  e^X = 2^(X * 1.4426950408889634073599246810019)
+            
+                const double inv_log10_e = 2.3025850929940456840179914546844;  // 10 -> e, in case it comes up
                 const double inv_log10_2 = 3.3219280948873623478703194294894;  // 10 -> 2
                 const double inv_loge_2  = 1.4426950408889634073599246810019;  //  e -> 2
 
-                // the following can be easily changed to re-express in terms of base e or base 2.
-                const bool goToBase_e = false;  // false will mean go to base 2
                 double multiplier;
-                Function* exp;
-                if (goToBase_e) {
-                    multiplier = inv_log10_e;
-                    exp = Intrinsic::getDeclaration(module, Intrinsic::gla_fExp, argTypes, 2);
-                } else {
+                if (intrinsic->getIntrinsicID() == Intrinsic::gla_fExp10)
                     multiplier = inv_log10_2;
-                    exp = Intrinsic::getDeclaration(module, Intrinsic::gla_fExp2, argTypes, 2);
-                }
+                else
+                    multiplier = inv_loge_2;
+
+                Function* exp = Intrinsic::getDeclaration(module, Intrinsic::gla_fExp2, argTypes, 2);
 
                 llvm::Constant* scalar = MakeFloatConstant(module->getContext(), (float)multiplier);
                 if (GetComponentCount(arg0) == 1) {
@@ -224,31 +219,26 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
             break;
         case Intrinsic::gla_fLog10:
-        case Intrinsic::gla_fLog2:
         case Intrinsic::gla_fLog:
-            if (intrinsic->getIntrinsicID() == Intrinsic::gla_fLog10 && backEnd->decomposeIntrinsic(EDiLog10)) 
-            {
-                //    log base 10 of X = (log base 10 of e) * (log base e of X)
-                // -> log base 10 of X = 0.43429448190325182765112891891661 * (log base e of X)
-                //
+            if (intrinsic->getIntrinsicID() == Intrinsic::gla_fLog10 && backEnd->decomposeIntrinsic(EDiLog10) ||
+                intrinsic->getIntrinsicID() == Intrinsic::gla_fLog   && backEnd->decomposeIntrinsic(EDiLog)) {
                 //    log base 10 of X = (log base 10 of 2) * (log base 2 of X)
                 // -> log base 10 of X = 0.30102999566398119521373889472449 * (log base 2 of X)
+                //
+                //    log base e  of X = (log base e of 2) * (log base 2 of X)
+                // -> log base e  of X = 0.69314718055994530941723212145818 * (log base 2 of X)
                 
-                const double log10_e = 0.43429448190325182765112891891661;  // 10 -> e
+                const double log10_e = 0.43429448190325182765112891891661;  // 10 -> e, in case it comes up
                 const double log10_2 = 0.30102999566398119521373889472449;  // 10 -> 2
                 const double loge_2  = 0.69314718055994530941723212145818;  //  e -> 2
 
-                // the following can be easily changed to re-express in terms of base e or base 2.
-                const bool goToBase_e = false;  // false will mean go to base 2
                 double multiplier;
-                Function* log;
-                if (goToBase_e) {
-                    multiplier = log10_e;
-                    log = Intrinsic::getDeclaration(module, Intrinsic::gla_fLog, argTypes, 2);
-                } else {
+                if (intrinsic->getIntrinsicID() == Intrinsic::gla_fLog10)
                     multiplier = log10_2;
-                    log = Intrinsic::getDeclaration(module, Intrinsic::gla_fLog2, argTypes, 2);
-                }
+                else
+                    multiplier = loge_2;
+
+                Function* log = Intrinsic::getDeclaration(module, Intrinsic::gla_fLog2, argTypes, 2);
 
                 newInst = builder.CreateCall(log, arg0);
                 llvm::Constant* scalar = MakeFloatConstant(module->getContext(), (float)multiplier);
