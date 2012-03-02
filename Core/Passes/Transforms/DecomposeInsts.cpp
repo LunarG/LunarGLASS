@@ -25,7 +25,7 @@
 //===----------------------------------------------------------------------===//
 //
 // Decompose instructions (generally, intrinsics) as requested by the back end.
-// For example, 
+// For example,
 //
 //    L = length(v)
 //      -->
@@ -83,6 +83,24 @@ namespace  {
         BackEnd* backEnd;
         bool changed;
     };
+
+    llvm::Value* MultiplyByConstant(IRBuilder<>& builder, llvm::Value* arg, double constant)
+    {
+        llvm::Value* value;
+
+        llvm::Constant* scalar = MakeFloatConstant(builder.getContext(), (float)constant);
+        if (GetComponentCount(arg) == 1) {
+            value = builder.CreateFMul(arg, scalar);
+        } else {
+            llvm::SmallVector<llvm::Constant*, 4> vector(GetComponentCount(arg), scalar);
+            llvm::Value* llvmVector = llvm::ConstantVector::get(vector);
+
+            value = builder.CreateFMul(arg, llvmVector);
+        }
+
+        return value;
+    }
+
 } // end namespace
 
 void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
@@ -115,6 +133,22 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
         builder.SetInsertPoint(instI);
 
         switch (intrinsic->getIntrinsicID()) {
+        case Intrinsic::gla_fRadians:
+            {
+                // always decompose
+                // arg0 -> arg0 * pi / 180
+                const double pi_over_180 = 0.01745329251994329576923690768489;
+                newInst = MultiplyByConstant(builder, arg0, pi_over_180);
+                break;
+            }
+        case Intrinsic::gla_fDegrees:
+            {
+                // always decompose
+                // arg0 -> arg0 * 180 / pi
+                const double pi_into_180 = 57.295779513082320876798154814105;
+                newInst = MultiplyByConstant(builder, arg0, pi_into_180);
+                break;
+            }
         case Intrinsic::gla_fMin:
             if (backEnd->decomposeIntrinsic(EDiMin)) {
                 UnsupportedFunctionality("decomposition of gla_fMin");
@@ -134,6 +168,24 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
             break;
 
+        case Intrinsic::gla_fAsin:
+            if (backEnd->decomposeIntrinsic(EDiAsin)) {
+                UnsupportedFunctionality("decomposition of gla_fAsin");
+                //changed = true;
+            }
+            break;
+        case Intrinsic::gla_fAcos:
+            if (backEnd->decomposeIntrinsic(EDiAcos)) {
+                UnsupportedFunctionality("decomposition of gla_fAcos");
+                //changed = true;
+            }
+            break;
+        case Intrinsic::gla_fAtan:
+            if (backEnd->decomposeIntrinsic(EDiAtan)) {
+                UnsupportedFunctionality("decomposition of gla_fAtan");
+                //changed = true;
+            }
+            break;
         case Intrinsic::gla_fAtan2:
             if (backEnd->decomposeIntrinsic(EDiAtan2)) {
                 UnsupportedFunctionality("decomposition of gla_fAtan2");
@@ -192,7 +244,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 //
                 //     e^X = 2^(X /(log base e of 2))
                 // ->  e^X = 2^(X * 1.4426950408889634073599246810019)
-            
+
                 const double inv_log10_e = 2.3025850929940456840179914546844;  // 10 -> e, in case it comes up
                 const double inv_log10_2 = 3.3219280948873623478703194294894;  // 10 -> 2
                 const double inv_loge_2  = 1.4426950408889634073599246810019;  //  e -> 2
@@ -203,19 +255,9 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 else
                     multiplier = inv_loge_2;
 
+                newInst = MultiplyByConstant(builder, arg0, multiplier);
                 Function* exp = Intrinsic::getDeclaration(module, Intrinsic::gla_fExp2, argTypes, 2);
-
-                llvm::Constant* scalar = MakeFloatConstant(module->getContext(), (float)multiplier);
-                if (GetComponentCount(arg0) == 1) {
-                    newInst = builder.CreateFMul(arg0, scalar);
-                } else {
-                    llvm::SmallVector<llvm::Constant*, 4> vector(GetComponentCount(arg0), scalar);
-                    llvm::Value* llvmVector = llvm::ConstantVector::get(vector);
-
-                    newInst = builder.CreateFMul(arg0, llvmVector);
-                }
-
-                newInst = builder.CreateCall(exp, newInst);                
+                newInst = builder.CreateCall(exp, newInst);
             }
             break;
         case Intrinsic::gla_fLog10:
@@ -227,7 +269,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 //
                 //    log base e  of X = (log base e of 2) * (log base 2 of X)
                 // -> log base e  of X = 0.69314718055994530941723212145818 * (log base 2 of X)
-                
+
                 const double log10_e = 0.43429448190325182765112891891661;  // 10 -> e, in case it comes up
                 const double log10_2 = 0.30102999566398119521373889472449;  // 10 -> 2
                 const double loge_2  = 0.69314718055994530941723212145818;  //  e -> 2
@@ -239,17 +281,8 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     multiplier = loge_2;
 
                 Function* log = Intrinsic::getDeclaration(module, Intrinsic::gla_fLog2, argTypes, 2);
-
                 newInst = builder.CreateCall(log, arg0);
-                llvm::Constant* scalar = MakeFloatConstant(module->getContext(), (float)multiplier);
-                if (GetComponentCount(arg0) == 1) {
-                    newInst = builder.CreateFMul(newInst, scalar);
-                } else {
-                    llvm::SmallVector<llvm::Constant*, 4> vector(GetComponentCount(arg0), scalar);
-                    llvm::Value* llvmVector = llvm::ConstantVector::get(vector);
-
-                    newInst = builder.CreateFMul(newInst, llvmVector);
-                }
+                newInst = MultiplyByConstant(builder, arg0, multiplier);
             }
             break;
 
@@ -263,6 +296,12 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
         case Intrinsic::gla_fFraction:
             if (backEnd->decomposeIntrinsic(EDiFraction)) {
                 UnsupportedFunctionality("decomposition of gla_fFraction");
+                //changed = true;
+            }
+            break;
+        case Intrinsic::gla_fSign:
+            if (backEnd->decomposeIntrinsic(EDiSign)) {
+                UnsupportedFunctionality("decomposition of gla_fSign");
                 //changed = true;
             }
             break;
@@ -431,8 +470,35 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             break;
         case Intrinsic::gla_fCross:
             if (backEnd->decomposeIntrinsic(EDiCross)) {
-                UnsupportedFunctionality("decomposition of gla_fCross");
-                //changed = true;
+                // (a1, a2, a3) X (b1, b2, b3) -> (a2*b3 - a3*b2, a3*b1 - a1*b3, a1*b2 - a2*b1)
+
+                llvm::Value* a1 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 0));
+                llvm::Value* a2 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 1));
+                llvm::Value* a3 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 2));
+                
+                llvm::Value* b1 = builder.CreateExtractElement(arg1, MakeUnsignedConstant(module->getContext(), 0));
+                llvm::Value* b2 = builder.CreateExtractElement(arg1, MakeUnsignedConstant(module->getContext(), 1));
+                llvm::Value* b3 = builder.CreateExtractElement(arg1, MakeUnsignedConstant(module->getContext(), 2));
+                
+                llvm::Value* empty = llvm::UndefValue::get(arg0->getType());
+
+                // a2*b3 - a3*b2
+                llvm::Value* p1 = builder.CreateFMul(a2, b3);
+                llvm::Value* p2 = builder.CreateFMul(a3, b2);
+                llvm::Value* element = builder.CreateFSub(p1, p2);
+                newInst = builder.CreateInsertElement(empty, element, MakeUnsignedConstant(module->getContext(), 0));
+
+                // a3*b1 - a1*b3
+                p1 = builder.CreateFMul(a3, b1);
+                p2 = builder.CreateFMul(a1, b3);
+                element = builder.CreateFSub(p1, p2);
+                newInst = builder.CreateInsertElement(newInst, element, MakeUnsignedConstant(module->getContext(), 1));
+
+                // a1*b2 - a2*b1
+                p1 = builder.CreateFMul(a1, b2);
+                p2 = builder.CreateFMul(a2, b1);
+                element = builder.CreateFSub(p1, p2);
+                newInst = builder.CreateInsertElement(newInst, element, MakeUnsignedConstant(module->getContext(), 2));
             }
             break;
         case Intrinsic::gla_fNormalize:
@@ -539,6 +605,40 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 //changed = true;
             }
             break;
+
+        case Intrinsic::gla_any:
+            if (backEnd->decomposeIntrinsic(EDiAny)) {
+                if (GetComponentCount(arg0) == 1)
+                    UnsupportedFunctionality("any() on a scalar");
+
+                newInst = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 0));
+                for (int c = 1; c < GetComponentCount(arg0); ++c) {
+                    llvm::Value* comp = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), c));
+                    newInst = builder.CreateOr(newInst, comp);
+                }
+            }
+            break;
+        case Intrinsic::gla_all:
+            if (backEnd->decomposeIntrinsic(EDiAll)) {
+                if (GetComponentCount(arg0) == 1)
+                    UnsupportedFunctionality("all() on a scalar");
+
+                newInst = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 0));
+                for (int c = 1; c < GetComponentCount(arg0); ++c) {
+                    llvm::Value* comp = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), c));
+                    newInst = builder.CreateAnd(newInst, comp);
+                }
+            }
+            break;
+        case Intrinsic::gla_not:
+            if (backEnd->decomposeIntrinsic(EDiNot)) {
+                if (GetComponentCount(arg0) == 1)
+                    UnsupportedFunctionality("not() on a scalar");
+
+                newInst = builder.CreateNot(arg0);
+            }
+            break;
+
         default:
             // The cases above needs to be comprehensive in terms of checking
             // for what intrinsics to decompose.  If not there the assumption is

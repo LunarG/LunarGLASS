@@ -60,6 +60,9 @@ namespace gla {
         EDiMin,
         EDiMax,
         EDiClamp,
+        EDiAsin,
+        EDiAcos,
+        EDiAtan,
         EDiAtan2,
         EDiSinh,
         EDiCosh,
@@ -68,12 +71,13 @@ namespace gla {
         EDiACosh,
         EDiATanh,
         EDiPowi,
-        EDiExp10,       // decompose to base 10 to base 2
-        EDiLog10,       // decompose to base 10 to base 2
-        EDiExp,         // decompose to base e to base 2
-        EDiLog,         // decompose to base e to base 2
+        EDiExp10,       // decompose from base 10 to base 2
+        EDiLog10,       // decompose from base 10 to base 2
+        EDiExp,         // decompose from base e to base 2
+        EDiLog,         // decompose from base e to base 2
         EDiInverseSqrt,
         EDiFraction,
+        EDiSign,
         EDiModF,
         EDiMix,
         EDiStep,
@@ -100,6 +104,9 @@ namespace gla {
         EDiRefract,
         EDiFilterWidth,
         EDiFixedTransform,
+        EDiAny,
+        EDiAll,
+        EDiNot,
 
         // Intrinsic preferences (decompose to simpler form when possible)
         EDiPreferSwizzle,       // Make swizzles when possible
