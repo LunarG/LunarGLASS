@@ -889,7 +889,11 @@ llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, const llvm::Type* 
 
 void Builder::promoteScalar(SuperValue& left, SuperValue& right)
 {
-    int direction = GetComponentCount(right) - GetComponentCount(left);
+    int direction;
+    if (const llvm::PointerType* pointer = llvm::dyn_cast<const llvm::PointerType>(left->getType()))
+        direction = GetComponentCount(right) - GetComponentCount(pointer->getContainedType(0));
+    else
+        direction = GetComponentCount(right) - GetComponentCount(left);
 
     if (direction > 0)
         left = gla::Builder::smearScalar(left, right->getType());

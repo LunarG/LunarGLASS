@@ -245,7 +245,12 @@ public:
     llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
     llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
 
-    // if one operand is a scalar and the other is a vector, promote the scalar to match
+    // Can smear a scalar to a vector for the following forms:
+    //   - promoteScalar(scalar, vector)  // smear scalar to width of vector
+    //   - promoteScalar(vector, scalar)  // smear scalar to width of vector
+    //   - promoteScalar(pointer, scalar) // smear scalar to width of what pointer points to
+    //   - promoteScalar(scalar, scalar)  // do nothing
+    // Other forms are not allowed.
     void promoteScalar(SuperValue& left, SuperValue& right);
 
     // make a value by smearing the scalar to fill the type
