@@ -342,17 +342,17 @@ ir_visitor_status
         }
 
         llvm::BasicBlock* functionBlock;
-        llvm::Function *function = glaBuilder->makeFunctionEntry(convertGlslToGlaType(sig->return_type), sig->function_name(), paramTypes, functionBlock);
+        llvm::Function *function = glaBuilder->makeFunctionEntry(convertGlslToGlaType(sig->return_type), sig->function_name(), paramTypes, &functionBlock);
+        function->addFnAttr(llvm::Attribute::AlwaysInline);
         llvmBuilder.SetInsertPoint(functionBlock);
 
-        // Visit parameter list again to create local variables
+        // Visit parameter list again to create mappings to local variables and set attributes.
         iterParam = sig->parameters.iterator();
 
         llvm::Function::arg_iterator arg = function->arg_begin();
         llvm::Function::arg_iterator endArg = function->arg_end();
 
         while (iterParam.has_next() && arg != endArg) {
-            // Create a variable for our formal parameter
             parameter = (ir_variable *) iterParam.get();
             namedValues[parameter] = &(*arg);
             ++arg;
@@ -785,49 +785,31 @@ ir_visitor_status
 {
     exec_list_iterator iter = call->actual_parameters.iterator();
 
-    // Stick this somewhere that makes sense, with a real value
-    #define GLA_MAX_PARAMETERS 10
+    llvm::SmallVector<llvm::Value*, 4> llvmParams;
 
-    gla::Builder::SuperValue llvmParams[GLA_MAX_PARAMETERS];
     ir_rvalue *param = NULL;
     int paramCount = 0;
 
-    // Build a list of actual parameters
+    // Build a list of arguments
     while(iter.has_next())
     {
         param = (ir_rvalue *) iter.get();
         param->accept(this);
-        llvmParams[paramCount] = lastValue;
+        llvmParams.push_back(lastValue);
+
         paramCount++;
         iter.next();
     }
 
-    assert(paramCount < GLA_MAX_PARAMETERS);
-
     if(call->get_callee()->function()->has_user_signature()) {
-        llvm::CallInst *callInst = 0;
-
-       // Grab the pointer from the previous created function
+        // Grab the pointer from the previous created function
         llvm::Function* function = functionMap[call->get_callee()];
         assert(function);
 
-       // Create a call to it
-        switch(paramCount) {
-        case 5:     callInst = llvmBuilder.CreateCall5(function, llvmParams[0], llvmParams[1], llvmParams[2], llvmParams[3], llvmParams[4]);      break;
-        case 4:     callInst = llvmBuilder.CreateCall4(function, llvmParams[0], llvmParams[1], llvmParams[2], llvmParams[3]);                     break;
-        case 3:     callInst = llvmBuilder.CreateCall3(function, llvmParams[0], llvmParams[1], llvmParams[2]);                                    break;
-        case 2:     callInst = llvmBuilder.CreateCall2(function, llvmParams[0], llvmParams[1]);                                                   break;
-        case 1:     callInst = llvmBuilder.CreateCall (function, llvmParams[0]);                                                                  break;
-        case 0:     callInst = llvmBuilder.CreateCall (function);                                                                                 break;
-        default:    assert(! "Unsupported parameter count");
-        }
-
-        // Track the return value for to be consumed by next instruction
-        lastValue = callInst;
-
+        lastValue = llvmBuilder.Insert(llvm::CallInst::Create(function, &llvmParams[0], &llvmParams[paramCount]));
     } else {
         if (! strcmp(call->callee_name(), "mix")) {
-            if(GetBasicType(llvmParams[0])->isIntegerTy()) {
+            if(gla::GetBasicType(llvmParams[0])->isIntegerTy()) {
                 lastValue = llvmBuilder.CreateSelect(llvmParams[2], llvmParams[0], llvmParams[1]);
             } else {
                 lastValue = glaBuilder->createIntrinsicCall(llvm::Intrinsic::gla_fMix, llvmParams[0], llvmParams[1], llvmParams[2]);
