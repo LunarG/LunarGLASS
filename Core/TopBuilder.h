@@ -167,10 +167,10 @@ public:
     // TODO: support discards in non-main functions
     void makeDiscard(bool isMain);
 
-
-    // Make a shader-style function, create its entry block.
+    // Make a shader-style function, and create its entry block if entry is non zero.
     // Return the function, pass back the entry.
-    llvm::Function* makeFunctionEntry(const llvm::Type* type, const char* name, std::vector<const llvm::Type*> paramTypes, llvm::BasicBlock*& entry);
+    llvm::Function* makeFunctionEntry(const llvm::Type* type, const char* name, const std::vector<const llvm::Type*>& paramTypes, 
+                                      llvm::BasicBlock** entry = 0, bool external = false);
 
     //
     // Storage qualifiers for communicating the basic storage class

@@ -120,6 +120,11 @@ void gla::PrivateManager::runLLVMOptimizations1()
     globalPM.add(llvm::createInstructionSimplifierPass());
     globalPM.run(*module);
 
+    llvm::PassManager globalPM2;
+    globalPM2.add(llvm::createAlwaysInlinerPass());
+    globalPM2.add(llvm::createPromoteMemoryToRegisterPass());
+    globalPM2.run(*module);
+
     // Next, do interprocedural passes
     // Future work: If we ever have non-inlined functions, we'll want to add some
 
@@ -130,8 +135,6 @@ void gla::PrivateManager::runLLVMOptimizations1()
     llvm::FunctionPassManager passManager(module);
 
     // TODO: explore ScalarReplAggregates more
-    passManager.add(llvm::createPromoteMemoryToRegisterPass());
-
     // TODO: explore SimplifyLibCalls
     // TODO: see if we can avoid running gvn/sccp multiple times
 

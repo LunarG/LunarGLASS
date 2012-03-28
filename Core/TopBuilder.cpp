@@ -101,7 +101,7 @@ llvm::BasicBlock* Builder::makeMain()
     stageEpilogue = llvm::BasicBlock::Create(context, "stage-epilogue");
     stageExit    = llvm::BasicBlock::Create(context, "stage-exit");
 
-    mainFunction = makeFunctionEntry(gla::GetVoidType(context), "main", params, entry);
+    mainFunction = makeFunctionEntry(gla::GetVoidType(context), "main", params, &entry, true /* needs external visibility */);
 
     return entry;
 }
@@ -123,10 +123,15 @@ void Builder::closeMain()
 
 void Builder::makeReturn(bool implicit, llvm::Value* retVal, bool isMain)
 {
-    if (! isMain || retVal)
-        gla::UnsupportedFunctionality("return from non-main functions");
+    if (isMain && retVal)
+        gla::UnsupportedFunctionality("return value from main()");
 
-    builder.CreateBr(stageEpilogue);
+    if (isMain)
+        builder.CreateBr(stageEpilogue);
+    else if (retVal)
+        builder.CreateRet(retVal);
+    else
+        builder.CreateRetVoid();
 
     if (! implicit)
         createAndSetNoPredecessorBlock("post-return");
@@ -150,15 +155,16 @@ void Builder::createAndSetNoPredecessorBlock(std::string name)
 
 }
 
-llvm::Function* Builder::makeFunctionEntry(const llvm::Type* type, const char* name, std::vector<const llvm::Type*> paramTypes, llvm::BasicBlock*& entry)
+llvm::Function* Builder::makeFunctionEntry(const llvm::Type* type, const char* name, const std::vector<const llvm::Type*>& paramTypes, llvm::BasicBlock** entry, bool external)
 {
     llvm::FunctionType *functionType = llvm::FunctionType::get(type, paramTypes, false);
-    llvm::Function *function = llvm::Function::Create(functionType, llvm::Function::ExternalLinkage, name, module);
+    llvm::Function *function = llvm::Function::Create(functionType, external ? llvm::Function::ExternalLinkage : llvm::Function::InternalLinkage, name, module);
 
     // For shaders, we want everything passed in registers
     function->setCallingConv(llvm::CallingConv::Fast);
 
-    entry = llvm::BasicBlock::Create(context, "entry", function);
+    if (entry)
+        *entry = llvm::BasicBlock::Create(context, "entry", function);
 
     return function;
 }
