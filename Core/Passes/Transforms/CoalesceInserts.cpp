@@ -586,14 +586,9 @@ void MultiInsertIntrinsic::makeIntrinsic()
 
 void MultiInsertIntrinsic::insertIntrinsic()
 {
-    BasicBlock::InstListType& instList = bb.getInstList();
-    for (BasicBlock::InstListType::iterator instI = instList.begin(), instE = instList.end(); instI != instE; ++instI)
-        if (instI->isIdenticalTo(toReplace)) {
-            assert(IsVectorConstructor(instI));
+    bb.getInstList().insertAfter(toReplace, intrinsic);
+    toReplace->replaceAllUsesWith(intrinsic);
 
-            instList.insertAfter(instI, intrinsic);
-            instI->replaceAllUsesWith(intrinsic);
-        }
 }
 
 void MultiInsertIntrinsic::dump() const
