@@ -32,6 +32,10 @@
 #include "llvm/Instructions.h"
 #include "llvm/IntrinsicInst.h"
 
+// LunarGLASS helpers
+#include "LunarGLASSTopIR.h"
+#include "Util.h"
+
 namespace gla_llvm {
     using namespace llvm;
 
@@ -126,6 +130,16 @@ namespace gla_llvm {
         }
 
         return false;
+    }
+
+    // Whether the multi-insert's write mask specifies that component is written to
+    inline bool MultiInsertWritesComponent(unsigned int mask, unsigned int component)
+    {
+        return 0 != (mask & (1 << component));
+    }
+    inline bool MultiInsertWritesComponent(const Instruction* miInst, unsigned int component)
+    {
+        return MultiInsertWritesComponent(gla::GetConstantInt(miInst->getOperand(1)), component);
     }
 
     bool IsNegation(const Instruction* inst);

@@ -85,7 +85,7 @@ void GetMultiInsertSelects(const Instruction* miInst, SmallVectorImpl<Constant*>
 
     for (int i = 0; i < GetComponentCount(miInst); ++i) {
         // If the writemask isn't specified for this one, put in an undef
-        if (0 == (wmask & (1 << i))) {
+        if (! MultiInsertWritesComponent(wmask, i)) {
             channelSelects.push_back(UndefValue::get(GetIntType(miInst->getContext())));
             continue;
         }
@@ -108,7 +108,7 @@ Value* GetMultiInsertUniqueSource(const Instruction* miInst)
 
     // Make sure they are from the same source
     for (int i = 0; i < 4; ++i) {
-        if (0 == (wmask & (1 << i)))
+        if (! MultiInsertWritesComponent(wmask, i))
             continue;
 
         int operandIndex = (i+1) * 2;

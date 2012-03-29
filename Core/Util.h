@@ -88,6 +88,17 @@ namespace gla {
 
     inline bool IsScalar(const llvm::Value* value) { return IsScalar(value->getType()); }
 
+    inline bool AreScalar(llvm::ArrayRef<llvm::Value*> vals)
+    {
+        for (llvm::ArrayRef<llvm::Value*>::iterator i = vals.begin(), e = vals.end(); i != e; ++i) {
+            if (IsAggregate(*i))
+                return false;
+        }
+
+        return true;
+    }
+
+
     inline bool IsVector(const llvm::Type* type) { return type->getTypeID() == llvm::Type::VectorTyID; }
     inline bool IsVector(const llvm::Value* value) { return IsVector(value->getType()); }
 

@@ -156,17 +156,17 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // Provide the backend queries
     passManager.add(gla_llvm::createBackEndPointerPass(backEnd));
 
-    // Run intrinisic combining
-    passManager.add(gla_llvm::createCanonicalizeCFGPass());
-    passManager.add(llvm::createInstructionCombiningPass());
-    passManager.add(gla_llvm::createIntrinsicCombinePass());
-    passManager.add(gla_llvm::createCanonicalizeCFGPass());
-
     // Make multiinsert intrinsics, and clean up afterwards
     passManager.add(llvm::createInstructionCombiningPass());
     passManager.add(gla_llvm::createCoalesceInsertsPass());
     passManager.add(llvm::createAggressiveDCEPass());
     passManager.add(llvm::createInstructionCombiningPass());
+
+    // Run intrinisic combining
+    passManager.add(gla_llvm::createCanonicalizeCFGPass());
+    passManager.add(llvm::createInstructionCombiningPass());
+    passManager.add(gla_llvm::createIntrinsicCombinePass());
+    passManager.add(gla_llvm::createCanonicalizeCFGPass());
 
     // Loop optimizations, and clean up afterwards
     passManager.add(llvm::createIndVarSimplifyPass());

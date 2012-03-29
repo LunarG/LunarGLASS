@@ -25,7 +25,8 @@
 //===----------------------------------------------------------------------===//
 //
 // Combine and optimize over intrinsics to form fewer, simpler
-// instructions. Analogous to InstCombine
+// instructions. Analogous to InstCombine. Currently needs a BackEndPointer to
+// do anything useful.
 //
 //   * Any instruction dominated or post-dominated by discard is DCEed
 //
@@ -33,6 +34,9 @@
 //     post-dominance frontier. TODO: place these discards right after the
 //     condition is computed. TODO: only do based on backend query. TODO:
 //     migrate the condition as high as it can go.
+//
+//   * Break up writeData/fWriteData of multi-inserts into multiple masked
+//     writeData/fWriteDatas.
 //
 //   * TODO: Combine multiple successive fWrites to the same output but with
 //     different masks into a single fWrite.
@@ -96,11 +100,16 @@ namespace  {
         // Anything dominated or postdominated by a discard is dead.
         bool discardAwareDCE(Function&);
 
-        // Discards can be turned into discardConditionals based on the condition needed
-        // to reach them. The comparison comes from the post-dominance frontier,
-        // and the discardConditional can go there right before the branch. The branch
-        // then becomes an unconditional branch to the non-discarding path.
+        // Discards can be turned into discardConditionals based on the
+        // condition needed to reach them. The comparison comes from the
+        // post-dominance frontier, and the discardConditional can go there
+        // right before the branch. The branch then becomes an unconditional
+        // branch to the non-discarding path.
         bool hoistDiscards(Function&);
+
+        // Split up write-data of a multi-insert into multiple masked
+        // write-datas.
+        bool splitWriteData(Instruction* inst);
 
         // Visit an instruction, trying to optimize it
         bool visit(Instruction*);
@@ -188,6 +197,7 @@ bool IntrinsicCombine::hoistDiscards(Function& F)
         return false;
     }
 
+    IRBuilder<> builder(*context);
     for (DiscardList::iterator i = discards.begin(), e = discards.end(); i != e; ++i) {
         PostDominanceFrontier::DomSetType pds = postDomFront->find((*i)->getParent())->second;
         assert(pds.size() == 1 && "Unknown flow control layout or unstructured flow control");
@@ -203,7 +213,6 @@ bool IntrinsicCombine::hoistDiscards(Function& F)
 
         Value* cond = br->getCondition();
 
-        IRBuilder<> builder(*context);
         builder.SetInsertPoint(br);
 
         // If we're the right branch, then we should negate the condition before
@@ -229,6 +238,66 @@ bool IntrinsicCombine::hoistDiscards(Function& F)
 
     return changed;
 }
+
+// Split up a write-data of a multi-inserts into multiple masked write-datas.
+bool IntrinsicCombine::splitWriteData(Instruction* inst)
+{
+    if (! backEnd->splitWrites())
+        return false;
+
+    if (! IsOutputInstruction(inst))
+        return false;
+
+    IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst);
+    assert(intr && "IsOutputInstruction returned true for non-intrinsic");
+
+    ConstantInt* wm = dyn_cast<ConstantInt>(intr->getOperand(1));
+    assert(wm && "Non-constant int writemask?");
+
+    // Now see if the data is the result of a multi-insert
+    Instruction* miInst = dyn_cast<Instruction>(intr->getOperand(2));
+    if (! miInst || ! IsMultiInsert(miInst))
+        return false;
+
+    // Handle when the write-data already has a write mask
+    if (wm != ConstantInt::get(wm->getType(), -1)) {
+        // TODO: when the write-data already has a write mask
+        return false;
+    }
+
+    SmallVector<Constant*, 4> selects;
+    GetMultiInsertSelects(miInst, selects);
+
+    SmallVector<Value*, 4> components;
+    components.push_back(miInst->getOperand(2));
+    components.push_back(miInst->getOperand(4));
+    components.push_back(miInst->getOperand(6));
+    components.push_back(miInst->getOperand(8));
+
+    bool areAllScalar = AreScalar(components);
+    if (! areAllScalar || IsDefined(miInst->getOperand(0))) {
+        // TODO: non-scalar cases (including multi-insert into a value)
+        return false;
+    }
+
+    IRBuilder<> builder(inst);
+    for (unsigned int i = 0; i < 4; ++i) {
+        if (! MultiInsertWritesComponent(miInst, i))
+            continue;
+
+        Value* arg = components[i];
+        const Type* ty = arg->getType();
+        Function* writeData = Intrinsic::getDeclaration(module, intr->getIntrinsicID(), &ty, 1);
+        builder.CreateCall3(writeData, inst->getOperand(0), ConstantInt::get(wm->getType(), 1 << i), arg);
+    }
+
+    // Delete the old write
+    inst->dropAllReferences();
+    inst->eraseFromParent();
+
+    return true;
+}
+
 
 bool IntrinsicCombine::runOnFunction(Function& F)
 {
@@ -259,8 +328,10 @@ bool IntrinsicCombine::runOnFunction(Function& F)
 
     // Visit each instruction, trying to optimize
     for (Function::iterator bbI = F.begin(), bbE = F.end(); bbI != bbE; ++bbI) {
-        for (BasicBlock::iterator instI = bbI->begin(), instE = bbI->end(); instI != instE; ++instI) {
-            changed |= visit(instI);
+        for (BasicBlock::iterator instI = bbI->begin(), instE = bbI->end(); instI != instE; /* empty */) {
+            BasicBlock::iterator prev = instI;
+            ++instI;
+            changed |= visit(prev);
         }
     }
 
@@ -275,6 +346,10 @@ bool IntrinsicCombine::visit(Instruction* inst)
 
     // Try to combine it
     // TODO: intrinsic combining
+
+    // Write splitting
+    if (splitWriteData(inst))
+        return true;
 
     return changed;
 }

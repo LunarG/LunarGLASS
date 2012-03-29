@@ -290,6 +290,13 @@ namespace gla {
             return true;
         }
 
+        // Should LunarGLASS try to split writeData and fWriteDatas of
+        // multi-inserts out into multiple masked writes?
+        virtual bool splitWrites()
+        {
+            return false;
+        }
+
     protected:
         bool decompose[EDiCount];
 
