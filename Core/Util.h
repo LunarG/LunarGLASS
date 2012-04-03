@@ -57,6 +57,17 @@ namespace gla {
     inline llvm::Constant* MakeIntConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, true)); }
     inline llvm::Constant* MakeFloatConstant(llvm::LLVMContext& context, float f) { return llvm::ConstantFP::get(context, llvm::APFloat(f)); };
 
+    inline llvm::Constant* VectorizeConstant(int numComponents, llvm::Constant* constant)
+    {
+        if (numComponents == 1) {
+            return constant;
+        } else {
+            llvm::SmallVector<llvm::Constant*, 4> vector(numComponents, constant);
+
+            return llvm::ConstantVector::get(vector);
+        }
+    }
+
     // extract integer value or assert trying
     int GetConstantInt(const llvm::Value*);
 

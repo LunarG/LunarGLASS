@@ -84,21 +84,42 @@ namespace  {
         bool changed;
     };
 
+    llvm::Value* OperateWithConstant(IRBuilder<>& builder, Instruction::BinaryOps op, llvm::Value* arg, double constant)
+    {
+        llvm::Constant* scalar = MakeFloatConstant(builder.getContext(), (float)constant);
+        llvm::Constant* llvmConstant = VectorizeConstant(GetComponentCount(arg), scalar);
+
+        return builder.CreateBinOp(op, arg, llvmConstant);
+    }
+
     llvm::Value* MultiplyByConstant(IRBuilder<>& builder, llvm::Value* arg, double constant)
     {
-        llvm::Value* value;
+        return OperateWithConstant(builder, llvm::BinaryOperator::FMul, arg, constant);
+    }
 
-        llvm::Constant* scalar = MakeFloatConstant(builder.getContext(), (float)constant);
-        if (GetComponentCount(arg) == 1) {
-            value = builder.CreateFMul(arg, scalar);
-        } else {
-            llvm::SmallVector<llvm::Constant*, 4> vector(GetComponentCount(arg), scalar);
-            llvm::Value* llvmVector = llvm::ConstantVector::get(vector);
+    llvm::Value* AddWithConstant(IRBuilder<>& builder, llvm::Value* arg, double constant)
+    {
+        return OperateWithConstant(builder, llvm::BinaryOperator::FAdd, arg, constant);
+    }
 
-            value = builder.CreateFMul(arg, llvmVector);
+    llvm::Function* GetDotIntrinsic(Module* module, const Type* argTypes[])
+    {
+        Intrinsic::ID dotID;
+        switch (GetComponentCount(argTypes[0])) {
+        case 2:
+            dotID = Intrinsic::gla_fDot2;
+            break;
+        case 3:
+            dotID = Intrinsic::gla_fDot3;
+            break;
+        case 4:
+            dotID = Intrinsic::gla_fDot4;
+            break;
+        default:
+            assert(! "Bad dot component count");
         }
 
-        return value;
+        return Intrinsic::getDeclaration(module, dotID, argTypes, 2);
     }
 
 } // end namespace
@@ -123,10 +144,13 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
         // Useful preamble for most case
         llvm::Value* arg0 = 0;
         llvm::Value* arg1 = 0;
-        if (inst->getNumOperands() >= 1)
+        llvm::Value* arg2 = 0;
+        if (inst->getNumOperands() > 0)
             arg0 = inst->getOperand(0);
-        if (inst->getNumOperands() >= 2)
+        if (inst->getNumOperands() > 1)
             arg1 = inst->getOperand(1);
+        if (inst->getNumOperands() > 2)
+            arg2 = inst->getOperand(2);
         llvm::Value* newInst = 0;
         const Type* instTypes[] = { inst->getType(), inst->getType(), inst->getType(), inst->getType() };
         const Type* argTypes[] = { arg0->getType(), arg0->getType(), arg0->getType(), arg0->getType() };
@@ -162,9 +186,15 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
             break;
         case Intrinsic::gla_fClamp:
-            if (backEnd->decomposeIntrinsic(EDiClamp)) {
-                UnsupportedFunctionality("decomposition of gla_fClamp");
-                //changed = true;
+            if (backEnd->decomposeIntrinsic(EDiClamp)) 
+            {
+                //
+                // Clamp(x, minVal, maxVal) is defined to be min(max(x, minVal), maxVal).
+                //
+                Function* max = Intrinsic::getDeclaration(module, Intrinsic::gla_fMax, argTypes, 3);
+                Function* min = Intrinsic::getDeclaration(module, Intrinsic::gla_fMin, argTypes, 3);
+                newInst = builder.CreateCall2(max, arg0, arg1);
+                newInst = builder.CreateCall2(min, newInst, arg2);
             }
             break;
 
@@ -175,9 +205,36 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
             break;
         case Intrinsic::gla_fAcos:
-            if (backEnd->decomposeIntrinsic(EDiAcos)) {
-                UnsupportedFunctionality("decomposition of gla_fAcos");
-                //changed = true;
+            if (backEnd->decomposeIntrinsic(EDiAcos)) 
+            {
+                // TODO: Do we need to handle domain errors?  (E.g., bad input value)
+                // 
+                // acos(x) ~= sqrt(1-x)*(a + x*(b + x*(c + x*d)))
+                // where  a =  1.57079632679
+                //        b = -0.213300989
+                //        c =  0.077980478
+                //        d = -0.0216409
+                //
+                double a =  1.57079632679;
+                double b = -0.213300989;
+                double c =  0.077980478;
+                double d = -0.0216409;
+                
+                // polynomial part, going right to left...
+                llvm::Value* poly;
+                poly = MultiplyByConstant(builder, arg0, d);
+                poly = AddWithConstant(builder, poly, c);
+                poly = builder.CreateFMul(arg0, poly);
+                poly = AddWithConstant(builder, poly, b);
+                poly = builder.CreateFMul(arg0, poly);
+                poly = AddWithConstant(builder, poly, a);
+                
+                // sqrt part
+                Function* sqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fSqrt, argTypes, 2);
+                newInst = builder.CreateFNeg(arg0);
+                newInst = AddWithConstant(builder, newInst, 1.0);
+                newInst = builder.CreateCall(sqrt, newInst);
+                newInst = builder.CreateFMul(newInst, poly);
             }
             break;
         case Intrinsic::gla_fAtan:
@@ -318,9 +375,15 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
             break;
         case Intrinsic::gla_fStep:
-            if (backEnd->decomposeIntrinsic(EDiStep)) {
-                UnsupportedFunctionality("decomposition of gla_fStep");
-                //changed = true;
+            if (backEnd->decomposeIntrinsic(EDiStep)) 
+            {
+                //
+                // step(edge, x) is defined to be 0.0 if x < edge, otherwise 1.0.
+                //
+                llvm::FCmpInst::Predicate predicate = llvm::FCmpInst::FCMP_OLT;
+                llvm::Value* condition = builder.CreateFCmp(predicate, arg1, arg0);
+                newInst = builder.CreateSelect(condition, VectorizeConstant(GetComponentCount(arg1), MakeFloatConstant(module->getContext(), 0.0)),
+                                                          VectorizeConstant(GetComponentCount(arg1), MakeFloatConstant(module->getContext(), 1.0)));
             }
             break;
         case Intrinsic::gla_fSmoothStep:
@@ -392,22 +455,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
         case Intrinsic::gla_fLength:
             if (backEnd->decomposeIntrinsic(EDiLength)) {
                 if (GetComponentCount(arg0) > 1) {
-                    Intrinsic::ID dotID;
-                    switch (GetComponentCount(arg0)) {
-                    case 2:
-                        dotID = Intrinsic::gla_fDot2;
-                        break;
-                    case 3:
-                        dotID = Intrinsic::gla_fDot3;
-                        break;
-                    case 4:
-                        dotID = Intrinsic::gla_fDot4;
-                        break;
-                    default:
-                        assert(! "Bad component count");
-                    }
-
-                    Function* dot = Intrinsic::getDeclaration(module, dotID, argTypes, 2);
+                    Function* dot = GetDotIntrinsic(module, argTypes);
                     newInst = builder.CreateCall2(dot, arg0, arg0);
 
                     Function* sqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fSqrt, instTypes, 2);
@@ -504,22 +552,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
         case Intrinsic::gla_fNormalize:
             if (backEnd->decomposeIntrinsic(EDiNormalize)) {
                 if (GetComponentCount(arg0) > 1) {
-                    Intrinsic::ID dotID;
-                    switch (GetComponentCount(arg0)) {
-                    case 2:
-                        dotID = Intrinsic::gla_fDot2;
-                        break;
-                    case 3:
-                        dotID = Intrinsic::gla_fDot3;
-                        break;
-                    case 4:
-                        dotID = Intrinsic::gla_fDot4;
-                        break;
-                    default:
-                        assert(! "Bad component count");
-                    }
-
-                    Function* dot = Intrinsic::getDeclaration(module, dotID, argTypes, 2);
+                    Function* dot = GetDotIntrinsic(module, argTypes);
                     newInst = builder.CreateCall2(dot, arg0, arg0);
 
                     const llvm::Type* type[2] = { newInst->getType(), newInst->getType() };
@@ -577,14 +610,38 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             break;
         case Intrinsic::gla_fFaceForward:
             if (backEnd->decomposeIntrinsic(EDiFaceForward)) {
+                //
+                // faceForward(N, I, Nref) is defined to be N if dot(Nref, I) < 0, otherwise return –N.
+                //
                 UnsupportedFunctionality("decomposition of gla_fFaceForward");
                 //changed = true;
             }
             break;
         case Intrinsic::gla_fReflect:
-            if (backEnd->decomposeIntrinsic(EDiReflect)) {
-                UnsupportedFunctionality("decomposition of gla_fReflect");
-                //changed = true;
+            if (backEnd->decomposeIntrinsic(EDiReflect)) 
+            {
+                //
+                // reflect(I, N) is defined to be I – 2 * dot(N, I) * N,
+                // where N may be assumed to be normalized.
+                //
+                // Note if the number of components is 1, then N == 1 and 
+                // this turns into I - 2*I, or -I.
+                //
+                if (GetComponentCount(arg0) > 1) {
+                    Function* dot = GetDotIntrinsic(module, argTypes);
+                    newInst = builder.CreateCall2(dot, arg0, arg1);
+                    newInst = MultiplyByConstant(builder, newInst, 2.0);
+
+                    // smear this back up to a vector again
+                    llvm::Value* smeared = llvm::UndefValue::get(arg0->getType());
+                    for (int c = 0; c < GetComponentCount(arg0); ++c)
+                        smeared = builder.CreateInsertElement(smeared, newInst, MakeIntConstant(module->getContext(), c));
+                
+                    newInst = builder.CreateFMul(smeared, arg1);
+                    newInst = builder.CreateFSub(arg0, newInst);
+                } else {
+                    newInst = builder.CreateFNeg(arg0);
+                }
             }
             break;
         case Intrinsic::gla_fRefract:
