@@ -56,7 +56,7 @@ public:
     // There is not matrix type in or added to LLVM for Top IR.
     //
     // The Matrix class is a structure to encapsulate a choice of
-    // how to represent a matrix in LLVM.  It is the best way to
+    // how to represent a matrix in LLVM.  It is the recommended way to
     // form correct Top IR for operating on matrices.
     //
     class Matrix {

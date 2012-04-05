@@ -242,7 +242,7 @@ void CanonicalizeInsts::hoistUndefOps(Instruction* inst)
     for (User::op_iterator aggIter = inst->op_begin(), end = inst->op_end();  aggIter != end; ++aggIter) {
         Constant* agg = dyn_cast<Constant>(*aggIter);
 
-        if (agg && gla::IsAggregate(*aggIter) && !gla::AreAllDefined(*aggIter)) {
+        if (agg && ! gla::IsScalar(*aggIter) && ! gla::AreAllDefined(*aggIter)) {
 
             if (PHINode* phi = dyn_cast<PHINode>(inst))
                 insertLoc = phi->getIncomingBlock(*aggIter)->getTerminator();

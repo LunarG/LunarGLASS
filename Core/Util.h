@@ -86,34 +86,40 @@ namespace gla {
     // true if a scalar Boolean or vector of Boolean
     bool IsBoolean(const llvm::Type*);
 
-    inline bool IsAggregate(const llvm::Type* type)
-    {
-        return (llvm::Type::VectorTyID == type->getTypeID() ||
-                llvm::Type::ArrayTyID == type->getTypeID() ||
-                llvm::Type::StructTyID == type->getTypeID() );
-    }
+    //
+    // A value we compute with is exactly one of the following:
+    //  - scalar
+    //  - vector
+    //  - aggregate
+    //
+    // Scalar means a single component; not an array, not a vector, not a struct.
+    //
+    // A vector is a set of scalars, arranged as an llvm vector.
+    //
+    // Aggregate means only 
+    //  - array
+    //  - struct
+    //
+    // If a matrix has been converted to llvm as an array of columns, then it will
+    // also be an aggregate.
+    //
+    inline bool IsVector(const llvm::Type* type)      { return type->isVectorTy(); }
+    inline bool IsAggregate(const llvm::Type* type)   { return type->isAggregateType(); }
+    inline bool IsScalar(const llvm::Type* type)      { return ! IsAggregate(type) && ! IsVector(type); }
 
+    inline bool IsVector(const llvm::Value* value)    { return IsVector(value->getType()); }
     inline bool IsAggregate(const llvm::Value* value) { return IsAggregate(value->getType()); }
-
-    inline bool IsScalar(const llvm::Type* type) { return ! IsAggregate(type); }
-
-    inline bool IsScalar(const llvm::Value* value) { return IsScalar(value->getType()); }
+    inline bool IsScalar(const llvm::Value* value)    { return IsScalar(value->getType()); }
 
     inline bool AreScalar(llvm::ArrayRef<llvm::Value*> vals)
     {
         for (llvm::ArrayRef<llvm::Value*>::iterator i = vals.begin(), e = vals.end(); i != e; ++i) {
-            if (IsAggregate(*i))
+            if (! IsScalar(*i))
                 return false;
         }
 
         return true;
     }
-
-
-    inline bool IsVector(const llvm::Type* type) { return type->getTypeID() == llvm::Type::VectorTyID; }
-    inline bool IsVector(const llvm::Value* value) { return IsVector(value->getType()); }
-
-
 
     // true if all bits in the argument are set
     bool HasAllSet(const llvm::Value*);

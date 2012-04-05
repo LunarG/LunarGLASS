@@ -561,14 +561,14 @@ Builder::SuperValue Builder::createMatrixMultiply(Builder::SuperValue left, Buil
     }
 
     // matrix times vector
-    if (left.isMatrix() && IsVector(right.getValue()->getType())) {
+    if (left.isMatrix() && IsVector(right.getValue())) {
         assert(left.getMatrix()->getNumColumns() == GetComponentCount(right.getValue()));
 
         return createMatrixTimesVector(left.getMatrix(), right.getValue());
     }
 
     // vector times matrix
-    if (IsVector(left.getValue()->getType()) && right.isMatrix()) {
+    if (IsVector(left.getValue()) && right.isMatrix()) {
         assert(right.getMatrix()->getNumRows() == GetComponentCount(left.getValue()));
 
         return createVectorTimesMatrix(left.getValue(), right.getMatrix());
@@ -1211,10 +1211,7 @@ llvm::Value* Builder::createConstructor(const std::vector<SuperValue>& sources, 
 
     // Special case: when calling a vector constructor with a single scalar
     // argument, smear the scalar
-    if (sources.size() == 1 && numTargetComponents > 1) {
-        if (sources[0].isMatrix())
-            gla::UnsupportedFunctionality("matrix in constructor");
-
+    if (sources.size() == 1 && IsScalar(sources[0]) && numTargetComponents > 1) {
         return smearScalar(sources[0], constructee->getType());
     }
 

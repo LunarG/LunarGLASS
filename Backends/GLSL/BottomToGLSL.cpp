@@ -960,7 +960,7 @@ protected:
 
     void emitInitializeAggregate(std::ostringstream& out, std::string varString, const llvm::Constant* constant)
     {
-        if (constant && IsDefined(constant) && IsAggregate(constant) && !AreAllDefined(constant)) {
+        if (constant && IsDefined(constant) && ! IsScalar(constant) && ! AreAllDefined(constant)) {
             // For a vector or array with undefined elements, propagate the defined elements
             if (const llvm::ConstantVector* constVec = llvm::dyn_cast<llvm::ConstantVector>(constant)) {
                 for (int op = 0; op < constVec->getNumOperands(); ++op) {
