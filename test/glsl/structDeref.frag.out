@@ -139,12 +139,12 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %gla_constGEP = getelementptr %s3 addrspace(2)* @foo3, i32 0, i32 0, i32 9, i32 0
-  %0 = load i32 addrspace(2)* %gla_constGEP
+  %0 = load i32 addrspace(2)* %gla_constGEP, align 4
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %2 = load %s1 addrspace(2)* @foo1
+  %2 = load %s1 addrspace(2)* @foo1, align 4
   %aggregate = load [10 x %s1]* @gla_globalAgg
   %locals1Array1 = insertvalue [10 x %s1] %aggregate, %s1 %2, 6
   br label %ifmerge
@@ -154,14 +154,14 @@ else:                                             ; preds = %entry
   %3 = extractelement <2 x float> %coord, i32 1
   %aggregate16 = load %s1* @gla_globalAgg1
   %assignment_tmp3 = insertvalue %s1 %aggregate16, float %3, 1
-  %4 = load %s0 addrspace(2)* @foo0
+  %4 = load %s0 addrspace(2)* @foo0, align 4
   %assignment_tmp4 = insertvalue %s1 %assignment_tmp3, %s0 %4, 2
   %aggregate17 = load [10 x %s1]* @gla_globalAgg2
   %locals1Array6 = insertvalue [10 x %s1] %aggregate17, %s1 %assignment_tmp4, 6
   %gla_constGEP18 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
-  %5 = load i32 addrspace(2)* %gla_constGEP18
+  %5 = load i32 addrspace(2)* %gla_constGEP18, align 4
   %gla_constGEP19 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0
-  %locals00_s0_010 = load %s0 addrspace(2)* %gla_constGEP19
+  %locals00_s0_010 = load %s0 addrspace(2)* %gla_constGEP19, align 4
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
@@ -187,7 +187,7 @@ ifmerge13:                                        ; preds = %ifmerge, %then11
   %12 = extractvalue %s1 %locals2_s1_1.0, 1
   %13 = fadd float %11, %12
   %14 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %13, <4 x i32> zeroinitializer)
-  %15 = load i32 addrspace(1)* @"sampler2D sampler"
+  %15 = load i32 addrspace(1)* @"sampler2D sampler", align 4
   %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %16 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %15, i32 0, <2 x float> %coord14)
   %gl_FragColor = fmul <4 x float> %14, %16

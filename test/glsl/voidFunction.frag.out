@@ -42,7 +42,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %outColor1 = load <4 x float> addrspace(2)* @bigColor
+  %outColor1 = load <4 x float> addrspace(2)* @bigColor, align 16
   %0 = extractelement <4 x float> %outColor1, i32 0
   %1 = fadd float %0, 4.000000e+00
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outColor1, i32 1, float %1, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)

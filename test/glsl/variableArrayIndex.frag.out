@@ -83,16 +83,16 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %gla_constGEP = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 1, i32 0
-  %0 = load i32 addrspace(2)* %gla_constGEP
+  %0 = load i32 addrspace(2)* %gla_constGEP, align 4
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
   %gla_constGEP4 = getelementptr %lunarStruct1 addrspace(2)* @foo, i32 0, i32 0
-  %2 = load i32 addrspace(2)* %gla_constGEP4
+  %2 = load i32 addrspace(2)* %gla_constGEP4, align 4
   %3 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 %2, i32 0
-  %4 = load i32 addrspace(2)* %3
-  %5 = load i32 addrspace(2)* @Count
+  %4 = load i32 addrspace(2)* %3, align 4
+  %5 = load i32 addrspace(2)* @Count, align 4
   %6 = add i32 %4, 3
   %7 = add i32 %6, %5
   %8 = getelementptr [6 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 %7, i32 2, i32 1
@@ -104,9 +104,9 @@ else:                                             ; preds = %entry
 
 ifmerge:                                          ; preds = %else, %then
   %scale.0.in = phi float addrspace(2)* [ %8, %then ], [ %gla_constGEP5, %else ]
-  %scale.0 = load float addrspace(2)* %scale.0.in
+  %scale.0 = load float addrspace(2)* %scale.0.in, align 4
   %9 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %scale.0, <4 x i32> zeroinitializer)
-  %10 = load i32 addrspace(1)* @"sampler2D sampler"
+  %10 = load i32 addrspace(1)* @"sampler2D sampler", align 4
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %11 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %10, i32 0, <2 x float> %coord)
   %gl_FragColor = fmul <4 x float> %9, %11

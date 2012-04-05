@@ -67,13 +67,13 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %gla_constGEP = getelementptr [2 x <4 x float>] addrspace(2)* @color, i32 0, i32 1
-  %0 = load <4 x float> addrspace(2)* %gla_constGEP
+  %0 = load <4 x float> addrspace(2)* %gla_constGEP, align 16
   %assignment_tmp1 = fadd <4 x float> %0, %0
   %1 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %assignment_tmp1, <3 x i32> <i32 0, i32 1, i32 2>)
-  %2 = load <3 x float> addrspace(2)* @inColor
+  %2 = load <3 x float> addrspace(2)* @inColor, align 16
   %3 = fadd <3 x float> %1, %2
   %gla_constGEP6 = getelementptr [13 x float] addrspace(2)* @alpha, i32 0, i32 12
-  %4 = load float addrspace(2)* %gla_constGEP6
+  %4 = load float addrspace(2)* %gla_constGEP6, align 4
   %5 = extractelement <4 x float> %assignment_tmp1, i32 3
   %6 = fadd float %5, %4
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> undef, i32 15, <3 x float> %3, i32 0, <3 x float> %3, i32 1, <3 x float> %3, i32 2, float %6, i32 0)

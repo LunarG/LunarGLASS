@@ -141,14 +141,14 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %w1 = load <4 x float> addrspace(2)* @u
+  %w1 = load <4 x float> addrspace(2)* @u, align 16
   %0 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float> %w1, <4 x i32> <i32 2, i32 3, i32 undef, i32 undef>)
   %1 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float> %w1, <4 x i32> <i32 2, i32 3, i32 0, i32 1>)
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x float> %w1, i32 10, float undef, i32 undef, <2 x float> %t, i32 1, float undef, i32 undef, <2 x float> %t, i32 0)
   %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %w1, i32 7, float 0x3FFC9FBE80000000, i32 0, float 0x3FFC9FBE80000000, i32 0, float 0x3FFC9FBE80000000, i32 0, float undef, i32 undef)
   %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v2f32.v2f32(<4 x float> undef, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 0, <2 x float> %t, i32 0, <2 x float> %t, i32 1)
-  %5 = load i1 addrspace(2)* @p
+  %5 = load i1 addrspace(2)* @p, align 1
   br i1 %5, label %then, label %else
 
 then:                                             ; preds = %entry

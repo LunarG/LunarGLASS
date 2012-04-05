@@ -1514,8 +1514,8 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  %.pre = load float addrspace(2)* @d
-  %0 = load <4 x float> addrspace(2)* @bigColor
+  %.pre = load float addrspace(2)* @d, align 4
+  %0 = load <4 x float> addrspace(2)* @bigColor, align 16
   br label %loop-header
 
 loop-header:                                      ; preds = %ifmerge, %entry
@@ -1525,7 +1525,7 @@ loop-header:                                      ; preds = %ifmerge, %entry
   br i1 %2, label %ifmerge, label %then
 
 then:                                             ; preds = %loop-header
-  %3 = load <4 x float> addrspace(2)* @bigColor1_1
+  %3 = load <4 x float> addrspace(2)* @bigColor1_1, align 16
   br label %loop-header7
 
 ifmerge:                                          ; preds = %loop-header
@@ -1565,9 +1565,9 @@ loop-header17:                                    ; preds = %ifmerge20, %then8
   br i1 %9, label %ifmerge20, label %then18
 
 then18:                                           ; preds = %loop-header17
-  %.pre356 = load float addrspace(2)* @d2
-  %10 = load float addrspace(2)* @d3
-  %11 = load <4 x float> addrspace(2)* @bigColor1_2
+  %.pre356 = load float addrspace(2)* @d2, align 4
+  %10 = load float addrspace(2)* @d3, align 4
+  %11 = load <4 x float> addrspace(2)* @bigColor1_2, align 16
   br label %loop-header23
 
 ifmerge20:                                        ; preds = %loop-header17
@@ -1593,8 +1593,8 @@ ifmerge26:                                        ; preds = %else, %then24
   br i1 %and_tmp.0, label %then27, label %ifmerge29
 
 then27:                                           ; preds = %ifmerge26
-  %15 = load <4 x float> addrspace(2)* @bigColor1_3
-  %16 = load float addrspace(2)* @d4
+  %15 = load <4 x float> addrspace(2)* @bigColor1_3, align 16
+  %16 = load float addrspace(2)* @d4, align 4
   br label %loop-header32
 
 ifmerge29:                                        ; preds = %ifmerge26
@@ -1625,8 +1625,8 @@ ifmerge41:                                        ; preds = %ifmerge35
 
 loop-merge43:                                     ; preds = %then39, %then33
   %color.5 = phi <4 x float> [ %color.4, %then33 ], [ %assignment_tmp3637, %then39 ]
-  %.pre358 = load i32 addrspace(2)* @Count
-  %21 = load <4 x float> addrspace(2)* @bigColor2
+  %.pre358 = load i32 addrspace(2)* @Count, align 4
+  %21 = load <4 x float> addrspace(2)* @bigColor2, align 16
   %tmp429 = icmp sgt i32 %.pre358, 0
   %smax = select i1 %tmp429, i32 %.pre358, i32 0
   br label %loop-header44
@@ -1638,7 +1638,7 @@ loop-header44:                                    ; preds = %ifmerge47, %loop-me
   br i1 %exitcond430, label %then45, label %ifmerge47
 
 then45:                                           ; preds = %loop-header44
-  %.pre359 = load <4 x float> addrspace(2)* @bigColor3
+  %.pre359 = load <4 x float> addrspace(2)* @bigColor3, align 16
   br label %loop-header51
 
 ifmerge47:                                        ; preds = %loop-header44
@@ -1786,7 +1786,7 @@ loop-merge106.loopexit:                           ; preds = %ifmerge103
 
 loop-merge106:                                    ; preds = %loop-merge106.loopexit, %then101
   %color.15 = phi <4 x float> [ %53, %then101 ], [ %58, %loop-merge106.loopexit ]
-  %.pre361 = load <4 x float> addrspace(2)* @bigColor4
+  %.pre361 = load <4 x float> addrspace(2)* @bigColor4, align 16
   br label %loop-header107
 
 loop-header107:                                   ; preds = %loop-header107.backedge, %loop-merge106
@@ -1880,8 +1880,8 @@ ifmerge138:                                       ; preds = %else136, %then134
   br i1 %87, label %ifmerge141, label %then139
 
 then139:                                          ; preds = %ifmerge138
-  %.pre362 = load <4 x float> addrspace(2)* @bigColor5
-  %.pre363 = load float addrspace(2)* @d5
+  %.pre362 = load <4 x float> addrspace(2)* @bigColor5, align 16
+  %.pre363 = load float addrspace(2)* @d5, align 4
   br label %loop-header143
 
 ifmerge141:                                       ; preds = %ifmerge138
@@ -1906,7 +1906,7 @@ ifmerge149:                                       ; preds = %loop-header143, %th
   br i1 %93, label %ifmerge152, label %then150
 
 then150:                                          ; preds = %ifmerge149
-  %94 = load float addrspace(2)* @d6
+  %94 = load float addrspace(2)* @d6, align 4
   %95 = fcmp olt float %92, %94
   br i1 %95, label %then154, label %else161
 
@@ -1914,7 +1914,7 @@ ifmerge152:                                       ; preds = %ifmerge149
   br label %loop-header143
 
 then154:                                          ; preds = %then150
-  %96 = load <4 x float> addrspace(2)* @bigColor6
+  %96 = load <4 x float> addrspace(2)* @bigColor6, align 16
   br label %loop-header155
 
 loop-header155:                                   ; preds = %ifmerge158, %then154
@@ -1931,7 +1931,7 @@ ifmerge158:                                       ; preds = %loop-header155
   br label %loop-header155
 
 else161:                                          ; preds = %then150
-  %99 = load <4 x float> addrspace(2)* @bigColor6
+  %99 = load <4 x float> addrspace(2)* @bigColor6, align 16
   %100 = extractelement <4 x float> %99, i32 2
   br label %loop-header162
 
@@ -1957,7 +1957,7 @@ ifmerge168:                                       ; preds = %then163, %then156
   br i1 %107, label %then169, label %else179
 
 then169:                                          ; preds = %ifmerge168
-  %108 = load float addrspace(2)* @d7
+  %108 = load float addrspace(2)* @d7, align 4
   %109 = fcmp olt float %108, 1.000000e+00
   br label %loop-header170
 
@@ -2004,9 +2004,9 @@ ifmerge183:                                       ; preds = %loop-header180
 
 ifmerge186:                                       ; preds = %then181, %loop-merge178
   %color.29 = phi <4 x float> [ %color.27, %loop-merge178 ], [ %color.28, %then181 ]
-  %.pre364 = load float addrspace(2)* @d7
+  %.pre364 = load float addrspace(2)* @d7, align 4
   %.pre372 = fcmp olt float %.pre364, 0.000000e+00
-  %117 = load <4 x float> addrspace(2)* @bigColor7
+  %117 = load <4 x float> addrspace(2)* @bigColor7, align 16
   %118 = fcmp olt float %.pre364, 1.000000e+00
   br label %loop-header187
 
@@ -2034,7 +2034,7 @@ ifmerge197:                                       ; preds = %ifmerge190
 
 loop-merge200:                                    ; preds = %then194, %then188
   %color.31 = phi <4 x float> [ %color.30, %then188 ], [ %121, %then194 ]
-  %.pre365 = load float addrspace(2)* @d8
+  %.pre365 = load float addrspace(2)* @d8, align 4
   %.pre373 = fcmp olt float %.pre365, 0.000000e+00
   %122 = fcmp olt float %.pre365, 1.000000e+00
   br label %loop-header201
@@ -2088,7 +2088,7 @@ ifmerge223:                                       ; preds = %ifmerge216
 
 loop-merge224:                                    ; preds = %then221, %ifmerge214, %then202
   %color.34 = phi <4 x float> [ %color.32, %then202 ], [ %color.33, %ifmerge214 ], [ %assignment_tmp217219, %then221 ]
-  %.pre366 = load float addrspace(2)* @d9
+  %.pre366 = load float addrspace(2)* @d9, align 4
   %135 = fcmp ogt float %.pre366, %.pre365
   br label %loop-header225
 
@@ -2131,9 +2131,9 @@ ifmerge237:                                       ; preds = %ifmerge228, %ifmerg
   br label %loop-header225
 
 loop-merge238:                                    ; preds = %else233, %then226
-  %.pre367 = load float addrspace(2)* @d10
-  %144 = load float addrspace(2)* @d11
-  %145 = load float addrspace(2)* @d12
+  %.pre367 = load float addrspace(2)* @d10, align 4
+  %144 = load float addrspace(2)* @d11, align 4
+  %145 = load float addrspace(2)* @d12, align 4
   br label %loop-header239
 
 loop-header239:                                   ; preds = %ifmerge250, %loop-merge238
@@ -2180,7 +2180,7 @@ ifmerge252:                                       ; preds = %ifmerge242
 
 loop-merge255:                                    ; preds = %ifmerge252, %then240
   %color.40 = phi <4 x float> [ %color.38, %then240 ], [ %color253, %ifmerge252 ]
-  %161 = load <4 x float> addrspace(2)* @bigColor8
+  %161 = load <4 x float> addrspace(2)* @bigColor8, align 16
   %162 = extractelement <4 x float> %161, i32 0
   br label %loop-header256
 
@@ -2191,7 +2191,7 @@ loop-header256:                                   ; preds = %loop-header256.back
   br i1 %164, label %ifmerge259, label %then257
 
 then257:                                          ; preds = %loop-header256
-  %.pre368 = load float addrspace(2)* @d13
+  %.pre368 = load float addrspace(2)* @d13, align 4
   br label %loop-header270
 
 ifmerge259:                                       ; preds = %loop-header256
@@ -2229,8 +2229,8 @@ loop-header270:                                   ; preds = %loop-header270.back
 
 then271:                                          ; preds = %loop-header270
   %assignment_tmp295296 = fadd <4 x float> %color.42, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  %.pre369 = load float addrspace(2)* @d14
-  %174 = load float addrspace(2)* @d15
+  %.pre369 = load float addrspace(2)* @d14, align 4
+  %174 = load float addrspace(2)* @d15, align 4
   br label %loop-header298
 
 ifmerge273:                                       ; preds = %loop-header270
@@ -2301,7 +2301,7 @@ loop-header298:                                   ; preds = %else303, %then271
 
 then299:                                          ; preds = %loop-header298
   %color307 = fadd <4 x float> %color.46, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  %.pre370 = load float addrspace(2)* @d16
+  %.pre370 = load float addrspace(2)* @d16, align 4
   br label %loop-header308
 
 ifmerge301:                                       ; preds = %loop-header298
@@ -2349,8 +2349,8 @@ ifmerge319:                                       ; preds = %else318, %then316
   br i1 %and_tmp315.0, label %then320, label %ifmerge322
 
 then320:                                          ; preds = %ifmerge319
-  %.pre371 = load float addrspace(2)* @d18
-  %203 = load float addrspace(2)* @d17
+  %.pre371 = load float addrspace(2)* @d18, align 4
+  %203 = load float addrspace(2)* @d17, align 4
   br label %loop-header330
 
 ifmerge322:                                       ; preds = %ifmerge319

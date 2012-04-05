@@ -686,7 +686,7 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %Color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
-  %__matrix = load [3 x <3 x float>] addrspace(2)* @colorTransform
+  %__matrix = load [3 x <3 x float>] addrspace(2)* @colorTransform, align 16
   %__column = extractvalue [3 x <3 x float>] %__matrix, 0
   %__dot = call float @llvm.gla.fDot3.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column)
   %__column2 = extractvalue [3 x <3 x float>] %__matrix, 1
@@ -694,8 +694,8 @@ entry:
   %__column4 = extractvalue [3 x <3 x float>] %__matrix, 2
   %__dot5 = call float @llvm.gla.fDot3.v3f32.v3f32(<3 x float> %Color, <3 x float> %__column4)
   %0 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> <float undef, float undef, float undef, float 1.000000e+00>, i32 7, float %__dot, i32 0, float %__dot3, i32 0, float %__dot5, i32 0, float undef, i32 undef)
-  %__matrix7 = load [4 x <4 x float>] addrspace(2)* @m
-  %__matrix8 = load [4 x <4 x float>] addrspace(2)* @n
+  %__matrix7 = load [4 x <4 x float>] addrspace(2)* @m, align 16
+  %__matrix8 = load [4 x <4 x float>] addrspace(2)* @n, align 16
   %__column10 = extractvalue [4 x <4 x float>] %__matrix7, 0
   %__column11 = extractvalue [4 x <4 x float>] %__matrix8, 0
   %1 = fcmp one <4 x float> %__column10, %__column11
@@ -815,7 +815,7 @@ ifmerge:                                          ; preds = %else, %then
   %__element138 = fmul float %__leftComp109.pre-phi, %__rightComp130
   %__element141 = fmul float %__leftComp112.pre-phi, %__rightComp130
   %17 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__element132, i32 0, float %__element135, i32 0, float %__element138, i32 0, float %__element141, i32 0)
-  %__matrix145 = load [3 x <4 x float>] addrspace(2)* @un34
+  %__matrix145 = load [3 x <4 x float>] addrspace(2)* @un34, align 16
   %__column149 = extractvalue [3 x <4 x float>] %__matrix145, 0
   %18 = fcmp oeq <4 x float> %15, %__column149
   %19 = call i1 @llvm.gla.all.v4i1(<4 x i1> %18)
@@ -854,7 +854,7 @@ then154:                                          ; preds = %ifmerge
   br label %ifmerge522
 
 else205:                                          ; preds = %ifmerge
-  %__matrix207 = load [4 x <3 x float>] addrspace(2)* @um43
+  %__matrix207 = load [4 x <3 x float>] addrspace(2)* @um43, align 16
   %__rightColumn208 = extractvalue [4 x <3 x float>] %__matrix207, 0
   %__leftComp210 = extractelement <4 x float> %__column149, i32 0
   %__rightComp211 = extractelement <3 x float> %__rightColumn208, i32 0

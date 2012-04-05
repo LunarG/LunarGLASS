@@ -969,7 +969,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load <4 x float> addrspace(2)* @uv4
+  %0 = load <4 x float> addrspace(2)* @uv4, align 16
   %_ret_val1 = fmul <4 x float> %0, <float 0x3F91DF3300000000, float 0x3F91DF3300000000, float 0x3F91DF3300000000, float 0x3F91DF3300000000>
   %1 = fmul <4 x float> %_ret_val1, <float 0x404CA5DC20000000, float 0x404CA5DC20000000, float 0x404CA5DC20000000, float 0x404CA5DC20000000>
   %assignment_tmp2 = fadd <4 x float> %_ret_val1, %1
@@ -1041,7 +1041,7 @@ entry:
   %assignment_tmp6566 = fadd <4 x float> %assignment_tmp6364, %35
   %mix_retval68 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %assignment_tmp6566, <4 x float> %assignment_tmp6566, <4 x float> %assignment_tmp6566)
   %assignment_tmp6970 = fadd <4 x float> %assignment_tmp6566, %mix_retval68
-  %36 = load i1 addrspace(2)* @ub
+  %36 = load i1 addrspace(2)* @ub, align 1
   %37 = uitofp i1 %36 to float
   %mix_retval7273 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %assignment_tmp6970, <4 x float> %assignment_tmp6970, float %37)
   %assignment_tmp7475 = fadd <4 x float> %assignment_tmp6970, %mix_retval7273
@@ -1093,7 +1093,7 @@ ifmerge:                                          ; preds = %else, %then
   %63 = fmul <4 x float> %62, <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>
   %64 = fsub <4 x float> %assignment_tmp9192, %63
   %assignment_tmp9394 = fadd <4 x float> %assignment_tmp9192, %64
-  %65 = load float addrspace(2)* @uf
+  %65 = load float addrspace(2)* @uf, align 4
   %66 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %65, <4 x i32> zeroinitializer)
   %67 = call float @llvm.gla.fDot4.v4f32.v4f32(<4 x float> %assignment_tmp9394, <4 x float> %assignment_tmp9394)
   %68 = fmul float %67, %67
@@ -1130,7 +1130,7 @@ ifmerge101:                                       ; preds = %else99, %then98
   %84 = call <4 x float> @llvm.gla.fAbs.v4f32.v4f32(<4 x float> %83)
   %85 = fadd <4 x float> %82, %84
   %v108 = fadd <4 x float> %assignment_tmp106107, %85
-  %86 = load i32 addrspace(2)* @ui
+  %86 = load i32 addrspace(2)* @ui, align 4
   %assignment_tmp109110 = call i32 @llvm.gla.abs.i32.i32(i32 %86)
   %87 = call i32 @llvm.gla.sMin.i32.i32.i32(i32 %assignment_tmp109110, i32 %86)
   %assignment_tmp111112 = add i32 %87, %assignment_tmp109110
@@ -1168,8 +1168,8 @@ ifmerge129:                                       ; preds = %else128, %then126
   br i1 %and_tmp125.0, label %then131, label %else133
 
 then131:                                          ; preds = %ifmerge129
-  %92 = load <4 x i1> addrspace(2)* @ub41
-  %93 = load <4 x i1> addrspace(2)* @ub42
+  %92 = load <4 x i1> addrspace(2)* @ub41, align 4
+  %93 = load <4 x i1> addrspace(2)* @ub42, align 4
   %94 = icmp eq <4 x i1> %92, %93
   %and_tmp130132 = call i1 @llvm.gla.any.v4i1(<4 x i1> %94)
   br label %ifmerge134
@@ -1182,8 +1182,8 @@ ifmerge134:                                       ; preds = %else133, %then131
   br i1 %and_tmp130.0, label %then136, label %else138
 
 then136:                                          ; preds = %ifmerge134
-  %95 = load <4 x i1> addrspace(2)* @ub41
-  %96 = load <4 x i1> addrspace(2)* @ub42
+  %95 = load <4 x i1> addrspace(2)* @ub41, align 4
+  %96 = load <4 x i1> addrspace(2)* @ub42, align 4
   %97 = icmp ne <4 x i1> %95, %96
   %and_tmp135137 = call i1 @llvm.gla.any.v4i1(<4 x i1> %97)
   br label %ifmerge139
@@ -1196,7 +1196,7 @@ ifmerge139:                                       ; preds = %else138, %then136
   br i1 %and_tmp135.0, label %then141, label %else143
 
 then141:                                          ; preds = %ifmerge139
-  %98 = load <4 x i1> addrspace(2)* @ub41
+  %98 = load <4 x i1> addrspace(2)* @ub41, align 4
   %and_tmp140142 = call i1 @llvm.gla.any.v4i1(<4 x i1> %98)
   br label %ifmerge144
 
@@ -1208,7 +1208,7 @@ ifmerge144:                                       ; preds = %else143, %then141
   br i1 %and_tmp140.0, label %then146, label %else148
 
 then146:                                          ; preds = %ifmerge144
-  %99 = load <4 x i1> addrspace(2)* @ub41
+  %99 = load <4 x i1> addrspace(2)* @ub41, align 4
   %and_tmp145147 = call i1 @llvm.gla.all.v4i1(<4 x i1> %99)
   br label %ifmerge149
 
@@ -1220,7 +1220,7 @@ ifmerge149:                                       ; preds = %else148, %then146
   br i1 %and_tmp145.0, label %then151, label %else153
 
 then151:                                          ; preds = %ifmerge149
-  %100 = load <4 x i1> addrspace(2)* @ub41
+  %100 = load <4 x i1> addrspace(2)* @ub41, align 4
   %101 = xor <4 x i1> %100, <i1 true, i1 true, i1 true, i1 true>
   %and_tmp150152 = call i1 @llvm.gla.any.v4i1(<4 x i1> %101)
   %phitmp = xor i1 %and_tmp150152, true

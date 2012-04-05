@@ -57,7 +57,7 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %0 = load i32 addrspace(1)* @"sampler2D tex"
+  %0 = load i32 addrspace(1)* @"sampler2D tex", align 4
   %_ret_val1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
   %1 = fcmp oeq <4 x float> %_ret_val1, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
   %2 = call i1 @llvm.gla.all.v4i1(<4 x i1> %1)

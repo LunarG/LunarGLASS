@@ -37,6 +37,7 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Support/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Target/TargetData.h"
 #include <cstdio>
 #include <string>
 #include <map>
@@ -133,6 +134,12 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // Set up the function-level optimizations we want
     // TODO: explore ordering of passes more
     llvm::FunctionPassManager passManager(module);
+
+    
+    // Add target data to unblock optimizations that require it
+    // This matches default except for endianness (little) and pointer size/alignment (32)
+    llvm::TargetData* TD = new llvm::TargetData("e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:1");
+    passManager.add(TD);
 
     // TODO: explore ScalarReplAggregates more
     // TODO: explore SimplifyLibCalls

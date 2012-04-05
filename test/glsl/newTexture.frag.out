@@ -36,7 +36,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load i32 addrspace(1)* @"sampler2D sampler"
+  %0 = load i32 addrspace(1)* @"sampler2D sampler", align 4
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)

@@ -256,12 +256,12 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load i32 addrspace(1)* @"sampler1D texSampler1D"
-  %1 = load i32 addrspace(1)* @"sampler2D texSampler2D"
-  %2 = load i32 addrspace(1)* @"sampler3D texSampler3D"
-  %3 = load i32 addrspace(1)* @"samplerCube texSamplerCube"
-  %4 = load i32 addrspace(1)* @"sampler1DShadow shadowSampler1D"
-  %5 = load i32 addrspace(1)* @"sampler2DShadow shadowSampler2D"
+  %0 = load i32 addrspace(1)* @"sampler1D texSampler1D", align 4
+  %1 = load i32 addrspace(1)* @"sampler2D texSampler2D", align 4
+  %2 = load i32 addrspace(1)* @"sampler3D texSampler3D", align 4
+  %3 = load i32 addrspace(1)* @"samplerCube texSamplerCube", align 4
+  %4 = load i32 addrspace(1)* @"sampler1DShadow shadowSampler1D", align 4
+  %5 = load i32 addrspace(1)* @"sampler2DShadow shadowSampler2D", align 4
   %coords2D31 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %_ret_val32 = call <2 x float> @llvm.gla.fDFdx.v2f32.v2f32(<2 x float> %coords2D31)
   %_ret_val3335 = call <2 x float> @llvm.gla.fDFdy.v2f32.v2f32(<2 x float> %coords2D31)
@@ -320,11 +320,11 @@ entry:
   %34 = fmul <2 x float> %coords2D31, <float 5.000000e-01, float 5.000000e-01>
   %35 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.i32.v2f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %coords2D31, float undef, float undef, i32 undef, <2 x float> %_ret_val32, <2 x float> %_ret_val3335)
   %color30 = fadd <4 x float> %color29, %33
-  %36 = load float addrspace(2)* @blend
+  %36 = load float addrspace(2)* @blend, align 4
   %37 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.i32.v2f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %34, float undef, float undef, i32 undef, <2 x float> %_ret_val32, <2 x float> %_ret_val3335)
   %color37 = fadd <4 x float> %color30, %35
   %38 = fmul float %36, 0x3FFC9FBE80000000
-  %39 = load <4 x float> addrspace(2)* @u
+  %39 = load <4 x float> addrspace(2)* @u, align 16
   %assignment_tmp41 = fadd <4 x float> %color37, %37
   %mix_retval43 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %assignment_tmp41, <4 x float> %39, float %38)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %mix_retval43)

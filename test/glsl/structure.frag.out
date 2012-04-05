@@ -69,25 +69,25 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %gla_constGEP = getelementptr [4 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 0, i32 4
-  %0 = load i32 addrspace(2)* %gla_constGEP
+  %0 = load i32 addrspace(2)* %gla_constGEP, align 16
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
   %gla_constGEP4 = getelementptr [4 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3
-  %2 = load <4 x float> addrspace(2)* %gla_constGEP4
+  %2 = load <4 x float> addrspace(2)* %gla_constGEP4, align 16
   %scale1 = extractelement <4 x float> %2, i32 0
   br label %ifmerge
 
 else:                                             ; preds = %entry
   %gla_constGEP5 = getelementptr [4 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3
-  %scale2 = load float addrspace(2)* %gla_constGEP5
+  %scale2 = load float addrspace(2)* %gla_constGEP5, align 4
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
   %scale.0 = phi float [ %scale1, %then ], [ %scale2, %else ]
   %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %scale.0, <4 x i32> zeroinitializer)
-  %4 = load i32 addrspace(1)* @"sampler2D sampler"
+  %4 = load i32 addrspace(1)* @"sampler2D sampler", align 4
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %5 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %coord)
   %gl_FragColor = fmul <4 x float> %3, %5
