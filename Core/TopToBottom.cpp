@@ -141,11 +141,18 @@ void gla::PrivateManager::runLLVMOptimizations1()
     llvm::TargetData* TD = new llvm::TargetData("e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:1");
     passManager.add(TD);
 
-    // TODO: explore ScalarReplAggregates more
+    // Create immutable passes once
+    passManager.add(llvm::createBasicAliasAnalysisPass());
+    passManager.add(llvm::createTypeBasedAliasAnalysisPass());
+
+    // Provide the backend queries
+    passManager.add(gla_llvm::createBackEndPointerPass(backEnd));
+
     // TODO: explore SimplifyLibCalls
     // TODO: see if we can avoid running gvn/sccp multiple times
 
     // Early, simple optimizations to enable others/make others more efficient
+    passManager.add(llvm::createScalarReplAggregatesPass());
     passManager.add(llvm::createInstructionCombiningPass());
     passManager.add(llvm::createEarlyCSEPass());
     passManager.add(llvm::createCorrelatedValuePropagationPass());
@@ -155,13 +162,8 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createReassociatePass());
     passManager.add(llvm::createInstructionCombiningPass());
 
-    // Run GVN and SCCP using BasicAliasAnalysis
-    passManager.add(llvm::createBasicAliasAnalysisPass());
     passManager.add(llvm::createGVNPass());
     passManager.add(llvm::createSCCPPass());
-
-    // Provide the backend queries
-    passManager.add(gla_llvm::createBackEndPointerPass(backEnd));
 
     // Make multiinsert intrinsics, and clean up afterwards
     passManager.add(llvm::createInstructionCombiningPass());
@@ -181,8 +183,6 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createLoopStrengthReducePass());
     passManager.add(llvm::createAggressiveDCEPass());
 
-    // Run GVN and SCCP using BasicAliasAnalysis
-    passManager.add(llvm::createBasicAliasAnalysisPass());
     passManager.add(llvm::createGVNPass());
     passManager.add(llvm::createSCCPPass());
 
@@ -191,6 +191,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // passManager.add(llvm::createSinkingPass());
 
     // Run some post-redancy-elimination passes
+    passManager.add(llvm::createScalarReplAggregatesPass());
     passManager.add(llvm::createInstructionCombiningPass());
     passManager.add(llvm::createCorrelatedValuePropagationPass());
     passManager.add(llvm::createAggressiveDCEPass());
