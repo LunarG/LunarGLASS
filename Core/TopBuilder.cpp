@@ -308,7 +308,7 @@ Builder::SuperValue Builder::createLoad(SuperValue lValue)
         return builder.CreateLoad(lValue);
 }
 
-Builder::SuperValue Builder::createGEP(SuperValue gepValue, std::vector<llvm::Value*> gepIndexChain)
+Builder::SuperValue Builder::createGEP(SuperValue gepValue, llvm::ArrayRef<llvm::Value*> gepIndexChain)
 {
     if (gepValue.isMatrix()) {
         llvm::Value* newValue = builder.CreateGEP(gepValue.getMatrix()->getValue(),

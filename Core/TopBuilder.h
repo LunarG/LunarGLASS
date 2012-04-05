@@ -198,7 +198,7 @@ public:
     SuperValue createLoad(SuperValue);
 
     // Create a GEP to dereference structs, arrays, or matrices
-    SuperValue createGEP(SuperValue, std::vector<llvm::Value*>);
+    SuperValue createGEP(SuperValue, llvm::ArrayRef<llvm::Value*>);
 
     // Create a InsertValue to handle structs, arrays, or matrices
     SuperValue createInsertValue(SuperValue target, SuperValue source, unsigned* indices, int indexCount);
