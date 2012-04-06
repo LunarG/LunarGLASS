@@ -54,6 +54,8 @@ namespace llvm {
 
     void initializeIntrinsicCombinePass(PassRegistry&);
 
+    void initializeScalarizePass(PassRegistry&);
+
 } // end namespace llvm
 
 #endif // GLA_INIT_PASSES_H

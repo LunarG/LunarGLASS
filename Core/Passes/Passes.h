@@ -66,6 +66,10 @@ namespace gla_llvm {
     // Combine Intrinsics for LunarGLASS
     FunctionPass* createIntrinsicCombinePass();
 
+    // Scalarize the IR
+    FunctionPass* createScalarizePass();
+
+
 } // end namespace gla_llvm
 
 #endif // GLA_PASSES_H

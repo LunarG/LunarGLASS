@@ -77,6 +77,65 @@ bool IsNegation(const Instruction* inst)
     return left->isNegativeZeroValue();
 }
 
+bool IsTextureInstruction(const IntrinsicInst* intr)
+{
+    switch (intr->getIntrinsicID()) {
+    case Intrinsic::gla_textureSample:
+    case Intrinsic::gla_fTextureSample:
+    case Intrinsic::gla_rTextureSample1:
+    case Intrinsic::gla_fRTextureSample1:
+    case Intrinsic::gla_rTextureSample2:
+    case Intrinsic::gla_fRTextureSample2:
+    case Intrinsic::gla_rTextureSample3:
+    case Intrinsic::gla_fRTextureSample3:
+    case Intrinsic::gla_rTextureSample4:
+    case Intrinsic::gla_fRTextureSample4:
+    case Intrinsic::gla_textureSampleLodRefZ:
+    case Intrinsic::gla_fTextureSampleLodRefZ:
+    case Intrinsic::gla_rTextureSampleLodRefZ1:
+    case Intrinsic::gla_fRTextureSampleLodRefZ1:
+    case Intrinsic::gla_rTextureSampleLodRefZ2:
+    case Intrinsic::gla_fRTextureSampleLodRefZ2:
+    case Intrinsic::gla_rTextureSampleLodRefZ3:
+    case Intrinsic::gla_fRTextureSampleLodRefZ3:
+    case Intrinsic::gla_rTextureSampleLodRefZ4:
+    case Intrinsic::gla_fRTextureSampleLodRefZ4:
+    case Intrinsic::gla_textureSampleLodRefZOffset:
+    case Intrinsic::gla_fTextureSampleLodRefZOffset:
+    case Intrinsic::gla_rTextureSampleLodRefZOffset1:
+    case Intrinsic::gla_fRTextureSampleLodRefZOffset1:
+    case Intrinsic::gla_rTextureSampleLodRefZOffset2:
+    case Intrinsic::gla_fRTextureSampleLodRefZOffset2:
+    case Intrinsic::gla_rTextureSampleLodRefZOffset3:
+    case Intrinsic::gla_fRTextureSampleLodRefZOffset3:
+    case Intrinsic::gla_rTextureSampleLodRefZOffset4:
+    case Intrinsic::gla_fRTextureSampleLodRefZOffset4:
+    case Intrinsic::gla_textureSampleLodRefZOffsetGrad:
+    case Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
+    case Intrinsic::gla_rTextureSampleLodRefZOffsetGrad1:
+    case Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad1:
+    case Intrinsic::gla_rTextureSampleLodRefZOffsetGrad2:
+    case Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad2:
+    case Intrinsic::gla_rTextureSampleLodRefZOffsetGrad3:
+    case Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad3:
+    case Intrinsic::gla_rTextureSampleLodRefZOffsetGrad4:
+    case Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad4:
+    case Intrinsic::gla_texelFetchOffset:
+    case Intrinsic::gla_fTexelFetchOffset:
+    case Intrinsic::gla_texelGather:
+    case Intrinsic::gla_fTexelGather:
+    case Intrinsic::gla_texelGatherOffset:
+    case Intrinsic::gla_fTexelGatherOffset:
+    case Intrinsic::gla_texelGatherOffsets:
+    case Intrinsic::gla_fTexelGatherOffsets:
+        return true;
+
+    } // end of switch (intr->getIntrinsicID())
+
+    return false;
+}
+
+
 void GetMultiInsertSelects(const Instruction* miInst, SmallVectorImpl<Constant*>& channelSelects)
 {
     assert(IsMultiInsert(miInst));

@@ -96,7 +96,7 @@ namespace gla {
     //
     // A vector is a set of scalars, arranged as an llvm vector.
     //
-    // Aggregate means only 
+    // Aggregate means only
     //  - array
     //  - struct
     //
@@ -120,6 +120,11 @@ namespace gla {
 
         return true;
     }
+
+    // Is the given op a component-wise operation?
+    bool IsPerComponentOp(const llvm::IntrinsicInst* intr);
+    bool IsPerComponentOp(const llvm::Instruction* inst);
+    bool IsPerComponentOp(const llvm::Value* value);
 
     // true if all bits in the argument are set
     bool HasAllSet(const llvm::Value*);

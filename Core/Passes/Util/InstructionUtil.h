@@ -40,34 +40,57 @@ namespace gla_llvm {
     using namespace llvm;
 
     // Whether the given instruction is a pipeline output
+    inline bool IsOutputInstruction(const IntrinsicInst* intr)
+    {
+        switch (intr->getIntrinsicID()) {
+        case Intrinsic::gla_fWriteData:
+        case Intrinsic::gla_fWriteInterpolant:
+        case Intrinsic::gla_writeData:
+        case Intrinsic::gla_fWriteComponent:
+        case Intrinsic::gla_fWriteInterpolantComponent:
+        case Intrinsic::gla_writeComponent:
+            return true;
+        }
+
+        return false;
+    }
     inline bool IsOutputInstruction(const Instruction* inst)
     {
-        if (const IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst)) {
-            switch (intr->getIntrinsicID()) {
-            case Intrinsic::gla_fWriteData:
-            case Intrinsic::gla_fWriteInterpolant:
-            case Intrinsic::gla_writeData:
-                return true;
-            }
+        const IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst);
+        return intr && IsOutputInstruction(intr);
+    }
+
+    inline bool IsInputInstruction(const IntrinsicInst* intr)
+    {
+        switch (intr->getIntrinsicID()) {
+        case Intrinsic::gla_fReadInterpolant:
+        case Intrinsic::gla_fReadInterpolantOffset:
+        case Intrinsic::gla_readData:
+        case Intrinsic::gla_fReadData:
+        case Intrinsic::gla_fReadInterpolantComponent:
+        case Intrinsic::gla_fReadInterpolantOffsetComponent:
+        case Intrinsic::gla_readComponent:
+        case Intrinsic::gla_fReadComponent:
+        case Intrinsic::gla_loadComponent:
+        case Intrinsic::gla_fLoadComponent:
+            return true;
         }
 
         return false;
     }
-
     inline bool IsInputInstruction(const Instruction* inst)
     {
-        if (const IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst)) {
-            switch (intr->getIntrinsicID()) {
-            case Intrinsic::gla_fReadInterpolant:
-            case Intrinsic::gla_fReadInterpolantOffset:
-            case Intrinsic::gla_readData:
-            case Intrinsic::gla_fReadData:
-                return true;
-            }
-        }
-
-        return false;
+        const IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst);
+        return intr && IsInputInstruction(intr);
     }
+
+    bool IsTextureInstruction(const IntrinsicInst* intr);
+    inline bool IsTextureInstruction(const Instruction* inst)
+    {
+        const IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst);
+        return intr && IsTextureInstruction(intr);
+    }
+
 
     inline bool IsLoad(const Instruction* inst)
     {
