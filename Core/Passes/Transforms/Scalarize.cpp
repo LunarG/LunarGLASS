@@ -1,4 +1,4 @@
-//===- Scalarize.cpp - Canonicalize the CFG for LunarGLASS ----------===//
+//===- Scalarize.cpp - Scalarize LunarGLASS IR ----------------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2011 LunarG, Inc.
@@ -25,14 +25,16 @@
 //===----------------------------------------------------------------------===//
 //
 // Scalarize the IR.
-//   *
+//   * Loads of uniforms become multiple loadComponent calls
 //
-//   *
+//   * Reads/writes become read/writeComponent calls
 //
+//   * Component-wise operations become multiple ops over each component
 //
-//   *
+//   * Texture call become recomponsed texture calls
 //
-//   *
+//   * Vector ops disappear, with their users referring to the scalarized
+//   * components
 //
 //===----------------------------------------------------------------------===//
 
