@@ -109,7 +109,8 @@ namespace  {
         bool scalarizeExtract(ExtractElementInst*);
         bool scalarizeInsert(InsertElementInst*);
         bool scalarizeShuffleVector(ShuffleVectorInst*);
-        bool scalarizeTextureIntrinsic(IntrinsicInst* intr);
+        bool scalarizeTextureIntrinsic(IntrinsicInst*);
+        bool scalarizePHI(PHINode*);
         // ...
 
         // Helpers to make the actual multiple scalar calls, one per
@@ -210,6 +211,8 @@ void Scalarize::gatherComponents(int component, ArrayRef<Value*> args, SmallVect
 
 Instruction* Scalarize::createScalarInstruction(Instruction* inst, ArrayRef<Value*> args)
 {
+    // TODO: Refine the below into one large switch
+
     unsigned op = inst->getOpcode();
     if (inst->isCast()) {
         assert(args.size() == 1 && "incorrect number of arguments for cast op");
@@ -220,14 +223,50 @@ Instruction* Scalarize::createScalarInstruction(Instruction* inst, ArrayRef<Valu
         assert(args.size() == 2 && "incorrect number of arguments for binary op");
         return BinaryOperator::Create((Instruction::BinaryOps)op, args[0], args[1]);
     }
-    // TODO: CmpInst, Select, per-component LunarGLASS intrinsics
-    // TODO: PHInodes here?
 
-    assert(! inst->isTerminator() && "Terminators are not per-component");
-    // TODO: assert on Memoryinsts, Call, VAArg, Extract/Insert*, Shuffle,
-    // non-cast unarys
+    if (isa<PHINode>(inst)) {
+        PHINode* res = PHINode::Create(gla::GetBasicType(inst));
+        assert(args.size() % 2 == 0 && "Odd number of arguments for a PHI");
 
-    assert(! "Unknown instruction type");
+        for (unsigned int i = 0; i < args.size(); i += 2) {
+            BasicBlock* bb = dyn_cast<BasicBlock>(args[i+1]);
+            assert(bb && "Non-basic block incoming block?");
+            res->addIncoming(args[i], bb);
+        }
+
+        return res;
+    }
+
+    if (CmpInst* cmpInst = dyn_cast<CmpInst>(inst)) {
+        assert(args.size() == 2 && "incorrect number of arguments for comparison");
+        return CmpInst::Create(cmpInst->getOpcode(), cmpInst->getPredicate(), args[0], args[1]);
+    }
+
+    if (isa<SelectInst>(inst)) {
+        assert(args.size() == 3 && "incorrect number of arguments for select");
+        return SelectInst::Create(inst->getOperand(0),inst->getOperand(1), inst->getOperand(2));
+    }
+
+    if (IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst)) {
+        if (! gla::IsPerComponentOp(inst))
+            gla::UnsupportedFunctionality("Scalarize instruction on a non-per-component intrinsic");
+
+        // TODO: Assumption is that all per-component intrinsics have all their
+        // arguments be overloadable. Need to find some way to assert on this
+        // assumption. This is due to how getDeclaration operates; it only takes
+        // a list of types that fit overloadable slots.
+        SmallVector<const Type*, 8> tys(1, gla::GetBasicType(inst->getType()));
+        // Call instructions have the decl as a last argument, so skip it
+        for (ArrayRef<Value*>::iterator i = args.begin(), e = args.end() - 1; i != e; ++i) {
+            tys.push_back(gla::GetBasicType((*i)->getType()));
+        }
+
+        Function* f = Intrinsic::getDeclaration(module, intr->getIntrinsicID(), &tys.front(), tys.size());
+        return CallInst::Create(f, args.begin(), args.end()-1);
+    }
+
+    gla::UnsupportedFunctionality("Currently unsupported instruction: ", inst->getOpcode(),
+                                  inst->getOpcodeName());
     return 0;
 
 }
@@ -267,7 +306,7 @@ void Scalarize::makePerComponentScalarizedCalls(Instruction* inst, ArrayRef<Valu
 {
     int count = gla::GetComponentCount(inst);
     assert(count > 0 && count <= 4 && "invalid number of vector components");
-    assert(inst->getNumOperands() <= args.size() && "not enough arguments passed for instruction");
+    assert(inst->getNumOperands() == args.size() && "not enough arguments passed for instruction");
 
     VectorValues& vVals = vectorVals[inst];
 
@@ -344,7 +383,19 @@ bool Scalarize::scalarize(Instruction* inst)
     if (ShuffleVectorInst* sv = dyn_cast<ShuffleVectorInst>(inst))
         return scalarizeShuffleVector(sv);
 
-    return true;
+    if (PHINode* phi = dyn_cast<PHINode>(inst))
+        return scalarizePHI(phi);
+
+    if (isa<ExtractValueInst>(inst) || isa<InsertValueInst>(inst))
+        // TODO: need to come up with a struct/array model for scalarization
+        gla::UnsupportedFunctionality("Scalarizing struct/array ops");
+
+    if (isa<StoreInst>(inst) || isa<GetElementPtrInst>(inst))
+        // TODO: need to come up with a memory/struct/array model for scalarization
+        gla::UnsupportedFunctionality("Scalarizing stores/geps");
+
+    gla::UnsupportedFunctionality("Currently unhandled instruction ", inst->getOpcode(), inst->getOpcodeName());
+    return false;
 }
 
 bool Scalarize::scalarizeShuffleVector(ShuffleVectorInst* sv)
@@ -386,6 +437,19 @@ bool Scalarize::scalarizePerComponent(Instruction* inst)
     SmallVector<Value*, 4> args(inst->op_begin(), inst->op_end());
 
     makePerComponentScalarizedCalls(inst, args);
+
+    return true;
+}
+
+bool Scalarize::scalarizePHI(PHINode* phi)
+{
+    //     dst = phi <n x ty> [ %foo, %bb1 ], [ %bar, %bb2], ...
+    // ==> dstx = phi ty [ %foox, %bb1 ], [ %barx, %bb2], ...
+    //     dsty = phi ty [ %fooy, %bb1 ], [ %bary, %bb2], ...
+
+    SmallVector<Value*, 8> args(phi->op_begin(), phi->op_end());
+
+    makePerComponentScalarizedCalls(phi, args);
 
     return true;
 }
@@ -635,8 +699,7 @@ bool Scalarize::scalarizeIntrinsic(IntrinsicInst* intr)
 
     gla::UnsupportedFunctionality("Unhandled intrinsic");
 
-
-    return false;
+    return true;
 }
 
 
