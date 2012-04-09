@@ -275,7 +275,7 @@ Instruction* Scalarize::createScalarInstruction(Instruction* inst, ArrayRef<Valu
 void Scalarize::makeScalarizedCalls(Function* f, ArrayRef<Value*> args, int count, VectorValues& vVals)
 {
     assert(count > 0 && count <= 4 && "invalid number of vector components");
-    for (unsigned int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) {
         Value* res;
         SmallVector<Value*, 8> callArgs(args.begin(), args.end());
         callArgs.push_back(ConstantInt::get(intTy, i));
@@ -289,7 +289,7 @@ void Scalarize::makePerComponentScalarizedCalls(Function* f, ArrayRef<Value*> ar
 {
     assert(count > 0 && count <= 4 && "invalid number of vector components");
 
-    for (unsigned int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) {
         Value* res;
 
         // Set this component of each arg
@@ -310,7 +310,7 @@ void Scalarize::makePerComponentScalarizedCalls(Instruction* inst, ArrayRef<Valu
 
     VectorValues& vVals = vectorVals[inst];
 
-    for (unsigned int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) {
         // Set this component of each arg
         SmallVector<Value*, 8> callArgs(args.size(), 0);
         gatherComponents(i, args, callArgs);
@@ -410,7 +410,7 @@ bool Scalarize::scalarizeShuffleVector(ShuffleVectorInst* sv)
 
     int size = gla::GetComponentCount(sv);
 
-    for (unsigned int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         int select = gla::GetConstantInt(mask->getOperand(i));
         Value* selectee;
         if (select < size) {
@@ -511,7 +511,7 @@ bool Scalarize::scalarizeInsert(InsertElementInst* ins)
     int component = gla::GetConstantInt(ins->getOperand(2));
 
     VectorValues& vVals = vectorVals[ins];
-    for (unsigned int i = 0; i < gla::GetComponentCount(ins); ++i) {
+    for (int i = 0; i < gla::GetComponentCount(ins); ++i) {
         vVals.setComponent(i, i == component ? ins->getOperand(1)
                                              : getComponent(i, ins->getOperand(0)));
     }
