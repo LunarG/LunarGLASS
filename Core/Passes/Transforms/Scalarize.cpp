@@ -621,7 +621,7 @@ bool Scalarize::scalarizeTextureIntrinsic(IntrinsicInst* intr)
     // TODO: update/fix if some intrinsics don't return four overloadable types
     // in a struct
     const Type* intrTys[10] = {underTy, underTy, underTy, underTy};
-    int numTys;
+    int numTys = 4;
 
     // Have the first three arguments (type, location, mask) be the same as the
     // original intrinsic.
@@ -631,26 +631,65 @@ bool Scalarize::scalarizeTextureIntrinsic(IntrinsicInst* intr)
     args.push_back(intr->getOperand(1));
     args.push_back(intr->getOperand(2));
 
+    Value* coords = intr->getOperand(3);
+
+    int count = gla::GetComponentCount(coords);
+
     switch (intr->getIntrinsicID()) {
 
-    case Intrinsic::gla_fTextureSample: {
-        Value* coords = intr->getOperand(3);
+    case Intrinsic::gla_fTextureSample:
 
-        // TODO: find the real width and do different calls and use different data
+        // basic sample
+        switch (count) {
+        case 1:  intrID = Intrinsic::gla_fRTextureSample1;  break;
+        case 2:  intrID = Intrinsic::gla_fRTextureSample2;  break;
+        case 3:  intrID = Intrinsic::gla_fRTextureSample3;  break;
+        case 4:  intrID = Intrinsic::gla_fRTextureSample4;  break;
+        default: assert(0);
+        }
 
-        // Sample2D
-        intrID = Intrinsic::gla_fRTextureSample2;
-        intrTys[4] = floatTy;
-        intrTys[5] = floatTy;
-        numTys = 6;
-        args.push_back(getComponent(0, coords)); // x
-        args.push_back(getComponent(1, coords)); // y
+        // one type for each coord
+        for (int i = 0; i < count; ++i) {
+            args.push_back(getComponent(i, coords));
+            intrTys[numTys] = floatTy;
+            numTys++;
+        }
+
         break;
-    }
+
+    case Intrinsic::gla_fTextureSampleLodRefZ:
+
+        // basic shadow
+        switch (count) {
+        case 1:  intrID = Intrinsic::gla_fRTextureSampleLodRefZ1;  break;
+        case 2:  intrID = Intrinsic::gla_fRTextureSampleLodRefZ2;  break;
+        case 3:  intrID = Intrinsic::gla_fRTextureSampleLodRefZ3;  break;
+        case 4:  intrID = Intrinsic::gla_fRTextureSampleLodRefZ4;  break;
+        default: assert(0);
+        }
+
+        // one type for each coord
+        for (int i = 0; i < count; ++i) {
+            args.push_back(getComponent(i, coords));
+            intrTys[numTys] = floatTy;
+            numTys++;
+        }
+
+        // lod
+        args.push_back(intr->getOperand(4));
+        intrTys[numTys] = floatTy;
+        numTys++;
+
+        // refZ
+        args.push_back(intr->getOperand(5));
+        intrTys[numTys] = floatTy;
+        numTys++;
+
+        break;
+       
 
     case Intrinsic::gla_textureSample:
     case Intrinsic::gla_textureSampleLodRefZ:
-    case Intrinsic::gla_fTextureSampleLodRefZ:
     case Intrinsic::gla_textureSampleLodRefZOffset:
     case Intrinsic::gla_fTextureSampleLodRefZOffset:
     case Intrinsic::gla_textureSampleLodRefZOffsetGrad:
