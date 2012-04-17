@@ -244,7 +244,7 @@ Instruction* Scalarize::createScalarInstruction(Instruction* inst, ArrayRef<Valu
 
     if (isa<SelectInst>(inst)) {
         assert(args.size() == 3 && "incorrect number of arguments for select");
-        return SelectInst::Create(inst->getOperand(0),inst->getOperand(1), inst->getOperand(2));
+        return SelectInst::Create(args[0], args[1], args[2]);
     }
 
     if (IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst)) {
@@ -686,7 +686,7 @@ bool Scalarize::scalarizeTextureIntrinsic(IntrinsicInst* intr)
         numTys++;
 
         break;
-       
+
 
     case Intrinsic::gla_textureSample:
     case Intrinsic::gla_textureSampleLodRefZ:
@@ -703,11 +703,13 @@ bool Scalarize::scalarizeTextureIntrinsic(IntrinsicInst* intr)
     case Intrinsic::gla_texelGatherOffsets:
     case Intrinsic::gla_fTexelGatherOffsets:
         // TODO: handle
-        gla::UnsupportedFunctionality("Unhandled tex op");
+        gla::UnsupportedFunctionality("Unhandled tex op: ", intr->getOpcode(),
+                                      intr->getCalledFunction()->getNameStr().c_str());
 
     default:
         // TODO: turn into assert when complete
-        gla::UnsupportedFunctionality("Unhandled intrinsic");
+        gla::UnsupportedFunctionality("Unhandled intrinsic: ", intr->getOpcode(),
+                                      intr->getCalledFunction()->getNameStr().c_str());
     } // end of switch (intr->getIntrinsicID())
 
 
@@ -736,7 +738,8 @@ bool Scalarize::scalarizeIntrinsic(IntrinsicInst* intr)
 
     // TODO: identify must-decomponsed intrinsics.
 
-    gla::UnsupportedFunctionality("Unhandled intrinsic");
+    gla::UnsupportedFunctionality("Unhandled intrinsic: ", intr->getOpcode(),
+                                  intr->getCalledFunction()->getNameStr().c_str());
 
     return true;
 }
