@@ -175,14 +175,20 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
         case Intrinsic::gla_fMin:
             if (backEnd->decomposeIntrinsic(EDiMin)) {
-                UnsupportedFunctionality("decomposition of gla_fMin");
-                //changed = true;
+                //
+                // min(a,b) = select (a < b), a, b
+                //
+                newInst = builder.CreateFCmpOLT(arg0, arg1);
+                newInst = builder.CreateSelect(newInst, arg0, arg1);
             }
             break;
         case Intrinsic::gla_fMax:
             if (backEnd->decomposeIntrinsic(EDiMax)) {
-                UnsupportedFunctionality("decomposition of gla_fMax");
-                //changed = true;
+                //
+                // max(a,b) = select (a > b), a, b
+                //
+                newInst = builder.CreateFCmpOGT(arg0, arg1);
+                newInst = builder.CreateSelect(newInst, arg0, arg1);
             }
             break;
         case Intrinsic::gla_fClamp:
@@ -195,6 +201,11 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 Function* min = Intrinsic::getDeclaration(module, Intrinsic::gla_fMin, argTypes, 3);
                 newInst = builder.CreateCall2(max, arg0, arg1);
                 newInst = builder.CreateCall2(min, newInst, arg2);
+
+                // Make next iteration revisit this decomposition, in case min
+                // or max are decomposed.
+                instI = inst;
+                ++instI;
             }
             break;
 
@@ -642,6 +653,11 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 } else {
                     newInst = builder.CreateFNeg(arg0);
                 }
+
+                // Make next iteration revisit this decomposition, in case dot
+                // is decomposed
+                instI = inst;
+                ++instI;
             }
             break;
         case Intrinsic::gla_fRefract:
