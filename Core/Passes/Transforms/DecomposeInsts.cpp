@@ -186,7 +186,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
             break;
         case Intrinsic::gla_fClamp:
-            if (backEnd->decomposeIntrinsic(EDiClamp)) 
+            if (backEnd->decomposeIntrinsic(EDiClamp))
             {
                 //
                 // Clamp(x, minVal, maxVal) is defined to be min(max(x, minVal), maxVal).
@@ -205,10 +205,10 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
             break;
         case Intrinsic::gla_fAcos:
-            if (backEnd->decomposeIntrinsic(EDiAcos)) 
+            if (backEnd->decomposeIntrinsic(EDiAcos))
             {
                 // TODO: Do we need to handle domain errors?  (E.g., bad input value)
-                // 
+                //
                 // acos(x) ~= sqrt(1-x)*(a + x*(b + x*(c + x*d)))
                 // where  a =  1.57079632679
                 //        b = -0.213300989
@@ -219,7 +219,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 double b = -0.213300989;
                 double c =  0.077980478;
                 double d = -0.0216409;
-                
+
                 // polynomial part, going right to left...
                 llvm::Value* poly;
                 poly = MultiplyByConstant(builder, arg0, d);
@@ -228,7 +228,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 poly = AddWithConstant(builder, poly, b);
                 poly = builder.CreateFMul(arg0, poly);
                 poly = AddWithConstant(builder, poly, a);
-                
+
                 // sqrt part
                 Function* sqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fSqrt, argTypes, 2);
                 newInst = builder.CreateFNeg(arg0);
@@ -375,7 +375,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
             break;
         case Intrinsic::gla_fStep:
-            if (backEnd->decomposeIntrinsic(EDiStep)) 
+            if (backEnd->decomposeIntrinsic(EDiStep))
             {
                 //
                 // step(edge, x) is defined to be 0.0 if x < edge, otherwise 1.0.
@@ -523,11 +523,11 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 llvm::Value* a1 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 0));
                 llvm::Value* a2 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 1));
                 llvm::Value* a3 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 2));
-                
+
                 llvm::Value* b1 = builder.CreateExtractElement(arg1, MakeUnsignedConstant(module->getContext(), 0));
                 llvm::Value* b2 = builder.CreateExtractElement(arg1, MakeUnsignedConstant(module->getContext(), 1));
                 llvm::Value* b3 = builder.CreateExtractElement(arg1, MakeUnsignedConstant(module->getContext(), 2));
-                
+
                 llvm::Value* empty = llvm::UndefValue::get(arg0->getType());
 
                 // a2*b3 - a3*b2
@@ -618,13 +618,13 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             }
             break;
         case Intrinsic::gla_fReflect:
-            if (backEnd->decomposeIntrinsic(EDiReflect)) 
+            if (backEnd->decomposeIntrinsic(EDiReflect))
             {
                 //
                 // reflect(I, N) is defined to be I – 2 * dot(N, I) * N,
                 // where N may be assumed to be normalized.
                 //
-                // Note if the number of components is 1, then N == 1 and 
+                // Note if the number of components is 1, then N == 1 and
                 // this turns into I - 2*I, or -I.
                 //
                 if (GetComponentCount(arg0) > 1) {
@@ -636,7 +636,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     llvm::Value* smeared = llvm::UndefValue::get(arg0->getType());
                     for (int c = 0; c < GetComponentCount(arg0); ++c)
                         smeared = builder.CreateInsertElement(smeared, newInst, MakeIntConstant(module->getContext(), c));
-                
+
                     newInst = builder.CreateFMul(smeared, arg1);
                     newInst = builder.CreateFSub(arg0, newInst);
                 } else {
