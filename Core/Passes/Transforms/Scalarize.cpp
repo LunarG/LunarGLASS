@@ -155,6 +155,10 @@ namespace  {
 
         std::vector<Instruction*> deadList;
 
+        // List of vector phis that were not completely scalarized because some
+        // of their operands hadn't before been visited (i.e. loop variant
+        // variables)
+        SmallVector<PHINode*, 16> incompletePhis;
     };
 
 
@@ -195,10 +199,15 @@ bool Scalarize::canGetComponent(Value* v)
 
 bool Scalarize::canGetComponentArgs(User* u)
 {
-    for (User::op_iterator i = u->op_begin(), e = u->op_end(); i != e; ++i)
-        if (! canGetComponent(*i))
-            return false;
-
+    if (PHINode* phi = dyn_cast<PHINode>(u)) {
+        for (unsigned int i = 0; i < phi->getNumIncomingValues(); ++i)
+            if (! canGetComponent(phi->getIncomingValue(i)))
+                return false;
+    } else {
+        for (User::op_iterator i = u->op_begin(), e = u->op_end(); i != e; ++i)
+            if (! canGetComponent(*i))
+                return false;
+    }
     return true;
 }
 
@@ -228,6 +237,7 @@ Instruction* Scalarize::createScalarInstruction(Instruction* inst, ArrayRef<Valu
         PHINode* res = PHINode::Create(gla::GetBasicType(inst));
         assert(args.size() % 2 == 0 && "Odd number of arguments for a PHI");
 
+        // Loop over pairs of operands: [Value*, BasicBlock*]
         for (unsigned int i = 0; i < args.size(); i += 2) {
             BasicBlock* bb = dyn_cast<BasicBlock>(args[i+1]);
             assert(bb && "Non-basic block incoming block?");
@@ -306,7 +316,8 @@ void Scalarize::makePerComponentScalarizedCalls(Instruction* inst, ArrayRef<Valu
 {
     int count = gla::GetComponentCount(inst);
     assert(count > 0 && count <= 4 && "invalid number of vector components");
-    assert(inst->getNumOperands() == args.size() && "not enough arguments passed for instruction");
+    assert((inst->getNumOperands() == args.size() || isa<PHINode>(inst))
+           && "not enough arguments passed for instruction");
 
     VectorValues& vVals = vectorVals[inst];
 
@@ -353,7 +364,7 @@ bool Scalarize::scalarize(Instruction* inst)
         return false;
 
     assert(! vectorVals.count(inst) && "We've already scalarized this somehow?");
-    assert((canGetComponentArgs(inst) || IsInputInstruction(inst)) &&
+    assert((canGetComponentArgs(inst) || IsInputInstruction(inst) || isa<PHINode>(inst)) &&
            "Scalarizing an op whose arguments haven't been scalarized ");
     builder->SetInsertPoint(inst);
 
@@ -457,9 +468,19 @@ bool Scalarize::scalarizePHI(PHINode* phi)
     // ==> dstx = phi ty [ %foox, %bb1 ], [ %barx, %bb2], ...
     //     dsty = phi ty [ %fooy, %bb1 ], [ %bary, %bb2], ...
 
-    SmallVector<Value*, 8> args(phi->op_begin(), phi->op_end());
+    // If the scalar values are all known up-front, then just make the full
+    // phinode now. If they are not yet known (phinode for a loop variant
+    // variable), then deferr the arguments until later
 
-    makePerComponentScalarizedCalls(phi, args);
+    if (canGetComponentArgs(phi)) {
+        SmallVector<Value*, 8> args(phi->op_begin(), phi->op_end());
+
+        makePerComponentScalarizedCalls(phi, args);
+    } else {
+        makePerComponentScalarizedCalls(phi, ArrayRef<Value*>());
+        incompletePhis.push_back(phi);
+    }
+
 
     return true;
 }
@@ -774,6 +795,29 @@ bool Scalarize::runOnFunction(Function& F)
                 // deadList.push_back
             }
         }
+    }
+
+    // Fill in the incomplete phis
+    for (SmallVectorImpl<PHINode*>::iterator phiI = incompletePhis.begin(), phiE = incompletePhis.end();
+         phiI != phiE; ++phiI) {
+        assert(canGetComponentArgs(*phiI) && "Phi's operands never scalarized");
+
+        // Fill in each component of this phi
+        VectorValues& vVals = vectorVals[*phiI];
+        for (int c = 0; c < gla::GetComponentCount(*phiI); ++c) {
+            PHINode* compPhi = dyn_cast<PHINode>(vVals.getComponent(c));
+            assert(compPhi && "Vector phi got scalarized to non-phis?");
+
+            // Loop over pairs of operands: [Value*, BasicBlock*]
+            for (unsigned int i = 0; i < (*phiI)->getNumOperands(); i += 2) {
+                BasicBlock* bb = dyn_cast<BasicBlock>((*phiI)->getOperand(i+1));
+                assert(bb && "Non-basic block incoming block?");
+                compPhi->addIncoming(getComponent(c, (*phiI)->getOperand(i)), bb);
+            }
+
+        }
+
+
     }
 
     dce();
