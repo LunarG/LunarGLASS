@@ -5,6 +5,8 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
+// Changes Copyright (C) 2011-2012 LunarG, Inc.
+//
 //===----------------------------------------------------------------------===//
 //
 // This file implements the Function class for the VMCore library.
@@ -154,7 +156,7 @@ void Function::eraseFromParent() {
 Function::Function(const FunctionType *Ty, LinkageTypes Linkage,
                    const Twine &name, Module *ParentModule)
   : GlobalValue(PointerType::getUnqual(Ty),
-                Value::FunctionVal, 0, 0, Linkage, name) {
+                Value::FunctionVal, 0, 0, Linkage, name), IntrinsicID(-1) {
   assert(FunctionType::isValidReturnType(getReturnType()) &&
          !getReturnType()->isOpaqueTy() && "invalid return type");
   SymTab = new ValueSymbolTable();
@@ -170,8 +172,9 @@ Function::Function(const FunctionType *Ty, LinkageTypes Linkage,
     ParentModule->getFunctionList().push_back(this);
 
   // Ensure intrinsics have the right parameter attributes.
-  if (unsigned IID = getIntrinsicID())
-    setAttributes(Intrinsic::getAttributes(Intrinsic::ID(IID)));
+  IntrinsicID = getIntrinsicID();
+  if (IntrinsicID)
+    setAttributes(Intrinsic::getAttributes(Intrinsic::ID(IntrinsicID)));
 
 }
 
@@ -310,6 +313,10 @@ void Function::copyAttributesFrom(const GlobalValue *Src) {
 /// llvm/Intrinsics.h.
 ///
 unsigned Function::getIntrinsicID() const {
+  if (IntrinsicID != -1) {
+    return IntrinsicID;
+  }
+
   const ValueName *ValName = this->getValueName();
   if (!ValName)
     return 0;
