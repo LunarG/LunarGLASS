@@ -5,6 +5,8 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
+// Changes Copyright (C) 2011-2012 LunarG, Inc.
+//
 //===----------------------------------------------------------------------===//
 //
 // This file implements the visit functions for add, fadd, sub, and fsub.
