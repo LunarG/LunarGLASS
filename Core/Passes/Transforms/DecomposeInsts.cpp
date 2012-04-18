@@ -711,6 +711,123 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 newInst = builder.CreateNot(arg0);
             }
             break;
+        case Intrinsic::gla_fTextureSample:
+        case Intrinsic::gla_fTextureSampleLodRefZ:
+        case Intrinsic::gla_fTextureSampleLodRefZOffset:
+        case Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
+            if (backEnd->decomposeIntrinsic(EDiTextureProjection)) {
+
+                // if projection flag is set, divide all coordinates (and refZ) by projection
+                int texFlags = GetConstantInt(intrinsic->getArgOperand(GetTextureOpIndex(ETOFlag)));
+                if (texFlags & ETFProjected) {
+
+                    // insert before intrinsic since we are not replacing it
+                    builder.SetInsertPoint(inst);
+
+                    // turn off projected flag to reflect decomposition
+                    texFlags &= ~ETFProjected;
+
+                    llvm::Value* coords = intrinsic->getArgOperand(GetTextureOpIndex(ETOCoord));
+
+                    // determine how many channels are live after decomposition
+                    int newCoordWidth = 0;
+                    switch (GetConstantInt(intrinsic->getArgOperand(gla::ETOSamplerType))) {
+                    case gla::ESamplerBuffer:
+                    case gla::ESampler1D:      newCoordWidth = 1;  break;
+                    case gla::ESampler2D:
+                    case gla::ESampler2DRect:
+                    case gla::ESampler2DMS:    newCoordWidth = 2;  break;
+                    case gla::ESampler3D:      newCoordWidth = 3;  break;
+                    case gla::ESamplerCube:
+                        gla::UnsupportedFunctionality("projection with cube sampler");
+                        break;
+                    default:
+                        assert(0 && "Unknown sampler type");
+                    }
+
+                    if (texFlags & gla::ETFArrayed)
+                        gla::UnsupportedFunctionality("projection with arrayed sampler");
+
+                    // projection resides in last component
+                    llvm::Value* projIdx = MakeUnsignedConstant(module->getContext(), GetComponentCount(coords) - 1);
+                    llvm::Value* divisor = builder.CreateExtractElement(coords, projIdx);
+
+                    const llvm::Type* newCoordType;
+                    if (newCoordWidth > 1)
+                        newCoordType = llvm::VectorType::get(GetBasicType(coords), newCoordWidth);
+                    else
+                        newCoordType = GetBasicType(coords);
+
+                    // create space to hold results
+                    llvm::Value* newCoords   = llvm::UndefValue::get(newCoordType);
+                    llvm::Value* smearedProj = llvm::UndefValue::get(newCoordType);
+
+                    if (newCoordWidth > 1) {
+                        for (int i = 0; i < newCoordWidth; ++i) {
+                            llvm::Value* idx = MakeUnsignedConstant(module->getContext(), i);
+
+                            // smear projection
+                            smearedProj = builder.CreateInsertElement(smearedProj, divisor, idx);
+
+                            // shrink coordinates to remove projection component
+                            llvm::Value* oldCoord = builder.CreateExtractElement(coords, idx);
+                            newCoords = builder.CreateInsertElement(newCoords, oldCoord, idx);
+                        }
+                    } else {
+                        smearedProj = divisor;
+                        newCoords = builder.CreateExtractElement(coords, MakeUnsignedConstant(module->getContext(), 0));
+                    }
+
+                    // divide coordinates
+                    newCoords = builder.CreateFDiv(newCoords, smearedProj);
+
+                    //
+                    // Remaining code declares new intrinsic and modifies call arguments
+                    //
+
+                    // build up argTypes for flexible parameters, including result
+                    llvm::SmallVector<const llvm::Type*, 5> types;
+
+                    // result type
+                    types.push_back(intrinsic->getType());
+
+                    // use new coords to reflect shrink
+                    types.push_back(newCoords->getType());
+
+                    // add offset
+                    switch (intrinsic->getIntrinsicID()) {
+                    case Intrinsic::gla_fTextureSampleLodRefZOffset:
+                    case Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
+                        types.push_back(intrinsic->getArgOperand(ETOOffset)->getType());                        
+                    }
+
+                    // add gradients
+                    switch (intrinsic->getIntrinsicID()) {
+                    case Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
+                        types.push_back(intrinsic->getArgOperand(ETODPdx)->getType());                        
+                        types.push_back(intrinsic->getArgOperand(ETODPdy)->getType());                        
+                    }
+
+                    // declare the new intrinsic
+                    Function* texture = Intrinsic::getDeclaration(module, intrinsic->getIntrinsicID(), types.data(), types.size());
+
+                    // modify arguments to match new intrinsic
+                    intrinsic->setCalledFunction(texture);
+                    intrinsic->setArgOperand(ETOFlag, MakeUnsignedConstant(module->getContext(), texFlags));
+                    intrinsic->setArgOperand(ETOCoord, newCoords);
+                   
+                    switch (intrinsic->getIntrinsicID()) {
+                    case Intrinsic::gla_fTextureSampleLodRefZ:
+                    case Intrinsic::gla_fTextureSampleLodRefZOffset:
+                    case Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
+                        intrinsic->setArgOperand(ETORefZ, builder.CreateFDiv(intrinsic->getArgOperand(ETORefZ), divisor));
+                    }
+
+                    // mark our change, but don't replace the intrinsic
+                    changed = true;
+                }
+            }
+            break;
 
         default:
             // The cases above needs to be comprehensive in terms of checking

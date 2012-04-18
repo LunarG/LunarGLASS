@@ -111,6 +111,9 @@ namespace gla {
         // Intrinsic preferences (decompose to simpler form when possible)
         EDiPreferSwizzle,       // Make swizzles when possible
 
+        // do projection of texture coordinates
+        EDiTextureProjection,
+        
         EDiCount // number of entries in this table
     };
 

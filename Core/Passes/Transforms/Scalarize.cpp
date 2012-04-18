@@ -554,7 +554,7 @@ bool Scalarize::scalarizeOutputIntrinsic(IntrinsicInst* intr)
         dataPos = 3;
         break;
     default:
-        assert("Unknown output intrinsic");
+        assert(0 && "Unknown output intrinsic");
     }
 
     args.push_back(intr->getOperand(dataPos)); // Data
