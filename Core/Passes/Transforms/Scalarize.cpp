@@ -411,6 +411,16 @@ bool Scalarize::scalarizeShuffleVector(ShuffleVectorInst* sv)
     int size = gla::GetComponentCount(sv);
 
     for (int i = 0; i < size; ++i) {
+        // If the mask's selection is undef, that means a "don't care" value, so
+        // just assign undef.
+        Value* selectVal = mask->getOperand(i);
+        if (isa<UndefValue>(selectVal)) {
+            vVals.setComponent(i, UndefValue::get(gla::GetBasicType(sv->getOperand(0))));
+            continue;
+        }
+
+        // Otherwise look up the corresponding component from the correct
+        // source.
         int select = gla::GetConstantInt(mask->getOperand(i));
         Value* selectee;
         if (select < size) {
