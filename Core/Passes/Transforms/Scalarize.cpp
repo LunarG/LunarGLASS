@@ -416,10 +416,25 @@ bool Scalarize::scalarizeShuffleVector(ShuffleVectorInst* sv)
 
     VectorValues& vVals = vectorVals[sv];
 
-    ConstantVector* mask = dyn_cast<ConstantVector>(sv->getOperand(2));
+    Constant* mask = dyn_cast<Constant>(sv->getOperand(2));
     assert(mask && "Shuffles should have constant masks");
 
     int size = gla::GetComponentCount(sv);
+
+    // ConstantAggregateZero means just always use the first component
+    if (isa<ConstantAggregateZero>(mask)) {
+        for (int i = 0; i < size; ++i)
+            vVals.setComponent(i, getComponent(0, sv->getOperand(0)));
+
+        return true;
+    }
+
+    // An undef value means that all the components are "don't care" values
+    if (isa<UndefValue>(mask)) {
+        gla::UnsupportedFunctionality("Vector shuffle with all don't-care values");
+
+        return true;
+    }
 
     for (int i = 0; i < size; ++i) {
         // If the mask's selection is undef, that means a "don't care" value, so
@@ -432,7 +447,7 @@ bool Scalarize::scalarizeShuffleVector(ShuffleVectorInst* sv)
 
         // Otherwise look up the corresponding component from the correct
         // source.
-        int select = gla::GetConstantInt(mask->getOperand(i));
+        int select = gla::GetConstantInt(selectVal);
         Value* selectee;
         if (select < size) {
             selectee = sv->getOperand(0);
