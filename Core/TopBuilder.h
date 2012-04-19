@@ -53,7 +53,7 @@ public:
     ~Builder();
 
     //
-    // There is not matrix type in or added to LLVM for Top IR.
+    // There is no matrix type in or added to LLVM for Top IR.
     //
     // The Matrix class is a structure to encapsulate a choice of
     // how to represent a matrix in LLVM.  It is the recommended way to
@@ -144,6 +144,86 @@ public:
         } value;
     };  // end class SuperValue
 
+    //
+    // Access chain helper for an R-Value vs. L-Value design:
+    //
+    // There is a single access chain the TopBuilder is building at
+    // any particular time.  Such a chain can be used to either to a load or
+    // a store, when desired.
+    //
+    // Expressions can be r-values, l-values, or both, or only r-values:
+    //    a[b.c].d = ....  // l-value
+    //    ... = a[b.c].d;  // r-value, that also looks like an l-value
+    //    ++a[b.c].d;      // r-value and l-value
+    //    (x + y)[2];      // r-value only, can't possibly be l-value
+    //
+    // Computing an r-value means generating code.  Hence,
+    // r-values should only be computed when they are needed, not speculatively.
+    //
+    // Computing an l-value means saving away information for later use in the compiler,
+    // no code is generated until the l-value is later dereferenced.  It is okay
+    // to speculatively generate an l-value, just not okay to speculatively dereference it.
+    //
+    // It is pretty easy to have this chain work for both possible directions
+    // of building the offsets/accessors:  right-to-left or left-to-right.
+    // However, at the moment, it just does the right-to-left variety.  The
+    // offset chain reversal would need to be skipped to go left to right.
+    //
+    // The base of the access chain (the left-most variable or expression
+    // from which everything is based) can be set either as an l-value
+    // or as an r-value.  Most efficient would be to set an l-value if one
+    // is available.  If an expression was evaluated, the resulting r-value
+    // can be set as the chain base.
+    //
+    // The chain base can be set before or after the rest of the chain,
+    // but the chain itself has to be set in order from one end to the
+    // other.
+    //
+    // The users of this single access chain can save and restore if they
+    // want to nest or manage multiple chains.
+    //
+
+    struct AccessChain {
+        gla::Builder::SuperValue base;
+        std::vector<llvm::Value*> indexChain;
+        llvm::Value* gep;
+        std::vector<int> swizzle;
+        llvm::Value* component;
+        const llvm::Type* swizzleResultType;
+        int swizzleTargetWidth;
+        bool isRValue;
+    };
+
+    AccessChain getAccessChain() { return accessChain; }
+    void setAccessChain(AccessChain newChain) { accessChain = newChain; }
+
+    // clear accessChain
+    void clearAccessChain();
+
+    // set new base as an l-value base
+    void setAccessChainLValue(gla::Builder::SuperValue);
+
+    // set new base value as an r-value
+    void setAccessChainRValue(gla::Builder::SuperValue);
+
+    // push offset onto the left end of the chain
+    void accessChainPushLeft(SuperValue offset) { accessChain.indexChain.push_back(offset); }
+
+    // push swizzle onto the left of any existing swizzle
+    void accessChainPushSwizzleLeft(std::vector<int>& swizzle, const llvm::Type* type, int width);
+
+    // set pipeline input as an r-value
+    void setAccessChainPipeValue(llvm::Value*);
+
+    // use accessChain and swizzle to store value
+    void accessChainStore(gla::Builder::SuperValue);
+
+    // use accessChain and swizzle to load an r-value
+    llvm::Value* accessChainLoad();
+
+    // return an offset representing the collection of offsets in the chain
+    SuperValue Builder::collapseInputAccessChain();
+
     static llvm::Constant* getConstant(std::vector<llvm::Constant*>&, const llvm::Type*);
 
     void leaveFunction(bool main);
@@ -169,7 +249,7 @@ public:
 
     // Make a shader-style function, and create its entry block if entry is non zero.
     // Return the function, pass back the entry.
-    llvm::Function* makeFunctionEntry(const llvm::Type* type, const char* name, const std::vector<const llvm::Type*>& paramTypes, 
+    llvm::Function* makeFunctionEntry(const llvm::Type* type, const char* name, const std::vector<const llvm::Type*>& paramTypes,
                                       llvm::BasicBlock** entry = 0, bool external = false);
 
     //
@@ -317,8 +397,11 @@ public:
     // Close the innermost loop that you're in
     void closeLoop();
 
-
 protected:
+    AccessChain accessChain;
+    SuperValue collapseAccessChain();
+    void simplifyAccessChainSwizzle();
+
     llvm::Value* createMatrixTimesVector(Matrix*, llvm::Value*);
     llvm::Value* createVectorTimesMatrix(llvm::Value*, Matrix*);
 

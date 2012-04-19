@@ -53,12 +53,190 @@ Builder::Builder(llvm::IRBuilder<>& b, gla::Manager* m) :
     stageEpilogue(0),
     stageExit(0)
 {
+    clearAccessChain();
 }
 
 Builder::~Builder()
 {
     for (std::vector<Matrix*>::iterator i = matrixList.begin(); i != matrixList.end(); ++i)
         delete *i;
+}
+
+void Builder::clearAccessChain()
+{
+    accessChain.base.clear();
+    accessChain.indexChain.clear();
+    accessChain.gep = 0;
+    accessChain.swizzle.clear();
+    accessChain.component = 0;
+    accessChain.swizzleResultType = 0;
+    accessChain.swizzleTargetWidth = 0;
+    accessChain.isRValue = false;
+}
+
+void Builder::accessChainPushSwizzleLeft(std::vector<int>& swizzle, const llvm::Type* type, int width)
+{
+    // if needed, propagate the swizzle for the current access chain
+    if (accessChain.swizzle.size()) {
+        for (unsigned int i = 0; i < accessChain.swizzle.size(); ++i) {
+            accessChain.swizzle[i] = swizzle[accessChain.swizzle[i]];
+        }
+    } else {
+        accessChain.swizzleResultType = type;
+        accessChain.swizzle = swizzle;
+    }
+
+    // track width the swizzle operates on
+    accessChain.swizzleTargetWidth = width;
+
+    // determine if we need to track this swizzle anymore
+    simplifyAccessChainSwizzle();
+}
+
+// clear out swizzle if it is redundant
+void Builder::simplifyAccessChainSwizzle()
+{
+    // if swizzle has fewer components than our target, it is a writemask
+    if (accessChain.swizzleTargetWidth > (int)accessChain.swizzle.size())
+        return;
+
+    // if components are out of order, it is a swizzle
+    for (unsigned int i = 0; i < accessChain.swizzle.size(); ++i) {
+        if (i != accessChain.swizzle[i])
+            return;
+    }
+
+    // otherwise, there is no need to track this swizzle
+    accessChain.swizzle.clear();
+    accessChain.swizzleTargetWidth = 0;
+}
+
+void Builder::setAccessChainRValue(SuperValue lVal)
+{
+    setAccessChainLValue(lVal);
+    accessChain.isRValue = true;
+}
+
+void Builder::setAccessChainLValue(SuperValue lVal)
+{
+    // we're using GEP for arrays and structs, but not supporting pointers,
+    // hard code first index to zero
+    accessChain.indexChain.push_back(MakeIntConstant(context, 0));
+
+    accessChain.base = lVal;
+}
+
+void Builder::setAccessChainPipeValue(llvm::Value* val)
+{
+    // evolve the accessChain
+    accessChain.indexChain.clear();
+
+    setAccessChainRValue(val);
+}
+
+Builder::SuperValue Builder::collapseAccessChain()
+{
+    assert(accessChain.isRValue == false);
+
+    if (accessChain.indexChain.size() > 1) {
+        if (accessChain.gep == 0) {
+            std::reverse(accessChain.indexChain.begin(), accessChain.indexChain.end());
+            accessChain.gep = createGEP(accessChain.base, accessChain.indexChain);
+        }
+
+        return accessChain.gep;
+    } else {
+        return accessChain.base;
+    }
+}
+
+Builder::SuperValue Builder::collapseInputAccessChain()
+{
+    if (accessChain.indexChain.size() == 1) {
+        // no need to reverse a single index
+        return accessChain.indexChain.front();
+
+    } else if (accessChain.indexChain.size() > 1) {
+        std::reverse(accessChain.indexChain.begin(), accessChain.indexChain.end());
+        UnsupportedFunctionality("More than one dimension on input");
+    }
+
+    // if no indexChain, we have nothing to add to input slot
+    return MakeIntConstant(context, 0);
+}
+
+void Builder::accessChainStore(SuperValue value)
+{
+    assert(accessChain.isRValue == false);
+
+    SuperValue base = collapseAccessChain();
+    llvm::Value* source = value;
+
+    // if swizzle exists, it is out-of-order or not full, we must load the target vector,
+    // extract and insert elements to perform writeMask and/or swizzle
+    if (accessChain.swizzle.size()) {
+
+        llvm::Value* shadowVector = createLoad(base);
+
+        // walk through the swizzle
+        for (unsigned int i = 0; i < accessChain.swizzle.size(); ++i) {
+
+            // extract scalar if needed
+            llvm::Value* component = value;
+            if (IsVector(component))
+                component = builder.CreateExtractElement(value, MakeIntConstant(context, i));
+
+            assert(IsScalar(component));
+
+            // insert to our target at swizzled index
+            shadowVector = builder.CreateInsertElement(shadowVector, component, MakeIntConstant(context, accessChain.swizzle[i]));
+        }
+
+        source = shadowVector;
+    }
+
+    if (accessChain.component)
+        UnsupportedFunctionality("store to variable vector channel");
+
+    createStore(source, base);
+}
+
+llvm::Value* Builder::accessChainLoad()
+{
+    SuperValue base = accessChain.base;
+    llvm::Value* value;
+
+    if (accessChain.isRValue) {
+        if (accessChain.indexChain.size() > 1) {
+
+            // create space for our r-value on the stack
+            SuperValue lVal;
+            lVal = createVariable(ESQLocal, 0, accessChain.base->getType(), false, 0, 0, "indexable");
+
+            // store into it
+            createStore(accessChain.base, lVal);
+
+            // move base to the new alloca
+            accessChain.base = lVal;
+            accessChain.isRValue = false;
+
+            // GEP from local alloca
+            value = createLoad(collapseAccessChain());
+
+        } else {
+            value = accessChain.base;
+        }
+    } else {
+        value = createLoad(collapseAccessChain());
+    }
+
+    if (accessChain.component)
+        UnsupportedFunctionality("extract from variable vector component");
+
+    if (accessChain.swizzle.size())
+        value = createSwizzle(value, accessChain.swizzle, accessChain.swizzleResultType);
+
+    return value;
 }
 
 void Builder::leaveFunction(bool main)
@@ -339,7 +517,7 @@ Builder::SuperValue Builder::createInsertValue(SuperValue target, SuperValue sou
 void Builder::copyOutPipeline()
 {
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
-        llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);        
+        llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);
         writePipeline(loadVal, MakeUnsignedConstant(context, out));
     }
 }
