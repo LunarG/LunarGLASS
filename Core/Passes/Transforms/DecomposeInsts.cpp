@@ -381,8 +381,15 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             break;
         case Intrinsic::gla_fMix:
             if (backEnd->decomposeIntrinsic(EDiMix)) {
-                UnsupportedFunctionality("decomposition of gla_fMix");
-                //changed = true;
+                //
+                // genType mix (x, y, a) = x * (1 - a) + y * a
+                //
+                llvm::Value* t;
+                t = builder.CreateFNeg(arg2);
+                t = AddWithConstant(builder, t, 1.0);
+                t = builder.CreateFMul(arg0, t);
+                newInst = builder.CreateFMul(arg1, arg2);
+                newInst = builder.CreateFAdd(t, newInst);
             }
             break;
         case Intrinsic::gla_fStep:
