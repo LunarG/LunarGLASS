@@ -350,7 +350,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
 
                 Function* log = Intrinsic::getDeclaration(module, Intrinsic::gla_fLog2, argTypes, 2);
                 newInst = builder.CreateCall(log, arg0);
-                newInst = MultiplyByConstant(builder, arg0, multiplier);
+                newInst = MultiplyByConstant(builder, newInst, multiplier);
             }
             break;
 
@@ -798,14 +798,14 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     switch (intrinsic->getIntrinsicID()) {
                     case Intrinsic::gla_fTextureSampleLodRefZOffset:
                     case Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
-                        types.push_back(intrinsic->getArgOperand(ETOOffset)->getType());                        
+                        types.push_back(intrinsic->getArgOperand(ETOOffset)->getType());
                     }
 
                     // add gradients
                     switch (intrinsic->getIntrinsicID()) {
                     case Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
-                        types.push_back(intrinsic->getArgOperand(ETODPdx)->getType());                        
-                        types.push_back(intrinsic->getArgOperand(ETODPdy)->getType());                        
+                        types.push_back(intrinsic->getArgOperand(ETODPdx)->getType());
+                        types.push_back(intrinsic->getArgOperand(ETODPdy)->getType());
                     }
 
                     // declare the new intrinsic
@@ -815,7 +815,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     intrinsic->setCalledFunction(texture);
                     intrinsic->setArgOperand(ETOFlag, MakeUnsignedConstant(module->getContext(), texFlags));
                     intrinsic->setArgOperand(ETOCoord, newCoords);
-                   
+
                     switch (intrinsic->getIntrinsicID()) {
                     case Intrinsic::gla_fTextureSampleLodRefZ:
                     case Intrinsic::gla_fTextureSampleLodRefZOffset:
