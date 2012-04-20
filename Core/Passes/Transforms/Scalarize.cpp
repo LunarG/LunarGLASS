@@ -172,7 +172,7 @@ Value* Scalarize::getComponent(int component, Value* v)
         if (ConstantVector* c = dyn_cast<ConstantVector>(v)) {
             return c->getOperand(component);
         } else if (isa<ConstantAggregateZero>(v)) {
-            return Constant::getNullValue(v->getType());
+            return Constant::getNullValue(gla::GetBasicType(v));
         } else if (isa<UndefValue>(v)) {
             return UndefValue::get(gla::GetBasicType(v));
         } else {
