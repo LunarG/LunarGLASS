@@ -222,7 +222,7 @@ public:
     llvm::Value* accessChainLoad();
 
     // return an offset representing the collection of offsets in the chain
-    SuperValue Builder::collapseInputAccessChain();
+    SuperValue collapseInputAccessChain();
 
     static llvm::Constant* getConstant(std::vector<llvm::Constant*>&, const llvm::Type*);
 
