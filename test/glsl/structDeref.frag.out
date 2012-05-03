@@ -141,60 +141,44 @@ entry:
   %gla_constGEP = getelementptr %s3 addrspace(2)* @foo3, i32 0, i32 0, i32 9, i32 0
   %0 = load i32 addrspace(2)* %gla_constGEP, align 4
   %1 = icmp sgt i32 %0, 0
-  br i1 %1, label %then, label %else
-
-then:                                             ; preds = %entry
   %2 = load %s1 addrspace(2)* @foo1, align 4
   %aggregate = load [10 x %s1]* @gla_globalAgg
   %locals1Array1 = insertvalue [10 x %s1] %aggregate, %s1 %2, 6
-  br label %ifmerge
-
-else:                                             ; preds = %entry
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %3 = extractelement <2 x float> %coord, i32 1
-  %aggregate16 = load %s1* @gla_globalAgg1
-  %assignment_tmp3 = insertvalue %s1 %aggregate16, float %3, 1
+  %aggregate21 = load %s1* @gla_globalAgg1
+  %assignment_tmp3 = insertvalue %s1 %aggregate21, float %3, 1
   %4 = load %s0 addrspace(2)* @foo0, align 4
   %assignment_tmp4 = insertvalue %s1 %assignment_tmp3, %s0 %4, 2
-  %aggregate17 = load [10 x %s1]* @gla_globalAgg2
-  %locals1Array6 = insertvalue [10 x %s1] %aggregate17, %s1 %assignment_tmp4, 6
-  %gla_constGEP18 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
-  %5 = load i32 addrspace(2)* %gla_constGEP18, align 4
-  %gla_constGEP19 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0
-  %locals00_s0_010 = load %s0 addrspace(2)* %gla_constGEP19, align 4
-  br label %ifmerge
-
-ifmerge:                                          ; preds = %else, %then
-  %fArray.0 = phi [6 x float] [ zeroinitializer, %then ], [ [float 0.000000e+00, float 1.000000e+00, float 2.000000e+00, float 3.000000e+00, float 4.000000e+00, float 5.000000e+00], %else ]
-  %locals00_s0_0.0 = phi %s0 [ zeroinitializer, %then ], [ %locals00_s0_010, %else ]
-  %locals2_s1_1.0 = phi %s1 [ { i32 0, float 1.000000e+00, %s0 zeroinitializer }, %then ], [ %assignment_tmp4, %else ]
-  %locals0_i.0 = phi i32 [ 0, %then ], [ %5, %else ]
-  %locals1Array.0 = phi [10 x %s1] [ %locals1Array1, %then ], [ %locals1Array6, %else ]
-  %6 = icmp sgt i32 %locals0_i.0, 5
-  br i1 %6, label %then11, label %ifmerge13
-
-then11:                                           ; preds = %ifmerge
-  %locals0_i12 = extractvalue %s0 %locals00_s0_0.0, 0
-  br label %ifmerge13
-
-ifmerge13:                                        ; preds = %ifmerge, %then11
-  %locals0_i.1 = phi i32 [ %locals0_i12, %then11 ], [ %locals0_i.0, %ifmerge ]
-  %7 = sitofp i32 %locals0_i.1 to float
-  %8 = extractvalue [10 x %s1] %locals1Array.0, 6, 1
+  %aggregate22 = load [10 x %s1]* @gla_globalAgg2
+  %locals1Array6 = insertvalue [10 x %s1] %aggregate22, %s1 %assignment_tmp4, 6
+  %gla_constGEP23 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
+  %5 = load i32 addrspace(2)* %gla_constGEP23, align 4
+  %gla_constGEP24 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0
+  %locals00_s0_010 = load %s0 addrspace(2)* %gla_constGEP24, align 4
+  %select16 = select i1 %1, [6 x float] zeroinitializer, [6 x float] [float 0.000000e+00, float 1.000000e+00, float 2.000000e+00, float 3.000000e+00, float 4.000000e+00, float 5.000000e+00]
+  %select17 = select i1 %1, %s0 zeroinitializer, %s0 %locals00_s0_010
+  %select18 = select i1 %1, %s1 { i32 0, float 1.000000e+00, %s0 zeroinitializer }, %s1 %assignment_tmp4
+  %select19 = select i1 %1, i32 0, i32 %5
+  %select20 = select i1 %1, [10 x %s1] %locals1Array1, [10 x %s1] %locals1Array6
+  %6 = icmp sgt i32 %select19, 5
+  %locals0_i12 = extractvalue %s0 %select17, 0
+  %select = select i1 %6, i32 %locals0_i12, i32 %select19
+  %7 = sitofp i32 %select to float
+  %8 = extractvalue [10 x %s1] %select20, 6, 1
   %9 = fadd float %7, %8
-  %10 = extractvalue [6 x float] %fArray.0, 3
+  %10 = extractvalue [6 x float] %select16, 3
   %11 = fadd float %9, %10
-  %12 = extractvalue %s1 %locals2_s1_1.0, 1
+  %12 = extractvalue %s1 %select18, 1
   %13 = fadd float %11, %12
   %14 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %13, <4 x i32> zeroinitializer)
   %15 = load i32 addrspace(1)* @"sampler2D sampler", align 4
-  %coord14 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %16 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %15, i32 0, <2 x float> %coord14)
+  %16 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %15, i32 0, <2 x float> %coord)
   %gl_FragColor = fmul <4 x float> %14, %16
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge13
+stage-epilogue:                                   ; preds = %entry
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -319,64 +303,43 @@ s1[10] gla_globalAgg;
 s1 gla_globalAgg1;
 const int const21_1 = 1;
 s1[10] gla_globalAgg2;
-const int const30_0 = 0;
-const float[6] const31 = float[6](0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-const s0 const32 = s0(0);
-const s1 const33 = s1(0, 1.0, s0(0));
+const int const24_0 = 0;
 in vec2 coord;
-const float[6] const36 = float[6](0.0, 1.0, 2.0, 3.0, 4.0, 5.0);
-const int const38_5 = 5;
-in vec2 coord14;
+const float[6] const28 = float[6](0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+const float[6] const29 = float[6](0.0, 1.0, 2.0, 3.0, 4.0, 5.0);
+const s0 const31 = s0(0);
+const s1 const33 = s1(0, 1.0, s0(0));
+const int const37_5 = 5;
 
 void main()
 {
     gla_globalAgg1.member0 = const21_1;
     
-    float[6] fArray_0;
-    s0 locals00_s0_0_0;
-    s1 locals2_s1_1_0;
-    int locals0_i_0;
-    s1[10] locals1Array_0;
-    int locals0_i_1;
-    int temp28 = foo3.member0[9].member0;
-    bool temp29 = temp28 > const30_0;
-    if (temp29) {
-        gla_globalAgg[6] = foo1;
-        fArray_0 = const31;
-        locals00_s0_0_0 = const32;
-        locals2_s1_1_0 = const33;
-        locals0_i_0 = const30_0;
-        locals1Array_0 = gla_globalAgg;
-    }
-    else {
-        gla_globalAgg1.member1 = coord.y;
-        gla_globalAgg1.member2 = foo0;
-        gla_globalAgg2[6] = gla_globalAgg1;
-        int temp34 = foo1.member2.member0;
-        s0 locals00_s0_010 = foo00.member0;
-        fArray_0 = const36;
-        locals00_s0_0_0 = locals00_s0_010;
-        locals2_s1_1_0 = gla_globalAgg1;
-        locals0_i_0 = temp34;
-        locals1Array_0 = gla_globalAgg2;
-    }
-    
-    bool temp37 = locals0_i_0 > const38_5;
-    locals0_i_1 = locals0_i_0;
-    if (temp37) {
-        int locals0_i12 = locals00_s0_0_0.member0;
-        locals0_i_1 = locals0_i12;
-    }
-    
-    float temp40 = float(locals0_i_1);
-    float temp41 = locals1Array_0[6].member1;
+    int temp22 = foo3.member0[9].member0;
+    bool temp23 = temp22 > const24_0;
+    gla_globalAgg[6] = foo1;
+    gla_globalAgg1.member1 = coord.y;
+    gla_globalAgg1.member2 = foo0;
+    gla_globalAgg2[6] = gla_globalAgg1;
+    int temp25 = foo1.member2.member0;
+    s0 locals00_s0_010 = foo00.member0;
+    float[6] select16 = temp23 ? const28 : const29;
+    s0 select17 = temp23 ? const31 : locals00_s0_010;
+    s1 select18 = temp23 ? const33 : gla_globalAgg1;
+    int select19 = temp23 ? const24_0 : temp25;
+    s1[10] select20 = temp23 ? gla_globalAgg : gla_globalAgg2;
+    bool temp36 = select19 > const37_5;
+    int locals0_i12 = select17.member0;
+    int select = temp36 ? locals0_i12 : select19;
+    float temp40 = float(select);
+    float temp41 = select20[6].member1;
     float temp42 = temp40 + temp41;
-    float temp43 = fArray_0[3];
+    float temp43 = select16[3];
     float temp44 = temp42 + temp43;
-    float temp45 = locals2_s1_1_0.member1;
+    float temp45 = select18.member1;
     float temp46 = temp44 + temp45;
     vec4 temp47 = vec4(temp46);
-    vec4 temp48 = texture2D(sampler, coord14);
+    vec4 temp48 = texture2D(sampler, coord);
     vec4 gla_copyout_gl_FragColor = temp47 * temp48;
     gl_FragColor = gla_copyout_gl_FragColor;
     

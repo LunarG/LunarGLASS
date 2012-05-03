@@ -42,45 +42,27 @@ void Conditional::recalculate()
     }
 
     leftChildren.clear();
-    leftChildren.push_back(left);
     rightChildren.clear();
-    rightChildren.push_back(right);
+
+    // Re-calculate the dominance frontiers for the left and right children
+    DominanceFrontier::DomSetType& leftDomFront  = domFront->find(left)->second;
+    DominanceFrontier::DomSetType& rightDomFront = domFront->find(right)->second;
+    leftDomFront.clear();
+    rightDomFront.clear();
+
+    domFront->calculate(*domTree, domTree->getNode(left));
+    domFront->calculate(*domTree, domTree->getNode(right));
+
 
     // Calculate merges
     GetMergePoints(right, left, *domFront, merges);
 
     // Filter and exclude blocks from merges.
-    if (mergesFilter.size())
+    Loop* loop = loopInfo->getLoopFor(entry);
+    if (loop) {
+        Filter mergesFilter = Filter(loop->block_begin(), loop->block_end());
         SetIntersect(merges, mergesFilter);
-
-    DominanceFrontier::DomSetType leftDomFront  = domFront->find(left)->second;
-    DominanceFrontier::DomSetType rightDomFront = domFront->find(right)->second;
-
-    // Set up which subgraphs have early returns/discards
-    // leftDiscards  = false;
-    // leftReturns   = false;
-    // rightDiscards = false;
-    // rightReturns  = false;
-
-    // if (stageExit && merges.count(stageExit)) {
-    //     leftDiscards = true;
-    //     rightDiscards = true;
-    // }
-
-    // if (stageEpilogue && merges.count(stageEpilogue)) {
-    //     leftReturns = true;
-    //     rightReturns = true;
-    // }
-
-    // if (stageEpilogue && (! leftReturns || ! rightReturns)) {
-    //     leftReturns  = leftDomFront.count(stageEpilogue);
-    //     rightReturns = rightDomFront.count(stageEpilogue);
-    // }
-
-    // if (stageExit && (! leftDiscards || ! rightDiscards)) {
-    //     leftDiscards  = leftDomFront.count(stageExit);
-    //     rightDiscards = rightDomFront.count(stageExit);
-    // }
+    }
 
     merge = 0;
 
@@ -127,17 +109,6 @@ void Conditional::recalculate()
     if (merges.size() == 1)
         merge = *merges.begin();
 
-    // If we're if-then, does the then block's dominance
-
-    // If left or right is the merge, then clear out the children vectors (as we
-    // don't want them to hold the merge point)
-    if (left == merge) {
-        leftChildren.clear();
-    }
-    if (right == merge) {
-        rightChildren.clear();
-    }
-
 
     // Is it self contained?
     if (! merge)
@@ -154,9 +125,6 @@ void Conditional::recalculate()
 
     if (! isIfThen())
         GetDominatedChildren(*domTree, right, rightChildren);
-
-    // Is it an empty conditional?
-    emptyConditional = selfContained && AreEmptyBB(leftChildren) && AreEmptyBB(rightChildren);
 }
 
 bool Conditional::createMergeSelects()
@@ -166,8 +134,8 @@ bool Conditional::createMergeSelects()
 
     bool changed = false;
 
-    // We only work on empty left and right blocks for now.
-    if (! IsEmptyBB(left) || ! IsEmptyBB(right))
+    // We only work on empty conditionals
+    if (! isEmptyConditional())
         return changed;
 
     // Check all the phis, and change any of the ones that receive their value
@@ -188,10 +156,13 @@ bool Conditional::createMergeSelects()
         Value* leftVal = NULL;
         Value* rightVal = NULL;
 
+        BasicBlock* leftIncoming = isIfElse() ? entry : left;
+        BasicBlock* rightIncoming = isIfThen() ? entry : right;
+
         for (int i = 0; i < 2; ++i) {
-            if (pn->getIncomingBlock(i) == left)
+            if (pn->getIncomingBlock(i) == leftIncoming)
                 leftVal = pn->getIncomingValue(i);
-            else if (pn->getIncomingBlock(i) == right)
+            else if (pn->getIncomingBlock(i) == rightIncoming)
                 rightVal = pn->getIncomingValue(i);
         }
 

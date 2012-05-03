@@ -57,11 +57,21 @@
 #include "Passes/PassSupport.h"
 #include "Passes/Analysis/IdentifyStructures.h"
 #include "Passes/Util/BasicBlockUtil.h"
+#include "Passes/Util/InstructionUtil.h"
 
 using namespace llvm;
 using namespace gla_llvm;
 
 namespace  {
+
+    // Whether an instruction shouldn't be hoisted for conditional
+    // flattening, e.g. side-effects or texture calls.
+    bool DontHoist(const Instruction& inst)
+    {
+        // TODO: Expand, possibly with backend queries
+        return inst.mayWriteToMemory() || IsTextureInstruction(&inst);
+    }
+
     class FlattenCondAssn : public FunctionPass {
     public:
         // Standard pass stuff
@@ -97,6 +107,46 @@ namespace  {
             cond->recalculate();
             return cond->removeIfEmpty() || cond->removeIfUnconditional();
         }
+
+        // Whether we should hoist instructions for this conditional, i.e. if
+        // it's a simple conditional that's under the threshHold.
+        bool shouldHoist(Conditional* c) const
+        {
+            if (! c->isSimpleConditional())
+                return false;
+
+            // TODO: Make more robust, more intrinsic aware, and guided by
+            // backend queries
+            int threshHold = 20;
+
+            return  checkHoistableInstructions(c) && checkThreshHold(c, threshHold);
+
+        }
+
+        // Hoist the instructions in the given (simple) conditional into the
+        // entry block.
+        void hoistInsts(Conditional*);
+
+        // Whether the given conditional's then and else block sizes are
+        // less than the threshHold
+        bool checkThreshHold(Conditional* c, int threshHold) const
+        {
+            int thenSize = c->isIfElse() ? 0 : c->getThenBlock()->size() - 1;
+            int elseSize = c->isIfThen() ? 0 : c->getElseBlock()->size() - 1;
+
+            return threshHold > thenSize + elseSize;
+        }
+
+        // Whether the given conditional's then and else blocks' instructions
+        // are hoistable or desirable to hoist
+        bool checkHoistableInstructions(Conditional* c) const
+        {
+            bool thenOk = c->isIfElse() ? true : ! Any(c->getThenBlock()->getInstList(), DontHoist);
+            bool elseOk = c->isIfThen() ? true : ! Any(c->getElseBlock()->getInstList(), DontHoist);
+
+            return thenOk && elseOk;
+        }
+
     };
 } // end namespace
 
@@ -114,12 +164,27 @@ bool FlattenCondAssn::runOnFunction(Function& F)
     return changed;
 }
 
+void FlattenCondAssn::hoistInsts(Conditional* cond)
+{
+    // Hoist them
+    if (! cond->isIfElse()) {
+        Hoist(cond->getThenBlock(), cond->getEntryBlock());
+    }
+    if (! cond->isIfThen()) {
+        Hoist(cond->getElseBlock(), cond->getEntryBlock());
+    }
+
+    cond->recalculate();
+    assert(cond->isEmptyConditional() && "non-empty post-hoist");
+}
+
 bool FlattenCondAssn::flattenConds()
 {
     bool changed = false;
 
     for (IdentifyStructures::conditional_iterator i = idStructures->conditional_begin(), e = idStructures->conditional_end(); i != e; ++i) {
         Conditional* cond = i->second;
+        cond->recalculate();
 
         if (!cond || !cond->getMergeBlock())
             continue;
@@ -133,6 +198,11 @@ bool FlattenCondAssn::flattenConds()
                 && domTree->dominates(entry, cond->getMergeBlock()))) {
             continue;
         }
+
+        // Check to see if we should hoist instructions, and if so then hoist
+        // them
+        if (shouldHoist(cond))
+            hoistInsts(cond);
 
         // Move all the conditional assignments out, iteratively in case of some
         // interdependence

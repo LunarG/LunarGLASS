@@ -341,13 +341,14 @@ void BottomTranslator::addPhiCopies(const BasicBlock* curBB, const BasicBlock* n
     if (! backEnd->getRemovePhiFunctions())
         return;
 
-    // for each llvm phi node, add a copy instruction
+    // For each llvm phi node, add a copy instruction
     for (BasicBlock::const_iterator i = nextBB->begin(), e = nextBB->end(); i != e; ++i) {
         const PHINode *phiNode = dyn_cast<PHINode>(i);
 
-        if (phiNode) {
+        if (phiNode)
             addPhiCopy(phiNode, curBB);
-        }
+        else
+            break;
     }
 }
 
@@ -587,6 +588,7 @@ void BottomTranslator::handleIfBlock(const BasicBlock* bb)
 {
     Conditional* cond = idStructs->getConditional(bb);
     assert(cond);
+    assert(! cond->hasSharedMerge() && "Given shared merge");
 
     // We shouldn't be called for any loop-relevant block that isn't a header
     assert(loops.empty() || loops.top()->isHeader(bb) || ! loops.top()->isLoopRelevant(bb));
@@ -786,22 +788,31 @@ void BottomTranslator::setUpLoopExit(const Value* condition, const BasicBlock* b
 
     int exitPos = loop->exitSuccNumber(bb);
     assert(exitPos != -1);
+
     if (exitPos == 2)
         gla::UnsupportedFunctionality("complex loop exits (two exit branches from same block)");
 
     const BasicBlock* exit      = GetSuccessor(exitPos, bb);
     assert(exit);
 
-    // Set up the conditional, and add the exit block subgraph if it isn't
-    // the exit merge.
-    if (shouldOutput && condition)
-        backEndTranslator->addIf(condition, exitPos == 1);
+    const BasicBlock* exitMerge = loop->getExitMerge();
+    assert((exitMerge || loop->hasReturn() || loop->hasDiscard()) && "unstructured control flow");
+
+    bool invertCondition = exitPos == 1;
+    bool hasExitCode = exit != exitMerge;
+    bool hasExitPhis = isa<PHINode>(exit->front());
+
+    // We need to make an if-then to hold the break if there's exit code or exit
+    // phis and there's a condition.
+    bool wrapInConditional = condition && shouldOutput && (hasExitCode || hasExitPhis);
+
+    // Set up the conditional if we have exit code or we have phi copies to
+    // make, and add the exit block subgraph if it isn't the exit merge.
+    if (wrapInConditional)
+        backEndTranslator->addIf(condition, invertCondition);
 
     // Add phi copies (if applicable)
     addPhiCopies(bb, exit);
-
-    const BasicBlock* exitMerge = loop->getExitMerge();
-    assert((exitMerge || loop->hasReturn() || loop->hasDiscard()) && "unstructured control flow");
 
     // Output the exit if we should
     if (shouldOutput) {
@@ -822,10 +833,14 @@ void BottomTranslator::setUpLoopExit(const Value* condition, const BasicBlock* b
         targets.push_back(stageExit);
         targets.push_back(stageEpilogue);
         if (! ContainedDominanceFrontier(exit, targets, *domFront)) {
-            backEndTranslator->addLoopExit();
+            if (wrapInConditional) {
+                backEndTranslator->addLoopExit();
+            } else {
+                backEndTranslator->addLoopExit(condition, invertCondition);
+            }
         }
 
-        if (condition)
+        if (wrapInConditional)
             backEndTranslator->addEndif();
     }
 

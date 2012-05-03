@@ -85,9 +85,6 @@ entry:
   %gla_constGEP = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 1, i32 0
   %0 = load i32 addrspace(2)* %gla_constGEP, align 4
   %1 = icmp sgt i32 %0, 0
-  br i1 %1, label %then, label %else
-
-then:                                             ; preds = %entry
   %gla_constGEP4 = getelementptr %lunarStruct1 addrspace(2)* @foo, i32 0, i32 0
   %2 = load i32 addrspace(2)* %gla_constGEP4, align 4
   %3 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 %2, i32 0
@@ -96,15 +93,9 @@ then:                                             ; preds = %entry
   %6 = add i32 %4, 3
   %7 = add i32 %6, %5
   %8 = getelementptr [6 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 %7, i32 2, i32 1
-  br label %ifmerge
-
-else:                                             ; preds = %entry
   %gla_constGEP5 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 0, i32 2, i32 1
-  br label %ifmerge
-
-ifmerge:                                          ; preds = %else, %then
-  %scale.0.in = phi float addrspace(2)* [ %8, %then ], [ %gla_constGEP5, %else ]
-  %scale.0 = load float addrspace(2)* %scale.0.in, align 4
+  %select = select i1 %1, float addrspace(2)* %8, float addrspace(2)* %gla_constGEP5
+  %scale.0 = load float addrspace(2)* %select, align 4
   %9 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %scale.0, <4 x i32> zeroinitializer)
   %10 = load i32 addrspace(1)* @"sampler2D sampler", align 4
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
@@ -113,7 +104,7 @@ ifmerge:                                          ; preds = %else, %then
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge
+stage-epilogue:                                   ; preds = %entry
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -195,27 +186,20 @@ uniform lunarStruct1 foo;
 uniform int Count;
 uniform lunarStruct2[6] foo2;
 uniform sampler2D sampler;
-const int const24_0 = 0;
-const int const28_3 = 3;
+const int const23_0 = 0;
+const int const27_3 = 3;
 in vec2 coord;
 
 void main()
 {
-    float scale_0_in;
-    int temp22 = foo3.member0[1].member0;
-    bool temp23 = temp22 > const24_0;
-    if (temp23) {
-        int temp25 = foo.member0;
-        int temp26 = foo3.member0[temp25].member0;
-        int temp27 = temp26 + const28_3;
-        int temp29 = temp27 + Count;
-        scale_0_in = foo2[temp29].member2.member1;
-    }
-    else {
-        scale_0_in = foo3.member0[0].member2.member1;
-    }
-    
-    vec4 temp30 = vec4(scale_0_in);
+    int temp21 = foo3.member0[1].member0;
+    bool temp22 = temp21 > const23_0;
+    int temp24 = foo.member0;
+    int temp25 = foo3.member0[temp24].member0;
+    int temp26 = temp25 + const27_3;
+    int temp28 = temp26 + Count;
+    float select = temp22 ? foo2[temp28].member2.member1 : foo3.member0[0].member2.member1;
+    vec4 temp30 = vec4(select);
     vec4 temp31 = texture2D(sampler, coord);
     vec4 gla_copyout_gl_FragColor = temp30 * temp31;
     gl_FragColor = gla_copyout_gl_FragColor;

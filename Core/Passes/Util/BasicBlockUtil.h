@@ -37,6 +37,8 @@
 #include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Support/CFG.h"
+#include "llvm/Transforms/Utils/BasicBlockUtils.h"
+
 
 #include "Passes/Util/ADT.h"
 
@@ -56,12 +58,12 @@ namespace gla_llvm {
         return bb->getFirstNonPHIOrDbg() == bb->getTerminator();
     }
 
-    inline bool AreEmptyBB(SmallVectorImpl<BasicBlock*>& bbs)
+    inline bool AreEmptyBB(const SmallVectorImpl<BasicBlock*>& bbs)
     {
         if (bbs.empty())
             return true;
 
-        for (SmallVectorImpl<BasicBlock*>::iterator i = bbs.begin(), e = bbs.end(); i != e; ++i)
+        for (SmallVectorImpl<BasicBlock*>::const_iterator i = bbs.begin(), e = bbs.end(); i != e; ++i)
             if (! IsEmptyBB(*i))
                 return false;
 
@@ -131,6 +133,8 @@ namespace gla_llvm {
         for (BasicBlock::const_iterator i = bb->begin(), e = bb->end(); i != e; ++i)
             if (const PHINode* pn = dyn_cast<PHINode>(i))
                 phis.insert(pn);
+            else
+                break;
     }
 
     inline bool HasPHINodes(const BasicBlock* bb)
@@ -138,6 +142,8 @@ namespace gla_llvm {
         for (BasicBlock::const_iterator i = bb->begin(), e = bb->end(); i != e; ++i)
             if (isa<PHINode>(i))
                 return true;
+            else
+                break;
 
         return false;
     }
@@ -171,16 +177,6 @@ namespace gla_llvm {
         assert(bb->empty());
     }
 
-    // Remove bb from each successor's predecessor list, from it's function, and
-    // drop all references. Clears its instruction list.
-    inline void EraseBB(BasicBlock* bb)
-    {
-        for (succ_iterator i = succ_begin(bb), e = succ_end(bb); i != e; ++i)
-            (*i)->removePredecessor(bb);
-
-        UnlinkBB(bb);
-    }
-
     // Prune bb from its function, and from the dominator tree. This will
     // unlink/erase bb, and any block that it dominates, updating the dominator
     // tree as it goes along. It may be advisable to call this only with a
@@ -192,8 +188,10 @@ namespace gla_llvm {
     inline void PruneCFG(BasicBlock* bb, DominatorTree& dt)
     {
         DomTreeNode* dtn = dt.getNode(bb);
-        if (! dtn)
+        if (! dtn) {
+            DeleteDeadBlock(bb);
             return;
+        }
 
         SmallVector<DomTreeNode*,32> workList;
         for (po_iterator<DomTreeNode*> i = po_begin(dtn), e = po_end(dtn); i != e; ++i) {
@@ -211,7 +209,7 @@ namespace gla_llvm {
             (*dtn)->clearAllChildren();
             BasicBlock* toRemove = (*dtn)->getBlock();
             dt.eraseNode(toRemove);
-            EraseBB(toRemove);
+            DeleteDeadBlock(toRemove);
         }
     }
 
@@ -371,6 +369,30 @@ namespace gla_llvm {
         bbs.push_back(bb1);
         bbs.push_back(bb2);
         GetMergePoints(bbs, domFront, merges);
+    }
+
+
+    // Hoist all the instructions from src to just before dst. The caller should
+    // make sure that hoisting is valid before calling this.
+    inline void Hoist(BasicBlock* src, Instruction* dst)
+    {
+        for (BasicBlock::iterator instI = src->begin(), instE = src->end(); instI != instE; /* empty */) {
+            Instruction* i = instI;
+            ++instI;
+
+            if (i == src->getTerminator())
+                break;
+
+            i->moveBefore(dst);
+        }
+
+        assert(IsEmptyBB(src));
+    }
+
+    // Basic Block version of the above --- move before dst's terminator
+    inline void Hoist(BasicBlock* src, BasicBlock* dst)
+    {
+        Hoist(src, dst->getTerminator());
     }
 
 } // end namespace gla_llvm

@@ -199,31 +199,20 @@ entry:
   %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
   %0 = load float addrspace(2)* @d, align 4
   %1 = fcmp ogt float %c, %0
-  br i1 %1, label %then, label %else
-
-then:                                             ; preds = %entry
   %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %2 = load <4 x float> addrspace(2)* @bigColor, align 16
-  %color2 = fadd <4 x float> %BaseColor1, %2
-  br label %ifmerge
-
-else:                                             ; preds = %entry
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %3 = load <4 x float> addrspace(2)* @smallColor, align 16
-  %color3 = fadd <4 x float> %BaseColor, %3
-  br label %ifmerge
-
-ifmerge:                                          ; preds = %else, %then
-  %color.0 = phi <4 x float> [ %color2, %then ], [ %color3, %else ]
-  %4 = extractelement <4 x float> %color.0, i32 2
+  %select.v = select i1 %1, <4 x float> %2, <4 x float> %3
+  %select = fadd <4 x float> %BaseColor1, %select.v
+  %4 = extractelement <4 x float> %select, i32 2
   %5 = load float addrspace(2)* @minimum, align 4
   %6 = fcmp olt float %4, %5
   br i1 %6, label %then4, label %ifmerge5
 
-then4:                                            ; preds = %ifmerge
+then4:                                            ; preds = %entry
   br label %stage-epilogue
 
-ifmerge5:                                         ; preds = %ifmerge
+ifmerge5:                                         ; preds = %entry
   %7 = fadd float %4, 1.000000e+00
   %8 = load float addrspace(2)* @threshhold, align 4
   %9 = fcmp ogt float %7, %8
@@ -234,7 +223,7 @@ then7:                                            ; preds = %ifmerge5
   br label %stage-exit
 
 ifmerge8:                                         ; preds = %ifmerge5
-  %10 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.0, i32 4, float undef, i32 undef, float undef, i32 undef, float %7, i32 0, float undef, i32 undef)
+  %10 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %select, i32 4, float undef, i32 undef, float undef, i32 undef, float %7, i32 0, float undef, i32 undef)
   %assignment_tmp9 = fadd <4 x float> %10, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   %11 = extractelement <4 x float> %assignment_tmp9, i32 3
   %12 = load float addrspace(2)* @threshhold2, align 4
@@ -422,64 +411,55 @@ uniform bool b;
 uniform vec4 otherColor;
 in float c;
 in vec4 BaseColor1;
-in vec4 BaseColor;
-const vec4 const28 = vec4(0.0);
-const float const30_1f = 1.0;
-const vec4 const34 = vec4(1.0);
+const vec4 const27 = vec4(0.0);
+const float const29_1f = 1.0;
+const vec4 const33 = vec4(1.0);
 
 void main()
 {
-    vec4 color_0;
     vec4 color_1;
     vec4 gla_copyout_gl_FragColor32_0;
-    bool temp24 = c > d;
-    if (temp24) {
-        vec4 color2 = BaseColor1 + bigColor;
-        color_0 = color2;
-    }
-    else {
-        vec4 color3 = BaseColor + smallColor;
-        color_0 = color3;
-    }
-    
-    bool temp27 = color_0.z < minimum;
-    if (temp27) {
-        gla_copyout_gl_FragColor32_0 = const28;
+    bool temp23 = c > d;
+    vec4 select_v = temp23 ? bigColor : smallColor;
+    vec4 select = BaseColor1 + select_v;
+    bool temp26 = select.z < minimum;
+    if (temp26) {
+        gla_copyout_gl_FragColor32_0 = const27;
         gl_FragColor = gla_copyout_gl_FragColor32_0;
         return;
     }
     else {
-        float temp29 = color_0.z + const30_1f;
-        bool temp31 = temp29 > threshhold;
-        if (temp31) {
+        float temp28 = select.z + const29_1f;
+        bool temp30 = temp28 > threshhold;
+        if (temp30) {
             discard;
         }
         
-        vec4 temp32 = color_0;
-        temp32.z = temp29;
-        vec4 assignment_tmp9 = temp32 + const34;
-        bool temp35 = assignment_tmp9.w > threshhold2;
-        if (temp35) {
-            bool temp36 = assignment_tmp9.z > threshhold2;
-            if (temp36) {
-                gla_copyout_gl_FragColor32_0 = const28;
+        vec4 temp31 = select;
+        temp31.z = temp28;
+        vec4 assignment_tmp9 = temp31 + const33;
+        bool temp34 = assignment_tmp9.w > threshhold2;
+        if (temp34) {
+            bool temp35 = assignment_tmp9.z > threshhold2;
+            if (temp35) {
+                gla_copyout_gl_FragColor32_0 = const27;
                 gl_FragColor = gla_copyout_gl_FragColor32_0;
                 return;
             }
             else {
                 if (b) {
-                    float temp37 = assignment_tmp9.z + const30_1f;
-                    vec4 temp38 = assignment_tmp9;
-                    temp38.z = temp37;
-                    color_1 = temp38;
+                    float temp36 = assignment_tmp9.z + const29_1f;
+                    vec4 temp37 = assignment_tmp9;
+                    temp37.z = temp36;
+                    color_1 = temp37;
                 }
                 else {
-                    bool temp39 = assignment_tmp9.x < minimum;
-                    if (temp39) {
+                    bool temp38 = assignment_tmp9.x < minimum;
+                    if (temp38) {
                         discard;
                     }
                     else {
-                        vec4 color21 = assignment_tmp9 + const34;
+                        vec4 color21 = assignment_tmp9 + const33;
                         color_1 = color21;
                     }
                     
@@ -497,7 +477,7 @@ void main()
                 discard;
             }
             else {
-                gla_copyout_gl_FragColor32_0 = const28;
+                gla_copyout_gl_FragColor32_0 = const27;
                 gl_FragColor = gla_copyout_gl_FragColor32_0;
                 
             }

@@ -68,28 +68,17 @@ entry:
   %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
   %0 = load float addrspace(2)* @d, align 4
   %1 = fcmp ogt float %c, %0
-  br i1 %1, label %then, label %else
-
-then:                                             ; preds = %entry
   %BaseColor1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %2 = load <4 x float> addrspace(2)* @bigColor, align 16
-  %color2 = fadd <4 x float> %BaseColor1, %2
-  br label %ifmerge
-
-else:                                             ; preds = %entry
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %3 = load <4 x float> addrspace(2)* @smallColor, align 16
-  %color3 = fadd <4 x float> %BaseColor, %3
-  br label %ifmerge
-
-ifmerge:                                          ; preds = %else, %then
-  %color.0 = phi <4 x float> [ %color2, %then ], [ %color3, %else ]
+  %select.v = select i1 %1, <4 x float> %2, <4 x float> %3
+  %select = fadd <4 x float> %BaseColor1, %select.v
   %4 = load <4 x float> addrspace(2)* @otherColor, align 16
-  %gl_FragColor = fmul <4 x float> %color.0, %4
+  %gl_FragColor = fmul <4 x float> %select, %4
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge
+stage-epilogue:                                   ; preds = %entry
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -149,22 +138,13 @@ uniform vec4 smallColor;
 uniform vec4 otherColor;
 in float c;
 in vec4 BaseColor1;
-in vec4 BaseColor;
 
 void main()
 {
-    vec4 color_0;
-    bool temp22 = c > d;
-    if (temp22) {
-        vec4 color2 = BaseColor1 + bigColor;
-        color_0 = color2;
-    }
-    else {
-        vec4 color3 = BaseColor + smallColor;
-        color_0 = color3;
-    }
-    
-    vec4 gla_copyout_gl_FragColor = color_0 * otherColor;
+    bool temp21 = c > d;
+    vec4 select_v = temp21 ? bigColor : smallColor;
+    vec4 select = BaseColor1 + select_v;
+    vec4 gla_copyout_gl_FragColor = select * otherColor;
     gl_FragColor = gla_copyout_gl_FragColor;
     
 }

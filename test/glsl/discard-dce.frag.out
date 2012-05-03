@@ -111,22 +111,16 @@ then:                                             ; preds = %entry
 
 ifmerge:                                          ; preds = %entry
   %8 = fcmp ult float %_ret_val5, 7.500000e-01
-  br i1 %8, label %ifmerge8, label %then6
-
-then6:                                            ; preds = %ifmerge
   %9 = call float @llvm.gla.fPow.f32.f32.f32(float %_ret_val5, float 1.600000e+01)
   %10 = fdiv float %9, 2.000000e+00
   %11 = call float @llvm.gla.fAbs.f32.f32(float %10)
   %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %11, <4 x i32> zeroinitializer)
   %color7 = fsub <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %12
-  br label %ifmerge8
-
-ifmerge8:                                         ; preds = %ifmerge, %then6
-  %color.0 = phi <4 x float> [ %color7, %then6 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %ifmerge ]
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %color.0)
+  %select = select i1 %8, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float> %color7
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %select)
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge8
+stage-epilogue:                                   ; preds = %ifmerge
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then
@@ -195,40 +189,35 @@ if ( radius >= 0.750000 ) color -= abs ( pow ( radius , 16.000000 ) / 2.000000 )
 // LunarGOO output
 #version 130
 in vec2 tex_coord;
-const float const23_2f = 2.0;
-const float const25__1f = -1.0;
-const float const33_1f = 1.0;
-const float const35_1f = 0.75;
-const vec4 const36 = vec4(1.0);
-const float const38_16f = 16.0;
+const float const22_2f = 2.0;
+const float const24__1f = -1.0;
+const float const32_1f = 1.0;
+const float const34_1f = 0.75;
+const float const36_16f = 16.0;
+const vec4 const41 = vec4(1.0);
 
 void main()
 {
-    vec4 color_0;
-    float temp22 = tex_coord.x * const23_2f;
-    float assignment_tmp1 = temp22 + const25__1f;
-    float temp26 = tex_coord.y * const23_2f;
-    float assignment_tmp24 = temp26 + const25__1f;
-    float temp28 = assignment_tmp1 * assignment_tmp1;
-    float temp29 = assignment_tmp24 * assignment_tmp24;
-    float temp30 = temp28 + temp29;
-    float _ret_val5 = sqrt(temp30);
-    bool temp32 = _ret_val5 > const33_1f;
-    if (temp32) {
+    float temp21 = tex_coord.x * const22_2f;
+    float assignment_tmp1 = temp21 + const24__1f;
+    float temp25 = tex_coord.y * const22_2f;
+    float assignment_tmp24 = temp25 + const24__1f;
+    float temp27 = assignment_tmp1 * assignment_tmp1;
+    float temp28 = assignment_tmp24 * assignment_tmp24;
+    float temp29 = temp27 + temp28;
+    float _ret_val5 = sqrt(temp29);
+    bool temp31 = _ret_val5 > const32_1f;
+    if (temp31) {
         discard;
     }
     
-    bool temp34 = _ret_val5 < const35_1f;
-    color_0 = const36;
-    if (! temp34) {
-        float temp37 = pow(_ret_val5, const38_16f);
-        float temp39 = temp37 / const23_2f;
-        float temp40 = abs(temp39);
-        vec4 temp41 = vec4(temp40);
-        vec4 color7 = const36 - temp41;
-        color_0 = color7;
-    }
-    
-    gl_FragColor = color_0;
+    bool temp33 = _ret_val5 < const34_1f;
+    float temp35 = pow(_ret_val5, const36_16f);
+    float temp37 = temp35 / const22_2f;
+    float temp38 = abs(temp37);
+    vec4 temp39 = vec4(temp38);
+    vec4 color7 = const41 - temp39;
+    vec4 select = temp33 ? const41 : color7;
+    gl_FragColor = select;
     
 }

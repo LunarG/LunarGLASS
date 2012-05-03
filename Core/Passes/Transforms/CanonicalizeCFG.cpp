@@ -34,6 +34,8 @@
 //
 //   * Merge unconditional branch chains
 //
+//   * Split shared coditional merge blocks
+//
 //===----------------------------------------------------------------------===//
 
 #include "llvm/Pass.h"
@@ -50,6 +52,7 @@
 #include "llvm/Transforms/Utils/Local.h"
 
 #include "Passes/PassSupport.h"
+#include "Passes/Analysis/IdentifyStructures.h"
 #include "Passes/Util/BasicBlockUtil.h"
 #include "Passes/Util/FunctionUtil.h"
 #include "Passes/Util/InstructionUtil.h"
@@ -81,8 +84,11 @@ namespace  {
 
         bool restoreMainBlocks(Function& F);
 
+        bool splitSharedMergeBlocks(Function& F);
+
         LoopInfo* loopInfo;
         DominatorTree* domTree;
+        IdentifyStructures* idStructs;
 
         BasicBlock* exit;
         BasicBlock* epilogue;
@@ -94,8 +100,13 @@ bool CanonicalizeCFG::runOnFunction(Function& F)
 {
     bool changed = false;
 
-    loopInfo = &getAnalysis<LoopInfo>();
-    domTree  = &getAnalysis<DominatorTree>();
+    loopInfo  = &getAnalysis<LoopInfo>();
+    domTree   = &getAnalysis<DominatorTree>();
+    idStructs = &getAnalysis<IdentifyStructures>();
+
+    // Split shared merge blocks in conditionals. Shared merge blocks can arise
+    // from the elimination of loops that originally contained breaks.
+    changed |= splitSharedMergeBlocks(F);
 
     // TODO: combine the removing of no-predecessor blocks with the removing of
     // phis into a single traversal
@@ -122,8 +133,28 @@ bool CanonicalizeCFG::runOnFunction(Function& F)
     return changed;
 }
 
+bool CanonicalizeCFG::splitSharedMergeBlocks(Function& F)
+{
+    bool changed = false;
+
+    // Loop over the conditionals, and split the merge block if shared. Redirect
+    // all the predecessors dominated by the entry to the new merge block. Note
+    // that this can traverse the conditionals in any order, i.e. outermost-
+    // inward, inwardmost-outer, or any combination, and .
+
+    for (IdentifyStructures::conditional_iterator i = idStructs->conditional_begin(),
+             e = idStructs->conditional_end(); i != e; ++i) {
+        changed |= (*i).second->splitSharedMerge();
+    }
+
+
+    return changed;
+}
+
 bool CanonicalizeCFG::convertConstantBranches(Function& F)
 {
+    bool changed = false;
+
     for (Function::iterator bbI = F.begin(), bbE = F.end(); bbI != bbE; ++bbI) {
         BranchInst* br = dyn_cast<BranchInst>(bbI->getTerminator());
         if (! br || br->isUnconditional())
@@ -133,6 +164,8 @@ bool CanonicalizeCFG::convertConstantBranches(Function& F)
         if (! c) {
             continue;
         }
+
+        changed = true;
 
         IRBuilder<> builder(F.getContext());
         builder.SetInsertPoint(br);
@@ -145,7 +178,7 @@ bool CanonicalizeCFG::convertConstantBranches(Function& F)
         br->eraseFromParent();
     }
 
-    return false;
+    return changed;
 }
 
 bool CanonicalizeCFG::restoreMainBlocks(Function& F)
@@ -263,6 +296,7 @@ void CanonicalizeCFG::getAnalysisUsage(AnalysisUsage& AU) const
 
     AU.addRequired<LoopInfo>();
     AU.addRequired<DominatorTree>();
+    AU.addRequired<IdentifyStructures>();
 }
 
 void CanonicalizeCFG::print(raw_ostream&, const Module*) const
@@ -278,6 +312,7 @@ INITIALIZE_PASS_BEGIN(CanonicalizeCFG,
                       false); // Whether it is an analysis pass
 INITIALIZE_PASS_DEPENDENCY(LoopInfo)
 INITIALIZE_PASS_DEPENDENCY(DominatorTree)
+INITIALIZE_PASS_DEPENDENCY(IdentifyStructures)
 INITIALIZE_PASS_END(CanonicalizeCFG,
                     "canonicalize-cfg",
                     "Canonicalize the CFG for LunarGLASS",

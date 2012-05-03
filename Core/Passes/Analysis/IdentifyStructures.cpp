@@ -74,11 +74,9 @@ bool IdentifyStructures::runOnFunction(Function &F)
         BasicBlock* left  = branchInst->getSuccessor(0);
         BasicBlock* right = branchInst->getSuccessor(1);
 
-        Loop* loop = loopInfo->getLoopFor(bb);
-
         // TODO: consider extending functionality to include a LoopWrapper for
         // the loop that the conditional's entry block is in.
-        conditionals.insert(std::make_pair(bb, new Conditional(bb, left, right, domFront, domTree, loop)));
+        conditionals.insert(std::make_pair(bb, new Conditional(bb, left, right, domFront, domTree, *loopInfo, this)));
     }
 
     // Identify and create loopwrappers

@@ -54,6 +54,21 @@ void main()
 {
     vec4 color = BaseColor;
 
+    // Not a real loop
+    while (true) {
+        if (color.x < 0.33) {
+            color += vec4(0.33);
+            break;
+        }
+        if (color.x < 0.66) {
+            color += vec4(0.66);
+            break;
+        }
+
+        color += vec4(0.33);
+        break;
+    }
+
     // While
     while (color.x < d) {
         color += bigColor;

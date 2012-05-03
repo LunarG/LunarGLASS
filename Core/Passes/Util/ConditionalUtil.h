@@ -47,14 +47,14 @@ namespace gla_llvm {
     class Conditional {
         typedef SmallPtrSet<BasicBlock*,8> Filter;
     public:
-        Conditional(BasicBlock* entryBlock, BasicBlock* thenBlock, BasicBlock* elseBlock, DominanceFrontier& dfs, DominatorTree& dt, Loop* loop)
+        Conditional(BasicBlock* entryBlock, BasicBlock* thenBlock, BasicBlock* elseBlock, DominanceFrontier& dfs, DominatorTree& dt, LoopInfo& li, Pass* p)
             : entry(entryBlock)
             , left(thenBlock)
             , right(elseBlock)
             , domFront(&dfs)
             , domTree(&dt)
-            , mergesFilter(loop ? Filter(loop->getBlocks().begin(), loop->getBlocks().end()) : Filter())
-            , latch(loop ? loop->getLoopLatch() : 0)
+            , loopInfo(&li)
+            , parentPass(p)
             , function(*entryBlock->getParent())
             , isMain(IsMain(function))
             , stageExit(0)
@@ -74,7 +74,6 @@ namespace gla_llvm {
         void clear()
         {
             entry = left = right = merge = NULL;
-            selfContained = emptyConditional = false;
             leftChildren.clear();
             rightChildren.clear();
             merges.clear();
@@ -85,15 +84,6 @@ namespace gla_llvm {
         // TODO: figure out interaction with stale domfront/domtree info
         void recalculate();
 
-        // Whether the respective branch subgraphs contains returns/discards
-        // bool hasThenReturn()      const { return leftReturns; }
-        // bool hasElseReturn()      const { return rightReturns; }
-        // bool hasThenDiscard()     const { return leftDiscards; }
-        // bool hasElseDiscard()     const { return rightDiscards; }
-        // bool hasDiscard()         const { return leftDiscards || rightDiscards; }
-        // bool hasReturn()          const { return leftReturns || rightReturns; }
-        // bool hasReturnOrDiscard() const { return hasReturn() || hasDiscard(); }
-
         // Whether there is no "then" block, only an "else" one. This may be
         // useful information, e.g. if a transformation wishes to invert a
         // condition and flip branches around.
@@ -103,33 +93,63 @@ namespace gla_llvm {
 
         bool isIfThenElse() const { return ! (isIfElse() || isIfThen()); }
 
+        // Whether we are a simple conditional. A simple conditional's then
+        // and else subgraphs consist only of one block
+        bool isSimpleConditional() const
+        {
+            bool right = rightChildren.size() == 1;
+            bool left  = leftChildren.size() == 1;
+
+            return (right && left) || (isIfElse() && right) || (isIfThen() && left);
+        }
+
         // Whether the conditional is self-contained. This means that each the
         // then and else blocks, if they are distinct from the merge block,
         // point to subgraphs whose only exit is the merge block.
         bool isSelfContained() const { return selfContained; }
 
+        // If the entry block does not dominate the merge block, then we have
+        // some kind of shared merge block. This can arise from the elimination
+        // of loops that originally contained breaks. The splitSharedMerge
+        // method below will remove these.
+        bool hasSharedMerge() const
+        {
+            return merge && ! domTree->dominates(entry, merge);
+        }
+
         // Whether the conditional is empty. An empty conditional is a
         // self-contained conditional in which the then and else subgraphs, if
         // they exist, are all empty blocks. Currently unimplemented in the case
         // of then or else subgraphs, for which is currently will return false.
-        bool isEmptyConditional() const { return emptyConditional; }
+        bool isEmptyConditional() const
+        {
+            return isSelfContained() && AreEmptyBB(leftChildren) && AreEmptyBB(rightChildren);
+        }
 
         bool contains(BasicBlock* bb) const
         {
             return entry == bb || merge == bb
-                || SmallVectorContains(leftChildren, bb) || SmallVectorContains(rightChildren, bb);
+                || Has(leftChildren, bb) || Has(rightChildren, bb);
         }
 
         // Accessors.
-        // TODO: consider whether these should be const
         const BasicBlock* getEntryBlock() const { return entry; }
+              BasicBlock* getEntryBlock()       { return entry; }
+
         const BasicBlock* getMergeBlock() const { return merge; }
+              BasicBlock* getMergeBlock()       { return merge; }
+
         const BasicBlock* getThenBlock()  const { return left; }
+              BasicBlock* getThenBlock()        { return left; }
+
         const BasicBlock* getElseBlock()  const { return right; }
+              BasicBlock* getElseBlock()        { return right; }
 
         const BranchInst* getBranchInst() const { return dyn_cast<BranchInst>(entry->getTerminator()); }
+              BranchInst* getBranchInst()       { return dyn_cast<BranchInst>(entry->getTerminator()); }
 
         const Value* getCondition() const { return getBranchInst()->getCondition(); };
+              Value* getCondition()       { return getBranchInst()->getCondition(); };
 
 
         // Transformation/optimzations to conditionals
@@ -143,6 +163,31 @@ namespace gla_llvm {
         // TODO: Extend to non-empty Conditionals. Extend to right and left
         // subgraphs
         bool createMergeSelects();
+
+        // Split out a shared merge block. Updates all analysis info. Note that
+        // this may require that contained and containing conditionals be
+        // recalculated.
+        bool splitSharedMerge()
+        {
+            // TODO: Overhaul the conditionals system so that recalculation
+            // doesn't have to happen as often
+            recalculate();
+
+            if (! hasSharedMerge())
+                return false;
+
+            // Gather all the preds associated with this conditional
+            SmallVector<BasicBlock*, 8> preds;
+            for (pred_iterator i = pred_begin(merge), e = pred_end(merge); i != e; ++i) {
+                if (domTree->dominates(entry, *i))
+                    preds.push_back(*i);
+            }
+
+            merge = SplitBlockPredecessors(merge, &preds.front(), preds.size(), "_split", parentPass);
+            assert(! hasSharedMerge() && "Entry still does not dominate merge?");
+
+            return true;
+        }
 
         // Have the conditional simplify instructions and remove dead code in
         // it. Returns whether anything happened.
@@ -183,7 +228,7 @@ namespace gla_llvm {
             // We only do it if we're empty conditional, selfcontained, have no
             // phi nodes, and are linked to a function
             // TODO: can clean up when conditional trees are implemented
-            if (InvalidatedBB(entry) || ! emptyConditional || ! selfContained || HasPHINodes(merge)) {
+            if (InvalidatedBB(entry) || ! isEmptyConditional() || ! isSelfContained() || HasPHINodes(merge)) {
                 return false;
             }
 
@@ -194,6 +239,8 @@ namespace gla_llvm {
 
             SimplifyInstructionsInBlock(entry);
             SimplifyInstructionsInBlock(merge);
+
+            MergeBlockIntoPredecessor(merge, parentPass);
 
             clear();
 
@@ -235,12 +282,17 @@ namespace gla_llvm {
 
         DominanceFrontier* domFront;
         DominatorTree* domTree;
+        LoopInfo* loopInfo;
+
+        // Hold a pointer back to our creator. This allows us to update analysis
+        // info, i.e. dominator tree, loop info, and dominance frontiers.
+        Pass* parentPass;
 
         bool filterExcludes;
-
-        Filter mergesFilter;
+        bool selfContained;
 
         BasicBlock* latch;
+        BasicBlock* exit;
 
         Function& function;
         bool isMain;
@@ -251,14 +303,6 @@ namespace gla_llvm {
         SmallPtrSet<BasicBlock*,3> merges;
 
         BasicBlock* merge;
-
-        bool selfContained;
-        bool emptyConditional;
-
-        // bool leftReturns;
-        // bool leftDiscards;
-        // bool rightReturns;
-        // bool rightDiscards;
 
         bool incompleteMerges;
 

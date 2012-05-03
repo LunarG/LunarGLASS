@@ -120,12 +120,9 @@ void gla::PrivateManager::runLLVMOptimizations1()
     globalPM.add(llvm::createIPSCCPPass());
     globalPM.add(llvm::createConstantMergePass());
     globalPM.add(llvm::createInstructionSimplifierPass());
+    globalPM.add(llvm::createAlwaysInlinerPass());
+    globalPM.add(llvm::createPromoteMemoryToRegisterPass());
     globalPM.run(*module);
-
-    llvm::PassManager globalPM2;
-    globalPM2.add(llvm::createAlwaysInlinerPass());
-    globalPM2.add(llvm::createPromoteMemoryToRegisterPass());
-    globalPM2.run(*module);
 
     // Next, do interprocedural passes
     // Future work: If we ever have non-inlined functions, we'll want to add some
@@ -158,8 +155,12 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createEarlyCSEPass());
     passManager.add(llvm::createCorrelatedValuePropagationPass());
 
+    passManager.add(llvm::createLoopSimplifyPass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
     passManager.add(gla_llvm::createDecomposeInstsPass());
+    passManager.add(gla_llvm::createCanonicalizeCFGPass());
+    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass());
+    passManager.add(gla_llvm::createCanonicalizeCFGPass());
 
     int innerAoS, outerSoA;
     backEnd->getRegisterForm(outerSoA, innerAoS);
@@ -205,6 +206,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createAggressiveDCEPass());
 
     // LunarGLASS CFG optimizations
+    passManager.add(llvm::createLoopSimplifyPass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
     passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());

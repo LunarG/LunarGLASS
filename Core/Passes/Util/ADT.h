@@ -35,22 +35,50 @@
 #include "llvm/ADT/SmallPtrSet.h"
 
 #include <vector>
+#include <algorithm>
 
 namespace gla_llvm {
     using namespace llvm;
 
-    // Whether a SmallVector contains the given element
-    template<typename T>
-    inline bool SmallVectorContains(const SmallVectorImpl<T>& vec, const T val)
+    // Whether the given predicate is true for any element
+    template <class InputIterator, class Predicate>
+    inline bool Any(InputIterator first, InputIterator last, Predicate pred)
     {
-        // We need to typedef it (with a typename) to access its iterator
-        for (typename SmallVectorImpl<T>::const_iterator i = vec.begin(), e = vec.end(); i != e; ++i) {
-            if (&**i == &*val)
-                return true;
-        }
-
-        return false;
+        return std::find_if(first, last, pred) != last;
     }
+
+    template <class Elt, class Predicate>
+    inline bool Any(ArrayRef<Elt> arr, Predicate pred)
+    {
+        return Any(arr.begin(), arr.end(), pred);
+    }
+
+    template <class Elt, class Predicate>
+    inline bool Any(const iplist<Elt>& list, Predicate pred)
+    {
+        return Any(list.begin(), list.end(), pred);
+    }
+
+
+    // Whether the given data structure contains the given element
+    template<class InputIterator, typename Elt>
+    inline bool Has(InputIterator begin, InputIterator end, const Elt& val)
+    {
+        return end != std::find(begin, end, val);
+    }
+
+    template<typename Elt>
+    inline bool Has(ArrayRef<Elt> arr, const Elt& val)
+    {
+        return Has(arr.begin(), arr.end(), val);
+    }
+
+    template<typename Elt>
+    inline bool Has(const SmallVectorImpl<Elt>& vec, const Elt& val)
+    {
+        return Has(vec, val);
+    }
+
 
     // Whether one collection is a subset of another. Currently defined for
     // SmallPtrSet vs SmallPtrSet and iplist vs SmallPtrSet.
