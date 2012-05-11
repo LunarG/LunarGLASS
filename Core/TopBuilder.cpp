@@ -1120,6 +1120,11 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
         intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelFetchOffset
                                     : llvm::Intrinsic::gla_texelFetchOffset;
 
+    } else if (texFlags & ETFGather) {
+
+        intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelGather
+                                    : llvm::Intrinsic::gla_texelGather;
+
     } else if (parameters.ETPGradX || parameters.ETPGradY) {
 
         intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTextureSampleLodRefZOffsetGrad
@@ -1246,6 +1251,36 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
 
         break;
 
+    case llvm::Intrinsic::gla_texelGather:
+    case llvm::Intrinsic::gla_fTexelGather:
+
+        // Component select resides in BiasLod field
+        numArgs = 6;
+
+        if (! texArgs[GetTextureOpIndex(ETOBiasLod)])
+            texArgs[GetTextureOpIndex(ETOBiasLod)] = llvm::UndefValue::get(GetIntType(context));
+
+        if (! texArgs[GetTextureOpIndex(ETORefZ)])
+            texArgs[GetTextureOpIndex(ETORefZ)]    = llvm::UndefValue::get(GetFloatType(context));
+
+        // If offset is defined, change the intrinsic
+        if (texArgs[GetTextureOpIndex(ETOOffset)]) {
+
+            intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelGatherOffset
+                                        : llvm::Intrinsic::gla_texelGatherOffset;
+            numArgs = 7;
+
+            intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(),
+                                                              texArgs[GetTextureOpIndex(ETOOffset)]->getType());
+        } else {
+
+            texArgs[GetTextureOpIndex(ETOOffset)]  = llvm::UndefValue::get(GetIntType(context));
+
+            intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType());
+        }
+
+        break;
+
     default:
         gla::UnsupportedFunctionality("Texture intrinsic: ", intrinsicID);
     }
@@ -1259,15 +1294,24 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
     return builder.CreateCall(intrinsic, texArgs, texArgs + numArgs);
 }
 
-llvm::Value* Builder::createTextureSizeCall(const llvm::Type* returnType, llvm::Value* sampler, llvm::Value* lod)
+llvm::Value* Builder::createTextureQueryCall(llvm::Intrinsic::ID intrinsicID, const llvm::Type* returnType, llvm::Constant* samplerType, llvm::Value* sampler, llvm::Value* src)
 {
     llvm::Function* intrinsicName = 0;
 
-    intrinsicName = getIntrinsic(llvm::Intrinsic::gla_queryTextureSize, returnType);
+    switch (intrinsicID) {
+    case llvm::Intrinsic::gla_queryTextureSize:
+        intrinsicName = getIntrinsic(intrinsicID, returnType);
+        break;
+    case llvm::Intrinsic::gla_fQueryTextureLod:
+        intrinsicName = getIntrinsic(intrinsicID, returnType, src->getType());
+        break;
+    default:
+        gla::UnsupportedFunctionality("Texture query intrinsic");
+    }
 
     assert(intrinsicName);
 
-    return builder.CreateCall2(intrinsicName, sampler, lod);
+    return builder.CreateCall3(intrinsicName, samplerType, sampler, src);
 }
 
 llvm::Value* Builder::createRecip(llvm::Value* operand)
