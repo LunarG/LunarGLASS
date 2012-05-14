@@ -69,9 +69,14 @@ let TargetPrefix = "gla" in {
   def int_gla_sMax : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_uMax : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_fMax : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
+
   def int_gla_sClamp : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_uClamp : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_fClamp : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
+
+  // fSaturate x === fClamp x, 0, 1
+  def int_gla_fSaturate : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
+
 }
 
 // Floating-Point Only Operations

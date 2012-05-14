@@ -1308,6 +1308,11 @@ static double Clamp(double V1, double V2, double V3)
   return Min(Max(V1, V2), V3);
 }
 
+static double Saturate(double V1)
+{
+  return Clamp(0, V1, 1);
+}
+
 static Constant *ConstantFoldGlaScalarCall(Function* F, Constant *const *Operands, unsigned NumOperands)
 {
   const Type* RetTy = F->getReturnType()->getScalarType();
@@ -1423,6 +1428,9 @@ static Constant *ConstantFoldGlaScalarCall(Function* F, Constant *const *Operand
       case Intrinsic::gla_fTanh:
           return ConstantFoldFP(tanh, V, RetTy);
 
+      case Intrinsic::gla_fSaturate:
+          return ConstantFoldFP(Saturate, V, RetTy);
+
       default:
           return 0;
       }
@@ -1431,8 +1439,45 @@ static Constant *ConstantFoldGlaScalarCall(Function* F, Constant *const *Operand
     // TODO: ConstantInts
   } else if (NumOperands == 2) {
 
-    // TODO
+    ConstantFP *Op1 = dyn_cast<ConstantFP>(Operands[0]);
+    ConstantFP *Op2 = dyn_cast<ConstantFP>(Operands[1]);
+
+    if (Op1 && Op2) {
+
+      const Type *Ty1 = Op1->getType();
+      const Type *Ty2 = Op2->getType();
+
+      if (RetTy != Ty1 || Ty1 != Ty2)
+        return 0; // TODO
+
+      /// Currently APFloat versions of these functions do not exist, so we use
+      /// the host native double versions.  Float versions are not called
+      /// directly but for all these it is true (float)(f((double)arg)) ==
+      /// f(arg).  Long double not supported yet.
+      double V1 = Ty1->isFloatTy() ? (double)Op1->getValueAPF().convertToFloat() :
+                                     Op1->getValueAPF().convertToDouble();
+      double V2 = Ty2->isFloatTy() ? (double)Op2->getValueAPF().convertToFloat() :
+                                     Op2->getValueAPF().convertToDouble();
+
+      switch (F->getIntrinsicID()) {
+      case Intrinsic::gla_fMax:
+          return ConstantFoldBinaryFP(Max, V1, V2, RetTy);
+      case Intrinsic::gla_fMin:
+          return ConstantFoldBinaryFP(Min, V1, V2, RetTy);
+
+      case Intrinsic::gla_fAtan2:
+      case Intrinsic::gla_fPow:
+      case Intrinsic::gla_fPowi:
+      case Intrinsic::gla_fStep:
+
+      default:
+        return 0;
+      } // end of switch (F->getIntrinsicID())
+    }
+
+    // TODO: ConstantInts
     return 0;
+
   } else if (NumOperands == 3) {
 
     ConstantFP *Op1 = dyn_cast<ConstantFP>(Operands[0]);
