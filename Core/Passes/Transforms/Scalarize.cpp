@@ -51,6 +51,7 @@
 #include "llvm/Support/raw_ostream.h"
 
 #include "Passes/PassSupport.h"
+#include "Passes/Util/ConstantUtil.h"
 #include "Passes/Util/InstructionUtil.h"
 #include "Exceptions.h"
 #include "Util.h"
@@ -169,12 +170,8 @@ Value* Scalarize::getComponent(int component, Value* v)
     assert(canGetComponent(v) && "getComponent called on unhandled vector");
 
     if (v->getType()->isVectorTy()) {
-        if (ConstantVector* c = dyn_cast<ConstantVector>(v)) {
-            return c->getOperand(component);
-        } else if (isa<ConstantAggregateZero>(v)) {
-            return Constant::getNullValue(gla::GetBasicType(v));
-        } else if (isa<UndefValue>(v)) {
-            return UndefValue::get(gla::GetBasicType(v));
+        if (Constant* c = dyn_cast<Constant>(v)) {
+            return GetComponentFromConstant(c, component);
         } else {
             return vectorVals[v].getComponent(component);
         }
@@ -866,8 +863,6 @@ INITIALIZE_PASS_BEGIN(Scalarize,
                       "Scalarize the IR",
                       false,  // Whether it looks only at CFG
                       false); // Whether it is an analysis pass
-INITIALIZE_PASS_DEPENDENCY(LoopInfo)
-INITIALIZE_PASS_DEPENDENCY(DominatorTree)
 INITIALIZE_PASS_END(Scalarize,
                     "scalarize",
                     "Scalarize the IR",
