@@ -27,7 +27,9 @@
 using namespace llvm;
 
 static cl::opt<unsigned>
-UnrollThreshold("unroll-threshold", cl::init(150), cl::Hidden,
+// LunarGLASS quick fix: this is generalized in newer versions of LLVM; for now
+// set to be higher
+UnrollThreshold("unroll-threshold", cl::init(500), cl::Hidden,
   cl::desc("The cut-off point for automatic loop unrolling"));
 
 static cl::opt<unsigned>

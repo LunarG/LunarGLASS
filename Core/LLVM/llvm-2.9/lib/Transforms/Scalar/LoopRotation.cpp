@@ -146,6 +146,26 @@ static void RewriteUsesOfClonedInstructions(BasicBlock *OrigHeader,
   }
 }
 
+// LunarGLASS: Take this from LoopUnrollPass so as to enable us to only rotate a
+//loop that we will later inline
+/// ApproximateLoopSize - Approximate the size of the loop.
+static unsigned ApproximateLoopSize(const Loop *L) {
+  CodeMetrics Metrics;
+  for (Loop::block_iterator I = L->block_begin(), E = L->block_end();
+       I != E; ++I)
+    Metrics.analyzeBasicBlock(*I);
+
+  unsigned LoopSize = Metrics.NumInsts;
+
+  // Don't allow an estimate of size zero.  This would allows unrolling of loops
+  // with huge iteration counts, which is a compile time problem even if it's
+  // not a problem for code quality.
+  if (LoopSize == 0) LoopSize = 1;
+
+  return LoopSize;
+}
+
+
 /// Rotate loop LP. Return true if the loop is rotated.
 bool LoopRotate::rotateLoop(Loop *L) {
   // If the loop has only one block then there is not much to rotate.
@@ -180,6 +200,11 @@ bool LoopRotate::rotateLoop(Loop *L) {
     if (Metrics.NumInsts > MAX_HEADER_SIZE)
       return false;
   }
+
+  // LunarGLASS: We're only interested in loop-rotation if we have the potential
+  // to unroll the loop
+  if (! L->getTripCount() || L->getSmallConstantTripCount() * ApproximateLoopSize(L) >= 500 )
+     return false;
 
   // Now, this loop is suitable for rotation.
   BasicBlock *OrigPreheader = L->getLoopPreheader();

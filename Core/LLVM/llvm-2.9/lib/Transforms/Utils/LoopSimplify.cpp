@@ -510,95 +510,9 @@ void LoopSimplify::PlaceSplitBlockCarefully(BasicBlock *NewBB,
 /// created.
 ///
 Loop *LoopSimplify::SeparateNestedLoop(Loop *L, LPPassManager &LPM) {
-  PHINode *PN = FindPHIToPartitionLoops(L, DT, AA, LI);
-  if (PN == 0) return 0;  // No known way to partition.
-
-  // Pull out all predecessors that have varying values in the loop.  This
-  // handles the case when a PHI node has multiple instances of itself as
-  // arguments.
-  SmallVector<BasicBlock*, 8> OuterLoopPreds;
-  for (unsigned i = 0, e = PN->getNumIncomingValues(); i != e; ++i)
-    if (PN->getIncomingValue(i) != PN ||
-        !L->contains(PN->getIncomingBlock(i))) {
-      // We can't split indirectbr edges.
-      if (isa<IndirectBrInst>(PN->getIncomingBlock(i)->getTerminator()))
-        return 0;
-
-      OuterLoopPreds.push_back(PN->getIncomingBlock(i));
-    }
-
-  DEBUG(dbgs() << "LoopSimplify: Splitting out a new outer loop\n");
-
-  // If ScalarEvolution is around and knows anything about values in
-  // this loop, tell it to forget them, because we're about to
-  // substantially change it.
-  if (SE)
-    SE->forgetLoop(L);
-
-  BasicBlock *Header = L->getHeader();
-  BasicBlock *NewBB = SplitBlockPredecessors(Header, &OuterLoopPreds[0],
-                                             OuterLoopPreds.size(),
-                                             ".outer", this);
-
-  // Make sure that NewBB is put someplace intelligent, which doesn't mess up
-  // code layout too horribly.
-  PlaceSplitBlockCarefully(NewBB, OuterLoopPreds, L);
-
-  // Create the new outer loop.
-  Loop *NewOuter = new Loop();
-
-  // Change the parent loop to use the outer loop as its child now.
-  if (Loop *Parent = L->getParentLoop())
-    Parent->replaceChildLoopWith(L, NewOuter);
-  else
-    LI->changeTopLevelLoop(L, NewOuter);
-
-  // L is now a subloop of our outer loop.
-  NewOuter->addChildLoop(L);
-
-  // Add the new loop to the pass manager queue.
-  LPM.insertLoopIntoQueue(NewOuter);
-
-  for (Loop::block_iterator I = L->block_begin(), E = L->block_end();
-       I != E; ++I)
-    NewOuter->addBlockEntry(*I);
-
-  // Now reset the header in L, which had been moved by
-  // SplitBlockPredecessors for the outer loop.
-  L->moveToHeader(Header);
-
-  // Determine which blocks should stay in L and which should be moved out to
-  // the Outer loop now.
-  std::set<BasicBlock*> BlocksInL;
-  for (pred_iterator PI=pred_begin(Header), E = pred_end(Header); PI!=E; ++PI) {
-    BasicBlock *P = *PI;
-    if (DT->dominates(Header, P))
-      AddBlockAndPredsToSet(P, Header, BlocksInL);
-  }
-
-  // Scan all of the loop children of L, moving them to OuterLoop if they are
-  // not part of the inner loop.
-  const std::vector<Loop*> &SubLoops = L->getSubLoops();
-  for (size_t I = 0; I != SubLoops.size(); )
-    if (BlocksInL.count(SubLoops[I]->getHeader()))
-      ++I;   // Loop remains in L
-    else
-      NewOuter->addChildLoop(L->removeChildLoop(SubLoops.begin() + I));
-
-  // Now that we know which blocks are in L and which need to be moved to
-  // OuterLoop, move any blocks that need it.
-  for (unsigned i = 0; i != L->getBlocks().size(); ++i) {
-    BasicBlock *BB = L->getBlocks()[i];
-    if (!BlocksInL.count(BB)) {
-      // Move this block to the parent, updating the exit blocks sets
-      L->removeBlockFromLoop(BB);
-      if ((*LI)[BB] == L)
-        LI->changeLoopFor(BB, NewOuter);
-      --i;
-    }
-  }
-
-  return NewOuter;
+  // LunarGLASS: We don't want to separate out loops, due to the risk of
+  // introducing targeted breaks/continues.
+  return 0;
 }
 
 

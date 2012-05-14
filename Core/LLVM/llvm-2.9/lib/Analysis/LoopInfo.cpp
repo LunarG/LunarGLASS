@@ -191,6 +191,37 @@ Value *Loop::getTripCount() const {
           }
         }
       }
+    } else {
+        // LunarGLASS quick fix: While this is handled properly in a more
+        // general way in future versions of LLVM, for now also recognise the
+        // case of a simple while or for loop. The exit condition is checked in
+        // the loop header, and if that condition fails then the body of the
+        // loop is branched to which is an unconditional latch whose only
+        // predecessor is the loop header
+        assert(BI->isUnconditional() && "neither conditional nor unconditional");
+        if (BasicBlock* pred = BackedgeBlock->getSinglePredecessor()) {
+            if (pred == getHeader() && getLoopLatch()) {
+                assert(BackedgeBlock == getLoopLatch() && "mis-identified latch");
+                if (BI = dyn_cast<BranchInst>(pred->getTerminator())) {
+                    if (BI->isConditional()) {
+                        if (ICmpInst *ICI = dyn_cast<ICmpInst>(BI->getCondition())) {
+                            // Either the IV or the incremeted variable is
+                            // fine
+                            if (ICI->getOperand(0) == Inc || ICI->getOperand(0) == IV ) {
+                                if (ICI->getPredicate() == ICmpInst::ICMP_NE) {
+                                    if (BI->getSuccessor(0) == BackedgeBlock) {
+                                        return ICI->getOperand(1);
+                                    }
+                                } else if (ICI->getPredicate() == ICmpInst::ICMP_EQ)
+                                    if (BI->getSuccessor(1) == BackedgeBlock) {
+                                        return ICI->getOperand(1);
+                                    }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
   return 0;
