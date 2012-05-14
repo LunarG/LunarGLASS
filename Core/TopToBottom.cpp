@@ -289,6 +289,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     canonicalize.add(llvm::createIndVarSimplifyPass());
     canonicalize.add(gla_llvm::createCanonicalizeCFGPass());
     canonicalize.add(gla_llvm::createBackEndPointerPass(backEnd));
+    canonicalize.add(gla_llvm::createGatherInstsPass());
     canonicalize.add(gla_llvm::createCanonicalizeInstsPass());
     canonicalize.add(llvm::createStripDeadPrototypesPass());
     canonicalize.run(*module);

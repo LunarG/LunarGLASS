@@ -56,6 +56,8 @@ namespace llvm {
 
     void initializeScalarizePass(PassRegistry&);
 
+    void initializeGatherInstsPass(PassRegistry&);
+
 } // end namespace llvm
 
 #endif // GLA_INIT_PASSES_H

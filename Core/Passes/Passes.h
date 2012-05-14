@@ -69,6 +69,8 @@ namespace gla_llvm {
     // Scalarize the IR
     FunctionPass* createScalarizePass();
 
+    // Gather instructions
+    FunctionPass* createGatherInstsPass();
 
 } // end namespace gla_llvm
 
