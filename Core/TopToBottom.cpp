@@ -174,10 +174,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createGVNPass());
     passManager.add(llvm::createSCCPPass());
 
-
     passManager.add(llvm::createLoopSimplifyPass());
-    passManager.add(gla_llvm::createCanonicalizeCFGPass());
-    passManager.add(gla_llvm::createDecomposeInstsPass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
     passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
