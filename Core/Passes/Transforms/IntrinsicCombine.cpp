@@ -43,6 +43,9 @@
 //         [Max|Min](a,a) ==> a
 //     * Functions that return a constant over the same input:
 //         Distance(a,a) ==> 0
+//     * Partial evaluation of intrinsics
+//         multiInsert(..., <c0 ... >, n, ...) ==> multiInsert(..., c_n, 0,...)
+//
 //
 //   * TODO: Combine multiple successive fWrites to the same output but with
 //     different masks into a single fWrite.
@@ -69,6 +72,7 @@
 
 #include "Passes/PassSupport.h"
 #include "Passes/Immutable/BackEndPointer.h"
+#include "Passes/Util/ConstantUtil.h"
 #include "Passes/Util/DominatorsUtil.h"
 #include "Passes/Util/FunctionUtil.h"
 #include "Passes/Util/InstructionUtil.h"
@@ -120,6 +124,11 @@ namespace  {
 
         // Try to evaluate/eliminate the intrinsic call if possible
         bool evaluateIntrinsic(IntrinsicInst* intr);
+
+        // Partial evaluations
+
+        // MultiInsert
+        bool partiallyEvaluateMultiInsert(IntrinsicInst* miIntr);
 
         // Empty out the deadList
         void emptyDeadList();
@@ -393,6 +402,13 @@ bool IntrinsicCombine::evaluateIntrinsic(IntrinsicInst* intr)
 
         break;
 
+    // Partial evaluations:
+
+    //  multiInsert
+    case Intrinsic::gla_multiInsert:
+    case Intrinsic::gla_fMultiInsert:
+        return partiallyEvaluateMultiInsert(intr);
+
     } // end of switch (id)
 
     if (! result)
@@ -402,6 +418,64 @@ bool IntrinsicCombine::evaluateIntrinsic(IntrinsicInst* intr)
     intr->replaceAllUsesWith(result);
     intr->dropAllReferences();
     deadList.push_back(intr);
+
+    return true;
+}
+
+bool IntrinsicCombine::partiallyEvaluateMultiInsert(IntrinsicInst* miIntr)
+{
+    // If any of the sources are constants of vector type, then we can replace
+    // the source with the scalar component
+
+    // Pair of constant argument, operand index
+    typedef std::pair<Constant*, int> ConstOp;
+
+    SmallVector<ConstOp, 4> constantVectorSources;
+    unsigned wmask = GetConstantInt(miIntr->getOperand(1));
+    for (int i = 0; i < 4; ++i) {
+        if (! MultiInsertWritesComponent(wmask, i))
+            continue;
+
+        int operandIndex = (i+1) * 2;
+
+        if (Constant* constantSource = dyn_cast<Constant>(miIntr->getArgOperand(operandIndex))) {
+            if (constantSource->getType()->isVectorTy()) {
+                constantVectorSources.push_back(std::make_pair(constantSource, operandIndex));
+            }
+        }
+    }
+
+    if (! constantVectorSources.size())
+        return false;
+
+    const FunctionType* miTypes = miIntr->getCalledFunction()->getFunctionType();
+    const Type* declTys[6] = { miTypes->getReturnType(),
+                               miTypes->getParamType(0),
+                               miTypes->getParamType(2),
+                               miTypes->getParamType(4),
+                               miTypes->getParamType(6),
+                               miTypes->getParamType(8),
+    };
+
+    for (SmallVector<ConstOp, 4>::iterator i = constantVectorSources.begin(), e = constantVectorSources.end();
+         i != e; ++i) {
+
+        // Find the component's value
+        int component = gla::GetConstantInt(miIntr->getArgOperand(i->second + 1));
+        Constant* constant = GetComponentFromConstant(i->first, component);
+        assert(gla::IsScalar(constant));
+
+        // Set it, updating the select bit
+        miIntr->setArgOperand(i->second, constant);
+        miIntr->setArgOperand(i->second+1, Constant::getNullValue(Type::getInt32Ty(*context)));
+
+        // Update the function's parameter type
+        assert(i->second % 2 == 0 && i->second >= 2 && i->second <= 8);
+        declTys[i->second / 2 + 1] = constant->getType();
+    }
+
+    Function* newDecl = Intrinsic::getDeclaration(module, miIntr->getIntrinsicID(), declTys, 6);
+    miIntr->setCalledFunction(newDecl);
 
     return true;
 }
