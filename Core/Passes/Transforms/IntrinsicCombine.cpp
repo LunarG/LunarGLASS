@@ -38,6 +38,12 @@
 //   * Break up writeData/fWriteData of multi-inserts into multiple masked
 //     writeData/fWriteDatas.
 //
+//   * Intrinsic elimination/evaluation
+//     * Idempotent binary operators:
+//         [Max|Min](a,a) ==> a
+//     * Functions that return a constant over the same input:
+//         Distance(a,a) ==> 0
+//
 //   * TODO: Combine multiple successive fWrites to the same output but with
 //     different masks into a single fWrite.
 //
@@ -46,8 +52,6 @@
 //     upwards as possible
 //
 //   * TODO: various inter-intrinsic optimizations
-//
-//   * TODO: combine min/maxes into clamps when possible
 //
 //===----------------------------------------------------------------------===//
 
@@ -109,10 +113,13 @@ namespace  {
 
         // Split up write-data of a multi-insert into multiple masked
         // write-datas.
-        bool splitWriteData(Instruction* inst);
+        bool splitWriteData(IntrinsicInst* inst);
 
         // Visit an instruction, trying to optimize it
         bool visit(Instruction*);
+
+        // Try to evaluate/eliminate the intrinsic call if possible
+        bool evaluateIntrinsic(IntrinsicInst* intr);
 
         // Empty out the deadList
         void emptyDeadList();
@@ -240,16 +247,15 @@ bool IntrinsicCombine::hoistDiscards(Function& F)
 }
 
 // Split up a write-data of a multi-inserts into multiple masked write-datas.
-bool IntrinsicCombine::splitWriteData(Instruction* inst)
+bool IntrinsicCombine::splitWriteData(IntrinsicInst* intr)
 {
+    assert(intr);
+
     if (! backEnd->splitWrites())
         return false;
 
-    if (! IsOutputInstruction(inst))
+    if (! IsOutputInstruction(intr))
         return false;
-
-    IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst);
-    assert(intr && "IsOutputInstruction returned true for non-intrinsic");
 
     ConstantInt* wm = dyn_cast<ConstantInt>(intr->getOperand(1));
     assert(wm && "Non-constant int writemask?");
@@ -280,7 +286,7 @@ bool IntrinsicCombine::splitWriteData(Instruction* inst)
         return false;
     }
 
-    IRBuilder<> builder(inst);
+    IRBuilder<> builder(intr);
     for (unsigned int i = 0; i < 4; ++i) {
         if (! MultiInsertWritesComponent(miInst, i))
             continue;
@@ -288,12 +294,12 @@ bool IntrinsicCombine::splitWriteData(Instruction* inst)
         Value* arg = components[i];
         const Type* ty = arg->getType();
         Function* writeData = Intrinsic::getDeclaration(module, intr->getIntrinsicID(), &ty, 1);
-        builder.CreateCall3(writeData, inst->getOperand(0), ConstantInt::get(wm->getType(), 1 << i), arg);
+        builder.CreateCall3(writeData, intr->getArgOperand(0), ConstantInt::get(wm->getType(), 1 << i), arg);
     }
 
     // Delete the old write
-    inst->dropAllReferences();
-    inst->eraseFromParent();
+    intr->dropAllReferences();
+    intr->eraseFromParent();
 
     return true;
 }
@@ -342,17 +348,64 @@ bool IntrinsicCombine::runOnFunction(Function& F)
 
 bool IntrinsicCombine::visit(Instruction* inst)
 {
-    bool changed = false;
+    IntrinsicInst* intr = dyn_cast<IntrinsicInst>(inst);
+    if (! intr) {
+        return false;
+    }
+
+    // See if we can trivially eliminate/evaluate the call
+    if (evaluateIntrinsic(intr))
+        return true;
 
     // Try to combine it
     // TODO: intrinsic combining
 
     // Write splitting
-    if (splitWriteData(inst))
+    if (splitWriteData(intr))
         return true;
 
-    return changed;
+    return false;
 }
+
+bool IntrinsicCombine::evaluateIntrinsic(IntrinsicInst* intr)
+{
+    Intrinsic::ID id = intr->getIntrinsicID();
+    Value* result = 0;
+
+    switch (id) {
+
+    // Idempotent binary intrinsics
+    case Intrinsic::gla_sMin:
+    case Intrinsic::gla_uMin:
+    case Intrinsic::gla_fMin:
+    case Intrinsic::gla_sMax:
+    case Intrinsic::gla_uMax:
+    case Intrinsic::gla_fMax:
+        if (intr->getArgOperand(0) == intr->getArgOperand(1))
+            result = intr->getArgOperand(0);
+
+        break;
+
+    // Binary intrinsics that, when passed the same argument, return 0
+    case Intrinsic::gla_fDistance:
+        if (intr->getArgOperand(0) == intr->getArgOperand(1))
+            result = Constant::getNullValue(intr->getType());
+
+        break;
+
+    } // end of switch (id)
+
+    if (! result)
+        return false;
+
+    // Replace our call with our evaluated result
+    intr->replaceAllUsesWith(result);
+    intr->dropAllReferences();
+    deadList.push_back(intr);
+
+    return true;
+}
+
 
 void IntrinsicCombine::getAnalysisUsage(AnalysisUsage& AU) const
 {
