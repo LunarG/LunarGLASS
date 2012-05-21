@@ -289,10 +289,12 @@ public:
     // Write to the pipeline directly, without caching through variables
     // (User likely needs to select between the variable/copyOutPipeline
     //  model and the writePipeline model.)
-    void writePipeline(llvm::Value*, int slot, int mask = -1, EInterpolationMode mode = EIMNone);
-    void writePipeline(llvm::Value*, llvm::Value* slot, int mask = -1, EInterpolationMode mode = EIMNone);
+    void writePipeline(llvm::Value*, int slot, int mask = -1, EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment);
+    void writePipeline(llvm::Value*, llvm::Value* slot, int mask = -1, EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment);
 
-    llvm::Value* readPipeline(const llvm::Type*, std::string& name, int slot, int mask = -1, EInterpolationMode mode = EIMNone, float offsetx = 0.0, float offsety = 0.0);
+    llvm::Value* readPipeline(const llvm::Type*, std::string& name, int slot, int mask = -1,
+                              EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment,
+                              llvm::Value* offset = 0, llvm::Value* sampleIdx = 0);
 
     llvm::Value* createSwizzle(llvm::Value* source, int swizzleMask, const llvm::Type* finalType);
 
@@ -354,6 +356,9 @@ public:
     // Select the correct intrinsic based on all inputs, and make the call
     llvm::Value* createTextureCall(const llvm::Type*, gla::ESamplerType, int texFlags, const TextureParameters&);
     llvm::Value* createTextureQueryCall(llvm::Intrinsic::ID, const llvm::Type*, llvm::Constant*, llvm::Value*, llvm::Value*);
+    llvm::Value* createSamplePositionCall(const llvm::Type*, llvm::Value*);
+    llvm::Value* createBitFieldExtractCall(llvm::Value*, llvm::Value*, llvm::Value*, bool isSigned);
+    llvm::Value* createBitFieldInsertCall(llvm::Value*, llvm::Value*, llvm::Value*, llvm::Value*);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue, SuperValue);

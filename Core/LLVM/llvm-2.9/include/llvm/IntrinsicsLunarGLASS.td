@@ -30,6 +30,7 @@ let TargetPrefix = "gla" in {  // All intrinsics start with "llvm.gla.".
   def int_gla_fReadData : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
   def int_gla_fWriteInterpolant : Intrinsic<[], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty]>;
   def int_gla_fReadInterpolant : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
+  def int_gla_fReadInterpolantSample : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
   def int_gla_fReadInterpolantOffset : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty], [IntrReadMem]>;
   def int_gla_getInterpolant : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
   def int_gla_writeData : Intrinsic<[], [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty]>;
@@ -54,9 +55,13 @@ let TargetPrefix = "gla" in {  // All intrinsics start with "llvm.gla.".
   def int_gla_readInterpolantComponent  : Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
   def int_gla_fReadInterpolantComponent : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
 
+  // dst = fReadInterpolantSampleComponent location, flags, sampleIdx, component
+  def int_gla_fReadInterpolantSampleComponent : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
+
   // dst = fReadInterpolantOffsetComponent location, flags, offset, component
   def int_gla_fReadInterpolantOffsetComponent : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty], [IntrReadMem]>;
 
+  def int_gla_fSamplePosition : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty], [IntrReadMem]>;
 }
 
 // Floating-Point and Integer Operations
@@ -76,7 +81,6 @@ let TargetPrefix = "gla" in {
 
   // fSaturate x === fClamp x, 0, 1
   def int_gla_fSaturate : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
-
 }
 
 // Floating-Point Only Operations
@@ -142,7 +146,7 @@ let TargetPrefix = "gla" in {
   def int_gla_fIntBitsTofloat : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_sBitFieldExtract : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
   def int_gla_uBitFieldExtract : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
-  def int_gla_bitFieldInsert : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty], [llvm_anyint_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
+  def int_gla_bitFieldInsert : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
   def int_gla_bitReverse : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_bitCount : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_findLSB : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty], [IntrNoMem]>;

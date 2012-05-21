@@ -64,11 +64,14 @@ namespace gla_llvm {
     {
         switch (intr->getIntrinsicID()) {
         case Intrinsic::gla_fReadInterpolant:
+        case Intrinsic::gla_fReadInterpolantSample:
         case Intrinsic::gla_fReadInterpolantOffset:
         case Intrinsic::gla_readData:
         case Intrinsic::gla_fReadData:
         case Intrinsic::gla_fReadInterpolantComponent:
+        case Intrinsic::gla_fReadInterpolantSampleComponent:
         case Intrinsic::gla_fReadInterpolantOffsetComponent:
+        case Intrinsic::gla_fSamplePosition:
         case Intrinsic::gla_readComponent:
         case Intrinsic::gla_fReadComponent:
         case Intrinsic::gla_loadComponent:

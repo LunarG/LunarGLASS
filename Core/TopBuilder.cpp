@@ -522,14 +522,18 @@ void Builder::copyOutPipeline()
     }
 }
 
-void Builder::writePipeline(llvm::Value* outValue, int slot, int mask, EInterpolationMode mode)
+void Builder::writePipeline(llvm::Value* outValue, int slot, int mask, EInterpolationMethod method, EInterpolationLocation location)
 {
-    writePipeline(outValue, MakeUnsignedConstant(context, slot), mask, mode);
+    writePipeline(outValue, MakeUnsignedConstant(context, slot), mask, method, location);
 }
 
-void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, EInterpolationMode mode)
+void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, EInterpolationMethod method, EInterpolationLocation location)
 {
     llvm::Constant *maskConstant = MakeIntConstant(context, mask);
+
+    EInterpolationMode mode = {};
+    mode.EIMMethod   = method;
+    mode.EIMLocation = location;
 
     if (! llvm::isa<llvm::IntegerType>(slot->getType()))
         gla::UnsupportedFunctionality("Pipeline write using non-integer index");
@@ -537,10 +541,10 @@ void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, 
     // This correction is necessary for some front ends, which might allow
     // "interpolated" integers or Booleans.
     if (! GetBasicType(outValue)->isFloatTy())
-        mode = EIMNone;
+        mode.EIMMethod = EIMNone;
 
     llvm::Function *intrinsic;
-    if (mode == EIMNone) {
+    if (mode.EIMMethod == EIMNone) {
         llvm::Intrinsic::ID intrinsicID;
         switch(GetBasicTypeID(outValue)) {
         case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
@@ -551,31 +555,38 @@ void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, 
         intrinsic = getIntrinsic(intrinsicID, outValue->getType());
         builder.CreateCall3(intrinsic, slot, maskConstant, outValue);
     } else {
-        llvm::Constant *modeConstant = MakeUnsignedConstant(context, mode);
+        llvm::Constant *modeConstant = MakeUnsignedConstant(context, reinterpret_cast<int&>(mode));
         intrinsic = getIntrinsic(llvm::Intrinsic::gla_fWriteInterpolant, outValue->getType());
         builder.CreateCall4(intrinsic, slot, maskConstant, modeConstant, outValue);
     }
 }
 
-llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, int slot, int mask, EInterpolationMode mode, float offsetX, float offsetY)
+llvm::Value* Builder::readPipeline(const llvm::Type* type, std::string& name, int slot, int mask,
+                                   EInterpolationMethod method, EInterpolationLocation location,
+                                   llvm::Value* offset, llvm::Value* sampleIdx)
 {
     llvm::Constant *slotConstant = MakeUnsignedConstant(context, slot);
     llvm::Constant *maskConstant = MakeIntConstant(context, mask);
 
+    EInterpolationMode mode = {};
+    mode.EIMMethod   = method;
+    mode.EIMLocation = location;
+
     // This correction is necessary for some front ends, which might allow
     // "interpolated" integers or Booleans.
     if (! GetBasicType(type)->isFloatTy())
-        mode = EIMNone;
+        mode.EIMMethod = EIMNone;
 
     llvm::Function *intrinsic;
-    if (mode != EIMNone) {
-        llvm::Constant *modeConstant = MakeUnsignedConstant(context, mode);
+    if (mode.EIMMethod != EIMNone) {
+        llvm::Constant *modeConstant = MakeUnsignedConstant(context, reinterpret_cast<int&>(mode));
 
-        if (offsetX != 0.0 || offsetY != 0.0) {
-            std::vector<llvm::Constant*> offsets;
-            offsets.push_back(MakeFloatConstant(context, offsetX));
-            offsets.push_back(MakeFloatConstant(context, offsetY));
-            llvm::Constant* offset = getConstant(offsets, llvm::VectorType::get(gla::GetFloatType(context), 2));
+        if (sampleIdx) {
+            assert(0 == offset);
+            intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolantSample, type);
+            return builder.CreateCall4(intrinsic, slotConstant, maskConstant, modeConstant, sampleIdx, name);
+        } else if (offset) {
+            assert(0 == sampleIdx);
             intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolantOffset, type, offset->getType());
             return builder.CreateCall4(intrinsic, slotConstant, maskConstant, modeConstant, offset, name);
         } else {
@@ -1312,6 +1323,45 @@ llvm::Value* Builder::createTextureQueryCall(llvm::Intrinsic::ID intrinsicID, co
     assert(intrinsicName);
 
     return builder.CreateCall3(intrinsicName, samplerType, sampler, src);
+}
+
+llvm::Value* Builder::createSamplePositionCall(const llvm::Type* returnType, llvm::Value* sampleIdx)
+{
+    // Return type is only flexible type
+    llvm::Function* intrinsicName = getIntrinsic(llvm::Intrinsic::gla_fSamplePosition, returnType);
+
+    return builder.CreateCall(intrinsicName, sampleIdx);
+}
+
+llvm::Value* Builder::createBitFieldExtractCall(llvm::Value* value, llvm::Value* offset, llvm::Value* bits, bool isSigned)
+{
+    llvm::Intrinsic::ID intrinsicID = isSigned ? llvm::Intrinsic::gla_sBitFieldExtract 
+                                               : llvm::Intrinsic::gla_uBitFieldExtract;
+
+    if (IsScalar(offset) == false || IsScalar(bits) == false)
+        gla::UnsupportedFunctionality("bitFieldExtract operand types");
+
+    // Dest and value are matching flexible types
+    llvm::Function* intrinsicName = getIntrinsic(intrinsicID, value->getType(), value->getType());
+
+    assert(intrinsicName);
+
+    return builder.CreateCall3(intrinsicName, value, offset, bits);
+}
+
+llvm::Value* Builder::createBitFieldInsertCall(llvm::Value* base, llvm::Value* insert, llvm::Value* offset, llvm::Value* bits)
+{
+    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::gla_bitFieldInsert;
+
+    if (IsScalar(offset) == false || IsScalar(bits) == false)
+        gla::UnsupportedFunctionality("bitFieldInsert operand types");
+
+    // Dest, base, and insert are matching flexible types
+    llvm::Function* intrinsicName = getIntrinsic(intrinsicID, base->getType(), base->getType(), base->getType());
+
+    assert(intrinsicName);
+
+    return builder.CreateCall4(intrinsicName, base, insert, offset, bits);
 }
 
 llvm::Value* Builder::createRecip(llvm::Value* operand)

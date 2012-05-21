@@ -633,7 +633,14 @@ bool Scalarize::scalarizeInputIntrinsic(IntrinsicInst* intr)
         args.push_back(intr->getOperand(2)); // Flags
         break;
 
+    case Intrinsic::gla_fReadInterpolantSample:
+        intrID = Intrinsic::gla_fReadInterpolantSampleComponent;
+        args.push_back(intr->getOperand(2)); // Flags
+        args.push_back(intr->getOperand(3)); // Sample index
+        break;
+
     case Intrinsic::gla_fReadInterpolantOffset:
+        intrID = Intrinsic::gla_fReadInterpolantOffsetComponent;
         intrTys[1] = intr->getOperand(3)->getType();
         numTys = 2;
         args.push_back(intr->getOperand(2)); // Flags

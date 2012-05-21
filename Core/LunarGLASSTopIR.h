@@ -102,12 +102,28 @@ namespace gla {
     const unsigned int ConstantAddressSpaceBase = 2;  // use multiple constant spaces through...
     // ConstantAddressSpaceBase + space, where 'space' is 0, 1, 2, ...
 
-    enum EInterpolationMode {
+    enum EInterpolationMethod {
         EIMNone,  // also for flat
         EIMSmooth,
-        EIMNoperspective
+        EIMNoperspective,
+        EIMLast
     };
-    
+
+    enum EInterpolationLocation {
+        EILFragment,
+        EILSample,
+        EILCentroid,
+        EILLast
+    };
+
+    struct EInterpolationMode {
+        #if (EIMLast > 3) || (EILLast > 3)
+            #error InterpolationMode fields too small
+        #endif
+        unsigned int EIMMethod   : 2;
+        unsigned int EIMLocation : 2;
+    };
+
     // This is the Top IR definition of shader types
     inline const llvm::Type* GetVoidType  (llvm::LLVMContext& context)   { return llvm::Type::getVoidTy  (context); }
     inline const llvm::Type* GetIntType   (llvm::LLVMContext& context)   { return llvm::Type::getInt32Ty (context); }

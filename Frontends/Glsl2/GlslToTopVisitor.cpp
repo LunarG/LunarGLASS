@@ -1508,17 +1508,17 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
         readType = convertGlslToGlaType(var->type);
     }
 
-    gla::EInterpolationMode mode = gla::EIMNone;
+    gla::EInterpolationMethod method = gla::EIMNone;
     if (glShader->Type == GL_FRAGMENT_SHADER) {
         switch (var->interpolation) {
         case ir_var_smooth:
-            mode = gla::EIMSmooth;
+            method = gla::EIMSmooth;
             break;
         case ir_var_noperspective:
-            mode = gla::EIMNoperspective;
+            method = gla::EIMNoperspective;
             break;
         case ir_var_flat:
-            mode = gla::EIMNone;
+            method = gla::EIMNone;
             break;
         default:
             gla::UnsupportedFunctionality("interpolation mode");
@@ -1526,5 +1526,5 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
     }
 
     // Give each interpolant a temporary unique index
-    return glaBuilder->readPipeline(readType, name, getNextInterpIndex(name), -1 /*mask*/, mode);
+    return glaBuilder->readPipeline(readType, name, getNextInterpIndex(name), -1 /*mask*/, method);
 }

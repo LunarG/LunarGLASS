@@ -213,6 +213,9 @@
     <ClInclude Include="..\Core\Passes\PassSupport.h">
       <Filter>Core\Passes</Filter>
     </ClInclude>
+    <ClInclude Include="..\Core\Passes\Util\ConstantUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Core\TopToBottom.cpp">
@@ -510,6 +513,9 @@
       <Filter>Core\Passes\Transforms</Filter>
     </ClCompile>
     <ClCompile Include="..\Core\Passes\Transforms\Scalarize.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Core\Passes\Transforms\GatherInsts.cpp">
       <Filter>Core\Passes\Transforms</Filter>
     </ClCompile>
   </ItemGroup>

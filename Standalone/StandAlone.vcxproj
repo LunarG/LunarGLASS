@@ -95,6 +95,7 @@
     <ClInclude Include="..\Core\Passes\InitializePasses.h" />
     <ClInclude Include="..\Core\Passes\Passes.h" />
     <ClInclude Include="..\Core\Passes\PassSupport.h" />
+    <ClInclude Include="..\Core\Passes\Util\ConstantUtil.h" />
     <ClInclude Include="..\Core\Passes\Util\DominatorsUtil.h" />
     <ClInclude Include="..\Core\Passes\Util\InstructionUtil.h" />
     <ClInclude Include="..\Frontends\Glsl2\GlslToTop.h" />
@@ -148,6 +149,7 @@
     <ClCompile Include="..\Core\BottomTranslator.cpp" />
     <ClCompile Include="..\Core\Exceptions.cpp" />
     <ClCompile Include="..\Core\Passes\Transforms\DecomposeInsts.cpp" />
+    <ClCompile Include="..\Core\Passes\Transforms\GatherInsts.cpp" />
     <ClCompile Include="..\Core\Passes\Transforms\IntrinsicCombine.cpp" />
     <ClCompile Include="..\Core\Passes\Transforms\Scalarize.cpp" />
     <ClCompile Include="..\Core\Passes\Util\InstructionUtil.cpp" />
