@@ -68,6 +68,14 @@ float GetConstantFloat(const llvm::Value* value)
     return constantFP->getValueAPF().convertToFloat();
 }
 
+double GetConstantDouble(const llvm::Value* value)
+{
+    const llvm::ConstantFP *constantFP = llvm::dyn_cast<llvm::ConstantFP>(value);
+    assert(constantFP);
+
+    return constantFP->getValueAPF().convertToDouble();
+}
+
 int GetComponentCount(const llvm::Type* type)
 {
     if (type->getTypeID() == llvm::Type::VectorTyID)

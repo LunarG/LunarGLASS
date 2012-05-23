@@ -51,11 +51,12 @@ namespace gla {
     //
 
     // Helpers to make constants
-    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(1, i, false)); }
-    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, bool True) { return llvm::ConstantInt::get(context, llvm::APInt(1, True ? 1 : 0, false)); }
-    inline llvm::Constant* MakeUnsignedConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, false)); }
-    inline llvm::Constant* MakeIntConstant(llvm::LLVMContext& context, int i) { return llvm::ConstantInt::get(context, llvm::APInt(32, i, true)); }
-    inline llvm::Constant* MakeFloatConstant(llvm::LLVMContext& context, float f) { return llvm::ConstantFP::get(context, llvm::APFloat(f)); };
+    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, int i)      { return llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),  i, false); }
+    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, bool True)  { return llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),  True ? 1 : 0, false); }
+    inline llvm::Constant* MakeUnsignedConstant(llvm::LLVMContext& context, int i)  { return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), i, false); }
+    inline llvm::Constant* MakeIntConstant(llvm::LLVMContext& context, int i)       { return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), i, true); }
+    inline llvm::Constant* MakeFloatConstant(llvm::LLVMContext& context, float f)   { return llvm::ConstantFP::get(llvm::Type::getFloatTy(context),  f); };
+    inline llvm::Constant* MakeDoubleConstant(llvm::LLVMContext& context, double f) { return llvm::ConstantFP::get(llvm::Type::getDoubleTy(context), f); };
 
     inline llvm::Constant* VectorizeConstant(int numComponents, llvm::Constant* constant)
     {
@@ -73,6 +74,7 @@ namespace gla {
 
     // Get floating point value or assert trying
     float GetConstantFloat(const llvm::Value*);
+    double GetConstantDouble(const llvm::Value*);
 
     int GetComponentCount(const llvm::Type*);
     int GetComponentCount(const llvm::Value*);

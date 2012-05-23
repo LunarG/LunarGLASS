@@ -132,6 +132,18 @@ namespace gla {
     inline const llvm::Type* GetFloatType (llvm::LLVMContext& context)   { return llvm::Type::getFloatTy (context); }
     inline const llvm::Type* GetDoubleType(llvm::LLVMContext& context)   { return llvm::Type::getDoubleTy(context); }
 
+    inline const llvm::Type* GetVectorOrScalarType(const llvm::Type* type, int numComponents)
+    {
+        type = type->isVectorTy() ? type->getContainedType(0) : type;
+
+        assert(numComponents > 0);
+
+        if (numComponents <= 1)
+            return type;
+     
+        return llvm::VectorType::get(type, numComponents);
+    }
+
     // Encode where components come from.
     // E.g. 'c2' is the index (0..3) of where component 2 comes from
     inline int MakeSwizzleMask(int c0, int c1, int c2, int c3) 
