@@ -29,6 +29,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+#ifndef GLA_EXCEPTIONS_H
+#define GLA_EXCEPTIONS_H
+
 #include <string>
 
 namespace gla {
@@ -65,3 +68,6 @@ namespace gla {
     */
 
 } // End gla namespace
+
+#endif /* GLA_EXCEPTIONS_H */
+
