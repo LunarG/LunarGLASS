@@ -40,8 +40,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "llvm/Pass.h"
 #include "llvm/Transforms/Utils/Local.h"
+#include "llvm/Pass.h"
 
 #include "Passes/PassSupport.h"
 #include "Passes/Immutable/BackEndPointer.h"
@@ -70,8 +70,8 @@ namespace  {
         virtual void getAnalysisUsage(AnalysisUsage&) const;
 
     private:
-        // Delete the instructions in the deadList
-        void dce();
+        // Delete the instructions in the deadSet
+        bool dce(Function& F);
 
         // Optimize min(max(a,b),c) into saturate or clamp
         bool visitMinMaxPair(IntrinsicInst* fMin, IntrinsicInst* fMax);
@@ -95,22 +95,16 @@ namespace  {
 
 
         // Whether the passed value is a trunc from i64->i32
-        bool is64To32BitTrunc(const llvm::TruncInst* trunc)
+        bool is64To32BitTrunc(const TruncInst* trunc)
         {
             return trunc && gla::GetBasicType(trunc->getSrcTy()) == i64Ty
                 && gla::GetBasicType(trunc->getDestTy()) == i32Ty;
         }
-        bool is64To32BitTrunc(const llvm::Value* truncInst)
+        bool is64To32BitTrunc(const Value* truncInst)
         {
             const TruncInst* trunc = dyn_cast<const TruncInst>(truncInst);
             return is64To32BitTrunc(trunc);
         }
-
-        // When combining/optimizing intrinsics, use the deadList to keep
-        // values/instructions that we want to try to recursively delete from
-        // the function. This allows iterators to be preserved when iterating
-        // over instructions.
-        std::vector<Value*> deadList;
 
         Module* module;
         LLVMContext* context;
@@ -126,11 +120,23 @@ namespace  {
     };
 } // end namespace
 
-void GatherInsts::dce()
+bool GatherInsts::dce(Function& F)
 {
-    for (std::vector<Value*>::iterator i = deadList.begin(), e = deadList.end(); i != e; ++i) {
-        RecursivelyDeleteTriviallyDeadInstructions(*i);
+    bool changed = false;
+
+    // (recursively) delete the trivially dead instructions. This is safe to do
+    // recursively (iterators will remain valid) because we only delete prior
+    // instructions in the basic block, i.e. the use is deleted which may enable
+    // the def (which must precede/dominate the use) to be deleted.
+    for (Function::iterator bbI = F.begin(), bbE = F.end(); bbI != bbE; ++bbI) {
+        for (BasicBlock::iterator instI = bbI->begin(), instE = bbI->end(); instI != instE; /* empty */) {
+            BasicBlock::iterator prev = instI;
+            ++instI;
+            changed |= RecursivelyDeleteTriviallyDeadInstructions(prev);
+        }
     }
+
+    return changed;
 }
 
 bool GatherInsts::runOnFunction(Function& F)
@@ -161,7 +167,7 @@ bool GatherInsts::runOnFunction(Function& F)
         }
     }
 
-    dce();
+    changed |= dce(F);
 
     delete builder;
     builder = 0;
@@ -213,8 +219,8 @@ bool GatherInsts::matchMulExtended(const Instruction* mul, Value*& operand0, Val
     }
 
     // Operands have to be extended similarly with respect to sign
-    const llvm::Instruction* op0Inst = llvm::dyn_cast<const llvm::Instruction>(mul->getOperand(0));
-    const llvm::Instruction* op1Inst = llvm::dyn_cast<const llvm::Instruction>(mul->getOperand(1));
+    const Instruction* op0Inst = dyn_cast<const Instruction>(mul->getOperand(0));
+    const Instruction* op1Inst = dyn_cast<const Instruction>(mul->getOperand(1));
     if (op0Inst && op1Inst && op0Inst->getOpcode() != op1Inst->getOpcode())
         return false;
 
@@ -326,8 +332,6 @@ bool GatherInsts::visitMinMaxPair(IntrinsicInst* fMin, IntrinsicInst* fMax)
             Instruction* satInst = builder->CreateCall(f, saturateCandidate);
 
             fMin->replaceAllUsesWith(satInst);
-            deadList.push_back(fMin);
-            deadList.push_back(fMax);
 
             return true;
         }
@@ -343,8 +347,6 @@ bool GatherInsts::visitMinMaxPair(IntrinsicInst* fMin, IntrinsicInst* fMax)
                                                   fMin->getArgOperand(nonfMaxOpIdx));
 
     fMin->replaceAllUsesWith(clampInst);
-    deadList.push_back(fMin);
-    deadList.push_back(fMax);
 
     return true;
 }
@@ -364,20 +366,15 @@ bool GatherInsts::visitMulExtended(BinaryOperator* imul, Value* operand0, Value*
     Function* f = Intrinsic::getDeclaration(module, id, tys, 4);
     Instruction* mulExtended = builder->CreateCall2(f, operand0, operand1);
 
-    // Make the extracts, update the code to use the new values, and delete the
-    // old code.
-    // Note that the deletion of values in the deadList is recursive, and thus
-    // will also delete the mul and the [s|z]ext instructions.
+    // Make the extracts and update the code to use the new values.
     if (highBits) {
         Value* extractHigh = builder->CreateExtractValue(mulExtended, 0);
         highBits->replaceAllUsesWith(extractHigh);
-        deadList.push_back(highBits);
     }
 
     if (lowBits) {
         Value* extractLow = builder->CreateExtractValue(mulExtended, 1);
         lowBits->replaceAllUsesWith(extractLow);
-        deadList.push_back(lowBits);
     }
 
     return true;
