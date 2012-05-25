@@ -27,8 +27,8 @@
 // Gather llvm instructions and LunarGLASS intrinsics into a single LunarGLASS
 // intrinsic when able.
 //
-//   * trunc(mul(ext(x), ext(y))); trunc(mul(ext(x), ext(y)) >> 32)
-//                          ==> mulExtended(x,y)
+//   * trunc([mul|add|sub](ext(x), ext(y))); trunc([mul|add|sub](ext(x), ext(y)) >> 32)
+//                          ==> [mul|add|sub][Extended|Carry|Borrow](x,y)
 //
 //   * div(x, y); rem(x, y) ==> ??? new div/rem combination ???
 //
@@ -79,31 +79,73 @@ namespace  {
         bool visit(Instruction* inst);
         bool visitIntrinsic(IntrinsicInst* intr);
 
-        bool visitMulExtended(BinaryOperator* imul, Value* operand0, Value* operand1, Value* highBits, Value* lowBits,
-                              bool isSigned);
+
 
         // Pattern matching methods
 
-        // Try to match an extended multiply patter. Takes the multiply as
-        // input. Returns whether the multiply matches a multiple-extended
-        // pattern, along with whether it is signed and the llvm values for the
-        // original (i32) operands and high and low bits in the passed
-        // parameters operand0/operand1/high/lowBits/isSigned, when present.
-        bool matchMulExtended(/* inputs */  const Instruction* mulInst,
-                              /* outputs */ Value*& operand0, Value*& operand1, Value*& highBits, Value*& lowBits,
-                                            bool& isSigned);
+        // Try to match an extended binary operator (e.g. mulExteneded,
+        // addCarry) pattern. Takes the bin-op as input. Returns whether the
+        // bin-op matches a bin-op-extended pattern, along with whether it is
+        // signed and the llvm values for the original (i32) operands and high
+        // and low bits in the passed parameters
+        // operand0/operand1/high/lowBits/isSigned, when present.
+        bool matchBinOpExtended(/* inputs */  const BinaryOperator* binOp,
+                               /* outputs */ Value*& operand0, Value*& operand1, Value*& highBits, Value*& lowBits,
+                                             bool& isSigned);
+
+
+        // Creator helpers
+
+        bool createExtendedBinOp(Intrinsic::ID extId, BinaryOperator* binOp, Value* operand0, Value* operand1,
+                                 Value* highBits, Value* lowBits);
 
 
         // Whether the passed value is a trunc from i64->i32
-        bool is64To32BitTrunc(const TruncInst* trunc)
+        bool is64To32BitTrunc(const TruncInst* trunc) const
         {
             return trunc && gla::GetBasicType(trunc->getSrcTy()) == i64Ty
                 && gla::GetBasicType(trunc->getDestTy()) == i32Ty;
         }
-        bool is64To32BitTrunc(const Value* truncInst)
+        bool is64To32BitTrunc(const Value* truncInst) const
         {
             const TruncInst* trunc = dyn_cast<const TruncInst>(truncInst);
             return is64To32BitTrunc(trunc);
+        }
+
+        bool isExtendedOp(const Instruction* inst) const
+        {
+            return isExtendableOpcode(inst->getOpcode()) && gla::GetBasicType(inst->getType()) == i64Ty;
+        }
+
+        bool isExtendableOpcode(unsigned opcode) const
+        {
+            return opcode == Instruction::Mul || opcode == Instruction::Add || opcode == Instruction::Sub;
+        }
+
+        Intrinsic::ID getExtendedIntrinsicID(unsigned opcode, bool isSigned) const
+        {
+            assert(isExtendableOpcode(opcode));
+
+            switch (opcode) {
+            case Instruction::Add:
+                if (isSigned)
+                    gla::UnsupportedFunctionality("Signed addCarry");
+
+                return Intrinsic::gla_addCarry;
+
+            case Instruction::Sub:
+                if (isSigned)
+                    gla::UnsupportedFunctionality("Signed subBorrow");
+
+                return Intrinsic::gla_subBorrow;
+
+            case Instruction::Mul:
+                return isSigned ? Intrinsic::gla_smulExtended : Intrinsic::gla_umulExtended;
+
+            default:
+                return Intrinsic::not_intrinsic;
+
+            } // end of switch (opcode)
         }
 
         Module* module;
@@ -175,15 +217,15 @@ bool GatherInsts::runOnFunction(Function& F)
     return changed;
 }
 
-bool GatherInsts::matchMulExtended(const Instruction* mul, Value*& operand0, Value*& operand1,
+bool GatherInsts::matchBinOpExtended(const BinaryOperator* binOp, Value*& operand0, Value*& operand1,
                                    Value*& highBits, Value*& lowBits, bool& isSigned)
 {
     // Match:
     //   %lhs = [s|z]ext i32 %operand0, i64
     //   %rhs = [s|z]ext i32 %operand1, i64
-    //   %mul = mul i64 %lhs, i64 %rhs
-    //   %res_lo = trunc i64 %mul, i32
-    //   %shift = [l|a]shr i64 res, 32
+    //   %res = binOp i64 %lhs, i64 %rhs
+    //   %res_lo = trunc i64 %res, i32
+    //   %shift = [l|a]shr i64 %res, 32
     //   %res_hi = trunc i64 %shift, i32
     // modulo vector-ness
 
@@ -192,14 +234,14 @@ bool GatherInsts::matchMulExtended(const Instruction* mul, Value*& operand0, Val
     operand0 = 0;
     operand1 = 0;
 
-    // Has to be a 64-bit multiply
-    if (mul->getOpcode() != Instruction::Mul || gla::GetBasicType(mul) != i64Ty)
+    // // Has to be an extendable 64-bit integral binOp.
+    if (! isExtendedOp(binOp))
         return false;
 
     // Operands have to be extended i32 -> i64 and they have to match in their
     // extension (signed vs zero).
-    for (unsigned int i = 0; i < mul->getNumOperands(); ++i) {
-        Value* v = mul->getOperand(i);
+    for (unsigned int i = 0; i < binOp->getNumOperands(); ++i) {
+        Value* v = binOp->getOperand(i);
 
         if (const CastInst* ext = dyn_cast<CastInst>(v)) {
             if ((ext->getOpcode() != Instruction::SExt && ext->getOpcode() != Instruction::ZExt)
@@ -211,22 +253,23 @@ bool GatherInsts::matchMulExtended(const Instruction* mul, Value*& operand0, Val
             isSigned = ext->getOpcode() == Instruction::SExt;
 
         } else if (const Constant* cArg = dyn_cast<const Constant>(v)) {
-            // TODO: handle the case where a constant made its way into the mulExtended.
-            gla::UnsupportedFunctionality("extended multiply of a constant");
+            // TODO: handle the case where a constant made its way into the
+            // extended binOp.
+            gla::UnsupportedFunctionality("extended binOp of a constant");
         } else {
             return false;
         }
     }
 
     // Operands have to be extended similarly with respect to sign
-    const Instruction* op0Inst = dyn_cast<const Instruction>(mul->getOperand(0));
-    const Instruction* op1Inst = dyn_cast<const Instruction>(mul->getOperand(1));
+    const Instruction* op0Inst = dyn_cast<const Instruction>(binOp->getOperand(0));
+    const Instruction* op1Inst = dyn_cast<const Instruction>(binOp->getOperand(1));
     if (op0Inst && op1Inst && op0Inst->getOpcode() != op1Inst->getOpcode())
         return false;
 
-    // The multiply's result has to be immediately broken apart into its high
+    // The binOp's result has to be immediately broken apart into its high
     // and/or low bits
-    for (Value::const_use_iterator i = mul->use_begin(), e = mul->use_end(); i != e; ++i) {
+    for (Value::const_use_iterator i = binOp->use_begin(), e = binOp->use_end(); i != e; ++i) {
         const Instruction* use = dyn_cast<const Instruction>(*i);
         if (! use)
             return false;
@@ -275,7 +318,7 @@ bool GatherInsts::matchMulExtended(const Instruction* mul, Value*& operand0, Val
         highBits = const_cast<Instruction*>(shift->use_back());
     }
 
-    // We've identified a mul extended pattern
+    // We've identified an extended binary op pattern
     return true;
 }
 
@@ -351,29 +394,27 @@ bool GatherInsts::visitMinMaxPair(IntrinsicInst* fMin, IntrinsicInst* fMax)
     return true;
 }
 
-bool GatherInsts::visitMulExtended(BinaryOperator* imul, Value* operand0, Value* operand1,
-                                   Value* highBits, Value* lowBits, bool isSigned)
+bool GatherInsts::createExtendedBinOp(Intrinsic::ID extId, BinaryOperator* binOp, Value* operand0, Value* operand1,
+                                      Value* highBits, Value* lowBits)
 {
-    assert(imul->getOpcode() == Instruction::Mul && gla::GetBasicType(imul->getType()) == i64Ty
-           && operand0 && operand1 && operand0->getType() == operand1->getType()
+    assert(isExtendedOp(binOp) && operand0 && operand1 && operand0->getType() == operand1->getType()
            && gla::GetBasicType(operand0->getType()) == i32Ty);
 
     // Make the mulExtended
-    builder->SetInsertPoint(imul);
+    builder->SetInsertPoint(binOp);
     const Type* type = operand0->getType();
     const Type* tys[4] = { type, type, type, type };
-    Intrinsic::ID id = isSigned ? Intrinsic::gla_smulExtended : Intrinsic::gla_umulExtended;
-    Function* f = Intrinsic::getDeclaration(module, id, tys, 4);
-    Instruction* mulExtended = builder->CreateCall2(f, operand0, operand1);
+    Function* f = Intrinsic::getDeclaration(module, extId, tys, 4);
+    Instruction* extIntrinsic = builder->CreateCall2(f, operand0, operand1);
 
     // Make the extracts and update the code to use the new values.
     if (highBits) {
-        Value* extractHigh = builder->CreateExtractValue(mulExtended, 0);
+        Value* extractHigh = builder->CreateExtractValue(extIntrinsic, 0);
         highBits->replaceAllUsesWith(extractHigh);
     }
 
     if (lowBits) {
-        Value* extractLow = builder->CreateExtractValue(mulExtended, 1);
+        Value* extractLow = builder->CreateExtractValue(extIntrinsic, 1);
         lowBits->replaceAllUsesWith(extractLow);
     }
 
@@ -413,8 +454,12 @@ bool GatherInsts::visit(Instruction* inst)
         return visitIntrinsic(intr);
     }
 
-    switch (inst->getOpcode()) {
+    unsigned opcode = inst->getOpcode();
 
+    switch (opcode) {
+
+    case Instruction::Sub:
+    case Instruction::Add:
     case Instruction::Mul: {
         Value* operand0;
         Value* operand1;
@@ -422,8 +467,12 @@ bool GatherInsts::visit(Instruction* inst)
         Value* lowBits;
         bool isSigned;
 
-        if (matchMulExtended(inst, operand0, operand1, highBits, lowBits, isSigned))
-            return visitMulExtended(cast<BinaryOperator>(inst), operand0, operand1, highBits, lowBits, isSigned);
+        BinaryOperator* binOp = dyn_cast<BinaryOperator>(inst);
+        assert(binOp);
+
+        if (matchBinOpExtended(binOp, operand0, operand1, highBits, lowBits, isSigned))
+            return createExtendedBinOp(getExtendedIntrinsicID(opcode, isSigned), binOp, operand0, operand1,
+                                       highBits, lowBits);
 
         break;
     }
