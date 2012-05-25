@@ -536,7 +536,6 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             break;
         case Intrinsic::gla_fCross:
             if (backEnd->decomposeIntrinsic(EDiCross)) {
-            {
                 // (a1, a2, a3) X (b1, b2, b3) -> (a2*b3 - a3*b2, a3*b1 - a1*b3, a1*b2 - a2*b1)
 
                 llvm::Value* a1 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 0));
