@@ -536,6 +536,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             break;
         case Intrinsic::gla_fCross:
             if (backEnd->decomposeIntrinsic(EDiCross)) {
+            {
                 // (a1, a2, a3) X (b1, b2, b3) -> (a2*b3 - a3*b2, a3*b1 - a1*b3, a1*b2 - a2*b1)
 
                 llvm::Value* a1 = builder.CreateExtractElement(arg0, MakeUnsignedConstant(module->getContext(), 0));
@@ -548,23 +549,62 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
 
                 llvm::Value* empty = llvm::UndefValue::get(arg0->getType());
 
-                // a2*b3 - a3*b2
-                llvm::Value* p1 = builder.CreateFMul(a2, b3);
-                llvm::Value* p2 = builder.CreateFMul(a3, b2);
-                llvm::Value* element = builder.CreateFSub(p1, p2);
-                newInst = builder.CreateInsertElement(empty, element, MakeUnsignedConstant(module->getContext(), 0));
+                bool scalarized = false;
 
-                // a3*b1 - a1*b3
-                p1 = builder.CreateFMul(a3, b1);
-                p2 = builder.CreateFMul(a1, b3);
-                element = builder.CreateFSub(p1, p2);
-                newInst = builder.CreateInsertElement(newInst, element, MakeUnsignedConstant(module->getContext(), 1));
+                if (scalarized) {
+                    // do it all with scalars
 
-                // a1*b2 - a2*b1
-                p1 = builder.CreateFMul(a1, b2);
-                p2 = builder.CreateFMul(a2, b1);
-                element = builder.CreateFSub(p1, p2);
-                newInst = builder.CreateInsertElement(newInst, element, MakeUnsignedConstant(module->getContext(), 2));
+                    // a2*b3 - a3*b2
+                    llvm::Value* p1 = builder.CreateFMul(a2, b3);
+                    llvm::Value* p2 = builder.CreateFMul(a3, b2);
+                    llvm::Value* element = builder.CreateFSub(p1, p2);
+                    newInst = builder.CreateInsertElement(empty, element, MakeUnsignedConstant(module->getContext(), 0));
+
+                    // a3*b1 - a1*b3
+                    p1 = builder.CreateFMul(a3, b1);
+                    p2 = builder.CreateFMul(a1, b3);
+                    element = builder.CreateFSub(p1, p2);
+                    newInst = builder.CreateInsertElement(newInst, element, MakeUnsignedConstant(module->getContext(), 1));
+
+                    // a1*b2 - a2*b1
+                    p1 = builder.CreateFMul(a1, b2);
+                    p2 = builder.CreateFMul(a2, b1);
+                    element = builder.CreateFSub(p1, p2);
+                    newInst = builder.CreateInsertElement(newInst, element, MakeUnsignedConstant(module->getContext(), 2));
+                } else {
+                    // do it all with vectors
+
+                    // (a2, a3, a1)
+                    llvm::Value* aPerm;
+                    aPerm = builder.CreateInsertElement(empty, a2, MakeUnsignedConstant(module->getContext(), 0));
+                    aPerm = builder.CreateInsertElement(aPerm, a3, MakeUnsignedConstant(module->getContext(), 1));
+                    aPerm = builder.CreateInsertElement(aPerm, a1, MakeUnsignedConstant(module->getContext(), 2));
+
+                    // (b3, b1, b2)
+                    llvm::Value* bPerm;
+                    bPerm = builder.CreateInsertElement(empty, b3, MakeUnsignedConstant(module->getContext(), 0));
+                    bPerm = builder.CreateInsertElement(bPerm, b1, MakeUnsignedConstant(module->getContext(), 1));
+                    bPerm = builder.CreateInsertElement(bPerm, b2, MakeUnsignedConstant(module->getContext(), 2));
+
+                    // first term computation
+                    llvm::Value* firstTerm = builder.CreateFMul(aPerm, bPerm);
+
+                    // (a3, a1, a2)
+                    aPerm = builder.CreateInsertElement(empty, a3, MakeUnsignedConstant(module->getContext(), 0));
+                    aPerm = builder.CreateInsertElement(aPerm, a1, MakeUnsignedConstant(module->getContext(), 1));
+                    aPerm = builder.CreateInsertElement(aPerm, a2, MakeUnsignedConstant(module->getContext(), 2));
+
+                    // (b2, b3, b1)
+                    bPerm = builder.CreateInsertElement(empty, b2, MakeUnsignedConstant(module->getContext(), 0));
+                    bPerm = builder.CreateInsertElement(bPerm, b3, MakeUnsignedConstant(module->getContext(), 1));
+                    bPerm = builder.CreateInsertElement(bPerm, b1, MakeUnsignedConstant(module->getContext(), 2));
+
+                    // second term computation
+                    newInst = builder.CreateFMul(aPerm, bPerm);
+
+                    // Finish it off
+                    newInst = builder.CreateFSub(firstTerm, newInst);
+                }
             }
             break;
         case Intrinsic::gla_fNormalize:
