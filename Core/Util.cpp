@@ -167,7 +167,6 @@ const llvm::Type* GetBasicType(const llvm::Type* type)
         return GetBasicType(type->getContainedType(0));
     }
 
-    assert(gla::IsScalar(type));
     return type;
 }
 
