@@ -46,33 +46,51 @@ using namespace llvm;
 /// ConstantExpr if unfoldable.
 static Constant *FoldBitCast(Constant *C, const Type *DestTy,
                              const TargetData &TD) {
-  
-  // This only handles casts to vectors currently.
+
+  // Handle bitcast (<2 x float> <float 0, float 1> to double)
+  if (DestTy->isDoubleTy() && C->getType()->isVectorTy() && C->getType()->getContainedType(0)->isFloatTy() &&
+      C->getNumOperands() == 2 && TD.isLittleEndian()) {
+    if (isa<ConstantVector>(C)) {
+      unsigned FPWidth = DestTy->getPrimitiveSizeInBits();
+      const Type *DestITy = IntegerType::get(C->getContext(), FPWidth);
+      llvm::SmallVector<Constant*, 2> elements;
+      C->getVectorElements(elements);
+      const llvm::ConstantFP *element0 = dyn_cast<ConstantFP>(elements[0]);
+      const llvm::ConstantFP *element1 = dyn_cast<ConstantFP>(elements[1]);
+      if (element0 && element1) {
+        unsigned __int64 i64 = (element1->getValueAPF().bitcastToAPInt().getZExtValue() << 32) | 
+                                element0->getValueAPF().bitcastToAPInt().getZExtValue();
+        return ConstantFP::get(DestTy, reinterpret_cast<double&>(i64));
+      }
+    }
+  }
+
+  // The remainder only handles casts to vectors currently.
   const VectorType *DestVTy = dyn_cast<VectorType>(DestTy);
   if (DestVTy == 0)
     return ConstantExpr::getBitCast(C, DestTy);
-  
+
   // If this is a scalar -> vector cast, convert the input into a <1 x scalar>
   // vector so the code below can handle it uniformly.
   if (isa<ConstantFP>(C) || isa<ConstantInt>(C)) {
     Constant *Ops = C; // don't take the address of C!
     return FoldBitCast(ConstantVector::get(Ops), DestTy, TD);
   }
-  
+
   // If this is a bitcast from constant vector -> vector, fold it.
   ConstantVector *CV = dyn_cast<ConstantVector>(C);
   if (CV == 0)
     return ConstantExpr::getBitCast(C, DestTy);
-  
+
   // If the element types match, VMCore can fold it.
   unsigned NumDstElt = DestVTy->getNumElements();
   unsigned NumSrcElt = CV->getNumOperands();
   if (NumDstElt == NumSrcElt)
     return ConstantExpr::getBitCast(C, DestTy);
-  
+
   const Type *SrcEltTy = CV->getType()->getElementType();
   const Type *DstEltTy = DestVTy->getElementType();
-  
+
   // Otherwise, we're changing the number of elements in a vector, which 
   // requires endianness information to do the right thing.  For example,
   //    bitcast (<2 x i64> <i64 0, i64 1> to <4 x i32>)
