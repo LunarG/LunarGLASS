@@ -634,7 +634,6 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             break;
         case Intrinsic::gla_fNormalize3D:
             if (backEnd->decomposeIntrinsic(EDiNormalize3D)) {
-                UnsupportedFunctionality("decomposition of gla_fNormalize3D");
 
                 // Note:  This does a 3D normalize on a vec3 or vec4.  The width of arg0 does
                 // not determine that width of the dot-product input, the "3" in the "3D" does.
@@ -650,6 +649,10 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 llvm::Value* smeared = llvm::UndefValue::get(arg0->getType());
                 for (int c = 0; c < GetComponentCount(arg0); ++c)
                     smeared = builder.CreateInsertElement(smeared, newInst, MakeIntConstant(module->getContext(), c));
+
+                // If we're 4-wide, copy over the original w component
+                if (GetComponentCount(arg0) == 4)
+                    smeared = builder.CreateInsertElement(smeared, arg0, MakeIntConstant(module->getContext(), 4));
 
                 newInst = builder.CreateFMul(arg0, smeared);
 
