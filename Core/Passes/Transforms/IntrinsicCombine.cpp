@@ -289,21 +289,59 @@ bool IntrinsicCombine::splitWriteData(IntrinsicInst* intr)
     components.push_back(miInst->getOperand(6));
     components.push_back(miInst->getOperand(8));
 
-    bool areAllScalar = AreScalar(components);
-    if (! areAllScalar || IsDefined(miInst->getOperand(0))) {
-        // TODO: non-scalar cases (including multi-insert into a value)
+    if (IsDefined(miInst->getOperand(0))) {
+        // TODO: Handle cases of inserting into a defined dest
         return false;
     }
 
+    // Make fWriteDatas for each source vector/scalar with copy-across
+    // components
     IRBuilder<> builder(intr);
+
+    // A map of each source to the components it copies directly.
+    DenseMap<Value*, SmallVector<unsigned int, 4> > copyAcrossSources;
+
     for (unsigned int i = 0; i < 4; ++i) {
         if (! MultiInsertWritesComponent(miInst, i))
             continue;
 
         Value* arg = components[i];
         const Type* ty = arg->getType();
+        Constant* select = selects[i];
+
+        // If this is a vector source, see if the select just carries the
+        // component across
+        if (ty->isVectorTy()) {
+            ConstantInt* comp = dyn_cast<ConstantInt>(select);
+            if (! comp || ! comp->equalsInt(i)) {
+                // TODO: Partially break apart the multiInsert
+                return false;
+            }
+
+            copyAcrossSources[arg].push_back(i);
+
+        } else if (gla::IsScalar(arg)) {
+            // Scalars are always copy across
+            copyAcrossSources[arg].push_back(i);
+        } else {
+            gla::UnsupportedFunctionality("multiInsert with a non-scalar non-vector source");
+        }
+    }
+
+    // Make the fWriteDatas
+    for (DenseMap<Value*, SmallVector<unsigned int, 4> >::iterator i = copyAcrossSources.begin(),
+             e = copyAcrossSources.end(); i != e; ++i) {
+
+        // Have the writemask contain only the components written
+        unsigned int wmask = 0;
+        for (SmallVector<unsigned int, 4>::iterator componentI = i->second.begin(), componentE = i->second.end();
+             componentI != componentE; ++componentI) {
+            wmask |= (1 << *componentI);
+        }
+
+        const Type* ty = i->first->getType();
         Function* writeData = Intrinsic::getDeclaration(module, intr->getIntrinsicID(), &ty, 1);
-        builder.CreateCall3(writeData, intr->getArgOperand(0), ConstantInt::get(wm->getType(), 1 << i), arg);
+        builder.CreateCall3(writeData, intr->getArgOperand(0), ConstantInt::get(wm->getType(), wmask), i->first);
     }
 
     // Delete the old write
