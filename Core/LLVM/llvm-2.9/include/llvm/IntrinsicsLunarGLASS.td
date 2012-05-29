@@ -117,7 +117,7 @@ let TargetPrefix = "gla" in {
   def int_gla_fRoundZero : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fRoundFast : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fFraction : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fModF : Intrinsic<[llvm_anyfloat_ty, llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fModF : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fMix : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fStep : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fSmoothStep : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
@@ -232,11 +232,11 @@ let TargetPrefix = "gla" in {
 
 // Geometry
 let TargetPrefix = "gla" in {
-  def int_gla_fLength : Intrinsic<[llvm_float_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fDistance : Intrinsic<[llvm_float_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fDot2 : Intrinsic<[llvm_float_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fDot3 : Intrinsic<[llvm_float_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fDot4 : Intrinsic<[llvm_float_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fLength : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fDistance : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fDot2 : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fDot3 : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fDot4 : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fCross : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fNormalize : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fNormalize3D : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
