@@ -429,7 +429,8 @@ bool GatherInsts::visitIntrinsic(IntrinsicInst* intr)
         // min(max(a,b),c)
 
         // TODO: handle the multiple-use case
-        if (intr->hasOneUse())
+        // TODO: also compose doubles based on backend query
+        if (intr->hasOneUse() && gla::GetBasicType(intr->getType())->isFloatTy())
             if (IntrinsicInst* useIntr = dyn_cast<IntrinsicInst>(intr->use_back()))
                 if (useIntr->getIntrinsicID() == Intrinsic::gla_fMin)
                     return visitMinMaxPair(useIntr, intr);
