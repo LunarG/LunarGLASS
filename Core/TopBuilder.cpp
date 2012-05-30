@@ -900,7 +900,7 @@ llvm::Value* Builder::createVectorTimesMatrix(llvm::Value* lvector, Matrix* matr
         assert(! "bad matrix size in createVectorTimesMatrix");
     }
 
-    llvm::Function *dot = Builder::getIntrinsic(dotIntrinsic, lvector->getType(), lvector->getType());
+    llvm::Function *dot = Builder::getIntrinsic(dotIntrinsic, GetBasicType(lvector), lvector->getType(), lvector->getType());
 
     // Allocate a vector to build the result in
     llvm::Value* result = builder.CreateAlloca(lvector->getType());
@@ -1427,6 +1427,9 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
         gla::UnsupportedFunctionality("unary intrinsic", intrinsicID);
         break;
     case llvm::Intrinsic::gla_fLength:
+       // scalar result type
+       intrinsicName = getIntrinsic(intrinsicID, GetBasicType(operand->getType()), operand->getType());
+       break;
     case llvm::Intrinsic::gla_any:
     case llvm::Intrinsic::gla_all:
         // fixed result type
@@ -1452,8 +1455,8 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
     case llvm::Intrinsic::gla_fDot2:
     case llvm::Intrinsic::gla_fDot3:
     case llvm::Intrinsic::gla_fDot4:
-        // fixed result type
-        intrinsicName = getIntrinsic(intrinsicID, lhs->getType(), rhs->getType());
+        // scalar result type
+        intrinsicName = getIntrinsic(intrinsicID, GetBasicType(lhs), lhs->getType(), rhs->getType());
         break;
     default:
         // Binary intrinsics that have operand and dest with same flexible type
