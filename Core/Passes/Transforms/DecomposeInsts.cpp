@@ -104,6 +104,9 @@ namespace  {
 
     llvm::Function* GetDotIntrinsic(Module* module, const Type* argTypes[])
     {
+        // scalar dest
+        const llvm::Type* types[] = { GetBasicType(argTypes[0]), argTypes[0], argTypes[1] };
+
         Intrinsic::ID dotID;
         switch (GetComponentCount(argTypes[0])) {
         case 2:
@@ -119,7 +122,7 @@ namespace  {
             assert(! "Bad dot component count");
         }
 
-        return Intrinsic::getDeclaration(module, dotID, argTypes, 2);
+        return Intrinsic::getDeclaration(module, dotID, types, 3);
     }
 
 } // end namespace
@@ -492,8 +495,8 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
         case Intrinsic::gla_fDistance:
             if (backEnd->decomposeIntrinsic(EDiDistance)) {
                 newInst = builder.CreateFSub(arg0, arg1);
-                const llvm::Type* type = newInst->getType();
-                Function* length = Intrinsic::getDeclaration(module, Intrinsic::gla_fLength, &type, 1);
+                const llvm::Type* types[] = { GetBasicType(newInst), newInst->getType() };
+                Function* length = Intrinsic::getDeclaration(module, Intrinsic::gla_fLength, types, 2);
                 newInst = builder.CreateCall(length, newInst);
 
                 // Make next iteration revisit this decomposition, in case length is
@@ -638,7 +641,8 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 // Note:  This does a 3D normalize on a vec3 or vec4.  The width of arg0 does
                 // not determine that width of the dot-product input, the "3" in the "3D" does.
 
-                Function* dot = Intrinsic::getDeclaration(module, Intrinsic::gla_fDot3, argTypes, 2);
+                const llvm::Type* types[] = { GetBasicType(argTypes[0]), argTypes[0], argTypes[1] };
+                Function* dot = Intrinsic::getDeclaration(module, Intrinsic::gla_fDot3, types, 3);
                 newInst = builder.CreateCall2(dot, arg0, arg0);
 
                 const llvm::Type* type[2] = { newInst->getType(), newInst->getType() };
