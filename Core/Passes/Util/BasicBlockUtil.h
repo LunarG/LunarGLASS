@@ -193,24 +193,43 @@ namespace gla_llvm {
             return;
         }
 
-        SmallVector<DomTreeNode*,32> workList;
-        for (po_iterator<DomTreeNode*> i = po_begin(dtn), e = po_end(dtn); i != e; ++i) {
+        // Simplest case: no dominated blocks
+        if (dtn->getNumChildren() == 0) {
+            dtn->clearAllChildren();
+            BasicBlock* toRemove = dtn->getBlock();
+            dt.eraseNode(toRemove);
+            DeleteDeadBlock(toRemove);
+
+            return;
+        }
+
+        Function* f = bb->getParent();
+
+        // Otherwise, traverse the CFG in forwards order (i.e. reverse
+        // post-order), gather the dominated blocks to be pruned.
+        SmallVector<BasicBlock*,32> workList;
+
+        typedef ReversePostOrderTraversal<BasicBlock*> RPOTType;
+        RPOTType rpot(dtn->getBlock());
+        for (RPOTType::rpo_iterator i = rpot.begin(), e = rpot.end(); i != e; ++i) {
+            // Stop as soon as we get to a block that bb doesn't dominate (the
+            // beginning of the rest of the program)
+            if (! dt.dominates(bb, *i))
+                break;
+
             workList.push_back(*i);
         }
 
-        // Efficiency note: Since we're operating in depth-first pre-order,
-        // erasing the domTreeNode is constant for all but the first iteration,
-        // where it's linear in the number of the immediate dominator's
-        // children.
-        // TODO: consider finding a clever way of seeing if we need bother
-        // removing ourselves as a predecessor while erasing the bb.
-        for (SmallVector<DomTreeNode*,32>::iterator dtn = workList.begin(),
-                 e = workList.end(); dtn != e; ++dtn) {
-            (*dtn)->clearAllChildren();
-            BasicBlock* toRemove = (*dtn)->getBlock();
-            dt.eraseNode(toRemove);
+        for (SmallVector<BasicBlock*,32>::iterator i = workList.begin(),
+                 e = workList.end(); i != e; ++i) {
+            BasicBlock* toRemove = *i;
+            assert(pred_begin(toRemove) == pred_end(toRemove)
+                   && "Block with live predecessors dominated by no-predecessor block");
+
             DeleteDeadBlock(toRemove);
         }
+
+        dt.getBase().recalculate(*f);
     }
 
     // Remove bb if it's a no-predecessor block, and continue on to its
