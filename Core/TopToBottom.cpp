@@ -155,6 +155,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createEarlyCSEPass());
     passManager.add(llvm::createCorrelatedValuePropagationPass());
 
+    passManager.add(llvm::createCFGSimplificationPass());
     passManager.add(llvm::createLoopSimplifyPass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
     passManager.add(gla_llvm::createDecomposeInstsPass());

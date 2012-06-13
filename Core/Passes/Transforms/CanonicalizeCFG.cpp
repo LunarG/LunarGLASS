@@ -57,6 +57,8 @@
 #include "Passes/Util/FunctionUtil.h"
 #include "Passes/Util/InstructionUtil.h"
 
+#include "Exceptions.h"
+
 using namespace llvm;
 using namespace gla_llvm;
 
@@ -77,6 +79,8 @@ namespace  {
 
     protected:
         bool convertConstantBranches(Function& F);
+
+        bool eliminateCrossEdges(Function& F);
 
         bool removeNoPredecessorBlocks(Function& F);
 
@@ -104,14 +108,17 @@ bool CanonicalizeCFG::runOnFunction(Function& F)
     domTree   = &getAnalysis<DominatorTree>();
     idStructs = &getAnalysis<IdentifyStructures>();
 
+    changed |= convertConstantBranches(F);
+
+    // Try to eliminate cross-edges
+    changed |= eliminateCrossEdges(F);
+
     // Split shared merge blocks in conditionals. Shared merge blocks can arise
     // from the elimination of loops that originally contained breaks.
     changed |= splitSharedMergeBlocks(F);
 
     // TODO: combine the removing of no-predecessor blocks with the removing of
     // phis into a single traversal
-
-    changed |= convertConstantBranches(F);
 
     changed |= removeNoPredecessorBlocks(F);
 
@@ -132,6 +139,27 @@ bool CanonicalizeCFG::runOnFunction(Function& F)
 
     return changed;
 }
+
+bool CanonicalizeCFG::eliminateCrossEdges(Function& F)
+{
+    bool changed = false;
+
+    for (IdentifyStructures::conditional_iterator i = idStructs->conditional_begin(),
+             e = idStructs->conditional_end(); i != e; ++i) {
+        changed |= (*i).second->eliminateCrossEdges();
+    }
+
+    // Check to see if there are any remaining cross-edges
+    for (IdentifyStructures::conditional_iterator i = idStructs->conditional_begin(),
+             e = idStructs->conditional_end(); i != e; ++i) {
+        if ((*i).second->hasPotentialCrossEdge()) {
+            gla::UnsupportedFunctionality("general-case cross edges (requires artificial loop)");
+        }
+    }
+
+    return changed;
+}
+
 
 bool CanonicalizeCFG::splitSharedMergeBlocks(Function& F)
 {
@@ -156,26 +184,7 @@ bool CanonicalizeCFG::convertConstantBranches(Function& F)
     bool changed = false;
 
     for (Function::iterator bbI = F.begin(), bbE = F.end(); bbI != bbE; ++bbI) {
-        BranchInst* br = dyn_cast<BranchInst>(bbI->getTerminator());
-        if (! br || br->isUnconditional())
-            continue;
-
-        ConstantInt* c = dyn_cast<ConstantInt>(br->getCondition());
-        if (! c) {
-            continue;
-        }
-
-        changed = true;
-
-        IRBuilder<> builder(F.getContext());
-        builder.SetInsertPoint(br);
-
-        // Create a new unconditional branch
-        builder.CreateBr(br->getSuccessor(c->isOne() ? 0 : 1));
-
-        // DCE the old one
-        br->dropAllReferences();
-        br->eraseFromParent();
+        changed |= ConstantFoldTerminator(bbI);
     }
 
     return changed;

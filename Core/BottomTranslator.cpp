@@ -725,7 +725,10 @@ void BottomTranslator::handleBlock(const BasicBlock* bb)
     }
 
     // Otherwise we're a block ending in a return statement
-    assert(isa<ReturnInst>(bb->getTerminator()));
+    if (! isa<ReturnInst>(bb->getTerminator())) {
+       gla::UnsupportedFunctionality("Non-ret, non-br terminator");
+    }
+
     handleReturnBlock(bb);
 }
 

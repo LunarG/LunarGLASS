@@ -30,7 +30,7 @@
 //   * Conditional expressions are identified and a Conditional (from
 //     ConditionalUtil.h) is created fo reach one. A mapping from entry blocks
 //     to Conditional is provided. Future work is to provide a conditional tree,
-//     such that a change to one can call the recalculate methods of it's
+//     such that a change to one can call the recalculate methods of its
 //     parents.
 //
 //   * Loops are identified and a LoopWrapper (from LoopUtil.h) is created for

@@ -414,6 +414,13 @@ namespace gla_llvm {
         Hoist(src, dst->getTerminator());
     }
 
+
+    // Duplicate the given basic block, having one of the predecessors go
+    // through the duplicate instead. Updates all information and creates a
+    // merge block to phi the values into. After duplication and updating, the
+    // blocks are then simplified. Returns the newly created duplicate
+    BasicBlock* DuplicateBasicBlock(BasicBlock* toDuplicate);
+
 } // end namespace gla_llvm
 
 #endif // BASICBLOCK_UTIL_H

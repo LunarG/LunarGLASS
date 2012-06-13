@@ -31,6 +31,7 @@
 #define CONDITIONAL_UTIL_H
 
 #include "llvm/Analysis/Dominators.h"
+#include "llvm/Analysis/PostDominators.h"
 #include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
@@ -47,12 +48,13 @@ namespace gla_llvm {
     class Conditional {
         typedef SmallPtrSet<BasicBlock*,8> Filter;
     public:
-        Conditional(BasicBlock* entryBlock, BasicBlock* thenBlock, BasicBlock* elseBlock, DominanceFrontier& dfs, DominatorTree& dt, LoopInfo& li, Pass* p)
+        Conditional(BasicBlock* entryBlock, BasicBlock* thenBlock, BasicBlock* elseBlock, DominanceFrontier& dfs, DominatorTree& dt, PostDominatorTree& pdt, LoopInfo& li, Pass* p)
             : entry(entryBlock)
             , left(thenBlock)
             , right(elseBlock)
             , domFront(&dfs)
             , domTree(&dt)
+            , postDomTree(&pdt)
             , loopInfo(&li)
             , parentPass(p)
             , function(*entryBlock->getParent())
@@ -132,6 +134,9 @@ namespace gla_llvm {
                 || Has(leftChildren, bb) || Has(rightChildren, bb);
         }
 
+        // Whether the given conditional might have a cross-edge in it.
+        bool hasPotentialCrossEdge() { return merges.size() > 1; }
+
         // Accessors.
         const BasicBlock* getEntryBlock() const { return entry; }
               BasicBlock* getEntryBlock()       { return entry; }
@@ -154,6 +159,9 @@ namespace gla_llvm {
 
         // Transformation/optimzations to conditionals
 
+
+        // Eliminate cross-edges, if possible
+        bool eliminateCrossEdges();
 
         // Transform phi nodes in the merge block whose result is solely
         // contingent on the entry's condition into selects. Currently only
@@ -282,6 +290,7 @@ namespace gla_llvm {
 
         DominanceFrontier* domFront;
         DominatorTree* domTree;
+        PostDominatorTree* postDomTree;
         LoopInfo* loopInfo;
 
         // Hold a pointer back to our creator. This allows us to update analysis
@@ -300,7 +309,7 @@ namespace gla_llvm {
         BasicBlock* stageExit;
         BasicBlock* stageEpilogue;
 
-        SmallPtrSet<BasicBlock*,3> merges;
+        SmallPtrSet<BasicBlock*,8> merges;
 
         BasicBlock* merge;
 

@@ -50,9 +50,10 @@ using namespace llvm;
 
 bool IdentifyStructures::runOnFunction(Function &F)
 {
-    loopInfo                    = &getAnalysis<LoopInfo>();
-    DominanceFrontier& domFront = getAnalysis<DominanceFrontier>();
-    DominatorTree& domTree      = getAnalysis<DominatorTree>();
+    loopInfo                       = &getAnalysis<LoopInfo>();
+    DominanceFrontier& domFront    = getAnalysis<DominanceFrontier>();
+    DominatorTree& domTree         = getAnalysis<DominatorTree>();
+    PostDominatorTree& postDomTree = getAnalysis<PostDominatorTree>();
 
     // Set up stageExit and mainCopyOut
     stageExit   = GetMainExit(F);
@@ -76,7 +77,8 @@ bool IdentifyStructures::runOnFunction(Function &F)
 
         // TODO: consider extending functionality to include a LoopWrapper for
         // the loop that the conditional's entry block is in.
-        conditionals.insert(std::make_pair(bb, new Conditional(bb, left, right, domFront, domTree, *loopInfo, this)));
+        conditionals.insert(std::make_pair(bb, new Conditional(bb, left, right, domFront, domTree, postDomTree,
+                                                               *loopInfo, this)));
     }
 
     // Identify and create loopwrappers
@@ -111,6 +113,7 @@ void IdentifyStructures::getAnalysisUsage(AnalysisUsage& AU) const
 {
     AU.addRequired<DominanceFrontier>();
     AU.addRequired<DominatorTree>();
+    AU.addRequired<PostDominatorTree>();
     AU.addRequired<LoopInfo>();
     AU.setPreservesAll();
     return;
@@ -136,6 +139,7 @@ void IdentifyStructures::releaseMemory()
 
 IdentifyStructures::~IdentifyStructures()
 {
+    releaseMemory();
     assert(conditionals.empty());
     assert(loopWrappers.empty());
 }
@@ -148,6 +152,8 @@ INITIALIZE_PASS_BEGIN(IdentifyStructures,
                       true); // Whether it is an analysis pass
 INITIALIZE_PASS_DEPENDENCY(DominanceFrontier)
 INITIALIZE_PASS_DEPENDENCY(DominatorTree)
+INITIALIZE_PASS_DEPENDENCY(PostDominatorTree)
+INITIALIZE_PASS_DEPENDENCY(LoopInfo)
 INITIALIZE_PASS_END(IdentifyStructures,
                     "identify-structures",
                     "Identify the structures in a structured-cfg",

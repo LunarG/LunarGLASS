@@ -41,7 +41,7 @@ namespace gla_llvm {
     // Get all the (non-terminator) (post)dominated instructions, and put them into
     // result.
     // Complexity: Linear in the number of instructions in the dominator subtree
-    void GetAllDominatedInstructions(Instruction* inst, DominatorTreeBase<BasicBlock>& dt, std::vector<Instruction*>& result)
+    inline void GetAllDominatedInstructions(Instruction* inst, DominatorTreeBase<BasicBlock>& dt, std::vector<Instruction*>& result)
     {
         BasicBlock* origBlock = inst->getParent();
 
@@ -84,6 +84,34 @@ namespace gla_llvm {
                 result.push_back(instI);
             }
         }
+    }
+
+    // Given a list of nodes (e.g. basic blocks), find the one that
+    // [post]dominates all the others. Returns 0 if no such node exists
+    // template<class BasicBlock>
+    inline BasicBlock* GetDominatorInList(ArrayRef<BasicBlock*> nodes, DominatorTreeBase<BasicBlock>& dt)
+    {
+        if (nodes.size() == 0)
+            return 0;
+
+        // Two-pass algorithm.
+
+        // First, make a pass finding a candidate (a node that dominates the
+        // rest of the list). Nodes trivially dominate themselves.
+        BasicBlock* candidate = nodes.front();
+        for (ArrayRef<BasicBlock*>::iterator i = nodes.begin(), e = nodes.end(); i != e; ++i) {
+            if (! dt.dominates(candidate, *i))
+                candidate = *i;
+        }
+
+        // Second, verify the candidate dominates the entire list. Nodes
+        // trivially dominate themselves.
+        for (ArrayRef<BasicBlock*>::iterator i = nodes.begin(), e = nodes.end(); i != e; ++i) {
+            if (! dt.dominates(candidate, *i))
+                return 0;
+        }
+
+        return candidate;
     }
 
 } // end namespace gla_llvm

@@ -27,10 +27,42 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "Exceptions.h"
 #include "Passes/Util/ConditionalUtil.h"
+#include "Passes/Util/DominatorsUtil.h"
 
 using namespace llvm;
 using namespace gla_llvm;
+
+
+// If a cross edge (determined by the existance of multiple merge points) can be
+// eliminated through a simple duplication of a small basic block, this will
+// return the block to be duplicated. Returns 0 otherwise.
+static BasicBlock* DetermineSimpleBlockToDuplicate(ArrayRef<BasicBlock*> merges, DominatorTreeBase<BasicBlock>& postDomTree)
+{
+    // We need to have two merges
+    if (merges.size() != 2)
+        return 0;
+
+    // One of which must post dominate the other
+    BasicBlock* postDom = GetDominatorInList(merges, postDomTree);
+    if (! postDom)
+        return 0;
+
+    // The post-dominatee singly branches to the post-dominator
+    BasicBlock* postDominatee = postDom == merges.front() ? merges.back() : merges.front();
+    if (postDominatee->getTerminator()->getNumSuccessors() != 1
+     || postDominatee->getTerminator()->getSuccessor(0) != postDom)
+        return 0;
+
+    // The post-dominatee is a small block
+    // TODO: Abstract notion of "small"
+    if (postDominatee->getInstList().size() > 20)
+        return 0;
+
+    // We have found the block to duplicate.
+    return postDominatee;
+}
 
 void Conditional::recalculate()
 {
@@ -126,6 +158,46 @@ void Conditional::recalculate()
     if (! isIfThen())
         GetDominatedChildren(*domTree, right, rightChildren);
 }
+
+// Eliminate cross-edges, if feasible
+bool Conditional::eliminateCrossEdges()
+{
+    if (! hasPotentialCrossEdge())
+        return false;
+
+    // Simplest case: We have two merges, one of which post dominates the
+    // other and the post-dominatee is a small block that simply branches to
+    // the post-dominator. In this case, we can duplicate the basic
+    // block. This allows us to create better code with simpler control flow
+    // and avoid the more heavy-weight general-purpose solutions for this
+    // common scenario.
+    BasicBlock* duplicate =
+        DetermineSimpleBlockToDuplicate(SmallVector<BasicBlock*,8>(merges.begin(), merges.end()),
+                                        *postDomTree->DT);
+    if (duplicate) {
+        BasicBlock* newBB = DuplicateBasicBlock(duplicate);
+        merges.erase(duplicate);
+
+        // Update the dominator tree with the new blocks
+        assert(newBB && newBB->getSinglePredecessor() && newBB->getTerminator()->getNumSuccessors() == 1);
+
+        // Try to eliminate the duplicate-merge block if possible
+        bool noDupMerge = TryToSimplifyUncondBranchFromEmptyBlock(*succ_begin(newBB));
+        if (! noDupMerge)
+            gla::UnsupportedFunctionality("unable to remove the dup-merge block");
+
+        // TODO: Update the dom tree as we go instead of having to recalculate
+        domTree->DT->recalculate(*duplicate->getParent());
+    } else if (false /* able to determine conditions */) {
+    } else {
+        return false;
+    }
+
+    recalculate();
+
+    return true;
+}
+
 
 bool Conditional::createMergeSelects()
 {
