@@ -58,8 +58,8 @@ static Constant *FoldBitCast(Constant *C, const Type *DestTy,
       const llvm::ConstantFP *element0 = dyn_cast<ConstantFP>(elements[0]);
       const llvm::ConstantFP *element1 = dyn_cast<ConstantFP>(elements[1]);
       if (element0 && element1) {
-        unsigned __int64 i64 = (element1->getValueAPF().bitcastToAPInt().getZExtValue() << 32) | 
-                                element0->getValueAPF().bitcastToAPInt().getZExtValue();
+        uint64_t i64 = (element1->getValueAPF().bitcastToAPInt().getZExtValue() << 32) |
+                        element0->getValueAPF().bitcastToAPInt().getZExtValue();
         return ConstantFP::get(DestTy, reinterpret_cast<double&>(i64));
       }
     }
@@ -1387,7 +1387,6 @@ static Constant *ConstantFoldGlaScalarCall(Function* F, Constant *const *Operand
         case Intrinsic::gla_fSqrt:
         case Intrinsic::gla_fTan:
         case Intrinsic::gla_fTanh:
-        case Intrinsic::gla_fSaturate:
           return Op;
 
         default:
