@@ -1349,7 +1349,57 @@ static Constant *ConstantFoldGlaScalarCall(Function* F, Constant *const *Operand
       double V = Ty->isFloatTy() ? (double)Op->getValueAPF().convertToFloat() :
                                      Op->getValueAPF().convertToDouble();
 
+      // Handle NaNs specially for some intrinsics
+      if (Op->isNaN()) {
+        switch (F->getIntrinsicID()) {
+        case Intrinsic::gla_fIsNan:
+          return ConstantInt::getTrue(RetTy);
+
+        case Intrinsic::gla_fIsInf:
+          return ConstantInt::getFalse(RetTy);
+
+        // These intrinsics become a NaN
+        case Intrinsic::gla_fAbs:
+        case Intrinsic::gla_fAcos:
+        case Intrinsic::gla_fAcosh:
+        case Intrinsic::gla_fAsin:
+        case Intrinsic::gla_fAsinh:
+        case Intrinsic::gla_fAtan:
+        case Intrinsic::gla_fAtanh:
+        case Intrinsic::gla_fCeiling:
+        case Intrinsic::gla_fCos:
+        case Intrinsic::gla_fCosh:
+        case Intrinsic::gla_fDegrees:
+        case Intrinsic::gla_fExp:
+        case Intrinsic::gla_fExp10:
+        case Intrinsic::gla_fExp2:
+        case Intrinsic::gla_fFraction:
+        case Intrinsic::gla_fInverseSqrt:
+        case Intrinsic::gla_fLog:
+        case Intrinsic::gla_fLog10:
+        case Intrinsic::gla_fLog2:
+        case Intrinsic::gla_fRadians:
+        case Intrinsic::gla_fRoundEven:
+        case Intrinsic::gla_fRoundFast:
+        case Intrinsic::gla_fRoundZero:
+        case Intrinsic::gla_fSin:
+        case Intrinsic::gla_fSinh:
+        case Intrinsic::gla_fSqrt:
+        case Intrinsic::gla_fTan:
+        case Intrinsic::gla_fTanh:
+        case Intrinsic::gla_fSaturate:
+          return Op;
+
+        default:
+          break;
+        }
+      }
+
       switch (F->getIntrinsicID()) {
+      case Intrinsic::gla_fIsNan:
+          // We already tested for NaN earlier
+          return ConstantInt::getFalse(F->getType());
+
       case Intrinsic::gla_fAbs:
           return ConstantFoldFP(fabs, V, RetTy);
 
@@ -1399,14 +1449,8 @@ static Constant *ConstantFoldGlaScalarCall(Function* F, Constant *const *Operand
           return ConstantFoldFP(floor, V, RetTy);
 
       case Intrinsic::gla_fFraction:
-      case Intrinsic::gla_fFrexp:
       case Intrinsic::gla_fIntBitsTofloat:
       case Intrinsic::gla_fInverseSqrt:
-      case Intrinsic::gla_fIsInf:
-      case Intrinsic::gla_fIsNan:
-      case Intrinsic::gla_fLdexp:
-      case Intrinsic::gla_fLength:
-      case Intrinsic::gla_fLit:
           return 0; // TODO
 
       case Intrinsic::gla_fLog:
@@ -1418,12 +1462,6 @@ static Constant *ConstantFoldGlaScalarCall(Function* F, Constant *const *Operand
       case Intrinsic::gla_fLog2:
           return 0; // TODO
 
-      case Intrinsic::gla_fNormalize:
-      case Intrinsic::gla_fNormalize3D:
-      case Intrinsic::gla_fPackDouble2x32:
-      case Intrinsic::gla_fPackSnorm4x8:
-      case Intrinsic::gla_fPackUnorm2x16:
-      case Intrinsic::gla_fPackUnorm4x8:
       case Intrinsic::gla_fRadians:
       case Intrinsic::gla_fRoundEven:
       case Intrinsic::gla_fRoundFast:
