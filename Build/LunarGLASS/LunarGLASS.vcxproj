@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Backends\Dummy\BottomToDummy.cpp" />
+    <ClCompile Include="..\..\Backends\GLSL\BottomToGLSL.cpp" />
+    <ClCompile Include="..\..\Backends\TGSI\BottomToTgsi.cpp" />
+    <ClCompile Include="..\..\Core\Backend.cpp" />
+    <ClCompile Include="..\..\Core\BottomIR.cpp" />
+    <ClCompile Include="..\..\Core\BottomTranslator.cpp" />
+    <ClCompile Include="..\..\Core\Exceptions.cpp" />
+    <ClCompile Include="..\..\Core\Options.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Analysis\IdentifyStructures.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Immutable\BackEndPointer.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Transforms\CanonicalizeCFG.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Transforms\CanonicalizeInsts.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Transforms\CoalesceInserts.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Transforms\DecomposeInsts.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Transforms\FlattenConditionalAssignments.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Transforms\GatherInsts.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Transforms\IntrinsicCombine.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Transforms\Scalarize.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Util\BasicBlockUtil.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Util\ConditionalUtil.cpp" />
+    <ClCompile Include="..\..\Core\Passes\Util\InstructionUtil.cpp" />
+    <ClCompile Include="..\..\Core\TopBuilder.cpp" />
+    <ClCompile Include="..\..\Core\TopToBottom.cpp" />
+    <ClCompile Include="..\..\Core\Util.cpp" />
+    <ClCompile Include="..\..\Standalone\LunarGManager.cpp" />
+    <ClCompile Include="..\..\Standalone\OptionParse.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Backends\Dummy\DummyTarget.h" />
+    <ClInclude Include="..\..\Backends\GLSL\GlslTarget.h" />
+    <ClInclude Include="..\..\Backends\TGSI\TgsiTarget.h" />
+    <ClInclude Include="..\..\Core\Backend.h" />
+    <ClInclude Include="..\..\Core\BottomIR.h" />
+    <ClInclude Include="..\..\Core\Exceptions.h" />
+    <ClInclude Include="..\..\Core\LunarGLASSManager.h" />
+    <ClInclude Include="..\..\Core\LunarGLASSTopIR.h" />
+    <ClInclude Include="..\..\Core\Options.h" />
+    <ClInclude Include="..\..\Core\Passes\Analysis\IdentifyStructures.h" />
+    <ClInclude Include="..\..\Core\Passes\Immutable\BackEndPointer.h" />
+    <ClInclude Include="..\..\Core\Passes\InitializePasses.h" />
+    <ClInclude Include="..\..\Core\Passes\Passes.h" />
+    <ClInclude Include="..\..\Core\Passes\PassSupport.h" />
+    <ClInclude Include="..\..\Core\Passes\Util\ADT.h" />
+    <ClInclude Include="..\..\Core\Passes\Util\BasicBlockUtil.h" />
+    <ClInclude Include="..\..\Core\Passes\Util\ConditionalUtil.h" />
+    <ClInclude Include="..\..\Core\Passes\Util\ConstantUtil.h" />
+    <ClInclude Include="..\..\Core\Passes\Util\DominatorsUtil.h" />
+    <ClInclude Include="..\..\Core\Passes\Util\FunctionUtil.h" />
+    <ClInclude Include="..\..\Core\Passes\Util\InstructionUtil.h" />
+    <ClInclude Include="..\..\Core\Passes\Util\LoopUtil.h" />
+    <ClInclude Include="..\..\Core\PrivateManager.h" />
+    <ClInclude Include="..\..\Core\TopBuilder.h" />
+    <ClInclude Include="..\..\Core\Util.h" />
+    <ClInclude Include="..\..\Revision.h" />
+    <ClInclude Include="..\..\Standalone\OptionParse.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Core\RevisionPrefix" />
+    <None Include="..\..\LastKnownGood" />
+    <None Include="..\..\Readme.txt" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B23A6A71-F231-4086-9368-91E44A4D9DE9}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>LunarGLASS</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../;../../Core;../../Standalone;../../Core/LLVM/llvm-2.9/build/install/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4624;4355;4291;4018;4800;4267;4996;4244;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

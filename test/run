@@ -155,7 +155,8 @@ function showHelp {
 }
 
 # Default is for windows
-RUNCMD=../Standalone/Debug/StandAlone.exe
+# RUNCMD=../Standalone/Debug/StandAlone.exe
+RUNCMD=../Build/Debug/glsl2.exe
 OPTIONS=(-d -n)
 TGSI_OP="--tgsi"
 GLSL_OP="--glsl"

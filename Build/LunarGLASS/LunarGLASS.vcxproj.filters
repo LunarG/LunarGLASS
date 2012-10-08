@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Core">
+      <UniqueIdentifier>{b9fc0d6f-b3ba-4713-9bd6-8af0ef39a3b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Passes">
+      <UniqueIdentifier>{d1c4ffad-667b-4daf-b781-fc076fd00a24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Passes\Analysis">
+      <UniqueIdentifier>{33507f96-a8ed-4aea-bfce-10f67a7dc2f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Passes\Immutable">
+      <UniqueIdentifier>{7d438cb4-9a85-4514-bd2c-38b7eee39049}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Passes\Transforms">
+      <UniqueIdentifier>{d484d29a-0ef6-4c0f-b5d8-56b539032de3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Passes\Util">
+      <UniqueIdentifier>{fc72a4ae-3df7-4281-8836-9e29da522575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Options">
+      <UniqueIdentifier>{a016658e-9e2f-420e-bf32-591fdc4fbc01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backends">
+      <UniqueIdentifier>{d908feb0-b810-48fc-8e9a-d29abd87344f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backends\Dummy">
+      <UniqueIdentifier>{a1ccb127-e5ea-424f-a567-9dd5cc04901c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backends\GLSL">
+      <UniqueIdentifier>{b9be543e-e81c-4f53-8936-646c6ee41d83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backends\TGSI">
+      <UniqueIdentifier>{4eecc5ca-ff17-418d-97e5-c96a45771e4c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Core\Passes\Analysis\IdentifyStructures.cpp">
+      <Filter>Core\Passes\Analysis</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Immutable\BackEndPointer.cpp">
+      <Filter>Core\Passes\Immutable</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Util\BasicBlockUtil.cpp">
+      <Filter>Core\Passes\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Util\ConditionalUtil.cpp">
+      <Filter>Core\Passes\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Util\InstructionUtil.cpp">
+      <Filter>Core\Passes\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Transforms\CanonicalizeCFG.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Transforms\CanonicalizeInsts.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Transforms\CoalesceInserts.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Transforms\DecomposeInsts.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Transforms\FlattenConditionalAssignments.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Transforms\GatherInsts.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Transforms\IntrinsicCombine.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Passes\Transforms\Scalarize.cpp">
+      <Filter>Core\Passes\Transforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Backend.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\BottomIR.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\BottomTranslator.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Exceptions.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Options.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\TopBuilder.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\TopToBottom.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Util.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Standalone\LunarGManager.cpp">
+      <Filter>Options</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Standalone\OptionParse.cpp">
+      <Filter>Options</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Backends\Dummy\BottomToDummy.cpp">
+      <Filter>Backends\Dummy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Backends\GLSL\BottomToGLSL.cpp">
+      <Filter>Backends\GLSL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Backends\TGSI\BottomToTgsi.cpp">
+      <Filter>Backends\TGSI</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Core\Passes\Analysis\IdentifyStructures.h">
+      <Filter>Core\Passes\Analysis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\Immutable\BackEndPointer.h">
+      <Filter>Core\Passes\Immutable</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\Util\ADT.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\Util\BasicBlockUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\Util\ConditionalUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\Util\ConstantUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\Util\DominatorsUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\Util\FunctionUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\Util\InstructionUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\Util\LoopUtil.h">
+      <Filter>Core\Passes\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\InitializePasses.h">
+      <Filter>Core\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\Passes.h">
+      <Filter>Core\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Passes\PassSupport.h">
+      <Filter>Core\Passes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Backend.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\BottomIR.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Exceptions.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\LunarGLASSManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\LunarGLASSTopIR.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Options.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\PrivateManager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\TopBuilder.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Util.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Standalone\OptionParse.h">
+      <Filter>Options</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Backends\Dummy\DummyTarget.h">
+      <Filter>Backends\Dummy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Backends\GLSL\GlslTarget.h">
+      <Filter>Backends\GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Revision.h" />
+    <ClInclude Include="..\..\Backends\TGSI\TgsiTarget.h">
+      <Filter>Backends\TGSI</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Core\RevisionPrefix">
+      <Filter>Core</Filter>
+    </None>
+    <None Include="..\..\LastKnownGood" />
+    <None Include="..\..\Readme.txt" />
+  </ItemGroup>
+</Project>

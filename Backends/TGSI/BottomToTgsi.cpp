@@ -29,6 +29,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+//#define USE_MESA
+
 #include <cstdio>
 #include <string>
 #include <map>
@@ -42,13 +44,16 @@
 #include "PrivateManager.h"
 #include "TgsiTarget.h"
 
+#ifdef USE_MESA
 // Mesa includes
 extern "C" {
-#include "mtypes.h"
+#include "main/mtypes.h"
 #include "program/prog_instruction.h"
 #include "program/prog_print.h"
 #include "program/prog_optimize.h"
 }
+#endif
+
 
 class TgsiBackEnd : public gla::BackEnd {
 public:
@@ -78,6 +83,8 @@ void gla::ReleaseTgsiBackEnd(gla::BackEnd* backEnd)
 {
     delete backEnd;
 }
+
+#ifdef USE_MESA
 
 gl_program* LunarGLASSNewMesaProgram(struct gl_context *ctx, GLenum target, GLuint id)
 {
@@ -448,18 +455,26 @@ protected:
     int lastIndex[PROGRAM_FILE_MAX];  //?? currently skipping index 0, because 0 means not found in the map
 };
 
+#endif
+
 //
 // Factory for TGSI translator
 //
 gla::BackEndTranslator* gla::GetTgsiTranslator(Manager* manager)
 {
+#ifdef USE_MESA
     return new gla::MesaTarget(manager);
+#else
+    return 0;
+#endif
 }
 
 void gla::ReleaseTgsiTranslator(gla::BackEndTranslator* target)
 {
     delete target;
 }
+
+#ifdef USE_MESA
 
 //
 // Add an LLVM instruction to the end of the mesa instructions.
@@ -821,3 +836,5 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     if (mesaOp == OPCODE_NOP)
         UnsupportedFunctionality("intrinsic in Bottom IR");
 }
+
+#endif
