@@ -155,7 +155,6 @@ function showHelp {
 }
 
 # Default is for windows
-# RUNCMD=../Standalone/Debug/StandAlone.exe
 RUNCMD=../Build/Debug/glsl2.exe
 OPTIONS=(-d -n)
 TGSI_OP="--tgsi"
@@ -190,7 +189,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -r|--release)
-            RUNCMD=../Standalone/Release/StandAlone.exe
+            RUNCMD=../Build/Release/glsl2.exe
             ;;
         -v|--verbose)
             VERBOSE="true"
