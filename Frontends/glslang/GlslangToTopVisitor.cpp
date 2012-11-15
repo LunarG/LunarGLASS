@@ -42,10 +42,22 @@
 #include "Util.h"
 #include "Exceptions.h"
 #include "Options.h"
+#include "TopBuilder.h"
 
 // LLVM includes
 #include "llvm/Support/CFG.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/DerivedTypes.h"
+#include "llvm/Intrinsics.h"
+#include "llvm/LLVMContext.h"
+#include "llvm/Module.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Support/IRBuilder.h"
+#include <string>
+#include <map>
+#include <list>
+#include <vector>
+#include <stack>
 
 // Adapter includes
 #include "GlslangToTopVisitor.h"
@@ -54,10 +66,48 @@
 // Use this class to carry along data from node to node in
 // the traversal
 //
-class TGlaToTopTraverser : public TIntermTraverser {
+class TGlslangToTopTraverser : public TIntermTraverser {
 public:
-    TGlaToTopTraverser() { }
+    TGlslangToTopTraverser(gla::Manager*);
+    virtual ~TGlslangToTopTraverser();
+
+    gla::Builder::SuperValue createLLVMVariable(TIntermSymbol* node);
+    const llvm::Type* convertGlslangToGlaType(TType& type);
+    gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned);
+    llvm::Value* createPipelineRead(TIntermSymbol*, int slot);
+    int getNextInterpIndex(std::string& name);
+
+    llvm::LLVMContext &context;
+    llvm::BasicBlock* shaderEntry;
+    llvm::IRBuilder<> llvmBuilder;
+    llvm::Module* module;
+
+    gla::Builder* glaBuilder;
+    int interpIndex;
+    bool inMain;
+
+    gla::Builder::SuperValue lastValue;
+    std::map<TIntermSymbol*, gla::Builder::SuperValue> namedValues;
+    std::map<std::string, int> interpMap;
 };
+
+TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
+    : context(llvm::getGlobalContext()), llvmBuilder(context),
+      module(manager->getModule()), interpIndex(0), inMain(false), shaderEntry(0)
+{
+    // do this after the builder knows the module
+    glaBuilder = new gla::Builder(llvmBuilder, manager);
+
+    shaderEntry = glaBuilder->makeMain();
+    llvmBuilder.SetInsertPoint(shaderEntry);
+
+    postVisit = true;
+}
+
+TGlslangToTopTraverser::~TGlslangToTopTraverser()
+{
+    delete glaBuilder;
+}
 
 //
 // The rest of the file are the traversal functions.  The last one
@@ -70,16 +120,83 @@ public:
 
 void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
 {
-    TGlaToTopTraverser* oit = static_cast<TGlaToTopTraverser*>(it);
+    TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
+    
+    TIntermSymbol* symbolNode = node->getAsSymbolNode();
 
+    if (symbolNode == 0) {
+        gla::UnsupportedFunctionality("glslang null symbol", gla::EATContinue);
+        return;
+    }
+
+    bool input = false;
+    switch (symbolNode->getQualifier()) {
+    case EvqAttribute:
+    case EvqVaryingIn:
+    case EvqFragCoord:
+    case EvqFace:
+        input = true;
+        break;
+    }
+
+    if (input) {
+        oit->lastValue = oit->createPipelineRead(symbolNode, 0);
+    } else {
+        std::map<TIntermSymbol*, gla::Builder::SuperValue>::iterator iter;
+        iter = oit->namedValues.find(symbolNode);
+
+        if (oit->namedValues.end() == iter) {
+            // it was not found, create it
+            oit->namedValues[symbolNode] = oit->createLLVMVariable(symbolNode);
+        }
+
+        // Track the current value
+        oit->lastValue = oit->namedValues[symbolNode];
+    }
 }
 
 bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser* it)
 {
-    TGlaToTopTraverser* oit = static_cast<TGlaToTopTraverser*>(it);
+    TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
+
+    gla::Builder::SuperValue result;
+    llvm::Instruction::BinaryOps binOp = llvm::Instruction::BinaryOps(0);
+    bool needsPromotion = true;
 
     switch (node->getOp()) {
+    case EOpAdd:
+    case EOpSub:
+    case EOpMul:
+    case EOpDiv:
+    case EOpMod:
+    case EOpRightShift:
+    case EOpLeftShift:
+    case EOpAnd:
+    case EOpInclusiveOr:
+    case EOpExclusiveOr:
+    case EOpLogicalOr:
+    case EOpLogicalXor:
+    case EOpLogicalAnd:
+        {
+            node->getLeft()->traverse(oit);
+            gla::Builder::SuperValue left = oit->lastValue;
+            node->getRight()->traverse(oit);
+            gla::Builder::SuperValue right = oit->lastValue;
+            oit->lastValue = oit->createBinaryOperation(node->getOp(), left, right, true, false);
+            return false;
+        }
     case EOpAssign:
+        // TODO: incorporate throughout: the access chain infrastructure in top builder, 
+        // below is just a placeholder for now
+        {
+            node->getLeft()->traverse(oit);
+            gla::Builder::SuperValue left = oit->lastValue;
+            node->getRight()->traverse(oit);
+            gla::Builder::SuperValue right = oit->lastValue;
+            oit->lastValue = oit->glaBuilder->createStore(right, left);
+            return false;
+        }
+
     case EOpAddAssign:
     case EOpSubAssign:
     case EOpMulAssign:
@@ -100,16 +217,6 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     case EOpIndexDirectStruct:
     case EOpVectorSwizzle:
 
-    case EOpAdd:
-    case EOpSub:
-    case EOpMul:
-    case EOpDiv:
-    case EOpMod:
-    case EOpRightShift:
-    case EOpLeftShift:
-    case EOpAnd:
-    case EOpInclusiveOr:
-    case EOpExclusiveOr:
     case EOpEqual:
     case EOpNotEqual:
     case EOpLessThan:
@@ -123,11 +230,9 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     case EOpMatrixTimesScalar:
     case EOpMatrixTimesMatrix:
 
-    case EOpLogicalOr:
-    case EOpLogicalXor:
-    case EOpLogicalAnd:
     default:
-        ;
+        gla::UnsupportedFunctionality("glslang binary", gla::EATContinue);
+        return true;
     }
 
     return true;
@@ -135,126 +240,142 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
 
 bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* it)
 {
-    TGlaToTopTraverser* oit = static_cast<TGlaToTopTraverser*>(it);
+    TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
     switch (node->getOp()) {
-    case EOpNegative:       break;
+    case EOpNegative:
     case EOpVectorLogicalNot:
-    case EOpLogicalNot:     break;
-    case EOpBitwiseNot:     break;
+    case EOpLogicalNot:
+    case EOpBitwiseNot:
 
-    case EOpPostIncrement:  break;
-    case EOpPostDecrement:  break;
-    case EOpPreIncrement:   break;
-    case EOpPreDecrement:   break;
+    case EOpPostIncrement:
+    case EOpPostDecrement:
+    case EOpPreIncrement:
+    case EOpPreDecrement:
 
-    case EOpConvIntToBool:  break;
-    case EOpConvFloatToBool:break;
-    case EOpConvBoolToFloat:break;
-    case EOpConvIntToFloat: break;
-    case EOpConvFloatToInt: break;
-    case EOpConvBoolToInt:  break;
+    case EOpConvIntToBool:
+    case EOpConvFloatToBool:
+    case EOpConvBoolToFloat:
+    case EOpConvIntToFloat:
+    case EOpConvFloatToInt:
+    case EOpConvBoolToInt:
 
-    case EOpRadians:        break;
-    case EOpDegrees:        break;
-    case EOpSin:            break;
-    case EOpCos:            break;
-    case EOpTan:            break;
-    case EOpAsin:           break;
-    case EOpAcos:           break;
-    case EOpAtan:           break;
+    case EOpRadians:
+    case EOpDegrees:
+    case EOpSin:
+    case EOpCos:
+    case EOpTan:
+    case EOpAsin:
+    case EOpAcos:
+    case EOpAtan:
 
-    case EOpExp:            break;
-    case EOpLog:            break;
-    case EOpExp2:           break;
-    case EOpLog2:           break;
-    case EOpSqrt:           break;
-    case EOpInverseSqrt:    break;
+    case EOpExp:
+    case EOpLog:
+    case EOpExp2:
+    case EOpLog2:
+    case EOpSqrt:
+    case EOpInverseSqrt:
 
-    case EOpAbs:            break;
-    case EOpSign:           break;
-    case EOpFloor:          break;
-    case EOpCeil:           break;
-    case EOpFract:          break;
+    case EOpAbs:
+    case EOpSign:
+    case EOpFloor:
+    case EOpCeil:
+    case EOpFract:
 
-    case EOpLength:         break;
-    case EOpNormalize:      break;
-    case EOpDPdx:           break;
-    case EOpDPdy:           break;
-    case EOpFwidth:         break;
+    case EOpLength:
+    case EOpNormalize:
+    case EOpDPdx:
+    case EOpDPdy:
+    case EOpFwidth:
 
-    case EOpAny:            break;
-    case EOpAll:            break;
+    case EOpAny:
+    case EOpAll:
 
     default:
-        ;
+        gla::UnsupportedFunctionality("glslang unary", gla::EATContinue);
+        return false;
     }
 
     return true;
 }
 
-bool TranslateAggregate(bool /* preVisit */, TIntermAggregate* node, TIntermTraverser* it)
+bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser* it)
 {
-    TGlaToTopTraverser* oit = static_cast<TGlaToTopTraverser*>(it);
+    TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
     if (node->getOp() == EOpNull) {
-        //??out.debug.message(EPrefixError, "node is still EOpNull!");
-        return true;
+        gla::UnsupportedFunctionality("glslang aggregate: EOpNull", gla::EATContinue);
+        return false;
     }
 
     switch (node->getOp()) {
-    case EOpSequence:      return true;
-    case EOpComma:         return true;
-    case EOpFunction:      break;
-    case EOpFunctionCall:  break;
-    case EOpParameters:    break;
+    case EOpSequence:
+        return true;
+    case EOpComma:
+        gla::UnsupportedFunctionality("glslang aggregate: comma", gla::EATContinue);
+        return false;
+    case EOpFunction:
+        if (preVisit) {
+            if (node->getName() == "main(") {
+                oit->inMain = true;            
+                oit->llvmBuilder.SetInsertPoint(oit->shaderEntry);
+            }
+        } else {
+            oit->glaBuilder->leaveFunction(oit->inMain);
+            oit->inMain = false;
+        }
+        return true;
 
-    case EOpConstructFloat: break;
-    case EOpConstructVec2:  break;
-    case EOpConstructVec3:  break;
-    case EOpConstructVec4:  break;
-    case EOpConstructBool:  break;
-    case EOpConstructBVec2: break;
-    case EOpConstructBVec3: break;
-    case EOpConstructBVec4: break;
-    case EOpConstructInt:   break;
-    case EOpConstructIVec2: break;
-    case EOpConstructIVec3: break;
-    case EOpConstructIVec4: break;
-    case EOpConstructMat2:  break;
-    case EOpConstructMat3:  break;
-    case EOpConstructMat4:  break;
-    case EOpConstructStruct:  break;
+    case EOpFunctionCall:
+    case EOpParameters:
 
-    case EOpLessThan:         break;
-    case EOpGreaterThan:      break;
-    case EOpLessThanEqual:    break;
-    case EOpGreaterThanEqual: break;
-    case EOpVectorEqual:      break;
-    case EOpVectorNotEqual:   break;
+    case EOpConstructFloat:
+    case EOpConstructVec2:
+    case EOpConstructVec3:
+    case EOpConstructVec4:
+    case EOpConstructBool:
+    case EOpConstructBVec2:
+    case EOpConstructBVec3:
+    case EOpConstructBVec4:
+    case EOpConstructInt:
+    case EOpConstructIVec2:
+    case EOpConstructIVec3:
+    case EOpConstructIVec4:
+    case EOpConstructMat2:
+    case EOpConstructMat3:
+    case EOpConstructMat4:
+    case EOpConstructStruct:
 
-    case EOpMod:           break;
-    case EOpPow:           break;
+    case EOpLessThan:
+    case EOpGreaterThan:
+    case EOpLessThanEqual:
+    case EOpGreaterThanEqual:
+    case EOpVectorEqual:
+    case EOpVectorNotEqual:
 
-    case EOpAtan:          break;
+    case EOpMod:
+    case EOpPow:
 
-    case EOpMin:           break;
-    case EOpMax:           break;
-    case EOpClamp:         break;
-    case EOpMix:           break;
-    case EOpStep:          break;
-    case EOpSmoothStep:    break;
+    case EOpAtan:
 
-    case EOpDistance:      break;
-    case EOpDot:           break;
-    case EOpCross:         break;
-    case EOpFaceForward:   break;
-    case EOpReflect:       break;
-    case EOpRefract:       break;
-    case EOpMul:           break;
+    case EOpMin:
+    case EOpMax:
+    case EOpClamp:
+    case EOpMix:
+    case EOpStep:
+    case EOpSmoothStep:
+
+    case EOpDistance:
+    case EOpDot:
+    case EOpCross:
+    case EOpFaceForward:
+    case EOpReflect:
+    case EOpRefract:
+    case EOpMul:
 
     default:
-        ;
+        gla::UnsupportedFunctionality("glslang aggregate", gla::EATContinue);
+        return false;
     }
 
     return true;
@@ -262,7 +383,10 @@ bool TranslateAggregate(bool /* preVisit */, TIntermAggregate* node, TIntermTrav
 
 bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTraverser* it)
 {
-    TGlaToTopTraverser* oit = static_cast<TGlaToTopTraverser*>(it);
+    TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
+
+    gla::UnsupportedFunctionality("glslang selection", gla::EATContinue);
+    return false;
 
     node->getCondition()->traverse(it);
 
@@ -279,7 +403,10 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
 
 void TranslateConstantUnion(TIntermConstantUnion* node, TIntermTraverser* it)
 {
-    TGlaToTopTraverser* oit = static_cast<TGlaToTopTraverser*>(it);
+    TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
+
+    gla::UnsupportedFunctionality("glslang constant unions", gla::EATContinue);
+    return;
 
     int size = node->getType().getObjectSize();
 
@@ -313,7 +440,10 @@ void TranslateConstantUnion(TIntermConstantUnion* node, TIntermTraverser* it)
 
 bool TranslateLoop(bool /* preVisit */, TIntermLoop* node, TIntermTraverser* it)
 {
-    TGlaToTopTraverser* oit = static_cast<TGlaToTopTraverser*>(it);
+    TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
+
+    gla::UnsupportedFunctionality("glslang loops", gla::EATContinue);
+    return false;
 
     if (! node->testFirst())
         ;
@@ -333,35 +463,366 @@ bool TranslateLoop(bool /* preVisit */, TIntermLoop* node, TIntermTraverser* it)
     return false;
 }
 
-bool TranslateBranch(bool /* previsit*/, TIntermBranch* node, TIntermTraverser* it)
+bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
 {
-    TGlaToTopTraverser* oit = static_cast<TGlaToTopTraverser*>(it);
+    TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
+
+    if (node->getExpression())
+        node->getExpression()->traverse(it);
 
     switch (node->getFlowOp()) {
-    case EOpKill:      break;
-    case EOpBreak:     break;
-    case EOpContinue:  break;
-    case EOpReturn:    break;
+    case EOpKill:
+        oit->glaBuilder->makeDiscard(oit->inMain);
+        break;
+    case EOpBreak:
+        oit->glaBuilder->makeLoopExit();
+        break;
+    case EOpContinue:
+        oit->glaBuilder->makeLoopBackEdge();
+        break;
+    case EOpReturn:
+        if (oit->inMain)
+            oit->glaBuilder->makeMainReturn();
+        else if (node->getExpression())
+            oit->glaBuilder->makeReturn(false, oit->lastValue);
+        else
+            oit->glaBuilder->makeReturn();
+
+        oit->lastValue.clear();
+        break;
+
     default:
         ;
-    }
-
-    if (node->getExpression()) {
-        node->getExpression()->traverse(it);
     }
 
     return false;
 }
 
+gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbol* node)
+{
+    llvm::Constant* initializer = 0;
+    gla::Builder::EStorageQualifier storageQualifier;
+    int constantBuffer = 0;
+
+    switch (node->getQualifier()) {
+    case EvqTemporary:
+        storageQualifier = gla::Builder::ESQLocal;
+        break;
+    case EvqGlobal:
+        storageQualifier = gla::Builder::ESQGlobal;
+        break;
+    case EvqConst:
+        gla::UnsupportedFunctionality("glslang qualifier const", gla::EATContinue);
+        //initializer = createLLVMConstant(var->constant_value);
+        break;
+    case EvqAttribute:
+    case EvqVaryingIn:
+    case EvqFragCoord:
+    case EvqFace:
+        // inputs should all be pipeline reads or created at function creation time
+        assert(! "no variable creations for inputs");
+        break;
+    case EvqVaryingOut:
+    case EvqPosition:
+    case EvqPointSize:
+    case EvqClipVertex:
+    case EvqFragColor:
+    case EvqFragDepth:
+        storageQualifier = gla::Builder::ESQOutput;
+        break;
+    case EvqUniform:
+        storageQualifier = gla::Builder::ESQUniform;
+        // TODO: need to generalize to N objects (constant buffers) for higher shader models
+        constantBuffer = 0;
+        break;
+    case EvqIn:
+    case EvqOut:
+    case EvqInOut:
+    case EvqConstReadOnly:
+
+    default:
+        gla::UnsupportedFunctionality("glslang qualifier", gla::EATContinue);
+    }
+
+    std::string* annotationAddr = 0;
+    std::string annotation;
+    if (IsSampler(node->getBasicType())) {
+        annotation = TType::getBasicString(node->getBasicType());
+        annotationAddr = &annotation;
+        storageQualifier = gla::Builder::ESQResource;
+    }
+
+    const llvm::Type *llvmType = convertGlslangToGlaType(node->getType());
+
+    return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType, node->getType().isMatrix(), 
+                                      initializer, annotationAddr, node->getSymbol().c_str());
+}
+
+const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(TType& type)
+{
+    const llvm::Type *glaType;
+
+    switch(type.getBasicType()) {
+    case EbtVoid:
+        glaType = gla::GetVoidType(context);
+        break;
+    case EbtFloat:
+        glaType = gla::GetFloatType(context);
+        break;
+    case EbtDouble:
+        gla::UnsupportedFunctionality("basic type: double", gla::EATContinue);
+        break;
+    case EbtBool:
+        glaType = gla::GetBoolType(context);
+        break;
+    case EbtInt:
+    case EbtSampler1D:
+    case EbtSampler2D:
+    case EbtSampler3D:
+    case EbtSamplerCube:
+    case EbtSampler1DShadow:
+    case EbtSampler2DShadow:
+    case EbtSamplerRect:
+    case EbtSamplerRectShadow:
+        glaType = gla::GetIntType(context);
+        break;
+    case EbtStruct:
+        gla::UnsupportedFunctionality("basic type: struct", gla::EATContinue);
+        //{
+        //    std::vector<const llvm::Type*> structFields;
+        //    llvm::StructType* structType = structMap[type->name];
+        //    if (structType) {
+        //        // If we've seen this struct type, return it
+        //        glaType = structType;
+        //    } else {
+        //        // Create a vector of struct types for LLVM to consume
+        //        for (int i = 0; i < type->length; i++) {
+        //            structFields.push_back(convertGlslangToGlaType(type->fields.structure[i].type));
+        //        }
+        //        structType = llvm::StructType::get(context, structFields, false);
+        //        module->addTypeName(type->name, structType);
+        //        structMap[type->name] = structType;
+        //        glaType = structType;
+        //    }
+        //}
+        break;
+
+    default:
+        gla::UnsupportedFunctionality("basic type", gla::EATContinue);
+        break;
+    }
+
+    if (type.isMatrix())
+        glaType = gla::Builder::Matrix::getType(glaType, type.getNominalSize(), type.getNominalSize());
+    else {
+        // If this variable has a vector element count greater than 1, create an LLVM vector
+        if (type.getNominalSize() > 1)
+            glaType = llvm::VectorType::get(glaType, type.getNominalSize());
+    }
+
+    if (type.isArray())
+        glaType = llvm::ArrayType::get(glaType, type.getArraySize());
+
+    return glaType;
+}
+
+gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned)
+{
+    gla::Builder::SuperValue result;
+    llvm::Instruction::BinaryOps binOp = llvm::Instruction::BinaryOps(0);
+    bool needsPromotion = true;
+
+    switch(op) {
+    case EOpAdd:
+        if (isFloat)
+            binOp = llvm::Instruction::FAdd;
+        else
+            binOp = llvm::Instruction::Add;
+        break;
+    case EOpSub:
+        if (isFloat)
+            binOp = llvm::Instruction::FSub;
+        else
+            binOp = llvm::Instruction::Sub;
+        break;
+    case EOpMul:
+        if (isFloat)
+            binOp = llvm::Instruction::FMul;
+        else
+            binOp = llvm::Instruction::Mul;
+        break;
+    case EOpDiv:
+        if (isFloat)
+            binOp = llvm::Instruction::FDiv;
+        else if (isSigned)
+            binOp = llvm::Instruction::SDiv;
+        else
+            binOp = llvm::Instruction::UDiv;
+        break;
+    case EOpMod:
+        if (isFloat)
+            binOp = llvm::Instruction::FRem;
+        else if (isSigned)
+            binOp = llvm::Instruction::SRem;
+        else
+            binOp = llvm::Instruction::URem;
+        break;
+    case EOpRightShift:
+        binOp = llvm::Instruction::LShr;
+        break;
+    case EOpLeftShift:
+        binOp = llvm::Instruction::Shl;
+        break;
+    case EOpAnd:
+        binOp = llvm::Instruction::And;
+        break;
+    case EOpInclusiveOr:
+        binOp = llvm::Instruction::Or;
+        break;
+    case EOpExclusiveOr:
+    case EOpLogicalXor:
+        binOp = llvm::Instruction::Xor;
+        break;
+    case EOpLogicalAnd:
+        assert(gla::IsBoolean(left->getType()) && gla::IsScalar(left->getType()));
+        assert(gla::IsBoolean(right->getType()) && gla::IsScalar(right->getType()));
+        needsPromotion = false;
+        binOp = llvm::Instruction::And;
+        break;
+    }
+
+    if (binOp != 0) {
+        if (needsPromotion)
+            glaBuilder->promoteScalar(left, right);
+
+        return llvmBuilder.CreateBinOp(binOp, left, right);
+    }
+
+    // Comparison instructions
+    if (isFloat) {
+        llvm::FCmpInst::Predicate pred = llvm::FCmpInst::Predicate(0);
+        switch (op) {
+        case EOpLessThan:
+            pred = llvm::FCmpInst::FCMP_OLT;
+            break;
+        case EOpGreaterThan:
+            pred = llvm::FCmpInst::FCMP_OGT;
+            break;
+        case EOpLessThanEqual:
+            pred = llvm::FCmpInst::FCMP_OLE;
+            break;
+        case EOpGreaterThanEqual:
+            pred = llvm::FCmpInst::FCMP_OGE;
+            break;
+        case EOpEqual:
+            pred = llvm::FCmpInst::FCMP_OEQ;
+            break;
+        case EOpNotEqual:
+            pred = llvm::FCmpInst::FCMP_ONE;
+            break;
+        }
+
+        if (pred != 0)
+            return llvmBuilder.CreateFCmp(pred, left, right);
+    } else {
+        llvm::ICmpInst::Predicate pred = llvm::ICmpInst::Predicate(0);
+        if (isSigned) {
+            switch (op) {
+            case EOpLessThan:
+                pred = llvm::ICmpInst::ICMP_SLT;
+                break;
+            case EOpGreaterThan:
+                pred = llvm::ICmpInst::ICMP_SGT;
+                break;
+            case EOpLessThanEqual:
+                pred = llvm::ICmpInst::ICMP_SLE;
+                break;
+            case EOpGreaterThanEqual:
+                pred = llvm::ICmpInst::ICMP_SGE;
+                break;
+            case EOpEqual:
+                pred = llvm::ICmpInst::ICMP_EQ;
+                break;
+            case EOpNotEqual:
+                pred = llvm::ICmpInst::ICMP_NE;
+                break;
+            }
+        } else {
+            switch (op) {
+            case EOpLessThan:
+                pred = llvm::ICmpInst::ICMP_ULT;
+                break;
+            case EOpGreaterThan:
+                pred = llvm::ICmpInst::ICMP_UGT;
+                break;
+            case EOpLessThanEqual:
+                pred = llvm::ICmpInst::ICMP_ULE;
+                break;
+            case EOpGreaterThanEqual:
+                pred = llvm::ICmpInst::ICMP_UGE;
+                break;
+            case EOpEqual:
+                pred = llvm::ICmpInst::ICMP_EQ;
+                break;
+            case EOpNotEqual:
+                pred = llvm::ICmpInst::ICMP_NE;
+                break;
+            }
+        }
+
+        if (pred != 0)
+            return llvmBuilder.CreateICmp(pred, left, right);
+    }
+
+    return result;
+}
+
+llvm::Value* TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, int slot)
+{
+    // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
+    // which we will optimize later.
+    std::string name(node->getSymbol().c_str());
+    const llvm::Type* readType;
+
+    if (node->getType().isArray()) {
+        gla::UnsupportedFunctionality("input array");
+        return 0;
+    } else {
+        readType = convertGlslangToGlaType(node->getType());
+    }
+
+    gla::EInterpolationMethod method = gla::EIMSmooth;
+    // TODO: set interpolation types
+            //method = gla::EIMSmooth;
+            //method = gla::EIMNoperspective;
+            //method = gla::EIMNone;
+
+    // Give each interpolant a temporary unique index
+    return glaBuilder->readPipeline(readType, name, getNextInterpIndex(name), -1 /*mask*/, method);
+}
+
+int TGlslangToTopTraverser::getNextInterpIndex(std::string& name)
+{
+    // Get the index for this interpolant, or create a new unique one
+    std::map<std::string, int>::iterator iter;
+    iter = interpMap.find(name);
+
+    if (interpMap.end() == iter) {
+        interpMap[name] = interpIndex++;
+    }
+
+    return interpMap[name];
+}
+
 //
-// This function is the one to call externally to start the traversal.
+// Set up the glslang traversal
 //
 void GlslangToTop(TIntermNode* root, gla::Manager* manager)
 {
     if (root == 0)
         return;
 
-    TGlaToTopTraverser it;
+    TGlslangToTopTraverser it(manager);
 
     it.visitAggregate = TranslateAggregate;
     it.visitBinary = TranslateBinary;
