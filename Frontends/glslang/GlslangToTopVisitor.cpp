@@ -86,8 +86,7 @@ public:
     int interpIndex;
     bool inMain;
 
-    gla::Builder::SuperValue lastValue;
-    std::map<TIntermSymbol*, gla::Builder::SuperValue> namedValues;
+    std::map<int, gla::Builder::SuperValue> namedValues;
     std::map<std::string, int> interpMap;
 };
 
@@ -97,6 +96,8 @@ TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
 {
     // do this after the builder knows the module
     glaBuilder = new gla::Builder(llvmBuilder, manager);
+    glaBuilder->clearAccessChain();
+    glaBuilder->setAccessChainDirectionRightToLeft(false);
 
     shaderEntry = glaBuilder->makeMain();
     llvmBuilder.SetInsertPoint(shaderEntry);
@@ -121,7 +122,7 @@ TGlslangToTopTraverser::~TGlslangToTopTraverser()
 void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
-    
+
     TIntermSymbol* symbolNode = node->getAsSymbolNode();
 
     if (symbolNode == 0) {
@@ -139,19 +140,24 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
         break;
     }
 
+    // L-value chains will be computed purely left to right, so now is clear time
+    // (since we are on the symbol; the base of the expression, which is left-most)
+    oit->glaBuilder->clearAccessChain();
+
     if (input) {
-        oit->lastValue = oit->createPipelineRead(symbolNode, 0);
+        gla::Builder::SuperValue rValue = oit->createPipelineRead(symbolNode, 0);
+        oit->glaBuilder->setAccessChainRValue(rValue);
     } else {
-        std::map<TIntermSymbol*, gla::Builder::SuperValue>::iterator iter;
-        iter = oit->namedValues.find(symbolNode);
+        std::map<int, gla::Builder::SuperValue>::iterator iter;
+        iter = oit->namedValues.find(symbolNode->getId());
 
         if (oit->namedValues.end() == iter) {
             // it was not found, create it
-            oit->namedValues[symbolNode] = oit->createLLVMVariable(symbolNode);
+            oit->namedValues[symbolNode->getId()] = oit->createLLVMVariable(symbolNode);
         }
 
         // Track the current value
-        oit->lastValue = oit->namedValues[symbolNode];
+        oit->glaBuilder->setAccessChainLValue(oit->namedValues[symbolNode->getId()]);
     }
 }
 
@@ -179,21 +185,28 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     case EOpLogicalAnd:
         {
             node->getLeft()->traverse(oit);
-            gla::Builder::SuperValue left = oit->lastValue;
+            gla::Builder::SuperValue left = oit->glaBuilder->accessChainLoad();
             node->getRight()->traverse(oit);
-            gla::Builder::SuperValue right = oit->lastValue;
-            oit->lastValue = oit->createBinaryOperation(node->getOp(), left, right, true, false);
+            gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
+            gla::Builder::SuperValue rValue = oit->createBinaryOperation(node->getOp(), left, right, true, false);
+            oit->glaBuilder->clearAccessChain();
+            oit->glaBuilder->setAccessChainRValue(rValue);
             return false;
         }
     case EOpAssign:
-        // TODO: incorporate throughout: the access chain infrastructure in top builder, 
-        // below is just a placeholder for now
         {
+            // GLSL says to evaluate the left before the right...
             node->getLeft()->traverse(oit);
-            gla::Builder::SuperValue left = oit->lastValue;
+            gla::Builder::AccessChain lValue = oit->glaBuilder->getAccessChain();
+            oit->glaBuilder->clearAccessChain();  //?? when are clears really needed
             node->getRight()->traverse(oit);
-            gla::Builder::SuperValue right = oit->lastValue;
-            oit->lastValue = oit->glaBuilder->createStore(right, left);
+            gla::Builder::SuperValue rValue = oit->glaBuilder->accessChainLoad();
+            oit->glaBuilder->setAccessChain(lValue);
+            oit->glaBuilder->accessChainStore(rValue);
+
+            // assignments are expressions having an rValue after they are evaluated...
+            oit->glaBuilder->clearAccessChain();
+            oit->glaBuilder->setAccessChainRValue(rValue);
             return false;
         }
 
@@ -211,11 +224,30 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     case EOpExclusiveOrAssign:
     case EOpLeftShiftAssign:
     case EOpRightShiftAssign:
+        gla::UnsupportedFunctionality("glslang binary assign", gla::EATContinue);
+        return true;
 
     case EOpIndexDirect:
     case EOpIndexIndirect:
     case EOpIndexDirectStruct:
+        {
+            // this adapter is building access chains left to right
+            // set up the access chain
+            node->getLeft()->traverse(oit);
+            // save it so that computing the right side doesn't trash it
+            gla::Builder::AccessChain partial = oit->glaBuilder->getAccessChain();
+            // compute the next component
+            node->getRight()->traverse(oit);
+            gla::Builder::SuperValue rValue = oit->glaBuilder->accessChainLoad();
+            // make the new access chain to date
+            oit->glaBuilder->setAccessChain(partial);
+            oit->glaBuilder->accessChainPushLeft(rValue);
+            return false;
+        }
+
     case EOpVectorSwizzle:
+        gla::UnsupportedFunctionality("glslang swizzle", gla::EATContinue);
+        return true;
 
     case EOpEqual:
     case EOpNotEqual:
@@ -223,15 +255,29 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     case EOpGreaterThan:
     case EOpLessThanEqual:
     case EOpGreaterThanEqual:
+        gla::UnsupportedFunctionality("glslang binary relation", gla::EATContinue);
+        return true;
 
     case EOpVectorTimesScalar:
+        {
+            node->getLeft()->traverse(oit);
+            gla::Builder::SuperValue left = oit->glaBuilder->accessChainLoad();
+            node->getRight()->traverse(oit);
+            gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
+            oit->glaBuilder->promoteScalar(left, right);
+            gla::Builder::SuperValue rValue = oit->createBinaryOperation(EOpMul, left, right, true, false);
+            oit->glaBuilder->clearAccessChain();
+            oit->glaBuilder->setAccessChainRValue(rValue);
+            return false;
+        }
+
     case EOpVectorTimesMatrix:
     case EOpMatrixTimesVector:
     case EOpMatrixTimesScalar:
     case EOpMatrixTimesMatrix:
 
     default:
-        gla::UnsupportedFunctionality("glslang binary", gla::EATContinue);
+        gla::UnsupportedFunctionality("glslang binary matrix", gla::EATContinue);
         return true;
     }
 
@@ -317,7 +363,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     case EOpFunction:
         if (preVisit) {
             if (node->getName() == "main(") {
-                oit->inMain = true;            
+                oit->inMain = true;
                 oit->llvmBuilder.SetInsertPoint(oit->shaderEntry);
             }
         } else {
@@ -405,14 +451,12 @@ void TranslateConstantUnion(TIntermConstantUnion* node, TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
-    gla::UnsupportedFunctionality("glslang constant unions", gla::EATContinue);
-    return;
-
     int size = node->getType().getObjectSize();
 
     for (int i = 0; i < size; i++) {
         switch (node->getUnionArrayPointer()[i].getType()) {
         case EbtBool:
+            gla::UnsupportedFunctionality("glslang bool constant union", gla::EATContinue);
             if (node->getUnionArrayPointer()[i].getBConst())
                 ;
             else
@@ -420,19 +464,26 @@ void TranslateConstantUnion(TIntermConstantUnion* node, TIntermTraverser* it)
             break;
         case EbtFloat:
             {
-                node->getUnionArrayPointer()[i].getFConst();
+                llvm::Value* c = gla::MakeFloatConstant(oit->context, node->getUnionArrayPointer()[i].getFConst());
+                oit->glaBuilder->clearAccessChain();
+                oit->glaBuilder->setAccessChainRValue(c);
             }
             break;
         case EbtDouble:
             {
+                gla::UnsupportedFunctionality("glslang double constant union", gla::EATContinue);
                 node->getUnionArrayPointer()[i].getDConst();
             }
             break;
         case EbtInt:
             {
-				node->getUnionArrayPointer()[i].getIConst();
+                llvm::Value* c = gla::MakeIntConstant(oit->context, node->getUnionArrayPointer()[i].getIConst());
+                oit->glaBuilder->clearAccessChain();
+                oit->glaBuilder->setAccessChainRValue(c);
             }
+            break;
         default:
+            gla::UnsupportedFunctionality("glslang constant union", gla::EATContinue);
             break;
         }
     }
@@ -483,12 +534,14 @@ bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
     case EOpReturn:
         if (oit->inMain)
             oit->glaBuilder->makeMainReturn();
-        else if (node->getExpression())
-            oit->glaBuilder->makeReturn(false, oit->lastValue);
-        else
+        else if (node->getExpression()) {
+            // this path still needs to be tested/corrected (where does the value come from?)
+            gla::UnsupportedFunctionality("glslang qualifier const", gla::EATContinue);
+            oit->glaBuilder->makeReturn(false, oit->glaBuilder->accessChainLoad());
+        } else
             oit->glaBuilder->makeReturn();
 
-        oit->lastValue.clear();
+        oit->glaBuilder->clearAccessChain();
         break;
 
     default:
@@ -554,7 +607,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
 
     const llvm::Type *llvmType = convertGlslangToGlaType(node->getType());
 
-    return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType, node->getType().isMatrix(), 
+    return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType, node->getType().isMatrix(),
                                       initializer, annotationAddr, node->getSymbol().c_str());
 }
 

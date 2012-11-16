@@ -82,9 +82,6 @@ bool TGenericCompiler::compile(TIntermNode *root)
 {
     haveValidObjectCode = false;
 
-    //if (gla::Options.debug && ! gla::Options.bottomIROnly)
-    //    _mesa_print_ir(Shader->ir, 0);
-
     gla::Manager* glaManager = gla::getManager();
     int compileCount = gla::Options.iterate ? 1000 : 1;
     for (int i = 0; i < compileCount; ++i) {
@@ -99,7 +96,7 @@ bool TGenericCompiler::compile(TIntermNode *root)
 
     delete glaManager;
 
-    haveValidObjectCode = false;
+    haveValidObjectCode = true;
 
     return haveValidObjectCode;
 }
