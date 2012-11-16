@@ -166,8 +166,8 @@ public:
     //
     // It is pretty easy to have this chain work for both possible directions
     // of building the offsets/accessors:  right-to-left or left-to-right.
-    // However, at the moment, it just does the right-to-left variety.  The
-    // offset chain reversal would need to be skipped to go left to right.
+    // The user can change which direction the chains for loads and stores are
+    // to be evaluated.  By default, the direction is right-to-left.
     //
     // The base of the access chain (the left-most variable or expression
     // from which everything is based) can be set either as an l-value
@@ -194,11 +194,20 @@ public:
         bool isRValue;
     };
 
+    //
+    // the top builder maintains a single active chain that
+    // the following methods operated on
+    //
+
+    // for external save and restore
     AccessChain getAccessChain() { return accessChain; }
     void setAccessChain(AccessChain newChain) { accessChain = newChain; }
 
     // clear accessChain
     void clearAccessChain();
+
+    // say whether or not to evaluate a chain right to left (false means left to right)
+    void setAccessChainDirectionRightToLeft(bool rightToLeft) { accessRightToLeft = rightToLeft; }
 
     // set new base as an l-value base
     void setAccessChainLValue(gla::Builder::SuperValue);
@@ -404,6 +413,7 @@ public:
 
 protected:
     AccessChain accessChain;
+    bool accessRightToLeft;
     SuperValue collapseAccessChain();
     void simplifyAccessChainSwizzle();
 

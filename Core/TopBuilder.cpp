@@ -45,6 +45,7 @@
 namespace gla {
 
 Builder::Builder(llvm::IRBuilder<>& b, gla::Manager* m) :
+    accessRightToLeft(true),
     builder(b),
     manager(m),
     module(manager->getModule()),
@@ -140,7 +141,8 @@ Builder::SuperValue Builder::collapseAccessChain()
 
     if (accessChain.indexChain.size() > 1) {
         if (accessChain.gep == 0) {
-            std::reverse(accessChain.indexChain.begin(), accessChain.indexChain.end());
+            if (accessRightToLeft)
+                std::reverse(accessChain.indexChain.begin(), accessChain.indexChain.end());
             accessChain.gep = createGEP(accessChain.base, accessChain.indexChain);
         }
 
@@ -157,7 +159,8 @@ Builder::SuperValue Builder::collapseInputAccessChain()
         return accessChain.indexChain.front();
 
     } else if (accessChain.indexChain.size() > 1) {
-        std::reverse(accessChain.indexChain.begin(), accessChain.indexChain.end());
+        if (accessRightToLeft)
+            std::reverse(accessChain.indexChain.begin(), accessChain.indexChain.end());
         UnsupportedFunctionality("More than one dimension on input");
     }
 
@@ -1335,7 +1338,7 @@ llvm::Value* Builder::createSamplePositionCall(const llvm::Type* returnType, llv
 
 llvm::Value* Builder::createBitFieldExtractCall(llvm::Value* value, llvm::Value* offset, llvm::Value* bits, bool isSigned)
 {
-    llvm::Intrinsic::ID intrinsicID = isSigned ? llvm::Intrinsic::gla_sBitFieldExtract 
+    llvm::Intrinsic::ID intrinsicID = isSigned ? llvm::Intrinsic::gla_sBitFieldExtract
                                                : llvm::Intrinsic::gla_uBitFieldExtract;
 
     if (IsScalar(offset) == false || IsScalar(bits) == false)
