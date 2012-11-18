@@ -76,6 +76,7 @@ public:
     gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned);
     llvm::Value* createPipelineRead(TIntermSymbol*, int slot);
     int getNextInterpIndex(std::string& name);
+    llvm::Constant* createLLVMConstant(TType& type, constUnion *consts, int& nextConst);
 
     llvm::LLVMContext &context;
     llvm::BasicBlock* shaderEntry;
@@ -453,40 +454,10 @@ void TranslateConstantUnion(TIntermConstantUnion* node, TIntermTraverser* it)
 
     int size = node->getType().getObjectSize();
 
-    for (int i = 0; i < size; i++) {
-        switch (node->getUnionArrayPointer()[i].getType()) {
-        case EbtBool:
-            gla::UnsupportedFunctionality("glslang bool constant union", gla::EATContinue);
-            if (node->getUnionArrayPointer()[i].getBConst())
-                ;
-            else
-                ;
-            break;
-        case EbtFloat:
-            {
-                llvm::Value* c = gla::MakeFloatConstant(oit->context, node->getUnionArrayPointer()[i].getFConst());
-                oit->glaBuilder->clearAccessChain();
-                oit->glaBuilder->setAccessChainRValue(c);
-            }
-            break;
-        case EbtDouble:
-            {
-                gla::UnsupportedFunctionality("glslang double constant union", gla::EATContinue);
-                node->getUnionArrayPointer()[i].getDConst();
-            }
-            break;
-        case EbtInt:
-            {
-                llvm::Value* c = gla::MakeIntConstant(oit->context, node->getUnionArrayPointer()[i].getIConst());
-                oit->glaBuilder->clearAccessChain();
-                oit->glaBuilder->setAccessChainRValue(c);
-            }
-            break;
-        default:
-            gla::UnsupportedFunctionality("glslang constant union", gla::EATContinue);
-            break;
-        }
-    }
+    int nextConst = 0;
+    llvm::Value* c = oit->createLLVMConstant(node->getType(), node->getUnionArrayPointer(), nextConst);
+    oit->glaBuilder->clearAccessChain();
+    oit->glaBuilder->setAccessChainRValue(c);
 }
 
 bool TranslateLoop(bool /* preVisit */, TIntermLoop* node, TIntermTraverser* it)
@@ -565,8 +536,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
         storageQualifier = gla::Builder::ESQGlobal;
         break;
     case EvqConst:
-        gla::UnsupportedFunctionality("glslang qualifier const", gla::EATContinue);
-        //initializer = createLLVMConstant(var->constant_value);
+        gla::UnsupportedFunctionality("glslang const variable", gla::EATContinue);
         break;
     case EvqAttribute:
     case EvqVaryingIn:
@@ -865,6 +835,55 @@ int TGlslangToTopTraverser::getNextInterpIndex(std::string& name)
     }
 
     return interpMap[name];
+}
+
+llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(TType& glslangType, constUnion *consts, int& nextConst)
+{
+    // vector of constants for LLVM
+    std::vector<llvm::Constant*> vals;
+
+    // Type is used for struct and array constants
+    const llvm::Type* type = convertGlslangToGlaType(glslangType);
+
+    if (glslangType.isArray()) {
+        TType nonArrayType = glslangType;
+        nonArrayType.clearArrayness();
+        for (int i = 0; i < glslangType.getArraySize(); ++i)
+            vals.push_back(createLLVMConstant(nonArrayType, consts, nextConst));
+    } else if (glslangType.isMatrix()) {
+        gla::UnsupportedFunctionality("Matrix constants");
+    } else if (glslangType.getStruct()) {
+        TVector<TTypeLine>::iterator iter;
+        for (iter = glslangType.getStruct()->begin(); iter != glslangType.getStruct()->end(); ++iter)
+            vals.push_back(createLLVMConstant(*iter->type, consts, nextConst));
+    } else {
+        // a vector or scalar, both will work the same way
+        // this is where we actually consume the constants, rather than walk a tree
+
+        for (unsigned int i = 0; i < glslangType.getNominalSize(); ++i) {
+            switch(consts->getType())
+            {
+            case EbtInt:
+                vals.push_back(gla::MakeUnsignedConstant(context, consts[nextConst].getIConst()));
+                break;
+            case EbtFloat:
+                vals.push_back(gla::MakeFloatConstant(context, consts[nextConst].getFConst()));
+                break;
+            case EbtDouble:
+                vals.push_back(gla::MakeFloatConstant(context, consts[nextConst].getDConst()));
+                break;
+            case EbtBool:
+                vals.push_back(gla::MakeBoolConstant(context, consts[nextConst].getBConst()));
+                break;
+            default:
+                gla::UnsupportedFunctionality("scalar or vector element type");
+                break;
+            }
+            ++nextConst;
+        }
+    }
+    
+    return glaBuilder->getConstant(vals, type);
 }
 
 //
