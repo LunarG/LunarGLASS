@@ -561,10 +561,10 @@ protected:
         const llvm::Value* samplerType = llvmInstruction->getOperand(0);
 
         // Select texture type based on GLA flag
-        
+
         if (texFlags & ETFFetch) {
             shader << "texelFetch";
-            
+
             // For 1.3 and beyond texture functions, no need for the
             // extra logic below, so just return
 
@@ -579,7 +579,7 @@ protected:
             return;
         }
 
-        
+
         if (texFlags & ETFShadow)
             texture = "shadow";
         else
@@ -1395,10 +1395,37 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
         }
         break;
 
-    case llvm::Instruction::FPToUI:         s = "uint";   unaryOperand = 0; break;
-    case llvm::Instruction::FPToSI:         s = "int";    unaryOperand = 0; break;
-    case llvm::Instruction::UIToFP:         s = "float";  unaryOperand = 0; break;
-    case llvm::Instruction::SIToFP:         s = "float";  unaryOperand = 0; break;
+    case llvm::Instruction::FPToUI:
+        switch (gla::GetComponentCount(llvmInstruction)) {
+        case 1: s = "uint";  break;
+        case 2: s = "uvec2"; break;
+        case 3: s = "uvec3"; break;
+        case 4: s = "uvec4"; break;
+        default: UnsupportedFunctionality("Can only convert scalars and vectors");
+        }
+        unaryOperand = 0;
+        break;
+    case llvm::Instruction::FPToSI:
+        switch (gla::GetComponentCount(llvmInstruction)) {
+        case 1: s = "int";   break;
+        case 2: s = "ivec2"; break;
+        case 3: s = "ivec3"; break;
+        case 4: s = "ivec4"; break;
+        default: UnsupportedFunctionality("Can only convert scalars and vectors");
+        }
+        unaryOperand = 0;
+        break;
+    case llvm::Instruction::UIToFP:
+    case llvm::Instruction::SIToFP:
+        switch (gla::GetComponentCount(llvmInstruction)) {
+        case 1: s = "float"; break;
+        case 2: s = "vec2";  break;
+        case 3: s = "vec3";  break;
+        case 4: s = "vec4";  break;
+        default: UnsupportedFunctionality("Can only convert scalars and vectors");
+        }
+        unaryOperand = 0;
+        break;
 
     default:
         break;
