@@ -75,6 +75,8 @@ public:
     const llvm::Type* convertGlslangToGlaType(const TType& type);
     gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned);
     gla::Builder::SuperValue createUnaryOperation(TOperator op, const TType& destType, gla::Builder::SuperValue operand);
+    gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand, TBasicType);
+    gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, TBasicType);
     llvm::Value* createPipelineRead(TIntermSymbol*, int slot);
     int getNextInterpIndex(std::string& name);
     llvm::Constant* createLLVMConstant(TType& type, constUnion *consts, int& nextConst);
@@ -167,35 +169,10 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
-    gla::Builder::SuperValue result;
     llvm::Instruction::BinaryOps binOp = llvm::Instruction::BinaryOps(0);
     bool needsPromotion = true;
 
     switch (node->getOp()) {
-    case EOpAdd:
-    case EOpSub:
-    case EOpMul:
-    case EOpDiv:
-    case EOpMod:
-    case EOpRightShift:
-    case EOpLeftShift:
-    case EOpAnd:
-    case EOpInclusiveOr:
-    case EOpExclusiveOr:
-    case EOpLogicalOr:
-    case EOpLogicalXor:
-    case EOpLogicalAnd:
-        {
-            node->getLeft()->traverse(oit);
-            gla::Builder::SuperValue left = oit->glaBuilder->accessChainLoad();
-            node->getRight()->traverse(oit);
-            gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
-            gla::Builder::SuperValue rValue = oit->createBinaryOperation(node->getOp(), left, right, 
-                                                                         node->getBasicType() == EbtFloat, false);
-            oit->glaBuilder->clearAccessChain();
-            oit->glaBuilder->setAccessChainRValue(rValue);
-            return false;
-        }
     case EOpAssign:
         {
             // GLSL says to evaluate the left before the right...
@@ -228,7 +205,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     case EOpExclusiveOrAssign:
     case EOpLeftShiftAssign:
     case EOpRightShiftAssign:
-        gla::UnsupportedFunctionality("glslang binary assign", gla::EATContinue);
+        gla::UnsupportedFunctionality("glslang binary op-assign", gla::EATContinue);
         return true;
 
     case EOpIndexDirect:
@@ -253,40 +230,41 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
         gla::UnsupportedFunctionality("glslang swizzle", gla::EATContinue);
         return true;
 
-    case EOpEqual:
-    case EOpNotEqual:
-    case EOpLessThan:
-    case EOpGreaterThan:
-    case EOpLessThanEqual:
-    case EOpGreaterThanEqual:
-        gla::UnsupportedFunctionality("glslang binary relation", gla::EATContinue);
-        return true;
-
-    case EOpVectorTimesScalar:
-        {
-            node->getLeft()->traverse(oit);
-            gla::Builder::SuperValue left = oit->glaBuilder->accessChainLoad();
-            node->getRight()->traverse(oit);
-            gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
-            oit->glaBuilder->promoteScalar(left, right);
-            gla::Builder::SuperValue rValue = oit->createBinaryOperation(EOpMul, left, right, 
-                                                                         node->getBasicType() == EbtFloat, false);
-            oit->glaBuilder->clearAccessChain();
-            oit->glaBuilder->setAccessChainRValue(rValue);
-            return false;
-        }
-
     case EOpVectorTimesMatrix:
     case EOpMatrixTimesVector:
     case EOpMatrixTimesScalar:
     case EOpMatrixTimesMatrix:
+    //case EOpOuterProduct:
+    //    return glaBuilder->createMatrixMultiply(left, right);
 
-    default:
         gla::UnsupportedFunctionality("glslang binary matrix", gla::EATContinue);
         return true;
     }
 
-    return true;
+    // Assume generic binary op...
+    oit->glaBuilder->clearAccessChain();
+    node->getLeft()->traverse(oit);
+    gla::Builder::SuperValue left = oit->glaBuilder->accessChainLoad();
+    oit->glaBuilder->clearAccessChain();
+    node->getRight()->traverse(oit);
+    gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
+
+    gla::Builder::SuperValue rValue;
+    if (left.isMatrix() || right.isMatrix())
+        gla::UnsupportedFunctionality("glslang matrix operation", gla::EATContinue);
+    else
+        rValue = oit->createBinaryOperation(node->getOp(), left, right, node->getBasicType() == EbtFloat, false);
+
+    if (rValue.isClear()) {
+        gla::UnsupportedFunctionality("glslang binary operation", gla::EATContinue);
+
+        return true;
+    } else {
+        oit->glaBuilder->clearAccessChain();
+        oit->glaBuilder->setAccessChainRValue(rValue);
+
+        return false;
+    }
 }
 
 bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* it)
@@ -298,6 +276,11 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
     gla::Builder::SuperValue operand = oit->glaBuilder->accessChainLoad();
 
     gla::Builder::SuperValue result = oit->createUnaryOperation(node->getOp(), node->getType(), operand);
+
+    // it could be a LunarGLASS intrinsic instead of an operation
+    if (result.isClear())
+        result = oit->createUnaryIntrinsic(node->getOp(), operand, node->getBasicType());
+
     if (! result.isClear()) {
         oit->glaBuilder->clearAccessChain();
         oit->glaBuilder->setAccessChainRValue(result);
@@ -309,37 +292,8 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
     case EOpPostDecrement:
     case EOpPreIncrement:
     case EOpPreDecrement:
-
-    case EOpRadians:
-    case EOpDegrees:
-    case EOpSin:
-    case EOpCos:
-    case EOpTan:
-    case EOpAsin:
-    case EOpAcos:
-    case EOpAtan:
-
-    case EOpExp:
-    case EOpLog:
-    case EOpExp2:
-    case EOpLog2:
-    case EOpSqrt:
-    case EOpInverseSqrt:
-
-    case EOpAbs:
-    case EOpSign:
-    case EOpFloor:
-    case EOpCeil:
-    case EOpFract:
-
-    case EOpLength:
-    case EOpNormalize:
-    case EOpDPdx:
-    case EOpDPdy:
-    case EOpFwidth:
-
-    case EOpAny:
-    case EOpAll:
+        gla::UnsupportedFunctionality("++/--", gla::EATContinue);
+        return false;
 
     default:
         gla::UnsupportedFunctionality("glslang unary", gla::EATContinue);
@@ -385,6 +339,10 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     case EOpConstructVec2:
     case EOpConstructVec3:
     case EOpConstructVec4:
+    case EOpConstructDouble:
+    //case EOpConstructDvec2:
+    //case EOpConstructDvec3:
+    //case EOpConstructDvec4:
     case EOpConstructBool:
     case EOpConstructBVec2:
     case EOpConstructBVec3:
@@ -401,7 +359,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
                 glslangArguments[i]->traverse(oit);
                 arguments.push_back(oit->glaBuilder->accessChainLoad());
             }
-            llvm::Value* constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0, 
+            llvm::Value* constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
                                                                        oit->convertGlslangToGlaType(node->getType()),
                                                                        false, 0, 0, "constructed");
             constructed = oit->llvmBuilder.CreateLoad(constructed);
@@ -410,10 +368,16 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             oit->glaBuilder->setAccessChainRValue(constructed);
             return false;
         }
+
     case EOpConstructMat2:
     case EOpConstructMat3:
     case EOpConstructMat4:
+        gla::UnsupportedFunctionality("matrix constructor");
+        return false;
+
     case EOpConstructStruct:
+        gla::UnsupportedFunctionality("structure constructor");
+        return false;
 
     case EOpLessThan:
     case EOpGreaterThan:
@@ -421,33 +385,44 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     case EOpGreaterThanEqual:
     case EOpVectorEqual:
     case EOpVectorNotEqual:
+        gla::UnsupportedFunctionality("aggregate comparison");
+        return false;
 
-    case EOpMod:
-    case EOpPow:
+    //case EOpRecip:
+    //    return glaBuilder->createRecip(operand);
 
-    case EOpAtan:
-
-    case EOpMin:
-    case EOpMax:
-    case EOpClamp:
-    case EOpMix:
-    case EOpStep:
-    case EOpSmoothStep:
-
-    case EOpDistance:
-    case EOpDot:
-    case EOpCross:
-    case EOpFaceForward:
-    case EOpReflect:
-    case EOpRefract:
-    case EOpMul:
-
-    default:
-        gla::UnsupportedFunctionality("glslang aggregate", gla::EATContinue);
+    case EOpArrayLength:
+        gla::UnsupportedFunctionality("glsang array length");
         return false;
     }
 
-    return true;
+    //
+    // See if it maps to a regular operation or intrinsic.
+    //
+
+    TIntermSequence& glslangOperands = node->getAsAggregate()->getSequence();
+    std::vector<gla::Builder::SuperValue> operands;
+    gla::Builder::SuperValue result;
+    if (glslangOperands.size() >= 1 && glslangOperands.size() <= 2) {
+        for (int i = 0; i < glslangOperands.size(); ++i) {
+            oit->glaBuilder->clearAccessChain();
+            glslangOperands[i]->traverse(oit);
+            operands.push_back(oit->glaBuilder->accessChainLoad());
+        }
+        if (glslangOperands.size() == 1)
+            result = oit->createUnaryIntrinsic(node->getOp(), operands.front(), glslangOperands[0]->getAsTyped()->getBasicType());
+        else
+            result = oit->createIntrinsic(node->getOp(), operands, glslangOperands[0]->getAsTyped()->getBasicType());
+    }
+
+    if (result.isClear())
+        gla::UnsupportedFunctionality("glsang aggregate");
+    else {
+        oit->glaBuilder->clearAccessChain();
+        oit->glaBuilder->setAccessChainRValue(result);
+    }
+
+    return false;
 }
 
 bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTraverser* it)
@@ -691,6 +666,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
             binOp = llvm::Instruction::Sub;
         break;
     case EOpMul:
+    case EOpVectorTimesScalar:
         if (isFloat)
             binOp = llvm::Instruction::FMul;
         else
@@ -722,6 +698,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
         binOp = llvm::Instruction::And;
         break;
     case EOpInclusiveOr:
+    case EOpLogicalOr:
         binOp = llvm::Instruction::Or;
         break;
     case EOpExclusiveOr:
@@ -826,6 +803,19 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
 {
     gla::Builder::SuperValue result;
 
+    // Unary ops that map to llvm operations
+    switch (op) {
+    case EOpNegative:
+        if (destType.getBasicType() == EbtFloat)
+            return llvmBuilder.CreateFNeg(operand);
+        else
+            return llvmBuilder.CreateNeg (operand);
+    case EOpLogicalNot:
+    case EOpVectorLogicalNot:
+    case EOpBitwiseNot:
+        return llvmBuilder.CreateNot(operand);
+    }
+
     // Cast ops
     llvm::Instruction::CastOps castOp = llvm::Instruction::CastOps(0);
     switch(op) {
@@ -858,19 +848,244 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
     if (castOp != 0)
         return llvmBuilder.CreateCast(castOp, operand, convertGlslangToGlaType(destType));
 
-    // Unary ops that map to llvm operations
-    switch (op) {
-    case EOpNegative:
-        if (destType.getBasicType() == EbtFloat)
-            return llvmBuilder.CreateFNeg(operand);
+    return result;
+}
+
+gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand, TBasicType basicType)
+{
+    // Unary ops that require an intrinsic
+    gla::Builder::SuperValue result;
+    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
+
+    switch(op) {
+    case EOpRadians:
+        intrinsicID = llvm::Intrinsic::gla_fRadians;
+        break;
+    case EOpDegrees:
+        intrinsicID = llvm::Intrinsic::gla_fDegrees;
+        break;
+
+    case EOpSin:
+        intrinsicID = llvm::Intrinsic::gla_fSin;
+        break;
+    case EOpCos:
+        intrinsicID = llvm::Intrinsic::gla_fCos;
+        break;
+    case EOpTan:
+        intrinsicID = llvm::Intrinsic::gla_fTan;
+        break;
+    case EOpAcos:
+        intrinsicID = llvm::Intrinsic::gla_fAcos;
+        break;
+    case EOpAsin:
+        intrinsicID = llvm::Intrinsic::gla_fAsin;
+        break;
+    case EOpAtan:
+        intrinsicID = llvm::Intrinsic::gla_fAtan;
+        break;
+
+    //case EOpAcosh:
+    //    intrinsicID = llvm::Intrinsic::gla_fAcosh;
+    //    break;
+    //case EOpAsinh:
+    //    intrinsicID = llvm::Intrinsic::gla_fAsinh;
+    //    break;
+    //case EOpAtanh:
+    //    intrinsicID = llvm::Intrinsic::gla_fAtanh;
+    //    break;
+    //case EOpTanh:
+    //    intrinsicID = llvm::Intrinsic::gla_fTanh;
+    //    break;
+    //case EOpCosh:
+    //    intrinsicID = llvm::Intrinsic::gla_fCosh;
+    //    break;
+    //case EOpSinh:
+    //    intrinsicID = llvm::Intrinsic::gla_fSinh;
+    //    break;
+
+    case EOpLength:
+        intrinsicID = llvm::Intrinsic::gla_fLength;
+        break;
+    case EOpNormalize:
+        intrinsicID = llvm::Intrinsic::gla_fNormalize;
+        break;
+
+    case EOpExp:
+        intrinsicID = llvm::Intrinsic::gla_fExp;
+        break;
+    case EOpLog:
+        intrinsicID = llvm::Intrinsic::gla_fLog;
+        break;
+    case EOpExp2:
+        intrinsicID = llvm::Intrinsic::gla_fExp2;
+        break;
+    case EOpLog2:
+        intrinsicID = llvm::Intrinsic::gla_fLog2;
+        break;
+    case EOpSqrt:
+        intrinsicID = llvm::Intrinsic::gla_fSqrt;
+        break;
+    case EOpInverseSqrt:
+        intrinsicID = llvm::Intrinsic::gla_fInverseSqrt;
+        break;
+
+    case EOpFloor:
+        intrinsicID = llvm::Intrinsic::gla_fFloor;
+        break;
+    case EOpCeil:
+        intrinsicID = llvm::Intrinsic::gla_fCeiling;
+        break;
+    case EOpFract:
+        intrinsicID = llvm::Intrinsic::gla_fFraction;
+        break;
+
+    //case EOpRoundEven:
+    //    intrinsicID = llvm::Intrinsic::gla_fRoundEven;
+    //    break;
+    //case EOpTrunc:
+    //    intrinsicID = llvm::Intrinsic::gla_fRoundZero;
+    //    break;
+
+    case EOpDPdx:
+        intrinsicID = llvm::Intrinsic::gla_fDFdx;
+        break;
+    case EOpDPdy:
+        intrinsicID = llvm::Intrinsic::gla_fDFdy;
+        break;
+    case EOpFwidth:
+        intrinsicID = llvm::Intrinsic::gla_fFilterWidth;
+        break;
+
+    case EOpAny:
+        intrinsicID = llvm::Intrinsic::gla_any;
+        break;
+    case EOpAll:
+        intrinsicID = llvm::Intrinsic::gla_all;
+        break;
+
+    case EOpAbs:
+        if (basicType == EbtFloat)
+            intrinsicID = llvm::Intrinsic::gla_fAbs;
         else
-            return llvmBuilder.CreateNeg (operand);
-    case EOpLogicalNot:
-    case EOpVectorLogicalNot:
-    case EOpBitwiseNot:
-        return llvmBuilder.CreateNot(operand);
-    //case EOpRecip:
-    //    return glaBuilder->createRecip(operand);
+            intrinsicID = llvm::Intrinsic::gla_abs;
+        break;
+    case EOpSign:
+        if (basicType == EbtFloat)
+            intrinsicID = llvm::Intrinsic::gla_fSign;
+        else
+            gla::UnsupportedFunctionality("Integer sign()");
+        break;
+    }
+
+    if (intrinsicID != 0)
+        return glaBuilder->createIntrinsicCall(intrinsicID, operand);
+
+    return result;
+}
+
+gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, TBasicType basicType)
+{
+    // Binary ops that require an intrinsic
+    gla::Builder::SuperValue result;
+    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
+
+    switch (op) {
+    case EOpMin:
+        if (basicType == EbtFloat)
+            intrinsicID = llvm::Intrinsic::gla_fMin;
+        else
+            intrinsicID = llvm::Intrinsic::gla_sMin;
+        break;
+    case EOpMax:
+        if (basicType == EbtFloat)
+            intrinsicID = llvm::Intrinsic::gla_fMax;
+        else
+            intrinsicID = llvm::Intrinsic::gla_sMax;
+        break;
+    case EOpPow:
+        if (basicType == EbtFloat)
+            intrinsicID = llvm::Intrinsic::gla_fPow;
+        else
+            intrinsicID = llvm::Intrinsic::gla_fPowi;
+        break;
+    case EOpDot:
+        switch (gla::GetComponentCount(operands[0])) {
+        case 2:
+            intrinsicID = llvm::Intrinsic::gla_fDot2;
+            break;
+        case 3:
+            intrinsicID = llvm::Intrinsic::gla_fDot3;
+            break;
+        case 4:
+            intrinsicID = llvm::Intrinsic::gla_fDot4;
+            break;
+        default:
+            assert(! "bad component count for dot");
+        }
+        break;
+    case EOpAtan:
+        intrinsicID = llvm::Intrinsic::gla_fAtan2;
+        break;
+    //case ?? ftransform:
+    //    intrinsicID = llvm::Intrinsic::gla_fFixedTransform;
+    //    break;
+
+    case EOpClamp:
+        intrinsicID = llvm::Intrinsic::gla_fClamp;
+        break;
+    case EOpMix:
+        intrinsicID = llvm::Intrinsic::gla_fMix;
+        break;
+    case EOpStep:
+        intrinsicID = llvm::Intrinsic::gla_fStep;
+        break;
+    case EOpSmoothStep:
+        intrinsicID = llvm::Intrinsic::gla_fSmoothStep;
+        break;
+
+    case EOpDistance:
+        intrinsicID = llvm::Intrinsic::gla_fDistance;
+        break;
+    case EOpCross:
+        intrinsicID = llvm::Intrinsic::gla_fCross;
+        break;
+    case EOpFaceForward:
+        intrinsicID = llvm::Intrinsic::gla_fFaceForward;
+        break;
+    case EOpReflect:
+        intrinsicID = llvm::Intrinsic::gla_fReflect;
+        break;
+    case EOpRefract:
+        intrinsicID = llvm::Intrinsic::gla_fRefract;
+        break;
+    case EOpMul:
+        gla::UnsupportedFunctionality("matrix component multiply");
+        break;
+    case EOpMod:
+        intrinsicID = llvm::Intrinsic::gla_fModF; //?? verify
+        break;
+    }
+
+    // If intrinsic was assigned, then call the function and return
+    if (intrinsicID != 0) {
+        switch (operands.size()) {
+        case 0:
+            // ftransform only?
+            gla::UnsupportedFunctionality("intrinsic with no arguments");
+            break;
+        case 1:
+            // should all be handled by createUnaryIntrinsic
+            assert(0);
+            break;
+        case 2:
+            result = glaBuilder->createIntrinsicCall(intrinsicID, operands[0], operands[1]);
+            break;
+        case 3:
+            result = glaBuilder->createIntrinsicCall(intrinsicID, operands[0], operands[1], operands[2]);
+            break;
+        default:
+            gla::UnsupportedFunctionality("intrinsic with more than 3 operands");
+        }
     }
 
     return result;
@@ -958,7 +1173,7 @@ llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(TType& glslangType, c
             ++nextConst;
         }
     }
-    
+
     return glaBuilder->getConstant(vals, type);
 }
 
