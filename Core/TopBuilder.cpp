@@ -323,7 +323,7 @@ void Builder::makeDiscard(bool isMain)
     if (! isMain)
         gla::UnsupportedFunctionality("discard from non-main functions");
 
-    builder.CreateCall(getIntrinsic(llvm::Intrinsic::gla_discard));
+    createIntrinsicCall(llvm::Intrinsic::gla_discard);
     builder.CreateBr(stageExit);
 
     createAndSetNoPredecessorBlock("post-discard");
@@ -1403,6 +1403,11 @@ llvm::Value* Builder::createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equ
         return createIntrinsicCall(intrinsicID, result);
 
     return result;
+}
+
+llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID)
+{
+    return builder.CreateCall(getIntrinsic(intrinsicID));
 }
 
 llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, SuperValue operand)

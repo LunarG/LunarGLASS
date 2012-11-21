@@ -368,6 +368,7 @@ public:
     llvm::Value* createSamplePositionCall(const llvm::Type*, llvm::Value*);
     llvm::Value* createBitFieldExtractCall(llvm::Value*, llvm::Value*, llvm::Value*, bool isSigned);
     llvm::Value* createBitFieldInsertCall(llvm::Value*, llvm::Value*, llvm::Value*, llvm::Value*);
+    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue, SuperValue);
