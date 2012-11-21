@@ -73,6 +73,9 @@ public:
 
     gla::Builder::SuperValue createLLVMVariable(TIntermSymbol* node);
     const llvm::Type* convertGlslangToGlaType(const TType& type);
+    void translateArguments(TIntermSequence& glslangArguments, std::vector<gla::Builder::SuperValue>& arguments);
+    gla::Builder::SuperValue handleBuiltinFunctionCall(TIntermAggregate*, std::vector<gla::Builder::SuperValue>& arguments);
+    gla::Builder::SuperValue handleUserFunctionCall(TIntermAggregate*, std::vector<gla::Builder::SuperValue>& arguments);
     gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned);
     gla::Builder::SuperValue createUnaryOperation(TOperator op, const TType& destType, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand, TBasicType);
@@ -331,8 +334,29 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         return true;
 
     case EOpFunctionCall:
+        {
+            gla::Builder::SuperValue result;
+            std::vector<gla::Builder::SuperValue> arguments;
+            oit->translateArguments(node->getSequence(), arguments);
+            
+            if (node->isUserDefined())
+                result = oit->handleUserFunctionCall(node, arguments);
+            else
+                result = oit->handleBuiltinFunctionCall(node, arguments);
+
+            if (result.isClear())
+                gla::UnsupportedFunctionality("glslang function call");
+            else {
+                oit->glaBuilder->clearAccessChain();
+                oit->glaBuilder->setAccessChainRValue(result);
+            }
+
+            return false;
+        }
+
     case EOpParameters:
-        gla::UnsupportedFunctionality("glslang aggregate: function call or parameters", gla::EATContinue);
+        if (node->getSequence().size() > 0)
+            gla::UnsupportedFunctionality("glslang aggregate: function parameters", gla::EATContinue);
         return false;
 
     case EOpConstructFloat:
@@ -352,13 +376,8 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     case EOpConstructIVec3:
     case EOpConstructIVec4:
         {
-            TIntermSequence& glslangArguments = node->getAsAggregate()->getSequence();
             std::vector<gla::Builder::SuperValue> arguments;
-            for (int i = 0; i < glslangArguments.size(); ++i) {
-                oit->glaBuilder->clearAccessChain();
-                glslangArguments[i]->traverse(oit);
-                arguments.push_back(oit->glaBuilder->accessChainLoad());
-            }
+            oit->translateArguments(node->getSequence(), arguments);
             llvm::Value* constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
                                                                        oit->convertGlslangToGlaType(node->getType()),
                                                                        false, 0, 0, "constructed");
@@ -400,20 +419,18 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     // See if it maps to a regular operation or intrinsic.
     //
 
-    TIntermSequence& glslangOperands = node->getAsAggregate()->getSequence();
+    TIntermSequence& glslangOperands = node->getSequence();
     std::vector<gla::Builder::SuperValue> operands;
     gla::Builder::SuperValue result;
-    if (glslangOperands.size() >= 1 && glslangOperands.size() <= 2) {
-        for (int i = 0; i < glslangOperands.size(); ++i) {
-            oit->glaBuilder->clearAccessChain();
-            glslangOperands[i]->traverse(oit);
-            operands.push_back(oit->glaBuilder->accessChainLoad());
-        }
-        if (glslangOperands.size() == 1)
-            result = oit->createUnaryIntrinsic(node->getOp(), operands.front(), glslangOperands[0]->getAsTyped()->getBasicType());
-        else
-            result = oit->createIntrinsic(node->getOp(), operands, glslangOperands[0]->getAsTyped()->getBasicType());
+    for (int i = 0; i < glslangOperands.size(); ++i) {
+        oit->glaBuilder->clearAccessChain();
+        glslangOperands[i]->traverse(oit);
+        operands.push_back(oit->glaBuilder->accessChainLoad());
     }
+    if (glslangOperands.size() == 1)
+        result = oit->createUnaryIntrinsic(node->getOp(), operands.front(), glslangOperands[0]->getAsTyped()->getBasicType());
+    else
+        result = oit->createIntrinsic(node->getOp(), operands, glslangOperands[0]->getAsTyped()->getBasicType());
 
     if (result.isClear())
         gla::UnsupportedFunctionality("glsang aggregate");
@@ -644,6 +661,58 @@ const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& t
         glaType = llvm::ArrayType::get(glaType, type.getArraySize());
 
     return glaType;
+}
+
+void TGlslangToTopTraverser::translateArguments(TIntermSequence& glslangArguments, std::vector<gla::Builder::SuperValue>& arguments)
+{
+    for (int i = 0; i < glslangArguments.size(); ++i) {
+        glaBuilder->clearAccessChain();
+        glslangArguments[i]->traverse(this);
+        arguments.push_back(glaBuilder->accessChainLoad());
+    }
+}
+
+gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TIntermAggregate* node, std::vector<gla::Builder::SuperValue>& arguments)
+{
+    gla::Builder::SuperValue result;
+    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
+
+    if (node->getName() == "ftransform(") {
+        gla::Builder::SuperValue vertex; // TODO: simulate access to gl_Vertex
+        gla::Builder::SuperValue matrix; // TODO: simulate access to gl_ModelViewProjectionMatrix
+        gla::UnsupportedFunctionality("ftransform");
+
+        return glaBuilder->createIntrinsicCall(llvm::Intrinsic::gla_fFixedTransform, vertex, matrix);
+    }
+
+    if (node->getName().substr(0, 7) == "texture") {
+        intrinsicID = llvm::Intrinsic::gla_fTextureSample;
+        gla::Builder::TextureParameters params = {};
+        int texFlags = 0;
+        params.ETPSampler = arguments[0];
+        params.ETPCoords = arguments[1];
+
+        if (node->getName().find("Lod", 0) != std::string::npos) {
+            texFlags |= gla::ETFLod;
+            params.ETPBiasLod = arguments[2];
+        }
+
+        // TODO: flesh all this out after glslang has modern texturing functions
+
+        if (node->getName().find("Proj", 0) != std::string::npos)
+            texFlags |= gla::ETFProjected;
+
+        return glaBuilder->createTextureCall(convertGlslangToGlaType(node->getType()), gla::ESampler2D, texFlags, params);
+    }
+
+    return result;
+}
+
+gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* node, std::vector<gla::Builder::SuperValue>& arguments)
+{
+    gla::Builder::SuperValue result;
+
+    return result;
 }
 
 gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned)
@@ -1026,9 +1095,6 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
     case EOpAtan:
         intrinsicID = llvm::Intrinsic::gla_fAtan2;
         break;
-    //case ?? ftransform:
-    //    intrinsicID = llvm::Intrinsic::gla_fFixedTransform;
-    //    break;
 
     case EOpClamp:
         intrinsicID = llvm::Intrinsic::gla_fClamp;
@@ -1062,7 +1128,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
         gla::UnsupportedFunctionality("matrix component multiply");
         break;
     case EOpMod:
-        intrinsicID = llvm::Intrinsic::gla_fModF; //?? verify
+        intrinsicID = llvm::Intrinsic::gla_fModF; // TODO: verify
         break;
     }
 
@@ -1070,7 +1136,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
     if (intrinsicID != 0) {
         switch (operands.size()) {
         case 0:
-            // ftransform only?
+            // ftransform only, which goes through the function call path
             gla::UnsupportedFunctionality("intrinsic with no arguments");
             break;
         case 1:
