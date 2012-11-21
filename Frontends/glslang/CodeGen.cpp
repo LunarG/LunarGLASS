@@ -36,6 +36,7 @@
 #include "../glslang/Include/ShHandle.h"
 
 // LunarGLASS runtime options handling
+// TODO: merge glslang and LunarGLASS option handling
 #include "StandAlone/OptionParse.h"
 #include "Options.h"
 
@@ -80,6 +81,8 @@ void DeleteCompiler(TCompiler* compiler)
 //
 bool TGenericCompiler::compile(TIntermNode *root)
 {
+    gla::Options.debug = true;
+
     haveValidObjectCode = false;
 
     gla::Manager* glaManager = gla::getManager();

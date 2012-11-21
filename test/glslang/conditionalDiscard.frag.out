@@ -1,0 +1,79 @@
+
+***Unsupported functionality: glslang selection
+
+Top IR:
+; ModuleID = 'Top'
+
+@"sampler2D tex" = external addrspace(1) constant i32
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %v = alloca <4 x float>
+  %0 = load i32 addrspace(1)* @"sampler2D tex"
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
+  store <4 x float> %v1, <4 x float>* %v
+  %gl_FragColor = load <4 x float>* %v
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %1 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %1)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@"sampler2D tex" = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %0 = load i32 addrspace(1)* @"sampler2D tex", align 4
+  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %v1)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+// LunarGOO(r471) output
+#version 130
+uniform sampler2D tex;
+in vec2 coord;
+
+void main()
+{
+    vec4 temp21 = texture2D(tex, coord);
+    gl_FragColor = temp21;
+    
+}
+#### BEGIN COMPILER 0 INFO LOG ####
+
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+
+#### END LINKER INFO LOG ####

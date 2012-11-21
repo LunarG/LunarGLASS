@@ -1,0 +1,86 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@gl_FragDepth = internal global float 0.000000e+00
+@gl_FragColor = internal global <4 x float> zeroinitializer
+@foo = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 -1, i32 1)
+  store float %Depth, float* @gl_FragDepth
+  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  store <4 x float> %Color, <4 x float>* @gl_FragColor
+  %foo = load <4 x float>* @gl_FragColor
+  store <4 x float> %foo, <4 x float>* @foo
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %0 = load float* @gl_FragDepth
+  call void @llvm.gla.fWriteData.f32(i32 0, i32 -1, float %0)
+  %1 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %1)
+  %2 = load <4 x float>* @foo
+  call void @llvm.gla.fWriteData.v4f32(i32 2, i32 -1, <4 x float> %2)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+define fastcc void @main() {
+entry:
+  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 -1, i32 1)
+  call void @llvm.gla.fWriteData.f32(i32 0, i32 -1, float %Depth)
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %Color)
+  call void @llvm.gla.fWriteData.v4f32(i32 2, i32 -1, <4 x float> %Color)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+// LunarGOO(r471) output
+#version 130
+out vec4 foo;
+in vec4 Color;
+in float Depth;
+
+void main()
+{
+    gl_FragDepth = Depth;
+    gl_FragColor = Color;
+    foo = Color;
+    
+}
+#### BEGIN COMPILER 0 INFO LOG ####
+
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+
+#### END LINKER INFO LOG ####

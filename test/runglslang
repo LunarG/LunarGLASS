@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+DESCRIPTION="\
+Description: Run the glslang test suite, record output
+"
+
+USAGE="\
+Usage: ./run [options]
+
+       Options:
+         -h --help                 Print out this Usage info
+         -l --linux                Run for linux
+         -w --windows              (default) Run for windows
+         -o --enable-obfuscate     Do obfuscation tests
+         -t --testfile <testfile>  Run on a single test file
+         -r --release              Run with release build
+         -v --verbose              Prints more info
+"
+
+# Add more tests here as they are created
+TESTS=(test.frag               \
+       flowControl.frag        \
+       Operations.frag         \
+       swizzle.frag            \
+       simpleFunctionCall.frag \
+       functionCall.frag       \
+       voidFunction.frag       \
+       loops.frag              \
+       earlyReturnDiscard.frag \
+       discard-dce.frag        \
+       always-discard.frag     \
+       always-discard2.frag    \
+       syntaxError.frag        \
+       depthOut.frag           \
+       dataOut.frag            \
+       varyingArray.frag       \
+       uniformArray.frag       \
+       variableArrayIndex.frag \
+       matrix.frag             \
+       newTexture.frag         \
+       structure.frag          \
+       structAssignment.frag   \
+       structDeref.frag        \
+       localAggregates.frag    \
+       texture.frag            \
+       types.frag              \
+       test.vert               \
+       conditionalDiscard.frag \
+       ps_shader.frag          \
+       sw_shader.frag          \
+      )
+
+# $1 is the test
+# Rest are options to the runcommand
+function runSingleTest {
+    $RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > temp.stdout 2> temp.errout
+}
+
+function runTests {
+    for t in ${TESTS[@]}; do
+        printf "Running $t\n"
+        
+        runSingleTest $t 
+        cat temp.errout temp.stdout > glslang/$t.out
+
+    done
+    rm temp.stdout* temp.errout
+}
+
+# Default is for windows
+RUNCMD=../Build/Debug/glslang.exe
+OPTIONS=()
+GLSL_OP="--glsl"
+OBFUSCATE_OP="-f"
+DO_OBFUSCATE=""
+VERBOSE=""
+
+# Command-line argument Handling
+
+# Arguments passed
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -l|--linux)
+            RUNCMD=../Standalone/StandAlone
+            ;;
+        -h|--h)
+            showHelp
+            exit 0
+            ;;
+        -t|--testfile)
+            TESTS=("$2")
+            if [ ! -e "$2" ]
+            then
+                echo "Error: testfile $2 not found"
+                exit 1
+            fi
+            shift
+            ;;
+        -r|--release)
+            RUNCMD=../Build/Release/glslang.exe
+            ;;
+        -v|--verbose)
+            VERBOSE="true"
+            ;;
+        -o|--do-obfuscate)
+            DO_OBFUSCATE="true"
+            ;;
+        *)
+            showHelp
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+runTests

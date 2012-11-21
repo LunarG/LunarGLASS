@@ -1,0 +1,92 @@
+
+***Unsupported functionality: glslang selection
+
+Top IR:
+; ModuleID = 'Top'
+
+@Count = external addrspace(2) constant i32
+@gl_FragColor = internal global <4 x float> zeroinitializer
+@"sampler2D sampler" = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %scale = alloca float
+  %iLocal = alloca i32
+  %iLocal1 = load i32 addrspace(2)* @Count
+  store i32 %iLocal1, i32* %iLocal
+  %0 = load float* %scale
+  %1 = load i32 addrspace(1)* @"sampler2D sampler"
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %coord)
+  %3 = insertelement <4 x float> undef, float %0, i32 0
+  %4 = insertelement <4 x float> %3, float %0, i32 1
+  %5 = insertelement <4 x float> %4, float %0, i32 2
+  %6 = insertelement <4 x float> %5, float %0, i32 3
+  %gl_FragColor = fmul <4 x float> %6, %2
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %7 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %7)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@"sampler2D sampler" = external addrspace(1) constant i32
+@gla_globalAgg = internal global <4 x float> undef
+
+define fastcc void @main() {
+entry:
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %0 = load i32 addrspace(1)* @"sampler2D sampler", align 4
+  %1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
+  %aggregate = load <4 x float>* @gla_globalAgg
+  %gl_FragColor = fmul <4 x float> %1, %aggregate
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+// LunarGOO(r471) output
+#version 130
+uniform sampler2D sampler;
+vec4 gla_globalAgg;
+in vec2 coord;
+
+void main()
+{
+    vec4 temp21 = texture2D(sampler, coord);
+    vec4 gla_copyout_gl_FragColor = temp21 * gla_globalAgg;
+    gl_FragColor = gla_copyout_gl_FragColor;
+    
+}
+#### BEGIN COMPILER 0 INFO LOG ####
+
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+
+#### END LINKER INFO LOG ####

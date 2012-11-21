@@ -1,0 +1,91 @@
+
+***Unsupported functionality: glslang selection
+
+***Unsupported functionality: glslang selection
+
+***Unsupported functionality: ++/--
+
+***Unsupported functionality: glslang selection
+
+***Unsupported functionality: ++/--
+
+***Unsupported functionality: glslang selection
+
+Top IR:
+; ModuleID = 'Top'
+
+@otherColor = external addrspace(2) constant <4 x float>
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %color2 = alloca <4 x float>
+  %color = alloca <4 x float>
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %BaseColor, <4 x float>* %color
+  %color21 = load <4 x float> addrspace(2)* @otherColor
+  store <4 x float> %color21, <4 x float>* %color2
+  %0 = getelementptr <4 x float>* %color, i32 0, i32 2
+  %1 = load float* %0
+  %2 = load <4 x float>* %color
+  %3 = load <4 x float>* %color
+  %4 = load <4 x float>* %color2
+  %gl_FragColor = fmul <4 x float> %3, %4
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %5 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %5)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@otherColor = external addrspace(2) constant <4 x float>
+
+define fastcc void @main() {
+entry:
+  %color21 = load <4 x float> addrspace(2)* @otherColor, align 16
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %gl_FragColor = fmul <4 x float> %BaseColor, %color21
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+// LunarGOO(r471) output
+#version 130
+uniform vec4 otherColor;
+in vec4 BaseColor;
+
+void main()
+{
+    vec4 gla_copyout_gl_FragColor = BaseColor * otherColor;
+    gl_FragColor = gla_copyout_gl_FragColor;
+    
+}
+#### BEGIN COMPILER 0 INFO LOG ####
+
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+
+#### END LINKER INFO LOG ####
