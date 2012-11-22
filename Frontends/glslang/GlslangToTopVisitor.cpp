@@ -230,8 +230,16 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
         }
 
     case EOpVectorSwizzle:
-        gla::UnsupportedFunctionality("glslang swizzle", gla::EATContinue);
-        return true;
+        {
+            node->getLeft()->traverse(oit);
+            TIntermSequence& swizzleSequence = node->getRight()->getAsAggregate()->getSequence();
+            std::vector<int> swizzle;
+            for (int i = 0; i < swizzleSequence.size(); ++i)
+                swizzle.push_back(swizzleSequence[i]->getAsConstantUnion()->getUnionArrayPointer()->getIConst());
+            oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()), 
+                                                         node->getLeft()->getNominalSize());
+            return false;
+        }
 
     case EOpVectorTimesMatrix:
     case EOpMatrixTimesVector:
