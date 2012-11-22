@@ -177,23 +177,6 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
 
     switch (node->getOp()) {
     case EOpAssign:
-        {
-            // GLSL says to evaluate the left before the right...
-            oit->glaBuilder->clearAccessChain();
-            node->getLeft()->traverse(oit);
-            gla::Builder::AccessChain lValue = oit->glaBuilder->getAccessChain();
-            oit->glaBuilder->clearAccessChain();
-            node->getRight()->traverse(oit);
-            gla::Builder::SuperValue rValue = oit->glaBuilder->accessChainLoad();
-            oit->glaBuilder->setAccessChain(lValue);
-            oit->glaBuilder->accessChainStore(rValue);
-
-            // assignments are expressions having an rValue after they are evaluated...
-            oit->glaBuilder->clearAccessChain();
-            oit->glaBuilder->setAccessChainRValue(rValue);
-            return false;
-        }
-
     case EOpAddAssign:
     case EOpSubAssign:
     case EOpMulAssign:
@@ -208,8 +191,50 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     case EOpExclusiveOrAssign:
     case EOpLeftShiftAssign:
     case EOpRightShiftAssign:
-        gla::UnsupportedFunctionality("glslang binary op-assign", gla::EATContinue);
-        return true;
+        // A bin-op assign "a += b" means the same thing as "a = a + b" 
+        // where a is evaluated before b. For a simple assignment, GLSL 
+        // says to evaluate the left before the right.  So, always, left
+        // node then right node.
+        {
+            // get the left l-value, save it away
+            oit->glaBuilder->clearAccessChain();
+            node->getLeft()->traverse(oit);
+            gla::Builder::AccessChain lValue = oit->glaBuilder->getAccessChain();
+            
+            // evaluate the right
+            oit->glaBuilder->clearAccessChain();
+            node->getRight()->traverse(oit);
+            gla::Builder::SuperValue rValue = oit->glaBuilder->accessChainLoad();
+            
+            if (node->getOp() != EOpAssign) {
+                // the left is also an r-value
+                oit->glaBuilder->setAccessChain(lValue);
+                gla::Builder::SuperValue leftRValue = oit->glaBuilder->accessChainLoad();
+
+                // do the operation
+                rValue = oit->createBinaryOperation(node->getOp(), leftRValue, rValue, node->getBasicType() == EbtFloat, false);
+                if (rValue.isClear()) {
+                    switch (node->getOp()) {
+                    case EOpVectorTimesMatrixAssign:
+                    case EOpMatrixTimesScalarAssign:
+                    case EOpMatrixTimesMatrixAssign:
+                        gla::UnsupportedFunctionality("matrix op-assign");
+                        break;
+                    default:
+                        gla::UnsupportedFunctionality("unknown op-assign");
+                    }
+                }
+            }
+
+            // store the result
+            oit->glaBuilder->setAccessChain(lValue);
+            oit->glaBuilder->accessChainStore(rValue);
+
+            // assignments are expressions having an rValue after they are evaluated...
+            oit->glaBuilder->clearAccessChain();
+            oit->glaBuilder->setAccessChainRValue(rValue);
+            return false;
+        }
 
     case EOpIndexDirect:
     case EOpIndexIndirect:
@@ -731,25 +756,30 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
 
     switch(op) {
     case EOpAdd:
+    case EOpAddAssign:
         if (isFloat)
             binOp = llvm::Instruction::FAdd;
         else
             binOp = llvm::Instruction::Add;
         break;
     case EOpSub:
+    case EOpSubAssign:
         if (isFloat)
             binOp = llvm::Instruction::FSub;
         else
             binOp = llvm::Instruction::Sub;
         break;
     case EOpMul:
+    case EOpMulAssign:
     case EOpVectorTimesScalar:
+    case EOpVectorTimesScalarAssign:
         if (isFloat)
             binOp = llvm::Instruction::FMul;
         else
             binOp = llvm::Instruction::Mul;
         break;
     case EOpDiv:
+    case EOpDivAssign:
         if (isFloat)
             binOp = llvm::Instruction::FDiv;
         else if (isSigned)
@@ -758,6 +788,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
             binOp = llvm::Instruction::UDiv;
         break;
     case EOpMod:
+    case EOpModAssign:
         if (isFloat)
             binOp = llvm::Instruction::FRem;
         else if (isSigned)
@@ -766,19 +797,24 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
             binOp = llvm::Instruction::URem;
         break;
     case EOpRightShift:
+    case EOpRightShiftAssign:
         binOp = llvm::Instruction::LShr;
         break;
     case EOpLeftShift:
+    case EOpLeftShiftAssign:
         binOp = llvm::Instruction::Shl;
         break;
     case EOpAnd:
+    case EOpAndAssign:
         binOp = llvm::Instruction::And;
         break;
     case EOpInclusiveOr:
+    case EOpInclusiveOrAssign:
     case EOpLogicalOr:
         binOp = llvm::Instruction::Or;
         break;
     case EOpExclusiveOr:
+    case EOpExclusiveOrAssign:
     case EOpLogicalXor:
         binOp = llvm::Instruction::Xor;
         break;
