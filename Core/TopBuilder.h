@@ -221,6 +221,9 @@ public:
     // push swizzle onto the left of any existing swizzle
     void accessChainPushSwizzleLeft(std::vector<int>& swizzle, const llvm::Type* type, int width);
 
+    // push swizzle onto the right of any existing swizzle
+    void accessChainPushSwizzleRight(std::vector<int>& swizzle, const llvm::Type* type, int width);
+
     // set pipeline input as an r-value
     void setAccessChainPipeValue(llvm::Value*);
 

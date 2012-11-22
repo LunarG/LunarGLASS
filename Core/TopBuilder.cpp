@@ -94,6 +94,30 @@ void Builder::accessChainPushSwizzleLeft(std::vector<int>& swizzle, const llvm::
     simplifyAccessChainSwizzle();
 }
 
+void Builder::accessChainPushSwizzleRight(std::vector<int>& swizzle, const llvm::Type* type, int width)
+{
+    // if needed, propagate the swizzle for the current access chain
+    if (accessChain.swizzle.size()) {
+        std::vector<int> oldSwizzle = accessChain.swizzle;
+        accessChain.swizzle.resize(0);
+        for (unsigned int i = 0; i < swizzle.size(); ++i) {
+            accessChain.swizzle.push_back(oldSwizzle[swizzle[i]]);
+        }
+    } else {
+        accessChain.swizzle = swizzle;
+    }
+    
+    // track the final type, which always changes with each push
+    accessChain.swizzleResultType = type;
+
+    // track width the swizzle operates on; once known, it does not change
+    if (accessChain.swizzleTargetWidth == 0)
+        accessChain.swizzleTargetWidth = width;
+
+    // determine if we need to track this swizzle anymore
+    simplifyAccessChainSwizzle();
+}
+
 // clear out swizzle if it is redundant
 void Builder::simplifyAccessChainSwizzle()
 {
