@@ -73,9 +73,12 @@ public:
 
     gla::Builder::SuperValue createLLVMVariable(TIntermSymbol* node);
     const llvm::Type* convertGlslangToGlaType(const TType& type);
+
+    void handleFunctionEntry(TIntermAggregate* node);
     void translateArguments(TIntermSequence& glslangArguments, std::vector<gla::Builder::SuperValue>& arguments);
     gla::Builder::SuperValue handleBuiltinFunctionCall(TIntermAggregate*, std::vector<gla::Builder::SuperValue>& arguments);
     gla::Builder::SuperValue handleUserFunctionCall(TIntermAggregate*, std::vector<gla::Builder::SuperValue>& arguments);
+    
     gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned);
     gla::Builder::SuperValue createUnaryOperation(TOperator op, const TType& destType, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand, TBasicType);
@@ -94,6 +97,7 @@ public:
     bool inMain;
 
     std::map<int, gla::Builder::SuperValue> namedValues;
+    std::map<std::string, llvm::Function*> functionMap;
     std::map<std::string, int> interpMap;
 };
 
@@ -378,12 +382,21 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             if (node->getName() == "main(") {
                 oit->inMain = true;
                 oit->llvmBuilder.SetInsertPoint(oit->shaderEntry);
+            } else {                
+                oit->handleFunctionEntry(node);
             }
         } else {
             oit->glaBuilder->leaveFunction(oit->inMain);
             oit->inMain = false;
+            oit->llvmBuilder.SetInsertPoint(oit->shaderEntry);
         }
         return true;
+
+    case EOpParameters:
+        // Parameters will have been consumed by EOpFunction processing, but not
+        // the body, so we still visited the function node's children, making this
+        // child redundant.
+        return false;
 
     case EOpFunctionCall:
         {
@@ -405,11 +418,6 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
 
             return false;
         }
-
-    case EOpParameters:
-        if (node->getSequence().size() > 0)
-            gla::UnsupportedFunctionality("glslang aggregate: function parameters", gla::EATContinue);
-        return false;
 
     case EOpConstructFloat:
     case EOpConstructVec2:
@@ -715,6 +723,29 @@ const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& t
     return glaType;
 }
 
+void TGlslangToTopTraverser::handleFunctionEntry(TIntermAggregate* node)
+{
+    std::vector<const llvm::Type*> paramTypes;
+    TIntermSequence& parameters = node->getSequence()[0]->getAsAggregate()->getSequence();
+
+    for (int i = 0; i < parameters.size(); ++i)
+        paramTypes.push_back(convertGlslangToGlaType(parameters[i]->getAsTyped()->getType()));
+
+    llvm::BasicBlock* functionBlock;
+    llvm::Function *function = glaBuilder->makeFunctionEntry(convertGlslangToGlaType(node->getType()), node->getName().c_str(), 
+                                                             paramTypes, &functionBlock);
+    function->addFnAttr(llvm::Attribute::AlwaysInline);
+    llvmBuilder.SetInsertPoint(functionBlock);
+
+    // Visit parameter list again to create mappings to local variables and set attributes.
+    llvm::Function::arg_iterator arg = function->arg_begin();    
+    for (int i = 0; i < parameters.size(); ++i, ++arg)
+        namedValues[parameters[i]->getAsSymbolNode()->getId()] = &(*arg);
+
+    // Track our user function to call later
+    functionMap[node->getName().c_str()] = function;
+}
+
 void TGlslangToTopTraverser::translateArguments(TIntermSequence& glslangArguments, std::vector<gla::Builder::SuperValue>& arguments)
 {
     for (int i = 0; i < glslangArguments.size(); ++i) {
@@ -760,11 +791,20 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
     return result;
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* node, std::vector<gla::Builder::SuperValue>& arguments)
+gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* node, 
+                                                                        std::vector<gla::Builder::SuperValue>& arguments)
 {
-    gla::Builder::SuperValue result;
+    llvm::SmallVector<llvm::Value*, 4> llvmParams;  // Efficiency: make the arguments this type to begin with
 
-    return result;
+    // Build a list of arguments
+    for (int i = 0; i < arguments.size(); ++i)
+        llvmParams.push_back(arguments[i]);
+
+    // Grab the pointer from the previous created function
+    llvm::Function* function = functionMap[node->getName().c_str()];
+    assert(function);
+
+    return llvmBuilder.Insert(llvm::CallInst::Create(function, llvmParams.begin(), llvmParams.end()));
 }
 
 gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned)

@@ -3,4 +3,103 @@
 
 ***Unsupported functionality: ++/--
 
-***Unsupported functionality: glslang function call
+Top IR:
+; ModuleID = 'Top'
+
+@bar = internal global float 0.000000e+00
+@bigColor = external addrspace(2) constant <4 x float>
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %outColor = alloca <4 x float>
+  store float 2.000000e+00, float* @bar
+  %outColor1 = load <4 x float> addrspace(2)* @bigColor
+  store <4 x float> %outColor1, <4 x float>* %outColor
+  call void @"foo("()
+  call void @"foo2("()
+  %0 = load float* @bar
+  %1 = load <4 x float>* %outColor
+  %2 = extractelement <4 x float> %1, i32 0
+  %3 = fadd float %2, %0
+  %4 = load <4 x float>* %outColor
+  %outColor2 = insertelement <4 x float> %4, float %3, i32 0
+  store <4 x float> %outColor2, <4 x float>* %outColor
+  %gl_FragColor = load <4 x float>* %outColor
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+post-return:                                      ; No predecessors!
+  unreachable
+
+stage-epilogue:                                   ; preds = %entry
+  %5 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %5)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+define internal fastcc void @"foo("() alwaysinline {
+entry:
+  %0 = load float* @bar
+  ret void
+
+post-return:                                      ; No predecessors!
+  unreachable
+}
+
+define internal fastcc void @"foo2("() alwaysinline {
+entry:
+  %0 = load float* @bar
+  ret void
+}
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@bigColor = external addrspace(2) constant <4 x float>
+
+define fastcc void @main() {
+entry:
+  %outColor1 = load <4 x float> addrspace(2)* @bigColor, align 16
+  %0 = extractelement <4 x float> %outColor1, i32 0
+  %1 = fadd float %0, 2.000000e+00
+  %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outColor1, i32 1, float %1, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %2)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+
+// LunarGOO(r471) output
+#version 130
+uniform vec4 bigColor;
+const float const22_2f = 2.0;
+
+void main()
+{
+    float temp21 = bigColor.x + const22_2f;
+    vec4 temp23 = bigColor;
+    temp23.x = temp21;
+    gl_FragColor = temp23;
+    
+}
+#### BEGIN COMPILER 0 INFO LOG ####
+
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+
+#### END LINKER INFO LOG ####
