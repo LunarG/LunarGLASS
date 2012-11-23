@@ -25,8 +25,8 @@ entry:
   store <4 x float> %BaseColor, <4 x float>* %color
   %color21 = load <4 x float> addrspace(2)* @otherColor
   store <4 x float> %color21, <4 x float>* %color2
-  %0 = getelementptr <4 x float>* %color, i32 0, i32 2
-  %1 = load float* %0
+  %0 = load <4 x float>* %color
+  %1 = extractelement <4 x float> %0, i32 2
   %2 = load <4 x float>* %color
   %3 = load <4 x float>* %color
   %4 = load <4 x float>* %color2

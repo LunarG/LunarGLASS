@@ -32,11 +32,12 @@ entry:
   %texColor2 = insertelement <4 x float> %15, float %16, i32 2
   store <4 x float> %texColor2, <4 x float>* %texColor
   %17 = load float addrspace(2)* getelementptr inbounds ([16 x float] addrspace(2)* @alpha, i32 0, i32 12)
-  %18 = getelementptr <4 x float>* %texColor, i32 0, i32 3
-  %19 = load float* %18
+  %18 = load <4 x float>* %texColor
+  %19 = extractelement <4 x float> %18, i32 3
   %20 = fadd float %19, %17
-  %21 = getelementptr <4 x float>* %texColor, i32 0, i32 3
-  store float %20, float* %21
+  %21 = load <4 x float>* %texColor
+  %texColor3 = insertelement <4 x float> %21, float %20, i32 3
+  store <4 x float> %texColor3, <4 x float>* %texColor
   %gl_FragColor = load <4 x float>* %texColor
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
@@ -68,12 +69,12 @@ entry:
   %1 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %texColor1, <3 x i32> <i32 0, i32 1, i32 2>)
   %2 = load <3 x float> addrspace(2)* @inColor, align 16
   %3 = fadd <3 x float> %1, %2
-  %tmp6 = extractelement <4 x float> %texColor1, i32 3
-  %gla_constGEP11 = getelementptr [16 x float] addrspace(2)* @alpha, i32 0, i32 12
-  %4 = load float addrspace(2)* %gla_constGEP11, align 4
-  %5 = fadd float %tmp6, %4
-  %6 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> undef, i32 15, <3 x float> %3, i32 0, <3 x float> %3, i32 1, <3 x float> %3, i32 2, float %5, i32 0)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %6)
+  %4 = extractelement <4 x float> %texColor1, i32 3
+  %gla_constGEP5 = getelementptr [16 x float] addrspace(2)* @alpha, i32 0, i32 12
+  %5 = load float addrspace(2)* %gla_constGEP5, align 4
+  %6 = fadd float %4, %5
+  %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> undef, i32 15, <3 x float> %3, i32 0, <3 x float> %3, i32 1, <3 x float> %3, i32 2, float %6, i32 0)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %7)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry

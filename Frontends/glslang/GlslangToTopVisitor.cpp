@@ -241,16 +241,35 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     case EOpIndexDirectStruct:
         {
             // this adapter is building access chains left to right
-            // set up the access chain
+            // set up the access chain to the left
             node->getLeft()->traverse(oit);
-            // save it so that computing the right side doesn't trash it
-            gla::Builder::AccessChain partial = oit->glaBuilder->getAccessChain();
-            // compute the next component
-            node->getRight()->traverse(oit);
-            gla::Builder::SuperValue rValue = oit->glaBuilder->accessChainLoad();
-            // make the new access chain to date
-            oit->glaBuilder->setAccessChain(partial);
-            oit->glaBuilder->accessChainPushLeft(rValue);
+
+            if (! node->getLeft()->getType().isArray() &&
+                  node->getLeft()->getType().isVector() && 
+                  node->getOp() == EOpIndexDirect) {
+                // this is essentially a hard-coded swizzle of size 1, so short circuit the GEP stuff
+                std::vector<int> swizzle;
+                swizzle.push_back(node->getRight()->getAsConstantUnion()->getUnionArrayPointer()->getIConst());
+                oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()), 
+                                                             node->getLeft()->getNominalSize());
+            } else if (node->getLeft()->getType().isMatrix()) {
+                gla::UnsupportedFunctionality("matrix indexing");
+            } else {
+                // struct or array or indirection into a vector; will use native LLVM gep
+                
+                // save it so that computing the right side doesn't trash it
+                gla::Builder::AccessChain partial = oit->glaBuilder->getAccessChain();
+
+                // compute the next index
+                oit->glaBuilder->clearAccessChain();
+                node->getRight()->traverse(oit);
+                gla::Builder::SuperValue index = oit->glaBuilder->accessChainLoad();
+
+                // make the new access chain to date
+                oit->glaBuilder->setAccessChain(partial);
+                oit->glaBuilder->accessChainPushLeft(index);
+            }
+
             return false;
         }
 

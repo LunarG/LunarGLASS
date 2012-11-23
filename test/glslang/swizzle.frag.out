@@ -28,18 +28,20 @@ entry:
   %w_flow5 = load <4 x float> addrspace(2)* @u
   store <4 x float> %w_flow5, <4 x float>* %w_flow
   %0 = load float* %blendscale
-  %1 = getelementptr <4 x float>* %w_reorder, i32 0, i32 2
-  store float %0, float* %1
+  %1 = load <4 x float>* %w_reorder
+  %w_reorder6 = insertelement <4 x float> %1, float %0, i32 2
+  store <4 x float> %w_reorder6, <4 x float>* %w_reorder
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %2 = load <4 x float>* %w
   %3 = extractelement <2 x float> %t, i32 0
   %4 = insertelement <4 x float> %2, float %3, i32 3
   %5 = extractelement <2 x float> %t, i32 1
-  %w6 = insertelement <4 x float> %4, float %5, i32 1
-  store <4 x float> %w6, <4 x float>* %w
+  %w7 = insertelement <4 x float> %4, float %5, i32 1
+  store <4 x float> %w7, <4 x float>* %w
   %6 = load float* %blendscale
-  %7 = getelementptr <4 x float>* %w_reorder, i32 0, i32 0
-  store float %6, float* %7
+  %7 = load <4 x float>* %w_reorder
+  %w_reorder8 = insertelement <4 x float> %7, float %6, i32 0
+  store <4 x float> %w_reorder8, <4 x float>* %w_reorder
   %8 = load <4 x float> addrspace(2)* @u
   %9 = extractelement <4 x float> %8, i32 2
   %10 = insertelement <4 x float> undef, float %9, i32 0
@@ -48,11 +50,12 @@ entry:
   %13 = extractelement <4 x float> %8, i32 0
   %14 = insertelement <4 x float> %12, float %13, i32 2
   %15 = extractelement <4 x float> %8, i32 1
-  %w27 = insertelement <4 x float> %14, float %15, i32 3
-  store <4 x float> %w27, <4 x float>* %w2
+  %w29 = insertelement <4 x float> %14, float %15, i32 3
+  store <4 x float> %w29, <4 x float>* %w2
   %16 = load float* %blendscale
-  %17 = getelementptr <4 x float>* %w_reorder, i32 0, i32 1
-  store float %16, float* %17
+  %17 = load <4 x float>* %w_reorder
+  %w_reorder10 = insertelement <4 x float> %17, float %16, i32 1
+  store <4 x float> %w_reorder10, <4 x float>* %w_reorder
   %18 = load <4 x float>* %w2
   %19 = extractelement <4 x float> %18, i32 0
   %20 = insertelement <2 x float> undef, float %19, i32 0
@@ -62,15 +65,15 @@ entry:
   %24 = extractelement <2 x float> %22, i32 0
   %25 = insertelement <4 x float> %23, float %24, i32 0
   %26 = extractelement <2 x float> %22, i32 1
-  %w_dep8 = insertelement <4 x float> %25, float %26, i32 1
-  store <4 x float> %w_dep8, <4 x float>* %w_dep
-  %t9 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %w_dep11 = insertelement <4 x float> %25, float %26, i32 1
+  store <4 x float> %w_dep11, <4 x float>* %w_dep
+  %t12 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %27 = load <4 x float>* %w_dep
-  %28 = extractelement <2 x float> %t9, i32 0
+  %28 = extractelement <2 x float> %t12, i32 0
   %29 = insertelement <4 x float> %27, float %28, i32 2
-  %30 = extractelement <2 x float> %t9, i32 1
-  %w_dep10 = insertelement <4 x float> %29, float %30, i32 3
-  store <4 x float> %w_dep10, <4 x float>* %w_dep
+  %30 = extractelement <2 x float> %t12, i32 1
+  %w_dep13 = insertelement <4 x float> %29, float %30, i32 3
+  store <4 x float> %w_dep13, <4 x float>* %w_dep
   %31 = load <4 x float> addrspace(2)* @u
   %32 = extractelement <4 x float> %31, i32 2
   %33 = insertelement <2 x float> undef, float %32, i32 0
@@ -80,8 +83,8 @@ entry:
   %37 = extractelement <2 x float> %35, i32 0
   %38 = insertelement <4 x float> %36, float %37, i32 0
   %39 = extractelement <2 x float> %35, i32 1
-  %w_undef11 = insertelement <4 x float> %38, float %39, i32 1
-  store <4 x float> %w_undef11, <4 x float>* %w_undef
+  %w_undef14 = insertelement <4 x float> %38, float %39, i32 1
+  store <4 x float> %w_undef14, <4 x float>* %w_undef
   %40 = load <4 x float>* %w_reorder
   %41 = load <4 x float>* %w_undef
   %42 = load <4 x float>* %w
