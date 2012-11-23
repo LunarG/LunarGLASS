@@ -144,9 +144,10 @@ void Builder::setAccessChainRValue(SuperValue lVal)
 
 void Builder::setAccessChainLValue(SuperValue lVal)
 {
-    // we're using GEP for arrays and structs, but not supporting pointers,
-    // hard code first index to zero
-    accessChain.indexChain.push_back(MakeIntConstant(context, 0));
+    // if the lvalue is a pointer, need to push a 0 on 
+    // the gep chain to dereference it
+    if (llvm::isa<llvm::PointerType>(lVal.getValue()->getType()))
+        accessChain.indexChain.push_back(MakeIntConstant(context, 0));
 
     accessChain.base = lVal;
 }
@@ -509,8 +510,12 @@ Builder::SuperValue Builder::createLoad(SuperValue lValue)
         llvm::Value* newValue = builder.CreateLoad(lValue.getMatrix()->getValue(), "__matrix");
         gla::Builder::Matrix* loadedMatrix = new gla::Builder::Matrix(newValue);
         return gla::Builder::SuperValue(loadedMatrix);
-    } else
-        return builder.CreateLoad(lValue);
+    } else {
+        if (llvm::isa<llvm::PointerType>(lValue.getValue()->getType()))
+            return builder.CreateLoad(lValue);
+        else
+            return lValue;
+    }
 }
 
 Builder::SuperValue Builder::createGEP(SuperValue gepValue, llvm::ArrayRef<llvm::Value*> gepIndexChain)
