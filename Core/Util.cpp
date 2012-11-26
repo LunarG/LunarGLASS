@@ -55,7 +55,11 @@ namespace gla {
 int GetConstantInt(const llvm::Value* value)
 {
     const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(value);
-    assert(constantInt);
+    
+    // this might still be a constant expression, rather than a numeric constant,
+    // e.g., expression with undef's in it, so it was not folded
+    if (! constantInt)
+        gla::UnsupportedFunctionality("non-simple constant");
 
     return constantInt->getValue().getSExtValue();
 }
@@ -63,7 +67,11 @@ int GetConstantInt(const llvm::Value* value)
 float GetConstantFloat(const llvm::Value* value)
 {
     const llvm::ConstantFP *constantFP = llvm::dyn_cast<llvm::ConstantFP>(value);
-    assert(constantFP);
+    
+    // this might still be a constant expression, rather than a numeric constant,
+    // e.g., expression with undef's in it, so it was not folded
+    if (! constantFP)
+        gla::UnsupportedFunctionality("non-simple constant");
 
     return constantFP->getValueAPF().convertToFloat();
 }
@@ -71,7 +79,11 @@ float GetConstantFloat(const llvm::Value* value)
 double GetConstantDouble(const llvm::Value* value)
 {
     const llvm::ConstantFP *constantFP = llvm::dyn_cast<llvm::ConstantFP>(value);
-    assert(constantFP);
+        
+    // this might still be a constant expression, rather than a numeric constant,
+    // e.g., expression with undef's in it, so it was not folded
+    if (! constantFP)
+        gla::UnsupportedFunctionality("non-simple constant");
 
     return constantFP->getValueAPF().convertToDouble();
 }

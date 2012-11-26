@@ -465,8 +465,18 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
             // Track the value that must be copied out to the pipeline at
             // the end of the shader.
             copyOuts.push_back(value);
-            PipelineSymbol symbol = {annotatedName, value->getType()->getContainedType(0)};
-            manager->getPipeOutSymbols().push_back(symbol);
+            const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(value->getType()->getContainedType(0));
+            if (arrayType) {
+                for (int index = 0; index < arrayType->getNumElements(); ++index) {
+                    char buf[8];
+                    itoa(index, buf, 10);
+                    PipelineSymbol symbol = {annotatedName + buf, arrayType->getContainedType(0)};
+                    manager->getPipeOutSymbols().push_back(symbol);
+                }
+            } else {                
+                PipelineSymbol symbol = {annotatedName, value->getType()->getContainedType(0)};
+                manager->getPipeOutSymbols().push_back(symbol);
+            }
         }
 
     } else {
@@ -548,9 +558,25 @@ Builder::SuperValue Builder::createInsertValue(SuperValue target, SuperValue sou
 
 void Builder::copyOutPipeline()
 {
+    int slot = 0;
+
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
-        llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);
-        writePipeline(loadVal, MakeUnsignedConstant(context, out));
+        const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out]->getType()->getContainedType(0));
+        if (arrayType) {
+            std::vector<llvm::Value*> gepChain;
+            gepChain.push_back(MakeIntConstant(context, 0));
+            for (int index = 0; index < arrayType->getNumElements(); ++index) {
+                gepChain.push_back(MakeIntConstant(context, index));
+                llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out], gepChain));
+                writePipeline(loadVal, MakeUnsignedConstant(context, slot));
+                ++slot;
+                gepChain.pop_back();
+            }
+        } else {
+            llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);
+            writePipeline(loadVal, MakeUnsignedConstant(context, slot));
+            ++slot;
+        }
     }
 }
 
