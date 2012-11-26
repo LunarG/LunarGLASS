@@ -1049,14 +1049,14 @@ entry:
   %ord = fcmp oeq float %38, %38
   %39 = uitofp i1 %ord to float
   %40 = extractelement <4 x float> %assignment_tmp7475, i32 1
-  %ord218 = fcmp oeq float %40, %40
-  %41 = uitofp i1 %ord218 to float
+  %ord219 = fcmp oeq float %40, %40
+  %41 = uitofp i1 %ord219 to float
   %42 = extractelement <4 x float> %assignment_tmp7475, i32 2
-  %ord219 = fcmp oeq float %42, %42
-  %43 = uitofp i1 %ord219 to float
+  %ord220 = fcmp oeq float %42, %42
+  %43 = uitofp i1 %ord220 to float
   %44 = extractelement <4 x float> %assignment_tmp7475, i32 3
-  %ord220 = fcmp oeq float %44, %44
-  %45 = uitofp i1 %ord220 to float
+  %ord221 = fcmp oeq float %44, %44
+  %45 = uitofp i1 %ord221 to float
   %46 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %39, i32 0, float %41, i32 0, float %43, i32 0, float %45, i32 0)
   %assignment_tmp8081 = fadd <4 x float> %assignment_tmp7475, %46
   %47 = fsub <4 x float> %assignment_tmp8081, %assignment_tmp8081
@@ -1122,58 +1122,58 @@ entry:
   %90 = call i32 @llvm.gla.sMax.i32.i32.i32(i32 %89, i32 %86)
   %i115 = add i32 %90, %assignment_tmp113114
   %91 = call i1 @llvm.gla.any.v4i1(<4 x i1> zeroinitializer)
-  %ord221 = fcmp oeq <4 x float> %v108, %v108
-  %and_tmp117 = call i1 @llvm.gla.any.v4i1(<4 x i1> %ord221)
+  %ord222 = fcmp oeq <4 x float> %v108, %v108
+  %and_tmp117 = call i1 @llvm.gla.any.v4i1(<4 x i1> %ord222)
   %. = and i1 %91, %and_tmp117
   %92 = load <4 x i1> addrspace(2)* @ub41, align 4
   %93 = load <4 x i1> addrspace(2)* @ub42, align 4
   %94 = icmp eq <4 x i1> %92, %93
   %and_tmp130132 = call i1 @llvm.gla.any.v4i1(<4 x i1> %94)
-  %select213 = and i1 %., %and_tmp130132
+  %select214 = and i1 %., %and_tmp130132
   %95 = icmp ne <4 x i1> %92, %93
   %and_tmp135137 = call i1 @llvm.gla.any.v4i1(<4 x i1> %95)
-  %select207 = and i1 %select213, %and_tmp135137
+  %select207 = and i1 %select214, %and_tmp135137
   %and_tmp140142 = call i1 @llvm.gla.any.v4i1(<4 x i1> %92)
-  %select = and i1 %select207, %and_tmp140142
+  %select218 = and i1 %select207, %and_tmp140142
   %and_tmp145147 = call i1 @llvm.gla.all.v4i1(<4 x i1> %92)
-  %select206 = and i1 %select, %and_tmp145147
+  %select = and i1 %select218, %and_tmp145147
   %96 = xor <4 x i1> %92, <i1 true, i1 true, i1 true, i1 true>
   %and_tmp150152 = call i1 @llvm.gla.any.v4i1(<4 x i1> %96)
-  %select217.demorgan = and i1 %select206, %and_tmp150152
+  %select211.demorgan = and i1 %select, %and_tmp150152
   %97 = add i32 %86, %i115
   %98 = mul i32 %97, %i115
   %99 = sub i32 %98, %86
   %100 = sdiv i32 %99, %i115
   %assignment_tmp155156 = srem i32 %100, %86
-  %101 = icmp ne i32 %assignment_tmp155156, 2
-  %i168 = zext i1 %101 to i32
-  %i.0 = add i32 %assignment_tmp155156, %i168
-  %102 = fadd float %65, %65
-  %103 = fmul float %102, %65
-  %104 = fsub float %103, %65
-  %f170 = fdiv float %104, %65
-  %105 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v108, <4 x float> %v108)
-  %106 = call float @llvm.gla.fSqrt.f32.f32(float %105)
-  %f171 = fadd float %f170, %106
+  %101 = fadd float %65, %65
+  %102 = fmul float %101, %65
+  %103 = fsub float %102, %65
+  %f170 = fdiv float %103, %65
+  %104 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v108, <4 x float> %v108)
+  %105 = call float @llvm.gla.fSqrt.f32.f32(float %104)
+  %f171 = fadd float %f170, %105
   %p172 = fsub <4 x float> %v108, %v108
-  %107 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p172, <4 x float> %p172)
-  %108 = call float @llvm.gla.fSqrt.f32.f32(float %107)
-  %f173 = fadd float %f171, %108
-  %f174 = fadd float %f173, %105
-  %109 = extractelement <4 x float> %v108, i32 1
-  %110 = extractelement <4 x float> %v108, i32 2
-  %.lhs = fmul float %109, %110
-  %.rhs = fmul float %110, %109
-  %111 = fsub float %.lhs, %.rhs
-  %assignment_tmp177178 = fadd float %f174, %111
-  %112 = fcmp oeq float %assignment_tmp177178, %65
+  %106 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p172, <4 x float> %p172)
+  %107 = call float @llvm.gla.fSqrt.f32.f32(float %106)
+  %f173 = fadd float %f171, %107
+  %f174 = fadd float %f173, %104
+  %108 = extractelement <4 x float> %v108, i32 1
+  %109 = extractelement <4 x float> %v108, i32 2
+  %.lhs = fmul float %108, %109
+  %.rhs = fmul float %109, %108
+  %110 = fsub float %.lhs, %.rhs
+  %assignment_tmp177178 = fadd float %f174, %110
+  %111 = fcmp oeq float %assignment_tmp177178, %65
   %and_tmp183185 = fcmp one float %assignment_tmp177178, 2.000000e+00
   %not. = fcmp one float %assignment_tmp177178, %65
-  %select202 = and i1 %and_tmp183185, %not.
-  %select205 = or i1 %112, %select202
+  %select206 = and i1 %and_tmp183185, %not.
+  %select208 = or i1 %111, %select206
   %f191 = fadd float %assignment_tmp177178, 1.000000e+00
-  %select216 = select i1 %select205, float %f191, float %assignment_tmp177178
-  %113 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select216, <4 x i32> zeroinitializer)
+  %select205 = select i1 %select208, float %f191, float %assignment_tmp177178
+  %112 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select205, <4 x i32> zeroinitializer)
+  %113 = icmp ne i32 %assignment_tmp155156, 2
+  %i168 = zext i1 %113 to i32
+  %i.0 = add i32 %assignment_tmp155156, %i168
   %114 = and i32 %86, %i.0
   %115 = or i32 %114, 66
   %116 = xor i32 %115, %86
@@ -1183,10 +1183,10 @@ entry:
   %assignment_tmp193194 = xor i32 %119, -1
   %120 = sitofp i32 %assignment_tmp193194 to float
   %121 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %120, <4 x i32> zeroinitializer)
-  %122 = fadd <4 x float> %121, %113
+  %122 = fadd <4 x float> %121, %112
   %conditional_tmp197 = fadd <4 x float> %122, %v108
-  %select208 = select i1 %select217.demorgan, <4 x float> %v108, <4 x float> %conditional_tmp197
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %select208)
+  %select217 = select i1 %select211.demorgan, <4 x float> %v108, <4 x float> %conditional_tmp197
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %select217)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -1607,8 +1607,8 @@ const vec4 const116 = vec4(3.0);
 const vec4 const128 = vec4(0.0);
 const vec4 const153 = vec4(0.0);
 const bvec4 const174 = bvec4(false);
-const int const197_2 = 2;
-const float const218_2f = 2.0;
+const float const214_2f = 2.0;
+const int const222_2 = 2;
 const int const227_66 = 66;
 const int const230_17 = 17;
 
@@ -1690,12 +1690,12 @@ void main()
     vec4 assignment_tmp7475 = assignment_tmp6970 + mix_retval7273;
     bool ord = assignment_tmp7475.x == assignment_tmp7475.x;
     float temp98 = float(ord);
-    bool ord218 = assignment_tmp7475.y == assignment_tmp7475.y;
-    float temp100 = float(ord218);
-    bool ord219 = assignment_tmp7475.z == assignment_tmp7475.z;
-    float temp102 = float(ord219);
-    bool ord220 = assignment_tmp7475.w == assignment_tmp7475.w;
-    float temp104 = float(ord220);
+    bool ord219 = assignment_tmp7475.y == assignment_tmp7475.y;
+    float temp100 = float(ord219);
+    bool ord220 = assignment_tmp7475.z == assignment_tmp7475.z;
+    float temp102 = float(ord220);
+    bool ord221 = assignment_tmp7475.w == assignment_tmp7475.w;
+    float temp104 = float(ord221);
     vec4 temp105 = vec4(temp98, temp100, temp102, temp104);
     vec4 assignment_tmp8081 = assignment_tmp7475 + temp105;
     vec4 temp107 = assignment_tmp8081 - assignment_tmp8081;
@@ -1759,65 +1759,65 @@ void main()
     int temp171 = max(temp170, ui);
     int temp172 = temp171 + assignment_tmp113114;
     bool temp173 = any(const174);
-    bvec4 ord221 = equal(temp164, temp164);
-    bool and_tmp117 = any(ord221);
+    bvec4 ord222 = equal(temp164, temp164);
+    bool and_tmp117 = any(ord222);
     bool temp177 = temp173 && and_tmp117;
     bvec4 temp178 = equal(ub41, ub42);
     bool and_tmp130132 = any(temp178);
-    bool select213 = temp177 && and_tmp130132;
+    bool select214 = temp177 && and_tmp130132;
     bvec4 temp181 = notEqual(ub41, ub42);
     bool and_tmp135137 = any(temp181);
-    bool select207 = select213 && and_tmp135137;
+    bool select207 = select214 && and_tmp135137;
     bool and_tmp140142 = any(ub41);
-    bool select = select207 && and_tmp140142;
+    bool select218 = select207 && and_tmp140142;
     bool and_tmp145147 = all(ub41);
-    bool select206 = select && and_tmp145147;
+    bool select = select218 && and_tmp145147;
     bvec4 temp188 = not(ub41);
     bool and_tmp150152 = any(temp188);
-    bool select217_demorgan = select206 && and_tmp150152;
+    bool select211_demorgan = select && and_tmp150152;
     int temp191 = ui + temp172;
     int temp192 = temp191 * temp172;
     int temp193 = temp192 - ui;
     int temp194 = temp193 / temp172;
     int assignment_tmp155156 = temp194 % ui;
-    bool temp196 = assignment_tmp155156 != const197_2;
-    int i_0 = assignment_tmp155156 + int temp199;
-    float temp200 = uf + uf;
-    float temp201 = temp200 * uf;
-    float temp202 = temp201 - uf;
-    float temp203 = temp202 / uf;
-    float temp204 = dot(temp164, temp164);
+    float temp196 = uf + uf;
+    float temp197 = temp196 * uf;
+    float temp198 = temp197 - uf;
+    float temp199 = temp198 / uf;
+    float temp200 = dot(temp164, temp164);
+    float temp201 = sqrt(temp200);
+    float temp202 = temp199 + temp201;
+    vec4 temp203 = temp164 - temp164;
+    float temp204 = dot(temp203, temp203);
     float temp205 = sqrt(temp204);
-    float temp206 = temp203 + temp205;
-    vec4 temp207 = temp164 - temp164;
-    float temp208 = dot(temp207, temp207);
-    float temp209 = sqrt(temp208);
-    float temp210 = temp206 + temp209;
-    float temp211 = temp210 + temp204;
+    float temp206 = temp202 + temp205;
+    float temp207 = temp206 + temp200;
     float _lhs = temp164.y * temp164.z;
     float _rhs = temp164.z * temp164.y;
-    float temp214 = _lhs - _rhs;
-    float assignment_tmp177178 = temp211 + temp214;
-    bool temp216 = assignment_tmp177178 == uf;
-    bool and_tmp183185 = assignment_tmp177178 != const218_2f;
+    float temp210 = _lhs - _rhs;
+    float assignment_tmp177178 = temp207 + temp210;
+    bool temp212 = assignment_tmp177178 == uf;
+    bool and_tmp183185 = assignment_tmp177178 != const214_2f;
     bool not_ = assignment_tmp177178 != uf;
-    bool select202 = and_tmp183185 && not_;
-    bool select205 = temp216 || select202;
-    float temp222 = assignment_tmp177178 + const110_1f;
-    float select216 = select205 ? temp222 : assignment_tmp177178;
-    vec4 temp224 = vec4(select216);
+    bool select206 = and_tmp183185 && not_;
+    bool select208 = temp212 || select206;
+    float temp218 = assignment_tmp177178 + const110_1f;
+    float select205 = select208 ? temp218 : assignment_tmp177178;
+    vec4 temp220 = vec4(select205);
+    bool temp221 = assignment_tmp155156 != const222_2;
+    int i_0 = assignment_tmp155156 + int temp224;
     int temp225 = ui & i_0;
     int temp226 = temp225 | const227_66;
     int temp228 = ~(temp226);
     int temp229 = temp228 % const230_17;
-    int temp231 = temp229 >> const197_2;
+    int temp231 = temp229 >> const222_2;
     int temp232 = temp231 << ui;
     int assignment_tmp193194 = ~(temp232);
     float temp234 = float(assignment_tmp193194);
     vec4 temp235 = vec4(temp234);
-    vec4 temp236 = temp235 + temp224;
+    vec4 temp236 = temp235 + temp220;
     vec4 conditional_tmp197 = temp236 + temp164;
-    vec4 select208 = select217_demorgan ? temp164 : conditional_tmp197;
-    gl_FragColor = select208;
+    vec4 select217 = select211_demorgan ? temp164 : conditional_tmp197;
+    gl_FragColor = select217;
     
 }
