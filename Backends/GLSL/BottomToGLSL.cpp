@@ -881,7 +881,7 @@ protected:
 
         if (! constant)
             isZero = true;
-        else if (const llvm::ConstantAggregateZero* zero = llvm::dyn_cast<llvm::ConstantAggregateZero>(constant))
+        else if (llvm::isa<llvm::ConstantAggregateZero>(constant))
             isZero = true;
         else
             isZero = false;
@@ -922,16 +922,16 @@ protected:
 
             int numElements = 0;
 
-            if(const llvm::VectorType* vectorType = llvm::dyn_cast<llvm::VectorType>(type)) {
+            if (const llvm::VectorType* vectorType = llvm::dyn_cast<llvm::VectorType>(type)) {
                 // If all vector elements are equal, we only need to emit one
-            bool same = true;
+                bool same = true;
                 if (! isZero) {
                     for (int op = 1; op < vectorType->getNumElements(); ++op) {
                         if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
-                    same = false;
-                    break;
-                }
-            }
+                            same = false;
+                            break;
+                        }
+                    }
                 }
                 numElements = same ? 1 : vectorType->getNumElements();
             } else if (const llvm::ArrayType*  arrayType = llvm::dyn_cast<llvm::ArrayType>(type))
