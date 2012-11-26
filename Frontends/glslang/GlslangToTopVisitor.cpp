@@ -99,6 +99,7 @@ public:
     std::map<int, gla::Builder::SuperValue> namedValues;
     std::map<std::string, llvm::Function*> functionMap;
     std::map<std::string, int> interpMap;
+    std::map<TTypeList*, llvm::StructType*> structMap;
 };
 
 TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
@@ -251,7 +252,8 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
             if (! node->getLeft()->getType().isArray() &&
                   node->getLeft()->getType().isVector() && 
                   node->getOp() == EOpIndexDirect) {
-                // this is essentially a hard-coded swizzle of size 1, so short circuit the GEP stuff
+                // this is essentially a hard-coded vector swizzle of size 1, 
+                // so short circuit the GEP stuff with a swizzle
                 std::vector<int> swizzle;
                 swizzle.push_back(node->getRight()->getAsConstantUnion()->getUnionArrayPointer()->getIConst());
                 oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()), 
@@ -435,14 +437,30 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     case EOpConstructIVec2:
     case EOpConstructIVec3:
     case EOpConstructIVec4:
+    case EOpConstructStruct:
         {
             std::vector<gla::Builder::SuperValue> arguments;
             oit->translateArguments(node->getSequence(), arguments);
             llvm::Value* constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
                                                                        oit->convertGlslangToGlaType(node->getType()),
                                                                        false, 0, 0, "constructed");
-            constructed = oit->llvmBuilder.CreateLoad(constructed);
-            constructed = oit->glaBuilder->createConstructor(arguments, constructed);
+            if (node->getOp() == EOpConstructStruct) {
+                //TODO: is there a more direct way to set a whole LLVM structure?
+                //TODO: if not, move this inside Top Builder; too many indirections
+
+                std::vector<llvm::Value*> gepChain;
+                gepChain.push_back(gla::MakeIntConstant(oit->context, 0));
+                for (int field = 0; field < arguments.size(); ++field) {
+                    gepChain.push_back(gla::MakeIntConstant(oit->context, field));
+                    llvm::Value* loadVal = oit->llvmBuilder.CreateStore(arguments[field], 
+                                                                        oit->glaBuilder->createGEP(constructed, gepChain));
+                    gepChain.pop_back();
+                }
+                constructed = oit->llvmBuilder.CreateLoad(constructed);
+            } else {
+                constructed = oit->llvmBuilder.CreateLoad(constructed);
+                constructed = oit->glaBuilder->createConstructor(arguments, constructed);
+            }
             oit->glaBuilder->clearAccessChain();
             oit->glaBuilder->setAccessChainRValue(constructed);
             return false;
@@ -452,10 +470,6 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     case EOpConstructMat3:
     case EOpConstructMat4:
         gla::UnsupportedFunctionality("matrix constructor");
-        return false;
-
-    case EOpConstructStruct:
-        gla::UnsupportedFunctionality("structure constructor");
         return false;
 
     case EOpLessThan:
@@ -684,24 +698,24 @@ const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& t
         glaType = gla::GetIntType(context);
         break;
     case EbtStruct:
-        gla::UnsupportedFunctionality("basic type: struct", gla::EATContinue);
-        //{
-        //    std::vector<const llvm::Type*> structFields;
-        //    llvm::StructType* structType = structMap[type->name];
-        //    if (structType) {
-        //        // If we've seen this struct type, return it
-        //        glaType = structType;
-        //    } else {
-        //        // Create a vector of struct types for LLVM to consume
-        //        for (int i = 0; i < type->length; i++) {
-        //            structFields.push_back(convertGlslangToGlaType(type->fields.structure[i].type));
-        //        }
-        //        structType = llvm::StructType::get(context, structFields, false);
-        //        module->addTypeName(type->name, structType);
-        //        structMap[type->name] = structType;
-        //        glaType = structType;
-        //    }
-        //}
+//        gla::UnsupportedFunctionality("basic type: struct");
+        {
+            TTypeList* glslangStruct = type.getStruct();
+            std::vector<const llvm::Type*> structFields;
+            llvm::StructType* structType = structMap[glslangStruct];
+            if (structType) {
+                // If we've seen this struct type, return it
+                glaType = structType;
+            } else {
+                // Create a vector of struct types for LLVM to consume
+                for (int i = 0; i < glslangStruct->size(); i++)
+                    structFields.push_back(convertGlslangToGlaType(*(*glslangStruct)[i].type));
+                structType = llvm::StructType::get(context, structFields, false);
+                module->addTypeName(type.getTypeName().c_str(), structType);
+                structMap[glslangStruct] = structType;
+                glaType = structType;
+            }
+        }
         break;
 
     default:
@@ -1321,7 +1335,7 @@ llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(TType& glslangType, c
         // this is where we actually consume the constants, rather than walk a tree
 
         for (unsigned int i = 0; i < glslangType.getNominalSize(); ++i) {
-            switch(consts->getType())
+            switch(consts[nextConst].getType())
             {
             case EbtInt:
                 vals.push_back(gla::MakeUnsignedConstant(context, consts[nextConst].getIConst()));

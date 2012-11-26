@@ -3,4 +3,86 @@
 
 ***Unsupported functionality: glslang selection
 
-***Unsupported functionality: basic type: struct
+Top IR:
+; ModuleID = 'Top'
+
+%s0 = type { i32 }
+%s1 = type { i32, float, %s0 }
+%s2 = type { i32, float, %s1 }
+
+@gl_FragColor = internal global <4 x float> zeroinitializer
+@"sampler2D sampler" = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %locals2 = alloca %s2
+  %fArray = alloca [6 x float]
+  %locals1Array = alloca [10 x %s1]
+  %locals0 = alloca %s0
+  %0 = getelementptr %s0* %locals0, i32 0, i32 0
+  %1 = load i32* %0
+  %2 = sitofp i32 %1 to float
+  %3 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6, i32 1
+  %4 = load float* %3
+  %5 = fadd float %2, %4
+  %6 = getelementptr [6 x float]* %fArray, i32 0, i32 3
+  %7 = load float* %6
+  %8 = fadd float %5, %7
+  %9 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
+  %10 = load float* %9
+  %11 = fadd float %8, %10
+  %12 = load i32 addrspace(1)* @"sampler2D sampler"
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %13 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %12, i32 0, <2 x float> %coord)
+  %14 = insertelement <4 x float> undef, float %11, i32 0
+  %15 = insertelement <4 x float> %14, float %11, i32 1
+  %16 = insertelement <4 x float> %15, float %11, i32 2
+  %17 = insertelement <4 x float> %16, float %11, i32 3
+  %gl_FragColor = fmul <4 x float> %17, %13
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %18 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %18)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@"sampler2D sampler" = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %0 = load i32 addrspace(1)* @"sampler2D sampler", align 4
+  %1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
+  %gl_FragColor = fmul <4 x float> %1, <float fadd (float fadd (float 0.000000e+00, float undef), float undef), float fadd (float fadd (float 0.000000e+00, float undef), float undef), float fadd (float fadd (float 0.000000e+00, float undef), float undef), float fadd (float fadd (float 0.000000e+00, float undef), float undef)>
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+***Unsupported functionality: llvm constant expression for constant value
