@@ -9,9 +9,11 @@ Top IR:
 define fastcc void @main() {
 entry:
   %constructed = alloca <4 x float>
+  %param = alloca <4 x float>
   %color = alloca <4 x float>
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  %0 = call float @"foo(vf4;"(<4 x float> %BaseColor)
+  store <4 x float> %BaseColor, <4 x float>* %param
+  %0 = call float @"foo(vf4;"(<4 x float>* %param)
   %1 = load <4 x float>* %constructed
   %2 = insertelement <4 x float> undef, float %0, i32 0
   %3 = insertelement <4 x float> %2, float %0, i32 1
@@ -31,12 +33,14 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-define internal fastcc float @"foo(vf4;"(<4 x float>) alwaysinline {
+define internal fastcc float @"foo(vf4;"(<4 x float>*) alwaysinline {
 entry:
-  %1 = extractelement <4 x float> %0, i32 0
-  %2 = extractelement <4 x float> %0, i32 1
-  %3 = fadd float %1, %2
-  ret float %3
+  %1 = load <4 x float>* %0
+  %2 = extractelement <4 x float> %1, i32 0
+  %3 = load <4 x float>* %0
+  %4 = extractelement <4 x float> %3, i32 1
+  %5 = fadd float %2, %4
+  ret float %5
 
 post-return:                                      ; No predecessors!
   unreachable

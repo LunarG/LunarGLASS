@@ -76,9 +76,9 @@ public:
 
     void handleFunctionEntry(TIntermAggregate* node);
     void translateArguments(TIntermSequence& glslangArguments, std::vector<gla::Builder::SuperValue>& arguments);
-    gla::Builder::SuperValue handleBuiltinFunctionCall(TIntermAggregate*, std::vector<gla::Builder::SuperValue>& arguments);
-    gla::Builder::SuperValue handleUserFunctionCall(TIntermAggregate*, std::vector<gla::Builder::SuperValue>& arguments);
-    
+    gla::Builder::SuperValue handleBuiltinFunctionCall(TIntermAggregate*);
+    gla::Builder::SuperValue handleUserFunctionCall(TIntermAggregate*);
+
     gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned);
     gla::Builder::SuperValue createUnaryOperation(TOperator op, const TType& destType, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand, TBasicType);
@@ -196,8 +196,8 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     case EOpExclusiveOrAssign:
     case EOpLeftShiftAssign:
     case EOpRightShiftAssign:
-        // A bin-op assign "a += b" means the same thing as "a = a + b" 
-        // where a is evaluated before b. For a simple assignment, GLSL 
+        // A bin-op assign "a += b" means the same thing as "a = a + b"
+        // where a is evaluated before b. For a simple assignment, GLSL
         // says to evaluate the left before the right.  So, always, left
         // node then right node.
         {
@@ -205,12 +205,12 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
             oit->glaBuilder->clearAccessChain();
             node->getLeft()->traverse(oit);
             gla::Builder::AccessChain lValue = oit->glaBuilder->getAccessChain();
-            
+
             // evaluate the right
             oit->glaBuilder->clearAccessChain();
             node->getRight()->traverse(oit);
             gla::Builder::SuperValue rValue = oit->glaBuilder->accessChainLoad();
-            
+
             if (node->getOp() != EOpAssign) {
                 // the left is also an r-value
                 oit->glaBuilder->setAccessChain(lValue);
@@ -250,19 +250,19 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
             node->getLeft()->traverse(oit);
 
             if (! node->getLeft()->getType().isArray() &&
-                  node->getLeft()->getType().isVector() && 
+                  node->getLeft()->getType().isVector() &&
                   node->getOp() == EOpIndexDirect) {
-                // this is essentially a hard-coded vector swizzle of size 1, 
+                // this is essentially a hard-coded vector swizzle of size 1,
                 // so short circuit the GEP stuff with a swizzle
                 std::vector<int> swizzle;
                 swizzle.push_back(node->getRight()->getAsConstantUnion()->getUnionArrayPointer()->getIConst());
-                oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()), 
+                oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()),
                                                              node->getLeft()->getNominalSize());
             } else if (node->getLeft()->getType().isMatrix()) {
                 gla::UnsupportedFunctionality("matrix indexing");
             } else {
                 // struct or array or indirection into a vector; will use native LLVM gep
-                
+
                 // save it so that computing the right side doesn't trash it
                 gla::Builder::AccessChain partial = oit->glaBuilder->getAccessChain();
 
@@ -286,7 +286,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
             std::vector<int> swizzle;
             for (int i = 0; i < swizzleSequence.size(); ++i)
                 swizzle.push_back(swizzleSequence[i]->getAsConstantUnion()->getUnionArrayPointer()->getIConst());
-            oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()), 
+            oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()),
                                                          node->getLeft()->getNominalSize());
             return false;
         }
@@ -384,7 +384,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             if (node->getName() == "main(") {
                 oit->inMain = true;
                 oit->llvmBuilder.SetInsertPoint(oit->shaderEntry);
-            } else {                
+            } else {
                 oit->handleFunctionEntry(node);
             }
         } else {
@@ -403,13 +403,11 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     case EOpFunctionCall:
         {
             gla::Builder::SuperValue result;
-            std::vector<gla::Builder::SuperValue> arguments;
-            oit->translateArguments(node->getSequence(), arguments);
-            
+
             if (node->isUserDefined())
-                result = oit->handleUserFunctionCall(node, arguments);
+                result = oit->handleUserFunctionCall(node);
             else
-                result = oit->handleBuiltinFunctionCall(node, arguments);
+                result = oit->handleBuiltinFunctionCall(node);
 
             if (result.isClear())
                 gla::UnsupportedFunctionality("glslang function call");
@@ -452,7 +450,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
                 gepChain.push_back(gla::MakeIntConstant(oit->context, 0));
                 for (int field = 0; field < arguments.size(); ++field) {
                     gepChain.push_back(gla::MakeIntConstant(oit->context, field));
-                    llvm::Value* loadVal = oit->llvmBuilder.CreateStore(arguments[field], 
+                    llvm::Value* loadVal = oit->llvmBuilder.CreateStore(arguments[field],
                                                                         oit->glaBuilder->createGEP(constructed, gepChain));
                     gepChain.pop_back();
                 }
@@ -742,17 +740,21 @@ void TGlslangToTopTraverser::handleFunctionEntry(TIntermAggregate* node)
     std::vector<const llvm::Type*> paramTypes;
     TIntermSequence& parameters = node->getSequence()[0]->getAsAggregate()->getSequence();
 
-    for (int i = 0; i < parameters.size(); ++i)
-        paramTypes.push_back(convertGlslangToGlaType(parameters[i]->getAsTyped()->getType()));
+    // At call time, space should be allocated for all the arguments,
+    // and pointers to that space passed to the function as the formal parameters.
+    for (int i = 0; i < parameters.size(); ++i) {
+        const llvm::Type* type = convertGlslangToGlaType(parameters[i]->getAsTyped()->getType());        
+        paramTypes.push_back(llvm::PointerType::get(type, gla::GlobalAddressSpace));
+    }
 
     llvm::BasicBlock* functionBlock;
-    llvm::Function *function = glaBuilder->makeFunctionEntry(convertGlslangToGlaType(node->getType()), node->getName().c_str(), 
+    llvm::Function *function = glaBuilder->makeFunctionEntry(convertGlslangToGlaType(node->getType()), node->getName().c_str(),
                                                              paramTypes, &functionBlock);
     function->addFnAttr(llvm::Attribute::AlwaysInline);
     llvmBuilder.SetInsertPoint(functionBlock);
 
     // Visit parameter list again to create mappings to local variables and set attributes.
-    llvm::Function::arg_iterator arg = function->arg_begin();    
+    llvm::Function::arg_iterator arg = function->arg_begin();
     for (int i = 0; i < parameters.size(); ++i, ++arg)
         namedValues[parameters[i]->getAsSymbolNode()->getId()] = &(*arg);
 
@@ -769,8 +771,11 @@ void TGlslangToTopTraverser::translateArguments(TIntermSequence& glslangArgument
     }
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TIntermAggregate* node, std::vector<gla::Builder::SuperValue>& arguments)
+gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TIntermAggregate* node)
 {
+    std::vector<gla::Builder::SuperValue> arguments;
+    translateArguments(node->getSequence(), arguments);
+
     gla::Builder::SuperValue result;
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
 
@@ -805,20 +810,74 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
     return result;
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* node, 
-                                                                        std::vector<gla::Builder::SuperValue>& arguments)
+gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* node)
 {
-    llvm::SmallVector<llvm::Value*, 4> llvmParams;  // Efficiency: make the arguments this type to begin with
+    // Overall design is to pass pointers to the arguments, as described:
+    //
+    // For input arguments, they could be expressions, and their value could be
+    // overwritten without impacting anything in the caller, so store the answer
+    // and pass a pointer to it.
+    //
+    // For output arguments, there could still be a conversion needed, so
+    // so make space for the answer, and convert in before sticking it into
+    // the original l-value provide.  (Pass the pointer to the space made.)
+    //
+    // For inout, just do both the above, but using a single space/pointer
+    // to do it.
+    //
 
-    // Build a list of arguments
-    for (int i = 0; i < arguments.size(); ++i)
-        llvmParams.push_back(arguments[i]);
-
-    // Grab the pointer from the previous created function
+    // Grab the pointer from the previously created function
     llvm::Function* function = functionMap[node->getName().c_str()];
-    assert(function);
 
-    return llvmBuilder.Insert(llvm::CallInst::Create(function, llvmParams.begin(), llvmParams.end()));
+    // First step:  Allocate the space for the arguments and build llvm
+    // pointers to it as the passed in arguments.
+    llvm::SmallVector<llvm::Value*, 4> llvmArgs;
+    llvm::Function::arg_iterator param;
+    llvm::Function::arg_iterator end = function->arg_end();
+    for (param = function->arg_begin(); param != end; ++param) {
+        // param->getType() should be a pointer, we need the type it points to
+        llvm::Value* space = glaBuilder->createVariable(gla::Builder::ESQLocal, 0, param->getType()->getContainedType(0), 0, 0, 0, "param");
+        llvmArgs.push_back(space);
+    }
+
+    // Copy-in time...
+    // Compute the access chains of output argument l-values before making the call, 
+    // to be used after making the call.  Also compute r-values of inputs and store
+    // them into the space allocated above.
+    TIntermSequence& glslangArgs = node->getSequence();
+    TQualifierList& qualifiers = node->getQualifier();
+    llvm::SmallVector<gla::Builder::AccessChain, 2> lValuesOut;
+    for (int i = 0; i < glslangArgs.size(); ++i) {
+        // build l-value
+        glaBuilder->clearAccessChain();
+        glslangArgs[i]->traverse(this);
+        if (qualifiers[i] == EvqOut || qualifiers[i] == EvqInOut) {
+            // save l-value
+            lValuesOut.push_back(glaBuilder->getAccessChain());
+        }
+        if (qualifiers[i] == EvqIn || qualifiers[i] == EvqConstReadOnly || qualifiers[i] == EvqInOut) {
+            // process r-value
+            glaBuilder->createStore(glaBuilder->accessChainLoad(), llvmArgs[i]);
+        }
+    }
+
+    gla::Builder::SuperValue result = llvmBuilder.Insert(llvm::CallInst::Create(function, llvmArgs.begin(), llvmArgs.end()));
+
+    // Copy-out time...
+    // Convert outputs to correct type before storing into the l-value
+    llvm::SmallVector<gla::Builder::AccessChain, 2>::iterator savedIt = lValuesOut.begin();
+    for (int i = 0; i < glslangArgs.size(); ++i) {
+        if (qualifiers[i] == EvqOut || qualifiers[i] == EvqInOut) {
+            glaBuilder->setAccessChain(*savedIt);
+            llvm::Value* output = glaBuilder->createLoad(llvmArgs[i]);
+            if (convertGlslangToGlaType(glslangArgs[i]->getAsTyped()->getType()) != llvmArgs[i]->getType()->getContainedType(0))
+                gla::UnsupportedFunctionality("conversion of function call output parameter to different type");
+            glaBuilder->accessChainStore(output);
+            ++savedIt;
+        }
+    }
+
+    return result;
 }
 
 gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned)

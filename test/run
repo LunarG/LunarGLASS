@@ -24,6 +24,7 @@ TESTS=(test.frag               \
        swizzle.frag            \
        simpleFunctionCall.frag \
        functionCall.frag       \
+       functionSemantics.frag  \
        voidFunction.frag       \
        loops.frag              \
        earlyReturnDiscard.frag \
@@ -104,6 +105,7 @@ function runTests {
             || (printVerboseNL "[FAIL] " ; tail -n 1 temp.errout)
         cat temp.errout temp.stdout > glsl/$t.out.tmp
         tr -d '\r' < glsl/$t.out.tmp > glsl/$t.out
+		rm glsl/$t.out.tmp
 
         if [ -n "$DO_OBFUSCATE" ]
         then
