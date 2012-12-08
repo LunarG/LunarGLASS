@@ -1,10 +1,11 @@
 
-***Unsupported functionality: glslang selection
-
 Top IR:
 ; ModuleID = 'Top'
 
 @otherColor = external addrspace(2) constant <4 x float>
+@d = external addrspace(2) constant float
+@bigColor = external addrspace(2) constant <4 x float>
+@smallColor = external addrspace(2) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -15,15 +16,35 @@ entry:
   store <4 x float> %BaseColor, <4 x float>* %color
   %color21 = load <4 x float> addrspace(2)* @otherColor
   store <4 x float> %color21, <4 x float>* %color2
-  %0 = load <4 x float>* %color
-  %1 = load <4 x float>* %color2
-  %gl_FragColor = fmul <4 x float> %0, %1
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
+  %0 = load float addrspace(2)* @d
+  %1 = fcmp ogt float %c, %0
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %entry
+  %2 = load <4 x float> addrspace(2)* @bigColor
+  %3 = load <4 x float>* %color
+  %color3 = fadd <4 x float> %3, %2
+  store <4 x float> %color3, <4 x float>* %color
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %4 = load <4 x float> addrspace(2)* @smallColor
+  %5 = load <4 x float>* %color
+  %color4 = fadd <4 x float> %5, %4
+  store <4 x float> %color4, <4 x float>* %color
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %6 = load <4 x float>* %color
+  %7 = load <4 x float>* %color2
+  %gl_FragColor = fmul <4 x float> %6, %7
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
-  %2 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %2)
+stage-epilogue:                                   ; preds = %ifmerge
+  %8 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %8)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -32,6 +53,8 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 
@@ -39,12 +62,22 @@ Bottom IR:
 ; ModuleID = 'Top'
 
 @otherColor = external addrspace(2) constant <4 x float>
+@d = external addrspace(2) constant float
+@bigColor = external addrspace(2) constant <4 x float>
+@smallColor = external addrspace(2) constant <4 x float>
 
 define fastcc void @main() {
 entry:
-  %color21 = load <4 x float> addrspace(2)* @otherColor, align 16
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  %gl_FragColor = fmul <4 x float> %BaseColor, %color21
+  %color21 = load <4 x float> addrspace(2)* @otherColor, align 16
+  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
+  %0 = load float addrspace(2)* @d, align 4
+  %1 = fcmp ogt float %c, %0
+  %bigColor.val = load <4 x float> addrspace(2)* @bigColor, align 16
+  %smallColor.val = load <4 x float> addrspace(2)* @smallColor, align 16
+  %.pn = select i1 %1, <4 x float> %bigColor.val, <4 x float> %smallColor.val
+  %color.0 = fadd <4 x float> %BaseColor, %.pn
+  %gl_FragColor = fmul <4 x float> %color.0, %color21
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
@@ -57,16 +90,25 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 // LunarGOO(r471) output
 #version 130
 uniform vec4 otherColor;
+uniform float d;
+uniform vec4 bigColor;
+uniform vec4 smallColor;
 in vec4 BaseColor;
+in float c;
 
 void main()
 {
-    vec4 gla_copyout_gl_FragColor = BaseColor * otherColor;
+    bool temp21 = c > d;
+    vec4 _pn = temp21 ? bigColor : smallColor;
+    vec4 color_0 = BaseColor + _pn;
+    vec4 gla_copyout_gl_FragColor = color_0 * otherColor;
     gl_FragColor = gla_copyout_gl_FragColor;
     
 }

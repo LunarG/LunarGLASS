@@ -1,7 +1,7 @@
 
-***Unsupported functionality: glslang selection
+***Unsupported functionality: ++/--
 
-***Unsupported functionality: glslang selection
+***Unsupported functionality: ++/--
 
 Top IR:
 ; ModuleID = 'Top'
@@ -39,20 +39,67 @@ entry:
   %10 = fadd float %6, %9
   %radius5 = call float @llvm.gla.fSqrt.f32.f32(float %10)
   store float %radius5, float* %radius
+  %11 = load float* %radius
+  %12 = fcmp ogt float %11, 1.000000e+00
+  br i1 %12, label %then, label %ifmerge9
+
+then:                                             ; preds = %entry
+  %13 = load float* %radius
+  %14 = fcmp ogt float %13, 0x3FF19999A0000000
+  br i1 %14, label %then6, label %ifmerge
+
+then6:                                            ; preds = %then
+  %15 = load <4 x float>* %color
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %then, %then6
+  %gl_FragColor = load <4 x float>* %color
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %16 = load float* %radius
+  %17 = fcmp ogt float %16, 0x3FF3333340000000
+  br i1 %17, label %then7, label %ifmerge8
+
+then7:                                            ; preds = %ifmerge
+  %18 = load <4 x float>* %color
+  br label %ifmerge8
+
+ifmerge8:                                         ; preds = %ifmerge, %then7
+  br label %ifmerge9
+
+ifmerge9:                                         ; preds = %entry, %ifmerge8
   call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
-  %gl_FragColor = load <4 x float>* %color
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  unreachable
+  %19 = load float* %radius
+  %20 = fcmp oge float %19, 7.500000e-01
+  br i1 %20, label %then10, label %ifmerge12
 
-stage-epilogue:                                   ; No predecessors!
-  %11 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %11)
+then10:                                           ; preds = %post-discard
+  %21 = load float* %radius
+  %22 = call float @llvm.gla.fPow.f32.f32.f32(float %21, float 1.600000e+01)
+  %23 = fdiv float %22, 2.000000e+00
+  %24 = call float @llvm.gla.fAbs.f32.f32(float %23)
+  %25 = load <4 x float>* %color
+  %26 = insertelement <4 x float> undef, float %24, i32 0
+  %27 = insertelement <4 x float> %26, float %24, i32 1
+  %28 = insertelement <4 x float> %27, float %24, i32 2
+  %29 = insertelement <4 x float> %28, float %24, i32 3
+  %color11 = fsub <4 x float> %25, %29
+  store <4 x float> %color11, <4 x float>* %color
+  br label %ifmerge12
+
+ifmerge12:                                        ; preds = %post-discard, %then10
+  %gl_FragColor13 = load <4 x float>* %color
+  store <4 x float> %gl_FragColor13, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge12
+  %30 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %30)
   br label %stage-exit
 
-stage-exit:                                       ; preds = %stage-epilogue, %entry
+stage-exit:                                       ; preds = %stage-epilogue, %ifmerge9
   ret void
 }
 
@@ -61,6 +108,10 @@ declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind rea
 declare float @llvm.gla.fSqrt.f32.f32(float) nounwind readnone
 
 declare void @llvm.gla.discard() nounwind
+
+declare float @llvm.gla.fPow.f32.f32.f32(float, float) nounwind readnone
+
+declare float @llvm.gla.fAbs.f32.f32(float) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 

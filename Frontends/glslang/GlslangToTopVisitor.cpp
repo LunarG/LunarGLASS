@@ -518,18 +518,24 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
-    gla::UnsupportedFunctionality("glslang selection", gla::EATContinue);
-    return false;
-
+    // emit the condition before doing anything with selection
     node->getCondition()->traverse(it);
 
+    // make an "if" based on the value created by the condition
+    gla::Builder::If ifBuilder(oit->glaBuilder->accessChainLoad(), oit->glaBuilder);
+
     if (node->getTrueBlock()) {
+        // emit the "then" statement
 		node->getTrueBlock()->traverse(it);
 	}
 
     if (node->getFalseBlock()) {
+        ifBuilder.makeBeginElse();
+        // emit the "else" statement
         node->getFalseBlock()->traverse(it);
     }
+
+    ifBuilder.makeEndIf();
 
     return false;
 }
@@ -968,6 +974,10 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
     }
 
     // Comparison instructions
+
+    if (gla::IsAggregate(left) || gla::IsVector(left))
+        gla::UnsupportedFunctionality("comparison of aggregates");
+
     if (leftIsFloat) {
         llvm::FCmpInst::Predicate pred = llvm::FCmpInst::Predicate(0);
         switch (op) {

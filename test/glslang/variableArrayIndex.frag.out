@@ -1,10 +1,17 @@
 
-***Unsupported functionality: glslang selection
+***Unsupported functionality: ++/--
 
 Top IR:
 ; ModuleID = 'Top'
 
+%lunarStruct1 = type { i32, float }
+%lunarStruct2 = type { i32, float, %lunarStruct1 }
+%lunarStruct3 = type { [3 x %lunarStruct2], i32, float, %lunarStruct1 }
+
 @Count = external addrspace(2) constant i32
+@foo3 = external addrspace(2) constant %lunarStruct3
+@foo2 = external addrspace(2) constant [5 x %lunarStruct2]
+@foo = external addrspace(2) constant %lunarStruct1
 @gl_FragColor = internal global <4 x float> zeroinitializer
 @"sampler2D sampler" = external addrspace(1) constant i32
 
@@ -14,21 +21,44 @@ entry:
   %iLocal = alloca i32
   %iLocal1 = load i32 addrspace(2)* @Count
   store i32 %iLocal1, i32* %iLocal
-  %0 = load float* %scale
-  %1 = load i32 addrspace(1)* @"sampler2D sampler"
+  %0 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 1, i32 0)
+  %1 = icmp sgt i32 %0, 0
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %entry
+  %2 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct1 addrspace(2)* @foo, i32 0, i32 0)
+  %3 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 %2, i32 0
+  %4 = load i32 addrspace(2)* %3
+  %5 = add i32 %4, 2
+  %6 = load i32* %iLocal
+  %7 = load i32* %iLocal
+  %8 = add i32 %5, %7
+  %9 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 %8, i32 2, i32 1
+  %scale2 = load float addrspace(2)* %9
+  store float %scale2, float* %scale
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %scale3 = load float addrspace(2)* getelementptr inbounds (%lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 0, i32 2, i32 1)
+  store float %scale3, float* %scale
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %10 = load float* %scale
+  %11 = load i32 addrspace(1)* @"sampler2D sampler"
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %coord)
-  %3 = insertelement <4 x float> undef, float %0, i32 0
-  %4 = insertelement <4 x float> %3, float %0, i32 1
-  %5 = insertelement <4 x float> %4, float %0, i32 2
-  %6 = insertelement <4 x float> %5, float %0, i32 3
-  %gl_FragColor = fmul <4 x float> %6, %2
+  %12 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %11, i32 0, <2 x float> %coord)
+  %13 = insertelement <4 x float> undef, float %10, i32 0
+  %14 = insertelement <4 x float> %13, float %10, i32 1
+  %15 = insertelement <4 x float> %14, float %10, i32 2
+  %16 = insertelement <4 x float> %15, float %10, i32 3
+  %gl_FragColor = fmul <4 x float> %16, %12
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
-  %7 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %7)
+stage-epilogue:                                   ; preds = %ifmerge
+  %17 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %17)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -45,16 +75,37 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
+%lunarStruct1 = type { i32, float }
+%lunarStruct2 = type { i32, float, %lunarStruct1 }
+%lunarStruct3 = type { [3 x %lunarStruct2], i32, float, %lunarStruct1 }
+
+@Count = external addrspace(2) constant i32
+@foo3 = external addrspace(2) constant %lunarStruct3
+@foo2 = external addrspace(2) constant [5 x %lunarStruct2]
+@foo = external addrspace(2) constant %lunarStruct1
 @"sampler2D sampler" = external addrspace(1) constant i32
-@gla_globalAgg = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
+  %gla_constGEP = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 1, i32 0
+  %0 = load i32 addrspace(2)* %gla_constGEP, align 4
+  %1 = icmp sgt i32 %0, 0
+  %iLocal1 = load i32 addrspace(2)* @Count, align 4
+  %gla_constGEP5 = getelementptr %lunarStruct1 addrspace(2)* @foo, i32 0, i32 0
+  %2 = load i32 addrspace(2)* %gla_constGEP5, align 4
+  %3 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 %2, i32 0
+  %4 = load i32 addrspace(2)* %3, align 4
+  %5 = add i32 %iLocal1, 2
+  %6 = add i32 %5, %4
+  %7 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 %6, i32 2, i32 1
+  %gla_constGEP6 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 0, i32 2, i32 1
+  %select = select i1 %1, float addrspace(2)* %7, float addrspace(2)* %gla_constGEP6
+  %scale.0 = load float addrspace(2)* %select, align 4
+  %8 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %scale.0, <4 x i32> zeroinitializer)
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %0 = load i32 addrspace(1)* @"sampler2D sampler", align 4
-  %1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
-  %aggregate = load <4 x float>* @gla_globalAgg
-  %gl_FragColor = fmul <4 x float> %1, %aggregate
+  %9 = load i32 addrspace(1)* @"sampler2D sampler", align 4
+  %10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %coord)
+  %gl_FragColor = fmul <4 x float> %8, %10
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
   br label %stage-epilogue
 
@@ -71,16 +122,49 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+
 // LunarGOO(r471) output
 #version 130
+struct lunarStruct1 {
+    int member0;
+    float member1;
+};
+
+struct lunarStruct2 {
+    int member0;
+    float member1;
+    lunarStruct1 member2;
+};
+
+struct lunarStruct3 {
+    lunarStruct2[3] member0;
+    int member1;
+    float member2;
+    lunarStruct1 member3;
+};
+
+uniform int Count;
+uniform lunarStruct3 foo3;
+uniform lunarStruct2[5] foo2;
+uniform lunarStruct1 foo;
 uniform sampler2D sampler;
-vec4 gla_globalAgg;
+const int const23_0 = 0;
+const int const27_2 = 2;
 in vec2 coord;
 
 void main()
 {
-    vec4 temp21 = texture2D(sampler, coord);
-    vec4 gla_copyout_gl_FragColor = temp21 * gla_globalAgg;
+    int temp21 = foo3.member0[1].member0;
+    bool temp22 = temp21 > const23_0;
+    int temp24 = foo.member0;
+    int temp25 = foo3.member0[temp24].member0;
+    int temp26 = Count + const27_2;
+    int temp28 = temp26 + temp25;
+    float select = temp22 ? foo2[temp28].member2.member1 : foo3.member0[0].member2.member1;
+    vec4 temp30 = vec4(select);
+    vec4 temp31 = texture2D(sampler, coord);
+    vec4 gla_copyout_gl_FragColor = temp30 * temp31;
     gl_FragColor = gla_copyout_gl_FragColor;
     
 }
