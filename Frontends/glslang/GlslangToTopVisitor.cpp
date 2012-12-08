@@ -79,7 +79,7 @@ public:
     gla::Builder::SuperValue handleBuiltinFunctionCall(TIntermAggregate*);
     gla::Builder::SuperValue handleUserFunctionCall(TIntermAggregate*);
 
-    gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned);
+    gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isSigned);
     gla::Builder::SuperValue createUnaryOperation(TOperator op, const TType& destType, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand, TBasicType);
     gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, TBasicType);
@@ -217,7 +217,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
                 gla::Builder::SuperValue leftRValue = oit->glaBuilder->accessChainLoad();
 
                 // do the operation
-                rValue = oit->createBinaryOperation(node->getOp(), leftRValue, rValue, node->getBasicType() == EbtFloat, false);
+                rValue = oit->createBinaryOperation(node->getOp(), leftRValue, rValue, false);
                 if (rValue.isClear()) {
                     switch (node->getOp()) {
                     case EOpVectorTimesMatrixAssign:
@@ -314,7 +314,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     if (left.isMatrix() || right.isMatrix())
         gla::UnsupportedFunctionality("glslang matrix operation", gla::EATContinue);
     else
-        rValue = oit->createBinaryOperation(node->getOp(), left, right, node->getBasicType() == EbtFloat, false);
+        rValue = oit->createBinaryOperation(node->getOp(), left, right, false);
 
     if (rValue.isClear()) {
         gla::UnsupportedFunctionality("glslang binary operation", gla::EATContinue);
@@ -880,23 +880,24 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
     return result;
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isFloat, bool isSigned)
+gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isSigned)
 {
     gla::Builder::SuperValue result;
     llvm::Instruction::BinaryOps binOp = llvm::Instruction::BinaryOps(0);
     bool needsPromotion = true;
+    bool leftIsFloat = (gla::GetBasicTypeID(left) == llvm::Type::FloatTyID);
 
     switch(op) {
     case EOpAdd:
     case EOpAddAssign:
-        if (isFloat)
+        if (leftIsFloat)
             binOp = llvm::Instruction::FAdd;
         else
             binOp = llvm::Instruction::Add;
         break;
     case EOpSub:
     case EOpSubAssign:
-        if (isFloat)
+        if (leftIsFloat)
             binOp = llvm::Instruction::FSub;
         else
             binOp = llvm::Instruction::Sub;
@@ -905,14 +906,14 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
     case EOpMulAssign:
     case EOpVectorTimesScalar:
     case EOpVectorTimesScalarAssign:
-        if (isFloat)
+        if (leftIsFloat)
             binOp = llvm::Instruction::FMul;
         else
             binOp = llvm::Instruction::Mul;
         break;
     case EOpDiv:
     case EOpDivAssign:
-        if (isFloat)
+        if (leftIsFloat)
             binOp = llvm::Instruction::FDiv;
         else if (isSigned)
             binOp = llvm::Instruction::SDiv;
@@ -921,7 +922,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
         break;
     case EOpMod:
     case EOpModAssign:
-        if (isFloat)
+        if (leftIsFloat)
             binOp = llvm::Instruction::FRem;
         else if (isSigned)
             binOp = llvm::Instruction::SRem;
@@ -966,7 +967,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
     }
 
     // Comparison instructions
-    if (isFloat) {
+    if (leftIsFloat) {
         llvm::FCmpInst::Predicate pred = llvm::FCmpInst::Predicate(0);
         switch (op) {
         case EOpLessThan:
@@ -1078,7 +1079,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
         break;
     case EOpConvIntToBool:
         // any non-zero integer should return true
-        return createBinaryOperation(EOpNotEqual, operand, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), false, false);
+        return createBinaryOperation(EOpNotEqual, operand, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), false);
     case EOpConvBoolToInt:
         castOp = llvm::Instruction::ZExt;
         break;
@@ -1394,8 +1395,7 @@ llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(TType& glslangType, c
         // this is where we actually consume the constants, rather than walk a tree
 
         for (unsigned int i = 0; i < glslangType.getNominalSize(); ++i) {
-            switch(consts[nextConst].getType())
-            {
+            switch(consts[nextConst].getType()) {
             case EbtInt:
                 vals.push_back(gla::MakeUnsignedConstant(context, consts[nextConst].getIConst()));
                 break;
