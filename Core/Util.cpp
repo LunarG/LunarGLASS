@@ -58,8 +58,10 @@ int GetConstantInt(const llvm::Value* value)
     
     // this might still be a constant expression, rather than a numeric constant,
     // e.g., expression with undef's in it, so it was not folded
-    if (! constantInt)
+    if (! constantInt) {
+        value->dump();
         gla::UnsupportedFunctionality("non-simple constant");
+    }
 
     return constantInt->getValue().getSExtValue();
 }
@@ -70,8 +72,10 @@ float GetConstantFloat(const llvm::Value* value)
     
     // this might still be a constant expression, rather than a numeric constant,
     // e.g., expression with undef's in it, so it was not folded
-    if (! constantFP)
+    if (! constantFP) {
+        value->dump();
         gla::UnsupportedFunctionality("non-simple constant");
+    }
 
     return constantFP->getValueAPF().convertToFloat();
 }
@@ -82,8 +86,10 @@ double GetConstantDouble(const llvm::Value* value)
         
     // this might still be a constant expression, rather than a numeric constant,
     // e.g., expression with undef's in it, so it was not folded
-    if (! constantFP)
+    if (! constantFP) {
+        value->dump();
         gla::UnsupportedFunctionality("non-simple constant");
+    }
 
     return constantFP->getValueAPF().convertToDouble();
 }

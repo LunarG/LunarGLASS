@@ -173,6 +173,9 @@ public:
     void beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count)
     { counter++; }
 
+    void beginSimpleInductiveLoop(const llvm::PHINode* phi, const llvm::Value* count)
+    { counter++; }
+
     void beginLoop()
     { counter++; }
 

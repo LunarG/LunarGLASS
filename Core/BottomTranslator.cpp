@@ -285,18 +285,24 @@ static void CreateSimpleInductiveLoop(LoopWrapper& loop, gla::BackEndTranslator&
     const Value* count = loop.getTripCount();
     assert(pn && count);
 
-    int tripCount = gla::GetConstantInt(count);
-    assert (tripCount  >= 0);
+    int tripCount = -1; // flag that we don't have a static tripCount
+    if (llvm::isa<llvm::Constant>(count)) {
+        tripCount = gla::GetConstantInt(count);
+        assert(tripCount >= 0);
+    }
 
     if (gla::Options.debug && ! gla::Options.bottomIROnly) {
         errs() << "\ninductive variable:"   << *pn;
-        errs() << "\n  trip count:        " << tripCount;
+        errs() << "\n  trip count:      " << *count;
         errs() << "\n  increment:       "   << *loop.getIncrement();
         errs() << "\n  exit condition:  "   << *loop.getInductiveExitCondition();
         errs() << "\n";
     }
 
-    bet.beginSimpleInductiveLoop(pn, tripCount);
+    if (tripCount == -1)
+        bet.beginSimpleInductiveLoop(pn, count);
+    else
+        bet.beginSimpleInductiveLoop(pn, tripCount);
 }
 
 static void CreateSimpleConditionalLoop(LoopWrapper& loop, const Value& condition, gla::BackEndTranslator& bet)

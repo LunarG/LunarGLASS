@@ -170,11 +170,17 @@ namespace gla {
 
         // Add a simple inductive loop. A simple inductive loop is a loop with
         // an inductive variable starting at 0, and incrementing by 1 through
-        // the loop until some statically known final value. A simple inductive
-        // loop also has a statically known trip count (how many times it will
-        // be executed). It is given the phi node corresponding to the induction
-        // variable, and how many times the body will be executed.
+        // the loop until some final value. 
+        //
+        // A simple inductive loop can have a statically known final value
+        // (and hence trip count), or the final value may be a dynamic value.
+        //
+        // It is given the phi node corresponding to the induction
+        // variable, and how many times the body will be executed as 
+        // a compile-time constant (for static) or an LLVM value 
+        // (for dynamic).
         virtual void beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count) = 0;
+        virtual void beginSimpleInductiveLoop(const llvm::PHINode* phi, const llvm::Value* count) = 0;
 
         // Generic loop constructs
 

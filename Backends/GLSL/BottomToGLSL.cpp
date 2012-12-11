@@ -362,6 +362,26 @@ public:
         newScope();
     }
 
+    void beginSimpleInductiveLoop(const llvm::PHINode* phi, const llvm::Value* count)
+    {
+        newLine();
+
+        shader << "for (";
+        emitGlaValue(phi);
+
+        shader << " = 0; ";
+
+        emitGlaValue(phi);
+        shader << " < ";
+        emitGlaValue(count);
+
+        shader << "; ++";
+        emitGlaValue(phi);
+        shader << ") ";
+
+        newScope();
+    }
+
     void beginInductiveLoop()
     {
         UnsupportedFunctionality("inductive loops");

@@ -99,9 +99,11 @@ ifmerge:                                          ; preds = %ifmerge, %ifmerge.l
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
-  %.pre = load i32 addrspace(2)* @Count, align 4
 
-***Unsupported functionality: non-simple constant
+inductive variable:  %indvar = phi i32 [ %indvar.next, %ifmerge ], [ 0, %ifmerge.lr.ph ]
+  trip count:        %.pre = load i32 addrspace(2)* @Count, align 4
+  increment:         %indvar.next = add i32 %indvar, 1
+  exit condition:    %exitcond = icmp eq i32 %indvar.next, %.pre
 compiling forLoop.frag...
 uniform vec4 bigColor ; 
 varying vec4 BaseColor ; 
@@ -144,3 +146,32 @@ gl_FragColor = color ; }
 
 
 )
+// LunarGOO output
+#version 130
+uniform int Count;
+uniform vec4 bigColor;
+in vec4 BaseColor;
+const int const25_0 = 0;
+vec4 color1;
+
+void main()
+{
+    vec4 color_0_lcssa;
+    int indvar;
+    vec4 color_06;
+    bool temp24 = Count > const25_0;
+    color_0_lcssa = BaseColor;
+    if (temp24) {
+        indvar = const25_0;
+        color_06 = BaseColor;
+        for (indvar = 0; indvar < Count; ++indvar) {
+            color1 = color_06 + bigColor;
+            color_06 = color1;
+        }
+        
+        color_0_lcssa = color1;
+    }
+    
+    gl_FragColor = color_0_lcssa;
+    
+}
