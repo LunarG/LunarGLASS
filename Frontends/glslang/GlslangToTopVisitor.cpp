@@ -348,14 +348,37 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
         return false; // done with this node
     }
 
+    // must be a special case, check...
     switch (node->getOp()) {
     case EOpPostIncrement:
     case EOpPostDecrement:
     case EOpPreIncrement:
-    case EOpPreDecrement:
-        gla::UnsupportedFunctionality("++/--", gla::EATContinue);
-        return false;
+    case EOpPreDecrement: {
+        // we need the integer value "1" or the floating point "1.0" to add/subtract
+        llvm::Value* one = gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID ?
+                                 gla::MakeFloatConstant(oit->context, 1.0) :
+                                 gla::MakeIntConstant(oit->context, 1);
+        TOperator op;
+        if (node->getOp() == EOpPreIncrement ||
+            node->getOp() == EOpPostIncrement)
+            op = EOpAdd;
+        else
+            op = EOpSub;
 
+        gla::Builder::SuperValue result = oit->createBinaryOperation(op, operand, one);
+
+        // The result of operation is always stored, but conditionally the 
+        // consumed result.  The consumed result is always an r-value.
+        oit->glaBuilder->accessChainStore(result);
+        oit->glaBuilder->clearAccessChain();
+        if (node->getOp() == EOpPreIncrement ||
+            node->getOp() == EOpPreDecrement)
+            oit->glaBuilder->setAccessChainRValue(result);
+        else
+            oit->glaBuilder->setAccessChainRValue(operand);
+
+        return false;
+    }
     default:
         gla::UnsupportedFunctionality("glslang unary", gla::EATContinue);
         return false;

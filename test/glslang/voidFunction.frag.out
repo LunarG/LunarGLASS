@@ -1,8 +1,4 @@
 
-***Unsupported functionality: ++/--
-
-***Unsupported functionality: ++/--
-
 Top IR:
 ; ModuleID = 'Top'
 
@@ -44,6 +40,8 @@ stage-exit:                                       ; preds = %stage-epilogue
 define internal fastcc void @"foo("() alwaysinline {
 entry:
   %0 = load float* @bar
+  %bar = fadd float %0, 1.000000e+00
+  store float %bar, float* @bar
   ret void
 
 post-return:                                      ; No predecessors!
@@ -53,6 +51,8 @@ post-return:                                      ; No predecessors!
 define internal fastcc void @"foo2("() alwaysinline {
 entry:
   %0 = load float* @bar
+  %bar = fadd float %0, 1.000000e+00
+  store float %bar, float* @bar
   ret void
 }
 
@@ -68,7 +68,7 @@ define fastcc void @main() {
 entry:
   %outColor1 = load <4 x float> addrspace(2)* @bigColor, align 16
   %0 = extractelement <4 x float> %outColor1, i32 0
-  %1 = fadd float %0, 2.000000e+00
+  %1 = fadd float %0, 4.000000e+00
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outColor1, i32 1, float %1, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %2)
   br label %stage-epilogue
@@ -87,11 +87,11 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 // LunarGOO(r471) output
 #version 130
 uniform vec4 bigColor;
-const float const22_2f = 2.0;
+const float const22_4f = 4.0;
 
 void main()
 {
-    float temp21 = bigColor.x + const22_2f;
+    float temp21 = bigColor.x + const22_4f;
     vec4 temp23 = bigColor;
     temp23.x = temp21;
     gl_FragColor = temp23;
