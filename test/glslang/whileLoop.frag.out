@@ -1,9 +1,9 @@
 
-***Unsupported functionality: glslang loops
-
 Top IR:
 ; ModuleID = 'Top'
 
+@d = external addrspace(2) constant float
+@bigColor = external addrspace(2) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -11,13 +11,40 @@ entry:
   %color = alloca <4 x float>
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   store <4 x float> %BaseColor, <4 x float>* %color
+  br label %loop-header
+
+loop-header:                                      ; preds = %post-loop-continue, %ifmerge, %entry
+  %0 = load <4 x float>* %color
+  %1 = extractelement <4 x float> %0, i32 0
+  %2 = load float addrspace(2)* @d
+  %3 = fcmp olt float %1, %2
+  %4 = xor i1 %3, true
+  br i1 %4, label %then, label %ifmerge
+
+then:                                             ; preds = %loop-header
+  br label %loop-merge
+
+post-loop-break:                                  ; No predecessors!
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %loop-header, %post-loop-break
+  %5 = load <4 x float> addrspace(2)* @bigColor
+  %6 = load <4 x float>* %color
+  %color1 = fadd <4 x float> %6, %5
+  store <4 x float> %color1, <4 x float>* %color
+  br label %loop-header
+
+post-loop-continue:                               ; No predecessors!
+  br label %loop-header
+
+loop-merge:                                       ; preds = %then
   %gl_FragColor = load <4 x float>* %color
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
-  %0 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %0)
+stage-epilogue:                                   ; preds = %loop-merge
+  %7 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %7)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -32,17 +59,35 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
+@d = external addrspace(2) constant float
+@bigColor = external addrspace(2) constant <4 x float>
+
 define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %BaseColor)
+  %.pre = load float addrspace(2)* @d, align 4
+  %0 = load <4 x float> addrspace(2)* @bigColor, align 16
+  br label %loop-header
+
+loop-header:                                      ; preds = %ifmerge, %entry
+  %color.0 = phi <4 x float> [ %BaseColor, %entry ], [ %color1, %ifmerge ]
+  %1 = extractelement <4 x float> %color.0, i32 0
+  %2 = fcmp uge float %1, %.pre
+  br i1 %2, label %then, label %ifmerge
+
+then:                                             ; preds = %loop-header
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %color.0)
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %then
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
+
+ifmerge:                                          ; preds = %loop-header
+  %color1 = fadd <4 x float> %color.0, %0
+  br label %loop-header
 }
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
@@ -51,11 +96,20 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 // LunarGOO(r471) output
 #version 130
+uniform float d;
+uniform vec4 bigColor;
 in vec4 BaseColor;
 
 void main()
 {
-    gl_FragColor = BaseColor;
+    vec4 color_0;
+    color_0 = BaseColor;
+    while (! (color_0.x >= d)){
+        vec4 color1 = color_0 + bigColor;
+        color_0 = color1;
+    }
+    
+    gl_FragColor = color_0;
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####

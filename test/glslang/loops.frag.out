@@ -1,183 +1,1607 @@
 
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
-***Unsupported functionality: glslang loops
-
 Top IR:
 ; ModuleID = 'Top'
 
+@d = external addrspace(2) constant float
+@bigColor = external addrspace(2) constant <4 x float>
+@bigColor1_1 = external addrspace(2) constant <4 x float>
+@d2 = external addrspace(2) constant float
+@d3 = external addrspace(2) constant float
+@bigColor1_2 = external addrspace(2) constant <4 x float>
+@bigColor1_3 = external addrspace(2) constant <4 x float>
+@d4 = external addrspace(2) constant float
+@Count = external addrspace(2) constant i32
+@bigColor2 = external addrspace(2) constant <4 x float>
+@bigColor3 = external addrspace(2) constant <4 x float>
+@bigColor4 = external addrspace(2) constant <4 x float>
+@bigColor5 = external addrspace(2) constant <4 x float>
+@d5 = external addrspace(2) constant float
 @d6 = external addrspace(2) constant float
+@bigColor6 = external addrspace(2) constant <4 x float>
+@d7 = external addrspace(2) constant float
+@bigColor7 = external addrspace(2) constant <4 x float>
+@d8 = external addrspace(2) constant float
+@d9 = external addrspace(2) constant float
+@d10 = external addrspace(2) constant float
+@d11 = external addrspace(2) constant float
+@d12 = external addrspace(2) constant float
+@bigColor8 = external addrspace(2) constant <4 x float>
+@d13 = external addrspace(2) constant float
 @gl_FragColor = internal global <4 x float> zeroinitializer
+@d14 = external addrspace(2) constant float
+@d15 = external addrspace(2) constant float
+@d16 = external addrspace(2) constant float
+@d18 = external addrspace(2) constant float
+@d17 = external addrspace(2) constant float
 
 define fastcc void @main() {
 entry:
-  %i5 = alloca i32
-  %i4 = alloca i32
-  %i3 = alloca i32
-  %i2 = alloca i32
-  %i1 = alloca i32
+  %i120 = alloca i32
+  %i107 = alloca i32
+  %i94 = alloca i32
+  %i78 = alloca i32
+  %i69 = alloca i32
   %i = alloca i32
   %color = alloca <4 x float>
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   store <4 x float> %BaseColor, <4 x float>* %color
-  store i32 0, i32* %i
-  store i32 0, i32* %i1
-  store i32 0, i32* %i2
-  store i32 0, i32* %i3
-  store i32 0, i32* %i4
-  store i32 0, i32* %i5
+  br label %loop-header
+
+loop-header:                                      ; preds = %post-loop-continue, %post-loop-break10, %entry
+  br i1 false, label %then, label %ifmerge
+
+then:                                             ; preds = %loop-header
+  br label %loop-merge
+
+post-loop-break:                                  ; No predecessors!
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %loop-header, %post-loop-break
   %0 = load <4 x float>* %color
   %1 = extractelement <4 x float> %0, i32 0
-  %2 = load float addrspace(2)* @d6
-  %3 = fcmp olt float %1, %2
-  br i1 %3, label %then, label %else
+  %2 = fcmp olt float %1, 0x3FD51EB860000000
+  br i1 %2, label %then1, label %ifmerge4
 
-then:                                             ; preds = %entry
-  br label %ifmerge
+then1:                                            ; preds = %ifmerge
+  %3 = load <4 x float>* %color
+  %color2 = fadd <4 x float> %3, <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>
+  store <4 x float> %color2, <4 x float>* %color
+  br label %loop-merge
 
-else:                                             ; preds = %entry
-  br label %ifmerge
+post-loop-break3:                                 ; No predecessors!
+  br label %ifmerge4
 
-ifmerge:                                          ; preds = %else, %then
+ifmerge4:                                         ; preds = %ifmerge, %post-loop-break3
   %4 = load <4 x float>* %color
   %5 = extractelement <4 x float> %4, i32 0
-  %6 = load float addrspace(2)* @d6
-  %7 = fcmp olt float %5, %6
-  br i1 %7, label %then6, label %else7
+  %6 = fcmp olt float %5, 0x3FE51EB860000000
+  br i1 %6, label %then5, label %ifmerge8
 
-then6:                                            ; preds = %ifmerge
+then5:                                            ; preds = %ifmerge4
+  %7 = load <4 x float>* %color
+  %color6 = fadd <4 x float> %7, <float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000>
+  store <4 x float> %color6, <4 x float>* %color
+  br label %loop-merge
+
+post-loop-break7:                                 ; No predecessors!
   br label %ifmerge8
 
-else7:                                            ; preds = %ifmerge
-  br label %ifmerge8
-
-ifmerge8:                                         ; preds = %else7, %then6
+ifmerge8:                                         ; preds = %ifmerge4, %post-loop-break7
   %8 = load <4 x float>* %color
-  %color9 = fadd <4 x float> %8, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  %color9 = fadd <4 x float> %8, <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>
   store <4 x float> %color9, <4 x float>* %color
+  br label %loop-merge
+
+post-loop-break10:                                ; No predecessors!
+  br label %loop-header
+
+post-loop-continue:                               ; No predecessors!
+  br label %loop-header
+
+loop-merge:                                       ; preds = %ifmerge8, %then5, %then1, %then
+  br label %loop-header11
+
+loop-header11:                                    ; preds = %post-loop-continue16, %ifmerge14, %loop-merge
+  %9 = load <4 x float>* %color
+  %10 = extractelement <4 x float> %9, i32 0
+  %11 = load float addrspace(2)* @d
+  %12 = fcmp olt float %10, %11
+  %13 = xor i1 %12, true
+  br i1 %13, label %then12, label %ifmerge14
+
+then12:                                           ; preds = %loop-header11
+  br label %loop-merge17
+
+post-loop-break13:                                ; No predecessors!
+  br label %ifmerge14
+
+ifmerge14:                                        ; preds = %loop-header11, %post-loop-break13
+  %14 = load <4 x float> addrspace(2)* @bigColor
+  %15 = load <4 x float>* %color
+  %color15 = fadd <4 x float> %15, %14
+  store <4 x float> %color15, <4 x float>* %color
+  br label %loop-header11
+
+post-loop-continue16:                             ; No predecessors!
+  br label %loop-header11
+
+loop-merge17:                                     ; preds = %then12
+  br label %loop-header18
+
+loop-header18:                                    ; preds = %post-loop-continue27, %ifmerge25, %then23, %loop-merge17
+  %16 = load <4 x float>* %color
+  %17 = extractelement <4 x float> %16, i32 2
+  %18 = load float addrspace(2)* @d
+  %19 = fcmp olt float %17, %18
+  %20 = xor i1 %19, true
+  br i1 %20, label %then19, label %ifmerge21
+
+then19:                                           ; preds = %loop-header18
+  br label %loop-merge28
+
+post-loop-break20:                                ; No predecessors!
+  br label %ifmerge21
+
+ifmerge21:                                        ; preds = %loop-header18, %post-loop-break20
+  %21 = load <4 x float> addrspace(2)* @bigColor1_1
+  %22 = load <4 x float>* %color
+  %color22 = fadd <4 x float> %22, %21
+  store <4 x float> %color22, <4 x float>* %color
+  %23 = load <4 x float>* %color
+  %24 = extractelement <4 x float> %23, i32 3
+  %25 = load float addrspace(2)* @d
+  %26 = fcmp olt float %24, %25
+  br i1 %26, label %then23, label %ifmerge25
+
+then23:                                           ; preds = %ifmerge21
+  br label %loop-header18
+
+post-loop-continue24:                             ; No predecessors!
+  br label %ifmerge25
+
+ifmerge25:                                        ; preds = %ifmerge21, %post-loop-continue24
+  %27 = load <4 x float> addrspace(2)* @bigColor1_1
+  %28 = load <4 x float>* %color
+  %color26 = fadd <4 x float> %28, %27
+  store <4 x float> %color26, <4 x float>* %color
+  br label %loop-header18
+
+post-loop-continue27:                             ; No predecessors!
+  br label %loop-header18
+
+loop-merge28:                                     ; preds = %then19
+  br label %loop-header29
+
+loop-header29:                                    ; preds = %post-loop-continue34, %ifmerge32, %loop-merge28
+  %29 = load <4 x float>* %color
+  %30 = extractelement <4 x float> %29, i32 0
+  %31 = fcmp olt float %30, 4.200000e+01
+  %32 = xor i1 %31, true
+  br i1 %32, label %then30, label %ifmerge32
+
+then30:                                           ; preds = %loop-header29
+  br label %loop-merge35
+
+post-loop-break31:                                ; No predecessors!
+  br label %ifmerge32
+
+ifmerge32:                                        ; preds = %loop-header29, %post-loop-break31
+  %33 = load <4 x float>* %color
+  %color33 = fadd <4 x float> %33, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color33, <4 x float>* %color
+  br label %loop-header29
+
+post-loop-continue34:                             ; No predecessors!
+  br label %loop-header29
+
+loop-merge35:                                     ; preds = %then30
+  br label %loop-header36
+
+loop-header36:                                    ; preds = %post-loop-continue41, %ifmerge39, %loop-merge35
+  %34 = load <4 x float>* %color
+  %35 = extractelement <4 x float> %34, i32 3
+  %36 = load float addrspace(2)* @d2
+  %37 = fcmp olt float %35, %36
+  %38 = load <4 x float>* %color
+  %39 = extractelement <4 x float> %38, i32 1
+  %40 = load float addrspace(2)* @d3
+  %41 = fcmp olt float %39, %40
+  %42 = and i1 %37, %41
+  %43 = xor i1 %42, true
+  br i1 %43, label %then37, label %ifmerge39
+
+then37:                                           ; preds = %loop-header36
+  br label %loop-merge42
+
+post-loop-break38:                                ; No predecessors!
+  br label %ifmerge39
+
+ifmerge39:                                        ; preds = %loop-header36, %post-loop-break38
+  %44 = load <4 x float> addrspace(2)* @bigColor1_2
+  %45 = load <4 x float>* %color
+  %color40 = fadd <4 x float> %45, %44
+  store <4 x float> %color40, <4 x float>* %color
+  br label %loop-header36
+
+post-loop-continue41:                             ; No predecessors!
+  br label %loop-header36
+
+loop-merge42:                                     ; preds = %then37
+  br label %loop-header43
+
+loop-header43:                                    ; preds = %post-loop-continue52, %ifmerge50, %loop-merge42
+  %46 = load <4 x float>* %color
+  %47 = extractelement <4 x float> %46, i32 2
+  %48 = load float addrspace(2)* @d3
+  %49 = fcmp olt float %47, %48
+  %50 = xor i1 %49, true
+  br i1 %50, label %then44, label %ifmerge46
+
+then44:                                           ; preds = %loop-header43
+  br label %loop-merge53
+
+post-loop-break45:                                ; No predecessors!
+  br label %ifmerge46
+
+ifmerge46:                                        ; preds = %loop-header43, %post-loop-break45
+  %51 = load <4 x float> addrspace(2)* @bigColor1_3
+  %52 = load <4 x float>* %color
+  %color47 = fadd <4 x float> %52, %51
+  store <4 x float> %color47, <4 x float>* %color
+  %53 = load <4 x float>* %color
+  %54 = extractelement <4 x float> %53, i32 1
+  %55 = load float addrspace(2)* @d4
+  %56 = fcmp olt float %54, %55
+  br i1 %56, label %then48, label %ifmerge50
+
+then48:                                           ; preds = %ifmerge46
+  br label %loop-merge53
+
+post-loop-break49:                                ; No predecessors!
+  br label %ifmerge50
+
+ifmerge50:                                        ; preds = %ifmerge46, %post-loop-break49
+  %57 = load <4 x float> addrspace(2)* @bigColor1_3
+  %58 = load <4 x float>* %color
+  %color51 = fadd <4 x float> %58, %57
+  store <4 x float> %color51, <4 x float>* %color
+  br label %loop-header43
+
+post-loop-continue52:                             ; No predecessors!
+  br label %loop-header43
+
+loop-merge53:                                     ; preds = %then48, %then44
+  store i32 0, i32* %i
+  br label %loop-header54
+
+loop-header54:                                    ; preds = %post-loop-continue60, %ifmerge57, %loop-merge53
+  %59 = load i32* %i
+  %60 = load i32 addrspace(2)* @Count
+  %61 = icmp slt i32 %59, %60
+  %62 = xor i1 %61, true
+  br i1 %62, label %then55, label %ifmerge57
+
+then55:                                           ; preds = %loop-header54
+  br label %loop-merge61
+
+post-loop-break56:                                ; No predecessors!
+  br label %ifmerge57
+
+ifmerge57:                                        ; preds = %loop-header54, %post-loop-break56
+  %63 = load <4 x float> addrspace(2)* @bigColor2
+  %64 = load <4 x float>* %color
+  %color58 = fadd <4 x float> %64, %63
+  store <4 x float> %color58, <4 x float>* %color
+  %65 = load i32* %i
+  %i59 = add i32 %65, 1
+  store i32 %i59, i32* %i
+  br label %loop-header54
+
+post-loop-continue60:                             ; No predecessors!
+  br label %loop-header54
+
+loop-merge61:                                     ; preds = %then55
+  br label %loop-header62
+
+loop-header62:                                    ; preds = %post-loop-continue67, %ifmerge66, %loop-merge61
+  %66 = load <4 x float> addrspace(2)* @bigColor3
+  %67 = load <4 x float>* %color
+  %color63 = fadd <4 x float> %67, %66
+  store <4 x float> %color63, <4 x float>* %color
+  %68 = load <4 x float>* %color
+  %69 = extractelement <4 x float> %68, i32 0
+  %70 = load float addrspace(2)* @d2
+  %71 = fcmp olt float %69, %70
+  %72 = xor i1 %71, true
+  br i1 %72, label %then64, label %ifmerge66
+
+then64:                                           ; preds = %loop-header62
+  br label %loop-merge68
+
+post-loop-break65:                                ; No predecessors!
+  br label %ifmerge66
+
+ifmerge66:                                        ; preds = %loop-header62, %post-loop-break65
+  br label %loop-header62
+
+post-loop-continue67:                             ; No predecessors!
+  br label %loop-header62
+
+loop-merge68:                                     ; preds = %then64
+  store i32 0, i32* %i69
+  br label %loop-header70
+
+loop-header70:                                    ; preds = %post-loop-continue76, %ifmerge73, %loop-merge68
+  %73 = load i32* %i69
+  %74 = icmp slt i32 %73, 42
+  %75 = xor i1 %74, true
+  br i1 %75, label %then71, label %ifmerge73
+
+then71:                                           ; preds = %loop-header70
+  br label %loop-merge77
+
+post-loop-break72:                                ; No predecessors!
+  br label %ifmerge73
+
+ifmerge73:                                        ; preds = %loop-header70, %post-loop-break72
+  %76 = load float addrspace(2)* @d3
+  %77 = load <4 x float>* %color
+  %78 = extractelement <4 x float> %77, i32 2
+  %79 = fadd float %78, %76
+  %80 = load <4 x float>* %color
+  %color74 = insertelement <4 x float> %80, float %79, i32 2
+  store <4 x float> %color74, <4 x float>* %color
+  %81 = load i32* %i69
+  %i6975 = add i32 %81, 1
+  store i32 %i6975, i32* %i69
+  br label %loop-header70
+
+post-loop-continue76:                             ; No predecessors!
+  br label %loop-header70
+
+loop-merge77:                                     ; preds = %then71
+  store i32 0, i32* %i78
+  br label %loop-header79
+
+loop-header79:                                    ; preds = %post-loop-continue92, %ifmerge90, %loop-merge77
+  %82 = load i32* %i78
+  %83 = icmp slt i32 %82, 100
+  %84 = xor i1 %83, true
+  br i1 %84, label %then80, label %ifmerge82
+
+then80:                                           ; preds = %loop-header79
+  br label %loop-merge93
+
+post-loop-break81:                                ; No predecessors!
+  br label %ifmerge82
+
+ifmerge82:                                        ; preds = %loop-header79, %post-loop-break81
+  %85 = load <4 x float>* %color
+  %86 = extractelement <4 x float> %85, i32 2
+  %87 = fcmp olt float %86, 2.000000e+01
+  br i1 %87, label %then83, label %else
+
+then83:                                           ; preds = %ifmerge82
+  %88 = load <4 x float>* %color
+  %89 = extractelement <4 x float> %88, i32 0
+  %90 = fadd float %89, 1.000000e+00
+  %91 = load <4 x float>* %color
+  %color84 = insertelement <4 x float> %91, float %90, i32 0
+  store <4 x float> %color84, <4 x float>* %color
+  br label %ifmerge86
+
+else:                                             ; preds = %ifmerge82
+  %92 = load <4 x float>* %color
+  %93 = extractelement <4 x float> %92, i32 1
+  %94 = fadd float %93, 1.000000e+00
+  %95 = load <4 x float>* %color
+  %color85 = insertelement <4 x float> %95, float %94, i32 1
+  store <4 x float> %color85, <4 x float>* %color
+  br label %ifmerge86
+
+ifmerge86:                                        ; preds = %else, %then83
+  %96 = load <4 x float>* %color
+  %97 = extractelement <4 x float> %96, i32 3
+  %98 = fcmp olt float %97, 2.000000e+01
+  br i1 %98, label %then87, label %ifmerge90
+
+then87:                                           ; preds = %ifmerge86
+  %99 = load <4 x float>* %color
+  %100 = extractelement <4 x float> %99, i32 2
+  %101 = load <4 x float>* %color
+  %102 = extractelement <4 x float> %101, i32 1
+  %103 = fcmp ogt float %100, %102
+  br i1 %103, label %then88, label %ifmerge89
+
+then88:                                           ; preds = %then87
+  br label %ifmerge89
+
+ifmerge89:                                        ; preds = %then87, %then88
+  br label %ifmerge90
+
+ifmerge90:                                        ; preds = %ifmerge86, %ifmerge89
+  %104 = load i32* %i78
+  %i7891 = add i32 %104, 1
+  store i32 %i7891, i32* %i78
+  br label %loop-header79
+
+post-loop-continue92:                             ; No predecessors!
+  br label %loop-header79
+
+loop-merge93:                                     ; preds = %then80
+  store i32 0, i32* %i94
+  br label %loop-header95
+
+loop-header95:                                    ; preds = %post-loop-continue105, %ifmerge103, %loop-merge93
+  %105 = load i32* %i94
+  %106 = icmp slt i32 %105, 120
+  %107 = xor i1 %106, true
+  br i1 %107, label %then96, label %ifmerge98
+
+then96:                                           ; preds = %loop-header95
+  br label %loop-merge106
+
+post-loop-break97:                                ; No predecessors!
+  br label %ifmerge98
+
+ifmerge98:                                        ; preds = %loop-header95, %post-loop-break97
+  %108 = load <4 x float>* %color
+  %109 = extractelement <4 x float> %108, i32 2
+  %110 = fcmp olt float %109, 2.000000e+01
+  br i1 %110, label %then99, label %else101
+
+then99:                                           ; preds = %ifmerge98
+  %111 = load <4 x float>* %color
+  %112 = extractelement <4 x float> %111, i32 0
+  %113 = fadd float %112, 1.000000e+00
+  %114 = load <4 x float>* %color
+  %color100 = insertelement <4 x float> %114, float %113, i32 0
+  store <4 x float> %color100, <4 x float>* %color
+  br label %ifmerge103
+
+else101:                                          ; preds = %ifmerge98
+  %115 = load <4 x float>* %color
+  %116 = extractelement <4 x float> %115, i32 1
+  %117 = fadd float %116, 1.000000e+00
+  %118 = load <4 x float>* %color
+  %color102 = insertelement <4 x float> %118, float %117, i32 1
+  store <4 x float> %color102, <4 x float>* %color
+  br label %ifmerge103
+
+ifmerge103:                                       ; preds = %else101, %then99
+  %119 = load i32* %i94
+  %i94104 = add i32 %119, 1
+  store i32 %i94104, i32* %i94
+  br label %loop-header95
+
+post-loop-continue105:                            ; No predecessors!
+  br label %loop-header95
+
+loop-merge106:                                    ; preds = %then96
+  store i32 0, i32* %i107
+  br label %loop-header108
+
+loop-header108:                                   ; preds = %post-loop-continue118, %ifmerge115, %then113, %loop-merge106
+  %120 = load i32* %i107
+  %121 = icmp slt i32 %120, 42
+  %122 = xor i1 %121, true
+  br i1 %122, label %then109, label %ifmerge111
+
+then109:                                          ; preds = %loop-header108
+  br label %loop-merge119
+
+post-loop-break110:                               ; No predecessors!
+  br label %ifmerge111
+
+ifmerge111:                                       ; preds = %loop-header108, %post-loop-break110
+  %123 = load float addrspace(2)* @d3
+  %124 = load <4 x float>* %color
+  %125 = extractelement <4 x float> %124, i32 2
+  %126 = fadd float %125, %123
+  %127 = load <4 x float>* %color
+  %color112 = insertelement <4 x float> %127, float %126, i32 2
+  store <4 x float> %color112, <4 x float>* %color
+  %128 = load <4 x float>* %color
+  %129 = extractelement <4 x float> %128, i32 0
+  %130 = load float addrspace(2)* @d4
+  %131 = fcmp olt float %129, %130
+  br i1 %131, label %then113, label %ifmerge115
+
+then113:                                          ; preds = %ifmerge111
+  br label %loop-header108
+
+post-loop-continue114:                            ; No predecessors!
+  br label %ifmerge115
+
+ifmerge115:                                       ; preds = %ifmerge111, %post-loop-continue114
+  %132 = load <4 x float>* %color
+  %133 = extractelement <4 x float> %132, i32 3
+  %134 = fadd float %133, 1.000000e+00
+  %135 = load <4 x float>* %color
+  %color116 = insertelement <4 x float> %135, float %134, i32 3
+  store <4 x float> %color116, <4 x float>* %color
+  %136 = load i32* %i107
+  %i107117 = add i32 %136, 1
+  store i32 %i107117, i32* %i107
+  br label %loop-header108
+
+post-loop-continue118:                            ; No predecessors!
+  br label %loop-header108
+
+loop-merge119:                                    ; preds = %then109
+  store i32 0, i32* %i120
+  br label %loop-header121
+
+loop-header121:                                   ; preds = %post-loop-continue131, %ifmerge128, %loop-merge119
+  %137 = load i32* %i120
+  %138 = icmp slt i32 %137, 42
+  %139 = xor i1 %138, true
+  br i1 %139, label %then122, label %ifmerge124
+
+then122:                                          ; preds = %loop-header121
+  br label %loop-merge132
+
+post-loop-break123:                               ; No predecessors!
+  br label %ifmerge124
+
+ifmerge124:                                       ; preds = %loop-header121, %post-loop-break123
+  %140 = load float addrspace(2)* @d3
+  %141 = load <4 x float>* %color
+  %142 = extractelement <4 x float> %141, i32 2
+  %143 = fadd float %142, %140
+  %144 = load <4 x float>* %color
+  %color125 = insertelement <4 x float> %144, float %143, i32 2
+  store <4 x float> %color125, <4 x float>* %color
+  %145 = load <4 x float>* %color
+  %146 = extractelement <4 x float> %145, i32 0
+  %147 = load float addrspace(2)* @d4
+  %148 = fcmp olt float %146, %147
+  br i1 %148, label %then126, label %ifmerge128
+
+then126:                                          ; preds = %ifmerge124
+  br label %loop-merge132
+
+post-loop-break127:                               ; No predecessors!
+  br label %ifmerge128
+
+ifmerge128:                                       ; preds = %ifmerge124, %post-loop-break127
+  %149 = load <4 x float>* %color
+  %150 = extractelement <4 x float> %149, i32 3
+  %151 = fadd float %150, 1.000000e+00
+  %152 = load <4 x float>* %color
+  %color129 = insertelement <4 x float> %152, float %151, i32 3
+  store <4 x float> %color129, <4 x float>* %color
+  %153 = load i32* %i120
+  %i120130 = add i32 %153, 1
+  store i32 %i120130, i32* %i120
+  br label %loop-header121
+
+post-loop-continue131:                            ; No predecessors!
+  br label %loop-header121
+
+loop-merge132:                                    ; preds = %then126, %then122
+  br label %loop-header133
+
+loop-header133:                                   ; preds = %post-loop-continue146, %ifmerge145, %then135, %loop-merge132
+  %154 = load <4 x float> addrspace(2)* @bigColor4
+  %155 = load <4 x float>* %color
+  %color134 = fadd <4 x float> %155, %154
+  store <4 x float> %color134, <4 x float>* %color
+  %156 = load <4 x float>* %color
+  %157 = extractelement <4 x float> %156, i32 0
+  %158 = load float addrspace(2)* @d4
+  %159 = fcmp olt float %157, %158
+  br i1 %159, label %then135, label %ifmerge137
+
+then135:                                          ; preds = %loop-header133
+  br label %loop-header133
+
+post-loop-continue136:                            ; No predecessors!
+  br label %ifmerge137
+
+ifmerge137:                                       ; preds = %loop-header133, %post-loop-continue136
+  %160 = load <4 x float>* %color
+  %161 = extractelement <4 x float> %160, i32 1
+  %162 = load float addrspace(2)* @d4
+  %163 = fcmp olt float %161, %162
+  br i1 %163, label %then138, label %else140
+
+then138:                                          ; preds = %ifmerge137
+  %164 = load float addrspace(2)* @d4
+  %165 = load <4 x float>* %color
+  %166 = extractelement <4 x float> %165, i32 1
+  %167 = fadd float %166, %164
+  %168 = load <4 x float>* %color
+  %color139 = insertelement <4 x float> %168, float %167, i32 1
+  store <4 x float> %color139, <4 x float>* %color
+  br label %ifmerge142
+
+else140:                                          ; preds = %ifmerge137
+  %169 = load float addrspace(2)* @d4
+  %170 = load <4 x float>* %color
+  %171 = extractelement <4 x float> %170, i32 0
+  %172 = fadd float %171, %169
+  %173 = load <4 x float>* %color
+  %color141 = insertelement <4 x float> %173, float %172, i32 0
+  store <4 x float> %color141, <4 x float>* %color
+  br label %ifmerge142
+
+ifmerge142:                                       ; preds = %else140, %then138
+  %174 = load <4 x float>* %color
+  %175 = extractelement <4 x float> %174, i32 2
+  %176 = load float addrspace(2)* @d4
+  %177 = fcmp olt float %175, %176
+  %178 = xor i1 %177, true
+  br i1 %178, label %then143, label %ifmerge145
+
+then143:                                          ; preds = %ifmerge142
+  br label %loop-merge147
+
+post-loop-break144:                               ; No predecessors!
+  br label %ifmerge145
+
+ifmerge145:                                       ; preds = %ifmerge142, %post-loop-break144
+  br label %loop-header133
+
+post-loop-continue146:                            ; No predecessors!
+  br label %loop-header133
+
+loop-merge147:                                    ; preds = %then143
+  br label %loop-header148
+
+loop-header148:                                   ; preds = %post-loop-continue165, %ifmerge164, %then152, %loop-merge147
+  %179 = load <4 x float> addrspace(2)* @bigColor4
+  %180 = load <4 x float>* %color
+  %color149 = fadd <4 x float> %180, %179
+  store <4 x float> %color149, <4 x float>* %color
+  %181 = load <4 x float>* %color
+  %182 = extractelement <4 x float> %181, i32 0
+  %183 = load float addrspace(2)* @d4
+  %184 = fcmp olt float %182, %183
+  br i1 %184, label %then150, label %ifmerge156
+
+then150:                                          ; preds = %loop-header148
+  %185 = load <4 x float>* %color
+  %186 = extractelement <4 x float> %185, i32 2
+  %187 = fadd float %186, 2.000000e+00
+  %188 = load <4 x float>* %color
+  %color151 = insertelement <4 x float> %188, float %187, i32 2
+  store <4 x float> %color151, <4 x float>* %color
+  %189 = load <4 x float>* %color
+  %190 = extractelement <4 x float> %189, i32 2
+  %191 = load float addrspace(2)* @d4
+  %192 = fcmp olt float %190, %191
+  br i1 %192, label %then152, label %ifmerge155
+
+then152:                                          ; preds = %then150
+  %193 = load <4 x float>* %color
+  %194 = extractelement <4 x float> %193, i32 0
+  %195 = fadd float %194, 1.000000e+00
+  %196 = load <4 x float>* %color
+  %color153 = insertelement <4 x float> %196, float %195, i32 0
+  store <4 x float> %color153, <4 x float>* %color
+  br label %loop-header148
+
+post-loop-continue154:                            ; No predecessors!
+  br label %ifmerge155
+
+ifmerge155:                                       ; preds = %then150, %post-loop-continue154
+  br label %ifmerge156
+
+ifmerge156:                                       ; preds = %loop-header148, %ifmerge155
+  %197 = load <4 x float>* %color
+  %198 = extractelement <4 x float> %197, i32 1
+  %199 = load float addrspace(2)* @d4
+  %200 = fcmp olt float %198, %199
+  br i1 %200, label %then157, label %else159
+
+then157:                                          ; preds = %ifmerge156
+  %201 = load float addrspace(2)* @d4
+  %202 = load <4 x float>* %color
+  %203 = extractelement <4 x float> %202, i32 1
+  %204 = fadd float %203, %201
+  %205 = load <4 x float>* %color
+  %color158 = insertelement <4 x float> %205, float %204, i32 1
+  store <4 x float> %color158, <4 x float>* %color
+  br label %ifmerge161
+
+else159:                                          ; preds = %ifmerge156
+  %206 = load float addrspace(2)* @d4
+  %207 = load <4 x float>* %color
+  %208 = extractelement <4 x float> %207, i32 0
+  %209 = fadd float %208, %206
+  %210 = load <4 x float>* %color
+  %color160 = insertelement <4 x float> %210, float %209, i32 0
+  store <4 x float> %color160, <4 x float>* %color
+  br label %ifmerge161
+
+ifmerge161:                                       ; preds = %else159, %then157
+  %211 = load <4 x float>* %color
+  %212 = extractelement <4 x float> %211, i32 2
+  %213 = load float addrspace(2)* @d4
+  %214 = fcmp olt float %212, %213
+  %215 = xor i1 %214, true
+  br i1 %215, label %then162, label %ifmerge164
+
+then162:                                          ; preds = %ifmerge161
+  br label %loop-merge166
+
+post-loop-break163:                               ; No predecessors!
+  br label %ifmerge164
+
+ifmerge164:                                       ; preds = %ifmerge161, %post-loop-break163
+  br label %loop-header148
+
+post-loop-continue165:                            ; No predecessors!
+  br label %loop-header148
+
+loop-merge166:                                    ; preds = %then162
+  br label %loop-header167
+
+loop-header167:                                   ; preds = %post-loop-continue175, %ifmerge174, %loop-merge166
+  %216 = load <4 x float> addrspace(2)* @bigColor5
+  %217 = load <4 x float>* %color
+  %color168 = fadd <4 x float> %217, %216
+  store <4 x float> %color168, <4 x float>* %color
+  %218 = load <4 x float>* %color
+  %219 = extractelement <4 x float> %218, i32 1
+  %220 = load float addrspace(2)* @d5
+  %221 = fcmp olt float %219, %220
+  br i1 %221, label %then169, label %ifmerge171
+
+then169:                                          ; preds = %loop-header167
+  %222 = load float addrspace(2)* @d5
+  %223 = load <4 x float>* %color
+  %224 = extractelement <4 x float> %223, i32 1
+  %225 = fadd float %224, %222
+  %226 = load <4 x float>* %color
+  %color170 = insertelement <4 x float> %226, float %225, i32 1
+  store <4 x float> %color170, <4 x float>* %color
+  br label %ifmerge171
+
+ifmerge171:                                       ; preds = %loop-header167, %then169
+  %227 = load <4 x float>* %color
+  %228 = extractelement <4 x float> %227, i32 0
+  %229 = load float addrspace(2)* @d5
+  %230 = fcmp olt float %228, %229
+  %231 = xor i1 %230, true
+  br i1 %231, label %then172, label %ifmerge174
+
+then172:                                          ; preds = %ifmerge171
+  br label %loop-merge176
+
+post-loop-break173:                               ; No predecessors!
+  br label %ifmerge174
+
+ifmerge174:                                       ; preds = %ifmerge171, %post-loop-break173
+  br label %loop-header167
+
+post-loop-continue175:                            ; No predecessors!
+  br label %loop-header167
+
+loop-merge176:                                    ; preds = %then172
+  %232 = load <4 x float>* %color
+  %233 = extractelement <4 x float> %232, i32 0
+  %234 = load float addrspace(2)* @d6
+  %235 = fcmp olt float %233, %234
+  br i1 %235, label %then177, label %else185
+
+then177:                                          ; preds = %loop-merge176
+  br label %loop-header178
+
+loop-header178:                                   ; preds = %post-loop-continue183, %ifmerge181, %then177
+  %236 = load <4 x float>* %color
+  %237 = extractelement <4 x float> %236, i32 1
+  %238 = load float addrspace(2)* @d6
+  %239 = fcmp olt float %237, %238
+  %240 = xor i1 %239, true
+  br i1 %240, label %then179, label %ifmerge181
+
+then179:                                          ; preds = %loop-header178
+  br label %loop-merge184
+
+post-loop-break180:                               ; No predecessors!
+  br label %ifmerge181
+
+ifmerge181:                                       ; preds = %loop-header178, %post-loop-break180
+  %241 = load <4 x float> addrspace(2)* @bigColor6
+  %242 = load <4 x float>* %color
+  %color182 = fadd <4 x float> %242, %241
+  store <4 x float> %color182, <4 x float>* %color
+  br label %loop-header178
+
+post-loop-continue183:                            ; No predecessors!
+  br label %loop-header178
+
+loop-merge184:                                    ; preds = %then179
+  br label %ifmerge193
+
+else185:                                          ; preds = %loop-merge176
+  br label %loop-header186
+
+loop-header186:                                   ; preds = %post-loop-continue191, %ifmerge189, %else185
+  %243 = load <4 x float>* %color
+  %244 = extractelement <4 x float> %243, i32 2
+  %245 = load float addrspace(2)* @d6
+  %246 = fcmp olt float %244, %245
+  %247 = xor i1 %246, true
+  br i1 %247, label %then187, label %ifmerge189
+
+then187:                                          ; preds = %loop-header186
+  br label %loop-merge192
+
+post-loop-break188:                               ; No predecessors!
+  br label %ifmerge189
+
+ifmerge189:                                       ; preds = %loop-header186, %post-loop-break188
+  %248 = load <4 x float> addrspace(2)* @bigColor6
+  %249 = extractelement <4 x float> %248, i32 2
+  %250 = load <4 x float>* %color
+  %251 = extractelement <4 x float> %250, i32 2
+  %252 = fadd float %251, %249
+  %253 = load <4 x float>* %color
+  %color190 = insertelement <4 x float> %253, float %252, i32 2
+  store <4 x float> %color190, <4 x float>* %color
+  br label %loop-header186
+
+post-loop-continue191:                            ; No predecessors!
+  br label %loop-header186
+
+loop-merge192:                                    ; preds = %then187
+  br label %ifmerge193
+
+ifmerge193:                                       ; preds = %loop-merge192, %loop-merge184
+  %254 = load <4 x float>* %color
+  %255 = extractelement <4 x float> %254, i32 0
+  %256 = load float addrspace(2)* @d6
+  %257 = fcmp olt float %255, %256
+  br i1 %257, label %then194, label %else205
+
+then194:                                          ; preds = %ifmerge193
+  br label %loop-header195
+
+loop-header195:                                   ; preds = %post-loop-continue203, %ifmerge202, %then194
+  %258 = load <4 x float>* %color
+  %259 = extractelement <4 x float> %258, i32 1
+  %260 = load float addrspace(2)* @d6
+  %261 = fcmp olt float %259, %260
+  %262 = xor i1 %261, true
+  br i1 %262, label %then196, label %ifmerge198
+
+then196:                                          ; preds = %loop-header195
+  br label %loop-merge204
+
+post-loop-break197:                               ; No predecessors!
+  br label %ifmerge198
+
+ifmerge198:                                       ; preds = %loop-header195, %post-loop-break197
+  %263 = load <4 x float> addrspace(2)* @bigColor6
+  %264 = load <4 x float>* %color
+  %color199 = fadd <4 x float> %264, %263
+  store <4 x float> %color199, <4 x float>* %color
+  %265 = load float addrspace(2)* @d7
+  %266 = fcmp olt float %265, 1.000000e+00
+  br i1 %266, label %then200, label %ifmerge202
+
+then200:                                          ; preds = %ifmerge198
+  br label %loop-merge204
+
+post-loop-break201:                               ; No predecessors!
+  br label %ifmerge202
+
+ifmerge202:                                       ; preds = %ifmerge198, %post-loop-break201
+  br label %loop-header195
+
+post-loop-continue203:                            ; No predecessors!
+  br label %loop-header195
+
+loop-merge204:                                    ; preds = %then200, %then196
+  br label %ifmerge213
+
+else205:                                          ; preds = %ifmerge193
+  br label %loop-header206
+
+loop-header206:                                   ; preds = %post-loop-continue211, %ifmerge209, %else205
+  %267 = load <4 x float>* %color
+  %268 = extractelement <4 x float> %267, i32 2
+  %269 = load float addrspace(2)* @d6
+  %270 = fcmp olt float %268, %269
+  %271 = xor i1 %270, true
+  br i1 %271, label %then207, label %ifmerge209
+
+then207:                                          ; preds = %loop-header206
+  br label %loop-merge212
+
+post-loop-break208:                               ; No predecessors!
+  br label %ifmerge209
+
+ifmerge209:                                       ; preds = %loop-header206, %post-loop-break208
+  %272 = load <4 x float> addrspace(2)* @bigColor6
+  %273 = extractelement <4 x float> %272, i32 2
+  %274 = load <4 x float>* %color
+  %275 = extractelement <4 x float> %274, i32 2
+  %276 = fadd float %275, %273
+  %277 = load <4 x float>* %color
+  %color210 = insertelement <4 x float> %277, float %276, i32 2
+  store <4 x float> %color210, <4 x float>* %color
+  br label %loop-header206
+
+post-loop-continue211:                            ; No predecessors!
+  br label %loop-header206
+
+loop-merge212:                                    ; preds = %then207
+  br label %ifmerge213
+
+ifmerge213:                                       ; preds = %loop-merge212, %loop-merge204
+  br label %loop-header214
+
+loop-header214:                                   ; preds = %post-loop-continue228, %ifmerge227, %ifmerge213
+  %278 = load float addrspace(2)* @d7
+  %279 = fcmp olt float %278, 0.000000e+00
+  br i1 %279, label %then215, label %ifmerge217
+
+then215:                                          ; preds = %loop-header214
+  br label %loop-merge229
+
+post-loop-break216:                               ; No predecessors!
+  br label %ifmerge217
+
+ifmerge217:                                       ; preds = %loop-header214, %post-loop-break216
+  %280 = load <4 x float> addrspace(2)* @bigColor7
+  %281 = load <4 x float>* %color
+  %color218 = fadd <4 x float> %281, %280
+  store <4 x float> %color218, <4 x float>* %color
+  %282 = load float addrspace(2)* @d7
+  %283 = fcmp olt float %282, 1.000000e+00
+  br i1 %283, label %then219, label %ifmerge222
+
+then219:                                          ; preds = %ifmerge217
+  %284 = load <4 x float>* %color
+  %285 = extractelement <4 x float> %284, i32 2
+  %286 = fadd float %285, 1.000000e+00
+  %287 = load <4 x float>* %color
+  %color220 = insertelement <4 x float> %287, float %286, i32 2
+  store <4 x float> %color220, <4 x float>* %color
+  br label %loop-merge229
+
+post-loop-break221:                               ; No predecessors!
+  br label %ifmerge222
+
+ifmerge222:                                       ; preds = %ifmerge217, %post-loop-break221
+  %BaseColor223 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %288 = load <4 x float>* %color
+  %color224 = fadd <4 x float> %288, %BaseColor223
+  store <4 x float> %color224, <4 x float>* %color
+  br i1 false, label %then225, label %ifmerge227
+
+then225:                                          ; preds = %ifmerge222
+  br label %loop-merge229
+
+post-loop-break226:                               ; No predecessors!
+  br label %ifmerge227
+
+ifmerge227:                                       ; preds = %ifmerge222, %post-loop-break226
+  br label %loop-header214
+
+post-loop-continue228:                            ; No predecessors!
+  br label %loop-header214
+
+loop-merge229:                                    ; preds = %then225, %then219, %then215
+  br label %loop-header230
+
+loop-header230:                                   ; preds = %post-loop-continue249, %ifmerge248, %loop-merge229
+  %289 = load float addrspace(2)* @d8
+  %290 = fcmp olt float %289, 0.000000e+00
+  br i1 %290, label %then231, label %ifmerge233
+
+then231:                                          ; preds = %loop-header230
+  br label %loop-merge250
+
+post-loop-break232:                               ; No predecessors!
+  br label %ifmerge233
+
+ifmerge233:                                       ; preds = %loop-header230, %post-loop-break232
+  %291 = load <4 x float> addrspace(2)* @bigColor7
+  %292 = load <4 x float>* %color
+  %color234 = fadd <4 x float> %292, %291
+  store <4 x float> %color234, <4 x float>* %color
+  %293 = load float addrspace(2)* @d8
+  %294 = fcmp olt float %293, 1.000000e+00
+  br i1 %294, label %then235, label %ifmerge243
+
+then235:                                          ; preds = %ifmerge233
+  %295 = load <4 x float>* %color
+  %296 = extractelement <4 x float> %295, i32 2
+  %297 = fadd float %296, 1.000000e+00
+  %298 = load <4 x float>* %color
+  %color236 = insertelement <4 x float> %298, float %297, i32 2
+  store <4 x float> %color236, <4 x float>* %color
+  %299 = load float addrspace(2)* @d8
+  %300 = fcmp olt float %299, 2.000000e+00
+  br i1 %300, label %then237, label %else239
+
+then237:                                          ; preds = %then235
+  %301 = load <4 x float>* %color
+  %302 = extractelement <4 x float> %301, i32 1
+  %303 = fadd float %302, 1.000000e+00
+  %304 = load <4 x float>* %color
+  %color238 = insertelement <4 x float> %304, float %303, i32 1
+  store <4 x float> %color238, <4 x float>* %color
+  br label %ifmerge241
+
+else239:                                          ; preds = %then235
+  %305 = load <4 x float>* %color
+  %306 = extractelement <4 x float> %305, i32 0
+  %307 = fadd float %306, 1.000000e+00
+  %308 = load <4 x float>* %color
+  %color240 = insertelement <4 x float> %308, float %307, i32 0
+  store <4 x float> %color240, <4 x float>* %color
+  br label %ifmerge241
+
+ifmerge241:                                       ; preds = %else239, %then237
+  br label %loop-merge250
+
+post-loop-break242:                               ; No predecessors!
+  br label %ifmerge243
+
+ifmerge243:                                       ; preds = %ifmerge233, %post-loop-break242
+  %BaseColor244 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %309 = load <4 x float>* %color
+  %color245 = fadd <4 x float> %309, %BaseColor244
+  store <4 x float> %color245, <4 x float>* %color
+  %310 = load <4 x float>* %color
+  %311 = extractelement <4 x float> %310, i32 2
+  %312 = load float addrspace(2)* @d8
+  %313 = fcmp olt float %311, %312
+  %314 = xor i1 %313, true
+  br i1 %314, label %then246, label %ifmerge248
+
+then246:                                          ; preds = %ifmerge243
+  br label %loop-merge250
+
+post-loop-break247:                               ; No predecessors!
+  br label %ifmerge248
+
+ifmerge248:                                       ; preds = %ifmerge243, %post-loop-break247
+  br label %loop-header230
+
+post-loop-continue249:                            ; No predecessors!
+  br label %loop-header230
+
+loop-merge250:                                    ; preds = %then246, %ifmerge241, %then231
+  br label %loop-header251
+
+loop-header251:                                   ; preds = %post-loop-continue264, %ifmerge263, %loop-merge250
+  %315 = load <4 x float>* %color
+  %316 = extractelement <4 x float> %315, i32 3
+  %317 = load float addrspace(2)* @d9
+  %318 = fcmp olt float %316, %317
+  %319 = xor i1 %318, true
+  br i1 %319, label %then252, label %ifmerge254
+
+then252:                                          ; preds = %loop-header251
+  br label %loop-merge265
+
+post-loop-break253:                               ; No predecessors!
+  br label %ifmerge254
+
+ifmerge254:                                       ; preds = %loop-header251, %post-loop-break253
+  %320 = load float addrspace(2)* @d9
+  %321 = load float addrspace(2)* @d8
+  %322 = fcmp ogt float %320, %321
+  br i1 %322, label %then255, label %ifmerge263
+
+then255:                                          ; preds = %ifmerge254
+  %323 = load <4 x float>* %color
+  %324 = extractelement <4 x float> %323, i32 0
+  %325 = load float addrspace(2)* @d7
+  %326 = fcmp ole float %324, %325
+  br i1 %326, label %then256, label %ifmerge262
+
+then256:                                          ; preds = %then255
+  %327 = load <4 x float>* %color
+  %328 = extractelement <4 x float> %327, i32 2
+  %329 = fcmp oeq float %328, 5.000000e+00
+  br i1 %329, label %then257, label %else259
+
+then257:                                          ; preds = %then256
+  %330 = load <4 x float>* %color
+  %331 = extractelement <4 x float> %330, i32 3
+  %332 = fadd float %331, 1.000000e+00
+  %333 = load <4 x float>* %color
+  %color258 = insertelement <4 x float> %333, float %332, i32 3
+  store <4 x float> %color258, <4 x float>* %color
+  br label %ifmerge261
+
+else259:                                          ; preds = %then256
+  br label %loop-merge265
+
+post-loop-break260:                               ; No predecessors!
+  br label %ifmerge261
+
+ifmerge261:                                       ; preds = %post-loop-break260, %then257
+  br label %ifmerge262
+
+ifmerge262:                                       ; preds = %then255, %ifmerge261
+  br label %ifmerge263
+
+ifmerge263:                                       ; preds = %ifmerge254, %ifmerge262
+  br label %loop-header251
+
+post-loop-continue264:                            ; No predecessors!
+  br label %loop-header251
+
+loop-merge265:                                    ; preds = %else259, %then252
+  br label %loop-header266
+
+loop-header266:                                   ; preds = %post-loop-continue282, %post-loop-break281, %ifmerge277, %loop-merge265
+  %334 = load <4 x float>* %color
+  %335 = extractelement <4 x float> %334, i32 2
+  %336 = load float addrspace(2)* @d10
+  %337 = fcmp olt float %335, %336
+  %338 = xor i1 %337, true
+  br i1 %338, label %then267, label %ifmerge269
+
+then267:                                          ; preds = %loop-header266
+  br label %loop-merge283
+
+post-loop-break268:                               ; No predecessors!
+  br label %ifmerge269
+
+ifmerge269:                                       ; preds = %loop-header266, %post-loop-break268
+  %339 = load <4 x float>* %color
+  %340 = extractelement <4 x float> %339, i32 1
+  %341 = fadd float %340, 1.000000e+00
+  %342 = load <4 x float>* %color
+  %color270 = insertelement <4 x float> %342, float %341, i32 1
+  store <4 x float> %color270, <4 x float>* %color
+  %343 = load <4 x float>* %color
+  %344 = extractelement <4 x float> %343, i32 1
+  %345 = load float addrspace(2)* @d11
+  %346 = fcmp olt float %344, %345
+  br i1 %346, label %then271, label %ifmerge279
+
+then271:                                          ; preds = %ifmerge269
+  %347 = load <4 x float>* %color
+  %348 = extractelement <4 x float> %347, i32 2
+  %349 = fadd float %348, 1.000000e+00
+  %350 = load <4 x float>* %color
+  %color272 = insertelement <4 x float> %350, float %349, i32 2
+  store <4 x float> %color272, <4 x float>* %color
+  %351 = load <4 x float>* %color
+  %352 = extractelement <4 x float> %351, i32 3
+  %353 = load float addrspace(2)* @d12
+  %354 = fcmp olt float %352, %353
+  br i1 %354, label %then273, label %else275
+
+then273:                                          ; preds = %then271
+  %355 = load <4 x float>* %color
+  %356 = extractelement <4 x float> %355, i32 3
+  %357 = fadd float %356, 1.000000e+00
+  %358 = load <4 x float>* %color
+  %color274 = insertelement <4 x float> %358, float %357, i32 3
+  store <4 x float> %color274, <4 x float>* %color
+  br label %ifmerge277
+
+else275:                                          ; preds = %then271
+  %359 = load <4 x float>* %color
+  %360 = extractelement <4 x float> %359, i32 0
+  %361 = fadd float %360, 1.000000e+00
+  %362 = load <4 x float>* %color
+  %color276 = insertelement <4 x float> %362, float %361, i32 0
+  store <4 x float> %color276, <4 x float>* %color
+  br label %ifmerge277
+
+ifmerge277:                                       ; preds = %else275, %then273
+  br label %loop-header266
+
+post-loop-continue278:                            ; No predecessors!
+  br label %ifmerge279
+
+ifmerge279:                                       ; preds = %ifmerge269, %post-loop-continue278
+  %363 = load <4 x float>* %color
+  %color280 = fadd <4 x float> %363, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color280, <4 x float>* %color
+  br label %loop-merge283
+
+post-loop-break281:                               ; No predecessors!
+  br label %loop-header266
+
+post-loop-continue282:                            ; No predecessors!
+  br label %loop-header266
+
+loop-merge283:                                    ; preds = %ifmerge279, %then267
+  br label %loop-header284
+
+loop-header284:                                   ; preds = %post-loop-continue295, %ifmerge293, %then290, %loop-merge283
+  %364 = load <4 x float>* %color
+  %365 = extractelement <4 x float> %364, i32 0
+  %366 = fcmp olt float %365, 1.000000e+01
+  %367 = xor i1 %366, true
+  br i1 %367, label %then285, label %ifmerge287
+
+then285:                                          ; preds = %loop-header284
+  br label %loop-merge296
+
+post-loop-break286:                               ; No predecessors!
+  br label %ifmerge287
+
+ifmerge287:                                       ; preds = %loop-header284, %post-loop-break286
+  %368 = load <4 x float> addrspace(2)* @bigColor8
+  %369 = load <4 x float>* %color
+  %color288 = fadd <4 x float> %369, %368
+  store <4 x float> %color288, <4 x float>* %color
+  %370 = load <4 x float>* %color
+  %371 = extractelement <4 x float> %370, i32 2
+  %372 = load float addrspace(2)* @d8
+  %373 = fcmp olt float %371, %372
+  br i1 %373, label %then289, label %ifmerge293
+
+then289:                                          ; preds = %ifmerge287
+  %374 = load <4 x float>* %color
+  %375 = extractelement <4 x float> %374, i32 3
+  %376 = load float addrspace(2)* @d6
+  %377 = fcmp olt float %375, %376
+  br i1 %377, label %then290, label %ifmerge292
+
+then290:                                          ; preds = %then289
+  br label %loop-header284
+
+post-loop-continue291:                            ; No predecessors!
+  br label %ifmerge292
+
+ifmerge292:                                       ; preds = %then289, %post-loop-continue291
+  br label %ifmerge293
+
+ifmerge293:                                       ; preds = %ifmerge287, %ifmerge292
+  %378 = load <4 x float> addrspace(2)* @bigColor8
+  %379 = extractelement <4 x float> %378, i32 0
+  %380 = load <4 x float>* %color
+  %381 = extractelement <4 x float> %380, i32 1
+  %382 = fadd float %381, %379
+  %383 = load <4 x float>* %color
+  %color294 = insertelement <4 x float> %383, float %382, i32 1
+  store <4 x float> %color294, <4 x float>* %color
+  br label %loop-header284
+
+post-loop-continue295:                            ; No predecessors!
+  br label %loop-header284
+
+loop-merge296:                                    ; preds = %then285
+  br label %loop-header297
+
+loop-header297:                                   ; preds = %post-loop-continue319, %ifmerge318, %then309, %loop-merge296
+  %384 = load <4 x float>* %color
+  %385 = extractelement <4 x float> %384, i32 3
+  %386 = load float addrspace(2)* @d13
+  %387 = fcmp olt float %385, %386
+  %388 = xor i1 %387, true
+  br i1 %388, label %then298, label %ifmerge300
+
+then298:                                          ; preds = %loop-header297
+  br label %loop-merge320
+
+post-loop-break299:                               ; No predecessors!
+  br label %ifmerge300
+
+ifmerge300:                                       ; preds = %loop-header297, %post-loop-break299
+  %389 = load <4 x float>* %color
+  %390 = extractelement <4 x float> %389, i32 2
+  %391 = load float addrspace(2)* @d13
+  %392 = fcmp olt float %390, %391
+  br i1 %392, label %then301, label %else303
+
+then301:                                          ; preds = %ifmerge300
+  %393 = load <4 x float>* %color
+  %color302 = fadd <4 x float> %393, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color302, <4 x float>* %color
+  br label %ifmerge305
+
+else303:                                          ; preds = %ifmerge300
+  %394 = load <4 x float>* %color
+  %color304 = fsub <4 x float> %394, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color304, <4 x float>* %color
+  br label %ifmerge305
+
+ifmerge305:                                       ; preds = %else303, %then301
+  %395 = load <4 x float> addrspace(2)* @bigColor4
+  %396 = load <4 x float>* %color
+  %color306 = fadd <4 x float> %396, %395
+  store <4 x float> %color306, <4 x float>* %color
+  %397 = load <4 x float>* %color
+  %398 = extractelement <4 x float> %397, i32 0
+  %399 = load float addrspace(2)* @d4
+  %400 = fcmp olt float %398, %399
+  br i1 %400, label %then307, label %ifmerge313
+
+then307:                                          ; preds = %ifmerge305
+  %401 = load <4 x float>* %color
+  %402 = extractelement <4 x float> %401, i32 2
+  %403 = fadd float %402, 2.000000e+00
+  %404 = load <4 x float>* %color
+  %color308 = insertelement <4 x float> %404, float %403, i32 2
+  store <4 x float> %color308, <4 x float>* %color
+  %405 = load <4 x float>* %color
+  %406 = extractelement <4 x float> %405, i32 2
+  %407 = load float addrspace(2)* @d4
+  %408 = fcmp olt float %406, %407
+  br i1 %408, label %then309, label %ifmerge312
+
+then309:                                          ; preds = %then307
+  %409 = load <4 x float>* %color
+  %410 = extractelement <4 x float> %409, i32 0
+  %411 = fadd float %410, 1.000000e+00
+  %412 = load <4 x float>* %color
+  %color310 = insertelement <4 x float> %412, float %411, i32 0
+  store <4 x float> %color310, <4 x float>* %color
+  br label %loop-header297
+
+post-loop-continue311:                            ; No predecessors!
+  br label %ifmerge312
+
+ifmerge312:                                       ; preds = %then307, %post-loop-continue311
+  br label %ifmerge313
+
+ifmerge313:                                       ; preds = %ifmerge305, %ifmerge312
+  %413 = load <4 x float>* %color
+  %414 = extractelement <4 x float> %413, i32 1
+  %415 = load float addrspace(2)* @d4
+  %416 = fcmp olt float %414, %415
+  br i1 %416, label %then314, label %else316
+
+then314:                                          ; preds = %ifmerge313
+  %417 = load float addrspace(2)* @d4
+  %418 = load <4 x float>* %color
+  %419 = extractelement <4 x float> %418, i32 1
+  %420 = fadd float %419, %417
+  %421 = load <4 x float>* %color
+  %color315 = insertelement <4 x float> %421, float %420, i32 1
+  store <4 x float> %color315, <4 x float>* %color
+  br label %ifmerge318
+
+else316:                                          ; preds = %ifmerge313
+  %422 = load float addrspace(2)* @d4
+  %423 = load <4 x float>* %color
+  %424 = extractelement <4 x float> %423, i32 0
+  %425 = fadd float %424, %422
+  %426 = load <4 x float>* %color
+  %color317 = insertelement <4 x float> %426, float %425, i32 0
+  store <4 x float> %color317, <4 x float>* %color
+  br label %ifmerge318
+
+ifmerge318:                                       ; preds = %else316, %then314
+  br label %loop-header297
+
+post-loop-continue319:                            ; No predecessors!
+  br label %loop-header297
+
+loop-merge320:                                    ; preds = %then298
+  %427 = load <4 x float>* %color
+  %color321 = fadd <4 x float> %427, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color321, <4 x float>* %color
   %gl_FragColor = load <4 x float>* %color
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  %9 = load <4 x float>* %color
-  %color10 = fadd <4 x float> %9, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  store <4 x float> %color10, <4 x float>* %color
-  %10 = load <4 x float>* %color
-  %color11 = fadd <4 x float> %10, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  store <4 x float> %color11, <4 x float>* %color
-  %gl_FragColor12 = load <4 x float>* %color
-  store <4 x float> %gl_FragColor12, <4 x float>* @gl_FragColor
+  br label %loop-header322
+
+loop-header322:                                   ; preds = %post-loop-continue330, %ifmerge329, %loop-merge320
+  %428 = load <4 x float>* %color
+  %429 = extractelement <4 x float> %428, i32 0
+  %430 = load float addrspace(2)* @d14
+  %431 = fcmp olt float %429, %430
+  %432 = xor i1 %431, true
+  br i1 %432, label %then323, label %ifmerge325
+
+then323:                                          ; preds = %loop-header322
+  br label %loop-merge331
+
+post-loop-break324:                               ; No predecessors!
+  br label %ifmerge325
+
+ifmerge325:                                       ; preds = %loop-header322, %post-loop-break324
+  %433 = load <4 x float>* %color
+  %434 = extractelement <4 x float> %433, i32 1
+  %435 = load float addrspace(2)* @d15
+  %436 = fcmp olt float %434, %435
+  br i1 %436, label %then326, label %else327
+
+then326:                                          ; preds = %ifmerge325
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge8
-  %11 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %11)
+post-return:                                      ; No predecessors!
+  br label %ifmerge329
+
+else327:                                          ; preds = %ifmerge325
+  %437 = load <4 x float>* %color
+  %color328 = fadd <4 x float> %437, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color328, <4 x float>* %color
+  br label %ifmerge329
+
+ifmerge329:                                       ; preds = %else327, %post-return
+  br label %loop-header322
+
+post-loop-continue330:                            ; No predecessors!
+  br label %loop-header322
+
+loop-merge331:                                    ; preds = %then323
+  %438 = load <4 x float>* %color
+  %color332 = fadd <4 x float> %438, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color332, <4 x float>* %color
+  br label %loop-header333
+
+loop-header333:                                   ; preds = %post-loop-continue338, %ifmerge336, %loop-merge331
+  %439 = load <4 x float>* %color
+  %440 = extractelement <4 x float> %439, i32 3
+  %441 = load float addrspace(2)* @d16
+  %442 = fcmp olt float %440, %441
+  %443 = xor i1 %442, true
+  br i1 %443, label %then334, label %ifmerge336
+
+then334:                                          ; preds = %loop-header333
+  br label %loop-merge339
+
+post-loop-break335:                               ; No predecessors!
+  br label %ifmerge336
+
+ifmerge336:                                       ; preds = %loop-header333, %post-loop-break335
+  %444 = load <4 x float>* %color
+  %445 = extractelement <4 x float> %444, i32 3
+  %446 = fadd float %445, 1.000000e+00
+  %447 = load <4 x float>* %color
+  %color337 = insertelement <4 x float> %447, float %446, i32 3
+  store <4 x float> %color337, <4 x float>* %color
+  br label %loop-header333
+
+post-loop-continue338:                            ; No predecessors!
+  br label %loop-header333
+
+loop-merge339:                                    ; preds = %then334
+  br label %loop-header340
+
+loop-header340:                                   ; preds = %post-loop-continue348, %ifmerge347, %loop-merge339
+  %448 = load <4 x float>* %color
+  %449 = extractelement <4 x float> %448, i32 3
+  %450 = load float addrspace(2)* @d2
+  %451 = fcmp olt float %449, %450
+  %452 = load <4 x float>* %color
+  %453 = extractelement <4 x float> %452, i32 1
+  %454 = load float addrspace(2)* @d3
+  %455 = fcmp olt float %453, %454
+  %456 = and i1 %451, %455
+  %457 = xor i1 %456, true
+  br i1 %457, label %then341, label %ifmerge343
+
+then341:                                          ; preds = %loop-header340
+  br label %loop-merge349
+
+post-loop-break342:                               ; No predecessors!
+  br label %ifmerge343
+
+ifmerge343:                                       ; preds = %loop-header340, %post-loop-break342
+  %458 = load <4 x float> addrspace(2)* @bigColor1_2
+  %459 = load <4 x float>* %color
+  %color344 = fadd <4 x float> %459, %458
+  store <4 x float> %color344, <4 x float>* %color
+  %460 = load <4 x float>* %color
+  %461 = extractelement <4 x float> %460, i32 2
+  %462 = load float addrspace(2)* @d3
+  %463 = fcmp olt float %461, %462
+  br i1 %463, label %then345, label %ifmerge347
+
+then345:                                          ; preds = %ifmerge343
+  br label %stage-epilogue
+
+post-return346:                                   ; No predecessors!
+  br label %ifmerge347
+
+ifmerge347:                                       ; preds = %ifmerge343, %post-return346
+  br label %loop-header340
+
+post-loop-continue348:                            ; No predecessors!
+  br label %loop-header340
+
+loop-merge349:                                    ; preds = %then341
+  br label %loop-header350
+
+loop-header350:                                   ; preds = %post-loop-continue358, %ifmerge357, %loop-merge349
+  %464 = load <4 x float>* %color
+  %465 = extractelement <4 x float> %464, i32 1
+  %466 = load float addrspace(2)* @d18
+  %467 = fcmp olt float %465, %466
+  br i1 %467, label %then351, label %ifmerge353
+
+then351:                                          ; preds = %loop-header350
+  br label %stage-epilogue
+
+post-return352:                                   ; No predecessors!
+  br label %ifmerge353
+
+ifmerge353:                                       ; preds = %loop-header350, %post-return352
+  %468 = load <4 x float>* %color
+  %color354 = fadd <4 x float> %468, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color354, <4 x float>* %color
+  %469 = load <4 x float>* %color
+  %470 = extractelement <4 x float> %469, i32 0
+  %471 = load float addrspace(2)* @d17
+  %472 = fcmp olt float %470, %471
+  %473 = xor i1 %472, true
+  br i1 %473, label %then355, label %ifmerge357
+
+then355:                                          ; preds = %ifmerge353
+  br label %loop-merge359
+
+post-loop-break356:                               ; No predecessors!
+  br label %ifmerge357
+
+ifmerge357:                                       ; preds = %ifmerge353, %post-loop-break356
+  br label %loop-header350
+
+post-loop-continue358:                            ; No predecessors!
+  br label %loop-header350
+
+loop-merge359:                                    ; preds = %then355
+  br label %loop-header360
+
+loop-header360:                                   ; preds = %post-loop-continue368, %ifmerge367, %loop-merge359
+  %474 = load <4 x float>* %color
+  %475 = extractelement <4 x float> %474, i32 1
+  %476 = load float addrspace(2)* @d16
+  %477 = fcmp olt float %475, %476
+  %478 = xor i1 %477, true
+  br i1 %478, label %then361, label %ifmerge363
+
+then361:                                          ; preds = %loop-header360
+  br label %loop-merge369
+
+post-loop-break362:                               ; No predecessors!
+  br label %ifmerge363
+
+ifmerge363:                                       ; preds = %loop-header360, %post-loop-break362
+  %479 = load <4 x float>* %color
+  %480 = extractelement <4 x float> %479, i32 3
+  %481 = load float addrspace(2)* @d16
+  %482 = fcmp olt float %480, %481
+  br i1 %482, label %then364, label %else365
+
+then364:                                          ; preds = %ifmerge363
+  call void @llvm.gla.discard()
   br label %stage-exit
 
-stage-exit:                                       ; preds = %stage-epilogue
+post-discard:                                     ; No predecessors!
+  br label %ifmerge367
+
+else365:                                          ; preds = %ifmerge363
+  %483 = load <4 x float>* %color
+  %color366 = fadd <4 x float> %483, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color366, <4 x float>* %color
+  br label %ifmerge367
+
+ifmerge367:                                       ; preds = %else365, %post-discard
+  br label %loop-header360
+
+post-loop-continue368:                            ; No predecessors!
+  br label %loop-header360
+
+loop-merge369:                                    ; preds = %then361
+  %484 = load <4 x float>* %color
+  %color370 = fadd <4 x float> %484, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color370, <4 x float>* %color
+  %gl_FragColor371 = load <4 x float>* %color
+  store <4 x float> %gl_FragColor371, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %loop-merge369, %then351, %then345, %then326
+  %485 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %485)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue, %then364
   ret void
 }
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
-
-
-Bottom IR:
-; ModuleID = 'Top'
-
-define fastcc void @main() {
-entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  %color9 = fadd <4 x float> %BaseColor, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  %color10 = fadd <4 x float> %color9, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  %color11 = fadd <4 x float> %color10, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %color11)
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %entry
-  br label %stage-exit
-
-stage-exit:                                       ; preds = %stage-epilogue
-  ret void
-}
-
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+declare void @llvm.gla.discard() nounwind
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-// LunarGOO(r471) output
-#version 130
-in vec4 BaseColor;
-const vec4 const22 = vec4(1.0);
-
-void main()
-{
-    vec4 color9 = BaseColor + const22;
-    vec4 color10 = color9 + const22;
-    vec4 color11 = color10 + const22;
-    gl_FragColor = color11;
-    
-}
-#### BEGIN COMPILER 0 INFO LOG ####
-
-#### END COMPILER 0 INFO LOG ####
-#### BEGIN LINKER INFO LOG ####
-
-#### END LINKER INFO LOG ####
+***Unsupported functionality: general-case cross edges (requires artificial loop)

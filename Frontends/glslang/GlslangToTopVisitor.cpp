@@ -578,24 +578,42 @@ void TranslateConstantUnion(TIntermConstantUnion* node, TIntermTraverser* it)
 bool TranslateLoop(bool /* preVisit */, TIntermLoop* node, TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
+    bool bodyOut = false;
 
-    gla::UnsupportedFunctionality("glslang loops", gla::EATContinue);
-    return false;
+    // Note: inductive loops are getting recognized at a lower level,
+	// so no need to worry about them now.  I.e., don't bother to use
+    // makeNewLoop(<lots of arguments>).
 
-    if (! node->testFirst())
-        ;
+    oit->glaBuilder->makeNewLoop();
+
+    if (! node->testFirst()) {
+        if (node->getBody())
+            node->getBody()->traverse(it);
+        bodyOut = true;
+    }
 
     if (node->getTest()) {
         node->getTest()->traverse(it);
+        // the AST only contained the test, not the branch, we have to add it
+
+        // make the following
+        //     if (! condition from test traversal)
+        //         break;
+        llvm::Value* condition = oit->glaBuilder->accessChainLoad();
+        condition = oit->llvmBuilder.CreateNot(condition);
+        gla::Builder::If ifBuilder(condition, oit->glaBuilder);
+        oit->glaBuilder->makeLoopExit();
+        ifBuilder.makeEndIf();
     }
 
-    if (node->getBody()) {
+    if (! bodyOut && node->getBody())
         node->getBody()->traverse(it);
-    }
 
-    if (node->getTerminal()) {
+    if (node->getTerminal())
         node->getTerminal()->traverse(it);
-    }
+
+    oit->glaBuilder->makeLoopBackEdge();
+    oit->glaBuilder->closeLoop();
 
     return false;
 }

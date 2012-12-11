@@ -1,9 +1,9 @@
 
-***Unsupported functionality: glslang loops
-
 Top IR:
 ; ModuleID = 'Top'
 
+@Count = external addrspace(2) constant i32
+@bigColor = external addrspace(2) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -13,13 +13,42 @@ entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   store <4 x float> %BaseColor, <4 x float>* %color
   store i32 0, i32* %i
+  br label %loop-header
+
+loop-header:                                      ; preds = %post-loop-continue, %ifmerge, %entry
+  %0 = load i32* %i
+  %1 = load i32 addrspace(2)* @Count
+  %2 = icmp slt i32 %0, %1
+  %3 = xor i1 %2, true
+  br i1 %3, label %then, label %ifmerge
+
+then:                                             ; preds = %loop-header
+  br label %loop-merge
+
+post-loop-break:                                  ; No predecessors!
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %loop-header, %post-loop-break
+  %4 = load <4 x float> addrspace(2)* @bigColor
+  %5 = load <4 x float>* %color
+  %color1 = fadd <4 x float> %5, %4
+  store <4 x float> %color1, <4 x float>* %color
+  %6 = load i32* %i
+  %i2 = add i32 %6, 1
+  store i32 %i2, i32* %i
+  br label %loop-header
+
+post-loop-continue:                               ; No predecessors!
+  br label %loop-header
+
+loop-merge:                                       ; preds = %then
   %gl_FragColor = load <4 x float>* %color
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
-  %0 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %0)
+stage-epilogue:                                   ; preds = %loop-merge
+  %7 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %7)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -34,30 +63,79 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
+@Count = external addrspace(2) constant i32
+@bigColor = external addrspace(2) constant <4 x float>
+
 define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %BaseColor)
+  %.pre = load i32 addrspace(2)* @Count, align 4
+  %0 = load <4 x float> addrspace(2)* @bigColor, align 16
+  %1 = icmp sgt i32 %.pre, 0
+  br i1 %1, label %ifmerge.lr.ph, label %then
+
+ifmerge.lr.ph:                                    ; preds = %entry
+  br label %ifmerge
+
+loop-header.then_crit_edge:                       ; preds = %ifmerge
+  br label %then
+
+then:                                             ; preds = %loop-header.then_crit_edge, %entry
+  %color.0.lcssa = phi <4 x float> [ %color1, %loop-header.then_crit_edge ], [ %BaseColor, %entry ]
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %color.0.lcssa)
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %then
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
+
+ifmerge:                                          ; preds = %ifmerge, %ifmerge.lr.ph
+  %indvar = phi i32 [ %indvar.next, %ifmerge ], [ 0, %ifmerge.lr.ph ]
+  %color.05 = phi <4 x float> [ %BaseColor, %ifmerge.lr.ph ], [ %color1, %ifmerge ]
+  %color1 = fadd <4 x float> %color.05, %0
+  %indvar.next = add i32 %indvar, 1
+  %exitcond = icmp eq i32 %indvar.next, %.pre
+  br i1 %exitcond, label %loop-header.then_crit_edge, label %ifmerge
 }
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
+inductive variable:  %indvar = phi i32 [ %indvar.next, %ifmerge ], [ 0, %ifmerge.lr.ph ]
+  trip count:        %.pre = load i32 addrspace(2)* @Count, align 4
+  increment:         %indvar.next = add i32 %indvar, 1
+  exit condition:    %exitcond = icmp eq i32 %indvar.next, %.pre
+
 // LunarGOO(r471) output
 #version 130
+uniform int Count;
+uniform vec4 bigColor;
 in vec4 BaseColor;
+const int const25_0 = 0;
+vec4 color1;
 
 void main()
 {
-    gl_FragColor = BaseColor;
+    vec4 color_0_lcssa;
+    int indvar;
+    vec4 color_05;
+    bool temp24 = Count > const25_0;
+    color_0_lcssa = BaseColor;
+    if (temp24) {
+        indvar = const25_0;
+        color_05 = BaseColor;
+        for (indvar = 0; indvar < Count; ++indvar) {
+            color1 = color_05 + bigColor;
+            color_05 = color1;
+        }
+        
+        color_0_lcssa = color1;
+    }
+    
+    gl_FragColor = color_0_lcssa;
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
