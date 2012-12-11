@@ -1,0 +1,148 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@d = external addrspace(2) constant float
+@bigColor = external addrspace(2) constant <4 x float>
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %color = alloca <4 x float>
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %BaseColor, <4 x float>* %color
+  br label %loop-header
+
+loop-header:                                      ; preds = %ifmerge, %entry
+  %0 = load <4 x float>* %color
+  %1 = extractelement <4 x float> %0, i32 0
+  %2 = load float addrspace(2)* @d
+  %3 = fcmp oge float %1, %2
+  br i1 %3, label %then, label %ifmerge
+
+then:                                             ; preds = %loop-header
+  br label %loop-merge
+
+post-loop-break:                                  ; No predecessors!
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %loop-header, %post-loop-break
+  %4 = load <4 x float>* %color
+  %5 = load <4 x float> addrspace(2)* @bigColor
+  %color1 = fadd <4 x float> %4, %5
+  store <4 x float> %color1, <4 x float>* %color
+  br label %loop-header
+
+loop-merge:                                       ; preds = %then
+  %gl_FragColor = load <4 x float>* %color
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %loop-merge
+  %6 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %6)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@d = external addrspace(2) constant float
+@bigColor = external addrspace(2) constant <4 x float>
+
+define fastcc void @main() {
+entry:
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %.pre = load float addrspace(2)* @d, align 4
+  %0 = load <4 x float> addrspace(2)* @bigColor, align 16
+  br label %loop-header
+
+loop-header:                                      ; preds = %ifmerge, %entry
+  %color.0 = phi <4 x float> [ %BaseColor, %entry ], [ %color1, %ifmerge ]
+  %1 = extractelement <4 x float> %color.0, i32 0
+  %2 = fcmp ult float %1, %.pre
+  br i1 %2, label %ifmerge, label %then
+
+then:                                             ; preds = %loop-header
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %color.0)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %then
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+
+ifmerge:                                          ; preds = %loop-header
+  %color1 = fadd <4 x float> %color.0, %0
+  br label %loop-header
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+compiling whileLoop.frag...
+uniform vec4 bigColor ; 
+varying vec4 BaseColor ; 
+uniform float d ; 
+void  main (){
+vec4 color = BaseColor ; while ( color . x < d ) {
+color += bigColor ; }
+gl_FragColor = color ; }
+
+
+
+(
+(declare (uniform ) float d)
+(declare (in ) vec4 BaseColor)
+(declare (uniform ) vec4 bigColor)
+(declare (out ) vec4 gl_FragColor)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (declare () vec4 color)
+      (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref BaseColor) ) 
+      (loop () () () () (
+        (if (expression bool >= (swiz x (var_ref color) )(var_ref d) ) (
+          break
+        )
+        ())
+
+        (assign (constant bool (1)) (xyzw) (var_ref color)  (expression vec4 + (var_ref color) (var_ref bigColor) ) ) 
+      ))
+
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref color) ) 
+    ))
+
+)
+
+
+)
+// LunarGOO output
+#version 130
+uniform float d;
+uniform vec4 bigColor;
+in vec4 BaseColor;
+
+void main()
+{
+    vec4 color_0;
+    color_0 = BaseColor;
+    while (color_0.x < d){
+        vec4 color1 = color_0 + bigColor;
+        color_0 = color1;
+    }
+    
+    gl_FragColor = color_0;
+    
+}

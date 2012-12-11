@@ -1640,7 +1640,7 @@ while ( color . z < d10 ) {
 color . y ++ ; if ( color . y < d11 ) {
 color . z ++ ; if ( color . w < d12 ) color . w ++ ; else color . x ++ ; continue; }
 color ++ ; break; }
-while ( color . x < 10 ) {
+while ( color . x < 10.000000 ) {
 color += bigColor8 ; if ( color . z < d8 ) if ( color . w < d6 ) continue; color . y += bigColor8 . x ; }
 while ( color . w < d13 ) {
 if ( color . z < d13 ) color ++ ; else color -- ; color += bigColor4 ; if ( color . x < d4 ) {

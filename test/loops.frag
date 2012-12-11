@@ -279,7 +279,7 @@ void main()
     }
 
     // Multi-continue
-    while (color.x < 10) {
+    while (color.x < 10.0) {
         color += bigColor8;
 
         if (color.z < d8)
