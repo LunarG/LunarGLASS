@@ -1,0 +1,386 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@bigColor4 = external addrspace(2) constant <4 x float>
+@d4 = external addrspace(2) constant float
+@d13 = external addrspace(2) constant float
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %assignment_tmp38 = alloca <4 x float>
+  %assignment_tmp22 = alloca <4 x float>
+  %assignment_tmp = alloca <4 x float>
+  %color = alloca <4 x float>
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %BaseColor, <4 x float>* %color
+  br label %loop-header
+
+loop-header:                                      ; preds = %ifmerge12, %then4, %entry
+  %0 = load <4 x float>* %color
+  %1 = load <4 x float> addrspace(2)* @bigColor4
+  %assignment_tmp1 = fadd <4 x float> %0, %1
+  store <4 x float> %assignment_tmp1, <4 x float>* %assignment_tmp
+  %color2 = load <4 x float>* %assignment_tmp
+  store <4 x float> %color2, <4 x float>* %color
+  %2 = load <4 x float>* %assignment_tmp
+  %3 = extractelement <4 x float> %2, i32 0
+  %4 = load float addrspace(2)* @d4
+  %5 = fcmp olt float %3, %4
+  br i1 %5, label %then, label %ifmerge6
+
+then:                                             ; preds = %loop-header
+  %6 = load <4 x float>* %assignment_tmp
+  %7 = extractelement <4 x float> %6, i32 2
+  %8 = fadd float %7, 2.000000e+00
+  %9 = load <4 x float>* %color
+  %color3 = insertelement <4 x float> %9, float %8, i32 2
+  store <4 x float> %color3, <4 x float>* %color
+  %10 = load <4 x float>* %color
+  %11 = extractelement <4 x float> %10, i32 2
+  %12 = load float addrspace(2)* @d4
+  %13 = fcmp olt float %11, %12
+  br i1 %13, label %then4, label %ifmerge
+
+then4:                                            ; preds = %then
+  %14 = load <4 x float>* %color
+  %15 = extractelement <4 x float> %14, i32 0
+  %16 = fadd float %15, 1.000000e+00
+  %17 = load <4 x float>* %color
+  %color5 = insertelement <4 x float> %17, float %16, i32 0
+  store <4 x float> %color5, <4 x float>* %color
+  br label %loop-header
+
+post-loop-continue:                               ; No predecessors!
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %then, %post-loop-continue
+  br label %ifmerge6
+
+ifmerge6:                                         ; preds = %loop-header, %ifmerge
+  %18 = load <4 x float>* %color
+  %19 = extractelement <4 x float> %18, i32 1
+  %20 = load float addrspace(2)* @d4
+  %21 = fcmp olt float %19, %20
+  br i1 %21, label %then7, label %else
+
+then7:                                            ; preds = %ifmerge6
+  %22 = load <4 x float>* %color
+  %23 = extractelement <4 x float> %22, i32 1
+  %24 = load float addrspace(2)* @d4
+  %25 = fadd float %23, %24
+  %26 = load <4 x float>* %color
+  %color8 = insertelement <4 x float> %26, float %25, i32 1
+  store <4 x float> %color8, <4 x float>* %color
+  br label %ifmerge10
+
+else:                                             ; preds = %ifmerge6
+  %27 = load <4 x float>* %color
+  %28 = extractelement <4 x float> %27, i32 0
+  %29 = load float addrspace(2)* @d4
+  %30 = fadd float %28, %29
+  %31 = load <4 x float>* %color
+  %color9 = insertelement <4 x float> %31, float %30, i32 0
+  store <4 x float> %color9, <4 x float>* %color
+  br label %ifmerge10
+
+ifmerge10:                                        ; preds = %else, %then7
+  %32 = load <4 x float>* %color
+  %33 = extractelement <4 x float> %32, i32 2
+  %34 = load float addrspace(2)* @d4
+  %35 = fcmp oge float %33, %34
+  br i1 %35, label %then11, label %ifmerge12
+
+then11:                                           ; preds = %ifmerge10
+  br label %loop-merge
+
+post-loop-break:                                  ; No predecessors!
+  br label %ifmerge12
+
+ifmerge12:                                        ; preds = %ifmerge10, %post-loop-break
+  br label %loop-header
+
+loop-merge:                                       ; preds = %then11
+  br label %loop-header13
+
+loop-header13:                                    ; preds = %ifmerge36, %then27, %loop-merge
+  %36 = load <4 x float>* %color
+  %37 = extractelement <4 x float> %36, i32 3
+  %38 = load float addrspace(2)* @d13
+  %39 = fcmp oge float %37, %38
+  br i1 %39, label %then14, label %ifmerge16
+
+then14:                                           ; preds = %loop-header13
+  br label %loop-merge37
+
+post-loop-break15:                                ; No predecessors!
+  br label %ifmerge16
+
+ifmerge16:                                        ; preds = %loop-header13, %post-loop-break15
+  %40 = load <4 x float>* %color
+  %41 = extractelement <4 x float> %40, i32 2
+  %42 = load float addrspace(2)* @d13
+  %43 = fcmp olt float %41, %42
+  br i1 %43, label %then17, label %else19
+
+then17:                                           ; preds = %ifmerge16
+  %44 = load <4 x float>* %color
+  %color18 = fadd <4 x float> %44, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color18, <4 x float>* %color
+  br label %ifmerge21
+
+else19:                                           ; preds = %ifmerge16
+  %45 = load <4 x float>* %color
+  %color20 = fsub <4 x float> %45, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color20, <4 x float>* %color
+  br label %ifmerge21
+
+ifmerge21:                                        ; preds = %else19, %then17
+  %46 = load <4 x float>* %color
+  %47 = load <4 x float> addrspace(2)* @bigColor4
+  %assignment_tmp2223 = fadd <4 x float> %46, %47
+  store <4 x float> %assignment_tmp2223, <4 x float>* %assignment_tmp22
+  %color24 = load <4 x float>* %assignment_tmp22
+  store <4 x float> %color24, <4 x float>* %color
+  %48 = load <4 x float>* %assignment_tmp22
+  %49 = extractelement <4 x float> %48, i32 0
+  %50 = load float addrspace(2)* @d4
+  %51 = fcmp olt float %49, %50
+  br i1 %51, label %then25, label %ifmerge31
+
+then25:                                           ; preds = %ifmerge21
+  %52 = load <4 x float>* %assignment_tmp22
+  %53 = extractelement <4 x float> %52, i32 2
+  %54 = fadd float %53, 2.000000e+00
+  %55 = load <4 x float>* %color
+  %color26 = insertelement <4 x float> %55, float %54, i32 2
+  store <4 x float> %color26, <4 x float>* %color
+  %56 = load <4 x float>* %color
+  %57 = extractelement <4 x float> %56, i32 2
+  %58 = load float addrspace(2)* @d4
+  %59 = fcmp olt float %57, %58
+  br i1 %59, label %then27, label %ifmerge30
+
+then27:                                           ; preds = %then25
+  %60 = load <4 x float>* %color
+  %61 = extractelement <4 x float> %60, i32 0
+  %62 = fadd float %61, 1.000000e+00
+  %63 = load <4 x float>* %color
+  %color28 = insertelement <4 x float> %63, float %62, i32 0
+  store <4 x float> %color28, <4 x float>* %color
+  br label %loop-header13
+
+post-loop-continue29:                             ; No predecessors!
+  br label %ifmerge30
+
+ifmerge30:                                        ; preds = %then25, %post-loop-continue29
+  br label %ifmerge31
+
+ifmerge31:                                        ; preds = %ifmerge21, %ifmerge30
+  %64 = load <4 x float>* %color
+  %65 = extractelement <4 x float> %64, i32 1
+  %66 = load float addrspace(2)* @d4
+  %67 = fcmp olt float %65, %66
+  br i1 %67, label %then32, label %else34
+
+then32:                                           ; preds = %ifmerge31
+  %68 = load <4 x float>* %color
+  %69 = extractelement <4 x float> %68, i32 1
+  %70 = load float addrspace(2)* @d4
+  %71 = fadd float %69, %70
+  %72 = load <4 x float>* %color
+  %color33 = insertelement <4 x float> %72, float %71, i32 1
+  store <4 x float> %color33, <4 x float>* %color
+  br label %ifmerge36
+
+else34:                                           ; preds = %ifmerge31
+  %73 = load <4 x float>* %color
+  %74 = extractelement <4 x float> %73, i32 0
+  %75 = load float addrspace(2)* @d4
+  %76 = fadd float %74, %75
+  %77 = load <4 x float>* %color
+  %color35 = insertelement <4 x float> %77, float %76, i32 0
+  store <4 x float> %color35, <4 x float>* %color
+  br label %ifmerge36
+
+ifmerge36:                                        ; preds = %else34, %then32
+  br label %loop-header13
+
+loop-merge37:                                     ; preds = %then14
+  %78 = load <4 x float>* %color
+  %assignment_tmp3839 = fadd <4 x float> %78, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %assignment_tmp3839, <4 x float>* %assignment_tmp38
+  %color40 = load <4 x float>* %assignment_tmp38
+  store <4 x float> %color40, <4 x float>* %color
+  %gl_FragColor = load <4 x float>* %assignment_tmp38
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %loop-merge37
+  %79 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %79)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+***Unsupported functionality: general-case cross edges (requires artificial loop)
+compiling loopsArtificial.frag...
+uniform vec4 bigColor ; 
+uniform vec4 bigColor1_1 ; 
+uniform vec4 bigColor1_2 ; 
+uniform vec4 bigColor1_3 ; 
+uniform vec4 bigColor2 ; 
+uniform vec4 bigColor3 ; 
+uniform vec4 bigColor4 ; 
+uniform vec4 bigColor5 ; 
+uniform vec4 bigColor6 ; 
+uniform vec4 bigColor7 ; 
+uniform vec4 bigColor8 ; 
+varying vec4 BaseColor ; 
+uniform float d ; 
+uniform float d2 ; 
+uniform float d3 ; 
+uniform float d4 ; 
+uniform float d5 ; 
+uniform float d6 ; 
+uniform float d7 ; 
+uniform float d8 ; 
+uniform float d9 ; 
+uniform float d10 ; 
+uniform float d11 ; 
+uniform float d12 ; 
+uniform float d13 ; 
+uniform float d14 ; 
+uniform float d15 ; 
+uniform float d16 ; 
+uniform float d17 ; 
+uniform float d18 ; 
+uniform float d19 ; 
+uniform float d20 ; 
+uniform float d21 ; 
+uniform float d22 ; 
+uniform float d23 ; 
+uniform float d24 ; 
+uniform float d25 ; 
+uniform float d26 ; 
+uniform float d27 ; 
+uniform float d28 ; 
+uniform float d29 ; 
+uniform float d30 ; 
+uniform float d31 ; 
+uniform float d32 ; 
+uniform float d33 ; 
+uniform float d34 ; 
+uniform int Count ; 
+void  main (){
+vec4 color = BaseColor ; do {
+color += bigColor4 ; if ( color . x < d4 ) {
+color . z += 2.000000 ; if ( color . z < d4 ) {
+color . x ++ ; continue; }
+}
+if ( color . y < d4 ) color . y += d4 ; else color . x += d4 ; }
+while ( color . z < d4 ); while ( color . w < d13 ) {
+if ( color . z < d13 ) color ++ ; else color -- ; color += bigColor4 ; if ( color . x < d4 ) {
+color . z += 2.000000 ; if ( color . z < d4 ) {
+color . x ++ ; continue; }
+}
+if ( color . y < d4 ) color . y += d4 ; else color . x += d4 ; }
+color ++ ; gl_FragColor = color ; }
+
+
+
+(
+(declare (uniform ) float d13)
+(declare (uniform ) float d4)
+(declare (in ) vec4 BaseColor)
+(declare (uniform ) vec4 bigColor4)
+(declare (out ) vec4 gl_FragColor)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (declare () vec4 color)
+      (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref BaseColor) ) 
+      (loop () () () () (
+        (declare (temporary ) vec4 assignment_tmp)
+        (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref color) (var_ref bigColor4) ) ) 
+        (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
+        (if (expression bool < (swiz x (var_ref assignment_tmp) )(var_ref d4) ) (
+          (assign (constant bool (1)) (z) (var_ref color)  (expression float + (swiz z (var_ref assignment_tmp) )(constant float (2.000000)) ) ) 
+          (if (expression bool < (swiz z (var_ref color) )(var_ref d4) ) (
+            (assign (constant bool (1)) (x) (var_ref color)  (expression float + (swiz x (var_ref color) )(constant float (1.000000)) ) ) 
+            continue
+          )
+          ())
+
+        )
+        ())
+
+        (if (expression bool < (swiz y (var_ref color) )(var_ref d4) ) (
+          (assign (constant bool (1)) (y) (var_ref color)  (expression float + (swiz y (var_ref color) )(var_ref d4) ) ) 
+        )
+        (
+          (assign (constant bool (1)) (x) (var_ref color)  (expression float + (swiz x (var_ref color) )(var_ref d4) ) ) 
+        ))
+
+        (if (expression bool >= (swiz z (var_ref color) )(var_ref d4) ) (
+          break
+        )
+        ())
+
+      ))
+
+      (loop () () () () (
+        (if (expression bool >= (swiz w (var_ref color) )(var_ref d13) ) (
+          break
+        )
+        ())
+
+        (if (expression bool < (swiz z (var_ref color) )(var_ref d13) ) (
+          (assign (constant bool (1)) (xyzw) (var_ref color)  (expression vec4 + (var_ref color) (constant float (1.000000)) ) ) 
+        )
+        (
+          (assign (constant bool (1)) (xyzw) (var_ref color)  (expression vec4 - (var_ref color) (constant float (1.000000)) ) ) 
+        ))
+
+        (declare (temporary ) vec4 assignment_tmp)
+        (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref color) (var_ref bigColor4) ) ) 
+        (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
+        (if (expression bool < (swiz x (var_ref assignment_tmp) )(var_ref d4) ) (
+          (assign (constant bool (1)) (z) (var_ref color)  (expression float + (swiz z (var_ref assignment_tmp) )(constant float (2.000000)) ) ) 
+          (if (expression bool < (swiz z (var_ref color) )(var_ref d4) ) (
+            (assign (constant bool (1)) (x) (var_ref color)  (expression float + (swiz x (var_ref color) )(constant float (1.000000)) ) ) 
+            continue
+          )
+          ())
+
+        )
+        ())
+
+        (if (expression bool < (swiz y (var_ref color) )(var_ref d4) ) (
+          (assign (constant bool (1)) (y) (var_ref color)  (expression float + (swiz y (var_ref color) )(var_ref d4) ) ) 
+        )
+        (
+          (assign (constant bool (1)) (x) (var_ref color)  (expression float + (swiz x (var_ref color) )(var_ref d4) ) ) 
+        ))
+
+      ))
+
+      (declare (temporary ) vec4 assignment_tmp)
+      (assign (constant bool (1)) (xyzw) (var_ref assignment_tmp)  (expression vec4 + (var_ref color) (constant float (1.000000)) ) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref color)  (var_ref assignment_tmp) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref assignment_tmp) ) 
+    ))
+
+)
+
+
+)

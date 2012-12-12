@@ -162,22 +162,6 @@ void main()
             color.x += d4;
     } while (color.z < d4);
 
-    // Latchy2
-    do {
-        color += bigColor4;
-        if (color.x < d4) {
-            color.z += 2.0;
-            if (color.z < d4) {
-                color.x++;
-                continue;
-            }
-        }
-        if (color.y < d4)
-            color.y += d4;
-        else
-            color.x += d4;
-    } while (color.z < d4);
-
     // Do while flow control
     do {
         color += bigColor5;
@@ -287,27 +271,6 @@ void main()
                 continue;
 
         color.y += bigColor8.x;
-    }
-
-    // Immediate dominator
-    while (color.w < d13) {
-        if (color.z < d13)
-            color++;
-        else
-            color--;
-        // code from Latchy 2
-        color += bigColor4;
-        if (color.x < d4) {
-            color.z += 2.0;
-            if (color.z < d4) {
-                color.x++;
-                continue;
-            }
-        }
-        if (color.y < d4)
-            color.y += d4;
-        else
-            color.x += d4;
     }
 
     color++;
