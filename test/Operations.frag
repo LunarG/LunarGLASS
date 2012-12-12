@@ -1,5 +1,7 @@
 #version 130
 
+//#define TEST_POST_110
+
 uniform ivec4 uiv4;
 uniform vec4 uv4;
 //uniform uvec4 uuv4;
@@ -26,6 +28,8 @@ void main()
     v += tan(v);
     v += asin(v);
     v += acos(v);
+
+#ifdef TEST_POST_110
     v += atan(v);
     v += sinh(v);
     v += cosh(v);
@@ -33,6 +37,8 @@ void main()
     v += asinh(v);
     v += acosh(v);
     v += atanh(v);
+#endif
+
     v += pow(v, v);
     v += exp(v);
     v += log(v);
@@ -43,19 +49,31 @@ void main()
     v += abs(v);
     v += sign(v);
     v += floor(v);
+
+#ifdef TEST_POST_110
     v += trunc(v);
     v += round(v);
     v += roundEven(v);
+#endif
+
     v += ceil(v);
     v += fract(v);
     v += mod(v, v);
 	v += mod(v, v.x);
-    //v += modf(v, v);
+
+#ifdef TEST_POST_110
+    v += modf(v, v);
+#endif
+
     v += min(v, uv4);
     v += max(v, uv4);
     v += clamp(v, uv4, uv4);
     v += mix(v,v,v);
+
+#ifdef TEST_POST_110
     v += mix(v,v,ub);
+#endif
+
     v += step(v,v);
     v += smoothstep(v,v,v);
     //v += intBitsToFloat(v);
@@ -81,6 +99,7 @@ void main()
     v += fwidth(v);
 	//noise*(v);
 
+#ifdef TEST_POST_110
 	// signed integer
 	i = 0;
 	i += abs(ui);
@@ -88,6 +107,8 @@ void main()
 	i += min(i, ui);
 	i += max(i, ui);
 	i += clamp(i, ui, ui);
+#endif
+
 	//floatsBitsToInt(v);
 	//packUnorm2x16(v);
 	//packUnorm4x8(v);
@@ -108,10 +129,10 @@ void main()
 	// bool
 	//b = isnan(uf);
     //b = isinf(v);
-	b = any(lessThan(v, v));
-	b = (b && any(lessThanEqual(v, v)));
-    b = (b && any(greaterThan(v, v)));
-    b = (b && any(greaterThanEqual(v, v)));
+	b = any(lessThan(v, uv4));
+	b = (b && any(lessThanEqual(v, uv4)));
+    b = (b && any(greaterThan(v, uv4)));
+    b = (b && any(greaterThanEqual(v, uv4)));
     b = (b && any(equal(ub41, ub42)));
     b = (b && any(notEqual(ub41, ub42)));
     b = (b && any(ub41));

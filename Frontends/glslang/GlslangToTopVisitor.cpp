@@ -79,7 +79,7 @@ public:
     gla::Builder::SuperValue handleBuiltinFunctionCall(TIntermAggregate*);
     gla::Builder::SuperValue handleUserFunctionCall(TIntermAggregate*);
 
-    gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right);
+    gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool reduceComparison = true);
     gla::Builder::SuperValue createUnaryOperation(TOperator op, const TType& destType, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand, TBasicType);
     gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, TBasicType);
@@ -433,7 +433,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
                 result = oit->handleBuiltinFunctionCall(node);
 
             if (result.isClear())
-                gla::UnsupportedFunctionality("glslang function call");
+                gla::UnsupportedFunctionality("glslang function call", gla::EATContinue);
             else {
                 oit->glaBuilder->clearAccessChain();
                 oit->glaBuilder->setAccessChainRValue(result);
@@ -493,18 +493,59 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         gla::UnsupportedFunctionality("matrix constructor");
         return false;
 
+    // These six are component-wise compares with component-wise results.
+    // Forward on to createBinaryOperation(), requesting a vector result.
     case EOpLessThan:
     case EOpGreaterThan:
     case EOpLessThanEqual:
     case EOpGreaterThanEqual:
     case EOpVectorEqual:
     case EOpVectorNotEqual:
-        gla::UnsupportedFunctionality("aggregate comparison");
+    {
+        // Map the operation
+        TOperator binOp = node->getOp();
+        switch (node->getOp()) {
+        case EOpVectorEqual:     binOp = EOpEqual;      break;
+        case EOpVectorNotEqual:  binOp = EOpNotEqual;   break;
+        default:                 binOp = node->getOp(); break;
+        }
+            
+        oit->glaBuilder->clearAccessChain();
+        node->getSequence()[0]->traverse(oit);
+        gla::Builder::SuperValue left = oit->glaBuilder->accessChainLoad();
+        oit->glaBuilder->clearAccessChain();
+        node->getSequence()[1]->traverse(oit);
+        gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
+
+        gla::Builder::SuperValue result = oit->createBinaryOperation(binOp, left, right, false);
+
+        oit->glaBuilder->clearAccessChain();
+        oit->glaBuilder->setAccessChainRValue(result);
+
         return false;
+    }
 
     //case EOpRecip:
     //    return glaBuilder->createRecip(operand);
 
+    case EOpMod:
+    {
+        // when an aggregate, this is the floating-point mod built-in function,
+        // which can be emitted by the one it createBinaryOperation()
+        oit->glaBuilder->clearAccessChain();
+        node->getSequence()[0]->traverse(oit);
+        gla::Builder::SuperValue left = oit->glaBuilder->accessChainLoad();
+        oit->glaBuilder->clearAccessChain();
+        node->getSequence()[1]->traverse(oit);
+        gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
+
+        gla::Builder::SuperValue result = oit->createBinaryOperation(EOpMod, left, right);
+        
+        oit->glaBuilder->clearAccessChain();
+        oit->glaBuilder->setAccessChainRValue(result);
+
+        return false;
+    }
     case EOpArrayLength:
         gla::UnsupportedFunctionality("glsang array length");
         return false;
@@ -528,7 +569,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         result = oit->createIntrinsic(node->getOp(), operands, glslangOperands[0]->getAsTyped()->getBasicType());
 
     if (result.isClear())
-        gla::UnsupportedFunctionality("glsang aggregate");
+        gla::UnsupportedFunctionality("glslang aggregate");
     else {
         oit->glaBuilder->clearAccessChain();
         oit->glaBuilder->setAccessChainRValue(result);
@@ -541,6 +582,15 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
+    // This path handles both if-then-else and ?:
+    // The if-then-else has a node type of void, while
+    // ?: has a non-void node type
+    llvm::Value* result = 0;
+    if (node->getBasicType() != EbtVoid) {
+        result = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0, oit->convertGlslangToGlaType(node->getType()), 
+                                                 node->getType().isMatrix(), 0, 0, "ternary");
+    }
+
     // emit the condition before doing anything with selection
     node->getCondition()->traverse(it);
 
@@ -550,15 +600,24 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
     if (node->getTrueBlock()) {
         // emit the "then" statement
 		node->getTrueBlock()->traverse(it);
+        if (result)
+            oit->glaBuilder->createStore(oit->glaBuilder->accessChainLoad(), result);
 	}
 
     if (node->getFalseBlock()) {
         ifBuilder.makeBeginElse();
         // emit the "else" statement
         node->getFalseBlock()->traverse(it);
+        if (result)
+            oit->glaBuilder->createStore(oit->glaBuilder->accessChainLoad(), result);
     }
 
     ifBuilder.makeEndIf();
+
+    if (result) {
+        oit->glaBuilder->clearAccessChain();
+        oit->glaBuilder->setAccessChainLValue(result);
+    }
 
     return false;
 }
@@ -854,6 +913,11 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
         return glaBuilder->createTextureCall(convertGlslangToGlaType(node->getType()), gla::ESampler2D, texFlags, params);
     }
 
+    if (node->getName().substr(0,11) == "faceforward") {
+        // TODO: can the front-end be changed so this is an aggregate op?
+        gla::UnsupportedFunctionality("faceforward() as a function call", gla::EATContinue);
+    }
+
     return result;
 }
 
@@ -883,7 +947,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
     llvm::Function::arg_iterator end = function->arg_end();
     for (param = function->arg_begin(); param != end; ++param) {
         // param->getType() should be a pointer, we need the type it points to
-        llvm::Value* space = glaBuilder->createVariable(gla::Builder::ESQLocal, 0, param->getType()->getContainedType(0), 0, 0, 0, "param");
+        llvm::Value* space = glaBuilder->createVariable(gla::Builder::ESQLocal, 0, param->getType()->getContainedType(0), false, 0, 0, "param");
         llvmArgs.push_back(space);
     }
 
@@ -927,7 +991,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
     return result;
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right)
+gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool reduceComparison)
 {
     gla::Builder::SuperValue result;
     llvm::Instruction::BinaryOps binOp = llvm::Instruction::BinaryOps(0);
@@ -1016,8 +1080,8 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
 
     // Comparison instructions
 
-    if (gla::IsAggregate(left) || gla::IsVector(left))
-        gla::UnsupportedFunctionality("comparison of aggregates");
+    if (reduceComparison && (gla::IsAggregate(left) || gla::IsVector(left)))
+        gla::UnsupportedFunctionality("reductive comparison of aggregates");
 
     if (leftIsFloat) {
         llvm::FCmpInst::Predicate pred = llvm::FCmpInst::Predicate(0);
@@ -1356,9 +1420,9 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
     case EOpMul:
         gla::UnsupportedFunctionality("matrix component multiply");
         break;
-    case EOpMod:
-        intrinsicID = llvm::Intrinsic::gla_fModF; // TODO: verify
-        break;
+    //case EOpModF:
+    //    intrinsicID = llvm::Intrinsic::gla_fModF;
+    //    break;
     }
 
     // If intrinsic was assigned, then call the function and return
