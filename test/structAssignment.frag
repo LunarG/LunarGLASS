@@ -1,4 +1,4 @@
-#version 100
+#version 130
 
 uniform sampler2D sampler;
 varying mediump vec2 coord;

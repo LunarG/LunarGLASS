@@ -1,4 +1,5 @@
 #version 130
+
 uniform sampler1D       texSampler1D;
 uniform sampler2D       texSampler2D;
 uniform sampler3D       texSampler3D;
@@ -61,6 +62,7 @@ void main()
 	//These are vertex shader only until 1.3
     //color += textureCubeLod (texSamplerCube, coords3D, lod);
 
+#ifdef TEST_SHADOW
 	color += shadow1D       (shadowSampler1D, coords3D);
 	color += shadow1D       (shadowSampler1D, coords3D, bias);
     color += shadow2D       (shadowSampler2D, coords3D);
@@ -69,6 +71,7 @@ void main()
 	color += shadow1DProj   (shadowSampler1D, coords4D, bias);
     color += shadow2DProj   (shadowSampler2D, coords4D);
 	color += shadow2DProj   (shadowSampler2D, coords4D, bias);
+#endif
 
 	//These are vertex shader only until 1.3
     //color += shadow1DLod    (shadowSampler1D, coords3D, lod);
@@ -79,19 +82,21 @@ void main()
     ivec2 iCoords2D = ivec2(0, 5);
     int iLod = 1;
 
+#ifdef TEST_POST_110
     color += texelFetch(texSampler2D, iCoords2D, iLod);
+#endif
 
     vec2 gradX = dFdx(coords2D);
     vec2 gradY = dFdy(coords2D);
     ivec2 offset = ivec2(3, -7);
-    
+
+#ifdef TEST_POST_110
     color += textureGrad(texSampler2D, coords2D, gradX, gradY);
     color += textureProjGrad(texSampler2D, vec3(coords2D, proj), gradX, gradY);
-
-    // Unsupported in GLSL2
-    //color += textureGradOffset(texSampler2D, coords2D, gradX, gradY, offset);
-    //color += textureProjGradOffset(texSampler2D, coords3D, gradX, gradY, offset);
-    //color += textureGrad(shadowSampler2D, vec3(coords2D, lod), gradX, gradY);
+    color += textureGradOffset(texSampler2D, coords2D, gradX, gradY, offset);
+    color += textureProjGradOffset(texSampler2D, coords3D, gradX, gradY, offset);
+    color += textureGrad(shadowSampler2D, vec3(coords2D, lod), gradX, gradY);
+#endif
     
     gl_FragColor = mix(color, u, blend * blendscale);
 }
