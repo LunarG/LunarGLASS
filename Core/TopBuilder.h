@@ -231,7 +231,7 @@ public:
     void accessChainStore(gla::Builder::SuperValue);
 
     // use accessChain and swizzle to load an r-value
-    llvm::Value* accessChainLoad();
+    SuperValue accessChainLoad();
 
     // return an offset representing the collection of offsets in the chain
     SuperValue collapseInputAccessChain();

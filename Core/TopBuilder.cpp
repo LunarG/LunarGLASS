@@ -229,10 +229,10 @@ void Builder::accessChainStore(SuperValue value)
     createStore(source, base);
 }
 
-llvm::Value* Builder::accessChainLoad()
+Builder::SuperValue Builder::accessChainLoad()
 {
     SuperValue base = accessChain.base;
-    llvm::Value* value;
+    SuperValue value;
 
     if (accessChain.isRValue) {
         if (accessChain.indexChain.size() > 1) {
