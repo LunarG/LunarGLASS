@@ -198,7 +198,7 @@ void Builder::accessChainStore(SuperValue value)
     assert(accessChain.isRValue == false);
 
     SuperValue base = collapseAccessChain();
-    llvm::Value* source = value;
+    SuperValue source = value;
 
     // if swizzle exists, it is out-of-order or not full, we must load the target vector,
     // extract and insert elements to perform writeMask and/or swizzle
@@ -1580,6 +1580,75 @@ llvm::Value* Builder::createConstructor(const std::vector<SuperValue>& sources, 
     }
 
     return constructee;
+}
+
+Builder::SuperValue Builder::createMatrixConstructor(const std::vector<SuperValue>& sources, SuperValue constructee)
+{
+    const Matrix* matrixee = constructee.getMatrix();
+
+    // Will use a two step process
+    // 1. make a compile-time 2D array of values
+    // 2. copy it into the run-time constructee
+
+    // Step 1.
+
+    // initialize the array to the identity matrix
+    llvm::Value* values[4][4];
+    llvm::Value*  one = gla::MakeFloatConstant(context, 1.0);
+    llvm::Value* zero = gla::MakeFloatConstant(context, 0.0);
+    for (int col = 0; col < 4; ++col) {
+        for (int row = 0; row < 4; ++row) {
+            if (col == row)
+                values[col][row] = one;
+            else
+                values[col][row] = zero;
+        }
+    }
+
+    // modify components as dictated by the arguments
+    if (sources.size() == 1 && IsScalar(sources[0])) {
+        // a single scalar; resets the diagonals
+        for (int col = 0; col < 4; ++col)
+            values[col][col] = sources[0];
+    } else if (sources[0].isMatrix()) {
+        // a matrix; copy over the parts that exist in both the argument and constructee
+        const Matrix* matrix = sources[0].getMatrix();
+        int minCols = std::min(matrixee->getNumColumns(), matrix->getNumColumns());
+        int minRows = std::min(matrixee->getNumRows(), matrix->getNumRows());
+        for (int col = 0; col < minCols; ++col) {
+            llvm::Value* column = builder.CreateExtractValue(matrix->getValue(), col, "__column");
+            for (int row = 0; row < minRows; ++row)
+                values[col][row] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
+        }
+    } else {
+        // fill in the matrix in column-major order with whatever argument components are available
+        int row = 0;
+        int col = 0;
+
+        for (int arg = 0; arg < sources.size(); ++arg) {
+            llvm::Value* argComp = sources[arg];
+            for (int comp = 0; comp < GetComponentCount(sources[arg]); ++comp) {
+                if (GetComponentCount(sources[arg]) > 1)
+                    argComp = builder.CreateExtractElement(sources[arg], MakeUnsignedConstant(context, comp), "__element");
+                values[col][row++] = argComp;
+                if (row == matrixee->getNumRows()) {
+                    row = 0;
+                    col++;
+                }
+            }
+        }
+    }
+
+    // Step 2:  Copy into run-time result.
+    for (int col = 0; col < matrixee->getNumColumns(); ++col) {
+        llvm::Value* column = builder.CreateExtractValue(matrixee->getValue(), col, "__column");
+        for (int row = 0; row < matrixee->getNumRows(); ++row) {
+            column = builder.CreateInsertElement(column, values[col][row], MakeIntConstant(context, row), "__column");
+        }
+        constructee = builder.CreateInsertValue(constructee, column, col, "__matrix");
+    }
+
+    return newMatrix(constructee);
 }
 
 Builder::If::If(llvm::Value* cond, Builder* gb)

@@ -377,7 +377,12 @@ public:
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue, SuperValue);
     llvm::Value* createRecip(llvm::Value*);
     llvm::Value* createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned);
+
+    // vector constructor
     llvm::Value* createConstructor(const std::vector<SuperValue>& sources, llvm::Value* constructee);
+
+    // matrix constructor
+    SuperValue createMatrixConstructor(const std::vector<SuperValue>& sources, SuperValue constructee);
 
     class If {
     public:
