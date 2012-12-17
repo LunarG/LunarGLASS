@@ -1,0 +1,35 @@
+
+***Unsupported functionality: Matrix constants
+compiling matrix2.frag...
+uniform mat3 colorTransform ; 
+varying vec3 Color ; 
+uniform mat4 m , n ; 
+uniform mat4 um43 ; 
+uniform mat4 un34 ; 
+varying vec4 v ; 
+varying vec4 u ; 
+void  main (){
+mat4 m34 = mat4 ( v . x * u . x , v . x * u . y , v . x * u . z , v . x * u . w , v . y * u . x , v . y * u . y , v . y * u . z , v . y * u . w , v . z * u . x , v . z * u . y , v . z * u . z , v . z * u . w , v . w * u . x , v . w * u . y , v . w * u . z , v . w * u . w ) ; m34 += mat4 ( 4.300000 ) ; gl_FragColor = vec4 ( Color , 1.000000 ) ; gl_FragColor *= um43 ; m34 *= v . x ; mat4 m44 = mat4 ( 4.700000 ) ; m44 *= um43 ; gl_FragColor += - m44 * u ; }
+
+
+
+(
+(declare (in ) vec4 u)
+(declare (uniform ) mat4 um43)
+(declare (in ) vec3 Color)
+(declare (out ) vec4 gl_FragColor)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (declare (temporary ) vec4 vec_ctor)
+      (assign (constant bool (1)) (w) (var_ref vec_ctor)  (constant float (1.000000)) ) 
+      (assign (constant bool (1)) (xyz) (var_ref vec_ctor)  (var_ref Color) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 + (expression vec4 * (var_ref vec_ctor) (var_ref um43) ) (expression vec4 * (expression mat4 neg (expression mat4 * (constant mat4 (4.700000 0.000000 0.000000 0.000000 0.000000 4.700000 0.000000 0.000000 0.000000 0.000000 4.700000 0.000000 0.000000 0.000000 0.000000 4.700000)) (var_ref um43) ) ) (var_ref u) ) ) ) 
+    ))
+
+)
+
+
+)
