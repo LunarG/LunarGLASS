@@ -85,7 +85,7 @@ public:
     gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, TBasicType);
     llvm::Value* createPipelineRead(TIntermSymbol*, int slot);
     int getNextInterpIndex(std::string& name);
-    llvm::Constant* createLLVMConstant(TType& type, constUnion *consts, int& nextConst);
+    gla::Builder::SuperValue createLLVMConstant(TType& type, constUnion *consts, int& nextConst);
 
     llvm::LLVMContext &context;
     llvm::BasicBlock* shaderEntry;
@@ -219,17 +219,8 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
 
                 // do the operation
                 rValue = oit->createBinaryOperation(node->getOp(), leftRValue, rValue);
-                if (rValue.isClear()) {
-                    switch (node->getOp()) {
-                    case EOpVectorTimesMatrixAssign:
-                    case EOpMatrixTimesScalarAssign:
-                    case EOpMatrixTimesMatrixAssign:
-                        gla::UnsupportedFunctionality("matrix op-assign");
-                        break;
-                    default:
-                        gla::UnsupportedFunctionality("unknown op-assign");
-                    }
-                }
+                if (rValue.isClear())
+                    gla::UnsupportedFunctionality("unknown op-assign");
             }
 
             // store the result
@@ -643,7 +634,7 @@ void TranslateConstantUnion(TIntermConstantUnion* node, TIntermTraverser* it)
     int size = node->getType().getObjectSize();
 
     int nextConst = 0;
-    llvm::Value* c = oit->createLLVMConstant(node->getType(), node->getUnionArrayPointer(), nextConst);
+    gla::Builder::SuperValue c = oit->createLLVMConstant(node->getType(), node->getUnionArrayPointer(), nextConst);
     oit->glaBuilder->clearAccessChain();
     oit->glaBuilder->setAccessChainRValue(c);
 }
@@ -1033,6 +1024,9 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
     case EOpMulAssign:
     case EOpVectorTimesScalar:
     case EOpVectorTimesScalarAssign:
+    case EOpVectorTimesMatrixAssign:
+    case EOpMatrixTimesScalarAssign:
+    case EOpMatrixTimesMatrixAssign:
         if (leftIsFloat)
             binOp = llvm::Instruction::FMul;
         else
@@ -1096,8 +1090,16 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
     }
 
     if (binOp != 0) {
-        if (left.isMatrix() || right.isMatrix())
-            return glaBuilder->createMatrixOp(binOp, left, right);
+        if (left.isMatrix() || right.isMatrix()) {
+            switch(op) {
+            case EOpVectorTimesMatrixAssign:
+            case EOpMatrixTimesScalarAssign:
+            case EOpMatrixTimesMatrixAssign:
+                return glaBuilder->createMatrixMultiply(left, right);
+            default:
+                return glaBuilder->createMatrixOp(binOp, left, right);
+            }
+        }
 
         if (needsPromotion)
             glaBuilder->promoteScalar(left, right);
@@ -1201,8 +1203,12 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
     // Unary ops that map to llvm operations
     switch (op) {
     case EOpNegative:
-        if (operand.isMatrix())
-            gla::UnsupportedFunctionality("matrix unary");
+        if (operand.isMatrix()) {
+            // emulate by subtracting from 0.0
+            llvm::Value* zero = gla::MakeFloatConstant(context, 0.0);
+
+            return glaBuilder->createMatrixOp(llvm::Instruction::FSub, zero, operand);
+        }
 
         if (destType.getBasicType() == EbtFloat)
             return llvmBuilder.CreateFNeg(operand);
@@ -1523,10 +1529,10 @@ int TGlslangToTopTraverser::getNextInterpIndex(std::string& name)
     return interpMap[name];
 }
 
-llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(TType& glslangType, constUnion *consts, int& nextConst)
+gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMConstant(TType& glslangType, constUnion *consts, int& nextConst)
 {
     // vector of constants for LLVM
-    std::vector<llvm::Constant*> vals;
+    std::vector<llvm::Constant*> llvmConsts;
 
     // Type is used for struct and array constants
     const llvm::Type* type = convertGlslangToGlaType(glslangType);
@@ -1535,13 +1541,15 @@ llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(TType& glslangType, c
         TType nonArrayType = glslangType;
         nonArrayType.clearArrayness();
         for (int i = 0; i < glslangType.getArraySize(); ++i)
-            vals.push_back(createLLVMConstant(nonArrayType, consts, nextConst));
+            llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(nonArrayType, consts, nextConst).getValue()));
     } else if (glslangType.isMatrix()) {
-        gla::UnsupportedFunctionality("Matrix constants");
+        TType vectorType = TType(glslangType.getBasicType(), EvqTemporary, glslangType.getNominalSize());
+        for (int col = 0; col < glslangType.getNominalSize(); ++col)
+            llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(vectorType, consts, nextConst).getValue()));
     } else if (glslangType.getStruct()) {
         TVector<TTypeLine>::iterator iter;
         for (iter = glslangType.getStruct()->begin(); iter != glslangType.getStruct()->end(); ++iter)
-            vals.push_back(createLLVMConstant(*iter->type, consts, nextConst));
+            llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(*iter->type, consts, nextConst).getValue()));
     } else {
         // a vector or scalar, both will work the same way
         // this is where we actually consume the constants, rather than walk a tree
@@ -1549,16 +1557,16 @@ llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(TType& glslangType, c
         for (unsigned int i = 0; i < glslangType.getNominalSize(); ++i) {
             switch(consts[nextConst].getType()) {
             case EbtInt:
-                vals.push_back(gla::MakeUnsignedConstant(context, consts[nextConst].getIConst()));
+                llvmConsts.push_back(gla::MakeUnsignedConstant(context, consts[nextConst].getIConst()));
                 break;
             case EbtFloat:
-                vals.push_back(gla::MakeFloatConstant(context, consts[nextConst].getFConst()));
+                llvmConsts.push_back(gla::MakeFloatConstant(context, consts[nextConst].getFConst()));
                 break;
             case EbtDouble:
-                vals.push_back(gla::MakeFloatConstant(context, consts[nextConst].getDConst()));
+                llvmConsts.push_back(gla::MakeFloatConstant(context, consts[nextConst].getDConst()));
                 break;
             case EbtBool:
-                vals.push_back(gla::MakeBoolConstant(context, consts[nextConst].getBConst()));
+                llvmConsts.push_back(gla::MakeBoolConstant(context, consts[nextConst].getBConst()));
                 break;
             default:
                 gla::UnsupportedFunctionality("scalar or vector element type");
@@ -1568,7 +1576,10 @@ llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(TType& glslangType, c
         }
     }
 
-    return glaBuilder->getConstant(vals, type);
+    if (glslangType.isMatrix())
+        return glaBuilder->newMatrix(glaBuilder->getConstant(llvmConsts, type));
+    else
+        return glaBuilder->getConstant(llvmConsts, type);
 }
 
 //
