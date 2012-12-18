@@ -9,7 +9,7 @@ uniform mat4 un34 ;
 varying vec4 v ; 
 varying vec4 u ; 
 void  main (){
-mat4 m34 = mat4 ( v . x * u . x , v . x * u . y , v . x * u . z , v . x * u . w , v . y * u . x , v . y * u . y , v . y * u . z , v . y * u . w , v . z * u . x , v . z * u . y , v . z * u . z , v . z * u . w , v . w * u . x , v . w * u . y , v . w * u . z , v . w * u . w ) ; m34 += mat4 ( 4.300000 ) ; gl_FragColor = vec4 ( Color , 1.000000 ) ; gl_FragColor *= um43 ; m34 *= v . x ; mat4 m44 = mat4 ( 4.700000 ) ; m44 *= um43 ; gl_FragColor += - m44 * u ; }
+mat4 m34 = mat4 ( v . x * u . x , v . x * u . y , v . x * u . z , v . x * u . w , v . y * u . x , v . y * u . y , v . y * u . z , v . y * u . w , v . z * u . x , v . z * u . y , v . z * u . z , v . z * u . w , v . w * u . x , v . w * u . y , v . w * u . z , v . w * u . w ) ; m34 += mat4 ( 4.300000 ) ; gl_FragColor = vec4 ( Color , 1.000000 ) ; gl_FragColor *= um43 ; m34 *= v . x ; mat4 m44 = mat4 ( 4.700000 ) ; m44 *= um43 ; gl_FragColor += - m44 * u ; gl_FragColor *= matrixCompMult ( m44 , m44 ) ; }
 
 
 
@@ -26,7 +26,15 @@ mat4 m34 = mat4 ( v . x * u . x , v . x * u . y , v . x * u . z , v . x * u . w 
       (declare (temporary ) vec4 vec_ctor)
       (assign (constant bool (1)) (w) (var_ref vec_ctor)  (constant float (1.000000)) ) 
       (assign (constant bool (1)) (xyz) (var_ref vec_ctor)  (var_ref Color) ) 
-      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 + (expression vec4 * (var_ref vec_ctor) (var_ref um43) ) (expression vec4 * (expression mat4 neg (expression mat4 * (constant mat4 (4.700000 0.000000 0.000000 0.000000 0.000000 4.700000 0.000000 0.000000 0.000000 0.000000 4.700000 0.000000 0.000000 0.000000 0.000000 4.700000)) (var_ref um43) ) ) (var_ref u) ) ) ) 
+      (declare (temporary ) mat4 assignment_tmp)
+      (assign (constant bool (1)) () (var_ref assignment_tmp)  (expression mat4 * (constant mat4 (4.700000 0.000000 0.000000 0.000000 0.000000 4.700000 0.000000 0.000000 0.000000 0.000000 4.700000 0.000000 0.000000 0.000000 0.000000 4.700000)) (var_ref um43) ) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 + (expression vec4 * (var_ref vec_ctor) (var_ref um43) ) (expression vec4 * (expression mat4 neg (var_ref assignment_tmp) ) (var_ref u) ) ) ) 
+      (declare () mat4 z)
+      (assign (constant bool (1)) (xyzw) (array_ref (var_ref z) (constant int (0)) )  (expression vec4 * (array_ref (var_ref assignment_tmp) (constant int (0)) ) (array_ref (var_ref assignment_tmp) (constant int (0)) ) ) ) 
+      (assign (constant bool (1)) (xyzw) (array_ref (var_ref z) (constant int (1)) )  (expression vec4 * (array_ref (var_ref assignment_tmp) (constant int (1)) ) (array_ref (var_ref assignment_tmp) (constant int (1)) ) ) ) 
+      (assign (constant bool (1)) (xyzw) (array_ref (var_ref z) (constant int (2)) )  (expression vec4 * (array_ref (var_ref assignment_tmp) (constant int (2)) ) (array_ref (var_ref assignment_tmp) (constant int (2)) ) ) ) 
+      (assign (constant bool (1)) (xyzw) (array_ref (var_ref z) (constant int (3)) )  (expression vec4 * (array_ref (var_ref assignment_tmp) (constant int (3)) ) (array_ref (var_ref assignment_tmp) (constant int (3)) ) ) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (expression vec4 * (var_ref gl_FragColor) (var_ref z) ) ) 
     ))
 
 )

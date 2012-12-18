@@ -49,5 +49,9 @@ void main()
 
     m44 *= um43;
 
+    //m44 = matrixCompMult(m44, m44);
+
     gl_FragColor += (-m44) * u;
+
+    gl_FragColor *= matrixCompMult(m44, m44);
 }

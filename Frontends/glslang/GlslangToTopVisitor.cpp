@@ -383,6 +383,9 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
 bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
+    gla::Builder::SuperValue result;
+    TOperator binOp = EOpNull;
+    bool reduceComparison = true;
 
     if (node->getOp() == EOpNull) {
         gla::UnsupportedFunctionality("glslang aggregate: EOpNull", gla::EATContinue);
@@ -418,8 +421,6 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
 
     case EOpFunctionCall:
     {
-        gla::Builder::SuperValue result;
-
         if (node->isUserDefined())
             result = oit->handleUserFunctionCall(node);
         else
@@ -507,49 +508,32 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     case EOpVectorEqual:
     case EOpVectorNotEqual:
     {
-        // Map the operation
-        TOperator binOp = node->getOp();
+        // Map the operation to a binary
+        binOp = node->getOp();
+        reduceComparison = false;
         switch (node->getOp()) {
         case EOpVectorEqual:     binOp = EOpEqual;      break;
         case EOpVectorNotEqual:  binOp = EOpNotEqual;   break;
         default:                 binOp = node->getOp(); break;
         }
-            
-        oit->glaBuilder->clearAccessChain();
-        node->getSequence()[0]->traverse(oit);
-        gla::Builder::SuperValue left = oit->glaBuilder->accessChainLoad();
-        oit->glaBuilder->clearAccessChain();
-        node->getSequence()[1]->traverse(oit);
-        gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
-
-        gla::Builder::SuperValue result = oit->createBinaryOperation(binOp, left, right, false);
-
-        oit->glaBuilder->clearAccessChain();
-        oit->glaBuilder->setAccessChainRValue(result);
-
-        return false;
+        
+        break;
     }
 
     //case EOpRecip:
     //    return glaBuilder->createRecip(operand);
 
+    case EOpMul:
+        // this is the case for compontent-wise matrix multiply
+        binOp = EOpMul;
+        break;
+
     case EOpMod:
     {
         // when an aggregate, this is the floating-point mod built-in function,
         // which can be emitted by the one it createBinaryOperation()
-        oit->glaBuilder->clearAccessChain();
-        node->getSequence()[0]->traverse(oit);
-        gla::Builder::SuperValue left = oit->glaBuilder->accessChainLoad();
-        oit->glaBuilder->clearAccessChain();
-        node->getSequence()[1]->traverse(oit);
-        gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
-
-        gla::Builder::SuperValue result = oit->createBinaryOperation(EOpMod, left, right);
-        
-        oit->glaBuilder->clearAccessChain();
-        oit->glaBuilder->setAccessChainRValue(result);
-
-        return false;
+        binOp = EOpMod;
+        break;
     }
     case EOpArrayLength:
         gla::UnsupportedFunctionality("glsang array length");
@@ -560,9 +544,28 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     // See if it maps to a regular operation or intrinsic.
     //
 
+    if (binOp != EOpNull) {
+        oit->glaBuilder->clearAccessChain();
+        node->getSequence()[0]->traverse(oit);
+        gla::Builder::SuperValue left = oit->glaBuilder->accessChainLoad();
+
+        oit->glaBuilder->clearAccessChain();
+        node->getSequence()[1]->traverse(oit);
+        gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
+
+        if (left.isMatrix() && binOp == EOpMul)
+            result = oit->glaBuilder->createMatrixOp(llvm::Instruction::FMul, left, right);
+        else
+            result = oit->createBinaryOperation(binOp, left, right, reduceComparison);
+        
+        oit->glaBuilder->clearAccessChain();
+        oit->glaBuilder->setAccessChainRValue(result);
+
+        return false;
+    }
+
     TIntermSequence& glslangOperands = node->getSequence();
     std::vector<gla::Builder::SuperValue> operands;
-    gla::Builder::SuperValue result;
     for (int i = 0; i < glslangOperands.size(); ++i) {
         oit->glaBuilder->clearAccessChain();
         glslangOperands[i]->traverse(oit);
