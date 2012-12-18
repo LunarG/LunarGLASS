@@ -136,20 +136,31 @@ void Builder::simplifyAccessChainSwizzle()
     accessChain.swizzleTargetWidth = 0;
 }
 
-void Builder::setAccessChainRValue(SuperValue lVal)
+void Builder::setAccessChainRValue(SuperValue rValue)
 {
-    setAccessChainLValue(lVal);
+    // We don't support exposed pointers, so no r-value should be a pointer.
+    // If code is calling this with a pointer, it should probably be calling 
+    // setAccessChainLValue() instead.
+    assert(! llvm::isa<llvm::PointerType>(rValue.getValue()->getType()));
+
     accessChain.isRValue = true;
+    accessChain.base = rValue;
+
+    // Because we might later turn an r-value into an l-value, just
+    // to use the GEP mechanism for complex r-value dereferences,
+    // push a pointer dereference now.
+    accessChain.indexChain.push_back(MakeIntConstant(context, 0));
 }
 
-void Builder::setAccessChainLValue(SuperValue lVal)
+void Builder::setAccessChainLValue(SuperValue lValue)
 {
-    // if the lvalue is a pointer, need to push a 0 on 
-    // the gep chain to dereference it
-    if (llvm::isa<llvm::PointerType>(lVal.getValue()->getType()))
-        accessChain.indexChain.push_back(MakeIntConstant(context, 0));
+    // l-values need to be allocated somewhere, so we expect a pointer.
+    assert(llvm::isa<llvm::PointerType>(lValue.getValue()->getType()));
 
-    accessChain.base = lVal;
+    // Pointers need to push a 0 on the gep chain to dereference them.
+    accessChain.indexChain.push_back(MakeIntConstant(context, 0));
+
+    accessChain.base = lValue;
 }
 
 void Builder::setAccessChainPipeValue(llvm::Value* val)
@@ -239,7 +250,7 @@ Builder::SuperValue Builder::accessChainLoad()
 
             // create space for our r-value on the stack
             SuperValue lVal;
-            lVal = createVariable(ESQLocal, 0, accessChain.base->getType(), false, 0, 0, "indexable");
+            lVal = createVariable(ESQLocal, 0, accessChain.base->getType(), accessChain.base.isMatrix(), 0, 0, "indexable");
 
             // store into it
             createStore(accessChain.base, lVal);
@@ -250,7 +261,6 @@ Builder::SuperValue Builder::accessChainLoad()
 
             // GEP from local alloca
             value = createLoad(collapseAccessChain());
-
         } else {
             value = accessChain.base;
         }
