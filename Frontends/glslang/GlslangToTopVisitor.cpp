@@ -1461,9 +1461,6 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
     case EOpRefract:
         intrinsicID = llvm::Intrinsic::gla_fRefract;
         break;
-    case EOpMul:
-        gla::UnsupportedFunctionality("matrix component multiply");
-        break;
     //case EOpModF:
     //    intrinsicID = llvm::Intrinsic::gla_fModF;
     //    break;
