@@ -1,0 +1,237 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@v1 = internal global <4 x float> zeroinitializer
+@v2 = internal global <4 x float> zeroinitializer
+@v3 = internal global <4 x float> zeroinitializer
+@v4 = internal global <4 x float> zeroinitializer
+@"sampler2D sampler" = external addrspace(1) constant i32
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %constructed73 = alloca <4 x float>
+  %ternary = alloca <4 x float>
+  %i = alloca float
+  %h = alloca float
+  %indexable = alloca [4 x <4 x float>]
+  %g = alloca float
+  %f = alloca float
+  %mm = alloca [4 x <4 x float>]
+  %constructed = alloca [4 x <4 x float>]
+  %m = alloca [4 x <4 x float>]
+  store <4 x float> <float 2.000000e+00, float 3.000000e+00, float 5.000000e+00, float 7.000000e+00>, <4 x float>* @v1
+  store <4 x float> <float 1.100000e+01, float 1.300000e+01, float 1.700000e+01, float 1.900000e+01>, <4 x float>* @v2
+  store <4 x float> <float 2.300000e+01, float 2.900000e+01, float 3.100000e+01, float 3.700000e+01>, <4 x float>* @v3
+  store <4 x float> <float 4.100000e+01, float 4.300000e+01, float 4.700000e+01, float 5.300000e+01>, <4 x float>* @v4
+  %0 = load <4 x float>* @v1
+  %1 = load <4 x float>* @v2
+  %2 = load <4 x float>* @v3
+  %3 = load <4 x float>* @v4
+  %__matrix = load [4 x <4 x float>]* %constructed
+  %__element = extractelement <4 x float> %0, i32 0
+  %__element1 = extractelement <4 x float> %0, i32 1
+  %__element2 = extractelement <4 x float> %0, i32 2
+  %__element3 = extractelement <4 x float> %0, i32 3
+  %__element4 = extractelement <4 x float> %1, i32 0
+  %__element5 = extractelement <4 x float> %1, i32 1
+  %__element6 = extractelement <4 x float> %1, i32 2
+  %__element7 = extractelement <4 x float> %1, i32 3
+  %__element8 = extractelement <4 x float> %2, i32 0
+  %__element9 = extractelement <4 x float> %2, i32 1
+  %__element10 = extractelement <4 x float> %2, i32 2
+  %__element11 = extractelement <4 x float> %2, i32 3
+  %__element12 = extractelement <4 x float> %3, i32 0
+  %__element13 = extractelement <4 x float> %3, i32 1
+  %__element14 = extractelement <4 x float> %3, i32 2
+  %__element15 = extractelement <4 x float> %3, i32 3
+  %__column = extractvalue [4 x <4 x float>] %__matrix, 0
+  %__column16 = insertelement <4 x float> %__column, float %__element, i32 0
+  %__column17 = insertelement <4 x float> %__column16, float %__element1, i32 1
+  %__column18 = insertelement <4 x float> %__column17, float %__element2, i32 2
+  %__column19 = insertelement <4 x float> %__column18, float %__element3, i32 3
+  %__matrix20 = insertvalue [4 x <4 x float>] %__matrix, <4 x float> %__column19, 0
+  %__column21 = extractvalue [4 x <4 x float>] %__matrix, 1
+  %__column22 = insertelement <4 x float> %__column21, float %__element4, i32 0
+  %__column23 = insertelement <4 x float> %__column22, float %__element5, i32 1
+  %__column24 = insertelement <4 x float> %__column23, float %__element6, i32 2
+  %__column25 = insertelement <4 x float> %__column24, float %__element7, i32 3
+  %__matrix26 = insertvalue [4 x <4 x float>] %__matrix20, <4 x float> %__column25, 1
+  %__column27 = extractvalue [4 x <4 x float>] %__matrix, 2
+  %__column28 = insertelement <4 x float> %__column27, float %__element8, i32 0
+  %__column29 = insertelement <4 x float> %__column28, float %__element9, i32 1
+  %__column30 = insertelement <4 x float> %__column29, float %__element10, i32 2
+  %__column31 = insertelement <4 x float> %__column30, float %__element11, i32 3
+  %__matrix32 = insertvalue [4 x <4 x float>] %__matrix26, <4 x float> %__column31, 2
+  %__column33 = extractvalue [4 x <4 x float>] %__matrix, 3
+  %__column34 = insertelement <4 x float> %__column33, float %__element12, i32 0
+  %__column35 = insertelement <4 x float> %__column34, float %__element13, i32 1
+  %__column36 = insertelement <4 x float> %__column35, float %__element14, i32 2
+  %__column37 = insertelement <4 x float> %__column36, float %__element15, i32 3
+  %__matrix38 = insertvalue [4 x <4 x float>] %__matrix32, <4 x float> %__column37, 3
+  store [4 x <4 x float>] %__matrix38, [4 x <4 x float>]* %m
+  %__matrix39 = load [4 x <4 x float>]* %m
+  %__matrix40 = load [4 x <4 x float>]* %m
+  %4 = alloca [4 x <4 x float>]
+  %5 = load [4 x <4 x float>]* %4
+  %__leftColumn = extractvalue [4 x <4 x float>] %__matrix39, 0
+  %__rightColumn = extractvalue [4 x <4 x float>] %__matrix40, 0
+  %__column41 = fmul <4 x float> %__leftColumn, %__rightColumn
+  %6 = insertvalue [4 x <4 x float>] %5, <4 x float> %__column41, 0
+  %__leftColumn42 = extractvalue [4 x <4 x float>] %__matrix39, 1
+  %__rightColumn43 = extractvalue [4 x <4 x float>] %__matrix40, 1
+  %__column44 = fmul <4 x float> %__leftColumn42, %__rightColumn43
+  %7 = insertvalue [4 x <4 x float>] %6, <4 x float> %__column44, 1
+  %__leftColumn45 = extractvalue [4 x <4 x float>] %__matrix39, 2
+  %__rightColumn46 = extractvalue [4 x <4 x float>] %__matrix40, 2
+  %__column47 = fmul <4 x float> %__leftColumn45, %__rightColumn46
+  %8 = insertvalue [4 x <4 x float>] %7, <4 x float> %__column47, 2
+  %__leftColumn48 = extractvalue [4 x <4 x float>] %__matrix39, 3
+  %__rightColumn49 = extractvalue [4 x <4 x float>] %__matrix40, 3
+  %__column50 = fmul <4 x float> %__leftColumn48, %__rightColumn49
+  %mm51 = insertvalue [4 x <4 x float>] %8, <4 x float> %__column50, 3
+  store [4 x <4 x float>] %mm51, [4 x <4 x float>]* %mm
+  %9 = getelementptr [4 x <4 x float>]* %mm, i32 0, i32 1
+  %10 = load <4 x float>* %9
+  %f52 = extractelement <4 x float> %10, i32 3
+  store float %f52, float* %f
+  %__matrix53 = load [4 x <4 x float>]* %m
+  %__matrix54 = load [4 x <4 x float>]* %m
+  %11 = alloca [4 x <4 x float>]
+  %12 = load [4 x <4 x float>]* %11
+  %__leftColumn55 = extractvalue [4 x <4 x float>] %__matrix53, 0
+  %__rightColumn56 = extractvalue [4 x <4 x float>] %__matrix54, 0
+  %__column57 = fmul <4 x float> %__leftColumn55, %__rightColumn56
+  %13 = insertvalue [4 x <4 x float>] %12, <4 x float> %__column57, 0
+  %__leftColumn58 = extractvalue [4 x <4 x float>] %__matrix53, 1
+  %__rightColumn59 = extractvalue [4 x <4 x float>] %__matrix54, 1
+  %__column60 = fmul <4 x float> %__leftColumn58, %__rightColumn59
+  %14 = insertvalue [4 x <4 x float>] %13, <4 x float> %__column60, 1
+  %__leftColumn61 = extractvalue [4 x <4 x float>] %__matrix53, 2
+  %__rightColumn62 = extractvalue [4 x <4 x float>] %__matrix54, 2
+  %__column63 = fmul <4 x float> %__leftColumn61, %__rightColumn62
+  %15 = insertvalue [4 x <4 x float>] %14, <4 x float> %__column63, 2
+  %__leftColumn64 = extractvalue [4 x <4 x float>] %__matrix53, 3
+  %__rightColumn65 = extractvalue [4 x <4 x float>] %__matrix54, 3
+  %__column66 = fmul <4 x float> %__leftColumn64, %__rightColumn65
+  %indexable67 = insertvalue [4 x <4 x float>] %15, <4 x float> %__column66, 3
+  store [4 x <4 x float>] %indexable67, [4 x <4 x float>]* %indexable
+  %16 = getelementptr [4 x <4 x float>]* %indexable, i32 0, i32 2
+  %17 = load <4 x float>* %16
+  %g68 = extractelement <4 x float> %17, i32 1
+  store float %g68, float* %g
+  store float 5.000000e+00, float* %h
+  %18 = load i32 addrspace(1)* @"sampler2D sampler"
+  %19 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %18, i32 0, <2 x float> <float 5.000000e-01, float 5.000000e-01>)
+  %i69 = extractelement <4 x float> %19, i32 1
+  store float %i69, float* %i
+  %20 = load float* %i
+  %21 = fcmp ogt float %20, 0x3FB99999A0000000
+  br i1 %21, label %then, label %else
+
+then:                                             ; preds = %entry
+  %ternary70 = load <4 x float>* @v1
+  store <4 x float> %ternary70, <4 x float>* %ternary
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %ternary71 = load <4 x float>* @v2
+  store <4 x float> %ternary71, <4 x float>* %ternary
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %22 = load <4 x float>* %ternary
+  %23 = extractelement <4 x float> %22, i32 3
+  %24 = load float* %i
+  %i72 = fadd float %24, %23
+  store float %i72, float* %i
+  %25 = load float* %f
+  %26 = load float* %g
+  %27 = load float* %h
+  %28 = load float* %i
+  %29 = load <4 x float>* %constructed73
+  %30 = insertelement <4 x float> %29, float %25, i32 0
+  %31 = insertelement <4 x float> %30, float %26, i32 1
+  %32 = insertelement <4 x float> %31, float %27, i32 2
+  %gl_FragColor = insertelement <4 x float> %32, float %28, i32 3
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge
+  %33 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %33)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@"sampler2D sampler" = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %0 = load i32 addrspace(1)* @"sampler2D sampler", align 4
+  %1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> <float 5.000000e-01, float 5.000000e-01>)
+  %i69 = extractelement <4 x float> %1, i32 1
+  %2 = fcmp ogt float %i69, 0x3FB99999A0000000
+  %. = select i1 %2, <4 x float> <float 2.000000e+00, float 3.000000e+00, float 5.000000e+00, float 7.000000e+00>, <4 x float> <float 1.100000e+01, float 1.300000e+01, float 1.700000e+01, float 1.900000e+01>
+  %3 = extractelement <4 x float> %., i32 3
+  %i72 = fadd float %i69, %3
+  %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> <float 3.610000e+02, float 8.410000e+02, float 5.000000e+00, float undef>, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %i72, i32 0)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %4)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+
+// LunarGOO(r471) output
+#version 130
+uniform sampler2D sampler;
+const vec2 const22 = vec2(0.5);
+const float const24_0f = 0.1;
+const vec4 const26 = vec4(2.0, 3.0, 5.0, 7.0);
+const vec4 const27 = vec4(11.0, 13.0, 17.0, 19.0);
+const float const31_361f = 361.0;
+const float const32_841f = 841.0;
+const float const33_5f = 5.0;
+
+void main()
+{
+    vec4 temp21 = texture2D(sampler, const22);
+    bool temp23 = temp21.y > const24_0f;
+    vec4 temp25 = temp23 ? const26 : const27;
+    float temp28 = temp21.y + temp25.w;
+    vec4 temp29 = 
+    vec4 undef30;
+    undef30.x = const31_361f;
+    undef30.y = const32_841f;
+    undef30.z = const33_5f;undef30;
+    temp29.w = temp28;
+    gl_FragColor = temp29;
+    
+}
+#### BEGIN COMPILER 0 INFO LOG ####
+
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+
+#### END LINKER INFO LOG ####
