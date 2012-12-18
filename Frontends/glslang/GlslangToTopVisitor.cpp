@@ -386,6 +386,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     gla::Builder::SuperValue result;
     TOperator binOp = EOpNull;
     bool reduceComparison = true;
+    bool isMatrix = false;
 
     if (node->getOp() == EOpNull) {
         gla::UnsupportedFunctionality("glslang aggregate: EOpNull", gla::EATContinue);
@@ -436,6 +437,11 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         return false;
     }
 
+    case EOpConstructMat2:
+    case EOpConstructMat3:
+    case EOpConstructMat4:
+        isMatrix = true;
+        // fall through
     case EOpConstructFloat:
     case EOpConstructVec2:
     case EOpConstructVec3:
@@ -456,9 +462,9 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     {
         std::vector<gla::Builder::SuperValue> arguments;
         oit->translateArguments(node->getSequence(), arguments);
-        llvm::Value* constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
+        gla::Builder::SuperValue constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
                                                                     oit->convertGlslangToGlaType(node->getType()),
-                                                                    false, 0, 0, "constructed");
+                                                                    isMatrix, 0, 0, "constructed");
         if (node->getOp() == EOpConstructStruct) {
             //TODO: is there a more direct way to set a whole LLVM structure?
             //TODO: if not, move this inside Top Builder; too many indirections
@@ -471,30 +477,17 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
                                                                     oit->glaBuilder->createGEP(constructed, gepChain));
                 gepChain.pop_back();
             }
-            constructed = oit->llvmBuilder.CreateLoad(constructed);
+            oit->glaBuilder->clearAccessChain();
+            oit->glaBuilder->setAccessChainLValue(constructed);
         } else {
-            constructed = oit->llvmBuilder.CreateLoad(constructed);
-            constructed = oit->glaBuilder->createConstructor(arguments, constructed);
+            constructed = oit->glaBuilder->createLoad(constructed);
+            if (isMatrix)
+                constructed = oit->glaBuilder->createMatrixConstructor(arguments, constructed);
+            else
+                constructed = oit->glaBuilder->createConstructor(arguments, constructed);
+            oit->glaBuilder->clearAccessChain();
+            oit->glaBuilder->setAccessChainRValue(constructed);
         }
-        oit->glaBuilder->clearAccessChain();
-        oit->glaBuilder->setAccessChainRValue(constructed);
-
-        return false;
-    }
-
-    case EOpConstructMat2:
-    case EOpConstructMat3:
-    case EOpConstructMat4:
-    {
-        std::vector<gla::Builder::SuperValue> arguments;
-        oit->translateArguments(node->getSequence(), arguments);
-        gla::Builder::SuperValue constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
-                                                                    oit->convertGlslangToGlaType(node->getType()),
-                                                                    true, 0, 0, "constructed");
-        constructed = oit->glaBuilder->createLoad(constructed);
-        constructed = oit->glaBuilder->createMatrixConstructor(arguments, constructed);
-        oit->glaBuilder->clearAccessChain();
-        oit->glaBuilder->setAccessChainRValue(constructed);
 
         return false;
     }
@@ -595,6 +588,8 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
     // ?: has a non-void node type
     llvm::Value* result = 0;
     if (node->getBasicType() != EbtVoid) {
+        // don't handle this as just on-the-fly temporaries, because there will be two names
+        // and better to leave SSA to LLVM passes
         result = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0, oit->convertGlslangToGlaType(node->getType()), 
                                                  node->getType().isMatrix(), 0, 0, "ternary");
     }
@@ -623,6 +618,10 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
     ifBuilder.makeEndIf();
 
     if (result) {
+        // GLSL only has r-values as the result of a :?, but
+        // if we have an l-value, that can be more efficient if it will
+        // become the base of a complex r-value expression, because the
+        // next layer copies r-values into memory to use the GEP mechanism
         oit->glaBuilder->clearAccessChain();
         oit->glaBuilder->setAccessChainLValue(result);
     }
