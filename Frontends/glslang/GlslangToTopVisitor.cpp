@@ -85,7 +85,7 @@ public:
     gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, TBasicType);
     llvm::Value* createPipelineRead(TIntermSymbol*, int slot);
     int getNextInterpIndex(std::string& name);
-    gla::Builder::SuperValue createLLVMConstant(TType& type, constUnion *consts, int& nextConst);
+    gla::Builder::SuperValue createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
 
     llvm::LLVMContext &context;
     llvm::BasicBlock* shaderEntry;
@@ -1528,7 +1528,7 @@ int TGlslangToTopTraverser::getNextInterpIndex(std::string& name)
     return interpMap[name];
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMConstant(TType& glslangType, constUnion *consts, int& nextConst)
+gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType, constUnion *consts, int& nextConst)
 {
     // vector of constants for LLVM
     std::vector<llvm::Constant*> llvmConsts;
