@@ -224,9 +224,7 @@ const float const24_0f = 0.1;
 const vec4 const26 = vec4(2.0, 3.0, 5.0, 7.0);
 const vec4 const27 = vec4(11.0, 13.0, 17.0, 19.0);
 const float const30_7f = 7.0;
-const float const33_361f = 361.0;
-const float const34_841f = 841.0;
-const float const35_5f = 5.0;
+const vec4 const32 = vec4(361.0, 841.0, 5.0, 0.0);
 
 void main()
 {
@@ -235,11 +233,7 @@ void main()
     vec4 temp25 = temp23 ? const26 : const27;
     float temp28 = temp21.y + temp25.w;
     float temp29 = temp28 + const30_7f;
-    vec4 temp31 = 
-    vec4 undef32;
-    undef32.x = const33_361f;
-    undef32.y = const34_841f;
-    undef32.z = const35_5f;undef32;
+    vec4 temp31 = const32;
     temp31.w = temp29;
     gl_FragColor = temp31;
     

@@ -21,9 +21,9 @@ void main()
     float f = mm[1].w; // should be 19 * 19 = 361
 
     // do a deep access to a spontaneous r-value
-	float g = matrixCompMult(m, m)[2].y;  // should be 29 * 29 = 841
+    float g = matrixCompMult(m, m)[2].y;  // should be 29 * 29 = 841
 
-    float h = str(1, vec2[3](vec2(2.0, 3.0), vec2(4.0, 5.0), vec2(6.0, 7.0)), true).b[1][1];  // should be 4.0
+    float h = str(1, vec2[3](vec2(2.0, 3.0), vec2(4.0, 5.0), vec2(6.0, 7.0)), true).b[1][1];  // should be 5.0
 
     float i = texture2D(sampler, vec2(0.5,0.5)).y;
 
@@ -32,5 +32,5 @@ void main()
     str t;
     i += (t = str(1, vec2[3](vec2(2.0, 3.0), vec2(4.0, 5.0), vec2(6.0, 7.0)), true)).b[2].y;  // should be 7.0
 
-	gl_FragColor = vec4(f, g, h, i);
+    gl_FragColor = vec4(f, g, h, i);
 }

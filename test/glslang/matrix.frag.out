@@ -1419,6 +1419,8 @@ const float const35_1f = 1.0;
 in vec4 v;
 in vec4 u;
 const float const121_0f = 0.0;
+const vec4 const123 = vec4(0.0, 0.0, 0.0, 0.0);
+const vec4 const125 = vec4(0.0, 0.0, 0.0, 0.0);
 
 void main()
 {
@@ -1536,14 +1538,9 @@ void main()
     vec4 temp118 = vec4(temp108, temp109, temp110, temp111);
     vec4 temp119 = vec4(temp112, temp113, temp114, temp115);
     vec4 temp120 = vec4(_pre_phi, const121_0f, const121_0f, const121_0f);
-    vec4 temp122 = 
-    vec4 undef123;
-    undef123.x = const121_0f;undef123;
+    vec4 temp122 = const123;
     temp122.yzw = vec3(_pre_phi, const121_0f, const121_0f);
-    vec4 temp124 = 
-    vec4 undef125;
-    undef125.x = const121_0f;
-    undef125.y = const121_0f;undef125;
+    vec4 temp124 = const125;
     temp124.zw = vec2(_pre_phi, const121_0f);
     vec4 temp126 = vec4(const121_0f, const121_0f, const121_0f, v.x);
     vec4 __column191 = temp116 + temp120;

@@ -493,7 +493,7 @@ protected:
 
         // Check for an undef before a constant (since Undef is a
         // subclass of Constant)
-        if (!AreAllDefined(value)) {
+        if (AreAllUndefined(value)) {
             return EVQUndef;
         }
 
@@ -733,7 +733,7 @@ protected:
             return;
 
         // If it has an initializer (is a constant and not an undef)
-        if (constant && AreAllDefined(constant)) {
+        if (constant && ! AreAllUndefined(constant)) {
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
             emitGlaType(globalDeclarations, type);
@@ -899,7 +899,7 @@ protected:
     {
         bool isZero;
 
-        if (! constant)
+        if (! constant || IsUndef(constant))
             isZero = true;
         else if (llvm::isa<llvm::ConstantAggregateZero>(constant))
             isZero = true;
@@ -975,8 +975,8 @@ protected:
 
         default:
             assert(0 && "Constant type in Bottom IR");
-            }
         }
+    }
 
     void emitInitializeAggregate(std::ostringstream& out, std::string varString, const llvm::Constant* constant)
     {
@@ -1100,7 +1100,8 @@ protected:
 
     // Returns a pointer to the common source of the multiinsert if they're all
     // the same, otherwise returns null.
-    llvm::Value* getCommonSourceMultiInsert(const llvm::IntrinsicInst* inst) {
+    llvm::Value* getCommonSourceMultiInsert(const llvm::IntrinsicInst* inst) 
+    {
         llvm::Value* source = NULL;
         bool sameSource = true;
         int wmask = GetConstantInt(inst->getOperand(1));
