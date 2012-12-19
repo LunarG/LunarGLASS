@@ -120,7 +120,7 @@ bool AreAllDefined(const llvm::Value* value)
         case llvm::Type::StructTyID:
             if (user->getNumOperands() > 0) {
                 for (llvm::User::const_op_iterator i = user->op_begin(), e = user->op_end(); i != e; ++i) {
-                    if (IsUndef(*i))
+                    if (! AreAllDefined(*i))
                         return false;
                 }
             }
@@ -136,21 +136,26 @@ bool AreAllUndefined(const llvm::Value* value)
     if (IsUndef(value))
         return true;
 
-    if (const llvm::User* user = llvm::dyn_cast<llvm::User>(value)) {
-        switch(user->getType()->getTypeID()) {
-        case llvm::Type::VectorTyID:
-        case llvm::Type::ArrayTyID:
-        case llvm::Type::StructTyID:
-            if (user->getNumOperands() > 0) {
-                for (llvm::User::const_op_iterator i = user->op_begin(), e = user->op_end(); i != e; ++i) {
-                    if (! IsUndef(*i))
-                        return false;
-                }
-            }
-        }
-    }
-
+    // Assume a fully undef aggregate satisfies "IsUndef" at the highest level
     return false;
+
+    // If a fully undef aggregate ever needs to be walked to to verify that,
+    // use the following code.
+    //if (const llvm::User* user = llvm::dyn_cast<llvm::User>(value)) {
+    //    switch(user->getType()->getTypeID()) {
+    //    case llvm::Type::VectorTyID:
+    //    case llvm::Type::ArrayTyID:
+    //    case llvm::Type::StructTyID:
+    //        if (user->getNumOperands() > 0) {
+    //            for (llvm::User::const_op_iterator i = user->op_begin(), e = user->op_end(); i != e; ++i) {
+    //                if (! AreAllUndefined(*i))
+    //                    return false;
+    //            }
+    //        }
+    //    }
+    //}
+
+    //return true;
 }
 
 bool IsBoolean(const llvm::Type* type)
