@@ -83,6 +83,7 @@ namespace gla {
     inline bool IsUndef(const llvm::Value* val) { return llvm::isa<llvm::UndefValue>(val); }
     inline bool IsDefined(const llvm::Value* val) { return !IsUndef(val); }
     bool AreAllDefined(const llvm::Value* val);
+    bool AreAllUndefined(const llvm::Value* val);
 
 
     // true if a scalar Boolean or vector of Boolean
