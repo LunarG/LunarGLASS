@@ -29,9 +29,8 @@ void main()
 
     i += (i > 0.1 ? v1 : v2)[3];
 
-    // front-end problem...
-    //str t;
-    //i += (t = str(1, vec2[3](vec2(2.0, 3.0), vec2(4.0, 5.0), vec2(6.0, 7.0)), true)).b[2].y;  // should be 7.0
+    str t;
+    i += (t = str(1, vec2[3](vec2(2.0, 3.0), vec2(4.0, 5.0), vec2(6.0, 7.0)), true)).b[2].y;  // should be 7.0
 
 	gl_FragColor = vec4(f, g, h, i);
 }
