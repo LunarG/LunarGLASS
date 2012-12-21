@@ -2192,10 +2192,6 @@ inductive variable:  %indvar = phi i32 [ %indvar.next, %ifmerge98 ], [ 0, %then8
   increment:         %indvar.next = add i32 %indvar, 1
   exit condition:    %exitcond = icmp eq i32 %indvar, 120
 
-***Unsupported functionality: Opcode in Bottom IR: 31
-
-***Unsupported functionality: Opcode in Bottom IR: 31
-
 // LunarGOO(r471) output
 #version 130
 uniform float d;
@@ -2473,8 +2469,9 @@ void main()
         vec4 temp161 = color_14;
         temp161.zw = vec2(temp157, temp160);
         vec4 select332 = temp159 ? temp158 : temp161;
-        int temp163 = ~(int temp164);
-        int select333 = temp36 + temp163;
+        int temp163 = int(temp159);
+        int temp164 = ~(temp163);
+        int select333 = temp36 + temp164;
         color_14 = select332;
         temp36 = select333;
     }

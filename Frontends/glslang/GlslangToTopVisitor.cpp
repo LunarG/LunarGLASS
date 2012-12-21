@@ -1234,8 +1234,13 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
         // any non-zero integer should return true
         return createBinaryOperation(EOpNotEqual, operand, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0));
     case EOpConvBoolToInt:
+        // GLSL says true is converted to 1
         castOp = llvm::Instruction::ZExt;
         break;
+    //case EOpConvBoolToUint:
+    //    // GLSL says true is converted to 1
+    //    castOp = llvm::Instruction::ZExt;
+    //    break;
     //case EOpConvFloatToUnsigned:
     //    castOp = llvm::Instruction::UIToFP;
     //    break;

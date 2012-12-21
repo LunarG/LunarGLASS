@@ -1426,6 +1426,7 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
         }
         unaryOperand = 0;
         break;
+    case llvm::Instruction::ZExt:
     case llvm::Instruction::FPToSI:
         switch (gla::GetComponentCount(llvmInstruction)) {
         case 1: s = "int";   break;
