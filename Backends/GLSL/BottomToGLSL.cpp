@@ -1100,7 +1100,7 @@ protected:
 
     // Returns a pointer to the common source of the multiinsert if they're all
     // the same, otherwise returns null.
-    llvm::Value* getCommonSourceMultiInsert(const llvm::IntrinsicInst* inst) 
+    llvm::Value* getCommonSourceMultiInsert(const llvm::IntrinsicInst* inst)
     {
         llvm::Value* source = NULL;
         bool sameSource = true;
@@ -1334,19 +1334,35 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
 
     switch (llvmInstruction->getOpcode()) {
     case llvm::Instruction:: Add:
-    case llvm::Instruction::FAdd:           s = "+";  break;
+    case llvm::Instruction::FAdd:
+        s = "+";
+        break;
     case llvm::Instruction:: Sub:
-    case llvm::Instruction::FSub:           s = "-";  break;
+    case llvm::Instruction::FSub:
+        s = "-";
+        break;
     case llvm::Instruction:: Mul:
-    case llvm::Instruction::FMul:           s = "*";  break;
+    case llvm::Instruction::FMul:
+        s = "*";
+        break;
     case llvm::Instruction::UDiv:
     case llvm::Instruction::SDiv:
-    case llvm::Instruction::FDiv:           s = "/";  break;
+    case llvm::Instruction::FDiv:
+        s = "/";
+        break;
     case llvm::Instruction::URem:
-    case llvm::Instruction::SRem:           s = "%";  break;
-    case llvm::Instruction::Shl:            s = "<<"; break;
-    case llvm::Instruction::LShr:           s = ">>"; break;
-    case llvm::Instruction::AShr:           s = ">>"; break;
+    case llvm::Instruction::SRem:
+        s = "%";
+        break;
+    case llvm::Instruction::Shl:
+        s = "<<";
+        break;
+    case llvm::Instruction::LShr:
+        s = ">>";
+        break;
+    case llvm::Instruction::AShr:
+        s = ">>";
+        break;
     case llvm::Instruction::And:
         if (gla::IsBoolean(llvmInstruction->getOperand(0)->getType())) {
             s = "&&";
@@ -1361,7 +1377,9 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
             s = "|";
         }
         break;
-    case llvm::Instruction::Xor:            s = mapGlaXor(llvmInstruction, unaryOperand); break;
+    case llvm::Instruction::Xor:
+        s = mapGlaXor(llvmInstruction, unaryOperand);
+        break;
     case llvm::Instruction::ICmp:
     case llvm::Instruction::FCmp:
         if (! llvm::isa<llvm::VectorType>(llvmInstruction->getOperand(0)->getType())) {
@@ -1795,11 +1813,6 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 //  - if a scalar Boolean operand is true, it can be represented as unary "!" on the other operand
 //  - if a vector Boolean operand is all true, it can be represented as "not(...)"
 //
-// Assumes things are tried in the order
-//  1.  binary op
-//  2.  unary op
-//  3.  intrinsic
-//
 const char* gla::GlslTarget::mapGlaXor(const llvm::Instruction* llvmInstruction, int& unaryOperand)
 {
     bool scalar = IsScalar(llvmInstruction->getType());
@@ -2037,12 +2050,15 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     // Floating-Point and Integer Operations
     case llvm::Intrinsic::gla_abs:
     case llvm::Intrinsic::gla_fAbs:         callString = "abs";   callArgs = 1; break;
+
     case llvm::Intrinsic::gla_sMin:
     case llvm::Intrinsic::gla_uMin:
     case llvm::Intrinsic::gla_fMin:         callString = "min";   callArgs = 2; break;
+
     case llvm::Intrinsic::gla_sMax:
     case llvm::Intrinsic::gla_uMax:
     case llvm::Intrinsic::gla_fMax:         callString = "max";   callArgs = 2; break;
+
     case llvm::Intrinsic::gla_sClamp:
     case llvm::Intrinsic::gla_uClamp:
     case llvm::Intrinsic::gla_fClamp:       callString = "clamp"; callArgs = 3; break;
