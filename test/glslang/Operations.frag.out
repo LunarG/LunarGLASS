@@ -873,7 +873,7 @@ void main()
     vec4 temp135 = vec4(select69);
     int temp136 = ui & const137_1;
     int temp138 = temp136 | const139_66;
-    int temp140 = ~(temp138);
+    int temp140 = temp138 ^ ui;
     int temp141 = temp140 % const142_17;
     int temp143 = temp141 >> const144_2;
     int temp145 = temp143 << ui;

@@ -469,7 +469,7 @@ protected:
     void getOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryOperand);
 
     void mapGlaCall(const llvm::CallInst*);
-    const char* mapGlaXor(const llvm::Instruction* llvmInstruction, bool intrinsic = false, int* unaryOperand = 0);
+    const char* mapGlaXor(const llvm::Instruction* llvmInstruction, int& unaryOperand);
 
     EVariableQualifier mapGlaAddressSpace(const llvm::Value* value)
     {
@@ -1361,7 +1361,7 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
             s = "|";
         }
         break;
-    case llvm::Instruction::Xor:            s = mapGlaXor(llvmInstruction, true, &unaryOperand); break;
+    case llvm::Instruction::Xor:            s = mapGlaXor(llvmInstruction, unaryOperand); break;
     case llvm::Instruction::ICmp:
     case llvm::Instruction::FCmp:
         if (! llvm::isa<llvm::VectorType>(llvmInstruction->getOperand(0)->getType())) {
@@ -1800,7 +1800,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 //  2.  unary op
 //  3.  intrinsic
 //
-const char* gla::GlslTarget::mapGlaXor(const llvm::Instruction* llvmInstruction, bool intrinsic, int* unaryOperand)
+const char* gla::GlslTarget::mapGlaXor(const llvm::Instruction* llvmInstruction, int& unaryOperand)
 {
     bool scalar = IsScalar(llvmInstruction->getType());
     bool boolean = IsBoolean(llvmInstruction->getType());
@@ -1808,42 +1808,40 @@ const char* gla::GlslTarget::mapGlaXor(const llvm::Instruction* llvmInstruction,
     bool op0AllSet = HasAllSet(llvmInstruction->getOperand(0));
     bool op1AllSet = HasAllSet(llvmInstruction->getOperand(1));
 
-    if (unaryOperand == 0) {
-        // try a binary op
+    // first, see if it could be unary
 
-        // if it could be done as a unary op, return 0 so that can happen later
-        if (op0AllSet || op1AllSet)
-            return 0;
-
-        if (scalar && boolean)
-            return "^^";
-
-        if (!boolean)
-            return "^";
-
-        UnsupportedFunctionality("xor", EATContinue);
-        return "^";
-    } else {
-        // unary; either an op or an intrinsic
-
-        assert(!op0AllSet && !op0AllSet);
-
+    if (op0AllSet || op1AllSet) {
+        // unary; set which operand is the real one to operate on
         if (op0AllSet)
-            *unaryOperand = 1;
+            unaryOperand = 1;
         else
-            *unaryOperand = 0;
+            unaryOperand = 0;
 
         if (scalar && boolean)
             return "!";
 
+        if (!scalar && boolean)
+            return "not";
+
         if (!boolean)
             return "~";
 
-        if (intrinsic)
-            return "not";
+        UnsupportedFunctionality("xor", EATContinue);
 
-        return 0;
+        return "!";
     }
+
+    // now go for binary
+
+    if (scalar && boolean)
+        return "^^";
+
+    if (!boolean)
+        return "^";
+
+    UnsupportedFunctionality("xor", EATContinue);
+
+    return "^";
 }
 
 //

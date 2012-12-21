@@ -2237,8 +2237,8 @@ vec4 color63;
 const float const142_20f = 20.0;
 const float const144_1f = 1.0;
 const int const156_41 = 41;
-vec4 temp168;
-const int const173_1 = 1;
+const int const165_1 = 1;
+vec4 temp169;
 vec4 select336;
 vec4 select341;
 float temp188;
@@ -2470,7 +2470,7 @@ void main()
         temp161.zw = vec2(temp157, temp160);
         vec4 select332 = temp159 ? temp158 : temp161;
         int temp163 = int(temp159);
-        int temp164 = ~(temp163);
+        int temp164 = temp163 ^ const165_1;
         int select333 = temp36 + temp164;
         color_14 = select332;
         temp36 = select333;
@@ -2479,27 +2479,27 @@ void main()
     temp37 = const94_0;
     color_15 = color_14;
     while (true) {
-        bool temp166 = temp37 > const156_41;
-        if (temp166) {
+        bool temp167 = temp37 > const156_41;
+        if (temp167) {
             color_16 = color_15;
             break;
         }
         
-        float temp167 = color_15.z + d3;
-        temp168 = color_15;
-        temp168.z = temp167;
-        bool temp169 = color_15.x < d4;
-        if (temp169) {
-            color_16 = temp168;
+        float temp168 = color_15.z + d3;
+        temp169 = color_15;
+        temp169.z = temp168;
+        bool temp170 = color_15.x < d4;
+        if (temp170) {
+            color_16 = temp169;
             break;
         }
         
-        float temp170 = color_15.w + const144_1f;
-        vec4 temp171 = temp168;
-        temp171.w = temp170;
-        int phitmp397 = temp37 + const173_1;
+        float temp171 = color_15.w + const144_1f;
+        vec4 temp172 = temp169;
+        temp172.w = temp171;
+        int phitmp397 = temp37 + const165_1;
         temp37 = phitmp397;
-        color_15 = temp171;
+        color_15 = temp172;
     }
     
     color_17 = color_16;
