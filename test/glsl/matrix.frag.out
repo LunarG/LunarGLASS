@@ -1661,10 +1661,12 @@ uniform vec4[4] m;
 uniform vec4[4] n;
 uniform vec4[4] um43;
 in vec3 Color;
-const float const35_1f = 1.0;
+const vec4 const34 = vec4(0.0, 0.0, 0.0, 1.0);
 in vec4 v;
 in vec4 u;
-const float const122_0f = 0.0;
+const float const121_0f = 0.0;
+const vec4 const123 = vec4(0.0, 0.0, 0.0, 0.0);
+const vec4 const125 = vec4(0.0, 0.0, 0.0, 0.0);
 
 void main()
 {
@@ -1680,32 +1682,30 @@ void main()
     float __dot3 = dot(Color, __column2);
     vec3 __column4 = colorTransform[2];
     float __dot5 = dot(Color, __column4);
-    vec4 temp33 = 
-    vec4 undef34;
-    undef34.w = const35_1f;undef34;
+    vec4 temp33 = const34;
     temp33.xyz = vec3(__dot, __dot3, __dot5);
-    vec4 temp36 = un34[1];
-    vec4 assignment_tmp7 = temp36 + temp33;
+    vec4 temp35 = un34[1];
+    vec4 assignment_tmp7 = temp35 + temp33;
     vec4 __column11 = m[0];
     vec4 __column12 = n[0];
-    bvec4 temp40 = notEqual(__column11, __column12);
-    bool temp41 = any(temp40);
+    bvec4 temp39 = notEqual(__column11, __column12);
+    bool temp40 = any(temp39);
     vec4 __column13 = m[1];
     vec4 __column14 = n[1];
-    bvec4 temp44 = notEqual(__column13, __column14);
-    bool temp45 = any(temp44);
-    bool temp46 = temp41 || temp45;
+    bvec4 temp43 = notEqual(__column13, __column14);
+    bool temp44 = any(temp43);
+    bool temp45 = temp40 || temp44;
     vec4 __column15 = m[2];
     vec4 __column16 = n[2];
-    bvec4 temp49 = notEqual(__column15, __column16);
-    bool temp50 = any(temp49);
-    bool temp51 = temp46 || temp50;
+    bvec4 temp48 = notEqual(__column15, __column16);
+    bool temp49 = any(temp48);
+    bool temp50 = temp45 || temp49;
     vec4 __column17 = m[3];
     vec4 __column18 = n[3];
-    bvec4 temp54 = notEqual(__column17, __column18);
-    bool temp55 = any(temp54);
-    bool temp56 = temp51 || temp55;
-    if (temp56) {
+    bvec4 temp53 = notEqual(__column17, __column18);
+    bool temp54 = any(temp53);
+    bool temp55 = temp50 || temp54;
+    if (temp55) {
         vec4 gla_copyout_gl_FragColor19 = assignment_tmp7 + v;
         _pre_phi717 = v.w;
         _pre_phi715 = v.z;
@@ -1742,8 +1742,8 @@ void main()
         float __dotProduct77 = __dotProduct73 + __product76;
         float __product80 = __column17.w * v.w;
         float __dotProduct81 = __dotProduct77 + __product80;
-        vec4 temp86 = vec4(__dotProduct36, __dotProduct51, __dotProduct66, __dotProduct81);
-        vec4 temp87 = assignment_tmp7 + temp86;
+        vec4 temp85 = vec4(__dotProduct36, __dotProduct51, __dotProduct66, __dotProduct81);
+        vec4 temp86 = assignment_tmp7 + temp85;
         vec4 __column85 = __column11 - __column12;
         vec4 __column88 = __column13 - __column14;
         vec4 __column91 = __column15 - __column16;
@@ -1752,8 +1752,8 @@ void main()
         float __dot98 = dot(v, __column88);
         float __dot100 = dot(v, __column91);
         float __dot102 = dot(v, __column94);
-        vec4 temp96 = vec4(__dot96, __dot98, __dot100, __dot102);
-        vec4 gla_copyout_gl_FragColor103 = temp87 + temp96;
+        vec4 temp95 = vec4(__dot96, __dot98, __dot100, __dot102);
+        vec4 gla_copyout_gl_FragColor103 = temp86 + temp95;
         _pre_phi717 = v.w;
         _pre_phi715 = v.z;
         _pre_phi713 = v.y;
@@ -1761,64 +1761,59 @@ void main()
         gla_copyout_gl_FragColor711_0 = gla_copyout_gl_FragColor103;
     }
     
-    vec4 temp98 = u.zwxx;
-    vec4 temp99 = u.wxxy;
-    vec4 temp100 = u.xxyz;
-    float temp101 = _pre_phi * u.x;
-    float temp102 = _pre_phi * u.y;
-    float temp103 = _pre_phi * u.z;
-    float temp104 = _pre_phi * u.w;
-    vec4 temp105 = vec4(temp101, temp102, temp103, temp104);
-    float temp106 = _pre_phi713 * u.x;
-    float temp107 = _pre_phi713 * u.y;
-    float temp108 = _pre_phi713 * u.z;
-    float temp109 = _pre_phi713 * u.w;
-    vec4 temp110 = vec4(temp106, temp107, temp108, temp109);
-    float temp111 = _pre_phi715 * u.x;
-    float temp112 = _pre_phi715 * u.y;
-    float temp113 = _pre_phi715 * u.z;
-    float temp114 = _pre_phi715 * u.w;
-    vec4 temp115 = vec4(temp111, temp112, temp113, temp114);
-    float temp116 = _pre_phi717 * u.x;
-    float temp117 = _pre_phi717 * u.y;
-    float temp118 = _pre_phi717 * u.z;
-    float temp119 = _pre_phi717 * u.w;
-    vec4 temp120 = vec4(temp116, temp117, temp118, temp119);
-    vec4 temp121 = vec4(_pre_phi, const122_0f, const122_0f, const122_0f);
-    vec4 temp123 = 
-    vec4 undef124;
-    undef124.x = const122_0f;undef124;
-    temp123.yzw = vec3(_pre_phi, const122_0f, const122_0f);
-    vec4 temp125 = 
-    vec4 undef126;
-    undef126.x = const122_0f;
-    undef126.y = const122_0f;undef126;
-    temp125.zw = vec2(_pre_phi, const122_0f);
-    vec4 temp127 = vec4(const122_0f, const122_0f, const122_0f, v.x);
-    vec4 __column211 = temp105 + temp121;
-    vec4 __column214 = temp110 + temp123;
-    vec4 __column217 = temp115 + temp125;
-    vec4 __column220 = temp120 + temp127;
+    vec4 temp97 = u.zwxx;
+    vec4 temp98 = u.wxxy;
+    vec4 temp99 = u.xxyz;
+    float temp100 = _pre_phi * u.x;
+    float temp101 = _pre_phi * u.y;
+    float temp102 = _pre_phi * u.z;
+    float temp103 = _pre_phi * u.w;
+    vec4 temp104 = vec4(temp100, temp101, temp102, temp103);
+    float temp105 = _pre_phi713 * u.x;
+    float temp106 = _pre_phi713 * u.y;
+    float temp107 = _pre_phi713 * u.z;
+    float temp108 = _pre_phi713 * u.w;
+    vec4 temp109 = vec4(temp105, temp106, temp107, temp108);
+    float temp110 = _pre_phi715 * u.x;
+    float temp111 = _pre_phi715 * u.y;
+    float temp112 = _pre_phi715 * u.z;
+    float temp113 = _pre_phi715 * u.w;
+    vec4 temp114 = vec4(temp110, temp111, temp112, temp113);
+    float temp115 = _pre_phi717 * u.x;
+    float temp116 = _pre_phi717 * u.y;
+    float temp117 = _pre_phi717 * u.z;
+    float temp118 = _pre_phi717 * u.w;
+    vec4 temp119 = vec4(temp115, temp116, temp117, temp118);
+    vec4 temp120 = vec4(_pre_phi, const121_0f, const121_0f, const121_0f);
+    vec4 temp122 = const123;
+    temp122.yzw = vec3(_pre_phi, const121_0f, const121_0f);
+    vec4 temp124 = const125;
+    temp124.zw = vec2(_pre_phi, const121_0f);
+    vec4 temp126 = vec4(const121_0f, const121_0f, const121_0f, v.x);
+    vec4 __column211 = temp104 + temp120;
+    vec4 __column214 = temp109 + temp122;
+    vec4 __column217 = temp114 + temp124;
+    vec4 __column220 = temp119 + temp126;
     vec4 __column224 = __column211 + u;
-    vec4 __column227 = __column214 + temp100;
-    vec4 __column230 = __column217 + temp99;
-    vec4 __column233 = __column220 + temp98;
+    vec4 __column227 = __column214 + temp99;
+    vec4 __column230 = __column217 + temp98;
+    vec4 __column233 = __column220 + temp97;
     vec4 __column240 = un34[0];
-    bvec4 temp137 = equal(__column224, __column240);
-    bool temp138 = all(temp137);
+    bvec4 temp136 = equal(__column224, __column240);
+    bool temp137 = all(temp136);
     vec4 __column242 = un34[1];
-    bvec4 temp140 = equal(__column227, __column242);
-    bool temp141 = all(temp140);
-    bool temp142 = temp138 && temp141;
+    bvec4 temp139 = equal(__column227, __column242);
+    bool temp140 = all(temp139);
+    bool temp141 = temp137 && temp140;
     vec4 __column244 = un34[2];
-    bvec4 temp144 = equal(__column230, __column244);
-    bool temp145 = all(temp144);
-    bool temp146 = temp142 && temp145;
+    bvec4 temp143 = equal(__column230, __column244);
+    bool temp144 = all(temp143);
+    bool temp145 = temp141 && temp144;
     vec4 __column246 = un34[3];
-    bvec4 temp148 = equal(__column233, __column246);
-    bool temp149 = all(temp148);
-    bool temp150 = temp146 && temp149;
-    if (temp150) {
+    bvec4 temp147 = equal(__column233, __column246);
+    bool temp148 = all(temp147);
+    bool temp149 = temp145 && temp148;
+    if (temp149) {
         float __product256 = __column224.x * u.x;
         float __product259 = __column227.x * u.y;
         float __dotProduct260 = __product256 + __product259;
@@ -1847,8 +1842,8 @@ void main()
         float __dotProduct309 = __dotProduct305 + __product308;
         float __product312 = __column233.w * u.w;
         float __dotProduct313 = __dotProduct309 + __product312;
-        vec4 temp179 = vec4(__dotProduct268, __dotProduct283, __dotProduct298, __dotProduct313);
-        _pn = temp179;
+        vec4 temp178 = vec4(__dotProduct268, __dotProduct283, __dotProduct298, __dotProduct313);
+        _pn = temp178;
     }
     else {
         vec4 __rightColumn318 = um43[0];
@@ -1995,8 +1990,8 @@ void main()
         float __dotProduct704 = __dotProduct700 + __product703;
         float __product707 = __dotProduct641 * _pre_phi717;
         float __dotProduct708 = __dotProduct704 + __product707;
-        vec4 temp324 = vec4(__dotProduct663, __dotProduct678, __dotProduct693, __dotProduct708);
-        _pn = temp324;
+        vec4 temp323 = vec4(__dotProduct663, __dotProduct678, __dotProduct693, __dotProduct708);
+        _pn = temp323;
     }
     
     vec4 gla_copyout_gl_FragColor711_1 = gla_copyout_gl_FragColor711_0 + _pn;

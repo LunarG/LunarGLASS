@@ -1556,7 +1556,7 @@ void main()
     vec4 temp190 = vec4(select179);
     int temp191 = ui & const192_1;
     int temp193 = temp191 | const194_66;
-    int temp195 = ~(temp193);
+    int temp195 = temp193 ^ ui;
     int temp196 = temp195 % const197_17;
     int temp198 = temp196 >> const199_2;
     int temp200 = temp198 << ui;
