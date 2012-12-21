@@ -705,8 +705,6 @@ bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
         if (oit->inMain)
             oit->glaBuilder->makeMainReturn();
         else if (node->getExpression()) {
-            // this path still needs to be tested/corrected (where does the value come from?)
-            gla::UnsupportedFunctionality("glslang qualifier const", gla::EATContinue);
             oit->glaBuilder->makeReturn(false, oit->glaBuilder->accessChainLoad());
         } else
             oit->glaBuilder->makeReturn();
@@ -918,11 +916,6 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
             texFlags |= gla::ETFProjected;
 
         return glaBuilder->createTextureCall(convertGlslangToGlaType(node->getType()), gla::ESampler2D, texFlags, params);
-    }
-
-    if (node->getName().substr(0,11) == "faceforward") {
-        // TODO: can the front-end be changed so this is an aggregate op?
-        gla::UnsupportedFunctionality("faceforward() as a function call", gla::EATContinue);
     }
 
     return result;

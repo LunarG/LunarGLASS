@@ -1,8 +1,4 @@
 
-***Unsupported functionality: faceforward() as a function call
-
-***Unsupported functionality: glslang function call
-
 Top IR:
 ; ModuleID = 'Top'
 
@@ -180,7 +176,7 @@ entry:
   %99 = load <4 x float>* %v
   %100 = load <4 x float>* %v
   %101 = load <4 x float>* %v
-  %102 = load <4 x float>* %v
+  %102 = call <4 x float> @llvm.gla.fFaceForward.v4f32.v4f32.v4f32.v4f32(<4 x float> %99, <4 x float> %100, <4 x float> %101)
   %103 = load <4 x float>* %v
   %v29 = fadd <4 x float> %103, %102
   store <4 x float> %v29, <4 x float>* %v
@@ -491,6 +487,8 @@ declare <4 x float> @llvm.gla.fSmoothStep.v4f32.v4f32.v4f32.v4f32(<4 x float>, <
 
 declare <4 x float> @llvm.gla.fNormalize.v4f32.v4f32(<4 x float>) nounwind readnone
 
+declare <4 x float> @llvm.gla.fFaceForward.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
+
 declare <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
@@ -584,76 +582,77 @@ entry:
   %v27 = fadd <4 x float> %v26, %28
   %29 = call <4 x float> @llvm.gla.fNormalize.v4f32.v4f32(<4 x float> %v27)
   %v28 = fadd <4 x float> %v27, %29
-  %v29 = fadd <4 x float> %v28, %v28
-  %30 = call <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float> %v29, <4 x float> %v29)
-  %v30 = fadd <4 x float> %v29, %30
-  %31 = load float addrspace(2)* @uf, align 4
-  %32 = call <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float> %v30, <4 x float> %v30, float %31)
-  %v31 = fadd <4 x float> %v30, %32
-  %33 = call <4 x float> @llvm.gla.fDFdx.v4f32.v4f32(<4 x float> %v31)
-  %v32 = fadd <4 x float> %v31, %33
-  %34 = call <4 x float> @llvm.gla.fDFdy.v4f32.v4f32(<4 x float> %v32)
-  %v33 = fadd <4 x float> %v32, %34
-  %35 = call <4 x float> @llvm.gla.fFilterWidth.v4f32.v4f32(<4 x float> %v33)
-  %v34 = fadd <4 x float> %v33, %35
-  %36 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %v34, <3 x i32> <i32 0, i32 1, i32 2>)
-  %37 = fcmp olt <4 x float> %v34, %0
-  %b35 = call i1 @llvm.gla.any.v4i1(<4 x i1> %37)
-  %38 = fcmp ole <4 x float> %v34, %0
-  %39 = call i1 @llvm.gla.any.v4i1(<4 x i1> %38)
-  %b36 = and i1 %b35, %39
-  %40 = fcmp ogt <4 x float> %v34, %0
-  %41 = call i1 @llvm.gla.any.v4i1(<4 x i1> %40)
-  %b37 = and i1 %b36, %41
-  %42 = fcmp oge <4 x float> %v34, %0
-  %43 = call i1 @llvm.gla.any.v4i1(<4 x i1> %42)
-  %b38 = and i1 %b37, %43
-  %44 = load <4 x i1> addrspace(2)* @ub41, align 4
-  %45 = load <4 x i1> addrspace(2)* @ub42, align 4
-  %46 = icmp eq <4 x i1> %44, %45
-  %47 = call i1 @llvm.gla.any.v4i1(<4 x i1> %46)
-  %b39 = and i1 %b38, %47
-  %48 = icmp ne <4 x i1> %44, %45
-  %49 = call i1 @llvm.gla.any.v4i1(<4 x i1> %48)
-  %b40 = and i1 %b39, %49
-  %50 = call i1 @llvm.gla.any.v4i1(<4 x i1> %44)
-  %b41 = and i1 %b40, %50
-  %51 = call i1 @llvm.gla.all.v4i1(<4 x i1> %44)
-  %b42 = and i1 %b41, %51
-  %52 = xor <4 x i1> %44, <i1 true, i1 true, i1 true, i1 true>
-  %53 = call i1 @llvm.gla.any.v4i1(<4 x i1> %52)
-  %b43 = and i1 %b42, %53
-  %54 = fadd float %31, %31
-  %55 = fmul float %54, %31
-  %56 = fsub float %55, %31
-  %f47 = fdiv float %56, %31
-  %57 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %v34)
-  %f48 = fadd float %f47, %57
-  %58 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v34, <4 x float> %v34)
-  %f50 = fadd float %f48, %58
-  %59 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %36, <3 x float> %36)
-  %60 = extractelement <3 x float> %59, i32 0
-  %f51 = fadd float %f50, %60
-  %61 = fcmp oeq float %f51, %31
-  %62 = fcmp one float %f51, %31
-  %63 = fcmp one float %f51, 2.000000e+00
-  %64 = and i1 %62, %63
-  %65 = or i1 %61, %64
+  %30 = call <4 x float> @llvm.gla.fFaceForward.v4f32.v4f32.v4f32.v4f32(<4 x float> %v28, <4 x float> %v28, <4 x float> %v28)
+  %v29 = fadd <4 x float> %v28, %30
+  %31 = call <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float> %v29, <4 x float> %v29)
+  %v30 = fadd <4 x float> %v29, %31
+  %32 = load float addrspace(2)* @uf, align 4
+  %33 = call <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float> %v30, <4 x float> %v30, float %32)
+  %v31 = fadd <4 x float> %v30, %33
+  %34 = call <4 x float> @llvm.gla.fDFdx.v4f32.v4f32(<4 x float> %v31)
+  %v32 = fadd <4 x float> %v31, %34
+  %35 = call <4 x float> @llvm.gla.fDFdy.v4f32.v4f32(<4 x float> %v32)
+  %v33 = fadd <4 x float> %v32, %35
+  %36 = call <4 x float> @llvm.gla.fFilterWidth.v4f32.v4f32(<4 x float> %v33)
+  %v34 = fadd <4 x float> %v33, %36
+  %37 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %v34, <3 x i32> <i32 0, i32 1, i32 2>)
+  %38 = fcmp olt <4 x float> %v34, %0
+  %b35 = call i1 @llvm.gla.any.v4i1(<4 x i1> %38)
+  %39 = fcmp ole <4 x float> %v34, %0
+  %40 = call i1 @llvm.gla.any.v4i1(<4 x i1> %39)
+  %b36 = and i1 %b35, %40
+  %41 = fcmp ogt <4 x float> %v34, %0
+  %42 = call i1 @llvm.gla.any.v4i1(<4 x i1> %41)
+  %b37 = and i1 %b36, %42
+  %43 = fcmp oge <4 x float> %v34, %0
+  %44 = call i1 @llvm.gla.any.v4i1(<4 x i1> %43)
+  %b38 = and i1 %b37, %44
+  %45 = load <4 x i1> addrspace(2)* @ub41, align 4
+  %46 = load <4 x i1> addrspace(2)* @ub42, align 4
+  %47 = icmp eq <4 x i1> %45, %46
+  %48 = call i1 @llvm.gla.any.v4i1(<4 x i1> %47)
+  %b39 = and i1 %b38, %48
+  %49 = icmp ne <4 x i1> %45, %46
+  %50 = call i1 @llvm.gla.any.v4i1(<4 x i1> %49)
+  %b40 = and i1 %b39, %50
+  %51 = call i1 @llvm.gla.any.v4i1(<4 x i1> %45)
+  %b41 = and i1 %b40, %51
+  %52 = call i1 @llvm.gla.all.v4i1(<4 x i1> %45)
+  %b42 = and i1 %b41, %52
+  %53 = xor <4 x i1> %45, <i1 true, i1 true, i1 true, i1 true>
+  %54 = call i1 @llvm.gla.any.v4i1(<4 x i1> %53)
+  %b43 = and i1 %b42, %54
+  %55 = fadd float %32, %32
+  %56 = fmul float %55, %32
+  %57 = fsub float %56, %32
+  %f47 = fdiv float %57, %32
+  %58 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %v34)
+  %f48 = fadd float %f47, %58
+  %59 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v34, <4 x float> %v34)
+  %f50 = fadd float %f48, %59
+  %60 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %37, <3 x float> %37)
+  %61 = extractelement <3 x float> %60, i32 0
+  %f51 = fadd float %f50, %61
+  %62 = fcmp oeq float %f51, %32
+  %63 = fcmp one float %f51, %32
+  %64 = fcmp one float %f51, 2.000000e+00
+  %65 = and i1 %63, %64
+  %66 = or i1 %62, %65
   %f53 = fadd float %f51, 1.000000e+00
-  %select69 = select i1 %65, float %f53, float %f51
-  %66 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select69, <4 x i32> zeroinitializer)
-  %67 = load i32 addrspace(2)* @ui, align 4
-  %i55 = and i32 %67, 1
+  %select69 = select i1 %66, float %f53, float %f51
+  %67 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select69, <4 x i32> zeroinitializer)
+  %68 = load i32 addrspace(2)* @ui, align 4
+  %i55 = and i32 %68, 1
   %i56 = or i32 %i55, 66
-  %i57 = xor i32 %i56, %67
+  %i57 = xor i32 %i56, %68
   %i58 = srem i32 %i57, 17
   %i59 = lshr i32 %i58, 2
-  %i60 = shl i32 %i59, %67
+  %i60 = shl i32 %i59, %68
   %i61 = xor i32 %i60, -1
-  %68 = sitofp i32 %i61 to float
-  %69 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %68, <4 x i32> zeroinitializer)
-  %70 = fadd <4 x float> %69, %66
-  %ternary65 = fadd <4 x float> %70, %v34
+  %69 = sitofp i32 %i61 to float
+  %70 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %69, <4 x i32> zeroinitializer)
+  %71 = fadd <4 x float> %70, %67
+  %ternary65 = fadd <4 x float> %71, %v34
   %select = select i1 %b43, <4 x float> %v34, <4 x float> %ternary65
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %select)
   br label %stage-epilogue
@@ -713,6 +712,8 @@ declare <4 x float> @llvm.gla.fSmoothStep.v4f32.v4f32.v4f32.v4f32(<4 x float>, <
 
 declare <4 x float> @llvm.gla.fNormalize.v4f32.v4f32(<4 x float>) nounwind readnone
 
+declare <4 x float> @llvm.gla.fFaceForward.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
+
 declare <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
@@ -750,12 +751,12 @@ uniform bvec4 ub42;
 uniform int ui;
 const vec4 const22 = vec4(0.0174533);
 const vec4 const24 = vec4(57.2958);
-const float const128_2f = 2.0;
-const float const132_1f = 1.0;
-const int const136_1 = 1;
-const int const138_66 = 66;
-const int const141_17 = 17;
-const int const143_2 = 2;
+const float const129_2f = 2.0;
+const float const133_1f = 1.0;
+const int const137_1 = 1;
+const int const139_66 = 66;
+const int const142_17 = 17;
+const int const144_2 = 2;
 
 void main()
 {
@@ -815,72 +816,73 @@ void main()
     vec4 temp76 = temp74 + temp75;
     vec4 temp77 = normalize(temp76);
     vec4 temp78 = temp76 + temp77;
-    vec4 temp79 = temp78 + temp78;
-    vec4 temp80 = reflect(temp79, temp79);
-    vec4 temp81 = temp79 + temp80;
-    vec4 temp82 = refract(temp81, temp81, uf);
-    vec4 temp83 = temp81 + temp82;
-    vec4 temp84 = dFdx(temp83);
-    vec4 temp85 = temp83 + temp84;
-    vec4 temp86 = dFdy(temp85);
-    vec4 temp87 = temp85 + temp86;
-    vec4 temp88 = fwidth(temp87);
-    vec4 temp89 = temp87 + temp88;
-    vec3 temp90 = vec3(temp89);
-    bvec4 temp91 = lessThan(temp89, uv4);
-    bool temp92 = any(temp91);
-    bvec4 temp93 = lessThanEqual(temp89, uv4);
-    bool temp94 = any(temp93);
-    bool temp95 = temp92 && temp94;
-    bvec4 temp96 = greaterThan(temp89, uv4);
-    bool temp97 = any(temp96);
-    bool temp98 = temp95 && temp97;
-    bvec4 temp99 = greaterThanEqual(temp89, uv4);
-    bool temp100 = any(temp99);
-    bool temp101 = temp98 && temp100;
-    bvec4 temp102 = equal(ub41, ub42);
-    bool temp103 = any(temp102);
-    bool temp104 = temp101 && temp103;
-    bvec4 temp105 = notEqual(ub41, ub42);
-    bool temp106 = any(temp105);
-    bool temp107 = temp104 && temp106;
-    bool temp108 = any(ub41);
-    bool temp109 = temp107 && temp108;
-    bool temp110 = all(ub41);
-    bool temp111 = temp109 && temp110;
-    bvec4 temp112 = not(ub41);
-    bool temp113 = any(temp112);
-    bool temp114 = temp111 && temp113;
-    float temp115 = uf + uf;
-    float temp116 = temp115 * uf;
-    float temp117 = temp116 - uf;
-    float temp118 = temp117 / uf;
-    float temp119 = length(temp89);
-    float temp120 = temp118 + temp119;
-    float temp121 = dot(temp89, temp89);
-    float temp122 = temp120 + temp121;
-    vec3 temp123 = cross(temp90, temp90);
-    float temp124 = temp122 + temp123.x;
-    bool temp125 = temp124 == uf;
-    bool temp126 = temp124 != uf;
-    bool temp127 = temp124 != const128_2f;
-    bool temp129 = temp126 && temp127;
-    bool temp130 = temp125 || temp129;
-    float temp131 = temp124 + const132_1f;
-    float select69 = temp130 ? temp131 : temp124;
-    vec4 temp134 = vec4(select69);
-    int temp135 = ui & const136_1;
-    int temp137 = temp135 | const138_66;
-    int temp139 = ~(temp137);
-    int temp140 = temp139 % const141_17;
-    int temp142 = temp140 >> const143_2;
-    int temp144 = temp142 << ui;
-    int temp145 = ~(temp144);
-    float temp146 = float(temp145);
-    vec4 temp147 = vec4(temp146);
-    vec4 temp148 = temp147 + temp134;
-    vec4 ternary65 = temp148 + temp89;
-    vec4 select = temp114 ? temp89 : ternary65;
+    vec4 temp79 = faceforward(temp78, temp78, temp78);
+    vec4 temp80 = temp78 + temp79;
+    vec4 temp81 = reflect(temp80, temp80);
+    vec4 temp82 = temp80 + temp81;
+    vec4 temp83 = refract(temp82, temp82, uf);
+    vec4 temp84 = temp82 + temp83;
+    vec4 temp85 = dFdx(temp84);
+    vec4 temp86 = temp84 + temp85;
+    vec4 temp87 = dFdy(temp86);
+    vec4 temp88 = temp86 + temp87;
+    vec4 temp89 = fwidth(temp88);
+    vec4 temp90 = temp88 + temp89;
+    vec3 temp91 = vec3(temp90);
+    bvec4 temp92 = lessThan(temp90, uv4);
+    bool temp93 = any(temp92);
+    bvec4 temp94 = lessThanEqual(temp90, uv4);
+    bool temp95 = any(temp94);
+    bool temp96 = temp93 && temp95;
+    bvec4 temp97 = greaterThan(temp90, uv4);
+    bool temp98 = any(temp97);
+    bool temp99 = temp96 && temp98;
+    bvec4 temp100 = greaterThanEqual(temp90, uv4);
+    bool temp101 = any(temp100);
+    bool temp102 = temp99 && temp101;
+    bvec4 temp103 = equal(ub41, ub42);
+    bool temp104 = any(temp103);
+    bool temp105 = temp102 && temp104;
+    bvec4 temp106 = notEqual(ub41, ub42);
+    bool temp107 = any(temp106);
+    bool temp108 = temp105 && temp107;
+    bool temp109 = any(ub41);
+    bool temp110 = temp108 && temp109;
+    bool temp111 = all(ub41);
+    bool temp112 = temp110 && temp111;
+    bvec4 temp113 = not(ub41);
+    bool temp114 = any(temp113);
+    bool temp115 = temp112 && temp114;
+    float temp116 = uf + uf;
+    float temp117 = temp116 * uf;
+    float temp118 = temp117 - uf;
+    float temp119 = temp118 / uf;
+    float temp120 = length(temp90);
+    float temp121 = temp119 + temp120;
+    float temp122 = dot(temp90, temp90);
+    float temp123 = temp121 + temp122;
+    vec3 temp124 = cross(temp91, temp91);
+    float temp125 = temp123 + temp124.x;
+    bool temp126 = temp125 == uf;
+    bool temp127 = temp125 != uf;
+    bool temp128 = temp125 != const129_2f;
+    bool temp130 = temp127 && temp128;
+    bool temp131 = temp126 || temp130;
+    float temp132 = temp125 + const133_1f;
+    float select69 = temp131 ? temp132 : temp125;
+    vec4 temp135 = vec4(select69);
+    int temp136 = ui & const137_1;
+    int temp138 = temp136 | const139_66;
+    int temp140 = ~(temp138);
+    int temp141 = temp140 % const142_17;
+    int temp143 = temp141 >> const144_2;
+    int temp145 = temp143 << ui;
+    int temp146 = ~(temp145);
+    float temp147 = float(temp146);
+    vec4 temp148 = vec4(temp147);
+    vec4 temp149 = temp148 + temp135;
+    vec4 ternary65 = temp149 + temp90;
+    vec4 select = temp115 ? temp90 : ternary65;
     gl_FragColor = select;
     
 }
