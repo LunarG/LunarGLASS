@@ -376,6 +376,11 @@ public:
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue, SuperValue);
     llvm::Value* createRecip(llvm::Value*);
+
+    // For equal and not-equal comparisons:
+    // first one is preferred form: uses innate types, works on vectors, matrices, arrays, and structures
+    llvm::Value* createCompare(llvm::Value*, llvm::Value*, bool /* true if for equal, fales if for not-equal */);
+    // the following is deprecated: works on vectors or scalars
     llvm::Value* createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned);
 
     // vector constructor

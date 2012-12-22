@@ -1,0 +1,89 @@
+
+***Unsupported functionality: glslOp 63
+compiling aggOps.frag...
+uniform sampler2D sampler ; 
+varying vec2 coord ; 
+varying vec4 u , w ; 
+struct s1 { int i ; float f ; } ; 
+struct s2 { int i ; float f ; s1 s1_1 ; } ; 
+uniform s1 foo1 ; 
+uniform s2 foo2a ; 
+uniform s2 foo2b ; 
+void  main (){
+vec4 v ; s1 a [ 3 ] , b [ 3 ] ; a = s1 [ 3 ] ( s1 ( int ( u . x ) , u . y ) , s1 ( int ( u . z ) , u . w ) , s1 ( 14 , 14.000000 ) ) ; b = s1 [ 3 ] ( s1 ( 17 , 17.000000 ) , s1 ( int ( w . x ) , w . y ) , s1 ( int ( w . z ) , w . w ) ) ; if ( foo2a == foo2b ) v = texture2D ( sampler , coord ) ; else v = texture2D ( sampler , 2.000000 * coord ) ; if ( u == v ) v *= 3.000000 ; if ( u != v ) v *= 4.000000 ; if ( coord == v . yw ) v *= 5.000000 ; if ( a == b ) v *= 6.000000 ; if ( a != b ) v *= 7.000000 ; gl_FragColor = v ; }
+
+
+
+(
+(declare (uniform ) s2 foo2b)
+(declare (uniform ) s2 foo2a)
+(declare (in ) vec4 w)
+(declare (in ) vec4 u)
+(declare (in ) vec2 coord)
+(declare (uniform ) sampler2D sampler)
+(declare (out ) vec4 gl_FragColor)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (declare () vec4 v)
+      (declare (temporary ) s1 record_ctor)
+      (assign (constant bool (1)) (x) (record_ref (var_ref record_ctor)  i)  (expression int f2i (swiz x (var_ref u) )) ) 
+      (assign (constant bool (1)) (x) (record_ref (var_ref record_ctor)  f)  (swiz y (var_ref u) )) 
+      (declare (temporary ) s1 record_ctor)
+      (assign (constant bool (1)) (x) (record_ref (var_ref record_ctor)  i)  (expression int f2i (swiz z (var_ref u) )) ) 
+      (assign (constant bool (1)) (x) (record_ref (var_ref record_ctor)  f)  (swiz w (var_ref u) )) 
+      (declare (temporary ) (array s1 3) array_ctor)
+      (assign (constant bool (1)) () (array_ref (var_ref array_ctor) (constant int (0)) )  (var_ref record_ctor) ) 
+      (assign (constant bool (1)) () (array_ref (var_ref array_ctor) (constant int (1)) )  (var_ref record_ctor) ) 
+      (assign (constant bool (1)) () (array_ref (var_ref array_ctor) (constant int (2)) )  (constant s1 ((i (constant int (14)) )(i (constant float (14.000000)) ))) ) 
+      (declare (temporary ) s1 record_ctor)
+      (assign (constant bool (1)) (x) (record_ref (var_ref record_ctor)  i)  (expression int f2i (swiz x (var_ref w) )) ) 
+      (assign (constant bool (1)) (x) (record_ref (var_ref record_ctor)  f)  (swiz y (var_ref w) )) 
+      (declare (temporary ) s1 record_ctor)
+      (assign (constant bool (1)) (x) (record_ref (var_ref record_ctor)  i)  (expression int f2i (swiz z (var_ref w) )) ) 
+      (assign (constant bool (1)) (x) (record_ref (var_ref record_ctor)  f)  (swiz w (var_ref w) )) 
+      (declare (temporary ) (array s1 3) array_ctor)
+      (assign (constant bool (1)) () (array_ref (var_ref array_ctor) (constant int (0)) )  (constant s1 ((i (constant int (17)) )(i (constant float (17.000000)) ))) ) 
+      (assign (constant bool (1)) () (array_ref (var_ref array_ctor) (constant int (1)) )  (var_ref record_ctor) ) 
+      (assign (constant bool (1)) () (array_ref (var_ref array_ctor) (constant int (2)) )  (var_ref record_ctor) ) 
+      (if (expression bool && (expression bool && (expression bool all_equal (record_ref (var_ref foo2a)  i) (record_ref (var_ref foo2b)  i) ) (expression bool all_equal (record_ref (var_ref foo2a)  f) (record_ref (var_ref foo2b)  f) ) ) (expression bool && (expression bool all_equal (record_ref (record_ref (var_ref foo2a)  s1_1)  i) (record_ref (record_ref (var_ref foo2b)  s1_1)  i) ) (expression bool all_equal (record_ref (record_ref (var_ref foo2a)  s1_1)  f) (record_ref (record_ref (var_ref foo2b)  s1_1)  f) ) ) ) (
+        (assign (constant bool (1)) (xyzw) (var_ref v)  (tex (var_ref sampler)  (var_ref coord)  (0 0 0) 1 () )) 
+      )
+      (
+        (assign (constant bool (1)) (xyzw) (var_ref v)  (tex (var_ref sampler)  (expression vec2 * (constant float (2.000000)) (var_ref coord) )  (0 0 0) 1 () )) 
+      ))
+
+      (if (expression bool all_equal (var_ref u) (var_ref v) ) (
+        (assign (constant bool (1)) (xyzw) (var_ref v)  (expression vec4 * (var_ref v) (constant float (3.000000)) ) ) 
+      )
+      ())
+
+      (if (expression bool any_nequal (var_ref u) (var_ref v) ) (
+        (assign (constant bool (1)) (xyzw) (var_ref v)  (expression vec4 * (var_ref v) (constant float (4.000000)) ) ) 
+      )
+      ())
+
+      (if (expression bool all_equal (var_ref coord) (swiz yw (var_ref v) )) (
+        (assign (constant bool (1)) (xyzw) (var_ref v)  (expression vec4 * (var_ref v) (constant float (5.000000)) ) ) 
+      )
+      ())
+
+      (if (expression bool && (expression bool && (expression bool && (expression bool all_equal (record_ref (array_ref (var_ref array_ctor) (constant uint (0)) )  i) (record_ref (array_ref (var_ref array_ctor) (constant uint (0)) )  i) ) (expression bool all_equal (record_ref (array_ref (var_ref array_ctor) (constant uint (0)) )  f) (record_ref (array_ref (var_ref array_ctor) (constant uint (0)) )  f) ) ) (expression bool && (expression bool all_equal (record_ref (array_ref (var_ref array_ctor) (constant uint (1)) )  i) (record_ref (array_ref (var_ref array_ctor) (constant uint (1)) )  i) ) (expression bool all_equal (record_ref (array_ref (var_ref array_ctor) (constant uint (1)) )  f) (record_ref (array_ref (var_ref array_ctor) (constant uint (1)) )  f) ) ) ) (expression bool && (expression bool all_equal (record_ref (array_ref (var_ref array_ctor) (constant uint (2)) )  i) (record_ref (array_ref (var_ref array_ctor) (constant uint (2)) )  i) ) (expression bool all_equal (record_ref (array_ref (var_ref array_ctor) (constant uint (2)) )  f) (record_ref (array_ref (var_ref array_ctor) (constant uint (2)) )  f) ) ) ) (
+        (assign (constant bool (1)) (xyzw) (var_ref v)  (expression vec4 * (var_ref v) (constant float (6.000000)) ) ) 
+      )
+      ())
+
+      (if (expression bool || (expression bool || (expression bool || (expression bool any_nequal (record_ref (array_ref (var_ref array_ctor) (constant uint (0)) )  i) (record_ref (array_ref (var_ref array_ctor) (constant uint (0)) )  i) ) (expression bool any_nequal (record_ref (array_ref (var_ref array_ctor) (constant uint (0)) )  f) (record_ref (array_ref (var_ref array_ctor) (constant uint (0)) )  f) ) ) (expression bool || (expression bool any_nequal (record_ref (array_ref (var_ref array_ctor) (constant uint (1)) )  i) (record_ref (array_ref (var_ref array_ctor) (constant uint (1)) )  i) ) (expression bool any_nequal (record_ref (array_ref (var_ref array_ctor) (constant uint (1)) )  f) (record_ref (array_ref (var_ref array_ctor) (constant uint (1)) )  f) ) ) ) (expression bool || (expression bool any_nequal (record_ref (array_ref (var_ref array_ctor) (constant uint (2)) )  i) (record_ref (array_ref (var_ref array_ctor) (constant uint (2)) )  i) ) (expression bool any_nequal (record_ref (array_ref (var_ref array_ctor) (constant uint (2)) )  f) (record_ref (array_ref (var_ref array_ctor) (constant uint (2)) )  f) ) ) ) (
+        (assign (constant bool (1)) (xyzw) (var_ref v)  (expression vec4 * (var_ref v) (constant float (7.000000)) ) ) 
+      )
+      ())
+
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (var_ref v) ) 
+    ))
+
+)
+
+
+)

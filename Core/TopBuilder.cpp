@@ -850,52 +850,7 @@ Builder::SuperValue Builder::createMatrixCompare(SuperValue left, SuperValue rig
     assert(left.getMatrix()->getNumColumns() == right.getMatrix()->getNumColumns());
     assert(left.getMatrix()->getNumRows() == right.getMatrix()->getNumRows());
 
-    llvm::Value* value1 =  left.getMatrix()->getValue();
-    llvm::Value* value2 = right.getMatrix()->getValue();
-
-    // Get a boolean to accumulate the results in
-    llvm::Value* result = builder.CreateAlloca(llvm::IntegerType::get(context, 1), 0, "__Matrix-Compare");
-    result = builder.CreateLoad(result, "__Matrix-Compare");
-    llvm::Function* any;
-    llvm::Function* all;
-
-    for (int c = 0; c < left.getMatrix()->getNumColumns(); ++c) {
-        // Get intermediate comparison values
-        llvm::Value* column1 = builder.CreateExtractValue(value1, c, "__column");
-        llvm::Value* column2 = builder.CreateExtractValue(value2, c, "__column");
-
-        // compute intermediate comparison
-        llvm::Value* interm;
-        if (allEqual) {
-            interm = builder.CreateFCmpOEQ(column1, column2);
-
-            // first time, get our intrinsics to finish off the compares
-            if (c == 0)
-                all = Builder::getIntrinsic(llvm::Intrinsic::gla_all, interm->getType());
-
-            interm = builder.CreateCall(all, interm);
-        } else {
-            interm = builder.CreateFCmpONE(column1, column2);
-
-            // first time, get our intrinsics to finish off the compares
-            if (c == 0)
-                any = Builder::getIntrinsic(llvm::Intrinsic::gla_any, interm->getType());
-
-            interm = builder.CreateCall(any, interm);
-        }
-
-        // Accumulate intermediate comparison
-        if (c == 0) {
-            result = interm;
-        } else {
-            if (allEqual)
-                result = builder.CreateAnd(result, interm);
-            else
-                result = builder.CreateOr(result, interm);
-        }
-    }
-
-    return result;
+    return createCompare(left, right, allEqual);
 }
 
 Builder::Matrix* Builder::createMatrixTranspose(Matrix* matrix)
@@ -1440,9 +1395,87 @@ llvm::Value* Builder::createRecip(llvm::Value* operand)
         return builder.CreateFDiv(llvm::ConstantFP::get(ty, 1.0), operand);
 
     UnsupportedFunctionality("Unknown type to be taking the reciprocal of: ", ty->getTypeID());
+
     return 0;
 }
 
+llvm::Value* Builder::createCompare(llvm::Value* value1, llvm::Value* value2, bool equal)
+{
+    if (llvm::isa<llvm::PointerType>(value1->getType()))
+        value1 = builder.CreateLoad(value1);
+    if (llvm::isa<llvm::PointerType>(value2->getType()))
+        value2 = builder.CreateLoad(value2);
+
+    llvm::Value* result;
+
+    // Directly compare scalars and vectors.
+
+    if (IsScalar(value1) || IsVector(value1)) {
+        if (GetBasicTypeID(value1) == llvm::Type::FloatTyID) {
+            if (equal)
+                result = builder.CreateFCmpOEQ(value1, value2);
+            else
+                result = builder.CreateFCmpONE(value1, value2);
+        } else {
+            if (equal)
+                result = builder.CreateICmpEQ(value1, value2);
+            else
+                result = builder.CreateICmpNE(value1, value2);
+        }
+    }
+
+    if (IsScalar(value1))
+        return result;
+
+    // Reduce vector compares with any() and all().
+
+    if (IsVector(value1)) {
+        llvm::Intrinsic::ID intrinsicID;
+        if (equal)
+            intrinsicID = llvm::Intrinsic::gla_all;
+        else
+            intrinsicID = llvm::Intrinsic::gla_any;
+
+        return createIntrinsicCall(intrinsicID, result);
+    }
+
+    // Recursively handle aggregates, which include matrices, arrays, and structures
+    // and accumulate the results.
+
+    // arrays (includes matrices)
+    int numElements;
+    const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(value1->getType());
+    if (arrayType)
+        numElements = arrayType->getNumElements();
+    else {
+        // better be structure
+        const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(value1->getType());
+        assert(structType);
+        numElements = structType->getNumElements();
+    }
+
+    for (int element = 0; element < numElements; ++element) {
+        // Get intermediate comparison values
+        llvm::Value* element1 = builder.CreateExtractValue(value1, element, "element1");
+        llvm::Value* element2 = builder.CreateExtractValue(value2, element, "element2");
+
+        llvm::Value* subResult = createCompare(element1, element2, equal);
+
+        // Accumulate intermediate comparison
+        if (element == 0)
+            result = subResult;
+        else {
+            if (equal)
+                result = builder.CreateAnd(result, subResult);
+            else
+                result = builder.CreateOr(result, subResult);
+        }
+    }
+
+    return result;
+}
+
+// deprecated, use createCompare(SuperValue, SuperValue, bool)
 llvm::Value* Builder::createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned)
 {
     llvm::Value* result = 0;
@@ -1464,7 +1497,7 @@ llvm::Value* Builder::createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equ
         }
     }
 
-    if (llvm::dyn_cast<llvm::VectorType>(result->getType()))
+    if (llvm::isa<llvm::VectorType>(result->getType()))
         return createIntrinsicCall(intrinsicID, result);
 
     return result;

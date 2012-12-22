@@ -1107,11 +1107,11 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
 
     // Comparison instructions
 
-    if (left.isMatrix())
-        return glaBuilder->createMatrixCompare(left, right, op == EOpEqual);
+    if (reduceComparison && (left.isMatrix() || gla::IsVector(left) || gla::IsAggregate(left))) {
+        assert(op == EOpEqual || op == EOpNotEqual);
 
-    if (reduceComparison && (gla::IsAggregate(left) || gla::IsVector(left)))
-        gla::UnsupportedFunctionality("reductive comparison of aggregates");
+        return glaBuilder->createCompare(left, right, op == EOpEqual);
+    }
 
     if (leftIsFloat) {
         llvm::FCmpInst::Predicate pred = llvm::FCmpInst::Predicate(0);
@@ -1255,6 +1255,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
     return result;
 }
 
+// TODO: remove basicType?
 gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand, TBasicType basicType)
 {
     // Unary ops that require an intrinsic
