@@ -83,8 +83,8 @@ public:
     gla::Builder::SuperValue createUnaryOperation(TOperator op, const TType& destType, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand, TBasicType);
     gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, TBasicType);
-    llvm::Value* createPipelineRead(TIntermSymbol*, int slot);
-    int getNextInterpIndex(std::string& name);
+    void createPipelineRead(TIntermSymbol*, gla::Builder::SuperValue storage, int slot);
+    int getNextInterpIndex(const std::string& name, int numSlots);
     gla::Builder::SuperValue createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
 
     llvm::LLVMContext &context;
@@ -101,6 +101,10 @@ public:
     std::map<std::string, int> interpMap;
     std::map<TTypeList*, llvm::StructType*> structMap;
 };
+
+// A fully functionaling front end will know all array sizes,
+// this is just a back up size.
+const int UnknownArraySize = 8;
 
 TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
     : context(llvm::getGlobalContext()), llvmBuilder(context),
@@ -156,20 +160,32 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     // (since we are on the symbol; the base of the expression, which is left-most)
     oit->glaBuilder->clearAccessChain();
 
+    // we will shadow inputs in global variables, so everything gets a variable 
+    // allocated, see if we've cached it
+
+    std::map<int, gla::Builder::SuperValue>::iterator iter;
+    iter = oit->namedValues.find(symbolNode->getId());
+    gla::Builder::SuperValue storage;
+
+    if (oit->namedValues.end() == iter) {
+        // it was not found, create it
+        storage = oit->createLLVMVariable(symbolNode);
+        oit->namedValues[symbolNode->getId()] = storage;
+    } else
+        storage = oit->namedValues[symbolNode->getId()];
+
+    // Track the current value
+    oit->glaBuilder->setAccessChainLValue(storage);
+
     if (input) {
-        gla::Builder::SuperValue rValue = oit->createPipelineRead(symbolNode, 0);
-        oit->glaBuilder->setAccessChainRValue(rValue);
-    } else {
-        std::map<int, gla::Builder::SuperValue>::iterator iter;
-        iter = oit->namedValues.find(symbolNode->getId());
-
-        if (oit->namedValues.end() == iter) {
-            // it was not found, create it
-            oit->namedValues[symbolNode->getId()] = oit->createLLVMVariable(symbolNode);
+        // TODO: get correct slot numbers from somewhere
+        int size = 1;
+        if (symbolNode->getType().isArray()) {
+            size = symbolNode->getType().getArraySize();
+            if (size == 0)
+                size = UnknownArraySize;
         }
-
-        // Track the current value
-        oit->glaBuilder->setAccessChainLValue(oit->namedValues[symbolNode->getId()]);
+        oit->createPipelineRead(symbolNode, storage, oit->getNextInterpIndex(symbolNode->getSymbol().c_str(), size));
     }
 }
 
@@ -739,8 +755,9 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
     case EvqVaryingIn:
     case EvqFragCoord:
     case EvqFace:
-        // inputs should all be pipeline reads or created at function creation time
-        assert(! "no variable creations for inputs");
+        // Pipeline reads: If we are here, it must be to create a shadow which
+        // will shadow the actual pipeline reads, which must still be done elsewhere.
+        storageQualifier = gla::Builder::ESQGlobal;
         break;
     case EvqVaryingOut:
     case EvqPosition:
@@ -840,8 +857,14 @@ const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& t
             glaType = llvm::VectorType::get(glaType, type.getNominalSize());
     }
 
-    if (type.isArray())
-        glaType = llvm::ArrayType::get(glaType, type.getArraySize());
+    if (type.isArray()) {
+        int arraySize = type.getArraySize();
+        if (arraySize == 0) {
+            gla::UnsupportedFunctionality("unsized array", gla::EATContinue);
+            arraySize = UnknownArraySize;
+        }
+        glaType = llvm::ArrayType::get(glaType, arraySize);
+    }
 
     return glaType;
 }
@@ -1469,8 +1492,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
     if (intrinsicID != 0) {
         switch (operands.size()) {
         case 0:
-            // ftransform only, which goes through the function call path
-            gla::UnsupportedFunctionality("intrinsic with no arguments");
+            result = glaBuilder->createIntrinsicCall(intrinsicID);
             break;
         case 1:
             // should all be handled by createUnaryIntrinsic
@@ -1483,6 +1505,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
             result = glaBuilder->createIntrinsicCall(intrinsicID, operands[0], operands[1], operands[2]);
             break;
         default:
+            // These do not exist yet
             gla::UnsupportedFunctionality("intrinsic with more than 3 operands");
         }
     }
@@ -1490,38 +1513,60 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
     return result;
 }
 
-llvm::Value* TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, int slot)
+void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builder::SuperValue storage, int slot)
 {
-    // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
-    // which we will optimize later.
-    std::string name(node->getSymbol().c_str());
-    const llvm::Type* readType;
-
-    if (node->getType().isArray()) {
-        gla::UnsupportedFunctionality("input array");
-        return 0;
-    } else {
-        readType = convertGlslangToGlaType(node->getType());
-    }
-
     gla::EInterpolationMethod method = gla::EIMSmooth;
     // TODO: set interpolation types
             //method = gla::EIMSmooth;
             //method = gla::EIMNoperspective;
             //method = gla::EIMNone;
 
-    // Give each interpolant a temporary unique index
-    return glaBuilder->readPipeline(readType, name, getNextInterpIndex(name), -1 /*mask*/, method);
+    // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
+    // which gets optimized later.
+    std::string name(node->getSymbol().c_str());
+    const llvm::Type* readType;
+    int endSlot = slot + 1;
+    llvm::Value* pipeRead;
+
+    if (node->getType().isArray()) {
+        int arraySize = node->getType().getArraySize();
+        if (arraySize == 0) {
+            // TODO: make sure front end knows size before calling here, see 
+            // comment in convertGlslangToGlaType
+            arraySize = UnknownArraySize;
+        }
+        endSlot = slot + arraySize;
+        TType nonArrayType = node->getType();
+        nonArrayType.clearArrayness();
+        readType = convertGlslangToGlaType(nonArrayType);
+
+        // fill in the whole array
+        std::vector<llvm::Value*> gepChain;
+        gepChain.push_back(gla::MakeIntConstant(context, 0));
+        for (int s = slot; s < endSlot; ++s) {
+            std::string indexedName = name;
+            gla::AppendArrayIndexToName(indexedName, s);
+            gepChain.push_back(gla::MakeIntConstant(context, s));
+            pipeRead = glaBuilder->readPipeline(readType, indexedName, s, -1 /*mask*/, method);
+            llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
+            gepChain.pop_back();
+        }
+    } else {
+        readType = convertGlslangToGlaType(node->getType());
+        llvm::Value* pipeRead = glaBuilder->readPipeline(readType, name, slot, -1 /*mask*/, method);
+        llvmBuilder.CreateStore(pipeRead, storage);
+    }
 }
 
-int TGlslangToTopTraverser::getNextInterpIndex(std::string& name)
+int TGlslangToTopTraverser::getNextInterpIndex(const std::string& name, int numSlots)
 {
     // Get the index for this interpolant, or create a new unique one
     std::map<std::string, int>::iterator iter;
     iter = interpMap.find(name);
 
     if (interpMap.end() == iter) {
-        interpMap[name] = interpIndex++;
+        interpMap[name] = interpIndex;
+        interpIndex += numSlots;
     }
 
     return interpMap[name];

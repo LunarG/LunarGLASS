@@ -224,7 +224,9 @@ public:
     // push swizzle onto the right of any existing swizzle
     void accessChainPushSwizzleRight(std::vector<int>& swizzle, const llvm::Type* type, int width);
 
-    // set pipeline input as an r-value
+    // set pipeline input as an r-value, when pushing onto the left, meaning
+    // the swizzle is yet to be consumed, but the access chain had to have been 
+    // collapsed already and consumed in order to create the passed in value
     void setAccessChainPipeValue(llvm::Value*);
 
     // use accessChain and swizzle to store value

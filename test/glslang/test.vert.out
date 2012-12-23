@@ -3,14 +3,20 @@ Top IR:
 ; ModuleID = 'Top'
 
 @uv = internal global <2 x float> zeroinitializer
+@uv_in = internal global <2 x float> zeroinitializer
 @gl_Position = internal global <4 x float> zeroinitializer
+@position = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
   %uv_in = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %uv_in, <2 x float>* @uv
+  store <2 x float> %uv_in, <2 x float>* @uv_in
+  %uv = load <2 x float>* @uv_in
+  store <2 x float> %uv, <2 x float>* @uv
   %position = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
-  store <4 x float> %position, <4 x float>* @gl_Position
+  store <4 x float> %position, <4 x float>* @position
+  %gl_Position = load <4 x float>* @position
+  store <4 x float> %gl_Position, <4 x float>* @gl_Position
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry

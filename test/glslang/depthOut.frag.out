@@ -3,15 +3,21 @@ Top IR:
 ; ModuleID = 'Top'
 
 @gl_FragDepth = internal global float 0.000000e+00
+@Depth = internal global float 0.000000e+00
 @gl_FragColor = internal global <4 x float> zeroinitializer
+@Color = internal global <4 x float> zeroinitializer
 @foo = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
   %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 -1, i32 1)
-  store float %Depth, float* @gl_FragDepth
+  store float %Depth, float* @Depth
+  %gl_FragDepth = load float* @Depth
+  store float %gl_FragDepth, float* @gl_FragDepth
   %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
-  store <4 x float> %Color, <4 x float>* @gl_FragColor
+  store <4 x float> %Color, <4 x float>* @Color
+  %gl_FragColor = load <4 x float>* @Color
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   %foo = load <4 x float>* @gl_FragColor
   store <4 x float> %foo, <4 x float>* @foo
   br label %stage-epilogue

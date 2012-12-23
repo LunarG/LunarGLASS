@@ -1454,6 +1454,8 @@ llvm::Value* Builder::createCompare(llvm::Value* value1, llvm::Value* value2, bo
         numElements = structType->getNumElements();
     }
 
+    assert(numElements > 0);
+
     for (int element = 0; element < numElements; ++element) {
         // Get intermediate comparison values
         llvm::Value* element1 = builder.CreateExtractValue(value1, element, "element1");

@@ -2,6 +2,7 @@
 Top IR:
 ; ModuleID = 'Top'
 
+@BaseColor = internal global <4 x float> zeroinitializer
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -22,7 +23,9 @@ stage-exit:                                       ; preds = %stage-epilogue
 define internal fastcc <4 x float> @"foo("() alwaysinline {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  ret <4 x float> %BaseColor
+  store <4 x float> %BaseColor, <4 x float>* @BaseColor
+  %0 = load <4 x float>* @BaseColor
+  ret <4 x float> %0
 
 post-return:                                      ; No predecessors!
   unreachable

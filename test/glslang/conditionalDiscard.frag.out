@@ -3,6 +3,7 @@ Top IR:
 ; ModuleID = 'Top'
 
 @"sampler2D tex" = external addrspace(1) constant i32
+@coord = internal global <2 x float> zeroinitializer
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -10,12 +11,14 @@ entry:
   %v = alloca <4 x float>
   %0 = load i32 addrspace(1)* @"sampler2D tex"
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
+  store <2 x float> %coord, <2 x float>* @coord
+  %1 = load <2 x float>* @coord
+  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1)
   store <4 x float> %v1, <4 x float>* %v
-  %1 = load <4 x float>* %v
-  %2 = fcmp oeq <4 x float> %1, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
-  %3 = call i1 @llvm.gla.all.v4i1(<4 x i1> %2)
-  br i1 %3, label %then, label %ifmerge
+  %2 = load <4 x float>* %v
+  %3 = fcmp oeq <4 x float> %2, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
+  %4 = call i1 @llvm.gla.all.v4i1(<4 x i1> %3)
+  br i1 %4, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
   call void @llvm.gla.discard()
@@ -30,8 +33,8 @@ ifmerge:                                          ; preds = %entry, %post-discar
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
-  %4 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %4)
+  %5 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %5)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then

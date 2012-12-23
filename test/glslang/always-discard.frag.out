@@ -2,6 +2,7 @@
 Top IR:
 ; ModuleID = 'Top'
 
+@tex_coord = internal global <2 x float> zeroinitializer
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -17,49 +18,53 @@ entry:
   %color1 = load <4 x float>* %white
   store <4 x float> %color1, <4 x float>* %color
   %tex_coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %0 = extractelement <2 x float> %tex_coord, i32 0
-  %1 = fmul float %0, 2.000000e+00
-  %x2 = fsub float %1, 1.000000e+00
+  store <2 x float> %tex_coord, <2 x float>* @tex_coord
+  %0 = load <2 x float>* @tex_coord
+  %1 = extractelement <2 x float> %0, i32 0
+  %2 = fmul float %1, 2.000000e+00
+  %x2 = fsub float %2, 1.000000e+00
   store float %x2, float* %x
   %tex_coord3 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %2 = extractelement <2 x float> %tex_coord3, i32 1
-  %3 = fmul float %2, 2.000000e+00
-  %y4 = fsub float %3, 1.000000e+00
+  store <2 x float> %tex_coord3, <2 x float>* @tex_coord
+  %3 = load <2 x float>* @tex_coord
+  %4 = extractelement <2 x float> %3, i32 1
+  %5 = fmul float %4, 2.000000e+00
+  %y4 = fsub float %5, 1.000000e+00
   store float %y4, float* %y
-  %4 = load float* %x
-  %5 = load float* %x
-  %6 = fmul float %4, %5
-  %7 = load float* %y
-  %8 = load float* %y
-  %9 = fmul float %7, %8
-  %10 = fadd float %6, %9
-  %radius5 = call float @llvm.gla.fSqrt.f32.f32(float %10)
+  %6 = load float* %x
+  %7 = load float* %x
+  %8 = fmul float %6, %7
+  %9 = load float* %y
+  %10 = load float* %y
+  %11 = fmul float %9, %10
+  %12 = fadd float %8, %11
+  %radius5 = call float @llvm.gla.fSqrt.f32.f32(float %12)
   store float %radius5, float* %radius
-  %11 = load float* %radius
-  %12 = fcmp ogt float %11, 1.000000e+00
-  br i1 %12, label %then, label %ifmerge11
+  %13 = load float* %radius
+  %14 = fcmp ogt float %13, 1.000000e+00
+  br i1 %14, label %then, label %ifmerge11
 
 then:                                             ; preds = %entry
-  %13 = load float* %radius
-  %14 = fcmp ogt float %13, 0x3FF19999A0000000
-  br i1 %14, label %then6, label %ifmerge
+  %15 = load float* %radius
+  %16 = fcmp ogt float %15, 0x3FF19999A0000000
+  br i1 %16, label %then6, label %ifmerge
 
 then6:                                            ; preds = %then
-  %15 = load <4 x float>* %color
-  %color7 = fadd <4 x float> %15, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  %17 = load <4 x float>* %color
+  %color7 = fadd <4 x float> %17, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %color7, <4 x float>* %color
   br label %ifmerge
 
 ifmerge:                                          ; preds = %then, %then6
   %gl_FragColor = load <4 x float>* %color
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  %16 = load float* %radius
-  %17 = fcmp ogt float %16, 0x3FF3333340000000
-  br i1 %17, label %then8, label %ifmerge10
+  %18 = load float* %radius
+  %19 = fcmp ogt float %18, 0x3FF3333340000000
+  br i1 %19, label %then8, label %ifmerge10
 
 then8:                                            ; preds = %ifmerge
-  %18 = load <4 x float>* %color
-  %color9 = fadd <4 x float> %18, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  %20 = load <4 x float>* %color
+  %color9 = fadd <4 x float> %20, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %color9, <4 x float>* %color
   br label %ifmerge10
 
@@ -71,21 +76,21 @@ ifmerge11:                                        ; preds = %entry, %ifmerge10
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
-  %19 = load float* %radius
-  %20 = fcmp oge float %19, 7.500000e-01
-  br i1 %20, label %then12, label %ifmerge14
+  %21 = load float* %radius
+  %22 = fcmp oge float %21, 7.500000e-01
+  br i1 %22, label %then12, label %ifmerge14
 
 then12:                                           ; preds = %post-discard
-  %21 = load float* %radius
-  %22 = call float @llvm.gla.fPow.f32.f32.f32(float %21, float 1.600000e+01)
-  %23 = fdiv float %22, 2.000000e+00
-  %24 = call float @llvm.gla.fAbs.f32.f32(float %23)
-  %25 = load <4 x float>* %color
-  %26 = insertelement <4 x float> undef, float %24, i32 0
-  %27 = insertelement <4 x float> %26, float %24, i32 1
-  %28 = insertelement <4 x float> %27, float %24, i32 2
-  %29 = insertelement <4 x float> %28, float %24, i32 3
-  %color13 = fsub <4 x float> %25, %29
+  %23 = load float* %radius
+  %24 = call float @llvm.gla.fPow.f32.f32.f32(float %23, float 1.600000e+01)
+  %25 = fdiv float %24, 2.000000e+00
+  %26 = call float @llvm.gla.fAbs.f32.f32(float %25)
+  %27 = load <4 x float>* %color
+  %28 = insertelement <4 x float> undef, float %26, i32 0
+  %29 = insertelement <4 x float> %28, float %26, i32 1
+  %30 = insertelement <4 x float> %29, float %26, i32 2
+  %31 = insertelement <4 x float> %30, float %26, i32 3
+  %color13 = fsub <4 x float> %27, %31
   store <4 x float> %color13, <4 x float>* %color
   br label %ifmerge14
 
@@ -95,8 +100,8 @@ ifmerge14:                                        ; preds = %post-discard, %then
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge14
-  %30 = load <4 x float>* @gl_FragColor
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %30)
+  %32 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %32)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %ifmerge11

@@ -2,6 +2,7 @@
 Top IR:
 ; ModuleID = 'Top'
 
+@BaseColor = internal global <4 x float> zeroinitializer
 @Count = external addrspace(2) constant i32
 @bigColor = external addrspace(2) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
@@ -11,7 +12,9 @@ entry:
   %i = alloca i32
   %color = alloca <4 x float>
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor, <4 x float>* %color
+  store <4 x float> %BaseColor, <4 x float>* @BaseColor
+  %color1 = load <4 x float>* @BaseColor
+  store <4 x float> %color1, <4 x float>* %color
   store i32 0, i32* %i
   br label %loop-header
 
@@ -31,11 +34,11 @@ post-loop-break:                                  ; No predecessors!
 ifmerge:                                          ; preds = %loop-header, %post-loop-break
   %4 = load <4 x float> addrspace(2)* @bigColor
   %5 = load <4 x float>* %color
-  %color1 = fadd <4 x float> %5, %4
-  store <4 x float> %color1, <4 x float>* %color
+  %color2 = fadd <4 x float> %5, %4
+  store <4 x float> %color2, <4 x float>* %color
   %6 = load i32* %i
-  %i2 = add i32 %6, 1
-  store i32 %i2, i32* %i
+  %i3 = add i32 %6, 1
+  store i32 %i3, i32* %i
   br label %loop-header
 
 post-loop-continue:                               ; No predecessors!
@@ -81,7 +84,7 @@ loop-header.then_crit_edge:                       ; preds = %ifmerge
   br label %then
 
 then:                                             ; preds = %loop-header.then_crit_edge, %entry
-  %color.0.lcssa = phi <4 x float> [ %color1, %loop-header.then_crit_edge ], [ %BaseColor, %entry ]
+  %color.0.lcssa = phi <4 x float> [ %color2, %loop-header.then_crit_edge ], [ %BaseColor, %entry ]
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %color.0.lcssa)
   br label %stage-epilogue
 
@@ -93,8 +96,8 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 ifmerge:                                          ; preds = %ifmerge, %ifmerge.lr.ph
   %indvar = phi i32 [ %indvar.next, %ifmerge ], [ 0, %ifmerge.lr.ph ]
-  %color.05 = phi <4 x float> [ %BaseColor, %ifmerge.lr.ph ], [ %color1, %ifmerge ]
-  %color1 = fadd <4 x float> %color.05, %0
+  %color.08 = phi <4 x float> [ %BaseColor, %ifmerge.lr.ph ], [ %color2, %ifmerge ]
+  %color2 = fadd <4 x float> %color.08, %0
   %indvar.next = add i32 %indvar, 1
   %exitcond = icmp eq i32 %indvar.next, %.pre
   br i1 %exitcond, label %loop-header.then_crit_edge, label %ifmerge
@@ -115,24 +118,24 @@ uniform int Count;
 uniform vec4 bigColor;
 in vec4 BaseColor;
 const int const25_0 = 0;
-vec4 color1;
+vec4 color2;
 
 void main()
 {
     vec4 color_0_lcssa;
     int indvar;
-    vec4 color_05;
+    vec4 color_08;
     bool temp24 = Count > const25_0;
     color_0_lcssa = BaseColor;
     if (temp24) {
         indvar = const25_0;
-        color_05 = BaseColor;
+        color_08 = BaseColor;
         for (indvar = 0; indvar < Count; ++indvar) {
-            color1 = color_05 + bigColor;
-            color_05 = color1;
+            color2 = color_08 + bigColor;
+            color_08 = color2;
         }
         
-        color_0_lcssa = color1;
+        color_0_lcssa = color2;
     }
     
     gl_FragColor = color_0_lcssa;
