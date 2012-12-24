@@ -138,7 +138,9 @@ namespace gla {
         return name.length() < 2 || (name[1] >= '0' && name[1] <= '9');
     }
 
-    void AppendArrayIndexToName(std::string &, int);
+    void AppendArraySizeToName(std::string&, int);
+    void GetArraySizeFromName(const std::string& arrayName, std::string& basename, int& size);
+    void AppendArrayIndexToName(std::string&, int);
 
     const llvm::Type* GetBasicType(const llvm::Value*);
     const llvm::Type* GetBasicType(const llvm::Type*);

@@ -1632,7 +1632,7 @@ ifmerge67:                                        ; preds = %loop-header63
 
 loop-header80:                                    ; preds = %ifmerge83, %then65
   %indvar413 = phi i32 [ %indvar.next414, %ifmerge83 ], [ 0, %then65 ]
-  %color.10 = phi <4 x float> [ %select334, %ifmerge83 ], [ %70, %then65 ]
+  %color.10 = phi <4 x float> [ %select341, %ifmerge83 ], [ %70, %then65 ]
   %exitcond415 = icmp eq i32 %indvar413, 100
   br i1 %exitcond415, label %then81, label %ifmerge83
 
@@ -1648,13 +1648,13 @@ ifmerge83:                                        ; preds = %loop-header80
   %76 = extractelement <4 x float> %color.10, i32 1
   %77 = fadd float %76, 1.000000e+00
   %78 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.10, i32 2, float undef, i32 undef, float %77, i32 0, float undef, i32 undef, float undef, i32 undef)
-  %select334 = select i1 %72, <4 x float> %75, <4 x float> %78
+  %select341 = select i1 %72, <4 x float> %75, <4 x float> %78
   %indvar.next414 = add i32 %indvar413, 1
   br label %loop-header80
 
 loop-header96:                                    ; preds = %ifmerge99, %then81
   %indvar = phi i32 [ %indvar.next, %ifmerge99 ], [ 0, %then81 ]
-  %color.12 = phi <4 x float> [ %select341, %ifmerge99 ], [ %color.10, %then81 ]
+  %color.12 = phi <4 x float> [ %select334, %ifmerge99 ], [ %color.10, %then81 ]
   %exitcond = icmp eq i32 %indvar, 120
   br i1 %exitcond, label %then97, label %ifmerge99
 
@@ -1670,7 +1670,7 @@ ifmerge99:                                        ; preds = %loop-header96
   %84 = extractelement <4 x float> %color.12, i32 1
   %85 = fadd float %84, 1.000000e+00
   %86 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.12, i32 2, float undef, i32 undef, float %85, i32 0, float undef, i32 undef, float undef, i32 undef)
-  %select341 = select i1 %80, <4 x float> %83, <4 x float> %86
+  %select334 = select i1 %80, <4 x float> %83, <4 x float> %86
   %indvar.next = add i32 %indvar, 1
   br label %loop-header96
 
@@ -1741,7 +1741,7 @@ then136:                                          ; preds = %loop-header134
   br label %loop-header134.backedge
 
 loop-header134.backedge:                          ; preds = %then136, %ifmerge146
-  %color.17.be = phi <4 x float> [ %color135, %then136 ], [ %select, %ifmerge146 ]
+  %color.17.be = phi <4 x float> [ %color135, %then136 ], [ %select333, %ifmerge146 ]
   br label %loop-header134
 
 ifmerge138:                                       ; preds = %loop-header134
@@ -1751,8 +1751,8 @@ ifmerge138:                                       ; preds = %loop-header134
   %112 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color135, i32 2, float undef, i32 undef, float %111, i32 0, float undef, i32 undef, float undef, i32 undef)
   %113 = fadd float %107, %18
   %114 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color135, i32 1, float %113, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
-  %select = select i1 %110, <4 x float> %112, <4 x float> %114
-  %115 = extractelement <4 x float> %select, i32 2
+  %select333 = select i1 %110, <4 x float> %112, <4 x float> %114
+  %115 = extractelement <4 x float> %select333, i32 2
   %116 = fcmp uge float %115, %18
   br i1 %116, label %then144, label %ifmerge146
 
@@ -1765,7 +1765,7 @@ ifmerge146:                                       ; preds = %ifmerge138
   br label %loop-header134.backedge
 
 loop-header149:                                   ; preds = %ifmerge156, %then144
-  %color.19 = phi <4 x float> [ %select, %then144 ], [ %select339, %ifmerge156 ]
+  %color.19 = phi <4 x float> [ %select333, %then144 ], [ %select339, %ifmerge156 ]
   %color150 = fadd <4 x float> %color.19, %.pre351
   %117 = extractelement <4 x float> %color150, i32 1
   %118 = fcmp olt float %117, %.pre352
@@ -1932,7 +1932,7 @@ then217:                                          ; preds = %ifmerge215
   %158 = extractelement <4 x float> %color216, i32 0
   %159 = fadd float %158, 1.000000e+00
   %160 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color216, i32 5, float %159, i32 0, float undef, i32 undef, float %153, i32 0, float undef, i32 undef)
-  %select333 = select i1 %154, <4 x float> %157, <4 x float> %160
+  %select = select i1 %154, <4 x float> %157, <4 x float> %160
   br label %loop-merge232
 
 ifmerge225:                                       ; preds = %ifmerge215
@@ -1948,7 +1948,7 @@ ifmerge230:                                       ; preds = %ifmerge225
   br label %loop-header212
 
 loop-merge232:                                    ; preds = %then228, %then217, %then213
-  %color.32 = phi <4 x float> [ %color.30, %then213 ], [ %select333, %then217 ], [ %color227, %then228 ]
+  %color.32 = phi <4 x float> [ %color.30, %then213 ], [ %select, %then217 ], [ %color227, %then228 ]
   %.pre355 = load float addrspace(2)* @d9, align 4
   %163 = fcmp ogt float %.pre355, %.pre354
   br label %loop-header233
@@ -2246,7 +2246,7 @@ const float const144_1f = 1.0;
 const int const156_41 = 41;
 const int const165_1 = 1;
 vec4 temp169;
-vec4 select;
+vec4 select333;
 vec4 select339;
 float temp188;
 vec4 color181;
@@ -2442,8 +2442,8 @@ void main()
         float temp146 = color_10.y + const144_1f;
         vec4 temp147 = color_10;
         temp147.y = temp146;
-        vec4 select334 = temp141 ? temp145 : temp147;
-        color_10 = select334;
+        vec4 select341 = temp141 ? temp145 : temp147;
+        color_10 = select341;
     }
     
     indvar = const94_0;
@@ -2456,8 +2456,8 @@ void main()
         float temp152 = color_12.y + const144_1f;
         vec4 temp153 = color_12;
         temp153.y = temp152;
-        vec4 select341 = temp149 ? temp151 : temp153;
-        color_12 = select341;
+        vec4 select334 = temp149 ? temp151 : temp153;
+        color_12 = select334;
     }
     
     color_14 = color_12;
@@ -2524,19 +2524,19 @@ void main()
             float temp179 = color135.x + d4;
             vec4 temp180 = color135;
             temp180.x = temp179;
-            select = temp176 ? temp178 : temp180;
-            bool temp182 = select.z >= d4;
+            select333 = temp176 ? temp178 : temp180;
+            bool temp182 = select333.z >= d4;
             if (temp182) {
                 break;
             }
             
-            color_17_be = select;
+            color_17_be = select333;
         }
         
         color_17 = color_17_be;
     }
     
-    color_19 = select;
+    color_19 = select333;
     while (true) {
         vec4 color150 = color_19 + bigColor5;
         bool temp184 = color150.y < d5;
@@ -2649,8 +2649,8 @@ void main()
             float temp215 = color216.x + const144_1f;
             vec4 temp216 = color216;
             temp216.xz = vec2(temp215, temp210);
-            vec4 select333 = temp211 ? temp214 : temp216;
-            color_32 = select333;
+            vec4 select = temp211 ? temp214 : temp216;
+            color_32 = select;
             break;
         }
         

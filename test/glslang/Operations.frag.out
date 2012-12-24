@@ -639,8 +639,8 @@ entry:
   %65 = and i1 %63, %64
   %66 = or i1 %62, %65
   %f53 = fadd float %f51, 1.000000e+00
-  %select69 = select i1 %66, float %f53, float %f51
-  %67 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select69, <4 x i32> zeroinitializer)
+  %select = select i1 %66, float %f53, float %f51
+  %67 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select, <4 x i32> zeroinitializer)
   %68 = load i32 addrspace(2)* @ui, align 4
   %i55 = and i32 %68, 1
   %i56 = or i32 %i55, 66
@@ -653,8 +653,8 @@ entry:
   %70 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %69, <4 x i32> zeroinitializer)
   %71 = fadd <4 x float> %70, %67
   %ternary65 = fadd <4 x float> %71, %v34
-  %select = select i1 %b43, <4 x float> %v34, <4 x float> %ternary65
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %select)
+  %select69 = select i1 %b43, <4 x float> %v34, <4 x float> %ternary65
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %select69)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -869,8 +869,8 @@ void main()
     bool temp130 = temp127 && temp128;
     bool temp131 = temp126 || temp130;
     float temp132 = temp125 + const133_1f;
-    float select69 = temp131 ? temp132 : temp125;
-    vec4 temp135 = vec4(select69);
+    float select = temp131 ? temp132 : temp125;
+    vec4 temp135 = vec4(select);
     int temp136 = ui & const137_1;
     int temp138 = temp136 | const139_66;
     int temp140 = temp138 ^ ui;
@@ -882,8 +882,8 @@ void main()
     vec4 temp148 = vec4(temp147);
     vec4 temp149 = temp148 + temp135;
     vec4 ternary65 = temp149 + temp90;
-    vec4 select = temp115 ? temp90 : ternary65;
-    gl_FragColor = select;
+    vec4 select69 = temp115 ? temp90 : ternary65;
+    gl_FragColor = select69;
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####

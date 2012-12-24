@@ -1553,6 +1553,8 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
         gepChain.push_back(gla::MakeIntConstant(context, 0));
         for (int s = slot; s < endSlot; ++s) {
             std::string indexedName = name;
+            // TODO: do less string manipulation if there is no GLSL back end
+            gla::AppendArraySizeToName(indexedName, arraySize);
             gla::AppendArrayIndexToName(indexedName, s-slot);
             gepChain.push_back(gla::MakeIntConstant(context, s-slot));
             pipeRead = glaBuilder->readPipeline(readType, indexedName, s, -1 /*mask*/, method);

@@ -191,6 +191,35 @@ bool HasAllSet(const llvm::Value* value)
     }
 }
 
+void AppendArraySizeToName(std::string& arrayName, int size)
+{
+    arrayName.append("_");
+    llvm::raw_string_ostream out(arrayName);
+    out << size;
+    arrayName = out.str();
+}
+
+void GetArraySizeFromName(const std::string& arrayName, std::string& basename, int& size)
+{
+    size = 0;
+    if (arrayName.back() == ']') {
+        int sizePos = arrayName.find_last_of('[');
+        if (sizePos != std::string::npos) {
+            basename = arrayName.substr(0, sizePos);
+            --sizePos;
+            int power = 1;
+            while (sizePos > 0) {
+                int num = arrayName[sizePos] - '0';
+                if (num < 0 || num > 9)
+                    break;
+                size += num * power;
+                power *= 10;
+                --sizePos;
+            }
+        }
+    }
+}
+
 void AppendArrayIndexToName(std::string &arrayName, int index)
 {
     arrayName.append("[");

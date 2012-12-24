@@ -34,6 +34,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <set>
 #include <vector>
 #include <cstdio>
 
@@ -748,14 +749,37 @@ protected:
         case EVQUniform:
         case EVQConstant:
         case EVQInput:
-        case EVQOutput:
+        case EVQOutput: {
+            // If the name has brackets and index, we need to declare an array,
+            // not a scalar with a name containing brackets and index.
+            int arraySize;
+            std::string basename = varString;
+            GetArraySizeFromName(varString, basename, arraySize);            
+            if (arraySize > 0) {
+                if (globallyDeclaredArrays.find(basename) != globallyDeclaredArrays.end()) {
+                    // we already declared this array
+                    break;
+                } else {
+                    // declare array now,
+                    // remember this for next time
+                    globallyDeclaredArrays.insert(basename);
+                }
+            }
+
             globalDeclarations << mapGlaToQualifierString(vq);
-            if (varString.find_first_of(' ') == std::string::npos) {
+
+            if (basename.find_first_of(' ') == std::string::npos) {
                 globalDeclarations << " ";
                 emitGlaType(globalDeclarations, type);
             }
-            globalDeclarations << " " << varString << ";" << std::endl;
+            globalDeclarations << " " << basename;
+            
+            if (arraySize > 0)
+                globalDeclarations << "[" << arraySize << "]";
+
+            globalDeclarations << ";" << std::endl;
             break;
+        }
         case EVQGlobal:
             emitGlaType(globalDeclarations, type);
             globalDeclarations << " " << varString << ";" << std::endl;
@@ -1299,6 +1323,10 @@ protected:
 
     // map to track structure names tracked in the module
     std::map<const llvm::Type*, std::string> structNameMap;
+
+    // set to track which arrays have been declared from stripping
+    // indexes that were in scalar variable names
+    std::set<std::string> globallyDeclaredArrays;
 
     std::ostringstream globalDeclarations;
     std::ostringstream globalInitializers;
