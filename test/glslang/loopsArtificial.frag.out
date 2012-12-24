@@ -2,7 +2,7 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@BaseColor = internal global <4 x float> zeroinitializer
+@BaseColor_shadow = internal global <4 x float> zeroinitializer
 @bigColor4 = external addrspace(2) constant <4 x float>
 @d4 = external addrspace(2) constant float
 @d13 = external addrspace(2) constant float
@@ -12,8 +12,8 @@ define fastcc void @main() {
 entry:
   %color = alloca <4 x float>
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor, <4 x float>* @BaseColor
-  %color1 = load <4 x float>* @BaseColor
+  store <4 x float> %BaseColor, <4 x float>* @BaseColor_shadow
+  %color1 = load <4 x float>* @BaseColor_shadow
   store <4 x float> %color1, <4 x float>* %color
   br label %loop-header
 

@@ -2,7 +2,7 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@tex_coord = internal global <2 x float> zeroinitializer
+@tex_coord_shadow = internal global <2 x float> zeroinitializer
 @gl_FragColor = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -17,15 +17,15 @@ entry:
   %color1 = load <4 x float>* %white
   store <4 x float> %color1, <4 x float>* %color
   %tex_coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %tex_coord, <2 x float>* @tex_coord
-  %0 = load <2 x float>* @tex_coord
+  store <2 x float> %tex_coord, <2 x float>* @tex_coord_shadow
+  %0 = load <2 x float>* @tex_coord_shadow
   %1 = extractelement <2 x float> %0, i32 0
   %2 = fmul float %1, 2.000000e+00
   %x2 = fsub float %2, 1.000000e+00
   store float %x2, float* %x
   %tex_coord3 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %tex_coord3, <2 x float>* @tex_coord
-  %3 = load <2 x float>* @tex_coord
+  store <2 x float> %tex_coord3, <2 x float>* @tex_coord_shadow
+  %3 = load <2 x float>* @tex_coord_shadow
   %4 = extractelement <2 x float> %3, i32 1
   %5 = fmul float %4, 2.000000e+00
   %y4 = fsub float %5, 1.000000e+00

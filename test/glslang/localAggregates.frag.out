@@ -7,9 +7,9 @@ Top IR:
 %s3 = type { %s2, i32, float, %s1 }
 
 @foo3 = external addrspace(2) constant %s3
-@coord = internal global <2 x float> zeroinitializer
+@coord_shadow = internal global <2 x float> zeroinitializer
 @condition = external addrspace(2) constant i32
-@color = internal global <4 x float> zeroinitializer
+@color_shadow = internal global <4 x float> zeroinitializer
 @gl_FragColor = internal global <4 x float> zeroinitializer
 @"sampler2D sampler" = external addrspace(1) constant i32
 
@@ -32,8 +32,8 @@ then:                                             ; preds = %entry
   %2 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
   store float 1.000000e+00, float* %2
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %coord, <2 x float>* @coord
-  %3 = load <2 x float>* @coord
+  store <2 x float> %coord, <2 x float>* @coord_shadow
+  %3 = load <2 x float>* @coord_shadow
   %4 = extractelement <2 x float> %3, i32 0
   %5 = getelementptr [16 x float]* %localFArray, i32 0, i32 4
   store float %4, float* %5
@@ -44,8 +44,8 @@ then:                                             ; preds = %entry
 
 else:                                             ; preds = %entry
   %coord2 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %coord2, <2 x float>* @coord
-  %8 = load <2 x float>* @coord
+  store <2 x float> %coord2, <2 x float>* @coord_shadow
+  %8 = load <2 x float>* @coord_shadow
   %9 = extractelement <2 x float> %8, i32 0
   %10 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
   store float %9, float* %10
@@ -72,8 +72,8 @@ ifmerge4:                                         ; preds = %ifmerge, %then3
   store i32 5, i32* %x
   %19 = load i32* %x
   %coord5 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %coord5, <2 x float>* @coord
-  %20 = load <2 x float>* @coord
+  store <2 x float> %coord5, <2 x float>* @coord_shadow
+  %20 = load <2 x float>* @coord_shadow
   %21 = extractelement <2 x float> %20, i32 0
   %22 = getelementptr [16 x float]* %localArray, i32 0, i32 %19
   store float %21, float* %22
@@ -116,13 +116,13 @@ then9:                                            ; preds = %loop-merge
 
 ifmerge11:                                        ; preds = %loop-merge, %then9
   %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
-  store <4 x float> %color, <4 x float>* @color
-  %31 = load <4 x float>* @color
+  store <4 x float> %color, <4 x float>* @color_shadow
+  %31 = load <4 x float>* @color_shadow
   %32 = getelementptr %s2* %locals2, i32 0, i32 3
   store <4 x float> %31, <4 x float>* %32
   %coord12 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %coord12, <2 x float>* @coord
-  %33 = load <2 x float>* @coord
+  store <2 x float> %coord12, <2 x float>* @coord_shadow
+  %33 = load <2 x float>* @coord_shadow
   %34 = extractelement <2 x float> %33, i32 1
   %35 = getelementptr %s2* %locals2, i32 0, i32 3
   %36 = load <4 x float>* %35
@@ -150,8 +150,8 @@ ifmerge11:                                        ; preds = %loop-merge, %then9
   %57 = fmul <4 x float> %39, %56
   %58 = load i32 addrspace(1)* @"sampler2D sampler"
   %coord13 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %coord13, <2 x float>* @coord
-  %59 = load <2 x float>* @coord
+  store <2 x float> %coord13, <2 x float>* @coord_shadow
+  %59 = load <2 x float>* @coord_shadow
   %60 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %58, i32 0, <2 x float> %59)
   %gl_FragColor = fmul <4 x float> %57, %60
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
@@ -193,14 +193,14 @@ entry:
   %1 = icmp sgt i32 %0, 0
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %2 = extractelement <2 x float> %coord, i32 0
-  %tmp32 = select i1 %1, float %2, float 1.000000e+00
-  %3 = fadd float %tmp32, 1.000000e+00
-  %select119 = select i1 %1, float 1.000000e+00, float %2
+  %tmp30 = select i1 %1, float %2, float 1.000000e+00
+  %3 = fadd float %tmp30, 1.000000e+00
+  %select117 = select i1 %1, float 1.000000e+00, float %2
   %select.v = select i1 %1, float %2, float %3
   %4 = load i32 addrspace(2)* @condition, align 4
   %5 = icmp eq i32 %4, 1
   %select = select i1 %5, float %2, float 0.000000e+00
-  %6 = fadd float %select.v, %select119
+  %6 = fadd float %select.v, %select117
   %7 = fadd float %6, %2
   %8 = fadd float %7, %select
   %9 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %8, <4 x i32> zeroinitializer)
@@ -267,13 +267,13 @@ void main()
 {
     int temp21 = foo3.member0.member0;
     bool temp22 = temp21 > const23_0;
-    float tmp32 = temp22 ? coord.x : const25_1f;
-    float temp26 = tmp32 + const25_1f;
-    float select119 = temp22 ? const25_1f : coord.x;
+    float tmp30 = temp22 ? coord.x : const25_1f;
+    float temp26 = tmp30 + const25_1f;
+    float select117 = temp22 ? const25_1f : coord.x;
     float select_v = temp22 ? coord.x : temp26;
     bool temp29 = condition == const30_1;
     float select = temp29 ? coord.x : const32_0f;
-    float temp33 = select_v + select119;
+    float temp33 = select_v + select117;
     float temp34 = temp33 + coord.x;
     float temp35 = temp34 + select;
     vec4 temp36 = vec4(temp35);

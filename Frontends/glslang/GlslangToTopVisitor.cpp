@@ -71,7 +71,7 @@ public:
     TGlslangToTopTraverser(gla::Manager*);
     virtual ~TGlslangToTopTraverser();
 
-    gla::Builder::SuperValue createLLVMVariable(TIntermSymbol* node);
+    gla::Builder::SuperValue createLLVMVariable(TIntermSymbol* node, bool shadow);
     const llvm::Type* convertGlslangToGlaType(const TType& type);
 
     void handleFunctionEntry(TIntermAggregate* node);
@@ -169,7 +169,7 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
 
     if (oit->namedValues.end() == iter) {
         // it was not found, create it
-        storage = oit->createLLVMVariable(symbolNode);
+        storage = oit->createLLVMVariable(symbolNode, input);
         oit->namedValues[symbolNode->getId()] = storage;
     } else
         storage = oit->namedValues[symbolNode->getId()];
@@ -735,7 +735,7 @@ bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
     return false;
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbol* node)
+gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbol* node, bool shadow)
 {
     llvm::Constant* initializer = 0;
     gla::Builder::EStorageQualifier storageQualifier;
@@ -757,7 +757,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
     case EvqFace:
         // Pipeline reads: If we are here, it must be to create a shadow which
         // will shadow the actual pipeline reads, which must still be done elsewhere.
-        storageQualifier = gla::Builder::ESQGlobal;
+        assert(shadow);
         break;
     case EvqVaryingOut:
     case EvqPosition:
@@ -774,6 +774,8 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
         break;
     case EvqIn:
     case EvqOut:
+        // TODO: front-end needs to be fixed to tease apart the difference between 
+        //       an input to a shader and an input to a function, etc.
     case EvqInOut:
     case EvqConstReadOnly:
 
@@ -789,10 +791,16 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
         storageQualifier = gla::Builder::ESQResource;
     }
 
+    std::string name(node->getSymbol().c_str());
+    if (shadow) {
+        storageQualifier = gla::Builder::ESQGlobal;
+        name.append("_shadow");
+    }
+
     const llvm::Type *llvmType = convertGlslangToGlaType(node->getType());
 
     return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType, node->getType().isMatrix(),
-                                      initializer, annotationAddr, node->getSymbol().c_str());
+                                      initializer, annotationAddr, name);
 }
 
 const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
@@ -1545,8 +1553,8 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
         gepChain.push_back(gla::MakeIntConstant(context, 0));
         for (int s = slot; s < endSlot; ++s) {
             std::string indexedName = name;
-            gla::AppendArrayIndexToName(indexedName, s);
-            gepChain.push_back(gla::MakeIntConstant(context, s));
+            gla::AppendArrayIndexToName(indexedName, s-slot);
+            gepChain.push_back(gla::MakeIntConstant(context, s-slot));
             pipeRead = glaBuilder->readPipeline(readType, indexedName, s, -1 /*mask*/, method);
             llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
             gepChain.pop_back();

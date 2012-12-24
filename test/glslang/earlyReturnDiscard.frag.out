@@ -2,9 +2,9 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@BaseColor = internal global <4 x float> zeroinitializer
+@BaseColor_shadow = internal global <4 x float> zeroinitializer
 @otherColor = external addrspace(2) constant <4 x float>
-@c = internal global float 0.000000e+00
+@c_shadow = internal global float 0.000000e+00
 @d = external addrspace(2) constant float
 @bigColor = external addrspace(2) constant <4 x float>
 @smallColor = external addrspace(2) constant <4 x float>
@@ -19,14 +19,14 @@ entry:
   %color2 = alloca <4 x float>
   %color = alloca <4 x float>
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor, <4 x float>* @BaseColor
-  %color1 = load <4 x float>* @BaseColor
+  store <4 x float> %BaseColor, <4 x float>* @BaseColor_shadow
+  %color1 = load <4 x float>* @BaseColor_shadow
   store <4 x float> %color1, <4 x float>* %color
   %color22 = load <4 x float> addrspace(2)* @otherColor
   store <4 x float> %color22, <4 x float>* %color2
   %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
-  store float %c, float* @c
-  %0 = load float* @c
+  store float %c, float* @c_shadow
+  %0 = load float* @c_shadow
   %1 = load float addrspace(2)* @d
   %2 = fcmp ogt float %0, %1
   br i1 %2, label %then, label %else
@@ -284,8 +284,8 @@ else28:                                           ; preds = %else25
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge23, %else28, %then12, %then5
-  %gl_FragColor34.0 = phi <4 x float> [ zeroinitializer, %then5 ], [ zeroinitializer, %then12 ], [ %gl_FragColor, %ifmerge23 ], [ zeroinitializer, %else28 ]
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor34.0)
+  %gl_FragColor32.0 = phi <4 x float> [ zeroinitializer, %then5 ], [ zeroinitializer, %then12 ], [ %gl_FragColor, %ifmerge23 ], [ zeroinitializer, %else28 ]
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor32.0)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then26, %then18, %then8
@@ -321,14 +321,14 @@ const vec4 const33 = vec4(1.0);
 void main()
 {
     vec4 color_1;
-    vec4 gla_copyout_gl_FragColor34_0;
+    vec4 gla_copyout_gl_FragColor32_0;
     bool temp23 = c > d;
     vec4 _pn = temp23 ? bigColor : smallColor;
     vec4 color_0 = BaseColor + _pn;
     bool temp26 = color_0.z < minimum;
     if (temp26) {
-        gla_copyout_gl_FragColor34_0 = const27;
-        gl_FragColor = gla_copyout_gl_FragColor34_0;
+        gla_copyout_gl_FragColor32_0 = const27;
+        gl_FragColor = gla_copyout_gl_FragColor32_0;
         return;
     }
     else {
@@ -345,8 +345,8 @@ void main()
         if (temp34) {
             bool temp35 = color10.z > threshhold2;
             if (temp35) {
-                gla_copyout_gl_FragColor34_0 = const27;
-                gl_FragColor = gla_copyout_gl_FragColor34_0;
+                gla_copyout_gl_FragColor32_0 = const27;
+                gl_FragColor = gla_copyout_gl_FragColor32_0;
                 return;
             }
             else {
@@ -369,8 +369,8 @@ void main()
                 }
                 
                 vec4 gla_copyout_gl_FragColor = color_1 * otherColor;
-                gla_copyout_gl_FragColor34_0 = gla_copyout_gl_FragColor;
-                gl_FragColor = gla_copyout_gl_FragColor34_0;
+                gla_copyout_gl_FragColor32_0 = gla_copyout_gl_FragColor;
+                gl_FragColor = gla_copyout_gl_FragColor32_0;
                 return;
             }
             
@@ -380,8 +380,8 @@ void main()
                 discard;
             }
             else {
-                gla_copyout_gl_FragColor34_0 = const27;
-                gl_FragColor = gla_copyout_gl_FragColor34_0;
+                gla_copyout_gl_FragColor32_0 = const27;
+                gl_FragColor = gla_copyout_gl_FragColor32_0;
                 
             }
             

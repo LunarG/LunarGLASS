@@ -2,7 +2,7 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@BaseColor = internal global <4 x float> zeroinitializer
+@BaseColor_shadow = internal global <4 x float> zeroinitializer
 @Count = external addrspace(2) constant i32
 @bigColor = external addrspace(2) constant <4 x float>
 @gl_FragColor = internal global <4 x float> zeroinitializer
@@ -12,8 +12,8 @@ entry:
   %i = alloca i32
   %color = alloca <4 x float>
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor, <4 x float>* @BaseColor
-  %color1 = load <4 x float>* @BaseColor
+  store <4 x float> %BaseColor, <4 x float>* @BaseColor_shadow
+  %color1 = load <4 x float>* @BaseColor_shadow
   store <4 x float> %color1, <4 x float>* %color
   store i32 0, i32* %i
   br label %loop-header
@@ -96,8 +96,8 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 ifmerge:                                          ; preds = %ifmerge, %ifmerge.lr.ph
   %indvar = phi i32 [ %indvar.next, %ifmerge ], [ 0, %ifmerge.lr.ph ]
-  %color.08 = phi <4 x float> [ %BaseColor, %ifmerge.lr.ph ], [ %color2, %ifmerge ]
-  %color2 = fadd <4 x float> %color.08, %0
+  %color.07 = phi <4 x float> [ %BaseColor, %ifmerge.lr.ph ], [ %color2, %ifmerge ]
+  %color2 = fadd <4 x float> %color.07, %0
   %indvar.next = add i32 %indvar, 1
   %exitcond = icmp eq i32 %indvar.next, %.pre
   br i1 %exitcond, label %loop-header.then_crit_edge, label %ifmerge
@@ -124,15 +124,15 @@ void main()
 {
     vec4 color_0_lcssa;
     int indvar;
-    vec4 color_08;
+    vec4 color_07;
     bool temp24 = Count > const25_0;
     color_0_lcssa = BaseColor;
     if (temp24) {
         indvar = const25_0;
-        color_08 = BaseColor;
+        color_07 = BaseColor;
         for (indvar = 0; indvar < Count; ++indvar) {
-            color2 = color_08 + bigColor;
-            color_08 = color2;
+            color2 = color_07 + bigColor;
+            color_07 = color2;
         }
         
         color_0_lcssa = color2;

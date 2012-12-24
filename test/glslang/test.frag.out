@@ -3,10 +3,10 @@ Top IR:
 ; ModuleID = 'Top'
 
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
-@t = internal global <2 x float> zeroinitializer
+@t_shadow = internal global <2 x float> zeroinitializer
 @scale = external addrspace(2) constant <2 x float>
 @"sampler3D texSampler3D" = external addrspace(1) constant i32
-@coords = internal global <3 x float> zeroinitializer
+@coords_shadow = internal global <3 x float> zeroinitializer
 @gl_FragColor = internal global <4 x float> zeroinitializer
 @u = external addrspace(2) constant <4 x float>
 @blend = external addrspace(2) constant float
@@ -19,8 +19,8 @@ entry:
   store float 0x3FFC9FBE80000000, float* %blendscale
   %0 = load i32 addrspace(1)* @"sampler2D texSampler2D"
   %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %t, <2 x float>* @t
-  %1 = load <2 x float>* @t
+  store <2 x float> %t, <2 x float>* @t_shadow
+  %1 = load <2 x float>* @t_shadow
   %2 = load <2 x float> addrspace(2)* @scale
   %3 = fadd <2 x float> %1, %2
   %4 = load <2 x float> addrspace(2)* @scale
@@ -37,8 +37,8 @@ entry:
   store <4 x float> %v1, <4 x float>* %v
   %14 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %coords = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 -1, i32 1)
-  store <3 x float> %coords, <3 x float>* @coords
-  %15 = load <3 x float>* @coords
+  store <3 x float> %coords, <3 x float>* @coords_shadow
+  %15 = load <3 x float>* @coords_shadow
   %16 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 2, i32 %14, i32 0, <3 x float> %15)
   %17 = load <4 x float>* %v
   %w2 = fadd <4 x float> %16, %17
