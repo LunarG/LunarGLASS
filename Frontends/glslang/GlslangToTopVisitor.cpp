@@ -141,10 +141,7 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
 
     TIntermSymbol* symbolNode = node->getAsSymbolNode();
 
-    if (symbolNode == 0) {
-        gla::UnsupportedFunctionality("glslang null symbol", gla::EATContinue);
-        return;
-    }
+    assert(symbolNode);
 
     bool input = false;
     switch (symbolNode->getQualifier()) {
@@ -160,7 +157,7 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     // (since we are on the symbol; the base of the expression, which is left-most)
     oit->glaBuilder->clearAccessChain();
 
-    // we will shadow inputs in global variables, so everything gets a variable 
+    // we will shadow inputs in global variables, so everything gets a variable
     // allocated, see if we've cached it
 
     std::map<int, gla::Builder::SuperValue>::iterator iter;
@@ -235,8 +232,9 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
 
                 // do the operation
                 rValue = oit->createBinaryOperation(node->getOp(), leftRValue, rValue);
-                if (rValue.isClear())
-                    gla::UnsupportedFunctionality("unknown op-assign");
+
+                // these all need their counterparts in createBinaryOperation()
+                assert(! rValue.isClear());
             }
 
             // store the result
@@ -246,9 +244,8 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
             // assignments are expressions having an rValue after they are evaluated...
             oit->glaBuilder->clearAccessChain();
             oit->glaBuilder->setAccessChainRValue(rValue);
-            return false;
         }
-
+        return false;
     case EOpIndexDirect:
     case EOpIndexIndirect:
     case EOpIndexDirectStruct:
@@ -282,10 +279,8 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
                 oit->glaBuilder->setAccessChain(partial);
                 oit->glaBuilder->accessChainPushLeft(index);
             }
-
-            return false;
         }
-
+        return false;
     case EOpVectorSwizzle:
         {
             node->getLeft()->traverse(oit);
@@ -295,8 +290,8 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
                 swizzle.push_back(swizzleSequence[i]->getAsConstantUnion()->getUnionArrayPointer()->getIConst());
             oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()),
                                                          node->getLeft()->getNominalSize());
-            return false;
         }
+        return false;
     }
 
     // Assume generic binary op...
@@ -305,7 +300,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     oit->glaBuilder->clearAccessChain();
     node->getLeft()->traverse(oit);
     gla::Builder::SuperValue left = oit->glaBuilder->accessChainLoad();
-    
+
     oit->glaBuilder->clearAccessChain();
     node->getRight()->traverse(oit);
     gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
@@ -322,19 +317,18 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
         break;
     default:
         result = oit->createBinaryOperation(node->getOp(), left, right);
-        break;
     }
 
     if (result.isClear()) {
         gla::UnsupportedFunctionality("glslang binary operation", gla::EATContinue);
-
-        return true;
     } else {
         oit->glaBuilder->clearAccessChain();
         oit->glaBuilder->setAccessChainRValue(result);
 
         return false;
     }
+
+    return true;
 }
 
 bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* it)
@@ -354,6 +348,7 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
     if (! result.isClear()) {
         oit->glaBuilder->clearAccessChain();
         oit->glaBuilder->setAccessChainRValue(result);
+
         return false; // done with this node
     }
 
@@ -362,35 +357,34 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
     case EOpPostIncrement:
     case EOpPostDecrement:
     case EOpPreIncrement:
-    case EOpPreDecrement: {
-        // we need the integer value "1" or the floating point "1.0" to add/subtract
-        llvm::Value* one = gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID ?
-                                 gla::MakeFloatConstant(oit->context, 1.0) :
-                                 gla::MakeIntConstant(oit->context, 1);
-        TOperator op;
-        if (node->getOp() == EOpPreIncrement ||
-            node->getOp() == EOpPostIncrement)
-            op = EOpAdd;
-        else
-            op = EOpSub;
+    case EOpPreDecrement: 
+        {
+            // we need the integer value "1" or the floating point "1.0" to add/subtract
+            llvm::Value* one = gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID ?
+                                     gla::MakeFloatConstant(oit->context, 1.0) :
+                                     gla::MakeIntConstant(oit->context, 1);
+            TOperator op;
+            if (node->getOp() == EOpPreIncrement ||
+                node->getOp() == EOpPostIncrement)
+                op = EOpAdd;
+            else
+                op = EOpSub;
 
-        gla::Builder::SuperValue result = oit->createBinaryOperation(op, operand, one);
+            gla::Builder::SuperValue result = oit->createBinaryOperation(op, operand, one);
 
-        // The result of operation is always stored, but conditionally the 
-        // consumed result.  The consumed result is always an r-value.
-        oit->glaBuilder->accessChainStore(result);
-        oit->glaBuilder->clearAccessChain();
-        if (node->getOp() == EOpPreIncrement ||
-            node->getOp() == EOpPreDecrement)
-            oit->glaBuilder->setAccessChainRValue(result);
-        else
-            oit->glaBuilder->setAccessChainRValue(operand);
-
+            // The result of operation is always stored, but conditionally the
+            // consumed result.  The consumed result is always an r-value.
+            oit->glaBuilder->accessChainStore(result);
+            oit->glaBuilder->clearAccessChain();
+            if (node->getOp() == EOpPreIncrement ||
+                node->getOp() == EOpPreDecrement)
+                oit->glaBuilder->setAccessChainRValue(result);
+            else
+                oit->glaBuilder->setAccessChainRValue(operand);
+        }
         return false;
-    }
     default:
         gla::UnsupportedFunctionality("glslang unary", gla::EATContinue);
-        return false;
     }
 
     return true;
@@ -404,23 +398,20 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     bool reduceComparison = true;
     bool isMatrix = false;
 
-    if (node->getOp() == EOpNull) {
-        gla::UnsupportedFunctionality("glslang aggregate: EOpNull", gla::EATContinue);
-        return false;
-    }
+    assert(node->getOp());
 
     switch (node->getOp()) {
     case EOpSequence:
         return true;
-    case EOpComma: {
-        // processing from left to right naturally leaves the right-most
-        // lying around in the access chain
-        TIntermSequence& glslangOperands = node->getSequence();
-        for (int i = 0; i < glslangOperands.size(); ++i)
-            glslangOperands[i]->traverse(oit);
-        
+    case EOpComma: 
+        {
+            // processing from left to right naturally leaves the right-most
+            // lying around in the access chain
+            TIntermSequence& glslangOperands = node->getSequence();
+            for (int i = 0; i < glslangOperands.size(); ++i)
+                glslangOperands[i]->traverse(oit);
+        }
         return false;
-    }
     case EOpFunction:
         if (preVisit) {
             if (node->getName() == "main(") {
@@ -435,30 +426,28 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             oit->llvmBuilder.SetInsertPoint(oit->shaderEntry);
         }
         return true;
-
     case EOpParameters:
         // Parameters will have been consumed by EOpFunction processing, but not
         // the body, so we still visited the function node's children, making this
         // child redundant.
         return false;
-
     case EOpFunctionCall:
-    {
-        if (node->isUserDefined())
-            result = oit->handleUserFunctionCall(node);
-        else
-            result = oit->handleBuiltinFunctionCall(node);
+        {
+            if (node->isUserDefined())
+                result = oit->handleUserFunctionCall(node);
+            else
+                result = oit->handleBuiltinFunctionCall(node);
 
-        if (result.isClear())
-            gla::UnsupportedFunctionality("glslang function call", gla::EATContinue);
-        else {
-            oit->glaBuilder->clearAccessChain();
-            oit->glaBuilder->setAccessChainRValue(result);
+            if (result.isClear())
+                gla::UnsupportedFunctionality("glslang function call", gla::EATContinue);
+            else {
+                oit->glaBuilder->clearAccessChain();
+                oit->glaBuilder->setAccessChainRValue(result);
+
+                return false;
+            }
         }
-
-        return false;
-    }
-
+        return true;
     case EOpConstructMat2:
     case EOpConstructMat3:
     case EOpConstructMat4:
@@ -481,38 +470,38 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     case EOpConstructIVec3:
     case EOpConstructIVec4:
     case EOpConstructStruct:
-    {
-        std::vector<gla::Builder::SuperValue> arguments;
-        oit->translateArguments(node->getSequence(), arguments);
-        gla::Builder::SuperValue constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
-                                                                    oit->convertGlslangToGlaType(node->getType()),
-                                                                    isMatrix, 0, 0, "constructed");
-        if (node->getOp() == EOpConstructStruct) {
-            //TODO: is there a more direct way to set a whole LLVM structure?
-            //TODO: if not, move this inside Top Builder; too many indirections
+        {
+            std::vector<gla::Builder::SuperValue> arguments;
+            oit->translateArguments(node->getSequence(), arguments);
+            gla::Builder::SuperValue constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
+                                                                        oit->convertGlslangToGlaType(node->getType()),
+                                                                        isMatrix, 0, 0, "constructed");
+            if (node->getOp() == EOpConstructStruct) {
+                //TODO: is there a more direct way to set a whole LLVM structure?
+                //TODO: if not, move this inside Top Builder; too many indirections
 
-            std::vector<llvm::Value*> gepChain;
-            gepChain.push_back(gla::MakeIntConstant(oit->context, 0));
-            for (int field = 0; field < arguments.size(); ++field) {
-                gepChain.push_back(gla::MakeIntConstant(oit->context, field));
-                llvm::Value* loadVal = oit->llvmBuilder.CreateStore(arguments[field],
-                                                                    oit->glaBuilder->createGEP(constructed, gepChain));
-                gepChain.pop_back();
+                std::vector<llvm::Value*> gepChain;
+                gepChain.push_back(gla::MakeIntConstant(oit->context, 0));
+                for (int field = 0; field < arguments.size(); ++field) {
+                    gepChain.push_back(gla::MakeIntConstant(oit->context, field));
+                    llvm::Value* loadVal = oit->llvmBuilder.CreateStore(arguments[field],
+                                                                        oit->glaBuilder->createGEP(constructed, gepChain));
+                    gepChain.pop_back();
+                }
+                oit->glaBuilder->clearAccessChain();
+                oit->glaBuilder->setAccessChainLValue(constructed);
+            } else {
+                constructed = oit->glaBuilder->createLoad(constructed);
+                if (isMatrix)
+                    constructed = oit->glaBuilder->createMatrixConstructor(arguments, constructed);
+                else
+                    constructed = oit->glaBuilder->createConstructor(arguments, constructed);
+                oit->glaBuilder->clearAccessChain();
+                oit->glaBuilder->setAccessChainRValue(constructed);
             }
-            oit->glaBuilder->clearAccessChain();
-            oit->glaBuilder->setAccessChainLValue(constructed);
-        } else {
-            constructed = oit->glaBuilder->createLoad(constructed);
-            if (isMatrix)
-                constructed = oit->glaBuilder->createMatrixConstructor(arguments, constructed);
-            else
-                constructed = oit->glaBuilder->createConstructor(arguments, constructed);
-            oit->glaBuilder->clearAccessChain();
-            oit->glaBuilder->setAccessChainRValue(constructed);
-        }
 
-        return false;
-    }
+            return false;
+        }
 
     // These six are component-wise compares with component-wise results.
     // Forward on to createBinaryOperation(), requesting a vector result.
@@ -522,18 +511,17 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     case EOpGreaterThanEqual:
     case EOpVectorEqual:
     case EOpVectorNotEqual:
-    {
-        // Map the operation to a binary
-        binOp = node->getOp();
-        reduceComparison = false;
-        switch (node->getOp()) {
-        case EOpVectorEqual:     binOp = EOpEqual;      break;
-        case EOpVectorNotEqual:  binOp = EOpNotEqual;   break;
-        default:                 binOp = node->getOp(); break;
+        {
+            // Map the operation to a binary
+            binOp = node->getOp();
+            reduceComparison = false;
+            switch (node->getOp()) {
+            case EOpVectorEqual:     binOp = EOpEqual;      break;
+            case EOpVectorNotEqual:  binOp = EOpNotEqual;   break;
+            default:                 binOp = node->getOp(); break;
+            }
         }
-        
         break;
-    }
 
     //case EOpRecip:
     //    return glaBuilder->createRecip(operand);
@@ -543,21 +531,20 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         binOp = EOpMul;
         break;
 
-    case EOpMod:
-    {
+    case EOpMod: 
         // when an aggregate, this is the floating-point mod built-in function,
         // which can be emitted by the one it createBinaryOperation()
         binOp = EOpMod;
         break;
-    }
     case EOpArrayLength:
-        TIntermTyped* typedNode = node->getSequence()[0]->getAsTyped();
-        assert(typedNode);
-        gla::Builder::SuperValue length = gla::MakeIntConstant(oit->context, typedNode->getType().getArraySize());
+        {
+            TIntermTyped* typedNode = node->getSequence()[0]->getAsTyped();
+            assert(typedNode);
+            gla::Builder::SuperValue length = gla::MakeIntConstant(oit->context, typedNode->getType().getArraySize());
 
-        oit->glaBuilder->clearAccessChain();
-        oit->glaBuilder->setAccessChainRValue(length);
-
+            oit->glaBuilder->clearAccessChain();
+            oit->glaBuilder->setAccessChainRValue(length);
+        }
         return false;
     }
 
@@ -578,7 +565,10 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             result = oit->glaBuilder->createMatrixOp(llvm::Instruction::FMul, left, right);
         else
             result = oit->createBinaryOperation(binOp, left, right, reduceComparison);
-        
+
+        // code above should only make binOp that exists in createBinaryOperation
+        assert(! result.isClear());
+
         oit->glaBuilder->clearAccessChain();
         oit->glaBuilder->setAccessChainRValue(result);
 
@@ -598,13 +588,15 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         result = oit->createIntrinsic(node->getOp(), operands, glslangOperands[0]->getAsTyped()->getBasicType());
 
     if (result.isClear())
-        gla::UnsupportedFunctionality("glslang aggregate");
+        gla::UnsupportedFunctionality("glslang aggregate", gla::EATContinue);
     else {
         oit->glaBuilder->clearAccessChain();
         oit->glaBuilder->setAccessChainRValue(result);
+
+        return false;
     }
 
-    return false;
+    return true;
 }
 
 bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTraverser* it)
@@ -618,7 +610,7 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
     if (node->getBasicType() != EbtVoid) {
         // don't handle this as just on-the-fly temporaries, because there will be two names
         // and better to leave SSA to LLVM passes
-        result = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0, oit->convertGlslangToGlaType(node->getType()), 
+        result = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0, oit->convertGlslangToGlaType(node->getType()),
                                                  node->getType().isMatrix(), 0, 0, "ternary");
     }
 
@@ -741,7 +733,7 @@ bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
         break;
 
     default:
-        ;
+        gla::UnsupportedFunctionality("branch type");
     }
 
     return false;
@@ -762,6 +754,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
         break;
     case EvqConst:
         gla::UnsupportedFunctionality("glslang const variable", gla::EATContinue);
+        storageQualifier = gla::Builder::ESQLocal;
         break;
     case EvqAttribute:
     case EvqVaryingIn:
@@ -786,13 +779,14 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
         break;
     case EvqIn:
     case EvqOut:
-        // TODO: front-end needs to be fixed to tease apart the difference between 
+        // TODO: front-end needs to be fixed to tease apart the difference between
         //       an input to a shader and an input to a function, etc.
     case EvqInOut:
     case EvqConstReadOnly:
 
     default:
         gla::UnsupportedFunctionality("glslang qualifier", gla::EATContinue);
+        storageQualifier = gla::Builder::ESQLocal;
     }
 
     std::string* annotationAddr = 0;
@@ -844,7 +838,6 @@ const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& t
         glaType = gla::GetIntType(context);
         break;
     case EbtStruct:
-//        gla::UnsupportedFunctionality("basic type: struct");
         {
             TTypeList* glslangStruct = type.getStruct();
             std::vector<const llvm::Type*> structFields;
@@ -863,10 +856,8 @@ const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& t
             }
         }
         break;
-
     default:
-        gla::UnsupportedFunctionality("basic type", gla::EATContinue);
-        break;
+        gla::UnsupportedFunctionality("basic type");
     }
 
     if (type.isMatrix())
@@ -897,7 +888,7 @@ void TGlslangToTopTraverser::handleFunctionEntry(TIntermAggregate* node)
     // At call time, space should be allocated for all the arguments,
     // and pointers to that space passed to the function as the formal parameters.
     for (int i = 0; i < parameters.size(); ++i) {
-        const llvm::Type* type = convertGlslangToGlaType(parameters[i]->getAsTyped()->getType());        
+        const llvm::Type* type = convertGlslangToGlaType(parameters[i]->getAsTyped()->getType());
         paramTypes.push_back(llvm::PointerType::get(type, gla::GlobalAddressSpace));
     }
 
@@ -995,7 +986,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
     }
 
     // Copy-in time...
-    // Compute the access chains of output argument l-values before making the call, 
+    // Compute the access chains of output argument l-values before making the call,
     // to be used after making the call.  Also compute r-values of inputs and store
     // them into the space allocated above.
     TIntermSequence& glslangArgs = node->getSequence();
@@ -1526,7 +1517,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
             break;
         default:
             // These do not exist yet
-            gla::UnsupportedFunctionality("intrinsic with more than 3 operands");
+            assert(0 && "intrinsic with more than 3 operands");
         }
     }
 
@@ -1551,7 +1542,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
     if (node->getType().isArray()) {
         int arraySize = node->getType().getArraySize();
         if (arraySize == 0) {
-            // TODO: make sure front end knows size before calling here, see 
+            // TODO: make sure front end knows size before calling here, see
             // comment in convertGlslangToGlaType
             arraySize = UnknownArraySize;
         }
@@ -1635,7 +1626,6 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMConstant(const TType&
                 break;
             default:
                 gla::UnsupportedFunctionality("scalar or vector element type");
-                break;
             }
             ++nextConst;
         }
