@@ -80,9 +80,10 @@ public:
     gla::Builder::SuperValue handleUserFunctionCall(TIntermAggregate*);
 
     gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool reduceComparison = true);
-    gla::Builder::SuperValue createUnaryOperation(TOperator op, const TType& destType, gla::Builder::SuperValue operand);
-    gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand, TBasicType);
-    gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, TBasicType);
+    gla::Builder::SuperValue createUnaryOperation(TOperator op, gla::Builder::SuperValue operand);
+    gla::Builder::SuperValue createConversion(TOperator op, const llvm::Type*, gla::Builder::SuperValue operand);
+    gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand);
+    gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands);
     void createPipelineRead(TIntermSymbol*, gla::Builder::SuperValue storage, int slot);
     int getNextInterpIndex(const std::string& name, int numSlots);
     gla::Builder::SuperValue createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
@@ -339,11 +340,16 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
     node->getOperand()->traverse(oit);
     gla::Builder::SuperValue operand = oit->glaBuilder->accessChainLoad();
 
-    gla::Builder::SuperValue result = oit->createUnaryOperation(node->getOp(), node->getType(), operand);
+    // it could be a conversion
+    gla::Builder::SuperValue result = oit->createConversion(node->getOp(), oit->convertGlslangToGlaType(node->getType()), operand);
 
-    // it could be a LunarGLASS intrinsic instead of an operation
+    // if not, then possibly an operation
     if (result.isClear())
-        result = oit->createUnaryIntrinsic(node->getOp(), operand, node->getBasicType());
+        result = oit->createUnaryOperation(node->getOp(), operand);
+
+    // if not, then possibly a LunarGLASS intrinsic
+    if (result.isClear())
+        result = oit->createUnaryIntrinsic(node->getOp(), operand);
 
     if (! result.isClear()) {
         oit->glaBuilder->clearAccessChain();
@@ -352,12 +358,12 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
         return false; // done with this node
     }
 
-    // must be a special case, check...
+    // it must be a special case, check...
     switch (node->getOp()) {
     case EOpPostIncrement:
     case EOpPostDecrement:
     case EOpPreIncrement:
-    case EOpPreDecrement: 
+    case EOpPreDecrement:
         {
             // we need the integer value "1" or the floating point "1.0" to add/subtract
             llvm::Value* one = gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID ?
@@ -403,7 +409,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     switch (node->getOp()) {
     case EOpSequence:
         return true;
-    case EOpComma: 
+    case EOpComma:
         {
             // processing from left to right naturally leaves the right-most
             // lying around in the access chain
@@ -531,7 +537,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         binOp = EOpMul;
         break;
 
-    case EOpMod: 
+    case EOpMod:
         // when an aggregate, this is the floating-point mod built-in function,
         // which can be emitted by the one it createBinaryOperation()
         binOp = EOpMod;
@@ -583,9 +589,9 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         operands.push_back(oit->glaBuilder->accessChainLoad());
     }
     if (glslangOperands.size() == 1)
-        result = oit->createUnaryIntrinsic(node->getOp(), operands.front(), glslangOperands[0]->getAsTyped()->getBasicType());
+        result = oit->createUnaryIntrinsic(node->getOp(), operands.front());
     else
-        result = oit->createIntrinsic(node->getOp(), operands, glslangOperands[0]->getAsTyped()->getBasicType());
+        result = oit->createIntrinsic(node->getOp(), operands);
 
     if (result.isClear())
         gla::UnsupportedFunctionality("glslang aggregate", gla::EATContinue);
@@ -964,7 +970,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
     // and pass a pointer to it.
     //
     // For output arguments, there could still be a conversion needed, so
-    // so make space for the answer, and convert in before sticking it into
+    // so make space for the answer, and convert it before sticking it into
     // the original l-value provide.  (Pass the pointer to the space made.)
     //
     // For inout, just do both the above, but using a single space/pointer
@@ -1014,9 +1020,22 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
     for (int i = 0; i < glslangArgs.size(); ++i) {
         if (qualifiers[i] == EvqOut || qualifiers[i] == EvqInOut) {
             glaBuilder->setAccessChain(*savedIt);
-            llvm::Value* output = glaBuilder->createLoad(llvmArgs[i]);
-            if (convertGlslangToGlaType(glslangArgs[i]->getAsTyped()->getType()) != llvmArgs[i]->getType()->getContainedType(0))
-                gla::UnsupportedFunctionality("conversion of function call output parameter to different type");
+            gla::Builder::SuperValue output = glaBuilder->createLoad(llvmArgs[i]);
+            const llvm::Type* destType = convertGlslangToGlaType(glslangArgs[i]->getAsTyped()->getType());
+            if (destType != output->getType()) {
+                // TODO: test this after the front-end can support it
+                TOperator op = EOpNull;
+                if (gla::GetBasicTypeID(destType) == llvm::Type::FloatTyID &&
+                    gla::GetBasicTypeID(output->getType())) {
+                    op = EOpConvIntToFloat;
+                } // TODO: more cases will go here for future versions
+
+                if (op != EOpNull) {
+                    output = createConversion(op, destType, output);
+                    assert(! output.isClear());
+                } else
+                    gla::UnsupportedFunctionality("unexpected output parameter conversion");
+            }
             glaBuilder->accessChainStore(output);
             ++savedIt;
         }
@@ -1225,7 +1244,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
     return result;
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator op, const TType& destType, gla::Builder::SuperValue operand)
+gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator op, gla::Builder::SuperValue operand)
 {
     gla::Builder::SuperValue result;
 
@@ -1239,7 +1258,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
             return glaBuilder->createMatrixOp(llvm::Instruction::FSub, zero, operand);
         }
 
-        if (destType.getBasicType() == EbtFloat)
+        if (gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID)
             return llvmBuilder.CreateFNeg(operand);
         else
             return llvmBuilder.CreateNeg (operand);
@@ -1249,7 +1268,14 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
         return llvmBuilder.CreateNot(operand);
     }
 
-    // Cast ops
+    // returns clean result if op wasn't handled
+    return result;
+}
+
+gla::Builder::SuperValue TGlslangToTopTraverser::createConversion(TOperator op, const llvm::Type* destType, gla::Builder::SuperValue operand)
+{
+    gla::Builder::SuperValue result;
+
     llvm::Instruction::CastOps castOp = llvm::Instruction::CastOps(0);
     switch(op) {
     case EOpConvFloatToInt:
@@ -1284,13 +1310,12 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
     }
 
     if (castOp != 0)
-        return llvmBuilder.CreateCast(castOp, operand, convertGlslangToGlaType(destType));
+        return llvmBuilder.CreateCast(castOp, operand, destType);
 
     return result;
 }
 
-// TODO: remove basicType?
-gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand, TBasicType basicType)
+gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand)
 {
     // Unary ops that require an intrinsic
     gla::Builder::SuperValue result;
@@ -1403,13 +1428,13 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryIntrinsic(TOperator 
         break;
 
     case EOpAbs:
-        if (basicType == EbtFloat)
+        if (gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fAbs;
         else
             intrinsicID = llvm::Intrinsic::gla_abs;
         break;
     case EOpSign:
-        if (basicType == EbtFloat)
+        if (gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fSign;
         else
             gla::UnsupportedFunctionality("Integer sign()");
@@ -1422,7 +1447,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryIntrinsic(TOperator 
     return result;
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, TBasicType basicType)
+gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands)
 {
     // Binary ops that require an intrinsic
     gla::Builder::SuperValue result;
@@ -1430,19 +1455,19 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
 
     switch (op) {
     case EOpMin:
-        if (basicType == EbtFloat)
+        if (gla::GetBasicTypeID(operands.front()) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fMin;
         else
             intrinsicID = llvm::Intrinsic::gla_sMin;
         break;
     case EOpMax:
-        if (basicType == EbtFloat)
+        if (gla::GetBasicTypeID(operands.front()) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fMax;
         else
             intrinsicID = llvm::Intrinsic::gla_sMax;
         break;
     case EOpPow:
-        if (basicType == EbtFloat)
+        if (gla::GetBasicTypeID(operands.front()) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fPow;
         else
             intrinsicID = llvm::Intrinsic::gla_fPowi;
