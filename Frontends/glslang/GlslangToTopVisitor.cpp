@@ -412,9 +412,15 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     switch (node->getOp()) {
     case EOpSequence:
         return true;
-    case EOpComma:
-        gla::UnsupportedFunctionality("glslang aggregate: comma", gla::EATContinue);
+    case EOpComma: {
+        // processing from left to right naturally leaves the right-most
+        // lying around in the access chain
+        TIntermSequence& glslangOperands = node->getSequence();
+        for (int i = 0; i < glslangOperands.size(); ++i)
+            glslangOperands[i]->traverse(oit);
+        
         return false;
+    }
     case EOpFunction:
         if (preVisit) {
             if (node->getName() == "main(") {
@@ -545,7 +551,13 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         break;
     }
     case EOpArrayLength:
-        gla::UnsupportedFunctionality("glsang array length");
+        TIntermTyped* typedNode = node->getSequence()[0]->getAsTyped();
+        assert(typedNode);
+        gla::Builder::SuperValue length = gla::MakeIntConstant(oit->context, typedNode->getType().getArraySize());
+
+        oit->glaBuilder->clearAccessChain();
+        oit->glaBuilder->setAccessChainRValue(length);
+
         return false;
     }
 

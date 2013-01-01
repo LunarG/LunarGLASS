@@ -1,0 +1,71 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@v_shadow = internal global [2 x <2 x float>] zeroinitializer
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %t = alloca <2 x float>
+  %"v_2[0]" = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  store <2 x float> %"v_2[0]", <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 0)
+  %"v_2[1]" = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
+  store <2 x float> %"v_2[1]", <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 1)
+  %0 = load <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 0)
+  %"v_2[0]1" = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  store <2 x float> %"v_2[0]1", <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 0)
+  %"v_2[1]2" = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
+  store <2 x float> %"v_2[1]2", <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 1)
+  %1 = load <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 1)
+  %t3 = fadd <2 x float> %0, %1
+  store <2 x float> %t3, <2 x float>* %t
+  store <4 x float> <float 3.000000e+01, float 3.000000e+01, float 3.000000e+01, float 3.000000e+01>, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %2 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %2)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+define fastcc void @main() {
+entry:
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> <float 3.000000e+01, float 3.000000e+01, float 3.000000e+01, float 3.000000e+01>)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+// LunarGOO(r471) output
+#version 130
+const vec4 const21 = vec4(30.0);
+
+void main()
+{
+    gl_FragColor = const21;
+    
+}
+#### BEGIN COMPILER 0 INFO LOG ####
+
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+
+#### END LINKER INFO LOG ####

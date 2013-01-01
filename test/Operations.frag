@@ -23,7 +23,7 @@ void main()
 	// floating point
     v = radians(uv4);
     v += degrees(v);
-    v += sin(v);
+    v += (i = ui*ui, sin(v));
     v += cos(v);
     v += tan(v);
     v += asin(v);
@@ -101,7 +101,6 @@ void main()
 
 #ifdef TEST_POST_110
 	// signed integer
-	i = 0;
 	i += abs(ui);
 	//i += sign(i);
 	i += min(i, ui);

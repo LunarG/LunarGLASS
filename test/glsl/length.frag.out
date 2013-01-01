@@ -1,0 +1,70 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@gl_FragColor = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  store <4 x float> <float 3.000000e+01, float 3.000000e+01, float 3.000000e+01, float 3.000000e+01>, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %0 = load <4 x float>* @gl_FragColor
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %0)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+define fastcc void @main() {
+entry:
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> <float 3.000000e+01, float 3.000000e+01, float 3.000000e+01, float 3.000000e+01>)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+compiling length.frag...
+uniform vec4 u [ 3 ] ; 
+varying vec2 v [ 2 ] ; 
+void  main (){
+int a [ 5 ] ; vec2 t = v [ 0 ] + v [ 1 ] ; gl_FragColor = vec4 ( u . (null) * v . (null) * a . (null) ) ; }
+
+
+
+(
+(declare (out ) vec4 gl_FragColor)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (assign (constant bool (1)) (xyzw) (var_ref gl_FragColor)  (constant vec4 (30.000000 30.000000 30.000000 30.000000)) ) 
+    ))
+
+)
+
+
+)
+// LunarGOO output
+#version 130
+const vec4 const21 = vec4(30.0);
+
+void main()
+{
+    gl_FragColor = const21;
+    
+}
