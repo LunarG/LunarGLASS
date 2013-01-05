@@ -906,14 +906,14 @@ entry:
   %ord = fcmp oeq float %27, %27
   %28 = uitofp i1 %ord to float
   %29 = extractelement <4 x float> %assignment_tmp5051, i32 1
-  %ord190 = fcmp oeq float %29, %29
-  %30 = uitofp i1 %ord190 to float
+  %ord188 = fcmp oeq float %29, %29
+  %30 = uitofp i1 %ord188 to float
   %31 = extractelement <4 x float> %assignment_tmp5051, i32 2
-  %ord191 = fcmp oeq float %31, %31
-  %32 = uitofp i1 %ord191 to float
+  %ord189 = fcmp oeq float %31, %31
+  %32 = uitofp i1 %ord189 to float
   %33 = extractelement <4 x float> %assignment_tmp5051, i32 3
-  %ord192 = fcmp oeq float %33, %33
-  %34 = uitofp i1 %ord192 to float
+  %ord190 = fcmp oeq float %33, %33
+  %34 = uitofp i1 %ord190 to float
   %35 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %28, i32 0, float %30, i32 0, float %32, i32 0, float %34, i32 0)
   %assignment_tmp5657 = fadd <4 x float> %assignment_tmp5051, %35
   %36 = fsub <4 x float> %assignment_tmp5657, %assignment_tmp5657
@@ -933,8 +933,8 @@ entry:
   %47 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %assignment_tmp6263, <4 x float> %assignment_tmp6263)
   %48 = fcmp olt float %47, 0.000000e+00
   %return_value66 = fsub <4 x float> <float -0.000000e+00, float -0.000000e+00, float -0.000000e+00, float -0.000000e+00>, %assignment_tmp6263
-  %select174 = select i1 %48, <4 x float> %assignment_tmp6263, <4 x float> %return_value66
-  %assignment_tmp6869 = fadd <4 x float> %assignment_tmp6263, %select174
+  %select175 = select i1 %48, <4 x float> %assignment_tmp6263, <4 x float> %return_value66
+  %assignment_tmp6869 = fadd <4 x float> %assignment_tmp6263, %select175
   %49 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %assignment_tmp6869, <4 x float> %assignment_tmp6869)
   %50 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %49, <4 x i32> zeroinitializer)
   %51 = fmul <4 x float> %50, %assignment_tmp6869
@@ -957,8 +957,8 @@ entry:
   %66 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %65, <4 x i32> zeroinitializer)
   %67 = fmul <4 x float> %66, %assignment_tmp7071
   %return_value7377 = fsub <4 x float> %62, %67
-  %select186 = select i1 %61, <4 x float> zeroinitializer, <4 x float> %return_value7377
-  %assignment_tmp7980 = fadd <4 x float> %assignment_tmp7071, %select186
+  %select185 = select i1 %61, <4 x float> zeroinitializer, <4 x float> %return_value7377
+  %assignment_tmp7980 = fadd <4 x float> %assignment_tmp7071, %select185
   %68 = call <4 x float> @llvm.gla.fDFdx.v4f32.v4f32(<4 x float> %assignment_tmp7980)
   %assignment_tmp8182 = fadd <4 x float> %assignment_tmp7980, %68
   %69 = call <4 x float> @llvm.gla.fDFdy.v4f32.v4f32(<4 x float> %assignment_tmp8182)
@@ -976,25 +976,25 @@ entry:
   %select181 = and i1 %76, %and_tmp89
   %78 = fcmp ogt <4 x float> %assignment_tmp8586, %0
   %and_tmp9294 = call i1 @llvm.gla.any.v4i1(<4 x i1> %78)
-  %select189 = and i1 %select181, %and_tmp9294
+  %select187 = and i1 %select181, %and_tmp9294
   %79 = fcmp oge <4 x float> %assignment_tmp8586, %0
   %and_tmp9799 = call i1 @llvm.gla.any.v4i1(<4 x i1> %79)
-  %select = and i1 %select189, %and_tmp9799
+  %select174 = and i1 %select187, %and_tmp9799
   %80 = load <4 x i1> addrspace(2)* @ub41, align 4
   %81 = load <4 x i1> addrspace(2)* @ub42, align 4
   %82 = icmp eq <4 x i1> %80, %81
   %and_tmp102104 = call i1 @llvm.gla.any.v4i1(<4 x i1> %82)
-  %select185 = and i1 %select, %and_tmp102104
+  %select184 = and i1 %select174, %and_tmp102104
   %83 = icmp ne <4 x i1> %80, %81
   %and_tmp107109 = call i1 @llvm.gla.any.v4i1(<4 x i1> %83)
-  %select177 = and i1 %select185, %and_tmp107109
+  %select178 = and i1 %select184, %and_tmp107109
   %and_tmp112114 = call i1 @llvm.gla.any.v4i1(<4 x i1> %80)
-  %select188 = and i1 %select177, %and_tmp112114
+  %select = and i1 %select178, %and_tmp112114
   %and_tmp117119 = call i1 @llvm.gla.all.v4i1(<4 x i1> %80)
-  %select178 = and i1 %select188, %and_tmp117119
+  %select176 = and i1 %select, %and_tmp117119
   %84 = xor <4 x i1> %80, <i1 true, i1 true, i1 true, i1 true>
   %and_tmp122124 = call i1 @llvm.gla.any.v4i1(<4 x i1> %84)
-  %select175.demorgan = and i1 %select178, %and_tmp122124
+  %select.demorgan = and i1 %select176, %and_tmp122124
   %85 = add i32 %2, %i3
   %86 = mul i32 %85, %i3
   %87 = sub i32 %86, %2
@@ -1025,9 +1025,9 @@ entry:
   %and_tmp155157 = fcmp one float %assignment_tmp149150, 2.000000e+00
   %not. = fcmp one float %assignment_tmp149150, %54
   %select179 = and i1 %and_tmp155157, %not.
-  %select187 = or i1 %100, %select179
+  %select186 = or i1 %100, %select179
   %f163 = fadd float %assignment_tmp149150, 1.000000e+00
-  %select180 = select i1 %select187, float %f163, float %assignment_tmp149150
+  %select180 = select i1 %select186, float %f163, float %assignment_tmp149150
   %101 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select180, <4 x i32> zeroinitializer)
   %102 = and i32 %2, %i.0
   %103 = or i32 %102, 66
@@ -1040,8 +1040,8 @@ entry:
   %109 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %108, <4 x i32> zeroinitializer)
   %110 = fadd <4 x float> %109, %101
   %conditional_tmp169 = fadd <4 x float> %110, %assignment_tmp8586
-  %select176 = select i1 %select175.demorgan, <4 x float> %assignment_tmp8586, <4 x float> %conditional_tmp169
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %select176)
+  %select177 = select i1 %select.demorgan, <4 x float> %assignment_tmp8586, <4 x float> %conditional_tmp169
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %select177)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -1460,12 +1460,12 @@ void main()
     vec4 assignment_tmp5051 = assignment_tmp4647 + mix_retval49;
     bool ord = assignment_tmp5051.x == assignment_tmp5051.x;
     float temp76 = float(ord);
-    bool ord190 = assignment_tmp5051.y == assignment_tmp5051.y;
-    float temp78 = float(ord190);
-    bool ord191 = assignment_tmp5051.z == assignment_tmp5051.z;
-    float temp80 = float(ord191);
-    bool ord192 = assignment_tmp5051.w == assignment_tmp5051.w;
-    float temp82 = float(ord192);
+    bool ord188 = assignment_tmp5051.y == assignment_tmp5051.y;
+    float temp78 = float(ord188);
+    bool ord189 = assignment_tmp5051.z == assignment_tmp5051.z;
+    float temp80 = float(ord189);
+    bool ord190 = assignment_tmp5051.w == assignment_tmp5051.w;
+    float temp82 = float(ord190);
     vec4 temp83 = vec4(temp76, temp78, temp80, temp82);
     vec4 assignment_tmp5657 = assignment_tmp5051 + temp83;
     vec4 temp85 = assignment_tmp5657 - assignment_tmp5657;
@@ -1485,8 +1485,8 @@ void main()
     float temp103 = dot(assignment_tmp6263, assignment_tmp6263);
     bool temp104 = temp103 < const90_0f;
     vec4 return_value66 = const106 - assignment_tmp6263;
-    vec4 select174 = temp104 ? assignment_tmp6263 : return_value66;
-    vec4 assignment_tmp6869 = assignment_tmp6263 + select174;
+    vec4 select175 = temp104 ? assignment_tmp6263 : return_value66;
+    vec4 assignment_tmp6869 = assignment_tmp6263 + select175;
     float temp109 = dot(assignment_tmp6869, assignment_tmp6869);
     vec4 temp110 = vec4(temp109);
     vec4 temp111 = temp110 * assignment_tmp6869;
@@ -1508,8 +1508,8 @@ void main()
     vec4 temp127 = vec4(temp126);
     vec4 temp128 = temp127 * assignment_tmp7071;
     vec4 return_value7377 = temp123 - temp128;
-    vec4 select186 = temp122 ? const131 : return_value7377;
-    vec4 assignment_tmp7980 = assignment_tmp7071 + select186;
+    vec4 select185 = temp122 ? const131 : return_value7377;
+    vec4 assignment_tmp7980 = assignment_tmp7071 + select185;
     vec4 temp133 = dFdx(assignment_tmp7980);
     vec4 assignment_tmp8182 = assignment_tmp7980 + temp133;
     vec4 temp135 = dFdy(assignment_tmp8182);
@@ -1527,23 +1527,23 @@ void main()
     bool select181 = temp144 && and_tmp89;
     bvec4 temp148 = greaterThan(assignment_tmp8586, uv4);
     bool and_tmp9294 = any(temp148);
-    bool select189 = select181 && and_tmp9294;
+    bool select187 = select181 && and_tmp9294;
     bvec4 temp151 = greaterThanEqual(assignment_tmp8586, uv4);
     bool and_tmp9799 = any(temp151);
-    bool select = select189 && and_tmp9799;
+    bool select174 = select187 && and_tmp9799;
     bvec4 temp154 = equal(ub41, ub42);
     bool and_tmp102104 = any(temp154);
-    bool select185 = select && and_tmp102104;
+    bool select184 = select174 && and_tmp102104;
     bvec4 temp157 = notEqual(ub41, ub42);
     bool and_tmp107109 = any(temp157);
-    bool select177 = select185 && and_tmp107109;
+    bool select178 = select184 && and_tmp107109;
     bool and_tmp112114 = any(ub41);
-    bool select188 = select177 && and_tmp112114;
+    bool select = select178 && and_tmp112114;
     bool and_tmp117119 = all(ub41);
-    bool select178 = select188 && and_tmp117119;
+    bool select176 = select && and_tmp117119;
     bvec4 temp164 = not(ub41);
     bool and_tmp122124 = any(temp164);
-    bool select175_demorgan = select178 && and_tmp122124;
+    bool select_demorgan = select176 && and_tmp122124;
     int temp167 = ui + temp26;
     int temp168 = temp167 * temp26;
     int temp169 = temp168 - ui;
@@ -1572,9 +1572,9 @@ void main()
     bool and_tmp155157 = assignment_tmp149150 != const194_2f;
     bool not_ = assignment_tmp149150 != uf;
     bool select179 = and_tmp155157 && not_;
-    bool select187 = temp192 || select179;
+    bool select186 = temp192 || select179;
     float temp198 = assignment_tmp149150 + const88_1f;
-    float select180 = select187 ? temp198 : assignment_tmp149150;
+    float select180 = select186 ? temp198 : assignment_tmp149150;
     vec4 temp200 = vec4(select180);
     int temp201 = ui & i_0;
     int temp202 = temp201 | const203_66;
@@ -1587,7 +1587,7 @@ void main()
     vec4 temp211 = vec4(temp210);
     vec4 temp212 = temp211 + temp200;
     vec4 conditional_tmp169 = temp212 + assignment_tmp8586;
-    vec4 select176 = select175_demorgan ? assignment_tmp8586 : conditional_tmp169;
-    gl_FragColor = select176;
+    vec4 select177 = select_demorgan ? assignment_tmp8586 : conditional_tmp169;
+    gl_FragColor = select177;
     
 }

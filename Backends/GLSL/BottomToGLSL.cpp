@@ -754,7 +754,7 @@ protected:
             // not a scalar with a name containing brackets and index.
             int arraySize;
             std::string basename = varString;
-            GetArraySizeFromName(varString, basename, arraySize);            
+            GetArraySizeFromName(varString, basename, arraySize);
             if (arraySize > 0) {
                 if (globallyDeclaredArrays.find(basename) != globallyDeclaredArrays.end()) {
                     // we already declared this array
@@ -773,7 +773,7 @@ protected:
                 emitGlaType(globalDeclarations, type);
             }
             globalDeclarations << " " << basename;
-            
+
             if (arraySize > 0)
                 globalDeclarations << "[" << arraySize << "]";
 
@@ -2064,9 +2064,18 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fMultiInsert:
     case llvm::Intrinsic::gla_multiInsert:
         emitGlaMultiInsert(llvmInstruction);
+
         return;
     }
 
+    // Handle fixedTransform
+    if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fFixedTransform) {
+        newLine();
+        emitGlaValue(llvmInstruction);
+        shader << " = " << "ftransform();";
+
+        return;
+    }
 
     // Handle the one-to-one mappings
     const char* callString = 0;
@@ -2181,7 +2190,6 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fDFdx:           callString = "dFdx";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fDFdy:           callString = "dFdy";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fFilterWidth:    callString = "fwidth";     callArgs = 1; break;
-    case llvm::Intrinsic::gla_fFixedTransform: callString = "ftransform"; callArgs = 0; break;
 
     // Vector Logical
     case llvm::Intrinsic::gla_not: callString = "not"; callArgs = 1; break;

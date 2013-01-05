@@ -931,11 +931,16 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
 
     if (node->getName() == "ftransform(") {
-        gla::Builder::SuperValue vertex; // TODO: simulate access to gl_Vertex
-        gla::Builder::SuperValue matrix; // TODO: simulate access to gl_ModelViewProjectionMatrix
-        gla::UnsupportedFunctionality("ftransform");
+        // TODO: if this needs to support decomposition, need to simulate
+        // access to the external gl_Vertex and gl_ModelViewProjectionMatrix.
+        // For now, pass in dummy arguments, which are thrown away anyway
+        // if ftransform is consumed by the backend without decomposition.
+        gla::Builder::SuperValue vertex = glaBuilder->createVariable(gla::Builder::ESQGlobal, 0, llvm::VectorType::get(gla::GetFloatType(context), 4),
+                                                                     false, 0, 0, "gl_Vertex_sim");
+        gla::Builder::SuperValue matrix = glaBuilder->createVariable(gla::Builder::ESQGlobal, 0, llvm::VectorType::get(gla::GetFloatType(context), 4),
+                                                                     false, 0, 0, "gl_ModelViewProjectionMatrix_sim");
 
-        return glaBuilder->createIntrinsicCall(llvm::Intrinsic::gla_fFixedTransform, vertex, matrix);
+        return glaBuilder->createIntrinsicCall(llvm::Intrinsic::gla_fFixedTransform, glaBuilder->createLoad(vertex), glaBuilder->createLoad(matrix));
     }
 
     if (node->getName().substr(0, 7) == "texture") {

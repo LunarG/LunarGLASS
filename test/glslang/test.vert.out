@@ -6,6 +6,8 @@ Top IR:
 @uv_in_shadow = internal global <2 x float> zeroinitializer
 @gl_Position = internal global <4 x float> zeroinitializer
 @position_shadow = internal global <4 x float> zeroinitializer
+@gl_Vertex_sim = internal global <4 x float> zeroinitializer
+@gl_ModelViewProjectionMatrix_sim = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -15,15 +17,19 @@ entry:
   store <2 x float> %uv, <2 x float>* @uv
   %position = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
   store <4 x float> %position, <4 x float>* @position_shadow
-  %gl_Position = load <4 x float>* @position_shadow
+  %0 = load <4 x float>* @position_shadow
+  %1 = load <4 x float>* @gl_ModelViewProjectionMatrix_sim
+  %2 = load <4 x float>* @gl_Vertex_sim
+  %3 = call <4 x float> @llvm.gla.fFixedTransform.v4f32.v4f32.v4f32(<4 x float> %2, <4 x float> %1)
+  %gl_Position = fadd <4 x float> %0, %3
   store <4 x float> %gl_Position, <4 x float>* @gl_Position
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %0 = load <2 x float>* @uv
-  call void @llvm.gla.fWriteData.v2f32(i32 0, i32 -1, <2 x float> %0)
-  %1 = load <4 x float>* @gl_Position
-  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %1)
+  %4 = load <2 x float>* @uv
+  call void @llvm.gla.fWriteData.v2f32(i32 0, i32 -1, <2 x float> %4)
+  %5 = load <4 x float>* @gl_Position
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %5)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -33,6 +39,8 @@ stage-exit:                                       ; preds = %stage-epilogue
 declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fFixedTransform.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v2f32(i32, i32, <2 x float>) nounwind
 
@@ -44,10 +52,12 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
+  %0 = call <4 x float> @llvm.gla.fFixedTransform.v4f32.v4f32.v4f32(<4 x float> zeroinitializer, <4 x float> zeroinitializer)
   %position = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  %gl_Position = fadd <4 x float> %position, %0
   %uv_in = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   call void @llvm.gla.fWriteData.v2f32(i32 0, i32 -1, <2 x float> %uv_in)
-  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %position)
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %gl_Position)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -60,6 +70,8 @@ stage-exit:                                       ; preds = %stage-epilogue
 declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare <4 x float> @llvm.gla.fFixedTransform.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v2f32(i32, i32, <2 x float>) nounwind
 
@@ -73,8 +85,10 @@ in vec2 uv_in;
 
 void main()
 {
+    vec4 temp21 = ftransform();
+    vec4 gla_copyout_gl_Position = position + temp21;
     uv = uv_in;
-    gl_Position = position;
+    gl_Position = gla_copyout_gl_Position;
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####

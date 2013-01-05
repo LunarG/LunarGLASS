@@ -1,70 +1,12 @@
 
-Top IR:
-; ModuleID = 'Top'
-
-@uv = internal global <2 x float> zeroinitializer
-@gl_Position = internal global <4 x float> zeroinitializer
-
-define fastcc void @main() {
-entry:
-  %uv_in = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0, i32 -1)
-  store <2 x float> %uv_in, <2 x float>* @uv
-  %position = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1, i32 -1)
-  store <4 x float> %position, <4 x float>* @gl_Position
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %entry
-  %0 = load <2 x float>* @uv
-  call void @llvm.gla.fWriteData.v2f32(i32 0, i32 -1, <2 x float> %0)
-  %1 = load <4 x float>* @gl_Position
-  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %1)
-  br label %stage-exit
-
-stage-exit:                                       ; preds = %stage-epilogue
-  ret void
-}
-
-declare <2 x float> @llvm.gla.fReadData.v2f32(i32, i32) nounwind readonly
-
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
-
-declare void @llvm.gla.fWriteData.v2f32(i32, i32, <2 x float>) nounwind
-
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
-
-
-Bottom IR:
-; ModuleID = 'Top'
-
-define fastcc void @main() {
-entry:
-  %position = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1, i32 -1)
-  %uv_in = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0, i32 -1)
-  call void @llvm.gla.fWriteData.v2f32(i32 0, i32 -1, <2 x float> %uv_in)
-  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %position)
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %entry
-  br label %stage-exit
-
-stage-exit:                                       ; preds = %stage-epilogue
-  ret void
-}
-
-declare <2 x float> @llvm.gla.fReadData.v2f32(i32, i32) nounwind readonly
-
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
-
-declare void @llvm.gla.fWriteData.v2f32(i32, i32, <2 x float>) nounwind
-
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+***Unsupported functionality: Matrix operation
 compiling test.vert...
 uniform mat4 transform ; 
 attribute vec4 position ; 
 in vec2 uv_in ; 
 out vec2 uv ; 
 void  main (){
-uv = uv_in ; gl_Position = position ; }
+uv = uv_in ; gl_Position = position + ftransform ( ) ; }
 
 
 
@@ -73,28 +15,18 @@ uv = uv_in ; gl_Position = position ; }
 (declare (in ) vec2 uv_in)
 (declare (in ) vec4 position)
 (declare (out ) vec4 gl_Position)
+(declare (in ) vec4 gl_Vertex)
+(declare (uniform ) mat4 gl_ModelViewProjectionMatrix)
 (function main
   (signature void
     (parameters
     )
     (
       (assign (constant bool (1)) (xy) (var_ref uv)  (var_ref uv_in) ) 
-      (assign (constant bool (1)) (xyzw) (var_ref gl_Position)  (var_ref position) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_Position)  (expression vec4 + (var_ref position) (expression vec4 ftransform (var_ref gl_ModelViewProjectionMatrix) (var_ref gl_Vertex) ) ) ) 
     ))
 
 )
 
 
 )
-// LunarGOO output
-#version 130
-out vec2 uv;
-in vec4 position;
-in vec2 uv_in;
-
-void main()
-{
-    uv = uv_in;
-    gl_Position = position;
-    
-}
