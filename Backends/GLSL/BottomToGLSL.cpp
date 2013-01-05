@@ -189,8 +189,10 @@ public:
         else
             type = global->getType();
 
-        addNewVariable(global, global->getNameStr());
-        declareVariable(type, global->getNameStr(), mapGlaAddressSpace(global));
+        std::string name  = global->getNameStr();
+        makeParseable(name);
+        addNewVariable(global, name);
+        declareVariable(type, name, mapGlaAddressSpace(global));
 
         if (global->hasInitializer()) {
             llvm::Constant* constant = global->getInitializer();
@@ -715,16 +717,21 @@ protected:
                 varString->append(value->getNameStr());
             }
 
-            // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
-            for (int c = 0; c < varString->length(); ++c) {
-                if ((*varString)[c] == '.' || (*varString)[c] == '-')
-                    (*varString)[c] = '_';
-            }
+            makeParseable(*varString);
 
             // Variables starting with gl_ are illegal in GLSL
             if (varString->substr(0,3) == std::string("gl_")) {
                 varString->insert(0, "gla_copyout_");
             }
+        }
+    }
+
+    void makeParseable(std::string& varString)
+    {
+        // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
+        for (int c = 0; c < varString.length(); ++c) {
+            if (varString[c] == '.' || varString[c] == '-')
+                varString[c] = '_';
         }
     }
 
@@ -1041,7 +1048,7 @@ protected:
         }
     }
 
-    bool addNewVariable(const llvm::Value* value, std::string name)
+    bool addNewVariable(const llvm::Value* value, std::string& name)
     {
         if (valueMap[value] == 0) {
             int spaceLoc = name.find_first_of(' ');
@@ -1049,9 +1056,11 @@ protected:
                 valueMap[value] = new std::string(name);  //?? need to delete these?
             else
                 valueMap[value] = new std::string(name.substr(spaceLoc+1));
+
             return true;
         } else {
             assert(name == *valueMap[value]);
+            
             return false;
         }
     }
@@ -1656,7 +1665,9 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                 // We want phis to use the same variable name created during phi declaration
                 addNewVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
             } else {
-                addNewVariable(llvmInstruction, llvmInstruction->getOperand(0)->getNameStr());
+                std::string name = llvmInstruction->getOperand(0)->getNameStr();
+                makeParseable(name);
+                addNewVariable(llvmInstruction, name);
             }
         }
         return;
@@ -1693,7 +1704,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             if (referencedOutsideScope)
                 valueMap[llvmInstruction] = new std::string(swizzled);
             else
-                addNewVariable(llvmInstruction, swizzled.c_str());
+                addNewVariable(llvmInstruction, swizzled);
         }
         return;
 
@@ -1892,21 +1903,28 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 {
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
-    case llvm::Intrinsic::gla_fWriteData: {
-        newLine();
-        int location = GetConstantInt(llvmInstruction->getOperand(0));
-        shader << manager->getPipeOutSymbols()[location].name << " = ";
-        emitGlaOperand(llvmInstruction->getOperand(2));
-        shader << ";";
-        return;
-    }
+    case llvm::Intrinsic::gla_fWriteData: 
+        {
+            newLine();
+            int location = GetConstantInt(llvmInstruction->getOperand(0));
+            shader << manager->getPipeOutSymbols()[location].name << " = ";
+            emitGlaOperand(llvmInstruction->getOperand(2));
+            shader << ";";
+
+            return;
+        }
     case llvm::Intrinsic::gla_readData:
     case llvm::Intrinsic::gla_fReadData:
     case llvm::Intrinsic::gla_fReadInterpolant:
-        if (addNewVariable(llvmInstruction, llvmInstruction->getNameStr())) {
-            declareVariable(llvmInstruction->getType(), llvmInstruction->getNameStr(), EVQInput);
+        {
+            std::string name = llvmInstruction->getNameStr();
+            makeParseable(name);
+            if (addNewVariable(llvmInstruction, name)) {
+                declareVariable(llvmInstruction->getType(), name, EVQInput);
+            }
+
+            return;
         }
-        return;
     }
 
     // Handle texturing
