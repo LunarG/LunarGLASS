@@ -70,6 +70,10 @@ stage-exit:                                       ; preds = %stage-epilogue
 }
 
 declare void @llvm.gla.discard() nounwind
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -80,8 +84,15 @@ void main()
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+
+void main()
+{
+    discard;
+    
+}

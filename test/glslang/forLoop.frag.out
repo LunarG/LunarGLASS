@@ -111,6 +111,10 @@ inductive variable:  %indvar = phi i32 [ %indvar.next, %ifmerge ], [ 0, %ifmerge
   trip count:        %.pre = load i32 addrspace(2)* @Count, align 4
   increment:         %indvar.next = add i32 %indvar, 1
   exit condition:    %exitcond = icmp eq i32 %indvar.next, %.pre
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -142,8 +146,36 @@ void main()
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+uniform int Count;
+uniform vec4 bigColor;
+const int const25_0 = 0;
+in vec4 BaseColor;
+vec4 color2;
+
+void main()
+{
+    int indvar;
+    vec4 color_07_014;
+    vec4 color_0_lcssa_0;
+    bool temp241 = Count > const25_0;
+    color_0_lcssa_0 = BaseColor;
+    if (temp241) {
+        indvar = const25_0;
+        color_07_014 = BaseColor;
+        for (indvar = 0; indvar < Count; ++indvar) {
+            color2 = color_07_014 + bigColor;
+            color_07_014 = color2;
+        }
+        
+        color_0_lcssa_0 = color2;
+    }
+    
+    gl_FragColor = color_0_lcssa_0;
+    
+}

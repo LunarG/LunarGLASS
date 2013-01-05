@@ -187,6 +187,10 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -254,8 +258,71 @@ void main()
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+struct s0 {
+    int member0;
+};
+
+struct s00 {
+    s0 member0;
+};
+
+struct s1 {
+    int member0;
+    float member1;
+    s0 member2;
+};
+
+struct s2 {
+    int member0;
+    float member1;
+    s1 member2;
+};
+
+struct s3 {
+    s2[12] member0;
+    int member1;
+    float member2;
+    s1 member3;
+};
+
+uniform s3 foo3;
+uniform s1 foo1;
+uniform s00 foo00;
+uniform sampler2D sampler;
+const int const23_0 = 0;
+const float const27_0f = 0.0;
+const float const28_3f = 3.0;
+in vec2 coord1;
+const float const32_1f = 1.0;
+const int const36_5 = 5;
+
+void main()
+{
+    int temp211 = foo3.member0[9].member0;
+    bool temp222 = temp211 > const23_0;
+    int temp254 = foo1.member2.member0;
+    int temp265 = foo00.member0.member0;
+    float temp26 = temp222 ? const27_0f : const28_3f;
+    int ternary7_0 = temp222 ? const23_0 : temp254;
+    int _temp265 = temp222 ? const23_0 : temp265;
+    float select = temp222 ? const32_1f : coord1.y;
+    float temp243 = foo1.member1;
+    float select50 = temp222 ? temp243 : coord1.y;
+    bool temp3533 = ternary7_0 > const36_5;
+    int _temp265_ternary7_0 = temp3533 ? _temp265 : ternary7_0;
+    float temp3841 = float(_temp265_ternary7_0);
+    float temp3942 = temp3841 + select50;
+    float temp4043 = temp3942 + temp26;
+    float temp4144 = temp4043 + select;
+    vec4 temp42 = vec4(temp4144);
+    vec4 temp4347 = texture2D(sampler, coord1);
+    vec4 gla_copyout_gl_FragColor48 = temp42 * temp4347;
+    gl_FragColor = gla_copyout_gl_FragColor48;
+    
+}

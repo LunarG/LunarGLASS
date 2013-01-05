@@ -90,6 +90,10 @@ declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
 declare void @llvm.gla.discard() nounwind
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -110,8 +114,25 @@ void main()
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+uniform sampler2D tex;
+in vec2 coord;
+const vec4 const23 = vec4(0.1, 0.2, 0.3, 0.4);
+
+void main()
+{
+    vec4 temp211 = texture2D(tex, coord);
+    bvec4 temp222 = equal(temp211, const23);
+    bool temp243 = all(temp222);
+    if (temp243) {
+        discard;
+    }
+    
+    gl_FragColor = temp211;
+    
+}

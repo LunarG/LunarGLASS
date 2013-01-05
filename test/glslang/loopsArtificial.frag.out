@@ -233,3 +233,7 @@ declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind rea
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 ***Unsupported functionality: general-case cross edges (requires artificial loop)
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+ERROR: Not all shaders have valid object code.
+#### END LINKER INFO LOG ####

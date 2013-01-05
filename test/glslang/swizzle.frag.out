@@ -190,6 +190,10 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x float>, i32, float, i32, <2 x float>, i32, float, i32, <2 x float>, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -221,8 +225,36 @@ void main()
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+uniform vec4 u;
+uniform bool p;
+in vec2 t;
+const float const25_2f = 1.789;
+
+void main()
+{
+    vec4 temp21 = u.zwxy;
+    vec4 temp22;
+    temp22.xy = u.zw;
+    vec4 temp23 = u;
+    temp23.yw = t.yx;
+    vec4 temp24 = u;
+    temp24.xyz = vec3(const25_2f, const25_2f, const25_2f);
+    vec4 temp26 = vec4(u.z, u.x, t.x, t.y);
+    vec4 temp27 = u;
+    temp27.x = t.x;
+    vec4 temp28 = u;
+    temp28.x = t.y;
+    vec4 select = p ? temp27 : temp28;
+    vec4 temp3019 = temp23 * temp21;
+    vec4 temp3120 = temp3019 * temp26;
+    vec4 temp3221 = temp3120 * select;
+    vec4 gla_copyout_gl_FragColor22 = mix(temp24, temp22, temp3221);
+    gl_FragColor = gla_copyout_gl_FragColor22;
+    
+}

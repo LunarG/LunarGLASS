@@ -226,6 +226,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
 declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -272,9 +276,7 @@ void main()
     gl_FragColor = gla_copyout_gl_FragColor;
     
 }
-#### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
+ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####

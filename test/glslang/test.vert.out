@@ -76,6 +76,10 @@ declare <4 x float> @llvm.gla.fFixedTransform.v4f32.v4f32.v4f32(<4 x float>, <4 
 declare void @llvm.gla.fWriteData.v2f32(i32, i32, <2 x float>) nounwind
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -91,9 +95,7 @@ void main()
     gl_Position = gla_copyout_gl_Position;
     
 }
-#### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
+ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####

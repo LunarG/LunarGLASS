@@ -89,6 +89,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float>, i32, <3 x float>, i32, <3 x float>, i32, <3 x float>, i32, float, i32) nounwind readnone
 
 declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -109,8 +113,25 @@ void main()
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+uniform vec4[6] color;
+uniform vec3 inColor;
+uniform float[16] alpha;
+
+void main()
+{
+    vec4 temp211 = color[1];
+    vec4 texColor12 = temp211 + temp211;
+    vec3 temp23 = vec3(texColor12);
+    vec3 temp244 = temp23 + inColor;
+    float temp255 = alpha[12];
+    float temp266 = texColor12.w + temp255;
+    vec4 temp27 = vec4(temp244.x, temp244.y, temp244.z, temp266);
+    gl_FragColor = temp27;
+    
+}

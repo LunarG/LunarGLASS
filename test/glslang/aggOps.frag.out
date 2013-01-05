@@ -418,6 +418,10 @@ declare i1 @llvm.gla.all.v2i1(<2 x i1>) nounwind readnone
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -526,8 +530,115 @@ void main()
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+struct s1 {
+    int member0;
+    float member1;
+};
+
+struct s2 {
+    int member0;
+    float member1;
+    s1 member2;
+};
+
+uniform s2 foo2a;
+uniform s2 foo2b;
+uniform sampler2D sampler;
+in vec4 u;
+in vec4 w;
+in vec2 coord;
+in vec2 coord26;
+const vec2 const45 = vec2(2.0);
+const vec4 const50 = vec4(3.0);
+const vec4 const55 = vec4(4.0);
+in vec2 coord52;
+const vec4 const61 = vec4(5.0);
+const int const64_17 = 17;
+const float const66_17f = 17.0;
+const int const73_14 = 14;
+const float const75_14f = 14.0;
+const vec4 const79 = vec4(6.0);
+const vec4 const93 = vec4(7.0);
+
+void main()
+{
+    vec4 v_0_0;
+    int temp221 = int(u.x);
+    int temp233 = int(u.z);
+    int temp244 = int(w.x);
+    int temp256 = int(w.z);
+    int element17 = foo2a.member0;
+    int element28 = foo2b.member0;
+    bool temp289 = element17 == element28;
+    float element11410 = foo2a.member1;
+    float element21511 = foo2b.member1;
+    bool temp3112 = element11410 == element21511;
+    bool temp3213 = temp289 && temp3112;
+    s1 element11614 = foo2a.member2;
+    int element11614110 = element11614.member0;
+    float element11614111 = element11614.member1;
+    s1 element21715 = foo2b.member2;
+    int element21715112 = element21715.member0;
+    float element21715113 = element21715.member1;
+    bool temp3718 = element11614110 == element21715112;
+    bool temp4021 = element11614111 == element21715113;
+    bool temp4122 = temp3718 && temp4021;
+    bool temp4223 = temp3213 && temp4122;
+    if (temp4223) {
+        vec4 temp4324 = texture2D(sampler, coord);
+        v_0_0 = temp4324;
+    }
+    else {
+        vec2 temp4427 = coord26 * const45;
+        vec4 temp4628 = texture2D(sampler, temp4427);
+        v_0_0 = temp4628;
+    }
+    
+    bvec4 temp4731 = equal(u, v_0_0);
+    bool temp4832 = all(temp4731);
+    vec4 temp4933 = v_0_0 * const50;
+    vec4 select115 = temp4832 ? temp4933 : v_0_0;
+    bvec4 temp5241 = notEqual(u, select115);
+    bool temp5342 = any(temp5241);
+    vec4 temp5443 = select115 * const55;
+    vec4 select114 = temp5342 ? temp5443 : select115;
+    vec2 temp57 = select114.yw;
+    bvec2 temp5853 = equal(coord52, temp57);
+    bool temp5954 = all(temp5853);
+    vec4 temp6055 = select114 * const61;
+    vec4 select117 = temp5954 ? temp6055 : select114;
+    bool temp6363 = temp221 == const64_17;
+    bool temp6565 = u.y == const66_17f;
+    bool temp6766 = temp6363 && temp6565;
+    bool temp6867 = temp233 == temp244;
+    bool temp6970 = u.w == w.y;
+    bool temp7071 = temp6867 && temp6970;
+    bool temp7172 = temp6766 && temp7071;
+    bool temp7273 = temp256 == const73_14;
+    bool temp7475 = w.w == const75_14f;
+    bool temp7676 = temp7273 && temp7475;
+    bool temp7777 = temp7172 && temp7676;
+    vec4 temp7878 = select117 * const79;
+    vec4 select116 = temp7777 ? temp7878 : select117;
+    bool temp8186 = temp221 != const64_17;
+    bool temp8288 = u.y != const66_17f;
+    bool temp8389 = temp8186 || temp8288;
+    bool temp8490 = temp233 != temp244;
+    bool temp8593 = u.w != w.y;
+    bool temp8694 = temp8490 || temp8593;
+    bool temp8795 = temp8389 || temp8694;
+    bool temp8896 = temp256 != const73_14;
+    bool temp8998 = w.w != const75_14f;
+    bool temp9099 = temp8896 || temp8998;
+    bool temp91100 = temp8795 || temp9099;
+    vec4 temp92101 = select116 * const93;
+    vec4 select = temp91100 ? temp92101 : select116;
+    gl_FragColor = select;
+    
+}

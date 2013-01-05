@@ -96,6 +96,10 @@ ifmerge:                                          ; preds = %loop-header
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -116,8 +120,25 @@ void main()
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+uniform float d;
+uniform vec4 bigColor;
+in vec4 BaseColor;
+
+void main()
+{
+    vec4 color_0_0;
+    color_0_0 = BaseColor;
+    while (color_0_0.x < d){
+        vec4 color22 = color_0_0 + bigColor;
+        color_0_0 = color22;
+    }
+    
+    gl_FragColor = color_0_0;
+    
+}

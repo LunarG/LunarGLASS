@@ -77,6 +77,10 @@ declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind rea
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -90,8 +94,18 @@ void main()
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+in vec4 BaseColor;
+
+void main()
+{
+    float temp212 = BaseColor.x + BaseColor.y;
+    vec4 temp22 = vec4(temp212);
+    gl_FragColor = temp22;
+    
+}

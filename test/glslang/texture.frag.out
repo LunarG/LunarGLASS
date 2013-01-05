@@ -264,6 +264,10 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32, i32, i32, <3 x flo
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -309,9 +313,7 @@ void main()
     gl_FragColor = gla_copyout_gl_FragColor;
     
 }
-#### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
+ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####

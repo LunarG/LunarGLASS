@@ -956,6 +956,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float>, i32, <3 x float>, i32, <3 x float>, i32, <3 x float>, i32, float, i32) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -1056,9 +1060,107 @@ void main()
     gl_FragColor = temp108;
     
 }
-#### BEGIN COMPILER 0 INFO LOG ####
-
+WARNING: 0:96: Two consecutive underscores are reserved for future use.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+uniform vec4[4] um43;
+in vec3 Color;
+const float const22_1f = 1.0;
+const float const33_5f = 4.7;
+const float const54_0f = 0.0;
+in vec4 u441;
+
+void main()
+{
+    vec4 temp21 = vec4(Color.x, Color.y, Color.z, const22_1f);
+    vec4 __column654 = um43[0];
+    float __dot5 = dot(temp21, __column654);
+    vec4 __column666 = um43[1];
+    float __dot677 = dot(temp21, __column666);
+    vec4 __column688 = um43[2];
+    float __dot699 = dot(temp21, __column688);
+    vec4 __column7010 = um43[3];
+    float __dot7111 = dot(temp21, __column7010);
+    vec4 temp31 = vec4(__dot5, __dot677, __dot699, __dot7111);
+    float __product14 = __column654.x * const33_5f;
+    float __product12015 = __column654.y * const33_5f;
+    float __product14516 = __column654.z * const33_5f;
+    float __product17017 = __column654.w * const33_5f;
+    vec4 temp37 = vec4(__product14, __product12015, __product14516, __product17017);
+    float __product17820 = __column666.x * const33_5f;
+    float __product20221 = __column666.y * const33_5f;
+    float __product22722 = __column666.z * const33_5f;
+    float __product25223 = __column666.w * const33_5f;
+    vec4 temp42 = vec4(__product17820, __product20221, __product22722, __product25223);
+    float __product26026 = __column688.x * const33_5f;
+    float __product28427 = __column688.y * const33_5f;
+    float __product30928 = __column688.z * const33_5f;
+    float __product33429 = __column688.w * const33_5f;
+    vec4 temp47 = vec4(__product26026, __product28427, __product30928, __product33429);
+    float __product34232 = __column7010.x * const33_5f;
+    float __product36633 = __column7010.y * const33_5f;
+    float __product39134 = __column7010.z * const33_5f;
+    float __product41635 = __column7010.w * const33_5f;
+    vec4 temp52 = vec4(__product34232, __product36633, __product39134, __product41635);
+    float temp5338 = const54_0f - __product14;
+    float temp5539 = const54_0f - __product12015;
+    float temp5640 = const54_0f - __product14516;
+    float temp5741 = const54_0f - __product17017;
+    float temp5842 = const54_0f - __product17820;
+    float temp5943 = const54_0f - __product20221;
+    float temp6044 = const54_0f - __product22722;
+    float temp6145 = const54_0f - __product25223;
+    float temp6246 = const54_0f - __product26026;
+    float temp6347 = const54_0f - __product28427;
+    float temp6448 = const54_0f - __product30928;
+    float temp6549 = const54_0f - __product33429;
+    float temp6650 = const54_0f - __product34232;
+    float temp6751 = const54_0f - __product36633;
+    float temp6852 = const54_0f - __product39134;
+    float temp6953 = const54_0f - __product41635;
+    float __product44654 = temp5338 * u441.x;
+    float __product44956 = temp5842 * u441.y;
+    float __dotProduct45057 = __product44654 + __product44956;
+    float __product45359 = temp6246 * u441.z;
+    float __dotProduct45460 = __dotProduct45057 + __product45359;
+    float __product45762 = temp6650 * u441.w;
+    float __dotProduct45863 = __dotProduct45460 + __product45762;
+    float __product46165 = temp5539 * u441.x;
+    float __product46467 = temp5943 * u441.y;
+    float __dotProduct46568 = __product46165 + __product46467;
+    float __product46870 = temp6347 * u441.z;
+    float __dotProduct46971 = __dotProduct46568 + __product46870;
+    float __product47273 = temp6751 * u441.w;
+    float __dotProduct47374 = __dotProduct46971 + __product47273;
+    float __product47676 = temp5640 * u441.x;
+    float __product47978 = temp6044 * u441.y;
+    float __dotProduct48079 = __product47676 + __product47978;
+    float __product48381 = temp6448 * u441.z;
+    float __dotProduct48482 = __dotProduct48079 + __product48381;
+    float __product48784 = temp6852 * u441.w;
+    float __dotProduct48885 = __dotProduct48482 + __product48784;
+    float __product49187 = temp5741 * u441.x;
+    float __product49489 = temp6145 * u441.y;
+    float __dotProduct49590 = __product49187 + __product49489;
+    float __product49892 = temp6549 * u441.z;
+    float __dotProduct49993 = __dotProduct49590 + __product49892;
+    float __product50295 = temp6953 * u441.w;
+    float __dotProduct50396 = __dotProduct49993 + __product50295;
+    vec4 temp98 = vec4(__dotProduct45863, __dotProduct47374, __dotProduct48885, __dotProduct50396);
+    vec4 gla_copyout_gl_FragColor50499 = temp31 + temp98;
+    vec4 __column509100 = temp37 * temp37;
+    vec4 __column512102 = temp42 * temp42;
+    float __dot520101 = dot(gla_copyout_gl_FragColor50499, __column509100);
+    vec4 __column515104 = temp47 * temp47;
+    float __dot522103 = dot(gla_copyout_gl_FragColor50499, __column512102);
+    vec4 __column518106 = temp52 * temp52;
+    float __dot524105 = dot(gla_copyout_gl_FragColor50499, __column515104);
+    float __dot526107 = dot(gla_copyout_gl_FragColor50499, __column518106);
+    vec4 temp108 = vec4(__dot520101, __dot522103, __dot524105, __dot526107);
+    gl_FragColor = temp108;
+    
+}

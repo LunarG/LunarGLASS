@@ -104,6 +104,10 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
@@ -145,8 +149,46 @@ void main()
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
-
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+struct lunarStruct1 {
+    int member0;
+    float member1;
+};
+
+struct lunarStruct2 {
+    int member0;
+    float member1;
+    lunarStruct1 member2;
+};
+
+struct lunarStruct3 {
+    lunarStruct2 member0;
+    int member1;
+    float member2;
+    lunarStruct1 member3;
+};
+
+uniform lunarStruct3 foo3;
+uniform lunarStruct2 foo2;
+uniform sampler2D sampler;
+const int const23_0 = 0;
+in vec2 coord;
+
+void main()
+{
+    int temp211 = foo3.member0.member0;
+    bool temp222 = temp211 > const23_0;
+    float _val = foo3.member0.member2.member1;
+    float _val12 = foo2.member2.member1;
+    float ternary_0 = temp222 ? _val : _val12;
+    vec4 temp27 = vec4(ternary_0);
+    vec4 temp289 = texture2D(sampler, coord);
+    vec4 gla_copyout_gl_FragColor10 = temp27 * temp289;
+    gl_FragColor = gla_copyout_gl_FragColor10;
+    
+}

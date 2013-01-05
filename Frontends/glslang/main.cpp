@@ -127,21 +127,36 @@ int C_DECL main(int argc, char* argv[])
         for (; argc >= 1; argc--, argv++) {
             if (argv[0][0] == '-' || argv[0][0] == '/') {
                 switch (argv[0][1]) {
-                case 'd': delay    = true;                           break;
+                case 'd':
+                    delay = true;                        
+                    break;
 
 #ifdef MEASURE_MEMORY
                 case 'i': break;
                 case 'a': break;
                 case 'h': break;
 #else
-                case 'i': debugOptions |= EDebugOpIntermediate;       break;
-                case 'a': debugOptions |= EDebugOpAssembly;           break;
+                case 'i': 
+                    debugOptions |= EDebugOpIntermediate;       
+                    break;
+                case 'a': 
+                    debugOptions |= EDebugOpAssembly;           
+                    break;
 #endif
-                case 'c': if(!ShOutputMultipleStrings(++argv))
-                                                         return EFailUsage;
-                          --argc;                                    break;
-                case 'm': debugOptions |= EDebugOpLinkMaps;           break;
-                default:  usage();                       return EFailUsage;
+                case 'c': 
+                    if(!ShOutputMultipleStrings(++argv))
+                        return EFailUsage;
+                    --argc; 
+                    break;
+                case 'm': 
+                    debugOptions |= EDebugOpLinkMaps;          
+                    break;
+                case 'l':
+                    debugOptions |= EDebugSuppressInfolog;
+                    break;
+                default:
+                    usage();
+                    return EFailUsage;
                 }
             } else {
                 compilers[numCompilers] = ShConstructCompiler(FindLanguage(argv[0]), debugOptions);
@@ -175,15 +190,17 @@ int C_DECL main(int argc, char* argv[])
                 linkFailed = true;
         }
 
-        for (i = 0; i < numCompilers; ++i) {
-            InfoLogMsg("BEGIN", "COMPILER", i);
-            puts(ShGetInfoLog(compilers[i]));
-            InfoLogMsg("END", "COMPILER", i);
-        }
+        if (! (debugOptions & EDebugSuppressInfolog)) {
+            for (i = 0; i < numCompilers; ++i) {
+                InfoLogMsg("BEGIN", "COMPILER", i);
+                fprintf(stderr, "%s", ShGetInfoLog(compilers[i]));
+                InfoLogMsg("END", "COMPILER", i);
+            }
 
-        InfoLogMsg("BEGIN", "LINKER", -1);
-        puts(ShGetInfoLog(linker));
-        InfoLogMsg("END", "LINKER", -1);
+            InfoLogMsg("BEGIN", "LINKER", -1);
+            fprintf(stderr, "%s", ShGetInfoLog(linker));
+            InfoLogMsg("END", "LINKER", -1);
+        }
 
 #ifdef _WIN32
     } __finally {
@@ -349,7 +366,7 @@ void FreeFileData(char **data)
 
 void InfoLogMsg(char* msg, const char* name, const int num)
 {
-    printf(num >= 0 ? "#### %s %s %d INFO LOG ####\n" :
+    fprintf(stderr, num >= 0 ? "#### %s %s %d INFO LOG ####\n" :
            "#### %s %s INFO LOG ####\n", msg, name, num);
 }
 
