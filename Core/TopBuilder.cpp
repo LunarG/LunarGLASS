@@ -451,6 +451,7 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
         global = true;
         if (initializer == 0)
             initializer = llvm::Constant::getNullValue(type);
+        break;
 
     case ESQGlobal:
         global = true;
@@ -480,7 +481,7 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
                 for (int index = 0; index < arrayType->getNumElements(); ++index) {
                     char buf[8];
                     itoa(index, buf, 10);
-                    PipelineSymbol symbol = {annotatedName + buf, arrayType->getContainedType(0)};
+                    PipelineSymbol symbol = {annotatedName + "[" + buf + "]", arrayType->getContainedType(0)};
                     manager->getPipeOutSymbols().push_back(symbol);
                 }
             } else {                

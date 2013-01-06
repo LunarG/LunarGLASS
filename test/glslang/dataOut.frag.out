@@ -217,72 +217,145 @@ in vec4 Color;
 void main()
 {
     gl_FragData[0] = Color;
-    gl_FragData0 = Color;
+    gl_FragData[0] = Color;
     vec4 temp21 = gl_FragData[1];
-    gl_FragData1 = temp21;
+    gl_FragData[1] = temp21;
     vec4 temp22 = gl_FragData[2];
-    gl_FragData2 = temp22;
+    gl_FragData[2] = temp22;
     vec4 temp23 = gl_FragData[3];
-    gl_FragData3 = temp23;
+    gl_FragData[3] = temp23;
     vec4 temp24 = gl_FragData[4];
-    gl_FragData4 = temp24;
+    gl_FragData[4] = temp24;
     vec4 temp25 = gl_FragData[5];
-    gl_FragData5 = temp25;
+    gl_FragData[5] = temp25;
     vec4 temp26 = gl_FragData[6];
-    gl_FragData6 = temp26;
+    gl_FragData[6] = temp26;
     vec4 temp27 = gl_FragData[7];
-    gl_FragData7 = temp27;
+    gl_FragData[7] = temp27;
     vec4 temp28 = gl_FragData[8];
-    gl_FragData8 = temp28;
+    gl_FragData[8] = temp28;
     vec4 temp29 = gl_FragData[9];
-    gl_FragData9 = temp29;
+    gl_FragData[9] = temp29;
     vec4 temp30 = gl_FragData[10];
-    gl_FragData10 = temp30;
+    gl_FragData[10] = temp30;
     vec4 temp31 = gl_FragData[11];
-    gl_FragData11 = temp31;
+    gl_FragData[11] = temp31;
     vec4 temp32 = gl_FragData[12];
-    gl_FragData12 = temp32;
+    gl_FragData[12] = temp32;
     vec4 temp33 = gl_FragData[13];
-    gl_FragData13 = temp33;
+    gl_FragData[13] = temp33;
     vec4 temp34 = gl_FragData[14];
-    gl_FragData14 = temp34;
+    gl_FragData[14] = temp34;
     vec4 temp35 = gl_FragData[15];
-    gl_FragData15 = temp35;
+    gl_FragData[15] = temp35;
     vec4 temp36 = gl_FragData[16];
-    gl_FragData16 = temp36;
+    gl_FragData[16] = temp36;
     vec4 temp37 = gl_FragData[17];
-    gl_FragData17 = temp37;
+    gl_FragData[17] = temp37;
     vec4 temp38 = gl_FragData[18];
-    gl_FragData18 = temp38;
+    gl_FragData[18] = temp38;
     vec4 temp39 = gl_FragData[19];
-    gl_FragData19 = temp39;
+    gl_FragData[19] = temp39;
     vec4 temp40 = gl_FragData[20];
-    gl_FragData20 = temp40;
+    gl_FragData[20] = temp40;
     vec4 temp41 = gl_FragData[21];
-    gl_FragData21 = temp41;
+    gl_FragData[21] = temp41;
     vec4 temp42 = gl_FragData[22];
-    gl_FragData22 = temp42;
+    gl_FragData[22] = temp42;
     vec4 temp43 = gl_FragData[23];
-    gl_FragData23 = temp43;
+    gl_FragData[23] = temp43;
     vec4 temp44 = gl_FragData[24];
-    gl_FragData24 = temp44;
+    gl_FragData[24] = temp44;
     vec4 temp45 = gl_FragData[25];
-    gl_FragData25 = temp45;
+    gl_FragData[25] = temp45;
     vec4 temp46 = gl_FragData[26];
-    gl_FragData26 = temp46;
+    gl_FragData[26] = temp46;
     vec4 temp47 = gl_FragData[27];
-    gl_FragData27 = temp47;
+    gl_FragData[27] = temp47;
     vec4 temp48 = gl_FragData[28];
-    gl_FragData28 = temp48;
+    gl_FragData[28] = temp48;
     vec4 temp49 = gl_FragData[29];
-    gl_FragData29 = temp49;
+    gl_FragData[29] = temp49;
     vec4 temp50 = gl_FragData[30];
-    gl_FragData30 = temp50;
+    gl_FragData[30] = temp50;
     vec4 temp51 = gl_FragData[31];
-    gl_FragData31 = temp51;
+    gl_FragData[31] = temp51;
     
 }
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+in vec4 Color1;
+
+void main()
+{
+    gl_FragData[0] = Color1;
+    gl_FragData[0] = Color1;
+    vec4 temp21 = gl_FragData[1];
+    gl_FragData[1] = temp21;
+    vec4 temp22 = gl_FragData[2];
+    gl_FragData[2] = temp22;
+    vec4 temp23 = gl_FragData[3];
+    gl_FragData[3] = temp23;
+    vec4 temp24 = gl_FragData[4];
+    gl_FragData[4] = temp24;
+    vec4 temp25 = gl_FragData[5];
+    gl_FragData[5] = temp25;
+    vec4 temp26 = gl_FragData[6];
+    gl_FragData[6] = temp26;
+    vec4 temp27 = gl_FragData[7];
+    gl_FragData[7] = temp27;
+    vec4 temp28 = gl_FragData[8];
+    gl_FragData[8] = temp28;
+    vec4 temp29 = gl_FragData[9];
+    gl_FragData[9] = temp29;
+    vec4 temp30 = gl_FragData[10];
+    gl_FragData[10] = temp30;
+    vec4 temp31 = gl_FragData[11];
+    gl_FragData[11] = temp31;
+    vec4 temp32 = gl_FragData[12];
+    gl_FragData[12] = temp32;
+    vec4 temp33 = gl_FragData[13];
+    gl_FragData[13] = temp33;
+    vec4 temp34 = gl_FragData[14];
+    gl_FragData[14] = temp34;
+    vec4 temp35 = gl_FragData[15];
+    gl_FragData[15] = temp35;
+    vec4 temp36 = gl_FragData[16];
+    gl_FragData[16] = temp36;
+    vec4 temp37 = gl_FragData[17];
+    gl_FragData[17] = temp37;
+    vec4 temp38 = gl_FragData[18];
+    gl_FragData[18] = temp38;
+    vec4 temp39 = gl_FragData[19];
+    gl_FragData[19] = temp39;
+    vec4 temp40 = gl_FragData[20];
+    gl_FragData[20] = temp40;
+    vec4 temp41 = gl_FragData[21];
+    gl_FragData[21] = temp41;
+    vec4 temp42 = gl_FragData[22];
+    gl_FragData[22] = temp42;
+    vec4 temp43 = gl_FragData[23];
+    gl_FragData[23] = temp43;
+    vec4 temp44 = gl_FragData[24];
+    gl_FragData[24] = temp44;
+    vec4 temp45 = gl_FragData[25];
+    gl_FragData[25] = temp45;
+    vec4 temp46 = gl_FragData[26];
+    gl_FragData[26] = temp46;
+    vec4 temp47 = gl_FragData[27];
+    gl_FragData[27] = temp47;
+    vec4 temp48 = gl_FragData[28];
+    gl_FragData[28] = temp48;
+    vec4 temp49 = gl_FragData[29];
+    gl_FragData[29] = temp49;
+    vec4 temp50 = gl_FragData[30];
+    gl_FragData[30] = temp50;
+    vec4 temp51 = gl_FragData[31];
+    gl_FragData[31] = temp51;
+    
+}
