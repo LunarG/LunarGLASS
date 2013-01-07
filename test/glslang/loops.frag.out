@@ -27,7 +27,7 @@ Top IR:
 @d11 = external addrspace(2) constant float
 @d12 = external addrspace(2) constant float
 @bigColor8 = external addrspace(2) constant <4 x float>
-@gl_FragColor = internal global <4 x float> zeroinitializer
+@FragColor_shadow = internal global <4 x float> zeroinitializer
 @d14 = external addrspace(2) constant float
 @d15 = external addrspace(2) constant float
 @d16 = external addrspace(2) constant float
@@ -1188,8 +1188,8 @@ loop-merge278:                                    ; preds = %then267
   %349 = load <4 x float>* %color
   %color279 = fadd <4 x float> %349, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %color279, <4 x float>* %color
-  %gl_FragColor = load <4 x float>* %color
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %FragColor_shadow = load <4 x float>* %color
+  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %loop-header280
 
 loop-header280:                                   ; preds = %post-loop-continue288, %ifmerge287, %loop-merge278
@@ -1394,12 +1394,12 @@ loop-merge327:                                    ; preds = %then319
   %406 = load <4 x float>* %color
   %color328 = fadd <4 x float> %406, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %color328, <4 x float>* %color
-  %gl_FragColor329 = load <4 x float>* %color
-  store <4 x float> %gl_FragColor329, <4 x float>* @gl_FragColor
+  %FragColor_shadow329 = load <4 x float>* %color
+  store <4 x float> %FragColor_shadow329, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %loop-merge327, %then309, %then303, %then284
-  %407 = load <4 x float>* @gl_FragColor
+  %407 = load <4 x float>* @FragColor_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %407)
   br label %stage-exit
 
@@ -2168,8 +2168,8 @@ else323:                                          ; preds = %ifmerge321
   br label %loop-header318
 
 stage-epilogue:                                   ; preds = %then319, %then309, %then303, %then284
-  %gl_FragColor330.0 = phi <4 x float> [ %color279, %then309 ], [ %color328, %then319 ], [ %color279, %then303 ], [ %color279, %then284 ]
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor330.0)
+  %FragColor_shadow330.0 = phi <4 x float> [ %color279, %then309 ], [ %color328, %then319 ], [ %color279, %then303 ], [ %color279, %then284 ]
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow330.0)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then322
@@ -2314,7 +2314,7 @@ void main()
     vec4 color_42;
     vec4 color_43;
     vec4 color_44;
-    vec4 gla_copyout_gl_FragColor330_0;
+    vec4 FragColor_shadow330_0;
     bool temp69 = BaseColor.x < const70_0f;
     bool temp71 = BaseColor.x < const72_1f;
     vec4 select340_v = temp71 ? const74 : const75;
@@ -2737,8 +2737,8 @@ void main()
     while (! (color_40.x >= d14)){
         bool temp246 = color_40.y < d15;
         if (temp246) {
-            gla_copyout_gl_FragColor330_0 = color279;
-            gl_FragColor = gla_copyout_gl_FragColor330_0;
+            FragColor_shadow330_0 = color279;
+            gl_FragColor = FragColor_shadow330_0;
             return;
         }
         
@@ -2778,24 +2778,24 @@ void main()
                     }
                     
                     vec4 color328 = color_44 + const85;
-                    gla_copyout_gl_FragColor330_0 = color328;
-                    gl_FragColor = gla_copyout_gl_FragColor330_0;
+                    FragColor_shadow330_0 = color328;
+                    gl_FragColor = FragColor_shadow330_0;
                     return;
                 }
                 
                 color_43 = color312;
             }
             
-            gla_copyout_gl_FragColor330_0 = color279;
-            gl_FragColor = gla_copyout_gl_FragColor330_0;
+            FragColor_shadow330_0 = color279;
+            gl_FragColor = FragColor_shadow330_0;
             return;
         }
         
         vec4 color302 = color_42 + bigColor1_2;
         bool temp260 = color302.z < d3;
         if (temp260) {
-            gla_copyout_gl_FragColor330_0 = color279;
-            gl_FragColor = gla_copyout_gl_FragColor330_0;
+            FragColor_shadow330_0 = color279;
+            gl_FragColor = FragColor_shadow330_0;
             return;
         }
         
@@ -2913,7 +2913,7 @@ void main()
     vec4 color_42_0;
     vec4 color_43_0;
     vec4 color_44_0;
-    vec4 gla_copyout_gl_FragColor600_0;
+    vec4 FragColor_shadow600_0;
     bool temp691 = BaseColor.x < const67_0f;
     bool temp713 = BaseColor.x < const69_1f;
     vec4 temp70 = temp713 ? const71 : const72;
@@ -3329,8 +3329,8 @@ void main()
     while (color_40_0.x < d14){
         bool temp246519 = color_40_0.y < d15;
         if (temp246519) {
-            gla_copyout_gl_FragColor600_0 = color279513;
-            gl_FragColor = gla_copyout_gl_FragColor600_0;
+            FragColor_shadow600_0 = color279513;
+            gl_FragColor = FragColor_shadow600_0;
             return;
         }
         
@@ -3370,24 +3370,24 @@ void main()
                     }
                     
                     vec4 color328567 = color_44_0 + const82;
-                    gla_copyout_gl_FragColor600_0 = color328567;
-                    gl_FragColor = gla_copyout_gl_FragColor600_0;
+                    FragColor_shadow600_0 = color328567;
+                    gl_FragColor = FragColor_shadow600_0;
                     return;
                 }
                 
                 color_43_0 = color312;
             }
             
-            gla_copyout_gl_FragColor600_0 = color279513;
-            gl_FragColor = gla_copyout_gl_FragColor600_0;
+            FragColor_shadow600_0 = color279513;
+            gl_FragColor = FragColor_shadow600_0;
             return;
         }
         
         vec4 color302579 = color_42_0 + bigColor1_2;
         bool temp260580 = color302579.z < d3;
         if (temp260580) {
-            gla_copyout_gl_FragColor600_0 = color279513;
-            gl_FragColor = gla_copyout_gl_FragColor600_0;
+            FragColor_shadow600_0 = color279513;
+            gl_FragColor = FragColor_shadow600_0;
             return;
         }
         

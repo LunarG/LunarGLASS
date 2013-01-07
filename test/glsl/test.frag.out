@@ -7,7 +7,7 @@ Top IR:
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
 @u = external addrspace(2) constant <4 x float>
 @blend = external addrspace(2) constant float
-@gl_FragColor = internal global <4 x float> zeroinitializer
+@FragColor_shadow = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -36,12 +36,12 @@ entry:
   %19 = fmul float %18, 0x3FFC9FBE80000000
   %mix_retval1 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %16, <4 x float> %17, float %19)
   store <4 x float> %mix_retval1, <4 x float>* %mix_retval
-  %gl_FragColor = load <4 x float>* %mix_retval
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %FragColor_shadow = load <4 x float>* %mix_retval
+  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %20 = load <4 x float>* @gl_FragColor
+  %20 = load <4 x float>* @FragColor_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %20)
   br label %stage-exit
 

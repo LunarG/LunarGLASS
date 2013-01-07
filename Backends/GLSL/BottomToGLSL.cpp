@@ -721,7 +721,7 @@ protected:
 
             // Variables starting with gl_ are illegal in GLSL
             if (varString->substr(0,3) == std::string("gl_")) {
-                varString->insert(0, "gla_copyout_");
+                varString->insert(0, "gla_");
             }
         }
     }
@@ -1060,7 +1060,7 @@ protected:
             return true;
         } else {
             assert(name == *valueMap[value]);
-            
+
             return false;
         }
     }
@@ -1903,7 +1903,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 {
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
-    case llvm::Intrinsic::gla_fWriteData: 
+    case llvm::Intrinsic::gla_fWriteData:
         {
             newLine();
             int location = GetConstantInt(llvmInstruction->getOperand(0));

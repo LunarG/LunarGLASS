@@ -12,7 +12,7 @@ Top IR:
 @threshhold = external addrspace(2) constant float
 @threshhold2 = external addrspace(2) constant float
 @b = external addrspace(2) constant i1
-@gl_FragColor = internal global <4 x float> zeroinitializer
+@FragColor_shadow = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -166,12 +166,12 @@ ifmerge30:                                        ; preds = %post-return29, %pos
 ifmerge31:                                        ; preds = %ifmerge30, %ifmerge24
   %39 = load <4 x float>* %color
   %40 = load <4 x float>* %color2
-  %gl_FragColor = fmul <4 x float> %39, %40
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %FragColor_shadow = fmul <4 x float> %39, %40
+  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge31, %else28, %then12, %then5
-  %41 = load <4 x float>* @gl_FragColor
+  %41 = load <4 x float>* @FragColor_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %41)
   br label %stage-exit
 
@@ -269,7 +269,7 @@ else20:                                           ; preds = %else17
 
 ifmerge23:                                        ; preds = %else20, %then15
   %color.1 = phi <4 x float> [ %16, %then15 ], [ %color21, %else20 ]
-  %gl_FragColor = fmul <4 x float> %color.1, %color22
+  %FragColor_shadow = fmul <4 x float> %color.1, %color22
   br label %stage-epilogue
 
 else25:                                           ; preds = %ifmerge9
@@ -284,8 +284,8 @@ else28:                                           ; preds = %else25
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge23, %else28, %then12, %then5
-  %gl_FragColor32.0 = phi <4 x float> [ zeroinitializer, %then5 ], [ zeroinitializer, %then12 ], [ %gl_FragColor, %ifmerge23 ], [ zeroinitializer, %else28 ]
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor32.0)
+  %FragColor_shadow32.0 = phi <4 x float> [ zeroinitializer, %then5 ], [ zeroinitializer, %then12 ], [ %FragColor_shadow, %ifmerge23 ], [ zeroinitializer, %else28 ]
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow32.0)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then26, %then18, %then8
@@ -325,14 +325,14 @@ const vec4 const33 = vec4(1.0);
 void main()
 {
     vec4 color_1;
-    vec4 gla_copyout_gl_FragColor32_0;
+    vec4 FragColor_shadow32_0;
     bool temp23 = c > d;
     vec4 _pn = temp23 ? bigColor : smallColor;
     vec4 color_0 = BaseColor + _pn;
     bool temp26 = color_0.z < minimum;
     if (temp26) {
-        gla_copyout_gl_FragColor32_0 = const27;
-        gl_FragColor = gla_copyout_gl_FragColor32_0;
+        FragColor_shadow32_0 = const27;
+        gl_FragColor = FragColor_shadow32_0;
         return;
     }
     else {
@@ -349,8 +349,8 @@ void main()
         if (temp34) {
             bool temp35 = color10.z > threshhold2;
             if (temp35) {
-                gla_copyout_gl_FragColor32_0 = const27;
-                gl_FragColor = gla_copyout_gl_FragColor32_0;
+                FragColor_shadow32_0 = const27;
+                gl_FragColor = FragColor_shadow32_0;
                 return;
             }
             else {
@@ -372,9 +372,9 @@ void main()
                     
                 }
                 
-                vec4 gla_copyout_gl_FragColor = color_1 * otherColor;
-                gla_copyout_gl_FragColor32_0 = gla_copyout_gl_FragColor;
-                gl_FragColor = gla_copyout_gl_FragColor32_0;
+                vec4 FragColor_shadow = color_1 * otherColor;
+                FragColor_shadow32_0 = FragColor_shadow;
+                gl_FragColor = FragColor_shadow32_0;
                 return;
             }
             
@@ -384,8 +384,8 @@ void main()
                 discard;
             }
             else {
-                gla_copyout_gl_FragColor32_0 = const27;
-                gl_FragColor = gla_copyout_gl_FragColor32_0;
+                FragColor_shadow32_0 = const27;
+                gl_FragColor = FragColor_shadow32_0;
                 
             }
             
@@ -418,14 +418,14 @@ const vec4 const33 = vec4(1.0);
 void main()
 {
     vec4 color_1_0;
-    vec4 gla_copyout_gl_FragColor50_0;
+    vec4 FragColor_shadow51_0;
     bool temp231 = c > d;
     vec4 ternary_0 = temp231 ? bigColor : smallColor;
     vec4 color_05 = BaseColor + ternary_0;
     bool temp266 = color_05.z < minimum;
     if (temp266) {
-        gla_copyout_gl_FragColor50_0 = const27;
-        gl_FragColor = gla_copyout_gl_FragColor50_0;
+        FragColor_shadow51_0 = const27;
+        gl_FragColor = FragColor_shadow51_0;
         return;
     }
     else {
@@ -442,8 +442,8 @@ void main()
         if (temp3416) {
             bool temp3518 = color1015.z > threshhold2;
             if (temp3518) {
-                gla_copyout_gl_FragColor50_0 = const27;
-                gl_FragColor = gla_copyout_gl_FragColor50_0;
+                FragColor_shadow51_0 = const27;
+                gl_FragColor = FragColor_shadow51_0;
                 return;
             }
             else {
@@ -465,9 +465,9 @@ void main()
                     
                 }
                 
-                vec4 gla_copyout_gl_FragColor37 = color_1_0 * otherColor;
-                gla_copyout_gl_FragColor50_0 = gla_copyout_gl_FragColor37;
-                gl_FragColor = gla_copyout_gl_FragColor50_0;
+                vec4 FragColor_shadow3738 = color_1_0 * otherColor;
+                FragColor_shadow51_0 = FragColor_shadow3738;
+                gl_FragColor = FragColor_shadow51_0;
                 return;
             }
             
@@ -477,8 +477,8 @@ void main()
                 discard;
             }
             else {
-                gla_copyout_gl_FragColor50_0 = const27;
-                gl_FragColor = gla_copyout_gl_FragColor50_0;
+                FragColor_shadow51_0 = const27;
+                gl_FragColor = FragColor_shadow51_0;
                 
             }
             

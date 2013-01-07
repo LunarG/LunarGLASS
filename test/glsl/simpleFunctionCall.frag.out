@@ -2,16 +2,16 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@gl_FragColor = internal global <4 x float> zeroinitializer
+@FragColor_shadow = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor, <4 x float>* @gl_FragColor
+  store <4 x float> %BaseColor, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %0 = load <4 x float>* @gl_FragColor
+  %0 = load <4 x float>* @FragColor_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %0)
   br label %stage-exit
 

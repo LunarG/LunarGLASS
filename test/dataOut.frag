@@ -4,5 +4,5 @@ varying vec4 Color;
 
 void main()
 {
-    gl_FragData[0] = Color;
+    gl_FragData[1] = Color;
 }

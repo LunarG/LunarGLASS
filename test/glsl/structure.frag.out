@@ -6,7 +6,7 @@ Top IR:
 %lunarStruct2 = type { [5 x i32], float, [7 x %lunarStruct1] }
 
 @foo2 = external addrspace(2) constant [4 x %lunarStruct2]
-@gl_FragColor = internal global <4 x float> zeroinitializer
+@FragColor_shadow = internal global <4 x float> zeroinitializer
 @"sampler2D sampler" = external addrspace(1) constant i32
 
 define fastcc void @main() {
@@ -37,12 +37,12 @@ ifmerge:                                          ; preds = %else, %then
   %7 = insertelement <4 x float> %6, float %3, i32 1
   %8 = insertelement <4 x float> %7, float %3, i32 2
   %9 = insertelement <4 x float> %8, float %3, i32 3
-  %gl_FragColor = fmul <4 x float> %9, %5
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %FragColor_shadow = fmul <4 x float> %9, %5
+  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
-  %10 = load <4 x float>* @gl_FragColor
+  %10 = load <4 x float>* @FragColor_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %10)
   br label %stage-exit
 
@@ -81,8 +81,8 @@ entry:
   %4 = load i32 addrspace(1)* @"sampler2D sampler", align 4
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %5 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %coord)
-  %gl_FragColor = fmul <4 x float> %3, %5
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
+  %FragColor_shadow = fmul <4 x float> %3, %5
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -165,7 +165,7 @@ void main()
     float select = temp22 ? temp24.x : scale2;
     vec4 temp27 = vec4(select);
     vec4 temp28 = texture2D(sampler, coord);
-    vec4 gla_copyout_gl_FragColor = temp27 * temp28;
-    gl_FragColor = gla_copyout_gl_FragColor;
+    vec4 FragColor_shadow = temp27 * temp28;
+    gl_FragColor = FragColor_shadow;
     
 }

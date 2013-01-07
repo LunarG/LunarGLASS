@@ -2,7 +2,7 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@gl_FragColor = internal global <4 x float> zeroinitializer
+@FragColor_shadow = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -60,12 +60,12 @@ then6:                                            ; preds = %ifmerge
   br label %ifmerge8
 
 ifmerge8:                                         ; preds = %ifmerge, %then6
-  %gl_FragColor = load <4 x float>* %color
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %FragColor_shadow = load <4 x float>* %color
+  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge8
-  %23 = load <4 x float>* @gl_FragColor
+  %23 = load <4 x float>* @FragColor_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %23)
   br label %stage-exit
 

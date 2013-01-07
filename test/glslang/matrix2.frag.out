@@ -4,7 +4,7 @@ Top IR:
 
 @v_shadow = internal global <4 x float> zeroinitializer
 @u_shadow = internal global <4 x float> zeroinitializer
-@gl_FragColor = internal global <4 x float> zeroinitializer
+@FragColor_shadow = internal global <4 x float> zeroinitializer
 @Color_shadow = internal global <3 x float> zeroinitializer
 @um43 = external addrspace(2) constant [4 x <4 x float>]
 
@@ -210,10 +210,10 @@ entry:
   %90 = insertelement <4 x float> %88, float %89, i32 1
   %91 = extractelement <3 x float> %85, i32 2
   %92 = insertelement <4 x float> %90, float %91, i32 2
-  %gl_FragColor = insertelement <4 x float> %92, float 1.000000e+00, i32 3
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %FragColor_shadow = insertelement <4 x float> %92, float 1.000000e+00, i32 3
+  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   %__matrix64 = load [4 x <4 x float>] addrspace(2)* @um43
-  %93 = load <4 x float>* @gl_FragColor
+  %93 = load <4 x float>* @FragColor_shadow
   %94 = alloca <4 x float>
   %95 = load <4 x float>* %94
   %__column65 = extractvalue [4 x <4 x float>] %__matrix64, 0
@@ -227,8 +227,8 @@ entry:
   %98 = insertelement <4 x float> %97, float %__dot69, i32 2
   %__column70 = extractvalue [4 x <4 x float>] %__matrix64, 3
   %__dot71 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %93, <4 x float> %__column70)
-  %gl_FragColor72 = insertelement <4 x float> %98, float %__dot71, i32 3
-  store <4 x float> %gl_FragColor72, <4 x float>* @gl_FragColor
+  %FragColor_shadow72 = insertelement <4 x float> %98, float %__dot71, i32 3
+  store <4 x float> %FragColor_shadow72, <4 x float>* @FragColor_shadow
   %v73 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   store <4 x float> %v73, <4 x float>* @v_shadow
   %99 = load <4 x float>* @v_shadow
@@ -761,9 +761,9 @@ entry:
   %__product502 = fmul float %__element501, %__component444
   %__dotProduct503 = fadd float %__dotProduct499, %__product502
   %184 = insertelement <4 x float> %183, float %__dotProduct503, i32 3
-  %185 = load <4 x float>* @gl_FragColor
-  %gl_FragColor504 = fadd <4 x float> %185, %184
-  store <4 x float> %gl_FragColor504, <4 x float>* @gl_FragColor
+  %185 = load <4 x float>* @FragColor_shadow
+  %FragColor_shadow504 = fadd <4 x float> %185, %184
+  store <4 x float> %FragColor_shadow504, <4 x float>* @FragColor_shadow
   %__matrix505 = load [4 x <4 x float>]* %m44
   %__matrix506 = load [4 x <4 x float>]* %m44
   %186 = alloca [4 x <4 x float>]
@@ -784,7 +784,7 @@ entry:
   %__rightColumn517 = extractvalue [4 x <4 x float>] %__matrix506, 3
   %__column518 = fmul <4 x float> %__leftColumn516, %__rightColumn517
   %191 = insertvalue [4 x <4 x float>] %190, <4 x float> %__column518, 3
-  %192 = load <4 x float>* @gl_FragColor
+  %192 = load <4 x float>* @FragColor_shadow
   %193 = alloca <4 x float>
   %194 = load <4 x float>* %193
   %__column519 = extractvalue [4 x <4 x float>] %191, 0
@@ -798,12 +798,12 @@ entry:
   %197 = insertelement <4 x float> %196, float %__dot524, i32 2
   %__column525 = extractvalue [4 x <4 x float>] %191, 3
   %__dot526 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %192, <4 x float> %__column525)
-  %gl_FragColor527 = insertelement <4 x float> %197, float %__dot526, i32 3
-  store <4 x float> %gl_FragColor527, <4 x float>* @gl_FragColor
+  %FragColor_shadow527 = insertelement <4 x float> %197, float %__dot526, i32 3
+  store <4 x float> %FragColor_shadow527, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %198 = load <4 x float>* @gl_FragColor
+  %198 = load <4 x float>* @FragColor_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %198)
   br label %stage-exit
 
@@ -925,15 +925,15 @@ entry:
   %__product502 = fmul float %21, %__component444
   %__dotProduct503 = fadd float %__dotProduct499, %__product502
   %22 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dotProduct458, i32 0, float %__dotProduct473, i32 0, float %__dotProduct488, i32 0, float %__dotProduct503, i32 0)
-  %gl_FragColor504 = fadd <4 x float> %1, %22
+  %FragColor_shadow504 = fadd <4 x float> %1, %22
   %__column509 = fmul <4 x float> %2, %2
-  %__dot520 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %gl_FragColor504, <4 x float> %__column509)
+  %__dot520 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %FragColor_shadow504, <4 x float> %__column509)
   %__column512 = fmul <4 x float> %3, %3
-  %__dot522 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %gl_FragColor504, <4 x float> %__column512)
+  %__dot522 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %FragColor_shadow504, <4 x float> %__column512)
   %__column515 = fmul <4 x float> %4, %4
-  %__dot524 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %gl_FragColor504, <4 x float> %__column515)
+  %__dot524 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %FragColor_shadow504, <4 x float> %__column515)
   %__column518 = fmul <4 x float> %5, %5
-  %__dot526 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %gl_FragColor504, <4 x float> %__column518)
+  %__dot526 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %FragColor_shadow504, <4 x float> %__column518)
   %23 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dot520, i32 0, float %__dot522, i32 0, float %__dot524, i32 0, float %__dot526, i32 0)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %23)
   br label %stage-epilogue
@@ -1047,15 +1047,15 @@ void main()
     float __product502 = temp69 * u441.w;
     float __dotProduct503 = __dotProduct499 + __product502;
     vec4 temp98 = vec4(__dotProduct458, __dotProduct473, __dotProduct488, __dotProduct503);
-    vec4 gla_copyout_gl_FragColor504 = temp31 + temp98;
+    vec4 FragColor_shadow504 = temp31 + temp98;
     vec4 __column509 = temp37 * temp37;
-    float __dot520 = dot(gla_copyout_gl_FragColor504, __column509);
+    float __dot520 = dot(FragColor_shadow504, __column509);
     vec4 __column512 = temp42 * temp42;
-    float __dot522 = dot(gla_copyout_gl_FragColor504, __column512);
+    float __dot522 = dot(FragColor_shadow504, __column512);
     vec4 __column515 = temp47 * temp47;
-    float __dot524 = dot(gla_copyout_gl_FragColor504, __column515);
+    float __dot524 = dot(FragColor_shadow504, __column515);
     vec4 __column518 = temp52 * temp52;
-    float __dot526 = dot(gla_copyout_gl_FragColor504, __column518);
+    float __dot526 = dot(FragColor_shadow504, __column518);
     vec4 temp108 = vec4(__dot520, __dot522, __dot524, __dot526);
     gl_FragColor = temp108;
     
@@ -1151,15 +1151,15 @@ void main()
     float __product50295 = temp6953 * u441.w;
     float __dotProduct50396 = __dotProduct49993 + __product50295;
     vec4 temp98 = vec4(__dotProduct45863, __dotProduct47374, __dotProduct48885, __dotProduct50396);
-    vec4 gla_copyout_gl_FragColor50499 = temp31 + temp98;
+    vec4 FragColor_shadow50499 = temp31 + temp98;
     vec4 __column509100 = temp37 * temp37;
     vec4 __column512102 = temp42 * temp42;
-    float __dot520101 = dot(gla_copyout_gl_FragColor50499, __column509100);
+    float __dot520101 = dot(FragColor_shadow50499, __column509100);
     vec4 __column515104 = temp47 * temp47;
-    float __dot522103 = dot(gla_copyout_gl_FragColor50499, __column512102);
+    float __dot522103 = dot(FragColor_shadow50499, __column512102);
     vec4 __column518106 = temp52 * temp52;
-    float __dot524105 = dot(gla_copyout_gl_FragColor50499, __column515104);
-    float __dot526107 = dot(gla_copyout_gl_FragColor50499, __column518106);
+    float __dot524105 = dot(FragColor_shadow50499, __column515104);
+    float __dot526107 = dot(FragColor_shadow50499, __column518106);
     vec4 temp108 = vec4(__dot520101, __dot522103, __dot524105, __dot526107);
     gl_FragColor = temp108;
     

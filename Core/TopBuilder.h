@@ -192,6 +192,7 @@ public:
         const llvm::Type* swizzleResultType;
         int swizzleTargetWidth;
         bool isRValue;
+        bool trackOutputIndex;
     };
 
     //
@@ -225,7 +226,7 @@ public:
     void accessChainPushSwizzleRight(std::vector<int>& swizzle, const llvm::Type* type, int width);
 
     // set pipeline input as an r-value, when pushing onto the left, meaning
-    // the swizzle is yet to be consumed, but the access chain had to have been 
+    // the swizzle is yet to be consumed, but the access chain had to have been
     // collapsed already and consumed in order to create the passed in value
     void setAccessChainPipeValue(llvm::Value*);
 
@@ -237,6 +238,11 @@ public:
 
     // return an offset representing the collection of offsets in the chain
     SuperValue collapseInputAccessChain();
+
+    // Call this for output variables where active tracking of which
+    // array indexes are used is desired.  Only those indexes that
+    // might have been used will be copied out.
+    void accessChainTrackOutputIndex() { accessChain.trackOutputIndex = true; }
 
     static llvm::Constant* getConstant(std::vector<llvm::Constant*>&, const llvm::Type*);
 
@@ -441,6 +447,11 @@ protected:
     Matrix* createMatrixTimesMatrix(Matrix*, Matrix*);
     Matrix* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
 
+    // To be used when dereferencing an access chain that is for an
+    // output variable.  The exposed method for this is to use
+    // accessChainTrackOutputIndex().
+    void Builder::trackOutputIndex(SuperValue base, const llvm::Value* index);
+
     // Utility method for creating a new block and setting the insert point to
     // be in it. This is useful for flow-control operations that need a "dummy"
     // block proceeding them (e.g. instructions after a discard, etc).
@@ -453,6 +464,7 @@ protected:
 
     // accumulate values that must be copied out at the end
     std::vector<llvm::Value*> copyOuts;
+    std::vector<bool> copyOutActive;   // the indexed ones that might be active
 
     // accumulate matrices that must be deleted at the end
     std::vector<Matrix*> matrixList;

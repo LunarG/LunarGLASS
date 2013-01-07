@@ -26,7 +26,7 @@ Top IR:
 @d11 = external addrspace(2) constant float
 @d12 = external addrspace(2) constant float
 @bigColor8 = external addrspace(2) constant <4 x float>
-@gl_FragColor = internal global <4 x float> zeroinitializer
+@FragColor_shadow = internal global <4 x float> zeroinitializer
 @d14 = external addrspace(2) constant float
 @d15 = external addrspace(2) constant float
 @d16 = external addrspace(2) constant float
@@ -1099,8 +1099,8 @@ loop-merge261:                                    ; preds = %then249
   store <4 x float> %assignment_tmp262263, <4 x float>* %assignment_tmp262
   %color264 = load <4 x float>* %assignment_tmp262
   store <4 x float> %color264, <4 x float>* %color
-  %gl_FragColor = load <4 x float>* %assignment_tmp262
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %FragColor_shadow = load <4 x float>* %assignment_tmp262
+  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %loop-header265
 
 loop-header265:                                   ; preds = %ifmerge272, %loop-merge261
@@ -1303,12 +1303,12 @@ loop-merge316:                                    ; preds = %then309
   store <4 x float> %assignment_tmp317318, <4 x float>* %assignment_tmp317
   %color319 = load <4 x float>* %assignment_tmp317
   store <4 x float> %color319, <4 x float>* %color
-  %gl_FragColor320 = load <4 x float>* %assignment_tmp317
-  store <4 x float> %gl_FragColor320, <4 x float>* @gl_FragColor
+  %FragColor_shadow320 = load <4 x float>* %assignment_tmp317
+  store <4 x float> %FragColor_shadow320, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %loop-merge316, %then298, %then293, %then269
-  %383 = load <4 x float>* @gl_FragColor
+  %383 = load <4 x float>* @FragColor_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %383)
   br label %stage-exit
 
@@ -2067,8 +2067,8 @@ else313:                                          ; preds = %ifmerge311
   br label %loop-header308
 
 stage-epilogue:                                   ; preds = %then309, %then298, %then293, %then269
-  %gl_FragColor321.0 = phi <4 x float> [ %assignment_tmp262263, %then298 ], [ %assignment_tmp317318, %then309 ], [ %assignment_tmp262263, %then293 ], [ %assignment_tmp262263, %then269 ]
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor321.0)
+  %FragColor_shadow321.0 = phi <4 x float> [ %assignment_tmp262263, %then298 ], [ %assignment_tmp317318, %then309 ], [ %assignment_tmp262263, %then293 ], [ %assignment_tmp262263, %then269 ]
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow321.0)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then312
@@ -2874,7 +2874,7 @@ void main()
     vec4 color_42;
     vec4 color_43;
     vec4 color_44;
-    vec4 gla_copyout_gl_FragColor321_0;
+    vec4 FragColor_shadow321_0;
     bool temp69 = BaseColor.x < const70_0f;
     bool temp71 = BaseColor.x < const72_1f;
     vec4 select328_v = temp71 ? const74 : const75;
@@ -3289,8 +3289,8 @@ void main()
     while (color_40.x < d14){
         bool temp243 = color_40.y < d15;
         if (temp243) {
-            gla_copyout_gl_FragColor321_0 = assignment_tmp262263;
-            gl_FragColor = gla_copyout_gl_FragColor321_0;
+            FragColor_shadow321_0 = assignment_tmp262263;
+            gl_FragColor = FragColor_shadow321_0;
             return;
         }
         
@@ -3330,24 +3330,24 @@ void main()
                     }
                     
                     vec4 assignment_tmp317318 = color_44 + const85;
-                    gla_copyout_gl_FragColor321_0 = assignment_tmp317318;
-                    gl_FragColor = gla_copyout_gl_FragColor321_0;
+                    FragColor_shadow321_0 = assignment_tmp317318;
+                    gl_FragColor = FragColor_shadow321_0;
                     return;
                 }
                 
                 color_43 = assignment_tmp301302;
             }
             
-            gla_copyout_gl_FragColor321_0 = assignment_tmp262263;
-            gl_FragColor = gla_copyout_gl_FragColor321_0;
+            FragColor_shadow321_0 = assignment_tmp262263;
+            gl_FragColor = FragColor_shadow321_0;
             return;
         }
         
         vec4 assignment_tmp290291 = color_42 + bigColor1_2;
         bool temp257 = assignment_tmp290291.z < d3;
         if (temp257) {
-            gla_copyout_gl_FragColor321_0 = assignment_tmp262263;
-            gl_FragColor = gla_copyout_gl_FragColor321_0;
+            FragColor_shadow321_0 = assignment_tmp262263;
+            gl_FragColor = FragColor_shadow321_0;
             return;
         }
         

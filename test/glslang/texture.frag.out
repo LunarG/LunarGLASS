@@ -7,7 +7,7 @@ Top IR:
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
 @"sampler3D texSampler3D" = external addrspace(1) constant i32
 @"samplerCube texSamplerCube" = external addrspace(1) constant i32
-@gl_FragColor = internal global <4 x float> zeroinitializer
+@FragColor_shadow = internal global <4 x float> zeroinitializer
 @u = external addrspace(2) constant <4 x float>
 @blend = external addrspace(2) constant float
 
@@ -164,12 +164,12 @@ entry:
   %76 = load float addrspace(2)* @blend
   %77 = load float* %blendscale
   %78 = fmul float %76, %77
-  %gl_FragColor = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %74, <4 x float> %75, float %78)
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %74, <4 x float> %75, float %78)
+  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %79 = load <4 x float>* @gl_FragColor
+  %79 = load <4 x float>* @FragColor_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %79)
   br label %stage-exit
 
@@ -240,8 +240,8 @@ entry:
   %14 = fmul float %13, 0x3FFC9FBE80000000
   %15 = load <4 x float> addrspace(2)* @u, align 16
   %color19 = fadd <4 x float> %color18, %12
-  %gl_FragColor = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %color19, <4 x float> %15, float %14)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %gl_FragColor)
+  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %color19, <4 x float> %15, float %14)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -309,8 +309,8 @@ void main()
     vec4 color18 = color17 + temp44;
     float temp47 = blend * const22_2f;
     vec4 color19 = color18 + temp44;
-    vec4 gla_copyout_gl_FragColor = mix(color19, u, temp47);
-    gl_FragColor = gla_copyout_gl_FragColor;
+    vec4 FragColor_shadow = mix(color19, u, temp47);
+    gl_FragColor = FragColor_shadow;
     
 }
 #### END COMPILER 0 INFO LOG ####

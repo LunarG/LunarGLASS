@@ -175,6 +175,17 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     // Track the current value
     oit->glaBuilder->setAccessChainLValue(storage);
 
+    // If it's an arrayed output, we also want to know which indices
+    // are live.
+    if (symbolNode->isArray()) {
+        switch (symbolNode->getQualifier()) {
+        case EvqVaryingOut:
+        case EvqClipVertex:
+        case EvqFragColor:
+            oit->glaBuilder->accessChainTrackOutputIndex();
+        }
+    }
+
     if (input) {
         // TODO: get correct slot numbers from somewhere
         int size = 1;

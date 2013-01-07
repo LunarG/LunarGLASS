@@ -73,6 +73,7 @@ void Builder::clearAccessChain()
     accessChain.swizzleResultType = 0;
     accessChain.swizzleTargetWidth = 0;
     accessChain.isRValue = false;
+    accessChain.trackOutputIndex = false;
 }
 
 void Builder::accessChainPushSwizzleLeft(std::vector<int>& swizzle, const llvm::Type* type, int width)
@@ -106,7 +107,7 @@ void Builder::accessChainPushSwizzleRight(std::vector<int>& swizzle, const llvm:
     } else {
         accessChain.swizzle = swizzle;
     }
-    
+
     // track the final type, which always changes with each push
     accessChain.swizzleResultType = type;
 
@@ -139,7 +140,7 @@ void Builder::simplifyAccessChainSwizzle()
 void Builder::setAccessChainRValue(SuperValue rValue)
 {
     // We don't support exposed pointers, so no r-value should be a pointer.
-    // If code is calling this with a pointer, it should probably be calling 
+    // If code is calling this with a pointer, it should probably be calling
     // setAccessChainLValue() instead.
     assert(! llvm::isa<llvm::PointerType>(rValue.getValue()->getType()));
 
@@ -180,10 +181,16 @@ Builder::SuperValue Builder::collapseAccessChain()
             if (accessRightToLeft)
                 std::reverse(accessChain.indexChain.begin(), accessChain.indexChain.end());
             accessChain.gep = createGEP(accessChain.base, accessChain.indexChain);
+
+            if (accessChain.trackOutputIndex)
+                trackOutputIndex(accessChain.base, accessChain.indexChain.back());
         }
 
         return accessChain.gep;
     } else {
+        if (accessChain.trackOutputIndex)
+            trackOutputIndex(accessChain.base, 0);
+
         return accessChain.base;
     }
 }
@@ -411,6 +418,7 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
                                             const std::string& name)
 {
     std::string annotatedName;
+    std::string pipelineName;
     if (annotation != 0) {
         annotatedName = *annotation;
         annotatedName.append(" ");
@@ -448,6 +456,10 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
         // holding the value up until when the epilogue writes out to the pipe.
         // Internal linkage helps with global optimizations,
         // so does having an initializer.
+        pipelineName = annotatedName;
+        if (annotatedName.substr(0, 3) == "gl_")
+            annotatedName.erase(0, 3);
+        annotatedName.append("_shadow");
         global = true;
         if (initializer == 0)
             initializer = llvm::Constant::getNullValue(type);
@@ -481,12 +493,17 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
                 for (int index = 0; index < arrayType->getNumElements(); ++index) {
                     char buf[8];
                     itoa(index, buf, 10);
-                    PipelineSymbol symbol = {annotatedName + "[" + buf + "]", arrayType->getContainedType(0)};
+                    PipelineSymbol symbol = {pipelineName + "[" + buf + "]", arrayType->getContainedType(0)};
                     manager->getPipeOutSymbols().push_back(symbol);
+
+                    // wait until specific indices are used (or the whole array)
+                    // to know an array element is active
+                    copyOutActive.push_back(false);
                 }
-            } else {                
-                PipelineSymbol symbol = {annotatedName, value->getType()->getContainedType(0)};
+            } else {
+                PipelineSymbol symbol = {pipelineName, value->getType()->getContainedType(0)};
                 manager->getPipeOutSymbols().push_back(symbol);
+                copyOutActive.push_back(true);
             }
         }
 
@@ -567,6 +584,32 @@ Builder::SuperValue Builder::createInsertValue(SuperValue target, SuperValue sou
         return builder.CreateInsertValue(target, source, indices, indices + indexCount);
 }
 
+void Builder::trackOutputIndex(SuperValue base, const llvm::Value* gepIndex)
+{
+    int arrayIndex = -1;   // we'll use -1 to mean the whole array
+
+    // If the entire array is being accessed (gepIndex pointer is 0)
+    // or a variable index is used, then output the whole array.
+    if (gepIndex && llvm::isa<llvm::ConstantInt>(gepIndex))
+        arrayIndex = gla::GetConstantInt(gepIndex);
+
+    int slot = 0;
+    for (unsigned int out = 0; out < copyOuts.size(); ++out) {
+        const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out]->getType()->getContainedType(0));
+        if (arrayType) {
+            if (copyOuts[out] == base) {
+                if (arrayIndex == -1) {
+                    for (int index = 0; index < arrayType->getNumElements(); ++index)
+                        copyOutActive[slot + index] = true;
+                } else
+                    copyOutActive[slot + arrayIndex] = true;
+            }
+            slot += arrayType->getNumElements();
+        } else
+            slot++;
+    }
+}
+
 void Builder::copyOutPipeline()
 {
     int slot = 0;
@@ -577,11 +620,13 @@ void Builder::copyOutPipeline()
             std::vector<llvm::Value*> gepChain;
             gepChain.push_back(MakeIntConstant(context, 0));
             for (int index = 0; index < arrayType->getNumElements(); ++index) {
-                gepChain.push_back(MakeIntConstant(context, index));
-                llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out], gepChain));
-                writePipeline(loadVal, MakeUnsignedConstant(context, slot));
+                if (copyOutActive[slot]) {
+                    gepChain.push_back(MakeIntConstant(context, index));
+                    llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out], gepChain));
+                    writePipeline(loadVal, MakeUnsignedConstant(context, slot));
+                    gepChain.pop_back();
+                }
                 ++slot;
-                gepChain.pop_back();
             }
         } else {
             llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);

@@ -3,7 +3,7 @@ Top IR:
 ; ModuleID = 'Top'
 
 @"sampler2D tex" = external addrspace(1) constant i32
-@gl_FragColor = internal global <4 x float> zeroinitializer
+@FragColor_shadow = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -25,12 +25,12 @@ post-discard:                                     ; No predecessors!
   br label %ifmerge
 
 ifmerge:                                          ; preds = %entry, %post-discard
-  %gl_FragColor = load <4 x float>* %_ret_val
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %FragColor_shadow = load <4 x float>* %_ret_val
+  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
-  %4 = load <4 x float>* @gl_FragColor
+  %4 = load <4 x float>* @FragColor_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %4)
   br label %stage-exit
 

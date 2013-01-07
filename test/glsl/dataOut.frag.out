@@ -3,19 +3,19 @@
 compiling dataOut.frag...
 varying vec4 Color ; 
 void  main (){
-gl_FragData [ 0 ] = Color ; }
+gl_FragData [ 1 ] = Color ; }
 
 
 
 (
 (declare (in ) vec4 Color)
-(declare (out ) (array vec4 1) gl_FragData)
+(declare (out ) (array vec4 2) gl_FragData)
 (function main
   (signature void
     (parameters
     )
     (
-      (assign (constant bool (1)) (xyzw) (array_ref (var_ref gl_FragData) (constant int (0)) )  (var_ref Color) ) 
+      (assign (constant bool (1)) (xyzw) (array_ref (var_ref gl_FragData) (constant int (1)) )  (var_ref Color) ) 
     ))
 
 )

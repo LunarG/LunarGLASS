@@ -4,7 +4,7 @@ Top IR:
 
 %s = type { <4 x i32> }
 
-@gl_FragColor = internal global <4 x float> zeroinitializer
+@FragColor_shadow = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -59,12 +59,12 @@ entry:
   %21 = insertelement <4 x float> undef, float %19, i32 0
   %22 = insertelement <4 x float> %21, float %19, i32 1
   %23 = insertelement <4 x float> %22, float %19, i32 2
-  %gl_FragColor = insertelement <4 x float> %23, float %19, i32 3
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %FragColor_shadow = insertelement <4 x float> %23, float %19, i32 3
+  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %24 = load <4 x float>* @gl_FragColor
+  %24 = load <4 x float>* @FragColor_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %24)
   br label %stage-exit
 
