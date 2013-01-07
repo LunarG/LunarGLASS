@@ -1,0 +1,26 @@
+
+***Unsupported functionality: unsupported array dereference
+compiling dataOutIndirect.frag...
+varying vec4 Color ; 
+uniform int i ; 
+void  main (){
+gl_FragData [ i ] = Color ; }
+
+
+
+(
+(declare (uniform ) int i)
+(declare (in ) vec4 Color)
+(declare (out ) (array vec4 3) gl_FragData)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (assign (constant bool (1)) (xyzw) (array_ref (var_ref gl_FragData) (var_ref i) )  (var_ref Color) ) 
+    ))
+
+)
+
+
+)

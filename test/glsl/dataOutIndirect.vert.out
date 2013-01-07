@@ -1,0 +1,30 @@
+
+***Unsupported functionality: unsupported array dereference
+compiling dataOutIndirect.vert...
+attribute vec4 color ; 
+varying vec4 colorOut [ 6 ] ; 
+void  main (){
+for( int i = 1 ; ; i < 5 ; ++ i ) colorOut [ i ] = color ; gl_Position = colorOut [ 2 ] ; }
+
+
+
+(
+(declare (out ) (array vec4 7) colorOut)
+(declare (in ) vec4 color)
+(declare (out ) vec4 gl_Position)
+(function main
+  (signature void
+    (parameters
+    )
+    (
+      (assign (constant bool (1)) (xyzw) (array_ref (var_ref colorOut) (constant int (1)) )  (var_ref color) ) 
+      (assign (constant bool (1)) (xyzw) (array_ref (var_ref colorOut) (constant int (2)) )  (var_ref color) ) 
+      (assign (constant bool (1)) (xyzw) (array_ref (var_ref colorOut) (constant int (3)) )  (var_ref color) ) 
+      (assign (constant bool (1)) (xyzw) (array_ref (var_ref colorOut) (constant int (4)) )  (var_ref color) ) 
+      (assign (constant bool (1)) (xyzw) (var_ref gl_Position)  (array_ref (var_ref colorOut) (constant int (2)) ) ) 
+    ))
+
+)
+
+
+)
