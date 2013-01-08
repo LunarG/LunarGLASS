@@ -427,6 +427,8 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
         annotatedName = name;
 
     // Set some common default values, which the switch will override
+    // Internal linkage helps with global optimizations,
+    // so does having an initializer.
     unsigned int addressSpace = gla::GlobalAddressSpace;
     llvm::GlobalValue::LinkageTypes linkage = llvm::GlobalVariable::InternalLinkage;
     bool global = false;
@@ -448,22 +450,23 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
         break;
 
     case ESQInput:
-        assert(! "input is handled through intrinsics only");
-        break;
+        // This isn't for the actual pipeline input, but for the variable
+        // the pipeline input is read into.
+
+        // fall through, manipulate same as output
 
     case ESQOutput:
         // This isn't for the actual pipeline output, but for the variable
         // holding the value up until when the epilogue writes out to the pipe.
-        // Internal linkage helps with global optimizations,
-        // so does having an initializer.
+
+        // both input and output will be shadowed
+
         pipelineName = annotatedName;
         if (annotatedName.substr(0, 3) == "gl_")
             annotatedName.erase(0, 3);
         annotatedName.append("_shadow");
-        global = true;
-        if (initializer == 0)
-            initializer = llvm::Constant::getNullValue(type);
-        break;
+
+        // fall through, the shadows will be globals
 
     case ESQGlobal:
         global = true;
@@ -490,10 +493,11 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
             copyOuts.push_back(value);
             const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(value->getType()->getContainedType(0));
             if (arrayType) {
+                gla::AppendArraySizeToName(pipelineName, arrayType->getNumElements());
                 for (int index = 0; index < arrayType->getNumElements(); ++index) {
-                    char buf[8];
-                    itoa(index, buf, 10);
-                    PipelineSymbol symbol = {pipelineName + "[" + buf + "]", arrayType->getContainedType(0)};
+                    std::string elementName = pipelineName;
+                    gla::AppendArrayIndexToName(elementName, index);
+                    PipelineSymbol symbol = {elementName, arrayType->getContainedType(0)};
                     manager->getPipeOutSymbols().push_back(symbol);
 
                     // wait until specific indices are used (or the whole array)

@@ -141,6 +141,7 @@ namespace gla {
     void AppendArraySizeToName(std::string&, int);
     void GetArraySizeFromName(const std::string& arrayName, std::string& basename, int& size);
     void AppendArrayIndexToName(std::string&, int);
+    void RemoveArraySizeFromName(std::string& name);
 
     const llvm::Type* GetBasicType(const llvm::Value*);
     const llvm::Type* GetBasicType(const llvm::Type*);

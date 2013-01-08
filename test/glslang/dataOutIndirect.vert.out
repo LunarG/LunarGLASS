@@ -125,12 +125,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 // LunarGOO(r471) output
 #version 130
 vec4[6] colorOut_shadow;
-out vec4 colorOut;
-out vec4 colorOut;
-out vec4 colorOut;
-out vec4 colorOut;
-out vec4 colorOut;
-out vec4 colorOut;
+out vec4 colorOut[6];
 in vec4 color;
 
 void main()
@@ -154,7 +149,43 @@ void main()
     gl_Position = color;
     
 }
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+vec4[6] colorOut_shadow;
+vec4[6] colorOut_shadow1;
+out vec4 colorOut[6];
+in vec4 color;
+
+void main()
+{
+    colorOut_shadow[1] = color;
+    colorOut_shadow[2] = color;
+    colorOut_shadow[3] = color;
+    colorOut_shadow[4] = color;
+    vec4 temp214 = colorOut_shadow[0];
+    colorOut_shadow1[0] = temp214;
+    colorOut_shadow1[1] = color;
+    colorOut_shadow1[2] = color;
+    colorOut_shadow1[3] = color;
+    colorOut_shadow1[4] = color;
+    vec4 temp269 = colorOut_shadow[5];
+    colorOut_shadow1[5] = temp269;
+    colorOut[0] = temp214;
+    vec4 temp23 = colorOut_shadow1[1];
+    colorOut[1] = temp23;
+    vec4 temp24 = colorOut_shadow1[2];
+    colorOut[2] = temp24;
+    vec4 temp25 = colorOut_shadow1[3];
+    colorOut[3] = temp25;
+    vec4 temp26 = colorOut_shadow1[4];
+    colorOut[4] = temp26;
+    vec4 temp27 = colorOut_shadow1[5];
+    colorOut[5] = temp27;
+    gl_Position = color;
+    
+}

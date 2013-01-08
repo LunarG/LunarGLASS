@@ -205,7 +205,6 @@ void GetArraySizeFromName(const std::string& arrayName, std::string& basename, i
     if (arrayName.back() == ']') {
         int sizePos = arrayName.find_last_of('[');
         if (sizePos != std::string::npos) {
-            basename = arrayName.substr(0, sizePos);
             --sizePos;
             int power = 1;
             while (sizePos > 0) {
@@ -216,6 +215,20 @@ void GetArraySizeFromName(const std::string& arrayName, std::string& basename, i
                 power *= 10;
                 --sizePos;
             }
+            if (size > 0)
+                basename = arrayName.substr(0, sizePos);
+        }
+    }
+}
+
+void RemoveArraySizeFromName(std::string& name)
+{
+    if (name.back() == ']') {
+        int sizeEnd = name.find_last_of('[');
+        if (sizeEnd != std::string::npos) {
+            int sizeStart = name.find_last_of('_');
+            if (sizeStart != std::string::npos)
+                name.erase(sizeStart, sizeEnd-sizeStart);
         }
     }
 }

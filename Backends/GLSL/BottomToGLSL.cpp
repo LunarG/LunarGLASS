@@ -1908,7 +1908,9 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         {
             newLine();
             int location = GetConstantInt(llvmInstruction->getOperand(0));
-            shader << manager->getPipeOutSymbols()[location].name << " = ";
+            std::string name = manager->getPipeOutSymbols()[location].name;
+            gla::RemoveArraySizeFromName(name);
+            shader << name << " = ";
             emitGlaOperand(llvmInstruction->getOperand(2));
             shader << ";";
 
@@ -1920,8 +1922,14 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         {
             std::string name = llvmInstruction->getNameStr();
             makeParseable(name);
+
+            // Remove inserted size in front of hard-coded array indexes
+            // TODO: there must be a better way to be doing this (sideband, unique syntax, etc.)
+            std::string declareName = name;
+            gla::RemoveArraySizeFromName(name);
+
             if (addNewVariable(llvmInstruction, name)) {
-                declareVariable(llvmInstruction->getType(), name, EVQInput);
+                declareVariable(llvmInstruction->getType(), declareName, EVQInput);
             }
 
             return;

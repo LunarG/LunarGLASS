@@ -71,7 +71,7 @@ public:
     TGlslangToTopTraverser(gla::Manager*);
     virtual ~TGlslangToTopTraverser();
 
-    gla::Builder::SuperValue createLLVMVariable(TIntermSymbol* node, bool shadow);
+    gla::Builder::SuperValue createLLVMVariable(TIntermSymbol* node);
     const llvm::Type* convertGlslangToGlaType(const TType& type);
 
     void handleFunctionEntry(TIntermAggregate* node);
@@ -167,7 +167,7 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
 
     if (oit->namedValues.end() == iter) {
         // it was not found, create it
-        storage = oit->createLLVMVariable(symbolNode, input);
+        storage = oit->createLLVMVariable(symbolNode);
         oit->namedValues[symbolNode->getId()] = storage;
     } else
         storage = oit->namedValues[symbolNode->getId()];
@@ -756,7 +756,7 @@ bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
     return false;
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbol* node, bool shadow)
+gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbol* node)
 {
     llvm::Constant* initializer = 0;
     gla::Builder::EStorageQualifier storageQualifier;
@@ -779,7 +779,8 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
     case EvqFace:
         // Pipeline reads: If we are here, it must be to create a shadow which
         // will shadow the actual pipeline reads, which must still be done elsewhere.
-        assert(shadow);
+        // The top builder will make a global shadow for ESQInput.
+        storageQualifier = gla::Builder::ESQInput;
         break;
     case EvqVaryingOut:
     case EvqPosition:
@@ -813,10 +814,6 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
     }
 
     std::string name(node->getSymbol().c_str());
-    if (shadow) {
-        storageQualifier = gla::Builder::ESQGlobal;
-        name.append("_shadow");
-    }
 
     const llvm::Type *llvmType = convertGlslangToGlaType(node->getType());
 

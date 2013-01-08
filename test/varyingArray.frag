@@ -5,6 +5,8 @@ varying float alpha;
 
 varying vec4 gl_TexCoord[6];
 
+varying vec4 foo[3];
+
 void main()
 {
 	vec4 texColor = texture2D(texSampler2D, vec2(gl_TexCoord[4] + gl_TexCoord[5]));
@@ -13,5 +15,5 @@ void main()
 
 	texColor.a = alpha;
 
-    gl_FragColor = gl_TexCoord[0] + gl_TexCoord[4] + texColor;
+    gl_FragColor = foo[1] + gl_TexCoord[0] + gl_TexCoord[4] + texColor;
 }
