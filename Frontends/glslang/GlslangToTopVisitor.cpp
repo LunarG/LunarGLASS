@@ -796,11 +796,9 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
         break;
     case EvqIn:
     case EvqOut:
-        // TODO: front-end needs to be fixed to tease apart the difference between
-        //       an input to a shader and an input to a function, etc.
     case EvqInOut:
     case EvqConstReadOnly:
-
+        // parameter qualifiers should not come through here
     default:
         gla::UnsupportedFunctionality("glslang qualifier", gla::EATContinue);
         storageQualifier = gla::Builder::ESQLocal;
