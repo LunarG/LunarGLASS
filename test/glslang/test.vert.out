@@ -95,7 +95,22 @@ void main()
     gl_Position = Position_shadow;
     
 }
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+out vec2 uv;
+in vec4 position;
+in vec2 uv_in;
+
+void main()
+{
+    vec4 temp211 = ftransform();
+    vec4 Position_shadow2 = position + temp211;
+    uv = uv_in;
+    gl_Position = Position_shadow2;
+    
+}

@@ -32,37 +32,19 @@ void main()
 	color += texture1DProj(texSampler1D, coords2D, bias);
     color += texture1DProj(texSampler1D, coords4D, bias);
     
-	//These are vertex shader only until 1.3
-	//color += texture1DLod(texSampler1D, coords1D, lod);
-    //color += texture1DProjLod(texSampler1D, coords2D, lod);
-    //color += texture1DProjLod(texSampler1D, coords4D, lod);
-    
     color += texture2D        (texSampler2D, coords2D);
 	color += texture2D        (texSampler2D, coords2D, bias);
     color += texture2DProj    (texSampler2D, coords3D);
     color += texture2DProj    (texSampler2D, coords4D, bias);
-
-	//These are vertex shader only until 1.3
-    //color += texture2DLod     (texSampler2D, coords2D, lod);
-    //color += texture2DProjLod (texSampler2D, coords3D, lod);
-    //color += texture2DProjLod (texSampler2D, coords4D, lod);
 
 	color += texture3D        (texSampler3D, coords3D);
 	color += texture3D        (texSampler3D, coords3D, bias);
     color += texture3DProj    (texSampler3D, coords4D);
 	color += texture3DProj    (texSampler3D, coords4D, bias);
 
-	//These are vertex shader only until 1.3
-    //color += texture3DLod     (texSampler3D, coords3D, lod);
-    //color += texture3DProjLod (texSampler3D, coords4D, lod);
-    
 	color += textureCube    (texSamplerCube, coords3D);
 	color += textureCube    (texSamplerCube, coords3D, bias);
 	
-	//These are vertex shader only until 1.3
-    //color += textureCubeLod (texSamplerCube, coords3D, lod);
-
-#ifdef TEST_SHADOW
 	color += shadow1D       (shadowSampler1D, coords3D);
 	color += shadow1D       (shadowSampler1D, coords3D, bias);
     color += shadow2D       (shadowSampler2D, coords3D);
@@ -71,13 +53,6 @@ void main()
 	color += shadow1DProj   (shadowSampler1D, coords4D, bias);
     color += shadow2DProj   (shadowSampler2D, coords4D);
 	color += shadow2DProj   (shadowSampler2D, coords4D, bias);
-#endif
-
-	//These are vertex shader only until 1.3
-    //color += shadow1DLod    (shadowSampler1D, coords3D, lod);
-    //color += shadow2DLod    (shadowSampler2D, coords3D, lod);
-    //color += shadow1DProjLod(shadowSampler1D, coords4D, lod);
-    //color += shadow2DProjLod(shadowSampler2D, coords4D, lod);
 
     ivec2 iCoords2D = ivec2(0, 5);
     int iLod = 1;
@@ -86,11 +61,11 @@ void main()
     color += texelFetch(texSampler2D, iCoords2D, iLod);
 #endif
 
+#ifdef TEST_POST_110
     vec2 gradX = dFdx(coords2D);
     vec2 gradY = dFdy(coords2D);
     ivec2 offset = ivec2(3, -7);
 
-#ifdef TEST_POST_110
     color += textureGrad(texSampler2D, coords2D, gradX, gradY);
     color += textureProjGrad(texSampler2D, vec3(coords2D, proj), gradX, gradY);
     color += textureGradOffset(texSampler2D, coords2D, gradX, gradY, offset);

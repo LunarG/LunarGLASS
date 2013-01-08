@@ -952,24 +952,74 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
         return glaBuilder->createIntrinsicCall(llvm::Intrinsic::gla_fFixedTransform, glaBuilder->createLoad(vertex), glaBuilder->createLoad(matrix));
     }
 
-    if (node->getName().substr(0, 7) == "texture") {
+    if (node->getName().substr(0, 7) == "texture" || node->getName().substr(0, 6) == "shadow") {
         intrinsicID = llvm::Intrinsic::gla_fTextureSample;
-        gla::Builder::TextureParameters params = {};
         int texFlags = 0;
-        params.ETPSampler = arguments[0];
-        params.ETPCoords = arguments[1];
 
         if (node->getName().find("Lod", 0) != std::string::npos) {
             texFlags |= gla::ETFLod;
-            params.ETPBiasLod = arguments[2];
+            texFlags |= gla::ETFBiasLodArg;
         }
-
-        // TODO: flesh all this out after glslang has modern texturing functions
 
         if (node->getName().find("Proj", 0) != std::string::npos)
             texFlags |= gla::ETFProjected;
 
-        return glaBuilder->createTextureCall(convertGlslangToGlaType(node->getType()), gla::ESampler2D, texFlags, params);
+        if (node->getName().find("Offset", 0) != std::string::npos) {
+            texFlags |= gla::ETFOffsetArg;
+        }
+
+        gla::ESamplerType samplerType;
+        switch (node->getSequence()[0]->getAsTyped()->getType().getBasicType()) {
+        case EbtSampler1D:         samplerType = gla::ESampler1D;      break;
+        case EbtSampler2D:         samplerType = gla::ESampler2D;      break;
+        case EbtSampler3D:         samplerType = gla::ESampler3D;      break;
+        case EbtSamplerCube:       samplerType = gla::ESamplerCube;    break;
+        case EbtSamplerRect:       samplerType = gla::ESampler2DRect;  break;
+        case EbtSampler1DShadow:   samplerType = gla::ESampler1D;      break;
+        case EbtSampler2DShadow:   samplerType = gla::ESampler2D;      break;
+        case EbtSamplerRectShadow: samplerType = gla::ESampler2DRect;  break;
+        default:
+            gla::UnsupportedFunctionality("sampler type");
+        }
+
+        switch (node->getSequence()[0]->getAsTyped()->getType().getBasicType()) {
+        case EbtSampler1DShadow:
+        case EbtSampler2DShadow:
+        case EbtSamplerRectShadow:
+            texFlags |= gla::ETFShadow;
+        }
+
+        // check for bias argument
+        if (! (texFlags & gla::ETFLod)) {
+            int nonBiasArgCount = 2;
+            if (texFlags & gla::ETFOffsetArg)
+                ++nonBiasArgCount;
+
+            if (arguments.size() > nonBiasArgCount) {
+                texFlags |= gla::ETFBias;
+                texFlags |= gla::ETFBiasLodArg;
+            }
+        }
+
+        // set the arguments        
+        gla::Builder::TextureParameters params = {};
+        params.ETPSampler = arguments[0];
+        params.ETPCoords = arguments[1];
+        int extraArgs = 0;
+        if (texFlags & gla::ETFLod) {
+            params.ETPBiasLod = arguments[2];
+            ++extraArgs;
+        }
+        if (texFlags & gla::ETFOffsetArg) {
+            params.ETPOffset = arguments[2 + extraArgs];
+            ++extraArgs;
+        }
+        if (texFlags & gla::ETFBias) {
+            params.ETPBiasLod = arguments[2 + extraArgs];
+            ++extraArgs;
+        }
+
+        return glaBuilder->createTextureCall(convertGlslangToGlaType(node->getType()), samplerType, texFlags, params);
     }
 
     return result;

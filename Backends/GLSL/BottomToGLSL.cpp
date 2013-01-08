@@ -614,6 +614,7 @@ protected:
         case ESampler2D:        shader << texture << "2D";  break;
         case ESampler3D:        shader << "texture3D";      break;
         case ESamplerCube:      shader << "textureCube";    break;
+        case ESampler2DRect:    shader << "textureRect";    break;
         default:
             shader << "texture";
             UnsupportedFunctionality("Texturing in Bottom IR: ", sampler, EATContinue);
@@ -630,7 +631,7 @@ protected:
 
         if (texFlags & ETFProjected)
             shader << "Proj";
-        else if (texFlags & ETFLod)
+        if (texFlags & ETFLod)
             shader << "Lod";
 
         if (IsGradientTexInst(llvmInstruction))

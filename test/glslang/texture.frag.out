@@ -7,15 +7,14 @@ Top IR:
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
 @"sampler3D texSampler3D" = external addrspace(1) constant i32
 @"samplerCube texSamplerCube" = external addrspace(1) constant i32
+@"sampler1DShadow shadowSampler1D" = external addrspace(1) constant i32
+@"sampler2DShadow shadowSampler2D" = external addrspace(1) constant i32
 @FragColor_shadow = internal global <4 x float> zeroinitializer
 @u = external addrspace(2) constant <4 x float>
 @blend = external addrspace(2) constant float
 
 define fastcc void @main() {
 entry:
-  %offset = alloca <2 x i32>
-  %gradY = alloca <2 x float>
-  %gradX = alloca <2 x float>
   %iLod = alloca i32
   %iCoords2D = alloca <2 x i32>
   %color = alloca <4 x float>
@@ -36,14 +35,14 @@ entry:
   store <4 x float> zeroinitializer, <4 x float>* %color
   %0 = load i32 addrspace(1)* @"sampler1D texSampler1D"
   %1 = load float* %coords1D
-  %2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.f32(i32 2, i32 %0, i32 0, float %1)
+  %2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.f32(i32 1, i32 %0, i32 0, float %1)
   %3 = load <4 x float>* %color
   %color1 = fadd <4 x float> %3, %2
   store <4 x float> %color1, <4 x float>* %color
   %4 = load i32 addrspace(1)* @"sampler1D texSampler1D"
   %5 = load float* %coords1D
   %6 = load float* %bias
-  %7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.f32(i32 2, i32 %4, i32 0, float %5)
+  %7 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.f32(i32 1, i32 %4, i32 130, float %5, float %6, float undef)
   %8 = load <4 x float>* %color
   %color2 = fadd <4 x float> %8, %7
   store <4 x float> %color2, <4 x float>* %color
@@ -51,13 +50,13 @@ entry:
   %coords2D = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   store <2 x float> %coords2D, <2 x float>* @coords2D_shadow
   %10 = load <2 x float>* @coords2D_shadow
-  %11 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 1, <2 x float> %10)
+  %11 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 1, i32 %9, i32 1, <2 x float> %10)
   %12 = load <4 x float>* %color
   %color3 = fadd <4 x float> %12, %11
   store <4 x float> %color3, <4 x float>* %color
   %13 = load i32 addrspace(1)* @"sampler1D texSampler1D"
   %14 = load <4 x float>* %coords4D
-  %15 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 2, i32 %13, i32 1, <4 x float> %14)
+  %15 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 1, i32 %13, i32 1, <4 x float> %14)
   %16 = load <4 x float>* %color
   %color4 = fadd <4 x float> %16, %15
   store <4 x float> %color4, <4 x float>* %color
@@ -66,14 +65,14 @@ entry:
   store <2 x float> %coords2D5, <2 x float>* @coords2D_shadow
   %18 = load <2 x float>* @coords2D_shadow
   %19 = load float* %bias
-  %20 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %17, i32 1, <2 x float> %18)
+  %20 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32 1, i32 %17, i32 131, <2 x float> %18, float %19, float undef)
   %21 = load <4 x float>* %color
   %color6 = fadd <4 x float> %21, %20
   store <4 x float> %color6, <4 x float>* %color
   %22 = load i32 addrspace(1)* @"sampler1D texSampler1D"
   %23 = load <4 x float>* %coords4D
   %24 = load float* %bias
-  %25 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 2, i32 %22, i32 1, <4 x float> %23)
+  %25 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 1, i32 %22, i32 131, <4 x float> %23, float %24, float undef)
   %26 = load <4 x float>* %color
   %color7 = fadd <4 x float> %26, %25
   store <4 x float> %color7, <4 x float>* %color
@@ -90,7 +89,7 @@ entry:
   store <2 x float> %coords2D10, <2 x float>* @coords2D_shadow
   %32 = load <2 x float>* @coords2D_shadow
   %33 = load float* %bias
-  %34 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %31, i32 0, <2 x float> %32)
+  %34 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32 2, i32 %31, i32 130, <2 x float> %32, float %33, float undef)
   %35 = load <4 x float>* %color
   %color11 = fadd <4 x float> %35, %34
   store <4 x float> %color11, <4 x float>* %color
@@ -103,74 +102,115 @@ entry:
   %40 = load i32 addrspace(1)* @"sampler2D texSampler2D"
   %41 = load <4 x float>* %coords4D
   %42 = load float* %bias
-  %43 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 2, i32 %40, i32 1, <4 x float> %41)
+  %43 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 2, i32 %40, i32 131, <4 x float> %41, float %42, float undef)
   %44 = load <4 x float>* %color
   %color13 = fadd <4 x float> %44, %43
   store <4 x float> %color13, <4 x float>* %color
   %45 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %46 = load <3 x float>* %coords3D
-  %47 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 2, i32 %45, i32 0, <3 x float> %46)
+  %47 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %45, i32 0, <3 x float> %46)
   %48 = load <4 x float>* %color
   %color14 = fadd <4 x float> %48, %47
   store <4 x float> %color14, <4 x float>* %color
   %49 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %50 = load <3 x float>* %coords3D
   %51 = load float* %bias
-  %52 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 2, i32 %49, i32 0, <3 x float> %50)
+  %52 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 3, i32 %49, i32 130, <3 x float> %50, float %51, float undef)
   %53 = load <4 x float>* %color
   %color15 = fadd <4 x float> %53, %52
   store <4 x float> %color15, <4 x float>* %color
   %54 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %55 = load <4 x float>* %coords4D
-  %56 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 2, i32 %54, i32 1, <4 x float> %55)
+  %56 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 3, i32 %54, i32 1, <4 x float> %55)
   %57 = load <4 x float>* %color
   %color16 = fadd <4 x float> %57, %56
   store <4 x float> %color16, <4 x float>* %color
   %58 = load i32 addrspace(1)* @"sampler3D texSampler3D"
   %59 = load <4 x float>* %coords4D
   %60 = load float* %bias
-  %61 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 2, i32 %58, i32 1, <4 x float> %59)
+  %61 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 3, i32 %58, i32 131, <4 x float> %59, float %60, float undef)
   %62 = load <4 x float>* %color
   %color17 = fadd <4 x float> %62, %61
   store <4 x float> %color17, <4 x float>* %color
   %63 = load i32 addrspace(1)* @"samplerCube texSamplerCube"
   %64 = load <3 x float>* %coords3D
-  %65 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 2, i32 %63, i32 0, <3 x float> %64)
+  %65 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 4, i32 %63, i32 0, <3 x float> %64)
   %66 = load <4 x float>* %color
   %color18 = fadd <4 x float> %66, %65
   store <4 x float> %color18, <4 x float>* %color
   %67 = load i32 addrspace(1)* @"samplerCube texSamplerCube"
   %68 = load <3 x float>* %coords3D
   %69 = load float* %bias
-  %70 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 2, i32 %67, i32 0, <3 x float> %68)
+  %70 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 4, i32 %67, i32 130, <3 x float> %68, float %69, float undef)
   %71 = load <4 x float>* %color
   %color19 = fadd <4 x float> %71, %70
   store <4 x float> %color19, <4 x float>* %color
+  %72 = load i32 addrspace(1)* @"sampler1DShadow shadowSampler1D"
+  %73 = load <3 x float>* %coords3D
+  %74 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 1, i32 %72, i32 8, <3 x float> %73, float undef, float undef)
+  %75 = load <4 x float>* %color
+  %color20 = fadd <4 x float> %75, %74
+  store <4 x float> %color20, <4 x float>* %color
+  %76 = load i32 addrspace(1)* @"sampler1DShadow shadowSampler1D"
+  %77 = load <3 x float>* %coords3D
+  %78 = load float* %bias
+  %79 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 1, i32 %76, i32 138, <3 x float> %77, float %78, float undef)
+  %80 = load <4 x float>* %color
+  %color21 = fadd <4 x float> %80, %79
+  store <4 x float> %color21, <4 x float>* %color
+  %81 = load i32 addrspace(1)* @"sampler2DShadow shadowSampler2D"
+  %82 = load <3 x float>* %coords3D
+  %83 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 2, i32 %81, i32 8, <3 x float> %82, float undef, float undef)
+  %84 = load <4 x float>* %color
+  %color22 = fadd <4 x float> %84, %83
+  store <4 x float> %color22, <4 x float>* %color
+  %85 = load i32 addrspace(1)* @"sampler2DShadow shadowSampler2D"
+  %86 = load <3 x float>* %coords3D
+  %87 = load float* %bias
+  %88 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 2, i32 %85, i32 138, <3 x float> %86, float %87, float undef)
+  %89 = load <4 x float>* %color
+  %color23 = fadd <4 x float> %89, %88
+  store <4 x float> %color23, <4 x float>* %color
+  %90 = load i32 addrspace(1)* @"sampler1DShadow shadowSampler1D"
+  %91 = load <4 x float>* %coords4D
+  %92 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 1, i32 %90, i32 9, <4 x float> %91, float undef, float undef)
+  %93 = load <4 x float>* %color
+  %color24 = fadd <4 x float> %93, %92
+  store <4 x float> %color24, <4 x float>* %color
+  %94 = load i32 addrspace(1)* @"sampler1DShadow shadowSampler1D"
+  %95 = load <4 x float>* %coords4D
+  %96 = load float* %bias
+  %97 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 1, i32 %94, i32 139, <4 x float> %95, float %96, float undef)
+  %98 = load <4 x float>* %color
+  %color25 = fadd <4 x float> %98, %97
+  store <4 x float> %color25, <4 x float>* %color
+  %99 = load i32 addrspace(1)* @"sampler2DShadow shadowSampler2D"
+  %100 = load <4 x float>* %coords4D
+  %101 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 2, i32 %99, i32 9, <4 x float> %100, float undef, float undef)
+  %102 = load <4 x float>* %color
+  %color26 = fadd <4 x float> %102, %101
+  store <4 x float> %color26, <4 x float>* %color
+  %103 = load i32 addrspace(1)* @"sampler2DShadow shadowSampler2D"
+  %104 = load <4 x float>* %coords4D
+  %105 = load float* %bias
+  %106 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 2, i32 %103, i32 139, <4 x float> %104, float %105, float undef)
+  %107 = load <4 x float>* %color
+  %color27 = fadd <4 x float> %107, %106
+  store <4 x float> %color27, <4 x float>* %color
   store <2 x i32> <i32 0, i32 5>, <2 x i32>* %iCoords2D
   store i32 1, i32* %iLod
-  %coords2D20 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %coords2D20, <2 x float>* @coords2D_shadow
-  %72 = load <2 x float>* @coords2D_shadow
-  %gradX21 = call <2 x float> @llvm.gla.fDFdx.v2f32.v2f32(<2 x float> %72)
-  store <2 x float> %gradX21, <2 x float>* %gradX
-  %coords2D22 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %coords2D22, <2 x float>* @coords2D_shadow
-  %73 = load <2 x float>* @coords2D_shadow
-  %gradY23 = call <2 x float> @llvm.gla.fDFdy.v2f32.v2f32(<2 x float> %73)
-  store <2 x float> %gradY23, <2 x float>* %gradY
-  store <2 x i32> <i32 3, i32 -7>, <2 x i32>* %offset
-  %74 = load <4 x float>* %color
-  %75 = load <4 x float> addrspace(2)* @u
-  %76 = load float addrspace(2)* @blend
-  %77 = load float* %blendscale
-  %78 = fmul float %76, %77
-  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %74, <4 x float> %75, float %78)
+  %108 = load <4 x float>* %color
+  %109 = load <4 x float> addrspace(2)* @u
+  %110 = load float addrspace(2)* @blend
+  %111 = load float* %blendscale
+  %112 = fmul float %110, %111
+  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %108, <4 x float> %109, float %112)
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %79 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %79)
+  %113 = load <4 x float>* @FragColor_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %113)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -179,17 +219,21 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.f32(i32, i32, i32, float) nounwind readnone
 
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.f32(i32, i32, i32, float, float, float) nounwind readnone
+
 declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32, i32, i32, <4 x float>) nounwind readnone
 
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32, i32, i32, <2 x float>, float, float) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32, i32, i32, <4 x float>, float, float) nounwind readnone
+
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32, i32, i32, <3 x float>) nounwind readnone
 
-declare <2 x float> @llvm.gla.fDFdx.v2f32.v2f32(<2 x float>) nounwind readnone
-
-declare <2 x float> @llvm.gla.fDFdy.v2f32.v2f32(<2 x float>) nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <3 x float>, float, float) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
@@ -203,6 +247,8 @@ Bottom IR:
 @"sampler2D texSampler2D" = external addrspace(1) constant i32
 @"sampler3D texSampler3D" = external addrspace(1) constant i32
 @"samplerCube texSamplerCube" = external addrspace(1) constant i32
+@"sampler1DShadow shadowSampler1D" = external addrspace(1) constant i32
+@"sampler2DShadow shadowSampler2D" = external addrspace(1) constant i32
 @u = external addrspace(2) constant <4 x float>
 @blend = external addrspace(2) constant float
 
@@ -212,35 +258,60 @@ entry:
   %1 = load i32 addrspace(1)* @"sampler2D texSampler2D", align 4
   %2 = load i32 addrspace(1)* @"sampler3D texSampler3D", align 4
   %3 = load i32 addrspace(1)* @"samplerCube texSamplerCube", align 4
+  %4 = load i32 addrspace(1)* @"sampler1DShadow shadowSampler1D", align 4
+  %5 = load i32 addrspace(1)* @"sampler2DShadow shadowSampler2D", align 4
   %coords2D = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %4 = call <4 x float> @llvm.gla.fTextureSample.v4f32.f32(i32 2, i32 %0, i32 0, float 0x3FFC9FBE80000000)
-  %5 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 1, <2 x float> %coords2D)
-  %color2 = fadd <4 x float> %4, %4
-  %6 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 2, i32 %0, i32 1, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>)
-  %color3 = fadd <4 x float> %color2, %5
-  %color4 = fadd <4 x float> %color3, %6
-  %color6 = fadd <4 x float> %color4, %5
-  %7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %coords2D)
-  %color7 = fadd <4 x float> %color6, %6
-  %color9 = fadd <4 x float> %color7, %7
-  %8 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 2, i32 %1, i32 1, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>)
-  %color11 = fadd <4 x float> %color9, %7
-  %9 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 2, i32 %1, i32 1, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>)
-  %color12 = fadd <4 x float> %color11, %8
-  %10 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 2, i32 %2, i32 0, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>)
-  %color13 = fadd <4 x float> %color12, %9
-  %color14 = fadd <4 x float> %color13, %10
-  %11 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 2, i32 %2, i32 1, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>)
-  %color15 = fadd <4 x float> %color14, %10
-  %color16 = fadd <4 x float> %color15, %11
-  %12 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 2, i32 %3, i32 0, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>)
-  %color17 = fadd <4 x float> %color16, %11
-  %13 = load float addrspace(2)* @blend, align 4
-  %color18 = fadd <4 x float> %color17, %12
-  %14 = fmul float %13, 0x3FFC9FBE80000000
-  %15 = load <4 x float> addrspace(2)* @u, align 16
-  %color19 = fadd <4 x float> %color18, %12
-  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %color19, <4 x float> %15, float %14)
+  %6 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.f32(i32 1, i32 %0, i32 130, float 0x3FFC9FBE80000000, float 2.000000e+00, float undef)
+  %7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.f32(i32 1, i32 %0, i32 0, float 0x3FFC9FBE80000000)
+  %8 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 1, i32 %0, i32 1, <2 x float> %coords2D)
+  %color2 = fadd <4 x float> %7, %6
+  %9 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 1, i32 %0, i32 1, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>)
+  %color3 = fadd <4 x float> %color2, %8
+  %10 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32 1, i32 %0, i32 131, <2 x float> %coords2D, float 2.000000e+00, float undef)
+  %color4 = fadd <4 x float> %color3, %9
+  %11 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 1, i32 %0, i32 131, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>, float 2.000000e+00, float undef)
+  %color6 = fadd <4 x float> %color4, %10
+  %12 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %coords2D)
+  %color7 = fadd <4 x float> %color6, %11
+  %13 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32 2, i32 %1, i32 130, <2 x float> %coords2D, float 2.000000e+00, float undef)
+  %color9 = fadd <4 x float> %color7, %12
+  %14 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 2, i32 %1, i32 1, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>)
+  %color11 = fadd <4 x float> %color9, %13
+  %15 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 2, i32 %1, i32 131, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>, float 2.000000e+00, float undef)
+  %color12 = fadd <4 x float> %color11, %14
+  %16 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 3, i32 %2, i32 0, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>)
+  %color13 = fadd <4 x float> %color12, %15
+  %17 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 3, i32 %2, i32 130, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>, float 2.000000e+00, float undef)
+  %color14 = fadd <4 x float> %color13, %16
+  %18 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 3, i32 %2, i32 1, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>)
+  %color15 = fadd <4 x float> %color14, %17
+  %19 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 3, i32 %2, i32 131, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>, float 2.000000e+00, float undef)
+  %color16 = fadd <4 x float> %color15, %18
+  %20 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 4, i32 %3, i32 0, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>)
+  %color17 = fadd <4 x float> %color16, %19
+  %21 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 4, i32 %3, i32 130, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>, float 2.000000e+00, float undef)
+  %color18 = fadd <4 x float> %color17, %20
+  %22 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 1, i32 %4, i32 8, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>, float undef, float undef)
+  %color19 = fadd <4 x float> %color18, %21
+  %23 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 1, i32 %4, i32 138, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>, float 2.000000e+00, float undef)
+  %color20 = fadd <4 x float> %color19, %22
+  %24 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 2, i32 %5, i32 8, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>, float undef, float undef)
+  %color21 = fadd <4 x float> %color20, %23
+  %25 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 2, i32 %5, i32 138, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>, float 2.000000e+00, float undef)
+  %color22 = fadd <4 x float> %color21, %24
+  %26 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 1, i32 %4, i32 9, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>, float undef, float undef)
+  %color23 = fadd <4 x float> %color22, %25
+  %27 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 1, i32 %4, i32 139, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>, float 2.000000e+00, float undef)
+  %color24 = fadd <4 x float> %color23, %26
+  %28 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 2, i32 %5, i32 9, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>, float undef, float undef)
+  %color25 = fadd <4 x float> %color24, %27
+  %29 = load float addrspace(2)* @blend, align 4
+  %30 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 2, i32 %5, i32 139, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>, float 2.000000e+00, float undef)
+  %color26 = fadd <4 x float> %color25, %28
+  %31 = fmul float %29, 0x3FFC9FBE80000000
+  %32 = load <4 x float> addrspace(2)* @u, align 16
+  %color27 = fadd <4 x float> %color26, %30
+  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %color27, <4 x float> %32, float %31)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
   br label %stage-epilogue
 
@@ -253,13 +324,21 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.f32(i32, i32, i32, float) nounwind readnone
 
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.f32(i32, i32, i32, float, float, float) nounwind readnone
+
 declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32, i32, i32, <4 x float>) nounwind readnone
 
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32, i32, i32, <2 x float>, float, float) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32, i32, i32, <4 x float>, float, float) nounwind readnone
+
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32, i32, i32, <3 x float>) nounwind readnone
+
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <3 x float>, float, float) nounwind readnone
 
 declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
 
@@ -275,45 +354,142 @@ uniform sampler1D texSampler1D;
 uniform sampler2D texSampler2D;
 uniform sampler3D texSampler3D;
 uniform samplerCube texSamplerCube;
+uniform sampler1DShadow shadowSampler1D;
+uniform sampler2DShadow shadowSampler2D;
 uniform vec4 u;
 uniform float blend;
 in vec2 coords2D;
 const float const22_2f = 1.789;
-const vec4 const26 = vec4(1.789, 2.718, 3.453, 2.0);
-const vec3 const34 = vec3(1.789, 2.718, 3.453);
+const float const23_2f = 2.0;
+const vec4 const28 = vec4(1.789, 2.718, 3.453, 2.0);
+const vec3 const39 = vec3(1.789, 2.718, 3.453);
 
 void main()
 {
-    vec4 temp21 = texture2D(texSampler1D, const22_2f);
-    vec4 temp23 = texture2DProj(texSampler1D, coords2D);
-    vec4 color2 = temp21 + temp21;
-    vec4 temp25 = texture2DProj(texSampler1D, const26);
-    vec4 color3 = color2 + temp23;
-    vec4 color4 = color3 + temp25;
-    vec4 color6 = color4 + temp23;
-    vec4 temp30 = texture2D(texSampler2D, coords2D);
-    vec4 color7 = color6 + temp25;
-    vec4 color9 = color7 + temp30;
-    vec4 temp33 = texture2DProj(texSampler2D, const34);
-    vec4 color11 = color9 + temp30;
-    vec4 temp36 = texture2DProj(texSampler2D, const26);
-    vec4 color12 = color11 + temp33;
-    vec4 temp38 = texture2D(texSampler3D, const34);
-    vec4 color13 = color12 + temp36;
-    vec4 color14 = color13 + temp38;
-    vec4 temp41 = texture2DProj(texSampler3D, const26);
-    vec4 color15 = color14 + temp38;
-    vec4 color16 = color15 + temp41;
-    vec4 temp44 = texture2D(texSamplerCube, const34);
-    vec4 color17 = color16 + temp41;
-    vec4 color18 = color17 + temp44;
-    float temp47 = blend * const22_2f;
-    vec4 color19 = color18 + temp44;
-    vec4 FragColor_shadow = mix(color19, u, temp47);
+    vec4 temp21 = texture1D(texSampler1D, const22_2f, const23_2f);
+    vec4 temp24 = texture1D(texSampler1D, const22_2f);
+    vec4 temp25 = texture1DProj(texSampler1D, coords2D);
+    vec4 color2 = temp24 + temp21;
+    vec4 temp27 = texture1DProj(texSampler1D, const28);
+    vec4 color3 = color2 + temp25;
+    vec4 temp30 = texture1DProj(texSampler1D, coords2D, const23_2f);
+    vec4 color4 = color3 + temp27;
+    vec4 temp32 = texture1DProj(texSampler1D, const28, const23_2f);
+    vec4 color6 = color4 + temp30;
+    vec4 temp34 = texture2D(texSampler2D, coords2D);
+    vec4 color7 = color6 + temp32;
+    vec4 temp36 = texture2D(texSampler2D, coords2D, const23_2f);
+    vec4 color9 = color7 + temp34;
+    vec4 temp38 = texture2DProj(texSampler2D, const39);
+    vec4 color11 = color9 + temp36;
+    vec4 temp41 = texture2DProj(texSampler2D, const28, const23_2f);
+    vec4 color12 = color11 + temp38;
+    vec4 temp43 = texture3D(texSampler3D, const39);
+    vec4 color13 = color12 + temp41;
+    vec4 temp45 = texture3D(texSampler3D, const39, const23_2f);
+    vec4 color14 = color13 + temp43;
+    vec4 temp47 = texture3DProj(texSampler3D, const28);
+    vec4 color15 = color14 + temp45;
+    vec4 temp49 = texture3DProj(texSampler3D, const28, const23_2f);
+    vec4 color16 = color15 + temp47;
+    vec4 temp51 = textureCube(texSamplerCube, const39);
+    vec4 color17 = color16 + temp49;
+    vec4 temp53 = textureCube(texSamplerCube, const39, const23_2f);
+    vec4 color18 = color17 + temp51;
+    vec4 temp55 = shadow1D(shadowSampler1D, const39);
+    vec4 color19 = color18 + temp53;
+    vec4 temp57 = shadow1D(shadowSampler1D, const39, const23_2f);
+    vec4 color20 = color19 + temp55;
+    vec4 temp59 = shadow2D(shadowSampler2D, const39);
+    vec4 color21 = color20 + temp57;
+    vec4 temp61 = shadow2D(shadowSampler2D, const39, const23_2f);
+    vec4 color22 = color21 + temp59;
+    vec4 temp63 = shadow1DProj(shadowSampler1D, const28);
+    vec4 color23 = color22 + temp61;
+    vec4 temp65 = shadow1DProj(shadowSampler1D, const28, const23_2f);
+    vec4 color24 = color23 + temp63;
+    vec4 temp67 = shadow2DProj(shadowSampler2D, const28);
+    vec4 color25 = color24 + temp65;
+    vec4 temp69 = shadow2DProj(shadowSampler2D, const28, const23_2f);
+    vec4 color26 = color25 + temp67;
+    float temp71 = blend * const22_2f;
+    vec4 color27 = color26 + temp69;
+    vec4 FragColor_shadow = mix(color27, u, temp71);
     gl_FragColor = FragColor_shadow;
     
 }
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r471) output
+#version 130
+uniform sampler1D texSampler1D;
+uniform sampler2D texSampler2D;
+uniform sampler3D texSampler3D;
+uniform samplerCube texSamplerCube;
+uniform sampler1DShadow shadowSampler1D;
+uniform sampler2DShadow shadowSampler2D;
+uniform float blend;
+uniform vec4 u;
+in vec2 coords2D;
+const float const22_2f = 1.789;
+const float const24_2f = 2.0;
+const vec4 const29 = vec4(1.789, 2.718, 3.453, 2.0);
+const vec3 const40 = vec3(1.789, 2.718, 3.453);
+
+void main()
+{
+    vec4 temp242 = texture1D(texSampler1D, const22_2f);
+    vec4 temp211 = texture1D(texSampler1D, const22_2f, const24_2f);
+    vec4 color24 = temp242 + temp211;
+    vec4 temp253 = texture1DProj(texSampler1D, coords2D);
+    vec4 color36 = color24 + temp253;
+    vec4 temp275 = texture1DProj(texSampler1D, const29);
+    vec4 color49 = color36 + temp275;
+    vec4 temp308 = texture1DProj(texSampler1D, coords2D, const24_2f);
+    vec4 color611 = color49 + temp308;
+    vec4 temp3210 = texture1DProj(texSampler1D, const29, const24_2f);
+    vec4 color714 = color611 + temp3210;
+    vec4 temp3413 = texture2D(texSampler2D, coords2D);
+    vec4 color917 = color714 + temp3413;
+    vec4 temp3616 = texture2D(texSampler2D, coords2D, const24_2f);
+    vec4 color1119 = color917 + temp3616;
+    vec4 temp3818 = texture2DProj(texSampler2D, const40);
+    vec4 color1221 = color1119 + temp3818;
+    vec4 temp4120 = texture2DProj(texSampler2D, const29, const24_2f);
+    vec4 color1323 = color1221 + temp4120;
+    vec4 temp4322 = texture3D(texSampler3D, const40);
+    vec4 color1425 = color1323 + temp4322;
+    vec4 temp4524 = texture3D(texSampler3D, const40, const24_2f);
+    vec4 color1527 = color1425 + temp4524;
+    vec4 temp4726 = texture3DProj(texSampler3D, const29);
+    vec4 color1629 = color1527 + temp4726;
+    vec4 temp4928 = texture3DProj(texSampler3D, const29, const24_2f);
+    vec4 color1731 = color1629 + temp4928;
+    vec4 temp5130 = textureCube(texSamplerCube, const40);
+    vec4 color1833 = color1731 + temp5130;
+    vec4 temp5332 = textureCube(texSamplerCube, const40, const24_2f);
+    vec4 color1935 = color1833 + temp5332;
+    vec4 temp5534 = shadow1D(shadowSampler1D, const40);
+    vec4 color2037 = color1935 + temp5534;
+    vec4 temp5736 = shadow1D(shadowSampler1D, const40, const24_2f);
+    vec4 color2139 = color2037 + temp5736;
+    vec4 temp5938 = shadow2D(shadowSampler2D, const40);
+    vec4 color2241 = color2139 + temp5938;
+    vec4 temp6140 = shadow2D(shadowSampler2D, const40, const24_2f);
+    vec4 color2343 = color2241 + temp6140;
+    vec4 temp6342 = shadow1DProj(shadowSampler1D, const29);
+    vec4 color244546 = color2343 + temp6342;
+    vec4 temp6544 = shadow1DProj(shadowSampler1D, const29, const24_2f);
+    vec4 color2548 = color244546 + temp6544;
+    vec4 temp6747 = shadow2DProj(shadowSampler2D, const29);
+    vec4 color2650 = color2548 + temp6747;
+    vec4 temp6949 = shadow2DProj(shadowSampler2D, const29, const24_2f);
+    vec4 color2752 = color2650 + temp6949;
+    float temp7151 = blend * const22_2f;
+    vec4 FragColor_shadow53 = mix(color2752, u, temp7151);
+    gl_FragColor = FragColor_shadow53;
+    
+}

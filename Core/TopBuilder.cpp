@@ -1182,7 +1182,7 @@ llvm::Value* Builder::createTextureCall(const llvm::Type* resultType, gla::ESamp
 
     // Max args based on LunarGLASS TopIR, no SOA
     static const int maxTextureArgs = 9;
-    llvm::Value* texArgs[maxTextureArgs] = {0};
+    llvm::Value* texArgs[maxTextureArgs] = {};
 
     // Base case: First texture arguments are fixed for most intrinsics
     int numArgs = 4;
