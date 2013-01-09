@@ -26,8 +26,8 @@ post-loop-break:                                  ; No predecessors!
 
 ifmerge:                                          ; preds = %loop-header, %post-loop-break
   %3 = load i32* %i
-  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %color, <4 x float>* @color_shadow
+  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %color__, <4 x float>* @color_shadow
   %4 = load <4 x float>* @color_shadow
   %5 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 %3
   store <4 x float> %4, <4 x float>* %5
@@ -77,15 +77,15 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %gla_constGEP = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 1
-  store <4 x float> %color, <4 x float>* %gla_constGEP, align 16
+  store <4 x float> %color__, <4 x float>* %gla_constGEP, align 16
   %gla_constGEP8 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 2
-  store <4 x float> %color, <4 x float>* %gla_constGEP8, align 16
+  store <4 x float> %color__, <4 x float>* %gla_constGEP8, align 16
   %gla_constGEP9 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 3
-  store <4 x float> %color, <4 x float>* %gla_constGEP9, align 16
+  store <4 x float> %color__, <4 x float>* %gla_constGEP9, align 16
   %gla_constGEP10 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 4
-  store <4 x float> %color, <4 x float>* %gla_constGEP10, align 16
+  store <4 x float> %color__, <4 x float>* %gla_constGEP10, align 16
   %gla_constGEP11 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 0
   %0 = load <4 x float>* %gla_constGEP11, align 16
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %0)
@@ -104,7 +104,7 @@ entry:
   %gla_constGEP16 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 5
   %5 = load <4 x float>* %gla_constGEP16, align 16
   call void @llvm.gla.fWriteData.v4f32(i32 5, i32 -1, <4 x float> %5)
-  call void @llvm.gla.fWriteData.v4f32(i32 6, i32 -1, <4 x float> %color)
+  call void @llvm.gla.fWriteData.v4f32(i32 6, i32 -1, <4 x float> %color__)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry

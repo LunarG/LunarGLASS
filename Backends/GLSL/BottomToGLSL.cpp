@@ -1921,6 +1921,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fReadInterpolant:
         {
             std::string name = llvmInstruction->getNameStr();
+            gla::RemoveSeparator(name);
             makeParseable(name);
 
             // Remove inserted size in front of hard-coded array indexes

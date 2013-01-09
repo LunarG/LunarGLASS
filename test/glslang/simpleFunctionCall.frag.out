@@ -22,8 +22,8 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 define internal fastcc <4 x float> @"foo("() alwaysinline {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor, <4 x float>* @BaseColor_shadow
+  %BaseColor__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %BaseColor__, <4 x float>* @BaseColor_shadow
   %0 = load <4 x float>* @BaseColor_shadow
   ret <4 x float> %0
 
@@ -41,8 +41,8 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor.i = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %BaseColor.i)
+  %BaseColor__.i = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %BaseColor__.i)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -62,24 +62,24 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 // LunarGOO(r471) output
 #version 130
-in vec4 BaseColor_i;
+in vec4 BaseColor___i;
 
 void main()
 {
-    gl_FragColor = BaseColor_i;
+    gl_FragColor = BaseColor___i;
     
 }
-#### BEGIN COMPILER 0 INFO LOG ####
+WARNING: 0:4: Two consecutive underscores are reserved for future use.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r471) output
 #version 130
-in vec4 BaseColor_i;
+in vec4 BaseColor___i;
 
 void main()
 {
-    gl_FragColor = BaseColor_i;
+    gl_FragColor = BaseColor___i;
     
 }

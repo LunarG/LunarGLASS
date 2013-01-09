@@ -10,15 +10,17 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 -1, i32 1)
-  store float %Depth, float* @Depth_shadow
+  %Depth__ = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 -1, i32 1)
+  store float %Depth__, float* @Depth_shadow
   %FragDepth_shadow = load float* @Depth_shadow
   store float %FragDepth_shadow, float* @FragDepth_shadow
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
-  store <4 x float> %Color, <4 x float>* @Color_shadow
+  %Color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  store <4 x float> %Color__, <4 x float>* @Color_shadow
   %FragColor_shadow = load <4 x float>* @Color_shadow
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
-  %foo_shadow = load <4 x float>* @FragColor_shadow
+  %Color__1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  store <4 x float> %Color__1, <4 x float>* @Color_shadow
+  %foo_shadow = load <4 x float>* @Color_shadow
   store <4 x float> %foo_shadow, <4 x float>* @foo_shadow
   br label %stage-epilogue
 
@@ -49,11 +51,11 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
-  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 -1, i32 1)
-  call void @llvm.gla.fWriteData.f32(i32 0, i32 -1, float %Depth)
-  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %Color)
-  call void @llvm.gla.fWriteData.v4f32(i32 2, i32 -1, <4 x float> %Color)
+  %Color__1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  %Depth__ = call float @llvm.gla.fReadInterpolant.f32(i32 0, i32 -1, i32 1)
+  call void @llvm.gla.fWriteData.f32(i32 0, i32 -1, float %Depth__)
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %Color__1)
+  call void @llvm.gla.fWriteData.v4f32(i32 2, i32 -1, <4 x float> %Color__1)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -96,13 +98,13 @@ void main()
 // LunarGOO(r471) output
 #version 130
 out vec4 foo;
-in vec4 Color1;
+in vec4 Color;
 in float Depth;
 
 void main()
 {
     gl_FragDepth = Depth;
-    gl_FragColor = Color1;
-    foo = Color1;
+    gl_FragColor = Color;
+    foo = Color;
     
 }

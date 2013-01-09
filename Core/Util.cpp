@@ -193,10 +193,9 @@ bool HasAllSet(const llvm::Value* value)
 
 void AppendArraySizeToName(std::string& arrayName, int size)
 {
-    arrayName.append("_");
-    llvm::raw_string_ostream out(arrayName);
-    out << size;
-    arrayName = out.str();
+    char buf[10];
+    itoa(size, buf, 10);
+    arrayName = arrayName + "_" + buf;
 }
 
 void GetArraySizeFromName(const std::string& arrayName, std::string& basename, int& size)
@@ -235,11 +234,34 @@ void RemoveArraySizeFromName(std::string& name)
 
 void AppendArrayIndexToName(std::string &arrayName, int index)
 {
-    arrayName.append("[");
-    llvm::raw_string_ostream out(arrayName);
-    out << index;
-    arrayName = out.str();
-    arrayName.append("]");
+    char buf[10];
+    itoa(index, buf, 10);
+    arrayName = arrayName + "[" + buf + "]";
+}
+
+void AddSeparator(std::string& name)
+{
+    name = name + "__";
+}
+
+void RemoveSeparator(std::string& name)
+{
+    // if there is a pattern "__#" or "__" at the end, strip it off
+    // to get back to the original name
+    int end = name.size();
+    while (end > 0 && name[end-1] >= '0' && name[end-1] <= '9')
+        --end;
+
+    if (end < 3) {
+        // not enough room
+        return;
+    }
+
+    if (name[end-1] != '_' || name[end-2] != '_')
+        return;
+
+    // it fits the pattern
+    name = name.substr(0, end - 2);
 }
 
 const llvm::Type* GetBasicType(const llvm::Value* value)

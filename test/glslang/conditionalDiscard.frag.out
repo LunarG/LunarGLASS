@@ -10,8 +10,8 @@ define fastcc void @main() {
 entry:
   %v = alloca <4 x float>
   %0 = load i32 addrspace(1)* @"sampler2D tex"
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  store <2 x float> %coord, <2 x float>* @coord_shadow
+  %coord__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  store <2 x float> %coord__, <2 x float>* @coord_shadow
   %1 = load <2 x float>* @coord_shadow
   %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1)
   store <4 x float> %v1, <4 x float>* %v
@@ -60,8 +60,8 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(1)* @"sampler2D tex", align 4
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
+  %coord__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord__)
   %1 = fcmp oeq <4 x float> %v1, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
   %2 = call i1 @llvm.gla.all.v4i1(<4 x i1> %1)
   br i1 %2, label %then, label %ifmerge

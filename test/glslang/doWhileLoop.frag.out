@@ -10,8 +10,8 @@ Top IR:
 define fastcc void @main() {
 entry:
   %color = alloca <4 x float>
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor, <4 x float>* @BaseColor_shadow
+  %BaseColor__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %BaseColor__, <4 x float>* @BaseColor_shadow
   %color1 = load <4 x float>* @BaseColor_shadow
   store <4 x float> %color1, <4 x float>* %color
   br label %loop-header
@@ -67,13 +67,13 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %BaseColor__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %.pre = load <4 x float> addrspace(2)* @bigColor, align 16
   %.pre4 = load float addrspace(2)* @d, align 4
   br label %loop-header
 
 loop-header:                                      ; preds = %ifmerge, %entry
-  %color.0 = phi <4 x float> [ %BaseColor, %entry ], [ %color2, %ifmerge ]
+  %color.0 = phi <4 x float> [ %BaseColor__, %entry ], [ %color2, %ifmerge ]
   %color2 = fadd <4 x float> %color.0, %.pre
   %0 = extractelement <4 x float> %color2, i32 0
   %1 = fcmp uge float %0, %.pre4

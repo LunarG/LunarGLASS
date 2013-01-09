@@ -9,8 +9,8 @@ Top IR:
 define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(2)* @i
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %Color, <4 x float>* @Color_shadow
+  %Color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %Color__, <4 x float>* @Color_shadow
   %1 = load <4 x float>* @Color_shadow
   %2 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 %0
   store <4 x float> %1, <4 x float>* %2
@@ -101,9 +101,9 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(2)* @i, align 4
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %Color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %1 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 %0
-  store <4 x float> %Color, <4 x float>* %1, align 16
+  store <4 x float> %Color__, <4 x float>* %1, align 16
   %gla_constGEP = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 0
   %2 = load <4 x float>* %gla_constGEP, align 16
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %2)

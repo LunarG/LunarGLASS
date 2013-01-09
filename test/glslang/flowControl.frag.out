@@ -14,14 +14,14 @@ define fastcc void @main() {
 entry:
   %color2 = alloca <4 x float>
   %color = alloca <4 x float>
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor, <4 x float>* @BaseColor_shadow
+  %BaseColor__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %BaseColor__, <4 x float>* @BaseColor_shadow
   %color1 = load <4 x float>* @BaseColor_shadow
   store <4 x float> %color1, <4 x float>* %color
   %color22 = load <4 x float> addrspace(2)* @otherColor
   store <4 x float> %color22, <4 x float>* %color2
-  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
-  store float %c, float* @c_shadow
+  %c__ = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
+  store float %c__, float* @c_shadow
   %0 = load float* @c_shadow
   %1 = load float addrspace(2)* @d
   %2 = fcmp ogt float %0, %1
@@ -74,15 +74,15 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %BaseColor__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %color22 = load <4 x float> addrspace(2)* @otherColor, align 16
-  %c = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
+  %c__ = call float @llvm.gla.fReadInterpolant.f32(i32 1, i32 -1, i32 1)
   %0 = load float addrspace(2)* @d, align 4
-  %1 = fcmp ogt float %c, %0
+  %1 = fcmp ogt float %c__, %0
   %bigColor.val = load <4 x float> addrspace(2)* @bigColor, align 16
   %smallColor.val = load <4 x float> addrspace(2)* @smallColor, align 16
   %.pn = select i1 %1, <4 x float> %bigColor.val, <4 x float> %smallColor.val
-  %color.0 = fadd <4 x float> %BaseColor, %.pn
+  %color.0 = fadd <4 x float> %BaseColor__, %.pn
   %FragColor_shadow = fmul <4 x float> %color.0, %color22
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
   br label %stage-epilogue

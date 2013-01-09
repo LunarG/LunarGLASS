@@ -60,14 +60,14 @@ entry:
   %14 = insertelement <2 x float> %12, float %13, i32 1
   %texColor7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %14)
   store <4 x float> %texColor7, <4 x float>* %texColor
-  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 8, i32 -1, i32 1)
-  store <4 x float> %color, <4 x float>* @color_shadow
+  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 8, i32 -1, i32 1)
+  store <4 x float> %color__, <4 x float>* @color_shadow
   %15 = load <4 x float>* @color_shadow
   %16 = load <4 x float>* %texColor
   %texColor8 = fadd <4 x float> %16, %15
   store <4 x float> %texColor8, <4 x float>* %texColor
-  %alpha = call float @llvm.gla.fReadInterpolant.f32(i32 9, i32 -1, i32 1)
-  store float %alpha, float* @alpha_shadow
+  %alpha__ = call float @llvm.gla.fReadInterpolant.f32(i32 9, i32 -1, i32 1)
+  store float %alpha__, float* @alpha_shadow
   %17 = load float* @alpha_shadow
   %18 = load <4 x float>* %texColor
   %texColor9 = insertelement <4 x float> %18, float %17, i32 3
@@ -195,13 +195,13 @@ entry:
   store <4 x float> %"userIn_2[0]", <4 x float>* %gla_constGEP38, align 16
   %gla_constGEP39 = getelementptr [2 x <4 x float>]* @userIn_shadow, i32 0, i32 1
   store <4 x float> %"userIn_2[1]", <4 x float>* %gla_constGEP39, align 16
-  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 8, i32 -1, i32 1)
+  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 8, i32 -1, i32 1)
   %texColor7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %9)
-  %alpha = call float @llvm.gla.fReadInterpolant.f32(i32 9, i32 -1, i32 1)
-  %texColor8 = fadd <4 x float> %texColor7, %color
+  %alpha__ = call float @llvm.gla.fReadInterpolant.f32(i32 9, i32 -1, i32 1)
+  %texColor8 = fadd <4 x float> %texColor7, %color__
   %12 = getelementptr [2 x <4 x float>]* @userIn_shadow, i32 0, i32 %4
   %13 = fadd <4 x float> %"gl_TexCoord_6[0]", %11
-  %14 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor8, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %alpha, i32 0)
+  %14 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor8, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %alpha__, i32 0)
   %15 = load <4 x float>* %12, align 16
   %16 = fadd <4 x float> %13, %14
   %FragColor_shadow = fadd <4 x float> %16, %15

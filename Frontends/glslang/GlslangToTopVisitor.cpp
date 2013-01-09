@@ -1652,6 +1652,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
         }
     } else {
         readType = convertGlslangToGlaType(node->getType());
+        gla::AddSeparator(name);
         llvm::Value* pipeRead = glaBuilder->readPipeline(readType, name, slot, -1 /*mask*/, method);
         llvmBuilder.CreateStore(pipeRead, storage);
     }

@@ -43,8 +43,8 @@ entry:
   %i70 = alloca i32
   %i = alloca i32
   %color = alloca <4 x float>
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor, <4 x float>* @BaseColor_shadow
+  %BaseColor__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %BaseColor__, <4 x float>* @BaseColor_shadow
   %color1 = load <4 x float>* @BaseColor_shadow
   store <4 x float> %color1, <4 x float>* %color
   br label %loop-header
@@ -881,8 +881,8 @@ post-loop-break203:                               ; No predecessors!
   br label %ifmerge204
 
 ifmerge204:                                       ; preds = %ifmerge199, %post-loop-break203
-  %BaseColor205 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor205, <4 x float>* @BaseColor_shadow
+  %BaseColor__205 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %BaseColor__205, <4 x float>* @BaseColor_shadow
   %251 = load <4 x float>* @BaseColor_shadow
   %252 = load <4 x float>* %color
   %color206 = fadd <4 x float> %252, %251
@@ -960,8 +960,8 @@ post-loop-break224:                               ; No predecessors!
   br label %ifmerge225
 
 ifmerge225:                                       ; preds = %ifmerge215, %post-loop-break224
-  %BaseColor226 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor226, <4 x float>* @BaseColor_shadow
+  %BaseColor__226 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %BaseColor__226, <4 x float>* @BaseColor_shadow
   %273 = load <4 x float>* @BaseColor_shadow
   %274 = load <4 x float>* %color
   %color227 = fadd <4 x float> %274, %273
@@ -1449,13 +1449,13 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  %0 = extractelement <4 x float> %BaseColor, i32 0
+  %BaseColor__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %0 = extractelement <4 x float> %BaseColor__, i32 0
   %1 = fcmp olt float %0, 0x3FD51EB860000000
   %2 = fcmp olt float %0, 0x3FE51EB860000000
   %select340.v = select i1 %2, <4 x float> <float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000>, <4 x float> <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>
   %select343.v = select i1 %1, <4 x float> <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>, <4 x float> %select340.v
-  %select343 = fadd <4 x float> %BaseColor, %select343.v
+  %select343 = fadd <4 x float> %BaseColor__, %select343.v
   %.pre = load float addrspace(2)* @d, align 4
   %3 = load <4 x float> addrspace(2)* @bigColor, align 16
   br label %loop-header12
@@ -1900,7 +1900,7 @@ then201:                                          ; preds = %ifmerge199
   br label %loop-merge211
 
 ifmerge204:                                       ; preds = %ifmerge199
-  %color206 = fadd <4 x float> %color200, %BaseColor
+  %color206 = fadd <4 x float> %color200, %BaseColor__
   br label %loop-header196
 
 loop-merge211:                                    ; preds = %then201, %then197
@@ -1936,7 +1936,7 @@ then217:                                          ; preds = %ifmerge215
   br label %loop-merge232
 
 ifmerge225:                                       ; preds = %ifmerge215
-  %color227 = fadd <4 x float> %color216, %BaseColor
+  %color227 = fadd <4 x float> %color216, %BaseColor__
   %161 = extractelement <4 x float> %color227, i32 2
   %162 = fcmp uge float %161, %.pre354
   br i1 %162, label %then228, label %ifmerge230

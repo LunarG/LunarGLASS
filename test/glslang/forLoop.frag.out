@@ -11,8 +11,8 @@ define fastcc void @main() {
 entry:
   %i = alloca i32
   %color = alloca <4 x float>
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  store <4 x float> %BaseColor, <4 x float>* @BaseColor_shadow
+  %BaseColor__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %BaseColor__, <4 x float>* @BaseColor_shadow
   %color1 = load <4 x float>* @BaseColor_shadow
   store <4 x float> %color1, <4 x float>* %color
   store i32 0, i32* %i
@@ -71,7 +71,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %BaseColor__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   %.pre = load i32 addrspace(2)* @Count, align 4
   %0 = load <4 x float> addrspace(2)* @bigColor, align 16
   %1 = icmp sgt i32 %.pre, 0
@@ -84,7 +84,7 @@ loop-header.then_crit_edge:                       ; preds = %ifmerge
   br label %then
 
 then:                                             ; preds = %loop-header.then_crit_edge, %entry
-  %color.0.lcssa = phi <4 x float> [ %color2, %loop-header.then_crit_edge ], [ %BaseColor, %entry ]
+  %color.0.lcssa = phi <4 x float> [ %color2, %loop-header.then_crit_edge ], [ %BaseColor__, %entry ]
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %color.0.lcssa)
   br label %stage-epilogue
 
@@ -96,7 +96,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 ifmerge:                                          ; preds = %ifmerge, %ifmerge.lr.ph
   %indvar = phi i32 [ %indvar.next, %ifmerge ], [ 0, %ifmerge.lr.ph ]
-  %color.07 = phi <4 x float> [ %BaseColor, %ifmerge.lr.ph ], [ %color2, %ifmerge ]
+  %color.07 = phi <4 x float> [ %BaseColor__, %ifmerge.lr.ph ], [ %color2, %ifmerge ]
   %color2 = fadd <4 x float> %color.07, %0
   %indvar.next = add i32 %indvar, 1
   %exitcond = icmp eq i32 %indvar.next, %.pre

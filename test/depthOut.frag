@@ -9,5 +9,5 @@ void main()
 {
     gl_FragDepth = Depth;
     gl_FragColor = Color;
-    foo = gl_FragColor;
+    foo = Color;
 }

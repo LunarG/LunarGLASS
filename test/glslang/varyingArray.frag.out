@@ -48,14 +48,14 @@ entry:
   %8 = insertelement <2 x float> %6, float %7, i32 1
   %texColor7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %8)
   store <4 x float> %texColor7, <4 x float>* %texColor
-  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 6, i32 -1, i32 1)
-  store <4 x float> %color, <4 x float>* @color_shadow
+  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 6, i32 -1, i32 1)
+  store <4 x float> %color__, <4 x float>* @color_shadow
   %9 = load <4 x float>* @color_shadow
   %10 = load <4 x float>* %texColor
   %texColor8 = fadd <4 x float> %10, %9
   store <4 x float> %texColor8, <4 x float>* %texColor
-  %alpha = call float @llvm.gla.fReadInterpolant.f32(i32 7, i32 -1, i32 1)
-  store float %alpha, float* @alpha_shadow
+  %alpha__ = call float @llvm.gla.fReadInterpolant.f32(i32 7, i32 -1, i32 1)
+  store float %alpha__, float* @alpha_shadow
   %11 = load float* @alpha_shadow
   %12 = load <4 x float>* %texColor
   %texColor9 = insertelement <4 x float> %12, float %11, i32 3
@@ -132,13 +132,13 @@ entry:
   %1 = fadd <4 x float> %"gl_TexCoord_6[4]", %"gl_TexCoord_6[5]"
   %2 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %1, <2 x i32> <i32 0, i32 1>)
   %"foo_3[1]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 9, i32 -1, i32 1)
-  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 6, i32 -1, i32 1)
+  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 6, i32 -1, i32 1)
   %texColor7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %2)
   %3 = fadd <4 x float> %"foo_3[1]", %"gl_TexCoord_6[0]"
-  %alpha = call float @llvm.gla.fReadInterpolant.f32(i32 7, i32 -1, i32 1)
-  %texColor8 = fadd <4 x float> %texColor7, %color
+  %alpha__ = call float @llvm.gla.fReadInterpolant.f32(i32 7, i32 -1, i32 1)
+  %texColor8 = fadd <4 x float> %texColor7, %color__
   %4 = fadd <4 x float> %3, %"gl_TexCoord_6[4]"
-  %5 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor8, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %alpha, i32 0)
+  %5 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor8, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %alpha__, i32 0)
   %FragColor_shadow = fadd <4 x float> %4, %5
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
   br label %stage-epilogue
