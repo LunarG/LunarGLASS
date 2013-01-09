@@ -264,6 +264,15 @@ void RemoveSeparator(std::string& name)
     name = name.substr(0, end - 2);
 }
 
+void RemoveInlineNotation(std::string& name)
+{
+    int end = name.size();
+    if (name[end-1] == 'i' && name[end-2] == '.') {
+        name.pop_back();
+        name.pop_back();
+    }
+}
+
 const llvm::Type* GetBasicType(const llvm::Value* value)
 {
     return GetBasicType(value->getType());

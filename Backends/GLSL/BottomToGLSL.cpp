@@ -1921,6 +1921,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fReadInterpolant:
         {
             std::string name = llvmInstruction->getNameStr();
+            gla::RemoveInlineNotation(name);
             gla::RemoveSeparator(name);
             makeParseable(name);
 

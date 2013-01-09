@@ -144,6 +144,7 @@ namespace gla {
     void RemoveArraySizeFromName(std::string& name);
     void AddSeparator(std::string& name);
     void RemoveSeparator(std::string& name);
+    void RemoveInlineNotation(std::string& name);
 
     const llvm::Type* GetBasicType(const llvm::Value*);
     const llvm::Type* GetBasicType(const llvm::Type*);
