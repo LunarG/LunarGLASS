@@ -1,6 +1,11 @@
-Tests
-- replicated 'in':  aggOps coord & coord26, 
-- change 'in': Color1 in depthOut, coord9 in localAggregates, coord1 in structDeref
+Copyright fixes
+	common builder:  current one from the adapter	
+	adapter: same, minus the 3Dlabs
+
+Update documentation
+
+LLVM 3.2
+• 
 
 GLSL 1.2
 • Non-ES: Automatically convert integer types to float types, as needed by context.
@@ -30,6 +35,16 @@ GLSL 1.2
 • array type syntax is supported “float[5]”, and array initializers are added
 • Accept "f" as part of a floating-point constant.  E.g.  "float g = 3.5f".
 • Allow initializers on uniform declarations.  The value is set at link time.
+
+OpenGL ESSL 1.0 adds
+• precision qualifiers
+• reserves superp
+
+OpenGL ESSL 1.0 removes
+• almost all built-in "gl_" variables, state, etc.
+• multiple compilation units
+• 1D and 3D textures
+• shadow textures
 
 GLSL 1.3
 • new texture names
@@ -127,16 +142,6 @@ GLSL 1.3
   • Non-ES: Add built-in functions converting floating-point values to and from signed or unsigned integers representing their encoding.
 • Change #line behavior:  The number provided is the number of the next line of code, not the current line.  This makes it match C++ semantics.
 • Initializers for a shared global must be the same valued constant expression.
-
-OpenGL ESSL 1.0 adds
-• precision qualifiers
-• reserves superp
-
-OpenGL ESSL 1.0 removes
-• almost all built-in "gl_" variables, state, etc.
-• multiple compilation units
-• 1D and 3D textures
-• shadow textures
 
 OpenGL ES 3.0 removes
 • Profiles and deprecation
