@@ -121,7 +121,7 @@ public:
     void addGlobal(const llvm::GlobalVariable*)
     { counter++; }
 
-    void startFunctionDeclaration(const llvm::Type* type, const std::string& name)
+    void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name)
     { counter++; }
 
     void addArgument(const llvm::Value* value, bool last)

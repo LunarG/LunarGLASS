@@ -130,7 +130,7 @@ public:
         // don't free instructions, as they needs to live on
     }
 
-    void startFunctionDeclaration(const llvm::Type*, const std::string&) { }
+    void startFunctionDeclaration(const llvm::Type*, llvm::StringRef) { }
     void addArgument(const llvm::Value*, bool last) { }
     void endFunctionDeclaration() { }
     void startFunctionBody() { }

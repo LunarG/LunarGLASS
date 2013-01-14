@@ -273,12 +273,12 @@ void RemoveInlineNotation(std::string& name)
     }
 }
 
-const llvm::Type* GetBasicType(const llvm::Value* value)
+llvm::Type* GetBasicType(llvm::Value* value)
 {
     return GetBasicType(value->getType());
 }
 
-const llvm::Type* GetBasicType(const llvm::Type* type)
+llvm::Type* GetBasicType(llvm::Type* type)
 {
     switch(type->getTypeID()) {
     case llvm::Type::VectorTyID:
@@ -289,12 +289,12 @@ const llvm::Type* GetBasicType(const llvm::Type* type)
     return type;
 }
 
-llvm::Type::TypeID GetBasicTypeID(const llvm::Value* value)
+llvm::Type::TypeID GetBasicTypeID(llvm::Value* value)
 {
     return GetBasicTypeID(value->getType());
 }
 
-llvm::Type::TypeID GetBasicTypeID(const llvm::Type* type)
+llvm::Type::TypeID GetBasicTypeID(llvm::Type* type)
 {
     return GetBasicType(type)->getTypeID();
 }

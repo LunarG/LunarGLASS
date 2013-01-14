@@ -51,6 +51,8 @@
 // LLVM includes
 #include "llvm/Module.h"
 
+#include "Passes/Util/ConstantUtil.h"
+
 namespace gla {
     bool IsIdentitySwizzle(int glaSwizzle, int width)
     {
@@ -189,14 +191,14 @@ public:
         else
             type = global->getType();
 
-        std::string name  = global->getNameStr();
+        std::string name = global->getName();
         makeParseable(name);
         addNewVariable(global, name);
         declareVariable(type, name, mapGlaAddressSpace(global));
 
         if (global->hasInitializer()) {
-            llvm::Constant* constant = global->getInitializer();
-            emitInitializeAggregate(globalInitializers, global->getNameStr(), constant);
+            const llvm::Constant* constant = global->getInitializer();
+            emitInitializeAggregate(globalInitializers, global->getName(), constant);
         }
     }
 
@@ -206,11 +208,11 @@ public:
             declareVariable(outputs[i].type, outputs[i].name, EVQOutput);
     }
 
-    void startFunctionDeclaration(const llvm::Type* type, const std::string& name)
+    void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name)
     {
         newLine();
         emitGlaType(shader, type->getContainedType(0));
-        shader << " " << name << "(";
+        shader << " " << name.str() << "(";
 
         if (name == std::string("main"))
             appendInitializers = true;
@@ -687,7 +689,7 @@ protected:
             case 3:   varString->append("w"); break;
             }
         } else {
-            if (IsTempName(value->getNameStr())) {
+            if (IsTempName(value->getName())) {
                 varString->append(mapGlaToQualifierString(mapGlaAddressSpace(value)));
                 snprintf(buf, bufSize, "%d", lastVariable);
                 varString->append(buf);
@@ -715,7 +717,7 @@ protected:
                     varString->append("f");
                 }
             } else {
-                varString->append(value->getNameStr());
+                varString->append(value->getName());
             }
 
             makeParseable(*varString);
@@ -1666,7 +1668,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                 // We want phis to use the same variable name created during phi declaration
                 addNewVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
             } else {
-                std::string name = llvmInstruction->getOperand(0)->getNameStr();
+                std::string name = llvmInstruction->getOperand(0)->getName();
                 makeParseable(name);
                 addNewVariable(llvmInstruction, name);
             }
@@ -1809,7 +1811,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         assert(llvm::isa<llvm::ConstantVector>(mask) || llvm::isa<llvm::ConstantAggregateZero>(mask));
 
         llvm::SmallVector<llvm::Constant*,4> elts;
-        mask->getVectorElements(elts);
+        gla_llvm::GetElements(mask, elts);
 
         for (int i = 0; i < resultWidth; ++i) {
             if (i != 0)
@@ -1920,7 +1922,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fReadData:
     case llvm::Intrinsic::gla_fReadInterpolant:
         {
-            std::string name = llvmInstruction->getNameStr();
+            std::string name = llvmInstruction->getName();
             gla::RemoveInlineNotation(name);
             gla::RemoveSeparator(name);
             makeParseable(name);
@@ -1963,7 +1965,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             int coordWidth = gla::GetComponentCount(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
             assert(coordWidth < 4);
 
-            const llvm::Type* coordType = llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord))->getType();
+            llvm::Type* coordType = llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord))->getType();
 
             if (coordType->isVectorTy())
                 coordType = coordType->getContainedType(0);
@@ -2028,7 +2030,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         assert(mask);
 
         llvm::SmallVector<llvm::Constant*, 8> elts;
-        mask->getVectorElements(elts);
+        gla_llvm::GetElements(mask, elts);
 
         if (! AreAllDefined(mask)) {
             shader << ";";
@@ -2257,7 +2259,7 @@ void gla::GlslTarget::mapGlaCall(const llvm::CallInst* call)
 {
     newLine();
     emitGlaValue(call);
-    shader << " = " << call->getCalledFunction()->getNameStr() << "(";
+    shader << " = " << std::string(call->getCalledFunction()->getName()) << "(";
     for (int arg = 0; arg < call->getNumArgOperands(); ++arg) {
         emitGlaOperand(call->getArgOperand(arg));
         if (arg + 1 < call->getNumArgOperands())

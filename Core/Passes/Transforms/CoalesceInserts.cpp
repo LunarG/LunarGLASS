@@ -44,6 +44,7 @@
 #include "llvm/Type.h"
 
 #include "Passes/PassSupport.h"
+#include "Passes/Util/ConstantUtil.h"
 
 // LunarGLASS helpers
 #include "Util.h"
@@ -269,7 +270,7 @@ static void GetUnderlyingOffsetAndValue(Value*& value, unsigned& offset)
 
             int sourceSize = gla::GetComponentCount(inst->getOperand(0));
 
-            shuffleMask->getVectorElements(elts);
+            GetElements(shuffleMask, elts);
             assert(elts.size() >= offset && "out-of-range offset");
 
             // Get the offset, if it's undef, then return back an undef value.
@@ -457,7 +458,7 @@ void MultiInsertIntrinsic::buildFromGroup()
         Constant* shuffleMask = dyn_cast<Constant>(toReplace->getOperand(2));
         assert(shuffleMask);
 
-        shuffleMask->getVectorElements(elts);
+        GetElements(shuffleMask, elts);
         assert(elts.size() <= 4);
 
         int sourceSize = gla::GetComponentCount(toReplace->getOperand(0));
@@ -528,11 +529,10 @@ void MultiInsertIntrinsic::buildFromGroup()
 void MultiInsertIntrinsic::makeIntrinsic()
 {
     // Set up types array
-    int typesCount = 6;
-    const llvm::Type* intrinsicTypes[6] = {0};
+    llvm::Type* intrinsicTypes[6] = {};
 
     // Default type to choose
-    const llvm::Type* defaultType;
+    llvm::Type* defaultType;
 
     // Determine if it's a fWriteMask or writeMask, and set types accordingly
     Intrinsic::ID intrinsicID;
@@ -561,10 +561,10 @@ void MultiInsertIntrinsic::makeIntrinsic()
     intrinsicTypes[4] = values[2]      ? values[2]->getType()      : defaultType;
     intrinsicTypes[5] = values[3]      ? values[3]->getType()      : defaultType;
 
-    const Type* i32Ty = Type::getInt32Ty(llvmcontext);
+    Type* i32Ty = Type::getInt32Ty(llvmcontext);
 
     // Get the function declaration for this intrinsic
-    Value* callee = llvm::Intrinsic::getDeclaration(module, intrinsicID, intrinsicTypes, typesCount);
+    Value* callee = llvm::Intrinsic::getDeclaration(module, intrinsicID, intrinsicTypes);
 
     Value* mask    = ConstantInt::get(i32Ty, writeMask);
     Value* xOffset = offsets[0] == -1 ? UndefValue::get(i32Ty) : ConstantInt::get(i32Ty, offsets[0]);
@@ -580,7 +580,7 @@ void MultiInsertIntrinsic::makeIntrinsic()
     Value* args[] = { originalSource, mask, xV, xOffset, yV, yOffset, zV, zOffset, wV, wOffset };
 
     // Create it
-    intrinsic = CallInst::Create(callee, args, args+10);
+    intrinsic = CallInst::Create(callee, args);
 }
 
 void MultiInsertIntrinsic::insertIntrinsic()

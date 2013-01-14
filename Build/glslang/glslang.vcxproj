@@ -52,13 +52,14 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../../glslang;../../../glslang/Include;../../Core;../../;../../Core/LLVM/llvm-2.9/build/install/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../glslang;../../../glslang/Include;../../Core;../../;../../Core/LLVM/llvm-3.2.src/build/install/include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4624;4355;4291;4018;4800;4267;4996;4244;4146</DisableSpecificWarnings>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../../../glslang/glslang/UserM_Debug;../../Core/LLVM/llvm-2.9/build/lib/Debug;$(Outdir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../glslang/glslang/UserM_Debug;../../Core/LLVM/llvm-3.2.src/build/lib/Debug;$(Outdir)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glslang.lib;LunarGLASS.lib;LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;LLVMInstCombine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -69,7 +70,7 @@
       <FunctionLevelLinking>
       </FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>../../../glslang;../../../glslang/Include;../../Core;../../;../../Core/LLVM/llvm-2.9/build/install/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../glslang;../../../glslang/Include;../../Core;../../;../../Core/LLVM/llvm-3.2.src/build/install/include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4624;4355;4291;4018;4800;4267;4996;4244;4146</DisableSpecificWarnings>
       <PreprocessorDefinitions>WIN32;_CONSOLE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>
@@ -86,7 +87,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>../../../glslang/glslang/UserM_Release;../../Core/LLVM/llvm-2.9/build/lib/Release;$(Outdir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../glslang/glslang/UserM_Release;../../Core/LLVM/llvm-3.2.src/build/lib/Release;$(Outdir)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glslang.lib;LunarGLASS.lib;LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;LLVMInstCombine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

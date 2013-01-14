@@ -52,7 +52,7 @@
 #include "llvm/LLVMContext.h"
 #include "llvm/Module.h"
 #include "llvm/Transforms/Scalar.h"
-#include "llvm/Support/IRBuilder.h"
+#include "llvm/IRBuilder.h"
 #include <string>
 #include <map>
 #include <list>
@@ -72,7 +72,7 @@ public:
     virtual ~TGlslangToTopTraverser();
 
     gla::Builder::SuperValue createLLVMVariable(TIntermSymbol* node);
-    const llvm::Type* convertGlslangToGlaType(const TType& type);
+    llvm::Type* convertGlslangToGlaType(const TType& type);
 
     void handleFunctionEntry(TIntermAggregate* node);
     void translateArguments(TIntermSequence& glslangArguments, std::vector<gla::Builder::SuperValue>& arguments);
@@ -81,7 +81,7 @@ public:
 
     gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool reduceComparison = true);
     gla::Builder::SuperValue createUnaryOperation(TOperator op, gla::Builder::SuperValue operand);
-    gla::Builder::SuperValue createConversion(TOperator op, const llvm::Type*, gla::Builder::SuperValue operand);
+    gla::Builder::SuperValue createConversion(TOperator op, llvm::Type*, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands);
     void createPipelineRead(TIntermSymbol*, gla::Builder::SuperValue storage, int slot);
@@ -815,15 +815,15 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
 
     std::string name(node->getSymbol().c_str());
 
-    const llvm::Type *llvmType = convertGlslangToGlaType(node->getType());
+    llvm::Type *llvmType = convertGlslangToGlaType(node->getType());
 
     return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType, node->getType().isMatrix(),
                                       initializer, annotationAddr, name);
 }
 
-const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
+llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
 {
-    const llvm::Type *glaType;
+    llvm::Type *glaType;
 
     switch(type.getBasicType()) {
     case EbtVoid:
@@ -852,7 +852,7 @@ const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& t
     case EbtStruct:
         {
             TTypeList* glslangStruct = type.getStruct();
-            std::vector<const llvm::Type*> structFields;
+            std::vector<llvm::Type*> structFields;
             llvm::StructType* structType = structMap[glslangStruct];
             if (structType) {
                 // If we've seen this struct type, return it
@@ -862,7 +862,9 @@ const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& t
                 for (int i = 0; i < glslangStruct->size(); i++)
                     structFields.push_back(convertGlslangToGlaType(*(*glslangStruct)[i].type));
                 structType = llvm::StructType::get(context, structFields, false);
-                module->addTypeName(type.getTypeName().c_str(), structType);
+                // TODO LLVM 3.2, addTypeName() disappeared
+                assert(0);
+                //module->addTypeName(type.getTypeName().c_str(), structType);
                 structMap[glslangStruct] = structType;
                 glaType = structType;
             }
@@ -894,20 +896,20 @@ const llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& t
 
 void TGlslangToTopTraverser::handleFunctionEntry(TIntermAggregate* node)
 {
-    std::vector<const llvm::Type*> paramTypes;
+    std::vector<llvm::Type*> paramTypes;
     TIntermSequence& parameters = node->getSequence()[0]->getAsAggregate()->getSequence();
 
     // At call time, space should be allocated for all the arguments,
     // and pointers to that space passed to the function as the formal parameters.
     for (int i = 0; i < parameters.size(); ++i) {
-        const llvm::Type* type = convertGlslangToGlaType(parameters[i]->getAsTyped()->getType());
+        llvm::Type* type = convertGlslangToGlaType(parameters[i]->getAsTyped()->getType());
         paramTypes.push_back(llvm::PointerType::get(type, gla::GlobalAddressSpace));
     }
 
     llvm::BasicBlock* functionBlock;
     llvm::Function *function = glaBuilder->makeFunctionEntry(convertGlslangToGlaType(node->getType()), node->getName().c_str(),
                                                              paramTypes, &functionBlock);
-    function->addFnAttr(llvm::Attribute::AlwaysInline);
+    function->addFnAttr(llvm::Attributes::AlwaysInline);
     llvmBuilder.SetInsertPoint(functionBlock);
 
     // Visit parameter list again to create mappings to local variables and set attributes.
@@ -1073,7 +1075,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
         }
     }
 
-    gla::Builder::SuperValue result = llvmBuilder.Insert(llvm::CallInst::Create(function, llvmArgs.begin(), llvmArgs.end()));
+    gla::Builder::SuperValue result = llvmBuilder.Insert(llvm::CallInst::Create(function, llvmArgs));
 
     // Copy-out time...
     // Convert outputs to correct type before storing into the l-value
@@ -1082,7 +1084,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
         if (qualifiers[i] == EvqOut || qualifiers[i] == EvqInOut) {
             glaBuilder->setAccessChain(*savedIt);
             gla::Builder::SuperValue output = glaBuilder->createLoad(llvmArgs[i]);
-            const llvm::Type* destType = convertGlslangToGlaType(glslangArgs[i]->getAsTyped()->getType());
+            llvm::Type* destType = convertGlslangToGlaType(glslangArgs[i]->getAsTyped()->getType());
             if (destType != output->getType()) {
                 // TODO: test this after the front-end can support it
                 TOperator op = EOpNull;
@@ -1333,7 +1335,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
     return result;
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::createConversion(TOperator op, const llvm::Type* destType, gla::Builder::SuperValue operand)
+gla::Builder::SuperValue TGlslangToTopTraverser::createConversion(TOperator op, llvm::Type* destType, gla::Builder::SuperValue operand)
 {
     gla::Builder::SuperValue result;
 
@@ -1621,7 +1623,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
     // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
     // which gets optimized later.
     std::string name(node->getSymbol().c_str());
-    const llvm::Type* readType;
+    llvm::Type* readType;
     int endSlot = slot + 1;
     llvm::Value* pipeRead;
 
@@ -1678,7 +1680,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMConstant(const TType&
     std::vector<llvm::Constant*> llvmConsts;
 
     // Type is used for struct and array constants
-    const llvm::Type* type = convertGlslangToGlaType(glslangType);
+    llvm::Type* type = convertGlslangToGlaType(glslangType);
 
     if (glslangType.isArray()) {
         TType nonArrayType = glslangType;

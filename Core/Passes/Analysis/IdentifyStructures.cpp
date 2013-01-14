@@ -54,6 +54,7 @@ bool IdentifyStructures::runOnFunction(Function &F)
     DominanceFrontier& domFront    = getAnalysis<DominanceFrontier>();
     DominatorTree& domTree         = getAnalysis<DominatorTree>();
     PostDominatorTree& postDomTree = getAnalysis<PostDominatorTree>();
+    ScalarEvolution& scalarEvo     = getAnalysis<ScalarEvolution>();
 
     // Set up stageExit and mainCopyOut
     stageExit   = GetMainExit(F);
@@ -102,7 +103,7 @@ bool IdentifyStructures::runOnFunction(Function &F)
                         || latch == getConditional(domTree.getNode(latch)->getIDom()->getBlock())->getMergeBlock();
 
 
-        LoopWrapper* lw = loop ? new LoopWrapper(loop, &domFront, simpleLatch) : 0;
+        LoopWrapper* lw = loop ? new LoopWrapper(loop, &domFront, &scalarEvo, simpleLatch) : 0;
         loopWrappers.insert(make_pair(bb, lw));
     }
 
@@ -115,6 +116,7 @@ void IdentifyStructures::getAnalysisUsage(AnalysisUsage& AU) const
     AU.addRequired<DominatorTree>();
     AU.addRequired<PostDominatorTree>();
     AU.addRequired<LoopInfo>();
+    AU.addRequired<ScalarEvolution>();
     AU.setPreservesAll();
     return;
 }
@@ -154,6 +156,7 @@ INITIALIZE_PASS_DEPENDENCY(DominanceFrontier)
 INITIALIZE_PASS_DEPENDENCY(DominatorTree)
 INITIALIZE_PASS_DEPENDENCY(PostDominatorTree)
 INITIALIZE_PASS_DEPENDENCY(LoopInfo)
+INITIALIZE_PASS_DEPENDENCY(ScalarEvolution)
 INITIALIZE_PASS_END(IdentifyStructures,
                     "identify-structures",
                     "Identify the structures in a structured-cfg",

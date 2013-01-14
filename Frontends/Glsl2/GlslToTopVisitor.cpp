@@ -105,7 +105,7 @@ llvm::Constant* GlslToTopVisitor::createLLVMConstant(ir_constant* constant)
     std::vector<llvm::Constant*> vals;
 
     // Type is used for struct and array constants
-    const llvm::Type* type = convertGlslToGlaType(constant->type);
+    llvm::Type* type = convertGlslToGlaType(constant->type);
 
     if (constant->type->vector_elements) {
         for (unsigned int i = 0; i < constant->type->vector_elements; ++i) {
@@ -253,7 +253,7 @@ ir_visitor_status
                     // promoteMemToReg will not drop the pointer references.
                     lastValue = glaBuilder->createLoad(lastValue);
                     if (indexCount > 0)
-                        lastValue = llvmBuilder.CreateExtractValue(lastValue, indices, indices + indexCount);
+                        lastValue = llvmBuilder.CreateExtractValue(lastValue, llvm::makeArrayRef(indices, indexCount));
                 } else {
                     gla::UnsupportedFunctionality("non-constant dereference in local array");
                 }
@@ -330,7 +330,7 @@ ir_visitor_status
             return visit_continue;
         }
 
-        std::vector<const llvm::Type*> paramTypes;
+        std::vector<llvm::Type*> paramTypes;
         ir_variable* parameter;
 
         exec_list_iterator iterParam = sig->parameters.iterator();
@@ -343,7 +343,7 @@ ir_visitor_status
 
         llvm::BasicBlock* functionBlock;
         llvm::Function *function = glaBuilder->makeFunctionEntry(convertGlslToGlaType(sig->return_type), sig->function_name(), paramTypes, &functionBlock);
-        function->addFnAttr(llvm::Attribute::AlwaysInline);
+        function->addFnAttr(llvm::Attributes::AlwaysInline);
         llvmBuilder.SetInsertPoint(functionBlock);
 
         // Visit parameter list again to create mappings to local variables and set attributes.
@@ -747,7 +747,7 @@ ir_visitor_status
         if (lValueAggregate.isClear())
             targetVector = glaBuilder->createLoad(lValue.base);
         else
-            targetVector = llvmBuilder.CreateExtractValue(lValueAggregate, indices, indices + indexCount);
+            targetVector = llvmBuilder.CreateExtractValue(lValueAggregate, llvm::makeArrayRef(indices, indexCount));
 
         // Check each channel of the writemask
         for(int i = 0; i < 4; ++i) {
@@ -806,7 +806,7 @@ ir_visitor_status
         llvm::Function* function = functionMap[call->get_callee()];
         assert(function);
 
-        lastValue = llvmBuilder.Insert(llvm::CallInst::Create(function, &llvmParams[0], &llvmParams[paramCount]));
+        lastValue = llvmBuilder.Insert(llvm::CallInst::Create(function, llvmParams));
     } else {
         if (! strcmp(call->callee_name(), "mix")) {
             if(gla::GetBasicType(llvmParams[0])->isIntegerTy()) {
@@ -955,7 +955,7 @@ gla::Builder::SuperValue GlslToTopVisitor::createLLVMVariable(ir_variable* var)
     // var->pixel_center_integer;
     // var->location;
 
-    const llvm::Type *llvmType = convertGlslToGlaType(var->type);
+    llvm::Type *llvmType = convertGlslToGlaType(var->type);
 
     return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType, var->type->is_matrix(), initializer, annotationAddr, var->name);
 }
@@ -1426,14 +1426,14 @@ llvm::Value* GlslToTopVisitor::expandGLSLSwizzle(ir_swizzle* swiz)
     // convert our ir mask to a gla mask
     int swizValMask = gla::MakeSwizzleMask(swiz->mask.x, swiz->mask.y, swiz->mask.z, swiz->mask.w);
 
-    const llvm::Type* finalType = convertGlslToGlaType(swiz->type);
+    llvm::Type* finalType = convertGlslToGlaType(swiz->type);
 
     return glaBuilder->createSwizzle(lastValue, swizValMask, finalType);
 }
 
-const llvm::Type* GlslToTopVisitor::convertGlslToGlaType(const glsl_type* type)
+llvm::Type* GlslToTopVisitor::convertGlslToGlaType(const glsl_type* type)
 {
-    const llvm::Type *glaType;
+    llvm::Type *glaType;
 
     switch(type->base_type) {
     case GLSL_TYPE_UINT:
@@ -1455,7 +1455,7 @@ const llvm::Type* GlslToTopVisitor::convertGlslToGlaType(const glsl_type* type)
         break;
     case GLSL_TYPE_STRUCT:
         {
-            std::vector<const llvm::Type*> structFields;
+            std::vector<llvm::Type*> structFields;
             llvm::StructType* structType = structMap[type->name];
             if (structType) {
                 // If we've seen this struct type, return it
@@ -1465,8 +1465,9 @@ const llvm::Type* GlslToTopVisitor::convertGlslToGlaType(const glsl_type* type)
                 for (int i = 0; i < type->length; i++) {
                     structFields.push_back(convertGlslToGlaType(type->fields.structure[i].type));
                 }
-                structType = llvm::StructType::get(context, structFields, false);
-                module->addTypeName(type->name, structType);
+                structType = llvm::StructType::get(context, structFields);
+                // TODO LLVM 3.2, addTypeName() disappeared
+                //module->addTypeName(type->name, structType);
                 structMap[type->name] = structType;
                 glaType = structType;
             }
@@ -1495,7 +1496,7 @@ llvm::Value* GlslToTopVisitor::createPipelineRead(ir_variable* var, int index)
     // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
     // which we will optimize later.
     std::string name(var->name);
-    const llvm::Type* readType;
+    llvm::Type* readType;
 
     if (GLSL_TYPE_ARRAY == var->type->base_type) {
         // If we're reading from an array, we just finished traversing the index

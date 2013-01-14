@@ -26,7 +26,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "llvm/Support/IRBuilder.h"
+#include "llvm/IRBuilder.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 #include "llvm/Transforms/Utils/Local.h"
 
@@ -69,7 +69,7 @@ BasicBlock* DuplicateBasicBlock(BasicBlock* toDuplicate)
     internalBlocks.insert(clone);
     for (BasicBlock::iterator instI = toDuplicate->begin(), instE = toDuplicate->getTerminator();
          instI != instE; ++instI) {
-        PHINode* phi = builder.CreatePHI(instI->getType());
+        PHINode* phi = builder.CreatePHI(instI->getType(), 2);
         phi->addIncoming(instI, toDuplicate);
         phi->addIncoming(vMap[instI], clone);
 

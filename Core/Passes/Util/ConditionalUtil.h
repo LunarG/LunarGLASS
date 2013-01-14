@@ -191,7 +191,7 @@ namespace gla_llvm {
                     preds.push_back(*i);
             }
 
-            merge = SplitBlockPredecessors(merge, &preds.front(), preds.size(), "_split", parentPass);
+            merge = SplitBlockPredecessors(merge, preds, "_split", parentPass);
             assert(! hasSharedMerge() && "Entry still does not dominate merge?");
 
             return true;

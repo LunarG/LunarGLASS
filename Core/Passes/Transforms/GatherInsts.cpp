@@ -370,8 +370,8 @@ bool GatherInsts::visitMinMaxPair(IntrinsicInst* fMin, IntrinsicInst* fMax)
 
         if (saturateCandidate) {
             // Make the fSaturate call
-            const Type* tys[2] = { fMin->getType(), fMin->getType() };
-            Function* f = Intrinsic::getDeclaration(module, Intrinsic::gla_fSaturate, tys, 2);
+            Type* tys[2] = { fMin->getType(), fMin->getType() };
+            Function* f = Intrinsic::getDeclaration(module, Intrinsic::gla_fSaturate, tys);
             Instruction* satInst = builder->CreateCall(f, saturateCandidate);
 
             fMin->replaceAllUsesWith(satInst);
@@ -381,8 +381,8 @@ bool GatherInsts::visitMinMaxPair(IntrinsicInst* fMin, IntrinsicInst* fMax)
     }
 
     // Make an fClamp
-    const Type* tys[4] = { fMin->getType(), fMin->getType(), fMin->getType(), fMin->getType() };
-    Function* f = Intrinsic::getDeclaration(module, Intrinsic::gla_fClamp, tys, 4);
+    Type* tys[4] = { fMin->getType(), fMin->getType(), fMin->getType(), fMin->getType() };
+    Function* f = Intrinsic::getDeclaration(module, Intrinsic::gla_fClamp, tys);
     int nonfMaxOpIdx = fMin->getArgOperand(0) == fMax ? 1 : 0;
     assert(fMin->getArgOperand(nonfMaxOpIdx) != fMax && fMin->getArgOperand(!nonfMaxOpIdx) == fMax);
 
@@ -402,9 +402,9 @@ bool GatherInsts::createExtendedBinOp(Intrinsic::ID extId, BinaryOperator* binOp
 
     // Make the mulExtended
     builder->SetInsertPoint(binOp);
-    const Type* type = operand0->getType();
-    const Type* tys[4] = { type, type, type, type };
-    Function* f = Intrinsic::getDeclaration(module, extId, tys, 4);
+    Type* type = operand0->getType();
+    Type* tys[4] = { type, type, type, type };
+    Function* f = Intrinsic::getDeclaration(module, extId, tys);
     Instruction* extIntrinsic = builder->CreateCall2(f, operand0, operand1);
 
     // Make the extracts and update the code to use the new values.

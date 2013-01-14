@@ -37,15 +37,15 @@ namespace gla_llvm {
     // Whether the given function is the main one
     inline bool IsMain(Function& fun)
     {
-        return fun.getNameStr() == "main";
+        return fun.getName() == "main";
     }
 
     // Get the block from the function with the passed name. Returns NULL if it
     // doesn't exist.
-    inline BasicBlock* GetNamedBlock(Function& fun, std::string name)
+    inline BasicBlock* GetNamedBlock(Function& fun, llvm::StringRef name)
     {
         for (Function::iterator bb = fun.begin(), e = fun.end(); bb != e; ++bb)
-            if (bb->getNameStr() == name)
+            if (bb->getName() == name)
                 return bb;
 
         return NULL;

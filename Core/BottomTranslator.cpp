@@ -93,9 +93,10 @@
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Analysis/Verifier.h"
 #include "llvm/Transforms/Scalar.h"
-#include "llvm/Support/IRBuilder.h"
+#include "llvm/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/TypeSymbolTable.h"
+// TODO LLVM 3.2, TypeSymbolTable.h is gone
+//#include "llvm/TypeSymbolTable.h"
 
 #include <cstdio>
 #include <string>
@@ -282,25 +283,22 @@ namespace {
 static void CreateSimpleInductiveLoop(LoopWrapper& loop, gla::BackEndTranslator& bet)
 {
     const PHINode* pn  = loop.getCanonicalInductionVariable();
-    const Value* count = loop.getTripCount();
-    assert(pn && count);
-
-    int tripCount = -1; // flag that we don't have a static tripCount
-    if (llvm::isa<llvm::Constant>(count)) {
-        tripCount = gla::GetConstantInt(count);
-        assert(tripCount >= 0);
-    }
+    unsigned int tripCount = loop.getTripCount();
+    assert(pn);
 
     if (gla::Options.debug && ! gla::Options.bottomIROnly) {
         errs() << "\ninductive variable:"   << *pn;
-        errs() << "\n  trip count:      " << *count;
+        errs() << "\n  trip count:      "   << tripCount;
         errs() << "\n  increment:       "   << *loop.getIncrement();
         errs() << "\n  exit condition:  "   << *loop.getInductiveExitCondition();
         errs() << "\n";
     }
 
-    if (tripCount == -1)
-        bet.beginSimpleInductiveLoop(pn, count);
+    // tripCount of 0 means not a known constant count
+    if (tripCount == 0)
+        // TODO LLVM 3.2: the second argument below needs to be an LLVM value
+        // representing the non-constant trip count
+        bet.beginSimpleInductiveLoop(pn, -1);
     else
         bet.beginSimpleInductiveLoop(pn, tripCount);
 }
@@ -873,9 +871,12 @@ bool BottomTranslator::runOnModule(Module& module)
     //
     // Translate named struct types.
     //
-    const TypeSymbolTable& symbolTable = module.getTypeSymbolTable();
-    for (TypeSymbolTable::const_iterator tableIter = symbolTable.begin(), tableEnd = symbolTable.end(); tableIter != tableEnd; ++tableIter)
-        backEndTranslator->addStructType(tableIter->first, tableIter->second);
+
+    // TODO LLVM 3.2, type symbol table is gone
+    assert(0);
+    //const TypeSymbolTable& symbolTable = module.getTypeSymbolTable();
+    //for (TypeSymbolTable::const_iterator tableIter = symbolTable.begin(), tableEnd = symbolTable.end(); tableIter != tableEnd; ++tableIter)
+    //    backEndTranslator->addStructType(tableIter->first, tableIter->second);
 
     //
     // Translate globals.
@@ -911,7 +912,7 @@ bool BottomTranslator::runOnModule(Module& module)
 
             // handle function's with bodies
 
-            backEndTranslator->startFunctionDeclaration(function->getFunctionType(), function->getNameStr());
+            backEndTranslator->startFunctionDeclaration(function->getFunctionType(), function->getName());
 
             // paramaters and arguments
             for (Function::const_arg_iterator arg = function->arg_begin(), endArg = function->arg_end(); arg != endArg; ++arg) {

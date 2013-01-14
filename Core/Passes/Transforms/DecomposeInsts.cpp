@@ -102,10 +102,10 @@ namespace  {
         return OperateWithConstant(builder, llvm::BinaryOperator::FAdd, arg, constant);
     }
 
-    llvm::Function* GetDotIntrinsic(Module* module, const Type* argTypes[])
+    llvm::Function* GetDotIntrinsic(Module* module, Type* argTypes[])
     {
         // scalar dest
-        const llvm::Type* types[] = { GetBasicType(argTypes[0]), argTypes[0], argTypes[1] };
+        llvm::Type* types[] = { GetBasicType(argTypes[0]), argTypes[0], argTypes[1] };
 
         Intrinsic::ID dotID;
         switch (GetComponentCount(argTypes[0])) {
@@ -122,7 +122,7 @@ namespace  {
             assert(! "Bad dot component count");
         }
 
-        return Intrinsic::getDeclaration(module, dotID, types, 3);
+        return Intrinsic::getDeclaration(module, dotID, types);
     }
 
 } // end namespace
@@ -155,8 +155,8 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
         if (inst->getNumOperands() > 2)
             arg2 = inst->getOperand(2);
         llvm::Value* newInst = 0;
-        const Type* instTypes[] = { inst->getType(), inst->getType(), inst->getType(), inst->getType() };
-        const Type* argTypes[] = { arg0->getType(), arg0->getType(), arg0->getType(), arg0->getType() };
+        Type* instTypes[] = { inst->getType(), inst->getType(), inst->getType(), inst->getType() };
+        Type* argTypes[] = { arg0->getType(), arg0->getType(), arg0->getType(), arg0->getType() };
         builder.SetInsertPoint(instI);
 
         switch (intrinsic->getIntrinsicID()) {
@@ -200,8 +200,8 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 //
                 // Clamp(x, minVal, maxVal) is defined to be min(max(x, minVal), maxVal).
                 //
-                Function* max = Intrinsic::getDeclaration(module, Intrinsic::gla_fMax, argTypes, 3);
-                Function* min = Intrinsic::getDeclaration(module, Intrinsic::gla_fMin, argTypes, 3);
+                Function* max = Intrinsic::getDeclaration(module, Intrinsic::gla_fMax, makeArrayRef(argTypes, 3));
+                Function* min = Intrinsic::getDeclaration(module, Intrinsic::gla_fMin, makeArrayRef(argTypes, 3));
                 newInst = builder.CreateCall2(max, arg0, arg1);
                 newInst = builder.CreateCall2(min, newInst, arg2);
 
@@ -244,7 +244,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 poly = AddWithConstant(builder, poly, a);
 
                 // sqrt part
-                Function* sqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fSqrt, argTypes, 2);
+                Function* sqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fSqrt, makeArrayRef(argTypes, 2));
                 newInst = builder.CreateFNeg(arg0);
                 newInst = AddWithConstant(builder, newInst, 1.0);
                 newInst = builder.CreateCall(sqrt, newInst);
@@ -327,7 +327,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     multiplier = inv_loge_2;
 
                 newInst = MultiplyByConstant(builder, arg0, multiplier);
-                Function* exp = Intrinsic::getDeclaration(module, Intrinsic::gla_fExp2, argTypes, 2);
+                Function* exp = Intrinsic::getDeclaration(module, Intrinsic::gla_fExp2, makeArrayRef(argTypes, 2));
                 newInst = builder.CreateCall(exp, newInst);
             }
             break;
@@ -351,7 +351,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 else
                     multiplier = loge_2;
 
-                Function* log = Intrinsic::getDeclaration(module, Intrinsic::gla_fLog2, argTypes, 2);
+                Function* log = Intrinsic::getDeclaration(module, Intrinsic::gla_fLog2, makeArrayRef(argTypes, 2));
                 newInst = builder.CreateCall(log, arg0);
                 newInst = MultiplyByConstant(builder, newInst, multiplier);
             }
@@ -359,7 +359,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
 
         case Intrinsic::gla_fInverseSqrt:
             if (backEnd->decomposeIntrinsic(EDiInverseSqrt)) {
-                Function* sqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fSqrt, argTypes, 2);
+                Function* sqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fSqrt, makeArrayRef(argTypes, 2));
                 newInst = builder.CreateCall(sqrt, arg0);
                 newInst = builder.CreateFDiv(MakeFloatConstant(module->getContext(), 1.0), newInst);
             }
@@ -479,10 +479,10 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     Function* dot = GetDotIntrinsic(module, argTypes);
                     newInst = builder.CreateCall2(dot, arg0, arg0);
 
-                    Function* sqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fSqrt, instTypes, 2);
+                    Function* sqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fSqrt, makeArrayRef(instTypes, 2));
                     newInst = builder.CreateCall(sqrt, newInst);
                 } else {
-                    Function* abs = Intrinsic::getDeclaration(module, Intrinsic::gla_fAbs, instTypes, 2);
+                    Function* abs = Intrinsic::getDeclaration(module, Intrinsic::gla_fAbs, makeArrayRef(instTypes, 2));
                     newInst = builder.CreateCall(abs, arg0);
                 }
 
@@ -495,8 +495,8 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
         case Intrinsic::gla_fDistance:
             if (backEnd->decomposeIntrinsic(EDiDistance)) {
                 newInst = builder.CreateFSub(arg0, arg1);
-                const llvm::Type* types[] = { GetBasicType(newInst), newInst->getType() };
-                Function* length = Intrinsic::getDeclaration(module, Intrinsic::gla_fLength, types, 2);
+                llvm::Type* types[] = { GetBasicType(newInst), newInst->getType() };
+                Function* length = Intrinsic::getDeclaration(module, Intrinsic::gla_fLength, types);
                 newInst = builder.CreateCall(length, newInst);
 
                 // Make next iteration revisit this decomposition, in case length is
@@ -615,8 +615,8 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     Function* dot = GetDotIntrinsic(module, argTypes);
                     newInst = builder.CreateCall2(dot, arg0, arg0);
 
-                    const llvm::Type* type[2] = { newInst->getType(), newInst->getType() };
-                    Function* inverseSqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fInverseSqrt, type, 2);
+                    llvm::Type* type[2] = { newInst->getType(), newInst->getType() };
+                    Function* inverseSqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fInverseSqrt, type);
                     newInst = builder.CreateCall(inverseSqrt, newInst);
 
                     // smear it
@@ -641,12 +641,12 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 // Note:  This does a 3D normalize on a vec3 or vec4.  The width of arg0 does
                 // not determine that width of the dot-product input, the "3" in the "3D" does.
 
-                const llvm::Type* types[] = { GetBasicType(argTypes[0]), argTypes[0], argTypes[1] };
-                Function* dot = Intrinsic::getDeclaration(module, Intrinsic::gla_fDot3, types, 3);
+                llvm::Type* types[] = { GetBasicType(argTypes[0]), argTypes[0], argTypes[1] };
+                Function* dot = Intrinsic::getDeclaration(module, Intrinsic::gla_fDot3, types);
                 newInst = builder.CreateCall2(dot, arg0, arg0);
 
-                const llvm::Type* type[2] = { newInst->getType(), newInst->getType() };
-                Function* inverseSqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fInverseSqrt, type, 2);
+                llvm::Type* type[2] = { newInst->getType(), newInst->getType() };
+                Function* inverseSqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fInverseSqrt, type);
                 newInst = builder.CreateCall(inverseSqrt, newInst);
 
                 // smear it
@@ -805,7 +805,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     llvm::Value* projIdx = MakeUnsignedConstant(module->getContext(), GetComponentCount(coords) - 1);
                     llvm::Value* divisor = builder.CreateExtractElement(coords, projIdx);
 
-                    const llvm::Type* newCoordType;
+                    llvm::Type* newCoordType;
                     if (newCoordWidth > 1)
                         newCoordType = llvm::VectorType::get(GetBasicType(coords), newCoordWidth);
                     else
@@ -839,7 +839,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     //
 
                     // build up argTypes for flexible parameters, including result
-                    llvm::SmallVector<const llvm::Type*, 5> types;
+                    llvm::SmallVector<llvm::Type*, 5> types;
 
                     // result type
                     types.push_back(intrinsic->getType());
@@ -862,7 +862,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     }
 
                     // declare the new intrinsic
-                    Function* texture = Intrinsic::getDeclaration(module, intrinsic->getIntrinsicID(), types.data(), types.size());
+                    Function* texture = Intrinsic::getDeclaration(module, intrinsic->getIntrinsicID(), types);
 
                     // modify arguments to match new intrinsic
                     intrinsic->setCalledFunction(texture);

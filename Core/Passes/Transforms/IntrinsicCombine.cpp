@@ -30,8 +30,9 @@
 //
 //   * Any instruction dominated or post-dominated by discard is DCEed
 //
-//   * Change (hoist) discards into discardConditionals which will reside in the
-//     post-dominance frontier. TODO: place these discards right after the
+//   * Hoist discards into discardConditionals which will reside in the only
+//     block in the post-dominance frontier. This block is determined lazily
+//     from the post-dominator tree. TODO: place these discards right after the
 //     condition is computed. TODO: only do based on backend query. TODO:
 //     migrate the condition as high as it can go.
 //
@@ -145,7 +146,6 @@ namespace  {
 
         DominatorTree* domTree;
         PostDominatorTree* postDomTree;
-        PostDominanceFrontier* postDomFront;
 
         Module* module;
         LLVMContext* context;
@@ -215,10 +215,14 @@ bool IntrinsicCombine::hoistDiscards(Function& F)
 
     IRBuilder<> builder(*context);
     for (DiscardList::iterator i = discards.begin(), e = discards.end(); i != e; ++i) {
-        PostDominanceFrontier::DomSetType pds = postDomFront->find((*i)->getParent())->second;
-        assert(pds.size() == 1 && "Unknown flow control layout or unstructured flow control");
+        SmallVector<BasicBlock*, 1> postDomFront;
+        // TODO LLVM 3.2: need to fix dominance frontiers
+        // ComputeDominanceFrontier((*i)->getParent(), *postDomTree->DT, postDomFront);
+        if (postDomFront.size() != 1) {
+            UnsupportedFunctionality("multiple post-dominance frontier entries for a discarding block");
+        }
 
-        BasicBlock* targetBlock = *pds.begin();
+        BasicBlock* targetBlock = postDomFront.front();
         BranchInst* br = dyn_cast<BranchInst>(targetBlock->getTerminator());
         assert(br && br->isConditional());
 
@@ -237,9 +241,8 @@ bool IntrinsicCombine::hoistDiscards(Function& F)
             cond = builder.CreateNot(cond);
         }
 
-        const Type* boolTy = gla::GetBoolType(*context);
-        builder.CreateCall(Intrinsic::getDeclaration(module, Intrinsic::gla_discardConditional, &boolTy, 1 ),
-                           cond);
+        Type* boolTy = gla::GetBoolType(*context);
+        builder.CreateCall(Intrinsic::getDeclaration(module, Intrinsic::gla_discardConditional, boolTy), cond);
 
         // Make the branch now branch on a constant
         br->setCondition(isRight ? ConstantInt::getTrue(*context) : ConstantInt::getFalse(*context));
@@ -339,8 +342,8 @@ bool IntrinsicCombine::splitWriteData(IntrinsicInst* intr)
             wmask |= (1 << *componentI);
         }
 
-        const Type* ty = i->first->getType();
-        Function* writeData = Intrinsic::getDeclaration(module, intr->getIntrinsicID(), &ty, 1);
+        Type* ty = i->first->getType();
+        Function* writeData = Intrinsic::getDeclaration(module, intr->getIntrinsicID(), ty);
         builder.CreateCall3(writeData, intr->getArgOperand(0), ConstantInt::get(wm->getType(), wmask), i->first);
     }
 
@@ -364,7 +367,6 @@ bool IntrinsicCombine::runOnFunction(Function& F)
 
     domTree = &getAnalysis<DominatorTree>();
     postDomTree = &getAnalysis<PostDominatorTree>();
-    postDomFront = &getAnalysis<PostDominanceFrontier>();
 
     module  = F.getParent();
     context = &F.getContext();
@@ -487,12 +489,12 @@ bool IntrinsicCombine::partiallyEvaluateMultiInsert(IntrinsicInst* miIntr)
         return false;
 
     const FunctionType* miTypes = miIntr->getCalledFunction()->getFunctionType();
-    const Type* declTys[6] = { miTypes->getReturnType(),
-                               miTypes->getParamType(0),
-                               miTypes->getParamType(2),
-                               miTypes->getParamType(4),
-                               miTypes->getParamType(6),
-                               miTypes->getParamType(8),
+    Type* declTys[] = { miTypes->getReturnType(),
+                        miTypes->getParamType(0),
+                        miTypes->getParamType(2),
+                        miTypes->getParamType(4),
+                        miTypes->getParamType(6),
+                        miTypes->getParamType(8),
     };
 
     for (SmallVector<ConstOp, 4>::iterator i = constantVectorSources.begin(), e = constantVectorSources.end();
@@ -512,7 +514,7 @@ bool IntrinsicCombine::partiallyEvaluateMultiInsert(IntrinsicInst* miIntr)
         declTys[i->second / 2 + 1] = constant->getType();
     }
 
-    Function* newDecl = Intrinsic::getDeclaration(module, miIntr->getIntrinsicID(), declTys, 6);
+    Function* newDecl = Intrinsic::getDeclaration(module, miIntr->getIntrinsicID(), declTys);
     miIntr->setCalledFunction(newDecl);
 
     return true;
@@ -523,7 +525,6 @@ void IntrinsicCombine::getAnalysisUsage(AnalysisUsage& AU) const
 {
     AU.addRequired<DominatorTree>();
     AU.addRequired<PostDominatorTree>();
-    AU.addRequired<PostDominanceFrontier>();
     return;
 }
 
@@ -541,7 +542,6 @@ INITIALIZE_PASS_BEGIN(IntrinsicCombine,
                       false); // Whether it is an analysis pass
 INITIALIZE_PASS_DEPENDENCY(DominatorTree)
 INITIALIZE_PASS_DEPENDENCY(PostDominatorTree)
-INITIALIZE_PASS_DEPENDENCY(PostDominanceFrontier)
 INITIALIZE_PASS_END(IntrinsicCombine,
                     "intrinsic-combine",
                     "Combine intrinsics for LunarGLASS",

@@ -47,7 +47,7 @@
 #include "llvm/Module.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/CFG.h"
-#include "llvm/Support/IRBuilder.h"
+#include "llvm/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
 
 #include "Passes/PassSupport.h"
@@ -151,8 +151,8 @@ namespace  {
         Module* module;
         IRBuilder<>* builder;
 
-        const Type* intTy;
-        const Type* floatTy;
+        Type* intTy;
+        Type* floatTy;
 
         std::vector<Instruction*> deadList;
 
@@ -231,7 +231,7 @@ Instruction* Scalarize::createScalarInstruction(Instruction* inst, ArrayRef<Valu
     }
 
     if (isa<PHINode>(inst)) {
-        PHINode* res = PHINode::Create(gla::GetBasicType(inst));
+        PHINode* res = PHINode::Create(gla::GetBasicType(inst), args.size() / 2);
         assert(args.size() % 2 == 0 && "Odd number of arguments for a PHI");
 
         // Loop over pairs of operands: [Value*, BasicBlock*]
@@ -262,14 +262,14 @@ Instruction* Scalarize::createScalarInstruction(Instruction* inst, ArrayRef<Valu
         // arguments be overloadable. Need to find some way to assert on this
         // assumption. This is due to how getDeclaration operates; it only takes
         // a list of types that fit overloadable slots.
-        SmallVector<const Type*, 8> tys(1, gla::GetBasicType(inst->getType()));
+        SmallVector<Type*, 8> tys(1, gla::GetBasicType(inst->getType()));
         // Call instructions have the decl as a last argument, so skip it
         for (ArrayRef<Value*>::iterator i = args.begin(), e = args.end() - 1; i != e; ++i) {
             tys.push_back(gla::GetBasicType((*i)->getType()));
         }
 
-        Function* f = Intrinsic::getDeclaration(module, intr->getIntrinsicID(), &tys.front(), tys.size());
-        return CallInst::Create(f, args.begin(), args.end()-1);
+        Function* f = Intrinsic::getDeclaration(module, intr->getIntrinsicID(), tys);
+        return CallInst::Create(f, makeArrayRef(args.begin(), args.end()-1));
     }
 
     gla::UnsupportedFunctionality("Currently unsupported instruction: ", inst->getOpcode(),
@@ -287,7 +287,7 @@ void Scalarize::makeScalarizedCalls(Function* f, ArrayRef<Value*> args, int coun
         SmallVector<Value*, 8> callArgs(args.begin(), args.end());
         callArgs.push_back(ConstantInt::get(intTy, i));
 
-        res = builder->CreateCall(f, callArgs.begin(), callArgs.end());
+        res = builder->CreateCall(f, callArgs);
         vVals.setComponent(i, res);
     }
 }
@@ -304,7 +304,7 @@ void Scalarize::makePerComponentScalarizedCalls(Function* f, ArrayRef<Value*> ar
         gatherComponents(i, args, callArgs);
         callArgs.push_back(ConstantInt::get(intTy, i));
 
-        res = builder->CreateCall(f, callArgs.begin(), callArgs.end());
+        res = builder->CreateCall(f, callArgs);
         vVals.setComponent(i, res);
     }
 }
@@ -504,17 +504,17 @@ bool Scalarize::scalarizeLoad(LoadInst* ld)
     //     dsty = loadComponent ptr, 1
     //     ...
 
-    const Type* ty = ld->getType();
+    Type* ty = ld->getType();
 
-    const Type* underTy = gla::GetBasicType(ty);
+    Type* underTy = gla::GetBasicType(ty);
 
     Intrinsic::ID intrID = underTy->isFloatTy() ? Intrinsic::gla_fLoadComponent
                                                 : Intrinsic::gla_loadComponent;
     int count = gla::GetComponentCount(ty);
 
     VectorValues& vVals = vectorVals[ld];
-    const Type* intrTys[2] = {underTy, ld->getOperand(0)->getType()};
-    Function* newLoad = Intrinsic::getDeclaration(module, intrID, intrTys, 2);
+    Type* intrTys[2] = {underTy, ld->getOperand(0)->getType()};
+    Function* newLoad = Intrinsic::getDeclaration(module, intrID, intrTys);
     Value* arg = ld->getOperand(0);
 
     makeScalarizedCalls(newLoad, arg, count, vVals);
@@ -591,12 +591,12 @@ bool Scalarize::scalarizeOutputIntrinsic(IntrinsicInst* intr)
     }
 
     args.push_back(intr->getOperand(dataPos)); // Data
-    const Type* ty = gla::GetBasicType(intr->getOperand(dataPos));
+    Type* ty = gla::GetBasicType(intr->getOperand(dataPos));
     int count = gla::GetComponentCount(intr->getOperand(dataPos));
 
     // TODO: Take mask into account
 
-    Function* newWrite = Intrinsic::getDeclaration(module, intrID, &ty, 1);
+    Function* newWrite = Intrinsic::getDeclaration(module, intrID, ty);
     makePerComponentScalarizedCalls(newWrite, args, count, vectorVals[intr]);
 
     // TODO: remove when runOnFunction's deadlist push is enabled
@@ -613,10 +613,10 @@ bool Scalarize::scalarizeInputIntrinsic(IntrinsicInst* intr)
     //     ...
 
     Intrinsic::ID intrID;
-    const Type* underTy = gla::GetBasicType(intr->getType());
+    Type* underTy = gla::GetBasicType(intr->getType());
     int count = gla::GetComponentCount(intr);
 
-    const Type* intrTys[2] = {underTy, 0};
+    Type* intrTys[2] = {underTy, 0};
     int numTys = 1;
 
     SmallVector<Value*, 5> args(1, intr->getOperand(0)); // Start out with the first arg
@@ -652,7 +652,7 @@ bool Scalarize::scalarizeInputIntrinsic(IntrinsicInst* intr)
 
     } // end of switch (intr->getIntrinsicID())
 
-    Function* f = Intrinsic::getDeclaration(module, intrID, intrTys, numTys);
+    Function* f = Intrinsic::getDeclaration(module, intrID, intrTys);
     VectorValues& vVals = vectorVals[intr];
 
     makeScalarizedCalls(f, args, count, vVals);
@@ -665,12 +665,12 @@ bool Scalarize::scalarizeTextureIntrinsic(IntrinsicInst* intr)
     // TODO: high-level comment goes here
 
     Intrinsic::ID intrID;
-    const Type* underTy = gla::GetBasicType(intr);
+    Type* underTy = gla::GetBasicType(intr);
 
     // Make the struct type for the return type.
     // TODO: update/fix if some intrinsics don't return four overloadable types
     // in a struct
-    const Type* intrTys[10] = {underTy, underTy, underTy, underTy};
+    Type* intrTys[10] = {underTy, underTy, underTy, underTy};
     int numTys = 4;
 
     // Have the first three arguments (type, location, mask) be the same as the
@@ -754,17 +754,17 @@ bool Scalarize::scalarizeTextureIntrinsic(IntrinsicInst* intr)
     case Intrinsic::gla_fTexelGatherOffsets:
         // TODO: handle
         gla::UnsupportedFunctionality("Unhandled tex op: ", intr->getOpcode(),
-                                      intr->getCalledFunction()->getNameStr().c_str());
+                                      intr->getCalledFunction()->getName().str().c_str());
 
     default:
         // TODO: turn into assert when complete
         gla::UnsupportedFunctionality("Unhandled intrinsic: ", intr->getOpcode(),
-                                      intr->getCalledFunction()->getNameStr().c_str());
+                                      intr->getCalledFunction()->getName().str().c_str());
     } // end of switch (intr->getIntrinsicID())
 
 
-    Function* f = Intrinsic::getDeclaration(module, intrID, intrTys, numTys);
-    Value* res = builder->CreateCall(f, args.begin(), args.end());
+    Function* f = Intrinsic::getDeclaration(module, intrID, intrTys);
+    Value* res = builder->CreateCall(f, args);
 
     // Create the extracts, and associate each component with the corresponding
     // extract
@@ -789,7 +789,7 @@ bool Scalarize::scalarizeIntrinsic(IntrinsicInst* intr)
     // TODO: identify must-decomponsed intrinsics.
 
     gla::UnsupportedFunctionality("Unhandled intrinsic: ", intr->getOpcode(),
-                                  intr->getCalledFunction()->getNameStr().c_str());
+                                  intr->getCalledFunction()->getName().str().c_str());
 
     return true;
 }

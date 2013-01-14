@@ -36,9 +36,9 @@
 #include "llvm/Analysis/Verifier.h"
 #include "llvm/Transforms/IPO.h"
 #include "llvm/Transforms/Scalar.h"
-#include "llvm/Support/IRBuilder.h"
+#include "llvm/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/Target/TargetData.h"
+#include "llvm/DataLayout.h"
 #include <cstdio>
 #include <string>
 #include <map>
@@ -136,8 +136,8 @@ void gla::PrivateManager::runLLVMOptimizations1()
 
     // Add target data to unblock optimizations that require it
     // This matches default except for endianness (little) and pointer size/alignment (32)
-    llvm::TargetData* TD = new llvm::TargetData("e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:1");
-    passManager.add(TD);
+    llvm::DataLayout* DL = new llvm::DataLayout("e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64");
+    passManager.add(DL);
 
     // Create immutable passes once
     passManager.add(llvm::createBasicAliasAnalysisPass());
@@ -237,7 +237,9 @@ void gla::PrivateManager::runLLVMOptimizations1()
     pm.add(llvm::createDeadStoreEliminationPass());
     pm.add(llvm::createAggressiveDCEPass());
     pm.add(llvm::createStripDeadPrototypesPass());
-    pm.add(llvm::createDeadTypeEliminationPass());
+    
+    // TODO LLVM 3.2, createDeadTypeEliminationPass
+    //pm.add(llvm::createDeadTypeEliminationPass());
 
     // TODO: Consider using the below in the presense of functions
     // pm.add(llvm::createGlobalDCEPass());

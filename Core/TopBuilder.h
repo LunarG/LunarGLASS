@@ -30,7 +30,7 @@
 #define TopBuilder_H
 
 // LLVM includes
-#include "llvm/Support/IRBuilder.h"
+#include "llvm/IRBuilder.h"
 #include "llvm/IntrinsicInst.h"
 
 #include "LunarGLASSManager.h"
@@ -63,14 +63,14 @@ public:
     public:
         explicit Matrix(llvm::Value* m);
         Matrix(int c, int r, Matrix*);
-        static const llvm::Type* getType(const llvm::Type* elementType, int numColumns, int numRows);
+        static llvm::Type* getType(llvm::Type* elementType, int numColumns, int numRows);
 
         int getNumRows() const { return numRows; }
         int getNumColumns() const { return numColumns; }
 
         llvm::Value* getValue() const { return matrix; }
-        const llvm::Type* getColumnType() const { return matrix->getType()->getContainedType(0); }
-        const llvm::Type* getElementType() const { return getColumnType()->getContainedType(0); }
+        llvm::Type* getColumnType() const { return matrix->getType()->getContainedType(0); }
+        llvm::Type* getElementType() const { return getColumnType()->getContainedType(0); }
 
     protected:
         int numColumns;
@@ -189,7 +189,7 @@ public:
         llvm::Value* gep;
         std::vector<int> swizzle;
         llvm::Value* component;
-        const llvm::Type* swizzleResultType;
+        llvm::Type* swizzleResultType;
         int swizzleTargetWidth;
         bool isRValue;
         bool trackOutputIndex;
@@ -220,10 +220,10 @@ public:
     void accessChainPushLeft(SuperValue offset) { accessChain.indexChain.push_back(offset); }
 
     // push swizzle onto the left of any existing swizzle
-    void accessChainPushSwizzleLeft(std::vector<int>& swizzle, const llvm::Type* type, int width);
+    void accessChainPushSwizzleLeft(llvm::ArrayRef<int> swizzle, llvm::Type* type, int width);
 
     // push swizzle onto the right of any existing swizzle
-    void accessChainPushSwizzleRight(std::vector<int>& swizzle, const llvm::Type* type, int width);
+    void accessChainPushSwizzleRight(llvm::ArrayRef<int> swizzle, llvm::Type* type, int width);
 
     // set pipeline input as an r-value, when pushing onto the left, meaning
     // the swizzle is yet to be consumed, but the access chain had to have been
@@ -244,7 +244,7 @@ public:
     // might have been used will be copied out.
     void accessChainTrackOutputIndex() { accessChain.trackOutputIndex = true; }
 
-    static llvm::Constant* getConstant(std::vector<llvm::Constant*>&, const llvm::Type*);
+    static llvm::Constant* getConstant(llvm::ArrayRef<llvm::Constant*>, llvm::Type*);
 
     void leaveFunction(bool main);
 
@@ -269,7 +269,7 @@ public:
 
     // Make a shader-style function, and create its entry block if entry is non zero.
     // Return the function, pass back the entry.
-    llvm::Function* makeFunctionEntry(const llvm::Type* type, const char* name, const std::vector<const llvm::Type*>& paramTypes,
+    llvm::Function* makeFunctionEntry(llvm::Type* type, const char* name, llvm::ArrayRef<llvm::Type*> paramTypes,
                                       llvm::BasicBlock** entry = 0, bool external = false);
 
     //
@@ -288,8 +288,8 @@ public:
 
     // Create an LLVM variable out of a generic "shader-style" description of a
     // variable.
-    SuperValue createVariable(EStorageQualifier, int storageInstance, const llvm::Type*, bool isMatrix,
-                              llvm::Constant* initializer, const std::string* annotation, const std::string& name);
+    SuperValue createVariable(EStorageQualifier, int storageInstance, llvm::Type*, bool isMatrix,
+                              llvm::Constant* initializer, const std::string* annotation, llvm::StringRef name);
 
     // Store SuperValue into another SuperValue and return the l-value
     SuperValue createStore(SuperValue rValue, SuperValue lValue);
@@ -312,13 +312,13 @@ public:
     void writePipeline(llvm::Value*, int slot, int mask = -1, EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment);
     void writePipeline(llvm::Value*, llvm::Value* slot, int mask = -1, EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment);
 
-    llvm::Value* readPipeline(const llvm::Type*, std::string& name, int slot, int mask = -1,
+    llvm::Value* readPipeline(llvm::Type*, llvm::StringRef name, int slot, int mask = -1,
                               EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment,
                               llvm::Value* offset = 0, llvm::Value* sampleIdx = 0);
 
-    llvm::Value* createSwizzle(llvm::Value* source, int swizzleMask, const llvm::Type* finalType);
+    llvm::Value* createSwizzle(llvm::Value* source, int swizzleMask, llvm::Type* finalType);
 
-    llvm::Value* createSwizzle(llvm::Value* source, const std::vector<int>& channels, const llvm::Type* finalType);
+    llvm::Value* createSwizzle(llvm::Value* source, llvm::ArrayRef<int> channels, llvm::Type* finalType);
 
     // Matrix factory that tracks what to delete
     Matrix* newMatrix(llvm::Value*);
@@ -341,11 +341,11 @@ public:
 
     // Handy way to get intrinsics
     llvm::Function* getIntrinsic(llvm::Intrinsic::ID);
-    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*);
-    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*);
-    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*);
-    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
-    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*, const llvm::Type*);
+    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, llvm::Type*);
+    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, llvm::Type*, llvm::Type*);
+    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, llvm::Type*, llvm::Type*, llvm::Type*);
+    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, llvm::Type*, llvm::Type*, llvm::Type*, llvm::Type*);
+    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, llvm::Type*, llvm::Type*, llvm::Type*, llvm::Type*, llvm::Type*);
 
     // Can smear a scalar to a vector for the following forms:
     //   - promoteScalar(scalar, vector)  // smear scalar to width of vector
@@ -356,7 +356,7 @@ public:
     void promoteScalar(SuperValue& left, SuperValue& right);
 
     // make a value by smearing the scalar to fill the type
-    llvm::Value* smearScalar(llvm::Value* scalarVal, const llvm::Type*);
+    llvm::Value* smearScalar(llvm::Value* scalarVal, llvm::Type*);
 
     // List of parameters used to create a texture intrinsic
     struct TextureParameters {
@@ -374,9 +374,9 @@ public:
     };
 
     // Select the correct intrinsic based on all inputs, and make the call
-    llvm::Value* createTextureCall(const llvm::Type*, gla::ESamplerType, int texFlags, const TextureParameters&);
-    llvm::Value* createTextureQueryCall(llvm::Intrinsic::ID, const llvm::Type*, llvm::Constant*, llvm::Value*, llvm::Value*);
-    llvm::Value* createSamplePositionCall(const llvm::Type*, llvm::Value*);
+    llvm::Value* createTextureCall(llvm::Type*, gla::ESamplerType, int texFlags, const TextureParameters&);
+    llvm::Value* createTextureQueryCall(llvm::Intrinsic::ID, llvm::Type*, llvm::Constant*, llvm::Value*, llvm::Value*);
+    llvm::Value* createSamplePositionCall(llvm::Type*, llvm::Value*);
     llvm::Value* createBitFieldExtractCall(llvm::Value*, llvm::Value*, llvm::Value*, bool isSigned);
     llvm::Value* createBitFieldInsertCall(llvm::Value*, llvm::Value*, llvm::Value*, llvm::Value*);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID);
@@ -455,7 +455,7 @@ protected:
     // Utility method for creating a new block and setting the insert point to
     // be in it. This is useful for flow-control operations that need a "dummy"
     // block proceeding them (e.g. instructions after a discard, etc).
-    void createAndSetNoPredecessorBlock(std::string name);
+    void createAndSetNoPredecessorBlock(llvm::StringRef name);
 
     llvm::IRBuilder<>& builder;
     gla::Manager* manager;

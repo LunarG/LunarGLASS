@@ -34,7 +34,7 @@
 #ifndef LunarGLASSTopIR_H
 #define LunarGLASSTopIR_H
 
-#include "llvm/Support/IRBuilder.h"
+#include "llvm/IRBuilder.h"
 
 namespace gla {
 
@@ -125,14 +125,14 @@ namespace gla {
     };
 
     // This is the Top IR definition of shader types
-    inline const llvm::Type* GetVoidType  (llvm::LLVMContext& context)   { return llvm::Type::getVoidTy  (context); }
-    inline const llvm::Type* GetIntType   (llvm::LLVMContext& context)   { return llvm::Type::getInt32Ty (context); }
-    inline const llvm::Type* GetUintType  (llvm::LLVMContext& context)   { return llvm::Type::getInt32Ty (context); }
-    inline const llvm::Type* GetBoolType  (llvm::LLVMContext& context)   { return llvm::Type::getInt1Ty  (context); }
-    inline const llvm::Type* GetFloatType (llvm::LLVMContext& context)   { return llvm::Type::getFloatTy (context); }
-    inline const llvm::Type* GetDoubleType(llvm::LLVMContext& context)   { return llvm::Type::getDoubleTy(context); }
+    inline llvm::Type* GetVoidType  (llvm::LLVMContext& context)   { return llvm::Type::getVoidTy  (context); }
+    inline llvm::Type* GetIntType   (llvm::LLVMContext& context)   { return llvm::Type::getInt32Ty (context); }
+    inline llvm::Type* GetUintType  (llvm::LLVMContext& context)   { return llvm::Type::getInt32Ty (context); }
+    inline llvm::Type* GetBoolType  (llvm::LLVMContext& context)   { return llvm::Type::getInt1Ty  (context); }
+    inline llvm::Type* GetFloatType (llvm::LLVMContext& context)   { return llvm::Type::getFloatTy (context); }
+    inline llvm::Type* GetDoubleType(llvm::LLVMContext& context)   { return llvm::Type::getDoubleTy(context); }
 
-    inline const llvm::Type* GetVectorOrScalarType(const llvm::Type* type, int numComponents)
+    inline const llvm::Type* GetVectorOrScalarType(llvm::Type* type, int numComponents)
     {
         type = type->isVectorTy() ? type->getContainedType(0) : type;
 

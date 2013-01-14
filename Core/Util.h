@@ -34,7 +34,7 @@
 #define Util_H
 
 // LLVM includes
-#include "llvm/Support/IRBuilder.h"
+#include "llvm/IRBuilder.h"
 #include "llvm/IntrinsicInst.h"
 
 // Forward decls
@@ -133,9 +133,9 @@ namespace gla {
     bool HasAllSet(const llvm::Value*);
 
     // is the name something like "%42"?
-    inline bool IsTempName(const std::string& name)
+    inline bool IsTempName(llvm::StringRef name)
     {
-        return name.length() < 2 || (name[1] >= '0' && name[1] <= '9');
+        return name.size() < 2 || (name[1] >= '0' && name[1] <= '9');
     }
 
     void AppendArraySizeToName(std::string&, int);
@@ -146,11 +146,11 @@ namespace gla {
     void RemoveSeparator(std::string& name);
     void RemoveInlineNotation(std::string& name);
 
-    const llvm::Type* GetBasicType(const llvm::Value*);
-    const llvm::Type* GetBasicType(const llvm::Type*);
+    llvm::Type* GetBasicType(llvm::Value*);
+    llvm::Type* GetBasicType(llvm::Type*);
 
-    llvm::Type::TypeID GetBasicTypeID(const llvm::Value*);
-    llvm::Type::TypeID GetBasicTypeID(const llvm::Type*);
+    llvm::Type::TypeID GetBasicTypeID(llvm::Value*);
+    llvm::Type::TypeID GetBasicTypeID(llvm::Type*);
 
     bool ConvertValuesToUnsigned(unsigned*, int &, std::vector<llvm::Value*>);
 
