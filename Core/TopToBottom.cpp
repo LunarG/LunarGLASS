@@ -238,9 +238,6 @@ void gla::PrivateManager::runLLVMOptimizations1()
     pm.add(llvm::createAggressiveDCEPass());
     pm.add(llvm::createStripDeadPrototypesPass());
     
-    // TODO LLVM 3.2, createDeadTypeEliminationPass
-    //pm.add(llvm::createDeadTypeEliminationPass());
-
     // TODO: Consider using the below in the presense of functions
     // pm.add(llvm::createGlobalDCEPass());
 

@@ -95,8 +95,6 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
-// TODO LLVM 3.2, TypeSymbolTable.h is gone
-//#include "llvm/TypeSymbolTable.h"
 
 #include <cstdio>
 #include <string>
@@ -867,16 +865,6 @@ bool BottomTranslator::runOnModule(Module& module)
     backEnd->getControlFlowMode(flowControlMode, breakOp, continueOp, earlyReturnOp, discardOp);
     if (flowControlMode == gla::EFcmExplicitMasking)
         gla::UnsupportedFunctionality("explicit masking in middle end");
-
-    //
-    // Translate named struct types.
-    //
-    std::vector<StructType*> structTys;
-    // TODO LLVM 3.2, findUsedStructTypes() is not present
-    //module.findUsedStructTypes(structTys);
-    //for (std::vector<StructType*>::iterator i = structTys.begin(), e = structTys.end(); i != e; ++i)
-    //    backEndTranslator->addStructType((*i)->getName(), *i);
-
 
     //
     // Translate globals.

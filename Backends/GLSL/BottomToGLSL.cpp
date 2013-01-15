@@ -161,7 +161,6 @@ public:
     {
         if (Options.backendVersion == DefaultBackendVersion)
             version = 130;
-        globalDeclarations << "#version " << version << std::endl;
     }
 
     ~GlslTarget()
@@ -170,17 +169,28 @@ public:
 
     void addStructType(llvm::StringRef name, const llvm::Type* structType)
     {
+        if (structNameMap.find(structType) != structNameMap.end())
+            return;
+
+        // For nested struct types, we have to output the nested one
+        // before the containing one.  So, make the current on the side
+        // and add it to the global results after its contents are 
+        // declared.
+        std::ostringstream tempStructure;  
+
         structNameMap[structType] = name;
-        globalDeclarations << "struct " << name.str() << " {" << std::endl;
+        tempStructure << "struct " << name.str() << " {" << std::endl;
 
         for (int index = 0; index < structType->getNumContainedTypes(); ++index) {
-            globalDeclarations << "    ";
-            emitGlaType(globalDeclarations, structType->getContainedType(index), -1);
-            globalDeclarations << " " << getGlaStructField(structType, index);
-            globalDeclarations << ";" << std::endl;
+            tempStructure << "    ";
+            emitGlaType(tempStructure, structType->getContainedType(index), -1);
+            tempStructure << " " << getGlaStructField(structType, index);
+            tempStructure << ";" << std::endl;
         }
 
-        globalDeclarations << "};" << std::endl << std::endl;
+        tempStructure << "};" << std::endl << std::endl;
+
+        globalStructures << tempStructure.str();
     }
 
     void addGlobal(const llvm::GlobalVariable* global)
@@ -839,6 +849,7 @@ protected:
                 out << count;
         } else if (type->getTypeID() == llvm::Type::StructTyID) {
             const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
+            addStructType(structType->getName(), structType);
             out << structNameMap[structType];
         } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
             const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
@@ -1342,6 +1353,7 @@ protected:
     // indexes that were in scalar variable names
     std::set<std::string> globallyDeclaredArrays;
 
+    std::ostringstream globalStructures;
     std::ostringstream globalDeclarations;
     std::ostringstream globalInitializers;
     bool appendInitializers;
@@ -2275,11 +2287,14 @@ void gla::GlslTarget::print()
 {
     // If we don't have the noRevision options
     // set, then output the revision.
-
     if (Options.noRevision)
         printf("\n// LunarGOO output\n");
     else
         printf("\n// LunarGOO(r%d) output\n", GLA_REVISION);
 
-    printf("%s%s", globalDeclarations.str().c_str(), shader.str().c_str());
+    // #version...
+    printf("#version %d\n", version);
+
+    // rest of shader...
+    printf("%s%s%s", globalStructures.str().c_str(), globalDeclarations.str().c_str(), shader.str().c_str());
 }

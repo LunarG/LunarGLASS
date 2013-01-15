@@ -1465,9 +1465,7 @@ llvm::Type* GlslToTopVisitor::convertGlslToGlaType(const glsl_type* type)
                 for (int i = 0; i < type->length; i++) {
                     structFields.push_back(convertGlslToGlaType(type->fields.structure[i].type));
                 }
-                structType = llvm::StructType::get(context, structFields);
-                // TODO LLVM 3.2, addTypeName() disappeared
-                //module->addTypeName(type->name, structType);
+                structType = llvm::StructType::create(context, structFields, type->name);
                 structMap[type->name] = structType;
                 glaType = structType;
             }

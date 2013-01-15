@@ -861,10 +861,7 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
                 // Create a vector of struct types for LLVM to consume
                 for (int i = 0; i < glslangStruct->size(); i++)
                     structFields.push_back(convertGlslangToGlaType(*(*glslangStruct)[i].type));
-                structType = llvm::StructType::get(context, structFields, false);
-                // TODO LLVM 3.2, addTypeName() disappeared
-                assert(0);
-                //module->addTypeName(type.getTypeName().c_str(), structType);
+                structType = llvm::StructType::create(context, structFields, type.getTypeName().c_str());
                 structMap[glslangStruct] = structType;
                 glaType = structType;
             }
