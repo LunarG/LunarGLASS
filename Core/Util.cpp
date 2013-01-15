@@ -94,10 +94,10 @@ double GetConstantDouble(const llvm::Value* value)
     return constantFP->getValueAPF().convertToDouble();
 }
 
-int GetComponentCount(const llvm::Type* type)
+int GetComponentCount(llvm::Type* type)
 {
-    if (type->getTypeID() == llvm::Type::VectorTyID)
-        return llvm::dyn_cast<llvm::VectorType>(type)->getNumElements();
+    if (llvm::VectorType* vTy = llvm::dyn_cast<llvm::VectorType>(type))
+        return vTy->getNumElements();
     else
         return 1;
 }
@@ -173,17 +173,17 @@ bool IsBoolean(const llvm::Type* type)
 
 bool HasAllSet(const llvm::Value* value)
 {
-    if (! llvm::isa<llvm::Constant>(value))
+    const llvm::Constant* c = llvm::dyn_cast<llvm::Constant>(value);
+    if (! c)
         return false;
 
-    if (IsScalar(value->getType())) {
-        return GetConstantInt(value) == -1;
+    if (IsScalar(c->getType())) {
+        return GetConstantInt(c) == -1;
     } else {
-        const llvm::ConstantVector* vector = llvm::dyn_cast<llvm::ConstantVector>(value);
-        assert(vector);
+        assert(llvm::isa<llvm::ConstantDataVector>(c) || llvm::isa<llvm::ConstantVector>(c));
 
-        for (unsigned int op = 0; op < vector->getNumOperands(); ++op) {
-            if (GetConstantInt(vector->getOperand(op)) != -1)
+        for (unsigned int op = 0; op < GetComponentCount(c); ++op) {
+            if (GetConstantInt(c->getAggregateElement(op)) != -1)
                 return false;
         }
 
@@ -232,7 +232,7 @@ void RemoveArraySizeFromName(std::string& name)
     }
 }
 
-void AppendArrayIndexToName(std::string &arrayName, int index)
+void AppendArrayIndexToName(std::string& arrayName, int index)
 {
     char buf[10];
     itoa(index, buf, 10);
@@ -289,7 +289,7 @@ llvm::Type* GetBasicType(llvm::Type* type)
     return type;
 }
 
-llvm::Type::TypeID GetBasicTypeID(llvm::Value* value)
+llvm::Type::TypeID GetBasicTypeID(const llvm::Value* value)
 {
     return GetBasicTypeID(value->getType());
 }
@@ -303,9 +303,9 @@ llvm::Type::TypeID GetBasicTypeID(llvm::Type* type)
 // i.e. llvm::IRBuilder::CreateExtractValue()
 // This method will do the conversion and inform the caller if not every element was
 // a constant integer.
-bool ConvertValuesToUnsigned(unsigned* indices, int &count, std::vector<llvm::Value*> chain)
+bool ConvertValuesToUnsigned(unsigned* indices, int &count, llvm::ArrayRef<llvm::Value*> chain)
 {
-    std::vector<llvm::Value*>::iterator start = chain.begin();
+    llvm::ArrayRef<llvm::Value*>::iterator start = chain.begin();
 
     for (count = 0; start != chain.end(); ++start, ++count) {
         if (llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(*start)) {

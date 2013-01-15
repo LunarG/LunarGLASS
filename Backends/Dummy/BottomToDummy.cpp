@@ -115,7 +115,7 @@ public:
     ~DummyTarget()
     { }
 
-    void addStructType(const std::string, const llvm::Type*)
+    void addStructType(llvm::StringRef, const llvm::Type*)
     { counter++; }
 
     void addGlobal(const llvm::GlobalVariable*)

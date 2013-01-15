@@ -53,7 +53,7 @@ namespace gla {
 
     struct PipelineSymbol {
         std::string name;
-        const llvm::Type* type;
+        llvm::Type* type;
     };
     typedef std::vector<PipelineSymbol> PipelineSymbols;
 

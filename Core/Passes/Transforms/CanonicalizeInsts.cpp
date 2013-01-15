@@ -81,7 +81,7 @@ namespace  {
 
         void hoistUndefOps(Instruction*);
 
-        CallInst* createSwizzleIntrinsic(Value* val, const SmallVectorImpl<Constant*>& mask);
+        CallInst* createSwizzleIntrinsic(Value* val, ArrayRef<Constant*> mask);
 
         CanonicalizeInsts(const CanonicalizeInsts&); // do not implement
         void operator=(const CanonicalizeInsts&); // do not implement
@@ -98,7 +98,7 @@ inline bool NeedsToKeepUndefs(const Instruction* inst)
     return isa<ShuffleVectorInst>(inst) || IsGlaSwizzle(inst) || IsMultiInsert(inst);
 }
 
-CallInst* CanonicalizeInsts::createSwizzleIntrinsic(Value* val, const SmallVectorImpl<Constant*>& mask)
+CallInst* CanonicalizeInsts::createSwizzleIntrinsic(Value* val, ArrayRef<Constant*> mask)
 {
     Instruction* inst = dyn_cast<Instruction>(val);
     if (! inst)

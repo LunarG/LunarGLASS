@@ -180,24 +180,24 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
 
+    // Make multiinsert intrinsics, and clean up afterwards
+    passManager.add(llvm::createInstructionCombiningPass());
+    passManager.add(gla_llvm::createCoalesceInsertsPass());
+    passManager.add(llvm::createAggressiveDCEPass());
+    passManager.add(llvm::createInstructionCombiningPass());
+
     // Loop optimizations, and clean up afterwards
     passManager.add(llvm::createLICMPass());
     passManager.add(llvm::createIndVarSimplifyPass());
     passManager.add(llvm::createLoopRotatePass());
     passManager.add(llvm::createIndVarSimplifyPass());
-    passManager.add(llvm::createLoopUnrollPass());
+    passManager.add(llvm::createLoopUnrollPass(350));
     passManager.add(llvm::createLoopStrengthReducePass());
     passManager.add(llvm::createAggressiveDCEPass());
 
     passManager.add(llvm::createInstructionCombiningPass());
     passManager.add(llvm::createGVNPass());
     passManager.add(llvm::createSCCPPass());
-
-    // Make multiinsert intrinsics, and clean up afterwards
-    passManager.add(llvm::createInstructionCombiningPass());
-    passManager.add(gla_llvm::createCoalesceInsertsPass());
-    passManager.add(llvm::createAggressiveDCEPass());
-    passManager.add(llvm::createInstructionCombiningPass());
 
     // Run intrinisic combining
     passManager.add(gla_llvm::createCanonicalizeCFGPass());

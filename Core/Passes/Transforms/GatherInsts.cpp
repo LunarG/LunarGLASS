@@ -301,6 +301,12 @@ bool GatherInsts::matchBinOpExtended(const BinaryOperator* binOp, Value*& operan
         if (! shiftBy)
             return false;
 
+        if (const ConstantDataVector* shiftByVec = dyn_cast<ConstantDataVector>(shiftBy)) {
+            shiftBy = shiftByVec->getSplatValue();
+            if (! shiftBy)
+                return false;
+        }
+
         if (const ConstantVector* shiftByVec = dyn_cast<ConstantVector>(shiftBy)) {
             shiftBy = shiftByVec->getSplatValue();
             if (! shiftBy)
@@ -370,7 +376,7 @@ bool GatherInsts::visitMinMaxPair(IntrinsicInst* fMin, IntrinsicInst* fMax)
 
         if (saturateCandidate) {
             // Make the fSaturate call
-            Type* tys[2] = { fMin->getType(), fMin->getType() };
+            Type* tys[] = { fMin->getType(), fMin->getType() };
             Function* f = Intrinsic::getDeclaration(module, Intrinsic::gla_fSaturate, tys);
             Instruction* satInst = builder->CreateCall(f, saturateCandidate);
 
@@ -381,7 +387,7 @@ bool GatherInsts::visitMinMaxPair(IntrinsicInst* fMin, IntrinsicInst* fMax)
     }
 
     // Make an fClamp
-    Type* tys[4] = { fMin->getType(), fMin->getType(), fMin->getType(), fMin->getType() };
+    Type* tys[] = { fMin->getType(), fMin->getType(), fMin->getType(), fMin->getType() };
     Function* f = Intrinsic::getDeclaration(module, Intrinsic::gla_fClamp, tys);
     int nonfMaxOpIdx = fMin->getArgOperand(0) == fMax ? 1 : 0;
     assert(fMin->getArgOperand(nonfMaxOpIdx) != fMax && fMin->getArgOperand(!nonfMaxOpIdx) == fMax);
@@ -403,7 +409,7 @@ bool GatherInsts::createExtendedBinOp(Intrinsic::ID extId, BinaryOperator* binOp
     // Make the mulExtended
     builder->SetInsertPoint(binOp);
     Type* type = operand0->getType();
-    Type* tys[4] = { type, type, type, type };
+    Type* tys[] = { type, type, type, type };
     Function* f = Intrinsic::getDeclaration(module, extId, tys);
     Instruction* extIntrinsic = builder->CreateCall2(f, operand0, operand1);
 

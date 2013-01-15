@@ -168,10 +168,10 @@ public:
     {
     }
 
-    void addStructType(const std::string name, const llvm::Type* structType)
+    void addStructType(llvm::StringRef name, const llvm::Type* structType)
     {
         structNameMap[structType] = name;
-        globalDeclarations << "struct " << name << " {" << std::endl;
+        globalDeclarations << "struct " << name.str() << " {" << std::endl;
 
         for (int index = 0; index < structType->getNumContainedTypes(); ++index) {
             globalDeclarations << "    ";
@@ -185,7 +185,7 @@ public:
 
     void addGlobal(const llvm::GlobalVariable* global)
     {
-        const llvm::Type* type;
+        llvm::Type* type;
         if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType()))
             type = pointer->getContainedType(0);
         else
@@ -738,7 +738,7 @@ protected:
         }
     }
 
-    void declareVariable(const llvm::Type* type, const std::string& varString, EVariableQualifier vq, const llvm::Constant* constant = 0)
+    void declareVariable(llvm::Type* type, const std::string& varString, EVariableQualifier vq, const llvm::Constant* constant = 0)
     {
         if (varString.substr(0,3) == std::string("gl_"))
             return;
@@ -810,7 +810,7 @@ protected:
         }
     }
 
-    void emitGlaType(std::ostringstream& out, const llvm::Type* type, int count = -1)
+    void emitGlaType(std::ostringstream& out, llvm::Type* type, int count = -1)
     {
         // if it's a vector, output a vector type
         if (type->getTypeID() == llvm::Type::VectorTyID) {
@@ -929,7 +929,7 @@ protected:
     // If the aggregate is zero initialized, sub-elements will not have a
     // constant associated with them. For that case, and for ConstantAggregateZero,
     // we only use the type to generate correct initializers.
-    void emitConstantInitializer(std::ostringstream& out, const llvm::Constant* constant, const llvm::Type* type)
+    void emitConstantInitializer(std::ostringstream& out, const llvm::Constant* constant, llvm::Type* type)
     {
         bool isZero;
 
@@ -1973,7 +1973,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             // RefZ must reside in 3rd component or higher, so detect single component case
             int buffer = (coordWidth == 1) ? 1 : 0;
 
-            const llvm::Type* vecType = llvm::VectorType::get(coordType, coordWidth + buffer + 1);
+            llvm::Type* vecType = llvm::VectorType::get(coordType, coordWidth + buffer + 1);
 
             emitGlaType(shader, vecType);
 

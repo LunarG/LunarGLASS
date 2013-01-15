@@ -37,7 +37,7 @@ namespace gla_llvm {
     // Whether the given function is the main one
     inline bool IsMain(Function& fun)
     {
-        return fun.getName() == "main";
+        return fun.getName().equals("main");
     }
 
     // Get the block from the function with the passed name. Returns NULL if it
@@ -45,7 +45,7 @@ namespace gla_llvm {
     inline BasicBlock* GetNamedBlock(Function& fun, llvm::StringRef name)
     {
         for (Function::iterator bb = fun.begin(), e = fun.end(); bb != e; ++bb)
-            if (bb->getName() == name)
+            if (bb->getName().equals(name))
                 return bb;
 
         return NULL;

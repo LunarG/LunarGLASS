@@ -48,7 +48,7 @@ namespace {
     gla::UnsupportedFunctionalityHandler Handler = 0;
 
     // called always, dispatches to handler if one is registered
-    void ProcessMessage(std::string message, gla::EAbortType at)
+    void ProcessMessage(const std::string& message, gla::EAbortType at)
     {
         if (Handler) {
             // let the registered handler do what it wants the built up message

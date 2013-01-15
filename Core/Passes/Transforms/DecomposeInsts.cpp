@@ -615,7 +615,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     Function* dot = GetDotIntrinsic(module, argTypes);
                     newInst = builder.CreateCall2(dot, arg0, arg0);
 
-                    llvm::Type* type[2] = { newInst->getType(), newInst->getType() };
+                    llvm::Type* type[] = { newInst->getType(), newInst->getType() };
                     Function* inverseSqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fInverseSqrt, type);
                     newInst = builder.CreateCall(inverseSqrt, newInst);
 
@@ -645,7 +645,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 Function* dot = Intrinsic::getDeclaration(module, Intrinsic::gla_fDot3, types);
                 newInst = builder.CreateCall2(dot, arg0, arg0);
 
-                llvm::Type* type[2] = { newInst->getType(), newInst->getType() };
+                llvm::Type* type[] = { newInst->getType(), newInst->getType() };
                 Function* inverseSqrt = Intrinsic::getDeclaration(module, Intrinsic::gla_fInverseSqrt, type);
                 newInst = builder.CreateCall(inverseSqrt, newInst);
 

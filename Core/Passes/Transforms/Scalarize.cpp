@@ -171,7 +171,10 @@ Value* Scalarize::getComponent(int component, Value* v)
 
     if (v->getType()->isVectorTy()) {
         if (Constant* c = dyn_cast<Constant>(v)) {
-            return GetComponentFromConstant(c, component);
+            Constant* ret = c->getAggregateElement(component);
+            assert(ret && "out-of-bounds component");
+
+            return ret;
         } else {
             return vectorVals[v].getComponent(component);
         }
@@ -183,7 +186,7 @@ Value* Scalarize::getComponent(int component, Value* v)
 bool Scalarize::canGetComponent(Value* v)
 {
     if (v->getType()->isVectorTy()) {
-        if (isa<ConstantVector>(v) || isa<ConstantAggregateZero>(v) || isa<UndefValue>(v)) {
+        if (isa<ConstantVector>(v) || isa<ConstantDataVector>(v) || isa<ConstantAggregateZero>(v) || isa<UndefValue>(v)) {
             return true;
         } else {
             assert(isa<Instruction>(v) && "Non-constant non-instuction?");
@@ -513,7 +516,7 @@ bool Scalarize::scalarizeLoad(LoadInst* ld)
     int count = gla::GetComponentCount(ty);
 
     VectorValues& vVals = vectorVals[ld];
-    Type* intrTys[2] = {underTy, ld->getOperand(0)->getType()};
+    Type* intrTys[] = {underTy, ld->getOperand(0)->getType()};
     Function* newLoad = Intrinsic::getDeclaration(module, intrID, intrTys);
     Value* arg = ld->getOperand(0);
 
@@ -616,7 +619,7 @@ bool Scalarize::scalarizeInputIntrinsic(IntrinsicInst* intr)
     Type* underTy = gla::GetBasicType(intr->getType());
     int count = gla::GetComponentCount(intr);
 
-    Type* intrTys[2] = {underTy, 0};
+    Type* intrTys[] = {underTy, 0};
     int numTys = 1;
 
     SmallVector<Value*, 5> args(1, intr->getOperand(0)); // Start out with the first arg
@@ -652,7 +655,7 @@ bool Scalarize::scalarizeInputIntrinsic(IntrinsicInst* intr)
 
     } // end of switch (intr->getIntrinsicID())
 
-    Function* f = Intrinsic::getDeclaration(module, intrID, intrTys);
+    Function* f = Intrinsic::getDeclaration(module, intrID, makeArrayRef(intrTys, numTys));
     VectorValues& vVals = vectorVals[intr];
 
     makeScalarizedCalls(f, args, count, vVals);
@@ -763,7 +766,7 @@ bool Scalarize::scalarizeTextureIntrinsic(IntrinsicInst* intr)
     } // end of switch (intr->getIntrinsicID())
 
 
-    Function* f = Intrinsic::getDeclaration(module, intrID, intrTys);
+    Function* f = Intrinsic::getDeclaration(module, intrID, makeArrayRef(intrTys, numTys));
     Value* res = builder->CreateCall(f, args);
 
     // Create the extracts, and associate each component with the corresponding

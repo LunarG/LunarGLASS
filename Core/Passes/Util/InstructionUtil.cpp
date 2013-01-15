@@ -66,7 +66,9 @@ bool IsNegation(const Instruction* inst)
     // If we're a constant vector, test our splat value, otherwise test
     // ourselves. This is because -0 for a floating point vector isn't
     // necessarily aggregate zero.
-    if (const ConstantVector* leftVec = dyn_cast<const ConstantVector>(inst->getOperand(0)))
+    if (const ConstantDataVector* leftVec = dyn_cast<const ConstantDataVector>(inst->getOperand(0)))
+        left = leftVec->getSplatValue();
+    else if (const ConstantVector* leftVec = dyn_cast<const ConstantVector>(inst->getOperand(0)))
         left = leftVec->getSplatValue();
     else
         left = dyn_cast<const Constant>(inst->getOperand(0));

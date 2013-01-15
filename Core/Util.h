@@ -76,7 +76,7 @@ namespace gla {
     float GetConstantFloat(const llvm::Value*);
     double GetConstantDouble(const llvm::Value*);
 
-    int GetComponentCount(const llvm::Type*);
+    int GetComponentCount(llvm::Type*);
     int GetComponentCount(const llvm::Value*);
 
     // Whether the argument is undefined or defined (an undef in llvm)
@@ -149,10 +149,10 @@ namespace gla {
     llvm::Type* GetBasicType(llvm::Value*);
     llvm::Type* GetBasicType(llvm::Type*);
 
-    llvm::Type::TypeID GetBasicTypeID(llvm::Value*);
+    llvm::Type::TypeID GetBasicTypeID(const llvm::Value*);
     llvm::Type::TypeID GetBasicTypeID(llvm::Type*);
 
-    bool ConvertValuesToUnsigned(unsigned*, int &, std::vector<llvm::Value*>);
+    bool ConvertValuesToUnsigned(unsigned*, int &, llvm::ArrayRef<llvm::Value*>);
 
 };  // end gla namespace
 

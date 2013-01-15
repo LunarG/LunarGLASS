@@ -330,6 +330,9 @@ namespace gla_llvm {
         return br->getSuccessor(i);
     }
 
+    // TODO LLVM 3.2: refine to compute the needed partial dominance
+    // frontier, and use it.
+
     // Add all the merge points of the given basic blocks to the (empty) merges
     // set. Clears merges first if non-empty.
     // Note: body must appear in this header file, or else explicit

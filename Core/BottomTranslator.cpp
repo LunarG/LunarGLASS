@@ -283,9 +283,9 @@ namespace {
 static void CreateSimpleInductiveLoop(LoopWrapper& loop, gla::BackEndTranslator& bet)
 {
     const PHINode* pn  = loop.getCanonicalInductionVariable();
-    unsigned int tripCount = loop.getTripCount();
     assert(pn);
 
+    unsigned int tripCount = loop.getTripCount();
     if (gla::Options.debug && ! gla::Options.bottomIROnly) {
         errs() << "\ninductive variable:"   << *pn;
         errs() << "\n  trip count:      "   << tripCount;
@@ -871,12 +871,12 @@ bool BottomTranslator::runOnModule(Module& module)
     //
     // Translate named struct types.
     //
+    std::vector<StructType*> structTys;
+    // TODO LLVM 3.2, findUsedStructTypes() is not present
+    //module.findUsedStructTypes(structTys);
+    //for (std::vector<StructType*>::iterator i = structTys.begin(), e = structTys.end(); i != e; ++i)
+    //    backEndTranslator->addStructType((*i)->getName(), *i);
 
-    // TODO LLVM 3.2, type symbol table is gone
-    assert(0);
-    //const TypeSymbolTable& symbolTable = module.getTypeSymbolTable();
-    //for (TypeSymbolTable::const_iterator tableIter = symbolTable.begin(), tableEnd = symbolTable.end(); tableIter != tableEnd; ++tableIter)
-    //    backEndTranslator->addStructType(tableIter->first, tableIter->second);
 
     //
     // Translate globals.
