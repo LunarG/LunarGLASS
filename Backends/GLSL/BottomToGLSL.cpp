@@ -192,9 +192,10 @@ public:
             type = global->getType();
 
         std::string name = global->getName();
+        std::string declareName = name;
         makeParseable(name);
         addNewVariable(global, name);
-        declareVariable(type, name, mapGlaAddressSpace(global));
+        declareVariable(type, declareName, mapGlaAddressSpace(global));
 
         if (global->hasInitializer()) {
             const llvm::Constant* constant = global->getInitializer();
@@ -731,6 +732,11 @@ protected:
 
     void makeParseable(std::string& varString)
     {
+        // Some symbols were annotated with a prefix and a space        
+        int spaceLoc = varString.find_first_of(' ');
+        if (spaceLoc != std::string::npos)
+            varString.erase(0, spaceLoc+1);
+
         // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
         for (int c = 0; c < varString.length(); ++c) {
             if (varString[c] == '.' || varString[c] == '-')
@@ -1054,11 +1060,7 @@ protected:
     bool addNewVariable(const llvm::Value* value, std::string& name)
     {
         if (valueMap[value] == 0) {
-            int spaceLoc = name.find_first_of(' ');
-            if (spaceLoc == std::string::npos)
-                valueMap[value] = new std::string(name);  //?? need to delete these?
-            else
-                valueMap[value] = new std::string(name.substr(spaceLoc+1));
+            valueMap[value] = new std::string(name);  //?? need to delete these?
 
             return true;
         } else {
