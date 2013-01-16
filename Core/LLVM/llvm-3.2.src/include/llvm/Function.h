@@ -5,6 +5,8 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
+// Changes Copyright (C) 2011-2013 LunarG, Inc.
+//
 //===----------------------------------------------------------------------===//
 //
 // This file contains the declaration of the Function class, which represents a
@@ -86,6 +88,8 @@ private:
   mutable ArgumentListType ArgumentList;  ///< The formal arguments
   ValueSymbolTable *SymTab;               ///< Symbol table of args/instructions
   AttrListPtr AttributeList;              ///< Parameter attributes
+
+  int IntrinsicID;          // The intrinsic id
 
   // HasLazyArguments is stored in Value::SubclassData.
   /*bool HasLazyArguments;*/

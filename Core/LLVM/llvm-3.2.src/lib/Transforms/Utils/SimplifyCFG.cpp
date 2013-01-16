@@ -5,6 +5,8 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
+// Changes Copyright (C) 2011-2013 LunarG, Inc.
+//
 //===----------------------------------------------------------------------===//
 //
 // Peephole optimize the CFG.
@@ -306,6 +308,8 @@ static unsigned ComputeSpeculationCost(const User *I) {
   case Instruction::ZExt:
   case Instruction::SExt:
     return 1; // These are all cheap.
+
+  // TODO LLVM 3.2:  LunarG costs for intriniscs
 
   case Instruction::Call:
   case Instruction::Select:
@@ -617,6 +621,9 @@ bool SimplifyCFGOpt::
 SimplifyEqualityComparisonWithOnlyPredecessor(TerminatorInst *TI,
                                               BasicBlock *Pred,
                                               IRBuilder<> &Builder) {
+  // LunarGLASS: Don't do jump threading
+  return false;
+
   Value *PredVal = isValueEqualityComparison(Pred->getTerminator());
   if (!PredVal) return false;  // Not a value comparison in predecessor.
 
@@ -825,6 +832,9 @@ static void FitWeights(MutableArrayRef<uint64_t> Weights) {
 /// on the same value.  If so, and if safe to do so, fold them together.
 bool SimplifyCFGOpt::FoldValueComparisonIntoPredecessors(TerminatorInst *TI,
                                                          IRBuilder<> &Builder) {
+  // LunarGLASS: don't make switches
+  return false;
+
   BasicBlock *BB = TI->getParent();
   Value *CV = isValueEqualityComparison(TI);  // CondVal
   assert(CV && "Not a comparison?");
@@ -1484,6 +1494,9 @@ static bool SpeculativelyExecuteBB(BranchInst *BI, BasicBlock *BB1) {
 /// BlockIsSimpleEnoughToThreadThrough - Return true if we can thread a branch
 /// across this block.
 static bool BlockIsSimpleEnoughToThreadThrough(BasicBlock *BB) {
+  // LunarGLASS: don't do threading
+  return false;
+
   BranchInst *BI = cast<BranchInst>(BB->getTerminator());
   unsigned Size = 0;
 
@@ -1512,6 +1525,9 @@ static bool BlockIsSimpleEnoughToThreadThrough(BasicBlock *BB) {
 /// constants, thread edges corresponding to that entry to be branches to their
 /// ultimate destination.
 static bool FoldCondBranchOnPHI(BranchInst *BI, const DataLayout *TD) {
+  // LunarGLASS: don't do threading
+  return false;
+
   BasicBlock *BB = BI->getParent();
   PHINode *PN = dyn_cast<PHINode>(BI->getCondition());
   // NOTE: we currently cannot transform this case if the PHI node is used
@@ -2525,6 +2541,9 @@ static bool SimplifyIndirectBrOnSelect(IndirectBrInst *IBI, SelectInst *SI) {
 static bool TryToSimplifyUncondBranchWithICmpInIt(ICmpInst *ICI,
                                                   const DataLayout *TD,
                                                   IRBuilder<> &Builder) {
+  // LunarGLASS: don't make switches
+  return false;
+
   BasicBlock *BB = ICI->getParent();
 
   // If the block has any PHIs in it or the icmp has multiple uses, it is too
@@ -2631,6 +2650,9 @@ static bool TryToSimplifyUncondBranchWithICmpInIt(ICmpInst *ICI,
 /// fold it into a switch instruction if so.
 static bool SimplifyBranchOnICmpChain(BranchInst *BI, const DataLayout *TD,
                                       IRBuilder<> &Builder) {
+  // LunarGLASS: don't make switches
+  return false;
+
   Instruction *Cond = dyn_cast<Instruction>(BI->getCondition());
   if (Cond == 0) return false;
 
@@ -3745,6 +3767,10 @@ bool SimplifyCFGOpt::SimplifyIndirectBr(IndirectBrInst *IBI) {
 }
 
 bool SimplifyCFGOpt::SimplifyUncondBranch(BranchInst *BI, IRBuilder<> &Builder){
+  // LunarGLASS: don't do this here, will be done only in special cases
+  // elsewhere
+  return false;
+  
   BasicBlock *BB = BI->getParent();
 
   if (SinkCommon && SinkThenElseCodeToEnd(BI))

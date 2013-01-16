@@ -5,6 +5,8 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
+// Changes Copyright (C) 2011-2013 LunarG, Inc.
+//
 //===----------------------------------------------------------------------===//
 //
 // This file contains routines that help analyze properties that chains of
@@ -1916,6 +1918,168 @@ bool llvm::isSafeToSpeculativelyExecute(const Value *V,
        // as libm. They're safe to speculate when they won't error.
        // TODO: are convert_{from,to}_fp16 safe?
        // TODO: can we list target-specific intrinsics here?
+
+        case Intrinsic::gla_abs:
+        case Intrinsic::gla_addCarry:
+        case Intrinsic::gla_all:
+        case Intrinsic::gla_any:
+        case Intrinsic::gla_bitCount:
+        case Intrinsic::gla_bitFieldInsert:
+        case Intrinsic::gla_bitReverse:
+        // case Intrinsic::gla_discard:
+        // case Intrinsic::gla_discardConditional:
+        case Intrinsic::gla_fAbs:
+        case Intrinsic::gla_fAcos:
+        case Intrinsic::gla_fAcosh:
+        case Intrinsic::gla_fAsin:
+        case Intrinsic::gla_fAsinh:
+        case Intrinsic::gla_fAtan:
+        case Intrinsic::gla_fAtan2:
+        case Intrinsic::gla_fAtanh:
+        case Intrinsic::gla_fCeiling:
+        case Intrinsic::gla_fClamp:
+        case Intrinsic::gla_fCos:
+        case Intrinsic::gla_fCosh:
+        case Intrinsic::gla_fCross:
+        case Intrinsic::gla_fDFdx:
+        case Intrinsic::gla_fDFdy:
+        case Intrinsic::gla_fDegrees:
+        case Intrinsic::gla_fDistance:
+        case Intrinsic::gla_fDot2:
+        case Intrinsic::gla_fDot3:
+        case Intrinsic::gla_fDot4:
+        case Intrinsic::gla_fExp:
+        case Intrinsic::gla_fExp10:
+        case Intrinsic::gla_fExp2:
+        case Intrinsic::gla_fFaceForward:
+        case Intrinsic::gla_fFilterWidth:
+        case Intrinsic::gla_fFixedTransform:
+        case Intrinsic::gla_fFloatBitsToInt:
+        case Intrinsic::gla_fFloor:
+        case Intrinsic::gla_fFma:
+        case Intrinsic::gla_fFraction:
+        case Intrinsic::gla_fFrexp:
+        case Intrinsic::gla_fIntBitsTofloat:
+        case Intrinsic::gla_fInverseSqrt:
+        case Intrinsic::gla_fIsInf:
+        case Intrinsic::gla_fIsNan:
+        case Intrinsic::gla_fLdexp:
+        case Intrinsic::gla_fLength:
+        case Intrinsic::gla_fLit:
+        case Intrinsic::gla_fLog:
+        case Intrinsic::gla_fLog10:
+        case Intrinsic::gla_fLog2:
+        case Intrinsic::gla_fMax:
+        case Intrinsic::gla_fMin:
+        case Intrinsic::gla_fMix:
+        case Intrinsic::gla_fModF:
+        case Intrinsic::gla_fMultiInsert:
+        case Intrinsic::gla_fNormalize:
+        case Intrinsic::gla_fNormalize3D:
+        case Intrinsic::gla_fPackDouble2x32:
+        case Intrinsic::gla_fPackSnorm4x8:
+        case Intrinsic::gla_fPackUnorm2x16:
+        case Intrinsic::gla_fPackUnorm4x8:
+        case Intrinsic::gla_fPow:
+        case Intrinsic::gla_fPowi:
+        case Intrinsic::gla_fQueryTextureLod:
+        case Intrinsic::gla_fRTextureSample1:
+        case Intrinsic::gla_fRTextureSample2:
+        case Intrinsic::gla_fRTextureSample3:
+        case Intrinsic::gla_fRTextureSample4:
+        case Intrinsic::gla_fRTextureSampleLodRefZ1:
+        case Intrinsic::gla_fRTextureSampleLodRefZ2:
+        case Intrinsic::gla_fRTextureSampleLodRefZ3:
+        case Intrinsic::gla_fRTextureSampleLodRefZ4:
+        case Intrinsic::gla_fRTextureSampleLodRefZOffset1:
+        case Intrinsic::gla_fRTextureSampleLodRefZOffset2:
+        case Intrinsic::gla_fRTextureSampleLodRefZOffset3:
+        case Intrinsic::gla_fRTextureSampleLodRefZOffset4:
+        case Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad1:
+        case Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad2:
+        case Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad3:
+        case Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad4:
+        case Intrinsic::gla_fRadians:
+        case Intrinsic::gla_fReadData:
+        case Intrinsic::gla_fReadInterpolant:
+        case Intrinsic::gla_fReadInterpolantOffset:
+        case Intrinsic::gla_fReflect:
+        case Intrinsic::gla_fRefract:
+        case Intrinsic::gla_fRoundEven:
+        case Intrinsic::gla_fRoundFast:
+        case Intrinsic::gla_fRoundZero:
+        case Intrinsic::gla_fSign:
+        case Intrinsic::gla_fSin:
+        case Intrinsic::gla_fSinh:
+        case Intrinsic::gla_fSmoothStep:
+        case Intrinsic::gla_fSqrt:
+        case Intrinsic::gla_fStep:
+        case Intrinsic::gla_fSwizzle:
+        case Intrinsic::gla_fTan:
+        case Intrinsic::gla_fTanh:
+        case Intrinsic::gla_fTexelFetchOffset:
+        case Intrinsic::gla_fTexelGather:
+        case Intrinsic::gla_fTexelGatherOffset:
+        case Intrinsic::gla_fTexelGatherOffsets:
+        case Intrinsic::gla_fTextureSample:
+        case Intrinsic::gla_fTextureSampleLodRefZ:
+        case Intrinsic::gla_fTextureSampleLodRefZOffset:
+        case Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
+        case Intrinsic::gla_fUnpackDouble2x32:
+        case Intrinsic::gla_fUnpackSnorm4x8:
+        case Intrinsic::gla_fUnpackUnorm2x16:
+        case Intrinsic::gla_fUnpackUnorm4x8:
+        // case Intrinsic::gla_fWriteData:
+        // case Intrinsic::gla_fWriteInterpolant:
+        case Intrinsic::gla_findLSB:
+        case Intrinsic::gla_getInterpolant:
+        case Intrinsic::gla_multiInsert:
+        case Intrinsic::gla_not:
+        case Intrinsic::gla_queryTextureSize:
+        case Intrinsic::gla_rTextureSample1:
+        case Intrinsic::gla_rTextureSample2:
+        case Intrinsic::gla_rTextureSample3:
+        case Intrinsic::gla_rTextureSample4:
+        case Intrinsic::gla_rTextureSampleLodRefZ1:
+        case Intrinsic::gla_rTextureSampleLodRefZ2:
+        case Intrinsic::gla_rTextureSampleLodRefZ3:
+        case Intrinsic::gla_rTextureSampleLodRefZ4:
+        case Intrinsic::gla_rTextureSampleLodRefZOffset1:
+        case Intrinsic::gla_rTextureSampleLodRefZOffset2:
+        case Intrinsic::gla_rTextureSampleLodRefZOffset3:
+        case Intrinsic::gla_rTextureSampleLodRefZOffset4:
+        case Intrinsic::gla_rTextureSampleLodRefZOffsetGrad1:
+        case Intrinsic::gla_rTextureSampleLodRefZOffsetGrad2:
+        case Intrinsic::gla_rTextureSampleLodRefZOffsetGrad3:
+        case Intrinsic::gla_rTextureSampleLodRefZOffsetGrad4:
+        case Intrinsic::gla_readData:
+        case Intrinsic::gla_sBitFieldExtract:
+        case Intrinsic::gla_sClamp:
+        case Intrinsic::gla_sFindMSB:
+        case Intrinsic::gla_sFma:
+        case Intrinsic::gla_sMax:
+        case Intrinsic::gla_sMin:
+        case Intrinsic::gla_smulExtended:
+        case Intrinsic::gla_subBorrow:
+        case Intrinsic::gla_swizzle:
+        case Intrinsic::gla_texelFetchOffset:
+        case Intrinsic::gla_texelGather:
+        case Intrinsic::gla_texelGatherOffset:
+        case Intrinsic::gla_texelGatherOffsets:
+        case Intrinsic::gla_textureSample:
+        case Intrinsic::gla_textureSampleLodRefZ:
+        case Intrinsic::gla_textureSampleLodRefZOffset:
+        case Intrinsic::gla_textureSampleLodRefZOffsetGrad:
+        case Intrinsic::gla_uBitFieldExtract:
+        case Intrinsic::gla_uClamp:
+        case Intrinsic::gla_uFindMSB:
+        case Intrinsic::gla_uFma:
+        case Intrinsic::gla_uMax:
+        case Intrinsic::gla_uMin:
+        case Intrinsic::gla_umulExtended:
+        // case Intrinsic::gla_writeData:
+          return true;
+
        default: break;
      }
    }

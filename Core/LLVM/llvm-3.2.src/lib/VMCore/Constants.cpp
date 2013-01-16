@@ -5,6 +5,8 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
+// Changes Copyright (C) 2011-2013 LunarG, Inc.
+//
 //===----------------------------------------------------------------------===//
 //
 // This file implements the Constant* classes.
@@ -218,6 +220,9 @@ void Constant::destroyConstantImpl() {
 /// canTrap - Return true if evaluation of this constant could trap.  This is
 /// true for things like constant expressions that could divide by zero.
 bool Constant::canTrap() const {
+  // LunarGLASS constants don't trap
+  return false;
+
   assert(getType()->isFirstClassType() && "Cannot evaluate aggregate vals!");
   // The only thing that could possibly trap are constant exprs.
   const ConstantExpr *CE = dyn_cast<ConstantExpr>(this);
