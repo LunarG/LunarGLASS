@@ -68,7 +68,7 @@ entry:
   %texColor1 = fadd <4 x float> %0, %0
   %1 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %texColor1, <3 x i32> <i32 0, i32 1, i32 2>)
   %2 = load <3 x float> addrspace(2)* @inColor, align 16
-  %3 = fadd <3 x float> %1, %2
+  %3 = fadd <3 x float> %2, %1
   %4 = extractelement <4 x float> %texColor1, i32 3
   %gla_constGEP5 = getelementptr [16 x float] addrspace(2)* @alpha, i32 0, i32 12
   %5 = load float addrspace(2)* %gla_constGEP5, align 4
@@ -105,7 +105,7 @@ void main()
     vec4 temp21 = color[1];
     vec4 texColor1 = temp21 + temp21;
     vec3 temp23 = vec3(texColor1);
-    vec3 temp24 = temp23 + inColor;
+    vec3 temp24 = inColor + temp23;
     float temp25 = alpha[12];
     float temp26 = texColor1.w + temp25;
     vec4 temp27 = vec4(temp24.x, temp24.y, temp24.z, temp26);
@@ -128,7 +128,7 @@ void main()
     vec4 temp211 = color[1];
     vec4 texColor12 = temp211 + temp211;
     vec3 temp23 = vec3(texColor12);
-    vec3 temp244 = temp23 + inColor;
+    vec3 temp244 = inColor + temp23;
     float temp255 = alpha[12];
     float temp266 = texColor12.w + temp255;
     vec4 temp27 = vec4(temp244.x, temp244.y, temp244.z, temp266);

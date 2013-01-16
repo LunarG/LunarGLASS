@@ -83,7 +83,7 @@ entry:
   %smallColor.val = load <4 x float> addrspace(2)* @smallColor, align 16
   %.pn = select i1 %1, <4 x float> %bigColor.val, <4 x float> %smallColor.val
   %color.0 = fadd <4 x float> %BaseColor__, %.pn
-  %FragColor_shadow = fmul <4 x float> %color.0, %color22
+  %FragColor_shadow = fmul <4 x float> %color22, %color.0
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
   br label %stage-epilogue
 
@@ -118,7 +118,7 @@ void main()
     bool temp21 = c > d;
     vec4 _pn = temp21 ? bigColor : smallColor;
     vec4 color_0 = BaseColor + _pn;
-    vec4 FragColor_shadow = color_0 * otherColor;
+    vec4 FragColor_shadow = otherColor * color_0;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -141,7 +141,7 @@ void main()
     bool temp211 = c > d;
     vec4 ternary_0 = temp211 ? bigColor : smallColor;
     vec4 color_05 = BaseColor + ternary_0;
-    vec4 FragColor_shadow6 = color_05 * otherColor;
+    vec4 FragColor_shadow6 = otherColor * color_05;
     gl_FragColor = FragColor_shadow6;
     
 }

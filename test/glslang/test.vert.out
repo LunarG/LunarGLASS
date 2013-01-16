@@ -54,7 +54,7 @@ define fastcc void @main() {
 entry:
   %0 = call <4 x float> @llvm.gla.fFixedTransform.v4f32.v4f32.v4f32(<4 x float> zeroinitializer, <4 x float> zeroinitializer)
   %position__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
-  %Position_shadow = fadd <4 x float> %position__, %0
+  %Position_shadow = fadd <4 x float> %0, %position__
   %uv_in__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   call void @llvm.gla.fWriteData.v2f32(i32 0, i32 -1, <2 x float> %uv_in__)
   call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %Position_shadow)
@@ -90,7 +90,7 @@ in vec2 uv_in;
 void main()
 {
     vec4 temp21 = ftransform();
-    vec4 Position_shadow = position + temp21;
+    vec4 Position_shadow = temp21 + position;
     uv = uv_in;
     gl_Position = Position_shadow;
     

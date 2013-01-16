@@ -2,8 +2,8 @@
 Top IR:
 ; ModuleID = 'Top'
 
-%lunarStruct1 = type { i32, [4 x float], [5 x <4 x float>] }
 %lunarStruct2 = type { [5 x i32], float, [7 x %lunarStruct1] }
+%lunarStruct1 = type { i32, [4 x float], [5 x <4 x float>] }
 
 @foo2 = external addrspace(2) constant [5 x %lunarStruct2]
 @FragColor_shadow = internal global <4 x float> zeroinitializer
@@ -63,8 +63,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-%lunarStruct1 = type { i32, [4 x float], [5 x <4 x float>] }
 %lunarStruct2 = type { [5 x i32], float, [7 x %lunarStruct1] }
+%lunarStruct1 = type { i32, [4 x float], [5 x <4 x float>] }
 
 @foo2 = external addrspace(2) constant [5 x %lunarStruct2]
 @"sampler2D sampler" = external addrspace(1) constant i32
@@ -84,7 +84,7 @@ entry:
   %coord__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %4 = load i32 addrspace(1)* @"sampler2D sampler", align 4
   %5 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %coord__)
-  %FragColor_shadow = fmul <4 x float> %3, %5
+  %FragColor_shadow = fmul <4 x float> %5, %3
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
   br label %stage-epilogue
 
@@ -135,7 +135,7 @@ void main()
     float select = temp22 ? temp24.x : scale2;
     vec4 temp27 = vec4(select);
     vec4 temp28 = texture2D(sampler, coord);
-    vec4 FragColor_shadow = temp27 * temp28;
+    vec4 FragColor_shadow = temp28 * temp27;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -172,7 +172,7 @@ void main()
     float select = temp222 ? temp243.x : scale24;
     vec4 temp27 = vec4(select);
     vec4 temp289 = texture2D(sampler, coord);
-    vec4 FragColor_shadow10 = temp27 * temp289;
+    vec4 FragColor_shadow10 = temp289 * temp27;
     gl_FragColor = FragColor_shadow10;
     
 }

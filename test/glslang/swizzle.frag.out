@@ -161,9 +161,9 @@ entry:
   %6 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t__, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t__, i32 1, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
   %select = select i1 %5, <4 x float> %6, <4 x float> %7
-  %8 = fmul <4 x float> %2, %1
+  %8 = fmul <4 x float> %1, %2
   %9 = fmul <4 x float> %8, %4
-  %10 = fmul <4 x float> %9, %select
+  %10 = fmul <4 x float> %select, %9
   %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %3, <4 x float> %0, <4 x float> %10)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
   br label %stage-epilogue
@@ -217,9 +217,9 @@ void main()
     vec4 temp28 = u;
     temp28.x = t.y;
     vec4 select = p ? temp27 : temp28;
-    vec4 temp30 = temp23 * temp22;
+    vec4 temp30 = temp22 * temp23;
     vec4 temp31 = temp30 * temp26;
-    vec4 temp32 = temp31 * select;
+    vec4 temp32 = select * temp31;
     vec4 FragColor_shadow = mix(temp24, temp21, temp32);
     gl_FragColor = FragColor_shadow;
     
@@ -251,9 +251,9 @@ void main()
     vec4 temp28 = u;
     temp28.x = t.y;
     vec4 select = p ? temp27 : temp28;
-    vec4 temp3019 = temp23 * temp21;
+    vec4 temp3019 = temp21 * temp23;
     vec4 temp3120 = temp3019 * temp26;
-    vec4 temp3221 = temp3120 * select;
+    vec4 temp3221 = select * temp3120;
     vec4 FragColor_shadow22 = mix(temp24, temp22, temp3221);
     gl_FragColor = FragColor_shadow22;
     

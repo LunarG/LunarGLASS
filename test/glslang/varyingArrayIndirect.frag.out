@@ -175,7 +175,7 @@ entry:
   %5 = getelementptr [6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 %4
   %6 = load <4 x float>* %5, align 16
   %7 = fadd <4 x float> %3, %6
-  %8 = fadd <4 x float> %7, %"gl_TexCoord_6[5]"
+  %8 = fadd <4 x float> %"gl_TexCoord_6[5]", %7
   %9 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %8, <2 x i32> <i32 0, i32 1>)
   %gla_constGEP32 = getelementptr [6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 0
   store <4 x float> %"gl_TexCoord_6[0]", <4 x float>* %gla_constGEP32, align 16
@@ -198,13 +198,13 @@ entry:
   %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 8, i32 -1, i32 1)
   %texColor7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %9)
   %alpha__ = call float @llvm.gla.fReadInterpolant.f32(i32 9, i32 -1, i32 1)
-  %texColor8 = fadd <4 x float> %texColor7, %color__
+  %texColor8 = fadd <4 x float> %color__, %texColor7
   %12 = getelementptr [2 x <4 x float>]* @userIn_shadow, i32 0, i32 %4
   %13 = fadd <4 x float> %"gl_TexCoord_6[0]", %11
   %14 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor8, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %alpha__, i32 0)
   %15 = load <4 x float>* %12, align 16
   %16 = fadd <4 x float> %13, %14
-  %FragColor_shadow = fadd <4 x float> %16, %15
+  %FragColor_shadow = fadd <4 x float> %15, %16
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
   br label %stage-epilogue
 
@@ -255,7 +255,7 @@ void main()
     TexCoord_shadow[5] = gl_TexCoord[5];
     vec4 temp22 = TexCoord_shadow[a];
     vec4 temp23 = temp21 + temp22;
-    vec4 temp24 = temp23 + gl_TexCoord[5];
+    vec4 temp24 = gl_TexCoord[5] + temp23;
     vec2 temp25 = vec2(temp24);
     TexCoord_shadow[0] = gl_TexCoord[0];
     TexCoord_shadow[1] = gl_TexCoord[1];
@@ -267,13 +267,13 @@ void main()
     userIn_shadow[0] = userIn[0];
     userIn_shadow[1] = userIn[1];
     vec4 texColor7 = texture2D(texSampler2D, temp25);
-    vec4 texColor8 = texColor7 + color;
+    vec4 texColor8 = color + texColor7;
     vec4 temp29 = gl_TexCoord[0] + temp26;
     vec4 temp30 = texColor8;
     temp30.w = alpha;
     vec4 temp31 = userIn_shadow[a];
     vec4 temp32 = temp29 + temp30;
-    vec4 FragColor_shadow = temp32 + temp31;
+    vec4 FragColor_shadow = temp31 + temp32;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -306,7 +306,7 @@ void main()
     TexCoord_shadow[5] = gl_TexCoord[5];
     vec4 temp2244 = TexCoord_shadow[a];
     vec4 temp2345 = temp213 + temp2244;
-    vec4 temp2454 = temp2345 + gl_TexCoord[5];
+    vec4 temp2454 = gl_TexCoord[5] + temp2345;
     vec2 temp25 = vec2(temp2454);
     TexCoord_shadow[0] = gl_TexCoord[0];
     TexCoord_shadow[1] = gl_TexCoord[1];
@@ -318,13 +318,13 @@ void main()
     userIn_shadow[0] = userIn[0];
     userIn_shadow[1] = userIn[1];
     vec4 texColor7109 = texture2D(texSampler2D, temp25);
-    vec4 texColor8110 = texColor7109 + color;
+    vec4 texColor8110 = color + texColor7109;
     vec4 temp29 = texColor8110;
     temp29.w = alpha;
-    vec4 temp29119 = gl_TexCoord[0] + temp26104;
-    vec4 temp32123 = temp29119 + temp29;
+    vec4 temp29119 = temp26104 + gl_TexCoord[0];
+    vec4 temp32123 = temp29 + temp29119;
     vec4 temp31122 = userIn_shadow[a];
-    vec4 FragColor_shadow124 = temp32123 + temp31122;
+    vec4 FragColor_shadow124 = temp31122 + temp32123;
     gl_FragColor = FragColor_shadow124;
     
 }
