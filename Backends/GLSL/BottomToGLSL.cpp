@@ -174,9 +174,9 @@ public:
 
         // For nested struct types, we have to output the nested one
         // before the containing one.  So, make the current on the side
-        // and add it to the global results after its contents are 
+        // and add it to the global results after its contents are
         // declared.
-        std::ostringstream tempStructure;  
+        std::ostringstream tempStructure;
 
         structNameMap[structType] = name;
         tempStructure << "struct " << name.str() << " {" << std::endl;
@@ -742,7 +742,7 @@ protected:
 
     void makeParseable(std::string& varString)
     {
-        // Some symbols were annotated with a prefix and a space        
+        // Some symbols were annotated with a prefix and a space
         int spaceLoc = varString.find_first_of(' ');
         if (spaceLoc != std::string::npos)
             varString.erase(0, spaceLoc+1);
@@ -959,70 +959,85 @@ protected:
 
         switch (type->getTypeID()) {
 
-        case llvm::Type::IntegerTyID: {
-            if (isZero) {
-                if (gla::IsBoolean(type))
-                        out << "false";
-                    else
-                    out << "0";
-            } else {
-                if (gla::IsBoolean(type)) {
-                    if (GetConstantInt(constant))
-                        out << "true";
-                    else
-                        out << "false";
-                } else
-                    out << GetConstantInt(constant);
+        case llvm::Type::IntegerTyID:
+            {
+                if (isZero) {
+                    if (gla::IsBoolean(type))
+                            out << "false";
+                        else
+                        out << "0";
+                } else {
+                    if (gla::IsBoolean(type)) {
+                        if (GetConstantInt(constant))
+                            out << "true";
+                        else
+                            out << "false";
+                    } else
+                        out << GetConstantInt(constant);
+                }
+                break;
             }
-            break;
-        }
 
-        case llvm::Type::FloatTyID: {
-            if (isZero)
-                emitFloatConstant(out, 0.0);
-            else
-                emitFloatConstant(out, GetConstantFloat(constant));
-            break;
-        }
+        case llvm::Type::FloatTyID:
+            {
+                if (isZero)
+                    emitFloatConstant(out, 0.0);
+                else
+                    emitFloatConstant(out, GetConstantFloat(constant));
+                break;
+            }
 
         case llvm::Type::VectorTyID:
         case llvm::Type::ArrayTyID:
-        case llvm::Type::StructTyID: {
-            emitGlaType(out, type);
-            out << "(";
+        case llvm::Type::StructTyID:
+            {
+                emitGlaType(out, type);
+                out << "(";
 
-            int numElements = 0;
+                int numElements = 0;
+                llvm::Constant* splatValue = 0;
+                const llvm::ConstantDataVector* dataVector = 0;
 
-            if (const llvm::VectorType* vectorType = llvm::dyn_cast<llvm::VectorType>(type)) {
-                // If all vector elements are equal, we only need to emit one
-                bool same = true;
-                if (! isZero) {
-                    for (int op = 1; op < vectorType->getNumElements(); ++op) {
-                        if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
-                            same = false;
-                            break;
+                if (const llvm::VectorType* vectorType = llvm::dyn_cast<llvm::VectorType>(type)) {
+                    // If all vector elements are equal, we only need to emit one
+                    bool same = true;
+                    dataVector = llvm::dyn_cast<llvm::ConstantDataVector>(constant);
+                    if (dataVector)
+                        splatValue = dataVector->getSplatValue();
+                    else if (! isZero) {
+                        for (int op = 1; op < vectorType->getNumElements(); ++op) {
+                            if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
+                                same = false;
+                                break;
+                            }
                         }
+
+                        if (same)
+                            splatValue = llvm::dyn_cast<llvm::Constant>(constant->getOperand(0));
+                    }
+                    numElements = vectorType->getNumElements();
+                } else if (const llvm::ArrayType*  arrayType = llvm::dyn_cast<llvm::ArrayType>(type))
+                    numElements = arrayType->getNumElements();
+                else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(type))
+                    numElements = structType->getNumElements();
+                else
+                    assert(0 && "Constant aggregate type");
+
+                if (isZero || splatValue)
+                    emitConstantInitializer(out, isZero ? 0 : splatValue, type->getContainedType(0));
+                else {
+                    for (int op = 0; op < numElements; ++op) {
+                        if (op > 0)
+                            out << ", ";
+
+                        emitConstantInitializer(out, llvm::dyn_cast<llvm::Constant>(constant->getOperand(op)),
+                                                type->getContainedType(type->getNumContainedTypes() > 1 ? op : 0));
                     }
                 }
-                numElements = same ? 1 : vectorType->getNumElements();
-            } else if (const llvm::ArrayType*  arrayType = llvm::dyn_cast<llvm::ArrayType>(type))
-                numElements = arrayType->getNumElements();
-            else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(type))
-                numElements = structType->getNumElements();
-            else
-                assert(0 && "Constant aggregate type");
 
-            for (int op = 0; op < numElements; ++op) {
-                if (op > 0)
-                    out << ", ";
-                emitConstantInitializer(out,
-                                        isZero ? 0 : llvm::dyn_cast<llvm::Constant>(constant->getOperand(op)),
-                                        type->getContainedType(type->getNumContainedTypes() > 1 ? op : 0));
+                out << ")";
+                break;
             }
-
-            out << ")";
-            break;
-        }
 
         default:
             assert(0 && "Constant type in Bottom IR");

@@ -269,7 +269,7 @@ else20:                                           ; preds = %else17
 
 ifmerge23:                                        ; preds = %else20, %then15
   %color.1 = phi <4 x float> [ %16, %then15 ], [ %color21, %else20 ]
-  %FragColor_shadow = fmul <4 x float> %color.1, %color22
+  %FragColor_shadow = fmul <4 x float> %color22, %color.1
   br label %stage-epilogue
 
 else25:                                           ; preds = %ifmerge9
@@ -372,7 +372,7 @@ void main()
                     
                 }
                 
-                vec4 FragColor_shadow = color_1 * otherColor;
+                vec4 FragColor_shadow = otherColor * color_1;
                 FragColor_shadow32_0 = FragColor_shadow;
                 gl_FragColor = FragColor_shadow32_0;
                 return;
@@ -421,7 +421,7 @@ void main()
     vec4 FragColor_shadow51_0;
     bool temp231 = c > d;
     vec4 ternary_0 = temp231 ? bigColor : smallColor;
-    vec4 color_05 = BaseColor + ternary_0;
+    vec4 color_05 = ternary_0 + BaseColor;
     bool temp266 = color_05.z < minimum;
     if (temp266) {
         FragColor_shadow51_0 = const27;
