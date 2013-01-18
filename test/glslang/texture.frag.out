@@ -264,7 +264,7 @@ entry:
   %6 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.f32(i32 1, i32 %0, i32 130, float 0x3FFC9FBE80000000, float 2.000000e+00, float undef)
   %7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.f32(i32 1, i32 %0, i32 0, float 0x3FFC9FBE80000000)
   %8 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 1, i32 %0, i32 1, <2 x float> %coords2D__)
-  %color2 = fadd <4 x float> %7, %6
+  %color2 = fadd <4 x float> %6, %7
   %9 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 1, i32 %0, i32 1, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>)
   %color3 = fadd <4 x float> %color2, %8
   %10 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32 1, i32 %0, i32 131, <2 x float> %coords2D__, float 2.000000e+00, float undef)
@@ -369,7 +369,7 @@ void main()
     vec4 temp21 = texture1D(texSampler1D, const22_2f, const23_2f);
     vec4 temp24 = texture1D(texSampler1D, const22_2f);
     vec4 temp25 = texture1DProj(texSampler1D, coords2D);
-    vec4 color2 = temp24 + temp21;
+    vec4 color2 = temp21 + temp24;
     vec4 temp27 = texture1DProj(texSampler1D, const28);
     vec4 color3 = color2 + temp25;
     vec4 temp30 = texture1DProj(texSampler1D, coords2D, const23_2f);

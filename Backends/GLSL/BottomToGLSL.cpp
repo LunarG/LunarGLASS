@@ -1002,9 +1002,11 @@ protected:
                     // If all vector elements are equal, we only need to emit one
                     bool same = true;
                     dataVector = llvm::dyn_cast<llvm::ConstantDataVector>(constant);
-                    if (dataVector)
+                    if (dataVector) {
                         splatValue = dataVector->getSplatValue();
-                    else if (! isZero) {
+                        if (! splatValue)
+                            same = false;
+                    } else if (! isZero) {
                         for (int op = 1; op < vectorType->getNumElements(); ++op) {
                             if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
                                 same = false;
@@ -1030,7 +1032,13 @@ protected:
                         if (op > 0)
                             out << ", ";
 
-                        emitConstantInitializer(out, llvm::dyn_cast<llvm::Constant>(constant->getOperand(op)),
+                        const llvm::Constant* constElement;
+                        if (dataVector)
+                            constElement = dataVector->getElementAsConstant(op);
+                        else
+                            constElement = llvm::dyn_cast<llvm::Constant>(constant->getOperand(op));
+
+                        emitConstantInitializer(out, constElement,
                                                 type->getContainedType(type->getNumContainedTypes() > 1 ? op : 0));
                     }
                 }
