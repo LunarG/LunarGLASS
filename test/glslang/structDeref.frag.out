@@ -2,11 +2,11 @@
 Top IR:
 ; ModuleID = 'Top'
 
+%s3 = type { [12 x %s2], i32, float, %s1 }
+%s2 = type { i32, float, %s1 }
+%s1 = type { i32, float, %s0 }
 %s0 = type { i32 }
 %s00 = type { %s0 }
-%s1 = type { i32, float, %s0 }
-%s2 = type { i32, float, %s1 }
-%s3 = type { [12 x %s2], i32, float, %s1 }
 
 @foo3 = external addrspace(2) constant %s3
 @foo1 = external addrspace(2) constant %s1
@@ -130,11 +130,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
+%s3 = type { [12 x %s2], i32, float, %s1 }
+%s2 = type { i32, float, %s1 }
+%s1 = type { i32, float, %s0 }
 %s0 = type { i32 }
 %s00 = type { %s0 }
-%s1 = type { i32, float, %s0 }
-%s2 = type { i32, float, %s1 }
-%s3 = type { [12 x %s2], i32, float, %s1 }
 
 @foo3 = external addrspace(2) constant %s3
 @foo1 = external addrspace(2) constant %s1
@@ -147,25 +147,25 @@ entry:
   %gla_constGEP = getelementptr %s3 addrspace(2)* @foo3, i32 0, i32 0, i32 9, i32 0
   %0 = load i32 addrspace(2)* %gla_constGEP, align 4
   %1 = icmp sgt i32 %0, 0
-  %gla_constGEP72 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 1
-  %2 = load float addrspace(2)* %gla_constGEP72, align 4
+  %gla_constGEP47 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 1
+  %2 = load float addrspace(2)* %gla_constGEP47, align 4
   %coord__1 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
   %3 = extractelement <2 x float> %coord__1, i32 1
-  %gla_constGEP73 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
-  %4 = load i32 addrspace(2)* %gla_constGEP73, align 4
-  %gla_constGEP74 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0, i32 0
-  %5 = load i32 addrspace(2)* %gla_constGEP74, align 4
+  %gla_constGEP48 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
+  %4 = load i32 addrspace(2)* %gla_constGEP48, align 4
+  %gla_constGEP49 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0, i32 0
+  %5 = load i32 addrspace(2)* %gla_constGEP49, align 4
   %select = select i1 %1, float 0.000000e+00, float 3.000000e+00
-  %select68 = select i1 %1, i32 0, i32 %4
-  %select69 = select i1 %1, i32 0, i32 %5
-  %select70 = select i1 %1, float 1.000000e+00, float %3
-  %select71 = select i1 %1, float %2, float %3
-  %6 = icmp sgt i32 %select68, 5
-  %locals0.0.1 = select i1 %6, i32 %select69, i32 %select68
-  %7 = sitofp i32 %locals0.0.1 to float
-  %8 = fadd float %7, %select71
-  %9 = fadd float %8, %select
-  %10 = fadd float %9, %select70
+  %select43 = select i1 %1, i32 0, i32 %4
+  %select44 = select i1 %1, i32 0, i32 %5
+  %select45 = select i1 %1, float 1.000000e+00, float %3
+  %select46 = select i1 %1, float %2, float %3
+  %6 = icmp sgt i32 %select43, 5
+  %locals00.0.0.0.locals0.0.0 = select i1 %6, i32 %select44, i32 %select43
+  %7 = sitofp i32 %locals00.0.0.0.locals0.0.0 to float
+  %8 = fadd float %select46, %7
+  %9 = fadd float %select, %8
+  %10 = fadd float %select45, %9
   %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %10, <4 x i32> zeroinitializer)
   %12 = load i32 addrspace(1)* @"sampler2D sampler", align 4
   %13 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %12, i32 0, <2 x float> %coord__1)
@@ -198,10 +198,6 @@ struct s0 {
     int member0;
 };
 
-struct s00 {
-    s0 member0;
-};
-
 struct s1 {
     int member0;
     float member1;
@@ -219,6 +215,10 @@ struct s3 {
     int member1;
     float member2;
     s1 member3;
+};
+
+struct s00 {
+    s0 member0;
 };
 
 uniform s3 foo3;
@@ -241,16 +241,16 @@ void main()
     int temp25 = foo1.member2.member0;
     int temp26 = foo00.member0.member0;
     float select = temp22 ? const28_0f : const29_3f;
-    int select68 = temp22 ? const23_0 : temp25;
-    int select69 = temp22 ? const23_0 : temp26;
-    float select70 = temp22 ? const33_1f : coord.y;
-    float select71 = temp22 ? temp24 : coord.y;
-    bool temp35 = select68 > const36_5;
-    int locals0_0_1 = temp35 ? select69 : select68;
-    float temp38 = float(locals0_0_1);
-    float temp39 = temp38 + select71;
-    float temp40 = temp39 + select;
-    float temp41 = temp40 + select70;
+    int select43 = temp22 ? const23_0 : temp25;
+    int select44 = temp22 ? const23_0 : temp26;
+    float select45 = temp22 ? const33_1f : coord.y;
+    float select46 = temp22 ? temp24 : coord.y;
+    bool temp35 = select43 > const36_5;
+    int locals00_0_0_0_locals0_0_0 = temp35 ? select44 : select43;
+    float temp38 = float(locals00_0_0_0_locals0_0_0);
+    float temp39 = select46 + temp38;
+    float temp40 = select + temp39;
+    float temp41 = select45 + temp40;
     vec4 temp42 = vec4(temp41);
     vec4 temp43 = texture2D(sampler, coord);
     vec4 FragColor_shadow = temp42 * temp43;
@@ -266,10 +266,6 @@ void main()
 #version 130
 struct s0 {
     int member0;
-};
-
-struct s00 {
-    s0 member0;
 };
 
 struct s1 {
@@ -291,38 +287,42 @@ struct s3 {
     s1 member3;
 };
 
+struct s00 {
+    s0 member0;
+};
+
 uniform s3 foo3;
 uniform s1 foo1;
 uniform s00 foo00;
 uniform sampler2D sampler;
 const int const23_0 = 0;
-const float const27_0f = 0.0;
-const float const28_3f = 3.0;
+const float const28_0f = 0.0;
+const float const29_3f = 3.0;
 in vec2 coord;
-const float const32_1f = 1.0;
+const float const33_1f = 1.0;
 const int const36_5 = 5;
 
 void main()
 {
     int temp211 = foo3.member0[9].member0;
     bool temp222 = temp211 > const23_0;
+    float temp243 = foo1.member1;
     int temp254 = foo1.member2.member0;
     int temp265 = foo00.member0.member0;
-    float temp26 = temp222 ? const27_0f : const28_3f;
+    float temp27 = temp222 ? const28_0f : const29_3f;
     int ternary7_0 = temp222 ? const23_0 : temp254;
     int _temp265 = temp222 ? const23_0 : temp265;
-    float select = temp222 ? const32_1f : coord.y;
-    float temp243 = foo1.member1;
-    float select51 = temp222 ? temp243 : coord.y;
+    float select51 = temp222 ? const33_1f : coord.y;
+    float select = temp222 ? temp243 : coord.y;
     bool temp3533 = ternary7_0 > const36_5;
     int _temp265_ternary7_0 = temp3533 ? _temp265 : ternary7_0;
     float temp3841 = float(_temp265_ternary7_0);
-    float temp3942 = temp3841 + select51;
-    float temp4043 = temp3942 + temp26;
-    float temp4144 = temp4043 + select;
+    float temp3942 = temp3841 + select;
+    float temp4043 = temp27 + temp3942;
+    float temp4144 = select51 + temp4043;
     vec4 temp42 = vec4(temp4144);
     vec4 temp4347 = texture2D(sampler, coord);
-    vec4 FragColor_shadow48 = temp42 * temp4347;
+    vec4 FragColor_shadow48 = temp4347 * temp42;
     gl_FragColor = FragColor_shadow48;
     
 }

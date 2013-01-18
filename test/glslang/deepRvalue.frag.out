@@ -188,6 +188,8 @@ Bottom IR:
 ; ModuleID = 'Top'
 
 @"sampler2D sampler" = external addrspace(1) constant i32
+@gla_globalAgg = internal global <4 x float> <float undef, float undef, float undef, float 7.000000e+00>
+@gla_globalAgg1 = internal global <4 x float> <float undef, float undef, float undef, float 1.900000e+01>
 
 define fastcc void @main() {
 entry:
@@ -195,7 +197,9 @@ entry:
   %1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> <float 5.000000e-01, float 5.000000e-01>)
   %i69 = extractelement <4 x float> %1, i32 1
   %2 = fcmp ogt float %i69, 0x3FB99999A0000000
-  %. = select i1 %2, <4 x float> <float 2.000000e+00, float 3.000000e+00, float 5.000000e+00, float 7.000000e+00>, <4 x float> <float 1.100000e+01, float 1.300000e+01, float 1.700000e+01, float 1.900000e+01>
+  %aggregate = load <4 x float>* @gla_globalAgg
+  %aggregate85 = load <4 x float>* @gla_globalAgg1
+  %. = select i1 %2, <4 x float> %aggregate, <4 x float> %aggregate85
   %3 = extractelement <4 x float> %., i32 3
   %i72 = fadd float %i69, %3
   %i74 = fadd float %i72, 7.000000e+00
@@ -223,23 +227,27 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 // LunarGOO(r722) output
 #version 130
 uniform sampler2D sampler;
-const vec2 const22 = vec2(0.5);
-const float const24_0f = 0.1;
-const vec4 const26 = vec4(2.0, 3.0, 5.0, 7.0);
-const vec4 const27 = vec4(11.0, 13.0, 17.0, 19.0);
-const float const30_7f = 7.0;
-const vec4 const32 = vec4(361.0, 841.0, 5.0, 0.0);
+vec4 gla_globalAgg;
+const float const21_7f = 7.0;
+vec4 gla_globalAgg1;
+const float const22_19f = 19.0;
+const vec2 const24 = vec2(0.5);
+const float const26_0f = 0.1;
+const vec4 const31 = vec4(361.0, 841.0, 5.0, 0.0);
 
 void main()
 {
-    vec4 temp21 = texture2D(sampler, const22);
-    bool temp23 = temp21.y > const24_0f;
-    vec4 temp25 = temp23 ? const26 : const27;
-    float temp28 = temp21.y + temp25.w;
-    float temp29 = temp28 + const30_7f;
-    vec4 temp31 = const32;
-    temp31.w = temp29;
-    gl_FragColor = temp31;
+    gla_globalAgg.w = const21_7f;
+    gla_globalAgg1.w = const22_19f;
+    
+    vec4 temp23 = texture2D(sampler, const24);
+    bool temp25 = temp23.y > const26_0f;
+    vec4 temp27 = temp25 ? gla_globalAgg : gla_globalAgg1;
+    float temp28 = temp23.y + temp27.w;
+    float temp29 = temp28 + const21_7f;
+    vec4 temp30 = const31;
+    temp30.w = temp29;
+    gl_FragColor = temp30;
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
@@ -250,22 +258,26 @@ void main()
 // LunarGOO(r722) output
 #version 130
 uniform sampler2D sampler;
-const vec2 const22 = vec2(0.5);
-const float const24_0f = 0.1;
-const vec4 const26 = vec4(2.0, 3.0, 5.0, 7.0);
-const vec4 const27 = vec4(11.0, 13.0, 17.0, 19.0);
-const float const30_7f = 7.0;
-const vec4 const32 = vec4(361.0, 841.0, 5.0, 0.0);
+vec4 gla_globalAgg;
+const float const21_7f = 7.0;
+vec4 gla_globalAgg1;
+const float const22_19f = 19.0;
+const vec2 const24 = vec2(0.5);
+const float const26_0f = 0.1;
+const vec4 const31 = vec4(361.0, 841.0, 5.0, 0.0);
 
 void main()
 {
-    vec4 temp211 = texture2D(sampler, const22);
-    bool temp232 = temp211.y > const24_0f;
-    vec4 temp25 = temp232 ? const26 : const27;
-    float temp284 = temp211.y + temp25.w;
-    float temp295 = temp284 + const30_7f;
-    vec4 temp31 = const32;
-    temp31.w = temp295;
-    gl_FragColor = temp31;
+    gla_globalAgg.w = const21_7f;
+    gla_globalAgg1.w = const22_19f;
+    
+    vec4 temp231 = texture2D(sampler, const24);
+    bool temp252 = temp231.y > const26_0f;
+    vec4 temp27 = temp252 ? gla_globalAgg : gla_globalAgg1;
+    float temp286 = temp231.y + temp27.w;
+    float temp297 = temp286 + const21_7f;
+    vec4 temp30 = const31;
+    temp30.w = temp297;
+    gl_FragColor = temp30;
     
 }

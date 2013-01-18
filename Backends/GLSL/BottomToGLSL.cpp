@@ -963,8 +963,8 @@ protected:
             {
                 if (isZero) {
                     if (gla::IsBoolean(type))
-                            out << "false";
-                        else
+                        out << "false";
+                    else
                         out << "0";
                 } else {
                     if (gla::IsBoolean(type)) {
