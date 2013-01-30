@@ -274,7 +274,8 @@ static unsigned ApproximateLoopSize(const Loop *L) {
   // Don't allow an estimate of size zero.  This would allows unrolling of loops
   // with huge iteration counts, which is a compile time problem even if it's
   // not a problem for code quality.
-  if (LoopSize == 0) LoopSize = 1;
+  if (LoopSize == 0) 
+    LoopSize = 1;
 
   return LoopSize;
 }
@@ -334,6 +335,8 @@ bool LoopRotate::rotateLoop(Loop *L) {
     unsigned int C = SE->getSmallConstantTripCount(L, Exiting);
     if (C == 0 || (C-1) * ApproximateLoopSize(L) >= 350)
       return false;
+
+    SE->forgetLoop(L);
   } else {
     // LunarGLASS: We need scalar evolution available
     return false;
