@@ -145,7 +145,7 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     assert(symbolNode);
 
     bool input = false;
-    switch (symbolNode->getQualifier()) {
+    switch (symbolNode->getQualifier().storage) {
     case EvqAttribute:
     case EvqVaryingIn:
     case EvqFragCoord:
@@ -178,7 +178,7 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     // If it's an arrayed output, we also want to know which indices
     // are live.
     if (symbolNode->isArray()) {
-        switch (symbolNode->getQualifier()) {
+        switch (symbolNode->getQualifier().storage) {
         case EvqVaryingOut:
         case EvqClipVertex:
         case EvqFragColor:
@@ -762,7 +762,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
     gla::Builder::EStorageQualifier storageQualifier;
     int constantBuffer = 0;
 
-    switch (node->getQualifier()) {
+    switch (node->getQualifier().storage) {
     case EvqTemporary:
         storageQualifier = gla::Builder::ESQLocal;
         break;
@@ -1056,7 +1056,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
     // to be used after making the call.  Also compute r-values of inputs and store
     // them into the space allocated above.
     TIntermSequence& glslangArgs = node->getSequence();
-    TQualifierList& qualifiers = node->getQualifier();
+    TQualifierList& qualifiers = node->getQualifierList();
     llvm::SmallVector<gla::Builder::AccessChain, 2> lValuesOut;
     for (int i = 0; i < glslangArgs.size(); ++i) {
         // build l-value
