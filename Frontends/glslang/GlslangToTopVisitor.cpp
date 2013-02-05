@@ -274,7 +274,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
                 std::vector<int> swizzle;
                 swizzle.push_back(node->getRight()->getAsConstantUnion()->getUnionArrayPointer()->getIConst());
                 oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()),
-                                                             node->getLeft()->getNominalSize());
+                                                             node->getLeft()->getVectorSize());
             } else {
                 // struct or array or indirection into a vector; will use native LLVM gep
                 // matrices are arrays of vectors, so will also work for a matrix
@@ -301,7 +301,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
             for (int i = 0; i < swizzleSequence.size(); ++i)
                 swizzle.push_back(swizzleSequence[i]->getAsConstantUnion()->getUnionArrayPointer()->getIConst());
             oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()),
-                                                         node->getLeft()->getNominalSize());
+                                                         node->getLeft()->getVectorSize());
         }
         return false;
     }
@@ -465,9 +465,24 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             }
         }
         return true;
-    case EOpConstructMat2:
-    case EOpConstructMat3:
-    case EOpConstructMat4:
+    case EOpConstructMat2x2:
+    case EOpConstructMat2x3:
+    case EOpConstructMat2x4:
+    case EOpConstructMat3x2:
+    case EOpConstructMat3x3:
+    case EOpConstructMat3x4:
+    case EOpConstructMat4x2:
+    case EOpConstructMat4x3:
+    case EOpConstructMat4x4:
+    case EOpConstructDMat2x2:
+    case EOpConstructDMat2x3:
+    case EOpConstructDMat2x4:
+    case EOpConstructDMat3x2:
+    case EOpConstructDMat3x3:
+    case EOpConstructDMat3x4:
+    case EOpConstructDMat4x2:
+    case EOpConstructDMat4x3:
+    case EOpConstructDMat4x4:
         isMatrix = true;
         // fall through
     case EOpConstructFloat:
@@ -872,11 +887,11 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
     }
 
     if (type.isMatrix())
-        glaType = gla::Builder::Matrix::getType(glaType, type.getNominalSize(), type.getNominalSize());
+        glaType = gla::Builder::Matrix::getType(glaType, type.getMatrixCols(), type.getMatrixRows());
     else {
         // If this variable has a vector element count greater than 1, create an LLVM vector
-        if (type.getNominalSize() > 1)
-            glaType = llvm::VectorType::get(glaType, type.getNominalSize());
+        if (type.getVectorSize() > 1)
+            glaType = llvm::VectorType::get(glaType, type.getVectorSize());
     }
 
     if (type.isArray()) {
@@ -1632,9 +1647,9 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
             arraySize = UnknownArraySize;
         }
         endSlot = slot + arraySize;
-        TType nonArrayType = node->getType();
-        nonArrayType.clearArrayness();
-        readType = convertGlslangToGlaType(nonArrayType);
+        TType elementType = node->getType();
+        elementType.dereference();
+        readType = convertGlslangToGlaType(elementType);
 
         // fill in the whole array
         std::vector<llvm::Value*> gepChain;
@@ -1680,13 +1695,14 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMConstant(const TType&
     llvm::Type* type = convertGlslangToGlaType(glslangType);
 
     if (glslangType.isArray()) {
-        TType nonArrayType = glslangType;
-        nonArrayType.clearArrayness();
+        TType elementType = glslangType;
+        elementType.dereference();
         for (int i = 0; i < glslangType.getArraySize(); ++i)
-            llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(nonArrayType, consts, nextConst).getValue()));
+            llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(elementType, consts, nextConst).getValue()));
     } else if (glslangType.isMatrix()) {
-        TType vectorType = TType(glslangType.getBasicType(), EvqTemporary, glslangType.getNominalSize());
-        for (int col = 0; col < glslangType.getNominalSize(); ++col)
+        TType vectorType = glslangType;
+        vectorType.dereference();
+        for (int col = 0; col < glslangType.getMatrixCols(); ++col)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(vectorType, consts, nextConst).getValue()));
     } else if (glslangType.getStruct()) {
         TVector<TTypeLine>::iterator iter;
@@ -1696,7 +1712,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMConstant(const TType&
         // a vector or scalar, both will work the same way
         // this is where we actually consume the constants, rather than walk a tree
 
-        for (unsigned int i = 0; i < glslangType.getNominalSize(); ++i) {
+        for (unsigned int i = 0; i < glslangType.getVectorSize(); ++i) {
             switch(consts[nextConst].getType()) {
             case EbtInt:
                 llvmConsts.push_back(gla::MakeUnsignedConstant(context, consts[nextConst].getIConst()));

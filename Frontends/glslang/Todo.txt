@@ -1,6 +1,5 @@
 Copyright fixes
-	common builder:  current one from the adapter	
-	adapter: same as glslang, minus the 3Dlabs
+	common builder:  current one from the adapter
 
 Update documentation
 
@@ -12,11 +11,19 @@ x       no real functionality to add
 Non-ES  desktop versions only
 
 LLVM 3.2
-• 
+• - Loop issues
+
+Make scanner thread safe
+ - 
+ -
+
+Run test shaders
+
+Make ES the default language
 
 GLSL 1.2
-• - Handle version-specific keywords as identifiers for other versions
-• - Support non-square matrices, mat2x3 means 2 columns, 3 rows
+• + Handle version-specific keywords as identifiers for other versions
+• + Support non-square matrices, mat2x3 means 2 columns, 3 rows
 • - Add outerProduct() for multiplying vectors to yield a matrix.
 • - add transpose()
 • - Add gl_PointCoord for fragment shaders to query a fragment's position within a point sprite.
