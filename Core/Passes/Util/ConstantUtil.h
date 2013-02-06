@@ -1,7 +1,7 @@
 //===- ConstantUtil.h - Utility functions for constants -------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
-// Copyright (C) 2010-2011 LunarG, Inc.
+// Copyright (c) 2010-2013 LunarG, Inc.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License

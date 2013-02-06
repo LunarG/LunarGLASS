@@ -1,7 +1,7 @@
 //===- LunarGLASSManager.h - Public interface to using LunarGLASS ----========//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
-// Copyright (C) 2010-2011 LunarG, Inc.
+// Copyright (c) 2010-2013 LunarG, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),

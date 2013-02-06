@@ -1,6 +1,3 @@
-Copyright fixes
-	common builder:  current one from the adapter
-
 Update documentation
 
 Key
@@ -14,10 +11,18 @@ LLVM 3.2
 • - Loop issues
 
 Make scanner thread safe
- - 
+ - ??
  -
 
 Run test shaders
+
+Compile for Linux
+
+Do entry-point set up
+
+LunarGoo
+  - double underscores in LunarGOO
+  - vec4[4] -> mat4, etc.
 
 Make ES the default language
 
@@ -45,7 +50,7 @@ GLSL 1.2
 • . array type syntax is supported “float[5]”, and array initializers are added
 • . Accept "f" as part of a floating-point constant.  E.g. "float g = 3.5f".
 • x Use of invariant and centroid must match between vertex and fragment shaders.
-• Non-ES: Reserve lowp, mediump, highp, and precision
+• + Non-ES: Reserve lowp, mediump, highp, and precision
 • Non-ES: Allow initializers on uniform declarations.  The value is set at link time.
 • Non-ES: Automatically convert integer types to float types, as needed by context.
 • Non-ES: signature matching takes type conversions into account, ambiguity is an error
