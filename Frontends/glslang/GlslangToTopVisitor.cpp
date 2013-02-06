@@ -926,8 +926,14 @@ void TGlslangToTopTraverser::handleFunctionEntry(TIntermAggregate* node)
 
     // Visit parameter list again to create mappings to local variables and set attributes.
     llvm::Function::arg_iterator arg = function->arg_begin();
-    for (int i = 0; i < parameters.size(); ++i, ++arg)
-        namedValues[parameters[i]->getAsSymbolNode()->getId()] = &(*arg);
+    for (int i = 0; i < parameters.size(); ++i, ++arg) {
+        // If the formal parameter is a matrix, that was forgotten by the LLVM types,
+        // restore that knowledge.
+        if (parameters[i]->getAsSymbolNode()->isMatrix())
+            namedValues[parameters[i]->getAsSymbolNode()->getId()] = glaBuilder->newMatrix(&(*arg));
+        else
+            namedValues[parameters[i]->getAsSymbolNode()->getId()] = &(*arg);
+    }
 
     // Track our user function to call later
     functionMap[node->getName().c_str()] = function;
@@ -1087,7 +1093,15 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
         }
     }
 
-    gla::Builder::SuperValue result = llvmBuilder.Insert(llvm::CallInst::Create(function, llvmArgs));
+    llvm::Value* llvmResult = llvmBuilder.Insert(llvm::CallInst::Create(function, llvmArgs));
+
+    // If the function returns a matrix, that was forgotten by the LLVM types,
+    // restore that knowledge.
+    gla::Builder::SuperValue result;
+    if (node->isMatrix())
+        result = glaBuilder->newMatrix(llvmResult);
+    else
+        result = llvmResult;
 
     // Copy-out time...
     // Convert outputs to correct type before storing into the l-value
