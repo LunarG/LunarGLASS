@@ -26,9 +26,7 @@ LunarGoo
 GLSL 1.2
 • + Handle version-specific keywords as identifiers for other versions
 • + Support non-square matrices, mat2x3 means 2 columns, 3 rows
-• - Add outerProduct() for multiplying vectors to yield a matrix.
-• - add transpose()
-• - Add gl_PointCoord for fragment shaders to query a fragment's position within a point sprite.
+• + Add gl_PointCoord for fragment shaders to query a fragment's position within a point sprite.
 • - "?:" can have the same type 2nd and 3rd operands (e.g. conversion is not required).
 • . Support centroid interpolation on multi-sample varyings
 • . Allow built-in function calls in const initializers.
@@ -48,6 +46,8 @@ GLSL 1.2
 • . Accept "f" as part of a floating-point constant.  E.g. "float g = 3.5f".
 • x Use of invariant and centroid must match between vertex and fragment shaders.
 • + Non-ES: Reserve lowp, mediump, highp, and precision
+• Non-ES 1.0 (but 3.0): Add outerProduct() for multiplying vectors to yield a matrix.
+• Non-ES 1.0 (but 3.0): add transpose()
 • Non-ES: Allow initializers on uniform declarations.  The value is set at link time.
 • Non-ES: Automatically convert integer types to float types, as needed by context.
 • Non-ES: signature matching takes type conversions into account, ambiguity is an error
@@ -180,6 +180,8 @@ OpenGL ES 3.0 removes
 • Redeclaring built-in variables
 
 OpenGL ES 3.0 adds
+• outerProduct() for multiplying vectors to yield a matrix.
+• transpose()
 • Line continuation and UTF-8 in GLSL ES 1.00 when used with OpenGL ES 3.0
 • Array length operator returns an unsigned integer-constant.  The precision is determined using the rules for literal integers
 • Clarified that source code lines may be of arbitrary length

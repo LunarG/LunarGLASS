@@ -149,6 +149,7 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     case EvqAttribute:
     case EvqVaryingIn:
     case EvqFragCoord:
+    case EvqPointCoord:
     case EvqFace:
         input = true;
         break;
@@ -791,6 +792,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
     case EvqAttribute:
     case EvqVaryingIn:
     case EvqFragCoord:
+    case EvqPointCoord:
     case EvqFace:
         // Pipeline reads: If we are here, it must be to create a shadow which
         // will shadow the actual pipeline reads, which must still be done elsewhere.
