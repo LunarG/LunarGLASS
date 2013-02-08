@@ -8,23 +8,20 @@ x       no real functionality to add
 Non-ES  desktop versions only
 
 LLVM 3.2
-• - Loop issues
+• - Loop issues for LunarGLASS core
 
-Make scanner thread safe
- - ??
- -
+Thread safety
+ - Verify thread safe version of flex
 
-Run test shaders
-
-Compile for Linux
-
-Do entry-point set up
+Update builds for Linux
 
 LunarGoo
   - double underscores in LunarGOO
-  - vec4[4] -> mat4, etc.
+  - vec4[4] -> mat4
+  - #version 130 -> #version 100
 
-Make ES the default language
++ Handle either ES or desktop as the default language (no #version)
++ Make ES the default
 
 GLSL 1.2
 • + Handle version-specific keywords as identifiers for other versions
