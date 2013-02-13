@@ -308,10 +308,20 @@ void Builder::leaveFunction(bool main)
         } else if (unreachable)
             // If we're not the entry block, and we have no predecessors, we're
             // unreachable, so don't bother adding a return instruction in
-            // (e.g. we're in a post-return block). Otherwise add a ret void.
+            // (e.g. we're in a post-return block). Otherwise add a return.
             builder.CreateUnreachable();
-        else
-            makeReturn(true);
+        else {
+            // Another flavor of unreachable, or an exit from a void function.
+            // Return, but with a value of the function return type.  When this
+            // is non-void, we should be in unreachable code.
+            if (F->getReturnType()->isVoidTy())
+                makeReturn(true);
+            else {
+                SuperValue retStorage = createVariable(ESQLocal, 0, F->getReturnType(), false, 0, 0, "dummyReturn");
+                llvm::Value* retValue = createLoad(retStorage);
+                makeReturn(true, retValue);
+            }
+        }
     }
 
     if (main)

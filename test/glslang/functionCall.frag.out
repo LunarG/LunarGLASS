@@ -2,14 +2,19 @@
 Top IR:
 ; ModuleID = 'Top'
 
+@h = internal global float 0.000000e+00
+@d = external addrspace(2) constant float
 @BaseColor_shadow = internal global <4 x float> zeroinitializer
 @FragColor_shadow = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
+  %g = alloca float
+  %f = alloca float
   %constructed = alloca <4 x float>
   %param = alloca <4 x float>
   %color = alloca <4 x float>
+  store float 0.000000e+00, float* @h
   %BaseColor__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
   store <4 x float> %BaseColor__, <4 x float>* @BaseColor_shadow
   %param1 = load <4 x float>* @BaseColor_shadow
@@ -21,13 +26,30 @@ entry:
   %4 = insertelement <4 x float> %3, float %0, i32 2
   %color2 = insertelement <4 x float> %4, float %0, i32 3
   store <4 x float> %color2, <4 x float>* %color
-  %FragColor_shadow = load <4 x float>* %color
+  call void @"bar("()
+  %f3 = call float @"unreachableReturn("()
+  store float %f3, float* %f
+  %g4 = call float @"missingReturn("()
+  store float %g4, float* %g
+  %5 = load <4 x float>* %color
+  %6 = load float* %f
+  %7 = insertelement <4 x float> undef, float %6, i32 0
+  %8 = insertelement <4 x float> %7, float %6, i32 1
+  %9 = insertelement <4 x float> %8, float %6, i32 2
+  %10 = insertelement <4 x float> %9, float %6, i32 3
+  %11 = fmul <4 x float> %5, %10
+  %12 = load float* @h
+  %13 = insertelement <4 x float> undef, float %12, i32 0
+  %14 = insertelement <4 x float> %13, float %12, i32 1
+  %15 = insertelement <4 x float> %14, float %12, i32 2
+  %16 = insertelement <4 x float> %15, float %12, i32 3
+  %FragColor_shadow = fmul <4 x float> %11, %16
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %5 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %5)
+  %17 = load <4 x float>* @FragColor_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %17)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -47,6 +69,55 @@ post-return:                                      ; No predecessors!
   unreachable
 }
 
+define internal fastcc void @"bar("() alwaysinline {
+entry:
+  ret void
+}
+
+define internal fastcc float @"unreachableReturn("() alwaysinline {
+entry:
+  %dummyReturn = alloca float
+  %0 = load float addrspace(2)* @d
+  %1 = fcmp olt float %0, 0x4010CCCCC0000000
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %entry
+  ret float 0x3FF3333340000000
+
+post-return:                                      ; No predecessors!
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  ret float 4.500000e+00
+
+post-return1:                                     ; No predecessors!
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %post-return1, %post-return
+  %2 = load float* %dummyReturn
+  ret float %2
+}
+
+define internal fastcc float @"missingReturn("() alwaysinline {
+entry:
+  %dummyReturn = alloca float
+  %0 = load float addrspace(2)* @d
+  %1 = fcmp olt float %0, 4.500000e+00
+  br i1 %1, label %then, label %ifmerge
+
+then:                                             ; preds = %entry
+  %h = load float addrspace(2)* @d
+  store float %h, float* @h
+  ret float 0x400F333340000000
+
+post-return:                                      ; No predecessors!
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %entry, %post-return
+  %2 = load float* %dummyReturn
+  ret float %2
+}
+
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
@@ -55,6 +126,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
+@d = external addrspace(2) constant float
+
 define fastcc void @main() {
 entry:
   %BaseColor__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
@@ -62,10 +135,28 @@ entry:
   %1 = extractelement <4 x float> %BaseColor__, i32 1
   %2 = fadd float %0, %1
   %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %2, <4 x i32> zeroinitializer)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %3)
+  %4 = load float addrspace(2)* @d, align 4
+  %5 = fcmp olt float %4, 0x4010CCCCC0000000
+  %. = select i1 %5, float 0x3FF3333340000000, float 4.500000e+00
+  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %., <4 x i32> zeroinitializer)
+  %7 = fcmp olt float %4, 4.500000e+00
+  br i1 %7, label %then.i, label %ifmerge.i
+
+then.i:                                           ; preds = %entry
+  br label %"missingReturn(.exit"
+
+ifmerge.i:                                        ; preds = %entry
+  br label %"missingReturn(.exit"
+
+"missingReturn(.exit":                            ; preds = %ifmerge.i, %then.i
+  %8 = phi float [ 0.000000e+00, %ifmerge.i ], [ %4, %then.i ]
+  %9 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %8, <4 x i32> zeroinitializer)
+  %10 = fmul <4 x float> %3, %6
+  %FragColor_shadow = fmul <4 x float> %10, %9
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %"missingReturn(.exit"
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -84,13 +175,33 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 
 // LunarGOO(r722) output
 #version 130
+uniform float d;
 in vec4 BaseColor;
+const float const25_4f = 4.2;
+const float const27_1f = 1.2;
+const float const28_5f = 4.5;
+const float const31_0f = 0.0;
 
 void main()
 {
-    float temp21 = BaseColor.x + BaseColor.y;
-    vec4 temp22 = vec4(temp21);
-    gl_FragColor = temp22;
+    float temp21;
+    float temp22 = BaseColor.x + BaseColor.y;
+    vec4 temp23 = vec4(temp22);
+    bool temp24 = d < const25_4f;
+    float temp26 = temp24 ? const27_1f : const28_5f;
+    vec4 temp29 = vec4(temp26);
+    bool temp30 = d < const28_5f;
+    if (temp30) {
+        temp21 = d;
+    }
+    else {
+        temp21 = const31_0f;
+    }
+    
+    vec4 temp32 = vec4(temp21);
+    vec4 temp33 = temp23 * temp29;
+    vec4 FragColor_shadow = temp33 * temp32;
+    gl_FragColor = FragColor_shadow;
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
@@ -100,12 +211,25 @@ void main()
 
 // LunarGOO(r722) output
 #version 130
+uniform float d;
 in vec4 BaseColor;
+const float const24_4f = 4.2;
+const float const26_1f = 1.2;
+const float const27_5f = 4.5;
+const float const31_0f = 0.0;
 
 void main()
 {
-    float temp212 = BaseColor.x + BaseColor.y;
-    vec4 temp22 = vec4(temp212);
-    gl_FragColor = temp22;
+    float temp222 = BaseColor.x + BaseColor.y;
+    vec4 temp22 = vec4(temp222);
+    bool temp244 = d < const24_4f;
+    float temp25 = temp244 ? const26_1f : const27_5f;
+    vec4 temp28 = vec4(temp25);
+    bool temp308 = d < const27_5f;
+    float temp21_0 = temp308 ? d : const31_0f;
+    vec4 temp32 = vec4(temp21_0);
+    vec4 temp3315 = temp22 * temp28;
+    vec4 FragColor_shadow16 = temp3315 * temp32;
+    gl_FragColor = FragColor_shadow16;
     
 }
