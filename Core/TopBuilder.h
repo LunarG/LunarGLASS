@@ -66,7 +66,6 @@ public:
     class Matrix {
     public:
         explicit Matrix(llvm::Value* m);
-        Matrix(int c, int r, Matrix*);
         static llvm::Type* getType(llvm::Type* elementType, int numColumns, int numRows);
 
         int getNumRows() const { return numRows; }
@@ -443,12 +442,12 @@ protected:
     SuperValue collapseAccessChain();
     void simplifyAccessChainSwizzle();
 
-    llvm::Value* createMatrixTimesVector(Matrix*, llvm::Value*);
-    llvm::Value* createVectorTimesMatrix(llvm::Value*, Matrix*);
+    llvm::Value* createMatrixTimesVector(llvm::Value*, llvm::Value*);
+    llvm::Value* createVectorTimesMatrix(llvm::Value*, llvm::Value*);
 
     Matrix* createMatrixOp(llvm::Instruction::BinaryOps llvmOpcode, Matrix* left, Matrix* right);
-    Matrix* createSmearedMatrixOp(llvm::Instruction::BinaryOps, Matrix*, llvm::Value*, bool reverseOrder);
-    Matrix* createMatrixTimesMatrix(Matrix*, Matrix*);
+    Matrix* createSmearedMatrixOp(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, bool reverseOrder);
+    Matrix* createMatrixTimesMatrix(llvm::Value*, llvm::Value*);
     Matrix* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
 
     // To be used when dereferencing an access chain that is for an

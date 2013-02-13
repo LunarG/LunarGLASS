@@ -109,10 +109,18 @@ namespace gla {
     inline bool IsVector(const llvm::Type* type)      { return type->isVectorTy(); }
     inline bool IsAggregate(const llvm::Type* type)   { return type->isAggregateType(); }
     inline bool IsScalar(const llvm::Type* type)      { return ! IsAggregate(type) && ! IsVector(type); }
+    
+    inline llvm::VectorType* GetColumnType (const llvm::Type* type)  { return llvm::dyn_cast<llvm::VectorType>(type->getContainedType(0)); }
+    inline llvm::Type* GetMatrixElementType(const llvm::Type* type)  { return GetColumnType(type)->getContainedType(0); }
+    inline int GetNumColumns(const llvm::Type* type)  { return llvm::dyn_cast<llvm::ArrayType>(type)->getNumElements(); }
+    inline int GetNumRows(const llvm::Type* type)     { return GetColumnType(type)->getNumElements(); }
 
     inline bool IsVector(const llvm::Value* value)    { return IsVector(value->getType()); }
     inline bool IsAggregate(const llvm::Value* value) { return IsAggregate(value->getType()); }
     inline bool IsScalar(const llvm::Value* value)    { return IsScalar(value->getType()); }
+    
+    inline int GetNumColumns(const llvm::Value* value)  { return GetNumColumns(value->getType()); }
+    inline int GetNumRows(const llvm::Value* value)     { return GetNumRows(value->getType()); }
 
     inline bool AreScalar(llvm::ArrayRef<llvm::Value*> vals)
     {

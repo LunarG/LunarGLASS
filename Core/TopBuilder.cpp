@@ -790,11 +790,6 @@ Builder::Matrix::Matrix(llvm::Value* m) : matrix(m)
     numRows = columnType->getNumElements();
 }
 
-Builder::Matrix::Matrix(int c, int r, Matrix* oldMatrix) : numColumns(c), numRows(r)
-{
-    UnsupportedFunctionality("construction of matrix from matrix");
-}
-
 llvm::Type* Builder::Matrix::getType(llvm::Type* elementType, int numColumns, int numRows)
 {
     // This is not a matrix... it's a cache of types for all possible matrix sizes.
@@ -822,10 +817,10 @@ Builder::SuperValue Builder::createMatrixOp(llvm::Instruction::BinaryOps llvmOpc
 {
     Builder::SuperValue ret;
 
-    assert(left.isMatrix() || right.isMatrix());
+    assert(IsAggregate(left) || IsAggregate(right));
 
     // component-wise matrix operations on same-shape matrices
-    if (left.isMatrix() && right.isMatrix()) {
+    if (IsAggregate(left) && IsAggregate(right)) {
         assert(left.getMatrix()->getNumColumns() == right.getMatrix()->getNumColumns());
         assert(left.getMatrix()->getNumRows() == right.getMatrix()->getNumRows());
 
@@ -833,17 +828,17 @@ Builder::SuperValue Builder::createMatrixOp(llvm::Instruction::BinaryOps llvmOpc
     }
 
     // matrix <op> smeared scalar
-    if (left.isMatrix()) {
+    if (IsAggregate(left)) {
         assert(IsScalar(right.getValue()));
 
-        return createSmearedMatrixOp(llvmOpcode, left.getMatrix(), right.getValue(), false);
+        return createSmearedMatrixOp(llvmOpcode, left.getValue(), right.getValue(), false);
     }
 
     // smeared scalar <op> matrix
-    if (right.isMatrix()) {
+    if (IsAggregate(right)) {
         assert(IsScalar(left.getValue()));
 
-        return createSmearedMatrixOp(llvmOpcode, right.getMatrix(), left.getValue(), true);
+        return createSmearedMatrixOp(llvmOpcode, right.getValue(), left.getValue(), true);
     }
 
     assert(! "nonsensical matrix operation");
@@ -855,41 +850,46 @@ Builder::SuperValue Builder::createMatrixMultiply(Builder::SuperValue left, Buil
 {
     Builder::SuperValue ret;
 
+    // Note: IsAggregate() is assumed to be true iff the value is a matrix.
+    // This is safe because the front end can only call this for operands
+    // that are part of a multrix multiply operation.
+    // (More generally, all matrices are aggregates, but not vice versa.)
+
     // outer product
-    if (left.isValue() && right.isValue())
+    if (IsVector(left) && IsVector(right))
         return createOuterProduct(left.getValue(), right.getValue());
 
-    assert(left.isMatrix() || right.isMatrix());
+    assert(IsAggregate(left) || IsAggregate(right));
 
     // matrix times matrix
-    if (left.isMatrix() && right.isMatrix()) {
+    if (IsAggregate(left) && IsAggregate(right)) {
         assert(left.getMatrix()->getNumRows()    == right.getMatrix()->getNumColumns());
         assert(left.getMatrix()->getNumColumns() == right.getMatrix()->getNumRows());
 
-        return createMatrixTimesMatrix(left.getMatrix(), right.getMatrix());
+        return createMatrixTimesMatrix(left.getValue(), right.getValue());
     }
 
     // matrix times vector
-    if (left.isMatrix() && IsVector(right.getValue())) {
+    if (IsAggregate(left) && IsVector(right.getValue())) {
         assert(left.getMatrix()->getNumColumns() == GetComponentCount(right.getValue()));
 
-        return createMatrixTimesVector(left.getMatrix(), right.getValue());
+        return createMatrixTimesVector(left.getValue(), right.getValue());
     }
 
     // vector times matrix
-    if (IsVector(left.getValue()) && right.isMatrix()) {
+    if (IsVector(left.getValue()) && IsAggregate(right)) {
         assert(right.getMatrix()->getNumRows() == GetComponentCount(left.getValue()));
 
-        return createVectorTimesMatrix(left.getValue(), right.getMatrix());
+        return createVectorTimesMatrix(left.getValue(), right.getValue());
     }
 
     // matrix times scalar
-    if (left.isMatrix() && IsScalar(right.getValue()))
-        return createSmearedMatrixOp(llvm::Instruction::FMul, left.getMatrix(), right.getValue(), true);
+    if (IsAggregate(left) && IsScalar(right.getValue()))
+        return createSmearedMatrixOp(llvm::Instruction::FMul, left.getValue(), right.getValue(), true);
 
     // scalar times matrix
-    if (IsScalar(left.getValue()) && right.isMatrix())
-        return createSmearedMatrixOp(llvm::Instruction::FMul, right.getMatrix(), left.getValue(), false);
+    if (IsScalar(left.getValue()) && IsAggregate(right))
+        return createSmearedMatrixOp(llvm::Instruction::FMul, right.getValue(), left.getValue(), false);
 
     assert(! "nonsensical matrix multiply");
 
@@ -898,9 +898,9 @@ Builder::SuperValue Builder::createMatrixMultiply(Builder::SuperValue left, Buil
 
 Builder::SuperValue Builder::createMatrixCompare(SuperValue left, SuperValue right, bool allEqual)
 {
-    assert(left.isMatrix() && right.isMatrix());
-    assert(left.getMatrix()->getNumColumns() == right.getMatrix()->getNumColumns());
-    assert(left.getMatrix()->getNumRows() == right.getMatrix()->getNumRows());
+    assert(IsAggregate(left) && IsAggregate(right));
+    assert(GetNumColumns(left) == GetNumColumns(right));
+    assert(GetNumRows(left) == GetNumRows(right));
 
     return createCompare(left, right, allEqual);
 }
@@ -926,12 +926,12 @@ Builder::Matrix* Builder::createMatrixDeterminant(Matrix* matrix)
     return 0;
 }
 
-llvm::Value* Builder::createMatrixTimesVector(Matrix* matrix, llvm::Value* rvector)
+llvm::Value* Builder::createMatrixTimesVector(llvm::Value* matrix, llvm::Value* rvector)
 {
-    assert(matrix->getNumColumns() == GetComponentCount(rvector));
+    assert(GetNumColumns(matrix) == GetComponentCount(rvector));
 
     // Allocate a vector to build the result in
-    llvm::Value* result = builder.CreateAlloca(llvm::VectorType::get(rvector->getType()->getContainedType(0), matrix->getNumRows()));
+    llvm::Value* result = builder.CreateAlloca(llvm::VectorType::get(rvector->getType()->getContainedType(0), GetNumRows(matrix)));
     result = builder.CreateLoad(result);
 
     // Cache the components of the vector; they'll be revisited multiple times
@@ -940,10 +940,10 @@ llvm::Value* Builder::createMatrixTimesVector(Matrix* matrix, llvm::Value* rvect
         components[comp] = builder.CreateExtractElement(rvector,  MakeUnsignedConstant(context, comp), "__component");
 
     // Go row by row, manually forming the cross-column "dot product"
-    for (int row = 0; row < matrix->getNumRows(); ++row) {
+    for (int row = 0; row < GetNumRows(matrix); ++row) {
         llvm::Value* dotProduct;
-        for (int col = 0; col < matrix->getNumColumns(); ++col) {
-            llvm::Value* column = builder.CreateExtractValue(matrix->getValue(), col, "__column");
+        for (int col = 0; col < GetNumColumns(matrix); ++col) {
+            llvm::Value* column = builder.CreateExtractValue(matrix, col, "__column");
             llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
             llvm::Value* product = builder.CreateFMul(element, components[col], "__product");
             if (col == 0)
@@ -957,11 +957,11 @@ llvm::Value* Builder::createMatrixTimesVector(Matrix* matrix, llvm::Value* rvect
     return result;
 }
 
-llvm::Value* Builder::createVectorTimesMatrix(llvm::Value* lvector, Matrix* matrix)
+llvm::Value* Builder::createVectorTimesMatrix(llvm::Value* lvector, llvm::Value* matrix)
 {
     // Get the dot product intrinsic for these operands
     llvm::Intrinsic::ID dotIntrinsic;
-    switch (matrix->getNumRows()) {
+    switch (GetNumRows(matrix)) {
     case 2:
         dotIntrinsic = llvm::Intrinsic::gla_fDot2;
         break;
@@ -982,8 +982,8 @@ llvm::Value* Builder::createVectorTimesMatrix(llvm::Value* lvector, Matrix* matr
     result = builder.CreateLoad(result);
 
     // Compute the dot products for the result
-    for (int c = 0; c < matrix->getNumColumns(); ++c) {
-        llvm::Value* column = builder.CreateExtractValue(matrix->getValue(), c, "__column");
+    for (int c = 0; c < GetNumColumns(matrix); ++c) {
+        llvm::Value* column = builder.CreateExtractValue(matrix, c, "__column");
         llvm::Value* comp = builder.CreateCall2(dot, lvector, column, "__dot");
         result = builder.CreateInsertElement(result, comp, MakeUnsignedConstant(context, c));
     }
@@ -1008,18 +1008,18 @@ Builder::Matrix* Builder::createMatrixOp(llvm::Instruction::BinaryOps op, Matrix
     return newMatrix(result);
 }
 
-Builder::Matrix* Builder::createSmearedMatrixOp(llvm::Instruction::BinaryOps op, Matrix* matrix, llvm::Value* scalar, bool reverseOrder)
+Builder::Matrix* Builder::createSmearedMatrixOp(llvm::Instruction::BinaryOps op, llvm::Value* matrix, llvm::Value* scalar, bool reverseOrder)
 {
     // ?? better to smear the scalar to a column-like vector, and apply that vector multiple times
     // Allocate a matrix to build the result in
-    llvm::Value* result = builder.CreateAlloca(matrix->getValue()->getType());
+    llvm::Value* result = builder.CreateAlloca(matrix->getType());
     result = builder.CreateLoad(result);
 
     // Compute per column vector
-    for (int c = 0; c < matrix->getNumColumns(); ++c) {
-        llvm::Value* column = builder.CreateExtractValue(matrix->getValue(), c, "__column");
+    for (int c = 0; c < GetNumColumns(matrix); ++c) {
+        llvm::Value* column = builder.CreateExtractValue(matrix, c, "__column");
 
-        for (int r = 0; r < matrix->getNumRows(); ++r) {
+        for (int r = 0; r < GetNumRows(matrix); ++r) {
             llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(context, r), "__row");
             if (reverseOrder)
                 element = builder.CreateBinOp(op, scalar, element);
@@ -1034,25 +1034,25 @@ Builder::Matrix* Builder::createSmearedMatrixOp(llvm::Instruction::BinaryOps op,
     return newMatrix(result);
 }
 
-Builder::Matrix* Builder::createMatrixTimesMatrix(Matrix* left, Matrix* right)
+Builder::Matrix* Builder::createMatrixTimesMatrix(llvm::Value* left, llvm::Value* right)
 {
     // Allocate a matrix to hold the result in
-    int rows = left->getNumRows();
-    int columns =  right->getNumColumns();
-    llvm::Value* result = builder.CreateAlloca(Matrix::getType(left->getElementType(), columns, rows));
+    int rows = GetNumRows(left);
+    int columns =  GetNumColumns(right);
+    llvm::Value* result = builder.CreateAlloca(Matrix::getType(GetMatrixElementType(left->getType()), columns, rows));
     result = builder.CreateLoad(result, "__resultMatrix");
 
     // Allocate a column for intermediate results
-    llvm::Value* column = builder.CreateAlloca(llvm::VectorType::get(left->getElementType(), rows));
+    llvm::Value* column = builder.CreateAlloca(llvm::VectorType::get(GetMatrixElementType(left->getType()), rows));
     column = builder.CreateLoad(column, "__tempColumn");
 
     for (int col = 0; col < columns; ++col) {
-        llvm::Value* rightColumn = builder.CreateExtractValue(right->getValue(), col, "__rightColumn");
+        llvm::Value* rightColumn = builder.CreateExtractValue(right, col, "__rightColumn");
         for (int row = 0; row < rows; ++row) {
             llvm::Value* dotProduct;
 
-            for (int dotRow = 0; dotRow < right->getNumRows(); ++dotRow) {
-                llvm::Value* leftColumn = builder.CreateExtractValue(left->getValue(), dotRow,  "__leftColumn");
+            for (int dotRow = 0; dotRow < GetNumRows(right); ++dotRow) {
+                llvm::Value* leftColumn = builder.CreateExtractValue(left, dotRow,  "__leftColumn");
                 llvm::Value* leftComp = builder.CreateExtractElement(leftColumn, MakeUnsignedConstant(context, row), "__leftComp");
                 llvm::Value* rightComp = builder.CreateExtractElement(rightColumn, MakeUnsignedConstant(context, dotRow), "__rightComp");
                 llvm::Value* product = builder.CreateFMul(leftComp, rightComp, "__product");
@@ -1654,8 +1654,8 @@ llvm::Value* Builder::createConstructor(const std::vector<SuperValue>& sources, 
     }
 
     for (unsigned int i = 0; i < sources.size(); ++i) {
-        if (sources[i].isMatrix())
-            gla::UnsupportedFunctionality("matrix in constructor");
+        if (IsAggregate(sources[i]))
+            gla::UnsupportedFunctionality("aggregate in constructor");
 
         unsigned int sourceSize = GetComponentCount(sources[i]);
 
@@ -1710,7 +1710,7 @@ Builder::SuperValue Builder::createMatrixConstructor(const std::vector<SuperValu
         // a single scalar; resets the diagonals
         for (int col = 0; col < 4; ++col)
             values[col][col] = sources[0];
-    } else if (sources[0].isMatrix()) {
+    } else if (IsAggregate(sources[0])) {
         // a matrix; copy over the parts that exist in both the argument and constructee
         const Matrix* matrix = sources[0].getMatrix();
         int minCols = std::min(matrixee->getNumColumns(), matrix->getNumColumns());

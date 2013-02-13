@@ -594,7 +594,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         node->getSequence()[1]->traverse(oit);
         gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
 
-        if (left.isMatrix() && binOp == EOpMul)
+        if (IsAggregate(left) && binOp == EOpMul)
             result = oit->glaBuilder->createMatrixOp(llvm::Instruction::FMul, left, right);
         else
             result = oit->createBinaryOperation(binOp, left, right, reduceComparison);
@@ -834,7 +834,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
 
     llvm::Type *llvmType = convertGlslangToGlaType(node->getType());
 
-    return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType, node->getType().isMatrix(),
+    return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType, node->getType().isMatrix() && ! node->getType().isArray(),
                                       initializer, annotationAddr, name);
 }
 
@@ -1229,7 +1229,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
     }
 
     if (binOp != 0) {
-        if (left.isMatrix() || right.isMatrix()) {
+        if (IsAggregate(left) || IsAggregate(right)) {
             switch(op) {
             case EOpVectorTimesMatrixAssign:
             case EOpMatrixTimesScalarAssign:
@@ -1251,7 +1251,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
 
     // Comparison instructions
 
-    if (reduceComparison && (left.isMatrix() || gla::IsVector(left) || gla::IsAggregate(left))) {
+    if (reduceComparison && (gla::IsVector(left) || gla::IsAggregate(left))) {
         assert(op == EOpEqual || op == EOpNotEqual);
 
         return glaBuilder->createCompare(left, right, op == EOpEqual);
@@ -1342,7 +1342,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
     // Unary ops that map to llvm operations
     switch (op) {
     case EOpNegative:
-        if (operand.isMatrix()) {
+        if (IsAggregate(operand)) {
             // emulate by subtracting from 0.0
             llvm::Value* zero = gla::MakeFloatConstant(context, 0.0);
 
