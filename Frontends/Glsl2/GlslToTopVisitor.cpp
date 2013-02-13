@@ -220,7 +220,7 @@ ir_visitor_status
 
         if (isPipelineInput) {
             lastValue = createPipelineRead(var, 0);
-        } else if (GLSL_TYPE_ARRAY == baseType || GLSL_TYPE_STRUCT == baseType || lastValue.isMatrix()) {
+        } else if (GLSL_TYPE_ARRAY == baseType || GLSL_TYPE_STRUCT == baseType /* TODO: get matrix semantics from front end || lastValue.isMatrix() */) {
             assert(gepIndexChainStack.top().size() >= 0);
             unsigned indices[maxGepIndices];
             int indexCount = 0;
@@ -419,7 +419,8 @@ ir_visitor_status
     for (int i = 0; i < numOperands; ++i) {
         expression->operands[i]->accept(this);
         operands[i] = lastValue;
-        haveMatrix |= lastValue.isMatrix();
+        // TODO: get matrix semantics from front end 
+        //haveMatrix |= lastValue.isMatrix();
     }
 
     switch (expression->operands[0]->type->base_type) {
@@ -957,7 +958,7 @@ gla::Builder::SuperValue GlslToTopVisitor::createLLVMVariable(ir_variable* var)
 
     llvm::Type *llvmType = convertGlslToGlaType(var->type);
 
-    return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType, var->type->is_matrix(), initializer, annotationAddr, var->name);
+    return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType, initializer, annotationAddr, var->name);
 }
 
 const char* GlslToTopVisitor::getSamplerTypeName(ir_variable* var)
@@ -1479,7 +1480,7 @@ llvm::Type* GlslToTopVisitor::convertGlslToGlaType(const glsl_type* type)
     }
 
     if (type->is_matrix())
-        return gla::Builder::Matrix::getType(glaType, type->matrix_columns, type->vector_elements);
+        return glaBuilder->getMatrixType(glaType, type->matrix_columns, type->vector_elements);
 
     // If this variable has a vector element count greater than 1, create an LLVM vector
     unsigned vecCount = type->vector_elements;

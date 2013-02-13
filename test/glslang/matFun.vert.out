@@ -10,24 +10,24 @@ Top IR:
 define fastcc void @main() {
 entry:
   %constructed = alloca <4 x float>
-  %param4 = alloca <3 x float>
-  %param3 = alloca [3 x <3 x float>]
+  %param5 = alloca <3 x float>
+  %param4 = alloca [3 x <3 x float>]
   %param1 = alloca <3 x float>
   %param = alloca [4 x <4 x float>]
-  %__matrix = load [4 x <4 x float>] addrspace(2)* @m4
-  store [4 x <4 x float>] %__matrix, [4 x <4 x float>]* %param
+  %param2 = load [4 x <4 x float>] addrspace(2)* @m4
+  store [4 x <4 x float>] %param2, [4 x <4 x float>]* %param
   %v3__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
   store <3 x float> %v3__, <3 x float>* @v3_shadow
-  %param12 = load <3 x float>* @v3_shadow
-  store <3 x float> %param12, <3 x float>* %param1
+  %param13 = load <3 x float>* @v3_shadow
+  store <3 x float> %param13, <3 x float>* %param1
   %0 = call <3 x float> @"mxv(mf44;vf3;"([4 x <4 x float>]* %param, <3 x float>* %param1)
-  %__matrix5 = load [3 x <3 x float>] addrspace(2)* @m3
-  store [3 x <3 x float>] %__matrix5, [3 x <3 x float>]* %param3
-  %v3__6 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
-  store <3 x float> %v3__6, <3 x float>* @v3_shadow
-  %param47 = load <3 x float>* @v3_shadow
-  store <3 x float> %param47, <3 x float>* %param4
-  %1 = call <3 x float> @"xf(mf33;vf3;"([3 x <3 x float>]* %param3, <3 x float>* %param4)
+  %param46 = load [3 x <3 x float>] addrspace(2)* @m3
+  store [3 x <3 x float>] %param46, [3 x <3 x float>]* %param4
+  %v3__7 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
+  store <3 x float> %v3__7, <3 x float>* @v3_shadow
+  %param58 = load <3 x float>* @v3_shadow
+  store <3 x float> %param58, <3 x float>* %param5
+  %1 = call <3 x float> @"xf(mf33;vf3;"([3 x <3 x float>]* %param4, <3 x float>* %param5)
   %2 = fadd <3 x float> %0, %1
   %3 = load <4 x float>* %constructed
   %4 = extractelement <3 x float> %2, i32 0
@@ -52,19 +52,19 @@ stage-exit:                                       ; preds = %stage-epilogue
 define internal fastcc <3 x float> @"xf(mf33;vf3;"([3 x <3 x float>]*, <3 x float>*) alwaysinline {
 entry:
   %2 = load <3 x float>* %1
-  %__matrix = load [3 x <3 x float>]* %0
-  %3 = alloca <3 x float>
-  %4 = load <3 x float>* %3
-  %__column = extractvalue [3 x <3 x float>] %__matrix, 0
+  %3 = load [3 x <3 x float>]* %0
+  %4 = alloca <3 x float>
+  %5 = load <3 x float>* %4
+  %__column = extractvalue [3 x <3 x float>] %3, 0
   %__dot = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %2, <3 x float> %__column)
-  %5 = insertelement <3 x float> %4, float %__dot, i32 0
-  %__column1 = extractvalue [3 x <3 x float>] %__matrix, 1
+  %6 = insertelement <3 x float> %5, float %__dot, i32 0
+  %__column1 = extractvalue [3 x <3 x float>] %3, 1
   %__dot2 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %2, <3 x float> %__column1)
-  %6 = insertelement <3 x float> %5, float %__dot2, i32 1
-  %__column3 = extractvalue [3 x <3 x float>] %__matrix, 2
+  %7 = insertelement <3 x float> %6, float %__dot2, i32 1
+  %__column3 = extractvalue [3 x <3 x float>] %3, 2
   %__dot4 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %2, <3 x float> %__column3)
-  %7 = insertelement <3 x float> %6, float %__dot4, i32 2
-  ret <3 x float> %7
+  %8 = insertelement <3 x float> %7, float %__dot4, i32 2
+  ret <3 x float> %8
 
 post-return:                                      ; No predecessors!
   unreachable
@@ -99,7 +99,7 @@ entry:
   %22 = insertelement <3 x float> %20, float %21, i32 1
   %23 = extractelement <4 x float> %18, i32 2
   %24 = insertelement <3 x float> %22, float %23, i32 2
-  %__matrix = load [3 x <3 x float>]* %constructed
+  %25 = load [3 x <3 x float>]* %constructed
   %__element = extractelement <3 x float> %8, i32 0
   %__element1 = extractelement <3 x float> %8, i32 1
   %__element2 = extractelement <3 x float> %8, i32 2
@@ -109,22 +109,22 @@ entry:
   %__element6 = extractelement <3 x float> %24, i32 0
   %__element7 = extractelement <3 x float> %24, i32 1
   %__element8 = extractelement <3 x float> %24, i32 2
-  %__column = extractvalue [3 x <3 x float>] %__matrix, 0
+  %__column = extractvalue [3 x <3 x float>] %25, 0
   %__column9 = insertelement <3 x float> %__column, float %__element, i32 0
   %__column10 = insertelement <3 x float> %__column9, float %__element1, i32 1
   %__column11 = insertelement <3 x float> %__column10, float %__element2, i32 2
-  %__matrix12 = insertvalue [3 x <3 x float>] %__matrix, <3 x float> %__column11, 0
-  %__column13 = extractvalue [3 x <3 x float>] %__matrix, 1
-  %__column14 = insertelement <3 x float> %__column13, float %__element3, i32 0
-  %__column15 = insertelement <3 x float> %__column14, float %__element4, i32 1
-  %__column16 = insertelement <3 x float> %__column15, float %__element5, i32 2
-  %__matrix17 = insertvalue [3 x <3 x float>] %__matrix12, <3 x float> %__column16, 1
-  %__column18 = extractvalue [3 x <3 x float>] %__matrix, 2
-  %__column19 = insertelement <3 x float> %__column18, float %__element6, i32 0
-  %__column20 = insertelement <3 x float> %__column19, float %__element7, i32 1
-  %__column21 = insertelement <3 x float> %__column20, float %__element8, i32 2
-  %__matrix22 = insertvalue [3 x <3 x float>] %__matrix17, <3 x float> %__column21, 2
-  ret [3 x <3 x float>] %__matrix22
+  %__matrix = insertvalue [3 x <3 x float>] %25, <3 x float> %__column11, 0
+  %__column12 = extractvalue [3 x <3 x float>] %25, 1
+  %__column13 = insertelement <3 x float> %__column12, float %__element3, i32 0
+  %__column14 = insertelement <3 x float> %__column13, float %__element4, i32 1
+  %__column15 = insertelement <3 x float> %__column14, float %__element5, i32 2
+  %__matrix16 = insertvalue [3 x <3 x float>] %__matrix, <3 x float> %__column15, 1
+  %__column17 = extractvalue [3 x <3 x float>] %25, 2
+  %__column18 = insertelement <3 x float> %__column17, float %__element6, i32 0
+  %__column19 = insertelement <3 x float> %__column18, float %__element7, i32 1
+  %__column20 = insertelement <3 x float> %__column19, float %__element8, i32 2
+  %__matrix21 = insertvalue [3 x <3 x float>] %__matrix16, <3 x float> %__column20, 2
+  ret [3 x <3 x float>] %__matrix21
 
 post-return:                                      ; No predecessors!
   unreachable
@@ -134,20 +134,20 @@ define internal fastcc <3 x float> @"mxv(mf44;vf3;"([4 x <4 x float>]*, <3 x flo
 entry:
   %param = alloca [4 x <4 x float>]
   %2 = load <3 x float>* %1
-  %__matrix = load [4 x <4 x float>]* %0
-  store [4 x <4 x float>] %__matrix, [4 x <4 x float>]* %param
+  %param1 = load [4 x <4 x float>]* %0
+  store [4 x <4 x float>] %param1, [4 x <4 x float>]* %param
   %3 = call [3 x <3 x float>] @"Mat3(mf44;"([4 x <4 x float>]* %param)
   %4 = alloca <3 x float>
   %5 = load <3 x float>* %4
   %__column = extractvalue [3 x <3 x float>] %3, 0
   %__dot = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %2, <3 x float> %__column)
   %6 = insertelement <3 x float> %5, float %__dot, i32 0
-  %__column1 = extractvalue [3 x <3 x float>] %3, 1
-  %__dot2 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %2, <3 x float> %__column1)
-  %7 = insertelement <3 x float> %6, float %__dot2, i32 1
-  %__column3 = extractvalue [3 x <3 x float>] %3, 2
-  %__dot4 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %2, <3 x float> %__column3)
-  %8 = insertelement <3 x float> %7, float %__dot4, i32 2
+  %__column2 = extractvalue [3 x <3 x float>] %3, 1
+  %__dot3 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %2, <3 x float> %__column2)
+  %7 = insertelement <3 x float> %6, float %__dot3, i32 1
+  %__column4 = extractvalue [3 x <3 x float>] %3, 2
+  %__dot5 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %2, <3 x float> %__column4)
+  %8 = insertelement <3 x float> %7, float %__dot5, i32 2
   ret <3 x float> %8
 
 post-return:                                      ; No predecessors!
@@ -167,26 +167,26 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %__matrix = load [4 x <4 x float>] addrspace(2)* @m4, align 16
+  %param2 = load [4 x <4 x float>] addrspace(2)* @m4, align 16
   %v3__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
-  %__matrix16 = extractvalue [4 x <4 x float>] %__matrix, 0
-  %0 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %__matrix16, <3 x i32> <i32 0, i32 1, i32 2>)
-  %__matrix17 = extractvalue [4 x <4 x float>] %__matrix, 1
-  %1 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %__matrix17, <3 x i32> <i32 0, i32 1, i32 2>)
-  %__matrix18 = extractvalue [4 x <4 x float>] %__matrix, 2
-  %2 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %__matrix18, <3 x i32> <i32 0, i32 1, i32 2>)
+  %param212 = extractvalue [4 x <4 x float>] %param2, 0
+  %0 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %param212, <3 x i32> <i32 0, i32 1, i32 2>)
+  %param213 = extractvalue [4 x <4 x float>] %param2, 1
+  %1 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %param213, <3 x i32> <i32 0, i32 1, i32 2>)
+  %param214 = extractvalue [4 x <4 x float>] %param2, 2
+  %2 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %param214, <3 x i32> <i32 0, i32 1, i32 2>)
   %__dot.i = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %0)
-  %__dot2.i = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %1)
-  %__dot4.i = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %2)
-  %3 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %__dot.i, i32 0, float %__dot2.i, i32 0, float %__dot4.i, i32 0, float undef, i32 undef)
-  %__matrix5 = load [3 x <3 x float>] addrspace(2)* @m3, align 16
-  %__column.i10 = extractvalue [3 x <3 x float>] %__matrix5, 0
+  %__dot3.i = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %1)
+  %__dot5.i = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %2)
+  %3 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %__dot.i, i32 0, float %__dot3.i, i32 0, float %__dot5.i, i32 0, float undef, i32 undef)
+  %param46 = load [3 x <3 x float>] addrspace(2)* @m3, align 16
+  %__column.i10 = extractvalue [3 x <3 x float>] %param46, 0
   %__dot.i11 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %__column.i10)
-  %__column1.i12 = extractvalue [3 x <3 x float>] %__matrix5, 1
-  %__dot2.i13 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %__column1.i12)
-  %__column3.i14 = extractvalue [3 x <3 x float>] %__matrix5, 2
-  %__dot4.i15 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %__column3.i14)
-  %4 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %__dot.i11, i32 0, float %__dot2.i13, i32 0, float %__dot4.i15, i32 0, float undef, i32 undef)
+  %__column1.i = extractvalue [3 x <3 x float>] %param46, 1
+  %__dot2.i = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %__column1.i)
+  %__column3.i = extractvalue [3 x <3 x float>] %param46, 2
+  %__dot4.i = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %__column3.i)
+  %4 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %__dot.i11, i32 0, float %__dot2.i, i32 0, float %__dot4.i, i32 0, float undef, i32 undef)
   %5 = fadd <3 x float> %3, %4
   %6 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> undef, i32 15, <3 x float> %5, i32 0, <3 x float> %5, i32 1, <3 x float> %5, i32 2, float 1.000000e+00, i32 0)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %6)
@@ -224,25 +224,25 @@ const float const40_1f = 1.0;
 
 void main()
 {
-    vec4 __matrix16 = m4[0];
-    vec3 temp22 = vec3(__matrix16);
-    vec4 __matrix17 = m4[1];
-    vec3 temp24 = vec3(__matrix17);
-    vec4 __matrix18 = m4[2];
-    vec3 temp26 = vec3(__matrix18);
+    vec4 param212 = m4[0];
+    vec3 temp22 = vec3(param212);
+    vec4 param213 = m4[1];
+    vec3 temp24 = vec3(param213);
+    vec4 param214 = m4[2];
+    vec3 temp26 = vec3(param214);
     float __dot_i = dot(v3, temp22);
-    float __dot2_i = dot(v3, temp24);
-    float __dot4_i = dot(v3, temp26);
+    float __dot3_i = dot(v3, temp24);
+    float __dot5_i = dot(v3, temp26);
     vec3 temp30;
-    temp30.xyz = vec3(__dot_i, __dot2_i, __dot4_i);
+    temp30.xyz = vec3(__dot_i, __dot3_i, __dot5_i);
     vec3 __column_i10 = m3[0];
     float __dot_i11 = dot(v3, __column_i10);
-    vec3 __column1_i12 = m3[1];
-    float __dot2_i13 = dot(v3, __column1_i12);
-    vec3 __column3_i14 = m3[2];
-    float __dot4_i15 = dot(v3, __column3_i14);
+    vec3 __column1_i = m3[1];
+    float __dot2_i = dot(v3, __column1_i);
+    vec3 __column3_i = m3[2];
+    float __dot4_i = dot(v3, __column3_i);
     vec3 temp37;
-    temp37.xyz = vec3(__dot_i11, __dot2_i13, __dot4_i15);
+    temp37.xyz = vec3(__dot_i11, __dot2_i, __dot4_i);
     vec3 temp38 = temp30 + temp37;
     vec4 temp39 = vec4(temp38.x, temp38.y, temp38.z, const40_1f);
     gl_Position = temp39;
@@ -262,25 +262,25 @@ const float const40_1f = 1.0;
 
 void main()
 {
-    vec4 __matrix161 = m4[0];
-    vec3 temp22 = vec3(__matrix161);
-    vec4 __matrix173 = m4[1];
-    vec3 temp24 = vec3(__matrix173);
-    vec4 __matrix186 = m4[2];
-    vec3 temp26 = vec3(__matrix186);
+    vec4 param2121 = m4[0];
+    vec3 temp22 = vec3(param2121);
+    vec4 param2133 = m4[1];
+    vec3 temp24 = vec3(param2133);
+    vec4 param2146 = m4[2];
+    vec3 temp26 = vec3(param2146);
     float __dot_i9 = dot(v3, temp22);
-    float __dot2_i11 = dot(v3, temp24);
-    float __dot4_i13 = dot(v3, temp26);
+    float __dot3_i11 = dot(v3, temp24);
+    float __dot5_i13 = dot(v3, temp26);
     vec3 temp30;
-    temp30.xyz = vec3(__dot_i9, __dot2_i11, __dot4_i13);
+    temp30.xyz = vec3(__dot_i9, __dot3_i11, __dot5_i13);
     vec3 __column_i1016 = m3[0];
     float __dot_i1118 = dot(v3, __column_i1016);
-    vec3 __column1_i1219 = m3[1];
-    float __dot2_i1321 = dot(v3, __column1_i1219);
-    vec3 __column3_i1422 = m3[2];
-    float __dot4_i1524 = dot(v3, __column3_i1422);
+    vec3 __column1_i19 = m3[1];
+    float __dot2_i21 = dot(v3, __column1_i19);
+    vec3 __column3_i22 = m3[2];
+    float __dot4_i24 = dot(v3, __column3_i22);
     vec3 temp37;
-    temp37.xyz = vec3(__dot_i1118, __dot2_i1321, __dot4_i1524);
+    temp37.xyz = vec3(__dot_i1118, __dot2_i21, __dot4_i24);
     vec3 temp3827 = temp30 + temp37;
     vec4 temp39 = vec4(temp3827.x, temp3827.y, temp3827.z, const40_1f);
     gl_Position = temp39;

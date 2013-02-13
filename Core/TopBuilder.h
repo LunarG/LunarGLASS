@@ -57,44 +57,21 @@ public:
     ~Builder();
 
     //
-    // There is no matrix type in or added to LLVM for Top IR.
-    //
-    // The Matrix class is a structure to encapsulate a choice of
-    // how to represent a matrix in LLVM.  It is the recommended way to
-    // form correct Top IR for operating on matrices.
-    //
-    class Matrix {
-    public:
-        explicit Matrix(llvm::Value* m);
-        static llvm::Type* getType(llvm::Type* elementType, int numColumns, int numRows);
-
-        int getNumRows() const { return numRows; }
-        int getNumColumns() const { return numColumns; }
-
-        llvm::Value* getValue() const { return matrix; }
-        llvm::Type* getColumnType() const { return matrix->getType()->getContainedType(0); }
-        llvm::Type* getElementType() const { return getColumnType()->getContainedType(0); }
-
-    protected:
-        int numColumns;
-        int numRows;
-
-        llvm::Value* matrix;
-    };
-
-    //
     // SuperValue can hold either an LLVM value or something else,
     // automatically converting to/from an LLVM value when needed,
     // and automatically converting from the 'something else', but
     // requiring manual access of the 'something else'
     //
+    // Note: This was once used to encapsulate matrices, and could be 
+    // used for something else, but currently is about the same as
+    // using an llvm::Value.
+    //
     class SuperValue {
     public:
-        SuperValue() : type(ELlvm) { value.llvm = 0; }
+        SuperValue() : type(ELlvm) { value = 0; }
 
         // These are both constructors and implicit conversions
-        SuperValue(llvm::Value* llvm) : type(ELlvm) { value.llvm = llvm; } // implicitly make a SuperValue out of a Value
-        SuperValue(Matrix* m) : type(EMatrix) { value.matrix = m; }        // implicitly make a SuperValue out of a Matrix
+        SuperValue(llvm::Value* llvm) : type(ELlvm) { value = llvm; } // implicitly make a SuperValue out of a Value
 
         // implicitly make a Value out of a SuperValue
         operator llvm::Value*() const
@@ -111,40 +88,29 @@ public:
         void clear()
         {
             type = ELlvm;
-            value.llvm = 0;
+            value = 0;
         }
 
-        bool isMatrix() const { return type == EMatrix; }
         bool isValue() const { return type == ELlvm; }
-        bool isClear() const { return type == ELlvm && value.llvm == 0; }
+
+        bool isClear() const { return type == ELlvm && value == 0; }
 
         llvm::Value* getValue() const
         {
             switch (type) {
-            case ELlvm:   return value.llvm;
-            case EMatrix: return value.matrix->getValue();
+            case ELlvm:   return value;
             default:
                 assert(0);
-                return value.llvm;
+                return value;
             }
         }
 
-        Matrix* getMatrix() const
-        {
-            assert(type == EMatrix);
-            return value.matrix;
-        }
-
-    protected:
+      protected:
         enum {
-            EMatrix,
             ELlvm
         } type;
 
-        union {
-            Matrix* matrix;
-            llvm::Value* llvm;
-        } value;
+        llvm::Value* value;
     };  // end class SuperValue
 
     //
@@ -291,7 +257,7 @@ public:
 
     // Create an LLVM variable out of a generic "shader-style" description of a
     // variable.
-    SuperValue createVariable(EStorageQualifier, int storageInstance, llvm::Type*, bool isMatrix,
+    SuperValue createVariable(EStorageQualifier, int storageInstance, llvm::Type*,
                               llvm::Constant* initializer, const std::string* annotation, llvm::StringRef name);
 
     // Store SuperValue into another SuperValue and return the l-value
@@ -323,8 +289,9 @@ public:
 
     llvm::Value* createSwizzle(llvm::Value* source, llvm::ArrayRef<int> channels, llvm::Type* finalType);
 
-    // Matrix factory that tracks what to delete
-    Matrix* newMatrix(llvm::Value*);
+    // make a type for storing a matrix, which conforms to the 
+    // assumptions of how matrices are operated on in the top builder
+    llvm::Type* getMatrixType(llvm::Type* elementType, int numColumns, int numRows);
 
     // handle component-wise matrix operations for either a
     // pair of matrices or a matrix and a scalar
@@ -338,9 +305,9 @@ public:
     SuperValue createMatrixCompare (SuperValue left, SuperValue right, bool allEqual);
 
     // handle matrix to matrix operations
-    Matrix* createMatrixTranspose  (Matrix*);
-    Matrix* createMatrixInverse    (Matrix*);
-    Matrix* createMatrixDeterminant(Matrix*);
+    llvm::Value* createMatrixTranspose  (llvm::Value*);
+    llvm::Value* createMatrixInverse    (llvm::Value*);
+    llvm::Value* createMatrixDeterminant(llvm::Value*);
 
     // Handy way to get intrinsics
     llvm::Function* getIntrinsic(llvm::Intrinsic::ID);
@@ -445,10 +412,10 @@ protected:
     llvm::Value* createMatrixTimesVector(llvm::Value*, llvm::Value*);
     llvm::Value* createVectorTimesMatrix(llvm::Value*, llvm::Value*);
 
-    Matrix* createMatrixOp(llvm::Instruction::BinaryOps llvmOpcode, llvm::Value* left, llvm::Value* right);
-    Matrix* createSmearedMatrixOp(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, bool reverseOrder);
-    Matrix* createMatrixTimesMatrix(llvm::Value*, llvm::Value*);
-    Matrix* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
+    llvm::Value* createComponentWiseMatrixOp(llvm::Instruction::BinaryOps llvmOpcode, llvm::Value* left, llvm::Value* right);
+    llvm::Value* createSmearedMatrixOp(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, bool reverseOrder);
+    llvm::Value* createMatrixTimesMatrix(llvm::Value*, llvm::Value*);
+    llvm::Value* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
 
     // To be used when dereferencing an access chain that is for an
     // output variable.  The exposed method for this is to use
@@ -468,9 +435,6 @@ protected:
     // accumulate values that must be copied out at the end
     std::vector<llvm::Value*> copyOuts;
     std::vector<bool> copyOutActive;   // the indexed ones that might be active
-
-    // accumulate matrices that must be deleted at the end
-    std::vector<Matrix*> matrixList;
 
     // Data that needs to be kept in order to properly handle loops.
     struct LoopData {

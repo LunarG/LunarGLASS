@@ -63,8 +63,6 @@ Builder::Builder(llvm::IRBuilder<>& b, gla::Manager* m) :
 
 Builder::~Builder()
 {
-    for (std::vector<Matrix*>::iterator i = matrixList.begin(); i != matrixList.end(); ++i)
-        delete *i;
 }
 
 void Builder::clearAccessChain()
@@ -261,7 +259,7 @@ Builder::SuperValue Builder::accessChainLoad()
 
             // create space for our r-value on the stack
             SuperValue lVal;
-            lVal = createVariable(ESQLocal, 0, accessChain.base->getType(), accessChain.base.isMatrix(), 0, 0, "indexable");
+            lVal = createVariable(ESQLocal, 0, accessChain.base->getType(), 0, 0, "indexable");
 
             // store into it
             createStore(accessChain.base, lVal);
@@ -317,7 +315,7 @@ void Builder::leaveFunction(bool main)
             if (F->getReturnType()->isVoidTy())
                 makeReturn(true);
             else {
-                SuperValue retStorage = createVariable(ESQLocal, 0, F->getReturnType(), false, 0, 0, "dummyReturn");
+                SuperValue retStorage = createVariable(ESQLocal, 0, F->getReturnType(), 0, 0, "dummyReturn");
                 llvm::Value* retValue = createLoad(retStorage);
                 makeReturn(true, retValue);
             }
@@ -428,7 +426,7 @@ llvm::Constant* Builder::getConstant(llvm::ArrayRef<llvm::Constant*> constants, 
 }
 
 Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, int storageInstance,
-                                            llvm::Type* type, bool isMatrix, llvm::Constant* initializer, const std::string* annotation,
+                                            llvm::Type* type, llvm::Constant* initializer, const std::string* annotation,
                                             llvm::StringRef name)
 {
     std::string annotatedName;
@@ -533,9 +531,6 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
         value = entryBuilder.CreateAlloca(type, 0, annotatedName);
     }
 
-    if (isMatrix)
-        return newMatrix(value);
-
     return value;
 }
 
@@ -556,42 +551,20 @@ Builder::SuperValue Builder::createStore(SuperValue rValue, SuperValue lValue)
 
 Builder::SuperValue Builder::createLoad(SuperValue lValue)
 {
-    if (lValue.isMatrix()) {
-        llvm::Value* newValue = builder.CreateLoad(lValue.getMatrix()->getValue(), "__matrix");
-        gla::Builder::Matrix* loadedMatrix = new gla::Builder::Matrix(newValue);
-        return gla::Builder::SuperValue(loadedMatrix);
-    } else {
-        if (llvm::isa<llvm::PointerType>(lValue.getValue()->getType()))
-            return builder.CreateLoad(lValue);
-        else
-            return lValue;
-    }
+    if (llvm::isa<llvm::PointerType>(lValue.getValue()->getType()))
+        return builder.CreateLoad(lValue);
+    else
+        return lValue;
 }
 
 Builder::SuperValue Builder::createGEP(SuperValue gepValue, llvm::ArrayRef<llvm::Value*> gepIndexChain)
 {
-    if (gepValue.isMatrix()) {
-        llvm::Value* newValue = builder.CreateGEP(gepValue.getMatrix()->getValue(), gepIndexChain);
-
-        if (gepIndexChain.size() == 1) {
-            gla::Builder::Matrix* gepMatrix = new gla::Builder::Matrix(newValue);
-            return gla::Builder::SuperValue(gepMatrix);
-        } else {
-            return newValue;
-        }
-
-    } else
-         return builder.CreateGEP(gepValue, gepIndexChain);
+     return builder.CreateGEP(gepValue, gepIndexChain);
 }
 
 Builder::SuperValue Builder::createInsertValue(SuperValue target, SuperValue source, unsigned* indices, int indexCount)
 {
-    if (target.isMatrix()) {
-        llvm::Value* newValue = builder.CreateInsertValue(target.getMatrix()->getValue(), source,  llvm::ArrayRef<unsigned>(indices, indices + indexCount));
-        gla::Builder::Matrix* insertValMatrix = new gla::Builder::Matrix(newValue);
-        return gla::Builder::SuperValue(insertValMatrix);
-    } else
-        return builder.CreateInsertValue(target, source,  llvm::ArrayRef<unsigned>(indices, indices + indexCount));
+    return builder.CreateInsertValue(target, source,  llvm::ArrayRef<unsigned>(indices, indices + indexCount));
 }
 
 void Builder::trackOutputIndex(SuperValue base, const llvm::Value* gepIndex)
@@ -770,31 +743,7 @@ llvm::Value* Builder::createSwizzle(llvm::Value* source, llvm::ArrayRef<int> cha
 // Builder::Matrix definitions
 //
 
-Builder::Matrix* Builder::newMatrix(llvm::Value* value)
-{
-    gla::Builder::Matrix* matrix = new gla::Builder::Matrix(value);
-    matrixList.push_back(matrix);
-
-    return matrix;
-}
-
-Builder::Matrix::Matrix(llvm::Value* m) : matrix(m)
-{
-    const llvm::PointerType* pointerType = llvm::dyn_cast<const llvm::PointerType>(matrix->getType());
-    const llvm::ArrayType* matrixType;
-    if (pointerType)
-        matrixType = llvm::dyn_cast<const llvm::ArrayType>(pointerType->getContainedType(0));
-    else
-        matrixType = llvm::dyn_cast<const llvm::ArrayType>(matrix->getType());
-    assert(matrixType);
-    numColumns = matrixType->getNumElements();
-
-    const llvm::VectorType* columnType = llvm::dyn_cast<const llvm::VectorType>(matrixType->getElementType());
-    assert(columnType);
-    numRows = columnType->getNumElements();
-}
-
-llvm::Type* Builder::Matrix::getType(llvm::Type* elementType, int numColumns, int numRows)
+llvm::Type* Builder::getMatrixType(llvm::Type* elementType, int numColumns, int numRows)
 {
     // This is not a matrix... it's a cache of types for all possible matrix sizes.
     static const int minSize = 2;
@@ -828,7 +777,7 @@ Builder::SuperValue Builder::createMatrixOp(llvm::Instruction::BinaryOps llvmOpc
         assert(GetNumColumns(left) == GetNumColumns(right));
         assert(GetNumRows(left) == GetNumRows(right));
 
-        return createMatrixOp(llvmOpcode, left.getValue(), right.getValue());
+        return createComponentWiseMatrixOp(llvmOpcode, left.getValue(), right.getValue());
     }
 
     // matrix <op> smeared scalar
@@ -909,21 +858,21 @@ Builder::SuperValue Builder::createMatrixCompare(SuperValue left, SuperValue rig
     return createCompare(left, right, allEqual);
 }
 
-Builder::Matrix* Builder::createMatrixTranspose(Matrix* matrix)
+llvm::Value* Builder::createMatrixTranspose(llvm::Value*)
 {
     UnsupportedFunctionality("matrix transpose");
 
     return 0;
 }
 
-Builder::Matrix* Builder::createMatrixInverse(Matrix* matrix)
+llvm::Value* Builder::createMatrixInverse(llvm::Value*)
 {
     UnsupportedFunctionality("matrix inverse");
 
     return 0;
 }
 
-Builder::Matrix* Builder::createMatrixDeterminant(Matrix* matrix)
+llvm::Value* Builder::createMatrixDeterminant(llvm::Value*)
 {
     UnsupportedFunctionality("matrix determinant");
 
@@ -995,7 +944,7 @@ llvm::Value* Builder::createVectorTimesMatrix(llvm::Value* lvector, llvm::Value*
     return result;
 }
 
-Builder::Matrix* Builder::createMatrixOp(llvm::Instruction::BinaryOps op, llvm::Value* left, llvm::Value* right)
+llvm::Value* Builder::createComponentWiseMatrixOp(llvm::Instruction::BinaryOps op, llvm::Value* left, llvm::Value* right)
 {
     // Allocate a matrix to hold the result in
     llvm::Value* result = builder.CreateAlloca(left->getType());
@@ -1009,10 +958,10 @@ Builder::Matrix* Builder::createMatrixOp(llvm::Instruction::BinaryOps op, llvm::
         result = builder.CreateInsertValue(result, column, c);
     }
 
-    return newMatrix(result);
+    return result;
 }
 
-Builder::Matrix* Builder::createSmearedMatrixOp(llvm::Instruction::BinaryOps op, llvm::Value* matrix, llvm::Value* scalar, bool reverseOrder)
+llvm::Value* Builder::createSmearedMatrixOp(llvm::Instruction::BinaryOps op, llvm::Value* matrix, llvm::Value* scalar, bool reverseOrder)
 {
     // ?? better to smear the scalar to a column-like vector, and apply that vector multiple times
     // Allocate a matrix to build the result in
@@ -1035,15 +984,15 @@ Builder::Matrix* Builder::createSmearedMatrixOp(llvm::Instruction::BinaryOps op,
         result = builder.CreateInsertValue(result, column, c);
     }
 
-    return newMatrix(result);
+    return result;
 }
 
-Builder::Matrix* Builder::createMatrixTimesMatrix(llvm::Value* left, llvm::Value* right)
+llvm::Value* Builder::createMatrixTimesMatrix(llvm::Value* left, llvm::Value* right)
 {
     // Allocate a matrix to hold the result in
     int rows = GetNumRows(left);
     int columns =  GetNumColumns(right);
-    llvm::Value* result = builder.CreateAlloca(Matrix::getType(GetMatrixElementType(left->getType()), columns, rows));
+    llvm::Value* result = builder.CreateAlloca(getMatrixType(GetMatrixElementType(left->getType()), columns, rows));
     result = builder.CreateLoad(result, "__resultMatrix");
 
     // Allocate a column for intermediate results
@@ -1071,15 +1020,15 @@ Builder::Matrix* Builder::createMatrixTimesMatrix(llvm::Value* left, llvm::Value
         result = builder.CreateInsertValue(result, column, col, "__resultMatrix");
     }
 
-    return newMatrix(result);
+    return result;
 }
 
-Builder::Matrix* Builder::createOuterProduct(llvm::Value* left, llvm::Value* right)
+llvm::Value* Builder::createOuterProduct(llvm::Value* left, llvm::Value* right)
 {
     // Allocate a matrix to hold the result in
     int rows = GetComponentCount(left);
     int columns =  GetComponentCount(right);
-    llvm::Value* result = builder.CreateAlloca(Matrix::getType(left->getType()->getContainedType(0), columns, rows));
+    llvm::Value* result = builder.CreateAlloca(getMatrixType(left->getType()->getContainedType(0), columns, rows));
     result = builder.CreateLoad(result);
 
     // Allocate a column for intermediate results
@@ -1097,7 +1046,7 @@ Builder::Matrix* Builder::createOuterProduct(llvm::Value* left, llvm::Value* rig
         result = builder.CreateInsertValue(result, column, col, "__matrix");
     }
 
-    return newMatrix(result);
+    return result;
 }
 
 // Get intrinsic declarations
@@ -1752,7 +1701,7 @@ Builder::SuperValue Builder::createMatrixConstructor(const std::vector<SuperValu
         constructee = builder.CreateInsertValue(constructee, column, col, "__matrix");
     }
 
-    return newMatrix(constructee);
+    return constructee;
 }
 
 Builder::If::If(llvm::Value* cond, Builder* gb)

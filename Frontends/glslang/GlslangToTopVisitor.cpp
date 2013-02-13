@@ -508,7 +508,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             oit->translateArguments(node->getSequence(), arguments);
             gla::Builder::SuperValue constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
                                                                         oit->convertGlslangToGlaType(node->getType()),
-                                                                        isMatrix, 0, 0, "constructed");
+                                                                        0, 0, "constructed");
             if (node->getOp() == EOpConstructStruct) {
                 //TODO: is there a more direct way to set a whole LLVM structure?
                 //TODO: if not, move this inside Top Builder; too many indirections
@@ -644,7 +644,7 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
         // don't handle this as just on-the-fly temporaries, because there will be two names
         // and better to leave SSA to LLVM passes
         result = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0, oit->convertGlslangToGlaType(node->getType()),
-                                                 node->getType().isMatrix(), 0, 0, "ternary");
+                                                 0, 0, "ternary");
     }
 
     // emit the condition before doing anything with selection
@@ -834,7 +834,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
 
     llvm::Type *llvmType = convertGlslangToGlaType(node->getType());
 
-    return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType, node->getType().isMatrix() && ! node->getType().isArray(),
+    return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType,
                                       initializer, annotationAddr, name);
 }
 
@@ -889,7 +889,7 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
     }
 
     if (type.isMatrix())
-        glaType = gla::Builder::Matrix::getType(glaType, type.getMatrixCols(), type.getMatrixRows());
+        glaType = glaBuilder->getMatrixType(glaType, type.getMatrixCols(), type.getMatrixRows());
     else {
         // If this variable has a vector element count greater than 1, create an LLVM vector
         if (type.getVectorSize() > 1)
@@ -928,14 +928,8 @@ void TGlslangToTopTraverser::handleFunctionEntry(TIntermAggregate* node)
 
     // Visit parameter list again to create mappings to local variables and set attributes.
     llvm::Function::arg_iterator arg = function->arg_begin();
-    for (int i = 0; i < parameters.size(); ++i, ++arg) {
-        // If the formal parameter is a matrix, that was forgotten by the LLVM types,
-        // restore that knowledge.
-        if (parameters[i]->getAsSymbolNode()->isMatrix())
-            namedValues[parameters[i]->getAsSymbolNode()->getId()] = glaBuilder->newMatrix(&(*arg));
-        else
-            namedValues[parameters[i]->getAsSymbolNode()->getId()] = &(*arg);
-    }
+    for (int i = 0; i < parameters.size(); ++i, ++arg)
+        namedValues[parameters[i]->getAsSymbolNode()->getId()] = &(*arg);
 
     // Track our user function to call later
     functionMap[node->getName().c_str()] = function;
@@ -964,9 +958,9 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
         // For now, pass in dummy arguments, which are thrown away anyway
         // if ftransform is consumed by the backend without decomposition.
         gla::Builder::SuperValue vertex = glaBuilder->createVariable(gla::Builder::ESQGlobal, 0, llvm::VectorType::get(gla::GetFloatType(context), 4),
-                                                                     false, 0, 0, "gl_Vertex_sim");
+                                                                     0, 0, "gl_Vertex_sim");
         gla::Builder::SuperValue matrix = glaBuilder->createVariable(gla::Builder::ESQGlobal, 0, llvm::VectorType::get(gla::GetFloatType(context), 4),
-                                                                     false, 0, 0, "gl_ModelViewProjectionMatrix_sim");
+                                                                     0, 0, "gl_ModelViewProjectionMatrix_sim");
 
         return glaBuilder->createIntrinsicCall(llvm::Intrinsic::gla_fFixedTransform, glaBuilder->createLoad(vertex), glaBuilder->createLoad(matrix));
     }
@@ -1070,7 +1064,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
     llvm::Function::arg_iterator end = function->arg_end();
     for (param = function->arg_begin(); param != end; ++param) {
         // param->getType() should be a pointer, we need the type it points to
-        llvm::Value* space = glaBuilder->createVariable(gla::Builder::ESQLocal, 0, param->getType()->getContainedType(0), false, 0, 0, "param");
+        llvm::Value* space = glaBuilder->createVariable(gla::Builder::ESQLocal, 0, param->getType()->getContainedType(0), 0, 0, "param");
         llvmArgs.push_back(space);
     }
 
@@ -1095,15 +1089,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
         }
     }
 
-    llvm::Value* llvmResult = llvmBuilder.Insert(llvm::CallInst::Create(function, llvmArgs));
-
-    // If the function returns a matrix, that was forgotten by the LLVM types,
-    // restore that knowledge.
-    gla::Builder::SuperValue result;
-    if (node->isMatrix())
-        result = glaBuilder->newMatrix(llvmResult);
-    else
-        result = llvmResult;
+    llvm::Value* result = llvmBuilder.Insert(llvm::CallInst::Create(function, llvmArgs));
 
     // Copy-out time...
     // Convert outputs to correct type before storing into the l-value
@@ -1749,10 +1735,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMConstant(const TType&
         }
     }
 
-    if (glslangType.isMatrix())
-        return glaBuilder->newMatrix(glaBuilder->getConstant(llvmConsts, type));
-    else
-        return glaBuilder->getConstant(llvmConsts, type);
+    return glaBuilder->getConstant(llvmConsts, type);
 }
 
 //

@@ -28,13 +28,15 @@ LunarGoo
 
 - "const" compile-time constant progagation in the front-end has to be complete, not heuristic
 
-- consider removing SuperValues, as matrix information can be deduced from front-end information
++ remove matrices from the SuperValue encapsulation, as matrix information can be 
+   deduced from front-end information, and must be in the case of one buried in another aggregate
 
 - double underscore should be an error not a warning, maybe wait until after LunarGOO does not make them
 
 GLSL 1.2
 • + Handle version-specific keywords as identifiers for other versions
 • + Support non-square matrices, mat2x3 means 2 columns, 3 rows
+• - add more non-square matrix test cases for adapter
 • + Add gl_PointCoord for fragment shaders to query a fragment's position within a point sprite.
 • . "?:" can have the same type 2nd and 3rd operands (e.g. conversion is not required).
 • . Support centroid interpolation on multi-sample varyings
