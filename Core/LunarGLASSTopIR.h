@@ -132,7 +132,7 @@ namespace gla {
     inline llvm::Type* GetFloatType (llvm::LLVMContext& context)   { return llvm::Type::getFloatTy (context); }
     inline llvm::Type* GetDoubleType(llvm::LLVMContext& context)   { return llvm::Type::getDoubleTy(context); }
 
-    inline const llvm::Type* GetVectorOrScalarType(llvm::Type* type, int numComponents)
+    inline llvm::Type* GetVectorOrScalarType(llvm::Type* type, int numComponents)
     {
         type = type->isVectorTy() ? type->getContainedType(0) : type;
 

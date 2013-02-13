@@ -1,0 +1,173 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+%s = type { i32, [12 x [4 x <3 x float>]] }
+
+@us = external addrspace(2) constant %s
+@i = external addrspace(2) constant i32
+@am = external addrspace(2) constant [8 x [4 x <3 x float>]]
+@FragColor_shadow = internal global <4 x float> zeroinitializer
+@v_shadow = internal global <3 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %ls = alloca %s
+  %0 = load i32 addrspace(2)* @i
+  %1 = getelementptr %s addrspace(2)* @us, i32 0, i32 1, i32 %0
+  %2 = load [4 x <3 x float>] addrspace(2)* %1
+  %3 = load [4 x <3 x float>] addrspace(2)* getelementptr inbounds ([8 x [4 x <3 x float>]] addrspace(2)* @am, i32 0, i32 4)
+  %4 = alloca [4 x <3 x float>]
+  %5 = load [4 x <3 x float>]* %4
+  %__leftColumn = extractvalue [4 x <3 x float>] %2, 0
+  %__rightColumn = extractvalue [4 x <3 x float>] %3, 0
+  %__column = fadd <3 x float> %__leftColumn, %__rightColumn
+  %6 = insertvalue [4 x <3 x float>] %5, <3 x float> %__column, 0
+  %__leftColumn1 = extractvalue [4 x <3 x float>] %2, 1
+  %__rightColumn2 = extractvalue [4 x <3 x float>] %3, 1
+  %__column3 = fadd <3 x float> %__leftColumn1, %__rightColumn2
+  %7 = insertvalue [4 x <3 x float>] %6, <3 x float> %__column3, 1
+  %__leftColumn4 = extractvalue [4 x <3 x float>] %2, 2
+  %__rightColumn5 = extractvalue [4 x <3 x float>] %3, 2
+  %__column6 = fadd <3 x float> %__leftColumn4, %__rightColumn5
+  %8 = insertvalue [4 x <3 x float>] %7, <3 x float> %__column6, 2
+  %__leftColumn7 = extractvalue [4 x <3 x float>] %2, 3
+  %__rightColumn8 = extractvalue [4 x <3 x float>] %3, 3
+  %__column9 = fadd <3 x float> %__leftColumn7, %__rightColumn8
+  %9 = insertvalue [4 x <3 x float>] %8, <3 x float> %__column9, 3
+  %10 = getelementptr %s* %ls, i32 0, i32 1, i32 3
+  store [4 x <3 x float>] %9, [4 x <3 x float>]* %10
+  %v__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
+  store <3 x float> %v__, <3 x float>* @v_shadow
+  %11 = load <3 x float>* @v_shadow
+  %12 = getelementptr %s* %ls, i32 0, i32 1, i32 3
+  %13 = load [4 x <3 x float>]* %12
+  %14 = alloca <4 x float>
+  %15 = load <4 x float>* %14
+  %__column10 = extractvalue [4 x <3 x float>] %13, 0
+  %__dot = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %11, <3 x float> %__column10)
+  %16 = insertelement <4 x float> %15, float %__dot, i32 0
+  %__column11 = extractvalue [4 x <3 x float>] %13, 1
+  %__dot12 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %11, <3 x float> %__column11)
+  %17 = insertelement <4 x float> %16, float %__dot12, i32 1
+  %__column13 = extractvalue [4 x <3 x float>] %13, 2
+  %__dot14 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %11, <3 x float> %__column13)
+  %18 = insertelement <4 x float> %17, float %__dot14, i32 2
+  %__column15 = extractvalue [4 x <3 x float>] %13, 3
+  %__dot16 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %11, <3 x float> %__column15)
+  %FragColor_shadow = insertelement <4 x float> %18, float %__dot16, i32 3
+  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %19 = load <4 x float>* @FragColor_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %19)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+
+declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+%s = type { i32, [12 x [4 x <3 x float>]] }
+
+@us = external addrspace(2) constant %s
+@i = external addrspace(2) constant i32
+@am = external addrspace(2) constant [8 x [4 x <3 x float>]]
+
+define fastcc void @main() {
+entry:
+  %0 = load i32 addrspace(2)* @i, align 4
+  %1 = getelementptr %s addrspace(2)* @us, i32 0, i32 1, i32 %0
+  %2 = load [4 x <3 x float>] addrspace(2)* %1, align 16
+  %gla_constGEP = getelementptr [8 x [4 x <3 x float>]] addrspace(2)* @am, i32 0, i32 4
+  %3 = load [4 x <3 x float>] addrspace(2)* %gla_constGEP, align 16
+  %v__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
+  %__rightColumn = extractvalue [4 x <3 x float>] %3, 0
+  %__leftColumn = extractvalue [4 x <3 x float>] %2, 0
+  %__rightColumn2 = extractvalue [4 x <3 x float>] %3, 1
+  %__leftColumn1 = extractvalue [4 x <3 x float>] %2, 1
+  %__column = fadd <3 x float> %__leftColumn, %__rightColumn
+  %__dot = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v__, <3 x float> %__column)
+  %__rightColumn5 = extractvalue [4 x <3 x float>] %3, 2
+  %__leftColumn4 = extractvalue [4 x <3 x float>] %2, 2
+  %__column3 = fadd <3 x float> %__leftColumn1, %__rightColumn2
+  %__dot12 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v__, <3 x float> %__column3)
+  %__rightColumn8 = extractvalue [4 x <3 x float>] %3, 3
+  %__leftColumn7 = extractvalue [4 x <3 x float>] %2, 3
+  %__column6 = fadd <3 x float> %__leftColumn4, %__rightColumn5
+  %__dot14 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v__, <3 x float> %__column6)
+  %__column9 = fadd <3 x float> %__leftColumn7, %__rightColumn8
+  %__dot16 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v__, <3 x float> %__column9)
+  %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dot, i32 0, float %__dot12, i32 0, float %__dot14, i32 0, float %__dot16, i32 0)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %4)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+
+declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 130
+struct s {
+    int member0;
+    vec3[4][12] member1;
+};
+
+uniform s us;
+uniform int i;
+uniform vec3[4][8] am;
+in vec3 v;
+
+void main()
+{
+    vec3[4] temp21 = us.member1[i];
+    vec3[4] temp22 = am[4];
+    vec3 __rightColumn = temp22[0];
+    vec3 __leftColumn = temp21[0];
+    vec3 __rightColumn2 = temp22[1];
+    vec3 __leftColumn1 = temp21[1];
+    vec3 __column = __leftColumn + __rightColumn;
+    float __dot = dot(v, __column);
+    vec3 __rightColumn5 = temp22[2];
+    vec3 __leftColumn4 = temp21[2];
+    vec3 __column3 = __leftColumn1 + __rightColumn2;
+    float __dot12 = dot(v, __column3);
+    vec3 __rightColumn8 = temp22[3];
+    vec3 __leftColumn7 = temp21[3];
+    vec3 __column6 = __leftColumn4 + __rightColumn5;
+    float __dot14 = dot(v, __column6);
+    vec3 __column9 = __leftColumn7 + __rightColumn8;
+    float __dot16 = dot(v, __column9);
+    vec4 temp39 = vec4(__dot, __dot12, __dot14, __dot16);
+    gl_FragColor = temp39;
+    
+}
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+ERROR: Not all shaders have valid object code.
+#### END LINKER INFO LOG ####

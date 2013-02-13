@@ -1344,7 +1344,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
     case EOpNegative:
         if (IsAggregate(operand)) {
             // emulate by subtracting from 0.0
-            llvm::Value* zero = gla::MakeFloatConstant(context, 0.0);
+            gla::Builder::SuperValue zero = gla::MakeFloatConstant(context, 0.0);
 
             return glaBuilder->createMatrixOp(llvm::Instruction::FSub, zero, operand);
         }

@@ -445,7 +445,7 @@ protected:
     llvm::Value* createMatrixTimesVector(llvm::Value*, llvm::Value*);
     llvm::Value* createVectorTimesMatrix(llvm::Value*, llvm::Value*);
 
-    Matrix* createMatrixOp(llvm::Instruction::BinaryOps llvmOpcode, Matrix* left, Matrix* right);
+    Matrix* createMatrixOp(llvm::Instruction::BinaryOps llvmOpcode, llvm::Value* left, llvm::Value* right);
     Matrix* createSmearedMatrixOp(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, bool reverseOrder);
     Matrix* createMatrixTimesMatrix(llvm::Value*, llvm::Value*);
     Matrix* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
