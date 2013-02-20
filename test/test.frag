@@ -1,3 +1,5 @@
+#version 110
+
 uniform sampler2D texSampler2D;
 uniform sampler3D texSampler3D;
 
