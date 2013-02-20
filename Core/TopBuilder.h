@@ -416,6 +416,8 @@ protected:
     llvm::Value* createSmearedMatrixOp(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, bool reverseOrder);
     llvm::Value* createMatrixTimesMatrix(llvm::Value*, llvm::Value*);
     llvm::Value* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
+    llvm::Value* createMatrixDeterminant(llvm::Value* (&matrix)[4][4], int size);
+    void makeMatrixMinor(llvm::Value* (&matrix)[4][4], llvm::Value* (&minor)[4][4], int mRow, int mCol, int size);
 
     // To be used when dereferencing an access chain that is for an
     // output variable.  The exposed method for this is to use

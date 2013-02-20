@@ -1,7 +1,5 @@
 #version 130
 
-//#define TEST_POST_110
-
 uniform ivec4 uiv4;
 uniform vec4 uv4;
 uniform bool ub;
@@ -85,11 +83,6 @@ void main()
     v += unpackUnorm2x16(v);
     v += unpackUnorm4x8(v);
     v += unpackSnorm4x8(v);
-    v += matrixCompMult(v);
-    v += outerProduct(v);
-    v += transpose(v);
-    v += determinant(v);
-    v += inverse(v);
 #endif
 
     v += step(v,v);

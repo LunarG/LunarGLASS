@@ -325,7 +325,6 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     case EOpMatrixTimesVector:
     case EOpMatrixTimesScalar:
     case EOpMatrixTimesMatrix:
-    //case EOpOuterProduct:
         result = oit->glaBuilder->createMatrixMultiply(left, right);
         break;
     default:
@@ -560,8 +559,12 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     //    return glaBuilder->createRecip(operand);
 
     case EOpMul:
-        // this is the case for compontent-wise matrix multiply
+        // compontent-wise matrix multiply      
         binOp = EOpMul;
+        break;
+    case EOpOuterProduct:
+        // two vectors multiplied to make a matrix
+        binOp = EOpOuterProduct;
         break;
 
     case EOpMod:
@@ -594,7 +597,9 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         node->getSequence()[1]->traverse(oit);
         gla::Builder::SuperValue right = oit->glaBuilder->accessChainLoad();
 
-        if (IsAggregate(left) && binOp == EOpMul)
+        if (binOp == EOpOuterProduct)
+            result = oit->glaBuilder->createMatrixMultiply(left, right);
+        else if (IsAggregate(left) && binOp == EOpMul)
             result = oit->glaBuilder->createMatrixOp(llvm::Instruction::FMul, left, right);
         else
             result = oit->createBinaryOperation(binOp, left, right, reduceComparison);
@@ -1343,6 +1348,13 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryOperation(TOperator 
     case EOpVectorLogicalNot:
     case EOpBitwiseNot:
         return llvmBuilder.CreateNot(operand);
+    
+    case EOpDeterminant:
+        return glaBuilder->createMatrixDeterminant(operand);
+    case EOpMatrixInverse:
+        return glaBuilder->createMatrixInverse(operand);
+    case EOpTranspose:
+        return glaBuilder->createMatrixTranspose(operand);
     }
 
     // returns clean result if op wasn't handled

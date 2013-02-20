@@ -101,6 +101,13 @@ void GenerateResources(TBuiltInResource& resources)
     resources.maxTextureImageUnits = 32;
     resources.maxFragmentUniformComponents = 4096;
     resources.maxDrawBuffers = 32;
+    resources.maxVertexUniformVectors = 128;
+    resources.maxVaryingVectors = 8;
+    resources.maxFragmentUniformVectors = 16;
+    resources.maxVertexOutputVectors = 16;
+    resources.maxFragmentInputVectors = 15;
+    resources.minProgramTexelOffset = -8;
+    resources.maxProgramTexelOffset = 7;
 }
 
 int C_DECL main(int argc, char* argv[])

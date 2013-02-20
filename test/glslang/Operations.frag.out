@@ -1052,8 +1052,8 @@ void main()
     bool temp136113 = temp133111 && temp134112;
     bool temp137114 = temp132110 || temp136113;
     float temp138115 = temp131109 + const139_1f;
-    float select = temp137114 ? temp138115 : temp131109;
-    vec4 temp141 = vec4(select);
+    float select149 = temp137114 ? temp138115 : temp131109;
+    vec4 temp141 = vec4(select149);
     bool temp144122 = temp12199 == const143_2;
     int temp142121 = temp12199 + const145_1;
     int ternary123_0 = temp144122 ? const147_0 : temp142121;
@@ -1068,7 +1068,7 @@ void main()
     vec4 temp158 = vec4(temp157136);
     vec4 temp159139 = temp158 + temp141;
     vec4 ternary66140 = temp9169 + temp159139;
-    vec4 select149 = temp11694 ? temp9169 : ternary66140;
-    gl_FragColor = select149;
+    vec4 select = temp11694 ? temp9169 : ternary66140;
+    gl_FragColor = select;
     
 }

@@ -13,7 +13,9 @@ LLVM 3.2
 Thread safety
  - Verify thread safe version of flex
 
-Update builds for Linux
+- Update builds for Linux
+
+- Put everything in a namespace
 
 LunarGoo
   - double underscores in LunarGOO
@@ -45,20 +47,20 @@ GLSL 1.2
 • . Separate out and distinguish between storage and parameter qualifiers, making it easier to add the invariant qualifier.
 • + matrix construction from matrix allowed
 • . Add the invariant keyword and its support.
-• . Allow unsized array constructors.  (This still makes an explicitly sized array.)
-• . Require explicitly sized arrays for assignment and comparison.
-• . Allow sizing unsized array declaration through initializer.
+• + Allow unsized array constructors.  (This still makes an explicitly sized array.)
+• + Require explicitly sized arrays for assignment and comparison.
+• + Allow sizing unsized array declaration through initializer.
 • . Add C++ style name hiding rules
 • . Removed embedded structures to match ES.
-• . No line continuation character.
-• . Comments don't delete new lines.
+• x No line continuation character. (this got added in a later release, should be retroactive)
+• - Comments don't delete new lines (need CPP fix)
 • . method support for “.length()”
 • . array type syntax is supported “float[5]”, and array initializers are added
 • . Accept "f" as part of a floating-point constant.  E.g. "float g = 3.5f".
 • x Use of invariant and centroid must match between vertex and fragment shaders.
 • + Non-ES: Reserve lowp, mediump, highp, and precision
-• Non-ES 1.0 (but 3.0): Add outerProduct() for multiplying vectors to yield a matrix.
-• Non-ES 1.0 (but 3.0): add transpose()
+• + Non-ES 1.0 (but 3.0): Add outerProduct() for multiplying vectors to yield a matrix.
+• + Non-ES 1.0 (but 3.0): add transpose()
 • Non-ES: Allow initializers on uniform declarations.  The value is set at link time.
 • Non-ES: Automatically convert integer types to float types, as needed by context.
 • Non-ES: signature matching takes type conversions into account, ambiguity is an error
@@ -69,7 +71,7 @@ OpenGL ESSL 1.0 adds
 • + reserves superp
 
 OpenGL ESSL 1.0 removes
-• - almost all built-in "gl_" variables, state, etc.
+• + almost all built-in "gl_" variables, state, etc.
 • - 1D and 3D textures
 • - shadow textures
 • x multiple compilation units
@@ -105,7 +107,6 @@ GLSL 1.3
 • uint and int  can be mixed for <<, >> but not for other operators
 • combined descriptions of << and >>, and also of &, +, and ^
 • switch statements can be empty, must have a statement between a label and the end of the switch, allows flow control to fall through
-• add gl_ClipDistance[] to both vertex and fragment shaders
 • (a = b) is an r-value and never an l-value
 • Added user-defined fragment shader outputs.
 • Remove most built-in state, making it deprecated
@@ -122,10 +123,11 @@ GLSL 1.3
 • The ability to index into an array of samplers with a variable index is removed
 • Non-ES: Preprocessor token pasting (##), ## does macro expansion after pasting not before
 • Non-ES: non-perspective (linear) interpolation (noperspective)
+• Non-ES: add gl_ClipDistance[] to both vertex and fragment shaders
 
 1.4
 • Add uniform blocks and layouts to be backed by the application through buffer bindings.
-• - Add gl_InstanceID for instance drawing.
+• + Add gl_InstanceID for instance drawing.
 • Don't require writing to gl_Position.
 • things to track as removed in this release, but present in others:
   • Use of gl_ClipVertex.  Use gl_ClipDistance instead.
@@ -135,27 +137,26 @@ GLSL 1.3
   • Built-in two-sided coloring.
   • Fixed functionality for a programmable stage.  Supply shaders for all stages currently being used.
   • ftransform().  Use invariant outputs instead.
-• - Add matrix inversion built-in inverse().
+• + Add matrix inversion built-in inverse().
 • Make clear that mix(), isnan(), and isinf() work with a scalar bool as well.
 • Make the default precision qualification for fragment shader be high
 • Non-ES: Rectangular textures, including the closure of the functionality indicated by the original texture_rectangle extension, the gpu_shader4 extension and the 1.3 version of GLSL.
 • Non-ES: Texture buffers.
 
 1.5
-• Turn the compatibility extension into the compatibility profile.
-• Made version be 150, 1.50, etc.
-• Added gl_PrimitiveID as an input to fragment shaders.
-• Added determinant() built-in.
-• Non-ES: Broaden array usage to include vertex shader inputs (vertex in).
-• Broaden structure usage to include fragment and geometry inputs and vertex and geometry outputs.
-• Non-ES: Broadened interface blocks from just uniforms to in and out interfaces as well.
-• Added gl_FragCoord qualifiers origin_upper_left, and pixel_center_integer to modify the values returned by gl_FragCoord (and have no affect on any other aspect of the pipeline or language).
-• Removed the ability to have statements before the first case in a switch.
+• + Turn the compatibility extension into the compatibility profile.
+• x Made version be 150, 1.50, etc.
+• - Added gl_PrimitiveID as an input to fragment shaders.
+• + Added determinant() built-in.
+• - Broaden structure usage to include fragment and geometry inputs and vertex and geometry outputs.
+• - Removed the ability to have statements before the first case in a switch.
+• - Deprecated gl_MaxVaryingComponents;
+• - Put gl_MaxTextureUnits and gl_MaxTextureCoords into the compatibility profile.
+• - Add new minimum maximums for gl_MaxVertexOutputComponents, gl_MaxGeometryInputComponents, gl_MaxGeometryOutputComponents, and gl_MaxFragmentInputComponents, rather than relying on gl_MaxVaryingComponents.  Also, corrected gl_MaxVaryingComponents to be 60 instead of 64.
+• Non-ES: Added gl_FragCoord qualifiers origin_upper_left, and pixel_center_integer to modify the values returned by gl_FragCoord (and have no affect on any other aspect of the pipeline or language).
 • Non-ES: Added support for multi-sample textures through sampler2DMS and sampler2DMSArray support in texelFetch() and textureSize().
-• Deprecated gl_MaxVaryingComponents;
-• Put gl_MaxTextureUnits and gl_MaxTextureCoords into the compatibility profile.
-• Change ARB_compatibility extension to compatibility profile.
-• Add new minimum maximums for gl_MaxVertexOutputComponents, gl_MaxGeometryInputComponents, gl_MaxGeometryOutputComponents, and gl_MaxFragmentInputComponents, rather than relying on gl_MaxVaryingComponents.  Also, corrected gl_MaxVaryingComponents to be 60 instead of 64.
+• Non-ES: Broadened interface blocks from just uniforms to in and out interfaces as well.
+• Non-ES: Broaden array usage to include vertex shader inputs (vertex in).
 • Non-ES: Added geometry shaders.  This includes targeting layers in FBO rendering.
 • Non-ES: geometry shader layouts: they must be declared, telling the system the primitive input and output types and maximum number of vertices.
 • Non-ES: Added geometry shader constants.
@@ -191,8 +192,8 @@ OpenGL ES 3.0 removes
 • Redeclaring built-in variables
 
 OpenGL ES 3.0 adds
-• outerProduct() for multiplying vectors to yield a matrix.
-• transpose()
+• + outerProduct() for multiplying vectors to yield a matrix.
+• + transpose()
 • Line continuation and UTF-8 in GLSL ES 1.00 when used with OpenGL ES 3.0
 • Array length operator returns an unsigned integer-constant.  The precision is determined using the rules for literal integers
 • Clarified that source code lines may be of arbitrary length

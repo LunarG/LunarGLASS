@@ -858,25 +858,158 @@ Builder::SuperValue Builder::createMatrixCompare(SuperValue left, SuperValue rig
     return createCompare(left, right, allEqual);
 }
 
-llvm::Value* Builder::createMatrixTranspose(llvm::Value*)
+llvm::Value* Builder::createMatrixTranspose(llvm::Value* matrix)
 {
-    UnsupportedFunctionality("matrix transpose");
+    // Will use a two step process
+    // 1. make a compile-time C++ 2D array of element values
+    // 2. copy it, transposed
 
-    return 0;
+    // Step 1, copy out
+    llvm::Value* elements[4][4];
+    for (int col = 0; col < GetNumColumns(matrix); ++col) {
+        llvm::Value* column = builder.CreateExtractValue(matrix, col, "__column");
+        for (int row = 0; row < GetNumRows(matrix); ++row)
+            elements[col][row] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
+    }
+
+    // make a new variable to hold the result
+    llvm::Type* resultType = getMatrixType(GetMatrixElementType(matrix->getType()), GetNumRows(matrix), GetNumColumns(matrix));
+    llvm::Value* result = builder.CreateAlloca(resultType);
+    result = builder.CreateLoad(result);
+
+    // Step 2, copy in while transposing
+    for (int col = 0; col < GetNumColumns(result); ++col) {
+        llvm::Value* column = builder.CreateExtractValue(result, col, "__column");
+        for (int row = 0; row < GetNumRows(result); ++row) {
+            column = builder.CreateInsertElement(column, elements[row][col], MakeIntConstant(context, row), "__column");
+        }
+        result = builder.CreateInsertValue(result, column, col, "__matrix");
+    }
+
+    return result;
 }
 
-llvm::Value* Builder::createMatrixInverse(llvm::Value*)
+llvm::Value* Builder::createMatrixInverse(llvm::Value* matrix)
 {
-    UnsupportedFunctionality("matrix inverse");
+    assert(GetNumColumns(matrix) == GetNumRows(matrix));
+    int size = GetNumColumns(matrix);
 
-    return 0;
+    // Copy the elements out, switching notation to [row][col], to match normal mathematic treatment
+    llvm::Value* elements[4][4];
+    for (int col = 0; col < size; ++col) {
+        llvm::Value* column = builder.CreateExtractValue(matrix, col, "__column");
+        for (int row = 0; row < size; ++row)
+            elements[row][col] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
+    }
+
+    // Create the adjugate (the transpose of the cofactors)
+    llvm::Value* adjugate[4][4];
+    for (int row = 0; row < size; ++row) {
+       for (int col = 0; col < size; ++col) {
+
+           // compute the cofactor
+           llvm::Value* minor[4][4];
+           makeMatrixMinor(elements, minor, row, col, size);
+           llvm::Value* cofactor = createMatrixDeterminant(minor, size-1);
+           if ((row + col) & 0x1)
+               cofactor = builder.CreateFNeg(cofactor);
+
+           // put into transposed location
+           adjugate[col][row] = cofactor;
+       }
+    }
+
+    // get the determinant:  this will replicate some of the above, but relying
+    // on optimizer to notice that and fix it
+    llvm::Value* det = createMatrixDeterminant(elements, size);
+
+    // Divide the adjugate by the determinant
+    for (int row = 0; row < size; ++row)
+       for (int col = 0; col < size; ++col)
+            adjugate[row][col] = builder.CreateFDiv(adjugate[row][col], det);
+
+    // build up a result matrix
+    llvm::Value* result = builder.CreateAlloca(matrix->getType());
+    result = builder.CreateLoad(result);
+
+    for (int col = 0; col < size; ++col) {
+        llvm::Value* column = builder.CreateExtractValue(result, col, "__column");
+        for (int row = 0; row < size; ++row) {
+            column = builder.CreateInsertElement(column, adjugate[row][col], MakeIntConstant(context, row), "__column");
+        }
+        result = builder.CreateInsertValue(result, column, col, "__matrix");
+    }
+
+    return result;
 }
 
-llvm::Value* Builder::createMatrixDeterminant(llvm::Value*)
+llvm::Value* Builder::createMatrixDeterminant(llvm::Value* matrix)
 {
-    UnsupportedFunctionality("matrix determinant");
+    assert(GetNumColumns(matrix) == GetNumRows(matrix));
+    int size = GetNumColumns(matrix);
 
-    return 0;
+    llvm::Value* elements[4][4];
+    for (int col = 0; col < size; ++col) {
+        llvm::Value* column = builder.CreateExtractValue(matrix, col, "__column");
+        for (int row = 0; row < size; ++row)
+            elements[row][col] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
+    }
+
+    // Compute the determinant from the copied out values
+    return createMatrixDeterminant(elements, size);
+}
+
+llvm::Value* Builder::createMatrixDeterminant(llvm::Value* (&matrix)[4][4], int size)
+{
+    if (size == 1)
+        return matrix[0][0];
+    if (size == 2) {
+        llvm::Value* term1 = builder.CreateFMul(matrix[0][0], matrix[1][1]);
+        llvm::Value* term2 = builder.CreateFMul(matrix[0][1], matrix[1][0]);
+
+        return builder.CreateFSub(term1, term2);
+    } else {
+        llvm::Value* result;
+
+        for (int cofactor = 0; cofactor < size; ++cofactor) {
+
+            // make the minor matrix
+            llvm::Value* minor[4][4]; // will hold only 2x2 and 3x3 matrices
+            makeMatrixMinor(matrix, minor, 0, cofactor, size);
+
+            // accumulate the term into the result (alternating +,-,+,...)
+            llvm::Value* minorDet = createMatrixDeterminant(minor, size - 1);
+            llvm::Value* term = builder.CreateFMul(matrix[0][cofactor], minorDet);
+            if (cofactor == 0)
+                result = term;
+            else if (cofactor & 0x1)
+                result = builder.CreateFSub(result, term);
+            else
+                result = builder.CreateFAdd(result, term);
+        }
+
+        return result;
+    }
+}
+
+// 'size' is the size of the input matrix, not the output matrix
+void Builder::makeMatrixMinor(llvm::Value* (&matrix)[4][4], llvm::Value* (&minor)[4][4], int mRow, int mCol, int size)
+{
+    int resRow = 0;
+    for (int row = 0; row < size; ++row) {
+        if (row == mRow)
+            continue;
+        
+        int resCol = 0;
+        for (int col = 0; col < size; ++col) {
+            if (col == mCol)
+                continue;
+            minor[resRow][resCol] = matrix[row][col];
+            ++resCol;
+        }
+
+        ++resRow;
+    }
 }
 
 llvm::Value* Builder::createMatrixTimesVector(llvm::Value* matrix, llvm::Value* rvector)
