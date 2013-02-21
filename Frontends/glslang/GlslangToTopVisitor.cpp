@@ -829,8 +829,8 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
 
     std::string* annotationAddr = 0;
     std::string annotation;
-    if (IsSampler(node->getBasicType())) {
-        annotation = TType::getBasicString(node->getBasicType());
+    if (node->getBasicType() == EbtSampler) {
+        annotation = node->getType().getCompleteTypeString().c_str();
         annotationAddr = &annotation;
         storageQualifier = gla::Builder::ESQResource;
     }
@@ -861,14 +861,7 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
         glaType = gla::GetBoolType(context);
         break;
     case EbtInt:
-    case EbtSampler1D:
-    case EbtSampler2D:
-    case EbtSampler3D:
-    case EbtSamplerCube:
-    case EbtSampler1DShadow:
-    case EbtSampler2DShadow:
-    case EbtSamplerRect:
-    case EbtSamplerRectShadow:
+    case EbtSampler:
         glaType = gla::GetIntType(context);
         break;
     case EbtStruct:
@@ -987,25 +980,25 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
         }
 
         gla::ESamplerType samplerType;
-        switch (node->getSequence()[0]->getAsTyped()->getType().getBasicType()) {
-        case EbtSampler1D:         samplerType = gla::ESampler1D;      break;
-        case EbtSampler2D:         samplerType = gla::ESampler2D;      break;
-        case EbtSampler3D:         samplerType = gla::ESampler3D;      break;
-        case EbtSamplerCube:       samplerType = gla::ESamplerCube;    break;
-        case EbtSamplerRect:       samplerType = gla::ESampler2DRect;  break;
-        case EbtSampler1DShadow:   samplerType = gla::ESampler1D;      break;
-        case EbtSampler2DShadow:   samplerType = gla::ESampler2D;      break;
-        case EbtSamplerRectShadow: samplerType = gla::ESampler2DRect;  break;
+        switch (node->getSequence()[0]->getAsTyped()->getType().getSampler().dim) {
+        case Esd1D:       samplerType = gla::ESampler1D;      break;
+        case Esd2D:       samplerType = gla::ESampler2D;      break;
+        case Esd3D:       samplerType = gla::ESampler3D;      break;
+        case EsdCube:     samplerType = gla::ESamplerCube;    break;
+        case EsdRect:     samplerType = gla::ESampler2DRect;  break;
+        case EsdBuffer:   samplerType = gla::ESamplerBuffer;  break;
         default:
             gla::UnsupportedFunctionality("sampler type");
         }
 
-        switch (node->getSequence()[0]->getAsTyped()->getType().getBasicType()) {
-        case EbtSampler1DShadow:
-        case EbtSampler2DShadow:
-        case EbtSamplerRectShadow:
+        if (node->getSequence()[0]->getAsTyped()->getType().getSampler().shadow)
             texFlags |= gla::ETFShadow;
-        }
+        
+        if (node->getSequence()[0]->getAsTyped()->getType().getSampler().ms)
+            samplerType = gla::ESampler2D;
+
+        if (node->getSequence()[0]->getAsTyped()->getType().getSampler().arrayed)
+            texFlags |= gla::ETFArrayed;
 
         // check for bias argument
         if (! (texFlags & gla::ETFLod)) {
