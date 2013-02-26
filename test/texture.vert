@@ -11,13 +11,13 @@ in vec2 coords2D;
 
 void main()
 {  
-	float lod		 = 3.0;
-	float coords1D   = 1.789;
-	vec3  coords3D   = vec3(1.789, 2.718, 3.453);
-	vec4  coords4D   = vec4(1.789, 2.718, 3.453, 2.0);
-	vec4  color      = vec4(0.0, 0.0, 0.0, 0.0);
+    float lod		 = 3.0;
+    float coords1D   = 1.789;
+    vec3  coords3D   = vec3(1.789, 2.718, 3.453);
+    vec4  coords4D   = vec4(1.789, 2.718, 3.453, 2.0);
+    vec4  color      = vec4(0.0, 0.0, 0.0, 0.0);
 
-	color += texture1DLod(texSampler1D, coords1D, lod);
+    color += texture1DLod(texSampler1D, coords1D, lod);
     color += texture1DProjLod(texSampler1D, coords2D, lod);
     color += texture1DProjLod(texSampler1D, coords4D, lod);
     

@@ -36,7 +36,8 @@ namespace gla {
 
     inline bool IsGradientTexInst(const llvm::IntrinsicInst* instruction)
     {
-        return (instruction->getIntrinsicID() == llvm::Intrinsic::gla_fTextureSampleLodRefZOffsetGrad);
+        return instruction->getIntrinsicID() == llvm::Intrinsic::gla_fTextureSampleLodRefZOffsetGrad ||
+               instruction->getIntrinsicID() == llvm::Intrinsic::gla_textureSampleLodRefZOffsetGrad;
     }
 
 };

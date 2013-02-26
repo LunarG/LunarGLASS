@@ -1466,7 +1466,7 @@ llvm::Value* Builder::createTextureCall(llvm::Type* resultType, gla::ESamplerTyp
 
     assert(intrinsic);
 
-    return builder.CreateCall(intrinsic,  llvm::ArrayRef<llvm::Value*>(texArgs, texArgs + numArgs));
+    return builder.CreateCall(intrinsic, llvm::ArrayRef<llvm::Value*>(texArgs, texArgs + numArgs));
 }
 
 llvm::Value* Builder::createTextureQueryCall(llvm::Intrinsic::ID intrinsicID, llvm::Type* returnType, llvm::Constant* samplerType, llvm::Value* sampler, llvm::Value* src)

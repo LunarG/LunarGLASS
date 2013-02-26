@@ -177,7 +177,7 @@ void main()
 {
     vec4 temp21 = gl_TexCoord[5] + gl_TexCoord[4];
     vec2 temp22 = vec2(temp21);
-    vec4 texColor7 = texture2D(texSampler2D, temp22);
+    vec4 texColor7 = texture(texSampler2D, temp22);
     vec4 temp24 = foo[1] + gl_TexCoord[0];
     vec4 texColor8 = color + texColor7;
     vec4 temp26 = temp24 + gl_TexCoord[4];
@@ -203,7 +203,7 @@ void main()
 {
     vec4 temp219 = gl_TexCoord[5] + gl_TexCoord[4];
     vec2 temp22 = vec2(temp219);
-    vec4 texColor711 = texture2D(texSampler2D, temp22);
+    vec4 texColor711 = texture(texSampler2D, temp22);
     vec4 texColor821 = color + texColor711;
     vec4 temp2420 = foo[1] + gl_TexCoord[0];
     vec4 temp26 = texColor821;

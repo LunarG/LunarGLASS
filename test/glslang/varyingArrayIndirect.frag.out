@@ -266,7 +266,7 @@ void main()
     vec4 temp26 = TexCoord_shadow[b];
     userIn_shadow[0] = userIn[0];
     userIn_shadow[1] = userIn[1];
-    vec4 texColor7 = texture2D(texSampler2D, temp25);
+    vec4 texColor7 = texture(texSampler2D, temp25);
     vec4 texColor8 = color + texColor7;
     vec4 temp29 = gl_TexCoord[0] + temp26;
     vec4 temp30 = texColor8;
@@ -317,7 +317,7 @@ void main()
     vec4 temp26104 = TexCoord_shadow[b];
     userIn_shadow[0] = userIn[0];
     userIn_shadow[1] = userIn[1];
-    vec4 texColor7109 = texture2D(texSampler2D, temp25);
+    vec4 texColor7109 = texture(texSampler2D, temp25);
     vec4 texColor8110 = color + texColor7109;
     vec4 temp29 = texColor8110;
     temp29.w = alpha;

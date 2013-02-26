@@ -963,10 +963,43 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
         return glaBuilder->createIntrinsicCall(llvm::Intrinsic::gla_fFixedTransform, glaBuilder->createLoad(vertex), glaBuilder->createLoad(matrix));
     }
 
-    if (node->getName().substr(0, 7) == "texture" || node->getName().substr(0, 6) == "shadow") {
-        intrinsicID = llvm::Intrinsic::gla_fTextureSample;
-        int texFlags = 0;
+    if (node->getName().substr(0, 7) == "texture" || node->getName().substr(0, 5) == "texel" || node->getName().substr(0, 6) == "shadow") {
+        gla::ESamplerType samplerType;
+        switch (node->getSequence()[0]->getAsTyped()->getType().getSampler().dim) {
+        case Esd1D:       samplerType = gla::ESampler1D;      break;
+        case Esd2D:       samplerType = gla::ESampler2D;      break;
+        case Esd3D:       samplerType = gla::ESampler3D;      break;
+        case EsdCube:     samplerType = gla::ESamplerCube;    break;
+        case EsdRect:     samplerType = gla::ESampler2DRect;  break;
+        case EsdBuffer:   samplerType = gla::ESamplerBuffer;  break;
+        default:
+            gla::UnsupportedFunctionality("sampler type");
+        }
 
+        if (node->getName().find("Size", 0) != std::string::npos) {
+            if (node->getSequence()[0]->getAsTyped()->getType().getSampler().ms ||
+                                                  samplerType == gla::ESamplerBuffer)
+                gla::UnsupportedFunctionality("TextureSize of multi-sample or buffer texture");
+                
+            return glaBuilder->createTextureQueryCall(llvm::Intrinsic::gla_queryTextureSize, 
+                                                       convertGlslangToGlaType(node->getType()), 
+                                                       MakeIntConstant(context, samplerType), 
+                                                       arguments[0], arguments[1]);
+        }
+
+        if (node->getName().find("Query", 0) != std::string::npos) {
+            if (node->getName().find("Lod", 0) != std::string::npos) {
+                gla::UnsupportedFunctionality("textureQueryLod");
+                return glaBuilder->createTextureQueryCall(llvm::Intrinsic::gla_fQueryTextureLod,
+                                                           convertGlslangToGlaType(node->getType()), 
+                                                           MakeIntConstant(context, samplerType), 
+                                                           arguments[0], 0);
+            } else if (node->getName().find("Levels", 0) != std::string::npos) {
+                gla::UnsupportedFunctionality("textureQueryLevels");
+            }
+        }
+
+        int texFlags = 0;
         if (node->getName().find("Lod", 0) != std::string::npos) {
             texFlags |= gla::ETFLod;
             texFlags |= gla::ETFBiasLodArg;
@@ -979,16 +1012,8 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
             texFlags |= gla::ETFOffsetArg;
         }
 
-        gla::ESamplerType samplerType;
-        switch (node->getSequence()[0]->getAsTyped()->getType().getSampler().dim) {
-        case Esd1D:       samplerType = gla::ESampler1D;      break;
-        case Esd2D:       samplerType = gla::ESampler2D;      break;
-        case Esd3D:       samplerType = gla::ESampler3D;      break;
-        case EsdCube:     samplerType = gla::ESamplerCube;    break;
-        case EsdRect:     samplerType = gla::ESampler2DRect;  break;
-        case EsdBuffer:   samplerType = gla::ESamplerBuffer;  break;
-        default:
-            gla::UnsupportedFunctionality("sampler type");
+        if (node->getName().find("Fetch", 0) != std::string::npos) {
+            texFlags |= gla::ETFFetch;
         }
 
         if (node->getSequence()[0]->getAsTyped()->getType().getSampler().shadow)
@@ -1005,12 +1030,18 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
             int nonBiasArgCount = 2;
             if (texFlags & gla::ETFOffsetArg)
                 ++nonBiasArgCount;
+            if (texFlags & gla::ETFBiasLodArg)
+                ++nonBiasArgCount;
+            if (node->getName().find("Grad", 0) != std::string::npos)
+                nonBiasArgCount += 2;
 
             if (arguments.size() > nonBiasArgCount) {
                 texFlags |= gla::ETFBias;
                 texFlags |= gla::ETFBiasLodArg;
             }
         }
+
+        // TODO: functionality: 4.0: handle 'compare' argument
 
         // set the arguments        
         gla::Builder::TextureParameters params = {};
@@ -1020,6 +1051,11 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
         if (texFlags & gla::ETFLod) {
             params.ETPBiasLod = arguments[2];
             ++extraArgs;
+        }
+        if (node->getName().find("Grad", 0) != std::string::npos) {
+            params.ETPGradX = arguments[2 + extraArgs];
+            params.ETPGradY = arguments[3 + extraArgs];
+            extraArgs += 2;
         }
         if (texFlags & gla::ETFOffsetArg) {
             params.ETPOffset = arguments[2 + extraArgs];

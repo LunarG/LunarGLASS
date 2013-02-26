@@ -134,7 +134,7 @@ void main()
     float scale2 = foo2[3].member2[2].member1[3];
     float select = temp22 ? temp24.x : scale2;
     vec4 temp27 = vec4(select);
-    vec4 temp28 = texture2D(sampler, coord);
+    vec4 temp28 = texture(sampler, coord);
     vec4 FragColor_shadow = temp28 * temp27;
     gl_FragColor = FragColor_shadow;
     
@@ -171,7 +171,7 @@ void main()
     float scale24 = foo2[3].member2[2].member1[3];
     float select = temp222 ? temp243.x : scale24;
     vec4 temp27 = vec4(select);
-    vec4 temp289 = texture2D(sampler, coord);
+    vec4 temp289 = texture(sampler, coord);
     vec4 FragColor_shadow10 = temp289 * temp27;
     gl_FragColor = FragColor_shadow10;
     

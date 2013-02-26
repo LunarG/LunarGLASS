@@ -169,7 +169,7 @@ void main()
     int temp28 = iLocal2 + temp25;
     float select = temp22 ? foo2[temp28].member2.member1 : foo3.member0[0].member2.member1;
     vec4 temp30 = vec4(select);
-    vec4 temp31 = texture2D(sampler, coord);
+    vec4 temp31 = texture(sampler, coord);
     vec4 FragColor_shadow = temp31 * temp30;
     gl_FragColor = FragColor_shadow;
     
@@ -218,7 +218,7 @@ void main()
     int temp286 = iLocal25 + temp254;
     float select = temp222 ? foo2[temp286].member2.member1 : foo3.member0[0].member2.member1;
     vec4 temp30 = vec4(select);
-    vec4 temp3111 = texture2D(sampler, coord);
+    vec4 temp3111 = texture(sampler, coord);
     vec4 FragColor_shadow12 = temp3111 * temp30;
     gl_FragColor = FragColor_shadow12;
     

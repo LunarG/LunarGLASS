@@ -169,7 +169,7 @@ entry:
   %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %10, <4 x i32> zeroinitializer)
   %12 = load i32 addrspace(1)* @"sampler2D sampler", align 4
   %13 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %12, i32 0, <2 x float> %coord__1)
-  %FragColor_shadow = fmul <4 x float> %11, %13
+  %FragColor_shadow = fmul <4 x float> %13, %11
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
   br label %stage-epilogue
 
@@ -252,8 +252,8 @@ void main()
     float temp40 = select + temp39;
     float temp41 = select45 + temp40;
     vec4 temp42 = vec4(temp41);
-    vec4 temp43 = texture2D(sampler, coord);
-    vec4 FragColor_shadow = temp42 * temp43;
+    vec4 temp43 = texture(sampler, coord);
+    vec4 FragColor_shadow = temp43 * temp42;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -321,7 +321,7 @@ void main()
     float temp4043 = temp26 + temp3942;
     float temp4144 = select + temp4043;
     vec4 temp42 = vec4(temp4144);
-    vec4 temp4347 = texture2D(sampler, coord);
+    vec4 temp4347 = texture(sampler, coord);
     vec4 FragColor_shadow48 = temp4347 * temp42;
     gl_FragColor = FragColor_shadow48;
     

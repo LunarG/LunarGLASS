@@ -591,65 +591,45 @@ protected:
         return "x";
     }
 
-    void emitGlaSamplerType(const llvm::IntrinsicInst* llvmInstruction, int texFlags)
+    void emitGlaSampler(const llvm::IntrinsicInst* llvmInstruction, int texFlags)
     {
-        const char *texture;
         const llvm::Value* samplerType = llvmInstruction->getOperand(0);
 
-        // Select texture type based on GLA flag
+        // Original style shadowing returns vec4 while 2nd generation returns float,
+        // so, have to stick to old-style for those cases.
+        bool forceOldStyle = IsVector(llvmInstruction->getType()) && (texFlags & ETFShadow);
 
-        if (texFlags & ETFFetch) {
-            shader << "texelFetch";
+        if (version >= 130 && ! forceOldStyle) {
+            if (texFlags & ETFFetch)
+                shader << "texelFetch";
+            else
+                shader << "texture";
+        } else {
+            if (texFlags & ETFShadow)
+                shader << "shadow";
+            else
+                shader << "texture";
 
-            // For 1.3 and beyond texture functions, no need for the
-            // extra logic below, so just return
+            int sampler = GetConstantInt(samplerType);
 
-            return;
+            switch(sampler) {
+            case ESampler1D:        shader << "1D";   break;
+            case ESampler2D:        shader << "2D";   break;
+            case ESampler3D:        shader << "3D";   break;
+            case ESamplerCube:      shader << "Cube"; break;
+            case ESampler2DRect:    shader << "Rect"; break;
+            default:
+                UnsupportedFunctionality("Texturing in Bottom IR: ", sampler, EATContinue);
+                break;
+            }
         }
-
-        if (IsGradientTexInst(llvmInstruction) || texFlags & ETFOffsetArg) {
-            // This opcodes are only available with 1.3 and beyond, so
-            // skip the legacy dimension code below.
-            shader << "texture";
-
-            return;
-        }
-
-
-        if (texFlags & ETFShadow)
-            texture = "shadow";
-        else
-            texture = "texture";
-
-        int sampler = GetConstantInt(samplerType) ;
-        switch(sampler) {
-        case ESampler1D:        shader << texture << "1D";  break;
-        case ESampler2D:        shader << texture << "2D";  break;
-        case ESampler3D:        shader << "texture3D";      break;
-        case ESamplerCube:      shader << "textureCube";    break;
-        case ESampler2DRect:    shader << "textureRect";    break;
-        default:
-            shader << "texture";
-            UnsupportedFunctionality("Texturing in Bottom IR: ", sampler, EATContinue);
-            break;
-        }
-
-        return;
-    }
-
-    void emitGlaTextureStyle(const llvm::IntrinsicInst* llvmInstruction)
-    {
-        // Check flags for proj/lod/offset
-        int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
-
+        
         if (texFlags & ETFProjected)
             shader << "Proj";
         if (texFlags & ETFLod)
             shader << "Lod";
-
         if (IsGradientTexInst(llvmInstruction))
             shader << "Grad";
-
         if (texFlags & ETFOffsetArg)
             shader << "Offset";
     }
@@ -662,12 +642,20 @@ protected:
         return (texFlags & ETFRefZArg);
     }
 
-    bool needsBiasLodArg(const llvm::IntrinsicInst* llvmInstruction)
+    bool needsLodArg(const llvm::IntrinsicInst* llvmInstruction)
     {
         // Check flags for bias/lod
         int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
 
-        return (texFlags & ETFBiasLodArg);
+        return (texFlags & ETFLod);
+    }
+
+    bool needsBiasArg(const llvm::IntrinsicInst* llvmInstruction)
+    {
+        // Check flags for bias/lod
+        int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
+
+        return (texFlags & ETFBiasLodArg) && ! (texFlags & ETFLod);
     }
 
     bool needsOffsetArg(const llvm::IntrinsicInst* llvmInstruction)
@@ -1979,19 +1967,87 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
     // Handle texturing
     switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_queryTextureSize:
+
+        newLine();
+        emitGlaValue(llvmInstruction);
+        shader << " = textureSize(";
+        emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
+        if (llvmInstruction->getNumArgOperands() > 2) {
+            // TODO: Test: 140: some textureSize() don't have 2nd argument
+            shader << ", ";
+            emitGlaOperand(llvmInstruction->getOperand(2));
+        }
+        shader << ");";
+        return;
+
+    case llvm::Intrinsic::gla_fQueryTextureLod:
+
+        newLine();
+        emitGlaValue(llvmInstruction);
+        shader << " = textureQueryLod(";
+        emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
+        shader << ", ";
+        emitGlaOperand(llvmInstruction->getOperand(2));
+        shader << ");";
+        return;
+
+    //case llvm::Intrinsic::gla_queryTextureLevels:
+    // TODO: Functionality: 430: textureQueryLevels()
+
+    case llvm::Intrinsic::gla_textureSample:
     case llvm::Intrinsic::gla_fTextureSample:
+    case llvm::Intrinsic::gla_rTextureSample1:
+    case llvm::Intrinsic::gla_fRTextureSample1:
+    case llvm::Intrinsic::gla_rTextureSample2:
+    case llvm::Intrinsic::gla_fRTextureSample2:
+    case llvm::Intrinsic::gla_rTextureSample3:
+    case llvm::Intrinsic::gla_fRTextureSample3:
+    case llvm::Intrinsic::gla_rTextureSample4:
+    case llvm::Intrinsic::gla_fRTextureSample4:
+    case llvm::Intrinsic::gla_textureSampleLodRefZ:
     case llvm::Intrinsic::gla_fTextureSampleLodRefZ:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZ1:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZ1:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZ2:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZ2:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZ3:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZ3:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZ4:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZ4:
+    case llvm::Intrinsic::gla_textureSampleLodRefZOffset:
     case llvm::Intrinsic::gla_fTextureSampleLodRefZOffset:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZOffset1:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZOffset1:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZOffset2:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZOffset2:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZOffset3:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZOffset3:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZOffset4:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZOffset4:
+    case llvm::Intrinsic::gla_textureSampleLodRefZOffsetGrad:
     case llvm::Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZOffsetGrad1:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad1:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZOffsetGrad2:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad2:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZOffsetGrad3:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad3:
+    case llvm::Intrinsic::gla_rTextureSampleLodRefZOffsetGrad4:
+    case llvm::Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad4:
     case llvm::Intrinsic::gla_texelFetchOffset:
     case llvm::Intrinsic::gla_fTexelFetchOffset:
-
+    case llvm::Intrinsic::gla_texelGather:
+    case llvm::Intrinsic::gla_fTexelGather:
+    case llvm::Intrinsic::gla_texelGatherOffset:
+    case llvm::Intrinsic::gla_fTexelGatherOffset:
+    case llvm::Intrinsic::gla_texelGatherOffsets:
+    case llvm::Intrinsic::gla_fTexelGatherOffsets:
 
         newLine();
         emitGlaValue(llvmInstruction);
         shader << " = ";
-        emitGlaSamplerType(llvmInstruction, GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
-        emitGlaTextureStyle(llvmInstruction);
+        emitGlaSampler(llvmInstruction, GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
         shader << "(";
         emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         shader << ", ";
@@ -2034,12 +2090,12 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
         }
 
-        if(needsBiasLodArg(llvmInstruction)) {
+        if(needsLodArg(llvmInstruction)) {
             shader << ", ";
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBiasLod)));
         }
 
-        if(IsGradientTexInst(llvmInstruction)) {  //?? this can move to a place they are shared between back-ends
+        if(IsGradientTexInst(llvmInstruction)) {
             shader << ", ";
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETODPdx)));
             shader << ", ";
@@ -2049,6 +2105,11 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         if (needsOffsetArg(llvmInstruction)) {
             shader << ", ";
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOOffset)));
+        }
+
+        if(needsBiasArg(llvmInstruction)) {
+            shader << ", ";
+            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBiasLod)));
         }
 
         shader << ");";
