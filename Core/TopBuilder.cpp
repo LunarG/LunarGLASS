@@ -920,13 +920,14 @@ llvm::Value* Builder::createMatrixInverse(llvm::Value* matrix)
     }
 
     // get the determinant:  this will replicate some of the above, but relying
-    // on optimizer to notice that and fix it
+    // on LLVM optimization to notice that and fix it
     llvm::Value* det = createMatrixDeterminant(elements, size);
 
     // Divide the adjugate by the determinant
+    llvm::Value* detInverse = createRecip(det);
     for (int row = 0; row < size; ++row)
        for (int col = 0; col < size; ++col)
-            adjugate[row][col] = builder.CreateFDiv(adjugate[row][col], det);
+            adjugate[row][col] = builder.CreateFMul(adjugate[row][col], detInverse);
 
     // build up a result matrix
     llvm::Value* result = builder.CreateAlloca(matrix->getType());
