@@ -15,7 +15,15 @@ Thread safety
 
 - Update builds for Linux
 
-- Put everything in a namespace
+Interfacing
+  - Separate top and bottom IR into two files from IntrinsicsLunarGLASS.td
+  - Make the glslang adapter its own library.
+  - add bool for supressing warnings
+  - add bool for forward compatibility context
+  - Put everything in a namespace
+
+VS 11
+  - pool_allocator& operator=(const pool_allocator& a) isn’t defined in PoolAlloc.h
 
 LunarGoo
   - double underscores in LunarGOO
@@ -29,6 +37,8 @@ LunarGoo
 - finish classifying all keywords as to when they are identifiers, reserved, or keywords.
 
 - "const" compile-time constant progagation in the front-end has to be complete, not heuristic
+   - all built-ins
+   - propagate constness up the tree
 
 + remove matrices from the SuperValue encapsulation, as matrix information can be 
    deduced from front-end information, and must be in the case of one buried in another aggregate
@@ -55,16 +65,16 @@ GLSL 1.2
 • x No line continuation character. (this got added in a later release, should be retroactive)
 • - Comments don't delete new lines (need CPP fix)
 • . method support for “.length()”
-• . array type syntax is supported “float[5]”, and array initializers are added
+• + array type syntax is supported “float[5]”, and array initializers are added
 • . Accept "f" as part of a floating-point constant.  E.g. "float g = 3.5f".
-• x Use of invariant and centroid must match between vertex and fragment shaders.
+• Link: Use of invariant and centroid must match between vertex and fragment shaders.
 • + Non-ES: Reserve lowp, mediump, highp, and precision
 • + Non-ES 1.0 (but 3.0): Add outerProduct() for multiplying vectors to yield a matrix.
 • + Non-ES 1.0 (but 3.0): add transpose()
 • Non-ES: Allow initializers on uniform declarations.  The value is set at link time.
-• Non-ES: Automatically convert integer types to float types, as needed by context.
+• + Non-ES: Automatically convert integer types to float types, as needed by context.
 • Non-ES: signature matching takes type conversions into account, ambiguity is an error
-• Non-ES: Different compilation units can be different language versions
+• Link: Non-ES: Different compilation units can be different language versions
 
 OpenGL ESSL 1.0 adds
 • + precision qualifiers
