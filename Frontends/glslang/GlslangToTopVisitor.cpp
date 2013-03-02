@@ -1670,10 +1670,16 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
 void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builder::SuperValue storage, int slot)
 {
     gla::EInterpolationMethod method = gla::EIMSmooth;
-    // TODO: set interpolation types
-            //method = gla::EIMSmooth;
-            //method = gla::EIMNoperspective;
-            //method = gla::EIMNone;
+    if (node->getType().getQualifier().nopersp)
+        method = gla::EIMNoperspective;
+    else if (node->getType().getQualifier().flat)
+        method = gla::EIMNone;
+
+    gla::EInterpolationLocation location = gla::EILFragment;
+    if (node->getType().getQualifier().sample)
+        location = gla::EILSample;
+    else if (node->getType().getQualifier().centroid)
+        location = gla::EILCentroid;
 
     // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
     // which gets optimized later.
@@ -1703,14 +1709,14 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
             gla::AppendArraySizeToName(indexedName, arraySize);
             gla::AppendArrayIndexToName(indexedName, s-slot);
             gepChain.push_back(gla::MakeIntConstant(context, s-slot));
-            pipeRead = glaBuilder->readPipeline(readType, indexedName, s, -1 /*mask*/, method);
+            pipeRead = glaBuilder->readPipeline(readType, indexedName, s, -1 /*mask*/, method, location);
             llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
             gepChain.pop_back();
         }
     } else {
         readType = convertGlslangToGlaType(node->getType());
         gla::AddSeparator(name);
-        llvm::Value* pipeRead = glaBuilder->readPipeline(readType, name, slot, -1 /*mask*/, method);
+        llvm::Value* pipeRead = glaBuilder->readPipeline(readType, name, slot, -1 /*mask*/, method, location);
         llvmBuilder.CreateStore(pipeRead, storage);
     }
 }

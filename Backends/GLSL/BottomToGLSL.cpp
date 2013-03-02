@@ -742,7 +742,8 @@ protected:
         }
     }
 
-    void declareVariable(llvm::Type* type, const std::string& varString, EVariableQualifier vq, const llvm::Constant* constant = 0)
+    void declareVariable(llvm::Type* type, const std::string& varString, EVariableQualifier vq, const llvm::Constant* constant = 0, 
+                         EInterpolationMode* mode = 0)
     {
         if (varString.substr(0,3) == std::string("gl_"))
             return;
@@ -777,6 +778,23 @@ protected:
                     // declare array now,
                     // remember this for next time
                     globallyDeclaredArrays.insert(basename);
+                }
+            }
+
+            if (mode) {
+                if (mode->EIMMethod != EIMNone) {
+                    switch (mode->EIMLocation) {
+                    case EILSample:        globalDeclarations << "sample ";        break;
+                    case EILCentroid:      globalDeclarations << "centroid ";      break;
+                    }
+                }
+
+                if (version >= 130) {
+                    switch (mode->EIMMethod) {
+                    case EIMNone:          globalDeclarations << "flat ";          break;
+                    //case EIMSmooth:        globalDeclarations << "smooth ";        break;
+                    case EIMNoperspective: globalDeclarations << "noperspective "; break;
+                    }
                 }
             }
 
@@ -1958,7 +1976,18 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             gla::RemoveArraySizeFromName(name);
 
             if (addNewVariable(llvmInstruction, name)) {
-                declareVariable(llvmInstruction->getType(), declareName, EVQInput);
+                EInterpolationMode* modeAddr = 0;
+                int mode;
+                EInterpolationMode intMode;
+                if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fReadInterpolant) {
+                    mode = GetConstantInt(llvmInstruction->getOperand(2));
+                    modeAddr = reinterpret_cast<EInterpolationMode*>(&mode);
+                } else {
+                    intMode.EIMLocation = EILFragment;  // dummy for non-interplated reads
+                    intMode.EIMMethod = EIMNone;        // needed for 'flat' with non-interpolation 'in'
+                    modeAddr = &intMode;
+                }
+                declareVariable(llvmInstruction->getType(), declareName, EVQInput, 0, modeAddr);
             }
 
             return;
