@@ -13,17 +13,18 @@ LLVM 3.2
 Thread safety
  - Verify thread safe version of flex
 
-- Update builds for Linux
-
 Interfacing
   - Separate top and bottom IR into two files from IntrinsicsLunarGLASS.td
-  - Make the glslang adapter its own library.
+  - Make the glslang adapter its own library
   - add bool for supressing warnings
   - add bool for forward compatibility context
+  - add a bool for relaxed semantic checking
   - Put everything in a namespace
 
-VS 11
-  - pool_allocator& operator=(const pool_allocator& a) isn’t defined in PoolAlloc.h
+Build
+  - VS 11
+    - pool_allocator& operator=(const pool_allocator& a) isn’t defined in PoolAlloc.h
+  - Update builds for Linux
 
 LunarGoo
   - double underscores in LunarGOO
@@ -50,31 +51,31 @@ GLSL 1.2
 • + Support non-square matrices, mat2x3 means 2 columns, 3 rows
 • - add more non-square matrix test cases for adapter
 • + Add gl_PointCoord for fragment shaders to query a fragment's position within a point sprite.
-• . "?:" can have the same type 2nd and 3rd operands (e.g. conversion is not required).
-• . Support centroid interpolation on multi-sample varyings
-• . Allow built-in function calls in const initializers.
-• . Disallow other signatures/return-values of main.
-• . Separate out and distinguish between storage and parameter qualifiers, making it easier to add the invariant qualifier.
+• + "?:" can have the same type 2nd and 3rd operands (e.g. conversion is not required).
+• - Support centroid interpolation on multi-sample varyings
+• - Allow built-in function calls in const initializers.
+• - Add the invariant keyword and its support.
+• - Disallow other signatures/return-values of main.
+• x Separate out and distinguish between storage and parameter qualifiers, making it easier to add the invariant qualifier.
 • + matrix construction from matrix allowed
-• . Add the invariant keyword and its support.
 • + Allow unsized array constructors.  (This still makes an explicitly sized array.)
 • + Require explicitly sized arrays for assignment and comparison.
 • + Allow sizing unsized array declaration through initializer.
-• . Add C++ style name hiding rules
-• . Removed embedded structures to match ES.
+• - Add C++ style name hiding rules
+• - Removed embedded structures to match ES.
 • x No line continuation character. (this got added in a later release, should be retroactive)
 • - Comments don't delete new lines (need CPP fix)
 • . method support for “.length()”
 • + array type syntax is supported “float[5]”, and array initializers are added
-• . Accept "f" as part of a floating-point constant.  E.g. "float g = 3.5f".
-• Link: Use of invariant and centroid must match between vertex and fragment shaders.
+• x Accept "f" as part of a floating-point constant.  E.g. "float g = 3.5f".
+• x Link: Use of invariant and centroid must match between vertex and fragment shaders.
 • + Non-ES: Reserve lowp, mediump, highp, and precision
 • + Non-ES 1.0 (but 3.0): Add outerProduct() for multiplying vectors to yield a matrix.
 • + Non-ES 1.0 (but 3.0): add transpose()
-• Non-ES: Allow initializers on uniform declarations.  The value is set at link time.
+• - Non-ES: Allow initializers on uniform declarations.  The value is set at link time.
 • + Non-ES: Automatically convert integer types to float types, as needed by context.
-• Non-ES: signature matching takes type conversions into account, ambiguity is an error
-• Link: Non-ES: Different compilation units can be different language versions
+• - Non-ES: signature matching takes type conversions into account, ambiguity is an error
+• x Link: Non-ES: Different compilation units can be different language versions
 
 OpenGL ESSL 1.0 adds
 • + precision qualifiers

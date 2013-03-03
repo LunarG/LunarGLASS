@@ -628,20 +628,18 @@ void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, 
 {
     llvm::Constant *maskConstant = MakeIntConstant(context, mask);
 
-    EInterpolationMode mode = {};
-    mode.EIMMethod   = method;
-    mode.EIMLocation = location;
-
     if (! llvm::isa<llvm::IntegerType>(slot->getType()))
         gla::UnsupportedFunctionality("Pipeline write using non-integer index");
 
     // This correction is necessary for some front ends, which might allow
     // "interpolated" integers or Booleans.
     if (! GetBasicType(outValue)->isFloatTy())
-        mode.EIMMethod = EIMNone;
+        method = EIMNone;
+
+    EInterpolationMode mode = gla::MakeInterpolationMode(method, location);
 
     llvm::Function *intrinsic;
-    if (mode.EIMMethod == EIMNone) {
+    if (method == EIMNone) {
         llvm::Intrinsic::ID intrinsicID;
         switch(GetBasicTypeID(outValue)) {
         case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
@@ -652,7 +650,7 @@ void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, 
         intrinsic = getIntrinsic(intrinsicID, outValue->getType());
         builder.CreateCall3(intrinsic, slot, maskConstant, outValue);
     } else {
-        llvm::Constant *modeConstant = MakeUnsignedConstant(context, reinterpret_cast<int&>(mode));
+        llvm::Constant *modeConstant = MakeUnsignedConstant(context, mode);
         intrinsic = getIntrinsic(llvm::Intrinsic::gla_fWriteInterpolant, outValue->getType());
         builder.CreateCall4(intrinsic, slot, maskConstant, modeConstant, outValue);
     }
@@ -665,18 +663,16 @@ llvm::Value* Builder::readPipeline(llvm::Type* type, llvm::StringRef name, int s
     llvm::Constant *slotConstant = MakeUnsignedConstant(context, slot);
     llvm::Constant *maskConstant = MakeIntConstant(context, mask);
 
-    EInterpolationMode mode = {};
-    mode.EIMMethod   = method;
-    mode.EIMLocation = location;
-
     // This correction is necessary for some front ends, which might allow
     // "interpolated" integers or Booleans.
     if (! GetBasicType(type)->isFloatTy())
-        mode.EIMMethod = EIMNone;
+        method = EIMNone;
+
+    EInterpolationMode mode = gla::MakeInterpolationMode(method, location);
 
     llvm::Function *intrinsic;
-    if (mode.EIMMethod != EIMNone) {
-        llvm::Constant *modeConstant = MakeUnsignedConstant(context, reinterpret_cast<int&>(mode));
+    if (method != EIMNone) {
+        llvm::Constant *modeConstant = MakeUnsignedConstant(context, mode);
 
         if (sampleIdx) {
             assert(0 == offset);

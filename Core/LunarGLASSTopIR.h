@@ -116,13 +116,18 @@ namespace gla {
         EILLast
     };
 
-    struct EInterpolationMode {
-        #if (EIMLast > 3) || (EILLast > 3)
-            #error InterpolationMode fields too small
-        #endif
-        unsigned int EIMMethod   : 2;
-        unsigned int EIMLocation : 2;
-    };
+    typedef unsigned int EInterpolationMode;
+
+    inline EInterpolationMode MakeInterpolationMode(EInterpolationMethod method, EInterpolationLocation location)
+    {
+        return method | (location << 8);
+    }
+
+    inline void CrackInterpolationMode(EInterpolationMode mode, EInterpolationMethod& method, EInterpolationLocation& location)
+    {
+        location = static_cast<EInterpolationLocation>((mode >> 8) & 0xFF);
+        method = static_cast<EInterpolationMethod>(mode & 0xFF);
+    }
 
     // This is the Top IR definition of shader types
     inline llvm::Type* GetVoidType  (llvm::LLVMContext& context)   { return llvm::Type::getVoidTy  (context); }

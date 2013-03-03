@@ -1,0 +1,126 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@outVc_shadow = internal global <4 x float> zeroinitializer
+@inV_shadow = internal global <4 x float> zeroinitializer
+@outVs_shadow = internal global <4 x float> zeroinitializer
+@outVf_shadow = internal global <4 x float> zeroinitializer
+@outVn_shadow = internal global <4 x float> zeroinitializer
+@outVcn_shadow = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %inV__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %inV__, <4 x float>* @inV_shadow
+  %outVc_shadow = load <4 x float>* @inV_shadow
+  store <4 x float> %outVc_shadow, <4 x float>* @outVc_shadow
+  %inV__1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %inV__1, <4 x float>* @inV_shadow
+  %outVs_shadow = load <4 x float>* @inV_shadow
+  store <4 x float> %outVs_shadow, <4 x float>* @outVs_shadow
+  %inV__2 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %inV__2, <4 x float>* @inV_shadow
+  %outVf_shadow = load <4 x float>* @inV_shadow
+  store <4 x float> %outVf_shadow, <4 x float>* @outVf_shadow
+  %inV__3 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %inV__3, <4 x float>* @inV_shadow
+  %outVn_shadow = load <4 x float>* @inV_shadow
+  store <4 x float> %outVn_shadow, <4 x float>* @outVn_shadow
+  %inV__4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %inV__4, <4 x float>* @inV_shadow
+  %outVcn_shadow = load <4 x float>* @inV_shadow
+  store <4 x float> %outVcn_shadow, <4 x float>* @outVcn_shadow
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %0 = load <4 x float>* @outVc_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %0)
+  %1 = load <4 x float>* @outVs_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %1)
+  %2 = load <4 x float>* @outVf_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 2, i32 -1, <4 x float> %2)
+  %3 = load <4 x float>* @outVn_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 3, i32 -1, <4 x float> %3)
+  %4 = load <4 x float>* @outVcn_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 4, i32 -1, <4 x float> %4)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+define fastcc void @main() {
+entry:
+  %inV__4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %inV__4)
+  call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %inV__4)
+  call void @llvm.gla.fWriteData.v4f32(i32 2, i32 -1, <4 x float> %inV__4)
+  call void @llvm.gla.fWriteData.v4f32(i32 3, i32 -1, <4 x float> %inV__4)
+  call void @llvm.gla.fWriteData.v4f32(i32 4, i32 -1, <4 x float> %inV__4)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 130
+out vec4 outVc;
+out vec4 outVs;
+out vec4 outVf;
+out vec4 outVn;
+out vec4 outVcn;
+in vec4 inV;
+
+void main()
+{
+    outVc = inV;
+    outVs = inV;
+    outVf = inV;
+    outVn = inV;
+    outVcn = inV;
+    
+}
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 130
+out vec4 outVc;
+out vec4 outVs;
+out vec4 outVf;
+out vec4 outVn;
+out vec4 outVcn;
+in vec4 inV;
+
+void main()
+{
+    outVc = inV;
+    outVs = inV;
+    outVf = inV;
+    outVn = inV;
+    outVcn = inV;
+    
+}
