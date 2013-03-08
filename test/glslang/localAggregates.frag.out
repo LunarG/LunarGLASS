@@ -331,12 +331,12 @@ void main()
     int temp211 = foo3.member0.member0;
     bool temp222 = temp211 > const23_0;
     float select43 = temp222 ? const25_1f : coord.x;
-    float select = temp222 ? coord.x : const27_2f;
+    float select45 = temp222 ? coord.x : const27_2f;
     bool temp2921 = condition == const29_1;
-    float select45 = temp2921 ? coord.x : const31_0f;
-    float temp3329 = select43 + select;
+    float select = temp2921 ? coord.x : const31_0f;
+    float temp3329 = select43 + select45;
     float temp3431 = temp3329 + coord.x;
-    float temp3532 = select45 + temp3431;
+    float temp3532 = select + temp3431;
     vec4 temp35 = vec4(temp3532);
     vec4 temp36 = color;
     temp36.z = coord.y;
