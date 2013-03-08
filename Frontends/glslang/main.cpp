@@ -276,7 +276,7 @@ bool CompileFile(char *fileName, ShHandle compiler, int debugOptions, const TBui
     for (int i = 0; i < 1000; ++i) {
         for (int j = 0; j < 100; ++j)
 #endif
-            ret = ShCompile(compiler, data, OutputMultipleStrings, EShOptNone, resources, debugOptions, 100, false, false);
+            ret = ShCompile(compiler, data, OutputMultipleStrings, EShOptNone, resources, debugOptions, 100, false, EShMsgDefault);
 #ifdef MEASURE_MEMORY
 
         GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters));
