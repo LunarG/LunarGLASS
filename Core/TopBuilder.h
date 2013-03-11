@@ -464,6 +464,14 @@ protected:
     llvm::BasicBlock* stageExit;
 };  // end Builder class
 
+//
+// Some utility functions
+//
+
+void AppendArraySizeToName(std::string&, int);
+void AppendArrayIndexToName(std::string&, int);
+void AddSeparator(std::string& name);
+
 };  // end gla namespace
 
 #endif // TopBuilder_H

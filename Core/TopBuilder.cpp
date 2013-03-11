@@ -31,7 +31,6 @@
 //===----------------------------------------------------------------------===//
 
 #include "Exceptions.h"
-#include "Util.h"
 #include "TopBuilder.h"
 
 // LLVM includes
@@ -573,8 +572,11 @@ void Builder::trackOutputIndex(SuperValue base, const llvm::Value* gepIndex)
 
     // If the entire array is being accessed (gepIndex pointer is 0)
     // or a variable index is used, then output the whole array.
-    if (gepIndex && llvm::isa<llvm::ConstantInt>(gepIndex))
-        arrayIndex = gla::GetConstantInt(gepIndex);
+    if (gepIndex) {
+        const llvm::ConstantInt *index = llvm::dyn_cast<llvm::ConstantInt>(gepIndex);
+        if (index)
+            arrayIndex = index->getValue().getSExtValue();
+    }
 
     int slot = 0;
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
@@ -2001,5 +2003,27 @@ void Builder::closeLoop()
     loops.pop();
 }
 
+//
+// Some utility functions
+//
+
+void AppendArraySizeToName(std::string& arrayName, int size)
+{
+    char buf[10];
+    itoa(size, buf, 10);
+    arrayName = arrayName + "_" + buf;
+}
+
+void AppendArrayIndexToName(std::string& arrayName, int index)
+{
+    char buf[10];
+    itoa(index, buf, 10);
+    arrayName = arrayName + "[" + buf + "]";
+}
+
+void AddSeparator(std::string& name)
+{
+    name = name + "__";
+}
 
 }; // end gla namespace

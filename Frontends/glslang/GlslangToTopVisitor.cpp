@@ -39,7 +39,6 @@
 // LunarGLASS includes
 #include "LunarGLASSTopIR.h"
 #include "LunarGLASSManager.h"
-#include "Util.h"
 #include "Exceptions.h"
 #include "Options.h"
 #include "TopBuilder.h"

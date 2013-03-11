@@ -94,19 +94,6 @@ double GetConstantDouble(const llvm::Value* value)
     return constantFP->getValueAPF().convertToDouble();
 }
 
-int GetComponentCount(llvm::Type* type)
-{
-    if (llvm::VectorType* vTy = llvm::dyn_cast<llvm::VectorType>(type))
-        return vTy->getNumElements();
-    else
-        return 1;
-}
-
-int GetComponentCount(const llvm::Value* value)
-{
-    return GetComponentCount(value->getType());
-}
-
 // Returns false if base value is undef, or if any member is undef
 bool AreAllDefined(const llvm::Value* value)
 {
@@ -158,19 +145,6 @@ bool AreAllUndefined(const llvm::Value* value)
     //return true;
 }
 
-bool IsBoolean(const llvm::Type* type)
-{
-    if (llvm::Type::VectorTyID == type->getTypeID()) {
-        if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
-            return true;
-    } else {
-        if (type == type->getInt1Ty(type->getContext()))
-            return true;
-    }
-
-    return false;
-}
-
 bool HasAllSet(const llvm::Value* value)
 {
     const llvm::Constant* c = llvm::dyn_cast<llvm::Constant>(value);
@@ -189,13 +163,6 @@ bool HasAllSet(const llvm::Value* value)
 
         return true;
     }
-}
-
-void AppendArraySizeToName(std::string& arrayName, int size)
-{
-    char buf[10];
-    itoa(size, buf, 10);
-    arrayName = arrayName + "_" + buf;
 }
 
 void GetArraySizeFromName(const std::string& arrayName, std::string& basename, int& size)
@@ -232,18 +199,6 @@ void RemoveArraySizeFromName(std::string& name)
     }
 }
 
-void AppendArrayIndexToName(std::string& arrayName, int index)
-{
-    char buf[10];
-    itoa(index, buf, 10);
-    arrayName = arrayName + "[" + buf + "]";
-}
-
-void AddSeparator(std::string& name)
-{
-    name = name + "__";
-}
-
 void RemoveSeparator(std::string& name)
 {
     // if there is a pattern "__#" or "__" at the end, strip it off
@@ -271,32 +226,6 @@ void RemoveInlineNotation(std::string& name)
         name.pop_back();
         name.pop_back();
     }
-}
-
-llvm::Type* GetBasicType(llvm::Value* value)
-{
-    return GetBasicType(value->getType());
-}
-
-llvm::Type* GetBasicType(llvm::Type* type)
-{
-    switch(type->getTypeID()) {
-    case llvm::Type::VectorTyID:
-    case llvm::Type::ArrayTyID:
-        return GetBasicType(type->getContainedType(0));
-    }
-
-    return type;
-}
-
-llvm::Type::TypeID GetBasicTypeID(const llvm::Value* value)
-{
-    return GetBasicTypeID(value->getType());
-}
-
-llvm::Type::TypeID GetBasicTypeID(llvm::Type* type)
-{
-    return GetBasicType(type)->getTypeID();
 }
 
 // Some interfaces to LLVM builder require unsigned indices instead of a vector.

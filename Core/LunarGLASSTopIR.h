@@ -137,6 +137,32 @@ namespace gla {
     inline llvm::Type* GetFloatType (llvm::LLVMContext& context)   { return llvm::Type::getFloatTy (context); }
     inline llvm::Type* GetDoubleType(llvm::LLVMContext& context)   { return llvm::Type::getDoubleTy(context); }
 
+    inline llvm::Type* GetBasicType(llvm::Type* type)
+    {
+        switch(type->getTypeID()) {
+        case llvm::Type::VectorTyID:
+        case llvm::Type::ArrayTyID:
+            return GetBasicType(type->getContainedType(0));
+        }
+
+        return type;
+    }
+
+    inline llvm::Type* GetBasicType(llvm::Value* value)
+    {
+        return GetBasicType(value->getType());
+    }
+
+    inline llvm::Type::TypeID GetBasicTypeID(llvm::Type* type)
+    {
+        return GetBasicType(type)->getTypeID();
+    }
+
+    inline llvm::Type::TypeID GetBasicTypeID(const llvm::Value* value)
+    {
+        return GetBasicTypeID(value->getType());
+    }
+
     inline llvm::Type* GetVectorOrScalarType(llvm::Type* type, int numComponents)
     {
         type = type->isVectorTy() ? type->getContainedType(0) : type;
@@ -147,6 +173,76 @@ namespace gla {
             return type;
      
         return llvm::VectorType::get(type, numComponents);
+    }
+
+
+    // Helpers to make constants
+    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, int i)      { return llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),  i, false); }
+    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, bool True)  { return llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),  True ? 1 : 0, false); }
+    inline llvm::Constant* MakeUnsignedConstant(llvm::LLVMContext& context, int i)  { return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), i, false); }
+    inline llvm::Constant* MakeIntConstant(llvm::LLVMContext& context, int i)       { return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), i, true); }
+    inline llvm::Constant* MakeFloatConstant(llvm::LLVMContext& context, float f)   { return llvm::ConstantFP::get(llvm::Type::getFloatTy(context),  f); };
+    inline llvm::Constant* MakeDoubleConstant(llvm::LLVMContext& context, double f) { return llvm::ConstantFP::get(llvm::Type::getDoubleTy(context), f); };
+
+    //
+    // A value in Top IR is exactly one of the following:
+    //  - scalar
+    //  - vector
+    //  - aggregate
+    //
+    // Scalar means a single component; not an array, not a vector, not a struct.
+    //
+    // A vector is a set of scalars, arranged as an llvm vector.
+    //
+    // Aggregate means only
+    //  - array
+    //  - struct
+    //
+    // If a matrix has been converted to llvm as an array of columns, then it will
+    // also be an aggregate.
+    //
+    inline bool IsVector(const llvm::Type* type)      { return type->isVectorTy(); }
+    inline bool IsAggregate(const llvm::Type* type)   { return type->isAggregateType(); }
+    inline bool IsScalar(const llvm::Type* type)      { return ! IsAggregate(type) && ! IsVector(type); }
+    
+    inline llvm::VectorType* GetColumnType (const llvm::Type* type)  { return llvm::dyn_cast<llvm::VectorType>(type->getContainedType(0)); }
+    inline llvm::Type* GetMatrixElementType(const llvm::Type* type)  { return GetColumnType(type)->getContainedType(0); }
+
+    inline int GetNumColumns(const llvm::Type* type)    { return llvm::dyn_cast<llvm::ArrayType>(type)->getNumElements(); }
+    inline int GetNumColumns(const llvm::Value* value)  { return GetNumColumns(value->getType()); }
+
+    inline int GetNumRows(const llvm::Type* type)       { return GetColumnType(type)->getNumElements(); }
+    inline int GetNumRows(const llvm::Value* value)     { return GetNumRows(value->getType()); }
+
+    inline bool IsVector(const llvm::Value* value)    { return IsVector(value->getType()); }
+    inline bool IsAggregate(const llvm::Value* value) { return IsAggregate(value->getType()); }
+    inline bool IsScalar(const llvm::Value* value)    { return IsScalar(value->getType()); }
+
+    // true if argument is a scalar Boolean or vector of Boolean
+    inline bool IsBoolean(const llvm::Type* type)
+    {
+        if (llvm::Type::VectorTyID == type->getTypeID()) {
+            if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
+                return true;
+        } else {
+            if (type == type->getInt1Ty(type->getContext()))
+                return true;
+        }
+
+        return false;
+    }
+
+    inline int GetComponentCount(llvm::Type* type)
+    {
+        if (llvm::VectorType* vTy = llvm::dyn_cast<llvm::VectorType>(type))
+            return vTy->getNumElements();
+        else
+            return 1;
+    }
+
+    inline int GetComponentCount(const llvm::Value* value)
+    {
+        return GetComponentCount(value->getType());
     }
 
     // Encode where components come from.

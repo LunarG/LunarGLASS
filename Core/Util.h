@@ -33,6 +33,8 @@
 #ifndef Util_H
 #define Util_H
 
+#include "LunarGLASSTopIR.h"
+
 // LLVM includes
 #include "llvm/IRBuilder.h"
 #include "llvm/IntrinsicInst.h"
@@ -49,14 +51,6 @@ namespace gla {
     //
     // Some utility query/make functions.
     //
-
-    // Helpers to make constants
-    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, int i)      { return llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),  i, false); }
-    inline llvm::Constant* MakeBoolConstant(llvm::LLVMContext& context, bool True)  { return llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),  True ? 1 : 0, false); }
-    inline llvm::Constant* MakeUnsignedConstant(llvm::LLVMContext& context, int i)  { return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), i, false); }
-    inline llvm::Constant* MakeIntConstant(llvm::LLVMContext& context, int i)       { return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), i, true); }
-    inline llvm::Constant* MakeFloatConstant(llvm::LLVMContext& context, float f)   { return llvm::ConstantFP::get(llvm::Type::getFloatTy(context),  f); };
-    inline llvm::Constant* MakeDoubleConstant(llvm::LLVMContext& context, double f) { return llvm::ConstantFP::get(llvm::Type::getDoubleTy(context), f); };
 
     inline llvm::Constant* VectorizeConstant(int numComponents, llvm::Constant* constant)
     {
@@ -76,51 +70,11 @@ namespace gla {
     float GetConstantFloat(const llvm::Value*);
     double GetConstantDouble(const llvm::Value*);
 
-    int GetComponentCount(llvm::Type*);
-    int GetComponentCount(const llvm::Value*);
-
     // Whether the argument is undefined or defined (an undef in llvm)
     inline bool IsUndef(const llvm::Value* val) { return llvm::isa<llvm::UndefValue>(val); }
     inline bool IsDefined(const llvm::Value* val) { return !IsUndef(val); }
     bool AreAllDefined(const llvm::Value* val);
     bool AreAllUndefined(const llvm::Value* val);
-
-
-    // true if a scalar Boolean or vector of Boolean
-    bool IsBoolean(const llvm::Type*);
-
-    //
-    // A value we compute with is exactly one of the following:
-    //  - scalar
-    //  - vector
-    //  - aggregate
-    //
-    // Scalar means a single component; not an array, not a vector, not a struct.
-    //
-    // A vector is a set of scalars, arranged as an llvm vector.
-    //
-    // Aggregate means only
-    //  - array
-    //  - struct
-    //
-    // If a matrix has been converted to llvm as an array of columns, then it will
-    // also be an aggregate.
-    //
-    inline bool IsVector(const llvm::Type* type)      { return type->isVectorTy(); }
-    inline bool IsAggregate(const llvm::Type* type)   { return type->isAggregateType(); }
-    inline bool IsScalar(const llvm::Type* type)      { return ! IsAggregate(type) && ! IsVector(type); }
-    
-    inline llvm::VectorType* GetColumnType (const llvm::Type* type)  { return llvm::dyn_cast<llvm::VectorType>(type->getContainedType(0)); }
-    inline llvm::Type* GetMatrixElementType(const llvm::Type* type)  { return GetColumnType(type)->getContainedType(0); }
-    inline int GetNumColumns(const llvm::Type* type)  { return llvm::dyn_cast<llvm::ArrayType>(type)->getNumElements(); }
-    inline int GetNumRows(const llvm::Type* type)     { return GetColumnType(type)->getNumElements(); }
-
-    inline bool IsVector(const llvm::Value* value)    { return IsVector(value->getType()); }
-    inline bool IsAggregate(const llvm::Value* value) { return IsAggregate(value->getType()); }
-    inline bool IsScalar(const llvm::Value* value)    { return IsScalar(value->getType()); }
-    
-    inline int GetNumColumns(const llvm::Value* value)  { return GetNumColumns(value->getType()); }
-    inline int GetNumRows(const llvm::Value* value)     { return GetNumRows(value->getType()); }
 
     inline bool AreScalar(llvm::ArrayRef<llvm::Value*> vals)
     {
@@ -146,19 +100,10 @@ namespace gla {
         return name.size() < 2 || (name[1] >= '0' && name[1] <= '9');
     }
 
-    void AppendArraySizeToName(std::string&, int);
     void GetArraySizeFromName(const std::string& arrayName, std::string& basename, int& size);
-    void AppendArrayIndexToName(std::string&, int);
     void RemoveArraySizeFromName(std::string& name);
-    void AddSeparator(std::string& name);
     void RemoveSeparator(std::string& name);
     void RemoveInlineNotation(std::string& name);
-
-    llvm::Type* GetBasicType(llvm::Value*);
-    llvm::Type* GetBasicType(llvm::Type*);
-
-    llvm::Type::TypeID GetBasicTypeID(const llvm::Value*);
-    llvm::Type::TypeID GetBasicTypeID(llvm::Type*);
 
     bool ConvertValuesToUnsigned(unsigned*, int &, llvm::ArrayRef<llvm::Value*>);
 
