@@ -11,63 +11,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Backends\Dummy\BottomToDummy.cpp" />
-    <ClCompile Include="..\..\Backends\GLSL\BottomToGLSL.cpp" />
-    <ClCompile Include="..\..\Backends\TGSI\BottomToTgsi.cpp" />
-    <ClCompile Include="..\..\Core\Backend.cpp" />
-    <ClCompile Include="..\..\Core\BottomIR.cpp" />
-    <ClCompile Include="..\..\Core\BottomTranslator.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Analysis\IdentifyStructures.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Immutable\BackEndPointer.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Transforms\CanonicalizeCFG.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Transforms\CanonicalizeInsts.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Transforms\CoalesceInserts.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Transforms\DecomposeInsts.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Transforms\FlattenConditionalAssignments.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Transforms\GatherInsts.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Transforms\IntrinsicCombine.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Transforms\Scalarize.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Util\BasicBlockUtil.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Util\ConditionalUtil.cpp" />
-    <ClCompile Include="..\..\Core\Passes\Util\InstructionUtil.cpp" />
-    <ClCompile Include="..\..\Core\TopToBottom.cpp" />
-    <ClCompile Include="..\..\Core\Util.cpp" />
-    <ClCompile Include="..\..\Standalone\LunarGManager.cpp" />
-    <ClCompile Include="..\..\Standalone\OptionParse.cpp" />
+    <ClInclude Include="..\..\Core\Exceptions.h" />
+    <ClInclude Include="..\..\Core\LunarGLASSManager.h" />
+    <ClInclude Include="..\..\Core\LunarGLASSTopIR.h" />
+    <ClInclude Include="..\..\Core\Options.h" />
+    <ClInclude Include="..\..\Core\TopBuilder.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Backends\Dummy\DummyTarget.h" />
-    <ClInclude Include="..\..\Backends\GLSL\GlslTarget.h" />
-    <ClInclude Include="..\..\Backends\TGSI\TgsiTarget.h" />
-    <ClInclude Include="..\..\Core\Backend.h" />
-    <ClInclude Include="..\..\Core\BottomIR.h" />
-    <ClInclude Include="..\..\Core\Passes\Analysis\IdentifyStructures.h" />
-    <ClInclude Include="..\..\Core\Passes\Immutable\BackEndPointer.h" />
-    <ClInclude Include="..\..\Core\Passes\InitializePasses.h" />
-    <ClInclude Include="..\..\Core\Passes\Passes.h" />
-    <ClInclude Include="..\..\Core\Passes\PassSupport.h" />
-    <ClInclude Include="..\..\Core\Passes\Util\ADT.h" />
-    <ClInclude Include="..\..\Core\Passes\Util\BasicBlockUtil.h" />
-    <ClInclude Include="..\..\Core\Passes\Util\ConditionalUtil.h" />
-    <ClInclude Include="..\..\Core\Passes\Util\ConstantUtil.h" />
-    <ClInclude Include="..\..\Core\Passes\Util\DominatorsUtil.h" />
-    <ClInclude Include="..\..\Core\Passes\Util\FunctionUtil.h" />
-    <ClInclude Include="..\..\Core\Passes\Util\InstructionUtil.h" />
-    <ClInclude Include="..\..\Core\Passes\Util\LoopUtil.h" />
-    <ClInclude Include="..\..\Core\PrivateManager.h" />
-    <ClInclude Include="..\..\Core\Util.h" />
-    <ClInclude Include="..\..\Revision.h" />
-    <ClInclude Include="..\..\Standalone\OptionParse.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Core\RevisionPrefix" />
-    <None Include="..\..\LastKnownGood" />
-    <None Include="..\..\Readme.txt" />
+    <ClCompile Include="..\..\Core\Exceptions.cpp" />
+    <ClCompile Include="..\..\Core\Options.cpp" />
+    <ClCompile Include="..\..\Core\TopBuilder.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B23A6A71-F231-4086-9368-91E44A4D9DE9}</ProjectGuid>
+    <ProjectGuid>{3EB7D4E3-27FA-49B6-82E5-BE93D3352173}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>LunarGLASS</RootNamespace>
+    <RootNamespace>CommonBuilder</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

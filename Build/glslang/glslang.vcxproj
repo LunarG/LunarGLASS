@@ -56,7 +56,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../../../glslang/glslang/UserM_Debug;../../Core/LLVM/llvm-3.2.src/build/lib/Debug;$(Outdir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glslangAdapter.lib;glslang.lib;LunarGLASS.lib;LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;LLVMInstCombine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glslangAdapter.lib;CommonBuilder.lib;glslang.lib;LunarGLASS.lib;LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;LLVMInstCombine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
