@@ -31,21 +31,45 @@
 //
 //===----------------------------------------------------------------------===//
 
+#define USE_LUNARGLASS_CORE
+
 // glslang includes
 #include "../glslang/Include/Common.h"
 #include "../glslang/Include/ShHandle.h"
 
 // LunarGLASS runtime options handling
 // TODO: merge glslang and LunarGLASS option handling
-#include "StandAlone/OptionParse.h"
+//#include "StandAlone/OptionParse.h"
 #include "Options.h"
 
 // LunarGLASS includes
 #include "LunarGLASSManager.h"
-#include "Frontends/Glsl2/GlslToTop.h"
 
 // LunarGLASS adapter includes
 #include "GlslangToTop.h"
+
+#ifndef USE_LUNARGLASS_CORE
+
+    #include "llvm/Module.h"
+    class AdapterOnlyManager : public gla::Manager {
+    public:
+        AdapterOnlyManager() { }
+        virtual ~AdapterOnlyManager() { }
+
+        virtual void clear() 
+        {
+            delete module;
+            module = 0;
+
+            delete pipeOutSymbols;
+            pipeOutSymbols = 0;
+        } 
+
+        virtual void translateTopToBottom() { }
+        virtual void translateBottomToTarget() { }
+    };
+
+#endif  // USE_LUNARGLASS_CORE
 
 //
 // Here is where real machine specific high-level data would be defined.
@@ -85,16 +109,25 @@ bool TGenericCompiler::compile(TIntermNode *root)
 
     haveValidObjectCode = false;
 
+#ifdef USE_LUNARGLASS_CORE
     gla::Manager* glaManager = gla::getManager();
+#else
+    gla::Manager* glaManager = new AdapterOnlyManager();
+#endif
+
     int compileCount = gla::Options.iterate ? 1000 : 1;
     for (int i = 0; i < compileCount; ++i) {
         TranslateGlslangToTop(root, glaManager);
 
+#ifdef USE_LUNARGLASS_CORE
         glaManager->translateTopToBottom();
-
         glaManager->translateBottomToTarget();
+#else        
+        glaManager->getModule()->dump();
+#endif
 
         glaManager->clear();
+
     }
 
     delete glaManager;

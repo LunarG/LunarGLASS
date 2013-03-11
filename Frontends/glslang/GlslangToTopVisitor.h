@@ -24,9 +24,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-// glslang includes
-#include "glslang/Include/intermediate.h"
-
 // LunarGLASS includes
 #include "LunarGLASSManager.h"
 

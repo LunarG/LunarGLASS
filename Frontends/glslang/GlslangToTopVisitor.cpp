@@ -40,7 +40,6 @@
 #include "LunarGLASSTopIR.h"
 #include "LunarGLASSManager.h"
 #include "Exceptions.h"
-#include "Options.h"
 #include "TopBuilder.h"
 
 // LLVM includes
