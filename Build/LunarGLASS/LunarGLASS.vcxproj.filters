@@ -34,6 +34,9 @@
     <Filter Include="Backends\TGSI">
       <UniqueIdentifier>{4eecc5ca-ff17-418d-97e5-c96a45771e4c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Builder">
+      <UniqueIdentifier>{f55af049-f4cf-4886-a400-77d6d412f7a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Core\Passes\Analysis\IdentifyStructures.cpp">
@@ -84,23 +87,11 @@
     <ClCompile Include="..\..\Core\BottomTranslator.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Core\Exceptions.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Core\Options.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Core\TopBuilder.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Core\TopToBottom.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Core\Util.cpp">
       <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Standalone\LunarGManager.cpp">
-      <Filter>Options</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Standalone\OptionParse.cpp">
       <Filter>Options</Filter>
@@ -113,6 +104,18 @@
     </ClCompile>
     <ClCompile Include="..\..\Backends\TGSI\BottomToTgsi.cpp">
       <Filter>Backends\TGSI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\TopBuilder.cpp">
+      <Filter>Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Exceptions.cpp">
+      <Filter>Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Options.cpp">
+      <Filter>Options</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Standalone\LunarGManager.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -161,22 +164,7 @@
     <ClInclude Include="..\..\Core\BottomIR.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Core\Exceptions.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Core\LunarGLASSManager.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Core\LunarGLASSTopIR.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Core\Options.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Core\PrivateManager.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Core\TopBuilder.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Core\Util.h">
@@ -194,6 +182,21 @@
     <ClInclude Include="..\..\Revision.h" />
     <ClInclude Include="..\..\Backends\TGSI\TgsiTarget.h">
       <Filter>Backends\TGSI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\TopBuilder.h">
+      <Filter>Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Exceptions.h">
+      <Filter>Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\LunarGLASSTopIR.h">
+      <Filter>Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\LunarGLASSManager.h">
+      <Filter>Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Options.h">
+      <Filter>Options</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

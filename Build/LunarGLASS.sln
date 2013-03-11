@@ -1,17 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LunarGLASS", "LunarGLASS\LunarGLASS.vcxproj", "{B23A6A71-F231-4086-9368-91E44A4D9DE9}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glsl2", "glsl2\glsl2.vcxproj", "{C1D0CB3B-5B32-468D-B296-5D8635CC83CB}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B23A6A71-F231-4086-9368-91E44A4D9DE9} = {B23A6A71-F231-4086-9368-91E44A4D9DE9}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glslang", "glslang\glslang.vcxproj", "{2958B618-077F-424C-894F-57DAE064D877}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B23A6A71-F231-4086-9368-91E44A4D9DE9} = {B23A6A71-F231-4086-9368-91E44A4D9DE9}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glslangAdapter", "glslangAdapter\glslangAdapter.vcxproj", "{D300CE3A-BB01-4982-9193-01B1753B8CD0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,14 +20,14 @@ Global
 		{B23A6A71-F231-4086-9368-91E44A4D9DE9}.Debug|Win32.Build.0 = Debug|Win32
 		{B23A6A71-F231-4086-9368-91E44A4D9DE9}.Release|Win32.ActiveCfg = Release|Win32
 		{B23A6A71-F231-4086-9368-91E44A4D9DE9}.Release|Win32.Build.0 = Release|Win32
-		{C1D0CB3B-5B32-468D-B296-5D8635CC83CB}.Debug|Win32.ActiveCfg = Debug|Win32
-		{C1D0CB3B-5B32-468D-B296-5D8635CC83CB}.Debug|Win32.Build.0 = Debug|Win32
-		{C1D0CB3B-5B32-468D-B296-5D8635CC83CB}.Release|Win32.ActiveCfg = Release|Win32
-		{C1D0CB3B-5B32-468D-B296-5D8635CC83CB}.Release|Win32.Build.0 = Release|Win32
 		{2958B618-077F-424C-894F-57DAE064D877}.Debug|Win32.ActiveCfg = Debug|Win32
 		{2958B618-077F-424C-894F-57DAE064D877}.Debug|Win32.Build.0 = Debug|Win32
 		{2958B618-077F-424C-894F-57DAE064D877}.Release|Win32.ActiveCfg = Release|Win32
 		{2958B618-077F-424C-894F-57DAE064D877}.Release|Win32.Build.0 = Release|Win32
+		{D300CE3A-BB01-4982-9193-01B1753B8CD0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D300CE3A-BB01-4982-9193-01B1753B8CD0}.Debug|Win32.Build.0 = Debug|Win32
+		{D300CE3A-BB01-4982-9193-01B1753B8CD0}.Release|Win32.ActiveCfg = Release|Win32
+		{D300CE3A-BB01-4982-9193-01B1753B8CD0}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

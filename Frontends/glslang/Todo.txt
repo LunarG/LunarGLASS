@@ -7,15 +7,16 @@ Thread safety
 Interfacing
   - Separate top and bottom IR into two files from IntrinsicsLunarGLASS.td
   - Make the glslang adapter its own library
-  - add bool for supressing warnings
-  - add bool for forward compatibility context
-  - add a bool for relaxed semantic checking
+  + add bool for supressing warnings
+  + add bool for forward compatibility context
+  + add a bool for relaxed semantic checking
   - Put everything in a namespace
 
 Build
   + VS 11
     + pool_allocator& operator=(const pool_allocator& a) isn’t defined in PoolAlloc.h
-  - Update builds for Linux
+  + Update glslang build for Linux
+  - Update adapter build for Linux
 
 LunarGoo
   - double underscores in LunarGOO
