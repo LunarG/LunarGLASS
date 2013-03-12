@@ -765,6 +765,7 @@ protected:
             globalDeclarations << " " << varString << " = ";
             emitConstantInitializer(globalDeclarations, constant, constant->getType());
             globalDeclarations << ";" << std::endl;
+
             return;
         }
 
@@ -808,12 +809,19 @@ protected:
             }
 
             globalDeclarations << mapGlaToQualifierString(vq);
-
+            
+            globalDeclarations << " ";
             if (basename.find_first_of(' ') == std::string::npos) {
-                globalDeclarations << " ";
                 emitGlaType(globalDeclarations, type);
+                globalDeclarations << " " << basename;
+            } else {
+                // there is a space, separating a type from a name
+                if (basename.substr(0, 7) == "matrix ") {
+                    emitGlaType(globalDeclarations, type, -1, true);
+                    globalDeclarations << basename.substr(6, basename.size());
+                } else
+                    globalDeclarations << basename;
             }
-            globalDeclarations << " " << basename;
 
             if (arraySize > 0)
                 globalDeclarations << "[" << arraySize << "]";
@@ -841,7 +849,7 @@ protected:
         }
     }
 
-    void emitGlaType(std::ostringstream& out, llvm::Type* type, int count = -1)
+    void emitGlaType(std::ostringstream& out, llvm::Type* type, int count = -1, bool matrix = false)
     {
         // if it's a vector, output a vector type
         if (type->getTypeID() == llvm::Type::VectorTyID) {
@@ -857,7 +865,7 @@ protected:
             else
                 UnsupportedFunctionality("Basic Type in Bottom IR");
 
-            // output the size of the vecto
+            // output the size of the vector
             if (count == -1)
                 out << GetComponentCount(type);
             else
@@ -868,8 +876,20 @@ protected:
             out << structNameMap[structType];
         } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
             const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
-            emitGlaType(out, arrayType->getContainedType(0));
-            out << "[" << arrayType->getNumElements() << "]";
+            
+            if (matrix && arrayType->getNumContainedTypes() > 0 && arrayType->getContainedType(0)->isVectorTy()) {
+                // We're at the matrix level in the type tree
+                out << "mat";
+                if (GetNumColumns(type) == GetNumRows(type))
+                    out << GetNumColumns(type);
+                else
+                    out << GetNumColumns(type) << "x" << GetNumRows(type);
+            } else {
+                // We're still higher up in the type tree than a matrix; e.g., array of matrices
+                // (or, not a matrix).
+                emitGlaType(out, arrayType->getContainedType(0), -1, matrix);
+                out << "[" << arrayType->getNumElements() << "]";
+            }
         //} else if (type->getTypeID() == llvm::Type::PointerTyID) {
         //    const llvm::PointerType* pointerType = llvm::dyn_cast<const llvm::PointerType>(type);
         //    emitGlaType(out, pointerType->getContainedType(0));

@@ -833,6 +833,11 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
         storageQualifier = gla::Builder::ESQResource;
     }
 
+    if (node->isMatrix()) {
+        annotation = "matrix";
+        annotationAddr = &annotation;
+    }
+
     std::string name(node->getSymbol().c_str());
 
     llvm::Type *llvmType = convertGlslangToGlaType(node->getType());

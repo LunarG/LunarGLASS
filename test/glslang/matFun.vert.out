@@ -3,9 +3,9 @@ Top IR:
 ; ModuleID = 'Top'
 
 @Position_shadow = internal global <4 x float> zeroinitializer
-@m4 = external addrspace(2) constant [4 x <4 x float>]
+@"matrix m4" = external addrspace(2) constant [4 x <4 x float>]
 @v3_shadow = internal global <3 x float> zeroinitializer
-@m3 = external addrspace(2) constant [3 x <3 x float>]
+@"matrix m3" = external addrspace(2) constant [3 x <3 x float>]
 
 define fastcc void @main() {
 entry:
@@ -14,14 +14,14 @@ entry:
   %param4 = alloca [3 x <3 x float>]
   %param1 = alloca <3 x float>
   %param = alloca [4 x <4 x float>]
-  %param2 = load [4 x <4 x float>] addrspace(2)* @m4
+  %param2 = load [4 x <4 x float>] addrspace(2)* @"matrix m4"
   store [4 x <4 x float>] %param2, [4 x <4 x float>]* %param
   %v3__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
   store <3 x float> %v3__, <3 x float>* @v3_shadow
   %param13 = load <3 x float>* @v3_shadow
   store <3 x float> %param13, <3 x float>* %param1
   %0 = call <3 x float> @"mxv(mf44;vf3;"([4 x <4 x float>]* %param, <3 x float>* %param1)
-  %param46 = load [3 x <3 x float>] addrspace(2)* @m3
+  %param46 = load [3 x <3 x float>] addrspace(2)* @"matrix m3"
   store [3 x <3 x float>] %param46, [3 x <3 x float>]* %param4
   %v3__7 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
   store <3 x float> %v3__7, <3 x float>* @v3_shadow
@@ -162,12 +162,12 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@m4 = external addrspace(2) constant [4 x <4 x float>]
-@m3 = external addrspace(2) constant [3 x <3 x float>]
+@"matrix m4" = external addrspace(2) constant [4 x <4 x float>]
+@"matrix m3" = external addrspace(2) constant [3 x <3 x float>]
 
 define fastcc void @main() {
 entry:
-  %param2 = load [4 x <4 x float>] addrspace(2)* @m4, align 16
+  %param2 = load [4 x <4 x float>] addrspace(2)* @"matrix m4", align 16
   %v3__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
   %param212 = extractvalue [4 x <4 x float>] %param2, 0
   %0 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %param212, <3 x i32> <i32 0, i32 1, i32 2>)
@@ -179,7 +179,7 @@ entry:
   %__dot3.i = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %1)
   %__dot5.i = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %2)
   %3 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %__dot.i, i32 0, float %__dot3.i, i32 0, float %__dot5.i, i32 0, float undef, i32 undef)
-  %param46 = load [3 x <3 x float>] addrspace(2)* @m3, align 16
+  %param46 = load [3 x <3 x float>] addrspace(2)* @"matrix m3", align 16
   %__column.i10 = extractvalue [3 x <3 x float>] %param46, 0
   %__dot.i11 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v3__, <3 x float> %__column.i10)
   %__column1.i = extractvalue [3 x <3 x float>] %param46, 1
@@ -217,8 +217,8 @@ declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>)
 
 // LunarGOO(r722) output
 #version 130
-uniform vec4[4] m4;
-uniform vec3[3] m3;
+uniform mat4 m4;
+uniform mat3 m3;
 in vec3 v3;
 const float const40_1f = 1.0;
 
@@ -255,8 +255,8 @@ WARNING: 0:27: Two consecutive underscores are reserved for future use.
 
 // LunarGOO(r722) output
 #version 130
-uniform vec4[4] m4;
-uniform vec3[3] m3;
+uniform mat4 m4;
+uniform mat3 m3;
 in vec3 v3;
 const float const40_1f = 1.0;
 
