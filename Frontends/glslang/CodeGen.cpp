@@ -77,7 +77,7 @@
 class TGenericCompiler : public TCompiler {
 public:
     TGenericCompiler(EShLanguage l, int dOptions) : TCompiler(l, infoSink), debugOptions(dOptions) { }
-    virtual bool compile(TIntermNode* root);
+    virtual bool compile(TIntermNode* root, int version = 0, EProfile profile = ENoProfile);
     TInfoSink infoSink;
     int debugOptions;
 };
@@ -103,7 +103,7 @@ void DeleteCompiler(TCompiler* compiler)
 //
 //  Translate the glslang AST to LunarGLASS Top IR
 //
-bool TGenericCompiler::compile(TIntermNode *root)
+bool TGenericCompiler::compile(TIntermNode *root, int version, EProfile profile)
 {
     gla::Options.debug = true;
 
@@ -111,6 +111,7 @@ bool TGenericCompiler::compile(TIntermNode *root)
 
 #ifdef USE_LUNARGLASS_CORE
     gla::Manager* glaManager = gla::getManager();
+    glaManager->setVersion((static_cast<int>(profile)) << 16 | version);
 #else
     gla::Manager* glaManager = new AdapterOnlyManager();
 #endif

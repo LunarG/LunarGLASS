@@ -196,10 +196,10 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
+#version 100
 uniform vec4 u;
 uniform bool p;
-in vec2 t;
+varying vec2 t;
 const float const25_2f = 1.789;
 
 void main()
@@ -230,10 +230,10 @@ void main()
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
+#version 100
 uniform vec4 u;
 uniform bool p;
-in vec2 t;
+varying vec2 t;
 const float const25_2f = 1.789;
 
 void main()

@@ -68,6 +68,9 @@ namespace gla {
         virtual void setModule(llvm::Module* m) { module = m; }
         virtual llvm::Module* getModule() { return module; }
 
+        virtual void setVersion(int v) { version = v; }
+        virtual int getVersion() const { return version; }
+
         virtual void setPipeOutSymbols(PipelineSymbols* s) { pipeOutSymbols = s; }
         virtual PipelineSymbols& getPipeOutSymbols() { return *pipeOutSymbols; }
         virtual const PipelineSymbols& getPipeOutSymbols() const { return *pipeOutSymbols; }
@@ -76,11 +79,12 @@ namespace gla {
         virtual void translateBottomToTarget() = 0;
 
     protected:
-        Manager() : module(0), pipeOutSymbols(0) { }
+        Manager() : module(0), pipeOutSymbols(0), version(0) { }
 
         llvm::Module* module;
 
         PipelineSymbols* pipeOutSymbols;
+        int version;    // generic versioning, details defined by front end
     };
 
     Manager* getManager();

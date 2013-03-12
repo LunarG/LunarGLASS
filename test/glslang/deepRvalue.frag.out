@@ -225,7 +225,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
+#version 120
 uniform sampler2D sampler;
 vec4 gla_globalAgg;
 const float const21_7f = 7.0;
@@ -240,7 +240,7 @@ void main()
     gla_globalAgg.w = const21_7f;
     gla_globalAgg1.w = const22_19f;
     
-    vec4 temp23 = texture(sampler, const24);
+    vec4 temp23 = texture2D(sampler, const24);
     bool temp25 = temp23.y > const26_0f;
     vec4 temp27 = temp25 ? gla_globalAgg : gla_globalAgg1;
     float temp28 = temp23.y + temp27.w;
@@ -256,7 +256,7 @@ void main()
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
+#version 120
 uniform sampler2D sampler;
 vec4 gla_globalAgg;
 const float const21_7f = 7.0;
@@ -271,7 +271,7 @@ void main()
     gla_globalAgg.w = const21_7f;
     gla_globalAgg1.w = const22_19f;
     
-    vec4 temp231 = texture(sampler, const24);
+    vec4 temp231 = texture2D(sampler, const24);
     bool temp252 = temp231.y > const26_0f;
     vec4 temp27 = temp252 ? gla_globalAgg : gla_globalAgg1;
     float temp286 = temp231.y + temp27.w;

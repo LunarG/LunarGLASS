@@ -84,7 +84,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
+#version 430 core
 out vec4 outVi;
 in vec4 inVs;
 centroid in vec4 inVc;
@@ -107,7 +107,7 @@ void main()
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
+#version 430 core
 out vec4 outVi;
 centroid in vec4 inVc;
 in vec4 inVs;

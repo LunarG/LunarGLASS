@@ -181,8 +181,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
-in vec2 tex_coord;
+#version 110
+varying vec2 tex_coord;
 const float const22_2f = 2.0;
 const float const24__1f = -1.0;
 const float const32_1f = 1.0;
@@ -222,8 +222,8 @@ WARNING: 0:6: Two consecutive underscores are reserved for future use.
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
-in vec2 tex_coord;
+#version 110
+varying vec2 tex_coord;
 const float const22_2f = 2.0;
 const float const24__1f = -1.0;
 const float const32_1f = 1.0;

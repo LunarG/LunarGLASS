@@ -48,6 +48,9 @@
 #include "GlslTarget.h"
 #include "Options.h"
 
+// glslang includes
+#include "../../glslang/glslang/MachineIndependent/Versions.h"
+
 // LLVM includes
 #include "llvm/Module.h"
 
@@ -159,12 +162,18 @@ public:
     GlslTarget(Manager* m) : BackEndTranslator(m), appendInitializers(false), indentLevel(0), lastVariable(20),
                              obfuscate(Options.obfuscate)
     {
-        if (Options.backendVersion == DefaultBackendVersion)
-            version = 130;
     }
 
     ~GlslTarget()
     {
+    }
+
+    virtual void start()
+    {
+        // this information wasn't available at construct time
+        version = manager->getVersion();
+        profile = static_cast<EProfile>(version >> 16);
+        version &= 0xFFFF;
     }
 
     void addStructType(llvm::StringRef name, const llvm::Type* structType)
@@ -1391,6 +1400,7 @@ protected:
     int lastVariable;
     bool obfuscate;
     int version;
+    EProfile profile;
 };
 
 //
@@ -2404,7 +2414,18 @@ void gla::GlslTarget::print()
         printf("\n// LunarGOO(r%d) output\n", GLA_REVISION);
 
     // #version...
-    printf("#version %d\n", version);
+    printf("#version %d", version);
+    if (version >= 150 && profile != ENoProfile) {
+        switch (profile) {
+        case ECoreProfile:          printf(" core");          break;
+        case ECompatibilityProfile: printf(" compatibility"); break;
+        case EEsProfile:            printf(" es");            break;
+        default:
+            UnsupportedFunctionality("profile");
+            break;
+        }
+    }
+    printf("\n");
 
     // rest of shader...
     printf("%s%s%s", globalStructures.str().c_str(), globalDeclarations.str().c_str(), shader.str().c_str());

@@ -132,7 +132,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
+#version 120
 struct s {
     int member0;
     vec3[4][12] member1;
@@ -141,7 +141,7 @@ struct s {
 uniform s us;
 uniform int i;
 uniform vec3[4][8] am;
-in vec3 v;
+varying vec3 v;
 
 void main()
 {

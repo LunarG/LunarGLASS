@@ -1,12 +1,12 @@
 LLVM 3.2
-• - Loop issues for LunarGLASS core
+ - Loop issues for LunarGLASS core
 
 Thread safety
  - Move to thread safe version of flex
 
 Interfacing
-  - Separate top and bottom IR into two files from IntrinsicsLunarGLASS.td
-  - Make the glslang adapter its own library
+  + Separate top and bottom IR into two files from IntrinsicsLunarGLASS.td
+  + Make the glslang adapter its own library
   + add bool for supressing warnings
   + add bool for forward compatibility context
   + add a bool for relaxed semantic checking
@@ -22,7 +22,7 @@ LunarGoo
   - double underscores in LunarGOO
   - vec4[4] -> mat4
   - vec4[4][12] -> vec4[12][4]
-  - #version 130 -> #version 100
+  + #version tracked through stack, output correctly
 
 + Handle either ES or desktop as the default language (no #version)
 + Make ES the default

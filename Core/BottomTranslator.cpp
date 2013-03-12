@@ -869,6 +869,7 @@ bool BottomTranslator::runOnModule(Module& module)
     //
     // Translate globals.
     //
+    backEndTranslator->start();
     for (Module::const_global_iterator global = module.global_begin(), end = module.global_end(); global != end; ++global)
         backEndTranslator->addGlobal(global);
 

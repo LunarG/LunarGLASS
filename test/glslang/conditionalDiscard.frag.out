@@ -96,14 +96,14 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
+#version 100
 uniform sampler2D tex;
-in vec2 coord;
+varying vec2 coord;
 const vec4 const23 = vec4(0.1, 0.2, 0.3, 0.4);
 
 void main()
 {
-    vec4 temp21 = texture(tex, coord);
+    vec4 temp21 = texture2D(tex, coord);
     bvec4 temp22 = equal(temp21, const23);
     bool temp24 = all(temp22);
     if (temp24) {
@@ -119,14 +119,14 @@ void main()
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
+#version 100
 uniform sampler2D tex;
-in vec2 coord;
+varying vec2 coord;
 const vec4 const23 = vec4(0.1, 0.2, 0.3, 0.4);
 
 void main()
 {
-    vec4 temp211 = texture(tex, coord);
+    vec4 temp211 = texture2D(tex, coord);
     bvec4 temp222 = equal(temp211, const23);
     bool temp243 = all(temp222);
     if (temp243) {

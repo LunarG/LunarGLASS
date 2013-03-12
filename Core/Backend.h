@@ -123,6 +123,7 @@ namespace gla {
 
         explicit BackEndTranslator(Manager* m) : manager(m) { }
         virtual ~BackEndTranslator() { }
+        virtual void start() { }
         virtual void addStructType(llvm::StringRef, const llvm::Type*) = 0;
         virtual void addGlobal(const llvm::GlobalVariable*) { }
         virtual void addOutputs(const PipelineSymbols&) { }

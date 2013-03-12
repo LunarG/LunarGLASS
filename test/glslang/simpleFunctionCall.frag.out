@@ -61,8 +61,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
-in vec4 BaseColor;
+#version 100
+varying vec4 BaseColor;
 
 void main()
 {
@@ -75,8 +75,8 @@ void main()
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
-in vec4 BaseColor;
+#version 100
+varying vec4 BaseColor;
 
 void main()
 {

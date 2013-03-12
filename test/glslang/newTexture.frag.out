@@ -515,7 +515,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
+#version 430 core
 uniform sampler2D s2D;
 uniform sampler3D s3D;
 uniform sampler2DArray s2DArray;
@@ -606,7 +606,7 @@ void main()
 #### END LINKER INFO LOG ####
 
 // LunarGOO(r722) output
-#version 130
+#version 430 core
 uniform sampler2D s2D;
 uniform sampler3D s3D;
 uniform sampler2DArray s2DArray;
