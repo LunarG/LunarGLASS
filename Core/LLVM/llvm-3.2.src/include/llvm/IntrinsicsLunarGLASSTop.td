@@ -20,7 +20,8 @@
 //
 //===--------------------------------------------------------------------------===//
 //
-// This file defines all of the LunarGLASS intrinsics.
+// This file defines all of the LunarGLASS intrinsics that are not exclusive to
+// Bottom IR.
 //
 //===--------------------------------------------------------------------------===//
 
@@ -35,31 +36,6 @@ let TargetPrefix = "gla" in {  // All intrinsics start with "llvm.gla.".
   def int_gla_getInterpolant : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
   def int_gla_writeData : Intrinsic<[], [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty]>;
   def int_gla_fWriteData : Intrinsic<[], [llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty]>;
-
-  // writeDataComponent location, data, component
-  def int_gla_writeComponent  : Intrinsic<[], [llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty]>;
-  def int_gla_fWriteComponent : Intrinsic<[], [llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty]>;
-
-  // writeInterpolantComponent location, flags, data, component
-  def int_gla_fWriteInterpolantComponent : Intrinsic<[], [llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty]>;
-
-  // dst = loadComponent ptr, component
-  def int_gla_loadComponent  : Intrinsic<[llvm_anyint_ty], [llvm_anyptr_ty, llvm_i32_ty], [IntrReadMem]>;
-  def int_gla_fLoadComponent : Intrinsic<[llvm_anyfloat_ty], [llvm_anyptr_ty, llvm_i32_ty], [IntrReadMem]>;
-
-  // dst = readComponent location, component
-  def int_gla_readComponent  : Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
-  def int_gla_fReadComponent : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
-
-  // dst = readInterpolantComponent location, flags, component
-  def int_gla_readInterpolantComponent  : Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
-  def int_gla_fReadInterpolantComponent : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
-
-  // dst = fReadInterpolantSampleComponent location, flags, sampleIdx, component
-  def int_gla_fReadInterpolantSampleComponent : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrReadMem]>;
-
-  // dst = fReadInterpolantOffsetComponent location, flags, offset, component
-  def int_gla_fReadInterpolantOffsetComponent : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty], [IntrReadMem]>;
 
   def int_gla_fSamplePosition : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty], [IntrReadMem]>;
 }
@@ -152,10 +128,6 @@ let TargetPrefix = "gla" in {
   def int_gla_findLSB : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_sFindMSB : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_uFindMSB : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty], [IntrNoMem]>;
-  def int_gla_swizzle : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty], [IntrNoMem]>;
-  def int_gla_fSwizzle : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyint_ty], [IntrNoMem]>;
-  def int_gla_multiInsert : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty], [IntrNoMem]>;
-  def int_gla_fMultiInsert : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty], [IntrNoMem]>;
 }
 
 // Pack and Unpack
@@ -176,44 +148,12 @@ let TargetPrefix = "gla" in {
 let TargetPrefix = "gla" in {
   def int_gla_textureSample : Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fTextureSample : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSample1 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSample1 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSample2 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSample2 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSample3 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSample3 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSample4 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSample4 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_textureSampleLodRefZ : Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_float_ty, llvm_float_ty], [IntrNoMem]>;
   def int_gla_fTextureSampleLodRefZ : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_float_ty, llvm_float_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZ1 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZ1 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZ2 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZ2 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZ3 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZ3 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZ4 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZ4 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_textureSampleLodRefZOffset : Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_float_ty, llvm_float_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_fTextureSampleLodRefZOffset : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_float_ty, llvm_float_ty, llvm_anyint_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZOffset1 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZOffset1 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZOffset2 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZOffset2 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZOffset3 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZOffset3 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZOffset4 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZOffset4 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_textureSampleLodRefZOffsetGrad : Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_float_ty, llvm_float_ty, llvm_anyint_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fTextureSampleLodRefZOffsetGrad : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_float_ty, llvm_float_ty, llvm_anyint_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZOffsetGrad1 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZOffsetGrad1 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZOffsetGrad2 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZOffsetGrad2 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZOffsetGrad3 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZOffsetGrad3 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_rTextureSampleLodRefZOffsetGrad4 : Intrinsic<[llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fRTextureSampleLodRefZOffsetGrad4 : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_texelFetchOffset : Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_float_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_fTexelFetchOffset : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_anyint_ty, llvm_float_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_texelGather : Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
