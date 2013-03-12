@@ -15,7 +15,6 @@
     <ClCompile Include="..\..\Backends\GLSL\BottomToGLSL.cpp" />
     <ClCompile Include="..\..\Backends\TGSI\BottomToTgsi.cpp" />
     <ClCompile Include="..\..\Core\Backend.cpp" />
-    <ClCompile Include="..\..\Core\BottomIR.cpp" />
     <ClCompile Include="..\..\Core\BottomTranslator.cpp" />
     <ClCompile Include="..\..\Core\Passes\Analysis\IdentifyStructures.cpp" />
     <ClCompile Include="..\..\Core\Passes\Immutable\BackEndPointer.cpp" />
@@ -106,7 +105,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../;../../Core;../../Standalone;../../Core/LLVM/llvm-3.2.src/build/install/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4624;4355;4291;4018;4800;4267;4996;4244;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4351;4624;4355;4291;4018;4800;4267;4996;4244;4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
