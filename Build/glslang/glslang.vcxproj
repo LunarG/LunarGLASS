@@ -67,7 +67,7 @@
       </FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <AdditionalIncludeDirectories>../../../glslang;../../../glslang/Include;../../Core;../../;../../Core/LLVM/llvm-3.2.src/build/install/include</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4624;4355;4291;4018;4800;4267;4996;4244;4146</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4530;4624;4355;4291;4018;4800;4267;4996;4244;4146</DisableSpecificWarnings>
       <PreprocessorDefinitions>WIN32;_CONSOLE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>
       </StringPooling>
@@ -84,7 +84,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>../../../glslang/glslang/UserM_Release;../../Core/LLVM/llvm-3.2.src/build/lib/Release;$(Outdir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glslang.lib;LunarGLASS.lib;LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;LLVMInstCombine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glslangAdapter.lib;CommonBuilder.lib;glslang.lib;LunarGLASS.lib;LLVMCore.lib;LLVMArchive.lib;LLVMAsmParser.lib;LLVMipa.lib;LLVMLinker.lib;LLVMTransformUtils.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMScalarOpts.lib;LLVMSupport.lib;LLVMipo.lib;LLVMInstCombine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
