@@ -38,9 +38,13 @@
 #include <string.h>
 #include <math.h>
 
+
+
 #ifdef _WIN32
     #include <windows.h>
     #include <psapi.h>
+#else
+    #include <cstdlib>
 #endif
 
 extern "C" {
@@ -306,14 +310,13 @@ void usage()
 # define MAX_SOURCE_STRINGS 5
 char** ReadFileData(char *fileName)
 {
-    FILE *in;
-	int errorCode = fopen_s(&in, fileName, "r");
+    FILE *in = fopen(fileName, "r");
     char *fdata;
     int count = 0;
     char**return_data=(char**)malloc(MAX_SOURCE_STRINGS+1);
 
     //return_data[MAX_SOURCE_STRINGS]=NULL;
-	if (errorCode) {
+    if (in == 0) {
         printf("Error: unable to open input file: %s\n", fileName);
         return 0;
     }

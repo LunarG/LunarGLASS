@@ -168,7 +168,7 @@ bool HasAllSet(const llvm::Value* value)
 void GetArraySizeFromName(const std::string& arrayName, std::string& basename, int& size)
 {
     size = 0;
-    if (arrayName.back() == ']') {
+    if (! arrayName.empty() && arrayName[arrayName.length()-1] == ']') {
         int sizePos = arrayName.find_last_of('[');
         if (sizePos != std::string::npos) {
             --sizePos;
@@ -189,7 +189,7 @@ void GetArraySizeFromName(const std::string& arrayName, std::string& basename, i
 
 void RemoveArraySizeFromName(std::string& name)
 {
-    if (name.back() == ']') {
+    if (! name.empty() && name[name.length()-1] == ']') {
         int sizeEnd = name.find_last_of('[');
         if (sizeEnd != std::string::npos) {
             int sizeStart = name.find_last_of('_');
@@ -222,10 +222,8 @@ void RemoveSeparator(std::string& name)
 void RemoveInlineNotation(std::string& name)
 {
     int end = name.size();
-    if (name[end-1] == 'i' && name[end-2] == '.') {
-        name.pop_back();
-        name.pop_back();
-    }
+    if (name[end-1] == 'i' && name[end-2] == '.')
+        name.resize(end-2);
 }
 
 // Some interfaces to LLVM builder require unsigned indices instead of a vector.

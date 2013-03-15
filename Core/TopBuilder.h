@@ -422,7 +422,7 @@ protected:
     // To be used when dereferencing an access chain that is for an
     // output variable.  The exposed method for this is to use
     // accessChainTrackOutputIndex().
-    void Builder::trackOutputIndex(SuperValue base, const llvm::Value* index);
+    void trackOutputIndex(SuperValue base, const llvm::Value* index);
 
     // Utility method for creating a new block and setting the insert point to
     // be in it. This is useful for flow-control operations that need a "dummy"

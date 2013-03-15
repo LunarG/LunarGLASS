@@ -45,6 +45,10 @@
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/Support/CFG.h"
 
+#ifndef _WIN32
+    #include <cstdio>
+#endif
+
 namespace gla {
 
 Builder::Builder(llvm::IRBuilder<>& b, gla::Manager* m) :
@@ -250,7 +254,6 @@ void Builder::accessChainStore(SuperValue value)
 
 Builder::SuperValue Builder::accessChainLoad()
 {
-    SuperValue base = accessChain.base;
     SuperValue value;
 
     if (accessChain.isRValue) {
@@ -2006,18 +2009,21 @@ void Builder::closeLoop()
 //
 // Some utility functions
 //
+#ifdef _WIN32
+    #define snprintf sprintf_s
+#endif
 
 void AppendArraySizeToName(std::string& arrayName, int size)
 {
     char buf[10];
-    itoa(size, buf, 10);
+    snprintf(buf, sizeof(buf), "%d", size);
     arrayName = arrayName + "_" + buf;
 }
 
 void AppendArrayIndexToName(std::string& arrayName, int index)
 {
     char buf[10];
-    itoa(index, buf, 10);
+    snprintf(buf, sizeof(buf), "%d", index);
     arrayName = arrayName + "[" + buf + "]";
 }
 
