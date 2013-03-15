@@ -10,7 +10,7 @@ Interfacing
   + add bool for supressing warnings
   + add bool for forward compatibility context
   + add a bool for relaxed semantic checking
-  - Put everything in a namespace
+  - Put glslang in a namespace
 
 Build
   + VS 11
@@ -20,8 +20,7 @@ Build
 
 LunarGoo
   - double underscores in LunarGOO
-  - vec4[4] -> mat4
-  - vec4[4][12] -> vec4[12][4]
+  + correctly handle matrices at global scope
   + #version tracked through stack, output correctly
 
 + Handle either ES or desktop as the default language (no #version)
