@@ -111,10 +111,11 @@ bool TGenericCompiler::compile(TIntermNode *root, int version, EProfile profile)
 
 #ifdef USE_LUNARGLASS_CORE
     gla::Manager* glaManager = gla::getManager();
-    glaManager->setVersion((static_cast<int>(profile)) << 16 | version);
 #else
     gla::Manager* glaManager = new AdapterOnlyManager();
 #endif
+    assert(EShLangCount < 256 && EProfileCount < 256);
+    glaManager->setVersion(static_cast<int>(language) << 24 | static_cast<int>(profile) << 16 | version);
 
     int compileCount = gla::Options.iterate ? 1000 : 1;
     for (int i = 0; i < compileCount; ++i) {

@@ -1,0 +1,274 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@Position_shadow = internal global <4 x float> zeroinitializer
+@"matrix mvp" = external addrspace(2) constant [4 x <4 x float>]
+@v_shadow = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %0 = load [4 x <4 x float>] addrspace(2)* @"matrix mvp"
+  %v__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %v__, <4 x float>* @v_shadow
+  %1 = load <4 x float>* @v_shadow
+  %2 = alloca <4 x float>
+  %3 = load <4 x float>* %2
+  %__component = extractelement <4 x float> %1, i32 0
+  %__component1 = extractelement <4 x float> %1, i32 1
+  %__component2 = extractelement <4 x float> %1, i32 2
+  %__component3 = extractelement <4 x float> %1, i32 3
+  %__column = extractvalue [4 x <4 x float>] %0, 0
+  %__element = extractelement <4 x float> %__column, i32 0
+  %__product = fmul float %__element, %__component
+  %__column4 = extractvalue [4 x <4 x float>] %0, 1
+  %__element5 = extractelement <4 x float> %__column4, i32 0
+  %__product6 = fmul float %__element5, %__component1
+  %__dotProduct = fadd float %__product, %__product6
+  %__column7 = extractvalue [4 x <4 x float>] %0, 2
+  %__element8 = extractelement <4 x float> %__column7, i32 0
+  %__product9 = fmul float %__element8, %__component2
+  %__dotProduct10 = fadd float %__dotProduct, %__product9
+  %__column11 = extractvalue [4 x <4 x float>] %0, 3
+  %__element12 = extractelement <4 x float> %__column11, i32 0
+  %__product13 = fmul float %__element12, %__component3
+  %__dotProduct14 = fadd float %__dotProduct10, %__product13
+  %4 = insertelement <4 x float> %3, float %__dotProduct14, i32 0
+  %__column15 = extractvalue [4 x <4 x float>] %0, 0
+  %__element16 = extractelement <4 x float> %__column15, i32 1
+  %__product17 = fmul float %__element16, %__component
+  %__column18 = extractvalue [4 x <4 x float>] %0, 1
+  %__element19 = extractelement <4 x float> %__column18, i32 1
+  %__product20 = fmul float %__element19, %__component1
+  %__dotProduct21 = fadd float %__product17, %__product20
+  %__column22 = extractvalue [4 x <4 x float>] %0, 2
+  %__element23 = extractelement <4 x float> %__column22, i32 1
+  %__product24 = fmul float %__element23, %__component2
+  %__dotProduct25 = fadd float %__dotProduct21, %__product24
+  %__column26 = extractvalue [4 x <4 x float>] %0, 3
+  %__element27 = extractelement <4 x float> %__column26, i32 1
+  %__product28 = fmul float %__element27, %__component3
+  %__dotProduct29 = fadd float %__dotProduct25, %__product28
+  %5 = insertelement <4 x float> %4, float %__dotProduct29, i32 1
+  %__column30 = extractvalue [4 x <4 x float>] %0, 0
+  %__element31 = extractelement <4 x float> %__column30, i32 2
+  %__product32 = fmul float %__element31, %__component
+  %__column33 = extractvalue [4 x <4 x float>] %0, 1
+  %__element34 = extractelement <4 x float> %__column33, i32 2
+  %__product35 = fmul float %__element34, %__component1
+  %__dotProduct36 = fadd float %__product32, %__product35
+  %__column37 = extractvalue [4 x <4 x float>] %0, 2
+  %__element38 = extractelement <4 x float> %__column37, i32 2
+  %__product39 = fmul float %__element38, %__component2
+  %__dotProduct40 = fadd float %__dotProduct36, %__product39
+  %__column41 = extractvalue [4 x <4 x float>] %0, 3
+  %__element42 = extractelement <4 x float> %__column41, i32 2
+  %__product43 = fmul float %__element42, %__component3
+  %__dotProduct44 = fadd float %__dotProduct40, %__product43
+  %6 = insertelement <4 x float> %5, float %__dotProduct44, i32 2
+  %__column45 = extractvalue [4 x <4 x float>] %0, 0
+  %__element46 = extractelement <4 x float> %__column45, i32 3
+  %__product47 = fmul float %__element46, %__component
+  %__column48 = extractvalue [4 x <4 x float>] %0, 1
+  %__element49 = extractelement <4 x float> %__column48, i32 3
+  %__product50 = fmul float %__element49, %__component1
+  %__dotProduct51 = fadd float %__product47, %__product50
+  %__column52 = extractvalue [4 x <4 x float>] %0, 2
+  %__element53 = extractelement <4 x float> %__column52, i32 3
+  %__product54 = fmul float %__element53, %__component2
+  %__dotProduct55 = fadd float %__dotProduct51, %__product54
+  %__column56 = extractvalue [4 x <4 x float>] %0, 3
+  %__element57 = extractelement <4 x float> %__column56, i32 3
+  %__product58 = fmul float %__element57, %__component3
+  %__dotProduct59 = fadd float %__dotProduct55, %__product58
+  %Position_shadow = insertelement <4 x float> %6, float %__dotProduct59, i32 3
+  store <4 x float> %Position_shadow, <4 x float>* @Position_shadow
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %7 = load <4 x float>* @Position_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %7)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@"matrix mvp" = external addrspace(2) constant [4 x <4 x float>]
+
+define fastcc void @main() {
+entry:
+  %0 = load [4 x <4 x float>] addrspace(2)* @"matrix mvp", align 16
+  %v__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %__component = extractelement <4 x float> %v__, i32 0
+  %__component1 = extractelement <4 x float> %v__, i32 1
+  %__component2 = extractelement <4 x float> %v__, i32 2
+  %__component3 = extractelement <4 x float> %v__, i32 3
+  %__column4 = extractvalue [4 x <4 x float>] %0, 1
+  %__column = extractvalue [4 x <4 x float>] %0, 0
+  %__column7 = extractvalue [4 x <4 x float>] %0, 2
+  %__element5 = extractelement <4 x float> %__column4, i32 0
+  %__element = extractelement <4 x float> %__column, i32 0
+  %__element19 = extractelement <4 x float> %__column4, i32 1
+  %__element16 = extractelement <4 x float> %__column, i32 1
+  %__column11 = extractvalue [4 x <4 x float>] %0, 3
+  %__element8 = extractelement <4 x float> %__column7, i32 0
+  %__product6 = fmul float %__element5, %__component1
+  %__product = fmul float %__element, %__component
+  %__element34 = extractelement <4 x float> %__column4, i32 2
+  %__element31 = extractelement <4 x float> %__column, i32 2
+  %__element23 = extractelement <4 x float> %__column7, i32 1
+  %__product20 = fmul float %__element19, %__component1
+  %__product17 = fmul float %__element16, %__component
+  %__element12 = extractelement <4 x float> %__column11, i32 0
+  %__product9 = fmul float %__element8, %__component2
+  %__dotProduct = fadd float %__product, %__product6
+  %__element49 = extractelement <4 x float> %__column4, i32 3
+  %__element46 = extractelement <4 x float> %__column, i32 3
+  %__element38 = extractelement <4 x float> %__column7, i32 2
+  %__product35 = fmul float %__element34, %__component1
+  %__product32 = fmul float %__element31, %__component
+  %__element27 = extractelement <4 x float> %__column11, i32 1
+  %__product24 = fmul float %__element23, %__component2
+  %__dotProduct21 = fadd float %__product17, %__product20
+  %__product13 = fmul float %__element12, %__component3
+  %__dotProduct10 = fadd float %__product9, %__dotProduct
+  %__element53 = extractelement <4 x float> %__column7, i32 3
+  %__product50 = fmul float %__element49, %__component1
+  %__product47 = fmul float %__element46, %__component
+  %__element42 = extractelement <4 x float> %__column11, i32 2
+  %__product39 = fmul float %__element38, %__component2
+  %__dotProduct36 = fadd float %__product32, %__product35
+  %__product28 = fmul float %__element27, %__component3
+  %__dotProduct25 = fadd float %__product24, %__dotProduct21
+  %__dotProduct14 = fadd float %__product13, %__dotProduct10
+  %__element57 = extractelement <4 x float> %__column11, i32 3
+  %__product54 = fmul float %__element53, %__component2
+  %__dotProduct51 = fadd float %__product47, %__product50
+  %__product43 = fmul float %__element42, %__component3
+  %__dotProduct40 = fadd float %__product39, %__dotProduct36
+  %__dotProduct29 = fadd float %__product28, %__dotProduct25
+  %__product58 = fmul float %__element57, %__component3
+  %__dotProduct55 = fadd float %__product54, %__dotProduct51
+  %__dotProduct44 = fadd float %__product43, %__dotProduct40
+  %__dotProduct59 = fadd float %__product58, %__dotProduct55
+  %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %__dotProduct14, i32 0, float %__dotProduct29, i32 0, float %__dotProduct44, i32 0, float %__dotProduct59, i32 0)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %1)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 100
+uniform mat4 mvp;
+attribute vec4 v;
+
+void main()
+{
+    vec4 __column4 = mvp[1];
+    vec4 __column = mvp[0];
+    vec4 __column7 = mvp[2];
+    vec4 __column11 = mvp[3];
+    float __product6 = __column4.x * v.y;
+    float __product = __column.x * v.x;
+    float __product20 = __column4.y * v.y;
+    float __product17 = __column.y * v.x;
+    float __product9 = __column7.x * v.z;
+    float __dotProduct = __product + __product6;
+    float __product35 = __column4.z * v.y;
+    float __product32 = __column.z * v.x;
+    float __product24 = __column7.y * v.z;
+    float __dotProduct21 = __product17 + __product20;
+    float __product13 = __column11.x * v.w;
+    float __dotProduct10 = __product9 + __dotProduct;
+    float __product50 = __column4.w * v.y;
+    float __product47 = __column.w * v.x;
+    float __product39 = __column7.z * v.z;
+    float __dotProduct36 = __product32 + __product35;
+    float __product28 = __column11.y * v.w;
+    float __dotProduct25 = __product24 + __dotProduct21;
+    float __dotProduct14 = __product13 + __dotProduct10;
+    float __product54 = __column7.w * v.z;
+    float __dotProduct51 = __product47 + __product50;
+    float __product43 = __column11.z * v.w;
+    float __dotProduct40 = __product39 + __dotProduct36;
+    float __dotProduct29 = __product28 + __dotProduct25;
+    float __product58 = __column11.w * v.w;
+    float __dotProduct55 = __product54 + __dotProduct51;
+    float __dotProduct44 = __product43 + __dotProduct40;
+    float __dotProduct59 = __product58 + __dotProduct55;
+    vec4 temp53 = vec4(__dotProduct14, __dotProduct29, __dotProduct44, __dotProduct59);
+    gl_Position = temp53;
+    
+}
+WARNING: 0:40: Two consecutive underscores are reserved for future use.
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 100
+uniform mat4 mvp;
+attribute vec4 v;
+
+void main()
+{
+    vec4 __column41 = mvp[1];
+    vec4 __column2 = mvp[0];
+    vec4 __column73 = mvp[2];
+    vec4 __column114 = mvp[3];
+    float __product7 = __column2.x * v.x;
+    float __product65 = __column41.x * v.y;
+    float __dotProduct14 = __product7 + __product65;
+    float __product913 = __column73.x * v.z;
+    float __product1711 = __column2.y * v.x;
+    float __product209 = __column41.y * v.y;
+    float __dotProduct1024 = __product913 + __dotProduct14;
+    float __product1323 = __column114.x * v.w;
+    float __dotProduct2121 = __product1711 + __product209;
+    float __product2420 = __column73.y * v.z;
+    float __product3218 = __column2.z * v.x;
+    float __product3516 = __column41.z * v.y;
+    float __dotProduct143536 = __product1323 + __dotProduct1024;
+    float __dotProduct2534 = __product2420 + __dotProduct2121;
+    float __product2833 = __column114.y * v.w;
+    float __dotProduct3631 = __product3218 + __product3516;
+    float __product3930 = __column73.z * v.z;
+    float __product4728 = __column2.w * v.x;
+    float __product5026 = __column41.w * v.y;
+    float __dotProduct2943 = __product2833 + __dotProduct2534;
+    float __dotProduct4042 = __product3930 + __dotProduct3631;
+    float __product4341 = __column114.z * v.w;
+    float __dotProduct5139 = __product4728 + __product5026;
+    float __product5438 = __column73.w * v.z;
+    float __dotProduct4447 = __product4341 + __dotProduct4042;
+    float __dotProduct5546 = __product5438 + __dotProduct5139;
+    float __product5845 = __column114.w * v.w;
+    float __dotProduct5948 = __product5845 + __dotProduct5546;
+    vec4 temp53 = vec4(__dotProduct143536, __dotProduct2943, __dotProduct4447, __dotProduct5948);
+    gl_Position = temp53;
+    
+}

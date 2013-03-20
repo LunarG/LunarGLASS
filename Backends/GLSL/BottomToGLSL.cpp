@@ -49,6 +49,7 @@
 #include "Options.h"
 
 // glslang includes
+#include "../../glslang/glslang/Public/ShaderLang.h"
 #include "../../glslang/glslang/MachineIndependent/Versions.h"
 
 // LLVM includes
@@ -172,7 +173,8 @@ public:
     {
         // this information wasn't available at construct time
         version = manager->getVersion();
-        profile = static_cast<EProfile>(version >> 16);
+        profile = static_cast<EProfile>(version >> 16 & 0xFF);
+        language = static_cast<EShLanguage>(version >> 24 & 0xFF);
         version &= 0xFFFF;
     }
 
@@ -537,9 +539,15 @@ protected:
         case EVQUniform:         string = "uniform";                  break;
         case EVQGlobal:          string = "global";                   break;
         case EVQInput:
-                version >= 130 ? string = "in" : string = "varying";  break;
+            if (version >= 130)
+                                 string = "in";
+            else if (language == EShLangVertex)
+                                 string = "attribute";
+            else
+                                 string = "varying";                  break;
         case EVQOutput:
-                version >= 130 ? string = "out": string = "varying";  break;
+                version >= 130 ? string = "out": 
+                                 string = "varying";                  break;
         case EVQTemporary:       string = "temp";                     break;
         case EVQConstant:        string = "const";                    break;
         case EVQUndef:           string = "undef";                    break;
@@ -1421,6 +1429,7 @@ protected:
     bool obfuscate;
     int version;
     EProfile profile;
+    EShLanguage language;
 };
 
 //
