@@ -868,9 +868,9 @@ llvm::Value* Builder::createMatrixTranspose(llvm::Value* matrix)
     // Step 1, copy out
     llvm::Value* elements[4][4];
     for (int col = 0; col < GetNumColumns(matrix); ++col) {
-        llvm::Value* column = builder.CreateExtractValue(matrix, col, "__column");
+        llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
         for (int row = 0; row < GetNumRows(matrix); ++row)
-            elements[col][row] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
+            elements[col][row] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "element");
     }
 
     // make a new variable to hold the result
@@ -880,11 +880,11 @@ llvm::Value* Builder::createMatrixTranspose(llvm::Value* matrix)
 
     // Step 2, copy in while transposing
     for (int col = 0; col < GetNumColumns(result); ++col) {
-        llvm::Value* column = builder.CreateExtractValue(result, col, "__column");
+        llvm::Value* column = builder.CreateExtractValue(result, col, "column");
         for (int row = 0; row < GetNumRows(result); ++row) {
-            column = builder.CreateInsertElement(column, elements[row][col], MakeIntConstant(context, row), "__column");
+            column = builder.CreateInsertElement(column, elements[row][col], MakeIntConstant(context, row), "column");
         }
-        result = builder.CreateInsertValue(result, column, col, "__matrix");
+        result = builder.CreateInsertValue(result, column, col, "matrix");
     }
 
     return result;
@@ -898,9 +898,9 @@ llvm::Value* Builder::createMatrixInverse(llvm::Value* matrix)
     // Copy the elements out, switching notation to [row][col], to match normal mathematic treatment
     llvm::Value* elements[4][4];
     for (int col = 0; col < size; ++col) {
-        llvm::Value* column = builder.CreateExtractValue(matrix, col, "__column");
+        llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
         for (int row = 0; row < size; ++row)
-            elements[row][col] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
+            elements[row][col] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "element");
     }
 
     // Create the adjugate (the transpose of the cofactors)
@@ -935,11 +935,11 @@ llvm::Value* Builder::createMatrixInverse(llvm::Value* matrix)
     result = builder.CreateLoad(result);
 
     for (int col = 0; col < size; ++col) {
-        llvm::Value* column = builder.CreateExtractValue(result, col, "__column");
+        llvm::Value* column = builder.CreateExtractValue(result, col, "column");
         for (int row = 0; row < size; ++row) {
-            column = builder.CreateInsertElement(column, adjugate[row][col], MakeIntConstant(context, row), "__column");
+            column = builder.CreateInsertElement(column, adjugate[row][col], MakeIntConstant(context, row), "column");
         }
-        result = builder.CreateInsertValue(result, column, col, "__matrix");
+        result = builder.CreateInsertValue(result, column, col, "matrix");
     }
 
     return result;
@@ -952,9 +952,9 @@ llvm::Value* Builder::createMatrixDeterminant(llvm::Value* matrix)
 
     llvm::Value* elements[4][4];
     for (int col = 0; col < size; ++col) {
-        llvm::Value* column = builder.CreateExtractValue(matrix, col, "__column");
+        llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
         for (int row = 0; row < size; ++row)
-            elements[row][col] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
+            elements[row][col] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "element");
     }
 
     // Compute the determinant from the copied out values
@@ -1025,19 +1025,19 @@ llvm::Value* Builder::createMatrixTimesVector(llvm::Value* matrix, llvm::Value* 
     // Cache the components of the vector; they'll be revisited multiple times
     llvm::Value* components[4];
     for (int comp = 0; comp < GetComponentCount(rvector); ++comp)
-        components[comp] = builder.CreateExtractElement(rvector,  MakeUnsignedConstant(context, comp), "__component");
+        components[comp] = builder.CreateExtractElement(rvector,  MakeUnsignedConstant(context, comp), "component");
 
     // Go row by row, manually forming the cross-column "dot product"
     for (int row = 0; row < GetNumRows(matrix); ++row) {
         llvm::Value* dotProduct;
         for (int col = 0; col < GetNumColumns(matrix); ++col) {
-            llvm::Value* column = builder.CreateExtractValue(matrix, col, "__column");
-            llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
-            llvm::Value* product = builder.CreateFMul(element, components[col], "__product");
+            llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
+            llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "element");
+            llvm::Value* product = builder.CreateFMul(element, components[col], "product");
             if (col == 0)
                 dotProduct = product;
             else
-                dotProduct = builder.CreateFAdd(dotProduct, product, "__dotProduct");
+                dotProduct = builder.CreateFAdd(dotProduct, product, "dotProduct");
         }
         result = builder.CreateInsertElement(result, dotProduct, MakeUnsignedConstant(context, row));
     }
@@ -1071,8 +1071,8 @@ llvm::Value* Builder::createVectorTimesMatrix(llvm::Value* lvector, llvm::Value*
 
     // Compute the dot products for the result
     for (int c = 0; c < GetNumColumns(matrix); ++c) {
-        llvm::Value* column = builder.CreateExtractValue(matrix, c, "__column");
-        llvm::Value* comp = builder.CreateCall2(dot, lvector, column, "__dot");
+        llvm::Value* column = builder.CreateExtractValue(matrix, c, "column");
+        llvm::Value* comp = builder.CreateCall2(dot, lvector, column, "dot");
         result = builder.CreateInsertElement(result, comp, MakeUnsignedConstant(context, c));
     }
 
@@ -1087,9 +1087,9 @@ llvm::Value* Builder::createComponentWiseMatrixOp(llvm::Instruction::BinaryOps o
 
     // Compute the component-wise operation per column vector
     for (int c = 0; c < GetNumColumns(left); ++c) {
-        llvm::Value*  leftColumn = builder.CreateExtractValue( left, c,  "__leftColumn");
-        llvm::Value* rightColumn = builder.CreateExtractValue(right, c, "__rightColumn");
-        llvm::Value* column = builder.CreateBinOp(op, leftColumn, rightColumn, "__column");
+        llvm::Value*  leftColumn = builder.CreateExtractValue( left, c,  "leftColumn");
+        llvm::Value* rightColumn = builder.CreateExtractValue(right, c, "rightColumn");
+        llvm::Value* column = builder.CreateBinOp(op, leftColumn, rightColumn, "column");
         result = builder.CreateInsertValue(result, column, c);
     }
 
@@ -1105,10 +1105,10 @@ llvm::Value* Builder::createSmearedMatrixOp(llvm::Instruction::BinaryOps op, llv
 
     // Compute per column vector
     for (int c = 0; c < GetNumColumns(matrix); ++c) {
-        llvm::Value* column = builder.CreateExtractValue(matrix, c, "__column");
+        llvm::Value* column = builder.CreateExtractValue(matrix, c, "column");
 
         for (int r = 0; r < GetNumRows(matrix); ++r) {
-            llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(context, r), "__row");
+            llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(context, r), "row");
             if (reverseOrder)
                 element = builder.CreateBinOp(op, scalar, element);
             else
@@ -1128,31 +1128,31 @@ llvm::Value* Builder::createMatrixTimesMatrix(llvm::Value* left, llvm::Value* ri
     int rows = GetNumRows(left);
     int columns =  GetNumColumns(right);
     llvm::Value* result = builder.CreateAlloca(getMatrixType(GetMatrixElementType(left->getType()), columns, rows));
-    result = builder.CreateLoad(result, "__resultMatrix");
+    result = builder.CreateLoad(result, "resultMatrix");
 
     // Allocate a column for intermediate results
     llvm::Value* column = builder.CreateAlloca(llvm::VectorType::get(GetMatrixElementType(left->getType()), rows));
-    column = builder.CreateLoad(column, "__tempColumn");
+    column = builder.CreateLoad(column, "tempColumn");
 
     for (int col = 0; col < columns; ++col) {
-        llvm::Value* rightColumn = builder.CreateExtractValue(right, col, "__rightColumn");
+        llvm::Value* rightColumn = builder.CreateExtractValue(right, col, "rightColumn");
         for (int row = 0; row < rows; ++row) {
             llvm::Value* dotProduct;
 
             for (int dotRow = 0; dotRow < GetNumRows(right); ++dotRow) {
-                llvm::Value* leftColumn = builder.CreateExtractValue(left, dotRow,  "__leftColumn");
-                llvm::Value* leftComp = builder.CreateExtractElement(leftColumn, MakeUnsignedConstant(context, row), "__leftComp");
-                llvm::Value* rightComp = builder.CreateExtractElement(rightColumn, MakeUnsignedConstant(context, dotRow), "__rightComp");
-                llvm::Value* product = builder.CreateFMul(leftComp, rightComp, "__product");
+                llvm::Value* leftColumn = builder.CreateExtractValue(left, dotRow,  "leftColumn");
+                llvm::Value* leftComp = builder.CreateExtractElement(leftColumn, MakeUnsignedConstant(context, row), "leftComp");
+                llvm::Value* rightComp = builder.CreateExtractElement(rightColumn, MakeUnsignedConstant(context, dotRow), "rightComp");
+                llvm::Value* product = builder.CreateFMul(leftComp, rightComp, "product");
                 if (dotRow == 0)
                     dotProduct = product;
                 else
-                    dotProduct = builder.CreateFAdd(dotProduct, product, "__dotProduct");
+                    dotProduct = builder.CreateFAdd(dotProduct, product, "dotProduct");
             }
-            column = builder.CreateInsertElement(column, dotProduct, MakeUnsignedConstant(context, row), "__column");
+            column = builder.CreateInsertElement(column, dotProduct, MakeUnsignedConstant(context, row), "column");
         }
 
-        result = builder.CreateInsertValue(result, column, col, "__resultMatrix");
+        result = builder.CreateInsertValue(result, column, col, "resultMatrix");
     }
 
     return result;
@@ -1172,13 +1172,13 @@ llvm::Value* Builder::createOuterProduct(llvm::Value* left, llvm::Value* right)
 
     // Build it up column by column, element by element
     for (int col = 0; col < columns; ++col) {
-        llvm::Value* rightComp = builder.CreateExtractElement(right, MakeUnsignedConstant(context, col), "__rightComp");
+        llvm::Value* rightComp = builder.CreateExtractElement(right, MakeUnsignedConstant(context, col), "rightComp");
         for (int row = 0; row < rows; ++row) {
-            llvm::Value*  leftComp = builder.CreateExtractElement( left, MakeUnsignedConstant(context, row),  "__leftComp");
-            llvm::Value* element = builder.CreateFMul(leftComp, rightComp, "__element");
-            column = builder.CreateInsertElement(column, element, MakeUnsignedConstant(context, row), "__column");
+            llvm::Value*  leftComp = builder.CreateExtractElement( left, MakeUnsignedConstant(context, row),  "leftComp");
+            llvm::Value* element = builder.CreateFMul(leftComp, rightComp, "element");
+            column = builder.CreateInsertElement(column, element, MakeUnsignedConstant(context, row), "column");
         }
-        result = builder.CreateInsertValue(result, column, col, "__matrix");
+        result = builder.CreateInsertValue(result, column, col, "matrix");
     }
 
     return result;
@@ -1804,9 +1804,9 @@ Builder::SuperValue Builder::createMatrixConstructor(const std::vector<SuperValu
         int minCols = std::min(GetNumColumns(matrixee), GetNumColumns(matrix));
         int minRows = std::min(GetNumRows(matrixee), GetNumRows(matrix));
         for (int col = 0; col < minCols; ++col) {
-            llvm::Value* column = builder.CreateExtractValue(matrix, col, "__column");
+            llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
             for (int row = 0; row < minRows; ++row)
-                values[col][row] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "__element");
+                values[col][row] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "element");
         }
     } else {
         // fill in the matrix in column-major order with whatever argument components are available
@@ -1817,7 +1817,7 @@ Builder::SuperValue Builder::createMatrixConstructor(const std::vector<SuperValu
             llvm::Value* argComp = sources[arg];
             for (int comp = 0; comp < GetComponentCount(sources[arg]); ++comp) {
                 if (GetComponentCount(sources[arg]) > 1)
-                    argComp = builder.CreateExtractElement(sources[arg], MakeUnsignedConstant(context, comp), "__element");
+                    argComp = builder.CreateExtractElement(sources[arg], MakeUnsignedConstant(context, comp), "element");
                 values[col][row++] = argComp;
                 if (row == GetNumRows(matrixee)) {
                     row = 0;
@@ -1829,11 +1829,11 @@ Builder::SuperValue Builder::createMatrixConstructor(const std::vector<SuperValu
 
     // Step 2:  Copy into run-time result.
     for (int col = 0; col < GetNumColumns(matrixee); ++col) {
-        llvm::Value* column = builder.CreateExtractValue(matrixee, col, "__column");
+        llvm::Value* column = builder.CreateExtractValue(matrixee, col, "column");
         for (int row = 0; row < GetNumRows(matrixee); ++row) {
-            column = builder.CreateInsertElement(column, values[col][row], MakeIntConstant(context, row), "__column");
+            column = builder.CreateInsertElement(column, values[col][row], MakeIntConstant(context, row), "column");
         }
-        constructee = builder.CreateInsertValue(constructee, column, col, "__matrix");
+        constructee = builder.CreateInsertValue(constructee, column, col, "matrix");
     }
 
     return constructee;

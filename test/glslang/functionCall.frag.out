@@ -177,25 +177,25 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 #version 100
 uniform float d;
 varying vec4 BaseColor;
-const float const25_4f = 4.2;
-const float const27_1f = 1.2;
-const float const28_5f = 4.5;
-const float const31_0f = 0.0;
+const float const25f_4 = 4.2;
+const float const27f_1 = 1.2;
+const float const28f_5 = 4.5;
+const float const31f_0 = 0.0;
 
 void main()
 {
     float temp21;
     float temp22 = BaseColor.x + BaseColor.y;
     vec4 temp23 = vec4(temp22);
-    bool temp24 = d < const25_4f;
-    float temp26 = temp24 ? const27_1f : const28_5f;
+    bool temp24 = d < const25f_4;
+    float temp26 = temp24 ? const27f_1 : const28f_5;
     vec4 temp29 = vec4(temp26);
-    bool temp30 = d < const28_5f;
+    bool temp30 = d < const28f_5;
     if (temp30) {
         temp21 = d;
     }
     else {
-        temp21 = const31_0f;
+        temp21 = const31f_0;
     }
     
     vec4 temp32 = vec4(temp21);
@@ -213,21 +213,21 @@ void main()
 #version 100
 uniform float d;
 varying vec4 BaseColor;
-const float const24_4f = 4.2;
-const float const26_1f = 1.2;
-const float const27_5f = 4.5;
-const float const31_0f = 0.0;
+const float const24f_4 = 4.2;
+const float const26f_1 = 1.2;
+const float const27f_5 = 4.5;
+const float const31f_0 = 0.0;
 
 void main()
 {
     float temp222 = BaseColor.x + BaseColor.y;
     vec4 temp22 = vec4(temp222);
-    bool temp244 = d < const24_4f;
-    float temp25 = temp244 ? const26_1f : const27_5f;
+    bool temp244 = d < const24f_4;
+    float temp25 = temp244 ? const26f_1 : const27f_5;
     vec4 temp28 = vec4(temp25);
-    bool temp308 = d < const27_5f;
-    float temp21_0 = temp308 ? d : const31_0f;
-    vec4 temp32 = vec4(temp21_0);
+    bool temp308 = d < const27f_5;
+    float temp21d0 = temp308 ? d : const31f_0;
+    vec4 temp32 = vec4(temp21d0);
     vec4 temp3315 = temp22 * temp28;
     vec4 FragColor_shadow16 = temp3315 * temp32;
     gl_FragColor = FragColor_shadow16;

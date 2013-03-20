@@ -446,16 +446,16 @@ const vec2 const45 = vec2(2.0);
 const vec4 const50 = vec4(3.0);
 const vec4 const55 = vec4(4.0);
 const vec4 const61 = vec4(5.0);
-const int const64_17 = 17;
-const float const66_17f = 17.0;
-const int const73_14 = 14;
-const float const75_14f = 14.0;
+const int const64i_17 = 17;
+const float const66f_17 = 17.0;
+const int const73i_14 = 14;
+const float const75f_14 = 14.0;
 const vec4 const79 = vec4(6.0);
 const vec4 const93 = vec4(7.0);
 
 void main()
 {
-    vec4 v_0;
+    vec4 vd0;
     int temp22 = int(u.x);
     int temp23 = int(u.z);
     int temp24 = int(w.x);
@@ -479,18 +479,18 @@ void main()
     bool temp42 = temp32 && temp41;
     if (temp42) {
         vec4 temp43 = texture(sampler, coord);
-        v_0 = temp43;
+        vd0 = temp43;
     }
     else {
         vec2 temp44 = coord * const45;
         vec4 temp46 = texture(sampler, temp44);
-        v_0 = temp46;
+        vd0 = temp46;
     }
     
-    bvec4 temp47 = equal(u, v_0);
+    bvec4 temp47 = equal(u, vd0);
     bool temp48 = all(temp47);
-    vec4 temp49 = v_0 * const50;
-    vec4 select138 = temp48 ? temp49 : v_0;
+    vec4 temp49 = vd0 * const50;
+    vec4 select138 = temp48 ? temp49 : vd0;
     bvec4 temp52 = notEqual(u, select138);
     bool temp53 = any(temp52);
     vec4 temp54 = select138 * const55;
@@ -500,28 +500,28 @@ void main()
     bool temp59 = all(temp58);
     vec4 temp60 = select * const61;
     vec4 select141 = temp59 ? temp60 : select;
-    bool temp63 = temp22 == const64_17;
-    bool temp65 = u.y == const66_17f;
+    bool temp63 = temp22 == const64i_17;
+    bool temp65 = u.y == const66f_17;
     bool temp67 = temp63 && temp65;
     bool temp68 = temp23 == temp24;
     bool temp69 = u.w == w.y;
     bool temp70 = temp68 && temp69;
     bool temp71 = temp67 && temp70;
-    bool temp72 = temp25 == const73_14;
-    bool temp74 = w.w == const75_14f;
+    bool temp72 = temp25 == const73i_14;
+    bool temp74 = w.w == const75f_14;
     bool temp76 = temp72 && temp74;
     bool temp77 = temp71 && temp76;
     vec4 temp78 = select141 * const79;
     vec4 select140 = temp77 ? temp78 : select141;
-    bool temp81 = temp22 != const64_17;
-    bool temp82 = u.y != const66_17f;
+    bool temp81 = temp22 != const64i_17;
+    bool temp82 = u.y != const66f_17;
     bool temp83 = temp81 || temp82;
     bool temp84 = temp23 != temp24;
     bool temp85 = u.w != w.y;
     bool temp86 = temp84 || temp85;
     bool temp87 = temp83 || temp86;
-    bool temp88 = temp25 != const73_14;
-    bool temp89 = w.w != const75_14f;
+    bool temp88 = temp25 != const73i_14;
+    bool temp89 = w.w != const75f_14;
     bool temp90 = temp88 || temp89;
     bool temp91 = temp87 || temp90;
     vec4 temp92 = select140 * const93;
@@ -559,16 +559,16 @@ const vec4 const50 = vec4(3.0);
 const vec4 const55 = vec4(4.0);
 in vec2 coord;
 const vec4 const61 = vec4(5.0);
-const int const64_17 = 17;
-const float const66_17f = 17.0;
-const int const73_14 = 14;
-const float const75_14f = 14.0;
+const int const64i_17 = 17;
+const float const66f_17 = 17.0;
+const int const73i_14 = 14;
+const float const75f_14 = 14.0;
 const vec4 const79 = vec4(6.0);
 const vec4 const93 = vec4(7.0);
 
 void main()
 {
-    vec4 v_0_0;
+    vec4 vd0d0;
     int temp221 = int(u.x);
     int temp233 = int(u.z);
     int temp244 = int(w.x);
@@ -592,18 +592,18 @@ void main()
     bool temp4223 = temp3213 && temp4122;
     if (temp4223) {
         vec4 temp4324 = texture(sampler, coord);
-        v_0_0 = temp4324;
+        vd0d0 = temp4324;
     }
     else {
         vec2 temp4427 = coord * const45;
         vec4 temp4628 = texture(sampler, temp4427);
-        v_0_0 = temp4628;
+        vd0d0 = temp4628;
     }
     
-    bvec4 temp4731 = equal(u, v_0_0);
+    bvec4 temp4731 = equal(u, vd0d0);
     bool temp4832 = all(temp4731);
-    vec4 temp4933 = v_0_0 * const50;
-    vec4 select114 = temp4832 ? temp4933 : v_0_0;
+    vec4 temp4933 = vd0d0 * const50;
+    vec4 select114 = temp4832 ? temp4933 : vd0d0;
     bvec4 temp5241 = notEqual(u, select114);
     bool temp5342 = any(temp5241);
     vec4 temp5443 = select114 * const55;
@@ -613,28 +613,28 @@ void main()
     bool temp5954 = all(temp5853);
     vec4 temp6055 = select * const61;
     vec4 select116 = temp5954 ? temp6055 : select;
-    bool temp6363 = temp221 == const64_17;
-    bool temp6565 = u.y == const66_17f;
+    bool temp6363 = temp221 == const64i_17;
+    bool temp6565 = u.y == const66f_17;
     bool temp6766 = temp6363 && temp6565;
     bool temp6867 = temp233 == temp244;
     bool temp6970 = u.w == w.y;
     bool temp7071 = temp6867 && temp6970;
     bool temp7172 = temp6766 && temp7071;
-    bool temp7273 = temp256 == const73_14;
-    bool temp7475 = w.w == const75_14f;
+    bool temp7273 = temp256 == const73i_14;
+    bool temp7475 = w.w == const75f_14;
     bool temp7676 = temp7273 && temp7475;
     bool temp7777 = temp7172 && temp7676;
     vec4 temp7878 = select116 * const79;
     vec4 select115 = temp7777 ? temp7878 : select116;
-    bool temp8186 = temp221 != const64_17;
-    bool temp8288 = u.y != const66_17f;
+    bool temp8186 = temp221 != const64i_17;
+    bool temp8288 = u.y != const66f_17;
     bool temp8389 = temp8186 || temp8288;
     bool temp8490 = temp233 != temp244;
     bool temp8593 = u.w != w.y;
     bool temp8694 = temp8490 || temp8593;
     bool temp8795 = temp8389 || temp8694;
-    bool temp8896 = temp256 != const73_14;
-    bool temp8998 = w.w != const75_14f;
+    bool temp8896 = temp256 != const73i_14;
+    bool temp8998 = w.w != const75f_14;
     bool temp9099 = temp8896 || temp8998;
     bool temp91100 = temp8795 || temp9099;
     vec4 temp92101 = select115 * const93;

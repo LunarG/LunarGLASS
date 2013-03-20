@@ -260,24 +260,24 @@ struct s3 {
 uniform s3 foo3;
 uniform int condition;
 uniform sampler2D sampler;
-const int const23_0 = 0;
+const int const23i_0 = 0;
 in vec2 coord;
-const float const25_1f = 1.0;
-const int const30_1 = 1;
-const float const32_0f = 0.0;
+const float const25f_1 = 1.0;
+const int const30i_1 = 1;
+const float const32f_0 = 0.0;
 in vec4 color;
 
 void main()
 {
     int temp21 = foo3.member0.member0;
-    bool temp22 = temp21 > const23_0;
-    float temp24 = temp22 ? coord.x : const25_1f;
-    float temp26 = temp24 + const25_1f;
-    float select33 = temp22 ? const25_1f : coord.x;
-    float select_v = temp22 ? coord.x : temp26;
-    bool temp29 = condition == const30_1;
-    float select = temp29 ? coord.x : const32_0f;
-    float temp33 = select33 + select_v;
+    bool temp22 = temp21 > const23i_0;
+    float temp24 = temp22 ? coord.x : const25f_1;
+    float temp26 = temp24 + const25f_1;
+    float select33 = temp22 ? const25f_1 : coord.x;
+    float selectdv = temp22 ? coord.x : temp26;
+    bool temp29 = condition == const30i_1;
+    float select = temp29 ? coord.x : const32f_0;
+    float temp33 = select33 + selectdv;
     float temp34 = coord.x + temp33;
     float temp35 = temp34 + select;
     vec4 temp36 = vec4(temp35);
@@ -318,22 +318,22 @@ struct s3 {
 uniform s3 foo3;
 uniform int condition;
 uniform sampler2D sampler;
-const int const23_0 = 0;
+const int const23i_0 = 0;
 in vec2 coord;
-const float const25_1f = 1.0;
-const float const27_2f = 2.0;
-const int const29_1 = 1;
-const float const31_0f = 0.0;
+const float const25f_1 = 1.0;
+const float const27f_2 = 2.0;
+const int const29i_1 = 1;
+const float const31f_0 = 0.0;
 in vec4 color;
 
 void main()
 {
     int temp211 = foo3.member0.member0;
-    bool temp222 = temp211 > const23_0;
-    float select43 = temp222 ? const25_1f : coord.x;
-    float select45 = temp222 ? coord.x : const27_2f;
-    bool temp2921 = condition == const29_1;
-    float select = temp2921 ? coord.x : const31_0f;
+    bool temp222 = temp211 > const23i_0;
+    float select43 = temp222 ? const25f_1 : coord.x;
+    float select45 = temp222 ? coord.x : const27f_2;
+    bool temp2921 = condition == const29i_1;
+    float select = temp2921 ? coord.x : const31f_0;
     float temp3329 = select43 + select45;
     float temp3431 = temp3329 + coord.x;
     float temp3532 = select + temp3431;

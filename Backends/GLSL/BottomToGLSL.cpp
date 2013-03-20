@@ -713,24 +713,24 @@ protected:
                 // If it's a constant int or float, make the name contain the
                 // value
                 if (llvm::isa<llvm::ConstantInt>(value)) {
-                    varString->append("_");
-
                     int val = GetConstantInt(value);
 
                     // If it's an i1, that is a bool, then have it say true or
                     // false, else have it have the integer value.
-                    if (IsBoolean(value->getType()))
+                    if (IsBoolean(value->getType())) {
+                        varString->append("b_");
                         snprintf(buf, bufSize, val ? "true" : "false");
-                    else
+                    } else {
+                        varString->append("i_");
                         snprintf(buf, bufSize, "%d", GetConstantInt(value));
+                    }
 
                     varString->append(buf);
 
                 } else if (llvm::isa<llvm::ConstantFP>(value)) {
-                    varString->append("_");
+                    varString->append("f_");
                     snprintf(buf, bufSize, "%.0f", GetConstantFloat(value));
                     varString->append(buf);
-                    varString->append("f");
                 }
             } else {
                 varString->append(value->getName());
@@ -755,7 +755,7 @@ protected:
         // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
         for (int c = 0; c < varString.length(); ++c) {
             if (varString[c] == '.' || varString[c] == '-')
-                varString[c] = '_';
+                varString[c] = 'd';
         }
     }
 

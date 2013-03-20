@@ -34,67 +34,67 @@ entry:
   %2 = load <4 x float>* @v3
   %3 = load <4 x float>* @v4
   %4 = load [4 x <4 x float>]* %constructed
-  %__element = extractelement <4 x float> %0, i32 0
-  %__element1 = extractelement <4 x float> %0, i32 1
-  %__element2 = extractelement <4 x float> %0, i32 2
-  %__element3 = extractelement <4 x float> %0, i32 3
-  %__element4 = extractelement <4 x float> %1, i32 0
-  %__element5 = extractelement <4 x float> %1, i32 1
-  %__element6 = extractelement <4 x float> %1, i32 2
-  %__element7 = extractelement <4 x float> %1, i32 3
-  %__element8 = extractelement <4 x float> %2, i32 0
-  %__element9 = extractelement <4 x float> %2, i32 1
-  %__element10 = extractelement <4 x float> %2, i32 2
-  %__element11 = extractelement <4 x float> %2, i32 3
-  %__element12 = extractelement <4 x float> %3, i32 0
-  %__element13 = extractelement <4 x float> %3, i32 1
-  %__element14 = extractelement <4 x float> %3, i32 2
-  %__element15 = extractelement <4 x float> %3, i32 3
-  %__column = extractvalue [4 x <4 x float>] %4, 0
-  %__column16 = insertelement <4 x float> %__column, float %__element, i32 0
-  %__column17 = insertelement <4 x float> %__column16, float %__element1, i32 1
-  %__column18 = insertelement <4 x float> %__column17, float %__element2, i32 2
-  %__column19 = insertelement <4 x float> %__column18, float %__element3, i32 3
-  %__matrix = insertvalue [4 x <4 x float>] %4, <4 x float> %__column19, 0
-  %__column20 = extractvalue [4 x <4 x float>] %4, 1
-  %__column21 = insertelement <4 x float> %__column20, float %__element4, i32 0
-  %__column22 = insertelement <4 x float> %__column21, float %__element5, i32 1
-  %__column23 = insertelement <4 x float> %__column22, float %__element6, i32 2
-  %__column24 = insertelement <4 x float> %__column23, float %__element7, i32 3
-  %__matrix25 = insertvalue [4 x <4 x float>] %__matrix, <4 x float> %__column24, 1
-  %__column26 = extractvalue [4 x <4 x float>] %4, 2
-  %__column27 = insertelement <4 x float> %__column26, float %__element8, i32 0
-  %__column28 = insertelement <4 x float> %__column27, float %__element9, i32 1
-  %__column29 = insertelement <4 x float> %__column28, float %__element10, i32 2
-  %__column30 = insertelement <4 x float> %__column29, float %__element11, i32 3
-  %__matrix31 = insertvalue [4 x <4 x float>] %__matrix25, <4 x float> %__column30, 2
-  %__column32 = extractvalue [4 x <4 x float>] %4, 3
-  %__column33 = insertelement <4 x float> %__column32, float %__element12, i32 0
-  %__column34 = insertelement <4 x float> %__column33, float %__element13, i32 1
-  %__column35 = insertelement <4 x float> %__column34, float %__element14, i32 2
-  %__column36 = insertelement <4 x float> %__column35, float %__element15, i32 3
-  %__matrix37 = insertvalue [4 x <4 x float>] %__matrix31, <4 x float> %__column36, 3
-  store [4 x <4 x float>] %__matrix37, [4 x <4 x float>]* %"matrix m"
+  %element = extractelement <4 x float> %0, i32 0
+  %element1 = extractelement <4 x float> %0, i32 1
+  %element2 = extractelement <4 x float> %0, i32 2
+  %element3 = extractelement <4 x float> %0, i32 3
+  %element4 = extractelement <4 x float> %1, i32 0
+  %element5 = extractelement <4 x float> %1, i32 1
+  %element6 = extractelement <4 x float> %1, i32 2
+  %element7 = extractelement <4 x float> %1, i32 3
+  %element8 = extractelement <4 x float> %2, i32 0
+  %element9 = extractelement <4 x float> %2, i32 1
+  %element10 = extractelement <4 x float> %2, i32 2
+  %element11 = extractelement <4 x float> %2, i32 3
+  %element12 = extractelement <4 x float> %3, i32 0
+  %element13 = extractelement <4 x float> %3, i32 1
+  %element14 = extractelement <4 x float> %3, i32 2
+  %element15 = extractelement <4 x float> %3, i32 3
+  %column = extractvalue [4 x <4 x float>] %4, 0
+  %column16 = insertelement <4 x float> %column, float %element, i32 0
+  %column17 = insertelement <4 x float> %column16, float %element1, i32 1
+  %column18 = insertelement <4 x float> %column17, float %element2, i32 2
+  %column19 = insertelement <4 x float> %column18, float %element3, i32 3
+  %matrix = insertvalue [4 x <4 x float>] %4, <4 x float> %column19, 0
+  %column20 = extractvalue [4 x <4 x float>] %4, 1
+  %column21 = insertelement <4 x float> %column20, float %element4, i32 0
+  %column22 = insertelement <4 x float> %column21, float %element5, i32 1
+  %column23 = insertelement <4 x float> %column22, float %element6, i32 2
+  %column24 = insertelement <4 x float> %column23, float %element7, i32 3
+  %matrix25 = insertvalue [4 x <4 x float>] %matrix, <4 x float> %column24, 1
+  %column26 = extractvalue [4 x <4 x float>] %4, 2
+  %column27 = insertelement <4 x float> %column26, float %element8, i32 0
+  %column28 = insertelement <4 x float> %column27, float %element9, i32 1
+  %column29 = insertelement <4 x float> %column28, float %element10, i32 2
+  %column30 = insertelement <4 x float> %column29, float %element11, i32 3
+  %matrix31 = insertvalue [4 x <4 x float>] %matrix25, <4 x float> %column30, 2
+  %column32 = extractvalue [4 x <4 x float>] %4, 3
+  %column33 = insertelement <4 x float> %column32, float %element12, i32 0
+  %column34 = insertelement <4 x float> %column33, float %element13, i32 1
+  %column35 = insertelement <4 x float> %column34, float %element14, i32 2
+  %column36 = insertelement <4 x float> %column35, float %element15, i32 3
+  %matrix37 = insertvalue [4 x <4 x float>] %matrix31, <4 x float> %column36, 3
+  store [4 x <4 x float>] %matrix37, [4 x <4 x float>]* %"matrix m"
   %5 = load [4 x <4 x float>]* %"matrix m"
   %6 = load [4 x <4 x float>]* %"matrix m"
   %7 = alloca [4 x <4 x float>]
   %8 = load [4 x <4 x float>]* %7
-  %__leftColumn = extractvalue [4 x <4 x float>] %5, 0
-  %__rightColumn = extractvalue [4 x <4 x float>] %6, 0
-  %__column38 = fmul <4 x float> %__leftColumn, %__rightColumn
-  %9 = insertvalue [4 x <4 x float>] %8, <4 x float> %__column38, 0
-  %__leftColumn39 = extractvalue [4 x <4 x float>] %5, 1
-  %__rightColumn40 = extractvalue [4 x <4 x float>] %6, 1
-  %__column41 = fmul <4 x float> %__leftColumn39, %__rightColumn40
-  %10 = insertvalue [4 x <4 x float>] %9, <4 x float> %__column41, 1
-  %__leftColumn42 = extractvalue [4 x <4 x float>] %5, 2
-  %__rightColumn43 = extractvalue [4 x <4 x float>] %6, 2
-  %__column44 = fmul <4 x float> %__leftColumn42, %__rightColumn43
-  %11 = insertvalue [4 x <4 x float>] %10, <4 x float> %__column44, 2
-  %__leftColumn45 = extractvalue [4 x <4 x float>] %5, 3
-  %__rightColumn46 = extractvalue [4 x <4 x float>] %6, 3
-  %__column47 = fmul <4 x float> %__leftColumn45, %__rightColumn46
-  %"matrix mm48" = insertvalue [4 x <4 x float>] %11, <4 x float> %__column47, 3
+  %leftColumn = extractvalue [4 x <4 x float>] %5, 0
+  %rightColumn = extractvalue [4 x <4 x float>] %6, 0
+  %column38 = fmul <4 x float> %leftColumn, %rightColumn
+  %9 = insertvalue [4 x <4 x float>] %8, <4 x float> %column38, 0
+  %leftColumn39 = extractvalue [4 x <4 x float>] %5, 1
+  %rightColumn40 = extractvalue [4 x <4 x float>] %6, 1
+  %column41 = fmul <4 x float> %leftColumn39, %rightColumn40
+  %10 = insertvalue [4 x <4 x float>] %9, <4 x float> %column41, 1
+  %leftColumn42 = extractvalue [4 x <4 x float>] %5, 2
+  %rightColumn43 = extractvalue [4 x <4 x float>] %6, 2
+  %column44 = fmul <4 x float> %leftColumn42, %rightColumn43
+  %11 = insertvalue [4 x <4 x float>] %10, <4 x float> %column44, 2
+  %leftColumn45 = extractvalue [4 x <4 x float>] %5, 3
+  %rightColumn46 = extractvalue [4 x <4 x float>] %6, 3
+  %column47 = fmul <4 x float> %leftColumn45, %rightColumn46
+  %"matrix mm48" = insertvalue [4 x <4 x float>] %11, <4 x float> %column47, 3
   store [4 x <4 x float>] %"matrix mm48", [4 x <4 x float>]* %"matrix mm"
   %12 = getelementptr [4 x <4 x float>]* %"matrix mm", i32 0, i32 1
   %13 = load <4 x float>* %12
@@ -104,22 +104,22 @@ entry:
   %15 = load [4 x <4 x float>]* %"matrix m"
   %16 = alloca [4 x <4 x float>]
   %17 = load [4 x <4 x float>]* %16
-  %__leftColumn50 = extractvalue [4 x <4 x float>] %14, 0
-  %__rightColumn51 = extractvalue [4 x <4 x float>] %15, 0
-  %__column52 = fmul <4 x float> %__leftColumn50, %__rightColumn51
-  %18 = insertvalue [4 x <4 x float>] %17, <4 x float> %__column52, 0
-  %__leftColumn53 = extractvalue [4 x <4 x float>] %14, 1
-  %__rightColumn54 = extractvalue [4 x <4 x float>] %15, 1
-  %__column55 = fmul <4 x float> %__leftColumn53, %__rightColumn54
-  %19 = insertvalue [4 x <4 x float>] %18, <4 x float> %__column55, 1
-  %__leftColumn56 = extractvalue [4 x <4 x float>] %14, 2
-  %__rightColumn57 = extractvalue [4 x <4 x float>] %15, 2
-  %__column58 = fmul <4 x float> %__leftColumn56, %__rightColumn57
-  %20 = insertvalue [4 x <4 x float>] %19, <4 x float> %__column58, 2
-  %__leftColumn59 = extractvalue [4 x <4 x float>] %14, 3
-  %__rightColumn60 = extractvalue [4 x <4 x float>] %15, 3
-  %__column61 = fmul <4 x float> %__leftColumn59, %__rightColumn60
-  %indexable62 = insertvalue [4 x <4 x float>] %20, <4 x float> %__column61, 3
+  %leftColumn50 = extractvalue [4 x <4 x float>] %14, 0
+  %rightColumn51 = extractvalue [4 x <4 x float>] %15, 0
+  %column52 = fmul <4 x float> %leftColumn50, %rightColumn51
+  %18 = insertvalue [4 x <4 x float>] %17, <4 x float> %column52, 0
+  %leftColumn53 = extractvalue [4 x <4 x float>] %14, 1
+  %rightColumn54 = extractvalue [4 x <4 x float>] %15, 1
+  %column55 = fmul <4 x float> %leftColumn53, %rightColumn54
+  %19 = insertvalue [4 x <4 x float>] %18, <4 x float> %column55, 1
+  %leftColumn56 = extractvalue [4 x <4 x float>] %14, 2
+  %rightColumn57 = extractvalue [4 x <4 x float>] %15, 2
+  %column58 = fmul <4 x float> %leftColumn56, %rightColumn57
+  %20 = insertvalue [4 x <4 x float>] %19, <4 x float> %column58, 2
+  %leftColumn59 = extractvalue [4 x <4 x float>] %14, 3
+  %rightColumn60 = extractvalue [4 x <4 x float>] %15, 3
+  %column61 = fmul <4 x float> %leftColumn59, %rightColumn60
+  %indexable62 = insertvalue [4 x <4 x float>] %20, <4 x float> %column61, 3
   store [4 x <4 x float>] %indexable62, [4 x <4 x float>]* %indexable
   %21 = getelementptr [4 x <4 x float>]* %indexable, i32 0, i32 2
   %22 = load <4 x float>* %21
@@ -228,23 +228,23 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 #version 120
 uniform sampler2D sampler;
 vec4 gla_globalAgg;
-const float const21_7f = 7.0;
+const float const21f_7 = 7.0;
 vec4 gla_globalAgg1;
-const float const22_19f = 19.0;
+const float const22f_19 = 19.0;
 const vec2 const24 = vec2(0.5);
-const float const26_0f = 0.1;
+const float const26f_0 = 0.1;
 const vec4 const31 = vec4(361.0, 841.0, 5.0, 0.0);
 
 void main()
 {
-    gla_globalAgg.w = const21_7f;
-    gla_globalAgg1.w = const22_19f;
+    gla_globalAgg.w = const21f_7;
+    gla_globalAgg1.w = const22f_19;
     
     vec4 temp23 = texture2D(sampler, const24);
-    bool temp25 = temp23.y > const26_0f;
+    bool temp25 = temp23.y > const26f_0;
     vec4 temp27 = temp25 ? gla_globalAgg : gla_globalAgg1;
     float temp28 = temp23.y + temp27.w;
-    float temp29 = temp28 + const21_7f;
+    float temp29 = temp28 + const21f_7;
     vec4 temp30 = const31;
     temp30.w = temp29;
     gl_FragColor = temp30;
@@ -259,23 +259,23 @@ void main()
 #version 120
 uniform sampler2D sampler;
 vec4 gla_globalAgg;
-const float const21_7f = 7.0;
+const float const21f_7 = 7.0;
 vec4 gla_globalAgg1;
-const float const22_19f = 19.0;
+const float const22f_19 = 19.0;
 const vec2 const24 = vec2(0.5);
-const float const26_0f = 0.1;
+const float const26f_0 = 0.1;
 const vec4 const31 = vec4(361.0, 841.0, 5.0, 0.0);
 
 void main()
 {
-    gla_globalAgg.w = const21_7f;
-    gla_globalAgg1.w = const22_19f;
+    gla_globalAgg.w = const21f_7;
+    gla_globalAgg1.w = const22f_19;
     
     vec4 temp231 = texture2D(sampler, const24);
-    bool temp252 = temp231.y > const26_0f;
+    bool temp252 = temp231.y > const26f_0;
     vec4 temp27 = temp252 ? gla_globalAgg : gla_globalAgg1;
     float temp286 = temp231.y + temp27.w;
-    float temp297 = temp286 + const21_7f;
+    float temp297 = temp286 + const21f_7;
     vec4 temp30 = const31;
     temp30.w = temp297;
     gl_FragColor = temp30;

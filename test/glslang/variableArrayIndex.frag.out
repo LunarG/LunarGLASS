@@ -155,17 +155,17 @@ uniform lunarStruct3 foo3;
 uniform lunarStruct2[5] foo2;
 uniform lunarStruct1 foo;
 uniform sampler2D sampler;
-const int const23_0 = 0;
-const int const27_3 = 3;
+const int const23i_0 = 0;
+const int const27i_3 = 3;
 in vec2 coord;
 
 void main()
 {
     int temp21 = foo3.member0[1].member0;
-    bool temp22 = temp21 > const23_0;
+    bool temp22 = temp21 > const23i_0;
     int temp24 = foo.member0;
     int temp25 = foo3.member0[temp24].member0;
-    int iLocal2 = Count + const27_3;
+    int iLocal2 = Count + const27i_3;
     int temp28 = iLocal2 + temp25;
     float select = temp22 ? foo2[temp28].member2.member1 : foo3.member0[0].member2.member1;
     vec4 temp30 = vec4(select);
@@ -204,16 +204,16 @@ uniform lunarStruct1 foo;
 uniform int Count;
 uniform lunarStruct2[5] foo2;
 uniform sampler2D sampler;
-const int const23_0 = 0;
-const int const26_3 = 3;
+const int const23i_0 = 0;
+const int const26i_3 = 3;
 in vec2 coord;
 
 void main()
 {
     int temp211 = foo3.member0[1].member0;
-    bool temp222 = temp211 > const23_0;
+    bool temp222 = temp211 > const23i_0;
     int temp243 = foo.member0;
-    int iLocal25 = Count + const26_3;
+    int iLocal25 = Count + const26i_3;
     int temp254 = foo3.member0[temp243].member0;
     int temp286 = iLocal25 + temp254;
     float select = temp222 ? foo2[temp286].member2.member1 : foo3.member0[0].member2.member1;

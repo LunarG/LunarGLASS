@@ -531,22 +531,22 @@ out vec4 FragData;
 in vec2 c2D;
 in vec4 c4D;
 in vec3 c3D;
-const float const25_1f = 1.2;
+const float const25f_1 = 1.2;
 flat in ivec2 ic2D;
 in float c1D;
 flat in ivec3 ic3D;
 flat in int ic1D;
-const int const33_4 = 4;
-const int const43_2 = 2;
-const float const62_4f = 4.2;
-const float const74_0f = 0.0;
+const int const33i_4 = 4;
+const int const43i_2 = 2;
+const float const62f_4 = 4.2;
+const float const74f_0 = 0.0;
 
 void main()
 {
     vec4 temp21 = texture(s2D, c2D);
     vec4 temp22 = textureProj(s3D, c4D);
     vec4 temp23 = temp21 + temp22;
-    vec4 temp24 = textureLod(s2DArray, c3D, const25_1f);
+    vec4 temp24 = textureLod(s2DArray, c3D, const25f_1);
     vec4 temp26 = temp23 + temp24;
     float temp27 = textureOffset(s2DShadow, c3D, ic2D, c1D);
     float temp28 = temp26.y + temp27;
@@ -554,7 +554,7 @@ void main()
     temp29.y = temp28;
     vec4 temp30 = texelFetch(s3D, ic3D, ic1D);
     vec4 temp31 = temp29 + temp30;
-    vec4 temp32 = texelFetchOffset(s2D, ic2D, const33_4, ic2D);
+    vec4 temp32 = texelFetchOffset(s2D, ic2D, const33i_4, ic2D);
     vec4 temp34 = temp31 + temp32;
     float temp35 = textureLodOffset(s2DShadow, c3D, c1D, ic2D);
     float temp36 = temp35 + temp34.y;
@@ -564,7 +564,7 @@ void main()
     vec4 temp39 = temp38 + temp37;
     vec4 temp40 = textureGrad(sCube, c3D, c3D, c3D);
     vec4 temp41 = temp40 + temp39;
-    ivec2 iv263 = textureSize(sCubeShadow, const43_2);
+    ivec2 iv263 = textureSize(sCubeShadow, const43i_2);
     vec2 temp44 = vec2(iv263);
     float temp45 = textureGradOffset(s2DArrayShadow, c4D, c2D, c2D, ic2D);
     float temp46 = temp41.x + temp45;
@@ -583,7 +583,7 @@ void main()
     ivec4 iv50 = textureProjGrad(is2D, c3D, c2D, c2D);
     vec4 temp59 = vec4(iv45);
     vec4 temp60 = temp57 + temp56;
-    ivec4 iv53 = texture(is3D, c3D, const62_4f);
+    ivec4 iv53 = texture(is3D, c3D, const62f_4);
     vec4 temp63 = vec4(iv50);
     vec4 temp64 = temp60 + temp59;
     ivec4 iv57 = textureLod(isCube, c3D, c1D);
@@ -594,7 +594,7 @@ void main()
     vec4 temp70 = temp67 + temp66;
     vec4 temp71 = vec4(iv61);
     vec4 temp72 = temp70 + temp69;
-    vec4 temp73 = vec4(temp44.x, temp44.y, const74_0f, const74_0f);
+    vec4 temp73 = vec4(temp44.x, temp44.y, const74f_0, const74f_0);
     vec4 temp75 = temp72 + temp71;
     vec4 FragData_shadow = temp73 + temp75;
     FragData = FragData_shadow;
@@ -622,22 +622,22 @@ out vec4 FragData;
 in vec2 c2D;
 in vec4 c4D;
 in vec3 c3D;
-const float const25_1f = 1.2;
+const float const25f_1 = 1.2;
 flat in ivec2 ic2D;
 in float c1D;
 flat in ivec3 ic3D;
 flat in int ic1D;
-const int const33_4 = 4;
-const int const43_2 = 2;
-const float const64_4f = 4.2;
-const float const75_0f = 0.0;
+const int const33i_4 = 4;
+const int const43i_2 = 2;
+const float const64f_4 = 4.2;
+const float const75f_0 = 0.0;
 
 void main()
 {
     vec4 temp211 = texture(s2D, c2D);
     vec4 temp222 = textureProj(s3D, c4D);
     vec4 temp233 = temp211 + temp222;
-    vec4 temp244 = textureLod(s2DArray, c3D, const25_1f);
+    vec4 temp244 = textureLod(s2DArray, c3D, const25f_1);
     vec4 temp265 = temp233 + temp244;
     float temp277 = textureOffset(s2DShadow, c3D, ic2D, c1D);
     float temp288 = temp265.y + temp277;
@@ -645,7 +645,7 @@ void main()
     temp29.y = temp288;
     vec4 temp3011 = texelFetch(s3D, ic3D, ic1D);
     vec4 temp3112 = temp29 + temp3011;
-    vec4 temp3215 = texelFetchOffset(s2D, ic2D, const33_4, ic2D);
+    vec4 temp3215 = texelFetchOffset(s2D, ic2D, const33i_4, ic2D);
     vec4 temp3416 = temp3112 + temp3215;
     float temp3520 = textureLodOffset(s2DShadow, c3D, c1D, ic2D);
     float temp3621 = temp3520 + temp3416.y;
@@ -655,7 +655,7 @@ void main()
     vec4 temp3928 = temp3827 + temp37;
     vec4 temp4032 = textureGrad(sCube, c3D, c3D, c3D);
     vec4 temp4133 = temp4032 + temp3928;
-    ivec2 iv26334 = textureSize(sCubeShadow, const43_2);
+    ivec2 iv26334 = textureSize(sCubeShadow, const43i_2);
     vec2 temp4435 = vec2(iv26334);
     float temp4540 = textureGradOffset(s2DArrayShadow, c4D, c2D, c2D, ic2D);
     float temp4641 = temp4133.x + temp4540;
@@ -676,7 +676,7 @@ void main()
     ivec4 iv5069 = textureProjGrad(is2D, c3D, c2D, c2D);
     vec4 temp6475 = temp6071 + temp5970;
     vec4 temp6374 = vec4(iv5069);
-    ivec4 iv5373 = texture(is3D, c3D, const64_4f);
+    ivec4 iv5373 = texture(is3D, c3D, const64f_4);
     vec4 temp6780 = temp6475 + temp6374;
     vec4 temp6679 = vec4(iv5373);
     ivec4 iv5778 = textureLod(isCube, c3D, c1D);
@@ -686,7 +686,7 @@ void main()
     vec4 temp7287 = temp7085 + temp6984;
     vec4 temp7186 = vec4(iv6183);
     vec4 temp7589 = temp7287 + temp7186;
-    vec4 temp74 = vec4(temp4435.x, temp4435.y, const75_0f, const75_0f);
+    vec4 temp74 = vec4(temp4435.x, temp4435.y, const75f_0, const75f_0);
     vec4 FragData_shadow90 = temp74 + temp7589;
     FragData = FragData_shadow90;
     
