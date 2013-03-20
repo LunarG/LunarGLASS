@@ -70,8 +70,6 @@ post-return:                                      ; No predecessors!
   unreachable
 }
 
-declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
-
 define internal fastcc [3 x <3 x float>] @"Mat3(mf44;"([4 x <4 x float>]*) alwaysinline {
 entry:
   %constructed = alloca [3 x <3 x float>]
@@ -153,6 +151,8 @@ entry:
 post-return:                                      ; No predecessors!
   unreachable
 }
+
+declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
 declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
 

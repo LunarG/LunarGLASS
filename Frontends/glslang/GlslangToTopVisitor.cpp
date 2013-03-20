@@ -72,6 +72,8 @@ public:
     gla::Builder::SuperValue createLLVMVariable(TIntermSymbol* node);
     llvm::Type* convertGlslangToGlaType(const TType& type);
 
+    bool isShaderEntrypoint(const TIntermAggregate* node);
+    void makeFunctions(const TIntermSequence&);
     void handleFunctionEntry(TIntermAggregate* node);
     void translateArguments(TIntermSequence& glslangArguments, std::vector<gla::Builder::SuperValue>& arguments);
     gla::Builder::SuperValue handleBuiltinFunctionCall(TIntermAggregate*);
@@ -417,6 +419,14 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
 
     switch (node->getOp()) {
     case EOpSequence:
+        {
+            // If this is the parent node of all the functions, we want to see them
+            // early, so all call points have actual LLVM functions to reference.  
+            // In all cases, still let the traverser visit the children for us.
+            if (preVisit)
+                oit->makeFunctions(node->getAsAggregate()->getSequence());
+        }
+
         return true;
     case EOpComma:
         {
@@ -426,10 +436,11 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             for (int i = 0; i < glslangOperands.size(); ++i)
                 glslangOperands[i]->traverse(oit);
         }
+
         return false;
     case EOpFunction:
         if (preVisit) {
-            if (node->getName() == "main(") {
+            if (oit->isShaderEntrypoint(node)) {
                 oit->inMain = true;
                 oit->llvmBuilder.SetInsertPoint(oit->shaderEntry);
             } else {
@@ -440,6 +451,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             oit->inMain = false;
             oit->llvmBuilder.SetInsertPoint(oit->shaderEntry);
         }
+
         return true;
     case EOpParameters:
         // Parameters will have been consumed by EOpFunction processing, but not
@@ -462,6 +474,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
                 return false;
             }
         }
+
         return true;
     case EOpConstructMat2x2:
     case EOpConstructMat2x3:
@@ -579,6 +592,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             oit->glaBuilder->clearAccessChain();
             oit->glaBuilder->setAccessChainRValue(length);
         }
+
         return false;
     }
 
@@ -909,31 +923,54 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
     return glaType;
 }
 
+bool TGlslangToTopTraverser::isShaderEntrypoint(const TIntermAggregate* node)
+{
+    return node->getName() == "main(";
+}
+
+void TGlslangToTopTraverser::makeFunctions(const TIntermSequence& glslFunctions)
+{
+    for (int f = 0; f < glslFunctions.size(); ++f) {
+        TIntermAggregate* glslFunction = glslFunctions[f]->getAsAggregate();
+
+        // TODO: compile-time performance: find a way to skip this loop if we aren't
+        // a child of the root node of the compilation unit, which should be the only
+        // one holding a list of functions.
+        if (! glslFunction || glslFunction->getOp() != EOpFunction || isShaderEntrypoint(glslFunction))
+            continue;
+
+        std::vector<llvm::Type*> paramTypes;
+        TIntermSequence& parameters = glslFunction->getSequence()[0]->getAsAggregate()->getSequence();
+
+        // At call time, space should be allocated for all the arguments,
+        // and pointers to that space passed to the function as the formal parameters.
+        for (int i = 0; i < parameters.size(); ++i) {
+            llvm::Type* type = convertGlslangToGlaType(parameters[i]->getAsTyped()->getType());
+            paramTypes.push_back(llvm::PointerType::get(type, gla::GlobalAddressSpace));
+        }
+
+        llvm::BasicBlock* functionBlock;
+        llvm::Function *function = glaBuilder->makeFunctionEntry(convertGlslangToGlaType(glslFunction->getType()), glslFunction->getName().c_str(),
+                                                                 paramTypes, &functionBlock);
+        function->addFnAttr(llvm::Attributes::AlwaysInline);
+
+        // Visit parameter list again to create mappings to local variables and set attributes.
+        llvm::Function::arg_iterator arg = function->arg_begin();
+        for (int i = 0; i < parameters.size(); ++i, ++arg)
+            namedValues[parameters[i]->getAsSymbolNode()->getId()] = &(*arg);
+
+        // Track function to emit/call later
+        functionMap[glslFunction->getName().c_str()] = function;
+    }
+}
+
 void TGlslangToTopTraverser::handleFunctionEntry(TIntermAggregate* node)
 {
-    std::vector<llvm::Type*> paramTypes;
-    TIntermSequence& parameters = node->getSequence()[0]->getAsAggregate()->getSequence();
-
-    // At call time, space should be allocated for all the arguments,
-    // and pointers to that space passed to the function as the formal parameters.
-    for (int i = 0; i < parameters.size(); ++i) {
-        llvm::Type* type = convertGlslangToGlaType(parameters[i]->getAsTyped()->getType());
-        paramTypes.push_back(llvm::PointerType::get(type, gla::GlobalAddressSpace));
-    }
-
-    llvm::BasicBlock* functionBlock;
-    llvm::Function *function = glaBuilder->makeFunctionEntry(convertGlslangToGlaType(node->getType()), node->getName().c_str(),
-                                                             paramTypes, &functionBlock);
-    function->addFnAttr(llvm::Attributes::AlwaysInline);
-    llvmBuilder.SetInsertPoint(functionBlock);
-
-    // Visit parameter list again to create mappings to local variables and set attributes.
-    llvm::Function::arg_iterator arg = function->arg_begin();
-    for (int i = 0; i < parameters.size(); ++i, ++arg)
-        namedValues[parameters[i]->getAsSymbolNode()->getId()] = &(*arg);
-
-    // Track our user function to call later
-    functionMap[node->getName().c_str()] = function;
+    // LLVM functions should already be in the functionMap from the prepass 
+    // that called makeFunctions.
+    llvm::Function* function = functionMap[node->getName().c_str()];
+    llvm::BasicBlock& functionBlock = function->getEntryBlock();
+    llvmBuilder.SetInsertPoint(&functionBlock);
 }
 
 void TGlslangToTopTraverser::translateArguments(TIntermSequence& glslangArguments, std::vector<gla::Builder::SuperValue>& arguments)
