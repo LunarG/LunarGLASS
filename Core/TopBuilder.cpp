@@ -510,7 +510,7 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
                 gla::AppendArraySizeToName(pipelineName, arrayType->getNumElements());
                 for (int index = 0; index < arrayType->getNumElements(); ++index) {
                     std::string elementName = pipelineName;
-                    gla::AppendArrayIndexToName(elementName, index);
+                    gla::AppendIndexToName(elementName, index);
                     PipelineSymbol symbol = {elementName, arrayType->getContainedType(0)};
                     manager->getPipeOutSymbols().push_back(symbol);
 
@@ -746,7 +746,8 @@ llvm::Value* Builder::createSwizzle(llvm::Value* source, llvm::ArrayRef<int> cha
 
 llvm::Type* Builder::getMatrixType(llvm::Type* elementType, int numColumns, int numRows)
 {
-    // This is not a matrix... it's a cache of types for all possible matrix sizes.
+    // This data structure below is not a matrix... 
+    // it's a cache of types for all possible matrix sizes.
     static const int minSize = 2;
     static const int maxSize = 4;
     static llvm::Type* typeCache[maxSize-minSize+1][maxSize-minSize+1] =
@@ -2020,11 +2021,18 @@ void AppendArraySizeToName(std::string& arrayName, int size)
     arrayName = arrayName + "_" + buf;
 }
 
-void AppendArrayIndexToName(std::string& arrayName, int index)
+void AppendIndexToName(std::string& arrayName, int index)
 {
     char buf[10];
     snprintf(buf, sizeof(buf), "%d", index);
     arrayName = arrayName + "[" + buf + "]";
+}
+
+void AppendMatrixSizeToName(std::string& name, int cols, int rows)
+{
+    char buf[10];
+    snprintf(buf, sizeof(buf), "%dx%d", cols, rows);
+    name = name + buf;
 }
 
 void AddSeparator(std::string& name)

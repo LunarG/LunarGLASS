@@ -5,6 +5,8 @@ Top IR:
 @Position_shadow = internal global <4 x float> zeroinitializer
 @"matrix mvp" = external addrspace(2) constant [4 x <4 x float>]
 @v_shadow = internal global <4 x float> zeroinitializer
+@f_shadow = internal global float 0.000000e+00
+@"matrix am3_shadow" = internal global [3 x <3 x float>] zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -83,11 +85,22 @@ entry:
   %dotProduct59 = fadd float %dotProduct55, %product58
   %Position_shadow = insertelement <4 x float> %6, float %dotProduct59, i32 3
   store <4 x float> %Position_shadow, <4 x float>* @Position_shadow
+  %"matrix3x3 am3[0]" = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 -1, i32 1)
+  store <3 x float> %"matrix3x3 am3[0]", <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 0)
+  %"matrix3x3 am3[1]" = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 2, i32 -1, i32 1)
+  store <3 x float> %"matrix3x3 am3[1]", <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 1)
+  %"matrix3x3 am3[2]" = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 3, i32 -1, i32 1)
+  store <3 x float> %"matrix3x3 am3[2]", <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 2)
+  %7 = load <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 2)
+  %f_shadow = extractelement <3 x float> %7, i32 1
+  store float %f_shadow, float* @f_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %7 = load <4 x float>* @Position_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %7)
+  %8 = load <4 x float>* @Position_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %8)
+  %9 = load float* @f_shadow
+  call void @llvm.gla.fWriteData.f32(i32 1, i32 -1, float %9)
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -96,7 +109,11 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
 
 Bottom IR:
@@ -112,6 +129,7 @@ entry:
   %component1 = extractelement <4 x float> %v__, i32 1
   %component2 = extractelement <4 x float> %v__, i32 2
   %component3 = extractelement <4 x float> %v__, i32 3
+  %"matrix3x3 am3[2]" = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 3, i32 -1, i32 1)
   %column4 = extractvalue [4 x <4 x float>] %0, 1
   %column = extractvalue [4 x <4 x float>] %0, 0
   %column7 = extractvalue [4 x <4 x float>] %0, 2
@@ -160,8 +178,10 @@ entry:
   %dotProduct55 = fadd float %product54, %dotProduct51
   %dotProduct44 = fadd float %product43, %dotProduct40
   %dotProduct59 = fadd float %product58, %dotProduct55
+  %f_shadow = extractelement <3 x float> %"matrix3x3 am3[2]", i32 1
   %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dotProduct14, i32 0, float %dotProduct29, i32 0, float %dotProduct44, i32 0, float %dotProduct59, i32 0)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %1)
+  call void @llvm.gla.fWriteData.f32(i32 1, i32 -1, float %f_shadow)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -173,7 +193,11 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
 
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 #### BEGIN COMPILER 0 INFO LOG ####
@@ -184,7 +208,9 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 // LunarGOO(r722) output
 #version 100
 uniform mat4 mvp;
+varying float f;
 attribute vec4 v;
+attribute mat3 am3;
 
 void main()
 {
@@ -222,6 +248,7 @@ void main()
     float dotProduct59 = product58 + dotProduct55;
     vec4 temp53 = vec4(dotProduct14, dotProduct29, dotProduct44, dotProduct59);
     gl_Position = temp53;
+    f = am3[2].y;
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####
@@ -232,6 +259,8 @@ void main()
 // LunarGOO(r722) output
 #version 100
 uniform mat4 mvp;
+varying float f;
+attribute mat3 am3;
 attribute vec4 v;
 
 void main()
@@ -270,5 +299,6 @@ void main()
     float dotProduct5948 = product5845 + dotProduct5546;
     vec4 temp53 = vec4(dotProduct143536, dotProduct2943, dotProduct4447, dotProduct5948);
     gl_Position = temp53;
+    f = am3[2].y;
     
 }

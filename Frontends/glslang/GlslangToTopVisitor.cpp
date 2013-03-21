@@ -155,13 +155,12 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
         break;
     }
 
-    // L-value chains will be computed purely left to right, so now is clear time
+    // L-value chains will be computed purely left to right, so now is "clear" time
     // (since we are on the symbol; the base of the expression, which is left-most)
     oit->glaBuilder->clearAccessChain();
 
     // we will shadow inputs in global variables, so everything gets a variable
     // allocated, see if we've cached it
-
     std::map<int, gla::Builder::SuperValue>::iterator iter;
     iter = oit->namedValues.find(symbolNode->getId());
     gla::Builder::SuperValue storage;
@@ -904,7 +903,7 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
     }
 
     if (type.isMatrix())
-        glaType = glaBuilder->getMatrixType(glaType, type.getMatrixCols(), type.getMatrixRows());
+        glaType = gla::Builder::getMatrixType(glaType, type.getMatrixCols(), type.getMatrixRows());
     else {
         // If this variable has a vector element count greater than 1, create an LLVM vector
         if (type.getVectorSize() > 1)
@@ -1707,7 +1706,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
     return result;
 }
 
-void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builder::SuperValue storage, int slot)
+void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builder::SuperValue storage, int firstSlot)
 {
     gla::EInterpolationMethod method = gla::EIMSmooth;
     if (node->getType().getQualifier().nopersp)
@@ -1725,38 +1724,85 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
     // which gets optimized later.
     std::string name(node->getSymbol().c_str());
     llvm::Type* readType;
-    int endSlot = slot + 1;
     llvm::Value* pipeRead;
 
-    if (node->getType().isArray()) {
-        int arraySize = node->getType().getArraySize();
+    if (node->getType().getStruct())
+        gla::UnsupportedFunctionality("pipeline structure input");
+    else if (node->getType().isArray() || node->getType().isMatrix()) {
+
+        // Could be a matrix, an array, or an array of matrices.
+        // The whole thing will be read, one slot at a time.
+
+        int arraySize = 1;
+        int numSlots = 1;
+        if (node->getType().isArray())
+            arraySize = node->getType().getArraySize();
         if (arraySize == 0) {
             // TODO: make sure front end knows size before calling here, see
             // comment in convertGlslangToGlaType
             arraySize = UnknownArraySize;
         }
-        endSlot = slot + arraySize;
-        TType elementType = node->getType();
-        elementType.dereference();
-        readType = convertGlslangToGlaType(elementType);
 
-        // fill in the whole array
+        int numColumns = 1;
+        if (node->getType().isMatrix())
+            numColumns = node->getType().getMatrixCols();            
+        
+        // Get down to what slice of this type will be held 
+        // in a single slot.
+        TType slotType = node->getType();
+        if (node->getType().isArray())
+            slotType.dereference();
+        if (node->getType().isMatrix())
+            slotType.dereference();
+        readType = convertGlslangToGlaType(slotType);
+
+        // fill in the whole aggregate shadow, slot by slot
         std::vector<llvm::Value*> gepChain;
         gepChain.push_back(gla::MakeIntConstant(context, 0));
-        for (int s = slot; s < endSlot; ++s) {
-            std::string indexedName = name;
-            // TODO: do less string manipulation if there is no GLSL back end
-            gla::AppendArraySizeToName(indexedName, arraySize);
-            gla::AppendArrayIndexToName(indexedName, s-slot);
-            gepChain.push_back(gla::MakeIntConstant(context, s-slot));
-            pipeRead = glaBuilder->readPipeline(readType, indexedName, s, -1 /*mask*/, method, location);
-            llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
-            gepChain.pop_back();
+        int slot = firstSlot;
+        for (int element = 0; element < arraySize; ++element) {
+            if (node->getType().isArray())
+                gepChain.push_back(gla::MakeIntConstant(context, element));
+
+            for (int column = 0; column < numColumns; ++column, ++slot) {
+
+#ifdef USE_GLSL_BACKEND
+                // string manipulation needed only by the GLSL backend...
+
+                std::string indexedName;
+                if (node->getType().isMatrix()) {
+                    indexedName = "matrix";
+                    gla::AppendMatrixSizeToName(indexedName, node->getType().getMatrixCols(), node->getType().getMatrixRows());
+                    indexedName = indexedName + " " + name;
+                } else
+                    indexedName = name;
+
+                if (node->getType().isArray()) {
+                    gla::AppendArraySizeToName(indexedName, arraySize);
+                    gla::AppendIndexToName(indexedName, element);
+                }
+
+                if (node->getType().isMatrix())
+                    gla::AppendIndexToName(indexedName, column);
+#endif
+
+                if (node->getType().isMatrix())
+                    gepChain.push_back(gla::MakeIntConstant(context, slot - firstSlot));
+                
+                pipeRead = glaBuilder->readPipeline(readType, indexedName, slot, -1 /*mask*/, method, location);
+                llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
+                
+                if (node->getType().isMatrix())
+                    gepChain.pop_back();
+            }
+
+            if (node->getType().isArray())
+                gepChain.pop_back();
         }
     } else {
         readType = convertGlslangToGlaType(node->getType());
         gla::AddSeparator(name);
-        llvm::Value* pipeRead = glaBuilder->readPipeline(readType, name, slot, -1 /*mask*/, method, location);
+        llvm::Value* pipeRead = glaBuilder->readPipeline(readType, name, firstSlot, -1 /*mask*/, method, location);
         llvmBuilder.CreateStore(pipeRead, storage);
     }
 }

@@ -43,6 +43,11 @@
 #include "vector"
 #include <string>
 
+#define USE_LUNARGLASS_CORE
+#ifdef USE_LUNARGLASS_CORE
+#define USE_GLSL_BACKEND
+#endif
+
 namespace llvm {
     class Module;
     class Value;

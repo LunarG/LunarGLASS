@@ -48,6 +48,8 @@
 #include "GlslTarget.h"
 #include "Options.h"
 
+#include "TopBuilder.h"
+
 // glslang includes
 #include "../../glslang/glslang/Public/ShaderLang.h"
 #include "../../glslang/glslang/MachineIndependent/Versions.h"
@@ -760,7 +762,7 @@ protected:
     }
 
     void declareVariable(llvm::Type* type, const std::string& varString, EVariableQualifier vq, const llvm::Constant* constant = 0, 
-                         EInterpolationMethod intMethod = EIMLast, EInterpolationLocation intLocation = EILFragment)
+                         EInterpolationMethod intMethod = EIMLast, EInterpolationLocation intLocation = EILFragment, bool matrix = false)
     {
         if (varString.substr(0,3) == std::string("gl_"))
             return;
@@ -820,10 +822,12 @@ protected:
             
             globalDeclarations << " ";
             if (basename.find_first_of(' ') == std::string::npos) {
-                emitGlaType(globalDeclarations, type);
+                // the "in" path figured out matrixness earlier
+                emitGlaType(globalDeclarations, type, -1, matrix);
                 globalDeclarations << " " << basename;
             } else {
                 // there is a space, separating a type from a name
+                // the "uniform" path figures out matrixness now
                 if (basename.substr(0, 7) == "matrix ") {
                     emitGlaType(globalDeclarations, type, -1, true);
                     globalDeclarations << basename.substr(6, basename.size());
@@ -2004,15 +2008,31 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fReadData:
     case llvm::Intrinsic::gla_fReadInterpolant:
         {
+            // Key issue:  we can figure out a slot type, but it's not 
+            // necessarily the type of the whole variable getting read,
+            // just a slice of it.  So, need to rebuild the whole type,
+            // from clues left in the name by the front-end adapter.
+            // For matrixness, that is done now, for arrayness later.
+            // (Both can exist.)
+            llvm::Type* wholeType = llvmInstruction->getType();
+
             std::string name = llvmInstruction->getName();
+            int matrixCols, matrixRows;
+            gla::GetMatrixSizeFromName(name, matrixCols, matrixRows);
+            if (matrixCols)
+                wholeType = gla::Builder::getMatrixType(gla::GetBasicType(wholeType), matrixCols, matrixRows);
+
             gla::RemoveInlineNotation(name);
             gla::RemoveSeparator(name);
             makeParseable(name);
 
-            // Remove inserted size in front of hard-coded array indexes
-            // TODO: there must be a better way to be doing this (sideband, unique syntax, etc.)
+            // Remove inserted size in front of hard-coded array indexes, for the variable usage
             std::string declareName = name;
             gla::RemoveArraySizeFromName(name);
+
+            // For a matrix, remove one set of indexing, for the declaration
+            if (matrixCols)
+                gla::RemoveIndexFromName(declareName);
 
             if (addNewVariable(llvmInstruction, name)) {
                 EInterpolationMethod intMethod;
@@ -2024,7 +2044,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
                     intLocation = EILFragment;  // dummy for non-interplated reads
                     intMethod = EIMNone;        // needed for 'flat' with non-interpolation 'in'
                 }
-                declareVariable(llvmInstruction->getType(), declareName, EVQInput, 0, intMethod, intLocation);
+                declareVariable(wholeType, declareName, EVQInput, 0, intMethod, intLocation, matrixCols > 0);
             }
 
             return;

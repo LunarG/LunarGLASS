@@ -31,8 +31,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#define USE_LUNARGLASS_CORE
-
 // glslang includes
 #include "../glslang/Include/Common.h"
 #include "../glslang/Include/ShHandle.h"

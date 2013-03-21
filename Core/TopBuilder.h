@@ -291,7 +291,7 @@ public:
 
     // make a type for storing a matrix, which conforms to the 
     // assumptions of how matrices are operated on in the top builder
-    llvm::Type* getMatrixType(llvm::Type* elementType, int numColumns, int numRows);
+    static llvm::Type* getMatrixType(llvm::Type* elementType, int numColumns, int numRows);
 
     // handle component-wise matrix operations for either a
     // pair of matrices or a matrix and a scalar
@@ -469,7 +469,8 @@ protected:
 //
 
 void AppendArraySizeToName(std::string&, int);
-void AppendArrayIndexToName(std::string&, int);
+void AppendIndexToName(std::string&, int);
+void AppendMatrixSizeToName(std::string& name, int cols, int rows);
 void AddSeparator(std::string& name);
 
 };  // end gla namespace

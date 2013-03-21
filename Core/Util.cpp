@@ -199,6 +199,25 @@ void RemoveArraySizeFromName(std::string& name)
     }
 }
 
+void RemoveIndexFromName(std::string& name)
+{
+    if (! name.empty() && name[name.length()-1] == ']') {
+        int indexStart = name.find_last_of('[');
+        if (indexStart != std::string::npos)
+            name.erase(indexStart, name.length() - indexStart);
+    }
+}
+
+void GetMatrixSizeFromName(const std::string& name, int& matrixCols, int& matrixRows)
+{
+    matrixRows = 0;
+    matrixCols = 0;
+    if (name.substr(0, 6) == "matrix") {
+        matrixCols = name[6] - '0';
+        matrixRows = name[8] - '0';
+    }
+}
+
 void RemoveSeparator(std::string& name)
 {
     // if there is a pattern "__#" or "__" at the end, strip it off
