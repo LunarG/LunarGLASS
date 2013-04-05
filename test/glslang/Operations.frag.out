@@ -385,7 +385,7 @@ ifmerge55:                                        ; preds = %ifmerge, %then53
   %i59 = srem i32 %239, 17
   store i32 %i59, i32* %i
   %240 = load i32* %i
-  %i60 = lshr i32 %240, 2
+  %i60 = ashr i32 %240, 2
   store i32 %i60, i32* %i
   %241 = load i32 addrspace(2)* @ui
   %242 = load i32* %i
@@ -659,7 +659,7 @@ entry:
   %i57 = or i32 %i56, 66
   %i58 = xor i32 %i57, %3
   %i59 = srem i32 %i58, 17
-  %i60 = lshr i32 %i59, 2
+  %i60 = ashr i32 %i59, 2
   %i61 = shl i32 %i60, %3
   %i62 = xor i32 %i61, -1
   %73 = sitofp i32 %i62 to float

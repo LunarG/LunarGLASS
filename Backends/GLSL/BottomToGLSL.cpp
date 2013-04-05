@@ -1992,6 +1992,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 {
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_writeData:
     case llvm::Intrinsic::gla_fWriteData:
         {
             newLine();

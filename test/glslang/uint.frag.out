@@ -1,0 +1,309 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@t_shadow = internal global <2 x i32> zeroinitializer
+@c_shadow = internal global <4 x i32> zeroinitializer
+@"usampler2D usampler" = external addrspace(1) constant i32
+@tc_shadow = internal global <2 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %constructed37 = alloca <4 x i32>
+  %mask4 = alloca i32
+  %mask3 = alloca i32
+  %mask2 = alloca i32
+  %mask1 = alloca i32
+  %constructed = alloca <4 x i32>
+  %ai = alloca i32
+  %ab = alloca i1
+  %af = alloca float
+  %shifteduu = alloca i32
+  %shiftediu = alloca i32
+  %shiftedui = alloca i32
+  %shiftedii = alloca i32
+  %u = alloca i32
+  %count = alloca i32
+  store i32 1, i32* %count
+  %t__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 0, i32 -1)
+  store <2 x i32> %t__, <2 x i32>* @t_shadow
+  %0 = load <2 x i32>* @t_shadow
+  %1 = extractelement <2 x i32> %0, i32 1
+  %u1 = add i32 %1, 3
+  store i32 %u1, i32* %u
+  %2 = load i32* %count
+  %count2 = mul i32 %2, 2
+  store i32 %count2, i32* %count
+  %3 = load i32* %count
+  %count3 = mul i32 %3, 3
+  store i32 %count3, i32* %count
+  %4 = load i32* %count
+  %count4 = mul i32 %4, 7
+  store i32 %count4, i32* %count
+  %5 = load i32* %count
+  %count5 = mul i32 %5, 11
+  store i32 %count5, i32* %count
+  store i32 -1, i32* %shiftedii
+  store i32 4194303, i32* %shiftedui
+  store i32 -1, i32* %shiftediu
+  store i32 4194303, i32* %shifteduu
+  %6 = load i32* %shiftedii
+  %7 = load i32* %shiftediu
+  %8 = icmp eq i32 %6, %7
+  br i1 %8, label %then, label %ifmerge
+
+then:                                             ; preds = %entry
+  %9 = load i32 addrspace(1)* @"usampler2D usampler"
+  %tc__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
+  store <2 x float> %tc__, <2 x float>* @tc_shadow
+  %10 = load <2 x float>* @tc_shadow
+  %c_shadow = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %10)
+  store <4 x i32> %c_shadow, <4 x i32>* @c_shadow
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %entry, %then
+  %11 = load i32* %shiftedui
+  %12 = load i32* %shifteduu
+  %13 = icmp eq i32 %11, %12
+  br i1 %13, label %then6, label %ifmerge9
+
+then6:                                            ; preds = %ifmerge
+  %14 = load i32 addrspace(1)* @"usampler2D usampler"
+  %tc__7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
+  store <2 x float> %tc__7, <2 x float>* @tc_shadow
+  %15 = load <2 x float>* @tc_shadow
+  %16 = fadd <2 x float> %15, <float 1.000000e+00, float 1.000000e+00>
+  %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %14, i32 0, <2 x float> %16)
+  store <4 x i32> %c_shadow8, <4 x i32>* @c_shadow
+  br label %ifmerge9
+
+ifmerge9:                                         ; preds = %ifmerge, %then6
+  %17 = load i32* %shiftedii
+  %18 = load i32* %shiftedui
+  %19 = icmp eq i32 %17, %18
+  br i1 %19, label %then10, label %ifmerge13
+
+then10:                                           ; preds = %ifmerge9
+  %20 = load i32 addrspace(1)* @"usampler2D usampler"
+  %tc__11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
+  store <2 x float> %tc__11, <2 x float>* @tc_shadow
+  %21 = load <2 x float>* @tc_shadow
+  %22 = fsub <2 x float> %21, <float 2.000000e+00, float 2.000000e+00>
+  %c_shadow12 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %20, i32 0, <2 x float> %22)
+  store <4 x i32> %c_shadow12, <4 x i32>* @c_shadow
+  br label %ifmerge13
+
+ifmerge13:                                        ; preds = %ifmerge9, %then10
+  %t__14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 0, i32 -1)
+  store <2 x i32> %t__14, <2 x i32>* @t_shadow
+  %23 = load <2 x i32>* @t_shadow
+  %24 = extractelement <2 x i32> %23, i32 0
+  %25 = icmp sgt i32 %24, 4
+  br i1 %25, label %then15, label %ifmerge20
+
+then15:                                           ; preds = %ifmerge13
+  %26 = load i32* %u
+  %af16 = uitofp i32 %26 to float
+  store float %af16, float* %af
+  %27 = load i32* %u
+  %ab17 = icmp ne i32 %27, 0
+  store i1 %ab17, i1* %ab
+  %ai18 = load i32* %u
+  store i32 %ai18, i32* %ai
+  %28 = load float* %af
+  %29 = fptoui float %28 to i32
+  %30 = load i1* %ab
+  %31 = zext i1 %30 to i32
+  %32 = load i32* %ai
+  %33 = load i32* %count
+  %34 = load <4 x i32>* %constructed
+  %35 = insertelement <4 x i32> %34, i32 %29, i32 0
+  %36 = insertelement <4 x i32> %35, i32 %31, i32 1
+  %37 = insertelement <4 x i32> %36, i32 %32, i32 2
+  %38 = insertelement <4 x i32> %37, i32 %33, i32 3
+  %39 = load <4 x i32>* @c_shadow
+  %c_shadow19 = add <4 x i32> %39, %38
+  store <4 x i32> %c_shadow19, <4 x i32>* @c_shadow
+  br label %ifmerge20
+
+ifmerge20:                                        ; preds = %ifmerge13, %then15
+  %40 = load i32* %count
+  %count21 = mul i32 %40, 17
+  store i32 %count21, i32* %count
+  %41 = load i32* %count
+  %count22 = mul i32 %41, 23
+  store i32 %count22, i32* %count
+  %42 = load i32* %count
+  %count23 = mul i32 %42, 27
+  store i32 %count23, i32* %count
+  store i32 161, i32* %mask1
+  store i32 2576, i32* %mask2
+  %43 = load i32* %mask1
+  %mask324 = shl i32 %43, 4
+  store i32 %mask324, i32* %mask3
+  store i32 2737, i32* %mask4
+  %44 = load i32* %mask3
+  %45 = load i32* %mask2
+  %46 = icmp eq i32 %44, %45
+  br i1 %46, label %then25, label %ifmerge27
+
+then25:                                           ; preds = %ifmerge20
+  %47 = load i32* %count
+  %count26 = mul i32 %47, 2
+  store i32 %count26, i32* %count
+  br label %ifmerge27
+
+ifmerge27:                                        ; preds = %ifmerge20, %then25
+  %48 = load i32* %mask3
+  %49 = load i32* %mask1
+  %50 = and i32 %48, %49
+  %51 = icmp ne i32 %50, 0
+  br i1 %51, label %then28, label %ifmerge30
+
+then28:                                           ; preds = %ifmerge27
+  %52 = load i32* %count
+  %count29 = mul i32 %52, 3
+  store i32 %count29, i32* %count
+  br label %ifmerge30
+
+ifmerge30:                                        ; preds = %ifmerge27, %then28
+  %53 = load i32* %mask1
+  %54 = load i32* %mask3
+  %55 = or i32 %53, %54
+  %56 = load i32* %mask4
+  %57 = icmp eq i32 %55, %56
+  br i1 %57, label %then31, label %ifmerge33
+
+then31:                                           ; preds = %ifmerge30
+  %58 = load i32* %count
+  %count32 = mul i32 %58, 5
+  store i32 %count32, i32* %count
+  br label %ifmerge33
+
+ifmerge33:                                        ; preds = %ifmerge30, %then31
+  %59 = load i32* %mask1
+  %60 = load i32* %mask4
+  %61 = xor i32 %59, %60
+  %62 = icmp eq i32 %61, 2576
+  br i1 %62, label %then34, label %ifmerge36
+
+then34:                                           ; preds = %ifmerge33
+  %63 = load i32* %count
+  %count35 = mul i32 %63, 7
+  store i32 %count35, i32* %count
+  br label %ifmerge36
+
+ifmerge36:                                        ; preds = %ifmerge33, %then34
+  %64 = load i32* %count
+  %65 = load <4 x i32>* %constructed37
+  %66 = insertelement <4 x i32> undef, i32 %64, i32 0
+  %67 = insertelement <4 x i32> %66, i32 %64, i32 1
+  %68 = insertelement <4 x i32> %67, i32 %64, i32 2
+  %69 = insertelement <4 x i32> %68, i32 %64, i32 3
+  %70 = load <4 x i32>* @c_shadow
+  %c_shadow38 = add <4 x i32> %70, %69
+  store <4 x i32> %c_shadow38, <4 x i32>* @c_shadow
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge36
+  %71 = load <4 x i32>* @c_shadow
+  call void @llvm.gla.writeData.v4i32(i32 0, i32 -1, <4 x i32> %71)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) nounwind readonly
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+
+declare <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@"usampler2D usampler" = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %t__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 0, i32 -1)
+  %0 = extractelement <2 x i32> %t__, i32 1
+  %u1 = add i32 %0, 3
+  %1 = load i32 addrspace(1)* @"usampler2D usampler", align 4
+  %tc__7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
+  %2 = fadd <2 x float> %tc__7, <float 1.000000e+00, float 1.000000e+00>
+  %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %2)
+  %t__14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 0, i32 -1)
+  %3 = extractelement <2 x i32> %t__14, i32 0
+  %4 = icmp sgt i32 %3, 4
+  %af16 = uitofp i32 %u1 to float
+  %ab17 = icmp ne i32 %u1, 0
+  %5 = fptoui float %af16 to i32
+  %6 = zext i1 %ab17 to i32
+  %7 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32> undef, i32 15, i32 %5, i32 0, i32 %6, i32 0, i32 %u1, i32 0, i32 462, i32 0)
+  %c_shadow19 = add <4 x i32> %c_shadow8, %7
+  %select = select i1 %4, <4 x i32> %c_shadow19, <4 x i32> %c_shadow8
+  %c_shadow38 = add <4 x i32> %select, <i32 341413380, i32 341413380, i32 341413380, i32 341413380>
+  call void @llvm.gla.writeData.v4i32(i32 0, i32 -1, <4 x i32> %c_shadow38)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) nounwind readonly
+
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+
+declare <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+
+declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) nounwind
+
+declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 300 es
+uniform usampler2D usampler;
+out ivec4 c;
+flat in ivec2 t;
+const int const22i_3 = 3;
+in vec2 tc;
+const vec2 const24 = vec2(1.0);
+flat in ivec2 t;
+const int const27i_4 = 4;
+const int const30i_0 = 0;
+const int const34i_462 = 462;
+const ivec4 const38 = ivec4(341413380);
+
+void main()
+{
+    int temp21 = t.y + const22i_3;
+    vec2 temp23 = tc + const24;
+    ivec4 c_shadow8 = texture(usampler, temp23);
+    bool temp26 = t.x > const27i_4;
+    float af16 = float(temp21);
+    bool ab17 = temp21 != const30i_0;
+    int temp31 = uint(af16);
+    int temp32 = int(ab17);
+    ivec4 temp33 = ivec4(temp31, temp32, temp21, const34i_462);
+    ivec4 c_shadow19 = c_shadow8 + temp33;
+    ivec4 select = temp26 ? c_shadow19 : c_shadow8;
+    ivec4 c_shadow38 = select + const38;
+    c = c_shadow38;
+    
+}
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+ERROR: Not all shaders have valid object code.
+#### END LINKER INFO LOG ####
