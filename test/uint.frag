@@ -1,6 +1,6 @@
 #version 300 es
 
-in uvec2 t;
+flat in uvec2 t;
 in float f;
 in vec2 tc;
 

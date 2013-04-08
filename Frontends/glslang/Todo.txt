@@ -80,9 +80,9 @@ LunarGoo
   • + bitwise shifts and masking
   • + integer texture indices
   • + integer texture return values
-  • - integer uniforms, vertex inputs, vertex outputs, fragment inputs, and fragment outputs
-  • - new built-in functions: abs, sign, min, max, clamp, ...
-  • - mix() is expanded to operate on a Boolean 3rd argument that does not interpolate but selects.
+  • B integer uniforms, vertex inputs, vertex outputs, fragment inputs, and fragment outputs
+  • + new built-in functions: abs, sign, min, max, clamp, ...
+  • + mix() is expanded to operate on a Boolean 3rd argument that does not interpolate but selects.
   • + uint and int  can be mixed for <<, >> but not for other operators
 • + texture size queries.
 • + texture arrays.
@@ -90,8 +90,8 @@ LunarGoo
 • + explicit LOD and derivative controls
 • B switch/case/default statements, for integer condition only
 • . switch statements can be empty, must have a statement between a label and the end of the switch, allows flow control to fall through
-• B new built-ins: trunc(), round(), roundEven(), isnan(), isinf(), modf()
-  • - Make clear that mix(), isnan(), and isinf() work with a scalar bool as well.
+• + new built-ins: trunc(), round(), roundEven(), isnan(), isinf()
+• B modf()
 • . Add hyperbolic functions sinh, cosh, tanh, asinh, acosh, atanh.
 • B User-defined fragment output variables.
 • + Add shader input and output declarations via in and out.
@@ -186,7 +186,7 @@ LunarGoo
 - OpenGL ES 3.0 adds (2)
 • + outerProduct() for multiplying vectors to yield a matrix.
 • + transpose()
-• B Pack and unpack built-in functions
+• + Pack and unpack built-in functions
 • B finish classifying all keywords as to when they are identifiers, reserved, or keywords.
 • . Line continuation (CPP)
 • . Line continuation and UTF-8 in GLSL ES 1.00 when used with OpenGL ES 3.0 (CPP)

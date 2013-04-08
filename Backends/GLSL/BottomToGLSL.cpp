@@ -2316,7 +2316,6 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_uClamp:
     case llvm::Intrinsic::gla_fClamp:       callString = "clamp"; callArgs = 3; break;
 
-    // Floating-Point Only Operations
     case llvm::Intrinsic::gla_fRadians:     callString = "radians";     callArgs = 1; break;
     case llvm::Intrinsic::gla_fDegrees:     callString = "degrees";     callArgs = 1; break;
     case llvm::Intrinsic::gla_fSin:         callString = "sin";         callArgs = 1; break;
@@ -2343,14 +2342,16 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fSqrt:        callString = "sqrt";        callArgs = 1; break;
     case llvm::Intrinsic::gla_fInverseSqrt: callString = "inversesqrt"; callArgs = 1; break;
     case llvm::Intrinsic::gla_fSign:        callString = "sign";        callArgs = 1; break;
+    case llvm::Intrinsic::gla_sign:         callString = "sign";        callArgs = 1; break;
     case llvm::Intrinsic::gla_fFloor:       callString = "floor";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fCeiling:     callString = "ceil";        callArgs = 1; break;
     case llvm::Intrinsic::gla_fRoundEven:   callString = "roundEven";   callArgs = 1; break;
     case llvm::Intrinsic::gla_fRoundZero:   callString = "trunc";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fRoundFast:   callString = "round";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fFraction:    callString = "fract";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fModF:        callString = "modf";        break; // callArgs = 2;
+    case llvm::Intrinsic::gla_fModF:        callString = "modf";        callArgs = 2; break;
     case llvm::Intrinsic::gla_fMix:         callString = "mix";         callArgs = 3; break;
+    case llvm::Intrinsic::gla_fbMix:        callString = "mix";         callArgs = 3; break;
     case llvm::Intrinsic::gla_fStep:        callString = "step";        callArgs = 2; break;
     case llvm::Intrinsic::gla_fSmoothStep:  callString = "smoothstep";  callArgs = 3; break;
     case llvm::Intrinsic::gla_fIsNan:       callString = "isnan";       callArgs = 1; break;
@@ -2365,8 +2366,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
     // Bit Operations
     case llvm::Intrinsic::gla_fFloatBitsToInt:  callString = "floatBitsToInt";      callArgs = 1; break;
-    //case llvm::Intrinsic::gla_sIntBitsTofloat:  callString = "intBitsTofloat";      callArgs = 1; break;
-    //case llvm::Intrinsic::gla_uIntBitsTofloat:  callString = "intBitsTofloat";      callArgs = 1; break;
+    case llvm::Intrinsic::gla_fIntBitsTofloat:  callString = "intBitsTofloat";      callArgs = 1; break;
     case llvm::Intrinsic::gla_sBitFieldExtract:
     case llvm::Intrinsic::gla_uBitFieldExtract: callString = "bitFieldExtract";     callArgs = 3; break;
     case llvm::Intrinsic::gla_bitFieldInsert:   callString = "bitFieldInsert";      callArgs = 3; break;
@@ -2380,11 +2380,20 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     case llvm::Intrinsic::gla_fFrexp:            callString = "frexp";              break;      // callArgs =
     case llvm::Intrinsic::gla_fLdexp:            callString = "ldexp";              break;      // callArgs =
     case llvm::Intrinsic::gla_fPackUnorm2x16:    callString = "packUnorm2x16";      callArgs = 1; break;
+    case llvm::Intrinsic::gla_fUnpackUnorm2x16:  callString = "unpackUnorm2x16";    callArgs = 1; break;
+
+    case llvm::Intrinsic::gla_fPackSnorm2x16:    callString = "packSnorm2x16";      callArgs = 1; break;
+    case llvm::Intrinsic::gla_fUnpackSnorm2x16:  callString = "unpackSnorm2x16";    callArgs = 1; break;
+
+    case llvm::Intrinsic::gla_fPackHalf2x16:     callString = "packHalf2x16";       callArgs = 1; break;        
+    case llvm::Intrinsic::gla_fUnpackHalf2x16:   callString = "unpackHalf2x16";     callArgs = 1; break;        
+
     case llvm::Intrinsic::gla_fPackUnorm4x8:     callString = "packUnorm4x8";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fPackSnorm4x8:     callString = "packSnorm4x8";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fUnpackUnorm2x16:  callString = "unpackUnorm2x16";    callArgs = 1; break;
+
     case llvm::Intrinsic::gla_fUnpackUnorm4x8:   callString = "unpackUnorm4x8";     callArgs = 1; break;
     case llvm::Intrinsic::gla_fUnpackSnorm4x8:   callString = "unpackSnorm4x8";     callArgs = 1; break;
+
     case llvm::Intrinsic::gla_fPackDouble2x32:   callString = "packDouble2x32";     callArgs = 1; break;
     case llvm::Intrinsic::gla_fUnpackDouble2x32: callString = "unpackDouble2x32";   callArgs = 1; break;
 

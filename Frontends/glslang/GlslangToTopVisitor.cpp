@@ -83,7 +83,7 @@ public:
     gla::Builder::SuperValue createUnaryOperation(TOperator op, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createConversion(TOperator op, llvm::Type*, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand);
-    gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands);
+    gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, bool isUnsigned);
     void createPipelineRead(TIntermSymbol*, gla::Builder::SuperValue storage, int slot);
     int getNextInterpIndex(const std::string& name, int numSlots);
     gla::Builder::SuperValue createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
@@ -146,7 +146,6 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
 
     bool input = false;
     switch (symbolNode->getQualifier().storage) {
-    case EvqAttribute:
     case EvqVaryingIn:
     case EvqFragCoord:
     case EvqPointCoord:
@@ -638,7 +637,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     if (glslangOperands.size() == 1)
         result = oit->createUnaryIntrinsic(node->getOp(), operands.front());
     else
-        result = oit->createIntrinsic(node->getOp(), operands);
+        result = oit->createIntrinsic(node->getOp(), operands, glslangOperands.front()->getAsTyped()->getBasicType() == EbtUint);
 
     if (result.isClear())
         gla::UnsupportedFunctionality("glslang aggregate", gla::EATContinue);
@@ -809,7 +808,6 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
         gla::UnsupportedFunctionality("glslang const variable", gla::EATContinue);
         storageQualifier = gla::Builder::ESQLocal;
         break;
-    case EvqAttribute:
     case EvqVaryingIn:
     case EvqFragCoord:
     case EvqPointCoord:
@@ -1583,6 +1581,15 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryIntrinsic(TOperator 
     case EOpFloor:
         intrinsicID = llvm::Intrinsic::gla_fFloor;
         break;
+    case EOpTrunc:
+        intrinsicID = llvm::Intrinsic::gla_fRoundZero;
+        break;
+    case EOpRound:
+        intrinsicID = llvm::Intrinsic::gla_fRoundFast;
+        break;
+    case EOpRoundEven:
+        intrinsicID = llvm::Intrinsic::gla_fRoundEven;
+        break;
     case EOpCeil:
         intrinsicID = llvm::Intrinsic::gla_fCeiling;
         break;
@@ -1590,12 +1597,39 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryIntrinsic(TOperator 
         intrinsicID = llvm::Intrinsic::gla_fFraction;
         break;
 
-    //case EOpRoundEven:
-    //    intrinsicID = llvm::Intrinsic::gla_fRoundEven;
-    //    break;
-    //case EOpTrunc:
-    //    intrinsicID = llvm::Intrinsic::gla_fRoundZero;
-    //    break;
+    case EOpIsNan:
+        intrinsicID = llvm::Intrinsic::gla_fIsNan;
+        break;
+    case EOpIsInf:
+        intrinsicID = llvm::Intrinsic::gla_fIsInf;
+        break;
+
+    case EOpFloatBitsToInt:
+    case EOpFloatBitsToUint:
+        intrinsicID = llvm::Intrinsic::gla_fFloatBitsToInt;
+        break;
+    case EOpIntBitsToFloat:
+    case EOpUintBitsToFloat:
+        intrinsicID = llvm::Intrinsic::gla_fIntBitsTofloat;
+        break;
+    case EOpPackSnorm2x16:
+        intrinsicID = llvm::Intrinsic::gla_fPackSnorm2x16;
+        break;
+    case EOpUnpackSnorm2x16:
+        intrinsicID = llvm::Intrinsic::gla_fUnpackSnorm2x16;
+        break;
+    case EOpPackUnorm2x16:
+        intrinsicID = llvm::Intrinsic::gla_fPackUnorm2x16;
+        break;
+    case EOpUnpackUnorm2x16:
+        intrinsicID = llvm::Intrinsic::gla_fUnpackUnorm2x16;
+        break;
+    case EOpPackHalf2x16:
+        intrinsicID = llvm::Intrinsic::gla_fPackHalf2x16;
+        break;
+    case EOpUnpackHalf2x16:
+        intrinsicID = llvm::Intrinsic::gla_fUnpackHalf2x16;
+        break;
 
     case EOpDPdx:
         intrinsicID = llvm::Intrinsic::gla_fDFdx;
@@ -1624,7 +1658,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryIntrinsic(TOperator 
         if (gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fSign;
         else
-            gla::UnsupportedFunctionality("Integer sign()");
+            intrinsicID = llvm::Intrinsic::gla_sign;
         break;
     }
 
@@ -1634,7 +1668,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createUnaryIntrinsic(TOperator 
     return result;
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands)
+gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, bool isUnsigned)
 {
     // Binary ops that require an intrinsic
     gla::Builder::SuperValue result;
@@ -1644,12 +1678,16 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
     case EOpMin:
         if (gla::GetBasicTypeID(operands.front()) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fMin;
+        else if (isUnsigned)
+            intrinsicID = llvm::Intrinsic::gla_uMin;
         else
             intrinsicID = llvm::Intrinsic::gla_sMin;
         break;
     case EOpMax:
         if (gla::GetBasicTypeID(operands.front()) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fMax;
+        else if (isUnsigned)
+            intrinsicID = llvm::Intrinsic::gla_uMax;
         else
             intrinsicID = llvm::Intrinsic::gla_sMax;
         break;
@@ -1679,10 +1717,18 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
         break;
 
     case EOpClamp:
-        intrinsicID = llvm::Intrinsic::gla_fClamp;
+        if (gla::GetBasicTypeID(operands.front()) == llvm::Type::FloatTyID)
+            intrinsicID = llvm::Intrinsic::gla_fClamp;
+        else if (isUnsigned)
+            intrinsicID = llvm::Intrinsic::gla_uClamp;
+        else
+            intrinsicID = llvm::Intrinsic::gla_sClamp;
         break;
     case EOpMix:
-        intrinsicID = llvm::Intrinsic::gla_fMix;
+        if (gla::GetBasicTypeID(operands.back()) == llvm::Type::IntegerTyID)
+            intrinsicID = llvm::Intrinsic::gla_fbMix;
+        else
+            intrinsicID = llvm::Intrinsic::gla_fMix;
         break;
     case EOpStep:
         intrinsicID = llvm::Intrinsic::gla_fStep;
@@ -1706,9 +1752,9 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
     case EOpRefract:
         intrinsicID = llvm::Intrinsic::gla_fRefract;
         break;
-    //case EOpModF:
-    //    intrinsicID = llvm::Intrinsic::gla_fModF;
-    //    break;
+    case EOpModf:
+        intrinsicID = llvm::Intrinsic::gla_fModF;
+        break;
     }
 
     // If intrinsic was assigned, then call the function and return

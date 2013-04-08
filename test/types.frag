@@ -15,10 +15,10 @@ uniform vec2 u_f2;
 uniform vec3 u_f3;
 uniform vec4 u_f4;
 
-flat in bool  i_b;
-flat in bvec2 i_b2;
-flat in bvec3 i_b3;
-flat in bvec4 i_b4;
+uniform bool  i_b;
+uniform bvec2 i_b2;
+uniform bvec3 i_b3;
+uniform bvec4 i_b4;
 
 flat in int   i_i;
 flat in ivec2 i_i2;

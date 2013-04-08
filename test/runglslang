@@ -16,6 +16,11 @@ Usage: ./run [options]
          -v --verbose              Prints more info
 "
 
+# put this back when full stack is LLVM 3.2:
+#       forLoop.frag            \
+#       loops.frag              \
+#       doWhileLoop.frag        \
+
 # Add more tests here as they are created
 TESTS=(test.frag               \
        flowControl.frag        \
@@ -29,10 +34,7 @@ TESTS=(test.frag               \
        functionSemantics.frag  \
 	   forwardFun.frag         \
        voidFunction.frag       \
-	   forLoop.frag            \
-	   doWhileLoop.frag        \
 	   whileLoop.frag          \
-       loops.frag              \
        loopsArtificial.frag    \
        earlyReturnDiscard.frag \
        discard-dce.frag        \
@@ -66,6 +68,7 @@ TESTS=(test.frag               \
        conditionalDiscard.frag \
 	   qualifiers.vert         \
 	   qualifiers.frag         \
+	   300BuiltIns.frag        \
       )
 
 # $1 is the test

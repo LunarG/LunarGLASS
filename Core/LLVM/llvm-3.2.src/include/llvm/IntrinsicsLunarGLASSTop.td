@@ -86,6 +86,7 @@ let TargetPrefix = "gla" in {
   def int_gla_fLog10 : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fSqrt : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fInverseSqrt : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_sign : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_fSign : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fFloor : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fCeiling : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
@@ -95,6 +96,7 @@ let TargetPrefix = "gla" in {
   def int_gla_fFraction : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fModF : Intrinsic<[llvm_anyfloat_ty, llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fMix : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fbMix : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_fStep : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fSmoothStep : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fIsNan : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
@@ -119,7 +121,7 @@ let TargetPrefix = "gla" in {
 // Bit Operations
 let TargetPrefix = "gla" in {
   def int_gla_fFloatBitsToInt : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fIntBitsTofloat : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fIntBitsTofloat : Intrinsic<[llvm_anyfloat_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_sBitFieldExtract : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
   def int_gla_uBitFieldExtract : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
   def int_gla_bitFieldInsert : Intrinsic<[llvm_anyint_ty], [llvm_anyint_ty, llvm_anyint_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
@@ -135,11 +137,15 @@ let TargetPrefix = "gla" in {
   def int_gla_fFrexp : Intrinsic<[llvm_anyfloat_ty, llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fLdexp : Intrinsic<[llvm_anyfloat_ty, llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fPackUnorm2x16 : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fPackSnorm2x16 : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fPackUnorm4x8 : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fPackSnorm4x8 : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fUnpackUnorm2x16 : Intrinsic<[llvm_anyfloat_ty], [llvm_anyint_ty], [IntrNoMem]>;
+  def int_gla_fUnpackSnorm2x16 : Intrinsic<[llvm_anyfloat_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_fUnpackUnorm4x8 : Intrinsic<[llvm_anyfloat_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_fUnpackSnorm4x8 : Intrinsic<[llvm_anyfloat_ty], [llvm_anyint_ty], [IntrNoMem]>;
+  def int_gla_fPackHalf2x16 : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fUnpackHalf2x16 : Intrinsic<[llvm_anyfloat_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_fPackDouble2x32 : Intrinsic<[llvm_anyfloat_ty], [llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_fUnpackDouble2x32 : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
 }

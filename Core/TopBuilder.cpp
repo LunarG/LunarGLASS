@@ -1660,21 +1660,35 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
 
     // Handle special return types here.  Things that don't have same result type as parameter
     switch (intrinsicID) {
-    case llvm::Intrinsic::gla_fModF:
     case llvm::Intrinsic::gla_fIsNan:
     case llvm::Intrinsic::gla_fIsInf:
+        intrinsicName = getIntrinsic(intrinsicID, gla::GetVectorOrScalarType(gla::GetBoolType(context), gla::GetComponentCount(operand)), operand->getType());
+        break;
     case llvm::Intrinsic::gla_fFloatBitsToInt:
+        intrinsicName = getIntrinsic(intrinsicID, gla::GetVectorOrScalarType(gla::GetIntType(context), gla::GetComponentCount(operand)), operand->getType());
+        break;
     case llvm::Intrinsic::gla_fIntBitsTofloat:
+        intrinsicName = getIntrinsic(intrinsicID, gla::GetVectorOrScalarType(gla::GetFloatType(context), gla::GetComponentCount(operand)), operand->getType());
+        break;
+    case llvm::Intrinsic::gla_fPackSnorm2x16:
+    case llvm::Intrinsic::gla_fPackUnorm2x16:
+    case llvm::Intrinsic::gla_fPackHalf2x16:
+        intrinsicName = getIntrinsic(intrinsicID, gla::GetUintType(context), gla::GetVectorOrScalarType(gla::GetFloatType(context), 2));
+        break;
+    case llvm::Intrinsic::gla_fUnpackUnorm2x16:
+    case llvm::Intrinsic::gla_fUnpackSnorm2x16:
+    case llvm::Intrinsic::gla_fUnpackHalf2x16:
+        intrinsicName = getIntrinsic(intrinsicID, gla::GetVectorOrScalarType(gla::GetFloatType(context), 2), gla::GetUintType(context));
+        break;
+
     case llvm::Intrinsic::gla_fFrexp:
     case llvm::Intrinsic::gla_fLdexp:
-    case llvm::Intrinsic::gla_fPackUnorm2x16:
-    case llvm::Intrinsic::gla_fPackUnorm4x8 :
-    case llvm::Intrinsic::gla_fPackSnorm4x8 :
-    case llvm::Intrinsic::gla_fUnpackUnorm2x16:
+    case llvm::Intrinsic::gla_fPackUnorm4x8:
+    case llvm::Intrinsic::gla_fPackSnorm4x8:
     case llvm::Intrinsic::gla_fUnpackUnorm4x8:
     case llvm::Intrinsic::gla_fUnpackSnorm4x8:
     case llvm::Intrinsic::gla_fPackDouble2x32:
-    case llvm::Intrinsic::gla_fUnpackDouble2x32 :
+    case llvm::Intrinsic::gla_fUnpackDouble2x32:
         // TODO:  Hook these up
         gla::UnsupportedFunctionality("unary intrinsic", intrinsicID);
         break;
@@ -1703,6 +1717,10 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
 
     // Handle special return types here.  Things that don't have same result type as parameter
     switch (intrinsicID) {
+    case llvm::Intrinsic::gla_fModF:
+        intrinsicName = getIntrinsic(intrinsicID, lhs->getType(), lhs->getType(), rhs->getType());
+        // TODO: fModf: has two return values, doesn't fit the pattern
+        return builder.CreateCall(lhs);
     case llvm::Intrinsic::gla_fDistance:
     case llvm::Intrinsic::gla_fDot2:
     case llvm::Intrinsic::gla_fDot3:

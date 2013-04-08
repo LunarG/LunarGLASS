@@ -24,10 +24,10 @@ in vec2  c2D;
 in vec3  c3D;
 in vec4  c4D;
 
-in int   ic1D;
-in ivec2 ic2D;
-in ivec3 ic3D;
-in ivec4 ic4D;
+flat in int   ic1D;
+flat in ivec2 ic2D;
+flat in ivec3 ic3D;
+flat in ivec4 ic4D;
 
 out vec4 FragData;
 
