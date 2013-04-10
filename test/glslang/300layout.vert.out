@@ -1,0 +1,442 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+%Transform = type { [4 x <4 x float>], [4 x <4 x float>], [3 x <3 x float>] }
+%T3 = type { [4 x <4 x float>], [4 x <4 x float>], [3 x <3 x float>] }
+%T2 = type { i1, [4 x <4 x float>] }
+
+@pos_shadow = internal global <4 x float> zeroinitializer
+@p_shadow = internal global <4 x float> zeroinitializer
+@tblock = external addrspace(2) constant %Transform
+@__anon__1 = external addrspace(2) constant %T3
+@__anon__0 = external addrspace(2) constant %T2
+@color_shadow = internal global <3 x float> zeroinitializer
+@c_shadow = internal global <3 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %p__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  store <4 x float> %p__, <4 x float>* @p_shadow
+  %0 = load <4 x float>* @p_shadow
+  %1 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 0)
+  %2 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 1)
+  %3 = alloca [4 x <4 x float>]
+  %4 = load [4 x <4 x float>]* %3
+  %leftColumn = extractvalue [4 x <4 x float>] %1, 0
+  %rightColumn = extractvalue [4 x <4 x float>] %2, 0
+  %column = fadd <4 x float> %leftColumn, %rightColumn
+  %5 = insertvalue [4 x <4 x float>] %4, <4 x float> %column, 0
+  %leftColumn1 = extractvalue [4 x <4 x float>] %1, 1
+  %rightColumn2 = extractvalue [4 x <4 x float>] %2, 1
+  %column3 = fadd <4 x float> %leftColumn1, %rightColumn2
+  %6 = insertvalue [4 x <4 x float>] %5, <4 x float> %column3, 1
+  %leftColumn4 = extractvalue [4 x <4 x float>] %1, 2
+  %rightColumn5 = extractvalue [4 x <4 x float>] %2, 2
+  %column6 = fadd <4 x float> %leftColumn4, %rightColumn5
+  %7 = insertvalue [4 x <4 x float>] %6, <4 x float> %column6, 2
+  %leftColumn7 = extractvalue [4 x <4 x float>] %1, 3
+  %rightColumn8 = extractvalue [4 x <4 x float>] %2, 3
+  %column9 = fadd <4 x float> %leftColumn7, %rightColumn8
+  %8 = insertvalue [4 x <4 x float>] %7, <4 x float> %column9, 3
+  %9 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @__anon__1, i32 0, i32 1)
+  %10 = alloca [4 x <4 x float>]
+  %11 = load [4 x <4 x float>]* %10
+  %leftColumn10 = extractvalue [4 x <4 x float>] %8, 0
+  %rightColumn11 = extractvalue [4 x <4 x float>] %9, 0
+  %column12 = fadd <4 x float> %leftColumn10, %rightColumn11
+  %12 = insertvalue [4 x <4 x float>] %11, <4 x float> %column12, 0
+  %leftColumn13 = extractvalue [4 x <4 x float>] %8, 1
+  %rightColumn14 = extractvalue [4 x <4 x float>] %9, 1
+  %column15 = fadd <4 x float> %leftColumn13, %rightColumn14
+  %13 = insertvalue [4 x <4 x float>] %12, <4 x float> %column15, 1
+  %leftColumn16 = extractvalue [4 x <4 x float>] %8, 2
+  %rightColumn17 = extractvalue [4 x <4 x float>] %9, 2
+  %column18 = fadd <4 x float> %leftColumn16, %rightColumn17
+  %14 = insertvalue [4 x <4 x float>] %13, <4 x float> %column18, 2
+  %leftColumn19 = extractvalue [4 x <4 x float>] %8, 3
+  %rightColumn20 = extractvalue [4 x <4 x float>] %9, 3
+  %column21 = fadd <4 x float> %leftColumn19, %rightColumn20
+  %15 = insertvalue [4 x <4 x float>] %14, <4 x float> %column21, 3
+  %16 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @__anon__1, i32 0, i32 0)
+  %17 = alloca [4 x <4 x float>]
+  %18 = load [4 x <4 x float>]* %17
+  %leftColumn22 = extractvalue [4 x <4 x float>] %15, 0
+  %rightColumn23 = extractvalue [4 x <4 x float>] %16, 0
+  %column24 = fadd <4 x float> %leftColumn22, %rightColumn23
+  %19 = insertvalue [4 x <4 x float>] %18, <4 x float> %column24, 0
+  %leftColumn25 = extractvalue [4 x <4 x float>] %15, 1
+  %rightColumn26 = extractvalue [4 x <4 x float>] %16, 1
+  %column27 = fadd <4 x float> %leftColumn25, %rightColumn26
+  %20 = insertvalue [4 x <4 x float>] %19, <4 x float> %column27, 1
+  %leftColumn28 = extractvalue [4 x <4 x float>] %15, 2
+  %rightColumn29 = extractvalue [4 x <4 x float>] %16, 2
+  %column30 = fadd <4 x float> %leftColumn28, %rightColumn29
+  %21 = insertvalue [4 x <4 x float>] %20, <4 x float> %column30, 2
+  %leftColumn31 = extractvalue [4 x <4 x float>] %15, 3
+  %rightColumn32 = extractvalue [4 x <4 x float>] %16, 3
+  %column33 = fadd <4 x float> %leftColumn31, %rightColumn32
+  %22 = insertvalue [4 x <4 x float>] %21, <4 x float> %column33, 3
+  %23 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T2 addrspace(2)* @__anon__0, i32 0, i32 1)
+  %24 = alloca [4 x <4 x float>]
+  %25 = load [4 x <4 x float>]* %24
+  %leftColumn34 = extractvalue [4 x <4 x float>] %22, 0
+  %rightColumn35 = extractvalue [4 x <4 x float>] %23, 0
+  %column36 = fadd <4 x float> %leftColumn34, %rightColumn35
+  %26 = insertvalue [4 x <4 x float>] %25, <4 x float> %column36, 0
+  %leftColumn37 = extractvalue [4 x <4 x float>] %22, 1
+  %rightColumn38 = extractvalue [4 x <4 x float>] %23, 1
+  %column39 = fadd <4 x float> %leftColumn37, %rightColumn38
+  %27 = insertvalue [4 x <4 x float>] %26, <4 x float> %column39, 1
+  %leftColumn40 = extractvalue [4 x <4 x float>] %22, 2
+  %rightColumn41 = extractvalue [4 x <4 x float>] %23, 2
+  %column42 = fadd <4 x float> %leftColumn40, %rightColumn41
+  %28 = insertvalue [4 x <4 x float>] %27, <4 x float> %column42, 2
+  %leftColumn43 = extractvalue [4 x <4 x float>] %22, 3
+  %rightColumn44 = extractvalue [4 x <4 x float>] %23, 3
+  %column45 = fadd <4 x float> %leftColumn43, %rightColumn44
+  %29 = insertvalue [4 x <4 x float>] %28, <4 x float> %column45, 3
+  %30 = alloca <4 x float>
+  %31 = load <4 x float>* %30
+  %column46 = extractvalue [4 x <4 x float>] %29, 0
+  %dot = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column46)
+  %32 = insertelement <4 x float> %31, float %dot, i32 0
+  %column47 = extractvalue [4 x <4 x float>] %29, 1
+  %dot48 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column47)
+  %33 = insertelement <4 x float> %32, float %dot48, i32 1
+  %column49 = extractvalue [4 x <4 x float>] %29, 2
+  %dot50 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column49)
+  %34 = insertelement <4 x float> %33, float %dot50, i32 2
+  %column51 = extractvalue [4 x <4 x float>] %29, 3
+  %dot52 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column51)
+  %pos_shadow = insertelement <4 x float> %34, float %dot52, i32 3
+  store <4 x float> %pos_shadow, <4 x float>* @pos_shadow
+  %c__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 -1, i32 1)
+  store <3 x float> %c__, <3 x float>* @c_shadow
+  %35 = load <3 x float>* @c_shadow
+  %36 = load [3 x <3 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 2)
+  %37 = alloca <3 x float>
+  %38 = load <3 x float>* %37
+  %column53 = extractvalue [3 x <3 x float>] %36, 0
+  %dot54 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %35, <3 x float> %column53)
+  %39 = insertelement <3 x float> %38, float %dot54, i32 0
+  %column55 = extractvalue [3 x <3 x float>] %36, 1
+  %dot56 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %35, <3 x float> %column55)
+  %40 = insertelement <3 x float> %39, float %dot56, i32 1
+  %column57 = extractvalue [3 x <3 x float>] %36, 2
+  %dot58 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %35, <3 x float> %column57)
+  %color_shadow = insertelement <3 x float> %40, float %dot58, i32 2
+  store <3 x float> %color_shadow, <3 x float>* @color_shadow
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %41 = load <4 x float>* @pos_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %41)
+  %42 = load <3 x float>* @color_shadow
+  call void @llvm.gla.fWriteData.v3f32(i32 1, i32 -1, <3 x float> %42)
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+
+declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) nounwind
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+%Transform = type { [4 x <4 x float>], [4 x <4 x float>], [3 x <3 x float>] }
+%T3 = type { [4 x <4 x float>], [4 x <4 x float>], [3 x <3 x float>] }
+%T2 = type { i1, [4 x <4 x float>] }
+
+@tblock = external addrspace(2) constant %Transform
+@__anon__1 = external addrspace(2) constant %T3
+@__anon__0 = external addrspace(2) constant %T2
+
+define fastcc void @main() {
+entry:
+  %p__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %gla_constGEP = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 0
+  %0 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP, align 16
+  %gla_constGEP61 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 1
+  %1 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP61, align 16
+  %gla_constGEP62 = getelementptr %T3 addrspace(2)* @__anon__1, i32 0, i32 1
+  %2 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP62, align 16
+  %gla_constGEP63 = getelementptr %T3 addrspace(2)* @__anon__1, i32 0, i32 0
+  %3 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP63, align 16
+  %gla_constGEP64 = getelementptr %T2 addrspace(2)* @__anon__0, i32 0, i32 1
+  %4 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP64, align 16
+  %c__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 -1, i32 1)
+  %gla_constGEP65 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 2
+  %5 = load [3 x <3 x float>] addrspace(2)* %gla_constGEP65, align 16
+  %rightColumn = extractvalue [4 x <4 x float>] %1, 0
+  %leftColumn = extractvalue [4 x <4 x float>] %0, 0
+  %rightColumn11 = extractvalue [4 x <4 x float>] %2, 0
+  %rightColumn2 = extractvalue [4 x <4 x float>] %1, 1
+  %leftColumn1 = extractvalue [4 x <4 x float>] %0, 1
+  %column = fadd <4 x float> %leftColumn, %rightColumn
+  %rightColumn23 = extractvalue [4 x <4 x float>] %3, 0
+  %rightColumn14 = extractvalue [4 x <4 x float>] %2, 1
+  %column12 = fadd <4 x float> %column, %rightColumn11
+  %rightColumn5 = extractvalue [4 x <4 x float>] %1, 2
+  %leftColumn4 = extractvalue [4 x <4 x float>] %0, 2
+  %column3 = fadd <4 x float> %leftColumn1, %rightColumn2
+  %rightColumn35 = extractvalue [4 x <4 x float>] %4, 0
+  %rightColumn26 = extractvalue [4 x <4 x float>] %3, 1
+  %column24 = fadd <4 x float> %column12, %rightColumn23
+  %rightColumn17 = extractvalue [4 x <4 x float>] %2, 2
+  %column15 = fadd <4 x float> %column3, %rightColumn14
+  %rightColumn8 = extractvalue [4 x <4 x float>] %1, 3
+  %leftColumn7 = extractvalue [4 x <4 x float>] %0, 3
+  %column6 = fadd <4 x float> %leftColumn4, %rightColumn5
+  %rightColumn38 = extractvalue [4 x <4 x float>] %4, 1
+  %column36 = fadd <4 x float> %column24, %rightColumn35
+  %rightColumn29 = extractvalue [4 x <4 x float>] %3, 2
+  %column27 = fadd <4 x float> %column15, %rightColumn26
+  %rightColumn20 = extractvalue [4 x <4 x float>] %2, 3
+  %column18 = fadd <4 x float> %column6, %rightColumn17
+  %column9 = fadd <4 x float> %leftColumn7, %rightColumn8
+  %column53 = extractvalue [3 x <3 x float>] %5, 0
+  %dot = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column36)
+  %rightColumn41 = extractvalue [4 x <4 x float>] %4, 2
+  %column39 = fadd <4 x float> %column27, %rightColumn38
+  %rightColumn32 = extractvalue [4 x <4 x float>] %3, 3
+  %column30 = fadd <4 x float> %column18, %rightColumn29
+  %column21 = fadd <4 x float> %column9, %rightColumn20
+  %column55 = extractvalue [3 x <3 x float>] %5, 1
+  %dot54 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column53)
+  %dot48 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column39)
+  %rightColumn44 = extractvalue [4 x <4 x float>] %4, 3
+  %column42 = fadd <4 x float> %column30, %rightColumn41
+  %column33 = fadd <4 x float> %column21, %rightColumn32
+  %column57 = extractvalue [3 x <3 x float>] %5, 2
+  %dot56 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column55)
+  %dot50 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column42)
+  %column45 = fadd <4 x float> %column33, %rightColumn44
+  %dot58 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column57)
+  %dot52 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column45)
+  %6 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %dot54, i32 0, float %dot56, i32 0, float %dot58, i32 0, float undef, i32 undef)
+  %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dot, i32 0, float %dot48, i32 0, float %dot50, i32 0, float %dot52, i32 0)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %7)
+  call void @llvm.gla.fWriteData.v3f32(i32 1, i32 -1, <3 x float> %6)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+
+declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) nounwind
+
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+
+declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 300 es
+struct Transform {
+    vec4[4] member0;
+    vec4[4] member1;
+    vec3[3] member2;
+};
+
+struct T3 {
+    vec4[4] member0;
+    vec4[4] member1;
+    vec3[3] member2;
+};
+
+struct T2 {
+    bool member0;
+    vec4[4] member1;
+};
+
+uniform Transform tblock;
+uniform T3 __anon__1;
+uniform T2 __anon__0;
+out vec4 pos;
+out vec3 color;
+in vec4 p;
+in vec3 c;
+
+void main()
+{
+    vec4[4] temp21 = tblock.member0;
+    vec4[4] temp22 = tblock.member1;
+    vec4[4] temp23 = __anon__1.member1;
+    vec4[4] temp24 = __anon__1.member0;
+    vec4[4] temp25 = __anon__0.member1;
+    vec3[3] temp26 = tblock.member2;
+    vec4 rightColumn = temp22[0];
+    vec4 leftColumn = temp21[0];
+    vec4 rightColumn11 = temp23[0];
+    vec4 rightColumn2 = temp22[1];
+    vec4 leftColumn1 = temp21[1];
+    vec4 column = leftColumn + rightColumn;
+    vec4 rightColumn23 = temp24[0];
+    vec4 rightColumn14 = temp23[1];
+    vec4 column12 = column + rightColumn11;
+    vec4 rightColumn5 = temp22[2];
+    vec4 leftColumn4 = temp21[2];
+    vec4 column3 = leftColumn1 + rightColumn2;
+    vec4 rightColumn35 = temp25[0];
+    vec4 rightColumn26 = temp24[1];
+    vec4 column24 = column12 + rightColumn23;
+    vec4 rightColumn17 = temp23[2];
+    vec4 column15 = column3 + rightColumn14;
+    vec4 rightColumn8 = temp22[3];
+    vec4 leftColumn7 = temp21[3];
+    vec4 column6 = leftColumn4 + rightColumn5;
+    vec4 rightColumn38 = temp25[1];
+    vec4 column36 = column24 + rightColumn35;
+    vec4 rightColumn29 = temp24[2];
+    vec4 column27 = column15 + rightColumn26;
+    vec4 rightColumn20 = temp23[3];
+    vec4 column18 = column6 + rightColumn17;
+    vec4 column9 = leftColumn7 + rightColumn8;
+    vec3 column53 = temp26[0];
+    float dot = dot(p, column36);
+    vec4 rightColumn41 = temp25[2];
+    vec4 column39 = column27 + rightColumn38;
+    vec4 rightColumn32 = temp24[3];
+    vec4 column30 = column18 + rightColumn29;
+    vec4 column21 = column9 + rightColumn20;
+    vec3 column55 = temp26[1];
+    float dot54 = dot(c, column53);
+    float dot48 = dot(p, column39);
+    vec4 rightColumn44 = temp25[3];
+    vec4 column42 = column30 + rightColumn41;
+    vec4 column33 = column21 + rightColumn32;
+    vec3 column57 = temp26[2];
+    float dot56 = dot(c, column55);
+    float dot50 = dot(p, column42);
+    vec4 column45 = column33 + rightColumn44;
+    float dot58 = dot(c, column57);
+    float dot52 = dot(p, column45);
+    vec3 temp73;
+    temp73.xyz = vec3(dot54, dot56, dot58);
+    vec4 temp74 = vec4(dot, dot48, dot50, dot52);
+    pos = temp74;
+    color = temp73;
+    
+}
+WARNING: 0:23: Two consecutive underscores are reserved for future use.
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 300 es
+struct Transform {
+    vec4[4] member0;
+    vec4[4] member1;
+    vec3[3] member2;
+};
+
+struct T3 {
+    vec4[4] member0;
+    vec4[4] member1;
+    vec3[3] member2;
+};
+
+struct T2 {
+    bool member0;
+    vec4[4] member1;
+};
+
+uniform Transform tblock;
+uniform T3 __anon__1;
+uniform T2 __anon__0;
+out vec4 pos;
+out vec3 color;
+in vec4 p;
+in vec3 c;
+
+void main()
+{
+    vec4[4] temp211 = tblock.member0;
+    vec4[4] temp222 = tblock.member1;
+    vec4[4] temp233 = __anon__1.member1;
+    vec4[4] temp244 = __anon__1.member0;
+    vec4[4] temp255 = __anon__0.member1;
+    vec3[3] temp266 = tblock.member2;
+    vec4 temp22268 = temp222[0];
+    vec4 temp21164 = temp211[0];
+    vec4 column12 = temp21164 + temp22268;
+    vec4 temp23372 = temp233[0];
+    vec4 temp22269 = temp222[1];
+    vec4 temp21165 = temp211[1];
+    vec4 column319 = temp21165 + temp22269;
+    vec4 column121516 = column12 + temp23372;
+    vec4 temp24476 = temp244[0];
+    vec4 temp23373 = temp233[1];
+    vec4 temp22270 = temp222[2];
+    vec4 temp21166 = temp211[2];
+    vec4 column627 = temp21166 + temp22270;
+    vec4 column1524 = column319 + temp23373;
+    vec4 column2422 = column121516 + temp24476;
+    vec4 temp25580 = temp255[0];
+    vec4 temp24477 = temp244[1];
+    vec4 temp23374 = temp233[2];
+    vec4 temp22271 = temp222[3];
+    vec4 temp21167 = temp211[3];
+    vec4 column934 = temp21167 + temp22271;
+    vec4 column1833 = column627 + temp23374;
+    vec4 column2731 = column1524 + temp24477;
+    vec4 column3629 = column2422 + temp25580;
+    vec4 temp25581 = temp255[1];
+    vec4 temp24478 = temp244[2];
+    vec4 temp23375 = temp233[3];
+    vec4 column2141 = column934 + temp23375;
+    vec4 column3040 = column1833 + temp24478;
+    vec4 column3938 = column2731 + temp25581;
+    float dot36 = dot(p, column3629);
+    vec3 temp26684 = temp266[0];
+    vec4 temp25582 = temp255[2];
+    vec4 temp24479 = temp244[3];
+    vec4 column3348 = column2141 + temp24479;
+    vec4 column4247 = column3040 + temp25582;
+    float dot4845 = dot(p, column3938);
+    float dot5443 = dot(c, temp26684);
+    vec3 temp26685 = temp266[1];
+    vec4 temp25583 = temp255[3];
+    vec4 column4554 = column3348 + temp25583;
+    float dot5053 = dot(p, column4247);
+    float dot5651 = dot(c, temp26685);
+    vec3 temp26686 = temp266[2];
+    float dot5258 = dot(p, column4554);
+    float dot5856 = dot(c, temp26686);
+    vec4 temp73 = vec4(dot36, dot4845, dot5053, dot5258);
+    vec3 temp74;
+    temp74.xyz = vec3(dot5443, dot5651, dot5856);
+    pos = temp73;
+    color = temp74;
+    
+}

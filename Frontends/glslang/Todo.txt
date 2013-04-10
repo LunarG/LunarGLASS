@@ -12,7 +12,7 @@ Interfacing
   + add a bool for relaxed semantic checking
   B Put glslang in a namespace
   B Fix any copyrights
-  B Linker I/O?  Uniform maps?
+  - Linker I/O?  Uniform maps?
 
 Build
   + VS 11
@@ -93,7 +93,7 @@ LunarGoo
 • + new built-ins: trunc(), round(), roundEven(), isnan(), isinf()
 • B modf()
 • . Add hyperbolic functions sinh, cosh, tanh, asinh, acosh, atanh.
-• B User-defined fragment output variables.
+• + User-defined fragment output variables.
 • + Add shader input and output declarations via in and out.
 • + new vertex input gl_VertexID
 • . deprecate almost all built-in state
@@ -120,7 +120,12 @@ LunarGoo
 • Non-ES: Link: Deprecated mixing fixed vertex/fragment stage with programmable fragment/vertex stage.
 
 + 1.4
-• Add uniform blocks and layouts to be backed by the application through buffer bindings.
+• + Add uniform blocks and layouts to be backed by the application through buffer bindings.
+    + interface block support for uniforms
+    + packing layouts std140, shared, packed
+	+ matrix layouts row_major, column_major
+	+ defaults, nesting, and inheritance of these
+	+ anonymous blocks having members scoped at global level
 • + Add gl_InstanceID for instance drawing.
 • Don't require writing to gl_Position.
 • things to track as removed in this release, but present in others:
@@ -140,7 +145,7 @@ LunarGoo
 • + Turn the compatibility extension into the compatibility profile.
 • B Added gl_PrimitiveID as an input to fragment shaders.
 • + Added determinant() built-in.
-• B Broaden structure usage to include fragment and geometry inputs and vertex and geometry outputs.
+• B Broaden structure usage to include fragment inputs and vertex outputs.
 • . Removed the ability to have statements before the first case in a switch.
 • . Deprecated gl_MaxVaryingComponents;
 • + Put gl_MaxTextureUnits and gl_MaxTextureCoords into the compatibility profile.
@@ -153,11 +158,12 @@ LunarGoo
 • Non-ES: geometry shader layouts: they must be declared, telling the system the primitive input and output types and maximum number of vertices.
 • Non-ES: Added geometry shader constants.
 • Non-ES: gl_FragCoord qualifiers use the layout(): origin_upper_left and pixel_center_integer.
+• Non-ES: Broaden structure usage to include geometry inputs and geometry outputs.
 
 - 3.3 (2)
 • Add ARB_explicit_attrib_location extension:
-  • B Layout qualifiers can declare the location of vertex shader inputs.
-  • B Layout qualifiers can declare the location of fragment shader outputs.
+  • + Layout qualifiers can declare the location of vertex shader inputs.
+  • + Layout qualifiers can declare the location of fragment shader outputs.
 • Add ARB_shader_bit_encoding extension:
   • x Floating-point variables within a shader are encoded according to IEEE 754.
   • Non-ES: Add built-in functions converting floating-point values to and from signed or unsigned integers representing their encoding.
@@ -168,8 +174,8 @@ LunarGoo
 • + Profiles and deprecation
 • . Geometry shaders
 • . Link: Shared globals (except for uniforms)
-• . in and out blocks
-• . vertex array inputs (attribute arrays)
+• + in and out blocks
+• + vertex array inputs (attribute arrays)
 • . Layout qualifiers: index, origin_upper_left and pixel_center_integer
 • . CPP token pasting
 • . Unsized arrays.

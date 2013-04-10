@@ -886,6 +886,7 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
         glaType = gla::GetUintType(context);
         break;
     case EbtStruct:
+    case EbtBlock:
         {
             TTypeList* glslangStruct = type.getStruct();
             std::vector<llvm::Type*> structFields;
@@ -1825,7 +1826,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
         
         // Get down to what slice of this type will be held 
         // in a single slot.
-        TType slotType = node->getType();
+        TType slotType(node->getType());
         if (node->getType().isArray())
             slotType.dereference();
         if (node->getType().isMatrix())
@@ -1906,12 +1907,12 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMConstant(const TType&
     llvm::Type* type = convertGlslangToGlaType(glslangType);
 
     if (glslangType.isArray()) {
-        TType elementType = glslangType;
+        TType elementType(glslangType);
         elementType.dereference();
         for (int i = 0; i < glslangType.getArraySize(); ++i)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(elementType, consts, nextConst).getValue()));
     } else if (glslangType.isMatrix()) {
-        TType vectorType = glslangType;
+        TType vectorType(glslangType);
         vectorType.dereference();
         for (int col = 0; col < glslangType.getMatrixCols(); ++col)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(vectorType, consts, nextConst).getValue()));
