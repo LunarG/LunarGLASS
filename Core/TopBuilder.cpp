@@ -1273,7 +1273,6 @@ llvm::Value* Builder::smearScalar(llvm::Value* scalar, llvm::Type* vectorType)
 
 // Accept all parameters needed to create LunarGLASS texture intrinsics
 // Select the correct intrinsic based on the inputs, and make the call
-// TODO:  Expand this beyond current level of GLSL 1.2 functionality
 llvm::Value* Builder::createTextureCall(llvm::Type* resultType, gla::ESamplerType samplerType, int texFlags, const TextureParameters& parameters)
 {
     bool floatReturn = gla::GetBasicType(resultType)->isFloatTy();
@@ -1689,7 +1688,7 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
     case llvm::Intrinsic::gla_fUnpackSnorm4x8:
     case llvm::Intrinsic::gla_fPackDouble2x32:
     case llvm::Intrinsic::gla_fUnpackDouble2x32:
-        // TODO:  Hook these up
+        // TODO: desktop functionality: Hook these up
         gla::UnsupportedFunctionality("unary intrinsic", intrinsicID);
         break;
     case llvm::Intrinsic::gla_fLength:
@@ -1719,7 +1718,7 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
     switch (intrinsicID) {
     case llvm::Intrinsic::gla_fModF:
         intrinsicName = getIntrinsic(intrinsicID, lhs->getType(), lhs->getType(), rhs->getType());
-        // TODO: fModf: has two return values, doesn't fit the pattern
+        // TODO: functionality: fModf has two return values, doesn't fit the pattern
         return builder.CreateCall(lhs);
     case llvm::Intrinsic::gla_fDistance:
     case llvm::Intrinsic::gla_fDot2:

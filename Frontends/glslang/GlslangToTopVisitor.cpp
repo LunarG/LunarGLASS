@@ -186,7 +186,7 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     }
 
     if (input) {
-        // TODO: get correct slot numbers from somewhere
+        // TODO: linker functionality: use real (or dummy?) slot numbers
         int size = 1;
         if (symbolNode->getType().isArray()) {
             size = symbolNode->getType().getArraySize();
@@ -522,8 +522,8 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
                                                                         oit->convertGlslangToGlaType(node->getType()),
                                                                         0, 0, "constructed");
             if (node->getOp() == EOpConstructStruct) {
-                //TODO: is there a more direct way to set a whole LLVM structure?
-                //TODO: if not, move this inside Top Builder; too many indirections
+                //TODO: clean up: is there a more direct way to set a whole LLVM structure?
+                //                if not, move this inside Top Builder; too many indirections
 
                 std::vector<llvm::Value*> gepChain;
                 gepChain.push_back(gla::MakeIntConstant(oit->context, 0));
@@ -827,7 +827,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
         break;
     case EvqUniform:
         storageQualifier = gla::Builder::ESQUniform;
-        // TODO: need to generalize to N objects (constant buffers) for higher shader models
+        // TODO: linker functionality: uniform buffers? need to generalize to N objects (constant buffers) for higher shader models
         constantBuffer = 0;
         break;
     case EvqIn:
@@ -996,7 +996,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
 
     if (node->getName() == "ftransform(") {
-        // TODO: if this needs to support decomposition, need to simulate
+        // TODO: back-end functionality: if this needs to support decomposition, need to simulate
         // access to the external gl_Vertex and gl_ModelViewProjectionMatrix.
         // For now, pass in dummy arguments, which are thrown away anyway
         // if ftransform is consumed by the backend without decomposition.
@@ -1086,7 +1086,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleBuiltinFunctionCall(TInte
             }
         }
 
-        // TODO: functionality: 4.0: handle 'compare' argument
+        // TODO: 4.0 functionality: handle 'compare' argument
 
         // set the arguments        
         gla::Builder::TextureParameters params = {};
@@ -1179,12 +1179,12 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
             gla::Builder::SuperValue output = glaBuilder->createLoad(llvmArgs[i]);
             llvm::Type* destType = convertGlslangToGlaType(glslangArgs[i]->getAsTyped()->getType());
             if (destType != output->getType()) {
-                // TODO: test this after the front-end can support it
+                // TODO: testing: this after the front-end can support it
                 TOperator op = EOpNull;
                 if (gla::GetBasicTypeID(destType) == llvm::Type::FloatTyID &&
                     gla::GetBasicTypeID(output->getType())) {
                     op = EOpConvIntToFloat;
-                } // TODO: more cases will go here for future versions
+                } // TODO: desktop functionality: more cases will go here for future versions
 
                 if (op != EOpNull) {
                     output = createConversion(op, destType, output);
@@ -1448,7 +1448,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createConversion(TOperator op, 
         // any non-zero integer should return true
         return createBinaryOperation(EOpNotEqual, operand, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), false);
     case EOpConvFloatToBool:
-        castOp = llvm::Instruction::FPToUI;  // TODO: should this be a test against 0.0?
+        castOp = llvm::Instruction::FPToUI;  // TODO: functionality: should this be a test against 0.0?
         break;
 
     case EOpConvIntToFloat:
@@ -1815,7 +1815,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
         if (node->getType().isArray())
             arraySize = node->getType().getArraySize();
         if (arraySize == 0) {
-            // TODO: make sure front end knows size before calling here, see
+            // TODO: linker functionality: make sure front end knows size before calling here, see
             // comment in convertGlslangToGlaType
             arraySize = UnknownArraySize;
         }
@@ -1843,8 +1843,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
 
             for (int column = 0; column < numColumns; ++column, ++slot) {
 
-#ifdef USE_GLSL_BACKEND
-                // string manipulation needed only by the GLSL backend...
+                // TODO: linker functionality: reduce string manipulation
 
                 std::string indexedName;
                 if (node->getType().isMatrix()) {
@@ -1861,7 +1860,6 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
 
                 if (node->getType().isMatrix())
                     gla::AppendIndexToName(indexedName, column);
-#endif
 
                 if (node->getType().isMatrix())
                     gepChain.push_back(gla::MakeIntConstant(context, slot - firstSlot));

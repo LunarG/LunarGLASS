@@ -77,6 +77,7 @@ TESTS=(test.frag               \
 # Rest are options to the runcommand
 function runSingleTest {
     $RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > temp.stdout 2> temp.errout
+#	$RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > /dev/null 2>&1
 }
 
 function runTests {

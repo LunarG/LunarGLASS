@@ -233,7 +233,7 @@ public:
 
     // Create a discard. Pass whether this is occuring in main. Currently,
     // non-main functions are unsupported, and so are discards occuring in them.
-    // TODO: support discards in non-main functions
+    // TODO: functionality: support discards in non-main functions
     void makeDiscard(bool isMain);
 
     // Make a shader-style function, and create its entry block if entry is non zero.
