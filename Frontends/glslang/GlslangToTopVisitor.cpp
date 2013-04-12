@@ -112,6 +112,7 @@ public:
     std::map<std::string, llvm::Function*> functionMap;
     std::map<std::string, int> interpMap;
     std::map<TTypeList*, llvm::StructType*> structMap;
+    std::stack<bool> breakForLoop;  // false means break for switch
 };
 
 // A fully functionaling front end will know all array sizes,
@@ -712,6 +713,50 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
     return false;
 }
 
+bool TranslateSwitch(bool /* preVisit */, TIntermSwitch* node, TIntermTraverser* it)
+{
+    TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
+
+    // emit and get the condition before doing anything with switch
+    node->getCondition()->traverse(it);
+    llvm::Value* condition = oit->glaBuilder->accessChainLoad();
+
+    // browse the children to sort out code segments
+    int defaultSegment = -1;
+    std::vector<TIntermNode*> codeSegments;
+    TIntermSequence& sequence = node->getBody()->getSequence();
+    std::vector<llvm::ConstantInt*> caseValues;
+    std::vector<int> valueToSegment(sequence.size());  // note: probably not all are used, it is an overestimate
+    for (TIntermSequence::iterator c = sequence.begin(); c != sequence.end(); ++c) {
+        TIntermNode* child = *c;
+        if (child->getAsBranchNode() && child->getAsBranchNode()->getFlowOp() == EOpDefault)
+            defaultSegment = codeSegments.size();
+        else if (child->getAsBranchNode() && child->getAsBranchNode()->getFlowOp() == EOpCase) {
+            valueToSegment[caseValues.size()] = codeSegments.size();
+            caseValues.push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(oit->context), 
+                                                        child->getAsBranchNode()->getExpression()->getAsConstantUnion()->getUnionArrayPointer()[0].getIConst(), 
+                                                        false));
+        } else
+            codeSegments.push_back(child);
+    }
+
+    // make the switch statement
+    std::vector<llvm::BasicBlock*> segmentBB;
+    oit->glaBuilder->makeSwitch(condition, codeSegments.size(), caseValues, valueToSegment, defaultSegment, segmentBB);
+
+    // emit all the code in the segments
+    oit->breakForLoop.push(false);
+    for (unsigned int s = 0; s < codeSegments.size(); ++s) {
+        oit->glaBuilder->nextSwitchSegment(segmentBB, s);
+        codeSegments[s]->traverse(it);
+    }
+    oit->breakForLoop.pop();
+
+    oit->glaBuilder->endSwitch(segmentBB);
+
+    return false;
+}
+
 void TranslateConstantUnion(TIntermConstantUnion* node, TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
@@ -736,8 +781,11 @@ bool TranslateLoop(bool /* preVisit */, TIntermLoop* node, TIntermTraverser* it)
     oit->glaBuilder->makeNewLoop();
 
     if (! node->testFirst()) {
-        if (node->getBody())
+        if (node->getBody()) {
+            oit->breakForLoop.push(true);
             node->getBody()->traverse(it);
+            oit->breakForLoop.pop();
+        }
         bodyOut = true;
     }
 
@@ -755,8 +803,11 @@ bool TranslateLoop(bool /* preVisit */, TIntermLoop* node, TIntermTraverser* it)
         ifBuilder.makeEndIf();
     }
 
-    if (! bodyOut && node->getBody())
+    if (! bodyOut && node->getBody()) {
+        oit->breakForLoop.push(true);
         node->getBody()->traverse(it);
+        oit->breakForLoop.pop();
+    }
 
     if (node->getTerminal())
         node->getTerminal()->traverse(it);
@@ -779,7 +830,10 @@ bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
         oit->glaBuilder->makeDiscard(oit->inMain);
         break;
     case EOpBreak:
-        oit->glaBuilder->makeLoopExit();
+        if (oit->breakForLoop.top())
+            oit->glaBuilder->makeLoopExit();
+        else
+            oit->glaBuilder->addSwitchBreak();
         break;
     case EOpContinue:
         oit->glaBuilder->makeLoopBackEdge();
@@ -1974,6 +2028,7 @@ void GlslangToTop(TIntermNode* root, gla::Manager* manager)
     it.visitBinary = TranslateBinary;
     it.visitConstantUnion = TranslateConstantUnion;
     it.visitSelection = TranslateSelection;
+    it.visitSwitch = TranslateSwitch;
     it.visitSymbol = TranslateSymbol;
     it.visitUnary = TranslateUnary;
     it.visitLoop = TranslateLoop;

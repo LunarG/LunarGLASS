@@ -23,8 +23,8 @@ Interfacing
   + add bool for supressing warnings
   + add bool for forward compatibility context
   + add a bool for relaxed semantic checking
-  B Put glslang in a namespace
-  B Fix any copyrights
+  - Put glslang in a namespace
+  + Fix any copyrights
   - Linker I/O?  Uniform maps?
 
 Build
@@ -101,8 +101,8 @@ LunarGoo
 • + texture arrays.
 • + texture offsetting.
 • + explicit LOD and derivative controls
-• B switch/case/default statements, for integer condition only
-• . switch statements can be empty, must have a statement between a label and the end of the switch, allows flow control to fall through
+• + switch/case/default statements, for integer condition only
+• + switch statements can be empty, must have a statement between a label and the end of the switch, allows flow control to fall through
 • + new built-ins: trunc(), round(), roundEven(), isnan(), isinf()
 • B modf()
 • . Add hyperbolic functions sinh, cosh, tanh, asinh, acosh, atanh.

@@ -396,6 +396,30 @@ public:
         llvm::BasicBlock* mergeBB;
     };
 
+    // Make a switch statement.  A switch has 'numSegments' of pieces of code, not containing 
+    // any case/default labels, all separated by one or more case/default labels.  Each possible
+    // case value v is a jump to the caseValues[v] segment.  The defaultSegment is also in this
+    // number space.  How to compute the value is given by 'condition', as in switch(condition).
+    //
+    // The Top Builder will maintain the stack of post-switch merge blocks for nested switches.
+    //
+    // Use a defaultSegment < 0 if there is no default segment (to branch to post switch).
+    //
+    // Returns the right set of basic blocks to start each code segment with, so that the caller's
+    // recursion stack can hold the memory for it.
+    //
+    void Builder::makeSwitch(llvm::Value* condition, int numSegments, std::vector<llvm::ConstantInt*> caseValues, std::vector<int> valueToSegment, int defaultSegment,
+                             std::vector<llvm::BasicBlock*>& segmentBB);  // return argument
+
+    // Add a branch to the innermost switch's merge block.
+    void Builder::addSwitchBreak();
+
+    // Move to the next code segment, passing in the return argument in makeSwitch()
+    void nextSwitchSegment(std::vector<llvm::BasicBlock*>& segmentBB, int segment);
+
+    // Finish off the innermost switch.
+    void Builder::endSwitch(std::vector<llvm::BasicBlock*>& segmentBB);
+
     // Start the beginning of a new loop. For inductive loops, specify the
     // inductive variable, what value it starts at, when it finishes, and how
     // much it increments by on each iteration. Also specify whether you want
@@ -448,6 +472,9 @@ protected:
     // accumulate values that must be copied out at the end
     std::vector<llvm::Value*> copyOuts;
     std::vector<bool> copyOutActive;   // the indexed ones that might be active
+
+    // Switch stack
+    std::stack<llvm::BasicBlock*> switches;
 
     // Data that needs to be kept in order to properly handle loops.
     struct LoopData {

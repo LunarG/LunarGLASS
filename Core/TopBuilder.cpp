@@ -1919,6 +1919,54 @@ void Builder::If::makeEndIf()
     glaBuilder->builder.SetInsertPoint(mergeBB);
 }
 
+void Builder::makeSwitch(llvm::Value* condition, int numSegments, std::vector<llvm::ConstantInt*> caseValues, std::vector<int> valueToSegment, int defaultSegment,
+                         std::vector<llvm::BasicBlock*>& segmentBB)
+{
+    llvm::Function* function = builder.GetInsertBlock()->getParent();
+
+    // make all the blocks
+    for (int s = 0; s < numSegments; ++s)
+        segmentBB.push_back(llvm::BasicBlock::Create(context, "switch-segment", function));
+
+    llvm::BasicBlock* mergeBlock = llvm::BasicBlock::Create(context, "switch-merge", function);
+
+    // make the switch instruction
+    llvm::SwitchInst* switchInst = builder.CreateSwitch(condition, defaultSegment >= 0 ? segmentBB[defaultSegment] : mergeBlock, caseValues.size());
+    for (int i = 0; i < caseValues.size(); ++i)
+        switchInst->addCase(caseValues[i], segmentBB[valueToSegment[i]]);
+
+    // push the merge block
+    switches.push(mergeBlock);
+}
+
+void Builder::addSwitchBreak()
+{
+    // branch to the top of the merge block stack
+    builder.CreateBr(switches.top());
+}
+
+void Builder::nextSwitchSegment(std::vector<llvm::BasicBlock*>& segmentBB, int nextSegment)
+{
+    int lastSegment = nextSegment - 1;
+    if (lastSegment >= 0) {
+        // Close out previous segment by jumping, if necessary, to next segment
+        if (! builder.GetInsertBlock()->getInstList().back().isTerminator())
+            builder.CreateBr(segmentBB[nextSegment]);
+    }
+    builder.SetInsertPoint(segmentBB[nextSegment]);
+}
+
+void Builder::endSwitch(std::vector<llvm::BasicBlock*>& segmentBB)
+{
+    // Close out previous segment by jumping, if necessary, to next segment
+    if (! builder.GetInsertBlock()->getInstList().back().isTerminator())
+        addSwitchBreak();
+
+    builder.SetInsertPoint(switches.top());
+
+    switches.pop();
+}
+
 // Start the beginning of a new loop. For inductive loops, specify the
 // inductive variable, what value it starts at, when it finishes, and how
 // much it increments by on each iteration. Also specify whether you want
