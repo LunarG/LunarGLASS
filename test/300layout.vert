@@ -2,8 +2,10 @@
 
 layout(location = 7) in vec3 c;
 layout(LocatioN = 3) in vec4 p;
+layout(location = 9) in ivec2 aiv2;
 out vec4 pos;
 out vec3 color;
+flat out int iout;
 
 layout(shared, column_major, row_major) uniform; // default is now shared and row_major
 
@@ -11,6 +13,7 @@ layout(std140) uniform Transform { // layout of this block is std140
     mat4 M1; // row_major
     layout(column_major) mat4 M2; // column major
     mat3 N1; // row_major
+    int iuin;
 } tblock;
 
 uniform T2 { // layout of this block is shared
@@ -24,8 +27,11 @@ layout(column_major) uniform T3 { // shared and column_major
     mat3 N2; // column_major
 };
 
+uniform uint uiuin;
+
 void main()
 {
     pos = p * (tblock.M1 + tblock.M2 + M4 + M3 + t2m);
     color = c * tblock.N1;
+    iout = tblock.iuin + int(uiuin) + aiv2.y;
 }
