@@ -16,14 +16,14 @@ entry:
   %param = alloca [4 x <4 x float>]
   %param2 = load [4 x <4 x float>] addrspace(2)* @"matrix m4"
   store [4 x <4 x float>] %param2, [4 x <4 x float>]* %param
-  %v3__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
+  %v3__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 0, i32 -1)
   store <3 x float> %v3__, <3 x float>* @v3_shadow
   %param13 = load <3 x float>* @v3_shadow
   store <3 x float> %param13, <3 x float>* %param1
   %0 = call <3 x float> @"mxv(mf44;vf3;"([4 x <4 x float>]* %param, <3 x float>* %param1)
   %param46 = load [3 x <3 x float>] addrspace(2)* @"matrix m3"
   store [3 x <3 x float>] %param46, [3 x <3 x float>]* %param4
-  %v3__7 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
+  %v3__7 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 0, i32 -1)
   store <3 x float> %v3__7, <3 x float>* @v3_shadow
   %param58 = load <3 x float>* @v3_shadow
   store <3 x float> %param58, <3 x float>* %param5
@@ -154,7 +154,7 @@ post-return:                                      ; No predecessors!
 
 declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
@@ -168,7 +168,7 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %param2 = load [4 x <4 x float>] addrspace(2)* @"matrix m4", align 16
-  %v3__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 0, i32 -1, i32 1)
+  %v3__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 0, i32 -1)
   %param212 = extractvalue [4 x <4 x float>] %param2, 0
   %0 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %param212, <3 x i32> <i32 0, i32 1, i32 2>)
   %param213 = extractvalue [4 x <4 x float>] %param2, 1
@@ -201,7 +201,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 

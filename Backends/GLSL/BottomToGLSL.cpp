@@ -810,10 +810,12 @@ protected:
                 }
 
                 if (version >= 130) {
-                    switch (intMethod) {
-                    case EIMNone:          globalDeclarations << "flat ";          break;
-                    //case EIMSmooth:        globalDeclarations << "smooth ";        break;
-                    case EIMNoperspective: globalDeclarations << "noperspective "; break;
+                    if (language != EShLangVertex) {
+                        switch (intMethod) {
+                        case EIMNone:          globalDeclarations << "flat ";          break;
+                        //case EIMSmooth:        globalDeclarations << "smooth ";        break;
+                        case EIMNoperspective: globalDeclarations << "noperspective "; break;
+                        }
                     }
                 }
             }

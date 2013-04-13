@@ -31,7 +31,7 @@ entry:
   %color1 = fadd <4 x float> %4, %3
   store <4 x float> %color1, <4 x float>* %color
   %5 = load i32 addrspace(1)* @"sampler1D texSampler1D"
-  %coords2D__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %coords2D__ = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0, i32 -1)
   store <2 x float> %coords2D__, <2 x float>* @coords2D_shadow
   %6 = load <2 x float>* @coords2D_shadow
   %7 = load float* %lod
@@ -47,7 +47,7 @@ entry:
   %color3 = fadd <4 x float> %14, %13
   store <4 x float> %color3, <4 x float>* %color
   %15 = load i32 addrspace(1)* @"sampler2D texSampler2D"
-  %coords2D__4 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %coords2D__4 = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0, i32 -1)
   store <2 x float> %coords2D__4, <2 x float>* @coords2D_shadow
   %16 = load <2 x float>* @coords2D_shadow
   %17 = load float* %lod
@@ -133,7 +133,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.f32(i32, i32, i32, float, float, float) nounwind readnone
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+declare <2 x float> @llvm.gla.fReadData.v2f32(i32, i32) nounwind readonly
 
 declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32, i32, i32, <2 x float>, float, float) nounwind readnone
 
@@ -161,7 +161,7 @@ entry:
   %2 = load i32 addrspace(1)* @"sampler3D texSampler3D", align 4
   %3 = load i32 addrspace(1)* @"sampler1DShadow shadowSampler1D", align 4
   %4 = load i32 addrspace(1)* @"sampler2DShadow shadowSampler2D", align 4
-  %coords2D__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %coords2D__ = call <2 x float> @llvm.gla.fReadData.v2f32(i32 0, i32 -1)
   %5 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32 1, i32 %0, i32 133, <2 x float> %coords2D__, float 3.000000e+00, float undef)
   %6 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.f32(i32 1, i32 %0, i32 132, float 0x3FFC9FBE80000000, float 3.000000e+00, float undef)
   %7 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 1, i32 %0, i32 133, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>, float 3.000000e+00, float undef)
@@ -200,7 +200,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.f32(i32, i32, i32, float, float, float) nounwind readnone
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+declare <2 x float> @llvm.gla.fReadData.v2f32(i32, i32) nounwind readonly
 
 declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32, i32, i32, <2 x float>, float, float) nounwind readnone
 

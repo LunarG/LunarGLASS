@@ -11,23 +11,23 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %inV__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %inV__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   store <4 x float> %inV__, <4 x float>* @inV_shadow
   %outVc_shadow = load <4 x float>* @inV_shadow
   store <4 x float> %outVc_shadow, <4 x float>* @outVc_shadow
-  %inV__1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %inV__1 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   store <4 x float> %inV__1, <4 x float>* @inV_shadow
   %outVs_shadow = load <4 x float>* @inV_shadow
   store <4 x float> %outVs_shadow, <4 x float>* @outVs_shadow
-  %inV__2 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %inV__2 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   store <4 x float> %inV__2, <4 x float>* @inV_shadow
   %outVf_shadow = load <4 x float>* @inV_shadow
   store <4 x float> %outVf_shadow, <4 x float>* @outVf_shadow
-  %inV__3 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %inV__3 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   store <4 x float> %inV__3, <4 x float>* @inV_shadow
   %outVn_shadow = load <4 x float>* @inV_shadow
   store <4 x float> %outVn_shadow, <4 x float>* @outVn_shadow
-  %inV__4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %inV__4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   store <4 x float> %inV__4, <4 x float>* @inV_shadow
   %outVcn_shadow = load <4 x float>* @inV_shadow
   store <4 x float> %outVcn_shadow, <4 x float>* @outVcn_shadow
@@ -50,7 +50,7 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
@@ -60,7 +60,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %inV__4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %inV__4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %inV__4)
   call void @llvm.gla.fWriteData.v4f32(i32 1, i32 -1, <4 x float> %inV__4)
   call void @llvm.gla.fWriteData.v4f32(i32 2, i32 -1, <4 x float> %inV__4)
@@ -75,7 +75,7 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 #### BEGIN COMPILER 0 INFO LOG ####

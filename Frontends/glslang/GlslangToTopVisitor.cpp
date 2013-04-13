@@ -1850,11 +1850,11 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
 
 void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builder::SuperValue storage, int firstSlot)
 {
-    gla::EInterpolationMethod method = gla::EIMSmooth;
+    gla::EInterpolationMethod method = gla::EIMNone;
     if (node->getType().getQualifier().nopersp)
         method = gla::EIMNoperspective;
-    else if (node->getType().getQualifier().flat)
-        method = gla::EIMNone;
+    else if (node->getType().getQualifier().smooth)
+        method = gla::EIMSmooth;
 
     gla::EInterpolationLocation location = gla::EILFragment;
     if (node->getType().getQualifier().sample)

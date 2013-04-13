@@ -17,6 +17,9 @@ LLVM 3.2
 Thread safety
  - Move to thread safe version of flex
 
+ Performance
+  - fix difference between fReadData and fReadInterpolant: LLVM is optimizing multiple uses of one but not the other
+
 Interfacing
   + Separate top and bottom IR into two files from IntrinsicsLunarGLASS.td
   + Make the glslang adapter its own library
@@ -46,7 +49,7 @@ LunarGoo
 
 - double underscore should be an error not a warning, maybe wait until after LunarGOO does not make them
 
-- GLSL 1.2 (2)
+- GLSL 1.2
 • + Handle version-specific keywords as identifiers for other versions
 • + Support non-square matrices, mat2x3 means 2 columns, 3 rows
 • . add more non-square matrix test cases for adapter
@@ -87,7 +90,7 @@ LunarGoo
 • + shadow textures
 • x multiple compilation units
 
-- GLSL 1.3 (8)
+- GLSL 1.3
 • + new texture names
 • + native signed and unsigned integers, integer vectors, and operations
   • + bitwise shifts and masking
@@ -154,7 +157,7 @@ LunarGoo
 • + Non-ES: Rectangular textures, including the closure of the functionality indicated by the original texture_rectangle extension, the gpu_shader4 extension and the 1.3 version of GLSL.
 • + Non-ES (but ES 3.0): Texture buffers.
 
-- 1.5 (1)
+- 1.5
 • + Turn the compatibility extension into the compatibility profile.
 • + Added determinant() built-in.
 • B Broaden structure usage to include fragment inputs and vertex outputs.
@@ -174,7 +177,7 @@ LunarGoo
 • Non-ES: gl_FragCoord qualifiers use the layout(): origin_upper_left and pixel_center_integer.
 • Non-ES: Broaden structure usage to include geometry inputs and geometry outputs.
 
-- 3.3 (2)
+- 3.3
 • Add ARB_explicit_attrib_location extension:
   • + Layout qualifiers can declare the location of vertex shader inputs.
   • + Layout qualifiers can declare the location of fragment shader outputs.

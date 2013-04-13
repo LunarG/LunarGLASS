@@ -26,7 +26,7 @@ post-loop-break:                                  ; No predecessors!
 
 ifmerge:                                          ; preds = %loop-header, %post-loop-break
   %3 = load i32* %i
-  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %color__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   store <4 x float> %color__, <4 x float>* @color_shadow
   %4 = load <4 x float>* @color_shadow
   %5 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 %3
@@ -65,7 +65,7 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
@@ -77,15 +77,18 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %color__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   %gla_constGEP = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 1
   store <4 x float> %color__, <4 x float>* %gla_constGEP, align 16
+  %color__.1 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   %gla_constGEP4 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 2
-  store <4 x float> %color__, <4 x float>* %gla_constGEP4, align 16
+  store <4 x float> %color__.1, <4 x float>* %gla_constGEP4, align 16
+  %color__.2 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   %gla_constGEP5 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 3
-  store <4 x float> %color__, <4 x float>* %gla_constGEP5, align 16
+  store <4 x float> %color__.2, <4 x float>* %gla_constGEP5, align 16
+  %color__.3 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   %gla_constGEP6 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 4
-  store <4 x float> %color__, <4 x float>* %gla_constGEP6, align 16
+  store <4 x float> %color__.3, <4 x float>* %gla_constGEP6, align 16
   %gla_constGEP7 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 0
   %0 = load <4 x float>* %gla_constGEP7, align 16
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %0)
@@ -104,7 +107,7 @@ entry:
   %gla_constGEP12 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 5
   %5 = load <4 x float>* %gla_constGEP12, align 16
   call void @llvm.gla.fWriteData.v4f32(i32 5, i32 -1, <4 x float> %5)
-  call void @llvm.gla.fWriteData.v4f32(i32 6, i32 -1, <4 x float> %color__)
+  call void @llvm.gla.fWriteData.v4f32(i32 6, i32 -1, <4 x float> %color__.1)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -114,7 +117,7 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 #### BEGIN COMPILER 0 INFO LOG ####
@@ -127,13 +130,16 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 vec4[6] colorOut_shadow;
 out vec4 colorOut[6];
 in vec4 color;
+in vec4 color__d1;
+in vec4 color__d2;
+in vec4 color__d3;
 
 void main()
 {
     colorOut_shadow[1] = color;
-    colorOut_shadow[2] = color;
-    colorOut_shadow[3] = color;
-    colorOut_shadow[4] = color;
+    colorOut_shadow[2] = color__d1;
+    colorOut_shadow[3] = color__d2;
+    colorOut_shadow[4] = color__d3;
     vec4 temp21 = colorOut_shadow[0];
     colorOut[0] = temp21;
     vec4 temp22 = colorOut_shadow[1];
@@ -146,10 +152,10 @@ void main()
     colorOut[4] = temp25;
     vec4 temp26 = colorOut_shadow[5];
     colorOut[5] = temp26;
-    gl_Position = color;
+    gl_Position = color__d1;
     
 }
-#### BEGIN COMPILER 0 INFO LOG ####
+WARNING: 0:9: Two consecutive underscores are reserved for future use.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
@@ -160,22 +166,26 @@ vec4[6] colorOut_shadow;
 vec4[6] colorOut_shadow1;
 out vec4 colorOut[6];
 in vec4 color;
+in vec4 color__d1;
+in vec4 color__d2;
+in vec4 color__d3;
+in vec4 color__d1;
 
 void main()
 {
     colorOut_shadow[1] = color;
-    colorOut_shadow[2] = color;
-    colorOut_shadow[3] = color;
-    colorOut_shadow[4] = color;
-    vec4 temp214 = colorOut_shadow[0];
-    colorOut_shadow1[0] = temp214;
+    colorOut_shadow[2] = color__d1;
+    colorOut_shadow[3] = color__d2;
+    colorOut_shadow[4] = color__d3;
+    vec4 temp211 = colorOut_shadow[0];
+    colorOut_shadow1[0] = temp211;
     colorOut_shadow1[1] = color;
-    colorOut_shadow1[2] = color;
-    colorOut_shadow1[3] = color;
-    colorOut_shadow1[4] = color;
-    vec4 temp269 = colorOut_shadow[5];
-    colorOut_shadow1[5] = temp269;
-    colorOut[0] = temp214;
+    colorOut_shadow1[2] = color__d1;
+    colorOut_shadow1[3] = color__d2;
+    colorOut_shadow1[4] = color__d3;
+    vec4 temp266 = colorOut_shadow[5];
+    colorOut_shadow1[5] = temp266;
+    colorOut[0] = temp211;
     vec4 temp23 = colorOut_shadow1[1];
     colorOut[1] = temp23;
     vec4 temp24 = colorOut_shadow1[2];
@@ -186,6 +196,6 @@ void main()
     colorOut[4] = temp26;
     vec4 temp27 = colorOut_shadow1[5];
     colorOut[5] = temp27;
-    gl_Position = color;
+    gl_Position = color__d1;
     
 }

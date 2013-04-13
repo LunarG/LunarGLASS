@@ -19,7 +19,7 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %p__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %p__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   store <4 x float> %p__, <4 x float>* @p_shadow
   %0 = load <4 x float>* @p_shadow
   %1 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 0)
@@ -114,7 +114,7 @@ entry:
   %dot52 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column51)
   %pos_shadow = insertelement <4 x float> %34, float %dot52, i32 3
   store <4 x float> %pos_shadow, <4 x float>* @pos_shadow
-  %c__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 -1, i32 1)
+  %c__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1, i32 -1)
   store <3 x float> %c__, <3 x float>* @c_shadow
   %35 = load <3 x float>* @c_shadow
   %36 = load [3 x <3 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 2)
@@ -154,11 +154,11 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
 declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) nounwind readonly
 
 declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
@@ -185,7 +185,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %p__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %p__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
   %gla_constGEP = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 0
   %0 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP, align 16
   %gla_constGEP62 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 1
@@ -196,7 +196,7 @@ entry:
   %3 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP64, align 16
   %gla_constGEP65 = getelementptr %T2 addrspace(2)* @__anon__0, i32 0, i32 1
   %4 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP65, align 16
-  %c__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1, i32 -1, i32 1)
+  %c__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1, i32 -1)
   %gla_constGEP66 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 2
   %5 = load [3 x <3 x float>] addrspace(2)* %gla_constGEP66, align 16
   %rightColumn = extractvalue [4 x <4 x float>] %1, 0
@@ -266,11 +266,11 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
 declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) nounwind readonly
 
 declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
 
@@ -319,7 +319,7 @@ out vec3 color;
 out int iout;
 in vec4 p;
 in vec3 c;
-flat in ivec2 aiv2;
+in ivec2 aiv2;
 
 void main()
 {
