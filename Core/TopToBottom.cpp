@@ -59,19 +59,7 @@ void gla::PrivateManager::translateTopToBottom()
     unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
 
-    if (gla::Options.debug && ! gla::Options.bottomIROnly) {
-        llvm::errs() << "\nTop IR:\n";
-        module->dump();
-    }
-
     runLLVMOptimizations1();
-
-    if (gla::Options.debug || gla::Options.bottomIROnly) {
-        if (! gla::Options.bottomIROnly)
-            llvm::errs() << "\n\nBottom IR:\n";
-
-        module->dump();
-    }
 
 #ifdef _WIN32
     _set_output_format(oldFormat);
@@ -83,6 +71,12 @@ void gla::PrivateManager::translateTopToBottom()
         UnsupportedFunctionality("SoA in middle end: ", outerSoA);
     if (innerAoS != 4 && innerAoS != 1)
         UnsupportedFunctionality("AoS other than size 4 or 1 in middle end: ", innerAoS);
+}
+
+void gla::PrivateManager::dump(const char *heading)
+{
+    llvm::errs() << heading;
+    module->dump();
 }
 
 static inline void RunOnModule(llvm::FunctionPassManager& pm, llvm::Module* m)

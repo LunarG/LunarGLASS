@@ -46,6 +46,7 @@ namespace gla {
 
         virtual void translateTopToBottom();
         virtual void translateBottomToTarget();
+        virtual void dump(const char* heading);
 
     protected:
         PrivateManager() { }

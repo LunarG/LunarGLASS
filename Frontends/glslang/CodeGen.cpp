@@ -46,9 +46,11 @@
 // LunarGLASS adapter includes
 #include "GlslangToTop.h"
 
+// LLVM includes
+#include "llvm/Module.h"
+
 #ifndef USE_LUNARGLASS_CORE
 
-    #include "llvm/Module.h"
     class AdapterOnlyManager : public gla::Manager {
     public:
         AdapterOnlyManager() { }
@@ -115,20 +117,23 @@ bool TGenericCompiler::compile(TIntermNode *root, int version, EProfile profile)
     assert(EShLangCount < 256 && EProfileCount < 256);
     glaManager->setVersion(static_cast<int>(language) << 24 | static_cast<int>(profile) << 16 | version);
 
-    int compileCount = gla::Options.iterate ? 1000 : 1;
-    for (int i = 0; i < compileCount; ++i) {
-        TranslateGlslangToTop(root, glaManager);
+    TranslateGlslangToTop(root, glaManager);
+
+    if (! (debugOptions & EDebugOpMemoryLeakMode)) {
+        if (debugOptions & EDebugOpAssembly)
+            glaManager->dump("\nTop IR:\n");
 
 #ifdef USE_LUNARGLASS_CORE
         glaManager->translateTopToBottom();
+    
+        if (debugOptions & EDebugOpAssembly)
+            glaManager->dump("\n\nBottom IR:\n");
+
         glaManager->translateBottomToTarget();
-#else        
-        glaManager->getModule()->dump();
 #endif
-
-        glaManager->clear();
-
     }
+
+    glaManager->clear();
 
     delete glaManager;
 

@@ -51,8 +51,6 @@ extern "C" {
     SH_IMPORT_EXPORT void ShOutputHtml();
 }
 
-//#define MEASURE_MEMORY
-
 //
 // Return codes from main.
 //
@@ -140,29 +138,17 @@ int C_DECL main(int argc, char* argv[])
                 case 'd':
                     delay = true;                        
                     break;
-
-#ifdef MEASURE_MEMORY
-                case 'i': break;
-                case 'a': break;
-                case 'h': break;
-#else
                 case 'i': 
                     debugOptions |= EDebugOpIntermediate;       
                     break;
                 case 'a': 
-                    debugOptions |= EDebugOpAssembly;           
-                    break;
-#endif
-                case 'c': 
-                    if(!ShOutputMultipleStrings(++argv))
-                        return EFailUsage;
-                    --argc; 
-                    break;
-                case 'm': 
-                    debugOptions |= EDebugOpLinkMaps;          
+                    debugOptions |= EDebugOpAssembly;
                     break;
                 case 'l':
-                    debugOptions |= EDebugSuppressInfolog;
+                    debugOptions |= EDebugOpMemoryLeakMode;
+                    break;
+                case 's':
+                    debugOptions |= EDebugOpSuppressInfolog;
                     break;
                 default:
                     usage();
@@ -200,7 +186,7 @@ int C_DECL main(int argc, char* argv[])
                 linkFailed = true;
         }
 
-        if (! (debugOptions & EDebugSuppressInfolog)) {
+        if (! (debugOptions & EDebugOpSuppressInfolog)) {
             for (i = 0; i < numCompilers; ++i) {
                 InfoLogMsg("BEGIN", "COMPILER", i);
                 fprintf(stderr, "%s", ShGetInfoLog(compilers[i]));
@@ -268,41 +254,39 @@ bool CompileFile(char *fileName, ShHandle compiler, int debugOptions, const TBui
 {
     int ret;
     char **data = ReadFileData(fileName);
+    PROCESS_MEMORY_COUNTERS counters;  // just for memory leak testing
 
-#ifdef MEASURE_MEMORY
-    PROCESS_MEMORY_COUNTERS counters;
-#endif
-
-    if (!data)
+    if (! data)
         return false;
 
-#ifdef MEASURE_MEMORY
-    for (int i = 0; i < 10; ++i) {
-        for (int j = 0; j < 1000; ++j)
-#endif
+    for (int i = 0; i < ((debugOptions & EDebugOpMemoryLeakMode) ? 100 : 1); ++i) {
+        for (int j = 0; j < ((debugOptions & EDebugOpMemoryLeakMode) ? 100 : 1); ++j)
             ret = ShCompile(compiler, data, OutputMultipleStrings, EShOptNone, resources, debugOptions, 100, false, EShMsgDefault);
-#ifdef MEASURE_MEMORY
-
-        GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters));
-        printf("Working set size: %d\n", counters.WorkingSetSize);
+        
+        if (debugOptions & EDebugOpMemoryLeakMode) {
+            GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters));
+            printf("Working set size: %d\n", counters.WorkingSetSize);
+        }
     }
-#endif
 
     FreeFileData(data);
 
     return ret ? true : false;
 }
 
-
 //
 //   print usage to stdout
 //
 void usage()
 {
-    printf("Usage: standalone [-i -a -c -m -d -h] file1 file2 ...\n"
-           "Where: filename = filename ending in .frag* or .vert*\n");
+    printf("Usage: standalone [ options ] filename\n"
+           "Where: filename = filename ending in .frag* or .vert*\n"
+           "-i: intermediate (glslang AST)\n"
+           "-a: assembly dump (LLVM IR)\n"
+           "-d: delay end (keeps output up in debugger, WIN32)\n"
+           "-l: memory leak mode\n"
+           "-s: silent mode (no info log)\n");
 }
-
 
 //
 //   Malloc a string of sufficient size and read a string into it.
@@ -364,29 +348,14 @@ char** ReadFileData(char *fileName)
     return return_data;
 }
 
-
-
 void FreeFileData(char **data)
 {
     for(int i=0;i<OutputMultipleStrings;i++)
         free(data[i]);
 }
 
-
-
 void InfoLogMsg(char* msg, const char* name, const int num)
 {
     fprintf(stderr, num >= 0 ? "#### %s %s %d INFO LOG ####\n" :
            "#### %s %s INFO LOG ####\n", msg, name, num);
-}
-
-int ShOutputMultipleStrings(char **argv)
-{
-	if(!(abs(OutputMultipleStrings = atoi(*argv)))||((OutputMultipleStrings >5 || OutputMultipleStrings < 1)? 1:0)){
-	   printf("Invalid Command Line Argument after -c option.\n"
-              "Usage: -c <integer> where integer =[1,5]\n"
-              "This option must be specified before the input file path\n");
-       return 0;
-	}
-    return 1;
 }

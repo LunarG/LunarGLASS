@@ -51,7 +51,7 @@
 #ifndef LunarGLASSManager_H
 #define LunarGLASSManager_H
 
-#include "vector"
+#include <vector>
 #include <string>
 
 #define USE_LUNARGLASS_CORE
@@ -90,6 +90,7 @@ namespace gla {
 
         virtual void translateTopToBottom() = 0;
         virtual void translateBottomToTarget() = 0;
+        virtual void dump(const char* heading) { }
 
     protected:
         Manager() : module(0), pipeOutSymbols(0), version(0) { }

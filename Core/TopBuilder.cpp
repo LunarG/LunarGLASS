@@ -508,6 +508,7 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
 
     llvm::Value* value;
     if (global) {
+        // TODO: memory: who/how owns tracking and deleting this allocation?
         llvm::GlobalVariable* globalValue = new llvm::GlobalVariable(type, readOnly, linkage, initializer, annotatedName, llvm::GlobalVariable::NotThreadLocal, addressSpace);
         module->getGlobalList().push_back(globalValue);
         value = globalValue;

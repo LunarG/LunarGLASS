@@ -102,7 +102,7 @@ function runTests {
 
 # Default is for windows
 RUNCMD=../Build/Debug/glslang.exe
-OPTIONS=()
+OPTIONS=(-a)
 GLSL_OP="--glsl"
 OBFUSCATE_OP="-f"
 DO_OBFUSCATE=""
