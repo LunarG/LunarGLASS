@@ -877,6 +877,8 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
     case EvqFragCoord:
     case EvqPointCoord:
     case EvqFace:
+    case EvqVertexId:
+    case EvqInstanceId:
         // Pipeline reads: If we are here, it must be to create a shadow which
         // will shadow the actual pipeline reads, which must still be done elsewhere.
         // The top builder will make a global shadow for ESQInput.
@@ -891,6 +893,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMVariable(TIntermSymbo
         storageQualifier = gla::Builder::ESQOutput;
         break;
     case EvqUniform:
+    case EVqBuffer:
         storageQualifier = gla::Builder::ESQUniform;
         // TODO: linker functionality: uniform buffers? need to generalize to N objects (constant buffers) for higher shader models
         constantBuffer = 0;

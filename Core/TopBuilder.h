@@ -408,17 +408,17 @@ public:
     // Returns the right set of basic blocks to start each code segment with, so that the caller's
     // recursion stack can hold the memory for it.
     //
-    void Builder::makeSwitch(llvm::Value* condition, int numSegments, std::vector<llvm::ConstantInt*> caseValues, std::vector<int> valueToSegment, int defaultSegment,
-                             std::vector<llvm::BasicBlock*>& segmentBB);  // return argument
+    void makeSwitch(llvm::Value* condition, int numSegments, std::vector<llvm::ConstantInt*> caseValues, std::vector<int> valueToSegment, int defaultSegment,
+                    std::vector<llvm::BasicBlock*>& segmentBB);  // return argument
 
     // Add a branch to the innermost switch's merge block.
-    void Builder::addSwitchBreak();
+    void addSwitchBreak();
 
     // Move to the next code segment, passing in the return argument in makeSwitch()
     void nextSwitchSegment(std::vector<llvm::BasicBlock*>& segmentBB, int segment);
 
     // Finish off the innermost switch.
-    void Builder::endSwitch(std::vector<llvm::BasicBlock*>& segmentBB);
+    void endSwitch(std::vector<llvm::BasicBlock*>& segmentBB);
 
     // Start the beginning of a new loop. For inductive loops, specify the
     // inductive variable, what value it starts at, when it finishes, and how
