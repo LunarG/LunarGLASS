@@ -52,6 +52,7 @@
 #include "LunarGLASSManager.h"
 #include "Exceptions.h"
 #include "TopBuilder.h"
+#include "metadata.h"
 
 // LLVM includes
 #include "llvm/Support/CFG.h"
@@ -95,14 +96,18 @@ public:
     gla::Builder::SuperValue createConversion(TOperator op, llvm::Type*, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createIntrinsic(TOperator op, std::vector<gla::Builder::SuperValue>& operands, bool isUnsigned);
-    void createPipelineRead(TIntermSymbol*, gla::Builder::SuperValue storage, int slot);
+    void createPipelineRead(TIntermSymbol*, gla::Builder::SuperValue storage, int slot, llvm::MDNode*);
     int getNextInterpIndex(const std::string& name, int numSlots);
     gla::Builder::SuperValue createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
+    void setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
+    void setOutputMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
+    llvm::MDNode* makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot);
 
     llvm::LLVMContext &context;
     llvm::BasicBlock* shaderEntry;
     llvm::IRBuilder<> llvmBuilder;
     llvm::Module* module;
+    gla::Metadata metadata;
 
     gla::Builder* glaBuilder;
     int interpIndex;
@@ -115,13 +120,98 @@ public:
     std::stack<bool> breakForLoop;  // false means break for switch
 };
 
+namespace {
+
+// Helper functions for translating glslang to metadata, so that information
+// not representable in LLVM does not get lost.
+
+gla::EMdInputOutput getMdQualifier(TIntermSymbol* node)
+{
+    gla::EMdInputOutput mdQualifier;
+    switch (node->getQualifier().storage) {
+
+    // inputs
+    case EvqVertexId:   mdQualifier = gla::EMioVertexId;        break;
+    case EvqInstanceId: mdQualifier = gla::EMioInstanceId;      break;
+    case EvqFace:       mdQualifier = gla::EMioFragmentFace;    break;
+    case EvqPointCoord: mdQualifier = gla::EMioPointCoord;      break;
+    case EvqFragCoord:  mdQualifier = gla::EMioFragmentCoord;   break;
+    case EvqVaryingIn:  mdQualifier = gla::EMioPipeIn;          break;
+
+    // outputs
+    case EvqPosition:   mdQualifier = gla::EMioVertexPosition;    break;
+    case EvqPointSize:  mdQualifier = gla::EMioPointSize;         break;
+    case EvqClipVertex: mdQualifier = gla::EMioClipVertex;        break;
+    case EvqVaryingOut: mdQualifier = gla::EMioPipeOut;           break;
+    case EvqFragColor:  mdQualifier = gla::EMioPipeOut;           break;
+    case EvqFragDepth:  mdQualifier = gla::EMioFragmentDepth;     break;
+
+    // uniforms
+    case EVqBuffer:     mdQualifier = gla::EMioBufferBlockMember; break;
+    case EvqUniform:    
+                    if (node->getType().getBasicType() == EbtBlock)
+                        mdQualifier = gla::EMioUniformBlockMember;
+                    else
+                        mdQualifier = gla::EMioDefaultUniform;
+                                                                  break;
+    default:
+        mdQualifier = gla::EMioNone;
+        break;
+    }
+
+    return mdQualifier;
+}
+
+gla::EMdTypeLayout getMdTypeLayout(TIntermSymbol* node)
+{
+    gla::EMdTypeLayout mdType = gla::EMtlNone;
+    if (node->getType().isMatrix()) {
+        switch (node->getQualifier().layoutMatrix) {
+        case ElmRowMajor:  mdType = gla::EMtlRowMajorMatrix;   break;
+        default:           mdType = gla::EMtlColMajorMatrix;   break;
+        }
+    } else {
+        if (node->getType().getBasicType() == EbtUint)
+            mdType = gla::EMtlUnsigned;
+    }
+
+    return mdType;
+}
+
+gla::EMdSampler getMdSampler(const TType &type)
+{
+    if (type.getSampler().image)
+        return gla::EMsImage;
+    else
+        return gla::EMsTexture;
+}
+
+gla::EMdSamplerDim getMdSamplerDim(const TType &type)
+{
+    switch (type.getSampler().dim) {
+    case Esd1D:     return gla::EMsd1D;
+    case Esd2D:     return gla::EMsd2D;
+    case Esd3D:     return gla::EMsd3D;
+    case EsdCube:   return gla::EMsdCube;
+    case EsdRect:   return gla::EMsdRect;
+    case EsdBuffer: return gla::EMsdBuffer;
+    default:
+        gla::UnsupportedFunctionality("unknown sampler dimension");
+        return gla::EMsd2D;
+    }
+}
+
+};
+
+
 // A fully functionaling front end will know all array sizes,
 // this is just a back up size.
 const int UnknownArraySize = 8;
 
 TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
     : context(llvm::getGlobalContext()), llvmBuilder(context),
-      module(manager->getModule()), interpIndex(0), inMain(false), shaderEntry(0)
+      module(manager->getModule()), metadata(context, module),
+      interpIndex(gla::MaxUserLayoutLocation), inMain(false), shaderEntry(0)
 {
     // do this after the builder knows the module
     glaBuilder = new gla::Builder(llvmBuilder, manager);
@@ -148,6 +238,18 @@ TGlslangToTopTraverser::~TGlslangToTopTraverser()
 // already processed.
 //
 
+
+//
+// Symbols can turn into 
+//  - pipeline reads, right now, as intrinic reads into shadow storage
+//  - pipelien writes, way in the futuer, as intrinsic writes of shadow storage
+//  - complex lvalue base setups:  foo.bar[3]....  , where we see foo and start up an access chain
+//  - something simple that degenerates into the last bullet
+//
+// Uniforms, inputs, and outputs also get metadata hooked up for future linker consumption.
+//
+// Sort out what the deal is...
+//
 void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
@@ -156,15 +258,8 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
 
     assert(symbolNode);
 
-    bool input = false;
-    switch (symbolNode->getQualifier().storage) {
-    case EvqVaryingIn:
-    case EvqFragCoord:
-    case EvqPointCoord:
-    case EvqFace:
-        input = true;
-        break;
-    }
+    bool input = symbolNode->getType().getQualifier().isPipeInput();
+    bool output = symbolNode->getType().getQualifier().isPipeOutput();
 
     // L-value chains will be computed purely left to right, so now is "clear" time
     // (since we are on the symbol; the base of the expression, which is left-most)
@@ -175,16 +270,23 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     std::map<int, gla::Builder::SuperValue>::iterator iter;
     iter = oit->namedValues.find(symbolNode->getId());
     gla::Builder::SuperValue storage;
-
     if (oit->namedValues.end() == iter) {
         // it was not found, create it
         storage = oit->createLLVMVariable(symbolNode);
         oit->namedValues[symbolNode->getId()] = storage;
+
+        // set up metadata for future pipeline intrinsic writes
+        if (output)
+            oit->setOutputMetadata(node, storage);
     } else
         storage = oit->namedValues[symbolNode->getId()];
 
     // Track the current value
     oit->glaBuilder->setAccessChainLValue(storage);
+
+    // Set up metadata for uniform/sampler inputs
+    if (symbolNode->getType().getQualifier().isUniform())
+        oit->setAccessChainMetadata(node, storage);
 
     // If it's an arrayed output, we also want to know which indices
     // are live.
@@ -198,14 +300,24 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     }
 
     if (input) {
-        // TODO: linker functionality: use real (or dummy?) slot numbers
         int size = 1;
         if (symbolNode->getType().isArray()) {
             size = symbolNode->getType().getArraySize();
             if (size == 0)
                 size = UnknownArraySize;
         }
-        oit->createPipelineRead(symbolNode, storage, oit->getNextInterpIndex(symbolNode->getSymbol().c_str(), size));
+
+        // figure out where this input goes
+        int firstSlot;
+        if (symbolNode->getType().getQualifier().hasLocation())
+            firstSlot = symbolNode->getType().getQualifier().layoutSlotLocation;
+        else            
+            firstSlot = oit->getNextInterpIndex(symbolNode->getSymbol().c_str(), size);
+
+        // set up metadata for pipeline intrinsic read
+        llvm::MDNode* md = oit->makeInputMetadata(symbolNode, storage, firstSlot);
+
+        oit->createPipelineRead(symbolNode, storage, firstSlot, md);
     }
 }
 
@@ -1851,7 +1963,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createIntrinsic(TOperator op, s
     return result;
 }
 
-void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builder::SuperValue storage, int firstSlot)
+void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builder::SuperValue storage, int firstSlot, llvm::MDNode* md)
 {
     gla::EInterpolationMethod method = gla::EIMNone;
     if (node->getType().getQualifier().nopersp)
@@ -1932,7 +2044,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
                 if (node->getType().isMatrix())
                     gepChain.push_back(gla::MakeIntConstant(context, slot - firstSlot));
                 
-                pipeRead = glaBuilder->readPipeline(readType, indexedName, slot, -1 /*mask*/, method, location);
+                pipeRead = glaBuilder->readPipeline(readType, indexedName, slot, md, -1 /*mask*/, method, location);
                 llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
                 
                 if (node->getType().isMatrix())
@@ -1945,7 +2057,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, gla::Builde
     } else {
         readType = convertGlslangToGlaType(node->getType());
         gla::AddSeparator(name);
-        llvm::Value* pipeRead = glaBuilder->readPipeline(readType, name, firstSlot, -1 /*mask*/, method, location);
+        llvm::Value* pipeRead = glaBuilder->readPipeline(readType, name, firstSlot, md, -1 /*mask*/, method, location);
         llvmBuilder.CreateStore(pipeRead, storage);
     }
 }
@@ -2015,6 +2127,53 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createLLVMConstant(const TType&
     }
 
     return glaBuilder->getConstant(llvmConsts, type);
+}
+
+void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy)
+{    
+    llvm::MDNode* md;
+
+    switch (getMdQualifier(node)) {
+    case gla::EMioDefaultUniform:
+        if (node->getType().getBasicType() == EbtSampler) {
+            md = metadata.makeMdSampler(node->getSymbol().c_str(), getMdSampler(node->getType()), typeProxy, getMdSamplerDim(node->getType()), 
+                                        node->getType().getSampler().arrayed,
+                                        node->getType().getSampler().shadow);
+            glaBuilder->setAccessChainMetadata("sampler", md);
+
+            return;
+        }
+
+        md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "defaultUniforms", gla::EMioDefaultUniform, typeProxy, getMdTypeLayout(node), 0);
+        glaBuilder->setAccessChainMetadata("uniform", md);
+        break;
+    case gla::EMioUniformBlockMember:
+        // TODO: linker: generate uniform block metadata
+        break;
+    case gla::EMioBufferBlockMember:
+        // TODO: 4.3 linker: generate buffer block metadata
+        break;
+    default:
+        break;
+    }
+}
+
+void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value* storage)
+{    
+    llvm::MDNode* md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "outputs", getMdQualifier(node), storage, getMdTypeLayout(node), 0);
+    glaBuilder->setOutputMetadata(storage, md);
+}
+
+llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot)
+{    
+    int mdLocation = slot;
+    if (node->getQualifier().layoutSlotLocation != TQualifier::layoutLocationEnd)
+        mdLocation = node->getQualifier().layoutSlotLocation;
+
+    return metadata.makeMdInputOutput(node->getSymbol().c_str(), "inputs", getMdQualifier(node), typeProxy, getMdTypeLayout(node), mdLocation);
+
+    // TODO: linker: avoid replication of the same node
+    // TODO: linker: the metadata storage is sometimes optimized away, need an external global copy of it for typing purposes
 }
 
 //

@@ -10,8 +10,8 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load [4 x <4 x float>] addrspace(2)* @"matrix mvp"
-  %v__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
+  %0 = load [4 x <4 x float>] addrspace(2)* @"matrix mvp", !uniform !3
+  %v__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1024, i32 -1), !input !5
   store <4 x float> %v__, <4 x float>* @v_shadow
   %1 = load <4 x float>* @v_shadow
   %2 = alloca <4 x float>
@@ -85,11 +85,11 @@ entry:
   %dotProduct59 = fadd float %dotProduct55, %product58
   %Position_shadow = insertelement <4 x float> %6, float %dotProduct59, i32 3
   store <4 x float> %Position_shadow, <4 x float>* @Position_shadow
-  %"matrix3x3 am3[0]" = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1, i32 -1)
+  %"matrix3x3 am3[0]" = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1025, i32 -1), !input !7
   store <3 x float> %"matrix3x3 am3[0]", <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 0)
-  %"matrix3x3 am3[1]" = call <3 x float> @llvm.gla.fReadData.v3f32(i32 2, i32 -1)
+  %"matrix3x3 am3[1]" = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1026, i32 -1), !input !7
   store <3 x float> %"matrix3x3 am3[1]", <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 1)
-  %"matrix3x3 am3[2]" = call <3 x float> @llvm.gla.fReadData.v3f32(i32 3, i32 -1)
+  %"matrix3x3 am3[2]" = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1027, i32 -1), !input !7
   store <3 x float> %"matrix3x3 am3[2]", <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 2)
   %7 = load <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 2)
   %f_shadow = extractelement <3 x float> %7, i32 1
@@ -98,9 +98,9 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %8 = load <4 x float>* @Position_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %8)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %8), !output !0
   %9 = load float* @f_shadow
-  call void @llvm.gla.fWriteData.f32(i32 1, i32 -1, float %9)
+  call void @llvm.gla.fWriteData.f32(i32 1, i32 -1, float %9), !output !2
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -115,6 +115,20 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
+!outputs = !{!0, !2}
+!defaultUniforms = !{!3}
+!inputs = !{!5, !7}
+
+!0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow, metadata !1}
+!1 = metadata !{i32 0, i32 0}
+!2 = metadata !{metadata !"f", i32 1, float* @f_shadow, metadata !1}
+!3 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix mvp", metadata !4}
+!4 = metadata !{i32 3, i32 0}
+!5 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow, metadata !6}
+!6 = metadata !{i32 0, i32 1024}
+!7 = metadata !{metadata !"am3", i32 7, [3 x <3 x float>]* @"matrix am3_shadow", metadata !8}
+!8 = metadata !{i32 3, i32 1025}
+
 
 Bottom IR:
 ; ModuleID = 'Top'
@@ -123,13 +137,13 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load [4 x <4 x float>] addrspace(2)* @"matrix mvp", align 16
-  %v__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
+  %0 = load [4 x <4 x float>] addrspace(2)* @"matrix mvp", align 16, !uniform !3
+  %v__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1024, i32 -1), !input !5
   %component = extractelement <4 x float> %v__, i32 0
   %component1 = extractelement <4 x float> %v__, i32 1
   %component2 = extractelement <4 x float> %v__, i32 2
   %component3 = extractelement <4 x float> %v__, i32 3
-  %"matrix3x3 am3[2]" = call <3 x float> @llvm.gla.fReadData.v3f32(i32 3, i32 -1)
+  %"matrix3x3 am3[2]" = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1027, i32 -1), !input !7
   %column4 = extractvalue [4 x <4 x float>] %0, 1
   %column = extractvalue [4 x <4 x float>] %0, 0
   %column7 = extractvalue [4 x <4 x float>] %0, 2
@@ -180,8 +194,8 @@ entry:
   %dotProduct59 = fadd float %product58, %dotProduct55
   %f_shadow = extractelement <3 x float> %"matrix3x3 am3[2]", i32 1
   %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dotProduct14, i32 0, float %dotProduct29, i32 0, float %dotProduct44, i32 0, float %dotProduct59, i32 0)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %1)
-  call void @llvm.gla.fWriteData.f32(i32 1, i32 -1, float %f_shadow)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %1), !output !0
+  call void @llvm.gla.fWriteData.f32(i32 1, i32 -1, float %f_shadow), !output !2
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -200,6 +214,20 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+
+!outputs = !{!0, !2}
+!defaultUniforms = !{!3}
+!inputs = !{!5, !7}
+
+!0 = metadata !{metadata !"gl_Position", i32 8, null, metadata !1}
+!1 = metadata !{i32 0, i32 0}
+!2 = metadata !{metadata !"f", i32 1, null, metadata !1}
+!3 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix mvp", metadata !4}
+!4 = metadata !{i32 3, i32 0}
+!5 = metadata !{metadata !"v", i32 7, null, metadata !6}
+!6 = metadata !{i32 0, i32 1024}
+!7 = metadata !{metadata !"am3", i32 7, null, metadata !8}
+!8 = metadata !{i32 3, i32 1025}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

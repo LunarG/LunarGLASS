@@ -13,31 +13,31 @@ define fastcc void @main() {
 entry:
   %constructed = alloca <2 x float>
   %texColor = alloca <4 x float>
-  %0 = load i32 addrspace(1)* @"sampler2D texSampler2D"
-  %"gl_TexCoord_6[0]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %0 = load i32 addrspace(1)* @"sampler2D texSampler2D", !sampler !0
+  %"gl_TexCoord_6[0]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[0]", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 0)
-  %"gl_TexCoord_6[1]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  %"gl_TexCoord_6[1]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[1]", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 1)
-  %"gl_TexCoord_6[2]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 2, i32 -1, i32 1)
+  %"gl_TexCoord_6[2]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[2]", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 2)
-  %"gl_TexCoord_6[3]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 3, i32 -1, i32 1)
+  %"gl_TexCoord_6[3]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[3]", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 3)
-  %"gl_TexCoord_6[4]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 4, i32 -1, i32 1)
+  %"gl_TexCoord_6[4]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[4]", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 4)
-  %"gl_TexCoord_6[5]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 5, i32 -1, i32 1)
+  %"gl_TexCoord_6[5]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[5]", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 5)
   %1 = load <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 4)
-  %"gl_TexCoord_6[0]1" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %"gl_TexCoord_6[0]1" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[0]1", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 0)
-  %"gl_TexCoord_6[1]2" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  %"gl_TexCoord_6[1]2" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[1]2", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 1)
-  %"gl_TexCoord_6[2]3" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 2, i32 -1, i32 1)
+  %"gl_TexCoord_6[2]3" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[2]3", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 2)
-  %"gl_TexCoord_6[3]4" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 3, i32 -1, i32 1)
+  %"gl_TexCoord_6[3]4" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[3]4", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 3)
-  %"gl_TexCoord_6[4]5" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 4, i32 -1, i32 1)
+  %"gl_TexCoord_6[4]5" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[4]5", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 4)
-  %"gl_TexCoord_6[5]6" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 5, i32 -1, i32 1)
+  %"gl_TexCoord_6[5]6" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[5]6", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 5)
   %2 = load <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 5)
   %3 = fadd <4 x float> %1, %2
@@ -48,50 +48,50 @@ entry:
   %8 = insertelement <2 x float> %6, float %7, i32 1
   %texColor7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %8)
   store <4 x float> %texColor7, <4 x float>* %texColor
-  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 6, i32 -1, i32 1)
+  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1030, i32 -1, i32 1), !input !3
   store <4 x float> %color__, <4 x float>* @color_shadow
   %9 = load <4 x float>* @color_shadow
   %10 = load <4 x float>* %texColor
   %texColor8 = fadd <4 x float> %10, %9
   store <4 x float> %texColor8, <4 x float>* %texColor
-  %alpha__ = call float @llvm.gla.fReadInterpolant.f32(i32 7, i32 -1, i32 1)
+  %alpha__ = call float @llvm.gla.fReadInterpolant.f32(i32 1031, i32 -1, i32 1), !input !5
   store float %alpha__, float* @alpha_shadow
   %11 = load float* @alpha_shadow
   %12 = load <4 x float>* %texColor
   %texColor9 = insertelement <4 x float> %12, float %11, i32 3
   store <4 x float> %texColor9, <4 x float>* %texColor
-  %"foo_3[0]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 8, i32 -1, i32 1)
+  %"foo_3[0]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1032, i32 -1, i32 1), !input !7
   store <4 x float> %"foo_3[0]", <4 x float>* getelementptr inbounds ([3 x <4 x float>]* @foo_shadow, i32 0, i32 0)
-  %"foo_3[1]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 9, i32 -1, i32 1)
+  %"foo_3[1]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1033, i32 -1, i32 1), !input !7
   store <4 x float> %"foo_3[1]", <4 x float>* getelementptr inbounds ([3 x <4 x float>]* @foo_shadow, i32 0, i32 1)
-  %"foo_3[2]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 10, i32 -1, i32 1)
+  %"foo_3[2]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1034, i32 -1, i32 1), !input !7
   store <4 x float> %"foo_3[2]", <4 x float>* getelementptr inbounds ([3 x <4 x float>]* @foo_shadow, i32 0, i32 2)
   %13 = load <4 x float>* getelementptr inbounds ([3 x <4 x float>]* @foo_shadow, i32 0, i32 1)
-  %"gl_TexCoord_6[0]10" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %"gl_TexCoord_6[0]10" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[0]10", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 0)
-  %"gl_TexCoord_6[1]11" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  %"gl_TexCoord_6[1]11" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[1]11", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 1)
-  %"gl_TexCoord_6[2]12" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 2, i32 -1, i32 1)
+  %"gl_TexCoord_6[2]12" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[2]12", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 2)
-  %"gl_TexCoord_6[3]13" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 3, i32 -1, i32 1)
+  %"gl_TexCoord_6[3]13" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[3]13", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 3)
-  %"gl_TexCoord_6[4]14" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 4, i32 -1, i32 1)
+  %"gl_TexCoord_6[4]14" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[4]14", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 4)
-  %"gl_TexCoord_6[5]15" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 5, i32 -1, i32 1)
+  %"gl_TexCoord_6[5]15" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[5]15", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 5)
   %14 = load <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 0)
   %15 = fadd <4 x float> %13, %14
-  %"gl_TexCoord_6[0]16" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
+  %"gl_TexCoord_6[0]16" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[0]16", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 0)
-  %"gl_TexCoord_6[1]17" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1, i32 -1, i32 1)
+  %"gl_TexCoord_6[1]17" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[1]17", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 1)
-  %"gl_TexCoord_6[2]18" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 2, i32 -1, i32 1)
+  %"gl_TexCoord_6[2]18" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[2]18", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 2)
-  %"gl_TexCoord_6[3]19" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 3, i32 -1, i32 1)
+  %"gl_TexCoord_6[3]19" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[3]19", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 3)
-  %"gl_TexCoord_6[4]20" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 4, i32 -1, i32 1)
+  %"gl_TexCoord_6[4]20" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[4]20", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 4)
-  %"gl_TexCoord_6[5]21" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 5, i32 -1, i32 1)
+  %"gl_TexCoord_6[5]21" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 1), !input !1
   store <4 x float> %"gl_TexCoord_6[5]21", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 5)
   %16 = load <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 4)
   %17 = fadd <4 x float> %15, %16
@@ -102,7 +102,7 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %19 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %19)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %19), !output !9
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -117,6 +117,22 @@ declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
+!samplers = !{!0}
+!inputs = !{!1, !1, !3, !5, !7, !1, !1}
+!outputs = !{!9}
+
+!0 = metadata !{metadata !"texSampler2D", i32 0, i32 addrspace(1)* @"sampler2D texSampler2D", i32 1, i1 false, i1 false}
+!1 = metadata !{metadata !"gl_TexCoord", i32 7, [6 x <4 x float>]* @TexCoord_shadow, metadata !2}
+!2 = metadata !{i32 0, i32 1024}
+!3 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow, metadata !4}
+!4 = metadata !{i32 0, i32 1030}
+!5 = metadata !{metadata !"alpha", i32 7, float* @alpha_shadow, metadata !6}
+!6 = metadata !{i32 0, i32 1031}
+!7 = metadata !{metadata !"foo", i32 7, [3 x <4 x float>]* @foo_shadow, metadata !8}
+!8 = metadata !{i32 0, i32 1032}
+!9 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !10}
+!10 = metadata !{i32 0, i32 0}
+
 
 Bottom IR:
 ; ModuleID = 'Top'
@@ -125,22 +141,22 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load i32 addrspace(1)* @"sampler2D texSampler2D", align 4
-  %"gl_TexCoord_6[0]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 0, i32 -1, i32 1)
-  %"gl_TexCoord_6[4]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 4, i32 -1, i32 1)
-  %"gl_TexCoord_6[5]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 5, i32 -1, i32 1)
+  %0 = load i32 addrspace(1)* @"sampler2D texSampler2D", align 4, !sampler !0
+  %"gl_TexCoord_6[0]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !1
+  %"gl_TexCoord_6[4]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 1), !input !1
+  %"gl_TexCoord_6[5]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 1), !input !1
   %1 = fadd <4 x float> %"gl_TexCoord_6[5]", %"gl_TexCoord_6[4]"
   %2 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %1, <2 x i32> <i32 0, i32 1>)
-  %"foo_3[1]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 9, i32 -1, i32 1)
-  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 6, i32 -1, i32 1)
+  %"foo_3[1]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1033, i32 -1, i32 1), !input !7
+  %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1030, i32 -1, i32 1), !input !3
   %texColor7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %2)
   %3 = fadd <4 x float> %"foo_3[1]", %"gl_TexCoord_6[0]"
-  %alpha__ = call float @llvm.gla.fReadInterpolant.f32(i32 7, i32 -1, i32 1)
+  %alpha__ = call float @llvm.gla.fReadInterpolant.f32(i32 1031, i32 -1, i32 1), !input !5
   %texColor8 = fadd <4 x float> %color__, %texColor7
   %4 = fadd <4 x float> %3, %"gl_TexCoord_6[4]"
   %5 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor8, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %alpha__, i32 0)
   %FragColor_shadow = fadd <4 x float> %4, %5
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow), !output !9
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -161,6 +177,22 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
 declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>) nounwind readnone
+
+!samplers = !{!0}
+!inputs = !{!1, !1, !3, !5, !7, !1, !1}
+!outputs = !{!9}
+
+!0 = metadata !{metadata !"texSampler2D", i32 0, i32 addrspace(1)* @"sampler2D texSampler2D", i32 1, i1 false, i1 false}
+!1 = metadata !{metadata !"gl_TexCoord", i32 7, null, metadata !2}
+!2 = metadata !{i32 0, i32 1024}
+!3 = metadata !{metadata !"color", i32 7, null, metadata !4}
+!4 = metadata !{i32 0, i32 1030}
+!5 = metadata !{metadata !"alpha", i32 7, null, metadata !6}
+!6 = metadata !{i32 0, i32 1031}
+!7 = metadata !{metadata !"foo", i32 7, null, metadata !8}
+!8 = metadata !{i32 0, i32 1032}
+!9 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !10}
+!10 = metadata !{i32 0, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

@@ -18,7 +18,7 @@ entry:
   %b = alloca i1
   %i = alloca i32
   %v = alloca <4 x float>
-  %0 = load <4 x float> addrspace(2)* @uv4
+  %0 = load <4 x float> addrspace(2)* @uv4, !uniform !0
   %v1 = call <4 x float> @llvm.gla.fRadians.v4f32.v4f32(<4 x float> %0)
   store <4 x float> %v1, <4 x float>* %v
   %1 = load <4 x float>* %v
@@ -26,8 +26,8 @@ entry:
   %3 = load <4 x float>* %v
   %v2 = fadd <4 x float> %3, %2
   store <4 x float> %v2, <4 x float>* %v
-  %4 = load i32 addrspace(2)* @ui
-  %5 = load i32 addrspace(2)* @ui
+  %4 = load i32 addrspace(2)* @ui, !uniform !2
+  %5 = load i32 addrspace(2)* @ui, !uniform !2
   %i3 = mul i32 %4, %5
   store i32 %i3, i32* %i
   %6 = load <4 x float>* %v
@@ -134,20 +134,20 @@ entry:
   %v22 = fadd <4 x float> %70, %69
   store <4 x float> %v22, <4 x float>* %v
   %71 = load <4 x float>* %v
-  %72 = load <4 x float> addrspace(2)* @uv4
+  %72 = load <4 x float> addrspace(2)* @uv4, !uniform !0
   %73 = call <4 x float> @llvm.gla.fMin.v4f32.v4f32.v4f32(<4 x float> %71, <4 x float> %72)
   %74 = load <4 x float>* %v
   %v23 = fadd <4 x float> %74, %73
   store <4 x float> %v23, <4 x float>* %v
   %75 = load <4 x float>* %v
-  %76 = load <4 x float> addrspace(2)* @uv4
+  %76 = load <4 x float> addrspace(2)* @uv4, !uniform !0
   %77 = call <4 x float> @llvm.gla.fMax.v4f32.v4f32.v4f32(<4 x float> %75, <4 x float> %76)
   %78 = load <4 x float>* %v
   %v24 = fadd <4 x float> %78, %77
   store <4 x float> %v24, <4 x float>* %v
   %79 = load <4 x float>* %v
-  %80 = load <4 x float> addrspace(2)* @uv4
-  %81 = load <4 x float> addrspace(2)* @uv4
+  %80 = load <4 x float> addrspace(2)* @uv4, !uniform !0
+  %81 = load <4 x float> addrspace(2)* @uv4, !uniform !0
   %82 = call <4 x float> @llvm.gla.fClamp.v4f32.v4f32.v4f32.v4f32(<4 x float> %79, <4 x float> %80, <4 x float> %81)
   %83 = load <4 x float>* %v
   %v25 = fadd <4 x float> %83, %82
@@ -192,7 +192,7 @@ entry:
   store <4 x float> %v31, <4 x float>* %v
   %110 = load <4 x float>* %v
   %111 = load <4 x float>* %v
-  %112 = load float addrspace(2)* @uf
+  %112 = load float addrspace(2)* @uf, !uniform !3
   %113 = call <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float> %110, <4 x float> %111, float %112)
   %114 = load <4 x float>* %v
   %v32 = fadd <4 x float> %114, %113
@@ -213,83 +213,83 @@ entry:
   %v35 = fadd <4 x float> %123, %122
   store <4 x float> %v35, <4 x float>* %v
   %124 = load <4 x float>* %v
-  %125 = load <4 x float> addrspace(2)* @uv4
+  %125 = load <4 x float> addrspace(2)* @uv4, !uniform !0
   %126 = fcmp olt <4 x float> %124, %125
   %b36 = call i1 @llvm.gla.any.v4i1(<4 x i1> %126)
   store i1 %b36, i1* %b
   %127 = load i1* %b
   %128 = load <4 x float>* %v
-  %129 = load <4 x float> addrspace(2)* @uv4
+  %129 = load <4 x float> addrspace(2)* @uv4, !uniform !0
   %130 = fcmp ole <4 x float> %128, %129
   %131 = call i1 @llvm.gla.any.v4i1(<4 x i1> %130)
   %b37 = and i1 %127, %131
   store i1 %b37, i1* %b
   %132 = load i1* %b
   %133 = load <4 x float>* %v
-  %134 = load <4 x float> addrspace(2)* @uv4
+  %134 = load <4 x float> addrspace(2)* @uv4, !uniform !0
   %135 = fcmp ogt <4 x float> %133, %134
   %136 = call i1 @llvm.gla.any.v4i1(<4 x i1> %135)
   %b38 = and i1 %132, %136
   store i1 %b38, i1* %b
   %137 = load i1* %b
   %138 = load <4 x float>* %v
-  %139 = load <4 x float> addrspace(2)* @uv4
+  %139 = load <4 x float> addrspace(2)* @uv4, !uniform !0
   %140 = fcmp oge <4 x float> %138, %139
   %141 = call i1 @llvm.gla.any.v4i1(<4 x i1> %140)
   %b39 = and i1 %137, %141
   store i1 %b39, i1* %b
   %142 = load i1* %b
-  %143 = load <4 x i1> addrspace(2)* @ub41
-  %144 = load <4 x i1> addrspace(2)* @ub42
+  %143 = load <4 x i1> addrspace(2)* @ub41, !uniform !4
+  %144 = load <4 x i1> addrspace(2)* @ub42, !uniform !5
   %145 = icmp eq <4 x i1> %143, %144
   %146 = call i1 @llvm.gla.any.v4i1(<4 x i1> %145)
   %b40 = and i1 %142, %146
   store i1 %b40, i1* %b
   %147 = load i1* %b
-  %148 = load <4 x i1> addrspace(2)* @ub41
-  %149 = load <4 x i1> addrspace(2)* @ub42
+  %148 = load <4 x i1> addrspace(2)* @ub41, !uniform !4
+  %149 = load <4 x i1> addrspace(2)* @ub42, !uniform !5
   %150 = icmp ne <4 x i1> %148, %149
   %151 = call i1 @llvm.gla.any.v4i1(<4 x i1> %150)
   %b41 = and i1 %147, %151
   store i1 %b41, i1* %b
   %152 = load i1* %b
-  %153 = load <4 x i1> addrspace(2)* @ub41
+  %153 = load <4 x i1> addrspace(2)* @ub41, !uniform !4
   %154 = call i1 @llvm.gla.any.v4i1(<4 x i1> %153)
   %b42 = and i1 %152, %154
   store i1 %b42, i1* %b
   %155 = load i1* %b
-  %156 = load <4 x i1> addrspace(2)* @ub41
+  %156 = load <4 x i1> addrspace(2)* @ub41, !uniform !4
   %157 = call i1 @llvm.gla.all.v4i1(<4 x i1> %156)
   %b43 = and i1 %155, %157
   store i1 %b43, i1* %b
   %158 = load i1* %b
-  %159 = load <4 x i1> addrspace(2)* @ub41
+  %159 = load <4 x i1> addrspace(2)* @ub41, !uniform !4
   %160 = xor <4 x i1> %159, <i1 true, i1 true, i1 true, i1 true>
   %161 = call i1 @llvm.gla.any.v4i1(<4 x i1> %160)
   %b44 = and i1 %158, %161
   store i1 %b44, i1* %b
   %162 = load i32* %i
-  %163 = load i32 addrspace(2)* @ui
+  %163 = load i32 addrspace(2)* @ui, !uniform !2
   %164 = add i32 %162, %163
   %165 = load i32* %i
   %166 = mul i32 %164, %165
-  %167 = load i32 addrspace(2)* @ui
+  %167 = load i32 addrspace(2)* @ui, !uniform !2
   %168 = sub i32 %166, %167
   %169 = load i32* %i
   %i45 = sdiv i32 %168, %169
   store i32 %i45, i32* %i
   %170 = load i32* %i
-  %171 = load i32 addrspace(2)* @ui
+  %171 = load i32 addrspace(2)* @ui, !uniform !2
   %i46 = srem i32 %170, %171
   store i32 %i46, i32* %i
   %172 = load i32* %i
-  %173 = load i32 addrspace(2)* @ui
+  %173 = load i32 addrspace(2)* @ui, !uniform !2
   %174 = icmp eq i32 %172, %173
   %175 = load i32* %i
-  %176 = load i32 addrspace(2)* @ui
+  %176 = load i32 addrspace(2)* @ui, !uniform !2
   %177 = icmp ne i32 %175, %176
   %178 = load i32* %i
-  %179 = load i32 addrspace(2)* @ui
+  %179 = load i32 addrspace(2)* @ui, !uniform !2
   %180 = icmp eq i32 %178, %179
   %181 = and i1 %177, %180
   %182 = load i32* %i
@@ -305,14 +305,14 @@ then:                                             ; preds = %entry
   br label %ifmerge
 
 ifmerge:                                          ; preds = %entry, %then
-  %187 = load float addrspace(2)* @uf
-  %188 = load float addrspace(2)* @uf
+  %187 = load float addrspace(2)* @uf, !uniform !3
+  %188 = load float addrspace(2)* @uf, !uniform !3
   %189 = fadd float %187, %188
-  %190 = load float addrspace(2)* @uf
+  %190 = load float addrspace(2)* @uf, !uniform !3
   %191 = fmul float %189, %190
-  %192 = load float addrspace(2)* @uf
+  %192 = load float addrspace(2)* @uf, !uniform !3
   %193 = fsub float %191, %192
-  %194 = load float addrspace(2)* @uf
+  %194 = load float addrspace(2)* @uf, !uniform !3
   %f48 = fdiv float %193, %194
   store float %f48, float* %f
   %195 = load <4 x float>* %v
@@ -352,10 +352,10 @@ ifmerge:                                          ; preds = %entry, %then
   %f52 = fadd float %222, %221
   store float %f52, float* %f
   %223 = load float* %f
-  %224 = load float addrspace(2)* @uf
+  %224 = load float addrspace(2)* @uf, !uniform !3
   %225 = fcmp oeq float %223, %224
   %226 = load float* %f
-  %227 = load float addrspace(2)* @uf
+  %227 = load float addrspace(2)* @uf, !uniform !3
   %228 = fcmp one float %226, %227
   %229 = load float* %f
   %230 = fcmp one float %229, 2.000000e+00
@@ -370,14 +370,14 @@ then53:                                           ; preds = %ifmerge
   br label %ifmerge55
 
 ifmerge55:                                        ; preds = %ifmerge, %then53
-  %234 = load i32 addrspace(2)* @ui
+  %234 = load i32 addrspace(2)* @ui, !uniform !2
   %235 = load i32* %i
   %i56 = and i32 %235, %234
   store i32 %i56, i32* %i
   %236 = load i32* %i
   %i57 = or i32 %236, 66
   store i32 %i57, i32* %i
-  %237 = load i32 addrspace(2)* @ui
+  %237 = load i32 addrspace(2)* @ui, !uniform !2
   %238 = load i32* %i
   %i58 = xor i32 %238, %237
   store i32 %i58, i32* %i
@@ -387,7 +387,7 @@ ifmerge55:                                        ; preds = %ifmerge, %then53
   %240 = load i32* %i
   %i60 = ashr i32 %240, 2
   store i32 %i60, i32* %i
-  %241 = load i32 addrspace(2)* @ui
+  %241 = load i32 addrspace(2)* @ui, !uniform !2
   %242 = load i32* %i
   %i61 = shl i32 %242, %241
   store i32 %i61, i32* %i
@@ -432,7 +432,7 @@ ifmerge68:                                        ; preds = %else, %then64
 
 stage-epilogue:                                   ; preds = %ifmerge68
   %261 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %261)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %261), !output !6
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -517,6 +517,17 @@ declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>)
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
+!defaultUniforms = !{!0, !2, !2, !0, !0, !0, !0, !3, !0, !0, !0, !0, !4, !5, !4, !5, !4, !4, !4, !2, !2, !2, !2, !2, !2, !3, !3, !3, !3, !3, !3, !3, !2, !2, !2}
+!outputs = !{!6}
+
+!0 = metadata !{metadata !"uv4", i32 12, <4 x float> addrspace(2)* @uv4, metadata !1}
+!1 = metadata !{i32 0, i32 0}
+!2 = metadata !{metadata !"ui", i32 12, i32 addrspace(2)* @ui, metadata !1}
+!3 = metadata !{metadata !"uf", i32 12, float addrspace(2)* @uf, metadata !1}
+!4 = metadata !{metadata !"ub41", i32 12, <4 x i1> addrspace(2)* @ub41, metadata !1}
+!5 = metadata !{metadata !"ub42", i32 12, <4 x i1> addrspace(2)* @ub42, metadata !1}
+!6 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !1}
+
 
 Bottom IR:
 ; ModuleID = 'Top'
@@ -529,7 +540,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load <4 x float> addrspace(2)* @uv4, align 16
+  %0 = load <4 x float> addrspace(2)* @uv4, align 16, !uniform !0
   %1 = fmul <4 x float> %0, <float 0x3F91DF46A0000000, float 0x3F91DF46A0000000, float 0x3F91DF46A0000000, float 0x3F91DF46A0000000>
   %2 = fmul <4 x float> %1, <float 0x404CA5DC20000000, float 0x404CA5DC20000000, float 0x404CA5DC20000000, float 0x404CA5DC20000000>
   %v2 = fadd <4 x float> %1, %2
@@ -613,8 +624,8 @@ entry:
   %44 = fcmp oge <4 x float> %v35, %0
   %45 = call i1 @llvm.gla.any.v4i1(<4 x i1> %44)
   %b39 = and i1 %b38, %45
-  %46 = load <4 x i1> addrspace(2)* @ub41, align 4
-  %47 = load <4 x i1> addrspace(2)* @ub42, align 4
+  %46 = load <4 x i1> addrspace(2)* @ub41, align 4, !uniform !4
+  %47 = load <4 x i1> addrspace(2)* @ub42, align 4, !uniform !5
   %48 = icmp eq <4 x i1> %46, %47
   %49 = call i1 @llvm.gla.any.v4i1(<4 x i1> %48)
   %b40 = and i1 %b39, %49
@@ -667,7 +678,7 @@ entry:
   %75 = fadd <4 x float> %74, %72
   %ternary66 = fadd <4 x float> %v35, %75
   %select = select i1 %b44, <4 x float> %v35, <4 x float> %ternary66
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %select)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %select), !output !6
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -754,6 +765,17 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>) nounwind readnone
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+
+!defaultUniforms = !{!0, !2, !2, !0, !0, !0, !0, !3, !0, !0, !0, !0, !4, !5, !4, !5, !4, !4, !4, !2, !2, !2, !2, !2, !2, !3, !3, !3, !3, !3, !3, !3, !2, !2, !2}
+!outputs = !{!6}
+
+!0 = metadata !{metadata !"uv4", i32 12, <4 x float> addrspace(2)* @uv4, metadata !1}
+!1 = metadata !{i32 0, i32 0}
+!2 = metadata !{metadata !"ui", i32 12, i32 addrspace(2)* @ui, metadata !1}
+!3 = metadata !{metadata !"uf", i32 12, float addrspace(2)* @uf, metadata !1}
+!4 = metadata !{metadata !"ub41", i32 12, <4 x i1> addrspace(2)* @ub41, metadata !1}
+!5 = metadata !{metadata !"ub42", i32 12, <4 x i1> addrspace(2)* @ub42, metadata !1}
+!6 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !1}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

@@ -25,7 +25,7 @@ entry:
   %u = alloca i32
   %count = alloca i32
   store i32 1, i32* %count
-  %t__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 0, i32 -1)
+  %t__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0
   store <2 x i32> %t__, <2 x i32>* @t_shadow
   %0 = load <2 x i32>* @t_shadow
   %1 = extractelement <2 x i32> %0, i32 1
@@ -53,8 +53,8 @@ entry:
   br i1 %8, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  %9 = load i32 addrspace(1)* @"usampler2D usampler"
-  %tc__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
+  %9 = load i32 addrspace(1)* @"usampler2D usampler", !sampler !6
+  %tc__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !2
   store <2 x float> %tc__, <2 x float>* @tc_shadow
   %10 = load <2 x float>* @tc_shadow
   %c_shadow = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %10)
@@ -68,8 +68,8 @@ ifmerge:                                          ; preds = %entry, %then
   br i1 %13, label %then6, label %ifmerge9
 
 then6:                                            ; preds = %ifmerge
-  %14 = load i32 addrspace(1)* @"usampler2D usampler"
-  %tc__7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
+  %14 = load i32 addrspace(1)* @"usampler2D usampler", !sampler !6
+  %tc__7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !2
   store <2 x float> %tc__7, <2 x float>* @tc_shadow
   %15 = load <2 x float>* @tc_shadow
   %16 = fadd <2 x float> %15, <float 1.000000e+00, float 1.000000e+00>
@@ -84,8 +84,8 @@ ifmerge9:                                         ; preds = %ifmerge, %then6
   br i1 %19, label %then10, label %ifmerge13
 
 then10:                                           ; preds = %ifmerge9
-  %20 = load i32 addrspace(1)* @"usampler2D usampler"
-  %tc__11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
+  %20 = load i32 addrspace(1)* @"usampler2D usampler", !sampler !6
+  %tc__11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !2
   store <2 x float> %tc__11, <2 x float>* @tc_shadow
   %21 = load <2 x float>* @tc_shadow
   %22 = fsub <2 x float> %21, <float 2.000000e+00, float 2.000000e+00>
@@ -94,7 +94,7 @@ then10:                                           ; preds = %ifmerge9
   br label %ifmerge13
 
 ifmerge13:                                        ; preds = %ifmerge9, %then10
-  %t__14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 0, i32 -1)
+  %t__14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0
   store <2 x i32> %t__14, <2 x i32>* @t_shadow
   %23 = load <2 x i32>* @t_shadow
   %24 = extractelement <2 x i32> %23, i32 0
@@ -207,7 +207,7 @@ ifmerge36:                                        ; preds = %ifmerge33, %then34
 
 stage-epilogue:                                   ; preds = %ifmerge36
   %71 = load <4 x i32>* @c_shadow
-  call void @llvm.gla.writeData.v4i32(i32 0, i32 -1, <4 x i32> %71)
+  call void @llvm.gla.writeData.v4i32(i32 0, i32 -1, <4 x i32> %71), !output !4
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -222,6 +222,18 @@ declare <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32, i32, i32, <2 x float>
 
 declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) nounwind
 
+!inputs = !{!0, !2, !2, !2, !0}
+!outputs = !{!4}
+!samplers = !{!6, !6, !6}
+
+!0 = metadata !{metadata !"t", i32 7, <2 x i32>* @t_shadow, metadata !1}
+!1 = metadata !{i32 1, i32 1024}
+!2 = metadata !{metadata !"tc", i32 7, <2 x float>* @tc_shadow, metadata !3}
+!3 = metadata !{i32 0, i32 1025}
+!4 = metadata !{metadata !"c", i32 1, <4 x i32>* @c_shadow, metadata !5}
+!5 = metadata !{i32 1, i32 0}
+!6 = metadata !{metadata !"usampler", i32 0, i32 addrspace(1)* @"usampler2D usampler", i32 1, i1 false, i1 false}
+
 
 Bottom IR:
 ; ModuleID = 'Top'
@@ -230,14 +242,14 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %t__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 0, i32 -1)
+  %t__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0
   %0 = extractelement <2 x i32> %t__, i32 1
   %u1 = add i32 %0, 3
-  %1 = load i32 addrspace(1)* @"usampler2D usampler", align 4
-  %tc__7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1, i32 -1, i32 1)
+  %1 = load i32 addrspace(1)* @"usampler2D usampler", align 4, !sampler !6
+  %tc__7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !2
   %2 = fadd <2 x float> %tc__7, <float 1.000000e+00, float 1.000000e+00>
   %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %2)
-  %t__14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 0, i32 -1)
+  %t__14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0
   %3 = extractelement <2 x i32> %t__14, i32 0
   %4 = icmp sgt i32 %3, 4
   %af16 = uitofp i32 %u1 to float
@@ -248,7 +260,7 @@ entry:
   %c_shadow19 = add <4 x i32> %c_shadow8, %7
   %select = select i1 %4, <4 x i32> %c_shadow19, <4 x i32> %c_shadow8
   %c_shadow38 = add <4 x i32> %select, <i32 341413380, i32 341413380, i32 341413380, i32 341413380>
-  call void @llvm.gla.writeData.v4i32(i32 0, i32 -1, <4 x i32> %c_shadow38)
+  call void @llvm.gla.writeData.v4i32(i32 0, i32 -1, <4 x i32> %c_shadow38), !output !4
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -267,6 +279,18 @@ declare <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32, i32, i32, <2 x float>
 declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) nounwind
 
 declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) nounwind readnone
+
+!inputs = !{!0, !2, !2, !2, !0}
+!outputs = !{!4}
+!samplers = !{!6, !6, !6}
+
+!0 = metadata !{metadata !"t", i32 7, null, metadata !1}
+!1 = metadata !{i32 1, i32 1024}
+!2 = metadata !{metadata !"tc", i32 7, null, metadata !3}
+!3 = metadata !{i32 0, i32 1025}
+!4 = metadata !{metadata !"c", i32 1, null, metadata !5}
+!5 = metadata !{i32 1, i32 0}
+!6 = metadata !{metadata !"usampler", i32 0, i32 addrspace(1)* @"usampler2D usampler", i32 1, i1 false, i1 false}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

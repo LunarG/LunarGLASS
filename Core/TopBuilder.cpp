@@ -90,6 +90,8 @@ void Builder::clearAccessChain()
     accessChain.swizzleTargetWidth = 0;
     accessChain.isRValue = false;
     accessChain.trackOutputIndex = false;
+    accessChain.metadata = 0;
+    accessChain.metadataKind = 0;
 }
 
 void Builder::accessChainPushSwizzleLeft(llvm::ArrayRef<int> swizzle, llvm::Type* type, int width)
@@ -287,7 +289,7 @@ Builder::SuperValue Builder::accessChainLoad()
             value = accessChain.base;
         }
     } else {
-        value = createLoad(collapseAccessChain());
+        value = createLoad(collapseAccessChain(), accessChain.metadataKind, accessChain.metadata);
     }
 
     if (accessChain.component)
@@ -516,7 +518,8 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
         if (storageQualifier == ESQOutput) {
             // Track the value that must be copied out to the pipeline at
             // the end of the shader.
-            copyOuts.push_back(value);
+            struct copyOut co = { value, 0 };
+            copyOuts.push_back(co);
             const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(value->getType()->getContainedType(0));
             if (arrayType) {
                 gla::AppendArraySizeToName(pipelineName, arrayType->getNumElements());
@@ -563,11 +566,16 @@ Builder::SuperValue Builder::createStore(SuperValue rValue, SuperValue lValue)
     return lValue;
 }
 
-Builder::SuperValue Builder::createLoad(SuperValue lValue)
+Builder::SuperValue Builder::createLoad(SuperValue lValue, const char* metadataKind, llvm::MDNode* metadata)
 {
-    if (llvm::isa<llvm::PointerType>(lValue.getValue()->getType()))
-        return builder.CreateLoad(lValue);
-    else
+    if (llvm::isa<llvm::PointerType>(lValue.getValue()->getType())) {
+        llvm::Instruction* load = builder.CreateLoad(lValue);
+        if (metadataKind)
+            load->setMetadata(metadataKind, metadata);
+
+        return load;
+    } else
+
         return lValue;
 }
 
@@ -595,9 +603,9 @@ void Builder::trackOutputIndex(SuperValue base, const llvm::Value* gepIndex)
 
     int slot = 0;
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
-        const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out]->getType()->getContainedType(0));
+        const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out].value->getType()->getContainedType(0));
         if (arrayType) {
-            if (copyOuts[out] == base) {
+            if (copyOuts[out].value == base) {
                 if (arrayIndex == -1) {
                     for (int index = 0; index < arrayType->getNumElements(); ++index)
                         copyOutActive[slot + index] = true;
@@ -610,38 +618,45 @@ void Builder::trackOutputIndex(SuperValue base, const llvm::Value* gepIndex)
     }
 }
 
+void Builder::setOutputMetadata(llvm::Value* value, llvm::MDNode* metadata)
+{
+    // it's most likely the last one pushed...
+    for (unsigned int out = copyOuts.size() - 1; out >= 0; ++out) {
+        if (copyOuts[out].value == value) {
+            copyOuts[out].metadata = metadata;
+            break;
+        }
+    }
+}
+
 void Builder::copyOutPipeline()
 {
     int slot = 0;
+    // TODO: linker: track output slot locations, user vs. assigned
 
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
-        const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out]->getType()->getContainedType(0));
+        const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out].value->getType()->getContainedType(0));
         if (arrayType) {
             std::vector<llvm::Value*> gepChain;
             gepChain.push_back(MakeIntConstant(context, 0));
             for (int index = 0; index < arrayType->getNumElements(); ++index) {
                 if (copyOutActive[slot]) {
                     gepChain.push_back(MakeIntConstant(context, index));
-                    llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out], gepChain));
-                    writePipeline(loadVal, MakeUnsignedConstant(context, slot));
+                    llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out].value, gepChain));
+                    writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].metadata);
                     gepChain.pop_back();
                 }
                 ++slot;
             }
         } else {
-            llvm::Value* loadVal = builder.CreateLoad(copyOuts[out]);
-            writePipeline(loadVal, MakeUnsignedConstant(context, slot));
+            llvm::Value* loadVal = builder.CreateLoad(copyOuts[out].value);
+            writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].metadata);
             ++slot;
         }
     }
 }
 
-void Builder::writePipeline(llvm::Value* outValue, int slot, int mask, EInterpolationMethod method, EInterpolationLocation location)
-{
-    writePipeline(outValue, MakeUnsignedConstant(context, slot), mask, method, location);
-}
-
-void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, EInterpolationMethod method, EInterpolationLocation location)
+void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, llvm::MDNode* metadata, EInterpolationMethod method, EInterpolationLocation location)
 {
     llvm::Constant *maskConstant = MakeIntConstant(context, mask);
 
@@ -655,6 +670,7 @@ void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, 
 
     EInterpolationMode mode = gla::MakeInterpolationMode(method, location);
 
+    llvm::Instruction* write;
     llvm::Function *intrinsic;
     if (method == EIMNone) {
         llvm::Intrinsic::ID intrinsicID;
@@ -665,15 +681,19 @@ void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, 
         }
 
         intrinsic = getIntrinsic(intrinsicID, outValue->getType());
-        builder.CreateCall3(intrinsic, slot, maskConstant, outValue);
+        write = builder.CreateCall3(intrinsic, slot, maskConstant, outValue);
     } else {
         llvm::Constant *modeConstant = MakeUnsignedConstant(context, mode);
         intrinsic = getIntrinsic(llvm::Intrinsic::gla_fWriteInterpolant, outValue->getType());
-        builder.CreateCall4(intrinsic, slot, maskConstant, modeConstant, outValue);
+        write = builder.CreateCall4(intrinsic, slot, maskConstant, modeConstant, outValue);
     }
+
+    write->setMetadata("output", metadata);
 }
 
-llvm::Value* Builder::readPipeline(llvm::Type* type, llvm::StringRef name, int slot, int mask,
+llvm::Value* Builder::readPipeline(llvm::Type* type, llvm::StringRef name, int slot, 
+                                   llvm::MDNode* inputMd,
+                                   int mask,
                                    EInterpolationMethod method, EInterpolationLocation location,
                                    llvm::Value* offset, llvm::Value* sampleIdx)
 {
@@ -688,20 +708,21 @@ llvm::Value* Builder::readPipeline(llvm::Type* type, llvm::StringRef name, int s
     EInterpolationMode mode = gla::MakeInterpolationMode(method, location);
 
     llvm::Function *intrinsic;
+    llvm::Instruction* readInstr;
     if (method != EIMNone) {
         llvm::Constant *modeConstant = MakeUnsignedConstant(context, mode);
 
         if (sampleIdx) {
             assert(0 == offset);
             intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolantSample, type);
-            return builder.CreateCall4(intrinsic, slotConstant, maskConstant, modeConstant, sampleIdx, name);
+            readInstr = builder.CreateCall4(intrinsic, slotConstant, maskConstant, modeConstant, sampleIdx, name);
         } else if (offset) {
             assert(0 == sampleIdx);
             intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolantOffset, type, offset->getType());
-            return builder.CreateCall4(intrinsic, slotConstant, maskConstant, modeConstant, offset, name);
+            readInstr = builder.CreateCall4(intrinsic, slotConstant, maskConstant, modeConstant, offset, name);
         } else {
             intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadInterpolant, type);
-            return builder.CreateCall3(intrinsic, slotConstant, maskConstant, modeConstant, name);
+            readInstr = builder.CreateCall3(intrinsic, slotConstant, maskConstant, modeConstant, name);
         }
     } else {
         switch (GetBasicTypeID(type)) {
@@ -709,8 +730,11 @@ llvm::Value* Builder::readPipeline(llvm::Type* type, llvm::StringRef name, int s
         case llvm::Type::FloatTyID:     intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadData, type); break;
         }
 
-        return builder.CreateCall2(intrinsic, slotConstant, maskConstant, name);
+        readInstr = builder.CreateCall2(intrinsic, slotConstant, maskConstant, name);
     }
+
+    readInstr->setMetadata("input", inputMd);
+    return readInstr;
 }
 
 llvm::Value* Builder::createSwizzle(llvm::Value* source, int swizzleMask, llvm::Type* finalType)
@@ -1198,8 +1222,6 @@ llvm::Value* Builder::createOuterProduct(llvm::Value* left, llvm::Value* right)
 }
 
 // Get intrinsic declarations
-// ?? LLVM issue: each time we lookup, LLVM makes a whole copy of all intrinsic name addresses
-//    see Intrinsic::getName() in function.cpp
 llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID)
 {
     // Look up the intrinsic

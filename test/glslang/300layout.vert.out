@@ -19,7 +19,7 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %p__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
+  %p__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 3, i32 -1), !input !4
   store <4 x float> %p__, <4 x float>* @p_shadow
   %0 = load <4 x float>* @p_shadow
   %1 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 0)
@@ -114,7 +114,7 @@ entry:
   %dot52 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column51)
   %pos_shadow = insertelement <4 x float> %34, float %dot52, i32 3
   store <4 x float> %pos_shadow, <4 x float>* @pos_shadow
-  %c__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1, i32 -1)
+  %c__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 7, i32 -1), !input !6
   store <3 x float> %c__, <3 x float>* @c_shadow
   %35 = load <3 x float>* @c_shadow
   %36 = load [3 x <3 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 2)
@@ -131,9 +131,9 @@ entry:
   %color_shadow = insertelement <3 x float> %40, float %dot58, i32 2
   store <3 x float> %color_shadow, <3 x float>* @color_shadow
   %41 = load i32 addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 3)
-  %42 = load i32 addrspace(2)* @uiuin
+  %42 = load i32 addrspace(2)* @uiuin, !uniform !10
   %43 = add i32 %41, %42
-  %aiv2__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 2, i32 -1)
+  %aiv2__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 9, i32 -1), !input !8
   store <2 x i32> %aiv2__, <2 x i32>* @aiv2_shadow
   %44 = load <2 x i32>* @aiv2_shadow
   %45 = extractelement <2 x i32> %44, i32 1
@@ -143,11 +143,11 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %46 = load <4 x float>* @pos_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %46)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %46), !output !0
   %47 = load <3 x float>* @color_shadow
-  call void @llvm.gla.fWriteData.v3f32(i32 1, i32 -1, <3 x float> %47)
+  call void @llvm.gla.fWriteData.v3f32(i32 1, i32 -1, <3 x float> %47), !output !2
   %48 = load i32* @iout_shadow
-  call void @llvm.gla.writeData.i32(i32 2, i32 -1, i32 %48)
+  call void @llvm.gla.writeData.i32(i32 2, i32 -1, i32 %48), !output !3
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -170,6 +170,23 @@ declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) nounwind
 
 declare void @llvm.gla.writeData.i32(i32, i32, i32) nounwind
 
+!outputs = !{!0, !2, !3}
+!inputs = !{!4, !6, !8}
+!defaultUniforms = !{!10}
+
+!0 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_shadow, metadata !1}
+!1 = metadata !{i32 0, i32 0}
+!2 = metadata !{metadata !"color", i32 1, <3 x float>* @color_shadow, metadata !1}
+!3 = metadata !{metadata !"iout", i32 1, i32* @iout_shadow, metadata !1}
+!4 = metadata !{metadata !"p", i32 7, <4 x float>* @p_shadow, metadata !5}
+!5 = metadata !{i32 0, i32 3}
+!6 = metadata !{metadata !"c", i32 7, <3 x float>* @c_shadow, metadata !7}
+!7 = metadata !{i32 0, i32 7}
+!8 = metadata !{metadata !"aiv2", i32 7, <2 x i32>* @aiv2_shadow, metadata !9}
+!9 = metadata !{i32 0, i32 9}
+!10 = metadata !{metadata !"uiuin", i32 12, i32 addrspace(2)* @uiuin, metadata !11}
+!11 = metadata !{i32 1, i32 0}
+
 
 Bottom IR:
 ; ModuleID = 'Top'
@@ -185,7 +202,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %p__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 0, i32 -1)
+  %p__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 3, i32 -1), !input !4
   %gla_constGEP = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 0
   %0 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP, align 16
   %gla_constGEP62 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 1
@@ -196,7 +213,7 @@ entry:
   %3 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP64, align 16
   %gla_constGEP65 = getelementptr %T2 addrspace(2)* @__anon__0, i32 0, i32 1
   %4 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP65, align 16
-  %c__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1, i32 -1)
+  %c__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 7, i32 -1), !input !6
   %gla_constGEP66 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 2
   %5 = load [3 x <3 x float>] addrspace(2)* %gla_constGEP66, align 16
   %rightColumn = extractvalue [4 x <4 x float>] %1, 0
@@ -239,8 +256,8 @@ entry:
   %rightColumn44 = extractvalue [4 x <4 x float>] %4, 3
   %column42 = fadd <4 x float> %column30, %rightColumn41
   %column33 = fadd <4 x float> %column21, %rightColumn32
-  %aiv2__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 2, i32 -1)
-  %6 = load i32 addrspace(2)* @uiuin, align 4
+  %aiv2__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 9, i32 -1), !input !8
+  %6 = load i32 addrspace(2)* @uiuin, align 4, !uniform !10
   %gla_constGEP67 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 3
   %7 = load i32 addrspace(2)* %gla_constGEP67, align 16
   %column57 = extractvalue [3 x <3 x float>] %5, 2
@@ -254,9 +271,9 @@ entry:
   %iout_shadow = add i32 %9, %7
   %10 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %dot54, i32 0, float %dot56, i32 0, float %dot58, i32 0, float undef, i32 undef)
   %11 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dot, i32 0, float %dot48, i32 0, float %dot50, i32 0, float %dot52, i32 0)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %11)
-  call void @llvm.gla.fWriteData.v3f32(i32 1, i32 -1, <3 x float> %10)
-  call void @llvm.gla.writeData.i32(i32 2, i32 -1, i32 %iout_shadow)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %11), !output !0
+  call void @llvm.gla.fWriteData.v3f32(i32 1, i32 -1, <3 x float> %10), !output !2
+  call void @llvm.gla.writeData.i32(i32 2, i32 -1, i32 %iout_shadow), !output !3
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -285,6 +302,23 @@ declare void @llvm.gla.writeData.i32(i32, i32, i32) nounwind
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
 declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+
+!outputs = !{!0, !2, !3}
+!inputs = !{!4, !6, !8}
+!defaultUniforms = !{!10}
+
+!0 = metadata !{metadata !"pos", i32 1, null, metadata !1}
+!1 = metadata !{i32 0, i32 0}
+!2 = metadata !{metadata !"color", i32 1, null, metadata !1}
+!3 = metadata !{metadata !"iout", i32 1, null, metadata !1}
+!4 = metadata !{metadata !"p", i32 7, null, metadata !5}
+!5 = metadata !{i32 0, i32 3}
+!6 = metadata !{metadata !"c", i32 7, null, metadata !7}
+!7 = metadata !{i32 0, i32 7}
+!8 = metadata !{metadata !"aiv2", i32 7, null, metadata !9}
+!9 = metadata !{i32 0, i32 9}
+!10 = metadata !{metadata !"uiuin", i32 12, i32 addrspace(2)* @uiuin, metadata !11}
+!11 = metadata !{i32 1, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

@@ -18,35 +18,35 @@ define fastcc void @main() {
 entry:
   %scale = alloca float
   %iLocal = alloca i32
-  %iLocal1 = load i32 addrspace(2)* @Count
+  %iLocal1 = load i32 addrspace(2)* @Count, !uniform !0
   store i32 %iLocal1, i32* %iLocal
-  %0 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 1, i32 0)
+  %0 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 1, i32 0), !uniform !2
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %2 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct1 addrspace(2)* @foo, i32 0, i32 0)
+  %2 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct1 addrspace(2)* @foo, i32 0, i32 0), !uniform !4
   %3 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 %2, i32 0
-  %4 = load i32 addrspace(2)* %3
+  %4 = load i32 addrspace(2)* %3, !uniform !2
   %5 = add i32 %4, 2
   %6 = load i32* %iLocal
   %iLocal2 = add i32 %6, 1
   store i32 %iLocal2, i32* %iLocal
   %7 = add i32 %5, %iLocal2
   %8 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 %7, i32 2, i32 1
-  %scale3 = load float addrspace(2)* %8
+  %scale3 = load float addrspace(2)* %8, !uniform !3
   store float %scale3, float* %scale
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %scale4 = load float addrspace(2)* getelementptr inbounds (%lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 0, i32 2, i32 1)
+  %scale4 = load float addrspace(2)* getelementptr inbounds (%lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 0, i32 2, i32 1), !uniform !2
   store float %scale4, float* %scale
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
   %9 = load float* %scale
-  %10 = load i32 addrspace(1)* @"sampler2D sampler"
-  %coord__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
+  %10 = load i32 addrspace(1)* @"sampler2D sampler", !sampler !6
+  %coord__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !7
   store <2 x float> %coord__, <2 x float>* @coord_shadow
   %11 = load <2 x float>* @coord_shadow
   %12 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %10, i32 0, <2 x float> %11)
@@ -60,7 +60,7 @@ ifmerge:                                          ; preds = %else, %then
 
 stage-epilogue:                                   ; preds = %ifmerge
   %17 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %17)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %17), !output !5
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -72,6 +72,21 @@ declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind rea
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+!defaultUniforms = !{!0, !2, !3, !2, !4, !2}
+!outputs = !{!5}
+!samplers = !{!6}
+!inputs = !{!7}
+
+!0 = metadata !{metadata !"Count", i32 12, i32 addrspace(2)* @Count, metadata !1}
+!1 = metadata !{i32 0, i32 0}
+!2 = metadata !{metadata !"foo3", i32 12, %lunarStruct3 addrspace(2)* @foo3, metadata !1}
+!3 = metadata !{metadata !"foo2", i32 12, [5 x %lunarStruct2] addrspace(2)* @foo2, metadata !1}
+!4 = metadata !{metadata !"foo", i32 12, %lunarStruct1 addrspace(2)* @foo, metadata !1}
+!5 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !1}
+!6 = metadata !{metadata !"sampler", i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
+!7 = metadata !{metadata !"coord", i32 7, <2 x float>* @coord_shadow, metadata !8}
+!8 = metadata !{i32 0, i32 1024}
 
 
 Bottom IR:
@@ -90,13 +105,13 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %gla_constGEP = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 1, i32 0
-  %0 = load i32 addrspace(2)* %gla_constGEP, align 4
+  %0 = load i32 addrspace(2)* %gla_constGEP, align 4, !uniform !2
   %1 = icmp sgt i32 %0, 0
-  %iLocal1 = load i32 addrspace(2)* @Count, align 4
+  %iLocal1 = load i32 addrspace(2)* @Count, align 4, !uniform !0
   %gla_constGEP6 = getelementptr %lunarStruct1 addrspace(2)* @foo, i32 0, i32 0
-  %2 = load i32 addrspace(2)* %gla_constGEP6, align 4
+  %2 = load i32 addrspace(2)* %gla_constGEP6, align 4, !uniform !4
   %3 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 %2, i32 0
-  %4 = load i32 addrspace(2)* %3, align 4
+  %4 = load i32 addrspace(2)* %3, align 4, !uniform !2
   %iLocal2 = add i32 %iLocal1, 3
   %5 = add i32 %iLocal2, %4
   %6 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 %5, i32 2, i32 1
@@ -104,11 +119,11 @@ entry:
   %select = select i1 %1, float addrspace(2)* %6, float addrspace(2)* %gla_constGEP7
   %scale.0 = load float addrspace(2)* %select, align 4
   %7 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %scale.0, <4 x i32> zeroinitializer)
-  %coord__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 0, i32 -1, i32 1)
-  %8 = load i32 addrspace(1)* @"sampler2D sampler", align 4
+  %coord__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !7
+  %8 = load i32 addrspace(1)* @"sampler2D sampler", align 4, !sampler !6
   %9 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %8, i32 0, <2 x float> %coord__)
   %FragColor_shadow = fmul <4 x float> %9, %7
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow)
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow), !output !5
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -125,6 +140,21 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+
+!defaultUniforms = !{!0, !2, !3, !2, !4, !2}
+!outputs = !{!5}
+!samplers = !{!6}
+!inputs = !{!7}
+
+!0 = metadata !{metadata !"Count", i32 12, i32 addrspace(2)* @Count, metadata !1}
+!1 = metadata !{i32 0, i32 0}
+!2 = metadata !{metadata !"foo3", i32 12, %lunarStruct3 addrspace(2)* @foo3, metadata !1}
+!3 = metadata !{metadata !"foo2", i32 12, [5 x %lunarStruct2] addrspace(2)* @foo2, metadata !1}
+!4 = metadata !{metadata !"foo", i32 12, %lunarStruct1 addrspace(2)* @foo, metadata !1}
+!5 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !1}
+!6 = metadata !{metadata !"sampler", i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
+!7 = metadata !{metadata !"coord", i32 7, null, metadata !8}
+!8 = metadata !{i32 0, i32 1024}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

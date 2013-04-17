@@ -173,6 +173,8 @@ public:
         int swizzleTargetWidth;
         bool isRValue;
         bool trackOutputIndex;
+        llvm::MDNode* metadata;
+        const char* metadataKind;
     };
 
     //
@@ -186,6 +188,13 @@ public:
 
     // clear accessChain
     void clearAccessChain();
+
+    // store metadata in the access chain for future tagging of the load/store instruction
+    void setAccessChainMetadata(const char* mdk, llvm::MDNode* md)    
+    { 
+        accessChain.metadataKind = mdk;
+        accessChain.metadata = md; 
+    }
 
     // say whether or not to evaluate a chain right to left (false means left to right)
     void setAccessChainDirectionRightToLeft(bool rightToLeft) { accessRightToLeft = rightToLeft; }
@@ -275,7 +284,7 @@ public:
     SuperValue createStore(SuperValue rValue, SuperValue lValue);
 
     // Load SuperValue from a SuperValue and return it
-    SuperValue createLoad(SuperValue);
+    SuperValue createLoad(SuperValue, const char* metadataKind = 0, llvm::MDNode* metadata = 0);
 
     // Create a GEP to dereference structs, arrays, or matrices
     SuperValue createGEP(SuperValue, llvm::ArrayRef<llvm::Value*>);
@@ -283,16 +292,22 @@ public:
     // Create a InsertValue to handle structs, arrays, or matrices
     SuperValue createInsertValue(SuperValue target, SuperValue source, unsigned* indices, int indexCount);
 
+    // To associate metadata with a copy-out value to tag the write instrinsic with
+    void setOutputMetadata(llvm::Value*, llvm::MDNode*);
+
     // Copy out to the pipeline the outputs we've been caching in variables
     void copyOutPipeline();
 
     // Write to the pipeline directly, without caching through variables
     // (User likely needs to select between the variable/copyOutPipeline
     //  model and the writePipeline model.)
-    void writePipeline(llvm::Value*, int slot, int mask = -1, EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment);
-    void writePipeline(llvm::Value*, llvm::Value* slot, int mask = -1, EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment);
+    void writePipeline(llvm::Value*, llvm::Value* slot, int mask = -1,
+                       llvm::MDNode* metadata = 0,
+                       EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment);
 
-    llvm::Value* readPipeline(llvm::Type*, llvm::StringRef name, int slot, int mask = -1,
+    llvm::Value* readPipeline(llvm::Type*, llvm::StringRef name, int slot,
+                              llvm::MDNode* metadata = 0,
+                              int mask = -1,
                               EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment,
                               llvm::Value* offset = 0, llvm::Value* sampleIdx = 0);
 
@@ -470,7 +485,11 @@ protected:
     llvm::LLVMContext &context;
 
     // accumulate values that must be copied out at the end
-    std::vector<llvm::Value*> copyOuts;
+    struct copyOut {
+        llvm::Value* value;
+        llvm::MDNode* metadata;
+    };
+    std::vector<copyOut> copyOuts;
     std::vector<bool> copyOutActive;   // the indexed ones that might be active
 
     // Switch stack
