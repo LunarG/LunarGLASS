@@ -47,8 +47,8 @@
 #include "PrivateManager.h"
 #include "GlslTarget.h"
 #include "Options.h"
-
 #include "TopBuilder.h"
+#include "metadata.h"
 
 // glslang includes
 #include "../../glslang/glslang/Public/ShaderLang.h"
@@ -560,6 +560,16 @@ protected:
         return string;
     }
 
+    const char* mapGlaToPrecisionString(EMdPrecision precision)
+    {
+        switch (precision) {
+        case EMpLow:      return "lowp";
+        case EMpMedium:   return "mediump";
+        case EMpHigh:     return "highp";
+        default:          return "";
+        }
+    }
+
     void emitGlaOperand(const llvm::Value* value)
     {
         emitGlaValue(value);
@@ -762,7 +772,7 @@ protected:
     }
 
     void declareVariable(llvm::Type* type, const std::string& varString, EVariableQualifier vq, const llvm::Constant* constant = 0, 
-                         EInterpolationMethod intMethod = EIMLast, EInterpolationLocation intLocation = EILFragment, bool matrix = false)
+                         EInterpolationMethod intMethod = EIMLast, EInterpolationLocation intLocation = EILFragment, EMdPrecision precision = EMpNone, bool matrix = false)
     {
         if (varString.substr(0,3) == std::string("gl_"))
             return;
@@ -821,6 +831,9 @@ protected:
             }
 
             globalDeclarations << mapGlaToQualifierString(vq);
+            //globalDeclarations << " ";
+            //globalDeclarations << mapGlaToPrecisionString(precision);
+            // TODO: turn this on, and other places precision shows up
             
             globalDeclarations << " ";
             if (basename.find_first_of(' ') == std::string::npos) {
@@ -1609,6 +1622,10 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
     std::string charOp;
     int unaryOperand = -1;
 
+    //EMdPrecision mdPrecision;
+    //if (CrackPrecisionMd(llvmInstruction, mdPrecision))
+    //    shader << " " << mapGlaToPrecisionString(mdPrecision) << " ";
+
     // TODO:  This loop will disappear when conditional loops in BottomToGLSL properly updates valueMap
     for (llvm::Instruction::const_op_iterator i = llvmInstruction->op_begin(), e = llvmInstruction->op_end(); i != e; ++i) {
         llvm::Instruction* inst = llvm::dyn_cast<llvm::Instruction>(*i);
@@ -1760,6 +1777,30 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                 makeParseable(name);
                 addNewVariable(llvmInstruction, name);
             }
+
+                //std::string mdName;
+                //EMdInputOutput mdQual;
+                //llvm::Type*mdType;
+                //int mdLocation;
+                //EMdPrecision mdPrecision;
+                //EMdTypeLayout mdLayout;
+                //llvm::MDNode* mdAgg;
+                //if (gla::CrackUniformMd(llvmInstruction, mdName, mdQual, mdType, mdLayout, mdPrecision, mdLocation, mdAgg)) {
+                //    newLine();
+                //    shader << "uniform name " << mdName;
+                //    if (mdLayout == EMtlColMajorMatrix)
+                //        shader << "is a matrix";
+                //    newLine();
+                //}
+                //EMdSampler mdSampler;
+                //EMdSamplerDim mdSamplerDim;
+                //bool mdIsArray;
+                //bool mdIsShadow;
+                //if (gla::CrackSamplerMd(llvmInstruction, mdName, mdSampler, mdType, mdSamplerDim, mdIsArray, mdIsShadow)) {
+                //    newLine();
+                //    shader << "sampler name " << mdName << " sampler is " << mdSampler << " dim is " << mdSamplerDim;
+                //    newLine();
+                //}
         }
         return;
 
@@ -2000,6 +2041,13 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             newLine();
             int location = GetConstantInt(llvmInstruction->getOperand(0));
             std::string name = manager->getPipeOutSymbols()[location].name;
+                //EMdInputOutput mdQual;
+                //llvm::Type*mdType;
+                //int mdLocation;
+                //EMdPrecision mdPrecision;
+                //EMdTypeLayout mdLayout;
+                //llvm::MDNode* mdAgg;
+                //gla::CrackOutputMd(llvmInstruction, name, mdQual, mdType, mdLayout, mdPrecision, mdLocation, mdAgg);
             gla::RemoveArraySizeFromName(name);
             shader << name << " = ";
             emitGlaOperand(llvmInstruction->getOperand(2));
@@ -2047,7 +2095,14 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
                     intLocation = EILFragment;  // dummy for non-interplated reads
                     intMethod = EIMNone;        // needed for 'flat' with non-interpolation 'in'
                 }
-                declareVariable(wholeType, declareName, EVQInput, 0, intMethod, intLocation, matrixCols > 0);
+                //EMdInputOutput mdQual;
+                //llvm::Type*mdType;
+                //int mdLocation;
+                EMdPrecision mdPrecision = EMpNone;
+                //EMdTypeLayout mdLayout;
+                //llvm::MDNode* mdAgg;
+                //gla::CrackInputMd(llvmInstruction, declareName, mdQual, mdType, mdLayout, mdPrecision, mdLocation, mdAgg);
+                declareVariable(wholeType, declareName, EVQInput, 0, intMethod, intLocation, mdPrecision, matrixCols > 0);
             }
 
             return;

@@ -91,7 +91,7 @@ public:
     gla::Builder::SuperValue handleBuiltinFunctionCall(TIntermAggregate*);
     gla::Builder::SuperValue handleUserFunctionCall(TIntermAggregate*);
 
-    gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isUnsigned, bool reduceComparison = true);
+    gla::Builder::SuperValue createBinaryOperation(TOperator op, gla::EMdPrecision, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isUnsigned, bool reduceComparison = true);
     gla::Builder::SuperValue createUnaryOperation(TOperator op, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createConversion(TOperator op, llvm::Type*, gla::Builder::SuperValue operand);
     gla::Builder::SuperValue createUnaryIntrinsic(TOperator op, gla::Builder::SuperValue operand);
@@ -178,7 +178,7 @@ gla::EMdTypeLayout getMdTypeLayout(TIntermSymbol* node)
     return mdType;
 }
 
-gla::EMdSampler getMdSampler(const TType &type)
+gla::EMdSampler getMdSampler(const TType& type)
 {
     if (type.getSampler().image)
         return gla::EMsImage;
@@ -186,7 +186,7 @@ gla::EMdSampler getMdSampler(const TType &type)
         return gla::EMsTexture;
 }
 
-gla::EMdSamplerDim getMdSamplerDim(const TType &type)
+gla::EMdSamplerDim getMdSamplerDim(const TType& type)
 {
     switch (type.getSampler().dim) {
     case Esd1D:     return gla::EMsd1D;
@@ -198,6 +198,17 @@ gla::EMdSamplerDim getMdSamplerDim(const TType &type)
     default:
         gla::UnsupportedFunctionality("unknown sampler dimension");
         return gla::EMsd2D;
+    }
+}
+
+gla::EMdPrecision getMdPrecision(const TType& type)
+{
+    switch (type.getQualifier().precision) {
+    case EpqNone:    return gla::EMpNone;
+    case EpqLow:     return gla::EMpLow;
+    case EpqMedium:  return gla::EMpMedium;
+    case EpqHigh:    return gla::EMpHigh;
+    default:         return gla::EMpNone;
     }
 }
 
@@ -366,7 +377,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
                 gla::Builder::SuperValue leftRValue = oit->glaBuilder->accessChainLoad();
 
                 // do the operation
-                rValue = oit->createBinaryOperation(node->getOp(), leftRValue, rValue, node->getType().getBasicType() == EbtUint);
+                rValue = oit->createBinaryOperation(node->getOp(), getMdPrecision(node->getType()), leftRValue, rValue, node->getType().getBasicType() == EbtUint);
 
                 // these all need their counterparts in createBinaryOperation()
                 assert(! rValue.isClear());
@@ -450,7 +461,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
         result = oit->glaBuilder->createMatrixMultiply(left, right);
         break;
     default:
-        result = oit->createBinaryOperation(node->getOp(), left, right, node->getType().getBasicType() == EbtUint);
+        result = oit->createBinaryOperation(node->getOp(), getMdPrecision(node->getType()), left, right, node->getType().getBasicType() == EbtUint);
     }
 
     if (result.isClear()) {
@@ -509,7 +520,7 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
             else
                 op = EOpSub;
 
-            gla::Builder::SuperValue result = oit->createBinaryOperation(op, operand, one, node->getType().getBasicType() == EbtUint);
+            gla::Builder::SuperValue result = oit->createBinaryOperation(op, getMdPrecision(node->getType()), operand, one, node->getType().getBasicType() == EbtUint);
 
             // The result of operation is always stored, but conditionally the
             // consumed result.  The consumed result is always an r-value.
@@ -740,7 +751,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         else if (IsAggregate(left) && binOp == EOpMul)
             result = oit->glaBuilder->createMatrixOp(llvm::Instruction::FMul, left, right);
         else
-            result = oit->createBinaryOperation(binOp, left, right, node->getType().getBasicType() == EbtUint, reduceComparison);
+            result = oit->createBinaryOperation(binOp, getMdPrecision(node->getType()), left, right, node->getType().getBasicType() == EbtUint, reduceComparison);
 
         // code above should only make binOp that exists in createBinaryOperation
         assert(! result.isClear());
@@ -1380,7 +1391,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::handleUserFunctionCall(TIntermA
     return result;
 }
 
-gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isUnsigned, bool reduceComparison)
+gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EMdPrecision precision, gla::Builder::SuperValue left, gla::Builder::SuperValue right, bool isUnsigned, bool reduceComparison)
 {
     gla::Builder::SuperValue result;
     llvm::Instruction::BinaryOps binOp = llvm::Instruction::BinaryOps(0);
@@ -1490,7 +1501,13 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
         if (needsPromotion)
             glaBuilder->promoteScalar(left, right);
 
-        return llvmBuilder.CreateBinOp(binOp, left, right);
+        llvm::Value* value = llvmBuilder.CreateBinOp(binOp, left, right);
+        llvm::Instruction* instr = llvm::dyn_cast<llvm::Instruction>(value);
+        if (instr)
+            instr->setMetadata("precision", metadata.makeMdPrecision(precision));
+
+        return value;
+        // TODO: precision metadata: do this for all instructions
     }
 
     if (! comparison)
@@ -1626,7 +1643,7 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createConversion(TOperator op, 
     case EOpConvIntToBool:
     case EOpConvUintToBool:
         // any non-zero integer should return true
-        return createBinaryOperation(EOpNotEqual, operand, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), false);
+        return createBinaryOperation(EOpNotEqual, gla::EMpNone, operand, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), false);
     case EOpConvFloatToBool:
         castOp = llvm::Instruction::FPToUI;  // TODO: functionality: should this be a test against 0.0?
         break;
@@ -2144,7 +2161,7 @@ void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::V
             return;
         }
 
-        md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "defaultUniforms", gla::EMioDefaultUniform, typeProxy, getMdTypeLayout(node), 0);
+        md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "defaultUniforms", gla::EMioDefaultUniform, typeProxy, getMdTypeLayout(node), getMdPrecision(node->getType()), 0);
         glaBuilder->setAccessChainMetadata("uniform", md);
         break;
     case gla::EMioUniformBlockMember:
@@ -2160,7 +2177,7 @@ void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::V
 
 void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value* storage)
 {    
-    llvm::MDNode* md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "outputs", getMdQualifier(node), storage, getMdTypeLayout(node), 0);
+    llvm::MDNode* md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "outputs", getMdQualifier(node), storage, getMdTypeLayout(node), getMdPrecision(node->getType()), 0);
     glaBuilder->setOutputMetadata(storage, md);
 }
 
@@ -2170,7 +2187,7 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(TIntermSymbol* node, llv
     if (node->getQualifier().layoutSlotLocation != TQualifier::layoutLocationEnd)
         mdLocation = node->getQualifier().layoutSlotLocation;
 
-    return metadata.makeMdInputOutput(node->getSymbol().c_str(), "inputs", getMdQualifier(node), typeProxy, getMdTypeLayout(node), mdLocation);
+    return metadata.makeMdInputOutput(node->getSymbol().c_str(), "inputs", getMdQualifier(node), typeProxy, getMdTypeLayout(node), getMdPrecision(node->getType()), mdLocation);
 
     // TODO: linker: avoid replication of the same node
     // TODO: linker: the metadata storage is sometimes optimized away, need an external global copy of it for typing purposes

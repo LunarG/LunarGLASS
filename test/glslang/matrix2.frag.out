@@ -126,7 +126,7 @@ entry:
   %32 = insertelement <4 x float> %30, float %31, i32 2
   %33 = insertelement <4 x float> %32, float 1.000000e+00, i32 3
   %34 = load <4 x float>* @FragColor_shadow
-  %FragColor_shadow50 = fmul <4 x float> %34, %33
+  %FragColor_shadow50 = fmul <4 x float> %34, %33, !precision !14
   store <4 x float> %FragColor_shadow50, <4 x float>* @FragColor_shadow
   %v__51 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !0
   store <4 x float> %v__51, <4 x float>* @v_shadow
@@ -627,7 +627,7 @@ entry:
   %dotProduct448 = fadd float %dotProduct444, %product447
   %123 = insertelement <4 x float> %122, float %dotProduct448, i32 3
   %124 = load <4 x float>* @FragColor_shadow
-  %FragColor_shadow449 = fadd <4 x float> %124, %123
+  %FragColor_shadow449 = fadd <4 x float> %124, %123, !precision !14
   store <4 x float> %FragColor_shadow449, <4 x float>* @FragColor_shadow
   %125 = load [4 x <4 x float>]* %"matrix m44"
   %126 = load [4 x <4 x float>]* %"matrix m44"
@@ -725,7 +725,7 @@ entry:
   %155 = insertelement <4 x float> %153, float %154, i32 2
   %156 = insertelement <4 x float> %155, float 1.000000e+00, i32 3
   %157 = load <4 x float>* @FragColor_shadow
-  %FragColor_shadow512 = fmul <4 x float> %157, %156
+  %FragColor_shadow512 = fmul <4 x float> %157, %156, !precision !14
   store <4 x float> %FragColor_shadow512, <4 x float>* @FragColor_shadow
   %158 = load [4 x <4 x float>] addrspace(2)* @"matrix um4", !uniform !11
   %column513 = extractvalue [4 x <4 x float>] %158, 0
@@ -817,7 +817,7 @@ entry:
   %225 = insertelement <4 x float> %224, float %221, i32 2
   %226 = insertelement <4 x float> %225, float %221, i32 3
   %227 = load <4 x float>* @FragColor_shadow
-  %FragColor_shadow534 = fmul <4 x float> %227, %226
+  %FragColor_shadow534 = fmul <4 x float> %227, %226, !precision !14
   store <4 x float> %FragColor_shadow534, <4 x float>* @FragColor_shadow
   %228 = load [2 x <2 x float>] addrspace(2)* @"matrix um2", !uniform !12
   %column535 = extractvalue [2 x <2 x float>] %228, 0
@@ -865,7 +865,7 @@ entry:
   %256 = insertelement <4 x float> %255, float %249, i32 2
   %257 = insertelement <4 x float> %256, float %252, i32 3
   %258 = load <4 x float>* @FragColor_shadow
-  %FragColor_shadow550 = fmul <4 x float> %258, %257
+  %FragColor_shadow550 = fmul <4 x float> %258, %257, !precision !14
   store <4 x float> %FragColor_shadow550, <4 x float>* @FragColor_shadow
   %259 = load [3 x <3 x float>] addrspace(2)* @"matrix um3", !uniform !13
   %column551 = extractvalue [3 x <3 x float>] %259, 0
@@ -962,7 +962,7 @@ entry:
   %323 = insertelement <4 x float> %322, float %319, i32 2
   %324 = insertelement <4 x float> %323, float %319, i32 3
   %325 = load <4 x float>* @FragColor_shadow
-  %FragColor_shadow579 = fmul <4 x float> %325, %324
+  %FragColor_shadow579 = fmul <4 x float> %325, %324, !precision !14
   store <4 x float> %FragColor_shadow579, <4 x float>* @FragColor_shadow
   %326 = load [4 x <4 x float>] addrspace(2)* @"matrix um4", !uniform !11
   %column580 = extractvalue [4 x <4 x float>] %326, 0
@@ -1365,19 +1365,20 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !defaultUniforms = !{!8, !10, !10, !11, !12, !13, !11}
 
 !0 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow, metadata !1}
-!1 = metadata !{i32 0, i32 1024}
+!1 = metadata !{i32 0, i32 0, i32 1024}
 !2 = metadata !{metadata !"u", i32 7, <3 x float>* @u_shadow, metadata !3}
-!3 = metadata !{i32 0, i32 1025}
+!3 = metadata !{i32 0, i32 0, i32 1025}
 !4 = metadata !{metadata !"Color", i32 7, <3 x float>* @Color_shadow, metadata !5}
-!5 = metadata !{i32 0, i32 1026}
+!5 = metadata !{i32 0, i32 0, i32 1026}
 !6 = metadata !{metadata !"FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !7}
-!7 = metadata !{i32 0, i32 0}
+!7 = metadata !{i32 0, i32 0, i32 0}
 !8 = metadata !{metadata !"un34", i32 12, [3 x <4 x float>] addrspace(2)* @"matrix un34", metadata !9}
-!9 = metadata !{i32 3, i32 0}
+!9 = metadata !{i32 3, i32 0, i32 0}
 !10 = metadata !{metadata !"um43", i32 12, [4 x <3 x float>] addrspace(2)* @"matrix um43", metadata !9}
 !11 = metadata !{metadata !"um4", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix um4", metadata !9}
 !12 = metadata !{metadata !"um2", i32 12, [2 x <2 x float>] addrspace(2)* @"matrix um2", metadata !9}
 !13 = metadata !{metadata !"um3", i32 12, [3 x <3 x float>] addrspace(2)* @"matrix um3", metadata !9}
+!14 = metadata !{i32 0}
 
 
 Bottom IR:
@@ -1424,7 +1425,7 @@ entry:
   %dot46 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %3, <4 x float> %column40)
   %dot48 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %3, <4 x float> %column42)
   %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dot, i32 0, float %dot46, i32 0, float %dot48, i32 0, float 1.000000e+00, i32 0)
-  %FragColor_shadow50 = fmul <4 x float> %3, %4
+  %FragColor_shadow50 = fmul <4 x float> %3, %4, !precision !14
   %row = extractelement <4 x float> %column38, i32 0
   %5 = fmul float %leftComp, %row
   %row53 = extractelement <4 x float> %column38, i32 1
@@ -1619,7 +1620,7 @@ entry:
   %product447 = fmul float %leftComp7, %38
   %dotProduct448 = fadd float %product447, %dotProduct444
   %39 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dotProduct403, i32 0, float %dotProduct418, i32 0, float %dotProduct433, i32 0, float %dotProduct448, i32 0)
-  %FragColor_shadow449 = fadd <4 x float> %FragColor_shadow50, %39
+  %FragColor_shadow449 = fadd <4 x float> %FragColor_shadow50, %39, !precision !14
   %column452 = fmul <4 x float> %column354, %column354
   %column455 = fmul <4 x float> %column357, %column357
   %column458 = fmul <4 x float> %column360, %column360
@@ -1636,7 +1637,7 @@ entry:
   %dot508 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %40, <4 x float> %42)
   %dot510 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %40, <4 x float> %43)
   %44 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dot506, i32 0, float %dot508, i32 0, float %dot510, i32 0, float 1.000000e+00, i32 0)
-  %FragColor_shadow512 = fmul <4 x float> %40, %44
+  %FragColor_shadow512 = fmul <4 x float> %40, %44, !precision !14
   %45 = load [4 x <4 x float>] addrspace(2)* @"matrix um4", align 16, !uniform !11
   %column513 = extractvalue [4 x <4 x float>] %45, 0
   %element514 = extractelement <4 x float> %column513, i32 0
@@ -1704,7 +1705,7 @@ entry:
   %89 = fmul float %element529, %88
   %90 = fsub float %83, %89
   %91 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %90, <4 x i32> zeroinitializer)
-  %FragColor_shadow534 = fmul <4 x float> %FragColor_shadow512, %91
+  %FragColor_shadow534 = fmul <4 x float> %FragColor_shadow512, %91, !precision !14
   %92 = load [2 x <2 x float>] addrspace(2)* @"matrix um2", align 8, !uniform !12
   %column535 = extractvalue [2 x <2 x float>] %92, 0
   %element536 = extractelement <2 x float> %column535, i32 0
@@ -1723,7 +1724,7 @@ entry:
   %101 = fmul float %98, %93
   %102 = fmul float %98, %element536
   %103 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %99, i32 0, float %100, i32 0, float %101, i32 0, float %102, i32 0)
-  %FragColor_shadow550 = fmul <4 x float> %103, %FragColor_shadow534
+  %FragColor_shadow550 = fmul <4 x float> %103, %FragColor_shadow534, !precision !14
   %104 = load [3 x <3 x float>] addrspace(2)* @"matrix um3", align 16, !uniform !13
   %column551 = extractvalue [3 x <3 x float>] %104, 0
   %element552 = extractelement <3 x float> %column551, i32 0
@@ -1758,7 +1759,7 @@ entry:
   %123 = fdiv float 1.000000e+00, %122
   %124 = fmul float %123, %108
   %125 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %124, <4 x i32> zeroinitializer)
-  %FragColor_shadow579 = fmul <4 x float> %125, %FragColor_shadow550
+  %FragColor_shadow579 = fmul <4 x float> %125, %FragColor_shadow550, !precision !14
   %126 = fdiv float 1.000000e+00, %90
   %127 = fmul float %element530, %element521
   %128 = fmul float %element520, %element531
@@ -1920,19 +1921,20 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !defaultUniforms = !{!8, !10, !10, !11, !12, !13, !11}
 
 !0 = metadata !{metadata !"v", i32 7, null, metadata !1}
-!1 = metadata !{i32 0, i32 1024}
+!1 = metadata !{i32 0, i32 0, i32 1024}
 !2 = metadata !{metadata !"u", i32 7, null, metadata !3}
-!3 = metadata !{i32 0, i32 1025}
+!3 = metadata !{i32 0, i32 0, i32 1025}
 !4 = metadata !{metadata !"Color", i32 7, null, metadata !5}
-!5 = metadata !{i32 0, i32 1026}
+!5 = metadata !{i32 0, i32 0, i32 1026}
 !6 = metadata !{metadata !"FragColor", i32 1, null, metadata !7}
-!7 = metadata !{i32 0, i32 0}
+!7 = metadata !{i32 0, i32 0, i32 0}
 !8 = metadata !{metadata !"un34", i32 12, [3 x <4 x float>] addrspace(2)* @"matrix un34", metadata !9}
-!9 = metadata !{i32 3, i32 0}
+!9 = metadata !{i32 3, i32 0, i32 0}
 !10 = metadata !{metadata !"um43", i32 12, [4 x <3 x float>] addrspace(2)* @"matrix um43", metadata !9}
 !11 = metadata !{metadata !"um4", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix um4", metadata !9}
 !12 = metadata !{metadata !"um2", i32 12, [2 x <2 x float>] addrspace(2)* @"matrix um2", metadata !9}
 !13 = metadata !{metadata !"um3", i32 12, [3 x <3 x float>] addrspace(2)* @"matrix um3", metadata !9}
+!14 = metadata !{i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:4: varying deprecated in version 150; may be removed in future release
 WARNING: 0:13: varying deprecated in version 150; may be removed in future release

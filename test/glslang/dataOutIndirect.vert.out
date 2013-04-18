@@ -32,7 +32,7 @@ ifmerge:                                          ; preds = %loop-header, %post-
   %5 = getelementptr [6 x <4 x float>]* @colorOut_shadow, i32 0, i32 %3
   store <4 x float> %4, <4 x float>* %5
   %6 = load i32* %i
-  %i1 = add i32 %6, 1
+  %i1 = add i32 %6, 1, !precision !5
   store i32 %i1, i32* %i
   br label %loop-header
 
@@ -73,10 +73,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !inputs = !{!3}
 
 !0 = metadata !{metadata !"colorOut", i32 1, [6 x <4 x float>]* @colorOut_shadow, metadata !1}
-!1 = metadata !{i32 0, i32 0}
+!1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow, metadata !1}
 !3 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow, metadata !4}
-!4 = metadata !{i32 0, i32 1024}
+!4 = metadata !{i32 0, i32 0, i32 1024}
+!5 = metadata !{i32 0}
 
 
 Bottom IR:
@@ -134,10 +135,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !inputs = !{!3}
 
 !0 = metadata !{metadata !"colorOut", i32 1, [6 x <4 x float>]* @colorOut_shadow, metadata !1}
-!1 = metadata !{i32 0, i32 0}
+!1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"gl_Position", i32 8, null, metadata !1}
 !3 = metadata !{metadata !"color", i32 7, null, metadata !4}
-!4 = metadata !{i32 0, i32 1024}
+!4 = metadata !{i32 0, i32 0, i32 1024}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

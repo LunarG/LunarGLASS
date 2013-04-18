@@ -42,12 +42,12 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !inputs = !{!3, !5}
 
 !0 = metadata !{metadata !"c", i32 1, <3 x float>* @c_shadow, metadata !1}
-!1 = metadata !{i32 0, i32 0}
+!1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"p", i32 1, [2 x <4 x float>]* @p_shadow, metadata !1}
 !3 = metadata !{metadata !"color", i32 7, <3 x float>* @color_shadow, metadata !4}
-!4 = metadata !{i32 0, i32 1024}
+!4 = metadata !{i32 0, i32 0, i32 1024}
 !5 = metadata !{metadata !"pos", i32 7, <4 x float>* @pos_shadow, metadata !6}
-!6 = metadata !{i32 0, i32 1025}
+!6 = metadata !{i32 0, i32 0, i32 1025}
 
 
 Bottom IR:
@@ -86,12 +86,12 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !inputs = !{!3, !5}
 
 !0 = metadata !{metadata !"c", i32 1, null, metadata !1}
-!1 = metadata !{i32 0, i32 0}
+!1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"p", i32 1, [2 x <4 x float>]* @p_shadow, metadata !1}
 !3 = metadata !{metadata !"color", i32 7, null, metadata !4}
-!4 = metadata !{i32 0, i32 1024}
+!4 = metadata !{i32 0, i32 0, i32 1024}
 !5 = metadata !{metadata !"pos", i32 7, null, metadata !6}
-!6 = metadata !{i32 0, i32 1025}
+!6 = metadata !{i32 0, i32 0, i32 1025}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

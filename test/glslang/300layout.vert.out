@@ -132,12 +132,12 @@ entry:
   store <3 x float> %color_shadow, <3 x float>* @color_shadow
   %41 = load i32 addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 3)
   %42 = load i32 addrspace(2)* @uiuin, !uniform !10
-  %43 = add i32 %41, %42
+  %43 = add i32 %41, %42, !precision !12
   %aiv2__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 9, i32 -1), !input !8
   store <2 x i32> %aiv2__, <2 x i32>* @aiv2_shadow
   %44 = load <2 x i32>* @aiv2_shadow
   %45 = extractelement <2 x i32> %44, i32 1
-  %iout_shadow = add i32 %43, %45
+  %iout_shadow = add i32 %43, %45, !precision !12
   store i32 %iout_shadow, i32* @iout_shadow
   br label %stage-epilogue
 
@@ -175,17 +175,18 @@ declare void @llvm.gla.writeData.i32(i32, i32, i32) nounwind
 !defaultUniforms = !{!10}
 
 !0 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_shadow, metadata !1}
-!1 = metadata !{i32 0, i32 0}
+!1 = metadata !{i32 0, i32 3, i32 0}
 !2 = metadata !{metadata !"color", i32 1, <3 x float>* @color_shadow, metadata !1}
 !3 = metadata !{metadata !"iout", i32 1, i32* @iout_shadow, metadata !1}
 !4 = metadata !{metadata !"p", i32 7, <4 x float>* @p_shadow, metadata !5}
-!5 = metadata !{i32 0, i32 3}
+!5 = metadata !{i32 0, i32 3, i32 3}
 !6 = metadata !{metadata !"c", i32 7, <3 x float>* @c_shadow, metadata !7}
-!7 = metadata !{i32 0, i32 7}
+!7 = metadata !{i32 0, i32 3, i32 7}
 !8 = metadata !{metadata !"aiv2", i32 7, <2 x i32>* @aiv2_shadow, metadata !9}
-!9 = metadata !{i32 0, i32 9}
+!9 = metadata !{i32 0, i32 3, i32 9}
 !10 = metadata !{metadata !"uiuin", i32 12, i32 addrspace(2)* @uiuin, metadata !11}
-!11 = metadata !{i32 1, i32 0}
+!11 = metadata !{i32 1, i32 3, i32 0}
+!12 = metadata !{i32 3}
 
 
 Bottom IR:
@@ -267,8 +268,8 @@ entry:
   %8 = extractelement <2 x i32> %aiv2__, i32 1
   %dot58 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column57)
   %dot52 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column45)
-  %9 = add i32 %8, %6
-  %iout_shadow = add i32 %9, %7
+  %9 = add i32 %8, %6, !precision !12
+  %iout_shadow = add i32 %9, %7, !precision !12
   %10 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %dot54, i32 0, float %dot56, i32 0, float %dot58, i32 0, float undef, i32 undef)
   %11 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dot, i32 0, float %dot48, i32 0, float %dot50, i32 0, float %dot52, i32 0)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %11), !output !0
@@ -308,17 +309,18 @@ declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x floa
 !defaultUniforms = !{!10}
 
 !0 = metadata !{metadata !"pos", i32 1, null, metadata !1}
-!1 = metadata !{i32 0, i32 0}
+!1 = metadata !{i32 0, i32 3, i32 0}
 !2 = metadata !{metadata !"color", i32 1, null, metadata !1}
 !3 = metadata !{metadata !"iout", i32 1, null, metadata !1}
 !4 = metadata !{metadata !"p", i32 7, null, metadata !5}
-!5 = metadata !{i32 0, i32 3}
+!5 = metadata !{i32 0, i32 3, i32 3}
 !6 = metadata !{metadata !"c", i32 7, null, metadata !7}
-!7 = metadata !{i32 0, i32 7}
+!7 = metadata !{i32 0, i32 3, i32 7}
 !8 = metadata !{metadata !"aiv2", i32 7, null, metadata !9}
-!9 = metadata !{i32 0, i32 9}
+!9 = metadata !{i32 0, i32 3, i32 9}
 !10 = metadata !{metadata !"uiuin", i32 12, i32 addrspace(2)* @uiuin, metadata !11}
-!11 = metadata !{i32 1, i32 0}
+!11 = metadata !{i32 1, i32 3, i32 0}
+!12 = metadata !{i32 3}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

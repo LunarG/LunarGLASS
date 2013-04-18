@@ -40,7 +40,7 @@ entry:
   %3 = load <4 x float>* @c4D_shadow
   %4 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 3, i32 %2, i32 1, <4 x float> %3)
   %5 = load <4 x float>* %v
-  %v2 = fadd <4 x float> %5, %4
+  %v2 = fadd <4 x float> %5, %4, !precision !27
   store <4 x float> %v2, <4 x float>* %v
   %6 = load i32 addrspace(1)* @"sampler2DArray s2DArray", !sampler !2
   %c3D__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1026, i32 -1, i32 1), !input !15
@@ -48,7 +48,7 @@ entry:
   %7 = load <3 x float>* @c3D_shadow
   %8 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 2, i32 %6, i32 148, <3 x float> %7, float 0x3FF3333340000000, float undef)
   %9 = load <4 x float>* %v
-  %v3 = fadd <4 x float> %9, %8
+  %v3 = fadd <4 x float> %9, %8, !precision !27
   store <4 x float> %v3, <4 x float>* %v
   %10 = load i32 addrspace(1)* @"sampler2DShadow s2DShadow", !sampler !3
   %c3D__4 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1026, i32 -1, i32 1), !input !15
@@ -63,7 +63,7 @@ entry:
   %14 = call float @llvm.gla.fTextureSampleLodRefZOffset.f32.v3f32.v2i32(i32 2, i32 %10, i32 394, <3 x float> %11, float %13, float undef, <2 x i32> %12)
   %15 = load <4 x float>* %v
   %16 = extractelement <4 x float> %15, i32 1
-  %17 = fadd float %16, %14
+  %17 = fadd float %16, %14, !precision !27
   %18 = load <4 x float>* %v
   %v5 = insertelement <4 x float> %18, float %17, i32 1
   store <4 x float> %v5, <4 x float>* %v
@@ -76,7 +76,7 @@ entry:
   %21 = load i32* @ic1D_shadow
   %22 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v3i32.i32.i32(i32 3, i32 %19, i32 162, <3 x i32> %20, i32 %21, float undef, i32 undef)
   %23 = load <4 x float>* %v
-  %v6 = fadd <4 x float> %23, %22
+  %v6 = fadd <4 x float> %23, %22, !precision !27
   store <4 x float> %v6, <4 x float>* %v
   %24 = load i32 addrspace(1)* @"sampler2D s2D", !sampler !0
   %ic2D__7 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1027, i32 -1), !input !17
@@ -87,7 +87,7 @@ entry:
   %26 = load <2 x i32>* @ic2D_shadow
   %27 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.v2i32.i32(i32 2, i32 %24, i32 418, <2 x i32> %25, <2 x i32> %26, float undef, i32 4)
   %28 = load <4 x float>* %v
-  %v9 = fadd <4 x float> %28, %27
+  %v9 = fadd <4 x float> %28, %27, !precision !27
   store <4 x float> %v9, <4 x float>* %v
   %29 = load i32 addrspace(1)* @"sampler2DShadow s2DShadow", !sampler !3
   %c3D__10 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1026, i32 -1, i32 1), !input !15
@@ -102,7 +102,7 @@ entry:
   %33 = call float @llvm.gla.fTextureSampleLodRefZOffset.f32.v3f32.v2i32(i32 2, i32 %29, i32 396, <3 x float> %30, float %31, float undef, <2 x i32> %32)
   %34 = load <4 x float>* %v
   %35 = extractelement <4 x float> %34, i32 1
-  %36 = fadd float %35, %33
+  %36 = fadd float %35, %33, !precision !27
   %37 = load <4 x float>* %v
   %v13 = insertelement <4 x float> %37, float %36, i32 1
   store <4 x float> %v13, <4 x float>* %v
@@ -118,7 +118,7 @@ entry:
   %41 = load <2 x i32>* @ic2D_shadow
   %42 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v3f32.v2i32(i32 2, i32 %38, i32 389, <3 x float> %39, float %40, float undef, <2 x i32> %41)
   %43 = load <4 x float>* %v
-  %v17 = fadd <4 x float> %43, %42
+  %v17 = fadd <4 x float> %43, %42, !precision !27
   store <4 x float> %v17, <4 x float>* %v
   %44 = load i32 addrspace(1)* @"samplerCube sCube", !sampler !4
   %c3D__18 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1026, i32 -1, i32 1), !input !15
@@ -132,7 +132,7 @@ entry:
   %47 = load <3 x float>* @c3D_shadow
   %48 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.i32.v3f32.v3f32(i32 4, i32 %44, i32 0, <3 x float> %45, float undef, float undef, i32 undef, <3 x float> %46, <3 x float> %47)
   %49 = load <4 x float>* %v
-  %v21 = fadd <4 x float> %49, %48
+  %v21 = fadd <4 x float> %49, %48, !precision !27
   store <4 x float> %v21, <4 x float>* %v
   %50 = load i32 addrspace(1)* @"sampler2DArrayShadow s2DArrayShadow", !sampler !5
   %c4D__22 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !13
@@ -150,7 +150,7 @@ entry:
   %55 = call float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v4f32.v2i32.v2f32.v2f32(i32 2, i32 %50, i32 280, <4 x float> %51, float undef, float undef, <2 x i32> %54, <2 x float> %52, <2 x float> %53)
   %56 = load <4 x float>* %v
   %57 = extractelement <4 x float> %56, i32 0
-  %58 = fadd float %57, %55
+  %58 = fadd float %57, %55, !precision !27
   %59 = load <4 x float>* %v
   %v26 = insertelement <4 x float> %59, float %58, i32 0
   store <4 x float> %v26, <4 x float>* %v
@@ -166,7 +166,7 @@ entry:
   %63 = load <3 x float>* @c3D_shadow
   %64 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v4f32.i32.v3f32.v3f32(i32 3, i32 %60, i32 1, <4 x float> %61, float undef, float undef, i32 undef, <3 x float> %62, <3 x float> %63)
   %65 = load <4 x float>* %v
-  %v30 = fadd <4 x float> %65, %64
+  %v30 = fadd <4 x float> %65, %64, !precision !27
   store <4 x float> %v30, <4 x float>* %v
   %66 = load i32 addrspace(1)* @"sampler2D s2D", !sampler !0
   %c3D__31 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1026, i32 -1, i32 1), !input !15
@@ -183,7 +183,7 @@ entry:
   %70 = load <2 x i32>* @ic2D_shadow
   %71 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.v2i32.v2f32.v2f32(i32 2, i32 %66, i32 257, <3 x float> %67, float undef, float undef, <2 x i32> %70, <2 x float> %68, <2 x float> %69)
   %72 = load <4 x float>* %v
-  %v35 = fadd <4 x float> %72, %71
+  %v35 = fadd <4 x float> %72, %71, !precision !27
   store <4 x float> %v35, <4 x float>* %v
   %73 = load i32 addrspace(1)* @"isampler2D is2D", !sampler !6
   %c2D__36 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !11
@@ -194,7 +194,7 @@ entry:
   %75 = load <4 x i32>* %iv
   %76 = sitofp <4 x i32> %75 to <4 x float>
   %77 = load <4 x float>* %v
-  %v38 = fadd <4 x float> %77, %76
+  %v38 = fadd <4 x float> %77, %76, !precision !27
   store <4 x float> %v38, <4 x float>* %v
   %78 = load i32 addrspace(1)* @"isampler2D is2D", !sampler !6
   %c4D__39 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !13
@@ -208,7 +208,7 @@ entry:
   %81 = load <4 x i32>* %iv
   %82 = sitofp <4 x i32> %81 to <4 x float>
   %83 = load <4 x float>* %v
-  %v42 = fadd <4 x float> %83, %82
+  %v42 = fadd <4 x float> %83, %82, !precision !27
   store <4 x float> %v42, <4 x float>* %v
   %84 = load i32 addrspace(1)* @"isampler2D is2D", !sampler !6
   %c3D__43 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1026, i32 -1, i32 1), !input !15
@@ -222,7 +222,7 @@ entry:
   %87 = load <4 x i32>* %iv
   %88 = sitofp <4 x i32> %87 to <4 x float>
   %89 = load <4 x float>* %v
-  %v46 = fadd <4 x float> %89, %88
+  %v46 = fadd <4 x float> %89, %88, !precision !27
   store <4 x float> %v46, <4 x float>* %v
   %90 = load i32 addrspace(1)* @"isampler2D is2D", !sampler !6
   %c3D__47 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1026, i32 -1, i32 1), !input !15
@@ -239,7 +239,7 @@ entry:
   %94 = load <4 x i32>* %iv
   %95 = sitofp <4 x i32> %94 to <4 x float>
   %96 = load <4 x float>* %v
-  %v51 = fadd <4 x float> %96, %95
+  %v51 = fadd <4 x float> %96, %95, !precision !27
   store <4 x float> %v51, <4 x float>* %v
   %97 = load i32 addrspace(1)* @"isampler3D is3D", !sampler !7
   %c3D__52 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1026, i32 -1, i32 1), !input !15
@@ -250,7 +250,7 @@ entry:
   %99 = load <4 x i32>* %iv
   %100 = sitofp <4 x i32> %99 to <4 x float>
   %101 = load <4 x float>* %v
-  %v54 = fadd <4 x float> %101, %100
+  %v54 = fadd <4 x float> %101, %100, !precision !27
   store <4 x float> %v54, <4 x float>* %v
   %102 = load i32 addrspace(1)* @"isamplerCube isCube", !sampler !8
   %c3D__55 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1026, i32 -1, i32 1), !input !15
@@ -264,7 +264,7 @@ entry:
   %105 = load <4 x i32>* %iv
   %106 = sitofp <4 x i32> %105 to <4 x float>
   %107 = load <4 x float>* %v
-  %v58 = fadd <4 x float> %107, %106
+  %v58 = fadd <4 x float> %107, %106, !precision !27
   store <4 x float> %v58, <4 x float>* %v
   %108 = load i32 addrspace(1)* @"isampler2DArray is2DArray", !sampler !9
   %ic3D__59 = call <3 x i32> @llvm.gla.readData.v3i32(i32 1029, i32 -1), !input !21
@@ -278,7 +278,7 @@ entry:
   %111 = load <4 x i32>* %iv
   %112 = sitofp <4 x i32> %111 to <4 x float>
   %113 = load <4 x float>* %v
-  %v62 = fadd <4 x float> %113, %112
+  %v62 = fadd <4 x float> %113, %112, !precision !27
   store <4 x float> %v62, <4 x float>* %v
   %114 = load i32 addrspace(1)* @"samplerCubeShadow sCubeShadow", !sampler !10
   %iv263 = call <2 x i32> @llvm.gla.queryTextureSize.v2i32(i32 4, i32 %114, i32 2)
@@ -293,7 +293,7 @@ entry:
   %122 = insertelement <4 x float> %120, float %121, i32 1
   %123 = insertelement <4 x float> %122, float 0.000000e+00, i32 2
   %124 = insertelement <4 x float> %123, float 0.000000e+00, i32 3
-  %FragData_shadow = fadd <4 x float> %115, %124
+  %FragData_shadow = fadd <4 x float> %115, %124, !precision !27
   store <4 x float> %FragData_shadow, <4 x float>* @FragData_shadow
   br label %stage-epilogue
 
@@ -372,21 +372,22 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !9 = metadata !{metadata !"is2DArray", i32 0, i32 addrspace(1)* @"isampler2DArray is2DArray", i32 1, i1 true, i1 false}
 !10 = metadata !{metadata !"sCubeShadow", i32 0, i32 addrspace(1)* @"samplerCubeShadow sCubeShadow", i32 3, i1 false, i1 true}
 !11 = metadata !{metadata !"c2D", i32 7, <2 x float>* @c2D_shadow, metadata !12}
-!12 = metadata !{i32 0, i32 1024}
+!12 = metadata !{i32 0, i32 0, i32 1024}
 !13 = metadata !{metadata !"c4D", i32 7, <4 x float>* @c4D_shadow, metadata !14}
-!14 = metadata !{i32 0, i32 1025}
+!14 = metadata !{i32 0, i32 0, i32 1025}
 !15 = metadata !{metadata !"c3D", i32 7, <3 x float>* @c3D_shadow, metadata !16}
-!16 = metadata !{i32 0, i32 1026}
+!16 = metadata !{i32 0, i32 0, i32 1026}
 !17 = metadata !{metadata !"ic2D", i32 7, <2 x i32>* @ic2D_shadow, metadata !18}
-!18 = metadata !{i32 0, i32 1027}
+!18 = metadata !{i32 0, i32 0, i32 1027}
 !19 = metadata !{metadata !"c1D", i32 7, float* @c1D_shadow, metadata !20}
-!20 = metadata !{i32 0, i32 1028}
+!20 = metadata !{i32 0, i32 0, i32 1028}
 !21 = metadata !{metadata !"ic3D", i32 7, <3 x i32>* @ic3D_shadow, metadata !22}
-!22 = metadata !{i32 0, i32 1029}
+!22 = metadata !{i32 0, i32 0, i32 1029}
 !23 = metadata !{metadata !"ic1D", i32 7, i32* @ic1D_shadow, metadata !24}
-!24 = metadata !{i32 0, i32 1030}
+!24 = metadata !{i32 0, i32 0, i32 1030}
 !25 = metadata !{metadata !"FragData", i32 1, <4 x float>* @FragData_shadow, metadata !26}
-!26 = metadata !{i32 0, i32 0}
+!26 = metadata !{i32 0, i32 0, i32 0}
+!27 = metadata !{i32 0}
 
 
 Bottom IR:
@@ -412,33 +413,33 @@ entry:
   %1 = load i32 addrspace(1)* @"sampler3D s3D", align 4, !sampler !1
   %c4D__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !13
   %2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 3, i32 %1, i32 1, <4 x float> %c4D__)
-  %v2 = fadd <4 x float> %v1, %2
+  %v2 = fadd <4 x float> %v1, %2, !precision !27
   %3 = load i32 addrspace(1)* @"sampler2DArray s2DArray", align 4, !sampler !2
   %c3D__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1026, i32 -1, i32 1), !input !15
   %4 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 2, i32 %3, i32 148, <3 x float> %c3D__, float 0x3FF3333340000000, float undef)
-  %v3 = fadd <4 x float> %v2, %4
+  %v3 = fadd <4 x float> %v2, %4, !precision !27
   %5 = load i32 addrspace(1)* @"sampler2DShadow s2DShadow", align 4, !sampler !3
   %ic2D__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 1027, i32 -1), !input !17
   %c1D__ = call float @llvm.gla.fReadInterpolant.f32(i32 1028, i32 -1, i32 1), !input !19
   %6 = call float @llvm.gla.fTextureSampleLodRefZOffset.f32.v3f32.v2i32(i32 2, i32 %5, i32 394, <3 x float> %c3D__, float %c1D__, float undef, <2 x i32> %ic2D__)
   %7 = extractelement <4 x float> %v3, i32 1
-  %8 = fadd float %7, %6
+  %8 = fadd float %7, %6, !precision !27
   %9 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %v3, i32 2, float undef, i32 undef, float %8, i32 0, float undef, i32 undef, float undef, i32 undef)
   %ic3D__ = call <3 x i32> @llvm.gla.readData.v3i32(i32 1029, i32 -1), !input !21
   %ic1D__ = call i32 @llvm.gla.readData.i32(i32 1030, i32 -1), !input !23
   %10 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v3i32.i32.i32(i32 3, i32 %1, i32 162, <3 x i32> %ic3D__, i32 %ic1D__, float undef, i32 undef)
-  %v6 = fadd <4 x float> %9, %10
+  %v6 = fadd <4 x float> %9, %10, !precision !27
   %11 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.v2i32.i32(i32 2, i32 %0, i32 418, <2 x i32> %ic2D__, <2 x i32> %ic2D__, float undef, i32 4)
-  %v9 = fadd <4 x float> %v6, %11
+  %v9 = fadd <4 x float> %v6, %11, !precision !27
   %12 = call float @llvm.gla.fTextureSampleLodRefZOffset.f32.v3f32.v2i32(i32 2, i32 %5, i32 396, <3 x float> %c3D__, float %c1D__, float undef, <2 x i32> %ic2D__)
   %13 = extractelement <4 x float> %v9, i32 1
-  %14 = fadd float %12, %13
+  %14 = fadd float %12, %13, !precision !27
   %15 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %v9, i32 2, float undef, i32 undef, float %14, i32 0, float undef, i32 undef, float undef, i32 undef)
   %16 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v3f32.v2i32(i32 2, i32 %0, i32 389, <3 x float> %c3D__, float %c1D__, float undef, <2 x i32> %ic2D__)
-  %v17 = fadd <4 x float> %16, %15
+  %v17 = fadd <4 x float> %16, %15, !precision !27
   %17 = load i32 addrspace(1)* @"samplerCube sCube", align 4, !sampler !4
   %18 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.i32.v3f32.v3f32(i32 4, i32 %17, i32 0, <3 x float> %c3D__, float undef, float undef, i32 undef, <3 x float> %c3D__, <3 x float> %c3D__)
-  %v21 = fadd <4 x float> %18, %v17
+  %v21 = fadd <4 x float> %18, %v17, !precision !27
   %19 = load i32 addrspace(1)* @"isampler2D is2D", align 4, !sampler !6
   %20 = load i32 addrspace(1)* @"samplerCubeShadow sCubeShadow", align 4, !sampler !10
   %iv263 = call <2 x i32> @llvm.gla.queryTextureSize.v2i32(i32 4, i32 %20, i32 2)
@@ -446,38 +447,38 @@ entry:
   %22 = load i32 addrspace(1)* @"sampler2DArrayShadow s2DArrayShadow", align 4, !sampler !5
   %23 = extractelement <4 x float> %v21, i32 0
   %24 = call float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v4f32.v2i32.v2f32.v2f32(i32 2, i32 %22, i32 280, <4 x float> %c4D__, float undef, float undef, <2 x i32> %ic2D__, <2 x float> %c2D__, <2 x float> %c2D__)
-  %25 = fadd float %23, %24
+  %25 = fadd float %23, %24, !precision !27
   %26 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v4f32.i32.v3f32.v3f32(i32 3, i32 %1, i32 1, <4 x float> %c4D__, float undef, float undef, i32 undef, <3 x float> %c3D__, <3 x float> %c3D__)
   %27 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %v21, i32 1, float %25, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
   %iv37 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %19, i32 0, <2 x float> %c2D__)
   %28 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.v2i32.v2f32.v2f32(i32 2, i32 %0, i32 257, <3 x float> %c3D__, float undef, float undef, <2 x i32> %ic2D__, <2 x float> %c2D__, <2 x float> %c2D__)
-  %v30 = fadd <4 x float> %26, %27
+  %v30 = fadd <4 x float> %26, %27, !precision !27
   %iv41 = call <4 x i32> @llvm.gla.textureSampleLodRefZOffset.v4i32.v4f32.v2i32(i32 2, i32 %19, i32 257, <4 x float> %c4D__, float undef, float undef, <2 x i32> %ic2D__)
   %29 = sitofp <4 x i32> %iv37 to <4 x float>
-  %v35 = fadd <4 x float> %v30, %28
+  %v35 = fadd <4 x float> %v30, %28, !precision !27
   %iv45 = call <4 x i32> @llvm.gla.textureSampleLodRefZ.v4i32.v3f32(i32 2, i32 %19, i32 133, <3 x float> %c3D__, float %c1D__, float undef)
   %30 = sitofp <4 x i32> %iv41 to <4 x float>
-  %v38 = fadd <4 x float> %29, %v35
+  %v38 = fadd <4 x float> %29, %v35, !precision !27
   %31 = load i32 addrspace(1)* @"isampler3D is3D", align 4, !sampler !7
   %iv50 = call <4 x i32> @llvm.gla.textureSampleLodRefZOffsetGrad.v4i32.v3f32.i32.v2f32.v2f32(i32 2, i32 %19, i32 1, <3 x float> %c3D__, float undef, float undef, i32 undef, <2 x float> %c2D__, <2 x float> %c2D__)
   %32 = sitofp <4 x i32> %iv45 to <4 x float>
-  %v42 = fadd <4 x float> %v38, %30
+  %v42 = fadd <4 x float> %v38, %30, !precision !27
   %33 = load i32 addrspace(1)* @"isamplerCube isCube", align 4, !sampler !8
   %iv53 = call <4 x i32> @llvm.gla.textureSampleLodRefZ.v4i32.v3f32(i32 3, i32 %31, i32 130, <3 x float> %c3D__, float 0x4010CCCCC0000000, float undef)
   %34 = sitofp <4 x i32> %iv50 to <4 x float>
-  %v46 = fadd <4 x float> %v42, %32
+  %v46 = fadd <4 x float> %v42, %32, !precision !27
   %35 = load i32 addrspace(1)* @"isampler2DArray is2DArray", align 4, !sampler !9
   %iv57 = call <4 x i32> @llvm.gla.textureSampleLodRefZ.v4i32.v3f32(i32 4, i32 %33, i32 132, <3 x float> %c3D__, float %c1D__, float undef)
   %36 = sitofp <4 x i32> %iv53 to <4 x float>
-  %v51 = fadd <4 x float> %v46, %34
+  %v51 = fadd <4 x float> %v46, %34, !precision !27
   %iv61 = call <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32 2, i32 %35, i32 178, <3 x i32> %ic3D__, i32 %ic1D__, float undef, i32 undef)
   %37 = sitofp <4 x i32> %iv57 to <4 x float>
-  %v54 = fadd <4 x float> %v51, %36
+  %v54 = fadd <4 x float> %v51, %36, !precision !27
   %38 = sitofp <4 x i32> %iv61 to <4 x float>
-  %v58 = fadd <4 x float> %v54, %37
+  %v58 = fadd <4 x float> %v54, %37, !precision !27
   %39 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float> undef, i32 15, <2 x float> %21, i32 0, <2 x float> %21, i32 1, float 0.000000e+00, i32 0, float 0.000000e+00, i32 0)
-  %v62 = fadd <4 x float> %v58, %38
-  %FragData_shadow = fadd <4 x float> %39, %v62
+  %v62 = fadd <4 x float> %v58, %38, !precision !27
+  %FragData_shadow = fadd <4 x float> %39, %v62, !precision !27
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragData_shadow), !output !25
   br label %stage-epilogue
 
@@ -558,21 +559,22 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !9 = metadata !{metadata !"is2DArray", i32 0, i32 addrspace(1)* @"isampler2DArray is2DArray", i32 1, i1 true, i1 false}
 !10 = metadata !{metadata !"sCubeShadow", i32 0, i32 addrspace(1)* @"samplerCubeShadow sCubeShadow", i32 3, i1 false, i1 true}
 !11 = metadata !{metadata !"c2D", i32 7, null, metadata !12}
-!12 = metadata !{i32 0, i32 1024}
+!12 = metadata !{i32 0, i32 0, i32 1024}
 !13 = metadata !{metadata !"c4D", i32 7, null, metadata !14}
-!14 = metadata !{i32 0, i32 1025}
+!14 = metadata !{i32 0, i32 0, i32 1025}
 !15 = metadata !{metadata !"c3D", i32 7, null, metadata !16}
-!16 = metadata !{i32 0, i32 1026}
+!16 = metadata !{i32 0, i32 0, i32 1026}
 !17 = metadata !{metadata !"ic2D", i32 7, null, metadata !18}
-!18 = metadata !{i32 0, i32 1027}
+!18 = metadata !{i32 0, i32 0, i32 1027}
 !19 = metadata !{metadata !"c1D", i32 7, null, metadata !20}
-!20 = metadata !{i32 0, i32 1028}
+!20 = metadata !{i32 0, i32 0, i32 1028}
 !21 = metadata !{metadata !"ic3D", i32 7, null, metadata !22}
-!22 = metadata !{i32 0, i32 1029}
+!22 = metadata !{i32 0, i32 0, i32 1029}
 !23 = metadata !{metadata !"ic1D", i32 7, null, metadata !24}
-!24 = metadata !{i32 0, i32 1030}
+!24 = metadata !{i32 0, i32 0, i32 1030}
 !25 = metadata !{metadata !"FragData", i32 1, null, metadata !26}
-!26 = metadata !{i32 0, i32 0}
+!26 = metadata !{i32 0, i32 0, i32 0}
+!27 = metadata !{i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

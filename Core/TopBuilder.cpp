@@ -734,6 +734,7 @@ llvm::Value* Builder::readPipeline(llvm::Type* type, llvm::StringRef name, int s
     }
 
     readInstr->setMetadata("input", inputMd);
+
     return readInstr;
 }
 

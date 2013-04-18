@@ -39,9 +39,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!2}
 
 !0 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow, metadata !1}
-!1 = metadata !{i32 0, i32 1024}
+!1 = metadata !{i32 0, i32 0, i32 1024}
 !2 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !3}
-!3 = metadata !{i32 0, i32 0}
+!3 = metadata !{i32 0, i32 2, i32 0}
 
 
 Bottom IR:
@@ -68,9 +68,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!2}
 
 !0 = metadata !{metadata !"BaseColor", i32 7, null, metadata !1}
-!1 = metadata !{i32 0, i32 1024}
+!1 = metadata !{i32 0, i32 0, i32 1024}
 !2 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !3}
-!3 = metadata !{i32 0, i32 0}
+!3 = metadata !{i32 0, i32 2, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
