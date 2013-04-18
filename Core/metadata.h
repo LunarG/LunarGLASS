@@ -144,6 +144,107 @@ enum EMdSamplerDim {
     EMsdBuffer,
 };
 
+inline bool CrackTypeLayout(llvm::MDNode* md, EMdTypeLayout& layout, int& location)
+{
+    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
+    if (! constInt)
+        return false;
+    layout = (EMdTypeLayout)constInt->getSExtValue();
+
+    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(1));
+    if (! constInt)
+        return false;
+    location = constInt->getSExtValue();
+
+    return true;
+}
+
+inline bool CrackIOMd(llvm::MDNode* md, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, int& location, llvm::MDNode*& aggregate)
+{
+    symbolName = md->getOperand(0)->getName();
+
+    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(1));
+    if (! constInt)
+        return false;
+    qualifier = (EMdInputOutput)constInt->getSExtValue();
+
+    if (! md->getOperand(2))
+        type = 0;  // TODO: sometimes this gets optimized away, find a way to keep it, like declaring an external global variable
+    else
+        type = md->getOperand(2)->getType();
+
+    llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(3));
+    if (! layoutMd)
+        return false;
+
+    if (! CrackTypeLayout(layoutMd, layout, location))
+        return false;
+
+    aggregate = 0;
+    
+    return true;
+}
+
+inline bool CrackIOMd(const llvm::Instruction* instruction, llvm::StringRef kind, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, int& location, llvm::MDNode*& aggregate)
+{
+    llvm::MDNode* md = instruction->getMetadata(kind);
+    if (! md)
+        return false;
+
+    return CrackIOMd(md, symbolName, qualifier, type, layout, location, aggregate);
+}
+
+inline bool CrackInputMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, int& location, llvm::MDNode*& aggregate)
+{
+    return CrackIOMd(instruction, "input", symbolName, qualifier, type, layout, location, aggregate);
+}
+
+inline bool CrackOutputMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, int& location, llvm::MDNode*& aggregate)
+{
+    return CrackIOMd(instruction, "output", symbolName, qualifier, type, layout, location, aggregate);
+}
+
+inline bool CrackUniformMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, int& location, llvm::MDNode*& aggregate)
+{
+    return CrackIOMd(instruction, "uniform", symbolName, qualifier, type, layout, location, aggregate);
+}
+
+inline bool CrackSamplerMd(const llvm::Instruction* instruction, std::string& symbolName, EMdSampler& sampler, llvm::Type*& type, EMdSamplerDim& dim, bool& isArray, bool& isShadow)
+{
+    llvm::MDNode* md = instruction->getMetadata("sampler");
+    if (! md)
+        return false;
+
+    symbolName = md->getOperand(0)->getName();
+
+    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(1));
+    if (! constInt)
+        return false;
+    sampler = (EMdSampler)constInt->getSExtValue();
+
+    if (! md->getOperand(2))
+        type = 0;  // TODO: sometimes this gets optimized away, find a way to keep it, like declaring an external global variable
+    else
+        type = md->getOperand(2)->getType();
+
+    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(3));
+    if (! constInt)
+        return false;
+    dim = (EMdSamplerDim)constInt->getSExtValue();
+
+    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(4));
+    if (! constInt)
+        return false;
+    isArray = constInt->getSExtValue() != 0;
+
+    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(5));
+    if (! constInt)
+        return false;
+    isShadow = constInt->getSExtValue() != 0;
+
+    return true;
+}
+
 class Metadata {
 public:
     Metadata(llvm::LLVMContext& c, llvm::Module* m) : context(c), module(m) { }
