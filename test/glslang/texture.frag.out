@@ -526,6 +526,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !11 = metadata !{metadata !"blend", i32 12, float addrspace(2)* @blend, metadata !9}
 !12 = metadata !{i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
+WARNING: 0:14: varying deprecated in version 130; may be removed in future release
+WARNING: 0:15: varying deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####

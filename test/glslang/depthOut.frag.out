@@ -97,6 +97,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !6 = metadata !{metadata !"Color", i32 7, null, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1025}
 #### BEGIN COMPILER 0 INFO LOG ####
+WARNING: 0:3: varying deprecated in version 130; may be removed in future release
+WARNING: 0:4: varying deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
