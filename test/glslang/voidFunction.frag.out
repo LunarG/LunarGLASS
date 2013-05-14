@@ -17,7 +17,7 @@ entry:
   %0 = load float* @bar
   %1 = load <4 x float>* %outColor
   %2 = extractelement <4 x float> %1, i32 0
-  %3 = fadd float %2, %0, !precision !4
+  %3 = fadd float %2, %0
   %4 = load <4 x float>* %outColor
   %outColor2 = insertelement <4 x float> %4, float %3, i32 0
   store <4 x float> %outColor2, <4 x float>* %outColor
@@ -40,7 +40,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 define internal fastcc void @"foo("() alwaysinline {
 entry:
   %0 = load float* @bar
-  %bar = fadd float %0, 1.000000e+00, !precision !4
+  %bar = fadd float %0, 1.000000e+00
   store float %bar, float* @bar
   ret void
 
@@ -51,7 +51,7 @@ post-return:                                      ; No predecessors!
 define internal fastcc void @"foo2("() alwaysinline {
 entry:
   %0 = load float* @bar
-  %bar = fadd float %0, 1.000000e+00, !precision !4
+  %bar = fadd float %0, 1.000000e+00
   store float %bar, float* @bar
   ret void
 }
@@ -65,7 +65,6 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !3}
 !3 = metadata !{i32 0, i32 2, i32 0}
-!4 = metadata !{i32 0}
 
 
 Bottom IR:
@@ -77,7 +76,7 @@ define fastcc void @main() {
 entry:
   %outColor1 = load <4 x float> addrspace(2)* @bigColor, align 16, !uniform !0
   %0 = extractelement <4 x float> %outColor1, i32 0
-  %1 = fadd float %0, 4.000000e+00, !precision !4
+  %1 = fadd float %0, 4.000000e+00
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outColor1, i32 1, float %1, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %2), !output !2
   br label %stage-epilogue
@@ -100,7 +99,6 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !3}
 !3 = metadata !{i32 0, i32 2, i32 0}
-!4 = metadata !{i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

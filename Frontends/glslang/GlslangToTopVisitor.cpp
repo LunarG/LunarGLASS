@@ -100,6 +100,7 @@ public:
     int getNextInterpIndex(const std::string& name, int numSlots);
     gla::Builder::SuperValue createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
     void setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
+    void setInstructionPrecision(llvm::Value*, gla::EMdPrecision);
     void setOutputMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
     llvm::MDNode* makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot);
 
@@ -1501,10 +1502,8 @@ gla::Builder::SuperValue TGlslangToTopTraverser::createBinaryOperation(TOperator
         if (needsPromotion)
             glaBuilder->promoteScalar(left, right);
 
-        llvm::Value* value = llvmBuilder.CreateBinOp(binOp, left, right);
-        llvm::Instruction* instr = llvm::dyn_cast<llvm::Instruction>(value);
-        if (instr)
-            instr->setMetadata("precision", metadata.makeMdPrecision(precision));
+        llvm::Value* value = llvmBuilder.CreateBinOp(binOp, left, right);       
+        setInstructionPrecision(value, precision);
 
         return value;
         // TODO: precision metadata: do this for all instructions
@@ -2172,6 +2171,14 @@ void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::V
         break;
     default:
         break;
+    }
+}
+
+void TGlslangToTopTraverser::setInstructionPrecision(llvm::Value* value, gla::EMdPrecision precision)
+{
+    if (llvm::Instruction* instr = llvm::dyn_cast<llvm::Instruction>(value)) {
+        if (precision != gla::EMpNone)
+            instr->setMetadata("precision", metadata.makeMdPrecision(precision));
     }
 }
 

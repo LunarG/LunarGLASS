@@ -38,7 +38,7 @@ entry:
   %4 = load i32 addrspace(2)* @a, !uniform !11
   %5 = getelementptr [6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 %4
   %6 = load <4 x float>* %5
-  %7 = fadd <4 x float> %3, %6, !precision !13
+  %7 = fadd <4 x float> %3, %6
   %"gl_TexCoord_6[0]1" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !3
   store <4 x float> %"gl_TexCoord_6[0]1", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 0)
   %"gl_TexCoord_6[1]2" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !3
@@ -52,7 +52,7 @@ entry:
   %"gl_TexCoord_6[5]6" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1031, i32 -1, i32 1), !input !3
   store <4 x float> %"gl_TexCoord_6[5]6", <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 5)
   %8 = load <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 5)
-  %9 = fadd <4 x float> %7, %8, !precision !13
+  %9 = fadd <4 x float> %7, %8
   %10 = load <2 x float>* %constructed
   %11 = extractelement <4 x float> %9, i32 0
   %12 = insertelement <2 x float> %10, float %11, i32 0
@@ -64,7 +64,7 @@ entry:
   store <4 x float> %color__, <4 x float>* @color_shadow
   %15 = load <4 x float>* @color_shadow
   %16 = load <4 x float>* %texColor
-  %texColor8 = fadd <4 x float> %16, %15, !precision !13
+  %texColor8 = fadd <4 x float> %16, %15
   store <4 x float> %texColor8, <4 x float>* %texColor
   %alpha__ = call float @llvm.gla.fReadInterpolant.f32(i32 1033, i32 -1, i32 1), !input !7
   store float %alpha__, float* @alpha_shadow
@@ -100,9 +100,9 @@ entry:
   %20 = load i32 addrspace(2)* @b, !uniform !9
   %21 = getelementptr [6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 %20
   %22 = load <4 x float>* %21
-  %23 = fadd <4 x float> %19, %22, !precision !13
+  %23 = fadd <4 x float> %19, %22
   %24 = load <4 x float>* %texColor
-  %25 = fadd <4 x float> %23, %24, !precision !13
+  %25 = fadd <4 x float> %23, %24
   %"userIn_2[0]22" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !1
   store <4 x float> %"userIn_2[0]22", <4 x float>* getelementptr inbounds ([2 x <4 x float>]* @userIn_shadow, i32 0, i32 0)
   %"userIn_2[1]23" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !1
@@ -110,7 +110,7 @@ entry:
   %26 = load i32 addrspace(2)* @a, !uniform !11
   %27 = getelementptr [2 x <4 x float>]* @userIn_shadow, i32 0, i32 %26
   %28 = load <4 x float>* %27
-  %FragColor_shadow = fadd <4 x float> %25, %28, !precision !13
+  %FragColor_shadow = fadd <4 x float> %25, %28
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
@@ -149,7 +149,6 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !10 = metadata !{i32 0, i32 0, i32 0}
 !11 = metadata !{metadata !"a", i32 12, i32 addrspace(2)* @a, metadata !10}
 !12 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !10}
-!13 = metadata !{i32 0}
 
 
 Bottom IR:
@@ -194,8 +193,8 @@ entry:
   %4 = load i32 addrspace(2)* @a, align 4
   %5 = getelementptr [6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 %4
   %6 = load <4 x float>* %5, align 16
-  %7 = fadd <4 x float> %3, %6, !precision !13
-  %8 = fadd <4 x float> %"gl_TexCoord_6[5]", %7, !precision !13
+  %7 = fadd <4 x float> %3, %6
+  %8 = fadd <4 x float> %"gl_TexCoord_6[5]", %7
   %9 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %8, <2 x i32> <i32 0, i32 1>)
   %gla_constGEP32 = getelementptr [6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 0
   store <4 x float> %"gl_TexCoord_6[0]", <4 x float>* %gla_constGEP32, align 16
@@ -218,13 +217,13 @@ entry:
   %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1032, i32 -1, i32 1), !input !5
   %texColor7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %9)
   %alpha__ = call float @llvm.gla.fReadInterpolant.f32(i32 1033, i32 -1, i32 1), !input !7
-  %texColor8 = fadd <4 x float> %color__, %texColor7, !precision !13
+  %texColor8 = fadd <4 x float> %color__, %texColor7
   %12 = getelementptr [2 x <4 x float>]* @userIn_shadow, i32 0, i32 %4
-  %13 = fadd <4 x float> %"gl_TexCoord_6[0]", %11, !precision !13
+  %13 = fadd <4 x float> %"gl_TexCoord_6[0]", %11
   %14 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor8, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %alpha__, i32 0)
   %15 = load <4 x float>* %12, align 16
-  %16 = fadd <4 x float> %13, %14, !precision !13
-  %FragColor_shadow = fadd <4 x float> %15, %16, !precision !13
+  %16 = fadd <4 x float> %13, %14
+  %FragColor_shadow = fadd <4 x float> %15, %16
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow), !output !12
   br label %stage-epilogue
 
@@ -265,7 +264,6 @@ declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>)
 !10 = metadata !{i32 0, i32 0, i32 0}
 !11 = metadata !{metadata !"a", i32 12, i32 addrspace(2)* @a, metadata !10}
 !12 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !10}
-!13 = metadata !{i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:3: varying deprecated in version 130; may be removed in future release
 WARNING: 0:4: varying deprecated in version 130; may be removed in future release

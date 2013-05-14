@@ -64,7 +64,7 @@ ifmerge:                                          ; preds = %else, %then
 then3:                                            ; preds = %ifmerge
   %16 = getelementptr [16 x float]* %localFArray, i32 0, i32 4
   %17 = load float* %16
-  %18 = fadd float %17, 1.000000e+00, !precision !9
+  %18 = fadd float %17, 1.000000e+00
   store float %18, float* %16
   br label %ifmerge4
 
@@ -97,7 +97,7 @@ ifmerge7:                                         ; preds = %loop-header, %post-
   %27 = getelementptr [16 x float]* %a, i32 0, i32 %26
   store float 0.000000e+00, float* %27
   %28 = load i32* %i
-  %i8 = add i32 %28, 1, !precision !9
+  %i8 = add i32 %28, 1
   store i32 %i8, i32* %i
   br label %loop-header
 
@@ -134,26 +134,26 @@ ifmerge11:                                        ; preds = %loop-merge, %then9
   %41 = load float* %40
   %42 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
   %43 = load float* %42
-  %44 = fadd float %41, %43, !precision !9
+  %44 = fadd float %41, %43
   %45 = load i32* %x
   %46 = getelementptr [16 x float]* %localArray, i32 0, i32 %45
   %47 = load float* %46
-  %48 = fadd float %44, %47, !precision !9
+  %48 = fadd float %44, %47
   %49 = load i32* %x
   %50 = getelementptr [16 x float]* %a, i32 0, i32 %49
   %51 = load float* %50
-  %52 = fadd float %48, %51, !precision !9
+  %52 = fadd float %48, %51
   %53 = insertelement <4 x float> undef, float %52, i32 0
   %54 = insertelement <4 x float> %53, float %52, i32 1
   %55 = insertelement <4 x float> %54, float %52, i32 2
   %56 = insertelement <4 x float> %55, float %52, i32 3
-  %57 = fmul <4 x float> %39, %56, !precision !9
+  %57 = fmul <4 x float> %39, %56
   %58 = load i32 addrspace(1)* @"sampler2D sampler", !sampler !8
   %coord__13 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !3
   store <2 x float> %coord__13, <2 x float>* @coord_shadow
   %59 = load <2 x float>* @coord_shadow
   %60 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %58, i32 0, <2 x float> %59)
-  %FragColor_shadow = fmul <4 x float> %57, %60, !precision !9
+  %FragColor_shadow = fmul <4 x float> %57, %60
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
@@ -188,7 +188,6 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !6 = metadata !{i32 0, i32 0, i32 1025}
 !7 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !1}
 !8 = metadata !{metadata !"sampler", i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
-!9 = metadata !{i32 0}
 
 
 Bottom IR:
@@ -210,22 +209,22 @@ entry:
   %coord__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1)
   %2 = extractelement <2 x float> %coord__, i32 0
   %3 = select i1 %1, float %2, float 1.000000e+00
-  %4 = fadd float %3, 1.000000e+00, !precision !9
+  %4 = fadd float %3, 1.000000e+00
   %select33 = select i1 %1, float 1.000000e+00, float %2
   %select.v = select i1 %1, float %2, float %4
   %5 = load i32 addrspace(2)* @condition, align 4, !uniform !2
   %6 = icmp eq i32 %5, 1
   %select = select i1 %6, float %2, float 0.000000e+00
-  %7 = fadd float %select33, %select.v, !precision !9
-  %8 = fadd float %2, %7, !precision !9
-  %9 = fadd float %8, %select, !precision !9
+  %7 = fadd float %select33, %select.v
+  %8 = fadd float %2, %7
+  %9 = fadd float %8, %select
   %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %9, <4 x i32> zeroinitializer)
   %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !5
   %11 = load i32 addrspace(1)* @"sampler2D sampler", align 4, !sampler !8
   %12 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %color__, i32 4, float undef, i32 undef, float undef, i32 undef, <2 x float> %coord__, i32 1, float undef, i32 undef)
   %13 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %11, i32 0, <2 x float> %coord__)
-  %14 = fmul <4 x float> %12, %10, !precision !9
-  %FragColor_shadow = fmul <4 x float> %13, %14, !precision !9
+  %14 = fmul <4 x float> %12, %10
+  %FragColor_shadow = fmul <4 x float> %13, %14
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow), !output !7
   br label %stage-epilogue
 
@@ -262,7 +261,6 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !6 = metadata !{i32 0, i32 0, i32 1025}
 !7 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !1}
 !8 = metadata !{metadata !"sampler", i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
-!9 = metadata !{i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:4: varying deprecated in version 130; may be removed in future release
 WARNING: 0:5: varying deprecated in version 130; may be removed in future release

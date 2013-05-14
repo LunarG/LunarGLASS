@@ -33,7 +33,7 @@ post-loop-break:                                  ; No predecessors!
 ifmerge:                                          ; preds = %loop-header, %post-loop-break
   %5 = load <4 x float> addrspace(2)* @bigColor, !uniform !4
   %6 = load <4 x float>* %color
-  %color2 = fadd <4 x float> %6, %5, !precision !7
+  %color2 = fadd <4 x float> %6, %5
   store <4 x float> %color2, <4 x float>* %color
   br label %loop-header
 
@@ -69,7 +69,6 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !4 = metadata !{metadata !"bigColor", i32 12, <4 x float> addrspace(2)* @bigColor, metadata !3}
 !5 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !6}
 !6 = metadata !{i32 0, i32 2, i32 0}
-!7 = metadata !{i32 0}
 
 
 Bottom IR:
@@ -102,7 +101,7 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 
 ifmerge:                                          ; preds = %loop-header
-  %color2 = fadd <4 x float> %color.0, %0, !precision !7
+  %color2 = fadd <4 x float> %color.0, %0
   br label %loop-header
 }
 
@@ -121,7 +120,6 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !4 = metadata !{metadata !"bigColor", i32 12, <4 x float> addrspace(2)* @bigColor, metadata !3}
 !5 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !6}
 !6 = metadata !{i32 0, i32 2, i32 0}
-!7 = metadata !{i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

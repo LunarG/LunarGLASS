@@ -61,7 +61,7 @@ switch-segment10:                                 ; preds = %switch-merge
   %6 = load float* @x_shadow
   %7 = call float @llvm.gla.fSin.f32.f32(float %6)
   %8 = load float* %f
-  %f15 = fadd float %8, %7, !precision !8
+  %f15 = fadd float %8, %7
   store float %f15, float* %f
   br label %switch-segment11
 
@@ -71,7 +71,7 @@ switch-segment11:                                 ; preds = %switch-segment10, %
   %9 = load float* @x_shadow
   %10 = call float @llvm.gla.fCos.f32.f32(float %9)
   %11 = load float* %f
-  %f17 = fadd float %11, %10, !precision !8
+  %f17 = fadd float %11, %10
   store float %f17, float* %f
   br label %switch-merge13
 
@@ -81,7 +81,7 @@ switch-segment12:                                 ; preds = %switch-merge
   %12 = load float* @x_shadow
   %13 = call float @llvm.gla.fTan.f32.f32(float %12)
   %14 = load float* %f
-  %f19 = fadd float %14, %13, !precision !8
+  %f19 = fadd float %14, %13
   store float %f19, float* %f
   br label %switch-merge13
 
@@ -98,7 +98,7 @@ switch-segment20:                                 ; preds = %switch-merge13
   %16 = load float* @x_shadow
   %17 = call float @llvm.gla.fSin.f32.f32(float %16)
   %18 = load float* %f
-  %f24 = fadd float %18, %17, !precision !8
+  %f24 = fadd float %18, %17
   store float %f24, float* %f
   br label %switch-merge22
 
@@ -108,7 +108,7 @@ switch-segment21:                                 ; preds = %switch-merge13
   %19 = load float* @x_shadow
   %20 = call float @llvm.gla.fCos.f32.f32(float %19)
   %21 = load float* %f
-  %f26 = fadd float %21, %20, !precision !8
+  %f26 = fadd float %21, %20
   store float %f26, float* %f
   br label %switch-merge22
 
@@ -125,7 +125,7 @@ switch-segment27:                                 ; preds = %switch-merge22
   %23 = load float* @x_shadow
   %24 = call float @llvm.gla.fSin.f32.f32(float %23)
   %25 = load float* %f
-  %f32 = fadd float %25, %24, !precision !8
+  %f32 = fadd float %25, %24
   store float %f32, float* %f
   br label %switch-merge30
 
@@ -142,7 +142,7 @@ switch-segment29:                                 ; preds = %switch-merge22
   %27 = load float* @x_shadow
   %28 = call float @llvm.gla.fTan.f32.f32(float %27)
   %29 = load float* %f
-  %f44 = fadd float %29, %28, !precision !8
+  %f44 = fadd float %29, %28
   store float %f44, float* %f
   br label %switch-merge30
 
@@ -157,13 +157,13 @@ switch-segment33:                                 ; preds = %switch-segment28
   %x__37 = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !input !3
   store float %x__37, float* @x_shadow
   %31 = load float* @x_shadow
-  %32 = fmul float %30, %31, !precision !8
+  %32 = fmul float %30, %31
   %x__38 = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !input !3
   store float %x__38, float* @x_shadow
   %33 = load float* @x_shadow
-  %34 = fmul float %32, %33, !precision !8
+  %34 = fmul float %32, %33
   %35 = load float* %f
-  %f39 = fadd float %35, %34, !precision !8
+  %f39 = fadd float %35, %34
   store float %f39, float* %f
   br label %switch-merge35
 
@@ -174,9 +174,9 @@ switch-segment34:                                 ; preds = %switch-segment28
   %x__41 = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !input !3
   store float %x__41, float* @x_shadow
   %37 = load float* @x_shadow
-  %38 = fmul float %36, %37, !precision !8
+  %38 = fmul float %36, %37
   %39 = load float* %f
-  %f42 = fadd float %39, %38, !precision !8
+  %f42 = fadd float %39, %38
   store float %f42, float* %f
   br label %switch-merge35
 
@@ -208,7 +208,7 @@ switch-segment45:                                 ; preds = %ifmerge
   %44 = load float* @x_shadow
   %45 = call float @llvm.gla.fSin.f32.f32(float %44)
   %46 = load float* %f
-  %f50 = fadd float %46, %45, !precision !8
+  %f50 = fadd float %46, %45
   store float %f50, float* %f
   store i32 20, i32* %j
   br label %loop-header51
@@ -219,7 +219,7 @@ switch-segment46:                                 ; preds = %ifmerge
   %47 = load float* @x_shadow
   %48 = call float @llvm.gla.fCos.f32.f32(float %47)
   %49 = load float* %f
-  %f61 = fadd float %49, %48, !precision !8
+  %f61 = fadd float %49, %48
   store float %f61, float* %f
   br label %switch-merge48
 
@@ -229,7 +229,7 @@ switch-segment47:                                 ; preds = %ifmerge
   %50 = load float* @x_shadow
   %51 = call float @llvm.gla.fTan.f32.f32(float %50)
   %52 = load float* %f
-  %f63 = fadd float %52, %51, !precision !8
+  %f63 = fadd float %52, %51
   store float %f63, float* %f
   br label %switch-merge48
 
@@ -252,7 +252,7 @@ post-loop-break53:                                ; No predecessors!
 
 ifmerge54:                                        ; preds = %loop-header51, %post-loop-break53
   %58 = load float* %f
-  %f55 = fadd float %58, 1.000000e+00, !precision !8
+  %f55 = fadd float %58, 1.000000e+00
   store float %f55, float* %f
   %59 = load float* %f
   %60 = fcmp olt float %59, 0x40590CCCC0000000
@@ -295,7 +295,7 @@ loop-merge69:                                     ; preds = %then64, %then
   %63 = load float* %f
   %64 = load i32* %local
   %65 = sitofp i32 %64 to float
-  %color_shadow = fadd float %63, %65, !precision !8
+  %color_shadow = fadd float %63, %65
   store float %color_shadow, float* @color_shadow
   br label %stage-epilogue
 
@@ -330,7 +330,6 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !5 = metadata !{metadata !"color", i32 1, float* @color_shadow, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 0}
 !7 = metadata !{i32 2}
-!8 = metadata !{i32 0}
 
 
 Bottom IR:
@@ -377,20 +376,20 @@ switch-merge.switch-segment11_crit_edge:          ; preds = %switch-merge
 switch-segment10:                                 ; preds = %switch-merge
   %x__14 = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !input !3
   %0 = call float @llvm.gla.fSin.f32.f32(float %x__14)
-  %f15 = fadd float %f.0, %0, !precision !8
+  %f15 = fadd float %f.0, %0
   br label %switch-segment11
 
 switch-segment11:                                 ; preds = %switch-merge.switch-segment11_crit_edge, %switch-segment10
   %x__16.pre-phi = phi float [ %x__16.pre, %switch-merge.switch-segment11_crit_edge ], [ %x__14, %switch-segment10 ]
   %f.1 = phi float [ %f.0, %switch-merge.switch-segment11_crit_edge ], [ %f15, %switch-segment10 ]
   %1 = call float @llvm.gla.fCos.f32.f32(float %x__16.pre-phi)
-  %f17 = fadd float %f.1, %1, !precision !8
+  %f17 = fadd float %f.1, %1
   br label %switch-merge13
 
 switch-segment12:                                 ; preds = %switch-merge
   %x__18 = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !input !3
   %2 = call float @llvm.gla.fTan.f32.f32(float %x__18)
-  %f19 = fadd float %f.0, %2, !precision !8
+  %f19 = fadd float %f.0, %2
   br label %switch-merge13
 
 switch-merge13:                                   ; preds = %switch-segment12, %switch-segment11
@@ -403,13 +402,13 @@ switch-merge13:                                   ; preds = %switch-segment12, %
 switch-segment20:                                 ; preds = %switch-merge13
   %x__23 = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !input !3
   %3 = call float @llvm.gla.fSin.f32.f32(float %x__23)
-  %f24 = fadd float %f.2, %3, !precision !8
+  %f24 = fadd float %f.2, %3
   br label %switch-merge22
 
 switch-segment21:                                 ; preds = %switch-merge13
   %x__25 = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !input !3
   %4 = call float @llvm.gla.fCos.f32.f32(float %x__25)
-  %f26 = fadd float %f.2, %4, !precision !8
+  %f26 = fadd float %f.2, %4
   br label %switch-merge22
 
 switch-merge22:                                   ; preds = %switch-segment21, %switch-segment20, %switch-merge13
@@ -422,7 +421,7 @@ switch-merge22:                                   ; preds = %switch-segment21, %
 switch-segment27:                                 ; preds = %switch-merge22
   %x__31 = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !input !3
   %5 = call float @llvm.gla.fSin.f32.f32(float %x__31)
-  %f32 = fadd float %f.3, %5, !precision !8
+  %f32 = fadd float %f.3, %5
   br label %switch-merge30
 
 switch-segment28:                                 ; preds = %switch-merge22
@@ -439,7 +438,7 @@ switch-segment28.switch-merge35_crit_edge:        ; preds = %switch-segment28
 switch-segment29:                                 ; preds = %switch-merge22
   %x__43 = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !input !3
   %7 = call float @llvm.gla.fTan.f32.f32(float %x__43)
-  %f44 = fadd float %f.3, %7, !precision !8
+  %f44 = fadd float %f.3, %7
   br label %switch-merge30
 
 switch-merge30:                                   ; preds = %switch-segment29, %switch-merge35, %switch-segment27
@@ -452,15 +451,15 @@ switch-merge30:                                   ; preds = %switch-segment29, %
 
 switch-segment33:                                 ; preds = %switch-segment28
   %x__36 = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !input !3
-  %11 = fmul float %x__36, %x__36, !precision !8
-  %12 = fmul float %x__36, %11, !precision !8
-  %f39 = fadd float %f.3, %12, !precision !8
+  %11 = fmul float %x__36, %x__36
+  %12 = fmul float %x__36, %11
+  %f39 = fadd float %f.3, %12
   br label %switch-merge35
 
 switch-segment34:                                 ; preds = %switch-segment28
   %x__40 = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !input !3
-  %13 = fmul float %x__40, %x__40, !precision !8
-  %f42 = fadd float %f.3, %13, !precision !8
+  %13 = fmul float %x__40, %x__40
+  %f42 = fadd float %f.3, %13
   br label %switch-merge35
 
 switch-merge35:                                   ; preds = %switch-segment28.switch-merge35_crit_edge, %switch-segment34, %switch-segment33
@@ -484,15 +483,15 @@ ifmerge:                                          ; preds = %loop-header
   ]
 
 switch-segment45:                                 ; preds = %ifmerge
-  %f50 = fadd float %f.6, %9, !precision !8
+  %f50 = fadd float %f.6, %9
   br label %loop-header51
 
 switch-segment46:                                 ; preds = %ifmerge
-  %f61 = fadd float %f.6, %10, !precision !8
+  %f61 = fadd float %f.6, %10
   br label %switch-merge48
 
 switch-segment47:                                 ; preds = %ifmerge
-  %f63 = fadd float %f.6, %8, !precision !8
+  %f63 = fadd float %f.6, %8
   br label %switch-merge48
 
 switch-merge48:                                   ; preds = %switch-segment47, %switch-segment46, %loop-merge
@@ -511,7 +510,7 @@ then52:                                           ; preds = %loop-header51
   br label %loop-merge
 
 ifmerge54:                                        ; preds = %loop-header51
-  %f55 = fadd float %f.8, 1.000000e+00, !precision !8
+  %f55 = fadd float %f.8, 1.000000e+00
   %17 = fcmp olt float %f55, 0x40590CCCC0000000
   %j59 = add i32 %j.0, 1, !precision !7
   br i1 %17, label %then56, label %loop-header51
@@ -529,7 +528,7 @@ then64:                                           ; preds = %switch-merge48
 loop-merge69:                                     ; preds = %then64, %then
   %f.10 = phi float [ %f.6, %then ], [ %f.7, %then64 ]
   %18 = sitofp i32 %local2 to float
-  %color_shadow = fadd float %18, %f.10, !precision !8
+  %color_shadow = fadd float %18, %f.10
   call void @llvm.gla.fWriteData.f32(i32 0, i32 -1, float %color_shadow), !output !5
   br label %stage-epilogue
 
@@ -562,7 +561,6 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !5 = metadata !{metadata !"color", i32 1, null, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 0}
 !7 = metadata !{i32 2}
-!8 = metadata !{i32 0}
 
 ***Unsupported functionality: Non-ret, non-br terminator
 #### END COMPILER 0 INFO LOG ####

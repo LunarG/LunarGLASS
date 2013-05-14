@@ -30,21 +30,21 @@ entry:
 then:                                             ; preds = %entry
   %3 = load <4 x float> addrspace(2)* @bigColor, !uniform !7
   %4 = load <4 x float>* %color
-  %color3 = fadd <4 x float> %4, %3, !precision !11
+  %color3 = fadd <4 x float> %4, %3
   store <4 x float> %color3, <4 x float>* %color
   br label %ifmerge
 
 else:                                             ; preds = %entry
   %5 = load <4 x float> addrspace(2)* @smallColor, !uniform !8
   %6 = load <4 x float>* %color
-  %color4 = fadd <4 x float> %6, %5, !precision !11
+  %color4 = fadd <4 x float> %6, %5
   store <4 x float> %color4, <4 x float>* %color
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
   %7 = load <4 x float>* %color
   %8 = load <4 x float>* %color2
-  %FragColor_shadow = fmul <4 x float> %7, %8, !precision !12
+  %FragColor_shadow = fmul <4 x float> %7, %8, !precision !11
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
@@ -78,8 +78,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !8 = metadata !{metadata !"smallColor", i32 12, <4 x float> addrspace(2)* @smallColor, metadata !5}
 !9 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !10}
 !10 = metadata !{i32 0, i32 2, i32 0}
-!11 = metadata !{i32 0}
-!12 = metadata !{i32 2}
+!11 = metadata !{i32 2}
 
 
 Bottom IR:

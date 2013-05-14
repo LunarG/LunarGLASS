@@ -131,7 +131,7 @@ else:                                             ; preds = %entry
   %coord__23 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !input !4
   store <2 x float> %coord__23, <2 x float>* @coord_shadow
   %50 = load <2 x float>* @coord_shadow
-  %51 = fmul <2 x float> <float 2.000000e+00, float 2.000000e+00>, %50, !precision !11
+  %51 = fmul <2 x float> <float 2.000000e+00, float 2.000000e+00>, %50
   %v24 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %49, i32 0, <2 x float> %51)
   store <4 x float> %v24, <4 x float>* %v
   br label %ifmerge
@@ -147,7 +147,7 @@ ifmerge:                                          ; preds = %else, %then
 
 then26:                                           ; preds = %ifmerge
   %56 = load <4 x float>* %v
-  %v27 = fmul <4 x float> %56, <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>, !precision !11
+  %v27 = fmul <4 x float> %56, <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>
   store <4 x float> %v27, <4 x float>* %v
   br label %ifmerge28
 
@@ -162,7 +162,7 @@ ifmerge28:                                        ; preds = %ifmerge, %then26
 
 then30:                                           ; preds = %ifmerge28
   %61 = load <4 x float>* %v
-  %v31 = fmul <4 x float> %61, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>, !precision !11
+  %v31 = fmul <4 x float> %61, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
   store <4 x float> %v31, <4 x float>* %v
   br label %ifmerge32
 
@@ -181,7 +181,7 @@ ifmerge32:                                        ; preds = %ifmerge28, %then30
 
 then34:                                           ; preds = %ifmerge32
   %70 = load <4 x float>* %v
-  %v35 = fmul <4 x float> %70, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>, !precision !11
+  %v35 = fmul <4 x float> %70, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
   store <4 x float> %v35, <4 x float>* %v
   br label %ifmerge36
 
@@ -221,7 +221,7 @@ ifmerge36:                                        ; preds = %ifmerge32, %then34
 
 then55:                                           ; preds = %ifmerge36
   %84 = load <4 x float>* %v
-  %v56 = fmul <4 x float> %84, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>, !precision !11
+  %v56 = fmul <4 x float> %84, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
   store <4 x float> %v56, <4 x float>* %v
   br label %ifmerge57
 
@@ -261,7 +261,7 @@ ifmerge57:                                        ; preds = %ifmerge36, %then55
 
 then76:                                           ; preds = %ifmerge57
   %98 = load <4 x float>* %v
-  %v77 = fmul <4 x float> %98, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>, !precision !11
+  %v77 = fmul <4 x float> %98, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>
   store <4 x float> %v77, <4 x float>* %v
   br label %ifmerge78
 
@@ -309,7 +309,6 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !8 = metadata !{metadata !"foo2b", i32 12, %s2 addrspace(2)* @foo2b, metadata !7}
 !9 = metadata !{metadata !"sampler", i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
 !10 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !7}
-!11 = metadata !{i32 0}
 
 
 Bottom IR:
@@ -366,7 +365,7 @@ then:                                             ; preds = %entry
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %22 = fmul <2 x float> %coord__, <float 2.000000e+00, float 2.000000e+00>, !precision !11
+  %22 = fmul <2 x float> %coord__, <float 2.000000e+00, float 2.000000e+00>
   %v24 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %21, i32 0, <2 x float> %22)
   br label %ifmerge
 
@@ -374,16 +373,16 @@ ifmerge:                                          ; preds = %else, %then
   %v.0 = phi <4 x float> [ %v22, %then ], [ %v24, %else ]
   %23 = fcmp oeq <4 x float> %u__, %v.0
   %24 = call i1 @llvm.gla.all.v4i1(<4 x i1> %23)
-  %v27 = fmul <4 x float> %v.0, <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>, !precision !11
+  %v27 = fmul <4 x float> %v.0, <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>
   %select139 = select i1 %24, <4 x float> %v27, <4 x float> %v.0
   %25 = fcmp one <4 x float> %u__, %select139
   %26 = call i1 @llvm.gla.any.v4i1(<4 x i1> %25)
-  %v31 = fmul <4 x float> %select139, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>, !precision !11
+  %v31 = fmul <4 x float> %select139, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
   %select = select i1 %26, <4 x float> %v31, <4 x float> %select139
   %27 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %select, <2 x i32> <i32 1, i32 3>)
   %28 = fcmp oeq <2 x float> %coord__, %27
   %29 = call i1 @llvm.gla.all.v2i1(<2 x i1> %28)
-  %v35 = fmul <4 x float> %select, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>, !precision !11
+  %v35 = fmul <4 x float> %select, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
   %select141 = select i1 %29, <4 x float> %v35, <4 x float> %select
   %30 = icmp eq i32 %1, 17
   %31 = fcmp oeq float %2, 1.700000e+01
@@ -396,7 +395,7 @@ ifmerge:                                          ; preds = %else, %then
   %38 = fcmp oeq float %11, 1.400000e+01
   %39 = and i1 %37, %38
   %40 = and i1 %36, %39
-  %v56 = fmul <4 x float> %select141, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>, !precision !11
+  %v56 = fmul <4 x float> %select141, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
   %select138 = select i1 %40, <4 x float> %v56, <4 x float> %select141
   %41 = icmp ne i32 %1, 17
   %42 = fcmp one float %2, 1.700000e+01
@@ -409,7 +408,7 @@ ifmerge:                                          ; preds = %else, %then
   %49 = fcmp one float %11, 1.400000e+01
   %50 = or i1 %48, %49
   %51 = or i1 %47, %50
-  %v77 = fmul <4 x float> %select138, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>, !precision !11
+  %v77 = fmul <4 x float> %select138, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>
   %select140 = select i1 %51, <4 x float> %v77, <4 x float> %select138
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %select140), !output !10
   br label %stage-epilogue
@@ -453,7 +452,6 @@ declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>)
 !8 = metadata !{metadata !"foo2b", i32 12, %s2 addrspace(2)* @foo2b, metadata !7}
 !9 = metadata !{metadata !"sampler", i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
 !10 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !7}
-!11 = metadata !{i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:4: varying deprecated in version 130; may be removed in future release
 WARNING: 0:6: varying deprecated in version 130; may be removed in future release

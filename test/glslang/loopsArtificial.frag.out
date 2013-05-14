@@ -20,7 +20,7 @@ entry:
 loop-header:                                      ; preds = %post-loop-continue13, %ifmerge12, %then4, %entry
   %0 = load <4 x float> addrspace(2)* @bigColor4, !uniform !2
   %1 = load <4 x float>* %color
-  %color2 = fadd <4 x float> %1, %0, !precision !7
+  %color2 = fadd <4 x float> %1, %0
   store <4 x float> %color2, <4 x float>* %color
   %2 = load <4 x float>* %color
   %3 = extractelement <4 x float> %2, i32 0
@@ -31,7 +31,7 @@ loop-header:                                      ; preds = %post-loop-continue1
 then:                                             ; preds = %loop-header
   %6 = load <4 x float>* %color
   %7 = extractelement <4 x float> %6, i32 2
-  %8 = fadd float %7, 2.000000e+00, !precision !7
+  %8 = fadd float %7, 2.000000e+00
   %9 = load <4 x float>* %color
   %color3 = insertelement <4 x float> %9, float %8, i32 2
   store <4 x float> %color3, <4 x float>* %color
@@ -44,7 +44,7 @@ then:                                             ; preds = %loop-header
 then4:                                            ; preds = %then
   %14 = load <4 x float>* %color
   %15 = extractelement <4 x float> %14, i32 0
-  %16 = fadd float %15, 1.000000e+00, !precision !7
+  %16 = fadd float %15, 1.000000e+00
   %17 = load <4 x float>* %color
   %color5 = insertelement <4 x float> %17, float %16, i32 0
   store <4 x float> %color5, <4 x float>* %color
@@ -67,7 +67,7 @@ then7:                                            ; preds = %ifmerge6
   %22 = load float addrspace(2)* @d4, !uniform !4
   %23 = load <4 x float>* %color
   %24 = extractelement <4 x float> %23, i32 1
-  %25 = fadd float %24, %22, !precision !7
+  %25 = fadd float %24, %22
   %26 = load <4 x float>* %color
   %color8 = insertelement <4 x float> %26, float %25, i32 1
   store <4 x float> %color8, <4 x float>* %color
@@ -77,7 +77,7 @@ else:                                             ; preds = %ifmerge6
   %27 = load float addrspace(2)* @d4, !uniform !4
   %28 = load <4 x float>* %color
   %29 = extractelement <4 x float> %28, i32 0
-  %30 = fadd float %29, %27, !precision !7
+  %30 = fadd float %29, %27
   %31 = load <4 x float>* %color
   %color9 = insertelement <4 x float> %31, float %30, i32 0
   store <4 x float> %color9, <4 x float>* %color
@@ -129,20 +129,20 @@ ifmerge17:                                        ; preds = %loop-header14, %pos
 
 then18:                                           ; preds = %ifmerge17
   %46 = load <4 x float>* %color
-  %color19 = fadd <4 x float> %46, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !precision !7
+  %color19 = fadd <4 x float> %46, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %color19, <4 x float>* %color
   br label %ifmerge22
 
 else20:                                           ; preds = %ifmerge17
   %47 = load <4 x float>* %color
-  %color21 = fsub <4 x float> %47, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !precision !7
+  %color21 = fsub <4 x float> %47, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %color21, <4 x float>* %color
   br label %ifmerge22
 
 ifmerge22:                                        ; preds = %else20, %then18
   %48 = load <4 x float> addrspace(2)* @bigColor4, !uniform !2
   %49 = load <4 x float>* %color
-  %color23 = fadd <4 x float> %49, %48, !precision !7
+  %color23 = fadd <4 x float> %49, %48
   store <4 x float> %color23, <4 x float>* %color
   %50 = load <4 x float>* %color
   %51 = extractelement <4 x float> %50, i32 0
@@ -153,7 +153,7 @@ ifmerge22:                                        ; preds = %else20, %then18
 then24:                                           ; preds = %ifmerge22
   %54 = load <4 x float>* %color
   %55 = extractelement <4 x float> %54, i32 2
-  %56 = fadd float %55, 2.000000e+00, !precision !7
+  %56 = fadd float %55, 2.000000e+00
   %57 = load <4 x float>* %color
   %color25 = insertelement <4 x float> %57, float %56, i32 2
   store <4 x float> %color25, <4 x float>* %color
@@ -166,7 +166,7 @@ then24:                                           ; preds = %ifmerge22
 then26:                                           ; preds = %then24
   %62 = load <4 x float>* %color
   %63 = extractelement <4 x float> %62, i32 0
-  %64 = fadd float %63, 1.000000e+00, !precision !7
+  %64 = fadd float %63, 1.000000e+00
   %65 = load <4 x float>* %color
   %color27 = insertelement <4 x float> %65, float %64, i32 0
   store <4 x float> %color27, <4 x float>* %color
@@ -189,7 +189,7 @@ then31:                                           ; preds = %ifmerge30
   %70 = load float addrspace(2)* @d4, !uniform !4
   %71 = load <4 x float>* %color
   %72 = extractelement <4 x float> %71, i32 1
-  %73 = fadd float %72, %70, !precision !7
+  %73 = fadd float %72, %70
   %74 = load <4 x float>* %color
   %color32 = insertelement <4 x float> %74, float %73, i32 1
   store <4 x float> %color32, <4 x float>* %color
@@ -199,7 +199,7 @@ else33:                                           ; preds = %ifmerge30
   %75 = load float addrspace(2)* @d4, !uniform !4
   %76 = load <4 x float>* %color
   %77 = extractelement <4 x float> %76, i32 0
-  %78 = fadd float %77, %75, !precision !7
+  %78 = fadd float %77, %75
   %79 = load <4 x float>* %color
   %color34 = insertelement <4 x float> %79, float %78, i32 0
   store <4 x float> %color34, <4 x float>* %color
@@ -213,7 +213,7 @@ post-loop-continue36:                             ; No predecessors!
 
 loop-merge37:                                     ; preds = %then15
   %80 = load <4 x float>* %color
-  %color38 = fadd <4 x float> %80, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !precision !7
+  %color38 = fadd <4 x float> %80, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %color38, <4 x float>* %color
   %FragColor_shadow = load <4 x float>* %color
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
@@ -243,7 +243,6 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !4 = metadata !{metadata !"d4", i32 12, float addrspace(2)* @d4, metadata !3}
 !5 = metadata !{metadata !"d13", i32 12, float addrspace(2)* @d13, metadata !3}
 !6 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !3}
-!7 = metadata !{i32 0}
 
 ***Unsupported functionality: general-case cross edges (requires artificial loop)
 #### END COMPILER 0 INFO LOG ####
