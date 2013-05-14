@@ -68,63 +68,6 @@ public:
     ~Builder();
 
     //
-    // SuperValue can hold either an LLVM value or something else,
-    // automatically converting to/from an LLVM value when needed,
-    // and automatically converting from the 'something else', but
-    // requiring manual access of the 'something else'
-    //
-    // Note: This was once used to encapsulate matrices, and could be 
-    // used for something else, but currently is about the same as
-    // using an llvm::Value.
-    //
-    class SuperValue {
-    public:
-        SuperValue() : type(ELlvm) { value = 0; }
-
-        // These are both constructors and implicit conversions
-        SuperValue(llvm::Value* llvm) : type(ELlvm) { value = llvm; } // implicitly make a SuperValue out of a Value
-
-        // implicitly make a Value out of a SuperValue
-        operator llvm::Value*() const
-        {
-            return getValue();
-        }
-
-        // make a Value when derefencing a SuperValue
-        llvm::Value* operator->() const
-        {
-            return getValue();
-        }
-
-        void clear()
-        {
-            type = ELlvm;
-            value = 0;
-        }
-
-        bool isValue() const { return type == ELlvm; }
-
-        bool isClear() const { return type == ELlvm && value == 0; }
-
-        llvm::Value* getValue() const
-        {
-            switch (type) {
-            case ELlvm:   return value;
-            default:
-                assert(0);
-                return value;
-            }
-        }
-
-      protected:
-        enum {
-            ELlvm
-        } type;
-
-        llvm::Value* value;
-    };  // end class SuperValue
-
-    //
     // Access chain helper for an R-Value vs. L-Value design:
     //
     // There is a single access chain the TopBuilder is building at
@@ -164,7 +107,7 @@ public:
     //
 
     struct AccessChain {
-        gla::Builder::SuperValue base;
+        llvm::Value* base;
         std::vector<llvm::Value*> indexChain;
         llvm::Value* gep;
         std::vector<int> swizzle;
@@ -200,13 +143,13 @@ public:
     void setAccessChainDirectionRightToLeft(bool rightToLeft) { accessRightToLeft = rightToLeft; }
 
     // set new base as an l-value base
-    void setAccessChainLValue(gla::Builder::SuperValue);
+    void setAccessChainLValue(llvm::Value*);
 
     // set new base value as an r-value
-    void setAccessChainRValue(gla::Builder::SuperValue);
+    void setAccessChainRValue(llvm::Value*);
 
     // push offset onto the left end of the chain
-    void accessChainPushLeft(SuperValue offset) { accessChain.indexChain.push_back(offset); }
+    void accessChainPushLeft(llvm::Value* offset) { accessChain.indexChain.push_back(offset); }
 
     // push swizzle onto the left of any existing swizzle
     void accessChainPushSwizzleLeft(llvm::ArrayRef<int> swizzle, llvm::Type* type, int width);
@@ -220,13 +163,13 @@ public:
     void setAccessChainPipeValue(llvm::Value*);
 
     // use accessChain and swizzle to store value
-    void accessChainStore(gla::Builder::SuperValue);
+    void accessChainStore(llvm::Value*);
 
     // use accessChain and swizzle to load an r-value
-    SuperValue accessChainLoad();
+    llvm::Value* accessChainLoad();
 
     // return an offset representing the collection of offsets in the chain
-    SuperValue collapseInputAccessChain();
+    llvm::Value* collapseInputAccessChain();
 
     // Call this for output variables where active tracking of which
     // array indexes are used is desired.  Only those indexes that
@@ -277,20 +220,20 @@ public:
 
     // Create an LLVM variable out of a generic "shader-style" description of a
     // variable.
-    SuperValue createVariable(EStorageQualifier, int storageInstance, llvm::Type*,
+    llvm::Value* createVariable(EStorageQualifier, int storageInstance, llvm::Type*,
                               llvm::Constant* initializer, const std::string* annotation, llvm::StringRef name);
 
-    // Store SuperValue into another SuperValue and return the l-value
-    SuperValue createStore(SuperValue rValue, SuperValue lValue);
+    // Store llvm::Value* into another llvm::Value* and return the l-value
+    llvm::Value* createStore(llvm::Value* rValue, llvm::Value* lValue);
 
-    // Load SuperValue from a SuperValue and return it
-    SuperValue createLoad(SuperValue, const char* metadataKind = 0, llvm::MDNode* metadata = 0);
+    // Load llvm::Value* from a llvm::Value* and return it
+    llvm::Value* createLoad(llvm::Value*, const char* metadataKind = 0, llvm::MDNode* metadata = 0);
 
     // Create a GEP to dereference structs, arrays, or matrices
-    SuperValue createGEP(SuperValue, llvm::ArrayRef<llvm::Value*>);
+    llvm::Value* createGEP(llvm::Value*, llvm::ArrayRef<llvm::Value*>);
 
     // Create a InsertValue to handle structs, arrays, or matrices
-    SuperValue createInsertValue(SuperValue target, SuperValue source, unsigned* indices, int indexCount);
+    llvm::Value* createInsertValue(llvm::Value* target, llvm::Value* source, unsigned* indices, int indexCount);
 
     // To associate metadata with a copy-out value to tag the write instrinsic with
     void setOutputMetadata(llvm::Value*, llvm::MDNode*);
@@ -321,14 +264,14 @@ public:
 
     // handle component-wise matrix operations for either a
     // pair of matrices or a matrix and a scalar
-    SuperValue createMatrixOp(llvm::Instruction::BinaryOps, SuperValue left, SuperValue right);
+    llvm::Value* createMatrixOp(llvm::Instruction::BinaryOps, llvm::Value* left, llvm::Value* right);
 
     // handle all the possible matrix-related multiply operations
     // (non component wise; linear algebraic) for all combinations
     // of matrices, scalars, and vectors that either consume or
     // create a matrix
-    SuperValue createMatrixMultiply(SuperValue left, SuperValue right);
-    SuperValue createMatrixCompare (SuperValue left, SuperValue right, bool allEqual);
+    llvm::Value* createMatrixMultiply(llvm::Value* left, llvm::Value* right);
+    llvm::Value* createMatrixCompare (llvm::Value* left, llvm::Value* right, bool allEqual);
 
     // handle matrix to matrix operations
     llvm::Value* createMatrixTranspose  (llvm::Value*);
@@ -349,7 +292,7 @@ public:
     //   - promoteScalar(pointer, scalar) // smear scalar to width of what pointer points to
     //   - promoteScalar(scalar, scalar)  // do nothing
     // Other forms are not allowed.
-    void promoteScalar(SuperValue& left, SuperValue& right);
+    void promoteScalar(llvm::Value*& left, llvm::Value*& right);
 
     // make a value by smearing the scalar to fill the type
     llvm::Value* smearScalar(llvm::Value* scalarVal, llvm::Type*);
@@ -376,9 +319,9 @@ public:
     llvm::Value* createBitFieldExtractCall(llvm::Value*, llvm::Value*, llvm::Value*, bool isSigned);
     llvm::Value* createBitFieldInsertCall(llvm::Value*, llvm::Value*, llvm::Value*, llvm::Value*);
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID);
-    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue);
-    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue);
-    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, SuperValue, SuperValue, SuperValue);
+    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, llvm::Value*);
+    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, llvm::Value*, llvm::Value*);
+    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, llvm::Value*);
     llvm::Value* createRecip(llvm::Value*);
 
     // For equal and not-equal comparisons:
@@ -388,10 +331,10 @@ public:
     llvm::Value* createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned);
 
     // vector constructor
-    llvm::Value* createConstructor(const std::vector<SuperValue>& sources, llvm::Value* constructee);
+    llvm::Value* createConstructor(const std::vector<llvm::Value*>& sources, llvm::Value* constructee);
 
     // matrix constructor
-    SuperValue createMatrixConstructor(const std::vector<SuperValue>& sources, SuperValue constructee);
+    llvm::Value* createMatrixConstructor(const std::vector<llvm::Value*>& sources, llvm::Value* constructee);
 
     class If {
     public:
@@ -456,7 +399,7 @@ public:
 protected:
     AccessChain accessChain;
     bool accessRightToLeft;
-    SuperValue collapseAccessChain();
+    llvm::Value* collapseAccessChain();
     void simplifyAccessChainSwizzle();
 
     llvm::Value* createMatrixTimesVector(llvm::Value*, llvm::Value*);
@@ -472,7 +415,7 @@ protected:
     // To be used when dereferencing an access chain that is for an
     // output variable.  The exposed method for this is to use
     // accessChainTrackOutputIndex().
-    void trackOutputIndex(SuperValue base, const llvm::Value* index);
+    void trackOutputIndex(llvm::Value* base, const llvm::Value* index);
 
     // Utility method for creating a new block and setting the insert point to
     // be in it. This is useful for flow-control operations that need a "dummy"

@@ -81,7 +81,7 @@ Builder::~Builder()
 
 void Builder::clearAccessChain()
 {
-    accessChain.base.clear();
+    accessChain.base = 0;
     accessChain.indexChain.clear();
     accessChain.gep = 0;
     accessChain.swizzle.clear();
@@ -155,12 +155,12 @@ void Builder::simplifyAccessChainSwizzle()
     accessChain.swizzleTargetWidth = 0;
 }
 
-void Builder::setAccessChainRValue(SuperValue rValue)
+void Builder::setAccessChainRValue(llvm::Value* rValue)
 {
     // We don't support exposed pointers, so no r-value should be a pointer.
     // If code is calling this with a pointer, it should probably be calling
     // setAccessChainLValue() instead.
-    assert(! llvm::isa<llvm::PointerType>(rValue.getValue()->getType()));
+    assert(! llvm::isa<llvm::PointerType>(rValue->getType()));
 
     accessChain.isRValue = true;
     accessChain.base = rValue;
@@ -171,10 +171,10 @@ void Builder::setAccessChainRValue(SuperValue rValue)
     accessChain.indexChain.push_back(MakeIntConstant(context, 0));
 }
 
-void Builder::setAccessChainLValue(SuperValue lValue)
+void Builder::setAccessChainLValue(llvm::Value* lValue)
 {
     // l-values need to be allocated somewhere, so we expect a pointer.
-    assert(llvm::isa<llvm::PointerType>(lValue.getValue()->getType()));
+    assert(llvm::isa<llvm::PointerType>(lValue->getType()));
 
     // Pointers need to push a 0 on the gep chain to dereference them.
     accessChain.indexChain.push_back(MakeIntConstant(context, 0));
@@ -190,7 +190,7 @@ void Builder::setAccessChainPipeValue(llvm::Value* val)
     setAccessChainRValue(val);
 }
 
-Builder::SuperValue Builder::collapseAccessChain()
+llvm::Value* Builder::collapseAccessChain()
 {
     assert(accessChain.isRValue == false);
 
@@ -213,7 +213,7 @@ Builder::SuperValue Builder::collapseAccessChain()
     }
 }
 
-Builder::SuperValue Builder::collapseInputAccessChain()
+llvm::Value* Builder::collapseInputAccessChain()
 {
     if (accessChain.indexChain.size() == 1) {
         // no need to reverse a single index
@@ -229,12 +229,12 @@ Builder::SuperValue Builder::collapseInputAccessChain()
     return MakeIntConstant(context, 0);
 }
 
-void Builder::accessChainStore(SuperValue value)
+void Builder::accessChainStore(llvm::Value* value)
 {
     assert(accessChain.isRValue == false);
 
-    SuperValue base = collapseAccessChain();
-    SuperValue source = value;
+    llvm::Value* base = collapseAccessChain();
+    llvm::Value* source = value;
 
     // if swizzle exists, it is out-of-order or not full, we must load the target vector,
     // extract and insert elements to perform writeMask and/or swizzle
@@ -265,16 +265,15 @@ void Builder::accessChainStore(SuperValue value)
     createStore(source, base);
 }
 
-Builder::SuperValue Builder::accessChainLoad()
+llvm::Value* Builder::accessChainLoad()
 {
-    SuperValue value;
+    llvm::Value* value;
 
     if (accessChain.isRValue) {
         if (accessChain.indexChain.size() > 1) {
 
             // create space for our r-value on the stack
-            SuperValue lVal;
-            lVal = createVariable(ESQLocal, 0, accessChain.base->getType(), 0, 0, "indexable");
+            llvm::Value* lVal = createVariable(ESQLocal, 0, accessChain.base->getType(), 0, 0, "indexable");
 
             // store into it
             createStore(accessChain.base, lVal);
@@ -330,7 +329,7 @@ void Builder::leaveFunction(bool main)
             if (F->getReturnType()->isVoidTy())
                 makeReturn(true);
             else {
-                SuperValue retStorage = createVariable(ESQLocal, 0, F->getReturnType(), 0, 0, "dummyReturn");
+                llvm::Value* retStorage = createVariable(ESQLocal, 0, F->getReturnType(), 0, 0, "dummyReturn");
                 llvm::Value* retValue = createLoad(retStorage);
                 makeReturn(true, retValue);
             }
@@ -440,7 +439,7 @@ llvm::Constant* Builder::getConstant(llvm::ArrayRef<llvm::Constant*> constants, 
     return 0;
 }
 
-Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, int storageInstance,
+llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int storageInstance,
                                             llvm::Type* type, llvm::Constant* initializer, const std::string* annotation,
                                             llvm::StringRef name)
 {
@@ -551,24 +550,21 @@ Builder::SuperValue Builder::createVariable(EStorageQualifier storageQualifier, 
     return value;
 }
 
-Builder::SuperValue Builder::createStore(SuperValue rValue, SuperValue lValue)
+llvm::Value* Builder::createStore(llvm::Value* rValue, llvm::Value* lValue)
 {
-    llvm::Value* llvmRValue = rValue;
-    llvm::Value* llvmLValue = lValue;
-
     // Retroactively change the name of the last-value temp to the name of the
     // l-value, to help debuggability, if it's just an llvm temp name.
-    if (llvmRValue->getName().size() < 2 || (llvmRValue->getName()[1] >= '0' && llvmRValue->getName()[1] <= '9'))
-        llvmRValue->setName(llvmLValue->getName());
+    if (rValue->getName().size() < 2 || (rValue->getName()[1] >= '0' && rValue->getName()[1] <= '9'))
+        rValue->setName(lValue->getName());
 
-    builder.CreateStore(llvmRValue, llvmLValue);
+    builder.CreateStore(rValue, lValue);
 
     return lValue;
 }
 
-Builder::SuperValue Builder::createLoad(SuperValue lValue, const char* metadataKind, llvm::MDNode* metadata)
+llvm::Value* Builder::createLoad(llvm::Value* lValue, const char* metadataKind, llvm::MDNode* metadata)
 {
-    if (llvm::isa<llvm::PointerType>(lValue.getValue()->getType())) {
+    if (llvm::isa<llvm::PointerType>(lValue->getType())) {
         llvm::Instruction* load = builder.CreateLoad(lValue);
         if (metadataKind)
             load->setMetadata(metadataKind, metadata);
@@ -579,17 +575,17 @@ Builder::SuperValue Builder::createLoad(SuperValue lValue, const char* metadataK
         return lValue;
 }
 
-Builder::SuperValue Builder::createGEP(SuperValue gepValue, llvm::ArrayRef<llvm::Value*> gepIndexChain)
+llvm::Value* Builder::createGEP(llvm::Value* gepValue, llvm::ArrayRef<llvm::Value*> gepIndexChain)
 {
      return builder.CreateGEP(gepValue, gepIndexChain);
 }
 
-Builder::SuperValue Builder::createInsertValue(SuperValue target, SuperValue source, unsigned* indices, int indexCount)
+llvm::Value* Builder::createInsertValue(llvm::Value* target, llvm::Value* source, unsigned* indices, int indexCount)
 {
     return builder.CreateInsertValue(target, source,  llvm::ArrayRef<unsigned>(indices, indices + indexCount));
 }
 
-void Builder::trackOutputIndex(SuperValue base, const llvm::Value* gepIndex)
+void Builder::trackOutputIndex(llvm::Value* base, const llvm::Value* gepIndex)
 {
     int arrayIndex = -1;   // we'll use -1 to mean the whole array
 
@@ -805,10 +801,8 @@ llvm::Type* Builder::getMatrixType(llvm::Type* elementType, int numColumns, int 
     return *type;
 }
 
-Builder::SuperValue Builder::createMatrixOp(llvm::Instruction::BinaryOps llvmOpcode, Builder::SuperValue left, Builder::SuperValue right)
+llvm::Value* Builder::createMatrixOp(llvm::Instruction::BinaryOps llvmOpcode, llvm::Value* left, llvm::Value* right)
 {
-    Builder::SuperValue ret;
-
     assert(IsAggregate(left) || IsAggregate(right));
 
     // component-wise matrix operations on same-shape matrices
@@ -816,32 +810,30 @@ Builder::SuperValue Builder::createMatrixOp(llvm::Instruction::BinaryOps llvmOpc
         assert(GetNumColumns(left) == GetNumColumns(right));
         assert(GetNumRows(left) == GetNumRows(right));
 
-        return createComponentWiseMatrixOp(llvmOpcode, left.getValue(), right.getValue());
+        return createComponentWiseMatrixOp(llvmOpcode, left, right);
     }
 
     // matrix <op> smeared scalar
     if (IsAggregate(left)) {
-        assert(IsScalar(right.getValue()));
+        assert(IsScalar(right));
 
-        return createSmearedMatrixOp(llvmOpcode, left.getValue(), right.getValue(), false);
+        return createSmearedMatrixOp(llvmOpcode, left, right, false);
     }
 
     // smeared scalar <op> matrix
     if (IsAggregate(right)) {
-        assert(IsScalar(left.getValue()));
+        assert(IsScalar(left));
 
-        return createSmearedMatrixOp(llvmOpcode, right.getValue(), left.getValue(), true);
+        return createSmearedMatrixOp(llvmOpcode, right, left, true);
     }
 
     assert(! "nonsensical matrix operation");
 
-    return ret;
+    return 0;
 }
 
-Builder::SuperValue Builder::createMatrixMultiply(Builder::SuperValue left, Builder::SuperValue right)
+llvm::Value* Builder::createMatrixMultiply(llvm::Value* left, llvm::Value* right)
 {
-    Builder::SuperValue ret;
-
     // Note: IsAggregate() is assumed to be true iff the value is a matrix.
     // This is safe because the front end can only call this for operands
     // that are part of a multrix multiply operation.
@@ -849,7 +841,7 @@ Builder::SuperValue Builder::createMatrixMultiply(Builder::SuperValue left, Buil
 
     // outer product
     if (IsVector(left) && IsVector(right))
-        return createOuterProduct(left.getValue(), right.getValue());
+        return createOuterProduct(left, right);
 
     assert(IsAggregate(left) || IsAggregate(right));
 
@@ -858,37 +850,37 @@ Builder::SuperValue Builder::createMatrixMultiply(Builder::SuperValue left, Buil
         assert(GetNumRows(left)    == GetNumColumns(right));
         assert(GetNumColumns(left) == GetNumRows(right));
 
-        return createMatrixTimesMatrix(left.getValue(), right.getValue());
+        return createMatrixTimesMatrix(left, right);
     }
 
     // matrix times vector
-    if (IsAggregate(left) && IsVector(right.getValue())) {
-        assert(GetNumColumns(left) == GetComponentCount(right.getValue()));
+    if (IsAggregate(left) && IsVector(right)) {
+        assert(GetNumColumns(left) == GetComponentCount(right));
 
-        return createMatrixTimesVector(left.getValue(), right.getValue());
+        return createMatrixTimesVector(left, right);
     }
 
     // vector times matrix
-    if (IsVector(left.getValue()) && IsAggregate(right)) {
-        assert(GetNumRows(right) == GetComponentCount(left.getValue()));
+    if (IsVector(left) && IsAggregate(right)) {
+        assert(GetNumRows(right) == GetComponentCount(left));
 
-        return createVectorTimesMatrix(left.getValue(), right.getValue());
+        return createVectorTimesMatrix(left, right);
     }
 
     // matrix times scalar
-    if (IsAggregate(left) && IsScalar(right.getValue()))
-        return createSmearedMatrixOp(llvm::Instruction::FMul, left.getValue(), right.getValue(), true);
+    if (IsAggregate(left) && IsScalar(right))
+        return createSmearedMatrixOp(llvm::Instruction::FMul, left, right, true);
 
     // scalar times matrix
-    if (IsScalar(left.getValue()) && IsAggregate(right))
-        return createSmearedMatrixOp(llvm::Instruction::FMul, right.getValue(), left.getValue(), false);
+    if (IsScalar(left) && IsAggregate(right))
+        return createSmearedMatrixOp(llvm::Instruction::FMul, right, left, false);
 
     assert(! "nonsensical matrix multiply");
 
-    return ret;
+    return 0;
 }
 
-Builder::SuperValue Builder::createMatrixCompare(SuperValue left, SuperValue right, bool allEqual)
+llvm::Value* Builder::createMatrixCompare(llvm::Value* left, llvm::Value* right, bool allEqual)
 {
     assert(IsAggregate(left) && IsAggregate(right));
     assert(GetNumColumns(left) == GetNumColumns(right));
@@ -1284,7 +1276,7 @@ llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, llvm::Type* type1,
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes);
 }
 
-void Builder::promoteScalar(SuperValue& left, SuperValue& right)
+void Builder::promoteScalar(llvm::Value*& left, llvm::Value*& right)
 {
     int direction;
     if (const llvm::PointerType* pointer = llvm::dyn_cast<const llvm::PointerType>(left->getType()))
@@ -1655,7 +1647,7 @@ llvm::Value* Builder::createCompare(llvm::Value* value1, llvm::Value* value2, bo
     return result;
 }
 
-// deprecated, use createCompare(SuperValue, SuperValue, bool)
+// deprecated, use createCompare(llvm::Value*, llvm::Value*, bool)
 llvm::Value* Builder::createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned)
 {
     llvm::Value* result = 0;
@@ -1688,7 +1680,7 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID)
     return builder.CreateCall(getIntrinsic(intrinsicID));
 }
 
-llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, SuperValue operand)
+llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, llvm::Value* operand)
 {
     llvm::Function* intrinsicName = 0;
 
@@ -1742,10 +1734,10 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
 
     assert(intrinsicName);
 
-    return builder.CreateCall(intrinsicName, operand.getValue());
+    return builder.CreateCall(intrinsicName, operand);
 }
 
-llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, SuperValue lhs, SuperValue rhs)
+llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, llvm::Value* lhs, llvm::Value* rhs)
 {
     llvm::Function* intrinsicName = 0;
 
@@ -1772,7 +1764,7 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
     return builder.CreateCall2(intrinsicName, lhs, rhs);
 }
 
-llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, SuperValue operand0, SuperValue operand1, SuperValue operand2)
+llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1, llvm::Value* operand2)
 {
 
     // Use operand0 type as result type
@@ -1783,7 +1775,7 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, Super
     return builder.CreateCall3(intrinsicName, operand0, operand1, operand2);
 }
 
-llvm::Value* Builder::createConstructor(const std::vector<SuperValue>& sources, llvm::Value* constructee)
+llvm::Value* Builder::createConstructor(const std::vector<llvm::Value*>& sources, llvm::Value* constructee)
 {
     unsigned int numTargetComponents = GetComponentCount(constructee);
     unsigned int targetComponent = 0;
@@ -1823,7 +1815,7 @@ llvm::Value* Builder::createConstructor(const std::vector<SuperValue>& sources, 
     return constructee;
 }
 
-Builder::SuperValue Builder::createMatrixConstructor(const std::vector<SuperValue>& sources, SuperValue constructee)
+llvm::Value* Builder::createMatrixConstructor(const std::vector<llvm::Value*>& sources, llvm::Value* constructee)
 {
     llvm::Value* matrixee = constructee;
 
@@ -1851,9 +1843,9 @@ Builder::SuperValue Builder::createMatrixConstructor(const std::vector<SuperValu
         // a single scalar; resets the diagonals
         for (int col = 0; col < 4; ++col)
             values[col][col] = sources[0];
-    } else if (IsAggregate(sources[0].getValue())) {
+    } else if (IsAggregate(sources[0])) {
         // a matrix; copy over the parts that exist in both the argument and constructee
-        llvm::Value* matrix = sources[0].getValue();
+        llvm::Value* matrix = sources[0];
         int minCols = std::min(GetNumColumns(matrixee), GetNumColumns(matrix));
         int minRows = std::min(GetNumRows(matrixee), GetNumRows(matrix));
         for (int col = 0; col < minCols; ++col) {
