@@ -270,6 +270,8 @@ inline bool CrackSamplerMd(const llvm::Instruction* instruction, std::string& sy
 
 inline bool CrackPrecisionMd(const llvm::Instruction* instruction, EMdPrecision& precision)
 {
+    precision = EMpNone;
+
     llvm::MDNode* md = instruction->getMetadata("precision");
     if (! md)
         return false;
@@ -278,6 +280,8 @@ inline bool CrackPrecisionMd(const llvm::Instruction* instruction, EMdPrecision&
     if (! constInt)
         return false;
     precision = (EMdPrecision)constInt->getSExtValue();
+
+    return true;
 }
 
 //
