@@ -92,15 +92,14 @@ public:
     llvm::Value* handleUserFunctionCall(TIntermAggregate*);
 
     llvm::Value* createBinaryOperation(TOperator op, gla::EMdPrecision, llvm::Value* left, llvm::Value* right, bool isUnsigned, bool reduceComparison = true);
-    llvm::Value* createUnaryOperation(TOperator op, llvm::Value* operand);
-    llvm::Value* createConversion(TOperator op, llvm::Type*, llvm::Value* operand);
-    llvm::Value* createUnaryIntrinsic(TOperator op, llvm::Value* operand);
-    llvm::Value* createIntrinsic(TOperator op, std::vector<llvm::Value*>& operands, bool isUnsigned);
+    llvm::Value* createUnaryOperation(TOperator op, gla::EMdPrecision, llvm::Value* operand);
+    llvm::Value* createConversion(TOperator op, gla::EMdPrecision, llvm::Type*, llvm::Value* operand);
+    llvm::Value* createUnaryIntrinsic(TOperator op, gla::EMdPrecision, llvm::Value* operand);
+    llvm::Value* createIntrinsic(TOperator op, gla::EMdPrecision, std::vector<llvm::Value*>& operands, bool isUnsigned);
     void createPipelineRead(TIntermSymbol*, llvm::Value* storage, int slot, llvm::MDNode*);
     int getNextInterpIndex(const std::string& name, int numSlots);
     llvm::Value* createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
     void setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
-    void setInstructionPrecision(llvm::Value*, gla::EMdPrecision);
     void setOutputMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
     llvm::MDNode* makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot);
 
@@ -213,7 +212,7 @@ gla::EMdPrecision getMdPrecision(const TType& type)
     }
 }
 
-};
+};  // end anonymous namespace
 
 
 // A fully functionaling front end will know all array sizes,
@@ -226,7 +225,7 @@ TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
       interpIndex(gla::MaxUserLayoutLocation), inMain(false), shaderEntry(0)
 {
     // do this after the builder knows the module
-    glaBuilder = new gla::Builder(llvmBuilder, manager);
+    glaBuilder = new gla::Builder(llvmBuilder, manager, metadata);
     glaBuilder->clearAccessChain();
     glaBuilder->setAccessChainDirectionRightToLeft(false);
 
@@ -328,7 +327,6 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
 
         // set up metadata for pipeline intrinsic read
         llvm::MDNode* md = oit->makeInputMetadata(symbolNode, storage, firstSlot);
-
         oit->createPipelineRead(symbolNode, storage, firstSlot, md);
     }
 }
@@ -453,16 +451,17 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     llvm::Value* right = oit->glaBuilder->accessChainLoad();
 
     llvm::Value* result;
+    gla::EMdPrecision precision = getMdPrecision(node->getType());
 
     switch (node->getOp()) {
     case EOpVectorTimesMatrix:
     case EOpMatrixTimesVector:
     case EOpMatrixTimesScalar:
     case EOpMatrixTimesMatrix:
-        result = oit->glaBuilder->createMatrixMultiply(left, right);
+        result = oit->glaBuilder->createMatrixMultiply(precision, left, right);
         break;
     default:
-        result = oit->createBinaryOperation(node->getOp(), getMdPrecision(node->getType()), left, right, node->getType().getBasicType() == EbtUint);
+        result = oit->createBinaryOperation(node->getOp(), precision, left, right, node->getType().getBasicType() == EbtUint);
     }
 
     if (! result) {
@@ -485,16 +484,18 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
     node->getOperand()->traverse(oit);
     llvm::Value* operand = oit->glaBuilder->accessChainLoad();
 
+    gla::EMdPrecision precision = getMdPrecision(node->getType());
+
     // it could be a conversion
-    llvm::Value* result = oit->createConversion(node->getOp(), oit->convertGlslangToGlaType(node->getType()), operand);
+    llvm::Value* result = oit->createConversion(node->getOp(), precision, oit->convertGlslangToGlaType(node->getType()), operand);
 
     // if not, then possibly an operation
     if (! result)
-        result = oit->createUnaryOperation(node->getOp(), operand);
+        result = oit->createUnaryOperation(node->getOp(), precision, operand);
 
     // if not, then possibly a LunarGLASS intrinsic
     if (! result)
-        result = oit->createUnaryIntrinsic(node->getOp(), operand);
+        result = oit->createUnaryIntrinsic(node->getOp(), precision, operand);
 
     if (result) {
         oit->glaBuilder->clearAccessChain();
@@ -738,6 +739,8 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     // See if it maps to a regular operation or intrinsic.
     //
 
+    gla::EMdPrecision precision = getMdPrecision(node->getType());
+
     if (binOp != EOpNull) {
         oit->glaBuilder->clearAccessChain();
         node->getSequence()[0]->traverse(oit);
@@ -748,11 +751,11 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         llvm::Value* right = oit->glaBuilder->accessChainLoad();
 
         if (binOp == EOpOuterProduct)
-            result = oit->glaBuilder->createMatrixMultiply(left, right);
+            result = oit->glaBuilder->createMatrixMultiply(precision, left, right);
         else if (gla::IsAggregate(left) && binOp == EOpMul)
-            result = oit->glaBuilder->createMatrixOp(llvm::Instruction::FMul, left, right);
+            result = oit->glaBuilder->createMatrixOp(precision, llvm::Instruction::FMul, left, right);
         else
-            result = oit->createBinaryOperation(binOp, getMdPrecision(node->getType()), left, right, node->getType().getBasicType() == EbtUint, reduceComparison);
+            result = oit->createBinaryOperation(binOp, precision, left, right, node->getType().getBasicType() == EbtUint, reduceComparison);
 
         // code above should only make binOp that exists in createBinaryOperation
         assert(result);
@@ -771,9 +774,9 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         operands.push_back(oit->glaBuilder->accessChainLoad());
     }
     if (glslangOperands.size() == 1)
-        result = oit->createUnaryIntrinsic(node->getOp(), operands.front());
+        result = oit->createUnaryIntrinsic(node->getOp(), precision, operands.front());
     else
-        result = oit->createIntrinsic(node->getOp(), operands, glslangOperands.front()->getAsTyped()->getBasicType() == EbtUint);
+        result = oit->createIntrinsic(node->getOp(), precision, operands, glslangOperands.front()->getAsTyped()->getBasicType() == EbtUint);
 
     if (! result)
         gla::UnsupportedFunctionality("glslang aggregate", gla::EATContinue);
@@ -1186,6 +1189,8 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(TIntermAggregate*
 
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
 
+    gla::EMdPrecision precision = getMdPrecision(node->getType());
+
     if (node->getName() == "ftransform(") {
         // TODO: back-end functionality: if this needs to support decomposition, need to simulate
         // access to the external gl_Vertex and gl_ModelViewProjectionMatrix.
@@ -1196,7 +1201,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(TIntermAggregate*
         llvm::Value* matrix = glaBuilder->createVariable(gla::Builder::ESQGlobal, 0, llvm::VectorType::get(gla::GetFloatType(context), 4),
                                                                      0, 0, "gl_ModelViewProjectionMatrix_sim");
 
-        return glaBuilder->createIntrinsicCall(llvm::Intrinsic::gla_fFixedTransform, glaBuilder->createLoad(vertex), glaBuilder->createLoad(matrix));
+        return glaBuilder->createIntrinsicCall(precision, llvm::Intrinsic::gla_fFixedTransform, glaBuilder->createLoad(vertex), glaBuilder->createLoad(matrix));
     }
 
     if (node->getName().substr(0, 7) == "texture" || node->getName().substr(0, 5) == "texel" || node->getName().substr(0, 6) == "shadow") {
@@ -1217,7 +1222,8 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(TIntermAggregate*
                                                   samplerType == gla::ESamplerBuffer)
                 gla::UnsupportedFunctionality("TextureSize of multi-sample or buffer texture");
                 
-            return glaBuilder->createTextureQueryCall(llvm::Intrinsic::gla_queryTextureSize, 
+            return glaBuilder->createTextureQueryCall(precision,
+                                                       llvm::Intrinsic::gla_queryTextureSize, 
                                                        convertGlslangToGlaType(node->getType()), 
                                                        MakeIntConstant(context, samplerType), 
                                                        arguments[0], arguments[1]);
@@ -1226,7 +1232,8 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(TIntermAggregate*
         if (node->getName().find("Query", 0) != std::string::npos) {
             if (node->getName().find("Lod", 0) != std::string::npos) {
                 gla::UnsupportedFunctionality("textureQueryLod");
-                return glaBuilder->createTextureQueryCall(llvm::Intrinsic::gla_fQueryTextureLod,
+                return glaBuilder->createTextureQueryCall(precision,
+                                                           llvm::Intrinsic::gla_fQueryTextureLod,
                                                            convertGlslangToGlaType(node->getType()), 
                                                            MakeIntConstant(context, samplerType), 
                                                            arguments[0], 0);
@@ -1302,7 +1309,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(TIntermAggregate*
             ++extraArgs;
         }
 
-        return glaBuilder->createTextureCall(convertGlslangToGlaType(node->getType()), samplerType, texFlags, params);
+        return glaBuilder->createTextureCall(precision, convertGlslangToGlaType(node->getType()), samplerType, texFlags, params);
     }
 
     return 0;
@@ -1378,7 +1385,7 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* no
                 } // TODO: desktop functionality: more cases will go here for future versions
 
                 if (op != EOpNull) {
-                    output = createConversion(op, destType, output);
+                    output = createConversion(op, gla::EMpNone, destType, output);
                     assert(output);
                 } else
                     gla::UnsupportedFunctionality("unexpected output parameter conversion");
@@ -1491,20 +1498,19 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
             case EOpVectorTimesMatrixAssign:
             case EOpMatrixTimesScalarAssign:
             case EOpMatrixTimesMatrixAssign:
-                return glaBuilder->createMatrixMultiply(left, right);
+                return glaBuilder->createMatrixMultiply(precision, left, right);
             default:
-                return glaBuilder->createMatrixOp(binOp, left, right);
+                return glaBuilder->createMatrixOp(precision, binOp, left, right);
             }
         }
 
         if (needsPromotion)
             glaBuilder->promoteScalar(left, right);
 
-        llvm::Value* value = llvmBuilder.CreateBinOp(binOp, left, right);       
-        setInstructionPrecision(value, precision);
+        llvm::Value* value = llvmBuilder.CreateBinOp(binOp, left, right);
+        glaBuilder->setInstructionPrecision(value, precision);
 
         return value;
-        // TODO: precision metadata: do this for all instructions
     }
 
     if (! comparison)
@@ -1515,7 +1521,7 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
     if (reduceComparison && (gla::IsVector(left) || gla::IsAggregate(left))) {
         assert(op == EOpEqual || op == EOpNotEqual);
 
-        return glaBuilder->createCompare(left, right, op == EOpEqual);
+        return glaBuilder->createCompare(precision, left, right, op == EOpEqual);
     }
 
     if (leftIsFloat) {
@@ -1541,8 +1547,12 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
             break;
         }
 
-        if (pred != 0)
-            return llvmBuilder.CreateFCmp(pred, left, right);
+        if (pred != 0) {
+            llvm::Value* result = llvmBuilder.CreateFCmp(pred, left, right);
+            glaBuilder->setInstructionPrecision(result, precision);
+
+            return result;
+        }
     } else {
         llvm::ICmpInst::Predicate pred = llvm::ICmpInst::Predicate(0);
         if (isUnsigned) {
@@ -1589,14 +1599,18 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
             }
         }
 
-        if (pred != 0)
-            return llvmBuilder.CreateICmp(pred, left, right);
+        if (pred != 0) {
+            llvm::Value* result = llvmBuilder.CreateICmp(pred, left, right);
+            glaBuilder->setInstructionPrecision(result, precision);
+
+            return result;
+        }
     }
 
     return 0;
 }
 
-llvm::Value* TGlslangToTopTraverser::createUnaryOperation(TOperator op, llvm::Value* operand)
+llvm::Value* TGlslangToTopTraverser::createUnaryOperation(TOperator op, gla::EMdPrecision precision, llvm::Value* operand)
 {
     // Unary ops that map to llvm operations
     switch (op) {
@@ -1605,22 +1619,27 @@ llvm::Value* TGlslangToTopTraverser::createUnaryOperation(TOperator op, llvm::Va
             // emulate by subtracting from 0.0
             llvm::Value* zero = gla::MakeFloatConstant(context, 0.0);
 
-            return glaBuilder->createMatrixOp(llvm::Instruction::FSub, zero, operand);
+            return glaBuilder->createMatrixOp(precision, llvm::Instruction::FSub, zero, operand);
         }
 
+        llvm::Value* result;
         if (gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID)
-            return llvmBuilder.CreateFNeg(operand);
+            result = llvmBuilder.CreateFNeg(operand);
         else
-            return llvmBuilder.CreateNeg (operand);
+            result = llvmBuilder.CreateNeg (operand);
+        glaBuilder->setInstructionPrecision(result, precision);
+
+        return result;
+
     case EOpLogicalNot:
     case EOpVectorLogicalNot:
     case EOpBitwiseNot:
         return llvmBuilder.CreateNot(operand);
     
     case EOpDeterminant:
-        return glaBuilder->createMatrixDeterminant(operand);
+        return glaBuilder->createMatrixDeterminant(precision, operand);
     case EOpMatrixInverse:
-        return glaBuilder->createMatrixInverse(operand);
+        return glaBuilder->createMatrixInverse(precision, operand);
     case EOpTranspose:
         return glaBuilder->createMatrixTranspose(operand);
     }
@@ -1628,7 +1647,7 @@ llvm::Value* TGlslangToTopTraverser::createUnaryOperation(TOperator op, llvm::Va
     return 0;
 }
 
-llvm::Value* TGlslangToTopTraverser::createConversion(TOperator op, llvm::Type* destType, llvm::Value* operand)
+llvm::Value* TGlslangToTopTraverser::createConversion(TOperator op, gla::EMdPrecision precision, llvm::Type* destType, llvm::Value* operand)
 {
     llvm::Instruction::CastOps castOp = llvm::Instruction::CastOps(0);
     switch(op) {
@@ -1690,7 +1709,7 @@ llvm::Value* TGlslangToTopTraverser::createConversion(TOperator op, llvm::Type* 
     return 0;
 }
 
-llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(TOperator op, llvm::Value* operand)
+llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(TOperator op, gla::EMdPrecision precision, llvm::Value* operand)
 {
     // Unary ops that require an intrinsic
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
@@ -1852,12 +1871,12 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(TOperator op, llvm::Va
     }
 
     if (intrinsicID != 0)
-        return glaBuilder->createIntrinsicCall(intrinsicID, operand);
+        return glaBuilder->createIntrinsicCall(precision, intrinsicID, operand);
 
     return 0;
 }
 
-llvm::Value* TGlslangToTopTraverser::createIntrinsic(TOperator op, std::vector<llvm::Value*>& operands, bool isUnsigned)
+llvm::Value* TGlslangToTopTraverser::createIntrinsic(TOperator op, gla::EMdPrecision precision, std::vector<llvm::Value*>& operands, bool isUnsigned)
 {
     // Binary ops that require an intrinsic
     llvm::Value* result = 0;
@@ -1950,17 +1969,17 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(TOperator op, std::vector<l
     if (intrinsicID != 0) {
         switch (operands.size()) {
         case 0:
-            result = glaBuilder->createIntrinsicCall(intrinsicID);
+            result = glaBuilder->createIntrinsicCall(precision, intrinsicID);
             break;
         case 1:
             // should all be handled by createUnaryIntrinsic
             assert(0);
             break;
         case 2:
-            result = glaBuilder->createIntrinsicCall(intrinsicID, operands[0], operands[1]);
+            result = glaBuilder->createIntrinsicCall(precision, intrinsicID, operands[0], operands[1]);
             break;
         case 3:
-            result = glaBuilder->createIntrinsicCall(intrinsicID, operands[0], operands[1], operands[2]);
+            result = glaBuilder->createIntrinsicCall(precision, intrinsicID, operands[0], operands[1], operands[2]);
             break;
         default:
             // These do not exist yet
@@ -2052,7 +2071,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value
                 if (node->getType().isMatrix())
                     gepChain.push_back(gla::MakeIntConstant(context, slot - firstSlot));
                 
-                pipeRead = glaBuilder->readPipeline(readType, indexedName, slot, md, -1 /*mask*/, method, location);
+                pipeRead = glaBuilder->readPipeline(getMdPrecision(node->getType()), readType, indexedName, slot, md, -1 /*mask*/, method, location);
                 llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
                 
                 if (node->getType().isMatrix())
@@ -2065,7 +2084,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value
     } else {
         readType = convertGlslangToGlaType(node->getType());
         gla::AddSeparator(name);
-        llvm::Value* pipeRead = glaBuilder->readPipeline(readType, name, firstSlot, md, -1 /*mask*/, method, location);
+        llvm::Value* pipeRead = glaBuilder->readPipeline(getMdPrecision(node->getType()), readType, name, firstSlot, md, -1 /*mask*/, method, location);
         llvmBuilder.CreateStore(pipeRead, storage);
     }
 }
@@ -2163,14 +2182,6 @@ void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::V
         break;
     default:
         break;
-    }
-}
-
-void TGlslangToTopTraverser::setInstructionPrecision(llvm::Value* value, gla::EMdPrecision precision)
-{
-    if (llvm::Instruction* instr = llvm::dyn_cast<llvm::Instruction>(value)) {
-        if (precision != gla::EMpNone)
-            instr->setMetadata("precision", metadata.makeMdPrecision(precision));
     }
 }
 

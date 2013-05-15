@@ -25,7 +25,7 @@ entry:
   %u = alloca i32
   %count = alloca i32
   store i32 1, i32* %count
-  %t__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0
+  %t__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !7
   store <2 x i32> %t__, <2 x i32>* @t_shadow
   %0 = load <2 x i32>* @t_shadow
   %1 = extractelement <2 x i32> %0, i32 1
@@ -57,7 +57,7 @@ then:                                             ; preds = %entry
   %tc__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !2
   store <2 x float> %tc__, <2 x float>* @tc_shadow
   %10 = load <2 x float>* @tc_shadow
-  %c_shadow = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %10)
+  %c_shadow = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %10), !precision !7
   store <4 x i32> %c_shadow, <4 x i32>* @c_shadow
   br label %ifmerge
 
@@ -73,7 +73,7 @@ then6:                                            ; preds = %ifmerge
   store <2 x float> %tc__7, <2 x float>* @tc_shadow
   %15 = load <2 x float>* @tc_shadow
   %16 = fadd <2 x float> %15, <float 1.000000e+00, float 1.000000e+00>
-  %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %14, i32 0, <2 x float> %16)
+  %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %14, i32 0, <2 x float> %16), !precision !7
   store <4 x i32> %c_shadow8, <4 x i32>* @c_shadow
   br label %ifmerge9
 
@@ -89,12 +89,12 @@ then10:                                           ; preds = %ifmerge9
   store <2 x float> %tc__11, <2 x float>* @tc_shadow
   %21 = load <2 x float>* @tc_shadow
   %22 = fsub <2 x float> %21, <float 2.000000e+00, float 2.000000e+00>
-  %c_shadow12 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %20, i32 0, <2 x float> %22)
+  %c_shadow12 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %20, i32 0, <2 x float> %22), !precision !7
   store <4 x i32> %c_shadow12, <4 x i32>* @c_shadow
   br label %ifmerge13
 
 ifmerge13:                                        ; preds = %ifmerge9, %then10
-  %t__14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0
+  %t__14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !7
   store <2 x i32> %t__14, <2 x i32>* @t_shadow
   %23 = load <2 x i32>* @t_shadow
   %24 = extractelement <2 x i32> %23, i32 0
@@ -243,14 +243,14 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %t__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0
+  %t__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !7
   %0 = extractelement <2 x i32> %t__, i32 1
   %u1 = add i32 %0, 3, !precision !7
   %1 = load i32 addrspace(1)* @"usampler2D usampler", align 4, !sampler !6
   %tc__7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !2
   %2 = fadd <2 x float> %tc__7, <float 1.000000e+00, float 1.000000e+00>
-  %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %2)
-  %t__14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0
+  %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %2), !precision !7
+  %t__14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !7
   %3 = extractelement <2 x i32> %t__14, i32 0
   %4 = icmp sgt i32 %3, 4
   %af16 = uitofp i32 %u1 to float

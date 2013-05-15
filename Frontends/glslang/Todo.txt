@@ -23,6 +23,9 @@ Interfacing
 	 - layout qualifiers: locations
      - external names for all I/O and globals
 	 - special built-ins (odd qualifiers)
+  + precision qualifiers done as metadata
+     + not for EMpNone
+	 + for all binary, unary, computations, pipeline reads, etc.
 
 Build
   + VS 11
@@ -31,6 +34,7 @@ Build
   + Update adapter build for Linux
 
 LunarGoo
+  - switch over to use metadata for all sideband information
   + double underscores in LunarGOO
   + correctly handle matrices at global scope
   + #version tracked through stack, output correctly

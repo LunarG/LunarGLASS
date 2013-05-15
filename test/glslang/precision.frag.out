@@ -1,0 +1,271 @@
+
+Top IR:
+; ModuleID = 'Top'
+
+@highfin_shadow = internal global <4 x float> zeroinitializer
+@global_medium = external addrspace(2) constant i32
+@global_high = external addrspace(2) constant i32
+@global_low = external addrspace(2) constant i32
+@lowfin_shadow = internal global float 0.000000e+00
+@mediumfin_shadow = internal global float 0.000000e+00
+@mediumfout_shadow = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %constructed9 = alloca <4 x float>
+  %constructed7 = alloca <2 x i32>
+  %constructed6 = alloca <2 x i32>
+  %constructed5 = alloca <2 x i32>
+  %constructed = alloca <4 x float>
+  %d = alloca float
+  %arg2 = alloca float
+  %arg1 = alloca float
+  %sum = alloca i32
+  %0 = load i32 addrspace(2)* @global_medium, !uniform !6
+  %1 = load i32 addrspace(2)* @global_high, !uniform !8
+  %sum1 = add i32 %0, %1, !precision !13
+  store i32 %sum1, i32* %sum
+  %2 = load i32 addrspace(2)* @global_high, !uniform !8
+  %3 = load i32* %sum
+  %sum2 = add i32 %3, %2, !precision !13
+  store i32 %sum2, i32* %sum
+  %4 = load i32 addrspace(2)* @global_low, !uniform !10
+  %5 = load i32* %sum
+  %sum3 = add i32 %5, %4, !precision !14
+  store i32 %sum3, i32* %sum
+  store float 0x40099999A0000000, float* %arg1
+  store float 0x412F3F4860000000, float* %arg2
+  %lowfin__ = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !2, !precision !14
+  store float %lowfin__, float* @lowfin_shadow
+  %6 = load float* @lowfin_shadow
+  %mediumfin__ = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !input !4, !precision !15
+  store float %mediumfin__, float* @mediumfin_shadow
+  %7 = load float* @mediumfin_shadow
+  %d4 = call float @llvm.gla.fDistance.f32.f32.f32(float %6, float %7), !precision !15
+  store float %d4, float* %d
+  %8 = load float* %d
+  %9 = call float @llvm.gla.fSin.f32.f32(float %8), !precision !14
+  %10 = load <4 x float>* %constructed
+  %11 = insertelement <4 x float> undef, float %9, i32 0
+  %12 = insertelement <4 x float> %11, float %9, i32 1
+  %13 = insertelement <4 x float> %12, float %9, i32 2
+  %mediumfout_shadow = insertelement <4 x float> %13, float %9, i32 3
+  store <4 x float> %mediumfout_shadow, <4 x float>* @mediumfout_shadow
+  %14 = load i32 addrspace(2)* @global_low, !uniform !10
+  %15 = load <2 x i32>* %constructed5
+  %16 = insertelement <2 x i32> undef, i32 %14, i32 0
+  %17 = insertelement <2 x i32> %16, i32 %14, i32 1
+  %18 = load i32 addrspace(2)* @global_high, !uniform !8
+  %19 = load <2 x i32>* %constructed6
+  %20 = insertelement <2 x i32> undef, i32 %18, i32 0
+  %21 = insertelement <2 x i32> %20, i32 %18, i32 1
+  %22 = mul <2 x i32> %17, %21, !precision !14
+  %23 = load i32 addrspace(2)* @global_high, !uniform !8
+  %24 = load <2 x i32>* %constructed7
+  %25 = insertelement <2 x i32> undef, i32 %23, i32 0
+  %26 = insertelement <2 x i32> %25, i32 %23, i32 1
+  %27 = add <2 x i32> %22, %26, !precision !14
+  %28 = extractelement <2 x i32> %27, i32 0
+  %29 = add i32 4, %28, !precision !14
+  %30 = load i32* %sum
+  %sum8 = add i32 %30, %29, !precision !14
+  store i32 %sum8, i32* %sum
+  %31 = load i32* %sum
+  %32 = sitofp i32 %31 to float
+  %33 = load <4 x float>* %constructed9
+  %34 = insertelement <4 x float> undef, float %32, i32 0
+  %35 = insertelement <4 x float> %34, float %32, i32 1
+  %36 = insertelement <4 x float> %35, float %32, i32 2
+  %37 = insertelement <4 x float> %36, float %32, i32 3
+  %38 = load <4 x float>* @mediumfout_shadow
+  %mediumfout_shadow10 = fadd <4 x float> %38, %37
+  store <4 x float> %mediumfout_shadow10, <4 x float>* @mediumfout_shadow
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %39 = load <4 x float>* @mediumfout_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %39), !output !12
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+define internal fastcc <2 x float> @"foo(vf3;"(<3 x float>*) alwaysinline {
+entry:
+  %highfin__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !0, !precision !13
+  store <4 x float> %highfin__, <4 x float>* @highfin_shadow
+  %1 = load <4 x float>* @highfin_shadow
+  %2 = extractelement <4 x float> %1, i32 0
+  %3 = insertelement <2 x float> undef, float %2, i32 0
+  %4 = extractelement <4 x float> %1, i32 1
+  %5 = insertelement <2 x float> %3, float %4, i32 1
+  ret <2 x float> %5
+
+post-return:                                      ; No predecessors!
+  unreachable
+}
+
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+
+declare float @llvm.gla.fDistance.f32.f32.f32(float, float) nounwind readnone
+
+declare float @llvm.gla.fSin.f32.f32(float) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+!inputs = !{!0, !2, !4}
+!defaultUniforms = !{!6, !8, !8, !10, !10, !8, !10, !8}
+!outputs = !{!12}
+
+!0 = metadata !{metadata !"highfin", i32 7, <4 x float>* @highfin_shadow, metadata !1}
+!1 = metadata !{i32 0, i32 3, i32 1024}
+!2 = metadata !{metadata !"lowfin", i32 7, float* @lowfin_shadow, metadata !3}
+!3 = metadata !{i32 0, i32 1, i32 1025}
+!4 = metadata !{metadata !"mediumfin", i32 7, float* @mediumfin_shadow, metadata !5}
+!5 = metadata !{i32 0, i32 2, i32 1026}
+!6 = metadata !{metadata !"global_medium", i32 12, i32 addrspace(2)* @global_medium, metadata !7}
+!7 = metadata !{i32 0, i32 2, i32 0}
+!8 = metadata !{metadata !"global_high", i32 12, i32 addrspace(2)* @global_high, metadata !9}
+!9 = metadata !{i32 0, i32 3, i32 0}
+!10 = metadata !{metadata !"global_low", i32 12, i32 addrspace(2)* @global_low, metadata !11}
+!11 = metadata !{i32 0, i32 1, i32 0}
+!12 = metadata !{metadata !"mediumfout", i32 1, <4 x float>* @mediumfout_shadow, metadata !7}
+!13 = metadata !{i32 3}
+!14 = metadata !{i32 1}
+!15 = metadata !{i32 2}
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+@global_medium = external addrspace(2) constant i32
+@global_high = external addrspace(2) constant i32
+@global_low = external addrspace(2) constant i32
+
+define fastcc void @main() {
+entry:
+  %0 = load i32 addrspace(2)* @global_medium, align 4, !uniform !6
+  %1 = load i32 addrspace(2)* @global_high, align 4, !uniform !8
+  %2 = load i32 addrspace(2)* @global_low, align 4, !uniform !10
+  %lowfin__ = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !2, !precision !13
+  %mediumfin__ = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !input !4, !precision !14
+  %d4 = call float @llvm.gla.fDistance.f32.f32.f32(float %lowfin__, float %mediumfin__), !precision !14
+  %3 = call float @llvm.gla.fSin.f32.f32(float %d4), !precision !13
+  %4 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %3, <4 x i32> zeroinitializer)
+  %.lhs = mul i32 %2, %1
+  %factor = mul i32 %1, 3
+  %sum1 = add i32 %0, 4, !precision !15
+  %sum2 = add i32 %sum1, %2, !precision !15
+  %sum3 = add i32 %sum2, %.lhs, !precision !13
+  %sum8 = add i32 %sum3, %factor, !precision !13
+  %5 = sitofp i32 %sum8 to float
+  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %5, <4 x i32> zeroinitializer)
+  %mediumfout_shadow10 = fadd <4 x float> %4, %6
+  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %mediumfout_shadow10), !output !12
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+
+declare float @llvm.gla.fDistance.f32.f32.f32(float, float) nounwind readnone
+
+declare float @llvm.gla.fSin.f32.f32(float) nounwind readnone
+
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+
+!inputs = !{!0, !2, !4}
+!defaultUniforms = !{!6, !8, !8, !10, !10, !8, !10, !8}
+!outputs = !{!12}
+
+!0 = metadata !{metadata !"highfin", i32 7, null, metadata !1}
+!1 = metadata !{i32 0, i32 3, i32 1024}
+!2 = metadata !{metadata !"lowfin", i32 7, null, metadata !3}
+!3 = metadata !{i32 0, i32 1, i32 1025}
+!4 = metadata !{metadata !"mediumfin", i32 7, null, metadata !5}
+!5 = metadata !{i32 0, i32 2, i32 1026}
+!6 = metadata !{metadata !"global_medium", i32 12, i32 addrspace(2)* @global_medium, metadata !7}
+!7 = metadata !{i32 0, i32 2, i32 0}
+!8 = metadata !{metadata !"global_high", i32 12, i32 addrspace(2)* @global_high, metadata !9}
+!9 = metadata !{i32 0, i32 3, i32 0}
+!10 = metadata !{metadata !"global_low", i32 12, i32 addrspace(2)* @global_low, metadata !11}
+!11 = metadata !{i32 0, i32 1, i32 0}
+!12 = metadata !{metadata !"mediumfout", i32 1, null, metadata !7}
+!13 = metadata !{i32 1}
+!14 = metadata !{i32 2}
+!15 = metadata !{i32 3}
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 300 es
+uniform int global_medium;
+uniform int global_high;
+uniform int global_low;
+out vec4 mediumfout;
+in float lowfin;
+in float mediumfin;
+const int const26i_3 = 3;
+const int const28i_4 = 4;
+
+void main()
+{
+    float temp21 = distance(lowfin, mediumfin);
+    float temp22 = sin(temp21);
+    vec4 temp23 = vec4(temp22);
+    int dlhs = global_low * global_high;
+    int factor = global_high * const26i_3;
+    int sum1 = global_medium + const28i_4;
+    int sum2 = sum1 + global_low;
+    int sum3 = sum2 + dlhs;
+    int sum8 = sum3 + factor;
+    float temp32 = float(sum8);
+    vec4 temp33 = vec4(temp32);
+    vec4 mediumfout_shadow10 = temp23 + temp33;
+    mediumfout = mediumfout_shadow10;
+    
+}
+#### BEGIN COMPILER 0 INFO LOG ####
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 300 es
+uniform int global_low;
+uniform int global_high;
+uniform int global_medium;
+out vec4 mediumfout;
+in float lowfin;
+in float mediumfin;
+const int const25i_3 = 3;
+const int const28i_4 = 4;
+
+void main()
+{
+    float temp211 = distance(lowfin, mediumfin);
+    float temp222 = sin(temp211);
+    vec4 temp23 = vec4(temp222);
+    int tmp = global_low + const25i_3;
+    int tmp15 = tmp * global_high;
+    int sum27 = global_low + const28i_4;
+    int sum38 = sum27 + global_medium;
+    int sum89 = sum38 + tmp15;
+    float temp3210 = float(sum89);
+    vec4 temp32 = vec4(temp3210);
+    vec4 mediumfout_shadow1013 = temp23 + temp32;
+    mediumfout = mediumfout_shadow1013;
+    
+}

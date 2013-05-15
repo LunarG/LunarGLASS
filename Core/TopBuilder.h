@@ -48,8 +48,10 @@
 #include "llvm/IRBuilder.h"
 #include "llvm/IntrinsicInst.h"
 
+// LunarGLASS includes
 #include "LunarGLASSManager.h"
 #include "LunarGLASSTopIR.h"
+#include "metadata.h"
 
 #include <list>
 #include <stack>
@@ -64,7 +66,7 @@ namespace gla {
 
 class Builder {
 public:
-    explicit Builder(llvm::IRBuilder<>& b, gla::Manager*);
+    Builder(llvm::IRBuilder<>& b, Manager*, Metadata);
     ~Builder();
 
     //
@@ -116,7 +118,7 @@ public:
         int swizzleTargetWidth;
         bool isRValue;
         bool trackOutputIndex;
-        llvm::MDNode* metadata;
+        llvm::MDNode* mdNode;
         const char* metadataKind;
     };
 
@@ -136,7 +138,7 @@ public:
     void setAccessChainMetadata(const char* mdk, llvm::MDNode* md)    
     { 
         accessChain.metadataKind = mdk;
-        accessChain.metadata = md; 
+        accessChain.mdNode = md; 
     }
 
     // say whether or not to evaluate a chain right to left (false means left to right)
@@ -248,7 +250,8 @@ public:
                        llvm::MDNode* metadata = 0,
                        EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment);
 
-    llvm::Value* readPipeline(llvm::Type*, llvm::StringRef name, int slot,
+    llvm::Value* readPipeline(EMdPrecision, 
+                              llvm::Type*, llvm::StringRef name, int slot,
                               llvm::MDNode* metadata = 0,
                               int mask = -1,
                               EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment,
@@ -258,25 +261,39 @@ public:
 
     llvm::Value* createSwizzle(llvm::Value* source, llvm::ArrayRef<int> channels, llvm::Type* finalType);
 
+    // If the value passed in is an instruction and the precision is not EMpNone, 
+    // it gets tagged with the requested precision.
+    void setInstructionPrecision(llvm::Value* value, EMdPrecision precision)
+    {
+        if (llvm::Instruction* instr = llvm::dyn_cast<llvm::Instruction>(value))
+            setInstructionPrecision(instr, precision);
+    }
+
+    void setInstructionPrecision(llvm::Instruction* instr, EMdPrecision precision)
+    {
+        if (precision != EMpNone)
+            instr->setMetadata("precision", metadata.makeMdPrecision(precision));
+    }
+
     // make a type for storing a matrix, which conforms to the 
     // assumptions of how matrices are operated on in the top builder
     static llvm::Type* getMatrixType(llvm::Type* elementType, int numColumns, int numRows);
 
     // handle component-wise matrix operations for either a
     // pair of matrices or a matrix and a scalar
-    llvm::Value* createMatrixOp(llvm::Instruction::BinaryOps, llvm::Value* left, llvm::Value* right);
+    llvm::Value* createMatrixOp(EMdPrecision, llvm::Instruction::BinaryOps, llvm::Value* left, llvm::Value* right);
 
     // handle all the possible matrix-related multiply operations
     // (non component wise; linear algebraic) for all combinations
     // of matrices, scalars, and vectors that either consume or
     // create a matrix
-    llvm::Value* createMatrixMultiply(llvm::Value* left, llvm::Value* right);
-    llvm::Value* createMatrixCompare (llvm::Value* left, llvm::Value* right, bool allEqual);
+    llvm::Value* createMatrixMultiply(EMdPrecision, llvm::Value* left, llvm::Value* right);
+    llvm::Value* createMatrixCompare (EMdPrecision, llvm::Value* left, llvm::Value* right, bool allEqual);
 
     // handle matrix to matrix operations
     llvm::Value* createMatrixTranspose  (llvm::Value*);
-    llvm::Value* createMatrixInverse    (llvm::Value*);
-    llvm::Value* createMatrixDeterminant(llvm::Value*);
+    llvm::Value* createMatrixInverse    (EMdPrecision, llvm::Value*);
+    llvm::Value* createMatrixDeterminant(EMdPrecision, llvm::Value*);
 
     // Handy way to get intrinsics
     llvm::Function* getIntrinsic(llvm::Intrinsic::ID);
@@ -313,22 +330,22 @@ public:
     };
 
     // Select the correct intrinsic based on all inputs, and make the call
-    llvm::Value* createTextureCall(llvm::Type*, gla::ESamplerType, int texFlags, const TextureParameters&);
-    llvm::Value* createTextureQueryCall(llvm::Intrinsic::ID, llvm::Type*, llvm::Constant*, llvm::Value*, llvm::Value*);
-    llvm::Value* createSamplePositionCall(llvm::Type*, llvm::Value*);
+    llvm::Value* createTextureCall(EMdPrecision, llvm::Type*, ESamplerType, int texFlags, const TextureParameters&);
+    llvm::Value* createTextureQueryCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Type*, llvm::Constant*, llvm::Value*, llvm::Value*);
+    llvm::Value* createSamplePositionCall(EMdPrecision, llvm::Type*, llvm::Value*);
     llvm::Value* createBitFieldExtractCall(llvm::Value*, llvm::Value*, llvm::Value*, bool isSigned);
     llvm::Value* createBitFieldInsertCall(llvm::Value*, llvm::Value*, llvm::Value*, llvm::Value*);
-    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID);
-    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, llvm::Value*);
-    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, llvm::Value*, llvm::Value*);
-    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, llvm::Value*);
-    llvm::Value* createRecip(llvm::Value*);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, llvm::Value*);
+    llvm::Value* createRecip(EMdPrecision, llvm::Value*);
 
     // For equal and not-equal comparisons:
     // first one is preferred form: uses innate types, works on vectors, matrices, arrays, and structures
-    llvm::Value* createCompare(llvm::Value*, llvm::Value*, bool /* true if for equal, fales if for not-equal */);
+    llvm::Value* createCompare(EMdPrecision, llvm::Value*, llvm::Value*, bool /* true if for equal, fales if for not-equal */);
     // the following is deprecated: works on vectors or scalars
-    llvm::Value* createCompare(llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned);
+    llvm::Value* createCompare(EMdPrecision, llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned);
 
     // vector constructor
     llvm::Value* createConstructor(const std::vector<llvm::Value*>& sources, llvm::Value* constructee);
@@ -402,14 +419,14 @@ protected:
     llvm::Value* collapseAccessChain();
     void simplifyAccessChainSwizzle();
 
-    llvm::Value* createMatrixTimesVector(llvm::Value*, llvm::Value*);
-    llvm::Value* createVectorTimesMatrix(llvm::Value*, llvm::Value*);
+    llvm::Value* createMatrixTimesVector(EMdPrecision, llvm::Value*, llvm::Value*);
+    llvm::Value* createVectorTimesMatrix(EMdPrecision, llvm::Value*, llvm::Value*);
 
-    llvm::Value* createComponentWiseMatrixOp(llvm::Instruction::BinaryOps llvmOpcode, llvm::Value* left, llvm::Value* right);
-    llvm::Value* createSmearedMatrixOp(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, bool reverseOrder);
-    llvm::Value* createMatrixTimesMatrix(llvm::Value*, llvm::Value*);
-    llvm::Value* createOuterProduct(llvm::Value* lvector, llvm::Value* rvector);
-    llvm::Value* createMatrixDeterminant(llvm::Value* (&matrix)[4][4], int size);
+    llvm::Value* createComponentWiseMatrixOp(EMdPrecision, llvm::Instruction::BinaryOps llvmOpcode, llvm::Value* left, llvm::Value* right);
+    llvm::Value* createSmearedMatrixOp(EMdPrecision, llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, bool reverseOrder);
+    llvm::Value* createMatrixTimesMatrix(EMdPrecision, llvm::Value*, llvm::Value*);
+    llvm::Value* createOuterProduct(EMdPrecision, llvm::Value* lvector, llvm::Value* rvector);
+    llvm::Value* createMatrixDeterminant(EMdPrecision, llvm::Value* (&matrix)[4][4], int size);
     void makeMatrixMinor(llvm::Value* (&matrix)[4][4], llvm::Value* (&minor)[4][4], int mRow, int mCol, int size);
 
     // To be used when dereferencing an access chain that is for an
@@ -423,14 +440,15 @@ protected:
     void createAndSetNoPredecessorBlock(llvm::StringRef name);
 
     llvm::IRBuilder<>& builder;
-    gla::Manager* manager;
+    Manager* manager;
     llvm::Module* module;
     llvm::LLVMContext &context;
+    Metadata metadata;
 
     // accumulate values that must be copied out at the end
     struct copyOut {
         llvm::Value* value;
-        llvm::MDNode* metadata;
+        llvm::MDNode* mdNode;
     };
     std::vector<copyOut> copyOuts;
     std::vector<bool> copyOutActive;   // the indexed ones that might be active

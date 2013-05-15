@@ -39,6 +39,10 @@
 //
 //===----------------------------------------------------------------------===//
 
+#pragma once
+#ifndef metadata_H
+#define metadata_H
+
 // LunarGLASS includes
 #include "LunarGLASSTopIR.h"
 
@@ -362,3 +366,5 @@ protected:
 };
 
 };
+
+#endif // metadata_H

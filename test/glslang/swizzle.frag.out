@@ -122,7 +122,7 @@ ifmerge:                                          ; preds = %else, %then
   %55 = fmul <4 x float> %53, %54, !precision !7
   %56 = load <4 x float>* %w_flow
   %57 = fmul <4 x float> %55, %56, !precision !7
-  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %49, <4 x float> %50, <4 x float> %57)
+  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %49, <4 x float> %50, <4 x float> %57), !precision !7
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
@@ -177,7 +177,7 @@ entry:
   %8 = fmul <4 x float> %1, %2, !precision !7
   %9 = fmul <4 x float> %8, %4, !precision !7
   %10 = fmul <4 x float> %select, %9, !precision !7
-  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %3, <4 x float> %0, <4 x float> %10)
+  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %3, <4 x float> %0, <4 x float> %10), !precision !7
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow), !output !5
   br label %stage-epilogue
 
