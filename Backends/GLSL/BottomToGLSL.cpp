@@ -196,7 +196,8 @@ public:
 
         for (int index = 0; index < structType->getNumContainedTypes(); ++index) {
             tempStructure << "    ";
-            emitGlaType(tempStructure, structType->getContainedType(index), -1);
+            emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), -1);
+            // TODO: Goo: ES functionality: how do we know the precision of a structure member?
             tempStructure << " " << getGlaStructField(structType, index);
             tempStructure << ";" << std::endl;
         }
@@ -216,9 +217,11 @@ public:
 
         std::string name = global->getName();
         std::string declareName = name;
+
         makeParseable(name);
         addNewVariable(global, name);
-        declareVariable(type, declareName, mapGlaAddressSpace(global));
+        declareVariable(EMpNone, type, declareName, mapGlaAddressSpace(global));
+        // TODO: Goo: ES functionality: get uniform declarations from metadata, not LLVM globals
 
         if (global->hasInitializer()) {
             const llvm::Constant* constant = global->getInitializer();
@@ -229,13 +232,15 @@ public:
     void addOutputs(const gla::PipelineSymbols& outputs)
     {
         for (int i = 0; i < outputs.size(); ++i)
-            declareVariable(outputs[i].type, outputs[i].name, EVQOutput);
+            declareVariable(EMpNone, outputs[i].type, outputs[i].name, EVQOutput);
+        // TODO: Goo: functionality: get output declarations from metadata, not here
     }
 
     void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name)
     {
         newLine();
-        emitGlaType(shader, type->getContainedType(0));
+        emitGlaType(shader, EMpNone, type->getContainedType(0));
+        // TODO: Goo: ES functionality: how do we know the precision of a function declaration?
         shader << " " << name.str() << "(";
 
         if (name == std::string("main"))
@@ -332,7 +337,7 @@ public:
         if (pos == -1)
             binOp = true;
 
-        // TODO: add support for unary ops (and xor)
+        // TODO: Goo: add support for unary ops (and xor)
 
         if (! binOp)
             UnsupportedFunctionality("unary op for simple conditional loops");
@@ -570,6 +575,34 @@ protected:
         }
     }
 
+    void emitGlaPrecision(std::ostringstream& out, EMdPrecision precision)
+    {
+        switch (precision) {
+        case EMpLow:
+        case EMpMedium:
+        case EMpHigh:
+            out << mapGlaToPrecisionString(precision) << " ";
+            break;
+
+        case EMpNone:
+            break;
+
+        default:
+            out << "badp ";
+            break;
+        }   
+    }
+
+    EMdPrecision getPrecision(const llvm::Value* value)
+    {
+        EMdPrecision precision = EMpNone;
+
+        if (const llvm::Instruction* instr = llvm::dyn_cast<const llvm::Instruction>(value))
+            CrackPrecisionMd(instr, precision);
+
+        return precision;
+    }
+
     void emitGlaOperand(const llvm::Value* value)
     {
         emitGlaValue(value);
@@ -695,7 +728,7 @@ protected:
         return (texFlags & ETFOffsetArg);
     }
 
-    void getNewVariable(const llvm::Value* value, std::string* varString)
+    void getNewVariableName(const llvm::Value* value, std::string* varString)
     {
         ++lastVariable;
         const size_t bufSize = 20;
@@ -771,8 +804,8 @@ protected:
         }
     }
 
-    void declareVariable(llvm::Type* type, const std::string& varString, EVariableQualifier vq, const llvm::Constant* constant = 0, 
-                         EInterpolationMethod intMethod = EIMLast, EInterpolationLocation intLocation = EILFragment, EMdPrecision precision = EMpNone, bool matrix = false)
+    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& varString, EVariableQualifier vq, const llvm::Constant* constant = 0, 
+                         EInterpolationMethod intMethod = EIMLast, EInterpolationLocation intLocation = EILFragment, bool matrix = false)
     {
         if (varString.substr(0,3) == std::string("gl_"))
             return;
@@ -781,7 +814,7 @@ protected:
         if (constant && ! AreAllUndefined(constant)) {
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
-            emitGlaType(globalDeclarations, type);
+            emitGlaType(globalDeclarations, precision, type);
             globalDeclarations << " " << varString << " = ";
             emitConstantInitializer(globalDeclarations, constant, constant->getType());
             globalDeclarations << ";" << std::endl;
@@ -831,20 +864,17 @@ protected:
             }
 
             globalDeclarations << mapGlaToQualifierString(vq);
-            //globalDeclarations << " ";
-            //globalDeclarations << mapGlaToPrecisionString(precision);
-            // TODO: turn this on, and other places precision shows up
             
             globalDeclarations << " ";
             if (basename.find_first_of(' ') == std::string::npos) {
                 // the "in" path figured out matrixness earlier
-                emitGlaType(globalDeclarations, type, -1, matrix);
+                emitGlaType(globalDeclarations, precision, type, -1, matrix);
                 globalDeclarations << " " << basename;
             } else {
                 // there is a space, separating a type from a name
                 // the "uniform" path figures out matrixness now
                 if (basename.substr(0, 7) == "matrix ") {
-                    emitGlaType(globalDeclarations, type, -1, true);
+                    emitGlaType(globalDeclarations, precision, type, -1, true);
                     globalDeclarations << basename.substr(6, basename.size());
                 } else
                     globalDeclarations << basename;
@@ -857,16 +887,16 @@ protected:
             break;
         }
         case EVQGlobal:
-            emitGlaType(globalDeclarations, type);
+            emitGlaType(globalDeclarations, precision, type);
             globalDeclarations << " " << varString << ";" << std::endl;
             break;
         case EVQTemporary:
-            emitGlaType(shader, type);
+            emitGlaType(shader, precision, type);
             shader << " ";
             break;
         case EVQUndef:
             newLine();
-            emitGlaType(shader, type);
+            emitGlaType(shader, precision, type);
             shader << " " << varString;
             shader << ";";
             emitInitializeAggregate(shader, varString, constant);
@@ -876,13 +906,14 @@ protected:
         }
     }
 
-    void emitGlaType(std::ostringstream& out, llvm::Type* type, int count = -1, bool matrix = false)
+    void emitGlaType(std::ostringstream& out, EMdPrecision precision, llvm::Type* type, int count = -1, bool matrix = false)
     {
         // if it's a vector, output a vector type
         if (type->getTypeID() == llvm::Type::VectorTyID) {
             const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
             assert(vectorType);
-
+            
+            emitGlaPrecision(out, precision);
             if (type->getContainedType(0) == type->getFloatTy(type->getContext()))
                 out << "vec";
             else if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
@@ -906,6 +937,7 @@ protected:
             
             if (matrix && arrayType->getNumContainedTypes() > 0 && arrayType->getContainedType(0)->isVectorTy()) {
                 // We're at the matrix level in the type tree
+                emitGlaPrecision(out, precision);
                 out << "mat";
                 if (GetNumColumns(type) == GetNumRows(type))
                     out << GetNumColumns(type);
@@ -914,7 +946,7 @@ protected:
             } else {
                 // We're still higher up in the type tree than a matrix; e.g., array of matrices
                 // (or, not a matrix).
-                emitGlaType(out, arrayType->getContainedType(0), -1, matrix);
+                emitGlaType(out, precision, arrayType->getContainedType(0), -1, matrix);
                 out << "[" << arrayType->getNumElements() << "]";
             }
         //} else if (type->getTypeID() == llvm::Type::PointerTyID) {
@@ -922,6 +954,7 @@ protected:
         //    emitGlaType(out, pointerType->getContainedType(0));
         } else {
             // just output a scalar
+            emitGlaPrecision(out, precision);            
             if (type == type->getFloatTy(type->getContext()))
                 out << "float";
             else if (type == type->getInt1Ty(type->getContext()))
@@ -933,6 +966,11 @@ protected:
             else
                 UnsupportedFunctionality("Basic Type in Bottom IR");
         }
+    }
+
+    void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count = -1, bool matrix = false)
+    {
+        emitGlaType(out, EMpNone, type, count, matrix);
     }
 
     // If valueMap has no entry for value, generate a name and declaration, and
@@ -950,14 +988,16 @@ protected:
             else
                 evq = mapGlaAddressSpace(value);
 
-            std::string* newVariable = new std::string;
-            getNewVariable(value, newVariable);
+            std::string* newName = new std::string;
+            getNewVariableName(value, newName);
+            EMdPrecision precision = getPrecision(value);
+
             if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
-                declareVariable(pointerType->getContainedType(0), *newVariable, evq);
+                declareVariable(precision, pointerType->getContainedType(0), *newName, evq);
             } else {
-                declareVariable(value->getType(), *newVariable, evq, llvm::dyn_cast<llvm::Constant>(value));
+                declareVariable(precision, value->getType(), *newName, evq, llvm::dyn_cast<llvm::Constant>(value));
             }
-            valueMap[value] = newVariable;
+            valueMap[value] = newName;
         }
     }
 
@@ -986,12 +1026,14 @@ protected:
         name.append("member");
         snprintf(buf, bufSize, "%d", index);
         name.append(buf);
+
         return name;
     }
 
     std::string getGlaValue(const llvm::Value* value)
     {
         mapGlaValue(value);
+
         return valueMap[value]->c_str();
     }
 
@@ -1053,7 +1095,7 @@ protected:
         case llvm::Type::ArrayTyID:
         case llvm::Type::StructTyID:
             {
-                emitGlaType(out, type);
+                emitGlaConstructor(out, type);
                 out << "(";
 
                 int numElements = 0;
@@ -1156,7 +1198,7 @@ protected:
     bool addNewVariable(const llvm::Value* value, std::string& name)
     {
         if (valueMap[value] == 0) {
-            valueMap[value] = new std::string(name);  //?? need to delete these?
+            valueMap[value] = new std::string(name);  // TODO: Goo: memory: need to delete these?
 
             return true;
         } else {
@@ -1285,7 +1327,7 @@ protected:
             assert (singleSourceMask <= 0xFF);
             emitGlaSwizzle(singleSourceMask, argCount, source);
         } else {
-            emitGlaType(shader, inst->getType(), argCount);
+            emitGlaConstructor(shader, inst->getType(), argCount);
             shader << "(";
             bool firstArg = true;
 
@@ -1622,11 +1664,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
     std::string charOp;
     int unaryOperand = -1;
 
-    //EMdPrecision mdPrecision;
-    //if (CrackPrecisionMd(llvmInstruction, mdPrecision))
-    //    shader << " " << mapGlaToPrecisionString(mdPrecision) << " ";
-
-    // TODO:  This loop will disappear when conditional loops in BottomToGLSL properly updates valueMap
+    // TODO: Goo:  This loop will disappear when conditional loops in BottomToGLSL properly updates valueMap
     for (llvm::Instruction::const_op_iterator i = llvmInstruction->op_begin(), e = llvmInstruction->op_end(); i != e; ++i) {
         llvm::Instruction* inst = llvm::dyn_cast<llvm::Instruction>(*i);
         if (inst) {
@@ -1637,7 +1675,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
     // If the instruction is referenced outside of the current scope
     // (e.g. inside a loop body), then add a (global) declaration for it.
-    if (referencedOutsideScope){
+    if (referencedOutsideScope) {
         mapGlaValue(llvmInstruction, referencedOutsideScope);
     }
 
@@ -1652,6 +1690,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         shader << " " << charOp << " ";
         emitGlaOperand(llvmInstruction->getOperand(1));
         shader << ";";
+
         return;
     }
 
@@ -1662,6 +1701,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         shader << " = " << charOp << "(";
         emitGlaOperand(llvmInstruction->getOperand(unaryOperand));
         shader << ");";
+        
         return;
     }
 
@@ -1680,6 +1720,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             emitGlaOperand(llvmInstruction->getOperand(0));
             shader << ";";
         }
+        
         return;
 
     case llvm::Instruction::Call: // includes intrinsics...
@@ -1690,6 +1731,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             assert(call);
             mapGlaCall(call);
         }
+        
         return;
 
     case llvm::Instruction::FRem:
@@ -1700,6 +1742,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         shader << ", ";
         emitGlaOperand(llvmInstruction->getOperand(1));
         shader << ");";
+        
         return;
 
     case llvm::Instruction::ICmp:
@@ -1756,6 +1799,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             emitGlaOperand(llvmInstruction->getOperand(1));
             shader << ");";
         }
+        
         return;
 
     case llvm::Instruction::Load:
@@ -1808,6 +1852,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         newLine();
         emitGlaValue(llvmInstruction);
         shader << ";";
+
         return;
 
     case llvm::Instruction::Store:
@@ -1860,6 +1905,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         shader << " = ";
         emitGlaOperand(llvmInstruction->getOperand(1));
         shader << ";";
+
         return;
 
     case llvm::Instruction::Select:
@@ -1930,7 +1976,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
         shader << " = ";
 
-        emitGlaType(shader, llvmInstruction->getType());
+        emitGlaConstructor(shader, llvmInstruction->getType());
         shader << "(";
 
         int sourceWidth = gla::GetComponentCount(llvmInstruction->getOperand(0));
@@ -2033,6 +2079,8 @@ const char* gla::GlslTarget::mapGlaXor(const llvm::Instruction* llvmInstruction,
 //
 void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction)
 {
+    EMdPrecision precision = getPrecision(llvmInstruction);
+
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_writeData:
@@ -2062,7 +2110,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             // Key issue:  we can figure out a slot type, but it's not 
             // necessarily the type of the whole variable getting read,
             // just a slice of it.  So, need to rebuild the whole type,
-            // from clues left in the name by the front-end adapter.
+            // from metadata left in the name by the front-end adapter.
             // For matrixness, that is done now, for arrayness later.
             // (Both can exist.)
             llvm::Type* wholeType = llvmInstruction->getType();
@@ -2095,14 +2143,15 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
                     intLocation = EILFragment;  // dummy for non-interplated reads
                     intMethod = EIMNone;        // needed for 'flat' with non-interpolation 'in'
                 }
-                //EMdInputOutput mdQual;
-                //llvm::Type*mdType;
-                //int mdLocation;
-                EMdPrecision mdPrecision = EMpNone;
-                //EMdTypeLayout mdLayout;
-                //llvm::MDNode* mdAgg;
-                //gla::CrackInputMd(llvmInstruction, declareName, mdQual, mdType, mdLayout, mdPrecision, mdLocation, mdAgg);
-                declareVariable(wholeType, declareName, EVQInput, 0, intMethod, intLocation, mdPrecision, matrixCols > 0);
+                EMdInputOutput mdQual;
+                llvm::Type*mdType;
+                int mdLocation;
+                EMdPrecision precision;
+                EMdTypeLayout mdLayout;
+                llvm::MDNode* mdAgg;
+                std::string dummyName;  // TODO: Goo: functionality, turn this into the real name
+                gla::CrackInputMd(llvmInstruction, dummyName, mdQual, mdType, mdLayout, precision, mdLocation, mdAgg);
+                declareVariable(precision, wholeType, declareName, EVQInput, 0, intMethod, intLocation, matrixCols > 0);
             }
 
             return;
@@ -2118,7 +2167,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         shader << " = textureSize(";
         emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         if (llvmInstruction->getNumArgOperands() > 2) {
-            // TODO: Test: 140: some textureSize() don't have 2nd argument
+            // TODO: Goo: Test: 140: some textureSize() don't have 2nd argument
             shader << ", ";
             emitGlaOperand(llvmInstruction->getOperand(2));
         }
@@ -2137,7 +2186,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         return;
 
     //case llvm::Intrinsic::gla_queryTextureLevels:
-    // TODO: Functionality: 430: textureQueryLevels()
+    // TODO: Goo: 430 Functionality: textureQueryLevels()
 
     case llvm::Intrinsic::gla_textureSample:
     case llvm::Intrinsic::gla_fTextureSample:
@@ -2212,7 +2261,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
             llvm::Type* vecType = llvm::VectorType::get(coordType, coordWidth + buffer + 1);
 
-            emitGlaType(shader, vecType);
+            emitGlaType(shader, precision, vecType);
 
             shader << "(";
 
@@ -2303,7 +2352,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // Case 1:  it's a scalar with multiple ".x" to expand it to a vector.
         // use a constructor to turn a scalar into a vector
         if (srcVectorWidth == 1 && dstVectorWidth > 1) {
-            emitGlaType(shader, llvmInstruction->getType());
+            emitGlaType(shader, precision, llvmInstruction->getType());
             shader << "(";
             emitGlaOperand(src);
             shader << ");";
@@ -2314,7 +2363,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // Case 2:  it's sequential .xy...  subsetting a vector.
         // use a constructor to subset the vector to a vector
         if (srcVectorWidth > 1 && dstVectorWidth > 1 && IsIdentitySwizzle(elts)) {
-            emitGlaType(shader, llvmInstruction->getType());
+            emitGlaType(shader, precision, llvmInstruction->getType());
             shader << "(";
             emitGlaOperand(src);
             shader << ");";

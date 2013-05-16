@@ -414,7 +414,7 @@ void main()
                     
                 }
                 
-                vec4 FragColor_shadow = otherColor * colord1;
+                mediump vec4 FragColor_shadow = otherColor * colord1;
                 FragColor_shadow32d0 = FragColor_shadow;
                 gl_FragColor = FragColor_shadow32d0;
                 return;
@@ -507,7 +507,7 @@ void main()
                     
                 }
                 
-                vec4 FragColor_shadow3738 = colord1d0 * otherColor;
+                mediump vec4 FragColor_shadow3738 = colord1d0 * otherColor;
                 FragColor_shadow51d0 = FragColor_shadow3738;
                 gl_FragColor = FragColor_shadow51d0;
                 return;

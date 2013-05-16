@@ -293,7 +293,7 @@ uniform s3 foo3;
 uniform int condition;
 uniform sampler2D sampler;
 const int const23i_0 = 0;
-in vec2 coord;
+in badp vec2 coord;
 const float const25f_1 = 1.0;
 const int const30i_1 = 1;
 const float const32f_0 = 0.0;
@@ -321,60 +321,7 @@ void main()
     gl_FragColor = FragColor_shadow;
     
 }
-#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
+ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
-#version 130
-struct s1 {
-    int member0;
-    float member1;
-};
-
-struct s2 {
-    int member0;
-    float member1;
-    s1 member2;
-    vec4 member3;
-};
-
-struct s3 {
-    s2 member0;
-    int member1;
-    float member2;
-    s1 member3;
-};
-
-uniform s3 foo3;
-uniform int condition;
-uniform sampler2D sampler;
-const int const23i_0 = 0;
-in vec2 coord;
-const float const25f_1 = 1.0;
-const float const27f_2 = 2.0;
-const int const29i_1 = 1;
-const float const31f_0 = 0.0;
-in vec4 color;
-
-void main()
-{
-    int temp211 = foo3.member0.member0;
-    bool temp222 = temp211 > const23i_0;
-    float select43 = temp222 ? const25f_1 : coord.x;
-    float select = temp222 ? coord.x : const27f_2;
-    bool temp2921 = condition == const29i_1;
-    float select45 = temp2921 ? coord.x : const31f_0;
-    float temp3329 = select43 + select;
-    float temp3431 = temp3329 + coord.x;
-    float temp3532 = select45 + temp3431;
-    vec4 temp35 = vec4(temp3532);
-    vec4 temp36 = color;
-    temp36.z = coord.y;
-    vec4 temp3939 = temp36 * temp35;
-    vec4 temp3838 = texture(sampler, coord);
-    vec4 FragColor_shadow40 = temp3838 * temp3939;
-    gl_FragColor = FragColor_shadow40;
-    
-}

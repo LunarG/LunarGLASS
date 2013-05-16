@@ -223,8 +223,8 @@ void main()
     }
     
     vec4 temp32 = vec4(temp21);
-    vec4 temp33 = temp23 * temp29;
-    vec4 FragColor_shadow = temp33 * temp32;
+    mediump vec4 temp33 = temp23 * temp29;
+    mediump vec4 FragColor_shadow = temp33 * temp32;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -252,8 +252,8 @@ void main()
     bool temp308 = d < const27f_5;
     float temp21d0 = temp308 ? d : const31f_0;
     vec4 temp32 = vec4(temp21d0);
-    vec4 temp3315 = temp22 * temp28;
-    vec4 FragColor_shadow16 = temp3315 * temp32;
+    mediump vec4 temp3315 = temp22 * temp28;
+    mediump vec4 FragColor_shadow16 = temp3315 * temp32;
     gl_FragColor = FragColor_shadow16;
     
 }

@@ -169,7 +169,7 @@ void main()
     bool temp23 = d < const24f_4;
     float temp25 = temp23 ? const26f_1 : const27f_5;
     vec4 temp28 = vec4(temp25);
-    vec4 FragColor_shadow = temp22 * temp28;
+    mediump vec4 FragColor_shadow = temp22 * temp28;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -193,7 +193,7 @@ void main()
     bool temp234 = d < const24f_4;
     float temp25 = temp234 ? const26f_1 : const27f_5;
     vec4 temp28 = vec4(temp25);
-    vec4 FragColor_shadow8 = temp22 * temp28;
+    mediump vec4 FragColor_shadow8 = temp22 * temp28;
     gl_FragColor = FragColor_shadow8;
     
 }

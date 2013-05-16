@@ -243,10 +243,10 @@ void main()
     vec4 temp28 = u;
     temp28.x = t.y;
     vec4 select = p ? temp27 : temp28;
-    vec4 temp30 = temp22 * temp23;
-    vec4 temp31 = temp30 * temp26;
-    vec4 temp32 = select * temp31;
-    vec4 FragColor_shadow = mix(temp24, temp21, temp32);
+    mediump vec4 temp30 = temp22 * temp23;
+    mediump vec4 temp31 = temp30 * temp26;
+    mediump vec4 temp32 = select * temp31;
+    mediump vec4 FragColor_shadow = mix(temp24, temp21, temp32);
     gl_FragColor = FragColor_shadow;
     
 }
@@ -277,10 +277,10 @@ void main()
     vec4 temp28 = u;
     temp28.x = t.y;
     vec4 select = p ? temp27 : temp28;
-    vec4 temp3019 = temp21 * temp23;
-    vec4 temp3120 = temp3019 * temp26;
-    vec4 temp3221 = select * temp3120;
-    vec4 FragColor_shadow22 = mix(temp24, temp22, temp3221);
+    mediump vec4 temp3019 = temp21 * temp23;
+    mediump vec4 temp3120 = temp3019 * temp26;
+    mediump vec4 temp3221 = select * temp3120;
+    mediump vec4 FragColor_shadow22 = mix(temp24, temp22, temp3221);
     gl_FragColor = FragColor_shadow22;
     
 }

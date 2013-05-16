@@ -302,11 +302,11 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 #version 300 es
 uniform usampler2D usampler;
 out ivec4 c;
-flat in ivec2 t;
+flat in mediump ivec2 t;
 const int const22i_3 = 3;
 in vec2 tc;
 const vec2 const24 = vec2(1.0);
-flat in ivec2 t;
+flat in mediump ivec2 t;
 const int const27i_4 = 4;
 const int const30i_0 = 0;
 const int const34i_462 = 462;
@@ -314,9 +314,9 @@ const ivec4 const38 = ivec4(341413380);
 
 void main()
 {
-    int temp21 = t.y + const22i_3;
+    mediump int temp21 = t.y + const22i_3;
     vec2 temp23 = tc + const24;
-    ivec4 c_shadow8 = texture(usampler, temp23);
+    mediump ivec4 c_shadow8 = texture(usampler, temp23);
     bool temp26 = t.x > const27i_4;
     float af16 = float(temp21);
     bool ab17 = temp21 != const30i_0;
