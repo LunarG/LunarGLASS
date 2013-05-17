@@ -91,7 +91,7 @@ entry:
   %14 = load <4 x i32>* @iv4a_shadow
   %15 = call <4 x i32> @llvm.gla.sign.v4i32.v4i32(<4 x i32> %14), !precision !45
   %16 = load <4 x i32>* %isum
-  %isum4 = add <4 x i32> %16, %15
+  %isum4 = add <4 x i32> %16, %15, !precision !45
   store <4 x i32> %isum4, <4 x i32>* %isum
   %iv4a__5 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !input !4, !precision !45
   store <4 x i32> %iv4a__5, <4 x i32>* @iv4a_shadow
@@ -101,7 +101,7 @@ entry:
   %18 = load <4 x i32>* @iv4b_shadow
   %19 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.v4i32(<4 x i32> %17, <4 x i32> %18), !precision !45
   %20 = load <4 x i32>* %isum
-  %isum6 = add <4 x i32> %20, %19
+  %isum6 = add <4 x i32> %20, %19, !precision !45
   store <4 x i32> %isum6, <4 x i32>* %isum
   %iv4a__7 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !input !4, !precision !45
   store <4 x i32> %iv4a__7, <4 x i32>* @iv4a_shadow
@@ -109,7 +109,7 @@ entry:
   %22 = load i32 addrspace(2)* @imin, !uniform !38
   %23 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.i32(<4 x i32> %21, i32 %22), !precision !45
   %24 = load <4 x i32>* %isum
-  %isum8 = add <4 x i32> %24, %23
+  %isum8 = add <4 x i32> %24, %23, !precision !45
   store <4 x i32> %isum8, <4 x i32>* %isum
   %uv2x__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !input !8, !precision !45
   store <2 x i32> %uv2x__, <2 x i32>* @uv2x_shadow
@@ -128,7 +128,7 @@ entry:
   %33 = insertelement <4 x i32> %32, i32 0, i32 2
   %34 = insertelement <4 x i32> %33, i32 0, i32 3
   %35 = load <4 x i32>* %usum
-  %usum11 = add <4 x i32> %35, %34
+  %usum11 = add <4 x i32> %35, %34, !precision !45
   store <4 x i32> %usum11, <4 x i32>* %usum
   %uv4y__ = call <4 x i32> @llvm.gla.readData.v4i32(i32 1030, i32 -1), !input !12, !precision !45
   store <4 x i32> %uv4y__, <4 x i32>* @uv4y_shadow
@@ -138,7 +138,7 @@ entry:
   %37 = load i32* @uy_shadow
   %38 = call <4 x i32> @llvm.gla.uMin.v4i32.v4i32.i32(<4 x i32> %36, i32 %37), !precision !45
   %39 = load <4 x i32>* %usum
-  %usum12 = add <4 x i32> %39, %38
+  %usum12 = add <4 x i32> %39, %38, !precision !45
   store <4 x i32> %usum12, <4 x i32>* %usum
   %iv3a__ = call <3 x i32> @llvm.gla.readData.v3i32(i32 1032, i32 -1), !input !16, !precision !45
   store <3 x i32> %iv3a__, <3 x i32>* @iv3a_shadow
@@ -158,7 +158,7 @@ entry:
   %49 = insertelement <4 x i32> %47, i32 %48, i32 2
   %50 = insertelement <4 x i32> %49, i32 0, i32 3
   %51 = load <4 x i32>* %isum
-  %isum15 = add <4 x i32> %51, %50
+  %isum15 = add <4 x i32> %51, %50, !precision !45
   store <4 x i32> %isum15, <4 x i32>* %isum
   %iv4a__16 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !input !4, !precision !45
   store <4 x i32> %iv4a__16, <4 x i32>* @iv4a_shadow
@@ -166,7 +166,7 @@ entry:
   %53 = load i32 addrspace(2)* @imax, !uniform !40
   %54 = call <4 x i32> @llvm.gla.sMax.v4i32.v4i32.i32(<4 x i32> %52, i32 %53), !precision !45
   %55 = load <4 x i32>* %isum
-  %isum17 = add <4 x i32> %55, %54
+  %isum17 = add <4 x i32> %55, %54, !precision !45
   store <4 x i32> %isum17, <4 x i32>* %isum
   %uv2x__18 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !input !8, !precision !45
   store <2 x i32> %uv2x__18, <2 x i32>* @uv2x_shadow
@@ -196,7 +196,7 @@ entry:
   %69 = extractelement <2 x i32> %61, i32 1
   %70 = insertelement <4 x i32> %68, i32 %69, i32 3
   %71 = load <4 x i32>* %usum
-  %usum25 = add <4 x i32> %71, %70
+  %usum25 = add <4 x i32> %71, %70, !precision !45
   store <4 x i32> %usum25, <4 x i32>* %usum
   %iv4a__26 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !input !4, !precision !45
   store <4 x i32> %iv4a__26, <4 x i32>* @iv4a_shadow
@@ -209,7 +209,7 @@ entry:
   %74 = load <4 x i32>* @iv4b_shadow
   %75 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.v4i32.v4i32(<4 x i32> %72, <4 x i32> %73, <4 x i32> %74), !precision !45
   %76 = load <4 x i32>* %isum
-  %isum29 = add <4 x i32> %76, %75
+  %isum29 = add <4 x i32> %76, %75, !precision !45
   store <4 x i32> %isum29, <4 x i32>* %isum
   %iv4a__30 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !input !4, !precision !45
   store <4 x i32> %iv4a__30, <4 x i32>* @iv4a_shadow
@@ -218,7 +218,7 @@ entry:
   %79 = load i32 addrspace(2)* @imax, !uniform !40
   %80 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.i32.i32(<4 x i32> %77, i32 %78, i32 %79), !precision !45
   %81 = load <4 x i32>* %isum
-  %isum31 = add <4 x i32> %81, %80
+  %isum31 = add <4 x i32> %81, %80, !precision !45
   store <4 x i32> %isum31, <4 x i32>* %isum
   %uv2x__32 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !input !8, !precision !45
   store <2 x i32> %uv2x__32, <2 x i32>* @uv2x_shadow
@@ -240,7 +240,7 @@ entry:
   %91 = insertelement <4 x i32> %90, i32 0, i32 2
   %92 = insertelement <4 x i32> %91, i32 0, i32 3
   %93 = load <4 x i32>* %usum
-  %usum36 = add <4 x i32> %93, %92
+  %usum36 = add <4 x i32> %93, %92, !precision !45
   store <4 x i32> %usum36, <4 x i32>* %usum
   %uv4y__37 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1030, i32 -1), !input !12, !precision !45
   store <4 x i32> %uv4y__37, <4 x i32>* @uv4y_shadow
@@ -249,7 +249,7 @@ entry:
   %96 = load i32 addrspace(2)* @umax, !uniform !43
   %97 = call <4 x i32> @llvm.gla.uClamp.v4i32.v4i32.i32.i32(<4 x i32> %94, i32 %95, i32 %96), !precision !45
   %98 = load <4 x i32>* %usum
-  %usum38 = add <4 x i32> %98, %97
+  %usum38 = add <4 x i32> %98, %97, !precision !45
   store <4 x i32> %usum38, <4 x i32>* %usum
   %f__ = call float @llvm.gla.fReadInterpolant.f32(i32 1035, i32 -1, i32 1), !input !22
   store float %f__, float* @f_shadow
@@ -311,7 +311,7 @@ entry:
   %134 = extractelement <4 x i32> %126, i32 1
   %135 = insertelement <4 x i32> %133, i32 %134, i32 3
   %136 = load <4 x i32>* %isum
-  %isum50 = add <4 x i32> %136, %135
+  %isum50 = add <4 x i32> %136, %135, !precision !45
   store <4 x i32> %isum50, <4 x i32>* %isum
   %f__51 = call float @llvm.gla.fReadInterpolant.f32(i32 1035, i32 -1, i32 1), !input !28, !precision !45
   store float %f__51, float* @f_shadow
@@ -325,21 +325,21 @@ entry:
   %142 = insertelement <4 x i32> %141, i32 %138, i32 2
   %143 = insertelement <4 x i32> %142, i32 %138, i32 3
   %144 = load <4 x i32>* %isum
-  %isum54 = add <4 x i32> %144, %143
+  %isum54 = add <4 x i32> %144, %143, !precision !45
   store <4 x i32> %isum54, <4 x i32>* %isum
   %v4__55 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1037, i32 -1, i32 1), !input !30, !precision !45
   store <4 x float> %v4__55, <4 x float>* @v4_shadow
   %145 = load <4 x float>* @v4_shadow
   %146 = call <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float> %145), !precision !45
   %147 = load <4 x i32>* %usum
-  %usum56 = add <4 x i32> %147, %146
+  %usum56 = add <4 x i32> %147, %146, !precision !45
   store <4 x i32> %usum56, <4 x i32>* %usum
   %iv4a__57 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !input !4, !precision !45
   store <4 x i32> %iv4a__57, <4 x i32>* @iv4a_shadow
   %148 = load <4 x i32>* @iv4a_shadow
   %149 = call <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32> %148), !precision !45
   %150 = load <4 x float>* %sum
-  %sum58 = fadd <4 x float> %150, %149
+  %sum58 = fadd <4 x float> %150, %149, !precision !45
   store <4 x float> %sum58, <4 x float>* %sum
   %uv2c__59 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1034, i32 -1), !input !20, !precision !45
   store <2 x i32> %uv2c__59, <2 x i32>* @uv2c_shadow
@@ -396,7 +396,7 @@ entry:
   %173 = insertelement <4 x i32> %172, i32 %169, i32 2
   %174 = insertelement <4 x i32> %173, i32 0, i32 3
   %175 = load <4 x i32>* %usum
-  %usum75 = add <4 x i32> %175, %174
+  %usum75 = add <4 x i32> %175, %174, !precision !45
   store <4 x i32> %usum75, <4 x i32>* %usum
   %176 = load <2 x float>* %v20
   %177 = load <2 x float>* %v16
@@ -619,16 +619,16 @@ entry:
   %isum2 = call <4 x i32> @llvm.gla.abs.v4i32.v4i32(<4 x i32> %iv4a__3), !precision !45
   %7 = load i32 addrspace(2)* @imin, align 4, !uniform !38
   %8 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.v4i32(<4 x i32> %iv4a__3, <4 x i32> %iv4b__), !precision !45
-  %isum4 = add <4 x i32> %isum2, %6
+  %isum4 = add <4 x i32> %isum2, %6, !precision !45
   %9 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.i32(<4 x i32> %iv4a__3, i32 %7), !precision !45
-  %isum6 = add <4 x i32> %isum4, %8
+  %isum6 = add <4 x i32> %isum4, %8, !precision !45
   %10 = load i32 addrspace(2)* @imax, align 4, !uniform !40
   %11 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v3i32.v3i32.v3i32.i32(<4 x i32> undef, i32 15, <3 x i32> %i1713, i32 0, <3 x i32> %i1713, i32 1, <3 x i32> %i1713, i32 2, i32 0, i32 0)
   %uv4y__ = call <4 x i32> @llvm.gla.readData.v4i32(i32 1030, i32 -1), !input !12, !precision !45
-  %isum8 = add <4 x i32> %isum6, %9
+  %isum8 = add <4 x i32> %isum6, %9, !precision !45
   %v4__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1037, i32 -1, i32 1), !input !26
   %12 = call <4 x i32> @llvm.gla.sMax.v4i32.v4i32.i32(<4 x i32> %iv4a__3, i32 %10), !precision !45
-  %isum15 = add <4 x i32> %isum8, %11
+  %isum15 = add <4 x i32> %isum8, %11, !precision !45
   %13 = call <4 x i32> @llvm.gla.uMin.v4i32.v4i32.i32(<4 x i32> %uv4y__, i32 %uy__22), !precision !45
   %14 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.i32.i32(<4 x i32> undef, i32 15, <2 x i32> %u9, i32 0, <2 x i32> %u9, i32 1, i32 0, i32 0, i32 0, i32 0)
   %15 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> undef, i32 15, <3 x float> %1, i32 0, <3 x float> %1, i32 1, <3 x float> %1, i32 2, float 0.000000e+00, i32 0)
@@ -638,8 +638,8 @@ entry:
   %sum40 = fadd <4 x float> %15, %3
   %17 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.v4i32.v4i32(<4 x i32> %iv4a__3, <4 x i32> %iv4a__3, <4 x i32> %iv4b__), !precision !45
   %18 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.v2i32.v2i32(<4 x i32> undef, i32 15, <2 x i32> %u1020, i32 0, <2 x i32> %u1020, i32 1, <2 x i32> %u1123, i32 0, <2 x i32> %u1123, i32 1)
-  %isum17 = add <4 x i32> %isum15, %12
-  %usum12 = add <4 x i32> %14, %13
+  %isum17 = add <4 x i32> %isum15, %12, !precision !45
+  %usum12 = add <4 x i32> %14, %13, !precision !45
   %v2b__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1038, i32 -1, i32 1), !input !34, !precision !46
   %u1568 = call i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float> %v2a__), !precision !46
   %19 = call <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32> %iv4a__3), !precision !45
@@ -649,28 +649,28 @@ entry:
   %22 = load i32 addrspace(2)* @umin, align 4, !uniform !41
   %23 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.i32.i32(<4 x i32> undef, i32 15, <2 x i32> %u1234, i32 0, <2 x i32> %u1234, i32 1, i32 0, i32 0, i32 0, i32 0)
   %24 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.i32.i32(<4 x i32> %iv4a__3, i32 %7, i32 %10), !precision !45
-  %isum29 = add <4 x i32> %isum17, %17
-  %usum25 = add <4 x i32> %usum12, %18
+  %isum29 = add <4 x i32> %isum17, %17, !precision !45
+  %usum25 = add <4 x i32> %usum12, %18, !precision !45
   %u1771 = call i32 @llvm.gla.fPackHalf2x16.i32.v2f32(<2 x float> %v2b__), !precision !46
   %25 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float> undef, i32 15, <2 x float> %v1560, i32 0, <2 x float> %v1560, i32 1, float 0.000000e+00, i32 0, float 0.000000e+00, i32 0)
-  %sum58 = fadd <4 x float> %sum45, %19
+  %sum58 = fadd <4 x float> %sum45, %19, !precision !45
   %26 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.v4i32.v4i32(<4 x i32> undef, i32 15, <2 x i32> %4, i32 0, <2 x i32> %4, i32 1, <4 x i32> %20, i32 0, <4 x i32> %20, i32 1)
   %27 = call <4 x i32> @llvm.gla.uClamp.v4i32.v4i32.i32.i32(<4 x i32> %uv4y__, i32 %22, i32 %21), !precision !45
-  %usum36 = add <4 x i32> %usum25, %23
-  %isum31 = add <4 x i32> %isum29, %24
+  %usum36 = add <4 x i32> %usum25, %23, !precision !45
+  %isum31 = add <4 x i32> %isum29, %24, !precision !45
   %28 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.v2f32.v2f32(<4 x float> undef, i32 15, <2 x float> %v2066, i32 0, <2 x float> %v2066, i32 1, <2 x float> %v1670, i32 0, <2 x float> %v1670, i32 1)
   %sum62 = fadd <4 x float> %25, %sum58
   %29 = call <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float> %v4__), !precision !45
-  %isum50 = add <4 x i32> %isum31, %26
-  %usum38 = add <4 x i32> %usum36, %27
+  %isum50 = add <4 x i32> %isum31, %26, !precision !45
+  %usum38 = add <4 x i32> %usum36, %27, !precision !45
   %30 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float> undef, i32 15, <2 x float> %v1873, i32 0, <2 x float> %v1873, i32 1, float 0.000000e+00, i32 0, float 0.000000e+00, i32 0)
   %sum77 = fadd <4 x float> %28, %sum62
   %31 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32> undef, i32 15, i32 %u1964, i32 0, i32 %u1568, i32 0, i32 %u1771, i32 0, i32 0, i32 0)
-  %usum56 = add <4 x i32> %usum38, %29
-  %isum54 = add <4 x i32> %isum50, %5
+  %usum56 = add <4 x i32> %usum38, %29, !precision !45
+  %isum54 = add <4 x i32> %isum50, %5, !precision !45
   %32 = sitofp <4 x i32> %isum54 to <4 x float>
   %sum79 = fadd <4 x float> %30, %sum77
-  %usum75 = add <4 x i32> %usum56, %31
+  %usum75 = add <4 x i32> %usum56, %31, !precision !45
   %33 = uitofp <4 x i32> %usum75 to <4 x float>
   %34 = fadd <4 x float> %sum79, %32
   %result_shadow = fadd <4 x float> %34, %33
@@ -887,13 +887,13 @@ void main()
     mediump ivec4 temp39 = sign(iv4a);
     mediump ivec4 isum2 = abs(iv4a);
     mediump ivec4 temp41 = min(iv4a, iv4b);
-    ivec4 isum4 = isum2 + temp39;
+    mediump ivec4 isum4 = isum2 + temp39;
     mediump ivec4 temp43 = min(iv4a, imin);
-    ivec4 isum6 = isum4 + temp41;
+    mediump ivec4 isum6 = isum4 + temp41;
     ivec4 temp45 = ivec4(temp23.x, temp23.y, temp23.z, const46i_0);
-    ivec4 isum8 = isum6 + temp43;
+    mediump ivec4 isum8 = isum6 + temp43;
     mediump ivec4 temp48 = max(iv4a, imax);
-    ivec4 isum15 = isum8 + temp45;
+    mediump ivec4 isum15 = isum8 + temp45;
     mediump ivec4 temp50 = min(uv4y, uy);
     ivec4 temp51 = ivec4(temp22.x, temp22.y, const46i_0, const46i_0);
     vec4 temp52 = vec4(temp21.x, temp21.y, temp21.z, const53f_0);
@@ -903,36 +903,36 @@ void main()
     vec4 sum40 = temp52 + temp28;
     mediump ivec4 temp58 = clamp(iv4a, iv4a, iv4b);
     ivec4 temp59 = ivec4(temp24.x, temp24.y, temp25.x, temp25.y);
-    ivec4 isum17 = isum15 + temp48;
-    ivec4 usum12 = temp51 + temp50;
+    mediump ivec4 isum17 = isum15 + temp48;
+    mediump ivec4 usum12 = temp51 + temp50;
     highp int temp62 = packUnorm2x16(v2a);
     mediump vec4 temp63 = intBitsTofloat(iv4a);
     ivec4 temp64 = ivec4(temp55);
     vec4 sum45 = sum40 + temp56;
     ivec4 temp66 = ivec4(temp26.x, temp26.y, const46i_0, const46i_0);
     mediump ivec4 temp67 = clamp(iv4a, imin, imax);
-    ivec4 isum29 = isum17 + temp58;
-    ivec4 usum25 = usum12 + temp59;
+    mediump ivec4 isum29 = isum17 + temp58;
+    mediump ivec4 usum25 = usum12 + temp59;
     highp int temp70 = packHalf2x16(v2b);
     vec4 temp71 = vec4(temp35.x, temp35.y, const53f_0, const53f_0);
-    vec4 sum58 = sum45 + temp63;
+    mediump vec4 sum58 = sum45 + temp63;
     ivec4 temp73 = ivec4(temp32.x, temp32.y, temp64.x, temp64.y);
     mediump ivec4 temp74 = clamp(uv4y, umin, umax);
-    ivec4 usum36 = usum25 + temp66;
-    ivec4 isum31 = isum29 + temp67;
+    mediump ivec4 usum36 = usum25 + temp66;
+    mediump ivec4 isum31 = isum29 + temp67;
     vec4 temp77 = vec4(temp36.x, temp36.y, temp37.x, temp37.y);
     vec4 sum62 = temp71 + sum58;
     mediump ivec4 temp79 = floatBitsToInt(v4);
-    ivec4 isum50 = isum31 + temp73;
-    ivec4 usum38 = usum36 + temp74;
+    mediump ivec4 isum50 = isum31 + temp73;
+    mediump ivec4 usum38 = usum36 + temp74;
     vec4 temp82 = vec4(temp38.x, temp38.y, const53f_0, const53f_0);
     vec4 sum77 = temp77 + sum62;
     ivec4 temp84 = ivec4(temp54, temp62, temp70, const46i_0);
-    ivec4 usum56 = usum38 + temp79;
-    ivec4 isum54 = isum50 + temp34;
+    mediump ivec4 usum56 = usum38 + temp79;
+    mediump ivec4 isum54 = isum50 + temp34;
     vec4 temp87 = vec4(isum54);
     vec4 sum79 = temp82 + sum77;
-    ivec4 usum75 = usum56 + temp84;
+    mediump ivec4 usum75 = usum56 + temp84;
     vec4 temp90 = vec4(usum75);
     vec4 temp91 = sum79 + temp87;
     vec4 result_shadow = temp91 + temp90;

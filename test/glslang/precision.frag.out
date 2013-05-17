@@ -72,7 +72,7 @@ entry:
   %25 = insertelement <4 x float> %24, float %21, i32 3
   %26 = fadd <4 x float> %20, %25, !precision !15
   %27 = load <4 x float>* %local_highp
-  %mediumfout_shadow = fadd <4 x float> %26, %27, !precision !15
+  %mediumfout_shadow = fadd <4 x float> %26, %27, !precision !13
   store <4 x float> %mediumfout_shadow, <4 x float>* @mediumfout_shadow
   %28 = load i32 addrspace(2)* @uniform_low, !uniform !10
   %29 = load <2 x i32>* %constructed8
@@ -101,7 +101,7 @@ entry:
   %50 = insertelement <4 x float> %49, float %46, i32 2
   %51 = insertelement <4 x float> %50, float %46, i32 3
   %52 = load <4 x float>* @mediumfout_shadow
-  %mediumfout_shadow13 = fadd <4 x float> %52, %51
+  %mediumfout_shadow13 = fadd <4 x float> %52, %51, !precision !15
   store <4 x float> %mediumfout_shadow13, <4 x float>* @mediumfout_shadow
   br label %stage-epilogue
 
@@ -192,8 +192,8 @@ entry:
   %6 = sitofp i32 %sum11 to float
   %7 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %6, <4 x i32> zeroinitializer)
   %8 = fadd <4 x float> %5, <float 0x412F3F4860000000, float 0x412F3F4860000000, float 0x412F3F4860000000, float 0x412F3F4860000000>, !precision !14
-  %mediumfout_shadow = fadd <4 x float> %3, %8, !precision !14
-  %mediumfout_shadow13 = fadd <4 x float> %7, %mediumfout_shadow
+  %mediumfout_shadow = fadd <4 x float> %3, %8, !precision !15
+  %mediumfout_shadow13 = fadd <4 x float> %7, %mediumfout_shadow, !precision !14
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %mediumfout_shadow13), !output !12
   br label %stage-epilogue
 
@@ -272,8 +272,8 @@ void main()
     float temp34 = float(sum11);
     vec4 temp35 = vec4(temp34);
     mediump vec4 temp36 = temp25 + const37;
-    mediump vec4 mediumfout_shadow = temp23 + temp36;
-    vec4 mediumfout_shadow13 = temp35 + mediumfout_shadow;
+    highp vec4 mediumfout_shadow = temp23 + temp36;
+    mediump vec4 mediumfout_shadow13 = temp35 + mediumfout_shadow;
     mediumfout = mediumfout_shadow13;
     
 }
@@ -311,7 +311,7 @@ void main()
     vec4 temp34 = vec4(temp3413);
     mediump vec4 temp3616 = temp25 + const36;
     mediump vec4 mediumfout_shadow17 = temp23 + temp3616;
-    vec4 mediumfout_shadow1318 = mediumfout_shadow17 + temp34;
+    highp vec4 mediumfout_shadow1318 = mediumfout_shadow17 + temp34;
     mediumfout = mediumfout_shadow1318;
     
 }
