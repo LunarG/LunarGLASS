@@ -53,40 +53,40 @@ entry:
   store float %global_highp5, float* %global_highp
   %9 = load float* %global_highp
   %10 = load <4 x float>* %constructed
-  %11 = insertelement <4 x float> undef, float %9, i32 0
-  %12 = insertelement <4 x float> %11, float %9, i32 1
-  %13 = insertelement <4 x float> %12, float %9, i32 2
-  %local_highp6 = insertelement <4 x float> %13, float %9, i32 3
+  %11 = insertelement <4 x float> undef, float %9, i32 0, !precision !13
+  %12 = insertelement <4 x float> %11, float %9, i32 1, !precision !13
+  %13 = insertelement <4 x float> %12, float %9, i32 2, !precision !13
+  %local_highp6 = insertelement <4 x float> %13, float %9, i32 3, !precision !13
   store <4 x float> %local_highp6, <4 x float>* %local_highp
   %14 = load float* %d
   %15 = call float @llvm.gla.fSin.f32.f32(float %14), !precision !14
   %16 = load <4 x float>* %constructed7
-  %17 = insertelement <4 x float> undef, float %15, i32 0
-  %18 = insertelement <4 x float> %17, float %15, i32 1
-  %19 = insertelement <4 x float> %18, float %15, i32 2
-  %20 = insertelement <4 x float> %19, float %15, i32 3
+  %17 = insertelement <4 x float> undef, float %15, i32 0, !precision !15
+  %18 = insertelement <4 x float> %17, float %15, i32 1, !precision !15
+  %19 = insertelement <4 x float> %18, float %15, i32 2, !precision !15
+  %20 = insertelement <4 x float> %19, float %15, i32 3, !precision !15
   %21 = load float* %arg2
-  %22 = insertelement <4 x float> undef, float %21, i32 0
-  %23 = insertelement <4 x float> %22, float %21, i32 1
-  %24 = insertelement <4 x float> %23, float %21, i32 2
-  %25 = insertelement <4 x float> %24, float %21, i32 3
+  %22 = insertelement <4 x float> undef, float %21, i32 0, !precision !15
+  %23 = insertelement <4 x float> %22, float %21, i32 1, !precision !15
+  %24 = insertelement <4 x float> %23, float %21, i32 2, !precision !15
+  %25 = insertelement <4 x float> %24, float %21, i32 3, !precision !15
   %26 = fadd <4 x float> %20, %25, !precision !15
   %27 = load <4 x float>* %local_highp
   %mediumfout_shadow = fadd <4 x float> %26, %27, !precision !13
   store <4 x float> %mediumfout_shadow, <4 x float>* @mediumfout_shadow
   %28 = load i32 addrspace(2)* @uniform_low, !uniform !10
   %29 = load <2 x i32>* %constructed8
-  %30 = insertelement <2 x i32> undef, i32 %28, i32 0
-  %31 = insertelement <2 x i32> %30, i32 %28, i32 1
+  %30 = insertelement <2 x i32> undef, i32 %28, i32 0, !precision !14
+  %31 = insertelement <2 x i32> %30, i32 %28, i32 1, !precision !14
   %32 = load i32 addrspace(2)* @uniform_high, !uniform !8
   %33 = load <2 x i32>* %constructed9
-  %34 = insertelement <2 x i32> undef, i32 %32, i32 0
-  %35 = insertelement <2 x i32> %34, i32 %32, i32 1
+  %34 = insertelement <2 x i32> undef, i32 %32, i32 0, !precision !14
+  %35 = insertelement <2 x i32> %34, i32 %32, i32 1, !precision !14
   %36 = mul <2 x i32> %31, %35, !precision !14
   %37 = load i32 addrspace(2)* @uniform_high, !uniform !8
   %38 = load <2 x i32>* %constructed10
-  %39 = insertelement <2 x i32> undef, i32 %37, i32 0
-  %40 = insertelement <2 x i32> %39, i32 %37, i32 1
+  %39 = insertelement <2 x i32> undef, i32 %37, i32 0, !precision !14
+  %40 = insertelement <2 x i32> %39, i32 %37, i32 1, !precision !14
   %41 = add <2 x i32> %36, %40, !precision !14
   %42 = extractelement <2 x i32> %41, i32 0
   %43 = add i32 4, %42, !precision !14
@@ -94,12 +94,12 @@ entry:
   %sum11 = add i32 %44, %43, !precision !14
   store i32 %sum11, i32* %sum
   %45 = load i32* %sum
-  %46 = sitofp i32 %45 to float
+  %46 = sitofp i32 %45 to float, !precision !15
   %47 = load <4 x float>* %constructed12
-  %48 = insertelement <4 x float> undef, float %46, i32 0
-  %49 = insertelement <4 x float> %48, float %46, i32 1
-  %50 = insertelement <4 x float> %49, float %46, i32 2
-  %51 = insertelement <4 x float> %50, float %46, i32 3
+  %48 = insertelement <4 x float> undef, float %46, i32 0, !precision !15
+  %49 = insertelement <4 x float> %48, float %46, i32 1, !precision !15
+  %50 = insertelement <4 x float> %49, float %46, i32 2, !precision !15
+  %51 = insertelement <4 x float> %50, float %46, i32 3, !precision !15
   %52 = load <4 x float>* @mediumfout_shadow
   %mediumfout_shadow13 = fadd <4 x float> %52, %51, !precision !15
   store <4 x float> %mediumfout_shadow13, <4 x float>* @mediumfout_shadow
@@ -189,7 +189,7 @@ entry:
   %sum2 = add i32 %sum1, %2, !precision !15
   %sum3 = add i32 %sum2, %.lhs, !precision !13
   %sum11 = add i32 %sum3, %factor, !precision !13
-  %6 = sitofp i32 %sum11 to float
+  %6 = sitofp i32 %sum11 to float, !precision !14
   %7 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %6, <4 x i32> zeroinitializer)
   %8 = fadd <4 x float> %5, <float 0x412F3F4860000000, float 0x412F3F4860000000, float 0x412F3F4860000000, float 0x412F3F4860000000>, !precision !14
   %mediumfout_shadow = fadd <4 x float> %3, %8, !precision !15
@@ -269,7 +269,7 @@ void main()
     highp int sum2 = sum1 + uniform_low;
     lowp int sum3 = sum2 + dlhs;
     lowp int sum11 = sum3 + factor;
-    float temp34 = float(sum11);
+    mediump float temp34 = float(sum11);
     vec4 temp35 = vec4(temp34);
     mediump vec4 temp36 = temp25 + const37;
     highp vec4 mediumfout_shadow = temp23 + temp36;
@@ -307,7 +307,7 @@ void main()
     highp int sum210 = uniform_low + const30i_4;
     highp int sum311 = sum210 + uniform_medium;
     mediump int sum1112 = sum311 + tmp21;
-    float temp3413 = float(sum1112);
+    mediump float temp3413 = float(sum1112);
     vec4 temp34 = vec4(temp3413);
     mediump vec4 temp3616 = temp25 + const36;
     mediump vec4 mediumfout_shadow17 = temp23 + temp3616;

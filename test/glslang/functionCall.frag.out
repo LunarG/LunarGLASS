@@ -33,16 +33,16 @@ entry:
   store float %g4, float* %g
   %5 = load <4 x float>* %color
   %6 = load float* %f
-  %7 = insertelement <4 x float> undef, float %6, i32 0
-  %8 = insertelement <4 x float> %7, float %6, i32 1
-  %9 = insertelement <4 x float> %8, float %6, i32 2
-  %10 = insertelement <4 x float> %9, float %6, i32 3
+  %7 = insertelement <4 x float> undef, float %6, i32 0, !precision !6
+  %8 = insertelement <4 x float> %7, float %6, i32 1, !precision !6
+  %9 = insertelement <4 x float> %8, float %6, i32 2, !precision !6
+  %10 = insertelement <4 x float> %9, float %6, i32 3, !precision !6
   %11 = fmul <4 x float> %5, %10, !precision !6
   %12 = load float* @h
-  %13 = insertelement <4 x float> undef, float %12, i32 0
-  %14 = insertelement <4 x float> %13, float %12, i32 1
-  %15 = insertelement <4 x float> %14, float %12, i32 2
-  %16 = insertelement <4 x float> %15, float %12, i32 3
+  %13 = insertelement <4 x float> undef, float %12, i32 0, !precision !6
+  %14 = insertelement <4 x float> %13, float %12, i32 1, !precision !6
+  %15 = insertelement <4 x float> %14, float %12, i32 2, !precision !6
+  %16 = insertelement <4 x float> %15, float %12, i32 3, !precision !6
   %FragColor_shadow = fmul <4 x float> %11, %16, !precision !6
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue

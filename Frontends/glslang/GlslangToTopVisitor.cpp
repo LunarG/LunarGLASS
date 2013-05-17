@@ -552,6 +552,8 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
 
     assert(node->getOp());
 
+    gla::EMdPrecision precision = getMdPrecision(node->getType());
+
     switch (node->getOp()) {
     case EOpSequence:
         {
@@ -675,9 +677,9 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             } else {
                 constructed = oit->glaBuilder->createLoad(constructed);
                 if (isMatrix)
-                    constructed = oit->glaBuilder->createMatrixConstructor(arguments, constructed);
+                    constructed = oit->glaBuilder->createMatrixConstructor(precision, arguments, constructed);
                 else
-                    constructed = oit->glaBuilder->createConstructor(arguments, constructed);
+                    constructed = oit->glaBuilder->createConstructor(precision, arguments, constructed);
                 oit->glaBuilder->clearAccessChain();
                 oit->glaBuilder->setAccessChainRValue(constructed);
             }
@@ -738,8 +740,6 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     //
     // See if it maps to a regular operation or intrinsic.
     //
-
-    gla::EMdPrecision precision = getMdPrecision(node->getType());
 
     if (binOp != EOpNull) {
         oit->glaBuilder->clearAccessChain();
@@ -1505,7 +1505,7 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
         }
 
         if (needsPromotion)
-            glaBuilder->promoteScalar(left, right);
+            glaBuilder->promoteScalar(precision, left, right);
 
         llvm::Value* value = llvmBuilder.CreateBinOp(binOp, left, right);
         glaBuilder->setInstructionPrecision(value, precision);
@@ -1641,7 +1641,7 @@ llvm::Value* TGlslangToTopTraverser::createUnaryOperation(TOperator op, gla::EMd
     case EOpMatrixInverse:
         return glaBuilder->createMatrixInverse(precision, operand);
     case EOpTranspose:
-        return glaBuilder->createMatrixTranspose(operand);
+        return glaBuilder->createMatrixTranspose(precision, operand);
     }
 
     return 0;
@@ -1654,7 +1654,7 @@ llvm::Value* TGlslangToTopTraverser::createConversion(TOperator op, gla::EMdPrec
     case EOpConvIntToBool:
     case EOpConvUintToBool:
         // any non-zero integer should return true
-        return createBinaryOperation(EOpNotEqual, gla::EMpNone, operand, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), false);
+        return createBinaryOperation(EOpNotEqual, precision, operand, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), false);
     case EOpConvFloatToBool:
         castOp = llvm::Instruction::FPToUI;  // TODO: functionality: should this be a test against 0.0?
         break;
@@ -1703,10 +1703,14 @@ llvm::Value* TGlslangToTopTraverser::createConversion(TOperator op, gla::EMdPrec
         break;
     }
 
-    if (castOp != 0)
-        return llvmBuilder.CreateCast(castOp, operand, destType);
+    if (castOp == 0)
 
-    return 0;
+        return 0;
+
+    llvm::Value* result = llvmBuilder.CreateCast(castOp, operand, destType);
+    glaBuilder->setInstructionPrecision(result, precision);
+
+    return result;
 }
 
 llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(TOperator op, gla::EMdPrecision precision, llvm::Value* operand)

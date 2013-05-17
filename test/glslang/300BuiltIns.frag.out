@@ -121,12 +121,12 @@ entry:
   store <2 x i32> %u9, <2 x i32>* %u
   %27 = load <2 x i32>* %u
   %28 = load <4 x i32>* %constructed10
-  %29 = extractelement <2 x i32> %27, i32 0
-  %30 = insertelement <4 x i32> %28, i32 %29, i32 0
-  %31 = extractelement <2 x i32> %27, i32 1
-  %32 = insertelement <4 x i32> %30, i32 %31, i32 1
-  %33 = insertelement <4 x i32> %32, i32 0, i32 2
-  %34 = insertelement <4 x i32> %33, i32 0, i32 3
+  %29 = extractelement <2 x i32> %27, i32 0, !precision !45
+  %30 = insertelement <4 x i32> %28, i32 %29, i32 0, !precision !45
+  %31 = extractelement <2 x i32> %27, i32 1, !precision !45
+  %32 = insertelement <4 x i32> %30, i32 %31, i32 1, !precision !45
+  %33 = insertelement <4 x i32> %32, i32 0, i32 2, !precision !45
+  %34 = insertelement <4 x i32> %33, i32 0, i32 3, !precision !45
   %35 = load <4 x i32>* %usum
   %usum11 = add <4 x i32> %35, %34, !precision !45
   store <4 x i32> %usum11, <4 x i32>* %usum
@@ -150,13 +150,13 @@ entry:
   store <3 x i32> %i1713, <3 x i32>* %i17
   %42 = load <3 x i32>* %i17
   %43 = load <4 x i32>* %constructed14
-  %44 = extractelement <3 x i32> %42, i32 0
-  %45 = insertelement <4 x i32> %43, i32 %44, i32 0
-  %46 = extractelement <3 x i32> %42, i32 1
-  %47 = insertelement <4 x i32> %45, i32 %46, i32 1
-  %48 = extractelement <3 x i32> %42, i32 2
-  %49 = insertelement <4 x i32> %47, i32 %48, i32 2
-  %50 = insertelement <4 x i32> %49, i32 0, i32 3
+  %44 = extractelement <3 x i32> %42, i32 0, !precision !45
+  %45 = insertelement <4 x i32> %43, i32 %44, i32 0, !precision !45
+  %46 = extractelement <3 x i32> %42, i32 1, !precision !45
+  %47 = insertelement <4 x i32> %45, i32 %46, i32 1, !precision !45
+  %48 = extractelement <3 x i32> %42, i32 2, !precision !45
+  %49 = insertelement <4 x i32> %47, i32 %48, i32 2, !precision !45
+  %50 = insertelement <4 x i32> %49, i32 0, i32 3, !precision !45
   %51 = load <4 x i32>* %isum
   %isum15 = add <4 x i32> %51, %50, !precision !45
   store <4 x i32> %isum15, <4 x i32>* %isum
@@ -187,14 +187,14 @@ entry:
   %60 = load <2 x i32>* %u10
   %61 = load <2 x i32>* %u11
   %62 = load <4 x i32>* %constructed24
-  %63 = extractelement <2 x i32> %60, i32 0
-  %64 = insertelement <4 x i32> %62, i32 %63, i32 0
-  %65 = extractelement <2 x i32> %60, i32 1
-  %66 = insertelement <4 x i32> %64, i32 %65, i32 1
-  %67 = extractelement <2 x i32> %61, i32 0
-  %68 = insertelement <4 x i32> %66, i32 %67, i32 2
-  %69 = extractelement <2 x i32> %61, i32 1
-  %70 = insertelement <4 x i32> %68, i32 %69, i32 3
+  %63 = extractelement <2 x i32> %60, i32 0, !precision !45
+  %64 = insertelement <4 x i32> %62, i32 %63, i32 0, !precision !45
+  %65 = extractelement <2 x i32> %60, i32 1, !precision !45
+  %66 = insertelement <4 x i32> %64, i32 %65, i32 1, !precision !45
+  %67 = extractelement <2 x i32> %61, i32 0, !precision !45
+  %68 = insertelement <4 x i32> %66, i32 %67, i32 2, !precision !45
+  %69 = extractelement <2 x i32> %61, i32 1, !precision !45
+  %70 = insertelement <4 x i32> %68, i32 %69, i32 3, !precision !45
   %71 = load <4 x i32>* %usum
   %usum25 = add <4 x i32> %71, %70, !precision !45
   store <4 x i32> %usum25, <4 x i32>* %usum
@@ -233,12 +233,12 @@ entry:
   store <2 x i32> %u1234, <2 x i32>* %u12
   %85 = load <2 x i32>* %u12
   %86 = load <4 x i32>* %constructed35
-  %87 = extractelement <2 x i32> %85, i32 0
-  %88 = insertelement <4 x i32> %86, i32 %87, i32 0
-  %89 = extractelement <2 x i32> %85, i32 1
-  %90 = insertelement <4 x i32> %88, i32 %89, i32 1
-  %91 = insertelement <4 x i32> %90, i32 0, i32 2
-  %92 = insertelement <4 x i32> %91, i32 0, i32 3
+  %87 = extractelement <2 x i32> %85, i32 0, !precision !45
+  %88 = insertelement <4 x i32> %86, i32 %87, i32 0, !precision !45
+  %89 = extractelement <2 x i32> %85, i32 1, !precision !45
+  %90 = insertelement <4 x i32> %88, i32 %89, i32 1, !precision !45
+  %91 = insertelement <4 x i32> %90, i32 0, i32 2, !precision !45
+  %92 = insertelement <4 x i32> %91, i32 0, i32 3, !precision !45
   %93 = load <4 x i32>* %usum
   %usum36 = add <4 x i32> %93, %92, !precision !45
   store <4 x i32> %usum36, <4 x i32>* %usum
@@ -298,18 +298,18 @@ entry:
   %b1148 = call <4 x i1> @llvm.gla.fIsInf.v4i1.v4f32(<4 x float> %122)
   store <4 x i1> %b1148, <4 x i1>* %b11
   %123 = load <2 x i1>* %b10
-  %124 = zext <2 x i1> %123 to <2 x i32>
+  %124 = zext <2 x i1> %123 to <2 x i32>, !precision !45
   %125 = load <4 x i1>* %b11
-  %126 = zext <4 x i1> %125 to <4 x i32>
+  %126 = zext <4 x i1> %125 to <4 x i32>, !precision !45
   %127 = load <4 x i32>* %constructed49
-  %128 = extractelement <2 x i32> %124, i32 0
-  %129 = insertelement <4 x i32> %127, i32 %128, i32 0
-  %130 = extractelement <2 x i32> %124, i32 1
-  %131 = insertelement <4 x i32> %129, i32 %130, i32 1
-  %132 = extractelement <4 x i32> %126, i32 0
-  %133 = insertelement <4 x i32> %131, i32 %132, i32 2
-  %134 = extractelement <4 x i32> %126, i32 1
-  %135 = insertelement <4 x i32> %133, i32 %134, i32 3
+  %128 = extractelement <2 x i32> %124, i32 0, !precision !45
+  %129 = insertelement <4 x i32> %127, i32 %128, i32 0, !precision !45
+  %130 = extractelement <2 x i32> %124, i32 1, !precision !45
+  %131 = insertelement <4 x i32> %129, i32 %130, i32 1, !precision !45
+  %132 = extractelement <4 x i32> %126, i32 0, !precision !45
+  %133 = insertelement <4 x i32> %131, i32 %132, i32 2, !precision !45
+  %134 = extractelement <4 x i32> %126, i32 1, !precision !45
+  %135 = insertelement <4 x i32> %133, i32 %134, i32 3, !precision !45
   %136 = load <4 x i32>* %isum
   %isum50 = add <4 x i32> %136, %135, !precision !45
   store <4 x i32> %isum50, <4 x i32>* %isum
@@ -320,10 +320,10 @@ entry:
   store i32 %i52, i32* %i
   %138 = load i32* %i
   %139 = load <4 x i32>* %constructed53
-  %140 = insertelement <4 x i32> undef, i32 %138, i32 0
-  %141 = insertelement <4 x i32> %140, i32 %138, i32 1
-  %142 = insertelement <4 x i32> %141, i32 %138, i32 2
-  %143 = insertelement <4 x i32> %142, i32 %138, i32 3
+  %140 = insertelement <4 x i32> undef, i32 %138, i32 0, !precision !45
+  %141 = insertelement <4 x i32> %140, i32 %138, i32 1, !precision !45
+  %142 = insertelement <4 x i32> %141, i32 %138, i32 2, !precision !45
+  %143 = insertelement <4 x i32> %142, i32 %138, i32 3, !precision !45
   %144 = load <4 x i32>* %isum
   %isum54 = add <4 x i32> %144, %143, !precision !45
   store <4 x i32> %isum54, <4 x i32>* %isum
@@ -391,10 +391,10 @@ entry:
   %168 = load i32* %u15
   %169 = load i32* %u17
   %170 = load <4 x i32>* %constructed74
-  %171 = insertelement <4 x i32> %170, i32 %167, i32 0
-  %172 = insertelement <4 x i32> %171, i32 %168, i32 1
-  %173 = insertelement <4 x i32> %172, i32 %169, i32 2
-  %174 = insertelement <4 x i32> %173, i32 0, i32 3
+  %171 = insertelement <4 x i32> %170, i32 %167, i32 0, !precision !45
+  %172 = insertelement <4 x i32> %171, i32 %168, i32 1, !precision !45
+  %173 = insertelement <4 x i32> %172, i32 %169, i32 2, !precision !45
+  %174 = insertelement <4 x i32> %173, i32 0, i32 3, !precision !45
   %175 = load <4 x i32>* %usum
   %usum75 = add <4 x i32> %175, %174, !precision !45
   store <4 x i32> %usum75, <4 x i32>* %usum
@@ -606,7 +606,7 @@ entry:
   %v1241 = call <2 x float> @llvm.gla.fRoundFast.v2f32.v2f32(<2 x float> %v2a__)
   %v1343 = call <2 x float> @llvm.gla.fRoundEven.v2f32.v2f32(<2 x float> %v2a__)
   %b1047 = call <2 x i1> @llvm.gla.fIsNan.v2i1.v2f32(<2 x float> %v2a__)
-  %4 = zext <2 x i1> %b1047 to <2 x i32>
+  %4 = zext <2 x i1> %b1047 to <2 x i32>, !precision !45
   %i52 = call i32 @llvm.gla.fFloatBitsToInt.i32.f32(float %f__), !precision !45
   %5 = call <4 x i32> @llvm.gla.swizzle.v4i32.i32.v4i32(i32 %i52, <4 x i32> zeroinitializer)
   %v1560 = call <2 x float> @llvm.gla.fIntBitsTofloat.v2f32.v2i32(<2 x i32> %uv2c__), !precision !45
@@ -643,7 +643,7 @@ entry:
   %v2b__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1038, i32 -1, i32 1), !input !34, !precision !46
   %u1568 = call i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float> %v2a__), !precision !46
   %19 = call <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32> %iv4a__3), !precision !45
-  %20 = zext <4 x i1> %b1148 to <4 x i32>
+  %20 = zext <4 x i1> %b1148 to <4 x i32>, !precision !45
   %sum45 = fadd <4 x float> %sum40, %16
   %21 = load i32 addrspace(2)* @umax, align 4, !uniform !43
   %22 = load i32 addrspace(2)* @umin, align 4, !uniform !41
@@ -877,7 +877,7 @@ void main()
     vec2 temp29 = round(v2a);
     vec2 temp30 = roundEven(v2a);
     bvec2 temp31 = isnan(v2a);
-    ivec2 temp32 = ivec2(temp31);
+    mediump ivec2 temp32 = ivec2(temp31);
     mediump int temp33 = floatBitsToInt(f);
     ivec4 temp34 = ivec4(temp33);
     mediump vec2 temp35 = intBitsTofloat(uv2c);
@@ -907,7 +907,7 @@ void main()
     mediump ivec4 usum12 = temp51 + temp50;
     highp int temp62 = packUnorm2x16(v2a);
     mediump vec4 temp63 = intBitsTofloat(iv4a);
-    ivec4 temp64 = ivec4(temp55);
+    mediump ivec4 temp64 = ivec4(temp55);
     vec4 sum45 = sum40 + temp56;
     ivec4 temp66 = ivec4(temp26.x, temp26.y, const46i_0, const46i_0);
     mediump ivec4 temp67 = clamp(iv4a, imin, imax);

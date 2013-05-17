@@ -296,7 +296,7 @@ llvm::Value* Builder::accessChainLoad()
         UnsupportedFunctionality("extract from variable vector component");
 
     if (accessChain.swizzle.size())
-        value = createSwizzle(value, accessChain.swizzle, accessChain.swizzleResultType);
+        value = createSwizzle(EMpNone, value, accessChain.swizzle, accessChain.swizzleResultType);
 
     return value;
 }
@@ -737,13 +737,17 @@ llvm::Value* Builder::readPipeline(gla::EMdPrecision precision,
     return readInstr;
 }
 
-llvm::Value* Builder::createSwizzle(llvm::Value* source, int swizzleMask, llvm::Type* finalType)
+llvm::Value* Builder::createSwizzle(gla::EMdPrecision precision, llvm::Value* source, int swizzleMask, llvm::Type* finalType)
 {
     const int numComponents = gla::GetComponentCount(finalType);
 
     // If we are dealing with a scalar, just put it in a register and return
-    if (numComponents == 1)
-        return builder.CreateExtractElement(source, gla::MakeIntConstant(context, gla::GetSwizzle(swizzleMask, 0)));
+    if (numComponents == 1) {
+        llvm::Value* result = builder.CreateExtractElement(source, gla::MakeIntConstant(context, gla::GetSwizzle(swizzleMask, 0)));
+        setInstructionPrecision(result, precision);
+
+        return result;
+    }
 
     // Else we are dealing with a vector
 
@@ -756,24 +760,26 @@ llvm::Value* Builder::createSwizzle(llvm::Value* source, int swizzleMask, llvm::
         // make inserts. Otherwise make insert/extract pairs
         if (IsScalar(source)) {
             target = builder.CreateInsertElement(target, source, gla::MakeIntConstant(context, i));
+            setInstructionPrecision(target, precision);
         } else {
             // Extract an element to a scalar, then immediately insert to our target
             llvm::Value* extractInst = builder.CreateExtractElement(source, gla::MakeIntConstant(context, gla::GetSwizzle(swizzleMask, i)));
             target = builder.CreateInsertElement(target, extractInst, gla::MakeIntConstant(context, i));
+            setInstructionPrecision(target, precision);
         }
     }
 
     return target;
 }
 
-llvm::Value* Builder::createSwizzle(llvm::Value* source, llvm::ArrayRef<int> channels, llvm::Type* finalType)
+llvm::Value* Builder::createSwizzle(gla::EMdPrecision precision, llvm::Value* source, llvm::ArrayRef<int> channels, llvm::Type* finalType)
 {
     int swizMask = 0;
     for (unsigned int i = 0; i < channels.size(); ++i) {
         swizMask |= channels[i] << i*2;
     }
 
-    return createSwizzle(source, swizMask, finalType);
+    return createSwizzle(precision, source, swizMask, finalType);
 }
 
 //
@@ -892,7 +898,7 @@ llvm::Value* Builder::createMatrixCompare(EMdPrecision precision, llvm::Value* l
     return createCompare(precision, left, right, allEqual);
 }
 
-llvm::Value* Builder::createMatrixTranspose(llvm::Value* matrix)
+llvm::Value* Builder::createMatrixTranspose(EMdPrecision precision, llvm::Value* matrix)
 {
     // Will use a two step process
     // 1. make a compile-time C++ 2D array of element values
@@ -902,8 +908,10 @@ llvm::Value* Builder::createMatrixTranspose(llvm::Value* matrix)
     llvm::Value* elements[4][4];
     for (int col = 0; col < GetNumColumns(matrix); ++col) {
         llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
-        for (int row = 0; row < GetNumRows(matrix); ++row)
+        for (int row = 0; row < GetNumRows(matrix); ++row) {
             elements[col][row] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "element");
+            setInstructionPrecision(elements[col][row], precision);
+        }
     }
 
     // make a new variable to hold the result
@@ -914,10 +922,13 @@ llvm::Value* Builder::createMatrixTranspose(llvm::Value* matrix)
     // Step 2, copy in while transposing
     for (int col = 0; col < GetNumColumns(result); ++col) {
         llvm::Value* column = builder.CreateExtractValue(result, col, "column");
+        setInstructionPrecision(column, precision);
         for (int row = 0; row < GetNumRows(result); ++row) {
             column = builder.CreateInsertElement(column, elements[row][col], MakeIntConstant(context, row), "column");
+            setInstructionPrecision(column, precision);
         }
         result = builder.CreateInsertValue(result, column, col, "matrix");
+        setInstructionPrecision(result, precision);
     }
 
     return result;
@@ -932,8 +943,11 @@ llvm::Value* Builder::createMatrixInverse(gla::EMdPrecision precision, llvm::Val
     llvm::Value* elements[4][4];
     for (int col = 0; col < size; ++col) {
         llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
-        for (int row = 0; row < size; ++row)
+        setInstructionPrecision(column, precision);
+        for (int row = 0; row < size; ++row) {
             elements[row][col] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "element");
+            setInstructionPrecision(elements[row][col], precision);
+        }
     }
 
     // Create the adjugate (the transpose of the cofactors)
@@ -974,10 +988,13 @@ llvm::Value* Builder::createMatrixInverse(gla::EMdPrecision precision, llvm::Val
 
     for (int col = 0; col < size; ++col) {
         llvm::Value* column = builder.CreateExtractValue(result, col, "column");
+        setInstructionPrecision(column, precision);
         for (int row = 0; row < size; ++row) {
             column = builder.CreateInsertElement(column, adjugate[row][col], MakeIntConstant(context, row), "column");
+            setInstructionPrecision(column, precision);
         }
         result = builder.CreateInsertValue(result, column, col, "matrix");
+        setInstructionPrecision(result, precision);
     }
 
     return result;
@@ -991,8 +1008,11 @@ llvm::Value* Builder::createMatrixDeterminant(gla::EMdPrecision precision, llvm:
     llvm::Value* elements[4][4];
     for (int col = 0; col < size; ++col) {
         llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
-        for (int row = 0; row < size; ++row)
+        setInstructionPrecision(column, precision);
+        for (int row = 0; row < size; ++row) {
             elements[row][col] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "element");
+            setInstructionPrecision(elements[row][col], precision);
+        }
     }
 
     // Compute the determinant from the copied out values
@@ -1068,15 +1088,19 @@ llvm::Value* Builder::createMatrixTimesVector(gla::EMdPrecision precision, llvm:
 
     // Cache the components of the vector; they'll be revisited multiple times
     llvm::Value* components[4];
-    for (int comp = 0; comp < GetComponentCount(rvector); ++comp)
+    for (int comp = 0; comp < GetComponentCount(rvector); ++comp) {
         components[comp] = builder.CreateExtractElement(rvector,  MakeUnsignedConstant(context, comp), "component");
+        setInstructionPrecision(components[comp], precision);
+    }
 
     // Go row by row, manually forming the cross-column "dot product"
     for (int row = 0; row < GetNumRows(matrix); ++row) {
         llvm::Value* dotProduct;
         for (int col = 0; col < GetNumColumns(matrix); ++col) {
             llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
+            setInstructionPrecision(column, precision);
             llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "element");
+            setInstructionPrecision(element, precision);
             llvm::Value* product = builder.CreateFMul(element, components[col], "product");
             setInstructionPrecision(product, precision);
             if (col == 0)
@@ -1087,6 +1111,7 @@ llvm::Value* Builder::createMatrixTimesVector(gla::EMdPrecision precision, llvm:
             }
         }
         result = builder.CreateInsertElement(result, dotProduct, MakeUnsignedConstant(context, row));
+        setInstructionPrecision(result, precision);
     }
 
     return result;
@@ -1119,9 +1144,11 @@ llvm::Value* Builder::createVectorTimesMatrix(gla::EMdPrecision precision, llvm:
     // Compute the dot products for the result
     for (int c = 0; c < GetNumColumns(matrix); ++c) {
         llvm::Value* column = builder.CreateExtractValue(matrix, c, "column");
+        setInstructionPrecision(column, precision);
         llvm::Instruction* comp = builder.CreateCall2(dot, lvector, column, "dot");
         setInstructionPrecision(comp, precision);
         result = builder.CreateInsertElement(result, comp, MakeUnsignedConstant(context, c));
+        setInstructionPrecision(result, precision);
     }
 
     return result;
@@ -1136,10 +1163,13 @@ llvm::Value* Builder::createComponentWiseMatrixOp(gla::EMdPrecision precision, l
     // Compute the component-wise operation per column vector
     for (int c = 0; c < GetNumColumns(left); ++c) {
         llvm::Value*  leftColumn = builder.CreateExtractValue( left, c,  "leftColumn");
+        setInstructionPrecision(leftColumn, precision);
         llvm::Value* rightColumn = builder.CreateExtractValue(right, c, "rightColumn");
+        setInstructionPrecision(rightColumn, precision);
         llvm::Value* column = builder.CreateBinOp(op, leftColumn, rightColumn, "column");
         setInstructionPrecision(column, precision);
         result = builder.CreateInsertValue(result, column, c);
+        setInstructionPrecision(result, precision);
     }
 
     return result;
@@ -1155,18 +1185,22 @@ llvm::Value* Builder::createSmearedMatrixOp(gla::EMdPrecision precision, llvm::I
     // Compute per column vector
     for (int c = 0; c < GetNumColumns(matrix); ++c) {
         llvm::Value* column = builder.CreateExtractValue(matrix, c, "column");
+        setInstructionPrecision(column, precision);
 
         for (int r = 0; r < GetNumRows(matrix); ++r) {
             llvm::Value* element = builder.CreateExtractElement(column, MakeUnsignedConstant(context, r), "row");
+            setInstructionPrecision(element, precision);
             if (reverseOrder)
                 element = builder.CreateBinOp(op, scalar, element);
             else
                 element = builder.CreateBinOp(op, element, scalar);
             setInstructionPrecision(element, precision);
             column = builder.CreateInsertElement(column, element, MakeUnsignedConstant(context, r));
+            setInstructionPrecision(column, precision);
         }
 
         result = builder.CreateInsertValue(result, column, c);
+        setInstructionPrecision(result, precision);
     }
 
     return result;
@@ -1186,25 +1220,32 @@ llvm::Value* Builder::createMatrixTimesMatrix(gla::EMdPrecision precision, llvm:
 
     for (int col = 0; col < columns; ++col) {
         llvm::Value* rightColumn = builder.CreateExtractValue(right, col, "rightColumn");
+        setInstructionPrecision(rightColumn, precision);
         for (int row = 0; row < rows; ++row) {
             llvm::Value* dotProduct;
 
             for (int dotRow = 0; dotRow < GetNumRows(right); ++dotRow) {
                 llvm::Value* leftColumn = builder.CreateExtractValue(left, dotRow,  "leftColumn");
+                setInstructionPrecision(leftColumn, precision);
                 llvm::Value* leftComp = builder.CreateExtractElement(leftColumn, MakeUnsignedConstant(context, row), "leftComp");
+                setInstructionPrecision(leftComp, precision);
                 llvm::Value* rightComp = builder.CreateExtractElement(rightColumn, MakeUnsignedConstant(context, dotRow), "rightComp");
+                setInstructionPrecision(rightComp, precision);
                 llvm::Value* product = builder.CreateFMul(leftComp, rightComp, "product");
                 setInstructionPrecision(product, precision);
                 if (dotRow == 0)
                     dotProduct = product;
-                else
+                else {
                     dotProduct = builder.CreateFAdd(dotProduct, product, "dotProduct");
-                setInstructionPrecision(dotProduct, precision);
+                    setInstructionPrecision(dotProduct, precision);
+                }
             }
             column = builder.CreateInsertElement(column, dotProduct, MakeUnsignedConstant(context, row), "column");
+            setInstructionPrecision(column, precision);
         }
 
         result = builder.CreateInsertValue(result, column, col, "resultMatrix");
+        setInstructionPrecision(result, precision);
     }
 
     return result;
@@ -1225,13 +1266,17 @@ llvm::Value* Builder::createOuterProduct(gla::EMdPrecision precision, llvm::Valu
     // Build it up column by column, element by element
     for (int col = 0; col < columns; ++col) {
         llvm::Value* rightComp = builder.CreateExtractElement(right, MakeUnsignedConstant(context, col), "rightComp");
+        setInstructionPrecision(rightComp, precision);
         for (int row = 0; row < rows; ++row) {
             llvm::Value*  leftComp = builder.CreateExtractElement( left, MakeUnsignedConstant(context, row),  "leftComp");
+            setInstructionPrecision(leftComp, precision);
             llvm::Value* element = builder.CreateFMul(leftComp, rightComp, "element");
             setInstructionPrecision(element, precision);
             column = builder.CreateInsertElement(column, element, MakeUnsignedConstant(context, row), "column");
+            setInstructionPrecision(column, precision);
         }
         result = builder.CreateInsertValue(result, column, col, "matrix");
+        setInstructionPrecision(result, precision);
     }
 
     return result;
@@ -1299,7 +1344,7 @@ llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, llvm::Type* type1,
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes);
 }
 
-void Builder::promoteScalar(llvm::Value*& left, llvm::Value*& right)
+void Builder::promoteScalar(gla::EMdPrecision precision, llvm::Value*& left, llvm::Value*& right)
 {
     int direction;
     if (const llvm::PointerType* pointer = llvm::dyn_cast<const llvm::PointerType>(left->getType()))
@@ -1308,17 +1353,18 @@ void Builder::promoteScalar(llvm::Value*& left, llvm::Value*& right)
         direction = GetComponentCount(right) - GetComponentCount(left);
 
     if (direction > 0)
-        left = gla::Builder::smearScalar(left, right->getType());
+        left = gla::Builder::smearScalar(precision, left, right->getType());
     else if (direction < 0)
-        right = gla::Builder::smearScalar(right, left->getType());
+        right = gla::Builder::smearScalar(precision, right, left->getType());
 
     return;
 }
 
-llvm::Value* Builder::smearScalar(llvm::Value* scalar, llvm::Type* vectorType)
+llvm::Value* Builder::smearScalar(gla::EMdPrecision precision, llvm::Value* scalar, llvm::Type* vectorType)
 {
     assert(gla::IsScalar(scalar->getType()));
-    return createSwizzle(scalar, 0x00, vectorType);
+
+    return createSwizzle(precision, scalar, 0x00, vectorType);
 }
 
 // Accept all parameters needed to create LunarGLASS texture intrinsics
@@ -1558,7 +1604,7 @@ llvm::Value* Builder::createSamplePositionCall(gla::EMdPrecision precision, llvm
     return instr;
 }
 
-llvm::Value* Builder::createBitFieldExtractCall(llvm::Value* value, llvm::Value* offset, llvm::Value* bits, bool isSigned)
+llvm::Value* Builder::createBitFieldExtractCall(gla::EMdPrecision precision, llvm::Value* value, llvm::Value* offset, llvm::Value* bits, bool isSigned)
 {
     llvm::Intrinsic::ID intrinsicID = isSigned ? llvm::Intrinsic::gla_sBitFieldExtract
                                                : llvm::Intrinsic::gla_uBitFieldExtract;
@@ -1571,10 +1617,13 @@ llvm::Value* Builder::createBitFieldExtractCall(llvm::Value* value, llvm::Value*
 
     assert(intrinsicName);
 
-    return builder.CreateCall3(intrinsicName, value, offset, bits);
+    llvm::Instruction* instr = builder.CreateCall3(intrinsicName, value, offset, bits);
+    setInstructionPrecision(instr, precision);
+
+    return instr;
 }
 
-llvm::Value* Builder::createBitFieldInsertCall(llvm::Value* base, llvm::Value* insert, llvm::Value* offset, llvm::Value* bits)
+llvm::Value* Builder::createBitFieldInsertCall(gla::EMdPrecision precision, llvm::Value* base, llvm::Value* insert, llvm::Value* offset, llvm::Value* bits)
 {
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::gla_bitFieldInsert;
 
@@ -1586,7 +1635,10 @@ llvm::Value* Builder::createBitFieldInsertCall(llvm::Value* base, llvm::Value* i
 
     assert(intrinsicName);
 
-    return builder.CreateCall4(intrinsicName, base, insert, offset, bits);
+    llvm::Instruction* instr = builder.CreateCall4(intrinsicName, base, insert, offset, bits);
+    setInstructionPrecision(instr, precision);
+
+    return instr;
 }
 
 llvm::Value* Builder::createRecip(gla::EMdPrecision precision, llvm::Value* operand)
@@ -1666,7 +1718,9 @@ llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* va
     for (int element = 0; element < numElements; ++element) {
         // Get intermediate comparison values
         llvm::Value* element1 = builder.CreateExtractValue(value1, element, "element1");
+        setInstructionPrecision(element1, precision);
         llvm::Value* element2 = builder.CreateExtractValue(value2, element, "element2");
+        setInstructionPrecision(element2, precision);
 
         llvm::Value* subResult = createCompare(precision, element1, element2, equal);
 
@@ -1678,6 +1732,7 @@ llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* va
                 result = builder.CreateAnd(result, subResult);
             else
                 result = builder.CreateOr(result, subResult);
+            setInstructionPrecision(result, precision);
         }
     }
 
@@ -1758,10 +1813,15 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
 
     // Handle special return types here.  Things that don't have same result type as parameter
     switch (intrinsicID) {
-    case llvm::Intrinsic::gla_fModF:
-        intrinsicName = getIntrinsic(intrinsicID, lhs->getType(), lhs->getType(), rhs->getType());
-        // TODO: functionality: fModf has two return values, doesn't fit the pattern
-        return builder.CreateCall(lhs);  // TODO: precision?
+    case llvm::Intrinsic::gla_fModF: 
+        {
+            intrinsicName = getIntrinsic(intrinsicID, lhs->getType(), lhs->getType(), rhs->getType());
+            // TODO: functionality: fModf has two return values, doesn't fit the pattern
+            llvm::Instruction* instr = builder.CreateCall(lhs);
+            setInstructionPrecision(instr, precision);
+        
+            return instr;
+        }
     case llvm::Intrinsic::gla_fDistance:
     case llvm::Intrinsic::gla_fDot2:
     case llvm::Intrinsic::gla_fDot3:
@@ -1796,7 +1856,7 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     return instr;
 }
 
-llvm::Value* Builder::createConstructor(const std::vector<llvm::Value*>& sources, llvm::Value* constructee)
+llvm::Value* Builder::createConstructor(gla::EMdPrecision precision, const std::vector<llvm::Value*>& sources, llvm::Value* constructee)
 {
     unsigned int numTargetComponents = GetComponentCount(constructee);
     unsigned int targetComponent = 0;
@@ -1804,7 +1864,7 @@ llvm::Value* Builder::createConstructor(const std::vector<llvm::Value*>& sources
     // Special case: when calling a vector constructor with a single scalar
     // argument, smear the scalar
     if (sources.size() == 1 && IsScalar(sources[0]) && numTargetComponents > 1) {
-        return smearScalar(sources[0], constructee->getType());
+        return smearScalar(precision, sources[0], constructee->getType());
     }
 
     for (unsigned int i = 0; i < sources.size(); ++i) {
@@ -1819,11 +1879,14 @@ llvm::Value* Builder::createConstructor(const std::vector<llvm::Value*>& sources
 
         for (unsigned int s = 0; s < sourcesToUse; ++s) {
             llvm::Value* arg = sources[i];
-            if (sourceSize > 1)
+            if (sourceSize > 1) {
                 arg = builder.CreateExtractElement(arg, MakeIntConstant(context, s));
-            if (numTargetComponents > 1)
+                setInstructionPrecision(arg, precision);
+            }
+            if (numTargetComponents > 1) {
                 constructee = builder.CreateInsertElement(constructee, arg, MakeIntConstant(context, targetComponent));
-            else
+                setInstructionPrecision(constructee, precision);
+            } else
                 constructee = arg;
             ++targetComponent;
         }
@@ -1835,7 +1898,7 @@ llvm::Value* Builder::createConstructor(const std::vector<llvm::Value*>& sources
     return constructee;
 }
 
-llvm::Value* Builder::createMatrixConstructor(const std::vector<llvm::Value*>& sources, llvm::Value* constructee)
+llvm::Value* Builder::createMatrixConstructor(gla::EMdPrecision precision, const std::vector<llvm::Value*>& sources, llvm::Value* constructee)
 {
     llvm::Value* matrixee = constructee;
 
@@ -1870,8 +1933,11 @@ llvm::Value* Builder::createMatrixConstructor(const std::vector<llvm::Value*>& s
         int minRows = std::min(GetNumRows(matrixee), GetNumRows(matrix));
         for (int col = 0; col < minCols; ++col) {
             llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
-            for (int row = 0; row < minRows; ++row)
+            setInstructionPrecision(column, precision);
+            for (int row = 0; row < minRows; ++row) {
                 values[col][row] = builder.CreateExtractElement(column, MakeUnsignedConstant(context, row), "element");
+                setInstructionPrecision(values[col][row], precision);
+            }
         }
     } else {
         // fill in the matrix in column-major order with whatever argument components are available
@@ -1881,8 +1947,10 @@ llvm::Value* Builder::createMatrixConstructor(const std::vector<llvm::Value*>& s
         for (int arg = 0; arg < sources.size(); ++arg) {
             llvm::Value* argComp = sources[arg];
             for (int comp = 0; comp < GetComponentCount(sources[arg]); ++comp) {
-                if (GetComponentCount(sources[arg]) > 1)
+                if (GetComponentCount(sources[arg]) > 1) {
                     argComp = builder.CreateExtractElement(sources[arg], MakeUnsignedConstant(context, comp), "element");
+                    setInstructionPrecision(argComp, precision);
+                }
                 values[col][row++] = argComp;
                 if (row == GetNumRows(matrixee)) {
                     row = 0;
@@ -1895,10 +1963,13 @@ llvm::Value* Builder::createMatrixConstructor(const std::vector<llvm::Value*>& s
     // Step 2:  Copy into run-time result.
     for (int col = 0; col < GetNumColumns(matrixee); ++col) {
         llvm::Value* column = builder.CreateExtractValue(matrixee, col, "column");
+        setInstructionPrecision(column, precision);
         for (int row = 0; row < GetNumRows(matrixee); ++row) {
             column = builder.CreateInsertElement(column, values[col][row], MakeIntConstant(context, row), "column");
+            setInstructionPrecision(column, precision);
         }
         constructee = builder.CreateInsertValue(constructee, column, col, "matrix");
+        setInstructionPrecision(constructee, precision);
     }
 
     return constructee;
@@ -2052,6 +2123,7 @@ void Builder::makeNewLoop(llvm::Value* inductiveVariable, llvm::Constant* from, 
 void Builder::makeLoopBackEdge(bool implicit)
 {
     LoopData ld = loops.top();
+    // TODO: ES precision: track precision of induction in the loop and use it
 
     // If we're not inductive, just branch back.
     if (! ld.isInductive) {

@@ -54,12 +54,12 @@ entry:
   %color10 = add i32 %17, %16, !precision !2
   store i32 %color10, i32* %color
   %18 = load i32* %color
-  %19 = sitofp i32 %18 to float
+  %19 = sitofp i32 %18 to float, !precision !2
   %20 = load <4 x float>* %constructed
-  %21 = insertelement <4 x float> undef, float %19, i32 0
-  %22 = insertelement <4 x float> %21, float %19, i32 1
-  %23 = insertelement <4 x float> %22, float %19, i32 2
-  %FragColor_shadow = insertelement <4 x float> %23, float %19, i32 3
+  %21 = insertelement <4 x float> undef, float %19, i32 0, !precision !2
+  %22 = insertelement <4 x float> %21, float %19, i32 1, !precision !2
+  %23 = insertelement <4 x float> %22, float %19, i32 2, !precision !2
+  %FragColor_shadow = insertelement <4 x float> %23, float %19, i32 3, !precision !2
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 

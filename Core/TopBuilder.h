@@ -257,9 +257,9 @@ public:
                               EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment,
                               llvm::Value* offset = 0, llvm::Value* sampleIdx = 0);
 
-    llvm::Value* createSwizzle(llvm::Value* source, int swizzleMask, llvm::Type* finalType);
+    llvm::Value* createSwizzle(EMdPrecision, llvm::Value* source, int swizzleMask, llvm::Type* finalType);
 
-    llvm::Value* createSwizzle(llvm::Value* source, llvm::ArrayRef<int> channels, llvm::Type* finalType);
+    llvm::Value* createSwizzle(EMdPrecision, llvm::Value* source, llvm::ArrayRef<int> channels, llvm::Type* finalType);
 
     // If the value passed in is an instruction and the precision is not EMpNone, 
     // it gets tagged with the requested precision.
@@ -291,7 +291,7 @@ public:
     llvm::Value* createMatrixCompare (EMdPrecision, llvm::Value* left, llvm::Value* right, bool allEqual);
 
     // handle matrix to matrix operations
-    llvm::Value* createMatrixTranspose  (llvm::Value*);
+    llvm::Value* createMatrixTranspose  (EMdPrecision, llvm::Value*);
     llvm::Value* createMatrixInverse    (EMdPrecision, llvm::Value*);
     llvm::Value* createMatrixDeterminant(EMdPrecision, llvm::Value*);
 
@@ -309,10 +309,10 @@ public:
     //   - promoteScalar(pointer, scalar) // smear scalar to width of what pointer points to
     //   - promoteScalar(scalar, scalar)  // do nothing
     // Other forms are not allowed.
-    void promoteScalar(llvm::Value*& left, llvm::Value*& right);
+    void promoteScalar(EMdPrecision, llvm::Value*& left, llvm::Value*& right);
 
     // make a value by smearing the scalar to fill the type
-    llvm::Value* smearScalar(llvm::Value* scalarVal, llvm::Type*);
+    llvm::Value* smearScalar(EMdPrecision, llvm::Value* scalarVal, llvm::Type*);
 
     // List of parameters used to create a texture intrinsic
     struct TextureParameters {
@@ -333,8 +333,8 @@ public:
     llvm::Value* createTextureCall(EMdPrecision, llvm::Type*, ESamplerType, int texFlags, const TextureParameters&);
     llvm::Value* createTextureQueryCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Type*, llvm::Constant*, llvm::Value*, llvm::Value*);
     llvm::Value* createSamplePositionCall(EMdPrecision, llvm::Type*, llvm::Value*);
-    llvm::Value* createBitFieldExtractCall(llvm::Value*, llvm::Value*, llvm::Value*, bool isSigned);
-    llvm::Value* createBitFieldInsertCall(llvm::Value*, llvm::Value*, llvm::Value*, llvm::Value*);
+    llvm::Value* createBitFieldExtractCall(EMdPrecision, llvm::Value*, llvm::Value*, llvm::Value*, bool isSigned);
+    llvm::Value* createBitFieldInsertCall(EMdPrecision, llvm::Value*, llvm::Value*, llvm::Value*, llvm::Value*);
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID);
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*);
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*);
@@ -348,10 +348,10 @@ public:
     llvm::Value* createCompare(EMdPrecision, llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned);
 
     // vector constructor
-    llvm::Value* createConstructor(const std::vector<llvm::Value*>& sources, llvm::Value* constructee);
+    llvm::Value* createConstructor(EMdPrecision, const std::vector<llvm::Value*>& sources, llvm::Value* constructee);
 
     // matrix constructor
-    llvm::Value* createMatrixConstructor(const std::vector<llvm::Value*>& sources, llvm::Value* constructee);
+    llvm::Value* createMatrixConstructor(EMdPrecision, const std::vector<llvm::Value*>& sources, llvm::Value* constructee);
 
     class If {
     public:

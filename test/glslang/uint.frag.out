@@ -111,16 +111,16 @@ then15:                                           ; preds = %ifmerge13
   %ai18 = load i32* %u
   store i32 %ai18, i32* %ai
   %28 = load float* %af
-  %29 = fptoui float %28 to i32
+  %29 = fptoui float %28 to i32, !precision !7
   %30 = load i1* %ab
-  %31 = zext i1 %30 to i32
+  %31 = zext i1 %30 to i32, !precision !7
   %32 = load i32* %ai
   %33 = load i32* %count
   %34 = load <4 x i32>* %constructed
-  %35 = insertelement <4 x i32> %34, i32 %29, i32 0
-  %36 = insertelement <4 x i32> %35, i32 %31, i32 1
-  %37 = insertelement <4 x i32> %36, i32 %32, i32 2
-  %38 = insertelement <4 x i32> %37, i32 %33, i32 3
+  %35 = insertelement <4 x i32> %34, i32 %29, i32 0, !precision !7
+  %36 = insertelement <4 x i32> %35, i32 %31, i32 1, !precision !7
+  %37 = insertelement <4 x i32> %36, i32 %32, i32 2, !precision !7
+  %38 = insertelement <4 x i32> %37, i32 %33, i32 3, !precision !7
   %39 = load <4 x i32>* @c_shadow
   %c_shadow19 = add <4 x i32> %39, %38, !precision !7
   store <4 x i32> %c_shadow19, <4 x i32>* @c_shadow
@@ -196,10 +196,10 @@ then34:                                           ; preds = %ifmerge33
 ifmerge36:                                        ; preds = %ifmerge33, %then34
   %64 = load i32* %count
   %65 = load <4 x i32>* %constructed37
-  %66 = insertelement <4 x i32> undef, i32 %64, i32 0
-  %67 = insertelement <4 x i32> %66, i32 %64, i32 1
-  %68 = insertelement <4 x i32> %67, i32 %64, i32 2
-  %69 = insertelement <4 x i32> %68, i32 %64, i32 3
+  %66 = insertelement <4 x i32> undef, i32 %64, i32 0, !precision !7
+  %67 = insertelement <4 x i32> %66, i32 %64, i32 1, !precision !7
+  %68 = insertelement <4 x i32> %67, i32 %64, i32 2, !precision !7
+  %69 = insertelement <4 x i32> %68, i32 %64, i32 3, !precision !7
   %70 = load <4 x i32>* @c_shadow
   %c_shadow38 = add <4 x i32> %70, %69, !precision !7
   store <4 x i32> %c_shadow38, <4 x i32>* @c_shadow
@@ -255,8 +255,8 @@ entry:
   %4 = icmp sgt i32 %3, 4
   %af16 = uitofp i32 %u1 to float
   %ab17 = icmp ne i32 %u1, 0
-  %5 = fptoui float %af16 to i32
-  %6 = zext i1 %ab17 to i32
+  %5 = fptoui float %af16 to i32, !precision !7
+  %6 = zext i1 %ab17 to i32, !precision !7
   %7 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32> undef, i32 15, i32 %5, i32 0, i32 %6, i32 0, i32 %u1, i32 0, i32 462, i32 0)
   %c_shadow19 = add <4 x i32> %c_shadow8, %7, !precision !7
   %select = select i1 %4, <4 x i32> %c_shadow19, <4 x i32> %c_shadow8
@@ -320,8 +320,8 @@ void main()
     bool temp26 = t.x > const27i_4;
     float af16 = float(temp21);
     bool ab17 = temp21 != const30i_0;
-    int temp31 = uint(af16);
-    int temp32 = int(ab17);
+    mediump int temp31 = uint(af16);
+    mediump int temp32 = int(ab17);
     ivec4 temp33 = ivec4(temp31, temp32, temp21, const34i_462);
     mediump ivec4 c_shadow19 = c_shadow8 + temp33;
     ivec4 select = temp26 ? c_shadow19 : c_shadow8;
