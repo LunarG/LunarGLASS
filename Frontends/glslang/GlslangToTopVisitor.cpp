@@ -368,12 +368,12 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
             // evaluate the right
             oit->glaBuilder->clearAccessChain();
             node->getRight()->traverse(oit);
-            llvm::Value* rValue = oit->glaBuilder->accessChainLoad();
+            llvm::Value* rValue = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getRight()->getType()));
 
             if (node->getOp() != EOpAssign) {
                 // the left is also an r-value
                 oit->glaBuilder->setAccessChain(lValue);
-                llvm::Value* leftRValue = oit->glaBuilder->accessChainLoad();
+                llvm::Value* leftRValue = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getLeft()->getType()));
 
                 // do the operation
                 rValue = oit->createBinaryOperation(node->getOp(), getMdPrecision(node->getType()), leftRValue, rValue, node->getType().getBasicType() == EbtUint);
@@ -418,7 +418,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
                 // compute the next index
                 oit->glaBuilder->clearAccessChain();
                 node->getRight()->traverse(oit);
-                llvm::Value* index = oit->glaBuilder->accessChainLoad();
+                llvm::Value* index = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getRight()->getType()));
 
                 // make the new access chain to date
                 oit->glaBuilder->setAccessChain(partial);
@@ -444,11 +444,11 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     // Get the operands
     oit->glaBuilder->clearAccessChain();
     node->getLeft()->traverse(oit);
-    llvm::Value* left = oit->glaBuilder->accessChainLoad();
+    llvm::Value* left = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getLeft()->getType()));
 
     oit->glaBuilder->clearAccessChain();
     node->getRight()->traverse(oit);
-    llvm::Value* right = oit->glaBuilder->accessChainLoad();
+    llvm::Value* right = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getRight()->getType()));
 
     llvm::Value* result;
     gla::EMdPrecision precision = getMdPrecision(node->getType());
@@ -482,7 +482,7 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
 
     oit->glaBuilder->clearAccessChain();
     node->getOperand()->traverse(oit);
-    llvm::Value* operand = oit->glaBuilder->accessChainLoad();
+    llvm::Value* operand = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getOperand()->getType()));
 
     gla::EMdPrecision precision = getMdPrecision(node->getType());
 
@@ -744,11 +744,11 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     if (binOp != EOpNull) {
         oit->glaBuilder->clearAccessChain();
         node->getSequence()[0]->traverse(oit);
-        llvm::Value* left = oit->glaBuilder->accessChainLoad();
+        llvm::Value* left = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getSequence()[0]->getAsTyped()->getType()));
 
         oit->glaBuilder->clearAccessChain();
         node->getSequence()[1]->traverse(oit);
-        llvm::Value* right = oit->glaBuilder->accessChainLoad();
+        llvm::Value* right = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getSequence()[1]->getAsTyped()->getType()));
 
         if (binOp == EOpOuterProduct)
             result = oit->glaBuilder->createMatrixMultiply(precision, left, right);
@@ -771,7 +771,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     for (int i = 0; i < glslangOperands.size(); ++i) {
         oit->glaBuilder->clearAccessChain();
         glslangOperands[i]->traverse(oit);
-        operands.push_back(oit->glaBuilder->accessChainLoad());
+        operands.push_back(oit->glaBuilder->accessChainLoad(getMdPrecision(glslangOperands[i]->getAsTyped()->getType())));
     }
     if (glslangOperands.size() == 1)
         result = oit->createUnaryIntrinsic(node->getOp(), precision, operands.front());
@@ -809,13 +809,13 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
     node->getCondition()->traverse(it);
 
     // make an "if" based on the value created by the condition
-    gla::Builder::If ifBuilder(oit->glaBuilder->accessChainLoad(), oit->glaBuilder);
+    gla::Builder::If ifBuilder(oit->glaBuilder->accessChainLoad(gla::EMpNone), oit->glaBuilder);
 
     if (node->getTrueBlock()) {
         // emit the "then" statement
 		node->getTrueBlock()->traverse(it);
         if (result)
-            oit->glaBuilder->createStore(oit->glaBuilder->accessChainLoad(), result);
+            oit->glaBuilder->createStore(oit->glaBuilder->accessChainLoad(getMdPrecision(node->getTrueBlock()->getAsTyped()->getType())), result);
 	}
 
     if (node->getFalseBlock()) {
@@ -823,7 +823,7 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
         // emit the "else" statement
         node->getFalseBlock()->traverse(it);
         if (result)
-            oit->glaBuilder->createStore(oit->glaBuilder->accessChainLoad(), result);
+            oit->glaBuilder->createStore(oit->glaBuilder->accessChainLoad(getMdPrecision(node->getFalseBlock()->getAsTyped()->getType())), result);
     }
 
     ifBuilder.makeEndIf();
@@ -846,7 +846,7 @@ bool TranslateSwitch(bool /* preVisit */, TIntermSwitch* node, TIntermTraverser*
 
     // emit and get the condition before doing anything with switch
     node->getCondition()->traverse(it);
-    llvm::Value* condition = oit->glaBuilder->accessChainLoad();
+    llvm::Value* condition = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getCondition()->getAsTyped()->getType()));
 
     // browse the children to sort out code segments
     int defaultSegment = -1;
@@ -923,7 +923,7 @@ bool TranslateLoop(bool /* preVisit */, TIntermLoop* node, TIntermTraverser* it)
         // make the following
         //     if (! condition from test traversal)
         //         break;
-        llvm::Value* condition = oit->glaBuilder->accessChainLoad();
+        llvm::Value* condition = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getTest()->getType()));
         condition = oit->llvmBuilder.CreateNot(condition);
         gla::Builder::If ifBuilder(condition, oit->glaBuilder);
         oit->glaBuilder->makeLoopExit();
@@ -969,7 +969,7 @@ bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
         if (oit->inMain)
             oit->glaBuilder->makeMainReturn();
         else if (node->getExpression()) {
-            oit->glaBuilder->makeReturn(false, oit->glaBuilder->accessChainLoad());
+            oit->glaBuilder->makeReturn(false, oit->glaBuilder->accessChainLoad(getMdPrecision(node->getExpression()->getType())));
         } else
             oit->glaBuilder->makeReturn();
 
@@ -1178,7 +1178,7 @@ void TGlslangToTopTraverser::translateArguments(TIntermSequence& glslangArgument
     for (int i = 0; i < glslangArguments.size(); ++i) {
         glaBuilder->clearAccessChain();
         glslangArguments[i]->traverse(this);
-        arguments.push_back(glaBuilder->accessChainLoad());
+        arguments.push_back(glaBuilder->accessChainLoad(getMdPrecision(glslangArguments[i]->getAsTyped()->getType())));
     }
 }
 
@@ -1362,7 +1362,7 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* no
         }
         if (qualifiers[i] == EvqIn || qualifiers[i] == EvqConstReadOnly || qualifiers[i] == EvqInOut) {
             // process r-value
-            glaBuilder->createStore(glaBuilder->accessChainLoad(), llvmArgs[i]);
+            glaBuilder->createStore(glaBuilder->accessChainLoad(getMdPrecision(glslangArgs[i]->getAsTyped()->getType())), llvmArgs[i]);
         }
     }
 

@@ -47,7 +47,7 @@ entry:
   %11 = load i32* %e
   %12 = getelementptr %s* %f, i32 0, i32 0
   %13 = load <4 x i32>* %12
-  %14 = extractelement <4 x i32> %13, i32 1
+  %14 = extractelement <4 x i32> %13, i32 1, !precision !2
   %15 = add i32 %11, %14, !precision !2
   %16 = mul i32 128, %15, !precision !2
   %17 = load i32* %color

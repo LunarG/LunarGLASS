@@ -136,7 +136,7 @@ entry:
   %aiv2__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 9, i32 -1), !input !8, !precision !12
   store <2 x i32> %aiv2__, <2 x i32>* @aiv2_shadow
   %44 = load <2 x i32>* @aiv2_shadow
-  %45 = extractelement <2 x i32> %44, i32 1
+  %45 = extractelement <2 x i32> %44, i32 1, !precision !12
   %iout_shadow = add i32 %43, %45, !precision !12
   store i32 %iout_shadow, i32* @iout_shadow
   br label %stage-epilogue
@@ -265,7 +265,7 @@ entry:
   %dot56 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column55), !precision !12
   %dot50 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column42), !precision !12
   %column45 = fadd <4 x float> %column33, %rightColumn44, !precision !12
-  %8 = extractelement <2 x i32> %aiv2__, i32 1
+  %8 = extractelement <2 x i32> %aiv2__, i32 1, !precision !12
   %dot58 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column57), !precision !12
   %dot52 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column45), !precision !12
   %9 = add i32 %8, %6, !precision !12

@@ -266,7 +266,7 @@ void Builder::accessChainStore(llvm::Value* value)
     createStore(source, base);
 }
 
-llvm::Value* Builder::accessChainLoad()
+llvm::Value* Builder::accessChainLoad(EMdPrecision precision)
 {
     llvm::Value* value;
 
@@ -296,7 +296,7 @@ llvm::Value* Builder::accessChainLoad()
         UnsupportedFunctionality("extract from variable vector component");
 
     if (accessChain.swizzle.size())
-        value = createSwizzle(EMpNone, value, accessChain.swizzle, accessChain.swizzleResultType);
+        value = createSwizzle(precision, value, accessChain.swizzle, accessChain.swizzleResultType);
 
     return value;
 }
@@ -764,6 +764,7 @@ llvm::Value* Builder::createSwizzle(gla::EMdPrecision precision, llvm::Value* so
         } else {
             // Extract an element to a scalar, then immediately insert to our target
             llvm::Value* extractInst = builder.CreateExtractElement(source, gla::MakeIntConstant(context, gla::GetSwizzle(swizzleMask, i)));
+            setInstructionPrecision(extractInst, precision);
             target = builder.CreateInsertElement(target, extractInst, gla::MakeIntConstant(context, i));
             setInstructionPrecision(target, precision);
         }
@@ -1695,7 +1696,7 @@ llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* va
         else
             intrinsicID = llvm::Intrinsic::gla_any;
 
-        return createIntrinsicCall(EMpNone, intrinsicID, result);
+        return createIntrinsicCall(precision, intrinsicID, result);
     }
 
     // Recursively handle aggregates, which include matrices, arrays, and structures

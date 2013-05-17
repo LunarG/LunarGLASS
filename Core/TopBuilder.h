@@ -168,7 +168,7 @@ public:
     void accessChainStore(llvm::Value*);
 
     // use accessChain and swizzle to load an r-value
-    llvm::Value* accessChainLoad();
+    llvm::Value* accessChainLoad(EMdPrecision);
 
     // return an offset representing the collection of offsets in the chain
     llvm::Value* collapseInputAccessChain();

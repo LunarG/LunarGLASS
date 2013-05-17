@@ -92,7 +92,7 @@ entry:
   %"matrix3x3 am3[2]" = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1027, i32 -1), !input !7, !precision !9
   store <3 x float> %"matrix3x3 am3[2]", <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 2)
   %7 = load <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 2)
-  %f_shadow = extractelement <3 x float> %7, i32 1
+  %f_shadow = extractelement <3 x float> %7, i32 1, !precision !9
   store float %f_shadow, float* @f_shadow
   br label %stage-epilogue
 
@@ -193,7 +193,7 @@ entry:
   %dotProduct55 = fadd float %product54, %dotProduct51, !precision !9
   %dotProduct44 = fadd float %product43, %dotProduct40, !precision !9
   %dotProduct59 = fadd float %product58, %dotProduct55, !precision !9
-  %f_shadow = extractelement <3 x float> %"matrix3x3 am3[2]", i32 1
+  %f_shadow = extractelement <3 x float> %"matrix3x3 am3[2]", i32 1, !precision !9
   %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dotProduct14, i32 0, float %dotProduct29, i32 0, float %dotProduct44, i32 0, float %dotProduct59, i32 0)
   call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %1), !output !0
   call void @llvm.gla.fWriteData.f32(i32 1, i32 -1, float %f_shadow), !output !2
