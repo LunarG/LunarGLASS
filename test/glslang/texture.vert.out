@@ -144,7 +144,7 @@ declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !samplers = !{!0, !0, !0, !1, !1, !1, !2, !2, !3, !4, !5, !4, !5}
-!inputs = !{!6, !6}
+!inputs = !{!6}
 !outputs = !{!8}
 
 !0 = metadata !{metadata !"texSampler1D", i32 0, i32 addrspace(1)* @"sampler1D texSampler1D", i32 0, i1 false, i1 false}
@@ -153,9 +153,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !3 = metadata !{metadata !"texSamplerCube", i32 0, i32 addrspace(1)* @"samplerCube texSamplerCube", i32 3, i1 false, i1 false}
 !4 = metadata !{metadata !"shadowSampler1D", i32 0, i32 addrspace(1)* @"sampler1DShadow shadowSampler1D", i32 0, i1 false, i1 true}
 !5 = metadata !{metadata !"shadowSampler2D", i32 0, i32 addrspace(1)* @"sampler2DShadow shadowSampler2D", i32 1, i1 false, i1 true}
-!6 = metadata !{metadata !"coords2D", i32 7, <2 x float>* @coords2D_shadow, metadata !7}
+!6 = metadata !{metadata !"coords2D", i32 7, <2 x float>* @coords2D_shadow_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1024}
-!8 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow, metadata !9}
+!8 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !9}
 !9 = metadata !{i32 0, i32 0, i32 0}
 
 
@@ -226,7 +226,7 @@ declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !samplers = !{!0, !0, !0, !1, !1, !1, !2, !2, !3, !4, !5, !4, !5}
-!inputs = !{!6, !6}
+!inputs = !{!6}
 !outputs = !{!8}
 
 !0 = metadata !{metadata !"texSampler1D", i32 0, i32 addrspace(1)* @"sampler1D texSampler1D", i32 0, i1 false, i1 false}
@@ -235,9 +235,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !3 = metadata !{metadata !"texSamplerCube", i32 0, i32 addrspace(1)* @"samplerCube texSamplerCube", i32 3, i1 false, i1 false}
 !4 = metadata !{metadata !"shadowSampler1D", i32 0, i32 addrspace(1)* @"sampler1DShadow shadowSampler1D", i32 0, i1 false, i1 true}
 !5 = metadata !{metadata !"shadowSampler2D", i32 0, i32 addrspace(1)* @"sampler2DShadow shadowSampler2D", i32 1, i1 false, i1 true}
-!6 = metadata !{metadata !"coords2D", i32 7, null, metadata !7}
+!6 = metadata !{metadata !"coords2D", i32 7, <2 x float>* @coords2D_shadow_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1024}
-!8 = metadata !{metadata !"gl_Position", i32 8, null, metadata !9}
+!8 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !9}
 !9 = metadata !{i32 0, i32 0, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####

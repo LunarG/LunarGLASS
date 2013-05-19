@@ -191,9 +191,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !defaultUniforms = !{!4, !6, !7, !8, !9, !10, !11, !11, !12, !9, !12}
 !outputs = !{!13}
 
-!0 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow, metadata !1}
+!0 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024}
-!2 = metadata !{metadata !"c", i32 7, float* @c_shadow, metadata !3}
+!2 = metadata !{metadata !"c", i32 7, float* @c_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 0, i32 1025}
 !4 = metadata !{metadata !"otherColor", i32 12, <4 x float> addrspace(2)* @otherColor, metadata !5}
 !5 = metadata !{i32 0, i32 0, i32 0}
@@ -204,7 +204,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !10 = metadata !{metadata !"threshhold", i32 12, float addrspace(2)* @threshhold, metadata !5}
 !11 = metadata !{metadata !"threshhold2", i32 12, float addrspace(2)* @threshhold2, metadata !5}
 !12 = metadata !{metadata !"b", i32 12, i1 addrspace(2)* @b, metadata !5}
-!13 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !14}
+!13 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 2, i32 0}
 !15 = metadata !{i32 2}
 
@@ -327,9 +327,9 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !defaultUniforms = !{!4, !6, !7, !8, !9, !10, !11, !11, !12, !9, !12}
 !outputs = !{!13}
 
-!0 = metadata !{metadata !"BaseColor", i32 7, null, metadata !1}
+!0 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024}
-!2 = metadata !{metadata !"c", i32 7, null, metadata !3}
+!2 = metadata !{metadata !"c", i32 7, float* @c_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 0, i32 1025}
 !4 = metadata !{metadata !"otherColor", i32 12, <4 x float> addrspace(2)* @otherColor, metadata !5}
 !5 = metadata !{i32 0, i32 0, i32 0}
@@ -340,7 +340,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !10 = metadata !{metadata !"threshhold", i32 12, float addrspace(2)* @threshhold, metadata !5}
 !11 = metadata !{metadata !"threshhold2", i32 12, float addrspace(2)* @threshhold2, metadata !5}
 !12 = metadata !{metadata !"b", i32 12, i1 addrspace(2)* @b, metadata !5}
-!13 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !14}
+!13 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 2, i32 0}
 !15 = metadata !{i32 2}
 #### BEGIN COMPILER 0 INFO LOG ####

@@ -56,9 +56,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!3}
 
 !0 = metadata !{metadata !"tex", i32 0, i32 addrspace(1)* @"sampler2D tex", i32 1, i1 false, i1 false}
-!1 = metadata !{metadata !"coord", i32 7, <2 x float>* @coord_shadow, metadata !2}
+!1 = metadata !{metadata !"coord", i32 7, <2 x float>* @coord_shadow_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024}
-!3 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !4}
+!3 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 2, i32 0}
 !5 = metadata !{i32 1}
 
@@ -107,9 +107,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!3}
 
 !0 = metadata !{metadata !"tex", i32 0, i32 addrspace(1)* @"sampler2D tex", i32 1, i1 false, i1 false}
-!1 = metadata !{metadata !"coord", i32 7, null, metadata !2}
+!1 = metadata !{metadata !"coord", i32 7, <2 x float>* @coord_shadow_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024}
-!3 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !4}
+!3 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 2, i32 0}
 !5 = metadata !{i32 1}
 #### BEGIN COMPILER 0 INFO LOG ####

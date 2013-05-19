@@ -196,9 +196,8 @@ inline bool CrackIOMd(llvm::MDNode* md, std::string& symbolName, EMdInputOutput&
     qualifier = (EMdInputOutput)constInt->getSExtValue();
 
     if (! md->getOperand(2))
-        type = 0;  // TODO: sometimes this gets optimized away, find a way to keep it, like declaring an external global variable
-    else
-        type = md->getOperand(2)->getType();
+        return false;
+    type = md->getOperand(2)->getType();
 
     llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(3));
     if (! layoutMd)
@@ -250,9 +249,8 @@ inline bool CrackSamplerMd(const llvm::Instruction* instruction, std::string& sy
     sampler = (EMdSampler)constInt->getSExtValue();
 
     if (! md->getOperand(2))
-        type = 0;  // TODO: sometimes this gets optimized away, find a way to keep it, like declaring an external global variable
-    else
-        type = md->getOperand(2)->getType();
+        return false;
+    type = md->getOperand(2)->getType();
 
     constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(3));
     if (! constInt)

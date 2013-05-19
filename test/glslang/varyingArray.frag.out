@@ -118,19 +118,19 @@ declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !samplers = !{!0}
-!inputs = !{!1, !1, !3, !5, !7, !1, !1}
+!inputs = !{!1, !3, !5, !7}
 !outputs = !{!9}
 
 !0 = metadata !{metadata !"texSampler2D", i32 0, i32 addrspace(1)* @"sampler2D texSampler2D", i32 1, i1 false, i1 false}
-!1 = metadata !{metadata !"gl_TexCoord", i32 7, [6 x <4 x float>]* @TexCoord_shadow, metadata !2}
+!1 = metadata !{metadata !"gl_TexCoord", i32 7, [6 x <4 x float>]* @TexCoord_shadow_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024}
-!3 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow, metadata !4}
+!3 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1030}
-!5 = metadata !{metadata !"alpha", i32 7, float* @alpha_shadow, metadata !6}
+!5 = metadata !{metadata !"alpha", i32 7, float* @alpha_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1031}
-!7 = metadata !{metadata !"foo", i32 7, [3 x <4 x float>]* @foo_shadow, metadata !8}
+!7 = metadata !{metadata !"foo", i32 7, [3 x <4 x float>]* @foo_shadow_typeProxy, metadata !8}
 !8 = metadata !{i32 0, i32 0, i32 1032}
-!9 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !10}
+!9 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
 !10 = metadata !{i32 0, i32 0, i32 0}
 
 
@@ -179,19 +179,19 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>) nounwind readnone
 
 !samplers = !{!0}
-!inputs = !{!1, !1, !3, !5, !7, !1, !1}
+!inputs = !{!1, !3, !5, !7}
 !outputs = !{!9}
 
 !0 = metadata !{metadata !"texSampler2D", i32 0, i32 addrspace(1)* @"sampler2D texSampler2D", i32 1, i1 false, i1 false}
-!1 = metadata !{metadata !"gl_TexCoord", i32 7, null, metadata !2}
+!1 = metadata !{metadata !"gl_TexCoord", i32 7, [6 x <4 x float>]* @TexCoord_shadow_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024}
-!3 = metadata !{metadata !"color", i32 7, null, metadata !4}
+!3 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1030}
-!5 = metadata !{metadata !"alpha", i32 7, null, metadata !6}
+!5 = metadata !{metadata !"alpha", i32 7, float* @alpha_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1031}
-!7 = metadata !{metadata !"foo", i32 7, null, metadata !8}
+!7 = metadata !{metadata !"foo", i32 7, [3 x <4 x float>]* @foo_shadow_typeProxy, metadata !8}
 !8 = metadata !{i32 0, i32 0, i32 1032}
-!9 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !10}
+!9 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
 !10 = metadata !{i32 0, i32 0, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:3: varying deprecated in version 130; may be removed in future release

@@ -72,10 +72,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!0, !2}
 !inputs = !{!3}
 
-!0 = metadata !{metadata !"colorOut", i32 1, [6 x <4 x float>]* @colorOut_shadow, metadata !1}
+!0 = metadata !{metadata !"colorOut", i32 1, [6 x <4 x float>]* @colorOut_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
-!2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow, metadata !1}
-!3 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow, metadata !4}
+!2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
+!3 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1024}
 
 
@@ -133,10 +133,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!0, !2}
 !inputs = !{!3}
 
-!0 = metadata !{metadata !"colorOut", i32 1, [6 x <4 x float>]* @colorOut_shadow, metadata !1}
+!0 = metadata !{metadata !"colorOut", i32 1, [6 x <4 x float>]* @colorOut_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
-!2 = metadata !{metadata !"gl_Position", i32 8, null, metadata !1}
-!3 = metadata !{metadata !"color", i32 7, null, metadata !4}
+!2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
+!3 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1024}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:3: attribute deprecated in version 130; may be removed in future release

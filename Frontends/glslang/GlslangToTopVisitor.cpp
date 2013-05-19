@@ -97,7 +97,7 @@ public:
     llvm::Value* createUnaryIntrinsic(TOperator op, gla::EMdPrecision, llvm::Value* operand);
     llvm::Value* createIntrinsic(TOperator op, gla::EMdPrecision, std::vector<llvm::Value*>& operands, bool isUnsigned);
     void createPipelineRead(TIntermSymbol*, llvm::Value* storage, int slot, llvm::MDNode*);
-    int getNextInterpIndex(const std::string& name, int numSlots);
+    int getInputSlot(TIntermSymbol* node, int numSlots);
     llvm::Value* createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
     void setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
     void setOutputMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
@@ -115,7 +115,8 @@ public:
 
     std::map<int, llvm::Value*> namedValues;
     std::map<std::string, llvm::Function*> functionMap;
-    std::map<std::string, int> interpMap;
+    std::map<std::string, int> inputSlotMap;
+    std::map<int, llvm::MDNode*> inputMdMap;
     std::map<TTypeList*, llvm::StructType*> structMap;
     std::stack<bool> breakForLoop;  // false means break for switch
 };
@@ -212,6 +213,17 @@ gla::EMdPrecision getMdPrecision(const TType& type)
     }
 }
 
+llvm::Value* makePermanentTypeProxy(llvm::Value* value)
+{
+    // Make a type proxy that won't be optimized away (we still want the real llvm::Value to get optimized away when it can)
+    llvm::Type* type = value->getType();
+    while (type->getTypeID() == llvm::Type::PointerTyID)
+        type = llvm::dyn_cast<llvm::PointerType>(type)->getContainedType(0);
+
+    // TODO: memory: who/how owns tracking and deleting this allocation?
+    return new llvm::GlobalVariable(type, true, llvm::GlobalVariable::ExternalLinkage, 0, value->getName() + "_typeProxy");
+}
+
 };  // end anonymous namespace
 
 
@@ -253,7 +265,7 @@ TGlslangToTopTraverser::~TGlslangToTopTraverser()
 //
 // Symbols can turn into 
 //  - pipeline reads, right now, as intrinic reads into shadow storage
-//  - pipelien writes, way in the futuer, as intrinsic writes of shadow storage
+//  - pipeline writes, sometime in the future, as intrinsic writes of shadow storage
 //  - complex lvalue base setups:  foo.bar[3]....  , where we see foo and start up an access chain
 //  - something simple that degenerates into the last bullet
 //
@@ -290,7 +302,7 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
         if (output)
             oit->setOutputMetadata(node, storage);
     } else
-        storage = oit->namedValues[symbolNode->getId()];
+        storage = iter->second;
 
     // Track the current value
     oit->glaBuilder->setAccessChainLValue(storage);
@@ -307,6 +319,8 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
         case EvqClipVertex:
         case EvqFragColor:
             oit->glaBuilder->accessChainTrackOutputIndex();
+        default:
+            break;
         }
     }
 
@@ -318,16 +332,17 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
                 size = UnknownArraySize;
         }
 
-        // figure out where this input goes
-        int firstSlot;
-        if (symbolNode->getType().getQualifier().hasLocation())
-            firstSlot = symbolNode->getType().getQualifier().layoutSlotLocation;
-        else            
-            firstSlot = oit->getNextInterpIndex(symbolNode->getSymbol().c_str(), size);
+        int slot = oit->getInputSlot(symbolNode, size);
 
-        // set up metadata for pipeline intrinsic read
-        llvm::MDNode* md = oit->makeInputMetadata(symbolNode, storage, firstSlot);
-        oit->createPipelineRead(symbolNode, storage, firstSlot, md);
+        llvm::MDNode* mdNode = oit->inputMdMap[slot];
+        if (mdNode == 0) {
+            // set up metadata for pipeline intrinsic read
+            mdNode = oit->makeInputMetadata(symbolNode, storage, slot);
+            oit->inputMdMap[slot] = mdNode;
+        }
+
+        // do the actual read
+        oit->createPipelineRead(symbolNode, storage, slot, mdNode);
     }
 }
 
@@ -2093,18 +2108,29 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value
     }
 }
 
-int TGlslangToTopTraverser::getNextInterpIndex(const std::string& name, int numSlots)
+int TGlslangToTopTraverser::getInputSlot(TIntermSymbol* node, int numSlots)
 {
-    // Get the index for this interpolant, or create a new unique one
-    std::map<std::string, int>::iterator iter;
-    iter = interpMap.find(name);
+    int slot;
 
-    if (interpMap.end() == iter) {
-        interpMap[name] = interpIndex;
+    // Get the index for this interpolant, or create a new unique one
+    if (node->getQualifier().hasLocation()) {
+        slot = node->getQualifier().layoutSlotLocation;
+        
+        return slot;
+    }
+
+    // Not found in the symbol, see if we've assigned one before
+
+    std::map<std::string, int>::iterator iter;
+    const char* name = node->getSymbol().c_str();
+    iter = inputSlotMap.find(name);
+
+    if (inputSlotMap.end() == iter) {
+        inputSlotMap[name] = interpIndex;
         interpIndex += numSlots;
     }
 
-    return interpMap[name];
+    return inputSlotMap[name];
 }
 
 llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType, constUnion *consts, int& nextConst)
@@ -2191,20 +2217,16 @@ void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::V
 
 void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value* storage)
 {    
-    llvm::MDNode* md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "outputs", getMdQualifier(node), storage, getMdTypeLayout(node), getMdPrecision(node->getType()), 0);
+    llvm::MDNode* md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "outputs", getMdQualifier(node), 
+                                                  makePermanentTypeProxy(storage), getMdTypeLayout(node), getMdPrecision(node->getType()), 0);
     glaBuilder->setOutputMetadata(storage, md);
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot)
 {    
-    int mdLocation = slot;
-    if (node->getQualifier().layoutSlotLocation != TQualifier::layoutLocationEnd)
-        mdLocation = node->getQualifier().layoutSlotLocation;
-
-    return metadata.makeMdInputOutput(node->getSymbol().c_str(), "inputs", getMdQualifier(node), typeProxy, getMdTypeLayout(node), getMdPrecision(node->getType()), mdLocation);
-
-    // TODO: linker: avoid replication of the same node
-    // TODO: linker: the metadata storage is sometimes optimized away, need an external global copy of it for typing purposes
+    return metadata.makeMdInputOutput(node->getSymbol().c_str(), "inputs", getMdQualifier(node), 
+                                      makePermanentTypeProxy(typeProxy), getMdTypeLayout(node), 
+                                      getMdPrecision(node->getType()), slot);
 }
 
 //

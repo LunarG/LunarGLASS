@@ -160,14 +160,14 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !outputs = !{!0}
 !defaultUniforms = !{!2, !4}
-!inputs = !{!5, !5}
+!inputs = !{!5}
 
-!0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow, metadata !1}
+!0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"m4", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix m4", metadata !3}
 !3 = metadata !{i32 3, i32 0, i32 0}
 !4 = metadata !{metadata !"m3", i32 12, [3 x <3 x float>] addrspace(2)* @"matrix m3", metadata !3}
-!5 = metadata !{metadata !"v3", i32 7, <3 x float>* @v3_shadow, metadata !6}
+!5 = metadata !{metadata !"v3", i32 7, <3 x float>* @v3_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1024}
 
 
@@ -225,14 +225,14 @@ declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>)
 
 !outputs = !{!0}
 !defaultUniforms = !{!2, !4}
-!inputs = !{!5, !5}
+!inputs = !{!5}
 
-!0 = metadata !{metadata !"gl_Position", i32 8, null, metadata !1}
+!0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"m4", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix m4", metadata !3}
 !3 = metadata !{i32 3, i32 0, i32 0}
 !4 = metadata !{metadata !"m3", i32 12, [3 x <3 x float>] addrspace(2)* @"matrix m3", metadata !3}
-!5 = metadata !{metadata !"v3", i32 7, null, metadata !6}
+!5 = metadata !{metadata !"v3", i32 7, <3 x float>* @v3_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1024}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####

@@ -119,14 +119,14 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !defaultUniforms = !{!3}
 !inputs = !{!5, !7}
 
-!0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow, metadata !1}
+!0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 3, i32 0}
-!2 = metadata !{metadata !"f", i32 1, float* @f_shadow, metadata !1}
+!2 = metadata !{metadata !"f", i32 1, float* @f_shadow_typeProxy, metadata !1}
 !3 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix mvp", metadata !4}
 !4 = metadata !{i32 3, i32 3, i32 0}
-!5 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow, metadata !6}
+!5 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 3, i32 1024}
-!7 = metadata !{metadata !"am3", i32 7, [3 x <3 x float>]* @"matrix am3_shadow", metadata !8}
+!7 = metadata !{metadata !"am3", i32 7, [3 x <3 x float>]* @"matrix am3_shadow_typeProxy", metadata !8}
 !8 = metadata !{i32 3, i32 3, i32 1025}
 !9 = metadata !{i32 3}
 
@@ -220,14 +220,14 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !defaultUniforms = !{!3}
 !inputs = !{!5, !7}
 
-!0 = metadata !{metadata !"gl_Position", i32 8, null, metadata !1}
+!0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 3, i32 0}
-!2 = metadata !{metadata !"f", i32 1, null, metadata !1}
+!2 = metadata !{metadata !"f", i32 1, float* @f_shadow_typeProxy, metadata !1}
 !3 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix mvp", metadata !4}
 !4 = metadata !{i32 3, i32 3, i32 0}
-!5 = metadata !{metadata !"v", i32 7, null, metadata !6}
+!5 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 3, i32 1024}
-!7 = metadata !{metadata !"am3", i32 7, null, metadata !8}
+!7 = metadata !{metadata !"am3", i32 7, [3 x <3 x float>]* @"matrix am3_shadow_typeProxy", metadata !8}
 !8 = metadata !{i32 3, i32 3, i32 1025}
 !9 = metadata !{i32 3}
 #### BEGIN COMPILER 0 INFO LOG ####

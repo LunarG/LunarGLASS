@@ -80,15 +80,15 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !0 = metadata !{metadata !"texSampler2D", i32 0, i32 addrspace(1)* @"sampler2D texSampler2D", i32 1, i1 false, i1 false}
 !1 = metadata !{metadata !"texSampler3D", i32 0, i32 addrspace(1)* @"sampler3D texSampler3D", i32 2, i1 false, i1 false}
-!2 = metadata !{metadata !"t", i32 7, <2 x float>* @t_shadow, metadata !3}
+!2 = metadata !{metadata !"t", i32 7, <2 x float>* @t_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 0, i32 1024}
-!4 = metadata !{metadata !"coords", i32 7, <3 x float>* @coords_shadow, metadata !5}
+!4 = metadata !{metadata !"coords", i32 7, <3 x float>* @coords_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 0, i32 0, i32 1025}
 !6 = metadata !{metadata !"scale", i32 12, <2 x float> addrspace(2)* @scale, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 0}
 !8 = metadata !{metadata !"u", i32 12, <4 x float> addrspace(2)* @u, metadata !7}
 !9 = metadata !{metadata !"blend", i32 12, float addrspace(2)* @blend, metadata !7}
-!10 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !7}
+!10 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
 
 
 Bottom IR:
@@ -148,15 +148,15 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 
 !0 = metadata !{metadata !"texSampler2D", i32 0, i32 addrspace(1)* @"sampler2D texSampler2D", i32 1, i1 false, i1 false}
 !1 = metadata !{metadata !"texSampler3D", i32 0, i32 addrspace(1)* @"sampler3D texSampler3D", i32 2, i1 false, i1 false}
-!2 = metadata !{metadata !"t", i32 7, null, metadata !3}
+!2 = metadata !{metadata !"t", i32 7, <2 x float>* @t_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 0, i32 1024}
-!4 = metadata !{metadata !"coords", i32 7, null, metadata !5}
+!4 = metadata !{metadata !"coords", i32 7, <3 x float>* @coords_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 0, i32 0, i32 1025}
 !6 = metadata !{metadata !"scale", i32 12, <2 x float> addrspace(2)* @scale, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 0}
 !8 = metadata !{metadata !"u", i32 12, <4 x float> addrspace(2)* @u, metadata !7}
 !9 = metadata !{metadata !"blend", i32 12, float addrspace(2)* @blend, metadata !7}
-!10 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !7}
+!10 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

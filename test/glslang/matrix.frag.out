@@ -1055,9 +1055,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !outputs = !{!0}
 !defaultUniforms = !{!2, !4, !5, !6, !5, !5, !6, !2, !2, !7}
-!inputs = !{!8, !10, !10, !10, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !12, !12, !12, !12, !12, !12, !12, !10}
+!inputs = !{!8, !10, !12}
 
-!0 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow, metadata !1}
+!0 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"un34", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix un34", metadata !3}
 !3 = metadata !{i32 3, i32 0, i32 0}
@@ -1065,11 +1065,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !5 = metadata !{metadata !"m", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix m", metadata !3}
 !6 = metadata !{metadata !"n", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix n", metadata !3}
 !7 = metadata !{metadata !"um43", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix um43", metadata !3}
-!8 = metadata !{metadata !"Color", i32 7, <3 x float>* @Color_shadow, metadata !9}
+!8 = metadata !{metadata !"Color", i32 7, <3 x float>* @Color_shadow_typeProxy, metadata !9}
 !9 = metadata !{i32 0, i32 0, i32 1024}
-!10 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow, metadata !11}
+!10 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow_typeProxy, metadata !11}
 !11 = metadata !{i32 0, i32 0, i32 1025}
-!12 = metadata !{metadata !"u", i32 7, <4 x float>* @u_shadow, metadata !13}
+!12 = metadata !{metadata !"u", i32 7, <4 x float>* @u_shadow_typeProxy, metadata !13}
 !13 = metadata !{i32 0, i32 0, i32 1026}
 
 
@@ -1519,9 +1519,9 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 
 !outputs = !{!0}
 !defaultUniforms = !{!2, !4, !5, !6, !5, !5, !6, !2, !2, !7}
-!inputs = !{!8, !10, !10, !10, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !10, !12, !12, !12, !12, !12, !12, !12, !12, !10}
+!inputs = !{!8, !10, !12}
 
-!0 = metadata !{metadata !"gl_FragColor", i32 1, null, metadata !1}
+!0 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"un34", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix un34", metadata !3}
 !3 = metadata !{i32 3, i32 0, i32 0}
@@ -1529,11 +1529,11 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 !5 = metadata !{metadata !"m", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix m", metadata !3}
 !6 = metadata !{metadata !"n", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix n", metadata !3}
 !7 = metadata !{metadata !"um43", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix um43", metadata !3}
-!8 = metadata !{metadata !"Color", i32 7, null, metadata !9}
+!8 = metadata !{metadata !"Color", i32 7, <3 x float>* @Color_shadow_typeProxy, metadata !9}
 !9 = metadata !{i32 0, i32 0, i32 1024}
-!10 = metadata !{metadata !"v", i32 7, null, metadata !11}
+!10 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow_typeProxy, metadata !11}
 !11 = metadata !{i32 0, i32 0, i32 1025}
-!12 = metadata !{metadata !"u", i32 7, null, metadata !13}
+!12 = metadata !{metadata !"u", i32 7, <4 x float>* @u_shadow_typeProxy, metadata !13}
 !13 = metadata !{i32 0, i32 0, i32 1026}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:6: varying deprecated in version 130; may be removed in future release

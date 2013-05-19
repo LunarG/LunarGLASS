@@ -141,15 +141,15 @@ declare float @llvm.gla.fSin.f32.f32(float) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!inputs = !{!0, !2, !4, !0}
+!inputs = !{!0, !2, !4}
 !defaultUniforms = !{!6, !8, !8, !10, !10, !8, !10, !8}
 !outputs = !{!12}
 
-!0 = metadata !{metadata !"highfin", i32 7, <4 x float>* @highfin_shadow, metadata !1}
+!0 = metadata !{metadata !"highfin", i32 7, <4 x float>* @highfin_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 3, i32 1024}
-!2 = metadata !{metadata !"lowfin", i32 7, float* @lowfin_shadow, metadata !3}
+!2 = metadata !{metadata !"lowfin", i32 7, float* @lowfin_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 1, i32 1025}
-!4 = metadata !{metadata !"mediumfin", i32 7, float* @mediumfin_shadow, metadata !5}
+!4 = metadata !{metadata !"mediumfin", i32 7, float* @mediumfin_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 0, i32 2, i32 1026}
 !6 = metadata !{metadata !"uniform_medium", i32 12, i32 addrspace(2)* @uniform_medium, metadata !7}
 !7 = metadata !{i32 0, i32 2, i32 0}
@@ -157,7 +157,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !9 = metadata !{i32 0, i32 3, i32 0}
 !10 = metadata !{metadata !"uniform_low", i32 12, i32 addrspace(2)* @uniform_low, metadata !11}
 !11 = metadata !{i32 0, i32 1, i32 0}
-!12 = metadata !{metadata !"mediumfout", i32 1, <4 x float>* @mediumfout_shadow, metadata !7}
+!12 = metadata !{metadata !"mediumfout", i32 1, <4 x float>* @mediumfout_shadow_typeProxy, metadata !7}
 !13 = metadata !{i32 3}
 !14 = metadata !{i32 1}
 !15 = metadata !{i32 2}
@@ -218,15 +218,15 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
-!inputs = !{!0, !2, !4, !0}
+!inputs = !{!0, !2, !4}
 !defaultUniforms = !{!6, !8, !8, !10, !10, !8, !10, !8}
 !outputs = !{!12}
 
-!0 = metadata !{metadata !"highfin", i32 7, null, metadata !1}
+!0 = metadata !{metadata !"highfin", i32 7, <4 x float>* @highfin_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 3, i32 1024}
-!2 = metadata !{metadata !"lowfin", i32 7, null, metadata !3}
+!2 = metadata !{metadata !"lowfin", i32 7, float* @lowfin_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 1, i32 1025}
-!4 = metadata !{metadata !"mediumfin", i32 7, null, metadata !5}
+!4 = metadata !{metadata !"mediumfin", i32 7, float* @mediumfin_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 0, i32 2, i32 1026}
 !6 = metadata !{metadata !"uniform_medium", i32 12, i32 addrspace(2)* @uniform_medium, metadata !7}
 !7 = metadata !{i32 0, i32 2, i32 0}
@@ -234,7 +234,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !9 = metadata !{i32 0, i32 3, i32 0}
 !10 = metadata !{metadata !"uniform_low", i32 12, i32 addrspace(2)* @uniform_low, metadata !11}
 !11 = metadata !{i32 0, i32 1, i32 0}
-!12 = metadata !{metadata !"mediumfout", i32 1, null, metadata !7}
+!12 = metadata !{metadata !"mediumfout", i32 1, <4 x float>* @mediumfout_shadow_typeProxy, metadata !7}
 !13 = metadata !{i32 1}
 !14 = metadata !{i32 2}
 !15 = metadata !{i32 3}
