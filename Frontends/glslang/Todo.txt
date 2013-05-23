@@ -4,8 +4,8 @@ LLVM 3.2
 Thread safety
  - Move to thread safe version of flex
 
- Performance
-  - fix difference between fReadData and fReadInterpolant: LLVM is optimizing multiple uses of one but not the other
+Performance
+ - fix difference between fReadData and fReadInterpolant: LLVM is optimizing multiple uses of one but not the other
 
 Interfacing
   + Separate top and bottom IR into two files from IntrinsicsLunarGLASS.td
@@ -16,13 +16,15 @@ Interfacing
   - Put glslang in a namespace
   + Fix any copyrights
   - Linker I/O: to be done as metadata
-     - all matrix types globals
+     + all matrix types globals
 	 - uniform blocks; names and content
-	 - all opaque types
-	 - layout qualifiers, packing: std140/packed/shared and column-major vs. row-major
+	 + all opaque types
+	 + layout qualifiers, packing: std140/packed/shared and column-major vs. row-major
 	 - layout qualifiers: locations
-     - external names for all I/O and globals
+     + external names for all I/O and globals
 	 - special built-ins (odd qualifiers)
+	 + remove all the name mangling that had been doing the above
+  + remove side-band pipeline data from the manager class
   + precision qualifiers done as metadata
      + not for EMpNone
 	 + for all binary, unary, computations, pipeline reads, etc.

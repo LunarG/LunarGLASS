@@ -445,7 +445,6 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
                                             llvm::StringRef name)
 {
     std::string annotatedName;
-    std::string pipelineName;
     if (annotation != 0) {
         annotatedName = *annotation;
         annotatedName.append(" ");
@@ -488,7 +487,6 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
 
         // both input and output will be shadowed
 
-        pipelineName = annotatedName;
         if (annotatedName.substr(0, 3) == "gl_")
             annotatedName.erase(0, 3);
         annotatedName.append("_shadow");
@@ -523,19 +521,12 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
             const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(value->getType()->getContainedType(0));
             if (arrayType) {
                 for (int index = 0; index < arrayType->getNumElements(); ++index) {
-                    std::string elementName = pipelineName;
-                    PipelineSymbol symbol = {elementName, arrayType->getContainedType(0)};
-                    manager->getPipeOutSymbols().push_back(symbol);
-
                     // wait until specific indices are used (or the whole array)
                     // to know an array element is active
                     copyOutActive.push_back(false);
                 }
-            } else {
-                PipelineSymbol symbol = {pipelineName, value->getType()->getContainedType(0)};
-                manager->getPipeOutSymbols().push_back(symbol);
+            } else
                 copyOutActive.push_back(true);
-            }
         }
 
     } else {

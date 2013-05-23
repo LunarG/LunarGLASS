@@ -67,10 +67,7 @@
 void TranslateGlslangToTop(TIntermNode* root, gla::Manager* manager)
 {
     llvm::Module* topModule = new llvm::Module("Top", llvm::getGlobalContext());
-    gla::PipelineSymbols* pipeOuts = new gla::PipelineSymbols;
-
     manager->setModule(topModule);
-    manager->setPipeOutSymbols(pipeOuts);
 
     GlslangToTop(root, manager);
 }

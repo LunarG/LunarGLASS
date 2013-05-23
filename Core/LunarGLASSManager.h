@@ -64,12 +64,6 @@ namespace llvm {
 
 namespace gla {
 
-    struct PipelineSymbol {
-        std::string name;
-        llvm::Type* type;
-    };
-    typedef std::vector<PipelineSymbol> PipelineSymbols;
-
     // Abstract class of external manager of translations within LunarGLASS.
     // Use getManager() to get a concrete manager, which should be derived
     // from gla::PrivateManager.
@@ -84,20 +78,15 @@ namespace gla {
         virtual void setVersion(int v) { version = v; }
         virtual int getVersion() const { return version; }
 
-        virtual void setPipeOutSymbols(PipelineSymbols* s) { pipeOutSymbols = s; }
-        virtual PipelineSymbols& getPipeOutSymbols() { return *pipeOutSymbols; }
-        virtual const PipelineSymbols& getPipeOutSymbols() const { return *pipeOutSymbols; }
-
         virtual void translateTopToBottom() = 0;
         virtual void translateBottomToTarget() = 0;
         virtual void dump(const char* heading) { }
 
     protected:
-        Manager() : module(0), pipeOutSymbols(0), version(0) { }
+        Manager() : module(0), version(0) { }
 
         llvm::Module* module;
 
-        PipelineSymbols* pipeOutSymbols;
         int version;    // generic versioning, details defined by front end
     };
 

@@ -375,16 +375,16 @@ ifmerge:                                          ; preds = %else, %then
   %23 = fcmp oeq <4 x float> %u, %v.0
   %24 = call i1 @llvm.gla.all.v4i1(<4 x i1> %23)
   %v27 = fmul <4 x float> %v.0, <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>
-  %select139 = select i1 %24, <4 x float> %v27, <4 x float> %v.0
-  %25 = fcmp one <4 x float> %u, %select139
+  %select138 = select i1 %24, <4 x float> %v27, <4 x float> %v.0
+  %25 = fcmp one <4 x float> %u, %select138
   %26 = call i1 @llvm.gla.any.v4i1(<4 x i1> %25)
-  %v31 = fmul <4 x float> %select139, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
-  %select141 = select i1 %26, <4 x float> %v31, <4 x float> %select139
-  %27 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %select141, <2 x i32> <i32 1, i32 3>)
+  %v31 = fmul <4 x float> %select138, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
+  %select140 = select i1 %26, <4 x float> %v31, <4 x float> %select138
+  %27 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %select140, <2 x i32> <i32 1, i32 3>)
   %28 = fcmp oeq <2 x float> %coord, %27
   %29 = call i1 @llvm.gla.all.v2i1(<2 x i1> %28)
-  %v35 = fmul <4 x float> %select141, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
-  %select138 = select i1 %29, <4 x float> %v35, <4 x float> %select141
+  %v35 = fmul <4 x float> %select140, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
+  %select139 = select i1 %29, <4 x float> %v35, <4 x float> %select140
   %30 = icmp eq i32 %1, 17
   %31 = fcmp oeq float %2, 1.700000e+01
   %32 = and i1 %30, %31
@@ -396,8 +396,8 @@ ifmerge:                                          ; preds = %else, %then
   %38 = fcmp oeq float %11, 1.400000e+01
   %39 = and i1 %37, %38
   %40 = and i1 %36, %39
-  %v56 = fmul <4 x float> %select138, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
-  %select = select i1 %40, <4 x float> %v56, <4 x float> %select138
+  %v56 = fmul <4 x float> %select139, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
+  %select = select i1 %40, <4 x float> %v56, <4 x float> %select139
   %41 = icmp ne i32 %1, 17
   %42 = fcmp one float %2, 1.700000e+01
   %43 = or i1 %41, %42
@@ -410,8 +410,8 @@ ifmerge:                                          ; preds = %else, %then
   %50 = or i1 %48, %49
   %51 = or i1 %47, %50
   %v77 = fmul <4 x float> %select, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>
-  %select140 = select i1 %51, <4 x float> %v77, <4 x float> %select
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %select140), !output !10
+  %select141 = select i1 %51, <4 x float> %v77, <4 x float> %select
+  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %select141), !output !10
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -530,16 +530,16 @@ void main()
     bvec4 temp47 = equal(u, vd0);
     bool temp48 = all(temp47);
     vec4 temp49 = vd0 * const50;
-    vec4 select139 = temp48 ? temp49 : vd0;
-    bvec4 temp52 = notEqual(u, select139);
+    vec4 select138 = temp48 ? temp49 : vd0;
+    bvec4 temp52 = notEqual(u, select138);
     bool temp53 = any(temp52);
-    vec4 temp54 = select139 * const55;
-    vec4 select141 = temp53 ? temp54 : select139;
-    vec2 temp57 = select141.yw;
+    vec4 temp54 = select138 * const55;
+    vec4 select140 = temp53 ? temp54 : select138;
+    vec2 temp57 = select140.yw;
     bvec2 temp58 = equal(coord, temp57);
     bool temp59 = all(temp58);
-    vec4 temp60 = select141 * const61;
-    vec4 select138 = temp59 ? temp60 : select141;
+    vec4 temp60 = select140 * const61;
+    vec4 select139 = temp59 ? temp60 : select140;
     bool temp63 = temp22 == const64i_17;
     bool temp65 = u.y == const66f_17;
     bool temp67 = temp63 && temp65;
@@ -551,8 +551,8 @@ void main()
     bool temp74 = w.w == const75f_14;
     bool temp76 = temp72 && temp74;
     bool temp77 = temp71 && temp76;
-    vec4 temp78 = select138 * const79;
-    vec4 select = temp77 ? temp78 : select138;
+    vec4 temp78 = select139 * const79;
+    vec4 select = temp77 ? temp78 : select139;
     bool temp81 = temp22 != const64i_17;
     bool temp82 = u.y != const66f_17;
     bool temp83 = temp81 || temp82;
@@ -565,8 +565,8 @@ void main()
     bool temp90 = temp88 || temp89;
     bool temp91 = temp87 || temp90;
     vec4 temp92 = select * const93;
-    vec4 select140 = temp91 ? temp92 : select;
-    gl_FragColor = select140;
+    vec4 select141 = temp91 ? temp92 : select;
+    gl_FragColor = select141;
     
 }
 #### BEGIN COMPILER 0 INFO LOG ####

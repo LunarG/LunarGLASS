@@ -78,9 +78,6 @@ void gla::LunarGManager::clear()
     delete module;
     module = 0;
 
-    delete pipeOutSymbols;
-    pipeOutSymbols = 0;
-
     //
     // Note this is likely not the best design example for a driver backend,
     // but that is between the private manager and the backend it is managing,
