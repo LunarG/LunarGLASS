@@ -166,7 +166,7 @@ enum EMdPrecision {
 // They take an MD node, or instruction that might point to one, and decode it, as per the enums above.
 //
 
-inline bool CrackTypeLayout(llvm::MDNode* md, EMdTypeLayout& layout, EMdPrecision& precision, int& location)
+inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPrecision& precision, int& location)
 {
     const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
     if (! constInt)
@@ -186,7 +186,7 @@ inline bool CrackTypeLayout(llvm::MDNode* md, EMdTypeLayout& layout, EMdPrecisio
     return true;
 }
 
-inline bool CrackIOMd(llvm::MDNode* md, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& aggregate)
+inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& aggregate)
 {
     symbolName = md->getOperand(0)->getName();
 
@@ -213,7 +213,7 @@ inline bool CrackIOMd(llvm::MDNode* md, std::string& symbolName, EMdInputOutput&
 
 inline bool CrackIOMd(const llvm::Instruction* instruction, llvm::StringRef kind, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& aggregate)
 {
-    llvm::MDNode* md = instruction->getMetadata(kind);
+    const llvm::MDNode* md = instruction->getMetadata(kind);
     if (! md)
         return false;
 
@@ -237,7 +237,7 @@ inline bool CrackUniformMd(const llvm::Instruction* instruction, std::string& sy
 
 inline bool CrackSamplerMd(const llvm::Instruction* instruction, std::string& symbolName, EMdSampler& sampler, llvm::Type*& type, EMdSamplerDim& dim, bool& isArray, bool& isShadow)
 {
-    llvm::MDNode* md = instruction->getMetadata("sampler");
+    const llvm::MDNode* md = instruction->getMetadata("sampler");
     if (! md)
         return false;
 
@@ -274,7 +274,7 @@ inline bool CrackPrecisionMd(const llvm::Instruction* instruction, EMdPrecision&
 {
     precision = EMpNone;
 
-    llvm::MDNode* md = instruction->getMetadata("precision");
+    const llvm::MDNode* md = instruction->getMetadata("precision");
     if (! md)
         return false;
 
