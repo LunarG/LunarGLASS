@@ -238,7 +238,7 @@ public:
     llvm::Value* createInsertValue(llvm::Value* target, llvm::Value* source, unsigned* indices, int indexCount);
 
     // To associate metadata with a copy-out value to tag the write instrinsic with
-    void setOutputMetadata(llvm::Value*, llvm::MDNode*);
+    void setOutputMetadata(llvm::Value*, llvm::MDNode*, int baseSlot);
 
     // Copy out to the pipeline the outputs we've been caching in variables
     void copyOutPipeline();
@@ -449,6 +449,7 @@ protected:
     struct copyOut {
         llvm::Value* value;
         llvm::MDNode* mdNode;
+        int baseSlot;
     };
     std::vector<copyOut> copyOuts;
     std::vector<bool> copyOutActive;   // the indexed ones that might be active

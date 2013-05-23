@@ -37,6 +37,7 @@
 #define Backend_H
 
 #include "LunarGLASSManager.h"
+#include "metadata.h"
 
 // Forward decls
 namespace llvm {
@@ -126,7 +127,6 @@ namespace gla {
         virtual void start() { }
         virtual void addStructType(llvm::StringRef, const llvm::Type*) = 0;
         virtual void addGlobal(const llvm::GlobalVariable*) { }
-        virtual void addOutputs(const PipelineSymbols&) { }
         virtual void startFunctionDeclaration(const llvm::Type*, llvm::StringRef) = 0;
         virtual void addArgument(const llvm::Value*, bool last) = 0;
         virtual void endFunctionDeclaration() = 0;

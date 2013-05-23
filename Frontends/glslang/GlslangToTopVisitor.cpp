@@ -97,10 +97,10 @@ public:
     llvm::Value* createUnaryIntrinsic(TOperator op, gla::EMdPrecision, llvm::Value* operand);
     llvm::Value* createIntrinsic(TOperator op, gla::EMdPrecision, std::vector<llvm::Value*>& operands, bool isUnsigned);
     void createPipelineRead(TIntermSymbol*, llvm::Value* storage, int slot, llvm::MDNode*);
-    int getInputSlot(TIntermSymbol* node, int numSlots);
+    int assignSlot(TIntermSymbol* node, bool input);
     llvm::Value* createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
     void setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
-    void setOutputMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
+    void setOutputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot);
     llvm::MDNode* makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot);
 
     llvm::LLVMContext &context;
@@ -110,12 +110,12 @@ public:
     gla::Metadata metadata;
 
     gla::Builder* glaBuilder;
-    int interpIndex;
+    int nextSlot;                // non-user set interpolations slots, virtual space, so inputs and outputs can both share it
     bool inMain;
 
     std::map<int, llvm::Value*> namedValues;
     std::map<std::string, llvm::Function*> functionMap;
-    std::map<std::string, int> inputSlotMap;
+    std::map<std::string, int> slotMap;
     std::map<int, llvm::MDNode*> inputMdMap;
     std::map<TTypeList*, llvm::StructType*> structMap;
     std::stack<bool> breakForLoop;  // false means break for switch
@@ -234,7 +234,7 @@ const int UnknownArraySize = 8;
 TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
     : context(llvm::getGlobalContext()), llvmBuilder(context),
       module(manager->getModule()), metadata(context, module),
-      interpIndex(gla::MaxUserLayoutLocation), inMain(false), shaderEntry(0)
+      nextSlot(gla::MaxUserLayoutLocation), inMain(false), shaderEntry(0)
 {
     // do this after the builder knows the module
     glaBuilder = new gla::Builder(llvmBuilder, manager, metadata);
@@ -277,12 +277,8 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
-    TIntermSymbol* symbolNode = node->getAsSymbolNode();
-
-    assert(symbolNode);
-
-    bool input = symbolNode->getType().getQualifier().isPipeInput();
-    bool output = symbolNode->getType().getQualifier().isPipeOutput();
+    bool input = node->getType().getQualifier().isPipeInput();
+    bool output = node->getType().getQualifier().isPipeOutput();
 
     // L-value chains will be computed purely left to right, so now is "clear" time
     // (since we are on the symbol; the base of the expression, which is left-most)
@@ -291,16 +287,18 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     // we will shadow inputs in global variables, so everything gets a variable
     // allocated, see if we've cached it
     std::map<int, llvm::Value*>::iterator iter;
-    iter = oit->namedValues.find(symbolNode->getId());
+    iter = oit->namedValues.find(node->getId());
     llvm::Value* storage;
     if (oit->namedValues.end() == iter) {
         // it was not found, create it
-        storage = oit->createLLVMVariable(symbolNode);
-        oit->namedValues[symbolNode->getId()] = storage;
+        storage = oit->createLLVMVariable(node);
+        oit->namedValues[node->getId()] = storage;
 
         // set up metadata for future pipeline intrinsic writes
-        if (output)
-            oit->setOutputMetadata(node, storage);
+        if (output) {
+            int slot = oit->assignSlot(node, input);
+            oit->setOutputMetadata(node, storage, slot);
+        }
     } else
         storage = iter->second;
 
@@ -308,13 +306,13 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     oit->glaBuilder->setAccessChainLValue(storage);
 
     // Set up metadata for uniform/sampler inputs
-    if (symbolNode->getType().getQualifier().isUniform())
+    if (node->getType().getQualifier().isUniform())
         oit->setAccessChainMetadata(node, storage);
 
     // If it's an arrayed output, we also want to know which indices
     // are live.
-    if (symbolNode->isArray()) {
-        switch (symbolNode->getQualifier().storage) {
+    if (node->isArray()) {
+        switch (node->getQualifier().storage) {
         case EvqVaryingOut:
         case EvqClipVertex:
         case EvqFragColor:
@@ -325,24 +323,16 @@ void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
     }
 
     if (input) {
-        int size = 1;
-        if (symbolNode->getType().isArray()) {
-            size = symbolNode->getType().getArraySize();
-            if (size == 0)
-                size = UnknownArraySize;
-        }
-
-        int slot = oit->getInputSlot(symbolNode, size);
-
+        int slot = oit->assignSlot(node, input);
         llvm::MDNode* mdNode = oit->inputMdMap[slot];
         if (mdNode == 0) {
             // set up metadata for pipeline intrinsic read
-            mdNode = oit->makeInputMetadata(symbolNode, storage, slot);
+            mdNode = oit->makeInputMetadata(node, storage, slot);
             oit->inputMdMap[slot] = mdNode;
         }
 
         // do the actual read
-        oit->createPipelineRead(symbolNode, storage, slot, mdNode);
+        oit->createPipelineRead(node, storage, slot, mdNode);
     }
 }
 
@@ -2108,11 +2098,17 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value
     }
 }
 
-int TGlslangToTopTraverser::getInputSlot(TIntermSymbol* node, int numSlots)
+int TGlslangToTopTraverser::assignSlot(TIntermSymbol* node, bool input)
 {
-    int slot;
+    int numSlots = 1;
+    if (node->getType().isArray()) {
+        numSlots = node->getType().getArraySize();
+        if (numSlots == 0)
+            numSlots = UnknownArraySize;
+    }
 
     // Get the index for this interpolant, or create a new unique one
+    int slot;
     if (node->getQualifier().hasLocation()) {
         slot = node->getQualifier().layoutSlotLocation;
         
@@ -2123,14 +2119,14 @@ int TGlslangToTopTraverser::getInputSlot(TIntermSymbol* node, int numSlots)
 
     std::map<std::string, int>::iterator iter;
     const char* name = node->getSymbol().c_str();
-    iter = inputSlotMap.find(name);
+    iter = slotMap.find(name);
 
-    if (inputSlotMap.end() == iter) {
-        inputSlotMap[name] = interpIndex;
-        interpIndex += numSlots;
+    if (slotMap.end() == iter) {
+        slotMap[name] = nextSlot;
+        nextSlot += numSlots;
     }
 
-    return inputSlotMap[name];
+    return slotMap[name];
 }
 
 llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType, constUnion *consts, int& nextConst)
@@ -2215,11 +2211,11 @@ void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::V
     }
 }
 
-void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value* storage)
+void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value* storage, int slot)
 {    
     llvm::MDNode* md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "outputs", getMdQualifier(node), 
-                                                  makePermanentTypeProxy(storage), getMdTypeLayout(node), getMdPrecision(node->getType()), 0);
-    glaBuilder->setOutputMetadata(storage, md);
+                                                  makePermanentTypeProxy(storage), getMdTypeLayout(node), getMdPrecision(node->getType()), slot);
+    glaBuilder->setOutputMetadata(storage, md, slot);
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot)

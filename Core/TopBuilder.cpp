@@ -598,29 +598,30 @@ void Builder::trackOutputIndex(llvm::Value* base, const llvm::Value* gepIndex)
             arrayIndex = index->getValue().getSExtValue();
     }
 
-    int slot = 0;
+    int activeIndex = 0;
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
         const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out].value->getType()->getContainedType(0));
         if (arrayType) {
             if (copyOuts[out].value == base) {
                 if (arrayIndex == -1) {
                     for (int index = 0; index < arrayType->getNumElements(); ++index)
-                        copyOutActive[slot + index] = true;
+                        copyOutActive[activeIndex + index] = true;
                 } else
-                    copyOutActive[slot + arrayIndex] = true;
+                    copyOutActive[activeIndex + arrayIndex] = true;
             }
-            slot += arrayType->getNumElements();
+            activeIndex += arrayType->getNumElements();
         } else
-            slot++;
+            activeIndex++;
     }
 }
 
-void Builder::setOutputMetadata(llvm::Value* value, llvm::MDNode* mdNode)
+void Builder::setOutputMetadata(llvm::Value* value, llvm::MDNode* mdNode, int baseSlot)
 {
     // it's most likely the last one pushed...
     for (unsigned int out = copyOuts.size() - 1; out >= 0; ++out) {
         if (copyOuts[out].value == value) {
             copyOuts[out].mdNode = mdNode;
+            copyOuts[out].baseSlot = baseSlot;
             break;
         }
     }
@@ -628,27 +629,29 @@ void Builder::setOutputMetadata(llvm::Value* value, llvm::MDNode* mdNode)
 
 void Builder::copyOutPipeline()
 {
-    int slot = 0;
-    // TODO: linker: track output slot locations, user vs. assigned
+    int activeIndex = 0;
 
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
         const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out].value->getType()->getContainedType(0));
+        int slot = copyOuts[out].baseSlot;
         if (arrayType) {
             std::vector<llvm::Value*> gepChain;
             gepChain.push_back(MakeIntConstant(context, 0));
             for (int index = 0; index < arrayType->getNumElements(); ++index) {
-                if (copyOutActive[slot]) {
+                if (copyOutActive[activeIndex]) {
                     gepChain.push_back(MakeIntConstant(context, index));
                     llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out].value, gepChain));
                     writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].mdNode);
                     gepChain.pop_back();
                 }
                 ++slot;
+                ++activeIndex;
             }
         } else {
             llvm::Value* loadVal = builder.CreateLoad(copyOuts[out].value);
             writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].mdNode);
             ++slot;
+            ++activeIndex;
         }
     }
 }

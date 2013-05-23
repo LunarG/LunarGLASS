@@ -54,7 +54,7 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %23 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %23), !output !10
+  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %23), !output !10
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -88,7 +88,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !7 = metadata !{i32 0, i32 0, i32 0}
 !8 = metadata !{metadata !"u", i32 12, <4 x float> addrspace(2)* @u, metadata !7}
 !9 = metadata !{metadata !"blend", i32 12, float addrspace(2)* @blend, metadata !7}
-!10 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
+!10 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !11}
+!11 = metadata !{i32 0, i32 0, i32 1026}
 
 
 Bottom IR:
@@ -117,7 +118,7 @@ entry:
   %10 = load <4 x float> addrspace(2)* @u, align 16, !uniform !8
   %w2 = fadd <4 x float> %6, %8
   %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %w2, <4 x float> %10, float %9)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow), !output !10
+  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %FragColor_shadow), !output !10
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -156,7 +157,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 !7 = metadata !{i32 0, i32 0, i32 0}
 !8 = metadata !{metadata !"u", i32 12, <4 x float> addrspace(2)* @u, metadata !7}
 !9 = metadata !{metadata !"blend", i32 12, float addrspace(2)* @blend, metadata !7}
-!10 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
+!10 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !11}
+!11 = metadata !{i32 0, i32 0, i32 1026}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

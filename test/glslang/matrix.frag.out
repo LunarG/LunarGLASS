@@ -31,7 +31,7 @@ entry:
   %8 = extractelement <4 x float> %0, i32 3
   %FragColor_shadow = insertelement <4 x float> %7, float %8, i32 3
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
-  %Color__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !input !8
+  %Color__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !input !8
   store <3 x float> %Color__, <3 x float>* @Color_shadow
   %9 = load <3 x float>* @Color_shadow
   %10 = load [3 x <3 x float>] addrspace(2)* @"matrix colorTransform", !uniform !4
@@ -81,7 +81,7 @@ entry:
   br i1 %37, label %then, label %else
 
 then:                                             ; preds = %entry
-  %v__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__, <4 x float>* @v_shadow
   %38 = load <4 x float>* @v_shadow
   %39 = load <4 x float>* @FragColor_shadow
@@ -91,7 +91,7 @@ then:                                             ; preds = %entry
 
 else:                                             ; preds = %entry
   %40 = load [4 x <4 x float>] addrspace(2)* @"matrix m", !uniform !5
-  %v__14 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__14 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__14, <4 x float>* @v_shadow
   %41 = load <4 x float>* @v_shadow
   %42 = alloca <4 x float>
@@ -167,7 +167,7 @@ else:                                             ; preds = %entry
   %48 = load <4 x float>* @FragColor_shadow
   %FragColor_shadow75 = fadd <4 x float> %48, %47
   store <4 x float> %FragColor_shadow75, <4 x float>* @FragColor_shadow
-  %v__76 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__76 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__76, <4 x float>* @v_shadow
   %49 = load <4 x float>* @v_shadow
   %50 = load [4 x <4 x float>] addrspace(2)* @"matrix m", !uniform !5
@@ -210,146 +210,146 @@ else:                                             ; preds = %entry
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %v__96 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__96 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__96, <4 x float>* @v_shadow
   %65 = load <4 x float>* @v_shadow
   %66 = extractelement <4 x float> %65, i32 0
-  %u__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__, <4 x float>* @u_shadow
   %67 = load <4 x float>* @u_shadow
   %68 = extractelement <4 x float> %67, i32 0
   %69 = fmul float %66, %68
-  %v__97 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__97 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__97, <4 x float>* @v_shadow
   %70 = load <4 x float>* @v_shadow
   %71 = extractelement <4 x float> %70, i32 0
-  %u__98 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__98 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__98, <4 x float>* @u_shadow
   %72 = load <4 x float>* @u_shadow
   %73 = extractelement <4 x float> %72, i32 1
   %74 = fmul float %71, %73
-  %v__99 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__99 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__99, <4 x float>* @v_shadow
   %75 = load <4 x float>* @v_shadow
   %76 = extractelement <4 x float> %75, i32 0
-  %u__100 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__100 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__100, <4 x float>* @u_shadow
   %77 = load <4 x float>* @u_shadow
   %78 = extractelement <4 x float> %77, i32 2
   %79 = fmul float %76, %78
-  %v__101 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__101 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__101, <4 x float>* @v_shadow
   %80 = load <4 x float>* @v_shadow
   %81 = extractelement <4 x float> %80, i32 0
-  %u__102 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__102 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__102, <4 x float>* @u_shadow
   %82 = load <4 x float>* @u_shadow
   %83 = extractelement <4 x float> %82, i32 3
   %84 = fmul float %81, %83
-  %v__103 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__103 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__103, <4 x float>* @v_shadow
   %85 = load <4 x float>* @v_shadow
   %86 = extractelement <4 x float> %85, i32 1
-  %u__104 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__104 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__104, <4 x float>* @u_shadow
   %87 = load <4 x float>* @u_shadow
   %88 = extractelement <4 x float> %87, i32 0
   %89 = fmul float %86, %88
-  %v__105 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__105 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__105, <4 x float>* @v_shadow
   %90 = load <4 x float>* @v_shadow
   %91 = extractelement <4 x float> %90, i32 1
-  %u__106 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__106 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__106, <4 x float>* @u_shadow
   %92 = load <4 x float>* @u_shadow
   %93 = extractelement <4 x float> %92, i32 1
   %94 = fmul float %91, %93
-  %v__107 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__107 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__107, <4 x float>* @v_shadow
   %95 = load <4 x float>* @v_shadow
   %96 = extractelement <4 x float> %95, i32 1
-  %u__108 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__108 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__108, <4 x float>* @u_shadow
   %97 = load <4 x float>* @u_shadow
   %98 = extractelement <4 x float> %97, i32 2
   %99 = fmul float %96, %98
-  %v__109 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__109 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__109, <4 x float>* @v_shadow
   %100 = load <4 x float>* @v_shadow
   %101 = extractelement <4 x float> %100, i32 1
-  %u__110 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__110 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__110, <4 x float>* @u_shadow
   %102 = load <4 x float>* @u_shadow
   %103 = extractelement <4 x float> %102, i32 3
   %104 = fmul float %101, %103
-  %v__111 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__111 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__111, <4 x float>* @v_shadow
   %105 = load <4 x float>* @v_shadow
   %106 = extractelement <4 x float> %105, i32 2
-  %u__112 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__112 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__112, <4 x float>* @u_shadow
   %107 = load <4 x float>* @u_shadow
   %108 = extractelement <4 x float> %107, i32 0
   %109 = fmul float %106, %108
-  %v__113 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__113 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__113, <4 x float>* @v_shadow
   %110 = load <4 x float>* @v_shadow
   %111 = extractelement <4 x float> %110, i32 2
-  %u__114 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__114 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__114, <4 x float>* @u_shadow
   %112 = load <4 x float>* @u_shadow
   %113 = extractelement <4 x float> %112, i32 1
   %114 = fmul float %111, %113
-  %v__115 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__115 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__115, <4 x float>* @v_shadow
   %115 = load <4 x float>* @v_shadow
   %116 = extractelement <4 x float> %115, i32 2
-  %u__116 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__116 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__116, <4 x float>* @u_shadow
   %117 = load <4 x float>* @u_shadow
   %118 = extractelement <4 x float> %117, i32 2
   %119 = fmul float %116, %118
-  %v__117 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__117 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__117, <4 x float>* @v_shadow
   %120 = load <4 x float>* @v_shadow
   %121 = extractelement <4 x float> %120, i32 2
-  %u__118 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__118 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__118, <4 x float>* @u_shadow
   %122 = load <4 x float>* @u_shadow
   %123 = extractelement <4 x float> %122, i32 3
   %124 = fmul float %121, %123
-  %v__119 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__119 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__119, <4 x float>* @v_shadow
   %125 = load <4 x float>* @v_shadow
   %126 = extractelement <4 x float> %125, i32 3
-  %u__120 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__120 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__120, <4 x float>* @u_shadow
   %127 = load <4 x float>* @u_shadow
   %128 = extractelement <4 x float> %127, i32 0
   %129 = fmul float %126, %128
-  %v__121 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__121 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__121, <4 x float>* @v_shadow
   %130 = load <4 x float>* @v_shadow
   %131 = extractelement <4 x float> %130, i32 3
-  %u__122 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__122 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__122, <4 x float>* @u_shadow
   %132 = load <4 x float>* @u_shadow
   %133 = extractelement <4 x float> %132, i32 1
   %134 = fmul float %131, %133
-  %v__123 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__123 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__123, <4 x float>* @v_shadow
   %135 = load <4 x float>* @v_shadow
   %136 = extractelement <4 x float> %135, i32 3
-  %u__124 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__124 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__124, <4 x float>* @u_shadow
   %137 = load <4 x float>* @u_shadow
   %138 = extractelement <4 x float> %137, i32 2
   %139 = fmul float %136, %138
-  %v__125 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__125 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__125, <4 x float>* @v_shadow
   %140 = load <4 x float>* @v_shadow
   %141 = extractelement <4 x float> %140, i32 3
-  %u__126 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__126 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__126, <4 x float>* @u_shadow
   %142 = load <4 x float>* @u_shadow
   %143 = extractelement <4 x float> %142, i32 3
@@ -380,7 +380,7 @@ ifmerge:                                          ; preds = %else, %then
   %column149 = insertelement <4 x float> %column148, float %144, i32 3
   %matrix150 = insertvalue [4 x <4 x float>] %matrix144, <4 x float> %column149, 3
   store [4 x <4 x float>] %matrix150, [4 x <4 x float>]* %"matrix m34"
-  %v__151 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__151 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__151, <4 x float>* @v_shadow
   %146 = load <4 x float>* @v_shadow
   %147 = extractelement <4 x float> %146, i32 0
@@ -429,28 +429,28 @@ ifmerge:                                          ; preds = %else, %then
   %column188 = fadd <4 x float> %leftColumn186, %rightColumn187
   %"matrix m34189" = insertvalue [4 x <4 x float>] %154, <4 x float> %column188, 3
   store [4 x <4 x float>] %"matrix m34189", [4 x <4 x float>]* %"matrix m34"
-  %u__190 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__190 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__190, <4 x float>* @u_shadow
   %155 = load <4 x float>* @u_shadow
-  %u__191 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__191 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__191, <4 x float>* @u_shadow
   %156 = load <4 x float>* @u_shadow
   %157 = extractelement <4 x float> %156, i32 0
-  %u__192 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__192 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__192, <4 x float>* @u_shadow
   %158 = load <4 x float>* @u_shadow
-  %u__193 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__193 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__193, <4 x float>* @u_shadow
   %159 = load <4 x float>* @u_shadow
   %160 = extractelement <4 x float> %159, i32 0
-  %u__194 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__194 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__194, <4 x float>* @u_shadow
   %161 = load <4 x float>* @u_shadow
-  %u__195 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__195 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__195, <4 x float>* @u_shadow
   %162 = load <4 x float>* @u_shadow
   %163 = extractelement <4 x float> %162, i32 0
-  %u__196 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__196 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__196, <4 x float>* @u_shadow
   %164 = load <4 x float>* @u_shadow
   %165 = extractelement <4 x float> %164, i32 0
@@ -536,7 +536,7 @@ ifmerge:                                          ; preds = %else, %then
 
 then255:                                          ; preds = %ifmerge
   %186 = load [4 x <4 x float>]* %"matrix m34"
-  %u__256 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__256 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   store <4 x float> %u__256, <4 x float>* @u_shadow
   %187 = load <4 x float>* @u_shadow
   %188 = alloca <4 x float>
@@ -949,7 +949,7 @@ else322:                                          ; preds = %ifmerge
   %dotProduct646 = fadd float %dotProduct641, %product645
   %column647 = insertelement <4 x float> %column627, float %dotProduct646, i32 3
   %resultMatrix648 = insertvalue [4 x <4 x float>] %resultMatrix566, <4 x float> %column647, 3
-  %v__649 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !10
+  %v__649 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !10
   store <4 x float> %v__649, <4 x float>* @v_shadow
   %199 = load <4 x float>* @v_shadow
   %200 = alloca <4 x float>
@@ -1032,7 +1032,7 @@ ifmerge715:                                       ; preds = %else322, %then255
 
 stage-epilogue:                                   ; preds = %ifmerge715
   %207 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %207), !output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %207), !output !0
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -1058,7 +1058,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !inputs = !{!8, !10, !12}
 
 !0 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 0}
+!1 = metadata !{i32 0, i32 0, i32 1024}
 !2 = metadata !{metadata !"un34", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix un34", metadata !3}
 !3 = metadata !{i32 3, i32 0, i32 0}
 !4 = metadata !{metadata !"colorTransform", i32 12, [3 x <3 x float>] addrspace(2)* @"matrix colorTransform", metadata !3}
@@ -1066,11 +1066,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !6 = metadata !{metadata !"n", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix n", metadata !3}
 !7 = metadata !{metadata !"um43", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix um43", metadata !3}
 !8 = metadata !{metadata !"Color", i32 7, <3 x float>* @Color_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1024}
+!9 = metadata !{i32 0, i32 0, i32 1025}
 !10 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1025}
+!11 = metadata !{i32 0, i32 0, i32 1026}
 !12 = metadata !{metadata !"u", i32 7, <4 x float>* @u_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 0, i32 1026}
+!13 = metadata !{i32 0, i32 0, i32 1027}
 
 
 Bottom IR:
@@ -1086,7 +1086,7 @@ define fastcc void @main() {
 entry:
   %gla_constGEP = getelementptr [4 x <4 x float>] addrspace(2)* @"matrix un34", i32 0, i32 1
   %0 = load <4 x float> addrspace(2)* %gla_constGEP, align 16, !uniform !2
-  %Color__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !input !8
+  %Color__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !input !8
   %1 = load [3 x <3 x float>] addrspace(2)* @"matrix colorTransform", align 16, !uniform !4
   %column = extractvalue [3 x <3 x float>] %1, 0
   %dot = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %Color__, <3 x float> %column)
@@ -1117,7 +1117,7 @@ entry:
   %13 = fcmp one <4 x float> %element111, %element212
   %14 = call i1 @llvm.gla.any.v4i1(<4 x i1> %13)
   %15 = or i1 %12, %14
-  %v__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1)
+  %v__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1)
   br i1 %15, label %then, label %else
 
 then:                                             ; preds = %entry
@@ -1197,7 +1197,7 @@ ifmerge:                                          ; preds = %else, %then
   %.pre-phi718 = phi float [ %component15, %else ], [ %.pre717, %then ]
   %.pre-phi = phi float [ %component, %else ], [ %.pre, %then ]
   %FragColor_shadow716.0 = phi <4 x float> [ %FragColor_shadow95, %else ], [ %FragColor_shadow13, %then ]
-  %u__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !12
+  %u__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !12
   %18 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float> %u__, <4 x i32> <i32 2, i32 3, i32 0, i32 0>)
   %19 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float> %u__, <4 x i32> <i32 3, i32 0, i32 0, i32 1>)
   %20 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float> %u__, <4 x i32> <i32 0, i32 0, i32 1, i32 2>)
@@ -1487,7 +1487,7 @@ else322:                                          ; preds = %ifmerge
 ifmerge715:                                       ; preds = %else322, %then255
   %.pn = phi <4 x float> [ %61, %then255 ], [ %63, %else322 ]
   %FragColor_shadow716.1 = fadd <4 x float> %FragColor_shadow716.0, %.pn
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow716.1), !output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %FragColor_shadow716.1), !output !0
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge715
@@ -1522,7 +1522,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 !inputs = !{!8, !10, !12}
 
 !0 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 0}
+!1 = metadata !{i32 0, i32 0, i32 1024}
 !2 = metadata !{metadata !"un34", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix un34", metadata !3}
 !3 = metadata !{i32 3, i32 0, i32 0}
 !4 = metadata !{metadata !"colorTransform", i32 12, [3 x <3 x float>] addrspace(2)* @"matrix colorTransform", metadata !3}
@@ -1530,11 +1530,13 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 !6 = metadata !{metadata !"n", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix n", metadata !3}
 !7 = metadata !{metadata !"um43", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix um43", metadata !3}
 !8 = metadata !{metadata !"Color", i32 7, <3 x float>* @Color_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1024}
+!9 = metadata !{i32 0, i32 0, i32 1025}
 !10 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1025}
+!11 = metadata !{i32 0, i32 0, i32 1026}
 !12 = metadata !{metadata !"u", i32 7, <4 x float>* @u_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 0, i32 1026}
+!13 = metadata !{i32 0, i32 0, i32 1027}
+
+***Unsupported functionality: couldn't get metadata for input instruction
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:6: varying deprecated in version 130; may be removed in future release
 WARNING: 0:17: varying deprecated in version 130; may be removed in future release
@@ -1552,7 +1554,7 @@ uniform mat4 n;
 uniform mat4 um43;
 in vec3 Color;
 const float const35f_1 = 1.0;
-in badp vec4 v;
+in vec4 v__;
 in vec4 u;
 const float const121f_0 = 0.0;
 const vec4 const123 = vec4(0.0, 0.0, 0.0, 0.0);
@@ -1595,41 +1597,41 @@ void main()
     bool temp54 = any(temp53);
     bool temp55 = temp50 || temp54;
     if (temp55) {
-        vec4 FragColor_shadow13 = FragColor_shadow6 + v;
-        dpredphi722 = v.w;
-        dpredphi720 = v.z;
-        dpredphi718 = v.y;
-        dpredphi = v.x;
+        vec4 FragColor_shadow13 = FragColor_shadow6 + v__;
+        dpredphi722 = v__.w;
+        dpredphi720 = v__.z;
+        dpredphi718 = v__.y;
+        dpredphi = v__.x;
         FragColor_shadow716d0 = FragColor_shadow13;
     }
     else {
-        float product = element1.x * v.x;
-        float product21 = element17.x * v.y;
+        float product = element1.x * v__.x;
+        float product21 = element17.x * v__.y;
         float dotProduct = product + product21;
-        float product24 = element19.x * v.z;
+        float product24 = element19.x * v__.z;
         float dotProduct25 = product24 + dotProduct;
-        float product28 = element111.x * v.w;
+        float product28 = element111.x * v__.w;
         float dotProduct29 = product28 + dotProduct25;
-        float product32 = element1.y * v.x;
-        float product35 = element17.y * v.y;
+        float product32 = element1.y * v__.x;
+        float product35 = element17.y * v__.y;
         float dotProduct36 = product32 + product35;
-        float product39 = element19.y * v.z;
+        float product39 = element19.y * v__.z;
         float dotProduct40 = product39 + dotProduct36;
-        float product43 = element111.y * v.w;
+        float product43 = element111.y * v__.w;
         float dotProduct44 = product43 + dotProduct40;
-        float product47 = element1.z * v.x;
-        float product50 = element17.z * v.y;
+        float product47 = element1.z * v__.x;
+        float product50 = element17.z * v__.y;
         float dotProduct51 = product47 + product50;
-        float product54 = element19.z * v.z;
+        float product54 = element19.z * v__.z;
         float dotProduct55 = product54 + dotProduct51;
-        float product58 = element111.z * v.w;
+        float product58 = element111.z * v__.w;
         float dotProduct59 = product58 + dotProduct55;
-        float product62 = element1.w * v.x;
-        float product65 = element17.w * v.y;
+        float product62 = element1.w * v__.x;
+        float product65 = element17.w * v__.y;
         float dotProduct66 = product62 + product65;
-        float product69 = element19.w * v.z;
+        float product69 = element19.w * v__.z;
         float dotProduct70 = product69 + dotProduct66;
-        float product73 = element111.w * v.w;
+        float product73 = element111.w * v__.w;
         float dotProduct74 = product73 + dotProduct70;
         vec4 temp85 = vec4(dotProduct29, dotProduct44, dotProduct59, dotProduct74);
         vec4 FragColor_shadow75 = FragColor_shadow6 + temp85;
@@ -1637,16 +1639,16 @@ void main()
         vec4 column80 = element17 - element28;
         vec4 column83 = element19 - element210;
         vec4 column86 = element111 - element212;
-        float dot88 = dot(v, column77);
-        float dot90 = dot(v, column80);
-        float dot92 = dot(v, column83);
-        float dot94 = dot(v, column86);
+        float dot88 = dot(v__, column77);
+        float dot90 = dot(v__, column80);
+        float dot92 = dot(v__, column83);
+        float dot94 = dot(v__, column86);
         vec4 temp95 = vec4(dot88, dot90, dot92, dot94);
         vec4 FragColor_shadow95 = FragColor_shadow75 + temp95;
-        dpredphi722 = v.w;
-        dpredphi720 = v.z;
-        dpredphi718 = v.y;
-        dpredphi = v.x;
+        dpredphi722 = v__.w;
+        dpredphi720 = v__.z;
+        dpredphi718 = v__.y;
+        dpredphi = v__.x;
         FragColor_shadow716d0 = FragColor_shadow95;
     }
     
@@ -1678,7 +1680,7 @@ void main()
     temp122.yzw = vec3(dpredphi, const121f_0, const121f_0);
     vec4 temp124 = const125;
     temp124.zw = vec2(dpredphi, const121f_0);
-    vec4 temp126 = vec4(const121f_0, const121f_0, const121f_0, v.x);
+    vec4 temp126 = vec4(const121f_0, const121f_0, const121f_0, v__.x);
     vec4 column179 = temp120 + temp116;
     vec4 column182 = temp122 + temp117;
     vec4 column185 = temp124 + temp118;
@@ -1887,7 +1889,351 @@ void main()
     gl_FragColor = FragColor_shadow716d1;
     
 }
+WARNING: 0:11: Two consecutive underscores are reserved for future use.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 130
+uniform mat4 un34;
+uniform mat3 colorTransform;
+uniform mat4 m;
+uniform mat4 n;
+uniform mat4 um43;
+in vec3 Color;
+const float const35f_1 = 1.0;
+in vec4 v__;
+in vec4 u;
+const float const121f_0 = 0.0;
+const vec4 const123 = vec4(0.0, 0.0, 0.0, 0.0);
+const vec4 const125 = vec4(0.0, 0.0, 0.0, 0.0);
+
+void main()
+{
+    vec4 FragColor_shadow716d0d0;
+    float dpredphid0;
+    float dpredphi718d0;
+    float dpredphi720d0;
+    float dpredphi722d0;
+    vec4 dpnd0;
+    vec4 temp271 = un34[1];
+    vec3 column2 = colorTransform[0];
+    float dot3 = dot(Color, column2);
+    vec3 column14 = colorTransform[1];
+    float dot26 = dot(Color, column14);
+    vec3 column37 = colorTransform[2];
+    float dot49 = dot(Color, column37);
+    vec4 temp34 = vec4(dot3, dot26, dot49, const35f_1);
+    vec4 FragColor_shadow611 = temp271 + temp34;
+    vec4 element112 = m[0];
+    vec4 element213 = n[0];
+    bvec4 temp3914 = notEqual(element112, element213);
+    bool temp4015 = any(temp3914);
+    vec4 element1716 = m[1];
+    vec4 element2817 = n[1];
+    bvec4 temp4318 = notEqual(element1716, element2817);
+    bool temp4419 = any(temp4318);
+    bool temp4520 = temp4015 || temp4419;
+    vec4 element1921 = m[2];
+    vec4 element21022 = n[2];
+    bvec4 temp4823 = notEqual(element1921, element21022);
+    bool temp4924 = any(temp4823);
+    bool temp5025 = temp4520 || temp4924;
+    vec4 element11126 = m[3];
+    vec4 element21227 = n[3];
+    bvec4 temp5328 = notEqual(element11126, element21227);
+    bool temp5429 = any(temp5328);
+    bool temp5530 = temp5025 || temp5429;
+    if (temp5530) {
+        vec4 FragColor_shadow1331 = FragColor_shadow611 + v__;
+        FragColor_shadow716d0d0 = FragColor_shadow1331;
+        dpredphid0 = v__.x;
+        dpredphi718d0 = v__.y;
+        dpredphi720d0 = v__.z;
+        dpredphi722d0 = v__.w;
+    }
+    else {
+        float product42 = element112.x * v__.x;
+        float product2144 = element1716.x * v__.y;
+        float dotProduct45 = product42 + product2144;
+        float product2447 = element1921.x * v__.z;
+        float dotProduct2548 = product2447 + dotProduct45;
+        float product2850 = element11126.x * v__.w;
+        float dotProduct2951 = product2850 + dotProduct2548;
+        float product3253 = element112.y * v__.x;
+        float product3555 = element1716.y * v__.y;
+        float dotProduct3656 = product3253 + product3555;
+        float product3958 = element1921.y * v__.z;
+        float dotProduct4059 = product3958 + dotProduct3656;
+        float product4361 = element11126.y * v__.w;
+        float dotProduct4462 = product4361 + dotProduct4059;
+        float product4764 = element112.z * v__.x;
+        float product5066 = element1716.z * v__.y;
+        float dotProduct5167 = product4764 + product5066;
+        float product5469 = element1921.z * v__.z;
+        float dotProduct5570 = product5469 + dotProduct5167;
+        float product5872 = element11126.z * v__.w;
+        float dotProduct5973 = product5872 + dotProduct5570;
+        float product6275 = element112.w * v__.x;
+        float product6577 = element1716.w * v__.y;
+        float dotProduct6678 = product6275 + product6577;
+        float product6980 = element1921.w * v__.z;
+        float dotProduct7081 = product6980 + dotProduct6678;
+        float product7383 = element11126.w * v__.w;
+        float dotProduct7484 = product7383 + dotProduct7081;
+        vec4 temp85 = vec4(dotProduct2951, dotProduct4462, dotProduct5973, dotProduct7484);
+        vec4 FragColor_shadow7587 = FragColor_shadow611 + temp85;
+        vec4 column7788 = element112 - element213;
+        vec4 column8089 = element1716 - element2817;
+        vec4 column8390 = element1921 - element21022;
+        vec4 column8691 = element11126 - element21227;
+        float dot8893 = dot(v__, column7788);
+        float dot9095 = dot(v__, column8089);
+        float dot9297 = dot(v__, column8390);
+        float dot9499 = dot(v__, column8691);
+        vec4 temp95 = vec4(dot8893, dot9095, dot9297, dot9499);
+        vec4 FragColor_shadow95102 = temp95 + FragColor_shadow7587;
+        FragColor_shadow716d0d0 = FragColor_shadow95102;
+        dpredphid0 = v__.x;
+        dpredphi718d0 = v__.y;
+        dpredphi720d0 = v__.z;
+        dpredphi722d0 = v__.w;
+    }
+    
+    vec4 temp97 = u.xxyz;
+    vec4 temp98 = u.wxxy;
+    vec4 temp99 = u.zwxx;
+    float temp100118 = dpredphid0 * u.x;
+    float temp101120 = dpredphid0 * u.y;
+    float temp102122 = dpredphid0 * u.z;
+    float temp103124 = dpredphid0 * u.w;
+    float temp104126 = dpredphi718d0 * u.x;
+    float temp105128 = dpredphi718d0 * u.y;
+    float temp106130 = dpredphi718d0 * u.z;
+    float temp107132 = dpredphi718d0 * u.w;
+    float temp108134 = dpredphi720d0 * u.x;
+    float temp109136 = dpredphi720d0 * u.y;
+    float temp110138 = dpredphi720d0 * u.z;
+    float temp111140 = dpredphi720d0 * u.w;
+    float temp112142 = dpredphi722d0 * u.x;
+    float temp113144 = dpredphi722d0 * u.y;
+    float temp114146 = dpredphi722d0 * u.z;
+    float temp115148 = dpredphi722d0 * u.w;
+    vec4 temp116 = vec4(temp100118, temp101120, temp102122, temp103124);
+    vec4 temp117 = vec4(temp104126, temp105128, temp106130, temp107132);
+    vec4 temp118 = vec4(temp108134, temp109136, temp110138, temp111140);
+    vec4 temp119 = vec4(temp112142, temp113144, temp114146, temp115148);
+    vec4 temp120 = vec4(dpredphid0, const121f_0, const121f_0, const121f_0);
+    vec4 temp122 = const123;
+    temp122.yzw = vec3(dpredphid0, const121f_0, const121f_0);
+    vec4 temp124 = const125;
+    temp124.zw = vec2(dpredphid0, const121f_0);
+    vec4 temp126 = vec4(const121f_0, const121f_0, const121f_0, v__.x);
+    vec4 column179166 = temp120 + temp116;
+    vec4 column182167 = temp122 + temp117;
+    vec4 column185168 = temp124 + temp118;
+    vec4 column188169 = temp126 + temp119;
+    vec4 column236171 = u + column179166;
+    vec4 column239172 = temp97 + column182167;
+    vec4 column242173 = temp98 + column185168;
+    vec4 column245174 = temp99 + column188169;
+    vec4 element2248175 = un34[0];
+    bvec4 temp136176 = equal(column236171, element2248175);
+    bool temp137177 = all(temp136176);
+    bvec4 temp139179 = equal(column239172, temp271);
+    bool temp140180 = all(temp139179);
+    bool temp141181 = temp137177 && temp140180;
+    vec4 element2252182 = un34[2];
+    bvec4 temp143183 = equal(column242173, element2252182);
+    bool temp144184 = all(temp143183);
+    bool temp145185 = temp141181 && temp144184;
+    vec4 element2254186 = un34[3];
+    bvec4 temp147187 = equal(column245174, element2254186);
+    bool temp148188 = all(temp147187);
+    bool temp149189 = temp145185 && temp148188;
+    if (temp149189) {
+        float product263192 = u.x * column236171.x;
+        float product266194 = u.y * column239172.x;
+        float dotProduct267195 = product263192 + product266194;
+        float product270197 = u.z * column242173.x;
+        float dotProduct271198 = product270197 + dotProduct267195;
+        float product274200 = u.w * column245174.x;
+        float dotProduct275201 = product274200 + dotProduct271198;
+        float product278203 = u.x * column236171.y;
+        float product281205 = u.y * column239172.y;
+        float dotProduct282206 = product278203 + product281205;
+        float product285208 = u.z * column242173.y;
+        float dotProduct286209 = product285208 + dotProduct282206;
+        float product289211 = u.w * column245174.y;
+        float dotProduct290212 = product289211 + dotProduct286209;
+        float product293214 = u.x * column236171.z;
+        float product296216 = u.y * column239172.z;
+        float dotProduct297217 = product293214 + product296216;
+        float product300219 = u.z * column242173.z;
+        float dotProduct301220 = product300219 + dotProduct297217;
+        float product304222 = u.w * column245174.z;
+        float dotProduct305223 = product304222 + dotProduct301220;
+        float product308225 = u.x * column236171.w;
+        float product311227 = u.y * column239172.w;
+        float dotProduct312228 = product308225 + product311227;
+        float product315230 = u.z * column242173.w;
+        float dotProduct316231 = product315230 + dotProduct312228;
+        float product319233 = u.w * column245174.w;
+        float dotProduct320234 = product319233 + dotProduct316231;
+        vec4 temp177 = vec4(dotProduct275201, dotProduct290212, dotProduct305223, dotProduct320234);
+        dpnd0 = temp177;
+    }
+    else {
+        vec4 rightColumn323239 = um43[0];
+        float product325240 = element2248175.x * rightColumn323239.x;
+        float product329241 = temp271.x * rightColumn323239.y;
+        float dotProduct330242 = product325240 + product329241;
+        float product334243 = element2252182.x * rightColumn323239.z;
+        float dotProduct335244 = product334243 + dotProduct330242;
+        float product339245 = element2254186.x * rightColumn323239.w;
+        float dotProduct340246 = product339245 + dotProduct335244;
+        float product345247 = element2248175.y * rightColumn323239.x;
+        float product349248 = temp271.y * rightColumn323239.y;
+        float dotProduct350249 = product345247 + product349248;
+        float product354250 = element2252182.y * rightColumn323239.z;
+        float dotProduct355251 = product354250 + dotProduct350249;
+        float product359252 = element2254186.y * rightColumn323239.w;
+        float dotProduct360253 = product359252 + dotProduct355251;
+        float product365254 = element2248175.z * rightColumn323239.x;
+        float product369255 = temp271.z * rightColumn323239.y;
+        float dotProduct370256 = product365254 + product369255;
+        float product374257 = element2252182.z * rightColumn323239.z;
+        float dotProduct375258 = product374257 + dotProduct370256;
+        float product379259 = element2254186.z * rightColumn323239.w;
+        float dotProduct380260 = product379259 + dotProduct375258;
+        float product385261 = element2248175.w * rightColumn323239.x;
+        float product389262 = temp271.w * rightColumn323239.y;
+        float dotProduct390263 = product385261 + product389262;
+        float product394264 = element2252182.w * rightColumn323239.z;
+        float dotProduct395265 = product394264 + dotProduct390263;
+        float product399266 = element2254186.w * rightColumn323239.w;
+        float dotProduct400267 = product399266 + dotProduct395265;
+        vec4 rightColumn403268 = um43[1];
+        float product407269 = element2248175.x * rightColumn403268.x;
+        float product411270 = temp271.x * rightColumn403268.y;
+        float dotProduct412271 = product407269 + product411270;
+        float product416272 = element2252182.x * rightColumn403268.z;
+        float dotProduct417273 = product416272 + dotProduct412271;
+        float product421274 = element2254186.x * rightColumn403268.w;
+        float dotProduct422275 = product421274 + dotProduct417273;
+        float product427276 = element2248175.y * rightColumn403268.x;
+        float product431277 = temp271.y * rightColumn403268.y;
+        float dotProduct432278 = product427276 + product431277;
+        float product436279 = element2252182.y * rightColumn403268.z;
+        float dotProduct437280 = product436279 + dotProduct432278;
+        float product441281 = element2254186.y * rightColumn403268.w;
+        float dotProduct442282 = product441281 + dotProduct437280;
+        float product447283 = element2248175.z * rightColumn403268.x;
+        float product451284 = temp271.z * rightColumn403268.y;
+        float dotProduct452285 = product447283 + product451284;
+        float product456286 = element2252182.z * rightColumn403268.z;
+        float dotProduct457287 = product456286 + dotProduct452285;
+        float product461288 = element2254186.z * rightColumn403268.w;
+        float dotProduct462289 = product461288 + dotProduct457287;
+        float product467290 = element2248175.w * rightColumn403268.x;
+        float product471291 = temp271.w * rightColumn403268.y;
+        float dotProduct472292 = product467290 + product471291;
+        float product476293 = element2252182.w * rightColumn403268.z;
+        float dotProduct477294 = product476293 + dotProduct472292;
+        float product481295 = element2254186.w * rightColumn403268.w;
+        float dotProduct482296 = product481295 + dotProduct477294;
+        vec4 rightColumn485297 = um43[2];
+        float product489298 = element2248175.x * rightColumn485297.x;
+        float product493299 = temp271.x * rightColumn485297.y;
+        float dotProduct494300 = product489298 + product493299;
+        float product498301 = element2252182.x * rightColumn485297.z;
+        float dotProduct499302 = product498301 + dotProduct494300;
+        float product503303 = element2254186.x * rightColumn485297.w;
+        float dotProduct504304 = product503303 + dotProduct499302;
+        float product509305 = element2248175.y * rightColumn485297.x;
+        float product513306 = temp271.y * rightColumn485297.y;
+        float dotProduct514307 = product509305 + product513306;
+        float product518308 = element2252182.y * rightColumn485297.z;
+        float dotProduct519309 = product518308 + dotProduct514307;
+        float product523310 = element2254186.y * rightColumn485297.w;
+        float dotProduct524311 = product523310 + dotProduct519309;
+        float product529312 = element2248175.z * rightColumn485297.x;
+        float product533313 = temp271.z * rightColumn485297.y;
+        float dotProduct534314 = product529312 + product533313;
+        float product538315 = element2252182.z * rightColumn485297.z;
+        float dotProduct539316 = product538315 + dotProduct534314;
+        float product543317 = element2254186.z * rightColumn485297.w;
+        float dotProduct544318 = product543317 + dotProduct539316;
+        float product549319 = element2248175.w * rightColumn485297.x;
+        float product553320 = temp271.w * rightColumn485297.y;
+        float dotProduct554321 = product549319 + product553320;
+        float product558322 = element2252182.w * rightColumn485297.z;
+        float dotProduct559323 = product558322 + dotProduct554321;
+        float product563324 = element2254186.w * rightColumn485297.w;
+        float dotProduct564325 = product563324 + dotProduct559323;
+        vec4 rightColumn567326 = um43[3];
+        float product571327 = element2248175.x * rightColumn567326.x;
+        float product575328 = temp271.x * rightColumn567326.y;
+        float dotProduct576329 = product571327 + product575328;
+        float product580330 = element2252182.x * rightColumn567326.z;
+        float dotProduct581331 = product580330 + dotProduct576329;
+        float product585332 = element2254186.x * rightColumn567326.w;
+        float dotProduct586333 = product585332 + dotProduct581331;
+        float product591334 = element2248175.y * rightColumn567326.x;
+        float product595335 = temp271.y * rightColumn567326.y;
+        float dotProduct596336 = product591334 + product595335;
+        float product600337 = element2252182.y * rightColumn567326.z;
+        float dotProduct601338 = product600337 + dotProduct596336;
+        float product605339 = element2254186.y * rightColumn567326.w;
+        float dotProduct606340 = product605339 + dotProduct601338;
+        float product611341 = element2248175.z * rightColumn567326.x;
+        float product615342 = temp271.z * rightColumn567326.y;
+        float dotProduct616343 = product611341 + product615342;
+        float product620344 = element2252182.z * rightColumn567326.z;
+        float dotProduct621345 = product620344 + dotProduct616343;
+        float product625346 = element2254186.z * rightColumn567326.w;
+        float dotProduct626347 = product625346 + dotProduct621345;
+        float product631348 = element2248175.w * rightColumn567326.x;
+        float product635349 = temp271.w * rightColumn567326.y;
+        float dotProduct636350 = product631348 + product635349;
+        float product640351 = element2252182.w * rightColumn567326.z;
+        float dotProduct641352 = product640351 + dotProduct636350;
+        float product645353 = element2254186.w * rightColumn567326.w;
+        float dotProduct646354 = product645353 + dotProduct641352;
+        float product656355 = dpredphid0 * dotProduct340246;
+        float product659356 = dpredphi718d0 * dotProduct422275;
+        float dotProduct660357 = product656355 + product659356;
+        float product663358 = dpredphi720d0 * dotProduct504304;
+        float dotProduct664359 = product663358 + dotProduct660357;
+        float product667360 = dpredphi722d0 * dotProduct586333;
+        float dotProduct668361 = product667360 + dotProduct664359;
+        float product671362 = dpredphid0 * dotProduct360253;
+        float product674363 = dpredphi718d0 * dotProduct442282;
+        float dotProduct675364 = product671362 + product674363;
+        float product678365 = dpredphi720d0 * dotProduct524311;
+        float dotProduct679366 = product678365 + dotProduct675364;
+        float product682367 = dpredphi722d0 * dotProduct606340;
+        float dotProduct683368 = product682367 + dotProduct679366;
+        float product686369 = dpredphid0 * dotProduct380260;
+        float product689370 = dpredphi718d0 * dotProduct462289;
+        float dotProduct690371 = product686369 + product689370;
+        float product693372 = dpredphi720d0 * dotProduct544318;
+        float dotProduct694373 = product693372 + dotProduct690371;
+        float product697374 = dpredphi722d0 * dotProduct626347;
+        float dotProduct698375 = product697374 + dotProduct694373;
+        float product701376 = dpredphid0 * dotProduct400267;
+        float product704377 = dpredphi718d0 * dotProduct482296;
+        float dotProduct705378 = product701376 + product704377;
+        float product708379 = dpredphi720d0 * dotProduct564325;
+        float dotProduct709380 = product708379 + dotProduct705378;
+        float product712381 = dpredphi722d0 * dotProduct646354;
+        float dotProduct713382 = product712381 + dotProduct709380;
+        vec4 temp322 = vec4(dotProduct668361, dotProduct683368, dotProduct698375, dotProduct713382);
+        dpnd0 = temp322;
+    }
+    
+    vec4 FragColor_shadow716d1387 = FragColor_shadow716d0d0 + dpnd0;
+    gl_FragColor = FragColor_shadow716d1387;
+    
+}

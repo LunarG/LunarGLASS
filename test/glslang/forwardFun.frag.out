@@ -38,7 +38,7 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %11 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %11), !output !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %11), !output !2
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -99,7 +99,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !0 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024}
 !2 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 0}
+!3 = metadata !{i32 0, i32 2, i32 1025}
 !4 = metadata !{metadata !"d", i32 12, float addrspace(2)* @d, metadata !5}
 !5 = metadata !{i32 0, i32 0, i32 0}
 !6 = metadata !{i32 2}
@@ -122,7 +122,7 @@ entry:
   %. = select i1 %5, float 0x3FF3333340000000, float 4.500000e+00
   %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %., <4 x i32> zeroinitializer)
   %FragColor_shadow = fmul <4 x float> %3, %6, !precision !6
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow), !output !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %FragColor_shadow), !output !2
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -145,7 +145,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !0 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024}
 !2 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 0}
+!3 = metadata !{i32 0, i32 2, i32 1025}
 !4 = metadata !{metadata !"d", i32 12, float addrspace(2)* @d, metadata !5}
 !5 = metadata !{i32 0, i32 0, i32 0}
 !6 = metadata !{i32 2}

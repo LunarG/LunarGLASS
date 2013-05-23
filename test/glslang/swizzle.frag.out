@@ -128,7 +128,7 @@ ifmerge:                                          ; preds = %else, %then
 
 stage-epilogue:                                   ; preds = %ifmerge
   %58 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %58), !output !5
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %58), !output !5
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -151,7 +151,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !3 = metadata !{metadata !"t", i32 7, <2 x float>* @t_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1024}
 !5 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 2, i32 0}
+!6 = metadata !{i32 0, i32 2, i32 1025}
 !7 = metadata !{i32 2}
 
 
@@ -178,7 +178,7 @@ entry:
   %9 = fmul <4 x float> %8, %4, !precision !7
   %10 = fmul <4 x float> %select, %9, !precision !7
   %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %3, <4 x float> %0, <4 x float> %10), !precision !7
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow), !output !5
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %FragColor_shadow), !output !5
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -214,7 +214,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 !3 = metadata !{metadata !"t", i32 7, <2 x float>* @t_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1024}
 !5 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 2, i32 0}
+!6 = metadata !{i32 0, i32 2, i32 1025}
 !7 = metadata !{i32 2}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####

@@ -292,7 +292,7 @@ entry:
   store <4 x float> %color42, <4 x float>* %color
   %165 = load <4 x float>* %color
   %166 = load <4 x float> addrspace(2)* @u, !uniform !10
-  %167 = load float addrspace(2)* @blend, !uniform !11
+  %167 = load float addrspace(2)* @blend, !uniform !12
   %168 = load float* %blendscale
   %169 = fmul float %167, %168
   %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %165, <4 x float> %166, float %169)
@@ -301,7 +301,7 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %170 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %170), !output !8
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %170), !output !8
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -349,7 +349,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !samplers = !{!0, !0, !0, !0, !0, !0, !1, !1, !1, !1, !2, !2, !2, !2, !3, !3, !4, !4, !5, !5, !4, !4, !5, !5, !1, !1, !1, !1, !1, !5}
 !inputs = !{!6}
 !outputs = !{!8}
-!defaultUniforms = !{!10, !11}
+!defaultUniforms = !{!10, !12}
 
 !0 = metadata !{metadata !"texSampler1D", i32 0, i32 addrspace(1)* @"sampler1D texSampler1D", i32 0, i1 false, i1 false}
 !1 = metadata !{metadata !"texSampler2D", i32 0, i32 addrspace(1)* @"sampler2D texSampler2D", i32 1, i1 false, i1 false}
@@ -360,9 +360,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !6 = metadata !{metadata !"coords2D", i32 7, <2 x float>* @coords2D_shadow_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1024}
 !8 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 0}
-!10 = metadata !{metadata !"u", i32 12, <4 x float> addrspace(2)* @u, metadata !9}
-!11 = metadata !{metadata !"blend", i32 12, float addrspace(2)* @blend, metadata !9}
+!9 = metadata !{i32 0, i32 0, i32 1025}
+!10 = metadata !{metadata !"u", i32 12, <4 x float> addrspace(2)* @u, metadata !11}
+!11 = metadata !{i32 0, i32 0, i32 0}
+!12 = metadata !{metadata !"blend", i32 12, float addrspace(2)* @blend, metadata !11}
 
 
 Bottom IR:
@@ -448,13 +449,13 @@ entry:
   %color36 = fadd <4 x float> %color34, %36
   %38 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.v2i32.v2f32.v2f32(i32 2, i32 %1, i32 257, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>, float undef, float undef, <2 x i32> <i32 3, i32 -7>, <2 x float> %gradX30, <2 x float> %gradY32)
   %color38 = fadd <4 x float> %color36, %37
-  %39 = load float addrspace(2)* @blend, align 4, !uniform !11
+  %39 = load float addrspace(2)* @blend, align 4, !uniform !12
   %color39 = fadd <4 x float> %color38, %38
   %40 = fmul float %39, 0x3FFC9FBE80000000
   %41 = load <4 x float> addrspace(2)* @u, align 16, !uniform !10
   %color42 = fadd <4 x float> %8, %color39
   %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %color42, <4 x float> %41, float %40)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow), !output !8
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %FragColor_shadow), !output !8
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -509,7 +510,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !samplers = !{!0, !0, !0, !0, !0, !0, !1, !1, !1, !1, !2, !2, !2, !2, !3, !3, !4, !4, !5, !5, !4, !4, !5, !5, !1, !1, !1, !1, !1, !5}
 !inputs = !{!6}
 !outputs = !{!8}
-!defaultUniforms = !{!10, !11}
+!defaultUniforms = !{!10, !12}
 
 !0 = metadata !{metadata !"texSampler1D", i32 0, i32 addrspace(1)* @"sampler1D texSampler1D", i32 0, i1 false, i1 false}
 !1 = metadata !{metadata !"texSampler2D", i32 0, i32 addrspace(1)* @"sampler2D texSampler2D", i32 1, i1 false, i1 false}
@@ -520,9 +521,10 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !6 = metadata !{metadata !"coords2D", i32 7, <2 x float>* @coords2D_shadow_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1024}
 !8 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 0}
-!10 = metadata !{metadata !"u", i32 12, <4 x float> addrspace(2)* @u, metadata !9}
-!11 = metadata !{metadata !"blend", i32 12, float addrspace(2)* @blend, metadata !9}
+!9 = metadata !{i32 0, i32 0, i32 1025}
+!10 = metadata !{metadata !"u", i32 12, <4 x float> addrspace(2)* @u, metadata !11}
+!11 = metadata !{i32 0, i32 0, i32 0}
+!12 = metadata !{metadata !"blend", i32 12, float addrspace(2)* @blend, metadata !11}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:14: varying deprecated in version 130; may be removed in future release
 WARNING: 0:15: varying deprecated in version 130; may be removed in future release

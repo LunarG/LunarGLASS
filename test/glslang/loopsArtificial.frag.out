@@ -221,7 +221,7 @@ loop-merge37:                                     ; preds = %then15
 
 stage-epilogue:                                   ; preds = %loop-merge37
   %81 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %81), !output !6
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %81), !output !6
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -242,7 +242,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !3 = metadata !{i32 0, i32 0, i32 0}
 !4 = metadata !{metadata !"d4", i32 12, float addrspace(2)* @d4, metadata !3}
 !5 = metadata !{metadata !"d13", i32 12, float addrspace(2)* @d13, metadata !3}
-!6 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
+!6 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 0, i32 1025}
 
 ***Unsupported functionality: general-case cross edges (requires artificial loop)
 #### END COMPILER 0 INFO LOG ####

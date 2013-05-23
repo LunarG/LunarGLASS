@@ -65,7 +65,7 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %24 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %24), !output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %24), !output !0
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -123,7 +123,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!0}
 
 !0 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 2, i32 0}
+!1 = metadata !{i32 0, i32 2, i32 1024}
 !2 = metadata !{i32 2}
 
 
@@ -132,7 +132,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> <float 3.972950e+05, float 3.972950e+05, float 3.972950e+05, float 3.972950e+05>), !output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> <float 3.972950e+05, float 3.972950e+05, float 3.972950e+05, float 3.972950e+05>), !output !0
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -147,7 +147,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!0}
 
 !0 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 2, i32 0}
+!1 = metadata !{i32 0, i32 2, i32 1024}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

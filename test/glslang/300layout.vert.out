@@ -19,135 +19,135 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %p__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 3, i32 -1), !input !4, !precision !12
+  %p__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 3, i32 -1), !input !6, !precision !14
   store <4 x float> %p__, <4 x float>* @p_shadow
   %0 = load <4 x float>* @p_shadow
   %1 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 0)
   %2 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 1)
   %3 = alloca [4 x <4 x float>]
   %4 = load [4 x <4 x float>]* %3
-  %leftColumn = extractvalue [4 x <4 x float>] %1, 0, !precision !12
-  %rightColumn = extractvalue [4 x <4 x float>] %2, 0, !precision !12
-  %column = fadd <4 x float> %leftColumn, %rightColumn, !precision !12
-  %5 = insertvalue [4 x <4 x float>] %4, <4 x float> %column, 0, !precision !12
-  %leftColumn1 = extractvalue [4 x <4 x float>] %1, 1, !precision !12
-  %rightColumn2 = extractvalue [4 x <4 x float>] %2, 1, !precision !12
-  %column3 = fadd <4 x float> %leftColumn1, %rightColumn2, !precision !12
-  %6 = insertvalue [4 x <4 x float>] %5, <4 x float> %column3, 1, !precision !12
-  %leftColumn4 = extractvalue [4 x <4 x float>] %1, 2, !precision !12
-  %rightColumn5 = extractvalue [4 x <4 x float>] %2, 2, !precision !12
-  %column6 = fadd <4 x float> %leftColumn4, %rightColumn5, !precision !12
-  %7 = insertvalue [4 x <4 x float>] %6, <4 x float> %column6, 2, !precision !12
-  %leftColumn7 = extractvalue [4 x <4 x float>] %1, 3, !precision !12
-  %rightColumn8 = extractvalue [4 x <4 x float>] %2, 3, !precision !12
-  %column9 = fadd <4 x float> %leftColumn7, %rightColumn8, !precision !12
-  %8 = insertvalue [4 x <4 x float>] %7, <4 x float> %column9, 3, !precision !12
+  %leftColumn = extractvalue [4 x <4 x float>] %1, 0, !precision !14
+  %rightColumn = extractvalue [4 x <4 x float>] %2, 0, !precision !14
+  %column = fadd <4 x float> %leftColumn, %rightColumn, !precision !14
+  %5 = insertvalue [4 x <4 x float>] %4, <4 x float> %column, 0, !precision !14
+  %leftColumn1 = extractvalue [4 x <4 x float>] %1, 1, !precision !14
+  %rightColumn2 = extractvalue [4 x <4 x float>] %2, 1, !precision !14
+  %column3 = fadd <4 x float> %leftColumn1, %rightColumn2, !precision !14
+  %6 = insertvalue [4 x <4 x float>] %5, <4 x float> %column3, 1, !precision !14
+  %leftColumn4 = extractvalue [4 x <4 x float>] %1, 2, !precision !14
+  %rightColumn5 = extractvalue [4 x <4 x float>] %2, 2, !precision !14
+  %column6 = fadd <4 x float> %leftColumn4, %rightColumn5, !precision !14
+  %7 = insertvalue [4 x <4 x float>] %6, <4 x float> %column6, 2, !precision !14
+  %leftColumn7 = extractvalue [4 x <4 x float>] %1, 3, !precision !14
+  %rightColumn8 = extractvalue [4 x <4 x float>] %2, 3, !precision !14
+  %column9 = fadd <4 x float> %leftColumn7, %rightColumn8, !precision !14
+  %8 = insertvalue [4 x <4 x float>] %7, <4 x float> %column9, 3, !precision !14
   %9 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @__anon__1, i32 0, i32 1)
   %10 = alloca [4 x <4 x float>]
   %11 = load [4 x <4 x float>]* %10
-  %leftColumn10 = extractvalue [4 x <4 x float>] %8, 0, !precision !12
-  %rightColumn11 = extractvalue [4 x <4 x float>] %9, 0, !precision !12
-  %column12 = fadd <4 x float> %leftColumn10, %rightColumn11, !precision !12
-  %12 = insertvalue [4 x <4 x float>] %11, <4 x float> %column12, 0, !precision !12
-  %leftColumn13 = extractvalue [4 x <4 x float>] %8, 1, !precision !12
-  %rightColumn14 = extractvalue [4 x <4 x float>] %9, 1, !precision !12
-  %column15 = fadd <4 x float> %leftColumn13, %rightColumn14, !precision !12
-  %13 = insertvalue [4 x <4 x float>] %12, <4 x float> %column15, 1, !precision !12
-  %leftColumn16 = extractvalue [4 x <4 x float>] %8, 2, !precision !12
-  %rightColumn17 = extractvalue [4 x <4 x float>] %9, 2, !precision !12
-  %column18 = fadd <4 x float> %leftColumn16, %rightColumn17, !precision !12
-  %14 = insertvalue [4 x <4 x float>] %13, <4 x float> %column18, 2, !precision !12
-  %leftColumn19 = extractvalue [4 x <4 x float>] %8, 3, !precision !12
-  %rightColumn20 = extractvalue [4 x <4 x float>] %9, 3, !precision !12
-  %column21 = fadd <4 x float> %leftColumn19, %rightColumn20, !precision !12
-  %15 = insertvalue [4 x <4 x float>] %14, <4 x float> %column21, 3, !precision !12
+  %leftColumn10 = extractvalue [4 x <4 x float>] %8, 0, !precision !14
+  %rightColumn11 = extractvalue [4 x <4 x float>] %9, 0, !precision !14
+  %column12 = fadd <4 x float> %leftColumn10, %rightColumn11, !precision !14
+  %12 = insertvalue [4 x <4 x float>] %11, <4 x float> %column12, 0, !precision !14
+  %leftColumn13 = extractvalue [4 x <4 x float>] %8, 1, !precision !14
+  %rightColumn14 = extractvalue [4 x <4 x float>] %9, 1, !precision !14
+  %column15 = fadd <4 x float> %leftColumn13, %rightColumn14, !precision !14
+  %13 = insertvalue [4 x <4 x float>] %12, <4 x float> %column15, 1, !precision !14
+  %leftColumn16 = extractvalue [4 x <4 x float>] %8, 2, !precision !14
+  %rightColumn17 = extractvalue [4 x <4 x float>] %9, 2, !precision !14
+  %column18 = fadd <4 x float> %leftColumn16, %rightColumn17, !precision !14
+  %14 = insertvalue [4 x <4 x float>] %13, <4 x float> %column18, 2, !precision !14
+  %leftColumn19 = extractvalue [4 x <4 x float>] %8, 3, !precision !14
+  %rightColumn20 = extractvalue [4 x <4 x float>] %9, 3, !precision !14
+  %column21 = fadd <4 x float> %leftColumn19, %rightColumn20, !precision !14
+  %15 = insertvalue [4 x <4 x float>] %14, <4 x float> %column21, 3, !precision !14
   %16 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @__anon__1, i32 0, i32 0)
   %17 = alloca [4 x <4 x float>]
   %18 = load [4 x <4 x float>]* %17
-  %leftColumn22 = extractvalue [4 x <4 x float>] %15, 0, !precision !12
-  %rightColumn23 = extractvalue [4 x <4 x float>] %16, 0, !precision !12
-  %column24 = fadd <4 x float> %leftColumn22, %rightColumn23, !precision !12
-  %19 = insertvalue [4 x <4 x float>] %18, <4 x float> %column24, 0, !precision !12
-  %leftColumn25 = extractvalue [4 x <4 x float>] %15, 1, !precision !12
-  %rightColumn26 = extractvalue [4 x <4 x float>] %16, 1, !precision !12
-  %column27 = fadd <4 x float> %leftColumn25, %rightColumn26, !precision !12
-  %20 = insertvalue [4 x <4 x float>] %19, <4 x float> %column27, 1, !precision !12
-  %leftColumn28 = extractvalue [4 x <4 x float>] %15, 2, !precision !12
-  %rightColumn29 = extractvalue [4 x <4 x float>] %16, 2, !precision !12
-  %column30 = fadd <4 x float> %leftColumn28, %rightColumn29, !precision !12
-  %21 = insertvalue [4 x <4 x float>] %20, <4 x float> %column30, 2, !precision !12
-  %leftColumn31 = extractvalue [4 x <4 x float>] %15, 3, !precision !12
-  %rightColumn32 = extractvalue [4 x <4 x float>] %16, 3, !precision !12
-  %column33 = fadd <4 x float> %leftColumn31, %rightColumn32, !precision !12
-  %22 = insertvalue [4 x <4 x float>] %21, <4 x float> %column33, 3, !precision !12
+  %leftColumn22 = extractvalue [4 x <4 x float>] %15, 0, !precision !14
+  %rightColumn23 = extractvalue [4 x <4 x float>] %16, 0, !precision !14
+  %column24 = fadd <4 x float> %leftColumn22, %rightColumn23, !precision !14
+  %19 = insertvalue [4 x <4 x float>] %18, <4 x float> %column24, 0, !precision !14
+  %leftColumn25 = extractvalue [4 x <4 x float>] %15, 1, !precision !14
+  %rightColumn26 = extractvalue [4 x <4 x float>] %16, 1, !precision !14
+  %column27 = fadd <4 x float> %leftColumn25, %rightColumn26, !precision !14
+  %20 = insertvalue [4 x <4 x float>] %19, <4 x float> %column27, 1, !precision !14
+  %leftColumn28 = extractvalue [4 x <4 x float>] %15, 2, !precision !14
+  %rightColumn29 = extractvalue [4 x <4 x float>] %16, 2, !precision !14
+  %column30 = fadd <4 x float> %leftColumn28, %rightColumn29, !precision !14
+  %21 = insertvalue [4 x <4 x float>] %20, <4 x float> %column30, 2, !precision !14
+  %leftColumn31 = extractvalue [4 x <4 x float>] %15, 3, !precision !14
+  %rightColumn32 = extractvalue [4 x <4 x float>] %16, 3, !precision !14
+  %column33 = fadd <4 x float> %leftColumn31, %rightColumn32, !precision !14
+  %22 = insertvalue [4 x <4 x float>] %21, <4 x float> %column33, 3, !precision !14
   %23 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T2 addrspace(2)* @__anon__0, i32 0, i32 1)
   %24 = alloca [4 x <4 x float>]
   %25 = load [4 x <4 x float>]* %24
-  %leftColumn34 = extractvalue [4 x <4 x float>] %22, 0, !precision !12
-  %rightColumn35 = extractvalue [4 x <4 x float>] %23, 0, !precision !12
-  %column36 = fadd <4 x float> %leftColumn34, %rightColumn35, !precision !12
-  %26 = insertvalue [4 x <4 x float>] %25, <4 x float> %column36, 0, !precision !12
-  %leftColumn37 = extractvalue [4 x <4 x float>] %22, 1, !precision !12
-  %rightColumn38 = extractvalue [4 x <4 x float>] %23, 1, !precision !12
-  %column39 = fadd <4 x float> %leftColumn37, %rightColumn38, !precision !12
-  %27 = insertvalue [4 x <4 x float>] %26, <4 x float> %column39, 1, !precision !12
-  %leftColumn40 = extractvalue [4 x <4 x float>] %22, 2, !precision !12
-  %rightColumn41 = extractvalue [4 x <4 x float>] %23, 2, !precision !12
-  %column42 = fadd <4 x float> %leftColumn40, %rightColumn41, !precision !12
-  %28 = insertvalue [4 x <4 x float>] %27, <4 x float> %column42, 2, !precision !12
-  %leftColumn43 = extractvalue [4 x <4 x float>] %22, 3, !precision !12
-  %rightColumn44 = extractvalue [4 x <4 x float>] %23, 3, !precision !12
-  %column45 = fadd <4 x float> %leftColumn43, %rightColumn44, !precision !12
-  %29 = insertvalue [4 x <4 x float>] %28, <4 x float> %column45, 3, !precision !12
+  %leftColumn34 = extractvalue [4 x <4 x float>] %22, 0, !precision !14
+  %rightColumn35 = extractvalue [4 x <4 x float>] %23, 0, !precision !14
+  %column36 = fadd <4 x float> %leftColumn34, %rightColumn35, !precision !14
+  %26 = insertvalue [4 x <4 x float>] %25, <4 x float> %column36, 0, !precision !14
+  %leftColumn37 = extractvalue [4 x <4 x float>] %22, 1, !precision !14
+  %rightColumn38 = extractvalue [4 x <4 x float>] %23, 1, !precision !14
+  %column39 = fadd <4 x float> %leftColumn37, %rightColumn38, !precision !14
+  %27 = insertvalue [4 x <4 x float>] %26, <4 x float> %column39, 1, !precision !14
+  %leftColumn40 = extractvalue [4 x <4 x float>] %22, 2, !precision !14
+  %rightColumn41 = extractvalue [4 x <4 x float>] %23, 2, !precision !14
+  %column42 = fadd <4 x float> %leftColumn40, %rightColumn41, !precision !14
+  %28 = insertvalue [4 x <4 x float>] %27, <4 x float> %column42, 2, !precision !14
+  %leftColumn43 = extractvalue [4 x <4 x float>] %22, 3, !precision !14
+  %rightColumn44 = extractvalue [4 x <4 x float>] %23, 3, !precision !14
+  %column45 = fadd <4 x float> %leftColumn43, %rightColumn44, !precision !14
+  %29 = insertvalue [4 x <4 x float>] %28, <4 x float> %column45, 3, !precision !14
   %30 = alloca <4 x float>
   %31 = load <4 x float>* %30
-  %column46 = extractvalue [4 x <4 x float>] %29, 0, !precision !12
-  %dot = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column46), !precision !12
-  %32 = insertelement <4 x float> %31, float %dot, i32 0, !precision !12
-  %column47 = extractvalue [4 x <4 x float>] %29, 1, !precision !12
-  %dot48 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column47), !precision !12
-  %33 = insertelement <4 x float> %32, float %dot48, i32 1, !precision !12
-  %column49 = extractvalue [4 x <4 x float>] %29, 2, !precision !12
-  %dot50 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column49), !precision !12
-  %34 = insertelement <4 x float> %33, float %dot50, i32 2, !precision !12
-  %column51 = extractvalue [4 x <4 x float>] %29, 3, !precision !12
-  %dot52 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column51), !precision !12
-  %pos_shadow = insertelement <4 x float> %34, float %dot52, i32 3, !precision !12
+  %column46 = extractvalue [4 x <4 x float>] %29, 0, !precision !14
+  %dot = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column46), !precision !14
+  %32 = insertelement <4 x float> %31, float %dot, i32 0, !precision !14
+  %column47 = extractvalue [4 x <4 x float>] %29, 1, !precision !14
+  %dot48 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column47), !precision !14
+  %33 = insertelement <4 x float> %32, float %dot48, i32 1, !precision !14
+  %column49 = extractvalue [4 x <4 x float>] %29, 2, !precision !14
+  %dot50 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column49), !precision !14
+  %34 = insertelement <4 x float> %33, float %dot50, i32 2, !precision !14
+  %column51 = extractvalue [4 x <4 x float>] %29, 3, !precision !14
+  %dot52 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column51), !precision !14
+  %pos_shadow = insertelement <4 x float> %34, float %dot52, i32 3, !precision !14
   store <4 x float> %pos_shadow, <4 x float>* @pos_shadow
-  %c__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 7, i32 -1), !input !6, !precision !12
+  %c__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 7, i32 -1), !input !8, !precision !14
   store <3 x float> %c__, <3 x float>* @c_shadow
   %35 = load <3 x float>* @c_shadow
   %36 = load [3 x <3 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 2)
   %37 = alloca <3 x float>
   %38 = load <3 x float>* %37
-  %column53 = extractvalue [3 x <3 x float>] %36, 0, !precision !12
-  %dot54 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %35, <3 x float> %column53), !precision !12
-  %39 = insertelement <3 x float> %38, float %dot54, i32 0, !precision !12
-  %column55 = extractvalue [3 x <3 x float>] %36, 1, !precision !12
-  %dot56 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %35, <3 x float> %column55), !precision !12
-  %40 = insertelement <3 x float> %39, float %dot56, i32 1, !precision !12
-  %column57 = extractvalue [3 x <3 x float>] %36, 2, !precision !12
-  %dot58 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %35, <3 x float> %column57), !precision !12
-  %color_shadow = insertelement <3 x float> %40, float %dot58, i32 2, !precision !12
+  %column53 = extractvalue [3 x <3 x float>] %36, 0, !precision !14
+  %dot54 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %35, <3 x float> %column53), !precision !14
+  %39 = insertelement <3 x float> %38, float %dot54, i32 0, !precision !14
+  %column55 = extractvalue [3 x <3 x float>] %36, 1, !precision !14
+  %dot56 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %35, <3 x float> %column55), !precision !14
+  %40 = insertelement <3 x float> %39, float %dot56, i32 1, !precision !14
+  %column57 = extractvalue [3 x <3 x float>] %36, 2, !precision !14
+  %dot58 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %35, <3 x float> %column57), !precision !14
+  %color_shadow = insertelement <3 x float> %40, float %dot58, i32 2, !precision !14
   store <3 x float> %color_shadow, <3 x float>* @color_shadow
   %41 = load i32 addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 3)
-  %42 = load i32 addrspace(2)* @uiuin, !uniform !10
-  %43 = add i32 %41, %42, !precision !12
-  %aiv2__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 9, i32 -1), !input !8, !precision !12
+  %42 = load i32 addrspace(2)* @uiuin, !uniform !12
+  %43 = add i32 %41, %42, !precision !14
+  %aiv2__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 9, i32 -1), !input !10, !precision !14
   store <2 x i32> %aiv2__, <2 x i32>* @aiv2_shadow
   %44 = load <2 x i32>* @aiv2_shadow
-  %45 = extractelement <2 x i32> %44, i32 1, !precision !12
-  %iout_shadow = add i32 %43, %45, !precision !12
+  %45 = extractelement <2 x i32> %44, i32 1, !precision !14
+  %iout_shadow = add i32 %43, %45, !precision !14
   store i32 %iout_shadow, i32* @iout_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
   %46 = load <4 x float>* @pos_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %46), !output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %46), !output !0
   %47 = load <3 x float>* @color_shadow
-  call void @llvm.gla.fWriteData.v3f32(i32 1, i32 -1, <3 x float> %47), !output !2
+  call void @llvm.gla.fWriteData.v3f32(i32 1025, i32 -1, <3 x float> %47), !output !2
   %48 = load i32* @iout_shadow
-  call void @llvm.gla.writeData.i32(i32 2, i32 -1, i32 %48), !output !3
+  call void @llvm.gla.writeData.i32(i32 1026, i32 -1, i32 %48), !output !4
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -170,23 +170,25 @@ declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) nounwind
 
 declare void @llvm.gla.writeData.i32(i32, i32, i32) nounwind
 
-!outputs = !{!0, !2, !3}
-!inputs = !{!4, !6, !8}
-!defaultUniforms = !{!10}
+!outputs = !{!0, !2, !4}
+!inputs = !{!6, !8, !10}
+!defaultUniforms = !{!12}
 
 !0 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 3, i32 0}
-!2 = metadata !{metadata !"color", i32 1, <3 x float>* @color_shadow_typeProxy, metadata !1}
-!3 = metadata !{metadata !"iout", i32 1, i32* @iout_shadow_typeProxy, metadata !1}
-!4 = metadata !{metadata !"p", i32 7, <4 x float>* @p_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 3, i32 3}
-!6 = metadata !{metadata !"c", i32 7, <3 x float>* @c_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 3, i32 7}
-!8 = metadata !{metadata !"aiv2", i32 7, <2 x i32>* @aiv2_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 3, i32 9}
-!10 = metadata !{metadata !"uiuin", i32 12, i32 addrspace(2)* @uiuin, metadata !11}
-!11 = metadata !{i32 1, i32 3, i32 0}
-!12 = metadata !{i32 3}
+!1 = metadata !{i32 0, i32 3, i32 1024}
+!2 = metadata !{metadata !"color", i32 1, <3 x float>* @color_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 3, i32 1025}
+!4 = metadata !{metadata !"iout", i32 1, i32* @iout_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 3, i32 1026}
+!6 = metadata !{metadata !"p", i32 7, <4 x float>* @p_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 3, i32 3}
+!8 = metadata !{metadata !"c", i32 7, <3 x float>* @c_shadow_typeProxy, metadata !9}
+!9 = metadata !{i32 0, i32 3, i32 7}
+!10 = metadata !{metadata !"aiv2", i32 7, <2 x i32>* @aiv2_shadow_typeProxy, metadata !11}
+!11 = metadata !{i32 0, i32 3, i32 9}
+!12 = metadata !{metadata !"uiuin", i32 12, i32 addrspace(2)* @uiuin, metadata !13}
+!13 = metadata !{i32 1, i32 3, i32 0}
+!14 = metadata !{i32 3}
 
 
 Bottom IR:
@@ -203,7 +205,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %p__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 3, i32 -1), !input !4, !precision !12
+  %p__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 3, i32 -1), !input !6, !precision !14
   %gla_constGEP = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 0
   %0 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP, align 16
   %gla_constGEP62 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 1
@@ -214,67 +216,67 @@ entry:
   %3 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP64, align 16
   %gla_constGEP65 = getelementptr %T2 addrspace(2)* @__anon__0, i32 0, i32 1
   %4 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP65, align 16
-  %c__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 7, i32 -1), !input !6, !precision !12
+  %c__ = call <3 x float> @llvm.gla.fReadData.v3f32(i32 7, i32 -1), !input !8, !precision !14
   %gla_constGEP66 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 2
   %5 = load [3 x <3 x float>] addrspace(2)* %gla_constGEP66, align 16
-  %rightColumn = extractvalue [4 x <4 x float>] %1, 0, !precision !12
-  %leftColumn = extractvalue [4 x <4 x float>] %0, 0, !precision !12
-  %rightColumn11 = extractvalue [4 x <4 x float>] %2, 0, !precision !12
-  %rightColumn2 = extractvalue [4 x <4 x float>] %1, 1, !precision !12
-  %leftColumn1 = extractvalue [4 x <4 x float>] %0, 1, !precision !12
-  %column = fadd <4 x float> %leftColumn, %rightColumn, !precision !12
-  %rightColumn23 = extractvalue [4 x <4 x float>] %3, 0, !precision !12
-  %rightColumn14 = extractvalue [4 x <4 x float>] %2, 1, !precision !12
-  %column12 = fadd <4 x float> %column, %rightColumn11, !precision !12
-  %rightColumn5 = extractvalue [4 x <4 x float>] %1, 2, !precision !12
-  %leftColumn4 = extractvalue [4 x <4 x float>] %0, 2, !precision !12
-  %column3 = fadd <4 x float> %leftColumn1, %rightColumn2, !precision !12
-  %rightColumn35 = extractvalue [4 x <4 x float>] %4, 0, !precision !12
-  %rightColumn26 = extractvalue [4 x <4 x float>] %3, 1, !precision !12
-  %column24 = fadd <4 x float> %column12, %rightColumn23, !precision !12
-  %rightColumn17 = extractvalue [4 x <4 x float>] %2, 2, !precision !12
-  %column15 = fadd <4 x float> %column3, %rightColumn14, !precision !12
-  %rightColumn8 = extractvalue [4 x <4 x float>] %1, 3, !precision !12
-  %leftColumn7 = extractvalue [4 x <4 x float>] %0, 3, !precision !12
-  %column6 = fadd <4 x float> %leftColumn4, %rightColumn5, !precision !12
-  %rightColumn38 = extractvalue [4 x <4 x float>] %4, 1, !precision !12
-  %column36 = fadd <4 x float> %column24, %rightColumn35, !precision !12
-  %rightColumn29 = extractvalue [4 x <4 x float>] %3, 2, !precision !12
-  %column27 = fadd <4 x float> %column15, %rightColumn26, !precision !12
-  %rightColumn20 = extractvalue [4 x <4 x float>] %2, 3, !precision !12
-  %column18 = fadd <4 x float> %column6, %rightColumn17, !precision !12
-  %column9 = fadd <4 x float> %leftColumn7, %rightColumn8, !precision !12
-  %column53 = extractvalue [3 x <3 x float>] %5, 0, !precision !12
-  %dot = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column36), !precision !12
-  %rightColumn41 = extractvalue [4 x <4 x float>] %4, 2, !precision !12
-  %column39 = fadd <4 x float> %column27, %rightColumn38, !precision !12
-  %rightColumn32 = extractvalue [4 x <4 x float>] %3, 3, !precision !12
-  %column30 = fadd <4 x float> %column18, %rightColumn29, !precision !12
-  %column21 = fadd <4 x float> %column9, %rightColumn20, !precision !12
-  %column55 = extractvalue [3 x <3 x float>] %5, 1, !precision !12
-  %dot54 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column53), !precision !12
-  %dot48 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column39), !precision !12
-  %rightColumn44 = extractvalue [4 x <4 x float>] %4, 3, !precision !12
-  %column42 = fadd <4 x float> %column30, %rightColumn41, !precision !12
-  %column33 = fadd <4 x float> %column21, %rightColumn32, !precision !12
-  %aiv2__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 9, i32 -1), !input !8, !precision !12
-  %6 = load i32 addrspace(2)* @uiuin, align 4, !uniform !10
+  %rightColumn = extractvalue [4 x <4 x float>] %1, 0, !precision !14
+  %leftColumn = extractvalue [4 x <4 x float>] %0, 0, !precision !14
+  %rightColumn11 = extractvalue [4 x <4 x float>] %2, 0, !precision !14
+  %rightColumn2 = extractvalue [4 x <4 x float>] %1, 1, !precision !14
+  %leftColumn1 = extractvalue [4 x <4 x float>] %0, 1, !precision !14
+  %column = fadd <4 x float> %leftColumn, %rightColumn, !precision !14
+  %rightColumn23 = extractvalue [4 x <4 x float>] %3, 0, !precision !14
+  %rightColumn14 = extractvalue [4 x <4 x float>] %2, 1, !precision !14
+  %column12 = fadd <4 x float> %column, %rightColumn11, !precision !14
+  %rightColumn5 = extractvalue [4 x <4 x float>] %1, 2, !precision !14
+  %leftColumn4 = extractvalue [4 x <4 x float>] %0, 2, !precision !14
+  %column3 = fadd <4 x float> %leftColumn1, %rightColumn2, !precision !14
+  %rightColumn35 = extractvalue [4 x <4 x float>] %4, 0, !precision !14
+  %rightColumn26 = extractvalue [4 x <4 x float>] %3, 1, !precision !14
+  %column24 = fadd <4 x float> %column12, %rightColumn23, !precision !14
+  %rightColumn17 = extractvalue [4 x <4 x float>] %2, 2, !precision !14
+  %column15 = fadd <4 x float> %column3, %rightColumn14, !precision !14
+  %rightColumn8 = extractvalue [4 x <4 x float>] %1, 3, !precision !14
+  %leftColumn7 = extractvalue [4 x <4 x float>] %0, 3, !precision !14
+  %column6 = fadd <4 x float> %leftColumn4, %rightColumn5, !precision !14
+  %rightColumn38 = extractvalue [4 x <4 x float>] %4, 1, !precision !14
+  %column36 = fadd <4 x float> %column24, %rightColumn35, !precision !14
+  %rightColumn29 = extractvalue [4 x <4 x float>] %3, 2, !precision !14
+  %column27 = fadd <4 x float> %column15, %rightColumn26, !precision !14
+  %rightColumn20 = extractvalue [4 x <4 x float>] %2, 3, !precision !14
+  %column18 = fadd <4 x float> %column6, %rightColumn17, !precision !14
+  %column9 = fadd <4 x float> %leftColumn7, %rightColumn8, !precision !14
+  %column53 = extractvalue [3 x <3 x float>] %5, 0, !precision !14
+  %dot = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column36), !precision !14
+  %rightColumn41 = extractvalue [4 x <4 x float>] %4, 2, !precision !14
+  %column39 = fadd <4 x float> %column27, %rightColumn38, !precision !14
+  %rightColumn32 = extractvalue [4 x <4 x float>] %3, 3, !precision !14
+  %column30 = fadd <4 x float> %column18, %rightColumn29, !precision !14
+  %column21 = fadd <4 x float> %column9, %rightColumn20, !precision !14
+  %column55 = extractvalue [3 x <3 x float>] %5, 1, !precision !14
+  %dot54 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column53), !precision !14
+  %dot48 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column39), !precision !14
+  %rightColumn44 = extractvalue [4 x <4 x float>] %4, 3, !precision !14
+  %column42 = fadd <4 x float> %column30, %rightColumn41, !precision !14
+  %column33 = fadd <4 x float> %column21, %rightColumn32, !precision !14
+  %aiv2__ = call <2 x i32> @llvm.gla.readData.v2i32(i32 9, i32 -1), !input !10, !precision !14
+  %6 = load i32 addrspace(2)* @uiuin, align 4, !uniform !12
   %gla_constGEP67 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 3
   %7 = load i32 addrspace(2)* %gla_constGEP67, align 16
-  %column57 = extractvalue [3 x <3 x float>] %5, 2, !precision !12
-  %dot56 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column55), !precision !12
-  %dot50 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column42), !precision !12
-  %column45 = fadd <4 x float> %column33, %rightColumn44, !precision !12
-  %8 = extractelement <2 x i32> %aiv2__, i32 1, !precision !12
-  %dot58 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column57), !precision !12
-  %dot52 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column45), !precision !12
-  %9 = add i32 %8, %6, !precision !12
-  %iout_shadow = add i32 %9, %7, !precision !12
+  %column57 = extractvalue [3 x <3 x float>] %5, 2, !precision !14
+  %dot56 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column55), !precision !14
+  %dot50 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column42), !precision !14
+  %column45 = fadd <4 x float> %column33, %rightColumn44, !precision !14
+  %8 = extractelement <2 x i32> %aiv2__, i32 1, !precision !14
+  %dot58 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %c__, <3 x float> %column57), !precision !14
+  %dot52 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %p__, <4 x float> %column45), !precision !14
+  %9 = add i32 %8, %6, !precision !14
+  %iout_shadow = add i32 %9, %7, !precision !14
   %10 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %dot54, i32 0, float %dot56, i32 0, float %dot58, i32 0, float undef, i32 undef)
   %11 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dot, i32 0, float %dot48, i32 0, float %dot50, i32 0, float %dot52, i32 0)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %11), !output !0
-  call void @llvm.gla.fWriteData.v3f32(i32 1, i32 -1, <3 x float> %10), !output !2
-  call void @llvm.gla.writeData.i32(i32 2, i32 -1, i32 %iout_shadow), !output !3
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %11), !output !0
+  call void @llvm.gla.fWriteData.v3f32(i32 1025, i32 -1, <3 x float> %10), !output !2
+  call void @llvm.gla.writeData.i32(i32 1026, i32 -1, i32 %iout_shadow), !output !4
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -304,23 +306,25 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 
 declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
-!outputs = !{!0, !2, !3}
-!inputs = !{!4, !6, !8}
-!defaultUniforms = !{!10}
+!outputs = !{!0, !2, !4}
+!inputs = !{!6, !8, !10}
+!defaultUniforms = !{!12}
 
 !0 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 3, i32 0}
-!2 = metadata !{metadata !"color", i32 1, <3 x float>* @color_shadow_typeProxy, metadata !1}
-!3 = metadata !{metadata !"iout", i32 1, i32* @iout_shadow_typeProxy, metadata !1}
-!4 = metadata !{metadata !"p", i32 7, <4 x float>* @p_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 3, i32 3}
-!6 = metadata !{metadata !"c", i32 7, <3 x float>* @c_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 3, i32 7}
-!8 = metadata !{metadata !"aiv2", i32 7, <2 x i32>* @aiv2_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 3, i32 9}
-!10 = metadata !{metadata !"uiuin", i32 12, i32 addrspace(2)* @uiuin, metadata !11}
-!11 = metadata !{i32 1, i32 3, i32 0}
-!12 = metadata !{i32 3}
+!1 = metadata !{i32 0, i32 3, i32 1024}
+!2 = metadata !{metadata !"color", i32 1, <3 x float>* @color_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 3, i32 1025}
+!4 = metadata !{metadata !"iout", i32 1, i32* @iout_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 3, i32 1026}
+!6 = metadata !{metadata !"p", i32 7, <4 x float>* @p_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 3, i32 3}
+!8 = metadata !{metadata !"c", i32 7, <3 x float>* @c_shadow_typeProxy, metadata !9}
+!9 = metadata !{i32 0, i32 3, i32 7}
+!10 = metadata !{metadata !"aiv2", i32 7, <2 x i32>* @aiv2_shadow_typeProxy, metadata !11}
+!11 = metadata !{i32 0, i32 3, i32 9}
+!12 = metadata !{metadata !"uiuin", i32 12, i32 addrspace(2)* @uiuin, metadata !13}
+!13 = metadata !{i32 1, i32 3, i32 0}
+!14 = metadata !{i32 3}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
@@ -350,12 +354,12 @@ uniform Transform tblock;
 uniform T3 __anon__1;
 uniform T2 __anon__0;
 uniform int uiuin;
-out vec4 pos;
-out vec3 color;
-out int iout;
 in highp vec4 p;
 in highp vec3 c;
 in highp ivec2 aiv2;
+out highp vec4 pos;
+out highp vec3 color;
+out highp int iout;
 
 void main()
 {

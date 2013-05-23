@@ -229,13 +229,6 @@ public:
         }
     }
 
-    void addOutputs(const gla::PipelineSymbols& outputs)
-    {
-        for (int i = 0; i < outputs.size(); ++i)
-            declareVariable(EMpNone, outputs[i].type, outputs[i].name, EVQOutput);
-        // TODO: Goo: functionality: get output declarations from metadata, not here
-    }
-
     void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name)
     {
         newLine();
@@ -728,7 +721,7 @@ protected:
         return (texFlags & ETFOffsetArg);
     }
 
-    void getNewVariableName(const llvm::Value* value, std::string* varString)
+    void getNewVariableName(const llvm::Value* value, std::string* name)
     {
         ++lastVariable;
         const size_t bufSize = 20;
@@ -737,23 +730,23 @@ protected:
             int i;
             for (i = 0; i <= lastVariable-4; i += 4) {
                 switch ((i/4) % 4) {
-                case 0:   varString->append("x"); break;
-                case 1:   varString->append("y"); break;
-                case 2:   varString->append("z"); break;
-                case 3:   varString->append("w"); break;
+                case 0:   name->append("x"); break;
+                case 1:   name->append("y"); break;
+                case 2:   name->append("z"); break;
+                case 3:   name->append("w"); break;
                 }
             }
             switch (lastVariable - i) {
-            case 0:   varString->append("x"); break;
-            case 1:   varString->append("y"); break;
-            case 2:   varString->append("z"); break;
-            case 3:   varString->append("w"); break;
+            case 0:   name->append("x"); break;
+            case 1:   name->append("y"); break;
+            case 2:   name->append("z"); break;
+            case 3:   name->append("w"); break;
             }
         } else {
             if (IsTempName(value->getName())) {
-                varString->append(mapGlaToQualifierString(mapGlaAddressSpace(value)));
+                name->append(mapGlaToQualifierString(mapGlaAddressSpace(value)));
                 snprintf(buf, bufSize, "%d", lastVariable);
-                varString->append(buf);
+                name->append(buf);
 
                 // If it's a constant int or float, make the name contain the
                 // value
@@ -763,51 +756,50 @@ protected:
                     // If it's an i1, that is a bool, then have it say true or
                     // false, else have it have the integer value.
                     if (IsBoolean(value->getType())) {
-                        varString->append("b_");
+                        name->append("b_");
                         snprintf(buf, bufSize, val ? "true" : "false");
                     } else {
-                        varString->append("i_");
+                        name->append("i_");
                         snprintf(buf, bufSize, "%d", GetConstantInt(value));
                     }
 
-                    varString->append(buf);
+                    name->append(buf);
 
                 } else if (llvm::isa<llvm::ConstantFP>(value)) {
-                    varString->append("f_");
+                    name->append("f_");
                     snprintf(buf, bufSize, "%.0f", GetConstantFloat(value));
-                    varString->append(buf);
+                    name->append(buf);
                 }
             } else {
-                varString->append(value->getName());
+                name->append(value->getName());
             }
 
-            makeParseable(*varString);
+            makeParseable(*name);
 
             // Variables starting with gl_ are illegal in GLSL
-            if (varString->substr(0,3) == std::string("gl_")) {
-                varString->insert(0, "gla_");
+            if (name->substr(0,3) == std::string("gl_")) {
+                name->insert(0, "gla_");
             }
         }
     }
 
-    void makeParseable(std::string& varString)
+    void makeParseable(std::string& name)
     {
         // Some symbols were annotated with a prefix and a space
-        int spaceLoc = varString.find_first_of(' ');
+        int spaceLoc = name.find_first_of(' ');
         if (spaceLoc != std::string::npos)
-            varString.erase(0, spaceLoc+1);
+            name.erase(0, spaceLoc+1);
 
         // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
-        for (int c = 0; c < varString.length(); ++c) {
-            if (varString[c] == '.' || varString[c] == '-')
-                varString[c] = 'd';
+        for (int c = 0; c < name.length(); ++c) {
+            if (name[c] == '.' || name[c] == '-')
+                name[c] = 'd';
         }
     }
 
-    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& varString, EVariableQualifier vq, const llvm::Constant* constant = 0, 
-                         EInterpolationMethod intMethod = EIMLast, EInterpolationLocation intLocation = EILFragment, bool matrix = false)
+    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier vq, const llvm::Constant* constant = 0, bool matrix = false)
     {
-        if (varString.substr(0,3) == std::string("gl_"))
+        if (name.substr(0,3) == std::string("gl_"))
             return;
 
         // If it has an initializer (is a constant and not an undef)
@@ -815,7 +807,7 @@ protected:
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
             emitGlaType(globalDeclarations, precision, type);
-            globalDeclarations << " " << varString << " = ";
+            globalDeclarations << " " << name << " = ";
             emitConstantInitializer(globalDeclarations, constant, constant->getType());
             globalDeclarations << ";" << std::endl;
 
@@ -826,69 +818,29 @@ protected:
         switch (vq) {
         case EVQUniform:
         case EVQConstant:
-        case EVQInput:
-        case EVQOutput: {
-            // If the name has brackets and index, we need to declare an array,
-            // not a scalar with a name containing brackets and index.
-            int arraySize;
-            std::string basename = varString;
-            GetArraySizeFromName(varString, basename, arraySize);
-            if (arraySize > 0) {
-                if (globallyDeclaredArrays.find(basename) != globallyDeclaredArrays.end()) {
-                    // we already declared this array
-                    break;
-                } else {
-                    // declare array now,
-                    // remember this for next time
-                    globallyDeclaredArrays.insert(basename);
-                }
-            }
-
-            if (intLocation != EILLast) {
-                if (intMethod != EIMNone) {
-                    switch (intLocation) {
-                    case EILSample:        globalDeclarations << "sample ";        break;
-                    case EILCentroid:      globalDeclarations << "centroid ";      break;
-                    }
-                }
-
-                if (version >= 130) {
-                    if (language != EShLangVertex) {
-                        switch (intMethod) {
-                        case EIMNone:          globalDeclarations << "flat ";          break;
-                        //case EIMSmooth:        globalDeclarations << "smooth ";        break;
-                        case EIMNoperspective: globalDeclarations << "noperspective "; break;
-                        }
-                    }
-                }
-            }
+            if (globallyDeclared.find(name) != globallyDeclared.end())
+                return;
+            else
+                globallyDeclared.insert(name);
 
             globalDeclarations << mapGlaToQualifierString(vq);
-            
             globalDeclarations << " ";
-            if (basename.find_first_of(' ') == std::string::npos) {
-                // the "in" path figured out matrixness earlier
+            if (name.find_first_of(' ') == std::string::npos) {
                 emitGlaType(globalDeclarations, precision, type, -1, matrix);
-                globalDeclarations << " " << basename;
+                globalDeclarations << " " << name;
             } else {
                 // there is a space, separating a type from a name
-                // the "uniform" path figures out matrixness now
-                if (basename.substr(0, 7) == "matrix ") {
+                if (name.substr(0, 7) == "matrix ") {
                     emitGlaType(globalDeclarations, precision, type, -1, true);
-                    globalDeclarations << basename.substr(6, basename.size());
+                    globalDeclarations << name.substr(6, name.size());
                 } else
-                    globalDeclarations << basename;
+                    globalDeclarations << name;
             }
-
-            if (arraySize > 0)
-                globalDeclarations << "[" << arraySize << "]";
-
             globalDeclarations << ";" << std::endl;
             break;
-        }
         case EVQGlobal:
             emitGlaType(globalDeclarations, precision, type);
-            globalDeclarations << " " << varString << ";" << std::endl;
+            globalDeclarations << " " << name << ";" << std::endl;
             break;
         case EVQTemporary:
             emitGlaType(shader, precision, type);
@@ -897,17 +849,57 @@ protected:
         case EVQUndef:
             newLine();
             emitGlaType(shader, precision, type);
-            shader << " " << varString;
+            shader << " " << name;
             shader << ";";
-            emitInitializeAggregate(shader, varString, constant);
+            emitInitializeAggregate(shader, name, constant);
             break;
         default:
             assert(! "unknown VariableQualifier");
         }
     }
 
+    void declareIOVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier vq,
+                           EInterpolationMethod interpMethod, EInterpolationLocation interpLocation, bool matrix = false)
+    {
+        if (name.substr(0,3) == std::string("gl_"))
+            return;
+
+        if (globallyDeclared.find(name) != globallyDeclared.end())
+            return;
+        else
+            globallyDeclared.insert(name);
+
+        if (interpLocation != EILLast) {
+            if (interpMethod != EIMNone) {
+                switch (interpLocation) {
+                case EILSample:        globalDeclarations << "sample ";        break;
+                case EILCentroid:      globalDeclarations << "centroid ";      break;
+                }
+            }
+
+            if (version >= 130) {
+                if (language != EShLangVertex) {
+                    switch (interpMethod) {
+                    case EIMNone:          globalDeclarations << "flat ";          break;
+                    //case EIMSmooth:        globalDeclarations << "smooth ";        break;
+                    case EIMNoperspective: globalDeclarations << "noperspective "; break;
+                    }
+                }
+            }
+        }
+
+        globalDeclarations << mapGlaToQualifierString(vq);
+        globalDeclarations << " ";
+        emitGlaType(globalDeclarations, precision, type, -1, matrix);
+        globalDeclarations << " " << name;
+        globalDeclarations << ";" << std::endl;
+    }
+
     void emitGlaType(std::ostringstream& out, EMdPrecision precision, llvm::Type* type, int count = -1, bool matrix = false)
     {
+        if (type->getTypeID() == llvm::Type::PointerTyID)
+            type = llvm::dyn_cast<llvm::PointerType>(type)->getContainedType(0);
+
         // if it's a vector, output a vector type
         if (type->getTypeID() == llvm::Type::VectorTyID) {
             const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
@@ -1156,14 +1148,14 @@ protected:
         }
     }
 
-    void emitInitializeAggregate(std::ostringstream& out, std::string varString, const llvm::Constant* constant)
+    void emitInitializeAggregate(std::ostringstream& out, std::string name, const llvm::Constant* constant)
     {
         if (constant && IsDefined(constant) && ! IsScalar(constant) && ! AreAllDefined(constant)) {
             // For a vector or array with undefined elements, propagate the defined elements
             if (const llvm::ConstantVector* constVec = llvm::dyn_cast<llvm::ConstantVector>(constant)) {
                 for (int op = 0; op < constVec->getNumOperands(); ++op) {
                     if (IsDefined(constVec->getOperand(op))) {
-                        out << std::endl << "    " << varString;
+                        out << std::endl << "    " << name;
                         out << "." << mapComponentToSwizzleChar(op) << " = ";
                         out << getGlaValue(constVec->getOperand(op));
                         out << ";";
@@ -1172,7 +1164,7 @@ protected:
             } else if (const llvm::ConstantArray* constArray = llvm::dyn_cast<llvm::ConstantArray>(constant)) {
                 for (int op = 0; op < constArray->getNumOperands(); ++op) {
                     if (IsDefined(constArray->getOperand(op))) {
-                        out << std::endl << "    " << varString;
+                        out << std::endl << "    " << name;
                         out << "[" << op << "] = ";
                         out << getGlaValue(constArray->getOperand(op));
                         out << ";";
@@ -1181,7 +1173,7 @@ protected:
             } else if (const llvm::ConstantStruct* constStruct = llvm::dyn_cast<llvm::ConstantStruct>(constant)) {
                 for (int op = 0; op < constStruct->getNumOperands(); ++op) {
                     if (IsDefined(constStruct->getOperand(op))) {
-                        out << std::endl << "    " << varString;
+                        out << std::endl << "    " << name;
                         out << "." << getGlaStructField(constant->getType(), op) << " = ";
                         out << getGlaValue(constStruct->getOperand(op));
                         out << ";";
@@ -1198,7 +1190,7 @@ protected:
     bool addNewVariable(const llvm::Value* value, std::string& name)
     {
         if (valueMap[value] == 0) {
-            valueMap[value] = new std::string(name);  // TODO: Goo: memory: need to delete these?
+            valueMap[value] = new std::string(name);  // TODO: Goo: memory: need to delete these? (can probably do this without ever newing; just pass in a pointer)
 
             return true;
         } else {
@@ -1470,6 +1462,111 @@ protected:
         return 0;
     }
 
+    void mapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstruction, bool input)
+    {
+        // Key issue:  We can figure out a slot type from the instruction, 
+        // but it's not necessarily the type of the whole variable getting read,
+        // just a slice of it.  So, need to get the whole type, from metadata.  
+        //
+        // Further, there will be multiple instructions (multiple Value*)
+        // that fill in the same whole variable, making a many:1 mapping
+        // between Value* and input declaration.
+        
+        std::string name;
+        llvm::Type* type;
+        EMdInputOutput mdQual;
+        int layoutLocation;
+        EMdPrecision mdPrecision;
+        EMdTypeLayout mdLayout;
+        llvm::MDNode* mdAggregate;
+        if (! gla::CrackIOMd(llvmInstruction, input ? "input" : "output", name, mdQual, type, mdLayout, mdPrecision, layoutLocation, mdAggregate)) {
+            // This path should not exist; it is a backup path for missing metadata.
+            // TODO: LunarGOO functionality: fix missing metadata instruction operands.
+            UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
+
+            // emulate (through imperfect guessing) the missing metadata
+            name = llvmInstruction->getName();
+            type = llvmInstruction->getType();
+            mdLayout = EMtlNone;
+            mdPrecision = EMpNone;
+            layoutLocation = 0;
+        }
+
+        // add the dereference syntax
+        // TODO: Goo functionality: outputs don't yet have layout slot bases, so indexing into big things will be incorrect
+        std::string derefName = name;
+        int slotOffset = GetConstantInt(llvmInstruction->getOperand(0)) - layoutLocation;
+        dereferenceName(derefName, type, slotOffset);
+
+        EInterpolationMethod interpMethod = EIMLast;
+        EInterpolationLocation interpLocation = EILFragment;
+
+        switch (llvmInstruction->getIntrinsicID()) {
+        case llvm::Intrinsic::gla_writeData:
+        case llvm::Intrinsic::gla_fWriteData:
+            // First, emit declaration
+            declareIOVariable(mdPrecision, type, name, EVQOutput, interpMethod, interpLocation, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix);
+
+            // Now, emit the write
+            newLine();
+            shader << derefName << " = ";
+            emitGlaOperand(llvmInstruction->getOperand(2));
+            shader << ";";
+            break;
+        case llvm::Intrinsic::gla_readData:
+        case llvm::Intrinsic::gla_fReadData:
+        case llvm::Intrinsic::gla_fReadInterpolant:
+            // A pipeline read only emits declaration of the input name, not the use.
+            // The use will come later by looking up the mapping between Value* and
+            // the name associated with it.
+            //
+            // NOTE!  The mapped name will include the deferences, like "foo[3].v", *in the name*.
+
+            if (addNewVariable(llvmInstruction, derefName)) {
+                if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fReadInterpolant) {
+                    EInterpolationMode mode = GetConstantInt(llvmInstruction->getOperand(2));
+                    CrackInterpolationMode(mode, interpMethod, interpLocation);
+                } else
+                    interpMethod = EIMNone;   // needed for 'flat' with non-interpolation 'in'
+
+                declareIOVariable(mdPrecision, type, name, EVQInput, interpMethod, interpLocation, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix);
+            }
+
+            break;
+        default:
+            UnsupportedFunctionality("IO Intrinsic");
+            break;
+        }
+    }
+
+    //
+    // *Textually* deference a name string.
+    //
+    void dereferenceName(std::string& name, const llvm::Type* type, int slotOffset)
+    {
+        // Operates recursively...
+
+        if (type->getTypeID() == llvm::Type::PointerTyID) {
+            type = llvm::dyn_cast<llvm::PointerType>(type)->getContainedType(0);
+
+            dereferenceName(name, type, slotOffset);
+        } else if (type->getTypeID() == llvm::Type::VectorTyID) {
+            // should be at the bottom of recursion now
+
+            return;
+        } else if (type->getTypeID() == llvm::Type::StructTyID) {
+            // TODO: Goo functionality: structure inputs/outputs
+            name = name + ".";
+        } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
+            char buf[10];
+            snprintf(buf, sizeof(buf), "%d", slotOffset);
+            name = name + "[" + buf + "]";
+            const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
+        
+            dereferenceName(name, arrayType->getContainedType(0), 0);
+        }
+    }
+
     // mapping from LLVM values to Glsl variables
     std::map<const llvm::Value*, std::string*> valueMap;
 
@@ -1478,7 +1575,7 @@ protected:
 
     // set to track which arrays have been declared from stripping
     // indexes that were in scalar variable names
-    std::set<std::string> globallyDeclaredArrays;
+    std::set<std::string> globallyDeclared;
 
     std::ostringstream globalStructures;
     std::ostringstream globalDeclarations;
@@ -1824,12 +1921,12 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
                 //std::string mdName;
                 //EMdInputOutput mdQual;
-                //llvm::Type*mdType;
-                //int mdLocation;
+                //llvm::Type*type;
+                //int layoutLocation;
                 //EMdPrecision mdPrecision;
                 //EMdTypeLayout mdLayout;
                 //llvm::MDNode* mdAgg;
-                //if (gla::CrackUniformMd(llvmInstruction, mdName, mdQual, mdType, mdLayout, mdPrecision, mdLocation, mdAgg)) {
+                //if (gla::CrackUniformMd(llvmInstruction, mdName, mdQual, type, mdLayout, mdPrecision, layoutLocation, mdAgg)) {
                 //    newLine();
                 //    shader << "uniform name " << mdName;
                 //    if (mdLayout == EMtlColMajorMatrix)
@@ -1840,7 +1937,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                 //EMdSamplerDim mdSamplerDim;
                 //bool mdIsArray;
                 //bool mdIsShadow;
-                //if (gla::CrackSamplerMd(llvmInstruction, mdName, mdSampler, mdType, mdSamplerDim, mdIsArray, mdIsShadow)) {
+                //if (gla::CrackSamplerMd(llvmInstruction, mdName, mdSampler, type, mdSamplerDim, mdIsArray, mdIsShadow)) {
                 //    newLine();
                 //    shader << "sampler name " << mdName << " sampler is " << mdSampler << " dim is " << mdSamplerDim;
                 //    newLine();
@@ -2079,84 +2176,25 @@ const char* gla::GlslTarget::mapGlaXor(const llvm::Instruction* llvmInstruction,
 //
 void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction)
 {
-    EMdPrecision precision = getPrecision(llvmInstruction);
-
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_writeData:
     case llvm::Intrinsic::gla_fWriteData:
-        {
-            newLine();
-            int location = GetConstantInt(llvmInstruction->getOperand(0));
-            std::string name = manager->getPipeOutSymbols()[location].name;
-                //EMdInputOutput mdQual;
-                //llvm::Type*mdType;
-                //int mdLocation;
-                //EMdPrecision mdPrecision;
-                //EMdTypeLayout mdLayout;
-                //llvm::MDNode* mdAgg;
-                //gla::CrackOutputMd(llvmInstruction, name, mdQual, mdType, mdLayout, mdPrecision, mdLocation, mdAgg);
-            gla::RemoveArraySizeFromName(name);
-            shader << name << " = ";
-            emitGlaOperand(llvmInstruction->getOperand(2));
-            shader << ";";
+        mapGlaIOIntrinsic(llvmInstruction, false);
 
-            return;
-        }
+        return;
     case llvm::Intrinsic::gla_readData:
     case llvm::Intrinsic::gla_fReadData:
     case llvm::Intrinsic::gla_fReadInterpolant:
-        {
-            // Key issue:  we can figure out a slot type, but it's not 
-            // necessarily the type of the whole variable getting read,
-            // just a slice of it.  So, need to rebuild the whole type,
-            // from metadata left in the name by the front-end adapter.
-            // For matrixness, that is done now, for arrayness later.
-            // (Both can exist.)
-            llvm::Type* wholeType = llvmInstruction->getType();
+        mapGlaIOIntrinsic(llvmInstruction, true);
 
-            std::string name = llvmInstruction->getName();
-            int matrixCols, matrixRows;
-            gla::GetMatrixSizeFromName(name, matrixCols, matrixRows);
-            if (matrixCols)
-                wholeType = gla::Builder::getMatrixType(gla::GetBasicType(wholeType), matrixCols, matrixRows);
-
-            gla::RemoveInlineNotation(name);
-            gla::RemoveSeparator(name);
-            makeParseable(name);
-
-            // Remove inserted size in front of hard-coded array indexes, for the variable usage
-            std::string declareName = name;
-            gla::RemoveArraySizeFromName(name);
-
-            // For a matrix, remove one set of indexing, for the declaration
-            if (matrixCols)
-                gla::RemoveIndexFromName(declareName);
-
-            if (addNewVariable(llvmInstruction, name)) {
-                EInterpolationMethod intMethod;
-                EInterpolationLocation intLocation;
-                if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fReadInterpolant) {
-                    EInterpolationMode mode = GetConstantInt(llvmInstruction->getOperand(2));
-                    CrackInterpolationMode(mode, intMethod, intLocation);
-                } else {
-                    intLocation = EILFragment;  // dummy for non-interplated reads
-                    intMethod = EIMNone;        // needed for 'flat' with non-interpolation 'in'
-                }
-                EMdInputOutput mdQual;
-                llvm::Type*mdType;
-                int mdLocation;
-                EMdPrecision precision;
-                EMdTypeLayout mdLayout;
-                llvm::MDNode* mdAgg;
-                std::string dummyName;  // TODO: Goo: functionality, turn this into the real name
-                gla::CrackInputMd(llvmInstruction, dummyName, mdQual, mdType, mdLayout, precision, mdLocation, mdAgg);
-                declareVariable(precision, wholeType, declareName, EVQInput, 0, intMethod, intLocation, matrixCols > 0);
-            }
-
-            return;
-        }
+        return;
+    default:
+        // fall through
+        break;
     }
+
+    EMdPrecision precision = getPrecision(llvmInstruction);
 
     // Handle texturing
     switch (llvmInstruction->getIntrinsicID()) {

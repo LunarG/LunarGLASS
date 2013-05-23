@@ -108,6 +108,7 @@
 #include "Util.h"
 #include "PrivateManager.h"
 #include "Options.h"
+#include "metadata.h"
 
 // LunarGLASS Passes and Utils
 #include "Passes/PassSupport.h"
@@ -873,8 +874,17 @@ bool BottomTranslator::runOnModule(Module& module)
     for (Module::const_global_iterator global = module.global_begin(), end = module.global_end(); global != end; ++global)
         backEndTranslator->addGlobal(global);
 
-    // include shader pipeline outputs
-    backEndTranslator->addOutputs(manager->getPipeOutSymbols());
+    // add metadata
+    //const llvm::NamedMDNode* mdInputs = module.getNamedMetadata("inputs");
+    //for (int m = 0; m < mdInputs->getNumOperands(); ++m) {
+    //    const llvm::MDNode* mdNode = mdInputs->getOperand(m);
+    //    backEndTranslator->addInput(mdNode);
+    //}
+    //const llvm::NamedMDNode* mdInputs = module.getNamedMetadata("outputs");
+    //for (int m = 0; m < mdInputs->getNumOperands(); ++m) {
+    //    const llvm::MDNode* mdNode = mdInputs->getOperand(m);
+    //    backEndTranslator->addOutput(mdNode);
+    //}
 
     //
     // Translate code.

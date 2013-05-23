@@ -299,7 +299,7 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %125 = load <4 x float>* @FragData_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %125), !output !25
+  call void @llvm.gla.fWriteData.v4f32(i32 1031, i32 -1, <4 x float> %125), !output !25
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -386,7 +386,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !23 = metadata !{metadata !"ic1D", i32 7, i32* @ic1D_shadow_typeProxy, metadata !24}
 !24 = metadata !{i32 0, i32 0, i32 1030}
 !25 = metadata !{metadata !"FragData", i32 1, <4 x float>* @FragData_shadow_typeProxy, metadata !26}
-!26 = metadata !{i32 0, i32 0, i32 0}
+!26 = metadata !{i32 0, i32 0, i32 1031}
 
 
 Bottom IR:
@@ -478,7 +478,7 @@ entry:
   %39 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float> undef, i32 15, <2 x float> %21, i32 0, <2 x float> %21, i32 1, float 0.000000e+00, i32 0, float 0.000000e+00, i32 0)
   %v62 = fadd <4 x float> %v58, %38
   %FragData_shadow = fadd <4 x float> %39, %v62
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragData_shadow), !output !25
+  call void @llvm.gla.fWriteData.v4f32(i32 1031, i32 -1, <4 x float> %FragData_shadow), !output !25
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -572,7 +572,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !23 = metadata !{metadata !"ic1D", i32 7, i32* @ic1D_shadow_typeProxy, metadata !24}
 !24 = metadata !{i32 0, i32 0, i32 1030}
 !25 = metadata !{metadata !"FragData", i32 1, <4 x float>* @FragData_shadow_typeProxy, metadata !26}
-!26 = metadata !{i32 0, i32 0, i32 0}
+!26 = metadata !{i32 0, i32 0, i32 1031}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
@@ -591,7 +591,6 @@ uniform isampler3D is3D;
 uniform isamplerCube isCube;
 uniform isampler2DArray is2DArray;
 uniform samplerCubeShadow sCubeShadow;
-out vec4 FragData;
 in vec2 c2D;
 in vec4 c4D;
 in vec3 c3D;
@@ -604,6 +603,7 @@ const int const33i_4 = 4;
 const int const43i_2 = 2;
 const float const62f_4 = 4.2;
 const float const74f_0 = 0.0;
+out vec4 FragData;
 
 void main()
 {
@@ -682,7 +682,6 @@ uniform isampler2D is2D;
 uniform isampler3D is3D;
 uniform isamplerCube isCube;
 uniform isampler2DArray is2DArray;
-out vec4 FragData;
 in vec2 c2D;
 in vec4 c4D;
 in vec3 c3D;
@@ -695,6 +694,7 @@ const int const33i_4 = 4;
 const int const43i_2 = 2;
 const float const64f_4 = 4.2;
 const float const75f_0 = 0.0;
+out vec4 FragData;
 
 void main()
 {

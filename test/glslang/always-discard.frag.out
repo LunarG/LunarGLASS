@@ -101,7 +101,7 @@ ifmerge14:                                        ; preds = %post-discard, %then
 
 stage-epilogue:                                   ; preds = %ifmerge14
   %32 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %32), !output !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %32), !output !2
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %ifmerge11
@@ -126,7 +126,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !0 = metadata !{metadata !"tex_coord", i32 7, <2 x float>* @tex_coord_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024}
 !2 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 0}
+!3 = metadata !{i32 0, i32 0, i32 1025}
 
 
 Bottom IR:
@@ -152,7 +152,7 @@ declare void @llvm.gla.discard() nounwind
 !0 = metadata !{metadata !"tex_coord", i32 7, <2 x float>* @tex_coord_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024}
 !2 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 0}
+!3 = metadata !{i32 0, i32 0, i32 1025}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

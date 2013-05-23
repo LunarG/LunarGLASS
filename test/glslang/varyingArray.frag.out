@@ -60,11 +60,11 @@ entry:
   %12 = load <4 x float>* %texColor
   %texColor9 = insertelement <4 x float> %12, float %11, i32 3
   store <4 x float> %texColor9, <4 x float>* %texColor
-  %"foo_3[0]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1032, i32 -1, i32 1), !input !7
+  %"foo_3[0]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1033, i32 -1, i32 1), !input !7
   store <4 x float> %"foo_3[0]", <4 x float>* getelementptr inbounds ([3 x <4 x float>]* @foo_shadow, i32 0, i32 0)
-  %"foo_3[1]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1033, i32 -1, i32 1), !input !7
+  %"foo_3[1]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1034, i32 -1, i32 1), !input !7
   store <4 x float> %"foo_3[1]", <4 x float>* getelementptr inbounds ([3 x <4 x float>]* @foo_shadow, i32 0, i32 1)
-  %"foo_3[2]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1034, i32 -1, i32 1), !input !7
+  %"foo_3[2]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1035, i32 -1, i32 1), !input !7
   store <4 x float> %"foo_3[2]", <4 x float>* getelementptr inbounds ([3 x <4 x float>]* @foo_shadow, i32 0, i32 2)
   %13 = load <4 x float>* getelementptr inbounds ([3 x <4 x float>]* @foo_shadow, i32 0, i32 1)
   %"gl_TexCoord_6[0]10" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !1
@@ -102,7 +102,7 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %19 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %19), !output !9
+  call void @llvm.gla.fWriteData.v4f32(i32 1032, i32 -1, <4 x float> %19), !output !9
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -129,9 +129,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !5 = metadata !{metadata !"alpha", i32 7, float* @alpha_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1031}
 !7 = metadata !{metadata !"foo", i32 7, [3 x <4 x float>]* @foo_shadow_typeProxy, metadata !8}
-!8 = metadata !{i32 0, i32 0, i32 1032}
+!8 = metadata !{i32 0, i32 0, i32 1033}
 !9 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 0}
+!10 = metadata !{i32 0, i32 0, i32 1032}
 
 
 Bottom IR:
@@ -147,7 +147,7 @@ entry:
   %"gl_TexCoord_6[5]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 1), !input !1
   %1 = fadd <4 x float> %"gl_TexCoord_6[5]", %"gl_TexCoord_6[4]"
   %2 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %1, <2 x i32> <i32 0, i32 1>)
-  %"foo_3[1]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1033, i32 -1, i32 1), !input !7
+  %"foo_3[1]" = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1034, i32 -1, i32 1), !input !7
   %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1030, i32 -1, i32 1), !input !3
   %texColor7 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %2)
   %3 = fadd <4 x float> %"foo_3[1]", %"gl_TexCoord_6[0]"
@@ -156,7 +156,7 @@ entry:
   %4 = fadd <4 x float> %3, %"gl_TexCoord_6[4]"
   %5 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor8, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %alpha__, i32 0)
   %FragColor_shadow = fadd <4 x float> %4, %5
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow), !output !9
+  call void @llvm.gla.fWriteData.v4f32(i32 1032, i32 -1, <4 x float> %FragColor_shadow), !output !9
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -190,9 +190,9 @@ declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>)
 !5 = metadata !{metadata !"alpha", i32 7, float* @alpha_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1031}
 !7 = metadata !{metadata !"foo", i32 7, [3 x <4 x float>]* @foo_shadow_typeProxy, metadata !8}
-!8 = metadata !{i32 0, i32 0, i32 1032}
+!8 = metadata !{i32 0, i32 0, i32 1033}
 !9 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 0}
+!10 = metadata !{i32 0, i32 0, i32 1032}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:3: varying deprecated in version 130; may be removed in future release
 WARNING: 0:4: varying deprecated in version 130; may be removed in future release
@@ -205,7 +205,7 @@ WARNING: 0:8: varying deprecated in version 130; may be removed in future releas
 // LunarGOO(r722) output
 #version 130
 uniform sampler2D texSampler2D;
-in vec4 foo[3];
+in vec4[3] foo;
 in vec4 color;
 in float alpha;
 
@@ -231,7 +231,7 @@ void main()
 // LunarGOO(r722) output
 #version 130
 uniform sampler2D texSampler2D;
-in vec4 foo[3];
+in vec4[3] foo;
 in vec4 color;
 in float alpha;
 

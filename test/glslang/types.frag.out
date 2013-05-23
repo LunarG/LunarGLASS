@@ -273,7 +273,7 @@ ifmerge:                                          ; preds = %else, %then
 
 stage-epilogue:                                   ; preds = %ifmerge
   %168 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %168), !output !33
+  call void @llvm.gla.fWriteData.v4f32(i32 1032, i32 -1, <4 x float> %168), !output !33
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -335,7 +335,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !30 = metadata !{i32 0, i32 0, i32 1030}
 !31 = metadata !{metadata !"i_f4", i32 7, <4 x float>* @i_f4_shadow_typeProxy, metadata !32}
 !32 = metadata !{i32 0, i32 0, i32 1031}
-!33 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
+!33 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !34}
+!34 = metadata !{i32 0, i32 0, i32 1032}
 
 
 Bottom IR:
@@ -478,7 +479,7 @@ else:                                             ; preds = %entry
 
 ifmerge:                                          ; preds = %else, %then
   %ternary.0 = phi <4 x float> [ %90, %then ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %else ]
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %ternary.0), !output !33
+  call void @llvm.gla.fWriteData.v4f32(i32 1032, i32 -1, <4 x float> %ternary.0), !output !33
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -545,7 +546,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !30 = metadata !{i32 0, i32 0, i32 1030}
 !31 = metadata !{metadata !"i_f4", i32 7, <4 x float>* @i_f4_shadow_typeProxy, metadata !32}
 !32 = metadata !{i32 0, i32 0, i32 1031}
-!33 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
+!33 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !34}
+!34 = metadata !{i32 0, i32 0, i32 1032}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

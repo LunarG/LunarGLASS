@@ -37,7 +37,7 @@ entry:
   %9 = insertvalue [4 x <3 x float>] %8, <3 x float> %column9, 3
   %10 = getelementptr %s* %ls, i32 0, i32 1, i32 3
   store [4 x <3 x float>] %9, [4 x <3 x float>]* %10
-  %v__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !input !6
+  %v__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !input !7
   store <3 x float> %v__, <3 x float>* @v_shadow
   %11 = load <3 x float>* @v_shadow
   %12 = getelementptr %s* %ls, i32 0, i32 1, i32 3
@@ -61,7 +61,7 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %19 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %19), !output !5
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %19), !output !5
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -76,16 +76,17 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !defaultUniforms = !{!0, !2, !3}
 !outputs = !{!5}
-!inputs = !{!6}
+!inputs = !{!7}
 
 !0 = metadata !{metadata !"us", i32 12, %s addrspace(2)* @us, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"i", i32 12, i32 addrspace(2)* @i, metadata !1}
 !3 = metadata !{metadata !"am", i32 12, [8 x [4 x <3 x float>]] addrspace(2)* @"matrix am", metadata !4}
 !4 = metadata !{i32 3, i32 0, i32 0}
-!5 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
-!6 = metadata !{metadata !"v", i32 7, <3 x float>* @v_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1024}
+!5 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1024}
+!7 = metadata !{metadata !"v", i32 7, <3 x float>* @v_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1025}
 
 
 Bottom IR:
@@ -104,7 +105,7 @@ entry:
   %2 = load [4 x <3 x float>] addrspace(2)* %1, align 16, !uniform !0
   %gla_constGEP = getelementptr [8 x [4 x <3 x float>]] addrspace(2)* @"matrix am", i32 0, i32 4
   %3 = load [4 x <3 x float>] addrspace(2)* %gla_constGEP, align 16, !uniform !3
-  %v__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !input !6
+  %v__ = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !input !7
   %rightColumn = extractvalue [4 x <3 x float>] %3, 0
   %leftColumn = extractvalue [4 x <3 x float>] %2, 0
   %rightColumn2 = extractvalue [4 x <3 x float>] %3, 1
@@ -122,7 +123,7 @@ entry:
   %column9 = fadd <3 x float> %leftColumn7, %rightColumn8
   %dot16 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %v__, <3 x float> %column9)
   %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dot, i32 0, float %dot12, i32 0, float %dot14, i32 0, float %dot16, i32 0)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %4), !output !5
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %4), !output !5
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -142,16 +143,17 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 
 !defaultUniforms = !{!0, !2, !3}
 !outputs = !{!5}
-!inputs = !{!6}
+!inputs = !{!7}
 
 !0 = metadata !{metadata !"us", i32 12, %s addrspace(2)* @us, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"i", i32 12, i32 addrspace(2)* @i, metadata !1}
 !3 = metadata !{metadata !"am", i32 12, [8 x [4 x <3 x float>]] addrspace(2)* @"matrix am", metadata !4}
 !4 = metadata !{i32 3, i32 0, i32 0}
-!5 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
-!6 = metadata !{metadata !"v", i32 7, <3 x float>* @v_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1024}
+!5 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1024}
+!7 = metadata !{metadata !"v", i32 7, <3 x float>* @v_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1025}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

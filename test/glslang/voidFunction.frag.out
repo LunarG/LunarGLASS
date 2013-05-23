@@ -30,7 +30,7 @@ post-return:                                      ; No predecessors!
 
 stage-epilogue:                                   ; preds = %entry
   %5 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %5), !output !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %5), !output !2
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -64,7 +64,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !0 = metadata !{metadata !"bigColor", i32 12, <4 x float> addrspace(2)* @bigColor, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 0}
+!3 = metadata !{i32 0, i32 2, i32 1024}
 
 
 Bottom IR:
@@ -78,7 +78,7 @@ entry:
   %0 = extractelement <4 x float> %outColor1, i32 0
   %1 = fadd float %0, 4.000000e+00
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outColor1, i32 1, float %1, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %2), !output !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %2), !output !2
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -98,7 +98,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !0 = metadata !{metadata !"bigColor", i32 12, <4 x float> addrspace(2)* @bigColor, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
 !2 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 0}
+!3 = metadata !{i32 0, i32 2, i32 1024}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

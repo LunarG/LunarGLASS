@@ -148,7 +148,7 @@ ifmerge11:                                        ; preds = %loop-merge, %then9
   %55 = insertelement <4 x float> %54, float %52, i32 2
   %56 = insertelement <4 x float> %55, float %52, i32 3
   %57 = fmul <4 x float> %39, %56
-  %58 = load i32 addrspace(1)* @"sampler2D sampler", !sampler !8
+  %58 = load i32 addrspace(1)* @"sampler2D sampler", !sampler !9
   %coord__13 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !3
   store <2 x float> %coord__13, <2 x float>* @coord_shadow
   %59 = load <2 x float>* @coord_shadow
@@ -159,7 +159,7 @@ ifmerge11:                                        ; preds = %loop-merge, %then9
 
 stage-epilogue:                                   ; preds = %ifmerge11
   %61 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %61), !output !7
+  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %61), !output !7
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -177,7 +177,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !defaultUniforms = !{!0, !0, !0, !2}
 !inputs = !{!3, !5}
 !outputs = !{!7}
-!samplers = !{!8}
+!samplers = !{!9}
 
 !0 = metadata !{metadata !"foo3", i32 12, %s3 addrspace(2)* @foo3, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
@@ -186,8 +186,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !4 = metadata !{i32 0, i32 0, i32 1024}
 !5 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1025}
-!7 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
-!8 = metadata !{metadata !"sampler", i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
+!7 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1026}
+!9 = metadata !{metadata !"sampler", i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
 
 
 Bottom IR:
@@ -220,12 +221,12 @@ entry:
   %9 = fadd float %8, %select99
   %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %9, <4 x i32> zeroinitializer)
   %color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !5
-  %11 = load i32 addrspace(1)* @"sampler2D sampler", align 4, !sampler !8
+  %11 = load i32 addrspace(1)* @"sampler2D sampler", align 4, !sampler !9
   %12 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %color__, i32 4, float undef, i32 undef, float undef, i32 undef, <2 x float> %coord__, i32 1, float undef, i32 undef)
   %13 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %11, i32 0, <2 x float> %coord__)
   %14 = fmul <4 x float> %12, %10
   %FragColor_shadow = fmul <4 x float> %13, %14
-  call void @llvm.gla.fWriteData.v4f32(i32 0, i32 -1, <4 x float> %FragColor_shadow), !output !7
+  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %FragColor_shadow), !output !7
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -250,7 +251,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !defaultUniforms = !{!0, !0, !0, !2}
 !inputs = !{!3, !5}
 !outputs = !{!7}
-!samplers = !{!8}
+!samplers = !{!9}
 
 !0 = metadata !{metadata !"foo3", i32 12, %s3 addrspace(2)* @foo3, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0}
@@ -259,8 +260,11 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !4 = metadata !{i32 0, i32 0, i32 1024}
 !5 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1025}
-!7 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
-!8 = metadata !{metadata !"sampler", i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
+!7 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1026}
+!9 = metadata !{metadata !"sampler", i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
+
+***Unsupported functionality: couldn't get metadata for input instruction
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:4: varying deprecated in version 130; may be removed in future release
 WARNING: 0:5: varying deprecated in version 130; may be removed in future release
@@ -293,7 +297,7 @@ uniform s3 foo3;
 uniform int condition;
 uniform sampler2D sampler;
 const int const23i_0 = 0;
-in badp vec2 coord;
+in vec2 coord__;
 const float const25f_1 = 1.0;
 const int const30i_1 = 1;
 const float const32f_0 = 0.0;
@@ -303,25 +307,78 @@ void main()
 {
     int temp21 = foo3.member0.member0;
     bool temp22 = temp21 > const23i_0;
-    float temp24 = temp22 ? coord.x : const25f_1;
+    float temp24 = temp22 ? coord__.x : const25f_1;
     float temp26 = temp24 + const25f_1;
-    float select = temp22 ? const25f_1 : coord.x;
-    float select35dv = temp22 ? coord.x : temp26;
+    float select = temp22 ? const25f_1 : coord__.x;
+    float select35dv = temp22 ? coord__.x : temp26;
     bool temp29 = condition == const30i_1;
-    float select99 = temp29 ? coord.x : const32f_0;
+    float select99 = temp29 ? coord__.x : const32f_0;
     float temp33 = select + select35dv;
-    float temp34 = temp33 + coord.x;
+    float temp34 = temp33 + coord__.x;
     float temp35 = temp34 + select99;
     vec4 temp36 = vec4(temp35);
     vec4 temp37 = color;
-    temp37.z = coord.y;
-    vec4 temp38 = texture(sampler, coord);
+    temp37.z = coord__.y;
+    vec4 temp38 = texture(sampler, coord__);
     vec4 temp39 = temp37 * temp36;
     vec4 FragColor_shadow = temp38 * temp39;
     gl_FragColor = FragColor_shadow;
     
 }
+WARNING: 0:27: Two consecutive underscores are reserved for future use.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 130
+struct s1 {
+    int member0;
+    float member1;
+};
+
+struct s2 {
+    int member0;
+    float member1;
+    s1 member2;
+    vec4 member3;
+};
+
+struct s3 {
+    s2 member0;
+    int member1;
+    float member2;
+    s1 member3;
+};
+
+uniform s3 foo3;
+uniform int condition;
+uniform sampler2D sampler;
+const int const23i_0 = 0;
+in vec2 coord____9;
+const float const25f_1 = 1.0;
+const float const27f_2 = 2.0;
+const int const29i_1 = 1;
+const float const31f_0 = 0.0;
+in vec4 color;
+
+void main()
+{
+    int temp211 = foo3.member0.member0;
+    bool temp222 = temp211 > const23i_0;
+    float select43 = temp222 ? const25f_1 : coord____9.x;
+    float select = temp222 ? coord____9.x : const27f_2;
+    bool temp2921 = condition == const29i_1;
+    float select45 = temp2921 ? coord____9.x : const31f_0;
+    float temp3329 = select43 + select;
+    float temp3431 = temp3329 + coord____9.x;
+    float temp3532 = select45 + temp3431;
+    vec4 temp35 = vec4(temp3532);
+    vec4 temp36 = color;
+    temp36.z = coord____9.y;
+    vec4 temp3939 = temp36 * temp35;
+    vec4 temp3838 = texture(sampler, coord____9);
+    vec4 FragColor_shadow40 = temp3838 * temp3939;
+    gl_FragColor = FragColor_shadow40;
+    
+}
