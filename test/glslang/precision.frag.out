@@ -38,16 +38,16 @@ entry:
   store i32 %sum3, i32* %sum
   store float 0x40099999A0000000, float* %arg1
   store float 0x412F3F4860000000, float* %arg2
-  %lowfin__ = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !2, !precision !15
-  store float %lowfin__, float* @lowfin_shadow
+  %lowfin = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !2, !precision !15
+  store float %lowfin, float* @lowfin_shadow
   %6 = load float* @lowfin_shadow
-  %mediumfin__ = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !input !4, !precision !16
-  store float %mediumfin__, float* @mediumfin_shadow
+  %mediumfin = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !input !4, !precision !16
+  store float %mediumfin, float* @mediumfin_shadow
   %7 = load float* @mediumfin_shadow
   %d4 = call float @llvm.gla.fDistance.f32.f32.f32(float %6, float %7), !precision !16
   store float %d4, float* %d
-  %highfin__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !0, !precision !14
-  store <4 x float> %highfin__, <4 x float>* @highfin_shadow
+  %highfin = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !0, !precision !14
+  store <4 x float> %highfin, <4 x float>* @highfin_shadow
   %8 = load <4 x float>* @highfin_shadow
   %global_highp5 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %8), !precision !14
   store float %global_highp5, float* %global_highp
@@ -116,8 +116,8 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 define internal fastcc <2 x float> @"foo(vf3;"(<3 x float>*) alwaysinline {
 entry:
-  %highfin__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !0, !precision !14
-  store <4 x float> %highfin__, <4 x float>* @highfin_shadow
+  %highfin = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !0, !precision !14
+  store <4 x float> %highfin, <4 x float>* @highfin_shadow
   %1 = load <4 x float>* @highfin_shadow
   %2 = extractelement <4 x float> %1, i32 0, !precision !14
   %3 = insertelement <2 x float> undef, float %2, i32 0, !precision !14
@@ -176,11 +176,11 @@ entry:
   %0 = load i32 addrspace(2)* @uniform_medium, align 4, !uniform !6
   %1 = load i32 addrspace(2)* @uniform_high, align 4, !uniform !8
   %2 = load i32 addrspace(2)* @uniform_low, align 4, !uniform !10
-  %lowfin__ = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !2, !precision !14
-  %mediumfin__ = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !input !4, !precision !15
-  %d4 = call float @llvm.gla.fDistance.f32.f32.f32(float %lowfin__, float %mediumfin__), !precision !15
-  %highfin__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !0, !precision !16
-  %global_highp5 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %highfin__), !precision !16
+  %lowfin = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !2, !precision !14
+  %mediumfin = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !input !4, !precision !15
+  %d4 = call float @llvm.gla.fDistance.f32.f32.f32(float %lowfin, float %mediumfin), !precision !15
+  %highfin = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !0, !precision !16
+  %global_highp5 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %highfin), !precision !16
   %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %global_highp5, <4 x i32> zeroinitializer)
   %4 = call float @llvm.gla.fSin.f32.f32(float %d4), !precision !14
   %5 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %4, <4 x i32> zeroinitializer)

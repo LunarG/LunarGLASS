@@ -100,11 +100,6 @@ namespace gla {
         return name.size() < 2 || (name[1] >= '0' && name[1] <= '9');
     }
 
-    void GetArraySizeFromName(const std::string& arrayName, std::string& basename, int& size);
-    void RemoveArraySizeFromName(std::string& name);
-    void RemoveIndexFromName(std::string& name);
-    void GetMatrixSizeFromName(const std::string& name, int& matrixCols, int& matrixRows);
-    void RemoveSeparator(std::string& name);
     void RemoveInlineNotation(std::string& name);
 
     bool ConvertValuesToUnsigned(unsigned*, int &, llvm::ArrayRef<llvm::Value*>);

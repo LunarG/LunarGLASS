@@ -2058,29 +2058,10 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value
                 gepChain.push_back(gla::MakeIntConstant(context, element));
 
             for (int column = 0; column < numColumns; ++column, ++slot) {
-
-                // TODO: linker functionality: reduce string manipulation
-
-                std::string indexedName;
-                if (node->getType().isMatrix()) {
-                    indexedName = "matrix";
-                    gla::AppendMatrixSizeToName(indexedName, node->getType().getMatrixCols(), node->getType().getMatrixRows());
-                    indexedName = indexedName + " " + name;
-                } else
-                    indexedName = name;
-
-                if (node->getType().isArray()) {
-                    gla::AppendArraySizeToName(indexedName, arraySize);
-                    gla::AppendIndexToName(indexedName, element);
-                }
-
-                if (node->getType().isMatrix())
-                    gla::AppendIndexToName(indexedName, column);
-
                 if (node->getType().isMatrix())
                     gepChain.push_back(gla::MakeIntConstant(context, slot - firstSlot));
                 
-                pipeRead = glaBuilder->readPipeline(getMdPrecision(node->getType()), readType, indexedName, slot, md, -1 /*mask*/, method, location);
+                pipeRead = glaBuilder->readPipeline(getMdPrecision(node->getType()), readType, name, slot, md, -1 /*mask*/, method, location);
                 llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
                 
                 if (node->getType().isMatrix())
@@ -2092,7 +2073,6 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value
         }
     } else {
         readType = convertGlslangToGlaType(node->getType());
-        gla::AddSeparator(name);
         llvm::Value* pipeRead = glaBuilder->readPipeline(getMdPrecision(node->getType()), readType, name, firstSlot, md, -1 /*mask*/, method, location);
         llvmBuilder.CreateStore(pipeRead, storage);
     }

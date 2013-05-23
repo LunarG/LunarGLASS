@@ -11,12 +11,12 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %uv_in__ = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1025, i32 -1), !input !4
-  store <2 x float> %uv_in__, <2 x float>* @uv_in_shadow
+  %uv_in = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1025, i32 -1), !input !4
+  store <2 x float> %uv_in, <2 x float>* @uv_in_shadow
   %uv_shadow = load <2 x float>* @uv_in_shadow
   store <2 x float> %uv_shadow, <2 x float>* @uv_shadow
-  %position__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !input !6
-  store <4 x float> %position__, <4 x float>* @position_shadow
+  %position = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !input !6
+  store <4 x float> %position, <4 x float>* @position_shadow
   %0 = load <4 x float>* @position_shadow
   %1 = load <4 x float>* @gl_ModelViewProjectionMatrix_sim
   %2 = load <4 x float>* @gl_Vertex_sim
@@ -65,10 +65,10 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %0 = call <4 x float> @llvm.gla.fFixedTransform.v4f32.v4f32.v4f32(<4 x float> zeroinitializer, <4 x float> zeroinitializer)
-  %position__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !input !6
-  %Position_shadow = fadd <4 x float> %0, %position__
-  %uv_in__ = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1025, i32 -1), !input !4
-  call void @llvm.gla.fWriteData.v2f32(i32 1024, i32 -1, <2 x float> %uv_in__), !output !0
+  %position = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !input !6
+  %Position_shadow = fadd <4 x float> %0, %position
+  %uv_in = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1025, i32 -1), !input !4
+  call void @llvm.gla.fWriteData.v2f32(i32 1024, i32 -1, <2 x float> %uv_in), !output !0
   call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %Position_shadow), !output !2
   br label %stage-epilogue
 

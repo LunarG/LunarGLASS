@@ -11,23 +11,23 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %inVc__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 513), !input !2
-  store <4 x float> %inVc__, <4 x float>* @inVc_shadow
+  %inVc = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 513), !input !2
+  store <4 x float> %inVc, <4 x float>* @inVc_shadow
   %0 = load <4 x float>* @inVc_shadow
-  %inVs__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !4
-  store <4 x float> %inVs__, <4 x float>* @inVs_shadow
+  %inVs = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !4
+  store <4 x float> %inVs, <4 x float>* @inVs_shadow
   %1 = load <4 x float>* @inVs_shadow
   %2 = fadd <4 x float> %0, %1
-  %inVf__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !input !6
-  store <4 x float> %inVf__, <4 x float>* @inVf_shadow
+  %inVf = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !input !6
+  store <4 x float> %inVf, <4 x float>* @inVf_shadow
   %3 = load <4 x float>* @inVf_shadow
   %4 = fadd <4 x float> %2, %3
-  %inVn__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 2), !input !8
-  store <4 x float> %inVn__, <4 x float>* @inVn_shadow
+  %inVn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 2), !input !8
+  store <4 x float> %inVn, <4 x float>* @inVn_shadow
   %5 = load <4 x float>* @inVn_shadow
   %6 = fadd <4 x float> %4, %5
-  %inVcn__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 514), !input !10
-  store <4 x float> %inVcn__, <4 x float>* @inVcn_shadow
+  %inVcn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 514), !input !10
+  store <4 x float> %inVcn, <4 x float>* @inVcn_shadow
   %7 = load <4 x float>* @inVcn_shadow
   %outVi_shadow = fadd <4 x float> %6, %7
   store <4 x float> %outVi_shadow, <4 x float>* @outVi_shadow
@@ -70,15 +70,15 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %inVs__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !4
-  %inVc__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 513), !input !2
-  %inVf__ = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !input !6
-  %0 = fadd <4 x float> %inVs__, %inVc__
-  %inVn__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 2), !input !8
-  %1 = fadd <4 x float> %0, %inVf__
-  %inVcn__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 514), !input !10
-  %2 = fadd <4 x float> %1, %inVn__
-  %outVi_shadow = fadd <4 x float> %2, %inVcn__
+  %inVs = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !4
+  %inVc = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 513), !input !2
+  %inVf = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !input !6
+  %0 = fadd <4 x float> %inVs, %inVc
+  %inVn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 2), !input !8
+  %1 = fadd <4 x float> %0, %inVf
+  %inVcn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 514), !input !10
+  %2 = fadd <4 x float> %1, %inVn
+  %outVi_shadow = fadd <4 x float> %2, %inVcn
   call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %outVi_shadow), !output !0
   br label %stage-epilogue
 

@@ -7,8 +7,8 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %Color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !input !2
-  store <4 x float> %Color__, <4 x float>* @Color_shadow
+  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !input !2
+  store <4 x float> %Color, <4 x float>* @Color_shadow
   %0 = load <4 x float>* @Color_shadow
   store <4 x float> %0, <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 1)
   br label %stage-epilogue
@@ -40,8 +40,8 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %Color__ = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !input !2
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %Color__), !output !0
+  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !input !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %Color), !output !0
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry

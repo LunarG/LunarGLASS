@@ -46,8 +46,8 @@ else:                                             ; preds = %entry
 ifmerge:                                          ; preds = %else, %then
   %9 = load float* %scale
   %10 = load i32 addrspace(1)* @"sampler2D sampler", !sampler !7
-  %coord__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !8
-  store <2 x float> %coord__, <2 x float>* @coord_shadow
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !8
+  store <2 x float> %coord, <2 x float>* @coord_shadow
   %11 = load <2 x float>* @coord_shadow
   %12 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %10, i32 0, <2 x float> %11)
   %13 = insertelement <4 x float> undef, float %9, i32 0
@@ -120,9 +120,9 @@ entry:
   %select = select i1 %1, float addrspace(2)* %6, float addrspace(2)* %gla_constGEP7
   %scale.0 = load float addrspace(2)* %select, align 4
   %7 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %scale.0, <4 x i32> zeroinitializer)
-  %coord__ = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !8
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !8
   %8 = load i32 addrspace(1)* @"sampler2D sampler", align 4, !sampler !7
-  %9 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %8, i32 0, <2 x float> %coord__)
+  %9 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %8, i32 0, <2 x float> %coord)
   %FragColor_shadow = fmul <4 x float> %9, %7
   call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %FragColor_shadow), !output !5
   br label %stage-epilogue

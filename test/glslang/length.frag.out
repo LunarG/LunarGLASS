@@ -8,18 +8,18 @@ Top IR:
 define fastcc void @main() {
 entry:
   %t = alloca <2 x float>
-  %"v_2[0]" = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !0
-  store <2 x float> %"v_2[0]", <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 0)
-  %"v_2[1]" = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !0
-  store <2 x float> %"v_2[1]", <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 1)
+  %v = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !0
+  store <2 x float> %v, <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 0)
+  %v1 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !0
+  store <2 x float> %v1, <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 1)
   %0 = load <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 0)
-  %"v_2[0]1" = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !0
-  store <2 x float> %"v_2[0]1", <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 0)
-  %"v_2[1]2" = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !0
-  store <2 x float> %"v_2[1]2", <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 1)
+  %v2 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !0
+  store <2 x float> %v2, <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 0)
+  %v3 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !input !0
+  store <2 x float> %v3, <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 1)
   %1 = load <2 x float>* getelementptr inbounds ([2 x <2 x float>]* @v_shadow, i32 0, i32 1)
-  %t3 = fadd <2 x float> %0, %1
-  store <2 x float> %t3, <2 x float>* %t
+  %t4 = fadd <2 x float> %0, %1
+  store <2 x float> %t4, <2 x float>* %t
   store <4 x float> <float 3.000000e+01, float 3.000000e+01, float 3.000000e+01, float 3.000000e+01>, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 

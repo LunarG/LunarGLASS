@@ -522,10 +522,8 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
             copyOuts.push_back(co);
             const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(value->getType()->getContainedType(0));
             if (arrayType) {
-                gla::AppendArraySizeToName(pipelineName, arrayType->getNumElements());
                 for (int index = 0; index < arrayType->getNumElements(); ++index) {
                     std::string elementName = pipelineName;
-                    gla::AppendIndexToName(elementName, index);
                     PipelineSymbol symbol = {elementName, arrayType->getContainedType(0)};
                     manager->getPipeOutSymbols().push_back(symbol);
 
@@ -2193,39 +2191,6 @@ void Builder::closeLoop()
     builder.SetInsertPoint(ld.exit);
 
     loops.pop();
-}
-
-//
-// Some utility functions
-//
-#ifdef _WIN32
-    #define snprintf sprintf_s
-#endif
-
-void AppendArraySizeToName(std::string& arrayName, int size)
-{
-    char buf[10];
-    snprintf(buf, sizeof(buf), "%d", size);
-    arrayName = arrayName + "_" + buf;
-}
-
-void AppendIndexToName(std::string& arrayName, int index)
-{
-    char buf[10];
-    snprintf(buf, sizeof(buf), "%d", index);
-    arrayName = arrayName + "[" + buf + "]";
-}
-
-void AppendMatrixSizeToName(std::string& name, int cols, int rows)
-{
-    char buf[10];
-    snprintf(buf, sizeof(buf), "%dx%d", cols, rows);
-    name = name + buf;
-}
-
-void AddSeparator(std::string& name)
-{
-    name = name + "__";
 }
 
 }; // end gla namespace
