@@ -52,20 +52,20 @@
 
 namespace gla {
 
-// Forms of metadata nodes, pointed to:
+// Forms of metadata nodes, pointed to by instructions, by named metadata, or by other metadata
 //
 //     !input/output/uniform -> { name, EMdInputOutput,  Value*, !typeLayout, !aggregateLayout }
 //     Notes:
 //         - Value* is a proxy for getting the LLVM type
 //         - aggregateLayout == 0 if not in a block
 //
-//     !sampler -> { name, EMdSampler, Value*, EMdSamplerDim, array, shadow }
+//     !sampler -> { EMdSampler, Value*, EMdSamplerDim, array, shadow }
 //     Notes:
 //         - texel return value has the same type as Value*
 //         - array is bool, true if it is a samplerArray
 //         - shadow is bool, true if it is a samplerShadow
 //
-//     !typeLayout -> { EMdTypeLayout, EMdPrecision, location }
+//     !typeLayout -> { EMdTypeLayout, EMdPrecision, location, !sampler }
 //     Notes:
 //         - the type layout is how it is known if something is a matrix or unsigned integer, 
 //           as this is not in the LLVM type
@@ -82,20 +82,20 @@ namespace gla {
 //
 // Forms of named metadata
 //
-//     !inputs -> !{ list of all pipeline inputs }
-//     !outputs -> !{ list of all pipeline outputs }
-//     !defaultUniforms -> !{ list of all uniforms not in blocks }
+//     !inputs -> !{ list of all pipeline !input }
+//     !outputs -> !{ list of all pipeline !output }
+//     !defaultUniforms -> !{ list of all !uniform, not in blocks }
 //     !samplers -> !{ list of all samplers }
 //
 
 const int MaxUserLayoutLocation = 1024;
 
-// what kind of pipeline I/O:
+// what kind of I/O:
 enum EMdInputOutput {
     EMioNone,               // for something that is not I/O, should not show up in a metadata node
 
     // inputs
-    EMioPipeOut,            // normal user-streamed input data: attributes, varyings, etc.
+    EMioPipeIn,             // normal user-streamed input data: attributes, varyings, etc.
     EMioVertexId,
     EMioInstanceId,
     EMioFragmentFace,
@@ -103,7 +103,7 @@ enum EMdInputOutput {
     EMioPointCoord,
 
     // outputs
-    EMioPipeIn,             // normal user-streamed output data, including fragment color
+    EMioPipeOut,            // normal user-streamed output data, including fragment color
     EMioVertexPosition,
     EMioPointSize,
     EMioClipVertex,
@@ -122,10 +122,7 @@ enum EMdTypeLayout {
     EMtlRowMajorMatrix,
     EMtlColMajorMatrix,
     EMtlAggregate,
-};
-
-// what kind of uniform:
-enum EMdUniform {
+    EMtlSampler
 };
 
 // How a block or structure is laid out
@@ -166,7 +163,7 @@ enum EMdPrecision {
 // They take an MD node, or instruction that might point to one, and decode it, as per the enums above.
 //
 
-inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPrecision& precision, int& location)
+inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& sampler)
 {
     const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
     if (! constInt)
@@ -183,10 +180,17 @@ inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPr
         return false;
     location = constInt->getSExtValue();
 
+    llvm::Value* speculativeSampler = md->getOperand(3);
+    if (speculativeSampler)
+        sampler = llvm::dyn_cast<llvm::MDNode>(speculativeSampler);
+    else
+        sampler = 0;
+
     return true;
 }
 
-inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& aggregate)
+inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
+                      EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& sampler, llvm::MDNode*& aggregate)
 {
     symbolName = md->getOperand(0)->getName();
 
@@ -203,7 +207,7 @@ inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputO
     if (! layoutMd)
         return false;
 
-    if (! CrackTypeLayout(layoutMd, layout, precision, location))
+    if (! CrackTypeLayout(layoutMd, layout, precision, location, sampler))
         return false;
 
     aggregate = 0;
@@ -211,58 +215,60 @@ inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputO
     return true;
 }
 
-inline bool CrackIOMd(const llvm::Instruction* instruction, llvm::StringRef kind, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& aggregate)
+inline bool CrackIOMd(const llvm::Instruction* instruction, llvm::StringRef kind, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
+                      EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& sampler, llvm::MDNode*& aggregate)
 {
     const llvm::MDNode* md = instruction->getMetadata(kind);
     if (! md)
         return false;
 
-    return CrackIOMd(md, symbolName, qualifier, type, layout, precision, location, aggregate);
+    return CrackIOMd(md, symbolName, qualifier, type, layout, precision, location, sampler, aggregate);
 }
 
-inline bool CrackInputMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& aggregate)
+inline bool CrackInputMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
+                         EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& aggregate)
 {
-    return CrackIOMd(instruction, "input", symbolName, qualifier, type, layout, precision, location, aggregate);
+    llvm::MDNode* dummySampler;
+
+    return CrackIOMd(instruction, "input", symbolName, qualifier, type, layout, precision, location, dummySampler, aggregate);
 }
 
-inline bool CrackOutputMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& aggregate)
+inline bool CrackOutputMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
+                          EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& aggregate)
 {
-    return CrackIOMd(instruction, "output", symbolName, qualifier, type, layout, precision, location, aggregate);
+    llvm::MDNode* dummySampler;
+
+    return CrackIOMd(instruction, "output", symbolName, qualifier, type, layout, precision, location, dummySampler, aggregate);
 }
 
-inline bool CrackUniformMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type, EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& aggregate)
+inline bool CrackUniformMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
+                           EMdTypeLayout& layout, EMdPrecision& precision, int& location, llvm::MDNode*& sampler, llvm::MDNode*& aggregate)
 {
-    return CrackIOMd(instruction, "uniform", symbolName, qualifier, type, layout, precision, location, aggregate);
+    return CrackIOMd(instruction, "uniform", symbolName, qualifier, type, layout, precision, location, sampler, aggregate);
 }
 
-inline bool CrackSamplerMd(const llvm::Instruction* instruction, std::string& symbolName, EMdSampler& sampler, llvm::Type*& type, EMdSamplerDim& dim, bool& isArray, bool& isShadow)
+inline bool CrackSamplerMd(llvm::MDNode* md, EMdSampler& sampler, llvm::Type*& type, EMdSamplerDim& dim, bool& isArray, bool& isShadow)
 {
-    const llvm::MDNode* md = instruction->getMetadata("sampler");
-    if (! md)
-        return false;
-
-    symbolName = md->getOperand(0)->getName();
-
-    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(1));
+    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
     if (! constInt)
         return false;
     sampler = (EMdSampler)constInt->getSExtValue();
 
-    if (! md->getOperand(2))
+    if (! md->getOperand(1))
         return false;
-    type = md->getOperand(2)->getType();
+    type = md->getOperand(1)->getType();
 
-    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(3));
+    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(2));
     if (! constInt)
         return false;
     dim = (EMdSamplerDim)constInt->getSExtValue();
 
-    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(4));
+    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(3));
     if (! constInt)
         return false;
     isArray = constInt->getSExtValue() != 0;
 
-    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(5));
+    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(4));
     if (! constInt)
         return false;
     isShadow = constInt->getSExtValue() != 0;
@@ -304,13 +310,14 @@ public:
 
     // "input/output/uniform ->" as per comment at top of file
     llvm::MDNode* makeMdInputOutput(llvm::StringRef symbolName, llvm::StringRef sectionName, EMdInputOutput qualifier, 
-                                    llvm::Value* typeProxy, EMdTypeLayout layout, EMdPrecision precision, int location, llvm::MDNode* aggregate = 0)
+                                    llvm::Value* typeProxy, EMdTypeLayout layout, EMdPrecision precision, int location, 
+                                    llvm::MDNode* sampler = 0, llvm::MDNode* aggregate = 0)
     {
         llvm::Value* args[] = {
             llvm::MDString::get(context, symbolName),
             gla::MakeIntConstant(context, qualifier),
             typeProxy,
-            makeMdTypeLayout(layout, precision, location)
+            makeMdTypeLayout(layout, precision, location, sampler)
         };
         llvm::MDNode* md = llvm::MDNode::get(context, args);
 
@@ -321,10 +328,9 @@ public:
     }
 
     // "sampler ->" as per comment at top of file
-    llvm::MDNode* makeMdSampler(llvm::StringRef symbolName, EMdSampler sampler, llvm::Value* typeProxy, EMdSamplerDim dim, bool isArray, bool isShadow)
+    llvm::MDNode* makeMdSampler(EMdSampler sampler, llvm::Value* typeProxy, EMdSamplerDim dim, bool isArray, bool isShadow)
     {
         llvm::Value* args[] = {
-            llvm::MDString::get(context, symbolName),
             gla::MakeIntConstant(context, sampler),
             typeProxy,
             gla::MakeIntConstant(context, dim),
@@ -347,12 +353,13 @@ public:
     }
 
 protected:
-    llvm::MDNode* makeMdTypeLayout(EMdTypeLayout layout, EMdPrecision precision, int location)
+    llvm::MDNode* makeMdTypeLayout(EMdTypeLayout layout, EMdPrecision precision, int location, llvm::MDNode* sampler)
     {
         llvm::Value* layoutArgs[] = {
             gla::MakeIntConstant(context, layout),
             gla::MakeIntConstant(context, precision),
             gla::MakeIntConstant(context, location),
+            sampler,
         };
 
         return llvm::MDNode::get(context, layoutArgs);

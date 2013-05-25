@@ -171,7 +171,9 @@ gla::EMdTypeLayout getMdTypeLayout(TIntermSymbol* node)
         case ElmRowMajor:  mdType = gla::EMtlRowMajorMatrix;   break;
         default:           mdType = gla::EMtlColMajorMatrix;   break;
         }
-    } else {
+    } else if (node->getBasicType() == EbtSampler) 
+        mdType = gla::EMtlSampler;
+    else {
         if (node->getType().getBasicType() == EbtUint)
             mdType = gla::EMtlUnsigned;
     }
@@ -2163,21 +2165,20 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType
 }
 
 void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy)
-{    
+{
+    llvm::MDNode* samplerMd = 0;
     llvm::MDNode* md;
 
     switch (getMdQualifier(node)) {
     case gla::EMioDefaultUniform:
         if (node->getType().getBasicType() == EbtSampler) {
-            md = metadata.makeMdSampler(node->getSymbol().c_str(), getMdSampler(node->getType()), typeProxy, getMdSamplerDim(node->getType()), 
-                                        node->getType().getSampler().arrayed,
-                                        node->getType().getSampler().shadow);
-            glaBuilder->setAccessChainMetadata("sampler", md);
-
-            return;
+            samplerMd = metadata.makeMdSampler(getMdSampler(node->getType()), typeProxy, getMdSamplerDim(node->getType()), 
+                                               node->getType().getSampler().arrayed,
+                                               node->getType().getSampler().shadow);
         }
 
-        md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "defaultUniforms", gla::EMioDefaultUniform, typeProxy, getMdTypeLayout(node), getMdPrecision(node->getType()), 0);
+        md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "defaultUniforms", gla::EMioDefaultUniform, typeProxy, 
+                                        getMdTypeLayout(node), getMdPrecision(node->getType()), 0, samplerMd);
         glaBuilder->setAccessChainMetadata("uniform", md);
         break;
     case gla::EMioUniformBlockMember:

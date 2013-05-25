@@ -72,12 +72,12 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!0, !2}
 !inputs = !{!4}
 
-!0 = metadata !{metadata !"colorOut", i32 1, [6 x <4 x float>]* @colorOut_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
+!0 = metadata !{metadata !"colorOut", i32 7, [6 x <4 x float>]* @colorOut_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1031}
-!4 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1030}
+!3 = metadata !{i32 0, i32 0, i32 1031, null}
+!4 = metadata !{metadata !"color", i32 1, <4 x float>* @color_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1030, null}
 
 
 Bottom IR:
@@ -134,12 +134,12 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!0, !2}
 !inputs = !{!4}
 
-!0 = metadata !{metadata !"colorOut", i32 1, [6 x <4 x float>]* @colorOut_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
+!0 = metadata !{metadata !"colorOut", i32 7, [6 x <4 x float>]* @colorOut_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1031}
-!4 = metadata !{metadata !"color", i32 7, <4 x float>* @color_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1030}
+!3 = metadata !{i32 0, i32 0, i32 1031, null}
+!4 = metadata !{metadata !"color", i32 1, <4 x float>* @color_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1030, null}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:3: attribute deprecated in version 130; may be removed in future release
 WARNING: 0:4: varying deprecated in version 130; may be removed in future release

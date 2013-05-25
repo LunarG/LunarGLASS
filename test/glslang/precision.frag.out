@@ -145,20 +145,20 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !defaultUniforms = !{!6, !8, !8, !10, !10, !8, !10, !8}
 !outputs = !{!12}
 
-!0 = metadata !{metadata !"highfin", i32 7, <4 x float>* @highfin_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 3, i32 1024}
-!2 = metadata !{metadata !"lowfin", i32 7, float* @lowfin_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 1, i32 1025}
-!4 = metadata !{metadata !"mediumfin", i32 7, float* @mediumfin_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1026}
+!0 = metadata !{metadata !"highfin", i32 1, <4 x float>* @highfin_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 3, i32 1024, null}
+!2 = metadata !{metadata !"lowfin", i32 1, float* @lowfin_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 1, i32 1025, null}
+!4 = metadata !{metadata !"mediumfin", i32 1, float* @mediumfin_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 2, i32 1026, null}
 !6 = metadata !{metadata !"uniform_medium", i32 12, i32 addrspace(2)* @uniform_medium, metadata !7}
-!7 = metadata !{i32 0, i32 2, i32 0}
+!7 = metadata !{i32 0, i32 2, i32 0, null}
 !8 = metadata !{metadata !"uniform_high", i32 12, i32 addrspace(2)* @uniform_high, metadata !9}
-!9 = metadata !{i32 0, i32 3, i32 0}
+!9 = metadata !{i32 0, i32 3, i32 0, null}
 !10 = metadata !{metadata !"uniform_low", i32 12, i32 addrspace(2)* @uniform_low, metadata !11}
-!11 = metadata !{i32 0, i32 1, i32 0}
-!12 = metadata !{metadata !"mediumfout", i32 1, <4 x float>* @mediumfout_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 2, i32 1027}
+!11 = metadata !{i32 0, i32 1, i32 0, null}
+!12 = metadata !{metadata !"mediumfout", i32 7, <4 x float>* @mediumfout_shadow_typeProxy, metadata !13}
+!13 = metadata !{i32 0, i32 2, i32 1027, null}
 !14 = metadata !{i32 3}
 !15 = metadata !{i32 1}
 !16 = metadata !{i32 2}
@@ -223,20 +223,20 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !defaultUniforms = !{!6, !8, !8, !10, !10, !8, !10, !8}
 !outputs = !{!12}
 
-!0 = metadata !{metadata !"highfin", i32 7, <4 x float>* @highfin_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 3, i32 1024}
-!2 = metadata !{metadata !"lowfin", i32 7, float* @lowfin_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 1, i32 1025}
-!4 = metadata !{metadata !"mediumfin", i32 7, float* @mediumfin_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1026}
+!0 = metadata !{metadata !"highfin", i32 1, <4 x float>* @highfin_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 3, i32 1024, null}
+!2 = metadata !{metadata !"lowfin", i32 1, float* @lowfin_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 1, i32 1025, null}
+!4 = metadata !{metadata !"mediumfin", i32 1, float* @mediumfin_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 2, i32 1026, null}
 !6 = metadata !{metadata !"uniform_medium", i32 12, i32 addrspace(2)* @uniform_medium, metadata !7}
-!7 = metadata !{i32 0, i32 2, i32 0}
+!7 = metadata !{i32 0, i32 2, i32 0, null}
 !8 = metadata !{metadata !"uniform_high", i32 12, i32 addrspace(2)* @uniform_high, metadata !9}
-!9 = metadata !{i32 0, i32 3, i32 0}
+!9 = metadata !{i32 0, i32 3, i32 0, null}
 !10 = metadata !{metadata !"uniform_low", i32 12, i32 addrspace(2)* @uniform_low, metadata !11}
-!11 = metadata !{i32 0, i32 1, i32 0}
-!12 = metadata !{metadata !"mediumfout", i32 1, <4 x float>* @mediumfout_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 2, i32 1027}
+!11 = metadata !{i32 0, i32 1, i32 0, null}
+!12 = metadata !{metadata !"mediumfout", i32 7, <4 x float>* @mediumfout_shadow_typeProxy, metadata !13}
+!13 = metadata !{i32 0, i32 2, i32 1027, null}
 !14 = metadata !{i32 1}
 !15 = metadata !{i32 2}
 !16 = metadata !{i32 3}
@@ -247,9 +247,9 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 
 // LunarGOO(r722) output
 #version 300 es
-uniform int uniform_medium;
-uniform int uniform_high;
-uniform int uniform_low;
+uniform mediump int uniform_medium;
+uniform highp int uniform_high;
+uniform lowp int uniform_low;
 in lowp float lowfin;
 in mediump float mediumfin;
 in highp vec4 highfin;
@@ -286,12 +286,12 @@ void main()
 
 // LunarGOO(r722) output
 #version 300 es
-uniform int uniform_low;
-uniform int uniform_high;
-uniform int uniform_medium;
 in lowp float lowfin;
 in mediump float mediumfin;
 in highp vec4 highfin;
+uniform lowp int uniform_low;
+uniform highp int uniform_high;
+uniform mediump int uniform_medium;
 const int const27i_3 = 3;
 const int const30i_4 = 4;
 const vec4 const36 = vec4(1023910.0);

@@ -25,23 +25,23 @@ entry:
   %u = alloca i32
   %count = alloca i32
   store i32 1, i32* %count
-  %t = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !7
+  %t = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !9
   store <2 x i32> %t, <2 x i32>* @t_shadow
   %0 = load <2 x i32>* @t_shadow
-  %1 = extractelement <2 x i32> %0, i32 1, !precision !7
-  %u1 = add i32 %1, 3, !precision !7
+  %1 = extractelement <2 x i32> %0, i32 1, !precision !9
+  %u1 = add i32 %1, 3, !precision !9
   store i32 %u1, i32* %u
   %2 = load i32* %count
-  %count2 = mul i32 %2, 2, !precision !7
+  %count2 = mul i32 %2, 2, !precision !9
   store i32 %count2, i32* %count
   %3 = load i32* %count
-  %count3 = mul i32 %3, 3, !precision !7
+  %count3 = mul i32 %3, 3, !precision !9
   store i32 %count3, i32* %count
   %4 = load i32* %count
-  %count4 = mul i32 %4, 7, !precision !7
+  %count4 = mul i32 %4, 7, !precision !9
   store i32 %count4, i32* %count
   %5 = load i32* %count
-  %count5 = mul i32 %5, 11, !precision !7
+  %count5 = mul i32 %5, 11, !precision !9
   store i32 %count5, i32* %count
   store i32 -1, i32* %shiftedii
   store i32 4194303, i32* %shiftedui
@@ -53,11 +53,11 @@ entry:
   br i1 %8, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  %9 = load i32 addrspace(1)* @"usampler2D usampler", !sampler !6
+  %9 = load i32 addrspace(1)* @"usampler2D usampler", !uniform !7
   %tc = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !input !2
   store <2 x float> %tc, <2 x float>* @tc_shadow
   %10 = load <2 x float>* @tc_shadow
-  %c_shadow = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %10), !precision !7
+  %c_shadow = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %10), !precision !9
   store <4 x i32> %c_shadow, <4 x i32>* @c_shadow
   br label %ifmerge
 
@@ -68,12 +68,12 @@ ifmerge:                                          ; preds = %entry, %then
   br i1 %13, label %then6, label %ifmerge9
 
 then6:                                            ; preds = %ifmerge
-  %14 = load i32 addrspace(1)* @"usampler2D usampler", !sampler !6
+  %14 = load i32 addrspace(1)* @"usampler2D usampler", !uniform !7
   %tc7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !input !2
   store <2 x float> %tc7, <2 x float>* @tc_shadow
   %15 = load <2 x float>* @tc_shadow
   %16 = fadd <2 x float> %15, <float 1.000000e+00, float 1.000000e+00>
-  %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %14, i32 0, <2 x float> %16), !precision !7
+  %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %14, i32 0, <2 x float> %16), !precision !9
   store <4 x i32> %c_shadow8, <4 x i32>* @c_shadow
   br label %ifmerge9
 
@@ -84,20 +84,20 @@ ifmerge9:                                         ; preds = %ifmerge, %then6
   br i1 %19, label %then10, label %ifmerge13
 
 then10:                                           ; preds = %ifmerge9
-  %20 = load i32 addrspace(1)* @"usampler2D usampler", !sampler !6
+  %20 = load i32 addrspace(1)* @"usampler2D usampler", !uniform !7
   %tc11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !input !2
   store <2 x float> %tc11, <2 x float>* @tc_shadow
   %21 = load <2 x float>* @tc_shadow
   %22 = fsub <2 x float> %21, <float 2.000000e+00, float 2.000000e+00>
-  %c_shadow12 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %20, i32 0, <2 x float> %22), !precision !7
+  %c_shadow12 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %20, i32 0, <2 x float> %22), !precision !9
   store <4 x i32> %c_shadow12, <4 x i32>* @c_shadow
   br label %ifmerge13
 
 ifmerge13:                                        ; preds = %ifmerge9, %then10
-  %t14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !7
+  %t14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !9
   store <2 x i32> %t14, <2 x i32>* @t_shadow
   %23 = load <2 x i32>* @t_shadow
-  %24 = extractelement <2 x i32> %23, i32 0, !precision !7
+  %24 = extractelement <2 x i32> %23, i32 0, !precision !9
   %25 = icmp sgt i32 %24, 4
   br i1 %25, label %then15, label %ifmerge20
 
@@ -111,35 +111,35 @@ then15:                                           ; preds = %ifmerge13
   %ai18 = load i32* %u
   store i32 %ai18, i32* %ai
   %28 = load float* %af
-  %29 = fptoui float %28 to i32, !precision !7
+  %29 = fptoui float %28 to i32, !precision !9
   %30 = load i1* %ab
-  %31 = zext i1 %30 to i32, !precision !7
+  %31 = zext i1 %30 to i32, !precision !9
   %32 = load i32* %ai
   %33 = load i32* %count
   %34 = load <4 x i32>* %constructed
-  %35 = insertelement <4 x i32> %34, i32 %29, i32 0, !precision !7
-  %36 = insertelement <4 x i32> %35, i32 %31, i32 1, !precision !7
-  %37 = insertelement <4 x i32> %36, i32 %32, i32 2, !precision !7
-  %38 = insertelement <4 x i32> %37, i32 %33, i32 3, !precision !7
+  %35 = insertelement <4 x i32> %34, i32 %29, i32 0, !precision !9
+  %36 = insertelement <4 x i32> %35, i32 %31, i32 1, !precision !9
+  %37 = insertelement <4 x i32> %36, i32 %32, i32 2, !precision !9
+  %38 = insertelement <4 x i32> %37, i32 %33, i32 3, !precision !9
   %39 = load <4 x i32>* @c_shadow
-  %c_shadow19 = add <4 x i32> %39, %38, !precision !7
+  %c_shadow19 = add <4 x i32> %39, %38, !precision !9
   store <4 x i32> %c_shadow19, <4 x i32>* @c_shadow
   br label %ifmerge20
 
 ifmerge20:                                        ; preds = %ifmerge13, %then15
   %40 = load i32* %count
-  %count21 = mul i32 %40, 17, !precision !7
+  %count21 = mul i32 %40, 17, !precision !9
   store i32 %count21, i32* %count
   %41 = load i32* %count
-  %count22 = mul i32 %41, 23, !precision !7
+  %count22 = mul i32 %41, 23, !precision !9
   store i32 %count22, i32* %count
   %42 = load i32* %count
-  %count23 = mul i32 %42, 27, !precision !7
+  %count23 = mul i32 %42, 27, !precision !9
   store i32 %count23, i32* %count
   store i32 161, i32* %mask1
   store i32 2576, i32* %mask2
   %43 = load i32* %mask1
-  %mask324 = shl i32 %43, 4, !precision !7
+  %mask324 = shl i32 %43, 4, !precision !9
   store i32 %mask324, i32* %mask3
   store i32 2737, i32* %mask4
   %44 = load i32* %mask3
@@ -149,59 +149,59 @@ ifmerge20:                                        ; preds = %ifmerge13, %then15
 
 then25:                                           ; preds = %ifmerge20
   %47 = load i32* %count
-  %count26 = mul i32 %47, 2, !precision !7
+  %count26 = mul i32 %47, 2, !precision !9
   store i32 %count26, i32* %count
   br label %ifmerge27
 
 ifmerge27:                                        ; preds = %ifmerge20, %then25
   %48 = load i32* %mask3
   %49 = load i32* %mask1
-  %50 = and i32 %48, %49, !precision !7
+  %50 = and i32 %48, %49, !precision !9
   %51 = icmp ne i32 %50, 0
   br i1 %51, label %then28, label %ifmerge30
 
 then28:                                           ; preds = %ifmerge27
   %52 = load i32* %count
-  %count29 = mul i32 %52, 3, !precision !7
+  %count29 = mul i32 %52, 3, !precision !9
   store i32 %count29, i32* %count
   br label %ifmerge30
 
 ifmerge30:                                        ; preds = %ifmerge27, %then28
   %53 = load i32* %mask1
   %54 = load i32* %mask3
-  %55 = or i32 %53, %54, !precision !7
+  %55 = or i32 %53, %54, !precision !9
   %56 = load i32* %mask4
   %57 = icmp eq i32 %55, %56
   br i1 %57, label %then31, label %ifmerge33
 
 then31:                                           ; preds = %ifmerge30
   %58 = load i32* %count
-  %count32 = mul i32 %58, 5, !precision !7
+  %count32 = mul i32 %58, 5, !precision !9
   store i32 %count32, i32* %count
   br label %ifmerge33
 
 ifmerge33:                                        ; preds = %ifmerge30, %then31
   %59 = load i32* %mask1
   %60 = load i32* %mask4
-  %61 = xor i32 %59, %60, !precision !7
+  %61 = xor i32 %59, %60, !precision !9
   %62 = icmp eq i32 %61, 2576
   br i1 %62, label %then34, label %ifmerge36
 
 then34:                                           ; preds = %ifmerge33
   %63 = load i32* %count
-  %count35 = mul i32 %63, 7, !precision !7
+  %count35 = mul i32 %63, 7, !precision !9
   store i32 %count35, i32* %count
   br label %ifmerge36
 
 ifmerge36:                                        ; preds = %ifmerge33, %then34
   %64 = load i32* %count
   %65 = load <4 x i32>* %constructed37
-  %66 = insertelement <4 x i32> undef, i32 %64, i32 0, !precision !7
-  %67 = insertelement <4 x i32> %66, i32 %64, i32 1, !precision !7
-  %68 = insertelement <4 x i32> %67, i32 %64, i32 2, !precision !7
-  %69 = insertelement <4 x i32> %68, i32 %64, i32 3, !precision !7
+  %66 = insertelement <4 x i32> undef, i32 %64, i32 0, !precision !9
+  %67 = insertelement <4 x i32> %66, i32 %64, i32 1, !precision !9
+  %68 = insertelement <4 x i32> %67, i32 %64, i32 2, !precision !9
+  %69 = insertelement <4 x i32> %68, i32 %64, i32 3, !precision !9
   %70 = load <4 x i32>* @c_shadow
-  %c_shadow38 = add <4 x i32> %70, %69, !precision !7
+  %c_shadow38 = add <4 x i32> %70, %69, !precision !9
   store <4 x i32> %c_shadow38, <4 x i32>* @c_shadow
   br label %stage-epilogue
 
@@ -225,15 +225,18 @@ declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) nounwind
 !inputs = !{!0, !2}
 !outputs = !{!4}
 !samplers = !{!6, !6, !6}
+!defaultUniforms = !{!7, !7, !7}
 
-!0 = metadata !{metadata !"t", i32 7, <2 x i32>* @t_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 1, i32 2, i32 1024}
-!2 = metadata !{metadata !"tc", i32 7, <2 x float>* @tc_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026}
-!4 = metadata !{metadata !"c", i32 1, <4 x i32>* @c_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 1, i32 2, i32 1025}
-!6 = metadata !{metadata !"usampler", i32 0, i32 addrspace(1)* @"usampler2D usampler", i32 1, i1 false, i1 false}
-!7 = metadata !{i32 2}
+!0 = metadata !{metadata !"t", i32 1, <2 x i32>* @t_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 1, i32 2, i32 1024, null}
+!2 = metadata !{metadata !"tc", i32 1, <2 x float>* @tc_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1026, null}
+!4 = metadata !{metadata !"c", i32 7, <4 x i32>* @c_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 1, i32 2, i32 1025, null}
+!6 = metadata !{i32 0, i32 addrspace(1)* @"usampler2D usampler", i32 1, i1 false, i1 false}
+!7 = metadata !{metadata !"usampler", i32 12, i32 addrspace(1)* @"usampler2D usampler", metadata !8}
+!8 = metadata !{i32 5, i32 1, i32 0, metadata !6}
+!9 = metadata !{i32 2}
 
 
 Bottom IR:
@@ -243,24 +246,24 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %t = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !7
-  %0 = extractelement <2 x i32> %t, i32 1, !precision !7
-  %u1 = add i32 %0, 3, !precision !7
-  %1 = load i32 addrspace(1)* @"usampler2D usampler", align 4, !sampler !6
+  %t = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !9
+  %0 = extractelement <2 x i32> %t, i32 1, !precision !9
+  %u1 = add i32 %0, 3, !precision !9
+  %1 = load i32 addrspace(1)* @"usampler2D usampler", align 4, !uniform !7
   %tc7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !input !2
   %2 = fadd <2 x float> %tc7, <float 1.000000e+00, float 1.000000e+00>
-  %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %2), !precision !7
-  %t14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !7
-  %3 = extractelement <2 x i32> %t14, i32 0, !precision !7
+  %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %2), !precision !9
+  %t14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !9
+  %3 = extractelement <2 x i32> %t14, i32 0, !precision !9
   %4 = icmp sgt i32 %3, 4
   %af16 = uitofp i32 %u1 to float
   %ab17 = icmp ne i32 %u1, 0
-  %5 = fptoui float %af16 to i32, !precision !7
-  %6 = zext i1 %ab17 to i32, !precision !7
+  %5 = fptoui float %af16 to i32, !precision !9
+  %6 = zext i1 %ab17 to i32, !precision !9
   %7 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32> undef, i32 15, i32 %5, i32 0, i32 %6, i32 0, i32 %u1, i32 0, i32 462, i32 0)
-  %c_shadow19 = add <4 x i32> %c_shadow8, %7, !precision !7
+  %c_shadow19 = add <4 x i32> %c_shadow8, %7, !precision !9
   %select = select i1 %4, <4 x i32> %c_shadow19, <4 x i32> %c_shadow8
-  %c_shadow38 = add <4 x i32> %select, <i32 341413380, i32 341413380, i32 341413380, i32 341413380>, !precision !7
+  %c_shadow38 = add <4 x i32> %select, <i32 341413380, i32 341413380, i32 341413380, i32 341413380>, !precision !9
   call void @llvm.gla.writeData.v4i32(i32 1025, i32 -1, <4 x i32> %c_shadow38), !output !4
   br label %stage-epilogue
 
@@ -284,15 +287,18 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 !inputs = !{!0, !2}
 !outputs = !{!4}
 !samplers = !{!6, !6, !6}
+!defaultUniforms = !{!7, !7, !7}
 
-!0 = metadata !{metadata !"t", i32 7, <2 x i32>* @t_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 1, i32 2, i32 1024}
-!2 = metadata !{metadata !"tc", i32 7, <2 x float>* @tc_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026}
-!4 = metadata !{metadata !"c", i32 1, <4 x i32>* @c_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 1, i32 2, i32 1025}
-!6 = metadata !{metadata !"usampler", i32 0, i32 addrspace(1)* @"usampler2D usampler", i32 1, i1 false, i1 false}
-!7 = metadata !{i32 2}
+!0 = metadata !{metadata !"t", i32 1, <2 x i32>* @t_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 1, i32 2, i32 1024, null}
+!2 = metadata !{metadata !"tc", i32 1, <2 x float>* @tc_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1026, null}
+!4 = metadata !{metadata !"c", i32 7, <4 x i32>* @c_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 1, i32 2, i32 1025, null}
+!6 = metadata !{i32 0, i32 addrspace(1)* @"usampler2D usampler", i32 1, i1 false, i1 false}
+!7 = metadata !{metadata !"usampler", i32 12, i32 addrspace(1)* @"usampler2D usampler", metadata !8}
+!8 = metadata !{i32 5, i32 1, i32 0, metadata !6}
+!9 = metadata !{i32 2}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
@@ -300,9 +306,9 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 
 // LunarGOO(r722) output
 #version 300 es
-uniform usampler2D usampler;
 flat in mediump ivec2 t;
 const int const22i_3 = 3;
+uniform sampler2D usampler;
 in vec2 tc;
 const vec2 const24 = vec2(1.0);
 const int const27i_4 = 4;

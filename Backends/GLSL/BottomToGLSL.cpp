@@ -209,6 +209,9 @@ public:
 
     void addGlobal(const llvm::GlobalVariable* global)
     {
+        if (mapGlaAddressSpace(global) != EVQGlobal)
+            return;
+
         llvm::Type* type;
         if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType()))
             type = pointer->getContainedType(0);
@@ -221,7 +224,6 @@ public:
         makeParseable(name);
         addNewVariable(global, name);
         declareVariable(EMpNone, type, declareName, mapGlaAddressSpace(global));
-        // TODO: Goo: ES functionality: get uniform declarations from metadata, not LLVM globals
 
         if (global->hasInitializer()) {
             const llvm::Constant* constant = global->getInitializer();
@@ -797,7 +799,7 @@ protected:
         }
     }
 
-    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier vq, const llvm::Constant* constant = 0, bool matrix = false)
+    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier vq, const llvm::Constant* constant = 0, bool matrix = false, llvm::MDNode* mdSamplerNode = 0)
     {
         if (name.substr(0,3) == std::string("gl_"))
             return;
@@ -818,6 +820,7 @@ protected:
         switch (vq) {
         case EVQUniform:
         case EVQConstant:
+            // Make sure we only declare globals once
             if (globallyDeclared.find(name) != globallyDeclared.end())
                 return;
             else
@@ -825,18 +828,11 @@ protected:
 
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
-            if (name.find_first_of(' ') == std::string::npos) {
+            if (mdSamplerNode)
+                emitGlaSamplerType(globalDeclarations, mdSamplerNode);
+            else
                 emitGlaType(globalDeclarations, precision, type, -1, matrix);
-                globalDeclarations << " " << name;
-            } else {
-                // there is a space, separating a type from a name
-                if (name.substr(0, 7) == "matrix ") {
-                    emitGlaType(globalDeclarations, precision, type, -1, true);
-                    globalDeclarations << name.substr(6, name.size());
-                } else
-                    globalDeclarations << name;
-            }
-            globalDeclarations << ";" << std::endl;
+            globalDeclarations << " " << name << ";" << std::endl;
             break;
         case EVQGlobal:
             emitGlaType(globalDeclarations, precision, type);
@@ -849,8 +845,7 @@ protected:
         case EVQUndef:
             newLine();
             emitGlaType(shader, precision, type);
-            shader << " " << name;
-            shader << ";";
+            shader << " " << name << ";";
             emitInitializeAggregate(shader, name, constant);
             break;
         default:
@@ -958,6 +953,36 @@ protected:
             else
                 UnsupportedFunctionality("Basic Type in Bottom IR");
         }
+    }
+
+    void emitGlaSamplerType(std::ostringstream& out, llvm::MDNode* mdSamplerNode)
+    {
+        EMdSampler mdSampler;
+        llvm::Type* type;  // TODO: functionality: is this where signed vs unsigned vs float is supposed to be?
+        EMdSamplerDim mdSamplerDim;
+        bool isArray;
+        bool isShadow;
+        if (gla::CrackSamplerMd(mdSamplerNode, mdSampler, type, mdSamplerDim, isArray, isShadow)) {
+            switch (mdSampler) {
+            case EMsTexture:     out << "sampler";   break;
+            case EMsImage:       out << "image";     break;
+            default:             UnsupportedFunctionality("kind of sampler");  break;
+            }
+            switch (mdSamplerDim) {
+            case EMsd1D:       out << "1D";      break;
+            case EMsd2D:       out << "2D";      break;
+            case EMsd3D:       out << "3D";      break;
+            case EMsdCube:     out << "Cube";    break;
+            case EMsdRect:     out << "Rect";    break;
+            case EMsdBuffer:   out << "Buffer";  break;
+            default:           UnsupportedFunctionality("kind of sampler");  break;
+            }
+            if (isShadow)
+                out << "Shadow";
+            if (isArray)
+                out << "Array";
+        } else
+            UnsupportedFunctionality("sampler metadata", EATContinue);
     }
 
     void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count = -1, bool matrix = false)
@@ -1479,7 +1504,8 @@ protected:
         EMdPrecision mdPrecision;
         EMdTypeLayout mdLayout;
         llvm::MDNode* mdAggregate;
-        if (! gla::CrackIOMd(llvmInstruction, input ? "input" : "output", name, mdQual, type, mdLayout, mdPrecision, layoutLocation, mdAggregate)) {
+        llvm::MDNode* dummySampler;
+        if (! gla::CrackIOMd(llvmInstruction, input ? "input" : "output", name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate)) {
             // This path should not exist; it is a backup path for missing metadata.
             // TODO: LunarGOO functionality: fix missing metadata instruction operands.
             UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
@@ -1903,45 +1929,46 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         {
             assert(! llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)));
 
-            if (llvm::isa<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0))) {
+            // See if we have metadata describing a uniform variable to declare
+            std::string name;
+            EMdInputOutput mdQual;
+            llvm::Type*type;
+            int layoutLocation;
+            EMdPrecision mdPrecision;
+            EMdTypeLayout mdLayout;
+            llvm::MDNode* mdAgg;
+            llvm::MDNode* mdSamplerNode;
+            if (gla::CrackUniformMd(llvmInstruction, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, mdSamplerNode, mdAgg) && mdQual == EMioDefaultUniform)
+                declareVariable(mdPrecision, type, name, EVQUniform, 0, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix, mdSamplerNode);
+
+            if (const llvm::GetElementPtrInst* gepInstr = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0))) {
+                // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
+                // For GEP, which always returns a pointer, traverse the dereference chain and store it.
+                if (name.size() == 0) {
+                    std::string* prevName = valueMap[gepInstr];
+                    if (prevName)
+                        name = *prevName;
+                    else
+                        name = gepInstr->getOperand(0)->getName();
+                }
+                name.append(traverseGEPChain(gepInstr));
+                addNewVariable(gepInstr, name);
+
                 // If we're loading from the result of a GEP, assign it to a new variable
                 newLine();
                 emitGlaValue(llvmInstruction);
                 shader << " = ";
-                emitGlaValue(llvmInstruction->getOperand(0));
+                emitGlaValue(gepInstr);
                 shader << ";";
             } else if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {
                 // We want phis to use the same variable name created during phi declaration
                 addNewVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
             } else {
-                std::string name = llvmInstruction->getOperand(0)->getName();
+                if (name.size() == 0)
+                    name = llvmInstruction->getOperand(0)->getName();
                 makeParseable(name);
                 addNewVariable(llvmInstruction, name);
             }
-
-                //std::string mdName;
-                //EMdInputOutput mdQual;
-                //llvm::Type*type;
-                //int layoutLocation;
-                //EMdPrecision mdPrecision;
-                //EMdTypeLayout mdLayout;
-                //llvm::MDNode* mdAgg;
-                //if (gla::CrackUniformMd(llvmInstruction, mdName, mdQual, type, mdLayout, mdPrecision, layoutLocation, mdAgg)) {
-                //    newLine();
-                //    shader << "uniform name " << mdName;
-                //    if (mdLayout == EMtlColMajorMatrix)
-                //        shader << "is a matrix";
-                //    newLine();
-                //}
-                //EMdSampler mdSampler;
-                //EMdSamplerDim mdSamplerDim;
-                //bool mdIsArray;
-                //bool mdIsShadow;
-                //if (gla::CrackSamplerMd(llvmInstruction, mdName, mdSampler, type, mdSamplerDim, mdIsArray, mdIsShadow)) {
-                //    newLine();
-                //    shader << "sampler name " << mdName << " sampler is " << mdSampler << " dim is " << mdSamplerDim;
-                //    newLine();
-                //}
         }
         return;
 
@@ -1954,6 +1981,19 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
     case llvm::Instruction::Store:
         if (llvm::isa<llvm::PointerType>(llvmInstruction->getOperand(1)->getType())) {
+            if (const llvm::GetElementPtrInst* gepInstr = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(1))) {
+                // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
+                // For GEP, which always returns a pointer, traverse the dereference chain and store it.
+                std::string* prevName = valueMap[gepInstr];
+                std::string name;
+                if (prevName)
+                    name = *prevName;
+                else
+                    name = gepInstr->getOperand(0)->getName();
+                name.append(traverseGEPChain(gepInstr));
+                addNewVariable(gepInstr, name);
+            }
+
             newLine();
             emitGlaValue(llvmInstruction->getOperand(1));
             shader << " = ";
@@ -2022,10 +2062,8 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
     }
     case llvm::Instruction::GetElementPtr:
     {
-        // For GEP, which always returns a pointer, traverse the dereference chain and store it.
-        std::string* newVariable = new std::string(*valueMap[llvmInstruction->getOperand(0)]);
-        newVariable->append(traverseGEPChain(llvmInstruction));
-        addNewVariable(llvmInstruction, *newVariable);
+        // For GEP, defer processing until we see it in a load, because
+        // that's where the metadata went
 
         return;
     }

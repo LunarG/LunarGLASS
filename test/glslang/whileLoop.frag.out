@@ -62,13 +62,13 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !defaultUniforms = !{!2, !4}
 !outputs = !{!5}
 
-!0 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
+!0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"d", i32 12, float addrspace(2)* @d, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 0}
+!3 = metadata !{i32 0, i32 0, i32 0, null}
 !4 = metadata !{metadata !"bigColor", i32 12, <4 x float> addrspace(2)* @bigColor, metadata !3}
-!5 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 2, i32 1025}
+!5 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 2, i32 1025, null}
 
 
 Bottom IR:
@@ -113,13 +113,13 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !defaultUniforms = !{!2, !4}
 !outputs = !{!5}
 
-!0 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
+!0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"d", i32 12, float addrspace(2)* @d, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 0}
+!3 = metadata !{i32 0, i32 0, i32 0, null}
 !4 = metadata !{metadata !"bigColor", i32 12, <4 x float> addrspace(2)* @bigColor, metadata !3}
-!5 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 2, i32 1025}
+!5 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 2, i32 1025, null}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
@@ -127,9 +127,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 // LunarGOO(r722) output
 #version 100
-uniform float d;
-uniform vec4 bigColor;
 varying vec4 BaseColor;
+uniform vec4 bigColor;
 
 void main()
 {
@@ -143,26 +142,7 @@ void main()
     gl_FragColor = colord0;
     
 }
-#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
+ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
-#version 100
-uniform float d;
-uniform vec4 bigColor;
-varying vec4 BaseColor;
-
-void main()
-{
-    vec4 colord0d0;
-    colord0d0 = BaseColor;
-    while (colord0d0.x < d){
-        vec4 color22 = colord0d0 + bigColor;
-        colord0d0 = color22;
-    }
-    
-    gl_FragColor = colord0d0;
-    
-}

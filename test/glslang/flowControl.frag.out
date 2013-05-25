@@ -67,17 +67,17 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !defaultUniforms = !{!4, !6, !7, !8}
 !outputs = !{!9}
 
-!0 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
-!2 = metadata !{metadata !"c", i32 7, float* @c_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1025}
+!0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!2 = metadata !{metadata !"c", i32 1, float* @c_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1025, null}
 !4 = metadata !{metadata !"otherColor", i32 12, <4 x float> addrspace(2)* @otherColor, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 0}
+!5 = metadata !{i32 0, i32 0, i32 0, null}
 !6 = metadata !{metadata !"d", i32 12, float addrspace(2)* @d, metadata !5}
 !7 = metadata !{metadata !"bigColor", i32 12, <4 x float> addrspace(2)* @bigColor, metadata !5}
 !8 = metadata !{metadata !"smallColor", i32 12, <4 x float> addrspace(2)* @smallColor, metadata !5}
-!9 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 2, i32 1026}
+!9 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
+!10 = metadata !{i32 0, i32 2, i32 1026, null}
 !11 = metadata !{i32 2}
 
 
@@ -121,17 +121,17 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !defaultUniforms = !{!4, !6, !7, !8}
 !outputs = !{!9}
 
-!0 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
-!2 = metadata !{metadata !"c", i32 7, float* @c_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1025}
+!0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!2 = metadata !{metadata !"c", i32 1, float* @c_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1025, null}
 !4 = metadata !{metadata !"otherColor", i32 12, <4 x float> addrspace(2)* @otherColor, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 0}
+!5 = metadata !{i32 0, i32 0, i32 0, null}
 !6 = metadata !{metadata !"d", i32 12, float addrspace(2)* @d, metadata !5}
 !7 = metadata !{metadata !"bigColor", i32 12, <4 x float> addrspace(2)* @bigColor, metadata !5}
 !8 = metadata !{metadata !"smallColor", i32 12, <4 x float> addrspace(2)* @smallColor, metadata !5}
-!9 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 2, i32 1026}
+!9 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
+!10 = metadata !{i32 0, i32 2, i32 1026, null}
 !11 = metadata !{i32 2}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
@@ -140,12 +140,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 // LunarGOO(r722) output
 #version 100
-uniform vec4 otherColor;
-uniform float d;
-uniform vec4 bigColor;
-uniform vec4 smallColor;
 varying vec4 BaseColor;
+uniform vec4 otherColor;
 varying float c;
+uniform float d;
 
 void main()
 {
@@ -156,26 +154,7 @@ void main()
     gl_FragColor = FragColor_shadow;
     
 }
-#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
+ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
-#version 100
-uniform float d;
-uniform vec4 bigColor;
-uniform vec4 smallColor;
-uniform vec4 otherColor;
-varying float c;
-varying vec4 BaseColor;
-
-void main()
-{
-    bool temp211 = c > d;
-    vec4 ternaryd0 = temp211 ? bigColor : smallColor;
-    vec4 colord05 = BaseColor + ternaryd0;
-    mediump vec4 FragColor_shadow6 = otherColor * colord05;
-    gl_FragColor = FragColor_shadow6;
-    
-}

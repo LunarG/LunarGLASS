@@ -127,11 +127,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!4}
 
 !0 = metadata !{metadata !"d", i32 12, float addrspace(2)* @d, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 0}
-!2 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1024}
-!4 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1025}
+!1 = metadata !{i32 0, i32 0, i32 0, null}
+!2 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1024, null}
+!4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 2, i32 1025, null}
 !6 = metadata !{i32 2}
 
 
@@ -186,11 +186,11 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !outputs = !{!4}
 
 !0 = metadata !{metadata !"d", i32 12, float addrspace(2)* @d, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 0}
-!2 = metadata !{metadata !"BaseColor", i32 7, <4 x float>* @BaseColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1024}
-!4 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1025}
+!1 = metadata !{i32 0, i32 0, i32 0, null}
+!2 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1024, null}
+!4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 2, i32 1025, null}
 !6 = metadata !{i32 2}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
@@ -199,8 +199,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 
 // LunarGOO(r722) output
 #version 100
-uniform float d;
 varying vec4 BaseColor;
+uniform float d;
 const float const25f_4 = 4.2;
 const float const27f_1 = 1.2;
 const float const28f_5 = 4.5;
@@ -235,7 +235,6 @@ void main()
 
 // LunarGOO(r722) output
 #version 100
-uniform float d;
 varying vec4 BaseColor;
 const float const24f_4 = 4.2;
 const float const26f_1 = 1.2;

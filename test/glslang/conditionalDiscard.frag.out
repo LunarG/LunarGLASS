@@ -9,11 +9,11 @@ Top IR:
 define fastcc void @main() {
 entry:
   %v = alloca <4 x float>
-  %0 = load i32 addrspace(1)* @"sampler2D tex", !sampler !0
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !1
+  %0 = load i32 addrspace(1)* @"sampler2D tex", !uniform !1
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !3
   store <2 x float> %coord, <2 x float>* @coord_shadow
   %1 = load <2 x float>* @coord_shadow
-  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1), !precision !5
+  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1), !precision !7
   store <4 x float> %v1, <4 x float>* %v
   %2 = load <4 x float>* %v
   %3 = fcmp oeq <4 x float> %2, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
@@ -34,7 +34,7 @@ ifmerge:                                          ; preds = %entry, %post-discar
 
 stage-epilogue:                                   ; preds = %ifmerge
   %5 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %5), !output !3
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %5), !output !5
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then
@@ -52,15 +52,18 @@ declare void @llvm.gla.discard() nounwind
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !samplers = !{!0}
-!inputs = !{!1}
-!outputs = !{!3}
+!defaultUniforms = !{!1}
+!inputs = !{!3}
+!outputs = !{!5}
 
-!0 = metadata !{metadata !"tex", i32 0, i32 addrspace(1)* @"sampler2D tex", i32 1, i1 false, i1 false}
-!1 = metadata !{metadata !"coord", i32 7, <2 x float>* @coord_shadow_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024}
-!3 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 2, i32 1025}
-!5 = metadata !{i32 1}
+!0 = metadata !{i32 0, i32 addrspace(1)* @"sampler2D tex", i32 1, i1 false, i1 false}
+!1 = metadata !{metadata !"tex", i32 12, i32 addrspace(1)* @"sampler2D tex", metadata !2}
+!2 = metadata !{i32 5, i32 1, i32 0, metadata !0}
+!3 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1024, null}
+!5 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 2, i32 1025, null}
+!7 = metadata !{i32 1}
 
 
 Bottom IR:
@@ -70,9 +73,9 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load i32 addrspace(1)* @"sampler2D tex", align 4, !sampler !0
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !1
-  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord), !precision !5
+  %0 = load i32 addrspace(1)* @"sampler2D tex", align 4, !uniform !1
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !3
+  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord), !precision !7
   %1 = fcmp oeq <4 x float> %v1, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
   %2 = call i1 @llvm.gla.all.v4i1(<4 x i1> %1)
   br i1 %2, label %then, label %ifmerge
@@ -82,7 +85,7 @@ then:                                             ; preds = %entry
   br label %stage-exit
 
 ifmerge:                                          ; preds = %entry
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %v1), !output !3
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %v1), !output !5
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -103,15 +106,18 @@ declare void @llvm.gla.discard() nounwind
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !samplers = !{!0}
-!inputs = !{!1}
-!outputs = !{!3}
+!defaultUniforms = !{!1}
+!inputs = !{!3}
+!outputs = !{!5}
 
-!0 = metadata !{metadata !"tex", i32 0, i32 addrspace(1)* @"sampler2D tex", i32 1, i1 false, i1 false}
-!1 = metadata !{metadata !"coord", i32 7, <2 x float>* @coord_shadow_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024}
-!3 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 2, i32 1025}
-!5 = metadata !{i32 1}
+!0 = metadata !{i32 0, i32 addrspace(1)* @"sampler2D tex", i32 1, i1 false, i1 false}
+!1 = metadata !{metadata !"tex", i32 12, i32 addrspace(1)* @"sampler2D tex", metadata !2}
+!2 = metadata !{i32 5, i32 1, i32 0, metadata !0}
+!3 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1024, null}
+!5 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 2, i32 1025, null}
+!7 = metadata !{i32 1}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

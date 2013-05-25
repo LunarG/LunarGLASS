@@ -120,15 +120,15 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !inputs = !{!6, !8}
 
 !0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 3, i32 1024}
-!2 = metadata !{metadata !"f", i32 1, float* @f_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 3, i32 1026}
+!1 = metadata !{i32 0, i32 3, i32 1024, null}
+!2 = metadata !{metadata !"f", i32 7, float* @f_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 3, i32 1026, null}
 !4 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix mvp", metadata !5}
-!5 = metadata !{i32 3, i32 3, i32 0}
-!6 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 3, i32 1025}
-!8 = metadata !{metadata !"am3", i32 7, [3 x <3 x float>]* @"matrix am3_shadow_typeProxy", metadata !9}
-!9 = metadata !{i32 3, i32 3, i32 1027}
+!5 = metadata !{i32 3, i32 3, i32 0, null}
+!6 = metadata !{metadata !"v", i32 1, <4 x float>* @v_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 3, i32 1025, null}
+!8 = metadata !{metadata !"am3", i32 1, [3 x <3 x float>]* @"matrix am3_shadow_typeProxy", metadata !9}
+!9 = metadata !{i32 3, i32 3, i32 1027, null}
 !10 = metadata !{i32 3}
 
 
@@ -222,15 +222,15 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !inputs = !{!6, !8}
 
 !0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 3, i32 1024}
-!2 = metadata !{metadata !"f", i32 1, float* @f_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 3, i32 1026}
+!1 = metadata !{i32 0, i32 3, i32 1024, null}
+!2 = metadata !{metadata !"f", i32 7, float* @f_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 3, i32 1026, null}
 !4 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix mvp", metadata !5}
-!5 = metadata !{i32 3, i32 3, i32 0}
-!6 = metadata !{metadata !"v", i32 7, <4 x float>* @v_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 3, i32 1025}
-!8 = metadata !{metadata !"am3", i32 7, [3 x <3 x float>]* @"matrix am3_shadow_typeProxy", metadata !9}
-!9 = metadata !{i32 3, i32 3, i32 1027}
+!5 = metadata !{i32 3, i32 3, i32 0, null}
+!6 = metadata !{metadata !"v", i32 1, <4 x float>* @v_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 3, i32 1025, null}
+!8 = metadata !{metadata !"am3", i32 1, [3 x <3 x float>]* @"matrix am3_shadow_typeProxy", metadata !9}
+!9 = metadata !{i32 3, i32 3, i32 1027, null}
 !10 = metadata !{i32 3}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
@@ -239,7 +239,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 
 // LunarGOO(r722) output
 #version 100
-uniform mat4 mvp;
+uniform highp mat4 mvp;
 attribute highp vec4 v;
 attribute highp mat3 am3;
 varying highp float f;
@@ -290,7 +290,7 @@ void main()
 
 // LunarGOO(r722) output
 #version 100
-uniform mat4 mvp;
+uniform highp mat4 mvp;
 attribute highp vec4 v;
 attribute highp mat3 am3;
 varying highp float f;

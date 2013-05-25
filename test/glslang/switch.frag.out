@@ -323,12 +323,12 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !outputs = !{!5}
 
 !0 = metadata !{metadata !"c", i32 12, i32 addrspace(2)* @c, metadata !1}
-!1 = metadata !{i32 0, i32 2, i32 0}
+!1 = metadata !{i32 0, i32 2, i32 0, null}
 !2 = metadata !{metadata !"d", i32 12, i32 addrspace(2)* @d, metadata !1}
-!3 = metadata !{metadata !"x", i32 7, float* @x_shadow_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024}
-!5 = metadata !{metadata !"color", i32 1, float* @color_shadow_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1025}
+!3 = metadata !{metadata !"x", i32 1, float* @x_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1024, null}
+!5 = metadata !{metadata !"color", i32 7, float* @color_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1025, null}
 !7 = metadata !{i32 2}
 
 
@@ -554,12 +554,12 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !outputs = !{!5}
 
 !0 = metadata !{metadata !"c", i32 12, i32 addrspace(2)* @c, metadata !1}
-!1 = metadata !{i32 0, i32 2, i32 0}
+!1 = metadata !{i32 0, i32 2, i32 0, null}
 !2 = metadata !{metadata !"d", i32 12, i32 addrspace(2)* @d, metadata !1}
-!3 = metadata !{metadata !"x", i32 7, float* @x_shadow_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024}
-!5 = metadata !{metadata !"color", i32 1, float* @color_shadow_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1025}
+!3 = metadata !{metadata !"x", i32 1, float* @x_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1024, null}
+!5 = metadata !{metadata !"color", i32 7, float* @color_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1025, null}
 !7 = metadata !{i32 2}
 
 ***Unsupported functionality: Non-ret, non-br terminator

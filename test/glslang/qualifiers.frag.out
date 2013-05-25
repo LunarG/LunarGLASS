@@ -51,18 +51,18 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!0}
 !inputs = !{!2, !4, !6, !8, !10}
 
-!0 = metadata !{metadata !"outVi", i32 1, <4 x float>* @outVi_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
-!2 = metadata !{metadata !"inVc", i32 7, <4 x float>* @inVc_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1025}
-!4 = metadata !{metadata !"inVs", i32 7, <4 x float>* @inVs_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1026}
-!6 = metadata !{metadata !"inVf", i32 7, <4 x float>* @inVf_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1027}
-!8 = metadata !{metadata !"inVn", i32 7, <4 x float>* @inVn_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1028}
-!10 = metadata !{metadata !"inVcn", i32 7, <4 x float>* @inVcn_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1029}
+!0 = metadata !{metadata !"outVi", i32 7, <4 x float>* @outVi_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!2 = metadata !{metadata !"inVc", i32 1, <4 x float>* @inVc_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1025, null}
+!4 = metadata !{metadata !"inVs", i32 1, <4 x float>* @inVs_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1026, null}
+!6 = metadata !{metadata !"inVf", i32 1, <4 x float>* @inVf_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 0, i32 1027, null}
+!8 = metadata !{metadata !"inVn", i32 1, <4 x float>* @inVn_shadow_typeProxy, metadata !9}
+!9 = metadata !{i32 0, i32 0, i32 1028, null}
+!10 = metadata !{metadata !"inVcn", i32 1, <4 x float>* @inVcn_shadow_typeProxy, metadata !11}
+!11 = metadata !{i32 0, i32 0, i32 1029, null}
 
 
 Bottom IR:
@@ -98,18 +98,18 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!0}
 !inputs = !{!2, !4, !6, !8, !10}
 
-!0 = metadata !{metadata !"outVi", i32 1, <4 x float>* @outVi_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
-!2 = metadata !{metadata !"inVc", i32 7, <4 x float>* @inVc_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1025}
-!4 = metadata !{metadata !"inVs", i32 7, <4 x float>* @inVs_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1026}
-!6 = metadata !{metadata !"inVf", i32 7, <4 x float>* @inVf_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1027}
-!8 = metadata !{metadata !"inVn", i32 7, <4 x float>* @inVn_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1028}
-!10 = metadata !{metadata !"inVcn", i32 7, <4 x float>* @inVcn_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1029}
+!0 = metadata !{metadata !"outVi", i32 7, <4 x float>* @outVi_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!2 = metadata !{metadata !"inVc", i32 1, <4 x float>* @inVc_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1025, null}
+!4 = metadata !{metadata !"inVs", i32 1, <4 x float>* @inVs_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1026, null}
+!6 = metadata !{metadata !"inVf", i32 1, <4 x float>* @inVf_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 0, i32 1027, null}
+!8 = metadata !{metadata !"inVn", i32 1, <4 x float>* @inVn_shadow_typeProxy, metadata !9}
+!9 = metadata !{i32 0, i32 0, i32 1028, null}
+!10 = metadata !{metadata !"inVcn", i32 1, <4 x float>* @inVcn_shadow_typeProxy, metadata !11}
+!11 = metadata !{i32 0, i32 0, i32 1029, null}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

@@ -39,10 +39,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !inputs = !{!0}
 !outputs = !{!2}
 
-!0 = metadata !{metadata !"v", i32 7, [2 x <2 x float>]* @v_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
-!2 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026}
+!0 = metadata !{metadata !"v", i32 1, [2 x <2 x float>]* @v_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!2 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1026, null}
 
 
 Bottom IR:
@@ -65,10 +65,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !inputs = !{!0}
 !outputs = !{!2}
 
-!0 = metadata !{metadata !"v", i32 7, [2 x <2 x float>]* @v_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
-!2 = metadata !{metadata !"gl_FragColor", i32 1, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026}
+!0 = metadata !{metadata !"v", i32 1, [2 x <2 x float>]* @v_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!2 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1026, null}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

@@ -49,14 +49,14 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!0, !2}
 !inputs = !{!4, !6}
 
-!0 = metadata !{metadata !"uv", i32 1, <2 x float>* @uv_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
+!0 = metadata !{metadata !"uv", i32 7, <2 x float>* @uv_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026}
-!4 = metadata !{metadata !"uv_in", i32 7, <2 x float>* @uv_in_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1025}
-!6 = metadata !{metadata !"position", i32 7, <4 x float>* @position_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1027}
+!3 = metadata !{i32 0, i32 0, i32 1026, null}
+!4 = metadata !{metadata !"uv_in", i32 1, <2 x float>* @uv_in_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1025, null}
+!6 = metadata !{metadata !"position", i32 1, <4 x float>* @position_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 0, i32 1027, null}
 
 
 Bottom IR:
@@ -92,14 +92,14 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !outputs = !{!0, !2}
 !inputs = !{!4, !6}
 
-!0 = metadata !{metadata !"uv", i32 1, <2 x float>* @uv_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024}
+!0 = metadata !{metadata !"uv", i32 7, <2 x float>* @uv_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026}
-!4 = metadata !{metadata !"uv_in", i32 7, <2 x float>* @uv_in_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1025}
-!6 = metadata !{metadata !"position", i32 7, <4 x float>* @position_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1027}
+!3 = metadata !{i32 0, i32 0, i32 1026, null}
+!4 = metadata !{metadata !"uv_in", i32 1, <2 x float>* @uv_in_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1025, null}
+!6 = metadata !{metadata !"position", i32 1, <4 x float>* @position_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 0, i32 1027, null}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:5: attribute deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
