@@ -4,7 +4,7 @@ Top IR:
 
 @t_shadow = internal global <2 x i32> zeroinitializer
 @c_shadow = internal global <4 x i32> zeroinitializer
-@"usampler2D usampler" = external addrspace(1) constant i32
+@usampler = external addrspace(1) constant i32
 @tc_shadow = internal global <2 x float> zeroinitializer
 
 define fastcc void @main() {
@@ -53,7 +53,7 @@ entry:
   br i1 %8, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  %9 = load i32 addrspace(1)* @"usampler2D usampler", !uniform !7
+  %9 = load i32 addrspace(1)* @usampler, !uniform !7
   %tc = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !input !2
   store <2 x float> %tc, <2 x float>* @tc_shadow
   %10 = load <2 x float>* @tc_shadow
@@ -68,7 +68,7 @@ ifmerge:                                          ; preds = %entry, %then
   br i1 %13, label %then6, label %ifmerge9
 
 then6:                                            ; preds = %ifmerge
-  %14 = load i32 addrspace(1)* @"usampler2D usampler", !uniform !7
+  %14 = load i32 addrspace(1)* @usampler, !uniform !7
   %tc7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !input !2
   store <2 x float> %tc7, <2 x float>* @tc_shadow
   %15 = load <2 x float>* @tc_shadow
@@ -84,7 +84,7 @@ ifmerge9:                                         ; preds = %ifmerge, %then6
   br i1 %19, label %then10, label %ifmerge13
 
 then10:                                           ; preds = %ifmerge9
-  %20 = load i32 addrspace(1)* @"usampler2D usampler", !uniform !7
+  %20 = load i32 addrspace(1)* @usampler, !uniform !7
   %tc11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !input !2
   store <2 x float> %tc11, <2 x float>* @tc_shadow
   %21 = load <2 x float>* @tc_shadow
@@ -233,8 +233,8 @@ declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) nounwind
 !3 = metadata !{i32 0, i32 0, i32 1026, null}
 !4 = metadata !{metadata !"c", i32 7, <4 x i32>* @c_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 1, i32 2, i32 1025, null}
-!6 = metadata !{i32 0, i32 addrspace(1)* @"usampler2D usampler", i32 1, i1 false, i1 false}
-!7 = metadata !{metadata !"usampler", i32 12, i32 addrspace(1)* @"usampler2D usampler", metadata !8}
+!6 = metadata !{i32 0, i32 addrspace(1)* @usampler, i32 1, i1 false, i1 false}
+!7 = metadata !{metadata !"usampler", i32 12, i32 addrspace(1)* @usampler, metadata !8}
 !8 = metadata !{i32 5, i32 1, i32 0, metadata !6}
 !9 = metadata !{i32 2}
 
@@ -242,14 +242,14 @@ declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@"usampler2D usampler" = external addrspace(1) constant i32
+@usampler = external addrspace(1) constant i32
 
 define fastcc void @main() {
 entry:
   %t = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !input !0, !precision !9
   %0 = extractelement <2 x i32> %t, i32 1, !precision !9
   %u1 = add i32 %0, 3, !precision !9
-  %1 = load i32 addrspace(1)* @"usampler2D usampler", align 4, !uniform !7
+  %1 = load i32 addrspace(1)* @usampler, align 4, !uniform !7
   %tc7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !input !2
   %2 = fadd <2 x float> %tc7, <float 1.000000e+00, float 1.000000e+00>
   %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %2), !precision !9
@@ -295,8 +295,8 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 !3 = metadata !{i32 0, i32 0, i32 1026, null}
 !4 = metadata !{metadata !"c", i32 7, <4 x i32>* @c_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 1, i32 2, i32 1025, null}
-!6 = metadata !{i32 0, i32 addrspace(1)* @"usampler2D usampler", i32 1, i1 false, i1 false}
-!7 = metadata !{metadata !"usampler", i32 12, i32 addrspace(1)* @"usampler2D usampler", metadata !8}
+!6 = metadata !{i32 0, i32 addrspace(1)* @usampler, i32 1, i1 false, i1 false}
+!7 = metadata !{metadata !"usampler", i32 12, i32 addrspace(1)* @usampler, metadata !8}
 !8 = metadata !{i32 5, i32 1, i32 0, metadata !6}
 !9 = metadata !{i32 2}
 #### BEGIN COMPILER 0 INFO LOG ####

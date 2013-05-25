@@ -1042,17 +1042,8 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(TIntermSymbol* node)
         storageQualifier = gla::Builder::ESQLocal;
     }
 
-    std::string* annotationAddr = 0;
-    std::string annotation;
     if (node->getBasicType() == EbtSampler) {
-        annotation = node->getType().getCompleteTypeString().c_str();
-        annotationAddr = &annotation;
         storageQualifier = gla::Builder::ESQResource;
-    }
-
-    if (node->isMatrix()) {
-        annotation = "matrix";
-        annotationAddr = &annotation;
     }
 
     std::string name(node->getSymbol().c_str());
@@ -1060,7 +1051,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(TIntermSymbol* node)
     llvm::Type *llvmType = convertGlslangToGlaType(node->getType());
 
     return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType,
-                                      initializer, annotationAddr, name);
+                                      initializer, 0, name);
 }
 
 llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)

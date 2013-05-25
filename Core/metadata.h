@@ -85,7 +85,6 @@ namespace gla {
 //     !inputs -> !{ list of all pipeline !input }
 //     !outputs -> !{ list of all pipeline !output }
 //     !defaultUniforms -> !{ list of all !uniform, not in blocks }
-//     !samplers -> !{ list of all samplers }
 //
 
 const int MaxUserLayoutLocation = 1024;

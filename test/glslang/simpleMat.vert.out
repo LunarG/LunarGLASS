@@ -3,14 +3,14 @@ Top IR:
 ; ModuleID = 'Top'
 
 @Position_shadow = internal global <4 x float> zeroinitializer
-@"matrix mvp" = external addrspace(2) constant [4 x <4 x float>]
+@mvp = external addrspace(2) constant [4 x <4 x float>]
 @v_shadow = internal global <4 x float> zeroinitializer
 @f_shadow = internal global float 0.000000e+00
-@"matrix am3_shadow" = internal global [3 x <3 x float>] zeroinitializer
+@am3_shadow = internal global [3 x <3 x float>] zeroinitializer
 
 define fastcc void @main() {
 entry:
-  %0 = load [4 x <4 x float>] addrspace(2)* @"matrix mvp", !uniform !4
+  %0 = load [4 x <4 x float>] addrspace(2)* @mvp, !uniform !4
   %v = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !input !6, !precision !10
   store <4 x float> %v, <4 x float>* @v_shadow
   %1 = load <4 x float>* @v_shadow
@@ -86,12 +86,12 @@ entry:
   %Position_shadow = insertelement <4 x float> %6, float %dotProduct59, i32 3, !precision !10
   store <4 x float> %Position_shadow, <4 x float>* @Position_shadow
   %am3 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1027, i32 -1), !input !8, !precision !10
-  store <3 x float> %am3, <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 0)
+  store <3 x float> %am3, <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @am3_shadow, i32 0, i32 0)
   %am360 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1028, i32 -1), !input !8, !precision !10
-  store <3 x float> %am360, <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 1)
+  store <3 x float> %am360, <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @am3_shadow, i32 0, i32 1)
   %am361 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1029, i32 -1), !input !8, !precision !10
-  store <3 x float> %am361, <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 2)
-  %7 = load <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @"matrix am3_shadow", i32 0, i32 2)
+  store <3 x float> %am361, <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @am3_shadow, i32 0, i32 2)
+  %7 = load <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @am3_shadow, i32 0, i32 2)
   %f_shadow = extractelement <3 x float> %7, i32 1, !precision !10
   store float %f_shadow, float* @f_shadow
   br label %stage-epilogue
@@ -123,11 +123,11 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !1 = metadata !{i32 0, i32 3, i32 1024, null}
 !2 = metadata !{metadata !"f", i32 7, float* @f_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 3, i32 1026, null}
-!4 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix mvp", metadata !5}
+!4 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>] addrspace(2)* @mvp, metadata !5}
 !5 = metadata !{i32 3, i32 3, i32 0, null}
 !6 = metadata !{metadata !"v", i32 1, <4 x float>* @v_shadow_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 3, i32 1025, null}
-!8 = metadata !{metadata !"am3", i32 1, [3 x <3 x float>]* @"matrix am3_shadow_typeProxy", metadata !9}
+!8 = metadata !{metadata !"am3", i32 1, [3 x <3 x float>]* @am3_shadow_typeProxy, metadata !9}
 !9 = metadata !{i32 3, i32 3, i32 1027, null}
 !10 = metadata !{i32 3}
 
@@ -135,11 +135,11 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@"matrix mvp" = external addrspace(2) constant [4 x <4 x float>]
+@mvp = external addrspace(2) constant [4 x <4 x float>]
 
 define fastcc void @main() {
 entry:
-  %0 = load [4 x <4 x float>] addrspace(2)* @"matrix mvp", align 16, !uniform !4
+  %0 = load [4 x <4 x float>] addrspace(2)* @mvp, align 16, !uniform !4
   %v = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !input !6, !precision !10
   %component = extractelement <4 x float> %v, i32 0, !precision !10
   %component1 = extractelement <4 x float> %v, i32 1, !precision !10
@@ -225,11 +225,11 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !1 = metadata !{i32 0, i32 3, i32 1024, null}
 !2 = metadata !{metadata !"f", i32 7, float* @f_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 3, i32 1026, null}
-!4 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>] addrspace(2)* @"matrix mvp", metadata !5}
+!4 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>] addrspace(2)* @mvp, metadata !5}
 !5 = metadata !{i32 3, i32 3, i32 0, null}
 !6 = metadata !{metadata !"v", i32 1, <4 x float>* @v_shadow_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 3, i32 1025, null}
-!8 = metadata !{metadata !"am3", i32 1, [3 x <3 x float>]* @"matrix am3_shadow_typeProxy", metadata !9}
+!8 = metadata !{metadata !"am3", i32 1, [3 x <3 x float>]* @am3_shadow_typeProxy, metadata !9}
 !9 = metadata !{i32 3, i32 3, i32 1027, null}
 !10 = metadata !{i32 3}
 #### BEGIN COMPILER 0 INFO LOG ####

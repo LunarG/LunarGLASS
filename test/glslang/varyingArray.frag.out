@@ -2,7 +2,7 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@"sampler2D texSampler2D" = external addrspace(1) constant i32
+@texSampler2D = external addrspace(1) constant i32
 @TexCoord_shadow = internal global [6 x <4 x float>] zeroinitializer
 @color_shadow = internal global <4 x float> zeroinitializer
 @alpha_shadow = internal global float 0.000000e+00
@@ -13,7 +13,7 @@ define fastcc void @main() {
 entry:
   %constructed = alloca <2 x float>
   %texColor = alloca <4 x float>
-  %0 = load i32 addrspace(1)* @"sampler2D texSampler2D", !uniform !1
+  %0 = load i32 addrspace(1)* @texSampler2D, !uniform !1
   %gl_TexCoord = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !3
   store <4 x float> %gl_TexCoord, <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @TexCoord_shadow, i32 0, i32 0)
   %gl_TexCoord1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !3
@@ -122,8 +122,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !inputs = !{!3, !5, !7, !9}
 !outputs = !{!11}
 
-!0 = metadata !{i32 0, i32 addrspace(1)* @"sampler2D texSampler2D", i32 1, i1 false, i1 false}
-!1 = metadata !{metadata !"texSampler2D", i32 12, i32 addrspace(1)* @"sampler2D texSampler2D", metadata !2}
+!0 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false}
+!1 = metadata !{metadata !"texSampler2D", i32 12, i32 addrspace(1)* @texSampler2D, metadata !2}
 !2 = metadata !{i32 5, i32 0, i32 0, metadata !0}
 !3 = metadata !{metadata !"gl_TexCoord", i32 1, [6 x <4 x float>]* @TexCoord_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -140,11 +140,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 Bottom IR:
 ; ModuleID = 'Top'
 
-@"sampler2D texSampler2D" = external addrspace(1) constant i32
+@texSampler2D = external addrspace(1) constant i32
 
 define fastcc void @main() {
 entry:
-  %0 = load i32 addrspace(1)* @"sampler2D texSampler2D", align 4, !uniform !1
+  %0 = load i32 addrspace(1)* @texSampler2D, align 4, !uniform !1
   %gl_TexCoord = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !input !3
   %gl_TexCoord4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 1), !input !3
   %gl_TexCoord5 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 1), !input !3
@@ -186,8 +186,8 @@ declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>)
 !inputs = !{!3, !5, !7, !9}
 !outputs = !{!11}
 
-!0 = metadata !{i32 0, i32 addrspace(1)* @"sampler2D texSampler2D", i32 1, i1 false, i1 false}
-!1 = metadata !{metadata !"texSampler2D", i32 12, i32 addrspace(1)* @"sampler2D texSampler2D", metadata !2}
+!0 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false}
+!1 = metadata !{metadata !"texSampler2D", i32 12, i32 addrspace(1)* @texSampler2D, metadata !2}
 !2 = metadata !{i32 5, i32 0, i32 0, metadata !0}
 !3 = metadata !{metadata !"gl_TexCoord", i32 1, [6 x <4 x float>]* @TexCoord_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1024, null}

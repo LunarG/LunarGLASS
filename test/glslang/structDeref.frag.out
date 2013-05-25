@@ -14,7 +14,7 @@ Top IR:
 @foo0 = external addrspace(2) constant %s0
 @foo00 = external addrspace(2) constant %s00
 @FragColor_shadow = internal global <4 x float> zeroinitializer
-@"sampler2D sampler" = external addrspace(1) constant i32
+@sampler = external addrspace(1) constant i32
 
 define fastcc void @main() {
 entry:
@@ -98,7 +98,7 @@ ifmerge6:                                         ; preds = %ifmerge, %then4
   %33 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
   %34 = load float* %33
   %35 = fadd float %32, %34
-  %36 = load i32 addrspace(1)* @"sampler2D sampler", !uniform !5
+  %36 = load i32 addrspace(1)* @sampler, !uniform !5
   %coord7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !8
   store <2 x float> %coord7, <2 x float>* @coord_shadow
   %37 = load <2 x float>* @coord_shadow
@@ -136,9 +136,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !2 = metadata !{metadata !"foo1", i32 12, %s1 addrspace(2)* @foo1, metadata !1}
 !3 = metadata !{metadata !"foo0", i32 12, %s0 addrspace(2)* @foo0, metadata !1}
 !4 = metadata !{metadata !"foo00", i32 12, %s00 addrspace(2)* @foo00, metadata !1}
-!5 = metadata !{metadata !"sampler", i32 12, i32 addrspace(1)* @"sampler2D sampler", metadata !6}
+!5 = metadata !{metadata !"sampler", i32 12, i32 addrspace(1)* @sampler, metadata !6}
 !6 = metadata !{i32 5, i32 0, i32 0, metadata !7}
-!7 = metadata !{i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
+!7 = metadata !{i32 0, i32 addrspace(1)* @sampler, i32 1, i1 false, i1 false}
 !8 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !9}
 !9 = metadata !{i32 0, i32 0, i32 1024, null}
 !10 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !11}
@@ -158,7 +158,7 @@ Bottom IR:
 @foo1 = external addrspace(2) constant %s1
 @foo0 = external addrspace(2) constant %s0
 @foo00 = external addrspace(2) constant %s00
-@"sampler2D sampler" = external addrspace(1) constant i32
+@sampler = external addrspace(1) constant i32
 
 define fastcc void @main() {
 entry:
@@ -185,7 +185,7 @@ entry:
   %9 = fadd float %select, %8
   %10 = fadd float %select45, %9
   %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %10, <4 x i32> zeroinitializer)
-  %12 = load i32 addrspace(1)* @"sampler2D sampler", align 4, !uniform !5
+  %12 = load i32 addrspace(1)* @sampler, align 4, !uniform !5
   %13 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %12, i32 0, <2 x float> %coord1)
   %FragColor_shadow = fmul <4 x float> %13, %11
   call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %FragColor_shadow), !output !10
@@ -216,9 +216,9 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !2 = metadata !{metadata !"foo1", i32 12, %s1 addrspace(2)* @foo1, metadata !1}
 !3 = metadata !{metadata !"foo0", i32 12, %s0 addrspace(2)* @foo0, metadata !1}
 !4 = metadata !{metadata !"foo00", i32 12, %s00 addrspace(2)* @foo00, metadata !1}
-!5 = metadata !{metadata !"sampler", i32 12, i32 addrspace(1)* @"sampler2D sampler", metadata !6}
+!5 = metadata !{metadata !"sampler", i32 12, i32 addrspace(1)* @sampler, metadata !6}
 !6 = metadata !{i32 5, i32 0, i32 0, metadata !7}
-!7 = metadata !{i32 0, i32 addrspace(1)* @"sampler2D sampler", i32 1, i1 false, i1 false}
+!7 = metadata !{i32 0, i32 addrspace(1)* @sampler, i32 1, i1 false, i1 false}
 !8 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !9}
 !9 = metadata !{i32 0, i32 0, i32 1024, null}
 !10 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !11}
