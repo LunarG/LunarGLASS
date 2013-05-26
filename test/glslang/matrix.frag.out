@@ -1548,17 +1548,17 @@ WARNING: 0:22: varying deprecated in version 130; may be removed in future relea
 // LunarGOO(r722) output
 #version 130
 uniform mat4 un34;
-in vec3 Color;
 uniform mat3 colorTransform;
-const float const35f_1 = 1.0;
 uniform mat4 m;
 uniform mat4 n;
+uniform mat4 um43;
+in vec3 Color;
+const float const35f_1 = 1.0;
 in vec4 v;
 in vec4 u;
 const float const121f_0 = 0.0;
 const vec4 const123 = vec4(0.0, 0.0, 0.0, 0.0);
 const vec4 const125 = vec4(0.0, 0.0, 0.0, 0.0);
-uniform mat4 um43;
 
 void main()
 {
@@ -1898,16 +1898,16 @@ void main()
 #version 130
 uniform mat4 un34;
 uniform mat3 colorTransform;
-in vec3 Color;
-const float const35f_1 = 1.0;
 uniform mat4 m;
 uniform mat4 n;
+uniform mat4 um43;
+in vec3 Color;
+const float const35f_1 = 1.0;
 in vec4 v;
 in vec4 u;
 const float const121f_0 = 0.0;
 const vec4 const123 = vec4(0.0, 0.0, 0.0, 0.0);
 const vec4 const125 = vec4(0.0, 0.0, 0.0, 0.0);
-uniform mat4 um43;
 
 void main()
 {

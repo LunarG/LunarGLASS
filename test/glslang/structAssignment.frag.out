@@ -163,9 +163,10 @@ struct lunarStruct3 {
 };
 
 uniform lunarStruct3 foo3;
+uniform lunarStruct2 foo2;
+uniform sampler2D sampler;
 const int const23i_0 = 0;
 in vec2 coord;
-uniform sampler2D sampler;
 
 void main()
 {
@@ -180,7 +181,47 @@ void main()
     gl_FragColor = FragColor_shadow;
     
 }
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 130
+struct lunarStruct1 {
+    int member0;
+    float member1;
+};
+
+struct lunarStruct2 {
+    int member0;
+    float member1;
+    lunarStruct1 member2;
+};
+
+struct lunarStruct3 {
+    lunarStruct2 member0;
+    int member1;
+    float member2;
+    lunarStruct1 member3;
+};
+
+uniform lunarStruct3 foo3;
+uniform lunarStruct2 foo2;
+uniform sampler2D sampler;
+const int const23i_0 = 0;
+in vec2 coord;
+
+void main()
+{
+    int temp211 = foo3.member0.member0;
+    bool temp222 = temp211 > const23i_0;
+    float dval = foo3.member0.member2.member1;
+    float dval13 = foo2.member2.member1;
+    float ternaryd0 = temp222 ? dval : dval13;
+    vec4 temp27 = vec4(ternaryd0);
+    vec4 temp289 = texture(sampler, coord);
+    vec4 FragColor_shadow10 = temp289 * temp27;
+    gl_FragColor = FragColor_shadow10;
+    
+}

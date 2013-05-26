@@ -830,9 +830,13 @@ declare <4 x i32> @llvm.gla.swizzle.v4i32.i32.v4i32(i32, <4 x i32>) nounwind rea
 
 // LunarGOO(r722) output
 #version 300 es
+uniform bvec3 bv;
+uniform mediump int imin;
+uniform mediump int imax;
+uniform mediump int umin;
+uniform mediump int umax;
 in vec3 x;
 in vec3 y;
-uniform bvec3 bv;
 flat in mediump ivec2 uv2x;
 flat in mediump ivec2 uv2y;
 flat in mediump ivec3 iv3a;
@@ -843,15 +847,11 @@ in float f;
 in vec2 v2a;
 flat in mediump ivec4 iv4a;
 flat in mediump ivec4 iv4b;
-uniform mediump int imin;
-uniform mediump int imax;
 const int const46i_0 = 0;
 flat in mediump ivec4 uv4y;
 in vec4 v4;
 const float const53f_0 = 0.0;
 in highp vec2 v2b;
-uniform mediump int umax;
-uniform mediump int umin;
 out vec4 result;
 
 void main()

@@ -209,6 +209,7 @@ public:
 
     void addGlobal(const llvm::GlobalVariable* global)
     {
+        // skip uniforms and other objects, just get the regular global variables
         if (mapGlaAddressSpace(global) != EVQGlobal)
             return;
 
@@ -229,6 +230,23 @@ public:
             const llvm::Constant* constant = global->getInitializer();
             emitInitializeAggregate(globalInitializers, global->getName(), constant);
         }
+    }
+
+    void addUniform(const llvm::MDNode* mdNode)
+    {
+        // TODO: redundancy: don't keep both this path and the dynamic path for declaring uniforms
+        // this one is here due to missing metadata, which if cleared up can eliminate this path
+
+        std::string name;
+        EMdInputOutput mdQual;
+        llvm::Type*type;
+        int layoutLocation;
+        EMdPrecision mdPrecision;
+        EMdTypeLayout mdLayout;
+        llvm::MDNode* mdAgg;
+        llvm::MDNode* mdSamplerNode;
+        if (gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, mdSamplerNode, mdAgg) && mdQual == EMioDefaultUniform)
+            declareVariable(mdPrecision, type, name, EVQUniform, 0, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix, mdSamplerNode);
     }
 
     void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name)

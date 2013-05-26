@@ -298,14 +298,14 @@ struct s3 {
 };
 
 uniform s3 foo3;
+uniform int condition;
+uniform sampler2D sampler;
 const int const23i_0 = 0;
 in vec2 coord;
 const float const25f_1 = 1.0;
-uniform int condition;
 const int const30i_1 = 1;
 const float const32f_0 = 0.0;
 in vec4 color;
-uniform sampler2D sampler;
 
 void main()
 {
@@ -356,15 +356,15 @@ struct s3 {
 };
 
 uniform s3 foo3;
+uniform int condition;
+uniform sampler2D sampler;
 const int const23i_0 = 0;
 in vec2 coord9;
 const float const25f_1 = 1.0;
 const float const27f_2 = 2.0;
-uniform int condition;
 const int const29i_1 = 1;
 const float const31f_0 = 0.0;
 in vec4 color;
-uniform sampler2D sampler;
 
 void main()
 {

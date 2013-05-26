@@ -1943,6 +1943,11 @@ WARNING: 0:15: varying deprecated in version 130; may be removed in future relea
 
 // LunarGOO(r722) output
 #version 150 core
+uniform mat3x4 un34;
+uniform mat4x3 um43;
+uniform mat4 um4;
+uniform mat2 um2;
+uniform mat3 um3;
 in vec4 v;
 in vec3 u;
 const vec4 const37 = vec4(4.3, 0.0, 0.0, 0.0);
@@ -1950,14 +1955,9 @@ const vec4 const39 = vec4(0.0, 4.3, 0.0, 0.0);
 const vec4 const41 = vec4(0.0, 0.0, 4.3, 0.0);
 in vec3 Color;
 const float const43f_1 = 1.0;
-uniform mat3x4 un34;
-uniform mat4x3 um43;
 const vec4 const156 = vec4(0.0, 0.0, 0.0, 1.0);
 const float const158f_0 = 0.0;
-uniform mat4 um4;
-uniform mat2 um2;
 const float const275f_d0 = 0.0;
-uniform mat3 um3;
 out vec4 FragColor;
 
 void main()
@@ -2386,6 +2386,11 @@ void main()
 
 // LunarGOO(r722) output
 #version 150 core
+uniform mat3x4 un34;
+uniform mat4x3 um43;
+uniform mat4 um4;
+uniform mat2 um2;
+uniform mat3 um3;
 in vec4 v;
 in vec3 u;
 const vec4 const37 = vec4(4.3, 0.0, 0.0, 0.0);
@@ -2393,13 +2398,8 @@ const vec4 const39 = vec4(0.0, 4.3, 0.0, 0.0);
 const vec4 const41 = vec4(0.0, 0.0, 4.3, 0.0);
 in vec3 Color;
 const float const43f_1 = 1.0;
-uniform mat3x4 un34;
-uniform mat4x3 um43;
 const vec4 const156 = vec4(0.0, 0.0, 0.0, 1.0);
 const float const158f_0 = 0.0;
-uniform mat4 um4;
-uniform mat2 um2;
-uniform mat3 um3;
 out vec4 FragColor;
 
 void main()

@@ -187,13 +187,14 @@ struct lunarStruct3 {
     lunarStruct1 member3;
 };
 
-uniform lunarStruct3 foo3;
-const int const23i_0 = 0;
 uniform int Count;
+uniform lunarStruct3 foo3;
+uniform lunarStruct2[5] foo2;
 uniform lunarStruct1 foo;
+uniform sampler2D sampler;
+const int const23i_0 = 0;
 const int const27i_3 = 3;
 in vec2 coord;
-uniform sampler2D sampler;
 
 void main()
 {

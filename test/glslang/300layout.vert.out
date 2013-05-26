@@ -332,10 +332,10 @@ declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x floa
 
 // LunarGOO(r722) output
 #version 300 es
+uniform highp int uiuin;
 in highp vec4 p;
 in highp vec3 c;
 in highp ivec2 aiv2;
-uniform highp int uiuin;
 out highp vec4 pos;
 out highp vec3 color;
 out highp int iout;

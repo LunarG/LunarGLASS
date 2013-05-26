@@ -156,8 +156,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 
 // LunarGOO(r722) output
 #version 100
-varying vec4 BaseColor;
 uniform float d;
+varying vec4 BaseColor;
 const float const24f_4 = 4.2;
 const float const26f_1 = 1.2;
 const float const27f_5 = 4.5;
@@ -180,8 +180,8 @@ void main()
 
 // LunarGOO(r722) output
 #version 100
-varying vec4 BaseColor;
 uniform float d;
+varying vec4 BaseColor;
 const float const24f_4 = 4.2;
 const float const26f_1 = 1.2;
 const float const27f_5 = 4.5;

@@ -256,14 +256,21 @@ struct s3 {
     s1 member3;
 };
 
+struct s00 {
+    s0 member0;
+};
+
 uniform s3 foo3;
+uniform s1 foo1;
+uniform s0 foo0;
+uniform s00 foo00;
+uniform sampler2D sampler;
 const int const23i_0 = 0;
 in vec2 coord1;
 const float const28f_0 = 0.0;
 const float const29f_3 = 3.0;
 const float const33f_1 = 1.0;
 const int const36i_5 = 5;
-uniform sampler2D sampler;
 
 void main()
 {
@@ -289,7 +296,72 @@ void main()
     gl_FragColor = FragColor_shadow;
     
 }
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 130
+struct s0 {
+    int member0;
+};
+
+struct s1 {
+    int member0;
+    float member1;
+    s0 member2;
+};
+
+struct s2 {
+    int member0;
+    float member1;
+    s1 member2;
+};
+
+struct s3 {
+    s2[12] member0;
+    int member1;
+    float member2;
+    s1 member3;
+};
+
+struct s00 {
+    s0 member0;
+};
+
+uniform s3 foo3;
+uniform s1 foo1;
+uniform s00 foo00;
+uniform sampler2D sampler;
+const int const23i_0 = 0;
+const float const28f_0 = 0.0;
+const float const29f_3 = 3.0;
+in vec2 coord1;
+const float const33f_1 = 1.0;
+const int const36i_5 = 5;
+
+void main()
+{
+    int temp211 = foo3.member0[9].member0;
+    bool temp222 = temp211 > const23i_0;
+    float temp243 = foo1.member1;
+    int temp254 = foo1.member2.member0;
+    int temp265 = foo00.member0.member0;
+    float temp27 = temp222 ? const28f_0 : const29f_3;
+    int ternary7d0 = temp222 ? const23i_0 : temp254;
+    int dtemp265 = temp222 ? const23i_0 : temp265;
+    float select51 = temp222 ? const33f_1 : coord1.y;
+    float select = temp222 ? temp243 : coord1.y;
+    bool temp3533 = ternary7d0 > const36i_5;
+    int dtemp265dternary7d0 = temp3533 ? dtemp265 : ternary7d0;
+    float temp3841 = float(dtemp265dternary7d0);
+    float temp3942 = temp3841 + select;
+    float temp4043 = temp27 + temp3942;
+    float temp4144 = select51 + temp4043;
+    vec4 temp42 = vec4(temp4144);
+    vec4 temp4347 = texture(sampler, coord1);
+    vec4 FragColor_shadow48 = temp4347 * temp42;
+    gl_FragColor = FragColor_shadow48;
+    
+}

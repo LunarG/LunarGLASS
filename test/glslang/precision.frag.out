@@ -286,12 +286,12 @@ void main()
 
 // LunarGOO(r722) output
 #version 300 es
-in lowp float lowfin;
-in mediump float mediumfin;
-in highp vec4 highfin;
 uniform lowp int uniform_low;
 uniform highp int uniform_high;
 uniform mediump int uniform_medium;
+in lowp float lowfin;
+in mediump float mediumfin;
+in highp vec4 highfin;
 const int const27i_3 = 3;
 const int const30i_4 = 4;
 const vec4 const36 = vec4(1023910.0);

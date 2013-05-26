@@ -127,6 +127,7 @@ namespace gla {
         virtual void start() { }
         virtual void addStructType(llvm::StringRef, const llvm::Type*) = 0;
         virtual void addGlobal(const llvm::GlobalVariable*) { }
+        virtual void addUniform(const llvm::MDNode*) { }
         virtual void startFunctionDeclaration(const llvm::Type*, llvm::StringRef) = 0;
         virtual void addArgument(const llvm::Value*, bool last) = 0;
         virtual void endFunctionDeclaration() = 0;

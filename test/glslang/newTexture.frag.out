@@ -627,27 +627,27 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 // LunarGOO(r722) output
 #version 430 core
 uniform sampler2D s2D;
-in vec2 c2D;
 uniform sampler3D s3D;
-in vec4 c4D;
 uniform sampler2DArray s2DArray;
+uniform sampler2DShadow s2DShadow;
+uniform samplerCube sCube;
+uniform sampler2DShadowArray s2DArrayShadow;
+uniform sampler2D is2D;
+uniform sampler3D is3D;
+uniform samplerCube isCube;
+uniform sampler2DArray is2DArray;
+uniform samplerCubeShadow sCubeShadow;
+in vec2 c2D;
+in vec4 c4D;
 in vec3 c3D;
 const float const25f_1 = 1.2;
-uniform sampler2DShadow s2DShadow;
 flat in ivec2 ic2D;
 in float c1D;
 flat in ivec3 ic3D;
 flat in int ic1D;
 const int const33i_4 = 4;
-uniform samplerCube sCube;
-uniform sampler2D is2D;
-uniform samplerCubeShadow sCubeShadow;
 const int const43i_2 = 2;
-uniform sampler2DShadowArray s2DArrayShadow;
-uniform sampler3D is3D;
-uniform samplerCube isCube;
 const float const62f_4 = 4.2;
-uniform sampler2DArray is2DArray;
 const float const74f_0 = 0.0;
 out vec4 FragData;
 

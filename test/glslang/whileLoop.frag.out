@@ -127,8 +127,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 // LunarGOO(r722) output
 #version 100
-varying vec4 BaseColor;
+uniform float d;
 uniform vec4 bigColor;
+varying vec4 BaseColor;
 
 void main()
 {
@@ -142,7 +143,26 @@ void main()
     gl_FragColor = colord0;
     
 }
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 100
+uniform float d;
+uniform vec4 bigColor;
+varying vec4 BaseColor;
+
+void main()
+{
+    vec4 colord0d0;
+    colord0d0 = BaseColor;
+    while (colord0d0.x < d){
+        vec4 color22 = colord0d0 + bigColor;
+        colord0d0 = color22;
+    }
+    
+    gl_FragColor = colord0d0;
+    
+}

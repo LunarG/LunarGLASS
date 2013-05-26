@@ -275,6 +275,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 uniform sampler1D texSampler1D;
 uniform sampler2D texSampler2D;
 uniform sampler3D texSampler3D;
+uniform samplerCube texSamplerCube;
 uniform sampler1DShadow shadowSampler1D;
 uniform sampler2DShadow shadowSampler2D;
 in vec2 coords2D;
@@ -282,7 +283,6 @@ const float const22f_3 = 3.0;
 const float const24f_2 = 1.789;
 const vec4 const26 = vec4(1.789, 2.718, 3.453, 2.0);
 const vec3 const31 = vec3(1.789, 2.718, 3.453);
-uniform samplerCube texSamplerCube;
 
 void main()
 {
@@ -324,6 +324,7 @@ void main()
 uniform sampler1D texSampler1D;
 uniform sampler2D texSampler2D;
 uniform sampler3D texSampler3D;
+uniform samplerCube texSamplerCube;
 uniform sampler1DShadow shadowSampler1D;
 uniform sampler2DShadow shadowSampler2D;
 in vec2 coords2D;
@@ -331,7 +332,6 @@ const float const22f_2 = 1.789;
 const float const23f_3 = 3.0;
 const vec4 const27 = vec4(1.789, 2.718, 3.453, 2.0);
 const vec3 const32 = vec3(1.789, 2.718, 3.453);
-uniform samplerCube texSamplerCube;
 
 void main()
 {

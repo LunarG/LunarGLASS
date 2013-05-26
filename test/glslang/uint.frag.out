@@ -306,9 +306,9 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 
 // LunarGOO(r722) output
 #version 300 es
+uniform sampler2D usampler;
 flat in mediump ivec2 t;
 const int const22i_3 = 3;
-uniform sampler2D usampler;
 in vec2 tc;
 const vec2 const24 = vec2(1.0);
 const int const27i_4 = 4;

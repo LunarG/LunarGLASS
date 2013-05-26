@@ -174,14 +174,14 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 
 // LunarGOO(r722) output
 #version 110
-uniform vec2 scale;
-varying vec2 t;
 uniform sampler2D texSampler2D;
-varying vec3 coords;
+uniform vec2 scale;
 uniform sampler3D texSampler3D;
-uniform float blend;
-const float const27f_2 = 1.789;
 uniform vec4 u;
+uniform float blend;
+varying vec2 t;
+varying vec3 coords;
+const float const27f_2 = 1.789;
 
 void main()
 {
@@ -204,12 +204,12 @@ void main()
 // LunarGOO(r722) output
 #version 110
 uniform vec2 scale;
-varying vec2 t;
 uniform sampler2D texSampler2D;
-varying vec3 coords;
 uniform sampler3D texSampler3D;
 uniform float blend;
 uniform vec4 u;
+varying vec2 t;
+varying vec3 coords;
 const float const28f_2 = 1.789;
 
 void main()

@@ -284,6 +284,8 @@ WARNING: 0:8: varying deprecated in version 130; may be removed in future releas
 vec4[2] userIn_shadow;
 vec4[6] TexCoord_shadow;
 uniform sampler2D texSampler2D;
+uniform int b;
+uniform int a;
 in vec4[2] userIn;
 in vec4 color;
 in float alpha;
@@ -323,7 +325,54 @@ void main()
     gl_FragColor = FragColor_shadow;
     
 }
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 130
+vec4[2] userIn_shadow;
+vec4[6] TexCoord_shadow;
+uniform int b;
+uniform int a;
+uniform sampler2D texSampler2D;
+in vec4[2] userIn;
+in vec4 color;
+in float alpha;
+
+void main()
+{
+    userIn_shadow[0] = userIn[0];
+    userIn_shadow[1] = userIn[1];
+    vec4 temp214 = userIn_shadow[b];
+    TexCoord_shadow[0] = gl_TexCoord[0];
+    TexCoord_shadow[1] = gl_TexCoord[1];
+    TexCoord_shadow[2] = gl_TexCoord[2];
+    TexCoord_shadow[3] = gl_TexCoord[3];
+    TexCoord_shadow[4] = gl_TexCoord[4];
+    TexCoord_shadow[5] = gl_TexCoord[5];
+    vec4 temp2252 = TexCoord_shadow[a];
+    vec4 temp2353 = temp214 + temp2252;
+    vec4 temp2462 = gl_TexCoord[5] + temp2353;
+    vec2 temp25 = vec2(temp2462);
+    TexCoord_shadow[0] = gl_TexCoord[0];
+    TexCoord_shadow[1] = gl_TexCoord[1];
+    TexCoord_shadow[2] = gl_TexCoord[2];
+    TexCoord_shadow[3] = gl_TexCoord[3];
+    TexCoord_shadow[4] = gl_TexCoord[4];
+    TexCoord_shadow[5] = gl_TexCoord[5];
+    vec4 temp26112 = TexCoord_shadow[b];
+    userIn_shadow[0] = userIn[0];
+    userIn_shadow[1] = userIn[1];
+    vec4 texColor13117 = texture(texSampler2D, temp25);
+    vec4 texColor14118 = color + texColor13117;
+    vec4 temp29 = texColor14118;
+    temp29.w = alpha;
+    vec4 temp29127 = temp26112 + gl_TexCoord[0];
+    vec4 temp32131 = temp29 + temp29127;
+    vec4 temp31130 = userIn_shadow[a];
+    vec4 FragColor_shadow132 = temp31130 + temp32131;
+    gl_FragColor = FragColor_shadow132;
+    
+}

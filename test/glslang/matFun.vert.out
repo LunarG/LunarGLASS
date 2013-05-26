@@ -242,8 +242,8 @@ declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>)
 // LunarGOO(r722) output
 #version 130
 uniform mat4 m4;
-in vec3 v3;
 uniform mat3 m3;
+in vec3 v3;
 const float const40f_1 = 1.0;
 
 void main()
@@ -280,8 +280,8 @@ void main()
 // LunarGOO(r722) output
 #version 130
 uniform mat4 m4;
-in vec3 v3;
 uniform mat3 m3;
+in vec3 v3;
 const float const40f_1 = 1.0;
 
 void main()
