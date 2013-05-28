@@ -147,6 +147,7 @@ void main()
 	f += length(v);
     f += distance(v, v);
     f += dot(v, v);
+    f += dot(f, uf);
 	f += cross(v.xyz, v.xyz).x;
 
 	if (f == uf || f != uf && f != 2.0)

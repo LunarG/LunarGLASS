@@ -737,7 +737,14 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         // two vectors multiplied to make a matrix
         binOp = EOpOuterProduct;
         break;
-
+    case EOpDot:
+        {
+            // for scalar dot product, use multiply        
+            TIntermSequence& glslangOperands = node->getSequence();
+            if (! glslangOperands[0]->getAsTyped()->isVector())
+                binOp = EOpMul;
+            break;
+        }
     case EOpMod:
         // when an aggregate, this is the floating-point mod built-in function,
         // which can be emitted by the one it createBinaryOperation()
