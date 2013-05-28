@@ -1670,8 +1670,14 @@ llvm::Value* TGlslangToTopTraverser::createConversion(TOperator op, gla::EMdPrec
     switch(op) {
     case EOpConvIntToBool:
     case EOpConvUintToBool:
-        // any non-zero integer should return true
-        return createBinaryOperation(EOpNotEqual, precision, operand, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), false);
+        {
+            // any non-zero integer should return true
+            llvm::Value* zero = gla::MakeIntConstant(context, 0);
+            if (gla::GetComponentCount(operand) > 1)
+                zero = glaBuilder->smearScalar(gla::EMpNone, zero, operand->getType());
+
+            return createBinaryOperation(EOpNotEqual, precision, operand, zero, false, false);
+        }
     case EOpConvFloatToBool:
         castOp = llvm::Instruction::FPToUI;  // TODO: functionality: should this be a test against 0.0?
         break;

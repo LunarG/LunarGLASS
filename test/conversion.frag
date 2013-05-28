@@ -51,6 +51,9 @@ void main()
     f2 -= vec2(i2) + vec2(b2);
     f3 /= vec3(i3) + vec3(b3);
     f4 += vec4(i4) + vec4(b4);
+
+    f4 += vec4(bvec4(i_i4));
+    f4 += vec4(bvec4(u_f4));
     
     f  += f                 - i;
     f2 += vec2(f, i)       + i2;
@@ -100,5 +103,10 @@ void main()
         f4.x +
         f4.y +
         f4.z +
-        f4.w) : vec4(1.0);        
+        f4.w) : vec4(1.0);
+
+    // with constants...
+    ivec4 cv2 = ivec4(1.0);
+    bvec4 cv5 = bvec4(cv2);
+    gl_FragColor += float(cv5);
 }
