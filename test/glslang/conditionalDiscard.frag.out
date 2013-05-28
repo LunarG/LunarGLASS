@@ -56,7 +56,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !inputs = !{!3}
 !outputs = !{!5}
 
-!0 = metadata !{i32 0, i32 addrspace(1)* @tex, i32 1, i1 false, i1 false}
+!0 = metadata !{i32 0, i32 addrspace(1)* @tex, i32 1, i1 false, i1 false, i32 0}
 !1 = metadata !{metadata !"tex", i32 12, i32 addrspace(1)* @tex, metadata !2}
 !2 = metadata !{i32 5, i32 1, i32 0, metadata !0}
 !3 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !4}
@@ -110,7 +110,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !inputs = !{!3}
 !outputs = !{!5}
 
-!0 = metadata !{i32 0, i32 addrspace(1)* @tex, i32 1, i1 false, i1 false}
+!0 = metadata !{i32 0, i32 addrspace(1)* @tex, i32 1, i1 false, i1 false, i32 0}
 !1 = metadata !{metadata !"tex", i32 12, i32 addrspace(1)* @tex, metadata !2}
 !2 = metadata !{i32 5, i32 1, i32 0, metadata !0}
 !3 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !4}

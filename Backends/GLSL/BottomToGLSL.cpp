@@ -196,7 +196,7 @@ public:
 
         for (int index = 0; index < structType->getNumContainedTypes(); ++index) {
             tempStructure << "    ";
-            emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), -1);
+            emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), false);
             // TODO: Goo: ES functionality: how do we know the precision of a structure member?
             tempStructure << " " << getGlaStructField(structType, index);
             tempStructure << ";" << std::endl;
@@ -224,7 +224,7 @@ public:
 
         makeParseable(name);
         addNewVariable(global, name);
-        declareVariable(EMpNone, type, declareName, mapGlaAddressSpace(global));
+        declareVariable(EMpNone, type, declareName, mapGlaAddressSpace(global), 0, false, false, 0);
 
         if (global->hasInitializer()) {
             const llvm::Constant* constant = global->getInitializer();
@@ -246,14 +246,14 @@ public:
         llvm::MDNode* mdAgg;
         llvm::MDNode* mdSamplerNode;
         if (gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, mdSamplerNode, mdAgg) && mdQual == EMioDefaultUniform)
-            declareVariable(mdPrecision, type, name, EVQUniform, 0, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix, mdSamplerNode);
+            declareVariable(mdPrecision, type, name, EVQUniform, 0, mdLayout == EMtlUnsigned, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix, mdSamplerNode);
     }
 
     void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name)
     {
         newLine();
-        emitGlaType(shader, EMpNone, type->getContainedType(0));
-        // TODO: Goo: ES functionality: how do we know the precision of a function declaration?
+        emitGlaType(shader, EMpNone, type->getContainedType(0), false);
+        // TODO: Goo: ES functionality: how do we know the precision or unsignedness of a function declaration?
         shader << " " << name.str() << "(";
 
         if (name == std::string("main"))
@@ -344,7 +344,8 @@ public:
         std::string str;
         std::string opStr;
         int pos = -1;
-        getOp(cmp, opStr, pos);
+        bool nested;
+        getOp(cmp, opStr, pos, nested);
 
         bool binOp = false;
         if (pos == -1)
@@ -513,7 +514,7 @@ protected:
 
     void mapGlaIntrinsic(const llvm::IntrinsicInst*);
 
-    void getOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryOperand);
+    void getOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryOperand, bool& nested);
 
     void mapGlaCall(const llvm::CallInst*);
     const char* mapGlaXor(const llvm::Instruction* llvmInstruction, int& unaryOperand);
@@ -670,6 +671,8 @@ protected:
     {
         const llvm::Value* samplerType = llvmInstruction->getOperand(0);
 
+        // TODO: uint functionality: See if it's a uint sampler, requiring a constructor to convert it
+
         // Original style shadowing returns vec4 while 2nd generation returns float,
         // so, have to stick to old-style for those cases.
         bool forceOldStyle = IsVector(llvmInstruction->getType()) && (texFlags & ETFShadow);
@@ -817,7 +820,7 @@ protected:
         }
     }
 
-    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier vq, const llvm::Constant* constant = 0, bool matrix = false, llvm::MDNode* mdSamplerNode = 0)
+    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier vq, const llvm::Constant* constant, bool notSigned, bool matrix, llvm::MDNode* mdSamplerNode)
     {
         if (name.substr(0,3) == std::string("gl_"))
             return;
@@ -826,7 +829,7 @@ protected:
         if (constant && ! AreAllUndefined(constant)) {
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
-            emitGlaType(globalDeclarations, precision, type);
+            emitGlaType(globalDeclarations, precision, type, notSigned, matrix);
             globalDeclarations << " " << name << " = ";
             emitConstantInitializer(globalDeclarations, constant, constant->getType());
             globalDeclarations << ";" << std::endl;
@@ -849,20 +852,20 @@ protected:
             if (mdSamplerNode)
                 emitGlaSamplerType(globalDeclarations, mdSamplerNode);
             else
-                emitGlaType(globalDeclarations, precision, type, -1, matrix);
+                emitGlaType(globalDeclarations, precision, type, notSigned, matrix);
             globalDeclarations << " " << name << ";" << std::endl;
             break;
         case EVQGlobal:
-            emitGlaType(globalDeclarations, precision, type);
+            emitGlaType(globalDeclarations, precision, type, notSigned, matrix);
             globalDeclarations << " " << name << ";" << std::endl;
             break;
         case EVQTemporary:
-            emitGlaType(shader, precision, type);
+            emitGlaType(shader, precision, type, notSigned, matrix);
             shader << " ";
             break;
         case EVQUndef:
             newLine();
-            emitGlaType(shader, precision, type);
+            emitGlaType(shader, precision, type, notSigned, matrix);
             shader << " " << name << ";";
             emitInitializeAggregate(shader, name, constant);
             break;
@@ -872,7 +875,7 @@ protected:
     }
 
     void declareIOVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier vq,
-                           EInterpolationMethod interpMethod, EInterpolationLocation interpLocation, bool matrix = false)
+                           EInterpolationMethod interpMethod, EInterpolationLocation interpLocation, bool notSigned, bool matrix)
     {
         if (name.substr(0,3) == std::string("gl_"))
             return;
@@ -903,12 +906,12 @@ protected:
 
         globalDeclarations << mapGlaToQualifierString(vq);
         globalDeclarations << " ";
-        emitGlaType(globalDeclarations, precision, type, -1, matrix);
+        emitGlaType(globalDeclarations, precision, type, notSigned, matrix);
         globalDeclarations << " " << name;
         globalDeclarations << ";" << std::endl;
     }
 
-    void emitGlaType(std::ostringstream& out, EMdPrecision precision, llvm::Type* type, int count = -1, bool matrix = false)
+    void emitGlaType(std::ostringstream& out, EMdPrecision precision, llvm::Type* type, bool notSigned, bool matrix = false,  int count = -1)
     {
         if (type->getTypeID() == llvm::Type::PointerTyID)
             type = llvm::dyn_cast<llvm::PointerType>(type)->getContainedType(0);
@@ -923,9 +926,12 @@ protected:
                 out << "vec";
             else if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
                 out << "bvec";
-            else if (type->getContainedType(0) == type->getInt32Ty(type->getContext()))
-                out << "ivec";
-            else
+            else if (type->getContainedType(0) == type->getInt32Ty(type->getContext())) {
+                if (notSigned)
+                    out << "uvec";
+                else
+                    out << "ivec";
+            } else
                 UnsupportedFunctionality("Basic Type in Bottom IR");
 
             // output the size of the vector
@@ -951,7 +957,7 @@ protected:
             } else {
                 // We're still higher up in the type tree than a matrix; e.g., array of matrices
                 // (or, not a matrix).
-                emitGlaType(out, precision, arrayType->getContainedType(0), -1, matrix);
+                emitGlaType(out, precision, arrayType->getContainedType(0), notSigned, matrix);
                 out << "[" << arrayType->getNumElements() << "]";
             }
         //} else if (type->getTypeID() == llvm::Type::PointerTyID) {
@@ -964,9 +970,12 @@ protected:
                 out << "float";
             else if (type == type->getInt1Ty(type->getContext()))
                 out << "bool";
-            else if (type == type->getInt32Ty(type->getContext()))
-                out << "int";
-            else if (type == type->getVoidTy(type->getContext()))
+            else if (type == type->getInt32Ty(type->getContext())) {
+                if (notSigned)
+                    out << "uint";
+                else
+                    out << "int";
+            } else if (type == type->getVoidTy(type->getContext()))
                 out << "void";
             else
                 UnsupportedFunctionality("Basic Type in Bottom IR");
@@ -980,7 +989,14 @@ protected:
         EMdSamplerDim mdSamplerDim;
         bool isArray;
         bool isShadow;
-        if (gla::CrackSamplerMd(mdSamplerNode, mdSampler, type, mdSamplerDim, isArray, isShadow)) {
+        EMdSamplerBaseType baseType;
+        if (gla::CrackSamplerMd(mdSamplerNode, mdSampler, type, mdSamplerDim, isArray, isShadow, baseType)) {
+            switch (baseType) {
+            case EMsbFloat:                  break;
+            case EMsbInt:        out << "i"; break;
+            case EMsbUint:       out << "u"; break;
+            default:             UnsupportedFunctionality("base type of sampler");  break;
+            }
             switch (mdSampler) {
             case EMsTexture:     out << "sampler";   break;
             case EMsImage:       out << "image";     break;
@@ -1003,15 +1019,15 @@ protected:
             UnsupportedFunctionality("sampler metadata", EATContinue);
     }
 
-    void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count = -1, bool matrix = false)
+    void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, bool notSigned, bool matrix = false, int count = -1)
     {
-        emitGlaType(out, EMpNone, type, count, matrix);
+        emitGlaType(out, EMpNone, type, notSigned, matrix, count);
     }
 
     // If valueMap has no entry for value, generate a name and declaration, and
     // store it in valueMap. If forceGlobal is true, then it will make the
     // declaration occur as a global.
-    void mapGlaValue(const llvm::Value* value, bool forceGlobal=false)
+    void mapGlaValue(const llvm::Value* value, bool forceGlobal = false)
     {
         if (valueMap[value] == 0) {
             // Figure out where our declaration should go
@@ -1028,9 +1044,9 @@ protected:
             EMdPrecision precision = getPrecision(value);
 
             if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
-                declareVariable(precision, pointerType->getContainedType(0), *newName, evq);
+                declareVariable(precision, pointerType->getContainedType(0), *newName, evq, 0, false, false, 0);
             } else {
-                declareVariable(precision, value->getType(), *newName, evq, llvm::dyn_cast<llvm::Constant>(value));
+                declareVariable(precision, value->getType(), *newName, evq, llvm::dyn_cast<llvm::Constant>(value), false, false, 0);
             }
             valueMap[value] = newName;
         }
@@ -1042,7 +1058,16 @@ protected:
 
         mapGlaValue(value);
 
+        // TODO: uint functionality
+        bool notSigned = false;
+        if (notSigned) {
+            emitGlaConstructor(shader, value->getType(), false);
+            shader << "(";
+        }
+
         shader << valueMap[value]->c_str();
+        if (notSigned)
+            shader << ")";
     }
 
 
@@ -1130,7 +1155,8 @@ protected:
         case llvm::Type::ArrayTyID:
         case llvm::Type::StructTyID:
             {
-                emitGlaConstructor(out, type);
+                // TODO: uint functionality: get correct signedness
+                emitGlaConstructor(out, type, false);
                 out << "(";
 
                 int numElements = 0;
@@ -1362,7 +1388,8 @@ protected:
             assert (singleSourceMask <= 0xFF);
             emitGlaSwizzle(singleSourceMask, argCount, source);
         } else {
-            emitGlaConstructor(shader, inst->getType(), argCount);
+            // TODO: uint functionality: get correct signedness
+            emitGlaConstructor(shader, inst->getType(), false, false, argCount);
             shader << "(";
             bool firstArg = true;
 
@@ -1535,6 +1562,8 @@ protected:
             mdPrecision = EMpNone;
             layoutLocation = 0;
         }
+        bool matrix = mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix;
+        bool notSigned = mdLayout == EMtlUnsigned;
 
         // add the dereference syntax
         // TODO: Goo functionality: outputs don't yet have layout slot bases, so indexing into big things will be incorrect
@@ -1549,12 +1578,18 @@ protected:
         case llvm::Intrinsic::gla_writeData:
         case llvm::Intrinsic::gla_fWriteData:
             // First, emit declaration
-            declareIOVariable(mdPrecision, type, name, EVQOutput, interpMethod, interpLocation, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix);
+            declareIOVariable(mdPrecision, type, name, EVQOutput, interpMethod, interpLocation, notSigned, matrix);
 
             // Now, emit the write
             newLine();
             shader << derefName << " = ";
+            if (notSigned) {
+                emitGlaConstructor(shader, llvmInstruction->getOperand(2)->getType(), notSigned);
+                shader << "(";
+            }
             emitGlaOperand(llvmInstruction->getOperand(2));
+            if (notSigned)
+                shader << ")";
             shader << ";";
             break;
         case llvm::Intrinsic::gla_readData:
@@ -1565,15 +1600,20 @@ protected:
             // the name associated with it.
             //
             // NOTE!  The mapped name will include the deferences, like "foo[3].v", *in the name*.
+            
+            // Add an int-based constructor around it, if needed.
+            if (notSigned)
+                uintWrap(derefName, llvmInstruction->getType(), notSigned);
 
             if (addNewVariable(llvmInstruction, derefName)) {
+
                 if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fReadInterpolant) {
                     EInterpolationMode mode = GetConstantInt(llvmInstruction->getOperand(2));
                     CrackInterpolationMode(mode, interpMethod, interpLocation);
                 } else
                     interpMethod = EIMNone;   // needed for 'flat' with non-interpolation 'in'
 
-                declareIOVariable(mdPrecision, type, name, EVQInput, interpMethod, interpLocation, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix);
+                declareIOVariable(mdPrecision, type, name, EVQInput, interpMethod, interpLocation, notSigned, matrix);
             }
 
             break;
@@ -1611,14 +1651,40 @@ protected:
         }
     }
 
+    void uintWrap(std::string& name, llvm::Type* type, bool toSigned)
+    {
+        std::string wrapped;
+
+        if (GetComponentCount(type) == 1) {
+            if (toSigned)
+                wrapped = "int(";
+            else
+                wrapped = "uint(";
+        } else {
+            if (toSigned)
+                wrapped.append("ivec");
+            else
+                wrapped.append("uvec");
+            switch (GetComponentCount(type)) {
+            case 2:  wrapped.append("2(");    break;
+            case 3:  wrapped.append("3(");    break;
+            case 4:  wrapped.append("4(");    break;
+            default: UnsupportedFunctionality("wrapped type");  break;
+            }
+        }
+        wrapped.append(name);
+        name = wrapped;
+        name.append(")");
+    }
+
     // mapping from LLVM values to Glsl variables
     std::map<const llvm::Value*, std::string*> valueMap;
 
     // map to track structure names tracked in the module
     std::map<const llvm::Type*, std::string> structNameMap;
 
-    // set to track which arrays have been declared from stripping
-    // indexes that were in scalar variable names
+    // set to track what globals are already declared,
+    // it potentially only includes globals that are in danger of multiple declaration
     std::set<std::string> globallyDeclared;
 
     std::ostringstream globalStructures;
@@ -1650,8 +1716,10 @@ void gla::ReleaseGlslTranslator(gla::BackEndTranslator* target)
 // Write the string representation of an operator. If it's an xor of some
 // register and true, then unaryOperand will be set to the index for the
 // non-true operand, and s will contain "!".
-void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryOperand)
+void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryOperand, bool& nested)
 {
+    nested = false;
+
     //
     // Look for binary ops, where the form would be "operand op operand"
     //
@@ -1760,13 +1828,14 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
 
     case llvm::Instruction::FPToUI:
         switch (gla::GetComponentCount(llvmInstruction)) {
-        case 1: s = "uint";  break;
-        case 2: s = "uvec2"; break;
-        case 3: s = "uvec3"; break;
-        case 4: s = "uvec4"; break;
+        case 1: s = "int(uint";  break;
+        case 2: s = "ivec2(uvec2"; break;
+        case 3: s = "ivec3(uvec3"; break;
+        case 4: s = "ivec4(uvec4"; break;
         default: UnsupportedFunctionality("Can only convert scalars and vectors");
         }
         unaryOperand = 0;
+        nested = true;
         break;
     case llvm::Instruction::ZExt:
     case llvm::Instruction::FPToSI:
@@ -1820,7 +1889,8 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         mapGlaValue(llvmInstruction, referencedOutsideScope);
     }
 
-    getOp(llvmInstruction, charOp, unaryOperand);
+    bool nested;
+    getOp(llvmInstruction, charOp, unaryOperand, nested);
 
     // Handle the binary ops
     if (! charOp.empty() && unaryOperand == -1) {
@@ -1841,6 +1911,8 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         emitGlaValue(llvmInstruction);
         shader << " = " << charOp << "(";
         emitGlaOperand(llvmInstruction->getOperand(unaryOperand));
+        if (nested)
+            shader << ")";
         shader << ");";
         
         return;
@@ -1957,7 +2029,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             llvm::MDNode* mdAgg;
             llvm::MDNode* mdSamplerNode;
             if (gla::CrackUniformMd(llvmInstruction, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, mdSamplerNode, mdAgg) && mdQual == EMioDefaultUniform)
-                declareVariable(mdPrecision, type, name, EVQUniform, 0, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix, mdSamplerNode);
+                declareVariable(mdPrecision, type, name, EVQUniform, 0, mdLayout == EMtlUnsigned, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix, mdSamplerNode);
 
             if (const llvm::GetElementPtrInst* gepInstr = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0))) {
                 // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
@@ -2129,7 +2201,8 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
         shader << " = ";
 
-        emitGlaConstructor(shader, llvmInstruction->getType());
+        // TODO: uint functionality: get correct signedness
+        emitGlaConstructor(shader, llvmInstruction->getType(), false);
         shader << "(";
 
         int sourceWidth = gla::GetComponentCount(llvmInstruction->getOperand(0));
@@ -2355,7 +2428,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
             llvm::Type* vecType = llvm::VectorType::get(coordType, coordWidth + buffer + 1);
 
-            emitGlaType(shader, precision, vecType);
+            emitGlaType(shader, precision, vecType, false);
 
             shader << "(";
 
@@ -2446,7 +2519,8 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // Case 1:  it's a scalar with multiple ".x" to expand it to a vector.
         // use a constructor to turn a scalar into a vector
         if (srcVectorWidth == 1 && dstVectorWidth > 1) {
-            emitGlaType(shader, precision, llvmInstruction->getType());
+            // TODO: uint functionality: get correct signedness
+            emitGlaType(shader, precision, llvmInstruction->getType(), false);
             shader << "(";
             emitGlaOperand(src);
             shader << ");";
@@ -2457,7 +2531,8 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // Case 2:  it's sequential .xy...  subsetting a vector.
         // use a constructor to subset the vector to a vector
         if (srcVectorWidth > 1 && dstVectorWidth > 1 && IsIdentitySwizzle(elts)) {
-            emitGlaType(shader, precision, llvmInstruction->getType());
+            // TODO: iunt functionality: get correct signedness
+            emitGlaType(shader, precision, llvmInstruction->getType(), false);
             shader << "(";
             emitGlaOperand(src);
             shader << ");";
@@ -2566,7 +2641,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
     // Bit Operations
     case llvm::Intrinsic::gla_fFloatBitsToInt:  callString = "floatBitsToInt";      callArgs = 1; break;
-    case llvm::Intrinsic::gla_fIntBitsTofloat:  callString = "intBitsTofloat";      callArgs = 1; break;
+    case llvm::Intrinsic::gla_fIntBitsTofloat:  callString = "intBitsToFloat";      callArgs = 1; break;
     case llvm::Intrinsic::gla_sBitFieldExtract:
     case llvm::Intrinsic::gla_uBitFieldExtract: callString = "bitFieldExtract";     callArgs = 3; break;
     case llvm::Intrinsic::gla_bitFieldInsert:   callString = "bitFieldInsert";      callArgs = 3; break;

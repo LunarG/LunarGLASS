@@ -233,7 +233,7 @@ declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) nounwind
 !3 = metadata !{i32 0, i32 0, i32 1026, null}
 !4 = metadata !{metadata !"c", i32 7, <4 x i32>* @c_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 1, i32 2, i32 1025, null}
-!6 = metadata !{i32 0, i32 addrspace(1)* @usampler, i32 1, i1 false, i1 false}
+!6 = metadata !{i32 0, i32 addrspace(1)* @usampler, i32 1, i1 false, i1 false, i32 2}
 !7 = metadata !{metadata !"usampler", i32 12, i32 addrspace(1)* @usampler, metadata !8}
 !8 = metadata !{i32 5, i32 1, i32 0, metadata !6}
 !9 = metadata !{i32 2}
@@ -295,7 +295,7 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 !3 = metadata !{i32 0, i32 0, i32 1026, null}
 !4 = metadata !{metadata !"c", i32 7, <4 x i32>* @c_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 1, i32 2, i32 1025, null}
-!6 = metadata !{i32 0, i32 addrspace(1)* @usampler, i32 1, i1 false, i1 false}
+!6 = metadata !{i32 0, i32 addrspace(1)* @usampler, i32 1, i1 false, i1 false, i32 2}
 !7 = metadata !{metadata !"usampler", i32 12, i32 addrspace(1)* @usampler, metadata !8}
 !8 = metadata !{i32 5, i32 1, i32 0, metadata !6}
 !9 = metadata !{i32 2}
@@ -306,8 +306,8 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 
 // LunarGOO(r722) output
 #version 300 es
-uniform sampler2D usampler;
-flat in mediump ivec2 t;
+uniform usampler2D usampler;
+flat in mediump uvec2 t;
 const int const22i_3 = 3;
 in vec2 tc;
 const vec2 const24 = vec2(1.0);
@@ -315,23 +315,23 @@ const int const27i_4 = 4;
 const int const30i_0 = 0;
 const int const34i_462 = 462;
 const ivec4 const38 = ivec4(341413380);
-out mediump ivec4 c;
+out mediump uvec4 c;
 
 void main()
 {
-    mediump int temp21 = t.y + const22i_3;
+    mediump int temp21 = ivec2(t).y + const22i_3;
     vec2 temp23 = tc + const24;
     mediump ivec4 c_shadow8 = texture(usampler, temp23);
-    bool temp26 = t.x > const27i_4;
+    bool temp26 = ivec2(t).x > const27i_4;
     float af16 = float(temp21);
     bool ab17 = temp21 != const30i_0;
-    mediump int temp31 = uint(af16);
+    mediump int temp31 = int(uint(af16));
     mediump int temp32 = int(ab17);
     ivec4 temp33 = ivec4(temp31, temp32, temp21, const34i_462);
     mediump ivec4 c_shadow19 = c_shadow8 + temp33;
     ivec4 select = temp26 ? c_shadow19 : c_shadow8;
     mediump ivec4 c_shadow38 = select + const38;
-    c = c_shadow38;
+    c = uvec4(c_shadow38);
     
 }
 #### END COMPILER 0 INFO LOG ####

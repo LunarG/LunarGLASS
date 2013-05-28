@@ -136,7 +136,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !inputs = !{!6, !8, !10, !12}
 !outputs = !{!14}
 
-!0 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false}
+!0 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false, i32 0}
 !1 = metadata !{metadata !"texSampler2D", i32 12, i32 addrspace(1)* @texSampler2D, metadata !2}
 !2 = metadata !{i32 5, i32 0, i32 0, metadata !0}
 !3 = metadata !{metadata !"b", i32 12, i32 addrspace(2)* @b, metadata !4}
@@ -254,7 +254,7 @@ declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>)
 !inputs = !{!6, !8, !10, !12}
 !outputs = !{!14}
 
-!0 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false}
+!0 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false, i32 0}
 !1 = metadata !{metadata !"texSampler2D", i32 12, i32 addrspace(1)* @texSampler2D, metadata !2}
 !2 = metadata !{i32 5, i32 0, i32 0, metadata !0}
 !3 = metadata !{metadata !"b", i32 12, i32 addrspace(2)* @b, metadata !4}

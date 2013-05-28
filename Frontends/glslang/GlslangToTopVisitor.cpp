@@ -199,8 +199,20 @@ gla::EMdSamplerDim getMdSamplerDim(const TType& type)
     case EsdRect:   return gla::EMsdRect;
     case EsdBuffer: return gla::EMsdBuffer;
     default:
-        gla::UnsupportedFunctionality("unknown sampler dimension");
+        gla::UnsupportedFunctionality("unknown sampler dimension", gla::EATContinue);
         return gla::EMsd2D;
+    }
+}
+
+gla::EMdSamplerBaseType getMdSamplerBaseType(TBasicType type)
+{
+    switch (type) {
+    case EbtFloat:    return gla::EMsbFloat;
+    case EbtInt:      return gla::EMsbInt;
+    case EbtUint:     return gla::EMsbUint;
+    default:
+        gla::UnsupportedFunctionality("base type of sampler return type", gla::EATContinue);
+        return gla::EMsbFloat;
     }
 }
 
@@ -2165,7 +2177,7 @@ void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::V
         if (node->getType().getBasicType() == EbtSampler) {
             samplerMd = metadata.makeMdSampler(getMdSampler(node->getType()), typeProxy, getMdSamplerDim(node->getType()), 
                                                node->getType().getSampler().arrayed,
-                                               node->getType().getSampler().shadow);
+                                               node->getType().getSampler().shadow, getMdSamplerBaseType(node->getType().getSampler().type));
         }
 
         md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "defaultUniforms", gla::EMioDefaultUniform, typeProxy, 

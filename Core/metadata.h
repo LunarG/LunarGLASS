@@ -59,9 +59,9 @@ namespace gla {
 //         - Value* is a proxy for getting the LLVM type
 //         - aggregateLayout == 0 if not in a block
 //
-//     !sampler -> { EMdSampler, Value*, EMdSamplerDim, array, shadow }
+//     !sampler -> { EMdSampler, Value*, EMdSamplerDim, array, shadow, EMdSamplerBaseType }
 //     Notes:
-//         - texel return value has the same type as Value*
+//         - texel return value has the same type as Value*, modified by EMdSamplerBaseType (e.g., unsigned int)
 //         - array is bool, true if it is a samplerArray
 //         - shadow is bool, true if it is a samplerShadow
 //
@@ -146,6 +146,12 @@ enum EMdSamplerDim {
     EMsdCube,
     EMsdRect,
     EMsdBuffer,
+};
+
+enum EMdSamplerBaseType {
+    EMsbFloat,
+    EMsbInt,
+    EMsbUint,
 };
 
 // ESSL precision qualifier
@@ -246,7 +252,7 @@ inline bool CrackUniformMd(const llvm::Instruction* instruction, std::string& sy
     return CrackIOMd(instruction, "uniform", symbolName, qualifier, type, layout, precision, location, sampler, aggregate);
 }
 
-inline bool CrackSamplerMd(llvm::MDNode* md, EMdSampler& sampler, llvm::Type*& type, EMdSamplerDim& dim, bool& isArray, bool& isShadow)
+inline bool CrackSamplerMd(llvm::MDNode* md, EMdSampler& sampler, llvm::Type*& type, EMdSamplerDim& dim, bool& isArray, bool& isShadow, EMdSamplerBaseType& baseType)
 {
     const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
     if (! constInt)
@@ -271,6 +277,11 @@ inline bool CrackSamplerMd(llvm::MDNode* md, EMdSampler& sampler, llvm::Type*& t
     if (! constInt)
         return false;
     isShadow = constInt->getSExtValue() != 0;
+
+    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(5));
+    if (! constInt)
+        return false;
+    baseType = (EMdSamplerBaseType)constInt->getSExtValue();
 
     return true;
 }
@@ -327,7 +338,7 @@ public:
     }
 
     // "sampler ->" as per comment at top of file
-    llvm::MDNode* makeMdSampler(EMdSampler sampler, llvm::Value* typeProxy, EMdSamplerDim dim, bool isArray, bool isShadow)
+    llvm::MDNode* makeMdSampler(EMdSampler sampler, llvm::Value* typeProxy, EMdSamplerDim dim, bool isArray, bool isShadow, EMdSamplerBaseType baseType)
     {
         llvm::Value* args[] = {
             gla::MakeIntConstant(context, sampler),
@@ -335,6 +346,7 @@ public:
             gla::MakeIntConstant(context, dim),
             gla::MakeBoolConstant(context, isArray),
             gla::MakeBoolConstant(context, isShadow),
+            gla::MakeIntConstant(context, baseType),
         };
         llvm::MDNode* md = llvm::MDNode::get(context, args);
 
