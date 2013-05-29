@@ -1394,7 +1394,7 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* no
             llvm::Value* output = glaBuilder->createLoad(llvmArgs[i]);
             llvm::Type* destType = convertGlslangToGlaType(glslangArgs[i]->getAsTyped()->getType());
             if (destType != output->getType()) {
-                // TODO: testing: this after the front-end can support it
+                // TODO: non-ES testing: this after the front-end can support it
                 TOperator op = EOpNull;
                 if (gla::GetBasicTypeID(destType) == llvm::Type::FloatTyID &&
                     gla::GetBasicTypeID(output->getType())) {
@@ -1670,17 +1670,20 @@ llvm::Value* TGlslangToTopTraverser::createConversion(TOperator op, gla::EMdPrec
     switch(op) {
     case EOpConvIntToBool:
     case EOpConvUintToBool:
+    case EOpConvFloatToBool:
         {
-            // any non-zero integer should return true
-            llvm::Value* zero = gla::MakeIntConstant(context, 0);
+            // any non-zero should return true
+            llvm::Value* zero;
+            if (op == EOpConvFloatToBool)
+                zero = gla::MakeFloatConstant(context, 0.0f);
+            else
+                zero = gla::MakeIntConstant(context, 0);
+
             if (gla::GetComponentCount(operand) > 1)
                 zero = glaBuilder->smearScalar(gla::EMpNone, zero, operand->getType());
 
             return createBinaryOperation(EOpNotEqual, precision, operand, zero, false, false);
         }
-    case EOpConvFloatToBool:
-        castOp = llvm::Instruction::FPToUI;  // TODO: functionality: should this be a test against 0.0?
-        break;
 
     case EOpConvIntToFloat:
         castOp = llvm::Instruction::SIToFP;

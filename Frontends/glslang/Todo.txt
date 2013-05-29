@@ -36,7 +36,7 @@ Build
   + Update adapter build for Linux
 
 LunarGoo
-  - switch over to use metadata for all sideband information
+  + switch over to use metadata for all sideband information
   + double underscores in LunarGOO
   + correctly handle matrices at global scope
   + #version tracked through stack, output correctly
@@ -47,7 +47,7 @@ LunarGoo
 - "const" compile-time constant progagation in the front-end has to be complete, not heuristic
    - all built-ins
 
-- double underscore should be an error not a warning, maybe wait until after LunarGOO does not make them
++ double underscore should be an error not a warning, maybe wait until after LunarGOO does not make them
 
 - GLSL 1.2
 • + Handle version-specific keywords as identifiers for other versions
@@ -210,7 +210,7 @@ LunarGoo
 • + outerProduct() for multiplying vectors to yield a matrix.
 • + transpose()
 • + Pack and unpack built-in functions
-• - finish classifying all keywords as to when they are identifiers, reserved, or keywords.
+• + finish classifying all keywords as to when they are identifiers, reserved, or keywords.
 • . Line continuation (CPP)
 • . Line continuation and UTF-8 in GLSL ES 1.00 when used with OpenGL ES 3.0 (CPP)
 • . Array length operator returns an unsigned integer-constant.  The precision is determined using the rules for literal integers

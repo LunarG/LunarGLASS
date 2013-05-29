@@ -48,13 +48,13 @@ entry:
   %0 = load i32 addrspace(2)* @u_i, !uniform !0
   %1 = icmp ne i32 %0, 0
   %2 = load float addrspace(2)* @u_f, !uniform !2
-  %3 = fptoui float %2 to i1
+  %3 = fcmp one float %2, 0.000000e+00
   %b1 = xor i1 %1, %3
   store i1 %b1, i1* %b
   %4 = load i32 addrspace(2)* @u_i, !uniform !0
   %5 = icmp ne i32 %4, 0
   %6 = load float addrspace(2)* @u_f, !uniform !2
-  %7 = fptoui float %6 to i1
+  %7 = fcmp one float %6, 0.000000e+00
   %8 = load <2 x i1>* %constructed
   %9 = insertelement <2 x i1> %8, i1 %5, i32 0
   %b22 = insertelement <2 x i1> %9, i1 %7, i32 1
@@ -62,7 +62,7 @@ entry:
   %10 = load i32 addrspace(2)* @u_i, !uniform !0
   %11 = icmp ne i32 %10, 0
   %12 = load float addrspace(2)* @u_f, !uniform !2
-  %13 = fptoui float %12 to i1
+  %13 = fcmp one float %12, 0.000000e+00
   %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !input !6
   store i32 %i_i, i32* @i_i_shadow
   %14 = load i32* @i_i_shadow
@@ -75,7 +75,7 @@ entry:
   %19 = load i32 addrspace(2)* @u_i, !uniform !0
   %20 = icmp ne i32 %19, 0
   %21 = load float addrspace(2)* @u_f, !uniform !2
-  %22 = fptoui float %21 to i1
+  %22 = fcmp one float %21, 0.000000e+00
   %i_i5 = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !input !6
   store i32 %i_i5, i32* @i_i_shadow
   %23 = load i32* @i_i_shadow
@@ -83,7 +83,7 @@ entry:
   %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !8
   store float %i_f, float* @i_f_shadow
   %25 = load float* @i_f_shadow
-  %26 = fptoui float %25 to i1
+  %26 = fcmp one float %25, 0.000000e+00
   %27 = load <4 x i1>* %constructed6
   %28 = insertelement <4 x i1> %27, i1 %20, i32 0
   %29 = insertelement <4 x i1> %28, i1 %22, i32 1
@@ -167,7 +167,7 @@ entry:
   %f420 = fadd <4 x float> %78, %77
   store <4 x float> %f420, <4 x float>* %f4
   %79 = load <4 x float> addrspace(2)* @u_f4, !uniform !5
-  %80 = fptoui <4 x float> %79 to <4 x i1>
+  %80 = fcmp one <4 x float> %79, zeroinitializer
   %81 = uitofp <4 x i1> %80 to <4 x float>
   %82 = load <4 x float>* %f4
   %f421 = fadd <4 x float> %82, %81
@@ -552,14 +552,14 @@ entry:
   %0 = load i32 addrspace(2)* @u_i, align 4, !uniform !0
   %1 = icmp ne i32 %0, 0
   %2 = load float addrspace(2)* @u_f, align 4, !uniform !2
-  %3 = fptoui float %2 to i1
+  %3 = fcmp one float %2, 0.000000e+00
   %b1 = xor i1 %1, %3
   %4 = call <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1> undef, i32 3, i1 %1, i32 0, i1 %3, i32 0, i1 undef, i32 undef, i1 undef, i32 undef)
   %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !input !6
   %5 = icmp ne i32 %i_i, 0
   %6 = call <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1> undef, i32 7, i1 %1, i32 0, i1 %3, i32 0, i1 %5, i32 0, i1 undef, i32 undef)
   %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !8
-  %7 = fptoui float %i_f to i1
+  %7 = fcmp one float %i_f, 0.000000e+00
   %8 = call <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1> undef, i32 15, i1 %1, i32 0, i1 %3, i32 0, i1 %5, i32 0, i1 %7, i32 0)
   %9 = fptosi float %2 to i32
   %10 = zext i1 %b1 to i32
@@ -599,7 +599,7 @@ entry:
   %31 = icmp ne <4 x i32> %i_i4, zeroinitializer
   %32 = uitofp <4 x i1> %31 to <4 x float>
   %f420 = fadd <4 x float> %32, %f419
-  %33 = fptoui <4 x float> %17 to <4 x i1>
+  %33 = fcmp one <4 x float> %17, zeroinitializer
   %34 = uitofp <4 x i1> %33 to <4 x float>
   %f421 = fadd <4 x float> %34, %f420
   %35 = fsub float %f16, %f12
@@ -642,11 +642,11 @@ then53:                                           ; preds = %entry
   %56 = fcmp one <3 x float> %54, %f332
   %57 = call i1 @llvm.gla.all.v2i1(<2 x i1> %55)
   %58 = fcmp one float %f22, %f12
-  %select = select i1 %1, float %ternary4446, float %ternary4448
-  %select62 = select i1 %b1, float %f12, float %ternary43
+  %select62 = select i1 %1, float %ternary4446, float %ternary4448
+  %select = select i1 %b1, float %f12, float %ternary43
   %59 = call i1 @llvm.gla.any.v3i1(<3 x i1> %56)
   %60 = or i1 %58, %57
-  %f50 = fadd float %select62, %select
+  %f50 = fadd float %select, %select62
   %61 = or i1 %60, %59
   %select63 = select i1 %61, float %f50, float %f22
   %62 = extractelement <2 x i32> %i236, i32 0
@@ -667,7 +667,7 @@ then53:                                           ; preds = %entry
   %77 = add i32 %76, %66
   %78 = add i32 %77, %67
   %79 = sitofp i32 %78 to float
-  %80 = fadd float %select63, %79
+  %80 = fadd float %79, %select63
   %81 = fadd float %ternary43, %80
   %82 = extractelement <2 x float> %f230, i32 1
   %83 = fadd float %82, %81
@@ -770,141 +770,288 @@ uniform vec2 u_f2;
 uniform vec3 u_f3;
 uniform vec4 u_f4;
 const int const23i_0 = 0;
+const float const25f_0 = 0.0;
 flat in int i_i;
 in float i_f;
 flat in ivec4 i_i4;
-const ivec4 const63 = ivec4(0);
-const vec4 const132 = vec4(1.0);
-const vec4 const133 = vec4(2.0);
+const ivec4 const64 = ivec4(0);
+const vec4 const68 = vec4(0.0);
+const vec4 const134 = vec4(1.0);
+const vec4 const135 = vec4(2.0);
 
 void main()
 {
     vec4 ternary52d0;
     bool temp22 = u_i != const23i_0;
-    bool temp24 = int(uint(u_f));
-    bool temp25 = temp22 ^^ temp24;
-    bvec2 temp26;
-    temp26.xy = bvec2(temp22, temp24);
-    bool temp27 = i_i != const23i_0;
-    bvec3 temp28;
-    temp28.xyz = bvec3(temp22, temp24, temp27);
-    bool temp29 = int(uint(i_f));
-    bvec4 temp30 = bvec4(temp22, temp24, temp27, temp29);
-    int temp31 = int(u_f);
-    int temp32 = int(temp25);
-    int temp33 = temp32 + temp31;
-    ivec2 temp34 = ivec2(u_f2);
-    ivec2 temp35 = ivec2(temp26);
-    ivec2 temp36 = temp34 + temp35;
-    ivec3 temp37 = ivec3(u_f3);
-    ivec3 temp38 = ivec3(temp28);
-    ivec3 temp39 = temp37 + temp38;
-    ivec4 temp40 = ivec4(u_f4);
-    ivec4 temp41 = ivec4(temp30);
-    ivec4 temp42 = temp40 + temp41;
-    float temp43 = float(temp33);
-    vec4 temp44 = vec4(temp43);
-    vec3 temp45 = vec3(temp43);
-    vec2 temp46 = vec2(temp43);
-    vec2 temp47 = vec2(temp36);
-    vec3 temp48 = vec3(temp39);
-    vec4 temp49 = vec4(temp42);
-    float temp50 = float(temp25);
-    float temp51 = temp50 + temp43;
-    float temp52 = temp43 + temp51;
-    vec2 temp53 = vec2(temp26);
-    vec2 temp54 = temp53 + temp47;
-    vec2 temp55 = temp47 - temp54;
-    vec3 temp56 = vec3(temp28);
-    vec3 temp57 = temp56 + temp48;
-    vec3 temp58 = temp48 / temp57;
-    vec4 temp59 = vec4(temp30);
-    vec4 temp60 = temp59 + temp49;
-    vec4 temp61 = temp49 + temp60;
-    bvec4 temp62 = notEqual(i_i4, const63);
-    vec4 temp64 = vec4(temp62);
-    vec4 temp65 = temp64 + temp61;
-    bvec4 temp66 = ivec4(uvec4(u_f4));
-    vec4 temp67 = vec4(temp66);
-    vec4 temp68 = temp67 + temp65;
-    float temp69 = temp52 - temp43;
-    float temp70 = temp52 + temp69;
-    vec2 temp71;
-    temp71.xy = vec2(temp70, temp43);
-    vec2 temp72 = temp47 + temp71;
-    vec2 temp73 = temp55 + temp72;
-    vec3 temp74;
-    temp74.xyz = vec3(temp70, temp43, temp70);
-    vec3 temp75 = temp48 + temp74;
-    vec3 temp76 = temp58 + temp75;
-    vec4 temp77 = vec4(temp50, temp43, temp70, temp43);
-    vec4 temp78 = temp49 + temp77;
-    vec4 temp79 = temp68 + temp78;
-    vec2 temp80 = temp46 * temp71;
-    vec2 temp81 = temp80 + temp73;
-    vec3 temp82 = temp45 + temp74;
-    vec3 temp83 = temp82 + temp76;
-    vec4 temp84 = temp44 - temp77;
-    vec4 temp85 = temp84 + temp79;
-    int temp86 = int(temp70);
-    ivec2 temp87;
-    temp87.xy = ivec2(temp86, temp33);
-    ivec2 temp88 = temp36 + temp87;
-    ivec3 temp89;
-    temp89.xyz = ivec3(temp86, temp33, temp86);
-    ivec3 temp90 = temp39 + temp89;
-    ivec4 temp91 = ivec4(temp32, temp33, temp86, temp33);
-    ivec4 temp92 = temp42 + temp91;
-    bool temp93 = temp22 || temp24;
-    bool temp94 = temp93 || temp27;
-    bool temp95 = temp94 || temp29;
-    if (temp95) {
-        vec2 temp96 = vec2(temp88);
-        vec3 temp97 = vec3(temp90);
-        bvec2 temp98 = equal(temp81, temp96);
-        float ternary4448 = float(temp88.y);
-        bvec3 temp100 = notEqual(temp97, temp83);
-        bool temp101 = all(temp98);
-        bool temp102 = temp70 != temp43;
-        float select = temp22 ? temp83.x : ternary4448;
-        float select62 = temp25 ? temp43 : temp81.x;
-        bool temp105 = any(temp100);
-        bool temp106 = temp102 || temp101;
-        float temp107 = select62 + select;
-        bool temp108 = temp106 || temp105;
-        float select63 = temp108 ? temp107 : temp70;
-        int temp110 = temp88.x + temp33;
-        int temp111 = temp110 + temp88.y;
-        int temp112 = temp111 + temp92.x;
-        int temp113 = temp112 + temp92.y;
-        int temp114 = temp113 + temp92.z;
-        int temp115 = temp114 + temp92.w;
-        int temp116 = temp115 + temp90.x;
-        int temp117 = temp116 + temp90.y;
-        int temp118 = temp117 + temp90.z;
-        float temp119 = float(temp118);
-        float temp120 = select63 + temp119;
-        float temp121 = temp81.x + temp120;
-        float temp122 = temp81.y + temp121;
+    bool temp24 = u_f != const25f_0;
+    bool temp26 = temp22 ^^ temp24;
+    bvec2 temp27;
+    temp27.xy = bvec2(temp22, temp24);
+    bool temp28 = i_i != const23i_0;
+    bvec3 temp29;
+    temp29.xyz = bvec3(temp22, temp24, temp28);
+    bool temp30 = i_f != const25f_0;
+    bvec4 temp31 = bvec4(temp22, temp24, temp28, temp30);
+    int temp32 = int(u_f);
+    int temp33 = int(temp26);
+    int temp34 = temp33 + temp32;
+    ivec2 temp35 = ivec2(u_f2);
+    ivec2 temp36 = ivec2(temp27);
+    ivec2 temp37 = temp35 + temp36;
+    ivec3 temp38 = ivec3(u_f3);
+    ivec3 temp39 = ivec3(temp29);
+    ivec3 temp40 = temp38 + temp39;
+    ivec4 temp41 = ivec4(u_f4);
+    ivec4 temp42 = ivec4(temp31);
+    ivec4 temp43 = temp41 + temp42;
+    float temp44 = float(temp34);
+    vec4 temp45 = vec4(temp44);
+    vec3 temp46 = vec3(temp44);
+    vec2 temp47 = vec2(temp44);
+    vec2 temp48 = vec2(temp37);
+    vec3 temp49 = vec3(temp40);
+    vec4 temp50 = vec4(temp43);
+    float temp51 = float(temp26);
+    float temp52 = temp51 + temp44;
+    float temp53 = temp44 + temp52;
+    vec2 temp54 = vec2(temp27);
+    vec2 temp55 = temp54 + temp48;
+    vec2 temp56 = temp48 - temp55;
+    vec3 temp57 = vec3(temp29);
+    vec3 temp58 = temp57 + temp49;
+    vec3 temp59 = temp49 / temp58;
+    vec4 temp60 = vec4(temp31);
+    vec4 temp61 = temp60 + temp50;
+    vec4 temp62 = temp50 + temp61;
+    bvec4 temp63 = notEqual(i_i4, const64);
+    vec4 temp65 = vec4(temp63);
+    vec4 temp66 = temp65 + temp62;
+    bvec4 temp67 = notEqual(u_f4, const68);
+    vec4 temp69 = vec4(temp67);
+    vec4 temp70 = temp69 + temp66;
+    float temp71 = temp53 - temp44;
+    float temp72 = temp53 + temp71;
+    vec2 temp73;
+    temp73.xy = vec2(temp72, temp44);
+    vec2 temp74 = temp48 + temp73;
+    vec2 temp75 = temp56 + temp74;
+    vec3 temp76;
+    temp76.xyz = vec3(temp72, temp44, temp72);
+    vec3 temp77 = temp49 + temp76;
+    vec3 temp78 = temp59 + temp77;
+    vec4 temp79 = vec4(temp51, temp44, temp72, temp44);
+    vec4 temp80 = temp50 + temp79;
+    vec4 temp81 = temp70 + temp80;
+    vec2 temp82 = temp47 * temp73;
+    vec2 temp83 = temp82 + temp75;
+    vec3 temp84 = temp46 + temp76;
+    vec3 temp85 = temp84 + temp78;
+    vec4 temp86 = temp45 - temp79;
+    vec4 temp87 = temp86 + temp81;
+    int temp88 = int(temp72);
+    ivec2 temp89;
+    temp89.xy = ivec2(temp88, temp34);
+    ivec2 temp90 = temp37 + temp89;
+    ivec3 temp91;
+    temp91.xyz = ivec3(temp88, temp34, temp88);
+    ivec3 temp92 = temp40 + temp91;
+    ivec4 temp93 = ivec4(temp33, temp34, temp88, temp34);
+    ivec4 temp94 = temp43 + temp93;
+    bool temp95 = temp22 || temp24;
+    bool temp96 = temp95 || temp28;
+    bool temp97 = temp96 || temp30;
+    if (temp97) {
+        vec2 temp98 = vec2(temp90);
+        vec3 temp99 = vec3(temp92);
+        bvec2 temp100 = equal(temp83, temp98);
+        float ternary4448 = float(temp90.y);
+        bvec3 temp102 = notEqual(temp99, temp85);
+        bool temp103 = all(temp100);
+        bool temp104 = temp72 != temp44;
+        float select62 = temp22 ? temp85.x : ternary4448;
+        float select = temp26 ? temp44 : temp83.x;
+        bool temp107 = any(temp102);
+        bool temp108 = temp104 || temp103;
+        float temp109 = select + select62;
+        bool temp110 = temp108 || temp107;
+        float select63 = temp110 ? temp109 : temp72;
+        int temp112 = temp90.x + temp34;
+        int temp113 = temp112 + temp90.y;
+        int temp114 = temp113 + temp94.x;
+        int temp115 = temp114 + temp94.y;
+        int temp116 = temp115 + temp94.z;
+        int temp117 = temp116 + temp94.w;
+        int temp118 = temp117 + temp92.x;
+        int temp119 = temp118 + temp92.y;
+        int temp120 = temp119 + temp92.z;
+        float temp121 = float(temp120);
+        float temp122 = temp121 + select63;
         float temp123 = temp83.x + temp122;
         float temp124 = temp83.y + temp123;
-        float temp125 = temp83.z + temp124;
-        float temp126 = temp85.x + temp125;
-        float temp127 = temp85.y + temp126;
-        float temp128 = temp85.z + temp127;
-        float temp129 = temp85.w + temp128;
-        vec4 temp130 = vec4(temp129);
-        vec4 phitmp = temp130 + const132;
+        float temp125 = temp85.x + temp124;
+        float temp126 = temp85.y + temp125;
+        float temp127 = temp85.z + temp126;
+        float temp128 = temp87.x + temp127;
+        float temp129 = temp87.y + temp128;
+        float temp130 = temp87.z + temp129;
+        float temp131 = temp87.w + temp130;
+        vec4 temp132 = vec4(temp131);
+        vec4 phitmp = temp132 + const134;
         ternary52d0 = phitmp;
     }
     else {
-        ternary52d0 = const133;
+        ternary52d0 = const135;
     }
     
     gl_FragColor = ternary52d0;
     
 }
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+
+// LunarGOO(r722) output
+#version 130
+uniform int u_i;
+uniform float u_f;
+uniform vec2 u_f2;
+uniform vec3 u_f3;
+uniform vec4 u_f4;
+const int const23i_0 = 0;
+const float const25f_0 = 0.0;
+flat in int i_i;
+in float i_f;
+flat in ivec4 i_i4;
+const ivec4 const64 = ivec4(0);
+const vec4 const68 = vec4(0.0);
+const vec4 const134 = vec4(1.0);
+const vec4 const135 = vec4(2.0);
+
+void main()
+{
+    vec4 ternary52d0d0;
+    bool temp221 = u_i != const23i_0;
+    bool temp242 = u_f != const25f_0;
+    bool temp263 = temp221 ^^ temp242;
+    bvec2 temp27;
+    temp27.xy = bvec2(temp221, temp242);
+    bool temp285 = i_i != const23i_0;
+    bvec3 temp29;
+    temp29.xyz = bvec3(temp221, temp242, temp285);
+    bool temp308 = i_f != const25f_0;
+    bvec4 temp31 = bvec4(temp221, temp242, temp285, temp308);
+    int temp3211 = int(u_f);
+    int temp3312 = int(temp263);
+    int temp3413 = temp3312 + temp3211;
+    ivec2 temp3514 = ivec2(u_f2);
+    ivec2 temp3615 = ivec2(temp27);
+    ivec2 temp3716 = temp3514 + temp3615;
+    ivec3 temp3817 = ivec3(u_f3);
+    ivec3 temp3918 = ivec3(temp29);
+    ivec3 temp4019 = temp3817 + temp3918;
+    ivec4 temp4120 = ivec4(u_f4);
+    ivec4 temp4221 = ivec4(temp31);
+    ivec4 temp4322 = temp4120 + temp4221;
+    float temp4423 = float(temp3413);
+    vec2 temp45 = vec2(temp4423);
+    vec3 temp46 = vec3(temp4423);
+    vec4 temp47 = vec4(temp4423);
+    vec2 temp4830 = vec2(temp3716);
+    vec3 temp4931 = vec3(temp4019);
+    vec4 temp5032 = vec4(temp4322);
+    float temp5133 = float(temp263);
+    float temp5234 = temp5133 + temp4423;
+    float temp5335 = temp4423 + temp5234;
+    vec2 temp5436 = vec2(temp27);
+    vec2 temp5537 = temp5436 + temp4830;
+    vec2 temp5638 = temp4830 - temp5537;
+    vec3 temp5739 = vec3(temp29);
+    vec3 temp5840 = temp5739 + temp4931;
+    vec3 temp5941 = temp4931 / temp5840;
+    vec4 temp6042 = vec4(temp31);
+    vec4 temp6143 = temp6042 + temp5032;
+    vec4 temp6244 = temp5032 + temp6143;
+    bvec4 temp6345 = notEqual(i_i4, const64);
+    vec4 temp6546 = vec4(temp6345);
+    vec4 temp6647 = temp6546 + temp6244;
+    bvec4 temp6748 = notEqual(u_f4, const68);
+    vec4 temp6949 = vec4(temp6748);
+    vec4 temp7050 = temp6949 + temp6647;
+    float temp7151 = temp5335 - temp4423;
+    float temp7252 = temp5335 + temp7151;
+    vec2 temp73;
+    temp73.xy = vec2(temp7252, temp4423);
+    vec2 temp7455 = temp4830 + temp73;
+    vec2 temp7556 = temp5638 + temp7455;
+    vec3 temp76;
+    temp76.xyz = vec3(temp7252, temp4423, temp7252);
+    vec3 temp7759 = temp4931 + temp76;
+    vec3 temp7860 = temp5941 + temp7759;
+    vec4 temp79 = vec4(temp5133, temp4423, temp7252, temp4423);
+    vec4 temp8063 = temp5032 + temp79;
+    vec4 temp8164 = temp7050 + temp8063;
+    vec2 temp8265 = temp45 * temp73;
+    vec2 temp8366 = temp8265 + temp7556;
+    vec3 temp8467 = temp46 + temp76;
+    vec3 temp8568 = temp8467 + temp7860;
+    vec4 temp8669 = temp47 - temp79;
+    vec4 temp8770 = temp8669 + temp8164;
+    int temp8871 = int(temp7252);
+    ivec2 temp89;
+    temp89.xy = ivec2(temp8871, temp3413);
+    ivec2 temp9074 = temp3716 + temp89;
+    ivec3 temp91;
+    temp91.xyz = ivec3(temp8871, temp3413, temp8871);
+    ivec3 temp9277 = temp4019 + temp91;
+    ivec4 temp93 = ivec4(temp3312, temp3413, temp8871, temp3413);
+    ivec4 temp9480 = temp4322 + temp93;
+    bool temp9581 = temp221 || temp242;
+    bool temp9682 = temp9581 || temp285;
+    bool temp9783 = temp9682 || temp308;
+    if (temp9783) {
+        vec2 temp9884 = vec2(temp9074);
+        vec3 temp9985 = vec3(temp9277);
+        bvec2 temp10086 = equal(temp8366, temp9884);
+        bvec3 temp10288 = notEqual(temp9985, temp8568);
+        bool temp10389 = all(temp10086);
+        bool temp10490 = temp7252 != temp4423;
+        bool temp107102 = any(temp10288);
+        bool temp108103 = temp10490 || temp10389;
+        bool temp110105 = temp108103 || temp107102;
+        float ternary444887 = float(temp9074.y);
+        float select = temp263 ? temp4423 : temp8366.x;
+        float select140 = temp221 ? temp8568.x : ternary444887;
+        float temp109104 = select + select140;
+        float select148 = temp110105 ? temp109104 : temp7252;
+        int temp112113 = temp9074.x + temp3413;
+        int temp113114 = temp112113 + temp9074.y;
+        int temp114115 = temp113114 + temp9480.x;
+        int temp115116 = temp114115 + temp9480.y;
+        int temp116117 = temp115116 + temp9480.z;
+        int temp117118 = temp116117 + temp9480.w;
+        int temp118119 = temp117118 + temp9277.x;
+        int temp119120 = temp118119 + temp9277.y;
+        int temp120121 = temp119120 + temp9277.z;
+        float temp121122 = float(temp120121);
+        float temp122123 = temp121122 + select148;
+        float temp123124 = temp8366.x + temp122123;
+        float temp124125 = temp8366.y + temp123124;
+        float temp125126 = temp8568.x + temp124125;
+        float temp126127 = temp8568.y + temp125126;
+        float temp127128 = temp8568.z + temp126127;
+        float temp128129 = temp8770.x + temp127128;
+        float temp129130 = temp8770.y + temp128129;
+        float temp130131 = temp8770.z + temp129130;
+        float temp131132 = temp8770.w + temp130131;
+        vec4 temp132 = vec4(temp131132);
+        vec4 phitmp135 = temp132 + const134;
+        ternary52d0d0 = phitmp135;
+    }
+    else {
+        ternary52d0d0 = const135;
+    }
+    
+    gl_FragColor = ternary52d0d0;
+    
+}
