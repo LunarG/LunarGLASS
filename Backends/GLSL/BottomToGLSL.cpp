@@ -1164,23 +1164,25 @@ protected:
                 const llvm::ConstantDataVector* dataVector = 0;
 
                 if (const llvm::VectorType* vectorType = llvm::dyn_cast<llvm::VectorType>(type)) {
-                    // If all vector elements are equal, we only need to emit one
-                    bool same = true;
-                    dataVector = llvm::dyn_cast<llvm::ConstantDataVector>(constant);
-                    if (dataVector) {
-                        splatValue = dataVector->getSplatValue();
-                        if (! splatValue)
-                            same = false;
-                    } else if (! isZero) {
-                        for (int op = 1; op < vectorType->getNumElements(); ++op) {
-                            if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
+                    if (! isZero) {
+                        // If all vector elements are equal, we only need to emit one
+                        bool same = true;
+                        dataVector = llvm::dyn_cast<llvm::ConstantDataVector>(constant);
+                        if (dataVector) {
+                            splatValue = dataVector->getSplatValue();
+                            if (! splatValue)
                                 same = false;
-                                break;
+                        } else if (! isZero) {
+                            for (int op = 1; op < vectorType->getNumElements(); ++op) {
+                                if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
+                                    same = false;
+                                    break;
+                                }
                             }
-                        }
 
-                        if (same)
-                            splatValue = llvm::dyn_cast<llvm::Constant>(constant->getOperand(0));
+                            if (same)
+                                splatValue = llvm::dyn_cast<llvm::Constant>(constant->getOperand(0));
+                        }
                     }
                     numElements = vectorType->getNumElements();
                 } else if (const llvm::ArrayType*  arrayType = llvm::dyn_cast<llvm::ArrayType>(type))

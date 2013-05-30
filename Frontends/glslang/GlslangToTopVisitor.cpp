@@ -1394,7 +1394,7 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* no
             llvm::Value* output = glaBuilder->createLoad(llvmArgs[i]);
             llvm::Type* destType = convertGlslangToGlaType(glslangArgs[i]->getAsTyped()->getType());
             if (destType != output->getType()) {
-                // TODO: non-ES testing: this after the front-end can support it
+                // TODO: non-ES testing: test this after the front-end can support it
                 TOperator op = EOpNull;
                 if (gla::GetBasicTypeID(destType) == llvm::Type::FloatTyID &&
                     gla::GetBasicTypeID(output->getType())) {
