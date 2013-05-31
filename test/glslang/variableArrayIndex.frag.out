@@ -75,7 +75,6 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !defaultUniforms = !{!0, !2, !3, !2, !4, !2, !5}
 !outputs = !{!8}
-!samplers = !{!7}
 !inputs = !{!10}
 
 !0 = metadata !{metadata !"Count", i32 12, i32 addrspace(2)* @Count, metadata !1}
@@ -146,7 +145,6 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 
 !defaultUniforms = !{!0, !2, !3, !2, !4, !2, !5}
 !outputs = !{!8}
-!samplers = !{!7}
 !inputs = !{!10}
 
 !0 = metadata !{metadata !"Count", i32 12, i32 addrspace(2)* @Count, metadata !1}

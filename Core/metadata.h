@@ -77,7 +77,7 @@ namespace gla {
 //
 //     !precision -> { EMdPrecision }
 //
-//     !aggregateLayout -> { name, number instances, EMdAggregateLayout, list of typeLayout with nested structures flattened }
+//     !aggregateLayout -> { name, number instances, EMdAggregateLayout, list of !typeLayout with nested structures flattened }
 //         - TODO: linker: the aggregateLayout form is not yet being generated
 //
 // Forms of named metadata
@@ -349,9 +349,6 @@ public:
             gla::MakeIntConstant(context, baseType),
         };
         llvm::MDNode* md = llvm::MDNode::get(context, args);
-
-        llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata("samplers");
-        namedNode->addOperand(md);
 
         return md;
     }

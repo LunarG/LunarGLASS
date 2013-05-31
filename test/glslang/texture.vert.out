@@ -23,14 +23,14 @@ entry:
   store <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>, <3 x float>* %coords3D
   store <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>, <4 x float>* %coords4D
   store <4 x float> zeroinitializer, <4 x float>* %color
-  %0 = load i32 addrspace(1)* @texSampler1D, !uniform !6
+  %0 = load i32 addrspace(1)* @texSampler1D, !uniform !0
   %1 = load float* %coords1D
   %2 = load float* %lod
   %3 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.f32(i32 1, i32 %0, i32 132, float %1, float %2, float undef)
   %4 = load <4 x float>* %color
   %color1 = fadd <4 x float> %4, %3
   store <4 x float> %color1, <4 x float>* %color
-  %5 = load i32 addrspace(1)* @texSampler1D, !uniform !6
+  %5 = load i32 addrspace(1)* @texSampler1D, !uniform !0
   %coords2D = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1024, i32 -1), !input !18
   store <2 x float> %coords2D, <2 x float>* @coords2D_shadow
   %6 = load <2 x float>* @coords2D_shadow
@@ -39,14 +39,14 @@ entry:
   %9 = load <4 x float>* %color
   %color2 = fadd <4 x float> %9, %8
   store <4 x float> %color2, <4 x float>* %color
-  %10 = load i32 addrspace(1)* @texSampler1D, !uniform !6
+  %10 = load i32 addrspace(1)* @texSampler1D, !uniform !0
   %11 = load <4 x float>* %coords4D
   %12 = load float* %lod
   %13 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 1, i32 %10, i32 133, <4 x float> %11, float %12, float undef)
   %14 = load <4 x float>* %color
   %color3 = fadd <4 x float> %14, %13
   store <4 x float> %color3, <4 x float>* %color
-  %15 = load i32 addrspace(1)* @texSampler2D, !uniform !8
+  %15 = load i32 addrspace(1)* @texSampler2D, !uniform !3
   %coords2D4 = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1024, i32 -1), !input !18
   store <2 x float> %coords2D4, <2 x float>* @coords2D_shadow
   %16 = load <2 x float>* @coords2D_shadow
@@ -55,63 +55,63 @@ entry:
   %19 = load <4 x float>* %color
   %color5 = fadd <4 x float> %19, %18
   store <4 x float> %color5, <4 x float>* %color
-  %20 = load i32 addrspace(1)* @texSampler2D, !uniform !8
+  %20 = load i32 addrspace(1)* @texSampler2D, !uniform !3
   %21 = load <3 x float>* %coords3D
   %22 = load float* %lod
   %23 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 2, i32 %20, i32 133, <3 x float> %21, float %22, float undef)
   %24 = load <4 x float>* %color
   %color6 = fadd <4 x float> %24, %23
   store <4 x float> %color6, <4 x float>* %color
-  %25 = load i32 addrspace(1)* @texSampler2D, !uniform !8
+  %25 = load i32 addrspace(1)* @texSampler2D, !uniform !3
   %26 = load <4 x float>* %coords4D
   %27 = load float* %lod
   %28 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 2, i32 %25, i32 133, <4 x float> %26, float %27, float undef)
   %29 = load <4 x float>* %color
   %color7 = fadd <4 x float> %29, %28
   store <4 x float> %color7, <4 x float>* %color
-  %30 = load i32 addrspace(1)* @texSampler3D, !uniform !10
+  %30 = load i32 addrspace(1)* @texSampler3D, !uniform !6
   %31 = load <3 x float>* %coords3D
   %32 = load float* %lod
   %33 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 3, i32 %30, i32 132, <3 x float> %31, float %32, float undef)
   %34 = load <4 x float>* %color
   %color8 = fadd <4 x float> %34, %33
   store <4 x float> %color8, <4 x float>* %color
-  %35 = load i32 addrspace(1)* @texSampler3D, !uniform !10
+  %35 = load i32 addrspace(1)* @texSampler3D, !uniform !6
   %36 = load <4 x float>* %coords4D
   %37 = load float* %lod
   %38 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 3, i32 %35, i32 133, <4 x float> %36, float %37, float undef)
   %39 = load <4 x float>* %color
   %color9 = fadd <4 x float> %39, %38
   store <4 x float> %color9, <4 x float>* %color
-  %40 = load i32 addrspace(1)* @texSamplerCube, !uniform !12
+  %40 = load i32 addrspace(1)* @texSamplerCube, !uniform !9
   %41 = load <3 x float>* %coords3D
   %42 = load float* %lod
   %43 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 4, i32 %40, i32 132, <3 x float> %41, float %42, float undef)
   %44 = load <4 x float>* %color
   %color10 = fadd <4 x float> %44, %43
   store <4 x float> %color10, <4 x float>* %color
-  %45 = load i32 addrspace(1)* @shadowSampler1D, !uniform !14
+  %45 = load i32 addrspace(1)* @shadowSampler1D, !uniform !12
   %46 = load <3 x float>* %coords3D
   %47 = load float* %lod
   %48 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 1, i32 %45, i32 140, <3 x float> %46, float %47, float undef)
   %49 = load <4 x float>* %color
   %color11 = fadd <4 x float> %49, %48
   store <4 x float> %color11, <4 x float>* %color
-  %50 = load i32 addrspace(1)* @shadowSampler2D, !uniform !16
+  %50 = load i32 addrspace(1)* @shadowSampler2D, !uniform !15
   %51 = load <3 x float>* %coords3D
   %52 = load float* %lod
   %53 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 2, i32 %50, i32 140, <3 x float> %51, float %52, float undef)
   %54 = load <4 x float>* %color
   %color12 = fadd <4 x float> %54, %53
   store <4 x float> %color12, <4 x float>* %color
-  %55 = load i32 addrspace(1)* @shadowSampler1D, !uniform !14
+  %55 = load i32 addrspace(1)* @shadowSampler1D, !uniform !12
   %56 = load <4 x float>* %coords4D
   %57 = load float* %lod
   %58 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 1, i32 %55, i32 141, <4 x float> %56, float %57, float undef)
   %59 = load <4 x float>* %color
   %color13 = fadd <4 x float> %59, %58
   store <4 x float> %color13, <4 x float>* %color
-  %60 = load i32 addrspace(1)* @shadowSampler2D, !uniform !16
+  %60 = load i32 addrspace(1)* @shadowSampler2D, !uniform !15
   %61 = load <4 x float>* %coords4D
   %62 = load float* %lod
   %63 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 2, i32 %60, i32 141, <4 x float> %61, float %62, float undef)
@@ -143,29 +143,28 @@ declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!samplers = !{!0, !0, !0, !1, !1, !1, !2, !2, !3, !4, !5, !4, !5}
-!defaultUniforms = !{!6, !6, !6, !8, !8, !8, !10, !10, !12, !14, !16, !14, !16}
+!defaultUniforms = !{!0, !0, !0, !3, !3, !3, !6, !6, !9, !12, !15, !12, !15}
 !inputs = !{!18}
 !outputs = !{!20}
 
-!0 = metadata !{i32 0, i32 addrspace(1)* @texSampler1D, i32 0, i1 false, i1 false, i32 0}
-!1 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false, i32 0}
-!2 = metadata !{i32 0, i32 addrspace(1)* @texSampler3D, i32 2, i1 false, i1 false, i32 0}
-!3 = metadata !{i32 0, i32 addrspace(1)* @texSamplerCube, i32 3, i1 false, i1 false, i32 0}
-!4 = metadata !{i32 0, i32 addrspace(1)* @shadowSampler1D, i32 0, i1 false, i1 true, i32 0}
-!5 = metadata !{i32 0, i32 addrspace(1)* @shadowSampler2D, i32 1, i1 false, i1 true, i32 0}
-!6 = metadata !{metadata !"texSampler1D", i32 12, i32 addrspace(1)* @texSampler1D, metadata !7}
-!7 = metadata !{i32 5, i32 0, i32 0, metadata !0}
-!8 = metadata !{metadata !"texSampler2D", i32 12, i32 addrspace(1)* @texSampler2D, metadata !9}
-!9 = metadata !{i32 5, i32 0, i32 0, metadata !1}
-!10 = metadata !{metadata !"texSampler3D", i32 12, i32 addrspace(1)* @texSampler3D, metadata !11}
-!11 = metadata !{i32 5, i32 0, i32 0, metadata !2}
-!12 = metadata !{metadata !"texSamplerCube", i32 12, i32 addrspace(1)* @texSamplerCube, metadata !13}
-!13 = metadata !{i32 5, i32 0, i32 0, metadata !3}
-!14 = metadata !{metadata !"shadowSampler1D", i32 12, i32 addrspace(1)* @shadowSampler1D, metadata !15}
-!15 = metadata !{i32 5, i32 0, i32 0, metadata !4}
-!16 = metadata !{metadata !"shadowSampler2D", i32 12, i32 addrspace(1)* @shadowSampler2D, metadata !17}
-!17 = metadata !{i32 5, i32 0, i32 0, metadata !5}
+!0 = metadata !{metadata !"texSampler1D", i32 12, i32 addrspace(1)* @texSampler1D, metadata !1}
+!1 = metadata !{i32 5, i32 0, i32 0, metadata !2}
+!2 = metadata !{i32 0, i32 addrspace(1)* @texSampler1D, i32 0, i1 false, i1 false, i32 0}
+!3 = metadata !{metadata !"texSampler2D", i32 12, i32 addrspace(1)* @texSampler2D, metadata !4}
+!4 = metadata !{i32 5, i32 0, i32 0, metadata !5}
+!5 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false, i32 0}
+!6 = metadata !{metadata !"texSampler3D", i32 12, i32 addrspace(1)* @texSampler3D, metadata !7}
+!7 = metadata !{i32 5, i32 0, i32 0, metadata !8}
+!8 = metadata !{i32 0, i32 addrspace(1)* @texSampler3D, i32 2, i1 false, i1 false, i32 0}
+!9 = metadata !{metadata !"texSamplerCube", i32 12, i32 addrspace(1)* @texSamplerCube, metadata !10}
+!10 = metadata !{i32 5, i32 0, i32 0, metadata !11}
+!11 = metadata !{i32 0, i32 addrspace(1)* @texSamplerCube, i32 3, i1 false, i1 false, i32 0}
+!12 = metadata !{metadata !"shadowSampler1D", i32 12, i32 addrspace(1)* @shadowSampler1D, metadata !13}
+!13 = metadata !{i32 5, i32 0, i32 0, metadata !14}
+!14 = metadata !{i32 0, i32 addrspace(1)* @shadowSampler1D, i32 0, i1 false, i1 true, i32 0}
+!15 = metadata !{metadata !"shadowSampler2D", i32 12, i32 addrspace(1)* @shadowSampler2D, metadata !16}
+!16 = metadata !{i32 5, i32 0, i32 0, metadata !17}
+!17 = metadata !{i32 0, i32 addrspace(1)* @shadowSampler2D, i32 1, i1 false, i1 true, i32 0}
 !18 = metadata !{metadata !"coords2D", i32 1, <2 x float>* @coords2D_shadow_typeProxy, metadata !19}
 !19 = metadata !{i32 0, i32 0, i32 1024, null}
 !20 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !21}
@@ -184,11 +183,11 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load i32 addrspace(1)* @texSampler1D, align 4, !uniform !6
-  %1 = load i32 addrspace(1)* @texSampler2D, align 4, !uniform !8
-  %2 = load i32 addrspace(1)* @texSampler3D, align 4, !uniform !10
-  %3 = load i32 addrspace(1)* @shadowSampler1D, align 4, !uniform !14
-  %4 = load i32 addrspace(1)* @shadowSampler2D, align 4, !uniform !16
+  %0 = load i32 addrspace(1)* @texSampler1D, align 4, !uniform !0
+  %1 = load i32 addrspace(1)* @texSampler2D, align 4, !uniform !3
+  %2 = load i32 addrspace(1)* @texSampler3D, align 4, !uniform !6
+  %3 = load i32 addrspace(1)* @shadowSampler1D, align 4, !uniform !12
+  %4 = load i32 addrspace(1)* @shadowSampler2D, align 4, !uniform !15
   %coords2D = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1024, i32 -1), !input !18
   %5 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v2f32(i32 1, i32 %0, i32 133, <2 x float> %coords2D, float 3.000000e+00, float undef)
   %6 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.f32(i32 1, i32 %0, i32 132, float 0x3FFC9FBE80000000, float 3.000000e+00, float undef)
@@ -202,7 +201,7 @@ entry:
   %color6 = fadd <4 x float> %color5, %9
   %11 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 3, i32 %2, i32 132, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>, float 3.000000e+00, float undef)
   %color7 = fadd <4 x float> %color6, %10
-  %12 = load i32 addrspace(1)* @texSamplerCube, align 4, !uniform !12
+  %12 = load i32 addrspace(1)* @texSamplerCube, align 4, !uniform !9
   %13 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 3, i32 %2, i32 133, <4 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000, float 2.000000e+00>, float 3.000000e+00, float undef)
   %color8 = fadd <4 x float> %color7, %11
   %14 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32 4, i32 %12, i32 132, <3 x float> <float 0x3FFC9FBE80000000, float 0x4005BE76C0000000, float 0x400B9FBE80000000>, float 3.000000e+00, float undef)
@@ -238,29 +237,28 @@ declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!samplers = !{!0, !0, !0, !1, !1, !1, !2, !2, !3, !4, !5, !4, !5}
-!defaultUniforms = !{!6, !6, !6, !8, !8, !8, !10, !10, !12, !14, !16, !14, !16}
+!defaultUniforms = !{!0, !0, !0, !3, !3, !3, !6, !6, !9, !12, !15, !12, !15}
 !inputs = !{!18}
 !outputs = !{!20}
 
-!0 = metadata !{i32 0, i32 addrspace(1)* @texSampler1D, i32 0, i1 false, i1 false, i32 0}
-!1 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false, i32 0}
-!2 = metadata !{i32 0, i32 addrspace(1)* @texSampler3D, i32 2, i1 false, i1 false, i32 0}
-!3 = metadata !{i32 0, i32 addrspace(1)* @texSamplerCube, i32 3, i1 false, i1 false, i32 0}
-!4 = metadata !{i32 0, i32 addrspace(1)* @shadowSampler1D, i32 0, i1 false, i1 true, i32 0}
-!5 = metadata !{i32 0, i32 addrspace(1)* @shadowSampler2D, i32 1, i1 false, i1 true, i32 0}
-!6 = metadata !{metadata !"texSampler1D", i32 12, i32 addrspace(1)* @texSampler1D, metadata !7}
-!7 = metadata !{i32 5, i32 0, i32 0, metadata !0}
-!8 = metadata !{metadata !"texSampler2D", i32 12, i32 addrspace(1)* @texSampler2D, metadata !9}
-!9 = metadata !{i32 5, i32 0, i32 0, metadata !1}
-!10 = metadata !{metadata !"texSampler3D", i32 12, i32 addrspace(1)* @texSampler3D, metadata !11}
-!11 = metadata !{i32 5, i32 0, i32 0, metadata !2}
-!12 = metadata !{metadata !"texSamplerCube", i32 12, i32 addrspace(1)* @texSamplerCube, metadata !13}
-!13 = metadata !{i32 5, i32 0, i32 0, metadata !3}
-!14 = metadata !{metadata !"shadowSampler1D", i32 12, i32 addrspace(1)* @shadowSampler1D, metadata !15}
-!15 = metadata !{i32 5, i32 0, i32 0, metadata !4}
-!16 = metadata !{metadata !"shadowSampler2D", i32 12, i32 addrspace(1)* @shadowSampler2D, metadata !17}
-!17 = metadata !{i32 5, i32 0, i32 0, metadata !5}
+!0 = metadata !{metadata !"texSampler1D", i32 12, i32 addrspace(1)* @texSampler1D, metadata !1}
+!1 = metadata !{i32 5, i32 0, i32 0, metadata !2}
+!2 = metadata !{i32 0, i32 addrspace(1)* @texSampler1D, i32 0, i1 false, i1 false, i32 0}
+!3 = metadata !{metadata !"texSampler2D", i32 12, i32 addrspace(1)* @texSampler2D, metadata !4}
+!4 = metadata !{i32 5, i32 0, i32 0, metadata !5}
+!5 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false, i32 0}
+!6 = metadata !{metadata !"texSampler3D", i32 12, i32 addrspace(1)* @texSampler3D, metadata !7}
+!7 = metadata !{i32 5, i32 0, i32 0, metadata !8}
+!8 = metadata !{i32 0, i32 addrspace(1)* @texSampler3D, i32 2, i1 false, i1 false, i32 0}
+!9 = metadata !{metadata !"texSamplerCube", i32 12, i32 addrspace(1)* @texSamplerCube, metadata !10}
+!10 = metadata !{i32 5, i32 0, i32 0, metadata !11}
+!11 = metadata !{i32 0, i32 addrspace(1)* @texSamplerCube, i32 3, i1 false, i1 false, i32 0}
+!12 = metadata !{metadata !"shadowSampler1D", i32 12, i32 addrspace(1)* @shadowSampler1D, metadata !13}
+!13 = metadata !{i32 5, i32 0, i32 0, metadata !14}
+!14 = metadata !{i32 0, i32 addrspace(1)* @shadowSampler1D, i32 0, i1 false, i1 true, i32 0}
+!15 = metadata !{metadata !"shadowSampler2D", i32 12, i32 addrspace(1)* @shadowSampler2D, metadata !16}
+!16 = metadata !{i32 5, i32 0, i32 0, metadata !17}
+!17 = metadata !{i32 0, i32 addrspace(1)* @shadowSampler2D, i32 1, i1 false, i1 true, i32 0}
 !18 = metadata !{metadata !"coords2D", i32 1, <2 x float>* @coords2D_shadow_typeProxy, metadata !19}
 !19 = metadata !{i32 0, i32 0, i32 1024, null}
 !20 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !21}
