@@ -22,28 +22,28 @@ entry:
   %localIArray = alloca [8 x i32]
   %localFArray = alloca [16 x float]
   %locals2 = alloca %s2
-  %locals21 = load %s2 addrspace(2)* getelementptr inbounds (%s3 addrspace(2)* @foo3, i32 0, i32 0), !uniform !0
+  %locals21 = load %s2 addrspace(2)* getelementptr inbounds (%s3 addrspace(2)* @foo3, i32 0, i32 0), !gla.uniform !0
   store %s2 %locals21, %s2* %locals2
-  %0 = load i32 addrspace(2)* getelementptr inbounds (%s3 addrspace(2)* @foo3, i32 0, i32 0, i32 0), !uniform !0
+  %0 = load i32 addrspace(2)* getelementptr inbounds (%s3 addrspace(2)* @foo3, i32 0, i32 0, i32 0), !gla.uniform !0
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
   %2 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
   store float 1.000000e+00, float* %2
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !6
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !6
   store <2 x float> %coord, <2 x float>* @coord_shadow
   %3 = load <2 x float>* @coord_shadow
   %4 = extractelement <2 x float> %3, i32 0
   %5 = getelementptr [16 x float]* %localFArray, i32 0, i32 4
   store float %4, float* %5
-  %6 = load i32 addrspace(2)* getelementptr inbounds (%s3 addrspace(2)* @foo3, i32 0, i32 0, i32 0), !uniform !0
+  %6 = load i32 addrspace(2)* getelementptr inbounds (%s3 addrspace(2)* @foo3, i32 0, i32 0, i32 0), !gla.uniform !0
   %7 = getelementptr [8 x i32]* %localIArray, i32 0, i32 2
   store i32 %6, i32* %7
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %coord2 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !6
+  %coord2 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !6
   store <2 x float> %coord2, <2 x float>* @coord_shadow
   %8 = load <2 x float>* @coord_shadow
   %9 = extractelement <2 x float> %8, i32 0
@@ -71,7 +71,7 @@ then3:                                            ; preds = %ifmerge
 ifmerge4:                                         ; preds = %ifmerge, %then3
   store i32 5, i32* %x
   %19 = load i32* %x
-  %coord5 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !6
+  %coord5 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !6
   store <2 x float> %coord5, <2 x float>* @coord_shadow
   %20 = load <2 x float>* @coord_shadow
   %21 = extractelement <2 x float> %20, i32 0
@@ -105,7 +105,7 @@ post-loop-continue:                               ; No predecessors!
   br label %loop-header
 
 loop-merge:                                       ; preds = %then6
-  %29 = load i32 addrspace(2)* @condition, !uniform !2
+  %29 = load i32 addrspace(2)* @condition, !gla.uniform !2
   %30 = icmp eq i32 %29, 1
   br i1 %30, label %then9, label %ifmerge11
 
@@ -115,12 +115,12 @@ then9:                                            ; preds = %loop-merge
   br label %ifmerge11
 
 ifmerge11:                                        ; preds = %loop-merge, %then9
-  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !8
+  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !8
   store <4 x float> %color, <4 x float>* @color_shadow
   %31 = load <4 x float>* @color_shadow
   %32 = getelementptr %s2* %locals2, i32 0, i32 3
   store <4 x float> %31, <4 x float>* %32
-  %coord12 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !6
+  %coord12 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !6
   store <2 x float> %coord12, <2 x float>* @coord_shadow
   %33 = load <2 x float>* @coord_shadow
   %34 = extractelement <2 x float> %33, i32 1
@@ -148,8 +148,8 @@ ifmerge11:                                        ; preds = %loop-merge, %then9
   %55 = insertelement <4 x float> %54, float %52, i32 2
   %56 = insertelement <4 x float> %55, float %52, i32 3
   %57 = fmul <4 x float> %39, %56
-  %58 = load i32 addrspace(1)* @sampler, !uniform !3
-  %coord13 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !6
+  %58 = load i32 addrspace(1)* @sampler, !gla.uniform !3
+  %coord13 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !6
   store <2 x float> %coord13, <2 x float>* @coord_shadow
   %59 = load <2 x float>* @coord_shadow
   %60 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %58, i32 0, <2 x float> %59)
@@ -159,7 +159,7 @@ ifmerge11:                                        ; preds = %loop-merge, %then9
 
 stage-epilogue:                                   ; preds = %ifmerge11
   %61 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %61), !output !10
+  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %61), !gla.output !10
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -174,9 +174,9 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!defaultUniforms = !{!0, !2, !3}
-!inputs = !{!6, !8}
-!outputs = !{!10}
+!gla.uniforms = !{!0, !2, !3}
+!gla.inputs = !{!6, !8}
+!gla.outputs = !{!10}
 
 !0 = metadata !{metadata !"foo3", i32 12, %s3 addrspace(2)* @foo3, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0, null}
@@ -206,7 +206,7 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %gla_constGEP = getelementptr %s3 addrspace(2)* @foo3, i32 0, i32 0, i32 0
-  %0 = load i32 addrspace(2)* %gla_constGEP, align 16, !uniform !0
+  %0 = load i32 addrspace(2)* %gla_constGEP, align 16, !gla.uniform !0
   %1 = icmp sgt i32 %0, 0
   %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1)
   %2 = extractelement <2 x float> %coord, i32 0
@@ -214,20 +214,20 @@ entry:
   %4 = fadd float %3, 1.000000e+00
   %select33 = select i1 %1, float 1.000000e+00, float %2
   %select.v = select i1 %1, float %2, float %4
-  %5 = load i32 addrspace(2)* @condition, align 4, !uniform !2
+  %5 = load i32 addrspace(2)* @condition, align 4, !gla.uniform !2
   %6 = icmp eq i32 %5, 1
   %select = select i1 %6, float %2, float 0.000000e+00
   %7 = fadd float %select33, %select.v
   %8 = fadd float %2, %7
   %9 = fadd float %8, %select
   %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %9, <4 x i32> zeroinitializer)
-  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !input !8
-  %11 = load i32 addrspace(1)* @sampler, align 4, !uniform !3
+  %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !8
+  %11 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !3
   %12 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %color, i32 4, float undef, i32 undef, float undef, i32 undef, <2 x float> %coord, i32 1, float undef, i32 undef)
   %13 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %11, i32 0, <2 x float> %coord)
   %14 = fmul <4 x float> %12, %10
   %FragColor_shadow = fmul <4 x float> %13, %14
-  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %FragColor_shadow), !output !10
+  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %FragColor_shadow), !gla.output !10
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -249,9 +249,9 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x fl
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
-!defaultUniforms = !{!0, !2, !3}
-!inputs = !{!6, !8}
-!outputs = !{!10}
+!gla.uniforms = !{!0, !2, !3}
+!gla.inputs = !{!6, !8}
+!gla.outputs = !{!10}
 
 !0 = metadata !{metadata !"foo3", i32 12, %s3 addrspace(2)* @foo3, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0, null}

@@ -875,14 +875,14 @@ bool BottomTranslator::runOnModule(Module& module)
         backEndTranslator->addGlobal(global);
 
     // add metadata
-    const llvm::NamedMDNode* mdUniforms = module.getNamedMetadata("defaultUniforms");
+    const llvm::NamedMDNode* mdUniforms = module.getNamedMetadata(gla::UniformListMdName);
     if (mdUniforms) {
         for (int m = 0; m < mdUniforms->getNumOperands(); ++m) {
             const llvm::MDNode* mdNode = mdUniforms->getOperand(m);
             backEndTranslator->addUniform(mdNode);
         }
     }
-    //const llvm::NamedMDNode* mdInputs = module.getNamedMetadata("outputs");
+    //const llvm::NamedMDNode* mdInputs = module.getNamedMetadata(gla::OutputListMdName);
     //for (int m = 0; m < mdInputs->getNumOperands(); ++m) {
     //    const llvm::MDNode* mdNode = mdInputs->getOperand(m);
     //    backEndTranslator->addOutput(mdNode);

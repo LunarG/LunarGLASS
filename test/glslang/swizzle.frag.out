@@ -17,21 +17,21 @@ entry:
   %w = alloca <4 x float>
   %blendscale = alloca float
   store float 0x3FFC9FBE80000000, float* %blendscale
-  %w1 = load <4 x float> addrspace(2)* @u, !uniform !0
+  %w1 = load <4 x float> addrspace(2)* @u, !gla.uniform !0
   store <4 x float> %w1, <4 x float>* %w
-  %w_dep2 = load <4 x float> addrspace(2)* @u, !uniform !0
+  %w_dep2 = load <4 x float> addrspace(2)* @u, !gla.uniform !0
   store <4 x float> %w_dep2, <4 x float>* %w_dep
-  %w_reorder3 = load <4 x float> addrspace(2)* @u, !uniform !0
+  %w_reorder3 = load <4 x float> addrspace(2)* @u, !gla.uniform !0
   store <4 x float> %w_reorder3, <4 x float>* %w_reorder
-  %w24 = load <4 x float> addrspace(2)* @u, !uniform !0
+  %w24 = load <4 x float> addrspace(2)* @u, !gla.uniform !0
   store <4 x float> %w24, <4 x float>* %w2
-  %w_flow5 = load <4 x float> addrspace(2)* @u, !uniform !0
+  %w_flow5 = load <4 x float> addrspace(2)* @u, !gla.uniform !0
   store <4 x float> %w_flow5, <4 x float>* %w_flow
   %0 = load float* %blendscale
   %1 = load <4 x float>* %w_reorder
   %w_reorder6 = insertelement <4 x float> %1, float %0, i32 2
   store <4 x float> %w_reorder6, <4 x float>* %w_reorder
-  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !3
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !3
   store <2 x float> %t, <2 x float>* @t_shadow
   %2 = load <2 x float>* @t_shadow
   %3 = load <4 x float>* %w
@@ -44,7 +44,7 @@ entry:
   %8 = load <4 x float>* %w_reorder
   %w_reorder8 = insertelement <4 x float> %8, float %7, i32 0
   store <4 x float> %w_reorder8, <4 x float>* %w_reorder
-  %9 = load <4 x float> addrspace(2)* @u, !uniform !0
+  %9 = load <4 x float> addrspace(2)* @u, !gla.uniform !0
   %10 = extractelement <4 x float> %9, i32 2
   %11 = insertelement <4 x float> undef, float %10, i32 0
   %12 = extractelement <4 x float> %9, i32 3
@@ -69,7 +69,7 @@ entry:
   %27 = extractelement <2 x float> %23, i32 1
   %w_dep11 = insertelement <4 x float> %26, float %27, i32 1
   store <4 x float> %w_dep11, <4 x float>* %w_dep
-  %t12 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !3
+  %t12 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !3
   store <2 x float> %t12, <2 x float>* @t_shadow
   %28 = load <2 x float>* @t_shadow
   %29 = load <4 x float>* %w_dep
@@ -78,7 +78,7 @@ entry:
   %32 = extractelement <2 x float> %28, i32 1
   %w_dep13 = insertelement <4 x float> %31, float %32, i32 3
   store <4 x float> %w_dep13, <4 x float>* %w_dep
-  %33 = load <4 x float> addrspace(2)* @u, !uniform !0
+  %33 = load <4 x float> addrspace(2)* @u, !gla.uniform !0
   %34 = extractelement <4 x float> %33, i32 2
   %35 = insertelement <2 x float> undef, float %34, i32 0
   %36 = extractelement <4 x float> %33, i32 3
@@ -89,11 +89,11 @@ entry:
   %41 = extractelement <2 x float> %37, i32 1
   %w_undef14 = insertelement <4 x float> %40, float %41, i32 1
   store <4 x float> %w_undef14, <4 x float>* %w_undef
-  %42 = load i1 addrspace(2)* @p, !uniform !2
+  %42 = load i1 addrspace(2)* @p, !gla.uniform !2
   br i1 %42, label %then, label %else
 
 then:                                             ; preds = %entry
-  %t15 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !3
+  %t15 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !3
   store <2 x float> %t15, <2 x float>* @t_shadow
   %43 = load <2 x float>* @t_shadow
   %44 = extractelement <2 x float> %43, i32 0
@@ -103,7 +103,7 @@ then:                                             ; preds = %entry
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %t17 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !3
+  %t17 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !3
   store <2 x float> %t17, <2 x float>* @t_shadow
   %46 = load <2 x float>* @t_shadow
   %47 = extractelement <2 x float> %46, i32 1
@@ -117,18 +117,18 @@ ifmerge:                                          ; preds = %else, %then
   %50 = load <4 x float>* %w_undef
   %51 = load <4 x float>* %w
   %52 = load <4 x float>* %w2
-  %53 = fmul <4 x float> %51, %52, !precision !7
+  %53 = fmul <4 x float> %51, %52, !gla.precision !7
   %54 = load <4 x float>* %w_dep
-  %55 = fmul <4 x float> %53, %54, !precision !7
+  %55 = fmul <4 x float> %53, %54, !gla.precision !7
   %56 = load <4 x float>* %w_flow
-  %57 = fmul <4 x float> %55, %56, !precision !7
-  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %49, <4 x float> %50, <4 x float> %57), !precision !7
+  %57 = fmul <4 x float> %55, %56, !gla.precision !7
+  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %49, <4 x float> %50, <4 x float> %57), !gla.precision !7
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
   %58 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %58), !output !5
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %58), !gla.output !5
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -141,9 +141,9 @@ declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x flo
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!defaultUniforms = !{!0, !2}
-!inputs = !{!3}
-!outputs = !{!5}
+!gla.uniforms = !{!0, !2}
+!gla.inputs = !{!3}
+!gla.outputs = !{!5}
 
 !0 = metadata !{metadata !"u", i32 12, <4 x float> addrspace(2)* @u, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0, null}
@@ -163,22 +163,22 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %w1 = load <4 x float> addrspace(2)* @u, align 16, !uniform !0
+  %w1 = load <4 x float> addrspace(2)* @u, align 16, !gla.uniform !0
   %0 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float> %w1, <4 x i32> <i32 2, i32 3, i32 undef, i32 undef>)
   %1 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float> %w1, <4 x i32> <i32 2, i32 3, i32 0, i32 1>)
-  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !3
+  %t = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !3
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x float> %w1, i32 10, float undef, i32 undef, <2 x float> %t, i32 1, float undef, i32 undef, <2 x float> %t, i32 0)
   %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %w1, i32 7, float 0x3FFC9FBE80000000, i32 0, float 0x3FFC9FBE80000000, i32 0, float 0x3FFC9FBE80000000, i32 0, float undef, i32 undef)
   %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v4f32.v4f32.v2f32.v2f32(<4 x float> undef, i32 15, <4 x float> %w1, i32 2, <4 x float> %w1, i32 0, <2 x float> %t, i32 0, <2 x float> %t, i32 1)
-  %5 = load i1 addrspace(2)* @p, align 1, !uniform !2
+  %5 = load i1 addrspace(2)* @p, align 1, !gla.uniform !2
   %6 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 1, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
   %select = select i1 %5, <4 x float> %6, <4 x float> %7
-  %8 = fmul <4 x float> %1, %2, !precision !7
-  %9 = fmul <4 x float> %8, %4, !precision !7
-  %10 = fmul <4 x float> %select, %9, !precision !7
-  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %3, <4 x float> %0, <4 x float> %10), !precision !7
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %FragColor_shadow), !output !5
+  %8 = fmul <4 x float> %1, %2, !gla.precision !7
+  %9 = fmul <4 x float> %8, %4, !gla.precision !7
+  %10 = fmul <4 x float> %select, %9, !gla.precision !7
+  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %3, <4 x float> %0, <4 x float> %10), !gla.precision !7
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %FragColor_shadow), !gla.output !5
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -204,9 +204,9 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v2f32.f32.v2f32(<4 x 
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>) nounwind readnone
 
-!defaultUniforms = !{!0, !2}
-!inputs = !{!3}
-!outputs = !{!5}
+!gla.uniforms = !{!0, !2}
+!gla.inputs = !{!3}
+!gla.outputs = !{!5}
 
 !0 = metadata !{metadata !"u", i32 12, <4 x float> addrspace(2)* @u, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0, null}

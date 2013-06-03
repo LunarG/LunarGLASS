@@ -1552,7 +1552,7 @@ protected:
         EMdTypeLayout mdLayout;
         llvm::MDNode* mdAggregate;
         llvm::MDNode* dummySampler;
-        if (! gla::CrackIOMd(llvmInstruction, input ? "input" : "output", name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate)) {
+        if (! gla::CrackIOMd(llvmInstruction, input ? gla::InputMdName : gla::OutputMdName, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate)) {
             // This path should not exist; it is a backup path for missing metadata.
             // TODO: LunarGOO functionality: fix missing metadata instruction operands.
             UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);

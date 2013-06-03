@@ -2200,11 +2200,11 @@ void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::V
                                                    node->getType().getSampler().shadow, getMdSamplerBaseType(node->getType().getSampler().type));
             }
 
-            md = metadata.makeMdInputOutput(name, "defaultUniforms", gla::EMioDefaultUniform, typeProxy, 
+            md = metadata.makeMdInputOutput(name, gla::UniformListMdName, gla::EMioDefaultUniform, typeProxy, 
                                             getMdTypeLayout(node), getMdPrecision(node->getType()), 0, samplerMd);
             uniformMdMap[name] = md;
         }
-        glaBuilder->setAccessChainMetadata("uniform", md);
+        glaBuilder->setAccessChainMetadata(gla::UniformMdName, md);
         break;
     case gla::EMioUniformBlockMember:
         gla::UnsupportedFunctionality("Uniform block member", gla::EATContinue);
@@ -2221,14 +2221,14 @@ void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::V
 
 void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value* storage, int slot)
 {    
-    llvm::MDNode* md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "outputs", getMdQualifier(node), 
+    llvm::MDNode* md = metadata.makeMdInputOutput(node->getSymbol().c_str(), gla::OutputListMdName, getMdQualifier(node), 
                                                   makePermanentTypeProxy(storage), getMdTypeLayout(node), getMdPrecision(node->getType()), slot);
     glaBuilder->setOutputMetadata(storage, md, slot);
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot)
 {    
-    return metadata.makeMdInputOutput(node->getSymbol().c_str(), "inputs", getMdQualifier(node), 
+    return metadata.makeMdInputOutput(node->getSymbol().c_str(), gla::InputListMdName, getMdQualifier(node), 
                                       makePermanentTypeProxy(typeProxy), getMdTypeLayout(node), 
                                       getMdPrecision(node->getType()), slot);
 }

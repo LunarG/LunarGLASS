@@ -11,22 +11,22 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %inVc = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 513), !input !2
+  %inVc = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 513), !gla.input !2
   store <4 x float> %inVc, <4 x float>* @inVc_shadow
   %0 = load <4 x float>* @inVc_shadow
-  %inVs = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !4
+  %inVs = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !4
   store <4 x float> %inVs, <4 x float>* @inVs_shadow
   %1 = load <4 x float>* @inVs_shadow
   %2 = fadd <4 x float> %0, %1
-  %inVf = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !input !6
+  %inVf = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !gla.input !6
   store <4 x float> %inVf, <4 x float>* @inVf_shadow
   %3 = load <4 x float>* @inVf_shadow
   %4 = fadd <4 x float> %2, %3
-  %inVn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 2), !input !8
+  %inVn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 2), !gla.input !8
   store <4 x float> %inVn, <4 x float>* @inVn_shadow
   %5 = load <4 x float>* @inVn_shadow
   %6 = fadd <4 x float> %4, %5
-  %inVcn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 514), !input !10
+  %inVcn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 514), !gla.input !10
   store <4 x float> %inVcn, <4 x float>* @inVcn_shadow
   %7 = load <4 x float>* @inVcn_shadow
   %outVi_shadow = fadd <4 x float> %6, %7
@@ -35,7 +35,7 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %8 = load <4 x float>* @outVi_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %8), !output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %8), !gla.output !0
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -48,8 +48,8 @@ declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!outputs = !{!0}
-!inputs = !{!2, !4, !6, !8, !10}
+!gla.outputs = !{!0}
+!gla.inputs = !{!2, !4, !6, !8, !10}
 
 !0 = metadata !{metadata !"outVi", i32 7, <4 x float>* @outVi_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -70,16 +70,16 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %inVs = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !input !4
-  %inVc = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 513), !input !2
-  %inVf = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !input !6
+  %inVs = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !4
+  %inVc = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 513), !gla.input !2
+  %inVf = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1027, i32 -1), !gla.input !6
   %0 = fadd <4 x float> %inVs, %inVc
-  %inVn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 2), !input !8
+  %inVn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1028, i32 -1, i32 2), !gla.input !8
   %1 = fadd <4 x float> %0, %inVf
-  %inVcn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 514), !input !10
+  %inVcn = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1029, i32 -1, i32 514), !gla.input !10
   %2 = fadd <4 x float> %1, %inVn
   %outVi_shadow = fadd <4 x float> %2, %inVcn
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %outVi_shadow), !output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %outVi_shadow), !gla.output !0
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -95,8 +95,8 @@ declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!outputs = !{!0}
-!inputs = !{!2, !4, !6, !8, !10}
+!gla.outputs = !{!0}
+!gla.inputs = !{!2, !4, !6, !8, !10}
 
 !0 = metadata !{metadata !"outVi", i32 7, <4 x float>* @outVi_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}

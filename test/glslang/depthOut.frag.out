@@ -10,15 +10,15 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !6
+  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !6
   store float %Depth, float* @Depth_shadow
   %FragDepth_shadow = load float* @Depth_shadow
   store float %FragDepth_shadow, float* @FragDepth_shadow
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !8
+  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !gla.input !8
   store <4 x float> %Color, <4 x float>* @Color_shadow
   %FragColor_shadow = load <4 x float>* @Color_shadow
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
-  %Color1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !8
+  %Color1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !gla.input !8
   store <4 x float> %Color1, <4 x float>* @Color_shadow
   %foo_shadow = load <4 x float>* @Color_shadow
   store <4 x float> %foo_shadow, <4 x float>* @foo_shadow
@@ -26,11 +26,11 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %0 = load float* @FragDepth_shadow
-  call void @llvm.gla.fWriteData.f32(i32 1024, i32 -1, float %0), !output !0
+  call void @llvm.gla.fWriteData.f32(i32 1024, i32 -1, float %0), !gla.output !0
   %1 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %1), !output !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %1), !gla.output !2
   %2 = load <4 x float>* @foo_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %2), !output !4
+  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %2), !gla.output !4
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -45,8 +45,8 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!outputs = !{!0, !2, !4}
-!inputs = !{!6, !8}
+!gla.outputs = !{!0, !2, !4}
+!gla.inputs = !{!6, !8}
 
 !0 = metadata !{metadata !"gl_FragDepth", i32 11, float* @FragDepth_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -65,11 +65,11 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %Color1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !input !8
-  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !6
-  call void @llvm.gla.fWriteData.f32(i32 1024, i32 -1, float %Depth), !output !0
-  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %Color1), !output !2
-  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %Color1), !output !4
+  %Color1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !gla.input !8
+  %Depth = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !6
+  call void @llvm.gla.fWriteData.f32(i32 1024, i32 -1, float %Depth), !gla.output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %Color1), !gla.output !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %Color1), !gla.output !4
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -87,8 +87,8 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!outputs = !{!0, !2, !4}
-!inputs = !{!6, !8}
+!gla.outputs = !{!0, !2, !4}
+!gla.inputs = !{!6, !8}
 
 !0 = metadata !{metadata !"gl_FragDepth", i32 11, float* @FragDepth_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}

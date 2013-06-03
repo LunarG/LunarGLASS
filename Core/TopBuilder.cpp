@@ -677,7 +677,7 @@ void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, 
         write = builder.CreateCall4(intrinsic, slot, maskConstant, modeConstant, outValue);
     }
 
-    write->setMetadata("output", mdNode);
+    write->setMetadata(OutputMdName, mdNode);
 }
 
 llvm::Value* Builder::readPipeline(gla::EMdPrecision precision, 
@@ -723,7 +723,7 @@ llvm::Value* Builder::readPipeline(gla::EMdPrecision precision,
         readInstr = builder.CreateCall2(intrinsic, slotConstant, maskConstant, name);
     }
 
-    readInstr->setMetadata("input", inputMd);
+    readInstr->setMetadata(InputMdName, inputMd);
     setInstructionPrecision(readInstr, precision);
 
     return readInstr;

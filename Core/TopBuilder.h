@@ -272,7 +272,7 @@ public:
     void setInstructionPrecision(llvm::Instruction* instr, EMdPrecision precision)
     {
         if (precision != EMpNone)
-            instr->setMetadata("precision", metadata.makeMdPrecision(precision));
+            instr->setMetadata(gla::PrecisionMdName, metadata.makeMdPrecision(precision));
     }
 
     // make a type for storing a matrix, which conforms to the 

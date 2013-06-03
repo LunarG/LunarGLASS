@@ -7,7 +7,7 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !input !2
+  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !gla.input !2
   store <4 x float> %Color, <4 x float>* @Color_shadow
   %0 = load <4 x float>* @Color_shadow
   store <4 x float> %0, <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 1)
@@ -15,7 +15,7 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %1 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 1)
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %1), !output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %1), !gla.output !0
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -26,8 +26,8 @@ declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind rea
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!outputs = !{!0}
-!inputs = !{!2}
+!gla.outputs = !{!0}
+!gla.inputs = !{!2}
 
 !0 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @FragData_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -40,8 +40,8 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !input !2
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %Color), !output !0
+  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !gla.input !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %Color), !gla.output !0
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -55,8 +55,8 @@ declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind rea
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!outputs = !{!0}
-!inputs = !{!2}
+!gla.outputs = !{!0}
+!gla.inputs = !{!2}
 
 !0 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @FragData_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}

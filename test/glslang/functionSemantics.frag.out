@@ -28,7 +28,7 @@ entry:
   store i32 2, i32* %param1
   %3 = load i32* %t
   %4 = load i32* %t
-  %param26 = add i32 %3, %4, !precision !2
+  %param26 = add i32 %3, %4, !gla.precision !2
   store i32 %param26, i32* %param2
   store i32 8, i32* %param3
   %5 = getelementptr %s* %f, i32 0, i32 0
@@ -47,25 +47,25 @@ entry:
   %11 = load i32* %e
   %12 = getelementptr %s* %f, i32 0, i32 0
   %13 = load <4 x i32>* %12
-  %14 = extractelement <4 x i32> %13, i32 1, !precision !2
-  %15 = add i32 %11, %14, !precision !2
-  %16 = mul i32 128, %15, !precision !2
+  %14 = extractelement <4 x i32> %13, i32 1, !gla.precision !2
+  %15 = add i32 %11, %14, !gla.precision !2
+  %16 = mul i32 128, %15, !gla.precision !2
   %17 = load i32* %color
-  %color10 = add i32 %17, %16, !precision !2
+  %color10 = add i32 %17, %16, !gla.precision !2
   store i32 %color10, i32* %color
   %18 = load i32* %color
-  %19 = sitofp i32 %18 to float, !precision !2
+  %19 = sitofp i32 %18 to float, !gla.precision !2
   %20 = load <4 x float>* %constructed
-  %21 = insertelement <4 x float> undef, float %19, i32 0, !precision !2
-  %22 = insertelement <4 x float> %21, float %19, i32 1, !precision !2
-  %23 = insertelement <4 x float> %22, float %19, i32 2, !precision !2
-  %FragColor_shadow = insertelement <4 x float> %23, float %19, i32 3, !precision !2
+  %21 = insertelement <4 x float> undef, float %19, i32 0, !gla.precision !2
+  %22 = insertelement <4 x float> %21, float %19, i32 1, !gla.precision !2
+  %23 = insertelement <4 x float> %22, float %19, i32 2, !gla.precision !2
+  %FragColor_shadow = insertelement <4 x float> %23, float %19, i32 3, !gla.precision !2
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
   %24 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %24), !output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %24), !gla.output !0
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -77,39 +77,39 @@ entry:
   %sum = alloca i32
   %6 = load i32* %0
   %7 = load i32* %1
-  %8 = add i32 %6, %7, !precision !2
+  %8 = add i32 %6, %7, !gla.precision !2
   %9 = load i32* %2
-  %10 = add i32 %8, %9, !precision !2
+  %10 = add i32 %8, %9, !gla.precision !2
   %11 = load i32* %3
-  %12 = add i32 %10, %11, !precision !2
+  %12 = add i32 %10, %11, !gla.precision !2
   %13 = load i32* %5
-  %sum1 = add i32 %12, %13, !precision !2
+  %sum1 = add i32 %12, %13, !gla.precision !2
   store i32 %sum1, i32* %sum
   %14 = load i32* %0
-  %15 = mul i32 %14, 64, !precision !2
+  %15 = mul i32 %14, 64, !gla.precision !2
   store i32 %15, i32* %0
   %16 = load i32* %2
-  %17 = mul i32 %16, 64, !precision !2
+  %17 = mul i32 %16, 64, !gla.precision !2
   store i32 %17, i32* %2
   store i32 1024, i32* %4
   %18 = load i32* %5
-  %19 = mul i32 %18, 64, !precision !2
+  %19 = mul i32 %18, 64, !gla.precision !2
   store i32 %19, i32* %5
   %20 = load i32* %0
   %21 = load i32* %1
-  %22 = mul i32 64, %21, !precision !2
-  %23 = add i32 %20, %22, !precision !2
+  %22 = mul i32 64, %21, !gla.precision !2
+  %23 = add i32 %20, %22, !gla.precision !2
   %24 = load i32* %2
-  %25 = add i32 %23, %24, !precision !2
+  %25 = add i32 %23, %24, !gla.precision !2
   %26 = load i32* %3
-  %27 = mul i32 64, %26, !precision !2
-  %28 = add i32 %25, %27, !precision !2
+  %27 = mul i32 64, %26, !gla.precision !2
+  %28 = add i32 %25, %27, !gla.precision !2
   %29 = load i32* %4
-  %30 = add i32 %28, %29, !precision !2
+  %30 = add i32 %28, %29, !gla.precision !2
   %31 = load i32* %5
-  %32 = add i32 %30, %31, !precision !2
+  %32 = add i32 %30, %31, !gla.precision !2
   %33 = load i32* %sum
-  %sum2 = add i32 %33, %32, !precision !2
+  %sum2 = add i32 %33, %32, !gla.precision !2
   store i32 %sum2, i32* %sum
   %34 = load i32* %sum
   ret i32 %34
@@ -120,7 +120,7 @@ post-return:                                      ; No predecessors!
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!outputs = !{!0}
+!gla.outputs = !{!0}
 
 !0 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 2, i32 1024, null}
@@ -132,7 +132,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> <float 3.972950e+05, float 3.972950e+05, float 3.972950e+05, float 3.972950e+05>), !output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> <float 3.972950e+05, float 3.972950e+05, float 3.972950e+05, float 3.972950e+05>), !gla.output !0
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -144,7 +144,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!outputs = !{!0}
+!gla.outputs = !{!0}
 
 !0 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 2, i32 1024, null}

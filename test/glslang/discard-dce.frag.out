@@ -17,14 +17,14 @@ entry:
   store <4 x float> <float 0x3FC99999A0000000, float 0x3FC99999A0000000, float 0x3FC99999A0000000, float 0x3FC99999A0000000>, <4 x float>* %black
   %color1 = load <4 x float>* %white
   store <4 x float> %color1, <4 x float>* %color
-  %tex_coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !0
+  %tex_coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !0
   store <2 x float> %tex_coord, <2 x float>* @tex_coord_shadow
   %0 = load <2 x float>* @tex_coord_shadow
   %1 = extractelement <2 x float> %0, i32 0
   %2 = fmul float %1, 2.000000e+00
   %x2 = fsub float %2, 1.000000e+00
   store float %x2, float* %x
-  %tex_coord3 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !0
+  %tex_coord3 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !0
   store <2 x float> %tex_coord3, <2 x float>* @tex_coord_shadow
   %3 = load <2 x float>* @tex_coord_shadow
   %4 = extractelement <2 x float> %3, i32 1
@@ -101,7 +101,7 @@ ifmerge14:                                        ; preds = %ifmerge11, %then12
 
 stage-epilogue:                                   ; preds = %ifmerge14
   %32 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %32), !output !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %32), !gla.output !2
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %ifmerge10
@@ -120,8 +120,8 @@ declare float @llvm.gla.fAbs.f32.f32(float) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!inputs = !{!0}
-!outputs = !{!2}
+!gla.inputs = !{!0}
+!gla.outputs = !{!2}
 
 !0 = metadata !{metadata !"tex_coord", i32 1, <2 x float>* @tex_coord_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -134,7 +134,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %tex_coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !input !0
+  %tex_coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !0
   %0 = extractelement <2 x float> %tex_coord, i32 0
   %1 = fmul float %0, 2.000000e+00
   %x2 = fadd float %1, -1.000000e+00
@@ -160,7 +160,7 @@ ifmerge11:                                        ; preds = %entry
   %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %11, <4 x i32> zeroinitializer)
   %color13 = fsub <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %12
   %select = select i1 %8, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float> %color13
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %select), !output !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %select), !gla.output !2
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge11
@@ -184,8 +184,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
-!inputs = !{!0}
-!outputs = !{!2}
+!gla.inputs = !{!0}
+!gla.outputs = !{!2}
 
 !0 = metadata !{metadata !"tex_coord", i32 1, <2 x float>* @tex_coord_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}

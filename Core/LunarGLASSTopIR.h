@@ -113,6 +113,8 @@ namespace gla {
     const unsigned int ConstantAddressSpaceBase = 2;  // use multiple constant spaces through...
     // ConstantAddressSpaceBase + space, where 'space' is 0, 1, 2, ...
 
+    const int MaxUserLayoutLocation = 1024;  // layout locations here and above are chosen by the adapter
+
     enum EInterpolationMethod {
         EIMNone,  // also for flat
         EIMSmooth,

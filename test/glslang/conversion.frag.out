@@ -45,25 +45,25 @@ entry:
   %constructed = alloca <2 x i1>
   %b2 = alloca <2 x i1>
   %b = alloca i1
-  %0 = load i32 addrspace(2)* @u_i, !uniform !0
+  %0 = load i32 addrspace(2)* @u_i, !gla.uniform !0
   %1 = icmp ne i32 %0, 0
-  %2 = load float addrspace(2)* @u_f, !uniform !2
+  %2 = load float addrspace(2)* @u_f, !gla.uniform !2
   %3 = fcmp one float %2, 0.000000e+00
   %b1 = xor i1 %1, %3
   store i1 %b1, i1* %b
-  %4 = load i32 addrspace(2)* @u_i, !uniform !0
+  %4 = load i32 addrspace(2)* @u_i, !gla.uniform !0
   %5 = icmp ne i32 %4, 0
-  %6 = load float addrspace(2)* @u_f, !uniform !2
+  %6 = load float addrspace(2)* @u_f, !gla.uniform !2
   %7 = fcmp one float %6, 0.000000e+00
   %8 = load <2 x i1>* %constructed
   %9 = insertelement <2 x i1> %8, i1 %5, i32 0
   %b22 = insertelement <2 x i1> %9, i1 %7, i32 1
   store <2 x i1> %b22, <2 x i1>* %b2
-  %10 = load i32 addrspace(2)* @u_i, !uniform !0
+  %10 = load i32 addrspace(2)* @u_i, !gla.uniform !0
   %11 = icmp ne i32 %10, 0
-  %12 = load float addrspace(2)* @u_f, !uniform !2
+  %12 = load float addrspace(2)* @u_f, !gla.uniform !2
   %13 = fcmp one float %12, 0.000000e+00
-  %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !input !6
+  %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !6
   store i32 %i_i, i32* @i_i_shadow
   %14 = load i32* @i_i_shadow
   %15 = icmp ne i32 %14, 0
@@ -72,15 +72,15 @@ entry:
   %18 = insertelement <3 x i1> %17, i1 %13, i32 1
   %b34 = insertelement <3 x i1> %18, i1 %15, i32 2
   store <3 x i1> %b34, <3 x i1>* %b3
-  %19 = load i32 addrspace(2)* @u_i, !uniform !0
+  %19 = load i32 addrspace(2)* @u_i, !gla.uniform !0
   %20 = icmp ne i32 %19, 0
-  %21 = load float addrspace(2)* @u_f, !uniform !2
+  %21 = load float addrspace(2)* @u_f, !gla.uniform !2
   %22 = fcmp one float %21, 0.000000e+00
-  %i_i5 = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !input !6
+  %i_i5 = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !6
   store i32 %i_i5, i32* @i_i_shadow
   %23 = load i32* @i_i_shadow
   %24 = icmp ne i32 %23, 0
-  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !8
+  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !8
   store float %i_f, float* @i_f_shadow
   %25 = load float* @i_f_shadow
   %26 = fcmp one float %25, 0.000000e+00
@@ -90,25 +90,25 @@ entry:
   %30 = insertelement <4 x i1> %29, i1 %24, i32 2
   %b47 = insertelement <4 x i1> %30, i1 %26, i32 3
   store <4 x i1> %b47, <4 x i1>* %b4
-  %31 = load float addrspace(2)* @u_f, !uniform !2
+  %31 = load float addrspace(2)* @u_f, !gla.uniform !2
   %32 = fptosi float %31 to i32
   %33 = load i1* %b
   %34 = zext i1 %33 to i32
   %i8 = add i32 %32, %34
   store i32 %i8, i32* %i
-  %35 = load <2 x float> addrspace(2)* @u_f2, !uniform !3
+  %35 = load <2 x float> addrspace(2)* @u_f2, !gla.uniform !3
   %36 = fptosi <2 x float> %35 to <2 x i32>
   %37 = load <2 x i1>* %b2
   %38 = zext <2 x i1> %37 to <2 x i32>
   %i29 = add <2 x i32> %36, %38
   store <2 x i32> %i29, <2 x i32>* %i2
-  %39 = load <3 x float> addrspace(2)* @u_f3, !uniform !4
+  %39 = load <3 x float> addrspace(2)* @u_f3, !gla.uniform !4
   %40 = fptosi <3 x float> %39 to <3 x i32>
   %41 = load <3 x i1>* %b3
   %42 = zext <3 x i1> %41 to <3 x i32>
   %i310 = add <3 x i32> %40, %42
   store <3 x i32> %i310, <3 x i32>* %i3
-  %43 = load <4 x float> addrspace(2)* @u_f4, !uniform !5
+  %43 = load <4 x float> addrspace(2)* @u_f4, !gla.uniform !5
   %44 = fptosi <4 x float> %43 to <4 x i32>
   %45 = load <4 x i1>* %b4
   %46 = zext <4 x i1> %45 to <4 x i32>
@@ -158,7 +158,7 @@ entry:
   %74 = load <4 x float>* %f4
   %f419 = fadd <4 x float> %74, %73
   store <4 x float> %f419, <4 x float>* %f4
-  %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !input !10
+  %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !10
   store <4 x i32> %i_i4, <4 x i32>* @i_i4_shadow
   %75 = load <4 x i32>* @i_i4_shadow
   %76 = icmp ne <4 x i32> %75, zeroinitializer
@@ -166,7 +166,7 @@ entry:
   %78 = load <4 x float>* %f4
   %f420 = fadd <4 x float> %78, %77
   store <4 x float> %f420, <4 x float>* %f4
-  %79 = load <4 x float> addrspace(2)* @u_f4, !uniform !5
+  %79 = load <4 x float> addrspace(2)* @u_f4, !gla.uniform !5
   %80 = fcmp one <4 x float> %79, zeroinitializer
   %81 = uitofp <4 x i1> %80 to <4 x float>
   %82 = load <4 x float>* %f4
@@ -499,7 +499,7 @@ ifmerge57:                                        ; preds = %else56, %then53
 
 stage-epilogue:                                   ; preds = %ifmerge57
   %333 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %333), !output !12
+  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %333), !gla.output !12
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -518,9 +518,9 @@ declare i1 @llvm.gla.any.v3i1(<3 x i1>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!defaultUniforms = !{!0, !2, !3, !4, !5}
-!inputs = !{!6, !8, !10}
-!outputs = !{!12}
+!gla.uniforms = !{!0, !2, !3, !4, !5}
+!gla.inputs = !{!6, !8, !10}
+!gla.outputs = !{!12}
 
 !0 = metadata !{metadata !"u_i", i32 12, i32 addrspace(2)* @u_i, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0, null}
@@ -549,30 +549,30 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load i32 addrspace(2)* @u_i, align 4, !uniform !0
+  %0 = load i32 addrspace(2)* @u_i, align 4, !gla.uniform !0
   %1 = icmp ne i32 %0, 0
-  %2 = load float addrspace(2)* @u_f, align 4, !uniform !2
+  %2 = load float addrspace(2)* @u_f, align 4, !gla.uniform !2
   %3 = fcmp one float %2, 0.000000e+00
   %b1 = xor i1 %1, %3
   %4 = call <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1> undef, i32 3, i1 %1, i32 0, i1 %3, i32 0, i1 undef, i32 undef, i1 undef, i32 undef)
-  %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !input !6
+  %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !6
   %5 = icmp ne i32 %i_i, 0
   %6 = call <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1> undef, i32 7, i1 %1, i32 0, i1 %3, i32 0, i1 %5, i32 0, i1 undef, i32 undef)
-  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !input !8
+  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !8
   %7 = fcmp one float %i_f, 0.000000e+00
   %8 = call <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1> undef, i32 15, i1 %1, i32 0, i1 %3, i32 0, i1 %5, i32 0, i1 %7, i32 0)
   %9 = fptosi float %2 to i32
   %10 = zext i1 %b1 to i32
   %i8 = add i32 %10, %9
-  %11 = load <2 x float> addrspace(2)* @u_f2, align 8, !uniform !3
+  %11 = load <2 x float> addrspace(2)* @u_f2, align 8, !gla.uniform !3
   %12 = fptosi <2 x float> %11 to <2 x i32>
   %13 = zext <2 x i1> %4 to <2 x i32>
   %i29 = add <2 x i32> %12, %13
-  %14 = load <3 x float> addrspace(2)* @u_f3, align 16, !uniform !4
+  %14 = load <3 x float> addrspace(2)* @u_f3, align 16, !gla.uniform !4
   %15 = fptosi <3 x float> %14 to <3 x i32>
   %16 = zext <3 x i1> %6 to <3 x i32>
   %i310 = add <3 x i32> %15, %16
-  %17 = load <4 x float> addrspace(2)* @u_f4, align 16, !uniform !5
+  %17 = load <4 x float> addrspace(2)* @u_f4, align 16, !gla.uniform !5
   %18 = fptosi <4 x float> %17 to <4 x i32>
   %19 = zext <4 x i1> %8 to <4 x i32>
   %i411 = add <4 x i32> %18, %19
@@ -595,7 +595,7 @@ entry:
   %29 = uitofp <4 x i1> %8 to <4 x float>
   %30 = fadd <4 x float> %29, %f415
   %f419 = fadd <4 x float> %f415, %30
-  %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !input !10
+  %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !10
   %31 = icmp ne <4 x i32> %i_i4, zeroinitializer
   %32 = uitofp <4 x i1> %31 to <4 x float>
   %f420 = fadd <4 x float> %32, %f419
@@ -693,7 +693,7 @@ else56:                                           ; preds = %entry
 
 ifmerge57:                                        ; preds = %else56, %then53
   %ternary52.0 = phi <4 x float> [ %phitmp, %then53 ], [ <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, %else56 ]
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %ternary52.0), !output !12
+  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %ternary52.0), !gla.output !12
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge57
@@ -739,9 +739,9 @@ declare <3 x float> @llvm.gla.fSwizzle.v3f32.f32.v3i32(float, <3 x i32>) nounwin
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
-!defaultUniforms = !{!0, !2, !3, !4, !5}
-!inputs = !{!6, !8, !10}
-!outputs = !{!12}
+!gla.uniforms = !{!0, !2, !3, !4, !5}
+!gla.inputs = !{!6, !8, !10}
+!gla.outputs = !{!12}
 
 !0 = metadata !{metadata !"u_i", i32 12, i32 addrspace(2)* @u_i, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0, null}
