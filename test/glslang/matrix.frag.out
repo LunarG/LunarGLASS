@@ -1054,7 +1054,7 @@ declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !outputs = !{!0}
-!defaultUniforms = !{!2, !4, !5, !6, !5, !5, !6, !2, !2, !7}
+!defaultUniforms = !{!2, !4, !5, !6, !7}
 !inputs = !{!8, !10, !12}
 
 !0 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
@@ -1518,7 +1518,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.v4f32(<4 x fl
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>) nounwind readnone
 
 !outputs = !{!0}
-!defaultUniforms = !{!2, !4, !5, !6, !5, !5, !6, !2, !2, !7}
+!defaultUniforms = !{!2, !4, !5, !6, !7}
 !inputs = !{!8, !10, !12}
 
 !0 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}

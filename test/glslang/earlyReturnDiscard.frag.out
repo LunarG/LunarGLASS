@@ -188,7 +188,7 @@ declare void @llvm.gla.discard() nounwind
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !inputs = !{!0, !2}
-!defaultUniforms = !{!4, !6, !7, !8, !9, !10, !11, !11, !12, !9, !12}
+!defaultUniforms = !{!4, !6, !7, !8, !9, !10, !11, !12}
 !outputs = !{!13}
 
 !0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
@@ -324,7 +324,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
 !inputs = !{!0, !2}
-!defaultUniforms = !{!4, !6, !7, !8, !9, !10, !11, !11, !12, !9, !12}
+!defaultUniforms = !{!4, !6, !7, !8, !9, !10, !11, !12}
 !outputs = !{!13}
 
 !0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}

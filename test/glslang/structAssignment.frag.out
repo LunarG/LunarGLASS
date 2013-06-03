@@ -60,7 +60,7 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!defaultUniforms = !{!0, !0, !2, !3}
+!defaultUniforms = !{!0, !2, !3}
 !outputs = !{!6}
 !inputs = !{!8}
 
@@ -120,7 +120,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
-!defaultUniforms = !{!0, !0, !2, !3}
+!defaultUniforms = !{!0, !2, !3}
 !outputs = !{!6}
 !inputs = !{!8}
 

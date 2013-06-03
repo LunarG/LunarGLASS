@@ -53,7 +53,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!defaultUniforms = !{!0, !0, !2, !3}
+!defaultUniforms = !{!0, !2, !3}
 !outputs = !{!4}
 
 !0 = metadata !{metadata !"color", i32 12, [6 x <4 x float>] addrspace(2)* @color, metadata !1}
@@ -100,7 +100,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 
 
 declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>) nounwind readnone
 
-!defaultUniforms = !{!0, !0, !2, !3}
+!defaultUniforms = !{!0, !2, !3}
 !outputs = !{!4}
 
 !0 = metadata !{metadata !"color", i32 12, [6 x <4 x float>] addrspace(2)* @color, metadata !1}

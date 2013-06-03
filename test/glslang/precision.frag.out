@@ -142,7 +142,7 @@ declare float @llvm.gla.fSin.f32.f32(float) nounwind readnone
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !inputs = !{!0, !2, !4}
-!defaultUniforms = !{!6, !8, !8, !10, !10, !8, !10, !8}
+!defaultUniforms = !{!6, !8, !10}
 !outputs = !{!12}
 
 !0 = metadata !{metadata !"highfin", i32 1, <4 x float>* @highfin_shadow_typeProxy, metadata !1}
@@ -220,7 +220,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
 !inputs = !{!0, !2, !4}
-!defaultUniforms = !{!6, !8, !8, !10, !10, !8, !10, !8}
+!defaultUniforms = !{!6, !8, !10}
 !outputs = !{!12}
 
 !0 = metadata !{metadata !"highfin", i32 1, <4 x float>* @highfin_shadow_typeProxy, metadata !1}

@@ -73,7 +73,7 @@ declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!defaultUniforms = !{!0, !3, !3, !5, !8, !9}
+!defaultUniforms = !{!0, !3, !5, !8, !9}
 !inputs = !{!10, !12}
 !outputs = !{!14}
 
@@ -145,7 +145,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>) nounwind readnone
 
-!defaultUniforms = !{!0, !3, !3, !5, !8, !9}
+!defaultUniforms = !{!0, !3, !5, !8, !9}
 !inputs = !{!10, !12}
 !outputs = !{!14}
 

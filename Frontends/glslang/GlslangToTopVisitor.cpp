@@ -117,6 +117,7 @@ public:
     std::map<std::string, llvm::Function*> functionMap;
     std::map<std::string, int> slotMap;
     std::map<int, llvm::MDNode*> inputMdMap;
+    std::map<std::string, llvm::MDNode*> uniformMdMap;
     std::map<TTypeList*, llvm::StructType*> structMap;
     std::stack<bool> breakForLoop;  // false means break for switch
 };
@@ -2187,24 +2188,31 @@ void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::V
 {
     llvm::MDNode* samplerMd = 0;
     llvm::MDNode* md;
+    const std::string name = node->getSymbol().c_str();
 
     switch (getMdQualifier(node)) {
     case gla::EMioDefaultUniform:
-        if (node->getType().getBasicType() == EbtSampler) {
-            samplerMd = metadata.makeMdSampler(getMdSampler(node->getType()), typeProxy, getMdSamplerDim(node->getType()), 
-                                               node->getType().getSampler().arrayed,
-                                               node->getType().getSampler().shadow, getMdSamplerBaseType(node->getType().getSampler().type));
-        }
+        md = uniformMdMap[name];
+        if (md == 0) {
+            if (node->getType().getBasicType() == EbtSampler) {
+                samplerMd = metadata.makeMdSampler(getMdSampler(node->getType()), typeProxy, getMdSamplerDim(node->getType()), 
+                                                   node->getType().getSampler().arrayed,
+                                                   node->getType().getSampler().shadow, getMdSamplerBaseType(node->getType().getSampler().type));
+            }
 
-        md = metadata.makeMdInputOutput(node->getSymbol().c_str(), "defaultUniforms", gla::EMioDefaultUniform, typeProxy, 
-                                        getMdTypeLayout(node), getMdPrecision(node->getType()), 0, samplerMd);
+            md = metadata.makeMdInputOutput(name, "defaultUniforms", gla::EMioDefaultUniform, typeProxy, 
+                                            getMdTypeLayout(node), getMdPrecision(node->getType()), 0, samplerMd);
+            uniformMdMap[name] = md;
+        }
         glaBuilder->setAccessChainMetadata("uniform", md);
         break;
     case gla::EMioUniformBlockMember:
+        gla::UnsupportedFunctionality("Uniform block member", gla::EATContinue);
         // TODO: linker: generate uniform block metadata
         break;
     case gla::EMioBufferBlockMember:
         // TODO: 4.3 linker: generate buffer block metadata
+        gla::UnsupportedFunctionality("shader storage buffer block member", gla::EATContinue);
         break;
     default:
         break;
