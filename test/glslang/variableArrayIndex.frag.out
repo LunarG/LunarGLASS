@@ -25,7 +25,7 @@ entry:
   br i1 %1, label %then, label %else
 
 then:                                             ; preds = %entry
-  %2 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct1 addrspace(2)* @foo, i32 0, i32 0), !gla.uniform !4
+  %2 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct1 addrspace(2)* @foo, i32 0, i32 0), !gla.uniform !11
   %3 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 %2, i32 0
   %4 = load i32 addrspace(2)* %3, !gla.uniform !2
   %5 = add i32 %4, 2
@@ -34,7 +34,7 @@ then:                                             ; preds = %entry
   store i32 %iLocal2, i32* %iLocal
   %7 = add i32 %5, %iLocal2
   %8 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 %7, i32 2, i32 1
-  %scale3 = load float addrspace(2)* %8, !gla.uniform !3
+  %scale3 = load float addrspace(2)* %8, !gla.uniform !10
   store float %scale3, float* %scale
   br label %ifmerge
 
@@ -45,8 +45,8 @@ else:                                             ; preds = %entry
 
 ifmerge:                                          ; preds = %else, %then
   %9 = load float* %scale
-  %10 = load i32 addrspace(1)* @sampler, !gla.uniform !5
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !gla.input !10
+  %10 = load i32 addrspace(1)* @sampler, !gla.uniform !12
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !gla.input !17
   store <2 x float> %coord, <2 x float>* @coord_shadow
   %11 = load <2 x float>* @coord_shadow
   %12 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %10, i32 0, <2 x float> %11)
@@ -60,7 +60,7 @@ ifmerge:                                          ; preds = %else, %then
 
 stage-epilogue:                                   ; preds = %ifmerge
   %17 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %17), !gla.output !8
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %17), !gla.output !15
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -73,22 +73,29 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!gla.uniforms = !{!0, !2, !3, !4, !5}
-!gla.outputs = !{!8}
-!gla.inputs = !{!10}
+!gla.uniforms = !{!0, !2, !10, !11, !12}
+!gla.outputs = !{!15}
+!gla.inputs = !{!17}
 
-!0 = metadata !{metadata !"Count", i32 12, i32 addrspace(2)* @Count, metadata !1}
+!0 = metadata !{metadata !"Count", i32 12, i32* @Count_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0, null}
-!2 = metadata !{metadata !"foo3", i32 12, %lunarStruct3 addrspace(2)* @foo3, metadata !1}
-!3 = metadata !{metadata !"foo2", i32 12, [5 x %lunarStruct2] addrspace(2)* @foo2, metadata !1}
-!4 = metadata !{metadata !"foo", i32 12, %lunarStruct1 addrspace(2)* @foo, metadata !1}
-!5 = metadata !{metadata !"sampler", i32 12, i32 addrspace(1)* @sampler, metadata !6}
-!6 = metadata !{i32 5, i32 0, i32 0, metadata !7}
-!7 = metadata !{i32 0, i32 addrspace(1)* @sampler, i32 1, i1 false, i1 false, i32 0}
-!8 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1024, null}
-!10 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1025, null}
+!2 = metadata !{metadata !"foo3", i32 12, %lunarStruct3* @foo3_typeProxy, metadata !3, metadata !4}
+!3 = metadata !{i32 4, i32 0, i32 0, null}
+!4 = metadata !{metadata !"lunarStruct3", metadata !5, metadata !"s2_1", metadata !6, metadata !"i", metadata !7, metadata !"f", metadata !7, metadata !"s1_1", metadata !9}
+!5 = metadata !{i32 4, i32 0, i32 63, null}
+!6 = metadata !{metadata !"lunarStruct2", metadata !5, metadata !"i", metadata !7, metadata !"f", metadata !7, metadata !"s1_1", metadata !9}
+!7 = metadata !{metadata !"", metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 63, null}
+!9 = metadata !{metadata !"lunarStruct1", metadata !5, metadata !"i", metadata !7, metadata !"f", metadata !7}
+!10 = metadata !{metadata !"foo2", i32 12, [5 x %lunarStruct2]* @foo2_typeProxy, metadata !3, metadata !6}
+!11 = metadata !{metadata !"foo", i32 12, %lunarStruct1* @foo_typeProxy, metadata !3, metadata !9}
+!12 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !13}
+!13 = metadata !{i32 5, i32 0, i32 0, metadata !14}
+!14 = metadata !{i32 0, i32 addrspace(1)* @sampler, i32 1, i1 false, i1 false, i32 0}
+!15 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !16}
+!16 = metadata !{i32 0, i32 0, i32 1024, null}
+!17 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !18}
+!18 = metadata !{i32 0, i32 0, i32 1025, null}
 
 
 Bottom IR:
@@ -111,7 +118,7 @@ entry:
   %1 = icmp sgt i32 %0, 0
   %iLocal1 = load i32 addrspace(2)* @Count, align 4, !gla.uniform !0
   %gla_constGEP6 = getelementptr %lunarStruct1 addrspace(2)* @foo, i32 0, i32 0
-  %2 = load i32 addrspace(2)* %gla_constGEP6, align 4, !gla.uniform !4
+  %2 = load i32 addrspace(2)* %gla_constGEP6, align 4, !gla.uniform !11
   %3 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 %2, i32 0
   %4 = load i32 addrspace(2)* %3, align 4, !gla.uniform !2
   %iLocal2 = add i32 %iLocal1, 3
@@ -121,11 +128,11 @@ entry:
   %select = select i1 %1, float addrspace(2)* %6, float addrspace(2)* %gla_constGEP7
   %scale.0 = load float addrspace(2)* %select, align 4
   %7 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %scale.0, <4 x i32> zeroinitializer)
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !gla.input !10
-  %8 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !5
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !gla.input !17
+  %8 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !12
   %9 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %8, i32 0, <2 x float> %coord)
   %FragColor_shadow = fmul <4 x float> %9, %7
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %FragColor_shadow), !gla.output !8
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %FragColor_shadow), !gla.output !15
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -143,22 +150,29 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
-!gla.uniforms = !{!0, !2, !3, !4, !5}
-!gla.outputs = !{!8}
-!gla.inputs = !{!10}
+!gla.uniforms = !{!0, !2, !10, !11, !12}
+!gla.outputs = !{!15}
+!gla.inputs = !{!17}
 
-!0 = metadata !{metadata !"Count", i32 12, i32 addrspace(2)* @Count, metadata !1}
+!0 = metadata !{metadata !"Count", i32 12, i32* @Count_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 0, null}
-!2 = metadata !{metadata !"foo3", i32 12, %lunarStruct3 addrspace(2)* @foo3, metadata !1}
-!3 = metadata !{metadata !"foo2", i32 12, [5 x %lunarStruct2] addrspace(2)* @foo2, metadata !1}
-!4 = metadata !{metadata !"foo", i32 12, %lunarStruct1 addrspace(2)* @foo, metadata !1}
-!5 = metadata !{metadata !"sampler", i32 12, i32 addrspace(1)* @sampler, metadata !6}
-!6 = metadata !{i32 5, i32 0, i32 0, metadata !7}
-!7 = metadata !{i32 0, i32 addrspace(1)* @sampler, i32 1, i1 false, i1 false, i32 0}
-!8 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1024, null}
-!10 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1025, null}
+!2 = metadata !{metadata !"foo3", i32 12, %lunarStruct3* @foo3_typeProxy, metadata !3, metadata !4}
+!3 = metadata !{i32 4, i32 0, i32 0, null}
+!4 = metadata !{metadata !"lunarStruct3", metadata !5, metadata !"s2_1", metadata !6, metadata !"i", metadata !7, metadata !"f", metadata !7, metadata !"s1_1", metadata !9}
+!5 = metadata !{i32 4, i32 0, i32 63, null}
+!6 = metadata !{metadata !"lunarStruct2", metadata !5, metadata !"i", metadata !7, metadata !"f", metadata !7, metadata !"s1_1", metadata !9}
+!7 = metadata !{metadata !"", metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 63, null}
+!9 = metadata !{metadata !"lunarStruct1", metadata !5, metadata !"i", metadata !7, metadata !"f", metadata !7}
+!10 = metadata !{metadata !"foo2", i32 12, [5 x %lunarStruct2]* @foo2_typeProxy, metadata !3, metadata !6}
+!11 = metadata !{metadata !"foo", i32 12, %lunarStruct1* @foo_typeProxy, metadata !3, metadata !9}
+!12 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !13}
+!13 = metadata !{i32 5, i32 0, i32 0, metadata !14}
+!14 = metadata !{i32 0, i32 addrspace(1)* @sampler, i32 1, i1 false, i1 false, i32 0}
+!15 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !16}
+!16 = metadata !{i32 0, i32 0, i32 1024, null}
+!17 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !18}
+!18 = metadata !{i32 0, i32 0, i32 1025, null}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:3: varying deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
@@ -168,21 +182,21 @@ WARNING: 0:3: varying deprecated in version 130; may be removed in future releas
 // LunarGOO(r722) output
 #version 130
 struct lunarStruct1 {
-    int member0;
-    float member1;
+    int i;
+    float f;
 };
 
 struct lunarStruct2 {
-    int member0;
-    float member1;
-    lunarStruct1 member2;
+    int i;
+    float f;
+    lunarStruct1 s1_1;
 };
 
 struct lunarStruct3 {
-    lunarStruct2[3] member0;
-    int member1;
-    float member2;
-    lunarStruct1 member3;
+    lunarStruct2[3] s2_1;
+    int i;
+    float f;
+    lunarStruct1 s1_1;
 };
 
 uniform int Count;
@@ -196,10 +210,10 @@ in vec2 coord;
 
 void main()
 {
-    int temp21 = foo3.member0[1].member0;
+    int temp21 = foo3.s2_1[1].i;
     bool temp22 = temp21 > const23i_0;
-    int temp24 = foo.member0;
-    int temp25 = foo3.member0[temp24].member0;
+    int temp24 = foo.i;
+    int temp25 = foo3.s2_1[temp24].i;
     int iLocal2 = Count + const27i_3;
     int temp28 = iLocal2 + temp25;
     float select = temp22 ? float uniform30 : float gla_constGEP7;

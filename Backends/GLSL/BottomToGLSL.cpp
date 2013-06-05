@@ -180,8 +180,10 @@ public:
         version &= 0xFFFF;
     }
 
-    void addStructType(llvm::StringRef name, const llvm::Type* structType)
+    void addStructType(llvm::StringRef name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block)
     {
+        // this is mutually recursive with emitGlaType
+
         if (structNameMap.find(structType) != structNameMap.end())
             return;
 
@@ -192,19 +194,35 @@ public:
         std::ostringstream tempStructure;
 
         structNameMap[structType] = name;
-        tempStructure << "struct " << name.str() << " {" << std::endl;
+        if (! block)
+            tempStructure << "struct ";
+        if (mdAggregate)
+            tempStructure << std::string(mdAggregate->getOperand(0)->getName());
+        else
+            tempStructure << name.str();
+        tempStructure << " {" << std::endl;
 
         for (int index = 0; index < structType->getNumContainedTypes(); ++index) {
             tempStructure << "    ";
-            emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), false);
-            // TODO: Goo: ES functionality: how do we know the precision of a structure member?
-            tempStructure << " " << getGlaStructField(structType, index);
+            if (mdAggregate) {
+                const llvm::MDNode* subMdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(GetAggregateMdSubAggregateOp(index)));
+                emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), false, subMdAggregate);
+                tempStructure << " " << std::string(mdAggregate->getOperand(GetAggregateMdNameOp(index))->getName());
+            } else {
+                emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), false);
+                tempStructure << " " << getGlaStructField(structType, index);
+            }
             tempStructure << ";" << std::endl;
         }
 
-        tempStructure << "};" << std::endl << std::endl;
+        tempStructure << "}";
+        if (! block)
+            tempStructure << ";" << std::endl << std::endl;
 
-        globalStructures << tempStructure.str();
+        if (block)
+            globalDeclarations << tempStructure.str();
+        else
+            globalStructures << tempStructure.str();
     }
 
     void addGlobal(const llvm::GlobalVariable* global)
@@ -224,7 +242,7 @@ public:
 
         makeParseable(name);
         addNewVariable(global, name);
-        declareVariable(EMpNone, type, declareName, mapGlaAddressSpace(global), 0, false, false, 0);
+        declareVariable(EMpNone, type, declareName, mapGlaAddressSpace(global));
 
         if (global->hasInitializer()) {
             const llvm::Constant* constant = global->getInitializer();
@@ -234,25 +252,16 @@ public:
 
     void addUniform(const llvm::MDNode* mdNode)
     {
-        // TODO: redundancy: don't keep both this path and the dynamic path for declaring uniforms
-        // this one is here due to missing metadata, which if cleared up can eliminate this path
-
-        std::string name;
-        EMdInputOutput mdQual;
-        llvm::Type*type;
-        int layoutLocation;
-        EMdPrecision mdPrecision;
-        EMdTypeLayout mdLayout;
-        llvm::MDNode* mdAgg;
-        llvm::MDNode* mdSamplerNode;
-        if (gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, mdSamplerNode, mdAgg) && mdQual == EMioDefaultUniform)
-            declareVariable(mdPrecision, type, name, EVQUniform, 0, mdLayout == EMtlUnsigned, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix, mdSamplerNode);
+        globalDeclarations << "uniform ";
+        emitGlaType(globalDeclarations, EMpCount, 0, true, mdNode);
+        globalDeclarations << " " << std::string(mdNode->getOperand(0)->getName()) << ";" << std::endl;
+        // TODO: functionality: arrayed blocks: add [] if an arrayed instance name
     }
 
     void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name)
     {
         newLine();
-        emitGlaType(shader, EMpNone, type->getContainedType(0), false);
+        emitGlaType(shader, EMpNone, type->getContainedType(0));
         // TODO: Goo: ES functionality: how do we know the precision or unsignedness of a function declaration?
         shader << " " << name.str() << "(";
 
@@ -820,7 +829,8 @@ protected:
         }
     }
 
-    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier vq, const llvm::Constant* constant, bool notSigned, bool matrix, llvm::MDNode* mdSamplerNode)
+    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier vq, 
+                         const llvm::Constant* constant = 0, const llvm::MDNode* mdIoNode = 0)
     {
         if (name.substr(0,3) == std::string("gl_"))
             return;
@@ -829,7 +839,7 @@ protected:
         if (constant && ! AreAllUndefined(constant)) {
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
-            emitGlaType(globalDeclarations, precision, type, notSigned, matrix);
+            emitGlaType(globalDeclarations, precision, type);
             globalDeclarations << " " << name << " = ";
             emitConstantInitializer(globalDeclarations, constant, constant->getType());
             globalDeclarations << ";" << std::endl;
@@ -839,7 +849,6 @@ protected:
 
         // no initializer
         switch (vq) {
-        case EVQUniform:
         case EVQConstant:
             // Make sure we only declare globals once
             if (globallyDeclared.find(name) != globallyDeclared.end())
@@ -849,23 +858,20 @@ protected:
 
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
-            if (mdSamplerNode)
-                emitGlaSamplerType(globalDeclarations, mdSamplerNode);
-            else
-                emitGlaType(globalDeclarations, precision, type, notSigned, matrix);
+            emitGlaType(globalDeclarations, precision, type);
             globalDeclarations << " " << name << ";" << std::endl;
             break;
         case EVQGlobal:
-            emitGlaType(globalDeclarations, precision, type, notSigned, matrix);
+            emitGlaType(globalDeclarations, precision, type);
             globalDeclarations << " " << name << ";" << std::endl;
             break;
         case EVQTemporary:
-            emitGlaType(shader, precision, type, notSigned, matrix);
+            emitGlaType(shader, precision, type);
             shader << " ";
             break;
         case EVQUndef:
             newLine();
-            emitGlaType(shader, precision, type, notSigned, matrix);
+            emitGlaType(shader, precision, type);
             shader << " " << name << ";";
             emitInitializeAggregate(shader, name, constant);
             break;
@@ -874,8 +880,8 @@ protected:
         }
     }
 
-    void declareIOVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier vq,
-                           EInterpolationMethod interpMethod, EInterpolationLocation interpLocation, bool notSigned, bool matrix)
+    void declareIOVariable(llvm::Type* type, const std::string& name, EVariableQualifier vq,
+                           EInterpolationMethod interpMethod, EInterpolationLocation interpLocation, const llvm::MDNode* mdNode)
     {
         if (name.substr(0,3) == std::string("gl_"))
             return;
@@ -906,13 +912,47 @@ protected:
 
         globalDeclarations << mapGlaToQualifierString(vq);
         globalDeclarations << " ";
-        emitGlaType(globalDeclarations, precision, type, notSigned, matrix);
+        emitGlaType(globalDeclarations, gla::EMpNone, type, true, mdNode);
         globalDeclarations << " " << name;
         globalDeclarations << ";" << std::endl;
     }
 
-    void emitGlaType(std::ostringstream& out, EMdPrecision precision, llvm::Type* type, bool notSigned, bool matrix = false,  int count = -1)
+    void emitGlaType(std::ostringstream& out, EMdPrecision precision, llvm::Type* type, bool ioRoot = true, const llvm::MDNode* mdNode = 0, int count = -1)
     {
+        bool matrix = false;
+        bool notSigned = false;
+        std::string name;
+        const llvm::MDNode* mdAggregate = 0;
+        bool block = false;
+        if (mdNode) {
+            EMdInputOutput ioKind;
+            EMdTypeLayout typeLayout;
+            int location;
+            const llvm::MDNode* mdSampler;
+            if (ioRoot) {
+                if (! CrackIOMd(mdNode, name, ioKind, type, typeLayout, precision, location, mdSampler, mdAggregate)) {
+                    UnsupportedFunctionality("IO metadata for type");
+
+                    return;
+                }
+                block = ioKind == EMioUniformBlockMember || ioKind == EMioBufferBlockMember;
+            } else {
+                if (! CrackAggregateMd(mdNode, name, typeLayout, precision, location, mdSampler)) {
+                    UnsupportedFunctionality("aggregate metadata for type");
+
+                    return;
+                }
+                mdAggregate = mdNode;
+            }
+            if (typeLayout == EMtlSampler) {
+                emitGlaSamplerType(out, mdSampler);
+
+                return;
+            }
+            matrix = typeLayout == EMtlRowMajorMatrix || typeLayout == EMtlColMajorMatrix;
+            notSigned = typeLayout == EMtlUnsigned;
+        }
+
         if (type->getTypeID() == llvm::Type::PointerTyID)
             type = llvm::dyn_cast<llvm::PointerType>(type)->getContainedType(0);
 
@@ -941,8 +981,15 @@ protected:
                 out << count;
         } else if (type->getTypeID() == llvm::Type::StructTyID) {
             const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
-            addStructType(structType->getName(), structType);
-            out << structNameMap[structType];
+            
+            // addStructType() is mutually recursive with this function
+            addStructType(structType->getName(), structType, mdAggregate, block);
+            if (! block) {
+                if (mdAggregate)
+                    out << std::string(mdAggregate->getOperand(0)->getName());
+                else
+                    out << structNameMap[structType];
+            }
         } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
             const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
             
@@ -957,7 +1004,7 @@ protected:
             } else {
                 // We're still higher up in the type tree than a matrix; e.g., array of matrices
                 // (or, not a matrix).
-                emitGlaType(out, precision, arrayType->getContainedType(0), notSigned, matrix);
+                emitGlaType(out, precision, arrayType->getContainedType(0), false, mdAggregate);
                 out << "[" << arrayType->getNumElements() << "]";
             }
         //} else if (type->getTypeID() == llvm::Type::PointerTyID) {
@@ -982,10 +1029,10 @@ protected:
         }
     }
 
-    void emitGlaSamplerType(std::ostringstream& out, llvm::MDNode* mdSamplerNode)
+    void emitGlaSamplerType(std::ostringstream& out, const llvm::MDNode* mdSamplerNode)
     {
         EMdSampler mdSampler;
-        llvm::Type* type;  // TODO: functionality: is this where signed vs unsigned vs float is supposed to be?
+        llvm::Type* type;
         EMdSamplerDim mdSamplerDim;
         bool isArray;
         bool isShadow;
@@ -1019,9 +1066,9 @@ protected:
             UnsupportedFunctionality("sampler metadata", EATContinue);
     }
 
-    void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, bool notSigned, bool matrix = false, int count = -1)
+    void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count = -1)
     {
-        emitGlaType(out, EMpNone, type, notSigned, matrix, count);
+        emitGlaType(out, EMpNone, type, false, 0, count);
     }
 
     // If valueMap has no entry for value, generate a name and declaration, and
@@ -1044,9 +1091,9 @@ protected:
             EMdPrecision precision = getPrecision(value);
 
             if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
-                declareVariable(precision, pointerType->getContainedType(0), *newName, evq, 0, false, false, 0);
+                declareVariable(precision, pointerType->getContainedType(0), *newName, evq);
             } else {
-                declareVariable(precision, value->getType(), *newName, evq, llvm::dyn_cast<llvm::Constant>(value), false, false, 0);
+                declareVariable(precision, value->getType(), *newName, evq, llvm::dyn_cast<llvm::Constant>(value));
             }
             valueMap[value] = newName;
         }
@@ -1058,10 +1105,10 @@ protected:
 
         mapGlaValue(value);
 
-        // TODO: uint functionality
+        // TODO: GOO: uint functionality
         bool notSigned = false;
         if (notSigned) {
-            emitGlaConstructor(shader, value->getType(), false);
+            emitGlaConstructor(shader, value->getType());
             shader << "(";
         }
 
@@ -1078,12 +1125,24 @@ protected:
         out << name;
     }
 
-    std::string getGlaStructField(const llvm::Type* structType, int index)
+    std::string getGlaStructField(const llvm::Type* structType, int index, llvm::MDNode* mdAggregate = 0)
     {
         std::string name;
+
+        if (mdAggregate) {
+            int aggOp = GetAggregateMdNameOp(index);
+            if (mdAggregate->getNumOperands() > aggOp) {
+                name = mdAggregate->getOperand(aggOp)->getName();
+
+                return name;
+            } else
+                UnsupportedFunctionality("missing name in aggregate", EATContinue);
+        }
+
+        name.append("member");
+            
         const size_t bufSize = 10;
         char buf[bufSize];
-        name.append("member");
         snprintf(buf, bufSize, "%d", index);
         name.append(buf);
 
@@ -1155,8 +1214,7 @@ protected:
         case llvm::Type::ArrayTyID:
         case llvm::Type::StructTyID:
             {
-                // TODO: uint functionality: get correct signedness
-                emitGlaConstructor(out, type, false);
+                emitGlaConstructor(out, type);
                 out << "(";
 
                 int numElements = 0;
@@ -1390,8 +1448,7 @@ protected:
             assert (singleSourceMask <= 0xFF);
             emitGlaSwizzle(singleSourceMask, argCount, source);
         } else {
-            // TODO: uint functionality: get correct signedness
-            emitGlaConstructor(shader, inst->getType(), false, false, argCount);
+            emitGlaConstructor(shader, inst->getType(), argCount);
             shader << "(";
             bool firstArg = true;
 
@@ -1464,74 +1521,87 @@ protected:
 
     // Traverse the indices used in either GEP or Insert/ExtractValue, and return a string representing
     // it, not including the base.
-    std::string traverseGEPChain(const llvm::Value* value)
+    std::string traverseGep(const llvm::Value* value, llvm::MDNode* mdAggregate)
     {
-        std::string gepChain;
+        std::string gepName;
 
         if (const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(value)) {
 
-            // Start at index 2 since indices 0 and 1 give you the base and are handled before traverseGEP
+            // Start at operand 2 since indices 0 and 1 give you the base and are handled before traverseGep
             const llvm::Type* gepType = gepInst->getPointerOperandType()->getContainedType(0);
-            for (int index = 2; index < gepInst->getNumOperands(); ++index) {
-                int gepIndex = 0;
-                if (llvm::isa<const llvm::ConstantInt>(gepInst->getOperand(index))) {
-                    gepIndex = GetConstantInt(gepInst->getOperand(index));
-                    gepType = getGEPDeref(gepType, gepIndex, &gepChain);
-                } else  {
-                    gepType = getGEPDeref(gepType, -1, &gepChain, gepInst->getOperand(index));
-                }
-            }
+            for (unsigned int op = 2; op < gepInst->getNumOperands(); ++op)
+                dereferenceGep(gepType, gepName, gepInst->getOperand(op), -1, op-2, mdAggregate);
 
         } else if (const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(value)) {
 
             const llvm::Type* gepType = insertValueInst->getAggregateOperand()->getType();
             for (llvm::InsertValueInst::idx_iterator iter = insertValueInst->idx_begin(), end = insertValueInst->idx_end();  iter != end; ++iter)
-                gepType = getGEPDeref(gepType, *iter, &gepChain);
+                dereferenceGep(gepType, gepName, 0, *iter, 0, mdAggregate);
 
         } else if (const llvm::ExtractValueInst* extractValueInst = llvm::dyn_cast<const llvm::ExtractValueInst>(value)) {
 
             const llvm::Type* gepType = extractValueInst->getAggregateOperand()->getType();
             for (llvm::ExtractValueInst::idx_iterator iter = extractValueInst->idx_begin(), end = extractValueInst->idx_end();  iter != end; ++iter)
-                gepType = getGEPDeref(gepType, *iter, &gepChain);
+                dereferenceGep(gepType, gepName, 0, *iter, 0, mdAggregate);
 
         } else {
             assert(0 && "non-GEP in traverseGEP");
         }
 
-        return gepChain;
+        return gepName;
     }
 
     // Traverse one step of a dereference chain and append to a string
     // For constant indices, pass it in index.  Otherwise, provide it through gepOp (index will not be used)
-    const llvm::Type* getGEPDeref(const llvm::Type* type, unsigned index, std::string* chain, const llvm::Value* gepOp = 0)
+    void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, int depth, llvm::MDNode*& mdAggregate)
     {
-        switch (type->getTypeID()) {
-        case llvm::Type::ArrayTyID:
-            {
-                chain->append("[");
-                if (gepOp) {
-                    chain->append(getGlaValue(gepOp));
-                } else {
-                    const size_t bufSize = 10;
-                    char buf[bufSize];
-                    snprintf(buf, bufSize, "%d", index);
-                    chain->append(buf);
-                }
-                chain->append("]");
-
-                return type->getContainedType(0);
-            }
-        case llvm::Type::StructTyID:
-            assert(! gepOp);
-            chain->append(".");
-            chain->append(getGlaStructField(type, index));
-
-            return type->getContainedType(index);
-        default:
-            assert(0 && "Dereferencing non array/struct");
+        if (operand) {
+            if (llvm::isa<const llvm::ConstantInt>(operand))
+                index = GetConstantInt(operand);
+            else
+                index = -1;
         }
 
-        return 0;
+        switch (type->getTypeID()) {
+        case llvm::Type::ArrayTyID:
+            assert(operand || index >= 0);
+
+            name.append("[");
+
+            if (index >= 0) {
+                const size_t bufSize = 10;
+                char buf[bufSize];
+                snprintf(buf, bufSize, "%d", index);
+                name.append(buf);
+            } else
+                name.append(getGlaValue(operand));
+
+            name.append("]");
+
+            type = type->getContainedType(0);
+            break;
+        case llvm::Type::StructTyID:
+            assert(index >= 0);
+
+            name.append(".");
+            name.append(getGlaStructField(type, index, mdAggregate));
+
+            // Deference the metadata aggregate 
+            if (mdAggregate) {
+                int aggOp = GetAggregateMdSubAggregateOp(depth);
+                if (mdAggregate->getNumOperands() <= aggOp) {
+                    UnsupportedFunctionality("not enough mdAggregate operands", EATContinue);
+                    mdAggregate = 0;
+                } else 
+                    mdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(aggOp));
+            }
+
+            type = type->getContainedType(index);
+            break;
+        default:
+            assert(0 && "Dereferencing non array/struct");
+            break;
+        }
     }
 
     void mapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstruction, bool input)
@@ -1550,9 +1620,10 @@ protected:
         int layoutLocation;
         EMdPrecision mdPrecision;
         EMdTypeLayout mdLayout;
-        llvm::MDNode* mdAggregate;
-        llvm::MDNode* dummySampler;
-        if (! gla::CrackIOMd(llvmInstruction, input ? gla::InputMdName : gla::OutputMdName, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate)) {
+        const llvm::MDNode* mdAggregate;
+        const llvm::MDNode* dummySampler;
+        const llvm::MDNode* mdNode = llvmInstruction->getMetadata(input ? gla::InputMdName : gla::OutputMdName);
+        if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate)) {
             // This path should not exist; it is a backup path for missing metadata.
             // TODO: LunarGOO functionality: fix missing metadata instruction operands.
             UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
@@ -1564,7 +1635,6 @@ protected:
             mdPrecision = EMpNone;
             layoutLocation = 0;
         }
-        bool matrix = mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix;
         bool notSigned = mdLayout == EMtlUnsigned;
 
         // add the dereference syntax
@@ -1580,13 +1650,13 @@ protected:
         case llvm::Intrinsic::gla_writeData:
         case llvm::Intrinsic::gla_fWriteData:
             // First, emit declaration
-            declareIOVariable(mdPrecision, type, name, EVQOutput, interpMethod, interpLocation, notSigned, matrix);
+            declareIOVariable(type, name, EVQOutput, interpMethod, interpLocation, mdNode);
 
             // Now, emit the write
             newLine();
             shader << derefName << " = ";
             if (notSigned) {
-                emitGlaConstructor(shader, llvmInstruction->getOperand(2)->getType(), notSigned);
+                emitUintConverter(llvmInstruction->getOperand(2)->getType());
                 shader << "(";
             }
             emitGlaOperand(llvmInstruction->getOperand(2));
@@ -1605,7 +1675,7 @@ protected:
             
             // Add an int-based constructor around it, if needed.
             if (notSigned)
-                uintWrap(derefName, llvmInstruction->getType(), notSigned);
+                intWrap(derefName, llvmInstruction->getType());
 
             if (addNewVariable(llvmInstruction, derefName)) {
 
@@ -1615,7 +1685,7 @@ protected:
                 } else
                     interpMethod = EIMNone;   // needed for 'flat' with non-interpolation 'in'
 
-                declareIOVariable(mdPrecision, type, name, EVQInput, interpMethod, interpLocation, notSigned, matrix);
+                declareIOVariable(type, name, EVQInput, interpMethod, interpLocation, mdNode);
             }
 
             break;
@@ -1641,7 +1711,6 @@ protected:
 
             return;
         } else if (type->getTypeID() == llvm::Type::StructTyID) {
-            // TODO: Goo functionality: structure inputs/outputs
             name = name + ".";
         } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
             char buf[10];
@@ -1653,30 +1722,39 @@ protected:
         }
     }
 
-    void uintWrap(std::string& name, llvm::Type* type, bool toSigned)
+    void intWrap(std::string& name, llvm::Type* type)
     {
         std::string wrapped;
 
-        if (GetComponentCount(type) == 1) {
-            if (toSigned)
-                wrapped = "int(";
-            else
-                wrapped = "uint(";
-        } else {
-            if (toSigned)
-                wrapped.append("ivec");
-            else
-                wrapped.append("uvec");
+        if (GetComponentCount(type) == 1)
+            wrapped = "int(";
+        else {
+            wrapped.append("ivec");
             switch (GetComponentCount(type)) {
             case 2:  wrapped.append("2(");    break;
             case 3:  wrapped.append("3(");    break;
             case 4:  wrapped.append("4(");    break;
-            default: UnsupportedFunctionality("wrapped type");  break;
+            default: UnsupportedFunctionality("int wrapped type");  break;
             }
         }
         wrapped.append(name);
         name = wrapped;
         name.append(")");
+    }
+
+    void emitUintConverter(llvm::Type* type)
+    {
+        if (GetComponentCount(type) == 1)
+            shader << "uint";
+        else {
+            shader << "uvec";
+            switch (GetComponentCount(type)) {
+            case 2:  shader << "2";    break;
+            case 3:  shader << "3";    break;
+            case 4:  shader << "4";    break;
+            default: UnsupportedFunctionality("uint converter type");  break;
+            }
+        }
     }
 
     // mapping from LLVM values to Glsl variables
@@ -2021,29 +2099,34 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         {
             assert(! llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)));
 
-            // See if we have metadata describing a uniform variable to declare
-            std::string name;
-            EMdInputOutput mdQual;
-            llvm::Type*type;
-            int layoutLocation;
-            EMdPrecision mdPrecision;
-            EMdTypeLayout mdLayout;
-            llvm::MDNode* mdAgg;
-            llvm::MDNode* mdSamplerNode;
-            if (gla::CrackUniformMd(llvmInstruction, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, mdSamplerNode, mdAgg) && mdQual == EMioDefaultUniform)
-                declareVariable(mdPrecision, type, name, EVQUniform, 0, mdLayout == EMtlUnsigned, mdLayout == EMtlColMajorMatrix || mdLayout == EMtlRowMajorMatrix, mdSamplerNode);
-
             if (const llvm::GetElementPtrInst* gepInstr = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0))) {
-                // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
-                // For GEP, which always returns a pointer, traverse the dereference chain and store it.
-                if (name.size() == 0) {
+                // See if we have metadata describing a uniform variable to declare
+                std::string name;
+                llvm::MDNode* mdUniform = llvmInstruction->getMetadata(UniformMdName);
+                llvm::MDNode* mdAggregate = 0;
+
+                // get the name
+                if (mdUniform)
+                    name = mdUniform->getOperand(0)->getName();
+                else {
+                    UnsupportedFunctionality("missing metadata on load", EATContinue);
                     std::string* prevName = valueMap[gepInstr];
                     if (prevName)
                         name = *prevName;
                     else
                         name = gepInstr->getOperand(0)->getName();
                 }
-                name.append(traverseGEPChain(gepInstr));
+
+                if (mdUniform && mdUniform->getNumOperands() >= 5)
+                    mdAggregate = llvm::dyn_cast<llvm::MDNode>(mdUniform->getOperand(4));
+                else
+                    UnsupportedFunctionality("missing metadata operands", EATContinue);
+
+                // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
+                // For GEP, which always returns a pointer, traverse the dereference chain and store it.
+                name.append(traverseGep(gepInstr, mdAggregate));
+                if (name[0] == '.')
+                    name = name.substr(1, std::string::npos);
                 addNewVariable(gepInstr, name);
 
                 // If we're loading from the result of a GEP, assign it to a new variable
@@ -2056,8 +2139,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                 // We want phis to use the same variable name created during phi declaration
                 addNewVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
             } else {
-                if (name.size() == 0)
-                    name = llvmInstruction->getOperand(0)->getName();
+                std::string name = llvmInstruction->getOperand(0)->getName();
                 makeParseable(name);
                 addNewVariable(llvmInstruction, name);
             }
@@ -2082,7 +2164,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                     name = *prevName;
                 else
                     name = gepInstr->getOperand(0)->getName();
-                name.append(traverseGEPChain(gepInstr));
+                name.append(traverseGep(gepInstr, 0));
                 addNewVariable(gepInstr, name);
             }
 
@@ -2170,7 +2252,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         emitGlaValue(extractValueInst->getAggregateOperand());
 
         // emit chain
-        shader << traverseGEPChain(extractValueInst);
+        shader << traverseGep(extractValueInst, 0);
         shader << ";";
 
         return;
@@ -2184,7 +2266,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         emitGlaValue(insertValueInst->getAggregateOperand());
 
         // emit chain
-        shader << traverseGEPChain(insertValueInst);
+        shader << traverseGep(insertValueInst, 0);
 
         shader << " = ";
         emitGlaValue(insertValueInst->getInsertedValueOperand());
@@ -2203,8 +2285,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
         shader << " = ";
 
-        // TODO: uint functionality: get correct signedness
-        emitGlaConstructor(shader, llvmInstruction->getType(), false);
+        emitGlaConstructor(shader, llvmInstruction->getType());
         shader << "(";
 
         int sourceWidth = gla::GetComponentCount(llvmInstruction->getOperand(0));
@@ -2430,7 +2511,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
             llvm::Type* vecType = llvm::VectorType::get(coordType, coordWidth + buffer + 1);
 
-            emitGlaType(shader, precision, vecType, false);
+            emitGlaType(shader, precision, vecType);
 
             shader << "(";
 
@@ -2521,8 +2602,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // Case 1:  it's a scalar with multiple ".x" to expand it to a vector.
         // use a constructor to turn a scalar into a vector
         if (srcVectorWidth == 1 && dstVectorWidth > 1) {
-            // TODO: uint functionality: get correct signedness
-            emitGlaType(shader, precision, llvmInstruction->getType(), false);
+            emitGlaType(shader, precision, llvmInstruction->getType());
             shader << "(";
             emitGlaOperand(src);
             shader << ");";
@@ -2533,8 +2613,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // Case 2:  it's sequential .xy...  subsetting a vector.
         // use a constructor to subset the vector to a vector
         if (srcVectorWidth > 1 && dstVectorWidth > 1 && IsIdentitySwizzle(elts)) {
-            // TODO: iunt functionality: get correct signedness
-            emitGlaType(shader, precision, llvmInstruction->getType(), false);
+            emitGlaType(shader, precision, llvmInstruction->getType());
             shader << "(";
             emitGlaOperand(src);
             shader << ");";

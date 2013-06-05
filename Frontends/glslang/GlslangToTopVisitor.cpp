@@ -100,6 +100,10 @@ public:
     int assignSlot(TIntermSymbol* node, bool input);
     llvm::Value* createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
     void setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
+    llvm::MDNode* declareMdDefaultUniform(TIntermSymbol*, llvm::Value*);
+    llvm::MDNode* makeMdSampler(const TType&, llvm::Value* typeProxy);
+    llvm::MDNode* declareMdUniformBlock(gla::EMdInputOutput ioType, const TIntermSymbol* node, llvm::Value* typeProxy);
+    llvm::MDNode* TGlslangToTopTraverser::declareMdType(const TType&);
     void setOutputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot);
     llvm::MDNode* makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot);
 
@@ -164,19 +168,33 @@ gla::EMdInputOutput getMdQualifier(TIntermSymbol* node)
     return mdQualifier;
 }
 
-gla::EMdTypeLayout getMdTypeLayout(TIntermSymbol* node)
+gla::EMdTypeLayout getMdTypeLayout(const TType& type)
 {
-    gla::EMdTypeLayout mdType = gla::EMtlNone;
-    if (node->getType().isMatrix()) {
-        switch (node->getQualifier().layoutMatrix) {
-        case ElmRowMajor:  mdType = gla::EMtlRowMajorMatrix;   break;
-        default:           mdType = gla::EMtlColMajorMatrix;   break;
+    gla::EMdTypeLayout mdType;
+
+    if (type.isMatrix()) {
+        switch (type.getQualifier().layoutMatrix) {
+        case ElmRowMajor: mdType = gla::EMtlRowMajorMatrix;   break;
+        default:          mdType = gla::EMtlColMajorMatrix;   break;
         }
-    } else if (node->getBasicType() == EbtSampler) 
-        mdType = gla::EMtlSampler;
-    else {
-        if (node->getType().getBasicType() == EbtUint)
-            mdType = gla::EMtlUnsigned;
+    } else {
+        switch (type.getBasicType()) {
+        case EbtSampler:  mdType = gla::EMtlSampler;    break;
+        case EbtStruct:   mdType = gla::EMtlAggregate;  break;
+        case EbtUint:     mdType = gla::EMtlUnsigned;   break;
+        case EbtBlock:
+            switch (type.getQualifier().layoutPacking) {
+            case ElpShared:  return gla::EMtlShared;
+            case ElpStd140:  return gla::EMtlStd140;
+            case ElpStd430:  return gla::EMtlStd430;
+            case ElpPacked:  return gla::EMtlPacked;
+            default:
+                gla::UnsupportedFunctionality("block layout", gla::EATContinue);
+                return gla::EMtlShared;
+            }
+
+        default:          mdType = gla::EMtlNone;       break;
+        }
     }
 
     return mdType;
@@ -2186,50 +2204,128 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType
 
 void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy)
 {
-    llvm::MDNode* samplerMd = 0;
     llvm::MDNode* md;
     const std::string name = node->getSymbol().c_str();
+    md = uniformMdMap[name];
 
-    switch (getMdQualifier(node)) {
+    gla::EMdInputOutput ioType = getMdQualifier(node);
+    switch (ioType) {
     case gla::EMioDefaultUniform:
-        md = uniformMdMap[name];
         if (md == 0) {
-            if (node->getType().getBasicType() == EbtSampler) {
-                samplerMd = metadata.makeMdSampler(getMdSampler(node->getType()), typeProxy, getMdSamplerDim(node->getType()), 
-                                                   node->getType().getSampler().arrayed,
-                                                   node->getType().getSampler().shadow, getMdSamplerBaseType(node->getType().getSampler().type));
-            }
-
-            md = metadata.makeMdInputOutput(name, gla::UniformListMdName, gla::EMioDefaultUniform, typeProxy, 
-                                            getMdTypeLayout(node), getMdPrecision(node->getType()), 0, samplerMd);
+            md = declareMdDefaultUniform(node, typeProxy);
             uniformMdMap[name] = md;
         }
-        glaBuilder->setAccessChainMetadata(gla::UniformMdName, md);
         break;
     case gla::EMioUniformBlockMember:
-        gla::UnsupportedFunctionality("Uniform block member", gla::EATContinue);
-        // TODO: linker: generate uniform block metadata
-        break;
     case gla::EMioBufferBlockMember:
-        // TODO: 4.3 linker: generate buffer block metadata
-        gla::UnsupportedFunctionality("shader storage buffer block member", gla::EATContinue);
+        if (md == 0) {
+            md = declareMdUniformBlock(ioType, node, typeProxy);
+            uniformMdMap[name] = md;
+        }
         break;
     default:
         break;
     }
+
+    if (md)
+        glaBuilder->setAccessChainMetadata(gla::UniformMdName, md);
+}
+
+// Make a !gla.uniform node, as per metadata.h, for a default uniform
+llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(TIntermSymbol* node, llvm::Value* typeProxy)
+{
+    const TType& type = node->getType();
+    llvm::MDNode* samplerMd = makeMdSampler(type, typeProxy);
+
+    // Create hierarchical type information if it's an aggregate
+    gla::EMdTypeLayout layout = getMdTypeLayout(type);
+    llvm::MDNode* structure = 0;
+    if (layout == gla::EMtlAggregate)
+        structure = declareMdType(type);
+
+    // Make the main node
+    return metadata.makeMdInputOutput(node->getSymbol().c_str(), gla::UniformListMdName, gla::EMioDefaultUniform, 
+                                      makePermanentTypeProxy(typeProxy),
+                                      layout, getMdPrecision(type), 0, samplerMd, structure);
+}
+
+llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const TType& type, llvm::Value* typeProxy)
+{
+    // Figure out sampler information, if it's a sampler
+    if (type.getBasicType() == EbtSampler) {
+        if (! typeProxy) {    
+            // TODO: memory: who/how owns tracking and deleting this allocation?
+            typeProxy = new llvm::GlobalVariable(convertGlslangToGlaType(type), true, llvm::GlobalVariable::ExternalLinkage, 0, "sampler_typeProxy");
+        }
+
+        return metadata.makeMdSampler(getMdSampler(type), typeProxy, getMdSamplerDim(type), type.getSampler().arrayed,
+                                      type.getSampler().shadow, getMdSamplerBaseType(type.getSampler().type));
+    } else
+        return 0;
+}
+
+// Make a !gla.uniform node, as per metadata.h, for a uniform block or buffer block (depending on ioType)
+llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput ioType, const TIntermSymbol* node, llvm::Value* typeProxy)
+{
+    const TType& type = node->getType();
+    const char* name;
+    if (node->getSymbol().substr(0,6) == "__anon")
+        name = "";
+    else
+        name = node->getSymbol().c_str();
+
+    // Make hierachical type information
+    llvm::MDNode* block = declareMdType(type);
+
+    // Make the main node
+    return metadata.makeMdInputOutput(name, gla::UniformListMdName, ioType, typeProxy,
+                                      getMdTypeLayout(type), getMdPrecision(type), 0, 0, block);
+}
+
+// Make a !type node as per metadata.h, recursively
+llvm::MDNode* TGlslangToTopTraverser::declareMdType(const TType& type)
+{
+    // Figure out sampler information if it's a sampler
+    llvm::MDNode* samplerMd = makeMdSampler(type, 0);
+
+    std::vector<llvm::Value*> mdArgs;
+
+    // name of aggregate, if an aggregate (struct or block)
+    if (type.getStruct())
+        mdArgs.push_back(llvm::MDString::get(context, type.getTypeName().c_str()));
+    else
+        mdArgs.push_back(llvm::MDString::get(context, ""));
+
+    // !typeLayout
+    mdArgs.push_back(metadata.makeMdTypeLayout(getMdTypeLayout(type), getMdPrecision(type), type.getQualifier().layoutSlotLocation, samplerMd));
+
+    const TTypeList* typeList = type.getStruct();
+    if (typeList) {
+        for (int t = 0; t < typeList->size(); ++t) {
+            // name of member
+            const TType* fieldType = (*typeList)[t].type;
+            mdArgs.push_back(llvm::MDString::get(context, fieldType->getFieldName().c_str()));
+            
+            // type of member
+            llvm::MDNode* mdType = declareMdType(*fieldType);
+            mdArgs.push_back(mdType);
+        }
+    }
+
+    return llvm::MDNode::get(context, mdArgs);
 }
 
 void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value* storage, int slot)
 {    
     llvm::MDNode* md = metadata.makeMdInputOutput(node->getSymbol().c_str(), gla::OutputListMdName, getMdQualifier(node), 
-                                                  makePermanentTypeProxy(storage), getMdTypeLayout(node), getMdPrecision(node->getType()), slot);
+                                                  makePermanentTypeProxy(storage), getMdTypeLayout(node->getType()), getMdPrecision(node->getType()), slot);
     glaBuilder->setOutputMetadata(storage, md, slot);
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot)
 {    
     return metadata.makeMdInputOutput(node->getSymbol().c_str(), gla::InputListMdName, getMdQualifier(node), 
-                                      makePermanentTypeProxy(typeProxy), getMdTypeLayout(node), 
+                                      makePermanentTypeProxy(typeProxy), getMdTypeLayout(node->getType()),
                                       getMdPrecision(node->getType()), slot);
 }
 
