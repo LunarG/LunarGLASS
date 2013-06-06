@@ -103,7 +103,7 @@ public:
     llvm::MDNode* declareMdDefaultUniform(TIntermSymbol*, llvm::Value*);
     llvm::MDNode* makeMdSampler(const TType&, llvm::Value* typeProxy);
     llvm::MDNode* declareMdUniformBlock(gla::EMdInputOutput ioType, const TIntermSymbol* node, llvm::Value* typeProxy);
-    llvm::MDNode* TGlslangToTopTraverser::declareMdType(const TType&);
+    llvm::MDNode* declareMdType(const TType&);
     void setOutputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot);
     llvm::MDNode* makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot);
 

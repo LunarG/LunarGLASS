@@ -82,9 +82,11 @@ void Conditional::recalculate()
     leftDomFront.clear();
     rightDomFront.clear();
 
-    domFront->calculate(*domTree, domTree->getNode(left));
-    domFront->calculate(*domTree, domTree->getNode(right));
-
+    // For nodes with no predecessor blocks, the domTree has no entry.
+    if (domTree->getNode(left))
+        domFront->calculate(*domTree, domTree->getNode(left));
+    if (domTree->getNode(right))
+        domFront->calculate(*domTree, domTree->getNode(right));
 
     // Calculate merges
     GetMergePoints(right, left, *domFront, merges);
@@ -178,8 +180,11 @@ bool Conditional::eliminateCrossEdges()
         BasicBlock* newBB = DuplicateBasicBlock(duplicate);
         merges.erase(duplicate);
 
-        // Update the dominator tree with the new blocks
-        assert(newBB && newBB->getSinglePredecessor() && newBB->getTerminator()->getNumSuccessors() == 1);
+        // Update the dominator tree with the new blocks.
+        // OK to have no predecessors, or one, but not >=2.
+        assert(newBB &&
+               (pred_begin(newBB) == pred_end(newBB) || newBB->getSinglePredecessor()) &&
+               newBB->getTerminator()->getNumSuccessors() == 1);
 
         // Try to eliminate the duplicate-merge block if possible
         bool noDupMerge = TryToSimplifyUncondBranchFromEmptyBlock(*succ_begin(newBB));

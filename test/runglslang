@@ -24,19 +24,19 @@ Usage: ./run [options]
 # Add more tests here as they are created
 TESTS=(test.frag               \
        flowControl.frag        \
-	   deepRvalue.frag         \
+       deepRvalue.frag         \
        Operations.frag         \
-	   block.frag              \
-	   conversion.frag         \
-	   length.frag             \
+       block.frag              \
+       conversion.frag         \
+       length.frag             \
        prepost.frag            \
        swizzle.frag            \
        simpleFunctionCall.frag \
        functionCall.frag       \
        functionSemantics.frag  \
-	   forwardFun.frag         \
+       forwardFun.frag         \
        voidFunction.frag       \
-	   whileLoop.frag          \
+       whileLoop.frag          \
        loopsArtificial.frag    \
        earlyReturnDiscard.frag \
        discard-dce.frag        \
@@ -51,37 +51,37 @@ TESTS=(test.frag               \
        varyingArrayIndirect.frag \
        uniformArray.frag       \
        variableArrayIndex.frag \
-	   simpleMat.vert          \
+       simpleMat.vert          \
        matrix.frag             \
        matrix2.frag            \
-	   matrixAgg.frag          \
-	   matFun.vert             \
+       matrixAgg.frag          \
+       matFun.vert             \
        structure.frag          \
        structAssignment.frag   \
        structDeref.frag        \
        localAggregates.frag    \
-	   aggOps.frag             \
+       aggOps.frag             \
        texture.frag            \
        texture.vert            \
-	   newTexture.frag         \
+       newTexture.frag         \
        types.frag              \
-	   uint.frag               \
+       uint.frag               \
        test.vert               \
        conditionalDiscard.frag \
-	   qualifiers.vert         \
-	   qualifiers.frag         \
-	   precision.frag          \
-	   300BuiltIns.frag        \
-	   300layout.vert          \
-	   300layout.frag          \
-	   switch.frag             \
+       qualifiers.vert         \
+       qualifiers.frag         \
+       precision.frag          \
+       300BuiltIns.frag        \
+       300layout.vert          \
+       300layout.frag          \
+       switch.frag             \
       )
 
 # $1 is the test
 # Rest are options to the runcommand
 function runSingleTest {
     $RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > temp.stdout 2> temp.errout
-#	$RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > /dev/null 2>&1
+#   $RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > /dev/null 2>&1
 }
 
 function runTests {
@@ -89,15 +89,15 @@ function runTests {
         printf "Running $t\n"
         
         runSingleTest $t 
-		EXTENSION=${t##*.}
+        EXTENSION=${t##*.}
         cat temp.errout temp.stdout > glslang/$t.out.tmp
-		cp temp.stdout tempglsl.$EXTENSION
-		runSingleTest tempglsl.$EXTENSION
-		tail -4 temp.errout >> glslang/$t.out.tmp
-		cat temp.stdout >> glslang/$t.out.tmp
+        cp temp.stdout tempglsl.$EXTENSION
+        runSingleTest tempglsl.$EXTENSION
+        tail -4 temp.errout >> glslang/$t.out.tmp
+        cat temp.stdout >> glslang/$t.out.tmp
         tr -d '\r' < glslang/$t.out.tmp > glslang/$t.out
-		rm glslang/$t.out.tmp
-		rm tempglsl.$EXTENSION
+        rm glslang/$t.out.tmp
+        rm tempglsl.$EXTENSION
 
     done
     rm temp.stdout* temp.errout

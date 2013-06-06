@@ -206,7 +206,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // doesn't have it listed.
     // passManager.add(llvm::createSinkingPass());
 
-    // Run some post-redancy-elimination passes
+    // Run some post-redundancy-elimination passes
     passManager.add(llvm::createScalarReplAggregatesPass());
     passManager.add(llvm::createInstructionCombiningPass());
     passManager.add(llvm::createCorrelatedValuePropagationPass());

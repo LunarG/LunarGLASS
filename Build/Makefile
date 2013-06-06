@@ -3,7 +3,7 @@
 CORE := ../Core
 GLSLANG := ../../glslang/
 LLVM := $(CORE)/LLVM/llvm-3.2.src/
-LLVMCONFIG := $(LLVM)/Debug+Asserts/bin/llvm-config
+LLVMCONFIG := $(LLVM)/build/Debug+Asserts/bin/llvm-config
 
 glslang_INCLUDES := \
 	-I$(GLSLANG)/glslang \

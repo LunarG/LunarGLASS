@@ -298,8 +298,10 @@ namespace gla_llvm {
     // by it.
     inline void GetDominatedChildren(DomTreeNode* dtn, BasicBlock* bb, SmallVectorImpl<BasicBlock*>& children)
     {
-        for (df_iterator<DomTreeNode*> i = GraphTraits<DomTreeNode*>::nodes_begin(dtn), e = GraphTraits<DomTreeNode*>::nodes_end(dtn); i != e; ++i) {
-            children.push_back((*i)->getBlock());
+        if (dtn) {
+            for (df_iterator<DomTreeNode*> i = GraphTraits<DomTreeNode*>::nodes_begin(dtn), e = GraphTraits<DomTreeNode*>::nodes_end(dtn); i != e; ++i) {
+                children.push_back((*i)->getBlock());
+            }
         }
     }
     inline void GetDominatedChildren(DominatorTree& dt, BasicBlock* bb, SmallVectorImpl<BasicBlock*>& children)

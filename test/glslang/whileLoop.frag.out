@@ -80,7 +80,7 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !0
-  %.pre = load float addrspace(2)* @d, align 4
+  %.pre = load float addrspace(2)* @d, align 4, !gla.uniform !2
   %0 = load <4 x float> addrspace(2)* @bigColor, align 16, !gla.uniform !4
   br label %loop-header
 

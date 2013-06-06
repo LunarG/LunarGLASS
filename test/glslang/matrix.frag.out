@@ -1117,7 +1117,7 @@ entry:
   %13 = fcmp one <4 x float> %element111, %element212
   %14 = call i1 @llvm.gla.any.v4i1(<4 x i1> %13)
   %15 = or i1 %12, %14
-  %v = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1)
+  %v = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !10
   br i1 %15, label %then, label %else
 
 then:                                             ; preds = %entry
@@ -1537,8 +1537,6 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 !13 = metadata !{i32 0, i32 0, i32 1027, null}
 
 ***Unsupported functionality: missing metadata operands
-
-***Unsupported functionality: couldn't get metadata for input instruction
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:6: varying deprecated in version 130; may be removed in future release
 WARNING: 0:17: varying deprecated in version 130; may be removed in future release

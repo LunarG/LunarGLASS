@@ -551,7 +551,7 @@ entry:
   %1 = fmul <4 x float> %0, <float 0x3F91DF46A0000000, float 0x3F91DF46A0000000, float 0x3F91DF46A0000000, float 0x3F91DF46A0000000>
   %2 = fmul <4 x float> %1, <float 0x404CA5DC20000000, float 0x404CA5DC20000000, float 0x404CA5DC20000000, float 0x404CA5DC20000000>
   %v2 = fadd <4 x float> %1, %2
-  %3 = load i32 addrspace(2)* @ui, align 4
+  %3 = load i32 addrspace(2)* @ui, align 4, !gla.uniform !2
   %i3 = mul i32 %3, %3
   %4 = call <4 x float> @llvm.gla.fSin.v4f32.v4f32(<4 x float> %v2)
   %v4 = fadd <4 x float> %4, %v2
@@ -610,7 +610,7 @@ entry:
   %v30 = fadd <4 x float> %31, %v29
   %32 = call <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float> %v30, <4 x float> %v30)
   %v31 = fadd <4 x float> %32, %v30
-  %33 = load float addrspace(2)* @uf, align 4
+  %33 = load float addrspace(2)* @uf, align 4, !gla.uniform !3
   %34 = call <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float> %v31, <4 x float> %v31, float %33)
   %v32 = fadd <4 x float> %v31, %34
   %35 = call <4 x float> @llvm.gla.fDFdx.v4f32.v4f32(<4 x float> %v32)

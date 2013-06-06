@@ -84,25 +84,28 @@ BasicBlock* DuplicateBasicBlock(BasicBlock* toDuplicate)
         }
     }
 
-    // Break off one predecessor, and have it go through the clone instead
-    BasicBlock* pred = *pred_begin(toDuplicate);
-    toDuplicate->removePredecessor(pred);
+    // Break off a predecessor if one exists (it may have none), and
+    // have it go through the clone instead
+    if (pred_begin(toDuplicate) != pred_end(toDuplicate)) {
+        BasicBlock* pred = *pred_begin(toDuplicate);
+        toDuplicate->removePredecessor(pred);
 
-    BranchInst* br = dyn_cast<BranchInst>(pred->getTerminator());
-    assert(br && br->getNumSuccessors() <= 2 &&
-           (br->getSuccessor(0) == toDuplicate || br->getSuccessor(1) == toDuplicate));
+        BranchInst* br = dyn_cast<BranchInst>(pred->getTerminator());
+        assert(br && br->getNumSuccessors() <= 2 &&
+               (br->getSuccessor(0) == toDuplicate || br->getSuccessor(1) == toDuplicate));
 
-    br->setSuccessor(br->getSuccessor(0) == toDuplicate ? 0 : 1, clone);
+        br->setSuccessor(br->getSuccessor(0) == toDuplicate ? 0 : 1, clone);
 
-    // Resolve the phis in the cloned block to be the value coming in through
-    // its only predecessor
-    assert(pred == clone->getSinglePredecessor());
-    for (BasicBlock::iterator instI = clone->begin(), instE = clone->end(); instI != instE; ++instI) {
-        PHINode* phi = dyn_cast<PHINode>(instI);
-        if (! phi)
-            break;
+        // Resolve the phis in the cloned block to be the value coming in through
+        // its only predecessor
+        assert(pred == clone->getSinglePredecessor());
+        for (BasicBlock::iterator instI = clone->begin(), instE = clone->end(); instI != instE; ++instI) {
+            PHINode* phi = dyn_cast<PHINode>(instI);
+            if (! phi)
+                break;
 
-        phi->replaceAllUsesWith(phi->getIncomingValueForBlock(pred));
+            phi->replaceAllUsesWith(phi->getIncomingValueForBlock(pred));
+        }
     }
 
     // Try to simplify all the instructions (especially since many phis

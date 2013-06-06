@@ -107,6 +107,11 @@ bool IdentifyStructures::runOnFunction(Function &F)
         loopWrappers.insert(make_pair(bb, lw));
     }
 
+    // Ask scalarEvo to release its block references.  Other
+    // transforms might delete the blocks, and we don't want any
+    // outstanding asserting value handles.
+    scalarEvo.releaseMemory();
+    
     return false;
 }
 

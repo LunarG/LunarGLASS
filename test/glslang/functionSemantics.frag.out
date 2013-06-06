@@ -33,7 +33,7 @@ entry:
   store i32 8, i32* %param3
   %5 = getelementptr %s* %f, i32 0, i32 0
   %6 = load <4 x i32>* %5
-  %param57 = extractelement <4 x i32> %6, i32 1
+  %param57 = extractelement <4 x i32> %6, i32 1, !gla.precision !2
   store i32 %param57, i32* %param5
   %color9 = call i32 @"foo(i1;i1;i1;i1;i1;i1;"(i32* %param, i32* %param1, i32* %param2, i32* %param3, i32* %param4, i32* %param5)
   %e8 = load i32* %param4

@@ -432,7 +432,7 @@ switch-segment28:                                 ; preds = %switch-merge22
   ]
 
 switch-segment28.switch-merge35_crit_edge:        ; preds = %switch-segment28
-  %x62.pre.pre = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1)
+  %x62.pre.pre = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !gla.input !3
   br label %switch-merge35
 
 switch-segment29:                                 ; preds = %switch-merge22
