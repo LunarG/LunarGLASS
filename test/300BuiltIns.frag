@@ -91,4 +91,8 @@ void main()
     sum += vec4(v18, 0, 0);
 
     result = sum + vec4(isum) + vec4(usum);
+
+    result += gl_FragCoord + vec4(gl_PointCoord, 2.0 * gl_PointCoord);
+    gl_FragDepth = f;
+    gl_FragDepth += 0.1;
 }
