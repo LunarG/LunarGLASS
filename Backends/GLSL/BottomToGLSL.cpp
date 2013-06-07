@@ -210,7 +210,7 @@ public:
                 tempStructure << " " << std::string(mdAggregate->getOperand(GetAggregateMdNameOp(index))->getName());
                 emitGlaArraySize(tempStructure, arraySize);
             } else {
-                int arraySize = emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), false);
+                int arraySize = emitGlaType(tempStructure, EMpNone, structType->getContainedType(index));
                 tempStructure << " " << getGlaStructField(structType, index);
                 emitGlaArraySize(tempStructure, arraySize);
             }
@@ -934,7 +934,7 @@ protected:
 
     // emits the type (recursively)
     // returns the array size of the type
-    int emitGlaType(std::ostringstream& out, EMdPrecision precision, llvm::Type* type, bool ioRoot = true, const llvm::MDNode* mdNode = 0, int count = -1)
+    int emitGlaType(std::ostringstream& out, EMdPrecision precision, llvm::Type* type, bool ioRoot = false, const llvm::MDNode* mdNode = 0, int count = -1)
     {
         int arraySize = 0;
         bool matrix = false;
@@ -948,12 +948,15 @@ protected:
             int location;
             const llvm::MDNode* mdSampler;
             if (ioRoot) {
-                if (! CrackIOMd(mdNode, name, ioKind, type, typeLayout, precision, location, mdSampler, mdAggregate)) {
+                llvm::Type* proxyType;
+                if (! CrackIOMd(mdNode, name, ioKind, proxyType, typeLayout, precision, location, mdSampler, mdAggregate)) {
                     UnsupportedFunctionality("IO metadata for type");
 
                     return arraySize;
                 }
                 block = ioKind == EMioUniformBlockMember || ioKind == EMioBufferBlockMember;
+                if (type == 0)
+                    type = proxyType;
             } else {
                 if (! CrackAggregateMd(mdNode, name, typeLayout, precision, location, mdSampler)) {
                     UnsupportedFunctionality("aggregate metadata for type");
@@ -1022,7 +1025,10 @@ protected:
             } else {
                 // We're still higher up in the type tree than a matrix; e.g., array of matrices
                 // (or, not a matrix).
-                emitGlaType(out, precision, arrayType->getContainedType(0), false, mdAggregate);
+                // We need to recurse the next level with the LLVM type dereferenced, but not
+                // the GLSL type (metadata) which combines arrayness at the same level as other typeness
+                // (that is, don't pass on mdAggregate, use the original input).
+                emitGlaType(out, precision, arrayType->getContainedType(0), ioRoot, mdNode);
                 arraySize = arrayType->getNumElements();
             }
         } else {
