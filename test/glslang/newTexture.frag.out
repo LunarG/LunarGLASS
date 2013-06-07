@@ -638,15 +638,15 @@ uniform samplerCubeShadow sCubeShadow;
 in vec2 c2D;
 in vec4 c4D;
 in vec3 c3D;
-const float const25f_1 = 1.2;
+const float const25 = 1.2;
 flat in ivec2 ic2D;
 in float c1D;
 flat in ivec3 ic3D;
 flat in int ic1D;
 const int const33i_4 = 4;
 const int const43i_2 = 2;
-const float const62f_4 = 4.2;
-const float const74f_0 = 0.0;
+const float const62 = 4.2;
+const float const74 = 0.0;
 out vec4 FragData;
 
 void main()
@@ -654,7 +654,7 @@ void main()
     vec4 temp21 = texture(s2D, c2D);
     vec4 temp22 = textureProj(s3D, c4D);
     vec4 temp23 = temp21 + temp22;
-    vec4 temp24 = textureLod(s2DArray, c3D, const25f_1);
+    vec4 temp24 = textureLod(s2DArray, c3D, const25);
     vec4 temp26 = temp23 + temp24;
     float temp27 = textureOffset(s2DShadow, c3D, ic2D, c1D);
     float temp28 = temp26.y + temp27;
@@ -691,7 +691,7 @@ void main()
     ivec4 iv50 = textureProjGrad(is2D, c3D, c2D, c2D);
     vec4 temp59 = vec4(iv45);
     vec4 temp60 = temp57 + temp56;
-    ivec4 iv53 = texture(is3D, c3D, const62f_4);
+    ivec4 iv53 = texture(is3D, c3D, const62);
     vec4 temp63 = vec4(iv50);
     vec4 temp64 = temp60 + temp59;
     ivec4 iv57 = textureLod(isCube, c3D, c1D);
@@ -702,7 +702,7 @@ void main()
     vec4 temp70 = temp67 + temp66;
     vec4 temp71 = vec4(iv61);
     vec4 temp72 = temp70 + temp69;
-    vec4 temp73 = vec4(temp44.x, temp44.y, const74f_0, const74f_0);
+    vec4 temp73 = vec4(temp44.x, temp44.y, const74, const74);
     vec4 temp75 = temp72 + temp71;
     vec4 FragData_shadow = temp73 + temp75;
     FragData = FragData_shadow;

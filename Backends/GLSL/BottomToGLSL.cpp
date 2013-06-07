@@ -801,11 +801,6 @@ protected:
 
                     name->append(buf);
 
-                } else if (llvm::isa<llvm::ConstantFP>(value)) {
-                    // TODO: make this not have platform-dependent rounding effects...
-                    name->append("f_");
-                    snprintf(buf, bufSize, "%.0f", GetConstantFloat(value));
-                    name->append(buf);
                 }
             } else {
                 name->append(value->getName());

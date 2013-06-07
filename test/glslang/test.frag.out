@@ -179,7 +179,7 @@ uniform vec4 u;
 uniform float blend;
 varying vec2 t;
 varying vec3 coords;
-const float const27f_2 = 1.789;
+const float const27 = 1.789;
 
 void main()
 {
@@ -188,7 +188,7 @@ void main()
     vec4 temp23 = texture2D(texSampler2D, temp22);
     vec4 temp24 = temp23.wzyx;
     vec4 temp25 = texture3D(texSampler3D, coords);
-    float temp26 = blend * const27f_2;
+    float temp26 = blend * const27;
     vec4 temp28 = temp24 + temp25;
     vec4 FragColor_shadow = mix(temp28, u, temp26);
     gl_FragColor = FragColor_shadow;
@@ -208,7 +208,7 @@ uniform float blend;
 uniform vec4 u;
 varying vec2 t;
 varying vec3 coords;
-const float const28f_2 = 1.789;
+const float const28 = 1.789;
 
 void main()
 {
@@ -218,7 +218,7 @@ void main()
     vec4 temp24 = temp233.wzyx;
     vec4 temp255 = texture3D(texSampler3D, coords);
     vec4 temp287 = temp24 + temp255;
-    float temp266 = blend * const28f_2;
+    float temp266 = blend * const28;
     vec4 FragColor_shadow8 = mix(temp287, u, temp266);
     gl_FragColor = FragColor_shadow8;
     

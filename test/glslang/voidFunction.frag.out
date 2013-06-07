@@ -107,11 +107,11 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 // LunarGOO(r722) output
 #version 100
 uniform vec4 bigColor;
-const float const22f_4 = 4.0;
+const float const22 = 4.0;
 
 void main()
 {
-    float temp21 = bigColor.x + const22f_4;
+    float temp21 = bigColor.x + const22;
     vec4 temp23 = bigColor;
     temp23.x = temp21;
     gl_FragColor = temp23;
@@ -125,11 +125,11 @@ void main()
 // LunarGOO(r722) output
 #version 100
 uniform vec4 bigColor;
-const float const22f_4 = 4.0;
+const float const22 = 4.0;
 
 void main()
 {
-    float temp211 = bigColor.x + const22f_4;
+    float temp211 = bigColor.x + const22;
     vec4 temp23 = bigColor;
     temp23.x = temp211;
     gl_FragColor = temp23;

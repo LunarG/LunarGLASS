@@ -291,9 +291,9 @@ uniform s00 foo00;
 uniform sampler2D sampler;
 const int const23i_0 = 0;
 in vec2 coord;
-const float const28f_0 = 0.0;
-const float const29f_3 = 3.0;
-const float const33f_1 = 1.0;
+const float const28 = 0.0;
+const float const29 = 3.0;
+const float const33 = 1.0;
 const int const36i_5 = 5;
 
 void main()
@@ -303,10 +303,10 @@ void main()
     float temp24 = foo1.member1;
     int temp25 = foo1.member2.member0;
     int temp26 = foo00.member0.member0;
-    float select = temp22 ? const28f_0 : const29f_3;
+    float select = temp22 ? const28 : const29;
     int select43 = temp22 ? const23i_0 : temp25;
     int select44 = temp22 ? const23i_0 : temp26;
-    float select45 = temp22 ? const33f_1 : coord.y;
+    float select45 = temp22 ? const33 : coord.y;
     float select46 = temp22 ? temp24 : coord.y;
     bool temp35 = select43 > const36i_5;
     int locals00d0d0d0dlocals0d0d0 = temp35 ? select44 : select43;

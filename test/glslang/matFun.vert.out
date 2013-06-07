@@ -244,7 +244,7 @@ declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>)
 uniform mat4 m4;
 uniform mat3 m3;
 in vec3 v3;
-const float const40f_1 = 1.0;
+const float const40 = 1.0;
 
 void main()
 {
@@ -268,7 +268,7 @@ void main()
     vec3 temp37;
     temp37.xyz = vec3(dotdi11, dot2di, dot4di);
     vec3 temp38 = temp30 + temp37;
-    vec4 temp39 = vec4(temp38.x, temp38.y, temp38.z, const40f_1);
+    vec4 temp39 = vec4(temp38.x, temp38.y, temp38.z, const40);
     gl_Position = temp39;
     
 }
@@ -282,7 +282,7 @@ void main()
 uniform mat4 m4;
 uniform mat3 m3;
 in vec3 v3;
-const float const40f_1 = 1.0;
+const float const40 = 1.0;
 
 void main()
 {
@@ -306,7 +306,7 @@ void main()
     vec3 temp37;
     temp37.xyz = vec3(dotdi1118, dot2di21, dot4di24);
     vec3 temp3827 = temp30 + temp37;
-    vec4 temp39 = vec4(temp3827.x, temp3827.y, temp3827.z, const40f_1);
+    vec4 temp39 = vec4(temp3827.x, temp3827.y, temp3827.z, const40);
     gl_Position = temp39;
     
 }

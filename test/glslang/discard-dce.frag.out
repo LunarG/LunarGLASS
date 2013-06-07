@@ -199,32 +199,32 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 // LunarGOO(r722) output
 #version 110
 varying vec2 tex_coord;
-const float const22f_2 = 2.0;
-const float const24f_d1 = -1.0;
-const float const32f_1 = 1.0;
-const float const34f_1 = 0.75;
-const float const36f_16 = 16.0;
-const float const38f_1 = 0.5;
+const float const22 = 2.0;
+const float const24 = -1.0;
+const float const32 = 1.0;
+const float const34 = 0.75;
+const float const36 = 16.0;
+const float const38 = 0.5;
 const vec4 const42 = vec4(1.0);
 
 void main()
 {
-    float temp21 = tex_coord.x * const22f_2;
-    float temp23 = temp21 + const24f_d1;
-    float temp25 = tex_coord.y * const22f_2;
-    float temp26 = temp25 + const24f_d1;
+    float temp21 = tex_coord.x * const22;
+    float temp23 = temp21 + const24;
+    float temp25 = tex_coord.y * const22;
+    float temp26 = temp25 + const24;
     float temp27 = temp23 * temp23;
     float temp28 = temp26 * temp26;
     float temp29 = temp27 + temp28;
     float radius5 = sqrt(temp29);
-    bool temp31 = radius5 > const32f_1;
+    bool temp31 = radius5 > const32;
     if (temp31) {
         discard;
     }
     
-    bool temp33 = radius5 < const34f_1;
-    float temp35 = pow(radius5, const36f_16);
-    float temp37 = temp35 * const38f_1;
+    bool temp33 = radius5 < const34;
+    float temp35 = pow(radius5, const36);
+    float temp37 = temp35 * const38;
     float temp39 = abs(temp37);
     vec4 temp40 = vec4(temp39);
     vec4 color13 = const42 - temp40;
@@ -240,32 +240,32 @@ void main()
 // LunarGOO(r722) output
 #version 110
 varying vec2 tex_coord;
-const float const22f_2 = 2.0;
-const float const24f_d1 = -1.0;
-const float const32f_1 = 1.0;
-const float const34f_1 = 0.75;
-const float const36f_16 = 16.0;
-const float const38f_1 = 0.5;
+const float const22 = 2.0;
+const float const24 = -1.0;
+const float const32 = 1.0;
+const float const34 = 0.75;
+const float const36 = 16.0;
+const float const38 = 0.5;
 const vec4 const42 = vec4(1.0);
 
 void main()
 {
-    float temp211 = tex_coord.x * const22f_2;
-    float temp232 = temp211 + const24f_d1;
-    float temp254 = tex_coord.y * const22f_2;
-    float temp265 = temp254 + const24f_d1;
+    float temp211 = tex_coord.x * const22;
+    float temp232 = temp211 + const24;
+    float temp254 = tex_coord.y * const22;
+    float temp265 = temp254 + const24;
     float temp276 = temp232 * temp232;
     float temp287 = temp265 * temp265;
     float temp298 = temp276 + temp287;
     float radius59 = sqrt(temp298);
-    bool temp3110 = radius59 > const32f_1;
+    bool temp3110 = radius59 > const32;
     if (temp3110) {
         discard;
     }
     
-    bool temp3311 = radius59 < const34f_1;
-    float temp3512 = pow(radius59, const36f_16);
-    float temp3713 = temp3512 * const38f_1;
+    bool temp3311 = radius59 < const34;
+    float temp3512 = pow(radius59, const36);
+    float temp3713 = temp3512 * const38;
     float temp3914 = abs(temp3713);
     vec4 temp40 = vec4(temp3914);
     vec4 color1316 = const42 - temp40;

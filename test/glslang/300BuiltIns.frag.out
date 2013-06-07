@@ -850,7 +850,7 @@ flat in mediump ivec4 iv4b;
 const int const46i_0 = 0;
 flat in mediump uvec4 uv4y;
 in vec4 v4;
-const float const53f_0 = 0.0;
+const float const53 = 0.0;
 in highp vec2 v2b;
 out vec4 result;
 
@@ -886,7 +886,7 @@ void main()
     mediump ivec4 isum15 = isum8 + temp45;
     mediump ivec4 temp50 = min(ivec4(uv4y), int(uy));
     ivec4 temp51 = ivec4(temp22.x, temp22.y, const46i_0, const46i_0);
-    vec4 temp52 = vec4(temp21.x, temp21.y, temp21.z, const53f_0);
+    vec4 temp52 = vec4(temp21.x, temp21.y, temp21.z, const53);
     highp int temp54 = packSnorm2x16(v2a);
     bvec4 temp55 = isinf(v4);
     vec4 temp56 = vec4(temp29.x, temp29.y, temp30.x, temp30.y);
@@ -904,7 +904,7 @@ void main()
     mediump ivec4 isum29 = isum17 + temp58;
     mediump ivec4 usum25 = usum12 + temp59;
     highp int temp70 = packHalf2x16(v2b);
-    vec4 temp71 = vec4(temp35.x, temp35.y, const53f_0, const53f_0);
+    vec4 temp71 = vec4(temp35.x, temp35.y, const53, const53);
     mediump vec4 sum58 = sum45 + temp63;
     ivec4 temp73 = ivec4(temp32.x, temp32.y, temp64.x, temp64.y);
     mediump ivec4 temp74 = clamp(ivec4(uv4y), umin, umax);
@@ -915,7 +915,7 @@ void main()
     mediump ivec4 temp79 = floatBitsToInt(v4);
     mediump ivec4 isum50 = isum31 + temp73;
     mediump ivec4 usum38 = usum36 + temp74;
-    vec4 temp82 = vec4(temp38.x, temp38.y, const53f_0, const53f_0);
+    vec4 temp82 = vec4(temp38.x, temp38.y, const53, const53);
     vec4 sum77 = temp77 + sum62;
     ivec4 temp84 = ivec4(temp54, temp62, temp70, const46i_0);
     mediump ivec4 usum56 = usum38 + temp79;

@@ -361,7 +361,7 @@ uniform bool b;
 varying vec4 BaseColor;
 varying float c;
 const vec4 const27 = vec4(0.0);
-const float const29f_1 = 1.0;
+const float const29 = 1.0;
 const vec4 const33 = vec4(1.0);
 
 void main()
@@ -378,7 +378,7 @@ void main()
         return;
     }
     else {
-        float temp28 = colord0.z + const29f_1;
+        float temp28 = colord0.z + const29;
         bool temp30 = temp28 > threshhold;
         if (temp30) {
             discard;
@@ -397,7 +397,7 @@ void main()
             }
             else {
                 if (b) {
-                    float temp36 = color10.z + const29f_1;
+                    float temp36 = color10.z + const29;
                     vec4 temp37 = color10;
                     temp37.z = temp36;
                     colord1 = temp37;
@@ -454,7 +454,7 @@ uniform mediump vec4 otherColor;
 varying float c;
 varying vec4 BaseColor;
 const vec4 const27 = vec4(0.0);
-const float const29f_1 = 1.0;
+const float const29 = 1.0;
 const vec4 const33 = vec4(1.0);
 
 void main()
@@ -471,7 +471,7 @@ void main()
         return;
     }
     else {
-        float temp289 = colord05.z + const29f_1;
+        float temp289 = colord05.z + const29;
         bool temp3010 = temp289 > threshhold;
         if (temp3010) {
             discard;
@@ -490,7 +490,7 @@ void main()
             }
             else {
                 if (b) {
-                    float temp3624 = color1015.z + const29f_1;
+                    float temp3624 = color1015.z + const29;
                     vec4 temp37 = color1015;
                     temp37.z = temp3624;
                     colord1d0 = temp37;
