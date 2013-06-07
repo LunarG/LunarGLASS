@@ -165,6 +165,9 @@ public:
     GlslTarget(Manager* m) : BackEndTranslator(m), appendInitializers(false), indentLevel(0), lastVariable(20),
                              obfuscate(Options.obfuscate)
     {
+        #ifdef _WIN32
+            unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
+        #endif
     }
 
     ~GlslTarget()
