@@ -105,11 +105,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 // LunarGOO(r722) output
 #version 300 es
-vec4[2] p_shadow;
+vec4 p_shadow[2];
 in vec4 pos;
 in vec3 color;
 out vec3 c;
-out vec4[2] p;
+out vec4 p[2];
 
 void main()
 {
@@ -126,11 +126,11 @@ void main()
 
 // LunarGOO(r722) output
 #version 300 es
-vec4[2] p_shadow1;
+vec4 p_shadow1[2];
 in vec4 pos;
 in vec3 color;
 out vec3 c;
-out vec4[2] p;
+out vec4 p[2];
 
 void main()
 {

@@ -193,7 +193,7 @@ struct lunarStruct2 {
 };
 
 struct lunarStruct3 {
-    lunarStruct2[3] s2_1;
+    lunarStruct2 s2_1[3];
     int i;
     float f;
     lunarStruct1 s1_1;
@@ -201,7 +201,7 @@ struct lunarStruct3 {
 
 uniform int Count;
 uniform lunarStruct3 foo3;
-uniform lunarStruct2[5] foo2;
+uniform lunarStruct2 foo2[5];
 uniform lunarStruct1 foo;
 uniform sampler2D sampler;
 const int const23i_0 = 0;

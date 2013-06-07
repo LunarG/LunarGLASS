@@ -158,17 +158,17 @@ WARNING: 0:3: varying deprecated in version 130; may be removed in future releas
 #version 130
 struct lunarStruct1 {
     int i;
-    float[4] f;
-    vec4[5] color;
+    float f[4];
+    vec4 color[5];
 };
 
 struct lunarStruct2 {
-    int[5] i;
+    int i[5];
     float f;
-    lunarStruct1[7] s1_1;
+    lunarStruct1 s1_1[7];
 };
 
-uniform lunarStruct2[5] foo2;
+uniform lunarStruct2 foo2[5];
 uniform sampler2D sampler;
 const int const23i_0 = 0;
 in vec2 coord;

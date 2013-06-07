@@ -206,11 +206,13 @@ public:
             tempStructure << "    ";
             if (mdAggregate) {
                 const llvm::MDNode* subMdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(GetAggregateMdSubAggregateOp(index)));
-                emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), false, subMdAggregate);
+                int arraySize = emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), false, subMdAggregate);
                 tempStructure << " " << std::string(mdAggregate->getOperand(GetAggregateMdNameOp(index))->getName());
+                emitGlaArraySize(tempStructure, arraySize);
             } else {
-                emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), false);
+                int arraySize = emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), false);
                 tempStructure << " " << getGlaStructField(structType, index);
+                emitGlaArraySize(tempStructure, arraySize);
             }
             tempStructure << ";" << std::endl;
         }
@@ -253,15 +255,17 @@ public:
     void addUniform(const llvm::MDNode* mdNode)
     {
         globalDeclarations << "uniform ";
-        emitGlaType(globalDeclarations, EMpCount, 0, true, mdNode);
-        globalDeclarations << " " << std::string(mdNode->getOperand(0)->getName()) << ";" << std::endl;
-        // TODO: functionality: arrayed blocks: add [] if an arrayed instance name
+        int arraySize = emitGlaType(globalDeclarations, EMpCount, 0, true, mdNode);
+        globalDeclarations << " " << std::string(mdNode->getOperand(0)->getName());
+        emitGlaArraySize(globalDeclarations, arraySize);
+        globalDeclarations << ";" << std::endl;
     }
 
     void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name)
     {
         newLine();
-        emitGlaType(shader, EMpNone, type->getContainedType(0));
+        int arraySize = emitGlaType(shader, EMpNone, type->getContainedType(0));        
+        emitGlaArraySize(shader, arraySize);
         // TODO: Goo: ES functionality: how do we know the precision or unsignedness of a function declaration?
         shader << " " << name.str() << "(";
 
@@ -798,6 +802,7 @@ protected:
                     name->append(buf);
 
                 } else if (llvm::isa<llvm::ConstantFP>(value)) {
+                    // TODO: make this not have platform-dependent rounding effects...
                     name->append("f_");
                     snprintf(buf, bufSize, "%.0f", GetConstantFloat(value));
                     name->append(buf);
@@ -835,12 +840,16 @@ protected:
         if (name.substr(0,3) == std::string("gl_"))
             return;
 
+        int arraySize;
+
         // If it has an initializer (is a constant and not an undef)
         if (constant && ! AreAllUndefined(constant)) {
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
-            emitGlaType(globalDeclarations, precision, type);
-            globalDeclarations << " " << name << " = ";
+            arraySize = emitGlaType(globalDeclarations, precision, type);
+            globalDeclarations << " " << name;
+            emitGlaArraySize(globalDeclarations, arraySize);
+            globalDeclarations << " = ";
             emitConstantInitializer(globalDeclarations, constant, constant->getType());
             globalDeclarations << ";" << std::endl;
 
@@ -858,15 +867,20 @@ protected:
 
             globalDeclarations << mapGlaToQualifierString(vq);
             globalDeclarations << " ";
-            emitGlaType(globalDeclarations, precision, type);
-            globalDeclarations << " " << name << ";" << std::endl;
+            arraySize = emitGlaType(globalDeclarations, precision, type);
+            globalDeclarations << " " << name;
+            emitGlaArraySize(globalDeclarations, arraySize);
+            globalDeclarations << ";" << std::endl;
             break;
         case EVQGlobal:
-            emitGlaType(globalDeclarations, precision, type);
-            globalDeclarations << " " << name << ";" << std::endl;
+            arraySize = emitGlaType(globalDeclarations, precision, type);
+            globalDeclarations << " " << name;
+            emitGlaArraySize(globalDeclarations, arraySize);
+            globalDeclarations << ";" << std::endl;
             break;
         case EVQTemporary:
-            emitGlaType(shader, precision, type);
+            arraySize = emitGlaType(shader, precision, type);
+            emitGlaArraySize(shader, arraySize);
             shader << " ";
             break;
         case EVQUndef:
@@ -912,13 +926,17 @@ protected:
 
         globalDeclarations << mapGlaToQualifierString(vq);
         globalDeclarations << " ";
-        emitGlaType(globalDeclarations, gla::EMpNone, type, true, mdNode);
+        int arraySize = emitGlaType(globalDeclarations, gla::EMpNone, type, true, mdNode);
         globalDeclarations << " " << name;
+        emitGlaArraySize(globalDeclarations, arraySize);
         globalDeclarations << ";" << std::endl;
     }
 
-    void emitGlaType(std::ostringstream& out, EMdPrecision precision, llvm::Type* type, bool ioRoot = true, const llvm::MDNode* mdNode = 0, int count = -1)
+    // emits the type (recursively)
+    // returns the array size of the type
+    int emitGlaType(std::ostringstream& out, EMdPrecision precision, llvm::Type* type, bool ioRoot = true, const llvm::MDNode* mdNode = 0, int count = -1)
     {
+        int arraySize = 0;
         bool matrix = false;
         bool notSigned = false;
         std::string name;
@@ -933,21 +951,21 @@ protected:
                 if (! CrackIOMd(mdNode, name, ioKind, type, typeLayout, precision, location, mdSampler, mdAggregate)) {
                     UnsupportedFunctionality("IO metadata for type");
 
-                    return;
+                    return arraySize;
                 }
                 block = ioKind == EMioUniformBlockMember || ioKind == EMioBufferBlockMember;
             } else {
                 if (! CrackAggregateMd(mdNode, name, typeLayout, precision, location, mdSampler)) {
                     UnsupportedFunctionality("aggregate metadata for type");
 
-                    return;
+                    return arraySize;
                 }
                 mdAggregate = mdNode;
             }
             if (typeLayout == EMtlSampler) {
                 emitGlaSamplerType(out, mdSampler);
 
-                return;
+                return arraySize;
             }
             matrix = typeLayout == EMtlRowMajorMatrix || typeLayout == EMtlColMajorMatrix;
             notSigned = typeLayout == EMtlUnsigned;
@@ -1005,11 +1023,8 @@ protected:
                 // We're still higher up in the type tree than a matrix; e.g., array of matrices
                 // (or, not a matrix).
                 emitGlaType(out, precision, arrayType->getContainedType(0), false, mdAggregate);
-                out << "[" << arrayType->getNumElements() << "]";
+                arraySize = arrayType->getNumElements();
             }
-        //} else if (type->getTypeID() == llvm::Type::PointerTyID) {
-        //    const llvm::PointerType* pointerType = llvm::dyn_cast<const llvm::PointerType>(type);
-        //    emitGlaType(out, pointerType->getContainedType(0));
         } else {
             // just output a scalar
             emitGlaPrecision(out, precision);            
@@ -1027,6 +1042,14 @@ protected:
             else
                 UnsupportedFunctionality("Basic Type in Bottom IR");
         }
+
+        return arraySize;
+    }
+
+    void emitGlaArraySize(std::ostringstream& out, int arraySize)
+    {
+        if (arraySize > 0)
+            out << "[" << arraySize << "]";
     }
 
     void emitGlaSamplerType(std::ostringstream& out, const llvm::MDNode* mdSamplerNode)
@@ -1068,7 +1091,8 @@ protected:
 
     void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count = -1)
     {
-        emitGlaType(out, EMpNone, type, false, 0, count);
+        int arraySize = emitGlaType(out, EMpNone, type, false, 0, count);
+        emitGlaArraySize(out, arraySize);
     }
 
     // If valueMap has no entry for value, generate a name and declaration, and

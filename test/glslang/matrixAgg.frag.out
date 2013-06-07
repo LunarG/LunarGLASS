@@ -179,12 +179,12 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 #version 120
 struct s {
     int count;
-    mat4x3[12] sm;
+    mat4x3 sm[12];
 };
 
 uniform s us;
 uniform int i;
-uniform vec3[4][8] am;
+uniform vec3 am[8];
 varying vec3 v;
 
 void main()

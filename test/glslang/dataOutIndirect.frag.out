@@ -370,7 +370,7 @@ WARNING: 0:3: varying deprecated in version 130; may be removed in future releas
 
 // LunarGOO(r722) output
 #version 130
-vec4[32] FragData_shadow;
+vec4 FragData_shadow[32];
 uniform int i;
 in vec4 Color;
 
@@ -450,8 +450,8 @@ void main()
 
 // LunarGOO(r722) output
 #version 130
-vec4[32] FragData_shadow;
-vec4[32] FragData_shadow1;
+vec4 FragData_shadow[32];
+vec4 FragData_shadow1[32];
 uniform int i;
 in vec4 Color;
 

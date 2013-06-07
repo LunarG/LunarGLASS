@@ -120,9 +120,9 @@ declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>)
 
 // LunarGOO(r722) output
 #version 130
-uniform vec4[6] color;
+uniform vec4 color[6];
 uniform vec3 inColor;
-uniform float[16] alpha;
+uniform float alpha[16];
 
 void main()
 {
@@ -143,9 +143,9 @@ void main()
 
 // LunarGOO(r722) output
 #version 130
-uniform vec4[6] color;
+uniform vec4 color[6];
 uniform vec3 inColor;
-uniform float[16] alpha;
+uniform float alpha[16];
 
 void main()
 {
