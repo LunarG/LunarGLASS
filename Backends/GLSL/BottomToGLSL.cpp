@@ -187,8 +187,15 @@ public:
     {
         // this is mutually recursive with emitGlaType
 
+        // track the mapping between LLVM's structure type and GLSL's name for it,
+        // and only declare it once
         if (structNameMap.find(structType) != structNameMap.end())
             return;
+        structNameMap[structType] = name;
+        
+        // track the mapping between the type name and it's metadata type
+        if (mdAggregate)
+            typenameMdAggregateMap[structType] = mdAggregate;
 
         // For nested struct types, we have to output the nested one
         // before the containing one.  So, make the current on the side
@@ -196,7 +203,6 @@ public:
         // declared.
         std::ostringstream tempStructure;
 
-        structNameMap[structType] = name;
         if (! block)
             tempStructure << "struct ";
         if (mdAggregate)
@@ -973,7 +979,7 @@ protected:
         }
 
         if (type->getTypeID() == llvm::Type::PointerTyID)
-            type = llvm::dyn_cast<llvm::PointerType>(type)->getContainedType(0);
+            type = type->getContainedType(0);
 
         // if it's a vector, output a vector type
         if (type->getTypeID() == llvm::Type::VectorTyID) {
@@ -1153,7 +1159,7 @@ protected:
         out << name;
     }
 
-    std::string getGlaStructField(const llvm::Type* structType, int index, llvm::MDNode* mdAggregate = 0)
+    std::string getGlaStructField(const llvm::Type* structType, int index, const llvm::MDNode* mdAggregate = 0)
     {
         std::string name;
 
@@ -1549,28 +1555,31 @@ protected:
 
     // Traverse the indices used in either GEP or Insert/ExtractValue, and return a string representing
     // it, not including the base.
-    std::string traverseGep(const llvm::Value* value, llvm::MDNode* mdAggregate)
+    std::string traverseGep(const llvm::Instruction* instr)
     {
         std::string gepName;
 
-        if (const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(value)) {
+        // Figure out any metadata description we have for this type of aggregate
+        llvm::Type* aggregateType = instr->getOperand(0)->getType();
+        while (aggregateType->getTypeID() == llvm::Type::PointerTyID || aggregateType->getTypeID() == llvm::Type::ArrayTyID)
+            aggregateType = aggregateType->getContainedType(0);
+        const llvm::MDNode* mdAggregate = typenameMdAggregateMap[aggregateType];
 
+        if (const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(instr)) {
             // Start at operand 2 since indices 0 and 1 give you the base and are handled before traverseGep
             const llvm::Type* gepType = gepInst->getPointerOperandType()->getContainedType(0);
             for (unsigned int op = 2; op < gepInst->getNumOperands(); ++op)
-                dereferenceGep(gepType, gepName, gepInst->getOperand(op), -1, op-2, mdAggregate);
+                dereferenceGep(gepType, gepName, gepInst->getOperand(op), -1, mdAggregate);
 
-        } else if (const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(value)) {
-
-            const llvm::Type* gepType = insertValueInst->getAggregateOperand()->getType();
+        } else if (const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(instr)) {
+            const llvm::Type* gepType = insertValueInst->getAggregateOperand()->getType();            
             for (llvm::InsertValueInst::idx_iterator iter = insertValueInst->idx_begin(), end = insertValueInst->idx_end();  iter != end; ++iter)
-                dereferenceGep(gepType, gepName, 0, *iter, 0, mdAggregate);
+                dereferenceGep(gepType, gepName, 0, *iter, mdAggregate);
 
-        } else if (const llvm::ExtractValueInst* extractValueInst = llvm::dyn_cast<const llvm::ExtractValueInst>(value)) {
-
-            const llvm::Type* gepType = extractValueInst->getAggregateOperand()->getType();
+        } else if (const llvm::ExtractValueInst* extractValueInst = llvm::dyn_cast<const llvm::ExtractValueInst>(instr)) {
+            const llvm::Type* gepType = extractValueInst->getAggregateOperand()->getType();  
             for (llvm::ExtractValueInst::idx_iterator iter = extractValueInst->idx_begin(), end = extractValueInst->idx_end();  iter != end; ++iter)
-                dereferenceGep(gepType, gepName, 0, *iter, 0, mdAggregate);
+                dereferenceGep(gepType, gepName, 0, *iter, mdAggregate);
 
         } else {
             assert(0 && "non-GEP in traverseGEP");
@@ -1581,7 +1590,7 @@ protected:
 
     // Traverse one step of a dereference chain and append to a string
     // For constant indices, pass it in index.  Otherwise, provide it through gepOp (index will not be used)
-    void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, int depth, llvm::MDNode*& mdAggregate)
+    void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate)
     {
         if (operand) {
             if (llvm::isa<const llvm::ConstantInt>(operand))
@@ -1616,7 +1625,7 @@ protected:
 
             // Deference the metadata aggregate 
             if (mdAggregate) {
-                int aggOp = GetAggregateMdSubAggregateOp(depth);
+                int aggOp = GetAggregateMdSubAggregateOp(index);
                 if (mdAggregate->getNumOperands() <= aggOp) {
                     UnsupportedFunctionality("not enough mdAggregate operands", EATContinue);
                     mdAggregate = 0;
@@ -1731,7 +1740,7 @@ protected:
         // Operates recursively...
 
         if (type->getTypeID() == llvm::Type::PointerTyID) {
-            type = llvm::dyn_cast<llvm::PointerType>(type)->getContainedType(0);
+            type = type->getContainedType(0);
 
             dereferenceName(name, type, slotOffset);
         } else if (type->getTypeID() == llvm::Type::VectorTyID) {
@@ -1790,6 +1799,9 @@ protected:
 
     // map to track structure names tracked in the module
     std::map<const llvm::Type*, std::string> structNameMap;
+
+    // map from type names to the mdAggregate nodes that describe their types
+    std::map<const llvm::Type*, const llvm::MDNode*> typenameMdAggregateMap;
 
     // set to track what globals are already declared,
     // it potentially only includes globals that are in danger of multiple declaration
@@ -2131,7 +2143,6 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                 // See if we have metadata describing a uniform variable to declare
                 std::string name;
                 llvm::MDNode* mdUniform = llvmInstruction->getMetadata(UniformMdName);
-                llvm::MDNode* mdAggregate = 0;
 
                 // get the name
                 if (mdUniform)
@@ -2145,14 +2156,9 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                         name = gepInstr->getOperand(0)->getName();
                 }
 
-                if (mdUniform && mdUniform->getNumOperands() >= 5)
-                    mdAggregate = llvm::dyn_cast<llvm::MDNode>(mdUniform->getOperand(4));
-                else
-                    UnsupportedFunctionality("missing metadata operands", EATContinue);
-
                 // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
                 // For GEP, which always returns a pointer, traverse the dereference chain and store it.
-                name.append(traverseGep(gepInstr, mdAggregate));
+                name.append(traverseGep(gepInstr));
                 if (name[0] == '.')
                     name = name.substr(1, std::string::npos);
                 addNewVariable(gepInstr, name);
@@ -2192,7 +2198,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                     name = *prevName;
                 else
                     name = gepInstr->getOperand(0)->getName();
-                name.append(traverseGep(gepInstr, 0));
+                name.append(traverseGep(gepInstr));
                 addNewVariable(gepInstr, name);
             }
 
@@ -2280,7 +2286,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         emitGlaValue(extractValueInst->getAggregateOperand());
 
         // emit chain
-        shader << traverseGep(extractValueInst, 0);
+        shader << traverseGep(extractValueInst);
         shader << ";";
 
         return;
@@ -2294,7 +2300,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         emitGlaValue(insertValueInst->getAggregateOperand());
 
         // emit chain
-        shader << traverseGep(insertValueInst, 0);
+        shader << traverseGep(insertValueInst);
 
         shader << " = ";
         emitGlaValue(insertValueInst->getInsertedValueOperand());
