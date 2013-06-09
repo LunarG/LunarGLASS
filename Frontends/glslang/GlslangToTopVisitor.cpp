@@ -1369,6 +1369,8 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* no
 
     // Grab the pointer from the previously created function
     llvm::Function* function = functionMap[node->getName().c_str()];
+    if (! function)
+        return 0;
 
     // First step:  Allocate the space for the arguments and build llvm
     // pointers to it as the passed in arguments.
