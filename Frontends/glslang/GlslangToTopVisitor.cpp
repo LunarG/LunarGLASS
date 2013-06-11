@@ -2185,9 +2185,6 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType
             case EbtUint:
                 llvmConsts.push_back(gla::MakeUnsignedConstant(context, consts[nextConst].getUConst()));
                 break;
-            case EbtFloat:
-                llvmConsts.push_back(gla::MakeFloatConstant(context, consts[nextConst].getFConst()));
-                break;
             case EbtDouble:
                 llvmConsts.push_back(gla::MakeFloatConstant(context, consts[nextConst].getDConst()));
                 break;
