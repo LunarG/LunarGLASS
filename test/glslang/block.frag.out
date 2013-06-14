@@ -52,7 +52,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !9 = metadata !{i32 1, i32 2, i32 63, null}
 !10 = metadata !{metadata !"", metadata !11}
 !11 = metadata !{i32 5, i32 1, i32 63, metadata !12}
-!12 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 1}
+!12 = metadata !{i32 0, i32* @sampler_typeProxy_typeProxy, i32 1, i1 false, i1 false, i32 1}
 !13 = metadata !{metadata !"", metadata !14}
 !14 = metadata !{i32 3, i32 0, i32 63, null}
 !15 = metadata !{metadata !"", i32 13, %fooBlock addrspace(2)* @__anon__0, metadata !16, metadata !17}
@@ -66,7 +66,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !23 = metadata !{metadata !"S", metadata !3, metadata !"u", metadata !6, metadata !"v", metadata !8, metadata !"sampler", metadata !24, metadata !"w", metadata !6, metadata !"m3a", metadata !13}
 !24 = metadata !{metadata !"", metadata !25}
 !25 = metadata !{i32 5, i32 1, i32 63, metadata !26}
-!26 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 1}
+!26 = metadata !{i32 0, i32* @sampler_typeProxy_typeProxy, i32 1, i1 false, i1 false, i32 1}
 !27 = metadata !{metadata !"", metadata !28}
 !28 = metadata !{i32 3, i32 0, i32 0, null}
 !29 = metadata !{metadata !"inst", i32 13, [4 x %barBlock] addrspace(2)* @inst, metadata !16, metadata !30}
@@ -128,7 +128,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !9 = metadata !{i32 1, i32 2, i32 63, null}
 !10 = metadata !{metadata !"", metadata !11}
 !11 = metadata !{i32 5, i32 1, i32 63, metadata !12}
-!12 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 1}
+!12 = metadata !{i32 0, i32* @sampler_typeProxy_typeProxy, i32 1, i1 false, i1 false, i32 1}
 !13 = metadata !{metadata !"", metadata !14}
 !14 = metadata !{i32 3, i32 0, i32 63, null}
 !15 = metadata !{metadata !"", i32 13, %fooBlock addrspace(2)* @__anon__0, metadata !16, metadata !17}
@@ -142,7 +142,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !23 = metadata !{metadata !"S", metadata !3, metadata !"u", metadata !6, metadata !"v", metadata !8, metadata !"sampler", metadata !24, metadata !"w", metadata !6, metadata !"m3a", metadata !13}
 !24 = metadata !{metadata !"", metadata !25}
 !25 = metadata !{i32 5, i32 1, i32 63, metadata !26}
-!26 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 1}
+!26 = metadata !{i32 0, i32* @sampler_typeProxy_typeProxy, i32 1, i1 false, i1 false, i32 1}
 !27 = metadata !{metadata !"", metadata !28}
 !28 = metadata !{i32 3, i32 0, i32 0, null}
 !29 = metadata !{metadata !"inst", i32 13, [4 x %barBlock] addrspace(2)* @inst, metadata !16, metadata !30}

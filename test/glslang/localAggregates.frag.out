@@ -190,7 +190,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !9 = metadata !{i32 0, i32 0, i32 0, null}
 !10 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !11}
 !11 = metadata !{i32 5, i32 0, i32 0, metadata !12}
-!12 = metadata !{i32 0, i32 addrspace(1)* @sampler, i32 1, i1 false, i1 false, i32 0}
+!12 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !13 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 0, i32 1024, null}
 !15 = metadata !{metadata !"color", i32 1, <4 x float>* @color_shadow_typeProxy, metadata !16}
@@ -219,14 +219,14 @@ entry:
   %2 = extractelement <2 x float> %coord, i32 0
   %3 = select i1 %1, float %2, float 1.000000e+00
   %4 = fadd float %3, 1.000000e+00
-  %select33 = select i1 %1, float 1.000000e+00, float %2
-  %select.v = select i1 %1, float %2, float %4
+  %select = select i1 %1, float 1.000000e+00, float %2
+  %select35.v = select i1 %1, float %2, float %4
   %5 = load i32 addrspace(2)* @condition, align 4, !gla.uniform !8
   %6 = icmp eq i32 %5, 1
-  %select = select i1 %6, float %2, float 0.000000e+00
-  %7 = fadd float %select33, %select.v
-  %8 = fadd float %2, %7
-  %9 = fadd float %8, %select
+  %select99 = select i1 %6, float %2, float 0.000000e+00
+  %7 = fadd float %select, %select35.v
+  %8 = fadd float %7, %2
+  %9 = fadd float %8, %select99
   %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %9, <4 x i32> zeroinitializer)
   %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !15
   %11 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !10
@@ -272,7 +272,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !9 = metadata !{i32 0, i32 0, i32 0, null}
 !10 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !11}
 !11 = metadata !{i32 5, i32 0, i32 0, metadata !12}
-!12 = metadata !{i32 0, i32 addrspace(1)* @sampler, i32 1, i1 false, i1 false, i32 0}
+!12 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !13 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 0, i32 1024, null}
 !15 = metadata !{metadata !"color", i32 1, <4 x float>* @color_shadow_typeProxy, metadata !16}
@@ -323,13 +323,13 @@ void main()
     bool temp22 = temp21 > const23i_0;
     float temp24 = temp22 ? coord.x : const25;
     float temp26 = temp24 + const25;
-    float select33 = temp22 ? const25 : coord.x;
-    float selectdv = temp22 ? coord.x : temp26;
+    float select = temp22 ? const25 : coord.x;
+    float select35dv = temp22 ? coord.x : temp26;
     bool temp29 = condition == const30i_1;
-    float select = temp29 ? coord.x : const32;
-    float temp33 = select33 + selectdv;
-    float temp34 = coord.x + temp33;
-    float temp35 = temp34 + select;
+    float select99 = temp29 ? coord.x : const32;
+    float temp33 = select + select35dv;
+    float temp34 = temp33 + coord.x;
+    float temp35 = temp34 + select99;
     vec4 temp36 = vec4(temp35);
     vec4 temp37 = color;
     temp37.z = coord.y;
@@ -380,11 +380,11 @@ void main()
 {
     int temp211 = foo3.s2_1.i;
     bool temp222 = temp211 > const23i_0;
-    float select = temp222 ? const25 : coord.x;
-    float select45 = temp222 ? coord.x : const27;
+    float select46 = temp222 ? const25 : coord.x;
+    float select44 = temp222 ? coord.x : const27;
     bool temp2921 = condition == const29i_1;
     float select43 = temp2921 ? coord.x : const31;
-    float temp3329 = select + select45;
+    float temp3329 = select46 + select44;
     float temp3431 = temp3329 + coord.x;
     float temp3532 = select43 + temp3431;
     vec4 temp35 = vec4(temp3532);

@@ -91,7 +91,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !11 = metadata !{metadata !"foo", i32 12, %lunarStruct1* @foo_typeProxy, metadata !3, metadata !9}
 !12 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !13}
 !13 = metadata !{i32 5, i32 0, i32 0, metadata !14}
-!14 = metadata !{i32 0, i32 addrspace(1)* @sampler, i32 1, i1 false, i1 false, i32 0}
+!14 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !15 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !16}
 !16 = metadata !{i32 0, i32 0, i32 1024, null}
 !17 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !18}
@@ -168,7 +168,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !11 = metadata !{metadata !"foo", i32 12, %lunarStruct1* @foo_typeProxy, metadata !3, metadata !9}
 !12 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !13}
 !13 = metadata !{i32 5, i32 0, i32 0, metadata !14}
-!14 = metadata !{i32 0, i32 addrspace(1)* @sampler, i32 1, i1 false, i1 false, i32 0}
+!14 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !15 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !16}
 !16 = metadata !{i32 0, i32 0, i32 1024, null}
 !17 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !18}

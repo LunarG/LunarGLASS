@@ -2257,7 +2257,7 @@ llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const TType& type, llvm::Val
             typeProxy = new llvm::GlobalVariable(convertGlslangToGlaType(type), true, llvm::GlobalVariable::ExternalLinkage, 0, "sampler_typeProxy");
         }
 
-        return metadata.makeMdSampler(getMdSampler(type), typeProxy, getMdSamplerDim(type), type.getSampler().arrayed,
+        return metadata.makeMdSampler(getMdSampler(type), makePermanentTypeProxy(typeProxy), getMdSamplerDim(type), type.getSampler().arrayed,
                                       type.getSampler().shadow, getMdSamplerBaseType(type.getSampler().type));
     } else
         return 0;

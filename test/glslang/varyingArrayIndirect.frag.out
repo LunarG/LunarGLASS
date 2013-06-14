@@ -137,7 +137,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !0 = metadata !{metadata !"texSampler2D", i32 12, i32* @texSampler2D_typeProxy, metadata !1}
 !1 = metadata !{i32 5, i32 0, i32 0, metadata !2}
-!2 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false, i32 0}
+!2 = metadata !{i32 0, i32* @texSampler2D_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !3 = metadata !{metadata !"b", i32 12, i32* @b_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 0, null}
 !5 = metadata !{metadata !"a", i32 12, i32* @a_typeProxy, metadata !4}
@@ -254,7 +254,7 @@ declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>)
 
 !0 = metadata !{metadata !"texSampler2D", i32 12, i32* @texSampler2D_typeProxy, metadata !1}
 !1 = metadata !{i32 5, i32 0, i32 0, metadata !2}
-!2 = metadata !{i32 0, i32 addrspace(1)* @texSampler2D, i32 1, i1 false, i1 false, i32 0}
+!2 = metadata !{i32 0, i32* @texSampler2D_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !3 = metadata !{metadata !"b", i32 12, i32* @b_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 0, null}
 !5 = metadata !{metadata !"a", i32 12, i32* @a_typeProxy, metadata !4}
