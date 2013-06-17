@@ -38,8 +38,6 @@
 #include <string.h>
 #include <math.h>
 
-
-
 #ifdef _WIN32
     #include <windows.h>
     #include <psapi.h>
@@ -51,17 +49,10 @@ extern "C" {
     SH_IMPORT_EXPORT void ShOutputHtml();
 }
 
-//
-// Return codes from main.
-//
-enum TFailCode {
-    ESuccess = 0,
-    EFailUsage,
-    EFailCompile,
-    EFailLink,
-    EFailCompilerCreate,
-    EFailLinkerCreate
-};
+// For overriding the output language version.
+// Would be good to have a way of passing a target definition through the front end, or next to it...
+extern int TargetDefinitionVersion;
+extern EProfile TargetDefinitionProfile;
 
 //
 // Just placeholders for testing purposes.  The stand-alone environment
@@ -76,15 +67,25 @@ ShBinding FixedAttributeBindings[] = {
 
 ShBindingTable FixedAttributeTable = { 3, FixedAttributeBindings };
 
-static EShLanguage FindLanguage(char *lang);
-bool CompileFile(char *fileName, ShHandle, int, const TBuiltInResource*);
-void usage();
-void FreeFileData(char **data);
-char** ReadFileData(char *fileName);
-void InfoLogMsg(char* msg, const char* name, const int num);
-int ShOutputMultipleStrings(char ** );
-//Added to accomodate the multiple strings.
+namespace {
+
 int OutputMultipleStrings = 1;
+
+//
+// Return codes from main.
+//
+enum TFailCode {
+    ESuccess = 0,
+    EFailUsage,
+    EFailCompile,
+    EFailLink,
+    EFailCompilerCreate,
+    EFailLinkerCreate
+};
+
+int debugOptions = EDebugOpGiveWarnings | EDebugOpRelaxedErrors;
+bool delay = false;
+const char* executableName;
 
 //
 // Set up the per compile resources
@@ -112,114 +113,117 @@ void GenerateResources(TBuiltInResource& resources)
     resources.maxProgramTexelOffset = 7;
 }
 
-int C_DECL main(int argc, char* argv[])
+//
+//   print usage to stdout
+//
+void usage(const char* executableName, bool advanced)
 {
-    bool delay = false;
-    int numCompilers = 0;
-    bool compileFailed = false;
-    bool linkFailed = false;
-    int debugOptions = 0;
-    int i;
+    if (! advanced) {
+        printf("Basic usage:\n"
+               "%s [options] <filename>\n"
+               "<filename> ends in .frag or .vert\n"
+               "Standard Output will receive new shader.\n"
+               "Standard Error will receive an information log.\n", executableName);
 
-    ShHandle    linker = 0;
-    ShHandle    uniformMap = 0;
-    ShHandle    compilers[EShLangCount];
-
-    ShInitialize();
-
+        printf("\n");
+        printf("Basic options:\n"
+               "-<version>: override output version, where <version> is 100, 110, ..., 300es, ..., 430core, 430compatibility \n"
+               "-r: restrictive error checking (give all required errors)\n"
+               "-s: silent mode (no information log)\n"
+               "-w: suppress warnings\n"
+               "-z: see developer options\n");
+    }
+    
+    if (advanced) {
+        printf("Developer options:\n"
+               "-a: dump IRs (LunarGLASS Top IR and Bottom IR)\n"
 #ifdef _WIN32
-    __try {
+               "-d: delay exit (keeps output up in debugger, WIN32)\n"
 #endif
-        argc--;
-        argv++;
-        for (; argc >= 1; argc--, argv++) {
-            if (argv[0][0] == '-') {
-                switch (argv[0][1]) {
-                case 'd':
-                    delay = true;                        
-                    break;
-                case 'i': 
-                    debugOptions |= EDebugOpIntermediate;       
-                    break;
-                case 'a': 
-                    debugOptions |= EDebugOpAssembly;
-                    break;
-                case 'l':
-                    debugOptions |= EDebugOpMemoryLeakMode;
-                    break;
-                case 's':
-                    debugOptions |= EDebugOpSuppressInfolog;
-                    break;
-                default:
-                    usage();
+               "-i: dump intermediate (glslang AST)\n"
+               "-l: memory leak mode\n");
+    }
+}
+
+TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& names)
+{
+    executableName = argv[0] + strlen(argv[0]) - 1;
+    while (*executableName == '/' || *executableName == '\\')
+        --executableName;
+    while (*executableName != '/' && *executableName != '\\' && (unsigned)executableName > (unsigned)argv[0])
+        --executableName;
+    if (*executableName == '/' || *executableName == '\\')
+        ++executableName;
+
+    argc--;
+    argv++;
+    for (; argc >= 1; argc--, argv++) {
+        if (argv[0][0] == '-') {
+            switch (argv[0][1]) {
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            {
+                const char* versionStr = &argv[0][1];
+                const char* profileStr = &argv[0][4];
+                if (versionStr[1] < '0' || versionStr[1] > '9' || versionStr[2] != '0') {
+                    usage(executableName, false);
                     return EFailUsage;
                 }
-            } else {
-                compilers[numCompilers] = ShConstructCompiler(FindLanguage(argv[0]), debugOptions);
-                if (compilers[numCompilers] == 0)
-                    return EFailCompilerCreate;
-                ++numCompilers;
-
-                TBuiltInResource resources;
-                GenerateResources(resources);
-                if (! CompileFile(argv[0], compilers[numCompilers-1], debugOptions, &resources))
-                    compileFailed = true;
+                TargetDefinitionVersion = 100 * (versionStr[0] - '0') + 10 * (versionStr[1] - '0');
+                if (profileStr[0] == 0) {
+                    if (TargetDefinitionVersion == 100 || TargetDefinitionVersion == 300)                            
+                        TargetDefinitionProfile = EEsProfile;
+                    else if (TargetDefinitionVersion < 150)
+                        TargetDefinitionProfile = ENoProfile;
+                    else
+                        TargetDefinitionProfile = ECoreProfile;
+                } else if (strcmp(profileStr, "es") == 0)
+                    TargetDefinitionProfile = EEsProfile;
+                else if (strcmp(profileStr, "core") == 0)
+                    TargetDefinitionProfile = ECoreProfile;
+                else if (strcmp(profileStr, "compatibility") == 0)
+                    TargetDefinitionProfile = ECompatibilityProfile;
+                else {
+                    usage(executableName, false);
+                    return EFailUsage;
+                }
+                break;
             }
-        }
-
-        if (!numCompilers) {
-            usage();
-            return EFailUsage;
-        }
-
-        linker = ShConstructLinker(EShExVertexFragment, debugOptions);
-        if (linker == 0)
-            return EFailLinkerCreate;
-
-        uniformMap = ShConstructUniformMap();
-        if (uniformMap == 0)
-            return EFailLinkerCreate;
-
-        if (numCompilers > 0) {
-            ShSetFixedAttributeBindings(linker, &FixedAttributeTable);
-            if (! ShLink(linker, compilers, numCompilers, uniformMap, 0, 0))
-                linkFailed = true;
-        }
-
-        if (! (debugOptions & EDebugOpSuppressInfolog)) {
-            for (i = 0; i < numCompilers; ++i) {
-                InfoLogMsg("BEGIN", "COMPILER", i);
-                fprintf(stderr, "%s", ShGetInfoLog(compilers[i]));
-                InfoLogMsg("END", "COMPILER", i);
+            case 'a':
+                debugOptions |= EDebugOpAssembly;
+                break;
+            case 'd':
+                delay = true;
+                break;
+            case 'i': 
+                debugOptions |= EDebugOpIntermediate;       
+                break;
+            case 'l':
+                debugOptions |= EDebugOpMemoryLeakMode;
+                break;
+            case 'r':
+                debugOptions &= ~EDebugOpRelaxedErrors;
+                break;
+            case 's':
+                debugOptions |= EDebugOpSuppressInfolog;
+                break;
+            case 'w':
+                debugOptions &= ~EDebugOpGiveWarnings;
+                break;
+            case 'z':
+                usage(executableName, true);
+                return EFailUsage;
+            default:
+                usage(executableName, false);
+                return EFailUsage;
             }
-
-            InfoLogMsg("BEGIN", "LINKER", -1);
-            fprintf(stderr, "%s", ShGetInfoLog(linker));
-            InfoLogMsg("END", "LINKER", -1);
-        }
-
-#ifdef _WIN32
-    } __finally {
-#endif
-        for (i = 0; i < numCompilers; ++i)
-            ShDestruct(compilers[i]);
-
-        ShDestruct(linker);
-        ShDestruct(uniformMap);
-
-#ifdef _WIN32
-        if (delay)
-            Sleep(1000000);
-
+        } else
+            names.push_back(argv[0]);
     }
-#endif
 
-    if (compileFailed)
-        return EFailCompile;
-    if (linkFailed)
-        return EFailLink;
-
-    return 0;
+    return ESuccess;
 }
 
 //
@@ -229,12 +233,12 @@ int C_DECL main(int argc, char* argv[])
 //   .frag*    = fragment programs
 //   .vert*    = vertex programs
 //
-static EShLanguage FindLanguage(char *name)
+EShLanguage FindLanguage(const char *name)
 {
     if (!name)
         return EShLangVertex;
 
-    char *ext = strrchr(name, '.');
+    const char *ext = strrchr(name, '.');
 
     if (ext && strcmp(ext, ".sl") == 0)
         for (; ext > name && ext[0] != '.'; ext--);
@@ -246,58 +250,11 @@ static EShLanguage FindLanguage(char *name)
     return EShLangVertex;
 }
 
-
-//
-//   Read a file's data into a string, and compile it using ShCompile
-//
-bool CompileFile(char *fileName, ShHandle compiler, int debugOptions, const TBuiltInResource *resources)
-{
-    int ret;
-    char **data = ReadFileData(fileName);
-
-#ifdef _WIN32
-    PROCESS_MEMORY_COUNTERS counters;  // just for memory leak testing
-#endif
-
-    if (! data)
-        return false;
-
-    for (int i = 0; i < ((debugOptions & EDebugOpMemoryLeakMode) ? 100 : 1); ++i) {
-        for (int j = 0; j < ((debugOptions & EDebugOpMemoryLeakMode) ? 100 : 1); ++j)
-            ret = ShCompile(compiler, data, OutputMultipleStrings, EShOptNone, resources, debugOptions, 100, false, EShMsgDefault);
-      
-#ifdef _WIN32
-        if (debugOptions & EDebugOpMemoryLeakMode) {
-            GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters));
-            printf("Working set size: %d\n", counters.WorkingSetSize);
-        }
-#endif
-    }
-
-    FreeFileData(data);
-
-    return ret ? true : false;
-}
-
-//
-//   print usage to stdout
-//
-void usage()
-{
-    printf("Usage: standalone [ options ] filename\n"
-           "Where: filename = filename ending in .frag* or .vert*\n"
-           "-i: intermediate (glslang AST)\n"
-           "-a: assembly dump (LLVM IR)\n"
-           "-d: delay end (keeps output up in debugger, WIN32)\n"
-           "-l: memory leak mode\n"
-           "-s: silent mode (no info log)\n");
-}
-
 //
 //   Malloc a string of sufficient size and read a string into it.
 //
-# define MAX_SOURCE_STRINGS 5
-char** ReadFileData(char *fileName)
+#define MAX_SOURCE_STRINGS 5
+char** ReadFileData(const char *fileName)
 {
     FILE *in = fopen(fileName, "r");
     char *fdata;
@@ -359,8 +316,131 @@ void FreeFileData(char **data)
         free(data[i]);
 }
 
+//
+//   Read a file's data into a string, and compile it using ShCompile
+//
+bool CompileFile(const char *fileName, ShHandle compiler, int debugOptions, const TBuiltInResource *resources)
+{
+    int ret;
+    char **data = ReadFileData(fileName);
+
+#ifdef _WIN32
+    PROCESS_MEMORY_COUNTERS counters;  // just for memory leak testing
+#endif
+
+    if (! data)
+        return false;
+
+    EShMessages messages = EShMsgDefault;
+    if (! (debugOptions & EDebugOpGiveWarnings))
+        messages = (EShMessages)(messages | EShMsgSuppressWarnings);
+    if (debugOptions & EDebugOpRelaxedErrors)
+        messages = (EShMessages)(messages | EShMsgRelaxedErrors);
+
+    for (int i = 0; i < ((debugOptions & EDebugOpMemoryLeakMode) ? 100 : 1); ++i) {
+        for (int j = 0; j < ((debugOptions & EDebugOpMemoryLeakMode) ? 100 : 1); ++j)
+            ret = ShCompile(compiler, data, OutputMultipleStrings, EShOptNone, resources, debugOptions, 100, false, EShMsgDefault);
+
+#ifdef _WIN32
+        if (debugOptions & EDebugOpMemoryLeakMode) {
+            GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters));
+            printf("Working set size: %d\n", counters.WorkingSetSize);
+        }
+#endif
+    }
+
+    FreeFileData(data);
+
+    return ret ? true : false;
+}
+
 void InfoLogMsg(char* msg, const char* name, const int num)
 {
     fprintf(stderr, num >= 0 ? "#### %s %s %d INFO LOG ####\n" :
            "#### %s %s INFO LOG ####\n", msg, name, num);
+}
+
+}; // end anonymous namespace
+
+int C_DECL main(int argc, char* argv[])
+{
+    int numCompilers = 0;
+    bool compileFailed = false;
+    bool linkFailed = false;
+    int i;
+    TargetDefinitionProfile = EProfileCount;
+    TargetDefinitionVersion = 0;
+
+    ShHandle    linker = 0;
+    ShHandle    uniformMap = 0;
+    ShHandle    compilers[EShLangCount];
+
+    ShInitialize();
+
+    std::vector<const char*> names;
+    TFailCode failCode = ParseCommandLine(argc, argv, names);
+    if (failCode)
+        return failCode;
+
+    for (int n = 0; n < names.size(); ++n) {
+        compilers[numCompilers] = ShConstructCompiler(FindLanguage(names[n]), debugOptions);
+        if (compilers[numCompilers] == 0)
+            return EFailCompilerCreate;
+        ++numCompilers;
+
+        TBuiltInResource resources;
+        GenerateResources(resources);
+        if (! CompileFile(names[n], compilers[numCompilers-1], debugOptions, &resources))
+            compileFailed = true;
+    }
+
+    if (! numCompilers) {
+        usage(executableName, false);
+
+        return EFailUsage;
+    }
+
+    linker = ShConstructLinker(EShExVertexFragment, debugOptions);
+    if (linker == 0)
+        return EFailLinkerCreate;
+
+    uniformMap = ShConstructUniformMap();
+    if (uniformMap == 0)
+        return EFailLinkerCreate;
+
+    if (numCompilers > 0) {
+        ShSetFixedAttributeBindings(linker, &FixedAttributeTable);
+        if (! ShLink(linker, compilers, numCompilers, uniformMap, 0, 0))
+            linkFailed = true;
+    }
+
+    if (! (debugOptions & EDebugOpSuppressInfolog)) {
+        for (i = 0; i < numCompilers; ++i) {
+            InfoLogMsg("BEGIN", "COMPILER", i);
+            fprintf(stderr, "%s", ShGetInfoLog(compilers[i]));
+            InfoLogMsg("END", "COMPILER", i);
+        }
+
+        InfoLogMsg("BEGIN", "LINKER", -1);
+        fprintf(stderr, "%s", ShGetInfoLog(linker));
+        InfoLogMsg("END", "LINKER", -1);
+    }
+
+    for (i = 0; i < numCompilers; ++i)
+        ShDestruct(compilers[i]);
+
+    ShDestruct(linker);
+    ShDestruct(uniformMap);
+
+#ifdef _WIN32
+    if (delay)
+        Sleep(1000000);
+#endif
+
+    if (compileFailed)
+        return EFailCompile;
+    if (linkFailed)
+        return EFailLink;
+
+    return 0;
 }

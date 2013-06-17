@@ -49,6 +49,10 @@
 // LLVM includes
 #include "llvm/Module.h"
 
+// Would be good to have a way of passing a target definition through the front end, or next to it...
+int TargetDefinitionVersion;
+EProfile TargetDefinitionProfile;
+
 #ifndef USE_LUNARGLASS_CORE
 
     class AdapterOnlyManager : public gla::Manager {
@@ -60,9 +64,6 @@
         {
             delete module;
             module = 0;
-
-            delete pipeOutSymbols;
-            pipeOutSymbols = 0;
         } 
 
         virtual void translateTopToBottom() { }
@@ -76,10 +77,18 @@
 //
 class TGenericCompiler : public TCompiler {
 public:
-    TGenericCompiler(EShLanguage l, int dOptions) : TCompiler(l, infoSink), debugOptions(dOptions) { }
+    TGenericCompiler(EShLanguage l, int dOptions) : TCompiler(l, infoSink), debugOptions(dOptions), targetVersion(0), targetProfile(EProfileCount) { }
     virtual bool compile(TIntermNode* root, int version = 0, EProfile profile = ENoProfile);
+    void setTargetVersion(int tv) { targetVersion = tv; }
+    void setTargetProfile(EProfile tp) { targetProfile = tp; }
+    int getTargetVersion() { return targetVersion; }
+    EProfile getTargetProfile() { return targetProfile; }
+
+protected:
     TInfoSink infoSink;
     int debugOptions;
+    int targetVersion;
+    EProfile targetProfile;
 };
 
 //
@@ -89,7 +98,11 @@ public:
 //
 TCompiler* ConstructCompiler(EShLanguage language, int debugOptions)
 {
-    return new TGenericCompiler(language, debugOptions);
+    TGenericCompiler* compiler = new TGenericCompiler(language, debugOptions);
+    compiler->setTargetVersion(TargetDefinitionVersion);
+    compiler->setTargetProfile(TargetDefinitionProfile);
+
+    return compiler;
 }
 
 //
@@ -109,13 +122,19 @@ bool TGenericCompiler::compile(TIntermNode *root, int version, EProfile profile)
 
     haveValidObjectCode = false;
 
+    // Pick up the target versioning from the source, if it was not specified
+    if (targetProfile == EProfileCount)
+        targetProfile = profile;
+    if (targetVersion == 0)
+        targetVersion = version;
+
 #ifdef USE_LUNARGLASS_CORE
     gla::Manager* glaManager = gla::getManager();
 #else
     gla::Manager* glaManager = new AdapterOnlyManager();
 #endif
     assert(EShLangCount < 256 && EProfileCount < 256);
-    glaManager->setVersion(static_cast<int>(language) << 24 | static_cast<int>(profile) << 16 | version);
+    glaManager->setVersion(static_cast<int>(language) << 24 | static_cast<int>(targetProfile) << 16 | targetVersion);
 
     TranslateGlslangToTop(root, glaManager);
 

@@ -1017,13 +1017,13 @@ void main()
         bool temp10389 = all(temp10086);
         bool temp10490 = temp7252 != temp4423;
         float ternary444887 = float(temp9074.y);
-        float select = temp221 ? temp8568.x : ternary444887;
-        float select142 = temp263 ? temp4423 : temp8366.x;
+        float select141 = temp221 ? temp8568.x : ternary444887;
+        float select140 = temp263 ? temp4423 : temp8366.x;
         bool temp107102 = any(temp10288);
         bool temp108103 = temp10490 || temp10389;
         bool temp110105 = temp108103 || temp107102;
-        float temp109104 = select + select142;
-        float select140 = temp110105 ? temp109104 : temp7252;
+        float temp109104 = select140 + select141;
+        float select = temp110105 ? temp109104 : temp7252;
         int temp112113 = temp9074.x + temp3413;
         int temp113114 = temp112113 + temp9074.y;
         int temp114115 = temp113114 + temp9480.x;
@@ -1034,7 +1034,7 @@ void main()
         int temp119120 = temp118119 + temp9277.y;
         int temp120121 = temp119120 + temp9277.z;
         float temp121122 = float(temp120121);
-        float temp122123 = temp121122 + select140;
+        float temp122123 = temp121122 + select;
         float temp123124 = temp8366.x + temp122123;
         float temp124125 = temp8366.y + temp123124;
         float temp125126 = temp8568.x + temp124125;
