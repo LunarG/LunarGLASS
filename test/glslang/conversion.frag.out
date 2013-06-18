@@ -761,9 +761,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 uniform int u_i;
 uniform float u_f;
 uniform vec2 u_f2;
@@ -906,13 +905,13 @@ void main()
     gl_FragColor = ternary52d0;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 uniform int u_i;
 uniform float u_f;
 uniform vec2 u_f2;
@@ -1055,3 +1054,4 @@ void main()
     gl_FragColor = ternary52d0d0;
     
 }
+

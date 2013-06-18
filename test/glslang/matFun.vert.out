@@ -238,9 +238,8 @@ declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>)
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 uniform mat4 m4;
 uniform mat3 m3;
 in vec3 v3;
@@ -272,13 +271,13 @@ void main()
     gl_Position = temp39;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 uniform mat4 m4;
 uniform mat3 m3;
 in vec3 v3;
@@ -310,3 +309,4 @@ void main()
     gl_Position = temp39;
     
 }
+

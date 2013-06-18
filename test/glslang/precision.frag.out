@@ -244,9 +244,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 300 es
+// LunarGOO output (r722)
 uniform mediump int uniform_medium;
 uniform highp int uniform_high;
 uniform lowp int uniform_low;
@@ -279,13 +278,13 @@ void main()
     mediumfout = mediumfout_shadow13;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 300 es
+// LunarGOO output (r722)
 uniform lowp int uniform_low;
 uniform highp int uniform_high;
 uniform mediump int uniform_medium;
@@ -317,3 +316,4 @@ void main()
     mediumfout = mediumfout_shadow1318;
     
 }
+

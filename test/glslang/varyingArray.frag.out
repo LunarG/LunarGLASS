@@ -205,9 +205,8 @@ WARNING: 0:8: varying deprecated in version 130; may be removed in future releas
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 uniform sampler2D texSampler2D;
 in vec4 foo[3];
 in vec4 color;
@@ -227,13 +226,13 @@ void main()
     gl_FragColor = FragColor_shadow;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 uniform sampler2D texSampler2D;
 in vec4 foo[3];
 in vec4 color;
@@ -253,3 +252,4 @@ void main()
     gl_FragColor = FragColor_shadow42;
     
 }
+

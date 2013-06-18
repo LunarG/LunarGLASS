@@ -621,9 +621,8 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 430 core
+// LunarGOO output (r722)
 uniform sampler2D s2D;
 uniform sampler3D s3D;
 uniform sampler2DArray s2DArray;
@@ -708,6 +707,7 @@ void main()
     FragData = FragData_shadow;
     
 }
+
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 ERROR: Not all shaders have valid object code.

@@ -138,9 +138,8 @@ WARNING: 0:1: '#version' : statement missing: use #version on first line of shad
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 100
+// LunarGOO output (r722)
 uniform vec4 otherColor;
 uniform float d;
 uniform vec4 bigColor;
@@ -157,13 +156,13 @@ void main()
     gl_FragColor = FragColor_shadow;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 100
+// LunarGOO output (r722)
 uniform float d;
 uniform vec4 bigColor;
 uniform vec4 smallColor;
@@ -180,3 +179,4 @@ void main()
     gl_FragColor = FragColor_shadow6;
     
 }
+

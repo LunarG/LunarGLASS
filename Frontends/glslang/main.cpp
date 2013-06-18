@@ -45,6 +45,8 @@
     #include <cstdlib>
 #endif
 
+#include "Options.h"
+
 extern "C" {
     SH_IMPORT_EXPORT void ShOutputHtml();
 }
@@ -127,7 +129,8 @@ void usage(const char* executableName, bool advanced)
 
         printf("\n");
         printf("Basic options:\n"
-               "-<version>: override output version, where <version> is 100, 110, ..., 300es, ..., 430core, 430compatibility \n"
+               "-<version>: set output version, where <version> is 100, 110, ..., 300es, ..., 430core, 430compatibility \n"
+               "-o: obfuscate\n"
                "-r: restrictive error checking (give all required errors)\n"
                "-s: silent mode (no information log)\n"
                "-w: suppress warnings\n"
@@ -136,11 +139,11 @@ void usage(const char* executableName, bool advanced)
     
     if (advanced) {
         printf("Developer options:\n"
-               "-a: dump IRs (LunarGLASS Top IR and Bottom IR)\n"
+               "-a: dump LunarGLASS Top IR and Bottom IR\n"
 #ifdef _WIN32
-               "-d: delay exit (keeps output up in debugger, WIN32)\n"
+               "-d: delay exit\n"
 #endif
-               "-i: dump intermediate (glslang AST)\n"
+               "-i: dump AST\n"
                "-l: memory leak mode\n");
     }
 }
@@ -202,6 +205,9 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
                 break;
             case 'l':
                 debugOptions |= EDebugOpMemoryLeakMode;
+                break;
+            case 'o':
+                gla::Options.obfuscate = true;
                 break;
             case 'r':
                 debugOptions &= ~EDebugOpRelaxedErrors;

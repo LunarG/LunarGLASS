@@ -139,9 +139,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 300 es
+// LunarGOO output (r722)
 const int const22i_2 = 2;
 const int const24i_d10 = -10;
 in mediump float ps;
@@ -159,13 +158,13 @@ void main()
     gl_PointSize = PointSize_shadow6;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 300 es
+// LunarGOO output (r722)
 const int const22i_2 = 2;
 const int const24i_d10 = -10;
 in mediump float ps;
@@ -183,3 +182,4 @@ void main()
     gl_PointSize = PointSize_shadow68;
     
 }
+

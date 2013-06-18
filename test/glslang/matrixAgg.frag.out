@@ -172,9 +172,8 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 120
+// LunarGOO output (r722)
 struct s {
     int count;
     mat4x3 sm[12];
@@ -209,6 +208,7 @@ void main()
     gl_FragColor = temp39;
     
 }
+
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 ERROR: Not all shaders have valid object code.

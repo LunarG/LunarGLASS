@@ -895,9 +895,8 @@ declare <4 x i32> @llvm.gla.swizzle.v4i32.i32.v4i32(i32, <4 x i32>) nounwind rea
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 300 es
+// LunarGOO output (r722)
 uniform bvec3 bv;
 uniform mediump int imin;
 uniform mediump int imax;
@@ -1005,6 +1004,7 @@ void main()
     gl_FragDepth = FragDepth_shadow84;
     
 }
+
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 ERROR: Not all shaders have valid object code.

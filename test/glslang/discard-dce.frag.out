@@ -195,9 +195,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 110
+// LunarGOO output (r722)
 varying vec2 tex_coord;
 const float const22 = 2.0;
 const float const24 = -1.0;
@@ -232,13 +231,13 @@ void main()
     gl_FragColor = select;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 110
+// LunarGOO output (r722)
 varying vec2 tex_coord;
 const float const22 = 2.0;
 const float const24 = -1.0;
@@ -273,3 +272,4 @@ void main()
     gl_FragColor = select;
     
 }
+

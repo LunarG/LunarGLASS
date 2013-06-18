@@ -285,9 +285,8 @@ WARNING: 0:5: varying deprecated in version 130; may be removed in future releas
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 struct s1 {
     int i;
     float f;
@@ -339,13 +338,13 @@ void main()
     gl_FragColor = FragColor_shadow;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 struct s1 {
     int i;
     float f;
@@ -396,3 +395,4 @@ void main()
     gl_FragColor = FragColor_shadow40;
     
 }
+

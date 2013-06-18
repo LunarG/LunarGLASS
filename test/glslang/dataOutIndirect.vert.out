@@ -158,9 +158,8 @@ WARNING: 0:4: varying deprecated in version 130; may be removed in future releas
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 vec4 colorOut_shadow[6];
 in vec4 color;
 out vec4 colorOut[6];
@@ -186,13 +185,13 @@ void main()
     gl_Position = color;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 vec4 colorOut_shadow[6];
 vec4 colorOut_shadow1[6];
 in vec4 color;
@@ -226,3 +225,4 @@ void main()
     gl_Position = color;
     
 }
+

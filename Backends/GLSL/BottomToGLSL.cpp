@@ -2855,13 +2855,6 @@ void gla::GlslTarget::mapGlaCall(const llvm::CallInst* call)
 
 void gla::GlslTarget::print()
 {
-    // If we don't have the noRevision options
-    // set, then output the revision.
-    if (Options.noRevision)
-        printf("\n// LunarGOO output\n");
-    else
-        printf("\n// LunarGOO(r%d) output\n", GLA_REVISION);
-
     // #version...
     printf("#version %d", version);
     if (version >= 150 && profile != ENoProfile) {
@@ -2876,6 +2869,16 @@ void gla::GlslTarget::print()
     }
     printf("\n");
 
+    // If we don't have the noRevision options
+    // set, then output the revision.
+    printf("// LunarGOO output");
+    if (! Options.noRevision)
+        printf(" (r%d)", GLA_REVISION);
+    if (Options.obfuscate)
+        printf(" obuscated");
+    printf("\n");
+    
     // rest of shader...
     printf("%s%s%s", globalStructures.str().c_str(), globalDeclarations.str().c_str(), shader.str().c_str());
+    printf("\n");
 }

@@ -236,9 +236,8 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 100
+// LunarGOO output (r722)
 uniform highp mat4 mvp;
 attribute highp vec4 v;
 attribute highp mat3 am3;
@@ -283,13 +282,13 @@ void main()
     f = am3[2].y;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 100
+// LunarGOO output (r722)
 uniform highp mat4 mvp;
 attribute highp vec4 v;
 attribute highp mat3 am3;
@@ -334,3 +333,4 @@ void main()
     f = am3[2].y;
     
 }
+

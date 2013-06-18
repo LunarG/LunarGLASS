@@ -73,9 +73,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 120
+// LunarGOO output (r722)
 const vec4 const21 = vec4(30.0);
 
 void main()
@@ -83,13 +82,13 @@ void main()
     gl_FragColor = const21;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 120
+// LunarGOO output (r722)
 const vec4 const21 = vec4(30.0);
 
 void main()
@@ -97,3 +96,4 @@ void main()
     gl_FragColor = const21;
     
 }
+

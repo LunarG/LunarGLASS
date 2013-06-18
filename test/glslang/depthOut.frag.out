@@ -106,9 +106,8 @@ WARNING: 0:4: varying deprecated in version 130; may be removed in future releas
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 in vec4 Color;
 in float Depth;
 out vec4 foo;
@@ -120,13 +119,13 @@ void main()
     foo = Color;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 in vec4 Color;
 in float Depth;
 out vec4 foo;
@@ -138,3 +137,4 @@ void main()
     foo = Color;
     
 }
+

@@ -105,9 +105,8 @@ WARNING: 0:5: attribute deprecated in version 130; may be removed in future rele
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 in vec4 position;
 in vec2 uv_in;
 out vec2 uv;
@@ -120,13 +119,13 @@ void main()
     gl_Position = Position_shadow;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 130
+// LunarGOO output (r722)
 in vec4 position;
 in vec2 uv_in;
 out vec2 uv;
@@ -139,3 +138,4 @@ void main()
     gl_Position = Position_shadow2;
     
 }
+

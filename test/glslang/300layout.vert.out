@@ -361,9 +361,8 @@ declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x floa
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 300 es
+// LunarGOO output (r722)
 uniform Transform {
     mat4 M1;
     mat4 M2;
@@ -452,6 +451,7 @@ void main()
     iout = iout_shadow;
     
 }
+
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 ERROR: Not all shaders have valid object code.

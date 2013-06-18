@@ -121,9 +121,8 @@ WARNING: 0:1: '#version' : statement missing: use #version on first line of shad
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 100
+// LunarGOO output (r722)
 uniform sampler2D tex;
 varying vec2 coord;
 const vec4 const23 = vec4(0.1, 0.2, 0.3, 0.4);
@@ -140,13 +139,13 @@ void main()
     gl_FragColor = temp21;
     
 }
+
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-
-// LunarGOO(r722) output
 #version 100
+// LunarGOO output (r722)
 uniform sampler2D tex;
 varying vec2 coord;
 const vec4 const23 = vec4(0.1, 0.2, 0.3, 0.4);
@@ -163,3 +162,4 @@ void main()
     gl_FragColor = temp211;
     
 }
+
