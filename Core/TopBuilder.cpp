@@ -260,6 +260,7 @@ void Builder::accessChainStore(llvm::Value* value)
         source = shadowVector;
     }
 
+    // TODO: functionality: store to variable vector component?
     if (accessChain.component)
         UnsupportedFunctionality("store to variable vector channel");
 
@@ -292,6 +293,7 @@ llvm::Value* Builder::accessChainLoad(EMdPrecision precision)
         value = createLoad(collapseAccessChain(), accessChain.metadataKind, accessChain.mdNode);
     }
 
+    // TODO: functionality: read from variable vector component?
     if (accessChain.component)
         UnsupportedFunctionality("extract from variable vector component");
 
@@ -389,6 +391,7 @@ void Builder::makeReturn(bool implicit, llvm::Value* retVal, bool isMain)
 
 void Builder::makeDiscard(bool isMain)
 {
+    // TODO: functionality: discard from a function
     if (! isMain)
         gla::UnsupportedFunctionality("discard from non-main functions");
 
@@ -1849,6 +1852,7 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     return instr;
 }
 
+// Vector constructor
 llvm::Value* Builder::createConstructor(gla::EMdPrecision precision, const std::vector<llvm::Value*>& sources, llvm::Value* constructee)
 {
     unsigned int numTargetComponents = GetComponentCount(constructee);
@@ -1862,7 +1866,7 @@ llvm::Value* Builder::createConstructor(gla::EMdPrecision precision, const std::
 
     for (unsigned int i = 0; i < sources.size(); ++i) {
         if (IsAggregate(sources[i]))
-            gla::UnsupportedFunctionality("aggregate in constructor");
+            gla::UnsupportedFunctionality("aggregate in vector constructor");
 
         unsigned int sourceSize = GetComponentCount(sources[i]);
 
@@ -2146,6 +2150,7 @@ void Builder::makeLoopBackEdge(bool implicit)
         iNext = ! ld.builderDoesIncrement ? iPrev : builder.CreateAdd(iPrev, ld.increment);
         cmp   = builder.CreateICmpSGE(iNext, ld.finish);
         break;
+    // TODO: unsigned: generate the right tests for an unsigned loop counter?
     default: gla::UnsupportedFunctionality("unknown type in inductive variable");
     }
 

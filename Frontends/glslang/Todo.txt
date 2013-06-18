@@ -1,7 +1,12 @@
-- Check all "UnsupportedFunctionality"
-
-LLVM 3.2
+LunarGLASS/GOO LLVM 3.2
  - Loop issues for LunarGLASS core
+ - handle all derived classes of constant
+
+Adapter
+ - read/write from variably chosen vector component
+ - discard from a function
+ - fModf
+ - precision and unsignedness of loop inductive variables
 
 Thread safety
  - Move to thread safe version of flex
@@ -19,18 +24,20 @@ Interfacing
   + Fix any copyrights
   - Linker I/O: to be done as metadata
      + all matrix types globals
-	 - uniform blocks; names and content
-	 + all opaque types
-	 + layout qualifiers, packing: std140/packed/shared and column-major vs. row-major
-	 - layout qualifiers: locations
+     - uniform blocks; names and content
+     - structure in/out
+     - support invariant
+     + all opaque types
+     + layout qualifiers, packing: std140/packed/shared and column-major vs. row-major
+     - layout qualifiers: locations
      + external names for all I/O and globals
-	 - special built-ins (odd qualifiers)
-	 + remove all the name mangling that had been doing the above
-	 + reduce repetitive metadata and metadata list
+     - special built-ins (odd qualifiers)
+     + remove all the name mangling that had been doing the above
+     + reduce repetitive metadata and metadata list
   + remove side-band pipeline data from the manager class
   + precision qualifiers done as metadata
      + not for EMpNone
-	 + for all binary, unary, computations, pipeline reads, etc.
+     + for all binary, unary, computations, pipeline reads, etc.
 
 Build
   + VS 11
@@ -52,196 +59,196 @@ LunarGoo
 
 + double underscore should be an error not a warning, maybe wait until after LunarGOO does not make them
 
-+ GLSL 1.2
-• + Handle version-specific keywords as identifiers for other versions
-• + Support non-square matrices, mat2x3 means 2 columns, 3 rows
-• . add more non-square matrix test cases for adapter
-• + Add gl_PointCoord for fragment shaders to query a fragment's position within a point sprite.
-• + "?:" can have the same type 2nd and 3rd operands (e.g. conversion is not required).
-• + Support centroid interpolation on multi-sample varyings
-• + Allow built-in function calls in const initializers.
-• + Add the invariant keyword and its support.
-• + Disallow other signatures/return-values of main.
-• + Separate out and distinguish between storage and parameter qualifiers, making it easier to add the invariant qualifier.
-• + matrix construction from matrix
-• + Allow unsized array constructors.  (This still makes an explicitly sized array.)
-• + Require explicitly sized arrays for assignment and comparison.
-• + Allow sizing unsized array declaration through initializer.
-• + Add C++ style name hiding rules
-• + Removed embedded structures to match ES.
-• x No line continuation character. (NB: Don't implement:  this got added in a later release, should be retroactive.)
-• . Comments don't delete new lines (need CPP fix)
-• + method support for “.length()”
-• + array type syntax is supported “float[5]”, and array initializers are added
-• + Accept "f" as part of a floating-point constant.  E.g. "float g = 3.5f".
-• + Non-ES: Reserve lowp, mediump, highp, and precision
-• + Non-ES 1.0 (but 3.0): Add outerProduct() for multiplying vectors to yield a matrix.
-• + Non-ES 1.0 (but 3.0): add transpose()
-• . Non-ES: Allow initializers on uniform declarations.  The value is set at link time.
-• + Non-ES: Automatically convert integer types to float types, as needed by context.
-• . Non-ES: signature matching takes type conversions into account, ambiguity is an error
-• x Link: Use of invariant and centroid must match between vertex and fragment shaders.
-• x Link: Non-ES: Different compilation units can be different language versions
+- GLSL 1.2
+    + Handle version-specific keywords as identifiers for other versions
+    + Support non-square matrices, mat2x3 means 2 columns, 3 rows
+    . add more non-square matrix test cases for adapter
+    + Add gl_PointCoord for fragment shaders to query a fragment's position within a point sprite.
+    + "?:" can have the same type 2nd and 3rd operands (e.g. conversion is not required).
+    + Support centroid interpolation on multi-sample varyings
+    + Allow built-in function calls in const initializers.
+    - Add the invariant keyword and its support.
+    + Disallow other signatures/return-values of main.
+    + Separate out and distinguish between storage and parameter qualifiers, making it easier to add the invariant qualifier.
+    + matrix construction from matrix
+    + Allow unsized array constructors.  (This still makes an explicitly sized array.)
+    + Require explicitly sized arrays for assignment and comparison.
+    + Allow sizing unsized array declaration through initializer.
+    + Add C++ style name hiding rules
+    + Removed embedded structures to match ES.
+    x No line continuation character. (NB: Don't implement:  this got added in a later release, should be retroactive.)
+    . Comments don't delete new lines (need CPP fix)
+    + method support for “.length()”
+    + array type syntax is supported “float[5]”, and array initializers are added
+    + Accept "f" as part of a floating-point constant.  E.g. "float g = 3.5f".
+    + Non-ES: Reserve lowp, mediump, highp, and precision
+    + Non-ES 1.0 (but 3.0): Add outerProduct() for multiplying vectors to yield a matrix.
+    + Non-ES 1.0 (but 3.0): add transpose()
+    . Non-ES: Allow initializers on uniform declarations.  The value is set at link time.
+    + Non-ES: Automatically convert integer types to float types, as needed by context.
+    . Non-ES: signature matching takes type conversions into account, ambiguity is an error
+    x Link: Use of invariant and centroid must match between vertex and fragment shaders.
+    x Link: Non-ES: Different compilation units can be different language versions
 
 + OpenGL ESSL 1.0 adds
-• + precision qualifiers
-• + reserves superp
+  + precision qualifiers
+  + reserves superp
 
 + OpenGL ESSL 1.0 removes
-• + almost all built-in "gl_" variables, state, etc.
-• + 1D and 3D textures
-• + shadow textures
-• x multiple compilation units
+  + almost all built-in "gl_" variables, state, etc.
+  + 1D and 3D textures
+  + shadow textures
+  x multiple compilation units
 
 - GLSL 1.3
-• + new texture names
-• + native signed and unsigned integers, integer vectors, and operations
-  • + bitwise shifts and masking
-  • + integer texture indices
-  • + integer texture return values
-  • + integer uniforms, vertex inputs, vertex outputs, fragment inputs, and fragment outputs
-  • + new built-in functions: abs, sign, min, max, clamp, ...
-  • + mix() is expanded to operate on a Boolean 3rd argument that does not interpolate but selects.
-  • + uint and int  can be mixed for <<, >> but not for other operators
-• + texture size queries.
-• + texture arrays.
-• + texture offsetting.
-• + explicit LOD and derivative controls
-• + switch/case/default statements, for integer condition only
-• + switch statements can be empty, must have a statement between a label and the end of the switch, allows flow control to fall through
-• + new built-ins: trunc(), round(), roundEven(), isnan(), isinf()
-• - modf(): there, but still need to handle multiple destinations for an intrinsic
-• - Add hyperbolic functions sinh, cosh, tanh, asinh, acosh, atanh.
-• + User-defined fragment output variables.
-• + Add shader input and output declarations via in and out.
-• + new vertex input gl_VertexID
-• + Accept the precision qualifiers from OpenGL ES with no expectation that anything is done with them.
-• + allow precision qualifiers in structures and function declarations
-• + error to specify integer literals too big for an integer variable.
-• - flat is for both user and predeclared built-in in/out variables
-• - highp is always present in the fragment language, the default is highp
-• - order of qualification is either (invariant-qualifier interpolation-qualifier storage-qualifier precision-qualifier) or (storage-qualifier parameter-qualifier  precision-qualifier)
-• + (a = b) is an r-value and never an l-value
-• + projective cube map texture and shadow
-• + explicit gradient texture lookup
-• . Some synchronization with ES (inout parameter evaluation order, foo(void), others)
-• x It's an error to use #if etc. on an undefined name (later reversed, version-specific) (CPP)
-• x Use gl_Position for clipping if gl_ClipVertex is not statically written. (later reversed, version specific)
-• - The ability to index into an array of samplers with a variable index is removed
-• . Non-ES: Preprocessor token pasting (##), ## does macro expansion after pasting not before
-• . Non-ES: non-perspective (linear) interpolation (noperspective)
-• . Non-ES: add gl_ClipDistance[] to both vertex and fragment shaders
-• . Non-ES: only statically used built-ins have to be redeclared as flat
-• . Non-ES: Link: Deprecated mixing fixed vertex/fragment stage with programmable fragment/vertex stage.
-• . Non-ES: Deprecated gl_ClipVertex
-• . Non-ES: deprecate almost all built-in state
-• . Non-ES: ftransform() is deprecated
-• . Non-ES: Deprecated built-in vertex inputs (attributes) and some outputs (varyings).
+  + new texture names
+  + native signed and unsigned integers, integer vectors, and operations
+    + bitwise shifts and masking
+    + integer texture indices
+    + integer texture return values
+    + integer uniforms, vertex inputs, vertex outputs, fragment inputs, and fragment outputs
+    + new built-in functions: abs, sign, min, max, clamp, ...
+    + mix() is expanded to operate on a Boolean 3rd argument that does not interpolate but selects.
+    + uint and int  can be mixed for <<, >> but not for other operators
+  + texture size queries.
+  + texture arrays.
+  + texture offsetting.
+  + explicit LOD and derivative controls
+  + switch/case/default statements, for integer condition only
+  + switch statements can be empty, must have a statement between a label and the end of the switch, allows flow control to fall through
+  + new built-ins: trunc(), round(), roundEven(), isnan(), isinf()
+  - modf(): there, but still need to handle multiple destinations for an intrinsic
+  - Add hyperbolic functions sinh, cosh, tanh, asinh, acosh, atanh.
+  + User-defined fragment output variables.
+  + Add shader input and output declarations via in and out.
+  + new vertex input gl_VertexID
+  + Accept the precision qualifiers from OpenGL ES with no expectation that anything is done with them.
+  + allow precision qualifiers in structures and function declarations
+  + error to specify integer literals too big for an integer variable.
+  - flat is for both user and predeclared built-in in/out variables
+  - highp is always present in the fragment language, the default is highp
+  - order of qualification is either (invariant-qualifier interpolation-qualifier storage-qualifier precision-qualifier) or (storage-qualifier parameter-qualifier  precision-qualifier)
+  + (a = b) is an r-value and never an l-value
+  + projective cube map texture and shadow
+  + explicit gradient texture lookup
+  . Some synchronization with ES (inout parameter evaluation order, foo(void), others)
+  x It's an error to use #if etc. on an undefined name (later reversed, version-specific) (CPP)
+  x Use gl_Position for clipping if gl_ClipVertex is not statically written. (later reversed, version specific)
+  - The ability to index into an array of samplers with a variable index is removed
+  . Non-ES: Preprocessor token pasting (##), ## does macro expansion after pasting not before
+  . Non-ES: non-perspective (linear) interpolation (noperspective)
+  . Non-ES: add gl_ClipDistance[] to both vertex and fragment shaders
+  . Non-ES: only statically used built-ins have to be redeclared as flat
+  . Non-ES: Link: Deprecated mixing fixed vertex/fragment stage with programmable fragment/vertex stage.
+  . Non-ES: Deprecated gl_ClipVertex
+  . Non-ES: deprecate almost all built-in state
+  . Non-ES: ftransform() is deprecated
+  . Non-ES: Deprecated built-in vertex inputs (attributes) and some outputs (varyings).
 
 + 1.4
-• + Add uniform blocks and layouts to be backed by the application through buffer bindings.
+  + Add uniform blocks and layouts to be backed by the application through buffer bindings.
     + interface block support for uniforms
     + packing layouts std140, shared, packed
-	+ matrix layouts row_major, column_major
-	+ defaults, nesting, and inheritance of these
-	+ anonymous blocks having members scoped at global level
-• + Add gl_InstanceID for instance drawing.
-• + Don't require writing to gl_Position.
-• + Add matrix inversion built-in inverse().
-• x Make clear that mix(), isnan(), and isinf() work with a scalar bool as well.
-• - Non-ES: things to track as removed in this release, but present in others:
-  • Use of gl_ClipVertex.  Use gl_ClipDistance instead.
-  • Built-in vertex shader inputs.
-  • Built-in uniforms except for depth range parameters
-  • Built-in interface between vertex and fragment:  gl_TexCoord, gl_FogFragCoord, and all the color values.
-  • Built-in two-sided coloring.
-  • Fixed functionality for a programmable stage.  Supply shaders for all stages currently being used.
-  • ftransform().  Use invariant outputs instead.
-• + Non-ES: Rectangular textures, including the closure of the functionality indicated by the original texture_rectangle extension, the gpu_shader4 extension and the 1.3 version of GLSL.
-• + Non-ES (but ES 3.0): Texture buffers.
+    + matrix layouts row_major, column_major
+    + defaults, nesting, and inheritance of these
+    + anonymous blocks having members scoped at global level
+  + Add gl_InstanceID for instance drawing.
+  + Don't require writing to gl_Position.
+  + Add matrix inversion built-in inverse().
+  x Make clear that mix(), isnan(), and isinf() work with a scalar bool as well.
+  - Non-ES: things to track as removed in this release, but present in others:
+    Use of gl_ClipVertex.  Use gl_ClipDistance instead.
+    Built-in vertex shader inputs.
+    Built-in uniforms except for depth range parameters
+    Built-in interface between vertex and fragment:  gl_TexCoord, gl_FogFragCoord, and all the color values.
+    Built-in two-sided coloring.
+    Fixed functionality for a programmable stage.  Supply shaders for all stages currently being used.
+    ftransform().  Use invariant outputs instead.
+  + Non-ES: Rectangular textures, including the closure of the functionality indicated by the original texture_rectangle extension, the gpu_shader4 extension and the 1.3 version of GLSL.
+  + Non-ES (but ES 3.0): Texture buffers.
 
 - 1.5
-• + Turn the compatibility extension into the compatibility profile.
-• + Added determinant() built-in.
-• - Broaden structure usage to include fragment inputs and vertex outputs.
-• + Removed the ability to have statements before the first case in a switch.
-• + Put gl_MaxTextureUnits and gl_MaxTextureCoords into the compatibility profile.
-• - Non-ES: Deprecated gl_MaxVaryingComponents
-• - Non-ES: Add new minimum maximums for gl_MaxVertexOutputComponents, gl_MaxGeometryInputComponents, gl_MaxGeometryOutputComponents, and gl_MaxFragmentInputComponents, 
+  + Turn the compatibility extension into the compatibility profile.
+  + Added determinant() built-in.
+  - Broaden structure usage to include fragment inputs and vertex outputs.
+  + Removed the ability to have statements before the first case in a switch.
+  + Put gl_MaxTextureUnits and gl_MaxTextureCoords into the compatibility profile.
+  . Non-ES: Deprecated gl_MaxVaryingComponents
+  . Non-ES: Add new minimum maximums for gl_MaxVertexOutputComponents, gl_MaxGeometryInputComponents, gl_MaxGeometryOutputComponents, and gl_MaxFragmentInputComponents, 
             rather than relying on gl_MaxVaryingComponents.  Also, corrected gl_MaxVaryingComponents to be 60 instead of 64.
-• - Non-ES: Added gl_PrimitiveID as an input to fragment shaders.
-• - Non-ES: Added gl_FragCoord qualifiers origin_upper_left, and pixel_center_integer to modify the values returned by gl_FragCoord (and have no affect on any other aspect of the pipeline or language).
-• - Non-ES: Added support for multi-sample textures through sampler2DMS and sampler2DMSArray support in texelFetch() and textureSize().
-• - Non-ES: Broadened interface blocks from just uniforms to in and out interfaces as well.
-• - Non-ES: Broaden array usage to include vertex shader inputs (vertex in).
-• - Non-ES: Added geometry shaders.  This includes targeting layers in FBO rendering.
-• - Non-ES: geometry shader layouts: they must be declared, telling the system the primitive input and output types and maximum number of vertices.
-• - Non-ES: Added geometry shader constants.
-• - Non-ES: gl_FragCoord qualifiers use the layout(): origin_upper_left and pixel_center_integer.
-• - Non-ES: Broaden structure usage to include geometry inputs and geometry outputs.
+  . Non-ES: Added gl_PrimitiveID as an input to fragment shaders.
+  . Non-ES: Added gl_FragCoord qualifiers origin_upper_left, and pixel_center_integer to modify the values returned by gl_FragCoord (and have no affect on any other aspect of the pipeline or language).
+  . Non-ES: Added support for multi-sample textures through sampler2DMS and sampler2DMSArray support in texelFetch() and textureSize().
+  . Non-ES: Broadened interface blocks from just uniforms to in and out interfaces as well.
+  . Non-ES: Broaden array usage to include vertex shader inputs (vertex in).
+  . Non-ES: Added geometry shaders.  This includes targeting layers in FBO rendering.
+  . Non-ES: geometry shader layouts: they must be declared, telling the system the primitive input and output types and maximum number of vertices.
+  . Non-ES: Added geometry shader constants.
+  . Non-ES: gl_FragCoord qualifiers use the layout(): origin_upper_left and pixel_center_integer.
+  . Non-ES: Broaden structure usage to include geometry inputs and geometry outputs.
 
 + 3.3
-• Add ARB_explicit_attrib_location extension:
-  • + Layout qualifiers can declare the location of vertex shader inputs.
-  • + Layout qualifiers can declare the location of fragment shader outputs.
-• Add ARB_shader_bit_encoding extension:
-  • x Floating-point variables within a shader are encoded according to IEEE 754.
-  • Non-ES: Add built-in functions converting floating-point values to and from signed or unsigned integers representing their encoding.
-• x Change #line behavior:  The number provided is the number of the next line of code, not the current line.  This makes it match C++ semantics.
-• x Link: Initializers for a shared global must be the same valued constant expression.
+  Add ARB_explicit_attrib_location extension:
+    + Layout qualifiers can declare the location of vertex shader inputs.
+    + Layout qualifiers can declare the location of fragment shader outputs.
+  Add ARB_shader_bit_encoding extension:
+    x Floating-point variables within a shader are encoded according to IEEE 754.
+    Non-ES: Add built-in functions converting floating-point values to and from signed or unsigned integers representing their encoding.
+  x Change #line behavior:  The number provided is the number of the next line of code, not the current line.  This makes it match C++ semantics.
+  x Link: Initializers for a shared global must be the same valued constant expression.
 
 + OpenGL ES 3.0 removes (1)
-• + Profiles and deprecation
-• + Geometry shaders
-• x Link: Shared globals (except for uniforms)
-• + in and out blocks
-• + vertex array inputs (attribute arrays)
-• x Layout qualifiers: index, origin_upper_left and pixel_center_integer
-• x CPP token pasting
-• + Unsized arrays.
-• + Implicit type conversion.
-• + Overloading built-in functions
-• + noperspective
-• + Multi-sample textures
-• + Rectangular textures
-• + Texture buffers
-• + Noise
-• + Outer scope for built-in functions.
-• x Redeclaring built-in variables
+  + Profiles and deprecation
+  + Geometry shaders
+  x Link: Shared globals (except for uniforms)
+  + in and out blocks
+  + vertex array inputs (attribute arrays)
+  x Layout qualifiers: index, origin_upper_left and pixel_center_integer
+  x CPP token pasting
+  + Unsized arrays.
+  + Implicit type conversion.
+  + Overloading built-in functions
+  + noperspective
+  + Multi-sample textures
+  + Rectangular textures
+  + Texture buffers
+  + Noise
+  + Outer scope for built-in functions.
+  x Redeclaring built-in variables
 
 - OpenGL ES 3.0 adds (2)
-• + outerProduct() for multiplying vectors to yield a matrix.
-• + transpose()
-• + Pack and unpack built-in functions
-• + finish classifying all keywords as to when they are identifiers, reserved, or keywords.
-• - Line continuation (CPP)
-• x Line continuation and UTF-8 in GLSL ES 1.00 when used with OpenGL ES 3.0 (CPP)
-• x Array length operator returns an unsigned integer-constant.  The precision is determined using the rules for literal integers
-• + Clarified that source code lines may be of arbitrary length
-• x Extended character set for comments (CPP)
-• + Built-in constants: gl_MinProgramTexelOffset, gl_MaxProgramTexelOffset
-• x Handling and reporting of errors
-• + GLES macro
-• + Use of an undefined macro is an error (CPP)
-• x Numeric precision of variables and operations
-• - get default precision qualifiers correct for vertex vs. fragment and 1.0 vs 3.0
-• + Definitions and behavior for precision qualifiers lowp, mediump and highp
-• x Invariance within a shader
-• x Relaxation of the order of evaluation of expressions
-• - List of errors
-• x Extension macro names always defined if the extension is available
-• + Clarified that for the operators << and >>, if both operands are vectors, they must have the same size
-• Link: Vertex output, fragment input counting algorithm
+  + outerProduct() for multiplying vectors to yield a matrix.
+  + transpose()
+  + Pack and unpack built-in functions
+  + finish classifying all keywords as to when they are identifiers, reserved, or keywords.
+  - Line continuation (CPP)
+  x Line continuation and UTF-8 in GLSL ES 1.00 when used with OpenGL ES 3.0 (CPP)
+  x Array length operator returns an unsigned integer-constant.  The precision is determined using the rules for literal integers
+  + Clarified that source code lines may be of arbitrary length
+  x Extended character set for comments (CPP)
+  + Built-in constants: gl_MinProgramTexelOffset, gl_MaxProgramTexelOffset
+  x Handling and reporting of errors
+  + GLES macro
+  + Use of an undefined macro is an error (CPP)
+  x Numeric precision of variables and operations
+  - get default precision qualifiers correct for vertex vs. fragment and 1.0 vs 3.0
+  + Definitions and behavior for precision qualifiers lowp, mediump and highp
+  x Invariance within a shader
+  x Relaxation of the order of evaluation of expressions
+  - List of errors
+  x Extension macro names always defined if the extension is available
+  + Clarified that for the operators << and >>, if both operands are vectors, they must have the same size
+  x Link: Vertex output, fragment input counting algorithm
 
 Delivery checklist
- - update all TODO
- - all copyrights correct?
- - glslang compile on linux
- - glslang compile on MSVC debug
- - glslang compile on MSCV release
- - LunarGLASS compile on linux
- - LunarGLASS compile on MSVC debug
- - LunarGLASS compile on MSCV release
- - memory leak tests
- - all other tests
- - list of changes
+ . update all TODO
+ . all copyrights correct?
+ . glslang compile on linux
+ . glslang compile on MSVC debug
+ . glslang compile on MSCV release
+ . LunarGLASS compile on linux
+ . LunarGLASS compile on MSVC debug
+ . LunarGLASS compile on MSCV release
+ . memory leak tests
+ . all other tests
+ . list of changes

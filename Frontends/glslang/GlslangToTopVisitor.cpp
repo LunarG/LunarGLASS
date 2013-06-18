@@ -2061,6 +2061,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value
     llvm::Type* readType;
     llvm::Value* pipeRead;
 
+    // TODO: functionality: struct in/out
     if (node->getType().getStruct())
         gla::UnsupportedFunctionality("pipeline structure input");
     else if (node->getType().isArray() || node->getType().isMatrix()) {
@@ -2073,7 +2074,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value
         if (node->getType().isArray())
             arraySize = node->getType().getArraySize();
         if (arraySize == 0) {
-            // TODO: linker functionality: make sure front end knows size before calling here, see
+            // TODO: desktop linker functionality: make sure front end knows size before calling here, see
             // comment in convertGlslangToGlaType
             arraySize = UnknownArraySize;
         }
