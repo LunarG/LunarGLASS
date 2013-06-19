@@ -108,6 +108,7 @@ namespace gla {
 //     !gla.inputs = !{ list of all pipeline !input }
 //     !gla.outputs = !{ list of all pipeline !output }
 //     !gla.uniforms = !{ list of all !uniform }
+//     !gla.invariant = !{ subset list of output that were declared as invariant }
 //
 
 // Operand names
@@ -120,6 +121,7 @@ const char* const PrecisionMdName = "gla.precision";
 const char* const InputListMdName = "gla.inputs";
 const char* const OutputListMdName = "gla.outputs";
 const char* const UniformListMdName = "gla.uniforms";
+const char* const InvariantListMdName = "gla.invariant";
 
 // what kind of I/O:
 enum EMdInputOutput {

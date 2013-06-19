@@ -74,6 +74,7 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
 !gla.inputs = !{!0, !2}
 !gla.outputs = !{!4, !6}
+!gla.invariant = !{!4}
 
 !0 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 3, i32 1024, null}
@@ -124,6 +125,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 
 !gla.inputs = !{!0, !2}
 !gla.outputs = !{!4, !6}
+!gla.invariant = !{!4}
 
 !0 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 3, i32 1024, null}

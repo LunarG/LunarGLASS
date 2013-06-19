@@ -2,6 +2,8 @@
 
 in mediump float ps;
 
+invariant gl_Position;
+
 void main()
 {
     mediump int i = (4 * gl_VertexID - 10);

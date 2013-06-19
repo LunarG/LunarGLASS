@@ -2120,7 +2120,6 @@ void Builder::makeNewLoop(llvm::Value* inductiveVariable, llvm::Constant* from, 
 void Builder::makeLoopBackEdge(bool implicit)
 {
     LoopData ld = loops.top();
-    // TODO: ES precision: track precision of induction in the loop and use it
 
     // If we're not inductive, just branch back.
     if (! ld.isInductive) {
@@ -2150,7 +2149,6 @@ void Builder::makeLoopBackEdge(bool implicit)
         iNext = ! ld.builderDoesIncrement ? iPrev : builder.CreateAdd(iPrev, ld.increment);
         cmp   = builder.CreateICmpSGE(iNext, ld.finish);
         break;
-    // TODO: unsigned: generate the right tests for an unsigned loop counter?
     default: gla::UnsupportedFunctionality("unknown type in inductive variable");
     }
 

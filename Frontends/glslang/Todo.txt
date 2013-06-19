@@ -6,7 +6,6 @@ Adapter
   - read/write from variably chosen vector component
   - discard from a function
   - fModf() support
-  - precision and unsignedness of loop inductive variables
 
 Front end
   - Move to thread safe version of flex
@@ -24,15 +23,16 @@ Interfacing
   - Put glslang in a namespace
   + Fix any copyrights
   - Linker I/O: to be done as metadata
+	 - do different declaration decorations reusing the same structure need to replicate the heirarchical decorations?
      + all matrix types globals
-     - uniform blocks; names and content
+     + uniform blocks; names and content
      - structure in/out
-     - support invariant
+     + support invariant
      + all opaque types
      + layout qualifiers, packing: std140/packed/shared and column-major vs. row-major
      - layout qualifiers: locations
      + external names for all I/O and globals
-     - special built-ins (odd qualifiers)
+     + special built-ins (odd qualifiers)
      + remove all the name mangling that had been doing the above
      + reduce repetitive metadata and metadata list
   + remove side-band pipeline data from the manager class
@@ -124,7 +124,7 @@ LunarGoo
   + allow precision qualifiers in structures and function declarations
   + error to specify integer literals too big for an integer variable.
   - flat is for both user and predeclared built-in in/out variables
-  - highp is always present in the fragment language, the default is highp
+  + highp is always present in the fragment language, the default is highp
   - order of qualification is either (invariant-qualifier interpolation-qualifier storage-qualifier precision-qualifier) or (storage-qualifier parameter-qualifier  precision-qualifier)
   + (a = b) is an r-value and never an l-value
   + projective cube map texture and shadow
@@ -191,7 +191,7 @@ LunarGoo
     + Layout qualifiers can declare the location of fragment shader outputs.
   Add ARB_shader_bit_encoding extension:
     x Floating-point variables within a shader are encoded according to IEEE 754.
-    Non-ES: Add built-in functions converting floating-point values to and from signed or unsigned integers representing their encoding.
+    . Non-ES: Add built-in functions converting floating-point values to and from signed or unsigned integers representing their encoding.
   x Change #line behavior:  The number provided is the number of the next line of code, not the current line.  This makes it match C++ semantics.
   x Link: Initializers for a shared global must be the same valued constant expression.
 
@@ -229,8 +229,8 @@ LunarGoo
   + GLES macro
   + Use of an undefined macro is an error (CPP)
   x Numeric precision of variables and operations
-  - get default precision qualifiers correct for vertex vs. fragment and 1.0 vs 3.0
-  - default precision is per sampler type
+  + get default precision qualifiers correct for vertex vs. fragment and 1.0 vs 3.0
+  + default precision is per sampler type
   + Definitions and behavior for precision qualifiers lowp, mediump and highp
   x Invariance within a shader
   x Relaxation of the order of evaluation of expressions

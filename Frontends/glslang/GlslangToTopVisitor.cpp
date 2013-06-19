@@ -946,10 +946,6 @@ bool TranslateLoop(bool /* preVisit */, TIntermLoop* node, TIntermTraverser* it)
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
     bool bodyOut = false;
 
-    // Note: inductive loops are getting recognized at a lower level,
-	// so no need to worry about them now.  I.e., don't bother to use
-    // makeNewLoop(<lots of arguments>).
-
     oit->glaBuilder->makeNewLoop();
 
     if (! node->testFirst()) {
@@ -2319,6 +2315,10 @@ void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value*
 {    
     llvm::MDNode* md = metadata.makeMdInputOutput(node->getSymbol().c_str(), gla::OutputListMdName, getMdQualifier(node), 
                                                   makePermanentTypeProxy(storage), getMdTypeLayout(node->getType()), getMdPrecision(node->getType()), slot);
+    
+    if (node->getQualifier().invariant)
+        module->getOrInsertNamedMetadata(gla::InvariantListMdName)->addOperand(md);
+
     glaBuilder->setOutputMetadata(storage, md, slot);
 }
 
