@@ -1,5 +1,5 @@
 #version 300 es
-
+precision mediump float;
 flat in uvec2 t;
 in float f;
 in vec2 tc;
@@ -10,7 +10,7 @@ uniform bool b;
 
 out uvec4 c;
 
-uniform usampler2D usampler;
+uniform mediump usampler2D usampler;
 
 void main()
 {

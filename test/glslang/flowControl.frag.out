@@ -44,7 +44,7 @@ else:                                             ; preds = %entry
 ifmerge:                                          ; preds = %else, %then
   %7 = load <4 x float>* %color
   %8 = load <4 x float>* %color2
-  %FragColor_shadow = fmul <4 x float> %7, %8, !gla.precision !11
+  %FragColor_shadow = fmul <4 x float> %7, %8
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
@@ -77,8 +77,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !7 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !5}
 !8 = metadata !{metadata !"smallColor", i32 12, <4 x float>* @smallColor_typeProxy, metadata !5}
 !9 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 2, i32 1026, null}
-!11 = metadata !{i32 2}
+!10 = metadata !{i32 0, i32 0, i32 1026, null}
 
 
 Bottom IR:
@@ -100,7 +99,7 @@ entry:
   %smallColor.val = load <4 x float> addrspace(2)* @smallColor, align 16
   %.pn = select i1 %1, <4 x float> %bigColor.val, <4 x float> %smallColor.val
   %color.0 = fadd <4 x float> %BaseColor, %.pn
-  %FragColor_shadow = fmul <4 x float> %color22, %color.0, !gla.precision !11
+  %FragColor_shadow = fmul <4 x float> %color22, %color.0
   call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %FragColor_shadow), !gla.output !9
   br label %stage-epilogue
 
@@ -131,14 +130,12 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !7 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !5}
 !8 = metadata !{metadata !"smallColor", i32 12, <4 x float>* @smallColor_typeProxy, metadata !5}
 !9 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 2, i32 1026, null}
-!11 = metadata !{i32 2}
+!10 = metadata !{i32 0, i32 0, i32 1026, null}
 #### BEGIN COMPILER 0 INFO LOG ####
-WARNING: 0:1: '#version' : statement missing: use #version on first line of shader 
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-#version 100
+#version 120
 // LunarGOO output (r722)
 uniform vec4 otherColor;
 uniform float d;
@@ -152,7 +149,7 @@ void main()
     bool temp21 = c > d;
     vec4 dpn = temp21 ? bigColor : smallColor;
     vec4 colord0 = BaseColor + dpn;
-    mediump vec4 FragColor_shadow = otherColor * colord0;
+    vec4 FragColor_shadow = otherColor * colord0;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -161,12 +158,12 @@ void main()
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-#version 100
+#version 120
 // LunarGOO output (r722)
 uniform float d;
 uniform vec4 bigColor;
 uniform vec4 smallColor;
-uniform mediump vec4 otherColor;
+uniform vec4 otherColor;
 varying float c;
 varying vec4 BaseColor;
 
@@ -175,7 +172,7 @@ void main()
     bool temp211 = c > d;
     vec4 ternaryd0 = temp211 ? bigColor : smallColor;
     vec4 colord05 = BaseColor + ternaryd0;
-    mediump vec4 FragColor_shadow6 = otherColor * colord05;
+    vec4 FragColor_shadow6 = otherColor * colord05;
     gl_FragColor = FragColor_shadow6;
     
 }

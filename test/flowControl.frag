@@ -1,3 +1,5 @@
+#version 120
+
 uniform float d;
 uniform vec4 bigColor, smallColor;
 uniform vec4 otherColor;

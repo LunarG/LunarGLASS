@@ -1,5 +1,7 @@
 #version 300 es
 
+precision mediump float;
+
 uniform int imax, imin;
 uniform uint umax, umin;
 

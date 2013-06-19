@@ -41,7 +41,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 1025, null}
+!3 = metadata !{i32 0, i32 0, i32 1025, null}
 
 
 Bottom IR:
@@ -70,15 +70,15 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 1025, null}
+!3 = metadata !{i32 0, i32 0, i32 1025, null}
 #### BEGIN COMPILER 0 INFO LOG ####
-WARNING: 0:1: '#version' : statement missing: use #version on first line of shader 
+WARNING: 0:4: varying deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-#version 100
+#version 150 core
 // LunarGOO output (r722)
-varying vec4 BaseColor;
+in vec4 BaseColor;
 
 void main()
 {
@@ -90,9 +90,9 @@ void main()
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-#version 100
+#version 150 core
 // LunarGOO output (r722)
-varying mediump vec4 BaseColor;
+in vec4 BaseColor;
 
 void main()
 {

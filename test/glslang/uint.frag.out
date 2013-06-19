@@ -54,7 +54,7 @@ entry:
 
 then:                                             ; preds = %entry
   %9 = load i32 addrspace(1)* @usampler, !gla.uniform !6
-  %tc = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !2
+  %tc = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !2, !gla.precision !9
   store <2 x float> %tc, <2 x float>* @tc_shadow
   %10 = load <2 x float>* @tc_shadow
   %c_shadow = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %10), !gla.precision !9
@@ -69,10 +69,10 @@ ifmerge:                                          ; preds = %entry, %then
 
 then6:                                            ; preds = %ifmerge
   %14 = load i32 addrspace(1)* @usampler, !gla.uniform !6
-  %tc7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !2
+  %tc7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !2, !gla.precision !9
   store <2 x float> %tc7, <2 x float>* @tc_shadow
   %15 = load <2 x float>* @tc_shadow
-  %16 = fadd <2 x float> %15, <float 1.000000e+00, float 1.000000e+00>
+  %16 = fadd <2 x float> %15, <float 1.000000e+00, float 1.000000e+00>, !gla.precision !9
   %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %14, i32 0, <2 x float> %16), !gla.precision !9
   store <4 x i32> %c_shadow8, <4 x i32>* @c_shadow
   br label %ifmerge9
@@ -85,10 +85,10 @@ ifmerge9:                                         ; preds = %ifmerge, %then6
 
 then10:                                           ; preds = %ifmerge9
   %20 = load i32 addrspace(1)* @usampler, !gla.uniform !6
-  %tc11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !2
+  %tc11 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !2, !gla.precision !9
   store <2 x float> %tc11, <2 x float>* @tc_shadow
   %21 = load <2 x float>* @tc_shadow
-  %22 = fsub <2 x float> %21, <float 2.000000e+00, float 2.000000e+00>
+  %22 = fsub <2 x float> %21, <float 2.000000e+00, float 2.000000e+00>, !gla.precision !9
   %c_shadow12 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %20, i32 0, <2 x float> %22), !gla.precision !9
   store <4 x i32> %c_shadow12, <4 x i32>* @c_shadow
   br label %ifmerge13
@@ -103,7 +103,7 @@ ifmerge13:                                        ; preds = %ifmerge9, %then10
 
 then15:                                           ; preds = %ifmerge13
   %26 = load i32* %u
-  %af16 = uitofp i32 %26 to float
+  %af16 = uitofp i32 %26 to float, !gla.precision !9
   store float %af16, float* %af
   %27 = load i32* %u
   %ab17 = icmp ne i32 %27, 0
@@ -229,11 +229,11 @@ declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) nounwind
 !0 = metadata !{metadata !"t", i32 1, <2 x i32>* @t_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 1, i32 2, i32 1024, null}
 !2 = metadata !{metadata !"tc", i32 1, <2 x float>* @tc_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026, null}
+!3 = metadata !{i32 0, i32 2, i32 1026, null}
 !4 = metadata !{metadata !"c", i32 7, <4 x i32>* @c_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 1, i32 2, i32 1025, null}
 !6 = metadata !{metadata !"usampler", i32 12, i32* @usampler_typeProxy, metadata !7}
-!7 = metadata !{i32 5, i32 1, i32 0, metadata !8}
+!7 = metadata !{i32 5, i32 2, i32 0, metadata !8}
 !8 = metadata !{i32 0, i32* @usampler_typeProxy, i32 1, i1 false, i1 false, i32 2}
 !9 = metadata !{i32 2}
 
@@ -249,13 +249,13 @@ entry:
   %0 = extractelement <2 x i32> %t, i32 1, !gla.precision !9
   %u1 = add i32 %0, 3, !gla.precision !9
   %1 = load i32 addrspace(1)* @usampler, align 4, !gla.uniform !6
-  %tc7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !2
-  %2 = fadd <2 x float> %tc7, <float 1.000000e+00, float 1.000000e+00>
+  %tc7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !2, !gla.precision !9
+  %2 = fadd <2 x float> %tc7, <float 1.000000e+00, float 1.000000e+00>, !gla.precision !9
   %c_shadow8 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %1, i32 0, <2 x float> %2), !gla.precision !9
   %t14 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1024, i32 -1), !gla.input !0, !gla.precision !9
   %3 = extractelement <2 x i32> %t14, i32 0, !gla.precision !9
   %4 = icmp sgt i32 %3, 4
-  %af16 = uitofp i32 %u1 to float
+  %af16 = uitofp i32 %u1 to float, !gla.precision !9
   %ab17 = icmp ne i32 %u1, 0
   %5 = fptoui float %af16 to i32, !gla.precision !9
   %6 = zext i1 %ab17 to i32, !gla.precision !9
@@ -290,11 +290,11 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 !0 = metadata !{metadata !"t", i32 1, <2 x i32>* @t_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 1, i32 2, i32 1024, null}
 !2 = metadata !{metadata !"tc", i32 1, <2 x float>* @tc_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026, null}
+!3 = metadata !{i32 0, i32 2, i32 1026, null}
 !4 = metadata !{metadata !"c", i32 7, <4 x i32>* @c_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 1, i32 2, i32 1025, null}
 !6 = metadata !{metadata !"usampler", i32 12, i32* @usampler_typeProxy, metadata !7}
-!7 = metadata !{i32 5, i32 1, i32 0, metadata !8}
+!7 = metadata !{i32 5, i32 2, i32 0, metadata !8}
 !8 = metadata !{i32 0, i32* @usampler_typeProxy, i32 1, i1 false, i1 false, i32 2}
 !9 = metadata !{i32 2}
 #### BEGIN COMPILER 0 INFO LOG ####
@@ -305,22 +305,22 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 // LunarGOO output (r722)
 uniform usampler2D usampler;
 flat in mediump uvec2 t;
-const int const22i_3 = 3;
-in vec2 tc;
-const vec2 const24 = vec2(1.0);
-const int const27i_4 = 4;
-const int const30i_0 = 0;
-const int const34i_462 = 462;
-const ivec4 const38 = ivec4(341413380);
+const highp int const22i_3 = 3;
+in mediump vec2 tc;
+const highp vec2 const24 = vec2(1.0);
+const highp int const27i_4 = 4;
+const highp int const30i_0 = 0;
+const highp int const34i_462 = 462;
+const highp ivec4 const38 = ivec4(341413380);
 out mediump uvec4 c;
 
 void main()
 {
     mediump int temp21 = ivec2(t).y + const22i_3;
-    vec2 temp23 = tc + const24;
+    mediump vec2 temp23 = tc + const24;
     mediump ivec4 c_shadow8 = texture(usampler, temp23);
     bool temp26 = ivec2(t).x > const27i_4;
-    float af16 = float(temp21);
+    mediump float af16 = float(temp21);
     bool ab17 = temp21 != const30i_0;
     mediump int temp31 = int(uint(af16));
     mediump int temp32 = int(ab17);

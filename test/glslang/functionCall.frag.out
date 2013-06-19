@@ -33,17 +33,17 @@ entry:
   store float %g4, float* %g
   %5 = load <4 x float>* %color
   %6 = load float* %f
-  %7 = insertelement <4 x float> undef, float %6, i32 0, !gla.precision !6
-  %8 = insertelement <4 x float> %7, float %6, i32 1, !gla.precision !6
-  %9 = insertelement <4 x float> %8, float %6, i32 2, !gla.precision !6
-  %10 = insertelement <4 x float> %9, float %6, i32 3, !gla.precision !6
-  %11 = fmul <4 x float> %5, %10, !gla.precision !6
+  %7 = insertelement <4 x float> undef, float %6, i32 0
+  %8 = insertelement <4 x float> %7, float %6, i32 1
+  %9 = insertelement <4 x float> %8, float %6, i32 2
+  %10 = insertelement <4 x float> %9, float %6, i32 3
+  %11 = fmul <4 x float> %5, %10
   %12 = load float* @h
-  %13 = insertelement <4 x float> undef, float %12, i32 0, !gla.precision !6
-  %14 = insertelement <4 x float> %13, float %12, i32 1, !gla.precision !6
-  %15 = insertelement <4 x float> %14, float %12, i32 2, !gla.precision !6
-  %16 = insertelement <4 x float> %15, float %12, i32 3, !gla.precision !6
-  %FragColor_shadow = fmul <4 x float> %11, %16, !gla.precision !6
+  %13 = insertelement <4 x float> undef, float %12, i32 0
+  %14 = insertelement <4 x float> %13, float %12, i32 1
+  %15 = insertelement <4 x float> %14, float %12, i32 2
+  %16 = insertelement <4 x float> %15, float %12, i32 3
+  %FragColor_shadow = fmul <4 x float> %11, %16
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
@@ -131,8 +131,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !2 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 0, i32 1024, null}
 !4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1025, null}
-!6 = metadata !{i32 2}
+!5 = metadata !{i32 0, i32 0, i32 1025, null}
 
 
 Bottom IR:
@@ -163,8 +162,8 @@ ifmerge.i:                                        ; preds = %entry
 "missingReturn(.exit":                            ; preds = %ifmerge.i, %then.i
   %8 = phi float [ 0.000000e+00, %ifmerge.i ], [ %4, %then.i ]
   %9 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %8, <4 x i32> zeroinitializer)
-  %10 = fmul <4 x float> %3, %6, !gla.precision !6
-  %FragColor_shadow = fmul <4 x float> %10, %9, !gla.precision !6
+  %10 = fmul <4 x float> %3, %6
+  %FragColor_shadow = fmul <4 x float> %10, %9
   call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %FragColor_shadow), !gla.output !4
   br label %stage-epilogue
 
@@ -190,17 +189,16 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !2 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 0, i32 1024, null}
 !4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1025, null}
-!6 = metadata !{i32 2}
+!5 = metadata !{i32 0, i32 0, i32 1025, null}
 #### BEGIN COMPILER 0 INFO LOG ####
-WARNING: 0:1: '#version' : statement missing: use #version on first line of shader 
+WARNING: 0:4: varying deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-#version 100
+#version 130
 // LunarGOO output (r722)
 uniform float d;
-varying vec4 BaseColor;
+in vec4 BaseColor;
 const float const25 = 4.2;
 const float const27 = 1.2;
 const float const28 = 4.5;
@@ -223,8 +221,8 @@ void main()
     }
     
     vec4 temp32 = vec4(temp21);
-    mediump vec4 temp33 = temp23 * temp29;
-    mediump vec4 FragColor_shadow = temp33 * temp32;
+    vec4 temp33 = temp23 * temp29;
+    vec4 FragColor_shadow = temp33 * temp32;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -233,10 +231,10 @@ void main()
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-#version 100
+#version 130
 // LunarGOO output (r722)
 uniform float d;
-varying vec4 BaseColor;
+in vec4 BaseColor;
 const float const24 = 4.2;
 const float const26 = 1.2;
 const float const27 = 4.5;
@@ -252,8 +250,8 @@ void main()
     bool temp308 = d < const27;
     float temp21d0 = temp308 ? d : const31;
     vec4 temp32 = vec4(temp21d0);
-    mediump vec4 temp3315 = temp22 * temp28;
-    mediump vec4 FragColor_shadow16 = temp3315 * temp32;
+    vec4 temp3315 = temp22 * temp28;
+    vec4 FragColor_shadow16 = temp3315 * temp32;
     gl_FragColor = FragColor_shadow16;
     
 }

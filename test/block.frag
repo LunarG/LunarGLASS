@@ -1,9 +1,11 @@
 #version 300 es
 
+precision mediump float;
+
 struct S {
     vec4 u;
     uvec4 v;
-    isampler2D sampler;
+    lowp isampler2D sampler;
     vec3 w;
     mat3 m3a[5];
 };

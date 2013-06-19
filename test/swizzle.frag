@@ -1,3 +1,5 @@
+#version 110
+
 uniform float blend;
 uniform vec4 u;
 uniform bool p;

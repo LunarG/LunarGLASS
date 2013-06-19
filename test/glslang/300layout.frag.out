@@ -9,11 +9,11 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !gla.input !4
+  %color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !gla.input !4, !gla.precision !8
   store <3 x float> %color, <3 x float>* @color_shadow
   %c_shadow = load <3 x float>* @color_shadow
   store <3 x float> %c_shadow, <3 x float>* @c_shadow
-  %pos = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !6
+  %pos = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !6, !gla.precision !8
   store <4 x float> %pos, <4 x float>* @pos_shadow
   %0 = load <4 x float>* @pos_shadow
   store <4 x float> %0, <4 x float>* getelementptr inbounds ([2 x <4 x float>]* @p_shadow, i32 0, i32 1)
@@ -42,13 +42,14 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.inputs = !{!4, !6}
 
 !0 = metadata !{metadata !"c", i32 7, <3 x float>* @c_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 7, null}
+!1 = metadata !{i32 0, i32 2, i32 7, null}
 !2 = metadata !{metadata !"p", i32 7, [2 x <4 x float>]* @p_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 3, null}
+!3 = metadata !{i32 0, i32 2, i32 3, null}
 !4 = metadata !{metadata !"color", i32 1, <3 x float>* @color_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1024, null}
+!5 = metadata !{i32 0, i32 2, i32 1024, null}
 !6 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1025, null}
+!7 = metadata !{i32 0, i32 2, i32 1025, null}
+!8 = metadata !{i32 2}
 
 
 Bottom IR:
@@ -58,10 +59,10 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %pos = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !6
+  %pos = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !6, !gla.precision !8
   %gla_constGEP = getelementptr [2 x <4 x float>]* @p_shadow, i32 0, i32 1
   store <4 x float> %pos, <4 x float>* %gla_constGEP, align 16
-  %color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !gla.input !4
+  %color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !gla.input !4, !gla.precision !8
   call void @llvm.gla.fWriteData.v3f32(i32 7, i32 -1, <3 x float> %color), !gla.output !0
   %gla_constGEP2 = getelementptr [2 x <4 x float>]* @p_shadow, i32 0, i32 1
   %0 = load <4 x float>* %gla_constGEP2, align 16
@@ -87,13 +88,14 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.inputs = !{!4, !6}
 
 !0 = metadata !{metadata !"c", i32 7, <3 x float>* @c_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 7, null}
+!1 = metadata !{i32 0, i32 2, i32 7, null}
 !2 = metadata !{metadata !"p", i32 7, [2 x <4 x float>]* @p_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 3, null}
+!3 = metadata !{i32 0, i32 2, i32 3, null}
 !4 = metadata !{metadata !"color", i32 1, <3 x float>* @color_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1024, null}
+!5 = metadata !{i32 0, i32 2, i32 1024, null}
 !6 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1025, null}
+!7 = metadata !{i32 0, i32 2, i32 1025, null}
+!8 = metadata !{i32 2}
 
 ***Unsupported functionality: missing metadata on load
 #### BEGIN COMPILER 0 INFO LOG ####
@@ -103,10 +105,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 #version 300 es
 // LunarGOO output (r722)
 vec4 p_shadow[2];
-in vec4 pos;
-in vec3 color;
-out vec3 c;
-out vec4 p[2];
+in mediump vec4 pos;
+in mediump vec3 color;
+out mediump vec3 c;
+out mediump vec4 p[2];
 
 void main()
 {
@@ -124,10 +126,10 @@ void main()
 #version 300 es
 // LunarGOO output (r722)
 vec4 p_shadow1[2];
-in vec4 pos;
-in vec3 color;
-out vec3 c;
-out vec4 p[2];
+in mediump vec4 pos;
+in mediump vec3 color;
+out mediump vec3 c;
+out mediump vec4 p[2];
 
 void main()
 {

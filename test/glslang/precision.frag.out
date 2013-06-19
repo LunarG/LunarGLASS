@@ -252,9 +252,9 @@ uniform lowp int uniform_low;
 in lowp float lowfin;
 in mediump float mediumfin;
 in highp vec4 highfin;
-const int const28i_3 = 3;
-const int const30i_4 = 4;
-const vec4 const37 = vec4(1.02391e+06);
+const highp int const28i_3 = 3;
+const highp int const30i_4 = 4;
+const highp vec4 const37 = vec4(1.02391e+06);
 out mediump vec4 mediumfout;
 
 void main()
@@ -291,9 +291,9 @@ uniform mediump int uniform_medium;
 in lowp float lowfin;
 in mediump float mediumfin;
 in highp vec4 highfin;
-const int const27i_3 = 3;
-const int const30i_4 = 4;
-const vec4 const36 = vec4(1023910.0);
+const highp int const27i_3 = 3;
+const highp int const30i_4 = 4;
+const highp vec4 const36 = vec4(1023910.0);
 out mediump vec4 mediumfout;
 
 void main()
@@ -310,7 +310,7 @@ void main()
     mediump int sum1112 = sum311 + tmp21;
     mediump float temp3413 = float(sum1112);
     vec4 temp34 = vec4(temp3413);
-    mediump vec4 temp3616 = temp25 + const36;
+    highp vec4 temp3616 = temp25 + const36;
     mediump vec4 mediumfout_shadow17 = temp23 + temp3616;
     highp vec4 mediumfout_shadow1318 = mediumfout_shadow17 + temp34;
     mediumfout = mediumfout_shadow1318;

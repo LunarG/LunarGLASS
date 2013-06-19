@@ -1123,11 +1123,14 @@ protected:
             std::string* newName = new std::string;
             getNewVariableName(value, newName);
             EMdPrecision precision = getPrecision(value);
+            const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
+            if (precision == gla::EMpNone && constant && profile == EEsProfile)
+                precision = gla::EMpHigh;
 
             if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
                 declareVariable(precision, pointerType->getContainedType(0), *newName, evq);
             } else {
-                declareVariable(precision, value->getType(), *newName, evq, llvm::dyn_cast<llvm::Constant>(value));
+                declareVariable(precision, value->getType(), *newName, evq, constant);
             }
             valueMap[value] = newName;
         }

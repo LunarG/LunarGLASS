@@ -1,3 +1,7 @@
+#version 100
+
+precision mediump float;
+
 uniform vec4 bigColor;
 varying vec4 BaseColor;
 uniform float d;

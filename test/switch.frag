@@ -1,5 +1,5 @@
 #version 300 es
-
+precision mediump float;
 uniform int c, d;
 in float x;
 out float color;

@@ -1,3 +1,5 @@
+#version 100
+
 int foo(int a, const int b, in int c, const in int d, out int e, inout int f)
 {
     int sum = a + b + c + d + f; // no e, it is out only

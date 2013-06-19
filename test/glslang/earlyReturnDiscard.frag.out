@@ -166,7 +166,7 @@ ifmerge30:                                        ; preds = %post-return29, %pos
 ifmerge31:                                        ; preds = %ifmerge30, %ifmerge24
   %39 = load <4 x float>* %color
   %40 = load <4 x float>* %color2
-  %FragColor_shadow = fmul <4 x float> %39, %40, !gla.precision !15
+  %FragColor_shadow = fmul <4 x float> %39, %40
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
@@ -205,8 +205,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !11 = metadata !{metadata !"threshhold2", i32 12, float* @threshhold2_typeProxy, metadata !5}
 !12 = metadata !{metadata !"b", i32 12, i1* @b_typeProxy, metadata !5}
 !13 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 2, i32 1026, null}
-!15 = metadata !{i32 2}
+!14 = metadata !{i32 0, i32 0, i32 1026, null}
 
 
 Bottom IR:
@@ -290,7 +289,7 @@ else20:                                           ; preds = %else17
 
 ifmerge23:                                        ; preds = %else20, %then15
   %color.1 = phi <4 x float> [ %16, %then15 ], [ %color21, %else20 ]
-  %FragColor_shadow = fmul <4 x float> %color22, %color.1, !gla.precision !15
+  %FragColor_shadow = fmul <4 x float> %color22, %color.1
   br label %stage-epilogue
 
 else25:                                           ; preds = %ifmerge9
@@ -341,14 +340,12 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !11 = metadata !{metadata !"threshhold2", i32 12, float* @threshhold2_typeProxy, metadata !5}
 !12 = metadata !{metadata !"b", i32 12, i1* @b_typeProxy, metadata !5}
 !13 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 2, i32 1026, null}
-!15 = metadata !{i32 2}
+!14 = metadata !{i32 0, i32 0, i32 1026, null}
 #### BEGIN COMPILER 0 INFO LOG ####
-WARNING: 0:1: '#version' : statement missing: use #version on first line of shader 
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-#version 100
+#version 110
 // LunarGOO output (r722)
 uniform vec4 otherColor;
 uniform float d;
@@ -414,7 +411,7 @@ void main()
                     
                 }
                 
-                mediump vec4 FragColor_shadow = otherColor * colord1;
+                vec4 FragColor_shadow = otherColor * colord1;
                 FragColor_shadow32d0 = FragColor_shadow;
                 gl_FragColor = FragColor_shadow32d0;
                 return;
@@ -441,7 +438,7 @@ void main()
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-#version 100
+#version 110
 // LunarGOO output (r722)
 uniform float d;
 uniform vec4 bigColor;
@@ -450,7 +447,7 @@ uniform float minimum;
 uniform float threshhold;
 uniform float threshhold2;
 uniform bool b;
-uniform mediump vec4 otherColor;
+uniform vec4 otherColor;
 varying float c;
 varying vec4 BaseColor;
 const vec4 const27 = vec4(0.0);
@@ -507,7 +504,7 @@ void main()
                     
                 }
                 
-                mediump vec4 FragColor_shadow3738 = colord1d0 * otherColor;
+                vec4 FragColor_shadow3738 = colord1d0 * otherColor;
                 FragColor_shadow51d0 = FragColor_shadow3738;
                 gl_FragColor = FragColor_shadow51d0;
                 return;
