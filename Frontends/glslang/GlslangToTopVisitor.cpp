@@ -238,6 +238,14 @@ gla::EMdSamplerBaseType getMdSamplerBaseType(TBasicType type)
     }
 }
 
+int getMdSlotLocation(const TType& type)
+{
+    if (type.getQualifier().layoutSlotLocation == TQualifier::layoutLocationEnd)
+        return gla::MaxUserLayoutLocation;
+    else
+        return type.getQualifier().layoutSlotLocation;
+}
+
 gla::EMdPrecision getMdPrecision(const TType& type)
 {
     switch (type.getQualifier().precision) {
@@ -263,7 +271,7 @@ llvm::Value* makePermanentTypeProxy(llvm::Value* value)
 };  // end anonymous namespace
 
 
-// A fully functionaling front end will know all array sizes,
+// A fully functioning front end will know all array sizes,
 // this is just a back up size.
 const int UnknownArraySize = 8;
 
@@ -2259,7 +2267,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(TIntermSymbol* nod
     // Make the main node
     return metadata.makeMdInputOutput(node->getSymbol().c_str(), gla::UniformListMdName, gla::EMioDefaultUniform, 
                                       makePermanentTypeProxy(typeProxy),
-                                      layout, getMdPrecision(type), 0, samplerMd, structure);
+                                      layout, getMdPrecision(type), gla::MaxUserLayoutLocation, samplerMd, structure);
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const TType& type, llvm::Value* typeProxy)
@@ -2292,7 +2300,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput 
 
     // Make the main node
     return metadata.makeMdInputOutput(name, gla::UniformListMdName, ioType, typeProxy,
-                                      getMdTypeLayout(type), getMdPrecision(type), 0, 0, block);
+                                      getMdTypeLayout(type), getMdPrecision(type), gla::MaxUserLayoutLocation, 0, block);
 }
 
 // Make a !type node as per metadata.h, recursively
@@ -2310,7 +2318,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const TType& type)
         mdArgs.push_back(llvm::MDString::get(context, ""));
 
     // !typeLayout
-    mdArgs.push_back(metadata.makeMdTypeLayout(getMdTypeLayout(type), getMdPrecision(type), type.getQualifier().layoutSlotLocation, samplerMd));
+    mdArgs.push_back(metadata.makeMdTypeLayout(getMdTypeLayout(type), getMdPrecision(type), getMdSlotLocation(type), samplerMd));
 
     const TTypeList* typeList = type.getStruct();
     if (typeList) {

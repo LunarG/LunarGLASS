@@ -1060,7 +1060,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !0 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"un34", i32 12, [4 x <4 x float>]* @un34_typeProxy, metadata !3}
-!3 = metadata !{i32 3, i32 0, i32 0, null}
+!3 = metadata !{i32 3, i32 0, i32 1024, null}
 !4 = metadata !{metadata !"colorTransform", i32 12, [3 x <3 x float>]* @colorTransform_typeProxy, metadata !3}
 !5 = metadata !{metadata !"m", i32 12, [4 x <4 x float>]* @m_typeProxy, metadata !3}
 !6 = metadata !{metadata !"n", i32 12, [4 x <4 x float>]* @n_typeProxy, metadata !3}
@@ -1524,7 +1524,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 !0 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"un34", i32 12, [4 x <4 x float>]* @un34_typeProxy, metadata !3}
-!3 = metadata !{i32 3, i32 0, i32 0, null}
+!3 = metadata !{i32 3, i32 0, i32 1024, null}
 !4 = metadata !{metadata !"colorTransform", i32 12, [3 x <3 x float>]* @colorTransform_typeProxy, metadata !3}
 !5 = metadata !{metadata !"m", i32 12, [4 x <4 x float>]* @m_typeProxy, metadata !3}
 !6 = metadata !{metadata !"n", i32 12, [4 x <4 x float>]* @n_typeProxy, metadata !3}

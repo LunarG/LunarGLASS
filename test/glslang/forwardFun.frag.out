@@ -12,27 +12,27 @@ entry:
   %constructed = alloca <4 x float>
   %param = alloca <4 x float>
   %color = alloca <4 x float>
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !0, !gla.precision !6
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !0, !gla.precision !5
   store <4 x float> %BaseColor, <4 x float>* @BaseColor_shadow
   %param1 = load <4 x float>* @BaseColor_shadow
   store <4 x float> %param1, <4 x float>* %param
   %0 = call float @"foo(vf4;"(<4 x float>* %param)
   %1 = load <4 x float>* %constructed
-  %2 = insertelement <4 x float> undef, float %0, i32 0, !gla.precision !6
-  %3 = insertelement <4 x float> %2, float %0, i32 1, !gla.precision !6
-  %4 = insertelement <4 x float> %3, float %0, i32 2, !gla.precision !6
-  %color2 = insertelement <4 x float> %4, float %0, i32 3, !gla.precision !6
+  %2 = insertelement <4 x float> undef, float %0, i32 0, !gla.precision !5
+  %3 = insertelement <4 x float> %2, float %0, i32 1, !gla.precision !5
+  %4 = insertelement <4 x float> %3, float %0, i32 2, !gla.precision !5
+  %color2 = insertelement <4 x float> %4, float %0, i32 3, !gla.precision !5
   store <4 x float> %color2, <4 x float>* %color
   call void @"bar("()
   %f3 = call float @"unreachableReturn("()
   store float %f3, float* %f
   %5 = load <4 x float>* %color
   %6 = load float* %f
-  %7 = insertelement <4 x float> undef, float %6, i32 0, !gla.precision !6
-  %8 = insertelement <4 x float> %7, float %6, i32 1, !gla.precision !6
-  %9 = insertelement <4 x float> %8, float %6, i32 2, !gla.precision !6
-  %10 = insertelement <4 x float> %9, float %6, i32 3, !gla.precision !6
-  %FragColor_shadow = fmul <4 x float> %5, %10, !gla.precision !6
+  %7 = insertelement <4 x float> undef, float %6, i32 0, !gla.precision !5
+  %8 = insertelement <4 x float> %7, float %6, i32 1, !gla.precision !5
+  %9 = insertelement <4 x float> %8, float %6, i32 2, !gla.precision !5
+  %10 = insertelement <4 x float> %9, float %6, i32 3, !gla.precision !5
+  %FragColor_shadow = fmul <4 x float> %5, %10, !gla.precision !5
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
@@ -78,10 +78,10 @@ ifmerge:                                          ; preds = %post-return1, %post
 define internal fastcc float @"foo(vf4;"(<4 x float>*) alwaysinline {
 entry:
   %1 = load <4 x float>* %0
-  %2 = extractelement <4 x float> %1, i32 0, !gla.precision !6
+  %2 = extractelement <4 x float> %1, i32 0, !gla.precision !5
   %3 = load <4 x float>* %0
-  %4 = extractelement <4 x float> %3, i32 1, !gla.precision !6
-  %5 = fadd float %2, %4, !gla.precision !6
+  %4 = extractelement <4 x float> %3, i32 1, !gla.precision !5
+  %5 = fadd float %2, %4, !gla.precision !5
   ret float %5
 
 post-return:                                      ; No predecessors!
@@ -100,9 +100,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !1 = metadata !{i32 0, i32 2, i32 1024, null}
 !2 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 2, i32 1025, null}
-!4 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 0, null}
-!6 = metadata !{i32 2}
+!4 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !1}
+!5 = metadata !{i32 2}
 
 
 Bottom IR:
@@ -112,16 +111,16 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !0, !gla.precision !6
-  %0 = extractelement <4 x float> %BaseColor, i32 0, !gla.precision !6
-  %1 = extractelement <4 x float> %BaseColor, i32 1, !gla.precision !6
-  %2 = fadd float %0, %1, !gla.precision !6
+  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !0, !gla.precision !5
+  %0 = extractelement <4 x float> %BaseColor, i32 0, !gla.precision !5
+  %1 = extractelement <4 x float> %BaseColor, i32 1, !gla.precision !5
+  %2 = fadd float %0, %1, !gla.precision !5
   %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %2, <4 x i32> zeroinitializer)
   %4 = load float addrspace(2)* @d, align 4, !gla.uniform !4
   %5 = fcmp olt float %4, 0x4010CCCCC0000000
   %. = select i1 %5, float 0x3FF3333340000000, float 4.500000e+00
   %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %., <4 x i32> zeroinitializer)
-  %FragColor_shadow = fmul <4 x float> %3, %6, !gla.precision !6
+  %FragColor_shadow = fmul <4 x float> %3, %6, !gla.precision !5
   call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %FragColor_shadow), !gla.output !2
   br label %stage-epilogue
 
@@ -146,9 +145,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !1 = metadata !{i32 0, i32 2, i32 1024, null}
 !2 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !3}
 !3 = metadata !{i32 0, i32 2, i32 1025, null}
-!4 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 0, null}
-!6 = metadata !{i32 2}
+!4 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !1}
+!5 = metadata !{i32 2}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

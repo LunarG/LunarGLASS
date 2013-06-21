@@ -233,7 +233,7 @@ declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) nounwind
 !4 = metadata !{metadata !"c", i32 7, <4 x i32>* @c_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 1, i32 2, i32 1025, null}
 !6 = metadata !{metadata !"usampler", i32 12, i32* @usampler_typeProxy, metadata !7}
-!7 = metadata !{i32 5, i32 2, i32 0, metadata !8}
+!7 = metadata !{i32 5, i32 2, i32 1024, metadata !8}
 !8 = metadata !{i32 0, i32* @usampler_typeProxy, i32 1, i1 false, i1 false, i32 2}
 !9 = metadata !{i32 2}
 
@@ -294,7 +294,7 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 !4 = metadata !{metadata !"c", i32 7, <4 x i32>* @c_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 1, i32 2, i32 1025, null}
 !6 = metadata !{metadata !"usampler", i32 12, i32* @usampler_typeProxy, metadata !7}
-!7 = metadata !{i32 5, i32 2, i32 0, metadata !8}
+!7 = metadata !{i32 5, i32 2, i32 1024, metadata !8}
 !8 = metadata !{i32 0, i32* @usampler_typeProxy, i32 1, i1 false, i1 false, i32 2}
 !9 = metadata !{i32 2}
 #### BEGIN COMPILER 0 INFO LOG ####

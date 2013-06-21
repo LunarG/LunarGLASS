@@ -25,15 +25,15 @@ then:                                             ; preds = %entry
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %locals22 = load %lunarStruct2 addrspace(2)* @foo2, !gla.uniform !8
+  %locals22 = load %lunarStruct2 addrspace(2)* @foo2, !gla.uniform !7
   store %lunarStruct2 %locals22, %lunarStruct2* %locals2
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
   %2 = getelementptr %lunarStruct2* %locals2, i32 0, i32 2, i32 1
   %3 = load float* %2
-  %4 = load i32 addrspace(1)* @sampler, !gla.uniform !9
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !gla.input !14
+  %4 = load i32 addrspace(1)* @sampler, !gla.uniform !8
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !gla.input !12
   store <2 x float> %coord, <2 x float>* @coord_shadow
   %5 = load <2 x float>* @coord_shadow
   %6 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %5)
@@ -47,7 +47,7 @@ ifmerge:                                          ; preds = %else, %then
 
 stage-epilogue:                                   ; preds = %ifmerge
   %11 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %11), !gla.output !12
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %11), !gla.output !11
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -60,26 +60,24 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!gla.uniforms = !{!0, !8, !9}
-!gla.outputs = !{!12}
-!gla.inputs = !{!14}
+!gla.uniforms = !{!0, !7, !8}
+!gla.outputs = !{!11}
+!gla.inputs = !{!12}
 
 !0 = metadata !{metadata !"foo3", i32 12, %lunarStruct3* @foo3_typeProxy, metadata !1, metadata !2}
-!1 = metadata !{i32 4, i32 0, i32 0, null}
-!2 = metadata !{metadata !"lunarStruct3", metadata !3, metadata !"s2_1", metadata !4, metadata !"i", metadata !5, metadata !"f", metadata !5, metadata !"s1_1", metadata !7}
-!3 = metadata !{i32 4, i32 0, i32 63, null}
-!4 = metadata !{metadata !"lunarStruct2", metadata !3, metadata !"i", metadata !5, metadata !"f", metadata !5, metadata !"s1_1", metadata !7}
-!5 = metadata !{metadata !"", metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 63, null}
-!7 = metadata !{metadata !"lunarStruct1", metadata !3, metadata !"i", metadata !5, metadata !"f", metadata !5}
-!8 = metadata !{metadata !"foo2", i32 12, %lunarStruct2* @foo2_typeProxy, metadata !1, metadata !4}
-!9 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !10}
-!10 = metadata !{i32 5, i32 0, i32 0, metadata !11}
-!11 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!12 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 0, i32 1024, null}
-!14 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !15}
-!15 = metadata !{i32 0, i32 0, i32 1025, null}
+!1 = metadata !{i32 4, i32 0, i32 1024, null}
+!2 = metadata !{metadata !"lunarStruct3", metadata !1, metadata !"s2_1", metadata !3, metadata !"i", metadata !4, metadata !"f", metadata !4, metadata !"s1_1", metadata !6}
+!3 = metadata !{metadata !"lunarStruct2", metadata !1, metadata !"i", metadata !4, metadata !"f", metadata !4, metadata !"s1_1", metadata !6}
+!4 = metadata !{metadata !"", metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1024, null}
+!6 = metadata !{metadata !"lunarStruct1", metadata !1, metadata !"i", metadata !4, metadata !"f", metadata !4}
+!7 = metadata !{metadata !"foo2", i32 12, %lunarStruct2* @foo2_typeProxy, metadata !1, metadata !3}
+!8 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !9}
+!9 = metadata !{i32 5, i32 0, i32 1024, metadata !10}
+!10 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!11 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
+!12 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !13}
+!13 = metadata !{i32 0, i32 0, i32 1025, null}
 
 
 Bottom IR:
@@ -104,11 +102,11 @@ entry:
   %.val14 = load float addrspace(2)* %gla_constGEP16, align 4
   %locals2.2.1.0 = select i1 %1, float %.val, float %.val14
   %2 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %locals2.2.1.0, <4 x i32> zeroinitializer)
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !gla.input !14
-  %3 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !9
+  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1025, i32 -1, i32 1), !gla.input !12
+  %3 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !8
   %4 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %3, i32 0, <2 x float> %coord)
   %FragColor_shadow = fmul <4 x float> %4, %2
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %FragColor_shadow), !gla.output !12
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %FragColor_shadow), !gla.output !11
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -126,26 +124,24 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
-!gla.uniforms = !{!0, !8, !9}
-!gla.outputs = !{!12}
-!gla.inputs = !{!14}
+!gla.uniforms = !{!0, !7, !8}
+!gla.outputs = !{!11}
+!gla.inputs = !{!12}
 
 !0 = metadata !{metadata !"foo3", i32 12, %lunarStruct3* @foo3_typeProxy, metadata !1, metadata !2}
-!1 = metadata !{i32 4, i32 0, i32 0, null}
-!2 = metadata !{metadata !"lunarStruct3", metadata !3, metadata !"s2_1", metadata !4, metadata !"i", metadata !5, metadata !"f", metadata !5, metadata !"s1_1", metadata !7}
-!3 = metadata !{i32 4, i32 0, i32 63, null}
-!4 = metadata !{metadata !"lunarStruct2", metadata !3, metadata !"i", metadata !5, metadata !"f", metadata !5, metadata !"s1_1", metadata !7}
-!5 = metadata !{metadata !"", metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 63, null}
-!7 = metadata !{metadata !"lunarStruct1", metadata !3, metadata !"i", metadata !5, metadata !"f", metadata !5}
-!8 = metadata !{metadata !"foo2", i32 12, %lunarStruct2* @foo2_typeProxy, metadata !1, metadata !4}
-!9 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !10}
-!10 = metadata !{i32 5, i32 0, i32 0, metadata !11}
-!11 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!12 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 0, i32 1024, null}
-!14 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !15}
-!15 = metadata !{i32 0, i32 0, i32 1025, null}
+!1 = metadata !{i32 4, i32 0, i32 1024, null}
+!2 = metadata !{metadata !"lunarStruct3", metadata !1, metadata !"s2_1", metadata !3, metadata !"i", metadata !4, metadata !"f", metadata !4, metadata !"s1_1", metadata !6}
+!3 = metadata !{metadata !"lunarStruct2", metadata !1, metadata !"i", metadata !4, metadata !"f", metadata !4, metadata !"s1_1", metadata !6}
+!4 = metadata !{metadata !"", metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1024, null}
+!6 = metadata !{metadata !"lunarStruct1", metadata !1, metadata !"i", metadata !4, metadata !"f", metadata !4}
+!7 = metadata !{metadata !"foo2", i32 12, %lunarStruct2* @foo2_typeProxy, metadata !1, metadata !3}
+!8 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !9}
+!9 = metadata !{i32 5, i32 0, i32 1024, metadata !10}
+!10 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!11 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
+!12 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !13}
+!13 = metadata !{i32 0, i32 0, i32 1025, null}
 
 ***Unsupported functionality: missing metadata on load
 
