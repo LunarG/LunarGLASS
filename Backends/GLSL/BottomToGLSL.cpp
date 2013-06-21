@@ -1674,6 +1674,7 @@ protected:
             mdLayout = EMtlNone;
             mdPrecision = EMpNone;
             layoutLocation = 0;
+            mdAggregate = 0;
         }
         bool notSigned = mdLayout == EMtlUnsigned;
 
@@ -1681,7 +1682,7 @@ protected:
         // TODO: Goo functionality: outputs don't yet have layout slot bases, so indexing into big things will be incorrect
         std::string derefName = name;
         int slotOffset = GetConstantInt(llvmInstruction->getOperand(0)) - layoutLocation;
-        dereferenceName(derefName, type, slotOffset);
+        dereferenceName(derefName, type, mdAggregate, slotOffset);
 
         EInterpolationMethod interpMethod = EIMLast;
         EInterpolationLocation interpLocation = EILFragment;
@@ -1738,28 +1739,63 @@ protected:
     //
     // *Textually* deference a name string.
     //
-    void dereferenceName(std::string& name, const llvm::Type* type, int slotOffset)
+    void dereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNode* mdAggregate, int slotOffset)
     {
         // Operates recursively...
 
         if (type->getTypeID() == llvm::Type::PointerTyID) {
             type = type->getContainedType(0);
 
-            dereferenceName(name, type, slotOffset);
-        } else if (type->getTypeID() == llvm::Type::VectorTyID) {
-            // should be at the bottom of recursion now
-
-            return;
+            dereferenceName(name, type, mdAggregate, slotOffset);
         } else if (type->getTypeID() == llvm::Type::StructTyID) {
-            name = name + ".";
+            int field = 0;
+            int operand;
+            do {
+                operand = GetAggregateMdSubAggregateOp(field);
+                if (operand >= mdAggregate->getNumOperands()) {
+                    assert(operand < mdAggregate->getNumOperands());
+                    return;
+                }
+                int fieldSize = slotCount(llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand)));
+                if (fieldSize > slotOffset)
+                    break;
+                slotOffset -= fieldSize;
+                ++field;
+            } while (true);
+            name = name + "." + std::string(mdAggregate->getOperand(GetAggregateMdNameOp(field))->getName());
+            const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
+            dereferenceName(name, structType->getContainedType(field), llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand)), slotOffset);
         } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
+            int elementSize = slotCount(mdAggregate);
+            int element = slotOffset / elementSize;
+            slotOffset = slotOffset % elementSize;
+
             char buf[10];
-            snprintf(buf, sizeof(buf), "%d", slotOffset);
+            snprintf(buf, sizeof(buf), "%d", element);
             name = name + "[" + buf + "]";
             const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
         
-            dereferenceName(name, arrayType->getContainedType(0), 0);
+            dereferenceName(name, arrayType->getContainedType(0), mdAggregate, slotOffset);
         }
+    }
+
+    int slotCount(const llvm::MDNode* mdAggregate)
+    {
+        // TODO: replace with a static form, this one does not take nested arrays (struct of array of field) into account
+        return 1;
+
+        // Note: the below does not handle leafs yet
+        int count = 0;
+        int field = 0;
+        do {
+            int operand = GetAggregateMdSubAggregateOp(field);
+            if (operand >= mdAggregate->getNumOperands())
+                break;
+            count += slotCount(llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand)));
+            ++field;
+        } while (true);
+
+        return count;
     }
 
     void intWrap(std::string& name, llvm::Type* type)

@@ -521,12 +521,17 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
             // the end of the shader.
             struct copyOut co = { value, 0 };
             copyOuts.push_back(co);
-            const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(value->getType()->getContainedType(0));
-            if (arrayType) {
+            
+            if (const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(value->getType()->getContainedType(0))) {
                 for (int index = 0; index < arrayType->getNumElements(); ++index) {
                     // wait until specific indices are used (or the whole array)
                     // to know an array element is active
                     copyOutActive.push_back(false);
+                }
+            } else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(value->getType()->getContainedType(0))) {
+                for (int index = 0; index < structType->getNumElements(); ++index) {
+                    // TODO: functionality: this assumes simple structures with only one slot per field
+                    copyOutActive.push_back(true);
                 }
             } else
                 copyOutActive.push_back(true);
@@ -623,13 +628,27 @@ void Builder::copyOutPipeline()
 {
     int activeIndex = 0;
 
+    // TODO: this is assuming output structure leafs take one slot, true for matrices?
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
-        const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out].value->getType()->getContainedType(0));
         int slot = copyOuts[out].baseSlot;
-        if (arrayType) {
+        if (const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out].value->getType()->getContainedType(0))) {
             std::vector<llvm::Value*> gepChain;
             gepChain.push_back(MakeIntConstant(context, 0));
             for (int index = 0; index < arrayType->getNumElements(); ++index) {
+                if (copyOutActive[activeIndex]) {
+                    gepChain.push_back(MakeIntConstant(context, index));
+                    llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out].value, gepChain));
+                    writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].mdNode);
+                    gepChain.pop_back();
+                }
+                ++slot;
+                ++activeIndex;
+            }
+        } else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(copyOuts[out].value->getType()->getContainedType(0))) {
+            // TODO: functionality: output structs of structs: this needs to be recursive
+            std::vector<llvm::Value*> gepChain;
+            gepChain.push_back(MakeIntConstant(context, 0));
+            for (int index = 0; index < structType->getNumElements(); ++index) {
                 if (copyOutActive[activeIndex]) {
                     gepChain.push_back(MakeIntConstant(context, index));
                     llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out].value, gepChain));
@@ -1840,7 +1859,6 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
 
 llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1, llvm::Value* operand2)
 {
-
     // Use operand0 type as result type
     llvm::Function* intrinsicName =  getIntrinsic(intrinsicID, operand0->getType(), operand0->getType(), operand1->getType(), operand2->getType());
 

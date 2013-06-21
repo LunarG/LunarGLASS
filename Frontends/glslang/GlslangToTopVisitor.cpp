@@ -97,6 +97,8 @@ public:
     llvm::Value* createUnaryIntrinsic(TOperator op, gla::EMdPrecision, llvm::Value* operand);
     llvm::Value* createIntrinsic(TOperator op, gla::EMdPrecision, std::vector<llvm::Value*>& operands, bool isUnsigned);
     void createPipelineRead(TIntermSymbol*, llvm::Value* storage, int slot, llvm::MDNode*);
+    void createPipelineSubread(const TType& glaType, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md,
+                               std::string& name, gla::EInterpolationMethod, gla::EInterpolationLocation);
     int assignSlot(TIntermSymbol* node, bool input);
     llvm::Value* createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
     void setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
@@ -104,6 +106,7 @@ public:
     llvm::MDNode* makeMdSampler(const TType&, llvm::Value* typeProxy);
     llvm::MDNode* declareMdUniformBlock(gla::EMdInputOutput ioType, const TIntermSymbol* node, llvm::Value* typeProxy);
     llvm::MDNode* declareMdType(const TType&);
+    llvm::MDNode* makeInputOutputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot, const char* kind);
     void setOutputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot);
     llvm::MDNode* makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot);
 
@@ -2037,6 +2040,7 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(TOperator op, gla::EMdPreci
     return result;
 }
 
+// Set up to recursively traverse the structure to read, while flattening it into slots
 void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value* storage, int firstSlot, llvm::MDNode* md)
 {
     gla::EInterpolationMethod method = gla::EIMNone;
@@ -2054,66 +2058,79 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value
     // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
     // which gets optimized later.
     std::string name(node->getSymbol().c_str());
-    llvm::Type* readType;
-    llvm::Value* pipeRead;
 
-    // TODO: functionality: struct in/out
-    if (node->getType().getStruct())
-        gla::UnsupportedFunctionality("pipeline structure input");
-    else if (node->getType().isArray() || node->getType().isMatrix()) {
+    std::vector<llvm::Value*> gepChain;
+    createPipelineSubread(node->getType(), storage, gepChain, firstSlot, md, name, method, location);
+}
 
-        // Could be a matrix, an array, or an array of matrices.
-        // The whole thing will be read, one slot at a time.
+// Recursively read the input structure
+void TGlslangToTopTraverser::createPipelineSubread(const TType& glaType, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md, 
+                                                   std::string& name, gla::EInterpolationMethod method, gla::EInterpolationLocation location)
+{
+    // gla types can be both arrays and matrices or arrays and structures at the same time;
+    // make sure to process arrayness first, so it is stripped to get to elements
 
-        int arraySize = 1;
-        int numSlots = 1;
-        if (node->getType().isArray())
-            arraySize = node->getType().getArraySize();
+    if (glaType.isArray()) {
+        // read the array elements, recursively
+
+        int arraySize = glaType.getArraySize();
         if (arraySize == 0) {
             // TODO: desktop linker functionality: make sure front end knows size before calling here, see
             // comment in convertGlslangToGlaType
             arraySize = UnknownArraySize;
         }
 
-        int numColumns = 1;
-        if (node->getType().isMatrix())
-            numColumns = node->getType().getMatrixCols();            
+        TType elementType(glaType);
+        elementType.dereference();
+
+        if (gepChain.size() == 0)
+            gepChain.push_back(gla::MakeIntConstant(context, 0));
+        for (int element = 0; element < arraySize; ++element) {
+            gepChain.push_back(gla::MakeIntConstant(context, element));
+            createPipelineSubread(elementType, storage, gepChain, slot, md, name, method, location);
+            gepChain.pop_back();
+        }
+        if (gepChain.size() == 1)
+            gepChain.pop_back();
+    } else if (const TTypeList* typeList = glaType.getStruct()) {
+        if (gepChain.size() == 0)
+            gepChain.push_back(gla::MakeIntConstant(context, 0));
+        for (int field = 0; field < typeList->size(); ++field) {
+            gepChain.push_back(gla::MakeIntConstant(context, field));            
+            createPipelineSubread(*(*typeList)[field].type, storage, gepChain, slot, md, name, method, location);
+            gepChain.pop_back();
+        }
+        if (gepChain.size() == 1)
+            gepChain.pop_back();
         
-        // Get down to what slice of this type will be held 
-        // in a single slot.
-        TType slotType(node->getType());
-        if (node->getType().isArray())
-            slotType.dereference();
-        if (node->getType().isMatrix())
-            slotType.dereference();
-        readType = convertGlslangToGlaType(slotType);
+    } else if (glaType.isMatrix()) {
+        // Read the whole matrix now, one slot at a time.
+
+        int numColumns = glaType.getMatrixCols();            
+        
+        TType columnType(glaType);
+        columnType.dereference();
+        llvm::Type* readType = convertGlslangToGlaType(columnType);
 
         // fill in the whole aggregate shadow, slot by slot
-        std::vector<llvm::Value*> gepChain;
-        gepChain.push_back(gla::MakeIntConstant(context, 0));
-        int slot = firstSlot;
-        for (int element = 0; element < arraySize; ++element) {
-            if (node->getType().isArray())
-                gepChain.push_back(gla::MakeIntConstant(context, element));
-
-            for (int column = 0; column < numColumns; ++column, ++slot) {
-                if (node->getType().isMatrix())
-                    gepChain.push_back(gla::MakeIntConstant(context, slot - firstSlot));
-                
-                pipeRead = glaBuilder->readPipeline(getMdPrecision(node->getType()), readType, name, slot, md, -1 /*mask*/, method, location);
-                llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
-                
-                if (node->getType().isMatrix())
-                    gepChain.pop_back();
-            }
-
-            if (node->getType().isArray())
-                gepChain.pop_back();
+        if (gepChain.size() == 0)
+            gepChain.push_back(gla::MakeIntConstant(context, 0));
+        for (int column = 0; column < numColumns; ++column, ++slot) {
+            gepChain.push_back(gla::MakeIntConstant(context, column));               
+            llvm::Value* pipeRead = glaBuilder->readPipeline(getMdPrecision(glaType), readType, name, slot, md, -1 /*mask*/, method, location);
+            llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));                
+            gepChain.pop_back();
         }
+        if (gepChain.size() == 1)
+            gepChain.pop_back();
     } else {
-        readType = convertGlslangToGlaType(node->getType());
-        llvm::Value* pipeRead = glaBuilder->readPipeline(getMdPrecision(node->getType()), readType, name, firstSlot, md, -1 /*mask*/, method, location);
-        llvmBuilder.CreateStore(pipeRead, storage);
+        llvm::Type* readType = convertGlslangToGlaType(glaType);
+        llvm::Value* pipeRead = glaBuilder->readPipeline(getMdPrecision(glaType), readType, name, slot, md, -1 /*mask*/, method, location);
+        ++slot;
+        if (gepChain.size() > 0)
+            llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
+        else
+            llvmBuilder.CreateStore(pipeRead, storage);
     }
 }
 
@@ -2311,11 +2328,22 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const TType& type)
     return llvm::MDNode::get(context, mdArgs);
 }
 
-void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value* storage, int slot)
+llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot, const char* kind)
 {    
-    llvm::MDNode* md = metadata.makeMdInputOutput(node->getSymbol().c_str(), gla::OutputListMdName, getMdQualifier(node), 
-                                                  makePermanentTypeProxy(storage), getMdTypeLayout(node->getType()), getMdPrecision(node->getType()), slot);
-    
+    llvm::MDNode* aggregate = 0;
+    if (node->getBasicType() == EbtStruct || node->getBasicType() == EbtBlock) {
+        // Make hierachical type information
+        aggregate = declareMdType(node->getType());
+    }
+
+    return metadata.makeMdInputOutput(node->getSymbol().c_str(), kind, getMdQualifier(node), makePermanentTypeProxy(typeProxy), 
+                                      getMdTypeLayout(node->getType()), getMdPrecision(node->getType()), slot, 0, aggregate);
+}
+
+void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value* storage, int slot)
+{
+    llvm::MDNode* md = makeInputOutputMetadata(node, storage, slot, gla::OutputListMdName);
+
     if (node->getQualifier().invariant)
         module->getOrInsertNamedMetadata(gla::InvariantListMdName)->addOperand(md);
 
@@ -2323,10 +2351,8 @@ void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value*
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(TIntermSymbol* node, llvm::Value* typeProxy, int slot)
-{    
-    return metadata.makeMdInputOutput(node->getSymbol().c_str(), gla::InputListMdName, getMdQualifier(node), 
-                                      makePermanentTypeProxy(typeProxy), getMdTypeLayout(node->getType()),
-                                      getMdPrecision(node->getType()), slot);
+{
+    return makeInputOutputMetadata(node, typeProxy, slot, gla::InputListMdName);
 }
 
 //

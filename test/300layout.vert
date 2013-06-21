@@ -29,9 +29,18 @@ layout(column_major) uniform T3 { // shared and column_major
 
 uniform uint uiuin;
 
+struct S {
+    vec3 c;
+    float f;
+};
+
+out S s;
+
 void main()
 {
     pos = p * (tblock.M1 + tblock.M2 + M4 + M3 + t2m);
     color = c * tblock.N1;
     iout = tblock.iuin + int(uiuin) + aiv2.y;
+    s.c = c;
+    s.f = p.x;
 }
