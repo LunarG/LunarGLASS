@@ -976,6 +976,8 @@ protected:
             }
             matrix = typeLayout == EMtlRowMajorMatrix || typeLayout == EMtlColMajorMatrix;
             notSigned = typeLayout == EMtlUnsigned;
+
+            emitGlaLayout(out, typeLayout, location);
         }
 
         if (type->getTypeID() == llvm::Type::PointerTyID)
@@ -1097,6 +1099,43 @@ protected:
                 out << "Array";
         } else
             UnsupportedFunctionality("sampler metadata", EATContinue);
+    }
+
+    void emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location)
+    {
+        const char* layoutStr = 0;
+
+        switch (layout) {
+        // members
+        case EMtlRowMajorMatrix:  layoutStr = "row_major";   break;
+        //case EMtlColMajorMatrix:  layoutStr = "col_major";   break;
+        // non-block members will always be col_major, and are not allowed such layout declarations,
+        // rely on that and the fact that we don't deal with overridden defaults at this level to omit col_major
+        
+        // blocks
+        case EMtlStd140:  layoutStr = "std140";   break;
+        case EMtlStd430:  layoutStr = "std430";   break;
+        case EMtlPacked:  layoutStr = "std430";   break;
+
+        default:  break;
+        }
+
+        if (location >= gla::MaxUserLayoutLocation && layoutStr == 0)
+            return;
+
+        bool comma = false;
+        out << "layout(";
+        if (layoutStr) {
+            out << layoutStr;
+            comma = true;
+        }
+        if (location < gla::MaxUserLayoutLocation) {
+            if (comma)
+                out << ", ";
+            out << "location=" << location;
+            comma = true;
+        }
+        out << ") ";
     }
 
     void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count = -1)
@@ -1673,7 +1712,7 @@ protected:
             type = llvmInstruction->getType();
             mdLayout = EMtlNone;
             mdPrecision = EMpNone;
-            layoutLocation = 0;
+            layoutLocation = gla::MaxUserLayoutLocation;
             mdAggregate = 0;
         }
         bool notSigned = mdLayout == EMtlUnsigned;

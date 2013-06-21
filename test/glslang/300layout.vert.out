@@ -412,25 +412,25 @@ struct S {
 };
 
 S s_shadow;
-uniform Transform {
-    mat4 M1;
+uniform layout(std140) Transform {
+    layout(row_major) mat4 M1;
     mat4 M2;
-    mat3 N1;
+    layout(row_major) mat3 N1;
     int iuin;
 } tblock;
 uniform T3 {
     mat4 M3;
-    mat4 M4;
+    layout(row_major) mat4 M4;
     mat3 N2;
 } ;
 uniform T2 {
     bool b;
-    mat4 t2m;
+    layout(row_major) mat4 t2m;
 } ;
 uniform highp uint uiuin;
-in highp vec4 p;
-in highp vec3 c;
-in highp ivec2 aiv2;
+in layout(location=3) highp vec4 p;
+in layout(location=7) highp vec3 c;
+in layout(location=9) highp ivec2 aiv2;
 out highp vec4 pos;
 out highp vec3 color;
 out highp int iout;
