@@ -1800,24 +1800,24 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(TOperator op, gla::EMd
         intrinsicID = llvm::Intrinsic::gla_fAtan;
         break;
 
-    //case EOpAcosh:
-    //    intrinsicID = llvm::Intrinsic::gla_fAcosh;
-    //    break;
-    //case EOpAsinh:
-    //    intrinsicID = llvm::Intrinsic::gla_fAsinh;
-    //    break;
-    //case EOpAtanh:
-    //    intrinsicID = llvm::Intrinsic::gla_fAtanh;
-    //    break;
-    //case EOpTanh:
-    //    intrinsicID = llvm::Intrinsic::gla_fTanh;
-    //    break;
-    //case EOpCosh:
-    //    intrinsicID = llvm::Intrinsic::gla_fCosh;
-    //    break;
-    //case EOpSinh:
-    //    intrinsicID = llvm::Intrinsic::gla_fSinh;
-    //    break;
+    case EOpAcosh:
+        intrinsicID = llvm::Intrinsic::gla_fAcosh;
+        break;
+    case EOpAsinh:
+        intrinsicID = llvm::Intrinsic::gla_fAsinh;
+        break;
+    case EOpAtanh:
+        intrinsicID = llvm::Intrinsic::gla_fAtanh;
+        break;
+    case EOpTanh:
+        intrinsicID = llvm::Intrinsic::gla_fTanh;
+        break;
+    case EOpCosh:
+        intrinsicID = llvm::Intrinsic::gla_fCosh;
+        break;
+    case EOpSinh:
+        intrinsicID = llvm::Intrinsic::gla_fSinh;
+        break;
 
     case EOpLength:
         intrinsicID = llvm::Intrinsic::gla_fLength;

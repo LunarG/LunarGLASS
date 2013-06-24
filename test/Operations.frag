@@ -32,7 +32,6 @@ void main()
     v += asin(v);
     v += acos(v);
 
-#ifdef TEST_POST_110
     v += atan(v);
     v += sinh(v);
     v += cosh(v);
@@ -40,7 +39,6 @@ void main()
     v += asinh(v);
     v += acosh(v);
     v += atanh(v);
-#endif
 
     v += pow(v, v);
     v += exp(v);

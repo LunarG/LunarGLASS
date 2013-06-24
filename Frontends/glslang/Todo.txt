@@ -12,10 +12,10 @@ Obscure
 
 Front end
   - Move to thread safe version of flex
-  - "const" compile-time constant propagation in the front-end has to be complete, for all built-in functions
 
 Performance
   - fix difference between fReadData and fReadInterpolant: LLVM is optimizing multiple uses of one but not the other
+  - "const" compile-time constant propagation in the front-end has to be complete, for all built-in functions
 
 Interfacing
   + Separate top and bottom IR into two files from IntrinsicsLunarGLASS.td
@@ -128,16 +128,16 @@ LunarGoo
   + Accept the precision qualifiers from OpenGL ES with no expectation that anything is done with them.
   + allow precision qualifiers in structures and function declarations
   + error to specify integer literals too big for an integer variable.
-  - flat is for both user and predeclared built-in in/out variables
   + highp is always present in the fragment language, the default is highp
-  - order of qualification is either (invariant-qualifier interpolation-qualifier storage-qualifier precision-qualifier) or (storage-qualifier parameter-qualifier  precision-qualifier)
+  + order of qualification is either (invariant-qualifier interpolation-qualifier storage-qualifier precision-qualifier) or (storage-qualifier parameter-qualifier  precision-qualifier)
   + (a = b) is an r-value and never an l-value
   + projective cube map texture and shadow
   + explicit gradient texture lookup
-  . Some synchronization with ES (inout parameter evaluation order, foo(void), others)
+  x Some synchronization with ES (inout parameter evaluation order, foo(void), others)
   x It's an error to use #if etc. on an undefined name (later reversed, version-specific) (CPP)
   x Use gl_Position for clipping if gl_ClipVertex is not statically written. (later reversed, version specific)
-  - The ability to index into an array of samplers with a variable index is removed
+  + The ability to index into an array of samplers with a variable index is removed
+  . flat is for both user and predeclared built-in in/out variables
   . Non-ES: Preprocessor token pasting (##), ## does macro expansion after pasting not before
   . Non-ES: non-perspective (linear) interpolation (noperspective)
   . Non-ES: add gl_ClipDistance[] to both vertex and fragment shaders
