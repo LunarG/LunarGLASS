@@ -8,6 +8,8 @@ Top IR:
 @position_shadow = internal global <4 x float> zeroinitializer
 @gl_Vertex_sim = internal global <4 x float> zeroinitializer
 @gl_ModelViewProjectionMatrix_sim = internal global <4 x float> zeroinitializer
+@transform = external addrspace(2) constant [4 x <4 x float>]
+@VertexID_shadow = internal global i32 0
 
 define fastcc void @main() {
 entry:
@@ -47,7 +49,8 @@ declare void @llvm.gla.fWriteData.v2f32(i32, i32, <2 x float>) nounwind
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !gla.outputs = !{!0, !2}
-!gla.inputs = !{!4, !6}
+!gla.inputs = !{!4, !6, !8}
+!gla.uniforms = !{!10}
 
 !0 = metadata !{metadata !"uv", i32 7, <2 x float>* @uv_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -57,6 +60,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !5 = metadata !{i32 0, i32 0, i32 1025, null}
 !6 = metadata !{metadata !"position", i32 1, <4 x float>* @position_shadow_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1027, null}
+!8 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !9}
+!9 = metadata !{i32 0, i32 0, i32 1028, null}
+!10 = metadata !{metadata !"transform", i32 12, [4 x <4 x float>]* @transform_typeProxy, metadata !11}
+!11 = metadata !{i32 3, i32 0, i32 1024, null}
 
 
 Bottom IR:
@@ -90,7 +97,8 @@ declare void @llvm.gla.fWriteData.v2f32(i32, i32, <2 x float>) nounwind
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !gla.outputs = !{!0, !2}
-!gla.inputs = !{!4, !6}
+!gla.inputs = !{!4, !6, !8}
+!gla.uniforms = !{!10}
 
 !0 = metadata !{metadata !"uv", i32 7, <2 x float>* @uv_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -100,6 +108,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !5 = metadata !{i32 0, i32 0, i32 1025, null}
 !6 = metadata !{metadata !"position", i32 1, <4 x float>* @position_shadow_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1027, null}
+!8 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !9}
+!9 = metadata !{i32 0, i32 0, i32 1028, null}
+!10 = metadata !{metadata !"transform", i32 12, [4 x <4 x float>]* @transform_typeProxy, metadata !11}
+!11 = metadata !{i32 3, i32 0, i32 1024, null}
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:5: attribute deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
@@ -107,6 +119,7 @@ WARNING: 0:5: attribute deprecated in version 130; may be removed in future rele
 #### END LINKER INFO LOG ####
 #version 130
 // LunarGOO output (r722)
+uniform mat4 transform;
 in vec4 position;
 in vec2 uv_in;
 out vec2 uv;
@@ -126,6 +139,7 @@ void main()
 #### END LINKER INFO LOG ####
 #version 130
 // LunarGOO output (r722)
+uniform mat4 transform;
 in vec4 position;
 in vec2 uv_in;
 out vec2 uv;

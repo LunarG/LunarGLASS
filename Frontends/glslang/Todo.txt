@@ -27,13 +27,14 @@ Interfacing
   + Fix any copyrights
   - Linker I/O: to be done as metadata
 	 - do different declaration decorations reusing the same structure need to replicate the heirarchical decorations?
+	 + add linkage nodes to AST for blocks, inputs, outputs, etc. that a linker will want to error check against
      + all matrix types globals
      + uniform blocks; names and content
      + structure in/out
      + support invariant
      + all opaque types
      + layout qualifiers, packing: std140/packed/shared and column-major vs. row-major
-     - layout qualifiers: locations
+     + layout qualifiers: locations
      + external names for all I/O and globals
      + special built-ins (odd qualifiers)
      + remove all the name mangling that had been doing the above
@@ -82,6 +83,7 @@ LunarGoo
   + method support for “.length()”
   + array type syntax is supported “float[5]”, and array initializers are added
   + Accept "f" as part of a floating-point constant.  E.g. "float g = 3.5f".
+  . Non-ES: Handle multiple compilation units per stage
   + Non-ES: Reserve lowp, mediump, highp, and precision
   + Non-ES 1.0 (but 3.0): Add outerProduct() for multiplying vectors to yield a matrix.
   + Non-ES 1.0 (but 3.0): add transpose()

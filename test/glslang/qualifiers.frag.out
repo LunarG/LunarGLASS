@@ -8,6 +8,14 @@ Top IR:
 @inVf_shadow = internal global <4 x float> zeroinitializer
 @inVn_shadow = internal global <4 x float> zeroinitializer
 @inVcn_shadow = internal global <4 x float> zeroinitializer
+@buf = external addrspace(2) constant <4 x float>
+@inV_shadow = internal global <4 x float> zeroinitializer
+@imageVc = external addrspace(1) constant i32
+@imageVv = external addrspace(1) constant i32
+@imageVr = external addrspace(1) constant i32
+@imageVro = external addrspace(1) constant i32
+@imageVwo = external addrspace(1) constant i32
+@imageVall = external addrspace(1) constant i32
 
 define fastcc void @main() {
 entry:
@@ -50,7 +58,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !gla.outputs = !{!0}
 !gla.invariant = !{!0}
-!gla.inputs = !{!2, !4, !6, !8, !10}
+!gla.inputs = !{!2, !4, !6, !8, !10, !12}
+!gla.uniforms = !{!14, !15, !18, !21, !24, !27, !30}
 
 !0 = metadata !{metadata !"outVi", i32 7, <4 x float>* @outVi_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -64,6 +73,27 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !9 = metadata !{i32 0, i32 0, i32 1028, null}
 !10 = metadata !{metadata !"inVcn", i32 1, <4 x float>* @inVcn_shadow_typeProxy, metadata !11}
 !11 = metadata !{i32 0, i32 0, i32 1029, null}
+!12 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_shadow_typeProxy, metadata !13}
+!13 = metadata !{i32 0, i32 0, i32 1030, null}
+!14 = metadata !{metadata !"buf", i32 12, <4 x float>* @buf_typeProxy, metadata !1}
+!15 = metadata !{metadata !"imageVc", i32 12, i32* @imageVc_typeProxy, metadata !16}
+!16 = metadata !{i32 5, i32 0, i32 1024, metadata !17}
+!17 = metadata !{i32 1, i32* @imageVc_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!18 = metadata !{metadata !"imageVv", i32 12, i32* @imageVv_typeProxy, metadata !19}
+!19 = metadata !{i32 5, i32 0, i32 1024, metadata !20}
+!20 = metadata !{i32 1, i32* @imageVv_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!21 = metadata !{metadata !"imageVr", i32 12, i32* @imageVr_typeProxy, metadata !22}
+!22 = metadata !{i32 5, i32 0, i32 1024, metadata !23}
+!23 = metadata !{i32 1, i32* @imageVr_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!24 = metadata !{metadata !"imageVro", i32 12, i32* @imageVro_typeProxy, metadata !25}
+!25 = metadata !{i32 5, i32 0, i32 1024, metadata !26}
+!26 = metadata !{i32 1, i32* @imageVro_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!27 = metadata !{metadata !"imageVwo", i32 12, i32* @imageVwo_typeProxy, metadata !28}
+!28 = metadata !{i32 5, i32 0, i32 1024, metadata !29}
+!29 = metadata !{i32 1, i32* @imageVwo_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!30 = metadata !{metadata !"imageVall", i32 12, i32* @imageVall_typeProxy, metadata !31}
+!31 = metadata !{i32 5, i32 0, i32 1024, metadata !32}
+!32 = metadata !{i32 1, i32* @imageVall_typeProxy, i32 1, i1 false, i1 false, i32 0}
 
 
 Bottom IR:
@@ -98,7 +128,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !gla.outputs = !{!0}
 !gla.invariant = !{!0}
-!gla.inputs = !{!2, !4, !6, !8, !10}
+!gla.inputs = !{!2, !4, !6, !8, !10, !12}
+!gla.uniforms = !{!14, !15, !18, !21, !24, !27, !30}
 
 !0 = metadata !{metadata !"outVi", i32 7, <4 x float>* @outVi_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -112,12 +143,40 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !9 = metadata !{i32 0, i32 0, i32 1028, null}
 !10 = metadata !{metadata !"inVcn", i32 1, <4 x float>* @inVcn_shadow_typeProxy, metadata !11}
 !11 = metadata !{i32 0, i32 0, i32 1029, null}
+!12 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_shadow_typeProxy, metadata !13}
+!13 = metadata !{i32 0, i32 0, i32 1030, null}
+!14 = metadata !{metadata !"buf", i32 12, <4 x float>* @buf_typeProxy, metadata !1}
+!15 = metadata !{metadata !"imageVc", i32 12, i32* @imageVc_typeProxy, metadata !16}
+!16 = metadata !{i32 5, i32 0, i32 1024, metadata !17}
+!17 = metadata !{i32 1, i32* @imageVc_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!18 = metadata !{metadata !"imageVv", i32 12, i32* @imageVv_typeProxy, metadata !19}
+!19 = metadata !{i32 5, i32 0, i32 1024, metadata !20}
+!20 = metadata !{i32 1, i32* @imageVv_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!21 = metadata !{metadata !"imageVr", i32 12, i32* @imageVr_typeProxy, metadata !22}
+!22 = metadata !{i32 5, i32 0, i32 1024, metadata !23}
+!23 = metadata !{i32 1, i32* @imageVr_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!24 = metadata !{metadata !"imageVro", i32 12, i32* @imageVro_typeProxy, metadata !25}
+!25 = metadata !{i32 5, i32 0, i32 1024, metadata !26}
+!26 = metadata !{i32 1, i32* @imageVro_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!27 = metadata !{metadata !"imageVwo", i32 12, i32* @imageVwo_typeProxy, metadata !28}
+!28 = metadata !{i32 5, i32 0, i32 1024, metadata !29}
+!29 = metadata !{i32 1, i32* @imageVwo_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!30 = metadata !{metadata !"imageVall", i32 12, i32* @imageVall_typeProxy, metadata !31}
+!31 = metadata !{i32 5, i32 0, i32 1024, metadata !32}
+!32 = metadata !{i32 1, i32* @imageVall_typeProxy, i32 1, i1 false, i1 false, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
 #version 430 core
 // LunarGOO output (r722)
+uniform vec4 buf;
+uniform image2D imageVc;
+uniform image2D imageVv;
+uniform image2D imageVr;
+uniform image2D imageVro;
+uniform image2D imageVwo;
+uniform image2D imageVall;
 in vec4 inVs;
 centroid in vec4 inVc;
 flat in vec4 inVf;
@@ -141,6 +200,13 @@ void main()
 #### END LINKER INFO LOG ####
 #version 430 core
 // LunarGOO output (r722)
+uniform vec4 buf;
+uniform image2D imageVc;
+uniform image2D imageVv;
+uniform image2D imageVr;
+uniform image2D imageVro;
+uniform image2D imageVwo;
+uniform image2D imageVall;
 centroid in vec4 inVc;
 in vec4 inVs;
 flat in vec4 inVf;

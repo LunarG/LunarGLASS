@@ -8,6 +8,8 @@ Top IR:
 @outVf_shadow = internal global <4 x float> zeroinitializer
 @outVn_shadow = internal global <4 x float> zeroinitializer
 @outVcn_shadow = internal global <4 x float> zeroinitializer
+@VertexID_shadow = internal global i32 0
+@InstanceID_shadow = internal global i32 0
 
 define fastcc void @main() {
 entry:
@@ -55,7 +57,7 @@ declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !gla.outputs = !{!0, !2, !4, !6, !8}
-!gla.inputs = !{!10}
+!gla.inputs = !{!10, !12, !14}
 
 !0 = metadata !{metadata !"outVc", i32 7, <4 x float>* @outVc_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -69,6 +71,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !9 = metadata !{i32 0, i32 0, i32 1029, null}
 !10 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_shadow_typeProxy, metadata !11}
 !11 = metadata !{i32 0, i32 0, i32 1025, null}
+!12 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !13}
+!13 = metadata !{i32 0, i32 0, i32 1030, null}
+!14 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !15}
+!15 = metadata !{i32 0, i32 0, i32 1031, null}
 
 
 Bottom IR:
@@ -96,7 +102,7 @@ declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !gla.outputs = !{!0, !2, !4, !6, !8}
-!gla.inputs = !{!10}
+!gla.inputs = !{!10, !12, !14}
 
 !0 = metadata !{metadata !"outVc", i32 7, <4 x float>* @outVc_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -110,6 +116,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !9 = metadata !{i32 0, i32 0, i32 1029, null}
 !10 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_shadow_typeProxy, metadata !11}
 !11 = metadata !{i32 0, i32 0, i32 1025, null}
+!12 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !13}
+!13 = metadata !{i32 0, i32 0, i32 1030, null}
+!14 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !15}
+!15 = metadata !{i32 0, i32 0, i32 1031, null}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

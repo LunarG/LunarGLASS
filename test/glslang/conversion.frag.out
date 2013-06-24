@@ -11,6 +11,22 @@ Top IR:
 @u_f4 = external addrspace(2) constant <4 x float>
 @i_i4_shadow = internal global <4 x i32> zeroinitializer
 @FragColor_shadow = internal global <4 x float> zeroinitializer
+@u_b = external addrspace(2) constant i1
+@u_b2 = external addrspace(2) constant <2 x i1>
+@u_b3 = external addrspace(2) constant <3 x i1>
+@u_b4 = external addrspace(2) constant <4 x i1>
+@u_i2 = external addrspace(2) constant <2 x i32>
+@u_i3 = external addrspace(2) constant <3 x i32>
+@u_i4 = external addrspace(2) constant <4 x i32>
+@i_b = external addrspace(2) constant i1
+@i_b2 = external addrspace(2) constant <2 x i1>
+@i_b3 = external addrspace(2) constant <3 x i1>
+@i_b4 = external addrspace(2) constant <4 x i1>
+@i_i2_shadow = internal global <2 x i32> zeroinitializer
+@i_i3_shadow = internal global <3 x i32> zeroinitializer
+@i_f2_shadow = internal global <2 x float> zeroinitializer
+@i_f3_shadow = internal global <3 x float> zeroinitializer
+@i_f4_shadow = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -63,7 +79,7 @@ entry:
   %11 = icmp ne i32 %10, 0
   %12 = load float addrspace(2)* @u_f, !gla.uniform !2
   %13 = fcmp one float %12, 0.000000e+00
-  %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !6
+  %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !17
   store i32 %i_i, i32* @i_i_shadow
   %14 = load i32* @i_i_shadow
   %15 = icmp ne i32 %14, 0
@@ -76,11 +92,11 @@ entry:
   %20 = icmp ne i32 %19, 0
   %21 = load float addrspace(2)* @u_f, !gla.uniform !2
   %22 = fcmp one float %21, 0.000000e+00
-  %i_i5 = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !6
+  %i_i5 = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !17
   store i32 %i_i5, i32* @i_i_shadow
   %23 = load i32* @i_i_shadow
   %24 = icmp ne i32 %23, 0
-  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !7
+  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !18
   store float %i_f, float* @i_f_shadow
   %25 = load float* @i_f_shadow
   %26 = fcmp one float %25, 0.000000e+00
@@ -158,7 +174,7 @@ entry:
   %74 = load <4 x float>* %f4
   %f419 = fadd <4 x float> %74, %73
   store <4 x float> %f419, <4 x float>* %f4
-  %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !9
+  %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !20
   store <4 x i32> %i_i4, <4 x i32>* @i_i4_shadow
   %75 = load <4 x i32>* @i_i4_shadow
   %76 = icmp ne <4 x i32> %75, zeroinitializer
@@ -499,7 +515,7 @@ ifmerge57:                                        ; preds = %else56, %then53
 
 stage-epilogue:                                   ; preds = %ifmerge57
   %333 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %333), !gla.output !11
+  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %333), !gla.output !32
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -518,9 +534,9 @@ declare i1 @llvm.gla.any.v3i1(<3 x i1>) nounwind readnone
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!gla.uniforms = !{!0, !2, !3, !4, !5}
-!gla.inputs = !{!6, !7, !9}
-!gla.outputs = !{!11}
+!gla.uniforms = !{!0, !2, !3, !4, !5, !6, !7, !8, !9, !10, !11, !12, !13, !14, !15, !16}
+!gla.inputs = !{!17, !18, !20, !22, !24, !26, !28, !30}
+!gla.outputs = !{!32}
 
 !0 = metadata !{metadata !"u_i", i32 12, i32* @u_i_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -528,13 +544,34 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !3 = metadata !{metadata !"u_f2", i32 12, <2 x float>* @u_f2_typeProxy, metadata !1}
 !4 = metadata !{metadata !"u_f3", i32 12, <3 x float>* @u_f3_typeProxy, metadata !1}
 !5 = metadata !{metadata !"u_f4", i32 12, <4 x float>* @u_f4_typeProxy, metadata !1}
-!6 = metadata !{metadata !"i_i", i32 1, i32* @i_i_shadow_typeProxy, metadata !1}
-!7 = metadata !{metadata !"i_f", i32 1, float* @i_f_shadow_typeProxy, metadata !8}
-!8 = metadata !{i32 0, i32 0, i32 1025, null}
-!9 = metadata !{metadata !"i_i4", i32 1, <4 x i32>* @i_i4_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1026, null}
-!11 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !12}
-!12 = metadata !{i32 0, i32 0, i32 1027, null}
+!6 = metadata !{metadata !"u_b", i32 12, i1* @u_b_typeProxy, metadata !1}
+!7 = metadata !{metadata !"u_b2", i32 12, <2 x i1>* @u_b2_typeProxy, metadata !1}
+!8 = metadata !{metadata !"u_b3", i32 12, <3 x i1>* @u_b3_typeProxy, metadata !1}
+!9 = metadata !{metadata !"u_b4", i32 12, <4 x i1>* @u_b4_typeProxy, metadata !1}
+!10 = metadata !{metadata !"u_i2", i32 12, <2 x i32>* @u_i2_typeProxy, metadata !1}
+!11 = metadata !{metadata !"u_i3", i32 12, <3 x i32>* @u_i3_typeProxy, metadata !1}
+!12 = metadata !{metadata !"u_i4", i32 12, <4 x i32>* @u_i4_typeProxy, metadata !1}
+!13 = metadata !{metadata !"i_b", i32 12, i1* @i_b_typeProxy, metadata !1}
+!14 = metadata !{metadata !"i_b2", i32 12, <2 x i1>* @i_b2_typeProxy, metadata !1}
+!15 = metadata !{metadata !"i_b3", i32 12, <3 x i1>* @i_b3_typeProxy, metadata !1}
+!16 = metadata !{metadata !"i_b4", i32 12, <4 x i1>* @i_b4_typeProxy, metadata !1}
+!17 = metadata !{metadata !"i_i", i32 1, i32* @i_i_shadow_typeProxy, metadata !1}
+!18 = metadata !{metadata !"i_f", i32 1, float* @i_f_shadow_typeProxy, metadata !19}
+!19 = metadata !{i32 0, i32 0, i32 1025, null}
+!20 = metadata !{metadata !"i_i4", i32 1, <4 x i32>* @i_i4_shadow_typeProxy, metadata !21}
+!21 = metadata !{i32 0, i32 0, i32 1026, null}
+!22 = metadata !{metadata !"i_i2", i32 1, <2 x i32>* @i_i2_shadow_typeProxy, metadata !23}
+!23 = metadata !{i32 0, i32 0, i32 1028, null}
+!24 = metadata !{metadata !"i_i3", i32 1, <3 x i32>* @i_i3_shadow_typeProxy, metadata !25}
+!25 = metadata !{i32 0, i32 0, i32 1029, null}
+!26 = metadata !{metadata !"i_f2", i32 1, <2 x float>* @i_f2_shadow_typeProxy, metadata !27}
+!27 = metadata !{i32 0, i32 0, i32 1030, null}
+!28 = metadata !{metadata !"i_f3", i32 1, <3 x float>* @i_f3_shadow_typeProxy, metadata !29}
+!29 = metadata !{i32 0, i32 0, i32 1031, null}
+!30 = metadata !{metadata !"i_f4", i32 1, <4 x float>* @i_f4_shadow_typeProxy, metadata !31}
+!31 = metadata !{i32 0, i32 0, i32 1032, null}
+!32 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !33}
+!33 = metadata !{i32 0, i32 0, i32 1027, null}
 
 
 Bottom IR:
@@ -554,10 +591,10 @@ entry:
   %3 = fcmp one float %2, 0.000000e+00
   %b1 = xor i1 %1, %3
   %4 = call <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1> undef, i32 3, i1 %1, i32 0, i1 %3, i32 0, i1 undef, i32 undef, i1 undef, i32 undef)
-  %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !6
+  %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !17
   %5 = icmp ne i32 %i_i, 0
   %6 = call <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1> undef, i32 7, i1 %1, i32 0, i1 %3, i32 0, i1 %5, i32 0, i1 undef, i32 undef)
-  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !7
+  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !18
   %7 = fcmp one float %i_f, 0.000000e+00
   %8 = call <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1> undef, i32 15, i1 %1, i32 0, i1 %3, i32 0, i1 %5, i32 0, i1 %7, i32 0)
   %9 = fptosi float %2 to i32
@@ -594,7 +631,7 @@ entry:
   %29 = uitofp <4 x i1> %8 to <4 x float>
   %30 = fadd <4 x float> %29, %f415
   %f419 = fadd <4 x float> %f415, %30
-  %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !9
+  %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !20
   %31 = icmp ne <4 x i32> %i_i4, zeroinitializer
   %32 = uitofp <4 x i1> %31 to <4 x float>
   %f420 = fadd <4 x float> %32, %f419
@@ -692,7 +729,7 @@ else56:                                           ; preds = %entry
 
 ifmerge57:                                        ; preds = %else56, %then53
   %ternary52.0 = phi <4 x float> [ %phitmp, %then53 ], [ <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, %else56 ]
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %ternary52.0), !gla.output !11
+  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %ternary52.0), !gla.output !32
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge57
@@ -738,9 +775,9 @@ declare <3 x float> @llvm.gla.fSwizzle.v3f32.f32.v3i32(float, <3 x i32>) nounwin
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
-!gla.uniforms = !{!0, !2, !3, !4, !5}
-!gla.inputs = !{!6, !7, !9}
-!gla.outputs = !{!11}
+!gla.uniforms = !{!0, !2, !3, !4, !5, !6, !7, !8, !9, !10, !11, !12, !13, !14, !15, !16}
+!gla.inputs = !{!17, !18, !20, !22, !24, !26, !28, !30}
+!gla.outputs = !{!32}
 
 !0 = metadata !{metadata !"u_i", i32 12, i32* @u_i_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -748,13 +785,34 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !3 = metadata !{metadata !"u_f2", i32 12, <2 x float>* @u_f2_typeProxy, metadata !1}
 !4 = metadata !{metadata !"u_f3", i32 12, <3 x float>* @u_f3_typeProxy, metadata !1}
 !5 = metadata !{metadata !"u_f4", i32 12, <4 x float>* @u_f4_typeProxy, metadata !1}
-!6 = metadata !{metadata !"i_i", i32 1, i32* @i_i_shadow_typeProxy, metadata !1}
-!7 = metadata !{metadata !"i_f", i32 1, float* @i_f_shadow_typeProxy, metadata !8}
-!8 = metadata !{i32 0, i32 0, i32 1025, null}
-!9 = metadata !{metadata !"i_i4", i32 1, <4 x i32>* @i_i4_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1026, null}
-!11 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !12}
-!12 = metadata !{i32 0, i32 0, i32 1027, null}
+!6 = metadata !{metadata !"u_b", i32 12, i1* @u_b_typeProxy, metadata !1}
+!7 = metadata !{metadata !"u_b2", i32 12, <2 x i1>* @u_b2_typeProxy, metadata !1}
+!8 = metadata !{metadata !"u_b3", i32 12, <3 x i1>* @u_b3_typeProxy, metadata !1}
+!9 = metadata !{metadata !"u_b4", i32 12, <4 x i1>* @u_b4_typeProxy, metadata !1}
+!10 = metadata !{metadata !"u_i2", i32 12, <2 x i32>* @u_i2_typeProxy, metadata !1}
+!11 = metadata !{metadata !"u_i3", i32 12, <3 x i32>* @u_i3_typeProxy, metadata !1}
+!12 = metadata !{metadata !"u_i4", i32 12, <4 x i32>* @u_i4_typeProxy, metadata !1}
+!13 = metadata !{metadata !"i_b", i32 12, i1* @i_b_typeProxy, metadata !1}
+!14 = metadata !{metadata !"i_b2", i32 12, <2 x i1>* @i_b2_typeProxy, metadata !1}
+!15 = metadata !{metadata !"i_b3", i32 12, <3 x i1>* @i_b3_typeProxy, metadata !1}
+!16 = metadata !{metadata !"i_b4", i32 12, <4 x i1>* @i_b4_typeProxy, metadata !1}
+!17 = metadata !{metadata !"i_i", i32 1, i32* @i_i_shadow_typeProxy, metadata !1}
+!18 = metadata !{metadata !"i_f", i32 1, float* @i_f_shadow_typeProxy, metadata !19}
+!19 = metadata !{i32 0, i32 0, i32 1025, null}
+!20 = metadata !{metadata !"i_i4", i32 1, <4 x i32>* @i_i4_shadow_typeProxy, metadata !21}
+!21 = metadata !{i32 0, i32 0, i32 1026, null}
+!22 = metadata !{metadata !"i_i2", i32 1, <2 x i32>* @i_i2_shadow_typeProxy, metadata !23}
+!23 = metadata !{i32 0, i32 0, i32 1028, null}
+!24 = metadata !{metadata !"i_i3", i32 1, <3 x i32>* @i_i3_shadow_typeProxy, metadata !25}
+!25 = metadata !{i32 0, i32 0, i32 1029, null}
+!26 = metadata !{metadata !"i_f2", i32 1, <2 x float>* @i_f2_shadow_typeProxy, metadata !27}
+!27 = metadata !{i32 0, i32 0, i32 1030, null}
+!28 = metadata !{metadata !"i_f3", i32 1, <3 x float>* @i_f3_shadow_typeProxy, metadata !29}
+!29 = metadata !{i32 0, i32 0, i32 1031, null}
+!30 = metadata !{metadata !"i_f4", i32 1, <4 x float>* @i_f4_shadow_typeProxy, metadata !31}
+!31 = metadata !{i32 0, i32 0, i32 1032, null}
+!32 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !33}
+!33 = metadata !{i32 0, i32 0, i32 1027, null}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
@@ -766,6 +824,17 @@ uniform float u_f;
 uniform vec2 u_f2;
 uniform vec3 u_f3;
 uniform vec4 u_f4;
+uniform bool u_b;
+uniform bvec2 u_b2;
+uniform bvec3 u_b3;
+uniform bvec4 u_b4;
+uniform ivec2 u_i2;
+uniform ivec3 u_i3;
+uniform ivec4 u_i4;
+uniform bool i_b;
+uniform bvec2 i_b2;
+uniform bvec3 i_b3;
+uniform bvec4 i_b4;
 const int const23i_0 = 0;
 const float const25 = 0.0;
 flat in int i_i;
@@ -915,6 +984,17 @@ uniform float u_f;
 uniform vec2 u_f2;
 uniform vec3 u_f3;
 uniform vec4 u_f4;
+uniform bool u_b;
+uniform bvec2 u_b2;
+uniform bvec3 u_b3;
+uniform bvec4 u_b4;
+uniform ivec2 u_i2;
+uniform ivec3 u_i3;
+uniform ivec4 u_i4;
+uniform bool i_b;
+uniform bvec2 i_b2;
+uniform bvec3 i_b3;
+uniform bvec4 i_b4;
 const int const23i_0 = 0;
 const float const25 = 0.0;
 flat in int i_i;
@@ -1013,14 +1093,14 @@ void main()
         bvec3 temp10288 = notEqual(temp9985, temp8568);
         bool temp10389 = all(temp10086);
         bool temp10490 = temp7252 != temp4423;
-        float ternary444887 = float(temp9074.y);
-        float select141 = temp221 ? temp8568.x : ternary444887;
-        float select140 = temp263 ? temp4423 : temp8366.x;
         bool temp107102 = any(temp10288);
         bool temp108103 = temp10490 || temp10389;
         bool temp110105 = temp108103 || temp107102;
-        float temp109104 = select140 + select141;
-        float select = temp110105 ? temp109104 : temp7252;
+        float ternary444887 = float(temp9074.y);
+        float select = temp263 ? temp4423 : temp8366.x;
+        float select140 = temp221 ? temp8568.x : ternary444887;
+        float temp109104 = select + select140;
+        float select148 = temp110105 ? temp109104 : temp7252;
         int temp112113 = temp9074.x + temp3413;
         int temp113114 = temp112113 + temp9074.y;
         int temp114115 = temp113114 + temp9480.x;
@@ -1031,7 +1111,7 @@ void main()
         int temp119120 = temp118119 + temp9277.y;
         int temp120121 = temp119120 + temp9277.z;
         float temp121122 = float(temp120121);
-        float temp122123 = temp121122 + select;
+        float temp122123 = temp121122 + select148;
         float temp123124 = temp8366.x + temp122123;
         float temp124125 = temp8366.y + temp123124;
         float temp125126 = temp8568.x + temp124125;

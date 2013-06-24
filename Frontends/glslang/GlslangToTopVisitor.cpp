@@ -81,15 +81,15 @@ public:
     TGlslangToTopTraverser(gla::Manager*);
     virtual ~TGlslangToTopTraverser();
 
-    llvm::Value* createLLVMVariable(TIntermSymbol* node);
+    llvm::Value* createLLVMVariable(const TIntermSymbol* node);
     llvm::Type* convertGlslangToGlaType(const TType& type);
 
     bool isShaderEntrypoint(const TIntermAggregate* node);
     void makeFunctions(const TIntermSequence&);
-    void handleFunctionEntry(TIntermAggregate* node);
-    void translateArguments(TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments);
-    llvm::Value* handleBuiltinFunctionCall(TIntermAggregate*);
-    llvm::Value* handleUserFunctionCall(TIntermAggregate*);
+    void handleFunctionEntry(const TIntermAggregate* node);
+    void translateArguments(const TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments);
+    llvm::Value* handleBuiltinFunctionCall(const TIntermAggregate*);
+    llvm::Value* handleUserFunctionCall(const TIntermAggregate*);
 
     llvm::Value* createBinaryOperation(TOperator op, gla::EMdPrecision, llvm::Value* left, llvm::Value* right, bool isUnsigned, bool reduceComparison = true);
     llvm::Value* createUnaryOperation(TOperator op, gla::EMdPrecision, llvm::Value* operand);
@@ -100,8 +100,9 @@ public:
     void createPipelineSubread(const TType& glaType, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md,
                                std::string& name, gla::EInterpolationMethod, gla::EInterpolationLocation);
     int assignSlot(TIntermSymbol* node, bool input);
+    llvm::Value* getSymbolStorage(const TIntermSymbol* node, bool& firstTime);
     llvm::Value* createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
-    void setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
+    llvm::MDNode* declareUniformMetadata(TIntermSymbol* node, llvm::Value* typeProxy);
     llvm::MDNode* declareMdDefaultUniform(TIntermSymbol*, llvm::Value*);
     llvm::MDNode* makeMdSampler(const TType&, llvm::Value* typeProxy);
     llvm::MDNode* declareMdUniformBlock(gla::EMdInputOutput ioType, const TIntermSymbol* node, llvm::Value* typeProxy);
@@ -119,8 +120,9 @@ public:
     gla::Builder* glaBuilder;
     int nextSlot;                // non-user set interpolations slots, virtual space, so inputs and outputs can both share it
     bool inMain;
+    bool linkageOnly;
 
-    std::map<int, llvm::Value*> namedValues;
+    std::map<int, llvm::Value*> symbolValues;
     std::map<std::string, llvm::Function*> functionMap;
     std::map<std::string, int> slotMap;
     std::map<int, llvm::MDNode*> inputMdMap;
@@ -278,7 +280,7 @@ const int UnknownArraySize = 8;
 TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
     : context(llvm::getGlobalContext()), llvmBuilder(context),
       module(manager->getModule()), metadata(context, module),
-      nextSlot(gla::MaxUserLayoutLocation), inMain(false), shaderEntry(0)
+      nextSlot(gla::MaxUserLayoutLocation), inMain(false), linkageOnly(false), shaderEntry(0)
 {
     // do this after the builder knows the module
     glaBuilder = new gla::Builder(llvmBuilder, manager, metadata);
@@ -313,70 +315,68 @@ TGlslangToTopTraverser::~TGlslangToTopTraverser()
 //  - complex lvalue base setups:  foo.bar[3]....  , where we see foo and start up an access chain
 //  - something simple that degenerates into the last bullet
 //
-// Uniforms, inputs, and outputs also get metadata hooked up for future linker consumption.
+// Uniforms, inputs, and outputs also declare metadata for future linker consumption.
 //
 // Sort out what the deal is...
 //
-void TranslateSymbol(TIntermSymbol* node, TIntermTraverser* it)
+void TranslateSymbol(TIntermSymbol* symbol, TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
-    bool input = node->getType().getQualifier().isPipeInput();
-    bool output = node->getType().getQualifier().isPipeOutput();
+    bool input = symbol->getType().getQualifier().isPipeInput();
+    bool output = symbol->getType().getQualifier().isPipeOutput();
+    bool uniform = symbol->getType().getQualifier().isUniform();
 
-    // L-value chains will be computed purely left to right, so now is "clear" time
-    // (since we are on the symbol; the base of the expression, which is left-most)
-    oit->glaBuilder->clearAccessChain();
+    // Normal symbols and uniforms need a variable allocated to them,
+    // we will shadow inputs by reading them in whole into a global variables, 
+    // and outputs are shadowed for read/write optimizations before being written out,
+    // so everything gets a variable allocated; see if we've cached it.
+    bool firstTime;
+    llvm::Value* storage = oit->getSymbolStorage(symbol, firstTime);
+    if (firstTime && output) {
+        // set up output metadata once for all future pipeline intrinsic writes
+        int slot = oit->assignSlot(symbol, input);
+        oit->setOutputMetadata(symbol, storage, slot);
+    }
+    
+    // set up uniform metadata
+    llvm::MDNode* mdNode = 0;
+    if (uniform)
+        mdNode = oit->declareUniformMetadata(symbol, storage);
 
-    // we will shadow inputs in global variables, so everything gets a variable
-    // allocated, see if we've cached it
-    std::map<int, llvm::Value*>::iterator iter;
-    iter = oit->namedValues.find(node->getId());
-    llvm::Value* storage;
-    if (oit->namedValues.end() == iter) {
-        // it was not found, create it
-        storage = oit->createLLVMVariable(node);
-        oit->namedValues[node->getId()] = storage;
+    if (! oit->linkageOnly) {
+        // Prepare to generate code for the access
 
-        // set up metadata for future pipeline intrinsic writes
-        if (output) {
-            int slot = oit->assignSlot(node, input);
-            oit->setOutputMetadata(node, storage, slot);
-        }
-    } else
-        storage = iter->second;
+        // L-value chains will be computed purely left to right, so now is "clear" time
+        // (since we are on the symbol; the base of the expression, which is left-most)
+        oit->glaBuilder->clearAccessChain();
 
-    // Track the current value
-    oit->glaBuilder->setAccessChainLValue(storage);
+        // Track the current value
+        oit->glaBuilder->setAccessChainLValue(storage);
 
-    // Set up metadata for uniform/sampler inputs
-    if (node->getType().getQualifier().isUniform())
-        oit->setAccessChainMetadata(node, storage);
+        // Set up metadata for uniform/sampler inputs
+        if (uniform && mdNode)
+            oit->glaBuilder->setAccessChainMetadata(gla::UniformMdName, mdNode);
 
-    // If it's an arrayed output, we also want to know which indices
-    // are live.
-    if (node->isArray()) {
-        switch (node->getQualifier().storage) {
-        case EvqVaryingOut:
-        case EvqClipVertex:
-        case EvqFragColor:
+        // If it's an arrayed output, we also want to know which indices
+        // are live.
+        if (symbol->isArray() && output)
             oit->glaBuilder->accessChainTrackOutputIndex();
-        default:
-            break;
-        }
     }
 
     if (input) {
-        int slot = oit->assignSlot(node, input);
-        llvm::MDNode* mdNode = oit->inputMdMap[slot];
+        int slot = oit->assignSlot(symbol, input);
+        mdNode = oit->inputMdMap[slot];
         if (mdNode == 0) {
             // set up metadata for pipeline intrinsic read
-            mdNode = oit->makeInputMetadata(node, storage, slot);
+            mdNode = oit->makeInputMetadata(symbol, storage, slot);
             oit->inputMdMap[slot] = mdNode;
         }
 
-        // do the actual read
-        oit->createPipelineRead(node, storage, slot, mdNode);
+        if (! oit->linkageOnly) {
+            // do the actual read
+            oit->createPipelineRead(symbol, storage, slot, mdNode);
+        }
     }
 }
 
@@ -611,6 +611,15 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             // In all cases, still let the traverser visit the children for us.
             if (preVisit)
                 oit->makeFunctions(node->getAsAggregate()->getSequence());
+        }
+
+        return true;
+    case EOpLinkerObjects:
+        {
+            if (preVisit)
+                oit->linkageOnly = true;
+            else
+                oit->linkageOnly = false;
         }
 
         return true;
@@ -1035,7 +1044,7 @@ bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
     return false;
 }
 
-llvm::Value* TGlslangToTopTraverser::createLLVMVariable(TIntermSymbol* node)
+llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const TIntermSymbol* node)
 {
     llvm::Constant* initializer = 0;
     gla::Builder::EStorageQualifier storageQualifier;
@@ -1091,7 +1100,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(TIntermSymbol* node)
         storageQualifier = gla::Builder::ESQResource;
     }
 
-    std::string name(node->getSymbol().c_str());
+    std::string name(node->getName().c_str());
 
     llvm::Type *llvmType = convertGlslangToGlaType(node->getType());
 
@@ -1200,14 +1209,14 @@ void TGlslangToTopTraverser::makeFunctions(const TIntermSequence& glslFunctions)
         // Visit parameter list again to create mappings to local variables and set attributes.
         llvm::Function::arg_iterator arg = function->arg_begin();
         for (int i = 0; i < parameters.size(); ++i, ++arg)
-            namedValues[parameters[i]->getAsSymbolNode()->getId()] = &(*arg);
+            symbolValues[parameters[i]->getAsSymbolNode()->getId()] = &(*arg);
 
         // Track function to emit/call later
         functionMap[glslFunction->getName().c_str()] = function;
     }
 }
 
-void TGlslangToTopTraverser::handleFunctionEntry(TIntermAggregate* node)
+void TGlslangToTopTraverser::handleFunctionEntry(const TIntermAggregate* node)
 {
     // LLVM functions should already be in the functionMap from the prepass 
     // that called makeFunctions.
@@ -1216,7 +1225,7 @@ void TGlslangToTopTraverser::handleFunctionEntry(TIntermAggregate* node)
     llvmBuilder.SetInsertPoint(&functionBlock);
 }
 
-void TGlslangToTopTraverser::translateArguments(TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments)
+void TGlslangToTopTraverser::translateArguments(const TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments)
 {
     for (int i = 0; i < glslangArguments.size(); ++i) {
         glaBuilder->clearAccessChain();
@@ -1225,7 +1234,7 @@ void TGlslangToTopTraverser::translateArguments(TIntermSequence& glslangArgument
     }
 }
 
-llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(TIntermAggregate* node)
+llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const TIntermAggregate* node)
 {
     std::vector<llvm::Value*> arguments;
     translateArguments(node->getSequence(), arguments);
@@ -1358,7 +1367,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(TIntermAggregate*
     return 0;
 }
 
-llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* node)
+llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const TIntermAggregate* node)
 {
     // Overall design is to pass pointers to the arguments, as described:
     //
@@ -1394,8 +1403,8 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(TIntermAggregate* no
     // Compute the access chains of output argument l-values before making the call,
     // to be used after making the call.  Also compute r-values of inputs and store
     // them into the space allocated above.
-    TIntermSequence& glslangArgs = node->getSequence();
-    TQualifierList& qualifiers = node->getQualifierList();
+    const TIntermSequence& glslangArgs = node->getSequence();
+    const TQualifierList& qualifiers = node->getQualifierList();
     llvm::SmallVector<gla::Builder::AccessChain, 2> lValuesOut;
     for (int i = 0; i < glslangArgs.size(); ++i) {
         // build l-value
@@ -2065,7 +2074,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value
 
     // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
     // which gets optimized later.
-    std::string name(node->getSymbol().c_str());
+    std::string name(node->getName().c_str());
 
     std::vector<llvm::Value*> gepChain;
     createPipelineSubread(node->getType(), storage, gepChain, firstSlot, md, name, method, location);
@@ -2162,7 +2171,7 @@ int TGlslangToTopTraverser::assignSlot(TIntermSymbol* node, bool input)
     // Not found in the symbol, see if we've assigned one before
 
     std::map<std::string, int>::iterator iter;
-    const char* name = node->getSymbol().c_str();
+    const char* name = node->getName().c_str();
     iter = slotMap.find(name);
 
     if (slotMap.end() == iter) {
@@ -2171,6 +2180,24 @@ int TGlslangToTopTraverser::assignSlot(TIntermSymbol* node, bool input)
     }
 
     return slotMap[name];
+}
+
+llvm::Value* TGlslangToTopTraverser::getSymbolStorage(const TIntermSymbol* symbol, bool& firstTime)
+{
+    std::map<int, llvm::Value*>::iterator iter;
+    iter = symbolValues.find(symbol->getId());
+    llvm::Value* storage;
+    if (symbolValues.end() == iter) {
+        // it was not found, create it
+        firstTime = true;
+        storage = createLLVMVariable(symbol);
+        symbolValues[symbol->getId()] = storage;
+    } else {
+        firstTime = false;
+        storage = iter->second;
+    }
+
+    return storage;
 }
 
 llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType, constUnion *consts, int& nextConst)
@@ -2223,10 +2250,10 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType
     return glaBuilder->getConstant(llvmConsts, type);
 }
 
-void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::Value* typeProxy)
+llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(TIntermSymbol* node, llvm::Value* typeProxy)
 {
     llvm::MDNode* md;
-    const std::string name = node->getSymbol().c_str();
+    const std::string name = node->getName().c_str();
     md = uniformMdMap[name];
 
     gla::EMdInputOutput ioType = getMdQualifier(node);
@@ -2248,8 +2275,7 @@ void TGlslangToTopTraverser::setAccessChainMetadata(TIntermSymbol* node, llvm::V
         break;
     }
 
-    if (md)
-        glaBuilder->setAccessChainMetadata(gla::UniformMdName, md);
+    return md;
 }
 
 // Make a !gla.uniform node, as per metadata.h, for a default uniform
@@ -2265,7 +2291,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(TIntermSymbol* nod
         structure = declareMdType(type);
 
     // Make the main node
-    return metadata.makeMdInputOutput(node->getSymbol().c_str(), gla::UniformListMdName, gla::EMioDefaultUniform, 
+    return metadata.makeMdInputOutput(node->getName().c_str(), gla::UniformListMdName, gla::EMioDefaultUniform, 
                                       makePermanentTypeProxy(typeProxy),
                                       layout, getMdPrecision(type), gla::MaxUserLayoutLocation, samplerMd, structure);
 }
@@ -2290,10 +2316,10 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput 
 {
     const TType& type = node->getType();
     const char* name;
-    if (node->getSymbol().substr(0,6) == "__anon")
+    if (node->getName().substr(0,6) == "__anon")
         name = "";
     else
-        name = node->getSymbol().c_str();
+        name = node->getName().c_str();
 
     // Make hierachical type information
     llvm::MDNode* block = declareMdType(type);
@@ -2344,7 +2370,7 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(TIntermSymbol* nod
         aggregate = declareMdType(node->getType());
     }
 
-    return metadata.makeMdInputOutput(node->getSymbol().c_str(), kind, getMdQualifier(node), makePermanentTypeProxy(typeProxy), 
+    return metadata.makeMdInputOutput(node->getName().c_str(), kind, getMdQualifier(node), makePermanentTypeProxy(typeProxy), 
                                       getMdTypeLayout(node->getType()), getMdPrecision(node->getType()), slot, 0, aggregate);
 }
 

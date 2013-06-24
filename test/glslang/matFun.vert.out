@@ -6,6 +6,7 @@ Top IR:
 @m4 = external addrspace(2) constant [4 x <4 x float>]
 @v3_shadow = internal global <3 x float> zeroinitializer
 @m3 = external addrspace(2) constant [3 x <3 x float>]
+@VertexID_shadow = internal global i32 0
 
 define fastcc void @main() {
 entry:
@@ -160,7 +161,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !gla.outputs = !{!0}
 !gla.uniforms = !{!2, !4}
-!gla.inputs = !{!5}
+!gla.inputs = !{!5, !7}
 
 !0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -169,6 +170,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !4 = metadata !{metadata !"m3", i32 12, [3 x <3 x float>]* @m3_typeProxy, metadata !3}
 !5 = metadata !{metadata !"v3", i32 1, <3 x float>* @v3_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1025, null}
+!7 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1026, null}
 
 
 Bottom IR:
@@ -225,7 +228,7 @@ declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>)
 
 !gla.outputs = !{!0}
 !gla.uniforms = !{!2, !4}
-!gla.inputs = !{!5}
+!gla.inputs = !{!5, !7}
 
 !0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -234,6 +237,8 @@ declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>)
 !4 = metadata !{metadata !"m3", i32 12, [3 x <3 x float>]* @m3_typeProxy, metadata !3}
 !5 = metadata !{metadata !"v3", i32 1, <3 x float>* @v3_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1025, null}
+!7 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1026, null}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
