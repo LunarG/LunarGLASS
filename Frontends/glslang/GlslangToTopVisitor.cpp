@@ -278,9 +278,9 @@ llvm::Value* makePermanentTypeProxy(llvm::Value* value)
 const int UnknownArraySize = 8;
 
 TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
-    : context(llvm::getGlobalContext()), llvmBuilder(context),
+    : context(llvm::getGlobalContext()), shaderEntry(0), llvmBuilder(context),
       module(manager->getModule()), metadata(context, module),
-      nextSlot(gla::MaxUserLayoutLocation), inMain(false), linkageOnly(false), shaderEntry(0)
+      nextSlot(gla::MaxUserLayoutLocation), inMain(false), linkageOnly(false)
 {
     // do this after the builder knows the module
     glaBuilder = new gla::Builder(llvmBuilder, manager, metadata);
@@ -383,9 +383,6 @@ void TranslateSymbol(TIntermSymbol* symbol, TIntermTraverser* it)
 bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
-
-    llvm::Instruction::BinaryOps binOp = llvm::Instruction::BinaryOps(0);
-    bool needsPromotion = true;
 
     // First, handle special cases
     switch (node->getOp()) {
@@ -726,8 +723,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
                 gepChain.push_back(gla::MakeIntConstant(oit->context, 0));
                 for (int field = 0; field < arguments.size(); ++field) {
                     gepChain.push_back(gla::MakeIntConstant(oit->context, field));
-                    llvm::Value* loadVal = oit->llvmBuilder.CreateStore(arguments[field],
-                                                                        oit->glaBuilder->createGEP(constructed, gepChain));
+                    oit->llvmBuilder.CreateStore(arguments[field], oit->glaBuilder->createGEP(constructed, gepChain));
                     gepChain.pop_back();
                 }
                 oit->glaBuilder->clearAccessChain();
@@ -952,8 +948,6 @@ bool TranslateSwitch(bool /* preVisit */, TIntermSwitch* node, TIntermTraverser*
 void TranslateConstantUnion(TIntermConstantUnion* node, TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
-
-    int size = node->getType().getObjectSize();
 
     int nextConst = 0;
     llvm::Value* c = oit->createLLVMConstant(node->getType(), node->getUnionArrayPointer(), nextConst);
@@ -1238,8 +1232,6 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const TIntermAggr
 {
     std::vector<llvm::Value*> arguments;
     translateArguments(node->getSequence(), arguments);
-
-    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
 
     gla::EMdPrecision precision = getMdPrecision(node->getType());
 

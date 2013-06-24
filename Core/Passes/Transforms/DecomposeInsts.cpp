@@ -316,7 +316,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 //     e^X = 2^(X /(log base e of 2))
                 // ->  e^X = 2^(X * 1.4426950408889634073599246810019)
 
-                const double inv_log10_e = 2.3025850929940456840179914546844;  // 10 -> e, in case it comes up
+                //const double inv_log10_e = 2.3025850929940456840179914546844;  // 10 -> e, in case it comes up
                 const double inv_log10_2 = 3.3219280948873623478703194294894;  // 10 -> 2
                 const double inv_loge_2  = 1.4426950408889634073599246810019;  //  e -> 2
 
@@ -341,7 +341,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 //    log base e  of X = (log base e of 2) * (log base 2 of X)
                 // -> log base e  of X = 0.69314718055994530941723212145818 * (log base 2 of X)
 
-                const double log10_e = 0.43429448190325182765112891891661;  // 10 -> e, in case it comes up
+                //const double log10_e = 0.43429448190325182765112891891661;  // 10 -> e, in case it comes up
                 const double log10_2 = 0.30102999566398119521373889472449;  // 10 -> 2
                 const double loge_2  = 0.69314718055994530941723212145818;  //  e -> 2
 

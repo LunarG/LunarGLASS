@@ -153,7 +153,7 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
     executableName = argv[0] + strlen(argv[0]) - 1;
     while (*executableName == '/' || *executableName == '\\')
         --executableName;
-    while (*executableName != '/' && *executableName != '\\' && (unsigned)executableName > (unsigned)argv[0])
+    while (*executableName != '/' && *executableName != '\\' && executableName - argv[0] > 0)
         --executableName;
     if (*executableName == '/' || *executableName == '\\')
         ++executableName;
@@ -249,8 +249,10 @@ EShLanguage FindLanguage(const char *name)
     if (ext && strcmp(ext, ".sl") == 0)
         for (; ext > name && ext[0] != '.'; ext--);
 
-    if (ext = strrchr(name, '.')) {
-        if (strncmp(ext, ".frag", 4) == 0) return EShLangFragment;
+    ext = strrchr(name, '.');
+    if (ext) {
+        if (strncmp(ext, ".frag", 4) == 0) 
+            return EShLangFragment;
     }
 
     return EShLangVertex;
@@ -360,7 +362,7 @@ bool CompileFile(const char *fileName, ShHandle compiler, int debugOptions, cons
     return ret ? true : false;
 }
 
-void InfoLogMsg(char* msg, const char* name, const int num)
+void InfoLogMsg(const char* msg, const char* name, const int num)
 {
     fprintf(stderr, num >= 0 ? "#### %s %s %d INFO LOG ####\n" :
            "#### %s %s INFO LOG ####\n", msg, name, num);
