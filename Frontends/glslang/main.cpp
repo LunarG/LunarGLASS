@@ -71,8 +71,6 @@ ShBindingTable FixedAttributeTable = { 3, FixedAttributeBindings };
 
 namespace {
 
-int OutputMultipleStrings = 1;
-
 //
 // Return codes from main.
 //
@@ -294,11 +292,10 @@ char** ReadFileData(const char *fileName)
     if(count==0){
         return_data[0]=(char*)malloc(count+2);
         return_data[0][0]='\0';
-        OutputMultipleStrings=0;
         return return_data;
     }
 
-	int len = (int)(ceil)((float)count/(float)OutputMultipleStrings);
+	int len = count;
     int ptr_len=0,i=0;
 	while(count>0){
 		return_data[i]=(char*)malloc(len+2);
@@ -308,7 +305,6 @@ char** ReadFileData(const char *fileName)
 		ptr_len+=(len);
 		if(count<len){
             if(count==0){
-               OutputMultipleStrings=(i+1);
                break;
             }
            len = count;
@@ -320,8 +316,7 @@ char** ReadFileData(const char *fileName)
 
 void FreeFileData(char **data)
 {
-    for(int i=0;i<OutputMultipleStrings;i++)
-        free(data[i]);
+    free(data[0]);
 }
 
 //
@@ -347,7 +342,7 @@ bool CompileFile(const char *fileName, ShHandle compiler, int debugOptions, cons
 
     for (int i = 0; i < ((debugOptions & EDebugOpMemoryLeakMode) ? 100 : 1); ++i) {
         for (int j = 0; j < ((debugOptions & EDebugOpMemoryLeakMode) ? 100 : 1); ++j)
-            ret = ShCompile(compiler, data, OutputMultipleStrings, EShOptNone, resources, debugOptions, 100, false, EShMsgDefault);
+            ret = ShCompile(compiler, data, 1, 0, EShOptNone, resources, debugOptions, 100, false, EShMsgDefault);
 
 #ifdef _WIN32
         if (debugOptions & EDebugOpMemoryLeakMode) {
