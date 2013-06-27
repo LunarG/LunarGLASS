@@ -1739,7 +1739,7 @@ protected:
             newLine();
             shader << derefName << " = ";
             if (notSigned) {
-                emitUintConverter(llvmInstruction->getOperand(2)->getType());
+                emitUintConverter(llvmInstruction->getOperand(2)->getType(), notSigned);
                 shader << "(";
             }
             emitGlaOperand(llvmInstruction->getOperand(2));
@@ -1860,12 +1860,12 @@ protected:
         name.append(")");
     }
 
-    void emitUintConverter(llvm::Type* type)
+    void emitUintConverter(llvm::Type* type, bool notSigned)
     {
         if (GetComponentCount(type) == 1)
-            shader << "uint";
+            shader << (notSigned ? "uint" : "int");
         else {
-            shader << "uvec";
+            shader << (notSigned ? "uvec" : "ivec");
             switch (GetComponentCount(type)) {
             case 2:  shader << "2";    break;
             case 3:  shader << "3";    break;
@@ -2221,6 +2221,8 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             assert(! llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)));
 
             if (const llvm::GetElementPtrInst* gepInstr = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0))) {
+                // We're loading from the result of a GEP.  Get it and assign it to a new variable.
+
                 // See if we have metadata describing a uniform variable to declare
                 std::string name;
                 llvm::MDNode* mdUniform = llvmInstruction->getMetadata(UniformMdName);
@@ -2244,11 +2246,18 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                     name = name.substr(1, std::string::npos);
                 addNewVariable(gepInstr, name);
 
-                // If we're loading from the result of a GEP, assign it to a new variable
+                // assign it to a new variable
                 newLine();
                 emitGlaValue(llvmInstruction);
                 shader << " = ";
+                bool isInteger = gla::IsInteger(llvmInstruction->getType());
+                if (isInteger) {
+                    emitUintConverter(llvmInstruction->getType(), false);
+                    shader << "(";
+                }
                 emitGlaValue(gepInstr);
+                if (isInteger)
+                    shader << ")";
                 shader << ";";
             } else if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {
                 // We want phis to use the same variable name created during phi declaration

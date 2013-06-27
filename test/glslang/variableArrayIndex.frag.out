@@ -203,10 +203,10 @@ in vec2 coord;
 
 void main()
 {
-    int temp21 = foo3.s2_1[1].i;
+    int temp21 = int(foo3.s2_1[1].i);
     bool temp22 = temp21 > const23i_0;
-    int temp24 = foo.i;
-    int temp25 = foo3.s2_1[temp24].i;
+    int temp24 = int(foo.i);
+    int temp25 = int(foo3.s2_1[temp24].i);
     int iLocal2 = Count + const27i_3;
     int temp28 = iLocal2 + temp25;
     float select = temp22 ? float uniform30 : float gla_constGEP7;

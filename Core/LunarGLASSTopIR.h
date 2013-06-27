@@ -245,6 +245,20 @@ namespace gla {
         return false;
     }
 
+    // true if argument is a scalar integer or vector of integer, non-Boolean
+    inline bool IsInteger(const llvm::Type* type)
+    {
+        if (llvm::Type::VectorTyID == type->getTypeID()) {
+            if (type->getContainedType(0) == type->getInt32Ty(type->getContext()))
+                return true;
+        } else {
+            if (type == type->getInt32Ty(type->getContext()))
+                return true;
+        }
+
+        return false;
+    }
+
     inline int GetComponentCount(llvm::Type* type)
     {
         if (llvm::VectorType* vTy = llvm::dyn_cast<llvm::VectorType>(type))

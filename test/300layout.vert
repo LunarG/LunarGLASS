@@ -24,7 +24,8 @@ uniform T2 { // layout of this block is shared
 layout(column_major) uniform T3 { // shared and column_major
     mat4 M3; // column_major
     layout(row_major) mat4 M4; // row major
-    mat3 N2; // column_major
+    mat2x3 N2; // column_major
+    uvec3 uv3a[4];
 };
 
 uniform uint uiuin;
@@ -43,4 +44,6 @@ void main()
     iout = tblock.iuin + int(uiuin) + aiv2.y;
     s.c = c;
     s.f = p.x;
+    if (N2[1] != vec3(1.0) || uv3a[2] != uvec3(5))
+        ++s.c;
 }
