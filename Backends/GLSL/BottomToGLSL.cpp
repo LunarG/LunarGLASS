@@ -1163,8 +1163,11 @@ protected:
             getNewVariableName(value, newName);
             EMdPrecision precision = getPrecision(value);
             const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
+
+            // Integer and floating-point constants have no precision, use highp to avoid precision loss across translations
             if (precision == gla::EMpNone && constant && profile == EEsProfile)
-                precision = gla::EMpHigh;
+                if (! gla::IsBoolean(value->getType()))
+                    precision = gla::EMpHigh;
 
             if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
                 declareVariable(precision, pointerType->getContainedType(0), *newName, evq);

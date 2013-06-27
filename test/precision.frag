@@ -7,6 +7,7 @@ in highp vec4 highfin;
 uniform highp int uniform_high;
 uniform mediump int uniform_medium;
 uniform lowp int uniform_low;
+uniform bvec2 ub2;
 
 out mediump vec4 mediumfout;
 
@@ -15,6 +16,11 @@ highp float global_highp;
 lowp vec2 foo(mediump vec3 mv3)
 {
     return highfin.xy;
+}
+
+bool boolfun(bvec2 bv2)
+{
+    return bv2 == bvec2(false, true);
 }
 
 void main()
@@ -38,4 +44,7 @@ void main()
     sum += 4 + ((ivec2(uniform_low) * ivec2(uniform_high) + ivec2((/* comma operator */uniform_low, uniform_high)))).x;
 
     mediumfout += vec4(sum);
+
+    if (boolfun(ub2))
+        ++mediumfout;
 }

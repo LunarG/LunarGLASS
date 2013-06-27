@@ -9,13 +9,15 @@ Adapter
 
 Obscure
   - some parts of code don't handle complex nesting within in/out structures
+  - compile-time check for static recursion (or should linker always detect?)
+  - location layout range/overlap semantics
 
 Front end
-  - Move to thread safe version of flex
+  - Move to thread-safe version of flex
+  - "const" compile-time constant propagation in the front-end has to be complete, for all built-in functions
 
 Performance
   - fix difference between fReadData and fReadInterpolant: LLVM is optimizing multiple uses of one but not the other
-  - "const" compile-time constant propagation in the front-end has to be complete, for all built-in functions
 
 Interfacing
   + Separate top and bottom IR into two files from IntrinsicsLunarGLASS.td
@@ -61,7 +63,7 @@ LunarGoo
 
 + double underscore should be an error not a warning, maybe wait until after LunarGOO does not make them
 
-- GLSL 1.2
++ GLSL 1.2
   + Handle version-specific keywords as identifiers for other versions
   + Support non-square matrices, mat2x3 means 2 columns, 3 rows
   . add more non-square matrix test cases for adapter
@@ -79,7 +81,7 @@ LunarGoo
   + Add C++ style name hiding rules
   + Removed embedded structures to match ES.
   x No line continuation character. (NB: Don't implement:  this got added in a later release, should be retroactive.)
-  - Comments don't delete new lines (need CPP fix)
+  + Comments don't delete new lines (need CPP fix)
   + method support for “.length()”
   + array type syntax is supported “float[5]”, and array initializers are added
   + Accept "f" as part of a floating-point constant.  E.g. "float g = 3.5f".
@@ -220,12 +222,12 @@ LunarGoo
   + Outer scope for built-in functions.
   x Redeclaring built-in variables
 
-- OpenGL ES 3.0 adds (2)
++ OpenGL ES 3.0 adds (2)
   + outerProduct() for multiplying vectors to yield a matrix.
   + transpose()
   + Pack and unpack built-in functions
   + finish classifying all keywords as to when they are identifiers, reserved, or keywords.
-  - Line continuation (CPP)
+  + Line continuation (CPP)
   x Line continuation and UTF-8 in GLSL ES 1.00 when used with OpenGL ES 3.0 (CPP)
   x Array length operator returns an unsigned integer-constant.  The precision is determined using the rules for literal integers
   + Clarified that source code lines may be of arbitrary length
@@ -240,7 +242,7 @@ LunarGoo
   + Definitions and behavior for precision qualifiers lowp, mediump and highp
   x Invariance within a shader
   x Relaxation of the order of evaluation of expressions
-  - verify list of errors from ES specification have all been handled
+  + verify list of errors from ES specification have all been handled
   x Extension macro names always defined if the extension is available
   + Clarified that for the operators << and >>, if both operands are vectors, they must have the same size
   x Link: Vertex output, fragment input counting algorithm
