@@ -179,11 +179,12 @@ uniform image2D imageVr;
 uniform image2D imageVro;
 uniform image2D imageVwo;
 uniform image2D imageVall;
-in vec4 inVs;
 centroid in vec4 inVc;
+in vec4 inVs;
 flat in vec4 inVf;
 noperspective in vec4 inVn;
 centroid noperspective in vec4 inVcn;
+sample in vec4 inV;
 out vec4 outVi;
 
 void main()
@@ -209,11 +210,12 @@ uniform image2D imageVr;
 uniform image2D imageVro;
 uniform image2D imageVwo;
 uniform image2D imageVall;
-centroid in vec4 inVc;
 in vec4 inVs;
+centroid in vec4 inVc;
 flat in vec4 inVf;
 noperspective in vec4 inVn;
 centroid noperspective in vec4 inVcn;
+sample in vec4 inV;
 out vec4 outVi;
 
 void main()

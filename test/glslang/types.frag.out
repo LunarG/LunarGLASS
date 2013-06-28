@@ -570,14 +570,14 @@ uniform float u_f;
 uniform vec2 u_f2;
 uniform vec3 u_f3;
 uniform vec4 u_f4;
+flat in int i_i;
 flat in ivec2 i_i2;
 flat in ivec3 i_i3;
 flat in ivec4 i_i4;
+in float i_f;
 in vec2 i_f2;
 in vec3 i_f3;
 in vec4 i_f4;
-in float i_f;
-flat in int i_i;
 const vec4 const70 = vec4(1.0);
 
 void main()

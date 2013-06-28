@@ -289,15 +289,15 @@ uniform mediump int uniform_medium;
 uniform highp int uniform_high;
 uniform lowp int uniform_low;
 uniform bvec2 ub2;
+in highp vec4 highfin;
 in lowp float lowfin;
 in mediump float mediumfin;
-in highp vec4 highfin;
+out mediump vec4 mediumfout;
 const highp vec4 const27 = vec4(1.02391e+06);
 const highp int const31i_3 = 3;
 const highp int const33i_4 = 4;
 const bvec2 const41 = bvec2(false, true);
 const highp vec4 const44 = vec4(1.0);
-out mediump vec4 mediumfout;
 
 void main()
 {
@@ -338,12 +338,12 @@ uniform bvec2 ub2;
 in lowp float lowfin;
 in mediump float mediumfin;
 in highp vec4 highfin;
+out mediump vec4 mediumfout;
 const highp vec4 const27 = vec4(1023910.0);
 const highp int const30i_3 = 3;
 const highp int const33i_4 = 4;
 const bvec2 const40 = bvec2(false, true);
 const highp vec4 const43 = vec4(1.0);
-out mediump vec4 mediumfout;
 
 void main()
 {

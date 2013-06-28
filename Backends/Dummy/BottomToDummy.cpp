@@ -94,17 +94,6 @@ void gla::ReleaseDummyBackEnd(gla::BackEnd* backEnd)
 //
 namespace gla {
     class DummyTarget;
-
-    enum EVariableQualifier {
-        EVQNone,
-        EVQUniform,
-        EVQGlobal,
-        EVQInput,
-        EVQOutput,
-        EVQTemporary,
-        EVQConstant,
-        EVQUndef
-    };
 };
 
 class gla::DummyTarget : public gla::BackEndTranslator {

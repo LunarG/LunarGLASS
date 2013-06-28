@@ -147,17 +147,6 @@ void gla::ReleaseGlslBackEnd(gla::BackEnd* backEnd)
 //
 namespace gla {
     class GlslTarget;
-
-    enum EVariableQualifier {
-        EVQNone,
-        EVQUniform,
-        EVQGlobal,
-        EVQInput,
-        EVQOutput,
-        EVQTemporary,
-        EVQConstant,
-        EVQUndef
-    };
 };
 
 class gla::GlslTarget : public gla::BackEndTranslator {
@@ -215,11 +204,11 @@ public:
             tempStructure << "    ";
             if (mdAggregate) {
                 const llvm::MDNode* subMdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(GetAggregateMdSubAggregateOp(index)));
-                int arraySize = emitGlaType(tempStructure, EMpNone, structType->getContainedType(index), false, subMdAggregate);
+                int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index), false, subMdAggregate);
                 tempStructure << " " << std::string(mdAggregate->getOperand(GetAggregateMdNameOp(index))->getName());
                 emitGlaArraySize(tempStructure, arraySize);
             } else {
-                int arraySize = emitGlaType(tempStructure, EMpNone, structType->getContainedType(index));
+                int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index));
                 tempStructure << " " << getGlaStructField(structType, index);
                 emitGlaArraySize(tempStructure, arraySize);
             }
@@ -261,11 +250,15 @@ public:
         }
     }
 
-    void addUniform(const llvm::MDNode* mdNode)
+    void addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode)
     {
-        globalDeclarations << "uniform ";
-        int arraySize = emitGlaType(globalDeclarations, EMpCount, 0, true, mdNode);
-        globalDeclarations << " " << std::string(mdNode->getOperand(0)->getName());
+        // TODO: allow "gl_" for adding invariant, etc.
+        std::string name = mdNode->getOperand(0)->getName();
+        if (name.substr(0,3) == std::string("gl_"))
+            return;
+
+        int arraySize = emitGlaType(globalDeclarations, EMpCount, qualifier, 0, true, mdNode);
+        globalDeclarations << " " << std::string(name);
         emitGlaArraySize(globalDeclarations, arraySize);
         globalDeclarations << ";" << std::endl;
     }
@@ -273,7 +266,7 @@ public:
     void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name)
     {
         newLine();
-        int arraySize = emitGlaType(shader, EMpNone, type->getContainedType(0));        
+        int arraySize = emitGlaType(shader, EMpNone, EVQNone, type->getContainedType(0));        
         emitGlaArraySize(shader, arraySize);
         // TODO: Goo: ES functionality: how do we know the precision or unsignedness of a function declaration?
         shader << " " << name.str() << "(";
@@ -576,29 +569,26 @@ protected:
 
     const char* mapGlaToQualifierString(EVariableQualifier vq)
     {
-        const char *string = "UNKNOWN QUALIFIER";
-
         switch (vq) {
-        case EVQUniform:         string = "uniform";                  break;
-        case EVQGlobal:          string = "global";                   break;
+        case EVQUniform:         return "uniform";
+        case EVQGlobal:          return "global";
         case EVQInput:
             if (version >= 130)
-                                 string = "in";
+                return "in";
             else if (language == EShLangVertex)
-                                 string = "attribute";
+                return "attribute";
             else
-                                 string = "varying";                  break;
+                return "varying";
         case EVQOutput:
-                version >= 130 ? string = "out": 
-                                 string = "varying";                  break;
-        case EVQTemporary:       string = "temp";                     break;
-        case EVQConstant:        string = "const";                    break;
-        case EVQUndef:           string = "undef";                    break;
+            if (version >= 130)
+                return "out";
+            else
+                return "varying";
+        case EVQTemporary:       return "temp";
+        case EVQConstant:        return "const";
         default:
-            assert(! "unknown VariableQualifier");
+            return "";
         }
-
-        return string;
     }
 
     const char* mapGlaToPrecisionString(EMdPrecision precision)
@@ -838,7 +828,7 @@ protected:
         }
     }
 
-    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier vq, 
+    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier qualifier, 
                          const llvm::Constant* constant = 0, const llvm::MDNode* mdIoNode = 0)
     {
         if (name.substr(0,3) == std::string("gl_"))
@@ -848,9 +838,7 @@ protected:
 
         // If it has an initializer (is a constant and not an undef)
         if (constant && ! AreAllUndefined(constant)) {
-            globalDeclarations << mapGlaToQualifierString(vq);
-            globalDeclarations << " ";
-            arraySize = emitGlaType(globalDeclarations, precision, type);
+            arraySize = emitGlaType(globalDeclarations, precision, qualifier, type);
             globalDeclarations << " " << name;
             emitGlaArraySize(globalDeclarations, arraySize);
             globalDeclarations << " = ";
@@ -861,7 +849,7 @@ protected:
         }
 
         // no initializer
-        switch (vq) {
+        switch (qualifier) {
         case EVQConstant:
             // Make sure we only declare globals once
             if (globallyDeclared.find(name) != globallyDeclared.end())
@@ -869,27 +857,25 @@ protected:
             else
                 globallyDeclared.insert(name);
 
-            globalDeclarations << mapGlaToQualifierString(vq);
-            globalDeclarations << " ";
-            arraySize = emitGlaType(globalDeclarations, precision, type);
+            arraySize = emitGlaType(globalDeclarations, precision, qualifier, type);
             globalDeclarations << " " << name;
             emitGlaArraySize(globalDeclarations, arraySize);
             globalDeclarations << ";" << std::endl;
             break;
         case EVQGlobal:
-            arraySize = emitGlaType(globalDeclarations, precision, type);
+            arraySize = emitGlaType(globalDeclarations, precision, EVQNone, type);
             globalDeclarations << " " << name;
             emitGlaArraySize(globalDeclarations, arraySize);
             globalDeclarations << ";" << std::endl;
             break;
         case EVQTemporary:
-            arraySize = emitGlaType(shader, precision, type);
+            arraySize = emitGlaType(shader, precision, EVQNone, type);
             emitGlaArraySize(shader, arraySize);
             shader << " ";
             break;
         case EVQUndef:
             newLine();
-            emitGlaType(shader, precision, type);
+            emitGlaType(shader, precision, EVQNone, type);
             shader << " " << name << ";";
             emitInitializeAggregate(shader, name, constant);
             break;
@@ -898,92 +884,29 @@ protected:
         }
     }
 
-    void declareIOVariable(llvm::Type* type, const std::string& name, EVariableQualifier vq,
-                           EInterpolationMethod interpMethod, EInterpolationLocation interpLocation, const llvm::MDNode* mdNode)
-    {
-        if (name.substr(0,3) == std::string("gl_"))
-            return;
-
-        if (globallyDeclared.find(name) != globallyDeclared.end())
-            return;
-        else
-            globallyDeclared.insert(name);
-
-        if (interpLocation != EILLast) {
-            if (interpMethod != EIMNone) {
-                switch (interpLocation) {
-                case EILSample:        globalDeclarations << "sample ";        break;
-                case EILCentroid:      globalDeclarations << "centroid ";      break;
-                }
-            }
-
-            if (version >= 130) {
-                if (language == EShLangVertex   && vq == EVQOutput ||
-                    language == EShLangFragment && vq == EVQInput) {
-                    switch (interpMethod) {
-                    case EIMNone:          globalDeclarations << "flat ";          break;
-                    //case EIMSmooth:        globalDeclarations << "smooth ";        break;
-                    case EIMNoperspective: globalDeclarations << "noperspective "; break;
-                    }
-                }
-            }
-        }
-
-        globalDeclarations << mapGlaToQualifierString(vq);
-        globalDeclarations << " ";
-        int arraySize = emitGlaType(globalDeclarations, gla::EMpNone, type, true, mdNode);
-        globalDeclarations << " " << name;
-        emitGlaArraySize(globalDeclarations, arraySize);
-        globalDeclarations << ";" << std::endl;
-    }
-
     // emits the type (recursively)
     // returns the array size of the type
-    int emitGlaType(std::ostringstream& out, EMdPrecision precision, llvm::Type* type, bool ioRoot = false, const llvm::MDNode* mdNode = 0, int count = -1)
+    int emitGlaType(std::ostringstream& out, EMdPrecision precision, EVariableQualifier qualifier, llvm::Type* type, bool ioRoot = false, const llvm::MDNode* mdNode = 0, int count = -1)
     {
-        int arraySize = 0;
         bool matrix = false;
         bool notSigned = false;
         std::string name;
         const llvm::MDNode* mdAggregate = 0;
         bool block = false;
+
         if (mdNode) {
-            EMdInputOutput ioKind;
-            EMdTypeLayout typeLayout;
-            int location;
-            const llvm::MDNode* mdSampler;
-            if (ioRoot) {
-                llvm::Type* proxyType;
-                int interpMode;
-                if (! CrackIOMd(mdNode, name, ioKind, proxyType, typeLayout, precision, location, mdSampler, mdAggregate, interpMode)) {
-                    UnsupportedFunctionality("IO metadata for type");
-
-                    return arraySize;
-                }
-                block = ioKind == EMioUniformBlockMember || ioKind == EMioBufferBlockMember;
-                if (type == 0)
-                    type = proxyType;
-            } else {
-                if (! CrackAggregateMd(mdNode, name, typeLayout, precision, location, mdSampler)) {
-                    UnsupportedFunctionality("aggregate metadata for type");
-
-                    return arraySize;
-                }
-                mdAggregate = mdNode;
-            }
-            if (typeLayout == EMtlSampler) {
-                emitGlaSamplerType(out, mdSampler);
-
-                return arraySize;
-            }
-            matrix = typeLayout == EMtlRowMajorMatrix || typeLayout == EMtlColMajorMatrix;
-            notSigned = typeLayout == EMtlUnsigned;
-
-            emitGlaLayout(out, typeLayout, location);
+            if (! emitMdNodeTypes(out, ioRoot, mdNode, name, type, precision, matrix, notSigned, mdAggregate, block))
+                return 0;
         }
+
+        const char* qualifierString = mapGlaToQualifierString(qualifier);
+        if (*qualifierString)
+            out << qualifierString << " ";
 
         if (type->getTypeID() == llvm::Type::PointerTyID)
             type = type->getContainedType(0);
+
+        int arraySize = 0;
 
         // if it's a vector, output a vector type
         if (type->getTypeID() == llvm::Type::VectorTyID) {
@@ -1036,7 +959,7 @@ protected:
                 // We need to recurse the next level with the LLVM type dereferenced, but not
                 // the GLSL type (metadata) which combines arrayness at the same level as other typeness
                 // (that is, don't pass on mdAggregate, use the original input).
-                emitGlaType(out, precision, arrayType->getContainedType(0), ioRoot, mdNode);
+                emitGlaType(out, precision, EVQNone, arrayType->getContainedType(0), ioRoot, mdNode);
                 arraySize = arrayType->getNumElements();
             }
         } else {
@@ -1058,6 +981,67 @@ protected:
         }
 
         return arraySize;
+    }
+
+    // Decode and emit stuff we can only do with an mdNode.
+    // Returning false means all done, not necessarily an error.
+    bool emitMdNodeTypes(std::ostringstream& out, bool ioRoot, const llvm::MDNode* mdNode, std::string& name, llvm::Type*& type,
+                         EMdPrecision& precision, bool& matrix, bool& notSigned, const llvm::MDNode*& mdAggregate, bool& block)
+    {
+        EMdInputOutput ioKind;
+        EMdTypeLayout typeLayout;
+        int location;
+        const llvm::MDNode* mdSampler;
+        bool uniform = false;
+
+        if (ioRoot) {
+            llvm::Type* proxyType;
+            int interpMode;
+            if (! CrackIOMd(mdNode, name, ioKind, proxyType, typeLayout, precision, location, mdSampler, mdAggregate, interpMode)) {
+                UnsupportedFunctionality("IO metadata for type");
+
+                return false;
+            } else {
+                // emit interpolation qualifier, if appropriate
+                EVariableQualifier qualifier;
+                switch (ioKind) {
+                case EMioPipeIn:   qualifier = EVQInput;   break;
+                case EMioPipeOut:  qualifier = EVQOutput;  break;
+                default:           qualifier = EVQUndef;   break;
+                }
+                if (qualifier != EVQUndef) {
+                    EInterpolationMethod interpMethod;
+                    EInterpolationLocation interpLocation;
+                    CrackInterpolationMode(interpMode, interpMethod, interpLocation);
+                    emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
+                }
+            }
+            block = ioKind == EMioUniformBlockMember || ioKind == EMioBufferBlockMember;
+            uniform = ioKind == EMioDefaultUniform;
+            if (type == 0)
+                type = proxyType;
+        } else {
+            if (! CrackAggregateMd(mdNode, name, typeLayout, precision, location, mdSampler)) {
+                UnsupportedFunctionality("aggregate metadata for type");
+
+                return false;
+            }
+            mdAggregate = mdNode;
+        }
+
+        if (typeLayout == EMtlSampler) {
+            if (uniform)
+                out << "uniform ";
+            emitGlaSamplerType(out, mdSampler);
+
+            return false;
+        }
+        matrix = typeLayout == EMtlRowMajorMatrix || typeLayout == EMtlColMajorMatrix;
+        notSigned = typeLayout == EMtlUnsigned;
+
+        emitGlaLayout(out, typeLayout, location);
+
+        return true;
     }
 
     void emitGlaArraySize(std::ostringstream& out, int arraySize)
@@ -1103,6 +1087,29 @@ protected:
             UnsupportedFunctionality("sampler metadata", EATContinue);
     }
 
+    void emitGlaInterpolationQualifier(EVariableQualifier qualifier, EInterpolationMethod interpMethod, EInterpolationLocation interpLocation)
+    {
+        if (interpLocation != EILLast) {
+            if (interpMethod != EIMNone) {
+                switch (interpLocation) {
+                case EILSample:        globalDeclarations << "sample ";        break;
+                case EILCentroid:      globalDeclarations << "centroid ";      break;
+                }
+            }
+
+            if (version >= 130) {
+                if (language == EShLangVertex   && qualifier == EVQOutput ||
+                    language == EShLangFragment && qualifier == EVQInput) {
+                    switch (interpMethod) {
+                    case EIMNone:          globalDeclarations << "flat ";          break;
+                    //case EIMSmooth:        globalDeclarations << "smooth ";        break;
+                    case EIMNoperspective: globalDeclarations << "noperspective "; break;
+                    }
+                }
+            }
+        }
+    }
+
     void emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location)
     {
         const char* layoutStr = 0;
@@ -1142,7 +1149,7 @@ protected:
 
     void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count = -1)
     {
-        int arraySize = emitGlaType(out, EMpNone, type, false, 0, count);
+        int arraySize = emitGlaType(out, EMpNone, EVQNone, type, false, 0, count);
         emitGlaArraySize(out, arraySize);
     }
 
@@ -1741,10 +1748,6 @@ protected:
         switch (llvmInstruction->getIntrinsicID()) {
         case llvm::Intrinsic::gla_writeData:
         case llvm::Intrinsic::gla_fWriteData:
-            // First, emit declaration
-            declareIOVariable(type, name, EVQOutput, interpMethod, interpLocation, mdNode);
-
-            // Now, emit the write
             newLine();
             shader << derefName << " = ";
             if (notSigned || isMatrix)
@@ -1773,8 +1776,6 @@ protected:
                     CrackInterpolationMode(mode, interpMethod, interpLocation);
                 } else
                     interpMethod = EIMNone;   // needed for 'flat' with non-interpolation 'in'
-
-                declareIOVariable(type, name, EVQInput, interpMethod, interpLocation, mdNode);
             }
 
             break;
@@ -2665,7 +2666,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
             llvm::Type* vecType = llvm::VectorType::get(coordType, coordWidth + buffer + 1);
 
-            emitGlaType(shader, precision, vecType);
+            emitGlaType(shader, precision, EVQNone, vecType);
 
             shader << "(";
 
@@ -2756,7 +2757,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // Case 1:  it's a scalar with multiple ".x" to expand it to a vector.
         // use a constructor to turn a scalar into a vector
         if (srcVectorWidth == 1 && dstVectorWidth > 1) {
-            emitGlaType(shader, precision, llvmInstruction->getType());
+            emitGlaType(shader, precision, EVQNone, llvmInstruction->getType());
             shader << "(";
             emitGlaOperand(src);
             shader << ");";
@@ -2767,7 +2768,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         // Case 2:  it's sequential .xy...  subsetting a vector.
         // use a constructor to subset the vector to a vector
         if (srcVectorWidth > 1 && dstVectorWidth > 1 && IsIdentitySwizzle(elts)) {
-            emitGlaType(shader, precision, llvmInstruction->getType());
+            emitGlaType(shader, precision, EVQNone, llvmInstruction->getType());
             shader << "(";
             emitGlaOperand(src);
             shader << ");";

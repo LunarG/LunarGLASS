@@ -165,9 +165,9 @@ WARNING: 0:4: varying deprecated in version 130; may be removed in future releas
 #### END LINKER INFO LOG ####
 #version 130
 // LunarGOO output (r722)
-vec4 colorOut_shadow[6];
 in vec4 color;
 out vec4 colorOut[6];
+vec4 colorOut_shadow[6];
 
 void main()
 {
@@ -197,10 +197,10 @@ void main()
 #### END LINKER INFO LOG ####
 #version 130
 // LunarGOO output (r722)
-vec4 colorOut_shadow[6];
-vec4 colorOut_shadow1[6];
 in vec4 color;
 out vec4 colorOut[6];
+vec4 colorOut_shadow[6];
+vec4 colorOut_shadow1[6];
 
 void main()
 {

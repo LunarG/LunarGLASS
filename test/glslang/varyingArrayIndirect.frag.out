@@ -286,14 +286,14 @@ WARNING: 0:8: varying deprecated in version 130; may be removed in future releas
 #### END LINKER INFO LOG ####
 #version 130
 // LunarGOO output (r722)
-vec4 userIn_shadow[2];
-vec4 TexCoord_shadow[6];
 uniform sampler2D texSampler2D;
 uniform int b;
 uniform int a;
 in vec4 userIn[2];
 in vec4 color;
 in float alpha;
+vec4 userIn_shadow[2];
+vec4 TexCoord_shadow[6];
 
 void main()
 {
@@ -337,14 +337,14 @@ void main()
 #### END LINKER INFO LOG ####
 #version 130
 // LunarGOO output (r722)
-vec4 userIn_shadow[2];
-vec4 TexCoord_shadow[6];
 uniform int b;
 uniform int a;
 uniform sampler2D texSampler2D;
 in vec4 userIn[2];
 in vec4 color;
 in float alpha;
+vec4 userIn_shadow[2];
+vec4 TexCoord_shadow[6];
 
 void main()
 {

@@ -119,6 +119,17 @@ namespace gla {
         EDiCount // number of entries in this table
     };
 
+    enum EVariableQualifier {
+        EVQNone,
+        EVQUniform,
+        EVQGlobal,
+        EVQInput,
+        EVQOutput,
+        EVQTemporary,
+        EVQConstant,
+        EVQUndef
+    };
+
     class BackEndTranslator {
     public:
 
@@ -126,7 +137,7 @@ namespace gla {
         virtual ~BackEndTranslator() { }
         virtual void start() { }
         virtual void addGlobal(const llvm::GlobalVariable*) { }
-        virtual void addUniform(const llvm::MDNode*) { }
+        virtual void addIoDeclaration(EVariableQualifier, const llvm::MDNode*) { }
         virtual void startFunctionDeclaration(const llvm::Type*, llvm::StringRef) = 0;
         virtual void addArgument(const llvm::Value*, bool last) = 0;
         virtual void endFunctionDeclaration() = 0;

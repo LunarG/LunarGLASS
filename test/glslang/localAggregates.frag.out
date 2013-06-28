@@ -317,12 +317,12 @@ uniform sampler2D sampler;
 uniform s1 foo;
 uniform s2 foo2;
 uniform float uFloatArray[16];
-const int const23i_0 = 0;
 in vec2 coord;
+in vec4 color;
+const int const23i_0 = 0;
 const float const25 = 1.0;
 const int const30i_1 = 1;
 const float const32 = 0.0;
-in vec4 color;
 
 void main()
 {
@@ -377,13 +377,13 @@ uniform int condition;
 uniform sampler2D sampler;
 uniform s1 foo;
 uniform s2 foo2;
-const int const23i_0 = 0;
 in vec2 coord;
+in vec4 color;
+const int const23i_0 = 0;
 const float const25 = 1.0;
 const float const27 = 2.0;
 const int const29i_1 = 1;
 const float const31 = 0.0;
-in vec4 color;
 
 void main()
 {

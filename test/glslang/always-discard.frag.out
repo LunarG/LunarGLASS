@@ -159,6 +159,7 @@ declare void @llvm.gla.discard() nounwind
 #### END LINKER INFO LOG ####
 #version 110
 // LunarGOO output (r722)
+varying vec2 tex_coord;
 
 void main()
 {
@@ -172,6 +173,7 @@ void main()
 #### END LINKER INFO LOG ####
 #version 110
 // LunarGOO output (r722)
+varying vec2 tex_coord;
 
 void main()
 {

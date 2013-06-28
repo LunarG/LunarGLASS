@@ -151,12 +151,12 @@ struct S {
     mediump float f;
 };
 
-vec4 p_shadow[2];
+in mediump vec3 color;
 in S s;
 in mediump vec4 pos;
-in mediump vec3 color;
-out layout(location=7) mediump vec3 c;
-out layout(location=3) layout(location=3) mediump vec4 p[2];
+layout(location=7) out mediump vec3 c;
+layout(location=3) out layout(location=3) mediump vec4 p[2];
+vec4 p_shadow[2];
 
 void main()
 {
@@ -181,12 +181,12 @@ struct S {
     mediump float f;
 };
 
-vec4 p_shadow1[2];
 in S s;
 in mediump vec4 pos;
 in mediump vec3 color;
-out layout(location=7) mediump vec3 c;
-out layout(location=3) layout(location=3) mediump vec4 p[2];
+layout(location=7) out mediump vec3 c;
+layout(location=3) out layout(location=3) mediump vec4 p[2];
+vec4 p_shadow1[2];
 
 void main()
 {

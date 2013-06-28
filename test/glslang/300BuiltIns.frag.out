@@ -904,24 +904,24 @@ uniform mediump uint umin;
 uniform mediump uint umax;
 in mediump vec3 x;
 in mediump vec3 y;
+flat in mediump ivec4 iv4a;
+flat in mediump ivec4 iv4b;
 flat in mediump uvec2 uv2x;
 flat in mediump uvec2 uv2y;
+flat in mediump uvec4 uv4y;
+flat in mediump uint uy;
 flat in mediump ivec3 iv3a;
 flat in mediump ivec3 iv3b;
-flat in mediump uint uy;
 flat in mediump uvec2 uv2c;
 in mediump float f;
 in mediump vec2 v2a;
-const highp vec2 const40 = vec2(2.0);
-flat in mediump ivec4 iv4a;
-flat in mediump ivec4 iv4b;
-const highp int const48i_0 = 0;
-flat in mediump uvec4 uv4y;
 in mediump vec4 v4;
-const highp float const55 = 0.0;
 in mediump vec2 v2b;
-const highp float const98 = 0.1;
 out mediump vec4 result;
+const highp vec2 const40 = vec2(2.0);
+const highp int const48i_0 = 0;
+const highp float const55 = 0.0;
+const highp float const98 = 0.1;
 
 void main()
 {

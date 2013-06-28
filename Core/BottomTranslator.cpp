@@ -231,6 +231,17 @@ namespace {
             backEndTranslator->add(inst, lastBlock, externallyReferenced);
         }
 
+        void addIoDeclarations(Module& module, gla::EVariableQualifier qualifier, const char* categoryName)
+        {
+            const llvm::NamedMDNode* mdList = module.getNamedMetadata(categoryName);
+            if (mdList) {
+                for (int m = 0; m < mdList->getNumOperands(); ++m) {
+                    const llvm::MDNode* mdNode = mdList->getOperand(m);
+                    backEndTranslator->addIoDeclaration(qualifier, mdNode);
+                }
+            }
+        }
+
         // Call add (except for phis when applicable) on all the instructions
         // provided in insts.
         void addInstructions(SmallVectorImpl<const Instruction*>& insts, bool forceGlobals=false);
@@ -867,26 +878,21 @@ bool BottomTranslator::runOnModule(Module& module)
     if (flowControlMode == gla::EFcmExplicitMasking)
         gla::UnsupportedFunctionality("explicit masking in middle end");
 
+    // allow back end to finish initialization, since its constructor was called too early
+    backEndTranslator->start();
+
     //
     // Translate globals.
     //
-    backEndTranslator->start();
-    for (Module::const_global_iterator global = module.global_begin(), end = module.global_end(); global != end; ++global)
-        backEndTranslator->addGlobal(global);
 
     // add metadata
-    const llvm::NamedMDNode* mdUniforms = module.getNamedMetadata(gla::UniformListMdName);
-    if (mdUniforms) {
-        for (int m = 0; m < mdUniforms->getNumOperands(); ++m) {
-            const llvm::MDNode* mdNode = mdUniforms->getOperand(m);
-            backEndTranslator->addUniform(mdNode);
-        }
-    }
-    //const llvm::NamedMDNode* mdInputs = module.getNamedMetadata(gla::OutputListMdName);
-    //for (int m = 0; m < mdInputs->getNumOperands(); ++m) {
-    //    const llvm::MDNode* mdNode = mdInputs->getOperand(m);
-    //    backEndTranslator->addOutput(mdNode);
-    //}
+    addIoDeclarations(module, gla::EVQUniform, gla::UniformListMdName);
+    addIoDeclarations(module, gla::EVQInput,   gla::InputListMdName);
+    addIoDeclarations(module, gla::EVQOutput,  gla::OutputListMdName);
+
+    // add global variables
+    for (Module::const_global_iterator global = module.global_begin(), end = module.global_end(); global != end; ++global)
+        backEndTranslator->addGlobal(global);
 
     //
     // Translate code.

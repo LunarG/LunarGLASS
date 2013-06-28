@@ -208,9 +208,9 @@ WARNING: 0:8: varying deprecated in version 130; may be removed in future releas
 #version 130
 // LunarGOO output (r722)
 uniform sampler2D texSampler2D;
-in vec4 foo[3];
 in vec4 color;
 in float alpha;
+in vec4 foo[3];
 
 void main()
 {

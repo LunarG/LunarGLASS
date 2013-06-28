@@ -461,12 +461,11 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 #version 300 es
 // LunarGOO output (r722)
 struct S {
-    vec3 member0;
-    float member1;
+    highp vec3 c;
+    highp float f;
 };
 
-S s_shadow;
-uniform layout(std140) Transform {
+layout(std140) uniform Transform {
     layout(row_major) mat4 M1;
     mat4 M2;
     layout(row_major) mat3 N1;
@@ -483,15 +482,16 @@ uniform T2 {
     layout(row_major) mat4 t2m;
 } ;
 uniform highp uint uiuin;
-in layout(location=3) highp vec4 p;
-in layout(location=7) highp vec3 c;
-in layout(location=9) highp ivec2 aiv2;
-const highp vec3 const80 = vec3(1.0);
-const highp ivec3 const84 = ivec3(5);
+layout(location=3) in highp vec4 p;
+layout(location=7) in highp vec3 c;
+layout(location=9) in highp ivec2 aiv2;
 out highp vec4 pos;
 out highp vec3 color;
 flat out highp int iout;
 out S s;
+S s_shadow;
+const highp vec3 const80 = vec3(1.0);
+const highp ivec3 const84 = ivec3(5);
 
 void main()
 {
@@ -553,8 +553,8 @@ void main()
     int temp75 = int(tblock.iuin);
     highp int temp76 = uiuin + temp75;
     highp int iout_shadow = temp76 + aiv2.y;
-    s_shadow.member0 = c;
-    s_shadow.member1 = p.x;
+    s_shadow.c = c;
+    s_shadow.f = p.x;
     vec3 temp78 = N2[1];
     bvec3 temp79 = notEqual(temp78, const80);
     bool temp81 = any(temp79);
@@ -564,15 +564,15 @@ void main()
     bool temp86 = temp81 || temp85;
     if (temp86) {
         highp vec3 temp87 = c + const80;
-        s_shadow.member0 = temp87;
+        s_shadow.c = temp87;
     }
     
     pos = temp66;
     color = temp74;
     iout = iout_shadow;
-    vec3 temp88 = s_shadow.member0;
+    vec3 temp88 = s_shadow.c;
     s.c = temp88;
-    float temp89 = s_shadow.member1;
+    float temp89 = s_shadow.f;
     s.f = temp89;
     
 }

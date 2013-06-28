@@ -682,16 +682,17 @@ uniform usampler2DArray us2DArray;
 in vec2 c2D;
 in vec4 c4D;
 in vec3 c3D;
-const float const25 = 1.2;
 flat in ivec2 ic2D;
 in float c1D;
 flat in ivec3 ic3D;
 flat in int ic1D;
+flat in ivec4 ic4D;
+out vec4 FragData;
+const float const25 = 1.2;
 const int const33i_4 = 4;
 const int const43i_2 = 2;
 const float const62 = 4.2;
 const float const74 = 0.0;
-out vec4 FragData;
 
 void main()
 {

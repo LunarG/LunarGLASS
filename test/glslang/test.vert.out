@@ -120,8 +120,8 @@ WARNING: 0:5: attribute deprecated in version 130; may be removed in future rele
 #version 130
 // LunarGOO output (r722)
 uniform mat4 transform;
-in vec4 position;
 in vec2 uv_in;
+in vec4 position;
 out vec2 uv;
 
 void main()
