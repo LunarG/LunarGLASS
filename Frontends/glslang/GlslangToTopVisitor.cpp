@@ -730,7 +730,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             llvm::Value* constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
                                                                         oit->convertGlslangToGlaType(node->getType()),
                                                                         0, 0, "constructed");
-            if (node->getOp() == EOpConstructStruct) {
+            if (node->getOp() == EOpConstructStruct || node->getType().isArray()) {
                 //TODO: clean up: is there a more direct way to set a whole LLVM structure?
                 //                if not, move this inside Top Builder; too many indirections
 

@@ -259,6 +259,21 @@ namespace gla {
         return false;
     }
 
+    // true if argument has shape and type like a matrix
+    inline bool CouldBeMatrix(const llvm::Type* type)
+    {
+        if (llvm::Type::ArrayTyID != type->getTypeID())
+            return false;
+
+        if (llvm::Type::VectorTyID != type->getContainedType(0)->getTypeID())
+            return false;
+
+        if (! type->getContainedType(0)->getContainedType(0)->isFloatTy())
+            return false;
+
+        return true;
+    }
+
     inline int GetComponentCount(llvm::Type* type)
     {
         if (llvm::VectorType* vTy = llvm::dyn_cast<llvm::VectorType>(type))

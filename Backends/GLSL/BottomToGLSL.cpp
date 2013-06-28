@@ -1730,6 +1730,7 @@ protected:
         } else
             CrackInterpolationMode(interpMode, interpMethod, interpLocation);
         bool notSigned = mdLayout == EMtlUnsigned;
+        bool isMatrix = (mdLayout == EMtlRowMajorMatrix || mdLayout == EMtlColMajorMatrix);
 
         // add the dereference syntax
         // TODO: Goo functionality: outputs don't yet have layout slot bases, so indexing into big things will be incorrect
@@ -1746,13 +1747,10 @@ protected:
             // Now, emit the write
             newLine();
             shader << derefName << " = ";
-            if (notSigned) {
-                emitUintConverter(llvmInstruction->getOperand(2)->getType(), notSigned);
-                shader << "(";
-            }
-            emitGlaOperand(llvmInstruction->getOperand(2));
-            if (notSigned)
-                shader << ")";
+            if (notSigned || isMatrix)
+                emitTypeConverterStart(llvmInstruction->getOperand(2), llvmInstruction->getOperand(2)->getType(), true, notSigned);
+            else
+                emitGlaOperand(llvmInstruction->getOperand(2));
             shader << ";";
             break;
         case llvm::Intrinsic::gla_readData:
@@ -1868,19 +1866,45 @@ protected:
         name.append(")");
     }
 
-    void emitUintConverter(llvm::Type* type, bool notSigned)
+    // Either convert to (from) an unsigned int or to (from) a matrix
+    // toIO means converting from an internal variable to an I/O variable, if false, it's the other direction
+    // integer means doing unsigned/signed conversion, if false, then doing matrix/array conversion
+    void emitTypeConverterStart(const llvm::Value* convertee, llvm::Type* type, bool toIO, bool integer)
     {
-        if (GetComponentCount(type) == 1)
-            shader << (notSigned ? "uint" : "int");
-        else {
-            shader << (notSigned ? "uvec" : "ivec");
-            switch (GetComponentCount(type)) {
-            case 2:  shader << "2";    break;
-            case 3:  shader << "3";    break;
-            case 4:  shader << "4";    break;
-            default: UnsupportedFunctionality("uint converter type");  break;
+        if (integer) {
+            if (GetComponentCount(type) == 1)
+                shader << (toIO ? "uint(" : "int(");
+            else {
+                shader << (toIO ? "uvec" : "ivec");
+                switch (GetComponentCount(type)) {
+                case 2:  shader << "2(";    break;
+                case 3:  shader << "3(";    break;
+                case 4:  shader << "4(";    break;
+                default: UnsupportedFunctionality("uint converter type");  break;
+                }
+            }
+            emitGlaValue(convertee);
+        } else {
+            llvm::ArrayType* array = llvm::dyn_cast<llvm::ArrayType>(type);
+            llvm::VectorType* vector = llvm::dyn_cast<llvm::VectorType>(array->getContainedType(0));
+            if (toIO)
+                shader << "mat" << array->getNumElements() << "x" << vector->getNumElements();
+            else
+                shader << "vec" << vector->getNumElements() << "[" << array->getNumElements() << "]";
+            shader << "(";
+            if (toIO)
+                emitGlaValue(convertee);
+            else {
+                for (int e = 0; e < array->getNumElements(); ++e) {
+                    if (e > 0)
+                        shader << ", ";
+                    emitGlaValue(convertee);
+                    shader << "[" << e << "]";
+                }
             }
         }
+
+        shader << ")";
     }
 
     // mapping from LLVM values to Glsl variables
@@ -2259,13 +2283,11 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                 emitGlaValue(llvmInstruction);
                 shader << " = ";
                 bool isInteger = gla::IsInteger(llvmInstruction->getType());
-                if (isInteger) {
-                    emitUintConverter(llvmInstruction->getType(), false);
-                    shader << "(";
-                }
-                emitGlaValue(gepInstr);
-                if (isInteger)
-                    shader << ")";
+                bool couldBeMatrix = gla::CouldBeMatrix(llvmInstruction->getType());
+                if (isInteger || couldBeMatrix)
+                    emitTypeConverterStart(gepInstr, llvmInstruction->getType(), false, isInteger);
+                else
+                    emitGlaValue(gepInstr);
                 shader << ";";
             } else if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {
                 // We want phis to use the same variable name created during phi declaration

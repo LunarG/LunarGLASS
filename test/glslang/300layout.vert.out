@@ -495,8 +495,8 @@ out S s;
 
 void main()
 {
-    vec4[4] temp21 = tblock.M1;
-    vec4[4] temp22 = tblock.M2;
+    vec4[4] temp21 = vec4[4](tblock.M1[0], tblock.M1[1], tblock.M1[2], tblock.M1[3]);
+    vec4[4] temp22 = vec4[4](tblock.M2[0], tblock.M2[1], tblock.M2[2], tblock.M2[3]);
     highp vec4 leftColumn = temp21[0];
     highp vec4 rightColumn = temp22[0];
     highp vec4 column = leftColumn + rightColumn;
@@ -509,7 +509,7 @@ void main()
     highp vec4 leftColumn7 = temp21[3];
     highp vec4 rightColumn8 = temp22[3];
     highp vec4 column9 = leftColumn7 + rightColumn8;
-    vec4[4] temp35 = M4;
+    vec4[4] temp35 = vec4[4](M4[0], M4[1], M4[2], M4[3]);
     highp vec4 rightColumn11 = temp35[0];
     highp vec4 column12 = column + rightColumn11;
     highp vec4 rightColumn14 = temp35[1];
@@ -518,7 +518,7 @@ void main()
     highp vec4 column18 = column6 + rightColumn17;
     highp vec4 rightColumn20 = temp35[3];
     highp vec4 column21 = column9 + rightColumn20;
-    vec4[4] temp44 = M3;
+    vec4[4] temp44 = vec4[4](M3[0], M3[1], M3[2], M3[3]);
     highp vec4 rightColumn23 = temp44[0];
     highp vec4 column24 = column12 + rightColumn23;
     highp vec4 rightColumn26 = temp44[1];
@@ -527,7 +527,7 @@ void main()
     highp vec4 column30 = column18 + rightColumn29;
     highp vec4 rightColumn32 = temp44[3];
     highp vec4 column33 = column21 + rightColumn32;
-    vec4[4] temp53 = t2m;
+    vec4[4] temp53 = vec4[4](t2m[0], t2m[1], t2m[2], t2m[3]);
     highp vec4 rightColumn35 = temp53[0];
     highp vec4 column36 = column24 + rightColumn35;
     highp vec4 rightColumn38 = temp53[1];
@@ -541,7 +541,7 @@ void main()
     highp float dot50 = dot(p, column42);
     highp float dot52 = dot(p, column45);
     vec4 temp66 = vec4(dot, dot48, dot50, dot52);
-    vec3[3] temp67 = tblock.N1;
+    vec3[3] temp67 = vec3[3](tblock.N1[0], tblock.N1[1], tblock.N1[2]);
     highp vec3 column53 = temp67[0];
     highp float dot54 = dot(c, column53);
     highp vec3 column55 = temp67[1];
