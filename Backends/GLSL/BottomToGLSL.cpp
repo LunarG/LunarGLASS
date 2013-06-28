@@ -918,7 +918,8 @@ protected:
             }
 
             if (version >= 130) {
-                if (language != EShLangVertex) {
+                if (language == EShLangVertex   && vq == EVQOutput ||
+                    language == EShLangFragment && vq == EVQInput) {
                     switch (interpMethod) {
                     case EIMNone:          globalDeclarations << "flat ";          break;
                     //case EIMSmooth:        globalDeclarations << "smooth ";        break;
@@ -953,7 +954,8 @@ protected:
             const llvm::MDNode* mdSampler;
             if (ioRoot) {
                 llvm::Type* proxyType;
-                if (! CrackIOMd(mdNode, name, ioKind, proxyType, typeLayout, precision, location, mdSampler, mdAggregate)) {
+                int interpMode;
+                if (! CrackIOMd(mdNode, name, ioKind, proxyType, typeLayout, precision, location, mdSampler, mdAggregate, interpMode)) {
                     UnsupportedFunctionality("IO metadata for type");
 
                     return arraySize;
@@ -1705,7 +1707,10 @@ protected:
         const llvm::MDNode* mdAggregate;
         const llvm::MDNode* dummySampler;
         const llvm::MDNode* mdNode = llvmInstruction->getMetadata(input ? gla::InputMdName : gla::OutputMdName);
-        if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate)) {
+        int interpMode;
+        EInterpolationMethod interpMethod;
+        EInterpolationLocation interpLocation;
+        if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode)) {
             // This path should not exist; it is a backup path for missing metadata.
             // TODO: LunarGOO functionality: fix missing metadata instruction operands.
             UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
@@ -1717,7 +1722,13 @@ protected:
             mdPrecision = EMpNone;
             layoutLocation = gla::MaxUserLayoutLocation;
             mdAggregate = 0;
-        }
+            interpLocation = EILFragment;
+            if (gla::GetBasicType(llvmInstruction->getType())->isFloatTy())
+                interpMethod = EIMSmooth;
+            else
+                interpMethod = EIMNone;
+        } else
+            CrackInterpolationMode(interpMode, interpMethod, interpLocation);
         bool notSigned = mdLayout == EMtlUnsigned;
 
         // add the dereference syntax
@@ -1725,9 +1736,6 @@ protected:
         std::string derefName = name;
         int slotOffset = GetConstantInt(llvmInstruction->getOperand(0)) - layoutLocation;
         dereferenceName(derefName, type, mdAggregate, slotOffset);
-
-        EInterpolationMethod interpMethod = EIMLast;
-        EInterpolationLocation interpLocation = EILFragment;
 
         switch (llvmInstruction->getIntrinsicID()) {
         case llvm::Intrinsic::gla_writeData:

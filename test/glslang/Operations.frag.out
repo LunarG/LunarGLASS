@@ -585,7 +585,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !5 = metadata !{metadata !"ub42", i32 12, <4 x i1>* @ub42_typeProxy, metadata !1}
 !6 = metadata !{metadata !"uiv4", i32 12, <4 x i32>* @uiv4_typeProxy, metadata !1}
 !7 = metadata !{metadata !"ub", i32 12, i1* @ub_typeProxy, metadata !1}
-!8 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
+!8 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !9}
+!9 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 
 
 Bottom IR:
@@ -717,30 +718,30 @@ entry:
   %65 = sub i32 %64, %3
   %i52 = sdiv i32 %65, %i3
   %i53 = srem i32 %i52, %3
-  %66 = icmp eq i32 %i53, 2
-  %i54 = add i32 %i53, 1
-  %i.0 = select i1 %66, i32 0, i32 %i54
-  %67 = fadd float %40, %40
-  %68 = fmul float %40, %67
-  %69 = fsub float %68, %40
-  %f55 = fdiv float %69, %40
-  %70 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %v42)
-  %f56 = fadd float %f55, %70
-  %71 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v42, <4 x float> %v42)
-  %f58 = fadd float %f56, %71
-  %72 = fmul float %40, %f58
-  %f59 = fadd float %f58, %72
-  %73 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %45, <3 x float> %45)
-  %74 = extractelement <3 x float> %73, i32 0
-  %f60 = fadd float %74, %f59
-  %75 = fcmp oeq float %f60, %40
-  %76 = fcmp one float %f60, %40
-  %77 = fcmp one float %f60, 2.000000e+00
-  %78 = and i1 %76, %77
-  %79 = or i1 %75, %78
+  %66 = fadd float %40, %40
+  %67 = fmul float %40, %66
+  %68 = fsub float %67, %40
+  %f55 = fdiv float %68, %40
+  %69 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %v42)
+  %f56 = fadd float %f55, %69
+  %70 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v42, <4 x float> %v42)
+  %f58 = fadd float %f56, %70
+  %71 = fmul float %40, %f58
+  %f59 = fadd float %f58, %71
+  %72 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %45, <3 x float> %45)
+  %73 = extractelement <3 x float> %72, i32 0
+  %f60 = fadd float %73, %f59
+  %74 = fcmp oeq float %f60, %40
+  %75 = fcmp one float %f60, %40
+  %76 = fcmp one float %f60, 2.000000e+00
+  %77 = and i1 %75, %76
+  %78 = or i1 %74, %77
   %f62 = fadd float %f60, 1.000000e+00
-  %select78 = select i1 %79, float %f62, float %f60
-  %80 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select78, <4 x i32> zeroinitializer)
+  %select = select i1 %78, float %f62, float %f60
+  %79 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select, <4 x i32> zeroinitializer)
+  %i54 = add i32 %i53, 1
+  %80 = icmp eq i32 %i53, 2
+  %i.0 = select i1 %80, i32 0, i32 %i54
   %i64 = and i32 %3, %i.0
   %i65 = or i32 %i64, 66
   %i66 = xor i32 %i65, %3
@@ -750,10 +751,10 @@ entry:
   %i70 = xor i32 %i69, -1
   %81 = sitofp i32 %i70 to float
   %82 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %81, <4 x i32> zeroinitializer)
-  %83 = fadd <4 x float> %82, %80
+  %83 = fadd <4 x float> %79, %82
   %ternary74 = fadd <4 x float> %v42, %83
-  %select = select i1 %b51, <4 x float> %v42, <4 x float> %ternary74
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %select), !gla.output !8
+  %select78 = select i1 %b51, <4 x float> %v42, <4 x float> %ternary74
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %select78), !gla.output !8
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -866,7 +867,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !5 = metadata !{metadata !"ub42", i32 12, <4 x i1>* @ub42_typeProxy, metadata !1}
 !6 = metadata !{metadata !"uiv4", i32 12, <4 x i32>* @uiv4_typeProxy, metadata !1}
 !7 = metadata !{metadata !"ub", i32 12, i1* @ub_typeProxy, metadata !1}
-!8 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !1}
+!8 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !9}
+!9 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
@@ -882,11 +884,11 @@ uniform ivec4 uiv4;
 uniform bool ub;
 const vec4 const22 = vec4(0.0174533);
 const vec4 const24 = vec4(57.2958);
-const int const137i_2 = 2;
-const int const139i_1 = 1;
-const int const141i_0 = 0;
-const float const157 = 2.0;
-const float const161 = 1.0;
+const float const151 = 2.0;
+const float const155 = 1.0;
+const int const159i_1 = 1;
+const int const161i_2 = 2;
+const int const163i_0 = 0;
 const int const166i_66 = 66;
 const int const169i_17 = 17;
 
@@ -1005,42 +1007,42 @@ void main()
     int temp133 = temp132 - ui;
     int temp134 = temp133 / temp26;
     int temp135 = temp134 % ui;
-    bool temp136 = temp135 == const137i_2;
-    int temp138 = temp135 + const139i_1;
-    int id0 = temp136 ? const141i_0 : temp138;
-    float temp142 = uf + uf;
-    float temp143 = uf * temp142;
-    float temp144 = temp143 - uf;
-    float temp145 = temp144 / uf;
-    float temp146 = length(temp105);
-    float temp147 = temp145 + temp146;
-    float temp148 = dot(temp105, temp105);
-    float temp149 = temp147 + temp148;
-    float temp150 = uf * temp149;
-    float temp151 = temp149 + temp150;
-    vec3 temp152 = cross(temp106, temp106);
-    float temp153 = temp152.x + temp151;
-    bool temp154 = temp153 == uf;
-    bool temp155 = temp153 != uf;
-    bool temp156 = temp153 != const157;
-    bool temp158 = temp155 && temp156;
-    bool temp159 = temp154 || temp158;
-    float temp160 = temp153 + const161;
-    float select78 = temp159 ? temp160 : temp153;
-    vec4 temp163 = vec4(select78);
+    float temp136 = uf + uf;
+    float temp137 = uf * temp136;
+    float temp138 = temp137 - uf;
+    float temp139 = temp138 / uf;
+    float temp140 = length(temp105);
+    float temp141 = temp139 + temp140;
+    float temp142 = dot(temp105, temp105);
+    float temp143 = temp141 + temp142;
+    float temp144 = uf * temp143;
+    float temp145 = temp143 + temp144;
+    vec3 temp146 = cross(temp106, temp106);
+    float temp147 = temp146.x + temp145;
+    bool temp148 = temp147 == uf;
+    bool temp149 = temp147 != uf;
+    bool temp150 = temp147 != const151;
+    bool temp152 = temp149 && temp150;
+    bool temp153 = temp148 || temp152;
+    float temp154 = temp147 + const155;
+    float select = temp153 ? temp154 : temp147;
+    vec4 temp157 = vec4(select);
+    int temp158 = temp135 + const159i_1;
+    bool temp160 = temp135 == const161i_2;
+    int id0 = temp160 ? const163i_0 : temp158;
     int temp164 = ui & id0;
     int temp165 = temp164 | const166i_66;
     int temp167 = temp165 ^ ui;
     int temp168 = temp167 % const169i_17;
-    int temp170 = temp168 >> const137i_2;
+    int temp170 = temp168 >> const161i_2;
     int temp171 = temp170 << ui;
     int temp172 = ~(temp171);
     float temp173 = float(temp172);
     vec4 temp174 = vec4(temp173);
-    vec4 temp175 = temp174 + temp163;
+    vec4 temp175 = temp157 + temp174;
     vec4 ternary74 = temp105 + temp175;
-    vec4 select = temp130 ? temp105 : ternary74;
-    gl_FragColor = select;
+    vec4 select78 = temp130 ? temp105 : ternary74;
+    gl_FragColor = select78;
     
 }
 
@@ -1059,11 +1061,11 @@ uniform ivec4 uiv4;
 uniform bool ub;
 const vec4 const22 = vec4(0.0174533);
 const vec4 const24 = vec4(57.2958);
-const int const137i_2 = 2;
-const int const139i_1 = 1;
-const int const141i_0 = 0;
-const float const157 = 2.0;
-const float const161 = 1.0;
+const float const151 = 2.0;
+const float const155 = 1.0;
+const int const159i_2 = 2;
+const int const161i_1 = 1;
+const int const163i_0 = 0;
 const int const166i_66 = 66;
 const int const169i_17 = 17;
 
@@ -1182,39 +1184,39 @@ void main()
     int temp133111 = temp132110 - ui;
     int temp134112 = temp133111 / temp264;
     int temp135113 = temp134112 % ui;
-    bool temp136114 = temp135113 == const137i_2;
-    int temp138115 = temp135113 + const139i_1;
-    int ternaryd0 = temp136114 ? const141i_0 : temp138115;
-    float temp142118 = uf + uf;
-    float temp143119 = uf * temp142118;
-    float temp144120 = temp143119 - uf;
-    float temp145121 = temp144120 / uf;
-    float temp146122 = length(temp10583);
-    float temp147123 = temp145121 + temp146122;
-    float temp148124 = dot(temp10583, temp10583);
-    float temp149125 = temp147123 + temp148124;
-    float temp150126 = uf * temp149125;
-    float temp151127 = temp149125 + temp150126;
-    vec3 temp152128 = cross(temp106, temp106);
-    float temp153129 = temp152128.x + temp151127;
-    bool temp154130 = temp153129 == uf;
-    bool temp155131 = temp153129 != uf;
-    bool temp156132 = temp153129 != const157;
-    bool temp158133 = temp155131 && temp156132;
-    bool temp159134 = temp154130 || temp158133;
-    float temp160135 = temp153129 + const161;
-    float select = temp159134 ? temp160135 : temp153129;
-    vec4 temp163 = vec4(select);
-    int temp164145 = ui & ternaryd0;
+    float temp136114 = uf + uf;
+    float temp137115 = uf * temp136114;
+    float temp138116 = temp137115 - uf;
+    float temp139117 = temp138116 / uf;
+    float temp140118 = length(temp10583);
+    float temp141119 = temp139117 + temp140118;
+    float temp142120 = dot(temp10583, temp10583);
+    float temp143121 = temp141119 + temp142120;
+    float temp144122 = uf * temp143121;
+    float temp145123 = temp143121 + temp144122;
+    vec3 temp146124 = cross(temp106, temp106);
+    float temp147125 = temp146124.x + temp145123;
+    bool temp148126 = temp147125 == uf;
+    bool temp149127 = temp147125 != uf;
+    bool temp150128 = temp147125 != const151;
+    bool temp152129 = temp149127 && temp150128;
+    bool temp153130 = temp148126 || temp152129;
+    float temp154131 = temp147125 + const155;
+    float select = temp153130 ? temp154131 : temp147125;
+    vec4 temp157 = vec4(select);
+    bool temp160138 = temp135113 == const159i_2;
+    int temp158137 = temp135113 + const161i_1;
+    int ternary139d0 = temp160138 ? const163i_0 : temp158137;
+    int temp164145 = ui & ternary139d0;
     int temp165146 = temp164145 | const166i_66;
     int temp167147 = temp165146 ^ ui;
     int temp168148 = temp167147 % const169i_17;
-    int temp170149 = temp168148 >> const137i_2;
+    int temp170149 = temp168148 >> const159i_2;
     int temp171150 = temp170149 << ui;
     int temp172151 = ~(temp171150);
     float temp173152 = float(temp172151);
     vec4 temp174 = vec4(temp173152);
-    vec4 temp175155 = temp174 + temp163;
+    vec4 temp175155 = temp174 + temp157;
     vec4 ternary74156 = temp10583 + temp175155;
     vec4 select165 = temp130108 ? temp10583 : ternary74156;
     gl_FragColor = select165;

@@ -9,7 +9,7 @@ Top IR:
 define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(2)* @i, !gla.uniform !2
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !gla.input !3
+  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !gla.input !4
   store <4 x float> %Color, <4 x float>* @Color_shadow
   %1 = load <4 x float>* @Color_shadow
   %2 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 %0
@@ -93,13 +93,14 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !gla.outputs = !{!0}
 !gla.uniforms = !{!2}
-!gla.inputs = !{!3}
+!gla.inputs = !{!4}
 
 !0 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @FragData_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null}
-!2 = metadata !{metadata !"i", i32 12, i32* @i_typeProxy, metadata !1}
-!3 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_shadow_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1056, null}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!2 = metadata !{metadata !"i", i32 12, i32* @i_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1024, null}
+!4 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1056, null, i32 1}
 
 
 Bottom IR:
@@ -111,7 +112,7 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(2)* @i, align 4, !gla.uniform !2
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !gla.input !3
+  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !gla.input !4
   %1 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 %0
   store <4 x float> %Color, <4 x float>* %1, align 16
   %gla_constGEP = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 0
@@ -225,13 +226,14 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 !gla.outputs = !{!0}
 !gla.uniforms = !{!2}
-!gla.inputs = !{!3}
+!gla.inputs = !{!4}
 
 !0 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @FragData_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null}
-!2 = metadata !{metadata !"i", i32 12, i32* @i_typeProxy, metadata !1}
-!3 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_shadow_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1056, null}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!2 = metadata !{metadata !"i", i32 12, i32* @i_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1024, null}
+!4 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1056, null, i32 1}
 
 ***Unsupported functionality: missing metadata on load
 

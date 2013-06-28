@@ -74,13 +74,13 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.inputs = !{!4, !6}
 
 !0 = metadata !{metadata !"colorOut", i32 7, [6 x <4 x float>]* @colorOut_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1031, null}
+!3 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
 !4 = metadata !{metadata !"color", i32 1, <4 x float>* @color_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1030, null}
+!5 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
 !6 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1032, null}
+!7 = metadata !{i32 0, i32 0, i32 1032, null, i32 0}
 
 
 Bottom IR:
@@ -138,13 +138,13 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.inputs = !{!4, !6}
 
 !0 = metadata !{metadata !"colorOut", i32 7, [6 x <4 x float>]* @colorOut_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1031, null}
+!3 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
 !4 = metadata !{metadata !"color", i32 1, <4 x float>* @color_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1030, null}
+!5 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
 !6 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1032, null}
+!7 = metadata !{i32 0, i32 0, i32 1032, null, i32 0}
 
 ***Unsupported functionality: missing metadata on load
 

@@ -136,7 +136,7 @@ namespace {
 // Helper functions for translating glslang to metadata, so that information
 // not representable in LLVM does not get lost.
 
-gla::EMdInputOutput getMdQualifier(TIntermSymbol* node)
+gla::EMdInputOutput GetMdQualifier(TIntermSymbol* node)
 {
     gla::EMdInputOutput mdQualifier;
     switch (node->getQualifier().storage) {
@@ -173,7 +173,7 @@ gla::EMdInputOutput getMdQualifier(TIntermSymbol* node)
     return mdQualifier;
 }
 
-gla::EMdTypeLayout getMdTypeLayout(const TType& type)
+gla::EMdTypeLayout GetMdTypeLayout(const TType& type)
 {
     gla::EMdTypeLayout mdType;
 
@@ -205,7 +205,7 @@ gla::EMdTypeLayout getMdTypeLayout(const TType& type)
     return mdType;
 }
 
-gla::EMdSampler getMdSampler(const TType& type)
+gla::EMdSampler GetMdSampler(const TType& type)
 {
     if (type.getSampler().image)
         return gla::EMsImage;
@@ -213,7 +213,7 @@ gla::EMdSampler getMdSampler(const TType& type)
         return gla::EMsTexture;
 }
 
-gla::EMdSamplerDim getMdSamplerDim(const TType& type)
+gla::EMdSamplerDim GetMdSamplerDim(const TType& type)
 {
     switch (type.getSampler().dim) {
     case Esd1D:     return gla::EMsd1D;
@@ -228,7 +228,7 @@ gla::EMdSamplerDim getMdSamplerDim(const TType& type)
     }
 }
 
-gla::EMdSamplerBaseType getMdSamplerBaseType(TBasicType type)
+gla::EMdSamplerBaseType GetMdSamplerBaseType(TBasicType type)
 {
     switch (type) {
     case EbtFloat:    return gla::EMsbFloat;
@@ -240,7 +240,7 @@ gla::EMdSamplerBaseType getMdSamplerBaseType(TBasicType type)
     }
 }
 
-int getMdSlotLocation(const TType& type)
+int GetMdSlotLocation(const TType& type)
 {
     if (type.getQualifier().layoutSlotLocation == TQualifier::layoutLocationEnd)
         return gla::MaxUserLayoutLocation;
@@ -248,7 +248,7 @@ int getMdSlotLocation(const TType& type)
         return type.getQualifier().layoutSlotLocation;
 }
 
-gla::EMdPrecision getMdPrecision(const TType& type)
+gla::EMdPrecision GetMdPrecision(const TType& type)
 {
     switch (type.getQualifier().precision) {
     case EpqNone:    return gla::EMpNone;
@@ -259,7 +259,7 @@ gla::EMdPrecision getMdPrecision(const TType& type)
     }
 }
 
-llvm::Value* makePermanentTypeProxy(llvm::Value* value)
+llvm::Value* MakePermanentTypeProxy(llvm::Value* value)
 {
     // Make a type proxy that won't be optimized away (we still want the real llvm::Value to get optimized away when it can)
     llvm::Type* type = value->getType();
@@ -268,6 +268,21 @@ llvm::Value* makePermanentTypeProxy(llvm::Value* value)
 
     // TODO: memory: who/how owns tracking and deleting this allocation?
     return new llvm::GlobalVariable(type, true, llvm::GlobalVariable::ExternalLinkage, 0, value->getName() + "_typeProxy");
+}
+
+void GetInterpolationLocationMethod(const TType& type, gla::EInterpolationMethod& method, gla::EInterpolationLocation& location)
+{
+    method = gla::EIMNone;
+    if (type.getQualifier().nopersp)
+        method = gla::EIMNoperspective;
+    else if (type.getQualifier().smooth)
+        method = gla::EIMSmooth;
+
+    location = gla::EILFragment;
+    if (type.getQualifier().sample)
+        location = gla::EILSample;
+    else if (type.getQualifier().centroid)
+        location = gla::EILCentroid;
 }
 
 };  // end anonymous namespace
@@ -414,15 +429,15 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
             // evaluate the right
             oit->glaBuilder->clearAccessChain();
             node->getRight()->traverse(oit);
-            llvm::Value* rValue = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getRight()->getType()));
+            llvm::Value* rValue = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getRight()->getType()));
 
             if (node->getOp() != EOpAssign) {
                 // the left is also an r-value
                 oit->glaBuilder->setAccessChain(lValue);
-                llvm::Value* leftRValue = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getLeft()->getType()));
+                llvm::Value* leftRValue = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getLeft()->getType()));
 
                 // do the operation
-                rValue = oit->createBinaryOperation(node->getOp(), getMdPrecision(node->getType()), leftRValue, rValue, node->getType().getBasicType() == EbtUint);
+                rValue = oit->createBinaryOperation(node->getOp(), GetMdPrecision(node->getType()), leftRValue, rValue, node->getType().getBasicType() == EbtUint);
 
                 // these all need their counterparts in createBinaryOperation()
                 assert(rValue);
@@ -464,7 +479,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
                 // compute the next index
                 oit->glaBuilder->clearAccessChain();
                 node->getRight()->traverse(oit);
-                llvm::Value* index = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getRight()->getType()));
+                llvm::Value* index = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getRight()->getType()));
 
                 // make the new access chain to date
                 oit->glaBuilder->setAccessChain(partial);
@@ -490,14 +505,14 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     // Get the operands
     oit->glaBuilder->clearAccessChain();
     node->getLeft()->traverse(oit);
-    llvm::Value* left = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getLeft()->getType()));
+    llvm::Value* left = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getLeft()->getType()));
 
     oit->glaBuilder->clearAccessChain();
     node->getRight()->traverse(oit);
-    llvm::Value* right = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getRight()->getType()));
+    llvm::Value* right = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getRight()->getType()));
 
     llvm::Value* result;
-    gla::EMdPrecision precision = getMdPrecision(node->getType());
+    gla::EMdPrecision precision = GetMdPrecision(node->getType());
 
     switch (node->getOp()) {
     case EOpVectorTimesMatrix:
@@ -528,9 +543,9 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
 
     oit->glaBuilder->clearAccessChain();
     node->getOperand()->traverse(oit);
-    llvm::Value* operand = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getOperand()->getType()));
+    llvm::Value* operand = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getOperand()->getType()));
 
-    gla::EMdPrecision precision = getMdPrecision(node->getType());
+    gla::EMdPrecision precision = GetMdPrecision(node->getType());
 
     // it could be a conversion
     llvm::Value* result = oit->createConversion(node->getOp(), precision, oit->convertGlslangToGlaType(node->getType()), operand);
@@ -568,7 +583,7 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
             else
                 op = EOpSub;
 
-            llvm::Value* result = oit->createBinaryOperation(op, getMdPrecision(node->getType()), operand, one, node->getType().getBasicType() == EbtUint);
+            llvm::Value* result = oit->createBinaryOperation(op, GetMdPrecision(node->getType()), operand, one, node->getType().getBasicType() == EbtUint);
 
             // The result of operation is always stored, but conditionally the
             // consumed result.  The consumed result is always an r-value.
@@ -598,7 +613,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
 
     assert(node->getOp());
 
-    gla::EMdPrecision precision = getMdPrecision(node->getType());
+    gla::EMdPrecision precision = GetMdPrecision(node->getType());
 
     switch (node->getOp()) {
     case EOpSequence:
@@ -805,11 +820,11 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     if (binOp != EOpNull) {
         oit->glaBuilder->clearAccessChain();
         node->getSequence()[0]->traverse(oit);
-        llvm::Value* left = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getSequence()[0]->getAsTyped()->getType()));
+        llvm::Value* left = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getSequence()[0]->getAsTyped()->getType()));
 
         oit->glaBuilder->clearAccessChain();
         node->getSequence()[1]->traverse(oit);
-        llvm::Value* right = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getSequence()[1]->getAsTyped()->getType()));
+        llvm::Value* right = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getSequence()[1]->getAsTyped()->getType()));
 
         if (binOp == EOpOuterProduct)
             result = oit->glaBuilder->createMatrixMultiply(precision, left, right);
@@ -832,7 +847,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     for (int i = 0; i < glslangOperands.size(); ++i) {
         oit->glaBuilder->clearAccessChain();
         glslangOperands[i]->traverse(oit);
-        operands.push_back(oit->glaBuilder->accessChainLoad(getMdPrecision(glslangOperands[i]->getAsTyped()->getType())));
+        operands.push_back(oit->glaBuilder->accessChainLoad(GetMdPrecision(glslangOperands[i]->getAsTyped()->getType())));
     }
     if (glslangOperands.size() == 1)
         result = oit->createUnaryIntrinsic(node->getOp(), precision, operands.front());
@@ -876,7 +891,7 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
         // emit the "then" statement
 		node->getTrueBlock()->traverse(it);
         if (result)
-            oit->glaBuilder->createStore(oit->glaBuilder->accessChainLoad(getMdPrecision(node->getTrueBlock()->getAsTyped()->getType())), result);
+            oit->glaBuilder->createStore(oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getTrueBlock()->getAsTyped()->getType())), result);
 	}
 
     if (node->getFalseBlock()) {
@@ -884,7 +899,7 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
         // emit the "else" statement
         node->getFalseBlock()->traverse(it);
         if (result)
-            oit->glaBuilder->createStore(oit->glaBuilder->accessChainLoad(getMdPrecision(node->getFalseBlock()->getAsTyped()->getType())), result);
+            oit->glaBuilder->createStore(oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getFalseBlock()->getAsTyped()->getType())), result);
     }
 
     ifBuilder.makeEndIf();
@@ -907,7 +922,7 @@ bool TranslateSwitch(bool /* preVisit */, TIntermSwitch* node, TIntermTraverser*
 
     // emit and get the condition before doing anything with switch
     node->getCondition()->traverse(it);
-    llvm::Value* condition = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getCondition()->getAsTyped()->getType()));
+    llvm::Value* condition = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getCondition()->getAsTyped()->getType()));
 
     // browse the children to sort out code segments
     int defaultSegment = -1;
@@ -978,7 +993,7 @@ bool TranslateLoop(bool /* preVisit */, TIntermLoop* node, TIntermTraverser* it)
         // make the following
         //     if (! condition from test traversal)
         //         break;
-        llvm::Value* condition = oit->glaBuilder->accessChainLoad(getMdPrecision(node->getTest()->getType()));
+        llvm::Value* condition = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getTest()->getType()));
         condition = oit->llvmBuilder.CreateNot(condition);
         gla::Builder::If ifBuilder(condition, oit->glaBuilder);
         oit->glaBuilder->makeLoopExit();
@@ -1024,7 +1039,7 @@ bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
         if (oit->inMain)
             oit->glaBuilder->makeMainReturn();
         else if (node->getExpression()) {
-            oit->glaBuilder->makeReturn(false, oit->glaBuilder->accessChainLoad(getMdPrecision(node->getExpression()->getType())));
+            oit->glaBuilder->makeReturn(false, oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getExpression()->getType())));
         } else
             oit->glaBuilder->makeReturn();
 
@@ -1224,7 +1239,7 @@ void TGlslangToTopTraverser::translateArguments(const TIntermSequence& glslangAr
     for (int i = 0; i < glslangArguments.size(); ++i) {
         glaBuilder->clearAccessChain();
         glslangArguments[i]->traverse(this);
-        arguments.push_back(glaBuilder->accessChainLoad(getMdPrecision(glslangArguments[i]->getAsTyped()->getType())));
+        arguments.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangArguments[i]->getAsTyped()->getType())));
     }
 }
 
@@ -1233,7 +1248,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const TIntermAggr
     std::vector<llvm::Value*> arguments;
     translateArguments(node->getSequence(), arguments);
 
-    gla::EMdPrecision precision = getMdPrecision(node->getType());
+    gla::EMdPrecision precision = GetMdPrecision(node->getType());
 
     if (node->getName() == "ftransform(") {
         // TODO: back-end functionality: if this needs to support decomposition, need to simulate
@@ -1408,7 +1423,7 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const TIntermAggrega
         }
         if (qualifiers[i] == EvqIn || qualifiers[i] == EvqConstReadOnly || qualifiers[i] == EvqInOut) {
             // process r-value
-            glaBuilder->createStore(glaBuilder->accessChainLoad(getMdPrecision(glslangArgs[i]->getAsTyped()->getType())), llvmArgs[i]);
+            glaBuilder->createStore(glaBuilder->accessChainLoad(GetMdPrecision(glslangArgs[i]->getAsTyped()->getType())), llvmArgs[i]);
         }
     }
 
@@ -2052,18 +2067,9 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(TOperator op, gla::EMdPreci
 // Set up to recursively traverse the structure to read, while flattening it into slots
 void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value* storage, int firstSlot, llvm::MDNode* md)
 {
-    gla::EInterpolationMethod method = gla::EIMNone;
-    if (node->getType().getQualifier().nopersp)
-        method = gla::EIMNoperspective;
-    else if (node->getType().getQualifier().smooth)
-        method = gla::EIMSmooth;
-
-    gla::EInterpolationLocation location = gla::EILFragment;
-    if (node->getType().getQualifier().sample)
-        location = gla::EILSample;
-    else if (node->getType().getQualifier().centroid)
-        location = gla::EILCentroid;
-
+    gla::EInterpolationMethod method;
+    gla::EInterpolationLocation location;
+    GetInterpolationLocationMethod(node->getType(), method, location);
     // For pipeline inputs, and we will generate a fresh pipeline read at each reference,
     // which gets optimized later.
     std::string name(node->getName().c_str());
@@ -2126,7 +2132,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const TType& glaType, llvm::V
             gepChain.push_back(gla::MakeIntConstant(context, 0));
         for (int column = 0; column < numColumns; ++column, ++slot) {
             gepChain.push_back(gla::MakeIntConstant(context, column));               
-            llvm::Value* pipeRead = glaBuilder->readPipeline(getMdPrecision(glaType), readType, name, slot, md, -1 /*mask*/, method, location);
+            llvm::Value* pipeRead = glaBuilder->readPipeline(GetMdPrecision(glaType), readType, name, slot, md, -1 /*mask*/, method, location);
             llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));                
             gepChain.pop_back();
         }
@@ -2134,7 +2140,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const TType& glaType, llvm::V
             gepChain.pop_back();
     } else {
         llvm::Type* readType = convertGlslangToGlaType(glaType);
-        llvm::Value* pipeRead = glaBuilder->readPipeline(getMdPrecision(glaType), readType, name, slot, md, -1 /*mask*/, method, location);
+        llvm::Value* pipeRead = glaBuilder->readPipeline(GetMdPrecision(glaType), readType, name, slot, md, -1 /*mask*/, method, location);
         ++slot;
         if (gepChain.size() > 0)
             llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
@@ -2248,7 +2254,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(TIntermSymbol* node
     const std::string name = node->getName().c_str();
     md = uniformMdMap[name];
 
-    gla::EMdInputOutput ioType = getMdQualifier(node);
+    gla::EMdInputOutput ioType = GetMdQualifier(node);
     switch (ioType) {
     case gla::EMioDefaultUniform:
         if (md == 0) {
@@ -2277,15 +2283,15 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(TIntermSymbol* nod
     llvm::MDNode* samplerMd = makeMdSampler(type, typeProxy);
 
     // Create hierarchical type information if it's an aggregate
-    gla::EMdTypeLayout layout = getMdTypeLayout(type);
+    gla::EMdTypeLayout layout = GetMdTypeLayout(type);
     llvm::MDNode* structure = 0;
     if (layout == gla::EMtlAggregate)
         structure = declareMdType(type);
 
     // Make the main node
     return metadata.makeMdInputOutput(node->getName().c_str(), gla::UniformListMdName, gla::EMioDefaultUniform, 
-                                      makePermanentTypeProxy(typeProxy),
-                                      layout, getMdPrecision(type), gla::MaxUserLayoutLocation, samplerMd, structure);
+                                      MakePermanentTypeProxy(typeProxy),
+                                      layout, GetMdPrecision(type), gla::MaxUserLayoutLocation, samplerMd, structure);
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const TType& type, llvm::Value* typeProxy)
@@ -2297,8 +2303,8 @@ llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const TType& type, llvm::Val
             typeProxy = new llvm::GlobalVariable(convertGlslangToGlaType(type), true, llvm::GlobalVariable::ExternalLinkage, 0, "sampler_typeProxy");
         }
 
-        return metadata.makeMdSampler(getMdSampler(type), makePermanentTypeProxy(typeProxy), getMdSamplerDim(type), type.getSampler().arrayed,
-                                      type.getSampler().shadow, getMdSamplerBaseType(type.getSampler().type));
+        return metadata.makeMdSampler(GetMdSampler(type), MakePermanentTypeProxy(typeProxy), GetMdSamplerDim(type), type.getSampler().arrayed,
+                                      type.getSampler().shadow, GetMdSamplerBaseType(type.getSampler().type));
     } else
         return 0;
 }
@@ -2318,7 +2324,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput 
 
     // Make the main node
     return metadata.makeMdInputOutput(name, gla::UniformListMdName, ioType, typeProxy,
-                                      getMdTypeLayout(type), getMdPrecision(type), gla::MaxUserLayoutLocation, 0, block);
+                                      GetMdTypeLayout(type), GetMdPrecision(type), gla::MaxUserLayoutLocation, 0, block);
 }
 
 // Make a !type node as per metadata.h, recursively
@@ -2336,7 +2342,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const TType& type)
         mdArgs.push_back(llvm::MDString::get(context, ""));
 
     // !typeLayout
-    mdArgs.push_back(metadata.makeMdTypeLayout(getMdTypeLayout(type), getMdPrecision(type), getMdSlotLocation(type), samplerMd));
+    mdArgs.push_back(metadata.makeMdTypeLayout(GetMdTypeLayout(type), GetMdPrecision(type), GetMdSlotLocation(type), samplerMd));
 
     const TTypeList* typeList = type.getStruct();
     if (typeList) {
@@ -2362,8 +2368,13 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(TIntermSymbol* nod
         aggregate = declareMdType(node->getType());
     }
 
-    return metadata.makeMdInputOutput(node->getName().c_str(), kind, getMdQualifier(node), makePermanentTypeProxy(typeProxy), 
-                                      getMdTypeLayout(node->getType()), getMdPrecision(node->getType()), slot, 0, aggregate);
+    gla::EInterpolationMethod interpMethod;
+    gla::EInterpolationLocation interpLocation;
+    GetInterpolationLocationMethod(node->getType(), interpMethod, interpLocation);
+
+    return metadata.makeMdInputOutput(node->getName().c_str(), kind, GetMdQualifier(node), MakePermanentTypeProxy(typeProxy), 
+                                      GetMdTypeLayout(node->getType()), GetMdPrecision(node->getType()), slot, 0, aggregate,
+                                      gla::MakeInterpolationMode(interpMethod, interpLocation));
 }
 
 void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value* storage, int slot)

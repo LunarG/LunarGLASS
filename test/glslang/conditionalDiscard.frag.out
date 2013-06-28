@@ -59,9 +59,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !1 = metadata !{i32 5, i32 0, i32 1024, metadata !2}
 !2 = metadata !{i32 0, i32* @tex_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !3 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null}
+!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !5 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1025, null}
+!6 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 
 
 Bottom IR:
@@ -111,9 +111,9 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !1 = metadata !{i32 5, i32 0, i32 1024, metadata !2}
 !2 = metadata !{i32 0, i32* @tex_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !3 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null}
+!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !5 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1025, null}
+!6 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

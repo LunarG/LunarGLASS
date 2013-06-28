@@ -78,15 +78,15 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !gla.invariant = !{!6}
 
 !0 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 3, i32 1024, null}
+!1 = metadata !{i32 0, i32 3, i32 1024, null, i32 0}
 !2 = metadata !{metadata !"ps", i32 1, float* @ps_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 1026, null}
+!3 = metadata !{i32 0, i32 2, i32 1026, null, i32 0}
 !4 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 3, i32 1028, null}
+!5 = metadata !{i32 0, i32 3, i32 1028, null, i32 0}
 !6 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 3, i32 1025, null}
+!7 = metadata !{i32 0, i32 3, i32 1025, null, i32 0}
 !8 = metadata !{metadata !"gl_PointSize", i32 9, float* @PointSize_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 3, i32 1027, null}
+!9 = metadata !{i32 0, i32 3, i32 1027, null, i32 0}
 !10 = metadata !{i32 3}
 !11 = metadata !{i32 2}
 
@@ -131,15 +131,15 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !gla.invariant = !{!6}
 
 !0 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 3, i32 1024, null}
+!1 = metadata !{i32 0, i32 3, i32 1024, null, i32 0}
 !2 = metadata !{metadata !"ps", i32 1, float* @ps_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 1026, null}
+!3 = metadata !{i32 0, i32 2, i32 1026, null, i32 0}
 !4 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 3, i32 1028, null}
+!5 = metadata !{i32 0, i32 3, i32 1028, null, i32 0}
 !6 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 3, i32 1025, null}
+!7 = metadata !{i32 0, i32 3, i32 1025, null, i32 0}
 !8 = metadata !{metadata !"gl_PointSize", i32 9, float* @PointSize_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 3, i32 1027, null}
+!9 = metadata !{i32 0, i32 3, i32 1027, null, i32 0}
 !10 = metadata !{i32 3}
 !11 = metadata !{i32 2}
 #### BEGIN COMPILER 0 INFO LOG ####

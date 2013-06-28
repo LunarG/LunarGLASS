@@ -53,15 +53,15 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.uniforms = !{!10}
 
 !0 = metadata !{metadata !"uv", i32 7, <2 x float>* @uv_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026, null}
+!3 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
 !4 = metadata !{metadata !"uv_in", i32 1, <2 x float>* @uv_in_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1025, null}
+!5 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 !6 = metadata !{metadata !"position", i32 1, <4 x float>* @position_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1027, null}
+!7 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
 !8 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1028, null}
+!9 = metadata !{i32 0, i32 0, i32 1028, null, i32 0}
 !10 = metadata !{metadata !"transform", i32 12, [4 x <4 x float>]* @transform_typeProxy, metadata !11}
 !11 = metadata !{i32 3, i32 0, i32 1024, null}
 
@@ -101,15 +101,15 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.uniforms = !{!10}
 
 !0 = metadata !{metadata !"uv", i32 7, <2 x float>* @uv_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !2 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026, null}
+!3 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
 !4 = metadata !{metadata !"uv_in", i32 1, <2 x float>* @uv_in_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1025, null}
+!5 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 !6 = metadata !{metadata !"position", i32 1, <4 x float>* @position_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1027, null}
+!7 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
 !8 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1028, null}
+!9 = metadata !{i32 0, i32 0, i32 1028, null, i32 0}
 !10 = metadata !{metadata !"transform", i32 12, [4 x <4 x float>]* @transform_typeProxy, metadata !11}
 !11 = metadata !{i32 3, i32 0, i32 1024, null}
 #### BEGIN COMPILER 0 INFO LOG ####

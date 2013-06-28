@@ -66,412 +66,412 @@ entry:
   store <4 x i32> zeroinitializer, <4 x i32>* %usum
   store <4 x i32> zeroinitializer, <4 x i32>* %isum
   store <4 x float> zeroinitializer, <4 x float>* %sum
-  %x = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !gla.input !0, !gla.precision !45
+  %x = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !gla.input !0, !gla.precision !46
   store <3 x float> %x, <3 x float>* @x_shadow
   %0 = load <3 x float>* @x_shadow
-  %y = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !gla.input !2, !gla.precision !45
+  %y = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !gla.input !2, !gla.precision !46
   store <3 x float> %y, <3 x float>* @y_shadow
   %1 = load <3 x float>* @y_shadow
   %2 = load <3 x i1> addrspace(2)* @bv, !gla.uniform !34
-  %3 = call <3 x float> @llvm.gla.fbMix.v3f32.v3f32.v3f32.v3i1(<3 x float> %0, <3 x float> %1, <3 x i1> %2), !gla.precision !45
+  %3 = call <3 x float> @llvm.gla.fbMix.v3f32.v3f32.v3f32.v3i1(<3 x float> %0, <3 x float> %1, <3 x i1> %2), !gla.precision !46
   %4 = load <4 x float>* %constructed
-  %5 = extractelement <3 x float> %3, i32 0, !gla.precision !45
-  %6 = insertelement <4 x float> %4, float %5, i32 0, !gla.precision !45
-  %7 = extractelement <3 x float> %3, i32 1, !gla.precision !45
-  %8 = insertelement <4 x float> %6, float %7, i32 1, !gla.precision !45
-  %9 = extractelement <3 x float> %3, i32 2, !gla.precision !45
-  %10 = insertelement <4 x float> %8, float %9, i32 2, !gla.precision !45
-  %11 = insertelement <4 x float> %10, float 0.000000e+00, i32 3, !gla.precision !45
+  %5 = extractelement <3 x float> %3, i32 0, !gla.precision !46
+  %6 = insertelement <4 x float> %4, float %5, i32 0, !gla.precision !46
+  %7 = extractelement <3 x float> %3, i32 1, !gla.precision !46
+  %8 = insertelement <4 x float> %6, float %7, i32 1, !gla.precision !46
+  %9 = extractelement <3 x float> %3, i32 2, !gla.precision !46
+  %10 = insertelement <4 x float> %8, float %9, i32 2, !gla.precision !46
+  %11 = insertelement <4 x float> %10, float 0.000000e+00, i32 3, !gla.precision !46
   %12 = load <4 x float>* %sum
-  %sum1 = fadd <4 x float> %12, %11, !gla.precision !45
+  %sum1 = fadd <4 x float> %12, %11, !gla.precision !46
   store <4 x float> %sum1, <4 x float>* %sum
-  %iv4a = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !45
+  %iv4a = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !46
   store <4 x i32> %iv4a, <4 x i32>* @iv4a_shadow
   %13 = load <4 x i32>* @iv4a_shadow
-  %isum2 = call <4 x i32> @llvm.gla.abs.v4i32.v4i32(<4 x i32> %13), !gla.precision !45
+  %isum2 = call <4 x i32> @llvm.gla.abs.v4i32.v4i32(<4 x i32> %13), !gla.precision !46
   store <4 x i32> %isum2, <4 x i32>* %isum
-  %iv4a3 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !45
+  %iv4a3 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !46
   store <4 x i32> %iv4a3, <4 x i32>* @iv4a_shadow
   %14 = load <4 x i32>* @iv4a_shadow
-  %15 = call <4 x i32> @llvm.gla.sign.v4i32.v4i32(<4 x i32> %14), !gla.precision !45
+  %15 = call <4 x i32> @llvm.gla.sign.v4i32.v4i32(<4 x i32> %14), !gla.precision !46
   %16 = load <4 x i32>* %isum
-  %isum4 = add <4 x i32> %16, %15, !gla.precision !45
+  %isum4 = add <4 x i32> %16, %15, !gla.precision !46
   store <4 x i32> %isum4, <4 x i32>* %isum
-  %iv4a5 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !45
+  %iv4a5 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !46
   store <4 x i32> %iv4a5, <4 x i32>* @iv4a_shadow
   %17 = load <4 x i32>* @iv4a_shadow
-  %iv4b = call <4 x i32> @llvm.gla.readData.v4i32(i32 1027, i32 -1), !gla.input !6, !gla.precision !45
+  %iv4b = call <4 x i32> @llvm.gla.readData.v4i32(i32 1027, i32 -1), !gla.input !6, !gla.precision !46
   store <4 x i32> %iv4b, <4 x i32>* @iv4b_shadow
   %18 = load <4 x i32>* @iv4b_shadow
-  %19 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.v4i32(<4 x i32> %17, <4 x i32> %18), !gla.precision !45
+  %19 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.v4i32(<4 x i32> %17, <4 x i32> %18), !gla.precision !46
   %20 = load <4 x i32>* %isum
-  %isum6 = add <4 x i32> %20, %19, !gla.precision !45
+  %isum6 = add <4 x i32> %20, %19, !gla.precision !46
   store <4 x i32> %isum6, <4 x i32>* %isum
-  %iv4a7 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !45
+  %iv4a7 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !46
   store <4 x i32> %iv4a7, <4 x i32>* @iv4a_shadow
   %21 = load <4 x i32>* @iv4a_shadow
   %22 = load i32 addrspace(2)* @imin, !gla.uniform !36
-  %23 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.i32(<4 x i32> %21, i32 %22), !gla.precision !45
+  %23 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.i32(<4 x i32> %21, i32 %22), !gla.precision !46
   %24 = load <4 x i32>* %isum
-  %isum8 = add <4 x i32> %24, %23, !gla.precision !45
+  %isum8 = add <4 x i32> %24, %23, !gla.precision !46
   store <4 x i32> %isum8, <4 x i32>* %isum
-  %uv2x = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !gla.input !8, !gla.precision !45
+  %uv2x = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !gla.input !8, !gla.precision !46
   store <2 x i32> %uv2x, <2 x i32>* @uv2x_shadow
   %25 = load <2 x i32>* @uv2x_shadow
-  %uv2y = call <2 x i32> @llvm.gla.readData.v2i32(i32 1029, i32 -1), !gla.input !10, !gla.precision !45
+  %uv2y = call <2 x i32> @llvm.gla.readData.v2i32(i32 1029, i32 -1), !gla.input !10, !gla.precision !46
   store <2 x i32> %uv2y, <2 x i32>* @uv2y_shadow
   %26 = load <2 x i32>* @uv2y_shadow
-  %u9 = call <2 x i32> @llvm.gla.uMin.v2i32.v2i32.v2i32(<2 x i32> %25, <2 x i32> %26), !gla.precision !45
+  %u9 = call <2 x i32> @llvm.gla.uMin.v2i32.v2i32.v2i32(<2 x i32> %25, <2 x i32> %26), !gla.precision !46
   store <2 x i32> %u9, <2 x i32>* %u
   %27 = load <2 x i32>* %u
   %28 = load <4 x i32>* %constructed10
-  %29 = extractelement <2 x i32> %27, i32 0, !gla.precision !45
-  %30 = insertelement <4 x i32> %28, i32 %29, i32 0, !gla.precision !45
-  %31 = extractelement <2 x i32> %27, i32 1, !gla.precision !45
-  %32 = insertelement <4 x i32> %30, i32 %31, i32 1, !gla.precision !45
-  %33 = insertelement <4 x i32> %32, i32 0, i32 2, !gla.precision !45
-  %34 = insertelement <4 x i32> %33, i32 0, i32 3, !gla.precision !45
+  %29 = extractelement <2 x i32> %27, i32 0, !gla.precision !46
+  %30 = insertelement <4 x i32> %28, i32 %29, i32 0, !gla.precision !46
+  %31 = extractelement <2 x i32> %27, i32 1, !gla.precision !46
+  %32 = insertelement <4 x i32> %30, i32 %31, i32 1, !gla.precision !46
+  %33 = insertelement <4 x i32> %32, i32 0, i32 2, !gla.precision !46
+  %34 = insertelement <4 x i32> %33, i32 0, i32 3, !gla.precision !46
   %35 = load <4 x i32>* %usum
-  %usum11 = add <4 x i32> %35, %34, !gla.precision !45
+  %usum11 = add <4 x i32> %35, %34, !gla.precision !46
   store <4 x i32> %usum11, <4 x i32>* %usum
-  %uv4y = call <4 x i32> @llvm.gla.readData.v4i32(i32 1030, i32 -1), !gla.input !12, !gla.precision !45
+  %uv4y = call <4 x i32> @llvm.gla.readData.v4i32(i32 1030, i32 -1), !gla.input !12, !gla.precision !46
   store <4 x i32> %uv4y, <4 x i32>* @uv4y_shadow
   %36 = load <4 x i32>* @uv4y_shadow
-  %uy = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !45
+  %uy = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !46
   store i32 %uy, i32* @uy_shadow
   %37 = load i32* @uy_shadow
-  %38 = call <4 x i32> @llvm.gla.uMin.v4i32.v4i32.i32(<4 x i32> %36, i32 %37), !gla.precision !45
+  %38 = call <4 x i32> @llvm.gla.uMin.v4i32.v4i32.i32(<4 x i32> %36, i32 %37), !gla.precision !46
   %39 = load <4 x i32>* %usum
-  %usum12 = add <4 x i32> %39, %38, !gla.precision !45
+  %usum12 = add <4 x i32> %39, %38, !gla.precision !46
   store <4 x i32> %usum12, <4 x i32>* %usum
-  %iv3a = call <3 x i32> @llvm.gla.readData.v3i32(i32 1032, i32 -1), !gla.input !16, !gla.precision !45
+  %iv3a = call <3 x i32> @llvm.gla.readData.v3i32(i32 1032, i32 -1), !gla.input !16, !gla.precision !46
   store <3 x i32> %iv3a, <3 x i32>* @iv3a_shadow
   %40 = load <3 x i32>* @iv3a_shadow
-  %iv3b = call <3 x i32> @llvm.gla.readData.v3i32(i32 1033, i32 -1), !gla.input !18, !gla.precision !45
+  %iv3b = call <3 x i32> @llvm.gla.readData.v3i32(i32 1033, i32 -1), !gla.input !18, !gla.precision !46
   store <3 x i32> %iv3b, <3 x i32>* @iv3b_shadow
   %41 = load <3 x i32>* @iv3b_shadow
-  %i1713 = call <3 x i32> @llvm.gla.sMax.v3i32.v3i32.v3i32(<3 x i32> %40, <3 x i32> %41), !gla.precision !45
+  %i1713 = call <3 x i32> @llvm.gla.sMax.v3i32.v3i32.v3i32(<3 x i32> %40, <3 x i32> %41), !gla.precision !46
   store <3 x i32> %i1713, <3 x i32>* %i17
   %42 = load <3 x i32>* %i17
   %43 = load <4 x i32>* %constructed14
-  %44 = extractelement <3 x i32> %42, i32 0, !gla.precision !45
-  %45 = insertelement <4 x i32> %43, i32 %44, i32 0, !gla.precision !45
-  %46 = extractelement <3 x i32> %42, i32 1, !gla.precision !45
-  %47 = insertelement <4 x i32> %45, i32 %46, i32 1, !gla.precision !45
-  %48 = extractelement <3 x i32> %42, i32 2, !gla.precision !45
-  %49 = insertelement <4 x i32> %47, i32 %48, i32 2, !gla.precision !45
-  %50 = insertelement <4 x i32> %49, i32 0, i32 3, !gla.precision !45
+  %44 = extractelement <3 x i32> %42, i32 0, !gla.precision !46
+  %45 = insertelement <4 x i32> %43, i32 %44, i32 0, !gla.precision !46
+  %46 = extractelement <3 x i32> %42, i32 1, !gla.precision !46
+  %47 = insertelement <4 x i32> %45, i32 %46, i32 1, !gla.precision !46
+  %48 = extractelement <3 x i32> %42, i32 2, !gla.precision !46
+  %49 = insertelement <4 x i32> %47, i32 %48, i32 2, !gla.precision !46
+  %50 = insertelement <4 x i32> %49, i32 0, i32 3, !gla.precision !46
   %51 = load <4 x i32>* %isum
-  %isum15 = add <4 x i32> %51, %50, !gla.precision !45
+  %isum15 = add <4 x i32> %51, %50, !gla.precision !46
   store <4 x i32> %isum15, <4 x i32>* %isum
-  %iv4a16 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !45
+  %iv4a16 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !46
   store <4 x i32> %iv4a16, <4 x i32>* @iv4a_shadow
   %52 = load <4 x i32>* @iv4a_shadow
-  %53 = load i32 addrspace(2)* @imax, !gla.uniform !37
-  %54 = call <4 x i32> @llvm.gla.sMax.v4i32.v4i32.i32(<4 x i32> %52, i32 %53), !gla.precision !45
+  %53 = load i32 addrspace(2)* @imax, !gla.uniform !38
+  %54 = call <4 x i32> @llvm.gla.sMax.v4i32.v4i32.i32(<4 x i32> %52, i32 %53), !gla.precision !46
   %55 = load <4 x i32>* %isum
-  %isum17 = add <4 x i32> %55, %54, !gla.precision !45
+  %isum17 = add <4 x i32> %55, %54, !gla.precision !46
   store <4 x i32> %isum17, <4 x i32>* %isum
-  %uv2x18 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !gla.input !8, !gla.precision !45
+  %uv2x18 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !gla.input !8, !gla.precision !46
   store <2 x i32> %uv2x18, <2 x i32>* @uv2x_shadow
   %56 = load <2 x i32>* @uv2x_shadow
-  %uv2y19 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1029, i32 -1), !gla.input !10, !gla.precision !45
+  %uv2y19 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1029, i32 -1), !gla.input !10, !gla.precision !46
   store <2 x i32> %uv2y19, <2 x i32>* @uv2y_shadow
   %57 = load <2 x i32>* @uv2y_shadow
-  %u1020 = call <2 x i32> @llvm.gla.uMax.v2i32.v2i32.v2i32(<2 x i32> %56, <2 x i32> %57), !gla.precision !45
+  %u1020 = call <2 x i32> @llvm.gla.uMax.v2i32.v2i32.v2i32(<2 x i32> %56, <2 x i32> %57), !gla.precision !46
   store <2 x i32> %u1020, <2 x i32>* %u10
-  %uv2x21 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !gla.input !8, !gla.precision !45
+  %uv2x21 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !gla.input !8, !gla.precision !46
   store <2 x i32> %uv2x21, <2 x i32>* @uv2x_shadow
   %58 = load <2 x i32>* @uv2x_shadow
-  %uy22 = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !45
+  %uy22 = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !46
   store i32 %uy22, i32* @uy_shadow
   %59 = load i32* @uy_shadow
-  %u1123 = call <2 x i32> @llvm.gla.uMax.v2i32.v2i32.i32(<2 x i32> %58, i32 %59), !gla.precision !45
+  %u1123 = call <2 x i32> @llvm.gla.uMax.v2i32.v2i32.i32(<2 x i32> %58, i32 %59), !gla.precision !46
   store <2 x i32> %u1123, <2 x i32>* %u11
   %60 = load <2 x i32>* %u10
   %61 = load <2 x i32>* %u11
   %62 = load <4 x i32>* %constructed24
-  %63 = extractelement <2 x i32> %60, i32 0, !gla.precision !45
-  %64 = insertelement <4 x i32> %62, i32 %63, i32 0, !gla.precision !45
-  %65 = extractelement <2 x i32> %60, i32 1, !gla.precision !45
-  %66 = insertelement <4 x i32> %64, i32 %65, i32 1, !gla.precision !45
-  %67 = extractelement <2 x i32> %61, i32 0, !gla.precision !45
-  %68 = insertelement <4 x i32> %66, i32 %67, i32 2, !gla.precision !45
-  %69 = extractelement <2 x i32> %61, i32 1, !gla.precision !45
-  %70 = insertelement <4 x i32> %68, i32 %69, i32 3, !gla.precision !45
+  %63 = extractelement <2 x i32> %60, i32 0, !gla.precision !46
+  %64 = insertelement <4 x i32> %62, i32 %63, i32 0, !gla.precision !46
+  %65 = extractelement <2 x i32> %60, i32 1, !gla.precision !46
+  %66 = insertelement <4 x i32> %64, i32 %65, i32 1, !gla.precision !46
+  %67 = extractelement <2 x i32> %61, i32 0, !gla.precision !46
+  %68 = insertelement <4 x i32> %66, i32 %67, i32 2, !gla.precision !46
+  %69 = extractelement <2 x i32> %61, i32 1, !gla.precision !46
+  %70 = insertelement <4 x i32> %68, i32 %69, i32 3, !gla.precision !46
   %71 = load <4 x i32>* %usum
-  %usum25 = add <4 x i32> %71, %70, !gla.precision !45
+  %usum25 = add <4 x i32> %71, %70, !gla.precision !46
   store <4 x i32> %usum25, <4 x i32>* %usum
-  %iv4a26 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !45
+  %iv4a26 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !46
   store <4 x i32> %iv4a26, <4 x i32>* @iv4a_shadow
   %72 = load <4 x i32>* @iv4a_shadow
-  %iv4a27 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !45
+  %iv4a27 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !46
   store <4 x i32> %iv4a27, <4 x i32>* @iv4a_shadow
   %73 = load <4 x i32>* @iv4a_shadow
-  %iv4b28 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1027, i32 -1), !gla.input !6, !gla.precision !45
+  %iv4b28 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1027, i32 -1), !gla.input !6, !gla.precision !46
   store <4 x i32> %iv4b28, <4 x i32>* @iv4b_shadow
   %74 = load <4 x i32>* @iv4b_shadow
-  %75 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.v4i32.v4i32(<4 x i32> %72, <4 x i32> %73, <4 x i32> %74), !gla.precision !45
+  %75 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.v4i32.v4i32(<4 x i32> %72, <4 x i32> %73, <4 x i32> %74), !gla.precision !46
   %76 = load <4 x i32>* %isum
-  %isum29 = add <4 x i32> %76, %75, !gla.precision !45
+  %isum29 = add <4 x i32> %76, %75, !gla.precision !46
   store <4 x i32> %isum29, <4 x i32>* %isum
-  %iv4a30 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !45
+  %iv4a30 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !46
   store <4 x i32> %iv4a30, <4 x i32>* @iv4a_shadow
   %77 = load <4 x i32>* @iv4a_shadow
   %78 = load i32 addrspace(2)* @imin, !gla.uniform !36
-  %79 = load i32 addrspace(2)* @imax, !gla.uniform !37
-  %80 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.i32.i32(<4 x i32> %77, i32 %78, i32 %79), !gla.precision !45
+  %79 = load i32 addrspace(2)* @imax, !gla.uniform !38
+  %80 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.i32.i32(<4 x i32> %77, i32 %78, i32 %79), !gla.precision !46
   %81 = load <4 x i32>* %isum
-  %isum31 = add <4 x i32> %81, %80, !gla.precision !45
+  %isum31 = add <4 x i32> %81, %80, !gla.precision !46
   store <4 x i32> %isum31, <4 x i32>* %isum
-  %uv2x32 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !gla.input !8, !gla.precision !45
+  %uv2x32 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !gla.input !8, !gla.precision !46
   store <2 x i32> %uv2x32, <2 x i32>* @uv2x_shadow
   %82 = load <2 x i32>* @uv2x_shadow
-  %uv2y33 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1029, i32 -1), !gla.input !10, !gla.precision !45
+  %uv2y33 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1029, i32 -1), !gla.input !10, !gla.precision !46
   store <2 x i32> %uv2y33, <2 x i32>* @uv2y_shadow
   %83 = load <2 x i32>* @uv2y_shadow
-  %uv2c = call <2 x i32> @llvm.gla.readData.v2i32(i32 1034, i32 -1), !gla.input !20, !gla.precision !45
+  %uv2c = call <2 x i32> @llvm.gla.readData.v2i32(i32 1034, i32 -1), !gla.input !20, !gla.precision !46
   store <2 x i32> %uv2c, <2 x i32>* @uv2c_shadow
   %84 = load <2 x i32>* @uv2c_shadow
-  %u1234 = call <2 x i32> @llvm.gla.uClamp.v2i32.v2i32.v2i32.v2i32(<2 x i32> %82, <2 x i32> %83, <2 x i32> %84), !gla.precision !45
+  %u1234 = call <2 x i32> @llvm.gla.uClamp.v2i32.v2i32.v2i32.v2i32(<2 x i32> %82, <2 x i32> %83, <2 x i32> %84), !gla.precision !46
   store <2 x i32> %u1234, <2 x i32>* %u12
   %85 = load <2 x i32>* %u12
   %86 = load <4 x i32>* %constructed35
-  %87 = extractelement <2 x i32> %85, i32 0, !gla.precision !45
-  %88 = insertelement <4 x i32> %86, i32 %87, i32 0, !gla.precision !45
-  %89 = extractelement <2 x i32> %85, i32 1, !gla.precision !45
-  %90 = insertelement <4 x i32> %88, i32 %89, i32 1, !gla.precision !45
-  %91 = insertelement <4 x i32> %90, i32 0, i32 2, !gla.precision !45
-  %92 = insertelement <4 x i32> %91, i32 0, i32 3, !gla.precision !45
+  %87 = extractelement <2 x i32> %85, i32 0, !gla.precision !46
+  %88 = insertelement <4 x i32> %86, i32 %87, i32 0, !gla.precision !46
+  %89 = extractelement <2 x i32> %85, i32 1, !gla.precision !46
+  %90 = insertelement <4 x i32> %88, i32 %89, i32 1, !gla.precision !46
+  %91 = insertelement <4 x i32> %90, i32 0, i32 2, !gla.precision !46
+  %92 = insertelement <4 x i32> %91, i32 0, i32 3, !gla.precision !46
   %93 = load <4 x i32>* %usum
-  %usum36 = add <4 x i32> %93, %92, !gla.precision !45
+  %usum36 = add <4 x i32> %93, %92, !gla.precision !46
   store <4 x i32> %usum36, <4 x i32>* %usum
-  %uv4y37 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1030, i32 -1), !gla.input !12, !gla.precision !45
+  %uv4y37 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1030, i32 -1), !gla.input !12, !gla.precision !46
   store <4 x i32> %uv4y37, <4 x i32>* @uv4y_shadow
   %94 = load <4 x i32>* @uv4y_shadow
-  %95 = load i32 addrspace(2)* @umin, !gla.uniform !38
-  %96 = load i32 addrspace(2)* @umax, !gla.uniform !40
-  %97 = call <4 x i32> @llvm.gla.uClamp.v4i32.v4i32.i32.i32(<4 x i32> %94, i32 %95, i32 %96), !gla.precision !45
+  %95 = load i32 addrspace(2)* @umin, !gla.uniform !39
+  %96 = load i32 addrspace(2)* @umax, !gla.uniform !41
+  %97 = call <4 x i32> @llvm.gla.uClamp.v4i32.v4i32.i32.i32(<4 x i32> %94, i32 %95, i32 %96), !gla.precision !46
   %98 = load <4 x i32>* %usum
-  %usum38 = add <4 x i32> %98, %97, !gla.precision !45
+  %usum38 = add <4 x i32> %98, %97, !gla.precision !46
   store <4 x i32> %usum38, <4 x i32>* %usum
-  %f = call float @llvm.gla.fReadInterpolant.f32(i32 1035, i32 -1, i32 1), !gla.input !22, !gla.precision !45
+  %f = call float @llvm.gla.fReadInterpolant.f32(i32 1035, i32 -1, i32 1), !gla.input !22, !gla.precision !46
   store float %f, float* @f_shadow
   %99 = load float* @f_shadow
-  %100 = call float @llvm.gla.fRoundZero.f32.f32(float %99), !gla.precision !45
+  %100 = call float @llvm.gla.fRoundZero.f32.f32(float %99), !gla.precision !46
   %101 = load <4 x float>* %constructed39
-  %102 = insertelement <4 x float> undef, float %100, i32 0, !gla.precision !45
-  %103 = insertelement <4 x float> %102, float %100, i32 1, !gla.precision !45
-  %104 = insertelement <4 x float> %103, float %100, i32 2, !gla.precision !45
-  %105 = insertelement <4 x float> %104, float %100, i32 3, !gla.precision !45
+  %102 = insertelement <4 x float> undef, float %100, i32 0, !gla.precision !46
+  %103 = insertelement <4 x float> %102, float %100, i32 1, !gla.precision !46
+  %104 = insertelement <4 x float> %103, float %100, i32 2, !gla.precision !46
+  %105 = insertelement <4 x float> %104, float %100, i32 3, !gla.precision !46
   %106 = load <4 x float>* %sum
-  %sum40 = fadd <4 x float> %106, %105, !gla.precision !45
+  %sum40 = fadd <4 x float> %106, %105, !gla.precision !46
   store <4 x float> %sum40, <4 x float>* %sum
-  %v2a = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !45
+  %v2a = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !46
   store <2 x float> %v2a, <2 x float>* @v2a_shadow
   %107 = load <2 x float>* @v2a_shadow
-  %v1241 = call <2 x float> @llvm.gla.fRoundFast.v2f32.v2f32(<2 x float> %107), !gla.precision !45
+  %v1241 = call <2 x float> @llvm.gla.fRoundFast.v2f32.v2f32(<2 x float> %107), !gla.precision !46
   store <2 x float> %v1241, <2 x float>* %v12
-  %v2a42 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !45
+  %v2a42 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !46
   store <2 x float> %v2a42, <2 x float>* @v2a_shadow
   %108 = load <2 x float>* @v2a_shadow
-  %v1343 = call <2 x float> @llvm.gla.fRoundEven.v2f32.v2f32(<2 x float> %108), !gla.precision !45
+  %v1343 = call <2 x float> @llvm.gla.fRoundEven.v2f32.v2f32(<2 x float> %108), !gla.precision !46
   store <2 x float> %v1343, <2 x float>* %v13
   %109 = load <2 x float>* %v12
   %110 = load <2 x float>* %v13
   %111 = load <4 x float>* %constructed44
-  %112 = extractelement <2 x float> %109, i32 0, !gla.precision !45
-  %113 = insertelement <4 x float> %111, float %112, i32 0, !gla.precision !45
-  %114 = extractelement <2 x float> %109, i32 1, !gla.precision !45
-  %115 = insertelement <4 x float> %113, float %114, i32 1, !gla.precision !45
-  %116 = extractelement <2 x float> %110, i32 0, !gla.precision !45
-  %117 = insertelement <4 x float> %115, float %116, i32 2, !gla.precision !45
-  %118 = extractelement <2 x float> %110, i32 1, !gla.precision !45
-  %119 = insertelement <4 x float> %117, float %118, i32 3, !gla.precision !45
+  %112 = extractelement <2 x float> %109, i32 0, !gla.precision !46
+  %113 = insertelement <4 x float> %111, float %112, i32 0, !gla.precision !46
+  %114 = extractelement <2 x float> %109, i32 1, !gla.precision !46
+  %115 = insertelement <4 x float> %113, float %114, i32 1, !gla.precision !46
+  %116 = extractelement <2 x float> %110, i32 0, !gla.precision !46
+  %117 = insertelement <4 x float> %115, float %116, i32 2, !gla.precision !46
+  %118 = extractelement <2 x float> %110, i32 1, !gla.precision !46
+  %119 = insertelement <4 x float> %117, float %118, i32 3, !gla.precision !46
   %120 = load <4 x float>* %sum
-  %sum45 = fadd <4 x float> %120, %119, !gla.precision !45
+  %sum45 = fadd <4 x float> %120, %119, !gla.precision !46
   store <4 x float> %sum45, <4 x float>* %sum
-  %v2a46 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !45
+  %v2a46 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !46
   store <2 x float> %v2a46, <2 x float>* @v2a_shadow
   %121 = load <2 x float>* @v2a_shadow
-  %b1047 = call <2 x i1> @llvm.gla.fIsNan.v2i1.v2f32(<2 x float> %121), !gla.precision !45
+  %b1047 = call <2 x i1> @llvm.gla.fIsNan.v2i1.v2f32(<2 x float> %121), !gla.precision !46
   store <2 x i1> %b1047, <2 x i1>* %b10
-  %v4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1037, i32 -1, i32 1), !gla.input !26, !gla.precision !45
+  %v4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1037, i32 -1, i32 1), !gla.input !26, !gla.precision !46
   store <4 x float> %v4, <4 x float>* @v4_shadow
   %122 = load <4 x float>* @v4_shadow
-  %b1148 = call <4 x i1> @llvm.gla.fIsInf.v4i1.v4f32(<4 x float> %122), !gla.precision !45
+  %b1148 = call <4 x i1> @llvm.gla.fIsInf.v4i1.v4f32(<4 x float> %122), !gla.precision !46
   store <4 x i1> %b1148, <4 x i1>* %b11
   %123 = load <2 x i1>* %b10
-  %124 = zext <2 x i1> %123 to <2 x i32>, !gla.precision !45
+  %124 = zext <2 x i1> %123 to <2 x i32>, !gla.precision !46
   %125 = load <4 x i1>* %b11
-  %126 = zext <4 x i1> %125 to <4 x i32>, !gla.precision !45
+  %126 = zext <4 x i1> %125 to <4 x i32>, !gla.precision !46
   %127 = load <4 x i32>* %constructed49
-  %128 = extractelement <2 x i32> %124, i32 0, !gla.precision !45
-  %129 = insertelement <4 x i32> %127, i32 %128, i32 0, !gla.precision !45
-  %130 = extractelement <2 x i32> %124, i32 1, !gla.precision !45
-  %131 = insertelement <4 x i32> %129, i32 %130, i32 1, !gla.precision !45
-  %132 = extractelement <4 x i32> %126, i32 0, !gla.precision !45
-  %133 = insertelement <4 x i32> %131, i32 %132, i32 2, !gla.precision !45
-  %134 = extractelement <4 x i32> %126, i32 1, !gla.precision !45
-  %135 = insertelement <4 x i32> %133, i32 %134, i32 3, !gla.precision !45
+  %128 = extractelement <2 x i32> %124, i32 0, !gla.precision !46
+  %129 = insertelement <4 x i32> %127, i32 %128, i32 0, !gla.precision !46
+  %130 = extractelement <2 x i32> %124, i32 1, !gla.precision !46
+  %131 = insertelement <4 x i32> %129, i32 %130, i32 1, !gla.precision !46
+  %132 = extractelement <4 x i32> %126, i32 0, !gla.precision !46
+  %133 = insertelement <4 x i32> %131, i32 %132, i32 2, !gla.precision !46
+  %134 = extractelement <4 x i32> %126, i32 1, !gla.precision !46
+  %135 = insertelement <4 x i32> %133, i32 %134, i32 3, !gla.precision !46
   %136 = load <4 x i32>* %isum
-  %isum50 = add <4 x i32> %136, %135, !gla.precision !45
+  %isum50 = add <4 x i32> %136, %135, !gla.precision !46
   store <4 x i32> %isum50, <4 x i32>* %isum
-  %f51 = call float @llvm.gla.fReadInterpolant.f32(i32 1035, i32 -1, i32 1), !gla.input !22, !gla.precision !45
+  %f51 = call float @llvm.gla.fReadInterpolant.f32(i32 1035, i32 -1, i32 1), !gla.input !22, !gla.precision !46
   store float %f51, float* @f_shadow
   %137 = load float* @f_shadow
-  %i52 = call i32 @llvm.gla.fFloatBitsToInt.i32.f32(float %137), !gla.precision !45
+  %i52 = call i32 @llvm.gla.fFloatBitsToInt.i32.f32(float %137), !gla.precision !46
   store i32 %i52, i32* %i
   %138 = load i32* %i
   %139 = load <4 x i32>* %constructed53
-  %140 = insertelement <4 x i32> undef, i32 %138, i32 0, !gla.precision !45
-  %141 = insertelement <4 x i32> %140, i32 %138, i32 1, !gla.precision !45
-  %142 = insertelement <4 x i32> %141, i32 %138, i32 2, !gla.precision !45
-  %143 = insertelement <4 x i32> %142, i32 %138, i32 3, !gla.precision !45
+  %140 = insertelement <4 x i32> undef, i32 %138, i32 0, !gla.precision !46
+  %141 = insertelement <4 x i32> %140, i32 %138, i32 1, !gla.precision !46
+  %142 = insertelement <4 x i32> %141, i32 %138, i32 2, !gla.precision !46
+  %143 = insertelement <4 x i32> %142, i32 %138, i32 3, !gla.precision !46
   %144 = load <4 x i32>* %isum
-  %isum54 = add <4 x i32> %144, %143, !gla.precision !45
+  %isum54 = add <4 x i32> %144, %143, !gla.precision !46
   store <4 x i32> %isum54, <4 x i32>* %isum
-  %v455 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1037, i32 -1, i32 1), !gla.input !26, !gla.precision !45
+  %v455 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1037, i32 -1, i32 1), !gla.input !26, !gla.precision !46
   store <4 x float> %v455, <4 x float>* @v4_shadow
   %145 = load <4 x float>* @v4_shadow
-  %146 = call <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float> %145), !gla.precision !45
+  %146 = call <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float> %145), !gla.precision !46
   %147 = load <4 x i32>* %usum
-  %usum56 = add <4 x i32> %147, %146, !gla.precision !45
+  %usum56 = add <4 x i32> %147, %146, !gla.precision !46
   store <4 x i32> %usum56, <4 x i32>* %usum
-  %iv4a57 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !45
+  %iv4a57 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !46
   store <4 x i32> %iv4a57, <4 x i32>* @iv4a_shadow
   %148 = load <4 x i32>* @iv4a_shadow
-  %149 = call <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32> %148), !gla.precision !45
+  %149 = call <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32> %148), !gla.precision !46
   %150 = load <4 x float>* %sum
-  %sum58 = fadd <4 x float> %150, %149, !gla.precision !45
+  %sum58 = fadd <4 x float> %150, %149, !gla.precision !46
   store <4 x float> %sum58, <4 x float>* %sum
-  %uv2c59 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1034, i32 -1), !gla.input !20, !gla.precision !45
+  %uv2c59 = call <2 x i32> @llvm.gla.readData.v2i32(i32 1034, i32 -1), !gla.input !20, !gla.precision !46
   store <2 x i32> %uv2c59, <2 x i32>* @uv2c_shadow
   %151 = load <2 x i32>* @uv2c_shadow
-  %v1560 = call <2 x float> @llvm.gla.fIntBitsTofloat.v2f32.v2i32(<2 x i32> %151), !gla.precision !45
+  %v1560 = call <2 x float> @llvm.gla.fIntBitsTofloat.v2f32.v2i32(<2 x i32> %151), !gla.precision !46
   store <2 x float> %v1560, <2 x float>* %v15
   %152 = load <2 x float>* %v15
   %153 = load <4 x float>* %constructed61
-  %154 = extractelement <2 x float> %152, i32 0, !gla.precision !45
-  %155 = insertelement <4 x float> %153, float %154, i32 0, !gla.precision !45
-  %156 = extractelement <2 x float> %152, i32 1, !gla.precision !45
-  %157 = insertelement <4 x float> %155, float %156, i32 1, !gla.precision !45
-  %158 = insertelement <4 x float> %157, float 0.000000e+00, i32 2, !gla.precision !45
-  %159 = insertelement <4 x float> %158, float 0.000000e+00, i32 3, !gla.precision !45
+  %154 = extractelement <2 x float> %152, i32 0, !gla.precision !46
+  %155 = insertelement <4 x float> %153, float %154, i32 0, !gla.precision !46
+  %156 = extractelement <2 x float> %152, i32 1, !gla.precision !46
+  %157 = insertelement <4 x float> %155, float %156, i32 1, !gla.precision !46
+  %158 = insertelement <4 x float> %157, float 0.000000e+00, i32 2, !gla.precision !46
+  %159 = insertelement <4 x float> %158, float 0.000000e+00, i32 3, !gla.precision !46
   %160 = load <4 x float>* %sum
-  %sum62 = fadd <4 x float> %160, %159, !gla.precision !45
+  %sum62 = fadd <4 x float> %160, %159, !gla.precision !46
   store <4 x float> %sum62, <4 x float>* %sum
-  %v2a63 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !45
+  %v2a63 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !46
   store <2 x float> %v2a63, <2 x float>* @v2a_shadow
   %161 = load <2 x float>* @v2a_shadow
-  %u1964 = call i32 @llvm.gla.fPackSnorm2x16.i32.v2f32(<2 x float> %161), !gla.precision !46
+  %u1964 = call i32 @llvm.gla.fPackSnorm2x16.i32.v2f32(<2 x float> %161), !gla.precision !47
   store i32 %u1964, i32* %u19
-  %uy65 = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !45
+  %uy65 = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !46
   store i32 %uy65, i32* @uy_shadow
   %162 = load i32* @uy_shadow
-  %v2066 = call <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32 %162), !gla.precision !46
+  %v2066 = call <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32 %162), !gla.precision !47
   store <2 x float> %v2066, <2 x float>* %v20
-  %v2a67 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !45
+  %v2a67 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !46
   store <2 x float> %v2a67, <2 x float>* @v2a_shadow
   %163 = load <2 x float>* @v2a_shadow
-  %u1568 = call i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float> %163), !gla.precision !46
+  %u1568 = call i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float> %163), !gla.precision !47
   store i32 %u1568, i32* %u15
-  %uy69 = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !45
+  %uy69 = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !46
   store i32 %uy69, i32* @uy_shadow
   %164 = load i32* @uy_shadow
-  %v1670 = call <2 x float> @llvm.gla.fUnpackUnorm2x16.v2f32.i32(i32 %164), !gla.precision !46
+  %v1670 = call <2 x float> @llvm.gla.fUnpackUnorm2x16.v2f32.i32(i32 %164), !gla.precision !47
   store <2 x float> %v1670, <2 x float>* %v16
-  %v2b = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1038, i32 -1, i32 1), !gla.input !28, !gla.precision !45
+  %v2b = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1038, i32 -1, i32 1), !gla.input !28, !gla.precision !46
   store <2 x float> %v2b, <2 x float>* @v2b_shadow
   %165 = load <2 x float>* @v2b_shadow
-  %u1771 = call i32 @llvm.gla.fPackHalf2x16.i32.v2f32(<2 x float> %165), !gla.precision !46
+  %u1771 = call i32 @llvm.gla.fPackHalf2x16.i32.v2f32(<2 x float> %165), !gla.precision !47
   store i32 %u1771, i32* %u17
-  %uy72 = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !45
+  %uy72 = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !46
   store i32 %uy72, i32* @uy_shadow
   %166 = load i32* @uy_shadow
-  %v1873 = call <2 x float> @llvm.gla.fUnpackHalf2x16.v2f32.i32(i32 %166), !gla.precision !45
+  %v1873 = call <2 x float> @llvm.gla.fUnpackHalf2x16.v2f32.i32(i32 %166), !gla.precision !46
   store <2 x float> %v1873, <2 x float>* %v18
   %167 = load i32* %u19
   %168 = load i32* %u15
   %169 = load i32* %u17
   %170 = load <4 x i32>* %constructed74
-  %171 = insertelement <4 x i32> %170, i32 %167, i32 0, !gla.precision !45
-  %172 = insertelement <4 x i32> %171, i32 %168, i32 1, !gla.precision !45
-  %173 = insertelement <4 x i32> %172, i32 %169, i32 2, !gla.precision !45
-  %174 = insertelement <4 x i32> %173, i32 0, i32 3, !gla.precision !45
+  %171 = insertelement <4 x i32> %170, i32 %167, i32 0, !gla.precision !46
+  %172 = insertelement <4 x i32> %171, i32 %168, i32 1, !gla.precision !46
+  %173 = insertelement <4 x i32> %172, i32 %169, i32 2, !gla.precision !46
+  %174 = insertelement <4 x i32> %173, i32 0, i32 3, !gla.precision !46
   %175 = load <4 x i32>* %usum
-  %usum75 = add <4 x i32> %175, %174, !gla.precision !45
+  %usum75 = add <4 x i32> %175, %174, !gla.precision !46
   store <4 x i32> %usum75, <4 x i32>* %usum
   %176 = load <2 x float>* %v20
   %177 = load <2 x float>* %v16
   %178 = load <4 x float>* %constructed76
-  %179 = extractelement <2 x float> %176, i32 0, !gla.precision !45
-  %180 = insertelement <4 x float> %178, float %179, i32 0, !gla.precision !45
-  %181 = extractelement <2 x float> %176, i32 1, !gla.precision !45
-  %182 = insertelement <4 x float> %180, float %181, i32 1, !gla.precision !45
-  %183 = extractelement <2 x float> %177, i32 0, !gla.precision !45
-  %184 = insertelement <4 x float> %182, float %183, i32 2, !gla.precision !45
-  %185 = extractelement <2 x float> %177, i32 1, !gla.precision !45
-  %186 = insertelement <4 x float> %184, float %185, i32 3, !gla.precision !45
+  %179 = extractelement <2 x float> %176, i32 0, !gla.precision !46
+  %180 = insertelement <4 x float> %178, float %179, i32 0, !gla.precision !46
+  %181 = extractelement <2 x float> %176, i32 1, !gla.precision !46
+  %182 = insertelement <4 x float> %180, float %181, i32 1, !gla.precision !46
+  %183 = extractelement <2 x float> %177, i32 0, !gla.precision !46
+  %184 = insertelement <4 x float> %182, float %183, i32 2, !gla.precision !46
+  %185 = extractelement <2 x float> %177, i32 1, !gla.precision !46
+  %186 = insertelement <4 x float> %184, float %185, i32 3, !gla.precision !46
   %187 = load <4 x float>* %sum
-  %sum77 = fadd <4 x float> %187, %186, !gla.precision !45
+  %sum77 = fadd <4 x float> %187, %186, !gla.precision !46
   store <4 x float> %sum77, <4 x float>* %sum
   %188 = load <2 x float>* %v18
   %189 = load <4 x float>* %constructed78
-  %190 = extractelement <2 x float> %188, i32 0, !gla.precision !45
-  %191 = insertelement <4 x float> %189, float %190, i32 0, !gla.precision !45
-  %192 = extractelement <2 x float> %188, i32 1, !gla.precision !45
-  %193 = insertelement <4 x float> %191, float %192, i32 1, !gla.precision !45
-  %194 = insertelement <4 x float> %193, float 0.000000e+00, i32 2, !gla.precision !45
-  %195 = insertelement <4 x float> %194, float 0.000000e+00, i32 3, !gla.precision !45
+  %190 = extractelement <2 x float> %188, i32 0, !gla.precision !46
+  %191 = insertelement <4 x float> %189, float %190, i32 0, !gla.precision !46
+  %192 = extractelement <2 x float> %188, i32 1, !gla.precision !46
+  %193 = insertelement <4 x float> %191, float %192, i32 1, !gla.precision !46
+  %194 = insertelement <4 x float> %193, float 0.000000e+00, i32 2, !gla.precision !46
+  %195 = insertelement <4 x float> %194, float 0.000000e+00, i32 3, !gla.precision !46
   %196 = load <4 x float>* %sum
-  %sum79 = fadd <4 x float> %196, %195, !gla.precision !45
+  %sum79 = fadd <4 x float> %196, %195, !gla.precision !46
   store <4 x float> %sum79, <4 x float>* %sum
   %197 = load <4 x float>* %sum
   %198 = load <4 x i32>* %isum
-  %199 = sitofp <4 x i32> %198 to <4 x float>, !gla.precision !45
-  %200 = fadd <4 x float> %197, %199, !gla.precision !45
+  %199 = sitofp <4 x i32> %198 to <4 x float>, !gla.precision !46
+  %200 = fadd <4 x float> %197, %199, !gla.precision !46
   %201 = load <4 x i32>* %usum
-  %202 = uitofp <4 x i32> %201 to <4 x float>, !gla.precision !45
-  %result_shadow = fadd <4 x float> %200, %202, !gla.precision !45
+  %202 = uitofp <4 x i32> %201 to <4 x float>, !gla.precision !46
+  %result_shadow = fadd <4 x float> %200, %202, !gla.precision !46
   store <4 x float> %result_shadow, <4 x float>* @result_shadow
-  %gl_FragCoord = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1040, i32 -1), !gla.input !30, !gla.precision !46
+  %gl_FragCoord = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1040, i32 -1), !gla.input !30, !gla.precision !47
   store <4 x float> %gl_FragCoord, <4 x float>* @FragCoord_shadow
   %203 = load <4 x float>* @FragCoord_shadow
-  %gl_PointCoord = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1041, i32 -1), !gla.input !32, !gla.precision !45
+  %gl_PointCoord = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1041, i32 -1), !gla.input !32, !gla.precision !46
   store <2 x float> %gl_PointCoord, <2 x float>* @PointCoord_shadow
   %204 = load <2 x float>* @PointCoord_shadow
-  %gl_PointCoord80 = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1041, i32 -1), !gla.input !32, !gla.precision !45
+  %gl_PointCoord80 = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1041, i32 -1), !gla.input !32, !gla.precision !46
   store <2 x float> %gl_PointCoord80, <2 x float>* @PointCoord_shadow
   %205 = load <2 x float>* @PointCoord_shadow
-  %206 = fmul <2 x float> <float 2.000000e+00, float 2.000000e+00>, %205, !gla.precision !45
+  %206 = fmul <2 x float> <float 2.000000e+00, float 2.000000e+00>, %205, !gla.precision !46
   %207 = load <4 x float>* %constructed81
-  %208 = extractelement <2 x float> %204, i32 0, !gla.precision !46
-  %209 = insertelement <4 x float> %207, float %208, i32 0, !gla.precision !46
-  %210 = extractelement <2 x float> %204, i32 1, !gla.precision !46
-  %211 = insertelement <4 x float> %209, float %210, i32 1, !gla.precision !46
-  %212 = extractelement <2 x float> %206, i32 0, !gla.precision !46
-  %213 = insertelement <4 x float> %211, float %212, i32 2, !gla.precision !46
-  %214 = extractelement <2 x float> %206, i32 1, !gla.precision !46
-  %215 = insertelement <4 x float> %213, float %214, i32 3, !gla.precision !46
-  %216 = fadd <4 x float> %203, %215, !gla.precision !46
+  %208 = extractelement <2 x float> %204, i32 0, !gla.precision !47
+  %209 = insertelement <4 x float> %207, float %208, i32 0, !gla.precision !47
+  %210 = extractelement <2 x float> %204, i32 1, !gla.precision !47
+  %211 = insertelement <4 x float> %209, float %210, i32 1, !gla.precision !47
+  %212 = extractelement <2 x float> %206, i32 0, !gla.precision !47
+  %213 = insertelement <4 x float> %211, float %212, i32 2, !gla.precision !47
+  %214 = extractelement <2 x float> %206, i32 1, !gla.precision !47
+  %215 = insertelement <4 x float> %213, float %214, i32 3, !gla.precision !47
+  %216 = fadd <4 x float> %203, %215, !gla.precision !47
   %217 = load <4 x float>* @result_shadow
-  %result_shadow82 = fadd <4 x float> %217, %216, !gla.precision !46
+  %result_shadow82 = fadd <4 x float> %217, %216, !gla.precision !47
   store <4 x float> %result_shadow82, <4 x float>* @result_shadow
-  %f83 = call float @llvm.gla.fReadInterpolant.f32(i32 1035, i32 -1, i32 1), !gla.input !22, !gla.precision !45
+  %f83 = call float @llvm.gla.fReadInterpolant.f32(i32 1035, i32 -1, i32 1), !gla.input !22, !gla.precision !46
   store float %f83, float* @f_shadow
   %FragDepth_shadow = load float* @f_shadow
   store float %FragDepth_shadow, float* @FragDepth_shadow
   %218 = load float* @FragDepth_shadow
-  %FragDepth_shadow84 = fadd float %218, 0x3FB99999A0000000, !gla.precision !46
+  %FragDepth_shadow84 = fadd float %218, 0x3FB99999A0000000, !gla.precision !47
   store float %FragDepth_shadow84, float* @FragDepth_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
   %219 = load <4 x float>* @result_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1039, i32 -1, <4 x float> %219), !gla.output !41
+  call void @llvm.gla.fWriteData.v4f32(i32 1039, i32 -1, <4 x float> %219), !gla.output !42
   %220 = load float* @FragDepth_shadow
-  call void @llvm.gla.fWriteData.f32(i32 1042, i32 -1, float %220), !gla.output !43
+  call void @llvm.gla.fWriteData.f32(i32 1042, i32 -1, float %220), !gla.output !44
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -563,56 +563,57 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
 !gla.inputs = !{!0, !2, !4, !6, !8, !10, !12, !14, !16, !18, !20, !22, !24, !26, !28, !30, !32}
-!gla.uniforms = !{!34, !36, !37, !38, !40}
-!gla.outputs = !{!41, !43}
+!gla.uniforms = !{!34, !36, !38, !39, !41}
+!gla.outputs = !{!42, !44}
 
 !0 = metadata !{metadata !"x", i32 1, <3 x float>* @x_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 2, i32 1024, null}
+!1 = metadata !{i32 0, i32 2, i32 1024, null, i32 1}
 !2 = metadata !{metadata !"y", i32 1, <3 x float>* @y_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 1025, null}
+!3 = metadata !{i32 0, i32 2, i32 1025, null, i32 1}
 !4 = metadata !{metadata !"iv4a", i32 1, <4 x i32>* @iv4a_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1026, null}
+!5 = metadata !{i32 0, i32 2, i32 1026, null, i32 0}
 !6 = metadata !{metadata !"iv4b", i32 1, <4 x i32>* @iv4b_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 2, i32 1027, null}
+!7 = metadata !{i32 0, i32 2, i32 1027, null, i32 0}
 !8 = metadata !{metadata !"uv2x", i32 1, <2 x i32>* @uv2x_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 1, i32 2, i32 1028, null}
+!9 = metadata !{i32 1, i32 2, i32 1028, null, i32 0}
 !10 = metadata !{metadata !"uv2y", i32 1, <2 x i32>* @uv2y_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 1, i32 2, i32 1029, null}
+!11 = metadata !{i32 1, i32 2, i32 1029, null, i32 0}
 !12 = metadata !{metadata !"uv4y", i32 1, <4 x i32>* @uv4y_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 1, i32 2, i32 1030, null}
+!13 = metadata !{i32 1, i32 2, i32 1030, null, i32 0}
 !14 = metadata !{metadata !"uy", i32 1, i32* @uy_shadow_typeProxy, metadata !15}
-!15 = metadata !{i32 1, i32 2, i32 1031, null}
+!15 = metadata !{i32 1, i32 2, i32 1031, null, i32 0}
 !16 = metadata !{metadata !"iv3a", i32 1, <3 x i32>* @iv3a_shadow_typeProxy, metadata !17}
-!17 = metadata !{i32 0, i32 2, i32 1032, null}
+!17 = metadata !{i32 0, i32 2, i32 1032, null, i32 0}
 !18 = metadata !{metadata !"iv3b", i32 1, <3 x i32>* @iv3b_shadow_typeProxy, metadata !19}
-!19 = metadata !{i32 0, i32 2, i32 1033, null}
+!19 = metadata !{i32 0, i32 2, i32 1033, null, i32 0}
 !20 = metadata !{metadata !"uv2c", i32 1, <2 x i32>* @uv2c_shadow_typeProxy, metadata !21}
-!21 = metadata !{i32 1, i32 2, i32 1034, null}
+!21 = metadata !{i32 1, i32 2, i32 1034, null, i32 0}
 !22 = metadata !{metadata !"f", i32 1, float* @f_shadow_typeProxy, metadata !23}
-!23 = metadata !{i32 0, i32 2, i32 1035, null}
+!23 = metadata !{i32 0, i32 2, i32 1035, null, i32 1}
 !24 = metadata !{metadata !"v2a", i32 1, <2 x float>* @v2a_shadow_typeProxy, metadata !25}
-!25 = metadata !{i32 0, i32 2, i32 1036, null}
+!25 = metadata !{i32 0, i32 2, i32 1036, null, i32 1}
 !26 = metadata !{metadata !"v4", i32 1, <4 x float>* @v4_shadow_typeProxy, metadata !27}
-!27 = metadata !{i32 0, i32 2, i32 1037, null}
+!27 = metadata !{i32 0, i32 2, i32 1037, null, i32 1}
 !28 = metadata !{metadata !"v2b", i32 1, <2 x float>* @v2b_shadow_typeProxy, metadata !29}
-!29 = metadata !{i32 0, i32 2, i32 1038, null}
+!29 = metadata !{i32 0, i32 2, i32 1038, null, i32 1}
 !30 = metadata !{metadata !"gl_FragCoord", i32 5, <4 x float>* @FragCoord_shadow_typeProxy, metadata !31}
-!31 = metadata !{i32 0, i32 3, i32 1040, null}
+!31 = metadata !{i32 0, i32 3, i32 1040, null, i32 0}
 !32 = metadata !{metadata !"gl_PointCoord", i32 6, <2 x float>* @PointCoord_shadow_typeProxy, metadata !33}
-!33 = metadata !{i32 0, i32 2, i32 1041, null}
+!33 = metadata !{i32 0, i32 2, i32 1041, null, i32 0}
 !34 = metadata !{metadata !"bv", i32 12, <3 x i1>* @bv_typeProxy, metadata !35}
 !35 = metadata !{i32 0, i32 0, i32 1024, null}
-!36 = metadata !{metadata !"imin", i32 12, i32* @imin_typeProxy, metadata !1}
-!37 = metadata !{metadata !"imax", i32 12, i32* @imax_typeProxy, metadata !1}
-!38 = metadata !{metadata !"umin", i32 12, i32* @umin_typeProxy, metadata !39}
-!39 = metadata !{i32 1, i32 2, i32 1024, null}
-!40 = metadata !{metadata !"umax", i32 12, i32* @umax_typeProxy, metadata !39}
-!41 = metadata !{metadata !"result", i32 7, <4 x float>* @result_shadow_typeProxy, metadata !42}
-!42 = metadata !{i32 0, i32 2, i32 1039, null}
-!43 = metadata !{metadata !"gl_FragDepth", i32 11, float* @FragDepth_shadow_typeProxy, metadata !44}
-!44 = metadata !{i32 0, i32 3, i32 1042, null}
-!45 = metadata !{i32 2}
-!46 = metadata !{i32 3}
+!36 = metadata !{metadata !"imin", i32 12, i32* @imin_typeProxy, metadata !37}
+!37 = metadata !{i32 0, i32 2, i32 1024, null}
+!38 = metadata !{metadata !"imax", i32 12, i32* @imax_typeProxy, metadata !37}
+!39 = metadata !{metadata !"umin", i32 12, i32* @umin_typeProxy, metadata !40}
+!40 = metadata !{i32 1, i32 2, i32 1024, null}
+!41 = metadata !{metadata !"umax", i32 12, i32* @umax_typeProxy, metadata !40}
+!42 = metadata !{metadata !"result", i32 7, <4 x float>* @result_shadow_typeProxy, metadata !43}
+!43 = metadata !{i32 0, i32 2, i32 1039, null, i32 0}
+!44 = metadata !{metadata !"gl_FragDepth", i32 11, float* @FragDepth_shadow_typeProxy, metadata !45}
+!45 = metadata !{i32 0, i32 3, i32 1042, null, i32 0}
+!46 = metadata !{i32 2}
+!47 = metadata !{i32 3}
 
 
 Bottom IR:
@@ -626,105 +627,105 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %x = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !gla.input !0, !gla.precision !45
-  %y = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !gla.input !2, !gla.precision !45
+  %x = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !gla.input !0, !gla.precision !46
+  %y = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !gla.input !2, !gla.precision !46
   %0 = load <3 x i1> addrspace(2)* @bv, align 4, !gla.uniform !34
-  %1 = call <3 x float> @llvm.gla.fbMix.v3f32.v3f32.v3f32.v3i1(<3 x float> %x, <3 x float> %y, <3 x i1> %0), !gla.precision !45
-  %uv2x = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !gla.input !8, !gla.precision !45
-  %uv2y = call <2 x i32> @llvm.gla.readData.v2i32(i32 1029, i32 -1), !gla.input !10, !gla.precision !45
-  %u9 = call <2 x i32> @llvm.gla.uMin.v2i32.v2i32.v2i32(<2 x i32> %uv2x, <2 x i32> %uv2y), !gla.precision !45
-  %iv3a = call <3 x i32> @llvm.gla.readData.v3i32(i32 1032, i32 -1), !gla.input !16, !gla.precision !45
-  %iv3b = call <3 x i32> @llvm.gla.readData.v3i32(i32 1033, i32 -1), !gla.input !18, !gla.precision !45
-  %i1713 = call <3 x i32> @llvm.gla.sMax.v3i32.v3i32.v3i32(<3 x i32> %iv3a, <3 x i32> %iv3b), !gla.precision !45
-  %u1020 = call <2 x i32> @llvm.gla.uMax.v2i32.v2i32.v2i32(<2 x i32> %uv2x, <2 x i32> %uv2y), !gla.precision !45
-  %uy22 = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !45
-  %u1123 = call <2 x i32> @llvm.gla.uMax.v2i32.v2i32.i32(<2 x i32> %uv2x, i32 %uy22), !gla.precision !45
-  %uv2c = call <2 x i32> @llvm.gla.readData.v2i32(i32 1034, i32 -1), !gla.input !20, !gla.precision !45
-  %u1234 = call <2 x i32> @llvm.gla.uClamp.v2i32.v2i32.v2i32.v2i32(<2 x i32> %uv2x, <2 x i32> %uv2y, <2 x i32> %uv2c), !gla.precision !45
-  %f = call float @llvm.gla.fReadInterpolant.f32(i32 1035, i32 -1, i32 1), !gla.input !22, !gla.precision !45
-  %2 = call float @llvm.gla.fRoundZero.f32.f32(float %f), !gla.precision !45
+  %1 = call <3 x float> @llvm.gla.fbMix.v3f32.v3f32.v3f32.v3i1(<3 x float> %x, <3 x float> %y, <3 x i1> %0), !gla.precision !46
+  %uv2x = call <2 x i32> @llvm.gla.readData.v2i32(i32 1028, i32 -1), !gla.input !8, !gla.precision !46
+  %uv2y = call <2 x i32> @llvm.gla.readData.v2i32(i32 1029, i32 -1), !gla.input !10, !gla.precision !46
+  %u9 = call <2 x i32> @llvm.gla.uMin.v2i32.v2i32.v2i32(<2 x i32> %uv2x, <2 x i32> %uv2y), !gla.precision !46
+  %iv3a = call <3 x i32> @llvm.gla.readData.v3i32(i32 1032, i32 -1), !gla.input !16, !gla.precision !46
+  %iv3b = call <3 x i32> @llvm.gla.readData.v3i32(i32 1033, i32 -1), !gla.input !18, !gla.precision !46
+  %i1713 = call <3 x i32> @llvm.gla.sMax.v3i32.v3i32.v3i32(<3 x i32> %iv3a, <3 x i32> %iv3b), !gla.precision !46
+  %u1020 = call <2 x i32> @llvm.gla.uMax.v2i32.v2i32.v2i32(<2 x i32> %uv2x, <2 x i32> %uv2y), !gla.precision !46
+  %uy22 = call i32 @llvm.gla.readData.i32(i32 1031, i32 -1), !gla.input !14, !gla.precision !46
+  %u1123 = call <2 x i32> @llvm.gla.uMax.v2i32.v2i32.i32(<2 x i32> %uv2x, i32 %uy22), !gla.precision !46
+  %uv2c = call <2 x i32> @llvm.gla.readData.v2i32(i32 1034, i32 -1), !gla.input !20, !gla.precision !46
+  %u1234 = call <2 x i32> @llvm.gla.uClamp.v2i32.v2i32.v2i32.v2i32(<2 x i32> %uv2x, <2 x i32> %uv2y, <2 x i32> %uv2c), !gla.precision !46
+  %f = call float @llvm.gla.fReadInterpolant.f32(i32 1035, i32 -1, i32 1), !gla.input !22, !gla.precision !46
+  %2 = call float @llvm.gla.fRoundZero.f32.f32(float %f), !gla.precision !46
   %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %2, <4 x i32> zeroinitializer)
-  %v2a = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !45
-  %v1241 = call <2 x float> @llvm.gla.fRoundFast.v2f32.v2f32(<2 x float> %v2a), !gla.precision !45
-  %v1343 = call <2 x float> @llvm.gla.fRoundEven.v2f32.v2f32(<2 x float> %v2a), !gla.precision !45
-  %b1047 = call <2 x i1> @llvm.gla.fIsNan.v2i1.v2f32(<2 x float> %v2a), !gla.precision !45
-  %4 = zext <2 x i1> %b1047 to <2 x i32>, !gla.precision !45
-  %i52 = call i32 @llvm.gla.fFloatBitsToInt.i32.f32(float %f), !gla.precision !45
+  %v2a = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1036, i32 -1, i32 1), !gla.input !24, !gla.precision !46
+  %v1241 = call <2 x float> @llvm.gla.fRoundFast.v2f32.v2f32(<2 x float> %v2a), !gla.precision !46
+  %v1343 = call <2 x float> @llvm.gla.fRoundEven.v2f32.v2f32(<2 x float> %v2a), !gla.precision !46
+  %b1047 = call <2 x i1> @llvm.gla.fIsNan.v2i1.v2f32(<2 x float> %v2a), !gla.precision !46
+  %4 = zext <2 x i1> %b1047 to <2 x i32>, !gla.precision !46
+  %i52 = call i32 @llvm.gla.fFloatBitsToInt.i32.f32(float %f), !gla.precision !46
   %5 = call <4 x i32> @llvm.gla.swizzle.v4i32.i32.v4i32(i32 %i52, <4 x i32> zeroinitializer)
-  %v1560 = call <2 x float> @llvm.gla.fIntBitsTofloat.v2f32.v2i32(<2 x i32> %uv2c), !gla.precision !45
-  %v2066 = call <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32 %uy22), !gla.precision !46
-  %v1670 = call <2 x float> @llvm.gla.fUnpackUnorm2x16.v2f32.i32(i32 %uy22), !gla.precision !46
-  %v1873 = call <2 x float> @llvm.gla.fUnpackHalf2x16.v2f32.i32(i32 %uy22), !gla.precision !45
-  %gl_PointCoord = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1041, i32 -1), !gla.input !32, !gla.precision !45
-  %6 = fmul <2 x float> %gl_PointCoord, <float 2.000000e+00, float 2.000000e+00>, !gla.precision !45
-  %iv4a3 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !45
-  %iv4b = call <4 x i32> @llvm.gla.readData.v4i32(i32 1027, i32 -1), !gla.input !6, !gla.precision !45
-  %7 = call <4 x i32> @llvm.gla.sign.v4i32.v4i32(<4 x i32> %iv4a3), !gla.precision !45
-  %isum2 = call <4 x i32> @llvm.gla.abs.v4i32.v4i32(<4 x i32> %iv4a3), !gla.precision !45
+  %v1560 = call <2 x float> @llvm.gla.fIntBitsTofloat.v2f32.v2i32(<2 x i32> %uv2c), !gla.precision !46
+  %v2066 = call <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32 %uy22), !gla.precision !47
+  %v1670 = call <2 x float> @llvm.gla.fUnpackUnorm2x16.v2f32.i32(i32 %uy22), !gla.precision !47
+  %v1873 = call <2 x float> @llvm.gla.fUnpackHalf2x16.v2f32.i32(i32 %uy22), !gla.precision !46
+  %gl_PointCoord = call <2 x float> @llvm.gla.fReadData.v2f32(i32 1041, i32 -1), !gla.input !32, !gla.precision !46
+  %6 = fmul <2 x float> %gl_PointCoord, <float 2.000000e+00, float 2.000000e+00>, !gla.precision !46
+  %iv4a3 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !4, !gla.precision !46
+  %iv4b = call <4 x i32> @llvm.gla.readData.v4i32(i32 1027, i32 -1), !gla.input !6, !gla.precision !46
+  %7 = call <4 x i32> @llvm.gla.sign.v4i32.v4i32(<4 x i32> %iv4a3), !gla.precision !46
+  %isum2 = call <4 x i32> @llvm.gla.abs.v4i32.v4i32(<4 x i32> %iv4a3), !gla.precision !46
   %8 = load i32 addrspace(2)* @imin, align 4, !gla.uniform !36
-  %9 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.v4i32(<4 x i32> %iv4a3, <4 x i32> %iv4b), !gla.precision !45
-  %isum4 = add <4 x i32> %isum2, %7, !gla.precision !45
-  %10 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.i32(<4 x i32> %iv4a3, i32 %8), !gla.precision !45
-  %isum6 = add <4 x i32> %isum4, %9, !gla.precision !45
-  %11 = load i32 addrspace(2)* @imax, align 4, !gla.uniform !37
+  %9 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.v4i32(<4 x i32> %iv4a3, <4 x i32> %iv4b), !gla.precision !46
+  %isum4 = add <4 x i32> %isum2, %7, !gla.precision !46
+  %10 = call <4 x i32> @llvm.gla.sMin.v4i32.v4i32.i32(<4 x i32> %iv4a3, i32 %8), !gla.precision !46
+  %isum6 = add <4 x i32> %isum4, %9, !gla.precision !46
+  %11 = load i32 addrspace(2)* @imax, align 4, !gla.uniform !38
   %12 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v3i32.v3i32.v3i32.i32(<4 x i32> undef, i32 15, <3 x i32> %i1713, i32 0, <3 x i32> %i1713, i32 1, <3 x i32> %i1713, i32 2, i32 0, i32 0)
-  %uv4y = call <4 x i32> @llvm.gla.readData.v4i32(i32 1030, i32 -1), !gla.input !12, !gla.precision !45
-  %isum8 = add <4 x i32> %isum6, %10, !gla.precision !45
-  %v4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1037, i32 -1, i32 1), !gla.input !26, !gla.precision !45
-  %13 = call <4 x i32> @llvm.gla.sMax.v4i32.v4i32.i32(<4 x i32> %iv4a3, i32 %11), !gla.precision !45
-  %isum15 = add <4 x i32> %isum8, %12, !gla.precision !45
-  %14 = call <4 x i32> @llvm.gla.uMin.v4i32.v4i32.i32(<4 x i32> %uv4y, i32 %uy22), !gla.precision !45
+  %uv4y = call <4 x i32> @llvm.gla.readData.v4i32(i32 1030, i32 -1), !gla.input !12, !gla.precision !46
+  %isum8 = add <4 x i32> %isum6, %10, !gla.precision !46
+  %v4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1037, i32 -1, i32 1), !gla.input !26, !gla.precision !46
+  %13 = call <4 x i32> @llvm.gla.sMax.v4i32.v4i32.i32(<4 x i32> %iv4a3, i32 %11), !gla.precision !46
+  %isum15 = add <4 x i32> %isum8, %12, !gla.precision !46
+  %14 = call <4 x i32> @llvm.gla.uMin.v4i32.v4i32.i32(<4 x i32> %uv4y, i32 %uy22), !gla.precision !46
   %15 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.i32.i32(<4 x i32> undef, i32 15, <2 x i32> %u9, i32 0, <2 x i32> %u9, i32 1, i32 0, i32 0, i32 0, i32 0)
   %16 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> undef, i32 15, <3 x float> %1, i32 0, <3 x float> %1, i32 1, <3 x float> %1, i32 2, float 0.000000e+00, i32 0)
-  %u1964 = call i32 @llvm.gla.fPackSnorm2x16.i32.v2f32(<2 x float> %v2a), !gla.precision !46
-  %b1148 = call <4 x i1> @llvm.gla.fIsInf.v4i1.v4f32(<4 x float> %v4), !gla.precision !45
+  %u1964 = call i32 @llvm.gla.fPackSnorm2x16.i32.v2f32(<2 x float> %v2a), !gla.precision !47
+  %b1148 = call <4 x i1> @llvm.gla.fIsInf.v4i1.v4f32(<4 x float> %v4), !gla.precision !46
   %17 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.v2f32.v2f32(<4 x float> undef, i32 15, <2 x float> %v1241, i32 0, <2 x float> %v1241, i32 1, <2 x float> %v1343, i32 0, <2 x float> %v1343, i32 1)
-  %sum40 = fadd <4 x float> %16, %3, !gla.precision !45
-  %18 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.v4i32.v4i32(<4 x i32> %iv4a3, <4 x i32> %iv4a3, <4 x i32> %iv4b), !gla.precision !45
+  %sum40 = fadd <4 x float> %16, %3, !gla.precision !46
+  %18 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.v4i32.v4i32(<4 x i32> %iv4a3, <4 x i32> %iv4a3, <4 x i32> %iv4b), !gla.precision !46
   %19 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.v2i32.v2i32(<4 x i32> undef, i32 15, <2 x i32> %u1020, i32 0, <2 x i32> %u1020, i32 1, <2 x i32> %u1123, i32 0, <2 x i32> %u1123, i32 1)
-  %isum17 = add <4 x i32> %isum15, %13, !gla.precision !45
-  %usum12 = add <4 x i32> %15, %14, !gla.precision !45
-  %v2b = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1038, i32 -1, i32 1), !gla.input !28, !gla.precision !45
-  %u1568 = call i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float> %v2a), !gla.precision !46
-  %20 = call <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32> %iv4a3), !gla.precision !45
-  %21 = zext <4 x i1> %b1148 to <4 x i32>, !gla.precision !45
-  %sum45 = fadd <4 x float> %sum40, %17, !gla.precision !45
-  %22 = load i32 addrspace(2)* @umax, align 4, !gla.uniform !40
-  %23 = load i32 addrspace(2)* @umin, align 4, !gla.uniform !38
+  %isum17 = add <4 x i32> %isum15, %13, !gla.precision !46
+  %usum12 = add <4 x i32> %15, %14, !gla.precision !46
+  %v2b = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1038, i32 -1, i32 1), !gla.input !28, !gla.precision !46
+  %u1568 = call i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float> %v2a), !gla.precision !47
+  %20 = call <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32> %iv4a3), !gla.precision !46
+  %21 = zext <4 x i1> %b1148 to <4 x i32>, !gla.precision !46
+  %sum45 = fadd <4 x float> %sum40, %17, !gla.precision !46
+  %22 = load i32 addrspace(2)* @umax, align 4, !gla.uniform !41
+  %23 = load i32 addrspace(2)* @umin, align 4, !gla.uniform !39
   %24 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.i32.i32(<4 x i32> undef, i32 15, <2 x i32> %u1234, i32 0, <2 x i32> %u1234, i32 1, i32 0, i32 0, i32 0, i32 0)
-  %25 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.i32.i32(<4 x i32> %iv4a3, i32 %8, i32 %11), !gla.precision !45
-  %isum29 = add <4 x i32> %isum17, %18, !gla.precision !45
-  %usum25 = add <4 x i32> %usum12, %19, !gla.precision !45
-  %u1771 = call i32 @llvm.gla.fPackHalf2x16.i32.v2f32(<2 x float> %v2b), !gla.precision !46
+  %25 = call <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.i32.i32(<4 x i32> %iv4a3, i32 %8, i32 %11), !gla.precision !46
+  %isum29 = add <4 x i32> %isum17, %18, !gla.precision !46
+  %usum25 = add <4 x i32> %usum12, %19, !gla.precision !46
+  %u1771 = call i32 @llvm.gla.fPackHalf2x16.i32.v2f32(<2 x float> %v2b), !gla.precision !47
   %26 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float> undef, i32 15, <2 x float> %v1560, i32 0, <2 x float> %v1560, i32 1, float 0.000000e+00, i32 0, float 0.000000e+00, i32 0)
-  %sum58 = fadd <4 x float> %sum45, %20, !gla.precision !45
+  %sum58 = fadd <4 x float> %sum45, %20, !gla.precision !46
   %27 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.v4i32.v4i32(<4 x i32> undef, i32 15, <2 x i32> %4, i32 0, <2 x i32> %4, i32 1, <4 x i32> %21, i32 0, <4 x i32> %21, i32 1)
-  %28 = call <4 x i32> @llvm.gla.uClamp.v4i32.v4i32.i32.i32(<4 x i32> %uv4y, i32 %23, i32 %22), !gla.precision !45
-  %usum36 = add <4 x i32> %usum25, %24, !gla.precision !45
-  %isum31 = add <4 x i32> %isum29, %25, !gla.precision !45
+  %28 = call <4 x i32> @llvm.gla.uClamp.v4i32.v4i32.i32.i32(<4 x i32> %uv4y, i32 %23, i32 %22), !gla.precision !46
+  %usum36 = add <4 x i32> %usum25, %24, !gla.precision !46
+  %isum31 = add <4 x i32> %isum29, %25, !gla.precision !46
   %29 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.v2f32.v2f32(<4 x float> undef, i32 15, <2 x float> %v2066, i32 0, <2 x float> %v2066, i32 1, <2 x float> %v1670, i32 0, <2 x float> %v1670, i32 1)
-  %sum62 = fadd <4 x float> %26, %sum58, !gla.precision !45
-  %30 = call <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float> %v4), !gla.precision !45
-  %isum50 = add <4 x i32> %isum31, %27, !gla.precision !45
-  %usum38 = add <4 x i32> %usum36, %28, !gla.precision !45
+  %sum62 = fadd <4 x float> %26, %sum58, !gla.precision !46
+  %30 = call <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float> %v4), !gla.precision !46
+  %isum50 = add <4 x i32> %isum31, %27, !gla.precision !46
+  %usum38 = add <4 x i32> %usum36, %28, !gla.precision !46
   %31 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float> undef, i32 15, <2 x float> %v1873, i32 0, <2 x float> %v1873, i32 1, float 0.000000e+00, i32 0, float 0.000000e+00, i32 0)
-  %sum77 = fadd <4 x float> %29, %sum62, !gla.precision !45
+  %sum77 = fadd <4 x float> %29, %sum62, !gla.precision !46
   %32 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32> undef, i32 15, i32 %u1964, i32 0, i32 %u1568, i32 0, i32 %u1771, i32 0, i32 0, i32 0)
-  %usum56 = add <4 x i32> %usum38, %30, !gla.precision !45
-  %isum54 = add <4 x i32> %isum50, %5, !gla.precision !45
-  %33 = sitofp <4 x i32> %isum54 to <4 x float>, !gla.precision !45
-  %sum79 = fadd <4 x float> %31, %sum77, !gla.precision !45
-  %usum75 = add <4 x i32> %usum56, %32, !gla.precision !45
+  %usum56 = add <4 x i32> %usum38, %30, !gla.precision !46
+  %isum54 = add <4 x i32> %isum50, %5, !gla.precision !46
+  %33 = sitofp <4 x i32> %isum54 to <4 x float>, !gla.precision !46
+  %sum79 = fadd <4 x float> %31, %sum77, !gla.precision !46
+  %usum75 = add <4 x i32> %usum56, %32, !gla.precision !46
   %34 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.v2f32.v2f32(<4 x float> undef, i32 15, <2 x float> %gl_PointCoord, i32 0, <2 x float> %gl_PointCoord, i32 1, <2 x float> %6, i32 0, <2 x float> %6, i32 1)
-  %gl_FragCoord = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1040, i32 -1), !gla.input !30, !gla.precision !46
-  %35 = uitofp <4 x i32> %usum75 to <4 x float>, !gla.precision !45
-  %36 = fadd <4 x float> %sum79, %33, !gla.precision !45
-  %37 = fadd <4 x float> %34, %gl_FragCoord, !gla.precision !46
-  %result_shadow = fadd <4 x float> %36, %35, !gla.precision !45
-  %FragDepth_shadow84 = fadd float %f, 0x3FB99999A0000000, !gla.precision !46
-  %result_shadow82 = fadd <4 x float> %37, %result_shadow, !gla.precision !46
-  call void @llvm.gla.fWriteData.v4f32(i32 1039, i32 -1, <4 x float> %result_shadow82), !gla.output !41
-  call void @llvm.gla.fWriteData.f32(i32 1042, i32 -1, float %FragDepth_shadow84), !gla.output !43
+  %gl_FragCoord = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1040, i32 -1), !gla.input !30, !gla.precision !47
+  %35 = uitofp <4 x i32> %usum75 to <4 x float>, !gla.precision !46
+  %36 = fadd <4 x float> %sum79, %33, !gla.precision !46
+  %37 = fadd <4 x float> %34, %gl_FragCoord, !gla.precision !47
+  %result_shadow = fadd <4 x float> %36, %35, !gla.precision !46
+  %FragDepth_shadow84 = fadd float %f, 0x3FB99999A0000000, !gla.precision !47
+  %result_shadow82 = fadd <4 x float> %37, %result_shadow, !gla.precision !47
+  call void @llvm.gla.fWriteData.v4f32(i32 1039, i32 -1, <4 x float> %result_shadow82), !gla.output !42
+  call void @llvm.gla.fWriteData.f32(i32 1042, i32 -1, float %FragDepth_shadow84), !gla.output !44
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -839,56 +840,57 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 declare <4 x i32> @llvm.gla.swizzle.v4i32.i32.v4i32(i32, <4 x i32>) nounwind readnone
 
 !gla.inputs = !{!0, !2, !4, !6, !8, !10, !12, !14, !16, !18, !20, !22, !24, !26, !28, !30, !32}
-!gla.uniforms = !{!34, !36, !37, !38, !40}
-!gla.outputs = !{!41, !43}
+!gla.uniforms = !{!34, !36, !38, !39, !41}
+!gla.outputs = !{!42, !44}
 
 !0 = metadata !{metadata !"x", i32 1, <3 x float>* @x_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 2, i32 1024, null}
+!1 = metadata !{i32 0, i32 2, i32 1024, null, i32 1}
 !2 = metadata !{metadata !"y", i32 1, <3 x float>* @y_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 1025, null}
+!3 = metadata !{i32 0, i32 2, i32 1025, null, i32 1}
 !4 = metadata !{metadata !"iv4a", i32 1, <4 x i32>* @iv4a_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1026, null}
+!5 = metadata !{i32 0, i32 2, i32 1026, null, i32 0}
 !6 = metadata !{metadata !"iv4b", i32 1, <4 x i32>* @iv4b_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 2, i32 1027, null}
+!7 = metadata !{i32 0, i32 2, i32 1027, null, i32 0}
 !8 = metadata !{metadata !"uv2x", i32 1, <2 x i32>* @uv2x_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 1, i32 2, i32 1028, null}
+!9 = metadata !{i32 1, i32 2, i32 1028, null, i32 0}
 !10 = metadata !{metadata !"uv2y", i32 1, <2 x i32>* @uv2y_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 1, i32 2, i32 1029, null}
+!11 = metadata !{i32 1, i32 2, i32 1029, null, i32 0}
 !12 = metadata !{metadata !"uv4y", i32 1, <4 x i32>* @uv4y_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 1, i32 2, i32 1030, null}
+!13 = metadata !{i32 1, i32 2, i32 1030, null, i32 0}
 !14 = metadata !{metadata !"uy", i32 1, i32* @uy_shadow_typeProxy, metadata !15}
-!15 = metadata !{i32 1, i32 2, i32 1031, null}
+!15 = metadata !{i32 1, i32 2, i32 1031, null, i32 0}
 !16 = metadata !{metadata !"iv3a", i32 1, <3 x i32>* @iv3a_shadow_typeProxy, metadata !17}
-!17 = metadata !{i32 0, i32 2, i32 1032, null}
+!17 = metadata !{i32 0, i32 2, i32 1032, null, i32 0}
 !18 = metadata !{metadata !"iv3b", i32 1, <3 x i32>* @iv3b_shadow_typeProxy, metadata !19}
-!19 = metadata !{i32 0, i32 2, i32 1033, null}
+!19 = metadata !{i32 0, i32 2, i32 1033, null, i32 0}
 !20 = metadata !{metadata !"uv2c", i32 1, <2 x i32>* @uv2c_shadow_typeProxy, metadata !21}
-!21 = metadata !{i32 1, i32 2, i32 1034, null}
+!21 = metadata !{i32 1, i32 2, i32 1034, null, i32 0}
 !22 = metadata !{metadata !"f", i32 1, float* @f_shadow_typeProxy, metadata !23}
-!23 = metadata !{i32 0, i32 2, i32 1035, null}
+!23 = metadata !{i32 0, i32 2, i32 1035, null, i32 1}
 !24 = metadata !{metadata !"v2a", i32 1, <2 x float>* @v2a_shadow_typeProxy, metadata !25}
-!25 = metadata !{i32 0, i32 2, i32 1036, null}
+!25 = metadata !{i32 0, i32 2, i32 1036, null, i32 1}
 !26 = metadata !{metadata !"v4", i32 1, <4 x float>* @v4_shadow_typeProxy, metadata !27}
-!27 = metadata !{i32 0, i32 2, i32 1037, null}
+!27 = metadata !{i32 0, i32 2, i32 1037, null, i32 1}
 !28 = metadata !{metadata !"v2b", i32 1, <2 x float>* @v2b_shadow_typeProxy, metadata !29}
-!29 = metadata !{i32 0, i32 2, i32 1038, null}
+!29 = metadata !{i32 0, i32 2, i32 1038, null, i32 1}
 !30 = metadata !{metadata !"gl_FragCoord", i32 5, <4 x float>* @FragCoord_shadow_typeProxy, metadata !31}
-!31 = metadata !{i32 0, i32 3, i32 1040, null}
+!31 = metadata !{i32 0, i32 3, i32 1040, null, i32 0}
 !32 = metadata !{metadata !"gl_PointCoord", i32 6, <2 x float>* @PointCoord_shadow_typeProxy, metadata !33}
-!33 = metadata !{i32 0, i32 2, i32 1041, null}
+!33 = metadata !{i32 0, i32 2, i32 1041, null, i32 0}
 !34 = metadata !{metadata !"bv", i32 12, <3 x i1>* @bv_typeProxy, metadata !35}
 !35 = metadata !{i32 0, i32 0, i32 1024, null}
-!36 = metadata !{metadata !"imin", i32 12, i32* @imin_typeProxy, metadata !1}
-!37 = metadata !{metadata !"imax", i32 12, i32* @imax_typeProxy, metadata !1}
-!38 = metadata !{metadata !"umin", i32 12, i32* @umin_typeProxy, metadata !39}
-!39 = metadata !{i32 1, i32 2, i32 1024, null}
-!40 = metadata !{metadata !"umax", i32 12, i32* @umax_typeProxy, metadata !39}
-!41 = metadata !{metadata !"result", i32 7, <4 x float>* @result_shadow_typeProxy, metadata !42}
-!42 = metadata !{i32 0, i32 2, i32 1039, null}
-!43 = metadata !{metadata !"gl_FragDepth", i32 11, float* @FragDepth_shadow_typeProxy, metadata !44}
-!44 = metadata !{i32 0, i32 3, i32 1042, null}
-!45 = metadata !{i32 2}
-!46 = metadata !{i32 3}
+!36 = metadata !{metadata !"imin", i32 12, i32* @imin_typeProxy, metadata !37}
+!37 = metadata !{i32 0, i32 2, i32 1024, null}
+!38 = metadata !{metadata !"imax", i32 12, i32* @imax_typeProxy, metadata !37}
+!39 = metadata !{metadata !"umin", i32 12, i32* @umin_typeProxy, metadata !40}
+!40 = metadata !{i32 1, i32 2, i32 1024, null}
+!41 = metadata !{metadata !"umax", i32 12, i32* @umax_typeProxy, metadata !40}
+!42 = metadata !{metadata !"result", i32 7, <4 x float>* @result_shadow_typeProxy, metadata !43}
+!43 = metadata !{i32 0, i32 2, i32 1039, null, i32 0}
+!44 = metadata !{metadata !"gl_FragDepth", i32 11, float* @FragDepth_shadow_typeProxy, metadata !45}
+!45 = metadata !{i32 0, i32 3, i32 1042, null, i32 0}
+!46 = metadata !{i32 2}
+!47 = metadata !{i32 3}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

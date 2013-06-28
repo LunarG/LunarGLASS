@@ -167,11 +167,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !16 = metadata !{i32 5, i32 0, i32 1024, metadata !17}
 !17 = metadata !{i32 0, i32* @shadowSampler2D_typeProxy, i32 1, i1 false, i1 true, i32 0}
 !18 = metadata !{metadata !"coords2D", i32 1, <2 x float>* @coords2D_shadow_typeProxy, metadata !19}
-!19 = metadata !{i32 0, i32 0, i32 1024, null}
+!19 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 !20 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !21}
-!21 = metadata !{i32 0, i32 0, i32 1026, null}
+!21 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
 !22 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !23}
-!23 = metadata !{i32 0, i32 0, i32 1025, null}
+!23 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 
 
 Bottom IR:
@@ -263,11 +263,11 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !16 = metadata !{i32 5, i32 0, i32 1024, metadata !17}
 !17 = metadata !{i32 0, i32* @shadowSampler2D_typeProxy, i32 1, i1 false, i1 true, i32 0}
 !18 = metadata !{metadata !"coords2D", i32 1, <2 x float>* @coords2D_shadow_typeProxy, metadata !19}
-!19 = metadata !{i32 0, i32 0, i32 1024, null}
+!19 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 !20 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !21}
-!21 = metadata !{i32 0, i32 0, i32 1026, null}
+!21 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
 !22 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !23}
-!23 = metadata !{i32 0, i32 0, i32 1025, null}
+!23 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

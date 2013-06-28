@@ -628,7 +628,7 @@ void Builder::copyOutPipeline()
 {
     int activeIndex = 0;
 
-    // TODO: this is assuming output structure leafs take one slot, true for matrices?
+    // TODO: functionality: this is assuming output structure leaves take one slot, true for matrices?
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
         int slot = copyOuts[out].baseSlot;
         if (const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out].value->getType()->getContainedType(0))) {
