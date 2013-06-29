@@ -233,7 +233,7 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !19 = metadata !{i32 0, i32 3, i32 1028, null, i32 0}
 !20 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !21}
 !21 = metadata !{i32 0, i32 3, i32 1029, null, i32 0}
-!22 = metadata !{metadata !"tblock", i32 13, %Transform addrspace(2)* @tblock, metadata !23, metadata !24}
+!22 = metadata !{metadata !"tblock", i32 13, %Transform* @tblock_typeProxy, metadata !23, metadata !24}
 !23 = metadata !{i32 7, i32 0, i32 1024, null}
 !24 = metadata !{metadata !"Transform", metadata !23, metadata !"M1", metadata !25, metadata !"M2", metadata !27, metadata !"N1", metadata !25, metadata !"iuin", metadata !29}
 !25 = metadata !{metadata !"", metadata !26}
@@ -242,12 +242,12 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !28 = metadata !{i32 3, i32 0, i32 1024, null}
 !29 = metadata !{metadata !"", metadata !30}
 !30 = metadata !{i32 0, i32 0, i32 1024, null}
-!31 = metadata !{metadata !"", i32 13, %T3 addrspace(2)* @__anon__1, metadata !32, metadata !33}
+!31 = metadata !{metadata !"", i32 13, %T3* @__anon__1_typeProxy, metadata !32, metadata !33}
 !32 = metadata !{i32 6, i32 0, i32 1024, null}
 !33 = metadata !{metadata !"T3", metadata !32, metadata !"M3", metadata !27, metadata !"M4", metadata !25, metadata !"N2", metadata !27, metadata !"uv3a", metadata !34}
 !34 = metadata !{metadata !"", metadata !35}
 !35 = metadata !{i32 1, i32 0, i32 1024, null}
-!36 = metadata !{metadata !"", i32 13, %T2 addrspace(2)* @__anon__0, metadata !32, metadata !37}
+!36 = metadata !{metadata !"", i32 13, %T2* @__anon__0_typeProxy, metadata !32, metadata !37}
 !37 = metadata !{metadata !"T2", metadata !32, metadata !"b", metadata !29, metadata !"t2m", metadata !25}
 !38 = metadata !{metadata !"uiuin", i32 12, i32* @uiuin_typeProxy, metadata !39}
 !39 = metadata !{i32 1, i32 3, i32 1024, null}
@@ -431,7 +431,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !19 = metadata !{i32 0, i32 3, i32 1028, null, i32 0}
 !20 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !21}
 !21 = metadata !{i32 0, i32 3, i32 1029, null, i32 0}
-!22 = metadata !{metadata !"tblock", i32 13, %Transform addrspace(2)* @tblock, metadata !23, metadata !24}
+!22 = metadata !{metadata !"tblock", i32 13, %Transform* @tblock_typeProxy, metadata !23, metadata !24}
 !23 = metadata !{i32 7, i32 0, i32 1024, null}
 !24 = metadata !{metadata !"Transform", metadata !23, metadata !"M1", metadata !25, metadata !"M2", metadata !27, metadata !"N1", metadata !25, metadata !"iuin", metadata !29}
 !25 = metadata !{metadata !"", metadata !26}
@@ -440,12 +440,12 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !28 = metadata !{i32 3, i32 0, i32 1024, null}
 !29 = metadata !{metadata !"", metadata !30}
 !30 = metadata !{i32 0, i32 0, i32 1024, null}
-!31 = metadata !{metadata !"", i32 13, %T3 addrspace(2)* @__anon__1, metadata !32, metadata !33}
+!31 = metadata !{metadata !"", i32 13, %T3* @__anon__1_typeProxy, metadata !32, metadata !33}
 !32 = metadata !{i32 6, i32 0, i32 1024, null}
 !33 = metadata !{metadata !"T3", metadata !32, metadata !"M3", metadata !27, metadata !"M4", metadata !25, metadata !"N2", metadata !27, metadata !"uv3a", metadata !34}
 !34 = metadata !{metadata !"", metadata !35}
 !35 = metadata !{i32 1, i32 0, i32 1024, null}
-!36 = metadata !{metadata !"", i32 13, %T2 addrspace(2)* @__anon__0, metadata !32, metadata !37}
+!36 = metadata !{metadata !"", i32 13, %T2* @__anon__0_typeProxy, metadata !32, metadata !37}
 !37 = metadata !{metadata !"T2", metadata !32, metadata !"b", metadata !29, metadata !"t2m", metadata !25}
 !38 = metadata !{metadata !"uiuin", i32 12, i32* @uiuin_typeProxy, metadata !39}
 !39 = metadata !{i32 1, i32 3, i32 1024, null}
