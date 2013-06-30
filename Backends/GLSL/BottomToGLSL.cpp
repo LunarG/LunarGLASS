@@ -1187,6 +1187,15 @@ protected:
         }
     }
 
+    void emitNonconvertedGlaValue(const llvm::Value* value)
+    {
+        std::string* name = nonConvertedMap[value];
+        if (name)
+            shader << name->c_str();
+        else
+            emitGlaValue(value);
+    }
+
     void emitGlaValue(const llvm::Value* value)
     {
         assert(! llvm::isa<llvm::ConstantExpr>(value));
@@ -1194,7 +1203,6 @@ protected:
         mapGlaValue(value);
         shader << valueMap[value]->c_str();
     }
-
 
     void emitGlaStructName(std::ostringstream& out, const llvm::Type* structType)
     {
@@ -1397,7 +1405,8 @@ protected:
     bool addNewVariable(const llvm::Value* value, std::string& name)
     {
         if (valueMap[value] == 0) {
-            valueMap[value] = new std::string(name);  // TODO: Goo: memory: need to delete these? (can probably do this without ever newing; just pass in a pointer)
+            // make a copy so caller can pass in temporary variables
+            valueMap[value] = new std::string(name);  // TODO: Goo: memory: delete these
 
             return true;
         } else {
@@ -1732,14 +1741,13 @@ protected:
                 interpMethod = EIMNone;
         } else
             CrackInterpolationMode(interpMode, interpMethod, interpLocation);
-        bool notSigned = mdLayout == EMtlUnsigned;
-        bool isMatrix = (mdLayout == EMtlRowMajorMatrix || mdLayout == EMtlColMajorMatrix);
 
         // add the dereference syntax
         // TODO: Goo functionality: outputs don't yet have layout slot bases, so indexing into big things will be incorrect
         std::string derefName = name;
         int slotOffset = GetConstantInt(llvmInstruction->getOperand(0)) - layoutLocation;
-        dereferenceName(derefName, type, mdAggregate, slotOffset);
+        dereferenceName(derefName, type, mdAggregate, slotOffset, mdLayout);
+        bool notSigned = mdLayout == EMtlUnsigned;
 
         switch (llvmInstruction->getIntrinsicID()) {
         case llvm::Intrinsic::gla_writeData:
@@ -1748,7 +1756,7 @@ protected:
             llvm::Value* value = llvmInstruction->getOperand(2);
             mapGlaValue(value);
             std::string wrapped = *valueMap[value];
-            if (notSigned || isMatrix)
+            if (notSigned)
                 conversionWrap(wrapped, value->getType(), true);
             newLine();
             shader << derefName << " = " << wrapped << ";";
@@ -1757,13 +1765,14 @@ protected:
         case llvm::Intrinsic::gla_readData:
         case llvm::Intrinsic::gla_fReadData:
         case llvm::Intrinsic::gla_fReadInterpolant:
-            // A pipeline read only emits declaration of the input name, not the use.
+            // A pipeline read only creates the mapping to the name, not the use.
             // The use will come later by looking up the mapping between Value* and
             // the name associated with it.
             //
             // NOTE!  The mapped name will include the deferences, like "foo[3].v", *in the name*.
             
             // Add an int-based constructor around it, if needed.
+            // It will never be a matrix, we dereferenced down to a slot already
             if (notSigned)
                 conversionWrap(derefName, llvmInstruction->getType(), false);
 
@@ -1784,65 +1793,69 @@ protected:
     }
 
     //
-    // *Textually* deference a name string.
+    // *Textually* deference a name string down to a single I/O slot.
     //
-    void dereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNode* mdAggregate, int slotOffset)
+    void dereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNode* mdAggregate, int slotOffset, EMdTypeLayout& mdTypeLayout)
     {
         // Operates recursively...
 
         if (type->getTypeID() == llvm::Type::PointerTyID) {
             type = type->getContainedType(0);
 
-            dereferenceName(name, type, mdAggregate, slotOffset);
+            dereferenceName(name, type, mdAggregate, slotOffset, mdTypeLayout);
         } else if (type->getTypeID() == llvm::Type::StructTyID) {
             int field = 0;
             int operand;
+            const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
+            const llvm::Type* fieldType;
             do {
                 operand = GetAggregateMdSubAggregateOp(field);
                 if (operand >= mdAggregate->getNumOperands()) {
                     assert(operand < mdAggregate->getNumOperands());
                     return;
                 }
-                int fieldSize = slotCount(llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand)));
+                fieldType = structType->getContainedType(field);
+                int fieldSize = slotCount(fieldType);
                 if (fieldSize > slotOffset)
                     break;
                 slotOffset -= fieldSize;
                 ++field;
             } while (true);
             name = name + "." + std::string(mdAggregate->getOperand(GetAggregateMdNameOp(field))->getName());
-            const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
-            dereferenceName(name, structType->getContainedType(field), llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand)), slotOffset);
+            const llvm::MDNode* subMdAggregate = llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand));
+            dereferenceName(name, fieldType, subMdAggregate, slotOffset, mdTypeLayout);
         } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
-            int elementSize = slotCount(mdAggregate);
+            const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
+            int elementSize = slotCount(arrayType->getContainedType(0));
             int element = slotOffset / elementSize;
             slotOffset = slotOffset % elementSize;
 
-            char buf[10];
+            char buf[11];
             snprintf(buf, sizeof(buf), "%d", element);
             name = name + "[" + buf + "]";
-            const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
         
-            dereferenceName(name, arrayType->getContainedType(0), mdAggregate, slotOffset);
-        }
+            dereferenceName(name, arrayType->getContainedType(0), mdAggregate, slotOffset, mdTypeLayout);
+        } else if (mdAggregate)
+            mdTypeLayout = GetMdTypeLayout(mdAggregate);
     }
 
-    int slotCount(const llvm::MDNode* mdAggregate)
+    int slotCount(const llvm::Type* type)
     {
-        // TODO: replace with a static form, this one does not take nested arrays (struct of array of field) into account
+        if (type->getTypeID() == llvm::Type::VectorTyID)
+            return 1;
+        else if (type->getTypeID() == llvm::Type::ArrayTyID) {
+            const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
+            return arrayType->getNumElements() * slotCount(arrayType->getContainedType(0));
+        } else if (type->getTypeID() == llvm::Type::StructTyID) {
+            const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
+            int slots = 0;
+            for (unsigned int f = 0; f < structType->getStructNumElements(); ++f)
+                slots += slotCount(structType->getContainedType(f));
+
+            return slots;
+        }
+
         return 1;
-
-        // Note: the below does not handle leafs yet
-        int count = 0;
-        int field = 0;
-        do {
-            int operand = GetAggregateMdSubAggregateOp(field);
-            if (operand >= mdAggregate->getNumOperands())
-                break;
-            count += slotCount(llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand)));
-            ++field;
-        } while (true);
-
-        return count;
     }
 
     // Either convert to (from) an unsigned int or to (from) a matrix
@@ -1905,6 +1918,9 @@ protected:
 
     // mapping from LLVM values to Glsl variables
     std::map<const llvm::Value*, std::string*> valueMap;
+
+    // optimization: just for uint/matrix I/O names that need conversion, preserve the non-converted form in case that can be used
+    std::map<const llvm::Value*, std::string*> nonConvertedMap;
 
     // map to track structure names tracked in the module
     std::map<const llvm::Type*, std::string> structNameMap;
@@ -2293,9 +2309,14 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             } else {
                 std::string name = llvmInstruction->getOperand(0)->getName();
                 makeParseable(name);
-                // conversion wrap it and make the whole thing the name of a variable                
-                if (needsConversion(llvmInstruction))
+                // conversion wrap it and make the whole thing the name of a variable
+                if (needsConversion(llvmInstruction)) {
+                    // Optimization:  Will keep both a converted and non-converted version, in case
+                    // at a future point we can tell the non-converted one is okay; e.g., a matrix
+                    // dereference never had to be constructed into an array of arrays
+                    nonConvertedMap[llvmInstruction] = new std::string(name);  // TODO: LunarGOO memory: free these
                     conversionWrap(name, llvmInstruction->getType(), false);
+                }
                 addNewVariable(llvmInstruction, name);
             }
         }
@@ -2404,7 +2425,9 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
         // emit base
         const llvm::ExtractValueInst* extractValueInst = llvm::dyn_cast<const llvm::ExtractValueInst>(llvmInstruction);
-        emitGlaValue(extractValueInst->getAggregateOperand());
+        // Optimization: since we are dereferencing, if the base was a converted matrix,
+        // we can start with the non-converted form, knowing we are deferencing it
+        emitNonconvertedGlaValue(extractValueInst->getAggregateOperand());
 
         // emit chain
         shader << traverseGep(extractValueInst);
@@ -2418,7 +2441,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
         //emit base
         const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(llvmInstruction);
-        emitGlaValue(insertValueInst->getAggregateOperand());
+        emitNonconvertedGlaValue(insertValueInst->getAggregateOperand());
 
         // emit chain
         shader << traverseGep(insertValueInst);

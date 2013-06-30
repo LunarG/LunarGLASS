@@ -1,15 +1,18 @@
-#version 100
+#version 330
 
 uniform mat4 mvp;
 
-attribute vec4 v;
-attribute mat3 am3;
-//attribute mat4 arraym[3];
+in vec4 v;
+in mat3 am3;
+in mat4 arraym[3];
 
-varying float f;
+out float f;
+
+//out mat4 mout[2];
 
 void main()
 {
 	gl_Position = mvp * v;
-	f = am3[2][1]; // + arraym[1][2][3];
+	f = am3[2][1] + arraym[1][2][3];
+    //mout[1] = arraym[2];
 }

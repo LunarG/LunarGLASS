@@ -252,22 +252,22 @@ const float const40 = 1.0;
 
 void main()
 {
-    vec4 param212 = vec4[4](m4[0], m4[1], m4[2], m4[3])[0];
+    vec4 param212 = m4[0];
     vec3 temp22 = vec3(param212);
-    vec4 param213 = vec4[4](m4[0], m4[1], m4[2], m4[3])[1];
+    vec4 param213 = m4[1];
     vec3 temp24 = vec3(param213);
-    vec4 param214 = vec4[4](m4[0], m4[1], m4[2], m4[3])[2];
+    vec4 param214 = m4[2];
     vec3 temp26 = vec3(param214);
     float dotdi = dot(v3, temp22);
     float dot3di = dot(v3, temp24);
     float dot5di = dot(v3, temp26);
     vec3 temp30;
     temp30.xyz = vec3(dotdi, dot3di, dot5di);
-    vec3 columndi10 = vec3[3](m3[0], m3[1], m3[2])[0];
+    vec3 columndi10 = m3[0];
     float dotdi11 = dot(v3, columndi10);
-    vec3 column1di = vec3[3](m3[0], m3[1], m3[2])[1];
+    vec3 column1di = m3[1];
     float dot2di = dot(v3, column1di);
-    vec3 column3di = vec3[3](m3[0], m3[1], m3[2])[2];
+    vec3 column3di = m3[2];
     float dot4di = dot(v3, column3di);
     vec3 temp37;
     temp37.xyz = vec3(dotdi11, dot2di, dot4di);
@@ -290,27 +290,27 @@ const float const40 = 1.0;
 
 void main()
 {
-    vec4 temp21 = m4[0];
-    vec3 temp22 = vec3(temp21);
-    vec4 temp23 = m4[1];
-    vec3 temp24 = vec3(temp23);
-    vec4 temp25 = m4[2];
-    vec3 temp26 = vec3(temp25);
-    float dotdi12 = dot(v3, temp22);
-    float dot3di14 = dot(v3, temp24);
-    float dot5di16 = dot(v3, temp26);
+    vec4 param2121 = m4[0];
+    vec3 temp22 = vec3(param2121);
+    vec4 param2133 = m4[1];
+    vec3 temp24 = vec3(param2133);
+    vec4 param2146 = m4[2];
+    vec3 temp26 = vec3(param2146);
+    float dotdi9 = dot(v3, temp22);
+    float dot3di11 = dot(v3, temp24);
+    float dot5di13 = dot(v3, temp26);
     vec3 temp30;
-    temp30.xyz = vec3(dotdi12, dot3di14, dot5di16);
-    vec3 temp31 = m3[0];
-    float dotdi1122 = dot(v3, temp31);
-    vec3 temp33 = m3[1];
-    float dot2di26 = dot(v3, temp33);
-    vec3 temp35 = m3[2];
-    float dot4di30 = dot(v3, temp35);
+    temp30.xyz = vec3(dotdi9, dot3di11, dot5di13);
+    vec3 columndi1016 = m3[0];
+    float dotdi1118 = dot(v3, columndi1016);
+    vec3 column1di19 = m3[1];
+    float dot2di21 = dot(v3, column1di19);
+    vec3 column3di22 = m3[2];
+    float dot4di24 = dot(v3, column3di22);
     vec3 temp37;
-    temp37.xyz = vec3(dotdi1122, dot2di26, dot4di30);
-    vec3 temp3833 = temp30 + temp37;
-    vec4 temp39 = vec4(temp3833.x, temp3833.y, temp3833.z, const40);
+    temp37.xyz = vec3(dotdi1118, dot2di21, dot4di24);
+    vec3 temp3827 = temp30 + temp37;
+    vec4 temp39 = vec4(temp3827.x, temp3827.y, temp3827.z, const40);
     gl_Position = temp39;
     
 }
