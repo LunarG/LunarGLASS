@@ -228,7 +228,7 @@ namespace {
             // will have to find the loop on the stack that corresponds to inst,
             // and query it rather than the top one.
             bool externallyReferenced = forceGlobal || (! loops.empty() && loops.top()->isExternallyReferenced(inst));
-            backEndTranslator->add(inst, lastBlock, externallyReferenced);
+            backEndTranslator->addInstruction(inst, lastBlock, externallyReferenced);
         }
 
         void addIoDeclarations(Module& module, gla::EVariableQualifier qualifier, const char* categoryName)
@@ -642,7 +642,7 @@ void BottomTranslator::handleReturnBlock(const BasicBlock* bb)
     assert(isa<ReturnInst>(bb->getTerminator()));
 
     handleInstructions(bb);
-    backEndTranslator->add(bb->getTerminator(), lastBlock);
+    backEndTranslator->addInstruction(bb->getTerminator(), lastBlock);
 
     return;
 }

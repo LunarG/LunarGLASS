@@ -125,7 +125,7 @@ public:
     void endFunctionBody()
     { counter++; }
 
-    void add(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope=false)
+    void addInstruction(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope=false)
     {
         counter++;
 

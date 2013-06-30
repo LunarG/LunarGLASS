@@ -22,7 +22,15 @@
 //
 // Author: John Kessenich, LunarG
 //
-// Usable by the bottom translator to create Glsl.
+// A GLSL back end for LunarGLASS.
+//
+// Inherits from 
+//   - BackEnd to supply back end information to LunarGLASS.
+//   - BackEndTranslator to translate to GLSL, by implementing the methods called
+//     by the bottom translator.
+// Factories for each of these appear below.
+//
+// It writes the resulting GLSL shader to standard output.
 //
 //===----------------------------------------------------------------------===//
 
@@ -49,6 +57,7 @@
 #include "Options.h"
 #include "TopBuilder.h"
 #include "metadata.h"
+#include "Passes/Util/ConstantUtil.h"
 
 // glslang includes
 #include "../../glslang/glslang/Public/ShaderLang.h"
@@ -56,31 +65,6 @@
 
 // LLVM includes
 #include "llvm/Module.h"
-
-#include "Passes/Util/ConstantUtil.h"
-
-namespace gla {
-    bool IsIdentitySwizzle(int glaSwizzle, int width)
-    {
-        for (int i = 0; i < width; ++i) {
-            if (GetSwizzle(glaSwizzle, i) != i)
-                return false;
-        }
-
-        return true;
-    }
-
-    bool IsIdentitySwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
-    {
-        for (int i = 0; i < elts.size(); ++i) {
-            if (IsUndef(elts[i]) || i != GetConstantInt(elts[i])) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-}
 
 //
 // Implement the GLSL backend
@@ -145,6 +129,7 @@ void gla::ReleaseGlslBackEnd(gla::BackEnd* backEnd)
 //
 // Implement the Bottom IR -> GLSL translator
 //
+
 namespace gla {
     class GlslTarget;
 };
@@ -159,1740 +144,91 @@ public:
         #endif
     }
 
-    ~GlslTarget()
-    {
-    }
+    ~GlslTarget() { }
 
     virtual void start()
     {
-        // this information wasn't available at construct time
+        // Call this before doing actual translation.
+        // The following information wasn't available at construct time:
         version = manager->getVersion();
         profile = static_cast<EProfile>(version >> 16 & 0xFF);
         language = static_cast<EShLanguage>(version >> 24 & 0xFF);
         version &= 0xFFFF;
     }
 
-    void addStructType(llvm::StringRef name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block)
-    {
-        // this is mutually recursive with emitGlaType
-
-        // track the mapping between LLVM's structure type and GLSL's name for it,
-        // and only declare it once
-        if (structNameMap.find(structType) != structNameMap.end())
-            return;
-        structNameMap[structType] = name;
-        
-        // track the mapping between the type name and it's metadata type
-        if (mdAggregate)
-            typenameMdAggregateMap[structType] = mdAggregate;
-
-        // For nested struct types, we have to output the nested one
-        // before the containing one.  So, make the current on the side
-        // and add it to the global results after its contents are
-        // declared.
-        std::ostringstream tempStructure;
-
-        if (! block)
-            tempStructure << "struct ";
-        if (mdAggregate)
-            tempStructure << std::string(mdAggregate->getOperand(0)->getName());
-        else
-            tempStructure << name.str();
-        tempStructure << " {" << std::endl;
-
-        for (int index = 0; index < structType->getNumContainedTypes(); ++index) {
-            tempStructure << "    ";
-            if (mdAggregate) {
-                const llvm::MDNode* subMdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(GetAggregateMdSubAggregateOp(index)));
-                int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index), false, subMdAggregate);
-                tempStructure << " " << std::string(mdAggregate->getOperand(GetAggregateMdNameOp(index))->getName());
-                emitGlaArraySize(tempStructure, arraySize);
-            } else {
-                int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index));
-                tempStructure << " " << getGlaStructField(structType, index);
-                emitGlaArraySize(tempStructure, arraySize);
-            }
-            tempStructure << ";" << std::endl;
-        }
-
-        tempStructure << "}";
-        if (! block)
-            tempStructure << ";" << std::endl << std::endl;
-
-        if (block)
-            globalDeclarations << tempStructure.str();
-        else
-            globalStructures << tempStructure.str();
-    }
-
-    void addGlobal(const llvm::GlobalVariable* global)
-    {
-        // skip uniforms and other objects, just get the regular global variables
-        if (mapGlaAddressSpace(global) != EVQGlobal)
-            return;
-
-        llvm::Type* type;
-        if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType()))
-            type = pointer->getContainedType(0);
-        else
-            type = global->getType();
-
-        std::string name = global->getName();
-        std::string declareName = name;
-
-        makeParseable(name);
-        addNewVariable(global, name);
-        declareVariable(EMpNone, type, declareName, mapGlaAddressSpace(global));
-
-        if (global->hasInitializer()) {
-            const llvm::Constant* constant = global->getInitializer();
-            emitInitializeAggregate(globalInitializers, global->getName(), constant);
-        }
-    }
-
-    void addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode)
-    {
-        // TODO: allow "gl_" for adding invariant, etc.
-        std::string name = mdNode->getOperand(0)->getName();
-        if (name.substr(0,3) == std::string("gl_"))
-            return;
-
-        int arraySize = emitGlaType(globalDeclarations, EMpCount, qualifier, 0, true, mdNode);
-        globalDeclarations << " " << std::string(name);
-        emitGlaArraySize(globalDeclarations, arraySize);
-        globalDeclarations << ";" << std::endl;
-    }
-
-    void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name)
-    {
-        newLine();
-        int arraySize = emitGlaType(shader, EMpNone, EVQNone, type->getContainedType(0));        
-        emitGlaArraySize(shader, arraySize);
-        // TODO: Goo: ES functionality: how do we know the precision or unsignedness of a function declaration?
-        shader << " " << name.str() << "(";
-
-        if (name == std::string("main"))
-            appendInitializers = true;
-    }
-
-    virtual void addArgument(const llvm::Value* value, bool last)
-    {
-        emitGlaValue(value);
-        if (! last)
-            shader << ", ";
-    }
-
-    void endFunctionDeclaration()
-    {
-        shader << ")";
-    }
-
-    void startFunctionBody()
-    {
-        newLine();
-        newScope();
-
-        if (appendInitializers && globalInitializers.str().length() > 0) {
-            // Reset bool so these are only emitted in main()
-            appendInitializers = false;
-            shader << globalInitializers.str();
-            newLine();
-        }
-    }
-
-    void endFunctionBody()
-    {
-        leaveScope();
-    }
-
-    void add(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope=false);
-
-    void declarePhiCopy(const llvm::Value* dst)
-    {
-        newLine();
-        emitGlaValue(dst);
-        shader << ";";
-    }
-
-    void addPhiCopy(const llvm::Value* dst, const llvm::Value* src)
-    {
-        newLine();
-        emitGlaValue(dst);
-        shader << " = ";
-        emitGlaOperand(src);
-        shader << ";";
-    }
-
-    void addIf(const llvm::Value* cond, bool invert=false)
-    {
-        newLine();
-        shader << "if (";
-
-        if (invert)
-            shader << "! ";
-
-        emitGlaOperand(cond);
-        shader << ") ";
-        newScope();
-    }
-
-    void addElse()
-    {
-        leaveScope();
-        shader << "else ";
-        newScope();
-    }
-
-    void addEndif()
-    {
-        leaveScope();
-    }
-
-    void beginConditionalLoop()
-    {
-        UnsupportedFunctionality("conditional loops");
-    }
-
-    void beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const llvm::Value* op1, const llvm::Value* op2, bool invert=false)
-    {
-        newLine();
-        std::string str;
-        std::string opStr;
-        int pos = -1;
-        bool nested;
-        getOp(cmp, opStr, pos, nested);
-
-        bool binOp = false;
-        if (pos == -1)
-            binOp = true;
-
-        // TODO: Goo: add support for unary ops (and xor)
-
-        if (! binOp)
-            UnsupportedFunctionality("unary op for simple conditional loops");
-
-        shader << "while (";
-
-        if (invert)
-            shader << "! (";
-
-        if (const llvm::Instruction* opInst1 = llvm::dyn_cast<llvm::Instruction>(op1)) {
-            getExtractElementStr(opInst1, str);
-            if (! str.empty())
-                shader << str;
-            else
-                emitGlaValue(op1);
-        } else
-            emitGlaValue(op1);
-        str.clear();
-
-        shader << " " << opStr << " ";
-
-        if (const llvm::Instruction* opInst2 = llvm::dyn_cast<llvm::Instruction>(op2)) {
-            getExtractElementStr(opInst2, str);
-            if (! str.empty())
-                shader << str;
-            else
-                emitGlaValue(op2);
-        } else
-            emitGlaValue(op2);
-        str.clear();
-
-        if (invert)
-            shader << ")";
-
-        shader << ")";
-
-        newScope();
-    }
-
-    void beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count)
-    {
-        newLine();
-
-        shader << "for (";
-        emitGlaValue(phi);
-
-        shader << " = 0; ";
-
-        emitGlaValue(phi);
-        shader << " < " << count;
-
-        shader << "; ++";
-        emitGlaValue(phi);
-        shader << ") ";
-
-        newScope();
-    }
-
-    void beginSimpleInductiveLoop(const llvm::PHINode* phi, const llvm::Value* count)
-    {
-        newLine();
-
-        shader << "for (";
-        emitGlaValue(phi);
-
-        shader << " = 0; ";
-
-        emitGlaValue(phi);
-        shader << " < ";
-        emitGlaValue(count);
-
-        shader << "; ++";
-        emitGlaValue(phi);
-        shader << ") ";
-
-        newScope();
-    }
-
-    void beginInductiveLoop()
-    {
-        UnsupportedFunctionality("inductive loops");
-    }
-
-    void beginLoop()
-    {
-        newLine();
-        shader << "while (true) ";
-
-        newScope();
-    }
-
-    void endLoop()
-    {
-        leaveScope();
-    }
-
-    void addLoopExit(const llvm::Value* condition=NULL, bool invert=false)
-    {
-        if (condition)
-            addIf(condition, invert);
-
-        newLine();
-        shader << "break;";
-
-        if (condition)
-            addEndif();
-    }
-
-    void addLoopBack(const llvm::Value* condition=NULL, bool invert=false)
-    {
-        if (condition)
-            addIf(condition, invert);
-
-        newLine();
-        shader << "continue;";
-
-        if (condition)
-            addEndif();
-    }
-
-    void addDiscard()
-    {
-        newLine();
-        shader << "discard;";
-    }
-
+    void addGlobal(const llvm::GlobalVariable* global);
+    void addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode);
+    void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name);
+    void addArgument(const llvm::Value* value, bool last);
+    void endFunctionDeclaration();
+    void startFunctionBody();
+    void endFunctionBody();
+    void addInstruction(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope=false);
+
+    void declarePhiCopy(const llvm::Value* dst);
+    void addPhiCopy(const llvm::Value* dst, const llvm::Value* src);
+    void addIf(const llvm::Value* cond, bool invert = false);
+    void addElse();
+    void addEndif();
+    void beginConditionalLoop();
+    void beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const llvm::Value* op1, const llvm::Value* op2, bool invert = false);
+    void beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count);
+    void beginSimpleInductiveLoop(const llvm::PHINode* phi, const llvm::Value* count);
+    void beginInductiveLoop();
+    void beginLoop();
+    void endLoop();
+    void addLoopExit(const llvm::Value* condition = 0, bool invert = false);
+    void addLoopBack(const llvm::Value* condition = 0, bool invert = false);
+    void addDiscard();
     void print();
 
 protected:
-
-    void newLine()
-    {
-        static int count = 0;
-        if (obfuscate) {
-            ++count;
-            if (count > 4) {
-                shader << std::endl;
-                count = 0;
-            }
-        } else {
-            shader << std::endl;
-            for (int i = 0; i < indentLevel; ++i)
-                shader << "    ";
-        }
-    }
-
-    void newScope()
-    {
-        ++indentLevel;
-        shader << "{";
-    }
-
-    void leaveScope()
-    {
-        --indentLevel;
-        newLine();
-        shader << "}";
-        newLine();
-    }
-
-    void mapGlaIntrinsic(const llvm::IntrinsicInst*);
-
-    void getOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryOperand, bool& nested);
-
-    void mapGlaCall(const llvm::CallInst*);
-    const char* mapGlaXor(const llvm::Instruction* llvmInstruction, int& unaryOperand);
-
-    EVariableQualifier mapGlaAddressSpace(const llvm::Value* value)
-    {
-        if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
-            switch (pointer->getAddressSpace()) {
-            case gla::ResourceAddressSpace:
-                return EVQUniform;
-            case gla::GlobalAddressSpace:
-                return EVQGlobal;
-            default:
-                if (pointer->getAddressSpace() >= gla::ConstantAddressSpaceBase)
-                    return EVQUniform;
-
-                UnsupportedFunctionality("Address Space in Bottom IR: ", pointer->getAddressSpace());
-            }
-        }
-
-        if (llvm::isa<llvm::Instruction>(value)) {
-            return EVQTemporary;
-        }
-
-        // Check for an undef before a constant (since Undef is a
-        // subclass of Constant)
-        if (AreAllUndefined(value)) {
-            return EVQUndef;
-        }
-
-        if (llvm::isa<llvm::Constant>(value)) {
-            return EVQConstant;
-        }
-
-        return EVQTemporary;
-    }
-
-    const char* mapGlaToQualifierString(EVariableQualifier vq)
-    {
-        switch (vq) {
-        case EVQUniform:         return "uniform";
-        case EVQGlobal:          return "global";
-        case EVQInput:
-            if (version >= 130)
-                return "in";
-            else if (language == EShLangVertex)
-                return "attribute";
-            else
-                return "varying";
-        case EVQOutput:
-            if (version >= 130)
-                return "out";
-            else
-                return "varying";
-        case EVQTemporary:       return "temp";
-        case EVQConstant:        return "const";
-        default:
-            return "";
-        }
-    }
-
-    const char* mapGlaToPrecisionString(EMdPrecision precision)
-    {
-        switch (precision) {
-        case EMpLow:      return "lowp";
-        case EMpMedium:   return "mediump";
-        case EMpHigh:     return "highp";
-        default:          return "";
-        }
-    }
-
-    void emitGlaPrecision(std::ostringstream& out, EMdPrecision precision)
-    {
-        switch (precision) {
-        case EMpLow:
-        case EMpMedium:
-        case EMpHigh:
-            out << mapGlaToPrecisionString(precision) << " ";
-            break;
-
-        case EMpNone:
-            break;
-
-        default:
-            out << "badp ";
-            break;
-        }   
-    }
-
-    EMdPrecision getPrecision(const llvm::Value* value)
-    {
-        EMdPrecision precision = EMpNone;
-
-        if (const llvm::Instruction* instr = llvm::dyn_cast<const llvm::Instruction>(value))
-            CrackPrecisionMd(instr, precision);
-
-        return precision;
-    }
-
-    void emitGlaOperand(const llvm::Value* value)
-    {
-        emitGlaValue(value);
-        if (obfuscate) {
-            int count = GetComponentCount(value);
-            if (count > 1)
-                emitComponentCountToSwizzle(count);
-        }
-    }
-
-    void emitComponentCountToSwizzle(int numComponents)
-    {
-        shader << ".";
-
-        switch (numComponents) {
-        case 1:   shader << "x";     break;
-        case 2:   shader << "xy";    break;
-        case 3:   shader << "xyz";   break;
-        case 4:   shader << "xyzw";  break;
-        default:
-                  shader << "xyzw";
-                  assert(! "Vector too large");
-        }
-    }
-
-    void emitComponentToSwizzle(int component)
-    {
-        shader << mapComponentToSwizzleChar(component);
-    }
-
-    void emitMaskToSwizzle(int mask)
-    {
-        for (int component = 0; component < 4; ++component)
-            if (mask & (1 << component))
-                shader << mapComponentToSwizzleChar(component);
-    }
-
-    const char* mapComponentToSwizzleChar(int component)
-    {
-        switch (component) {
-        case 0:   return "x";
-        case 1:   return "y";
-        case 2:   return "z";
-        case 3:   return "w";
-        default:  assert(! "Vector too large");
-        }
-
-        return "x";
-    }
-
-    void emitGlaSampler(const llvm::IntrinsicInst* llvmInstruction, int texFlags)
-    {
-        const llvm::Value* samplerType = llvmInstruction->getOperand(0);
-
-        // TODO: uint functionality: See if it's a uint sampler, requiring a constructor to convert it
-
-        // Original style shadowing returns vec4 while 2nd generation returns float,
-        // so, have to stick to old-style for those cases.
-        bool forceOldStyle = IsVector(llvmInstruction->getType()) && (texFlags & ETFShadow);
-
-        if (version >= 130 && ! forceOldStyle) {
-            if (texFlags & ETFFetch)
-                shader << "texelFetch";
-            else
-                shader << "texture";
-        } else {
-            if (texFlags & ETFShadow)
-                shader << "shadow";
-            else
-                shader << "texture";
-
-            int sampler = GetConstantInt(samplerType);
-
-            switch(sampler) {
-            case ESampler1D:        shader << "1D";   break;
-            case ESampler2D:        shader << "2D";   break;
-            case ESampler3D:        shader << "3D";   break;
-            case ESamplerCube:      shader << "Cube"; break;
-            case ESampler2DRect:    shader << "Rect"; break;
-            default:
-                UnsupportedFunctionality("Texturing in Bottom IR: ", sampler, EATContinue);
-                break;
-            }
-        }
-        
-        if (texFlags & ETFProjected)
-            shader << "Proj";
-        if (texFlags & ETFLod)
-            shader << "Lod";
-        if (IsGradientTexInst(llvmInstruction))
-            shader << "Grad";
-        if (texFlags & ETFOffsetArg)
-            shader << "Offset";
-    }
-
-    bool needsShadowRefZArg(const llvm::IntrinsicInst* llvmInstruction)
-    {
-        // Check flags for RefZ
-        int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
-
-        return (texFlags & ETFRefZArg);
-    }
-
-    bool needsLodArg(const llvm::IntrinsicInst* llvmInstruction)
-    {
-        // Check flags for bias/lod
-        int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
-
-        return (texFlags & ETFLod);
-    }
-
-    bool needsBiasArg(const llvm::IntrinsicInst* llvmInstruction)
-    {
-        // Check flags for bias/lod
-        int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
-
-        return (texFlags & ETFBiasLodArg) && ! (texFlags & ETFLod);
-    }
-
-    bool needsOffsetArg(const llvm::IntrinsicInst* llvmInstruction)
-    {
-        // Check flags for offset arg
-        int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
-
-        return (texFlags & ETFOffsetArg);
-    }
-
-    void getNewVariableName(const llvm::Value* value, std::string* name)
-    {
-        ++lastVariable;
-        const size_t bufSize = 20;
-        char buf[bufSize];
-        if (obfuscate) {
-            int i;
-            for (i = 0; i <= lastVariable-4; i += 4) {
-                switch ((i/4) % 4) {
-                case 0:   name->append("x"); break;
-                case 1:   name->append("y"); break;
-                case 2:   name->append("z"); break;
-                case 3:   name->append("w"); break;
-                }
-            }
-            switch (lastVariable - i) {
-            case 0:   name->append("x"); break;
-            case 1:   name->append("y"); break;
-            case 2:   name->append("z"); break;
-            case 3:   name->append("w"); break;
-            }
-        } else {
-            if (IsTempName(value->getName())) {
-                name->append(mapGlaToQualifierString(mapGlaAddressSpace(value)));
-                snprintf(buf, bufSize, "%d", lastVariable);
-                name->append(buf);
-
-                // If it's a constant int or float, make the name contain the
-                // value
-                if (llvm::isa<llvm::ConstantInt>(value)) {
-                    int val = GetConstantInt(value);
-
-                    // If it's an i1, that is a bool, then have it say true or
-                    // false, else have it have the integer value.
-                    if (IsBoolean(value->getType())) {
-                        name->append("b_");
-                        snprintf(buf, bufSize, val ? "true" : "false");
-                    } else {
-                        name->append("i_");
-                        snprintf(buf, bufSize, "%d", GetConstantInt(value));
-                    }
-
-                    name->append(buf);
-
-                }
-            } else {
-                name->append(value->getName());
-            }
-
-            makeParseable(*name);
-
-            // Variables starting with gl_ are illegal in GLSL
-            if (name->substr(0,3) == std::string("gl_")) {
-                name->insert(0, "gla_");
-            }
-        }
-    }
-
-    void makeParseable(std::string& name)
-    {
-        // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
-        for (int c = 0; c < name.length(); ++c) {
-            if (name[c] == '.' || name[c] == '-')
-                name[c] = 'd';
-        }
-    }
-
-    void declareVariable(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier qualifier, 
-                         const llvm::Constant* constant = 0, const llvm::MDNode* mdIoNode = 0)
-    {
-        if (name.substr(0,3) == std::string("gl_"))
-            return;
-
-        int arraySize;
-
-        // If it has an initializer (is a constant and not an undef)
-        if (constant && ! AreAllUndefined(constant)) {
-            arraySize = emitGlaType(globalDeclarations, precision, qualifier, type);
-            globalDeclarations << " " << name;
-            emitGlaArraySize(globalDeclarations, arraySize);
-            globalDeclarations << " = ";
-            emitConstantInitializer(globalDeclarations, constant, constant->getType());
-            globalDeclarations << ";" << std::endl;
-
-            return;
-        }
-
-        // no initializer
-        switch (qualifier) {
-        case EVQConstant:
-            // Make sure we only declare globals once
-            if (globallyDeclared.find(name) != globallyDeclared.end())
-                return;
-            else
-                globallyDeclared.insert(name);
-
-            arraySize = emitGlaType(globalDeclarations, precision, qualifier, type);
-            globalDeclarations << " " << name;
-            emitGlaArraySize(globalDeclarations, arraySize);
-            globalDeclarations << ";" << std::endl;
-            break;
-        case EVQGlobal:
-            arraySize = emitGlaType(globalDeclarations, precision, EVQNone, type);
-            globalDeclarations << " " << name;
-            emitGlaArraySize(globalDeclarations, arraySize);
-            globalDeclarations << ";" << std::endl;
-            break;
-        case EVQTemporary:
-            arraySize = emitGlaType(shader, precision, EVQNone, type);
-            emitGlaArraySize(shader, arraySize);
-            shader << " ";
-            break;
-        case EVQUndef:
-            newLine();
-            emitGlaType(shader, precision, EVQNone, type);
-            shader << " " << name << ";";
-            emitInitializeAggregate(shader, name, constant);
-            break;
-        default:
-            assert(! "unknown VariableQualifier");
-        }
-    }
-
-    // emits the type (recursively)
-    // returns the array size of the type
-    int emitGlaType(std::ostringstream& out, EMdPrecision precision, EVariableQualifier qualifier, llvm::Type* type, bool ioRoot = false, const llvm::MDNode* mdNode = 0, int count = -1)
-    {
-        bool matrix = false;
-        bool notSigned = false;
-        std::string name;
-        const llvm::MDNode* mdAggregate = 0;
-        bool block = false;
-
-        if (mdNode) {
-            if (! emitMdNodeTypes(out, ioRoot, mdNode, name, type, precision, matrix, notSigned, mdAggregate, block))
-                return 0;
-        }
-
-        const char* qualifierString = mapGlaToQualifierString(qualifier);
-        if (*qualifierString)
-            out << qualifierString << " ";
-
-        if (type->getTypeID() == llvm::Type::PointerTyID)
-            type = type->getContainedType(0);
-
-        int arraySize = 0;
-
-        // if it's a vector, output a vector type
-        if (type->getTypeID() == llvm::Type::VectorTyID) {
-            const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
-            assert(vectorType);
-            
-            emitGlaPrecision(out, precision);
-            if (type->getContainedType(0) == type->getFloatTy(type->getContext()))
-                out << "vec";
-            else if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
-                out << "bvec";
-            else if (type->getContainedType(0) == type->getInt32Ty(type->getContext())) {
-                if (notSigned)
-                    out << "uvec";
-                else
-                    out << "ivec";
-            } else
-                UnsupportedFunctionality("Basic Type in Bottom IR");
-
-            // output the size of the vector
-            if (count == -1)
-                out << GetComponentCount(type);
-            else
-                out << count;
-        } else if (type->getTypeID() == llvm::Type::StructTyID) {
-            const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
-            
-            // addStructType() is mutually recursive with this function
-            addStructType(structType->getName(), structType, mdAggregate, block);
-            if (! block) {
-                if (mdAggregate)
-                    out << std::string(mdAggregate->getOperand(0)->getName());
-                else
-                    out << structNameMap[structType];
-            }
-        } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
-            const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
-            
-            if (matrix && arrayType->getNumContainedTypes() > 0 && arrayType->getContainedType(0)->isVectorTy()) {
-                // We're at the matrix level in the type tree
-                emitGlaPrecision(out, precision);
-                out << "mat";
-                if (GetNumColumns(type) == GetNumRows(type))
-                    out << GetNumColumns(type);
-                else
-                    out << GetNumColumns(type) << "x" << GetNumRows(type);
-            } else {
-                // We're still higher up in the type tree than a matrix; e.g., array of matrices
-                // (or, not a matrix).
-                // We need to recurse the next level with the LLVM type dereferenced, but not
-                // the GLSL type (metadata) which combines arrayness at the same level as other typeness
-                // (that is, don't pass on mdAggregate, use the original input).
-                emitGlaType(out, precision, EVQNone, arrayType->getContainedType(0), ioRoot, mdNode);
-                arraySize = arrayType->getNumElements();
-            }
-        } else {
-            // just output a scalar
-            emitGlaPrecision(out, precision);            
-            if (type == type->getFloatTy(type->getContext()))
-                out << "float";
-            else if (type == type->getInt1Ty(type->getContext()))
-                out << "bool";
-            else if (type == type->getInt32Ty(type->getContext())) {
-                if (notSigned)
-                    out << "uint";
-                else
-                    out << "int";
-            } else if (type == type->getVoidTy(type->getContext()))
-                out << "void";
-            else
-                UnsupportedFunctionality("Basic Type in Bottom IR");
-        }
-
-        return arraySize;
-    }
-
-    // Decode and emit stuff we can only do with an mdNode.
-    // Returning false means all done, not necessarily an error.
+    void newLine();
+    void newScope();
+    void leaveScope();
+
+    void addStructType(llvm::StringRef name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block);
+    bool addVariable(const llvm::Value* value, std::string& name);
+    void getNewVariableName(const llvm::Value* value, std::string* name);
+    void mapExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str);
+
+    void emitGlaIntrinsic(const llvm::IntrinsicInst*);
+    void emitGlaCall(const llvm::CallInst*);
+    void emitGlaPrecision(std::ostringstream& out, EMdPrecision precision);
+    void emitGlaOperand(const llvm::Value* value);
+    void emitComponentCountToSwizzle(int numComponents);
+    void emitComponentToSwizzle(int component);
+    void emitMaskToSwizzle(int mask);
+    void emitGlaSampler(const llvm::IntrinsicInst* llvmInstruction, int texFlags);
+    void emitVariableDeclaration(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier qualifier, 
+                                 const llvm::Constant* constant = 0, const llvm::MDNode* mdIoNode = 0);
+    int emitGlaType(std::ostringstream& out, EMdPrecision precision, EVariableQualifier qualifier, llvm::Type* type, 
+                    bool ioRoot = false, const llvm::MDNode* mdNode = 0, int count = -1);
     bool emitMdNodeTypes(std::ostringstream& out, bool ioRoot, const llvm::MDNode* mdNode, std::string& name, llvm::Type*& type,
-                         EMdPrecision& precision, bool& matrix, bool& notSigned, const llvm::MDNode*& mdAggregate, bool& block)
-    {
-        EMdInputOutput ioKind;
-        EMdTypeLayout typeLayout;
-        int location;
-        const llvm::MDNode* mdSampler;
-        bool uniform = false;
-
-        if (ioRoot) {
-            llvm::Type* proxyType;
-            int interpMode;
-            if (! CrackIOMd(mdNode, name, ioKind, proxyType, typeLayout, precision, location, mdSampler, mdAggregate, interpMode)) {
-                UnsupportedFunctionality("IO metadata for type");
-
-                return false;
-            } else {
-                // emit interpolation qualifier, if appropriate
-                EVariableQualifier qualifier;
-                switch (ioKind) {
-                case EMioPipeIn:   qualifier = EVQInput;   break;
-                case EMioPipeOut:  qualifier = EVQOutput;  break;
-                default:           qualifier = EVQUndef;   break;
-                }
-                if (qualifier != EVQUndef) {
-                    EInterpolationMethod interpMethod;
-                    EInterpolationLocation interpLocation;
-                    CrackInterpolationMode(interpMode, interpMethod, interpLocation);
-                    emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
-                }
-            }
-            block = ioKind == EMioUniformBlockMember || ioKind == EMioBufferBlockMember;
-            uniform = ioKind == EMioDefaultUniform;
-            if (type == 0)
-                type = proxyType;
-        } else {
-            if (! CrackAggregateMd(mdNode, name, typeLayout, precision, location, mdSampler)) {
-                UnsupportedFunctionality("aggregate metadata for type");
-
-                return false;
-            }
-            mdAggregate = mdNode;
-        }
-
-        if (typeLayout == EMtlSampler) {
-            if (uniform)
-                out << "uniform ";
-            emitGlaSamplerType(out, mdSampler);
-
-            return false;
-        }
-        matrix = typeLayout == EMtlRowMajorMatrix || typeLayout == EMtlColMajorMatrix;
-        notSigned = typeLayout == EMtlUnsigned;
-
-        emitGlaLayout(out, typeLayout, location);
-
-        return true;
-    }
-
-    void emitGlaArraySize(std::ostringstream& out, int arraySize)
-    {
-        if (arraySize > 0)
-            out << "[" << arraySize << "]";
-    }
-
-    void emitGlaSamplerType(std::ostringstream& out, const llvm::MDNode* mdSamplerNode)
-    {
-        EMdSampler mdSampler;
-        llvm::Type* type;
-        EMdSamplerDim mdSamplerDim;
-        bool isArray;
-        bool isShadow;
-        EMdSamplerBaseType baseType;
-        if (gla::CrackSamplerMd(mdSamplerNode, mdSampler, type, mdSamplerDim, isArray, isShadow, baseType)) {
-            switch (baseType) {
-            case EMsbFloat:                  break;
-            case EMsbInt:        out << "i"; break;
-            case EMsbUint:       out << "u"; break;
-            default:             UnsupportedFunctionality("base type of sampler");  break;
-            }
-            switch (mdSampler) {
-            case EMsTexture:     out << "sampler";   break;
-            case EMsImage:       out << "image";     break;
-            default:             UnsupportedFunctionality("kind of sampler");  break;
-            }
-            switch (mdSamplerDim) {
-            case EMsd1D:       out << "1D";      break;
-            case EMsd2D:       out << "2D";      break;
-            case EMsd3D:       out << "3D";      break;
-            case EMsdCube:     out << "Cube";    break;
-            case EMsdRect:     out << "Rect";    break;
-            case EMsdBuffer:   out << "Buffer";  break;
-            default:           UnsupportedFunctionality("kind of sampler");  break;
-            }
-            if (isShadow)
-                out << "Shadow";
-            if (isArray)
-                out << "Array";
-        } else
-            UnsupportedFunctionality("sampler metadata", EATContinue);
-    }
-
-    void emitGlaInterpolationQualifier(EVariableQualifier qualifier, EInterpolationMethod interpMethod, EInterpolationLocation interpLocation)
-    {
-        if (interpLocation != EILLast) {
-            if (interpMethod != EIMNone) {
-                switch (interpLocation) {
-                case EILSample:        globalDeclarations << "sample ";        break;
-                case EILCentroid:      globalDeclarations << "centroid ";      break;
-                }
-            }
-
-            if (version >= 130) {
-                if (language == EShLangVertex   && qualifier == EVQOutput ||
-                    language == EShLangFragment && qualifier == EVQInput) {
-                    switch (interpMethod) {
-                    case EIMNone:          globalDeclarations << "flat ";          break;
-                    //case EIMSmooth:        globalDeclarations << "smooth ";        break;
-                    case EIMNoperspective: globalDeclarations << "noperspective "; break;
-                    }
-                }
-            }
-        }
-    }
-
-    void emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location)
-    {
-        const char* layoutStr = 0;
-
-        switch (layout) {
-        // members
-        case EMtlRowMajorMatrix:  layoutStr = "row_major";   break;
-        //case EMtlColMajorMatrix:  layoutStr = "col_major";   break;
-        // non-block members will always be col_major, and are not allowed such layout declarations,
-        // rely on that and the fact that we don't deal with overridden defaults at this level to omit col_major
-        
-        // blocks
-        case EMtlStd140:  layoutStr = "std140";   break;
-        case EMtlStd430:  layoutStr = "std430";   break;
-        case EMtlPacked:  layoutStr = "std430";   break;
-
-        default:  break;
-        }
-
-        if (location >= gla::MaxUserLayoutLocation && layoutStr == 0)
-            return;
-
-        bool comma = false;
-        out << "layout(";
-        if (layoutStr) {
-            out << layoutStr;
-            comma = true;
-        }
-        if (location < gla::MaxUserLayoutLocation) {
-            if (comma)
-                out << ", ";
-            out << "location=" << location;
-            comma = true;
-        }
-        out << ") ";
-    }
-
-    void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count = -1)
-    {
-        int arraySize = emitGlaType(out, EMpNone, EVQNone, type, false, 0, count);
-        emitGlaArraySize(out, arraySize);
-    }
-
-    // If valueMap has no entry for value, generate a name and declaration, and
-    // store it in valueMap. If forceGlobal is true, then it will make the
-    // declaration occur as a global.
-    void mapGlaValue(const llvm::Value* value, bool forceGlobal = false)
-    {
-        if (valueMap[value] == 0) {
-            // Figure out where our declaration should go
-            EVariableQualifier evq;
-            if (forceGlobal)
-                evq = gla::EVQGlobal;
-            else if (llvm::isa<llvm::PointerType>(value->getType()))
-                evq = gla::EVQTemporary;
-            else
-                evq = mapGlaAddressSpace(value);
-
-            std::string* newName = new std::string;
-            getNewVariableName(value, newName);
-            EMdPrecision precision = getPrecision(value);
-            const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
-
-            // Integer and floating-point constants have no precision, use highp to avoid precision loss across translations
-            if (precision == gla::EMpNone && constant && profile == EEsProfile)
-                if (! gla::IsBoolean(value->getType()))
-                    precision = gla::EMpHigh;
-
-            if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
-                declareVariable(precision, pointerType->getContainedType(0), *newName, evq);
-            } else {
-                declareVariable(precision, value->getType(), *newName, evq, constant);
-            }
-            valueMap[value] = newName;
-        }
-    }
-
-    void emitNonconvertedGlaValue(const llvm::Value* value)
-    {
-        std::string* name = nonConvertedMap[value];
-        if (name)
-            shader << name->c_str();
-        else
-            emitGlaValue(value);
-    }
-
-    void emitGlaValue(const llvm::Value* value)
-    {
-        assert(! llvm::isa<llvm::ConstantExpr>(value));
-
-        mapGlaValue(value);
-        shader << valueMap[value]->c_str();
-    }
-
-    void emitGlaStructName(std::ostringstream& out, const llvm::Type* structType)
-    {
-        std::string name = structNameMap[structType];
-        assert(name.c_str());
-        out << name;
-    }
-
-    std::string getGlaStructField(const llvm::Type* structType, int index, const llvm::MDNode* mdAggregate = 0)
-    {
-        std::string name;
-
-        if (mdAggregate) {
-            int aggOp = GetAggregateMdNameOp(index);
-            if (mdAggregate->getNumOperands() > aggOp) {
-                name = mdAggregate->getOperand(aggOp)->getName();
-
-                return name;
-            } else
-                UnsupportedFunctionality("missing name in aggregate", EATContinue);
-        }
-
-        name.append("member");
-            
-        const size_t bufSize = 10;
-        char buf[bufSize];
-        snprintf(buf, bufSize, "%d", index);
-        name.append(buf);
-
-        return name;
-    }
-
-    std::string getGlaValue(const llvm::Value* value)
-    {
-        mapGlaValue(value);
-
-        return valueMap[value]->c_str();
-    }
-
-    void emitFloatConstant(std::ostringstream& out, float f)
-    {
-        if (floor(f) == f) {
-            out << static_cast<int>(floor(f));
-            out << ".0";
-        } else
-            out << f;
-    }
-
-    // emitConstantInitializer will be called recursively for aggregate types.
-    // If the aggregate is zero initialized, sub-elements will not have a
-    // constant associated with them. For that case, and for ConstantAggregateZero,
-    // we only use the type to generate correct initializers.
-    void emitConstantInitializer(std::ostringstream& out, const llvm::Constant* constant, llvm::Type* type)
-    {
-        bool isZero;
-
-        if (! constant || IsUndef(constant))
-            isZero = true;
-        else if (llvm::isa<llvm::ConstantAggregateZero>(constant))
-            isZero = true;
-        else
-            isZero = false;
-
-        switch (type->getTypeID()) {
-
-        case llvm::Type::IntegerTyID:
-            {
-                if (isZero) {
-                    if (gla::IsBoolean(type))
-                        out << "false";
-                    else
-                        out << "0";
-                } else {
-                    if (gla::IsBoolean(type)) {
-                        if (GetConstantInt(constant))
-                            out << "true";
-                        else
-                            out << "false";
-                    } else
-                        out << GetConstantInt(constant);
-                }
-                break;
-            }
-
-        case llvm::Type::FloatTyID:
-            {
-                if (isZero)
-                    emitFloatConstant(out, 0.0);
-                else
-                    emitFloatConstant(out, GetConstantFloat(constant));
-                break;
-            }
-
-        case llvm::Type::VectorTyID:
-        case llvm::Type::ArrayTyID:
-        case llvm::Type::StructTyID:
-            {
-                emitGlaConstructor(out, type);
-                out << "(";
-
-                int numElements = 0;
-                llvm::Constant* splatValue = 0;
-                const llvm::ConstantDataVector* dataVector = 0;
-
-                if (const llvm::VectorType* vectorType = llvm::dyn_cast<llvm::VectorType>(type)) {
-                    if (! isZero) {
-                        // If all vector elements are equal, we only need to emit one
-                        bool same = true;
-                        dataVector = llvm::dyn_cast<llvm::ConstantDataVector>(constant);
-                        if (dataVector) {
-                            splatValue = dataVector->getSplatValue();
-                            if (! splatValue)
-                                same = false;
-                        } else if (! isZero) {
-                            for (int op = 1; op < vectorType->getNumElements(); ++op) {
-                                if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
-                                    same = false;
-                                    break;
-                                }
-                            }
-
-                            if (same)
-                                splatValue = llvm::dyn_cast<llvm::Constant>(constant->getOperand(0));
-                        }
-                    }
-                    numElements = vectorType->getNumElements();
-                } else if (const llvm::ArrayType*  arrayType = llvm::dyn_cast<llvm::ArrayType>(type))
-                    numElements = arrayType->getNumElements();
-                else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(type))
-                    numElements = structType->getNumElements();
-                else
-                    assert(0 && "Constant aggregate type");
-
-                if (isZero || splatValue)
-                    emitConstantInitializer(out, isZero ? 0 : splatValue, type->getContainedType(0));
-                else {
-                    for (int op = 0; op < numElements; ++op) {
-                        if (op > 0)
-                            out << ", ";
-
-                        const llvm::Constant* constElement;
-                        if (dataVector)
-                            constElement = dataVector->getElementAsConstant(op);
-                        else
-                            constElement = llvm::dyn_cast<llvm::Constant>(constant->getOperand(op));
-
-                        emitConstantInitializer(out, constElement,
-                                                type->getContainedType(type->getNumContainedTypes() > 1 ? op : 0));
-                    }
-                }
-
-                out << ")";
-                break;
-            }
-
-        default:
-            assert(0 && "Constant type in Bottom IR");
-        }
-    }
-
-    void emitInitializeAggregate(std::ostringstream& out, std::string name, const llvm::Constant* constant)
-    {
-        if (constant && IsDefined(constant) && ! IsScalar(constant) && ! AreAllDefined(constant)) {
-            // For a vector or array with undefined elements, propagate the defined elements
-            if (const llvm::ConstantVector* constVec = llvm::dyn_cast<llvm::ConstantVector>(constant)) {
-                for (int op = 0; op < constVec->getNumOperands(); ++op) {
-                    if (IsDefined(constVec->getOperand(op))) {
-                        out << std::endl << "    " << name;
-                        out << "." << mapComponentToSwizzleChar(op) << " = ";
-                        out << getGlaValue(constVec->getOperand(op));
-                        out << ";";
-                    }
-                }
-            } else if (const llvm::ConstantArray* constArray = llvm::dyn_cast<llvm::ConstantArray>(constant)) {
-                for (int op = 0; op < constArray->getNumOperands(); ++op) {
-                    if (IsDefined(constArray->getOperand(op))) {
-                        out << std::endl << "    " << name;
-                        out << "[" << op << "] = ";
-                        out << getGlaValue(constArray->getOperand(op));
-                        out << ";";
-                    }
-                }
-            } else if (const llvm::ConstantStruct* constStruct = llvm::dyn_cast<llvm::ConstantStruct>(constant)) {
-                for (int op = 0; op < constStruct->getNumOperands(); ++op) {
-                    if (IsDefined(constStruct->getOperand(op))) {
-                        out << std::endl << "    " << name;
-                        out << "." << getGlaStructField(constant->getType(), op) << " = ";
-                        out << getGlaValue(constStruct->getOperand(op));
-                        out << ";";
-                    }
-                }
-            } else {
-                gla::UnsupportedFunctionality("Partially defined aggregate type");
-            }
-        } else {
-            // This case is always handled by constant propagation
-        }
-    }
-
-    bool addNewVariable(const llvm::Value* value, std::string& name)
-    {
-        if (valueMap[value] == 0) {
-            // make a copy so caller can pass in temporary variables
-            valueMap[value] = new std::string(name);  // TODO: Goo: memory: delete these
-
-            return true;
-        } else {
-            assert(name == *valueMap[value]);
-
-            return false;
-        }
-    }
-
-    void emitGlaSwizzle(int glaSwizzle, int width, llvm::Value* source = 0)
-    {
-        if (source && gla::IsScalar(source))
-            return;
-
-        shader << ".";
-        // Pull each two bit channel out of the integer
-        for(int i = 0; i < width; i++)
-            emitComponentToSwizzle(GetSwizzle(glaSwizzle, i));
-    }
-
-    // Emit the swizzle represented by the vector of channel selections
-    void emitGlaSwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
-    {
-        shader << ".";
-
-        // Output the components for all defined channels
-        for (int i = 0; i < elts.size(); ++i) {
-            if (! IsDefined(elts[i]))
-                continue;
-
-            emitComponentToSwizzle(GetConstantInt(elts[i]));
-        }
-    }
-
-    // Emit a writemask. Emits a component for each defined element of the
-    // passed vector
-    void emitGlaWriteMask(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
-    {
-        shader << ".";
-
-        // Output the components for all defined channels
-        for (int i = 0; i < elts.size(); ++i) {
-            if (! IsDefined(elts[i]))
-                continue;
-
-            emitComponentToSwizzle(i);
-        }
-    }
-
-    // Whether the given intrinsic's specified operand is the same as the passed
-    // value, and its type is a vector.
-    bool isSameSource(llvm::Value *source, const llvm::IntrinsicInst *inst, int operand)
-    {
-        return (inst->getOperand(operand) == source)
-            && (source->getType()->getTypeID() == llvm::Type::VectorTyID);
-    }
-
-    // Writes out the vector arguments for the RHS of a multiInsert. Sets its
-    // first argument to false upon first execution
-    void writeVecArgs(bool &firstArg, const llvm::IntrinsicInst *inst, int operand)
-    {
-        if (firstArg)
-            firstArg = false;
-        else
-            shader << ", ";
-
-        emitGlaValue(inst->getOperand(operand));
-
-        // If it's a vector, extract the value
-        if (inst->getOperand(operand)->getType()->getTypeID() == llvm::Type::VectorTyID) {
-            shader << ".";
-            emitComponentToSwizzle(GetConstantInt(inst->getOperand(operand+1)));
-        }
-    }
-
-    // Returns a pointer to the common source of the multiinsert if they're all
-    // the same, otherwise returns null.
-    llvm::Value* getCommonSourceMultiInsert(const llvm::IntrinsicInst* inst)
-    {
-        llvm::Value* source = NULL;
-        bool sameSource = true;
-        int wmask = GetConstantInt(inst->getOperand(1));
-
-        for (int i = 0; i < 4; ++i) {
-            if (wmask & (1 << i)) {
-                int operandIndex = (i+1) * 2;
-                if (source)
-                    sameSource = sameSource && isSameSource(source, inst, operandIndex);
-                else
-                    source = inst->getOperand(operandIndex);
-            }
-        }
-
-        return sameSource ? source : NULL;
-
-    }
-
-    void emitGlaMultiInsertRHS(const llvm::IntrinsicInst* inst)
-    {
-        int wmask = GetConstantInt(inst->getOperand(1));
-        assert(wmask <= 0xF);
-        int argCount = 0;
-
-        // Count the args
-        for (int i = 0; i < 4; ++i) {
-            if (wmask & (1 << i))
-                ++argCount;
-        }
-
-        // If they're all from the same source just use/swizzle it. Otherwise
-        // construct a new vector
-        llvm::Value* source = getCommonSourceMultiInsert(inst);
-        if (source) {
-            emitGlaValue(source);
-
-            // Build up the rhs mask
-            int singleSourceMask = 0;
-            for (int i = 0, pos = 0; i < 4; ++i) {
-                // Get the component select
-                llvm::Constant* swizOffset = llvm::dyn_cast<llvm::Constant>(inst->getOperand(i*2 + 3));
-                if (IsDefined(swizOffset)) {
-                    singleSourceMask |= (GetConstantInt(swizOffset) << (pos*2));
-                    ++pos;
-                }
-            }
-            assert (singleSourceMask <= 0xFF);
-            emitGlaSwizzle(singleSourceMask, argCount, source);
-        } else {
-            emitGlaConstructor(shader, inst->getType(), argCount);
-            shader << "(";
-            bool firstArg = true;
-
-            for (int i = 0; i < 4; ++i) {
-                if (wmask & (1 << i)) {
-                    int operandIndex = (i+1) * 2;
-                    writeVecArgs(firstArg, inst, operandIndex);
-                }
-            }
-
-            shader << ")";
-        }
-    }
-
-    void emitGlaMultiInsert(const llvm::IntrinsicInst* inst)
-    {
-        int wmask = GetConstantInt(inst->getOperand(1));
-
-        newLine();
-
-        // Declare it.
-        emitGlaValue(inst);
-
-        llvm::Value* op = inst->getOperand(0);
-
-        // If the writemask is full, then just initialize it, and we're done
-        if (wmask == 0xF) {
-            shader << " = ";
-            emitGlaMultiInsertRHS(inst);
-            shader << ";";
-            return;
-        }
-
-        // If the origin is defined, initialize the new instruction to be the
-        // origin. If undefined, leave it declared and uninitialized.
-        if (IsDefined(op)) {
-            // Initialize it to be the origin.
-            shader << " = ";
-            emitGlaValue(op);
-        }
-
-        shader << ";";
-        newLine();
-
-        // If wmask is not all 1s, then do a lhs swizzle
-        emitGlaValue(inst);
-        if (wmask != 0xF) {
-            shader << ".";
-            emitMaskToSwizzle(wmask);
-        }
-        shader << " = ";
-
-        emitGlaMultiInsertRHS(inst);
-
-        // Finished with the statement
-        shader << ";";
-    }
-
-    // Gets a string representation for the given swizzling ExtractElement
-    // instruction, and sets str to it. Does nothing if passed something that
-    // isn't an ExtractElement
-    void getExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str)
-    {
-        if (! llvm::isa<llvm::ExtractElementInst>(llvmInstruction))
-            return;
-
-        str.assign(*valueMap[llvmInstruction->getOperand(0)]);
-        str.append(".").append(mapComponentToSwizzleChar(GetConstantInt(llvmInstruction->getOperand(1))));
-    }
-
-    // Traverse the indices used in either GEP or Insert/ExtractValue, and return a string representing
-    // it, not including the base.
-    std::string traverseGep(const llvm::Instruction* instr, EMdTypeLayout* mdTypeLayout = 0)
-    {
-        std::string gepName;
-
-        // Figure out any metadata description we have for this type of aggregate
-        llvm::Type* aggregateType = instr->getOperand(0)->getType();
-        while (aggregateType->getTypeID() == llvm::Type::PointerTyID || aggregateType->getTypeID() == llvm::Type::ArrayTyID)
-            aggregateType = aggregateType->getContainedType(0);
-        const llvm::MDNode* mdAggregate = typenameMdAggregateMap[aggregateType];
-
-        if (const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(instr)) {
-            // Start at operand 2 since indices 0 and 1 give you the base and are handled before traverseGep
-            const llvm::Type* gepType = gepInst->getPointerOperandType()->getContainedType(0);
-            for (unsigned int op = 2; op < gepInst->getNumOperands(); ++op)
-                dereferenceGep(gepType, gepName, gepInst->getOperand(op), -1, mdAggregate, mdTypeLayout);
-
-        } else if (const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(instr)) {
-            const llvm::Type* gepType = insertValueInst->getAggregateOperand()->getType();            
-            for (llvm::InsertValueInst::idx_iterator iter = insertValueInst->idx_begin(), end = insertValueInst->idx_end();  iter != end; ++iter)
-                dereferenceGep(gepType, gepName, 0, *iter, mdAggregate);
-
-        } else if (const llvm::ExtractValueInst* extractValueInst = llvm::dyn_cast<const llvm::ExtractValueInst>(instr)) {
-            const llvm::Type* gepType = extractValueInst->getAggregateOperand()->getType();  
-            for (llvm::ExtractValueInst::idx_iterator iter = extractValueInst->idx_begin(), end = extractValueInst->idx_end();  iter != end; ++iter)
-                dereferenceGep(gepType, gepName, 0, *iter, mdAggregate);
-
-        } else {
-            assert(0 && "non-GEP in traverseGEP");
-        }
-
-        return gepName;
-    }
-
-    // Traverse one step of a dereference chain and append to a string
-    // For constant indices, pass it in index.  Otherwise, provide it through gepOp (index will not be used)
-    void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout = 0)
-    {
-        if (operand) {
-            if (llvm::isa<const llvm::ConstantInt>(operand))
-                index = GetConstantInt(operand);
-            else
-                index = -1;
-        }
-
-        switch (type->getTypeID()) {
-        case llvm::Type::ArrayTyID:
-            assert(operand || index >= 0);
-
-            name.append("[");
-
-            if (index >= 0) {
-                const size_t bufSize = 10;
-                char buf[bufSize];
-                snprintf(buf, bufSize, "%d", index);
-                name.append(buf);
-            } else
-                name.append(getGlaValue(operand));
-
-            name.append("]");
-
-            type = type->getContainedType(0);
-            break;
-        case llvm::Type::StructTyID:
-            assert(index >= 0);
-
-            name.append(".");
-            name.append(getGlaStructField(type, index, mdAggregate));
-
-            // Deference the metadata aggregate 
-            if (mdAggregate) {
-                int aggOp = GetAggregateMdSubAggregateOp(index);
-                if (mdAggregate->getNumOperands() <= aggOp) {
-                    UnsupportedFunctionality("not enough mdAggregate operands", EATContinue);
-                    mdAggregate = 0;
-                } else 
-                    mdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(aggOp));
-
-                if (mdAggregate && mdTypeLayout)
-                    *mdTypeLayout = GetMdTypeLayout(mdAggregate);
-            }
-
-            type = type->getContainedType(index);
-            break;
-        default:
-            assert(0 && "Dereferencing non array/struct");
-            break;
-        }
-    }
-
-    void mapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstruction, bool input)
-    {
-        // Key issue:  We can figure out a slot type from the instruction, 
-        // but it's not necessarily the type of the whole variable getting read,
-        // just a slice of it.  So, need to get the whole type, from metadata.  
-        //
-        // Further, there will be multiple instructions (multiple Value*)
-        // that fill in the same whole variable, making a many:1 mapping
-        // between Value* and input declaration.
-        
-        std::string name;
-        llvm::Type* type;
-        EMdInputOutput mdQual;
-        int layoutLocation;
-        EMdPrecision mdPrecision;
-        EMdTypeLayout mdLayout;
-        const llvm::MDNode* mdAggregate;
-        const llvm::MDNode* dummySampler;
-        const llvm::MDNode* mdNode = llvmInstruction->getMetadata(input ? gla::InputMdName : gla::OutputMdName);
-        int interpMode;
-        EInterpolationMethod interpMethod;
-        EInterpolationLocation interpLocation;
-        if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode)) {
-            // This path should not exist; it is a backup path for missing metadata.
-            // TODO: LunarGOO functionality: fix missing metadata instruction operands.
-            UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
-
-            // emulate (through imperfect guessing) the missing metadata
-            name = llvmInstruction->getName();
-            type = llvmInstruction->getType();
-            mdLayout = EMtlNone;
-            mdPrecision = EMpNone;
-            layoutLocation = gla::MaxUserLayoutLocation;
-            mdAggregate = 0;
-            interpLocation = EILFragment;
-            if (gla::GetBasicType(llvmInstruction->getType())->isFloatTy())
-                interpMethod = EIMSmooth;
-            else
-                interpMethod = EIMNone;
-        } else
-            CrackInterpolationMode(interpMode, interpMethod, interpLocation);
-
-        // add the dereference syntax
-        // TODO: Goo functionality: outputs don't yet have layout slot bases, so indexing into big things will be incorrect
-        std::string derefName = name;
-        int slotOffset = GetConstantInt(llvmInstruction->getOperand(0)) - layoutLocation;
-        dereferenceName(derefName, type, mdAggregate, slotOffset, mdLayout);
-        bool notSigned = mdLayout == EMtlUnsigned;
-
-        switch (llvmInstruction->getIntrinsicID()) {
-        case llvm::Intrinsic::gla_writeData:
-        case llvm::Intrinsic::gla_fWriteData:
-        {
-            llvm::Value* value = llvmInstruction->getOperand(2);
-            mapGlaValue(value);
-            std::string wrapped = *valueMap[value];
-            if (notSigned)
-                conversionWrap(wrapped, value->getType(), true);
-            newLine();
-            shader << derefName << " = " << wrapped << ";";
-            break;
-        }
-        case llvm::Intrinsic::gla_readData:
-        case llvm::Intrinsic::gla_fReadData:
-        case llvm::Intrinsic::gla_fReadInterpolant:
-            // A pipeline read only creates the mapping to the name, not the use.
-            // The use will come later by looking up the mapping between Value* and
-            // the name associated with it.
-            //
-            // NOTE!  The mapped name will include the deferences, like "foo[3].v", *in the name*.
-            
-            // Add an int-based constructor around it, if needed.
-            // It will never be a matrix, we dereferenced down to a slot already
-            if (notSigned)
-                conversionWrap(derefName, llvmInstruction->getType(), false);
-
-            if (addNewVariable(llvmInstruction, derefName)) {
-
-                if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fReadInterpolant) {
-                    EInterpolationMode mode = GetConstantInt(llvmInstruction->getOperand(2));
-                    CrackInterpolationMode(mode, interpMethod, interpLocation);
-                } else
-                    interpMethod = EIMNone;   // needed for 'flat' with non-interpolation 'in'
-            }
-
-            break;
-        default:
-            UnsupportedFunctionality("IO Intrinsic");
-            break;
-        }
-    }
-
-    //
-    // *Textually* deference a name string down to a single I/O slot.
-    //
-    void dereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNode* mdAggregate, int slotOffset, EMdTypeLayout& mdTypeLayout)
-    {
-        // Operates recursively...
-
-        if (type->getTypeID() == llvm::Type::PointerTyID) {
-            type = type->getContainedType(0);
-
-            dereferenceName(name, type, mdAggregate, slotOffset, mdTypeLayout);
-        } else if (type->getTypeID() == llvm::Type::StructTyID) {
-            int field = 0;
-            int operand;
-            const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
-            const llvm::Type* fieldType;
-            do {
-                operand = GetAggregateMdSubAggregateOp(field);
-                if (operand >= mdAggregate->getNumOperands()) {
-                    assert(operand < mdAggregate->getNumOperands());
-                    return;
-                }
-                fieldType = structType->getContainedType(field);
-                int fieldSize = slotCount(fieldType);
-                if (fieldSize > slotOffset)
-                    break;
-                slotOffset -= fieldSize;
-                ++field;
-            } while (true);
-            name = name + "." + std::string(mdAggregate->getOperand(GetAggregateMdNameOp(field))->getName());
-            const llvm::MDNode* subMdAggregate = llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand));
-            dereferenceName(name, fieldType, subMdAggregate, slotOffset, mdTypeLayout);
-        } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
-            const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
-            int elementSize = slotCount(arrayType->getContainedType(0));
-            int element = slotOffset / elementSize;
-            slotOffset = slotOffset % elementSize;
-
-            char buf[11];
-            snprintf(buf, sizeof(buf), "%d", element);
-            name = name + "[" + buf + "]";
-        
-            dereferenceName(name, arrayType->getContainedType(0), mdAggregate, slotOffset, mdTypeLayout);
-        } else if (mdAggregate)
-            mdTypeLayout = GetMdTypeLayout(mdAggregate);
-    }
-
-    int slotCount(const llvm::Type* type)
-    {
-        if (type->getTypeID() == llvm::Type::VectorTyID)
-            return 1;
-        else if (type->getTypeID() == llvm::Type::ArrayTyID) {
-            const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
-            return arrayType->getNumElements() * slotCount(arrayType->getContainedType(0));
-        } else if (type->getTypeID() == llvm::Type::StructTyID) {
-            const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
-            int slots = 0;
-            for (unsigned int f = 0; f < structType->getStructNumElements(); ++f)
-                slots += slotCount(structType->getContainedType(f));
-
-            return slots;
-        }
-
-        return 1;
-    }
-
-    // Either convert to (from) an unsigned int or to (from) a matrix
-    // toIO means converting from an internal variable to an I/O variable, if false, it's the other direction
-    // integer means doing unsigned/signed conversion, if false, then doing matrix/array conversion
-    void conversionWrap(std::string& name, llvm::Type* type, bool toIO)
-    {
-        std::ostringstream wrapped;
-
-        if (gla::IsInteger(type)) {
-            if (GetComponentCount(type) == 1)
-                wrapped << (toIO ? "uint(" : "int(");
-            else {
-                wrapped << (toIO ? "uvec" : "ivec");
-                switch (GetComponentCount(type)) {
-                case 2:  wrapped << "2(";    break;
-                case 3:  wrapped << "3(";    break;
-                case 4:  wrapped << "4(";    break;
-                default: UnsupportedFunctionality("conversion wrapper");  break;
-                }
-            }
-            wrapped << name << ")";
-        } else if (gla::CouldBeMatrix(type)) {
-            llvm::ArrayType* array = llvm::dyn_cast<llvm::ArrayType>(type);
-            llvm::VectorType* vector = llvm::dyn_cast<llvm::VectorType>(array->getContainedType(0));
-            if (toIO)
-                wrapped << "mat" << array->getNumElements() << "x" << vector->getNumElements();
-            else
-                wrapped << "vec" << vector->getNumElements() << "[" << array->getNumElements() << "]";
-            wrapped << "(";
-            if (toIO)
-                wrapped << name;
-            else {
-                for (int e = 0; e < array->getNumElements(); ++e) {
-                    if (e > 0)
-                        wrapped << ", ";
-                    wrapped << name << "[" << e << "]";
-                }
-            }
-            wrapped << ")";
-        } else
-            return;
-
-        name = wrapped.str();
-    }
+                         EMdPrecision& precision, bool& matrix, bool& notSigned, const llvm::MDNode*& mdAggregate, bool& block);
+    void emitGlaArraySize(std::ostringstream& out, int arraySize);
+    void emitGlaSamplerType(std::ostringstream& out, const llvm::MDNode* mdSamplerNode);
+    void emitGlaInterpolationQualifier(EVariableQualifier qualifier, EInterpolationMethod interpMethod, EInterpolationLocation interpLocation);
+    void emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location);
+    void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count = -1);
+    void emitMapGlaValue(const llvm::Value* value, bool forceGlobal = false);
+    void emitNonconvertedGlaValue(const llvm::Value* value);
+    void emitGlaValue(const llvm::Value* value);
+    void emitGlaStructName(std::ostringstream& out, const llvm::Type* structType);
+    std::string emitGetGlaValue(const llvm::Value* value);
+    void emitFloatConstant(std::ostringstream& out, float f);
+    void emitConstantInitializer(std::ostringstream& out, const llvm::Constant* constant, llvm::Type* type);
+    void emitInitializeAggregate(std::ostringstream& out, std::string name, const llvm::Constant* constant);
+    void emitGlaSwizzle(int glaSwizzle, int width, llvm::Value* source = 0);
+    void emitGlaSwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts);
+    void emitGlaWriteMask(const llvm::SmallVectorImpl<llvm::Constant*>& elts);
+    void emitVectorArguments(bool &firstArg, const llvm::IntrinsicInst *inst, int operand);
+    void emitGlaMultiInsertRHS(const llvm::IntrinsicInst* inst);
+    void emitGlaMultiInsert(const llvm::IntrinsicInst* inst);
+    void emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstruction, bool input);
+
+    std::string traverseGep(const llvm::Instruction* instr, EMdTypeLayout* mdTypeLayout = 0);
+    void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout = 0);
 
     // mapping from LLVM values to Glsl variables
     std::map<const llvm::Value*, std::string*> valueMap;
@@ -1926,6 +262,7 @@ protected:
 //
 // Factory for GLSL back-end translator
 //
+
 gla::BackEndTranslator* gla::GetGlslTranslator(Manager* manager)
 {
     return new gla::GlslTarget(manager);
@@ -1936,10 +273,239 @@ void gla::ReleaseGlslTranslator(gla::BackEndTranslator* target)
     delete target;
 }
 
+//
+// File-local helpers
+//
+
+namespace {
+
+using namespace gla;
+
+bool IsIdentitySwizzle(int glaSwizzle, int width)
+{
+    for (int i = 0; i < width; ++i) {
+        if (GetSwizzle(glaSwizzle, i) != i)
+            return false;
+    }
+
+    return true;
+}
+
+bool IsIdentitySwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
+{
+    for (int i = 0; i < elts.size(); ++i) {
+        if (IsUndef(elts[i]) || i != GetConstantInt(elts[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Either convert to (from) an unsigned int or to (from) a matrix
+// toIO means converting from an internal variable to an I/O variable, if false, it's the other direction
+// integer means doing unsigned/signed conversion, if false, then doing matrix/array conversion
+void ConversionWrap(std::string& name, llvm::Type* type, bool toIO)
+{
+    std::ostringstream wrapped;
+
+    if (IsInteger(type)) {
+        if (GetComponentCount(type) == 1)
+            wrapped << (toIO ? "uint(" : "int(");
+        else {
+            wrapped << (toIO ? "uvec" : "ivec");
+            switch (GetComponentCount(type)) {
+            case 2:  wrapped << "2(";    break;
+            case 3:  wrapped << "3(";    break;
+            case 4:  wrapped << "4(";    break;
+            default: UnsupportedFunctionality("conversion wrapper");  break;
+            }
+        }
+        wrapped << name << ")";
+    } else if (CouldBeMatrix(type)) {
+        llvm::ArrayType* array = llvm::dyn_cast<llvm::ArrayType>(type);
+        llvm::VectorType* vector = llvm::dyn_cast<llvm::VectorType>(array->getContainedType(0));
+        if (toIO)
+            wrapped << "mat" << array->getNumElements() << "x" << vector->getNumElements();
+        else
+            wrapped << "vec" << vector->getNumElements() << "[" << array->getNumElements() << "]";
+        wrapped << "(";
+        if (toIO)
+            wrapped << name;
+        else {
+            for (int e = 0; e < array->getNumElements(); ++e) {
+                if (e > 0)
+                    wrapped << ", ";
+                wrapped << name << "[" << e << "]";
+            }
+        }
+        wrapped << ")";
+    } else
+        return;
+
+    name = wrapped.str();
+}
+
+//
+// Xor is a strange thing:
+//  - for scalar Booleans, it looks like "^^"
+//  - for vector Booleans, GLSL doesn't have one
+//  - for scalar and vector integers, it looks like "^"
+//  - if an integer operand is all 1s, it can be represented as unary "~" on the other operand
+//  - if a scalar Boolean operand is true, it can be represented as unary "!" on the other operand
+//  - if a vector Boolean operand is all true, it can be represented as "not(...)"
+//
+const char* MapGlaXor(const llvm::Instruction* llvmInstruction, int& unaryOperand)
+{
+    bool scalar = IsScalar(llvmInstruction->getType());
+    bool boolean = IsBoolean(llvmInstruction->getType());
+
+    bool op0AllSet = HasAllSet(llvmInstruction->getOperand(0));
+    bool op1AllSet = HasAllSet(llvmInstruction->getOperand(1));
+
+    // first, see if it could be unary
+
+    if (op0AllSet || op1AllSet) {
+        // unary; set which operand is the real one to operate on
+        if (op0AllSet)
+            unaryOperand = 1;
+        else
+            unaryOperand = 0;
+
+        if (scalar && boolean)
+            return "!";
+
+        if (!scalar && boolean)
+            return "not";
+
+        if (!boolean)
+            return "~";
+
+        UnsupportedFunctionality("xor", EATContinue);
+
+        return "!";
+    }
+
+    // now go for binary
+
+    if (scalar && boolean)
+        return "^^";
+
+    if (!boolean)
+        return "^";
+
+    UnsupportedFunctionality("xor", EATContinue);
+
+    return "^";
+}
+
+EVariableQualifier MapGlaAddressSpace(const llvm::Value* value)
+{
+    if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
+        switch (pointer->getAddressSpace()) {
+        case ResourceAddressSpace:
+            return EVQUniform;
+        case GlobalAddressSpace:
+            return EVQGlobal;
+        default:
+            if (pointer->getAddressSpace() >= ConstantAddressSpaceBase)
+                return EVQUniform;
+
+            UnsupportedFunctionality("Address Space in Bottom IR: ", pointer->getAddressSpace());
+        }
+    }
+
+    if (llvm::isa<llvm::Instruction>(value))
+        return EVQTemporary;
+
+    // Check for an undef before a constant (since Undef is a
+    // subclass of Constant)
+    if (AreAllUndefined(value)) {
+        return EVQUndef;
+    }
+
+    if (llvm::isa<llvm::Constant>(value)) {
+        return EVQConstant;
+    }
+
+    return EVQTemporary;
+}
+
+const char* MapGlaToQualifierString(int version, EShLanguage language, EVariableQualifier vq)
+{
+    switch (vq) {
+    case EVQUniform:         return "uniform";
+    case EVQGlobal:          return "global";
+    case EVQInput:
+        if (version >= 130)
+            return "in";
+        else if (language == EShLangVertex)
+            return "attribute";
+        else
+            return "varying";
+    case EVQOutput:
+        if (version >= 130)
+            return "out";
+        else
+            return "varying";
+    case EVQTemporary:       return "temp";
+    case EVQConstant:        return "const";
+    default:
+        return "";
+    }
+}
+
+const char* MapGlaToPrecisionString(EMdPrecision precision)
+{
+    switch (precision) {
+    case EMpLow:      return "lowp";
+    case EMpMedium:   return "mediump";
+    case EMpHigh:     return "highp";
+    default:          return "";
+    }
+}
+
+const char* MapComponentToSwizzleChar(int component)
+{
+    switch (component) {
+    case 0:   return "x";
+    case 1:   return "y";
+    case 2:   return "z";
+    case 3:   return "w";
+    default:  assert(! "Vector too large");
+    }
+
+    return "x";
+}
+
+std::string MapGlaStructField(const llvm::Type* structType, int index, const llvm::MDNode* mdAggregate = 0)
+{
+    std::string name;
+
+    if (mdAggregate) {
+        int aggOp = GetAggregateMdNameOp(index);
+        if (mdAggregate->getNumOperands() > aggOp) {
+            name = mdAggregate->getOperand(aggOp)->getName();
+
+            return name;
+        } else
+            UnsupportedFunctionality("missing name in aggregate", EATContinue);
+    }
+
+    name.append("member");
+            
+    const size_t bufSize = 10;
+    char buf[bufSize];
+    snprintf(buf, bufSize, "%d", index);
+    name.append(buf);
+
+    return name;
+}
+
 // Write the string representation of an operator. If it's an xor of some
 // register and true, then unaryOperand will be set to the index for the
 // non-true operand, and s will contain "!".
-void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryOperand, bool& nested)
+void GetOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryOperand, bool& nested)
 {
     nested = false;
 
@@ -1979,21 +545,21 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
         s = ">>";
         break;
     case llvm::Instruction::And:
-        if (gla::IsBoolean(llvmInstruction->getOperand(0)->getType())) {
+        if (IsBoolean(llvmInstruction->getOperand(0)->getType())) {
             s = "&&";
         } else {
             s = "&";
         }
         break;
     case llvm::Instruction::Or:
-        if (gla::IsBoolean(llvmInstruction->getOperand(0)->getType())) {
+        if (IsBoolean(llvmInstruction->getOperand(0)->getType())) {
             s = "||";
         } else {
             s = "|";
         }
         break;
     case llvm::Instruction::Xor:
-        s = mapGlaXor(llvmInstruction, unaryOperand);
+        s = MapGlaXor(llvmInstruction, unaryOperand);
         break;
     case llvm::Instruction::ICmp:
     case llvm::Instruction::FCmp:
@@ -2050,7 +616,7 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
         break;
 
     case llvm::Instruction::FPToUI:
-        switch (gla::GetComponentCount(llvmInstruction)) {
+        switch (GetComponentCount(llvmInstruction)) {
         case 1: s = "int(uint";  break;
         case 2: s = "ivec2(uvec2"; break;
         case 3: s = "ivec3(uvec3"; break;
@@ -2062,7 +628,7 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
         break;
     case llvm::Instruction::ZExt:
     case llvm::Instruction::FPToSI:
-        switch (gla::GetComponentCount(llvmInstruction)) {
+        switch (GetComponentCount(llvmInstruction)) {
         case 1: s = "int";   break;
         case 2: s = "ivec2"; break;
         case 3: s = "ivec3"; break;
@@ -2073,7 +639,7 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
         break;
     case llvm::Instruction::UIToFP:
     case llvm::Instruction::SIToFP:
-        switch (gla::GetComponentCount(llvmInstruction)) {
+        switch (GetComponentCount(llvmInstruction)) {
         case 1: s = "float"; break;
         case 2: s = "vec2";  break;
         case 3: s = "vec3";  break;
@@ -2089,10 +655,242 @@ void gla::GlslTarget::getOp(const llvm::Instruction* llvmInstruction, std::strin
     }
 }
 
+EMdPrecision GetPrecision(const llvm::Value* value)
+{
+    EMdPrecision precision = EMpNone;
+
+    if (const llvm::Instruction* instr = llvm::dyn_cast<const llvm::Instruction>(value))
+        CrackPrecisionMd(instr, precision);
+
+    return precision;
+}
+
+bool NeedsShadowRefZArg(const llvm::IntrinsicInst* llvmInstruction)
+{
+    // Check flags for RefZ
+    int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
+
+    return (texFlags & ETFRefZArg);
+}
+
+bool NeedsLodArg(const llvm::IntrinsicInst* llvmInstruction)
+{
+    // Check flags for bias/lod
+    int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
+
+    return (texFlags & ETFLod);
+}
+
+bool NeedsBiasArg(const llvm::IntrinsicInst* llvmInstruction)
+{
+    // Check flags for bias/lod
+    int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
+
+    return (texFlags & ETFBiasLodArg) && ! (texFlags & ETFLod);
+}
+
+bool NeedsOffsetArg(const llvm::IntrinsicInst* llvmInstruction)
+{
+    // Check flags for offset arg
+    int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
+
+    return (texFlags & ETFOffsetArg);
+}
+
+void MakeParseable(std::string& name)
+{
+    // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
+    for (int c = 0; c < name.length(); ++c) {
+        if (name[c] == '.' || name[c] == '-')
+            name[c] = 'd';
+    }
+}
+
+// Whether the given intrinsic's specified operand is the same as the passed
+// value, and its type is a vector.
+bool IsSameSource(llvm::Value *source, const llvm::IntrinsicInst *inst, int operand)
+{
+    return (inst->getOperand(operand) == source)
+        && (source->getType()->getTypeID() == llvm::Type::VectorTyID);
+}
+
+// Returns a pointer to the common source of the multiinsert if they're all
+// the same, otherwise returns null.
+llvm::Value* GetCommonSourceMultiInsert(const llvm::IntrinsicInst* inst)
+{
+    llvm::Value* source = NULL;
+    bool sameSource = true;
+    int wmask = GetConstantInt(inst->getOperand(1));
+
+    for (int i = 0; i < 4; ++i) {
+        if (wmask & (1 << i)) {
+            int operandIndex = (i+1) * 2;
+            if (source)
+                sameSource = sameSource && IsSameSource(source, inst, operandIndex);
+            else
+                source = inst->getOperand(operandIndex);
+        }
+    }
+
+    return sameSource ? source : NULL;
+}
+
 //
-// Add an LLVM instruction to the end of the GLSL instructions.
+// Figure out how many I/O slots 'type' would fill up.
 //
-void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope)
+int CountSlots(const llvm::Type* type)
+{
+    if (type->getTypeID() == llvm::Type::VectorTyID)
+        return 1;
+    else if (type->getTypeID() == llvm::Type::ArrayTyID) {
+        const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
+        return arrayType->getNumElements() * CountSlots(arrayType->getContainedType(0));
+    } else if (type->getTypeID() == llvm::Type::StructTyID) {
+        const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
+        int slots = 0;
+        for (unsigned int f = 0; f < structType->getStructNumElements(); ++f)
+            slots += CountSlots(structType->getContainedType(f));
+
+        return slots;
+    }
+
+    return 1;
+}
+
+//
+// *Textually* deference a name string down to a single I/O slot.
+//
+void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNode* mdAggregate, int slotOffset, EMdTypeLayout& mdTypeLayout)
+{
+    // Operates recursively...
+
+    if (type->getTypeID() == llvm::Type::PointerTyID) {
+        type = type->getContainedType(0);
+
+        DereferenceName(name, type, mdAggregate, slotOffset, mdTypeLayout);
+    } else if (type->getTypeID() == llvm::Type::StructTyID) {
+        int field = 0;
+        int operand;
+        const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
+        const llvm::Type* fieldType;
+        do {
+            operand = GetAggregateMdSubAggregateOp(field);
+            if (operand >= mdAggregate->getNumOperands()) {
+                assert(operand < mdAggregate->getNumOperands());
+                return;
+            }
+            fieldType = structType->getContainedType(field);
+            int fieldSize = CountSlots(fieldType);
+            if (fieldSize > slotOffset)
+                break;
+            slotOffset -= fieldSize;
+            ++field;
+        } while (true);
+        name = name + "." + std::string(mdAggregate->getOperand(GetAggregateMdNameOp(field))->getName());
+        const llvm::MDNode* subMdAggregate = llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand));
+        DereferenceName(name, fieldType, subMdAggregate, slotOffset, mdTypeLayout);
+    } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
+        const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
+        int elementSize = CountSlots(arrayType->getContainedType(0));
+        int element = slotOffset / elementSize;
+        slotOffset = slotOffset % elementSize;
+
+        char buf[11];
+        snprintf(buf, sizeof(buf), "%d", element);
+        name = name + "[" + buf + "]";
+        
+        DereferenceName(name, arrayType->getContainedType(0), mdAggregate, slotOffset, mdTypeLayout);
+    } else if (mdAggregate)
+        mdTypeLayout = GetMdTypeLayout(mdAggregate);
+}
+
+}; // end anonymous namespace
+
+//
+// Implement the GLSL Target
+//
+
+void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
+{
+    // skip uniforms and other objects, just get the regular global variables
+    if (MapGlaAddressSpace(global) != EVQGlobal)
+        return;
+
+    llvm::Type* type;
+    if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType()))
+        type = pointer->getContainedType(0);
+    else
+        type = global->getType();
+
+    std::string name = global->getName();
+    std::string declareName = name;
+
+    MakeParseable(name);
+    addVariable(global, name);
+    emitVariableDeclaration(EMpNone, type, declareName, MapGlaAddressSpace(global));
+
+    if (global->hasInitializer()) {
+        const llvm::Constant* constant = global->getInitializer();
+        emitInitializeAggregate(globalInitializers, global->getName(), constant);
+    }
+}
+
+void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode)
+{
+    // TODO: allow "gl_" for adding invariant, etc.
+    std::string name = mdNode->getOperand(0)->getName();
+    if (name.substr(0,3) == std::string("gl_"))
+        return;
+
+    int arraySize = emitGlaType(globalDeclarations, EMpCount, qualifier, 0, true, mdNode);
+    globalDeclarations << " " << std::string(name);
+    emitGlaArraySize(globalDeclarations, arraySize);
+    globalDeclarations << ";" << std::endl;
+}
+
+void gla::GlslTarget::startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name)
+{
+    newLine();
+    int arraySize = emitGlaType(shader, EMpNone, EVQNone, type->getContainedType(0));        
+    emitGlaArraySize(shader, arraySize);
+    // TODO: Goo: ES functionality: how do we know the precision or unsignedness of a function declaration?
+    shader << " " << name.str() << "(";
+
+    if (name == std::string("main"))
+        appendInitializers = true;
+}
+
+void gla::GlslTarget::addArgument(const llvm::Value* value, bool last)
+{
+    emitGlaValue(value);
+    if (! last)
+        shader << ", ";
+}
+
+void gla::GlslTarget::endFunctionDeclaration()
+{
+    shader << ")";
+}
+
+void gla::GlslTarget::startFunctionBody()
+{
+    newLine();
+    newScope();
+
+    if (appendInitializers && globalInitializers.str().length() > 0) {
+        // Reset bool so these are only emitted in main()
+        appendInitializers = false;
+        shader << globalInitializers.str();
+        newLine();
+    }
+}
+
+void gla::GlslTarget::endFunctionBody()
+{
+    leaveScope();
+}
+
+void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope)
 {
     std::string charOp;
     int unaryOperand = -1;
@@ -2102,18 +900,18 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         llvm::Instruction* inst = llvm::dyn_cast<llvm::Instruction>(*i);
         if (inst) {
             if (valueMap[*i] == 0)
-                add(inst, lastBlock);
+                addInstruction(inst, lastBlock);
             }
     }
 
     // If the instruction is referenced outside of the current scope
     // (e.g. inside a loop body), then add a (global) declaration for it.
     if (referencedOutsideScope) {
-        mapGlaValue(llvmInstruction, referencedOutsideScope);
+        emitMapGlaValue(llvmInstruction, referencedOutsideScope);
     }
 
     bool nested;
-    getOp(llvmInstruction, charOp, unaryOperand, nested);
+    GetOp(llvmInstruction, charOp, unaryOperand, nested);
 
     // Handle the binary ops
     if (! charOp.empty() && unaryOperand == -1) {
@@ -2161,11 +959,11 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
     case llvm::Instruction::Call: // includes intrinsics...
         if (const llvm::IntrinsicInst* intrinsic = llvm::dyn_cast<llvm::IntrinsicInst>(llvmInstruction)) {
-            mapGlaIntrinsic(intrinsic);
+            emitGlaIntrinsic(intrinsic);
         } else {
             const llvm::CallInst* call = llvm::dyn_cast<llvm::CallInst>(llvmInstruction);
             assert(call);
-            mapGlaCall(call);
+            emitGlaCall(call);
         }
         
         return;
@@ -2244,7 +1042,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
             // We want phis to use the same variable name created during phi declaration
             if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {                
-                addNewVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
+                addVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
 
                 return;
             } 
@@ -2266,7 +1064,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                     name = gepInstr->getOperand(0)->getName();
                 else
                     name = llvmInstruction->getOperand(0)->getName();
-                makeParseable(name);
+                MakeParseable(name);
                 UnsupportedFunctionality("missing metadata on load", 0, name.c_str(), EATContinue);
             }
             
@@ -2287,9 +1085,9 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                     // dereference never had to be constructed into an array of arrays
                     nonConvertedMap[llvmInstruction] = new std::string(name);  // TODO: LunarGOO memory: free these
                 }
-                conversionWrap(name, llvmInstruction->getType(), false);
+                ConversionWrap(name, llvmInstruction->getType(), false);
             }
-            addNewVariable(llvmInstruction, name);
+            addVariable(llvmInstruction, name);
 
             return;
         }
@@ -2312,7 +1110,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                 else
                     name = gepInstr->getOperand(0)->getName();
                 name.append(traverseGep(gepInstr));
-                addNewVariable(gepInstr, name);
+                addVariable(gepInstr, name);
             }
 
             newLine();
@@ -2327,11 +1125,11 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
     case llvm::Instruction::ExtractElement:
         {
-            mapGlaValue(llvmInstruction->getOperand(0));
+            emitMapGlaValue(llvmInstruction->getOperand(0));
 
             // copy propagate, by name string, the extracted component
             std::string swizzled;
-            getExtractElementStr(llvmInstruction, swizzled);
+            mapExtractElementStr(llvmInstruction, swizzled);
 
             // If we're globally referenced, then we should have a name for
             // ourselves inside valueMap. In that case, update it to be our
@@ -2339,13 +1137,13 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             if (referencedOutsideScope)
                 valueMap[llvmInstruction] = new std::string(swizzled);
             else
-                addNewVariable(llvmInstruction, swizzled);
+                addVariable(llvmInstruction, swizzled);
         }
         return;
 
     case llvm::Instruction::InsertElement:
         // copy propagate, by name string the, the starting name of the object
-        // addNewVariable(llvmInstruction, valueMap[llvmInstruction->getOperand(0)]->c_str());
+        // addVariable(llvmInstruction, valueMap[llvmInstruction->getOperand(0)]->c_str());
 
         // first, copy whole the structure "inserted into" to the resulting "value" of the insert
         newLine();
@@ -2424,7 +1222,7 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         // propagate aggregate name
         llvm::Value* dest = llvmInstruction->getOperand(0);
         //valueMap[llvmInstruction] = valueMap[dest];
-        addNewVariable(llvmInstruction, *valueMap[dest]);
+        addVariable(llvmInstruction, *valueMap[dest]);
 
         return;
     }
@@ -2479,75 +1277,405 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
     }
 }
 
-//
-// Xor is a strange thing:
-//  - for scalar Booleans, it looks like "^^"
-//  - for vector Booleans, GLSL doesn't have one
-//  - for scalar and vector integers, it looks like "^"
-//  - if an integer operand is all 1s, it can be represented as unary "~" on the other operand
-//  - if a scalar Boolean operand is true, it can be represented as unary "!" on the other operand
-//  - if a vector Boolean operand is all true, it can be represented as "not(...)"
-//
-const char* gla::GlslTarget::mapGlaXor(const llvm::Instruction* llvmInstruction, int& unaryOperand)
+void gla::GlslTarget::declarePhiCopy(const llvm::Value* dst)
 {
-    bool scalar = IsScalar(llvmInstruction->getType());
-    bool boolean = IsBoolean(llvmInstruction->getType());
+    newLine();
+    emitGlaValue(dst);
+    shader << ";";
+}
 
-    bool op0AllSet = HasAllSet(llvmInstruction->getOperand(0));
-    bool op1AllSet = HasAllSet(llvmInstruction->getOperand(1));
+void gla::GlslTarget::addPhiCopy(const llvm::Value* dst, const llvm::Value* src)
+{
+    newLine();
+    emitGlaValue(dst);
+    shader << " = ";
+    emitGlaOperand(src);
+    shader << ";";
+}
 
-    // first, see if it could be unary
+void gla::GlslTarget::addIf(const llvm::Value* cond, bool invert)
+{
+    newLine();
+    shader << "if (";
 
-    if (op0AllSet || op1AllSet) {
-        // unary; set which operand is the real one to operate on
-        if (op0AllSet)
-            unaryOperand = 1;
+    if (invert)
+        shader << "! ";
+
+    emitGlaOperand(cond);
+    shader << ") ";
+    newScope();
+}
+
+void gla::GlslTarget::addElse()
+{
+    leaveScope();
+    shader << "else ";
+    newScope();
+}
+
+void gla::GlslTarget::addEndif()
+{
+    leaveScope();
+}
+
+void gla::GlslTarget::beginConditionalLoop()
+{
+    UnsupportedFunctionality("conditional loops");
+}
+
+void gla::GlslTarget::beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const llvm::Value* op1, const llvm::Value* op2, bool invert)
+{
+    newLine();
+    std::string str;
+    std::string opStr;
+    int pos = -1;
+    bool nested;
+    GetOp(cmp, opStr, pos, nested);
+
+    bool binOp = false;
+    if (pos == -1)
+        binOp = true;
+
+    // TODO: Goo: add support for unary ops (and xor)
+
+    if (! binOp)
+        UnsupportedFunctionality("unary op for simple conditional loops");
+
+    shader << "while (";
+
+    if (invert)
+        shader << "! (";
+
+    if (const llvm::Instruction* opInst1 = llvm::dyn_cast<llvm::Instruction>(op1)) {
+        mapExtractElementStr(opInst1, str);
+        if (! str.empty())
+            shader << str;
         else
-            unaryOperand = 0;
+            emitGlaValue(op1);
+    } else
+        emitGlaValue(op1);
+    str.clear();
 
-        if (scalar && boolean)
-            return "!";
+    shader << " " << opStr << " ";
 
-        if (!scalar && boolean)
-            return "not";
+    if (const llvm::Instruction* opInst2 = llvm::dyn_cast<llvm::Instruction>(op2)) {
+        mapExtractElementStr(opInst2, str);
+        if (! str.empty())
+            shader << str;
+        else
+            emitGlaValue(op2);
+    } else
+        emitGlaValue(op2);
+    str.clear();
 
-        if (!boolean)
-            return "~";
+    if (invert)
+        shader << ")";
 
-        UnsupportedFunctionality("xor", EATContinue);
+    shader << ")";
 
-        return "!";
+    newScope();
+}
+
+void gla::GlslTarget::beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count)
+{
+    newLine();
+
+    shader << "for (";
+    emitGlaValue(phi);
+
+    shader << " = 0; ";
+
+    emitGlaValue(phi);
+    shader << " < " << count;
+
+    shader << "; ++";
+    emitGlaValue(phi);
+    shader << ") ";
+
+    newScope();
+}
+
+void gla::GlslTarget::beginSimpleInductiveLoop(const llvm::PHINode* phi, const llvm::Value* count)
+{
+    newLine();
+
+    shader << "for (";
+    emitGlaValue(phi);
+
+    shader << " = 0; ";
+
+    emitGlaValue(phi);
+    shader << " < ";
+    emitGlaValue(count);
+
+    shader << "; ++";
+    emitGlaValue(phi);
+    shader << ") ";
+
+    newScope();
+}
+
+void gla::GlslTarget::beginInductiveLoop()
+{
+    UnsupportedFunctionality("inductive loops");
+}
+
+void gla::GlslTarget::beginLoop()
+{
+    newLine();
+    shader << "while (true) ";
+
+    newScope();
+}
+
+void gla::GlslTarget::endLoop()
+{
+    leaveScope();
+}
+
+void gla::GlslTarget::addLoopExit(const llvm::Value* condition, bool invert)
+{
+    if (condition)
+        addIf(condition, invert);
+
+    newLine();
+    shader << "break;";
+
+    if (condition)
+        addEndif();
+}
+
+void gla::GlslTarget::addLoopBack(const llvm::Value* condition, bool invert)
+{
+    if (condition)
+        addIf(condition, invert);
+
+    newLine();
+    shader << "continue;";
+
+    if (condition)
+        addEndif();
+}
+
+void gla::GlslTarget::addDiscard()
+{
+    newLine();
+    shader << "discard;";
+}
+
+void gla::GlslTarget::print()
+{
+    // #version...
+    printf("#version %d", version);
+    if (version >= 150 && profile != ENoProfile) {
+        switch (profile) {
+        case ECoreProfile:          printf(" core");          break;
+        case ECompatibilityProfile: printf(" compatibility"); break;
+        case EEsProfile:            printf(" es");            break;
+        default:
+            UnsupportedFunctionality("profile");
+            break;
+        }
+    }
+    printf("\n");
+
+    // If we don't have the noRevision options
+    // set, then output the revision.
+    printf("// LunarGOO output");
+    if (! Options.noRevision)
+        printf(" (r%d)", GLA_REVISION);
+    if (Options.obfuscate)
+        printf(" obuscated");
+    printf("\n");
+    
+    // rest of shader...
+    printf("%s%s%s", globalStructures.str().c_str(), globalDeclarations.str().c_str(), shader.str().c_str());
+    printf("\n");
+}
+
+void gla::GlslTarget::newLine()
+{
+    static int count = 0;
+    if (obfuscate) {
+        ++count;
+        if (count > 4) {
+            shader << std::endl;
+            count = 0;
+        }
+    } else {
+        shader << std::endl;
+        for (int i = 0; i < indentLevel; ++i)
+            shader << "    ";
+    }
+}
+
+void gla::GlslTarget::newScope()
+{
+    ++indentLevel;
+    shader << "{";
+}
+
+void gla::GlslTarget::leaveScope()
+{
+    --indentLevel;
+    newLine();
+    shader << "}";
+    newLine();
+}
+
+void gla::GlslTarget::addStructType(llvm::StringRef name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block)
+{
+    // this is mutually recursive with emitGlaType
+
+    // track the mapping between LLVM's structure type and GLSL's name for it,
+    // and only declare it once
+    if (structNameMap.find(structType) != structNameMap.end())
+        return;
+    structNameMap[structType] = name;
+        
+    // track the mapping between the type name and it's metadata type
+    if (mdAggregate)
+        typenameMdAggregateMap[structType] = mdAggregate;
+
+    // For nested struct types, we have to output the nested one
+    // before the containing one.  So, make the current on the side
+    // and add it to the global results after its contents are
+    // declared.
+    std::ostringstream tempStructure;
+
+    if (! block)
+        tempStructure << "struct ";
+    if (mdAggregate)
+        tempStructure << std::string(mdAggregate->getOperand(0)->getName());
+    else
+        tempStructure << name.str();
+    tempStructure << " {" << std::endl;
+
+    for (int index = 0; index < structType->getNumContainedTypes(); ++index) {
+        tempStructure << "    ";
+        if (mdAggregate) {
+            const llvm::MDNode* subMdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(GetAggregateMdSubAggregateOp(index)));
+            int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index), false, subMdAggregate);
+            tempStructure << " " << std::string(mdAggregate->getOperand(GetAggregateMdNameOp(index))->getName());
+            emitGlaArraySize(tempStructure, arraySize);
+        } else {
+            int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index));
+            tempStructure << " " << MapGlaStructField(structType, index);
+            emitGlaArraySize(tempStructure, arraySize);
+        }
+        tempStructure << ";" << std::endl;
     }
 
-    // now go for binary
+    tempStructure << "}";
+    if (! block)
+        tempStructure << ";" << std::endl << std::endl;
 
-    if (scalar && boolean)
-        return "^^";
+    if (block)
+        globalDeclarations << tempStructure.str();
+    else
+        globalStructures << tempStructure.str();
+}
 
-    if (!boolean)
-        return "^";
+bool gla::GlslTarget::addVariable(const llvm::Value* value, std::string& name)
+{
+    if (valueMap[value] == 0) {
+        // make a copy so caller can pass in temporary variables
+        valueMap[value] = new std::string(name);  // TODO: Goo: memory: delete these
 
-    UnsupportedFunctionality("xor", EATContinue);
+        return true;
+    } else {
+        assert(name == *valueMap[value]);
 
-    return "^";
+        return false;
+    }
+}
+
+void gla::GlslTarget::getNewVariableName(const llvm::Value* value, std::string* name)
+{
+    ++lastVariable;
+    const size_t bufSize = 20;
+    char buf[bufSize];
+    if (obfuscate) {
+        int i;
+        for (i = 0; i <= lastVariable-4; i += 4) {
+            switch ((i/4) % 4) {
+            case 0:   name->append("x"); break;
+            case 1:   name->append("y"); break;
+            case 2:   name->append("z"); break;
+            case 3:   name->append("w"); break;
+            }
+        }
+        switch (lastVariable - i) {
+        case 0:   name->append("x"); break;
+        case 1:   name->append("y"); break;
+        case 2:   name->append("z"); break;
+        case 3:   name->append("w"); break;
+        }
+    } else {
+        if (IsTempName(value->getName())) {
+            name->append(MapGlaToQualifierString(version, language, MapGlaAddressSpace(value)));
+            snprintf(buf, bufSize, "%d", lastVariable);
+            name->append(buf);
+
+            // If it's a constant int or float, make the name contain the
+            // value
+            if (llvm::isa<llvm::ConstantInt>(value)) {
+                int val = GetConstantInt(value);
+
+                // If it's an i1, that is a bool, then have it say true or
+                // false, else have it have the integer value.
+                if (IsBoolean(value->getType())) {
+                    name->append("b_");
+                    snprintf(buf, bufSize, val ? "true" : "false");
+                } else {
+                    name->append("i_");
+                    snprintf(buf, bufSize, "%d", GetConstantInt(value));
+                }
+
+                name->append(buf);
+
+            }
+        } else {
+            name->append(value->getName());
+        }
+
+        MakeParseable(*name);
+
+        // Variables starting with gl_ are illegal in GLSL
+        if (name->substr(0,3) == std::string("gl_")) {
+            name->insert(0, "gla_");
+        }
+    }
+}
+
+// Gets a string representation for the given swizzling ExtractElement
+// instruction, and sets str to it. Does nothing if passed something that
+// isn't an ExtractElement
+void gla::GlslTarget::mapExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str)
+{
+    if (! llvm::isa<llvm::ExtractElementInst>(llvmInstruction))
+        return;
+
+    str.assign(*valueMap[llvmInstruction->getOperand(0)]);
+    str.append(".").append(MapComponentToSwizzleChar(GetConstantInt(llvmInstruction->getOperand(1))));
 }
 
 //
 // Handle the subcase of an LLVM instruction being an intrinsic call.
 //
-void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction)
+void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction)
 {
     // Handle pipeline read/write
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_writeData:
     case llvm::Intrinsic::gla_fWriteData:
-        mapGlaIOIntrinsic(llvmInstruction, false);
+        emitMapGlaIOIntrinsic(llvmInstruction, false);
 
         return;
     case llvm::Intrinsic::gla_readData:
     case llvm::Intrinsic::gla_fReadData:
     case llvm::Intrinsic::gla_fReadInterpolant:
-        mapGlaIOIntrinsic(llvmInstruction, true);
+        emitMapGlaIOIntrinsic(llvmInstruction, true);
 
         return;
     default:
@@ -2555,7 +1683,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         break;
     }
 
-    EMdPrecision precision = getPrecision(llvmInstruction);
+    EMdPrecision precision = GetPrecision(llvmInstruction);
 
     // Handle texturing
     switch (llvmInstruction->getIntrinsicID()) {
@@ -2644,7 +1772,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         shader << ", ";
 
-        if(needsShadowRefZArg(llvmInstruction)) {
+        if(NeedsShadowRefZArg(llvmInstruction)) {
 
             // Construct a new vector of size coords+1 to hold coords and shadow ref
             int coordWidth = gla::GetComponentCount(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
@@ -2682,7 +1810,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
         }
 
-        if(needsLodArg(llvmInstruction)) {
+        if(NeedsLodArg(llvmInstruction)) {
             shader << ", ";
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBiasLod)));
         }
@@ -2694,12 +1822,12 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETODPdy)));
         }
 
-        if (needsOffsetArg(llvmInstruction)) {
+        if (NeedsOffsetArg(llvmInstruction)) {
             shader << ", ";
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOOffset)));
         }
 
-        if(needsBiasArg(llvmInstruction)) {
+        if(NeedsBiasArg(llvmInstruction)) {
             shader << ", ";
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBiasLod)));
         }
@@ -2954,7 +2082,7 @@ void gla::GlslTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 //
 // Handle real function calls.
 //
-void gla::GlslTarget::mapGlaCall(const llvm::CallInst* call)
+void gla::GlslTarget::emitGlaCall(const llvm::CallInst* call)
 {
     newLine();
     emitGlaValue(call);
@@ -2968,32 +2096,984 @@ void gla::GlslTarget::mapGlaCall(const llvm::CallInst* call)
     shader << ");";
 }
 
-void gla::GlslTarget::print()
+void gla::GlslTarget::emitGlaPrecision(std::ostringstream& out, EMdPrecision precision)
 {
-    // #version...
-    printf("#version %d", version);
-    if (version >= 150 && profile != ENoProfile) {
-        switch (profile) {
-        case ECoreProfile:          printf(" core");          break;
-        case ECompatibilityProfile: printf(" compatibility"); break;
-        case EEsProfile:            printf(" es");            break;
+    switch (precision) {
+    case EMpLow:
+    case EMpMedium:
+    case EMpHigh:
+        out << MapGlaToPrecisionString(precision) << " ";
+        break;
+
+    case EMpNone:
+        break;
+
+    default:
+        out << "badp ";
+        break;
+    }   
+}
+
+void gla::GlslTarget::emitGlaOperand(const llvm::Value* value)
+{
+    emitGlaValue(value);
+    if (obfuscate) {
+        int count = GetComponentCount(value);
+        if (count > 1)
+            emitComponentCountToSwizzle(count);
+    }
+}
+
+void gla::GlslTarget::emitComponentCountToSwizzle(int numComponents)
+{
+    shader << ".";
+
+    switch (numComponents) {
+    case 1:   shader << "x";     break;
+    case 2:   shader << "xy";    break;
+    case 3:   shader << "xyz";   break;
+    case 4:   shader << "xyzw";  break;
+    default:
+                shader << "xyzw";
+                assert(! "Vector too large");
+    }
+}
+
+void gla::GlslTarget::emitComponentToSwizzle(int component)
+{
+    shader << MapComponentToSwizzleChar(component);
+}
+
+void gla::GlslTarget::emitMaskToSwizzle(int mask)
+{
+    for (int component = 0; component < 4; ++component)
+        if (mask & (1 << component))
+            shader << MapComponentToSwizzleChar(component);
+}
+
+void gla::GlslTarget::emitGlaSampler(const llvm::IntrinsicInst* llvmInstruction, int texFlags)
+{
+    const llvm::Value* samplerType = llvmInstruction->getOperand(0);
+
+    // TODO: uint functionality: See if it's a uint sampler, requiring a constructor to convert it
+
+    // Original style shadowing returns vec4 while 2nd generation returns float,
+    // so, have to stick to old-style for those cases.
+    bool forceOldStyle = IsVector(llvmInstruction->getType()) && (texFlags & ETFShadow);
+
+    if (version >= 130 && ! forceOldStyle) {
+        if (texFlags & ETFFetch)
+            shader << "texelFetch";
+        else
+            shader << "texture";
+    } else {
+        if (texFlags & ETFShadow)
+            shader << "shadow";
+        else
+            shader << "texture";
+
+        int sampler = GetConstantInt(samplerType);
+
+        switch(sampler) {
+        case ESampler1D:        shader << "1D";   break;
+        case ESampler2D:        shader << "2D";   break;
+        case ESampler3D:        shader << "3D";   break;
+        case ESamplerCube:      shader << "Cube"; break;
+        case ESampler2DRect:    shader << "Rect"; break;
         default:
-            UnsupportedFunctionality("profile");
+            UnsupportedFunctionality("Texturing in Bottom IR: ", sampler, EATContinue);
             break;
         }
     }
-    printf("\n");
+        
+    if (texFlags & ETFProjected)
+        shader << "Proj";
+    if (texFlags & ETFLod)
+        shader << "Lod";
+    if (IsGradientTexInst(llvmInstruction))
+        shader << "Grad";
+    if (texFlags & ETFOffsetArg)
+        shader << "Offset";
+}
 
-    // If we don't have the noRevision options
-    // set, then output the revision.
-    printf("// LunarGOO output");
-    if (! Options.noRevision)
-        printf(" (r%d)", GLA_REVISION);
-    if (Options.obfuscate)
-        printf(" obuscated");
-    printf("\n");
-    
-    // rest of shader...
-    printf("%s%s%s", globalStructures.str().c_str(), globalDeclarations.str().c_str(), shader.str().c_str());
-    printf("\n");
+void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier qualifier, 
+                                              const llvm::Constant* constant, const llvm::MDNode* mdIoNode)
+{
+    if (name.substr(0,3) == std::string("gl_"))
+        return;
+
+    int arraySize;
+
+    // If it has an initializer (is a constant and not an undef)
+    if (constant && ! AreAllUndefined(constant)) {
+        arraySize = emitGlaType(globalDeclarations, precision, qualifier, type);
+        globalDeclarations << " " << name;
+        emitGlaArraySize(globalDeclarations, arraySize);
+        globalDeclarations << " = ";
+        emitConstantInitializer(globalDeclarations, constant, constant->getType());
+        globalDeclarations << ";" << std::endl;
+
+        return;
+    }
+
+    // no initializer
+    switch (qualifier) {
+    case EVQConstant:
+        // Make sure we only declare globals once
+        if (globallyDeclared.find(name) != globallyDeclared.end())
+            return;
+        else
+            globallyDeclared.insert(name);
+
+        arraySize = emitGlaType(globalDeclarations, precision, qualifier, type);
+        globalDeclarations << " " << name;
+        emitGlaArraySize(globalDeclarations, arraySize);
+        globalDeclarations << ";" << std::endl;
+        break;
+    case EVQGlobal:
+        arraySize = emitGlaType(globalDeclarations, precision, EVQNone, type);
+        globalDeclarations << " " << name;
+        emitGlaArraySize(globalDeclarations, arraySize);
+        globalDeclarations << ";" << std::endl;
+        break;
+    case EVQTemporary:
+        arraySize = emitGlaType(shader, precision, EVQNone, type);
+        emitGlaArraySize(shader, arraySize);
+        shader << " ";
+        break;
+    case EVQUndef:
+        newLine();
+        emitGlaType(shader, precision, EVQNone, type);
+        shader << " " << name << ";";
+        emitInitializeAggregate(shader, name, constant);
+        break;
+    default:
+        assert(! "unknown VariableQualifier");
+    }
+}
+
+// emits the type (recursively)
+// returns the array size of the type
+int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision, EVariableQualifier qualifier, llvm::Type* type, 
+                                 bool ioRoot , const llvm::MDNode* mdNode, int count)
+{
+    bool matrix = false;
+    bool notSigned = false;
+    std::string name;
+    const llvm::MDNode* mdAggregate = 0;
+    bool block = false;
+
+    if (mdNode) {
+        if (! emitMdNodeTypes(out, ioRoot, mdNode, name, type, precision, matrix, notSigned, mdAggregate, block))
+            return 0;
+    }
+
+    const char* qualifierString = MapGlaToQualifierString(version, language, qualifier);
+    if (*qualifierString)
+        out << qualifierString << " ";
+
+    if (type->getTypeID() == llvm::Type::PointerTyID)
+        type = type->getContainedType(0);
+
+    int arraySize = 0;
+
+    // if it's a vector, output a vector type
+    if (type->getTypeID() == llvm::Type::VectorTyID) {
+        const llvm::VectorType *vectorType = llvm::dyn_cast<llvm::VectorType>(type);
+        assert(vectorType);
+            
+        emitGlaPrecision(out, precision);
+        if (type->getContainedType(0) == type->getFloatTy(type->getContext()))
+            out << "vec";
+        else if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
+            out << "bvec";
+        else if (type->getContainedType(0) == type->getInt32Ty(type->getContext())) {
+            if (notSigned)
+                out << "uvec";
+            else
+                out << "ivec";
+        } else
+            UnsupportedFunctionality("Basic Type in Bottom IR");
+
+        // output the size of the vector
+        if (count == -1)
+            out << GetComponentCount(type);
+        else
+            out << count;
+    } else if (type->getTypeID() == llvm::Type::StructTyID) {
+        const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
+            
+        // addStructType() is mutually recursive with this function
+        addStructType(structType->getName(), structType, mdAggregate, block);
+        if (! block) {
+            if (mdAggregate)
+                out << std::string(mdAggregate->getOperand(0)->getName());
+            else
+                out << structNameMap[structType];
+        }
+    } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
+        const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
+            
+        if (matrix && arrayType->getNumContainedTypes() > 0 && arrayType->getContainedType(0)->isVectorTy()) {
+            // We're at the matrix level in the type tree
+            emitGlaPrecision(out, precision);
+            out << "mat";
+            if (GetNumColumns(type) == GetNumRows(type))
+                out << GetNumColumns(type);
+            else
+                out << GetNumColumns(type) << "x" << GetNumRows(type);
+        } else {
+            // We're still higher up in the type tree than a matrix; e.g., array of matrices
+            // (or, not a matrix).
+            // We need to recurse the next level with the LLVM type dereferenced, but not
+            // the GLSL type (metadata) which combines arrayness at the same level as other typeness
+            // (that is, don't pass on mdAggregate, use the original input).
+            emitGlaType(out, precision, EVQNone, arrayType->getContainedType(0), ioRoot, mdNode);
+            arraySize = arrayType->getNumElements();
+        }
+    } else {
+        // just output a scalar
+        emitGlaPrecision(out, precision);            
+        if (type == type->getFloatTy(type->getContext()))
+            out << "float";
+        else if (type == type->getInt1Ty(type->getContext()))
+            out << "bool";
+        else if (type == type->getInt32Ty(type->getContext())) {
+            if (notSigned)
+                out << "uint";
+            else
+                out << "int";
+        } else if (type == type->getVoidTy(type->getContext()))
+            out << "void";
+        else
+            UnsupportedFunctionality("Basic Type in Bottom IR");
+    }
+
+    return arraySize;
+}
+
+// Decode and emit stuff we can only do with an mdNode.
+// Returning false means all done, not necessarily an error.
+bool gla::GlslTarget::emitMdNodeTypes(std::ostringstream& out, bool ioRoot, const llvm::MDNode* mdNode, std::string& name, llvm::Type*& type,
+                                      EMdPrecision& precision, bool& matrix, bool& notSigned, const llvm::MDNode*& mdAggregate, bool& block)
+{
+    EMdInputOutput ioKind;
+    EMdTypeLayout typeLayout;
+    int location;
+    const llvm::MDNode* mdSampler;
+    bool uniform = false;
+
+    if (ioRoot) {
+        llvm::Type* proxyType;
+        int interpMode;
+        if (! CrackIOMd(mdNode, name, ioKind, proxyType, typeLayout, precision, location, mdSampler, mdAggregate, interpMode)) {
+            UnsupportedFunctionality("IO metadata for type");
+
+            return false;
+        } else {
+            // emit interpolation qualifier, if appropriate
+            EVariableQualifier qualifier;
+            switch (ioKind) {
+            case EMioPipeIn:   qualifier = EVQInput;   break;
+            case EMioPipeOut:  qualifier = EVQOutput;  break;
+            default:           qualifier = EVQUndef;   break;
+            }
+            if (qualifier != EVQUndef) {
+                EInterpolationMethod interpMethod;
+                EInterpolationLocation interpLocation;
+                CrackInterpolationMode(interpMode, interpMethod, interpLocation);
+                emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
+            }
+        }
+        block = ioKind == EMioUniformBlockMember || ioKind == EMioBufferBlockMember;
+        uniform = ioKind == EMioDefaultUniform;
+        if (type == 0)
+            type = proxyType;
+    } else {
+        if (! CrackAggregateMd(mdNode, name, typeLayout, precision, location, mdSampler)) {
+            UnsupportedFunctionality("aggregate metadata for type");
+
+            return false;
+        }
+        mdAggregate = mdNode;
+    }
+
+    if (typeLayout == EMtlSampler) {
+        if (uniform)
+            out << "uniform ";
+        emitGlaSamplerType(out, mdSampler);
+
+        return false;
+    }
+    matrix = typeLayout == EMtlRowMajorMatrix || typeLayout == EMtlColMajorMatrix;
+    notSigned = typeLayout == EMtlUnsigned;
+
+    emitGlaLayout(out, typeLayout, location);
+
+    return true;
+}
+
+void gla::GlslTarget::emitGlaArraySize(std::ostringstream& out, int arraySize)
+{
+    if (arraySize > 0)
+        out << "[" << arraySize << "]";
+}
+
+void gla::GlslTarget::emitGlaSamplerType(std::ostringstream& out, const llvm::MDNode* mdSamplerNode)
+{
+    EMdSampler mdSampler;
+    llvm::Type* type;
+    EMdSamplerDim mdSamplerDim;
+    bool isArray;
+    bool isShadow;
+    EMdSamplerBaseType baseType;
+    if (gla::CrackSamplerMd(mdSamplerNode, mdSampler, type, mdSamplerDim, isArray, isShadow, baseType)) {
+        switch (baseType) {
+        case EMsbFloat:                  break;
+        case EMsbInt:        out << "i"; break;
+        case EMsbUint:       out << "u"; break;
+        default:             UnsupportedFunctionality("base type of sampler");  break;
+        }
+        switch (mdSampler) {
+        case EMsTexture:     out << "sampler";   break;
+        case EMsImage:       out << "image";     break;
+        default:             UnsupportedFunctionality("kind of sampler");  break;
+        }
+        switch (mdSamplerDim) {
+        case EMsd1D:       out << "1D";      break;
+        case EMsd2D:       out << "2D";      break;
+        case EMsd3D:       out << "3D";      break;
+        case EMsdCube:     out << "Cube";    break;
+        case EMsdRect:     out << "Rect";    break;
+        case EMsdBuffer:   out << "Buffer";  break;
+        default:           UnsupportedFunctionality("kind of sampler");  break;
+        }
+        if (isShadow)
+            out << "Shadow";
+        if (isArray)
+            out << "Array";
+    } else
+        UnsupportedFunctionality("sampler metadata", EATContinue);
+}
+
+void gla::GlslTarget::emitGlaInterpolationQualifier(EVariableQualifier qualifier, EInterpolationMethod interpMethod, EInterpolationLocation interpLocation)
+{
+    if (interpLocation != EILLast) {
+        if (interpMethod != EIMNone) {
+            switch (interpLocation) {
+            case EILSample:        globalDeclarations << "sample ";        break;
+            case EILCentroid:      globalDeclarations << "centroid ";      break;
+            }
+        }
+
+        if (version >= 130) {
+            if (language == EShLangVertex   && qualifier == EVQOutput ||
+                language == EShLangFragment && qualifier == EVQInput) {
+                switch (interpMethod) {
+                case EIMNone:          globalDeclarations << "flat ";          break;
+                //case EIMSmooth:        globalDeclarations << "smooth ";        break;
+                case EIMNoperspective: globalDeclarations << "noperspective "; break;
+                }
+            }
+        }
+    }
+}
+
+void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location)
+{
+    const char* layoutStr = 0;
+
+    switch (layout) {
+    // members
+    case EMtlRowMajorMatrix:  layoutStr = "row_major";   break;
+    //case EMtlColMajorMatrix:  layoutStr = "col_major";   break;
+    // non-block members will always be col_major, and are not allowed such layout declarations,
+    // rely on that and the fact that we don't deal with overridden defaults at this level to omit col_major
+        
+    // blocks
+    case EMtlStd140:  layoutStr = "std140";   break;
+    case EMtlStd430:  layoutStr = "std430";   break;
+    case EMtlPacked:  layoutStr = "std430";   break;
+
+    default:  break;
+    }
+
+    if (location >= gla::MaxUserLayoutLocation && layoutStr == 0)
+        return;
+
+    bool comma = false;
+    out << "layout(";
+    if (layoutStr) {
+        out << layoutStr;
+        comma = true;
+    }
+    if (location < gla::MaxUserLayoutLocation) {
+        if (comma)
+            out << ", ";
+        out << "location=" << location;
+        comma = true;
+    }
+    out << ") ";
+}
+
+void gla::GlslTarget::emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count)
+{
+    int arraySize = emitGlaType(out, EMpNone, EVQNone, type, false, 0, count);
+    emitGlaArraySize(out, arraySize);
+}
+
+// If valueMap has no entry for value, generate a name and declaration, and
+// store it in valueMap. If forceGlobal is true, then it will make the
+// declaration occur as a global.
+void gla::GlslTarget::emitMapGlaValue(const llvm::Value* value, bool forceGlobal)
+{
+    if (valueMap[value] == 0) {
+        // Figure out where our declaration should go
+        EVariableQualifier evq;
+        if (forceGlobal)
+            evq = gla::EVQGlobal;
+        else if (llvm::isa<llvm::PointerType>(value->getType()))
+            evq = gla::EVQTemporary;
+        else
+            evq = MapGlaAddressSpace(value);
+
+        std::string* newName = new std::string;
+        getNewVariableName(value, newName);
+        EMdPrecision precision = GetPrecision(value);
+        const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
+
+        // Integer and floating-point constants have no precision, use highp to avoid precision loss across translations
+        if (precision == gla::EMpNone && constant && profile == EEsProfile)
+            if (! gla::IsBoolean(value->getType()))
+                precision = gla::EMpHigh;
+
+        if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
+            emitVariableDeclaration(precision, pointerType->getContainedType(0), *newName, evq);
+        } else {
+            emitVariableDeclaration(precision, value->getType(), *newName, evq, constant);
+        }
+        valueMap[value] = newName;
+    }
+}
+
+void gla::GlslTarget::emitNonconvertedGlaValue(const llvm::Value* value)
+{
+    std::string* name = nonConvertedMap[value];
+    if (name)
+        shader << name->c_str();
+    else
+        emitGlaValue(value);
+}
+
+void gla::GlslTarget::emitGlaValue(const llvm::Value* value)
+{
+    assert(! llvm::isa<llvm::ConstantExpr>(value));
+
+    emitMapGlaValue(value);
+    shader << valueMap[value]->c_str();
+}
+
+void gla::GlslTarget::emitGlaStructName(std::ostringstream& out, const llvm::Type* structType)
+{
+    std::string name = structNameMap[structType];
+    assert(name.c_str());
+    out << name;
+}
+
+std::string gla::GlslTarget::emitGetGlaValue(const llvm::Value* value)
+{
+    emitMapGlaValue(value);
+
+    return valueMap[value]->c_str();
+}
+
+void gla::GlslTarget::emitFloatConstant(std::ostringstream& out, float f)
+{
+    if (floor(f) == f) {
+        out << static_cast<int>(floor(f));
+        out << ".0";
+    } else
+        out << f;
+}
+
+// emitConstantInitializer will be called recursively for aggregate types.
+// If the aggregate is zero initialized, sub-elements will not have a
+// constant associated with them. For that case, and for ConstantAggregateZero,
+// we only use the type to generate correct initializers.
+void gla::GlslTarget::emitConstantInitializer(std::ostringstream& out, const llvm::Constant* constant, llvm::Type* type)
+{
+    bool isZero;
+
+    if (! constant || IsUndef(constant))
+        isZero = true;
+    else if (llvm::isa<llvm::ConstantAggregateZero>(constant))
+        isZero = true;
+    else
+        isZero = false;
+
+    switch (type->getTypeID()) {
+
+    case llvm::Type::IntegerTyID:
+        {
+            if (isZero) {
+                if (gla::IsBoolean(type))
+                    out << "false";
+                else
+                    out << "0";
+            } else {
+                if (gla::IsBoolean(type)) {
+                    if (GetConstantInt(constant))
+                        out << "true";
+                    else
+                        out << "false";
+                } else
+                    out << GetConstantInt(constant);
+            }
+            break;
+        }
+
+    case llvm::Type::FloatTyID:
+        {
+            if (isZero)
+                emitFloatConstant(out, 0.0);
+            else
+                emitFloatConstant(out, GetConstantFloat(constant));
+            break;
+        }
+
+    case llvm::Type::VectorTyID:
+    case llvm::Type::ArrayTyID:
+    case llvm::Type::StructTyID:
+        {
+            emitGlaConstructor(out, type);
+            out << "(";
+
+            int numElements = 0;
+            llvm::Constant* splatValue = 0;
+            const llvm::ConstantDataVector* dataVector = 0;
+
+            if (const llvm::VectorType* vectorType = llvm::dyn_cast<llvm::VectorType>(type)) {
+                if (! isZero) {
+                    // If all vector elements are equal, we only need to emit one
+                    bool same = true;
+                    dataVector = llvm::dyn_cast<llvm::ConstantDataVector>(constant);
+                    if (dataVector) {
+                        splatValue = dataVector->getSplatValue();
+                        if (! splatValue)
+                            same = false;
+                    } else if (! isZero) {
+                        for (int op = 1; op < vectorType->getNumElements(); ++op) {
+                            if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
+                                same = false;
+                                break;
+                            }
+                        }
+
+                        if (same)
+                            splatValue = llvm::dyn_cast<llvm::Constant>(constant->getOperand(0));
+                    }
+                }
+                numElements = vectorType->getNumElements();
+            } else if (const llvm::ArrayType*  arrayType = llvm::dyn_cast<llvm::ArrayType>(type))
+                numElements = arrayType->getNumElements();
+            else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(type))
+                numElements = structType->getNumElements();
+            else
+                assert(0 && "Constant aggregate type");
+
+            if (isZero || splatValue)
+                emitConstantInitializer(out, isZero ? 0 : splatValue, type->getContainedType(0));
+            else {
+                for (int op = 0; op < numElements; ++op) {
+                    if (op > 0)
+                        out << ", ";
+
+                    const llvm::Constant* constElement;
+                    if (dataVector)
+                        constElement = dataVector->getElementAsConstant(op);
+                    else
+                        constElement = llvm::dyn_cast<llvm::Constant>(constant->getOperand(op));
+
+                    emitConstantInitializer(out, constElement,
+                                            type->getContainedType(type->getNumContainedTypes() > 1 ? op : 0));
+                }
+            }
+
+            out << ")";
+            break;
+        }
+
+    default:
+        assert(0 && "Constant type in Bottom IR");
+    }
+}
+
+void gla::GlslTarget::emitInitializeAggregate(std::ostringstream& out, std::string name, const llvm::Constant* constant)
+{
+    if (constant && IsDefined(constant) && ! IsScalar(constant) && ! AreAllDefined(constant)) {
+        // For a vector or array with undefined elements, propagate the defined elements
+        if (const llvm::ConstantVector* constVec = llvm::dyn_cast<llvm::ConstantVector>(constant)) {
+            for (int op = 0; op < constVec->getNumOperands(); ++op) {
+                if (IsDefined(constVec->getOperand(op))) {
+                    out << std::endl << "    " << name;
+                    out << "." << MapComponentToSwizzleChar(op) << " = ";
+                    out << emitGetGlaValue(constVec->getOperand(op));
+                    out << ";";
+                }
+            }
+        } else if (const llvm::ConstantArray* constArray = llvm::dyn_cast<llvm::ConstantArray>(constant)) {
+            for (int op = 0; op < constArray->getNumOperands(); ++op) {
+                if (IsDefined(constArray->getOperand(op))) {
+                    out << std::endl << "    " << name;
+                    out << "[" << op << "] = ";
+                    out << emitGetGlaValue(constArray->getOperand(op));
+                    out << ";";
+                }
+            }
+        } else if (const llvm::ConstantStruct* constStruct = llvm::dyn_cast<llvm::ConstantStruct>(constant)) {
+            for (int op = 0; op < constStruct->getNumOperands(); ++op) {
+                if (IsDefined(constStruct->getOperand(op))) {
+                    out << std::endl << "    " << name;
+                    out << "." << MapGlaStructField(constant->getType(), op) << " = ";
+                    out << emitGetGlaValue(constStruct->getOperand(op));
+                    out << ";";
+                }
+            }
+        } else {
+            gla::UnsupportedFunctionality("Partially defined aggregate type");
+        }
+    } else {
+        // This case is always handled by constant propagation
+    }
+}
+
+void gla::GlslTarget::emitGlaSwizzle(int glaSwizzle, int width, llvm::Value* source)
+{
+    if (source && gla::IsScalar(source))
+        return;
+
+    shader << ".";
+    // Pull each two bit channel out of the integer
+    for(int i = 0; i < width; i++)
+        emitComponentToSwizzle(GetSwizzle(glaSwizzle, i));
+}
+
+// Emit the swizzle represented by the vector of channel selections
+void gla::GlslTarget::emitGlaSwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
+{
+    shader << ".";
+
+    // Output the components for all defined channels
+    for (int i = 0; i < elts.size(); ++i) {
+        if (! IsDefined(elts[i]))
+            continue;
+
+        emitComponentToSwizzle(GetConstantInt(elts[i]));
+    }
+}
+
+// Emit a writemask. Emits a component for each defined element of the
+// passed vector
+void gla::GlslTarget::emitGlaWriteMask(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
+{
+    shader << ".";
+
+    // Output the components for all defined channels
+    for (int i = 0; i < elts.size(); ++i) {
+        if (! IsDefined(elts[i]))
+            continue;
+
+        emitComponentToSwizzle(i);
+    }
+}
+
+// Writes out the vector arguments for the RHS of a multiInsert. Sets its
+// first argument to false upon first execution
+void gla::GlslTarget::emitVectorArguments(bool &firstArg, const llvm::IntrinsicInst *inst, int operand)
+{
+    if (firstArg)
+        firstArg = false;
+    else
+        shader << ", ";
+
+    emitGlaValue(inst->getOperand(operand));
+
+    // If it's a vector, extract the value
+    if (inst->getOperand(operand)->getType()->getTypeID() == llvm::Type::VectorTyID) {
+        shader << ".";
+        emitComponentToSwizzle(GetConstantInt(inst->getOperand(operand+1)));
+    }
+}
+
+void gla::GlslTarget::emitGlaMultiInsertRHS(const llvm::IntrinsicInst* inst)
+{
+    int wmask = GetConstantInt(inst->getOperand(1));
+    assert(wmask <= 0xF);
+    int argCount = 0;
+
+    // Count the args
+    for (int i = 0; i < 4; ++i) {
+        if (wmask & (1 << i))
+            ++argCount;
+    }
+
+    // If they're all from the same source just use/swizzle it. Otherwise
+    // construct a new vector
+    llvm::Value* source = GetCommonSourceMultiInsert(inst);
+    if (source) {
+        emitGlaValue(source);
+
+        // Build up the rhs mask
+        int singleSourceMask = 0;
+        for (int i = 0, pos = 0; i < 4; ++i) {
+            // Get the component select
+            llvm::Constant* swizOffset = llvm::dyn_cast<llvm::Constant>(inst->getOperand(i*2 + 3));
+            if (IsDefined(swizOffset)) {
+                singleSourceMask |= (GetConstantInt(swizOffset) << (pos*2));
+                ++pos;
+            }
+        }
+        assert (singleSourceMask <= 0xFF);
+        emitGlaSwizzle(singleSourceMask, argCount, source);
+    } else {
+        emitGlaConstructor(shader, inst->getType(), argCount);
+        shader << "(";
+        bool firstArg = true;
+
+        for (int i = 0; i < 4; ++i) {
+            if (wmask & (1 << i)) {
+                int operandIndex = (i+1) * 2;
+                emitVectorArguments(firstArg, inst, operandIndex);
+            }
+        }
+
+        shader << ")";
+    }
+}
+
+void gla::GlslTarget::emitGlaMultiInsert(const llvm::IntrinsicInst* inst)
+{
+    int wmask = GetConstantInt(inst->getOperand(1));
+
+    newLine();
+
+    // Declare it.
+    emitGlaValue(inst);
+
+    llvm::Value* op = inst->getOperand(0);
+
+    // If the writemask is full, then just initialize it, and we're done
+    if (wmask == 0xF) {
+        shader << " = ";
+        emitGlaMultiInsertRHS(inst);
+        shader << ";";
+        return;
+    }
+
+    // If the origin is defined, initialize the new instruction to be the
+    // origin. If undefined, leave it declared and uninitialized.
+    if (IsDefined(op)) {
+        // Initialize it to be the origin.
+        shader << " = ";
+        emitGlaValue(op);
+    }
+
+    shader << ";";
+    newLine();
+
+    // If wmask is not all 1s, then do a lhs swizzle
+    emitGlaValue(inst);
+    if (wmask != 0xF) {
+        shader << ".";
+        emitMaskToSwizzle(wmask);
+    }
+    shader << " = ";
+
+    emitGlaMultiInsertRHS(inst);
+
+    // Finished with the statement
+    shader << ";";
+}
+
+void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstruction, bool input)
+{
+    // Key issue:  We can figure out a slot type from the instruction, 
+    // but it's not necessarily the type of the whole variable getting read,
+    // just a slice of it.  So, need to get the whole type, from metadata.  
+    //
+    // Further, there will be multiple instructions (multiple Value*)
+    // that fill in the same whole variable, making a many:1 mapping
+    // between Value* and input declaration.
+        
+    std::string name;
+    llvm::Type* type;
+    EMdInputOutput mdQual;
+    int layoutLocation;
+    EMdPrecision mdPrecision;
+    EMdTypeLayout mdLayout;
+    const llvm::MDNode* mdAggregate;
+    const llvm::MDNode* dummySampler;
+    const llvm::MDNode* mdNode = llvmInstruction->getMetadata(input ? gla::InputMdName : gla::OutputMdName);
+    int interpMode;
+    EInterpolationMethod interpMethod;
+    EInterpolationLocation interpLocation;
+    if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode)) {
+        // This path should not exist; it is a backup path for missing metadata.
+        // TODO: LunarGOO functionality: fix missing metadata instruction operands.
+        UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
+
+        // emulate (through imperfect guessing) the missing metadata
+        name = llvmInstruction->getName();
+        type = llvmInstruction->getType();
+        mdLayout = EMtlNone;
+        mdPrecision = EMpNone;
+        layoutLocation = gla::MaxUserLayoutLocation;
+        mdAggregate = 0;
+        interpLocation = EILFragment;
+        if (gla::GetBasicType(llvmInstruction->getType())->isFloatTy())
+            interpMethod = EIMSmooth;
+        else
+            interpMethod = EIMNone;
+    } else
+        CrackInterpolationMode(interpMode, interpMethod, interpLocation);
+
+    // add the dereference syntax
+    // TODO: Goo functionality: outputs don't yet have layout slot bases, so indexing into big things will be incorrect
+    std::string derefName = name;
+    int slotOffset = GetConstantInt(llvmInstruction->getOperand(0)) - layoutLocation;
+    DereferenceName(derefName, type, mdAggregate, slotOffset, mdLayout);
+    bool notSigned = mdLayout == EMtlUnsigned;
+
+    switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_writeData:
+    case llvm::Intrinsic::gla_fWriteData:
+    {
+        llvm::Value* value = llvmInstruction->getOperand(2);
+        emitMapGlaValue(value);
+        std::string wrapped = *valueMap[value];
+        if (notSigned)
+            ConversionWrap(wrapped, value->getType(), true);
+        newLine();
+        shader << derefName << " = " << wrapped << ";";
+        break;
+    }
+    case llvm::Intrinsic::gla_readData:
+    case llvm::Intrinsic::gla_fReadData:
+    case llvm::Intrinsic::gla_fReadInterpolant:
+        // A pipeline read only creates the mapping to the name, not the use.
+        // The use will come later by looking up the mapping between Value* and
+        // the name associated with it.
+        //
+        // NOTE!  The mapped name will include the deferences, like "foo[3].v", *in the name*.
+            
+        // Add an int-based constructor around it, if needed.
+        // It will never be a matrix, we dereferenced down to a slot already
+        if (notSigned)
+            ConversionWrap(derefName, llvmInstruction->getType(), false);
+
+        if (addVariable(llvmInstruction, derefName)) {
+
+            if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fReadInterpolant) {
+                EInterpolationMode mode = GetConstantInt(llvmInstruction->getOperand(2));
+                CrackInterpolationMode(mode, interpMethod, interpLocation);
+            } else
+                interpMethod = EIMNone;   // needed for 'flat' with non-interpolation 'in'
+        }
+
+        break;
+    default:
+        UnsupportedFunctionality("IO Intrinsic");
+        break;
+    }
+}
+
+// Traverse the indices used in either GEP or Insert/ExtractValue, and return a string representing
+// it, not including the base.
+std::string gla::GlslTarget::traverseGep(const llvm::Instruction* instr, EMdTypeLayout* mdTypeLayout)
+{
+    std::string gepName;
+
+    // Figure out any metadata description we have for this type of aggregate
+    llvm::Type* aggregateType = instr->getOperand(0)->getType();
+    while (aggregateType->getTypeID() == llvm::Type::PointerTyID || aggregateType->getTypeID() == llvm::Type::ArrayTyID)
+        aggregateType = aggregateType->getContainedType(0);
+    const llvm::MDNode* mdAggregate = typenameMdAggregateMap[aggregateType];
+
+    if (const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(instr)) {
+        // Start at operand 2 since indices 0 and 1 give you the base and are handled before traverseGep
+        const llvm::Type* gepType = gepInst->getPointerOperandType()->getContainedType(0);
+        for (unsigned int op = 2; op < gepInst->getNumOperands(); ++op)
+            dereferenceGep(gepType, gepName, gepInst->getOperand(op), -1, mdAggregate, mdTypeLayout);
+
+    } else if (const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(instr)) {
+        const llvm::Type* gepType = insertValueInst->getAggregateOperand()->getType();            
+        for (llvm::InsertValueInst::idx_iterator iter = insertValueInst->idx_begin(), end = insertValueInst->idx_end();  iter != end; ++iter)
+            dereferenceGep(gepType, gepName, 0, *iter, mdAggregate);
+
+    } else if (const llvm::ExtractValueInst* extractValueInst = llvm::dyn_cast<const llvm::ExtractValueInst>(instr)) {
+        const llvm::Type* gepType = extractValueInst->getAggregateOperand()->getType();  
+        for (llvm::ExtractValueInst::idx_iterator iter = extractValueInst->idx_begin(), end = extractValueInst->idx_end();  iter != end; ++iter)
+            dereferenceGep(gepType, gepName, 0, *iter, mdAggregate);
+
+    } else {
+        assert(0 && "non-GEP in traverseGEP");
+    }
+
+    return gepName;
+}
+
+// Traverse one step of a dereference chain and append to a string
+// For constant indices, pass it in index.  Otherwise, provide it through gepOp (index will not be used)
+void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout)
+{
+    if (operand) {
+        if (llvm::isa<const llvm::ConstantInt>(operand))
+            index = GetConstantInt(operand);
+        else
+            index = -1;
+    }
+
+    switch (type->getTypeID()) {
+    case llvm::Type::ArrayTyID:
+        assert(operand || index >= 0);
+
+        name.append("[");
+
+        if (index >= 0) {
+            const size_t bufSize = 10;
+            char buf[bufSize];
+            snprintf(buf, bufSize, "%d", index);
+            name.append(buf);
+        } else
+            name.append(emitGetGlaValue(operand));
+
+        name.append("]");
+
+        type = type->getContainedType(0);
+        break;
+    case llvm::Type::StructTyID:
+        assert(index >= 0);
+
+        name.append(".");
+        name.append(MapGlaStructField(type, index, mdAggregate));
+
+        // Deference the metadata aggregate 
+        if (mdAggregate) {
+            int aggOp = GetAggregateMdSubAggregateOp(index);
+            if (mdAggregate->getNumOperands() <= aggOp) {
+                UnsupportedFunctionality("not enough mdAggregate operands", EATContinue);
+                mdAggregate = 0;
+            } else 
+                mdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(aggOp));
+
+            if (mdAggregate && mdTypeLayout)
+                *mdTypeLayout = GetMdTypeLayout(mdAggregate);
+        }
+
+        type = type->getContainedType(index);
+        break;
+    default:
+        assert(0 && "Dereferencing non array/struct");
+        break;
+    }
 }
