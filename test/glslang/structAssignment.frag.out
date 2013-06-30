@@ -148,9 +148,9 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !14 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !15}
 !15 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
 
-***Unsupported functionality: missing metadata on load
+***Unsupported functionality: missing metadata on load 0 foo3
 
-***Unsupported functionality: missing metadata on load
+***Unsupported functionality: missing metadata on load 0 foo2
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:4: varying deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
@@ -185,7 +185,7 @@ const int const23i_0 = 0;
 
 void main()
 {
-    int temp21 = int(foo3.s2_1.i);
+    int temp21 = foo3.s2_1.i;
     bool temp22 = temp21 > const23i_0;
     float dval = foo3.s2_1.s1_1.f;
     float dval14 = foo2.s1_1.f;
@@ -230,15 +230,15 @@ const int const23i_0 = 0;
 
 void main()
 {
-    int temp211 = int(foo3.s2_1.i);
+    int temp211 = foo3.s2_1.i;
     bool temp222 = temp211 > const23i_0;
     float dval = foo3.s2_1.s1_1.f;
-    float dval14 = foo2.s1_1.f;
-    float ternaryd0 = temp222 ? dval : dval14;
+    float dval13 = foo2.s1_1.f;
+    float ternaryd0 = temp222 ? dval : dval13;
     vec4 temp27 = vec4(ternaryd0);
-    vec4 temp2810 = texture(sampler, coord);
-    vec4 FragColor_shadow11 = temp2810 * temp27;
-    gl_FragColor = FragColor_shadow11;
+    vec4 temp289 = texture(sampler, coord);
+    vec4 FragColor_shadow10 = temp289 * temp27;
+    gl_FragColor = FragColor_shadow10;
     
 }
 

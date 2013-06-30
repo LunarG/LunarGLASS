@@ -451,9 +451,9 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !39 = metadata !{i32 1, i32 3, i32 1024, null}
 !40 = metadata !{i32 3}
 
-***Unsupported functionality: missing metadata on load
+***Unsupported functionality: missing metadata on load 0 s_shadow
 
-***Unsupported functionality: missing metadata on load
+***Unsupported functionality: missing metadata on load 0 s_shadow
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
@@ -550,8 +550,8 @@ void main()
     highp float dot58 = dot(c, column57);
     vec3 temp74;
     temp74.xyz = vec3(dot54, dot56, dot58);
-    int temp75 = int(tblock.iuin);
-    highp int temp76 = uiuin + temp75;
+    int temp75 = tblock.iuin;
+    highp int temp76 = int(uiuin) + temp75;
     highp int iout_shadow = temp76 + aiv2.y;
     s_shadow.c = c;
     s_shadow.f = p.x;
@@ -577,7 +577,122 @@ void main()
     
 }
 
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+#version 300 es
+// LunarGOO output (r722)
+struct S {
+    highp vec3 c;
+    highp float f;
+};
+
+layout(std140) uniform Transform {
+    layout(row_major) mat4 M1;
+    mat4 M2;
+    layout(row_major) mat3 N1;
+    int iuin;
+} tblock;
+uniform T3 {
+    mat4 M3;
+    layout(row_major) mat4 M4;
+    mat2x3 N2;
+    uvec3 uv3a[4];
+} ;
+uniform T2 {
+    bool b;
+    layout(row_major) mat4 t2m;
+} ;
+uniform highp uint uiuin;
+layout(location=3) in highp vec4 p;
+layout(location=7) in highp vec3 c;
+layout(location=9) in highp ivec2 aiv2;
+out highp vec4 pos;
+out highp vec3 color;
+flat out highp int iout;
+out S s;
+S s_shadow1;
+const highp vec3 const75 = vec3(1.0);
+const highp ivec3 const79 = ivec3(5);
+
+void main()
+{
+    vec3 temp8887;
+    vec4 temp22 = tblock.M1[0];
+    vec4 temp23 = tblock.M1[1];
+    vec4 temp24 = tblock.M1[2];
+    vec4 temp25 = tblock.M1[3];
+    vec4 temp26 = tblock.M2[0];
+    vec4 temp27 = tblock.M2[1];
+    vec4 temp28 = tblock.M2[2];
+    vec4 temp29 = tblock.M2[3];
+    highp vec4 column6 = temp22 + temp26;
+    highp vec4 column39 = temp23 + temp27;
+    highp vec4 column61415 = temp24 + temp28;
+    highp vec4 column918 = temp25 + temp29;
+    vec4 temp34 = M4[0];
+    vec4 temp35 = M4[1];
+    vec4 temp36 = M4[2];
+    vec4 temp37 = M4[3];
+    highp vec4 column1222 = column6 + temp34;
+    highp vec4 column1524 = column39 + temp35;
+    highp vec4 column1826 = column61415 + temp36;
+    highp vec4 column2128 = column918 + temp37;
+    vec4 temp42 = M3[0];
+    vec4 temp43 = M3[1];
+    vec4 temp44 = M3[2];
+    vec4 temp45 = M3[3];
+    highp vec4 column2432 = column1222 + temp42;
+    highp vec4 column2734 = column1524 + temp43;
+    highp vec4 column3036 = column1826 + temp44;
+    highp vec4 column3338 = column2128 + temp45;
+    vec4 temp50 = t2m[0];
+    vec4 temp51 = t2m[1];
+    vec4 temp52 = t2m[2];
+    vec4 temp53 = t2m[3];
+    highp vec4 column3642 = column2432 + temp50;
+    highp vec4 column394445 = column2734 + temp51;
+    highp vec4 column4247 = column3036 + temp52;
+    highp vec4 column4549 = column3338 + temp53;
+    highp float dot50 = dot(p, column3642);
+    highp float dot4852 = dot(p, column394445);
+    highp float dot505355 = dot(p, column4247);
+    highp float dot5257 = dot(p, column4549);
+    vec4 temp62 = vec4(dot50, dot4852, dot505355, dot5257);
+    vec3 temp63 = tblock.N1[0];
+    vec3 temp64 = tblock.N1[1];
+    vec3 temp65 = tblock.N1[2];
+    highp float dot5463 = dot(c, temp63);
+    highp float dot5666 = dot(c, temp64);
+    highp float dot5869 = dot(c, temp65);
+    vec3 temp69;
+    temp69.xyz = vec3(dot5463, dot5666, dot5869);
+    int temp7572 = tblock.iuin;
+    highp int temp7673 = int(uiuin) + temp7572;
+    highp int iout_shadow74 = temp7673 + aiv2.y;
+    vec3 temp7877 = N2[1];
+    bvec3 temp7978 = notEqual(temp7877, const75);
+    bool temp8179 = any(temp7978);
+    ivec3 temp8280 = ivec3(uv3a[2]);
+    bvec3 temp8381 = notEqual(temp8280, const79);
+    bool temp8582 = any(temp8381);
+    bool temp8683 = temp8179 || temp8582;
+    temp8887 = c;
+    if (temp8683) {
+        highp vec3 temp8785 = c + const75;
+        temp8887 = temp8785;
+    }
+    
+    s_shadow1.c = temp8887;
+    s_shadow1.f = p.x;
+    pos = temp62;
+    color = temp69;
+    iout = iout_shadow74;
+    vec3 temp83 = s_shadow1.c;
+    s.c = temp83;
+    float temp84 = s_shadow1.f;
+    s.f = temp84;
+    
+}
+

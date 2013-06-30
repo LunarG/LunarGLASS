@@ -1192,17 +1192,7 @@ protected:
         assert(! llvm::isa<llvm::ConstantExpr>(value));
 
         mapGlaValue(value);
-
-        // TODO: GOO: uint functionality
-        bool notSigned = false;
-        if (notSigned) {
-            emitGlaConstructor(shader, value->getType());
-            shader << "(";
-        }
-
         shader << valueMap[value]->c_str();
-        if (notSigned)
-            shader << ")";
     }
 
 
@@ -1609,7 +1599,7 @@ protected:
 
     // Traverse the indices used in either GEP or Insert/ExtractValue, and return a string representing
     // it, not including the base.
-    std::string traverseGep(const llvm::Instruction* instr)
+    std::string traverseGep(const llvm::Instruction* instr, EMdTypeLayout mdTopType = EMtlNone, EMdTypeLayout* mdTypeLayout = 0)
     {
         std::string gepName;
 
@@ -1618,12 +1608,15 @@ protected:
         while (aggregateType->getTypeID() == llvm::Type::PointerTyID || aggregateType->getTypeID() == llvm::Type::ArrayTyID)
             aggregateType = aggregateType->getContainedType(0);
         const llvm::MDNode* mdAggregate = typenameMdAggregateMap[aggregateType];
+        
+        if (mdTypeLayout)
+            *mdTypeLayout = mdTopType;
 
         if (const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(instr)) {
             // Start at operand 2 since indices 0 and 1 give you the base and are handled before traverseGep
             const llvm::Type* gepType = gepInst->getPointerOperandType()->getContainedType(0);
             for (unsigned int op = 2; op < gepInst->getNumOperands(); ++op)
-                dereferenceGep(gepType, gepName, gepInst->getOperand(op), -1, mdAggregate);
+                dereferenceGep(gepType, gepName, gepInst->getOperand(op), -1, mdAggregate, mdTypeLayout);
 
         } else if (const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(instr)) {
             const llvm::Type* gepType = insertValueInst->getAggregateOperand()->getType();            
@@ -1644,7 +1637,7 @@ protected:
 
     // Traverse one step of a dereference chain and append to a string
     // For constant indices, pass it in index.  Otherwise, provide it through gepOp (index will not be used)
-    void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate)
+    void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout = 0)
     {
         if (operand) {
             if (llvm::isa<const llvm::ConstantInt>(operand))
@@ -1685,6 +1678,9 @@ protected:
                     mdAggregate = 0;
                 } else 
                     mdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(aggOp));
+
+                if (mdAggregate && mdTypeLayout)
+                    *mdTypeLayout = GetMdTypeLayout(mdAggregate);
             }
 
             type = type->getContainedType(index);
@@ -1748,14 +1744,16 @@ protected:
         switch (llvmInstruction->getIntrinsicID()) {
         case llvm::Intrinsic::gla_writeData:
         case llvm::Intrinsic::gla_fWriteData:
-            newLine();
-            shader << derefName << " = ";
+        {
+            llvm::Value* value = llvmInstruction->getOperand(2);
+            mapGlaValue(value);
+            std::string wrapped = *valueMap[value];
             if (notSigned || isMatrix)
-                emitTypeConverterStart(llvmInstruction->getOperand(2), llvmInstruction->getOperand(2)->getType(), true, notSigned);
-            else
-                emitGlaOperand(llvmInstruction->getOperand(2));
-            shader << ";";
+                conversionWrap(wrapped, value->getType(), true);
+            newLine();
+            shader << derefName << " = " << wrapped << ";";
             break;
+        }
         case llvm::Intrinsic::gla_readData:
         case llvm::Intrinsic::gla_fReadData:
         case llvm::Intrinsic::gla_fReadInterpolant:
@@ -1767,7 +1765,7 @@ protected:
             
             // Add an int-based constructor around it, if needed.
             if (notSigned)
-                intWrap(derefName, llvmInstruction->getType());
+                conversionWrap(derefName, llvmInstruction->getType(), false);
 
             if (addNewVariable(llvmInstruction, derefName)) {
 
@@ -1847,65 +1845,62 @@ protected:
         return count;
     }
 
-    void intWrap(std::string& name, llvm::Type* type)
-    {
-        std::string wrapped;
-
-        if (GetComponentCount(type) == 1)
-            wrapped = "int(";
-        else {
-            wrapped.append("ivec");
-            switch (GetComponentCount(type)) {
-            case 2:  wrapped.append("2(");    break;
-            case 3:  wrapped.append("3(");    break;
-            case 4:  wrapped.append("4(");    break;
-            default: UnsupportedFunctionality("int wrapped type");  break;
-            }
-        }
-        wrapped.append(name);
-        name = wrapped;
-        name.append(")");
-    }
-
     // Either convert to (from) an unsigned int or to (from) a matrix
     // toIO means converting from an internal variable to an I/O variable, if false, it's the other direction
     // integer means doing unsigned/signed conversion, if false, then doing matrix/array conversion
-    void emitTypeConverterStart(const llvm::Value* convertee, llvm::Type* type, bool toIO, bool integer)
+    void conversionWrap(std::string& name, llvm::Type* type, bool toIO)
     {
-        if (integer) {
+        std::ostringstream wrapped;
+
+        if (gla::IsInteger(type)) {
             if (GetComponentCount(type) == 1)
-                shader << (toIO ? "uint(" : "int(");
+                wrapped << (toIO ? "uint(" : "int(");
             else {
-                shader << (toIO ? "uvec" : "ivec");
+                wrapped << (toIO ? "uvec" : "ivec");
                 switch (GetComponentCount(type)) {
-                case 2:  shader << "2(";    break;
-                case 3:  shader << "3(";    break;
-                case 4:  shader << "4(";    break;
-                default: UnsupportedFunctionality("uint converter type");  break;
+                case 2:  wrapped << "2(";    break;
+                case 3:  wrapped << "3(";    break;
+                case 4:  wrapped << "4(";    break;
+                default: UnsupportedFunctionality("conversion wrapper");  break;
                 }
             }
-            emitGlaValue(convertee);
-        } else {
+            wrapped << name << ")";
+        } else if (gla::CouldBeMatrix(type)) {
             llvm::ArrayType* array = llvm::dyn_cast<llvm::ArrayType>(type);
             llvm::VectorType* vector = llvm::dyn_cast<llvm::VectorType>(array->getContainedType(0));
             if (toIO)
-                shader << "mat" << array->getNumElements() << "x" << vector->getNumElements();
+                wrapped << "mat" << array->getNumElements() << "x" << vector->getNumElements();
             else
-                shader << "vec" << vector->getNumElements() << "[" << array->getNumElements() << "]";
-            shader << "(";
+                wrapped << "vec" << vector->getNumElements() << "[" << array->getNumElements() << "]";
+            wrapped << "(";
             if (toIO)
-                emitGlaValue(convertee);
+                wrapped << name;
             else {
                 for (int e = 0; e < array->getNumElements(); ++e) {
                     if (e > 0)
-                        shader << ", ";
-                    emitGlaValue(convertee);
-                    shader << "[" << e << "]";
+                        wrapped << ", ";
+                    wrapped << name << "[" << e << "]";
                 }
             }
-        }
+            wrapped << ")";
+        } else
+            return;
 
-        shader << ")";
+        name = wrapped.str();
+    }
+
+    bool needsConversion(EMdTypeLayout mdType)
+    {
+        return mdType == EMtlUnsigned ||
+               mdType == EMtlRowMajorMatrix ||
+               mdType == EMtlColMajorMatrix;
+    }
+
+    bool needsConversion(const llvm::Instruction* llvmInstruction)
+    {
+        EMdTypeLayout mdType = GetMdTypeLayout(llvmInstruction->getMetadata(UniformMdName));
+
+        return needsConversion(mdType);
     }
 
     // mapping from LLVM values to Glsl variables
@@ -2257,38 +2252,40 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                 // We're loading from the result of a GEP.  Get it and assign it to a new variable.
 
                 // See if we have metadata describing a uniform variable to declare
-                std::string name;
                 llvm::MDNode* mdUniform = llvmInstruction->getMetadata(UniformMdName);
 
-                // get the name
-                if (mdUniform)
+                std::string name;
+                EMdTypeLayout mdTopType = EMtlNone;
+                if (mdUniform) {
                     name = mdUniform->getOperand(0)->getName();
-                else {
-                    UnsupportedFunctionality("missing metadata on load", EATContinue);
+                    mdTopType = GetMdTypeLayout(mdUniform);
+                } else {
+                    // emulate metadata, if we don't have it
                     std::string* prevName = valueMap[gepInstr];
                     if (prevName)
                         name = *prevName;
                     else
-                        name = gepInstr->getOperand(0)->getName();
+                        name = gepInstr->getOperand(0)->getName();                    
+                    UnsupportedFunctionality("missing metadata on load", 0, name.c_str(), EATContinue);
                 }
 
                 // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
                 // For GEP, which always returns a pointer, traverse the dereference chain and store it.
-                name.append(traverseGep(gepInstr));
+                EMdTypeLayout mdLeafType;
+                name.append(traverseGep(gepInstr, mdTopType, &mdLeafType));
                 if (name[0] == '.')
                     name = name.substr(1, std::string::npos);
+
+                // conversion-wrap it and make the whole thing the name of a variable
+                if (needsConversion(mdLeafType))
+                    conversionWrap(name, llvmInstruction->getType(), false);
                 addNewVariable(gepInstr, name);
 
                 // assign it to a new variable
                 newLine();
                 emitGlaValue(llvmInstruction);
                 shader << " = ";
-                bool isInteger = gla::IsInteger(llvmInstruction->getType());
-                bool couldBeMatrix = gla::CouldBeMatrix(llvmInstruction->getType());
-                if (isInteger || couldBeMatrix)
-                    emitTypeConverterStart(gepInstr, llvmInstruction->getType(), false, isInteger);
-                else
-                    emitGlaValue(gepInstr);
+                emitGlaValue(gepInstr);
                 shader << ";";
             } else if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {
                 // We want phis to use the same variable name created during phi declaration
@@ -2296,6 +2293,9 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
             } else {
                 std::string name = llvmInstruction->getOperand(0)->getName();
                 makeParseable(name);
+                // conversion wrap it and make the whole thing the name of a variable                
+                if (needsConversion(llvmInstruction))
+                    conversionWrap(name, llvmInstruction->getType(), false);
                 addNewVariable(llvmInstruction, name);
             }
         }

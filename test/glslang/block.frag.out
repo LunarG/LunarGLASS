@@ -178,7 +178,7 @@ out mediump vec4 color;
 void main()
 {
     vec2 temp21 = bw;
-    int temp22 = int(s.sampler);
+    int temp22 = s.sampler;
     mediump ivec4 temp23 = texture(temp22, temp21);
     vec4 temp24 = inst[3].nbu;
     mediump vec4 temp25 = vec4(temp23);

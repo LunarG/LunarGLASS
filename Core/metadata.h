@@ -379,6 +379,29 @@ inline int GetAggregateMdSubAggregateOp(int index)
     return 2 + 2 * index + 1;
 }
 
+// Just a short cut for when only the type is cared about, rather than cracking all the operands.
+// It looks for both forms of whether this is a deferenced aggregate or a top-level interface md.
+inline EMdTypeLayout GetMdTypeLayout(const llvm::MDNode *md)
+{
+    if (! md)
+        return EMtlNone;
+
+    // check for aggregate member form first
+    llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(1));
+    if (! layoutMd) {
+        // check for top-level interface
+        layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(3));
+        if (! layoutMd)
+            return EMtlNone;
+    }
+
+    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(layoutMd->getOperand(0));
+    if (! constInt)
+        return EMtlNone;
+    
+    return (EMdTypeLayout)constInt->getSExtValue();
+}
+
 //
 // Metadata class is just for adapter while building the IR.
 //

@@ -977,7 +977,7 @@ void main()
     vec4 temp73 = vec4(temp35.x, temp35.y, const55, const55);
     mediump vec4 sum58 = sum45 + temp65;
     ivec4 temp75 = ivec4(temp32.x, temp32.y, temp66.x, temp66.y);
-    mediump ivec4 temp76 = clamp(ivec4(uv4y), umin, umax);
+    mediump ivec4 temp76 = clamp(ivec4(uv4y), int(umin), int(umax));
     mediump ivec4 usum36 = usum25 + temp68;
     mediump ivec4 isum31 = isum29 + temp69;
     vec4 temp79 = vec4(temp36.x, temp36.y, temp37.x, temp37.y);

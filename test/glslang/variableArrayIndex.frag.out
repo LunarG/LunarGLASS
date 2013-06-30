@@ -223,7 +223,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v2f32.v4i32(<2 x float>, <4 x i32>)
 !15 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !16}
 !16 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
 
-***Unsupported functionality: missing metadata on load
+***Unsupported functionality: missing metadata on load 0 constructed
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:3: varying deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
@@ -263,10 +263,10 @@ const vec2 const35 = vec2(1.0, 2.0);
 void main()
 {
     vec2[3] constructed;
-    int temp22 = int(foo3.s2_1[1].i);
+    int temp22 = foo3.s2_1[1].i;
     bool temp23 = temp22 > const24i_0;
-    int temp25 = int(foo.i);
-    int temp26 = int(foo3.s2_1[temp25].i);
+    int temp25 = foo.i;
+    int temp26 = foo3.s2_1[temp25].i;
     int iLocal2 = Count + const28i_3;
     int temp29 = iLocal2 + temp26;
     float select = temp23 ? float uniform31 : float gla_constGEP17;

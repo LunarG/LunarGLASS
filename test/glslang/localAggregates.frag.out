@@ -326,7 +326,7 @@ const float const32 = 0.0;
 
 void main()
 {
-    int temp21 = int(foo3.s2_1.i);
+    int temp21 = foo3.s2_1.i;
     bool temp22 = temp21 > const23i_0;
     float temp24 = temp22 ? coord.x : const25;
     float temp26 = temp24 + const25;
@@ -387,22 +387,22 @@ const float const31 = 0.0;
 
 void main()
 {
-    int temp211 = int(foo3.s2_1.i);
+    int temp211 = foo3.s2_1.i;
     bool temp222 = temp211 > const23i_0;
-    float select48 = temp222 ? const25 : coord.x;
-    float select = temp222 ? coord.x : const27;
+    float select = temp222 ? const25 : coord.x;
+    float select45 = temp222 ? coord.x : const27;
     bool temp2921 = condition == const29i_1;
-    float select45 = temp2921 ? coord.x : const31;
-    float temp3329 = select48 + select;
+    float select44 = temp2921 ? coord.x : const31;
+    float temp3329 = select + select45;
     float temp3431 = temp3329 + coord.x;
-    float temp3532 = select45 + temp3431;
+    float temp3532 = select44 + temp3431;
     vec4 temp35 = vec4(temp3532);
     vec4 temp36 = color;
     temp36.z = coord.y;
-    vec4 temp3940 = temp36 * temp35;
-    vec4 temp3839 = texture(sampler, coord);
-    vec4 FragColor_shadow41 = temp3839 * temp3940;
-    gl_FragColor = FragColor_shadow41;
+    vec4 temp3939 = temp36 * temp35;
+    vec4 temp3838 = texture(sampler, coord);
+    vec4 FragColor_shadow40 = temp3838 * temp3939;
+    gl_FragColor = FragColor_shadow40;
     
 }
 

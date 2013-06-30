@@ -245,10 +245,10 @@ varying highp float f;
 
 void main()
 {
-    highp vec4 column4 = mvp[1];
-    highp vec4 column = mvp[0];
-    highp vec4 column7 = mvp[2];
-    highp vec4 column11 = mvp[3];
+    highp vec4 column4 = vec4[4](mvp[0], mvp[1], mvp[2], mvp[3])[1];
+    highp vec4 column = vec4[4](mvp[0], mvp[1], mvp[2], mvp[3])[0];
+    highp vec4 column7 = vec4[4](mvp[0], mvp[1], mvp[2], mvp[3])[2];
+    highp vec4 column11 = vec4[4](mvp[0], mvp[1], mvp[2], mvp[3])[3];
     highp float product6 = column4.x * v.y;
     highp float product = column.x * v.x;
     highp float product20 = column4.y * v.y;
@@ -283,54 +283,7 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
+ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
-#version 100
-// LunarGOO output (r722)
-uniform highp mat4 mvp;
-attribute highp vec4 v;
-attribute highp mat3 am3;
-varying highp float f;
-
-void main()
-{
-    vec4 column41 = mvp[1];
-    vec4 column2 = mvp[0];
-    vec4 column73 = mvp[2];
-    vec4 column114 = mvp[3];
-    highp float product7 = column2.x * v.x;
-    highp float product65 = column41.x * v.y;
-    highp float dotProduct14 = product7 + product65;
-    highp float product913 = column73.x * v.z;
-    highp float product1711 = column2.y * v.x;
-    highp float product209 = column41.y * v.y;
-    highp float dotProduct1024 = product913 + dotProduct14;
-    highp float product1323 = column114.x * v.w;
-    highp float dotProduct2121 = product1711 + product209;
-    highp float product2420 = column73.y * v.z;
-    highp float product3218 = column2.z * v.x;
-    highp float product3516 = column41.z * v.y;
-    highp float dotProduct143536 = product1323 + dotProduct1024;
-    highp float dotProduct2534 = product2420 + dotProduct2121;
-    highp float product2833 = column114.y * v.w;
-    highp float dotProduct3631 = product3218 + product3516;
-    highp float product3930 = column73.z * v.z;
-    highp float product4728 = column2.w * v.x;
-    highp float product5026 = column41.w * v.y;
-    highp float dotProduct2943 = product2833 + dotProduct2534;
-    highp float dotProduct4042 = product3930 + dotProduct3631;
-    highp float product4341 = column114.z * v.w;
-    highp float dotProduct5139 = product4728 + product5026;
-    highp float product5438 = column73.w * v.z;
-    highp float dotProduct4447 = product4341 + dotProduct4042;
-    highp float dotProduct5546 = product5438 + dotProduct5139;
-    highp float product5845 = column114.w * v.w;
-    highp float dotProduct5948 = product5845 + dotProduct5546;
-    vec4 temp53 = vec4(dotProduct143536, dotProduct2943, dotProduct4447, dotProduct5948);
-    gl_Position = temp53;
-    f = am3[2].y;
-    
-}
-

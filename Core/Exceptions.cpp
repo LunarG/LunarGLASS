@@ -110,8 +110,8 @@ void gla::UnsupportedFunctionality(const char* pre, int n, const char* end, EAbo
 
     message.append(pre);
 
-    char buf[20];
-    snprintf(buf, 20, "%d", n);
+    char buf[22];
+    snprintf(buf, 20, " %d ", n);
 
     message.append(buf);
     message.append(end);
