@@ -223,6 +223,10 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v2f32.v4i32(<2 x float>, <4 x i32>)
 !15 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !16}
 !16 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
 
+***Unsupported functionality: missing metadata on load 0 select
+
+***Unsupported functionality: missing metadata on load 0 gla_globalAgg
+
 ***Unsupported functionality: missing metadata on load 0 constructed
 #### BEGIN COMPILER 0 INFO LOG ####
 WARNING: 0:3: varying deprecated in version 130; may be removed in future release
@@ -256,31 +260,27 @@ uniform lunarStruct1 foo;
 uniform sampler2D sampler;
 in vec2 coord;
 vec2 gla_globalAgg[3];
-const int const24i_0 = 0;
-const int const28i_3 = 3;
-const vec2 const35 = vec2(1.0, 2.0);
+const int const23i_0 = 0;
+const int const25i_3 = 3;
+const vec2 const32 = vec2(1.0, 2.0);
 
 void main()
 {
     vec2[3] constructed;
-    int temp22 = foo3.s2_1[1].i;
-    bool temp23 = temp22 > const24i_0;
-    int temp25 = foo.i;
-    int temp26 = foo3.s2_1[temp25].i;
-    int iLocal2 = Count + const28i_3;
-    int temp29 = iLocal2 + temp26;
-    float select = temp23 ? float uniform31 : float gla_constGEP17;
-    vec4 temp33 = vec4(select);
-    vec2 temp34 = vec2(select);
+    bool temp22 = foo3.s2_1[1].i > const23i_0;
+    int iLocal2 = Count + const25i_3;
+    int temp26 = iLocal2 + foo3.s2_1[foo.i].i;
+    float select = temp22 ? float uniform28 : float gla_constGEP17;
+    vec4 temp30 = vec4(select);
+    vec2 temp31 = vec2(select);
     gla_globalAgg[0] = coord;
-    gla_globalAgg[1] = temp34;
-    gla_globalAgg[2] = const35;
+    gla_globalAgg[1] = temp31;
+    gla_globalAgg[2] = const32;
     constructed = gla_globalAgg;
-    vec2 temp36 = constructed[temp25];
-    vec4 temp37 = temp36.xyxy;
-    vec4 temp38 = texture(sampler, coord);
-    vec4 FragColor_shadow = temp33 * temp38;
-    vec4 FragColor_shadow10 = FragColor_shadow + temp37;
+    vec4 temp33 = constructed[foo.i].xyxy;
+    vec4 temp34 = texture(sampler, coord);
+    vec4 FragColor_shadow = temp30 * temp34;
+    vec4 FragColor_shadow10 = FragColor_shadow + temp33;
     gl_FragColor = FragColor_shadow10;
     
 }

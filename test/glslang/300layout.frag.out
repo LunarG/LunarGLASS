@@ -165,8 +165,7 @@ void main()
     p_shadow[1] = temp22;
     mediump vec3 c_shadow = s.c + color;
     c = c_shadow;
-    vec4 temp24 = p_shadow[1];
-    p[1] = temp24;
+    p[1] = p_shadow[1];
     
 }
 
@@ -195,8 +194,7 @@ void main()
     p_shadow1[1] = temp223;
     mediump vec3 c_shadow6 = s.c + color;
     c = c_shadow6;
-    vec4 temp24 = p_shadow1[1];
-    p[1] = temp24;
+    p[1] = p_shadow1[1];
     
 }
 

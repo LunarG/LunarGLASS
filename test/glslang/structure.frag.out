@@ -164,18 +164,15 @@ uniform lunarStruct2 foo2[5];
 uniform sampler2D sampler;
 uniform lunarStruct1 foo;
 in vec2 coord;
-const int const23i_0 = 0;
+const int const22i_0 = 0;
 
 void main()
 {
-    int temp21 = foo2[3].i[4];
-    bool temp22 = temp21 > const23i_0;
-    vec4 temp24 = foo2[3].s1_1[2].color[3];
-    float scale2 = foo2[3].s1_1[2].f[3];
-    float select = temp22 ? temp24.x : scale2;
-    vec4 temp27 = vec4(select);
-    vec4 temp28 = texture(sampler, coord);
-    vec4 FragColor_shadow = temp28 * temp27;
+    bool temp21 = foo2[3].i[4] > const22i_0;
+    float select = temp21 ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
+    vec4 temp24 = vec4(select);
+    vec4 temp25 = texture(sampler, coord);
+    vec4 FragColor_shadow = temp25 * temp24;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -202,19 +199,16 @@ uniform lunarStruct2 foo2[5];
 uniform sampler2D sampler;
 uniform lunarStruct1 foo;
 in vec2 coord;
-const int const23i_0 = 0;
+const int const22i_0 = 0;
 
 void main()
 {
-    int temp211 = foo2[3].i[4];
-    bool temp222 = temp211 > const23i_0;
-    vec4 temp243 = foo2[3].s1_1[2].color[3];
-    float scale24 = foo2[3].s1_1[2].f[3];
-    float select = temp222 ? temp243.x : scale24;
-    vec4 temp27 = vec4(select);
-    vec4 temp289 = texture(sampler, coord);
-    vec4 FragColor_shadow10 = temp289 * temp27;
-    gl_FragColor = FragColor_shadow10;
+    bool temp211 = foo2[3].i[4] > const22i_0;
+    float select = temp211 ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
+    vec4 temp24 = vec4(select);
+    vec4 temp256 = texture(sampler, coord);
+    vec4 FragColor_shadow7 = temp256 * temp24;
+    gl_FragColor = FragColor_shadow7;
     
 }
 

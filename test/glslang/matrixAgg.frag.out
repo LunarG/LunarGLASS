@@ -184,26 +184,24 @@ varying vec3 v;
 
 void main()
 {
-    vec3[4] temp21 = vec3[4](us.sm[i][0], us.sm[i][1], us.sm[i][2], us.sm[i][3]);
-    vec3[4] temp22 = vec3[4](am[4][0], am[4][1], am[4][2], am[4][3]);
-    vec3 rightColumn = temp22[0];
-    vec3 leftColumn = temp21[0];
-    vec3 rightColumn2 = temp22[1];
-    vec3 leftColumn1 = temp21[1];
+    vec3 rightColumn = am[4][0];
+    vec3 leftColumn = us.sm[i][0];
+    vec3 rightColumn2 = am[4][1];
+    vec3 leftColumn1 = us.sm[i][1];
     vec3 column = leftColumn + rightColumn;
     float dot = dot(v, column);
-    vec3 rightColumn5 = temp22[2];
-    vec3 leftColumn4 = temp21[2];
+    vec3 rightColumn5 = am[4][2];
+    vec3 leftColumn4 = us.sm[i][2];
     vec3 column3 = leftColumn1 + rightColumn2;
     float dot12 = dot(v, column3);
-    vec3 rightColumn8 = temp22[3];
-    vec3 leftColumn7 = temp21[3];
+    vec3 rightColumn8 = am[4][3];
+    vec3 leftColumn7 = us.sm[i][3];
     vec3 column6 = leftColumn4 + rightColumn5;
     float dot14 = dot(v, column6);
     vec3 column9 = leftColumn7 + rightColumn8;
     float dot16 = dot(v, column9);
-    vec4 temp39 = vec4(dot, dot12, dot14, dot16);
-    gl_FragColor = temp39;
+    vec4 temp37 = vec4(dot, dot12, dot14, dot16);
+    gl_FragColor = temp37;
     
 }
 
@@ -218,32 +216,24 @@ struct s {
     mat4x3 sm[12];
 };
 
+uniform mat4x3 am[8];
 uniform s us;
 uniform int i;
-uniform mat4x3 am[8];
 uniform mat4x3 m;
 varying vec3 v;
 
 void main()
 {
-    vec3 temp21 = am[4][0];
-    vec3 temp22 = us.sm[i][0];
-    vec3 column8 = temp21 + temp22;
-    vec3 temp24 = am[4][1];
-    vec3 temp25 = us.sm[i][1];
-    vec3 column312 = temp24 + temp25;
-    float dot9 = dot(v, column8);
-    vec3 temp28 = am[4][2];
-    vec3 temp29 = us.sm[i][2];
-    vec3 column617 = temp28 + temp29;
-    float dot1214 = dot(v, column312);
-    vec3 temp32 = am[4][3];
-    vec3 temp33 = us.sm[i][3];
-    vec3 column920 = temp32 + temp33;
-    float dot1419 = dot(v, column617);
-    float dot1622 = dot(v, column920);
-    vec4 temp37 = vec4(dot9, dot1214, dot1419, dot1622);
-    gl_FragColor = temp37;
+    vec3 column5 = us.sm[i][0] + am[4][0];
+    vec3 column39 = us.sm[i][1] + am[4][1];
+    float dot6 = dot(v, column5);
+    vec3 column614 = us.sm[i][2] + am[4][2];
+    float dot1211 = dot(v, column39);
+    vec3 column917 = us.sm[i][3] + am[4][3];
+    float dot1416 = dot(v, column614);
+    float dot1619 = dot(v, column917);
+    vec4 temp29 = vec4(dot6, dot1211, dot1416, dot1619);
+    gl_FragColor = temp29;
     
 }
 

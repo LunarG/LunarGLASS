@@ -131,6 +131,10 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !8 = metadata !{metadata !"smallColor", i32 12, <4 x float>* @smallColor_typeProxy, metadata !5}
 !9 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
 !10 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
+
+***Unsupported functionality: missing metadata on load 0 bigColor
+
+***Unsupported functionality: missing metadata on load 0 smallColor
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

@@ -223,14 +223,14 @@ entry:
   %2 = extractelement <2 x float> %coord, i32 0
   %3 = select i1 %1, float %2, float 1.000000e+00
   %4 = fadd float %3, 1.000000e+00
-  %select33 = select i1 %1, float 1.000000e+00, float %2
-  %select.v = select i1 %1, float %2, float %4
+  %select = select i1 %1, float 1.000000e+00, float %2
+  %select35.v = select i1 %1, float %2, float %4
   %5 = load i32 addrspace(2)* @condition, align 4, !gla.uniform !7
   %6 = icmp eq i32 %5, 1
-  %select = select i1 %6, float %2, float 0.000000e+00
-  %7 = fadd float %select33, %select.v
-  %8 = fadd float %2, %7
-  %9 = fadd float %8, %select
+  %select99 = select i1 %6, float %2, float 0.000000e+00
+  %7 = fadd float %select, %select35.v
+  %8 = fadd float %7, %2
+  %9 = fadd float %8, %select99
   %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %9, <4 x i32> zeroinitializer)
   %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !16
   %11 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !8
@@ -319,30 +319,29 @@ uniform s2 foo2;
 uniform float uFloatArray[16];
 in vec2 coord;
 in vec4 color;
-const int const23i_0 = 0;
-const float const25 = 1.0;
-const int const30i_1 = 1;
-const float const32 = 0.0;
+const int const22i_0 = 0;
+const float const24 = 1.0;
+const int const29i_1 = 1;
+const float const31 = 0.0;
 
 void main()
 {
-    int temp21 = foo3.s2_1.i;
-    bool temp22 = temp21 > const23i_0;
-    float temp24 = temp22 ? coord.x : const25;
-    float temp26 = temp24 + const25;
-    float select33 = temp22 ? const25 : coord.x;
-    float selectdv = temp22 ? coord.x : temp26;
-    bool temp29 = condition == const30i_1;
-    float select = temp29 ? coord.x : const32;
-    float temp33 = select33 + selectdv;
-    float temp34 = coord.x + temp33;
-    float temp35 = temp34 + select;
-    vec4 temp36 = vec4(temp35);
-    vec4 temp37 = color;
-    temp37.z = coord.y;
-    vec4 temp38 = texture(sampler, coord);
-    vec4 temp39 = temp37 * temp36;
-    vec4 FragColor_shadow = temp38 * temp39;
+    bool temp21 = foo3.s2_1.i > const22i_0;
+    float temp23 = temp21 ? coord.x : const24;
+    float temp25 = temp23 + const24;
+    float select = temp21 ? const24 : coord.x;
+    float select35dv = temp21 ? coord.x : temp25;
+    bool temp28 = condition == const29i_1;
+    float select99 = temp28 ? coord.x : const31;
+    float temp32 = select + select35dv;
+    float temp33 = temp32 + coord.x;
+    float temp34 = temp33 + select99;
+    vec4 temp35 = vec4(temp34);
+    vec4 temp36 = color;
+    temp36.z = coord.y;
+    vec4 temp37 = texture(sampler, coord);
+    vec4 temp38 = temp36 * temp35;
+    vec4 FragColor_shadow = temp37 * temp38;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -379,30 +378,29 @@ uniform s1 foo;
 uniform s2 foo2;
 in vec2 coord;
 in vec4 color;
-const int const23i_0 = 0;
-const float const25 = 1.0;
-const float const27 = 2.0;
-const int const29i_1 = 1;
-const float const31 = 0.0;
+const int const22i_0 = 0;
+const float const24 = 1.0;
+const float const26 = 2.0;
+const int const28i_1 = 1;
+const float const30 = 0.0;
 
 void main()
 {
-    int temp211 = foo3.s2_1.i;
-    bool temp222 = temp211 > const23i_0;
-    float select = temp222 ? const25 : coord.x;
-    float select45 = temp222 ? coord.x : const27;
-    bool temp2921 = condition == const29i_1;
-    float select44 = temp2921 ? coord.x : const31;
-    float temp3329 = select + select45;
-    float temp3431 = temp3329 + coord.x;
-    float temp3532 = select44 + temp3431;
-    vec4 temp35 = vec4(temp3532);
-    vec4 temp36 = color;
-    temp36.z = coord.y;
-    vec4 temp3939 = temp36 * temp35;
-    vec4 temp3838 = texture(sampler, coord);
-    vec4 FragColor_shadow40 = temp3838 * temp3939;
-    gl_FragColor = FragColor_shadow40;
+    bool temp211 = foo3.s2_1.i > const22i_0;
+    float select43 = temp211 ? const24 : coord.x;
+    float select42 = temp211 ? coord.x : const26;
+    bool temp2820 = condition == const28i_1;
+    float select = temp2820 ? coord.x : const30;
+    float temp3228 = select43 + select42;
+    float temp3330 = temp3228 + coord.x;
+    float temp3431 = select + temp3330;
+    vec4 temp34 = vec4(temp3431);
+    vec4 temp35 = color;
+    temp35.z = coord.y;
+    vec4 temp3838 = temp35 * temp34;
+    vec4 temp3737 = texture(sampler, coord);
+    vec4 FragColor_shadow39 = temp3737 * temp3838;
+    gl_FragColor = FragColor_shadow39;
     
 }
 

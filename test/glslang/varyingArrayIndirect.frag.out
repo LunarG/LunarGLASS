@@ -299,34 +299,30 @@ void main()
 {
     userIn_shadow[0] = userIn[0];
     userIn_shadow[1] = userIn[1];
-    vec4 temp21 = userIn_shadow[b];
     TexCoord_shadow[0] = gl_TexCoord[0];
     TexCoord_shadow[1] = gl_TexCoord[1];
     TexCoord_shadow[2] = gl_TexCoord[2];
     TexCoord_shadow[3] = gl_TexCoord[3];
     TexCoord_shadow[4] = gl_TexCoord[4];
     TexCoord_shadow[5] = gl_TexCoord[5];
-    vec4 temp22 = TexCoord_shadow[a];
-    vec4 temp23 = temp21 + temp22;
-    vec4 temp24 = gl_TexCoord[5] + temp23;
-    vec2 temp25 = vec2(temp24);
+    vec4 temp21 = userIn_shadow[b] + TexCoord_shadow[a];
+    vec4 temp22 = gl_TexCoord[5] + temp21;
+    vec2 temp23 = vec2(temp22);
     TexCoord_shadow[0] = gl_TexCoord[0];
     TexCoord_shadow[1] = gl_TexCoord[1];
     TexCoord_shadow[2] = gl_TexCoord[2];
     TexCoord_shadow[3] = gl_TexCoord[3];
     TexCoord_shadow[4] = gl_TexCoord[4];
     TexCoord_shadow[5] = gl_TexCoord[5];
-    vec4 temp26 = TexCoord_shadow[b];
     userIn_shadow[0] = userIn[0];
     userIn_shadow[1] = userIn[1];
-    vec4 texColor13 = texture(texSampler2D, temp25);
+    vec4 texColor13 = texture(texSampler2D, temp23);
     vec4 texColor14 = color + texColor13;
-    vec4 temp29 = gl_TexCoord[0] + temp26;
-    vec4 temp30 = texColor14;
-    temp30.w = alpha;
-    vec4 temp31 = userIn_shadow[a];
-    vec4 temp32 = temp29 + temp30;
-    vec4 FragColor_shadow = temp31 + temp32;
+    vec4 temp26 = gl_TexCoord[0] + TexCoord_shadow[b];
+    vec4 temp27 = texColor14;
+    temp27.w = alpha;
+    vec4 temp28 = temp26 + temp27;
+    vec4 FragColor_shadow = userIn_shadow[a] + temp28;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -350,35 +346,31 @@ void main()
 {
     userIn_shadow[0] = userIn[0];
     userIn_shadow[1] = userIn[1];
-    vec4 temp214 = userIn_shadow[b];
     TexCoord_shadow[0] = gl_TexCoord[0];
     TexCoord_shadow[1] = gl_TexCoord[1];
     TexCoord_shadow[2] = gl_TexCoord[2];
     TexCoord_shadow[3] = gl_TexCoord[3];
     TexCoord_shadow[4] = gl_TexCoord[4];
     TexCoord_shadow[5] = gl_TexCoord[5];
-    vec4 temp2252 = TexCoord_shadow[a];
-    vec4 temp2353 = temp214 + temp2252;
-    vec4 temp2462 = gl_TexCoord[5] + temp2353;
-    vec2 temp25 = vec2(temp2462);
+    vec4 temp2151 = userIn_shadow[b] + TexCoord_shadow[a];
+    vec4 temp2260 = gl_TexCoord[5] + temp2151;
+    vec2 temp23 = vec2(temp2260);
     TexCoord_shadow[0] = gl_TexCoord[0];
     TexCoord_shadow[1] = gl_TexCoord[1];
     TexCoord_shadow[2] = gl_TexCoord[2];
     TexCoord_shadow[3] = gl_TexCoord[3];
     TexCoord_shadow[4] = gl_TexCoord[4];
     TexCoord_shadow[5] = gl_TexCoord[5];
-    vec4 temp26112 = TexCoord_shadow[b];
     userIn_shadow[0] = userIn[0];
     userIn_shadow[1] = userIn[1];
-    vec4 texColor13117 = texture(texSampler2D, temp25);
-    vec4 texColor14118 = color + texColor13117;
-    vec4 temp29 = texColor14118;
-    temp29.w = alpha;
-    vec4 temp29127 = temp26112 + gl_TexCoord[0];
-    vec4 temp32131 = temp29 + temp29127;
-    vec4 temp31130 = userIn_shadow[a];
-    vec4 FragColor_shadow132 = temp31130 + temp32131;
-    gl_FragColor = FragColor_shadow132;
+    vec4 texColor13114 = texture(texSampler2D, temp23);
+    vec4 texColor14115 = color + texColor13114;
+    vec4 temp26 = texColor14115;
+    temp26.w = alpha;
+    vec4 temp26124 = TexCoord_shadow[b] + gl_TexCoord[0];
+    vec4 temp28127 = temp26 + temp26124;
+    vec4 FragColor_shadow128 = userIn_shadow[a] + temp28127;
+    gl_FragColor = FragColor_shadow128;
     
 }
 

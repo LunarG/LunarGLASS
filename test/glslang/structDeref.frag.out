@@ -285,33 +285,29 @@ uniform s00 foo00;
 uniform sampler2D sampler;
 uniform s2 foo2;
 in vec2 coord;
-const int const23i_0 = 0;
-const float const28 = 0.0;
-const float const29 = 3.0;
-const float const33 = 1.0;
-const int const36i_5 = 5;
+const int const22i_0 = 0;
+const float const24 = 0.0;
+const float const25 = 3.0;
+const float const29 = 1.0;
+const int const32i_5 = 5;
 
 void main()
 {
-    int temp21 = foo3.s2_1[9].i;
-    bool temp22 = temp21 > const23i_0;
-    float temp24 = foo1.f;
-    int temp25 = foo1.s0_1.i;
-    int temp26 = foo00.s0_0.i;
-    float select = temp22 ? const28 : const29;
-    int select43 = temp22 ? const23i_0 : temp25;
-    int select44 = temp22 ? const23i_0 : temp26;
-    float select45 = temp22 ? const33 : coord.y;
-    float select46 = temp22 ? temp24 : coord.y;
-    bool temp35 = select43 > const36i_5;
-    int locals00d0d0d0dlocals0d0d0 = temp35 ? select44 : select43;
-    float temp38 = float(locals00d0d0d0dlocals0d0d0);
-    float temp39 = select46 + temp38;
-    float temp40 = select + temp39;
-    float temp41 = select45 + temp40;
-    vec4 temp42 = vec4(temp41);
-    vec4 temp43 = texture(sampler, coord);
-    vec4 FragColor_shadow = temp43 * temp42;
+    bool temp21 = foo3.s2_1[9].i > const22i_0;
+    float select = temp21 ? const24 : const25;
+    int select43 = temp21 ? const22i_0 : foo1.s0_1.i;
+    int select44 = temp21 ? const22i_0 : foo00.s0_0.i;
+    float select45 = temp21 ? const29 : coord.y;
+    float select46 = temp21 ? foo1.f : coord.y;
+    bool temp31 = select43 > const32i_5;
+    int locals00d0d0d0dlocals0d0d0 = temp31 ? select44 : select43;
+    float temp34 = float(locals00d0d0d0dlocals0d0d0);
+    float temp35 = select46 + temp34;
+    float temp36 = select + temp35;
+    float temp37 = select45 + temp36;
+    vec4 temp38 = vec4(temp37);
+    vec4 temp39 = texture(sampler, coord);
+    vec4 FragColor_shadow = temp39 * temp38;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -356,34 +352,30 @@ uniform sampler2D sampler;
 uniform s0 foo0;
 uniform s2 foo2;
 in vec2 coord;
-const int const23i_0 = 0;
-const float const27 = 0.0;
-const float const28 = 3.0;
-const float const32 = 1.0;
-const int const36i_5 = 5;
+const int const22i_0 = 0;
+const float const24 = 0.0;
+const float const25 = 3.0;
+const float const29 = 1.0;
+const int const32i_5 = 5;
 
 void main()
 {
-    int temp211 = foo3.s2_1[9].i;
-    bool temp222 = temp211 > const23i_0;
-    int temp254 = foo1.s0_1.i;
-    int temp265 = foo00.s0_0.i;
-    float temp26 = temp222 ? const27 : const28;
-    int ternary7d0 = temp222 ? const23i_0 : temp254;
-    int dtemp265 = temp222 ? const23i_0 : temp265;
-    float select = temp222 ? const32 : coord.y;
-    float temp243 = foo1.f;
-    float select51 = temp222 ? temp243 : coord.y;
-    bool temp3533 = ternary7d0 > const36i_5;
-    int dtemp265dternary7d0 = temp3533 ? dtemp265 : ternary7d0;
-    float temp3841 = float(dtemp265dternary7d0);
-    float temp3942 = temp3841 + select51;
-    float temp4043 = temp26 + temp3942;
-    float temp4144 = select + temp4043;
-    vec4 temp42 = vec4(temp4144);
-    vec4 temp4347 = texture(sampler, coord);
-    vec4 FragColor_shadow48 = temp4347 * temp42;
-    gl_FragColor = FragColor_shadow48;
+    bool temp211 = foo3.s2_1[9].i > const22i_0;
+    float temp23 = temp211 ? const24 : const25;
+    int ternary3d0 = temp211 ? const22i_0 : foo1.s0_1.i;
+    int ternary9d0 = temp211 ? const22i_0 : foo00.s0_0.i;
+    float select47 = temp211 ? const29 : coord.y;
+    float select = temp211 ? foo1.f : coord.y;
+    bool temp3129 = ternary3d0 > const32i_5;
+    int ternary9d0dternary3d0 = temp3129 ? ternary9d0 : ternary3d0;
+    float temp3437 = float(ternary9d0dternary3d0);
+    float temp3538 = temp3437 + select;
+    float temp3639 = temp23 + temp3538;
+    float temp3740 = select47 + temp3639;
+    vec4 temp38 = vec4(temp3740);
+    vec4 temp3943 = texture(sampler, coord);
+    vec4 FragColor_shadow44 = temp3943 * temp38;
+    gl_FragColor = FragColor_shadow44;
     
 }
 

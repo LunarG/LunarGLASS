@@ -816,11 +816,6 @@ protected:
 
     void makeParseable(std::string& name)
     {
-        // Some symbols were annotated with a prefix and a space
-        int spaceLoc = name.find_first_of(' ');
-        if (spaceLoc != std::string::npos)
-            name.erase(0, spaceLoc+1);
-
         // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
         for (int c = 0; c < name.length(); ++c) {
             if (name[c] == '.' || name[c] == '-')
@@ -1608,7 +1603,7 @@ protected:
 
     // Traverse the indices used in either GEP or Insert/ExtractValue, and return a string representing
     // it, not including the base.
-    std::string traverseGep(const llvm::Instruction* instr, EMdTypeLayout mdTopType = EMtlNone, EMdTypeLayout* mdTypeLayout = 0)
+    std::string traverseGep(const llvm::Instruction* instr, EMdTypeLayout* mdTypeLayout = 0)
     {
         std::string gepName;
 
@@ -1617,9 +1612,6 @@ protected:
         while (aggregateType->getTypeID() == llvm::Type::PointerTyID || aggregateType->getTypeID() == llvm::Type::ArrayTyID)
             aggregateType = aggregateType->getContainedType(0);
         const llvm::MDNode* mdAggregate = typenameMdAggregateMap[aggregateType];
-        
-        if (mdTypeLayout)
-            *mdTypeLayout = mdTopType;
 
         if (const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(instr)) {
             // Start at operand 2 since indices 0 and 1 give you the base and are handled before traverseGep
@@ -1900,20 +1892,6 @@ protected:
             return;
 
         name = wrapped.str();
-    }
-
-    bool needsConversion(EMdTypeLayout mdType)
-    {
-        return mdType == EMtlUnsigned ||
-               mdType == EMtlRowMajorMatrix ||
-               mdType == EMtlColMajorMatrix;
-    }
-
-    bool needsConversion(const llvm::Instruction* llvmInstruction)
-    {
-        EMdTypeLayout mdType = GetMdTypeLayout(llvmInstruction->getMetadata(UniformMdName));
-
-        return needsConversion(mdType);
     }
 
     // mapping from LLVM values to Glsl variables
@@ -2264,64 +2242,57 @@ void gla::GlslTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         {
             assert(! llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)));
 
-            if (const llvm::GetElementPtrInst* gepInstr = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0))) {
-                // We're loading from the result of a GEP.  Get it and assign it to a new variable.
+            // We want phis to use the same variable name created during phi declaration
+            if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {                
+                addNewVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
 
-                // See if we have metadata describing a uniform variable to declare
-                llvm::MDNode* mdUniform = llvmInstruction->getMetadata(UniformMdName);
+                return;
+            } 
 
-                std::string name;
-                EMdTypeLayout mdTopType = EMtlNone;
-                if (mdUniform) {
-                    name = mdUniform->getOperand(0)->getName();
-                    mdTopType = GetMdTypeLayout(mdUniform);
-                } else {
-                    // emulate metadata, if we don't have it
-                    std::string* prevName = valueMap[gepInstr];
-                    if (prevName)
-                        name = *prevName;
-                    else
-                        name = gepInstr->getOperand(0)->getName();                    
-                    UnsupportedFunctionality("missing metadata on load", 0, name.c_str(), EATContinue);
-                }
+            // Lookup whether this load is using the results of a GEP instruction, 
+            // and process both instructions (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
+            const llvm::GetElementPtrInst* gepInstr = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0));
 
-                // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
-                // For GEP, which always returns a pointer, traverse the dereference chain and store it.
-                EMdTypeLayout mdLeafType;
-                name.append(traverseGep(gepInstr, mdTopType, &mdLeafType));
+            // See if we have metadata describing a uniform variable to declare
+            llvm::MDNode* mdUniform = llvmInstruction->getMetadata(UniformMdName);
+            std::string name;
+            EMdTypeLayout mdType;
+            if (mdUniform) {
+                mdType = GetMdTypeLayout(mdUniform);
+                name = mdUniform->getOperand(0)->getName();
+            } else {
+                mdType = EMtlNone;
+                if (gepInstr)
+                    name = gepInstr->getOperand(0)->getName();
+                else
+                    name = llvmInstruction->getOperand(0)->getName();
+                makeParseable(name);
+                UnsupportedFunctionality("missing metadata on load", 0, name.c_str(), EATContinue);
+            }
+            
+            if (gepInstr) {
+                // traverse the dereference chain and store it.
+                name.append(traverseGep(gepInstr, &mdType));
+
+                // an anonymous block will leave a name starting with "."; remove it
                 if (name[0] == '.')
                     name = name.substr(1, std::string::npos);
+            }
 
-                // conversion-wrap it and make the whole thing the name of a variable
-                if (needsConversion(mdLeafType))
-                    conversionWrap(name, llvmInstruction->getType(), false);
-                addNewVariable(gepInstr, name);
-
-                // assign it to a new variable
-                newLine();
-                emitGlaValue(llvmInstruction);
-                shader << " = ";
-                emitGlaValue(gepInstr);
-                shader << ";";
-            } else if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {
-                // We want phis to use the same variable name created during phi declaration
-                addNewVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
-            } else {
-                std::string name = llvmInstruction->getOperand(0)->getName();
-                makeParseable(name);
-                // conversion wrap it and make the whole thing the name of a variable
-                if (needsConversion(llvmInstruction)) {
+            // conversion-wrap it and make the whole thing the name of a variable
+            if (mdType == EMtlUnsigned || mdType == EMtlRowMajorMatrix || mdType == EMtlColMajorMatrix) {
+                if (mdType != EMtlUnsigned) {
                     // Optimization:  Will keep both a converted and non-converted version, in case
                     // at a future point we can tell the non-converted one is okay; e.g., a matrix
                     // dereference never had to be constructed into an array of arrays
                     nonConvertedMap[llvmInstruction] = new std::string(name);  // TODO: LunarGOO memory: free these
-                    conversionWrap(name, llvmInstruction->getType(), false);
                 }
-                addNewVariable(llvmInstruction, name);
+                conversionWrap(name, llvmInstruction->getType(), false);
             }
-        }
-        return;
+            addNewVariable(llvmInstruction, name);
 
+            return;
+        }
     case llvm::Instruction::Alloca:
         newLine();
         emitGlaValue(llvmInstruction);
