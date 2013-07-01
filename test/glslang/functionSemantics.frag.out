@@ -154,6 +154,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 #### END LINKER INFO LOG ####
 #version 100
 // LunarGOO output (r722)
+precision mediump float; // this will almost entirely overridden by individual declarations
+
 const highp vec4 const21 = vec4(397295.0);
 
 void main()
@@ -168,6 +170,8 @@ void main()
 #### END LINKER INFO LOG ####
 #version 100
 // LunarGOO output (r722)
+precision mediump float; // this will almost entirely overridden by individual declarations
+
 const highp vec4 const21 = vec4(397295.0);
 
 void main()

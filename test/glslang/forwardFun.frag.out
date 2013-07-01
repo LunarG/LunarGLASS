@@ -158,6 +158,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 #### END LINKER INFO LOG ####
 #version 100
 // LunarGOO output (r722)
+precision mediump float; // this will almost entirely overridden by individual declarations
+
 uniform mediump float d;
 uniform mediump vec4 bigColor;
 varying mediump vec4 BaseColor;
@@ -183,6 +185,8 @@ void main()
 #### END LINKER INFO LOG ####
 #version 100
 // LunarGOO output (r722)
+precision mediump float; // this will almost entirely overridden by individual declarations
+
 uniform mediump float d;
 uniform mediump vec4 bigColor;
 varying mediump vec4 BaseColor;

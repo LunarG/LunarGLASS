@@ -146,6 +146,8 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 #### END LINKER INFO LOG ####
 #version 300 es
 // LunarGOO output (r722)
+precision mediump float; // this will almost entirely overridden by individual declarations
+
 struct S {
     mediump vec3 c;
     mediump float f;
@@ -175,6 +177,8 @@ void main()
 #### END LINKER INFO LOG ####
 #version 300 es
 // LunarGOO output (r722)
+precision mediump float; // this will almost entirely overridden by individual declarations
+
 struct S {
     mediump vec3 c;
     mediump float f;

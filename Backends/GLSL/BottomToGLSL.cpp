@@ -1503,6 +1503,9 @@ void gla::GlslTarget::print()
         printf(" obuscated");
     printf("\n");
     
+    if (language == EShLangFragment && profile == EEsProfile)
+        printf("precision mediump float; // this will almost entirely overridden by individual declarations\n\n");
+
     // rest of shader...
     printf("%s%s%s", globalStructures.str().c_str(), globalDeclarations.str().c_str(), shader.str().c_str());
     printf("\n");
@@ -2473,10 +2476,10 @@ void gla::GlslTarget::emitGlaSamplerType(std::ostringstream& out, const llvm::MD
         case EMsdBuffer:   out << "Buffer";  break;
         default:           UnsupportedFunctionality("kind of sampler");  break;
         }
-        if (isShadow)
-            out << "Shadow";
         if (isArray)
             out << "Array";
+        if (isShadow)
+            out << "Shadow";
     } else
         UnsupportedFunctionality("sampler metadata", EATContinue);
 }

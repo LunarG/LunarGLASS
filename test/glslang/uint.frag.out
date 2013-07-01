@@ -323,6 +323,8 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 #### END LINKER INFO LOG ####
 #version 300 es
 // LunarGOO output (r722)
+precision mediump float; // this will almost entirely overridden by individual declarations
+
 uniform mediump usampler2D usampler;
 uniform mediump uvec4 v;
 uniform mediump int i;
@@ -362,6 +364,8 @@ void main()
 #### END LINKER INFO LOG ####
 #version 300 es
 // LunarGOO output (r722)
+precision mediump float; // this will almost entirely overridden by individual declarations
+
 uniform mediump usampler2D usampler;
 uniform mediump uvec4 v;
 uniform mediump int i;
