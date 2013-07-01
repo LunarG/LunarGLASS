@@ -323,7 +323,7 @@ declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i
 #### END LINKER INFO LOG ####
 #version 300 es
 // LunarGOO output (r722)
-uniform usampler2D usampler;
+uniform mediump usampler2D usampler;
 uniform mediump uvec4 v;
 uniform mediump int i;
 uniform bool b;
@@ -342,7 +342,7 @@ void main()
 {
     mediump int temp21 = ivec2(t).y + const22i_3;
     mediump vec2 temp23 = tc + const24;
-    mediump ivec4 c_shadow8 = texture(usampler, temp23);
+    mediump ivec4 c_shadow8 = ivec4(texture(usampler, temp23));
     bool temp26 = ivec2(t).x > const27i_4;
     mediump float af16 = float(temp21);
     bool ab17 = temp21 != const30i_0;
@@ -356,7 +356,42 @@ void main()
     
 }
 
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+#version 300 es
+// LunarGOO output (r722)
+uniform mediump usampler2D usampler;
+uniform mediump uvec4 v;
+uniform mediump int i;
+uniform bool b;
+flat in mediump uvec2 t;
+in mediump vec2 tc;
+in mediump float f;
+out mediump uvec4 c;
+const highp int const22i_3 = 3;
+const highp vec2 const24 = vec2(1.0);
+const highp int const27i_4 = 4;
+const highp int const31i_0 = 0;
+const highp int const34i_462 = 462;
+const highp ivec4 const38 = ivec4(341413380);
+
+void main()
+{
+    highp int temp211 = ivec2(t).y + const22i_3;
+    highp vec2 temp232 = tc + const24;
+    mediump ivec4 c_shadow83 = ivec4(texture(usampler, temp232));
+    bool temp265 = ivec2(t).x > const27i_4;
+    mediump float af166 = float(temp211);
+    mediump int temp318 = int(uint(af166));
+    bool ab177 = temp211 != const31i_0;
+    mediump int temp329 = int(ab177);
+    ivec4 temp33 = ivec4(temp318, temp329, temp211, const34i_462);
+    mediump ivec4 c_shadow1911 = c_shadow83 + temp33;
+    ivec4 select = temp265 ? c_shadow1911 : c_shadow83;
+    highp ivec4 c_shadow3815 = select + const38;
+    c = uvec4(c_shadow3815);
+    
+}
+

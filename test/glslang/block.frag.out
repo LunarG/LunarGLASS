@@ -153,7 +153,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 struct S {
     mediump vec4 u;
     mediump uvec4 v;
-    isampler2D sampler;
+    lowp isampler2D sampler;
     mediump vec3 w;
     mediump mat3 m3a[5];
 };

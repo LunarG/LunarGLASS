@@ -1,7 +1,7 @@
 //===- BottomToGLSL.cpp - Translate bottom IR to GLSL ---------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
-// Copyright (C) 2010-2011 LunarG, Inc.
+// Copyright (C) 2010-2013 LunarG, Inc.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -211,11 +211,11 @@ protected:
     void emitGlaInterpolationQualifier(EVariableQualifier qualifier, EInterpolationMethod interpMethod, EInterpolationLocation interpLocation);
     void emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location);
     void emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count = -1);
-    void emitMapGlaValue(const llvm::Value* value, bool forceGlobal = false);
-    void emitNonconvertedGlaValue(const llvm::Value* value);
+    void emitGlaValueDeclaration(const llvm::Value* value, bool forceGlobal = false);
     void emitGlaValue(const llvm::Value* value);
+    void emitNonconvertedGlaValue(const llvm::Value* value);
     void emitGlaStructName(std::ostringstream& out, const llvm::Type* structType);
-    std::string emitGetGlaValue(const llvm::Value* value);
+    std::string* mapGlaValueAndEmitDeclaration(const llvm::Value* value);
     void emitFloatConstant(std::ostringstream& out, float f);
     void emitConstantInitializer(std::ostringstream& out, const llvm::Constant* constant, llvm::Type* type);
     void emitInitializeAggregate(std::ostringstream& out, std::string name, const llvm::Constant* constant);
@@ -804,6 +804,21 @@ void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNo
         mdTypeLayout = GetMdTypeLayout(mdAggregate);
 }
 
+bool SamplerIsUint(llvm::Value* sampler)
+{
+    // TODO: nested uint samplers: this only works for non-nested sampler types, need a pretty different way
+    // for nested types
+    if (llvm::Instruction* samplerInst = llvm::dyn_cast<llvm::Instruction>(sampler)) {
+        llvm::MDNode* md = samplerInst->getMetadata(UniformMdName);
+        if (md)
+            return GetMdSamplerBaseType(md) == EMsbUint;
+    }
+
+    UnsupportedFunctionality("missing sampler base type", EATContinue);
+
+    return false;
+}
+
 }; // end anonymous namespace
 
 //
@@ -907,7 +922,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     // If the instruction is referenced outside of the current scope
     // (e.g. inside a loop body), then add a (global) declaration for it.
     if (referencedOutsideScope) {
-        emitMapGlaValue(llvmInstruction, referencedOutsideScope);
+        emitGlaValueDeclaration(llvmInstruction, referencedOutsideScope);
     }
 
     bool nested;
@@ -1083,7 +1098,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
                     // Optimization:  Will keep both a converted and non-converted version, in case
                     // at a future point we can tell the non-converted one is okay; e.g., a matrix
                     // dereference never had to be constructed into an array of arrays
-                    nonConvertedMap[llvmInstruction] = new std::string(name);  // TODO: LunarGOO memory: free these
+                    nonConvertedMap[llvmInstruction] = new std::string(name);
                 }
                 ConversionWrap(name, llvmInstruction->getType(), false);
             }
@@ -1125,7 +1140,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
     case llvm::Instruction::ExtractElement:
         {
-            emitMapGlaValue(llvmInstruction->getOperand(0));
+            emitGlaValueDeclaration(llvmInstruction->getOperand(0));
 
             // copy propagate, by name string, the extracted component
             std::string swizzled;
@@ -1336,7 +1351,7 @@ void gla::GlslTarget::beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const
     if (pos == -1)
         binOp = true;
 
-    // TODO: Goo: add support for unary ops (and xor)
+    // TODO: Goo: loops: add support for unary ops (and xor)
 
     if (! binOp)
         UnsupportedFunctionality("unary op for simple conditional loops");
@@ -1580,7 +1595,7 @@ bool gla::GlslTarget::addVariable(const llvm::Value* value, std::string& name)
 {
     if (valueMap[value] == 0) {
         // make a copy so caller can pass in temporary variables
-        valueMap[value] = new std::string(name);  // TODO: Goo: memory: delete these
+        valueMap[value] = new std::string(name);
 
         return true;
     } else {
@@ -1767,6 +1782,11 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         newLine();
         emitGlaValue(llvmInstruction);
         shader << " = ";
+        bool needConstructor = SamplerIsUint(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
+        if (needConstructor) {
+            emitGlaConstructor(shader, llvmInstruction->getType());
+            shader << "(";
+        }
         emitGlaSampler(llvmInstruction, GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
         shader << "(";
         emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
@@ -1832,7 +1852,10 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBiasLod)));
         }
 
-        shader << ");";
+        if (needConstructor)
+            shader << "));";
+        else
+            shader << ");";
 
         return;
     }
@@ -2401,6 +2424,8 @@ bool gla::GlslTarget::emitMdNodeTypes(std::ostringstream& out, bool ioRoot, cons
     if (typeLayout == EMtlSampler) {
         if (uniform)
             out << "uniform ";
+        emitGlaLayout(out, typeLayout, location);
+        emitGlaPrecision(out, precision);
         emitGlaSamplerType(out, mdSampler);
 
         return false;
@@ -2525,7 +2550,7 @@ void gla::GlslTarget::emitGlaConstructor(std::ostringstream& out, llvm::Type* ty
 // If valueMap has no entry for value, generate a name and declaration, and
 // store it in valueMap. If forceGlobal is true, then it will make the
 // declaration occur as a global.
-void gla::GlslTarget::emitMapGlaValue(const llvm::Value* value, bool forceGlobal)
+void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, bool forceGlobal)
 {
     if (valueMap[value] == 0) {
         // Figure out where our declaration should go
@@ -2556,6 +2581,18 @@ void gla::GlslTarget::emitMapGlaValue(const llvm::Value* value, bool forceGlobal
     }
 }
 
+void gla::GlslTarget::emitGlaValue(const llvm::Value* value)
+{
+    assert(! llvm::isa<llvm::ConstantExpr>(value));
+
+    emitGlaValueDeclaration(value);
+    shader << valueMap[value]->c_str();
+}
+
+// Called when it is known safe to emit a name that has not been converted
+// (converted from I/O types to internal types).
+// If there is a non-converted version, emit it, otherwise just emit
+// the normal one.
 void gla::GlslTarget::emitNonconvertedGlaValue(const llvm::Value* value)
 {
     std::string* name = nonConvertedMap[value];
@@ -2565,14 +2602,6 @@ void gla::GlslTarget::emitNonconvertedGlaValue(const llvm::Value* value)
         emitGlaValue(value);
 }
 
-void gla::GlslTarget::emitGlaValue(const llvm::Value* value)
-{
-    assert(! llvm::isa<llvm::ConstantExpr>(value));
-
-    emitMapGlaValue(value);
-    shader << valueMap[value]->c_str();
-}
-
 void gla::GlslTarget::emitGlaStructName(std::ostringstream& out, const llvm::Type* structType)
 {
     std::string name = structNameMap[structType];
@@ -2580,11 +2609,11 @@ void gla::GlslTarget::emitGlaStructName(std::ostringstream& out, const llvm::Typ
     out << name;
 }
 
-std::string gla::GlslTarget::emitGetGlaValue(const llvm::Value* value)
+std::string* gla::GlslTarget::mapGlaValueAndEmitDeclaration(const llvm::Value* value)
 {
-    emitMapGlaValue(value);
+    emitGlaValueDeclaration(value);
 
-    return valueMap[value]->c_str();
+    return valueMap[value];
 }
 
 void gla::GlslTarget::emitFloatConstant(std::ostringstream& out, float f)
@@ -2717,7 +2746,7 @@ void gla::GlslTarget::emitInitializeAggregate(std::ostringstream& out, std::stri
                 if (IsDefined(constVec->getOperand(op))) {
                     out << std::endl << "    " << name;
                     out << "." << MapComponentToSwizzleChar(op) << " = ";
-                    out << emitGetGlaValue(constVec->getOperand(op));
+                    out << *mapGlaValueAndEmitDeclaration(constVec->getOperand(op));
                     out << ";";
                 }
             }
@@ -2726,7 +2755,7 @@ void gla::GlslTarget::emitInitializeAggregate(std::ostringstream& out, std::stri
                 if (IsDefined(constArray->getOperand(op))) {
                     out << std::endl << "    " << name;
                     out << "[" << op << "] = ";
-                    out << emitGetGlaValue(constArray->getOperand(op));
+                    out << *mapGlaValueAndEmitDeclaration(constArray->getOperand(op));
                     out << ";";
                 }
             }
@@ -2735,7 +2764,7 @@ void gla::GlslTarget::emitInitializeAggregate(std::ostringstream& out, std::stri
                 if (IsDefined(constStruct->getOperand(op))) {
                     out << std::endl << "    " << name;
                     out << "." << MapGlaStructField(constant->getType(), op) << " = ";
-                    out << emitGetGlaValue(constStruct->getOperand(op));
+                    out << *mapGlaValueAndEmitDeclaration(constStruct->getOperand(op));
                     out << ";";
                 }
             }
@@ -2949,7 +2978,7 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
     case llvm::Intrinsic::gla_fWriteData:
     {
         llvm::Value* value = llvmInstruction->getOperand(2);
-        emitMapGlaValue(value);
+        emitGlaValueDeclaration(value);
         std::string wrapped = *valueMap[value];
         if (notSigned)
             ConversionWrap(wrapped, value->getType(), true);
@@ -3045,7 +3074,7 @@ void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name,
             snprintf(buf, bufSize, "%d", index);
             name.append(buf);
         } else
-            name.append(emitGetGlaValue(operand));
+            name.append(*mapGlaValueAndEmitDeclaration(operand));
 
         name.append("]");
 

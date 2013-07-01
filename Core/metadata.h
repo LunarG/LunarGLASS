@@ -402,6 +402,28 @@ inline EMdTypeLayout GetMdTypeLayout(const llvm::MDNode *md)
     return (EMdTypeLayout)constInt->getSExtValue();
 }
 
+// A shortcut for just getting the type of a sampler (int, uint, float) from an 
+// instruction's metadata
+inline EMdSamplerBaseType GetMdSamplerBaseType(const llvm::MDNode* md)
+{
+    if (! md || md->getNumOperands() < 4)
+        return EMsbFloat;
+
+    md = llvm::dyn_cast<llvm::MDNode>(md->getOperand(3));
+    if (! md || md->getNumOperands() < 4 || md->getOperand(3) == 0)
+        return EMsbFloat;
+
+    md = llvm::dyn_cast<llvm::MDNode>(md->getOperand(3));
+    if (! md || md->getNumOperands() < 6 || md->getOperand(5) == 0)
+        return EMsbFloat;
+
+    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(5));
+    if (! constInt)
+        return EMsbFloat;
+
+    return (EMdSamplerBaseType)constInt->getSExtValue();    
+}
+
 //
 // Metadata class is just for adapter while building the IR.
 //
