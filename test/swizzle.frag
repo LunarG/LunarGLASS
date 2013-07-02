@@ -38,4 +38,15 @@ void main()
         w_flow.x = t.y;
 
     gl_FragColor = mix(w_reorder, w_undef, w * w2 * w_dep * w_flow);
+
+    vec2 c = t;
+    vec4 rep = vec4(0.0, 0.0, 0.0, 1.0);
+
+    if (c.x < 0.0)
+        c.x *= -1.0;
+
+    if (c.x <= 1.0)
+        rep.x = 3.4;
+
+    gl_FragColor += rep;
 }

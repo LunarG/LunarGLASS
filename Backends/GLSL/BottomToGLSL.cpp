@@ -221,7 +221,7 @@ protected:
     void emitInitializeAggregate(std::ostringstream& out, std::string name, const llvm::Constant* constant);
     void emitGlaSwizzle(int glaSwizzle, int width, llvm::Value* source = 0);
     void emitGlaSwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts);
-    void emitGlaWriteMask(const llvm::SmallVectorImpl<llvm::Constant*>& elts);
+    int  emitGlaWriteMask(const llvm::SmallVectorImpl<llvm::Constant*>& elts);
     void emitVectorArguments(bool &firstArg, const llvm::IntrinsicInst *inst, int operand);
     void emitGlaMultiInsertRHS(const llvm::IntrinsicInst* inst);
     void emitGlaMultiInsert(const llvm::IntrinsicInst* inst);
@@ -1885,22 +1885,23 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         llvm::SmallVector<llvm::Constant*, 8> elts;
         gla_llvm::GetElements(mask, elts);
 
+        int dstVectorWidth = 0;
         if (! AreAllDefined(mask)) {
             shader << ";";
             newLine();
 
             // Set our writemask to correspond to defined components
             emitGlaValue(llvmInstruction);
-            emitGlaWriteMask(elts);
+            dstVectorWidth = emitGlaWriteMask(elts);
+        } else {
+            dstVectorWidth = GetComponentCount(mask);
+            assert(dstVectorWidth == GetComponentCount(llvmInstruction));
         }
 
         shader << " = ";
 
         llvm::Value* src = llvmInstruction->getOperand(0);
         int srcVectorWidth = GetComponentCount(src);
-
-        int dstVectorWidth = GetComponentCount(mask);
-        assert(dstVectorWidth == GetComponentCount(llvmInstruction));
 
         // Case 0:  it's scalar making a scalar.
         // use nothing, just copy
@@ -2825,18 +2826,23 @@ void gla::GlslTarget::emitGlaSwizzle(const llvm::SmallVectorImpl<llvm::Constant*
 }
 
 // Emit a writemask. Emits a component for each defined element of the
-// passed vector
-void gla::GlslTarget::emitGlaWriteMask(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
+// passed vector.
+// Returns the number of defined components.
+int gla::GlslTarget::emitGlaWriteMask(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
 {
     shader << ".";
 
     // Output the components for all defined channels
+    int definedCount = 0;
     for (int i = 0; i < elts.size(); ++i) {
         if (! IsDefined(elts[i]))
             continue;
 
+        ++definedCount;
         emitComponentToSwizzle(i);
     }
+
+    return definedCount;
 }
 
 // Writes out the vector arguments for the RHS of a multiInsert. Sets its
