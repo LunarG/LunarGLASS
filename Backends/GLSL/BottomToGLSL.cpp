@@ -517,9 +517,10 @@ std::string MapGlaStructField(const llvm::Type* structType, int index, const llv
 // Write the string representation of an operator. If it's an xor of some
 // register and true, then unaryOperand will be set to the index for the
 // non-true operand, and s will contain "!".
-void GetOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryOperand, bool& nested)
+void GetOp(const llvm::Instruction* llvmInstruction, bool allowBitwise, std::string& s, int& unaryOperand, bool& nested, bool& emulateBitwise)
 {
     nested = false;
+    emulateBitwise = false;
 
     //
     // Look for binary ops, where the form would be "operand op operand"
@@ -548,26 +549,44 @@ void GetOp(const llvm::Instruction* llvmInstruction, std::string& s, int& unaryO
         s = "%";
         break;
     case llvm::Instruction::Shl:
-        s = "<<";
+        if (allowBitwise)
+            s = "<<";
+        else {
+            emulateBitwise = true;
+            s = "*";
+        }
         break;
     case llvm::Instruction::LShr:
-        s = ">>";
-        break;
     case llvm::Instruction::AShr:
-        s = ">>";
+        if (allowBitwise)
+            s = ">>";
+        else {
+            emulateBitwise = true;
+            s = "/";
+        }
         break;
     case llvm::Instruction::And:
         if (IsBoolean(llvmInstruction->getOperand(0)->getType())) {
             s = "&&";
         } else {
-            s = "&";
+            if (allowBitwise)
+                s = "&";
+            else {
+                emulateBitwise = true;
+                s = "-";
+            }
         }
         break;
     case llvm::Instruction::Or:
         if (IsBoolean(llvmInstruction->getOperand(0)->getType())) {
             s = "||";
         } else {
-            s = "|";
+            if (allowBitwise)
+                s = "|";
+            else {
+                emulateBitwise = true;
+                s = "+";
+            }
         }
         break;
     case llvm::Instruction::Xor:
@@ -938,7 +957,8 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     }
 
     bool nested;
-    GetOp(llvmInstruction, charOp, unaryOperand, nested);
+    bool emulateBitwise;
+    GetOp(llvmInstruction, version >= 130, charOp, unaryOperand, nested, emulateBitwise);
 
     // Handle the binary ops
     if (! charOp.empty() && unaryOperand == -1) {
@@ -946,8 +966,38 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         emitGlaValue(llvmInstruction);
         shader << " = ";
         emitGlaOperand(llvmInstruction->getOperand(0));
+
+        // special case << to multiply, etc., for early versions
+        int multiplier = -1;
+        if (emulateBitwise) {
+            switch (llvmInstruction->getOpcode()) {
+            case llvm::Instruction::Shl:
+            case llvm::Instruction::AShr:
+            case llvm::Instruction::LShr:
+            {
+                int shift = GetConstantInt(llvmInstruction->getOperand(1));
+                if (shift == 0)
+                    UnsupportedFunctionality("shift for version ", version, EATContinue);
+                multiplier = 1;
+                for (int i = 0; i < shift; ++i)
+                    multiplier *= 2;
+
+                break;
+            } 
+            case llvm::Instruction::Or:
+                UnsupportedFunctionality("bit-wise OR in version ", version, EATContinue);
+                break;
+            case llvm::Instruction::And:
+                UnsupportedFunctionality("bit-wise AND in version ", version, EATContinue);
+                break;
+            }
+        }
+        
         shader << " " << charOp << " ";
-        emitGlaOperand(llvmInstruction->getOperand(1));
+        if (multiplier == -1)
+            emitGlaOperand(llvmInstruction->getOperand(1));
+        else
+            shader << multiplier;
         shader << ";";
 
         return;
@@ -1357,7 +1407,8 @@ void gla::GlslTarget::beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const
     std::string opStr;
     int pos = -1;
     bool nested;
-    GetOp(cmp, opStr, pos, nested);
+    bool emulateBitwise; // TODO: handle this
+    GetOp(cmp, version >= 130, opStr, pos, nested, emulateBitwise);
 
     bool binOp = false;
     if (pos == -1)
