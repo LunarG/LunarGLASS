@@ -897,7 +897,7 @@ declare <4 x i32> @llvm.gla.swizzle.v4i32.i32.v4i32(i32, <4 x i32>) nounwind rea
 #### END LINKER INFO LOG ####
 #version 300 es
 // LunarGOO output (r722)
-precision mediump float; // this will almost entirely overridden by individual declarations
+precision mediump float; // this will be almost entirely overridden by individual declarations
 
 uniform bvec3 bv;
 uniform mediump int imin;
@@ -942,9 +942,9 @@ void main()
     mediump int temp33 = floatBitsToInt(f);
     ivec4 temp34 = ivec4(temp33);
     mediump vec2 temp35 = intBitsToFloat(ivec2(uv2c));
-    highp vec2 temp36 = unpackSnorm2x16(int(uy));
-    highp vec2 temp37 = unpackUnorm2x16(int(uy));
-    mediump vec2 temp38 = unpackHalf2x16(int(uy));
+    highp vec2 temp36 = unpackSnorm2x16(uint(int(uy)));
+    highp vec2 temp37 = unpackUnorm2x16(uint(int(uy)));
+    mediump vec2 temp38 = unpackHalf2x16(uint(int(uy)));
     mediump vec2 temp39 = gl_PointCoord * const40;
     mediump ivec4 temp41 = sign(iv4a);
     mediump ivec4 isum2 = abs(iv4a);
@@ -959,7 +959,7 @@ void main()
     mediump ivec4 temp52 = min(ivec4(uv4y), int(uy));
     ivec4 temp53 = ivec4(temp22.x, temp22.y, const48i_0, const48i_0);
     vec4 temp54 = vec4(temp21.x, temp21.y, temp21.z, const55);
-    highp int temp56 = packSnorm2x16(v2a);
+    highp int temp56 = int(packSnorm2x16(v2a));
     bvec4 temp57 = isinf(v4);
     vec4 temp58 = vec4(temp29.x, temp29.y, temp30.x, temp30.y);
     mediump vec4 sum40 = temp54 + temp28;
@@ -967,7 +967,7 @@ void main()
     ivec4 temp61 = ivec4(temp24.x, temp24.y, temp25.x, temp25.y);
     mediump ivec4 isum17 = isum15 + temp50;
     mediump ivec4 usum12 = temp53 + temp52;
-    highp int temp64 = packUnorm2x16(v2a);
+    highp int temp64 = int(packUnorm2x16(v2a));
     mediump vec4 temp65 = intBitsToFloat(iv4a);
     mediump ivec4 temp66 = ivec4(temp57);
     mediump vec4 sum45 = sum40 + temp58;
@@ -975,7 +975,7 @@ void main()
     mediump ivec4 temp69 = clamp(iv4a, imin, imax);
     mediump ivec4 isum29 = isum17 + temp60;
     mediump ivec4 usum25 = usum12 + temp61;
-    highp int temp72 = packHalf2x16(v2b);
+    highp int temp72 = int(packHalf2x16(v2b));
     vec4 temp73 = vec4(temp35.x, temp35.y, const55, const55);
     mediump vec4 sum58 = sum45 + temp65;
     ivec4 temp75 = ivec4(temp32.x, temp32.y, temp66.x, temp66.y);
@@ -1007,7 +1007,119 @@ void main()
     
 }
 
+#### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+#version 300 es
+// LunarGOO output (r722)
+precision mediump float; // this will be almost entirely overridden by individual declarations
+
+uniform bvec3 bv;
+uniform mediump int imin;
+uniform mediump int imax;
+uniform mediump uint umin;
+uniform mediump uint umax;
+in mediump vec3 x;
+in mediump vec3 y;
+flat in mediump uvec2 uv2x;
+flat in mediump uvec2 uv2y;
+flat in mediump ivec3 iv3a;
+flat in mediump ivec3 iv3b;
+flat in mediump uint uy;
+flat in mediump uvec2 uv2c;
+in mediump float f;
+in mediump vec2 v2a;
+flat in mediump ivec4 iv4a;
+flat in mediump ivec4 iv4b;
+flat in mediump uvec4 uv4y;
+in mediump vec4 v4;
+in mediump vec2 v2b;
+out mediump vec4 result;
+const highp vec2 const40 = vec2(2.0);
+const highp int const49i_0 = 0;
+const highp float const51 = 0.0;
+const highp float const99 = 0.1;
+
+void main()
+{
+    mediump vec3 temp211 = mix(x, y, bv);
+    mediump ivec2 temp222 = min(ivec2(uv2x), ivec2(uv2y));
+    mediump ivec3 temp233 = max(iv3a, iv3b);
+    mediump ivec2 temp246 = max(ivec2(uv2x), ivec2(uv2y));
+    mediump ivec2 temp258 = max(ivec2(uv2x), int(uy));
+    mediump ivec2 temp2611 = clamp(ivec2(uv2x), ivec2(uv2y), ivec2(uv2c));
+    mediump float temp2712 = trunc(f);
+    vec4 temp28 = vec4(temp2712);
+    mediump vec2 temp2914 = round(v2a);
+    mediump vec2 temp3016 = roundEven(v2a);
+    bvec2 temp3118 = isnan(v2a);
+    mediump ivec2 temp3219 = ivec2(temp3118);
+    mediump int temp3321 = floatBitsToInt(f);
+    ivec4 temp34 = ivec4(temp3321);
+    mediump vec2 temp3525 = intBitsToFloat(ivec2(uv2c));
+    highp vec2 temp3627 = unpackSnorm2x16(uint(int(uy)));
+    highp vec2 temp3729 = unpackUnorm2x16(uint(int(uy)));
+    mediump vec2 temp3831 = unpackHalf2x16(uint(int(uy)));
+    highp vec2 temp3932 = gl_PointCoord * const40;
+    mediump ivec4 isum235 = abs(iv4a);
+    mediump ivec4 temp4133 = sign(iv4a);
+    mediump ivec4 isum438 = isum235 + temp4133;
+    mediump ivec4 temp4337 = min(iv4a, iv4b);
+    mediump ivec4 isum641 = isum438 + temp4337;
+    mediump ivec4 temp4540 = min(iv4a, imin);
+    mediump ivec4 isum844 = isum641 + temp4540;
+    ivec4 temp48 = ivec4(temp233.x, temp233.y, temp233.z, const49i_0);
+    vec4 temp50 = vec4(temp211.x, temp211.y, temp211.z, const51);
+    ivec4 temp52 = ivec4(temp222.x, temp222.y, const49i_0, const49i_0);
+    mediump ivec4 temp5249 = min(ivec4(uv4y), int(uy));
+    mediump ivec4 isum1547 = isum844 + temp48;
+    mediump ivec4 temp5046 = max(iv4a, imax);
+    mediump ivec4 usum1267 = temp52 + temp5249;
+    mediump ivec4 isum1766 = isum1547 + temp5046;
+    ivec4 temp58 = ivec4(temp246.x, temp246.y, temp258.x, temp258.y);
+    mediump ivec4 temp6063 = clamp(iv4a, iv4a, iv4b);
+    mediump vec4 sum4059 = temp50 + temp28;
+    vec4 temp61 = vec4(temp2914.x, temp2914.y, temp3016.x, temp3016.y);
+    bvec4 temp5756 = isinf(v4);
+    highp int temp5655 = int(packSnorm2x16(v2a));
+    mediump ivec4 usum2579 = usum1267 + temp58;
+    mediump ivec4 isum2978 = isum1766 + temp6063;
+    mediump ivec4 temp6977 = clamp(iv4a, imin, imax);
+    ivec4 temp67 = ivec4(temp2611.x, temp2611.y, const49i_0, const49i_0);
+    mediump vec4 sum4573 = sum4059 + temp61;
+    mediump ivec4 temp6672 = ivec4(temp5756);
+    mediump vec4 temp6571 = intBitsToFloat(iv4a);
+    highp int temp6469 = int(packUnorm2x16(v2a));
+    mediump ivec4 isum3189 = isum2978 + temp6977;
+    mediump ivec4 usum3688 = usum2579 + temp67;
+    mediump ivec4 temp7687 = clamp(ivec4(uv4y), int(umin), int(umax));
+    ivec4 temp75 = ivec4(temp3219.x, temp3219.y, temp6672.x, temp6672.y);
+    mediump vec4 sum5883 = sum4573 + temp6571;
+    vec4 temp77 = vec4(temp3525.x, temp3525.y, const51, const51);
+    highp int temp7280 = int(packHalf2x16(v2b));
+    mediump ivec4 usum3896 = usum3688 + temp7687;
+    mediump ivec4 isum5095 = isum3189 + temp75;
+    mediump ivec4 temp8194 = floatBitsToInt(v4);
+    mediump vec4 sum6292 = temp77 + sum5883;
+    vec4 temp83 = vec4(temp3627.x, temp3627.y, temp3729.x, temp3729.y);
+    mediump ivec4 isum54103 = isum5095 + temp34;
+    mediump ivec4 usum56102 = usum3896 + temp8194;
+    ivec4 temp86 = ivec4(temp5655, temp6469, temp7280, const49i_0);
+    mediump vec4 sum7799 = temp83 + sum6292;
+    vec4 temp88 = vec4(temp3831.x, temp3831.y, const51, const51);
+    mediump ivec4 usum75106 = usum56102 + temp86;
+    mediump vec4 sum79105 = temp88 + sum7799;
+    mediump vec4 temp89104 = vec4(isum54103);
+    mediump vec4 temp94112 = temp89104 + sum79105;
+    mediump vec4 temp93111 = vec4(usum75106);
+    vec4 temp94 = vec4(gl_PointCoord.x, gl_PointCoord.y, temp3932.x, temp3932.y);
+    mediump vec4 result_shadow114 = temp94112 + temp93111;
+    highp vec4 temp95113 = temp94 + gl_FragCoord;
+    highp vec4 result_shadow82117 = temp95113 + result_shadow114;
+    highp float FragDepth_shadow84116 = f + const99;
+    result = result_shadow82117;
+    gl_FragDepth = FragDepth_shadow84116;
+    
+}
+

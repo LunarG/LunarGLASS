@@ -302,6 +302,27 @@ bool IsIdentitySwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
     return true;
 }
 
+// Create the start of a scalar/vector conversion, but not for matrices.
+void ConversionStart(std::ostringstream& out, llvm::Type* type, bool toIO)
+{
+    if (GetComponentCount(type) == 1)
+        out << (toIO ? "uint(" : "int(");
+    else {
+        out << (toIO ? "uvec" : "ivec");
+        switch (GetComponentCount(type)) {
+        case 2:  out << "2(";    break;
+        case 3:  out << "3(";    break;
+        case 4:  out << "4(";    break;
+        default: UnsupportedFunctionality("conversion wrapper");  break;
+        }
+    }
+}
+
+void ConversionStop(std::ostringstream& out)
+{
+    out << ")";
+}
+
 // Either convert to (from) an unsigned int or to (from) a matrix
 // toIO means converting from an internal variable to an I/O variable, if false, it's the other direction
 // integer means doing unsigned/signed conversion, if false, then doing matrix/array conversion
@@ -310,18 +331,9 @@ void ConversionWrap(std::string& name, llvm::Type* type, bool toIO)
     std::ostringstream wrapped;
 
     if (IsInteger(type)) {
-        if (GetComponentCount(type) == 1)
-            wrapped << (toIO ? "uint(" : "int(");
-        else {
-            wrapped << (toIO ? "uvec" : "ivec");
-            switch (GetComponentCount(type)) {
-            case 2:  wrapped << "2(";    break;
-            case 3:  wrapped << "3(";    break;
-            case 4:  wrapped << "4(";    break;
-            default: UnsupportedFunctionality("conversion wrapper");  break;
-            }
-        }
-        wrapped << name << ")";
+        ConversionStart(wrapped, type, toIO);
+        wrapped << name;
+        ConversionStop(wrapped);
     } else if (CouldBeMatrix(type)) {
         llvm::ArrayType* array = llvm::dyn_cast<llvm::ArrayType>(type);
         llvm::VectorType* vector = llvm::dyn_cast<llvm::VectorType>(array->getContainedType(0));
@@ -1504,7 +1516,7 @@ void gla::GlslTarget::print()
     printf("\n");
     
     if (language == EShLangFragment && profile == EEsProfile)
-        printf("precision mediump float; // this will almost entirely overridden by individual declarations\n\n");
+        printf("precision mediump float; // this will be almost entirely overridden by individual declarations\n\n");
 
     // rest of shader...
     printf("%s%s%s", globalStructures.str().c_str(), globalDeclarations.str().c_str(), shader.str().c_str());
@@ -1785,11 +1797,9 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         newLine();
         emitGlaValue(llvmInstruction);
         shader << " = ";
-        bool needConstructor = SamplerIsUint(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
-        if (needConstructor) {
-            emitGlaConstructor(shader, llvmInstruction->getType());
-            shader << "(";
-        }
+        bool needConversion = SamplerIsUint(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
+        if (needConversion)
+            ConversionStart(shader, llvmInstruction->getType(), false);
         emitGlaSampler(llvmInstruction, GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
         shader << "(";
         emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
@@ -1855,10 +1865,9 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBiasLod)));
         }
 
-        if (needConstructor)
-            shader << "));";
-        else
-            shader << ");";
+        if (needConversion)
+            ConversionStop(shader);
+        shader << ");";
 
         return;
     }
@@ -1956,6 +1965,8 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     const char* callString = 0;
     unsigned int callArgs = 0;
     int forceWidth = 0;
+    bool convertResultToInt = false;
+    bool convertArgsToUint = false;
 
     switch (llvmInstruction->getIntrinsicID()) {
 
@@ -2038,14 +2049,14 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     // Pack and Unpack
     case llvm::Intrinsic::gla_fFrexp:            callString = "frexp";              break;      // callArgs =
     case llvm::Intrinsic::gla_fLdexp:            callString = "ldexp";              break;      // callArgs =
-    case llvm::Intrinsic::gla_fPackUnorm2x16:    callString = "packUnorm2x16";      callArgs = 1; break;
-    case llvm::Intrinsic::gla_fUnpackUnorm2x16:  callString = "unpackUnorm2x16";    callArgs = 1; break;
+    case llvm::Intrinsic::gla_fPackUnorm2x16:    callString = "packUnorm2x16";      callArgs = 1; convertResultToInt = true; break;
+    case llvm::Intrinsic::gla_fUnpackUnorm2x16:  callString = "unpackUnorm2x16";    callArgs = 1; convertArgsToUint  = true; break;
 
-    case llvm::Intrinsic::gla_fPackSnorm2x16:    callString = "packSnorm2x16";      callArgs = 1; break;
-    case llvm::Intrinsic::gla_fUnpackSnorm2x16:  callString = "unpackSnorm2x16";    callArgs = 1; break;
+    case llvm::Intrinsic::gla_fPackSnorm2x16:    callString = "packSnorm2x16";      callArgs = 1; convertResultToInt = true; break;
+    case llvm::Intrinsic::gla_fUnpackSnorm2x16:  callString = "unpackSnorm2x16";    callArgs = 1; convertArgsToUint  = true; break;
 
-    case llvm::Intrinsic::gla_fPackHalf2x16:     callString = "packHalf2x16";       callArgs = 1; break;        
-    case llvm::Intrinsic::gla_fUnpackHalf2x16:   callString = "unpackHalf2x16";     callArgs = 1; break;        
+    case llvm::Intrinsic::gla_fPackHalf2x16:     callString = "packHalf2x16";       callArgs = 1; convertResultToInt = true; break;        
+    case llvm::Intrinsic::gla_fUnpackHalf2x16:   callString = "unpackHalf2x16";     callArgs = 1; convertArgsToUint  = true; break;
 
     case llvm::Intrinsic::gla_fPackUnorm4x8:     callString = "packUnorm4x8";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fPackSnorm4x8:     callString = "packSnorm4x8";       callArgs = 1; break;
@@ -2094,14 +2105,23 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
 
     newLine();
     emitGlaValue(llvmInstruction);
-    shader << " = " << callString << "(";
+    shader << " = ";
+    if (convertResultToInt)
+        ConversionStart(shader, llvmInstruction->getType(), false);
+    shader << callString << "(";
     for (unsigned int arg = 0; arg < llvmInstruction->getNumArgOperands(); ++arg) {
         if (arg > 0)
             shader << ", ";
+        if (convertArgsToUint)
+            ConversionStart(shader, llvmInstruction->getOperand(arg)->getType(), true);
         emitGlaOperand(llvmInstruction->getOperand(arg));
         if (forceWidth && forceWidth < GetComponentCount(llvmInstruction->getOperand(arg)))
             emitComponentCountToSwizzle(forceWidth);
+        if (convertArgsToUint) 
+            ConversionStop(shader);
     }
+    if (convertResultToInt)
+        ConversionStop(shader);
     shader << ");";
 }
 
