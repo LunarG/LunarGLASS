@@ -36,7 +36,6 @@ TESTS=(test.frag               \
        functionSemantics.frag  \
        forwardFun.frag         \
        voidFunction.frag       \
-       whileLoop.frag          \
        loopsArtificial.frag    \
        earlyReturnDiscard.frag \
        discard-dce.frag        \
@@ -76,6 +75,10 @@ TESTS=(test.frag               \
        300layout.vert          \
        300layout.frag          \
        switch.frag             \
+       whileLoop.frag          \
+	   doWhileLoop.frag        \
+	   loops.frag              \
+	   forLoop.frag            \         
       )
 
 # $1 is the test
