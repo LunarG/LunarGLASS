@@ -2217,7 +2217,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType
         for (int col = 0; col < glslangType.getMatrixCols(); ++col)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(vectorType, consts, nextConst)));
     } else if (glslangType.getStruct()) {
-        TVector<TTypeLine>::iterator iter;
+        TVector<TTypeLoc>::iterator iter;
         for (iter = glslangType.getStruct()->begin(); iter != glslangType.getStruct()->end(); ++iter)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(*iter->type, consts, nextConst)));
     } else {
