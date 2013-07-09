@@ -13,8 +13,8 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load [4 x <4 x float>] addrspace(2)* @mvp, !gla.uniform !4
-  %v = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !6
+  %0 = load [4 x <4 x float>] addrspace(2)* @mvp, !gla.uniform !5
+  %v = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !7
   store <4 x float> %v, <4 x float>* @v_shadow
   %1 = load <4 x float>* @v_shadow
   %2 = alloca <4 x float>
@@ -88,37 +88,37 @@ entry:
   %dotProduct59 = fadd float %dotProduct55, %product58
   %Position_shadow = insertelement <4 x float> %6, float %dotProduct59, i32 3
   store <4 x float> %Position_shadow, <4 x float>* @Position_shadow
-  %am3 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1027, i32 -1), !gla.input !8
+  %am3 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1027, i32 -1), !gla.input !9
   store <3 x float> %am3, <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @am3_shadow, i32 0, i32 0)
-  %am360 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1028, i32 -1), !gla.input !8
+  %am360 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1028, i32 -1), !gla.input !9
   store <3 x float> %am360, <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @am3_shadow, i32 0, i32 1)
-  %am361 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1029, i32 -1), !gla.input !8
+  %am361 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1029, i32 -1), !gla.input !9
   store <3 x float> %am361, <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @am3_shadow, i32 0, i32 2)
   %7 = load <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @am3_shadow, i32 0, i32 2)
   %8 = extractelement <3 x float> %7, i32 1
-  %arraym = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1028, i32 -1), !gla.input !10
+  %arraym = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1028, i32 -1), !gla.input !11
   store <4 x float> %arraym, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 0, i32 0)
-  %arraym62 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1029, i32 -1), !gla.input !10
+  %arraym62 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1029, i32 -1), !gla.input !11
   store <4 x float> %arraym62, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 0, i32 1)
-  %arraym63 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1030, i32 -1), !gla.input !10
+  %arraym63 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1030, i32 -1), !gla.input !11
   store <4 x float> %arraym63, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 0, i32 2)
-  %arraym64 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1031, i32 -1), !gla.input !10
+  %arraym64 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1031, i32 -1), !gla.input !11
   store <4 x float> %arraym64, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 0, i32 3)
-  %arraym65 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1032, i32 -1), !gla.input !10
+  %arraym65 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1032, i32 -1), !gla.input !11
   store <4 x float> %arraym65, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 1, i32 0)
-  %arraym66 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1033, i32 -1), !gla.input !10
+  %arraym66 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1033, i32 -1), !gla.input !11
   store <4 x float> %arraym66, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 1, i32 1)
-  %arraym67 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1034, i32 -1), !gla.input !10
+  %arraym67 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1034, i32 -1), !gla.input !11
   store <4 x float> %arraym67, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 1, i32 2)
-  %arraym68 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1035, i32 -1), !gla.input !10
+  %arraym68 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1035, i32 -1), !gla.input !11
   store <4 x float> %arraym68, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 1, i32 3)
-  %arraym69 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1036, i32 -1), !gla.input !10
+  %arraym69 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1036, i32 -1), !gla.input !11
   store <4 x float> %arraym69, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 2, i32 0)
-  %arraym70 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !10
+  %arraym70 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !11
   store <4 x float> %arraym70, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 2, i32 1)
-  %arraym71 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1038, i32 -1), !gla.input !10
+  %arraym71 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1038, i32 -1), !gla.input !11
   store <4 x float> %arraym71, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 2, i32 2)
-  %arraym72 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1039, i32 -1), !gla.input !10
+  %arraym72 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1039, i32 -1), !gla.input !11
   store <4 x float> %arraym72, <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 2, i32 3)
   %9 = load <4 x float>* getelementptr inbounds ([3 x [4 x <4 x float>]]* @arraym_shadow, i32 0, i32 1, i32 2)
   %10 = extractelement <4 x float> %9, i32 3
@@ -128,9 +128,9 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %11 = load <4 x float>* @Position_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %11), !gla.output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %11), !gla.output !1
   %12 = load float* @f_shadow
-  call void @llvm.gla.fWriteData.f32(i32 1026, i32 -1, float %12), !gla.output !2
+  call void @llvm.gla.fWriteData.f32(i32 1026, i32 -1, float %12), !gla.output !3
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -145,26 +145,28 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
-!gla.outputs = !{!0, !2}
-!gla.uniforms = !{!4}
-!gla.inputs = !{!6, !8, !10, !12, !14}
+!gla.entrypoint = !{!0}
+!gla.outputs = !{!1, !3}
+!gla.uniforms = !{!5}
+!gla.inputs = !{!7, !9, !11, !13, !15}
 
-!0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
-!2 = metadata !{metadata !"f", i32 7, float* @f_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
-!4 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>]* @mvp_typeProxy, metadata !5}
-!5 = metadata !{i32 3, i32 0, i32 1024, null}
-!6 = metadata !{metadata !"v", i32 1, <4 x float>* @v_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-!8 = metadata !{metadata !"am3", i32 1, [3 x <3 x float>]* @am3_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 3, i32 0, i32 1027, null, i32 0}
-!10 = metadata !{metadata !"arraym", i32 1, [3 x [4 x <4 x float>]]* @arraym_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 3, i32 0, i32 1028, null, i32 0}
-!12 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
-!14 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !15}
-!15 = metadata !{i32 0, i32 0, i32 1032, null, i32 0}
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!3 = metadata !{metadata !"f", i32 7, float* @f_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
+!5 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>]* @mvp_typeProxy, metadata !6}
+!6 = metadata !{i32 3, i32 0, i32 1024, null}
+!7 = metadata !{metadata !"v", i32 1, <4 x float>* @v_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!9 = metadata !{metadata !"am3", i32 1, [3 x <3 x float>]* @am3_shadow_typeProxy, metadata !10}
+!10 = metadata !{i32 3, i32 0, i32 1027, null, i32 0}
+!11 = metadata !{metadata !"arraym", i32 1, [3 x [4 x <4 x float>]]* @arraym_shadow_typeProxy, metadata !12}
+!12 = metadata !{i32 3, i32 0, i32 1028, null, i32 0}
+!13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !14}
+!14 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
+!15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !16}
+!16 = metadata !{i32 0, i32 0, i32 1032, null, i32 0}
 
 
 Bottom IR:
@@ -174,14 +176,14 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load [4 x <4 x float>] addrspace(2)* @mvp, align 16, !gla.uniform !4
-  %v = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !6
+  %0 = load [4 x <4 x float>] addrspace(2)* @mvp, align 16, !gla.uniform !5
+  %v = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !7
   %component = extractelement <4 x float> %v, i32 0
   %component1 = extractelement <4 x float> %v, i32 1
   %component2 = extractelement <4 x float> %v, i32 2
   %component3 = extractelement <4 x float> %v, i32 3
-  %am361 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1029, i32 -1), !gla.input !8
-  %arraym67 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1034, i32 -1), !gla.input !10
+  %am361 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1029, i32 -1), !gla.input !9
+  %arraym67 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1034, i32 -1), !gla.input !11
   %column4 = extractvalue [4 x <4 x float>] %0, 1
   %column = extractvalue [4 x <4 x float>] %0, 0
   %column7 = extractvalue [4 x <4 x float>] %0, 2
@@ -234,8 +236,8 @@ entry:
   %dotProduct59 = fadd float %product58, %dotProduct55
   %f_shadow = fadd float %2, %1
   %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dotProduct14, i32 0, float %dotProduct29, i32 0, float %dotProduct44, i32 0, float %dotProduct59, i32 0)
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %3), !gla.output !0
-  call void @llvm.gla.fWriteData.f32(i32 1026, i32 -1, float %f_shadow), !gla.output !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %3), !gla.output !1
+  call void @llvm.gla.fWriteData.f32(i32 1026, i32 -1, float %f_shadow), !gla.output !3
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -255,26 +257,28 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
-!gla.outputs = !{!0, !2}
-!gla.uniforms = !{!4}
-!gla.inputs = !{!6, !8, !10, !12, !14}
+!gla.entrypoint = !{!0}
+!gla.outputs = !{!1, !3}
+!gla.uniforms = !{!5}
+!gla.inputs = !{!7, !9, !11, !13, !15}
 
-!0 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
-!2 = metadata !{metadata !"f", i32 7, float* @f_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
-!4 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>]* @mvp_typeProxy, metadata !5}
-!5 = metadata !{i32 3, i32 0, i32 1024, null}
-!6 = metadata !{metadata !"v", i32 1, <4 x float>* @v_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-!8 = metadata !{metadata !"am3", i32 1, [3 x <3 x float>]* @am3_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 3, i32 0, i32 1027, null, i32 0}
-!10 = metadata !{metadata !"arraym", i32 1, [3 x [4 x <4 x float>]]* @arraym_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 3, i32 0, i32 1028, null, i32 0}
-!12 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
-!14 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !15}
-!15 = metadata !{i32 0, i32 0, i32 1032, null, i32 0}
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!3 = metadata !{metadata !"f", i32 7, float* @f_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
+!5 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>]* @mvp_typeProxy, metadata !6}
+!6 = metadata !{i32 3, i32 0, i32 1024, null}
+!7 = metadata !{metadata !"v", i32 1, <4 x float>* @v_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!9 = metadata !{metadata !"am3", i32 1, [3 x <3 x float>]* @am3_shadow_typeProxy, metadata !10}
+!10 = metadata !{i32 3, i32 0, i32 1027, null, i32 0}
+!11 = metadata !{metadata !"arraym", i32 1, [3 x [4 x <4 x float>]]* @arraym_shadow_typeProxy, metadata !12}
+!12 = metadata !{i32 3, i32 0, i32 1028, null, i32 0}
+!13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !14}
+!14 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
+!15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !16}
+!16 = metadata !{i32 0, i32 0, i32 1032, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

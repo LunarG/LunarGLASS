@@ -13,52 +13,52 @@ entry:
   %constructed = alloca <4 x float>
   %j = alloca i32
   %i = alloca i32
-  %gl_VertexID = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !0, !gla.precision !10
+  %gl_VertexID = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !1, !gla.precision !11
   store i32 %gl_VertexID, i32* @VertexID_shadow
   %0 = load i32* @VertexID_shadow
-  %1 = mul i32 4, %0, !gla.precision !10
-  %i1 = sub i32 %1, 10, !gla.precision !10
+  %1 = mul i32 4, %0, !gla.precision !11
+  %i1 = sub i32 %1, 10, !gla.precision !11
   store i32 %i1, i32* %i
-  %gl_VertexID2 = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !0, !gla.precision !10
+  %gl_VertexID2 = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !1, !gla.precision !11
   store i32 %gl_VertexID2, i32* @VertexID_shadow
   %2 = load i32* @VertexID_shadow
-  %3 = mul i32 4, %2, !gla.precision !10
-  %j3 = sub i32 %3, 10, !gla.precision !10
+  %3 = mul i32 4, %2, !gla.precision !11
+  %j3 = sub i32 %3, 10, !gla.precision !11
   store i32 %j3, i32* %j
-  %ps = call float @llvm.gla.fReadData.f32(i32 1026, i32 -1), !gla.input !2, !gla.precision !11
+  %ps = call float @llvm.gla.fReadData.f32(i32 1026, i32 -1), !gla.input !3, !gla.precision !12
   store float %ps, float* @ps_shadow
   %4 = load float* @ps_shadow
   %5 = load <4 x float>* %constructed
-  %6 = insertelement <4 x float> undef, float %4, i32 0, !gla.precision !10
-  %7 = insertelement <4 x float> %6, float %4, i32 1, !gla.precision !10
-  %8 = insertelement <4 x float> %7, float %4, i32 2, !gla.precision !10
-  %Position_shadow = insertelement <4 x float> %8, float %4, i32 3, !gla.precision !10
+  %6 = insertelement <4 x float> undef, float %4, i32 0, !gla.precision !11
+  %7 = insertelement <4 x float> %6, float %4, i32 1, !gla.precision !11
+  %8 = insertelement <4 x float> %7, float %4, i32 2, !gla.precision !11
+  %Position_shadow = insertelement <4 x float> %8, float %4, i32 3, !gla.precision !11
   store <4 x float> %Position_shadow, <4 x float>* @Position_shadow
   %9 = load i32* %i
-  %10 = sitofp i32 %9 to float, !gla.precision !10
+  %10 = sitofp i32 %9 to float, !gla.precision !11
   %11 = load <4 x float>* @Position_shadow
-  %12 = insertelement <4 x float> undef, float %10, i32 0, !gla.precision !10
-  %13 = insertelement <4 x float> %12, float %10, i32 1, !gla.precision !10
-  %14 = insertelement <4 x float> %13, float %10, i32 2, !gla.precision !10
-  %15 = insertelement <4 x float> %14, float %10, i32 3, !gla.precision !10
-  %Position_shadow4 = fmul <4 x float> %11, %15, !gla.precision !10
+  %12 = insertelement <4 x float> undef, float %10, i32 0, !gla.precision !11
+  %13 = insertelement <4 x float> %12, float %10, i32 1, !gla.precision !11
+  %14 = insertelement <4 x float> %13, float %10, i32 2, !gla.precision !11
+  %15 = insertelement <4 x float> %14, float %10, i32 3, !gla.precision !11
+  %Position_shadow4 = fmul <4 x float> %11, %15, !gla.precision !11
   store <4 x float> %Position_shadow4, <4 x float>* @Position_shadow
-  %ps5 = call float @llvm.gla.fReadData.f32(i32 1026, i32 -1), !gla.input !2, !gla.precision !11
+  %ps5 = call float @llvm.gla.fReadData.f32(i32 1026, i32 -1), !gla.input !3, !gla.precision !12
   store float %ps5, float* @ps_shadow
   %PointSize_shadow = load float* @ps_shadow
   store float %PointSize_shadow, float* @PointSize_shadow
   %16 = load i32* %j
-  %17 = sitofp i32 %16 to float, !gla.precision !10
+  %17 = sitofp i32 %16 to float, !gla.precision !11
   %18 = load float* @PointSize_shadow
-  %PointSize_shadow6 = fmul float %18, %17, !gla.precision !10
+  %PointSize_shadow6 = fmul float %18, %17, !gla.precision !11
   store float %PointSize_shadow6, float* @PointSize_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
   %19 = load <4 x float>* @Position_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %19), !gla.output !6
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %19), !gla.output !7
   %20 = load float* @PointSize_shadow
-  call void @llvm.gla.fWriteData.f32(i32 1027, i32 -1, float %20), !gla.output !8
+  call void @llvm.gla.fWriteData.f32(i32 1027, i32 -1, float %20), !gla.output !9
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -73,22 +73,24 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
-!gla.inputs = !{!0, !2, !4}
-!gla.outputs = !{!6, !8}
-!gla.invariant = !{!6}
+!gla.entrypoint = !{!0}
+!gla.inputs = !{!1, !3, !5}
+!gla.outputs = !{!7, !9}
+!gla.invariant = !{!7}
 
-!0 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 3, i32 1024, null, i32 0}
-!2 = metadata !{metadata !"ps", i32 1, float* @ps_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 1026, null, i32 0}
-!4 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 3, i32 1028, null, i32 0}
-!6 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 3, i32 1025, null, i32 0}
-!8 = metadata !{metadata !"gl_PointSize", i32 9, float* @PointSize_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 3, i32 1027, null, i32 0}
-!10 = metadata !{i32 3}
-!11 = metadata !{i32 2}
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 3, i32 1024, null, i32 0}
+!3 = metadata !{metadata !"ps", i32 1, float* @ps_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 2, i32 1026, null, i32 0}
+!5 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 3, i32 1028, null, i32 0}
+!7 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 3, i32 1025, null, i32 0}
+!9 = metadata !{metadata !"gl_PointSize", i32 9, float* @PointSize_shadow_typeProxy, metadata !10}
+!10 = metadata !{i32 0, i32 3, i32 1027, null, i32 0}
+!11 = metadata !{i32 3}
+!12 = metadata !{i32 2}
 
 
 Bottom IR:
@@ -96,17 +98,17 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %gl_VertexID = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !0, !gla.precision !10
+  %gl_VertexID = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !1, !gla.precision !11
   %0 = shl i32 %gl_VertexID, 2
   %i1 = add i32 %0, -10
-  %ps = call float @llvm.gla.fReadData.f32(i32 1026, i32 -1), !gla.input !2, !gla.precision !11
+  %ps = call float @llvm.gla.fReadData.f32(i32 1026, i32 -1), !gla.input !3, !gla.precision !12
   %1 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %ps, <4 x i32> zeroinitializer)
-  %2 = sitofp i32 %i1 to float, !gla.precision !10
+  %2 = sitofp i32 %i1 to float, !gla.precision !11
   %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %2, <4 x i32> zeroinitializer)
-  %PointSize_shadow6 = fmul float %ps, %2, !gla.precision !10
-  %Position_shadow4 = fmul <4 x float> %1, %3, !gla.precision !10
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %Position_shadow4), !gla.output !6
-  call void @llvm.gla.fWriteData.f32(i32 1027, i32 -1, float %PointSize_shadow6), !gla.output !8
+  %PointSize_shadow6 = fmul float %ps, %2, !gla.precision !11
+  %Position_shadow4 = fmul <4 x float> %1, %3, !gla.precision !11
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %Position_shadow4), !gla.output !7
+  call void @llvm.gla.fWriteData.f32(i32 1027, i32 -1, float %PointSize_shadow6), !gla.output !9
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -126,22 +128,24 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
 
-!gla.inputs = !{!0, !2, !4}
-!gla.outputs = !{!6, !8}
-!gla.invariant = !{!6}
+!gla.entrypoint = !{!0}
+!gla.inputs = !{!1, !3, !5}
+!gla.outputs = !{!7, !9}
+!gla.invariant = !{!7}
 
-!0 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 3, i32 1024, null, i32 0}
-!2 = metadata !{metadata !"ps", i32 1, float* @ps_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 2, i32 1026, null, i32 0}
-!4 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 3, i32 1028, null, i32 0}
-!6 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 3, i32 1025, null, i32 0}
-!8 = metadata !{metadata !"gl_PointSize", i32 9, float* @PointSize_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 3, i32 1027, null, i32 0}
-!10 = metadata !{i32 3}
-!11 = metadata !{i32 2}
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 3, i32 1024, null, i32 0}
+!3 = metadata !{metadata !"ps", i32 1, float* @ps_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 2, i32 1026, null, i32 0}
+!5 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 3, i32 1028, null, i32 0}
+!7 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 3, i32 1025, null, i32 0}
+!9 = metadata !{metadata !"gl_PointSize", i32 9, float* @PointSize_shadow_typeProxy, metadata !10}
+!10 = metadata !{i32 0, i32 3, i32 1027, null, i32 0}
+!11 = metadata !{i32 3}
+!12 = metadata !{i32 2}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

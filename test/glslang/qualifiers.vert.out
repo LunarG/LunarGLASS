@@ -13,23 +13,23 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %inV = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !10
+  %inV = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
   store <4 x float> %inV, <4 x float>* @inV_shadow
   %outVc_shadow = load <4 x float>* @inV_shadow
   store <4 x float> %outVc_shadow, <4 x float>* @outVc_shadow
-  %inV1 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !10
+  %inV1 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
   store <4 x float> %inV1, <4 x float>* @inV_shadow
   %outVs_shadow = load <4 x float>* @inV_shadow
   store <4 x float> %outVs_shadow, <4 x float>* @outVs_shadow
-  %inV2 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !10
+  %inV2 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
   store <4 x float> %inV2, <4 x float>* @inV_shadow
   %outVf_shadow = load <4 x float>* @inV_shadow
   store <4 x float> %outVf_shadow, <4 x float>* @outVf_shadow
-  %inV3 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !10
+  %inV3 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
   store <4 x float> %inV3, <4 x float>* @inV_shadow
   %outVn_shadow = load <4 x float>* @inV_shadow
   store <4 x float> %outVn_shadow, <4 x float>* @outVn_shadow
-  %inV4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !10
+  %inV4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
   store <4 x float> %inV4, <4 x float>* @inV_shadow
   %outVcn_shadow = load <4 x float>* @inV_shadow
   store <4 x float> %outVcn_shadow, <4 x float>* @outVcn_shadow
@@ -37,15 +37,15 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %0 = load <4 x float>* @outVc_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %0), !gla.output !0
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %0), !gla.output !1
   %1 = load <4 x float>* @outVs_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %1), !gla.output !2
+  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %1), !gla.output !3
   %2 = load <4 x float>* @outVf_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %2), !gla.output !4
+  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %2), !gla.output !5
   %3 = load <4 x float>* @outVn_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %3), !gla.output !6
+  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %3), !gla.output !7
   %4 = load <4 x float>* @outVcn_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1029, i32 -1, <4 x float> %4), !gla.output !8
+  call void @llvm.gla.fWriteData.v4f32(i32 1029, i32 -1, <4 x float> %4), !gla.output !9
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -56,25 +56,27 @@ declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!gla.outputs = !{!0, !2, !4, !6, !8}
-!gla.inputs = !{!10, !12, !14}
+!gla.entrypoint = !{!0}
+!gla.outputs = !{!1, !3, !5, !7, !9}
+!gla.inputs = !{!11, !13, !15}
 
-!0 = metadata !{metadata !"outVc", i32 7, <4 x float>* @outVc_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 513}
-!2 = metadata !{metadata !"outVs", i32 7, <4 x float>* @outVs_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
-!4 = metadata !{metadata !"outVf", i32 7, <4 x float>* @outVf_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
-!6 = metadata !{metadata !"outVn", i32 7, <4 x float>* @outVn_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1028, null, i32 2}
-!8 = metadata !{metadata !"outVcn", i32 7, <4 x float>* @outVcn_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1029, null, i32 514}
-!10 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-!12 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
-!14 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !15}
-!15 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"outVc", i32 7, <4 x float>* @outVc_shadow_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 513}
+!3 = metadata !{metadata !"outVs", i32 7, <4 x float>* @outVs_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
+!5 = metadata !{metadata !"outVf", i32 7, <4 x float>* @outVf_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
+!7 = metadata !{metadata !"outVn", i32 7, <4 x float>* @outVn_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1028, null, i32 2}
+!9 = metadata !{metadata !"outVcn", i32 7, <4 x float>* @outVcn_shadow_typeProxy, metadata !10}
+!10 = metadata !{i32 0, i32 0, i32 1029, null, i32 514}
+!11 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_shadow_typeProxy, metadata !12}
+!12 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !14}
+!14 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
+!15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !16}
+!16 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
 
 
 Bottom IR:
@@ -82,12 +84,12 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %inV4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !10
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %inV4), !gla.output !0
-  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %inV4), !gla.output !2
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %inV4), !gla.output !4
-  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %inV4), !gla.output !6
-  call void @llvm.gla.fWriteData.v4f32(i32 1029, i32 -1, <4 x float> %inV4), !gla.output !8
+  %inV4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %inV4), !gla.output !1
+  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %inV4), !gla.output !3
+  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %inV4), !gla.output !5
+  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %inV4), !gla.output !7
+  call void @llvm.gla.fWriteData.v4f32(i32 1029, i32 -1, <4 x float> %inV4), !gla.output !9
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -101,25 +103,27 @@ declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!gla.outputs = !{!0, !2, !4, !6, !8}
-!gla.inputs = !{!10, !12, !14}
+!gla.entrypoint = !{!0}
+!gla.outputs = !{!1, !3, !5, !7, !9}
+!gla.inputs = !{!11, !13, !15}
 
-!0 = metadata !{metadata !"outVc", i32 7, <4 x float>* @outVc_shadow_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 513}
-!2 = metadata !{metadata !"outVs", i32 7, <4 x float>* @outVs_shadow_typeProxy, metadata !3}
-!3 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
-!4 = metadata !{metadata !"outVf", i32 7, <4 x float>* @outVf_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
-!6 = metadata !{metadata !"outVn", i32 7, <4 x float>* @outVn_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1028, null, i32 2}
-!8 = metadata !{metadata !"outVcn", i32 7, <4 x float>* @outVcn_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1029, null, i32 514}
-!10 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-!12 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
-!14 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !15}
-!15 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"outVc", i32 7, <4 x float>* @outVc_shadow_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 513}
+!3 = metadata !{metadata !"outVs", i32 7, <4 x float>* @outVs_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
+!5 = metadata !{metadata !"outVf", i32 7, <4 x float>* @outVf_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
+!7 = metadata !{metadata !"outVn", i32 7, <4 x float>* @outVn_shadow_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1028, null, i32 2}
+!9 = metadata !{metadata !"outVcn", i32 7, <4 x float>* @outVcn_shadow_typeProxy, metadata !10}
+!10 = metadata !{i32 0, i32 0, i32 1029, null, i32 514}
+!11 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_shadow_typeProxy, metadata !12}
+!12 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !14}
+!14 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
+!15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !16}
+!16 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

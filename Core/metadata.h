@@ -57,6 +57,11 @@ namespace gla {
 // Only the names starting with "!gla." actually appear in the IR, the other names here are 
 // for ease of understanding the linkage between the nodes.
 //
+//
+//     !gla.entrypoint -> { name, EMIoEntrypoint }
+//     Notes:
+//         - contains the name of an source entry point into the shader; e.g., "main"
+//
 //     !gla.precision -> { EMdPrecision }
 //
 //     !gla.intput ->   { name, EMdInputOutput,  Value*, !typeLayout, !aggregate }
@@ -110,6 +115,7 @@ namespace gla {
 //     !gla.outputs = !{ list of all pipeline !output }
 //     !gla.uniforms = !{ list of all !uniform }
 //     !gla.invariant = !{ subset list of output that were declared as invariant }
+//     !gla.entrypoint = !{ list of all entry points }
 //
 
 // Operand names
@@ -123,6 +129,7 @@ const char* const InputListMdName = "gla.inputs";
 const char* const OutputListMdName = "gla.outputs";
 const char* const UniformListMdName = "gla.uniforms";
 const char* const InvariantListMdName = "gla.invariant";
+const char* const EntrypointListMdName = "gla.entrypoint";
 
 // what kind of I/O:
 enum EMdInputOutput {
@@ -147,6 +154,9 @@ enum EMdInputOutput {
     EMioDefaultUniform,      // a uniform not in a block
     EMioUniformBlockMember,  // uniform buffer
     EMioBufferBlockMember,   // shader storage buffer object
+
+    // Entry point into shader
+    EMioEntrypoint,
 };
 
 // How the *interior* of a single, non-aggregate entity is laid out, supplemental to the "Value* for type"
@@ -519,6 +529,19 @@ public:
         }
 
         return md;
+    }
+
+    void addMdEntrypoint(const char* name)
+    {
+        llvm::MDNode* md;
+        llvm::Value* args[] = {
+            llvm::MDString::get(context, name),
+            gla::MakeIntConstant(context, EMioEntrypoint),
+        };
+        md = llvm::MDNode::get(context, args);
+
+        llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(EntrypointListMdName);
+        namedNode->addOperand(md);
     }
 
 protected:

@@ -12,7 +12,7 @@ define fastcc void @main() {
 entry:
   %outColor = alloca <4 x float>
   store float 2.000000e+00, float* @bar
-  %outColor1 = load <4 x float> addrspace(2)* @bigColor, !gla.uniform !0
+  %outColor1 = load <4 x float> addrspace(2)* @bigColor, !gla.uniform !1
   store <4 x float> %outColor1, <4 x float>* %outColor
   call void @"foo("()
   call void @"foo2("()
@@ -32,7 +32,7 @@ post-return:                                      ; No predecessors!
 
 stage-epilogue:                                   ; preds = %entry
   %5 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %5), !gla.output !3
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %5), !gla.output !4
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -60,17 +60,19 @@ entry:
 
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
-!gla.uniforms = !{!0, !2}
-!gla.outputs = !{!3}
-!gla.inputs = !{!5}
+!gla.entrypoint = !{!0}
+!gla.uniforms = !{!1, !3}
+!gla.outputs = !{!4}
+!gla.inputs = !{!6}
 
-!0 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null}
-!2 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !1}
-!3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
-!5 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null}
+!3 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !2}
+!4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!6 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
 
 
 Bottom IR:
@@ -80,11 +82,11 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %outColor1 = load <4 x float> addrspace(2)* @bigColor, align 16, !gla.uniform !0
+  %outColor1 = load <4 x float> addrspace(2)* @bigColor, align 16, !gla.uniform !1
   %0 = extractelement <4 x float> %outColor1, i32 0
   %1 = fadd float %0, 4.000000e+00
   %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outColor1, i32 1, float %1, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %2), !gla.output !3
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %2), !gla.output !4
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -98,17 +100,19 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
 
-!gla.uniforms = !{!0, !2}
-!gla.outputs = !{!3}
-!gla.inputs = !{!5}
+!gla.entrypoint = !{!0}
+!gla.uniforms = !{!1, !3}
+!gla.outputs = !{!4}
+!gla.inputs = !{!6}
 
-!0 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null}
-!2 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !1}
-!3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
-!5 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null}
+!3 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !2}
+!4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!6 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

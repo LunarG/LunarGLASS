@@ -120,6 +120,7 @@ public:
     gla::Builder* glaBuilder;
     int nextSlot;                // non-user set interpolations slots, virtual space, so inputs and outputs can both share it
     bool inMain;
+    bool mainTerminated;
     bool linkageOnly;
 
     std::map<int, llvm::Value*> symbolValues;
@@ -295,7 +296,7 @@ const int UnknownArraySize = 8;
 TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
     : context(llvm::getGlobalContext()), shaderEntry(0), llvmBuilder(context),
       module(manager->getModule()), metadata(context, module),
-      nextSlot(gla::MaxUserLayoutLocation), inMain(false), linkageOnly(false)
+      nextSlot(gla::MaxUserLayoutLocation), inMain(false), mainTerminated(false), linkageOnly(false)
 {
     // do this after the builder knows the module
     glaBuilder = new gla::Builder(llvmBuilder, manager, metadata);
@@ -310,6 +311,12 @@ TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
 
 TGlslangToTopTraverser::~TGlslangToTopTraverser()
 {
+    if (! mainTerminated) {            
+        llvm::BasicBlock* lastMainBlock = &shaderEntry->getParent()->getBasicBlockList().back();
+        llvmBuilder.SetInsertPoint(lastMainBlock);
+        glaBuilder->leaveFunction(true);
+    }
+
     delete glaBuilder;
 }
 
@@ -650,13 +657,20 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
             if (oit->isShaderEntrypoint(node)) {
                 oit->inMain = true;
                 oit->llvmBuilder.SetInsertPoint(oit->shaderEntry);
+                oit->metadata.addMdEntrypoint("main");
             } else {
                 oit->handleFunctionEntry(node);
             }
         } else {
+            if (oit->inMain)
+                oit->mainTerminated = true;
             oit->glaBuilder->leaveFunction(oit->inMain);
             oit->inMain = false;
-            oit->llvmBuilder.SetInsertPoint(oit->shaderEntry);
+
+            // earlier code between functions could have had flow control, so bump up shader entry
+            // to the end of that code, ready for the next one
+            llvm::BasicBlock* lastMainBlock = &oit->shaderEntry->getParent()->getBasicBlockList().back();
+            oit->llvmBuilder.SetInsertPoint(lastMainBlock);
         }
 
         return true;
