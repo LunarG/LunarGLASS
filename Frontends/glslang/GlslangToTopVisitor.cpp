@@ -388,12 +388,7 @@ void TranslateSymbol(TIntermSymbol* symbol, TIntermTraverser* it)
 
     if (input) {
         int slot = oit->assignSlot(symbol, input);
-        mdNode = oit->inputMdMap[slot];
-        if (mdNode == 0) {
-            // set up metadata for pipeline intrinsic read
-            mdNode = oit->makeInputMetadata(symbol, storage, slot);
-            oit->inputMdMap[slot] = mdNode;
-        }
+        mdNode = oit->makeInputMetadata(symbol, storage, slot);
 
         if (! oit->linkageOnly) {
             // do the actual read
@@ -2267,25 +2262,26 @@ llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(TIntermSymbol* node
     llvm::MDNode* md;
     const std::string name = node->getName().c_str();
     md = uniformMdMap[name];
+    if (md)
+        return md;
 
     gla::EMdInputOutput ioType = GetMdQualifier(node);
     switch (ioType) {
     case gla::EMioDefaultUniform:
-        if (md == 0) {
-            md = declareMdDefaultUniform(node, value);
-            uniformMdMap[name] = md;
-        }
+        md = declareMdDefaultUniform(node, value);
+        uniformMdMap[name] = md;
         break;
     case gla::EMioUniformBlockMember:
     case gla::EMioBufferBlockMember:
-        if (md == 0) {
-            md = declareMdUniformBlock(ioType, node, value);
-            uniformMdMap[name] = md;
-        }
+        md = declareMdUniformBlock(ioType, node, value);
+        uniformMdMap[name] = md;
         break;
     default:
         break;
     }
+
+    if (linkageOnly)
+        metadata.addNoStaticUse(md);
 
     return md;
 }
@@ -2380,7 +2376,7 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(TIntermSymbol* nod
 {    
     llvm::MDNode* aggregate = 0;
     if (node->getBasicType() == EbtStruct || node->getBasicType() == EbtBlock) {
-        // Make hierachical type information
+        // Make hierarchical type information
         aggregate = declareMdType(node->getType());
     }
 
@@ -2400,12 +2396,25 @@ void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value*
     if (node->getQualifier().invariant)
         module->getOrInsertNamedMetadata(gla::InvariantListMdName)->addOperand(md);
 
+    if (linkageOnly)
+        metadata.addNoStaticUse(md);
+
     glaBuilder->setOutputMetadata(storage, md, slot);
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(TIntermSymbol* node, llvm::Value* value, int slot)
 {
-    return makeInputOutputMetadata(node, value, slot, gla::InputListMdName);
+
+    llvm::MDNode* mdNode = inputMdMap[slot];
+    if (mdNode == 0) {
+        // set up metadata for pipeline intrinsic read
+        mdNode = makeInputOutputMetadata(node, value, slot, gla::InputListMdName);
+        inputMdMap[slot] = mdNode;
+        if (linkageOnly)
+            metadata.addNoStaticUse(mdNode);
+    }
+
+    return mdNode;
 }
 
 //

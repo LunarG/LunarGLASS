@@ -41,6 +41,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.entrypoint = !{!2}
 !gla.outputs = !{!3}
 !gla.uniforms = !{!5, !7}
+!gla.noStaticUse = !{!5, !7}
 
 !0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
@@ -76,6 +77,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.entrypoint = !{!2}
 !gla.outputs = !{!3}
 !gla.uniforms = !{!5, !7}
+!gla.noStaticUse = !{!5, !7}
 
 !0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}

@@ -65,6 +65,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.uniforms = !{!1, !8, !9, !12}
 !gla.outputs = !{!13}
 !gla.inputs = !{!15}
+!gla.noStaticUse = !{!12}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"foo3", i32 12, %lunarStruct3* @foo3_typeProxy, metadata !2, metadata !3}
@@ -133,6 +134,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !gla.uniforms = !{!1, !8, !9, !12}
 !gla.outputs = !{!13}
 !gla.inputs = !{!15}
+!gla.noStaticUse = !{!12}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"foo3", i32 12, %lunarStruct3* @foo3_typeProxy, metadata !2, metadata !3}

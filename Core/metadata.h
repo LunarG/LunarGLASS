@@ -130,6 +130,7 @@ const char* const OutputListMdName = "gla.outputs";
 const char* const UniformListMdName = "gla.uniforms";
 const char* const InvariantListMdName = "gla.invariant";
 const char* const EntrypointListMdName = "gla.entrypoint";
+const char* const NoStaticUseMdName = "gla.noStaticUse";
 
 // what kind of I/O:
 enum EMdInputOutput {
@@ -543,6 +544,12 @@ public:
         llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(EntrypointListMdName);
         namedNode->addOperand(md);
     }
+
+    void addNoStaticUse(llvm::MDNode* md)
+    {
+        llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(NoStaticUseMdName);
+        namedNode->addOperand(md);
+    }        
 
 protected:
     llvm::LLVMContext& context;

@@ -366,6 +366,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.uniforms = !{!1, !4, !7, !10, !13, !16, !19, !22, !25, !28, !31, !34, !37, !40, !43, !46}
 !gla.inputs = !{!49, !51, !53, !55, !57, !59, !61, !63}
 !gla.outputs = !{!65}
+!gla.noStaticUse = !{!34, !37, !40, !43, !46, !63}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"s2D", i32 12, i32* @s2D_typeProxy, metadata !2}
@@ -593,6 +594,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !gla.uniforms = !{!1, !4, !7, !10, !13, !16, !19, !22, !25, !28, !31, !34, !37, !40, !43, !46}
 !gla.inputs = !{!49, !51, !53, !55, !57, !59, !61, !63}
 !gla.outputs = !{!65}
+!gla.noStaticUse = !{!34, !37, !40, !43, !46, !63}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"s2D", i32 12, i32* @s2D_typeProxy, metadata !2}

@@ -61,6 +61,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.invariant = !{!1}
 !gla.inputs = !{!3, !5, !7, !9, !11, !13}
 !gla.uniforms = !{!15, !17, !20, !23, !26, !29, !32}
+!gla.noStaticUse = !{!15, !13, !17, !20, !23, !26, !29, !32}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"outVi", i32 7, <4 x float>* @outVi_shadow_typeProxy, metadata !2}
@@ -134,6 +135,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.invariant = !{!1}
 !gla.inputs = !{!3, !5, !7, !9, !11, !13}
 !gla.uniforms = !{!15, !17, !20, !23, !26, !29, !32}
+!gla.noStaticUse = !{!15, !13, !17, !20, !23, !26, !29, !32}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"outVi", i32 7, <4 x float>* @outVi_shadow_typeProxy, metadata !2}

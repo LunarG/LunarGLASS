@@ -192,6 +192,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.inputs = !{!1, !3}
 !gla.uniforms = !{!5, !7, !8, !9, !10, !11, !12, !13, !14}
 !gla.outputs = !{!15}
+!gla.noStaticUse = !{!14}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !2}
@@ -330,6 +331,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !gla.inputs = !{!1, !3}
 !gla.uniforms = !{!5, !7, !8, !9, !10, !11, !12, !13, !14}
 !gla.outputs = !{!15}
+!gla.noStaticUse = !{!14}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !2}

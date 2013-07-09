@@ -148,6 +148,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.uniforms = !{!1, !4, !7, !10, !13, !16}
 !gla.inputs = !{!19, !21}
 !gla.outputs = !{!23}
+!gla.noStaticUse = !{!21}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"texSampler1D", i32 12, i32* @texSampler1D_typeProxy, metadata !2}
@@ -246,6 +247,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !gla.uniforms = !{!1, !4, !7, !10, !13, !16}
 !gla.inputs = !{!19, !21}
 !gla.outputs = !{!23}
+!gla.noStaticUse = !{!21}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"texSampler1D", i32 12, i32* @texSampler1D_typeProxy, metadata !2}
