@@ -116,6 +116,7 @@ namespace gla {
 //     !gla.uniforms = !{ list of all !uniform }
 //     !gla.invariant = !{ subset list of output that were declared as invariant }
 //     !gla.entrypoint = !{ list of all entry points }
+//     !gla.noStaticUse = !{ subset of input/output/uniform that were not statically referenced in the source shader }
 //
 
 // Operand names
