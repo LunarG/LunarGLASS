@@ -40,7 +40,6 @@ glslang_SOURCES := \
     ../Backends/GLSL/BottomToGLSL.cpp \
     ../Backends/TGSI/BottomToTgsi.cpp \
     ../../glslang/glslang/MachineIndependent/Constant.cpp \
-    ../../glslang/glslang/MachineIndependent/gen_glslang.cpp \
     ../../glslang/glslang/MachineIndependent/gen_glslang_tab.cpp \
     ../../glslang/glslang/MachineIndependent/InfoSink.cpp \
     ../../glslang/glslang/MachineIndependent/Initialize.cpp \
@@ -57,13 +56,13 @@ glslang_SOURCES := \
     ../../glslang/glslang/MachineIndependent/Versions.cpp \
     ../../glslang/glslang/MachineIndependent/Scan.cpp \
     ../../glslang/glslang/OSDependent/Linux/ossource.cpp \
-    ../../glslang/glslang/MachineIndependent/preprocessor/atom.c \
-    ../../glslang/glslang/MachineIndependent/preprocessor/cpp.c \
-    ../../glslang/glslang/MachineIndependent/preprocessor/cppstruct.c \
-    ../../glslang/glslang/MachineIndependent/preprocessor/memory.c \
-    ../../glslang/glslang/MachineIndependent/preprocessor/scanner.c \
-    ../../glslang/glslang/MachineIndependent/preprocessor/symbols.c \
-    ../../glslang/glslang/MachineIndependent/preprocessor/tokens.c \
+    ../../glslang/glslang/MachineIndependent/preprocessor/Pp.cpp \
+    ../../glslang/glslang/MachineIndependent/preprocessor/PpAtom.cpp \
+    ../../glslang/glslang/MachineIndependent/preprocessor/PpContext.cpp \
+    ../../glslang/glslang/MachineIndependent/preprocessor/PpMemory.cpp \
+    ../../glslang/glslang/MachineIndependent/preprocessor/PpScanner.cpp \
+    ../../glslang/glslang/MachineIndependent/preprocessor/PpSymbols.cpp \
+    ../../glslang/glslang/MachineIndependent/preprocessor/PpTokens.cpp \
     ../../glslang/OGLCompilersDLL/InitializeDll.cpp
 
 lunarglass_SOURCES := \
