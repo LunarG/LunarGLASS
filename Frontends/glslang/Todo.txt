@@ -1,7 +1,3 @@
-LunarGLASS/GOO LLVM 3.2
-  - Loop issues for LunarGLASS core
-  - handle all derived classes of constant
-
 Adapter
   - read/write from variably chosen vector component
   - discard from a function
@@ -13,7 +9,7 @@ Obscure
   - location layout range/overlap semantics
 
 Front end
-  - Move to thread-safe version of flex
+  + Move to thread-safe version of flex
   - "const" compile-time constant propagation in the front-end has to be complete, for all built-in functions
 
 Performance
@@ -27,8 +23,7 @@ Interfacing
   + add a bool for relaxed semantic checking
   - Put glslang in a namespace
   + Fix any copyrights
-  - Linker I/O: to be done as metadata
-	 - do different declaration decorations reusing the same structure need to replicate the heirarchical decorations?
+  + Linker I/O: to be done as metadata
 	 + add linkage nodes to AST for blocks, inputs, outputs, etc. that a linker will want to error check against
      + all matrix types globals
      + uniform blocks; names and content
@@ -259,3 +254,4 @@ Delivery checklist
  . memory leak tests
  . all other tests
  . list of changes
+ . update documentation

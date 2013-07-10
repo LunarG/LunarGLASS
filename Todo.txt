@@ -1,0 +1,26 @@
+LunarGLASS/GOO LLVM 3.2
+  - Loop issues for LunarGLASS core
+  - handle all derived classes of constant
+
+Adapters and Common Builder
+  - read/write from variably chosen vector component
+  - discard from a function
+  - fModf() support
+  - test thread safety
+  - modify for any missing metadata (metadata that disappears during optimizations but is needed by LunarGOO)?
+  - some parts of code don't handle complex nesting within in/out structures
+  - do different declaration decorations reusing the same structure need to replicate the heirarchical decorations?
+
+Performance
+  - fix difference between fReadData and fReadInterpolant: LLVM is optimizing multiple uses of one but not the other
+
+Delivery checklist
+ . update all TODO
+ . all copyrights correct?
+ . all components on linux
+ . all components compile on MSVC debug
+ . all components compile on MSCV release
+ . memory leak tests
+ . all other tests
+ . list of changes
+ . update documentation
