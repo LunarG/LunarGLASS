@@ -1844,6 +1844,11 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         // scalar result type
         intrinsicName = getIntrinsic(intrinsicID, GetBasicType(lhs), lhs->getType(), rhs->getType());
         break;
+    case llvm::Intrinsic::gla_fStep:
+    case llvm::Intrinsic::gla_fSmoothStep:
+        // first argument can be scalar, everything else matches
+        intrinsicName = getIntrinsic(intrinsicID, rhs->getType(), lhs->getType(), rhs->getType());
+        break;
     default:
         // Binary intrinsics that have operand and dest with same flexible type
         intrinsicName = getIntrinsic(intrinsicID,  lhs->getType(), lhs->getType(), rhs->getType());
