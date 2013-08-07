@@ -85,6 +85,8 @@ void main()
 
     v += step(v,v);
     v += smoothstep(v,v,v);
+    v += step(uf,v);
+    v += smoothstep(uf,uf,v);
     v += normalize(v);
     v += faceforward(v, v, v);
     v += reflect(v, v);

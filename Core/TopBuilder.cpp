@@ -1845,8 +1845,11 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         intrinsicName = getIntrinsic(intrinsicID, GetBasicType(lhs), lhs->getType(), rhs->getType());
         break;
     case llvm::Intrinsic::gla_fStep:
+        // first argument can be scalar, return and second argument match
+        intrinsicName = getIntrinsic(intrinsicID, rhs->getType(), lhs->getType(), rhs->getType());
+        break;
     case llvm::Intrinsic::gla_fSmoothStep:
-        // first argument can be scalar, everything else matches
+        // first argument can be scalar, return and second argument match
         intrinsicName = getIntrinsic(intrinsicID, rhs->getType(), lhs->getType(), rhs->getType());
         break;
     default:
@@ -1864,8 +1867,18 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
 
 llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1, llvm::Value* operand2)
 {
-    // Use operand0 type as result type
-    llvm::Function* intrinsicName =  getIntrinsic(intrinsicID, operand0->getType(), operand0->getType(), operand1->getType(), operand2->getType());
+    llvm::Function* intrinsicName;
+
+    // Handle special return types here.  Things that don't have same result type as parameter
+    switch (intrinsicID) {
+    case llvm::Intrinsic::gla_fSmoothStep:
+        // first argument can be scalar, return and second argument match
+        intrinsicName = getIntrinsic(intrinsicID, operand2->getType(), operand0->getType(), operand1->getType(), operand2->getType());
+        break;
+    default:
+        // Use operand0 type as result type
+        intrinsicName =  getIntrinsic(intrinsicID, operand0->getType(), operand0->getType(), operand1->getType(), operand2->getType());
+    }
 
     assert(intrinsicName);
 
