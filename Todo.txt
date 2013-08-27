@@ -1,6 +1,9 @@
-LunarGLASS/GOO LLVM 3.2
+Note: Also see the front-end TODO list; this is not a complete list for the front end, just the adapter.
+
+LunarGLASS/GOO LLVM
   - Loop issues for LunarGLASS core
   - handle all derived classes of constant
+  - move to LLVM 3.3
 
 Adapters and Common Builder
   - read/write from variably chosen vector component
@@ -24,3 +27,92 @@ Delivery checklist
  . all other tests
  . list of changes
  . update documentation
+
+Shader Functionality to Implement/Finish
+    GLSL 1.2
+      - Allow initializers on uniform declarations.  The value is set at link time.
+    GLSL 1.3 (Non-ES)
+      - non-perspective (linear) interpolation (noperspective)
+    GLSL 1.5 (Non-ES)
+      - Added gl_FragCoord qualifiers origin_upper_left, and pixel_center_integer to modify the values returned by gl_FragCoord (and have no affect on any other aspect of the pipeline or language).
+      - Added support for multi-sample textures through sampler2DMS and sampler2DMSArray support in texelFetch() and textureSize().
+      - Broadened interface blocks from just uniforms to in and out interfaces as well.
+      - Broaden array usage to include vertex shader inputs (vertex in).
+      - Added geometry shaders.  This includes targeting layers in FBO rendering.
+      - geometry shader layouts: they must be declared, telling the system the primitive input and output types and maximum number of vertices.
+      - Added geometry shader constants.
+    GLSL 4.0
+      - tessellation control stage and tessellation evaluation stage. Includes barrier() built-in for synchronization.
+      - Polymorphic functions: Run-time selection of what function gets called, through the new keyword subroutine.
+      - 64bit floating point numbers with the new type keyword double.  Built-in functions extended for doubles, and new function matching rules are added to both allow implicit conversions when calling a function and preserve most existing function matching once doubles are included. 
+      - Cube map array textures and texture functions texture(), textureSize(), textureLod(), and textureGrad().
+      - Per-sample shading. Including sample input mask gl_SampleMaskIn[] and per-sample interpolation, with explicit interpolation built-ins interpolateAtCentroid(), interpolateAtSample(), and interpolateAtOffset().
+      - New precise qualifier to disallow optimizations that re-order operations or treat different instances of the same operator with different precision.
+      - Add a fused multiply and add built-in, fma(), in relation to the new precise qualifier. (Because “a * b + c” will require two operations under new rules for precise.)
+      - Added new built-in floating-point functions 
+         - frexp() and ldexp()
+         - packUnorm2x16(), packUnorm4x8(),packSnorm4x8(), and packDouble2x32()
+         - unpackUnorm2x16(), unpackUnorm4x8(),unpackSnorm4x8(), and unpackDouble2x32()
+      - Add new built-in integer functions
+         - uaddCarry() andusubBorrow()
+         - umulExtended() andimulExtended()
+         - bitfieldExtract() andbitfieldInsert()
+         - bitfieldReverse()
+         - bitCount(),findLSB(), andfindMSB()
+      - New built-in to query LOD, textureQueryLod().
+      - Texture gather functions that return four texels with a single call.
+         - textureGather()
+         - textureGatherOffset()
+         - textureGatherOffsets()
+      - Add streams out from geometry shader. Output can be directed to streams through
+         - EmitStreamVertex() and EndStreamPrimitive().
+    GLSL 4.1
+      - Support for partitioning shaders into multiple programs to provide light-weight mixing of different shader stages.
+            (GL_ARB_separate_shader_objects)
+        - layout qualifiers
+        - redeclaration of input/output blocks
+        - ...
+      - Add 64-bit floating-point attributes for vertex shader inputs.
+    GLSL 4.2
+      - Add image types (GL_ARB_shader_image_load_store)
+        + 33 new types, all with “image” in their name, correspond to the non-shadow texture types
+        + addition of memory qualifiers: coherent,volatile, restrict, readonly, and writeonly
+        - can read/write/modify images from a shader, through new built-in functions
+        - qualifiers can act independently on the opaque shader variable and the backing image, so extra qualifiers can be used to separately qualify these
+      - Add a new atomic_uint type to support atomic counters. Also, add built-in functions for manipulating atomic counters.
+        - atomicCounterIncrement, atomicCounterDecrement, and atomicCounter
+      - Add layout qualifier identifiers binding and offset to bind units to sampler and image variable declarations, atomic counters, and uniform blocks.
+      - Add built-in functions to pack/unpack 16 bit floating-point numbers (ARB_shading_language_pack2f).
+        - packHalf2x16 and unpackHalf2x16
+        - packSnorm2x16and unpackSnorm2x16
+      - Add gl_FragDepthlayout qualifiers to communicate what kind of changes will be made to gl_FragDepth(GL_AMD_conservative depth).
+      - Minor consistency fixes, corrections
+        - Use vec2 instead of vec3 for coordinate in textureGather*(sampler2DRect,...).
+        - Clarify that textureGatherOffset() can take non-constants for the offsets.
+    GLSL 4.3
+      - Add shader storage buffer objects, as per the ARB_shader_storage_buffer_object extension. 
+        This includes 1) allowing the last member of a storage buffer block to be an array that does not 
+        know its size until render time, and 2) read/write memory shared with the application and other 
+        shader invocations. It also adds the std430layout qualifier for shader storage blocks.
+      - Run-time .length() as per the ARB_shader_storage_buffer_object extension.
+      - Arrays of arrays are now supported, as per the GL_ARB_arrays_of_arraysextension.
+      - Compute shaders are now supported, as per the GL_ARB_compute_shader extension.
+      - Added imageSize() built-ins to query the dimensions of an image.
+      - All choice of depth or stencil texturing, for a packed depth-stencil texture, as per the 
+        GL_ARB_stencil_texturing extension.
+      - Allow explicit locations/indexes to be assigned to uniform variables and subroutines, as per the 
+        GL_ARB_explicit_uniform_location extension.
+      - Clarify textureSize() for cube map arrays.
+      - Add textureQueryLevels() built-ins to query the number of mipmap levels, as per the 
+        GL_ARB_texture_query_levels extension.
+      - Add more examples and rules to be more specific about the required behavior of the precise 
+        qualifier.
+      + Added overlooked texture function float textureOffset (sampler2DArrayShadow sampler, vec4 P, vec2 offset [, float bias] ).
+    GLSL 4.4
+      - Incorporate the ARB_enhanced_layouts extension, which adds
+        - compile-time constant expressions for layout qualifier integers
+        - new offset and align layout qualifiers for control over buffer block layouts
+        - add location layout qualifier for input and output blocks and block members
+        - new componentlayout qualifier for finer-grained layout control of input and output variables and blocks
+        - new xfb_buffer, xfb_stride, and xfb_offsetlayout qualifiers to allow the shader to control 
+          transform feedback buffering.
