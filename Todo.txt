@@ -75,8 +75,8 @@ Shader Functionality to Implement/Finish
       - Add 64-bit floating-point attributes for vertex shader inputs.
     GLSL 4.2
       - Add image types (GL_ARB_shader_image_load_store)
-        + 33 new types, all with “image” in their name, correspond to the non-shadow texture types
-        + addition of memory qualifiers: coherent,volatile, restrict, readonly, and writeonly
+        - 33 new types, all with “image” in their name, correspond to the non-shadow texture types
+        - addition of memory qualifiers: coherent,volatile, restrict, readonly, and writeonly
         - can read/write/modify images from a shader, through new built-in functions
         - qualifiers can act independently on the opaque shader variable and the backing image, so extra qualifiers can be used to separately qualify these
       - Add a new atomic_uint type to support atomic counters. Also, add built-in functions for manipulating atomic counters.
@@ -107,7 +107,7 @@ Shader Functionality to Implement/Finish
         GL_ARB_texture_query_levels extension.
       - Add more examples and rules to be more specific about the required behavior of the precise 
         qualifier.
-      + Added overlooked texture function float textureOffset (sampler2DArrayShadow sampler, vec4 P, vec2 offset [, float bias] ).
+      - Added overlooked texture function float textureOffset (sampler2DArrayShadow sampler, vec4 P, vec2 offset [, float bias] ).
     GLSL 4.4
       - Incorporate the ARB_enhanced_layouts extension, which adds
         - compile-time constant expressions for layout qualifier integers
