@@ -76,40 +76,40 @@
 // Use this class to carry along data from node to node in
 // the traversal
 //
-class TGlslangToTopTraverser : public TIntermTraverser {
+class TGlslangToTopTraverser : public glslang::TIntermTraverser {
 public:
     TGlslangToTopTraverser(gla::Manager*);
     virtual ~TGlslangToTopTraverser();
 
-    llvm::Value* createLLVMVariable(const TIntermSymbol* node);
-    llvm::Type* convertGlslangToGlaType(const TType& type);
+    llvm::Value* createLLVMVariable(const glslang::TIntermSymbol* node);
+    llvm::Type* convertGlslangToGlaType(const glslang::TType& type);
 
-    bool isShaderEntrypoint(const TIntermAggregate* node);
-    void makeFunctions(const TIntermSequence&);
-    void handleFunctionEntry(const TIntermAggregate* node);
-    void translateArguments(const TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments);
-    llvm::Value* handleBuiltinFunctionCall(const TIntermAggregate*);
-    llvm::Value* handleUserFunctionCall(const TIntermAggregate*);
+    bool isShaderEntrypoint(const glslang::TIntermAggregate* node);
+    void makeFunctions(const glslang::TIntermSequence&);
+    void handleFunctionEntry(const glslang::TIntermAggregate* node);
+    void translateArguments(const glslang::TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments);
+    llvm::Value* handleBuiltinFunctionCall(const glslang::TIntermAggregate*);
+    llvm::Value* handleUserFunctionCall(const glslang::TIntermAggregate*);
 
-    llvm::Value* createBinaryOperation(TOperator op, gla::EMdPrecision, llvm::Value* left, llvm::Value* right, bool isUnsigned, bool reduceComparison = true);
-    llvm::Value* createUnaryOperation(TOperator op, gla::EMdPrecision, llvm::Value* operand);
-    llvm::Value* createConversion(TOperator op, gla::EMdPrecision, llvm::Type*, llvm::Value* operand);
-    llvm::Value* createUnaryIntrinsic(TOperator op, gla::EMdPrecision, llvm::Value* operand);
-    llvm::Value* createIntrinsic(TOperator op, gla::EMdPrecision, std::vector<llvm::Value*>& operands, bool isUnsigned);
-    void createPipelineRead(TIntermSymbol*, llvm::Value* storage, int slot, llvm::MDNode*);
-    void createPipelineSubread(const TType& glaType, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md,
+    llvm::Value* createBinaryOperation(glslang::TOperator op, gla::EMdPrecision, llvm::Value* left, llvm::Value* right, bool isUnsigned, bool reduceComparison = true);
+    llvm::Value* createUnaryOperation(glslang::TOperator op, gla::EMdPrecision, llvm::Value* operand);
+    llvm::Value* createConversion(glslang::TOperator op, gla::EMdPrecision, llvm::Type*, llvm::Value* operand);
+    llvm::Value* createUnaryIntrinsic(glslang::TOperator op, gla::EMdPrecision, llvm::Value* operand);
+    llvm::Value* createIntrinsic(glslang::TOperator op, gla::EMdPrecision, std::vector<llvm::Value*>& operands, bool isUnsigned);
+    void createPipelineRead(glslang::TIntermSymbol*, llvm::Value* storage, int slot, llvm::MDNode*);
+    void createPipelineSubread(const glslang::TType& glaType, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md,
                                std::string& name, gla::EInterpolationMethod, gla::EInterpolationLocation);
-    int assignSlot(TIntermSymbol* node, bool input);
-    llvm::Value* getSymbolStorage(const TIntermSymbol* node, bool& firstTime);
-    llvm::Value* createLLVMConstant(const TType& type, constUnion *consts, int& nextConst);
-    llvm::MDNode* declareUniformMetadata(TIntermSymbol* node, llvm::Value*);
-    llvm::MDNode* declareMdDefaultUniform(TIntermSymbol*, llvm::Value*);
-    llvm::MDNode* makeMdSampler(const TType&, llvm::Value*);
-    llvm::MDNode* declareMdUniformBlock(gla::EMdInputOutput ioType, const TIntermSymbol* node, llvm::Value*);
-    llvm::MDNode* declareMdType(const TType&);
-    llvm::MDNode* makeInputOutputMetadata(TIntermSymbol* node, llvm::Value*, int slot, const char* kind);
-    void setOutputMetadata(TIntermSymbol* node, llvm::Value*, int slot);
-    llvm::MDNode* makeInputMetadata(TIntermSymbol* node, llvm::Value*, int slot);
+    int assignSlot(glslang::TIntermSymbol* node, bool input);
+    llvm::Value* getSymbolStorage(const glslang::TIntermSymbol* node, bool& firstTime);
+    llvm::Value* createLLVMConstant(const glslang::TType& type, glslang::TConstUnion *consts, int& nextConst);
+    llvm::MDNode* declareUniformMetadata(glslang::TIntermSymbol* node, llvm::Value*);
+    llvm::MDNode* declareMdDefaultUniform(glslang::TIntermSymbol*, llvm::Value*);
+    llvm::MDNode* makeMdSampler(const glslang::TType&, llvm::Value*);
+    llvm::MDNode* declareMdUniformBlock(gla::EMdInputOutput ioType, const glslang::TIntermSymbol* node, llvm::Value*);
+    llvm::MDNode* declareMdType(const glslang::TType&);
+    llvm::MDNode* makeInputOutputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot, const char* kind);
+    void setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot);
+    llvm::MDNode* makeInputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot);
 
     llvm::LLVMContext &context;
     llvm::BasicBlock* shaderEntry;
@@ -128,7 +128,7 @@ public:
     std::map<std::string, int> slotMap;
     std::map<int, llvm::MDNode*> inputMdMap;
     std::map<std::string, llvm::MDNode*> uniformMdMap;
-    std::map<TTypeList*, llvm::StructType*> structMap;
+    std::map<glslang::TTypeList*, llvm::StructType*> structMap;
     std::stack<bool> breakForLoop;  // false means break for switch
 };
 
@@ -137,31 +137,31 @@ namespace {
 // Helper functions for translating glslang to metadata, so that information
 // not representable in LLVM does not get lost.
 
-gla::EMdInputOutput GetMdQualifier(TIntermSymbol* node)
+gla::EMdInputOutput GetMdQualifier(glslang::TIntermSymbol* node)
 {
     gla::EMdInputOutput mdQualifier;
     switch (node->getQualifier().storage) {
 
     // inputs
-    case EvqVertexId:   mdQualifier = gla::EMioVertexId;        break;
-    case EvqInstanceId: mdQualifier = gla::EMioInstanceId;      break;
-    case EvqFace:       mdQualifier = gla::EMioFragmentFace;    break;
-    case EvqPointCoord: mdQualifier = gla::EMioPointCoord;      break;
-    case EvqFragCoord:  mdQualifier = gla::EMioFragmentCoord;   break;
-    case EvqVaryingIn:  mdQualifier = gla::EMioPipeIn;          break;
+    case glslang::EvqVertexId:   mdQualifier = gla::EMioVertexId;        break;
+    case glslang::EvqInstanceId: mdQualifier = gla::EMioInstanceId;      break;
+    case glslang::EvqFace:       mdQualifier = gla::EMioFragmentFace;    break;
+    case glslang::EvqPointCoord: mdQualifier = gla::EMioPointCoord;      break;
+    case glslang::EvqFragCoord:  mdQualifier = gla::EMioFragmentCoord;   break;
+    case glslang::EvqVaryingIn:  mdQualifier = gla::EMioPipeIn;          break;
 
     // outputs
-    case EvqPosition:   mdQualifier = gla::EMioVertexPosition;    break;
-    case EvqPointSize:  mdQualifier = gla::EMioPointSize;         break;
-    case EvqClipVertex: mdQualifier = gla::EMioClipVertex;        break;
-    case EvqVaryingOut: mdQualifier = gla::EMioPipeOut;           break;
-    case EvqFragColor:  mdQualifier = gla::EMioPipeOut;           break;
-    case EvqFragDepth:  mdQualifier = gla::EMioFragmentDepth;     break;
+    case glslang::EvqPosition:   mdQualifier = gla::EMioVertexPosition;    break;
+    case glslang::EvqPointSize:  mdQualifier = gla::EMioPointSize;         break;
+    case glslang::EvqClipVertex: mdQualifier = gla::EMioClipVertex;        break;
+    case glslang::EvqVaryingOut: mdQualifier = gla::EMioPipeOut;           break;
+    case glslang::EvqFragColor:  mdQualifier = gla::EMioPipeOut;           break;
+    case glslang::EvqFragDepth:  mdQualifier = gla::EMioFragmentDepth;     break;
 
     // uniforms
-    case EVqBuffer:     mdQualifier = gla::EMioBufferBlockMember; break;
-    case EvqUniform:    
-                    if (node->getType().getBasicType() == EbtBlock)
+    case glslang::EVqBuffer:     mdQualifier = gla::EMioBufferBlockMember; break;
+    case glslang::EvqUniform:    
+                    if (node->getType().getBasicType() == glslang::EbtBlock)
                         mdQualifier = gla::EMioUniformBlockMember;
                     else
                         mdQualifier = gla::EMioDefaultUniform;
@@ -174,26 +174,26 @@ gla::EMdInputOutput GetMdQualifier(TIntermSymbol* node)
     return mdQualifier;
 }
 
-gla::EMdTypeLayout GetMdTypeLayout(const TType& type)
+gla::EMdTypeLayout GetMdTypeLayout(const glslang::TType& type)
 {
     gla::EMdTypeLayout mdType;
 
     if (type.isMatrix()) {
         switch (type.getQualifier().layoutMatrix) {
-        case ElmRowMajor: mdType = gla::EMtlRowMajorMatrix;   break;
+        case glslang::ElmRowMajor: mdType = gla::EMtlRowMajorMatrix;   break;
         default:          mdType = gla::EMtlColMajorMatrix;   break;
         }
     } else {
         switch (type.getBasicType()) {
-        case EbtSampler:  mdType = gla::EMtlSampler;    break;
-        case EbtStruct:   mdType = gla::EMtlAggregate;  break;
-        case EbtUint:     mdType = gla::EMtlUnsigned;   break;
-        case EbtBlock:
+        case glslang::EbtSampler:  mdType = gla::EMtlSampler;    break;
+        case glslang::EbtStruct:   mdType = gla::EMtlAggregate;  break;
+        case glslang::EbtUint:     mdType = gla::EMtlUnsigned;   break;
+        case glslang::EbtBlock:
             switch (type.getQualifier().layoutPacking) {
-            case ElpShared:  return gla::EMtlShared;
-            case ElpStd140:  return gla::EMtlStd140;
-            case ElpStd430:  return gla::EMtlStd430;
-            case ElpPacked:  return gla::EMtlPacked;
+            case glslang::ElpShared:  return gla::EMtlShared;
+            case glslang::ElpStd140:  return gla::EMtlStd140;
+            case glslang::ElpStd430:  return gla::EMtlStd430;
+            case glslang::ElpPacked:  return gla::EMtlPacked;
             default:
                 gla::UnsupportedFunctionality("block layout", gla::EATContinue);
                 return gla::EMtlShared;
@@ -206,7 +206,7 @@ gla::EMdTypeLayout GetMdTypeLayout(const TType& type)
     return mdType;
 }
 
-gla::EMdSampler GetMdSampler(const TType& type)
+gla::EMdSampler GetMdSampler(const glslang::TType& type)
 {
     if (type.getSampler().image)
         return gla::EMsImage;
@@ -214,48 +214,48 @@ gla::EMdSampler GetMdSampler(const TType& type)
         return gla::EMsTexture;
 }
 
-gla::EMdSamplerDim GetMdSamplerDim(const TType& type)
+gla::EMdSamplerDim GetMdSamplerDim(const glslang::TType& type)
 {
     switch (type.getSampler().dim) {
-    case Esd1D:     return gla::EMsd1D;
-    case Esd2D:     return gla::EMsd2D;
-    case Esd3D:     return gla::EMsd3D;
-    case EsdCube:   return gla::EMsdCube;
-    case EsdRect:   return gla::EMsdRect;
-    case EsdBuffer: return gla::EMsdBuffer;
+    case glslang::Esd1D:     return gla::EMsd1D;
+    case glslang::Esd2D:     return gla::EMsd2D;
+    case glslang::Esd3D:     return gla::EMsd3D;
+    case glslang::EsdCube:   return gla::EMsdCube;
+    case glslang::EsdRect:   return gla::EMsdRect;
+    case glslang::EsdBuffer: return gla::EMsdBuffer;
     default:
         gla::UnsupportedFunctionality("unknown sampler dimension", gla::EATContinue);
         return gla::EMsd2D;
     }
 }
 
-gla::EMdSamplerBaseType GetMdSamplerBaseType(TBasicType type)
+gla::EMdSamplerBaseType GetMdSamplerBaseType(glslang::TBasicType type)
 {
     switch (type) {
-    case EbtFloat:    return gla::EMsbFloat;
-    case EbtInt:      return gla::EMsbInt;
-    case EbtUint:     return gla::EMsbUint;
+    case glslang::EbtFloat:    return gla::EMsbFloat;
+    case glslang::EbtInt:      return gla::EMsbInt;
+    case glslang::EbtUint:     return gla::EMsbUint;
     default:
         gla::UnsupportedFunctionality("base type of sampler return type", gla::EATContinue);
         return gla::EMsbFloat;
     }
 }
 
-int GetMdSlotLocation(const TType& type)
+int GetMdSlotLocation(const glslang::TType& type)
 {
-    if (type.getQualifier().layoutSlotLocation == TQualifier::layoutLocationEnd)
+    if (type.getQualifier().layoutSlotLocation == glslang::TQualifier::layoutLocationEnd)
         return gla::MaxUserLayoutLocation;
     else
         return type.getQualifier().layoutSlotLocation;
 }
 
-gla::EMdPrecision GetMdPrecision(const TType& type)
+gla::EMdPrecision GetMdPrecision(const glslang::TType& type)
 {
     switch (type.getQualifier().precision) {
-    case EpqNone:    return gla::EMpNone;
-    case EpqLow:     return gla::EMpLow;
-    case EpqMedium:  return gla::EMpMedium;
-    case EpqHigh:    return gla::EMpHigh;
+    case glslang::EpqNone:    return gla::EMpNone;
+    case glslang::EpqLow:     return gla::EMpLow;
+    case glslang::EpqMedium:  return gla::EMpMedium;
+    case glslang::EpqHigh:    return gla::EMpHigh;
     default:         return gla::EMpNone;
     }
 }
@@ -271,7 +271,7 @@ llvm::Value* MakePermanentTypeProxy(llvm::Value* value)
     return new llvm::GlobalVariable(type, true, llvm::GlobalVariable::ExternalLinkage, 0, value->getName() + "_typeProxy");
 }
 
-void GetInterpolationLocationMethod(const TType& type, gla::EInterpolationMethod& method, gla::EInterpolationLocation& location)
+void GetInterpolationLocationMethod(const glslang::TType& type, gla::EInterpolationMethod& method, gla::EInterpolationLocation& location)
 {
     method = gla::EIMNone;
     if (type.getQualifier().nopersp)
@@ -341,7 +341,7 @@ TGlslangToTopTraverser::~TGlslangToTopTraverser()
 //
 // Sort out what the deal is...
 //
-void TranslateSymbol(TIntermSymbol* symbol, TIntermTraverser* it)
+void TranslateSymbol(glslang::TIntermSymbol* symbol, glslang::TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
@@ -397,27 +397,27 @@ void TranslateSymbol(TIntermSymbol* symbol, TIntermTraverser* it)
     }
 }
 
-bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser* it)
+bool TranslateBinary(bool /* preVisit */, glslang::TIntermBinary* node, glslang::TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
     // First, handle special cases
     switch (node->getOp()) {
-    case EOpAssign:
-    case EOpAddAssign:
-    case EOpSubAssign:
-    case EOpMulAssign:
-    case EOpVectorTimesMatrixAssign:
-    case EOpVectorTimesScalarAssign:
-    case EOpMatrixTimesScalarAssign:
-    case EOpMatrixTimesMatrixAssign:
-    case EOpDivAssign:
-    case EOpModAssign:
-    case EOpAndAssign:
-    case EOpInclusiveOrAssign:
-    case EOpExclusiveOrAssign:
-    case EOpLeftShiftAssign:
-    case EOpRightShiftAssign:
+    case glslang::EOpAssign:
+    case glslang::EOpAddAssign:
+    case glslang::EOpSubAssign:
+    case glslang::EOpMulAssign:
+    case glslang::EOpVectorTimesMatrixAssign:
+    case glslang::EOpVectorTimesScalarAssign:
+    case glslang::EOpMatrixTimesScalarAssign:
+    case glslang::EOpMatrixTimesMatrixAssign:
+    case glslang::EOpDivAssign:
+    case glslang::EOpModAssign:
+    case glslang::EOpAndAssign:
+    case glslang::EOpInclusiveOrAssign:
+    case glslang::EOpExclusiveOrAssign:
+    case glslang::EOpLeftShiftAssign:
+    case glslang::EOpRightShiftAssign:
         // A bin-op assign "a += b" means the same thing as "a = a + b"
         // where a is evaluated before b. For a simple assignment, GLSL
         // says to evaluate the left before the right.  So, always, left
@@ -433,13 +433,13 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
             node->getRight()->traverse(oit);
             llvm::Value* rValue = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getRight()->getType()));
 
-            if (node->getOp() != EOpAssign) {
+            if (node->getOp() != glslang::EOpAssign) {
                 // the left is also an r-value
                 oit->glaBuilder->setAccessChain(lValue);
                 llvm::Value* leftRValue = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getLeft()->getType()));
 
                 // do the operation
-                rValue = oit->createBinaryOperation(node->getOp(), GetMdPrecision(node->getType()), leftRValue, rValue, node->getType().getBasicType() == EbtUint);
+                rValue = oit->createBinaryOperation(node->getOp(), GetMdPrecision(node->getType()), leftRValue, rValue, node->getType().getBasicType() == glslang::EbtUint);
 
                 // these all need their counterparts in createBinaryOperation()
                 assert(rValue);
@@ -454,9 +454,9 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
             oit->glaBuilder->setAccessChainRValue(rValue);
         }
         return false;
-    case EOpIndexDirect:
-    case EOpIndexIndirect:
-    case EOpIndexDirectStruct:
+    case glslang::EOpIndexDirect:
+    case glslang::EOpIndexIndirect:
+    case glslang::EOpIndexDirectStruct:
         {
             // this adapter is building access chains left to right
             // set up the access chain to the left
@@ -464,7 +464,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
 
             if (! node->getLeft()->getType().isArray() &&
                   node->getLeft()->getType().isVector() &&
-                  node->getOp() == EOpIndexDirect) {
+                  node->getOp() == glslang::EOpIndexDirect) {
                 // this is essentially a hard-coded vector swizzle of size 1,
                 // so short circuit the GEP stuff with a swizzle
                 std::vector<int> swizzle;
@@ -489,10 +489,10 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
             }
         }
         return false;
-    case EOpVectorSwizzle:
+    case glslang::EOpVectorSwizzle:
         {
             node->getLeft()->traverse(oit);
-            TIntermSequence& swizzleSequence = node->getRight()->getAsAggregate()->getSequence();
+            glslang::TIntermSequence& swizzleSequence = node->getRight()->getAsAggregate()->getSequence();
             std::vector<int> swizzle;
             for (int i = 0; i < swizzleSequence.size(); ++i)
                 swizzle.push_back(swizzleSequence[i]->getAsConstantUnion()->getUnionArrayPointer()->getIConst());
@@ -517,14 +517,14 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     gla::EMdPrecision precision = GetMdPrecision(node->getType());
 
     switch (node->getOp()) {
-    case EOpVectorTimesMatrix:
-    case EOpMatrixTimesVector:
-    case EOpMatrixTimesScalar:
-    case EOpMatrixTimesMatrix:
+    case glslang::EOpVectorTimesMatrix:
+    case glslang::EOpMatrixTimesVector:
+    case glslang::EOpMatrixTimesScalar:
+    case glslang::EOpMatrixTimesMatrix:
         result = oit->glaBuilder->createMatrixMultiply(precision, left, right);
         break;
     default:
-        result = oit->createBinaryOperation(node->getOp(), precision, left, right, node->getType().getBasicType() == EbtUint);
+        result = oit->createBinaryOperation(node->getOp(), precision, left, right, node->getType().getBasicType() == glslang::EbtUint);
     }
 
     if (! result) {
@@ -539,7 +539,7 @@ bool TranslateBinary(bool /* preVisit */, TIntermBinary* node, TIntermTraverser*
     return true;
 }
 
-bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* it)
+bool TranslateUnary(bool /* preVisit */, glslang::TIntermUnary* node, glslang::TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
@@ -569,30 +569,30 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
 
     // it must be a special case, check...
     switch (node->getOp()) {
-    case EOpPostIncrement:
-    case EOpPostDecrement:
-    case EOpPreIncrement:
-    case EOpPreDecrement:
+    case glslang::EOpPostIncrement:
+    case glslang::EOpPostDecrement:
+    case glslang::EOpPreIncrement:
+    case glslang::EOpPreDecrement:
         {
             // we need the integer value "1" or the floating point "1.0" to add/subtract
             llvm::Value* one = gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID ?
                                      gla::MakeFloatConstant(oit->context, 1.0) :
                                      gla::MakeIntConstant(oit->context, 1);
-            TOperator op;
-            if (node->getOp() == EOpPreIncrement ||
-                node->getOp() == EOpPostIncrement)
-                op = EOpAdd;
+            glslang::TOperator op;
+            if (node->getOp() == glslang::EOpPreIncrement ||
+                node->getOp() == glslang::EOpPostIncrement)
+                op = glslang::EOpAdd;
             else
-                op = EOpSub;
+                op = glslang::EOpSub;
 
-            llvm::Value* result = oit->createBinaryOperation(op, GetMdPrecision(node->getType()), operand, one, node->getType().getBasicType() == EbtUint);
+            llvm::Value* result = oit->createBinaryOperation(op, GetMdPrecision(node->getType()), operand, one, node->getType().getBasicType() == glslang::EbtUint);
 
             // The result of operation is always stored, but conditionally the
             // consumed result.  The consumed result is always an r-value.
             oit->glaBuilder->accessChainStore(result);
             oit->glaBuilder->clearAccessChain();
-            if (node->getOp() == EOpPreIncrement ||
-                node->getOp() == EOpPreDecrement)
+            if (node->getOp() == glslang::EOpPreIncrement ||
+                node->getOp() == glslang::EOpPreDecrement)
                 oit->glaBuilder->setAccessChainRValue(result);
             else
                 oit->glaBuilder->setAccessChainRValue(operand);
@@ -605,11 +605,11 @@ bool TranslateUnary(bool /* preVisit */, TIntermUnary* node, TIntermTraverser* i
     return true;
 }
 
-bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser* it)
+bool TranslateAggregate(bool preVisit, glslang::TIntermAggregate* node, glslang::TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
     llvm::Value* result;
-    TOperator binOp = EOpNull;
+    glslang::TOperator binOp = glslang::EOpNull;
     bool reduceComparison = true;
     bool isMatrix = false;
 
@@ -618,7 +618,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     gla::EMdPrecision precision = GetMdPrecision(node->getType());
 
     switch (node->getOp()) {
-    case EOpSequence:
+    case glslang::EOpSequence:
         {
             // If this is the parent node of all the functions, we want to see them
             // early, so all call points have actual LLVM functions to reference.  
@@ -628,7 +628,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         }
 
         return true;
-    case EOpLinkerObjects:
+    case glslang::EOpLinkerObjects:
         {
             if (preVisit)
                 oit->linkageOnly = true;
@@ -637,17 +637,17 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         }
 
         return true;
-    case EOpComma:
+    case glslang::EOpComma:
         {
             // processing from left to right naturally leaves the right-most
             // lying around in the access chain
-            TIntermSequence& glslangOperands = node->getSequence();
+            glslang::TIntermSequence& glslangOperands = node->getSequence();
             for (int i = 0; i < glslangOperands.size(); ++i)
                 glslangOperands[i]->traverse(oit);
         }
 
         return false;
-    case EOpFunction:
+    case glslang::EOpFunction:
         if (preVisit) {
             if (oit->isShaderEntrypoint(node)) {
                 oit->inMain = true;
@@ -669,12 +669,12 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         }
 
         return true;
-    case EOpParameters:
+    case glslang::EOpParameters:
         // Parameters will have been consumed by EOpFunction processing, but not
         // the body, so we still visited the function node's children, making this
         // child redundant.
         return false;
-    case EOpFunctionCall:
+    case glslang::EOpFunctionCall:
         {
             if (node->isUserDefined())
                 result = oit->handleUserFunctionCall(node);
@@ -692,54 +692,54 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         }
 
         return true;
-    case EOpConstructMat2x2:
-    case EOpConstructMat2x3:
-    case EOpConstructMat2x4:
-    case EOpConstructMat3x2:
-    case EOpConstructMat3x3:
-    case EOpConstructMat3x4:
-    case EOpConstructMat4x2:
-    case EOpConstructMat4x3:
-    case EOpConstructMat4x4:
-    case EOpConstructDMat2x2:
-    case EOpConstructDMat2x3:
-    case EOpConstructDMat2x4:
-    case EOpConstructDMat3x2:
-    case EOpConstructDMat3x3:
-    case EOpConstructDMat3x4:
-    case EOpConstructDMat4x2:
-    case EOpConstructDMat4x3:
-    case EOpConstructDMat4x4:
+    case glslang::EOpConstructMat2x2:
+    case glslang::EOpConstructMat2x3:
+    case glslang::EOpConstructMat2x4:
+    case glslang::EOpConstructMat3x2:
+    case glslang::EOpConstructMat3x3:
+    case glslang::EOpConstructMat3x4:
+    case glslang::EOpConstructMat4x2:
+    case glslang::EOpConstructMat4x3:
+    case glslang::EOpConstructMat4x4:
+    case glslang::EOpConstructDMat2x2:
+    case glslang::EOpConstructDMat2x3:
+    case glslang::EOpConstructDMat2x4:
+    case glslang::EOpConstructDMat3x2:
+    case glslang::EOpConstructDMat3x3:
+    case glslang::EOpConstructDMat3x4:
+    case glslang::EOpConstructDMat4x2:
+    case glslang::EOpConstructDMat4x3:
+    case glslang::EOpConstructDMat4x4:
         isMatrix = true;
         // fall through
-    case EOpConstructFloat:
-    case EOpConstructVec2:
-    case EOpConstructVec3:
-    case EOpConstructVec4:
-    case EOpConstructDouble:
-    case EOpConstructDVec2:
-    case EOpConstructDVec3:
-    case EOpConstructDVec4:
-    case EOpConstructBool:
-    case EOpConstructBVec2:
-    case EOpConstructBVec3:
-    case EOpConstructBVec4:
-    case EOpConstructInt:
-    case EOpConstructIVec2:
-    case EOpConstructIVec3:
-    case EOpConstructIVec4:
-    case EOpConstructUint:
-    case EOpConstructUVec2:
-    case EOpConstructUVec3:
-    case EOpConstructUVec4:
-    case EOpConstructStruct:
+    case glslang::EOpConstructFloat:
+    case glslang::EOpConstructVec2:
+    case glslang::EOpConstructVec3:
+    case glslang::EOpConstructVec4:
+    case glslang::EOpConstructDouble:
+    case glslang::EOpConstructDVec2:
+    case glslang::EOpConstructDVec3:
+    case glslang::EOpConstructDVec4:
+    case glslang::EOpConstructBool:
+    case glslang::EOpConstructBVec2:
+    case glslang::EOpConstructBVec3:
+    case glslang::EOpConstructBVec4:
+    case glslang::EOpConstructInt:
+    case glslang::EOpConstructIVec2:
+    case glslang::EOpConstructIVec3:
+    case glslang::EOpConstructIVec4:
+    case glslang::EOpConstructUint:
+    case glslang::EOpConstructUVec2:
+    case glslang::EOpConstructUVec3:
+    case glslang::EOpConstructUVec4:
+    case glslang::EOpConstructStruct:
         {
             std::vector<llvm::Value*> arguments;
             oit->translateArguments(node->getSequence(), arguments);
             llvm::Value* constructed = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
                                                                         oit->convertGlslangToGlaType(node->getType()),
                                                                         0, 0, "constructed");
-            if (node->getOp() == EOpConstructStruct || node->getType().isArray()) {
+            if (node->getOp() == glslang::EOpConstructStruct || node->getType().isArray()) {
                 //TODO: clean up: is there a more direct way to set a whole LLVM structure?
                 //                if not, move this inside Top Builder; too many indirections
 
@@ -767,51 +767,51 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
 
     // These six are component-wise compares with component-wise results.
     // Forward on to createBinaryOperation(), requesting a vector result.
-    case EOpLessThan:
-    case EOpGreaterThan:
-    case EOpLessThanEqual:
-    case EOpGreaterThanEqual:
-    case EOpVectorEqual:
-    case EOpVectorNotEqual:
+    case glslang::EOpLessThan:
+    case glslang::EOpGreaterThan:
+    case glslang::EOpLessThanEqual:
+    case glslang::EOpGreaterThanEqual:
+    case glslang::EOpVectorEqual:
+    case glslang::EOpVectorNotEqual:
         {
             // Map the operation to a binary
             binOp = node->getOp();
             reduceComparison = false;
             switch (node->getOp()) {
-            case EOpVectorEqual:     binOp = EOpEqual;      break;
-            case EOpVectorNotEqual:  binOp = EOpNotEqual;   break;
+            case glslang::EOpVectorEqual:     binOp = glslang::EOpEqual;      break;
+            case glslang::EOpVectorNotEqual:  binOp = glslang::EOpNotEqual;   break;
             default:                 binOp = node->getOp(); break;
             }
         }
         break;
 
-    //case EOpRecip:
+    //case glslang::EOpRecip:
     //    return glaBuilder->createRecip(operand);
 
-    case EOpMul:
+    case glslang::EOpMul:
         // compontent-wise matrix multiply      
-        binOp = EOpMul;
+        binOp = glslang::EOpMul;
         break;
-    case EOpOuterProduct:
+    case glslang::EOpOuterProduct:
         // two vectors multiplied to make a matrix
-        binOp = EOpOuterProduct;
+        binOp = glslang::EOpOuterProduct;
         break;
-    case EOpDot:
+    case glslang::EOpDot:
         {
             // for scalar dot product, use multiply        
-            TIntermSequence& glslangOperands = node->getSequence();
+            glslang::TIntermSequence& glslangOperands = node->getSequence();
             if (! glslangOperands[0]->getAsTyped()->isVector())
-                binOp = EOpMul;
+                binOp = glslang::EOpMul;
             break;
         }
-    case EOpMod:
+    case glslang::EOpMod:
         // when an aggregate, this is the floating-point mod built-in function,
         // which can be emitted by the one it createBinaryOperation()
-        binOp = EOpMod;
+        binOp = glslang::EOpMod;
         break;
-    case EOpArrayLength:
+    case glslang::EOpArrayLength:
         {
-            TIntermTyped* typedNode = node->getSequence()[0]->getAsTyped();
+            glslang::TIntermTyped* typedNode = node->getSequence()[0]->getAsTyped();
             assert(typedNode);
             llvm::Value* length = gla::MakeIntConstant(oit->context, typedNode->getType().getArraySize());
 
@@ -826,7 +826,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     // See if it maps to a regular operation or intrinsic.
     //
 
-    if (binOp != EOpNull) {
+    if (binOp != glslang::EOpNull) {
         oit->glaBuilder->clearAccessChain();
         node->getSequence()[0]->traverse(oit);
         llvm::Value* left = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getSequence()[0]->getAsTyped()->getType()));
@@ -835,12 +835,12 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         node->getSequence()[1]->traverse(oit);
         llvm::Value* right = oit->glaBuilder->accessChainLoad(GetMdPrecision(node->getSequence()[1]->getAsTyped()->getType()));
 
-        if (binOp == EOpOuterProduct)
+        if (binOp == glslang::EOpOuterProduct)
             result = oit->glaBuilder->createMatrixMultiply(precision, left, right);
-        else if (gla::IsAggregate(left) && binOp == EOpMul)
+        else if (gla::IsAggregate(left) && binOp == glslang::EOpMul)
             result = oit->glaBuilder->createMatrixOp(precision, llvm::Instruction::FMul, left, right);
         else
-            result = oit->createBinaryOperation(binOp, precision, left, right, node->getType().getBasicType() == EbtUint, reduceComparison);
+            result = oit->createBinaryOperation(binOp, precision, left, right, node->getType().getBasicType() == glslang::EbtUint, reduceComparison);
 
         // code above should only make binOp that exists in createBinaryOperation
         assert(result);
@@ -851,7 +851,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
         return false;
     }
 
-    TIntermSequence& glslangOperands = node->getSequence();
+    glslang::TIntermSequence& glslangOperands = node->getSequence();
     std::vector<llvm::Value*> operands;
     for (int i = 0; i < glslangOperands.size(); ++i) {
         oit->glaBuilder->clearAccessChain();
@@ -861,7 +861,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     if (glslangOperands.size() == 1)
         result = oit->createUnaryIntrinsic(node->getOp(), precision, operands.front());
     else
-        result = oit->createIntrinsic(node->getOp(), precision, operands, glslangOperands.front()->getAsTyped()->getBasicType() == EbtUint);
+        result = oit->createIntrinsic(node->getOp(), precision, operands, glslangOperands.front()->getAsTyped()->getBasicType() == glslang::EbtUint);
 
     if (! result)
         gla::UnsupportedFunctionality("glslang aggregate", gla::EATContinue);
@@ -875,7 +875,7 @@ bool TranslateAggregate(bool preVisit, TIntermAggregate* node, TIntermTraverser*
     return true;
 }
 
-bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTraverser* it)
+bool TranslateSelection(bool /* preVisit */, glslang::TIntermSelection* node, glslang::TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
@@ -883,7 +883,7 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
     // The if-then-else has a node type of void, while
     // ?: has a non-void node type
     llvm::Value* result = 0;
-    if (node->getBasicType() != EbtVoid) {
+    if (node->getBasicType() != glslang::EbtVoid) {
         // don't handle this as just on-the-fly temporaries, because there will be two names
         // and better to leave SSA to LLVM passes
         result = oit->glaBuilder->createVariable(gla::Builder::ESQLocal, 0, oit->convertGlslangToGlaType(node->getType()),
@@ -925,7 +925,7 @@ bool TranslateSelection(bool /* preVisit */, TIntermSelection* node, TIntermTrav
     return false;
 }
 
-bool TranslateSwitch(bool /* preVisit */, TIntermSwitch* node, TIntermTraverser* it)
+bool TranslateSwitch(bool /* preVisit */, glslang::TIntermSwitch* node, glslang::TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
@@ -936,14 +936,14 @@ bool TranslateSwitch(bool /* preVisit */, TIntermSwitch* node, TIntermTraverser*
     // browse the children to sort out code segments
     int defaultSegment = -1;
     std::vector<TIntermNode*> codeSegments;
-    TIntermSequence& sequence = node->getBody()->getSequence();
+    glslang::TIntermSequence& sequence = node->getBody()->getSequence();
     std::vector<llvm::ConstantInt*> caseValues;
     std::vector<int> valueToSegment(sequence.size());  // note: probably not all are used, it is an overestimate
-    for (TIntermSequence::iterator c = sequence.begin(); c != sequence.end(); ++c) {
+    for (glslang::TIntermSequence::iterator c = sequence.begin(); c != sequence.end(); ++c) {
         TIntermNode* child = *c;
-        if (child->getAsBranchNode() && child->getAsBranchNode()->getFlowOp() == EOpDefault)
+        if (child->getAsBranchNode() && child->getAsBranchNode()->getFlowOp() == glslang::EOpDefault)
             defaultSegment = codeSegments.size();
-        else if (child->getAsBranchNode() && child->getAsBranchNode()->getFlowOp() == EOpCase) {
+        else if (child->getAsBranchNode() && child->getAsBranchNode()->getFlowOp() == glslang::EOpCase) {
             valueToSegment[caseValues.size()] = codeSegments.size();
             caseValues.push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(oit->context), 
                                                         child->getAsBranchNode()->getExpression()->getAsConstantUnion()->getUnionArrayPointer()[0].getIConst(), 
@@ -969,7 +969,7 @@ bool TranslateSwitch(bool /* preVisit */, TIntermSwitch* node, TIntermTraverser*
     return false;
 }
 
-void TranslateConstantUnion(TIntermConstantUnion* node, TIntermTraverser* it)
+void TranslateConstantUnion(glslang::TIntermConstantUnion* node, glslang::TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
@@ -979,7 +979,7 @@ void TranslateConstantUnion(TIntermConstantUnion* node, TIntermTraverser* it)
     oit->glaBuilder->setAccessChainRValue(c);
 }
 
-bool TranslateLoop(bool /* preVisit */, TIntermLoop* node, TIntermTraverser* it)
+bool TranslateLoop(bool /* preVisit */, glslang::TIntermLoop* node, glslang::TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
     bool bodyOut = false;
@@ -1024,7 +1024,7 @@ bool TranslateLoop(bool /* preVisit */, TIntermLoop* node, TIntermTraverser* it)
     return false;
 }
 
-bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
+bool TranslateBranch(bool previsit, glslang::TIntermBranch* node, glslang::TIntermTraverser* it)
 {
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
@@ -1032,19 +1032,19 @@ bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
         node->getExpression()->traverse(it);
 
     switch (node->getFlowOp()) {
-    case EOpKill:
+    case glslang::EOpKill:
         oit->glaBuilder->makeDiscard(oit->inMain);
         break;
-    case EOpBreak:
+    case glslang::EOpBreak:
         if (oit->breakForLoop.top())
             oit->glaBuilder->makeLoopExit();
         else
             oit->glaBuilder->addSwitchBreak();
         break;
-    case EOpContinue:
+    case glslang::EOpContinue:
         oit->glaBuilder->makeLoopBackEdge();
         break;
-    case EOpReturn:
+    case glslang::EOpReturn:
         if (oit->inMain)
             oit->glaBuilder->makeMainReturn();
         else if (node->getExpression()) {
@@ -1062,59 +1062,59 @@ bool TranslateBranch(bool previsit, TIntermBranch* node, TIntermTraverser* it)
     return false;
 }
 
-llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const TIntermSymbol* node)
+llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const glslang::TIntermSymbol* node)
 {
     llvm::Constant* initializer = 0;
     gla::Builder::EStorageQualifier storageQualifier;
     int constantBuffer = 0;
 
     switch (node->getQualifier().storage) {
-    case EvqTemporary:
+    case glslang::EvqTemporary:
         storageQualifier = gla::Builder::ESQLocal;
         break;
-    case EvqGlobal:
+    case glslang::EvqGlobal:
         storageQualifier = gla::Builder::ESQGlobal;
         break;
-    case EvqConst:
+    case glslang::EvqConst:
         gla::UnsupportedFunctionality("glslang const variable", gla::EATContinue);
         storageQualifier = gla::Builder::ESQLocal;
         break;
-    case EvqVaryingIn:
-    case EvqFragCoord:
-    case EvqPointCoord:
-    case EvqFace:
-    case EvqVertexId:
-    case EvqInstanceId:
+    case glslang::EvqVaryingIn:
+    case glslang::EvqFragCoord:
+    case glslang::EvqPointCoord:
+    case glslang::EvqFace:
+    case glslang::EvqVertexId:
+    case glslang::EvqInstanceId:
         // Pipeline reads: If we are here, it must be to create a shadow which
         // will shadow the actual pipeline reads, which must still be done elsewhere.
         // The top builder will make a global shadow for ESQInput.
         storageQualifier = gla::Builder::ESQInput;
         break;
-    case EvqVaryingOut:
-    case EvqPosition:
-    case EvqPointSize:
-    case EvqClipVertex:
-    case EvqFragColor:
-    case EvqFragDepth:
+    case glslang::EvqVaryingOut:
+    case glslang::EvqPosition:
+    case glslang::EvqPointSize:
+    case glslang::EvqClipVertex:
+    case glslang::EvqFragColor:
+    case glslang::EvqFragDepth:
         storageQualifier = gla::Builder::ESQOutput;
         break;
-    case EvqUniform:
-    case EVqBuffer:
+    case glslang::EvqUniform:
+    case glslang::EVqBuffer:
         storageQualifier = gla::Builder::ESQUniform;
         // TODO: linker functionality: uniform buffers? need to generalize to N objects (constant buffers) for higher shader models
         constantBuffer = 0;
         break;
-    case EvqIn:
-    case EvqOut:
-    case EvqInOut:
-    case EvqConstReadOnly:
+    case glslang::EvqIn:
+    case glslang::EvqOut:
+    case glslang::EvqInOut:
+    case glslang::EvqConstReadOnly:
         // parameter qualifiers should not come through here
     default:
         gla::UnsupportedFunctionality("glslang qualifier", gla::EATContinue);
         storageQualifier = gla::Builder::ESQLocal;
     }
 
-    if (node->getBasicType() == EbtSampler) {
+    if (node->getBasicType() == glslang::EbtSampler) {
         storageQualifier = gla::Builder::ESQResource;
     }
 
@@ -1126,34 +1126,34 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const TIntermSymbol* nod
                                       initializer, 0, name);
 }
 
-llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
+llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType& type)
 {
     llvm::Type *glaType;
 
     switch(type.getBasicType()) {
-    case EbtVoid:
+    case glslang::EbtVoid:
         glaType = gla::GetVoidType(context);
         break;
-    case EbtFloat:
+    case glslang::EbtFloat:
         glaType = gla::GetFloatType(context);
         break;
-    case EbtDouble:
+    case glslang::EbtDouble:
         gla::UnsupportedFunctionality("basic type: double", gla::EATContinue);
         break;
-    case EbtBool:
+    case glslang::EbtBool:
         glaType = gla::GetBoolType(context);
         break;
-    case EbtInt:
-    case EbtSampler:
+    case glslang::EbtInt:
+    case glslang::EbtSampler:
         glaType = gla::GetIntType(context);
         break;
-    case EbtUint:
+    case glslang::EbtUint:
         glaType = gla::GetUintType(context);
         break;
-    case EbtStruct:
-    case EbtBlock:
+    case glslang::EbtStruct:
+    case glslang::EbtBlock:
         {
-            TTypeList* glslangStruct = type.getStruct();
+            glslang::TTypeList* glslangStruct = type.getStruct();
             std::vector<llvm::Type*> structFields;
             llvm::StructType* structType = structMap[glslangStruct];
             if (structType) {
@@ -1193,24 +1193,24 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const TType& type)
     return glaType;
 }
 
-bool TGlslangToTopTraverser::isShaderEntrypoint(const TIntermAggregate* node)
+bool TGlslangToTopTraverser::isShaderEntrypoint(const glslang::TIntermAggregate* node)
 {
     return node->getName() == "main(";
 }
 
-void TGlslangToTopTraverser::makeFunctions(const TIntermSequence& glslFunctions)
+void TGlslangToTopTraverser::makeFunctions(const glslang::TIntermSequence& glslFunctions)
 {
     for (int f = 0; f < glslFunctions.size(); ++f) {
-        TIntermAggregate* glslFunction = glslFunctions[f]->getAsAggregate();
+        glslang::TIntermAggregate* glslFunction = glslFunctions[f]->getAsAggregate();
 
         // TODO: compile-time performance: find a way to skip this loop if we aren't
         // a child of the root node of the compilation unit, which should be the only
         // one holding a list of functions.
-        if (! glslFunction || glslFunction->getOp() != EOpFunction || isShaderEntrypoint(glslFunction))
+        if (! glslFunction || glslFunction->getOp() != glslang::EOpFunction || isShaderEntrypoint(glslFunction))
             continue;
 
         std::vector<llvm::Type*> paramTypes;
-        TIntermSequence& parameters = glslFunction->getSequence()[0]->getAsAggregate()->getSequence();
+        glslang::TIntermSequence& parameters = glslFunction->getSequence()[0]->getAsAggregate()->getSequence();
 
         // At call time, space should be allocated for all the arguments,
         // and pointers to that space passed to the function as the formal parameters.
@@ -1234,7 +1234,7 @@ void TGlslangToTopTraverser::makeFunctions(const TIntermSequence& glslFunctions)
     }
 }
 
-void TGlslangToTopTraverser::handleFunctionEntry(const TIntermAggregate* node)
+void TGlslangToTopTraverser::handleFunctionEntry(const glslang::TIntermAggregate* node)
 {
     // LLVM functions should already be in the functionMap from the prepass 
     // that called makeFunctions.
@@ -1243,7 +1243,7 @@ void TGlslangToTopTraverser::handleFunctionEntry(const TIntermAggregate* node)
     llvmBuilder.SetInsertPoint(&functionBlock);
 }
 
-void TGlslangToTopTraverser::translateArguments(const TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments)
+void TGlslangToTopTraverser::translateArguments(const glslang::TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments)
 {
     for (int i = 0; i < glslangArguments.size(); ++i) {
         glaBuilder->clearAccessChain();
@@ -1252,7 +1252,7 @@ void TGlslangToTopTraverser::translateArguments(const TIntermSequence& glslangAr
     }
 }
 
-llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const TIntermAggregate* node)
+llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TIntermAggregate* node)
 {
     std::vector<llvm::Value*> arguments;
     translateArguments(node->getSequence(), arguments);
@@ -1275,12 +1275,12 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const TIntermAggr
     if (node->getName().substr(0, 7) == "texture" || node->getName().substr(0, 5) == "texel" || node->getName().substr(0, 6) == "shadow") {
         gla::ESamplerType samplerType;
         switch (node->getSequence()[0]->getAsTyped()->getType().getSampler().dim) {
-        case Esd1D:       samplerType = gla::ESampler1D;      break;
-        case Esd2D:       samplerType = gla::ESampler2D;      break;
-        case Esd3D:       samplerType = gla::ESampler3D;      break;
-        case EsdCube:     samplerType = gla::ESamplerCube;    break;
-        case EsdRect:     samplerType = gla::ESampler2DRect;  break;
-        case EsdBuffer:   samplerType = gla::ESamplerBuffer;  break;
+        case glslang::Esd1D:       samplerType = gla::ESampler1D;      break;
+        case glslang::Esd2D:       samplerType = gla::ESampler2D;      break;
+        case glslang::Esd3D:       samplerType = gla::ESampler3D;      break;
+        case glslang::EsdCube:     samplerType = gla::ESamplerCube;    break;
+        case glslang::EsdRect:     samplerType = gla::ESampler2DRect;  break;
+        case glslang::EsdBuffer:   samplerType = gla::ESamplerBuffer;  break;
         default:
             gla::UnsupportedFunctionality("sampler type");
         }
@@ -1383,7 +1383,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const TIntermAggr
     return 0;
 }
 
-llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const TIntermAggregate* node)
+llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const glslang::TIntermAggregate* node)
 {
     // Overall design is to pass pointers to the arguments, as described:
     //
@@ -1419,18 +1419,18 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const TIntermAggrega
     // Compute the access chains of output argument l-values before making the call,
     // to be used after making the call.  Also compute r-values of inputs and store
     // them into the space allocated above.
-    const TIntermSequence& glslangArgs = node->getSequence();
-    const TQualifierList& qualifiers = node->getQualifierList();
+    const glslang::TIntermSequence& glslangArgs = node->getSequence();
+    const glslang::TQualifierList& qualifiers = node->getQualifierList();
     llvm::SmallVector<gla::Builder::AccessChain, 2> lValuesOut;
     for (int i = 0; i < glslangArgs.size(); ++i) {
         // build l-value
         glaBuilder->clearAccessChain();
         glslangArgs[i]->traverse(this);
-        if (qualifiers[i] == EvqOut || qualifiers[i] == EvqInOut) {
+        if (qualifiers[i] == glslang::EvqOut || qualifiers[i] == glslang::EvqInOut) {
             // save l-value
             lValuesOut.push_back(glaBuilder->getAccessChain());
         }
-        if (qualifiers[i] == EvqIn || qualifiers[i] == EvqConstReadOnly || qualifiers[i] == EvqInOut) {
+        if (qualifiers[i] == glslang::EvqIn || qualifiers[i] == glslang::EvqConstReadOnly || qualifiers[i] == glslang::EvqInOut) {
             // process r-value
             glaBuilder->createStore(glaBuilder->accessChainLoad(GetMdPrecision(glslangArgs[i]->getAsTyped()->getType())), llvmArgs[i]);
         }
@@ -1442,19 +1442,19 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const TIntermAggrega
     // Convert outputs to correct type before storing into the l-value
     llvm::SmallVector<gla::Builder::AccessChain, 2>::iterator savedIt = lValuesOut.begin();
     for (int i = 0; i < glslangArgs.size(); ++i) {
-        if (qualifiers[i] == EvqOut || qualifiers[i] == EvqInOut) {
+        if (qualifiers[i] == glslang::EvqOut || qualifiers[i] == glslang::EvqInOut) {
             glaBuilder->setAccessChain(*savedIt);
             llvm::Value* output = glaBuilder->createLoad(llvmArgs[i]);
             llvm::Type* destType = convertGlslangToGlaType(glslangArgs[i]->getAsTyped()->getType());
             if (destType != output->getType()) {
                 // TODO: non-ES testing: test this after the front-end can support it
-                TOperator op = EOpNull;
+                glslang::TOperator op = glslang::EOpNull;
                 if (gla::GetBasicTypeID(destType) == llvm::Type::FloatTyID &&
                     gla::GetBasicTypeID(output->getType())) {
-                    op = EOpConvIntToFloat;
+                    op = glslang::EOpConvIntToFloat;
                 } // TODO: desktop functionality: more cases will go here for future versions
 
-                if (op != EOpNull) {
+                if (op != glslang::EOpNull) {
                     output = createConversion(op, gla::EMpNone, destType, output);
                     assert(output);
                 } else
@@ -1468,7 +1468,7 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const TIntermAggrega
     return result;
 }
 
-llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EMdPrecision precision, llvm::Value* left, llvm::Value* right, bool isUnsigned, bool reduceComparison)
+llvm::Value* TGlslangToTopTraverser::createBinaryOperation(glslang::TOperator op, gla::EMdPrecision precision, llvm::Value* left, llvm::Value* right, bool isUnsigned, bool reduceComparison)
 {
     llvm::Instruction::BinaryOps binOp = llvm::Instruction::BinaryOps(0);
     bool needsPromotion = true;
@@ -1476,34 +1476,34 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
     bool comparison = false;
 
     switch(op) {
-    case EOpAdd:
-    case EOpAddAssign:
+    case glslang::EOpAdd:
+    case glslang::EOpAddAssign:
         if (leftIsFloat)
             binOp = llvm::Instruction::FAdd;
         else
             binOp = llvm::Instruction::Add;
         break;
-    case EOpSub:
-    case EOpSubAssign:
+    case glslang::EOpSub:
+    case glslang::EOpSubAssign:
         if (leftIsFloat)
             binOp = llvm::Instruction::FSub;
         else
             binOp = llvm::Instruction::Sub;
         break;
-    case EOpMul:
-    case EOpMulAssign:
-    case EOpVectorTimesScalar:
-    case EOpVectorTimesScalarAssign:
-    case EOpVectorTimesMatrixAssign:
-    case EOpMatrixTimesScalarAssign:
-    case EOpMatrixTimesMatrixAssign:
+    case glslang::EOpMul:
+    case glslang::EOpMulAssign:
+    case glslang::EOpVectorTimesScalar:
+    case glslang::EOpVectorTimesScalarAssign:
+    case glslang::EOpVectorTimesMatrixAssign:
+    case glslang::EOpMatrixTimesScalarAssign:
+    case glslang::EOpMatrixTimesMatrixAssign:
         if (leftIsFloat)
             binOp = llvm::Instruction::FMul;
         else
             binOp = llvm::Instruction::Mul;
         break;
-    case EOpDiv:
-    case EOpDivAssign:
+    case glslang::EOpDiv:
+    case glslang::EOpDivAssign:
         if (leftIsFloat)
             binOp = llvm::Instruction::FDiv;
         else if (isUnsigned)
@@ -1511,8 +1511,8 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
         else
             binOp = llvm::Instruction::SDiv;
         break;
-    case EOpMod:
-    case EOpModAssign:
+    case glslang::EOpMod:
+    case glslang::EOpModAssign:
         if (leftIsFloat)
             binOp = llvm::Instruction::FRem;
         else if (isUnsigned)
@@ -1520,44 +1520,44 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
         else
             binOp = llvm::Instruction::SRem;
         break;
-    case EOpRightShift:
-    case EOpRightShiftAssign:
+    case glslang::EOpRightShift:
+    case glslang::EOpRightShiftAssign:
         if (isUnsigned)
             binOp = llvm::Instruction::LShr;
         else
             binOp = llvm::Instruction::AShr;
         break;
-    case EOpLeftShift:
-    case EOpLeftShiftAssign:
+    case glslang::EOpLeftShift:
+    case glslang::EOpLeftShiftAssign:
         binOp = llvm::Instruction::Shl;
         break;
-    case EOpAnd:
-    case EOpAndAssign:
+    case glslang::EOpAnd:
+    case glslang::EOpAndAssign:
         binOp = llvm::Instruction::And;
         break;
-    case EOpInclusiveOr:
-    case EOpInclusiveOrAssign:
-    case EOpLogicalOr:
+    case glslang::EOpInclusiveOr:
+    case glslang::EOpInclusiveOrAssign:
+    case glslang::EOpLogicalOr:
         binOp = llvm::Instruction::Or;
         break;
-    case EOpExclusiveOr:
-    case EOpExclusiveOrAssign:
-    case EOpLogicalXor:
+    case glslang::EOpExclusiveOr:
+    case glslang::EOpExclusiveOrAssign:
+    case glslang::EOpLogicalXor:
         binOp = llvm::Instruction::Xor;
         break;
-    case EOpLogicalAnd:
+    case glslang::EOpLogicalAnd:
         assert(gla::IsBoolean(left->getType()) && gla::IsScalar(left->getType()));
         assert(gla::IsBoolean(right->getType()) && gla::IsScalar(right->getType()));
         needsPromotion = false;
         binOp = llvm::Instruction::And;
         break;
 
-    case EOpLessThan:
-    case EOpGreaterThan:
-    case EOpLessThanEqual:
-    case EOpGreaterThanEqual:
-    case EOpEqual:
-    case EOpNotEqual:
+    case glslang::EOpLessThan:
+    case glslang::EOpGreaterThan:
+    case glslang::EOpLessThanEqual:
+    case glslang::EOpGreaterThanEqual:
+    case glslang::EOpEqual:
+    case glslang::EOpNotEqual:
         comparison = true;
         break;
     }
@@ -1565,9 +1565,9 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
     if (binOp != 0) {
         if (gla::IsAggregate(left) || gla::IsAggregate(right)) {
             switch(op) {
-            case EOpVectorTimesMatrixAssign:
-            case EOpMatrixTimesScalarAssign:
-            case EOpMatrixTimesMatrixAssign:
+            case glslang::EOpVectorTimesMatrixAssign:
+            case glslang::EOpMatrixTimesScalarAssign:
+            case glslang::EOpMatrixTimesMatrixAssign:
                 return glaBuilder->createMatrixMultiply(precision, left, right);
             default:
                 return glaBuilder->createMatrixOp(precision, binOp, left, right);
@@ -1589,30 +1589,30 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
     // Comparison instructions
 
     if (reduceComparison && (gla::IsVector(left) || gla::IsAggregate(left))) {
-        assert(op == EOpEqual || op == EOpNotEqual);
+        assert(op == glslang::EOpEqual || op == glslang::EOpNotEqual);
 
-        return glaBuilder->createCompare(precision, left, right, op == EOpEqual);
+        return glaBuilder->createCompare(precision, left, right, op == glslang::EOpEqual);
     }
 
     if (leftIsFloat) {
         llvm::FCmpInst::Predicate pred = llvm::FCmpInst::Predicate(0);
         switch (op) {
-        case EOpLessThan:
+        case glslang::EOpLessThan:
             pred = llvm::FCmpInst::FCMP_OLT;
             break;
-        case EOpGreaterThan:
+        case glslang::EOpGreaterThan:
             pred = llvm::FCmpInst::FCMP_OGT;
             break;
-        case EOpLessThanEqual:
+        case glslang::EOpLessThanEqual:
             pred = llvm::FCmpInst::FCMP_OLE;
             break;
-        case EOpGreaterThanEqual:
+        case glslang::EOpGreaterThanEqual:
             pred = llvm::FCmpInst::FCMP_OGE;
             break;
-        case EOpEqual:
+        case glslang::EOpEqual:
             pred = llvm::FCmpInst::FCMP_OEQ;
             break;
-        case EOpNotEqual:
+        case glslang::EOpNotEqual:
             pred = llvm::FCmpInst::FCMP_ONE;
             break;
         }
@@ -1627,43 +1627,43 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
         llvm::ICmpInst::Predicate pred = llvm::ICmpInst::Predicate(0);
         if (isUnsigned) {
             switch (op) {
-            case EOpLessThan:
+            case glslang::EOpLessThan:
                 pred = llvm::ICmpInst::ICMP_ULT;
                 break;
-            case EOpGreaterThan:
+            case glslang::EOpGreaterThan:
                 pred = llvm::ICmpInst::ICMP_UGT;
                 break;
-            case EOpLessThanEqual:
+            case glslang::EOpLessThanEqual:
                 pred = llvm::ICmpInst::ICMP_ULE;
                 break;
-            case EOpGreaterThanEqual:
+            case glslang::EOpGreaterThanEqual:
                 pred = llvm::ICmpInst::ICMP_UGE;
                 break;
-            case EOpEqual:
+            case glslang::EOpEqual:
                 pred = llvm::ICmpInst::ICMP_EQ;
                 break;
-            case EOpNotEqual:
+            case glslang::EOpNotEqual:
                 pred = llvm::ICmpInst::ICMP_NE;
                 break;
             }
         } else {
             switch (op) {
-            case EOpLessThan:
+            case glslang::EOpLessThan:
                 pred = llvm::ICmpInst::ICMP_SLT;
                 break;
-            case EOpGreaterThan:
+            case glslang::EOpGreaterThan:
                 pred = llvm::ICmpInst::ICMP_SGT;
                 break;
-            case EOpLessThanEqual:
+            case glslang::EOpLessThanEqual:
                 pred = llvm::ICmpInst::ICMP_SLE;
                 break;
-            case EOpGreaterThanEqual:
+            case glslang::EOpGreaterThanEqual:
                 pred = llvm::ICmpInst::ICMP_SGE;
                 break;
-            case EOpEqual:
+            case glslang::EOpEqual:
                 pred = llvm::ICmpInst::ICMP_EQ;
                 break;
-            case EOpNotEqual:
+            case glslang::EOpNotEqual:
                 pred = llvm::ICmpInst::ICMP_NE;
                 break;
             }
@@ -1680,11 +1680,11 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(TOperator op, gla::EM
     return 0;
 }
 
-llvm::Value* TGlslangToTopTraverser::createUnaryOperation(TOperator op, gla::EMdPrecision precision, llvm::Value* operand)
+llvm::Value* TGlslangToTopTraverser::createUnaryOperation(glslang::TOperator op, gla::EMdPrecision precision, llvm::Value* operand)
 {
     // Unary ops that map to llvm operations
     switch (op) {
-    case EOpNegative:
+    case glslang::EOpNegative:
         if (gla::IsAggregate(operand)) {
             // emulate by subtracting from 0.0
             llvm::Value* zero = gla::MakeFloatConstant(context, 0.0);
@@ -1701,33 +1701,33 @@ llvm::Value* TGlslangToTopTraverser::createUnaryOperation(TOperator op, gla::EMd
 
         return result;
 
-    case EOpLogicalNot:
-    case EOpVectorLogicalNot:
-    case EOpBitwiseNot:
+    case glslang::EOpLogicalNot:
+    case glslang::EOpVectorLogicalNot:
+    case glslang::EOpBitwiseNot:
         return llvmBuilder.CreateNot(operand);
     
-    case EOpDeterminant:
+    case glslang::EOpDeterminant:
         return glaBuilder->createMatrixDeterminant(precision, operand);
-    case EOpMatrixInverse:
+    case glslang::EOpMatrixInverse:
         return glaBuilder->createMatrixInverse(precision, operand);
-    case EOpTranspose:
+    case glslang::EOpTranspose:
         return glaBuilder->createMatrixTranspose(precision, operand);
     }
 
     return 0;
 }
 
-llvm::Value* TGlslangToTopTraverser::createConversion(TOperator op, gla::EMdPrecision precision, llvm::Type* destType, llvm::Value* operand)
+llvm::Value* TGlslangToTopTraverser::createConversion(glslang::TOperator op, gla::EMdPrecision precision, llvm::Type* destType, llvm::Value* operand)
 {
     llvm::Instruction::CastOps castOp = llvm::Instruction::CastOps(0);
     switch(op) {
-    case EOpConvIntToBool:
-    case EOpConvUintToBool:
-    case EOpConvFloatToBool:
+    case glslang::EOpConvIntToBool:
+    case glslang::EOpConvUintToBool:
+    case glslang::EOpConvFloatToBool:
         {
             // any non-zero should return true
             llvm::Value* zero;
-            if (op == EOpConvFloatToBool)
+            if (op == glslang::EOpConvFloatToBool)
                 zero = gla::MakeFloatConstant(context, 0.0f);
             else
                 zero = gla::MakeIntConstant(context, 0);
@@ -1735,49 +1735,49 @@ llvm::Value* TGlslangToTopTraverser::createConversion(TOperator op, gla::EMdPrec
             if (gla::GetComponentCount(operand) > 1)
                 zero = glaBuilder->smearScalar(gla::EMpNone, zero, operand->getType());
 
-            return createBinaryOperation(EOpNotEqual, precision, operand, zero, false, false);
+            return createBinaryOperation(glslang::EOpNotEqual, precision, operand, zero, false, false);
         }
 
-    case EOpConvIntToFloat:
+    case glslang::EOpConvIntToFloat:
         castOp = llvm::Instruction::SIToFP;
         break;
-    case EOpConvBoolToFloat:
+    case glslang::EOpConvBoolToFloat:
         castOp = llvm::Instruction::UIToFP;
         break;
-    case EOpConvUintToFloat:
+    case glslang::EOpConvUintToFloat:
         castOp = llvm::Instruction::UIToFP;
         break;
 
-    case EOpConvFloatToInt:
+    case glslang::EOpConvFloatToInt:
         castOp = llvm::Instruction::FPToSI;
         break;
-    case EOpConvBoolToInt:
+    case glslang::EOpConvBoolToInt:
         // GLSL says true is converted to 1
         castOp = llvm::Instruction::ZExt;
         break;
-    case EOpConvUintToInt:
+    case glslang::EOpConvUintToInt:
 
         return operand;
 
-    case EOpConvBoolToUint:
+    case glslang::EOpConvBoolToUint:
         // GLSL says true is converted to 1
         castOp = llvm::Instruction::ZExt;
         break;
-    case EOpConvFloatToUint:
+    case glslang::EOpConvFloatToUint:
         castOp = llvm::Instruction::FPToUI;
         break;
-    case EOpConvIntToUint:
+    case glslang::EOpConvIntToUint:
 
         return operand;
 
-    case EOpConvDoubleToInt:
-    case EOpConvDoubleToBool:
-    case EOpConvDoubleToFloat:
-    case EOpConvDoubleToUint:
-    case EOpConvIntToDouble:
-    case EOpConvUintToDouble:
-    case EOpConvFloatToDouble:
-    case EOpConvBoolToDouble:
+    case glslang::EOpConvDoubleToInt:
+    case glslang::EOpConvDoubleToBool:
+    case glslang::EOpConvDoubleToFloat:
+    case glslang::EOpConvDoubleToUint:
+    case glslang::EOpConvIntToDouble:
+    case glslang::EOpConvUintToDouble:
+    case glslang::EOpConvFloatToDouble:
+    case glslang::EOpConvBoolToDouble:
         gla::UnsupportedFunctionality("double conversion");
         break;
     }
@@ -1792,160 +1792,160 @@ llvm::Value* TGlslangToTopTraverser::createConversion(TOperator op, gla::EMdPrec
     return result;
 }
 
-llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(TOperator op, gla::EMdPrecision precision, llvm::Value* operand)
+llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op, gla::EMdPrecision precision, llvm::Value* operand)
 {
     // Unary ops that require an intrinsic
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
 
     switch(op) {
-    case EOpRadians:
+    case glslang::EOpRadians:
         intrinsicID = llvm::Intrinsic::gla_fRadians;
         break;
-    case EOpDegrees:
+    case glslang::EOpDegrees:
         intrinsicID = llvm::Intrinsic::gla_fDegrees;
         break;
 
-    case EOpSin:
+    case glslang::EOpSin:
         intrinsicID = llvm::Intrinsic::gla_fSin;
         break;
-    case EOpCos:
+    case glslang::EOpCos:
         intrinsicID = llvm::Intrinsic::gla_fCos;
         break;
-    case EOpTan:
+    case glslang::EOpTan:
         intrinsicID = llvm::Intrinsic::gla_fTan;
         break;
-    case EOpAcos:
+    case glslang::EOpAcos:
         intrinsicID = llvm::Intrinsic::gla_fAcos;
         break;
-    case EOpAsin:
+    case glslang::EOpAsin:
         intrinsicID = llvm::Intrinsic::gla_fAsin;
         break;
-    case EOpAtan:
+    case glslang::EOpAtan:
         intrinsicID = llvm::Intrinsic::gla_fAtan;
         break;
 
-    case EOpAcosh:
+    case glslang::EOpAcosh:
         intrinsicID = llvm::Intrinsic::gla_fAcosh;
         break;
-    case EOpAsinh:
+    case glslang::EOpAsinh:
         intrinsicID = llvm::Intrinsic::gla_fAsinh;
         break;
-    case EOpAtanh:
+    case glslang::EOpAtanh:
         intrinsicID = llvm::Intrinsic::gla_fAtanh;
         break;
-    case EOpTanh:
+    case glslang::EOpTanh:
         intrinsicID = llvm::Intrinsic::gla_fTanh;
         break;
-    case EOpCosh:
+    case glslang::EOpCosh:
         intrinsicID = llvm::Intrinsic::gla_fCosh;
         break;
-    case EOpSinh:
+    case glslang::EOpSinh:
         intrinsicID = llvm::Intrinsic::gla_fSinh;
         break;
 
-    case EOpLength:
+    case glslang::EOpLength:
         intrinsicID = llvm::Intrinsic::gla_fLength;
         break;
-    case EOpNormalize:
+    case glslang::EOpNormalize:
         intrinsicID = llvm::Intrinsic::gla_fNormalize;
         break;
 
-    case EOpExp:
+    case glslang::EOpExp:
         intrinsicID = llvm::Intrinsic::gla_fExp;
         break;
-    case EOpLog:
+    case glslang::EOpLog:
         intrinsicID = llvm::Intrinsic::gla_fLog;
         break;
-    case EOpExp2:
+    case glslang::EOpExp2:
         intrinsicID = llvm::Intrinsic::gla_fExp2;
         break;
-    case EOpLog2:
+    case glslang::EOpLog2:
         intrinsicID = llvm::Intrinsic::gla_fLog2;
         break;
-    case EOpSqrt:
+    case glslang::EOpSqrt:
         intrinsicID = llvm::Intrinsic::gla_fSqrt;
         break;
-    case EOpInverseSqrt:
+    case glslang::EOpInverseSqrt:
         intrinsicID = llvm::Intrinsic::gla_fInverseSqrt;
         break;
 
-    case EOpFloor:
+    case glslang::EOpFloor:
         intrinsicID = llvm::Intrinsic::gla_fFloor;
         break;
-    case EOpTrunc:
+    case glslang::EOpTrunc:
         intrinsicID = llvm::Intrinsic::gla_fRoundZero;
         break;
-    case EOpRound:
+    case glslang::EOpRound:
         intrinsicID = llvm::Intrinsic::gla_fRoundFast;
         break;
-    case EOpRoundEven:
+    case glslang::EOpRoundEven:
         intrinsicID = llvm::Intrinsic::gla_fRoundEven;
         break;
-    case EOpCeil:
+    case glslang::EOpCeil:
         intrinsicID = llvm::Intrinsic::gla_fCeiling;
         break;
-    case EOpFract:
+    case glslang::EOpFract:
         intrinsicID = llvm::Intrinsic::gla_fFraction;
         break;
 
-    case EOpIsNan:
+    case glslang::EOpIsNan:
         intrinsicID = llvm::Intrinsic::gla_fIsNan;
         break;
-    case EOpIsInf:
+    case glslang::EOpIsInf:
         intrinsicID = llvm::Intrinsic::gla_fIsInf;
         break;
 
-    case EOpFloatBitsToInt:
-    case EOpFloatBitsToUint:
+    case glslang::EOpFloatBitsToInt:
+    case glslang::EOpFloatBitsToUint:
         intrinsicID = llvm::Intrinsic::gla_fFloatBitsToInt;
         break;
-    case EOpIntBitsToFloat:
-    case EOpUintBitsToFloat:
+    case glslang::EOpIntBitsToFloat:
+    case glslang::EOpUintBitsToFloat:
         intrinsicID = llvm::Intrinsic::gla_fIntBitsTofloat;
         break;
-    case EOpPackSnorm2x16:
+    case glslang::EOpPackSnorm2x16:
         intrinsicID = llvm::Intrinsic::gla_fPackSnorm2x16;
         break;
-    case EOpUnpackSnorm2x16:
+    case glslang::EOpUnpackSnorm2x16:
         intrinsicID = llvm::Intrinsic::gla_fUnpackSnorm2x16;
         break;
-    case EOpPackUnorm2x16:
+    case glslang::EOpPackUnorm2x16:
         intrinsicID = llvm::Intrinsic::gla_fPackUnorm2x16;
         break;
-    case EOpUnpackUnorm2x16:
+    case glslang::EOpUnpackUnorm2x16:
         intrinsicID = llvm::Intrinsic::gla_fUnpackUnorm2x16;
         break;
-    case EOpPackHalf2x16:
+    case glslang::EOpPackHalf2x16:
         intrinsicID = llvm::Intrinsic::gla_fPackHalf2x16;
         break;
-    case EOpUnpackHalf2x16:
+    case glslang::EOpUnpackHalf2x16:
         intrinsicID = llvm::Intrinsic::gla_fUnpackHalf2x16;
         break;
 
-    case EOpDPdx:
+    case glslang::EOpDPdx:
         intrinsicID = llvm::Intrinsic::gla_fDFdx;
         break;
-    case EOpDPdy:
+    case glslang::EOpDPdy:
         intrinsicID = llvm::Intrinsic::gla_fDFdy;
         break;
-    case EOpFwidth:
+    case glslang::EOpFwidth:
         intrinsicID = llvm::Intrinsic::gla_fFilterWidth;
         break;
 
-    case EOpAny:
+    case glslang::EOpAny:
         intrinsicID = llvm::Intrinsic::gla_any;
         break;
-    case EOpAll:
+    case glslang::EOpAll:
         intrinsicID = llvm::Intrinsic::gla_all;
         break;
 
-    case EOpAbs:
+    case glslang::EOpAbs:
         if (gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fAbs;
         else
             intrinsicID = llvm::Intrinsic::gla_abs;
         break;
-    case EOpSign:
+    case glslang::EOpSign:
         if (gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fSign;
         else
@@ -1959,14 +1959,14 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(TOperator op, gla::EMd
     return 0;
 }
 
-llvm::Value* TGlslangToTopTraverser::createIntrinsic(TOperator op, gla::EMdPrecision precision, std::vector<llvm::Value*>& operands, bool isUnsigned)
+llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla::EMdPrecision precision, std::vector<llvm::Value*>& operands, bool isUnsigned)
 {
     // Binary ops that require an intrinsic
     llvm::Value* result = 0;
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
 
     switch (op) {
-    case EOpMin:
+    case glslang::EOpMin:
         if (gla::GetBasicTypeID(operands.front()) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fMin;
         else if (isUnsigned)
@@ -1974,7 +1974,7 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(TOperator op, gla::EMdPreci
         else
             intrinsicID = llvm::Intrinsic::gla_sMin;
         break;
-    case EOpMax:
+    case glslang::EOpMax:
         if (gla::GetBasicTypeID(operands.front()) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fMax;
         else if (isUnsigned)
@@ -1982,13 +1982,13 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(TOperator op, gla::EMdPreci
         else
             intrinsicID = llvm::Intrinsic::gla_sMax;
         break;
-    case EOpPow:
+    case glslang::EOpPow:
         if (gla::GetBasicTypeID(operands.front()) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fPow;
         else
             intrinsicID = llvm::Intrinsic::gla_fPowi;
         break;
-    case EOpDot:
+    case glslang::EOpDot:
         switch (gla::GetComponentCount(operands[0])) {
         case 2:
             intrinsicID = llvm::Intrinsic::gla_fDot2;
@@ -2003,11 +2003,11 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(TOperator op, gla::EMdPreci
             assert(! "bad component count for dot");
         }
         break;
-    case EOpAtan:
+    case glslang::EOpAtan:
         intrinsicID = llvm::Intrinsic::gla_fAtan2;
         break;
 
-    case EOpClamp:
+    case glslang::EOpClamp:
         if (gla::GetBasicTypeID(operands.front()) == llvm::Type::FloatTyID)
             intrinsicID = llvm::Intrinsic::gla_fClamp;
         else if (isUnsigned)
@@ -2015,35 +2015,35 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(TOperator op, gla::EMdPreci
         else
             intrinsicID = llvm::Intrinsic::gla_sClamp;
         break;
-    case EOpMix:
+    case glslang::EOpMix:
         if (gla::GetBasicTypeID(operands.back()) == llvm::Type::IntegerTyID)
             intrinsicID = llvm::Intrinsic::gla_fbMix;
         else
             intrinsicID = llvm::Intrinsic::gla_fMix;
         break;
-    case EOpStep:
+    case glslang::EOpStep:
         intrinsicID = llvm::Intrinsic::gla_fStep;
         break;
-    case EOpSmoothStep:
+    case glslang::EOpSmoothStep:
         intrinsicID = llvm::Intrinsic::gla_fSmoothStep;
         break;
 
-    case EOpDistance:
+    case glslang::EOpDistance:
         intrinsicID = llvm::Intrinsic::gla_fDistance;
         break;
-    case EOpCross:
+    case glslang::EOpCross:
         intrinsicID = llvm::Intrinsic::gla_fCross;
         break;
-    case EOpFaceForward:
+    case glslang::EOpFaceForward:
         intrinsicID = llvm::Intrinsic::gla_fFaceForward;
         break;
-    case EOpReflect:
+    case glslang::EOpReflect:
         intrinsicID = llvm::Intrinsic::gla_fReflect;
         break;
-    case EOpRefract:
+    case glslang::EOpRefract:
         intrinsicID = llvm::Intrinsic::gla_fRefract;
         break;
-    case EOpModf:
+    case glslang::EOpModf:
         intrinsicID = llvm::Intrinsic::gla_fModF;
         break;
     }
@@ -2074,7 +2074,7 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(TOperator op, gla::EMdPreci
 }
 
 // Set up to recursively traverse the structure to read, while flattening it into slots
-void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value* storage, int firstSlot, llvm::MDNode* md)
+void TGlslangToTopTraverser::createPipelineRead(glslang::TIntermSymbol* node, llvm::Value* storage, int firstSlot, llvm::MDNode* md)
 {
     gla::EInterpolationMethod method;
     gla::EInterpolationLocation location;
@@ -2088,7 +2088,7 @@ void TGlslangToTopTraverser::createPipelineRead(TIntermSymbol* node, llvm::Value
 }
 
 // Recursively read the input structure
-void TGlslangToTopTraverser::createPipelineSubread(const TType& glaType, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md, 
+void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md, 
                                                    std::string& name, gla::EInterpolationMethod method, gla::EInterpolationLocation location)
 {
     // gla types can be both arrays and matrices or arrays and structures at the same time;
@@ -2104,7 +2104,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const TType& glaType, llvm::V
             arraySize = UnknownArraySize;
         }
 
-        TType elementType(glaType);
+        glslang::TType elementType(glaType);
         elementType.dereference();
 
         if (gepChain.size() == 0)
@@ -2116,7 +2116,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const TType& glaType, llvm::V
         }
         if (gepChain.size() == 1)
             gepChain.pop_back();
-    } else if (const TTypeList* typeList = glaType.getStruct()) {
+    } else if (const glslang::TTypeList* typeList = glaType.getStruct()) {
         if (gepChain.size() == 0)
             gepChain.push_back(gla::MakeIntConstant(context, 0));
         for (int field = 0; field < typeList->size(); ++field) {
@@ -2132,7 +2132,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const TType& glaType, llvm::V
 
         int numColumns = glaType.getMatrixCols();            
         
-        TType columnType(glaType);
+        glslang::TType columnType(glaType);
         columnType.dereference();
         llvm::Type* readType = convertGlslangToGlaType(columnType);
 
@@ -2158,7 +2158,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const TType& glaType, llvm::V
     }
 }
 
-int TGlslangToTopTraverser::assignSlot(TIntermSymbol* node, bool input)
+int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input)
 {
     int numSlots = 1;
     if (node->getType().isArray()) {
@@ -2189,7 +2189,7 @@ int TGlslangToTopTraverser::assignSlot(TIntermSymbol* node, bool input)
     return slotMap[name];
 }
 
-llvm::Value* TGlslangToTopTraverser::getSymbolStorage(const TIntermSymbol* symbol, bool& firstTime)
+llvm::Value* TGlslangToTopTraverser::getSymbolStorage(const glslang::TIntermSymbol* symbol, bool& firstTime)
 {
     std::map<int, llvm::Value*>::iterator iter;
     iter = symbolValues.find(symbol->getId());
@@ -2207,7 +2207,7 @@ llvm::Value* TGlslangToTopTraverser::getSymbolStorage(const TIntermSymbol* symbo
     return storage;
 }
 
-llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType, constUnion *consts, int& nextConst)
+llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& glslangType, glslang::TConstUnion *consts, int& nextConst)
 {
     // vector of constants for LLVM
     std::vector<llvm::Constant*> llvmConsts;
@@ -2216,17 +2216,17 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType
     llvm::Type* type = convertGlslangToGlaType(glslangType);
 
     if (glslangType.isArray()) {
-        TType elementType(glslangType);
+        glslang::TType elementType(glslangType);
         elementType.dereference();
         for (int i = 0; i < glslangType.getArraySize(); ++i)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(elementType, consts, nextConst)));
     } else if (glslangType.isMatrix()) {
-        TType vectorType(glslangType);
+        glslang::TType vectorType(glslangType);
         vectorType.dereference();
         for (int col = 0; col < glslangType.getMatrixCols(); ++col)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(vectorType, consts, nextConst)));
     } else if (glslangType.getStruct()) {
-        TVector<TTypeLoc>::iterator iter;
+        glslang::TVector<glslang::TTypeLoc>::iterator iter;
         for (iter = glslangType.getStruct()->begin(); iter != glslangType.getStruct()->end(); ++iter)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(*iter->type, consts, nextConst)));
     } else {
@@ -2235,16 +2235,16 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType
 
         for (unsigned int i = 0; i < glslangType.getVectorSize(); ++i) {
             switch(consts[nextConst].getType()) {
-            case EbtInt:
+            case glslang::EbtInt:
                 llvmConsts.push_back(gla::MakeIntConstant(context, consts[nextConst].getIConst()));
                 break;
-            case EbtUint:
+            case glslang::EbtUint:
                 llvmConsts.push_back(gla::MakeUnsignedConstant(context, consts[nextConst].getUConst()));
                 break;
-            case EbtDouble:
+            case glslang::EbtDouble:
                 llvmConsts.push_back(gla::MakeFloatConstant(context, consts[nextConst].getDConst()));
                 break;
-            case EbtBool:
+            case glslang::EbtBool:
                 llvmConsts.push_back(gla::MakeBoolConstant(context, consts[nextConst].getBConst()));
                 break;
             default:
@@ -2257,7 +2257,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const TType& glslangType
     return glaBuilder->getConstant(llvmConsts, type);
 }
 
-llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(TIntermSymbol* node, llvm::Value* value)
+llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(glslang::TIntermSymbol* node, llvm::Value* value)
 {
     llvm::MDNode* md;
     const std::string name = node->getName().c_str();
@@ -2287,9 +2287,9 @@ llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(TIntermSymbol* node
 }
 
 // Make a !gla.uniform node, as per metadata.h, for a default uniform
-llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(TIntermSymbol* node, llvm::Value* value)
+llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(glslang::TIntermSymbol* node, llvm::Value* value)
 {
-    const TType& type = node->getType();
+    const glslang::TType& type = node->getType();
     llvm::MDNode* samplerMd = makeMdSampler(type, value);
 
     // Create hierarchical type information if it's an aggregate
@@ -2304,10 +2304,10 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(TIntermSymbol* nod
                                       layout, GetMdPrecision(type), gla::MaxUserLayoutLocation, samplerMd, structure);
 }
 
-llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const TType& type, llvm::Value* value)
+llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const glslang::TType& type, llvm::Value* value)
 {
     // Figure out sampler information, if it's a sampler
-    if (type.getBasicType() == EbtSampler) {
+    if (type.getBasicType() == glslang::EbtSampler) {
         llvm::Value* typeProxy = 0;
         if (! value) {
             // TODO: memory: who/how owns tracking and deleting this allocation?
@@ -2322,9 +2322,9 @@ llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const TType& type, llvm::Val
 }
 
 // Make a !gla.uniform node, as per metadata.h, for a uniform block or buffer block (depending on ioType)
-llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput ioType, const TIntermSymbol* node, llvm::Value* value)
+llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput ioType, const glslang::TIntermSymbol* node, llvm::Value* value)
 {
-    const TType& type = node->getType();
+    const glslang::TType& type = node->getType();
     const char* name;
     if (node->getName().substr(0,6) == "__anon")
         name = "";
@@ -2340,7 +2340,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput 
 }
 
 // Make a !type node as per metadata.h, recursively
-llvm::MDNode* TGlslangToTopTraverser::declareMdType(const TType& type)
+llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type)
 {
     // Figure out sampler information if it's a sampler
     llvm::MDNode* samplerMd = makeMdSampler(type, 0);
@@ -2356,11 +2356,11 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const TType& type)
     // !typeLayout
     mdArgs.push_back(metadata.makeMdTypeLayout(GetMdTypeLayout(type), GetMdPrecision(type), GetMdSlotLocation(type), samplerMd));
 
-    const TTypeList* typeList = type.getStruct();
+    const glslang::TTypeList* typeList = type.getStruct();
     if (typeList) {
         for (int t = 0; t < typeList->size(); ++t) {
             // name of member
-            const TType* fieldType = (*typeList)[t].type;
+            const glslang::TType* fieldType = (*typeList)[t].type;
             mdArgs.push_back(llvm::MDString::get(context, fieldType->getFieldName().c_str()));
             
             // type of member
@@ -2372,10 +2372,10 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const TType& type)
     return llvm::MDNode::get(context, mdArgs);
 }
 
-llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(TIntermSymbol* node, llvm::Value* value, int slot, const char* kind)
+llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(glslang::TIntermSymbol* node, llvm::Value* value, int slot, const char* kind)
 {    
     llvm::MDNode* aggregate = 0;
-    if (node->getBasicType() == EbtStruct || node->getBasicType() == EbtBlock) {
+    if (node->getBasicType() == glslang::EbtStruct || node->getBasicType() == glslang::EbtBlock) {
         // Make hierarchical type information
         aggregate = declareMdType(node->getType());
     }
@@ -2389,7 +2389,7 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(TIntermSymbol* nod
                                       gla::MakeInterpolationMode(interpMethod, interpLocation));
 }
 
-void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value* storage, int slot)
+void TGlslangToTopTraverser::setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value* storage, int slot)
 {
     llvm::MDNode* md = makeInputOutputMetadata(node, storage, slot, gla::OutputListMdName);
 
@@ -2402,7 +2402,7 @@ void TGlslangToTopTraverser::setOutputMetadata(TIntermSymbol* node, llvm::Value*
     glaBuilder->setOutputMetadata(storage, md, slot);
 }
 
-llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(TIntermSymbol* node, llvm::Value* value, int slot)
+llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(glslang::TIntermSymbol* node, llvm::Value* value, int slot)
 {
 
     llvm::MDNode* mdNode = inputMdMap[slot];
