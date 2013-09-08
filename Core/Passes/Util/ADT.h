@@ -104,6 +104,15 @@ namespace gla_llvm {
         return true;
     }
 
+    // Set-wise subtraction: stores A - B into A.
+    // Specialization for SmallPtrSet.
+    // linear in the size of B
+    template <typename T, unsigned S, typename BTy>
+    inline void SetDifference(SmallPtrSet<T,S>& a, BTy& b)
+    {
+        for (typename BTy::iterator i = b.begin(), e = b.end(); i != e; ++i)
+            a.erase(*i);
+    }
 
     // Set-wise intersection: stores A n B into A.
     // TODO: specialization for sets (e.g. std::set) that prefer erasing iterators.
@@ -130,17 +139,6 @@ namespace gla_llvm {
         SetDifference(a,workList);
     }
 
-    // Set-wise subtraction: stores A - B into A.
-    // Specialization for SmallPtrSet.
-    // linear in the size of B
-    template <typename T, unsigned S, typename BTy>
-    inline void SetDifference(SmallPtrSet<T,S>& a, BTy& b)
-    {
-        for (typename BTy::iterator i = b.begin(), e = b.end(); i != e; ++i)
-            a.erase(*i);
-    }
-
 } // end namespace gla_llvm
 
 #endif // GLA_ADT_H
-
