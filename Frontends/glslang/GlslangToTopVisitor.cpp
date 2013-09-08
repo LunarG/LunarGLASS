@@ -2104,7 +2104,8 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
             arraySize = UnknownArraySize;
         }
 
-        glslang::TType elementType(glaType);
+        glslang::TType elementType;
+        elementType.shallowCopy(glaType);  // TODO: desktop arrays will need a deeper copy to avoid modifying the original
         elementType.dereference();
 
         if (gepChain.size() == 0)
@@ -2132,7 +2133,8 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
 
         int numColumns = glaType.getMatrixCols();            
         
-        glslang::TType columnType(glaType);
+        glslang::TType columnType;
+        columnType.shallowCopy(glaType);
         columnType.dereference();
         llvm::Type* readType = convertGlslangToGlaType(columnType);
 
@@ -2216,12 +2218,14 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& gl
     llvm::Type* type = convertGlslangToGlaType(glslangType);
 
     if (glslangType.isArray()) {
-        glslang::TType elementType(glslangType);
+        glslang::TType elementType;
+        elementType.shallowCopy(glslangType);   // TODO: desktop arrays will need a deeper copy to avoid modifying the original
         elementType.dereference();
         for (int i = 0; i < glslangType.getArraySize(); ++i)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(elementType, consts, nextConst)));
     } else if (glslangType.isMatrix()) {
-        glslang::TType vectorType(glslangType);
+        glslang::TType vectorType;
+        vectorType.shallowCopy(glslangType);
         vectorType.dereference();
         for (int col = 0; col < glslangType.getMatrixCols(); ++col)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(vectorType, consts, nextConst)));
