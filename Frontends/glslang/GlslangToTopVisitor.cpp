@@ -468,7 +468,7 @@ bool TranslateBinary(bool /* preVisit */, glslang::TIntermBinary* node, glslang:
                 // this is essentially a hard-coded vector swizzle of size 1,
                 // so short circuit the GEP stuff with a swizzle
                 std::vector<int> swizzle;
-                swizzle.push_back(node->getRight()->getAsConstantUnion()->getUnionArray()[0].getIConst());
+                swizzle.push_back(node->getRight()->getAsConstantUnion()->getConstArray()[0].getIConst());
                 oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()),
                                                              node->getLeft()->getVectorSize());
             } else {
@@ -495,7 +495,7 @@ bool TranslateBinary(bool /* preVisit */, glslang::TIntermBinary* node, glslang:
             glslang::TIntermSequence& swizzleSequence = node->getRight()->getAsAggregate()->getSequence();
             std::vector<int> swizzle;
             for (int i = 0; i < swizzleSequence.size(); ++i)
-                swizzle.push_back(swizzleSequence[i]->getAsConstantUnion()->getUnionArray()[0].getIConst());
+                swizzle.push_back(swizzleSequence[i]->getAsConstantUnion()->getConstArray()[0].getIConst());
             oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()),
                                                          node->getLeft()->getVectorSize());
         }
@@ -946,7 +946,7 @@ bool TranslateSwitch(bool /* preVisit */, glslang::TIntermSwitch* node, glslang:
         else if (child->getAsBranchNode() && child->getAsBranchNode()->getFlowOp() == glslang::EOpCase) {
             valueToSegment[caseValues.size()] = codeSegments.size();
             caseValues.push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(oit->context), 
-                                                        child->getAsBranchNode()->getExpression()->getAsConstantUnion()->getUnionArray()[0].getIConst(), 
+                                                        child->getAsBranchNode()->getExpression()->getAsConstantUnion()->getConstArray()[0].getIConst(), 
                                                         false));
         } else
             codeSegments.push_back(child);
@@ -974,7 +974,7 @@ void TranslateConstantUnion(glslang::TIntermConstantUnion* node, glslang::TInter
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
     int nextConst = 0;
-    llvm::Value* c = oit->createLLVMConstant(node->getType(), node->getUnionArray(), nextConst);
+    llvm::Value* c = oit->createLLVMConstant(node->getType(), node->getConstArray(), nextConst);
     oit->glaBuilder->clearAccessChain();
     oit->glaBuilder->setAccessChainRValue(c);
 }
