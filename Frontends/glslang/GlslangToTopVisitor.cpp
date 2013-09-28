@@ -101,7 +101,7 @@ public:
                                std::string& name, gla::EInterpolationMethod, gla::EInterpolationLocation);
     int assignSlot(glslang::TIntermSymbol* node, bool input);
     llvm::Value* getSymbolStorage(const glslang::TIntermSymbol* node, bool& firstTime);
-    llvm::Value* createLLVMConstant(const glslang::TType& type, glslang::TConstUnion *consts, int& nextConst);
+    llvm::Value* createLLVMConstant(const glslang::TType& type, const glslang::TConstUnionArray&, int& nextConst);
     llvm::MDNode* declareUniformMetadata(glslang::TIntermSymbol* node, llvm::Value*);
     llvm::MDNode* declareMdDefaultUniform(glslang::TIntermSymbol*, llvm::Value*);
     llvm::MDNode* makeMdSampler(const glslang::TType&, llvm::Value*);
@@ -468,7 +468,7 @@ bool TranslateBinary(bool /* preVisit */, glslang::TIntermBinary* node, glslang:
                 // this is essentially a hard-coded vector swizzle of size 1,
                 // so short circuit the GEP stuff with a swizzle
                 std::vector<int> swizzle;
-                swizzle.push_back(node->getRight()->getAsConstantUnion()->getUnionArrayPointer()->getIConst());
+                swizzle.push_back(node->getRight()->getAsConstantUnion()->getUnionArray()[0].getIConst());
                 oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()),
                                                              node->getLeft()->getVectorSize());
             } else {
@@ -495,7 +495,7 @@ bool TranslateBinary(bool /* preVisit */, glslang::TIntermBinary* node, glslang:
             glslang::TIntermSequence& swizzleSequence = node->getRight()->getAsAggregate()->getSequence();
             std::vector<int> swizzle;
             for (int i = 0; i < swizzleSequence.size(); ++i)
-                swizzle.push_back(swizzleSequence[i]->getAsConstantUnion()->getUnionArrayPointer()->getIConst());
+                swizzle.push_back(swizzleSequence[i]->getAsConstantUnion()->getUnionArray()[0].getIConst());
             oit->glaBuilder->accessChainPushSwizzleRight(swizzle, oit->convertGlslangToGlaType(node->getType()),
                                                          node->getLeft()->getVectorSize());
         }
@@ -946,7 +946,7 @@ bool TranslateSwitch(bool /* preVisit */, glslang::TIntermSwitch* node, glslang:
         else if (child->getAsBranchNode() && child->getAsBranchNode()->getFlowOp() == glslang::EOpCase) {
             valueToSegment[caseValues.size()] = codeSegments.size();
             caseValues.push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(oit->context), 
-                                                        child->getAsBranchNode()->getExpression()->getAsConstantUnion()->getUnionArrayPointer()[0].getIConst(), 
+                                                        child->getAsBranchNode()->getExpression()->getAsConstantUnion()->getUnionArray()[0].getIConst(), 
                                                         false));
         } else
             codeSegments.push_back(child);
@@ -974,7 +974,7 @@ void TranslateConstantUnion(glslang::TIntermConstantUnion* node, glslang::TInter
     TGlslangToTopTraverser* oit = static_cast<TGlslangToTopTraverser*>(it);
 
     int nextConst = 0;
-    llvm::Value* c = oit->createLLVMConstant(node->getType(), node->getUnionArrayPointer(), nextConst);
+    llvm::Value* c = oit->createLLVMConstant(node->getType(), node->getUnionArray(), nextConst);
     oit->glaBuilder->clearAccessChain();
     oit->glaBuilder->setAccessChainRValue(c);
 }
@@ -2209,7 +2209,7 @@ llvm::Value* TGlslangToTopTraverser::getSymbolStorage(const glslang::TIntermSymb
     return storage;
 }
 
-llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& glslangType, glslang::TConstUnion *consts, int& nextConst)
+llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& glslangType, const glslang::TConstUnionArray& consts, int& nextConst)
 {
     // vector of constants for LLVM
     std::vector<llvm::Constant*> llvmConsts;

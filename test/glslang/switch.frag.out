@@ -567,7 +567,17 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !8 = metadata !{i32 2}
 
 ***Unsupported functionality: Non-ret, non-br terminator
+WARNING: #version: statement missing; use #version on first line of shader
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
-ERROR: Not all shaders have valid object code.
 #### END LINKER INFO LOG ####
+#version 100
+// LunarGOO output (r722)
+precision mediump float; // this will be almost entirely overridden by individual declarations
+
+
+void main()
+{
+    
+}
+
