@@ -99,7 +99,7 @@ function runTests {
         cat temp.errout temp.stdout > glslang/$t.out.tmp
         cp temp.stdout tempglsl.$EXTENSION
         runSingleTest tempglsl.$EXTENSION
-        tail -4 temp.errout >> glslang/$t.out.tmp
+        tail -5 temp.errout >> glslang/$t.out.tmp
         cat temp.stdout >> glslang/$t.out.tmp
         tr -d '\r' < glslang/$t.out.tmp > glslang/$t.out
         rm glslang/$t.out.tmp

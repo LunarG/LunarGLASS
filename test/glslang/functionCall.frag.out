@@ -200,6 +200,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !6 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 130 is not yet complete; most features are present, but a few are missing.
 WARNING: 0:4: varying deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
@@ -238,6 +239,7 @@ void main()
 }
 
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 130 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####

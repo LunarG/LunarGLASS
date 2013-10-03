@@ -233,6 +233,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v2f32.v4i32(<2 x float>, <4 x i32>)
 
 ***Unsupported functionality: missing metadata on load 0 constructed
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 130 is not yet complete; most features are present, but a few are missing.
 WARNING: 0:3: varying deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
@@ -288,6 +289,7 @@ void main()
     gl_FragColor = FragColor_shadow10;
     
 }
+
 
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

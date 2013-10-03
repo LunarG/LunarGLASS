@@ -226,14 +226,14 @@ entry:
   %2 = extractelement <2 x float> %coord, i32 0
   %3 = select i1 %1, float %2, float 1.000000e+00
   %4 = fadd float %3, 1.000000e+00
-  %select = select i1 %1, float 1.000000e+00, float %2
-  %select35.v = select i1 %1, float %2, float %4
+  %select33 = select i1 %1, float 1.000000e+00, float %2
+  %select.v = select i1 %1, float %2, float %4
   %5 = load i32 addrspace(2)* @condition, align 4, !gla.uniform !8
   %6 = icmp eq i32 %5, 1
-  %select99 = select i1 %6, float %2, float 0.000000e+00
-  %7 = fadd float %select, %select35.v
-  %8 = fadd float %7, %2
-  %9 = fadd float %8, %select99
+  %select = select i1 %6, float %2, float 0.000000e+00
+  %7 = fadd float %select33, %select.v
+  %8 = fadd float %2, %7
+  %9 = fadd float %8, %select
   %10 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %9, <4 x i32> zeroinitializer)
   %color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !17
   %11 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !9
@@ -291,6 +291,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwin
 !19 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !20}
 !20 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 130 is not yet complete; most features are present, but a few are missing.
 WARNING: 0:4: varying deprecated in version 130; may be removed in future release
 WARNING: 0:5: varying deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
@@ -335,13 +336,13 @@ void main()
     bool temp21 = foo3.s2_1.i > const22i_0;
     float temp23 = temp21 ? coord.x : const24;
     float temp25 = temp23 + const24;
-    float select = temp21 ? const24 : coord.x;
-    float select35dv = temp21 ? coord.x : temp25;
+    float select33 = temp21 ? const24 : coord.x;
+    float selectdv = temp21 ? coord.x : temp25;
     bool temp28 = condition == const29i_1;
-    float select99 = temp28 ? coord.x : const31;
-    float temp32 = select + select35dv;
-    float temp33 = temp32 + coord.x;
-    float temp34 = temp33 + select99;
+    float select = temp28 ? coord.x : const31;
+    float temp32 = select33 + selectdv;
+    float temp33 = coord.x + temp32;
+    float temp34 = temp33 + select;
     vec4 temp35 = vec4(temp34);
     vec4 temp36 = color;
     temp36.z = coord.y;
@@ -353,6 +354,7 @@ void main()
 }
 
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 130 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
@@ -394,13 +396,13 @@ const float const30 = 0.0;
 void main()
 {
     bool temp211 = foo3.s2_1.i > const22i_0;
-    float select44 = temp211 ? const24 : coord.x;
-    float select42 = temp211 ? coord.x : const26;
+    float select45 = temp211 ? const24 : coord.x;
+    float select43 = temp211 ? coord.x : const26;
     bool temp2820 = condition == const28i_1;
-    float select = temp2820 ? coord.x : const30;
-    float temp3228 = select44 + select42;
+    float select42 = temp2820 ? coord.x : const30;
+    float temp3228 = select45 + select43;
     float temp3330 = temp3228 + coord.x;
-    float temp3431 = select + temp3330;
+    float temp3431 = select42 + temp3330;
     vec4 temp34 = vec4(temp3431);
     vec4 temp35 = color;
     temp35.z = coord.y;

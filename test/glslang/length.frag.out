@@ -83,6 +83,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !5 = metadata !{metadata !"u", i32 12, [3 x <4 x float>]* @u_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1024, null}
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 120 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
@@ -99,6 +100,7 @@ void main()
 }
 
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 120 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####

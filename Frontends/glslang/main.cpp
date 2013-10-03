@@ -371,7 +371,7 @@ int C_DECL main(int argc, char* argv[])
     bool compileFailed = false;
     bool linkFailed = false;
     int i;
-    TargetDefinitionProfile = EProfileCount;
+    TargetDefinitionProfile = EBadProfile;
     TargetDefinitionVersion = 0;
 
     ShHandle    linker = 0;

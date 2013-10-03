@@ -1540,6 +1540,7 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>)
 !13 = metadata !{metadata !"u", i32 1, <4 x float>* @u_shadow_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 0, i32 1027, null, i32 1}
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 130 is not yet complete; most features are present, but a few are missing.
 WARNING: 0:6: varying deprecated in version 130; may be removed in future release
 WARNING: 0:17: varying deprecated in version 130; may be removed in future release
 WARNING: 0:22: varying deprecated in version 130; may be removed in future release
@@ -1891,6 +1892,7 @@ void main()
 }
 
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 130 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####

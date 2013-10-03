@@ -77,7 +77,7 @@ EProfile TargetDefinitionProfile;
 //
 class TGenericCompiler : public TCompiler {
 public:
-    TGenericCompiler(EShLanguage l, int dOptions) : TCompiler(l, infoSink), debugOptions(dOptions), targetVersion(0), targetProfile(EProfileCount) { }
+    TGenericCompiler(EShLanguage l, int dOptions) : TCompiler(l, infoSink), debugOptions(dOptions), targetVersion(0), targetProfile(EBadProfile) { }
     virtual bool compile(TIntermNode* root, int version = 0, EProfile profile = ENoProfile);
     void setTargetVersion(int tv) { targetVersion = tv; }
     void setTargetProfile(EProfile tp) { targetProfile = tp; }
@@ -123,7 +123,7 @@ bool TGenericCompiler::compile(TIntermNode *root, int version, EProfile profile)
     haveValidObjectCode = false;
 
     // Pick up the target versioning from the source, if it was not specified
-    if (targetProfile == EProfileCount)
+    if (targetProfile == EBadProfile)
         targetProfile = profile;
     if (targetVersion == 0)
         targetVersion = version;
@@ -133,7 +133,7 @@ bool TGenericCompiler::compile(TIntermNode *root, int version, EProfile profile)
 #else
     gla::Manager* glaManager = new AdapterOnlyManager();
 #endif
-    assert(EShLangCount < 256 && EProfileCount < 256);
+    assert(EShLangCount < 256 && targetProfile < 256);
     glaManager->setVersion(static_cast<int>(language) << 24 | static_cast<int>(targetProfile) << 16 | targetVersion);
 
     TranslateGlslangToTop(root, glaManager);

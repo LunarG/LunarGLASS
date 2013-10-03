@@ -82,6 +82,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"a", i32 12, float* @a_typeProxy, metadata !1}
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 330 is not yet complete; some version-specific are present, but many are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
@@ -96,6 +97,7 @@ void main()
 }
 
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 330 is not yet complete; some version-specific are present, but many are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####

@@ -127,6 +127,7 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !16}
 !16 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 430 is not yet complete; some version-specific are present, but many are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
@@ -150,6 +151,7 @@ void main()
 }
 
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 430 is not yet complete; some version-specific are present, but many are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####

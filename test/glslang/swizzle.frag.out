@@ -273,6 +273,7 @@ declare <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float, <2 x i32>) nounwin
 !7 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !8}
 !8 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 110 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
@@ -321,6 +322,7 @@ void main()
 }
 
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 110 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
@@ -351,17 +353,17 @@ void main()
     temp27.x = t.x;
     vec4 temp28 = u;
     temp28.x = t.y;
-    vec4 select = p ? temp27 : temp28;
+    vec4 select45 = p ? temp27 : temp28;
     vec4 temp3019 = temp21 * temp23;
     vec4 temp3120 = temp3019 * temp26;
-    vec4 temp3221 = select * temp3120;
+    vec4 temp3221 = select45 * temp3120;
     vec4 FragColor_shadow22 = mix(temp24, temp22, temp3221);
     bool temp3424 = t.x < const35;
     float temp3626 = t.x * const37;
     vec2 temp38;
     temp38.x = temp3626;
-    vec2 select45 = temp3424 ? temp38 : t;
-    bool temp4036 = select45.x > const41;
+    vec2 select = temp3424 ? temp38 : t;
+    bool temp4036 = select.x > const41;
     vec4 temp42 = temp4036 ? const43 : const44;
     vec4 FragColor_shadow2742 = FragColor_shadow22 + temp42;
     gl_FragColor = FragColor_shadow2742;
