@@ -61,23 +61,23 @@ Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
 \n\
 ";
 
-// "
-//          --disable <optimization>   Disable the optimization (see below)\n\
-//          --enable <optimization>    Enable the optimization (see below)\n\
-// "
+/*
+          --disable <optimization>   Disable the optimization (see below)\n\
+          --enable <optimization>    Enable the optimization (see below)\n\
+*/
 
 
-// "
-//        Optimizations/transformations that can be enabled/disabled. Default is \n\
-//        to enable them all\n\
-//          adce                       Aggressive dead code elimination\n\
-//          coalesce                   Coalesce Inserts into MultiInserts\n\
-//          gvn                        Global Value Numbering\n\
-//          mem2reg                    Promote memory to registers\n\
-//          reassociate                Reassociate/commute expressions\n\
-//          verify                     Verification passes\n\
-//          cross-stage                Do cross-stage optimizations\n\
-// "
+/*
+        Optimizations/transformations that can be enabled/disabled. Default is \n\
+        to enable them all\n\
+          adce                       Aggressive dead code elimination\n\
+          coalesce                   Coalesce Inserts into MultiInserts\n\
+          gvn                        Global Value Numbering\n\
+          mem2reg                    Promote memory to registers\n\
+          reassociate                Reassociate/commute expressions\n\
+          verify                     Verification passes\n\
+          cross-stage                Do cross-stage optimizations\n\
+*/
 
 namespace gla {
 

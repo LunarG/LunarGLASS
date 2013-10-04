@@ -308,8 +308,8 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             break;
         case Intrinsic::gla_fExp10:
         case Intrinsic::gla_fExp:
-            if (intrinsic->getIntrinsicID() == Intrinsic::gla_fExp10 && backEnd->decomposeIntrinsic(EDiExp10) ||
-                intrinsic->getIntrinsicID() == Intrinsic::gla_fExp   && backEnd->decomposeIntrinsic(EDiExp)) {
+            if ((intrinsic->getIntrinsicID() == Intrinsic::gla_fExp10 && backEnd->decomposeIntrinsic(EDiExp10)) ||
+                (intrinsic->getIntrinsicID() == Intrinsic::gla_fExp   && backEnd->decomposeIntrinsic(EDiExp))) {
                 //    10^X = 2^(X /(log base 10 of 2))
                 // -> 10^X = 2^(X * 3.3219280948873623478703194294894)
                 //
@@ -333,8 +333,8 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             break;
         case Intrinsic::gla_fLog10:
         case Intrinsic::gla_fLog:
-            if (intrinsic->getIntrinsicID() == Intrinsic::gla_fLog10 && backEnd->decomposeIntrinsic(EDiLog10) ||
-                intrinsic->getIntrinsicID() == Intrinsic::gla_fLog   && backEnd->decomposeIntrinsic(EDiLog)) {
+            if ((intrinsic->getIntrinsicID() == Intrinsic::gla_fLog10 && backEnd->decomposeIntrinsic(EDiLog10)) ||
+                (intrinsic->getIntrinsicID() == Intrinsic::gla_fLog   && backEnd->decomposeIntrinsic(EDiLog))) {
                 //    log base 10 of X = (log base 10 of 2) * (log base 2 of X)
                 // -> log base 10 of X = 0.30102999566398119521373889472449 * (log base 2 of X)
                 //

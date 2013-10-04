@@ -228,9 +228,10 @@ static bool IsExtractElement(Value* i)
 }
 
 // Predicate telling whether the instruction is an insert or extract
-static bool IsEitherIE(Value* i) {
-    return IsInsertElement(i) || IsExtractElement(i);
-}
+//static bool IsEitherIE(Value* i) 
+//{
+//    return IsInsertElement(i) || IsExtractElement(i);
+//}
 
 // Given a value, get the underlying offset and value. If the value is a
 // scalar, return 0 and the scalar. If the value is an extract of a vector,

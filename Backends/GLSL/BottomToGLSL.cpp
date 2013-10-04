@@ -2567,8 +2567,8 @@ void gla::GlslTarget::emitGlaInterpolationQualifier(EVariableQualifier qualifier
         }
 
         if (version >= 130) {
-            if (language == EShLangVertex   && qualifier == EVQOutput ||
-                language == EShLangFragment && qualifier == EVQInput) {
+            if ((language == EShLangVertex   && qualifier == EVQOutput) ||
+                (language == EShLangFragment && qualifier == EVQInput)) {
                 switch (interpMethod) {
                 case EIMNone:          globalDeclarations << "flat ";          break;
                 //case EIMSmooth:        globalDeclarations << "smooth ";        break;

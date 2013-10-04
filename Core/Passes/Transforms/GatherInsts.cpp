@@ -252,7 +252,7 @@ bool GatherInsts::matchBinOpExtended(const BinaryOperator* binOp, Value*& operan
 
             isSigned = ext->getOpcode() == Instruction::SExt;
 
-        } else if (const Constant* cArg = dyn_cast<const Constant>(v)) {
+        } else if (/*const Constant* cArg = */ dyn_cast<const Constant>(v)) {
             // TODO: handle the case where a constant made its way into the
             // extended binOp.
             gla::UnsupportedFunctionality("extended binOp of a constant");
