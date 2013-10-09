@@ -159,7 +159,7 @@ gla::EMdInputOutput GetMdQualifier(glslang::TIntermSymbol* node)
     case glslang::EvqFragDepth:  mdQualifier = gla::EMioFragmentDepth;     break;
 
     // uniforms
-    case glslang::EVqBuffer:     mdQualifier = gla::EMioBufferBlockMember; break;
+    case glslang::EvqBuffer:     mdQualifier = gla::EMioBufferBlockMember; break;
     case glslang::EvqUniform:    
                     if (node->getType().getBasicType() == glslang::EbtBlock)
                         mdQualifier = gla::EMioUniformBlockMember;
@@ -1099,7 +1099,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const glslang::TIntermSy
         storageQualifier = gla::Builder::ESQOutput;
         break;
     case glslang::EvqUniform:
-    case glslang::EVqBuffer:
+    case glslang::EvqBuffer:
         storageQualifier = gla::Builder::ESQUniform;
         // TODO: linker functionality: uniform buffers? need to generalize to N objects (constant buffers) for higher shader models
         constantBuffer = 0;
