@@ -2,7 +2,7 @@
 Top IR:
 ; ModuleID = 'Top'
 
-@Position_shadow = internal global <4 x float> zeroinitializer
+@glPos_shadow = internal global <4 x float> zeroinitializer
 @mvp = external addrspace(2) constant [4 x <4 x float>]
 @v_shadow = internal global <4 x float> zeroinitializer
 @f_shadow = internal global float 0.000000e+00
@@ -86,8 +86,8 @@ entry:
   %element57 = extractelement <4 x float> %column56, i32 3
   %product58 = fmul float %element57, %component3
   %dotProduct59 = fadd float %dotProduct55, %product58
-  %Position_shadow = insertelement <4 x float> %6, float %dotProduct59, i32 3
-  store <4 x float> %Position_shadow, <4 x float>* @Position_shadow
+  %glPos_shadow = insertelement <4 x float> %6, float %dotProduct59, i32 3
+  store <4 x float> %glPos_shadow, <4 x float>* @glPos_shadow
   %am3 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1027, i32 -1), !gla.input !9
   store <3 x float> %am3, <3 x float>* getelementptr inbounds ([3 x <3 x float>]* @am3_shadow, i32 0, i32 0)
   %am360 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1028, i32 -1), !gla.input !9
@@ -127,7 +127,7 @@ entry:
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %11 = load <4 x float>* @Position_shadow
+  %11 = load <4 x float>* @glPos_shadow
   call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %11), !gla.output !1
   %12 = load float* @f_shadow
   call void @llvm.gla.fWriteData.f32(i32 1026, i32 -1, float %12), !gla.output !3
@@ -152,8 +152,8 @@ declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
 !gla.noStaticUse = !{!13, !15}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!1 = metadata !{metadata !"glPos", i32 7, <4 x float>* @glPos_shadow_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !3 = metadata !{metadata !"f", i32 7, float* @f_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
 !5 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>]* @mvp_typeProxy, metadata !6}
@@ -265,8 +265,8 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !gla.noStaticUse = !{!13, !15}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!1 = metadata !{metadata !"glPos", i32 7, <4 x float>* @glPos_shadow_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !3 = metadata !{metadata !"f", i32 7, float* @f_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
 !5 = metadata !{metadata !"mvp", i32 12, [4 x <4 x float>]* @mvp_typeProxy, metadata !6}
@@ -282,7 +282,7 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !16}
 !16 = metadata !{i32 0, i32 0, i32 1032, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 330 is not yet complete; some version-specific are present, but many are missing.
+Warning, version 330 is not yet complete; some version-specific features are present, but many are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
@@ -292,6 +292,7 @@ uniform mat4 mvp;
 in vec4 v;
 in mat3 am3;
 in mat4 arraym[3];
+out vec4 glPos;
 out float f;
 
 void main()
@@ -330,13 +331,13 @@ void main()
     float dotProduct59 = product58 + dotProduct55;
     float f_shadow = am3[2].y + arraym[1][2].w;
     vec4 temp54 = vec4(dotProduct14, dotProduct29, dotProduct44, dotProduct59);
-    gl_Position = temp54;
+    glPos = temp54;
     f = f_shadow;
     
 }
 
 #### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 330 is not yet complete; some version-specific are present, but many are missing.
+Warning, version 330 is not yet complete; some version-specific features are present, but many are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
@@ -346,6 +347,7 @@ uniform mat4 mvp;
 in vec4 v;
 in mat3 am3;
 in mat4 arraym[3];
+out vec4 glPos;
 out float f;
 
 void main()
@@ -380,7 +382,7 @@ void main()
     float dotProduct5948 = product5845 + dotProduct5546;
     vec4 temp49 = vec4(dotProduct143536, dotProduct2943, dotProduct4447, dotProduct5948);
     float f_shadow62 = am3[2].y + arraym[1][2].w;
-    gl_Position = temp49;
+    glPos = temp49;
     f = f_shadow62;
     
 }
