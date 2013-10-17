@@ -1070,6 +1070,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const glslang::TIntermSy
 
     switch (node->getQualifier().storage) {
     case glslang::EvqTemporary:
+    case glslang::EvqConstReadOnly:
         storageQualifier = gla::Builder::ESQLocal;
         break;
     case glslang::EvqGlobal:
@@ -1107,7 +1108,6 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const glslang::TIntermSy
     case glslang::EvqIn:
     case glslang::EvqOut:
     case glslang::EvqInOut:
-    case glslang::EvqConstReadOnly:
         // parameter qualifiers should not come through here
     default:
         gla::UnsupportedFunctionality("glslang qualifier", gla::EATContinue);
