@@ -135,7 +135,6 @@ inductive variable:  %i.0 = phi i32 [ 0, %entry ], [ %i3, %ifmerge ]
   increment:         %i3 = add i32 %i.0, 1
   exit condition:    %1 = icmp slt i32 %i.0, %.pre
 #### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 120 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
@@ -161,8 +160,8 @@ void main()
     
 }
 
+!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 120 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####

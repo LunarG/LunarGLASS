@@ -172,7 +172,6 @@ declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x floa
 !13 = metadata !{metadata !"v", i32 1, <3 x float>* @v_shadow_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
 #### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 120 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
@@ -212,8 +211,8 @@ void main()
     
 }
 
+!14 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 120 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
