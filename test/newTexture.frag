@@ -36,19 +36,19 @@ void main()
     vec4 v = texture(s2D, c2D);
     v += textureProj(s3D, c4D);
     v += textureLod(s2DArray, c3D, 1.2);
-    v.y += textureOffset(s2DShadow, c3D, ic2D, c1D);
+    v.y += textureOffset(s2DShadow, c3D, ivec2(3), c1D);
     v += texelFetch(s3D, ic3D, ic1D);
     v += texelFetchOffset(s2D, ic2D, 4, ic2D);
-    v.y += textureLodOffset(s2DShadow, c3D, c1D, ic2D);
-    v += textureProjLodOffset(s2D, c3D, c1D, ic2D);
+    v.y += textureLodOffset(s2DShadow, c3D, c1D, ivec2(3));
+    v += textureProjLodOffset(s2D, c3D, c1D, ivec2(3));
     v += textureGrad(sCube, c3D, c3D, c3D);
-    v.x += textureGradOffset(s2DArrayShadow, c4D, c2D, c2D, ic2D);
+    v.x += textureGradOffset(s2DArrayShadow, c4D, c2D, c2D, ivec2(3));
     v += textureProjGrad(s3D, c4D, c3D, c3D);
-    v += textureProjGradOffset(s2D, c3D, c2D, c2D, ic2D);
+    v += textureProjGradOffset(s2D, c3D, c2D, c2D, ivec2(3));
 
     ivec4 iv = texture(is2D, c2D);
     v += vec4(iv);
-    iv = textureProjOffset(is2D, c4D, ic2D);
+    iv = textureProjOffset(is2D, c4D, ivec2(3));
     v += vec4(iv);
     iv = textureProjLod(is2D, c3D, c1D);
     v += vec4(iv);

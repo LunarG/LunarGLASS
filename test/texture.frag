@@ -61,7 +61,7 @@ void main()
 
     vec2 gradX = dFdx(coords2D);
     vec2 gradY = dFdy(coords2D);
-    ivec2 offset = ivec2(3, -7);
+    const ivec2 offset = ivec2(3, -7);
 
     color += textureGrad(texSampler2D, coords2D, gradX, gradY);
     color += textureProjGrad(texSampler2D, vec3(coords2D, proj), gradX, gradY);
