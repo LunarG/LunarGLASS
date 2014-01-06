@@ -243,10 +243,10 @@ gla::EMdSamplerBaseType GetMdSamplerBaseType(glslang::TBasicType type)
 
 int GetMdSlotLocation(const glslang::TType& type)
 {
-    if (type.getQualifier().layoutSlotLocation == glslang::TQualifier::layoutLocationEnd)
+    if (type.getQualifier().layoutLocation == glslang::TQualifier::layoutLocationEnd)
         return gla::MaxUserLayoutLocation;
     else
-        return type.getQualifier().layoutSlotLocation;
+        return type.getQualifier().layoutLocation;
 }
 
 gla::EMdPrecision GetMdPrecision(const glslang::TType& type)
@@ -1071,14 +1071,11 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const glslang::TIntermSy
     switch (node->getQualifier().storage) {
     case glslang::EvqTemporary:
     case glslang::EvqConstReadOnly:
+    case glslang::EvqConst:
         storageQualifier = gla::Builder::ESQLocal;
         break;
     case glslang::EvqGlobal:
         storageQualifier = gla::Builder::ESQGlobal;
-        break;
-    case glslang::EvqConst:
-        gla::UnsupportedFunctionality("glslang const variable", gla::EATContinue);
-        storageQualifier = gla::Builder::ESQLocal;
         break;
     case glslang::EvqVaryingIn:
     case glslang::EvqFragCoord:
@@ -2172,7 +2169,7 @@ int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input)
     // Get the index for this interpolant, or create a new unique one
     int slot;
     if (node->getQualifier().hasLocation()) {
-        slot = node->getQualifier().layoutSlotLocation;
+        slot = node->getQualifier().layoutLocation;
         
         return slot;
     }

@@ -19,7 +19,6 @@ define fastcc void @main() {
 entry:
   %constructed41 = alloca <3 x float>
   %constructed = alloca <3 x float>
-  %offset = alloca <2 x i32>
   %gradY = alloca <2 x float>
   %gradX = alloca <2 x float>
   %iLod = alloca i32
@@ -223,7 +222,6 @@ entry:
   %114 = load <2 x float>* @coords2D_shadow
   %gradY32 = call <2 x float> @llvm.gla.fDFdy.v2f32.v2f32(<2 x float> %114)
   store <2 x float> %gradY32, <2 x float>* %gradY
-  store <2 x i32> <i32 3, i32 -7>, <2 x i32>* %offset
   %115 = load i32 addrspace(1)* @texSampler2D, !gla.uniform !4
   %coords2D33 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !23
   store <2 x float> %coords2D33, <2 x float>* @coords2D_shadow
@@ -257,53 +255,51 @@ entry:
   %135 = load <2 x float>* @coords2D_shadow
   %136 = load <2 x float>* %gradX
   %137 = load <2 x float>* %gradY
-  %138 = load <2 x i32>* %offset
-  %139 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.v2i32.v2f32.v2f32(i32 2, i32 %134, i32 256, <2 x float> %135, float undef, float undef, <2 x i32> %138, <2 x float> %136, <2 x float> %137)
-  %140 = load <4 x float>* %color
-  %color38 = fadd <4 x float> %140, %139
+  %138 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v2f32.v2i32.v2f32.v2f32(i32 2, i32 %134, i32 256, <2 x float> %135, float undef, float undef, <2 x i32> <i32 3, i32 -7>, <2 x float> %136, <2 x float> %137)
+  %139 = load <4 x float>* %color
+  %color38 = fadd <4 x float> %139, %138
   store <4 x float> %color38, <4 x float>* %color
-  %141 = load i32 addrspace(1)* @texSampler2D, !gla.uniform !4
-  %142 = load <3 x float>* %coords3D
-  %143 = load <2 x float>* %gradX
-  %144 = load <2 x float>* %gradY
-  %145 = load <2 x i32>* %offset
-  %146 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.v2i32.v2f32.v2f32(i32 2, i32 %141, i32 257, <3 x float> %142, float undef, float undef, <2 x i32> %145, <2 x float> %143, <2 x float> %144)
-  %147 = load <4 x float>* %color
-  %color39 = fadd <4 x float> %147, %146
+  %140 = load i32 addrspace(1)* @texSampler2D, !gla.uniform !4
+  %141 = load <3 x float>* %coords3D
+  %142 = load <2 x float>* %gradX
+  %143 = load <2 x float>* %gradY
+  %144 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.v2i32.v2f32.v2f32(i32 2, i32 %140, i32 257, <3 x float> %141, float undef, float undef, <2 x i32> <i32 3, i32 -7>, <2 x float> %142, <2 x float> %143)
+  %145 = load <4 x float>* %color
+  %color39 = fadd <4 x float> %145, %144
   store <4 x float> %color39, <4 x float>* %color
-  %148 = load i32 addrspace(1)* @shadowSampler2D, !gla.uniform !16
+  %146 = load i32 addrspace(1)* @shadowSampler2D, !gla.uniform !16
   %coords2D40 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !23
   store <2 x float> %coords2D40, <2 x float>* @coords2D_shadow
-  %149 = load <2 x float>* @coords2D_shadow
-  %150 = load float* %lod
-  %151 = load <3 x float>* %constructed41
-  %152 = extractelement <2 x float> %149, i32 0
-  %153 = insertelement <3 x float> %151, float %152, i32 0
-  %154 = extractelement <2 x float> %149, i32 1
-  %155 = insertelement <3 x float> %153, float %154, i32 1
-  %156 = insertelement <3 x float> %155, float %150, i32 2
-  %157 = load <2 x float>* %gradX
-  %158 = load <2 x float>* %gradY
-  %159 = call float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v3f32.i32.v2f32.v2f32(i32 2, i32 %148, i32 8, <3 x float> %156, float undef, float undef, i32 undef, <2 x float> %157, <2 x float> %158)
-  %160 = load <4 x float>* %color
-  %161 = insertelement <4 x float> undef, float %159, i32 0
-  %162 = insertelement <4 x float> %161, float %159, i32 1
-  %163 = insertelement <4 x float> %162, float %159, i32 2
-  %164 = insertelement <4 x float> %163, float %159, i32 3
-  %color42 = fadd <4 x float> %160, %164
+  %147 = load <2 x float>* @coords2D_shadow
+  %148 = load float* %lod
+  %149 = load <3 x float>* %constructed41
+  %150 = extractelement <2 x float> %147, i32 0
+  %151 = insertelement <3 x float> %149, float %150, i32 0
+  %152 = extractelement <2 x float> %147, i32 1
+  %153 = insertelement <3 x float> %151, float %152, i32 1
+  %154 = insertelement <3 x float> %153, float %148, i32 2
+  %155 = load <2 x float>* %gradX
+  %156 = load <2 x float>* %gradY
+  %157 = call float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v3f32.i32.v2f32.v2f32(i32 2, i32 %146, i32 8, <3 x float> %154, float undef, float undef, i32 undef, <2 x float> %155, <2 x float> %156)
+  %158 = load <4 x float>* %color
+  %159 = insertelement <4 x float> undef, float %157, i32 0
+  %160 = insertelement <4 x float> %159, float %157, i32 1
+  %161 = insertelement <4 x float> %160, float %157, i32 2
+  %162 = insertelement <4 x float> %161, float %157, i32 3
+  %color42 = fadd <4 x float> %158, %162
   store <4 x float> %color42, <4 x float>* %color
-  %165 = load <4 x float>* %color
-  %166 = load <4 x float> addrspace(2)* @u, !gla.uniform !19
-  %167 = load float addrspace(2)* @blend, !gla.uniform !21
-  %168 = load float* %blendscale
-  %169 = fmul float %167, %168
-  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %165, <4 x float> %166, float %169)
+  %163 = load <4 x float>* %color
+  %164 = load <4 x float> addrspace(2)* @u, !gla.uniform !19
+  %165 = load float addrspace(2)* @blend, !gla.uniform !21
+  %166 = load float* %blendscale
+  %167 = fmul float %165, %166
+  %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.f32(<4 x float> %163, <4 x float> %164, float %167)
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %170 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %170), !gla.output !27
+  %168 = load <4 x float>* @FragColor_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %168), !gla.output !27
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

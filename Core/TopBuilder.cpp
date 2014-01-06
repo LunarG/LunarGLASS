@@ -1160,7 +1160,7 @@ llvm::Value* Builder::createVectorTimesMatrix(gla::EMdPrecision precision, llvm:
     for (int c = 0; c < GetNumColumns(matrix); ++c) {
         llvm::Value* column = builder.CreateExtractValue(matrix, c, "column");
         setInstructionPrecision(column, precision);
-        llvm::Instruction* comp = builder.CreateCall2(dot, lvector, column, "dot");
+        llvm::Instruction* comp = builder.CreateCall2(dot, lvector, column, "dotres");
         setInstructionPrecision(comp, precision);
         result = builder.CreateInsertElement(result, comp, MakeUnsignedConstant(context, c));
         setInstructionPrecision(result, precision);

@@ -1746,7 +1746,7 @@ void gla::GlslTarget::mapExtractElementStr(const llvm::Instruction* llvmInstruct
 //
 void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction)
 {
-    // Handle pipeline read/write
+    // Handle pipeline read/write and non-gla intrinsics
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_writeData:
     case llvm::Intrinsic::gla_fWriteData:
@@ -1759,6 +1759,13 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         emitMapGlaIOIntrinsic(llvmInstruction, true);
 
         return;
+
+    case llvm::Intrinsic::invariant_end:
+    case llvm::Intrinsic::invariant_start:
+    case llvm::Intrinsic::lifetime_end:
+    case llvm::Intrinsic::lifetime_start:
+        return;
+
     default:
         // fall through
         break;

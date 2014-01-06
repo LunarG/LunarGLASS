@@ -38,14 +38,14 @@ entry:
   %11 = alloca <3 x float>
   %12 = load <3 x float>* %11
   %column = extractvalue [3 x <3 x float>] %10, 0
-  %dot = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %9, <3 x float> %column)
-  %13 = insertelement <3 x float> %12, float %dot, i32 0
+  %dotres = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %9, <3 x float> %column)
+  %13 = insertelement <3 x float> %12, float %dotres, i32 0
   %column1 = extractvalue [3 x <3 x float>] %10, 1
-  %dot2 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %9, <3 x float> %column1)
-  %14 = insertelement <3 x float> %13, float %dot2, i32 1
+  %dotres2 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %9, <3 x float> %column1)
+  %14 = insertelement <3 x float> %13, float %dotres2, i32 1
   %column3 = extractvalue [3 x <3 x float>] %10, 2
-  %dot4 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %9, <3 x float> %column3)
-  %15 = insertelement <3 x float> %14, float %dot4, i32 2
+  %dotres4 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %9, <3 x float> %column3)
+  %15 = insertelement <3 x float> %14, float %dotres4, i32 2
   %16 = load <4 x float>* %constructed5
   %17 = extractelement <3 x float> %15, i32 0
   %18 = insertelement <4 x float> %16, float %17, i32 0
@@ -193,17 +193,17 @@ else:                                             ; preds = %entry
   %58 = alloca <4 x float>
   %59 = load <4 x float>* %58
   %column87 = extractvalue [4 x <4 x float>] %57, 0
-  %dot88 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %49, <4 x float> %column87)
-  %60 = insertelement <4 x float> %59, float %dot88, i32 0
+  %dotres88 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %49, <4 x float> %column87)
+  %60 = insertelement <4 x float> %59, float %dotres88, i32 0
   %column89 = extractvalue [4 x <4 x float>] %57, 1
-  %dot90 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %49, <4 x float> %column89)
-  %61 = insertelement <4 x float> %60, float %dot90, i32 1
+  %dotres90 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %49, <4 x float> %column89)
+  %61 = insertelement <4 x float> %60, float %dotres90, i32 1
   %column91 = extractvalue [4 x <4 x float>] %57, 2
-  %dot92 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %49, <4 x float> %column91)
-  %62 = insertelement <4 x float> %61, float %dot92, i32 2
+  %dotres92 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %49, <4 x float> %column91)
+  %62 = insertelement <4 x float> %61, float %dotres92, i32 2
   %column93 = extractvalue [4 x <4 x float>] %57, 3
-  %dot94 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %49, <4 x float> %column93)
-  %63 = insertelement <4 x float> %62, float %dot94, i32 3
+  %dotres94 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %49, <4 x float> %column93)
+  %63 = insertelement <4 x float> %62, float %dotres94, i32 3
   %64 = load <4 x float>* @FragColor_shadow
   %FragColor_shadow95 = fadd <4 x float> %64, %63
   store <4 x float> %FragColor_shadow95, <4 x float>* @FragColor_shadow
@@ -1091,12 +1091,12 @@ entry:
   %Color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !gla.input !9
   %1 = load [3 x <3 x float>] addrspace(2)* @colorTransform, align 16, !gla.uniform !5
   %column = extractvalue [3 x <3 x float>] %1, 0
-  %dot = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %Color, <3 x float> %column)
+  %dotres = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %Color, <3 x float> %column)
   %column1 = extractvalue [3 x <3 x float>] %1, 1
-  %dot2 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %Color, <3 x float> %column1)
+  %dotres2 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %Color, <3 x float> %column1)
   %column3 = extractvalue [3 x <3 x float>] %1, 2
-  %dot4 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %Color, <3 x float> %column3)
-  %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dot, i32 0, float %dot2, i32 0, float %dot4, i32 0, float 1.000000e+00, i32 0)
+  %dotres4 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %Color, <3 x float> %column3)
+  %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dotres, i32 0, float %dotres2, i32 0, float %dotres4, i32 0, float 1.000000e+00, i32 0)
   %FragColor_shadow6 = fadd <4 x float> %0, %2
   %3 = load [4 x <4 x float>] addrspace(2)* @m, align 16, !gla.uniform !6
   %4 = load [4 x <4 x float>] addrspace(2)* @n, align 16, !gla.uniform !7
@@ -1185,11 +1185,11 @@ else:                                             ; preds = %entry
   %column80 = fsub <4 x float> %element17, %element28
   %column83 = fsub <4 x float> %element19, %element210
   %column86 = fsub <4 x float> %element111, %element212
-  %dot88 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v, <4 x float> %column77)
-  %dot90 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v, <4 x float> %column80)
-  %dot92 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v, <4 x float> %column83)
-  %dot94 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v, <4 x float> %column86)
-  %17 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dot88, i32 0, float %dot90, i32 0, float %dot92, i32 0, float %dot94, i32 0)
+  %dotres88 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v, <4 x float> %column77)
+  %dotres90 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v, <4 x float> %column80)
+  %dotres92 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v, <4 x float> %column83)
+  %dotres94 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v, <4 x float> %column86)
+  %17 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dotres88, i32 0, float %dotres90, i32 0, float %dotres92, i32 0, float %dotres94, i32 0)
   %FragColor_shadow95 = fadd <4 x float> %FragColor_shadow75, %17
   br label %ifmerge
 
@@ -1571,12 +1571,12 @@ void main()
     vec4 FragColor_shadow716d0;
     vec4 dpn;
     vec3 column = colorTransform[0];
-    float dot = dot(Color, column);
+    float dotres = dot(Color, column);
     vec3 column1 = colorTransform[1];
-    float dot2 = dot(Color, column1);
+    float dotres2 = dot(Color, column1);
     vec3 column3 = colorTransform[2];
-    float dot4 = dot(Color, column3);
-    vec4 temp33 = vec4(dot, dot2, dot4, const34);
+    float dotres4 = dot(Color, column3);
+    vec4 temp33 = vec4(dotres, dotres2, dotres4, const34);
     vec4 FragColor_shadow6 = un34[1] + temp33;
     vec4 element1 = m[0];
     vec4 element2 = n[0];
@@ -1640,11 +1640,11 @@ void main()
         vec4 column80 = element17 - element28;
         vec4 column83 = element19 - element210;
         vec4 column86 = element111 - element212;
-        float dot88 = dot(v, column77);
-        float dot90 = dot(v, column80);
-        float dot92 = dot(v, column83);
-        float dot94 = dot(v, column86);
-        vec4 temp94 = vec4(dot88, dot90, dot92, dot94);
+        float dotres88 = dot(v, column77);
+        float dotres90 = dot(v, column80);
+        float dotres92 = dot(v, column83);
+        float dotres94 = dot(v, column86);
+        vec4 temp94 = vec4(dotres88, dotres90, dotres92, dotres94);
         vec4 FragColor_shadow95 = FragColor_shadow75 + temp94;
         dpredphi722 = v.w;
         dpredphi720 = v.z;
@@ -1919,10 +1919,10 @@ void main()
     float dpredphi720d0;
     float dpredphi722d0;
     vec4 dpnd0;
-    float dot2 = dot(Color, colorTransform[0]);
-    float dot257 = dot(Color, colorTransform[1]);
-    float dot410 = dot(Color, colorTransform[2]);
-    vec4 temp30 = vec4(dot2, dot257, dot410, const31);
+    float dotres2 = dot(Color, colorTransform[0]);
+    float dotres257 = dot(Color, colorTransform[1]);
+    float dotres410 = dot(Color, colorTransform[2]);
+    vec4 temp30 = vec4(dotres2, dotres257, dotres410, const31);
     vec4 FragColor_shadow612 = un34[1] + temp30;
     bvec4 temp3815 = notEqual(m[0], n[0]);
     bool temp3916 = any(temp3815);
@@ -1978,11 +1978,11 @@ void main()
         vec4 column8091 = m[1] - n[1];
         vec4 column8392 = m[2] - n[2];
         vec4 column8693 = m[3] - n[3];
-        float dot8895 = dot(v, column7790);
-        float dot9097 = dot(v, column8091);
-        float dot9299 = dot(v, column8392);
-        float dot94101 = dot(v, column8693);
-        vec4 temp83 = vec4(dot8895, dot9097, dot9299, dot94101);
+        float dotres8895 = dot(v, column7790);
+        float dotres9097 = dot(v, column8091);
+        float dotres9299 = dot(v, column8392);
+        float dotres94101 = dot(v, column8693);
+        vec4 temp83 = vec4(dotres8895, dotres9097, dotres9299, dotres94101);
         vec4 FragColor_shadow95104 = temp83 + FragColor_shadow7589;
         FragColor_shadow716d0d0 = FragColor_shadow95104;
         dpredphid0 = v.x;
