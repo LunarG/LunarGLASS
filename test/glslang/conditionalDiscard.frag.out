@@ -86,14 +86,17 @@ entry:
   %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
   %1 = fcmp oeq <4 x float> %v1, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
   %2 = call i1 @llvm.gla.all.v4i1(<4 x i1> %1)
-  br i1 %2, label %then, label %stage-epilogue
+  br i1 %2, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
   call void @llvm.gla.discard()
   br label %stage-exit
 
-stage-epilogue:                                   ; preds = %entry
+ifmerge:                                          ; preds = %entry
   call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %v1), !gla.output !6
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then

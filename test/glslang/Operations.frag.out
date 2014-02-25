@@ -495,101 +495,152 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fRadians.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fRadians.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fDegrees.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fDegrees.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fSin.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSin.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fCos.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fCos.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fTan.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTan.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAsin.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAsin.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAcos.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAcos.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAtan.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAtan.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fSinh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSinh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fCosh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fCosh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fTanh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTanh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAsinh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAsinh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAcosh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAcosh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAtanh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAtanh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fPow.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fPow.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fExp.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fExp.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fLog.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fLog.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fExp2.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fExp2.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fLog2.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fLog2.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fSqrt.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSqrt.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fInverseSqrt.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fInverseSqrt.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAbs.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAbs.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fSign.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSign.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fFloor.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fFloor.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fCeiling.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fCeiling.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fFraction.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fFraction.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fMin.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMin.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fMax.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMax.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fClamp.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fClamp.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fStep.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fStep.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fSmoothStep.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSmoothStep.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fStep.v4f32.f32.v4f32(float, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fStep.v4f32.f32.v4f32(float, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fSmoothStep.v4f32.f32.f32.v4f32(float, float, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSmoothStep.v4f32.f32.f32.v4f32(float, float, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fNormalize.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fNormalize.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fFaceForward.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fFaceForward.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) #0
 
-declare <4 x float> @llvm.gla.fDFdx.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fDFdx.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fDFdy.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fDFdy.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fFilterWidth.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fFilterWidth.v4f32.v4f32(<4 x float>) #0
 
-declare i1 @llvm.gla.any.v4i1(<4 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.any.v4i1(<4 x i1>) #0
 
-declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.all.v4i1(<4 x i1>) #0
 
-declare float @llvm.gla.fLength.f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fLength.f32.v4f32(<4 x float>) #0
 
-declare float @llvm.gla.fDistance.f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fDistance.f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>) #0
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3, !4, !5, !6, !7, !8}
@@ -742,43 +793,44 @@ entry:
   %67 = sub i32 %66, %3
   %i54 = sdiv i32 %67, %i3
   %i55 = srem i32 %i54, %3
-  %68 = fadd float %37, %37
-  %69 = fmul float %37, %68
-  %70 = fsub float %69, %37
-  %f57 = fdiv float %70, %37
-  %71 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %v44)
-  %f58 = fadd float %f57, %71
-  %72 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v44, <4 x float> %v44)
-  %f60 = fadd float %f58, %72
-  %73 = fmul float %37, %f60
-  %f61 = fadd float %f60, %73
-  %74 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %47, <3 x float> %47)
-  %75 = extractelement <3 x float> %74, i32 0
-  %f62 = fadd float %75, %f61
-  %76 = fcmp oeq float %f62, %37
-  %77 = fcmp one float %f62, %37
-  %78 = fcmp one float %f62, 2.000000e+00
-  %79 = and i1 %77, %78
-  %80 = or i1 %76, %79
-  %f64 = fadd float %f62, 1.000000e+00
-  %select = select i1 %80, float %f64, float %f62
-  %81 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select, <4 x i32> zeroinitializer)
+  %68 = icmp eq i32 %i55, 2
   %i56 = add i32 %i55, 1
-  %82 = icmp eq i32 %i55, 2
-  %i.0 = select i1 %82, i32 0, i32 %i56
-  %i66 = and i32 %3, %i.0
+  %.i56 = select i1 %68, i32 0, i32 %i56
+  %69 = fadd float %37, %37
+  %70 = fmul float %37, %69
+  %71 = fsub float %70, %37
+  %f57 = fdiv float %71, %37
+  %72 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %v44)
+  %f58 = fadd float %f57, %72
+  %73 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v44, <4 x float> %v44)
+  %f60 = fadd float %f58, %73
+  %74 = fmul float %37, %f60
+  %f61 = fadd float %f60, %74
+  %75 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %47, <3 x float> %47)
+  %76 = extractelement <3 x float> %75, i32 0
+  %f62 = fadd float %76, %f61
+  %77 = fcmp oeq float %f62, %37
+  %78 = fcmp one float %f62, %37
+  %79 = fcmp one float %f62, 2.000000e+00
+  %80 = and i1 %78, %79
+  %81 = or i1 %77, %80
+  %f64 = fadd float %f62, 1.000000e+00
+  %select80 = select i1 %81, float %f64, float %f62
+  %82 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select80, <4 x i32> zeroinitializer)
+  %83 = load i32 addrspace(2)* @ui, align 4, !gla.uniform !3
+  %i66 = and i32 %83, %.i56
   %i67 = or i32 %i66, 66
-  %i68 = xor i32 %i67, %3
+  %i68 = xor i32 %i67, %83
   %i69 = srem i32 %i68, 17
   %i70 = ashr i32 %i69, 2
-  %i71 = shl i32 %i70, %3
+  %i71 = shl i32 %i70, %83
   %i72 = xor i32 %i71, -1
-  %83 = sitofp i32 %i72 to float
-  %84 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %83, <4 x i32> zeroinitializer)
-  %85 = fadd <4 x float> %81, %84
-  %ternary76 = fadd <4 x float> %v44, %85
-  %select80 = select i1 %b53, <4 x float> %v44, <4 x float> %ternary76
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %select80), !gla.output !9
+  %84 = sitofp i32 %i72 to float
+  %85 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %84, <4 x i32> zeroinitializer)
+  %86 = fadd <4 x float> %85, %82
+  %ternary76 = fadd <4 x float> %v44, %86
+  %select = select i1 %b53, <4 x float> %v44, <4 x float> %ternary76
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %select), !gla.output !9
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -788,101 +840,152 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fSin.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSin.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fCos.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fCos.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fTan.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTan.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAsin.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAsin.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAcos.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAcos.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAtan.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAtan.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fSinh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSinh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fCosh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fCosh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fTanh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTanh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAsinh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAsinh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAcosh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAcosh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAtanh.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAtanh.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fPow.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fPow.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fExp.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fExp.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fLog.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fLog.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fExp2.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fExp2.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fLog2.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fLog2.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fSqrt.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSqrt.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fInverseSqrt.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fInverseSqrt.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fAbs.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fAbs.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fSign.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSign.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fFloor.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fFloor.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fCeiling.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fCeiling.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fFraction.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fFraction.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fMin.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMin.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fMax.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMax.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fClamp.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fClamp.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fStep.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fStep.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fSmoothStep.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSmoothStep.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fStep.v4f32.f32.v4f32(float, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fStep.v4f32.f32.v4f32(float, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fSmoothStep.v4f32.f32.f32.v4f32(float, float, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSmoothStep.v4f32.f32.f32.v4f32(float, float, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fNormalize.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fNormalize.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fFaceForward.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fFaceForward.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float>, <4 x float>, float) #0
 
-declare <4 x float> @llvm.gla.fDFdx.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fDFdx.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fDFdy.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fDFdy.v4f32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fFilterWidth.v4f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fFilterWidth.v4f32.v4f32(<4 x float>) #0
 
-declare i1 @llvm.gla.any.v4i1(<4 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.any.v4i1(<4 x i1>) #0
 
-declare i1 @llvm.gla.all.v4i1(<4 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.all.v4i1(<4 x i1>) #0
 
-declare float @llvm.gla.fLength.f32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fLength.f32.v4f32(<4 x float>) #0
 
-declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 
-declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>) #0
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>) #0
 
-declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>) #0
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3, !4, !5, !6, !7, !8}
@@ -916,11 +1019,11 @@ uniform ivec4 uiv4;
 uniform bool ub;
 const vec4 const22 = vec4(0.0174533);
 const vec4 const24 = vec4(57.2958);
-const float const155 = 2.0;
-const float const159 = 1.0;
-const int const163i_1 = 1;
-const int const165i_2 = 2;
-const int const167i_0 = 0;
+const int const141i_2 = 2;
+const int const143i_1 = 1;
+const int const145i_0 = 0;
+const float const161 = 2.0;
+const float const165 = 1.0;
 const int const170i_66 = 66;
 const int const173i_17 = 17;
 
@@ -1043,42 +1146,42 @@ void main()
     int temp137 = temp136 - ui;
     int temp138 = temp137 / temp26;
     int temp139 = temp138 % ui;
-    float temp140 = uf + uf;
-    float temp141 = uf * temp140;
-    float temp142 = temp141 - uf;
-    float temp143 = temp142 / uf;
-    float temp144 = length(temp109);
-    float temp145 = temp143 + temp144;
-    float temp146 = dot(temp109, temp109);
-    float temp147 = temp145 + temp146;
-    float temp148 = uf * temp147;
-    float temp149 = temp147 + temp148;
-    vec3 temp150 = cross(temp110, temp110);
-    float temp151 = temp150.x + temp149;
-    bool temp152 = temp151 == uf;
-    bool temp153 = temp151 != uf;
-    bool temp154 = temp151 != const155;
-    bool temp156 = temp153 && temp154;
-    bool temp157 = temp152 || temp156;
-    float temp158 = temp151 + const159;
-    float select = temp157 ? temp158 : temp151;
-    vec4 temp161 = vec4(select);
-    int temp162 = temp139 + const163i_1;
-    bool temp164 = temp139 == const165i_2;
-    int id0 = temp164 ? const167i_0 : temp162;
-    int temp168 = ui & id0;
+    bool temp140 = temp139 == const141i_2;
+    int temp142 = temp139 + const143i_1;
+    int di56 = temp140 ? const145i_0 : temp142;
+    float temp146 = uf + uf;
+    float temp147 = uf * temp146;
+    float temp148 = temp147 - uf;
+    float temp149 = temp148 / uf;
+    float temp150 = length(temp109);
+    float temp151 = temp149 + temp150;
+    float temp152 = dot(temp109, temp109);
+    float temp153 = temp151 + temp152;
+    float temp154 = uf * temp153;
+    float temp155 = temp153 + temp154;
+    vec3 temp156 = cross(temp110, temp110);
+    float temp157 = temp156.x + temp155;
+    bool temp158 = temp157 == uf;
+    bool temp159 = temp157 != uf;
+    bool temp160 = temp157 != const161;
+    bool temp162 = temp159 && temp160;
+    bool temp163 = temp158 || temp162;
+    float temp164 = temp157 + const165;
+    float select80 = temp163 ? temp164 : temp157;
+    vec4 temp167 = vec4(select80);
+    int temp168 = ui & di56;
     int temp169 = temp168 | const170i_66;
     int temp171 = temp169 ^ ui;
     int temp172 = temp171 % const173i_17;
-    int temp174 = temp172 >> const165i_2;
+    int temp174 = temp172 >> const141i_2;
     int temp175 = temp174 << ui;
     int temp176 = ~(temp175);
     float temp177 = float(temp176);
     vec4 temp178 = vec4(temp177);
-    vec4 temp179 = temp161 + temp178;
+    vec4 temp179 = temp178 + temp167;
     vec4 ternary76 = temp109 + temp179;
-    vec4 select80 = temp134 ? temp109 : ternary76;
-    gl_FragColor = select80;
+    vec4 select = temp134 ? temp109 : ternary76;
+    gl_FragColor = select;
     
 }
 
@@ -1098,11 +1201,11 @@ uniform ivec4 uiv4;
 uniform bool ub;
 const vec4 const22 = vec4(0.0174533);
 const vec4 const24 = vec4(57.2958);
-const float const155 = 2.0;
-const float const159 = 1.0;
-const int const163i_2 = 2;
-const int const165i_1 = 1;
-const int const167i_0 = 0;
+const int const141i_2 = 2;
+const int const143i_1 = 1;
+const int const145i_0 = 0;
+const float const161 = 2.0;
+const float const165 = 1.0;
 const int const170i_66 = 66;
 const int const173i_17 = 17;
 
@@ -1225,42 +1328,42 @@ void main()
     int temp137115 = temp136114 - ui;
     int temp138116 = temp137115 / temp264;
     int temp139117 = temp138116 % ui;
-    float temp140118 = uf + uf;
-    float temp141119 = uf * temp140118;
-    float temp142120 = temp141119 - uf;
-    float temp143121 = temp142120 / uf;
-    float temp144122 = length(temp10987);
-    float temp145123 = temp143121 + temp144122;
-    float temp146124 = dot(temp10987, temp10987);
-    float temp147125 = temp145123 + temp146124;
-    float temp148126 = uf * temp147125;
-    float temp149127 = temp147125 + temp148126;
-    vec3 temp150128 = cross(temp110, temp110);
-    float temp151129 = temp150128.x + temp149127;
-    bool temp152130 = temp151129 == uf;
-    bool temp153131 = temp151129 != uf;
-    bool temp154132 = temp151129 != const155;
-    bool temp156133 = temp153131 && temp154132;
-    bool temp157134 = temp152130 || temp156133;
-    float temp158135 = temp151129 + const159;
-    float select169 = temp157134 ? temp158135 : temp151129;
-    vec4 temp161 = vec4(select169);
-    bool temp164142 = temp139117 == const163i_2;
-    int temp162141 = temp139117 + const165i_1;
-    int ternary143d0 = temp164142 ? const167i_0 : temp162141;
-    int temp168149 = ui & ternary143d0;
+    bool temp140118 = temp139117 == const141i_2;
+    int temp142119 = temp139117 + const143i_1;
+    int ternaryd0 = temp140118 ? const145i_0 : temp142119;
+    float temp146122 = uf + uf;
+    float temp147123 = uf * temp146122;
+    float temp148124 = temp147123 - uf;
+    float temp149125 = temp148124 / uf;
+    float temp150126 = length(temp10987);
+    float temp151127 = temp149125 + temp150126;
+    float temp152128 = dot(temp10987, temp10987);
+    float temp153129 = temp151127 + temp152128;
+    float temp154130 = uf * temp153129;
+    float temp155131 = temp153129 + temp154130;
+    vec3 temp156132 = cross(temp110, temp110);
+    float temp157133 = temp156132.x + temp155131;
+    bool temp158134 = temp157133 == uf;
+    bool temp159135 = temp157133 != uf;
+    bool temp160136 = temp157133 != const161;
+    bool temp162137 = temp159135 && temp160136;
+    bool temp163138 = temp158134 || temp162137;
+    float temp164139 = temp157133 + const165;
+    float select = temp163138 ? temp164139 : temp157133;
+    vec4 temp167 = vec4(select);
+    int temp168149 = ui & ternaryd0;
     int temp169150 = temp168149 | const170i_66;
     int temp171151 = temp169150 ^ ui;
     int temp172152 = temp171151 % const173i_17;
-    int temp174153 = temp172152 >> const163i_2;
+    int temp174153 = temp172152 >> const141i_2;
     int temp175154 = temp174153 << ui;
     int temp176155 = ~(temp175154);
     float temp177156 = float(temp176155);
     vec4 temp178 = vec4(temp177156);
-    vec4 temp179159 = temp178 + temp161;
+    vec4 temp179159 = temp178 + temp167;
     vec4 ternary76160 = temp10987 + temp179159;
-    vec4 select = temp134112 ? temp10987 : ternary76160;
-    gl_FragColor = select;
+    vec4 select169 = temp134112 ? temp10987 : ternary76160;
+    gl_FragColor = select169;
     
 }
 
