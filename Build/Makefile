@@ -51,7 +51,6 @@ glslang_SOURCES := \
     ../../glslang/glslang/MachineIndependent/parseConst.cpp \
     ../../glslang/glslang/MachineIndependent/ParseHelper.cpp \
     ../../glslang/glslang/MachineIndependent/PoolAlloc.cpp \
-    ../../glslang/glslang/MachineIndependent/QualifierAlive.cpp \
     ../../glslang/glslang/MachineIndependent/RemoveTree.cpp \
     ../../glslang/glslang/MachineIndependent/reflection.cpp \
     ../../glslang/glslang/MachineIndependent/ShaderLang.cpp \
