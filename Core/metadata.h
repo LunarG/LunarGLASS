@@ -47,8 +47,8 @@
 #include "LunarGLASSTopIR.h"
 
 // LLVM includes
-#include "llvm/Module.h"
-#include "llvm/Metadata.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Metadata.h"
 
 namespace gla {
 

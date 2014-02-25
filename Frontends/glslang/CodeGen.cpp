@@ -47,7 +47,7 @@
 #include "GlslangToTop.h"
 
 // LLVM includes
-#include "llvm/Module.h"
+#include "llvm/IR/Module.h"
 
 // Would be good to have a way of passing a target definition through the front end, or next to it...
 int TargetDefinitionVersion;

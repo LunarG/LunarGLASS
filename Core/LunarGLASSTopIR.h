@@ -45,7 +45,7 @@
 #ifndef LunarGLASSTopIR_H
 #define LunarGLASSTopIR_H
 
-#include "llvm/IRBuilder.h"
+#include "llvm/IR/IRBuilder.h"
 
 namespace gla {
 

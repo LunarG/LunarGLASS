@@ -2,7 +2,7 @@
 
 CORE := ../Core
 GLSLANG := ../../glslang/
-LLVM := $(CORE)/LLVM/llvm-3.2.src/
+LLVM := $(CORE)/LLVM/llvm-3.4/
 LLVMCONFIG := $(LLVM)build/Release+Asserts/bin/llvm-config
 
 glslang_INCLUDES := \

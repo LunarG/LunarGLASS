@@ -29,8 +29,8 @@
 #ifndef GLA_INSTRUCTIONUTIL_H
 #define GLA_INSTRUCTIONUTIL_H
 
-#include "llvm/Instructions.h"
-#include "llvm/IntrinsicInst.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/IntrinsicInst.h"
 
 // LunarGLASS helpers
 #include "LunarGLASSTopIR.h"

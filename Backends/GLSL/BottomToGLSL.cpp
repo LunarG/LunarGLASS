@@ -64,7 +64,7 @@
 #include "../../glslang/glslang/MachineIndependent/Versions.h"
 
 // LLVM includes
-#include "llvm/Module.h"
+#include "llvm/IR/Module.h"
 
 //
 // Implement the GLSL backend

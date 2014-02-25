@@ -78,11 +78,11 @@
 //===----------------------------------------------------------------------===//
 
 // LLVM includes
-#include "llvm/DerivedTypes.h"
-#include "llvm/IntrinsicInst.h"
-#include "llvm/Intrinsics.h"
-#include "llvm/LLVMContext.h"
-#include "llvm/Module.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/IntrinsicInst.h"
+#include "llvm/IR/Intrinsics.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
 #include "llvm/Pass.h"
 #include "llvm/PassManager.h"
 #include "llvm/ADT/SmallVector.h"
@@ -93,7 +93,7 @@
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Analysis/Verifier.h"
 #include "llvm/Transforms/Scalar.h"
-#include "llvm/IRBuilder.h"
+#include "llvm/IR/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
 
 #include <cstdio>

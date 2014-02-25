@@ -30,7 +30,7 @@
 #include "PrivateManager.h"
 #include "Exceptions.h"
 
-#include "llvm/Module.h"
+#include "llvm/IR/Module.h"
 
 #include "Backends/TGSI/TgsiTarget.h"
 #include "Backends/GLSL/GlslTarget.h"

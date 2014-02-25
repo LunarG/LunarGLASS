@@ -29,8 +29,8 @@
 #ifndef BASICBLOCK_UTIL_H
 #define BASICBLOCK_UTIL_H
 
-#include "llvm/BasicBlock.h"
-#include "llvm/Instructions.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Instructions.h"
 #include "llvm/ADT/DepthFirstIterator.h"
 #include "llvm/ADT/PostOrderIterator.h"
 #include "llvm/ADT/SmallPtrSet.h"

@@ -36,8 +36,8 @@
 #include "LunarGLASSTopIR.h"
 
 // LLVM includes
-#include "llvm/IRBuilder.h"
-#include "llvm/IntrinsicInst.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/IntrinsicInst.h"
 
 // Forward decls
 namespace llvm {

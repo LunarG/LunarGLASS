@@ -28,7 +28,7 @@
 
 #include "Passes/Util/InstructionUtil.h"
 
-#include "llvm/Instructions.h"
+#include "llvm/IR/Instructions.h"
 
 #include "LunarGLASSTopIR.h"
 #include "Util.h"

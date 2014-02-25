@@ -29,7 +29,7 @@
 #ifndef GLA_FUNTION_UTIL_H
 #define GLA_FUNTION_UTIL_H
 
-#include "llvm/Function.h"
+#include "llvm/IR/Function.h"
 
 namespace gla_llvm {
     using namespace llvm;

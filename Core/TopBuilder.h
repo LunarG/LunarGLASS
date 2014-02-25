@@ -45,8 +45,8 @@
 #define TopBuilder_H
 
 // LLVM includes
-#include "llvm/IRBuilder.h"
-#include "llvm/IntrinsicInst.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/IntrinsicInst.h"
 
 // LunarGLASS includes
 #include "LunarGLASSManager.h"

@@ -29,7 +29,7 @@
 #ifndef GLA_CONSTANTUTIL_H
 #define GLA_CONSTANTUTIL_H
 
-#include "llvm/Constants.h"
+#include "llvm/IR/Constants.h"
 
 // LunarGLASS helpers
 #include "LunarGLASSTopIR.h"
