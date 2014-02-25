@@ -522,17 +522,27 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare i32 @llvm.gla.readData.i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare i32 @llvm.gla.readData.i32(i32, i32) #0
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #1
 
-declare <4 x i32> @llvm.gla.readData.v4i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <4 x i32> @llvm.gla.readData.v4i32(i32, i32) #0
 
-declare i1 @llvm.gla.all.v2i1(<2 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.all.v2i1(<2 x i1>) #1
 
-declare i1 @llvm.gla.any.v3i1(<3 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.any.v3i1(<3 x i1>) #1
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
+
+attributes #0 = { nounwind readonly }
+attributes #1 = { nounwind readnone }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3, !4, !5, !6, !7, !8, !9, !10, !11, !12, !13, !14, !15, !16, !17}
@@ -743,41 +753,63 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare i32 @llvm.gla.readData.i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare i32 @llvm.gla.readData.i32(i32, i32) #0
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #1
 
-declare <4 x i32> @llvm.gla.readData.v4i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <4 x i32> @llvm.gla.readData.v4i32(i32, i32) #0
 
-declare i1 @llvm.gla.all.v2i1(<2 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.all.v2i1(<2 x i1>) #1
 
-declare i1 @llvm.gla.any.v3i1(<3 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.any.v3i1(<3 x i1>) #1
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
 
-declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
 
-declare <3 x i32> @llvm.gla.multiInsert.v3i32.v3i32.i32.i32.i32.i32(<3 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x i32> @llvm.gla.multiInsert.v3i32.v3i32.i32.i32.i32.i32(<3 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
 
-declare <2 x i32> @llvm.gla.multiInsert.v2i32.v2i32.i32.i32.i32.i32(<2 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i32> @llvm.gla.multiInsert.v2i32.v2i32.i32.i32.i32.i32(<2 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
 
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #1
 
-declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) #1
 
-declare <2 x float> @llvm.gla.fMultiInsert.v2f32.v2f32.f32.f32.f32.f32(<2 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fMultiInsert.v2f32.v2f32.f32.f32.f32.f32(<2 x float>, i32, float, i32, float, i32, float, i32, float, i32) #1
 
-declare <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) #1
 
-declare <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) #1
 
-declare <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) #1
 
-declare <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float, <2 x i32>) #1
 
-declare <3 x float> @llvm.gla.fSwizzle.v3f32.f32.v3i32(float, <3 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fSwizzle.v3f32.f32.v3i32(float, <3 x i32>) #1
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #1
+
+attributes #0 = { nounwind readonly }
+attributes #1 = { nounwind readnone }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3, !4, !5, !6, !7, !8, !9, !10, !11, !12, !13, !14, !15, !16, !17}
@@ -1113,14 +1145,14 @@ void main()
         bvec3 temp10288 = notEqual(temp9985, temp8568);
         bool temp10389 = all(temp10086);
         bool temp10490 = temp7252 != temp4423;
+        float ternary444887 = float(temp9074.y);
+        float select140 = temp221 ? temp8568.x : ternary444887;
+        float select142 = temp263 ? temp4423 : temp8366.x;
         bool temp107102 = any(temp10288);
         bool temp108103 = temp10490 || temp10389;
         bool temp110105 = temp108103 || temp107102;
-        float ternary444887 = float(temp9074.y);
-        float select = temp263 ? temp4423 : temp8366.x;
-        float select140 = temp221 ? temp8568.x : ternary444887;
-        float temp109104 = select + select140;
-        float select148 = temp110105 ? temp109104 : temp7252;
+        float temp109104 = select140 + select142;
+        float select = temp110105 ? temp109104 : temp7252;
         int temp112113 = temp9074.x + temp3413;
         int temp113114 = temp112113 + temp9074.y;
         int temp114115 = temp113114 + temp9480.x;
@@ -1131,7 +1163,7 @@ void main()
         int temp119120 = temp118119 + temp9277.y;
         int temp120121 = temp119120 + temp9277.z;
         float temp121122 = float(temp120121);
-        float temp122123 = temp121122 + select148;
+        float temp122123 = temp121122 + select;
         float temp123124 = temp8366.x + temp122123;
         float temp124125 = temp8366.y + temp123124;
         float temp125126 = temp8568.x + temp124125;

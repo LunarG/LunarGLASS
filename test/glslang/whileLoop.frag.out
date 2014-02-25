@@ -54,9 +54,14 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.inputs = !{!1}
@@ -82,7 +87,7 @@ Bottom IR:
 define fastcc void @main() {
 entry:
   %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !1
-  %.pre = load float addrspace(2)* @d, align 4, !gla.uniform !3
+  %.pre = load float addrspace(2)* @d, align 4
   %0 = load <4 x float> addrspace(2)* @bigColor, align 16, !gla.uniform !5
   br label %loop-header
 
@@ -107,9 +112,14 @@ ifmerge:                                          ; preds = %loop-header
   br label %loop-header
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.inputs = !{!1}
@@ -124,6 +134,8 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
 !5 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !4}
 !6 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+
+***Unsupported functionality: missing metadata on load 0 d
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
@@ -147,7 +159,7 @@ void main()
     
 }
 
-!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+***Unsupported functionality: missing metadata on load 0 d
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####

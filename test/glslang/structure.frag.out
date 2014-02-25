@@ -54,11 +54,17 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !7, !10}
@@ -118,13 +124,20 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !7, !10}

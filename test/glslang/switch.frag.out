@@ -308,15 +308,23 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
 
-declare float @llvm.gla.fSin.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fSin.f32.f32(float) #0
 
-declare float @llvm.gla.fCos.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fCos.f32.f32(float) #0
 
-declare float @llvm.gla.fTan.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fTan.f32.f32(float) #0
 
-declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) #1
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3}
@@ -434,7 +442,7 @@ switch-segment28:                                 ; preds = %switch-merge22
   ]
 
 switch-segment28.switch-merge35_crit_edge:        ; preds = %switch-segment28
-  %x62.pre.pre = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1), !gla.precision !8, !gla.input !4
+  %x62.pre.pre = call float @llvm.gla.fReadInterpolant.f32(i32 1024, i32 -1, i32 1)
   br label %switch-merge35
 
 switch-segment29:                                 ; preds = %switch-merge22
@@ -541,15 +549,23 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
 
-declare float @llvm.gla.fSin.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fSin.f32.f32(float) #0
 
-declare float @llvm.gla.fCos.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fCos.f32.f32(float) #0
 
-declare float @llvm.gla.fTan.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fTan.f32.f32(float) #0
 
-declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) #1
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3}

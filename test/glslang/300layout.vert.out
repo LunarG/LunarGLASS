@@ -187,25 +187,39 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #0
 
-declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) #1
 
-declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) #0
 
-declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) #1
 
-declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) #0
 
-declare i1 @llvm.gla.any.v3i1(<3 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.any.v3i1(<3 x i1>) #1
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
 
-declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) #2
 
-declare void @llvm.gla.writeData.i32(i32, i32, i32) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.writeData.i32(i32, i32, i32) #2
 
-declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) #2
+
+attributes #0 = { nounwind readonly }
+attributes #1 = { nounwind readnone }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1, !3, !5, !7}
@@ -383,29 +397,45 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #0
 
-declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) #1
 
-declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) #0
 
-declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) #1
 
-declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) #0
 
-declare i1 @llvm.gla.any.v3i1(<3 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.any.v3i1(<3 x i1>) #1
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
 
-declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) #2
 
-declare void @llvm.gla.writeData.i32(i32, i32, i32) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.writeData.i32(i32, i32, i32) #2
 
-declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) #2
 
-declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) #1
 
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #1
+
+attributes #0 = { nounwind readonly }
+attributes #1 = { nounwind readnone }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1, !3, !5, !7}

@@ -478,89 +478,135 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) #0
 
-declare <3 x float> @llvm.gla.fbMix.v3f32.v3f32.v3f32.v3i1(<3 x float>, <3 x float>, <3 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fbMix.v3f32.v3f32.v3f32.v3i1(<3 x float>, <3 x float>, <3 x i1>) #0
 
-declare <4 x i32> @llvm.gla.readData.v4i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <4 x i32> @llvm.gla.readData.v4i32(i32, i32) #1
 
-declare <4 x i32> @llvm.gla.abs.v4i32.v4i32(<4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.abs.v4i32.v4i32(<4 x i32>) #0
 
-declare <4 x i32> @llvm.gla.sign.v4i32.v4i32(<4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sign.v4i32.v4i32(<4 x i32>) #0
 
-declare <4 x i32> @llvm.gla.sMin.v4i32.v4i32.v4i32(<4 x i32>, <4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sMin.v4i32.v4i32.v4i32(<4 x i32>, <4 x i32>) #0
 
-declare <4 x i32> @llvm.gla.sMin.v4i32.v4i32.i32(<4 x i32>, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sMin.v4i32.v4i32.i32(<4 x i32>, i32) #0
 
-declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) #1
 
-declare <2 x i32> @llvm.gla.uMin.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i32> @llvm.gla.uMin.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>) #0
 
-declare i32 @llvm.gla.readData.i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare i32 @llvm.gla.readData.i32(i32, i32) #1
 
-declare <4 x i32> @llvm.gla.uMin.v4i32.v4i32.i32(<4 x i32>, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.uMin.v4i32.v4i32.i32(<4 x i32>, i32) #0
 
-declare <3 x i32> @llvm.gla.readData.v3i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <3 x i32> @llvm.gla.readData.v3i32(i32, i32) #1
 
-declare <3 x i32> @llvm.gla.sMax.v3i32.v3i32.v3i32(<3 x i32>, <3 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x i32> @llvm.gla.sMax.v3i32.v3i32.v3i32(<3 x i32>, <3 x i32>) #0
 
-declare <4 x i32> @llvm.gla.sMax.v4i32.v4i32.i32(<4 x i32>, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sMax.v4i32.v4i32.i32(<4 x i32>, i32) #0
 
-declare <2 x i32> @llvm.gla.uMax.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i32> @llvm.gla.uMax.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>) #0
 
-declare <2 x i32> @llvm.gla.uMax.v2i32.v2i32.i32(<2 x i32>, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i32> @llvm.gla.uMax.v2i32.v2i32.i32(<2 x i32>, i32) #0
 
-declare <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.v4i32.v4i32(<4 x i32>, <4 x i32>, <4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.v4i32.v4i32(<4 x i32>, <4 x i32>, <4 x i32>) #0
 
-declare <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.i32.i32(<4 x i32>, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.i32.i32(<4 x i32>, i32, i32) #0
 
-declare <2 x i32> @llvm.gla.uClamp.v2i32.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i32> @llvm.gla.uClamp.v2i32.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>, <2 x i32>) #0
 
-declare <4 x i32> @llvm.gla.uClamp.v4i32.v4i32.i32.i32(<4 x i32>, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.uClamp.v4i32.v4i32.i32.i32(<4 x i32>, i32, i32) #0
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
 
-declare float @llvm.gla.fRoundZero.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fRoundZero.f32.f32(float) #0
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
 
-declare <2 x float> @llvm.gla.fRoundFast.v2f32.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fRoundFast.v2f32.v2f32(<2 x float>) #0
 
-declare <2 x float> @llvm.gla.fRoundEven.v2f32.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fRoundEven.v2f32.v2f32(<2 x float>) #0
 
-declare <2 x i1> @llvm.gla.fIsNan.v2i1.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i1> @llvm.gla.fIsNan.v2i1.v2f32(<2 x float>) #0
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
 
-declare <4 x i1> @llvm.gla.fIsInf.v4i1.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i1> @llvm.gla.fIsInf.v4i1.v4f32(<4 x float>) #0
 
-declare i32 @llvm.gla.fFloatBitsToInt.i32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i32 @llvm.gla.fFloatBitsToInt.i32.f32(float) #0
 
-declare <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32>) #0
 
-declare <2 x float> @llvm.gla.fIntBitsTofloat.v2f32.v2i32(<2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fIntBitsTofloat.v2f32.v2i32(<2 x i32>) #0
 
-declare i32 @llvm.gla.fPackSnorm2x16.i32.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i32 @llvm.gla.fPackSnorm2x16.i32.v2f32(<2 x float>) #0
 
-declare <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32) #0
 
-declare i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float>) #0
 
-declare <2 x float> @llvm.gla.fUnpackUnorm2x16.v2f32.i32(i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fUnpackUnorm2x16.v2f32.i32(i32) #0
 
-declare i32 @llvm.gla.fPackHalf2x16.i32.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i32 @llvm.gla.fPackHalf2x16.i32.v2f32(<2 x float>) #0
 
-declare <2 x float> @llvm.gla.fUnpackHalf2x16.v2f32.i32(i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fUnpackHalf2x16.v2f32.i32(i32) #0
 
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #1
 
-declare <2 x float> @llvm.gla.fReadData.v2f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <2 x float> @llvm.gla.fReadData.v2f32(i32, i32) #1
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
 
-declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) #2
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind readonly }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.inputs = !{!1, !3, !5, !7, !9, !11, !13, !15, !17, !19, !21, !23, !25, !27, !29, !31, !33}
@@ -737,109 +783,165 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) #0
 
-declare <3 x float> @llvm.gla.fbMix.v3f32.v3f32.v3f32.v3i1(<3 x float>, <3 x float>, <3 x i1>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fbMix.v3f32.v3f32.v3f32.v3i1(<3 x float>, <3 x float>, <3 x i1>) #0
 
-declare <4 x i32> @llvm.gla.readData.v4i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <4 x i32> @llvm.gla.readData.v4i32(i32, i32) #1
 
-declare <4 x i32> @llvm.gla.abs.v4i32.v4i32(<4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.abs.v4i32.v4i32(<4 x i32>) #0
 
-declare <4 x i32> @llvm.gla.sign.v4i32.v4i32(<4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sign.v4i32.v4i32(<4 x i32>) #0
 
-declare <4 x i32> @llvm.gla.sMin.v4i32.v4i32.v4i32(<4 x i32>, <4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sMin.v4i32.v4i32.v4i32(<4 x i32>, <4 x i32>) #0
 
-declare <4 x i32> @llvm.gla.sMin.v4i32.v4i32.i32(<4 x i32>, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sMin.v4i32.v4i32.i32(<4 x i32>, i32) #0
 
-declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) #1
 
-declare <2 x i32> @llvm.gla.uMin.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i32> @llvm.gla.uMin.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>) #0
 
-declare i32 @llvm.gla.readData.i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare i32 @llvm.gla.readData.i32(i32, i32) #1
 
-declare <4 x i32> @llvm.gla.uMin.v4i32.v4i32.i32(<4 x i32>, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.uMin.v4i32.v4i32.i32(<4 x i32>, i32) #0
 
-declare <3 x i32> @llvm.gla.readData.v3i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <3 x i32> @llvm.gla.readData.v3i32(i32, i32) #1
 
-declare <3 x i32> @llvm.gla.sMax.v3i32.v3i32.v3i32(<3 x i32>, <3 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x i32> @llvm.gla.sMax.v3i32.v3i32.v3i32(<3 x i32>, <3 x i32>) #0
 
-declare <4 x i32> @llvm.gla.sMax.v4i32.v4i32.i32(<4 x i32>, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sMax.v4i32.v4i32.i32(<4 x i32>, i32) #0
 
-declare <2 x i32> @llvm.gla.uMax.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i32> @llvm.gla.uMax.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>) #0
 
-declare <2 x i32> @llvm.gla.uMax.v2i32.v2i32.i32(<2 x i32>, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i32> @llvm.gla.uMax.v2i32.v2i32.i32(<2 x i32>, i32) #0
 
-declare <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.v4i32.v4i32(<4 x i32>, <4 x i32>, <4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.v4i32.v4i32(<4 x i32>, <4 x i32>, <4 x i32>) #0
 
-declare <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.i32.i32(<4 x i32>, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.sClamp.v4i32.v4i32.i32.i32(<4 x i32>, i32, i32) #0
 
-declare <2 x i32> @llvm.gla.uClamp.v2i32.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i32> @llvm.gla.uClamp.v2i32.v2i32.v2i32.v2i32(<2 x i32>, <2 x i32>, <2 x i32>) #0
 
-declare <4 x i32> @llvm.gla.uClamp.v4i32.v4i32.i32.i32(<4 x i32>, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.uClamp.v4i32.v4i32.i32.i32(<4 x i32>, i32, i32) #0
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
 
-declare float @llvm.gla.fRoundZero.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fRoundZero.f32.f32(float) #0
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
 
-declare <2 x float> @llvm.gla.fRoundFast.v2f32.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fRoundFast.v2f32.v2f32(<2 x float>) #0
 
-declare <2 x float> @llvm.gla.fRoundEven.v2f32.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fRoundEven.v2f32.v2f32(<2 x float>) #0
 
-declare <2 x i1> @llvm.gla.fIsNan.v2i1.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i1> @llvm.gla.fIsNan.v2i1.v2f32(<2 x float>) #0
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
 
-declare <4 x i1> @llvm.gla.fIsInf.v4i1.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i1> @llvm.gla.fIsInf.v4i1.v4f32(<4 x float>) #0
 
-declare i32 @llvm.gla.fFloatBitsToInt.i32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i32 @llvm.gla.fFloatBitsToInt.i32.f32(float) #0
 
-declare <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float>) #0
 
-declare <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32>) #0
 
-declare <2 x float> @llvm.gla.fIntBitsTofloat.v2f32.v2i32(<2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fIntBitsTofloat.v2f32.v2i32(<2 x i32>) #0
 
-declare i32 @llvm.gla.fPackSnorm2x16.i32.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i32 @llvm.gla.fPackSnorm2x16.i32.v2f32(<2 x float>) #0
 
-declare <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32) #0
 
-declare i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float>) #0
 
-declare <2 x float> @llvm.gla.fUnpackUnorm2x16.v2f32.i32(i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fUnpackUnorm2x16.v2f32.i32(i32) #0
 
-declare i32 @llvm.gla.fPackHalf2x16.i32.v2f32(<2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare i32 @llvm.gla.fPackHalf2x16.i32.v2f32(<2 x float>) #0
 
-declare <2 x float> @llvm.gla.fUnpackHalf2x16.v2f32.i32(i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fUnpackHalf2x16.v2f32.i32(i32) #0
 
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #1
 
-declare <2 x float> @llvm.gla.fReadData.v2f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <2 x float> @llvm.gla.fReadData.v2f32(i32, i32) #1
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
 
-declare void @llvm.gla.fWriteData.f32(i32, i32, float) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) #2
 
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.v2f32.v2f32(<4 x float>, i32, <2 x float>, i32, <2 x float>, i32, <2 x float>, i32, <2 x float>, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.v2f32.v2f32(<4 x float>, i32, <2 x float>, i32, <2 x float>, i32, <2 x float>, i32, <2 x float>, i32) #0
 
-declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float>, i32, <2 x float>, i32, <2 x float>, i32, float, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float>, i32, <2 x float>, i32, <2 x float>, i32, float, i32, float, i32) #0
 
-declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.v4i32.v4i32(<4 x i32>, i32, <2 x i32>, i32, <2 x i32>, i32, <4 x i32>, i32, <4 x i32>, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.v4i32.v4i32(<4 x i32>, i32, <2 x i32>, i32, <2 x i32>, i32, <4 x i32>, i32, <4 x i32>, i32) #0
 
-declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.i32.i32(<4 x i32>, i32, <2 x i32>, i32, <2 x i32>, i32, i32, i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.i32.i32(<4 x i32>, i32, <2 x i32>, i32, <2 x i32>, i32, i32, i32, i32, i32) #0
 
-declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.v2i32.v2i32(<4 x i32>, i32, <2 x i32>, i32, <2 x i32>, i32, <2 x i32>, i32, <2 x i32>, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.v2i32.v2i32(<4 x i32>, i32, <2 x i32>, i32, <2 x i32>, i32, <2 x i32>, i32, <2 x i32>, i32) #0
 
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float>, i32, <3 x float>, i32, <3 x float>, i32, <3 x float>, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float>, i32, <3 x float>, i32, <3 x float>, i32, <3 x float>, i32, float, i32) #0
 
-declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v3i32.v3i32.v3i32.i32(<4 x i32>, i32, <3 x i32>, i32, <3 x i32>, i32, <3 x i32>, i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v3i32.v3i32.v3i32.i32(<4 x i32>, i32, <3 x i32>, i32, <3 x i32>, i32, <3 x i32>, i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
 
-declare <4 x i32> @llvm.gla.swizzle.v4i32.i32.v4i32(i32, <4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.swizzle.v4i32.i32.v4i32(i32, <4 x i32>) #0
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind readonly }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.inputs = !{!1, !3, !5, !7, !9, !11, !13, !15, !17, !19, !21, !23, !25, !27, !29, !31, !33}
