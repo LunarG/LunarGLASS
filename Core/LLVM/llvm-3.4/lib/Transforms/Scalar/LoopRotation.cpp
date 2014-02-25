@@ -5,6 +5,8 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
+// Changes Copyright (C) 2011-2013 LunarG, Inc.
+//
 //===----------------------------------------------------------------------===//
 //
 // This file implements Loop Rotation Pass.
@@ -51,6 +53,10 @@ namespace {
       AU.addPreservedID(LoopSimplifyID);
       AU.addRequiredID(LCSSAID);
       AU.addPreservedID(LCSSAID);
+
+      // LunarGLASS: We need scalar evolution available
+      AU.addRequired<ScalarEvolution>();
+
       AU.addPreserved<ScalarEvolution>();
       AU.addRequired<TargetTransformInfo>();
     }
@@ -71,6 +77,10 @@ INITIALIZE_AG_DEPENDENCY(TargetTransformInfo)
 INITIALIZE_PASS_DEPENDENCY(LoopInfo)
 INITIALIZE_PASS_DEPENDENCY(LoopSimplify)
 INITIALIZE_PASS_DEPENDENCY(LCSSA)
+
+// LunarGLASS: We need scalar evolution available
+INITIALIZE_PASS_DEPENDENCY(ScalarEvolution)
+
 INITIALIZE_PASS_END(LoopRotate, "loop-rotate", "Rotate Loops", false, false)
 
 Pass *llvm::createLoopRotatePass() { return new LoopRotate(); }
@@ -257,6 +267,30 @@ bool LoopRotate::simplifyLoopLatch(Loop *L) {
   return true;
 }
 
+// LunarGLASS: Take this from LoopUnrollPass so as to enable us to only rotate a
+// loop that we will later inline
+/// ApproximateLoopSize - Approximate the size of the loop.
+static unsigned ApproximateLoopSize(const Loop *L, unsigned &NumCalls,
+                                    bool &NotDuplicatable,
+                                    const TargetTransformInfo &TTI) {
+  CodeMetrics Metrics;
+  for (Loop::block_iterator I = L->block_begin(), E = L->block_end();
+       I != E; ++I)
+    Metrics.analyzeBasicBlock(*I, TTI);
+  NumCalls = Metrics.NumInlineCandidates;
+  NotDuplicatable = Metrics.notDuplicatable;
+
+  unsigned LoopSize = Metrics.NumInsts;
+
+  // Don't allow an estimate of size zero.  This would allows unrolling of loops
+  // with huge iteration counts, which is a compile time problem even if it's
+  // not a problem for code quality.
+  if (LoopSize == 0) LoopSize = 1;
+
+  return LoopSize;
+}
+
+
 /// Rotate loop LP. Return true if the loop is rotated.
 ///
 /// \param SimplifiedLatch is true if the latch was just folded into the final
@@ -319,8 +353,27 @@ bool LoopRotate::rotateLoop(Loop *L, bool SimplifiedLatch) {
 
   // Anything ScalarEvolution may know about this loop or the PHI nodes
   // in its header will soon be invalidated.
-  if (ScalarEvolution *SE = getAnalysisIfAvailable<ScalarEvolution>())
+  if (ScalarEvolution *SE = getAnalysisIfAvailable<ScalarEvolution>()) {
+    // LunarGLASS: We're only interested in loop-rotation if we have the potential
+    // to unroll the loop
+    // LunarGLASS TODO: pass the threshold as an argument to this pass.
+    SmallVector<BasicBlock*, 8> ExitBlocks;
+    L->getExitBlocks(ExitBlocks);
+    BasicBlock* Exiting = ExitBlocks.front()->getUniquePredecessor();
+    if (! Exiting)
+      return false;
+
+    unsigned int C = SE->getSmallConstantTripCount(L, Exiting);
+    unsigned NumInlineCandidates;
+    bool notDuplicatable;
+    if (C == 0 || (C-1) * ApproximateLoopSize(L, NumInlineCandidates, notDuplicatable, *TTI) >= 350)
+      return false;
+
     SE->forgetLoop(L);
+  } else {
+    // LunarGLASS: We need scalar evolution available
+    return false;
+  }
 
   DEBUG(dbgs() << "LoopRotation: rotating "; L->dump());
 

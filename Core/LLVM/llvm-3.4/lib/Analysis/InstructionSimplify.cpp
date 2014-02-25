@@ -5,6 +5,8 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
+// Changes Copyright (C) 2011-2014 LunarG, Inc.
+//
 //===----------------------------------------------------------------------===//
 //
 // This file implements routines for folding instructions into simpler forms
@@ -876,6 +878,12 @@ static Value *SimplifyFAddInst(Value *Op0, Value *Op1, FastMathFlags FMF,
 
     // Canonicalize the constant to the RHS.
     std::swap(Op0, Op1);
+  }
+  
+  // In GLSL, FADD x (+/-)0 is always x
+  if (Constant *RHSC = dyn_cast<Constant>(Op1)) {
+    if (RHSC && (RHSC->isNullValue() || RHSC->isNegativeZeroValue()))
+      return Op0;
   }
 
   // fadd X, -0 ==> X

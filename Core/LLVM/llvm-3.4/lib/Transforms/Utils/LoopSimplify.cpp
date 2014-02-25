@@ -5,6 +5,8 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
+// Changes Copyright (C) 2011-2013 LunarG, Inc.
+//
 //===----------------------------------------------------------------------===//
 //
 // This pass performs several transformations to transform natural loops into a
@@ -546,6 +548,10 @@ void PlaceSplitBlockCarefully(BasicBlock *NewBB,
 ///
 Loop *LoopSimplify::SeparateNestedLoop(Loop *L, LPPassManager &LPM,
                                        BasicBlock *Preheader) {
+  // LunarGLASS: We don't want to separate out loops, due to the risk of
+  // introducing targeted breaks/continues.
+  return 0;
+
   // Don't try to separate loops without a preheader.
   if (!Preheader)
     return 0;
