@@ -118,7 +118,10 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #0
+
+attributes #0 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}
@@ -143,7 +146,10 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #0
+
+attributes #0 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}

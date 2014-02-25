@@ -39,7 +39,8 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-define internal fastcc void @"foo("() alwaysinline {
+; Function Attrs: alwaysinline
+define internal fastcc void @"foo("() #0 {
 entry:
   %0 = load float* @bar
   %bar = fadd float %0, 1.000000e+00
@@ -50,7 +51,8 @@ post-return:                                      ; No predecessors!
   unreachable
 }
 
-define internal fastcc void @"foo2("() alwaysinline {
+; Function Attrs: alwaysinline
+define internal fastcc void @"foo2("() #0 {
 entry:
   %0 = load float* @bar
   %bar = fadd float %0, 1.000000e+00
@@ -58,7 +60,11 @@ entry:
   ret void
 }
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
+
+attributes #0 = { alwaysinline }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3}
@@ -97,9 +103,14 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #0
 
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #1
+
+attributes #0 = { nounwind }
+attributes #1 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3}

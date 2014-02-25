@@ -50,11 +50,18 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #1
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind readonly }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}
@@ -124,11 +131,18 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #1
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind readonly }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}

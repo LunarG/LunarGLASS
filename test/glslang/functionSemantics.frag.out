@@ -72,7 +72,8 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-define internal fastcc i32 @"foo(i1;i1;i1;i1;i1;i1;"(i32*, i32*, i32*, i32*, i32*, i32*) alwaysinline {
+; Function Attrs: alwaysinline
+define internal fastcc i32 @"foo(i1;i1;i1;i1;i1;i1;"(i32*, i32*, i32*, i32*, i32*, i32*) #0 {
 entry:
   %sum = alloca i32
   %6 = load i32* %0
@@ -118,7 +119,11 @@ post-return:                                      ; No predecessors!
   unreachable
 }
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
+
+attributes #0 = { alwaysinline }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}
@@ -144,7 +149,10 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #0
+
+attributes #0 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}

@@ -294,55 +294,84 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32, i32, i32, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32, i32, i32, <4 x float>) #0
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <3 x float>, float, float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <3 x float>, float, float) #0
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
 
-declare float @llvm.gla.fTextureSampleLodRefZOffset.f32.v3f32.v2i32(i32, i32, i32, <3 x float>, float, float, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fTextureSampleLodRefZOffset.f32.v3f32.v2i32(i32, i32, i32, <3 x float>, float, float, <2 x i32>) #0
 
-declare <3 x i32> @llvm.gla.readData.v3i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <3 x i32> @llvm.gla.readData.v3i32(i32, i32) #1
 
-declare i32 @llvm.gla.readData.i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare i32 @llvm.gla.readData.i32(i32, i32) #1
 
-declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v3i32.i32.i32(i32, i32, i32, <3 x i32>, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v3i32.i32.i32(i32, i32, i32, <3 x i32>, i32, float, i32) #0
 
-declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) #1
 
-declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.v2i32.i32(i32, i32, i32, <2 x i32>, <2 x i32>, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.v2i32.i32(i32, i32, i32, <2 x i32>, <2 x i32>, float, i32) #0
 
-declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v3f32.v2i32(i32, i32, i32, <3 x float>, float, float, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v3f32.v2i32(i32, i32, i32, <3 x float>, float, float, <2 x i32>) #0
 
-declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.i32.v3f32.v3f32(i32, i32, i32, <3 x float>, float, float, i32, <3 x float>, <3 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.i32.v3f32.v3f32(i32, i32, i32, <3 x float>, float, float, i32, <3 x float>, <3 x float>) #0
 
-declare float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v4f32.v2i32.v2f32.v2f32(i32, i32, i32, <4 x float>, float, float, <2 x i32>, <2 x float>, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v4f32.v2i32.v2f32.v2f32(i32, i32, i32, <4 x float>, float, float, <2 x i32>, <2 x float>, <2 x float>) #0
 
-declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v4f32.i32.v3f32.v3f32(i32, i32, i32, <4 x float>, float, float, i32, <3 x float>, <3 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v4f32.i32.v3f32.v3f32(i32, i32, i32, <4 x float>, float, float, i32, <3 x float>, <3 x float>) #0
 
-declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.v2i32.v2f32.v2f32(i32, i32, i32, <3 x float>, float, float, <2 x i32>, <2 x float>, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.v2i32.v2f32.v2f32(i32, i32, i32, <3 x float>, float, float, <2 x i32>, <2 x float>, <2 x float>) #0
 
-declare <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32, i32, i32, <2 x float>) #0
 
-declare <4 x i32> @llvm.gla.textureSampleLodRefZOffset.v4i32.v4f32.v2i32(i32, i32, i32, <4 x float>, float, float, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSampleLodRefZOffset.v4i32.v4f32.v2i32(i32, i32, i32, <4 x float>, float, float, <2 x i32>) #0
 
-declare <4 x i32> @llvm.gla.textureSampleLodRefZ.v4i32.v3f32(i32, i32, i32, <3 x float>, float, float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSampleLodRefZ.v4i32.v3f32(i32, i32, i32, <3 x float>, float, float) #0
 
-declare <4 x i32> @llvm.gla.textureSampleLodRefZOffsetGrad.v4i32.v3f32.i32.v2f32.v2f32(i32, i32, i32, <3 x float>, float, float, i32, <2 x float>, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSampleLodRefZOffsetGrad.v4i32.v3f32.i32.v2f32.v2f32(i32, i32, i32, <3 x float>, float, float, i32, <2 x float>, <2 x float>) #0
 
-declare <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32, i32, i32, <3 x i32>, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32, i32, i32, <3 x i32>, i32, float, i32) #0
 
-declare <2 x i32> @llvm.gla.queryTextureSize.v2i32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i32> @llvm.gla.queryTextureSize.v2i32(i32, i32, i32) #0
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind readonly }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !4, !7, !10, !13, !16, !19, !22, !25, !28, !31, !34, !37, !40, !43, !46}
@@ -518,59 +547,90 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32, i32, i32, <4 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32, i32, i32, <4 x float>) #0
 
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) #0
 
-declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <3 x float>, float, float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v3f32(i32, i32, i32, <3 x float>, float, float) #0
 
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
 
-declare float @llvm.gla.fTextureSampleLodRefZOffset.f32.v3f32.v2i32(i32, i32, i32, <3 x float>, float, float, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fTextureSampleLodRefZOffset.f32.v3f32.v2i32(i32, i32, i32, <3 x float>, float, float, <2 x i32>) #0
 
-declare <3 x i32> @llvm.gla.readData.v3i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <3 x i32> @llvm.gla.readData.v3i32(i32, i32) #1
 
-declare i32 @llvm.gla.readData.i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare i32 @llvm.gla.readData.i32(i32, i32) #1
 
-declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v3i32.i32.i32(i32, i32, i32, <3 x i32>, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v3i32.i32.i32(i32, i32, i32, <3 x i32>, i32, float, i32) #0
 
-declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <2 x i32> @llvm.gla.readData.v2i32(i32, i32) #1
 
-declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.v2i32.i32(i32, i32, i32, <2 x i32>, <2 x i32>, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v2i32.v2i32.i32(i32, i32, i32, <2 x i32>, <2 x i32>, float, i32) #0
 
-declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v3f32.v2i32(i32, i32, i32, <3 x float>, float, float, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v3f32.v2i32(i32, i32, i32, <3 x float>, float, float, <2 x i32>) #0
 
-declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.i32.v3f32.v3f32(i32, i32, i32, <3 x float>, float, float, i32, <3 x float>, <3 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.i32.v3f32.v3f32(i32, i32, i32, <3 x float>, float, float, i32, <3 x float>, <3 x float>) #0
 
-declare float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v4f32.v2i32.v2f32.v2f32(i32, i32, i32, <4 x float>, float, float, <2 x i32>, <2 x float>, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v4f32.v2i32.v2f32.v2f32(i32, i32, i32, <4 x float>, float, float, <2 x i32>, <2 x float>, <2 x float>) #0
 
-declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v4f32.i32.v3f32.v3f32(i32, i32, i32, <4 x float>, float, float, i32, <3 x float>, <3 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v4f32.i32.v3f32.v3f32(i32, i32, i32, <4 x float>, float, float, i32, <3 x float>, <3 x float>) #0
 
-declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.v2i32.v2f32.v2f32(i32, i32, i32, <3 x float>, float, float, <2 x i32>, <2 x float>, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffsetGrad.v4f32.v3f32.v2i32.v2f32.v2f32(i32, i32, i32, <3 x float>, float, float, <2 x i32>, <2 x float>, <2 x float>) #0
 
-declare <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32, i32, i32, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32, i32, i32, <2 x float>) #0
 
-declare <4 x i32> @llvm.gla.textureSampleLodRefZOffset.v4i32.v4f32.v2i32(i32, i32, i32, <4 x float>, float, float, <2 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSampleLodRefZOffset.v4i32.v4f32.v2i32(i32, i32, i32, <4 x float>, float, float, <2 x i32>) #0
 
-declare <4 x i32> @llvm.gla.textureSampleLodRefZ.v4i32.v3f32(i32, i32, i32, <3 x float>, float, float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSampleLodRefZ.v4i32.v3f32(i32, i32, i32, <3 x float>, float, float) #0
 
-declare <4 x i32> @llvm.gla.textureSampleLodRefZOffsetGrad.v4i32.v3f32.i32.v2f32.v2f32(i32, i32, i32, <3 x float>, float, float, i32, <2 x float>, <2 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSampleLodRefZOffsetGrad.v4i32.v3f32.i32.v2f32.v2f32(i32, i32, i32, <3 x float>, float, float, i32, <2 x float>, <2 x float>) #0
 
-declare <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32, i32, i32, <3 x i32>, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32, i32, i32, <3 x i32>, i32, float, i32) #0
 
-declare <2 x i32> @llvm.gla.queryTextureSize.v2i32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x i32> @llvm.gla.queryTextureSize.v2i32(i32, i32, i32) #0
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
 
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float>, i32, <2 x float>, i32, <2 x float>, i32, float, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float>, i32, <2 x float>, i32, <2 x float>, i32, float, i32, float, i32) #0
 
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind readonly }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !4, !7, !10, !13, !16, !19, !22, !25, !28, !31, !34, !37, !40, !43, !46}

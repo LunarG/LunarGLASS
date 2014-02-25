@@ -50,7 +50,8 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-define internal fastcc <3 x float> @"xf(mf33;vf3;"([3 x <3 x float>]*, <3 x float>*) alwaysinline {
+; Function Attrs: alwaysinline
+define internal fastcc <3 x float> @"xf(mf33;vf3;"([3 x <3 x float>]*, <3 x float>*) #0 {
 entry:
   %2 = load <3 x float>* %1
   %3 = load [3 x <3 x float>]* %0
@@ -71,7 +72,8 @@ post-return:                                      ; No predecessors!
   unreachable
 }
 
-define internal fastcc [3 x <3 x float>] @"Mat3(mf44;"([4 x <4 x float>]*) alwaysinline {
+; Function Attrs: alwaysinline
+define internal fastcc [3 x <3 x float>] @"Mat3(mf44;"([4 x <4 x float>]*) #0 {
 entry:
   %constructed = alloca [3 x <3 x float>]
   %1 = getelementptr [4 x <4 x float>]* %0, i32 0, i32 0
@@ -129,7 +131,8 @@ post-return:                                      ; No predecessors!
   unreachable
 }
 
-define internal fastcc <3 x float> @"mxv(mf44;vf3;"([4 x <4 x float>]*, <3 x float>*) alwaysinline {
+; Function Attrs: alwaysinline
+define internal fastcc <3 x float> @"mxv(mf44;vf3;"([4 x <4 x float>]*, <3 x float>*) #0 {
 entry:
   %param = alloca [4 x <4 x float>]
   %2 = load <3 x float>* %1
@@ -153,11 +156,19 @@ post-return:                                      ; No predecessors!
   unreachable
 }
 
-declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) #1
 
-declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) #2
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #3
+
+attributes #0 = { alwaysinline }
+attributes #1 = { nounwind readnone }
+attributes #2 = { nounwind readonly }
+attributes #3 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}
@@ -217,17 +228,27 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) #0
 
-declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) nounwind readonly
+; Function Attrs: nounwind readonly
+declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) #1
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
 
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float>, i32, <3 x float>, i32, <3 x float>, i32, <3 x float>, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float>, i32, <3 x float>, i32, <3 x float>, i32, <3 x float>, i32, float, i32) #0
 
-declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
 
-declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>) #0
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind readonly }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}

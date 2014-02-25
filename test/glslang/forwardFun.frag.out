@@ -46,12 +46,14 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-define internal fastcc void @"bar("() alwaysinline {
+; Function Attrs: alwaysinline
+define internal fastcc void @"bar("() #0 {
 entry:
   ret void
 }
 
-define internal fastcc float @"unreachableReturn("() alwaysinline {
+; Function Attrs: alwaysinline
+define internal fastcc float @"unreachableReturn("() #0 {
 entry:
   %dummyReturn = alloca float
   call void @"bar("()
@@ -76,7 +78,8 @@ ifmerge:                                          ; preds = %post-return1, %post
   ret float %2
 }
 
-define internal fastcc float @"foo(vf4;"(<4 x float>*) alwaysinline {
+; Function Attrs: alwaysinline
+define internal fastcc float @"foo(vf4;"(<4 x float>*) #0 {
 entry:
   %1 = load <4 x float>* %0
   %2 = extractelement <4 x float> %1, i32 0, !gla.precision !8
@@ -89,9 +92,15 @@ post-return:                                      ; No predecessors!
   unreachable
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #1
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
+
+attributes #0 = { alwaysinline }
+attributes #1 = { nounwind readnone }
+attributes #2 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.inputs = !{!1}
@@ -137,11 +146,17 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
 
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.inputs = !{!1}

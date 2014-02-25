@@ -108,17 +108,26 @@ stage-exit:                                       ; preds = %stage-epilogue, %if
   ret void
 }
 
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) nounwind readnone
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
 
-declare float @llvm.gla.fSqrt.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fSqrt.f32.f32(float) #0
 
-declare void @llvm.gla.discard() nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.discard() #1
 
-declare float @llvm.gla.fPow.f32.f32.f32(float, float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fPow.f32.f32.f32(float, float) #0
 
-declare float @llvm.gla.fAbs.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fAbs.f32.f32(float) #0
 
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.inputs = !{!1}
@@ -146,7 +155,10 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-declare void @llvm.gla.discard() nounwind
+; Function Attrs: nounwind
+declare void @llvm.gla.discard() #0
+
+attributes #0 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.inputs = !{!1}

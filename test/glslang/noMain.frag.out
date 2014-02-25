@@ -40,7 +40,8 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-define internal fastcc float @"foo("() alwaysinline {
+; Function Attrs: alwaysinline
+define internal fastcc float @"foo("() #0 {
 entry:
   %0 = load float* @b
   ret float %0
@@ -49,11 +50,17 @@ post-return:                                      ; No predecessors!
   unreachable
 }
 
-declare float @llvm.gla.fSin.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fSin.f32.f32(float) #1
 
-declare float @llvm.gla.fTan.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fTan.f32.f32(float) #1
 
-declare float @llvm.gla.fCos.f32.f32(float) nounwind readnone
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fCos.f32.f32(float) #1
+
+attributes #0 = { alwaysinline }
+attributes #1 = { nounwind readnone }
 
 !gla.uniforms = !{!0, !2}
 
