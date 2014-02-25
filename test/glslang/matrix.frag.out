@@ -1129,7 +1129,7 @@ entry:
   %13 = fcmp one <4 x float> %element111, %element212
   %14 = call i1 @llvm.gla.any.v4i1(<4 x i1> %13)
   %15 = or i1 %12, %14
-  %v = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1)
+  %v = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !11
   br i1 %15, label %then, label %else
 
 then:                                             ; preds = %entry
@@ -1562,8 +1562,6 @@ attributes #1 = { nounwind }
 !12 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
 !13 = metadata !{metadata !"u", i32 1, <4 x float>* @u_shadow_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 0, i32 1027, null, i32 1}
-
-***Unsupported functionality: couldn't get metadata for input instruction
 #### BEGIN COMPILER 0 INFO LOG ####
 Warning, version 130 is not yet complete; most features are present, but a few are missing.
 WARNING: 0:6: varying deprecated in version 130; may be removed in future release

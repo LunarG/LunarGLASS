@@ -163,7 +163,7 @@ entry:
   %1 = icmp sgt i32 %0, 0
   %iLocal1 = load i32 addrspace(2)* @Count, align 4, !gla.uniform !1
   %gla_constGEP16 = getelementptr %lunarStruct1 addrspace(2)* @foo, i32 0, i32 0
-  %2 = load i32 addrspace(2)* %gla_constGEP16, align 4
+  %2 = load i32 addrspace(2)* %gla_constGEP16, align 4, !gla.uniform !10
   %3 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 %2, i32 0
   %4 = load i32 addrspace(2)* %3, align 4, !gla.uniform !3
   %iLocal2 = add i32 %iLocal1, 3
@@ -241,8 +241,6 @@ attributes #1 = { nounwind }
 !15 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 !16 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !17}
 !17 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
-
-***Unsupported functionality: missing metadata on load 0 foo
 
 ***Unsupported functionality: missing metadata on load 0 select
 
