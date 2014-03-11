@@ -46,6 +46,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#pragma warning(push, 1)
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/SmallSet.h"
 #include "llvm/IR/Constants.h"
@@ -56,6 +57,7 @@
 #include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/InstIterator.h"
+#pragma warning(pop)
 
 #include "Passes/PassSupport.h"
 #include "Passes/Util/ConstantUtil.h"

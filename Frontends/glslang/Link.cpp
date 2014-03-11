@@ -39,8 +39,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "../glslang/Include/Common.h"
-#include "../glslang/Include/ShHandle.h"
+#include "glslang/Include/Common.h"
+#include "glslang/Include/ShHandle.h"
 
 //
 // Actual link object, derived from the shader handle base classes.

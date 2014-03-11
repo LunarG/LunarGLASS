@@ -54,6 +54,7 @@
 #include "metadata.h"
 
 // LLVM includes
+#pragma warning(push, 1)
 #include "llvm/Support/CFG.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -62,6 +63,8 @@
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/Transforms/Scalar.h"
+#pragma warning(pop)
+
 #include <string>
 #include <map>
 #include <list>
@@ -498,7 +501,7 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
             node->getLeft()->traverse(this);
             glslang::TIntermSequence& swizzleSequence = node->getRight()->getAsAggregate()->getSequence();
             std::vector<int> swizzle;
-            for (int i = 0; i < swizzleSequence.size(); ++i)
+            for (int i = 0; i < (int)swizzleSequence.size(); ++i)
                 swizzle.push_back(swizzleSequence[i]->getAsConstantUnion()->getConstArray()[0].getIConst());
             glaBuilder->accessChainPushSwizzleRight(swizzle, convertGlslangToGlaType(node->getType()),
                                                          node->getLeft()->getVectorSize());
@@ -643,7 +646,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
             // processing from left to right naturally leaves the right-most
             // lying around in the access chain
             glslang::TIntermSequence& glslangOperands = node->getSequence();
-            for (int i = 0; i < glslangOperands.size(); ++i)
+            for (int i = 0; i < (int)glslangOperands.size(); ++i)
                 glslangOperands[i]->traverse(this);
         }
 
@@ -746,7 +749,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
 
                 std::vector<llvm::Value*> gepChain;
                 gepChain.push_back(gla::MakeIntConstant(context, 0));
-                for (int field = 0; field < arguments.size(); ++field) {
+                for (int field = 0; field < (int)arguments.size(); ++field) {
                     gepChain.push_back(gla::MakeIntConstant(context, field));
                     llvmBuilder.CreateStore(arguments[field], glaBuilder->createGEP(constructed, gepChain));
                     gepChain.pop_back();
@@ -854,7 +857,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
 
     glslang::TIntermSequence& glslangOperands = node->getSequence();
     std::vector<llvm::Value*> operands;
-    for (int i = 0; i < glslangOperands.size(); ++i) {
+    for (int i = 0; i < (int)glslangOperands.size(); ++i) {
         glaBuilder->clearAccessChain();
         glslangOperands[i]->traverse(this);
         operands.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangOperands[i]->getAsTyped()->getType())));
@@ -1150,7 +1153,7 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
                 glaType = structType;
             } else {
                 // Create a vector of struct types for LLVM to consume
-                for (int i = 0; i < glslangStruct->size(); i++)
+                for (int i = 0; i < (int)glslangStruct->size(); i++)
                     structFields.push_back(convertGlslangToGlaType(*(*glslangStruct)[i].type));
                 structType = llvm::StructType::create(context, structFields, type.getTypeName().c_str());
                 structMap[glslangStruct] = structType;
@@ -1189,7 +1192,7 @@ bool TGlslangToTopTraverser::isShaderEntrypoint(const glslang::TIntermAggregate*
 
 void TGlslangToTopTraverser::makeFunctions(const glslang::TIntermSequence& glslFunctions)
 {
-    for (int f = 0; f < glslFunctions.size(); ++f) {
+    for (int f = 0; f < (int)glslFunctions.size(); ++f) {
         glslang::TIntermAggregate* glslFunction = glslFunctions[f]->getAsAggregate();
 
         // TODO: compile-time performance: find a way to skip this loop if we aren't
@@ -1203,7 +1206,7 @@ void TGlslangToTopTraverser::makeFunctions(const glslang::TIntermSequence& glslF
 
         // At call time, space should be allocated for all the arguments,
         // and pointers to that space passed to the function as the formal parameters.
-        for (int i = 0; i < parameters.size(); ++i) {
+        for (int i = 0; i < (int)parameters.size(); ++i) {
             llvm::Type* type = convertGlslangToGlaType(parameters[i]->getAsTyped()->getType());
             paramTypes.push_back(llvm::PointerType::get(type, gla::GlobalAddressSpace));
         }
@@ -1215,7 +1218,7 @@ void TGlslangToTopTraverser::makeFunctions(const glslang::TIntermSequence& glslF
 
         // Visit parameter list again to create mappings to local variables and set attributes.
         llvm::Function::arg_iterator arg = function->arg_begin();
-        for (int i = 0; i < parameters.size(); ++i, ++arg)
+        for (int i = 0; i < (int)parameters.size(); ++i, ++arg)
             symbolValues[parameters[i]->getAsSymbolNode()->getId()] = &(*arg);
 
         // Track function to emit/call later
@@ -1234,7 +1237,7 @@ void TGlslangToTopTraverser::handleFunctionEntry(const glslang::TIntermAggregate
 
 void TGlslangToTopTraverser::translateArguments(const glslang::TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments)
 {
-    for (int i = 0; i < glslangArguments.size(); ++i) {
+    for (int i = 0; i < (int)glslangArguments.size(); ++i) {
         glaBuilder->clearAccessChain();
         glslangArguments[i]->traverse(this);
         arguments.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangArguments[i]->getAsTyped()->getType())));
@@ -1335,7 +1338,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
             if (node->getName().find("Grad", 0) != std::string::npos)
                 nonBiasArgCount += 2;
 
-            if (arguments.size() > nonBiasArgCount) {
+            if ((int)arguments.size() > nonBiasArgCount) {
                 texFlags |= gla::ETFBias;
                 texFlags |= gla::ETFBiasLodArg;
             }
@@ -1411,7 +1414,7 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const glslang::TInte
     const glslang::TIntermSequence& glslangArgs = node->getSequence();
     const glslang::TQualifierList& qualifiers = node->getQualifierList();
     llvm::SmallVector<gla::Builder::AccessChain, 2> lValuesOut;
-    for (int i = 0; i < glslangArgs.size(); ++i) {
+    for (int i = 0; i < (int)glslangArgs.size(); ++i) {
         // build l-value
         glaBuilder->clearAccessChain();
         glslangArgs[i]->traverse(this);
@@ -1430,7 +1433,7 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const glslang::TInte
     // Copy-out time...
     // Convert outputs to correct type before storing into the l-value
     llvm::SmallVector<gla::Builder::AccessChain, 2>::iterator savedIt = lValuesOut.begin();
-    for (int i = 0; i < glslangArgs.size(); ++i) {
+    for (int i = 0; i < (int)glslangArgs.size(); ++i) {
         if (qualifiers[i] == glslang::EvqOut || qualifiers[i] == glslang::EvqInOut) {
             glaBuilder->setAccessChain(*savedIt);
             llvm::Value* output = glaBuilder->createLoad(llvmArgs[i]);
@@ -2109,7 +2112,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
     } else if (const glslang::TTypeList* typeList = glaType.getStruct()) {
         if (gepChain.size() == 0)
             gepChain.push_back(gla::MakeIntConstant(context, 0));
-        for (int field = 0; field < typeList->size(); ++field) {
+        for (int field = 0; field < (int)typeList->size(); ++field) {
             gepChain.push_back(gla::MakeIntConstant(context, field));            
             createPipelineSubread(*(*typeList)[field].type, storage, gepChain, slot, md, name, method, location);
             gepChain.pop_back();
@@ -2226,7 +2229,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& gl
         // a vector or scalar, both will work the same way
         // this is where we actually consume the constants, rather than walk a tree
 
-        for (unsigned int i = 0; i < glslangType.getVectorSize(); ++i) {
+        for (unsigned int i = 0; i < (unsigned int)glslangType.getVectorSize(); ++i) {
             switch(consts[nextConst].getType()) {
             case glslang::EbtInt:
                 llvmConsts.push_back(gla::MakeIntConstant(context, consts[nextConst].getIConst()));
@@ -2235,7 +2238,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& gl
                 llvmConsts.push_back(gla::MakeUnsignedConstant(context, consts[nextConst].getUConst()));
                 break;
             case glslang::EbtDouble:
-                llvmConsts.push_back(gla::MakeFloatConstant(context, consts[nextConst].getDConst()));
+                llvmConsts.push_back(gla::MakeFloatConstant(context, (float)consts[nextConst].getDConst()));
                 break;
             case glslang::EbtBool:
                 llvmConsts.push_back(gla::MakeBoolConstant(context, consts[nextConst].getBConst()));
@@ -2351,7 +2354,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type)
 
     const glslang::TTypeList* typeList = type.getStruct();
     if (typeList) {
-        for (int t = 0; t < typeList->size(); ++t) {
+        for (int t = 0; t < (int)typeList->size(); ++t) {
             // name of member
             const glslang::TType* fieldType = (*typeList)[t].type;
             mdArgs.push_back(llvm::MDString::get(context, fieldType->getFieldName().c_str()));

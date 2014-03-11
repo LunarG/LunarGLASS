@@ -28,7 +28,9 @@
 #include "Exceptions.h"
 
 // LLVM includes
-#include "llvm/IntrinsicInst.h"
+#pragma warning(push, 1)
+#include "llvm/IR/IntrinsicInst.h"
+#pragma warning(pop)
 
 namespace gla {
 

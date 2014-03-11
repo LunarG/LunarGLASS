@@ -52,6 +52,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+#pragma warning(disable : 4351)
+
+#pragma warning(push, 1)
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/PostOrderIterator.h"
 #include "llvm/IR/Function.h"
@@ -63,6 +66,7 @@
 #include "llvm/Support/CFG.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
+#pragma warning(pop)
 
 #include "Passes/PassSupport.h"
 #include "Passes/Util/ConstantUtil.h"

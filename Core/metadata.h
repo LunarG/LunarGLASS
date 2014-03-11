@@ -46,8 +46,10 @@
 #include "LunarGLASSTopIR.h"
 
 // LLVM includes
+#pragma warning(push, 1)
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Metadata.h"
+#pragma warning(pop)
 
 namespace gla {
 
@@ -230,7 +232,7 @@ inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPr
     constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(2));
     if (! constInt)
         return false;
-    location = constInt->getSExtValue();
+    location = (int)constInt->getSExtValue();
 
     llvm::Value* speculativeSampler = md->getOperand(3);
     if (speculativeSampler)
@@ -241,7 +243,7 @@ inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPr
     if (md->getNumOperands() >= 5) {
         const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(4));
         if (constInt)
-            interpMode = constInt->getZExtValue();
+            interpMode = (int)constInt->getZExtValue();
     } else
         interpMode = 0;
 

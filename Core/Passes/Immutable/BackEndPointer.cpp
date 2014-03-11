@@ -45,7 +45,9 @@
 
 #include "Passes/Immutable/BackEndPointer.h"
 
+#pragma warning(push, 1)
 #include "llvm/Pass.h"
+#pragma warning(pop)
 
 using namespace llvm;
 using namespace gla_llvm;

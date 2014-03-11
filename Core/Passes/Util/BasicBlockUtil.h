@@ -43,6 +43,7 @@
 #ifndef BASICBLOCK_UTIL_H
 #define BASICBLOCK_UTIL_H
 
+#pragma warning(push, 1)
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/ADT/DepthFirstIterator.h"
@@ -52,7 +53,7 @@
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Support/CFG.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
-
+#pragma warning(pop)
 
 #include "Passes/Util/ADT.h"
 

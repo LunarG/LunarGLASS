@@ -44,9 +44,11 @@
 #ifndef GLA_LOOP_UTIL_H
 #define GLA_LOOP_UTIL_H
 
+#pragma warning(push, 1)
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Analysis/ScalarEvolution.h"
+#pragma warning(pop)
 
 #include "Passes/Util/ADT.h"
 #include "Passes/Util/BasicBlockUtil.h"

@@ -44,7 +44,9 @@
 #ifndef LunarGLASSTopIR_H
 #define LunarGLASSTopIR_H
 
+#pragma warning(push, 1)
 #include "llvm/IR/IRBuilder.h"
+#pragma warning(pop)
 
 namespace gla {
 
@@ -220,7 +222,7 @@ namespace gla {
     inline llvm::VectorType* GetColumnType (const llvm::Type* type)  { return llvm::dyn_cast<llvm::VectorType>(type->getContainedType(0)); }
     inline llvm::Type* GetMatrixElementType(const llvm::Type* type)  { return GetColumnType(type)->getContainedType(0); }
 
-    inline int GetNumColumns(const llvm::Type* type)    { return llvm::dyn_cast<llvm::ArrayType>(type)->getNumElements(); }
+    inline int GetNumColumns(const llvm::Type* type)    { return (int)llvm::dyn_cast<llvm::ArrayType>(type)->getNumElements(); }
     inline int GetNumColumns(const llvm::Value* value)  { return GetNumColumns(value->getType()); }
 
     inline int GetNumRows(const llvm::Type* type)       { return GetColumnType(type)->getNumElements(); }

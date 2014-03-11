@@ -44,12 +44,14 @@
 #ifndef CONDITIONAL_UTIL_H
 #define CONDITIONAL_UTIL_H
 
+#pragma warning(push, 1)
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/PostDominators.h"
 #include "llvm/Analysis/DominanceFrontier.h"
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Local.h"
+#pragma warning(pop)
 
 #include "Passes/Util/ADT.h"
 #include "Passes/Util/BasicBlockUtil.h"

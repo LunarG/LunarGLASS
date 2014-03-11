@@ -54,8 +54,10 @@
 //
 //===----------------------------------------------------------------------===//
 
+#pragma warning(push, 1)
 #include "llvm/Transforms/Utils/Local.h"
 #include "llvm/Pass.h"
+#pragma warning(pop)
 
 #include "Passes/PassSupport.h"
 #include "Passes/Immutable/BackEndPointer.h"

@@ -92,6 +92,7 @@
 //===----------------------------------------------------------------------===//
 
 // LLVM includes
+#pragma warning(push, 1)
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/IntrinsicInst.h"
 #include "llvm/IR/Intrinsics.h"
@@ -109,6 +110,7 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
+#pragma warning(pop)
 
 #include <cstdio>
 #include <string>
@@ -249,7 +251,7 @@ namespace {
         {
             const llvm::NamedMDNode* mdList = module.getNamedMetadata(categoryName);
             if (mdList) {
-                for (int m = 0; m < mdList->getNumOperands(); ++m) {
+                for (unsigned int m = 0; m < mdList->getNumOperands(); ++m) {
                     const llvm::MDNode* mdNode = mdList->getOperand(m);
                     backEndTranslator->addIoDeclaration(qualifier, mdNode);
                 }

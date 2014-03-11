@@ -43,7 +43,9 @@
 #ifndef GLA_CONSTANTUTIL_H
 #define GLA_CONSTANTUTIL_H
 
+#pragma warning(push, 1)
 #include "llvm/IR/Constants.h"
+#pragma warning(pop)
 
 // LunarGLASS helpers
 #include "LunarGLASSTopIR.h"
@@ -80,8 +82,8 @@ namespace gla_llvm {
     inline void GetElements(const Constant* c, SmallVectorImpl<Constant*>& res)
     {
         // TODO LLVM 3.2: handle ConstantDataVector
-        for (unsigned int i = 0; i < gla::GetComponentCount(c); ++i)
-            res.push_back(c->getAggregateElement(i));
+        for (int i = 0; i < gla::GetComponentCount(c); ++i)
+            res.push_back(c->getAggregateElement((unsigned)i));
     }
 
 } // end namespace gla_llvm

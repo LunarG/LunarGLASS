@@ -45,6 +45,7 @@
 #include "LunarGLASSTopIR.h"
 
 // LLVM includes
+#pragma warning(push, 1)
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/GlobalVariable.h"
 #include "llvm/IR/Instructions.h"
@@ -55,6 +56,7 @@
 #include "llvm/ADT/SmallPtrSet.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/Support/CFG.h"
+#pragma warning(pop)
 
 namespace gla {
 
@@ -74,7 +76,7 @@ int GetConstantInt(const llvm::Value* value)
         return 0;
     }
 
-    return constantInt->getValue().getSExtValue();
+    return (int)constantInt->getValue().getSExtValue();
 }
 
 float GetConstantFloat(const llvm::Value* value)
@@ -169,7 +171,7 @@ bool HasAllSet(const llvm::Value* value)
     } else {
         assert(llvm::isa<llvm::ConstantDataVector>(c) || llvm::isa<llvm::ConstantVector>(c));
 
-        for (unsigned int op = 0; op < GetComponentCount(c); ++op) {
+        for (int op = 0; op < GetComponentCount(c); ++op) {
             if (GetConstantInt(c->getAggregateElement(op)) != -1)
                 return false;
         }
@@ -196,7 +198,7 @@ bool ConvertValuesToUnsigned(unsigned* indices, int &count, llvm::ArrayRef<llvm:
     for (count = 0; start != chain.end(); ++start, ++count) {
         if (llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(*start)) {
             if (llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(constant))
-                indices[count] = constantInt->getValue().getSExtValue();
+                indices[count] = (unsigned)constantInt->getValue().getSExtValue();
             else
                 return false;
         } else {

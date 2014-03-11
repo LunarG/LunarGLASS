@@ -40,9 +40,11 @@
 //
 //===----------------------------------------------------------------------===//
 
+#pragma warning(push, 1)
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 #include "llvm/Transforms/Utils/Local.h"
+#pragma warning(pop)
 
 #include "Passes/Util/BasicBlockUtil.h"
 

@@ -47,7 +47,9 @@
 #ifndef GLA_PASS_SUPPORT_H
 #define GLA_PASS_SUPPORT_H
 
+#pragma warning(push, 1)
 #include "llvm/PassSupport.h"
+#pragma warning(pop)
 
 // Include initialization prototypes
 #include "Passes/InitializePasses.h"

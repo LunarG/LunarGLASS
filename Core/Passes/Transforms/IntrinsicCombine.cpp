@@ -73,6 +73,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#pragma warning(push, 1)
 #include "llvm/IR/GlobalVariable.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/Module.h"
@@ -84,6 +85,7 @@
 #include "llvm/Support/CFG.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
+#pragma warning(pop)
 
 #include "Passes/PassSupport.h"
 #include "Passes/Immutable/BackEndPointer.h"

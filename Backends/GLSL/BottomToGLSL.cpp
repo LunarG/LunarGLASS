@@ -48,6 +48,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#define _CRT_SECURE_NO_WARNINGS
 #ifdef _WIN32
 #define snprintf _snprintf
 #endif
@@ -74,11 +75,13 @@
 #include "Passes/Util/ConstantUtil.h"
 
 // glslang includes
-#include "../../glslang/glslang/Public/ShaderLang.h"
-#include "../../glslang/glslang/MachineIndependent/Versions.h"
+#include "glslang/Public/ShaderLang.h"
+#include "glslang/MachineIndependent/Versions.h"
 
 // LLVM includes
+#pragma warning(push, 1)
 #include "llvm/IR/Module.h"
+#pragma warning(pop)
 
 //
 // Implement the GLSL backend
@@ -307,7 +310,7 @@ bool IsIdentitySwizzle(int glaSwizzle, int width)
 
 bool IsIdentitySwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
 {
-    for (int i = 0; i < elts.size(); ++i) {
+    for (int i = 0; i < (int)elts.size(); ++i) {
         if (IsUndef(elts[i]) || i != GetConstantInt(elts[i])) {
             return false;
         }
@@ -510,7 +513,7 @@ std::string MapGlaStructField(const llvm::Type* structType, int index, const llv
 
     if (mdAggregate) {
         int aggOp = GetAggregateMdNameOp(index);
-        if (mdAggregate->getNumOperands() > aggOp) {
+        if ((int)mdAggregate->getNumOperands() > aggOp) {
             name = mdAggregate->getOperand(aggOp)->getName();
 
             return name;
@@ -715,7 +718,7 @@ bool NeedsShadowRefZArg(const llvm::IntrinsicInst* llvmInstruction)
     // Check flags for RefZ
     int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
 
-    return (texFlags & ETFRefZArg);
+    return (texFlags & ETFRefZArg) != 0;
 }
 
 bool NeedsLodArg(const llvm::IntrinsicInst* llvmInstruction)
@@ -723,7 +726,7 @@ bool NeedsLodArg(const llvm::IntrinsicInst* llvmInstruction)
     // Check flags for bias/lod
     int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
 
-    return (texFlags & ETFLod);
+    return (texFlags & ETFLod) != 0;
 }
 
 bool NeedsBiasArg(const llvm::IntrinsicInst* llvmInstruction)
@@ -731,7 +734,7 @@ bool NeedsBiasArg(const llvm::IntrinsicInst* llvmInstruction)
     // Check flags for bias/lod
     int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
 
-    return (texFlags & ETFBiasLodArg) && ! (texFlags & ETFLod);
+    return (texFlags & ETFBiasLodArg) != 0 && (texFlags & ETFLod) == 0;
 }
 
 bool NeedsOffsetArg(const llvm::IntrinsicInst* llvmInstruction)
@@ -739,13 +742,13 @@ bool NeedsOffsetArg(const llvm::IntrinsicInst* llvmInstruction)
     // Check flags for offset arg
     int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
 
-    return (texFlags & ETFOffsetArg);
+    return (texFlags & ETFOffsetArg) != 0;
 }
 
 void MakeParseable(std::string& name)
 {
     // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
-    for (int c = 0; c < name.length(); ++c) {
+    for (int c = 0; c < (int)name.length(); ++c) {
         if (name[c] == '.' || name[c] == '-')
             name[c] = 'd';
     }
@@ -789,7 +792,7 @@ int CountSlots(const llvm::Type* type)
         return 1;
     else if (type->getTypeID() == llvm::Type::ArrayTyID) {
         const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
-        return arrayType->getNumElements() * CountSlots(arrayType->getContainedType(0));
+        return (int)arrayType->getNumElements() * CountSlots(arrayType->getContainedType(0));
     } else if (type->getTypeID() == llvm::Type::StructTyID) {
         const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
         int slots = 0;
@@ -820,8 +823,8 @@ void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNo
         const llvm::Type* fieldType;
         do {
             operand = GetAggregateMdSubAggregateOp(field);
-            if (operand >= mdAggregate->getNumOperands()) {
-                assert(operand < mdAggregate->getNumOperands());
+            if (operand >= (int)mdAggregate->getNumOperands()) {
+                assert(operand < (int)mdAggregate->getNumOperands());
                 return;
             }
             fieldType = structType->getContainedType(field);
@@ -1646,7 +1649,7 @@ void gla::GlslTarget::addStructType(llvm::StringRef name, const llvm::Type* stru
         tempStructure << name.str();
     tempStructure << " {" << std::endl;
 
-    for (int index = 0; index < structType->getNumContainedTypes(); ++index) {
+    for (int index = 0; index < (int)structType->getNumContainedTypes(); ++index) {
         tempStructure << "    ";
         if (mdAggregate) {
             const llvm::MDNode* subMdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(GetAggregateMdSubAggregateOp(index)));
@@ -2206,9 +2209,9 @@ void gla::GlslTarget::emitGlaCall(const llvm::CallInst* call)
     newLine();
     emitGlaValue(call);
     shader << " = " << std::string(call->getCalledFunction()->getName()) << "(";
-    for (int arg = 0; arg < call->getNumArgOperands(); ++arg) {
+    for (int arg = 0; arg < (int)call->getNumArgOperands(); ++arg) {
         emitGlaOperand(call->getArgOperand(arg));
-        if (arg + 1 < call->getNumArgOperands())
+        if (arg + 1 < (int)call->getNumArgOperands())
             shader << ", ";
     }
 
@@ -2448,7 +2451,7 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
             // the GLSL type (metadata) which combines arrayness at the same level as other typeness
             // (that is, don't pass on mdAggregate, use the original input).
             emitGlaType(out, precision, EVQNone, arrayType->getContainedType(0), ioRoot, mdNode);
-            arraySize = arrayType->getNumElements();
+            arraySize = (int)arrayType->getNumElements();
         }
     } else {
         // just output a scalar
@@ -2787,7 +2790,7 @@ void gla::GlslTarget::emitConstantInitializer(std::ostringstream& out, const llv
                         if (! splatValue)
                             same = false;
                     } else if (! isZero) {
-                        for (int op = 1; op < vectorType->getNumElements(); ++op) {
+                        for (int op = 1; op < (int)vectorType->getNumElements(); ++op) {
                             if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
                                 same = false;
                                 break;
@@ -2800,9 +2803,9 @@ void gla::GlslTarget::emitConstantInitializer(std::ostringstream& out, const llv
                 }
                 numElements = vectorType->getNumElements();
             } else if (const llvm::ArrayType*  arrayType = llvm::dyn_cast<llvm::ArrayType>(type))
-                numElements = arrayType->getNumElements();
+                numElements = (int)arrayType->getNumElements();
             else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(type))
-                numElements = structType->getNumElements();
+                numElements = (int)structType->getNumElements();
             else
                 assert(0 && "Constant aggregate type");
 
@@ -2838,7 +2841,7 @@ void gla::GlslTarget::emitInitializeAggregate(std::ostringstream& out, std::stri
     if (constant && IsDefined(constant) && ! IsScalar(constant) && ! AreAllDefined(constant)) {
         // For a vector or array with undefined elements, propagate the defined elements
         if (const llvm::ConstantVector* constVec = llvm::dyn_cast<llvm::ConstantVector>(constant)) {
-            for (int op = 0; op < constVec->getNumOperands(); ++op) {
+            for (int op = 0; op < (int)constVec->getNumOperands(); ++op) {
                 if (IsDefined(constVec->getOperand(op))) {
                     out << std::endl << "    " << name;
                     out << "." << MapComponentToSwizzleChar(op) << " = ";
@@ -2847,7 +2850,7 @@ void gla::GlslTarget::emitInitializeAggregate(std::ostringstream& out, std::stri
                 }
             }
         } else if (const llvm::ConstantArray* constArray = llvm::dyn_cast<llvm::ConstantArray>(constant)) {
-            for (int op = 0; op < constArray->getNumOperands(); ++op) {
+            for (int op = 0; op < (int)constArray->getNumOperands(); ++op) {
                 if (IsDefined(constArray->getOperand(op))) {
                     out << std::endl << "    " << name;
                     out << "[" << op << "] = ";
@@ -2856,7 +2859,7 @@ void gla::GlslTarget::emitInitializeAggregate(std::ostringstream& out, std::stri
                 }
             }
         } else if (const llvm::ConstantStruct* constStruct = llvm::dyn_cast<llvm::ConstantStruct>(constant)) {
-            for (int op = 0; op < constStruct->getNumOperands(); ++op) {
+            for (int op = 0; op < (int)constStruct->getNumOperands(); ++op) {
                 if (IsDefined(constStruct->getOperand(op))) {
                     out << std::endl << "    " << name;
                     out << "." << MapGlaStructField(constant->getType(), op) << " = ";
@@ -2889,7 +2892,7 @@ void gla::GlslTarget::emitGlaSwizzle(const llvm::SmallVectorImpl<llvm::Constant*
     shader << ".";
 
     // Output the components for all defined channels
-    for (int i = 0; i < elts.size(); ++i) {
+    for (int i = 0; i < (int)elts.size(); ++i) {
         if (! IsDefined(elts[i]))
             continue;
 
@@ -2906,7 +2909,7 @@ int gla::GlslTarget::emitGlaWriteMask(const llvm::SmallVectorImpl<llvm::Constant
 
     // Output the components for all defined channels
     int definedCount = 0;
-    for (int i = 0; i < elts.size(); ++i) {
+    for (int i = 0; i < (int)elts.size(); ++i) {
         if (! IsDefined(elts[i]))
             continue;
 
@@ -3190,7 +3193,7 @@ void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name,
         // Deference the metadata aggregate 
         if (mdAggregate) {
             int aggOp = GetAggregateMdSubAggregateOp(index);
-            if (mdAggregate->getNumOperands() <= aggOp) {
+            if ((int)mdAggregate->getNumOperands() <= aggOp) {
                 UnsupportedFunctionality("not enough mdAggregate operands", EATContinue);
                 mdAggregate = 0;
             } else 

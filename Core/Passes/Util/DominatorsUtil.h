@@ -43,9 +43,11 @@
 #ifndef GLA_DOMINATORSUTIL_H
 #define GLA_DOMINATORSUTIL_H
 
+#pragma warning(push, 1)
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/PostDominators.h"
+#pragma warning(pop)
 
 #include "Passes/Util/BasicBlockUtil.h"
 

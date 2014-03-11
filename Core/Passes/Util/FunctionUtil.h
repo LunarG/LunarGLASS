@@ -43,7 +43,9 @@
 #ifndef GLA_FUNTION_UTIL_H
 #define GLA_FUNTION_UTIL_H
 
+#pragma warning(push, 1)
 #include "llvm/IR/Function.h"
+#pragma warning(pop)
 
 namespace gla_llvm {
     using namespace llvm;

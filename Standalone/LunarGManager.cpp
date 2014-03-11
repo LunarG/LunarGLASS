@@ -44,7 +44,9 @@
 #include "PrivateManager.h"
 #include "Exceptions.h"
 
+#pragma warning(push, 1)
 #include "llvm/IR/Module.h"
+#pragma warning(pop)
 
 #include "Backends/TGSI/TgsiTarget.h"
 #include "Backends/GLSL/GlslTarget.h"

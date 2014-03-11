@@ -44,9 +44,11 @@
 #ifndef GLA_ADT_H
 #define GLA_ADT_H
 
+#pragma warning(push, 1)
 #include "llvm/ADT/ilist.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/SmallPtrSet.h"
+#pragma warning(pop)
 
 #include <vector>
 #include <algorithm>

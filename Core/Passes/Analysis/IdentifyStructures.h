@@ -59,7 +59,9 @@
 #ifndef GLA_IDENTIFY_STRUCTURES_H
 #define GLA_IDENTIFY_STRUCTURES_H
 
+#pragma warning(push, 1)
 #include "llvm/ADT/DenseMap.h"
+#pragma warning(pop)
 
 #include "Passes/PassSupport.h"
 #include "Passes/Util/ConditionalUtil.h"

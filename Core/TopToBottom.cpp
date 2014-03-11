@@ -41,6 +41,7 @@
 //===----------------------------------------------------------------------===//
 
 // LLVM includes
+#pragma warning(push, 1)
 #include "llvm/Assembly/PrintModulePass.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/LLVMContext.h"
@@ -57,6 +58,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#pragma warning(pop)
 
 // LunarGLASS includes
 #include "Exceptions.h"

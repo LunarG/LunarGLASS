@@ -44,7 +44,10 @@
 #define LunarGLASSBottomIR_H
 
 #include "LunarGLASSTopIR.h"
+
+#pragma warning(push, 1)
 #include "llvm/IR/IntrinsicInst.h"
+#pragma warning(pop)
 
 namespace gla {
 

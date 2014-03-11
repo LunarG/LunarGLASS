@@ -41,8 +41,8 @@
 //===----------------------------------------------------------------------===//
 
 // glslang includes
-#include "../glslang/Include/Common.h"
-#include "../glslang/Include/ShHandle.h"
+#include "glslang/Include/Common.h"
+#include "glslang/Include/ShHandle.h"
 
 // LunarGLASS runtime options handling
 // TODO: merge glslang and LunarGLASS option handling
@@ -56,7 +56,9 @@
 #include "GlslangToTop.h"
 
 // LLVM includes
+#pragma warning(push, 1)
 #include "llvm/IR/Module.h"
+#pragma warning(pop)
 
 // Would be good to have a way of passing a target definition through the front end, or next to it...
 int TargetDefinitionVersion;

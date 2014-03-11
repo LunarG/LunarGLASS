@@ -49,7 +49,9 @@
 #include "Passes/PassSupport.h"
 #include "Backend.h"
 
+#pragma warning(push, 1)
 #include "llvm/Support/ErrorHandling.h"
+#pragma warning(pop)
 
 namespace gla_llvm {
     using namespace llvm;

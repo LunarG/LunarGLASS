@@ -31,8 +31,11 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-#include "./../glslang/Include/ShHandle.h"
-#include "./../glslang/Public/ShaderLang.h"
+
+#define _CRT_SECURE_NO_WARNINGS
+
+#include "glslang/Include/ShHandle.h"
+#include "glslang/Public/ShaderLang.h"
 #include <string.h>
 #include <math.h>
 
@@ -452,7 +455,7 @@ int C_DECL main(int argc, char* argv[])
     if (failCode)
         return failCode;
 
-    for (int n = 0; n < names.size(); ++n) {
+    for (int n = 0; n < (int)names.size(); ++n) {
         compilers[numCompilers] = ShConstructCompiler(FindLanguage(names[n]), debugOptions);
         if (compilers[numCompilers] == 0)
             return EFailCompilerCreate;

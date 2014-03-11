@@ -44,6 +44,7 @@
 #include "TopBuilder.h"
 
 // LLVM includes
+#pragma warning(push, 1)
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/GlobalVariable.h"
 #include "llvm/IR/Instructions.h"
@@ -54,6 +55,7 @@
 #include "llvm/ADT/SmallPtrSet.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/Support/CFG.h"
+#pragma warning(pop)
 
 #ifndef _WIN32
     #include <cstdio>
@@ -528,7 +530,7 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
                     copyOutActive.push_back(false);
                 }
             } else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(value->getType()->getContainedType(0))) {
-                for (int index = 0; index < structType->getNumElements(); ++index) {
+                for (int index = 0; index < (int)structType->getNumElements(); ++index) {
                     // TODO: functionality: this assumes simple structures with only one slot per field
                     copyOutActive.push_back(true);
                 }
@@ -591,7 +593,7 @@ void Builder::trackOutputIndex(llvm::Value* base, const llvm::Value* gepIndex)
     if (gepIndex) {
         const llvm::ConstantInt *index = llvm::dyn_cast<llvm::ConstantInt>(gepIndex);
         if (index)
-            arrayIndex = index->getValue().getSExtValue();
+            arrayIndex = (int)index->getValue().getSExtValue();
     }
 
     int activeIndex = 0;
@@ -605,7 +607,7 @@ void Builder::trackOutputIndex(llvm::Value* base, const llvm::Value* gepIndex)
                 } else
                     copyOutActive[activeIndex + arrayIndex] = true;
             }
-            activeIndex += arrayType->getNumElements();
+            activeIndex += (int)arrayType->getNumElements();
         } else
             activeIndex++;
     }
@@ -647,7 +649,7 @@ void Builder::copyOutPipeline()
             // TODO: functionality: output structs of structs: this needs to be recursive
             std::vector<llvm::Value*> gepChain;
             gepChain.push_back(MakeIntConstant(context, 0));
-            for (int index = 0; index < structType->getNumElements(); ++index) {
+            for (int index = 0; index < (int)structType->getNumElements(); ++index) {
                 if (copyOutActive[activeIndex]) {
                     gepChain.push_back(MakeIntConstant(context, index));
                     llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out].value, gepChain));
@@ -1719,7 +1721,7 @@ llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* va
     int numElements;
     const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(value1->getType());
     if (arrayType)
-        numElements = arrayType->getNumElements();
+        numElements = (int)arrayType->getNumElements();
     else {
         // better be structure
         const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(value1->getType());
@@ -1976,7 +1978,7 @@ llvm::Value* Builder::createMatrixConstructor(gla::EMdPrecision precision, const
         int row = 0;
         int col = 0;
 
-        for (int arg = 0; arg < sources.size(); ++arg) {
+        for (int arg = 0; arg < (int)sources.size(); ++arg) {
             llvm::Value* argComp = sources[arg];
             for (int comp = 0; comp < GetComponentCount(sources[arg]); ++comp) {
                 if (GetComponentCount(sources[arg]) > 1) {
@@ -2071,7 +2073,7 @@ void Builder::makeSwitch(llvm::Value* condition, int numSegments, std::vector<ll
 
     // make the switch instruction
     llvm::SwitchInst* switchInst = builder.CreateSwitch(condition, defaultSegment >= 0 ? segmentBB[defaultSegment] : mergeBlock, caseValues.size());
-    for (int i = 0; i < caseValues.size(); ++i)
+    for (int i = 0; i < (int)caseValues.size(); ++i)
         switchInst->addCase(caseValues[i], segmentBB[valueToSegment[i]]);
 
     // push the merge block

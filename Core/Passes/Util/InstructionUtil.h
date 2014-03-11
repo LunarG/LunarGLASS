@@ -43,8 +43,10 @@
 #ifndef GLA_INSTRUCTIONUTIL_H
 #define GLA_INSTRUCTIONUTIL_H
 
+#pragma warning(push, 1)
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/IntrinsicInst.h"
+#pragma warning(pop)
 
 // LunarGLASS helpers
 #include "LunarGLASSTopIR.h"
