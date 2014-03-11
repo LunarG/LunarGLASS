@@ -9,20 +9,20 @@ set(SOURCES
 add_executable(LunarGOO ${SOURCES})
 
 target_link_libraries(LunarGOO
-                      core
                       glslangFrontend
                       GLSLBackend
                       DummyBackend
                       TgsiBackend
+                      core
                       analysis
                       immutable
                       transforms
                       util
-                      ${CMAKE_SOURCE_DIR}/../glslang/build/install/lib/glslang.lib
-                      ${CMAKE_SOURCE_DIR}/../glslang/build/install/lib/Preprocessor.lib
-                      ${CMAKE_SOURCE_DIR}/../glslang/build/install/lib/OSDependent.lib
-                      ${CMAKE_SOURCE_DIR}/../glslang/build/install/lib/OGLCompiler.lib
-                      ${LLVMLIBS})
+                      ${GLSLANGLIBS}
+                      glslangFrontend
+                      ${LLVMLIBS}
+                      ${LLVMLIBS}
+                      ${CONFIGURABLE_LIBS})
 
 install(TARGETS LunarGOO
         RUNTIME DESTINATION bin)
