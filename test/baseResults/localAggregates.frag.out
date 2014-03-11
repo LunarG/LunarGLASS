@@ -409,11 +409,11 @@ const float const30 = 2.0;
 void main()
 {
     bool temp211 = foo3.s2_1.i > const22i_0;
-    float select = temp211 ? const24 : coord.x;
+    float select33 = temp211 ? const24 : coord.x;
     bool temp254 = condition == const26i_1;
     float select34 = temp254 ? coord.x : const28;
-    float select33 = temp211 ? coord.x : const30;
-    float temp3119 = select + select33;
+    float select = temp211 ? coord.x : const30;
+    float temp3119 = select33 + select;
     float temp3221 = coord.x + temp3119;
     float temp3322 = select34 + temp3221;
     vec4 temp34 = vec4(temp3322);

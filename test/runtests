@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 DESCRIPTION="\
-Description: Run the glslang test suite, record output
+Description: Run the LunarGLASS test suite, record output
 "
 
 USAGE="\
@@ -8,11 +8,8 @@ Usage: ./run [options]
 
        Options:
          -h --help                 Print out this Usage info
-         -l --linux                Run for linux
-         -w --windows              (default) Run for windows
          -o --enable-obfuscate     Do obfuscation tests
          -t --testfile <testfile>  Run on a single test file
-         -r --release              Run with release build
          -v --verbose              Prints more info
 "
 
@@ -96,21 +93,20 @@ function runTests {
         
         runSingleTest $t 
         EXTENSION=${t##*.}
-        cat temp.errout temp.stdout > glslang/$t.out.tmp
+        cat temp.errout temp.stdout > localResults/$t.out.tmp
         cp temp.stdout tempglsl.$EXTENSION
         runSingleTest tempglsl.$EXTENSION
-        tail -5 temp.errout >> glslang/$t.out.tmp
-        cat temp.stdout >> glslang/$t.out.tmp
-        tr -d '\r' < glslang/$t.out.tmp > glslang/$t.out
-        rm glslang/$t.out.tmp
+        tail -5 temp.errout >> localResults/$t.out.tmp
+        cat temp.stdout >> localResults/$t.out.tmp
+        tr -d '\r' < localResults/$t.out.tmp > localResults/$t.out
+        rm localResults/$t.out.tmp
         rm tempglsl.$EXTENSION
 
     done
     rm temp.stdout* temp.errout
 }
 
-# Default is for windows
-RUNCMD=../Build/Debug/glslang.exe
+RUNCMD=../build/install/bin/LunarGOO.exe
 OPTIONS=(-a)
 GLSL_OP="--glsl"
 OBFUSCATE_OP="-f"
@@ -122,9 +118,6 @@ VERBOSE=""
 # Arguments passed
 while [ $# -gt 0 ]; do
     case "$1" in
-        -l|--linux)
-            RUNCMD=./glslang.exe
-            ;;
         -h|--h)
             showHelp
             exit 0
@@ -137,9 +130,6 @@ while [ $# -gt 0 ]; do
                 exit 1
             fi
             shift
-            ;;
-        -r|--release)
-            RUNCMD=../Build/Release/glslang.exe
             ;;
         -v|--verbose)
             VERBOSE="true"
