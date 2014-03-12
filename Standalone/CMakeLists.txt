@@ -22,7 +22,7 @@ target_link_libraries(LunarGOO
                       glslangFrontend
                       ${LLVMLIBS}
                       ${LLVMLIBS}
-                      ${CONFIGURABLE_LIBS})
+                      ${SYSTEM_LIBS})
 
 install(TARGETS LunarGOO
         RUNTIME DESTINATION bin)

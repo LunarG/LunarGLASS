@@ -101,6 +101,7 @@ function runTests {
         tr -d '\r' < localResults/$t.out.tmp > localResults/$t.out
         rm localResults/$t.out.tmp
         rm tempglsl.$EXTENSION
+		diff -b baseResults/$t.out localResults
 
     done
     rm temp.stdout* temp.errout
