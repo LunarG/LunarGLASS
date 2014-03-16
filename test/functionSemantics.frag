@@ -1,4 +1,4 @@
-#version 100
+#version 400
 
 int foo(int a, const int b, in int c, const in int d, out int e, inout int f)
 {
@@ -18,6 +18,12 @@ int foo(int a, const int b, in int c, const in int d, out int e, inout int f)
 	return sum;
 }
 
+int foo2(float a, vec3 b, out int r)
+{
+    r = int(3.0 * a);
+    return int(5.0 * b.y);
+}
+
 void main()
 {
     int e;
@@ -27,10 +33,17 @@ void main()
 	} f;
 	f.t.y = 32;
 
+    // test the different qualifers
     int color = foo(1, 2, t+t, 8, e, f.t.y);
 
 	color += 128 * (e + f.t.y); // right side should be 128(64(16 + 32)) = 393216
 	// sum should be 4079 + 393216 = 397295
     
+    // test conversions
+    float arg;
+    float ret;
+    ret = foo2(4, ivec3(1,2,3), arg);  // ret = 10, param = 12.0
+    color += int(ret + arg); // adds 22, for total of 397317
+
     gl_FragColor = vec4(color);
 }

@@ -1377,21 +1377,14 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
 
 llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const glslang::TIntermAggregate* node)
 {
-    // Overall design is to pass pointers to the arguments, as described:
+    // Overall design is to allocate new space for all arguments and pass 
+    // pointers to the arguments.
     //
     // For input arguments, they could be expressions, and their value could be
     // overwritten without impacting anything in the caller, so store the answer
     // and pass a pointer to it.
-    //
-    // For output arguments, there could still be a conversion needed, so
-    // so make space for the answer, and convert it before sticking it into
-    // the original l-value provide.  (Pass the pointer to the space made.)
-    //
-    // For inout, just do both the above, but using a single space/pointer
-    // to do it.
-    //
 
-    // Grab the pointer from the previously created function
+    // Grab the function's pointer from the previously created function
     llvm::Function* function = functionMap[node->getName().c_str()];
     if (! function)
         return 0;
@@ -1431,27 +1424,11 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const glslang::TInte
     llvm::Value* result = llvmBuilder.Insert(llvm::CallInst::Create(function, llvmArgs));
 
     // Copy-out time...
-    // Convert outputs to correct type before storing into the l-value
     llvm::SmallVector<gla::Builder::AccessChain, 2>::iterator savedIt = lValuesOut.begin();
     for (int i = 0; i < (int)glslangArgs.size(); ++i) {
         if (qualifiers[i] == glslang::EvqOut || qualifiers[i] == glslang::EvqInOut) {
             glaBuilder->setAccessChain(*savedIt);
             llvm::Value* output = glaBuilder->createLoad(llvmArgs[i]);
-            llvm::Type* destType = convertGlslangToGlaType(glslangArgs[i]->getAsTyped()->getType());
-            if (destType != output->getType()) {
-                // TODO: non-ES testing: test this after the front-end can support it
-                glslang::TOperator op = glslang::EOpNull;
-                if (gla::GetBasicTypeID(destType) == llvm::Type::FloatTyID &&
-                    gla::GetBasicTypeID(output->getType())) {
-                    op = glslang::EOpConvIntToFloat;
-                } // TODO: desktop functionality: more cases will go here for future versions
-
-                if (op != glslang::EOpNull) {
-                    output = createConversion(op, gla::EMpNone, destType, output);
-                    assert(output);
-                } else
-                    gla::UnsupportedFunctionality("unexpected output parameter conversion");
-            }
             glaBuilder->accessChainStore(output);
             ++savedIt;
         }

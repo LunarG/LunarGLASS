@@ -4,11 +4,18 @@ Top IR:
 
 %s = type { <4 x i32> }
 
+@tempReturn = internal global i32 0
 @FragColor_shadow = internal global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
   %constructed = alloca <4 x float>
+  %arg = alloca float
+  %tempArg = alloca i32
+  %param13 = alloca i32
+  %param12 = alloca <3 x float>
+  %param11 = alloca float
+  %ret = alloca float
   %e = alloca i32
   %param5 = alloca i32
   %param4 = alloca i32
@@ -28,12 +35,12 @@ entry:
   store i32 2, i32* %param1
   %3 = load i32* %t
   %4 = load i32* %t
-  %param26 = add i32 %3, %4, !gla.precision !3
+  %param26 = add i32 %3, %4
   store i32 %param26, i32* %param2
   store i32 8, i32* %param3
   %5 = getelementptr %s* %f, i32 0, i32 0
   %6 = load <4 x i32>* %5
-  %param57 = extractelement <4 x i32> %6, i32 1, !gla.precision !3
+  %param57 = extractelement <4 x i32> %6, i32 1
   store i32 %param57, i32* %param5
   %color9 = call i32 @"foo(i1;i1;i1;i1;i1;i1;"(i32* %param, i32* %param1, i32* %param2, i32* %param3, i32* %param4, i32* %param5)
   %e8 = load i32* %param4
@@ -47,25 +54,44 @@ entry:
   %11 = load i32* %e
   %12 = getelementptr %s* %f, i32 0, i32 0
   %13 = load <4 x i32>* %12
-  %14 = extractelement <4 x i32> %13, i32 1, !gla.precision !3
-  %15 = add i32 %11, %14, !gla.precision !3
-  %16 = mul i32 128, %15, !gla.precision !3
+  %14 = extractelement <4 x i32> %13, i32 1
+  %15 = add i32 %11, %14
+  %16 = mul i32 128, %15
   %17 = load i32* %color
-  %color10 = add i32 %17, %16, !gla.precision !3
+  %color10 = add i32 %17, %16
   store i32 %color10, i32* %color
-  %18 = load i32* %color
-  %19 = sitofp i32 %18 to float, !gla.precision !3
-  %20 = load <4 x float>* %constructed
-  %21 = insertelement <4 x float> undef, float %19, i32 0, !gla.precision !3
-  %22 = insertelement <4 x float> %21, float %19, i32 1, !gla.precision !3
-  %23 = insertelement <4 x float> %22, float %19, i32 2, !gla.precision !3
-  %FragColor_shadow = insertelement <4 x float> %23, float %19, i32 3, !gla.precision !3
+  store float 4.000000e+00, float* %param11
+  store <3 x float> <float 1.000000e+00, float 2.000000e+00, float 3.000000e+00>, <3 x float>* %param12
+  %tempReturn = call i32 @"foo2(f1;vf3;i1;"(float* %param11, <3 x float>* %param12, i32* %param13)
+  %tempArg14 = load i32* %param13
+  store i32 %tempArg14, i32* %tempArg
+  store i32 %tempReturn, i32* @tempReturn
+  %18 = load i32* %tempArg
+  %arg15 = sitofp i32 %18 to float
+  store float %arg15, float* %arg
+  %19 = load i32* @tempReturn
+  %ret16 = sitofp i32 %19 to float
+  store float %ret16, float* %ret
+  %20 = load float* %ret
+  %21 = load float* %arg
+  %22 = fadd float %20, %21
+  %23 = fptosi float %22 to i32
+  %24 = load i32* %color
+  %color17 = add i32 %24, %23
+  store i32 %color17, i32* %color
+  %25 = load i32* %color
+  %26 = sitofp i32 %25 to float
+  %27 = load <4 x float>* %constructed
+  %28 = insertelement <4 x float> undef, float %26, i32 0
+  %29 = insertelement <4 x float> %28, float %26, i32 1
+  %30 = insertelement <4 x float> %29, float %26, i32 2
+  %FragColor_shadow = insertelement <4 x float> %30, float %26, i32 3
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %24 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %24), !gla.output !1
+  %31 = load <4 x float>* @FragColor_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %31), !gla.output !1
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -78,42 +104,59 @@ entry:
   %sum = alloca i32
   %6 = load i32* %0
   %7 = load i32* %1
-  %8 = add i32 %6, %7, !gla.precision !3
+  %8 = add i32 %6, %7
   %9 = load i32* %2
-  %10 = add i32 %8, %9, !gla.precision !3
+  %10 = add i32 %8, %9
   %11 = load i32* %3
-  %12 = add i32 %10, %11, !gla.precision !3
+  %12 = add i32 %10, %11
   %13 = load i32* %5
-  %sum1 = add i32 %12, %13, !gla.precision !3
+  %sum1 = add i32 %12, %13
   store i32 %sum1, i32* %sum
   %14 = load i32* %0
-  %15 = mul i32 %14, 64, !gla.precision !3
+  %15 = mul i32 %14, 64
   store i32 %15, i32* %0
   %16 = load i32* %2
-  %17 = mul i32 %16, 64, !gla.precision !3
+  %17 = mul i32 %16, 64
   store i32 %17, i32* %2
   store i32 1024, i32* %4
   %18 = load i32* %5
-  %19 = mul i32 %18, 64, !gla.precision !3
+  %19 = mul i32 %18, 64
   store i32 %19, i32* %5
   %20 = load i32* %0
   %21 = load i32* %1
-  %22 = mul i32 64, %21, !gla.precision !3
-  %23 = add i32 %20, %22, !gla.precision !3
+  %22 = mul i32 64, %21
+  %23 = add i32 %20, %22
   %24 = load i32* %2
-  %25 = add i32 %23, %24, !gla.precision !3
+  %25 = add i32 %23, %24
   %26 = load i32* %3
-  %27 = mul i32 64, %26, !gla.precision !3
-  %28 = add i32 %25, %27, !gla.precision !3
+  %27 = mul i32 64, %26
+  %28 = add i32 %25, %27
   %29 = load i32* %4
-  %30 = add i32 %28, %29, !gla.precision !3
+  %30 = add i32 %28, %29
   %31 = load i32* %5
-  %32 = add i32 %30, %31, !gla.precision !3
+  %32 = add i32 %30, %31
   %33 = load i32* %sum
-  %sum2 = add i32 %33, %32, !gla.precision !3
+  %sum2 = add i32 %33, %32
   store i32 %sum2, i32* %sum
   %34 = load i32* %sum
   ret i32 %34
+
+post-return:                                      ; No predecessors!
+  unreachable
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc i32 @"foo2(f1;vf3;i1;"(float*, <3 x float>*, i32*) #0 {
+entry:
+  %3 = load float* %0
+  %4 = fmul float 3.000000e+00, %3
+  %5 = fptosi float %4 to i32
+  store i32 %5, i32* %2
+  %6 = load <3 x float>* %1
+  %7 = extractelement <3 x float> %6, i32 1
+  %8 = fmul float 5.000000e+00, %7
+  %9 = fptosi float %8 to i32
+  ret i32 %9
 
 post-return:                                      ; No predecessors!
   unreachable
@@ -130,8 +173,7 @@ attributes #1 = { nounwind }
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 2, i32 1024, null, i32 0}
-!3 = metadata !{i32 2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 
 
 Bottom IR:
@@ -139,7 +181,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> <float 3.972950e+05, float 3.972950e+05, float 3.972950e+05, float 3.972950e+05>), !gla.output !1
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> <float 3.973170e+05, float 3.973170e+05, float 3.973170e+05, float 3.973170e+05>), !gla.output !1
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -159,16 +201,15 @@ attributes #0 = { nounwind }
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 2, i32 1024, null, i32 0}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 400 is not yet complete; some version-specific features are present, but many are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-#version 100
+#version 400 core
 // LunarGOO output (r722)
-precision mediump float; // this will be almost entirely overridden by individual declarations
-
-const highp vec4 const21 = vec4(397295.0);
+const vec4 const21 = vec4(397317.0);
 
 void main()
 {
@@ -176,16 +217,14 @@ void main()
     
 }
 
-!2 = metadata !{i32 0, i32 2, i32 1024, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 400 is not yet complete; some version-specific features are present, but many are missing.
 #### END COMPILER 0 INFO LOG ####
 #### BEGIN LINKER INFO LOG ####
 #### END LINKER INFO LOG ####
-#version 100
+#version 400 core
 // LunarGOO output (r722)
-precision mediump float; // this will be almost entirely overridden by individual declarations
-
-const highp vec4 const21 = vec4(397295.0);
+const vec4 const21 = vec4(397317.0);
 
 void main()
 {
