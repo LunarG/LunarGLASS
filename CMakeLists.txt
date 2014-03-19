@@ -13,16 +13,20 @@ if(WIN32)
         message("CMAKE_CXX_FLAGS_${build} are ${CMAKE_CXX_FLAGS_${build}}")
     endforeach(build_type)
 
-    set(LLVMINCLUDES ${LLVM_BUILD}/install/include)
-    link_directories(${CMAKE_SOURCE_DIR}/../glslang/build/install/lib/ ${LLVM_BUILD}/install/lib)
+    set(LLVMINCLUDES ${LLVM_BUILD}/install/include CACHE PATH "LLVM include directory")
+    set(LLVMLIBS ${LLVM_BUILD}/install/lib CACHE PATH "LLVM library directory")
+    set(GLSLANGLIBS ${CMAKE_SOURCE_DIR}/../glslang/build/install/lib/ CACHE PATH "glslang library directory")
+    link_directories(${GLSLANGLIBS} ${LLVMLIBS})
 elseif(UNIX)
-    set(LLVMINCLUDES ${LLVM_BUILD}/install/usr/local/include)
-    link_directories(${CMAKE_SOURCE_DIR}/../glslang/build/install/lib/ ${LLVM_BUILD}/install/usr/local/lib)
+    set(LLVMINCLUDES ${LLVM_BUILD}/install/usr/local/include CACHE PATH "LLVM include directory")
+    set(LLVMLIBS ${LLVM_BUILD}/install/usr/local/lib CACHE PATH "LLVM library directory") 
+    set(GLSLANGLIBS ${CMAKE_SOURCE_DIR}/../glslang/build/install/lib/ CACHE PATH "glslang library directory")
+    link_directories(${GLSLANGLIBS} ${LLVMLIBS})
 else(WIN32)
     message("unknown platform")
 endif(WIN32)
 
-set(GLSLANGINCLUDES ${CMAKE_SOURCE_DIR}/../glslang)
+set(GLSLANGINCLUDES ${CMAKE_SOURCE_DIR}/../glslang CACHE PATH "glslang include directory" )
 
 set(LLVMLIBS
     LLVMCore
