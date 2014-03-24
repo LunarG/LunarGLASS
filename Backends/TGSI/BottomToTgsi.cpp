@@ -333,6 +333,7 @@ protected:
         case 4:   return MAKE_SWIZZLE4(SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_W);
         default:
             UnsupportedFunctionality("Vector with more than 4 components in Bottom IR: ", numComponents);
+            break;
         }
 
         return SWIZZLE_XYZW;
@@ -361,6 +362,7 @@ protected:
         case 4:   return WRITEMASK_XYZW;
         default:
             UnsupportedFunctionality("Vector with more than 4 components in Bottom IR: ", GetComponentCount(value));
+            break;
         }
 
         return WRITEMASK_X;
@@ -375,6 +377,7 @@ protected:
         case 3:   return WRITEMASK_W;
         default:
             UnsupportedFunctionality("Component to high in Bottom IR: ", component);
+            break;
         }
 
         return WRITEMASK_X;
@@ -383,14 +386,15 @@ protected:
     GLuint mapGlaSamplerType(const llvm::Value* samplerType, int texFlags)
     {
         if (texFlags & ETFArrayed) {
-            switch(GetConstantInt(samplerType)) {
+            switch (GetConstantInt(samplerType)) {
             case ESampler1D:        return TEXTURE_1D_ARRAY_INDEX;
             case ESampler2D:        return TEXTURE_2D_ARRAY_INDEX;
             default:
                 UnsupportedFunctionality("sampler type in Bottom IR");
+                break;
             }
         } else {
-            switch(GetConstantInt(samplerType)) {
+            switch (GetConstantInt(samplerType)) {
             case ESampler1D:        return TEXTURE_1D_INDEX;
             case ESampler2D:        return TEXTURE_2D_INDEX;
             case ESampler3D:        return TEXTURE_3D_INDEX;
@@ -398,6 +402,7 @@ protected:
             case ESampler2DRect:    return TEXTURE_RECT_INDEX;
             default:
                 UnsupportedFunctionality("sampler type in Bottom IR");
+                break;
             }
         }
 
@@ -598,6 +603,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
                 break;
             default:
                 UnsupportedFunctionality("comparison operator in Bottom IR: ", fcmp->getPredicate());
+                break;
             }
         }
         else {
@@ -607,6 +613,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
 
     default:
         UnsupportedFunctionality("opcode in Bottom IR: ", llvmInstruction->getOpcode());
+        break;
     }
 
     //??mesaInstruction->CondUpdate = inst->cond_update;
@@ -699,6 +706,8 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
         return;
+    default:
+        break;
     }
 
     // Handle texturing
@@ -726,6 +735,8 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
 
         mesaOp = getMesaOpFromGlaInst(llvmInstruction, GetTextureOpIndex(ETOFlag));
         return;
+    default:
+        break;
     }
 
     // Handle swizzles
@@ -743,6 +754,8 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
         return;
+    default:
+        break;
     }
 
     // Handle the one-to-one mappings
@@ -845,6 +858,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
     //case llvm::Intrinsic::LunarGLASS_XXX:    mesaOp = OPCODE_X2D;    break;
     //case llvm::Intrinsic::LunarGLASS_XXX:    mesaOp = OPCODE_XOR;    break;
     //case llvm::Intrinsic::LunarGLASS_XXX:    mesaOp = OPCODE_XPD;    break;
+    default:  break;
     }
 
     if (mesaOp == OPCODE_NOP)

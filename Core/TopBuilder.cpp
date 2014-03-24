@@ -439,6 +439,7 @@ llvm::Constant* Builder::getConstant(llvm::ArrayRef<llvm::Constant*> constants, 
         return llvm::ConstantStruct::get(llvm::dyn_cast<llvm::StructType>(type), constants);
     default:
         assert(0 && "Constant type in TopBuilder");
+        break;
     }
 
     return 0;
@@ -508,6 +509,7 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
 
     default:
         assert(! "unhandled storage qualifier");
+        break;
     }
 
     llvm::Value* value;
@@ -570,13 +572,12 @@ llvm::Value* Builder::createLoad(llvm::Value* lValue, const char* metadataKind, 
 
         return load;
     } else
-
         return lValue;
 }
 
 llvm::Value* Builder::createGEP(llvm::Value* gepValue, llvm::ArrayRef<llvm::Value*> gepIndexChain)
 {
-     return builder.CreateGEP(gepValue, gepIndexChain);
+    return builder.CreateGEP(gepValue, gepIndexChain);
 }
 
 llvm::Value* Builder::createInsertValue(llvm::Value* target, llvm::Value* source, unsigned* indices, int indexCount)
@@ -686,10 +687,10 @@ void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, 
     llvm::Function *intrinsic;
     if (method == EIMNone) {
         llvm::Intrinsic::ID intrinsicID;
-        switch(GetBasicTypeID(outValue)) {
+        switch (GetBasicTypeID(outValue)) {
         case llvm::Type::IntegerTyID:   intrinsicID = llvm::Intrinsic::gla_writeData;   break;
         case llvm::Type::FloatTyID:     intrinsicID = llvm::Intrinsic::gla_fWriteData;  break;
-        default:                        assert(! "Unsupported type in writePipeline");
+        default:                        assert(! "Unsupported type in writePipeline");  break;
         }
 
         intrinsic = getIntrinsic(intrinsicID, outValue->getType());
@@ -739,8 +740,9 @@ llvm::Value* Builder::readPipeline(gla::EMdPrecision precision,
         }
     } else {
         switch (GetBasicTypeID(type)) {
-        case llvm::Type::IntegerTyID:   intrinsic = getIntrinsic(llvm::Intrinsic::gla_readData, type); break;
+        case llvm::Type::IntegerTyID:   intrinsic = getIntrinsic(llvm::Intrinsic::gla_readData,  type); break;
         case llvm::Type::FloatTyID:     intrinsic = getIntrinsic(llvm::Intrinsic::gla_fReadData, type); break;
+        default: break;
         }
 
         readInstr = builder.CreateCall2(intrinsic, slotConstant, maskConstant, name);
@@ -1149,6 +1151,7 @@ llvm::Value* Builder::createVectorTimesMatrix(gla::EMdPrecision precision, llvm:
         break;
     default:
         assert(! "bad matrix size in createVectorTimesMatrix");
+        break;
     }
 
     llvm::Function *dot = Builder::getIntrinsic(dotIntrinsic, GetBasicType(lvector), lvector->getType(), lvector->getType());
@@ -1572,6 +1575,7 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
 
     default:
         gla::UnsupportedFunctionality("Texture intrinsic: ", intrinsicID);
+        break;
     }
 
     // If we haven't already set our intrinsic, do so now with coordinates
@@ -1599,6 +1603,7 @@ llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::
         break;
     default:
         gla::UnsupportedFunctionality("Texture query intrinsic");
+        break;
     }
 
     assert(intrinsicName);
@@ -1813,6 +1818,7 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     default:
         // Unary intrinsics that have operand and dest with same flexible type
         intrinsicName = getIntrinsic(intrinsicID,  operand->getType(), operand->getType());
+        break;
     }
 
     assert(intrinsicName);
@@ -1856,6 +1862,7 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     default:
         // Binary intrinsics that have operand and dest with same flexible type
         intrinsicName = getIntrinsic(intrinsicID,  lhs->getType(), lhs->getType(), rhs->getType());
+        break;
     }
 
     assert(intrinsicName);
@@ -1879,6 +1886,7 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     default:
         // Use operand0 type as result type
         intrinsicName =  getIntrinsic(intrinsicID, operand0->getType(), operand0->getType(), operand1->getType(), operand2->getType());
+        break;
     }
 
     assert(intrinsicName);
@@ -2186,7 +2194,9 @@ void Builder::makeLoopBackEdge(bool implicit)
         iNext = ! ld.builderDoesIncrement ? iPrev : builder.CreateAdd(iPrev, ld.increment);
         cmp   = builder.CreateICmpSGE(iNext, ld.finish);
         break;
-    default: gla::UnsupportedFunctionality("unknown type in inductive variable");
+    default:
+        gla::UnsupportedFunctionality("unknown type in inductive variable");
+        break;
     }
 
     // Store the new value for the inductive variable back in

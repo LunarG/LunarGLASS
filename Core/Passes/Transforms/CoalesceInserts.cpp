@@ -568,6 +568,7 @@ void MultiInsertIntrinsic::makeIntrinsic()
         break;
     default:
         assert(!"Unknown multiInsert intrinsic type");
+        break;
     }
 
     // Set up each of the operand types

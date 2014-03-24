@@ -363,7 +363,9 @@ bool Scalarize::isValid(const Instruction* inst)
         case Intrinsic::gla_loadComponent:
         case Intrinsic::gla_fLoadComponent:
             return true;
-        } // end of switch (intr->getIntrinsicID())
+        default:
+            break;
+        }
 
     // The arguments
     for (Instruction::const_op_iterator i = inst->op_begin(), e = inst->op_end(); i != e; ++i) {
@@ -609,6 +611,7 @@ bool Scalarize::scalarizeOutputIntrinsic(IntrinsicInst* intr)
         break;
     default:
         assert(0 && "Unknown output intrinsic");
+        break;
     }
 
     args.push_back(intr->getOperand(dataPos)); // Data
@@ -670,8 +673,8 @@ bool Scalarize::scalarizeInputIntrinsic(IntrinsicInst* intr)
 
     default:
         assert(! "Unknown input intrinsic");
-
-    } // end of switch (intr->getIntrinsicID())
+        break;
+    }
 
     Function* f = Intrinsic::getDeclaration(module, intrID, makeArrayRef(intrTys, numTys));
     VectorValues& vVals = vectorVals[intr];
@@ -716,7 +719,7 @@ bool Scalarize::scalarizeTextureIntrinsic(IntrinsicInst* intr)
         case 2:  intrID = Intrinsic::gla_fRTextureSample2;  break;
         case 3:  intrID = Intrinsic::gla_fRTextureSample3;  break;
         case 4:  intrID = Intrinsic::gla_fRTextureSample4;  break;
-        default: assert(0);
+        default: assert(0);                                 break;
         }
 
         // one type for each coord
@@ -736,7 +739,7 @@ bool Scalarize::scalarizeTextureIntrinsic(IntrinsicInst* intr)
         case 2:  intrID = Intrinsic::gla_fRTextureSampleLodRefZ2;  break;
         case 3:  intrID = Intrinsic::gla_fRTextureSampleLodRefZ3;  break;
         case 4:  intrID = Intrinsic::gla_fRTextureSampleLodRefZ4;  break;
-        default: assert(0);
+        default: assert(0);                                        break;
         }
 
         // one type for each coord
@@ -781,6 +784,7 @@ bool Scalarize::scalarizeTextureIntrinsic(IntrinsicInst* intr)
         // TODO: turn into assert when complete
         gla::UnsupportedFunctionality("Unhandled intrinsic: ", intr->getOpcode(),
                                       intr->getCalledFunction()->getName().str().c_str());
+        break;
     } // end of switch (intr->getIntrinsicID())
 
 

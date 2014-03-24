@@ -136,6 +136,7 @@ namespace  {
             break;
         default:
             assert(! "Bad dot component count");
+            break;
         }
 
         return Intrinsic::getDeclaration(module, dotID, types);
@@ -812,6 +813,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                         break;
                     default:
                         assert(0 && "Unknown sampler type");
+                        break;
                     }
 
                     if (texFlags & gla::ETFArrayed)
@@ -868,6 +870,8 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     case Intrinsic::gla_fTextureSampleLodRefZOffset:
                     case Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
                         types.push_back(intrinsic->getArgOperand(ETOOffset)->getType());
+                    default:
+                        break;
                     }
 
                     // add gradients
@@ -875,6 +879,8 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     case Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
                         types.push_back(intrinsic->getArgOperand(ETODPdx)->getType());
                         types.push_back(intrinsic->getArgOperand(ETODPdy)->getType());
+                    default:
+                        break;
                     }
 
                     // declare the new intrinsic
@@ -889,7 +895,9 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     case Intrinsic::gla_fTextureSampleLodRefZ:
                     case Intrinsic::gla_fTextureSampleLodRefZOffset:
                     case Intrinsic::gla_fTextureSampleLodRefZOffsetGrad:
-                        intrinsic->setArgOperand(ETORefZ, builder.CreateFDiv(intrinsic->getArgOperand(ETORefZ), divisor));
+                        intrinsic->setArgOperand(ETORefZ, builder.CreateFDiv(intrinsic->getArgOperand(ETORefZ), divisor));                        
+                    default:
+                        break;
                     }
 
                     // mark our change, but don't replace the intrinsic
@@ -902,7 +910,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             // The cases above needs to be comprehensive in terms of checking
             // for what intrinsics to decompose.  If not there the assumption is
             // it never needs to be decomposed.
-            ;
+            break;
         }
 
         if (newInst) {

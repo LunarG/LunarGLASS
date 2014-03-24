@@ -86,6 +86,7 @@ gla::LunarGManager::LunarGManager()
         break;
     default:
         UnsupportedFunctionality("Backend not supported");
+        break;
     }
 }
 
@@ -110,6 +111,8 @@ void gla::LunarGManager::clear()
         gla::ReleaseGlslTranslator(backEndTranslator);
         backEndTranslator = gla::GetGlslTranslator(this);
         break;
+    default:
+        break;
     }
 }
 
@@ -132,5 +135,6 @@ gla::LunarGManager::~LunarGManager()
         break;
     default:
         UnsupportedFunctionality("Backend not supported");
+        break;
     }
 }

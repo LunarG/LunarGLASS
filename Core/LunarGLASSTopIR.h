@@ -153,13 +153,13 @@ namespace gla {
 
     inline llvm::Type* GetBasicType(llvm::Type* type)
     {
-        switch(type->getTypeID()) {
+        switch (type->getTypeID()) {
         case llvm::Type::VectorTyID:
         case llvm::Type::ArrayTyID:
             return GetBasicType(type->getContainedType(0));
-        }
-
-        return type;
+        default:
+            return type;
+        }        
     }
 
     inline llvm::Type* GetBasicType(llvm::Value* value)

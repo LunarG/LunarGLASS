@@ -116,7 +116,7 @@ bool AreAllDefined(const llvm::Value* value)
         return false;
 
     if (const llvm::User* user = llvm::dyn_cast<llvm::User>(value)) {
-        switch(user->getType()->getTypeID()) {
+        switch (user->getType()->getTypeID()) {
         case llvm::Type::VectorTyID:
         case llvm::Type::ArrayTyID:
         case llvm::Type::StructTyID:
@@ -126,6 +126,8 @@ bool AreAllDefined(const llvm::Value* value)
                         return false;
                 }
             }
+        default:
+            break;
         }
     }
 
@@ -144,7 +146,7 @@ bool AreAllUndefined(const llvm::Value* value)
     // If a fully undef aggregate ever needs to be walked to to verify that,
     // use the following code.
     //if (const llvm::User* user = llvm::dyn_cast<llvm::User>(value)) {
-    //    switch(user->getType()->getTypeID()) {
+    //    switch (user->getType()->getTypeID()) {
     //    case llvm::Type::VectorTyID:
     //    case llvm::Type::ArrayTyID:
     //    case llvm::Type::StructTyID:
@@ -154,6 +156,8 @@ bool AreAllUndefined(const llvm::Value* value)
     //                    return false;
     //            }
     //        }
+    //    default:
+    //        break;
     //    }
     //}
 
@@ -311,6 +315,8 @@ bool IsPerComponentOp(const llvm::IntrinsicInst* intr)
     case llvm::Intrinsic::gla_all:
 
         return false;
+    default:
+        break;
     } // end of switch (intr->getIntrinsicID())
 
     return true;
@@ -370,10 +376,10 @@ bool IsPerComponentOp(const llvm::Instruction* inst)
     // Misc
     // case llvm::Instruction::LandingPad:  --- 3.0
     case llvm::Instruction::VAArg:
-
         return false;
 
-
+    default:
+        break;
     } // end of switch (inst->getOpcode())
 
     return true;

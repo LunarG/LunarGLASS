@@ -160,8 +160,7 @@ namespace  {
 
             default:
                 return Intrinsic::not_intrinsic;
-
-            } // end of switch (opcode)
+            }
         }
 
         Module* module;
@@ -467,7 +466,7 @@ bool GatherInsts::visitIntrinsic(IntrinsicInst* intr)
 
     default:
         return false;
-    } // end of switch (intr->getIntrinsicID())
+    }
 }
 
 
@@ -480,10 +479,10 @@ bool GatherInsts::visit(Instruction* inst)
     unsigned opcode = inst->getOpcode();
 
     switch (opcode) {
-
     case Instruction::Sub:
     case Instruction::Add:
-    case Instruction::Mul: {
+    case Instruction::Mul:
+    {
         Value* operand0;
         Value* operand1;
         Value* highBits;
@@ -500,7 +499,9 @@ bool GatherInsts::visit(Instruction* inst)
         break;
     }
 
-    } // end of switch (inst->getOpcode())
+    default:
+        break;
+    }
 
     return false;
 }

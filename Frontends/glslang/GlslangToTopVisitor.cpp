@@ -268,7 +268,7 @@ gla::EMdPrecision GetMdPrecision(const glslang::TType& type)
     case glslang::EpqLow:     return gla::EMpLow;
     case glslang::EpqMedium:  return gla::EMpMedium;
     case glslang::EpqHigh:    return gla::EMpHigh;
-    default:         return gla::EMpNone;
+    default:                  return gla::EMpNone;
     }
 }
 
@@ -507,6 +507,8 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
                                                          node->getLeft()->getVectorSize());
         }
         return false;
+    default:
+        break;
     }
 
     // Assume generic binary op...
@@ -532,6 +534,7 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
         break;
     default:
         result = createBinaryOperation(node->getOp(), precision, left, right, node->getType().getBasicType() == glslang::EbtUint);
+        break;
     }
 
     if (! result) {
@@ -602,9 +605,11 @@ bool TGlslangToTopTraverser::visitUnary(glslang::TVisit /* visit */, glslang::TI
             else
                 glaBuilder->setAccessChainRValue(operand);
         }
+
         return false;
     default:
         gla::UnsupportedFunctionality("glslang unary", gla::EATContinue);
+        break;
     }
 
     return true;
@@ -784,7 +789,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
             switch (node->getOp()) {
             case glslang::EOpVectorEqual:     binOp = glslang::EOpEqual;      break;
             case glslang::EOpVectorNotEqual:  binOp = glslang::EOpNotEqual;   break;
-            default:                 binOp = node->getOp(); break;
+            default:                          binOp = node->getOp();          break;
             }
         }
         break;
@@ -824,6 +829,8 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
         }
 
         return false;
+    default:
+        break;
     }
 
     //
@@ -1052,6 +1059,7 @@ bool TGlslangToTopTraverser::visitBranch(glslang::TVisit /* visit */, glslang::T
 
     default:
         gla::UnsupportedFunctionality("branch type");
+        break;
     }
 
     return false;
@@ -1104,6 +1112,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const glslang::TIntermSy
     default:
         gla::UnsupportedFunctionality("glslang qualifier", gla::EATContinue);
         storageQualifier = gla::Builder::ESQLocal;
+        break;
     }
 
     if (node->getBasicType() == glslang::EbtSampler) {
@@ -1122,7 +1131,7 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
 {
     llvm::Type *glaType;
 
-    switch(type.getBasicType()) {
+    switch (type.getBasicType()) {
     case glslang::EbtVoid:
         glaType = gla::GetVoidType(context);
         break;
@@ -1163,6 +1172,7 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
         break;
     default:
         gla::UnsupportedFunctionality("basic type");
+        break;
     }
 
     if (type.isMatrix())
@@ -1275,6 +1285,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
         case glslang::EsdBuffer:   samplerType = gla::ESamplerBuffer;  break;
         default:
             gla::UnsupportedFunctionality("sampler type");
+            break;
         }
 
         if (node->getName().find("Size", 0) != std::string::npos) {
@@ -1444,7 +1455,7 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(glslang::TOperator op
     bool leftIsFloat = (gla::GetBasicTypeID(left) == llvm::Type::FloatTyID);
     bool comparison = false;
 
-    switch(op) {
+    switch (op) {
     case glslang::EOpAdd:
     case glslang::EOpAddAssign:
         if (leftIsFloat)
@@ -1529,11 +1540,13 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(glslang::TOperator op
     case glslang::EOpNotEqual:
         comparison = true;
         break;
+    default:
+        break;
     }
 
     if (binOp != 0) {
         if (gla::IsAggregate(left) || gla::IsAggregate(right)) {
-            switch(op) {
+            switch (op) {
             case glslang::EOpVectorTimesMatrixAssign:
             case glslang::EOpMatrixTimesScalarAssign:
             case glslang::EOpMatrixTimesMatrixAssign:
@@ -1584,6 +1597,8 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(glslang::TOperator op
         case glslang::EOpNotEqual:
             pred = llvm::FCmpInst::FCMP_ONE;
             break;
+        default:
+            break;
         }
 
         if (pred != 0) {
@@ -1614,6 +1629,8 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(glslang::TOperator op
             case glslang::EOpNotEqual:
                 pred = llvm::ICmpInst::ICMP_NE;
                 break;
+            default:
+                break;
             }
         } else {
             switch (op) {
@@ -1634,6 +1651,8 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(glslang::TOperator op
                 break;
             case glslang::EOpNotEqual:
                 pred = llvm::ICmpInst::ICMP_NE;
+                break;
+            default:
                 break;
             }
         }
@@ -1681,15 +1700,15 @@ llvm::Value* TGlslangToTopTraverser::createUnaryOperation(glslang::TOperator op,
         return glaBuilder->createMatrixInverse(precision, operand);
     case glslang::EOpTranspose:
         return glaBuilder->createMatrixTranspose(precision, operand);
+    default:
+        return 0;
     }
-
-    return 0;
 }
 
 llvm::Value* TGlslangToTopTraverser::createConversion(glslang::TOperator op, gla::EMdPrecision precision, llvm::Type* destType, llvm::Value* operand)
 {
     llvm::Instruction::CastOps castOp = llvm::Instruction::CastOps(0);
-    switch(op) {
+    switch (op) {
     case glslang::EOpConvIntToBool:
     case glslang::EOpConvUintToBool:
     case glslang::EOpConvFloatToBool:
@@ -1749,6 +1768,8 @@ llvm::Value* TGlslangToTopTraverser::createConversion(glslang::TOperator op, gla
     case glslang::EOpConvBoolToDouble:
         gla::UnsupportedFunctionality("double conversion");
         break;
+    default:
+        break;
     }
 
     if (castOp == 0)
@@ -1766,7 +1787,7 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
     // Unary ops that require an intrinsic
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
 
-    switch(op) {
+    switch (op) {
     case glslang::EOpRadians:
         intrinsicID = llvm::Intrinsic::gla_fRadians;
         break;
@@ -1920,6 +1941,8 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
         else
             intrinsicID = llvm::Intrinsic::gla_sign;
         break;
+    default:
+        break;
     }
 
     if (intrinsicID != 0)
@@ -1970,6 +1993,7 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
             break;
         default:
             assert(! "bad component count for dot");
+            break;
         }
         break;
     case glslang::EOpAtan:
@@ -2015,6 +2039,8 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
     case glslang::EOpModf:
         intrinsicID = llvm::Intrinsic::gla_fModF;
         break;
+    default:
+        break;
     }
 
     // If intrinsic was assigned, then call the function and return
@@ -2036,6 +2062,7 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
         default:
             // These do not exist yet
             assert(0 && "intrinsic with more than 3 operands");
+            break;
         }
     }
 
@@ -2207,7 +2234,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& gl
         // this is where we actually consume the constants, rather than walk a tree
 
         for (unsigned int i = 0; i < (unsigned int)glslangType.getVectorSize(); ++i) {
-            switch(consts[nextConst].getType()) {
+            switch (consts[nextConst].getType()) {
             case glslang::EbtInt:
                 llvmConsts.push_back(gla::MakeIntConstant(context, consts[nextConst].getIConst()));
                 break;
@@ -2222,6 +2249,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& gl
                 break;
             default:
                 gla::UnsupportedFunctionality("scalar or vector element type");
+                break;
             }
             ++nextConst;
         }

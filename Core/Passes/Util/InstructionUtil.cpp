@@ -147,10 +147,9 @@ bool IsTextureInstruction(const IntrinsicInst* intr)
     case Intrinsic::gla_texelGatherOffsets:
     case Intrinsic::gla_fTexelGatherOffsets:
         return true;
-
-    } // end of switch (intr->getIntrinsicID())
-
-    return false;
+    default:
+        return false;
+    }
 }
 
 

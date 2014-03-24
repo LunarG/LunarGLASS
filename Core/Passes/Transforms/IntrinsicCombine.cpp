@@ -465,7 +465,9 @@ bool IntrinsicCombine::evaluateIntrinsic(IntrinsicInst* intr)
     case Intrinsic::gla_fMultiInsert:
         return partiallyEvaluateMultiInsert(intr);
 
-    } // end of switch (id)
+    default:
+        break;
+    }
 
     if (! result)
         return false;

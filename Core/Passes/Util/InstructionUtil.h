@@ -66,9 +66,9 @@ namespace gla_llvm {
         case Intrinsic::gla_fWriteInterpolantComponent:
         case Intrinsic::gla_writeComponent:
             return true;
+        default:
+            return false;
         }
-
-        return false;
     }
     inline bool IsOutputInstruction(const Instruction* inst)
     {
@@ -93,9 +93,9 @@ namespace gla_llvm {
         case Intrinsic::gla_loadComponent:
         case Intrinsic::gla_fLoadComponent:
             return true;
+        default:
+            return false;
         }
-
-        return false;
     }
     inline bool IsInputInstruction(const Instruction* inst)
     {

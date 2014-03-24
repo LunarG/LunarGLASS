@@ -441,6 +441,7 @@ EVariableQualifier MapGlaAddressSpace(const llvm::Value* value)
                 return EVQUniform;
 
             UnsupportedFunctionality("Address Space in Bottom IR: ", pointer->getAddressSpace());
+            break;
         }
     }
 
@@ -501,7 +502,7 @@ const char* MapComponentToSwizzleChar(int component)
     case 1:   return "y";
     case 2:   return "z";
     case 3:   return "w";
-    default:  assert(! "Vector too large");
+    default:  assert(! "Vector too large"); break;
     }
 
     return "x";
@@ -656,6 +657,7 @@ void GetOp(const llvm::Instruction* llvmInstruction, bool allowBitwise, std::str
                 default:
                     s = "==";
                     UnsupportedFunctionality("Comparison Operator in Bottom IR: ", cmp->getPredicate(), EATContinue);
+                    break;
                 }
             } else {
                 assert(! "Cmp instruction found that cannot dyncast to CmpInst");
@@ -669,7 +671,7 @@ void GetOp(const llvm::Instruction* llvmInstruction, bool allowBitwise, std::str
         case 2: s = "ivec2(uvec2"; break;
         case 3: s = "ivec3(uvec3"; break;
         case 4: s = "ivec4(uvec4"; break;
-        default: UnsupportedFunctionality("Can only convert scalars and vectors");
+        default: UnsupportedFunctionality("Can only convert scalars and vectors"); break;
         }
         unaryOperand = 0;
         nested = true;
@@ -681,7 +683,7 @@ void GetOp(const llvm::Instruction* llvmInstruction, bool allowBitwise, std::str
         case 2: s = "ivec2"; break;
         case 3: s = "ivec3"; break;
         case 4: s = "ivec4"; break;
-        default: UnsupportedFunctionality("Can only convert scalars and vectors");
+        default: UnsupportedFunctionality("Can only convert scalars and vectors"); break;
         }
         unaryOperand = 0;
         break;
@@ -692,7 +694,7 @@ void GetOp(const llvm::Instruction* llvmInstruction, bool allowBitwise, std::str
         case 2: s = "vec2";  break;
         case 3: s = "vec3";  break;
         case 4: s = "vec4";  break;
-        default: UnsupportedFunctionality("Can only convert scalars and vectors");
+        default: UnsupportedFunctionality("Can only convert scalars and vectors"); break;
         }
         unaryOperand = 0;
         break;
@@ -1007,6 +1009,8 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             case llvm::Instruction::And:
                 UnsupportedFunctionality("bit-wise AND in version ", version, EATContinue);
                 break;
+            default:
+                break;
             }
         }
         
@@ -1114,6 +1118,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
                 default:
                     charOp = "equal";
                     UnsupportedFunctionality("Comparison Vector Operator in Bottom IR: ", cmp->getPredicate(), EATContinue);
+                    break;
                 }
             } else {
                 assert(! "Cmp vector instruction found that cannot dyncast to CmpInst");
@@ -1368,6 +1373,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
     default:
         UnsupportedFunctionality("Opcode in Bottom IR: ", llvmInstruction->getOpcode(), EATContinue);
+        break;
     }
 }
 
@@ -1701,6 +1707,7 @@ void gla::GlslTarget::getNewVariableName(const llvm::Value* value, std::string* 
             case 1:   name->append("y"); break;
             case 2:   name->append("z"); break;
             case 3:   name->append("w"); break;
+            default:                     break;
             }
         }
         switch (lastVariable - i) {
@@ -1708,6 +1715,7 @@ void gla::GlslTarget::getNewVariableName(const llvm::Value* value, std::string* 
         case 1:   name->append("y"); break;
         case 2:   name->append("z"); break;
         case 3:   name->append("w"); break;
+        default:                     break;
         }
     } else {
         if (IsTempName(value->getName())) {
@@ -1868,7 +1876,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     case llvm::Intrinsic::gla_fTexelGatherOffset:
     case llvm::Intrinsic::gla_texelGatherOffsets:
     case llvm::Intrinsic::gla_fTexelGatherOffsets:
-
+    {
         newLine();
         emitGlaValue(llvmInstruction);
         shader << " = ";
@@ -1946,11 +1954,15 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
 
         return;
     }
+    default:
+        break;
+    }
 
     // Handle swizzles
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_swizzle:
     case llvm::Intrinsic::gla_fSwizzle:
+    {
         newLine();
         emitGlaValue(llvmInstruction);
 
@@ -2015,8 +2027,10 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         emitGlaOperand(src);
         emitGlaSwizzle(elts);
         shader << ";";
-
         return;
+    }
+    default:
+        break;
     }
 
     // Handle multiInserts
@@ -2024,8 +2038,9 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     case llvm::Intrinsic::gla_fMultiInsert:
     case llvm::Intrinsic::gla_multiInsert:
         emitGlaMultiInsert(llvmInstruction);
-
         return;
+    default:
+        break;
     }
 
     // Handle fixedTransform
@@ -2033,7 +2048,6 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         newLine();
         emitGlaValue(llvmInstruction);
         shader << " = " << "ftransform();";
-
         return;
     }
 
@@ -2166,12 +2180,14 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     case llvm::Intrinsic::gla_not: callString = "not"; callArgs = 1; break;
     case llvm::Intrinsic::gla_any: callString = "any"; callArgs = 1; break;
     case llvm::Intrinsic::gla_all: callString = "all"; callArgs = 1; break;
+    default: break;
     }
 
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_fDot2:  forceWidth = 2;  break;
     case llvm::Intrinsic::gla_fDot3:  forceWidth = 3;  break;
     case llvm::Intrinsic::gla_fDot4:  forceWidth = 4;  break;
+    default: break;
     }
 
     if (callString == 0 || callArgs == 0)
@@ -2256,8 +2272,8 @@ void gla::GlslTarget::emitComponentCountToSwizzle(int numComponents)
     case 3:   shader << "xyz";   break;
     case 4:   shader << "xyzw";  break;
     default:
-                shader << "xyzw";
-                assert(! "Vector too large");
+              assert(! "Vector too large");
+              shader << "xyzw";  break;
     }
 }
 
@@ -2296,7 +2312,7 @@ void gla::GlslTarget::emitGlaSampler(const llvm::IntrinsicInst* llvmInstruction,
 
         int sampler = GetConstantInt(samplerType);
 
-        switch(sampler) {
+        switch (sampler) {
         case ESampler1D:        shader << "1D";   break;
         case ESampler2D:        shader << "2D";   break;
         case ESampler3D:        shader << "3D";   break;
@@ -2371,6 +2387,7 @@ void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type
         break;
     default:
         assert(! "unknown VariableQualifier");
+        break;
     }
 }
 
@@ -2587,6 +2604,7 @@ void gla::GlslTarget::emitGlaInterpolationQualifier(EVariableQualifier qualifier
             switch (interpLocation) {
             case EILSample:        globalDeclarations << "sample ";        break;
             case EILCentroid:      globalDeclarations << "centroid ";      break;
+            default:                                                       break;
             }
         }
 
@@ -2597,6 +2615,7 @@ void gla::GlslTarget::emitGlaInterpolationQualifier(EVariableQualifier qualifier
                 case EIMNone:          globalDeclarations << "flat ";          break;
                 //case EIMSmooth:        globalDeclarations << "smooth ";        break;
                 case EIMNoperspective: globalDeclarations << "noperspective "; break;
+                default:                                                       break;
                 }
             }
         }
@@ -2833,6 +2852,7 @@ void gla::GlslTarget::emitConstantInitializer(std::ostringstream& out, const llv
 
     default:
         assert(0 && "Constant type in Bottom IR");
+        break;
     }
 }
 
