@@ -1,6 +1,6 @@
 Licensing:
  
-    See the FAQ at http://www.lunarglass.org for details.
+    LunarGLASS is available via a BSD-style open source license.
 
 Modes of use:
 
