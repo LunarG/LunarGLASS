@@ -175,7 +175,6 @@ namespace {
         // Module Pass implementation
         static char ID;
         bool runOnModule(Module&);
-        void print(std::ostream&, const Module*) const;
         void getAnalysisUsage(AnalysisUsage&) const;
 
     protected:

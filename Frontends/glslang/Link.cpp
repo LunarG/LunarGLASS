@@ -35,12 +35,17 @@
 //
 // Author: John Kessenich, LunarG
 //
-// Stubs for glslang link step.
+// Stubs for deprecated glslang link step.
 //
 //===----------------------------------------------------------------------===//
 
 #include "glslang/Include/Common.h"
 #include "glslang/Include/ShHandle.h"
+
+// These stubs use a now deprecated interface to the glslang front end.
+// Intra-stage linking should be done before using LunarGLASS to compile a stage.
+
+#ifdef USE_DEPRECATED_GLSLANG
 
 //
 // Actual link object, derived from the shader handle base classes.
@@ -63,9 +68,11 @@ public:
     virtual int getLocation(const char* name) { return 0; }
 };
 
+#endif
+
 TShHandleBase* ConstructLinker(EShExecutable executable, int debugOptions)
 {
-    return new TGenericLinker(executable, debugOptions);
+    return 0;
 }
 
 void DeleteLinker(TShHandleBase* linker)
@@ -75,7 +82,7 @@ void DeleteLinker(TShHandleBase* linker)
 
 TUniformMap* ConstructUniformMap()
 {
-    return new TUniformLinkedMap();
+    return 0;
 }
 
 void DeleteUniformMap(TUniformMap* map)

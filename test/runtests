@@ -96,7 +96,7 @@ function runTests {
         cat temp.errout temp.stdout > localResults/$t.out.tmp
         cp temp.stdout tempglsl.$EXTENSION
         runSingleTest tempglsl.$EXTENSION
-        tail -5 temp.errout >> localResults/$t.out.tmp
+        tail -3 temp.errout >> localResults/$t.out.tmp
         cat temp.stdout >> localResults/$t.out.tmp
         tr -d '\r' < localResults/$t.out.tmp > localResults/$t.out
         rm localResults/$t.out.tmp

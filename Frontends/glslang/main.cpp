@@ -444,8 +444,6 @@ int C_DECL main(int argc, char* argv[])
     TargetDefinitionProfile = EBadProfile;
     TargetDefinitionVersion = 0;
 
-    ShHandle    linker = 0;
-    ShHandle    uniformMap = 0;
     ShHandle    compilers[EShLangCount];
 
     ShInitialize();
@@ -473,37 +471,16 @@ int C_DECL main(int argc, char* argv[])
         return EFailUsage;
     }
 
-    linker = ShConstructLinker(EShExVertexFragment, debugOptions);
-    if (linker == 0)
-        return EFailLinkerCreate;
-
-    uniformMap = ShConstructUniformMap();
-    if (uniformMap == 0)
-        return EFailLinkerCreate;
-
-    if (numCompilers > 0) {
-        ShSetFixedAttributeBindings(linker, &FixedAttributeTable);
-        if (! ShLink(linker, compilers, numCompilers, uniformMap, 0, 0))
-            linkFailed = true;
-    }
-
     if (! (debugOptions & EDebugOpSuppressInfolog)) {
         for (i = 0; i < numCompilers; ++i) {
             InfoLogMsg("BEGIN", "COMPILER", i);
             fprintf(stderr, "%s", ShGetInfoLog(compilers[i]));
             InfoLogMsg("END", "COMPILER", i);
         }
-
-        InfoLogMsg("BEGIN", "LINKER", -1);
-        fprintf(stderr, "%s", ShGetInfoLog(linker));
-        InfoLogMsg("END", "LINKER", -1);
     }
 
     for (i = 0; i < numCompilers; ++i)
         ShDestruct(compilers[i]);
-
-    ShDestruct(linker);
-    ShDestruct(uniformMap);
 
 #ifdef _WIN32
     if (delay)

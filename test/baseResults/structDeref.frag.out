@@ -267,8 +267,6 @@ attributes #1 = { nounwind }
 Warning, version 130 is not yet complete; most features are present, but a few are missing.
 WARNING: 0:4: varying deprecated in version 130; may be removed in future release
 #### END COMPILER 0 INFO LOG ####
-#### BEGIN LINKER INFO LOG ####
-#### END LINKER INFO LOG ####
 #version 130
 // LunarGOO output (r722)
 struct s0 {
@@ -335,8 +333,6 @@ void main()
 #### BEGIN COMPILER 0 INFO LOG ####
 Warning, version 130 is not yet complete; most features are present, but a few are missing.
 #### END COMPILER 0 INFO LOG ####
-#### BEGIN LINKER INFO LOG ####
-#### END LINKER INFO LOG ####
 #version 130
 // LunarGOO output (r722)
 struct s0 {
@@ -385,14 +381,14 @@ void main()
     float temp23 = temp211 ? const24 : const25;
     int ternary3d0 = temp211 ? const22i_0 : foo1.s0_1.i;
     int ternary9d0 = temp211 ? const22i_0 : foo00.s0_0.i;
-    float select47 = temp211 ? const29 : coord.y;
-    float select = temp211 ? foo1.f : coord.y;
+    float select = temp211 ? const29 : coord.y;
+    float select47 = temp211 ? foo1.f : coord.y;
     bool temp3129 = ternary3d0 > const32i_5;
     int ternary9d0dternary3d0 = temp3129 ? ternary9d0 : ternary3d0;
     float temp3437 = float(ternary9d0dternary3d0);
-    float temp3538 = temp3437 + select;
+    float temp3538 = temp3437 + select47;
     float temp3639 = temp23 + temp3538;
-    float temp3740 = select47 + temp3639;
+    float temp3740 = select + temp3639;
     vec4 temp38 = vec4(temp3740);
     vec4 temp3943 = texture(sampler, coord);
     vec4 FragColor_shadow44 = temp3943 * temp38;

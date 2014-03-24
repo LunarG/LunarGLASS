@@ -146,8 +146,6 @@ inductive variable:  %i.0 = phi i32 [ 0, %entry ], [ %i3, %ifmerge ]
   exit condition:    %1 = icmp slt i32 %i.0, %.pre
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
-#### BEGIN LINKER INFO LOG ####
-#### END LINKER INFO LOG ####
 #version 120
 // LunarGOO output (r722)
 uniform int Count;
@@ -173,8 +171,6 @@ void main()
 !7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 #### BEGIN COMPILER 0 INFO LOG ####
 #### END COMPILER 0 INFO LOG ####
-#### BEGIN LINKER INFO LOG ####
-#### END LINKER INFO LOG ####
 #version 120
 // LunarGOO output (r722)
 uniform vec4 bigColor;
