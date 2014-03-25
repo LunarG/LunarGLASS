@@ -58,11 +58,11 @@ void main()
     uvec2 u12 = clamp(uv2x, uv2y, uv2c);
     usum += uvec4(u12, 0, 0);
     usum += clamp(uv4y, umin, umax);
-    
+
     // 1.3 float
-//    vec3 modfOut;
-//??    vec3 v11 = modf(x, modfOut);
-//    sum += vec4(v11, modfOut);
+    vec3 modfOut;
+    vec3 v11 = modf(x, modfOut);
+    sum += vec4(v11, modfOut);
 
     sum += vec4(trunc(f));
     vec2 v12 = round(v2a);

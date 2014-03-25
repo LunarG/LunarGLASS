@@ -204,7 +204,7 @@ protected:
     void newScope();
     void leaveScope();
 
-    void addStructType(llvm::StringRef name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block);
+    void addStructType(std::ostringstream& out, llvm::StringRef name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block);
     bool addVariable(const llvm::Value* value, std::string& name);
     void getNewVariableName(const llvm::Value* value, std::string* name);
     void mapExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str);
@@ -1627,19 +1627,21 @@ void gla::GlslTarget::leaveScope()
     newLine();
 }
 
-void gla::GlslTarget::addStructType(llvm::StringRef name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block)
+void gla::GlslTarget::addStructType(std::ostringstream& out, llvm::StringRef name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block)
 {
     // this is mutually recursive with emitGlaType
 
-    // track the mapping between LLVM's structure type and GLSL's name for it,
-    // and only declare it once
-    if (structNameMap.find(structType) != structNameMap.end())
-        return;
-    structNameMap[structType] = name;
+    if (name.size() > 0) {
+        // track the mapping between LLVM's structure type and GLSL's name for it,
+        // and only declare it once
+        if (structNameMap.find(structType) != structNameMap.end())
+            return;
+        structNameMap[structType] = name;
         
-    // track the mapping between the type name and it's metadata type
-    if (mdAggregate)
-        typenameMdAggregateMap[structType] = mdAggregate;
+        // track the mapping between the type name and it's metadata type
+        if (mdAggregate)
+            typenameMdAggregateMap[structType] = mdAggregate;
+    }
 
     // For nested struct types, we have to output the nested one
     // before the containing one.  So, make the current on the side
@@ -1671,13 +1673,17 @@ void gla::GlslTarget::addStructType(llvm::StringRef name, const llvm::Type* stru
     }
 
     tempStructure << "}";
-    if (! block)
+    if (! block && name.size() > 0)
         tempStructure << ";" << std::endl << std::endl;
 
     if (block)
         globalDeclarations << tempStructure.str();
-    else
-        globalStructures << tempStructure.str();
+    else {
+        if (name.size() > 0)
+            globalStructures << tempStructure.str();
+        else
+            out << tempStructure.str();
+    }
 }
 
 bool gla::GlslTarget::addVariable(const llvm::Value* value, std::string& name)
@@ -2109,7 +2115,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     case llvm::Intrinsic::gla_fRoundZero:   callString = "trunc";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fRoundFast:   callString = "round";       callArgs = 1; break;
     case llvm::Intrinsic::gla_fFraction:    callString = "fract";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fModF:        callString = "modf";        callArgs = 2; break;
+    case llvm::Intrinsic::gla_fModF:        callString = "modf";        callArgs = 1; break;
     case llvm::Intrinsic::gla_fMix:         callString = "mix";         callArgs = 3; break;
     case llvm::Intrinsic::gla_fbMix:        callString = "mix";         callArgs = 3; break;
     case llvm::Intrinsic::gla_fStep:        callString = "step";        callArgs = 2; break;
@@ -2197,6 +2203,10 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
 
     newLine();
     emitGlaValue(llvmInstruction);
+
+    if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fModF)
+        shader << "; " << valueMap[llvmInstruction]->c_str() << ".member0";
+
     shader << " = ";
     if (convertResultToInt)
         ConversionStart(shader, llvmInstruction->getType(), false);
@@ -2212,6 +2222,10 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         if (convertArgsToUint) 
             ConversionStop(shader);
     }
+
+    if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fModF)
+        shader << ", " << valueMap[llvmInstruction]->c_str() << ".member1";
+
     if (convertResultToInt)
         ConversionStop(shader);
     shader << ");";
@@ -2443,7 +2457,8 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
         const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
             
         // addStructType() is mutually recursive with this function
-        addStructType(structType->getName(), structType, mdAggregate, block);
+        llvm::StringRef structName = structType->isLiteral() ? "" : structType->getName();
+        addStructType(out, structName, structType, mdAggregate, block);
         if (! block) {
             if (mdAggregate)
                 out << std::string(mdAggregate->getOperand(0)->getName());

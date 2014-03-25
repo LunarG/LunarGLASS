@@ -815,9 +815,33 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
         }
     case glslang::EOpMod:
         // when an aggregate, this is the floating-point mod built-in function,
-        // which can be emitted by the one it createBinaryOperation()
+        // which can be emitted by the one in createBinaryOperation()
         binOp = glslang::EOpMod;
         break;
+    case glslang::EOpModf:
+        {
+            // modf()'s second operand is only an l-value to set the 2nd return value to
+
+            // use a unary intrinsic form to make the call and get back the returned struct
+            glslang::TIntermSequence& glslangOperands = node->getSequence();
+            glaBuilder->clearAccessChain();
+            glslangOperands[0]->traverse(this);
+            llvm::Value* operand0 = glaBuilder->accessChainLoad(GetMdPrecision(glslangOperands[0]->getAsTyped()->getType()));
+            llvm::Value* structure = createUnaryIntrinsic(glslang::EOpModf, precision, operand0);
+
+            // store integer part into second operand
+            llvm::Value* intPart = llvmBuilder.CreateExtractValue(structure, 1);
+            glaBuilder->clearAccessChain();
+            glslangOperands[1]->traverse(this);
+            glaBuilder->accessChainStore(intPart);
+
+            // leave the first part as the function-call's value
+            result = llvmBuilder.CreateExtractValue(structure, 0);
+            glaBuilder->clearAccessChain();
+            glaBuilder->setAccessChainRValue(result);
+        }
+        return false;
+
     case glslang::EOpArrayLength:
         {
             glslang::TIntermTyped* typedNode = node->getSequence()[0]->getAsTyped();
@@ -827,8 +851,8 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
             glaBuilder->clearAccessChain();
             glaBuilder->setAccessChainRValue(length);
         }
-
         return false;
+
     default:
         break;
     }
@@ -1941,6 +1965,9 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
         else
             intrinsicID = llvm::Intrinsic::gla_sign;
         break;
+    case glslang::EOpModf:
+        intrinsicID = llvm::Intrinsic::gla_fModF;
+        break;
     default:
         break;
     }
@@ -2035,9 +2062,6 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
         break;
     case glslang::EOpRefract:
         intrinsicID = llvm::Intrinsic::gla_fRefract;
-        break;
-    case glslang::EOpModf:
-        intrinsicID = llvm::Intrinsic::gla_fModF;
         break;
     default:
         break;

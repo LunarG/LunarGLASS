@@ -1811,6 +1811,10 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         // fixed result type
         intrinsicName = getIntrinsic(intrinsicID, operand->getType());
         break;
+    case llvm::Intrinsic::gla_fModF:
+        // modf() will return a struct that the caller must decode
+        intrinsicName = getIntrinsic(intrinsicID, operand->getType(), operand->getType(), operand->getType());
+        break;
     default:
         // Unary intrinsics that have operand and dest with same flexible type
         intrinsicName = getIntrinsic(intrinsicID,  operand->getType(), operand->getType());
@@ -1825,45 +1829,36 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     return instr;
 }
 
-llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* lhs, llvm::Value* rhs)
+llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1)
 {
     llvm::Function* intrinsicName = 0;
 
     // Handle special return types here.  Things that don't have same result type as parameter
     switch (intrinsicID) {
-    case llvm::Intrinsic::gla_fModF: 
-        {
-            intrinsicName = getIntrinsic(intrinsicID, lhs->getType(), lhs->getType(), rhs->getType());
-            // TODO: functionality: fModf has two return values, doesn't fit the pattern
-            llvm::Instruction* instr = builder.CreateCall(lhs);
-            setInstructionPrecision(instr, precision);
-        
-            return instr;
-        }
     case llvm::Intrinsic::gla_fDistance:
     case llvm::Intrinsic::gla_fDot2:
     case llvm::Intrinsic::gla_fDot3:
     case llvm::Intrinsic::gla_fDot4:
         // scalar result type
-        intrinsicName = getIntrinsic(intrinsicID, GetBasicType(lhs), lhs->getType(), rhs->getType());
+        intrinsicName = getIntrinsic(intrinsicID, GetBasicType(operand0), operand0->getType(), operand1->getType());
         break;
     case llvm::Intrinsic::gla_fStep:
         // first argument can be scalar, return and second argument match
-        intrinsicName = getIntrinsic(intrinsicID, rhs->getType(), lhs->getType(), rhs->getType());
+        intrinsicName = getIntrinsic(intrinsicID, operand1->getType(), operand0->getType(), operand1->getType());
         break;
     case llvm::Intrinsic::gla_fSmoothStep:
         // first argument can be scalar, return and second argument match
-        intrinsicName = getIntrinsic(intrinsicID, rhs->getType(), lhs->getType(), rhs->getType());
+        intrinsicName = getIntrinsic(intrinsicID, operand1->getType(), operand0->getType(), operand1->getType());
         break;
     default:
         // Binary intrinsics that have operand and dest with same flexible type
-        intrinsicName = getIntrinsic(intrinsicID,  lhs->getType(), lhs->getType(), rhs->getType());
+        intrinsicName = getIntrinsic(intrinsicID,  operand0->getType(), operand0->getType(), operand1->getType());
         break;
     }
 
     assert(intrinsicName);
 
-    llvm::Instruction* instr = builder.CreateCall2(intrinsicName, lhs, rhs);
+    llvm::Instruction* instr = builder.CreateCall2(intrinsicName, operand0, operand1);
     setInstructionPrecision(instr, precision);
 
     return instr;
