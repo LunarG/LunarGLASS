@@ -198,8 +198,8 @@ public:
     void makeReturn(bool implicit=false, llvm::Value* retVal=NULL, bool isMain = false);
 
     // Create a discard. Pass whether this is occuring in main. Currently,
-    // non-main functions are unsupported, and so are discards occuring in them.
-    // TODO: functionality: support discards in non-main functions
+    // non-main functions with a discard on back ends that don't have a
+    // a discard op are unsupported.
     void makeDiscard(bool isMain);
 
     // Make a shader-style function, and create its entry block if entry is non zero.

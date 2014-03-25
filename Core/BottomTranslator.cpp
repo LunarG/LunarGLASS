@@ -182,6 +182,11 @@ namespace {
         gla::BackEnd* backEnd;
         gla::Manager* manager;
         gla::EFlowControlMode flowControlMode;
+        bool useBreakOp;
+        bool useContinueOp;
+        bool useEarlyReturnOp;
+        bool useDiscardOp;
+        bool inMain;
 
         DominatorTree* domTree;
         DominanceFrontier* domFront;
@@ -225,16 +230,19 @@ namespace {
         void handleInstructions(const BasicBlock* bb, bool forceGlobals=false);
 
         // Call backEndTranslator's add.
-        void addInstruction(const Instruction* inst, bool forceGlobal=false)
+        void addInstruction(const Instruction* inst, bool forceGlobal)
         {
-            if (outputInstOnly && ! IsOutputInstruction(inst)) {
+            if (outputInstOnly && ! IsOutputInstruction(inst))
                 return;
-            }
 
             // We're already handling discards by analyzing flow control, so no
             // need to pass them on
             if (IsDiscard(inst)) {
-                forceDiscard();
+                if (! useDiscardOp && ! inMain) {
+                    // TODO: functionality: turn discard in a function into flow control for back ends with no discard op
+                    gla::UnsupportedFunctionality("discard from non-main function with no discard op in back end");
+                } else
+                    forceDiscard();
 
                 return;
             }
@@ -888,8 +896,7 @@ bool BottomTranslator::runOnModule(Module& module)
     //
     // Query the back end about its flow control
     //
-    bool breakOp, continueOp, earlyReturnOp, discardOp;
-    backEnd->getControlFlowMode(flowControlMode, breakOp, continueOp, earlyReturnOp, discardOp);
+    backEnd->getControlFlowMode(flowControlMode, useBreakOp, useContinueOp, useEarlyReturnOp, useDiscardOp);
     if (flowControlMode == gla::EFcmExplicitMasking)
         gla::UnsupportedFunctionality("explicit masking in middle end");
 
@@ -914,6 +921,7 @@ bool BottomTranslator::runOnModule(Module& module)
     //
     Module::iterator function, lastFunction;
     for (function = module.begin(), lastFunction = module.end(); function != lastFunction; ++function) {
+        inMain = (function->getName().compare("main") == 0);
         if (function->isDeclaration()) {
             // TODO: functionality:  function calls: do we need to handle declarations of functions, or just definitions?
         } else {
@@ -933,7 +941,6 @@ bool BottomTranslator::runOnModule(Module& module)
             handledBlocks.insert(stageExit);
 
             // handle function's with bodies
-
             backEndTranslator->startFunctionDeclaration(function->getFunctionType(), function->getName());
 
             // paramaters and arguments

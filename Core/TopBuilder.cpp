@@ -392,21 +392,18 @@ void Builder::makeReturn(bool implicit, llvm::Value* retVal, bool isMain)
 
 void Builder::makeDiscard(bool isMain)
 {
-    // TODO: functionality: discard from a function
-    if (! isMain)
-        gla::UnsupportedFunctionality("discard from non-main functions");
-
     createIntrinsicCall(EMpNone, llvm::Intrinsic::gla_discard);
-    builder.CreateBr(stageExit);
 
-    createAndSetNoPredecessorBlock("post-discard");
+    if (isMain) {
+        builder.CreateBr(stageExit);
+        createAndSetNoPredecessorBlock("post-discard");
+    }
 }
 
 void Builder::createAndSetNoPredecessorBlock(llvm::StringRef name)
 {
     builder.SetInsertPoint(llvm::BasicBlock::Create(context, name,
                                                     builder.GetInsertBlock()->getParent()));
-
 }
 
 llvm::Function* Builder::makeFunctionEntry(llvm::Type* type, const char* name, llvm::ArrayRef<llvm::Type*> paramTypes, llvm::BasicBlock** entry, bool external)

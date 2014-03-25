@@ -1,5 +1,7 @@
 #version 400
 
+uniform float u;
+
 int foo(int a, const int b, in int c, const in int d, out int e, inout int f)
 {
     int sum = a + b + c + d + f; // no e, it is out only
@@ -24,6 +26,16 @@ int foo2(float a, vec3 b, out int r)
     return int(5.0 * b.y);
 }
 
+int foo3()
+{
+    if (u > 3.2) {
+        discard;
+        return 1000000;
+    }
+
+    return 2000000;
+}
+
 void main()
 {
     int e;
@@ -44,6 +56,8 @@ void main()
     float ret;
     ret = foo2(4, ivec3(1,2,3), arg);  // ret = 10, param = 12.0
     color += int(ret + arg); // adds 22, for total of 397317
+
+    color += foo3();         // theoretically, add 2000000, for total of 2397317
 
     gl_FragColor = vec4(color);
 }

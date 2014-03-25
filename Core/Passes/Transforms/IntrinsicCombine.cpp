@@ -46,9 +46,9 @@
 //
 //   * Hoist discards into discardConditionals which will reside in the only
 //     block in the post-dominance frontier. This block is determined lazily
-//     from the post-dominator tree. TODO: place these discards right after the
-//     condition is computed. TODO: only do based on backend query. TODO:
-//     migrate the condition as high as it can go.
+//     from the post-dominator tree.
+//     TODO: place these discards right after the condition is computed. 
+//     TODO: migrate the condition as high as it can go.
 //
 //   * Break up writeData/fWriteData of multi-inserts into multiple masked
 //     writeData/fWriteDatas.
@@ -201,6 +201,9 @@ bool IntrinsicCombine::getDiscards(Function& F)
 bool IntrinsicCombine::discardAwareDCE(Function& F)
 {
     // TODO: Revise for side-effects that aren't killed by a discard
+
+    // TODO: Handle discard in function where flow control does not yet represent that the subsequent
+    //       code in the discard block is dead.
 
     // Build up deadList to be all the dominated and post-dominated instructions
     for (DiscardList::iterator i = discards.begin(), e = discards.end(); i != e; ++i) {
