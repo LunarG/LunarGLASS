@@ -1049,9 +1049,9 @@ bool TGlslangToTopTraverser::visitBranch(glslang::TVisit /* visit */, glslang::T
     case glslang::EOpReturn:
         if (inMain)
             glaBuilder->makeMainReturn();
-        else if (node->getExpression()) {
+        else if (node->getExpression())
             glaBuilder->makeReturn(false, glaBuilder->accessChainLoad(GetMdPrecision(node->getExpression()->getType())));
-        } else
+        else
             glaBuilder->makeReturn();
 
         glaBuilder->clearAccessChain();

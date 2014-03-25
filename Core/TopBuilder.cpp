@@ -373,7 +373,6 @@ void Builder::closeMain()
     mainFunction->getBasicBlockList().push_back(stageExit);
 }
 
-
 void Builder::makeReturn(bool implicit, llvm::Value* retVal, bool isMain)
 {
     if (isMain && retVal)
@@ -2096,7 +2095,7 @@ void Builder::nextSwitchSegment(std::vector<llvm::BasicBlock*>& segmentBB, int n
     int lastSegment = nextSegment - 1;
     if (lastSegment >= 0) {
         // Close out previous segment by jumping, if necessary, to next segment
-        if (! builder.GetInsertBlock()->getInstList().back().isTerminator())
+        if (! builder.GetInsertBlock()->getTerminator())
             builder.CreateBr(segmentBB[nextSegment]);
     }
     builder.SetInsertPoint(segmentBB[nextSegment]);
@@ -2105,7 +2104,7 @@ void Builder::nextSwitchSegment(std::vector<llvm::BasicBlock*>& segmentBB, int n
 void Builder::endSwitch(std::vector<llvm::BasicBlock*>& segmentBB)
 {
     // Close out previous segment by jumping, if necessary, to next segment
-    if (! builder.GetInsertBlock()->getInstList().back().isTerminator())
+    if (! builder.GetInsertBlock()->getTerminator())
         addSwitchBreak();
 
     builder.SetInsertPoint(switches.top());

@@ -52,7 +52,8 @@
 // * Each block is passed to handleBlock, which dispatches it depending on
 //   available info.  If it's a loop header, latch, or exit, then it will
 //   dispatch it to handleLoopBlock.  Otherwise, if it's a branch, dispatch to
-//   handleBranchingBlock.  If none of the above apply, then it will get passed
+//   handleBranchingBlock and if it's a switch dispatch to handleSwitchBlock.
+//   If none of the above apply, then it will get passed
 //   to handleReturnBlock.  handleBlock keeps track of blocks it's already seen,
 //   so it wont process the same block twice, allowing it to be called by other
 //   handlers when a certain basic block processing order must be maintained.
@@ -76,7 +77,7 @@
 // * Loops are presented to the backend using the loop interfaces present in
 //   PrivateManager.h.  Nested loops are currently not supported.
 //
-// * handleBranching handles it's instructions, and adds phi nodes if specified
+// * handleBranchingBlock handles it's instructions, and adds phi nodes if specified
 //   by the backend. On an unconditional branch, it checks to see if the block
 //   being branched is a subtree of the cfg and if so handles it, otherwise it
 //   does nothing. On a conditional branch, it will find the earliest confluce
@@ -85,6 +86,8 @@
 //   inversion when the then branch is the confluence point. If the construct is
 //   an if-then-else construct, it will then call the addElse interface and
 //   handle the else block. Finally, it calls the addEndIf interface.
+//
+// * handleSwitchBlock TODO ??
 //
 // * handleReturnBlock handles it's instructions, and calls the
 //   handleReturnBlock interface
@@ -280,8 +283,11 @@ namespace {
         // Given a block ending in return, output it and the return
         void handleReturnBlock(const BasicBlock*);
 
-        // Handle non-loop control flow
+        // Handle non-loop, non-switch control flow
         void handleBranchingBlock(const BasicBlock*);
+
+        // Handle a block ending in a switch
+        void handleSwitchBlock(const BasicBlock*);
 
         // Force the output of the current latch. Assumes it's only being called
         // when the source-level backedge is not simple.
@@ -699,6 +705,18 @@ void BottomTranslator::handleBranchingBlock(const BasicBlock* bb)
     return;
 }
 
+void BottomTranslator::handleSwitchBlock(const BasicBlock* bb)
+{
+    assert(isa<SwitchInst>(bb->getTerminator()));
+
+    gla::UnsupportedFunctionality("switch terminator");
+
+    handleInstructions(bb);
+    backEndTranslator->addInstruction(bb->getTerminator(), lastBlock);
+
+    return;
+}
+
 void BottomTranslator::handleBlock(const BasicBlock* bb)
 {
     assert(bb);
@@ -761,10 +779,14 @@ void BottomTranslator::handleBlock(const BasicBlock* bb)
         return;
     }
 
-    // Otherwise we're a block ending in a return statement
-    if (! isa<ReturnInst>(bb->getTerminator())) {
-       gla::UnsupportedFunctionality("Non-ret, non-br terminator");
+    if (isa<SwitchInst>(bb->getTerminator())) {
+        handleSwitchBlock(bb);
+        return;
     }
+
+    // Otherwise we have to be a block ending in a return statement
+    if (! isa<ReturnInst>(bb->getTerminator()))
+       gla::UnsupportedFunctionality("Non-supported terminator");
 
     handleReturnBlock(bb);
 }

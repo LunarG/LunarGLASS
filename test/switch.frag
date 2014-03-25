@@ -3,6 +3,40 @@ precision mediump float;
 uniform int c, d;
 in float x;
 out float color;
+uniform vec4 v;
+
+vec4 foo1(vec4 v1, vec4 v2, int i1)
+{
+    switch (i1)
+    {
+    case 0:
+        return v1;
+    case 2:
+    case 1:
+        return v2;
+    case 3:
+        return v1 * v2;
+    }
+
+    return vec4(0.0);
+}
+
+vec4 foo2(vec4 v1, vec4 v2, int i1)
+{
+    switch (i1)
+    {
+    case 0:
+        return v1;
+    case 2:
+        return vec4(1.0);
+    case 1:
+        return v2;
+    case 3:
+        return v1 * v2;
+    }
+
+    return vec4(0.0);
+}
 
 void main()
 {
@@ -84,4 +118,7 @@ void main()
     }
 
     color = f + float(local);
+
+    color += foo1(v,v,c).y;
+    color += foo2(v,v,c).z;
 }
