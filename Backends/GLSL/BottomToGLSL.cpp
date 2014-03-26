@@ -1206,9 +1206,10 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
                 std::string name;
                 if (prevName)
                     name = *prevName;
-                else
+                else {
                     name = gepInstr->getOperand(0)->getName();
-                name.append(traverseGep(gepInstr));
+                    name.append(traverseGep(gepInstr));
+                }
                 addVariable(gepInstr, name);
             }
 
