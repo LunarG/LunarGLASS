@@ -359,6 +359,35 @@ EShLanguage FindLanguage(const std::string& name)
     return EShLangVertex;
 }
 
+#ifndef _WIN32
+
+#include <errno.h>
+
+int fopen_s(
+   FILE** pFile,
+   const char* filename,
+   const char* mode
+)
+{
+   if (!pFile || !filename || !mode) {
+      return EINVAL;
+   }
+
+   FILE* f = fopen(filename, mode);
+   if (! f) {
+      if (errno != 0) {
+         return errno;
+      } else {
+         return ENOENT;
+      }
+   }
+   *pFile = f;
+
+   return 0;
+}
+
+#endif
+
 //
 //   Malloc a string of sufficient size and read a file into it.
 //

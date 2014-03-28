@@ -42,7 +42,7 @@
 //===----------------------------------------------------------------------===//
 
 // Glslang includes
-#include "glslang/MachineIndependent/localIntermediate.h"
+#include "glslang/MachineIndependent/localintermediate.h"
 #include "glslang/MachineIndependent/SymbolTable.h"
 
 // LunarGLASS includes
