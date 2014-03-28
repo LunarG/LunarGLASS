@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @highfin_shadow = internal global <4 x float> zeroinitializer
 @uniform_medium = external addrspace(2) constant i32
@@ -209,7 +209,7 @@ attributes #2 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @uniform_medium = external addrspace(2) constant i32
 @uniform_high = external addrspace(2) constant i32
@@ -307,10 +307,8 @@ attributes #1 = { nounwind }
 !17 = metadata !{i32 1}
 !18 = metadata !{i32 2}
 !19 = metadata !{i32 3}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 uniform mediump int uniform_medium;
@@ -353,11 +351,9 @@ void main()
     
 }
 
-!19 = metadata !{i32 3}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 uniform lowp int uniform_low;
@@ -398,4 +394,5 @@ void main()
     mediumfout = select;
     
 }
+
 

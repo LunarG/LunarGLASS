@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @texSampler1D = external addrspace(1) constant i32
 @coords2D_shadow = internal global <2 x float> zeroinitializer
@@ -404,7 +404,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @texSampler1D = external addrspace(1) constant i32
 @texSampler2D = external addrspace(1) constant i32
@@ -603,13 +603,8 @@ attributes #1 = { nounwind }
 !26 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
 !27 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !28}
 !28 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-WARNING: 0:14: varying deprecated in version 130; may be removed in future release
-WARNING: 0:15: varying deprecated in version 130; may be removed in future release
-#### END COMPILER 0 INFO LOG ####
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform sampler1D texSampler1D;
 uniform sampler2D texSampler2D;
 uniform sampler3D texSampler3D;
@@ -704,11 +699,9 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-#### END COMPILER 0 INFO LOG ####
+
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform sampler2DShadow shadowSampler2D;
 uniform sampler1D texSampler1D;
 uniform sampler2D texSampler2D;
@@ -802,4 +795,5 @@ void main()
     gl_FragColor = FragColor_shadow79;
     
 }
+
 

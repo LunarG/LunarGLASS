@@ -44,15 +44,10 @@
 #include "glslang/Include/Common.h"
 #include "glslang/Include/ShHandle.h"
 
-// LunarGLASS runtime options handling
+// LunarGLASS includes
 // TODO: merge glslang and LunarGLASS option handling
 //#include "StandAlone/OptionParse.h"
-#include "Options.h"
-
-// LunarGLASS includes
-#include "LunarGLASSManager.h"
-
-// LunarGLASS adapter includes
+#include "Core/Options.h"
 #include "GlslangToTop.h"
 
 // LLVM includes
@@ -149,14 +144,14 @@ bool TGenericCompiler::compile(TIntermNode *root, int version, EProfile profile)
 
     TranslateGlslangToTop(root, glaManager);
 
-    if (! (debugOptions & EDebugOpMemoryLeakMode)) {
-        if (debugOptions & EDebugOpAssembly)
+    if (! (debugOptions & gla::EOptionMemoryLeakMode)) {
+        if (debugOptions & gla::EOptionAssembly)
             glaManager->dump("\nTop IR:\n");
 
 #ifdef USE_LUNARGLASS_CORE
         glaManager->translateTopToBottom();
     
-        if (debugOptions & EDebugOpAssembly)
+        if (debugOptions & gla::EOptionAssembly)
             glaManager->dump("\n\nBottom IR:\n");
 
         glaManager->translateBottomToTarget();
@@ -171,3 +166,4 @@ bool TGenericCompiler::compile(TIntermNode *root, int version, EProfile profile)
 
     return haveValidObjectCode;
 }
+

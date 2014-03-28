@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @colorOut_shadow = internal global [6 x <4 x float>] zeroinitializer
 @color_shadow = internal global <4 x float> zeroinitializer
@@ -92,7 +92,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @colorOut_shadow = internal unnamed_addr global [6 x <4 x float>] zeroinitializer
 
@@ -173,13 +173,8 @@ attributes #1 = { nounwind }
 ***Unsupported functionality: missing metadata on load 0 colorOut_shadow
 
 ***Unsupported functionality: missing metadata on load 0 colorOut_shadow
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-WARNING: 0:3: attribute deprecated in version 130; may be removed in future release
-WARNING: 0:4: varying deprecated in version 130; may be removed in future release
-#### END COMPILER 0 INFO LOG ####
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 in vec4 color;
 out vec4 colorOut[6];
 vec4 colorOut_shadow[6];
@@ -200,11 +195,9 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-#### END COMPILER 0 INFO LOG ####
+
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 in vec4 color;
 out vec4 colorOut[6];
 vec4 colorOut_shadow[6];
@@ -231,4 +224,5 @@ void main()
     gl_Position = color;
     
 }
+
 

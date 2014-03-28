@@ -38,14 +38,14 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "PrivateManager.h"
+#include "Core/PrivateManager.h"
+#include "GlslTranslator.h"
 
 namespace gla {
 
-    BackEndTranslator* GetGlslTranslator(Manager*);
+    GlslTranslator* GetGlslTranslator(Manager*, bool obfuscate);
     void ReleaseGlslTranslator(gla::BackEndTranslator*);
 
     gla::BackEnd* GetGlslBackEnd();
     void ReleaseGlslBackEnd(gla::BackEnd*);
 };
-

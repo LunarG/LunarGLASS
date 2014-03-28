@@ -1,4 +1,4 @@
-//===- GlslangToTopVisitor.h - Translate GLSL IR to LunarGLASS Top IR ----===//
+//===------- GlslangToTop.h - Translate GLSL IR to LunarGLASS Top IR ------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2014 LunarG, Inc.
@@ -34,8 +34,16 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "LunarGLASSManager.h"
+// LunarGLASS includes
+#include "Core/LunarGLASSManager.h"
 
+// Glslang includes
+#include "glslang/Public/ShaderLang.h"
+
+void TranslateGlslangToTop(glslang::TIntermediate&, gla::Manager& manager);
+
+// Glslang deprecated includes
 #include "glslang/Include/intermediate.h"
 
+// deprecated interface
 void TranslateGlslangToTop(TIntermNode* root, gla::Manager* manager);

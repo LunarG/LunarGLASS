@@ -9,3 +9,6 @@ set(HEADERS
     IdentifyStructures.h)
 
 add_library(analysis STATIC ${SOURCES} ${HEADERS})
+
+install(TARGETS analysis 
+        ARCHIVE DESTINATION lib)

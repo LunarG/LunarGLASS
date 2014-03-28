@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @u = external addrspace(2) constant <4 x float>
 @t_shadow = internal global <2 x float> zeroinitializer
@@ -204,7 +204,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @u = external addrspace(2) constant <4 x float>
 @p = external addrspace(2) constant i1
@@ -222,10 +222,10 @@ entry:
   %6 = load i1 addrspace(2)* @p, align 1, !gla.uniform !3
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
   %8 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 1, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
-  %select = select i1 %6, <4 x float> %7, <4 x float> %8
+  %select29 = select i1 %6, <4 x float> %7, <4 x float> %8
   %9 = fmul <4 x float> %1, %3
   %10 = fmul <4 x float> %9, %5
-  %11 = fmul <4 x float> %select, %10
+  %11 = fmul <4 x float> %select29, %10
   %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %4, <4 x float> %0, <4 x float> %11)
   %12 = fcmp olt float %2, 0.000000e+00
   %13 = fmul float %2, -1.000000e+00
@@ -285,10 +285,8 @@ attributes #1 = { nounwind }
 !6 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !7 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !8}
 !8 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 110
-// LunarGOO output (r722)
+// LunarGOO output
 uniform vec4 u;
 uniform bool p;
 uniform float blend;
@@ -314,10 +312,10 @@ void main()
     temp27.x = t.x;
     vec4 temp28 = u;
     temp28.x = t.y;
-    vec4 select = p ? temp27 : temp28;
+    vec4 select29 = p ? temp27 : temp28;
     vec4 temp30 = temp22 * temp23;
     vec4 temp31 = temp30 * temp26;
-    vec4 temp32 = select * temp31;
+    vec4 temp32 = select29 * temp31;
     vec4 FragColor_shadow = mix(temp24, temp21, temp32);
     bool temp34 = t.x < const35;
     float temp36 = t.x * const37;
@@ -329,11 +327,9 @@ void main()
     
 }
 
-!8 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 110
-// LunarGOO output (r722)
+// LunarGOO output
 uniform vec4 u;
 uniform bool p;
 uniform float blend;
@@ -373,4 +369,5 @@ void main()
     gl_FragColor = FragColor_shadow2741;
     
 }
+
 

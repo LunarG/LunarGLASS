@@ -34,10 +34,16 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+// glslang includes
 #include "glslang/Include/ShHandle.h"
 #include "glslang/Public/ShaderLang.h"
+
+// LunarGLASS includes
+#include "Frontends/glslang/GlslangToTop.h"
+#include "Core/Options.h"
+#include "Backends/GLSL/GlslManager.h"
+
 #include <string.h>
-#include <math.h>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -46,11 +52,7 @@
     #include <cstdlib>
 #endif
 
-#include "Options.h"
-
-extern "C" {
-    SH_IMPORT_EXPORT void ShOutputHtml();
-}
+//#define USE_DEPRECATED_GLSLANG
 
 // For overriding the output language version.
 // Would be good to have a way of passing a target definition through the front end, or next to it...
@@ -84,9 +86,12 @@ enum TFailCode {
     EFailLinkerCreate
 };
 
-int debugOptions = EDebugOpGiveWarnings | EDebugOpRelaxedErrors;
-bool delay = false;
-const char* executableName;
+int Options = 0;
+const char* ExecutableName;
+
+// Globally track if any compile or link failure.
+bool CompileFailed = false;
+bool LinkFailed = false;
 
 //
 // Set up the per compile resources
@@ -186,45 +191,55 @@ void GenerateResources(TBuiltInResource& resources)
 //
 //   print usage to stdout
 //
-void usage(const char* executableName, bool advanced)
+void usage(bool advanced)
 {
     if (! advanced) {
         printf("Basic usage:\n"
                "%s [options] <filename>\n"
-               "<filename> ends in .frag or .vert\n"
+               "\n"
+               "Where: each 'file' ends in\n"
+               "    .vert for a vertex shader\n"
+               "    .tesc for a tessellation control shader\n"
+               "    .tese for a tessellation evaluation shader\n"
+               "    .geom for a geometry shader\n"
+               "    .frag for a fragment shader\n"
+               "    .comp for a compute shader\n"
+               "\n"
                "Standard Output will receive new shader.\n"
-               "Standard Error will receive an information log.\n", executableName);
+               "Standard Error will receive an information log.\n", ExecutableName);
 
         printf("\n");
         printf("Basic options:\n"
                "-<version>: set output version, where <version> is 100, 110, ..., 300es, ..., 430core, 430compatibility \n"
-               "-o: obfuscate\n"
-               "-r: restrictive error checking (give all required errors)\n"
-               "-s: silent mode (no information log)\n"
-               "-w: suppress warnings\n"
-               "-z: see developer options\n");
+               "  -o  obfuscate\n"
+               "  -r  relaxed semantic error-checking mode\n"
+               "  -s  silent mode\n"
+               "  -w  suppress warnings (except as required by #extension : warn)\n"
+               "  -z  see developer options\n");
     }
     
     if (advanced) {
         printf("Developer options:\n"
-               "-a: dump LunarGLASS Top IR and Bottom IR\n"
-#ifdef _WIN32
-               "-d: delay exit\n"
-#endif
-               "-i: dump AST\n"
-               "-l: memory leak mode\n");
+               "  -a  dump LunarGLASS Top IR and Bottom IR\n"
+               "  -i  intermediate tree (glslang AST) is printed out\n"
+               "  -m  memory leak mode\n");
     }
 }
 
 TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& names)
 {
-    executableName = argv[0] + strlen(argv[0]) - 1;
-    while (*executableName == '/' || *executableName == '\\')
-        --executableName;
-    while (*executableName != '/' && *executableName != '\\' && executableName - argv[0] > 0)
-        --executableName;
-    if (*executableName == '/' || *executableName == '\\')
-        ++executableName;
+    ExecutableName = argv[0] + strlen(argv[0]) - 1;
+    while (*ExecutableName == '/' || *ExecutableName == '\\')
+        --ExecutableName;
+    while (*ExecutableName != '/' && *ExecutableName != '\\' && ExecutableName - argv[0] > 0)
+        --ExecutableName;
+    if (*ExecutableName == '/' || *ExecutableName == '\\')
+        ++ExecutableName;
+
+    if (argc < 2) {
+        usage(false);
+        return EFailUsage;
+    }
 
     argc--;
     argv++;
@@ -239,7 +254,7 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
                 const char* versionStr = &argv[0][1];
                 const char* profileStr = &argv[0][4];
                 if (versionStr[1] < '0' || versionStr[1] > '9' || versionStr[2] != '0') {
-                    usage(executableName, false);
+                    usage(false);
                     return EFailUsage;
                 }
                 TargetDefinitionVersion = 100 * (versionStr[0] - '0') + 10 * (versionStr[1] - '0');
@@ -257,40 +272,37 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
                 else if (strcmp(profileStr, "compatibility") == 0)
                     TargetDefinitionProfile = ECompatibilityProfile;
                 else {
-                    usage(executableName, false);
+                    usage(false);
                     return EFailUsage;
                 }
                 break;
             }
             case 'a':
-                debugOptions |= EDebugOpAssembly;
-                break;
-            case 'd':
-                delay = true;
+                Options |= gla::EOptionAssembly;
                 break;
             case 'i': 
-                debugOptions |= EDebugOpIntermediate;       
+                Options |= gla::EOptionIntermediate;       
                 break;
-            case 'l':
-                debugOptions |= EDebugOpMemoryLeakMode;
+            case 'm':
+                Options |= gla::EOptionMemoryLeakMode;
                 break;
             case 'o':
                 gla::Options.obfuscate = true;
                 break;
             case 'r':
-                debugOptions &= ~EDebugOpRelaxedErrors;
+                Options |= gla::EOptionRelaxedErrors;
                 break;
             case 's':
-                debugOptions |= EDebugOpSuppressInfolog;
+                Options |= gla::EOptionSuppressInfolog;
                 break;
             case 'w':
-                debugOptions &= ~EDebugOpGiveWarnings;
+                Options |= gla::EOptionSuppressWarnings;
                 break;
             case 'z':
-                usage(executableName, true);
+                usage(true);
                 return EFailUsage;
             default:
-                usage(executableName, false);
+                usage(false);
                 return EFailUsage;
             }
         } else
@@ -300,45 +312,66 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
     return ESuccess;
 }
 
+void SetMessageOptions(EShMessages& messages)
+{
+    if (Options & gla::EOptionRelaxedErrors)
+        messages = (EShMessages)(messages | EShMsgRelaxedErrors);
+    if (Options & gla::EOptionIntermediate)
+        messages = (EShMessages)(messages | EShMsgAST);
+    if (Options & gla::EOptionSuppressWarnings)
+        messages = (EShMessages)(messages | EShMsgSuppressWarnings);
+}
+
 //
 //   Deduce the language from the filename.  Files must end in one of the
 //   following extensions:
 //
-//   .frag*    = fragment programs
-//   .vert*    = vertex programs
+//   .vert = vertex
+//   .tesc = tessellation control
+//   .tese = tessellation evaluation
+//   .geom = geometry
+//   .frag = fragment
+//   .comp = compute
 //
-EShLanguage FindLanguage(const char *name)
+EShLanguage FindLanguage(const std::string& name)
 {
-    if (!name)
+    size_t ext = name.rfind('.');
+    if (ext == std::string::npos) {
+        usage(false);
         return EShLangVertex;
-
-    const char *ext = strrchr(name, '.');
-
-    if (ext && strcmp(ext, ".sl") == 0)
-        for (; ext > name && ext[0] != '.'; ext--);
-
-    ext = strrchr(name, '.');
-    if (ext) {
-        if (strncmp(ext, ".frag", 4) == 0) 
-            return EShLangFragment;
     }
 
+    std::string suffix = name.substr(ext + 1, std::string::npos);
+    if (suffix == "vert")
+        return EShLangVertex;
+    else if (suffix == "tesc")
+        return EShLangTessControl;
+    else if (suffix == "tese")
+        return EShLangTessEvaluation;
+    else if (suffix == "geom")
+        return EShLangGeometry;
+    else if (suffix == "frag")
+        return EShLangFragment;
+    else if (suffix == "comp")
+        return EShLangCompute;
+
+    usage(false);
     return EShLangVertex;
 }
 
 //
-//   Malloc a string of sufficient size and read a string into it.
+//   Malloc a string of sufficient size and read a file into it.
 //
-#define MAX_SOURCE_STRINGS 5
 char** ReadFileData(const char *fileName)
 {
-    FILE *in = fopen(fileName, "r");
+    FILE *in;
+	int errorCode = fopen_s(&in, fileName, "r");
     char *fdata;
-    int count = 0;
-    char**return_data=(char**)malloc(MAX_SOURCE_STRINGS+1);
+    int count = 0;    
+    const int maxSourceStrings = 1;
+    char** return_data = (char**)malloc(sizeof(char *) * (maxSourceStrings+1));
 
-    //return_data[MAX_SOURCE_STRINGS]=NULL;
-    if (in == 0) {
+	if (errorCode) {
         printf("Error: unable to open input file: %s\n", fileName);
         return 0;
     }
@@ -348,10 +381,9 @@ char** ReadFileData(const char *fileName)
 
 	fseek(in, 0, SEEK_SET);
 	
-	
 	if (!(fdata = (char *)malloc(count+2))) {
-            printf("Error allocating memory\n");
-            return 0;
+        printf("Error allocating memory\n");
+        return 0;
     }
 	if (fread(fdata,1,count, in)!=count) {
             printf("Error reading input file: %s\n", fileName);
@@ -359,9 +391,9 @@ char** ReadFileData(const char *fileName)
     }
     fdata[count] = '\0';
     fclose(in);
-    if(count==0){
-        return_data[0]=(char*)malloc(count+2);
-        return_data[0][0]='\0';
+    if (count == 0) {
+        return_data[0] = (char*)malloc(count);
+        return_data[0][0] = '\0';
         return return_data;
     }
 
@@ -389,10 +421,12 @@ void FreeFileData(char **data)
     free(data[0]);
 }
 
+#ifdef USE_DEPRECATED_GLSLANG
+
 //
-//   Read a file's data into a string, and compile it using ShCompile
+//  Read a file's data into a string, and compile it using ShCompile, the old glslang interface
 //
-bool CompileFile(const char *fileName, ShHandle compiler, int debugOptions, const TBuiltInResource *resources)
+bool CompileFile(const char *fileName, ShHandle compiler, int Options, const TBuiltInResource *resources)
 {
     int ret;
     char **data = ReadFileData(fileName);
@@ -405,17 +439,17 @@ bool CompileFile(const char *fileName, ShHandle compiler, int debugOptions, cons
         return false;
 
     EShMessages messages = EShMsgDefault;
-    if (! (debugOptions & EDebugOpGiveWarnings))
+    if (! (Options & EDebugOpGiveWarnings))
         messages = (EShMessages)(messages | EShMsgSuppressWarnings);
-    if (debugOptions & EDebugOpRelaxedErrors)
+    if (Options & EDebugOpRelaxedErrors)
         messages = (EShMessages)(messages | EShMsgRelaxedErrors);
 
-    for (int i = 0; i < ((debugOptions & EDebugOpMemoryLeakMode) ? 100 : 1); ++i) {
-        for (int j = 0; j < ((debugOptions & EDebugOpMemoryLeakMode) ? 100 : 1); ++j)
-            ret = ShCompile(compiler, data, 1, 0, EShOptNone, resources, debugOptions, 100, false, EShMsgDefault);
+    for (int i = 0; i < ((Options & EDebugOpMemoryLeakMode) ? 100 : 1); ++i) {
+        for (int j = 0; j < ((Options & EDebugOpMemoryLeakMode) ? 100 : 1); ++j)
+            ret = ShCompile(compiler, data, 1, 0, EShOptNone, resources, Options, 100, false, EShMsgDefault);
 
 #ifdef _WIN32
-        if (debugOptions & EDebugOpMemoryLeakMode) {
+        if (Options & EDebugOpMemoryLeakMode) {
             GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters));
             printf("Working set size: %d\n", counters.WorkingSetSize);
         }
@@ -425,6 +459,117 @@ bool CompileFile(const char *fileName, ShHandle compiler, int debugOptions, cons
     FreeFileData(data);
 
     return ret ? true : false;
+}
+
+#endif
+
+//
+// Uses the new glslang C++ interface instead of the old handle-based interface.
+//
+void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResource *resources)
+{
+    // keep track of what to free
+    std::list<glslang::TShader*> shaders;
+    
+    EShMessages messages = EShMsgDefault;
+    SetMessageOptions(messages);
+
+    //
+    // Per-shader front-end processing...
+    //
+
+    glslang::TProgram& program = *new glslang::TProgram;
+    for (int n = 0; n < (int)names.size(); ++n) {
+        EShLanguage stage = FindLanguage(names[n]);
+        glslang::TShader* shader = new glslang::TShader(stage);
+        shaders.push_back(shader);
+    
+        char** shaderStrings = ReadFileData(names[n]);
+        if (! shaderStrings) {
+            usage(false);
+            return;
+        }
+
+        shader->setStrings(shaderStrings, 1);
+
+        if (! shader->parse(resources, 100, false, messages)) {
+            CompileFailed = true;
+            if (! (Options & gla::EOptionSuppressInfolog)) {
+                puts(names[n]);
+                puts(shader->getInfoLog());
+            }
+
+            return;
+        }
+        
+        program.addShader(shader);
+
+        FreeFileData(shaderStrings);
+    }
+
+    //
+    // Program-level front-end processing...
+    //
+
+    if (! program.link(messages)) {
+        LinkFailed = true;
+        if (! (Options & gla::EOptionSuppressInfolog))
+            puts(program.getInfoLog());
+
+        return;
+    }
+
+    if (Options & gla::EOptionDumpReflection) {
+        program.buildReflection();
+        program.dumpReflection();
+    }
+
+    //
+    // For each populated stage, translate the linked result through to the back end.
+    //
+    for (int stage = 0; stage < EShLangCount; ++stage) {
+        glslang::TIntermediate* intermediate = program.getIntermediate((EShLanguage)stage);
+        if (! intermediate)
+            continue;
+
+        gla::GlslManager manager;
+
+        // Generate the Top IR
+        TranslateGlslangToTop(*intermediate, manager);
+
+        // Optionally override any versioning/extensions here.
+        // (If this is not done, it will inherit from the original shader source.)
+        if (TargetDefinitionVersion != 0)
+            manager.setVersion(TargetDefinitionVersion);
+        if (TargetDefinitionProfile != EBadProfile)
+            manager.setProfile(TargetDefinitionProfile);
+
+        if (Options & gla::EOptionAssembly)
+            manager.dump("\nTop IR:\n");
+
+        // Generate the Bottom IR
+        manager.translateTopToBottom();
+    
+        if (Options & gla::EOptionAssembly)
+            manager.dump("\n\nBottom IR:\n");
+
+        // Generate the GLSL output
+        manager.translateBottomToTarget();
+
+        // Get and print the generated GLSL output
+        if (manager.getGeneratedShader())
+            printf("%s\n", manager.getGeneratedShader());
+    }
+
+    // Free everything up, program has to go before the shaders
+    // because it might have merged stuff from the shaders, and
+    // the stuff from the shaders has to have its destructors called
+    // before the pools holding the memory in the shaders is freed.
+    delete &program;
+    while (shaders.size() > 0) {
+        delete shaders.back();
+        shaders.pop_back();
+    }
 }
 
 void InfoLogMsg(const char* msg, const char* name, const int num)
@@ -437,59 +582,65 @@ void InfoLogMsg(const char* msg, const char* name, const int num)
 
 int C_DECL main(int argc, char* argv[])
 {
-    int numCompilers = 0;
-    bool compileFailed = false;
-    bool linkFailed = false;
-    int i;
     TargetDefinitionProfile = EBadProfile;
     TargetDefinitionVersion = 0;
-
-    ShHandle    compilers[EShLangCount];
-
-    ShInitialize();
-
+    
     std::vector<const char*> names;
     TFailCode failCode = ParseCommandLine(argc, argv, names);
     if (failCode)
         return failCode;
 
+#ifdef USE_DEPRECATED_GLSLANG
+    int numCompilers = 0;
+    ShHandle compilers[EShLangCount];
+    ShInitialize();
+
     for (int n = 0; n < (int)names.size(); ++n) {
-        compilers[numCompilers] = ShConstructCompiler(FindLanguage(names[n]), debugOptions);
+        compilers[numCompilers] = ShConstructCompiler(FindLanguage(names[n]), Options);
         if (compilers[numCompilers] == 0)
             return EFailCompilerCreate;
         ++numCompilers;
 
         TBuiltInResource resources;
         GenerateResources(resources);
-        if (! CompileFile(names[n], compilers[numCompilers-1], debugOptions, &resources))
-            compileFailed = true;
+        if (! CompileFile(names[n], compilers[numCompilers-1], Options, &resources))
+            CompileFailed = true;
     }
 
     if (! numCompilers) {
-        usage(executableName, false);
+        usage(false);
 
         return EFailUsage;
     }
 
-    if (! (debugOptions & EDebugOpSuppressInfolog)) {
-        for (i = 0; i < numCompilers; ++i) {
+    if (! (Options & EDebugOpSuppressInfolog)) {
+        for (int i = 0; i < numCompilers; ++i) {
             InfoLogMsg("BEGIN", "COMPILER", i);
             fprintf(stderr, "%s", ShGetInfoLog(compilers[i]));
             InfoLogMsg("END", "COMPILER", i);
         }
     }
 
-    for (i = 0; i < numCompilers; ++i)
+    for (int i = 0; i < numCompilers; ++i)
         ShDestruct(compilers[i]);
 
-#ifdef _WIN32
-    if (delay)
-        Sleep(1000000);
-#endif
+    ShFinalize();
+#else
 
-    if (compileFailed)
+    glslang::InitializeProcess();
+
+    TBuiltInResource resources;
+    GenerateResources(resources);
+
+    TranslateShaders(names, &resources);
+
+    glslang::FinalizeProcess();
+
+#endif  // USE_DEPRECATED_GLSLANG
+
+    if (CompileFailed)
         return EFailCompile;
-    if (linkFailed)
+    if (LinkFailed)
         return EFailLink;
 
     return 0;

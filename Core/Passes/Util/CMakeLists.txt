@@ -18,3 +18,6 @@ set(HEADERS
     LoopUtil.h)
 
 add_library(util STATIC ${SOURCES} ${HEADERS})
+
+install(TARGETS util 
+        ARCHIVE DESTINATION lib)

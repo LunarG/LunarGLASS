@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @Position_shadow = internal global <4 x float> zeroinitializer
 @m4 = external addrspace(2) constant [4 x <4 x float>]
@@ -189,7 +189,7 @@ attributes #3 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @m4 = external addrspace(2) constant [4 x <4 x float>]
 @m3 = external addrspace(2) constant [3 x <3 x float>]
@@ -266,11 +266,8 @@ attributes #2 = { nounwind }
 !7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 !8 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !9}
 !9 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-#### END COMPILER 0 INFO LOG ####
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform mat4 m4;
 uniform mat3 m3;
 in vec3 v3;
@@ -303,11 +300,9 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-#### END COMPILER 0 INFO LOG ####
+
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform mat4 m4;
 uniform mat3 m3;
 in vec3 v3;
@@ -333,4 +328,5 @@ void main()
     gl_Position = temp33;
     
 }
+
 

@@ -42,8 +42,7 @@
 //===----------------------------------------------------------------------===//
 
 // Glslang includes
-#include "glslang/Include/intermediate.h"
-#include "glslang/Public/ShaderLang.h"
+#include "glslang/MachineIndependent/localIntermediate.h"
 #include "glslang/MachineIndependent/SymbolTable.h"
 
 // LunarGLASS includes
@@ -2445,6 +2444,21 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(glslang::TIntermSymbol* 
 //
 // Set up the glslang traversal
 //
+
+// Glslang C++ interface
+void GlslangToTop(glslang::TIntermediate& intermediate, gla::Manager& manager)
+{
+    TIntermNode* root = intermediate.getTreeRoot();
+
+    if (root == 0)
+        return;
+
+    TGlslangToTopTraverser it(&manager);
+
+    root->traverse(&it);
+}
+
+// Glslang deprecated interface
 void GlslangToTop(TIntermNode* root, gla::Manager* manager)
 {
     if (root == 0)

@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @FragData_shadow = internal global [32 x <4 x float>] zeroinitializer
 @i = external addrspace(2) constant i32
@@ -111,7 +111,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @FragData_shadow = internal unnamed_addr global [32 x <4 x float>] zeroinitializer
 @i = external addrspace(2) constant i32
@@ -312,12 +312,8 @@ attributes #1 = { nounwind }
 ***Unsupported functionality: missing metadata on load 0 FragData_shadow
 
 ***Unsupported functionality: missing metadata on load 0 FragData_shadow
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-WARNING: 0:3: varying deprecated in version 130; may be removed in future release
-#### END COMPILER 0 INFO LOG ####
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform int i;
 in vec4 Color;
 vec4 FragData_shadow[32];
@@ -360,11 +356,9 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-#### END COMPILER 0 INFO LOG ####
+
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform int i;
 in vec4 Color;
 vec4 FragData_shadow[32];
@@ -439,4 +433,5 @@ void main()
     gl_FragData[31] = FragData_shadow1[31];
     
 }
+
 

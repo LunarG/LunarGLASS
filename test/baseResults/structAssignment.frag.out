@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %lunarStruct3 = type { %lunarStruct2, i32, float, %lunarStruct1 }
 %lunarStruct2 = type { i32, float, %lunarStruct1 }
@@ -93,7 +93,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %lunarStruct3 = type { %lunarStruct2, i32, float, %lunarStruct1 }
 %lunarStruct2 = type { i32, float, %lunarStruct1 }
@@ -170,12 +170,8 @@ attributes #1 = { nounwind }
 ***Unsupported functionality: missing metadata on load 0 foo3
 
 ***Unsupported functionality: missing metadata on load 0 foo2
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-WARNING: 0:4: varying deprecated in version 130; may be removed in future release
-#### END COMPILER 0 INFO LOG ####
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 struct lunarStruct1 {
     int i;
     float f;
@@ -212,11 +208,9 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-#### END COMPILER 0 INFO LOG ####
+
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 struct lunarStruct1 {
     int i;
     float f;
@@ -252,4 +246,5 @@ void main()
     gl_FragColor = FragColor_shadow7;
     
 }
+
 

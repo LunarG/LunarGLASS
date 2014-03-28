@@ -9,3 +9,6 @@ set(HEADERS
     TgsiTarget.h)
 
 add_library(TgsiBackend STATIC ${SOURCES} ${HEADERS})
+
+install(TARGETS TgsiBackend 
+        ARCHIVE DESTINATION lib)

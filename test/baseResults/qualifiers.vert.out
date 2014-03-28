@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @outVc_shadow = internal global <4 x float> zeroinitializer
 @inV_shadow = internal global <4 x float> zeroinitializer
@@ -86,7 +86,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 define fastcc void @main() {
 entry:
@@ -136,11 +136,8 @@ attributes #1 = { nounwind }
 !14 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
 !15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !16}
 !16 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 430 is not yet complete; some version-specific features are present, but many are missing.
-#### END COMPILER 0 INFO LOG ####
 #version 430 core
-// LunarGOO output (r722)
+// LunarGOO output
 in vec4 inV;
 centroid out vec4 outVc;
 out vec4 outVs;
@@ -158,11 +155,9 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 430 is not yet complete; some version-specific features are present, but many are missing.
-#### END COMPILER 0 INFO LOG ####
+
 #version 430 core
-// LunarGOO output (r722)
+// LunarGOO output
 in vec4 inV;
 centroid out vec4 outVc;
 out vec4 outVs;
@@ -179,4 +174,5 @@ void main()
     outVcn = inV;
     
 }
+
 

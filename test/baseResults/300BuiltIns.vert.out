@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @VertexID_shadow = internal global i32 0
 @Position_shadow = internal global <4 x float> zeroinitializer
@@ -102,7 +102,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 define fastcc void @main() {
 entry:
@@ -164,10 +164,8 @@ attributes #2 = { nounwind readnone }
 !10 = metadata !{i32 0, i32 3, i32 1027, null, i32 0}
 !11 = metadata !{i32 3}
 !12 = metadata !{i32 2}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 in mediump float ps;
 const highp int const22i_2 = 2;
 const highp int const24i_d10 = -10;
@@ -186,11 +184,9 @@ void main()
     
 }
 
-!12 = metadata !{i32 2}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 in mediump float ps;
 const highp int const22i_2 = 2;
 const highp int const24i_d10 = -10;
@@ -208,4 +204,5 @@ void main()
     gl_PointSize = PointSize_shadow68;
     
 }
+
 

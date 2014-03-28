@@ -74,19 +74,24 @@ namespace gla {
         virtual void setModule(llvm::Module* m) { module = m; }
         virtual llvm::Module* getModule() { return module; }
 
-        virtual void setVersion(int v) { version = v; }
-        virtual int getVersion() const { return version; }
-
         virtual void translateTopToBottom() = 0;
         virtual void translateBottomToTarget() = 0;
         virtual void dump(const char* heading) { }
 
+        virtual void setVersion(int v) { version = v; }
+        virtual int getVersion() const { return version; }
+        virtual void setProfile(int v) { profile = v; }
+        virtual int getProfile() const { return profile; }
+        virtual void setStage(int s) { stage = s; }
+        virtual int getStage() const { return stage; }
+
     protected:
-        Manager() : module(0), version(0) { }
+        Manager() : module(0), version(0), profile(0) { }
 
         llvm::Module* module;
-
-        int version;    // generic versioning, details defined by front end
+        int version;  // these three 'int' are generic types, to be used how the user of the manager wishes...
+        int profile;  // ... which may include finding agreement between the front end and the back end
+        int stage;
     };
 
     Manager* getManager();

@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @v_shadow = internal global <4 x float> zeroinitializer
 @u_shadow = internal global <3 x float> zeroinitializer
@@ -1397,7 +1397,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @un34 = external addrspace(2) constant [3 x <4 x float>]
 @um43 = external addrspace(2) constant [4 x <3 x float>]
@@ -1966,14 +1966,8 @@ attributes #1 = { nounwind }
 !15 = metadata !{metadata !"colorTransform", i32 12, [3 x <3 x float>]* @colorTransform_typeProxy, metadata !10}
 !16 = metadata !{metadata !"m", i32 12, [4 x <4 x float>]* @m_typeProxy, metadata !10}
 !17 = metadata !{metadata !"n", i32 12, [4 x <4 x float>]* @n_typeProxy, metadata !10}
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 150 is not yet complete; some version-specific features are present, but many are missing.
-WARNING: 0:4: varying deprecated in version 130; may be removed in future release
-WARNING: 0:13: varying deprecated in version 130; may be removed in future release
-WARNING: 0:15: varying deprecated in version 130; may be removed in future release
-#### END COMPILER 0 INFO LOG ####
 #version 150 core
-// LunarGOO output (r722)
+// LunarGOO output
 uniform mat3x4 un34;
 uniform mat4x3 um43;
 uniform mat4 um4;
@@ -2414,11 +2408,9 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 150 is not yet complete; some version-specific features are present, but many are missing.
-#### END COMPILER 0 INFO LOG ####
+
 #version 150 core
-// LunarGOO output (r722)
+// LunarGOO output
 uniform mat3x4 un34;
 uniform mat4x3 um43;
 uniform mat4 um4;
@@ -2841,4 +2833,5 @@ void main()
     FragColor = temp424;
     
 }
+
 

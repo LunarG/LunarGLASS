@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @FragData_shadow = internal global [32 x <4 x float>] zeroinitializer
 @Color_shadow = internal global <4 x float> zeroinitializer
@@ -43,7 +43,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 define fastcc void @main() {
 entry:
@@ -76,12 +76,8 @@ attributes #1 = { nounwind }
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 !3 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_shadow_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1056, null, i32 1}
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-WARNING: 0:3: varying deprecated in version 130; may be removed in future release
-#### END COMPILER 0 INFO LOG ####
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 in vec4 Color;
 
 void main()
@@ -90,11 +86,9 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-#### END COMPILER 0 INFO LOG ####
+
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 in vec4 Color;
 
 void main()
@@ -102,4 +96,5 @@ void main()
     gl_FragData[1] = Color;
     
 }
+
 

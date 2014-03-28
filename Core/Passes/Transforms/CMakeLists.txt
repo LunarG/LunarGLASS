@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-include_directories(../.. ${LLVMINCLUDES})
+include_directories(. ../.. ../../.. ${LLVMINCLUDES})
 set(SOURCES
     CanonicalizeCFG.cpp
     CanonicalizeInsts.cpp
@@ -12,3 +12,6 @@ set(SOURCES
     Scalarize.cpp)
 
 add_library(transforms STATIC ${SOURCES})
+
+install(TARGETS transforms 
+        ARCHIVE DESTINATION lib)

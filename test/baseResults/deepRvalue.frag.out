@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %str = type { i32, [3 x <2 x float>], i1 }
 
@@ -201,7 +201,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @sampler = external addrspace(1) constant i32
 
@@ -247,10 +247,8 @@ attributes #1 = { nounwind }
 !3 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
 !5 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 120
-// LunarGOO output (r722)
+// LunarGOO output
 uniform sampler2D sampler;
 const vec2 const22 = vec2(0.5);
 const float const24 = 0.1;
@@ -271,11 +269,9 @@ void main()
     
 }
 
-!5 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 120
-// LunarGOO output (r722)
+// LunarGOO output
 uniform sampler2D sampler;
 const vec2 const22 = vec2(0.5);
 const float const24 = 0.1;
@@ -295,4 +291,5 @@ void main()
     gl_FragColor = temp30;
     
 }
+
 

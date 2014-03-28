@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %s = type { i32, [12 x [4 x <3 x float>]] }
 
@@ -105,7 +105,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %s = type { i32, [12 x [4 x <3 x float>]] }
 
@@ -184,10 +184,8 @@ attributes #1 = { nounwind }
 !12 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 !13 = metadata !{metadata !"v", i32 1, <3 x float>* @v_shadow_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 120
-// LunarGOO output (r722)
+// LunarGOO output
 struct s {
     int count;
     mat4x3 sm[12];
@@ -222,11 +220,9 @@ void main()
     
 }
 
-!14 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 120
-// LunarGOO output (r722)
+// LunarGOO output
 struct s {
     int count;
     mat4x3 sm[12];
@@ -252,4 +248,5 @@ void main()
     gl_FragColor = temp29;
     
 }
+
 

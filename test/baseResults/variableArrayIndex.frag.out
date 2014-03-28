@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %lunarStruct3 = type { [3 x %lunarStruct2], i32, float, %lunarStruct1 }
 %lunarStruct2 = type { i32, float, %lunarStruct1 }
@@ -142,7 +142,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %lunarStruct3 = type { [3 x %lunarStruct2], i32, float, %lunarStruct1 }
 %lunarStruct2 = type { i32, float, %lunarStruct1 }
@@ -247,12 +247,8 @@ attributes #1 = { nounwind }
 ***Unsupported functionality: missing metadata on load 0 gla_globalAgg
 
 ***Unsupported functionality: missing metadata on load 0 constructed
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-WARNING: 0:3: varying deprecated in version 130; may be removed in future release
-#### END COMPILER 0 INFO LOG ####
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 struct lunarStruct1 {
     int i;
     float f;
@@ -303,6 +299,10 @@ void main()
     
 }
 
+
+tempglsl.frag
+Warning, version 130 is not yet complete; most features are present, but a few are missing.
+ERROR: 0:38: '' :  syntax error
 ERROR: 1 compilation errors.  No code generated.
 
-#### END COMPILER 0 INFO LOG ####
+

@@ -996,7 +996,7 @@ bool BottomTranslator::runOnModule(Module& module)
     }
 
     //set_branchtargets(&v, currentInstructionructions, num_instructions);
-    backEndTranslator->print();
+    backEndTranslator->end();
 
     return false;
 }

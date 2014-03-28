@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @BaseColor_shadow = internal global <4 x float> zeroinitializer
 @bigColor4 = external addrspace(2) constant <4 x float>
@@ -340,16 +340,8 @@ attributes #1 = { nounwind }
 !51 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 
 ***Unsupported functionality: general-case cross edges (requires artificial loop)
-}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
-#version 100
-// LunarGOO output (r722)
-precision mediump float; // this will be almost entirely overridden by individual declarations
 
+Linked fragment stage:
 
-void main()
-{
-    
-}
+ERROR: Linking fragment stage: Missing entry point: Each stage requires one "void main()" entry point
 

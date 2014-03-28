@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @low = external addrspace(2) constant i32
 @high = external addrspace(2) constant i32
@@ -63,7 +63,7 @@ attributes #0 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @low = external addrspace(2) constant i32
 @high = external addrspace(2) constant i32
@@ -108,10 +108,8 @@ attributes #1 = { nounwind readnone }
 !5 = metadata !{i32 0, i32 2, i32 1024, null, i32 0}
 
 ***Unsupported functionality: bit-wise OR in version 100
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 100
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 uniform mediump int low;
@@ -131,11 +129,9 @@ void main()
     
 }
 
-***Unsupported functionality: bit-wise OR in version 100
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 100
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 uniform mediump int low;
@@ -154,4 +150,5 @@ void main()
     gl_FragColor = temp28;
     
 }
+
 

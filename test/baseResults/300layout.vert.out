@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %Transform = type { [4 x <4 x float>], [4 x <4 x float>], [3 x <3 x float>], i32 }
 %T3 = type { [4 x <4 x float>], [4 x <4 x float>], [2 x <3 x float>], [4 x <3 x i32>] }
@@ -271,7 +271,7 @@ attributes #2 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %Transform = type { [4 x <4 x float>], [4 x <4 x float>], [3 x <3 x float>], i32 }
 %T3 = type { [4 x <4 x float>], [4 x <4 x float>], [2 x <3 x float>], [4 x <3 x i32>] }
@@ -488,10 +488,8 @@ attributes #2 = { nounwind }
 ***Unsupported functionality: missing metadata on load 0 s_shadow
 
 ***Unsupported functionality: missing metadata on load 0 s_shadow
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 struct S {
     highp vec3 c;
     highp float f;
@@ -598,11 +596,9 @@ void main()
     
 }
 
-***Unsupported functionality: missing metadata on load 0 s_shadow1
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 struct S {
     highp vec3 c;
     highp float f;
@@ -687,4 +683,5 @@ void main()
     s.f = s_shadow1.f;
     
 }
+
 

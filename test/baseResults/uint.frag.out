@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @t_shadow = internal global <2 x i32> zeroinitializer
 @c_shadow = internal global <4 x i32> zeroinitializer
@@ -331,7 +331,7 @@ attributes #2 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @usampler = external addrspace(1) constant i32
 
@@ -409,10 +409,8 @@ attributes #2 = { nounwind }
 !16 = metadata !{metadata !"b", i32 12, i1* @b_typeProxy, metadata !17}
 !17 = metadata !{i32 0, i32 0, i32 1024, null}
 !18 = metadata !{i32 2}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 uniform mediump usampler2D usampler;
@@ -448,11 +446,9 @@ void main()
     
 }
 
-!19 = metadata !{i32 3}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 uniform mediump usampler2D usampler;
@@ -487,4 +483,5 @@ void main()
     c = uvec4(c_shadow6115);
     
 }
+
 

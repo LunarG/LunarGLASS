@@ -62,17 +62,16 @@
 #include <cstdio>
 
 // LunarGLASS includes
-#include "Revision.h"
-#include "Exceptions.h"
-#include "Util.h"
-#include "BottomIR.h"
-#include "Backend.h"
-#include "PrivateManager.h"
+#include "Core/Revision.h"
+#include "Core/Exceptions.h"
+#include "Core/Util.h"
+#include "Core/BottomIR.h"
+#include "Core/Backend.h"
+#include "Core/PrivateManager.h"
+#include "Core/TopBuilder.h"
+#include "Core/metadata.h"
+#include "Core/Passes/Util/ConstantUtil.h"
 #include "GlslTarget.h"
-#include "Options.h"
-#include "TopBuilder.h"
-#include "metadata.h"
-#include "Passes/Util/ConstantUtil.h"
 
 // glslang includes
 #include "glslang/Public/ShaderLang.h"
@@ -151,27 +150,29 @@ namespace gla {
     class GlslTarget;
 };
 
-class gla::GlslTarget : public gla::BackEndTranslator {
+class gla::GlslTarget : public gla::GlslTranslator {
 public:
-    GlslTarget(Manager* m) : BackEndTranslator(m), appendInitializers(false), indentLevel(0), lastVariable(20),
-                             obfuscate(Options.obfuscate)
+    GlslTarget(Manager* m, bool obfuscate) : GlslTranslator(m, obfuscate), appendInitializers(false), indentLevel(0), lastVariable(20)
     {
         #ifdef _WIN32
             unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
         #endif
     }
 
-    ~GlslTarget() { }
+    ~GlslTarget()
+    {
+        delete generatedShader;
+    }
 
     virtual void start()
     {
         // Call this before doing actual translation.
         // The following information wasn't available at construct time:
         version = manager->getVersion();
-        profile = static_cast<EProfile>(version >> 16 & 0xFF);
-        language = static_cast<EShLanguage>(version >> 24 & 0xFF);
-        version &= 0xFFFF;
+        profile = (EProfile)manager->getProfile();
+        stage = (EShLanguage)manager->getStage();
     }
+    virtual void end();
 
     void addGlobal(const llvm::GlobalVariable* global);
     void addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode);
@@ -266,23 +267,23 @@ protected:
     std::ostringstream globalStructures;
     std::ostringstream globalDeclarations;
     std::ostringstream globalInitializers;
+    std::ostringstream fullShader;
     bool appendInitializers;
     std::ostringstream shader;
     int indentLevel;
     int lastVariable;
-    bool obfuscate;
     int version;
     EProfile profile;
-    EShLanguage language;
+    EShLanguage stage;
 };
 
 //
 // Factory for GLSL back-end translator
 //
 
-gla::BackEndTranslator* gla::GetGlslTranslator(Manager* manager)
+gla::GlslTranslator* gla::GetGlslTranslator(Manager* manager, bool obfuscate)
 {
-    return new gla::GlslTarget(manager);
+    return new gla::GlslTarget(manager, obfuscate);
 }
 
 void gla::ReleaseGlslTranslator(gla::BackEndTranslator* target)
@@ -461,7 +462,7 @@ EVariableQualifier MapGlaAddressSpace(const llvm::Value* value)
     return EVQTemporary;
 }
 
-const char* MapGlaToQualifierString(int version, EShLanguage language, EVariableQualifier vq)
+const char* MapGlaToQualifierString(int version, EShLanguage stage, EVariableQualifier vq)
 {
     switch (vq) {
     case EVQUniform:         return "uniform";
@@ -469,7 +470,7 @@ const char* MapGlaToQualifierString(int version, EShLanguage language, EVariable
     case EVQInput:
         if (version >= 130)
             return "in";
-        else if (language == EShLangVertex)
+        else if (stage == EShLangVertex)
             return "attribute";
         else
             return "varying";
@@ -1565,37 +1566,47 @@ void gla::GlslTarget::addDiscard()
     shader << "discard;";
 }
 
-void gla::GlslTarget::print()
+void gla::GlslTarget::end()
 {
     // #version...
-    printf("#version %d", version);
+    fullShader << "#version " << version;
     if (version >= 150 && profile != ENoProfile) {
         switch (profile) {
-        case ECoreProfile:          printf(" core");          break;
-        case ECompatibilityProfile: printf(" compatibility"); break;
-        case EEsProfile:            printf(" es");            break;
+        case ECoreProfile:          fullShader << " core";          break;
+        case ECompatibilityProfile: fullShader << " compatibility"; break;
+        case EEsProfile:            fullShader << " es";            break;
         default:
             UnsupportedFunctionality("profile");
             break;
         }
     }
-    printf("\n");
+    fullShader << std::endl;
 
+    // Comment line about LunarGOO
+    fullShader << "// LunarGOO output";
     // If we don't have the noRevision options
     // set, then output the revision.
-    printf("// LunarGOO output");
-    if (! Options.noRevision)
-        printf(" (r%d)", GLA_REVISION);
-    if (Options.obfuscate)
-        printf(" obuscated");
-    printf("\n");
-    
-    if (language == EShLangFragment && profile == EEsProfile)
-        printf("precision mediump float; // this will be almost entirely overridden by individual declarations\n\n");
+    //if (! Options.noRevision)
+    //    fullShader << " (r" << GLA_REVISION << ")", GLA_REVISION;
+    if (obfuscate)
+        fullShader << " obuscated";
+    fullShader << std::endl;
 
-    // rest of shader...
-    printf("%s%s%s", globalStructures.str().c_str(), globalDeclarations.str().c_str(), shader.str().c_str());
-    printf("\n");
+    // Default precision    
+    if (stage == EShLangFragment && profile == EEsProfile)
+        fullShader << "precision mediump float; // this will be almost entirely overridden by individual declarations" << std::endl << std::endl;
+
+    // Body of shader
+    fullShader << globalStructures.str().c_str() << globalDeclarations.str().c_str() << shader.str().c_str() << std::endl;
+
+    delete generatedShader;
+    generatedShader = new char[fullShader.str().size() + 1];
+    strcpy(generatedShader, fullShader.str().c_str());
+}
+
+void gla::GlslTarget::print()
+{
+    printf("%s", getGeneratedShader());
 }
 
 void gla::GlslTarget::newLine()
@@ -1726,7 +1737,7 @@ void gla::GlslTarget::getNewVariableName(const llvm::Value* value, std::string* 
         }
     } else {
         if (IsTempName(value->getName())) {
-            name->append(MapGlaToQualifierString(version, language, MapGlaAddressSpace(value)));
+            name->append(MapGlaToQualifierString(version, stage, MapGlaAddressSpace(value)));
             snprintf(buf, bufSize, "%d", lastVariable);
             name->append(buf);
 
@@ -2422,7 +2433,7 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
             return 0;
     }
 
-    const char* qualifierString = MapGlaToQualifierString(version, language, qualifier);
+    const char* qualifierString = MapGlaToQualifierString(version, stage, qualifier);
     if (*qualifierString)
         out << qualifierString << " ";
 
@@ -2625,8 +2636,8 @@ void gla::GlslTarget::emitGlaInterpolationQualifier(EVariableQualifier qualifier
         }
 
         if (version >= 130) {
-            if ((language == EShLangVertex   && qualifier == EVQOutput) ||
-                (language == EShLangFragment && qualifier == EVQInput)) {
+            if ((stage == EShLangVertex   && qualifier == EVQOutput) ||
+                (stage == EShLangFragment && qualifier == EVQInput)) {
                 switch (interpMethod) {
                 case EIMNone:          globalDeclarations << "flat ";          break;
                 //case EIMSmooth:        globalDeclarations << "smooth ";        break;

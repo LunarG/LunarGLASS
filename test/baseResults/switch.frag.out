@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @c = external addrspace(2) constant i32
 @x_shadow = internal global float 0.000000e+00
@@ -462,7 +462,7 @@ attributes #2 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @c = external addrspace(2) constant i32
 @d = external addrspace(2) constant i32
@@ -756,16 +756,8 @@ attributes #1 = { nounwind }
 !9 = metadata !{i32 2}
 
 ***Unsupported functionality: switch terminator
-}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
-#version 100
-// LunarGOO output (r722)
-precision mediump float; // this will be almost entirely overridden by individual declarations
 
+Linked fragment stage:
 
-void main()
-{
-    
-}
+ERROR: Linking fragment stage: Missing entry point: Each stage requires one "void main()" entry point
 

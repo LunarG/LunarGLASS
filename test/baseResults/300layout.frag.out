@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %S = type { <3 x float>, float }
 
@@ -90,7 +90,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @p_shadow = internal unnamed_addr global [2 x <4 x float>] zeroinitializer
 
@@ -161,10 +161,8 @@ attributes #1 = { nounwind }
 !15 = metadata !{i32 2}
 
 ***Unsupported functionality: missing metadata on load 0 p_shadow
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 struct S {
@@ -190,11 +188,9 @@ void main()
     
 }
 
-***Unsupported functionality: missing metadata on load 0 p_shadow1
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 struct S {
@@ -219,4 +215,5 @@ void main()
     p[1] = p_shadow1[1];
     
 }
+
 

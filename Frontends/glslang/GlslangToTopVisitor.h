@@ -34,7 +34,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-// LunarGLASS includes
-#include "LunarGLASSManager.h"
+// Glslang C++ interface
+void GlslangToTop(glslang::TIntermediate&, gla::Manager&);
 
+// Glslang deprecated interface
 void GlslangToTop(TIntermNode* root, gla::Manager* manager);

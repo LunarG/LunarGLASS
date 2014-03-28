@@ -9,3 +9,6 @@ set(HEADERS
     BackEndPointer.h)
 
 add_library(immutable STATIC ${SOURCES} ${HEADERS})
+
+install(TARGETS immutable 
+        ARCHIVE DESTINATION lib)

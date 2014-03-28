@@ -1,4 +1,4 @@
-//===- Options.h - Help Translate GLSL IR to LunarGLASS Top IR -===//
+//===- GlslTranslator.h - Translate bottom IR to GLSL ---------------------===//
 //
 // LunarGLASS: An Open Modular Shader Compiler Architecture
 // Copyright (C) 2010-2014 LunarG, Inc.
@@ -34,65 +34,27 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// Author: Michael Ilseman, LunarG
+// Author: John Kessenich, LunarG
 //
-// Global run-time options
+// Public view of the GLSL back-end translator.
 //
 //===----------------------------------------------------------------------===//
 
-#pragma once
-#ifndef OPTIONS_H
-#define OPTIONS_H
+// LunarGLASS includes
+#include "Core/PrivateManager.h"
 
 namespace gla {
-    // Command-line options
-    enum CommandOptions {
-	    EOptionNone               = 0x000,
-	    EOptionIntermediate       = 0x001,
-	    EOptionSuppressInfolog    = 0x002,
-	    EOptionMemoryLeakMode     = 0x004,
-        EOptionRelaxedErrors      = 0x008,
-        EOptionGiveWarnings       = 0x010,
-        EOptionsLinkProgram       = 0x020,
-        EOptionMultiThreaded      = 0x040,
-        EOptionDumpConfig         = 0x080,
-        EOptionDumpReflection     = 0x100,
-        EOptionSuppressWarnings   = 0x200,
-        EOptionDumpVersions       = 0x400,
-        EOptionAssembly           = 0x800,
-    };
 
-    enum BackendOption { GLSL      // GLSL backed
-                       , TGSI      // TGSI backend
-                       , Dummy     // Dummy backend
-                       };
+class GlslTranslator : public BackEndTranslator {
+public:
+    GlslTranslator(Manager* m, bool obfuscate) : BackEndTranslator(m), obfuscate(obfuscate), generatedShader(0) { }
+    virtual ~GlslTranslator() { }
 
-    const int DefaultBackendVersion = -1;
+    const char* getGeneratedShader() const { return generatedShader; }
 
-    // Optimizations struct
-    struct Optimizations {
-        bool adce;
-        bool coalesce;
-        bool gvn;
-        bool mem2reg;
-        bool reassociate;
-        bool verify;
-        bool crossStage;
-    };
+protected:
+    bool obfuscate;
+    char* generatedShader;
+};
 
-    // Options struct
-    struct OptionsType {
-        bool debug;
-        bool iterate;
-        bool obfuscate;
-        bool noRevision;
-        BackendOption backend;
-        int backendVersion;    // what version output should the backend generate?
-        bool bottomIROnly;
-        Optimizations optimizations;
-    };
-
-    extern OptionsType Options;
-}
-
-#endif // OPTIONS_H
+} // end namespace gla

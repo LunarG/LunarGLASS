@@ -57,6 +57,9 @@
 #include <vector>
 
 // Glslang includes
+#include "glslang/MachineIndependent/localintermediate.h"
+
+// Glslang deprecated includes
 #include "glslang/Include/intermediate.h"
 
 // LunarGLASS includes
@@ -65,6 +68,20 @@
 // Adapter includes
 #include "GlslangToTopVisitor.h"
 
+// Glslang new C++ interface
+void TranslateGlslangToTop(glslang::TIntermediate& intermediate, gla::Manager& manager)
+{
+    llvm::Module* topModule = new llvm::Module("Glslang", llvm::getGlobalContext());
+    manager.setModule(topModule);
+
+    GlslangToTop(intermediate, manager);
+
+    manager.setVersion(intermediate.getVersion());
+    manager.setProfile(intermediate.getProfile());
+    manager.setStage(intermediate.getStage());
+}
+
+// Glslang deprecated interface
 void TranslateGlslangToTop(TIntermNode* root, gla::Manager* manager)
 {
     llvm::Module* topModule = new llvm::Module("Top", llvm::getGlobalContext());

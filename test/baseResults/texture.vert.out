@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @texSampler1D = external addrspace(1) constant i32
 @coords2D_shadow = internal global <2 x float> zeroinitializer
@@ -188,7 +188,7 @@ attributes #2 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @texSampler1D = external addrspace(1) constant i32
 @texSampler2D = external addrspace(1) constant i32
@@ -294,11 +294,8 @@ attributes #2 = { nounwind }
 !22 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
 !23 = metadata !{metadata !"gl_Position", i32 8, <4 x float>* @Position_shadow_typeProxy, metadata !24}
 !24 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-#### END COMPILER 0 INFO LOG ####
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform sampler1D texSampler1D;
 uniform sampler2D texSampler2D;
 uniform sampler3D texSampler3D;
@@ -342,11 +339,9 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-#### END COMPILER 0 INFO LOG ####
+
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform sampler1D texSampler1D;
 uniform sampler2D texSampler2D;
 uniform sampler3D texSampler3D;
@@ -389,4 +384,5 @@ void main()
     gl_Position = color1426;
     
 }
+
 

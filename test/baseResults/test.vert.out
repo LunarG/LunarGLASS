@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @uv_shadow = internal global <2 x float> zeroinitializer
 @uv_in_shadow = internal global <2 x float> zeroinitializer
@@ -79,7 +79,7 @@ attributes #2 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 define fastcc void @main() {
 entry:
@@ -136,12 +136,8 @@ attributes #2 = { nounwind }
 !10 = metadata !{i32 0, i32 0, i32 1028, null, i32 0}
 !11 = metadata !{metadata !"transform", i32 12, [4 x <4 x float>]* @transform_typeProxy, metadata !12}
 !12 = metadata !{i32 3, i32 0, i32 1024, null}
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-WARNING: 0:5: attribute deprecated in version 130; may be removed in future release
-#### END COMPILER 0 INFO LOG ####
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform mat4 transform;
 in vec2 uv_in;
 in vec4 position;
@@ -156,11 +152,9 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-#### END COMPILER 0 INFO LOG ####
+
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform mat4 transform;
 in vec4 position;
 in vec2 uv_in;
@@ -174,4 +168,5 @@ void main()
     gl_Position = Position_shadow2;
     
 }
+
 

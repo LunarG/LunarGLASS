@@ -9,3 +9,6 @@ set(HEADERS
     DummyTarget.h)
 
 add_library(DummyBackend STATIC ${SOURCES} ${HEADERS})
+
+install(TARGETS DummyBackend 
+        ARCHIVE DESTINATION lib)

@@ -77,7 +77,7 @@ gla::LunarGManager::LunarGManager()
         backEnd = gla::GetTgsiBackEnd();
         break;
     case GLSL:
-        backEndTranslator = gla::GetGlslTranslator(this);
+        backEndTranslator = gla::GetGlslTranslator(this, Options.obfuscate);
         backEnd = gla::GetGlslBackEnd();
         break;
     case Dummy:
@@ -109,7 +109,7 @@ void gla::LunarGManager::clear()
         break;
     case GLSL:
         gla::ReleaseGlslTranslator(backEndTranslator);
-        backEndTranslator = gla::GetGlslTranslator(this);
+        backEndTranslator = gla::GetGlslTranslator(this, Options.obfuscate);
         break;
     default:
         break;

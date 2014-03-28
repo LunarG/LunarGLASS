@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @BaseColor_shadow = internal global <4 x float> zeroinitializer
 @otherColor = external addrspace(2) constant <4 x float>
@@ -221,7 +221,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @otherColor = external addrspace(2) constant <4 x float>
 @d = external addrspace(2) constant float
@@ -369,10 +369,8 @@ attributes #1 = { nounwind }
 ***Unsupported functionality: missing metadata on load 0 bigColor
 
 ***Unsupported functionality: missing metadata on load 0 smallColor
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 110
-// LunarGOO output (r722)
+// LunarGOO output
 uniform vec4 otherColor;
 uniform float d;
 uniform vec4 bigColor;
@@ -461,11 +459,9 @@ void main()
     
 }
 
-***Unsupported functionality: missing metadata on load 0 smallColor
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 110
-// LunarGOO output (r722)
+// LunarGOO output
 uniform float d;
 uniform vec4 bigColor;
 uniform vec4 smallColor;
@@ -553,4 +549,5 @@ void main()
     }
     
 }
+
 

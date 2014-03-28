@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @h = internal global float 0.000000e+00
 @d = external addrspace(2) constant float
@@ -150,7 +150,7 @@ attributes #2 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @d = external addrspace(2) constant float
 
@@ -215,12 +215,8 @@ attributes #1 = { nounwind }
 !5 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !6 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-WARNING: 0:4: varying deprecated in version 130; may be removed in future release
-#### END COMPILER 0 INFO LOG ####
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform float d;
 uniform vec4 bigColor;
 in vec4 BaseColor;
@@ -252,11 +248,9 @@ void main()
     
 }
 
-#### BEGIN COMPILER 0 INFO LOG ####
-Warning, version 130 is not yet complete; most features are present, but a few are missing.
-#### END COMPILER 0 INFO LOG ####
+
 #version 130
-// LunarGOO output (r722)
+// LunarGOO output
 uniform float d;
 uniform vec4 bigColor;
 in vec4 BaseColor;
@@ -280,4 +274,5 @@ void main()
     gl_FragColor = FragColor_shadow16;
     
 }
+
 

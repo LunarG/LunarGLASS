@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %S = type { <4 x float>, <4 x i32>, i32, <3 x float>, [5 x [3 x <3 x float>]] }
 %fooBlock = type { <4 x float>, <2 x float>, <4 x i32>, %S, [2 x <2 x float>], [8 x [4 x <4 x float>]] }
@@ -74,7 +74,7 @@ attributes #1 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 %S = type { <4 x float>, <4 x i32>, i32, <3 x float>, [5 x [3 x <3 x float>]] }
 %fooBlock = type { <4 x float>, <2 x float>, <4 x i32>, %S, [2 x <2 x float>], [8 x [4 x <4 x float>]] }
@@ -146,10 +146,8 @@ attributes #1 = { nounwind }
 !22 = metadata !{metadata !"inst", i32 13, [4 x %barBlock]* @inst_typeProxy, metadata !16, metadata !23}
 !23 = metadata !{metadata !"barBlock", metadata !16, metadata !"nbu", metadata !6, metadata !"nbm", metadata !13, metadata !"nbv", metadata !8, metadata !"ni", metadata !6}
 !24 = metadata !{i32 2}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 struct S {
@@ -187,11 +185,9 @@ void main()
     
 }
 
-!24 = metadata !{i32 2}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 struct S {
@@ -228,4 +224,5 @@ void main()
     color = color_shadow4;
     
 }
+
 

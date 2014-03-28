@@ -28,3 +28,6 @@ set(HEADERS
     Util.h)
 
 add_library(core STATIC ${SOURCES} ${HEADERS})
+
+install(TARGETS core 
+        ARCHIVE DESTINATION lib)

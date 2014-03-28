@@ -1,6 +1,6 @@
 
 Top IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @x_shadow = internal global <3 x float> zeroinitializer
 @y_shadow = internal global <3 x float> zeroinitializer
@@ -693,7 +693,7 @@ attributes #2 = { nounwind }
 
 
 Bottom IR:
-; ModuleID = 'Top'
+; ModuleID = 'Glslang'
 
 @bv = external addrspace(2) constant <3 x i1>
 @imin = external addrspace(2) constant i32
@@ -1036,10 +1036,8 @@ attributes #2 = { nounwind }
 !46 = metadata !{i32 0, i32 3, i32 1042, null, i32 0}
 !47 = metadata !{i32 2}
 !48 = metadata !{i32 3}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 uniform bvec3 bv;
@@ -1158,11 +1156,9 @@ void main()
     
 }
 
-!48 = metadata !{i32 3}
-#### BEGIN COMPILER 0 INFO LOG ####
-#### END COMPILER 0 INFO LOG ####
+
 #version 300 es
-// LunarGOO output (r722)
+// LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
 uniform bvec3 bv;
@@ -1280,4 +1276,5 @@ void main()
     gl_FragDepth = FragDepth_shadow89122;
     
 }
+
 
