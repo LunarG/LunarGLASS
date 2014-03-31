@@ -1592,6 +1592,11 @@ void gla::GlslTarget::end()
         fullShader << " obuscated";
     fullShader << std::endl;
 
+    // Extensions
+    for (std::set<std::string>::const_iterator extIt  = manager->getRequestedExtensions().begin(); 
+                                               extIt != manager->getRequestedExtensions().end(); ++extIt)
+           fullShader << "#extension " << *extIt << " : enable" << std::endl;
+
     // Default precision    
     if (stage == EShLangFragment && profile == EEsProfile)
         fullShader << "precision mediump float; // this will be almost entirely overridden by individual declarations" << std::endl << std::endl;

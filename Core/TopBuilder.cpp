@@ -396,6 +396,9 @@ void Builder::makeDiscard(bool isMain)
     if (isMain) {
         builder.CreateBr(stageExit);
         createAndSetNoPredecessorBlock("post-discard");
+    } else {
+        // A discard in a function cannot branch te the exit block of main.
+        // TODO: Would it help DCE of code following a discard in a function to label the discard intrinsic with IntrNoReturn?
     }
 }
 

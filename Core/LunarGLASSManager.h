@@ -52,6 +52,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 
 //#define USE_LUNARGLASS_CORE
 
@@ -84,6 +85,8 @@ namespace gla {
         virtual int getProfile() const { return profile; }
         virtual void setStage(int s) { stage = s; }
         virtual int getStage() const { return stage; }
+        virtual void setRequestedExtensions(const std::set<std::string>& exts) { requestedExtensions = exts; }
+        const std::set<std::string>& getRequestedExtensions() const { return requestedExtensions; }
 
     protected:
         Manager() : module(0), version(0), profile(0) { }
@@ -92,6 +95,7 @@ namespace gla {
         int version;  // these three 'int' are generic types, to be used how the user of the manager wishes...
         int profile;  // ... which may include finding agreement between the front end and the back end
         int stage;
+        std::set<std::string> requestedExtensions;  // same story as for 'version'; the contents must be agreed on between frond end and back end
     };
 
     Manager* getManager();

@@ -79,6 +79,7 @@ void TranslateGlslangToTop(glslang::TIntermediate& intermediate, gla::Manager& m
     manager.setVersion(intermediate.getVersion());
     manager.setProfile(intermediate.getProfile());
     manager.setStage(intermediate.getStage());
+    manager.setRequestedExtensions(intermediate.getRequestedExtensions());
 }
 
 // Glslang deprecated interface
