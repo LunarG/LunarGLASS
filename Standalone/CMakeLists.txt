@@ -19,8 +19,6 @@ target_link_libraries(LunarGOO
                       GLSLBackend
                       core
                       ${GLSLANGLIBS}
-                      glslangFrontend
-                      ${LLVMLIBS}
                       ${LLVMLIBS}
                       ${SYSTEM_LIBS})
 

@@ -29,17 +29,17 @@ endif(WIN32)
 set(GLSLANGINCLUDES ${CMAKE_SOURCE_DIR}/../glslang CACHE PATH "glslang include directory" )
 
 set(LLVMLIBS
-    LLVMCore
     LLVMAsmParser
-    LLVMipa
     LLVMLinker
-    LLVMTransformUtils
-    LLVMTarget
-    LLVMAnalysis
-    LLVMScalarOpts
-    LLVMSupport
     LLVMipo
-    LLVMInstCombine)
+    LLVMScalarOpts
+    LLVMInstCombine
+    LLVMTransformUtils
+    LLVMipa
+    LLVMAnalysis
+    LLVMTarget
+    LLVMCore
+    LLVMSupport)
 
 if(WIN32)
     set(SYSTEM_LIBS "")
