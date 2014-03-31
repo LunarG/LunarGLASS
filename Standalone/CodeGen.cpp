@@ -51,7 +51,7 @@
 // TODO: merge glslang and LunarGLASS option handling
 //#include "StandAlone/OptionParse.h"
 #include "Core/Options.h"
-#include "FrontEnds/glslang/GlslangToTop.h"
+#include "Frontends/glslang/GlslangToTop.h"
 
 // LLVM includes
 #pragma warning(push, 1)
