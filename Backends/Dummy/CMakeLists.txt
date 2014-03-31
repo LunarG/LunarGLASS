@@ -10,5 +10,9 @@ set(HEADERS
 
 add_library(DummyBackend STATIC ${SOURCES} ${HEADERS})
 
+if(WIN32)
+    source_group("Source" REGULAR_EXPRESSION "[^/]*")
+endif(WIN32)
+
 install(TARGETS DummyBackend 
         ARCHIVE DESTINATION lib)

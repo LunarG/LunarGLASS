@@ -12,5 +12,9 @@ set(HEADERS
 
 add_library(GLSLBackend STATIC ${SOURCES} ${HEADERS})
 
+if(WIN32)
+    source_group("Source" REGULAR_EXPRESSION "[^/]*")
+endif(WIN32)
+
 install(TARGETS GLSLBackend
         ARCHIVE DESTINATION lib)

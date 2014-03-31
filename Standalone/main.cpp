@@ -55,9 +55,8 @@
 //#define USE_DEPRECATED_GLSLANG
 
 // For overriding the output language version.
-// Would be good to have a way of passing a target definition through the front end, or next to it...
-extern int TargetDefinitionVersion;
-extern EProfile TargetDefinitionProfile;
+int TargetDefinitionVersion = 0;
+EProfile TargetDefinitionProfile = EBadProfile;
 
 //
 // Just placeholders for testing purposes.  The stand-alone environment
@@ -611,9 +610,6 @@ void InfoLogMsg(const char* msg, const char* name, const int num)
 
 int C_DECL main(int argc, char* argv[])
 {
-    TargetDefinitionProfile = EBadProfile;
-    TargetDefinitionVersion = 0;
-    
     std::vector<const char*> names;
     TFailCode failCode = ParseCommandLine(argc, argv, names);
     if (failCode)

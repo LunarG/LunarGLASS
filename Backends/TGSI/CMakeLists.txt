@@ -10,5 +10,9 @@ set(HEADERS
 
 add_library(TgsiBackend STATIC ${SOURCES} ${HEADERS})
 
+if(WIN32)
+    source_group("Source" REGULAR_EXPRESSION "[^/]*")
+endif(WIN32)
+
 install(TARGETS TgsiBackend 
         ARCHIVE DESTINATION lib)

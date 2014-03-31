@@ -53,7 +53,7 @@
 #include <vector>
 #include <string>
 
-#define USE_LUNARGLASS_CORE
+//#define USE_LUNARGLASS_CORE
 
 namespace llvm {
     class Module;

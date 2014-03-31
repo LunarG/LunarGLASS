@@ -35,6 +35,9 @@
 //
 // Author: John Kessenich, LunarG
 //
+// Deprecated: This uses the old functional Sh* interface.  Actual execution
+// uses the new C++ style interface.
+//
 // Stubs for glslang compiler (post-AST) step.  We use these to trigger
 // execution of the adapter to translate the glslang AST to LunarGLASS Top IR.
 //
@@ -48,16 +51,15 @@
 // TODO: merge glslang and LunarGLASS option handling
 //#include "StandAlone/OptionParse.h"
 #include "Core/Options.h"
-#include "GlslangToTop.h"
+#include "FrontEnds/glslang/GlslangToTop.h"
 
 // LLVM includes
 #pragma warning(push, 1)
 #include "llvm/IR/Module.h"
 #pragma warning(pop)
 
-// Would be good to have a way of passing a target definition through the front end, or next to it...
-int TargetDefinitionVersion;
-EProfile TargetDefinitionProfile;
+extern int TargetDefinitionVersion;
+extern EProfile TargetDefinitionProfile;
 
 #ifndef USE_LUNARGLASS_CORE
 

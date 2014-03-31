@@ -1,23 +1,23 @@
 cmake_minimum_required(VERSION 2.8)
 
-include_directories(.. ../Core ${LLVMINCLUDES})
+include_directories(.. ../Core ${GLSLANGINCLUDES} ${LLVMINCLUDES})
 
 set(SOURCES
-    LunarGManager.cpp
-    OptionParse.cpp)
+    main.cpp
+    OptionParse.cpp
+    CodeGen.cpp
+    Link.cpp)
 
 add_executable(LunarGOO ${SOURCES})
+
+if(WIN32)
+    source_group("Source" REGULAR_EXPRESSION "[^/]*")
+endif(WIN32)
 
 target_link_libraries(LunarGOO
                       glslangFrontend
                       GLSLBackend
-                      DummyBackend
-                      TgsiBackend
                       core
-                      analysis
-                      immutable
-                      transforms
-                      util
                       ${GLSLANGLIBS}
                       glslangFrontend
                       ${LLVMLIBS}

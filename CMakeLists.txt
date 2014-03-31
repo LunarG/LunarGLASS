@@ -53,7 +53,6 @@ endif(WIN32)
 
 set(GLSLANGLIBS
     glslang
-    Preprocessor
     OSDependent
     OGLCompiler)
 
