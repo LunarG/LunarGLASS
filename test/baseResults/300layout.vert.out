@@ -10,8 +10,8 @@ Top IR:
 @pos_shadow = internal global <4 x float> zeroinitializer
 @p_shadow = internal global <4 x float> zeroinitializer
 @tblock = external addrspace(2) constant %Transform
-@__anon__1 = external addrspace(2) constant %T3
-@__anon__0 = external addrspace(2) constant %T2
+@"anon@1" = external addrspace(2) constant %T3
+@"anon@0" = external addrspace(2) constant %T2
 @color_shadow = internal global <3 x float> zeroinitializer
 @c_shadow = internal global <3 x float> zeroinitializer
 @iout_shadow = internal global i32 0
@@ -46,7 +46,7 @@ entry:
   %rightColumn8 = extractvalue [4 x <4 x float>] %2, 3, !gla.precision !40
   %column9 = fadd <4 x float> %leftColumn7, %rightColumn8, !gla.precision !40
   %8 = insertvalue [4 x <4 x float>] %7, <4 x float> %column9, 3, !gla.precision !40
-  %9 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @__anon__1, i32 0, i32 1), !gla.uniform !30
+  %9 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @"anon@1", i32 0, i32 1), !gla.uniform !30
   %10 = alloca [4 x <4 x float>]
   %11 = load [4 x <4 x float>]* %10
   %leftColumn10 = extractvalue [4 x <4 x float>] %8, 0, !gla.precision !40
@@ -65,7 +65,7 @@ entry:
   %rightColumn20 = extractvalue [4 x <4 x float>] %9, 3, !gla.precision !40
   %column21 = fadd <4 x float> %leftColumn19, %rightColumn20, !gla.precision !40
   %15 = insertvalue [4 x <4 x float>] %14, <4 x float> %column21, 3, !gla.precision !40
-  %16 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @__anon__1, i32 0, i32 0), !gla.uniform !30
+  %16 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @"anon@1", i32 0, i32 0), !gla.uniform !30
   %17 = alloca [4 x <4 x float>]
   %18 = load [4 x <4 x float>]* %17
   %leftColumn22 = extractvalue [4 x <4 x float>] %15, 0, !gla.precision !40
@@ -84,7 +84,7 @@ entry:
   %rightColumn32 = extractvalue [4 x <4 x float>] %16, 3, !gla.precision !40
   %column33 = fadd <4 x float> %leftColumn31, %rightColumn32, !gla.precision !40
   %22 = insertvalue [4 x <4 x float>] %21, <4 x float> %column33, 3, !gla.precision !40
-  %23 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T2 addrspace(2)* @__anon__0, i32 0, i32 1), !gla.uniform !35
+  %23 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%T2 addrspace(2)* @"anon@0", i32 0, i32 1), !gla.uniform !35
   %24 = alloca [4 x <4 x float>]
   %25 = load [4 x <4 x float>]* %24
   %leftColumn34 = extractvalue [4 x <4 x float>] %22, 0, !gla.precision !40
@@ -152,10 +152,10 @@ entry:
   %47 = load <4 x float>* @p_shadow
   %48 = extractelement <4 x float> %47, i32 0, !gla.precision !40
   store float %48, float* getelementptr inbounds (%S* @s_shadow, i32 0, i32 1)
-  %49 = load <3 x float> addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @__anon__1, i32 0, i32 2, i32 1), !gla.uniform !30
+  %49 = load <3 x float> addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @"anon@1", i32 0, i32 2, i32 1), !gla.uniform !30
   %50 = fcmp one <3 x float> %49, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   %51 = call i1 @llvm.gla.any.v3i1(<3 x i1> %50)
-  %52 = load <3 x i32> addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @__anon__1, i32 0, i32 3, i32 2), !gla.uniform !30
+  %52 = load <3 x i32> addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @"anon@1", i32 0, i32 3, i32 2), !gla.uniform !30
   %53 = icmp ne <3 x i32> %52, <i32 5, i32 5, i32 5>
   %54 = call i1 @llvm.gla.any.v3i1(<3 x i1> %53)
   %55 = or i1 %51, %54
@@ -257,12 +257,12 @@ attributes #2 = { nounwind }
 !27 = metadata !{i32 2, i32 3, i32 1024, null}
 !28 = metadata !{metadata !"", metadata !29}
 !29 = metadata !{i32 3, i32 3, i32 1024, null}
-!30 = metadata !{metadata !"", i32 13, %T3* @__anon__1_typeProxy, metadata !31, metadata !32}
+!30 = metadata !{metadata !"", i32 13, %T3* @"anon@1_typeProxy", metadata !31, metadata !32}
 !31 = metadata !{i32 6, i32 0, i32 1024, null}
 !32 = metadata !{metadata !"T3", metadata !31, metadata !"M3", metadata !28, metadata !"M4", metadata !26, metadata !"N2", metadata !28, metadata !"uv3a", metadata !33}
 !33 = metadata !{metadata !"", metadata !34}
 !34 = metadata !{i32 1, i32 3, i32 1024, null}
-!35 = metadata !{metadata !"", i32 13, %T2* @__anon__0_typeProxy, metadata !31, metadata !36}
+!35 = metadata !{metadata !"", i32 13, %T2* @"anon@0_typeProxy", metadata !31, metadata !36}
 !36 = metadata !{metadata !"T2", metadata !31, metadata !"b", metadata !37, metadata !"t2m", metadata !26}
 !37 = metadata !{metadata !"", metadata !38}
 !38 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -279,8 +279,8 @@ Bottom IR:
 %S = type { <3 x float>, float }
 
 @tblock = external addrspace(2) constant %Transform
-@__anon__1 = external addrspace(2) constant %T3
-@__anon__0 = external addrspace(2) constant %T2
+@"anon@1" = external addrspace(2) constant %T3
+@"anon@0" = external addrspace(2) constant %T2
 @uiuin = external addrspace(2) constant i32
 @s_shadow = internal unnamed_addr global %S zeroinitializer
 
@@ -303,7 +303,7 @@ entry:
   %leftColumn7 = extractvalue [4 x <4 x float>] %0, 3, !gla.precision !40
   %rightColumn8 = extractvalue [4 x <4 x float>] %1, 3, !gla.precision !40
   %column9 = fadd <4 x float> %leftColumn7, %rightColumn8, !gla.precision !40
-  %gla_constGEP65 = getelementptr %T3 addrspace(2)* @__anon__1, i32 0, i32 1
+  %gla_constGEP65 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 1
   %2 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP65, align 16, !gla.uniform !30
   %rightColumn11 = extractvalue [4 x <4 x float>] %2, 0, !gla.precision !40
   %column12 = fadd <4 x float> %column, %rightColumn11, !gla.precision !40
@@ -313,7 +313,7 @@ entry:
   %column18 = fadd <4 x float> %column6, %rightColumn17, !gla.precision !40
   %rightColumn20 = extractvalue [4 x <4 x float>] %2, 3, !gla.precision !40
   %column21 = fadd <4 x float> %column9, %rightColumn20, !gla.precision !40
-  %gla_constGEP66 = getelementptr %T3 addrspace(2)* @__anon__1, i32 0, i32 0
+  %gla_constGEP66 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 0
   %3 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP66, align 16, !gla.uniform !30
   %rightColumn23 = extractvalue [4 x <4 x float>] %3, 0, !gla.precision !40
   %column24 = fadd <4 x float> %column12, %rightColumn23, !gla.precision !40
@@ -323,7 +323,7 @@ entry:
   %column30 = fadd <4 x float> %column18, %rightColumn29, !gla.precision !40
   %rightColumn32 = extractvalue [4 x <4 x float>] %3, 3, !gla.precision !40
   %column33 = fadd <4 x float> %column21, %rightColumn32, !gla.precision !40
-  %gla_constGEP67 = getelementptr %T2 addrspace(2)* @__anon__0, i32 0, i32 1
+  %gla_constGEP67 = getelementptr %T2 addrspace(2)* @"anon@0", i32 0, i32 1
   %4 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP67, align 16, !gla.uniform !35
   %rightColumn35 = extractvalue [4 x <4 x float>] %4, 0, !gla.precision !40
   %column36 = fadd <4 x float> %column24, %rightColumn35, !gla.precision !40
@@ -361,11 +361,11 @@ entry:
   %12 = extractelement <4 x float> %p60, i32 0, !gla.precision !40
   %gla_constGEP71 = getelementptr %S* @s_shadow, i32 0, i32 1
   store float %12, float* %gla_constGEP71, align 16
-  %gla_constGEP72 = getelementptr %T3 addrspace(2)* @__anon__1, i32 0, i32 2, i32 1
+  %gla_constGEP72 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 2, i32 1
   %13 = load <3 x float> addrspace(2)* %gla_constGEP72, align 16, !gla.uniform !30
   %14 = fcmp one <3 x float> %13, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   %15 = call i1 @llvm.gla.any.v3i1(<3 x i1> %14)
-  %gla_constGEP73 = getelementptr %T3 addrspace(2)* @__anon__1, i32 0, i32 3, i32 2
+  %gla_constGEP73 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 3, i32 2
   %16 = load <3 x i32> addrspace(2)* %gla_constGEP73, align 16, !gla.uniform !30
   %17 = icmp ne <3 x i32> %16, <i32 5, i32 5, i32 5>
   %18 = call i1 @llvm.gla.any.v3i1(<3 x i1> %17)
@@ -473,12 +473,12 @@ attributes #2 = { nounwind }
 !27 = metadata !{i32 2, i32 3, i32 1024, null}
 !28 = metadata !{metadata !"", metadata !29}
 !29 = metadata !{i32 3, i32 3, i32 1024, null}
-!30 = metadata !{metadata !"", i32 13, %T3* @__anon__1_typeProxy, metadata !31, metadata !32}
+!30 = metadata !{metadata !"", i32 13, %T3* @"anon@1_typeProxy", metadata !31, metadata !32}
 !31 = metadata !{i32 6, i32 0, i32 1024, null}
 !32 = metadata !{metadata !"T3", metadata !31, metadata !"M3", metadata !28, metadata !"M4", metadata !26, metadata !"N2", metadata !28, metadata !"uv3a", metadata !33}
 !33 = metadata !{metadata !"", metadata !34}
 !34 = metadata !{i32 1, i32 3, i32 1024, null}
-!35 = metadata !{metadata !"", i32 13, %T2* @__anon__0_typeProxy, metadata !31, metadata !36}
+!35 = metadata !{metadata !"", i32 13, %T2* @"anon@0_typeProxy", metadata !31, metadata !36}
 !36 = metadata !{metadata !"T2", metadata !31, metadata !"b", metadata !37, metadata !"t2m", metadata !26}
 !37 = metadata !{metadata !"", metadata !38}
 !38 = metadata !{i32 0, i32 0, i32 1024, null}

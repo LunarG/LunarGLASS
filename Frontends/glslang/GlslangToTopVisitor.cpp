@@ -1207,11 +1207,12 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
     }
 
     if (type.isArray()) {
-        int arraySize = type.getArraySize();
-        if (arraySize == 0) {
-            gla::UnsupportedFunctionality("unsized array", gla::EATContinue);
+        int arraySize;
+        if (type.isImplicitlySizedArray ()) {
+            gla::UnsupportedFunctionality("implicitly-sized array", gla::EATContinue);
             arraySize = UnknownArraySize;
-        }
+        } else
+             arraySize = type.getArraySize();
         glaType = llvm::ArrayType::get(glaType, arraySize);
     }
 
@@ -2117,11 +2118,6 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
         // read the array elements, recursively
 
         int arraySize = glaType.getArraySize();
-        if (arraySize == 0) {
-            // TODO: desktop linker functionality: make sure front end knows size before calling here, see
-            // comment in convertGlslangToGlaType
-            arraySize = UnknownArraySize;
-        }
 
         glslang::TType elementType;
         elementType.shallowCopy(glaType);  // TODO: desktop arrays will need a deeper copy to avoid modifying the original
@@ -2182,11 +2178,8 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
 int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input)
 {
     int numSlots = 1;
-    if (node->getType().isArray()) {
+    if (node->getType().isArray())
         numSlots = node->getType().getArraySize();
-        if (numSlots == 0)
-            numSlots = UnknownArraySize;
-    }
 
     // Get the index for this interpolant, or create a new unique one
     int slot;
@@ -2350,7 +2343,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput 
 {
     const glslang::TType& type = node->getType();
     const char* name;
-    if (node->getName().substr(0,6) == "__anon")
+    if (glslang::IsAnonymous(node->getName()))
         name = "";
     else
         name = node->getName().c_str();

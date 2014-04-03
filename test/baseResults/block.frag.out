@@ -8,18 +8,18 @@ Top IR:
 
 @color_shadow = internal global <4 x float> zeroinitializer
 @s = external addrspace(2) constant %S
-@__anon__0 = external addrspace(2) constant %fooBlock
+@"anon@0" = external addrspace(2) constant %fooBlock
 @inst = external addrspace(2) constant [4 x %barBlock]
 
 define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(2)* getelementptr inbounds (%S addrspace(2)* @s, i32 0, i32 2), !gla.uniform !3
-  %1 = load <2 x float> addrspace(2)* getelementptr inbounds (%fooBlock addrspace(2)* @__anon__0, i32 0, i32 1), !gla.uniform !15
+  %1 = load <2 x float> addrspace(2)* getelementptr inbounds (%fooBlock addrspace(2)* @"anon@0", i32 0, i32 1), !gla.uniform !15
   %2 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1), !gla.precision !24
   %3 = sitofp <4 x i32> %2 to <4 x float>, !gla.precision !24
   %4 = load <4 x float> addrspace(2)* getelementptr inbounds ([4 x %barBlock] addrspace(2)* @inst, i32 0, i32 3, i32 0), !gla.uniform !22
   %5 = fadd <4 x float> %3, %4, !gla.precision !24
-  %6 = load <4 x float> addrspace(2)* getelementptr inbounds (%fooBlock addrspace(2)* @__anon__0, i32 0, i32 0), !gla.uniform !15
+  %6 = load <4 x float> addrspace(2)* getelementptr inbounds (%fooBlock addrspace(2)* @"anon@0", i32 0, i32 0), !gla.uniform !15
   %color_shadow = fadd <4 x float> %5, %6, !gla.precision !24
   store <4 x float> %color_shadow, <4 x float>* @color_shadow
   br label %stage-epilogue
@@ -61,7 +61,7 @@ attributes #1 = { nounwind }
 !12 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 1}
 !13 = metadata !{metadata !"", metadata !14}
 !14 = metadata !{i32 3, i32 2, i32 1024, null}
-!15 = metadata !{metadata !"", i32 13, %fooBlock* @__anon__0_typeProxy, metadata !16, metadata !17}
+!15 = metadata !{metadata !"", i32 13, %fooBlock* @"anon@0_typeProxy", metadata !16, metadata !17}
 !16 = metadata !{i32 6, i32 0, i32 1024, null}
 !17 = metadata !{metadata !"fooBlock", metadata !16, metadata !"bu", metadata !6, metadata !"bw", metadata !6, metadata !"bv", metadata !8, metadata !"bs", metadata !18, metadata !"bm2", metadata !13, metadata !"m4a", metadata !13}
 !18 = metadata !{metadata !"S", metadata !4, metadata !"u", metadata !6, metadata !"v", metadata !8, metadata !"sampler", metadata !19, metadata !"w", metadata !6, metadata !"m3a", metadata !13}
@@ -81,12 +81,12 @@ Bottom IR:
 %barBlock = type { <4 x float>, [3 x <3 x float>], <4 x i32>, i32 }
 
 @s = external addrspace(2) constant %S
-@__anon__0 = external addrspace(2) constant %fooBlock
+@"anon@0" = external addrspace(2) constant %fooBlock
 @inst = external addrspace(2) constant [4 x %barBlock]
 
 define fastcc void @main() {
 entry:
-  %gla_constGEP = getelementptr %fooBlock addrspace(2)* @__anon__0, i32 0, i32 1
+  %gla_constGEP = getelementptr %fooBlock addrspace(2)* @"anon@0", i32 0, i32 1
   %0 = load <2 x float> addrspace(2)* %gla_constGEP, align 16, !gla.uniform !15
   %gla_constGEP2 = getelementptr %S addrspace(2)* @s, i32 0, i32 2
   %1 = load i32 addrspace(2)* %gla_constGEP2, align 16, !gla.uniform !3
@@ -94,7 +94,7 @@ entry:
   %gla_constGEP3 = getelementptr [4 x %barBlock] addrspace(2)* @inst, i32 0, i32 3, i32 0
   %3 = load <4 x float> addrspace(2)* %gla_constGEP3, align 16, !gla.uniform !22
   %4 = sitofp <4 x i32> %2 to <4 x float>, !gla.precision !24
-  %gla_constGEP4 = getelementptr %fooBlock addrspace(2)* @__anon__0, i32 0, i32 0
+  %gla_constGEP4 = getelementptr %fooBlock addrspace(2)* @"anon@0", i32 0, i32 0
   %5 = load <4 x float> addrspace(2)* %gla_constGEP4, align 16, !gla.uniform !15
   %6 = fadd <4 x float> %4, %3, !gla.precision !24
   %color_shadow = fadd <4 x float> %6, %5, !gla.precision !24
@@ -136,7 +136,7 @@ attributes #1 = { nounwind }
 !12 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 1}
 !13 = metadata !{metadata !"", metadata !14}
 !14 = metadata !{i32 3, i32 2, i32 1024, null}
-!15 = metadata !{metadata !"", i32 13, %fooBlock* @__anon__0_typeProxy, metadata !16, metadata !17}
+!15 = metadata !{metadata !"", i32 13, %fooBlock* @"anon@0_typeProxy", metadata !16, metadata !17}
 !16 = metadata !{i32 6, i32 0, i32 1024, null}
 !17 = metadata !{metadata !"fooBlock", metadata !16, metadata !"bu", metadata !6, metadata !"bw", metadata !6, metadata !"bv", metadata !8, metadata !"bs", metadata !18, metadata !"bm2", metadata !13, metadata !"m4a", metadata !13}
 !18 = metadata !{metadata !"S", metadata !4, metadata !"u", metadata !6, metadata !"v", metadata !8, metadata !"sampler", metadata !19, metadata !"w", metadata !6, metadata !"m3a", metadata !13}
