@@ -388,16 +388,15 @@ int fopen_s(
 #endif
 
 //
-//   Malloc a string of sufficient size and read a file into it.
+//   Malloc a set of strings (just 1 though, the point is to match the API) of sufficient size and read a file into it.
 //
 char** ReadFileData(const char *fileName)
 {
     FILE *in;
 	int errorCode = fopen_s(&in, fileName, "r");
-    char *fdata;
     int count = 0;    
-    const int maxSourceStrings = 1;
-    char** return_data = (char**)malloc(sizeof(char *) * (maxSourceStrings+1));
+    char** fileData = (char**)malloc(sizeof(char *));
+    fileData[0] = 0;
 
 	if (errorCode) {
         printf("Error: unable to open input file: %s\n", fileName);
@@ -409,44 +408,27 @@ char** ReadFileData(const char *fileName)
 
 	fseek(in, 0, SEEK_SET);
 	
-	if (!(fdata = (char *)malloc(count+2))) {
+	if (! (fileData[0] = (char*)malloc(count + 2))) {
         printf("Error allocating memory\n");
         return 0;
     }
-	if (fread(fdata,1,count, in)!=count) {
-            printf("Error reading input file: %s\n", fileName);
-            return 0;
+	if (fread(fileData[0], 1, count, in) != count) {
+        printf("Error reading input file: %s\n", fileName);
+        return 0;
     }
-    fdata[count] = '\0';
+    fileData[0][count] = '\0';
     fclose(in);
-    if (count == 0) {
-        return_data[0] = (char*)malloc(count);
-        return_data[0][0] = '\0';
-        return return_data;
-    }
 
-	int len = count;
-    int ptr_len=0,i=0;
-	while(count>0){
-		return_data[i]=(char*)malloc(len+2);
-		memcpy(return_data[i],fdata+ptr_len,len);
-		return_data[i][len]='\0';
-		count-=(len);
-		ptr_len+=(len);
-		if(count<len){
-            if(count==0){
-               break;
-            }
-           len = count;
-		}
-		++i;
-	}
-    return return_data;
+    return fileData;
 }
 
-void FreeFileData(char **data)
+void FreeFileData(char **fileData)
 {
-    free(data[0]);
+    if (fileData) {
+        if (fileData[0])
+            free(fileData[0]);
+        free(fileData);
+    }
 }
 
 #ifdef USE_DEPRECATED_GLSLANG

@@ -249,16 +249,16 @@ in float alpha;
 
 void main()
 {
-    vec4 temp2116 = gl_TexCoord[5] + gl_TexCoord[4];
-    vec2 temp22 = vec2(temp2116);
-    vec4 texColor1218 = texture(texSampler2D, temp22);
-    vec4 texColor1330 = color + texColor1218;
-    vec4 temp2429 = foo[1] + gl_TexCoord[0];
-    vec4 temp26 = texColor1330;
+    vec4 temp2112 = gl_TexCoord[5] + gl_TexCoord[4];
+    vec2 temp22 = vec2(temp2112);
+    vec4 texColor1214 = texture(texSampler2D, temp22);
+    vec4 texColor1324 = color + texColor1214;
+    vec4 temp2423 = foo[1] + gl_TexCoord[0];
+    vec4 temp26 = texColor1324;
     temp26.w = alpha;
-    vec4 temp2639 = temp2429 + gl_TexCoord[4];
-    vec4 FragColor_shadow42 = temp26 + temp2639;
-    gl_FragColor = FragColor_shadow42;
+    vec4 temp2631 = temp2423 + gl_TexCoord[4];
+    vec4 FragColor_shadow34 = temp26 + temp2631;
+    gl_FragColor = FragColor_shadow34;
     
 }
 

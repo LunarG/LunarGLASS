@@ -139,7 +139,7 @@ protected:
     std::map<std::string, int> slotMap;
     std::map<int, llvm::MDNode*> inputMdMap;
     std::map<std::string, llvm::MDNode*> uniformMdMap;
-    std::map<glslang::TTypeList*, llvm::StructType*> structMap;
+    std::map<const glslang::TTypeList*, llvm::StructType*> structMap;
     std::stack<bool> breakForLoop;  // false means break for switch
 };
 
@@ -1177,7 +1177,7 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
     case glslang::EbtStruct:
     case glslang::EbtBlock:
         {
-            glslang::TTypeList* glslangStruct = type.getStruct();
+            const glslang::TTypeList* glslangStruct = type.getStruct();
             std::vector<llvm::Type*> structFields;
             llvm::StructType* structType = structMap[glslangStruct];
             if (structType) {
@@ -2242,7 +2242,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& gl
         for (int col = 0; col < glslangType.getMatrixCols(); ++col)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(vectorType, consts, nextConst)));
     } else if (glslangType.getStruct()) {
-        glslang::TVector<glslang::TTypeLoc>::iterator iter;
+        glslang::TVector<glslang::TTypeLoc>::const_iterator iter;
         for (iter = glslangType.getStruct()->begin(); iter != glslangType.getStruct()->end(); ++iter)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(*iter->type, consts, nextConst)));
     } else {
