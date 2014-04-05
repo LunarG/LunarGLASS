@@ -97,7 +97,7 @@ namespace  {
 
         void hoistUndefOps(Instruction*);
 
-        CallInst* createSwizzleIntrinsic(Value* val, ArrayRef<Constant*> mask);
+        CallInst* createSwizzleIntrinsic(Value* val, ArrayRef<Constant*> mask, BasicBlock*);
 
         CanonicalizeInsts(const CanonicalizeInsts&); // do not implement
         void operator=(const CanonicalizeInsts&); // do not implement
@@ -114,30 +114,31 @@ inline bool NeedsToKeepUndefs(const Instruction* inst)
     return isa<ShuffleVectorInst>(inst) || IsGlaSwizzle(inst) || IsMultiInsert(inst);
 }
 
-CallInst* CanonicalizeInsts::createSwizzleIntrinsic(Value* val, ArrayRef<Constant*> mask)
+CallInst* CanonicalizeInsts::createSwizzleIntrinsic(Value* val, ArrayRef<Constant*> mask, BasicBlock* parent)
 {
-    Instruction* inst = dyn_cast<Instruction>(val);
-    if (! inst)
-        gla::UnsupportedFunctionality("Creating a swizzle out of a constant (should fold instead)");
-
-    Intrinsic::ID id = GetBasicType(inst)->isFloatTy() ? Intrinsic::gla_fSwizzle
+    Intrinsic::ID id = GetBasicType(val)->isFloatTy() ? Intrinsic::gla_fSwizzle
                                                        : Intrinsic::gla_swizzle;
 
-    Type* retTy = VectorType::get(GetBasicType(inst), mask.size());
-
+    Type* retTy = VectorType::get(GetBasicType(val), mask.size());
     Constant* maskArg = ConstantVector::get(mask);
-
-    Type* tys[] = { retTy, inst->getType(), maskArg->getType() };
+    Type* tys[] = { retTy, val->getType(), maskArg->getType() };
 
     // Make a builder ready to insert right after the value, or after all the
-    // PHINodes if the value is the result of a PHI.
-    Instruction* insertPoint = isa<PHINode>(inst) ? inst->getParent()->getFirstNonPHI() : inst->getNextNode();
+    // PHINodes if the value is the result of a PHI or a non-instruction.
+    Instruction* insertPoint;
+    Instruction* inst = dyn_cast<Instruction>(val);
+    if (inst)
+        insertPoint = isa<PHINode>(inst) ? inst->getParent()->getFirstNonPHI() : inst->getNextNode();
+    else {
+        insertPoint = parent->getFirstNonPHI();
+        // TODO: constant fold instead, if this is a constant
+    }
 
     IRBuilder<> builder(module->getContext());
     builder.SetInsertPoint(insertPoint);
 
     Function* sig = Intrinsic::getDeclaration(module, id, tys);
-    return builder.CreateCall2(sig, inst, maskArg);
+    return builder.CreateCall2(sig, val, maskArg);
 }
 
 void CanonicalizeInsts::intrinsicSelection(BasicBlock* bb)
@@ -168,7 +169,7 @@ void CanonicalizeInsts::intrinsicSelection(BasicBlock* bb)
             GetMultiInsertSelects(instI, elts);
         }
 
-        CallInst* newIntr = createSwizzleIntrinsic(source, elts);
+        CallInst* newIntr = createSwizzleIntrinsic(source, elts, instI->getParent());
 
         instI->replaceAllUsesWith(newIntr);
         instI->dropAllReferences();

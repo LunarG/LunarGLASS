@@ -1080,117 +1080,117 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
     case llvm::Instruction::ICmp:
     case llvm::Instruction::FCmp:
-        {
-            if (! llvm::isa<llvm::VectorType>(llvmInstruction->getOperand(0)->getType())) {
-                UnsupportedFunctionality("Can only compare scalars and vectors");
-
-                return;
-            }
-
-            if (const llvm::CmpInst* cmp = llvm::dyn_cast<llvm::CmpInst>(llvmInstruction)) {
-                switch (cmp->getPredicate()) {
-                case llvm::FCmpInst::FCMP_OEQ:
-                case llvm::FCmpInst::FCMP_UEQ: // Possibly revise later
-                case llvm::ICmpInst::ICMP_EQ:   charOp = "equal";             break;
-
-                case llvm::FCmpInst::FCMP_ONE:
-                case llvm::FCmpInst::FCMP_UNE: // Possibly revise later
-                case llvm::ICmpInst::ICMP_NE:   charOp = "notEqual";          break;
-
-                case llvm::FCmpInst::FCMP_OGT:
-                case llvm::FCmpInst::FCMP_UGT: // Possibly revise later
-                case llvm::ICmpInst::ICMP_UGT:
-                case llvm::ICmpInst::ICMP_SGT:  charOp = "greaterThan";       break;
-
-                case llvm::FCmpInst::FCMP_OGE:
-                case llvm::FCmpInst::FCMP_UGE: // Possibly revise later
-                case llvm::ICmpInst::ICMP_UGE:
-                case llvm::ICmpInst::ICMP_SGE:  charOp = "greaterThanEqual";  break;
-
-                case llvm::FCmpInst::FCMP_OLT:
-                case llvm::FCmpInst::FCMP_ULT: // Possibly revise later
-                case llvm::ICmpInst::ICMP_ULT:
-                case llvm::ICmpInst::ICMP_SLT:  charOp = "lessThan";          break;
-
-                case llvm::FCmpInst::FCMP_OLE:
-                case llvm::FCmpInst::FCMP_ULE: // Possibly revise later
-                case llvm::ICmpInst::ICMP_ULE:
-                case llvm::ICmpInst::ICMP_SLE:  charOp = "lessThanEqual";     break;
-                default:
-                    charOp = "equal";
-                    UnsupportedFunctionality("Comparison Vector Operator in Bottom IR: ", cmp->getPredicate(), EATContinue);
-                    break;
-                }
-            } else {
-                assert(! "Cmp vector instruction found that cannot dyncast to CmpInst");
-            }
-
-            newLine();
-            emitGlaValue(llvmInstruction);
-            shader << " = " << charOp << "(";
-            emitGlaOperand(llvmInstruction->getOperand(0));
-            shader << ", ";
-            emitGlaOperand(llvmInstruction->getOperand(1));
-            shader << ");";
-        }
-        
-        return;
-
-    case llvm::Instruction::Load:
-        {
-            assert(! llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)));
-
-            // We want phis to use the same variable name created during phi declaration
-            if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {                
-                addVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
-
-                return;
-            } 
-
-            // Lookup whether this load is using the results of a GEP instruction, 
-            // and process both instructions (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
-            const llvm::GetElementPtrInst* gepInstr = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0));
-
-            // See if we have metadata describing a uniform variable to declare
-            llvm::MDNode* mdUniform = llvmInstruction->getMetadata(UniformMdName);
-            std::string name;
-            EMdTypeLayout mdType;
-            if (mdUniform) {
-                mdType = GetMdTypeLayout(mdUniform);
-                name = mdUniform->getOperand(0)->getName();
-            } else {
-                mdType = EMtlNone;
-                if (gepInstr)
-                    name = gepInstr->getOperand(0)->getName();
-                else
-                    name = llvmInstruction->getOperand(0)->getName();
-                MakeParseable(name);
-                UnsupportedFunctionality("missing metadata on load", 0, name.c_str(), EATContinue);
-            }
-            
-            if (gepInstr) {
-                // traverse the dereference chain and store it.
-                name.append(traverseGep(gepInstr, &mdType));
-
-                // an anonymous block will leave a name starting with "."; remove it
-                if (name[0] == '.')
-                    name = name.substr(1, std::string::npos);
-            }
-
-            // conversion-wrap it and make the whole thing the name of a variable
-            if (mdType == EMtlUnsigned || mdType == EMtlRowMajorMatrix || mdType == EMtlColMajorMatrix) {
-                if (mdType != EMtlUnsigned) {
-                    // Optimization:  Will keep both a converted and non-converted version, in case
-                    // at a future point we can tell the non-converted one is okay; e.g., a matrix
-                    // dereference never had to be constructed into an array of arrays
-                    nonConvertedMap[llvmInstruction] = new std::string(name);
-                }
-                ConversionWrap(name, llvmInstruction->getType(), false);
-            }
-            addVariable(llvmInstruction, name);
+    {
+        if (! llvm::isa<llvm::VectorType>(llvmInstruction->getOperand(0)->getType())) {
+            UnsupportedFunctionality("Can only compare scalars and vectors");
 
             return;
         }
+
+        if (const llvm::CmpInst* cmp = llvm::dyn_cast<llvm::CmpInst>(llvmInstruction)) {
+            switch (cmp->getPredicate()) {
+            case llvm::FCmpInst::FCMP_OEQ:
+            case llvm::FCmpInst::FCMP_UEQ: // Possibly revise later
+            case llvm::ICmpInst::ICMP_EQ:   charOp = "equal";             break;
+
+            case llvm::FCmpInst::FCMP_ONE:
+            case llvm::FCmpInst::FCMP_UNE: // Possibly revise later
+            case llvm::ICmpInst::ICMP_NE:   charOp = "notEqual";          break;
+
+            case llvm::FCmpInst::FCMP_OGT:
+            case llvm::FCmpInst::FCMP_UGT: // Possibly revise later
+            case llvm::ICmpInst::ICMP_UGT:
+            case llvm::ICmpInst::ICMP_SGT:  charOp = "greaterThan";       break;
+
+            case llvm::FCmpInst::FCMP_OGE:
+            case llvm::FCmpInst::FCMP_UGE: // Possibly revise later
+            case llvm::ICmpInst::ICMP_UGE:
+            case llvm::ICmpInst::ICMP_SGE:  charOp = "greaterThanEqual";  break;
+
+            case llvm::FCmpInst::FCMP_OLT:
+            case llvm::FCmpInst::FCMP_ULT: // Possibly revise later
+            case llvm::ICmpInst::ICMP_ULT:
+            case llvm::ICmpInst::ICMP_SLT:  charOp = "lessThan";          break;
+
+            case llvm::FCmpInst::FCMP_OLE:
+            case llvm::FCmpInst::FCMP_ULE: // Possibly revise later
+            case llvm::ICmpInst::ICMP_ULE:
+            case llvm::ICmpInst::ICMP_SLE:  charOp = "lessThanEqual";     break;
+            default:
+                charOp = "equal";
+                UnsupportedFunctionality("Comparison Vector Operator in Bottom IR: ", cmp->getPredicate(), EATContinue);
+                break;
+            }
+        } else {
+            assert(! "Cmp vector instruction found that cannot dyncast to CmpInst");
+        }
+
+        newLine();
+        emitGlaValue(llvmInstruction);
+        shader << " = " << charOp << "(";
+        emitGlaOperand(llvmInstruction->getOperand(0));
+        shader << ", ";
+        emitGlaOperand(llvmInstruction->getOperand(1));
+        shader << ");";
+
+        return;
+    }
+
+    case llvm::Instruction::Load:
+    {
+        assert(! llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)));
+
+        // We want phis to use the same variable name created during phi declaration
+        if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {                
+            addVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
+
+            return;
+        } 
+
+        // Lookup whether this load is using the results of a GEP instruction, 
+        // and process both instructions (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
+        const llvm::GetElementPtrInst* gepInstr = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0));
+
+        // See if we have metadata describing a uniform variable to declare
+        llvm::MDNode* mdUniform = llvmInstruction->getMetadata(UniformMdName);
+        std::string name;
+        EMdTypeLayout mdType;
+        if (mdUniform) {
+            mdType = GetMdTypeLayout(mdUniform);
+            name = mdUniform->getOperand(0)->getName();
+        } else {
+            mdType = EMtlNone;
+            if (gepInstr)
+                name = gepInstr->getOperand(0)->getName();
+            else
+                name = llvmInstruction->getOperand(0)->getName();
+            MakeParseable(name);
+            UnsupportedFunctionality("missing metadata on load", 0, name.c_str(), EATContinue);
+        }
+            
+        if (gepInstr) {
+            // traverse the dereference chain and store it.
+            name.append(traverseGep(gepInstr, &mdType));
+
+            // an anonymous block will leave a name starting with "."; remove it
+            if (name[0] == '.')
+                name = name.substr(1, std::string::npos);
+        }
+
+        // conversion-wrap it and make the whole thing the name of a variable
+        if (mdType == EMtlUnsigned || mdType == EMtlRowMajorMatrix || mdType == EMtlColMajorMatrix) {
+            if (mdType != EMtlUnsigned) {
+                // Optimization:  Will keep both a converted and non-converted version, in case
+                // at a future point we can tell the non-converted one is okay; e.g., a matrix
+                // dereference never had to be constructed into an array of arrays
+                nonConvertedMap[llvmInstruction] = new std::string(name);
+            }
+            ConversionWrap(name, llvmInstruction->getType(), false);
+        }
+        addVariable(llvmInstruction, name);
+
+        return;
+    }
     case llvm::Instruction::Alloca:
         newLine();
         emitGlaValue(llvmInstruction);
@@ -1225,22 +1225,23 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         return;
 
     case llvm::Instruction::ExtractElement:
-        {
-            emitGlaValueDeclaration(llvmInstruction->getOperand(0));
+    {
+        emitGlaValueDeclaration(llvmInstruction->getOperand(0));
 
-            // copy propagate, by name string, the extracted component
-            std::string swizzled;
-            mapExtractElementStr(llvmInstruction, swizzled);
+        // copy propagate, by name string, the extracted component
+        std::string swizzled;
+        mapExtractElementStr(llvmInstruction, swizzled);
 
-            // If we're globally referenced, then we should have a name for
-            // ourselves inside valueMap. In that case, update it to be our
-            // propagated swizzle name
-            if (referencedOutsideScope)
-                valueMap[llvmInstruction] = new std::string(swizzled);
-            else
-                addVariable(llvmInstruction, swizzled);
-        }
+        // If we're globally referenced, then we should have a name for
+        // ourselves inside valueMap. In that case, update it to be our
+        // propagated swizzle name
+        if (referencedOutsideScope)
+            valueMap[llvmInstruction] = new std::string(swizzled);
+        else
+            addVariable(llvmInstruction, swizzled);
+
         return;
+    }
 
     case llvm::Instruction::InsertElement:
         // copy propagate, by name string the, the starting name of the object
@@ -1278,6 +1279,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         shader << " : ";
         emitGlaValue(si->getFalseValue());
         shader << ";";
+
         return;
     }
     case llvm::Instruction::GetElementPtr:
@@ -1327,7 +1329,8 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
         return;
     }
-    case llvm::Instruction::ShuffleVector: {
+    case llvm::Instruction::ShuffleVector:
+    {
         newLine();
         emitGlaValue(llvmInstruction);
 
@@ -1372,6 +1375,16 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
         return;
     }
+
+    case llvm::Instruction::BitCast:
+        // This is getting added by LLVM to change a pointer's type; something like this:
+        //    %0 = bitcast [13 x <3 x float>]* %indexable14.i to i8*
+        //    call void @llvm.lifetime.start(i64 -1, i8* %0)
+        // where the lifetime intrinsic is the only use of %0.  For these uses,
+        // there is nothing to translate, as 'lifetime' is also ignored.
+        if (llvmInstruction->getOperand(0)->getType()->getTypeID() != llvm::Type::PointerTyID)
+            UnsupportedFunctionality("BitCast applied to a non-pointer", EATContinue);
+        return;
 
     default:
         UnsupportedFunctionality("Opcode in Bottom IR: ", llvmInstruction->getOpcode(), EATContinue);
@@ -1799,19 +1812,24 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     case llvm::Intrinsic::gla_writeData:
     case llvm::Intrinsic::gla_fWriteData:
         emitMapGlaIOIntrinsic(llvmInstruction, false);
-
         return;
+
     case llvm::Intrinsic::gla_readData:
     case llvm::Intrinsic::gla_fReadData:
     case llvm::Intrinsic::gla_fReadInterpolant:
         emitMapGlaIOIntrinsic(llvmInstruction, true);
-
         return;
 
     case llvm::Intrinsic::invariant_end:
     case llvm::Intrinsic::invariant_start:
     case llvm::Intrinsic::lifetime_end:
     case llvm::Intrinsic::lifetime_start:
+        return;
+
+    case llvm::Intrinsic::stackprotector:
+    case llvm::Intrinsic::stackprotectorcheck:
+    case llvm::Intrinsic::stackrestore:
+    case llvm::Intrinsic::stacksave:
         return;
 
     default:
@@ -2214,7 +2232,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     }
 
     if (callString == 0 || callArgs == 0)
-        UnsupportedFunctionality("Intrinsic in Bottom IR");
+        UnsupportedFunctionality("Intrinsic in Bottom IR", EATContinue);
     if (callArgs != llvmInstruction->getNumArgOperands())
         UnsupportedFunctionality("Intrinsic argument count: ", llvmInstruction->getNumOperands(), EATContinue);
 

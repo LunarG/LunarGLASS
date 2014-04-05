@@ -393,12 +393,12 @@ int fopen_s(
 char** ReadFileData(const char *fileName)
 {
     FILE *in;
-	int errorCode = fopen_s(&in, fileName, "r");
+    int errorCode = fopen_s(&in, fileName, "r");
     int count = 0;    
     char** fileData = (char**)malloc(sizeof(char *));
     fileData[0] = 0;
 
-	if (errorCode) {
+    if (errorCode) {
         printf("Error: unable to open input file: %s\n", fileName);
         return 0;
     }
@@ -406,13 +406,13 @@ char** ReadFileData(const char *fileName)
     while (fgetc(in) != EOF)
         count++;
 
-	fseek(in, 0, SEEK_SET);
-	
-	if (! (fileData[0] = (char*)malloc(count + 2))) {
+    fseek(in, 0, SEEK_SET);
+    
+    if (! (fileData[0] = (char*)malloc(count + 2))) {
         printf("Error allocating memory\n");
         return 0;
     }
-	if (fread(fileData[0], 1, count, in) != count) {
+    if (fread(fileData[0], 1, count, in) != count) {
         printf("Error reading input file: %s\n", fileName);
         return 0;
     }
