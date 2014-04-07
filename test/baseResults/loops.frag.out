@@ -1535,15 +1535,15 @@ entry:
   %0 = extractelement <4 x float> %BaseColor, i32 0
   %1 = fcmp olt float %0, 0x3FD51EB860000000
   %2 = fcmp olt float %0, 0x3FE51EB860000000
-  %select335.v = select i1 %2, <4 x float> <float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000>, <4 x float> <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>
-  %select341.v = select i1 %1, <4 x float> <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>, <4 x float> %select335.v
-  %select341 = fadd <4 x float> %BaseColor, %select341.v
+  %select336.v = select i1 %2, <4 x float> <float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000>, <4 x float> <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>
+  %select343.v = select i1 %1, <4 x float> <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>, <4 x float> %select336.v
+  %select343 = fadd <4 x float> %BaseColor, %select343.v
   %.pre = load float addrspace(2)* @d, align 4, !gla.uniform !3
   %3 = load <4 x float> addrspace(2)* @bigColor, align 16, !gla.uniform !5
   br label %loop-header12
 
 loop-header12:                                    ; preds = %ifmerge15, %entry
-  %color.1 = phi <4 x float> [ %select341, %entry ], [ %color16, %ifmerge15 ]
+  %color.1 = phi <4 x float> [ %select343, %entry ], [ %color16, %ifmerge15 ]
   %4 = extractelement <4 x float> %color.1, i32 0
   %5 = fcmp uge float %4, %.pre
   br i1 %5, label %then13, label %ifmerge15
@@ -1557,7 +1557,7 @@ ifmerge15:                                        ; preds = %loop-header12
   br label %loop-header12
 
 loop-header19:                                    ; preds = %ifmerge22, %then13
-  %color.2 = phi <4 x float> [ %color.1, %then13 ], [ %select342, %ifmerge22 ]
+  %color.2 = phi <4 x float> [ %color.1, %then13 ], [ %select, %ifmerge22 ]
   %7 = extractelement <4 x float> %color.2, i32 2
   %8 = fcmp uge float %7, %.pre
   br i1 %8, label %then20, label %ifmerge22
@@ -1570,7 +1570,7 @@ ifmerge22:                                        ; preds = %loop-header19
   %9 = extractelement <4 x float> %color23, i32 3
   %10 = fcmp olt float %9, %.pre
   %color27 = fadd <4 x float> %6, %color23
-  %select342 = select i1 %10, <4 x float> %color23, <4 x float> %color27
+  %select = select i1 %10, <4 x float> %color23, <4 x float> %color27
   br label %loop-header19
 
 loop-header30:                                    ; preds = %ifmerge33, %then20
@@ -1809,7 +1809,7 @@ ifmerge83:                                        ; preds = %loop-header80
   br label %loop-header80
 
 loop-header96:                                    ; preds = %ifmerge99, %then81
-  %color.12 = phi <4 x float> [ %color.10, %then81 ], [ %select334, %ifmerge99 ]
+  %color.12 = phi <4 x float> [ %color.10, %then81 ], [ %select333, %ifmerge99 ]
   %i95.0 = phi i32 [ 0, %then81 ], [ %i95105, %ifmerge99 ]
   %exitcond = icmp eq i32 %i95.0, 120
   br i1 %exitcond, label %then97, label %ifmerge99
@@ -1827,13 +1827,13 @@ ifmerge99:                                        ; preds = %loop-header96
   %167 = extractelement <4 x float> %color.12, i32 1
   %168 = fadd float %167, 1.000000e+00
   %169 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.12, i32 2, float undef, i32 undef, float %168, i32 0, float undef, i32 undef, float undef, i32 undef)
-  %select334 = select i1 %163, <4 x float> %166, <4 x float> %169
+  %select333 = select i1 %163, <4 x float> %166, <4 x float> %169
   %i95105 = add i32 %i95.0, 1
   br label %loop-header96
 
 loop-header109:                                   ; preds = %ifmerge112, %then97
-  %color.14 = phi <4 x float> [ %color.12, %then97 ], [ %select343, %ifmerge112 ]
-  %i108.0 = phi i32 [ 0, %then97 ], [ %select344, %ifmerge112 ]
+  %color.14 = phi <4 x float> [ %color.12, %then97 ], [ %select337, %ifmerge112 ]
+  %i108.0 = phi i32 [ 0, %then97 ], [ %select338, %ifmerge112 ]
   %170 = icmp sgt i32 %i108.0, 41
   br i1 %170, label %then110, label %ifmerge112
 
@@ -1849,10 +1849,10 @@ ifmerge112:                                       ; preds = %loop-header109
   %176 = extractelement <4 x float> %color.14, i32 3
   %177 = fadd float %176, 1.000000e+00
   %178 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.14, i32 12, float undef, i32 undef, float undef, i32 undef, float %172, i32 0, float %177, i32 0)
-  %select343 = select i1 %175, <4 x float> %173, <4 x float> %178
+  %select337 = select i1 %175, <4 x float> %173, <4 x float> %178
   %179 = zext i1 %175 to i32
   %i108118 = xor i32 %179, 1
-  %select344 = add i32 %i108.0, %i108118
+  %select338 = add i32 %i108.0, %i108118
   br label %loop-header109
 
 loop-header122:                                   ; preds = %ifmerge129, %then110
@@ -1898,7 +1898,7 @@ then136:                                          ; preds = %loop-header134
   br label %loop-header134.backedge
 
 loop-header134.backedge:                          ; preds = %then136, %ifmerge146
-  %color.17.be = phi <4 x float> [ %color135, %then136 ], [ %select333, %ifmerge146 ]
+  %color.17.be = phi <4 x float> [ %color135, %then136 ], [ %select342, %ifmerge146 ]
   br label %loop-header134
 
 ifmerge138:                                       ; preds = %loop-header134
@@ -1908,8 +1908,8 @@ ifmerge138:                                       ; preds = %loop-header134
   %194 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color135, i32 2, float undef, i32 undef, float %193, i32 0, float undef, i32 undef, float undef, i32 undef)
   %195 = fadd float %161, %189
   %196 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color135, i32 1, float %195, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
-  %select333 = select i1 %192, <4 x float> %194, <4 x float> %196
-  %197 = extractelement <4 x float> %select333, i32 2
+  %select342 = select i1 %192, <4 x float> %194, <4 x float> %196
+  %197 = extractelement <4 x float> %select342, i32 2
   %198 = fcmp uge float %197, %161
   br i1 %198, label %then144, label %ifmerge146
 
@@ -1922,14 +1922,14 @@ ifmerge146:                                       ; preds = %ifmerge138
   br label %loop-header134.backedge
 
 loop-header149:                                   ; preds = %loop-header149, %then144
-  %color.19 = phi <4 x float> [ %select333, %then144 ], [ %select336, %loop-header149 ]
+  %color.19 = phi <4 x float> [ %select342, %then144 ], [ %select334, %loop-header149 ]
   %color150 = fadd <4 x float> %color.19, %.pre351
   %199 = extractelement <4 x float> %color150, i32 1
   %200 = fcmp olt float %199, %.pre352
   %201 = fadd float %.pre352, %199
   %202 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color150, i32 2, float undef, i32 undef, float %201, i32 0, float undef, i32 undef, float undef, i32 undef)
-  %select336 = select i1 %200, <4 x float> %202, <4 x float> %color150
-  %203 = extractelement <4 x float> %select336, i32 0
+  %select334 = select i1 %200, <4 x float> %202, <4 x float> %color150
+  %203 = extractelement <4 x float> %select334, i32 0
   %204 = fcmp uge float %203, %.pre352
   br i1 %204, label %then154, label %loop-header149
 
@@ -1943,7 +1943,7 @@ then159:                                          ; preds = %then154
   br label %loop-header160
 
 loop-header160:                                   ; preds = %ifmerge163, %then159
-  %color.21 = phi <4 x float> [ %select336, %then159 ], [ %color164, %ifmerge163 ]
+  %color.21 = phi <4 x float> [ %select334, %then159 ], [ %color164, %ifmerge163 ]
   %208 = extractelement <4 x float> %color.21, i32 1
   %209 = fcmp uge float %208, %205
   br i1 %209, label %then161, label %ifmerge163
@@ -1961,7 +1961,7 @@ else167:                                          ; preds = %then154
   br label %loop-header168
 
 loop-header168:                                   ; preds = %ifmerge171, %else167
-  %color.22 = phi <4 x float> [ %select336, %else167 ], [ %215, %ifmerge171 ]
+  %color.22 = phi <4 x float> [ %select334, %else167 ], [ %215, %ifmerge171 ]
   %212 = extractelement <4 x float> %color.22, i32 2
   %213 = fcmp uge float %212, %205
   br i1 %213, label %then169, label %ifmerge171
@@ -2081,7 +2081,7 @@ then217:                                          ; preds = %ifmerge215
   %242 = extractelement <4 x float> %color216, i32 0
   %243 = fadd float %242, 1.000000e+00
   %244 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color216, i32 5, float %243, i32 0, float undef, i32 undef, float %237, i32 0, float undef, i32 undef)
-  %select337 = select i1 %238, <4 x float> %241, <4 x float> %244
+  %select335 = select i1 %238, <4 x float> %241, <4 x float> %244
   br label %loop-merge232
 
 ifmerge225:                                       ; preds = %ifmerge215
@@ -2094,7 +2094,7 @@ then228:                                          ; preds = %ifmerge225
   br label %loop-merge232
 
 loop-merge232:                                    ; preds = %then228, %then217, %then213
-  %color.32 = phi <4 x float> [ %color.30, %then213 ], [ %select337, %then217 ], [ %color227, %then228 ]
+  %color.32 = phi <4 x float> [ %color.30, %then213 ], [ %select335, %then217 ], [ %color227, %then228 ]
   %.pre355 = load float addrspace(2)* @d9, align 4, !gla.uniform !23
   %247 = fcmp ogt float %.pre355, %.pre354
   br label %loop-header233
@@ -2144,7 +2144,7 @@ loop-merge247:                                    ; preds = %else241, %then234
   br label %loop-header248
 
 loop-header248:                                   ; preds = %then253, %loop-merge247
-  %color.36 = phi <4 x float> [ %color.33, %loop-merge247 ], [ %select338, %then253 ]
+  %color.36 = phi <4 x float> [ %color.33, %loop-merge247 ], [ %select339, %then253 ]
   %258 = extractelement <4 x float> %color.36, i32 2
   %259 = fcmp uge float %258, %.pre356
   br i1 %259, label %then249, label %ifmerge251
@@ -2168,7 +2168,7 @@ then253:                                          ; preds = %ifmerge251
   %269 = extractelement <4 x float> %color.36, i32 0
   %270 = fadd float %269, 1.000000e+00
   %271 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %262, i32 5, float %270, i32 0, float undef, i32 undef, float %264, i32 0, float undef, i32 undef)
-  %select338 = select i1 %266, <4 x float> %268, <4 x float> %271
+  %select339 = select i1 %266, <4 x float> %268, <4 x float> %271
   br label %loop-header248
 
 ifmerge261:                                       ; preds = %ifmerge251
@@ -2182,7 +2182,7 @@ loop-merge265:                                    ; preds = %ifmerge261, %then24
   br label %loop-header266
 
 loop-header266:                                   ; preds = %ifmerge269, %loop-merge265
-  %color.39 = phi <4 x float> [ %color.38, %loop-merge265 ], [ %select339, %ifmerge269 ]
+  %color.39 = phi <4 x float> [ %color.38, %loop-merge265 ], [ %select344, %ifmerge269 ]
   %274 = extractelement <4 x float> %color.39, i32 0
   %275 = fcmp uge float %274, 1.000000e+01
   br i1 %275, label %then267, label %ifmerge269
@@ -2202,8 +2202,8 @@ ifmerge269:                                       ; preds = %loop-header266
   %281 = extractelement <4 x float> %color270, i32 1
   %282 = fadd float %281, %273
   %283 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color270, i32 2, float undef, i32 undef, float %282, i32 0, float undef, i32 undef, float undef, i32 undef)
-  %select = select i1 %280, <4 x float> %color270, <4 x float> %283
-  %select339 = select i1 %278, <4 x float> %select, <4 x float> %283
+  %select341 = select i1 %280, <4 x float> %color270, <4 x float> %283
+  %select344 = select i1 %278, <4 x float> %select341, <4 x float> %283
   br label %loop-header266
 
 loop-header280:                                   ; preds = %else285, %then267
@@ -2447,24 +2447,24 @@ const float const80 = 42.0;
 const vec4 const82 = vec4(1.0);
 vec4 color48;
 const int const90i_0 = 0;
+const int const94i_1 = 1;
 vec4 color64;
-const float const179 = 20.0;
-const float const181 = 1.0;
-const int const193i_41 = 41;
-const int const202i_1 = 1;
-vec4 temp206;
-vec4 select333;
-vec4 select336;
-float temp225;
+const float const182 = 20.0;
+const float const184 = 1.0;
+const int const196i_41 = 41;
+vec4 temp208;
+vec4 select342;
+vec4 select334;
+float temp227;
 vec4 color181;
-const float const237 = 0.0;
+const float const239 = 0.0;
 vec4 color200;
 vec4 color216;
-const float const248 = 2.0;
+const float const250 = 2.0;
 vec4 color227;
-const float const259 = 5.0;
-vec4 temp263;
-const float const273 = 10.0;
+const float const261 = 5.0;
+vec4 temp265;
+const float const275 = 10.0;
 vec4 color312;
 
 void main()
@@ -2516,10 +2516,10 @@ void main()
     vec4 FragColor_shadow330d0;
     bool temp66 = BaseColor.x < const67;
     bool temp68 = BaseColor.x < const69;
-    vec4 select335dv = temp68 ? const71 : const72;
-    vec4 select341dv = temp66 ? const72 : select335dv;
-    vec4 select341 = BaseColor + select341dv;
-    colord1 = select341;
+    vec4 select336dv = temp68 ? const71 : const72;
+    vec4 select343dv = temp66 ? const72 : select336dv;
+    vec4 select343 = BaseColor + select343dv;
+    colord1 = select343;
     while (! (colord1.x >= d)){
         vec4 color16 = colord1 + bigColor;
         colord1 = color16;
@@ -2530,8 +2530,8 @@ void main()
         vec4 color23 = colord2 + bigColor1_1;
         bool temp77 = color23.w < d;
         vec4 color27 = bigColor1_1 + color23;
-        vec4 select342 = temp77 ? color23 : color27;
-        colord2 = select342;
+        vec4 select = temp77 ? color23 : color27;
+        colord2 = select;
     }
     
     colord3 = colord2;
@@ -2569,271 +2569,278 @@ void main()
     colord6 = colord5;
     colord7 = colord6;
     id0 = const90i_0;
-    for (id0 = 0; id0 < 4294967295; ++id0) {
+    while (true) {
+        bool temp91 = id0 < Count;
+        if (! temp91) {
+            break;
+        }
+        
         vec4 color59 = colord7 + bigColor2;
+        int temp93 = id0 + const94i_1;
         colord7 = color59;
+        id0 = temp93;
     }
     
     colord8 = colord7;
     while (true) {
         color64 = colord8 + bigColor3;
-        bool temp93 = color64.x >= d2;
-        if (temp93) {
+        bool temp96 = color64.x >= d2;
+        if (temp96) {
             break;
         }
         
         colord8 = color64;
     }
     
-    float temp94 = color64.z + d3;
-    vec4 temp95 = color64;
-    temp95.z = temp94;
-    float temp96 = temp95.z + d3;
-    vec4 temp97 = temp95;
-    temp97.z = temp96;
-    float temp98 = temp97.z + d3;
-    vec4 temp99 = temp97;
-    temp99.z = temp98;
-    float temp100 = temp99.z + d3;
-    vec4 temp101 = temp99;
-    temp101.z = temp100;
-    float temp102 = temp101.z + d3;
-    vec4 temp103 = temp101;
-    temp103.z = temp102;
-    float temp104 = temp103.z + d3;
-    vec4 temp105 = temp103;
-    temp105.z = temp104;
-    float temp106 = temp105.z + d3;
-    vec4 temp107 = temp105;
-    temp107.z = temp106;
-    float temp108 = temp107.z + d3;
-    vec4 temp109 = temp107;
-    temp109.z = temp108;
-    float temp110 = temp109.z + d3;
-    vec4 temp111 = temp109;
-    temp111.z = temp110;
-    float temp112 = temp111.z + d3;
-    vec4 temp113 = temp111;
-    temp113.z = temp112;
-    float temp114 = temp113.z + d3;
-    vec4 temp115 = temp113;
-    temp115.z = temp114;
-    float temp116 = temp115.z + d3;
-    vec4 temp117 = temp115;
-    temp117.z = temp116;
-    float temp118 = temp117.z + d3;
-    vec4 temp119 = temp117;
-    temp119.z = temp118;
-    float temp120 = temp119.z + d3;
-    vec4 temp121 = temp119;
-    temp121.z = temp120;
-    float temp122 = temp121.z + d3;
-    vec4 temp123 = temp121;
-    temp123.z = temp122;
-    float temp124 = temp123.z + d3;
-    vec4 temp125 = temp123;
-    temp125.z = temp124;
-    float temp126 = temp125.z + d3;
-    vec4 temp127 = temp125;
-    temp127.z = temp126;
-    float temp128 = temp127.z + d3;
-    vec4 temp129 = temp127;
-    temp129.z = temp128;
-    float temp130 = temp129.z + d3;
-    vec4 temp131 = temp129;
-    temp131.z = temp130;
-    float temp132 = temp131.z + d3;
-    vec4 temp133 = temp131;
-    temp133.z = temp132;
-    float temp134 = temp133.z + d3;
-    vec4 temp135 = temp133;
-    temp135.z = temp134;
-    float temp136 = temp135.z + d3;
-    vec4 temp137 = temp135;
-    temp137.z = temp136;
-    float temp138 = temp137.z + d3;
-    vec4 temp139 = temp137;
-    temp139.z = temp138;
-    float temp140 = temp139.z + d3;
-    vec4 temp141 = temp139;
-    temp141.z = temp140;
-    float temp142 = temp141.z + d3;
-    vec4 temp143 = temp141;
-    temp143.z = temp142;
-    float temp144 = temp143.z + d3;
-    vec4 temp145 = temp143;
-    temp145.z = temp144;
-    float temp146 = temp145.z + d3;
-    vec4 temp147 = temp145;
-    temp147.z = temp146;
-    float temp148 = temp147.z + d3;
-    vec4 temp149 = temp147;
-    temp149.z = temp148;
-    float temp150 = temp149.z + d3;
-    vec4 temp151 = temp149;
-    temp151.z = temp150;
-    float temp152 = temp151.z + d3;
-    vec4 temp153 = temp151;
-    temp153.z = temp152;
-    float temp154 = temp153.z + d3;
-    vec4 temp155 = temp153;
-    temp155.z = temp154;
-    float temp156 = temp155.z + d3;
-    vec4 temp157 = temp155;
-    temp157.z = temp156;
-    float temp158 = temp157.z + d3;
-    vec4 temp159 = temp157;
-    temp159.z = temp158;
-    float temp160 = temp159.z + d3;
-    vec4 temp161 = temp159;
-    temp161.z = temp160;
-    float temp162 = temp161.z + d3;
-    vec4 temp163 = temp161;
-    temp163.z = temp162;
-    float temp164 = temp163.z + d3;
-    vec4 temp165 = temp163;
-    temp165.z = temp164;
-    float temp166 = temp165.z + d3;
-    vec4 temp167 = temp165;
-    temp167.z = temp166;
-    float temp168 = temp167.z + d3;
-    vec4 temp169 = temp167;
-    temp169.z = temp168;
-    float temp170 = temp169.z + d3;
-    vec4 temp171 = temp169;
-    temp171.z = temp170;
-    float temp172 = temp171.z + d3;
-    vec4 temp173 = temp171;
-    temp173.z = temp172;
-    float temp174 = temp173.z + d3;
-    vec4 temp175 = temp173;
-    temp175.z = temp174;
-    float temp176 = temp175.z + d3;
-    vec4 temp177 = temp175;
-    temp177.z = temp176;
-    colord10 = temp177;
+    float temp97 = color64.z + d3;
+    vec4 temp98 = color64;
+    temp98.z = temp97;
+    float temp99 = temp98.z + d3;
+    vec4 temp100 = temp98;
+    temp100.z = temp99;
+    float temp101 = temp100.z + d3;
+    vec4 temp102 = temp100;
+    temp102.z = temp101;
+    float temp103 = temp102.z + d3;
+    vec4 temp104 = temp102;
+    temp104.z = temp103;
+    float temp105 = temp104.z + d3;
+    vec4 temp106 = temp104;
+    temp106.z = temp105;
+    float temp107 = temp106.z + d3;
+    vec4 temp108 = temp106;
+    temp108.z = temp107;
+    float temp109 = temp108.z + d3;
+    vec4 temp110 = temp108;
+    temp110.z = temp109;
+    float temp111 = temp110.z + d3;
+    vec4 temp112 = temp110;
+    temp112.z = temp111;
+    float temp113 = temp112.z + d3;
+    vec4 temp114 = temp112;
+    temp114.z = temp113;
+    float temp115 = temp114.z + d3;
+    vec4 temp116 = temp114;
+    temp116.z = temp115;
+    float temp117 = temp116.z + d3;
+    vec4 temp118 = temp116;
+    temp118.z = temp117;
+    float temp119 = temp118.z + d3;
+    vec4 temp120 = temp118;
+    temp120.z = temp119;
+    float temp121 = temp120.z + d3;
+    vec4 temp122 = temp120;
+    temp122.z = temp121;
+    float temp123 = temp122.z + d3;
+    vec4 temp124 = temp122;
+    temp124.z = temp123;
+    float temp125 = temp124.z + d3;
+    vec4 temp126 = temp124;
+    temp126.z = temp125;
+    float temp127 = temp126.z + d3;
+    vec4 temp128 = temp126;
+    temp128.z = temp127;
+    float temp129 = temp128.z + d3;
+    vec4 temp130 = temp128;
+    temp130.z = temp129;
+    float temp131 = temp130.z + d3;
+    vec4 temp132 = temp130;
+    temp132.z = temp131;
+    float temp133 = temp132.z + d3;
+    vec4 temp134 = temp132;
+    temp134.z = temp133;
+    float temp135 = temp134.z + d3;
+    vec4 temp136 = temp134;
+    temp136.z = temp135;
+    float temp137 = temp136.z + d3;
+    vec4 temp138 = temp136;
+    temp138.z = temp137;
+    float temp139 = temp138.z + d3;
+    vec4 temp140 = temp138;
+    temp140.z = temp139;
+    float temp141 = temp140.z + d3;
+    vec4 temp142 = temp140;
+    temp142.z = temp141;
+    float temp143 = temp142.z + d3;
+    vec4 temp144 = temp142;
+    temp144.z = temp143;
+    float temp145 = temp144.z + d3;
+    vec4 temp146 = temp144;
+    temp146.z = temp145;
+    float temp147 = temp146.z + d3;
+    vec4 temp148 = temp146;
+    temp148.z = temp147;
+    float temp149 = temp148.z + d3;
+    vec4 temp150 = temp148;
+    temp150.z = temp149;
+    float temp151 = temp150.z + d3;
+    vec4 temp152 = temp150;
+    temp152.z = temp151;
+    float temp153 = temp152.z + d3;
+    vec4 temp154 = temp152;
+    temp154.z = temp153;
+    float temp155 = temp154.z + d3;
+    vec4 temp156 = temp154;
+    temp156.z = temp155;
+    float temp157 = temp156.z + d3;
+    vec4 temp158 = temp156;
+    temp158.z = temp157;
+    float temp159 = temp158.z + d3;
+    vec4 temp160 = temp158;
+    temp160.z = temp159;
+    float temp161 = temp160.z + d3;
+    vec4 temp162 = temp160;
+    temp162.z = temp161;
+    float temp163 = temp162.z + d3;
+    vec4 temp164 = temp162;
+    temp164.z = temp163;
+    float temp165 = temp164.z + d3;
+    vec4 temp166 = temp164;
+    temp166.z = temp165;
+    float temp167 = temp166.z + d3;
+    vec4 temp168 = temp166;
+    temp168.z = temp167;
+    float temp169 = temp168.z + d3;
+    vec4 temp170 = temp168;
+    temp170.z = temp169;
+    float temp171 = temp170.z + d3;
+    vec4 temp172 = temp170;
+    temp172.z = temp171;
+    float temp173 = temp172.z + d3;
+    vec4 temp174 = temp172;
+    temp174.z = temp173;
+    float temp175 = temp174.z + d3;
+    vec4 temp176 = temp174;
+    temp176.z = temp175;
+    float temp177 = temp176.z + d3;
+    vec4 temp178 = temp176;
+    temp178.z = temp177;
+    float temp179 = temp178.z + d3;
+    vec4 temp180 = temp178;
+    temp180.z = temp179;
+    colord10 = temp180;
     temp31 = const90i_0;
     for (temp31 = 0; temp31 < 100; ++temp31) {
-        bool temp178 = colord10.z < const179;
-        float temp180 = colord10.x + const181;
-        vec4 temp182 = colord10;
-        temp182.x = temp180;
-        float temp183 = colord10.y + const181;
-        vec4 temp184 = colord10;
-        temp184.y = temp183;
-        vec4 select340 = temp178 ? temp182 : temp184;
+        bool temp181 = colord10.z < const182;
+        float temp183 = colord10.x + const184;
+        vec4 temp185 = colord10;
+        temp185.x = temp183;
+        float temp186 = colord10.y + const184;
+        vec4 temp187 = colord10;
+        temp187.y = temp186;
+        vec4 select340 = temp181 ? temp185 : temp187;
         colord10 = select340;
     }
     
     colord12 = colord10;
     temp33 = const90i_0;
     for (temp33 = 0; temp33 < 120; ++temp33) {
-        bool temp186 = colord12.z < const179;
-        float temp187 = colord12.x + const181;
-        vec4 temp188 = colord12;
-        temp188.x = temp187;
-        float temp189 = colord12.y + const181;
-        vec4 temp190 = colord12;
-        temp190.y = temp189;
-        vec4 select334 = temp186 ? temp188 : temp190;
-        colord12 = select334;
+        bool temp189 = colord12.z < const182;
+        float temp190 = colord12.x + const184;
+        vec4 temp191 = colord12;
+        temp191.x = temp190;
+        float temp192 = colord12.y + const184;
+        vec4 temp193 = colord12;
+        temp193.y = temp192;
+        vec4 select333 = temp189 ? temp191 : temp193;
+        colord12 = select333;
     }
     
     colord14 = colord12;
     temp35 = const90i_0;
     while (true) {
-        bool temp192 = temp35 > const193i_41;
-        if (temp192) {
+        bool temp195 = temp35 > const196i_41;
+        if (temp195) {
             break;
         }
         
-        float temp194 = colord14.z + d3;
-        vec4 temp195 = colord14;
-        temp195.z = temp194;
-        bool temp196 = colord14.x < d4;
-        float temp197 = colord14.w + const181;
+        float temp197 = colord14.z + d3;
         vec4 temp198 = colord14;
-        temp198.zw = vec2(temp194, temp197);
-        vec4 select343 = temp196 ? temp195 : temp198;
-        int temp200 = int(temp196);
-        int temp201 = temp200 ^ const202i_1;
-        int select344 = temp35 + temp201;
-        colord14 = select343;
-        temp35 = select344;
+        temp198.z = temp197;
+        bool temp199 = colord14.x < d4;
+        float temp200 = colord14.w + const184;
+        vec4 temp201 = colord14;
+        temp201.zw = vec2(temp197, temp200);
+        vec4 select337 = temp199 ? temp198 : temp201;
+        int temp203 = int(temp199);
+        int temp204 = temp203 ^ const94i_1;
+        int select338 = temp35 + temp204;
+        colord14 = select337;
+        temp35 = select338;
     }
     
     colord15 = colord14;
     temp37 = const90i_0;
     while (true) {
-        bool temp204 = temp37 > const193i_41;
-        if (temp204) {
+        bool temp206 = temp37 > const196i_41;
+        if (temp206) {
             colord16 = colord15;
             break;
         }
         
-        float temp205 = colord15.z + d3;
-        temp206 = colord15;
-        temp206.z = temp205;
-        bool temp207 = colord15.x < d4;
-        if (temp207) {
-            colord16 = temp206;
+        float temp207 = colord15.z + d3;
+        temp208 = colord15;
+        temp208.z = temp207;
+        bool temp209 = colord15.x < d4;
+        if (temp209) {
+            colord16 = temp208;
             break;
         }
         
-        float temp208 = colord15.w + const181;
-        vec4 temp209 = temp206;
-        temp209.w = temp208;
-        int temp210 = temp37 + const202i_1;
-        colord15 = temp209;
-        temp37 = temp210;
+        float temp210 = colord15.w + const184;
+        vec4 temp211 = temp208;
+        temp211.w = temp210;
+        int temp212 = temp37 + const94i_1;
+        colord15 = temp211;
+        temp37 = temp212;
     }
     
     colord17 = colord16;
     while (true) {
         vec4 color135 = colord17 + bigColor4;
-        bool temp212 = color135.x < d4;
-        if (temp212) {
+        bool temp214 = color135.x < d4;
+        if (temp214) {
             colord17dbe = color135;
         }
         else {
-            bool temp213 = color135.y < d4;
-            float temp214 = d4 + color135.y;
-            vec4 temp215 = color135;
-            temp215.y = temp214;
-            float temp216 = d4 + color135.x;
+            bool temp215 = color135.y < d4;
+            float temp216 = d4 + color135.y;
             vec4 temp217 = color135;
-            temp217.x = temp216;
-            select333 = temp213 ? temp215 : temp217;
-            bool temp219 = select333.z >= d4;
-            if (temp219) {
+            temp217.y = temp216;
+            float temp218 = d4 + color135.x;
+            vec4 temp219 = color135;
+            temp219.x = temp218;
+            select342 = temp215 ? temp217 : temp219;
+            bool temp221 = select342.z >= d4;
+            if (temp221) {
                 break;
             }
             
-            colord17dbe = select333;
+            colord17dbe = select342;
         }
         
         colord17 = colord17dbe;
     }
     
-    colord19 = select333;
+    colord19 = select342;
     while (true) {
         vec4 color150 = colord19 + bigColor5;
-        bool temp221 = color150.y < d5;
-        float temp222 = d5 + color150.y;
-        vec4 temp223 = color150;
-        temp223.y = temp222;
-        select336 = temp221 ? temp223 : color150;
-        bool temp226 = select336.x >= d5;
-        if (temp226) {
+        bool temp223 = color150.y < d5;
+        float temp224 = d5 + color150.y;
+        vec4 temp225 = color150;
+        temp225.y = temp224;
+        select334 = temp223 ? temp225 : color150;
+        bool temp228 = select334.x >= d5;
+        if (temp228) {
             break;
         }
         
-        colord19 = select336;
+        colord19 = select334;
     }
     
-    bool temp227 = select336.x < d6;
-    if (temp227) {
-        colord21 = select336;
+    bool temp229 = select334.x < d6;
+    if (temp229) {
+        colord21 = select334;
         while (! (colord21.y >= d6)){
             vec4 color164 = colord21 + bigColor6;
             colord21 = color164;
@@ -2843,25 +2850,25 @@ void main()
         colord23 = colord21;
     }
     else {
-        colord22 = select336;
+        colord22 = select334;
         while (! (colord22.z >= d6)){
-            float temp229 = colord22.z + bigColor6.z;
-            vec4 temp230 = colord22;
-            temp230.z = temp229;
-            colord22 = temp230;
+            float temp231 = colord22.z + bigColor6.z;
+            vec4 temp232 = colord22;
+            temp232.z = temp231;
+            colord22 = temp232;
         }
         
         temp44 = bigColor6;
         colord23 = colord22;
     }
     
-    bool temp231 = colord23.x < d6;
-    if (temp231) {
-        bool temp232 = d7 < const181;
+    bool temp233 = colord23.x < d6;
+    if (temp233) {
+        bool temp234 = d7 < const184;
         colord24 = colord23;
         while (! (colord24.y >= d6)){
             color181 = colord24 + temp44;
-            if (temp232) {
+            if (temp234) {
                 colord25 = color181;
                 break;
             }
@@ -2875,30 +2882,30 @@ void main()
     else {
         colord26 = colord23;
         while (! (colord26.z >= d6)){
-            float temp234 = colord26.z + temp44.z;
-            vec4 temp235 = colord26;
-            temp235.z = temp234;
-            colord26 = temp235;
+            float temp236 = colord26.z + temp44.z;
+            vec4 temp237 = colord26;
+            temp237.z = temp236;
+            colord26 = temp237;
         }
         
         colord27 = colord26;
     }
     
-    bool temp236 = d7 < const237;
-    bool temp238 = d7 < const181;
+    bool temp238 = d7 < const239;
+    bool temp240 = d7 < const184;
     colord28 = colord27;
     while (true) {
-        if (temp236) {
+        if (temp238) {
             colord29 = colord28;
             break;
         }
         
         color200 = colord28 + bigColor7;
-        if (temp238) {
-            float temp240 = color200.z + const181;
-            vec4 temp241 = color200;
-            temp241.z = temp240;
-            colord29 = temp241;
+        if (temp240) {
+            float temp242 = color200.z + const184;
+            vec4 temp243 = color200;
+            temp243.z = temp242;
+            colord29 = temp243;
             break;
         }
         
@@ -2906,33 +2913,33 @@ void main()
         colord28 = color206;
     }
     
-    bool temp243 = d8 < const237;
-    bool temp244 = d8 < const181;
+    bool temp245 = d8 < const239;
+    bool temp246 = d8 < const184;
     colord30 = colord29;
     while (true) {
-        if (temp243) {
+        if (temp245) {
             colord32 = colord30;
             break;
         }
         
         color216 = colord30 + bigColor7;
-        if (temp244) {
-            float temp246 = color216.z + const181;
-            bool temp247 = d8 < const248;
-            float temp249 = color216.y + const181;
-            vec4 temp250 = color216;
-            temp250.yz = vec2(temp249, temp246);
-            float temp251 = color216.x + const181;
+        if (temp246) {
+            float temp248 = color216.z + const184;
+            bool temp249 = d8 < const250;
+            float temp251 = color216.y + const184;
             vec4 temp252 = color216;
-            temp252.xz = vec2(temp251, temp246);
-            vec4 select337 = temp247 ? temp250 : temp252;
-            colord32 = select337;
+            temp252.yz = vec2(temp251, temp248);
+            float temp253 = color216.x + const184;
+            vec4 temp254 = color216;
+            temp254.xz = vec2(temp253, temp248);
+            vec4 select335 = temp249 ? temp252 : temp254;
+            colord32 = select335;
             break;
         }
         
         color227 = BaseColor + color216;
-        bool temp255 = color227.z >= d8;
-        if (temp255) {
+        bool temp257 = color227.z >= d8;
+        if (temp257) {
             colord32 = color227;
             break;
         }
@@ -2940,23 +2947,23 @@ void main()
         colord30 = color227;
     }
     
-    bool temp256 = d9 > d8;
+    bool temp258 = d9 > d8;
     colord33 = colord32;
     while (! (colord33.w >= d9)){
         colord35 = colord33;
-        if (temp256) {
-            bool temp257 = colord33.x > d7;
+        if (temp258) {
+            bool temp259 = colord33.x > d7;
             colord34 = colord33;
-            if (! temp257) {
-                bool temp258 = colord33.z == const259;
-                if (! temp258) {
+            if (! temp259) {
+                bool temp260 = colord33.z == const261;
+                if (! temp260) {
                     break;
                 }
                 
-                float temp260 = colord33.w + const181;
-                vec4 temp261 = colord33;
-                temp261.w = temp260;
-                colord34 = temp261;
+                float temp262 = colord33.w + const184;
+                vec4 temp263 = colord33;
+                temp263.w = temp262;
+                colord34 = temp263;
             }
             
             colord35 = colord34;
@@ -2967,47 +2974,47 @@ void main()
     
     colord36 = colord33;
     while (! (colord36.z >= d10)){
-        float temp262 = colord36.y + const181;
-        temp263 = colord36;
-        temp263.y = temp262;
-        bool temp264 = temp262 < d11;
-        if (! temp264) {
-            vec4 color262 = temp263 + const82;
+        float temp264 = colord36.y + const184;
+        temp265 = colord36;
+        temp265.y = temp264;
+        bool temp266 = temp264 < d11;
+        if (! temp266) {
+            vec4 color262 = temp265 + const82;
             colord38 = color262;
             break;
         }
         
-        float temp266 = colord36.z + const181;
-        bool temp267 = colord36.w < d12;
-        float temp268 = colord36.w + const181;
-        vec4 temp269 = temp263;
-        temp269.zw = vec2(temp266, temp268);
-        float temp270 = colord36.x + const181;
-        vec4 temp271 = temp263;
-        temp271.xz = vec2(temp270, temp266);
-        vec4 select338 = temp267 ? temp269 : temp271;
-        colord36 = select338;
+        float temp268 = colord36.z + const184;
+        bool temp269 = colord36.w < d12;
+        float temp270 = colord36.w + const184;
+        vec4 temp271 = temp265;
+        temp271.zw = vec2(temp268, temp270);
+        float temp272 = colord36.x + const184;
+        vec4 temp273 = temp265;
+        temp273.xz = vec2(temp272, temp268);
+        vec4 select339 = temp269 ? temp271 : temp273;
+        colord36 = select339;
     }
     
     colord38 = colord36;
     colord39 = colord38;
-    while (! (colord39.x >= const273)){
+    while (! (colord39.x >= const275)){
         vec4 color270 = colord39 + bigColor8;
-        bool temp275 = color270.z < d8;
-        bool temp276 = color270.w < d6;
-        float temp277 = color270.y + bigColor8.x;
-        vec4 temp278 = color270;
-        temp278.y = temp277;
-        vec4 select = temp276 ? color270 : temp278;
-        vec4 select339 = temp275 ? select : temp278;
-        colord39 = select339;
+        bool temp277 = color270.z < d8;
+        bool temp278 = color270.w < d6;
+        float temp279 = color270.y + bigColor8.x;
+        vec4 temp280 = color270;
+        temp280.y = temp279;
+        vec4 select341 = temp278 ? color270 : temp280;
+        vec4 select344 = temp277 ? select341 : temp280;
+        colord39 = select344;
     }
     
     vec4 color279 = colord39 + const82;
     colord40 = color279;
     while (! (colord40.x >= d14)){
-        bool temp282 = colord40.y < d15;
-        if (temp282) {
+        bool temp284 = colord40.y < d15;
+        if (temp284) {
             FragColor_shadow330d0 = color279;
             gl_FragColor = FragColor_shadow330d0;
             return;
@@ -3020,27 +3027,27 @@ void main()
     vec4 color290 = colord40 + const82;
     colord41 = color290;
     while (! (colord41.w >= d16)){
-        float temp285 = colord41.w + const181;
-        vec4 temp286 = colord41;
-        temp286.w = temp285;
-        colord41 = temp286;
+        float temp287 = colord41.w + const184;
+        vec4 temp288 = colord41;
+        temp288.w = temp287;
+        colord41 = temp288;
     }
     
     colord42 = colord41;
     while (true) {
         bool notlhs331 = colord42.w >= d2;
         bool notrhs332 = colord42.y >= d3;
-        bool temp289 = notrhs332 || notlhs331;
-        if (temp289) {
+        bool temp291 = notrhs332 || notlhs331;
+        if (temp291) {
             colord43 = colord42;
             while (! (colord43.y < d18)){
                 color312 = colord43 + const82;
-                bool temp291 = color312.x >= d17;
-                if (temp291) {
+                bool temp293 = color312.x >= d17;
+                if (temp293) {
                     colord44 = color312;
                     while (! (colord44.y >= d16)){
-                        bool temp292 = colord44.w < d16;
-                        if (temp292) {
+                        bool temp294 = colord44.w < d16;
+                        if (temp294) {
                             discard;
                         }
                         
@@ -3063,8 +3070,8 @@ void main()
         }
         
         vec4 color302 = colord42 + bigColor1_2;
-        bool temp296 = color302.z < d3;
-        if (temp296) {
+        bool temp298 = color302.z < d3;
+        if (temp298) {
             FragColor_shadow330d0 = color279;
             gl_FragColor = FragColor_shadow330d0;
             
@@ -3086,6 +3093,7 @@ uniform float d3;
 uniform vec4 bigColor1_2;
 uniform vec4 bigColor1_3;
 uniform float d4;
+uniform int Count;
 uniform vec4 bigColor2;
 uniform vec4 bigColor3;
 uniform vec4 bigColor4;
@@ -3106,7 +3114,6 @@ uniform float d15;
 uniform float d16;
 uniform float d18;
 uniform float d17;
-uniform int Count;
 uniform float d13;
 uniform float d19;
 uniform float d20;
@@ -3125,29 +3132,29 @@ uniform float d32;
 uniform float d33;
 uniform float d34;
 in vec4 BaseColor;
-const float const62 = 0.33;
-const float const64 = 0.66;
-const vec4 const66 = vec4(0.66);
-const vec4 const67 = vec4(0.33);
-const float const75 = 42.0;
-const vec4 const77 = vec4(1.0);
+const float const64 = 0.33;
+const float const66 = 0.66;
+const vec4 const68 = vec4(0.66);
+const vec4 const69 = vec4(0.33);
+const float const77 = 42.0;
+const vec4 const79 = vec4(1.0);
+const int const87i_0 = 0;
+const int const91i_1 = 1;
 vec4 color64;
-const int const130i_0 = 0;
-const float const132 = 20.0;
-const float const134 = 1.0;
-const int const146i_41 = 41;
-const int const155i_1 = 1;
-vec4 temp159;
-vec4 select677;
+const float const138 = 20.0;
+const float const140 = 1.0;
+const int const152i_41 = 41;
+vec4 temp164;
+vec4 select684;
 vec4 select;
-float temp178;
-const float const190 = 0.0;
+float temp183;
+const float const195 = 0.0;
 vec4 color200;
 vec4 color216;
-const float const201 = 2.0;
+const float const206 = 2.0;
 vec4 color227;
-const float const212 = 5.0;
-const float const225 = 10.0;
+const float const217 = 5.0;
+const float const230 = 10.0;
 vec4 color312;
 
 void main()
@@ -3157,6 +3164,8 @@ void main()
     vec4 colord3d0;
     vec4 colord4d0;
     vec4 colord5d0;
+    int id0d0;
+    vec4 colord7d0;
     vec4 colord8d0;
     int temp31d0;
     vec4 colord10d0;
@@ -3191,13 +3200,13 @@ void main()
     vec4 colord42d0;
     vec4 colord43d0;
     vec4 colord44d0;
-    vec4 FragColor_shadow674d0;
-    bool temp661 = BaseColor.x < const62;
-    bool temp683 = BaseColor.x < const64;
-    vec4 temp65 = temp683 ? const66 : const67;
-    vec4 ternary5d0 = temp661 ? const67 : temp65;
-    vec4 select34112 = BaseColor + ternary5d0;
-    colord1d0 = select34112;
+    vec4 FragColor_shadow679d0;
+    bool temp661 = BaseColor.x < const64;
+    bool temp683 = BaseColor.x < const66;
+    vec4 temp67 = temp683 ? const68 : const69;
+    vec4 ternary5d0 = temp661 ? const69 : temp67;
+    vec4 select34312 = BaseColor + ternary5d0;
+    colord1d0 = select34312;
     while (colord1d0.x < d){
         vec4 color1616 = colord1d0 + bigColor;
         colord1d0 = color1616;
@@ -3208,13 +3217,13 @@ void main()
         vec4 color2323 = colord2d0 + bigColor1_1;
         bool temp7724 = color2323.w < d;
         vec4 color2725 = bigColor1_1 + color2323;
-        vec4 select679 = temp7724 ? color2323 : color2725;
-        colord2d0 = select679;
+        vec4 select682 = temp7724 ? color2323 : color2725;
+        colord2d0 = select682;
     }
     
     colord3d0 = colord2d0;
-    while (colord3d0.x < const75){
-        vec4 color3441 = colord3d0 + const77;
+    while (colord3d0.x < const77){
+        vec4 color3441 = colord3d0 + const79;
         colord3d0 = color3441;
     }
     
@@ -3243,187 +3252,201 @@ void main()
         colord5d0 = color5270;
     }
     
-    colord8d0 = colord5d0;
+    id0d0 = const87i_0;
+    colord7d0 = colord5d0;
+    while (true) {
+        bool temp88 = id0d0 < Count;
+        if (! temp88) {
+            break;
+        }
+        
+        vec4 color5984 = colord7d0 + bigColor2;
+        int temp9385 = id0d0 + const91i_1;
+        id0d0 = temp9385;
+        colord7d0 = color5984;
+    }
+    
+    colord8d0 = colord7d0;
     while (true) {
         color64 = colord8d0 + bigColor3;
-        bool temp9390 = color64.x < d2;
-        if (! temp9390) {
+        bool temp9695 = color64.x < d2;
+        if (! temp9695) {
             break;
         }
         
         colord8d0 = color64;
     }
     
-    float temp9497 = color64.z + d3;
-    float temp96100 = d3 + temp9497;
-    float temp98103 = d3 + temp96100;
-    float temp100106 = d3 + temp98103;
-    float temp102109 = d3 + temp100106;
-    float temp104112 = d3 + temp102109;
-    float temp106115 = d3 + temp104112;
-    float temp108118 = d3 + temp106115;
-    float temp110121 = d3 + temp108118;
-    float temp112124 = d3 + temp110121;
-    float temp114127 = d3 + temp112124;
-    float temp116130 = d3 + temp114127;
-    float temp118133 = d3 + temp116130;
-    float temp120136 = d3 + temp118133;
-    float temp122139 = d3 + temp120136;
-    float temp124142 = d3 + temp122139;
-    float temp126145 = d3 + temp124142;
-    float temp128148 = d3 + temp126145;
-    float temp130151 = d3 + temp128148;
-    float temp132154 = d3 + temp130151;
-    float temp134157 = d3 + temp132154;
-    float temp136160 = d3 + temp134157;
-    float temp138163 = d3 + temp136160;
-    float temp140166 = d3 + temp138163;
-    float temp142169 = d3 + temp140166;
-    float temp144172 = d3 + temp142169;
-    float temp146175 = d3 + temp144172;
-    float temp148178 = d3 + temp146175;
-    float temp150181 = d3 + temp148178;
-    float temp152184 = d3 + temp150181;
-    float temp154187 = d3 + temp152184;
-    float temp156190 = d3 + temp154187;
-    float temp158193 = d3 + temp156190;
-    float temp160196 = d3 + temp158193;
-    float temp162199 = d3 + temp160196;
-    float temp164202 = d3 + temp162199;
-    float temp166205 = d3 + temp164202;
-    float temp168208 = d3 + temp166205;
-    float temp170211 = d3 + temp168208;
-    float temp172214 = d3 + temp170211;
-    float temp174217 = d3 + temp172214;
-    float temp176220 = d3 + temp174217;
-    vec4 temp129 = color64;
-    temp129.z = temp176220;
-    temp31d0 = const130i_0;
-    colord10d0 = temp129;
+    float temp97102 = color64.z + d3;
+    float temp99105 = d3 + temp97102;
+    float temp101108 = d3 + temp99105;
+    float temp103111 = d3 + temp101108;
+    float temp105114 = d3 + temp103111;
+    float temp107117 = d3 + temp105114;
+    float temp109120 = d3 + temp107117;
+    float temp111123 = d3 + temp109120;
+    float temp113126 = d3 + temp111123;
+    float temp115129 = d3 + temp113126;
+    float temp117132 = d3 + temp115129;
+    float temp119135 = d3 + temp117132;
+    float temp121138 = d3 + temp119135;
+    float temp123141 = d3 + temp121138;
+    float temp125144 = d3 + temp123141;
+    float temp127147 = d3 + temp125144;
+    float temp129150 = d3 + temp127147;
+    float temp131153 = d3 + temp129150;
+    float temp133156 = d3 + temp131153;
+    float temp135159 = d3 + temp133156;
+    float temp137162 = d3 + temp135159;
+    float temp139165 = d3 + temp137162;
+    float temp141168 = d3 + temp139165;
+    float temp143171 = d3 + temp141168;
+    float temp145174 = d3 + temp143171;
+    float temp147177 = d3 + temp145174;
+    float temp149180 = d3 + temp147177;
+    float temp151183 = d3 + temp149180;
+    float temp153186 = d3 + temp151183;
+    float temp155189 = d3 + temp153186;
+    float temp157192 = d3 + temp155189;
+    float temp159195 = d3 + temp157192;
+    float temp161198 = d3 + temp159195;
+    float temp163201 = d3 + temp161198;
+    float temp165204 = d3 + temp163201;
+    float temp167207 = d3 + temp165204;
+    float temp169210 = d3 + temp167207;
+    float temp171213 = d3 + temp169210;
+    float temp173216 = d3 + temp171213;
+    float temp175219 = d3 + temp173216;
+    float temp177222 = d3 + temp175219;
+    float temp179225 = d3 + temp177222;
+    vec4 temp136 = color64;
+    temp136.z = temp179225;
+    temp31d0 = const87i_0;
+    colord10d0 = temp136;
     for (temp31d0 = 0; temp31d0 < 100; ++temp31d0) {
-        bool temp178228 = colord10d0.z < const132;
-        float temp180229 = colord10d0.x + const134;
-        vec4 temp135 = colord10d0;
-        temp135.x = temp180229;
-        float temp183232 = colord10d0.y + const134;
-        vec4 temp137 = colord10d0;
-        temp137.y = temp183232;
-        vec4 select678 = temp178228 ? temp135 : temp137;
-        colord10d0 = select678;
+        bool temp181233 = colord10d0.z < const138;
+        float temp183234 = colord10d0.x + const140;
+        vec4 temp141 = colord10d0;
+        temp141.x = temp183234;
+        float temp186237 = colord10d0.y + const140;
+        vec4 temp143 = colord10d0;
+        temp143.y = temp186237;
+        vec4 select687 = temp181233 ? temp141 : temp143;
+        colord10d0 = select687;
     }
     
-    temp33d0 = const130i_0;
+    temp33d0 = const87i_0;
     colord12d0 = colord10d0;
     for (temp33d0 = 0; temp33d0 < 120; ++temp33d0) {
-        bool temp186251 = colord12d0.z < const132;
-        float temp187252 = colord12d0.x + const134;
-        vec4 temp141 = colord12d0;
-        temp141.x = temp187252;
-        float temp189255 = colord12d0.y + const134;
-        vec4 temp143 = colord12d0;
-        temp143.y = temp189255;
-        vec4 select681 = temp186251 ? temp141 : temp143;
-        colord12d0 = select681;
+        bool temp189256 = colord12d0.z < const138;
+        float temp190257 = colord12d0.x + const140;
+        vec4 temp147 = colord12d0;
+        temp147.x = temp190257;
+        float temp192260 = colord12d0.y + const140;
+        vec4 temp149 = colord12d0;
+        temp149.y = temp192260;
+        vec4 select685 = temp189256 ? temp147 : temp149;
+        colord12d0 = select685;
     }
     
-    temp35d0 = const130i_0;
+    temp35d0 = const87i_0;
     colord14d0 = colord12d0;
     while (true) {
-        bool temp192274 = temp35d0 > const146i_41;
-        if (temp192274) {
+        bool temp195279 = temp35d0 > const152i_41;
+        if (temp195279) {
             break;
         }
         
-        float temp194278 = colord14d0.z + d3;
-        bool temp196281 = colord14d0.x < d4;
-        vec4 temp149 = colord14d0;
-        temp149.z = temp194278;
-        float temp197282 = colord14d0.w + const134;
-        vec4 temp151 = colord14d0;
-        temp151.zw = vec2(temp194278, temp197282);
-        vec4 select680 = temp196281 ? temp149 : temp151;
-        int temp200292 = int(temp196281);
-        int temp201293 = temp200292 ^ const155i_1;
-        int select344294 = temp201293 + temp35d0;
-        temp35d0 = select344294;
-        colord14d0 = select680;
+        float temp197283 = colord14d0.z + d3;
+        bool temp199286 = colord14d0.x < d4;
+        vec4 temp155 = colord14d0;
+        temp155.z = temp197283;
+        float temp200287 = colord14d0.w + const140;
+        vec4 temp157 = colord14d0;
+        temp157.zw = vec2(temp197283, temp200287);
+        vec4 select681 = temp199286 ? temp155 : temp157;
+        int temp203297 = int(temp199286);
+        int temp204298 = temp203297 ^ const91i_1;
+        int select338299 = temp204298 + temp35d0;
+        temp35d0 = select338299;
+        colord14d0 = select681;
     }
     
-    temp37d0 = const130i_0;
+    temp37d0 = const87i_0;
     colord15d0 = colord14d0;
     while (true) {
-        bool temp204304 = temp37d0 > const146i_41;
-        if (temp204304) {
+        bool temp206309 = temp37d0 > const152i_41;
+        if (temp206309) {
             colord16d0 = colord15d0;
             break;
         }
         
-        float temp205309 = colord15d0.z + d3;
-        temp159 = colord15d0;
-        temp159.z = temp205309;
-        bool temp207311 = colord15d0.x < d4;
-        if (temp207311) {
-            colord16d0 = temp159;
+        float temp207314 = colord15d0.z + d3;
+        temp164 = colord15d0;
+        temp164.z = temp207314;
+        bool temp209316 = colord15d0.x < d4;
+        if (temp209316) {
+            colord16d0 = temp164;
             break;
         }
         
-        float temp208316 = colord15d0.w + const134;
-        vec4 temp162 = temp159;
-        temp162.w = temp208316;
-        int temp210319 = temp37d0 + const155i_1;
-        temp37d0 = temp210319;
-        colord15d0 = temp162;
+        float temp210321 = colord15d0.w + const140;
+        vec4 temp167 = temp164;
+        temp167.w = temp210321;
+        int temp212324 = temp37d0 + const91i_1;
+        temp37d0 = temp212324;
+        colord15d0 = temp167;
     }
     
     colord17d0 = colord16d0;
     while (true) {
-        vec4 color135329 = colord17d0 + bigColor4;
-        bool temp212330 = color135329.x < d4;
-        if (temp212330) {
-            colord17dbed0 = color135329;
+        vec4 color135334 = colord17d0 + bigColor4;
+        bool temp214335 = color135334.x < d4;
+        if (temp214335) {
+            colord17dbed0 = color135334;
         }
         else {
-            bool temp213334 = color135329.y < d4;
-            float temp214335 = d4 + color135329.y;
-            vec4 temp168 = color135329;
-            temp168.y = temp214335;
-            float temp216338 = d4 + color135329.x;
-            vec4 temp170 = color135329;
-            temp170.x = temp216338;
-            select677 = temp213334 ? temp168 : temp170;
-            bool temp219347 = select677.z < d4;
-            if (! temp219347) {
+            bool temp215339 = color135334.y < d4;
+            float temp216340 = d4 + color135334.y;
+            vec4 temp173 = color135334;
+            temp173.y = temp216340;
+            float temp218343 = d4 + color135334.x;
+            vec4 temp175 = color135334;
+            temp175.x = temp218343;
+            select684 = temp215339 ? temp173 : temp175;
+            bool temp221352 = select684.z < d4;
+            if (! temp221352) {
                 break;
             }
             
-            colord17dbed0 = select677;
+            colord17dbed0 = select684;
         }
         
         colord17d0 = colord17dbed0;
     }
     
-    colord19d0 = select677;
+    colord19d0 = select684;
     while (true) {
-        vec4 color150361 = colord19d0 + bigColor5;
-        bool temp221362 = color150361.y < d5;
-        float temp222363 = d5 + color150361.y;
-        vec4 temp176 = color150361;
-        temp176.y = temp222363;
-        select = temp221362 ? temp176 : color150361;
-        bool temp226372 = select.x < d5;
-        if (! temp226372) {
+        vec4 color150366 = colord19d0 + bigColor5;
+        bool temp223367 = color150366.y < d5;
+        float temp224368 = d5 + color150366.y;
+        vec4 temp181 = color150366;
+        temp181.y = temp224368;
+        select = temp223367 ? temp181 : color150366;
+        bool temp228377 = select.x < d5;
+        if (! temp228377) {
             break;
         }
         
         colord19d0 = select;
     }
     
-    bool temp227379 = select.x < d6;
-    if (temp227379) {
+    bool temp229384 = select.x < d6;
+    if (temp229384) {
         colord21d0 = select;
         while (colord21d0.y < d6){
-            vec4 color164386 = colord21d0 + bigColor6;
-            colord21d0 = color164386;
+            vec4 color164391 = colord21d0 + bigColor6;
+            colord21d0 = color164391;
         }
         
         temp44d0 = bigColor6;
@@ -3432,22 +3455,22 @@ void main()
     else {
         colord22d0 = select;
         while (colord22d0.z < d6){
-            float temp229398 = colord22d0.z + bigColor6.z;
-            vec4 temp183 = colord22d0;
-            temp183.z = temp229398;
-            colord22d0 = temp183;
+            float temp231403 = colord22d0.z + bigColor6.z;
+            vec4 temp188 = colord22d0;
+            temp188.z = temp231403;
+            colord22d0 = temp188;
         }
         
         temp44d0 = bigColor6;
         colord23d0 = colord22d0;
     }
     
-    bool temp231407 = colord23d0.x < d6;
-    if (temp231407) {
-        bool temp232409 = d7 < const134;
+    bool temp233412 = colord23d0.x < d6;
+    if (temp233412) {
+        bool temp234414 = d7 < const140;
         colord24d0 = colord23d0;
         while (colord24d0.y < d6){
-            if (temp232409) {
+            if (temp234414) {
                 break;
             }
             
@@ -3460,64 +3483,64 @@ void main()
     else {
         colord26d0 = colord23d0;
         while (colord26d0.z < d6){
-            float temp234430 = temp44d0.z + colord26d0.z;
-            vec4 temp188 = colord26d0;
-            temp188.z = temp234430;
-            colord26d0 = temp188;
+            float temp236435 = temp44d0.z + colord26d0.z;
+            vec4 temp193 = colord26d0;
+            temp193.z = temp236435;
+            colord26d0 = temp193;
         }
         
         colord27d0 = colord26d0;
     }
     
-    bool temp236438 = d7 < const190;
-    bool temp238439 = d7 < const134;
+    bool temp238443 = d7 < const195;
+    bool temp240444 = d7 < const140;
     colord28d0 = colord27d0;
     while (true) {
-        if (temp236438) {
+        if (temp238443) {
             colord29d0 = colord28d0;
             break;
         }
         
         color200 = colord28d0 + bigColor7;
-        if (temp238439) {
-            float temp240450 = color200.z + const134;
-            vec4 temp194 = color200;
-            temp194.z = temp240450;
-            colord29d0 = temp194;
+        if (temp240444) {
+            float temp242455 = color200.z + const140;
+            vec4 temp199 = color200;
+            temp199.z = temp242455;
+            colord29d0 = temp199;
             break;
         }
         
-        vec4 color206457 = BaseColor + color200;
-        colord28d0 = color206457;
+        vec4 color206462 = BaseColor + color200;
+        colord28d0 = color206462;
     }
     
-    bool temp243461 = d8 < const190;
-    bool temp244462 = d8 < const134;
+    bool temp245466 = d8 < const195;
+    bool temp246467 = d8 < const140;
     colord30d0 = colord29d0;
     while (true) {
-        if (temp243461) {
+        if (temp245466) {
             colord32d0 = colord30d0;
             break;
         }
         
         color216 = colord30d0 + bigColor7;
-        if (temp244462) {
-            float temp246473 = color216.z + const134;
-            bool temp247474 = d8 < const201;
-            float temp249475 = color216.y + const134;
-            vec4 temp203 = color216;
-            temp203.yz = vec2(temp249475, temp246473);
-            float temp251479 = color216.x + const134;
-            vec4 temp205 = color216;
-            temp205.xz = vec2(temp251479, temp246473);
-            vec4 select682 = temp247474 ? temp203 : temp205;
-            colord32d0 = select682;
+        if (temp246467) {
+            float temp248478 = color216.z + const140;
+            bool temp249479 = d8 < const206;
+            float temp251480 = color216.y + const140;
+            vec4 temp208 = color216;
+            temp208.yz = vec2(temp251480, temp248478);
+            float temp253484 = color216.x + const140;
+            vec4 temp210 = color216;
+            temp210.xz = vec2(temp253484, temp248478);
+            vec4 select683 = temp249479 ? temp208 : temp210;
+            colord32d0 = select683;
             break;
         }
         
         color227 = BaseColor + color216;
-        bool temp255494 = color227.z < d8;
-        if (! temp255494) {
+        bool temp257499 = color227.z < d8;
+        if (! temp257499) {
             colord32d0 = color227;
             break;
         }
@@ -3525,23 +3548,23 @@ void main()
         colord30d0 = color227;
     }
     
-    bool temp256502 = d9 > d8;
+    bool temp258507 = d9 > d8;
     colord33d0 = colord32d0;
     while (colord33d0.w < d9){
         colord35d0 = colord33d0;
-        if (temp256502) {
-            bool temp210 = colord33d0.x <= d7;
+        if (temp258507) {
+            bool temp215 = colord33d0.x <= d7;
             colord34d0 = colord33d0;
-            if (temp210) {
-                bool temp211 = colord33d0.z != const212;
-                if (temp211) {
+            if (temp215) {
+                bool temp216 = colord33d0.z != const217;
+                if (temp216) {
                     break;
                 }
                 
-                float temp260517 = colord33d0.w + const134;
-                vec4 temp214 = colord33d0;
-                temp214.w = temp260517;
-                colord34d0 = temp214;
+                float temp262522 = colord33d0.w + const140;
+                vec4 temp219 = colord33d0;
+                temp219.w = temp262522;
+                colord34d0 = temp219;
             }
             
             colord35d0 = colord34d0;
@@ -3552,98 +3575,98 @@ void main()
     
     colord36d0 = colord33d0;
     while (colord36d0.z < d10){
-        float temp262532 = colord36d0.y + const134;
-        vec4 temp216 = colord36d0;
-        temp216.y = temp262532;
-        bool temp217 = temp262532 >= d11;
-        if (temp217) {
+        float temp264537 = colord36d0.y + const140;
+        vec4 temp221 = colord36d0;
+        temp221.y = temp264537;
+        bool temp222 = temp264537 >= d11;
+        if (temp222) {
             break;
         }
         
-        float temp266540 = colord36d0.z + const134;
-        bool temp267541 = colord36d0.w < d12;
-        float temp268542 = colord36d0.w + const134;
-        vec4 temp221 = temp216;
-        temp221.zw = vec2(temp266540, temp268542);
-        float temp270546 = colord36d0.x + const134;
-        vec4 temp223 = temp216;
-        temp223.xz = vec2(temp270546, temp266540);
-        vec4 select676 = temp267541 ? temp221 : temp223;
-        colord36d0 = select676;
+        float temp268545 = colord36d0.z + const140;
+        bool temp269546 = colord36d0.w < d12;
+        float temp270547 = colord36d0.w + const140;
+        vec4 temp226 = temp221;
+        temp226.zw = vec2(temp268545, temp270547);
+        float temp272551 = colord36d0.x + const140;
+        vec4 temp228 = temp221;
+        temp228.xz = vec2(temp272551, temp268545);
+        vec4 select686 = temp269546 ? temp226 : temp228;
+        colord36d0 = select686;
     }
     
     colord39d0 = colord36d0;
-    while (colord39d0.x < const225){
-        vec4 color270566 = colord39d0 + bigColor8;
-        bool temp275567 = color270566.z < d8;
-        bool temp276568 = color270566.w < d6;
-        float temp277569 = bigColor8.x + color270566.y;
-        vec4 temp230 = color270566;
-        temp230.y = temp277569;
-        vec4 color270566dtemp278571 = temp276568 ? color270566 : temp230;
-        vec4 ternary579d0 = temp275567 ? color270566dtemp278571 : temp230;
-        colord39d0 = ternary579d0;
+    while (colord39d0.x < const230){
+        vec4 color270571 = colord39d0 + bigColor8;
+        bool temp277572 = color270571.z < d8;
+        bool temp278573 = color270571.w < d6;
+        float temp279574 = bigColor8.x + color270571.y;
+        vec4 temp235 = color270571;
+        temp235.y = temp279574;
+        vec4 color270571dtemp280576 = temp278573 ? color270571 : temp235;
+        vec4 ternary584d0 = temp277572 ? color270571dtemp280576 : temp235;
+        colord39d0 = ternary584d0;
     }
     
-    vec4 color279589 = colord39d0 + const77;
-    colord40d0 = color279589;
+    vec4 color279594 = colord39d0 + const79;
+    colord40d0 = color279594;
     while (colord40d0.x < d14){
-        bool temp282595 = colord40d0.y < d15;
-        if (temp282595) {
-            FragColor_shadow674d0 = color279589;
-            gl_FragColor = FragColor_shadow674d0;
+        bool temp284600 = colord40d0.y < d15;
+        if (temp284600) {
+            FragColor_shadow679d0 = color279594;
+            gl_FragColor = FragColor_shadow679d0;
             return;
         }
         
-        vec4 color286599 = colord40d0 + const77;
-        colord40d0 = color286599;
+        vec4 color286604 = colord40d0 + const79;
+        colord40d0 = color286604;
     }
     
-    vec4 color290603 = colord40d0 + const77;
-    colord41d0 = color290603;
+    vec4 color290608 = colord40d0 + const79;
+    colord41d0 = color290608;
     while (colord41d0.w < d16){
-        float temp285609 = colord41d0.w + const134;
-        vec4 temp238 = colord41d0;
-        temp238.w = temp285609;
-        colord41d0 = temp238;
+        float temp287614 = colord41d0.w + const140;
+        vec4 temp243 = colord41d0;
+        temp243.w = temp287614;
+        colord41d0 = temp243;
     }
     
     colord42d0 = colord41d0;
     while (true) {
-        bool notlhs331620 = colord42d0.w >= d2;
-        bool notrhs332621 = colord42d0.y >= d3;
-        bool temp289622 = notrhs332621 || notlhs331620;
-        vec4 color302655 = colord42d0 + bigColor1_2;
-        colord42d0 = color302655;
+        bool notlhs331625 = colord42d0.w >= d2;
+        bool notrhs332626 = colord42d0.y >= d3;
+        bool temp291627 = notrhs332626 || notlhs331625;
+        vec4 color302660 = colord42d0 + bigColor1_2;
+        colord42d0 = color302660;
     }
     
     colord43d0 = colord42d0;
     while (! (colord43d0.y < d18)){
-        color312 = colord43d0 + const77;
-        bool temp291629 = color312.x < d17;
-        if (! temp291629) {
+        color312 = colord43d0 + const79;
+        bool temp293634 = color312.x < d17;
+        if (! temp293634) {
             colord44d0 = color312;
             while (colord44d0.y < d16){
-                bool temp292636 = colord44d0.w < d16;
-                if (temp292636) {
+                bool temp294641 = colord44d0.w < d16;
+                if (temp294641) {
                     discard;
                 }
                 
-                vec4 color324639 = colord44d0 + const77;
-                colord44d0 = color324639;
+                vec4 color324644 = colord44d0 + const79;
+                colord44d0 = color324644;
             }
             
-            vec4 color328643 = colord44d0 + const77;
-            FragColor_shadow674d0 = color328643;
-            gl_FragColor = FragColor_shadow674d0;
+            vec4 color328648 = colord44d0 + const79;
+            FragColor_shadow679d0 = color328648;
+            gl_FragColor = FragColor_shadow679d0;
             return;
         }
         
         colord43d0 = color312;
     }
     
-    FragColor_shadow674d0 = color279589;
-    gl_FragColor = FragColor_shadow674d0;
+    FragColor_shadow679d0 = color279594;
+    gl_FragColor = FragColor_shadow679d0;
     
 }
 

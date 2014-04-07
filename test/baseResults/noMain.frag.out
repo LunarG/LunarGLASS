@@ -1,10 +1,120 @@
 
-Linked fragment stage:
+Top IR:
+; ModuleID = 'Top'
 
-ERROR: Linking fragment stage: Missing entry point: Each stage requires one "void main()" entry point
+@b = internal global float 0.000000e+00
+@B = external addrspace(2) constant i1
+@a = external addrspace(2) constant float
+@c = internal global float 0.000000e+00
 
-tempglsl.frag
-ERROR: 0:2: '' :  syntax error
-ERROR: 1 compilation errors.  No code generated.
+define fastcc void @main() {
+entry:
+  %ternary = alloca float
+  %0 = load i1 addrspace(2)* @B, !gla.uniform !0
+  br i1 %0, label %then, label %else
 
+then:                                             ; preds = %entry
+  %1 = load float addrspace(2)* @a, !gla.uniform !2
+  %ternary1 = call float @llvm.gla.fSin.f32.f32(float %1)
+  store float %ternary1, float* %ternary
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %2 = load float addrspace(2)* @a, !gla.uniform !2
+  %ternary2 = call float @llvm.gla.fTan.f32.f32(float %2)
+  store float %ternary2, float* %ternary
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %b = load float* %ternary
+  store float %b, float* @b
+  %3 = load float* @b
+  %c = call float @llvm.gla.fCos.f32.f32(float %3)
+  store float %c, float* @c
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc float @"foo("() #0 {
+entry:
+  %0 = load float* @b
+  ret float %0
+
+post-return:                                      ; No predecessors!
+  unreachable
+}
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fSin.f32.f32(float) #1
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fTan.f32.f32(float) #1
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fCos.f32.f32(float) #1
+
+attributes #0 = { alwaysinline }
+attributes #1 = { nounwind readnone }
+
+!gla.uniforms = !{!0, !2}
+
+!0 = metadata !{metadata !"B", i32 12, i1* @B_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!2 = metadata !{metadata !"a", i32 12, float* @a_typeProxy, metadata !1}
+
+
+Bottom IR:
+; ModuleID = 'Top'
+
+define fastcc void @main() {
+entry:
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+!gla.uniforms = !{!0, !2}
+
+!0 = metadata !{metadata !"B", i32 12, i1* @B_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!2 = metadata !{metadata !"a", i32 12, float* @a_typeProxy, metadata !1}
+#### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 330 is not yet complete; some version-specific features are present, but many are missing.
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+#version 330 core
+// LunarGOO output (r722)
+uniform bool B;
+uniform float a;
+
+void main()
+{
+    
+}
+
+#### BEGIN COMPILER 0 INFO LOG ####
+Warning, version 330 is not yet complete; some version-specific features are present, but many are missing.
+#### END COMPILER 0 INFO LOG ####
+#### BEGIN LINKER INFO LOG ####
+#### END LINKER INFO LOG ####
+#version 330 core
+// LunarGOO output (r722)
+uniform bool B;
+uniform float a;
+
+void main()
+{
+    
+}
 

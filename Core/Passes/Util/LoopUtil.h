@@ -80,7 +80,7 @@ namespace gla_llvm {
             // because it is counting the number of times that the exit
             // condition may be tested, which is 1 + the number of times the
             // exit condition fails.
-            , tripCount(scalarEvo->getSmallConstantTripCount(loop, header) - 1)
+            , tripCount(scalarEvo->getSmallConstantTripCount(loop, header))
             , loopDepth(loop->getLoopDepth())
             , simpleConditional(-1)
             , function(loop->getHeader()->getParent())

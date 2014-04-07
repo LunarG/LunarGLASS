@@ -324,7 +324,13 @@ static void CreateSimpleInductiveLoop(LoopWrapper& loop, gla::BackEndTranslator&
     const PHINode* pn  = loop.getCanonicalInductionVariable();
     assert(pn);
 
-    unsigned int tripCount = loop.getTripCount();
+    // tripCount for the header block will be 1
+    // higher than the inductive loop's true trip count. This is
+    // because it is counting the number of times that the exit
+    // condition may be tested, which is 1 + the number of times the
+    // exit condition fails.
+
+    unsigned int tripCount = loop.getTripCount();   
     if (gla::Options.debug && ! gla::Options.bottomIROnly) {
         errs() << "\ninductive variable:"   << *pn;
         errs() << "\n  trip count:      "   << tripCount;
@@ -334,12 +340,13 @@ static void CreateSimpleInductiveLoop(LoopWrapper& loop, gla::BackEndTranslator&
     }
 
     // tripCount of 0 means not a known constant count
-    if (tripCount == 0)
-        // TODO LLVM 3.2: the second argument below needs to be an LLVM value
+    if (tripCount == 0) {
+        // TODO LLVM 3.4: the second argument below needs to be an LLVM value
         // representing the non-constant trip count
-        bet.beginSimpleInductiveLoop(pn, -1);
-    else
-        bet.beginSimpleInductiveLoop(pn, tripCount);
+        gla::UnsupportedFunctionality("non-constant trip count on simple-inductive loop", gla::EATContinue);
+        bet.beginSimpleInductiveLoop(pn, 1);
+    } else
+        bet.beginSimpleInductiveLoop(pn, tripCount - 1);
 }
 
 static void CreateSimpleConditionalLoop(LoopWrapper& loop, const Value& condition, gla::BackEndTranslator& bet)

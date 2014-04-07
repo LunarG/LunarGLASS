@@ -145,6 +145,7 @@ uniform int Count;
 uniform vec4 bigColor;
 varying vec4 BaseColor;
 const int const23i_0 = 0;
+const int const27i_1 = 1;
 
 void main()
 {
@@ -152,8 +153,15 @@ void main()
     vec4 colord0;
     id0 = const23i_0;
     colord0 = BaseColor;
-    for (id0 = 0; id0 < 4294967295; ++id0) {
+    while (true) {
+        bool temp24 = id0 < Count;
+        if (! temp24) {
+            break;
+        }
+        
         vec4 color2 = colord0 + bigColor;
+        int temp26 = id0 + const27i_1;
+        id0 = temp26;
         colord0 = color2;
     }
     
@@ -164,13 +172,31 @@ void main()
 
 #version 120
 // LunarGOO output
-uniform vec4 bigColor;
 uniform int Count;
+uniform vec4 bigColor;
 varying vec4 BaseColor;
+const int const23i_0 = 0;
+const int const27i_1 = 1;
 
 void main()
 {
-    gl_FragColor = BaseColor;
+    vec4 colord0d0;
+    int id0d0;
+    colord0d0 = BaseColor;
+    id0d0 = const23i_0;
+    while (true) {
+        bool temp24 = id0d0 < Count;
+        if (! temp24) {
+            break;
+        }
+        
+        vec4 color26 = colord0d0 + bigColor;
+        int temp267 = id0d0 + const27i_1;
+        colord0d0 = color26;
+        id0d0 = temp267;
+    }
+    
+    gl_FragColor = colord0d0;
     
 }
 
