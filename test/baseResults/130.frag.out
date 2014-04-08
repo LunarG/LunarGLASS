@@ -1,0 +1,594 @@
+
+Top IR:
+; ModuleID = 'Glslang'
+
+@o_shadow = internal global <4 x float> zeroinitializer
+@samp2D = external addrspace(1) constant i32
+@samp2DA = external addrspace(1) constant i32
+@samp2DR = external addrspace(1) constant i32
+@samp2DS = external addrspace(1) constant i32
+@io_shadow = internal global <3 x i32> zeroinitializer
+@Sca = external addrspace(1) constant i32
+@i_shadow = internal global <4 x float> zeroinitializer
+@Isca = external addrspace(1) constant i32
+@uo_shadow = internal global <4 x i32> zeroinitializer
+@Usca = external addrspace(1) constant i32
+@a = internal global <3 x float> zeroinitializer
+@Scas = external addrspace(1) constant i32
+@sampC = external addrspace(1) constant i32
+@ClipDistance_shadow = internal global [4 x float] zeroinitializer
+@b = internal global float 0.000000e+00
+@fflat_shadow = internal global float 0.000000e+00
+@fsmooth_shadow = internal global float 0.000000e+00
+@fnop_shadow = internal global float 0.000000e+00
+@Color_shadow = internal global <4 x float> zeroinitializer
+@bounds = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %ai = alloca [3 x i32]
+  %0 = load i32 addrspace(1)* @sampC, !gla.uniform !30
+  %o_shadow = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 4, i32 %0, i32 0, <3 x float> <float 0x3FC99999A0000000, float 0x3FC99999A0000000, float 0x3FC99999A0000000>)
+  store <4 x float> %o_shadow, <4 x float>* @o_shadow
+  %gl_ClipDistance = call float @llvm.gla.fReadInterpolant.f32(i32 1028, i32 -1, i32 1), !gla.input !38
+  store float %gl_ClipDistance, float* getelementptr inbounds ([4 x float]* @ClipDistance_shadow, i32 0, i32 0)
+  %gl_ClipDistance1 = call float @llvm.gla.fReadInterpolant.f32(i32 1029, i32 -1, i32 1), !gla.input !38
+  store float %gl_ClipDistance1, float* getelementptr inbounds ([4 x float]* @ClipDistance_shadow, i32 0, i32 1)
+  %gl_ClipDistance2 = call float @llvm.gla.fReadInterpolant.f32(i32 1030, i32 -1, i32 1), !gla.input !38
+  store float %gl_ClipDistance2, float* getelementptr inbounds ([4 x float]* @ClipDistance_shadow, i32 0, i32 2)
+  %gl_ClipDistance3 = call float @llvm.gla.fReadInterpolant.f32(i32 1031, i32 -1, i32 1), !gla.input !38
+  store float %gl_ClipDistance3, float* getelementptr inbounds ([4 x float]* @ClipDistance_shadow, i32 0, i32 3)
+  %1 = load float* getelementptr inbounds ([4 x float]* @ClipDistance_shadow, i32 0, i32 3)
+  %2 = load <4 x float>* @o_shadow
+  %o_shadow4 = insertelement <4 x float> %2, float %1, i32 1
+  store <4 x float> %o_shadow4, <4 x float>* @o_shadow
+  call void @"bar3("()
+  call void @"bar4("()
+  call void @"bar5("()
+  call void @"bar6("()
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %3 = load <4 x float>* @o_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %3), !gla.output !0
+  %4 = load <3 x i32>* @io_shadow
+  call void @llvm.gla.writeData.v3i32(i32 1025, i32 -1, <3 x i32> %4), !gla.output !2
+  %5 = load <4 x i32>* @uo_shadow
+  call void @llvm.gla.writeData.v4i32(i32 1027, i32 -1, <4 x i32> %5), !gla.output !4
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc void @"bar3("() #0 {
+entry:
+  %0 = load i32 addrspace(1)* @samp2D, !gla.uniform !6
+  %1 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.v2i32(i32 2, i32 %0, i32 256, <2 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000>, float undef, float undef, <2 x i32> <i32 1, i32 1>)
+  %2 = load <4 x float>* @o_shadow
+  %o_shadow = fadd <4 x float> %2, %1
+  store <4 x float> %o_shadow, <4 x float>* @o_shadow
+  %3 = load i32 addrspace(1)* @samp2DA, !gla.uniform !9
+  %4 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v3f32.v2i32(i32 2, i32 %3, i32 272, <3 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000, float 0x3FD3333340000000>, float undef, float undef, <2 x i32> <i32 1, i32 1>)
+  %5 = load <4 x float>* @o_shadow
+  %o_shadow1 = fadd <4 x float> %5, %4
+  store <4 x float> %o_shadow1, <4 x float>* @o_shadow
+  ret void
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc void @"bar4("() #0 {
+entry:
+  %0 = load i32 addrspace(1)* @samp2D, !gla.uniform !6
+  %1 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.v2i32(i32 2, i32 %0, i32 256, <2 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000>, float undef, float undef, <2 x i32> <i32 1, i32 1>)
+  %2 = load <4 x float>* @o_shadow
+  %o_shadow = fadd <4 x float> %2, %1
+  store <4 x float> %o_shadow, <4 x float>* @o_shadow
+  %3 = load i32 addrspace(1)* @samp2DA, !gla.uniform !9
+  %4 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v3f32.v2i32(i32 2, i32 %3, i32 272, <3 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000, float 0x3FD3333340000000>, float undef, float undef, <2 x i32> <i32 1, i32 1>)
+  %5 = load <4 x float>* @o_shadow
+  %o_shadow1 = fadd <4 x float> %5, %4
+  store <4 x float> %o_shadow1, <4 x float>* @o_shadow
+  %6 = load i32 addrspace(1)* @samp2DR, !gla.uniform !12
+  %7 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.v2i32(i32 5, i32 %6, i32 256, <2 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000>, float undef, float undef, <2 x i32> <i32 1, i32 1>)
+  %8 = load <4 x float>* @o_shadow
+  %o_shadow2 = fadd <4 x float> %8, %7
+  store <4 x float> %o_shadow2, <4 x float>* @o_shadow
+  %9 = load i32 addrspace(1)* @samp2DS, !gla.uniform !15
+  %10 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.f32(i32 2, i32 %9, i32 394, <2 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000>, <2 x i32> <i32 1, i32 1>, float undef, float 0x3FF4CCCCC0000000)
+  %11 = load <4 x float>* @o_shadow
+  %o_shadow3 = fadd <4 x float> %11, %10
+  store <4 x float> %o_shadow3, <4 x float>* @o_shadow
+  %12 = load i32 addrspace(1)* @samp2D, !gla.uniform !6
+  %13 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.v2i32(i32 2, i32 %12, i32 386, <2 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000>, i32 2, float undef, <2 x i32> <i32 1, i32 1>)
+  %14 = load <4 x float>* @o_shadow
+  %o_shadow4 = fadd <4 x float> %14, %13
+  store <4 x float> %o_shadow4, <4 x float>* @o_shadow
+  ret void
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc void @"bar5("() #0 {
+entry:
+  %constructed = alloca <4 x float>
+  %c = alloca <4 x i32>
+  %f = alloca float
+  %0 = load i32 addrspace(1)* @Sca, !gla.uniform !18
+  %io_shadow = call <3 x i32> @llvm.gla.queryTextureSize.v3i32(i32 4, i32 %0, i32 3)
+  store <3 x i32> %io_shadow, <3 x i32>* @io_shadow
+  %1 = load i32 addrspace(1)* @Sca, !gla.uniform !18
+  %i = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !36
+  store <4 x float> %i, <4 x float>* @i_shadow
+  %2 = load <4 x float>* @i_shadow
+  %3 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 4, i32 %1, i32 16, <4 x float> %2)
+  %4 = load <4 x float>* @o_shadow
+  %o_shadow = fadd <4 x float> %4, %3
+  store <4 x float> %o_shadow, <4 x float>* @o_shadow
+  %5 = load i32 addrspace(1)* @Isca, !gla.uniform !21
+  %i1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !36
+  store <4 x float> %i1, <4 x float>* @i_shadow
+  %6 = load <4 x float>* @i_shadow
+  %7 = call <4 x i32> @llvm.gla.textureSampleLodRefZ.v4i32.v4f32(i32 3, i32 %5, i32 146, <4 x float> %6, float 0x3FE6666660000000, float undef)
+  %8 = extractelement <4 x i32> %7, i32 0
+  %9 = insertelement <3 x i32> undef, i32 %8, i32 0
+  %10 = extractelement <4 x i32> %7, i32 1
+  %11 = insertelement <3 x i32> %9, i32 %10, i32 1
+  %12 = extractelement <4 x i32> %7, i32 2
+  %13 = insertelement <3 x i32> %11, i32 %12, i32 2
+  %14 = load <3 x i32>* @io_shadow
+  %io_shadow2 = add <3 x i32> %14, %13
+  store <3 x i32> %io_shadow2, <3 x i32>* @io_shadow
+  %15 = load i32 addrspace(1)* @Usca, !gla.uniform !24
+  %i3 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !36
+  store <4 x float> %i3, <4 x float>* @i_shadow
+  %16 = load <4 x float>* @i_shadow
+  %uo_shadow = call <4 x i32> @llvm.gla.textureSample.v4i32.v4f32(i32 4, i32 %15, i32 16, <4 x float> %16)
+  store <4 x i32> %uo_shadow, <4 x i32>* @uo_shadow
+  %17 = load i32 addrspace(1)* @Sca, !gla.uniform !18
+  %i4 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !36
+  store <4 x float> %i4, <4 x float>* @i_shadow
+  %18 = load <4 x float>* @i_shadow
+  %19 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 4, i32 %17, i32 148, <4 x float> %18, float 0x3FFB333340000000, float undef)
+  %20 = load <4 x float>* @o_shadow
+  %o_shadow5 = fadd <4 x float> %20, %19
+  store <4 x float> %o_shadow5, <4 x float>* @o_shadow
+  %21 = load i32 addrspace(1)* @Scas, !gla.uniform !27
+  %22 = call <3 x i32> @llvm.gla.queryTextureSize.v3i32(i32 4, i32 %21, i32 3)
+  %a = sitofp <3 x i32> %22 to <3 x float>
+  store <3 x float> %a, <3 x float>* @a
+  %23 = load i32 addrspace(1)* @Scas, !gla.uniform !27
+  %i6 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !36
+  store <4 x float> %i6, <4 x float>* @i_shadow
+  %24 = load <4 x float>* @i_shadow
+  %i7 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !36
+  store <4 x float> %i7, <4 x float>* @i_shadow
+  %25 = load <4 x float>* @i_shadow
+  %26 = extractelement <4 x float> %25, i32 1
+  %f8 = call float @llvm.gla.fTextureSampleLodRefZ.f32.v4f32(i32 4, i32 %23, i32 154, <4 x float> %24, float %26, float undef)
+  store float %f8, float* %f
+  %27 = load i32 addrspace(1)* @Isca, !gla.uniform !21
+  %i9 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !36
+  store <4 x float> %i9, <4 x float>* @i_shadow
+  %28 = load <4 x float>* @i_shadow
+  %c10 = call <4 x i32> @llvm.gla.textureSampleLodRefZOffsetGrad.v4i32.v4f32.i32.v3f32.v3f32(i32 3, i32 %27, i32 16, <4 x float> %28, float undef, float undef, i32 undef, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, <3 x float> <float 0x3FC99999A0000000, float 0x3FC99999A0000000, float 0x3FC99999A0000000>)
+  store <4 x i32> %c10, <4 x i32>* %c
+  %29 = load <3 x float>* @a
+  %30 = load float* %f
+  %31 = load <4 x i32>* %c
+  %32 = sitofp <4 x i32> %31 to <4 x float>
+  %33 = insertelement <4 x float> undef, float %30, i32 0
+  %34 = insertelement <4 x float> %33, float %30, i32 1
+  %35 = insertelement <4 x float> %34, float %30, i32 2
+  %36 = insertelement <4 x float> %35, float %30, i32 3
+  %37 = fadd <4 x float> %36, %32
+  %38 = load <4 x float>* %constructed
+  %39 = extractelement <3 x float> %29, i32 0
+  %40 = insertelement <4 x float> %38, float %39, i32 0
+  %41 = extractelement <3 x float> %29, i32 1
+  %42 = insertelement <4 x float> %40, float %41, i32 1
+  %43 = extractelement <3 x float> %29, i32 2
+  %44 = insertelement <4 x float> %42, float %43, i32 2
+  %45 = extractelement <4 x float> %37, i32 0
+  %46 = insertelement <4 x float> %44, float %45, i32 3
+  %47 = load <4 x float>* @o_shadow
+  %o_shadow11 = fadd <4 x float> %47, %46
+  store <4 x float> %o_shadow11, <4 x float>* @o_shadow
+  ret void
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc void @"bar6("() #0 {
+entry:
+  %b = alloca float
+  %m43 = alloca [4 x <3 x float>]
+  %a1 = alloca float
+  %0 = getelementptr [4 x <3 x float>]* %m43, i32 0, i32 3
+  %1 = load <3 x float>* %0
+  %a11 = extractelement <3 x float> %1, i32 1
+  store float %a11, float* %a1
+  %2 = load float* %a1
+  %b2 = fmul float 2.000000e+00, %2
+  store float %b2, float* %b
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.v2i32(i32, i32, i32, <2 x float>, float, float, <2 x i32>) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v3f32.v2i32(i32, i32, i32, <3 x float>, float, float, <2 x i32>) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.f32(i32, i32, i32, <2 x float>, float, float, float) #1
+
+; Function Attrs: nounwind readnone
+declare <3 x i32> @llvm.gla.queryTextureSize.v3i32(i32, i32, i32) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32, i32, i32, <4 x float>) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSampleLodRefZ.v4i32.v4f32(i32, i32, i32, <4 x float>, float, float) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSample.v4i32.v4f32(i32, i32, i32, <4 x float>) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32, i32, i32, <4 x float>, float, float) #1
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fTextureSampleLodRefZ.f32.v4f32(i32, i32, i32, <4 x float>, float, float) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSampleLodRefZOffsetGrad.v4i32.v4f32.i32.v3f32.v3f32(i32, i32, i32, <4 x float>, float, float, i32, <3 x float>, <3 x float>) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32, i32, i32, <3 x float>) #1
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #1
+
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
+
+; Function Attrs: nounwind
+declare void @llvm.gla.writeData.v3i32(i32, i32, <3 x i32>) #2
+
+; Function Attrs: nounwind
+declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) #2
+
+attributes #0 = { alwaysinline }
+attributes #1 = { nounwind readnone }
+attributes #2 = { nounwind }
+
+!gla.outputs = !{!0, !2, !4}
+!gla.uniforms = !{!6, !9, !12, !15, !18, !21, !24, !27, !30, !33}
+!gla.inputs = !{!36, !38, !40, !42, !44, !46}
+!gla.entrypoint = !{!48}
+!gla.noStaticUse = !{!40, !42, !44, !46, !33}
+
+!0 = metadata !{metadata !"o", i32 7, <4 x float>* @o_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!2 = metadata !{metadata !"io", i32 7, <3 x i32>* @io_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!4 = metadata !{metadata !"uo", i32 7, <4 x i32>* @uo_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 1, i32 0, i32 1027, null, i32 0}
+!6 = metadata !{metadata !"samp2D", i32 12, i32* @samp2D_typeProxy, metadata !7}
+!7 = metadata !{i32 5, i32 0, i32 1024, metadata !8}
+!8 = metadata !{i32 0, i32* @samp2D_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!9 = metadata !{metadata !"samp2DA", i32 12, i32* @samp2DA_typeProxy, metadata !10}
+!10 = metadata !{i32 5, i32 0, i32 1024, metadata !11}
+!11 = metadata !{i32 0, i32* @samp2DA_typeProxy, i32 1, i1 true, i1 false, i32 0}
+!12 = metadata !{metadata !"samp2DR", i32 12, i32* @samp2DR_typeProxy, metadata !13}
+!13 = metadata !{i32 5, i32 0, i32 1024, metadata !14}
+!14 = metadata !{i32 0, i32* @samp2DR_typeProxy, i32 4, i1 false, i1 false, i32 0}
+!15 = metadata !{metadata !"samp2DS", i32 12, i32* @samp2DS_typeProxy, metadata !16}
+!16 = metadata !{i32 5, i32 0, i32 1024, metadata !17}
+!17 = metadata !{i32 0, i32* @samp2DS_typeProxy, i32 1, i1 false, i1 true, i32 0}
+!18 = metadata !{metadata !"Sca", i32 12, i32* @Sca_typeProxy, metadata !19}
+!19 = metadata !{i32 5, i32 0, i32 1024, metadata !20}
+!20 = metadata !{i32 0, i32* @Sca_typeProxy, i32 3, i1 true, i1 false, i32 0}
+!21 = metadata !{metadata !"Isca", i32 12, i32* @Isca_typeProxy, metadata !22}
+!22 = metadata !{i32 5, i32 0, i32 1024, metadata !23}
+!23 = metadata !{i32 0, i32* @Isca_typeProxy, i32 2, i1 true, i1 false, i32 1}
+!24 = metadata !{metadata !"Usca", i32 12, i32* @Usca_typeProxy, metadata !25}
+!25 = metadata !{i32 5, i32 0, i32 1024, metadata !26}
+!26 = metadata !{i32 0, i32* @Usca_typeProxy, i32 3, i1 true, i1 false, i32 2}
+!27 = metadata !{metadata !"Scas", i32 12, i32* @Scas_typeProxy, metadata !28}
+!28 = metadata !{i32 5, i32 0, i32 1024, metadata !29}
+!29 = metadata !{i32 0, i32* @Scas_typeProxy, i32 3, i1 true, i1 true, i32 0}
+!30 = metadata !{metadata !"sampC", i32 12, i32* @sampC_typeProxy, metadata !31}
+!31 = metadata !{i32 5, i32 0, i32 1024, metadata !32}
+!32 = metadata !{i32 0, i32* @sampC_typeProxy, i32 3, i1 false, i1 false, i32 0}
+!33 = metadata !{metadata !"bounds", i32 12, i32* @bounds_typeProxy, metadata !34}
+!34 = metadata !{i32 5, i32 0, i32 1024, metadata !35}
+!35 = metadata !{i32 0, i32* @bounds_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!36 = metadata !{metadata !"i", i32 1, <4 x float>* @i_shadow_typeProxy, metadata !37}
+!37 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
+!38 = metadata !{metadata !"gl_ClipDistance", i32 1, [4 x float]* @ClipDistance_shadow_typeProxy, metadata !39}
+!39 = metadata !{i32 0, i32 0, i32 1028, null, i32 1}
+!40 = metadata !{metadata !"fflat", i32 1, float* @fflat_shadow_typeProxy, metadata !41}
+!41 = metadata !{i32 0, i32 0, i32 1032, null, i32 0}
+!42 = metadata !{metadata !"fsmooth", i32 1, float* @fsmooth_shadow_typeProxy, metadata !43}
+!43 = metadata !{i32 0, i32 0, i32 1033, null, i32 1}
+!44 = metadata !{metadata !"fnop", i32 1, float* @fnop_shadow_typeProxy, metadata !45}
+!45 = metadata !{i32 0, i32 0, i32 1034, null, i32 2}
+!46 = metadata !{metadata !"gl_Color", i32 1, <4 x float>* @Color_shadow_typeProxy, metadata !47}
+!47 = metadata !{i32 0, i32 0, i32 1035, null, i32 1}
+!48 = metadata !{metadata !"main", i32 15}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+
+@samp2D = external addrspace(1) constant i32
+@samp2DA = external addrspace(1) constant i32
+@samp2DR = external addrspace(1) constant i32
+@samp2DS = external addrspace(1) constant i32
+@Sca = external addrspace(1) constant i32
+@Isca = external addrspace(1) constant i32
+@Usca = external addrspace(1) constant i32
+@Scas = external addrspace(1) constant i32
+@sampC = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %0 = load i32 addrspace(1)* @sampC, align 4, !gla.uniform !30
+  %o_shadow = call <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32 4, i32 %0, i32 0, <3 x float> <float 0x3FC99999A0000000, float 0x3FC99999A0000000, float 0x3FC99999A0000000>)
+  %gl_ClipDistance3 = call float @llvm.gla.fReadInterpolant.f32(i32 1031, i32 -1, i32 1), !gla.input !38
+  %1 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %o_shadow, i32 2, float undef, i32 undef, float %gl_ClipDistance3, i32 0, float undef, i32 undef, float undef, i32 undef)
+  %2 = load i32 addrspace(1)* @samp2D, align 4, !gla.uniform !6
+  %3 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.v2i32(i32 2, i32 %2, i32 256, <2 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000>, float undef, float undef, <2 x i32> <i32 1, i32 1>)
+  %o_shadow.i = fadd <4 x float> %1, %3
+  %4 = load i32 addrspace(1)* @samp2DA, align 4, !gla.uniform !9
+  %5 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v3f32.v2i32(i32 2, i32 %4, i32 272, <3 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000, float 0x3FD3333340000000>, float undef, float undef, <2 x i32> <i32 1, i32 1>)
+  %o_shadow1.i = fadd <4 x float> %o_shadow.i, %5
+  %o_shadow.i6 = fadd <4 x float> %o_shadow1.i, %3
+  %o_shadow1.i7 = fadd <4 x float> %o_shadow.i6, %5
+  %6 = load i32 addrspace(1)* @samp2DR, align 4, !gla.uniform !12
+  %7 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.v2i32(i32 5, i32 %6, i32 256, <2 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000>, float undef, float undef, <2 x i32> <i32 1, i32 1>)
+  %o_shadow2.i = fadd <4 x float> %o_shadow1.i7, %7
+  %8 = load i32 addrspace(1)* @samp2DS, align 4, !gla.uniform !15
+  %9 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.f32(i32 2, i32 %8, i32 394, <2 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000>, <2 x i32> <i32 1, i32 1>, float undef, float 0x3FF4CCCCC0000000)
+  %o_shadow3.i = fadd <4 x float> %o_shadow2.i, %9
+  %10 = call <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.v2i32(i32 2, i32 %2, i32 386, <2 x float> <float 0x3FD3333340000000, float 0x3FD3333340000000>, i32 2, float undef, <2 x i32> <i32 1, i32 1>)
+  %o_shadow4.i = fadd <4 x float> %o_shadow3.i, %10
+  %11 = load i32 addrspace(1)* @Sca, align 4, !gla.uniform !18
+  %io_shadow.i = call <3 x i32> @llvm.gla.queryTextureSize.v3i32(i32 4, i32 %11, i32 3)
+  %i.i = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !36
+  %12 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32 4, i32 %11, i32 16, <4 x float> %i.i)
+  %o_shadow.i5 = fadd <4 x float> %12, %o_shadow4.i
+  %13 = load i32 addrspace(1)* @Isca, align 4, !gla.uniform !21
+  %14 = call <4 x i32> @llvm.gla.textureSampleLodRefZ.v4i32.v4f32(i32 3, i32 %13, i32 146, <4 x float> %i.i, float 0x3FE6666660000000, float undef)
+  %15 = call <3 x i32> @llvm.gla.swizzle.v3i32.v4i32.v3i32(<4 x i32> %14, <3 x i32> <i32 0, i32 1, i32 2>)
+  %io_shadow2.i = add <3 x i32> %io_shadow.i, %15
+  %16 = load i32 addrspace(1)* @Usca, align 4, !gla.uniform !24
+  %uo_shadow.i = call <4 x i32> @llvm.gla.textureSample.v4i32.v4f32(i32 4, i32 %16, i32 16, <4 x float> %i.i)
+  %17 = call <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32 4, i32 %11, i32 148, <4 x float> %i.i, float 0x3FFB333340000000, float undef)
+  %o_shadow5.i = fadd <4 x float> %17, %o_shadow.i5
+  %18 = load i32 addrspace(1)* @Scas, align 4, !gla.uniform !27
+  %19 = call <3 x i32> @llvm.gla.queryTextureSize.v3i32(i32 4, i32 %18, i32 3)
+  %a.i = sitofp <3 x i32> %19 to <3 x float>
+  %20 = extractelement <4 x float> %i.i, i32 1
+  %f8.i = call float @llvm.gla.fTextureSampleLodRefZ.f32.v4f32(i32 4, i32 %18, i32 154, <4 x float> %i.i, float %20, float undef)
+  %c10.i = call <4 x i32> @llvm.gla.textureSampleLodRefZOffsetGrad.v4i32.v4f32.i32.v3f32.v3f32(i32 3, i32 %13, i32 16, <4 x float> %i.i, float undef, float undef, i32 undef, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, <3 x float> <float 0x3FC99999A0000000, float 0x3FC99999A0000000, float 0x3FC99999A0000000>)
+  %21 = extractelement <4 x i32> %c10.i, i32 0
+  %.rhs = sitofp i32 %21 to float
+  %22 = fadd float %f8.i, %.rhs
+  %23 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> undef, i32 15, <3 x float> %a.i, i32 0, <3 x float> %a.i, i32 1, <3 x float> %a.i, i32 2, float %22, i32 0)
+  %o_shadow11.i = fadd <4 x float> %o_shadow5.i, %23
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %o_shadow11.i), !gla.output !0
+  call void @llvm.gla.writeData.v3i32(i32 1025, i32 -1, <3 x i32> %io_shadow2.i), !gla.output !2
+  call void @llvm.gla.writeData.v4i32(i32 1027, i32 -1, <4 x i32> %uo_shadow.i), !gla.output !4
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.v2i32(i32, i32, i32, <2 x float>, float, float, <2 x i32>) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v3f32.v2i32(i32, i32, i32, <3 x float>, float, float, <2 x i32>) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZOffset.v4f32.v2f32.f32(i32, i32, i32, <2 x float>, float, float, float) #0
+
+; Function Attrs: nounwind readnone
+declare <3 x i32> @llvm.gla.queryTextureSize.v3i32(i32, i32, i32) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v4f32(i32, i32, i32, <4 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSampleLodRefZ.v4i32.v4f32(i32, i32, i32, <4 x float>, float, float) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSample.v4i32.v4f32(i32, i32, i32, <4 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSampleLodRefZ.v4f32.v4f32(i32, i32, i32, <4 x float>, float, float) #0
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fTextureSampleLodRefZ.f32.v4f32(i32, i32, i32, <4 x float>, float, float) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSampleLodRefZOffsetGrad.v4i32.v4f32.i32.v3f32.v3f32(i32, i32, i32, <4 x float>, float, float, i32, <3 x float>, <3 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v3f32(i32, i32, i32, <3 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
+
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
+
+; Function Attrs: nounwind
+declare void @llvm.gla.writeData.v3i32(i32, i32, <3 x i32>) #1
+
+; Function Attrs: nounwind
+declare void @llvm.gla.writeData.v4i32(i32, i32, <4 x i32>) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float>, i32, <3 x float>, i32, <3 x float>, i32, <3 x float>, i32, float, i32) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
+
+; Function Attrs: nounwind readnone
+declare <3 x i32> @llvm.gla.swizzle.v3i32.v4i32.v3i32(<4 x i32>, <3 x i32>) #0
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
+
+!gla.outputs = !{!0, !2, !4}
+!gla.uniforms = !{!6, !9, !12, !15, !18, !21, !24, !27, !30, !33}
+!gla.inputs = !{!36, !38, !40, !42, !44, !46}
+!gla.entrypoint = !{!48}
+!gla.noStaticUse = !{!40, !42, !44, !46, !33}
+
+!0 = metadata !{metadata !"o", i32 7, <4 x float>* @o_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!2 = metadata !{metadata !"io", i32 7, <3 x i32>* @io_shadow_typeProxy, metadata !3}
+!3 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!4 = metadata !{metadata !"uo", i32 7, <4 x i32>* @uo_shadow_typeProxy, metadata !5}
+!5 = metadata !{i32 1, i32 0, i32 1027, null, i32 0}
+!6 = metadata !{metadata !"samp2D", i32 12, i32* @samp2D_typeProxy, metadata !7}
+!7 = metadata !{i32 5, i32 0, i32 1024, metadata !8}
+!8 = metadata !{i32 0, i32* @samp2D_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!9 = metadata !{metadata !"samp2DA", i32 12, i32* @samp2DA_typeProxy, metadata !10}
+!10 = metadata !{i32 5, i32 0, i32 1024, metadata !11}
+!11 = metadata !{i32 0, i32* @samp2DA_typeProxy, i32 1, i1 true, i1 false, i32 0}
+!12 = metadata !{metadata !"samp2DR", i32 12, i32* @samp2DR_typeProxy, metadata !13}
+!13 = metadata !{i32 5, i32 0, i32 1024, metadata !14}
+!14 = metadata !{i32 0, i32* @samp2DR_typeProxy, i32 4, i1 false, i1 false, i32 0}
+!15 = metadata !{metadata !"samp2DS", i32 12, i32* @samp2DS_typeProxy, metadata !16}
+!16 = metadata !{i32 5, i32 0, i32 1024, metadata !17}
+!17 = metadata !{i32 0, i32* @samp2DS_typeProxy, i32 1, i1 false, i1 true, i32 0}
+!18 = metadata !{metadata !"Sca", i32 12, i32* @Sca_typeProxy, metadata !19}
+!19 = metadata !{i32 5, i32 0, i32 1024, metadata !20}
+!20 = metadata !{i32 0, i32* @Sca_typeProxy, i32 3, i1 true, i1 false, i32 0}
+!21 = metadata !{metadata !"Isca", i32 12, i32* @Isca_typeProxy, metadata !22}
+!22 = metadata !{i32 5, i32 0, i32 1024, metadata !23}
+!23 = metadata !{i32 0, i32* @Isca_typeProxy, i32 2, i1 true, i1 false, i32 1}
+!24 = metadata !{metadata !"Usca", i32 12, i32* @Usca_typeProxy, metadata !25}
+!25 = metadata !{i32 5, i32 0, i32 1024, metadata !26}
+!26 = metadata !{i32 0, i32* @Usca_typeProxy, i32 3, i1 true, i1 false, i32 2}
+!27 = metadata !{metadata !"Scas", i32 12, i32* @Scas_typeProxy, metadata !28}
+!28 = metadata !{i32 5, i32 0, i32 1024, metadata !29}
+!29 = metadata !{i32 0, i32* @Scas_typeProxy, i32 3, i1 true, i1 true, i32 0}
+!30 = metadata !{metadata !"sampC", i32 12, i32* @sampC_typeProxy, metadata !31}
+!31 = metadata !{i32 5, i32 0, i32 1024, metadata !32}
+!32 = metadata !{i32 0, i32* @sampC_typeProxy, i32 3, i1 false, i1 false, i32 0}
+!33 = metadata !{metadata !"bounds", i32 12, i32* @bounds_typeProxy, metadata !34}
+!34 = metadata !{i32 5, i32 0, i32 1024, metadata !35}
+!35 = metadata !{i32 0, i32* @bounds_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!36 = metadata !{metadata !"i", i32 1, <4 x float>* @i_shadow_typeProxy, metadata !37}
+!37 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
+!38 = metadata !{metadata !"gl_ClipDistance", i32 1, [4 x float]* @ClipDistance_shadow_typeProxy, metadata !39}
+!39 = metadata !{i32 0, i32 0, i32 1028, null, i32 1}
+!40 = metadata !{metadata !"fflat", i32 1, float* @fflat_shadow_typeProxy, metadata !41}
+!41 = metadata !{i32 0, i32 0, i32 1032, null, i32 0}
+!42 = metadata !{metadata !"fsmooth", i32 1, float* @fsmooth_shadow_typeProxy, metadata !43}
+!43 = metadata !{i32 0, i32 0, i32 1033, null, i32 1}
+!44 = metadata !{metadata !"fnop", i32 1, float* @fnop_shadow_typeProxy, metadata !45}
+!45 = metadata !{i32 0, i32 0, i32 1034, null, i32 2}
+!46 = metadata !{metadata !"gl_Color", i32 1, <4 x float>* @Color_shadow_typeProxy, metadata !47}
+!47 = metadata !{i32 0, i32 0, i32 1035, null, i32 1}
+!48 = metadata !{metadata !"main", i32 15}
+#version 130
+// LunarGOO output
+#extension GL_ARB_gpu_shader5 : enable
+#extension GL_ARB_shading_language_420pack : enable
+#extension GL_ARB_texture_cube_map_array : enable
+#extension GL_ARB_texture_gather : enable
+#extension GL_ARB_texture_rectangle : enable
+uniform sampler2D samp2D;
+uniform sampler2DArray samp2DA;
+uniform samplerRect samp2DR;
+uniform sampler2DShadow samp2DS;
+uniform samplerCubeArray Sca;
+uniform isampler3DArray Isca;
+uniform usamplerCubeArray Usca;
+uniform samplerCubeArrayShadow Scas;
+uniform samplerCube sampC;
+uniform sampler2D bounds;
+in vec4 i;
+flat in float fflat;
+in float fsmooth;
+noperspective in float fnop;
+out vec4 o;
+out ivec3 io;
+out uvec4 uo;
+const vec3 const22 = vec3(0.2);
+const vec2 const25 = vec2(0.3);
+const ivec2 const26 = ivec2(1);
+const vec3 const29 = vec3(0.3);
+const float const36 = 1.3;
+const int const39i_2 = 2;
+const int const42i_3 = 3;
+const float const46 = 0.7;
+const float const51 = 1.7;
+const vec3 const57 = vec3(0.1);
+
+void main()
+{
+    vec4 o_shadow = texture(sampC, const22);
+    vec4 temp23 = o_shadow;
+    temp23.y = gl_ClipDistance[3];
+    vec4 temp24 = textureOffset(samp2D, const25, const26);
+    vec4 o_shadowdi = temp23 + temp24;
+    vec4 temp28 = textureOffset(samp2DA, const29, const26);
+    vec4 o_shadow1di = o_shadowdi + temp28;
+    vec4 o_shadowdi6 = o_shadow1di + temp24;
+    vec4 o_shadow1di7 = o_shadowdi6 + temp28;
+    vec4 temp33 = textureOffset(samp2DR, const25, const26);
+    vec4 o_shadow2di = o_shadow1di7 + temp33;
+    vec4 temp35 = shadow2DOffset(samp2DS, const25, const36, const26);
+    vec4 o_shadow3di = o_shadow2di + temp35;
+    vec4 temp38 = textureOffset(samp2D, const25, const26, const39i_2);
+    vec4 o_shadow4di = o_shadow3di + temp38;
+    ivec3 io_shadowdi = textureSize(Sca, const42i_3);
+    vec4 temp43 = texture(Sca, i);
+    vec4 o_shadowdi5 = temp43 + o_shadow4di;
+    ivec4 temp45 = texture(Isca, i, const46);
+    ivec3 temp47 = ivec3(temp45);
+    ivec3 io_shadow2di = io_shadowdi + temp47;
+    ivec4 uo_shadowdi = ivec4(texture(Usca, i));
+    vec4 temp50 = textureLod(Sca, i, const51);
+    vec4 o_shadow5di = temp50 + o_shadowdi5;
+    ivec3 temp53 = textureSize(Scas, const42i_3);
+    vec3 adi = vec3(temp53);
+    float temp55 = texture(Scas, i, i.y);
+    ivec4 temp56 = textureGrad(Isca, i, const57, const22);
+    float drhs = float(temp56.x);
+    float temp59 = temp55 + drhs;
+    vec4 temp60 = vec4(adi.x, adi.y, adi.z, temp59);
+    vec4 o_shadow11di = o_shadow5di + temp60;
+    o = o_shadow11di;
+    io = io_shadow2di;
+    uo = uvec4(uo_shadowdi);
+    
+}
+
+
+tempglsl.frag
+Warning, version 130 is not yet complete; most features are present, but a few are missing.
+WARNING: 0:3: '#extension' : extension is only partially supported: GL_ARB_gpu_shader5
+WARNING: 0:4: '#extension' : extension is only partially supported: GL_ARB_shading_language_420pack
+ERROR: 0:10: '' :  syntax error
+ERROR: 1 compilation errors.  No code generated.
+
+

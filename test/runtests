@@ -13,11 +13,6 @@ Usage: ./run [options]
          -v --verbose              Prints more info
 "
 
-# put this back when full stack is LLVM 3.2:
-#       forLoop.frag            \
-#       loops.frag              \
-#       doWhileLoop.frag        \
-
 # Add more tests here as they are created
 TESTS=(test.frag               \
        flowControl.frag        \
@@ -76,6 +71,15 @@ TESTS=(test.frag               \
 	   doWhileLoop.frag        \
 	   loops.frag              \
 	   forLoop.frag            \
+	   130.frag                \
+	   140.frag                \
+	   150.vert                \
+	   400.frag                \
+	   400.tesc                \
+	   400.tese                \
+	   420.geom                \
+	   430.vert                \
+	   nonSquare.vert          \
       )
 
 # $1 is the test

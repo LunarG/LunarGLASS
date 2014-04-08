@@ -1,0 +1,204 @@
+
+Top IR:
+; ModuleID = 'Glslang'
+
+@o_shadow = internal global <4 x float> zeroinitializer
+@ClipDistance_shadow = internal global [5 x float] zeroinitializer
+@i_shadow = internal global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %constructed = alloca i32
+  %gl_ClipDistance = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !3
+  store float %gl_ClipDistance, float* getelementptr inbounds ([5 x float]* @ClipDistance_shadow, i32 0, i32 0)
+  %gl_ClipDistance1 = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !gla.input !3
+  store float %gl_ClipDistance1, float* getelementptr inbounds ([5 x float]* @ClipDistance_shadow, i32 0, i32 1)
+  %gl_ClipDistance2 = call float @llvm.gla.fReadInterpolant.f32(i32 1027, i32 -1, i32 1), !gla.input !3
+  store float %gl_ClipDistance2, float* getelementptr inbounds ([5 x float]* @ClipDistance_shadow, i32 0, i32 2)
+  %gl_ClipDistance3 = call float @llvm.gla.fReadInterpolant.f32(i32 1028, i32 -1, i32 1), !gla.input !3
+  store float %gl_ClipDistance3, float* getelementptr inbounds ([5 x float]* @ClipDistance_shadow, i32 0, i32 3)
+  %gl_ClipDistance4 = call float @llvm.gla.fReadInterpolant.f32(i32 1029, i32 -1, i32 1), !gla.input !3
+  store float %gl_ClipDistance4, float* getelementptr inbounds ([5 x float]* @ClipDistance_shadow, i32 0, i32 4)
+  %0 = load float* getelementptr inbounds ([5 x float]* @ClipDistance_shadow, i32 0, i32 2)
+  %1 = load <4 x float>* @o_shadow
+  %o_shadow = insertelement <4 x float> %1, float %0, i32 1
+  store <4 x float> %o_shadow, <4 x float>* @o_shadow
+  %gl_ClipDistance5 = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !3
+  store float %gl_ClipDistance5, float* getelementptr inbounds ([5 x float]* @ClipDistance_shadow, i32 0, i32 0)
+  %gl_ClipDistance6 = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !gla.input !3
+  store float %gl_ClipDistance6, float* getelementptr inbounds ([5 x float]* @ClipDistance_shadow, i32 0, i32 1)
+  %gl_ClipDistance7 = call float @llvm.gla.fReadInterpolant.f32(i32 1027, i32 -1, i32 1), !gla.input !3
+  store float %gl_ClipDistance7, float* getelementptr inbounds ([5 x float]* @ClipDistance_shadow, i32 0, i32 2)
+  %gl_ClipDistance8 = call float @llvm.gla.fReadInterpolant.f32(i32 1028, i32 -1, i32 1), !gla.input !3
+  store float %gl_ClipDistance8, float* getelementptr inbounds ([5 x float]* @ClipDistance_shadow, i32 0, i32 3)
+  %gl_ClipDistance9 = call float @llvm.gla.fReadInterpolant.f32(i32 1029, i32 -1, i32 1), !gla.input !3
+  store float %gl_ClipDistance9, float* getelementptr inbounds ([5 x float]* @ClipDistance_shadow, i32 0, i32 4)
+  %i = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1030, i32 -1, i32 1), !gla.input !5
+  store <4 x float> %i, <4 x float>* @i_shadow
+  %2 = load <4 x float>* @i_shadow
+  %3 = fptosi <4 x float> %2 to <4 x i32>
+  %4 = load i32* %constructed
+  %5 = extractelement <4 x i32> %3, i32 0
+  %6 = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 %5
+  %7 = load float* %6
+  %8 = load <4 x float>* @o_shadow
+  %o_shadow10 = insertelement <4 x float> %8, float %7, i32 2
+  store <4 x float> %o_shadow10, <4 x float>* @o_shadow
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  %9 = load <4 x float>* @o_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %9), !gla.output !1
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
+
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
+
+!gla.entrypoint = !{!0}
+!gla.outputs = !{!1}
+!gla.inputs = !{!3, !5}
+
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"o", i32 7, <4 x float>* @o_shadow_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!3 = metadata !{metadata !"gl_ClipDistance", i32 1, [5 x float]* @ClipDistance_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
+!5 = metadata !{metadata !"i", i32 1, <4 x float>* @i_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1030, null, i32 1}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+
+@ClipDistance_shadow = internal unnamed_addr global [5 x float] zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %gl_ClipDistance = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !3
+  %gla_constGEP = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 0
+  store float %gl_ClipDistance, float* %gla_constGEP, align 16
+  %gl_ClipDistance1 = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !gla.input !3
+  %gla_constGEP12 = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 1
+  store float %gl_ClipDistance1, float* %gla_constGEP12, align 4
+  %gl_ClipDistance2 = call float @llvm.gla.fReadInterpolant.f32(i32 1027, i32 -1, i32 1), !gla.input !3
+  %gla_constGEP13 = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 2
+  store float %gl_ClipDistance2, float* %gla_constGEP13, align 8
+  %gl_ClipDistance3 = call float @llvm.gla.fReadInterpolant.f32(i32 1028, i32 -1, i32 1), !gla.input !3
+  %gla_constGEP14 = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 3
+  store float %gl_ClipDistance3, float* %gla_constGEP14, align 4
+  %gl_ClipDistance4 = call float @llvm.gla.fReadInterpolant.f32(i32 1029, i32 -1, i32 1), !gla.input !3
+  %gla_constGEP15 = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 0
+  store float %gl_ClipDistance, float* %gla_constGEP15, align 16
+  %gla_constGEP16 = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 1
+  store float %gl_ClipDistance1, float* %gla_constGEP16, align 4
+  %gla_constGEP17 = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 2
+  store float %gl_ClipDistance2, float* %gla_constGEP17, align 8
+  %gla_constGEP18 = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 3
+  store float %gl_ClipDistance3, float* %gla_constGEP18, align 4
+  %gla_constGEP19 = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 4
+  store float %gl_ClipDistance4, float* %gla_constGEP19, align 16
+  %i = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1030, i32 -1, i32 1), !gla.input !5
+  %0 = extractelement <4 x float> %i, i32 0
+  %1 = fptosi float %0 to i32
+  %2 = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 %1
+  %3 = load float* %2, align 4
+  %4 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> <float 0.000000e+00, float undef, float undef, float 0.000000e+00>, i32 6, float undef, i32 undef, float %gl_ClipDistance2, i32 0, float %3, i32 0, float undef, i32 undef)
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %4), !gla.output !1
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
+
+; Function Attrs: nounwind
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
+
+!gla.entrypoint = !{!0}
+!gla.outputs = !{!1}
+!gla.inputs = !{!3, !5}
+
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"o", i32 7, <4 x float>* @o_shadow_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!3 = metadata !{metadata !"gl_ClipDistance", i32 1, [5 x float]* @ClipDistance_shadow_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
+!5 = metadata !{metadata !"i", i32 1, <4 x float>* @i_shadow_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1030, null, i32 1}
+
+***Unsupported functionality: missing metadata on load 0 ClipDistance_shadow
+#version 140
+// LunarGOO output
+in vec4 i;
+out vec4 o;
+float ClipDistance_shadow[5];
+const vec4 const23 = vec4(0.0, 0.0, 0.0, 0.0);
+
+void main()
+{
+    ClipDistance_shadow[0] = gl_ClipDistance[0];
+    ClipDistance_shadow[1] = gl_ClipDistance[1];
+    ClipDistance_shadow[2] = gl_ClipDistance[2];
+    ClipDistance_shadow[3] = gl_ClipDistance[3];
+    ClipDistance_shadow[0] = gl_ClipDistance[0];
+    ClipDistance_shadow[1] = gl_ClipDistance[1];
+    ClipDistance_shadow[2] = gl_ClipDistance[2];
+    ClipDistance_shadow[3] = gl_ClipDistance[3];
+    ClipDistance_shadow[4] = gl_ClipDistance[4];
+    int temp21 = int(i.x);
+    vec4 temp22 = const23;
+    temp22.yz = vec2(gl_ClipDistance[2], ClipDistance_shadow[temp21]);
+    o = temp22;
+    
+}
+
+
+#version 140
+// LunarGOO output
+in vec4 i;
+out vec4 o;
+float ClipDistance_shadow[5];
+const vec4 const23 = vec4(0.0, 0.0, 0.0, 0.0);
+
+void main()
+{
+    ClipDistance_shadow[0] = gl_ClipDistance[0];
+    ClipDistance_shadow[1] = gl_ClipDistance[1];
+    ClipDistance_shadow[2] = gl_ClipDistance[2];
+    ClipDistance_shadow[3] = gl_ClipDistance[3];
+    ClipDistance_shadow[4] = gl_ClipDistance[4];
+    int temp2145 = int(i.x);
+    vec4 temp22 = const23;
+    temp22.yz = vec2(gl_ClipDistance[2], ClipDistance_shadow[temp2145]);
+    o = temp22;
+    
+}
+
+

@@ -46,4 +46,5 @@ void main()
     mat4 inv4 = inverse(um4);
     FragColor *= inv4;
 
+    FragColor = vec4(FragColor * matrixCompMult(un34, un34), FragColor.w);
 }
