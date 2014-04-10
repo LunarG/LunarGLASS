@@ -748,6 +748,14 @@ bool NeedsOffsetArg(const llvm::IntrinsicInst* llvmInstruction)
     return (texFlags & ETFOffsetArg) != 0;
 }
 
+bool NeedsComponentArg(const llvm::IntrinsicInst* llvmInstruction)
+{
+    // Check flags for component arg
+    int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
+
+    return (texFlags & ETFComponentArg) != 0;
+}
+
 void MakeParseable(std::string& name)
 {
     // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
@@ -1840,6 +1848,8 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     EMdPrecision precision = GetPrecision(llvmInstruction);
 
     // Handle texturing
+    bool gather = false;
+    bool refZemitted = false;
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_queryTextureSize:
 
@@ -1869,6 +1879,14 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     //case llvm::Intrinsic::gla_queryTextureLevels:
     // TODO: Goo: 430 Functionality: textureQueryLevels()
 
+    case llvm::Intrinsic::gla_texelGather:
+    case llvm::Intrinsic::gla_fTexelGather:
+    case llvm::Intrinsic::gla_texelGatherOffset:
+    case llvm::Intrinsic::gla_fTexelGatherOffset:
+    case llvm::Intrinsic::gla_texelGatherOffsets:
+    case llvm::Intrinsic::gla_fTexelGatherOffsets:
+        gather = true;
+        // fall through
     case llvm::Intrinsic::gla_textureSample:
     case llvm::Intrinsic::gla_fTextureSample:
     case llvm::Intrinsic::gla_rTextureSample1:
@@ -1911,12 +1929,6 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     case llvm::Intrinsic::gla_fRTextureSampleLodRefZOffsetGrad4:
     case llvm::Intrinsic::gla_texelFetchOffset:
     case llvm::Intrinsic::gla_fTexelFetchOffset:
-    case llvm::Intrinsic::gla_texelGather:
-    case llvm::Intrinsic::gla_fTexelGather:
-    case llvm::Intrinsic::gla_texelGatherOffset:
-    case llvm::Intrinsic::gla_fTexelGatherOffset:
-    case llvm::Intrinsic::gla_texelGatherOffsets:
-    case llvm::Intrinsic::gla_fTexelGatherOffsets:
     {
         newLine();
         emitGlaValue(llvmInstruction);
@@ -1929,7 +1941,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         shader << ", ";
 
-        if(NeedsShadowRefZArg(llvmInstruction)) {
+        if(NeedsShadowRefZArg(llvmInstruction) && ! gather) {
 
             // Construct a new vector of size coords+1 to hold coords and shadow ref
             int coordWidth = gla::GetComponentCount(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
@@ -1954,7 +1966,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
 
             shader << ", ";
 
-            // Insert unused channel for 1D coordinate
+            // Insert unused 2nd channel for 1D coordinate
             if (buffer > 0)
                 shader << "0, ";
 
@@ -1963,8 +1975,15 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETORefZ)));
 
             shader << ")";
+
+            refZemitted = true;
         } else {
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
+        }
+        
+        if ((! refZemitted) && NeedsShadowRefZArg(llvmInstruction)) {
+            shader << ", ";
+            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETORefZ)));
         }
 
         if(NeedsLodArg(llvmInstruction)) {
@@ -1987,6 +2006,12 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         if(NeedsBiasArg(llvmInstruction)) {
             shader << ", ";
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBiasLod)));
+        }
+
+        if (NeedsComponentArg(llvmInstruction)) {
+            shader << ", ";
+            // TODO: textureGather*() with 'comp' argument rather than RefZ arg: seems missing in the .td file
+            shader << "compNotDone";
         }
 
         if (needConversion)
@@ -2379,6 +2404,8 @@ void gla::GlslTarget::emitGlaSampler(const llvm::IntrinsicInst* llvmInstruction,
         shader << "Lod";
     if (IsGradientTexInst(llvmInstruction))
         shader << "Grad";
+    if (texFlags & ETFGather)
+        shader << "Gather";
     if (texFlags & ETFOffsetArg)
         shader << "Offset";
 }

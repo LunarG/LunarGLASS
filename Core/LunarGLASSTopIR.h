@@ -106,6 +106,8 @@ namespace gla {
         if (operand == ETORefZ)
             return ETOCoord + numComps + 1;
 
+        // TODO: SoA textureGather*(), component might be the same as re-using an overloaded RefZ
+
         return ETOCoord + numComps + 1 + (operand - ETOOffset) * numComps + comp;
     }
 

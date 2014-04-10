@@ -22,7 +22,7 @@ entry:
   %1 = load <3 x float>* getelementptr inbounds (%S* @s_shadow, i32 0, i32 0)
   %c_shadow = fadd <3 x float> %0, %1, !gla.precision !15
   store <3 x float> %c_shadow, <3 x float>* @c_shadow
-  %pos = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !13, !gla.precision !15
+  %pos = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !gla.input !13, !gla.precision !15
   store <4 x float> %pos, <4 x float>* @pos_shadow
   %2 = load <4 x float>* @pos_shadow
   %s2 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !gla.input !7, !gla.precision !15
@@ -85,7 +85,7 @@ attributes #1 = { nounwind }
 !11 = metadata !{metadata !"", metadata !12}
 !12 = metadata !{i32 0, i32 2, i32 1024, null}
 !13 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_shadow_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 2, i32 1026, null, i32 1}
+!14 = metadata !{i32 0, i32 2, i32 1027, null, i32 1}
 !15 = metadata !{i32 2}
 
 
@@ -99,7 +99,7 @@ entry:
   %s = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !gla.input !7, !gla.precision !15
   %s1 = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !gla.input !7, !gla.precision !15
   %0 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %s1, <4 x i32> zeroinitializer)
-  %pos = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1026, i32 -1, i32 1), !gla.input !13, !gla.precision !15
+  %pos = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !gla.input !13, !gla.precision !15
   %1 = fmul <4 x float> %pos, %0, !gla.precision !15
   %gla_constGEP = getelementptr [2 x <4 x float>]* @p_shadow, i32 0, i32 1
   store <4 x float> %1, <4 x float>* %gla_constGEP, align 16
@@ -157,7 +157,7 @@ attributes #1 = { nounwind }
 !11 = metadata !{metadata !"", metadata !12}
 !12 = metadata !{i32 0, i32 2, i32 1024, null}
 !13 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_shadow_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 2, i32 1026, null, i32 1}
+!14 = metadata !{i32 0, i32 2, i32 1027, null, i32 1}
 !15 = metadata !{i32 2}
 
 ***Unsupported functionality: missing metadata on load 0 p_shadow

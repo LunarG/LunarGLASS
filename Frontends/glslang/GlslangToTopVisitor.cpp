@@ -78,7 +78,7 @@
 //
 class TGlslangToTopTraverser : public glslang::TIntermTraverser {
 public:
-    TGlslangToTopTraverser(gla::Manager*);
+    TGlslangToTopTraverser(gla::Manager*, glslang::TIntermediate*);
     virtual ~TGlslangToTopTraverser();
 
     bool visitAggregate(glslang::TVisit, glslang::TIntermAggregate*);
@@ -133,6 +133,7 @@ protected:
     bool inMain;
     bool mainTerminated;
     bool linkageOnly;
+    glslang::TIntermediate* glslangIntermediate; // N.B.: this is only available when using the new C++ glslang interface path
 
     std::map<int, llvm::Value*> symbolValues;
     std::map<std::string, llvm::Function*> functionMap;
@@ -304,11 +305,12 @@ void GetInterpolationLocationMethod(const glslang::TType& type, gla::EInterpolat
 // this is just a back up size.
 const int UnknownArraySize = 8;
 
-TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager)
+TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager, glslang::TIntermediate* glslangIntermediate)
     : TIntermTraverser(true, false, true),
       context(llvm::getGlobalContext()), shaderEntry(0), llvmBuilder(context),
       module(manager->getModule()), metadata(context, module),
-      nextSlot(gla::MaxUserLayoutLocation), inMain(false), mainTerminated(false), linkageOnly(false)
+      nextSlot(gla::MaxUserLayoutLocation), inMain(false), mainTerminated(false), linkageOnly(false),
+      glslangIntermediate(glslangIntermediate)
 {
     // do this after the builder knows the module
     glaBuilder = new gla::Builder(llvmBuilder, manager, metadata);
@@ -1346,17 +1348,21 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
         if (node->getName().find("Proj", 0) != std::string::npos)
             texFlags |= gla::ETFProjected;
 
-        if (node->getName().find("Offset", 0) != std::string::npos) {
+        if (node->getName().find("Offset", 0) != std::string::npos)
             texFlags |= gla::ETFOffsetArg;
-        }
 
-        if (node->getName().find("Fetch", 0) != std::string::npos) {
+        if (node->getName().find("Fetch", 0) != std::string::npos)
             texFlags |= gla::ETFFetch;
-        }
 
         if (node->getSequence()[0]->getAsTyped()->getType().getSampler().shadow)
             texFlags |= gla::ETFShadow;
         
+        if (node->getName().find("Gather", 0) != std::string::npos) {
+            texFlags |= gla::ETFGather;
+            if (texFlags & gla::ETFShadow)
+                texFlags |= gla::ETFRefZArg;
+        }
+
         if (node->getSequence()[0]->getAsTyped()->getType().getSampler().ms)
             samplerType = gla::ESampler2D;
 
@@ -1364,7 +1370,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
             texFlags |= gla::ETFArrayed;
 
         // check for bias argument
-        if (! (texFlags & gla::ETFLod)) {
+        if (! (texFlags & gla::ETFLod) && ! (texFlags & gla::ETFGather)) {
             int nonBiasArgCount = 2;
             if (texFlags & gla::ETFOffsetArg)
                 ++nonBiasArgCount;
@@ -1379,7 +1385,14 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
             }
         }
 
-        // TODO: 4.0 functionality: handle 'compare' argument
+        // check for comp argument
+        if ((texFlags & gla::ETFGather) && ! (texFlags & gla::ETFShadow)) {
+            int nonCompArgCount = 2;
+            if (texFlags & gla::ETFOffsetArg)
+                ++nonCompArgCount;
+            if ((int)arguments.size() > nonCompArgCount)
+                texFlags |= gla::ETFComponentArg;
+        }
 
         // set the arguments        
         gla::Builder::TextureParameters params = {};
@@ -1395,8 +1408,16 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
             params.ETPGradY = arguments[3 + extraArgs];
             extraArgs += 2;
         }
+        if (texFlags & gla::ETFRefZArg) {
+            params.ETPShadowRef = arguments[2 + extraArgs];
+            ++extraArgs;
+        }
         if (texFlags & gla::ETFOffsetArg) {
             params.ETPOffset = arguments[2 + extraArgs];
+            ++extraArgs;
+        }
+        if (texFlags & gla::ETFComponentArg) {
+            params.ETPShadowRef = arguments[2 + extraArgs];  //?? okay to overload ETPShadowRef?
             ++extraArgs;
         }
         if (texFlags & gla::ETFBias) {
@@ -2177,9 +2198,16 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
 
 int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input)
 {
-    int numSlots = 1;
-    if (node->getType().isArray())
-        numSlots = node->getType().getArraySize();
+    int numSlots;
+    if (glslangIntermediate)
+        numSlots = glslangIntermediate->computeTypeLocationSize(node->getType());
+    else {
+        numSlots = 1;
+        if (node->getType().isArray())
+            numSlots = node->getType().getArraySize();
+        if (node->getType().isStruct() || node->getType().isMatrix() || node->getType().getBasicType() == glslang::EbtDouble)
+            gla::UnsupportedFunctionality("complex I/O type; use new glslang C++ interface", gla::EATContinue);
+    }
 
     // Get the index for this interpolant, or create a new unique one
     int slot;
@@ -2446,7 +2474,7 @@ void GlslangToTop(glslang::TIntermediate& intermediate, gla::Manager& manager)
     if (root == 0)
         return;
 
-    TGlslangToTopTraverser it(&manager);
+    TGlslangToTopTraverser it(&manager, &intermediate);
 
     root->traverse(&it);
 }
@@ -2457,7 +2485,7 @@ void GlslangToTop(TIntermNode* root, gla::Manager* manager)
     if (root == 0)
         return;
 
-    TGlslangToTopTraverser it(manager);
+    TGlslangToTopTraverser it(manager, 0);
 
     root->traverse(&it);
 }
