@@ -35,8 +35,6 @@ void bar3()
 
 void bar4()
 {
-    o += textureGatherOffset(samp2D, vec2(0.3), ivec2(1));
-    o += textureGatherOffset(samp2DA, vec3(0.3), ivec2(1));
     o += textureGatherOffset(samp2DR, vec2(0.3), ivec2(1));
     o += textureGatherOffset(samp2DS, vec2(0.3), 1.3, ivec2(1));
     o += textureGatherOffset(samp2D, vec2(0.3), ivec2(1), 2);

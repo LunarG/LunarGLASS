@@ -1416,11 +1416,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
             params.ETPOffset = arguments[2 + extraArgs];
             ++extraArgs;
         }
-        if (texFlags & gla::ETFComponentArg) {
-            params.ETPShadowRef = arguments[2 + extraArgs];  //?? okay to overload ETPShadowRef?
-            ++extraArgs;
-        }
-        if (texFlags & gla::ETFBias) {
+        if ((texFlags & gla::ETFBias) || (texFlags & gla::ETFComponentArg)) {
             params.ETPBiasLod = arguments[2 + extraArgs];
             ++extraArgs;
         }

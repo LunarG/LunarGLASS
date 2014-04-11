@@ -82,7 +82,7 @@ namespace gla {
         ETOSamplerLoc  = 1,
         ETOFlag        = 2,
         ETOCoord       = 3,
-        ETOBiasLod     = 4,
+        ETOBiasLod     = 4,  // Also holds the 'comp' argument for texel gather operations taking a component
         ETORefZ        = 5,
         ETOOffset      = 6,
         ETODPdx        = 7,

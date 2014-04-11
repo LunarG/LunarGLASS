@@ -2003,15 +2003,10 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOOffset)));
         }
 
-        if(NeedsBiasArg(llvmInstruction)) {
+        if(NeedsBiasArg(llvmInstruction) || NeedsComponentArg(llvmInstruction)) {
             shader << ", ";
+            // TODO: textureGather*() with 'comp' argument is missing in the .td file
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBiasLod)));
-        }
-
-        if (NeedsComponentArg(llvmInstruction)) {
-            shader << ", ";
-            // TODO: textureGather*() with 'comp' argument rather than RefZ arg: seems missing in the .td file
-            shader << "compNotDone";
         }
 
         if (needConversion)

@@ -318,7 +318,7 @@ public:
     // List of parameters used to create a texture intrinsic
     struct TextureParameters {
         llvm::Value* ETPCoords;
-        llvm::Value* ETPBiasLod;
+        llvm::Value* ETPBiasLod;       // Also holds the 'comp' argument for texel gather operations taking a component
         llvm::Value* ETPProj;
         llvm::Value* ETPOffset;
         llvm::Value* ETPShadowRef;

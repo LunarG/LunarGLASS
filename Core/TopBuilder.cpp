@@ -1407,37 +1407,37 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
 
     // Look at feature flags to determine which intrinsic is needed
     if (texFlags & ETFFetch) {
-
         intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelFetchOffset
                                     : llvm::Intrinsic::gla_texelFetchOffset;
-
     } else if (texFlags & ETFGather) {
-
-        intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelGather
-                                    : llvm::Intrinsic::gla_texelGather;
-
+        if (texFlags & ETFOffsetArg) {
+            if (parameters.ETPOffset->getType()->getTypeID() == llvm::Type::ArrayTyID) {
+                UnsupportedFunctionality("array of offsets for texture gather; need intrinsic that accepts this", EATContinue);
+                intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelGatherOffsets
+                                            : llvm::Intrinsic::gla_texelGatherOffsets;
+            } else
+                intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelGatherOffset
+                                            : llvm::Intrinsic::gla_texelGatherOffset;
+        } else {
+            intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelGather
+                                        : llvm::Intrinsic::gla_texelGather;
+        }
     } else if (parameters.ETPGradX || parameters.ETPGradY) {
-
         intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTextureSampleLodRefZOffsetGrad
                                     : llvm::Intrinsic::gla_textureSampleLodRefZOffsetGrad;
-
     } else if (texFlags & ETFOffsetArg) {
-
         intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTextureSampleLodRefZOffset
                                     : llvm::Intrinsic::gla_textureSampleLodRefZOffset;
-
     } else if (texFlags & ETFBias || texFlags & ETFLod || texFlags & ETFShadow) {
-
         intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTextureSampleLodRefZ
                                     : llvm::Intrinsic::gla_textureSampleLodRefZ;
     } else {
-
         intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTextureSample
                                     : llvm::Intrinsic::gla_textureSample;
     }
 
     // Set fields based on argument flags
-    if (texFlags & ETFBiasLodArg)
+    if (texFlags & ETFBiasLodArg || texFlags & ETFComponentArg)
         texArgs[GetTextureOpIndex(ETOBiasLod)] = parameters.ETPBiasLod;
 
     if (texFlags & ETFRefZArg)
@@ -1544,32 +1544,39 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
 
     case llvm::Intrinsic::gla_texelGather:
     case llvm::Intrinsic::gla_fTexelGather:
+    case llvm::Intrinsic::gla_texelGatherOffset:
+    case llvm::Intrinsic::gla_fTexelGatherOffset:
+    case llvm::Intrinsic::gla_texelGatherOffsets:
+    case llvm::Intrinsic::gla_fTexelGatherOffsets:
 
         // Component select resides in BiasLod field
-        numArgs = 6;
-
         if (! texArgs[GetTextureOpIndex(ETOBiasLod)])
             texArgs[GetTextureOpIndex(ETOBiasLod)] = llvm::UndefValue::get(GetIntType(context));
 
         if (! texArgs[GetTextureOpIndex(ETORefZ)])
             texArgs[GetTextureOpIndex(ETORefZ)]    = llvm::UndefValue::get(GetFloatType(context));
 
-        // If offset is defined, change the intrinsic
-        if (texArgs[GetTextureOpIndex(ETOOffset)]) {
-
-            intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelGatherOffset
-                                        : llvm::Intrinsic::gla_texelGatherOffset;
+        switch (intrinsicID) {
+        case llvm::Intrinsic::gla_texelGather:
+        case llvm::Intrinsic::gla_fTexelGather:
+            numArgs = 6;
+            intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType());
+            break;
+        case llvm::Intrinsic::gla_texelGatherOffset:
+        case llvm::Intrinsic::gla_fTexelGatherOffset:
             numArgs = 7;
-
+            intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType());
+            break;
+        case llvm::Intrinsic::gla_texelGatherOffsets:
+        case llvm::Intrinsic::gla_fTexelGatherOffsets:
+            numArgs = 7;
             intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(),
                                                               texArgs[GetTextureOpIndex(ETOOffset)]->getType());
-        } else {
-
-            texArgs[GetTextureOpIndex(ETOOffset)]  = llvm::UndefValue::get(GetIntType(context));
-
-            intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType());
+            break;
+        default:
+            assert(0);
+            break;                
         }
-
         break;
 
     default:
