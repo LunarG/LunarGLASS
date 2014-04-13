@@ -207,7 +207,9 @@ protected:
 
     void addStructType(std::ostringstream& out, llvm::StringRef name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block);
     bool addVariable(const llvm::Value* value, std::string& name);
-    void getNewVariableName(const llvm::Value* value, std::string* name);
+    void getNewVariableName(const llvm::Value* value, std::string& name);
+    void getNewVariableName(const char* base, std::string& name);
+    void getObfuscatedName(std::string& name);
     void mapExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str);
 
     void emitGlaIntrinsic(const llvm::IntrinsicInst*);
@@ -740,11 +742,12 @@ bool NeedsBiasArg(const llvm::IntrinsicInst* llvmInstruction)
     return (texFlags & ETFBiasLodArg) != 0 && (texFlags & ETFLod) == 0;
 }
 
-bool NeedsOffsetArg(const llvm::IntrinsicInst* llvmInstruction)
+bool NeedsOffsetArg(const llvm::IntrinsicInst* llvmInstruction, bool& offsets)
 {
     // Check flags for offset arg
     int texFlags = GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag)));
 
+    offsets = ((texFlags & ETFOffsets) != 0);
     return (texFlags & ETFOffsetArg) != 0;
 }
 
@@ -1738,63 +1741,80 @@ bool gla::GlslTarget::addVariable(const llvm::Value* value, std::string& name)
     }
 }
 
-void gla::GlslTarget::getNewVariableName(const llvm::Value* value, std::string* name)
+void gla::GlslTarget::getNewVariableName(const llvm::Value* value, std::string& name)
 {
     ++lastVariable;
     const size_t bufSize = 20;
     char buf[bufSize];
     if (obfuscate) {
-        int i;
-        for (i = 0; i <= lastVariable-4; i += 4) {
-            switch ((i/4) % 4) {
-            case 0:   name->append("x"); break;
-            case 1:   name->append("y"); break;
-            case 2:   name->append("z"); break;
-            case 3:   name->append("w"); break;
-            default:                     break;
-            }
-        }
-        switch (lastVariable - i) {
-        case 0:   name->append("x"); break;
-        case 1:   name->append("y"); break;
-        case 2:   name->append("z"); break;
-        case 3:   name->append("w"); break;
-        default:                     break;
-        }
+        getObfuscatedName(name);
     } else {
         if (IsTempName(value->getName())) {
-            name->append(MapGlaToQualifierString(version, stage, MapGlaAddressSpace(value)));
+            name.append(MapGlaToQualifierString(version, stage, MapGlaAddressSpace(value)));
             snprintf(buf, bufSize, "%d", lastVariable);
-            name->append(buf);
+            name.append(buf);
 
-            // If it's a constant int or float, make the name contain the
-            // value
+            // If it's a constant int or float, make the name contain the value.
             if (llvm::isa<llvm::ConstantInt>(value)) {
                 int val = GetConstantInt(value);
 
                 // If it's an i1, that is a bool, then have it say true or
                 // false, else have it have the integer value.
                 if (IsBoolean(value->getType())) {
-                    name->append("b_");
+                    name.append("b_");
                     snprintf(buf, bufSize, val ? "true" : "false");
                 } else {
-                    name->append("i_");
+                    name.append("i_");
                     snprintf(buf, bufSize, "%d", GetConstantInt(value));
                 }
 
-                name->append(buf);
-
+                name.append(buf);
             }
         } else {
-            name->append(value->getName());
+            name.append(value->getName());
         }
 
-        MakeParseable(*name);
+        MakeParseable(name);
 
         // Variables starting with gl_ are illegal in GLSL
-        if (name->substr(0,3) == std::string("gl_")) {
-            name->insert(0, "gla_");
+        if (name.substr(0,3) == std::string("gl_")) {
+            name.insert(0, "gla_");
         }
+    }
+}
+
+void gla::GlslTarget::getNewVariableName(const char* base, std::string& name)
+{
+    ++lastVariable;
+    const size_t bufSize = 20;
+    char buf[bufSize];
+    if (obfuscate) {
+        getObfuscatedName(name);
+    } else {
+        name.append(base);
+        snprintf(buf, bufSize, "%d", lastVariable);
+        name.append(buf);
+    }
+}
+
+void gla::GlslTarget::getObfuscatedName(std::string& name)
+{
+    int i;
+    for (i = 0; i <= lastVariable-4; i += 4) {
+        switch ((i/4) % 4) {
+        case 0:   name.append("x"); break;
+        case 1:   name.append("y"); break;
+        case 2:   name.append("z"); break;
+        case 3:   name.append("w"); break;
+        default:                    break;
+        }
+    }
+    switch (lastVariable - i) {
+    case 0:   name.append("x"); break;
+    case 1:   name.append("y"); break;
+    case 2:   name.append("z"); break;
+    case 3:   name.append("w"); break;
+    default:                    break;
     }
 }
 
@@ -1998,14 +2018,33 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETODPdy)));
         }
 
-        if (NeedsOffsetArg(llvmInstruction)) {
-            shader << ", ";
-            emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOOffset)));
+        bool offsets;
+        if (NeedsOffsetArg(llvmInstruction, offsets)) {
+            if (offsets) {
+
+                // declare a new const to hold the array (the array was lost when setting the intrinsic arguments)
+                std::string name;
+                getNewVariableName("offsets_", name);
+                globalDeclarations << "const ivec2[4] " << name << " = ivec2[4](";
+                for (int i = 0; i < 4; ++i) {
+                    if (i > 0)
+                        globalDeclarations << ", ";
+                    llvm::Constant* offset = llvm::dyn_cast<llvm::Constant>(llvmInstruction->getOperand(GetTextureOpIndex(ETOOffset) + i));
+                    emitConstantInitializer(globalDeclarations, offset, offset->getType());
+                }
+                globalDeclarations << ");" << std::endl;
+
+                // consume the new const
+                shader << ", ";
+                shader << name;
+            } else {
+                shader << ", ";
+                emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOOffset)));
+            }
         }
 
         if(NeedsBiasArg(llvmInstruction) || NeedsComponentArg(llvmInstruction)) {
             shader << ", ";
-            // TODO: textureGather*() with 'comp' argument is missing in the .td file
             emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOBiasLod)));
         }
 
@@ -2366,7 +2405,7 @@ void gla::GlslTarget::emitGlaSampler(const llvm::IntrinsicInst* llvmInstruction,
 
     // Original style shadowing returns vec4 while 2nd generation returns float,
     // so, have to stick to old-style for those cases.
-    bool forceOldStyle = IsVector(llvmInstruction->getType()) && (texFlags & ETFShadow);
+    bool forceOldStyle = IsVector(llvmInstruction->getType()) && (texFlags & ETFShadow) && ((texFlags & ETFGather) == 0);
 
     if (version >= 130 && ! forceOldStyle) {
         if (texFlags & ETFFetch)
@@ -2382,10 +2421,10 @@ void gla::GlslTarget::emitGlaSampler(const llvm::IntrinsicInst* llvmInstruction,
         int sampler = GetConstantInt(samplerType);
 
         switch (sampler) {
-        case ESampler1D:        shader << "1D";   break;
-        case ESampler2D:        shader << "2D";   break;
-        case ESampler3D:        shader << "3D";   break;
-        case ESamplerCube:      shader << "Cube"; break;
+        case ESampler1D:        shader << "1D";     break;
+        case ESampler2D:        shader << "2D";     break;
+        case ESampler3D:        shader << "3D";     break;
+        case ESamplerCube:      shader << "Cube";   break;
         case ESampler2DRect:    shader << "Rect"; break;
         default:
             UnsupportedFunctionality("Texturing in Bottom IR: ", sampler, EATContinue);
@@ -2401,8 +2440,12 @@ void gla::GlslTarget::emitGlaSampler(const llvm::IntrinsicInst* llvmInstruction,
         shader << "Grad";
     if (texFlags & ETFGather)
         shader << "Gather";
-    if (texFlags & ETFOffsetArg)
-        shader << "Offset";
+    if (texFlags & ETFOffsetArg) {
+        if (texFlags & ETFOffsets)
+            shader << "Offsets";
+        else
+            shader << "Offset";
+    }
 }
 
 void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier qualifier, 
@@ -2657,7 +2700,7 @@ void gla::GlslTarget::emitGlaSamplerType(std::ostringstream& out, const llvm::MD
         case EMsd2D:       out << "2D";      break;
         case EMsd3D:       out << "3D";      break;
         case EMsdCube:     out << "Cube";    break;
-        case EMsdRect:     out << "Rect";    break;
+        case EMsdRect:     out << "2DRect";  break;
         case EMsdBuffer:   out << "Buffer";  break;
         default:           UnsupportedFunctionality("kind of sampler");  break;
         }
@@ -2753,7 +2796,7 @@ void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, bool for
             evq = MapGlaAddressSpace(value);
 
         std::string* newName = new std::string;
-        getNewVariableName(value, newName);
+        getNewVariableName(value, *newName);
         EMdPrecision precision = GetPrecision(value);
         const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
 

@@ -1392,7 +1392,7 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
     bool floatReturn = gla::GetBasicType(resultType)->isFloatTy();
 
     // Max args based on LunarGLASS TopIR, no SOA
-    static const int maxTextureArgs = 9;
+    static const int maxTextureArgs = 10;
     llvm::Value* texArgs[maxTextureArgs] = {};
 
     // Base case: First texture arguments are fixed for most intrinsics
@@ -1411,8 +1411,7 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
                                     : llvm::Intrinsic::gla_texelFetchOffset;
     } else if (texFlags & ETFGather) {
         if (texFlags & ETFOffsetArg) {
-            if (parameters.ETPOffset->getType()->getTypeID() == llvm::Type::ArrayTyID) {
-                UnsupportedFunctionality("array of offsets for texture gather; need intrinsic that accepts this", EATContinue);
+            if (texFlags & ETFOffsets) {
                 intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTexelGatherOffsets
                                             : llvm::Intrinsic::gla_texelGatherOffsets;
             } else
@@ -1443,8 +1442,15 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
     if (texFlags & ETFRefZArg)
         texArgs[GetTextureOpIndex(ETORefZ)] = parameters.ETPShadowRef;
 
-    if (texFlags & ETFOffsetArg)
-        texArgs[GetTextureOpIndex(ETOOffset)] = parameters.ETPOffset;
+    if (texFlags & ETFOffsetArg) {
+        if (texFlags & ETFOffsets) {
+            llvm::ArrayType* offsets = llvm::dyn_cast<llvm::ArrayType>(parameters.ETPOffset->getType());
+            assert(offsets->getNumElements() == 4);
+            for (int i = 0; i < 4; ++i)
+                texArgs[GetTextureOpIndex(ETOOffset) + i] = builder.CreateExtractValue(parameters.ETPOffset, i);
+        } else
+            texArgs[GetTextureOpIndex(ETOOffset)] = parameters.ETPOffset;
+    }
 
     llvm::Function* intrinsic = 0;
 
@@ -1483,8 +1489,7 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
 
         if (! texArgs[GetTextureOpIndex(ETOOffset)])
             texArgs[GetTextureOpIndex(ETOOffset)]  = llvm::UndefValue::get(GetIntType(context));
-
-
+        
         // We know our flexible types when looking at the intrinsicID, so create our intrinsic here
         intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(),
                                                           texArgs[GetTextureOpIndex(ETOOffset)]->getType());
@@ -1556,22 +1561,20 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
         if (! texArgs[GetTextureOpIndex(ETORefZ)])
             texArgs[GetTextureOpIndex(ETORefZ)]    = llvm::UndefValue::get(GetFloatType(context));
 
+        intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType());
+
         switch (intrinsicID) {
         case llvm::Intrinsic::gla_texelGather:
         case llvm::Intrinsic::gla_fTexelGather:
             numArgs = 6;
-            intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType());
             break;
         case llvm::Intrinsic::gla_texelGatherOffset:
         case llvm::Intrinsic::gla_fTexelGatherOffset:
             numArgs = 7;
-            intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType());
             break;
         case llvm::Intrinsic::gla_texelGatherOffsets:
         case llvm::Intrinsic::gla_fTexelGatherOffsets:
-            numArgs = 7;
-            intrinsic = getIntrinsic(intrinsicID, resultType, texArgs[GetTextureOpIndex(ETOCoord)]->getType(),
-                                                              texArgs[GetTextureOpIndex(ETOOffset)]->getType());
+            numArgs = 10;
             break;
         default:
             assert(0);

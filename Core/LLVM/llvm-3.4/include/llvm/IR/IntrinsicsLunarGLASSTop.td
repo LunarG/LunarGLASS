@@ -180,8 +180,8 @@ let TargetPrefix = "gla" in {
   def int_gla_fTexelGather :        Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_float_ty], [IntrNoMem]>;
   def int_gla_texelGatherOffset :   Intrinsic<[llvm_anyint_ty],   [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_float_ty, llvm_v2i32_ty], [IntrNoMem]>;
   def int_gla_fTexelGatherOffset :  Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_float_ty, llvm_v2i32_ty], [IntrNoMem]>;
-  def int_gla_texelGatherOffsets :  Intrinsic<[llvm_anyint_ty],   [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_float_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fTexelGatherOffsets : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_float_ty, llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_texelGatherOffsets :  Intrinsic<[llvm_anyint_ty],   [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_float_ty, llvm_v2i32_ty, llvm_v2i32_ty, llvm_v2i32_ty, llvm_v2i32_ty], [IntrNoMem]>;
+  def int_gla_fTexelGatherOffsets : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty, llvm_i32_ty, llvm_float_ty, llvm_v2i32_ty, llvm_v2i32_ty, llvm_v2i32_ty, llvm_v2i32_ty], [IntrNoMem]>;
 }
 
 // Texture Query

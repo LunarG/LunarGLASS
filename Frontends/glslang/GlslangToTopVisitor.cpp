@@ -1348,8 +1348,11 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
         if (node->getName().find("Proj", 0) != std::string::npos)
             texFlags |= gla::ETFProjected;
 
-        if (node->getName().find("Offset", 0) != std::string::npos)
+        if (node->getName().find("Offset", 0) != std::string::npos) {
             texFlags |= gla::ETFOffsetArg;
+            if (node->getName().find("Offsets", 0) != std::string::npos)
+                texFlags |= gla::ETFOffsets;
+        }
 
         if (node->getName().find("Fetch", 0) != std::string::npos)
             texFlags |= gla::ETFFetch;

@@ -74,6 +74,7 @@ namespace gla {
         ETFComponentArg = 0x0400,
         ETFRefZArg      = 0x0800,
         ETFProjectedArg = 0x1000,
+        ETFOffsets      = 0x2000,  // means offset argument is an array that needs to be broken up
     };
 
     // Texture op, for mapping operands
@@ -84,7 +85,7 @@ namespace gla {
         ETOCoord       = 3,
         ETOBiasLod     = 4,  // Also holds the 'comp' argument for texel gather operations taking a component
         ETORefZ        = 5,
-        ETOOffset      = 6,
+        ETOOffset      = 6,  // For "offsets", use 6, 7, 8, 9
         ETODPdx        = 7,
         ETODPdy        = 8,
     };
@@ -106,7 +107,7 @@ namespace gla {
         if (operand == ETORefZ)
             return ETOCoord + numComps + 1;
 
-        // TODO: SoA textureGather*(), component might be the same as re-using an overloaded RefZ
+        // TODO: SoA textureGather*() 'comp' and 'offsets'
 
         return ETOCoord + numComps + 1 + (operand - ETOOffset) * numComps + comp;
     }
