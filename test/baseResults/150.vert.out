@@ -16,13 +16,13 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %iv4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !7
+  %iv4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !7
   store <4 x float> %iv4, <4 x float>* @iv4_shadow
   %0 = load <4 x float>* @iv4_shadow
   store <4 x float> %0, <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 0)
   %1 = load float addrspace(2)* @ps, !gla.uniform !13
   store float %1, float* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 1)
-  %iv41 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !7
+  %iv41 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !7
   store <4 x float> %iv41, <4 x float>* @iv4_shadow
   %2 = load <4 x float>* @iv4_shadow
   %3 = extractelement <4 x float> %2, i32 0
@@ -85,11 +85,11 @@ attributes #1 = { nounwind }
 !5 = metadata !{metadata !"", metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1024, null}
 !7 = metadata !{metadata !"iv4", i32 1, <4 x float>* @iv4_shadow_typeProxy, metadata !8}
-!8 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!8 = metadata !{i32 0, i32 0, i32 1037, null, i32 0}
 !9 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
+!10 = metadata !{i32 0, i32 0, i32 1038, null, i32 0}
 !11 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !12}
-!12 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
+!12 = metadata !{i32 0, i32 0, i32 1039, null, i32 0}
 !13 = metadata !{metadata !"ps", i32 12, float* @ps_typeProxy, metadata !6}
 
 
@@ -103,13 +103,13 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %iv4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !7
+  %iv4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !7
   %gla_constGEP = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 0
   store <4 x float> %iv4, <4 x float>* %gla_constGEP, align 16
   %0 = load float addrspace(2)* @ps, align 4, !gla.uniform !13
   %gla_constGEP2 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 1
   store float %0, float* %gla_constGEP2, align 16
-  %iv41 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !7
+  %iv41 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !7
   %1 = extractelement <4 x float> %iv41, i32 0
   %gla_constGEP3 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 2, i32 2
   store float %1, float* %gla_constGEP3, align 4
@@ -179,11 +179,11 @@ attributes #1 = { nounwind }
 !5 = metadata !{metadata !"", metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1024, null}
 !7 = metadata !{metadata !"iv4", i32 1, <4 x float>* @iv4_shadow_typeProxy, metadata !8}
-!8 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!8 = metadata !{i32 0, i32 0, i32 1037, null, i32 0}
 !9 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
+!10 = metadata !{i32 0, i32 0, i32 1038, null, i32 0}
 !11 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !12}
-!12 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
+!12 = metadata !{i32 0, i32 0, i32 1039, null, i32 0}
 !13 = metadata !{metadata !"ps", i32 12, float* @ps_typeProxy, metadata !6}
 
 ***Unsupported functionality: missing metadata on load 0 anon@0_shadow
