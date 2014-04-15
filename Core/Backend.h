@@ -149,8 +149,8 @@ namespace gla {
 
         explicit BackEndTranslator(Manager* m) : manager(m) { }
         virtual ~BackEndTranslator() { }
-        virtual void start() { }
-        virtual void end() { }
+        virtual void start(llvm::Module&) { }
+        virtual void end(llvm::Module&) { }
         virtual void addGlobal(const llvm::GlobalVariable*) { }
         virtual void addIoDeclaration(EVariableQualifier, const llvm::MDNode*) { }
         virtual void startFunctionDeclaration(const llvm::Type*, llvm::StringRef) = 0;

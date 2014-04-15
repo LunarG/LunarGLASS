@@ -164,7 +164,7 @@ public:
         delete generatedShader;
     }
 
-    virtual void start()
+    virtual void start(llvm::Module&)
     {
         // Call this before doing actual translation.
         // The following information wasn't available at construct time:
@@ -172,7 +172,7 @@ public:
         profile = (EProfile)manager->getProfile();
         stage = (EShLanguage)manager->getStage();
     }
-    virtual void end();
+    virtual void end(llvm::Module&);
 
     void addGlobal(const llvm::GlobalVariable* global);
     void addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode);
@@ -1590,7 +1590,7 @@ void gla::GlslTarget::addDiscard()
     shader << "discard;";
 }
 
-void gla::GlslTarget::end()
+void gla::GlslTarget::end(llvm::Module&)
 {
     // #version...
     fullShader << "#version " << version;

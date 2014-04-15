@@ -930,7 +930,7 @@ bool BottomTranslator::runOnModule(Module& module)
         gla::UnsupportedFunctionality("explicit masking in middle end");
 
     // allow back end to finish initialization, since its constructor was called too early
-    backEndTranslator->start();
+    backEndTranslator->start(module);
 
     //
     // Translate globals.
@@ -1003,7 +1003,7 @@ bool BottomTranslator::runOnModule(Module& module)
     }
 
     //set_branchtargets(&v, currentInstructionructions, num_instructions);
-    backEndTranslator->end();
+    backEndTranslator->end(module);
 
     return false;
 }
