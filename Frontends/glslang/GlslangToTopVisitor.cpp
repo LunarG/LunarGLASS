@@ -894,10 +894,18 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
         glslangOperands[i]->traverse(this);
         operands.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangOperands[i]->getAsTyped()->getType())));
     }
-    if (glslangOperands.size() == 1)
+    switch (glslangOperands.size()) {
+    case 0:
+        gla::UnsupportedFunctionality("built-in function with zero arguments", gla::EATContinue);
+        result = 0;
+        break;
+    case 1:
         result = createUnaryIntrinsic(node->getOp(), precision, operands.front());
-    else
+        break;
+    default:
         result = createIntrinsic(node->getOp(), precision, operands, glslangOperands.front()->getAsTyped()->getBasicType() == glslang::EbtUint);
+        break;
+    }
 
     if (! result)
         gla::UnsupportedFunctionality("glslang aggregate", gla::EATContinue);
@@ -1159,6 +1167,8 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
     switch (type.getBasicType()) {
     case glslang::EbtVoid:
         glaType = gla::GetVoidType(context);
+        if (type.isArray())
+            gla::UnsupportedFunctionality("array of void");
         break;
     case glslang::EbtFloat:
         glaType = gla::GetFloatType(context);
@@ -1210,11 +1220,11 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
 
     if (type.isArray()) {
         int arraySize;
-        if (type.isImplicitlySizedArray ()) {
+        if (type.isImplicitlySizedArray()) {
             gla::UnsupportedFunctionality("implicitly-sized array", gla::EATContinue);
             arraySize = UnknownArraySize;
         } else
-             arraySize = type.getArraySize();
+            arraySize = type.getArraySize();
         glaType = llvm::ArrayType::get(glaType, arraySize);
     }
 

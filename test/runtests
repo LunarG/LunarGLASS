@@ -61,25 +61,25 @@ TESTS=(test.frag               \
        qualifiers.vert         \
        qualifiers.frag         \
        precision.frag          \
-	   100ops.frag             \
+       100ops.frag             \
        300BuiltIns.frag        \
        300BuiltIns.vert        \
        300layout.vert          \
        300layout.frag          \
        switch.frag             \
        whileLoop.frag          \
-	   doWhileLoop.frag        \
-	   loops.frag              \
-	   forLoop.frag            \
-	   130.frag                \
-	   140.frag                \
-	   150.vert                \
-	   400.frag                \
-	   400.tesc                \
-	   400.tese                \
-	   420.geom                \
-	   430.vert                \
-	   nonSquare.vert          \
+       doWhileLoop.frag        \
+       loops.frag              \
+       forLoop.frag            \
+       130.frag                \
+       140.frag                \
+       150.vert                \
+       400.frag                \
+       400.tesc                \
+       400.tese                \
+       420.geom                \
+       430.vert                \
+       nonSquare.vert          \
       )
 
 # $1 is the test
@@ -102,7 +102,7 @@ function runTests {
         tr -d '\r' < localResults/$t.out.tmp > localResults/$t.out
         rm localResults/$t.out.tmp
         rm tempglsl.$EXTENSION
-		diff -b baseResults/$t.out localResults
+        diff -b baseResults/$t.out localResults
 
     done
     rm temp.stdout* temp.errout

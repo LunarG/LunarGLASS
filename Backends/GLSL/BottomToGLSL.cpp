@@ -1149,7 +1149,8 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
     case llvm::Instruction::Load:
     {
-        assert(! llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)));
+        if (llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)))
+            UnsupportedFunctionality("constant load");
 
         // We want phis to use the same variable name created during phi declaration
         if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {                

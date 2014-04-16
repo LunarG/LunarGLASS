@@ -639,7 +639,12 @@ void Builder::copyOutPipeline()
                 if (copyOutActive[activeIndex]) {
                     gepChain.push_back(MakeIntConstant(context, index));
                     llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out].value, gepChain));
-                    writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].mdNode);
+                    if (llvm::isa<llvm::StructType>(loadVal->getType()))
+                        UnsupportedFunctionality("struct in array in outputs", EATContinue);
+                    else if (llvm::isa<llvm::ArrayType>(loadVal->getType()))
+                        UnsupportedFunctionality("array or matrix in array in outputs", EATContinue);
+                    else
+                        writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].mdNode);
                     gepChain.pop_back();
                 }
                 ++slot;
@@ -652,8 +657,13 @@ void Builder::copyOutPipeline()
             for (int index = 0; index < (int)structType->getNumElements(); ++index) {
                 if (copyOutActive[activeIndex]) {
                     gepChain.push_back(MakeIntConstant(context, index));
-                    llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out].value, gepChain));
-                    writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].mdNode);
+                    llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out].value, gepChain));                    
+                    if (llvm::isa<llvm::StructType>(loadVal->getType()))
+                        UnsupportedFunctionality("struct in struct in outputs", EATContinue);
+                    else if (llvm::isa<llvm::ArrayType>(loadVal->getType()))
+                        UnsupportedFunctionality("array or matrix in struct in outputs", EATContinue);
+                    else
+                        writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].mdNode);
                     gepChain.pop_back();
                 }
                 ++slot;
