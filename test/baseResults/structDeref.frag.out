@@ -314,8 +314,8 @@ void main()
     float select45 = temp21 ? const29 : coord.y;
     float select46 = temp21 ? foo1.f : coord.y;
     bool temp31 = select43 > const32i_5;
-    int locals00d0d0d0dlocals0d0d0 = temp31 ? select44 : select43;
-    float temp34 = float(locals00d0d0d0dlocals0d0d0);
+    int locals00_0_0_0_locals0_0_0 = temp31 ? select44 : select43;
+    float temp34 = float(locals00_0_0_0_locals0_0_0);
     float temp35 = select46 + temp34;
     float temp36 = select + temp35;
     float temp37 = select45 + temp36;
@@ -373,13 +373,13 @@ void main()
 {
     bool temp211 = foo3.s2_1[9].i > const22i_0;
     float temp23 = temp211 ? const24 : const25;
-    int ternary3d0 = temp211 ? const22i_0 : foo1.s0_1.i;
-    int ternary9d0 = temp211 ? const22i_0 : foo00.s0_0.i;
+    int ternary3_0 = temp211 ? const22i_0 : foo1.s0_1.i;
+    int ternary9_0 = temp211 ? const22i_0 : foo00.s0_0.i;
     float select47 = temp211 ? const29 : coord.y;
     float select = temp211 ? foo1.f : coord.y;
-    bool temp3129 = ternary3d0 > const32i_5;
-    int ternary9d0dternary3d0 = temp3129 ? ternary9d0 : ternary3d0;
-    float temp3437 = float(ternary9d0dternary3d0);
+    bool temp3129 = ternary3_0 > const32i_5;
+    int ternary9_0_ternary3_0 = temp3129 ? ternary9_0 : ternary3_0;
+    float temp3437 = float(ternary9_0_ternary3_0);
     float temp3538 = temp3437 + select;
     float temp3639 = temp23 + temp3538;
     float temp3740 = select47 + temp3639;

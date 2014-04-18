@@ -764,7 +764,7 @@ void MakeParseable(std::string& name)
     // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
     for (int c = 0; c < (int)name.length(); ++c) {
         if (name[c] == '.' || name[c] == '-')
-            name[c] = 'd';
+            name[c] = '_';
     }
 }
 
@@ -1221,6 +1221,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
                     name = *prevName;
                 else {
                     name = gepInstr->getOperand(0)->getName();
+                    MakeParseable(name);
                     name.append(traverseGep(gepInstr));
                 }
                 addVariable(gepInstr, name);

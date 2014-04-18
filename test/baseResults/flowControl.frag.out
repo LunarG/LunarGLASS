@@ -163,9 +163,9 @@ varying float c;
 void main()
 {
     bool temp21 = c > d;
-    vec4 dpn = temp21 ? bigColor : smallColor;
-    vec4 colord0 = BaseColor + dpn;
-    vec4 FragColor_shadow = otherColor * colord0;
+    vec4 _pn = temp21 ? bigColor : smallColor;
+    vec4 color_0 = BaseColor + _pn;
+    vec4 FragColor_shadow = otherColor * color_0;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -183,9 +183,9 @@ varying vec4 BaseColor;
 void main()
 {
     bool temp211 = c > d;
-    vec4 ternaryd0 = temp211 ? bigColor : smallColor;
-    vec4 colord05 = BaseColor + ternaryd0;
-    vec4 FragColor_shadow6 = otherColor * colord05;
+    vec4 ternary_0 = temp211 ? bigColor : smallColor;
+    vec4 color_05 = BaseColor + ternary_0;
+    vec4 FragColor_shadow6 = otherColor * color_05;
     gl_FragColor = FragColor_shadow6;
     
 }

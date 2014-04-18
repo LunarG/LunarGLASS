@@ -477,11 +477,10 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
                 // so short circuit the GEP stuff with a swizzle
                 std::vector<int> swizzle;
                 swizzle.push_back(node->getRight()->getAsConstantUnion()->getConstArray()[0].getIConst());
-                glaBuilder->accessChainPushSwizzleRight(swizzle, convertGlslangToGlaType(node->getType()),
-                                                             node->getLeft()->getVectorSize());
+                glaBuilder->accessChainPushSwizzleRight(swizzle, convertGlslangToGlaType(node->getType()), node->getLeft()->getVectorSize());
             } else {
-                // struct or array or indirection into a vector; will use native LLVM gep
-                // matrices are arrays of vectors, so will also work for a matrix
+                // Structure or array or indirection into a vector; will use native LLVM gep.
+                // Matrices are arrays of vectors, so will also work for a matrix.
 
                 // save it so that computing the right side doesn't trash it
                 gla::Builder::AccessChain partial = glaBuilder->getAccessChain();

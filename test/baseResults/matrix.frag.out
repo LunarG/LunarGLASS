@@ -1579,12 +1579,12 @@ const vec4 const124 = vec4(0.0, 0.0, 0.0, 0.0);
 
 void main()
 {
-    float dpredphi722;
-    float dpredphi720;
-    float dpredphi718;
-    float dpredphi;
-    vec4 FragColor_shadow716d0;
-    vec4 dpn;
+    float _pre_phi722;
+    float _pre_phi720;
+    float _pre_phi718;
+    float _pre_phi;
+    vec4 FragColor_shadow716_0;
+    vec4 _pn;
     vec3 column = colorTransform[0];
     float dotres = dot(Color, column);
     vec3 column1 = colorTransform[1];
@@ -1614,11 +1614,11 @@ void main()
     bool temp54 = temp49 || temp53;
     if (temp54) {
         vec4 FragColor_shadow13 = FragColor_shadow6 + v;
-        dpredphi722 = v.w;
-        dpredphi720 = v.z;
-        dpredphi718 = v.y;
-        dpredphi = v.x;
-        FragColor_shadow716d0 = FragColor_shadow13;
+        _pre_phi722 = v.w;
+        _pre_phi720 = v.z;
+        _pre_phi718 = v.y;
+        _pre_phi = v.x;
+        FragColor_shadow716_0 = FragColor_shadow13;
     }
     else {
         float product = element1.x * v.x;
@@ -1661,41 +1661,41 @@ void main()
         float dotres94 = dot(v, column86);
         vec4 temp94 = vec4(dotres88, dotres90, dotres92, dotres94);
         vec4 FragColor_shadow95 = FragColor_shadow75 + temp94;
-        dpredphi722 = v.w;
-        dpredphi720 = v.z;
-        dpredphi718 = v.y;
-        dpredphi = v.x;
-        FragColor_shadow716d0 = FragColor_shadow95;
+        _pre_phi722 = v.w;
+        _pre_phi720 = v.z;
+        _pre_phi718 = v.y;
+        _pre_phi = v.x;
+        FragColor_shadow716_0 = FragColor_shadow95;
     }
     
     vec4 temp96 = u.zwxx;
     vec4 temp97 = u.wxxy;
     vec4 temp98 = u.xxyz;
-    float temp99 = dpredphi * u.x;
-    float temp100 = dpredphi * u.y;
-    float temp101 = dpredphi * u.z;
-    float temp102 = dpredphi * u.w;
-    float temp103 = dpredphi718 * u.x;
-    float temp104 = dpredphi718 * u.y;
-    float temp105 = dpredphi718 * u.z;
-    float temp106 = dpredphi718 * u.w;
-    float temp107 = dpredphi720 * u.x;
-    float temp108 = dpredphi720 * u.y;
-    float temp109 = dpredphi720 * u.z;
-    float temp110 = dpredphi720 * u.w;
-    float temp111 = dpredphi722 * u.x;
-    float temp112 = dpredphi722 * u.y;
-    float temp113 = dpredphi722 * u.z;
-    float temp114 = dpredphi722 * u.w;
+    float temp99 = _pre_phi * u.x;
+    float temp100 = _pre_phi * u.y;
+    float temp101 = _pre_phi * u.z;
+    float temp102 = _pre_phi * u.w;
+    float temp103 = _pre_phi718 * u.x;
+    float temp104 = _pre_phi718 * u.y;
+    float temp105 = _pre_phi718 * u.z;
+    float temp106 = _pre_phi718 * u.w;
+    float temp107 = _pre_phi720 * u.x;
+    float temp108 = _pre_phi720 * u.y;
+    float temp109 = _pre_phi720 * u.z;
+    float temp110 = _pre_phi720 * u.w;
+    float temp111 = _pre_phi722 * u.x;
+    float temp112 = _pre_phi722 * u.y;
+    float temp113 = _pre_phi722 * u.z;
+    float temp114 = _pre_phi722 * u.w;
     vec4 temp115 = vec4(temp99, temp100, temp101, temp102);
     vec4 temp116 = vec4(temp103, temp104, temp105, temp106);
     vec4 temp117 = vec4(temp107, temp108, temp109, temp110);
     vec4 temp118 = vec4(temp111, temp112, temp113, temp114);
-    vec4 temp119 = vec4(dpredphi, const120, const120, const120);
+    vec4 temp119 = vec4(_pre_phi, const120, const120, const120);
     vec4 temp121 = const122;
-    temp121.yzw = vec3(dpredphi, const120, const120);
+    temp121.yzw = vec3(_pre_phi, const120, const120);
     vec4 temp123 = const124;
-    temp123.zw = vec2(dpredphi, const120);
+    temp123.zw = vec2(_pre_phi, const120);
     vec4 temp125 = vec4(const120, const120, const120, v.x);
     vec4 column179 = temp119 + temp115;
     vec4 column182 = temp121 + temp116;
@@ -1750,7 +1750,7 @@ void main()
         float product319 = u.w * column245.w;
         float dotProduct320 = product319 + dotProduct316;
         vec4 temp177 = vec4(dotProduct275, dotProduct290, dotProduct305, dotProduct320);
-        dpn = temp177;
+        _pn = temp177;
     }
     else {
         vec4 rightColumn323 = um43[0];
@@ -1869,40 +1869,40 @@ void main()
         float dotProduct641 = product640 + dotProduct636;
         float product645 = element2254.w * rightColumn567.w;
         float dotProduct646 = product645 + dotProduct641;
-        float product656 = dpredphi * dotProduct340;
-        float product659 = dpredphi718 * dotProduct422;
+        float product656 = _pre_phi * dotProduct340;
+        float product659 = _pre_phi718 * dotProduct422;
         float dotProduct660 = product656 + product659;
-        float product663 = dpredphi720 * dotProduct504;
+        float product663 = _pre_phi720 * dotProduct504;
         float dotProduct664 = product663 + dotProduct660;
-        float product667 = dpredphi722 * dotProduct586;
+        float product667 = _pre_phi722 * dotProduct586;
         float dotProduct668 = product667 + dotProduct664;
-        float product671 = dpredphi * dotProduct360;
-        float product674 = dpredphi718 * dotProduct442;
+        float product671 = _pre_phi * dotProduct360;
+        float product674 = _pre_phi718 * dotProduct442;
         float dotProduct675 = product671 + product674;
-        float product678 = dpredphi720 * dotProduct524;
+        float product678 = _pre_phi720 * dotProduct524;
         float dotProduct679 = product678 + dotProduct675;
-        float product682 = dpredphi722 * dotProduct606;
+        float product682 = _pre_phi722 * dotProduct606;
         float dotProduct683 = product682 + dotProduct679;
-        float product686 = dpredphi * dotProduct380;
-        float product689 = dpredphi718 * dotProduct462;
+        float product686 = _pre_phi * dotProduct380;
+        float product689 = _pre_phi718 * dotProduct462;
         float dotProduct690 = product686 + product689;
-        float product693 = dpredphi720 * dotProduct544;
+        float product693 = _pre_phi720 * dotProduct544;
         float dotProduct694 = product693 + dotProduct690;
-        float product697 = dpredphi722 * dotProduct626;
+        float product697 = _pre_phi722 * dotProduct626;
         float dotProduct698 = product697 + dotProduct694;
-        float product701 = dpredphi * dotProduct400;
-        float product704 = dpredphi718 * dotProduct482;
+        float product701 = _pre_phi * dotProduct400;
+        float product704 = _pre_phi718 * dotProduct482;
         float dotProduct705 = product701 + product704;
-        float product708 = dpredphi720 * dotProduct564;
+        float product708 = _pre_phi720 * dotProduct564;
         float dotProduct709 = product708 + dotProduct705;
-        float product712 = dpredphi722 * dotProduct646;
+        float product712 = _pre_phi722 * dotProduct646;
         float dotProduct713 = product712 + dotProduct709;
         vec4 temp322 = vec4(dotProduct668, dotProduct683, dotProduct698, dotProduct713);
-        dpn = temp322;
+        _pn = temp322;
     }
     
-    vec4 FragColor_shadow716d1 = FragColor_shadow716d0 + dpn;
-    gl_FragColor = FragColor_shadow716d1;
+    vec4 FragColor_shadow716_1 = FragColor_shadow716_0 + _pn;
+    gl_FragColor = FragColor_shadow716_1;
     
 }
 
@@ -1924,12 +1924,12 @@ const vec4 const113 = vec4(0.0, 0.0, 0.0, 0.0);
 
 void main()
 {
-    vec4 FragColor_shadow716d0d0;
-    float dpredphid0;
-    float dpredphi718d0;
-    float dpredphi720d0;
-    float dpredphi722d0;
-    vec4 dpnd0;
+    vec4 FragColor_shadow716_0_0;
+    float _pre_phi_0;
+    float _pre_phi718_0;
+    float _pre_phi720_0;
+    float _pre_phi722_0;
+    vec4 _pn_0;
     float dotres2 = dot(Color, colorTransform[0]);
     float dotres257 = dot(Color, colorTransform[1]);
     float dotres410 = dot(Color, colorTransform[2]);
@@ -1948,11 +1948,11 @@ void main()
     bool temp5431 = temp4926 || temp5330;
     if (temp5431) {
         vec4 FragColor_shadow1332 = FragColor_shadow612 + v;
-        FragColor_shadow716d0d0 = FragColor_shadow1332;
-        dpredphid0 = v.x;
-        dpredphi718d0 = v.y;
-        dpredphi720d0 = v.z;
-        dpredphi722d0 = v.w;
+        FragColor_shadow716_0_0 = FragColor_shadow1332;
+        _pre_phi_0 = v.x;
+        _pre_phi718_0 = v.y;
+        _pre_phi720_0 = v.z;
+        _pre_phi722_0 = v.w;
     }
     else {
         float product43 = m[0].x * v.x;
@@ -1995,41 +1995,41 @@ void main()
         float dotres94101 = dot(v, column8693);
         vec4 temp83 = vec4(dotres8895, dotres9097, dotres9299, dotres94101);
         vec4 FragColor_shadow95104 = temp83 + FragColor_shadow7589;
-        FragColor_shadow716d0d0 = FragColor_shadow95104;
-        dpredphid0 = v.x;
-        dpredphi718d0 = v.y;
-        dpredphi720d0 = v.z;
-        dpredphi722d0 = v.w;
+        FragColor_shadow716_0_0 = FragColor_shadow95104;
+        _pre_phi_0 = v.x;
+        _pre_phi718_0 = v.y;
+        _pre_phi720_0 = v.z;
+        _pre_phi722_0 = v.w;
     }
     
     vec4 temp85 = u.xxyz;
     vec4 temp86 = u.wxxy;
     vec4 temp87 = u.zwxx;
-    float temp99120 = dpredphid0 * u.x;
-    float temp100122 = dpredphid0 * u.y;
-    float temp101124 = dpredphid0 * u.z;
-    float temp102126 = dpredphid0 * u.w;
-    float temp103128 = dpredphi718d0 * u.x;
-    float temp104130 = dpredphi718d0 * u.y;
-    float temp105132 = dpredphi718d0 * u.z;
-    float temp106134 = dpredphi718d0 * u.w;
-    float temp107136 = dpredphi720d0 * u.x;
-    float temp108138 = dpredphi720d0 * u.y;
-    float temp109140 = dpredphi720d0 * u.z;
-    float temp110142 = dpredphi720d0 * u.w;
-    float temp111144 = dpredphi722d0 * u.x;
-    float temp112146 = dpredphi722d0 * u.y;
-    float temp113148 = dpredphi722d0 * u.z;
-    float temp114150 = dpredphi722d0 * u.w;
+    float temp99120 = _pre_phi_0 * u.x;
+    float temp100122 = _pre_phi_0 * u.y;
+    float temp101124 = _pre_phi_0 * u.z;
+    float temp102126 = _pre_phi_0 * u.w;
+    float temp103128 = _pre_phi718_0 * u.x;
+    float temp104130 = _pre_phi718_0 * u.y;
+    float temp105132 = _pre_phi718_0 * u.z;
+    float temp106134 = _pre_phi718_0 * u.w;
+    float temp107136 = _pre_phi720_0 * u.x;
+    float temp108138 = _pre_phi720_0 * u.y;
+    float temp109140 = _pre_phi720_0 * u.z;
+    float temp110142 = _pre_phi720_0 * u.w;
+    float temp111144 = _pre_phi722_0 * u.x;
+    float temp112146 = _pre_phi722_0 * u.y;
+    float temp113148 = _pre_phi722_0 * u.z;
+    float temp114150 = _pre_phi722_0 * u.w;
     vec4 temp104 = vec4(temp99120, temp100122, temp101124, temp102126);
     vec4 temp105 = vec4(temp103128, temp104130, temp105132, temp106134);
     vec4 temp106 = vec4(temp107136, temp108138, temp109140, temp110142);
     vec4 temp107 = vec4(temp111144, temp112146, temp113148, temp114150);
-    vec4 temp108 = vec4(dpredphid0, const109, const109, const109);
+    vec4 temp108 = vec4(_pre_phi_0, const109, const109, const109);
     vec4 temp110 = const111;
-    temp110.yzw = vec3(dpredphid0, const109, const109);
+    temp110.yzw = vec3(_pre_phi_0, const109, const109);
     vec4 temp112 = const113;
-    temp112.zw = vec2(dpredphid0, const109);
+    temp112.zw = vec2(_pre_phi_0, const109);
     vec4 temp114 = vec4(const109, const109, const109, v.x);
     vec4 column179168 = temp108 + temp104;
     vec4 column182169 = temp110 + temp105;
@@ -2080,7 +2080,7 @@ void main()
         float product319235 = u.w * column245176.w;
         float dotProduct320236 = product319235 + dotProduct316233;
         vec4 temp162 = vec4(dotProduct275203, dotProduct290214, dotProduct305225, dotProduct320236);
-        dpnd0 = temp162;
+        _pn_0 = temp162;
     }
     else {
         float product325242 = un34[0].x * um43[0].x;
@@ -2195,40 +2195,40 @@ void main()
         float dotProduct641354 = product640353 + dotProduct636352;
         float product645355 = un34[3].w * um43[3].w;
         float dotProduct646356 = product645355 + dotProduct641354;
-        float product656357 = dpredphid0 * dotProduct340248;
-        float product659358 = dpredphi718d0 * dotProduct422277;
+        float product656357 = _pre_phi_0 * dotProduct340248;
+        float product659358 = _pre_phi718_0 * dotProduct422277;
         float dotProduct660359 = product656357 + product659358;
-        float product663360 = dpredphi720d0 * dotProduct504306;
+        float product663360 = _pre_phi720_0 * dotProduct504306;
         float dotProduct664361 = product663360 + dotProduct660359;
-        float product667362 = dpredphi722d0 * dotProduct586335;
+        float product667362 = _pre_phi722_0 * dotProduct586335;
         float dotProduct668363 = product667362 + dotProduct664361;
-        float product671364 = dpredphid0 * dotProduct360255;
-        float product674365 = dpredphi718d0 * dotProduct442284;
+        float product671364 = _pre_phi_0 * dotProduct360255;
+        float product674365 = _pre_phi718_0 * dotProduct442284;
         float dotProduct675366 = product671364 + product674365;
-        float product678367 = dpredphi720d0 * dotProduct524313;
+        float product678367 = _pre_phi720_0 * dotProduct524313;
         float dotProduct679368 = product678367 + dotProduct675366;
-        float product682369 = dpredphi722d0 * dotProduct606342;
+        float product682369 = _pre_phi722_0 * dotProduct606342;
         float dotProduct683370 = product682369 + dotProduct679368;
-        float product686371 = dpredphid0 * dotProduct380262;
-        float product689372 = dpredphi718d0 * dotProduct462291;
+        float product686371 = _pre_phi_0 * dotProduct380262;
+        float product689372 = _pre_phi718_0 * dotProduct462291;
         float dotProduct690373 = product686371 + product689372;
-        float product693374 = dpredphi720d0 * dotProduct544320;
+        float product693374 = _pre_phi720_0 * dotProduct544320;
         float dotProduct694375 = product693374 + dotProduct690373;
-        float product697376 = dpredphi722d0 * dotProduct626349;
+        float product697376 = _pre_phi722_0 * dotProduct626349;
         float dotProduct698377 = product697376 + dotProduct694375;
-        float product701378 = dpredphid0 * dotProduct400269;
-        float product704379 = dpredphi718d0 * dotProduct482298;
+        float product701378 = _pre_phi_0 * dotProduct400269;
+        float product704379 = _pre_phi718_0 * dotProduct482298;
         float dotProduct705380 = product701378 + product704379;
-        float product708381 = dpredphi720d0 * dotProduct564327;
+        float product708381 = _pre_phi720_0 * dotProduct564327;
         float dotProduct709382 = product708381 + dotProduct705380;
-        float product712383 = dpredphi722d0 * dotProduct646356;
+        float product712383 = _pre_phi722_0 * dotProduct646356;
         float dotProduct713384 = product712383 + dotProduct709382;
         vec4 temp303 = vec4(dotProduct668363, dotProduct683370, dotProduct698377, dotProduct713384);
-        dpnd0 = temp303;
+        _pn_0 = temp303;
     }
     
-    vec4 FragColor_shadow716d1389 = FragColor_shadow716d0d0 + dpnd0;
-    gl_FragColor = FragColor_shadow716d1389;
+    vec4 FragColor_shadow716_1389 = FragColor_shadow716_0_0 + _pn_0;
+    gl_FragColor = FragColor_shadow716_1389;
     
 }
 

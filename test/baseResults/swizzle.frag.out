@@ -222,10 +222,10 @@ entry:
   %6 = load i1 addrspace(2)* @p, align 1, !gla.uniform !3
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
   %8 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 1, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
-  %select29 = select i1 %6, <4 x float> %7, <4 x float> %8
+  %select = select i1 %6, <4 x float> %7, <4 x float> %8
   %9 = fmul <4 x float> %1, %3
   %10 = fmul <4 x float> %9, %5
-  %11 = fmul <4 x float> %select29, %10
+  %11 = fmul <4 x float> %select, %10
   %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %4, <4 x float> %0, <4 x float> %11)
   %12 = fcmp olt float %2, 0.000000e+00
   %13 = fmul float %2, -1.000000e+00
@@ -312,17 +312,17 @@ void main()
     temp27.x = t.x;
     vec4 temp28 = u;
     temp28.x = t.y;
-    vec4 select29 = p ? temp27 : temp28;
+    vec4 select = p ? temp27 : temp28;
     vec4 temp30 = temp22 * temp23;
     vec4 temp31 = temp30 * temp26;
-    vec4 temp32 = select29 * temp31;
+    vec4 temp32 = select * temp31;
     vec4 FragColor_shadow = mix(temp24, temp21, temp32);
     bool temp34 = t.x < const35;
     float temp36 = t.x * const37;
     float temp38 = temp34 ? temp36 : t.x;
     bool temp39 = temp38 > const40;
-    vec4 repd0 = temp39 ? const42 : const43;
-    vec4 FragColor_shadow27 = FragColor_shadow + repd0;
+    vec4 rep_0 = temp39 ? const42 : const43;
+    vec4 FragColor_shadow27 = FragColor_shadow + rep_0;
     gl_FragColor = FragColor_shadow27;
     
 }
@@ -355,15 +355,15 @@ void main()
     temp27.x = t.x;
     vec4 temp28 = u;
     temp28.x = t.y;
-    vec4 select44 = p ? temp27 : temp28;
+    vec4 select = p ? temp27 : temp28;
     vec4 temp3019 = temp21 * temp23;
     vec4 temp3120 = temp3019 * temp26;
-    vec4 temp3221 = select44 * temp3120;
+    vec4 temp3221 = select * temp3120;
     vec4 FragColor_shadow22 = mix(temp24, temp22, temp3221);
     bool temp3424 = t.x < const35;
     float temp3626 = t.x * const37;
-    float select = temp3424 ? temp3626 : t.x;
-    bool temp3935 = select > const40;
+    float select44 = temp3424 ? temp3626 : t.x;
+    bool temp3935 = select44 > const40;
     vec4 temp41 = temp3935 ? const42 : const43;
     vec4 FragColor_shadow2741 = FragColor_shadow22 + temp41;
     gl_FragColor = FragColor_shadow2741;

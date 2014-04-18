@@ -334,11 +334,11 @@ void main()
     vec4 temp25 = vec4(temp24);
     mediump vec4 temp26 = temp25 + const27;
     highp vec4 mediumfout_shadow = temp23 + temp26;
-    int dlhs = uniform_low * uniform_high;
+    int _lhs = uniform_low * uniform_high;
     int factor = uniform_high * const31i_3;
     highp int sum1 = uniform_medium + const33i_4;
     highp int sum2 = sum1 + uniform_low;
-    lowp int sum3 = sum2 + dlhs;
+    lowp int sum3 = sum2 + _lhs;
     lowp int sum11 = sum3 + factor;
     mediump float temp37 = float(sum11);
     vec4 temp38 = vec4(temp37);
