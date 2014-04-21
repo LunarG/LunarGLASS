@@ -160,6 +160,7 @@ enum EMdInputOutput {
 
     // Entry point into shader
     EMioEntrypoint,
+    EMioCount,
 };
 
 // How the *interior* of a single, non-aggregate entity is laid out, supplemental to the "Value* for type"
@@ -179,12 +180,14 @@ enum EMdTypeLayout {
     EMtlStd140,
     EMtlStd430,
     EMtlPacked,
+    EMtlCount,
 };
 
 // What kind of sampler
 enum EMdSampler {
     EMsTexture,
     EMsImage,
+    EMsCount,
 };
 
 // Dimensionality of sampler
@@ -195,12 +198,14 @@ enum EMdSamplerDim {
     EMsdCube,
     EMsdRect,
     EMsdBuffer,
+    EMsdCount,
 };
 
 enum EMdSamplerBaseType {
     EMsbFloat,
     EMsbInt,
     EMsbUint,
+    EMsbCount,
 };
 
 // ESSL precision qualifier

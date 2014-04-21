@@ -1671,11 +1671,11 @@ struct gl_PerVertex {
 
 in vec2 inb[32];
 in vec2 ind[32];
-layout(location=3) in layout(location=3) vec4 ivla[32];
-layout(location=4) in layout(location=4) vec4 ivlb[32];
+layout(location=3) in vec4 ivla[32];
+layout(location=4) in vec4 ivlb[32];
 out vec4 patchOut;
-layout(location=3) out layout(location=3) vec4 ovla[4];
-layout(location=4) out layout(location=4) vec4 ovlb[4];
+layout(location=3) out vec4 ovla[4];
+layout(location=4) out vec4 ovlb[4];
 gl_PerVertex in_shadow[32];
 float TessLevelInner_shadow[2];
 const float const21 = 1.3;

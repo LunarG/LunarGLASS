@@ -150,6 +150,18 @@ namespace gla {
     class GlslTarget;
 };
 
+class MetaType {
+public:
+    MetaType() : precision(gla::EMpNone), matrix(false), notSigned(false), block(false), mdAggregate(0), mdSampler(0) { }
+    std::string name;
+    gla::EMdPrecision precision;
+    bool matrix;
+    bool notSigned;
+    bool block;
+    const llvm::MDNode* mdAggregate;
+    const llvm::MDNode* mdSampler;
+};
+
 class gla::GlslTarget : public gla::GlslTranslator {
 public:
     GlslTarget(Manager* m, bool obfuscate) : GlslTranslator(m, obfuscate), appendInitializers(false), indentLevel(0), lastVariable(20)
@@ -223,9 +235,8 @@ protected:
     void emitVariableDeclaration(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier qualifier, 
                                  const llvm::Constant* constant = 0, const llvm::MDNode* mdIoNode = 0);
     int emitGlaType(std::ostringstream& out, EMdPrecision precision, EVariableQualifier qualifier, llvm::Type* type, 
-                    bool ioRoot = false, const llvm::MDNode* mdNode = 0, int count = -1);
-    bool emitMdNodeTypes(std::ostringstream& out, bool ioRoot, const llvm::MDNode* mdNode, std::string& name, llvm::Type*& type,
-                         EMdPrecision& precision, bool& matrix, bool& notSigned, const llvm::MDNode*& mdAggregate, bool& block);
+                    bool ioRoot = false, const llvm::MDNode* mdNode = 0, int count = -1, bool araryChild = false);
+    bool decodeMdTypesEmitMdQualifiers(std::ostringstream& out, bool ioRoot, const llvm::MDNode* mdNode, llvm::Type*& type, bool arrayChild, MetaType&);
     void emitGlaArraySize(std::ostringstream& out, int arraySize);
     void emitGlaSamplerType(std::ostringstream& out, const llvm::MDNode* mdSamplerNode);
     void emitGlaInterpolationQualifier(EVariableQualifier qualifier, EInterpolationMethod interpMethod, EInterpolationLocation interpLocation);
@@ -2507,20 +2518,18 @@ void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type
     }
 }
 
-// emits the type (recursively)
-// returns the array size of the type
+// Emits the type.  Done recursively, either directly or indirectly through addStructType().
+// Returns the array size of the type.
 int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision, EVariableQualifier qualifier, llvm::Type* type, 
-                                 bool ioRoot , const llvm::MDNode* mdNode, int count)
+                                 bool ioRoot, const llvm::MDNode* mdNode, int count, bool arrayChild)
 {
-    bool matrix = false;
-    bool notSigned = false;
-    std::string name;
-    const llvm::MDNode* mdAggregate = 0;
-    bool block = false;
+    MetaType metaType;
 
     if (mdNode) {
-        if (! emitMdNodeTypes(out, ioRoot, mdNode, name, type, precision, matrix, notSigned, mdAggregate, block))
+        metaType.precision = precision;
+        if (! decodeMdTypesEmitMdQualifiers(out, ioRoot, mdNode, type, arrayChild, metaType))
             return 0;
+        precision = metaType.precision;
     }
 
     const char* qualifierString = MapGlaToQualifierString(version, stage, qualifier);
@@ -2543,7 +2552,7 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
         else if (type->getContainedType(0) == type->getInt1Ty(type->getContext()))
             out << "bvec";
         else if (type->getContainedType(0) == type->getInt32Ty(type->getContext())) {
-            if (notSigned)
+            if (metaType.notSigned)
                 out << "uvec";
             else
                 out << "ivec";
@@ -2560,17 +2569,17 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
             
         // addStructType() is mutually recursive with this function
         llvm::StringRef structName = structType->isLiteral() ? "" : structType->getName();
-        addStructType(out, structName, structType, mdAggregate, block);
-        if (! block) {
-            if (mdAggregate)
-                out << std::string(mdAggregate->getOperand(0)->getName());
+        addStructType(out, structName, structType, metaType.mdAggregate, metaType.block);
+        if (! metaType.block) {
+            if (metaType.mdAggregate)
+                out << std::string(metaType.mdAggregate->getOperand(0)->getName());
             else
                 out << structNameMap[structType];
         }
     } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
         const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
             
-        if (matrix && arrayType->getNumContainedTypes() > 0 && arrayType->getContainedType(0)->isVectorTy()) {
+        if (metaType.matrix && arrayType->getNumContainedTypes() > 0 && arrayType->getContainedType(0)->isVectorTy()) {
             // We're at the matrix level in the type tree
             emitGlaPrecision(out, precision);
             out << "mat";
@@ -2581,92 +2590,87 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
         } else {
             // We're still higher up in the type tree than a matrix; e.g., array of matrices
             // (or, not a matrix).
+            //
             // We need to recurse the next level with the LLVM type dereferenced, but not
             // the GLSL type (metadata) which combines arrayness at the same level as other typeness
-            // (that is, don't pass on mdAggregate, use the original input).
-            emitGlaType(out, precision, EVQNone, arrayType->getContainedType(0), ioRoot, mdNode);
+            // (that is, don't pass on mdAggregate, use the original input mdNode).
+            //
+            // Also, set that we are an arrayChild, so that layouts/qualifiers can be emitted only once
+            // for both levels of the type.  (I.e., structs have nested syntax but arrays don't.)
+            emitGlaType(out, precision, EVQNone, arrayType->getContainedType(0), ioRoot, mdNode, -1, true);
             arraySize = (int)arrayType->getNumElements();
         }
     } else {
         // just output a scalar
-        emitGlaPrecision(out, precision);            
-        if (type == type->getFloatTy(type->getContext()))
-            out << "float";
-        else if (type == type->getInt1Ty(type->getContext()))
-            out << "bool";
-        else if (type == type->getInt32Ty(type->getContext())) {
-            if (notSigned)
-                out << "uint";
+        emitGlaPrecision(out, precision);
+        if (metaType.mdSampler)
+            emitGlaSamplerType(out, metaType.mdSampler);
+        else {
+            if (type == type->getFloatTy(type->getContext()))
+                out << "float";
+            else if (type == type->getInt1Ty(type->getContext()))
+                out << "bool";
+            else if (type == type->getInt32Ty(type->getContext())) {
+                if (metaType.notSigned)
+                    out << "uint";
+                else
+                    out << "int";
+            } else if (type == type->getVoidTy(type->getContext()))
+                out << "void";
             else
-                out << "int";
-        } else if (type == type->getVoidTy(type->getContext()))
-            out << "void";
-        else
-            UnsupportedFunctionality("Basic Type in Bottom IR");
+                UnsupportedFunctionality("Basic Type in Bottom IR");
+        }
     }
 
     return arraySize;
 }
 
-// Decode and emit stuff we can only do with an mdNode.
-// Returning false means all done, not necessarily an error.
-bool gla::GlslTarget::emitMdNodeTypes(std::ostringstream& out, bool ioRoot, const llvm::MDNode* mdNode, std::string& name, llvm::Type*& type,
-                                      EMdPrecision& precision, bool& matrix, bool& notSigned, const llvm::MDNode*& mdAggregate, bool& block)
+// Process the mdNode, decoding all type information and emitting qualifiers.
+// Returning false means there was a problem.
+bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, bool ioRoot, const llvm::MDNode* mdNode, llvm::Type*& type, bool arrayChild, MetaType& metaType)
 {
-    EMdInputOutput ioKind;
     EMdTypeLayout typeLayout;
     int location;
-    const llvm::MDNode* mdSampler;
-    bool uniform = false;
 
     if (ioRoot) {
+        EMdInputOutput ioKind;
         llvm::Type* proxyType;
         int interpMode;
-        if (! CrackIOMd(mdNode, name, ioKind, proxyType, typeLayout, precision, location, mdSampler, mdAggregate, interpMode)) {
+        if (! CrackIOMd(mdNode, metaType.name, ioKind, proxyType, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.mdAggregate, interpMode)) {
             UnsupportedFunctionality("IO metadata for type");
-
             return false;
-        } else {
-            // emit interpolation qualifier, if appropriate
-            EVariableQualifier qualifier;
-            switch (ioKind) {
-            case EMioPipeIn:   qualifier = EVQInput;   break;
-            case EMioPipeOut:  qualifier = EVQOutput;  break;
-            default:           qualifier = EVQUndef;   break;
-            }
-            if (qualifier != EVQUndef) {
-                EInterpolationMethod interpMethod;
-                EInterpolationLocation interpLocation;
-                CrackInterpolationMode(interpMode, interpMethod, interpLocation);
-                emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
-            }
         }
-        block = ioKind == EMioUniformBlockMember || ioKind == EMioBufferBlockMember;
-        uniform = ioKind == EMioDefaultUniform;
+
+        metaType.block = ioKind == EMioUniformBlockMember || ioKind == EMioBufferBlockMember;
         if (type == 0)
             type = proxyType;
-    } else {
-        if (! CrackAggregateMd(mdNode, name, typeLayout, precision, location, mdSampler)) {
-            UnsupportedFunctionality("aggregate metadata for type");
 
+        // emit interpolation qualifier, if appropriate
+        EVariableQualifier qualifier;
+        switch (ioKind) {
+        case EMioPipeIn:   qualifier = EVQInput;   break;
+        case EMioPipeOut:  qualifier = EVQOutput;  break;
+        default:           qualifier = EVQUndef;   break;
+        }
+        if (qualifier != EVQUndef) {
+            EInterpolationMethod interpMethod;
+            EInterpolationLocation interpLocation;
+            CrackInterpolationMode(interpMode, interpMethod, interpLocation);
+            emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
+        }
+    } else {
+        if (! CrackAggregateMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler)) {
+            UnsupportedFunctionality("aggregate metadata for type");
             return false;
         }
-        mdAggregate = mdNode;
+        metaType.mdAggregate = mdNode;
     }
 
-    if (typeLayout == EMtlSampler) {
-        if (uniform)
-            out << "uniform ";
+    metaType.matrix = typeLayout == EMtlRowMajorMatrix || typeLayout == EMtlColMajorMatrix;
+    metaType.notSigned = typeLayout == EMtlUnsigned;
+
+    if (! arrayChild)
         emitGlaLayout(out, typeLayout, location);
-        emitGlaPrecision(out, precision);
-        emitGlaSamplerType(out, mdSampler);
-
-        return false;
-    }
-    matrix = typeLayout == EMtlRowMajorMatrix || typeLayout == EMtlColMajorMatrix;
-    notSigned = typeLayout == EMtlUnsigned;
-
-    emitGlaLayout(out, typeLayout, location);
 
     return true;
 }

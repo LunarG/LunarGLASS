@@ -5,6 +5,18 @@ out vec4 o;
 
 in float gl_ClipDistance[5];
 
+layout(row_major) uniform;
+
+uniform sampler2D samp2Da[3];
+
+layout(std140, column_major) uniform bn {
+    layout(row_major) mat4 matra[4];
+    layout(column_major) mat4 matca[4];
+    layout(row_major) mat4 matr;
+    layout(column_major) mat4 matc;
+    mat4 matrdef;                     //?? problem with glslang not flagging as row_major?
+};
+
 void main()
 {
     o.y = gl_ClipDistance[2];

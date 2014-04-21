@@ -2,9 +2,13 @@
 Top IR:
 ; ModuleID = 'Glslang'
 
+%bn = type { [4 x [4 x <4 x float>]], [4 x [4 x <4 x float>]], [4 x <4 x float>], [4 x <4 x float>], [4 x <4 x float>] }
+
 @o_shadow = internal global <4 x float> zeroinitializer
 @ClipDistance_shadow = internal global [5 x float] zeroinitializer
 @i_shadow = internal global <4 x float> zeroinitializer
+@samp2Da = external addrspace(1) constant [3 x i32]
+@"anon@0" = external addrspace(2) constant %bn
 
 define fastcc void @main() {
 entry:
@@ -70,6 +74,8 @@ attributes #1 = { nounwind }
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}
 !gla.inputs = !{!3, !5}
+!gla.uniforms = !{!7, !10}
+!gla.noStaticUse = !{!7, !10}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"o", i32 7, <4 x float>* @o_shadow_typeProxy, metadata !2}
@@ -78,6 +84,16 @@ attributes #1 = { nounwind }
 !4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
 !5 = metadata !{metadata !"i", i32 1, <4 x float>* @i_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1030, null, i32 1}
+!7 = metadata !{metadata !"samp2Da", i32 12, [3 x i32]* @samp2Da_typeProxy, metadata !8}
+!8 = metadata !{i32 5, i32 0, i32 1024, metadata !9}
+!9 = metadata !{i32 0, [3 x i32]* @samp2Da_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!10 = metadata !{metadata !"", i32 13, %bn* @"anon@0_typeProxy", metadata !11, metadata !12}
+!11 = metadata !{i32 7, i32 0, i32 1024, null}
+!12 = metadata !{metadata !"bn", metadata !11, metadata !"matra", metadata !13, metadata !"matca", metadata !15, metadata !"matr", metadata !13, metadata !"matc", metadata !15, metadata !"matrdef", metadata !15}
+!13 = metadata !{metadata !"", metadata !14}
+!14 = metadata !{i32 2, i32 0, i32 1024, null}
+!15 = metadata !{metadata !"", metadata !16}
+!16 = metadata !{i32 3, i32 0, i32 1024, null}
 
 
 Bottom IR:
@@ -144,6 +160,8 @@ attributes #1 = { nounwind }
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}
 !gla.inputs = !{!3, !5}
+!gla.uniforms = !{!7, !10}
+!gla.noStaticUse = !{!7, !10}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"o", i32 7, <4 x float>* @o_shadow_typeProxy, metadata !2}
@@ -152,10 +170,28 @@ attributes #1 = { nounwind }
 !4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
 !5 = metadata !{metadata !"i", i32 1, <4 x float>* @i_shadow_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1030, null, i32 1}
+!7 = metadata !{metadata !"samp2Da", i32 12, [3 x i32]* @samp2Da_typeProxy, metadata !8}
+!8 = metadata !{i32 5, i32 0, i32 1024, metadata !9}
+!9 = metadata !{i32 0, [3 x i32]* @samp2Da_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!10 = metadata !{metadata !"", i32 13, %bn* @"anon@0_typeProxy", metadata !11, metadata !12}
+!11 = metadata !{i32 7, i32 0, i32 1024, null}
+!12 = metadata !{metadata !"bn", metadata !11, metadata !"matra", metadata !13, metadata !"matca", metadata !15, metadata !"matr", metadata !13, metadata !"matc", metadata !15, metadata !"matrdef", metadata !15}
+!13 = metadata !{metadata !"", metadata !14}
+!14 = metadata !{i32 2, i32 0, i32 1024, null}
+!15 = metadata !{metadata !"", metadata !16}
+!16 = metadata !{i32 3, i32 0, i32 1024, null}
 
 ***Unsupported functionality: missing metadata on load 0 ClipDistance_shadow
 #version 140
 // LunarGOO output
+uniform sampler2D samp2Da[3];
+layout(std140) uniform bn {
+    layout(row_major) mat4 matra[4];
+    mat4 matca[4];
+    layout(row_major) mat4 matr;
+    mat4 matc;
+    mat4 matrdef;
+} ;
 in vec4 i;
 out vec4 o;
 float ClipDistance_shadow[5];
@@ -182,6 +218,14 @@ void main()
 
 #version 140
 // LunarGOO output
+uniform sampler2D samp2Da[3];
+layout(std140) uniform bn {
+    layout(row_major) mat4 matra[4];
+    mat4 matca[4];
+    layout(row_major) mat4 matr;
+    mat4 matc;
+    mat4 matrdef;
+} ;
 in vec4 i;
 out vec4 o;
 float ClipDistance_shadow[5];

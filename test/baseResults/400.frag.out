@@ -341,7 +341,7 @@ attributes #2 = { nounwind }
 // LunarGOO output
 #extension GL_ARB_separate_shader_objects : enable
 uniform sampler2DRectShadow u2drs;
-uniform sampler2D arrayedSampler;
+uniform sampler2D arrayedSampler[5];
 uniform usampler2DRect samp2dr;
 uniform isampler2DArray isamp2DA;
 flat in int i;
@@ -384,14 +384,50 @@ void main()
 }
 
 
-tempglsl.frag
-Warning, version 400 is not yet complete; most version-specific features are present, but some are missing.
-ERROR: 0:25: 'arrayedSampler' :  left of '[' is not of type array, matrix, or vector  
-ERROR: 0:25: 'texture' : no matching overloaded function found 
-ERROR: 0:25: '=' :  cannot convert from 'const float' to '4-component vector of float'
-ERROR: 0:27: 'arrayedSampler' :  left of '[' is not of type array, matrix, or vector  
-ERROR: 0:27: 'textureGather' : no matching overloaded function found 
-ERROR: 0:27: '=' :  cannot convert from 'const float' to '4-component vector of float'
-ERROR: 6 compilation errors.  No code generated.
+#version 400 core
+// LunarGOO output
+#extension GL_ARB_separate_shader_objects : enable
+uniform sampler2D arrayedSampler[5];
+uniform sampler2DRectShadow u2drs;
+uniform isampler2DArray isamp2DA;
+uniform usampler2DRect samp2dr;
+flat in int i;
+in vec2 c2D;
+layout(location=6) in vec4 vl2;
+out vec4 outp;
+out uvec4 uoutp;
+out ivec4 ioutp;
+const vec3 const29 = vec3(0.1);
+const ivec2 const30 = ivec2(1);
+const int const31i_3 = 3;
+const vec2 const33 = vec2(0.0);
+const ivec2 const34 = ivec2(3, 4);
+const ivec4 const36 = ivec4(1);
+const ivec2[4] offsets_40 = ivec2[4](ivec2(1, 2), ivec2(3, 4), ivec2(15, 16), ivec2(-2, 0));
+const int const41i_2 = 2;
+
+void main()
+{
+    vec4 temp211 = texture(arrayedSampler[i], c2D);
+    vec4 temp22 = vec4(gl_ClipDistance[1], temp211.y, temp211.z, temp211.w);
+    vec4 temp235 = textureGather(arrayedSampler[0], c2D);
+    vec4 outp_shadow66 = temp22 + temp235;
+    ivec2 temp25 = ivec2(i);
+    vec4 temp2610 = gl_FragCoord + vl2;
+    vec4 outp_shadow1011 = outp_shadow66 + temp2610;
+    ivec4 temp3316 = textureGatherOffset(isamp2DA, const29, const30, const31i_3);
+    float temp2812 = textureProjGradOffset(u2drs, outp_shadow1011, const33, const33, const34);
+    ivec4 ioutp_shadow718 = temp3316 << const36;
+    ivec4 temp3717 = textureGatherOffset(isamp2DA, const29, temp25);
+    float temp3113 = outp_shadow1011.x + temp2812;
+    ivec4 uoutp_shadow21 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_40, const41i_2));
+    ivec4 ioutp_shadow919 = ioutp_shadow718 + temp3717;
+    vec4 temp43 = outp_shadow1011;
+    temp43.x = temp3113;
+    outp = temp43;
+    uoutp = uvec4(uoutp_shadow21);
+    ioutp = ioutp_shadow919;
+    
+}
 
 

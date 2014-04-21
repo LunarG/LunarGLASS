@@ -128,9 +128,9 @@ public:
         // that does the same thing, and could later be plugged into that pointer.
 
         // GLcontext *ctx = 0;
-        GLenum target = 0;  //?? need to track original stage through LLVM
+        GLenum target = 0;  // TODO: need to track original stage through LLVM
         GLuint id = 0;
-        maxMesaInstructions = 500;   //?? have to know this number ahead of time, need to refine this
+        maxMesaInstructions = 500;   // TODO: have to know this number ahead of time, need to refine this
         mesaProgram = LunarGLASSNewMesaProgram(0, target, id);
 
         mesaInstructions = (struct prog_instruction *)calloc(maxMesaInstructions, sizeof(*mesaInstructions));
@@ -467,11 +467,11 @@ protected:
     // this block used only temporarily to map operands/destinations between IRs
     prog_opcode mesaOp;
     int destFromArg;
-    int operandFrom[4];  // current max of 4 operands in mesa  ?? is there a define or const for this?
+    int operandFrom[4];  // current max of 4 operands in mesa  TODO: is there a define or const for this?
 
     // mapping from LLVM values to mesa IR indexes, per file type
     std::map<const llvm::Value*, int> valueMap[PROGRAM_FILE_MAX];
-    int lastIndex[PROGRAM_FILE_MAX];  //?? currently skipping index 0, because 0 means not found in the map
+    int lastIndex[PROGRAM_FILE_MAX];  // TODO: currently skipping index 0, because 0 means not found in the map
 };
 
 #endif
@@ -515,7 +515,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
     case llvm::Instruction::FMul:           mesaOp = OPCODE_MUL;  break;
 
     // if it's main, we want an END, if it's a function, we want a RET
-    // ?? handle functions that aren't main
+    // TODO: handle functions that aren't main
     case llvm::Instruction::Ret:            mesaOp = OPCODE_END;  break;
 
     case llvm::Instruction::FDiv:
@@ -616,7 +616,7 @@ void gla::MesaTarget::add(const llvm::Instruction* llvmInstruction, bool lastBlo
         break;
     }
 
-    //??mesaInstruction->CondUpdate = inst->cond_update;
+    // TODO: mesaInstruction->CondUpdate = inst->cond_update;
 
     // op code
 
@@ -692,7 +692,7 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         mapGlaDestination(llvmInstruction->getOperand(2), &mesaInstruction->DstReg);
         mesaInstruction->DstReg.File = PROGRAM_OUTPUT;
         mesaInstruction->DstReg.Index = GetConstantInt(llvmInstruction->getOperand(0));
-        //?? mask should be in operand 1
+        // TODO: mask should be in operand 1
         incrementMesaInstruction();
         mesaOp = OPCODE_NOP;
         return;
@@ -719,8 +719,8 @@ void gla::MesaTarget::mapGlaIntrinsic(const llvm::IntrinsicInst* llvmInstruction
         //TODO:  Mesa expects proj/bias/lod to be in coord.w channel.  This is not implemented yet.
         mesaInstruction->TexSrcTarget = mapGlaSamplerType(llvmInstruction->getOperand(0),
                                                           GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
-        mesaInstruction->TexShadow    = 0;   // ?? may be only for the shader to generate the compare itself
-        mesaInstruction->TexSrcUnit   = 17;  // ?? may be a linker-created slot number for the sampler
+        mesaInstruction->TexShadow    = 0;   // TODO: may be only for the shader to generate the compare itself
+        mesaInstruction->TexSrcUnit   = 17;  // TODO: may be a linker-created slot number for the sampler
 
         operandFrom[0] = GetTextureOpIndex(ETOCoord);
 
