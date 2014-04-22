@@ -89,7 +89,7 @@ attributes #1 = { nounwind }
 !9 = metadata !{i32 0, [3 x i32]* @samp2Da_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !10 = metadata !{metadata !"", i32 13, %bn* @"anon@0_typeProxy", metadata !11, metadata !12}
 !11 = metadata !{i32 7, i32 0, i32 1024, null}
-!12 = metadata !{metadata !"bn", metadata !11, metadata !"matra", metadata !13, metadata !"matca", metadata !15, metadata !"matr", metadata !13, metadata !"matc", metadata !15, metadata !"matrdef", metadata !15}
+!12 = metadata !{metadata !"bn", metadata !11, metadata !"matra", metadata !13, metadata !"matca", metadata !15, metadata !"matr", metadata !13, metadata !"matc", metadata !15, metadata !"matrdef", metadata !13}
 !13 = metadata !{metadata !"", metadata !14}
 !14 = metadata !{i32 2, i32 0, i32 1024, null}
 !15 = metadata !{metadata !"", metadata !16}
@@ -175,7 +175,7 @@ attributes #1 = { nounwind }
 !9 = metadata !{i32 0, [3 x i32]* @samp2Da_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !10 = metadata !{metadata !"", i32 13, %bn* @"anon@0_typeProxy", metadata !11, metadata !12}
 !11 = metadata !{i32 7, i32 0, i32 1024, null}
-!12 = metadata !{metadata !"bn", metadata !11, metadata !"matra", metadata !13, metadata !"matca", metadata !15, metadata !"matr", metadata !13, metadata !"matc", metadata !15, metadata !"matrdef", metadata !15}
+!12 = metadata !{metadata !"bn", metadata !11, metadata !"matra", metadata !13, metadata !"matca", metadata !15, metadata !"matr", metadata !13, metadata !"matc", metadata !15, metadata !"matrdef", metadata !13}
 !13 = metadata !{metadata !"", metadata !14}
 !14 = metadata !{i32 2, i32 0, i32 1024, null}
 !15 = metadata !{metadata !"", metadata !16}
@@ -190,7 +190,7 @@ layout(std140) uniform bn {
     mat4 matca[4];
     layout(row_major) mat4 matr;
     mat4 matc;
-    mat4 matrdef;
+    layout(row_major) mat4 matrdef;
 } ;
 in vec4 i;
 out vec4 o;
@@ -224,7 +224,7 @@ layout(std140) uniform bn {
     mat4 matca[4];
     layout(row_major) mat4 matr;
     mat4 matc;
-    mat4 matrdef;
+    layout(row_major) mat4 matrdef;
 } ;
 in vec4 i;
 out vec4 o;

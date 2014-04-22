@@ -226,6 +226,10 @@ public:
     llvm::Value* createVariable(EStorageQualifier, int storageInstance, llvm::Type*,
                               llvm::Constant* initializer, const std::string* annotation, llvm::StringRef name);
 
+    // Create an alloca in the entry block.
+    // (LLVM's promote memory to registers only works when alloca is in the entry block.)
+    llvm::Value* createEntryAlloca(llvm::Type*, llvm::StringRef name = "");
+
     // Store llvm::Value* into another llvm::Value* and return the l-value
     llvm::Value* createStore(llvm::Value* rValue, llvm::Value* lValue);
 

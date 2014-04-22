@@ -544,10 +544,19 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
         // alloca is in the entry block.
         llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();
         llvm::IRBuilder<> entryBuilder(entryBlock, entryBlock->begin());
-        value = entryBuilder.CreateAlloca(type, 0, annotatedName);
+        value = createEntryAlloca(type, annotatedName);
     }
 
     return value;
+}
+
+llvm::Value* Builder::createEntryAlloca(llvm::Type* type, llvm::StringRef name)
+{
+    // LLVM's promote memory to registers only works when alloca is in the entry block.
+    llvm::BasicBlock* entryBlock = &builder.GetInsertBlock()->getParent()->getEntryBlock();
+    llvm::IRBuilder<> entryBuilder(entryBlock, entryBlock->begin());
+
+    return entryBuilder.CreateAlloca(type, 0, name);
 }
 
 llvm::Value* Builder::createStore(llvm::Value* rValue, llvm::Value* lValue)
@@ -943,7 +952,7 @@ llvm::Value* Builder::createMatrixTranspose(EMdPrecision precision, llvm::Value*
 
     // make a new variable to hold the result
     llvm::Type* resultType = getMatrixType(GetMatrixElementType(matrix->getType()), GetNumRows(matrix), GetNumColumns(matrix));
-    llvm::Value* result = builder.CreateAlloca(resultType);
+    llvm::Value* result = createEntryAlloca(resultType);
     result = builder.CreateLoad(result);
 
     // Step 2, copy in while transposing
@@ -1010,7 +1019,7 @@ llvm::Value* Builder::createMatrixInverse(gla::EMdPrecision precision, llvm::Val
     }
 
     // build up a result matrix
-    llvm::Value* result = builder.CreateAlloca(matrix->getType());
+    llvm::Value* result = createEntryAlloca(matrix->getType());
     result = builder.CreateLoad(result);
 
     for (int col = 0; col < size; ++col) {
@@ -1110,7 +1119,7 @@ llvm::Value* Builder::createMatrixTimesVector(gla::EMdPrecision precision, llvm:
     assert(GetNumColumns(matrix) == GetComponentCount(rvector));
 
     // Allocate a vector to build the result in
-    llvm::Value* result = builder.CreateAlloca(llvm::VectorType::get(rvector->getType()->getContainedType(0), GetNumRows(matrix)));
+    llvm::Value* result = createEntryAlloca(llvm::VectorType::get(rvector->getType()->getContainedType(0), GetNumRows(matrix)));
     result = builder.CreateLoad(result);
 
     // Cache the components of the vector; they'll be revisited multiple times
@@ -1166,7 +1175,7 @@ llvm::Value* Builder::createVectorTimesMatrix(gla::EMdPrecision precision, llvm:
     llvm::Function *dot = Builder::getIntrinsic(dotIntrinsic, GetBasicType(lvector), lvector->getType(), lvector->getType());
 
     // Allocate a vector to build the result in
-    llvm::Value* result = builder.CreateAlloca(GetVectorOrScalarType(lvector->getType(), GetNumColumns(matrix)));
+    llvm::Value* result = createEntryAlloca(GetVectorOrScalarType(lvector->getType(), GetNumColumns(matrix)));
     result = builder.CreateLoad(result);
 
     // Compute the dot products for the result
@@ -1185,7 +1194,7 @@ llvm::Value* Builder::createVectorTimesMatrix(gla::EMdPrecision precision, llvm:
 llvm::Value* Builder::createComponentWiseMatrixOp(gla::EMdPrecision precision, llvm::Instruction::BinaryOps op, llvm::Value* left, llvm::Value* right)
 {
     // Allocate a matrix to hold the result in
-    llvm::Value* result = builder.CreateAlloca(left->getType());
+    llvm::Value* result = createEntryAlloca(left->getType());
     result = builder.CreateLoad(result);
 
     // Compute the component-wise operation per column vector
@@ -1207,7 +1216,7 @@ llvm::Value* Builder::createSmearedMatrixOp(gla::EMdPrecision precision, llvm::I
 {
     // TODO: optimization: better to smear the scalar to a column-like vector, and apply that vector multiple times
     // Allocate a matrix to build the result in
-    llvm::Value* result = builder.CreateAlloca(matrix->getType());
+    llvm::Value* result = createEntryAlloca(matrix->getType());
     result = builder.CreateLoad(result);
 
     // Compute per column vector
@@ -1239,11 +1248,11 @@ llvm::Value* Builder::createMatrixTimesMatrix(gla::EMdPrecision precision, llvm:
     // Allocate a matrix to hold the result in
     int rows = GetNumRows(left);
     int columns =  GetNumColumns(right);
-    llvm::Value* result = builder.CreateAlloca(getMatrixType(GetMatrixElementType(left->getType()), columns, rows));
+    llvm::Value* result = createEntryAlloca(getMatrixType(GetMatrixElementType(left->getType()), columns, rows));
     result = builder.CreateLoad(result, "resultMatrix");
 
     // Allocate a column for intermediate results
-    llvm::Value* column = builder.CreateAlloca(llvm::VectorType::get(GetMatrixElementType(left->getType()), rows));
+    llvm::Value* column = createEntryAlloca(llvm::VectorType::get(GetMatrixElementType(left->getType()), rows));
     column = builder.CreateLoad(column, "tempColumn");
 
     for (int col = 0; col < columns; ++col) {
@@ -1284,11 +1293,11 @@ llvm::Value* Builder::createOuterProduct(gla::EMdPrecision precision, llvm::Valu
     // Allocate a matrix to hold the result in
     int rows = GetComponentCount(left);
     int columns =  GetComponentCount(right);
-    llvm::Value* result = builder.CreateAlloca(getMatrixType(left->getType()->getContainedType(0), columns, rows));
+    llvm::Value* result = createEntryAlloca(getMatrixType(left->getType()->getContainedType(0), columns, rows));
     result = builder.CreateLoad(result);
 
     // Allocate a column for intermediate results
-    llvm::Value* column = builder.CreateAlloca(left->getType());
+    llvm::Value* column = createEntryAlloca(left->getType());
     column = builder.CreateLoad(column);
 
     // Build it up column by column, element by element
