@@ -57,6 +57,7 @@
 //#define USE_LUNARGLASS_CORE
 
 namespace llvm {
+    class LLVMContext;
     class Module;
     class Value;
     class Type;
@@ -69,11 +70,14 @@ namespace gla {
     // from gla::PrivateManager.
     class Manager {
     public:
-        virtual ~Manager() { }    // the concrete class is expected to delete everything
+        virtual ~Manager() { }    // the concrete class is expected to allocate and delete everything
         virtual void clear() = 0; // implement per-compile clear, so a manager object can be re-used
 
+        virtual void createContext() { }
+        virtual llvm::LLVMContext& getContext() const { return *context; }
+
         virtual void setModule(llvm::Module* m) { module = m; }
-        virtual llvm::Module* getModule() { return module; }
+        virtual llvm::Module* getModule() const { return module; }
 
         virtual void translateTopToBottom() = 0;
         virtual void translateBottomToTarget() = 0;
@@ -89,8 +93,9 @@ namespace gla {
         const std::set<std::string>& getRequestedExtensions() const { return requestedExtensions; }
 
     protected:
-        Manager() : module(0), version(0), profile(0) { }
+        Manager() : context(0), module(0), version(0), profile(0) { }
 
+        llvm::LLVMContext* context;
         llvm::Module* module;
         int version;  // these three 'int' are generic types, to be used how the user of the manager wishes...
         int profile;  // ... which may include finding agreement between the front end and the back end

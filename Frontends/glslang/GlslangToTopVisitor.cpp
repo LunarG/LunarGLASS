@@ -78,7 +78,7 @@
 //
 class TGlslangToTopTraverser : public glslang::TIntermTraverser {
 public:
-    TGlslangToTopTraverser(gla::Manager*, glslang::TIntermediate*);
+    TGlslangToTopTraverser(gla::Manager*, const glslang::TIntermediate*);
     virtual ~TGlslangToTopTraverser();
 
     bool visitAggregate(glslang::TVisit, glslang::TIntermAggregate*);
@@ -133,7 +133,7 @@ protected:
     bool inMain;
     bool mainTerminated;
     bool linkageOnly;
-    glslang::TIntermediate* glslangIntermediate; // N.B.: this is only available when using the new C++ glslang interface path
+    const glslang::TIntermediate* glslangIntermediate; // N.B.: this is only available when using the new C++ glslang interface path
 
     std::map<int, llvm::Value*> symbolValues;
     std::map<std::string, llvm::Function*> functionMap;
@@ -305,9 +305,9 @@ void GetInterpolationLocationMethod(const glslang::TType& type, gla::EInterpolat
 // this is just a back up size.
 const int UnknownArraySize = 8;
 
-TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager, glslang::TIntermediate* glslangIntermediate)
+TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager, const glslang::TIntermediate* glslangIntermediate)
     : TIntermTraverser(true, false, true),
-      context(llvm::getGlobalContext()), shaderEntry(0), llvmBuilder(context),
+      context(manager->getModule()->getContext()), shaderEntry(0), llvmBuilder(context),
       module(manager->getModule()), metadata(context, module),
       nextSlot(gla::MaxUserLayoutLocation), inMain(false), mainTerminated(false), linkageOnly(false),
       glslangIntermediate(glslangIntermediate)
@@ -1209,8 +1209,8 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
         break;
     }
 
-    if (type.isMatrix())
-        glaType = gla::Builder::getMatrixType(glaType, type.getMatrixCols(), type.getMatrixRows());
+    if (type.isMatrix())        
+        glaType = glaBuilder->getMatrixType(glaType, type.getMatrixCols(), type.getMatrixRows());
     else {
         // If this variable has a vector element count greater than 1, create an LLVM vector
         if (type.getVectorSize() > 1)
@@ -2475,7 +2475,7 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(glslang::TIntermSymbol* 
 //
 
 // Glslang C++ interface
-void GlslangToTop(glslang::TIntermediate& intermediate, gla::Manager& manager)
+void GlslangToTop(const glslang::TIntermediate& intermediate, gla::Manager& manager)
 {
     TIntermNode* root = intermediate.getTreeRoot();
 

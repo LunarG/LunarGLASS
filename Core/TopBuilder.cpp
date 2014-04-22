@@ -75,6 +75,10 @@ Builder::Builder(llvm::IRBuilder<>& b, gla::Manager* m, Metadata md) :
     stageExit(0)
 {
     clearAccessChain();
+    int cacheSize = maxMatrixSize - minMatrixSize + 1;
+    for (int c = 0; c < cacheSize; ++c)
+        for (int r = 0; r < cacheSize; ++r)
+            matrixTypeCache[c][r] = 0;
 }
 
 Builder::~Builder()
@@ -824,19 +828,10 @@ llvm::Value* Builder::createSwizzle(gla::EMdPrecision precision, llvm::Value* so
 
 llvm::Type* Builder::getMatrixType(llvm::Type* elementType, int numColumns, int numRows)
 {
-    // This data structure below is not a matrix... 
-    // it's a cache of types for all possible matrix sizes.
-    static const int minSize = 2;
-    static const int maxSize = 4;
-    static llvm::Type* typeCache[maxSize-minSize+1][maxSize-minSize+1] =
-        { {0, 0, 0},
-          {0, 0, 0},
-          {0, 0, 0} };
+    assert(numColumns >= minMatrixSize && numRows >= minMatrixSize);
+    assert(numColumns <= maxMatrixSize && numRows <= maxMatrixSize);
 
-    assert(numColumns >= minSize && numRows >= minSize);
-    assert(numColumns <= maxSize && numRows <= maxSize);
-
-    llvm::Type** type = &typeCache[numColumns-minSize][numRows-minSize];
+    llvm::Type** type = &matrixTypeCache[numColumns-minMatrixSize][numRows-minMatrixSize];
     if (*type == 0) {
         // a matrix is an array of vectors
         llvm::VectorType* columnType = llvm::VectorType::get(elementType, numRows);

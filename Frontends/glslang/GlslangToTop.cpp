@@ -69,9 +69,10 @@
 #include "GlslangToTopVisitor.h"
 
 // Glslang new C++ interface
-void TranslateGlslangToTop(glslang::TIntermediate& intermediate, gla::Manager& manager)
+void TranslateGlslangToTop(const glslang::TIntermediate& intermediate, gla::Manager& manager)
 {
-    llvm::Module* topModule = new llvm::Module("Glslang", llvm::getGlobalContext());
+    manager.createContext();
+    llvm::Module* topModule = new llvm::Module("Glslang", manager.getContext());
     manager.setModule(topModule);
 
     GlslangToTop(intermediate, manager);

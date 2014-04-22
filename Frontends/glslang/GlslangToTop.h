@@ -40,7 +40,7 @@
 // Glslang includes
 #include "glslang/Public/ShaderLang.h"
 
-void TranslateGlslangToTop(glslang::TIntermediate&, gla::Manager& manager);
+void TranslateGlslangToTop(const glslang::TIntermediate&, gla::Manager& manager);
 
 // Glslang deprecated includes
 #include "glslang/Include/intermediate.h"

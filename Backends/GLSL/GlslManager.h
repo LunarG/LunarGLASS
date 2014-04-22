@@ -44,33 +44,54 @@
 #include "Core/PrivateManager.h"
 #include "Backends/GLSL/GlslTarget.h"
 
+// LLVM includes
+#include "llvm/IR/LLVMContext.h"
+
 namespace gla {
 
 class GlslManager : public gla::PrivateManager {
 public:
     explicit GlslManager(bool obfuscate = false) : obfuscate(obfuscate)
     {
-        glslBackEndTranslator = gla::GetGlslTranslator(this, obfuscate);
-        backEndTranslator = glslBackEndTranslator;
+        createNonreusable();
         backEnd = gla::GetGlslBackEnd();
     }
 
     virtual ~GlslManager()
     {
-        gla::ReleaseGlslTranslator(backEndTranslator);
+        freeNonreusable();
         gla::ReleaseGlslBackEnd(backEnd);
     }
 
     virtual void clear()
     {
-        gla::ReleaseGlslTranslator(backEndTranslator);
-        glslBackEndTranslator = gla::GetGlslTranslator(this, obfuscate);
-        backEndTranslator = glslBackEndTranslator;
+        freeNonreusable();
+        createNonreusable();
+    }
+
+    virtual void createContext()
+    {
+        delete context;
+        context = new llvm::LLVMContext;
     }
 
     const char* getGeneratedShader() { return glslBackEndTranslator->getGeneratedShader(); }
 
 protected:
+    void createNonreusable()
+    {
+        glslBackEndTranslator = gla::GetGlslTranslator(this, obfuscate);
+        backEndTranslator = glslBackEndTranslator;
+    }
+    void freeNonreusable()
+    {
+        gla::ReleaseGlslTranslator(backEndTranslator);
+        delete module;
+        module = 0;
+        delete context;
+        context = 0;
+    }
+
     GlslTranslator* glslBackEndTranslator;
     bool obfuscate;
 };

@@ -35,7 +35,7 @@
 //===----------------------------------------------------------------------===//
 
 // Glslang C++ interface
-void GlslangToTop(glslang::TIntermediate&, gla::Manager&);
+void GlslangToTop(const glslang::TIntermediate&, gla::Manager&);
 
 // Glslang deprecated interface
 void GlslangToTop(TIntermNode* root, gla::Manager* manager);

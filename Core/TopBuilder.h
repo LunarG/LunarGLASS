@@ -282,7 +282,7 @@ public:
 
     // make a type for storing a matrix, which conforms to the 
     // assumptions of how matrices are operated on in the top builder
-    static llvm::Type* getMatrixType(llvm::Type* elementType, int numColumns, int numRows);
+    llvm::Type* getMatrixType(llvm::Type* elementType, int numColumns, int numRows);
 
     // handle component-wise matrix operations for either a
     // pair of matrices or a matrix and a scalar
@@ -486,6 +486,12 @@ protected:
     llvm::Function*   mainFunction;
     llvm::BasicBlock* stageEpilogue;
     llvm::BasicBlock* stageExit;
+
+    // This data structure below is not a matrix... 
+    // it's a cache of types for all possible matrix sizes.
+    static const int minMatrixSize = 2;
+    static const int maxMatrixSize = 4;
+    llvm::Type* matrixTypeCache[maxMatrixSize-minMatrixSize+1][maxMatrixSize-minMatrixSize+1];
 };  // end Builder class
 
 };  // end gla namespace

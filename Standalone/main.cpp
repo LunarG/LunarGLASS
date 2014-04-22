@@ -538,37 +538,43 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
     // For each populated stage, translate the linked result through to the back end.
     //
     for (int stage = 0; stage < EShLangCount; ++stage) {
-        glslang::TIntermediate* intermediate = program.getIntermediate((EShLanguage)stage);
+        const glslang::TIntermediate* intermediate = program.getIntermediate((EShLanguage)stage);
         if (! intermediate)
             continue;
 
-        gla::GlslManager manager;
+        const int numReps = 1;
+        for (int reps = 0; reps < numReps; ++reps) {
+            gla::GlslManager manager;
 
-        // Generate the Top IR
-        TranslateGlslangToTop(*intermediate, manager);
+            // Generate the Top IR
+            TranslateGlslangToTop(*intermediate, manager);
 
-        // Optionally override any versioning/extensions here.
-        // (If this is not done, it will inherit from the original shader source.)
-        if (TargetDefinitionVersion != 0)
-            manager.setVersion(TargetDefinitionVersion);
-        if (TargetDefinitionProfile != EBadProfile)
-            manager.setProfile(TargetDefinitionProfile);
+            // Optionally override any versioning/extensions here.
+            // (If this is not done, it will inherit from the original shader source.)
+            if (TargetDefinitionVersion != 0)
+                manager.setVersion(TargetDefinitionVersion);
+            if (TargetDefinitionProfile != EBadProfile)
+                manager.setProfile(TargetDefinitionProfile);
 
-        if (Options & gla::EOptionAssembly)
-            manager.dump("\nTop IR:\n");
+            if (reps + 1 == numReps)
+                if (Options & gla::EOptionAssembly)
+                    manager.dump("\nTop IR:\n");
 
-        // Generate the Bottom IR
-        manager.translateTopToBottom();
+            // Generate the Bottom IR
+            manager.translateTopToBottom();
     
-        if (Options & gla::EOptionAssembly)
-            manager.dump("\n\nBottom IR:\n");
+            if (reps + 1 == numReps)
+                if (Options & gla::EOptionAssembly)
+                    manager.dump("\n\nBottom IR:\n");
 
-        // Generate the GLSL output
-        manager.translateBottomToTarget();
+            // Generate the GLSL output
+            manager.translateBottomToTarget();
 
-        // Get and print the generated GLSL output
-        if (manager.getGeneratedShader())
-            printf("%s\n", manager.getGeneratedShader());
+            // Get and print the generated GLSL output
+            if (reps + 1 == numReps)
+                if (manager.getGeneratedShader())
+                    printf("%s\n", manager.getGeneratedShader());
+        }
     }
 
     // Free everything up, program has to go before the shaders
