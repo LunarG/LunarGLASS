@@ -56,6 +56,7 @@
 // LLVM includes
 #pragma warning(push, 1)
 #include "llvm/IR/Module.h"
+#include "llvm/IR/LLVMContext.h"
 #pragma warning(pop)
 
 extern int TargetDefinitionVersion;
@@ -66,13 +67,18 @@ extern EProfile TargetDefinitionProfile;
     class AdapterOnlyManager : public gla::Manager {
     public:
         AdapterOnlyManager() { }
-        virtual ~AdapterOnlyManager() { }
+        virtual ~AdapterOnlyManager() { delete context; }
 
         virtual void clear() 
         {
             delete module;
             module = 0;
-        } 
+        }
+
+        virtual void createContext()
+        {
+            context = new llvm::LLVMContext;
+        }
 
         virtual void translateTopToBottom() { }
         virtual void translateBottomToTarget() { }
