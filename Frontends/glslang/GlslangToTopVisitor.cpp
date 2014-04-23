@@ -113,6 +113,7 @@ protected:
     int assignSlot(glslang::TIntermSymbol* node, bool input);
     llvm::Value* getSymbolStorage(const glslang::TIntermSymbol* node, bool& firstTime);
     llvm::Value* createLLVMConstant(const glslang::TType& type, const glslang::TConstUnionArray&, int& nextConst);
+    llvm::Value* MakePermanentTypeProxy(llvm::Value*);
     llvm::MDNode* declareUniformMetadata(glslang::TIntermSymbol* node, llvm::Value*);
     llvm::MDNode* declareMdDefaultUniform(glslang::TIntermSymbol*, llvm::Value*);
     llvm::MDNode* makeMdSampler(const glslang::TType&, llvm::Value*);
@@ -122,6 +123,7 @@ protected:
     void setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot);
     llvm::MDNode* makeInputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot);
 
+    gla::Manager& manager;
     llvm::LLVMContext &context;
     llvm::BasicBlock* shaderEntry;
     llvm::IRBuilder<> llvmBuilder;
@@ -272,17 +274,6 @@ gla::EMdPrecision GetMdPrecision(const glslang::TType& type)
     }
 }
 
-llvm::Value* MakePermanentTypeProxy(llvm::Value* value)
-{
-    // Make a type proxy that won't be optimized away (we still want the real llvm::Value to get optimized away when it can)
-    llvm::Type* type = value->getType();
-    while (type->getTypeID() == llvm::Type::PointerTyID)
-        type = llvm::dyn_cast<llvm::PointerType>(type)->getContainedType(0);
-
-    // TODO: memory: who/how owns tracking and deleting this allocation?
-    return new llvm::GlobalVariable(type, true, llvm::GlobalVariable::ExternalLinkage, 0, value->getName() + "_typeProxy");
-}
-
 void GetInterpolationLocationMethod(const glslang::TType& type, gla::EInterpolationMethod& method, gla::EInterpolationLocation& location)
 {
     method = gla::EIMNone;
@@ -307,7 +298,7 @@ const int UnknownArraySize = 8;
 
 TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager, const glslang::TIntermediate* glslangIntermediate)
     : TIntermTraverser(true, false, true),
-      context(manager->getModule()->getContext()), shaderEntry(0), llvmBuilder(context),
+      manager(*manager), context(manager->getModule()->getContext()), shaderEntry(0), llvmBuilder(context),
       module(manager->getModule()), metadata(context, module),
       nextSlot(gla::MaxUserLayoutLocation), inMain(false), mainTerminated(false), linkageOnly(false),
       glslangIntermediate(glslangIntermediate)
@@ -2310,6 +2301,20 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& gl
     return glaBuilder->getConstant(llvmConsts, type);
 }
 
+llvm::Value* TGlslangToTopTraverser::MakePermanentTypeProxy(llvm::Value* value)
+{
+    // Make a type proxy that won't be optimized away (we still want the real llvm::Value to get optimized away when it can)
+    llvm::Type* type = value->getType();
+    while (type->getTypeID() == llvm::Type::PointerTyID)
+        type = llvm::dyn_cast<llvm::PointerType>(type)->getContainedType(0);
+
+    // Don't hook this global into the module, that will cause LLVM to optimize it away.
+    llvm::Value* typeProxy = new llvm::GlobalVariable(type, true, llvm::GlobalVariable::ExternalLinkage, 0, value->getName() + "_typeProxy");
+    manager.addToFreeList(typeProxy);
+
+    return typeProxy;
+}
+
 llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(glslang::TIntermSymbol* node, llvm::Value* value)
 {
     llvm::MDNode* md;
@@ -2352,7 +2357,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(glslang::TIntermSy
         structure = declareMdType(type);
 
     // Make the main node
-    return metadata.makeMdInputOutput(node->getName().c_str(), gla::UniformListMdName, gla::EMioDefaultUniform, 
+    return metadata.makeMdInputOutput(node->getName().c_str(), gla::UniformListMdName, gla::EMioDefaultUniform,
                                       MakePermanentTypeProxy(value),
                                       layout, GetMdPrecision(type), gla::MaxUserLayoutLocation, samplerMd, structure);
 }
@@ -2363,8 +2368,9 @@ llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const glslang::TType& type, 
     if (type.getBasicType() == glslang::EbtSampler) {
         llvm::Value* typeProxy = 0;
         if (! value) {
-            // TODO: memory: who/how owns tracking and deleting this allocation?
+            // Don't hook this global into the module, that will cause LLVM to optimize it away.
             typeProxy = new llvm::GlobalVariable(convertGlslangToGlaType(type), true, llvm::GlobalVariable::ExternalLinkage, 0, "sampler_typeProxy");
+            manager.addToFreeList(typeProxy);
         } else
             typeProxy = MakePermanentTypeProxy(value);
 

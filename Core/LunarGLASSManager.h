@@ -79,6 +79,8 @@ namespace gla {
         virtual void setModule(llvm::Module* m) { module = m; }
         virtual llvm::Module* getModule() const { return module; }
 
+        virtual void addToFreeList(llvm::Value* value) { freeList.push_back(value); }
+
         virtual void translateTopToBottom() = 0;
         virtual void translateBottomToTarget() = 0;
         virtual void dump(const char* heading) { }
@@ -97,6 +99,7 @@ namespace gla {
 
         llvm::LLVMContext* context;
         llvm::Module* module;
+        std::vector<llvm::Value*> freeList;
         int version;  // these three 'int' are generic types, to be used how the user of the manager wishes...
         int profile;  // ... which may include finding agreement between the front end and the back end
         int stage;

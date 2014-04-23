@@ -517,9 +517,7 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
 
     llvm::Value* value;
     if (global) {
-        // TODO: memory: who/how owns tracking and deleting this allocation?
-        llvm::GlobalVariable* globalValue = new llvm::GlobalVariable(type, readOnly, linkage, initializer, annotatedName, llvm::GlobalVariable::NotThreadLocal, addressSpace);
-        module->getGlobalList().push_back(globalValue);
+        llvm::GlobalVariable* globalValue = new llvm::GlobalVariable(*module, type, readOnly, linkage, initializer, annotatedName, 0, llvm::GlobalVariable::NotThreadLocal, addressSpace);
         value = globalValue;
 
         if (storageQualifier == ESQOutput) {

@@ -542,42 +542,48 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
         if (! intermediate)
             continue;
 
-        const int numReps = 1;
-        for (int reps = 0; reps < numReps; ++reps) {
-            gla::GlslManager manager;
+        for (int i = 0; i < ((Options & gla::EOptionMemoryLeakMode) ? 100 : 1); ++i) {
+            for (int j = 0; j < ((Options & gla::EOptionMemoryLeakMode) ? 100 : 1); ++j) {
+                gla::GlslManager manager;
 
-            // Generate the Top IR
-            TranslateGlslangToTop(*intermediate, manager);
+                // Generate the Top IR
+                TranslateGlslangToTop(*intermediate, manager);
 
-            // Optionally override any versioning/extensions here.
-            // (If this is not done, it will inherit from the original shader source.)
-            if (TargetDefinitionVersion != 0)
-                manager.setVersion(TargetDefinitionVersion);
-            if (TargetDefinitionProfile != EBadProfile)
-                manager.setProfile(TargetDefinitionProfile);
+                // Optionally override any versioning/extensions here.
+                // (If this is not done, it will inherit from the original shader source.)
+                if (TargetDefinitionVersion != 0)
+                    manager.setVersion(TargetDefinitionVersion);
+                if (TargetDefinitionProfile != EBadProfile)
+                    manager.setProfile(TargetDefinitionProfile);
 
-            if (reps + 1 == numReps)
                 if (Options & gla::EOptionAssembly)
                     manager.dump("\nTop IR:\n");
 
-            // Generate the Bottom IR
-            manager.translateTopToBottom();
+                // Generate the Bottom IR
+                manager.translateTopToBottom();
     
-            if (reps + 1 == numReps)
                 if (Options & gla::EOptionAssembly)
                     manager.dump("\n\nBottom IR:\n");
 
-            // Generate the GLSL output
-            manager.translateBottomToTarget();
+                // Generate the GLSL output
+                manager.translateBottomToTarget();
 
-            // Get and print the generated GLSL output
-            if (reps + 1 == numReps)
-                if (manager.getGeneratedShader())
-                    printf("%s\n", manager.getGeneratedShader());
+                // Get and print the generated GLSL output
+                if ((Options & gla::EOptionMemoryLeakMode) == 0)
+                    if (manager.getGeneratedShader())
+                        printf("%s\n", manager.getGeneratedShader());
+            }
+            #ifdef _WIN32
+                if (Options & gla::EOptionMemoryLeakMode) {
+                    PROCESS_MEMORY_COUNTERS counters;
+                    GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters));
+                    printf("Working set size: %d\n", counters.WorkingSetSize);
+                }
+            #endif
         }
     }
 
-    // Free everything up, program has to go before the shaders
+    // Free everything up, the glslang program has to go before the shaders
     // because it might have merged stuff from the shaders, and
     // the stuff from the shaders has to have its destructors called
     // before the pools holding the memory in the shaders is freed.

@@ -90,6 +90,10 @@ protected:
         module = 0;
         delete context;
         context = 0;
+        while (! freeList.empty()) {
+            delete freeList.back();
+            freeList.pop_back();
+        }
     }
 
     GlslTranslator* glslBackEndTranslator;
