@@ -174,6 +174,10 @@ public:
     ~GlslTarget()
     {
         delete generatedShader;
+        for (std::map<const llvm::Value*, std::string*>::const_iterator it = nonConvertedMap.begin(); it != nonConvertedMap.end(); ++it)
+            delete it->second;
+        for (std::map<const llvm::Value*, std::string*>::const_iterator it = valueMap.begin(); it != valueMap.end(); ++it)
+            delete it->second;
     }
 
     virtual void start(llvm::Module&)
