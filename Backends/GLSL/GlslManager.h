@@ -86,14 +86,14 @@ protected:
     void freeNonreusable()
     {
         gla::ReleaseGlslTranslator(backEndTranslator);
-        delete module;
-        module = 0;
-        delete context;
-        context = 0;
         while (! freeList.empty()) {
             delete freeList.back();
             freeList.pop_back();
         }
+        delete module;
+        module = 0;
+        delete context;
+        context = 0;
     }
 
     GlslTranslator* glslBackEndTranslator;
