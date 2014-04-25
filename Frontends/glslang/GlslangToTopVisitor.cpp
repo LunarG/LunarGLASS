@@ -107,6 +107,7 @@ protected:
     llvm::Value* createConversion(glslang::TOperator op, gla::EMdPrecision, llvm::Type*, llvm::Value* operand);
     llvm::Value* createUnaryIntrinsic(glslang::TOperator op, gla::EMdPrecision, llvm::Value* operand);
     llvm::Value* createIntrinsic(glslang::TOperator op, gla::EMdPrecision, std::vector<llvm::Value*>& operands, bool isUnsigned);
+    llvm::Value* createIntrinsic(glslang::TOperator op);
     void createPipelineRead(glslang::TIntermSymbol*, llvm::Value* storage, int slot, llvm::MDNode*);
     void createPipelineSubread(const glslang::TType& glaType, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md,
                                std::string& name, gla::EInterpolationMethod, gla::EInterpolationLocation);
@@ -844,6 +845,23 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
         }
         return false;
 
+    case glslang::EOpEmitVertex:
+    case glslang::EOpEndPrimitive:
+    case glslang::EOpBarrier:
+    case glslang::EOpMemoryBarrier:
+    case glslang::EOpMemoryBarrierAtomicCounter:
+    case glslang::EOpMemoryBarrierBuffer:
+    case glslang::EOpMemoryBarrierImage:
+    case glslang::EOpMemoryBarrierShared:
+    case glslang::EOpGroupMemoryBarrier:
+        // These all have 0 operands and will naturally finish up in the createIntrinsic code below for 0 operands
+        break;
+
+    case glslang::EOpEmitStreamVertex:
+    case glslang::EOpEndStreamPrimitive:
+        // These all have 1 operand and will naturally finish up in the createIntrinsic code below for 1 operand
+        break;
+
     default:
         break;
     }
@@ -886,8 +904,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
     }
     switch (glslangOperands.size()) {
     case 0:
-        gla::UnsupportedFunctionality("built-in function with zero arguments", gla::EATContinue);
-        result = 0;
+        result = createIntrinsic(node->getOp());
         break;
     case 1:
         result = createUnaryIntrinsic(node->getOp(), precision, operands.front());
@@ -1988,6 +2005,14 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
     case glslang::EOpModf:
         intrinsicID = llvm::Intrinsic::gla_fModF;
         break;
+
+    case glslang::EOpEmitStreamVertex:
+        intrinsicID = llvm::Intrinsic::gla_emitStreamVertex;
+        break;
+    case glslang::EOpEndStreamPrimitive:
+        intrinsicID = llvm::Intrinsic::gla_endStreamPrimitive;
+        break;
+
     default:
         break;
     }
@@ -2109,6 +2134,51 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
             break;
         }
     }
+
+    return result;
+}
+
+// Intrinsics with no arguments, no return value, and no precision.
+llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op)
+{
+    llvm::Value* result = 0;
+    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::ID(0);
+
+    switch (op) {
+    case glslang::EOpEmitVertex:
+        intrinsicID = llvm::Intrinsic::gla_emitVertex;
+        break;
+    case glslang::EOpEndPrimitive:
+        intrinsicID = llvm::Intrinsic::gla_endPrimitive;
+        break;
+    case glslang::EOpBarrier:
+        intrinsicID = llvm::Intrinsic::gla_barrier;
+        break;
+    case glslang::EOpMemoryBarrier:
+        intrinsicID = llvm::Intrinsic::gla_memoryBarrier;
+        break;
+    case glslang::EOpMemoryBarrierAtomicCounter:
+        intrinsicID = llvm::Intrinsic::gla_memoryBarrierAtomicCounter;
+        break;
+    case glslang::EOpMemoryBarrierBuffer:
+        intrinsicID = llvm::Intrinsic::gla_memoryBarrierBuffer;
+        break;
+    case glslang::EOpMemoryBarrierImage:
+        intrinsicID = llvm::Intrinsic::gla_memoryBarrierImage;
+        break;
+    case glslang::EOpMemoryBarrierShared:
+        intrinsicID = llvm::Intrinsic::gla_memoryBarrierShared;
+        break;
+    case glslang::EOpGroupMemoryBarrier:
+        intrinsicID = llvm::Intrinsic::gla_groupMemoryBarrier;
+        break;
+    default:
+        break;
+    }
+
+    // If intrinsic was assigned, then call the function and return
+    if (intrinsicID != 0)
+        result = glaBuilder->createIntrinsicCall(intrinsicID);
 
     return result;
 }

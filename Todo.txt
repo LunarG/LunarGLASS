@@ -3,7 +3,7 @@ Note: Also see the front-end TODO list; this is not a complete list for the fron
 LunarGLASS/GOO LLVM
   - Loop issues for LunarGLASS core
   - handle all derived classes of constant
-  - move to LLVM 3.3
+  + move to LLVM 3.4
 
 Adapters and Common Builder
   - read/write from variably chosen vector component
@@ -35,13 +35,18 @@ Shader Functionality to Implement/Finish
     GLSL 1.5 (Non-ES)
       - Added gl_FragCoord qualifiers origin_upper_left, and pixel_center_integer to modify the values returned by gl_FragCoord (and have no affect on any other aspect of the pipeline or language).
       - Added support for multi-sample textures through sampler2DMS and sampler2DMSArray support in texelFetch() and textureSize().
-      - Broadened interface blocks from just uniforms to in and out interfaces as well.
+v     - Broadened interface blocks from just uniforms to in and out interfaces as well.
       - Broaden array usage to include vertex shader inputs (vertex in).
-      - Added geometry shaders.  This includes targeting layers in FBO rendering.
-      - geometry shader layouts: they must be declared, telling the system the primitive input and output types and maximum number of vertices.
-      - Added geometry shader constants.
+v     - Added geometry shaders.  This includes targeting layers in FBO rendering.
+v       - geometry shader built-ins
+v       - geometry shader layouts: they must be declared, telling the system the primitive input and output types and maximum number of vertices.
+v       - other geometry shader features?
     GLSL 4.0
-      - tessellation control stage and tessellation evaluation stage. Includes barrier() built-in for synchronization.
+v     - tessellation control stage and tessellation evaluation stage. Includes barrier() built-in for synchronization.
+v       - patch in, patch out
+v       - input/output arrays
+v       - built-in variables, functions, and constants
+v       - layout qualifiers for primitive types
       - Polymorphic functions: Run-time selection of what function gets called, through the new keyword subroutine.
       - 64bit floating point numbers with the new type keyword double.  Built-in functions extended for doubles, and new function matching rules are added to both allow implicit conversions when calling a function and preserve most existing function matching once doubles are included. 
       - Cube map array textures and texture functions texture(), textureSize(), textureLod(), and textureGrad().
@@ -59,20 +64,22 @@ Shader Functionality to Implement/Finish
          - bitfieldReverse()
          - bitCount(),findLSB(), andfindMSB()
       - New built-in to query LOD, textureQueryLod().
-      - Texture gather functions that return four texels with a single call.
-         - textureGather()
-         - textureGatherOffset()
-         - textureGatherOffsets()
-      - Add streams out from geometry shader. Output can be directed to streams through
-         - EmitStreamVertex() and EndStreamPrimitive().
+      + Texture gather functions that return four texels with a single call.
+         + textureGather()
+         + textureGatherOffset()
+         + textureGatherOffsets()
+v     - Add streams out from geometry shader. Output can be directed to streams through
+v        - EmitStreamVertex() and EndStreamPrimitive().
     GLSL 4.1
-      - Support for partitioning shaders into multiple programs to provide light-weight mixing of different shader stages.
+v     - Support for partitioning shaders into multiple programs to provide light-weight mixing of different shader stages.
             (GL_ARB_separate_shader_objects)
-        - layout qualifiers
-        - redeclaration of input/output blocks
-        - ...
+v       - Layout qualifiers to provide cross-stage interfacing
+v       - redeclaration of built-in input/output blocks
+v       - ...other SSO features?
       - Add 64-bit floating-point attributes for vertex shader inputs.
     GLSL 4.2
+v     - binding qualifier for uniform blocks
+v     - binding qualifier for samplers
       - Add image types (GL_ARB_shader_image_load_store)
         - 33 new types, all with “image” in their name, correspond to the non-shadow texture types
         - addition of memory qualifiers: coherent,volatile, restrict, readonly, and writeonly
@@ -85,9 +92,6 @@ Shader Functionality to Implement/Finish
         - packHalf2x16 and unpackHalf2x16
         - packSnorm2x16and unpackSnorm2x16
       - Add gl_FragDepthlayout qualifiers to communicate what kind of changes will be made to gl_FragDepth(GL_AMD_conservative depth).
-      - Minor consistency fixes, corrections
-        - Use vec2 instead of vec3 for coordinate in textureGather*(sampler2DRect,...).
-        - Clarify that textureGatherOffset() can take non-constants for the offsets.
     GLSL 4.3
       - Add shader storage buffer objects, as per the ARB_shader_storage_buffer_object extension. 
         This includes 1) allowing the last member of a storage buffer block to be an array that does not 

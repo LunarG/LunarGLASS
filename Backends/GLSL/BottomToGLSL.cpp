@@ -2170,7 +2170,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
 
     // Handle the one-to-one mappings
     const char* callString = 0;
-    unsigned int callArgs = 0;
+    unsigned int callArgs = -1;
     int forceWidth = 0;
     bool convertResultToInt = false;
     bool convertArgsToUint = false;
@@ -2297,6 +2297,22 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     case llvm::Intrinsic::gla_not: callString = "not"; callArgs = 1; break;
     case llvm::Intrinsic::gla_any: callString = "any"; callArgs = 1; break;
     case llvm::Intrinsic::gla_all: callString = "all"; callArgs = 1; break;
+
+    // Control
+    case llvm::Intrinsic::gla_barrier:                    callString = "barrier";                    callArgs = 0; break;
+    case llvm::Intrinsic::gla_memoryBarrier:              callString = "memoryBarrier";              callArgs = 0; break;
+    case llvm::Intrinsic::gla_memoryBarrierAtomicCounter: callString = "memoryBarrierAtomicCounter"; callArgs = 0; break;
+    case llvm::Intrinsic::gla_memoryBarrierBuffer:        callString = "memoryBarrierBuffer";        callArgs = 0; break;
+    case llvm::Intrinsic::gla_memoryBarrierImage:         callString = "memoryBarrierImage";         callArgs = 0; break;
+    case llvm::Intrinsic::gla_memoryBarrierShared:        callString = "memoryBarrierShared";        callArgs = 0; break;
+    case llvm::Intrinsic::gla_groupMemoryBarrier:         callString = "groupMemoryBarrier";         callArgs = 0; break;
+
+    // Geometry
+    case llvm::Intrinsic::gla_emitVertex:                 callString = "EmitVertex";                 callArgs = 0; break;
+    case llvm::Intrinsic::gla_endPrimitive:               callString = "EndPrimitive";               callArgs = 0; break;
+    case llvm::Intrinsic::gla_emitStreamVertex:           callString = "emitStringVertex";           callArgs = 1; break;
+    case llvm::Intrinsic::gla_endStreamPrimitive:         callString = "emitStringVertex";           callArgs = 1; break;
+
     default: break;
     }
 
@@ -2307,7 +2323,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     default: break;
     }
 
-    if (callString == 0 || callArgs == 0)
+    if (callString == 0 || callArgs == -1)
         UnsupportedFunctionality("Intrinsic in Bottom IR", EATContinue);
     if (callArgs != llvmInstruction->getNumArgOperands())
         UnsupportedFunctionality("Intrinsic argument count: ", llvmInstruction->getNumOperands(), EATContinue);

@@ -1781,6 +1781,13 @@ llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* va
     return result;
 }
 
+llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID)
+{
+    llvm::Instruction* instr = builder.CreateCall(getIntrinsic(intrinsicID));
+    
+    return instr;
+}
+
 llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID)
 {
     llvm::Instruction* instr = builder.CreateCall(getIntrinsic(intrinsicID));

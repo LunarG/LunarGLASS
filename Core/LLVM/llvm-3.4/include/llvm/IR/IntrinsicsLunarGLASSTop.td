@@ -230,3 +230,22 @@ let TargetPrefix = "gla" in {
   def int_gla_discard : Intrinsic<[], [], []>;
   def int_gla_discardConditional : Intrinsic<[], [llvm_anyint_ty], []>;
 }
+
+// Geometry shader
+let TargetPrefix = "gla" in {
+  def int_gla_emitVertex   : Intrinsic<[], [], []>;
+  def int_gla_endPrimitive : Intrinsic<[], [], []>;
+  def int_gla_emitStreamVertex   : Intrinsic<[], [llvm_i32_ty], []>;
+  def int_gla_endStreamPrimitive : Intrinsic<[], [llvm_i32_ty], []>;
+}
+
+// Control
+let TargetPrefix = "gla" in {
+  def int_gla_barrier                    : Intrinsic<[], [], []>;
+  def int_gla_memoryBarrier              : Intrinsic<[], [], []>;
+  def int_gla_memoryBarrierAtomicCounter : Intrinsic<[], [], []>;
+  def int_gla_memoryBarrierBuffer        : Intrinsic<[], [], []>;
+  def int_gla_memoryBarrierShared        : Intrinsic<[], [], []>;
+  def int_gla_memoryBarrierImage         : Intrinsic<[], [], []>;
+  def int_gla_groupMemoryBarrier         : Intrinsic<[], [], []>;
+}
