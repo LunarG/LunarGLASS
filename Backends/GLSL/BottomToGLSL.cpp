@@ -863,7 +863,9 @@ void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNo
             slotOffset -= fieldSize;
             ++field;
         } while (true);
-        name = name + "." + std::string(mdAggregate->getOperand(GetAggregateMdNameOp(field))->getName());
+        if (name.size() > 0)
+            name = name + ".";
+        name = name + std::string(mdAggregate->getOperand(GetAggregateMdNameOp(field))->getName());
         const llvm::MDNode* subMdAggregate = llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand));
         DereferenceName(name, fieldType, subMdAggregate, slotOffset, mdTypeLayout);
     } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
@@ -2661,7 +2663,19 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
             return false;
         }
 
-        metaType.block = ioKind == EMioUniformBlockMember || ioKind == EMioBufferBlockMember;
+        // See whether it's a block.
+        switch (ioKind) {
+        case EMioUniformBlockMember:
+        case EMioBufferBlockMember:
+        case EMioPipeInBlock:
+        case EMioPipeOutBlock:
+            metaType.block = true;
+            break;
+        default:
+            metaType.block = false;
+            break;
+        }
+
         if (type == 0)
             type = proxyType;
 

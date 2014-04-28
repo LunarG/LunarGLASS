@@ -1,21 +1,5 @@
 
-***Unsupported functionality: block layout
-
-***Unsupported functionality: block layout
-
-***Unsupported functionality: block layout
-
-***Unsupported functionality: block layout
-
 ***Unsupported functionality: array or matrix in struct in outputs
-
-***Unsupported functionality: block layout
-
-***Unsupported functionality: block layout
-
-***Unsupported functionality: block layout
-
-***Unsupported functionality: block layout
 
 Top IR:
 ; ModuleID = 'Glslang'
@@ -635,31 +619,31 @@ entry:
   store float %gl_in289, float* getelementptr inbounds ([32 x %gl_PerVertex]* @in_shadow, i32 0, i32 31, i32 2, i32 0)
   %cd290 = load float* getelementptr ([32 x %gl_PerVertex]* @in_shadow, i32 0, i32 1, i32 2, i32 2)
   store float %cd290, float* %cd
-  %gl_PatchVerticesIn = call i32 @llvm.gla.readData.i32(i32 1120, i32 -1), !gla.input !7
+  %gl_PatchVerticesIn = call i32 @llvm.gla.readData.i32(i32 1120, i32 -1), !gla.input !6
   store i32 %gl_PatchVerticesIn, i32* @PatchVerticesIn_shadow
   %pvi291 = load i32* @PatchVerticesIn_shadow
   store i32 %pvi291, i32* %pvi
-  %gl_PrimitiveID = call i32 @llvm.gla.readData.i32(i32 1121, i32 -1), !gla.input !9
+  %gl_PrimitiveID = call i32 @llvm.gla.readData.i32(i32 1121, i32 -1), !gla.input !8
   store i32 %gl_PrimitiveID, i32* @PrimitiveID_shadow
   %pid292 = load i32* @PrimitiveID_shadow
   store i32 %pid292, i32* %pid
-  %gl_TessCoord = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1122, i32 -1), !gla.input !11
+  %gl_TessCoord = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1122, i32 -1), !gla.input !10
   store <3 x float> %gl_TessCoord, <3 x float>* @TessCoord_shadow
   %tc293 = load <3 x float>* @TessCoord_shadow
   store <3 x float> %tc293, <3 x float>* %tc
-  %gl_TessLevelOuter = call float @llvm.gla.fReadData.f32(i32 1123, i32 -1), !gla.input !13
+  %gl_TessLevelOuter = call float @llvm.gla.fReadData.f32(i32 1123, i32 -1), !gla.input !12
   store float %gl_TessLevelOuter, float* getelementptr inbounds ([4 x float]* @TessLevelOuter_shadow, i32 0, i32 0)
-  %gl_TessLevelOuter294 = call float @llvm.gla.fReadData.f32(i32 1124, i32 -1), !gla.input !13
+  %gl_TessLevelOuter294 = call float @llvm.gla.fReadData.f32(i32 1124, i32 -1), !gla.input !12
   store float %gl_TessLevelOuter294, float* getelementptr inbounds ([4 x float]* @TessLevelOuter_shadow, i32 0, i32 1)
-  %gl_TessLevelOuter295 = call float @llvm.gla.fReadData.f32(i32 1125, i32 -1), !gla.input !13
+  %gl_TessLevelOuter295 = call float @llvm.gla.fReadData.f32(i32 1125, i32 -1), !gla.input !12
   store float %gl_TessLevelOuter295, float* getelementptr inbounds ([4 x float]* @TessLevelOuter_shadow, i32 0, i32 2)
-  %gl_TessLevelOuter296 = call float @llvm.gla.fReadData.f32(i32 1126, i32 -1), !gla.input !13
+  %gl_TessLevelOuter296 = call float @llvm.gla.fReadData.f32(i32 1126, i32 -1), !gla.input !12
   store float %gl_TessLevelOuter296, float* getelementptr inbounds ([4 x float]* @TessLevelOuter_shadow, i32 0, i32 3)
   %tlo297 = load float* getelementptr inbounds ([4 x float]* @TessLevelOuter_shadow, i32 0, i32 3)
   store float %tlo297, float* %tlo
-  %gl_TessLevelInner = call float @llvm.gla.fReadData.f32(i32 1127, i32 -1), !gla.input !15
+  %gl_TessLevelInner = call float @llvm.gla.fReadData.f32(i32 1127, i32 -1), !gla.input !14
   store float %gl_TessLevelInner, float* getelementptr inbounds ([2 x float]* @TessLevelInner_shadow, i32 0, i32 0)
-  %gl_TessLevelInner298 = call float @llvm.gla.fReadData.f32(i32 1128, i32 -1), !gla.input !15
+  %gl_TessLevelInner298 = call float @llvm.gla.fReadData.f32(i32 1128, i32 -1), !gla.input !14
   store float %gl_TessLevelInner298, float* getelementptr inbounds ([2 x float]* @TessLevelInner_shadow, i32 0, i32 1)
   %tli299 = load float* getelementptr inbounds ([2 x float]* @TessLevelInner_shadow, i32 0, i32 1)
   store float %tli299, float* %tli
@@ -673,9 +657,9 @@ entry:
 
 stage-epilogue:                                   ; preds = %entry
   %3 = load <4 x float>* getelementptr inbounds (%gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 0)
-  call void @llvm.gla.fWriteData.v4f32(i32 1129, i32 -1, <4 x float> %3), !gla.output !33
+  call void @llvm.gla.fWriteData.v4f32(i32 1129, i32 -1, <4 x float> %3), !gla.output !32
   %4 = load float* getelementptr inbounds (%gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 1)
-  call void @llvm.gla.fWriteData.f32(i32 1130, i32 -1, float %4), !gla.output !33
+  call void @llvm.gla.fWriteData.f32(i32 1130, i32 -1, float %4), !gla.output !32
   %5 = load [1 x float]* getelementptr inbounds (%gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 2)
   br label %stage-exit
 
@@ -705,46 +689,45 @@ attributes #0 = { nounwind readonly }
 attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
-!gla.inputs = !{!1, !7, !9, !11, !13, !15, !17, !19, !21, !23, !26, !29, !31}
-!gla.outputs = !{!33, !35}
-!gla.noStaticUse = !{!17, !19, !21, !23, !26, !29, !31, !35}
+!gla.inputs = !{!1, !6, !8, !10, !12, !14, !16, !18, !20, !22, !25, !28, !30}
+!gla.outputs = !{!32, !34}
+!gla.noStaticUse = !{!16, !18, !20, !22, !25, !28, !30, !34}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"gl_in", i32 1, [32 x %gl_PerVertex]* @in_shadow_typeProxy, metadata !2, metadata !3}
-!2 = metadata !{i32 6, i32 0, i32 1024, null, i32 0}
+!1 = metadata !{metadata !"gl_in", i32 17, [32 x %gl_PerVertex]* @in_shadow_typeProxy, metadata !2, metadata !3}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 !3 = metadata !{metadata !"gl_PerVertex", metadata !4, metadata !"gl_Position", metadata !5, metadata !"gl_PointSize", metadata !5, metadata !"gl_ClipDistance", metadata !5}
-!4 = metadata !{i32 6, i32 0, i32 1024, null}
-!5 = metadata !{metadata !"", metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1024, null}
-!7 = metadata !{metadata !"gl_PatchVerticesIn", i32 1, i32* @PatchVerticesIn_shadow_typeProxy, metadata !8}
-!8 = metadata !{i32 0, i32 0, i32 1120, null, i32 0}
-!9 = metadata !{metadata !"gl_PrimitiveID", i32 1, i32* @PrimitiveID_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1121, null, i32 0}
-!11 = metadata !{metadata !"gl_TessCoord", i32 1, <3 x float>* @TessCoord_shadow_typeProxy, metadata !12}
-!12 = metadata !{i32 0, i32 0, i32 1122, null, i32 0}
-!13 = metadata !{metadata !"gl_TessLevelOuter", i32 1, [4 x float]* @TessLevelOuter_shadow_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 0, i32 1123, null, i32 0}
-!15 = metadata !{metadata !"gl_TessLevelInner", i32 1, [2 x float]* @TessLevelInner_shadow_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1127, null, i32 0}
-!17 = metadata !{metadata !"patchIn", i32 1, <4 x float>* @patchIn_shadow_typeProxy, metadata !18}
-!18 = metadata !{i32 0, i32 0, i32 1132, null, i32 0}
-!19 = metadata !{metadata !"inb", i32 1, [32 x <2 x float>]* @inb_shadow_typeProxy, metadata !20}
-!20 = metadata !{i32 0, i32 0, i32 1133, null, i32 0}
-!21 = metadata !{metadata !"ind", i32 1, [32 x <2 x float>]* @ind_shadow_typeProxy, metadata !22}
-!22 = metadata !{i32 0, i32 0, i32 1165, null, i32 0}
-!23 = metadata !{metadata !"blb", i32 1, [32 x %testblb]* @blb_shadow_typeProxy, metadata !24, metadata !25}
-!24 = metadata !{i32 6, i32 0, i32 1197, null, i32 0}
-!25 = metadata !{metadata !"testblb", metadata !4, metadata !"f", metadata !5}
-!26 = metadata !{metadata !"bld", i32 1, [32 x %testbld]* @bld_shadow_typeProxy, metadata !27, metadata !28}
-!27 = metadata !{i32 6, i32 0, i32 1229, null, i32 0}
-!28 = metadata !{metadata !"testbld", metadata !4, metadata !"f", metadata !5}
-!29 = metadata !{metadata !"ivla", i32 1, [32 x <4 x float>]* @ivla_shadow_typeProxy, metadata !30}
-!30 = metadata !{i32 0, i32 0, i32 23, null, i32 0}
-!31 = metadata !{metadata !"ivlb", i32 1, [32 x <4 x float>]* @ivlb_shadow_typeProxy, metadata !32}
-!32 = metadata !{i32 0, i32 0, i32 24, null, i32 0}
-!33 = metadata !{metadata !"anon@1", i32 7, %gl_PerVertex.0* @"anon@1_shadow_typeProxy", metadata !34, metadata !3}
-!34 = metadata !{i32 6, i32 0, i32 1129, null, i32 0}
-!35 = metadata !{metadata !"ovla", i32 7, [2 x <4 x float>]* @ovla_shadow_typeProxy, metadata !30}
+!4 = metadata !{i32 0, i32 0, i32 1024, null}
+!5 = metadata !{metadata !"", metadata !4}
+!6 = metadata !{metadata !"gl_PatchVerticesIn", i32 1, i32* @PatchVerticesIn_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 0, i32 1120, null, i32 0}
+!8 = metadata !{metadata !"gl_PrimitiveID", i32 1, i32* @PrimitiveID_shadow_typeProxy, metadata !9}
+!9 = metadata !{i32 0, i32 0, i32 1121, null, i32 0}
+!10 = metadata !{metadata !"gl_TessCoord", i32 1, <3 x float>* @TessCoord_shadow_typeProxy, metadata !11}
+!11 = metadata !{i32 0, i32 0, i32 1122, null, i32 0}
+!12 = metadata !{metadata !"gl_TessLevelOuter", i32 1, [4 x float]* @TessLevelOuter_shadow_typeProxy, metadata !13}
+!13 = metadata !{i32 0, i32 0, i32 1123, null, i32 0}
+!14 = metadata !{metadata !"gl_TessLevelInner", i32 1, [2 x float]* @TessLevelInner_shadow_typeProxy, metadata !15}
+!15 = metadata !{i32 0, i32 0, i32 1127, null, i32 0}
+!16 = metadata !{metadata !"patchIn", i32 1, <4 x float>* @patchIn_shadow_typeProxy, metadata !17}
+!17 = metadata !{i32 0, i32 0, i32 1132, null, i32 0}
+!18 = metadata !{metadata !"inb", i32 1, [32 x <2 x float>]* @inb_shadow_typeProxy, metadata !19}
+!19 = metadata !{i32 0, i32 0, i32 1133, null, i32 0}
+!20 = metadata !{metadata !"ind", i32 1, [32 x <2 x float>]* @ind_shadow_typeProxy, metadata !21}
+!21 = metadata !{i32 0, i32 0, i32 1165, null, i32 0}
+!22 = metadata !{metadata !"blb", i32 17, [32 x %testblb]* @blb_shadow_typeProxy, metadata !23, metadata !24}
+!23 = metadata !{i32 0, i32 0, i32 1197, null, i32 0}
+!24 = metadata !{metadata !"testblb", metadata !4, metadata !"f", metadata !5}
+!25 = metadata !{metadata !"bld", i32 17, [32 x %testbld]* @bld_shadow_typeProxy, metadata !26, metadata !27}
+!26 = metadata !{i32 0, i32 0, i32 1229, null, i32 0}
+!27 = metadata !{metadata !"testbld", metadata !4, metadata !"f", metadata !5}
+!28 = metadata !{metadata !"ivla", i32 1, [32 x <4 x float>]* @ivla_shadow_typeProxy, metadata !29}
+!29 = metadata !{i32 0, i32 0, i32 23, null, i32 0}
+!30 = metadata !{metadata !"ivlb", i32 1, [32 x <4 x float>]* @ivlb_shadow_typeProxy, metadata !31}
+!31 = metadata !{i32 0, i32 0, i32 24, null, i32 0}
+!32 = metadata !{metadata !"", i32 16, %gl_PerVertex.0* @"anon@1_shadow_typeProxy", metadata !33, metadata !3}
+!33 = metadata !{i32 0, i32 0, i32 1129, null, i32 0}
+!34 = metadata !{metadata !"ovla", i32 7, [2 x <4 x float>]* @ovla_shadow_typeProxy, metadata !29}
 
 
 Bottom IR:
@@ -1632,10 +1615,10 @@ entry:
   %gla_constGEP590 = getelementptr %gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 1
   store float %ps193, float* %gla_constGEP590, align 16
   store float %cd290, float* getelementptr (%gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 2, i32 2), align 4
-  call void @llvm.gla.fWriteData.v4f32(i32 1129, i32 -1, <4 x float> %p96), !gla.output !33
+  call void @llvm.gla.fWriteData.v4f32(i32 1129, i32 -1, <4 x float> %p96), !gla.output !32
   %gla_constGEP591 = getelementptr %gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 1
   %0 = load float* %gla_constGEP591, align 16
-  call void @llvm.gla.fWriteData.f32(i32 1130, i32 -1, float %0), !gla.output !33
+  call void @llvm.gla.fWriteData.f32(i32 1130, i32 -1, float %0), !gla.output !32
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -1661,46 +1644,45 @@ attributes #0 = { nounwind readonly }
 attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
-!gla.inputs = !{!1, !7, !9, !11, !13, !15, !17, !19, !21, !23, !26, !29, !31}
-!gla.outputs = !{!33, !35}
-!gla.noStaticUse = !{!17, !19, !21, !23, !26, !29, !31, !35}
+!gla.inputs = !{!1, !6, !8, !10, !12, !14, !16, !18, !20, !22, !25, !28, !30}
+!gla.outputs = !{!32, !34}
+!gla.noStaticUse = !{!16, !18, !20, !22, !25, !28, !30, !34}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"gl_in", i32 1, [32 x %gl_PerVertex]* @in_shadow_typeProxy, metadata !2, metadata !3}
-!2 = metadata !{i32 6, i32 0, i32 1024, null, i32 0}
+!1 = metadata !{metadata !"gl_in", i32 17, [32 x %gl_PerVertex]* @in_shadow_typeProxy, metadata !2, metadata !3}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 !3 = metadata !{metadata !"gl_PerVertex", metadata !4, metadata !"gl_Position", metadata !5, metadata !"gl_PointSize", metadata !5, metadata !"gl_ClipDistance", metadata !5}
-!4 = metadata !{i32 6, i32 0, i32 1024, null}
-!5 = metadata !{metadata !"", metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1024, null}
-!7 = metadata !{metadata !"gl_PatchVerticesIn", i32 1, i32* @PatchVerticesIn_shadow_typeProxy, metadata !8}
-!8 = metadata !{i32 0, i32 0, i32 1120, null, i32 0}
-!9 = metadata !{metadata !"gl_PrimitiveID", i32 1, i32* @PrimitiveID_shadow_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1121, null, i32 0}
-!11 = metadata !{metadata !"gl_TessCoord", i32 1, <3 x float>* @TessCoord_shadow_typeProxy, metadata !12}
-!12 = metadata !{i32 0, i32 0, i32 1122, null, i32 0}
-!13 = metadata !{metadata !"gl_TessLevelOuter", i32 1, [4 x float]* @TessLevelOuter_shadow_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 0, i32 1123, null, i32 0}
-!15 = metadata !{metadata !"gl_TessLevelInner", i32 1, [2 x float]* @TessLevelInner_shadow_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1127, null, i32 0}
-!17 = metadata !{metadata !"patchIn", i32 1, <4 x float>* @patchIn_shadow_typeProxy, metadata !18}
-!18 = metadata !{i32 0, i32 0, i32 1132, null, i32 0}
-!19 = metadata !{metadata !"inb", i32 1, [32 x <2 x float>]* @inb_shadow_typeProxy, metadata !20}
-!20 = metadata !{i32 0, i32 0, i32 1133, null, i32 0}
-!21 = metadata !{metadata !"ind", i32 1, [32 x <2 x float>]* @ind_shadow_typeProxy, metadata !22}
-!22 = metadata !{i32 0, i32 0, i32 1165, null, i32 0}
-!23 = metadata !{metadata !"blb", i32 1, [32 x %testblb]* @blb_shadow_typeProxy, metadata !24, metadata !25}
-!24 = metadata !{i32 6, i32 0, i32 1197, null, i32 0}
-!25 = metadata !{metadata !"testblb", metadata !4, metadata !"f", metadata !5}
-!26 = metadata !{metadata !"bld", i32 1, [32 x %testbld]* @bld_shadow_typeProxy, metadata !27, metadata !28}
-!27 = metadata !{i32 6, i32 0, i32 1229, null, i32 0}
-!28 = metadata !{metadata !"testbld", metadata !4, metadata !"f", metadata !5}
-!29 = metadata !{metadata !"ivla", i32 1, [32 x <4 x float>]* @ivla_shadow_typeProxy, metadata !30}
-!30 = metadata !{i32 0, i32 0, i32 23, null, i32 0}
-!31 = metadata !{metadata !"ivlb", i32 1, [32 x <4 x float>]* @ivlb_shadow_typeProxy, metadata !32}
-!32 = metadata !{i32 0, i32 0, i32 24, null, i32 0}
-!33 = metadata !{metadata !"anon@1", i32 7, %gl_PerVertex.0* @"anon@1_shadow_typeProxy", metadata !34, metadata !3}
-!34 = metadata !{i32 6, i32 0, i32 1129, null, i32 0}
-!35 = metadata !{metadata !"ovla", i32 7, [2 x <4 x float>]* @ovla_shadow_typeProxy, metadata !30}
+!4 = metadata !{i32 0, i32 0, i32 1024, null}
+!5 = metadata !{metadata !"", metadata !4}
+!6 = metadata !{metadata !"gl_PatchVerticesIn", i32 1, i32* @PatchVerticesIn_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 0, i32 1120, null, i32 0}
+!8 = metadata !{metadata !"gl_PrimitiveID", i32 1, i32* @PrimitiveID_shadow_typeProxy, metadata !9}
+!9 = metadata !{i32 0, i32 0, i32 1121, null, i32 0}
+!10 = metadata !{metadata !"gl_TessCoord", i32 1, <3 x float>* @TessCoord_shadow_typeProxy, metadata !11}
+!11 = metadata !{i32 0, i32 0, i32 1122, null, i32 0}
+!12 = metadata !{metadata !"gl_TessLevelOuter", i32 1, [4 x float]* @TessLevelOuter_shadow_typeProxy, metadata !13}
+!13 = metadata !{i32 0, i32 0, i32 1123, null, i32 0}
+!14 = metadata !{metadata !"gl_TessLevelInner", i32 1, [2 x float]* @TessLevelInner_shadow_typeProxy, metadata !15}
+!15 = metadata !{i32 0, i32 0, i32 1127, null, i32 0}
+!16 = metadata !{metadata !"patchIn", i32 1, <4 x float>* @patchIn_shadow_typeProxy, metadata !17}
+!17 = metadata !{i32 0, i32 0, i32 1132, null, i32 0}
+!18 = metadata !{metadata !"inb", i32 1, [32 x <2 x float>]* @inb_shadow_typeProxy, metadata !19}
+!19 = metadata !{i32 0, i32 0, i32 1133, null, i32 0}
+!20 = metadata !{metadata !"ind", i32 1, [32 x <2 x float>]* @ind_shadow_typeProxy, metadata !21}
+!21 = metadata !{i32 0, i32 0, i32 1165, null, i32 0}
+!22 = metadata !{metadata !"blb", i32 17, [32 x %testblb]* @blb_shadow_typeProxy, metadata !23, metadata !24}
+!23 = metadata !{i32 0, i32 0, i32 1197, null, i32 0}
+!24 = metadata !{metadata !"testblb", metadata !4, metadata !"f", metadata !5}
+!25 = metadata !{metadata !"bld", i32 17, [32 x %testbld]* @bld_shadow_typeProxy, metadata !26, metadata !27}
+!26 = metadata !{i32 0, i32 0, i32 1229, null, i32 0}
+!27 = metadata !{metadata !"testbld", metadata !4, metadata !"f", metadata !5}
+!28 = metadata !{metadata !"ivla", i32 1, [32 x <4 x float>]* @ivla_shadow_typeProxy, metadata !29}
+!29 = metadata !{i32 0, i32 0, i32 23, null, i32 0}
+!30 = metadata !{metadata !"ivlb", i32 1, [32 x <4 x float>]* @ivlb_shadow_typeProxy, metadata !31}
+!31 = metadata !{i32 0, i32 0, i32 24, null, i32 0}
+!32 = metadata !{metadata !"", i32 16, %gl_PerVertex.0* @"anon@1_shadow_typeProxy", metadata !33, metadata !3}
+!33 = metadata !{i32 0, i32 0, i32 1129, null, i32 0}
+!34 = metadata !{metadata !"ovla", i32 7, [2 x <4 x float>]* @ovla_shadow_typeProxy, metadata !29}
 
 ***Unsupported functionality: missing metadata on load 0 in_shadow
 

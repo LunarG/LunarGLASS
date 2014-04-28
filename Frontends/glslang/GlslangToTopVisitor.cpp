@@ -154,36 +154,43 @@ namespace {
 
 gla::EMdInputOutput GetMdQualifier(glslang::TIntermSymbol* node)
 {
-    gla::EMdInputOutput mdQualifier;
+    gla::EMdInputOutput mdQualifier = gla::EMioNone;
+
+    if (node->getType().getBasicType() == glslang::EbtBlock) {
+        switch (node->getQualifier().storage) {
+        default:                                                                break;
+        case glslang::EvqVaryingIn:  mdQualifier = gla::EMioPipeInBlock;        break;
+        case glslang::EvqVaryingOut: mdQualifier = gla::EMioPipeOutBlock;       break;
+        case glslang::EvqBuffer:     mdQualifier = gla::EMioBufferBlockMember;  break;
+        case glslang::EvqUniform:    mdQualifier = gla::EMioUniformBlockMember; break;
+        }
+
+        return mdQualifier;
+    }
+
+    // non-blocks...
+
     switch (node->getQualifier().storage) {
+    default:                                                             break;
 
     // inputs
+    case glslang::EvqVaryingIn:  mdQualifier = gla::EMioPipeIn;          break;
     case glslang::EvqVertexId:   mdQualifier = gla::EMioVertexId;        break;
     case glslang::EvqInstanceId: mdQualifier = gla::EMioInstanceId;      break;
     case glslang::EvqFace:       mdQualifier = gla::EMioFragmentFace;    break;
     case glslang::EvqPointCoord: mdQualifier = gla::EMioPointCoord;      break;
     case glslang::EvqFragCoord:  mdQualifier = gla::EMioFragmentCoord;   break;
-    case glslang::EvqVaryingIn:  mdQualifier = gla::EMioPipeIn;          break;
 
     // outputs
-    case glslang::EvqPosition:   mdQualifier = gla::EMioVertexPosition;    break;
-    case glslang::EvqPointSize:  mdQualifier = gla::EMioPointSize;         break;
-    case glslang::EvqClipVertex: mdQualifier = gla::EMioClipVertex;        break;
-    case glslang::EvqVaryingOut: mdQualifier = gla::EMioPipeOut;           break;
-    case glslang::EvqFragColor:  mdQualifier = gla::EMioPipeOut;           break;
-    case glslang::EvqFragDepth:  mdQualifier = gla::EMioFragmentDepth;     break;
+    case glslang::EvqVaryingOut: mdQualifier = gla::EMioPipeOut;         break;
+    case glslang::EvqPosition:   mdQualifier = gla::EMioVertexPosition;  break;
+    case glslang::EvqPointSize:  mdQualifier = gla::EMioPointSize;       break;
+    case glslang::EvqClipVertex: mdQualifier = gla::EMioClipVertex;      break;
+    case glslang::EvqFragColor:  mdQualifier = gla::EMioPipeOut;         break;
+    case glslang::EvqFragDepth:  mdQualifier = gla::EMioFragmentDepth;   break;
 
     // uniforms
-    case glslang::EvqBuffer:     mdQualifier = gla::EMioBufferBlockMember; break;
-    case glslang::EvqUniform:    
-                    if (node->getType().getBasicType() == glslang::EbtBlock)
-                        mdQualifier = gla::EMioUniformBlockMember;
-                    else
-                        mdQualifier = gla::EMioDefaultUniform;
-                                                                  break;
-    default:
-        mdQualifier = gla::EMioNone;
-        break;
+    case glslang::EvqUniform:    mdQualifier = gla::EMioDefaultUniform;  break;
     }
 
     return mdQualifier;
@@ -196,25 +203,36 @@ gla::EMdTypeLayout GetMdTypeLayout(const glslang::TType& type)
     if (type.isMatrix()) {
         switch (type.getQualifier().layoutMatrix) {
         case glslang::ElmRowMajor: mdType = gla::EMtlRowMajorMatrix;   break;
-        default:          mdType = gla::EMtlColMajorMatrix;   break;
+        default:                   mdType = gla::EMtlColMajorMatrix;   break;
         }
     } else {
         switch (type.getBasicType()) {
+        default:                   mdType = gla::EMtlNone;       break;
         case glslang::EbtSampler:  mdType = gla::EMtlSampler;    break;
         case glslang::EbtStruct:   mdType = gla::EMtlAggregate;  break;
         case glslang::EbtUint:     mdType = gla::EMtlUnsigned;   break;
         case glslang::EbtBlock:
-            switch (type.getQualifier().layoutPacking) {
-            case glslang::ElpShared:  return gla::EMtlShared;
-            case glslang::ElpStd140:  return gla::EMtlStd140;
-            case glslang::ElpStd430:  return gla::EMtlStd430;
-            case glslang::ElpPacked:  return gla::EMtlPacked;
+            switch (type.getQualifier().storage) {
+            case glslang::EvqUniform:
+                switch (type.getQualifier().layoutPacking) {
+                case glslang::ElpShared:  return gla::EMtlShared;
+                case glslang::ElpStd140:  return gla::EMtlStd140;
+                case glslang::ElpStd430:  return gla::EMtlStd430;
+                case glslang::ElpPacked:  return gla::EMtlPacked;
+                default:
+                    gla::UnsupportedFunctionality("uniform block layout", gla::EATContinue);
+                    return gla::EMtlShared;
+                }
+                break;
+            case glslang::EvqVaryingIn:
+            case glslang::EvqVaryingOut:
+                if (type.getQualifier().layoutPacking != glslang::ElpNone)
+                    gla::UnsupportedFunctionality("in/out block layout", gla::EATContinue);
+                return gla::EMtlNone;
             default:
-                gla::UnsupportedFunctionality("block layout", gla::EATContinue);
-                return gla::EMtlShared;
+                gla::UnsupportedFunctionality("block storage qualification", gla::EATContinue);
+                return gla::EMtlNone;
             }
-
-        default:          mdType = gla::EMtlNone;       break;
         }
     }
 
@@ -273,6 +291,14 @@ gla::EMdPrecision GetMdPrecision(const glslang::TType& type)
     case glslang::EpqHigh:    return gla::EMpHigh;
     default:                  return gla::EMpNone;
     }
+}
+
+const char* filterMdName(const glslang::TString& name)
+{
+    if (glslang::IsAnonymous(name))
+        return "";
+    else
+        return name.c_str();
 }
 
 void GetInterpolationLocationMethod(const glslang::TType& type, gla::EInterpolationMethod& method, gla::EInterpolationLocation& location)
@@ -2454,17 +2480,12 @@ llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const glslang::TType& type, 
 llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput ioType, const glslang::TIntermSymbol* node, llvm::Value* value)
 {
     const glslang::TType& type = node->getType();
-    const char* name;
-    if (glslang::IsAnonymous(node->getName()))
-        name = "";
-    else
-        name = node->getName().c_str();
 
     // Make hierachical type information
     llvm::MDNode* block = declareMdType(type);
 
     // Make the main node
-    return metadata.makeMdInputOutput(name, gla::UniformListMdName, ioType, MakePermanentTypeProxy(value),
+    return metadata.makeMdInputOutput(filterMdName(node->getName().c_str()), gla::UniformListMdName, ioType, MakePermanentTypeProxy(value),
                                       GetMdTypeLayout(type), GetMdPrecision(type), gla::MaxUserLayoutLocation, 0, block);
 }
 
@@ -2501,6 +2522,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type)
     return llvm::MDNode::get(context, mdArgs);
 }
 
+// Make metadata node for either an 'in' or an 'out' variable/block
 llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(glslang::TIntermSymbol* node, llvm::Value* value, int slot, const char* kind)
 {    
     llvm::MDNode* aggregate = 0;
@@ -2513,7 +2535,7 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(glslang::TIntermSy
     gla::EInterpolationLocation interpLocation;
     GetInterpolationLocationMethod(node->getType(), interpMethod, interpLocation);
 
-    return metadata.makeMdInputOutput(node->getName().c_str(), kind, GetMdQualifier(node), MakePermanentTypeProxy(value), 
+    return metadata.makeMdInputOutput(filterMdName(node->getName().c_str()), kind, GetMdQualifier(node), MakePermanentTypeProxy(value), 
                                       GetMdTypeLayout(node->getType()), GetMdPrecision(node->getType()), slot, 0, aggregate,
                                       gla::MakeInterpolationMode(interpMethod, interpLocation));
 }

@@ -22,7 +22,7 @@ void main()
     EndPrimitive();
 
     color = fromV[0].color;
-    gl_ClipDistance[3] = gl_in[1].gl_ClipDistance[2];
+    //?? gl_ClipDistance[3] = gl_in[1].gl_ClipDistance[2];
     gl_Position = gl_in[0].gl_Position;
     gl_PointSize = gl_in[3].gl_PointSize;
     gl_PrimitiveID = gl_PrimitiveIDIn;

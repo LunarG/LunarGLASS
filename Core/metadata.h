@@ -160,6 +160,11 @@ enum EMdInputOutput {
 
     // Entry point into shader
     EMioEntrypoint,
+
+    // in & out blocks
+    EMioPipeOutBlock,         // output block
+    EMioPipeInBlock,          // input block
+
     EMioCount,
 };
 
