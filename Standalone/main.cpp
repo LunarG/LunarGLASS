@@ -510,11 +510,6 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
             }
         }
 
-        if (Options & gla::EOptionIntermediate) {
-            puts(names[n]);
-            puts(shader->getInfoDebugLog());     // This holds the AST
-        }
-
         if (CompileFailed)
             return;
         
@@ -547,6 +542,12 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
         const glslang::TIntermediate* intermediate = program.getIntermediate((EShLanguage)stage);
         if (! intermediate)
             continue;
+
+        // Dump the post-link AST from the glslang front end
+        if (Options & gla::EOptionIntermediate) {
+            puts(glslang::StageName((EShLanguage)stage));
+            puts(program.getInfoDebugLog());     // This holds the AST
+        }
 
         for (int i = 0; i < ((Options & gla::EOptionMemoryLeakMode) ? 100 : 1); ++i) {
             for (int j = 0; j < ((Options & gla::EOptionMemoryLeakMode) ? 100 : 1); ++j) {
