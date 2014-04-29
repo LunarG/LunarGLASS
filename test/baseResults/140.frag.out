@@ -190,6 +190,7 @@ layout(std140) uniform bn {
     mat4 matc;
     layout(row_major) mat4 matrdef;
 } ;
+in float gl_ClipDistance[5];
 in vec4 i;
 out vec4 o;
 float ClipDistance_shadow[5];
@@ -224,6 +225,7 @@ layout(std140) uniform bn {
     mat4 matc;
     layout(row_major) mat4 matrdef;
 } ;
+in float gl_ClipDistance[5];
 in vec4 i;
 out vec4 o;
 float ClipDistance_shadow[5];

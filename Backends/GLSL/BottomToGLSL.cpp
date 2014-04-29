@@ -931,9 +931,30 @@ void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
 
 void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode)
 {
-    // TODO: allow "gl_" for adding invariant, etc.
     std::string name = mdNode->getOperand(0)->getName();
-    if (name.substr(0,3) == std::string("gl_"))
+
+    bool declarationAllowed = true;
+    if (name.substr(0,3) == std::string("gl_")) {
+        // Names starting "gl_" are
+        //  - an error to declare them explicitly, as they are built-in
+        //  - okay to declare (e.g., gl_ClipDistance) if something is added, like array size or invariant
+        //  - required to be declared, if the shader declared them, to make SSO work
+        // Basically, the rules are ad hoc, and so listed here.
+        declarationAllowed = false;
+        if (name == "gl_ClipDistance")
+            declarationAllowed = true;
+
+        // TODO: handle gl_PerVertex, gl_in, etc. the following is not yet tested, and mixing type name with object name:
+        //if (version >= 410 && manager->getRequestedExtensions().find("GL_ARB_separate_shader_objects") != manager->getRequestedExtensions().end() &&
+        //    (name == "gl_PerVertex" ||
+        //     name == "gl_PerFragment" ||
+        //     name == "gl_in"))
+        //    declarationAllowed = true;
+
+        // TODO: allow "gl_" for adding invariant, etc.  They are in the metadata !invariant list
+    }
+
+    if (! declarationAllowed)
         return;
 
     int arraySize = emitGlaType(globalDeclarations, EMpCount, qualifier, 0, true, mdNode);
@@ -1196,7 +1217,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             MakeParseable(name);
             if (MapGlaAddressSpace(llvmInstruction->getOperand(0)) == EVQGlobal) {
                 // This is could be a path for a hoisted "undef" aggregate.  See hoistUndefOps().
-                // (Normally, everything should be in registers.)                // 
+                // (Normally, everything should be in registers.)
                 // TODO: LunarGOO: Find a way to eliminate global undefs so there are not extra "var = global-aggregete" statements
                 //       in the created output.
             } else
