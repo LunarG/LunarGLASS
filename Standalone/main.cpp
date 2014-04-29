@@ -292,7 +292,7 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
                 Options |= gla::EOptionRelaxedErrors;
                 break;
             case 's':
-                Options |= gla::EOptionSuppressInfolog;
+                Options |= gla::EOptionSilent;
                 break;
             case 'w':
                 Options |= gla::EOptionSuppressWarnings;
@@ -504,13 +504,19 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
 
         if (! shader->parse(resources, 100, false, messages)) {
             CompileFailed = true;
-            if (! (Options & gla::EOptionSuppressInfolog)) {
+            if (! (Options & gla::EOptionSilent)) {
                 puts(names[n]);
                 puts(shader->getInfoLog());
             }
-
-            return;
         }
+
+        if (Options & gla::EOptionIntermediate) {
+            puts(names[n]);
+            puts(shader->getInfoDebugLog());     // This holds the AST
+        }
+
+        if (CompileFailed)
+            return;
         
         program.addShader(shader);
 
@@ -523,7 +529,7 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
 
     if (! program.link(messages)) {
         LinkFailed = true;
-        if (! (Options & gla::EOptionSuppressInfolog))
+        if (! (Options & gla::EOptionSilent))
             puts(program.getInfoLog());
 
         return;
@@ -569,7 +575,7 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
                 manager.translateBottomToTarget();
 
                 // Get and print the generated GLSL output
-                if ((Options & gla::EOptionMemoryLeakMode) == 0)
+                if (! (Options & gla::EOptionMemoryLeakMode) && ! (Options & gla::EOptionSilent))
                     if (manager.getGeneratedShader())
                         printf("%s\n", manager.getGeneratedShader());
             }

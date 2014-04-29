@@ -49,7 +49,7 @@ namespace gla {
     enum CommandOptions {
 	    EOptionNone               = 0x000,
 	    EOptionIntermediate       = 0x001,
-	    EOptionSuppressInfolog    = 0x002,
+	    EOptionSilent             = 0x002,
 	    EOptionMemoryLeakMode     = 0x004,
         EOptionRelaxedErrors      = 0x008,
         EOptionGiveWarnings       = 0x010,
