@@ -17,8 +17,12 @@ layout(std140) uniform bn {
     mat4 matrdef;
 };
 
+uniform sampler2DRect sampR;
+uniform isamplerBuffer sampB;
+
 void main()
 {
     o.y = gl_ClipDistance[2];
     o.z = gl_ClipDistance[int(i)];
+    o.w = float(textureSize(sampR) + textureSize(sampB)) / 100.0;
 }

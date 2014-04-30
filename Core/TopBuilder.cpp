@@ -1611,7 +1611,7 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
     return instr;
 }
 
-llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Type* returnType, llvm::Constant* samplerType, llvm::Value* sampler, llvm::Value* src)
+llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Type* returnType, llvm::Constant* samplerType, llvm::Value* sampler, llvm::Value* arg2)
 {
     llvm::Function* intrinsicName = 0;
 
@@ -1620,7 +1620,7 @@ llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::
         intrinsicName = getIntrinsic(intrinsicID, returnType);
         break;
     case llvm::Intrinsic::gla_fQueryTextureLod:
-        intrinsicName = getIntrinsic(intrinsicID, returnType, src->getType());
+        intrinsicName = getIntrinsic(intrinsicID, returnType, arg2->getType());
         break;
     default:
         gla::UnsupportedFunctionality("Texture query intrinsic");
@@ -1629,7 +1629,12 @@ llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::
 
     assert(intrinsicName);
 
-    llvm::Instruction* instr = builder.CreateCall3(intrinsicName, samplerType, sampler, src);
+    llvm::Instruction* instr;
+    if (arg2)
+        instr = builder.CreateCall3(intrinsicName, samplerType, sampler, arg2);
+    else
+        instr = builder.CreateCall2(intrinsicName, samplerType, sampler);
+
     setInstructionPrecision(instr, precision);
 
     return instr;

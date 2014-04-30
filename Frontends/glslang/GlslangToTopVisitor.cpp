@@ -1358,25 +1358,34 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
         }
 
         if (node->getName().find("Size", 0) != std::string::npos) {
+            llvm::Value* lastArg;
+            llvm::Intrinsic::ID intrinsicID;
+
             if (node->getSequence()[0]->getAsTyped()->getType().getSampler().ms ||
-                                                  samplerType == gla::ESamplerBuffer)
-                gla::UnsupportedFunctionality("TextureSize of multi-sample or buffer texture");
-                
+                samplerType == gla::ESamplerBuffer || samplerType == gla::ESampler2DRect) {
+                lastArg = 0;
+                intrinsicID = llvm::Intrinsic::gla_queryTextureSizeNoLod;
+            } else {
+                assert(arguments.size() > 1);
+                lastArg = arguments[1];
+                intrinsicID = llvm::Intrinsic::gla_queryTextureSize;
+            }
+
             return glaBuilder->createTextureQueryCall(precision,
-                                                       llvm::Intrinsic::gla_queryTextureSize, 
-                                                       convertGlslangToGlaType(node->getType()), 
-                                                       MakeIntConstant(context, samplerType), 
-                                                       arguments[0], arguments[1]);
+                                                      llvm::Intrinsic::gla_queryTextureSize, 
+                                                      convertGlslangToGlaType(node->getType()), 
+                                                      MakeIntConstant(context, samplerType), 
+                                                      arguments[0], lastArg);
         }
 
         if (node->getName().find("Query", 0) != std::string::npos) {
             if (node->getName().find("Lod", 0) != std::string::npos) {
                 gla::UnsupportedFunctionality("textureQueryLod");
                 return glaBuilder->createTextureQueryCall(precision,
-                                                           llvm::Intrinsic::gla_fQueryTextureLod,
-                                                           convertGlslangToGlaType(node->getType()), 
-                                                           MakeIntConstant(context, samplerType), 
-                                                           arguments[0], 0);
+                                                          llvm::Intrinsic::gla_fQueryTextureLod,
+                                                          convertGlslangToGlaType(node->getType()), 
+                                                          MakeIntConstant(context, samplerType), 
+                                                          arguments[0], arguments[1]);
             } else if (node->getName().find("Levels", 0) != std::string::npos) {
                 gla::UnsupportedFunctionality("textureQueryLevels");
             }

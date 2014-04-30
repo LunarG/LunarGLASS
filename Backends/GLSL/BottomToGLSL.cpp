@@ -1926,7 +1926,6 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         shader << " = textureSize(";
         emitGlaOperand(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         if (llvmInstruction->getNumArgOperands() > 2) {
-            // TODO: Goo: Test: 140: some textureSize() don't have 2nd argument
             shader << ", ";
             emitGlaOperand(llvmInstruction->getOperand(2));
         }
@@ -3256,7 +3255,6 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
     EInterpolationLocation interpLocation;
     if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode)) {
         // This path should not exist; it is a backup path for missing metadata.
-        // TODO: LunarGOO functionality: fix missing metadata instruction operands.
         UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
 
         // emulate (through imperfect guessing) the missing metadata

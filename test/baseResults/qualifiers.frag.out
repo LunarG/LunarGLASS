@@ -202,7 +202,7 @@ noperspective in vec4 inVn;
 centroid noperspective in vec4 inVcn;
 sample in vec4 inV;
 out vec4 outVi;
-
+invariant outVi ;
 void main()
 {
     vec4 temp21 = inVs + inVc;
@@ -230,7 +230,7 @@ noperspective in vec4 inVn;
 centroid noperspective in vec4 inVcn;
 sample in vec4 inV;
 out vec4 outVi;
-
+invariant outVi ;
 void main()
 {
     vec4 temp211 = inVc + inVs;

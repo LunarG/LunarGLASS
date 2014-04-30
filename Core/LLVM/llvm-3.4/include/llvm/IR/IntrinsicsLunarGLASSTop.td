@@ -187,6 +187,7 @@ let TargetPrefix = "gla" in {
 // Texture Query
 let TargetPrefix = "gla" in {
   def int_gla_queryTextureSize : Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
+  def int_gla_queryTextureSizeNoLod : Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
   def int_gla_fQueryTextureLod : Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_anyfloat_ty], [IntrNoMem]>;
 }
 
