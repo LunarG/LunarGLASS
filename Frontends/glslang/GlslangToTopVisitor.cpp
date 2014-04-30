@@ -1372,9 +1372,9 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
             }
 
             return glaBuilder->createTextureQueryCall(precision,
-                                                      llvm::Intrinsic::gla_queryTextureSize, 
-                                                      convertGlslangToGlaType(node->getType()), 
-                                                      MakeIntConstant(context, samplerType), 
+                                                      intrinsicID,
+                                                      convertGlslangToGlaType(node->getType()),
+                                                      MakeIntConstant(context, samplerType),
                                                       arguments[0], lastArg);
         }
 

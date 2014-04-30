@@ -52,9 +52,9 @@ entry:
   %o_shadow10 = insertelement <4 x float> %8, float %7, i32 2
   store <4 x float> %o_shadow10, <4 x float>* @o_shadow
   %9 = load i32 addrspace(1)* @sampR, !gla.uniform !7
-  %10 = call <2 x i32> @llvm.gla.queryTextureSize.v2i32(i32 5, i32 %9)
+  %10 = call <2 x i32> @llvm.gla.queryTextureSizeNoLod.v2i32(i32 5, i32 %9)
   %11 = load i32 addrspace(1)* @sampB, !gla.uniform !10
-  %12 = call i32 @llvm.gla.queryTextureSize.i32(i32 0, i32 %11)
+  %12 = call i32 @llvm.gla.queryTextureSizeNoLod.i32(i32 0, i32 %11)
   %13 = insertelement <2 x i32> undef, i32 %12, i32 0
   %14 = insertelement <2 x i32> %13, i32 %12, i32 1
   %15 = add <2 x i32> %10, %14
@@ -83,10 +83,10 @@ declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare <2 x i32> @llvm.gla.queryTextureSize.v2i32(i32, i32, i32) #0
+declare <2 x i32> @llvm.gla.queryTextureSizeNoLod.v2i32(i32, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare i32 @llvm.gla.queryTextureSize.i32(i32, i32, i32) #0
+declare i32 @llvm.gla.queryTextureSizeNoLod.i32(i32, i32) #0
 
 ; Function Attrs: nounwind
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
@@ -160,10 +160,10 @@ entry:
   %0 = load i32 addrspace(1)* @sampR, align 4, !gla.uniform !7
   %i = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1030, i32 -1, i32 1), !gla.input !5
   %1 = load i32 addrspace(1)* @sampB, align 4, !gla.uniform !10
-  %2 = call <2 x i32> @llvm.gla.queryTextureSize.v2i32(i32 5, i32 %0)
+  %2 = call <2 x i32> @llvm.gla.queryTextureSizeNoLod.v2i32(i32 5, i32 %0)
   %3 = extractelement <4 x float> %i, i32 0
   %.lhs = extractelement <2 x i32> %2, i32 0
-  %4 = call i32 @llvm.gla.queryTextureSize.i32(i32 0, i32 %1)
+  %4 = call i32 @llvm.gla.queryTextureSizeNoLod.i32(i32 0, i32 %1)
   %5 = fptosi float %3 to i32
   %6 = add i32 %.lhs, %4
   %7 = getelementptr [5 x float]* @ClipDistance_shadow, i32 0, i32 %5
@@ -188,10 +188,10 @@ declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
 declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare <2 x i32> @llvm.gla.queryTextureSize.v2i32(i32, i32, i32) #0
+declare <2 x i32> @llvm.gla.queryTextureSizeNoLod.v2i32(i32, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare i32 @llvm.gla.queryTextureSize.i32(i32, i32, i32) #0
+declare i32 @llvm.gla.queryTextureSizeNoLod.i32(i32, i32) #0
 
 ; Function Attrs: nounwind
 declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1

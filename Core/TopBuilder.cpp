@@ -1622,6 +1622,9 @@ llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::
     case llvm::Intrinsic::gla_fQueryTextureLod:
         intrinsicName = getIntrinsic(intrinsicID, returnType, arg2->getType());
         break;
+    case llvm::Intrinsic::gla_queryTextureSizeNoLod:
+        intrinsicName = getIntrinsic(intrinsicID, returnType);
+        break;
     default:
         gla::UnsupportedFunctionality("Texture query intrinsic");
         break;

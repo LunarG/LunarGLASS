@@ -1920,6 +1920,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     bool refZemitted = false;
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_queryTextureSize:
+    case llvm::Intrinsic::gla_queryTextureSizeNoLod:
 
         newLine();
         emitGlaValue(llvmInstruction);
