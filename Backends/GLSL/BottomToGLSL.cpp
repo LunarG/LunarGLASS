@@ -261,6 +261,7 @@ protected:
     void emitGlaMultiInsertRHS(const llvm::IntrinsicInst* inst);
     void emitGlaMultiInsert(const llvm::IntrinsicInst* inst);
     void emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstruction, bool input);
+    void emitInvariantDeclarations(llvm::Module&);
 
     std::string traverseGep(const llvm::Instruction* instr, EMdTypeLayout* mdTypeLayout = 0);
     void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout = 0);
@@ -937,7 +938,7 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
     if (name.substr(0,3) == std::string("gl_")) {
         // Names starting "gl_" are
         //  - an error to declare them explicitly, as they are built-in
-        //  - okay to declare (e.g., gl_ClipDistance) if something is added, like array size or invariant
+        //  - okay to declare (e.g., gl_ClipDistance) if something is added, like array size ('invariant' is handled elsewhere)
         //  - required to be declared, if the shader declared them, to make SSO work
         // Basically, the rules are ad hoc, and so listed here.
         declarationAllowed = false;
@@ -950,8 +951,6 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
         //     name == "gl_PerFragment" ||
         //     name == "gl_in"))
         //    declarationAllowed = true;
-
-        // TODO: allow "gl_" for adding invariant, etc.  They are in the metadata !invariant list
     }
 
     if (! declarationAllowed)
@@ -1636,8 +1635,11 @@ void gla::GlslTarget::addDiscard()
     shader << "discard;";
 }
 
-void gla::GlslTarget::end(llvm::Module&)
+void gla::GlslTarget::end(llvm::Module& module)
 {
+    // Want 'invariant' decls after richer redeclarations, but still before shader code
+    emitInvariantDeclarations(module);
+
     // #version...
     fullShader << "#version " << version;
     if (version >= 150 && profile != ENoProfile) {
@@ -3319,6 +3321,19 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
     default:
         UnsupportedFunctionality("IO Intrinsic");
         break;
+    }
+}
+
+void gla::GlslTarget::emitInvariantDeclarations(llvm::Module& module)
+{
+    const llvm::NamedMDNode* mdList = module.getNamedMetadata(gla::InvariantListMdName);
+    if (mdList && mdList->getNumOperands() > 0) {
+        globalDeclarations << "invariant ";
+        for (unsigned int m = 0; m < mdList->getNumOperands(); ++m) {
+            const llvm::MDNode* mdNode = mdList->getOperand(m);
+            globalDeclarations << mdNode->getOperand(0)->getName().str().c_str() << " ";
+        }
+        globalDeclarations << ";";
     }
 }
 
