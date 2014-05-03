@@ -1,8 +1,4 @@
 
-***Unsupported functionality: array or matrix in struct in outputs
-
-***Unsupported functionality: array or matrix in struct in outputs
-
 Top IR:
 ; ModuleID = 'Glslang'
 
@@ -34,20 +30,8 @@ stage-epilogue:                                   ; preds = %entry
   call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %4), !gla.output !1
   %5 = load float* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 1)
   call void @llvm.gla.fWriteData.f32(i32 1025, i32 -1, float %5), !gla.output !1
-  %6 = load [4 x float]* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 2)
-  %7 = load <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 3)
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %7), !gla.output !1
-  %8 = load <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 4)
-  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %8), !gla.output !1
-  %9 = load <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 5)
-  call void @llvm.gla.fWriteData.v4f32(i32 1029, i32 -1, <4 x float> %9), !gla.output !1
-  %10 = load <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 6)
-  call void @llvm.gla.fWriteData.v4f32(i32 1030, i32 -1, <4 x float> %10), !gla.output !1
-  %11 = load <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 7)
-  call void @llvm.gla.fWriteData.v4f32(i32 1031, i32 -1, <4 x float> %11), !gla.output !1
-  %12 = load [1 x <4 x float>]* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 8)
-  %13 = load float* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 9)
-  call void @llvm.gla.fWriteData.f32(i32 1033, i32 -1, float %13), !gla.output !1
+  %6 = load float* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 2, i32 2)
+  call void @llvm.gla.fWriteData.f32(i32 1028, i32 -1, float %6), !gla.output !1
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -111,24 +95,9 @@ entry:
   %gla_constGEP4 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 1
   %2 = load float* %gla_constGEP4, align 16
   call void @llvm.gla.fWriteData.f32(i32 1025, i32 -1, float %2), !gla.output !1
-  %gla_constGEP5 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 3
-  %3 = load <4 x float>* %gla_constGEP5, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %3), !gla.output !1
-  %gla_constGEP6 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 4
-  %4 = load <4 x float>* %gla_constGEP6, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %4), !gla.output !1
-  %gla_constGEP7 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 5
-  %5 = load <4 x float>* %gla_constGEP7, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1029, i32 -1, <4 x float> %5), !gla.output !1
-  %gla_constGEP8 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 6
-  %6 = load <4 x float>* %gla_constGEP8, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1030, i32 -1, <4 x float> %6), !gla.output !1
-  %gla_constGEP9 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 7
-  %7 = load <4 x float>* %gla_constGEP9, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1031, i32 -1, <4 x float> %7), !gla.output !1
-  %gla_constGEP10 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 9
-  %8 = load float* %gla_constGEP10, align 16
-  call void @llvm.gla.fWriteData.f32(i32 1033, i32 -1, float %8), !gla.output !1
+  %gla_constGEP5 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 2, i32 2
+  %3 = load float* %gla_constGEP5, align 4
+  call void @llvm.gla.fWriteData.f32(i32 1028, i32 -1, float %3), !gla.output !1
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -194,12 +163,7 @@ void main()
     anon@0_shadow.gl_ClipDistance[2] = iv4.x;
     gl_Position = iv4;
     gl_PointSize = anon@0_shadow.gl_PointSize;
-    gl_ClipDistance[1] = anon@0_shadow.gl_ClipVertex;
-    gl_ClipDistance[2] = anon@0_shadow.gl_FrontColor;
-    gl_ClipDistance[3] = anon@0_shadow.gl_BackColor;
-    gl_ClipVertex = anon@0_shadow.gl_FrontSecondaryColor;
-    gl_FrontColor = anon@0_shadow.gl_BackSecondaryColor;
-    gl_FrontSecondaryColor = anon@0_shadow.gl_FogFragCoord;
+    gl_ClipDistance[2] = anon@0_shadow.gl_ClipDistance[2];
     
 }
 

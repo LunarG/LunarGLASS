@@ -72,7 +72,7 @@ namespace gla {
 //         - the name is the name of the object (instance name for a block)
 //         - Value* is a proxy for getting the LLVM type
 //         - !aggregate is for blocks and structures
-//                it's a block when EMdInputOutput is EMio*Member, !typeLayout will say how the block is laid out
+//                it's a block when EMdInputOutput is EMio*Block*, !typeLayout will say how the block is laid out
 //                it's a structure when the EMdTypeLayout is EMtlAggregate
 //         - for blocks, the instance name is the name above, while the interface name is the name in the !aggregate
 //         - for a block with no instance name, the name here will be empty ("")

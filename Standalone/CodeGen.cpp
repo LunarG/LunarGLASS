@@ -158,7 +158,7 @@ bool TGenericCompiler::compile(TIntermNode *root, int version, EProfile profile)
 
 #ifdef USE_LUNARGLASS_CORE
         glaManager->translateTopToBottom();
-    
+
         if (debugOptions & gla::EOptionAssembly)
             glaManager->dump("\n\nBottom IR:\n");
 

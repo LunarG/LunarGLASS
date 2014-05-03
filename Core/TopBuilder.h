@@ -112,13 +112,13 @@ public:
     struct AccessChain {
         llvm::Value* base;
         std::vector<llvm::Value*> indexChain;
-        llvm::Value* gep;
+        llvm::Value* gep;         // cache of base+indexChain
         std::vector<int> swizzle;
         llvm::Value* component;
         llvm::Type* swizzleResultType;
         int swizzleTargetWidth;
         bool isRValue;
-        bool trackOutputIndex;
+        bool trackActive;
         llvm::MDNode* mdNode;
         const char* metadataKind;
     };
@@ -174,13 +174,13 @@ public:
     // return an offset representing the collection of offsets in the chain
     llvm::Value* collapseInputAccessChain();
 
-    // Call this for output variables where active tracking of which
-    // array indexes are used is desired.  Only those indexes that
-    // might have been used will be copied out.
-    void accessChainTrackOutputIndex() { accessChain.trackOutputIndex = true; }
+    // Enable active tracking of the output variable's array elements or structure
+    // members.  Only the subset of the object that might have been used will be
+    // copied out when doing copyOutPipeline().
+    void accessChainTrackActive() { accessChain.trackActive = true; }
 
-    static llvm::Constant* getConstant(llvm::ArrayRef<llvm::Constant*>, llvm::Type*);
-
+    // Generate all the code needed to finish up a function, including main(),
+    // which will copy out to the pipeline all the cached output variables.
     void leaveFunction(bool main);
 
     // Make the main function. Returns the entry block
@@ -221,10 +221,13 @@ public:
         ESQLocal,
     };
 
+    // Turn the array of constants into a proper LLVM constant type of the requested type.
+    static llvm::Constant* getConstant(llvm::ArrayRef<llvm::Constant*>, llvm::Type*);
+
     // Create an LLVM variable out of a generic "shader-style" description of a
     // variable.
     llvm::Value* createVariable(EStorageQualifier, int storageInstance, llvm::Type*,
-                              llvm::Constant* initializer, const std::string* annotation, llvm::StringRef name);
+                                llvm::Constant* initializer, const std::string* annotation, llvm::StringRef name);
 
     // Create an alloca in the entry block.
     // (LLVM's promote memory to registers only works when alloca is in the entry block.)
@@ -242,10 +245,14 @@ public:
     // Create a InsertValue to handle structs, arrays, or matrices
     llvm::Value* createInsertValue(llvm::Value* target, llvm::Value* source, unsigned* indices, int indexCount);
 
-    // To associate metadata with a copy-out value to tag the write instrinsic with
-    void setOutputMetadata(llvm::Value*, llvm::MDNode*, int baseSlot);
+    // Finish setting all the other information for a copy-out value: metadata to 
+    // tag the write instrinsic with and slot information.
+    // This must be called after createVariable() with ESQOutput for the llvm::Value*.
+    void setOutputMetadata(llvm::Value*, llvm::MDNode*, int baseSlot, int numSlots);
 
-    // Copy out to the pipeline the outputs we've been caching in variables
+    // Copy out to the pipeline the outputs we've been caching in variables.
+    // Do this after all use of the cached variables is complete.  Called
+    // automatically by closeMain() or leaveFunction(true) for main.
     void copyOutPipeline();
 
     // Write to the pipeline directly, without caching through variables
@@ -255,6 +262,7 @@ public:
                        llvm::MDNode* metadata = 0,
                        EInterpolationMethod method = EIMNone, EInterpolationLocation location = EILFragment);
 
+    // Emit the right intrinsic to perform the descriped pipeline read.
     llvm::Value* readPipeline(EMdPrecision, 
                               llvm::Type*, llvm::StringRef name, int slot,
                               llvm::MDNode* metadata = 0,
@@ -263,7 +271,6 @@ public:
                               llvm::Value* offset = 0, llvm::Value* sampleIdx = 0);
 
     llvm::Value* createSwizzle(EMdPrecision, llvm::Value* source, int swizzleMask, llvm::Type* finalType);
-
     llvm::Value* createSwizzle(EMdPrecision, llvm::Value* source, llvm::ArrayRef<int> channels, llvm::Type* finalType);
 
     // If the value passed in is an instruction and the precision is not EMpNone, 
@@ -359,6 +366,7 @@ public:
     // matrix constructor
     llvm::Value* createMatrixConstructor(EMdPrecision, const std::vector<llvm::Value*>& sources, llvm::Value* constructee);
 
+    // Helper to use for building nested control flow with if-then-else.
     class If {
     public:
         If(llvm::Value* condition, Builder* glaBuilder);
@@ -435,14 +443,6 @@ protected:
     llvm::Value* createMatrixDeterminant(EMdPrecision, llvm::Value* (&matrix)[4][4], int size);
     void makeMatrixMinor(llvm::Value* (&matrix)[4][4], llvm::Value* (&minor)[4][4], int mRow, int mCol, int size);
 
-    // To be used when dereferencing an access chain that is for an
-    // output variable.  The exposed method for this is to use
-    // accessChainTrackOutputIndex().
-    void trackOutputIndex(llvm::Value* base, const llvm::Value* index);
-
-    // Utility method for creating a new block and setting the insert point to
-    // be in it. This is useful for flow-control operations that need a "dummy"
-    // block proceeding them (e.g. instructions after a discard, etc).
     void createAndSetNoPredecessorBlock(llvm::StringRef name);
 
     llvm::IRBuilder<>& builder;
@@ -451,14 +451,21 @@ protected:
     llvm::LLVMContext &context;
     Metadata metadata;
 
-    // accumulate values that must be copied out at the end
+    // Accumulate output values that are being cached in variables, instead of directly 
+    // written to the output pipe, and hence must be copied out to the output pipeline
+    // at shader exit instead.
     struct copyOut {
         llvm::Value* value;
         llvm::MDNode* mdNode;
         int baseSlot;
+        int numSlots;              // both the number of slots and the number of indexes used in active
+        std::vector<bool> active;  // slots that might be active, in order of the flattened value type
     };
-    std::vector<copyOut> copyOuts;
-    std::vector<bool> copyOutActive;   // the indexed ones that might be active
+    std::vector<copyOut> copyOuts; // the set of values forming the outputs-in-variables cache, one per top-level scalar/vector/aggregate    
+
+    void setActiveOutput(llvm::Value* base, std::vector<llvm::Value*>& indexChain);
+    void setActiveOutputSubset(copyOut&, llvm::Type*, int& activeIndex, const std::vector<llvm::Value*>& gepChain, int gepIndex, bool active);
+    void copyOutOnePipeline(const copyOut&, llvm::Type*, llvm::MDNode*, int& slot, int& activeIndex, std::vector<llvm::Value*>& gepChain);
 
     // Switch stack
     std::stack<llvm::BasicBlock*> switches;

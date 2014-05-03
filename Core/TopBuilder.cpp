@@ -95,11 +95,12 @@ void Builder::clearAccessChain()
     accessChain.swizzleResultType = 0;
     accessChain.swizzleTargetWidth = 0;
     accessChain.isRValue = false;
-    accessChain.trackOutputIndex = false;
+    accessChain.trackActive = false;
     accessChain.mdNode = 0;
     accessChain.metadataKind = 0;
 }
 
+// Comments in header
 void Builder::accessChainPushSwizzleLeft(llvm::ArrayRef<int> swizzle, llvm::Type* type, int width)
 {
     // if needed, propagate the swizzle for the current access chain
@@ -119,6 +120,7 @@ void Builder::accessChainPushSwizzleLeft(llvm::ArrayRef<int> swizzle, llvm::Type
     simplifyAccessChainSwizzle();
 }
 
+// Comments in header
 void Builder::accessChainPushSwizzleRight(llvm::ArrayRef<int> swizzle, llvm::Type* type, int width)
 {
     // if needed, propagate the swizzle for the current access chain
@@ -161,6 +163,8 @@ void Builder::simplifyAccessChainSwizzle()
     accessChain.swizzleTargetWidth = 0;
 }
 
+
+// Comments in header
 void Builder::setAccessChainRValue(llvm::Value* rValue)
 {
     // We don't support exposed pointers, so no r-value should be a pointer.
@@ -177,6 +181,7 @@ void Builder::setAccessChainRValue(llvm::Value* rValue)
     accessChain.indexChain.push_back(MakeIntConstant(context, 0));
 }
 
+// Comments in header
 void Builder::setAccessChainLValue(llvm::Value* lValue)
 {
     // l-values need to be allocated somewhere, so we expect a pointer.
@@ -188,6 +193,7 @@ void Builder::setAccessChainLValue(llvm::Value* lValue)
     accessChain.base = lValue;
 }
 
+// Comments in header
 void Builder::setAccessChainPipeValue(llvm::Value* val)
 {
     // evolve the accessChain
@@ -196,6 +202,7 @@ void Builder::setAccessChainPipeValue(llvm::Value* val)
     setAccessChainRValue(val);
 }
 
+// Comments in header
 llvm::Value* Builder::collapseAccessChain()
 {
     assert(accessChain.isRValue == false);
@@ -206,19 +213,20 @@ llvm::Value* Builder::collapseAccessChain()
                 std::reverse(accessChain.indexChain.begin(), accessChain.indexChain.end());
             accessChain.gep = createGEP(accessChain.base, accessChain.indexChain);
 
-            if (accessChain.trackOutputIndex)
-                trackOutputIndex(accessChain.base, accessChain.indexChain.back());
+            if (accessChain.trackActive)
+                setActiveOutput(accessChain.base, accessChain.indexChain);
         }
 
         return accessChain.gep;
     } else {
-        if (accessChain.trackOutputIndex)
-            trackOutputIndex(accessChain.base, 0);
+        if (accessChain.trackActive)
+            setActiveOutput(accessChain.base, accessChain.indexChain);
 
         return accessChain.base;
     }
 }
 
+// Comments in header
 llvm::Value* Builder::collapseInputAccessChain()
 {
     if (accessChain.indexChain.size() == 1) {
@@ -235,6 +243,7 @@ llvm::Value* Builder::collapseInputAccessChain()
     return MakeIntConstant(context, 0);
 }
 
+// Comments in header
 void Builder::accessChainStore(llvm::Value* value)
 {
     assert(accessChain.isRValue == false);
@@ -272,6 +281,7 @@ void Builder::accessChainStore(llvm::Value* value)
     createStore(source, base);
 }
 
+// Comments in header
 llvm::Value* Builder::accessChainLoad(EMdPrecision precision)
 {
     llvm::Value* value;
@@ -308,6 +318,7 @@ llvm::Value* Builder::accessChainLoad(EMdPrecision precision)
     return value;
 }
 
+// Comments in header
 void Builder::leaveFunction(bool main)
 {
     llvm::BasicBlock* BB = builder.GetInsertBlock();
@@ -348,6 +359,7 @@ void Builder::leaveFunction(bool main)
         closeMain();
 }
 
+// Comments in header
 llvm::BasicBlock* Builder::makeMain()
 {
     assert(! mainFunction);
@@ -363,6 +375,7 @@ llvm::BasicBlock* Builder::makeMain()
     return entry;
 }
 
+// Comments in header
 void Builder::closeMain()
 {
     // Add our instructions to stageEpilogue, and stageExit
@@ -377,6 +390,7 @@ void Builder::closeMain()
     mainFunction->getBasicBlockList().push_back(stageExit);
 }
 
+// Comments in header
 void Builder::makeReturn(bool implicit, llvm::Value* retVal, bool isMain)
 {
     if (isMain && retVal)
@@ -393,6 +407,7 @@ void Builder::makeReturn(bool implicit, llvm::Value* retVal, bool isMain)
         createAndSetNoPredecessorBlock("post-return");
 }
 
+// Comments in header
 void Builder::makeDiscard(bool isMain)
 {
     createIntrinsicCall(EMpNone, llvm::Intrinsic::gla_discard);
@@ -406,12 +421,16 @@ void Builder::makeDiscard(bool isMain)
     }
 }
 
+// Utility method for creating a new block and setting the insert point to
+// be in it. This is useful for flow-control operations that need a "dummy"
+// block proceeding them (e.g. instructions after a discard, etc).
 void Builder::createAndSetNoPredecessorBlock(llvm::StringRef name)
 {
     builder.SetInsertPoint(llvm::BasicBlock::Create(context, name,
                                                     builder.GetInsertBlock()->getParent()));
 }
 
+// Comments in header
 llvm::Function* Builder::makeFunctionEntry(llvm::Type* type, const char* name, llvm::ArrayRef<llvm::Type*> paramTypes, llvm::BasicBlock** entry, bool external)
 {
     llvm::FunctionType *functionType = llvm::FunctionType::get(type, paramTypes, false);
@@ -426,6 +445,7 @@ llvm::Function* Builder::makeFunctionEntry(llvm::Type* type, const char* name, l
     return function;
 }
 
+// Comments in header
 llvm::Constant* Builder::getConstant(llvm::ArrayRef<llvm::Constant*> constants, llvm::Type* type)
 {
     assert(type);
@@ -448,6 +468,7 @@ llvm::Constant* Builder::getConstant(llvm::ArrayRef<llvm::Constant*> constants, 
     return 0;
 }
 
+// Comments in header
 llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int storageInstance,
                                             llvm::Type* type, llvm::Constant* initializer, const std::string* annotation,
                                             llvm::StringRef name)
@@ -523,22 +544,8 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
         if (storageQualifier == ESQOutput) {
             // Track the value that must be copied out to the pipeline at
             // the end of the shader.
-            struct copyOut co = { value, 0 };
+            copyOut co = { value };    // the missing fields need to be filled in by calling setOutputMetadata()
             copyOuts.push_back(co);
-            
-            if (const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(value->getType()->getContainedType(0))) {
-                for (int index = 0; index < arrayType->getNumElements(); ++index) {
-                    // wait until specific indices are used (or the whole array)
-                    // to know an array element is active
-                    copyOutActive.push_back(false);
-                }
-            } else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(value->getType()->getContainedType(0))) {
-                for (int index = 0; index < (int)structType->getNumElements(); ++index) {
-                    // TODO: functionality: this assumes simple structures with only one slot per field
-                    copyOutActive.push_back(true);
-                }
-            } else
-                copyOutActive.push_back(true);
         }
 
     } else {
@@ -552,6 +559,7 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
     return value;
 }
 
+// Comments in header
 llvm::Value* Builder::createEntryAlloca(llvm::Type* type, llvm::StringRef name)
 {
     // LLVM's promote memory to registers only works when alloca is in the entry block.
@@ -561,6 +569,7 @@ llvm::Value* Builder::createEntryAlloca(llvm::Type* type, llvm::StringRef name)
     return entryBuilder.CreateAlloca(type, 0, name);
 }
 
+// Comments in header
 llvm::Value* Builder::createStore(llvm::Value* rValue, llvm::Value* lValue)
 {
     // Retroactively change the name of the last-value temp to the name of the
@@ -573,6 +582,7 @@ llvm::Value* Builder::createStore(llvm::Value* rValue, llvm::Value* lValue)
     return lValue;
 }
 
+// Comments in header
 llvm::Value* Builder::createLoad(llvm::Value* lValue, const char* metadataKind, llvm::MDNode* mdNode)
 {
     if (llvm::isa<llvm::PointerType>(lValue->getType())) {
@@ -585,110 +595,166 @@ llvm::Value* Builder::createLoad(llvm::Value* lValue, const char* metadataKind, 
         return lValue;
 }
 
+// Comments in header
 llvm::Value* Builder::createGEP(llvm::Value* gepValue, llvm::ArrayRef<llvm::Value*> gepIndexChain)
 {
     return builder.CreateGEP(gepValue, gepIndexChain);
 }
 
+// Comments in header
 llvm::Value* Builder::createInsertValue(llvm::Value* target, llvm::Value* source, unsigned* indices, int indexCount)
 {
     return builder.CreateInsertValue(target, source,  llvm::ArrayRef<unsigned>(indices, indices + indexCount));
 }
 
-void Builder::trackOutputIndex(llvm::Value* base, const llvm::Value* gepIndex)
+// To be used when dereferencing an access chain that is for an
+// output variable.  The exposed method for making this happen is
+// accessChainTrackActive().
+void Builder::setActiveOutput(llvm::Value* base, std::vector<llvm::Value*>& gepChain)
 {
-    int arrayIndex = -1;   // we'll use -1 to mean the whole array
-
-    // If the entire array is being accessed (gepIndex pointer is 0)
-    // or a variable index is used, then output the whole array.
-    if (gepIndex) {
-        const llvm::ConstantInt *index = llvm::dyn_cast<llvm::ConstantInt>(gepIndex);
-        if (index)
-            arrayIndex = (int)index->getValue().getSExtValue();
-    }
-
-    int activeIndex = 0;
+    // find the output
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
-        const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out].value->getType()->getContainedType(0));
-        if (arrayType) {
-            if (copyOuts[out].value == base) {
-                if (arrayIndex == -1) {
-                    for (int index = 0; index < arrayType->getNumElements(); ++index)
-                        copyOutActive[activeIndex + index] = true;
-                } else
-                    copyOutActive[activeIndex + arrayIndex] = true;
-            }
-            activeIndex += (int)arrayType->getNumElements();
-        } else
-            activeIndex++;
-    }
-}
+        if (copyOuts[out].value == base) {
+            llvm::Type* type = copyOuts[out].value->getType();
+            if (! llvm::isa<llvm::PointerType>(type))
+                UnsupportedFunctionality("non-pointer in setActiveOutput()");
 
-void Builder::setOutputMetadata(llvm::Value* value, llvm::MDNode* mdNode, int baseSlot)
-{
-    // it's most likely the last one pushed...
-    for (unsigned int out = copyOuts.size() - 1; out >= 0; ++out) {
-        if (copyOuts[out].value == value) {
-            copyOuts[out].mdNode = mdNode;
-            copyOuts[out].baseSlot = baseSlot;
+            type = type->getContainedType(0);
+            int activeIndex = 0;
+            setActiveOutputSubset(copyOuts[out], type, activeIndex, gepChain, 1, true);
+
             break;
         }
     }
 }
 
-void Builder::copyOutPipeline()
+// Recursively walk the particular copyOut object to set activeIndex on the subset satisfying the gepChain,
+// where the gepChain could select a whole aggregate, or a specific leaf, or some combination based on 
+// which entries are constant and which are variable.
+void Builder::setActiveOutputSubset(copyOut& out, llvm::Type* type, int& activeIndex, const std::vector<llvm::Value*>& gepChain, int gepIndex, bool active)
 {
-    int activeIndex = 0;
+    // Look at the next gepChain entry to see if it is present and specific about 
+    // the next level down.
+    int constantIndex = -1;   // -1 means entire subtree is needed; either because refining indexes are missing or variable
+    if (gepIndex < (int)gepChain.size()) {
+        const llvm::ConstantInt *index = llvm::dyn_cast<llvm::ConstantInt>(gepChain[gepIndex]);
+        if (index)
+            constantIndex = (int)index->getValue().getSExtValue();
+    }
 
-    // TODO: functionality: this is assuming output structure leaves take one slot, true for matrices?
-    for (unsigned int out = 0; out < copyOuts.size(); ++out) {
-        int slot = copyOuts[out].baseSlot;
-        if (const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(copyOuts[out].value->getType()->getContainedType(0))) {
-            std::vector<llvm::Value*> gepChain;
-            gepChain.push_back(MakeIntConstant(context, 0));
-            for (int index = 0; index < arrayType->getNumElements(); ++index) {
-                if (copyOutActive[activeIndex]) {
-                    gepChain.push_back(MakeIntConstant(context, index));
-                    llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out].value, gepChain));
-                    if (llvm::isa<llvm::StructType>(loadVal->getType()))
-                        UnsupportedFunctionality("struct in array in outputs", EATContinue);
-                    else if (llvm::isa<llvm::ArrayType>(loadVal->getType()))
-                        UnsupportedFunctionality("array or matrix in array in outputs", EATContinue);
-                    else
-                        writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].mdNode);
-                    gepChain.pop_back();
-                }
-                ++slot;
-                ++activeIndex;
-            }
-        } else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(copyOuts[out].value->getType()->getContainedType(0))) {
-            // TODO: functionality: output structs of structs: this needs to be recursive
-            std::vector<llvm::Value*> gepChain;
-            gepChain.push_back(MakeIntConstant(context, 0));
-            for (int index = 0; index < (int)structType->getNumElements(); ++index) {
-                if (copyOutActive[activeIndex]) {
-                    gepChain.push_back(MakeIntConstant(context, index));
-                    llvm::Value* loadVal = builder.CreateLoad(createGEP(copyOuts[out].value, gepChain));                    
-                    if (llvm::isa<llvm::StructType>(loadVal->getType()))
-                        UnsupportedFunctionality("struct in struct in outputs", EATContinue);
-                    else if (llvm::isa<llvm::ArrayType>(loadVal->getType()))
-                        UnsupportedFunctionality("array or matrix in struct in outputs", EATContinue);
-                    else
-                        writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].mdNode);
-                    gepChain.pop_back();
-                }
-                ++slot;
-                ++activeIndex;
-            }
-        } else {
-            llvm::Value* loadVal = builder.CreateLoad(copyOuts[out].value);
-            writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, copyOuts[out].mdNode);
-            ++slot;
-            ++activeIndex;
+    if (const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(type)) {
+        // Handle array and matrix (one slot per column)
+
+        for (int index = 0; index < arrayType->getNumElements(); ++index) {
+            // Go from active to not active if there is still a gepChain entry covering
+            // the new depth, and it is a constant that does not match the current
+            // offset.
+            bool nextActive = active;
+            if (constantIndex >= 0 && index != constantIndex)
+                nextActive = false;
+
+            setActiveOutputSubset(out, type->getContainedType(0), activeIndex, gepChain, gepIndex + 1, nextActive);
+        }
+    } else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(type)) {
+        // Handle structure
+
+        for (int index = 0; index < (int)structType->getNumElements(); ++index) {
+            // Can only have a constant constantIndex here, unless the entire
+            // subobject was selected.
+            bool nextActive = active;
+            if (constantIndex >= 0 && index != constantIndex)
+                nextActive = false;
+
+            setActiveOutputSubset(out, type->getContainedType(index), activeIndex, gepChain, gepIndex + 1, nextActive);
+        }
+    } else {
+        // Handle scalar/vector; whatever is single-slot sized
+
+        if (active)
+            out.active[activeIndex] = true;
+        ++activeIndex;
+    }
+}
+
+// Comments in header
+void Builder::setOutputMetadata(llvm::Value* value, llvm::MDNode* mdNode, int baseSlot, int numSlots)
+{
+    // it's most likely the last one pushed...
+    for (unsigned int out = copyOuts.size() - 1; out >= 0; ++out) {
+        if (copyOuts[out].value == value) {
+            // this should only be done once
+            assert(copyOuts[out].numSlots == 0);
+            if (copyOuts[out].numSlots)
+                return;
+
+            copyOuts[out].mdNode = mdNode;
+            copyOuts[out].baseSlot = baseSlot;
+            copyOuts[out].numSlots = numSlots;
+            for (int a = 0; a < numSlots; ++a)
+                copyOuts[out].active.push_back(false);
+
+            break;
         }
     }
 }
 
+// Comments in header
+void Builder::copyOutPipeline()
+{
+    std::vector<llvm::Value*> gepChain;
+    for (unsigned int out = 0; out < copyOuts.size(); ++out) {
+        llvm::Type* type = copyOuts[out].value->getType();
+        if (llvm::isa<llvm::PointerType>(type)) {
+            type = type->getContainedType(0);
+            gepChain.push_back(MakeIntConstant(context, 0));
+        }
+
+        int slot = copyOuts[out].baseSlot; // because the recursion modifies the slot argument
+        int activeIndex = 0;
+        copyOutOnePipeline(copyOuts[out], type, copyOuts[out].mdNode, slot, activeIndex, gepChain);
+
+        // pop the pointer push if there was one
+        if (gepChain.size())
+            gepChain.pop_back();
+    }
+}
+
+// Recursively walk the particular copyOut to do all its slot write-outs to the pipeline.
+void Builder::copyOutOnePipeline(const copyOut& out, llvm::Type* type, llvm::MDNode* mdNode, int& slot, int& activeIndex, std::vector<llvm::Value*>& gepChain)
+{
+    if (const llvm::ArrayType* arrayType = llvm::dyn_cast<llvm::ArrayType>(type)) {
+        // Handle array and matrix (one slot per column)
+
+        for (int index = 0; index < arrayType->getNumElements(); ++index) {
+            gepChain.push_back(MakeIntConstant(context, index));
+            copyOutOnePipeline(out, type->getContainedType(0), mdNode, slot, activeIndex, gepChain);
+            gepChain.pop_back();
+        }
+    } else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(type)) {
+        // Handle structure
+
+        for (int index = 0; index < (int)structType->getNumElements(); ++index) {
+            gepChain.push_back(MakeIntConstant(context, index));
+            copyOutOnePipeline(out, type->getContainedType(index), mdNode, slot, activeIndex, gepChain);
+            gepChain.pop_back();
+        }
+    } else {
+        // Handle scalar/vector
+
+        if (out.active[activeIndex]) {
+            llvm::Value* loadVal;
+            if (gepChain.size() > 1)
+                loadVal = builder.CreateLoad(createGEP(out.value, gepChain));
+            else
+                loadVal = builder.CreateLoad(out.value);
+            writePipeline(loadVal, MakeUnsignedConstant(context, slot), -1, mdNode);
+        }
+        ++slot;
+        ++activeIndex;
+    }
+}
+
+// Comments in header
 void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, llvm::MDNode* mdNode, EInterpolationMethod method, EInterpolationLocation location)
 {
     llvm::Constant *maskConstant = MakeIntConstant(context, mask);
@@ -724,6 +790,7 @@ void Builder::writePipeline(llvm::Value* outValue, llvm::Value* slot, int mask, 
     write->setMetadata(OutputMdName, mdNode);
 }
 
+// Comments in header
 llvm::Value* Builder::readPipeline(gla::EMdPrecision precision, 
                                    llvm::Type* type, llvm::StringRef name, int slot, 
                                    llvm::MDNode* inputMd,
@@ -824,6 +891,7 @@ llvm::Value* Builder::createSwizzle(gla::EMdPrecision precision, llvm::Value* so
 // Builder::Matrix definitions
 //
 
+// Comments in header
 llvm::Type* Builder::getMatrixType(llvm::Type* elementType, int numColumns, int numRows)
 {
     assert(numColumns >= minMatrixSize && numRows >= minMatrixSize);
@@ -839,6 +907,7 @@ llvm::Type* Builder::getMatrixType(llvm::Type* elementType, int numColumns, int 
     return *type;
 }
 
+// Comments in header
 llvm::Value* Builder::createMatrixOp(gla::EMdPrecision precision, llvm::Instruction::BinaryOps llvmOpcode, llvm::Value* left, llvm::Value* right)
 {
     assert(IsAggregate(left) || IsAggregate(right));
@@ -870,6 +939,7 @@ llvm::Value* Builder::createMatrixOp(gla::EMdPrecision precision, llvm::Instruct
     return 0;
 }
 
+// Comments in header
 llvm::Value* Builder::createMatrixMultiply(gla::EMdPrecision precision, llvm::Value* left, llvm::Value* right)
 {
     // Note: IsAggregate() is assumed to be true iff the value is a matrix.
@@ -918,6 +988,7 @@ llvm::Value* Builder::createMatrixMultiply(gla::EMdPrecision precision, llvm::Va
     return 0;
 }
 
+// Comments in header
 llvm::Value* Builder::createMatrixCompare(EMdPrecision precision, llvm::Value* left, llvm::Value* right, bool allEqual)
 {
     assert(IsAggregate(left) && IsAggregate(right));
@@ -927,6 +998,7 @@ llvm::Value* Builder::createMatrixCompare(EMdPrecision precision, llvm::Value* l
     return createCompare(precision, left, right, allEqual);
 }
 
+// Comments in header
 llvm::Value* Builder::createMatrixTranspose(EMdPrecision precision, llvm::Value* matrix)
 {
     // Will use a two step process
@@ -963,6 +1035,7 @@ llvm::Value* Builder::createMatrixTranspose(EMdPrecision precision, llvm::Value*
     return result;
 }
 
+// Comments in header
 llvm::Value* Builder::createMatrixInverse(gla::EMdPrecision precision, llvm::Value* matrix)
 {
     assert(GetNumColumns(matrix) == GetNumRows(matrix));
@@ -1029,6 +1102,7 @@ llvm::Value* Builder::createMatrixInverse(gla::EMdPrecision precision, llvm::Val
     return result;
 }
 
+// Comments in header
 llvm::Value* Builder::createMatrixDeterminant(gla::EMdPrecision precision, llvm::Value* matrix)
 {
     assert(GetNumColumns(matrix) == GetNumRows(matrix));
@@ -1048,6 +1122,7 @@ llvm::Value* Builder::createMatrixDeterminant(gla::EMdPrecision precision, llvm:
     return createMatrixDeterminant(precision, elements, size);
 }
 
+// Comments in header
 llvm::Value* Builder::createMatrixDeterminant(gla::EMdPrecision precision, llvm::Value* (&matrix)[4][4], int size)
 {
     if (size == 1)
@@ -1374,6 +1449,7 @@ llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, llvm::Type* type1,
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes);
 }
 
+// Comments in header
 void Builder::promoteScalar(gla::EMdPrecision precision, llvm::Value*& left, llvm::Value*& right)
 {
     int direction;
@@ -1390,6 +1466,7 @@ void Builder::promoteScalar(gla::EMdPrecision precision, llvm::Value*& left, llv
     return;
 }
 
+// Comments in header
 llvm::Value* Builder::smearScalar(gla::EMdPrecision precision, llvm::Value* scalar, llvm::Type* vectorType)
 {
     assert(gla::IsScalar(scalar->getType()));
@@ -1611,6 +1688,7 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
     return instr;
 }
 
+// Comments in header
 llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Type* returnType, llvm::Constant* samplerType, llvm::Value* sampler, llvm::Value* arg2)
 {
     llvm::Function* intrinsicName = 0;
@@ -1643,6 +1721,7 @@ llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::
     return instr;
 }
 
+// Comments in header
 llvm::Value* Builder::createSamplePositionCall(gla::EMdPrecision precision, llvm::Type* returnType, llvm::Value* sampleIdx)
 {
     // Return type is only flexible type
@@ -1654,6 +1733,7 @@ llvm::Value* Builder::createSamplePositionCall(gla::EMdPrecision precision, llvm
     return instr;
 }
 
+// Comments in header
 llvm::Value* Builder::createBitFieldExtractCall(gla::EMdPrecision precision, llvm::Value* value, llvm::Value* offset, llvm::Value* bits, bool isSigned)
 {
     llvm::Intrinsic::ID intrinsicID = isSigned ? llvm::Intrinsic::gla_sBitFieldExtract
@@ -1673,6 +1753,7 @@ llvm::Value* Builder::createBitFieldExtractCall(gla::EMdPrecision precision, llv
     return instr;
 }
 
+// Comments in header
 llvm::Value* Builder::createBitFieldInsertCall(gla::EMdPrecision precision, llvm::Value* base, llvm::Value* insert, llvm::Value* offset, llvm::Value* bits)
 {
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::gla_bitFieldInsert;
@@ -1691,6 +1772,7 @@ llvm::Value* Builder::createBitFieldInsertCall(gla::EMdPrecision precision, llvm
     return instr;
 }
 
+// Comments in header
 llvm::Value* Builder::createRecip(gla::EMdPrecision precision, llvm::Value* operand)
 {
     llvm::Type* ty = operand->getType();
@@ -1707,6 +1789,7 @@ llvm::Value* Builder::createRecip(gla::EMdPrecision precision, llvm::Value* oper
     return recip;
 }
 
+// Comments in header
 llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* value1, llvm::Value* value2, bool equal)
 {
     if (llvm::isa<llvm::PointerType>(value1->getType()))
@@ -1789,6 +1872,7 @@ llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* va
     return result;
 }
 
+// Comments in header
 llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID)
 {
     llvm::Instruction* instr = builder.CreateCall(getIntrinsic(intrinsicID));
@@ -1796,6 +1880,7 @@ llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID)
     return instr;
 }
 
+// Comments in header
 llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID)
 {
     llvm::Instruction* instr = builder.CreateCall(getIntrinsic(intrinsicID));
@@ -1804,6 +1889,7 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     return instr;
 }
 
+// Comments in header
 llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand)
 {
     llvm::Function* intrinsicName = 0;
@@ -1869,6 +1955,7 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     return instr;
 }
 
+// Comments in header
 llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1)
 {
     llvm::Function* intrinsicName = 0;
@@ -1971,6 +2058,7 @@ llvm::Value* Builder::createConstructor(gla::EMdPrecision precision, const std::
     return constructee;
 }
 
+// Comments in header
 llvm::Value* Builder::createMatrixConstructor(gla::EMdPrecision precision, const std::vector<llvm::Value*>& sources, llvm::Value* constructee)
 {
     llvm::Value* matrixee = constructee;
@@ -2048,6 +2136,7 @@ llvm::Value* Builder::createMatrixConstructor(gla::EMdPrecision precision, const
     return constructee;
 }
 
+// Comments in header
 Builder::If::If(llvm::Value* cond, Builder* gb)
     : glaBuilder(gb)
     , condition(cond)
@@ -2069,6 +2158,7 @@ Builder::If::If(llvm::Value* cond, Builder* gb)
     glaBuilder->builder.SetInsertPoint(thenBB);
 }
 
+// Comments in header
 void Builder::If::makeBeginElse()
 {
     // Close out the "then" by having it jump to the mergeBB
@@ -2082,6 +2172,7 @@ void Builder::If::makeBeginElse()
     glaBuilder->builder.SetInsertPoint(elseBB);
 }
 
+// Comments in header
 void Builder::If::makeEndIf()
 {
     // jump to the merge block
@@ -2099,6 +2190,7 @@ void Builder::If::makeEndIf()
     glaBuilder->builder.SetInsertPoint(mergeBB);
 }
 
+// Comments in header
 void Builder::makeSwitch(llvm::Value* condition, int numSegments, std::vector<llvm::ConstantInt*> caseValues, std::vector<int> valueToSegment, int defaultSegment,
                          std::vector<llvm::BasicBlock*>& segmentBB)
 {
@@ -2119,12 +2211,14 @@ void Builder::makeSwitch(llvm::Value* condition, int numSegments, std::vector<ll
     switches.push(mergeBlock);
 }
 
+// Comments in header
 void Builder::addSwitchBreak()
 {
     // branch to the top of the merge block stack
     builder.CreateBr(switches.top());
 }
 
+// Comments in header
 void Builder::nextSwitchSegment(std::vector<llvm::BasicBlock*>& segmentBB, int nextSegment)
 {
     int lastSegment = nextSegment - 1;
@@ -2136,6 +2230,7 @@ void Builder::nextSwitchSegment(std::vector<llvm::BasicBlock*>& segmentBB, int n
     builder.SetInsertPoint(segmentBB[nextSegment]);
 }
 
+// Comments in header
 void Builder::endSwitch(std::vector<llvm::BasicBlock*>& segmentBB)
 {
     // Close out previous segment by jumping, if necessary, to next segment
@@ -2147,16 +2242,13 @@ void Builder::endSwitch(std::vector<llvm::BasicBlock*>& segmentBB)
     switches.pop();
 }
 
-// Start the beginning of a new loop. For inductive loops, specify the
-// inductive variable, what value it starts at, when it finishes, and how
-// much it increments by on each iteration. Also specify whether you want
-// this Builder to do the increment (true), or if you will do it yourself
-// (false).
+// Comments in header
 void Builder::makeNewLoop()
 {
     makeNewLoop(NULL, NULL, NULL, NULL, false);
 }
 
+// Comments in header
 void Builder::makeNewLoop(llvm::Value* inductiveVariable, llvm::Constant* from, llvm::Constant* finish,
                           llvm::Constant* increment,  bool builderDoesIncrement)
 {

@@ -111,7 +111,7 @@ protected:
     void createPipelineRead(glslang::TIntermSymbol*, llvm::Value* storage, int slot, llvm::MDNode*);
     void createPipelineSubread(const glslang::TType& glaType, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md,
                                std::string& name, gla::EInterpolationMethod, gla::EInterpolationLocation);
-    int assignSlot(glslang::TIntermSymbol* node, bool input);
+    int assignSlot(glslang::TIntermSymbol* node, bool input, int& numSlots);
     llvm::Value* getSymbolStorage(const glslang::TIntermSymbol* node, bool& firstTime);
     llvm::Value* createLLVMConstant(const glslang::TType& type, const glslang::TConstUnionArray&, int& nextConst);
     llvm::Value* MakePermanentTypeProxy(llvm::Value*);
@@ -121,7 +121,7 @@ protected:
     llvm::MDNode* declareMdUniformBlock(gla::EMdInputOutput ioType, const glslang::TIntermSymbol* node, llvm::Value*);
     llvm::MDNode* declareMdType(const glslang::TType&);
     llvm::MDNode* makeInputOutputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot, const char* kind);
-    void setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot);
+    void setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot, int numSlots);
     llvm::MDNode* makeInputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot);
 
     gla::Manager& manager;
@@ -385,8 +385,9 @@ void TGlslangToTopTraverser::visitSymbol(glslang::TIntermSymbol* symbol)
     llvm::Value* storage = getSymbolStorage(symbol, firstTime);
     if (firstTime && output) {
         // set up output metadata once for all future pipeline intrinsic writes
-        int slot = assignSlot(symbol, input);
-        setOutputMetadata(symbol, storage, slot);
+        int numSlots;
+        int slot = assignSlot(symbol, input, numSlots);
+        setOutputMetadata(symbol, storage, slot, numSlots);
     }
     
     // set up uniform metadata
@@ -408,14 +409,14 @@ void TGlslangToTopTraverser::visitSymbol(glslang::TIntermSymbol* symbol)
         if (uniform && mdNode)
             glaBuilder->setAccessChainMetadata(gla::UniformMdName, mdNode);
 
-        // If it's an arrayed output, we also want to know which indices
-        // are live.
-        if (symbol->isArray() && output)
-            glaBuilder->accessChainTrackOutputIndex();
+        // If it's an output, we also want to know which subset is live.
+        if (output)
+            glaBuilder->accessChainTrackActive();
     }
 
     if (input) {
-        int slot = assignSlot(symbol, input);
+        int numSlots;
+        int slot = assignSlot(symbol, input, numSlots);
         mdNode = makeInputMetadata(symbol, storage, slot);
 
         if (! linkageOnly) {
@@ -961,8 +962,7 @@ bool TGlslangToTopTraverser::visitSelection(glslang::TVisit /* visit */, glslang
     if (node->getBasicType() != glslang::EbtVoid) {
         // don't handle this as just on-the-fly temporaries, because there will be two names
         // and better to leave SSA to LLVM passes
-        result = glaBuilder->createVariable(gla::Builder::ESQLocal, 0, convertGlslangToGlaType(node->getType()),
-                                                 0, 0, "ternary");
+        result = glaBuilder->createVariable(gla::Builder::ESQLocal, 0, convertGlslangToGlaType(node->getType()), 0, 0, "ternary");
     }
 
     // emit the condition before doing anything with selection
@@ -2300,9 +2300,19 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
     }
 }
 
-int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input)
+//
+// Find and use the user-specified location as a slot, or if a location was not
+// specified, pick the next non-user available slot. User-specified locations
+// directly use the location specified, while non-user-specified will use locations
+// starting after MaxUserLayoutLocation to avoid collisions.
+//
+// Ensure enough slots are consumed to cover the size of the data represented by the node symbol.
+//
+// TODO: strip one-level of arrayness off for "arrayed" I/O in geometry and tessellation shaders.
+//
+int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input, int& numSlots)
 {
-    int numSlots;
+    // Base the numbers of slots on the front-end's computation, if possible, otherwise estimate it.
     if (glslangIntermediate)
         numSlots = glslangIntermediate->computeTypeLocationSize(node->getType());
     else {
@@ -2317,7 +2327,7 @@ int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input)
     int slot;
     if (node->getQualifier().hasLocation()) {
         slot = node->getQualifier().layoutLocation;
-        
+
         return slot;
     }
 
@@ -2549,7 +2559,9 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(glslang::TIntermSy
                                       gla::MakeInterpolationMode(interpMethod, interpLocation));
 }
 
-void TGlslangToTopTraverser::setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value* storage, int slot)
+// Make metadata node for an 'out' variable/block and associate it with the 
+// output-variable cache in the gla builder.
+void TGlslangToTopTraverser::setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value* storage, int slot, int numSlots)
 {
     llvm::MDNode* md = makeInputOutputMetadata(node, storage, slot, gla::OutputListMdName);
 
@@ -2559,12 +2571,11 @@ void TGlslangToTopTraverser::setOutputMetadata(glslang::TIntermSymbol* node, llv
     if (linkageOnly)
         metadata.addNoStaticUse(md);
 
-    glaBuilder->setOutputMetadata(storage, md, slot);
+    glaBuilder->setOutputMetadata(storage, md, slot, numSlots);
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(glslang::TIntermSymbol* node, llvm::Value* value, int slot)
 {
-
     llvm::MDNode* mdNode = inputMdMap[slot];
     if (mdNode == 0) {
         // set up metadata for pipeline intrinsic read

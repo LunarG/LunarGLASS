@@ -1,6 +1,4 @@
 
-***Unsupported functionality: array or matrix in struct in outputs
-
 Top IR:
 ; ModuleID = 'Glslang'
 
@@ -127,11 +125,10 @@ stage-epilogue:                                   ; preds = %entry
   call void @llvm.gla.fWriteData.v4f32(i32 1031, i32 -1, <4 x float> %4), !gla.output !6
   %5 = load float* getelementptr inbounds (%gl_PerVertex* @"anon@1_shadow", i32 0, i32 1)
   call void @llvm.gla.fWriteData.f32(i32 1032, i32 -1, float %5), !gla.output !6
-  %6 = load [1 x float]* getelementptr inbounds (%gl_PerVertex* @"anon@1_shadow", i32 0, i32 2)
-  %7 = load i32* @PrimitiveID_shadow
-  call void @llvm.gla.writeData.i32(i32 1052, i32 -1, i32 %7), !gla.output !9
-  %8 = load i32* @Layer_shadow
-  call void @llvm.gla.writeData.i32(i32 1054, i32 -1, i32 %8), !gla.output !11
+  %6 = load i32* @PrimitiveID_shadow
+  call void @llvm.gla.writeData.i32(i32 1052, i32 -1, i32 %6), !gla.output !9
+  %7 = load i32* @Layer_shadow
+  call void @llvm.gla.writeData.i32(i32 1054, i32 -1, i32 %7), !gla.output !11
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

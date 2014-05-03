@@ -1187,14 +1187,14 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     case llvm::Instruction::Load:
     {
         if (llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)))
-            UnsupportedFunctionality("constant load");
+            UnsupportedFunctionality("constant load", EATContinue);
 
         // We want phis to use the same variable name created during phi declaration
-        if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {                
+        if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {
             addVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
 
             return;
-        } 
+        }
 
         // Lookup whether this load is using the results of a GEP instruction, 
         // and process both instructions (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
@@ -1222,7 +1222,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             } else
                 UnsupportedFunctionality("missing metadata on load", 0, name.c_str(), EATContinue);
         }
-            
+
         if (gepInstr) {
             // traverse the dereference chain and store it.
             name.append(traverseGep(gepInstr, &mdType));
