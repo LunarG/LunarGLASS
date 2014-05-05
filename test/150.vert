@@ -25,8 +25,8 @@ void main()
     gl_Position = iv4;
     gl_PointSize = ps;
     gl_ClipDistance[2] = iv4.x;
-
-    s2out.d[ui].b[2].w = ps;
+    int i;
+    s2out.d[i].b[2].w = ps;
 }
 
 out float gl_ClipDistance[4];

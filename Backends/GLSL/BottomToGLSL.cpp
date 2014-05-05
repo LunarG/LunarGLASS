@@ -173,6 +173,11 @@ public:
 
     ~GlslTarget()
     {
+        while (! toDelete.empty()) {
+            delete toDelete.back();
+            toDelete.pop_back();
+        }
+            
         delete generatedShader;
         for (std::map<const llvm::Value*, std::string*>::const_iterator it = nonConvertedMap.begin(); it != nonConvertedMap.end(); ++it)
             delete it->second;
@@ -263,8 +268,30 @@ protected:
     void emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstruction, bool input);
     void emitInvariantDeclarations(llvm::Module&);
 
+    // 'gep' is potentially a gep, either an instruction or a constantExpr.
+    // See which one, if any, and return it.
+    // Return 0 if not a gep.
+    llvm::GetElementPtrInst* getGepAsInst(llvm::Value* gep)
+    {
+        llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(gep);
+        if (gepInst)
+            return gepInst;
+
+        llvm::ConstantExpr *constantGep = llvm::dyn_cast<llvm::ConstantExpr>(gep);
+        if (constantGep) {
+            llvm::Instruction *instruction = constantGep->getAsInstruction();
+            toDelete.push_back(instruction);
+            gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(instruction);
+        }
+
+        return gepInst;
+    }
+
     std::string traverseGep(const llvm::Instruction* instr, EMdTypeLayout* mdTypeLayout = 0);
     void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout = 0);
+
+    // list of llvm Values to free on exit
+    std::vector<llvm::Value*> toDelete;
 
     // mapping from LLVM values to Glsl variables
     std::map<const llvm::Value*, std::string*> valueMap;
@@ -1186,9 +1213,6 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
     case llvm::Instruction::Load:
     {
-        if (llvm::isa<llvm::ConstantExpr>(llvmInstruction->getOperand(0)))
-            UnsupportedFunctionality("constant load", EATContinue);
-
         // We want phis to use the same variable name created during phi declaration
         if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {
             addVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
@@ -1196,9 +1220,9 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             return;
         }
 
-        // Lookup whether this load is using the results of a GEP instruction, 
-        // and process both instructions (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
-        const llvm::GetElementPtrInst* gepInstr = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(0));
+        // Lookup whether this load is using the results of a GEP instruction (or constantExpr GEP), 
+        // and process both instructions (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier).
+        const llvm::GetElementPtrInst* gepInstr = getGepAsInst(llvmInstruction->getOperand(0));
 
         // See if we have metadata describing a uniform variable to declare
         llvm::MDNode* mdUniform = llvmInstruction->getMetadata(UniformMdName);
@@ -1254,32 +1278,36 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         return;
 
     case llvm::Instruction::Store:
-        if (llvm::isa<llvm::PointerType>(llvmInstruction->getOperand(1)->getType())) {
-            if (const llvm::GetElementPtrInst* gepInstr = llvm::dyn_cast<llvm::GetElementPtrInst>(llvmInstruction->getOperand(1))) {
-                // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
-                // For GEP, which always returns a pointer, traverse the dereference chain and store it.
-                std::string* prevName = valueMap[gepInstr];
-                std::string name;
-                if (prevName)
-                    name = *prevName;
-                else {
-                    name = gepInstr->getOperand(0)->getName();
-                    MakeParseable(name);
-                    name.append(traverseGep(gepInstr));
-                }
-                addVariable(gepInstr, name);
+    {
+        llvm::Value* target = llvmInstruction->getOperand(1);
+        assert(llvm::isa<llvm::PointerType>(target->getType()));
+     
+        llvm::GetElementPtrInst* gepInstr = getGepAsInst(target);
+        if (gepInstr) {
+            target = gepInstr;
+
+            // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
+            // For GEP, which always returns a pointer, traverse the dereference chain and store it.
+            std::string* prevName = valueMap[gepInstr];
+            std::string name;
+            if (prevName)
+                name = *prevName;
+            else {
+                name = gepInstr->getOperand(0)->getName();
+                MakeParseable(name);
+                name.append(traverseGep(gepInstr));
             }
-
-            newLine();
-            emitGlaValue(llvmInstruction->getOperand(1));
-            shader << " = ";
-            emitGlaOperand(llvmInstruction->getOperand(0));
-            shader << ";";
-        } else {
-            assert(! "store instruction is not through pointer");
+            addVariable(gepInstr, name);
         }
-        return;
 
+        newLine();
+        emitGlaValue(target);
+        shader << " = ";
+        emitGlaOperand(llvmInstruction->getOperand(0));
+        shader << ";";
+
+        return;
+    }
     case llvm::Instruction::ExtractElement:
     {
         emitGlaValueDeclaration(llvmInstruction->getOperand(0));
@@ -3376,9 +3404,15 @@ std::string gla::GlslTarget::traverseGep(const llvm::Instruction* instr, EMdType
 void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout)
 {
     if (operand) {
-        if (llvm::isa<const llvm::ConstantInt>(operand))
+        if (llvm::isa<llvm::UndefValue>(operand)) {
+            // bad index (from bad shader), substitute 0 for the index
+            index = 0;
+            operand = 0;
+        } else if (llvm::isa<const llvm::ConstantInt>(operand)) {
+            // substitute the actual constant
             index = GetConstantInt(operand);
-        else
+            operand = 0;
+        } else
             index = -1;
     }
 

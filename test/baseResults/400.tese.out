@@ -1680,8 +1680,6 @@ attributes #1 = { nounwind }
 !32 = metadata !{metadata !"", i32 16, %gl_PerVertex.0* @"anon@1_shadow_typeProxy", metadata !33, metadata !3}
 !33 = metadata !{i32 0, i32 0, i32 1129, null, i32 0}
 !34 = metadata !{metadata !"ovla", i32 7, [2 x <4 x float>]* @ovla_shadow_typeProxy, metadata !29}
-
-***Unsupported functionality: constant load
 #version 400 core
 // LunarGOO output
 #extension GL_ARB_separate_shader_objects : enable
@@ -2003,7 +2001,7 @@ void main()
     in_shadow[31].member2[0] = gl_in[31].gl_ClipDistance[0];
     anon@1_shadow.gl_Position = in_shadow[1].member0;
     anon@1_shadow.gl_PointSize = in_shadow[1].member1;
-    float global21 = ;
+    anon@1_shadow.gl_ClipDistance[2] = in_shadow[1].member2[2];
     gl_Position = in_shadow[1].member0;
     gl_PointSize = anon@1_shadow.gl_PointSize;
     

@@ -3,35 +3,54 @@ Top IR:
 ; ModuleID = 'Glslang'
 
 %gl_PerVertex = type { <4 x float>, float, [4 x float], <4 x float>, <4 x float>, <4 x float>, <4 x float>, <4 x float>, [1 x <4 x float>], float }
+%s2 = type { i32, [4 x %s1] }
+%s1 = type { i32, i32, [3 x <4 x float>] }
 
 @"anon@0_shadow" = internal global %gl_PerVertex zeroinitializer
 @iv4_shadow = internal global <4 x float> zeroinitializer
 @ps = external addrspace(2) constant float
+@s2out_shadow = internal global %s2 zeroinitializer
+@ui = external addrspace(2) constant i32
 @VertexID_shadow = internal global i32 0
 @InstanceID_shadow = internal global i32 0
 
 define fastcc void @main() {
 entry:
-  %iv4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !6
+  %i = alloca i32
+  %iv4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !11
   store <4 x float> %iv4, <4 x float>* @iv4_shadow
   %0 = load <4 x float>* @iv4_shadow
   store <4 x float> %0, <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 0)
-  %1 = load float addrspace(2)* @ps, !gla.uniform !12
+  %1 = load float addrspace(2)* @ps, !gla.uniform !17
   store float %1, float* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 1)
-  %iv41 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !6
+  %iv41 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !11
   store <4 x float> %iv41, <4 x float>* @iv4_shadow
   %2 = load <4 x float>* @iv4_shadow
   %3 = extractelement <4 x float> %2, i32 0
   store float %3, float* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 2, i32 2)
+  %4 = load i32* %i
+  %5 = load float addrspace(2)* @ps, !gla.uniform !17
+  %6 = getelementptr %s2* @s2out_shadow, i32 0, i32 1, i32 %4, i32 2, i32 2
+  %7 = load <4 x float>* %6
+  %8 = insertelement <4 x float> %7, float %5, i32 3
+  store <4 x float> %8, <4 x float>* %6
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %4 = load <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 0)
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %4), !gla.output !1
-  %5 = load float* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 1)
-  call void @llvm.gla.fWriteData.f32(i32 1025, i32 -1, float %5), !gla.output !1
-  %6 = load float* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 2, i32 2)
-  call void @llvm.gla.fWriteData.f32(i32 1028, i32 -1, float %6), !gla.output !1
+  %9 = load <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 0)
+  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %9), !gla.output !1
+  %10 = load float* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 1)
+  call void @llvm.gla.fWriteData.f32(i32 1025, i32 -1, float %10), !gla.output !1
+  %11 = load float* getelementptr inbounds (%gl_PerVertex* @"anon@0_shadow", i32 0, i32 2, i32 2)
+  call void @llvm.gla.fWriteData.f32(i32 1028, i32 -1, float %11), !gla.output !1
+  %12 = load <4 x float>* getelementptr inbounds (%s2* @s2out_shadow, i32 0, i32 1, i32 0, i32 2, i32 2)
+  call void @llvm.gla.fWriteData.v4f32(i32 1043, i32 -1, <4 x float> %12), !gla.output !6
+  %13 = load <4 x float>* getelementptr inbounds (%s2* @s2out_shadow, i32 0, i32 1, i32 1, i32 2, i32 2)
+  call void @llvm.gla.fWriteData.v4f32(i32 1048, i32 -1, <4 x float> %13), !gla.output !6
+  %14 = load <4 x float>* getelementptr inbounds (%s2* @s2out_shadow, i32 0, i32 1, i32 2, i32 2, i32 2)
+  call void @llvm.gla.fWriteData.v4f32(i32 1053, i32 -1, <4 x float> %14), !gla.output !6
+  %15 = load <4 x float>* getelementptr inbounds (%s2* @s2out_shadow, i32 0, i32 1, i32 3, i32 2, i32 2)
+  call void @llvm.gla.fWriteData.v4f32(i32 1058, i32 -1, <4 x float> %15), !gla.output !6
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -51,10 +70,10 @@ attributes #0 = { nounwind readonly }
 attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
-!gla.outputs = !{!1}
-!gla.inputs = !{!6, !8, !10}
-!gla.uniforms = !{!12}
-!gla.noStaticUse = !{!8, !10}
+!gla.outputs = !{!1, !6}
+!gla.inputs = !{!11, !13, !15}
+!gla.uniforms = !{!17, !18}
+!gla.noStaticUse = !{!18, !13, !15}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"", i32 16, %gl_PerVertex* @"anon@0_shadow_typeProxy", metadata !2, metadata !3}
@@ -62,42 +81,66 @@ attributes #1 = { nounwind }
 !3 = metadata !{metadata !"gl_PerVertex", metadata !4, metadata !"gl_Position", metadata !5, metadata !"gl_PointSize", metadata !5, metadata !"gl_ClipDistance", metadata !5, metadata !"gl_ClipVertex", metadata !5, metadata !"gl_FrontColor", metadata !5, metadata !"gl_BackColor", metadata !5, metadata !"gl_FrontSecondaryColor", metadata !5, metadata !"gl_BackSecondaryColor", metadata !5, metadata !"gl_TexCoord", metadata !5, metadata !"gl_FogFragCoord", metadata !5}
 !4 = metadata !{i32 0, i32 0, i32 1024, null}
 !5 = metadata !{metadata !"", metadata !4}
-!6 = metadata !{metadata !"iv4", i32 1, <4 x float>* @iv4_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1037, null, i32 0}
-!8 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1038, null, i32 0}
-!10 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1039, null, i32 0}
-!12 = metadata !{metadata !"ps", i32 12, float* @ps_typeProxy, metadata !4}
+!6 = metadata !{metadata !"s2out", i32 7, %s2* @s2out_shadow_typeProxy, metadata !7, metadata !8}
+!7 = metadata !{i32 4, i32 0, i32 1038, null, i32 1}
+!8 = metadata !{metadata !"s2", metadata !9, metadata !"c", metadata !5, metadata !"d", metadata !10}
+!9 = metadata !{i32 4, i32 0, i32 1024, null}
+!10 = metadata !{metadata !"s1", metadata !9, metadata !"a", metadata !5, metadata !"a2", metadata !5, metadata !"b", metadata !5}
+!11 = metadata !{metadata !"iv4", i32 1, <4 x float>* @iv4_shadow_typeProxy, metadata !12}
+!12 = metadata !{i32 0, i32 0, i32 1037, null, i32 0}
+!13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !14}
+!14 = metadata !{i32 0, i32 0, i32 1059, null, i32 0}
+!15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !16}
+!16 = metadata !{i32 0, i32 0, i32 1060, null, i32 0}
+!17 = metadata !{metadata !"ps", i32 12, float* @ps_typeProxy, metadata !4}
+!18 = metadata !{metadata !"ui", i32 12, i32* @ui_typeProxy, metadata !4}
 
 
 Bottom IR:
 ; ModuleID = 'Glslang'
 
 %gl_PerVertex = type { <4 x float>, float, [4 x float], <4 x float>, <4 x float>, <4 x float>, <4 x float>, <4 x float>, [1 x <4 x float>], float }
+%s2 = type { i32, [4 x %s1] }
+%s1 = type { i32, i32, [3 x <4 x float>] }
 
 @"anon@0_shadow" = internal unnamed_addr global %gl_PerVertex zeroinitializer
 @ps = external addrspace(2) constant float
+@s2out_shadow = internal unnamed_addr global %s2 zeroinitializer
 
 define fastcc void @main() {
 entry:
-  %iv4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !6
+  %iv4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !11
   %gla_constGEP = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 0
   store <4 x float> %iv4, <4 x float>* %gla_constGEP, align 16
-  %0 = load float addrspace(2)* @ps, align 4, !gla.uniform !12
+  %0 = load float addrspace(2)* @ps, align 4, !gla.uniform !17
   %gla_constGEP2 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 1
   store float %0, float* %gla_constGEP2, align 16
-  %iv41 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !6
+  %iv41 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !11
   %1 = extractelement <4 x float> %iv41, i32 0
   %gla_constGEP3 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 2, i32 2
   store float %1, float* %gla_constGEP3, align 4
+  %2 = load <4 x float>* getelementptr (%s2* @s2out_shadow, i32 0, i32 1, i32 undef, i32 2, i32 2), align 16
+  %3 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %2, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %0, i32 0)
+  store <4 x float> %3, <4 x float>* getelementptr (%s2* @s2out_shadow, i32 0, i32 1, i32 undef, i32 2, i32 2), align 16
   call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %iv4), !gla.output !1
   %gla_constGEP4 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 1
-  %2 = load float* %gla_constGEP4, align 16
-  call void @llvm.gla.fWriteData.f32(i32 1025, i32 -1, float %2), !gla.output !1
+  %4 = load float* %gla_constGEP4, align 16
+  call void @llvm.gla.fWriteData.f32(i32 1025, i32 -1, float %4), !gla.output !1
   %gla_constGEP5 = getelementptr %gl_PerVertex* @"anon@0_shadow", i32 0, i32 2, i32 2
-  %3 = load float* %gla_constGEP5, align 4
-  call void @llvm.gla.fWriteData.f32(i32 1028, i32 -1, float %3), !gla.output !1
+  %5 = load float* %gla_constGEP5, align 4
+  call void @llvm.gla.fWriteData.f32(i32 1028, i32 -1, float %5), !gla.output !1
+  %gla_constGEP6 = getelementptr %s2* @s2out_shadow, i32 0, i32 1, i32 0, i32 2, i32 2
+  %6 = load <4 x float>* %gla_constGEP6, align 16
+  call void @llvm.gla.fWriteData.v4f32(i32 1043, i32 -1, <4 x float> %6), !gla.output !6
+  %gla_constGEP7 = getelementptr %s2* @s2out_shadow, i32 0, i32 1, i32 1, i32 2, i32 2
+  %7 = load <4 x float>* %gla_constGEP7, align 16
+  call void @llvm.gla.fWriteData.v4f32(i32 1048, i32 -1, <4 x float> %7), !gla.output !6
+  %gla_constGEP8 = getelementptr %s2* @s2out_shadow, i32 0, i32 1, i32 2, i32 2, i32 2
+  %8 = load <4 x float>* %gla_constGEP8, align 16
+  call void @llvm.gla.fWriteData.v4f32(i32 1053, i32 -1, <4 x float> %8), !gla.output !6
+  %gla_constGEP9 = getelementptr %s2* @s2out_shadow, i32 0, i32 1, i32 3, i32 2, i32 2
+  %9 = load <4 x float>* %gla_constGEP9, align 16
+  call void @llvm.gla.fWriteData.v4f32(i32 1058, i32 -1, <4 x float> %9), !gla.output !6
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -116,14 +159,18 @@ declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
 ; Function Attrs: nounwind
 declare void @llvm.gla.fWriteData.f32(i32, i32, float) #1
 
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #2
+
 attributes #0 = { nounwind readonly }
 attributes #1 = { nounwind }
+attributes #2 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
-!gla.outputs = !{!1}
-!gla.inputs = !{!6, !8, !10}
-!gla.uniforms = !{!12}
-!gla.noStaticUse = !{!8, !10}
+!gla.outputs = !{!1, !6}
+!gla.inputs = !{!11, !13, !15}
+!gla.uniforms = !{!17, !18}
+!gla.noStaticUse = !{!18, !13, !15}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"", i32 16, %gl_PerVertex* @"anon@0_shadow_typeProxy", metadata !2, metadata !3}
@@ -131,16 +178,34 @@ attributes #1 = { nounwind }
 !3 = metadata !{metadata !"gl_PerVertex", metadata !4, metadata !"gl_Position", metadata !5, metadata !"gl_PointSize", metadata !5, metadata !"gl_ClipDistance", metadata !5, metadata !"gl_ClipVertex", metadata !5, metadata !"gl_FrontColor", metadata !5, metadata !"gl_BackColor", metadata !5, metadata !"gl_FrontSecondaryColor", metadata !5, metadata !"gl_BackSecondaryColor", metadata !5, metadata !"gl_TexCoord", metadata !5, metadata !"gl_FogFragCoord", metadata !5}
 !4 = metadata !{i32 0, i32 0, i32 1024, null}
 !5 = metadata !{metadata !"", metadata !4}
-!6 = metadata !{metadata !"iv4", i32 1, <4 x float>* @iv4_shadow_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1037, null, i32 0}
-!8 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1038, null, i32 0}
-!10 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1039, null, i32 0}
-!12 = metadata !{metadata !"ps", i32 12, float* @ps_typeProxy, metadata !4}
+!6 = metadata !{metadata !"s2out", i32 7, %s2* @s2out_shadow_typeProxy, metadata !7, metadata !8}
+!7 = metadata !{i32 4, i32 0, i32 1038, null, i32 1}
+!8 = metadata !{metadata !"s2", metadata !9, metadata !"c", metadata !5, metadata !"d", metadata !10}
+!9 = metadata !{i32 4, i32 0, i32 1024, null}
+!10 = metadata !{metadata !"s1", metadata !9, metadata !"a", metadata !5, metadata !"a2", metadata !5, metadata !"b", metadata !5}
+!11 = metadata !{metadata !"iv4", i32 1, <4 x float>* @iv4_shadow_typeProxy, metadata !12}
+!12 = metadata !{i32 0, i32 0, i32 1037, null, i32 0}
+!13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !14}
+!14 = metadata !{i32 0, i32 0, i32 1059, null, i32 0}
+!15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !16}
+!16 = metadata !{i32 0, i32 0, i32 1060, null, i32 0}
+!17 = metadata !{metadata !"ps", i32 12, float* @ps_typeProxy, metadata !4}
+!18 = metadata !{metadata !"ui", i32 12, i32* @ui_typeProxy, metadata !4}
 #version 150 core
 // LunarGOO output
+struct s1 {
+    int a;
+    int a2;
+    vec4 b[3];
+};
+
+struct s2 {
+    int c;
+    s1 d[4];
+};
+
 uniform float ps;
+uniform int ui;
 in vec4 iv4;
 out gl_PerVertex {
     vec4 gl_Position;
@@ -154,23 +219,32 @@ out gl_PerVertex {
     vec4 gl_TexCoord[1];
     float gl_FogFragCoord;
 } ;
+out s2 s2out;
 gl_PerVertex anon@0_shadow;
+s2 s2out_shadow;
 
 void main()
 {
     anon@0_shadow.gl_Position = iv4;
     anon@0_shadow.gl_PointSize = ps;
     anon@0_shadow.gl_ClipDistance[2] = iv4.x;
+    vec4 temp21 = s2out_shadow.d[0].b[2];
+    temp21.w = ps;
+    s2out_shadow.d[0].b[2] = temp21;
     gl_Position = iv4;
     gl_PointSize = anon@0_shadow.gl_PointSize;
     gl_ClipDistance[2] = anon@0_shadow.gl_ClipDistance[2];
+    s2out.d[0].b[2] = s2out_shadow.d[0].b[2];
+    s2out.d[1].b[2] = s2out_shadow.d[1].b[2];
+    s2out.d[2].b[2] = s2out_shadow.d[2].b[2];
+    s2out.d[3].b[2] = s2out_shadow.d[3].b[2];
     
 }
 
 
 tempglsl.vert
-ERROR: 0:5: 'built-in block redeclaration' : not supported for this version or the enabled extensions 
-ERROR: 0:17: '' :  syntax error
+ERROR: 0:17: 'built-in block redeclaration' : not supported for this version or the enabled extensions 
+ERROR: 0:30: '' :  syntax error
 ERROR: 2 compilation errors.  No code generated.
 
 
