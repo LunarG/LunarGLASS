@@ -204,36 +204,37 @@ struct s2 {
     s1 d[4];
 };
 
+struct goo__gl_PerVertex {
+    vec4 member0;
+    float member1;
+    float member2[4];
+    vec4 member3;
+    vec4 member4;
+    vec4 member5;
+    vec4 member6;
+    vec4 member7;
+    vec4 member8[1];
+    float member9;
+};
+
 uniform float ps;
 uniform int ui;
 in vec4 iv4;
-out gl_PerVertex {
-    vec4 gl_Position;
-    float gl_PointSize;
-    float gl_ClipDistance[4];
-    vec4 gl_ClipVertex;
-    vec4 gl_FrontColor;
-    vec4 gl_BackColor;
-    vec4 gl_FrontSecondaryColor;
-    vec4 gl_BackSecondaryColor;
-    vec4 gl_TexCoord[1];
-    float gl_FogFragCoord;
-} ;
 out s2 s2out;
-gl_PerVertex anon@0_shadow;
+goo__gl_PerVertex anon_0_shadow__goo;
 s2 s2out_shadow;
 
 void main()
 {
-    anon@0_shadow.gl_Position = iv4;
-    anon@0_shadow.gl_PointSize = ps;
-    anon@0_shadow.gl_ClipDistance[2] = iv4.x;
+    anon_0_shadow__goo.member0 = iv4;
+    anon_0_shadow__goo.member1 = ps;
+    anon_0_shadow__goo.member2[2] = iv4.x;
     vec4 temp21 = s2out_shadow.d[0].b[2];
     temp21.w = ps;
     s2out_shadow.d[0].b[2] = temp21;
     gl_Position = iv4;
-    gl_PointSize = anon@0_shadow.gl_PointSize;
-    gl_ClipDistance[2] = anon@0_shadow.gl_ClipDistance[2];
+    gl_PointSize = anon_0_shadow__goo.member1;
+    gl_ClipDistance[2] = anon_0_shadow__goo.member2[2];
     s2out.d[0].b[2] = s2out_shadow.d[0].b[2];
     s2out.d[1].b[2] = s2out_shadow.d[1].b[2];
     s2out.d[2].b[2] = s2out_shadow.d[2].b[2];
@@ -242,9 +243,59 @@ void main()
 }
 
 
-tempglsl.vert
-ERROR: 0:17: 'built-in block redeclaration' : not supported for this version or the enabled extensions 
-ERROR: 0:30: '' :  syntax error
-ERROR: 2 compilation errors.  No code generated.
+#version 150 core
+// LunarGOO output
+struct s1 {
+    int a;
+    int a2;
+    vec4 b[3];
+};
+
+struct s2 {
+    int c;
+    s1 d[4];
+};
+
+struct goo__gl_PerVertex {
+    vec4 member0;
+    float member1;
+    float member2[1];
+    vec4 member3;
+    vec4 member4;
+    vec4 member5;
+    vec4 member6;
+    vec4 member7;
+    vec4 member8[1];
+    float member9;
+};
+
+uniform float ps;
+uniform int ui;
+in vec4 iv4;
+out s2 s2out;
+s2 s2out_shadow;
+goo__gl_PerVertex anon_1_shadow__goo;
+s2 s2out_shadow1;
+
+void main()
+{
+    vec4 temp21 = s2out_shadow.d[0].b[2];
+    temp21.w = ps;
+    s2out_shadow.d[0].b[2] = temp21;
+    anon_1_shadow__goo.member0 = iv4;
+    anon_1_shadow__goo.member1 = ps;
+    anon_1_shadow__goo.member2[2] = iv4.x;
+    s2out_shadow1.d[0].b[2] = temp21;
+    s2out_shadow1.d[1].b[2] = s2out_shadow.d[1].b[2];
+    s2out_shadow1.d[2].b[2] = s2out_shadow.d[2].b[2];
+    s2out_shadow1.d[3].b[2] = s2out_shadow.d[3].b[2];
+    gl_Position = iv4;
+    gl_PointSize = anon_1_shadow__goo.member1;
+    s2out.d[0].b[2] = s2out_shadow1.d[0].b[2];
+    s2out.d[1].b[2] = s2out_shadow1.d[1].b[2];
+    s2out.d[2].b[2] = s2out_shadow1.d[2].b[2];
+    s2out.d[3].b[2] = s2out_shadow1.d[3].b[2];
+    
+}
 
 

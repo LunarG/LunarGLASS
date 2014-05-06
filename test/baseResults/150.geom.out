@@ -296,32 +296,33 @@ attributes #1 = { nounwind readonly }
 !21 = metadata !{i32 0, i32 0, i32 1053, null, i32 0}
 #version 150 core
 // LunarGOO output
+struct goo__gl_PerVertex {
+    vec4 member0;
+    float member1;
+    float member2[1];
+};
+
 in fromVertex {
     vec3 color;
 } fromV[6];
 out fromVertex {
     vec3 color;
 } ;
-out gl_PerVertex {
-    vec4 gl_Position;
-    float gl_PointSize;
-    float gl_ClipDistance[1];
-} ;
 out toFragment {
     vec3 color;
 } toF;
-gl_PerVertex anon@1_shadow;
+goo__gl_PerVertex anon_1_shadow__goo;
 const int const23i_2 = 2;
 
 void main()
 {
     void temp21 = EmitVertex();
     void temp22 = EndPrimitive();
-    anon@1_shadow.gl_Position = gl_in[0].gl_Position;
-    anon@1_shadow.gl_PointSize = gl_in[3].gl_PointSize;
+    anon_1_shadow__goo.member0 = gl_in[0].gl_Position;
+    anon_1_shadow__goo.member1 = gl_in[3].gl_PointSize;
     color = fromV[0].color;
-    gl_Position = anon@1_shadow.gl_Position;
-    gl_PointSize = anon@1_shadow.gl_PointSize;
+    gl_Position = anon_1_shadow__goo.member0;
+    gl_PointSize = anon_1_shadow__goo.member1;
     gl_PrimitiveID = gl_PrimitiveIDIn;
     gl_Layer = const23i_2;
     
@@ -329,8 +330,9 @@ void main()
 
 
 tempglsl.geom
-ERROR: 0:9: 'built-in block redeclaration' : not supported for this version or the enabled extensions 
-ERROR: 0:17: '' :  syntax error
+WARNING: 0:18: 'anon_1_shadow__goo' : identifiers containing consecutive underscores ("__") are reserved 
+ERROR: 0:23: 'temp21' : illegal use of type 'void' 
+ERROR: 0:24: 'temp22' : illegal use of type 'void' 
 ERROR: 2 compilation errors.  No code generated.
 
 

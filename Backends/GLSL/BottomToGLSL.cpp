@@ -192,6 +192,7 @@ public:
         version = manager->getVersion();
         profile = (EProfile)manager->getProfile();
         stage = (EShLanguage)manager->getStage();
+        usingSso = version >= 410 || manager->getRequestedExtensions().find("GL_ARB_separate_shader_objects") != manager->getRequestedExtensions().end();
     }
     virtual void end(llvm::Module&);
 
@@ -226,7 +227,7 @@ protected:
     void newScope();
     void leaveScope();
 
-    void addStructType(std::ostringstream& out, llvm::StringRef name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block);
+    void addStructType(std::ostringstream& out, std::string& name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block);
     bool addVariable(const llvm::Value* value, std::string& name);
     void getNewVariableName(const llvm::Value* value, std::string& name);
     void getNewVariableName(const char* base, std::string& name);
@@ -320,6 +321,7 @@ protected:
     int version;
     EProfile profile;
     EShLanguage stage;
+    bool usingSso;
 };
 
 //
@@ -805,10 +807,29 @@ bool NeedsComponentArg(const llvm::IntrinsicInst* llvmInstruction)
 void MakeParseable(std::string& name)
 {
     // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
+    // Also, glslang uses @ for an internal name.
+    // If the name changes, add a "__" so that it's not coincidentally a user name.
+
+    bool changed = false;
+    bool hasDoubleUnderscore = false;
     for (int c = 0; c < (int)name.length(); ++c) {
-        if (name[c] == '.' || name[c] == '-')
+        if (name[c] == '.' || name[c] == '-' || name[c] == '@') {
             name[c] = '_';
+            changed = true;
+        }
+
+        if (c > 0 && name[c-1] == '_' && name[c] == '_')
+            hasDoubleUnderscore = true;
     }
+
+    if (changed && ! hasDoubleUnderscore)
+        name.append("__goo");
+}
+
+void MakeNonbuiltinName(std::string& name)
+{
+    if (name.compare(0, 3, "gl_") == 0)
+        name.insert(0, "goo__");
 }
 
 // Whether the given intrinsic's specified operand is the same as the passed
@@ -945,46 +966,59 @@ void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
         type = global->getType();
 
     std::string name = global->getName();
-    std::string declareName = name;
 
     MakeParseable(name);
     addVariable(global, name);
-    emitVariableDeclaration(EMpNone, type, declareName, MapGlaAddressSpace(global));
+    emitVariableDeclaration(EMpNone, type, name, MapGlaAddressSpace(global));
 
     if (global->hasInitializer()) {
         const llvm::Constant* constant = global->getInitializer();
-        emitInitializeAggregate(globalInitializers, global->getName(), constant);
+        emitInitializeAggregate(globalInitializers, name, constant);
     }
 }
 
 void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode)
 {
-    std::string name = mdNode->getOperand(0)->getName();
+    std::string instanceName = mdNode->getOperand(0)->getName();
 
     bool declarationAllowed = true;
-    if (name.substr(0,3) == std::string("gl_")) {
-        // Names starting "gl_" are
-        //  - an error to declare them explicitly, as they are built-in
-        //  - okay to declare (e.g., gl_ClipDistance) if something is added, like array size ('invariant' is handled elsewhere)
-        //  - required to be declared, if the shader declared them, to make SSO work
-        // Basically, the rules are ad hoc, and so listed here.
-        declarationAllowed = false;
-        if (name == "gl_ClipDistance")
-            declarationAllowed = true;
 
-        // TODO: handle gl_PerVertex, gl_in, etc. the following is not yet tested, and mixing type name with object name:
-        //if (version >= 410 && manager->getRequestedExtensions().find("GL_ARB_separate_shader_objects") != manager->getRequestedExtensions().end() &&
-        //    (name == "gl_PerVertex" ||
-        //     name == "gl_PerFragment" ||
-        //     name == "gl_in"))
-        //    declarationAllowed = true;
+    // Names starting "gl_" are
+    //  - an error to declare explicitly, as they are built-in, or
+    //  - okay to declare (e.g., gl_ClipDistance) if something is added, like array size ('invariant' is handled elsewhere), or
+    //  - required to be declared, if the shader declared them, to make SSO work
+    // Basically, the rules are ad hoc, and so listed here.
+    if (instanceName.size() == 0) {
+        // This is an anonymous block, we'll want to decide name-based skipping based
+        // on the name of the block, not the name of the instance.
+        llvm::Type* type = 0;
+        CrackIOMdType(mdNode, type);
+
+        if (type->getTypeID() == llvm::Type::PointerTyID)
+            type = type->getContainedType(0);
+
+        if (type->getTypeID() == llvm::Type::StructTyID) {
+            const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
+
+            llvm::StringRef blockName = structType->isLiteral() ? "" : structType->getName();
+
+            if (blockName.substr(0,3) == std::string("gl_") && ! usingSso)
+                declarationAllowed = false;
+        }
+    } else if (instanceName.substr(0,3) == std::string("gl_")) {
+        declarationAllowed = false;
+        if (instanceName == "gl_ClipDistance")
+            declarationAllowed = true;
+        else if (usingSso && (instanceName == "gl_in" ||
+                              instanceName == "gl_out"))
+            declarationAllowed = true;
     }
 
     if (! declarationAllowed)
         return;
 
     int arraySize = emitGlaType(globalDeclarations, EMpCount, qualifier, 0, true, mdNode);
-    globalDeclarations << " " << std::string(name);
+    globalDeclarations << " " << std::string(instanceName);
     emitGlaArraySize(globalDeclarations, arraySize);
     globalDeclarations << ";" << std::endl;
 }
@@ -1744,7 +1778,7 @@ void gla::GlslTarget::leaveScope()
     newLine();
 }
 
-void gla::GlslTarget::addStructType(std::ostringstream& out, llvm::StringRef name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block)
+void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block)
 {
     // this is mutually recursive with emitGlaType
 
@@ -1771,7 +1805,7 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, llvm::StringRef nam
     if (mdAggregate)
         tempStructure << std::string(mdAggregate->getOperand(0)->getName());
     else
-        tempStructure << name.str();
+        tempStructure << name;
     tempStructure << " {" << std::endl;
 
     for (int index = 0; index < (int)structType->getNumContainedTypes(); ++index) {
@@ -2647,7 +2681,12 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
         const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
             
         // addStructType() is mutually recursive with this function
-        llvm::StringRef structName = structType->isLiteral() ? "" : structType->getName();
+        std::string structName = structType->isLiteral() ? "" : structType->getName();
+        // If this is not a block, but a built-in name, then it must be for a shadow of a built-in block,
+        // so should not have a gl_ name.
+        if (! metaType.block)
+            MakeNonbuiltinName(structName);
+        MakeParseable(structName);
         addStructType(out, structName, structType, metaType.mdAggregate, metaType.block);
         if (! metaType.block) {
             if (metaType.mdAggregate)

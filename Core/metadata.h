@@ -260,6 +260,15 @@ inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPr
     return true;
 }
 
+inline bool CrackIOMdType(const llvm::MDNode* md, llvm::Type*& type)
+{
+    if (! md->getOperand(2))
+        return false;
+    type = md->getOperand(2)->getType();
+
+    return true;
+}
+
 inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
                       EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, const llvm::MDNode*& aggregate, 
                       int& interpMode)

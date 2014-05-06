@@ -888,7 +888,7 @@ const vec4 const135 = vec4(2.0);
 
 void main()
 {
-    vec4 ternary52_0;
+    vec4 ternary52_0__goo;
     bool temp22 = u_i != const23i_0;
     bool temp24 = u_f != const25;
     bool temp26 = temp22 ^^ temp24;
@@ -1004,13 +1004,13 @@ void main()
         float temp131 = temp87.w + temp130;
         vec4 temp132 = vec4(temp131);
         vec4 phitmp = temp132 + const134;
-        ternary52_0 = phitmp;
+        ternary52_0__goo = phitmp;
     }
     else {
-        ternary52_0 = const135;
+        ternary52_0__goo = const135;
     }
     
-    gl_FragColor = ternary52_0;
+    gl_FragColor = ternary52_0__goo;
     
 }
 
@@ -1050,7 +1050,7 @@ const vec4 const135 = vec4(2.0);
 
 void main()
 {
-    vec4 ternary52_0_0;
+    vec4 ternary52_0__goo_0;
     bool temp221 = u_i != const23i_0;
     bool temp242 = u_f != const25;
     bool temp263 = temp221 ^^ temp242;
@@ -1136,14 +1136,14 @@ void main()
         bvec3 temp10288 = notEqual(temp9985, temp8568);
         bool temp10389 = all(temp10086);
         bool temp10490 = temp7252 != temp4423;
+        float ternary444887 = float(temp9074.y);
+        float select = temp221 ? temp8568.x : ternary444887;
+        float select142 = temp263 ? temp4423 : temp8366.x;
         bool temp107102 = any(temp10288);
         bool temp108103 = temp10490 || temp10389;
         bool temp110105 = temp108103 || temp107102;
-        float ternary444887 = float(temp9074.y);
-        float select = temp263 ? temp4423 : temp8366.x;
-        float select140 = temp221 ? temp8568.x : ternary444887;
-        float temp109104 = select + select140;
-        float select148 = temp110105 ? temp109104 : temp7252;
+        float temp109104 = select + select142;
+        float select140 = temp110105 ? temp109104 : temp7252;
         int temp112113 = temp9074.x + temp3413;
         int temp113114 = temp112113 + temp9074.y;
         int temp114115 = temp113114 + temp9480.x;
@@ -1154,7 +1154,7 @@ void main()
         int temp119120 = temp118119 + temp9277.y;
         int temp120121 = temp119120 + temp9277.z;
         float temp121122 = float(temp120121);
-        float temp122123 = temp121122 + select148;
+        float temp122123 = temp121122 + select140;
         float temp123124 = temp8366.x + temp122123;
         float temp124125 = temp8366.y + temp123124;
         float temp125126 = temp8568.x + temp124125;
@@ -1166,13 +1166,13 @@ void main()
         float temp131132 = temp8770.w + temp130131;
         vec4 temp132 = vec4(temp131132);
         vec4 phitmp135 = temp132 + const134;
-        ternary52_0_0 = phitmp135;
+        ternary52_0__goo_0 = phitmp135;
     }
     else {
-        ternary52_0_0 = const135;
+        ternary52_0__goo_0 = const135;
     }
     
-    gl_FragColor = ternary52_0_0;
+    gl_FragColor = ternary52_0__goo_0;
     
 }
 

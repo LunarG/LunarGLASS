@@ -388,33 +388,33 @@ const vec4 const33 = vec4(1.0);
 
 void main()
 {
-    vec4 color_1;
-    vec4 FragColor_shadow32_0;
+    vec4 color_1__goo;
+    vec4 FragColor_shadow32_0__goo;
     bool temp23 = c > d;
-    vec4 _pn = temp23 ? bigColor : smallColor;
-    vec4 color_0 = BaseColor + _pn;
-    bool temp26 = color_0.z < minimum;
+    vec4 _pn__goo = temp23 ? bigColor : smallColor;
+    vec4 color_0__goo = BaseColor + _pn__goo;
+    bool temp26 = color_0__goo.z < minimum;
     if (temp26) {
-        FragColor_shadow32_0 = const27;
-        gl_FragColor = FragColor_shadow32_0;
+        FragColor_shadow32_0__goo = const27;
+        gl_FragColor = FragColor_shadow32_0__goo;
         return;
     }
     else {
-        float temp28 = color_0.z + const29;
+        float temp28 = color_0__goo.z + const29;
         bool temp30 = temp28 > threshhold;
         if (temp30) {
             discard;
         }
         
-        vec4 temp31 = color_0;
+        vec4 temp31 = color_0__goo;
         temp31.z = temp28;
         vec4 color10 = temp31 + const33;
         bool temp34 = color10.w > threshhold2;
         if (temp34) {
             bool temp35 = color10.z > threshhold2;
             if (temp35) {
-                FragColor_shadow32_0 = const27;
-                gl_FragColor = FragColor_shadow32_0;
+                FragColor_shadow32_0__goo = const27;
+                gl_FragColor = FragColor_shadow32_0__goo;
                 return;
             }
             else {
@@ -422,7 +422,7 @@ void main()
                     float temp36 = color10.z + const29;
                     vec4 temp37 = color10;
                     temp37.z = temp36;
-                    color_1 = temp37;
+                    color_1__goo = temp37;
                 }
                 else {
                     bool temp38 = color10.x < minimum;
@@ -431,14 +431,14 @@ void main()
                     }
                     else {
                         vec4 color21 = color10 + const33;
-                        color_1 = color21;
+                        color_1__goo = color21;
                     }
                     
                 }
                 
-                vec4 FragColor_shadow = otherColor * color_1;
-                FragColor_shadow32_0 = FragColor_shadow;
-                gl_FragColor = FragColor_shadow32_0;
+                vec4 FragColor_shadow = otherColor * color_1__goo;
+                FragColor_shadow32_0__goo = FragColor_shadow;
+                gl_FragColor = FragColor_shadow32_0__goo;
                 return;
             }
             
@@ -448,8 +448,8 @@ void main()
                 discard;
             }
             else {
-                FragColor_shadow32_0 = const27;
-                gl_FragColor = FragColor_shadow32_0;
+                FragColor_shadow32_0__goo = const27;
+                gl_FragColor = FragColor_shadow32_0__goo;
                 
             }
             
@@ -479,33 +479,33 @@ const vec4 const33 = vec4(1.0);
 
 void main()
 {
-    vec4 color_1_0;
-    vec4 FragColor_shadow51_0;
+    vec4 color_1__goo_0;
+    vec4 FragColor_shadow51_0__goo;
     bool temp231 = c > d;
-    vec4 ternary_0 = temp231 ? bigColor : smallColor;
-    vec4 color_05 = ternary_0 + BaseColor;
-    bool temp266 = color_05.z < minimum;
+    vec4 ternary_0__goo = temp231 ? bigColor : smallColor;
+    vec4 color_0__goo5 = ternary_0__goo + BaseColor;
+    bool temp266 = color_0__goo5.z < minimum;
     if (temp266) {
-        FragColor_shadow51_0 = const27;
-        gl_FragColor = FragColor_shadow51_0;
+        FragColor_shadow51_0__goo = const27;
+        gl_FragColor = FragColor_shadow51_0__goo;
         return;
     }
     else {
-        float temp289 = color_05.z + const29;
+        float temp289 = color_0__goo5.z + const29;
         bool temp3010 = temp289 > threshhold;
         if (temp3010) {
             discard;
         }
         
-        vec4 temp31 = color_05;
+        vec4 temp31 = color_0__goo5;
         temp31.z = temp289;
         vec4 color1015 = temp31 + const33;
         bool temp3416 = color1015.w > threshhold2;
         if (temp3416) {
             bool temp3518 = color1015.z > threshhold2;
             if (temp3518) {
-                FragColor_shadow51_0 = const27;
-                gl_FragColor = FragColor_shadow51_0;
+                FragColor_shadow51_0__goo = const27;
+                gl_FragColor = FragColor_shadow51_0__goo;
                 return;
             }
             else {
@@ -513,7 +513,7 @@ void main()
                     float temp3624 = color1015.z + const29;
                     vec4 temp37 = color1015;
                     temp37.z = temp3624;
-                    color_1_0 = temp37;
+                    color_1__goo_0 = temp37;
                 }
                 else {
                     bool temp3829 = color1015.x < minimum;
@@ -522,14 +522,14 @@ void main()
                     }
                     else {
                         vec4 color2133 = color1015 + const33;
-                        color_1_0 = color2133;
+                        color_1__goo_0 = color2133;
                     }
                     
                 }
                 
-                vec4 FragColor_shadow3738 = color_1_0 * otherColor;
-                FragColor_shadow51_0 = FragColor_shadow3738;
-                gl_FragColor = FragColor_shadow51_0;
+                vec4 FragColor_shadow3738 = color_1__goo_0 * otherColor;
+                FragColor_shadow51_0__goo = FragColor_shadow3738;
+                gl_FragColor = FragColor_shadow51_0__goo;
                 return;
             }
             
@@ -539,8 +539,8 @@ void main()
                 discard;
             }
             else {
-                FragColor_shadow51_0 = const27;
-                gl_FragColor = FragColor_shadow51_0;
+                FragColor_shadow51_0__goo = const27;
+                gl_FragColor = FragColor_shadow51_0__goo;
                 
             }
             
