@@ -884,7 +884,7 @@ int CountSlots(const llvm::Type* type)
 }
 
 //
-// *Textually* deference a name string down to a single I/O slot.
+// *Textually* dereference a name string down to a single I/O slot.
 //
 void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNode* mdAggregate, int slotOffset, EMdTypeLayout& mdTypeLayout)
 {
@@ -2263,7 +2263,6 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
 
     // Handle the one-to-one mappings
     const char* callString = 0;
-    unsigned int callArgs = -1;
     int forceWidth = 0;
     bool convertResultToInt = false;
     bool convertArgsToUint = false;
@@ -2272,139 +2271,139 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
 
     // Floating-Point and Integer Operations
     case llvm::Intrinsic::gla_abs:
-    case llvm::Intrinsic::gla_fAbs:         callString = "abs";   callArgs = 1; break;
+    case llvm::Intrinsic::gla_fAbs:         callString = "abs";   break;
 
     case llvm::Intrinsic::gla_sMin:
     case llvm::Intrinsic::gla_uMin:
-    case llvm::Intrinsic::gla_fMin:         callString = "min";   callArgs = 2; break;
+    case llvm::Intrinsic::gla_fMin:         callString = "min";   break;
 
     case llvm::Intrinsic::gla_sMax:
     case llvm::Intrinsic::gla_uMax:
-    case llvm::Intrinsic::gla_fMax:         callString = "max";   callArgs = 2; break;
+    case llvm::Intrinsic::gla_fMax:         callString = "max";   break;
 
     case llvm::Intrinsic::gla_sClamp:
     case llvm::Intrinsic::gla_uClamp:
-    case llvm::Intrinsic::gla_fClamp:       callString = "clamp"; callArgs = 3; break;
+    case llvm::Intrinsic::gla_fClamp:       callString = "clamp"; break;
 
-    case llvm::Intrinsic::gla_fRadians:     callString = "radians";     callArgs = 1; break;
-    case llvm::Intrinsic::gla_fDegrees:     callString = "degrees";     callArgs = 1; break;
-    case llvm::Intrinsic::gla_fSin:         callString = "sin";         callArgs = 1; break;
-    case llvm::Intrinsic::gla_fCos:         callString = "cos";         callArgs = 1; break;
-    case llvm::Intrinsic::gla_fTan:         callString = "tan";         callArgs = 1; break;
-    case llvm::Intrinsic::gla_fAsin:        callString = "asin";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fAcos:        callString = "acos";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fAtan:        callString = "atan";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fAtan2:       callString = "atan";        callArgs = 2; break;
-    case llvm::Intrinsic::gla_fSinh:        callString = "sinh";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fCosh:        callString = "cosh";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fTanh:        callString = "tanh";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fAsinh:       callString = "asinh";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fAcosh:       callString = "acosh";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fAtanh:       callString = "atanh";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fPow:         callString = "pow";         callArgs = 2; break;
-    //case llvm::Intrinsic::gla_fPowi:        callString = "powi";        callArgs = 2; break;
-    case llvm::Intrinsic::gla_fExp:         callString = "exp";         callArgs = 1; break;
-    case llvm::Intrinsic::gla_fLog:         callString = "log";         callArgs = 1; break;
-    case llvm::Intrinsic::gla_fExp2:        callString = "exp2";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fLog2:        callString = "log2";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fExp10:       callString = "exp10";       break; // callArgs = 1;
-    case llvm::Intrinsic::gla_fLog10:       callString = "log10";       break; // callArgs = 1;
-    case llvm::Intrinsic::gla_fSqrt:        callString = "sqrt";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fInverseSqrt: callString = "inversesqrt"; callArgs = 1; break;
-    case llvm::Intrinsic::gla_fSign:        callString = "sign";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_sign:         callString = "sign";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fFloor:       callString = "floor";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fCeiling:     callString = "ceil";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fRoundEven:   callString = "roundEven";   callArgs = 1; break;
-    case llvm::Intrinsic::gla_fRoundZero:   callString = "trunc";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fRoundFast:   callString = "round";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fFraction:    callString = "fract";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fModF:        callString = "modf";        callArgs = 1; break;
-    case llvm::Intrinsic::gla_fMix:         callString = "mix";         callArgs = 3; break;
-    case llvm::Intrinsic::gla_fbMix:        callString = "mix";         callArgs = 3; break;
-    case llvm::Intrinsic::gla_fStep:        callString = "step";        callArgs = 2; break;
-    case llvm::Intrinsic::gla_fSmoothStep:  callString = "smoothstep";  callArgs = 3; break;
-    case llvm::Intrinsic::gla_fIsNan:       callString = "isnan";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fIsInf:       callString = "isinf";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fFma:         callString = "fma";         callArgs = 3; break;
+    case llvm::Intrinsic::gla_fRadians:     callString = "radians";     break;
+    case llvm::Intrinsic::gla_fDegrees:     callString = "degrees";     break;
+    case llvm::Intrinsic::gla_fSin:         callString = "sin";         break;
+    case llvm::Intrinsic::gla_fCos:         callString = "cos";         break;
+    case llvm::Intrinsic::gla_fTan:         callString = "tan";         break;
+    case llvm::Intrinsic::gla_fAsin:        callString = "asin";        break;
+    case llvm::Intrinsic::gla_fAcos:        callString = "acos";        break;
+    case llvm::Intrinsic::gla_fAtan:        callString = "atan";        break;
+    case llvm::Intrinsic::gla_fAtan2:       callString = "atan";        break;
+    case llvm::Intrinsic::gla_fSinh:        callString = "sinh";        break;
+    case llvm::Intrinsic::gla_fCosh:        callString = "cosh";        break;
+    case llvm::Intrinsic::gla_fTanh:        callString = "tanh";        break;
+    case llvm::Intrinsic::gla_fAsinh:       callString = "asinh";       break;
+    case llvm::Intrinsic::gla_fAcosh:       callString = "acosh";       break;
+    case llvm::Intrinsic::gla_fAtanh:       callString = "atanh";       break;
+    case llvm::Intrinsic::gla_fPow:         callString = "pow";         break;
+    //case llvm::Intrinsic::gla_fPowi:        callString = "powi";        break;
+    case llvm::Intrinsic::gla_fExp:         callString = "exp";         break;
+    case llvm::Intrinsic::gla_fLog:         callString = "log";         break;
+    case llvm::Intrinsic::gla_fExp2:        callString = "exp2";        break;
+    case llvm::Intrinsic::gla_fLog2:        callString = "log2";        break;
+    //case llvm::Intrinsic::gla_fExp10:       callString = "exp10";       break;
+    //case llvm::Intrinsic::gla_fLog10:       callString = "log10";       break;
+    case llvm::Intrinsic::gla_fSqrt:        callString = "sqrt";        break;
+    case llvm::Intrinsic::gla_fInverseSqrt: callString = "inversesqrt"; break;
+    case llvm::Intrinsic::gla_fSign:        callString = "sign";        break;
+    case llvm::Intrinsic::gla_sign:         callString = "sign";        break;
+    case llvm::Intrinsic::gla_fFloor:       callString = "floor";       break;
+    case llvm::Intrinsic::gla_fCeiling:     callString = "ceil";        break;
+    case llvm::Intrinsic::gla_fRoundEven:   callString = "roundEven";   break;
+    case llvm::Intrinsic::gla_fRoundZero:   callString = "trunc";       break;
+    case llvm::Intrinsic::gla_fRoundFast:   callString = "round";       break;
+    case llvm::Intrinsic::gla_fFraction:    callString = "fract";       break;
+    case llvm::Intrinsic::gla_fModF:        callString = "modf";        break;
+    case llvm::Intrinsic::gla_fMix:         callString = "mix";         break;
+    case llvm::Intrinsic::gla_fbMix:        callString = "mix";         break;
+    case llvm::Intrinsic::gla_fStep:        callString = "step";        break;
+    case llvm::Intrinsic::gla_fSmoothStep:  callString = "smoothstep";  break;
+    case llvm::Intrinsic::gla_fIsNan:       callString = "isnan";       break;
+    case llvm::Intrinsic::gla_fIsInf:       callString = "isinf";       break;
+    case llvm::Intrinsic::gla_fFma:         callString = "fma";         break;
 
     // Integer-Only Operations
-    case llvm::Intrinsic::gla_addCarry:     callString = "addCarry";        callArgs = 2; break;
-    case llvm::Intrinsic::gla_subBorrow:    callString = "subBorrow";       callArgs = 2; break;
-    case llvm::Intrinsic::gla_umulExtended: callString = "umulExtended";    callArgs = 2; break;
-    case llvm::Intrinsic::gla_smulExtended: callString = "smulExtended";    callArgs = 2; break;
+    case llvm::Intrinsic::gla_addCarry:     callString = "addCarry";     break;
+    case llvm::Intrinsic::gla_subBorrow:    callString = "subBorrow";    break;
+    case llvm::Intrinsic::gla_umulExtended: callString = "umulExtended"; break;
+    case llvm::Intrinsic::gla_smulExtended: callString = "smulExtended"; break;
 
     // Bit Operations
-    case llvm::Intrinsic::gla_fFloatBitsToInt:  callString = "floatBitsToInt";      callArgs = 1; break;
-    case llvm::Intrinsic::gla_fIntBitsTofloat:  callString = "intBitsToFloat";      callArgs = 1; break;
+    case llvm::Intrinsic::gla_fFloatBitsToInt:  callString = "floatBitsToInt";   break;
+    case llvm::Intrinsic::gla_fIntBitsTofloat:  callString = "intBitsToFloat";   break;
     case llvm::Intrinsic::gla_sBitFieldExtract:
-    case llvm::Intrinsic::gla_uBitFieldExtract: callString = "bitFieldExtract";     callArgs = 3; break;
-    case llvm::Intrinsic::gla_bitFieldInsert:   callString = "bitFieldInsert";      callArgs = 3; break;
-    case llvm::Intrinsic::gla_bitReverse:       callString = "bitFieldReverse";     callArgs = 1; break;
-    case llvm::Intrinsic::gla_bitCount:         callString = "bitCount";            callArgs = 1; break;
-    case llvm::Intrinsic::gla_findLSB:          callString = "findLSB";             callArgs = 1; break;
+    case llvm::Intrinsic::gla_uBitFieldExtract: callString = "bitFieldExtract";  break;
+    case llvm::Intrinsic::gla_bitFieldInsert:   callString = "bitFieldInsert";   break;
+    case llvm::Intrinsic::gla_bitReverse:       callString = "bitFieldReverse";  break;
+    case llvm::Intrinsic::gla_bitCount:         callString = "bitCount";         break;
+    case llvm::Intrinsic::gla_findLSB:          callString = "findLSB";          break;
     case llvm::Intrinsic::gla_sFindMSB:
-    case llvm::Intrinsic::gla_uFindMSB:         callString = "findMSB";             callArgs = 1; break;
+    case llvm::Intrinsic::gla_uFindMSB:         callString = "findMSB";          break;
 
     // Pack and Unpack
-    case llvm::Intrinsic::gla_fFrexp:            callString = "frexp";              break;      // callArgs =
-    case llvm::Intrinsic::gla_fLdexp:            callString = "ldexp";              break;      // callArgs =
-    case llvm::Intrinsic::gla_fPackUnorm2x16:    callString = "packUnorm2x16";      callArgs = 1; convertResultToInt = true; break;
-    case llvm::Intrinsic::gla_fUnpackUnorm2x16:  callString = "unpackUnorm2x16";    callArgs = 1; convertArgsToUint  = true; break;
+    //case llvm::Intrinsic::gla_fFrexp:            callString = "frexp";              break;
+    //case llvm::Intrinsic::gla_fLdexp:            callString = "ldexp";              break;
+    case llvm::Intrinsic::gla_fPackUnorm2x16:    callString = "packUnorm2x16";      convertResultToInt = true; break;
+    case llvm::Intrinsic::gla_fUnpackUnorm2x16:  callString = "unpackUnorm2x16";    convertArgsToUint  = true; break;
 
-    case llvm::Intrinsic::gla_fPackSnorm2x16:    callString = "packSnorm2x16";      callArgs = 1; convertResultToInt = true; break;
-    case llvm::Intrinsic::gla_fUnpackSnorm2x16:  callString = "unpackSnorm2x16";    callArgs = 1; convertArgsToUint  = true; break;
+    case llvm::Intrinsic::gla_fPackSnorm2x16:    callString = "packSnorm2x16";      convertResultToInt = true; break;
+    case llvm::Intrinsic::gla_fUnpackSnorm2x16:  callString = "unpackSnorm2x16";    convertArgsToUint  = true; break;
 
-    case llvm::Intrinsic::gla_fPackHalf2x16:     callString = "packHalf2x16";       callArgs = 1; convertResultToInt = true; break;        
-    case llvm::Intrinsic::gla_fUnpackHalf2x16:   callString = "unpackHalf2x16";     callArgs = 1; convertArgsToUint  = true; break;
+    case llvm::Intrinsic::gla_fPackHalf2x16:     callString = "packHalf2x16";       convertResultToInt = true; break;        
+    case llvm::Intrinsic::gla_fUnpackHalf2x16:   callString = "unpackHalf2x16";     convertArgsToUint  = true; break;
 
-    case llvm::Intrinsic::gla_fPackUnorm4x8:     callString = "packUnorm4x8";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fPackSnorm4x8:     callString = "packSnorm4x8";       callArgs = 1; break;
+    case llvm::Intrinsic::gla_fPackUnorm4x8:     callString = "packUnorm4x8";       break;
+    case llvm::Intrinsic::gla_fPackSnorm4x8:     callString = "packSnorm4x8";       break;
 
-    case llvm::Intrinsic::gla_fUnpackUnorm4x8:   callString = "unpackUnorm4x8";     callArgs = 1; break;
-    case llvm::Intrinsic::gla_fUnpackSnorm4x8:   callString = "unpackSnorm4x8";     callArgs = 1; break;
+    case llvm::Intrinsic::gla_fUnpackUnorm4x8:   callString = "unpackUnorm4x8";     break;
+    case llvm::Intrinsic::gla_fUnpackSnorm4x8:   callString = "unpackSnorm4x8";     break;
 
-    case llvm::Intrinsic::gla_fPackDouble2x32:   callString = "packDouble2x32";     callArgs = 1; break;
-    case llvm::Intrinsic::gla_fUnpackDouble2x32: callString = "unpackDouble2x32";   callArgs = 1; break;
+    case llvm::Intrinsic::gla_fPackDouble2x32:   callString = "packDouble2x32";     break;
+    case llvm::Intrinsic::gla_fUnpackDouble2x32: callString = "unpackDouble2x32";   break;
 
     // Geometry
-    case llvm::Intrinsic::gla_fLength:      callString = "length";      callArgs = 1; break;
-    case llvm::Intrinsic::gla_fDistance:    callString = "distance";    callArgs = 2; break;
-    case llvm::Intrinsic::gla_fDot2:
-    case llvm::Intrinsic::gla_fDot3:
-    case llvm::Intrinsic::gla_fDot4:        callString = "dot";         callArgs = 2; break;
-    case llvm::Intrinsic::gla_fCross:       callString = "cross";       callArgs = 2; break;
-    case llvm::Intrinsic::gla_fNormalize:   callString = "normalize";   callArgs = 1; break;
-    case llvm::Intrinsic::gla_fNormalize3D:                                           break;
-    case llvm::Intrinsic::gla_fLit:                                                   break;
-    case llvm::Intrinsic::gla_fFaceForward: callString = "faceforward"; callArgs = 3; break;
-    case llvm::Intrinsic::gla_fReflect:     callString = "reflect";     callArgs = 2; break;
-    case llvm::Intrinsic::gla_fRefract:     callString = "refract";     callArgs = 3; break;
+    case llvm::Intrinsic::gla_fLength:      callString = "length";      break;
+    case llvm::Intrinsic::gla_fDistance:    callString = "distance";    break;
+    case llvm::Intrinsic::gla_fDot2:        
+    case llvm::Intrinsic::gla_fDot3:        
+    case llvm::Intrinsic::gla_fDot4:        callString = "dot";         break;
+    case llvm::Intrinsic::gla_fCross:       callString = "cross";       break;
+    case llvm::Intrinsic::gla_fNormalize:   callString = "normalize";   break;
+    case llvm::Intrinsic::gla_fNormalize3D:                             break;
+    case llvm::Intrinsic::gla_fLit:                                     break;
+    case llvm::Intrinsic::gla_fFaceForward: callString = "faceforward"; break;
+    case llvm::Intrinsic::gla_fReflect:     callString = "reflect";     break;
+    case llvm::Intrinsic::gla_fRefract:     callString = "refract";     break;
 
     // Derivative and Transform
-    case llvm::Intrinsic::gla_fDFdx:           callString = "dFdx";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fDFdy:           callString = "dFdy";       callArgs = 1; break;
-    case llvm::Intrinsic::gla_fFilterWidth:    callString = "fwidth";     callArgs = 1; break;
+    case llvm::Intrinsic::gla_fDFdx:        callString = "dFdx";        break;
+    case llvm::Intrinsic::gla_fDFdy:        callString = "dFdy";        break;
+    case llvm::Intrinsic::gla_fFilterWidth: callString = "fwidth";      break;
 
     // Vector Logical
-    case llvm::Intrinsic::gla_not: callString = "not"; callArgs = 1; break;
-    case llvm::Intrinsic::gla_any: callString = "any"; callArgs = 1; break;
-    case llvm::Intrinsic::gla_all: callString = "all"; callArgs = 1; break;
+    case llvm::Intrinsic::gla_not:          callString = "not";         break;
+    case llvm::Intrinsic::gla_any:          callString = "any";         break;
+    case llvm::Intrinsic::gla_all:          callString = "all";         break;
 
     // Control
-    case llvm::Intrinsic::gla_barrier:                    callString = "barrier";                    callArgs = 0; break;
-    case llvm::Intrinsic::gla_memoryBarrier:              callString = "memoryBarrier";              callArgs = 0; break;
-    case llvm::Intrinsic::gla_memoryBarrierAtomicCounter: callString = "memoryBarrierAtomicCounter"; callArgs = 0; break;
-    case llvm::Intrinsic::gla_memoryBarrierBuffer:        callString = "memoryBarrierBuffer";        callArgs = 0; break;
-    case llvm::Intrinsic::gla_memoryBarrierImage:         callString = "memoryBarrierImage";         callArgs = 0; break;
-    case llvm::Intrinsic::gla_memoryBarrierShared:        callString = "memoryBarrierShared";        callArgs = 0; break;
-    case llvm::Intrinsic::gla_groupMemoryBarrier:         callString = "groupMemoryBarrier";         callArgs = 0; break;
+    case llvm::Intrinsic::gla_barrier:                    callString = "barrier";                    break;
+    case llvm::Intrinsic::gla_memoryBarrier:              callString = "memoryBarrier";              break;
+    case llvm::Intrinsic::gla_memoryBarrierAtomicCounter: callString = "memoryBarrierAtomicCounter"; break;
+    case llvm::Intrinsic::gla_memoryBarrierBuffer:        callString = "memoryBarrierBuffer";        break;
+    case llvm::Intrinsic::gla_memoryBarrierImage:         callString = "memoryBarrierImage";         break;
+    case llvm::Intrinsic::gla_memoryBarrierShared:        callString = "memoryBarrierShared";        break;
+    case llvm::Intrinsic::gla_groupMemoryBarrier:         callString = "groupMemoryBarrier";         break;
 
     // Geometry
-    case llvm::Intrinsic::gla_emitVertex:                 callString = "EmitVertex";                 callArgs = 0; break;
-    case llvm::Intrinsic::gla_endPrimitive:               callString = "EndPrimitive";               callArgs = 0; break;
-    case llvm::Intrinsic::gla_emitStreamVertex:           callString = "emitStringVertex";           callArgs = 1; break;
-    case llvm::Intrinsic::gla_endStreamPrimitive:         callString = "emitStringVertex";           callArgs = 1; break;
+    case llvm::Intrinsic::gla_emitVertex:                 callString = "EmitVertex";                 break;
+    case llvm::Intrinsic::gla_endPrimitive:               callString = "EndPrimitive";               break;
+    case llvm::Intrinsic::gla_emitStreamVertex:           callString = "emitStringVertex";           break;
+    case llvm::Intrinsic::gla_endStreamPrimitive:         callString = "emitStringVertex";           break;
 
     default: break;
     }
@@ -2416,18 +2415,19 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     default: break;
     }
 
-    if (callString == 0 || callArgs == -1)
+    if (callString == 0)
         UnsupportedFunctionality("Intrinsic in Bottom IR", EATContinue);
-    if (callArgs != llvmInstruction->getNumArgOperands())
-        UnsupportedFunctionality("Intrinsic argument count: ", llvmInstruction->getNumOperands(), EATContinue);
 
     newLine();
-    emitGlaValue(llvmInstruction);
 
-    if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fModF)
-        shader << "; " << valueMap[llvmInstruction]->c_str() << ".member0";
+    if (llvmInstruction->getType()->getTypeID() != llvm::Type::VoidTyID) {
+        // Save the the result on the the left-side of an "="
+        emitGlaValue(llvmInstruction);
+        if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fModF)
+            shader << "; " << valueMap[llvmInstruction]->c_str() << ".member0";
+        shader << " = ";
+    }
 
-    shader << " = ";
     if (convertResultToInt)
         ConversionStart(shader, llvmInstruction->getType(), false);
     shader << callString << "(";
