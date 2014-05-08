@@ -119,20 +119,41 @@ namespace gla {
 //     !gla.entrypoint = !{ list of all entry points }
 //     !gla.noStaticUse = !{ subset of input/output/uniform that were not statically referenced in the source shader }
 //
+//     !gla.inputPrimitive     = !{ EMdLayoutGeometry }
+//     !gla.outputPrimitive    = !{ EMdLayoutGeometry }
+//     !gla.xfbMode            = !{ bool }
+//     !gla.numVertices        = !{ int }
+//     !gla.vertexSpacing      = !{ EMdVertexSpacing }
+//     !gla.vertexOrder        = !{ EMdVertexOrder }
+//     !gla.pointMode          = !{ bool }
+//     !gla.invocations        = !{ int }
+//     !gla.pixelCenterInteger = !{ bool }
+//     !gla.originUpperLeft    = !{ bool }
+//
 
 // Operand names
-const char* const InputMdName = "gla.input";
-const char* const OutputMdName = "gla.output";
-const char* const UniformMdName = "gla.uniform";
+const char* const InputMdName     = "gla.input";
+const char* const OutputMdName    = "gla.output";
+const char* const UniformMdName   = "gla.uniform";
 const char* const PrecisionMdName = "gla.precision";
 
 // Named nodes
-const char* const InputListMdName = "gla.inputs";
-const char* const OutputListMdName = "gla.outputs";
-const char* const UniformListMdName = "gla.uniforms";
-const char* const InvariantListMdName = "gla.invariant";
-const char* const EntrypointListMdName = "gla.entrypoint";
-const char* const NoStaticUseMdName = "gla.noStaticUse";
+const char* const InputListMdName          = "gla.inputs";
+const char* const OutputListMdName         = "gla.outputs";
+const char* const UniformListMdName        = "gla.uniforms";
+const char* const InvariantListMdName      = "gla.invariant";
+const char* const EntrypointListMdName     = "gla.entrypoint";
+const char* const NoStaticUseMdName        = "gla.noStaticUse";
+const char* const InputPrimitiveMdName     = "gla.inputPrimitive";
+const char* const OutputPrimitiveMdName    = "gla.outputPrimitive";
+const char* const XfbModeMdName            = "gla.xfbMode";
+const char* const NumVerticesMdName        = "gla.numVertices";
+const char* const VertexSpacingMdName      = "gla.vertexSpacing";
+const char* const VertexOrderMdName        = "gla.vertexOrder";
+const char* const PointModeMdName          = "gla.pointMode";
+const char* const InvocationsMdName        = "gla.invocations";
+const char* const PixelCenterIntegerMdName = "gla.pixelCenterInteger";
+const char* const OriginUpperLeftMdName    = "gla.originUpperLeft";
 
 // what kind of I/O:
 enum EMdInputOutput {
@@ -206,6 +227,7 @@ enum EMdSamplerDim {
     EMsdCount,
 };
 
+// Return type of sampler
 enum EMdSamplerBaseType {
     EMsbFloat,
     EMsbInt,
@@ -220,6 +242,36 @@ enum EMdPrecision {
     EMpMedium,
     EMpHigh,
     EMpCount,
+};
+
+// For input/output primitives
+enum EMdLayoutGeometry {
+    EMlgNone,
+    EMlgPoints,
+    EMlgLines,
+    EMlgLinesAdjacency,
+    EMlgLineStrip,
+    EMlgTriangles,
+    EMlgTrianglesAdjacency,
+    EMlgTriangleStrip,
+    EMlgQuads,
+    EMlgIsolines,
+    EMlgCount,
+};
+
+enum EMdVertexSpacing {
+    EMvsNone,
+    EMvsEqual,
+    EMvsFractionalEven,
+    EMvsFractionalOdd,
+    EMvsCount,
+};
+
+enum EMdVertexOrder {
+    EMvoNone,
+    EMvoCw,
+    EMvoCcw,
+    EMvoCount,
 };
 
 //
@@ -456,6 +508,22 @@ inline EMdSamplerBaseType GetMdSamplerBaseType(const llvm::MDNode* md)
     return (EMdSamplerBaseType)constInt->getSExtValue();    
 }
 
+// Return the value the integere metadata operand to the named metadata node.
+// Return 0 if the named node is missing, or was there and it's metadata node was 0 or false.
+inline int GetMdNamedInt(llvm::Module& module, const char* name)
+{
+    llvm::NamedMDNode* namedNode = module.getNamedMetadata(name);
+    if (namedNode == 0)
+        return 0;
+    const llvm::MDNode* md = namedNode->getOperand(0);
+    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
+    if (! constInt)
+        return 0;
+
+    return (int)constInt->getSExtValue();
+}
+
+
 //
 // Metadata class is just for adapter while building the IR.
 //
@@ -570,7 +638,18 @@ public:
     {
         llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(NoStaticUseMdName);
         namedNode->addOperand(md);
-    }        
+    }
+
+    // Add a named metadata node of the form:
+    //     !gla.name        = !{ int }
+    // Where 'int' could also be considered a bool or enum.  See comment at top for long list
+    // of examples where this can be used.
+    void makeMdNamedInt(const char* name, int i)
+    {
+        llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(name);
+        llvm::Value* layoutArgs[] = { gla::MakeIntConstant(context, i) };
+        namedNode->addOperand(llvm::MDNode::get(context, layoutArgs));
+    }
 
 protected:
     llvm::LLVMContext& context;

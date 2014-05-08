@@ -337,6 +337,48 @@ TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager, const glsl
 
     shaderEntry = glaBuilder->makeMain();
     llvmBuilder.SetInsertPoint(shaderEntry);
+
+    // Add the top-level modes for this shader.
+
+    if (glslangIntermediate->getXfbMode())
+        metadata.makeMdNamedInt(gla::XfbModeMdName, glslangIntermediate->getXfbMode());
+
+    switch (glslangIntermediate->getStage()) {
+    case EShLangVertex:
+        break;
+
+    case EShLangTessControl:
+        metadata.makeMdNamedInt(gla::NumVerticesMdName, glslangIntermediate->getVertices());
+        break;
+
+    case EShLangTessEvaluation:
+        metadata.makeMdNamedInt(gla::InputPrimitiveMdName, glslangIntermediate->getInputPrimitive());
+        metadata.makeMdNamedInt(gla::VertexSpacingMdName, glslangIntermediate->getVertexSpacing());
+        metadata.makeMdNamedInt(gla::VertexOrderMdName, glslangIntermediate->getVertexOrder());
+        metadata.makeMdNamedInt(gla::PointModeMdName, glslangIntermediate->getPointMode());
+        break;
+
+    case EShLangGeometry:
+        metadata.makeMdNamedInt(gla::InvocationsMdName, glslangIntermediate->getInvocations());
+        metadata.makeMdNamedInt(gla::NumVerticesMdName, glslangIntermediate->getVertices());
+        metadata.makeMdNamedInt(gla::InputPrimitiveMdName, glslangIntermediate->getInputPrimitive());
+        metadata.makeMdNamedInt(gla::OutputPrimitiveMdName, glslangIntermediate->getOutputPrimitive());
+        break;
+
+    case EShLangFragment:
+        if (glslangIntermediate->getPixelCenterInteger())
+            metadata.makeMdNamedInt(gla::PixelCenterIntegerMdName, glslangIntermediate->getPixelCenterInteger());
+        if (glslangIntermediate->getOriginUpperLeft())
+            metadata.makeMdNamedInt(gla::OriginUpperLeftMdName, glslangIntermediate->getOriginUpperLeft());
+        break;
+
+    case EShLangCompute:
+        break;
+
+	default:
+        break;
+    }
+
 }
 
 TGlslangToTopTraverser::~TGlslangToTopTraverser()

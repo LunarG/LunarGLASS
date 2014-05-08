@@ -1,9 +1,8 @@
 #version 400 core
 
-layout(quads, cw) in;
-layout(cw) in;
+layout(triangles, ccw) in;
 
-layout(fractional_odd_spacing) in;    
+layout(fractional_odd_spacing) in;
 
 layout(point_mode) in;
 

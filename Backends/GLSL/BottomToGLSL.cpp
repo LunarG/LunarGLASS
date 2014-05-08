@@ -185,14 +185,153 @@ public:
             delete it->second;
     }
 
-    virtual void start(llvm::Module&)
+    virtual void start(llvm::Module& module)
     {
         // Call this before doing actual translation.
+
         // The following information wasn't available at construct time:
         version = manager->getVersion();
         profile = (EProfile)manager->getProfile();
         stage = (EShLanguage)manager->getStage();
         usingSso = version >= 410 || manager->getRequestedExtensions().find("GL_ARB_separate_shader_objects") != manager->getRequestedExtensions().end();
+
+        // Get the top-levels modes for this shader.
+        int mdInt;
+        switch (stage) {
+        case EShLangVertex:
+            break;
+
+        case EShLangTessControl:
+            // output vertices is not optional
+            globalStructures << "layout(vertices = " << GetMdNamedInt(module, gla::NumVerticesMdName) << ") out;" << std::endl;
+            break;
+
+        case EShLangTessEvaluation:
+            // input primitives are not optional
+            globalStructures << "layout(";
+            switch (GetMdNamedInt(module, gla::InputPrimitiveMdName)) {
+            case EMlgTriangles:
+                globalStructures << "triangles";
+                switch (GetMdNamedInt(module, gla::VertexOrderMdName)) {
+                case EMvoNone:
+                    // ordering is optional
+                    break;
+                case EMvoCw:
+                    globalStructures << ", cw";
+                    break;
+                case EMvoCcw:
+                    globalStructures << ", ccw";
+                    break;
+                default:
+                    UnsupportedFunctionality("tess eval input ordering", EATContinue);
+                    break;
+                }
+                break;
+            case EMlgQuads:
+                globalStructures << "quads";
+                break;
+            case EMlgIsolines:
+                globalStructures << "isolines";
+                break;
+            default:
+                UnsupportedFunctionality("tess eval input primitive", EATContinue);
+                break;
+            }
+            globalStructures << ") in;" << std::endl;
+
+            // vertex spacing is optional
+            mdInt = GetMdNamedInt(module, gla::VertexSpacingMdName);
+            if (mdInt) {
+                globalStructures << "layout(";
+                switch (mdInt) {
+                case EMvsEqual:
+                    globalStructures << "equal_spacing";
+                    break;
+                case EMvsFractionalEven:
+                    globalStructures << "fractional_even_spacing";
+                    break;
+                case EMvsFractionalOdd:
+                    globalStructures << "fractional_odd_spacing";
+                    break;
+                default:
+                    UnsupportedFunctionality("tess eval vertex spacing", EATContinue);
+                    break;
+                }
+                globalStructures << ") in;" << std::endl;
+            }
+
+            if (GetMdNamedInt(module, gla::PointModeMdName))
+                globalStructures << "layout(point_mode) in;" << std::endl;
+            break;
+
+        case EShLangGeometry:
+            // input primitives are not optional
+            globalStructures << "layout(";
+            switch (GetMdNamedInt(module, gla::InputPrimitiveMdName)) {
+            case EMlgPoints:
+                globalStructures << "points";
+                break;
+            case EMlgLines:
+                globalStructures << "lines";
+                break;
+            case EMlgLinesAdjacency:
+                globalStructures << "lines_adjacency";
+                break;
+            case EMlgTriangles:
+                globalStructures << "triangles";
+                break;
+            case EMlgTrianglesAdjacency:
+                globalStructures << "triangles_adjacency";
+                break;
+            default:
+                UnsupportedFunctionality("geometry input primitive", EATContinue);
+                break;
+            }
+            globalStructures << ") in;" << std::endl;
+
+            // invocations is optional
+            mdInt = GetMdNamedInt(module, gla::InvocationsMdName);
+            if (mdInt)
+                globalStructures << "layout(invocations = " << mdInt << ") in;" << std::endl;
+
+            // output primitives are not optional
+            globalStructures << "layout(";
+            switch (GetMdNamedInt(module, gla::OutputPrimitiveMdName)) {
+            case EMlgPoints:
+                globalStructures << "points";
+                break;
+            case EMlgLineStrip:
+                globalStructures << "line_strip";
+                break;
+            case EMlgTriangleStrip:
+                globalStructures << "triangle_strip";
+                break;
+            default:
+                UnsupportedFunctionality("geometry output primitive", EATContinue);
+                break;
+            }
+            globalStructures << ") out;" << std::endl;
+
+            // max_vertices is not optional
+            globalStructures << "layout(max_vertices = " << GetMdNamedInt(module, gla::NumVerticesMdName) << ") out;" << std::endl;
+            break;
+
+        case EShLangFragment:
+            if (GetMdNamedInt(module, PixelCenterIntegerMdName))
+                globalStructures << "layout(pixel_center_integer) in;" << std::endl;
+
+            if (GetMdNamedInt(module, OriginUpperLeftMdName))
+                globalStructures << "layout(origin_upper_left) in;" << std::endl;
+
+            break;
+
+        case EShLangCompute:
+            break;
+
+	    default:
+            UnsupportedFunctionality("shader stage", EATContinue);
+            break;
+        }
     }
     virtual void end(llvm::Module&);
 
