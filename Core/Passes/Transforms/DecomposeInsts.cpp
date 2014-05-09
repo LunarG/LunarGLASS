@@ -142,6 +142,21 @@ namespace  {
         return Intrinsic::getDeclaration(module, dotID, types);
     }
 
+    // Smear toSmear up to look like smearModel, which should be the desired target type and width.
+    // TODO: Decomposition code cleanliness: Have other decompositions that do their own smear use this too.
+    llvm::Value* Smear(IRBuilder<>& builder, Module* module, llvm::Value* toSmear, llvm::Value* smearModel)
+    {
+        int components = GetComponentCount(smearModel);
+        if (GetComponentCount(toSmear) > 1 || GetComponentCount(toSmear) == components)
+            return toSmear;
+
+        llvm::Value* smeared = llvm::UndefValue::get(smearModel->getType());
+        for (int c = 0; c < components; ++c)
+            smeared = builder.CreateInsertElement(smeared, toSmear, MakeIntConstant(module->getContext(), c));
+
+        return smeared;
+    }
+
 } // end namespace
 
 void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
@@ -198,8 +213,9 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 //
                 // min(a,b) = select (a < b), a, b
                 //
-                newInst = builder.CreateFCmpOLT(arg0, arg1);
-                newInst = builder.CreateSelect(newInst, arg0, arg1);
+                llvm::Value* smeared = Smear(builder, module, arg1, arg0);
+                newInst = builder.CreateFCmpOLT(arg0, smeared);
+                newInst = builder.CreateSelect(newInst, arg0, smeared);
             }
             break;
         case Intrinsic::gla_fMax:
@@ -207,8 +223,9 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 //
                 // max(a,b) = select (a > b), a, b
                 //
-                newInst = builder.CreateFCmpOGT(arg0, arg1);
-                newInst = builder.CreateSelect(newInst, arg0, arg1);
+                llvm::Value* smeared = Smear(builder, module, arg1, arg0);
+                newInst = builder.CreateFCmpOGT(arg0, smeared);
+                newInst = builder.CreateSelect(newInst, arg0, smeared);
             }
             break;
         case Intrinsic::gla_fClamp:
@@ -217,6 +234,11 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                 //
                 // Clamp(x, minVal, maxVal) is defined to be min(max(x, minVal), maxVal).
                 //
+                // The 2nd and 3rd arguments match each other, but not necessarily
+                // the 1st argument.  In the decomposition, this difference matches 
+                // min/max's difference in their 1st and 2nd arguments.
+                //
+                argTypes[2] = arg1->getType();  // argTypes[*] start at 0 for the return value, arg* start at 0 for operand 0
                 Function* max = Intrinsic::getDeclaration(module, Intrinsic::gla_fMax, makeArrayRef(argTypes, 3));
                 Function* min = Intrinsic::getDeclaration(module, Intrinsic::gla_fMin, makeArrayRef(argTypes, 3));
                 newInst = builder.CreateCall2(max, arg0, arg1);

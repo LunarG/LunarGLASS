@@ -87,7 +87,12 @@
 //
 class GlslBackEnd : public gla::BackEnd {
 public:
-    GlslBackEnd() { }
+    GlslBackEnd()
+    {
+        //decompose[gla::EDiClamp] = true;
+        //decompose[gla::EDiMax] = true;
+        //decompose[gla::EDiMin] = true;
+    }
     virtual ~GlslBackEnd() { }
 
     virtual void getRegisterForm(int& outerSoA, int& innerAoS)
@@ -1525,17 +1530,30 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
     case llvm::Instruction::Select:
     {
+        // Using ?: is okay for single component, but need to use 
+        // mix(false-vector, true-vector, condition-vector) for non-scalars.
+
         const llvm::SelectInst* si = llvm::dyn_cast<const llvm::SelectInst>(llvmInstruction);
         assert(si);
         newLine();
         emitGlaValue(llvmInstruction);
         shader << " = ";
-        emitGlaValue(si->getCondition());
-        shader << " ? ";
-        emitGlaValue(si->getTrueValue());
-        shader << " : ";
-        emitGlaValue(si->getFalseValue());
-        shader << ";";
+        if (GetComponentCount(si->getCondition()) == 1) {
+            emitGlaValue(si->getCondition());
+            shader << " ? ";
+            emitGlaValue(si->getTrueValue());
+            shader << " : ";
+            emitGlaValue(si->getFalseValue());
+            shader << ";";
+        } else {
+            shader << "mix(";
+            emitGlaValue(si->getFalseValue());
+            shader << ",";
+            emitGlaValue(si->getTrueValue());
+            shader << ",";
+            emitGlaValue(si->getCondition());
+            shader << ");";
+        }
 
         return;
     }
@@ -2422,7 +2440,8 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
 
     case llvm::Intrinsic::gla_sClamp:
     case llvm::Intrinsic::gla_uClamp:
-    case llvm::Intrinsic::gla_fClamp:       callString = "clamp"; break;
+    case llvm::Intrinsic::gla_fClamp:
+    case llvm::Intrinsic::gla_fSaturate:    callString = "clamp"; break;
 
     case llvm::Intrinsic::gla_fRadians:     callString = "radians";     break;
     case llvm::Intrinsic::gla_fDegrees:     callString = "degrees";     break;
@@ -2569,7 +2588,13 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
 
     if (convertResultToInt)
         ConversionStart(shader, llvmInstruction->getType(), false);
-    shader << callString << "(";
+
+    if (callString)
+        shader << callString << "(";
+    else
+        shader << "unknownIntrinsic(";
+
+    // The arguments coming across from LLVM into GLSL
     for (unsigned int arg = 0; arg < llvmInstruction->getNumArgOperands(); ++arg) {
         if (arg > 0)
             shader << ", ";
@@ -2582,9 +2607,13 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
             ConversionStop(shader);
     }
 
+    // Some special case arguments
     if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fModF)
         shader << ", " << valueMap[llvmInstruction]->c_str() << ".member1";
+    if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fSaturate)
+        shader << ", 0.0, 1.0";
 
+    // Finish it off
     if (convertResultToInt)
         ConversionStop(shader);
     shader << ");";
