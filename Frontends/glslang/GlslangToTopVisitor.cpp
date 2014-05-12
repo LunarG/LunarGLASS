@@ -144,6 +144,7 @@ protected:
     std::map<int, llvm::MDNode*> inputMdMap;
     std::map<std::string, llvm::MDNode*> uniformMdMap;
     std::map<const glslang::TTypeList*, llvm::StructType*> structMap;
+    std::map<const glslang::TTypeList*, std::vector<int> > memberRemapper;  // for mapping glslang block indices to llvm indices (e.g., due to hidden members)
     std::stack<bool> breakForLoop;  // false means break for switch
 };
 
@@ -524,37 +525,62 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
         }
         return false;
     case glslang::EOpIndexDirect:
-    case glslang::EOpIndexIndirect:
     case glslang::EOpIndexDirectStruct:
         {
-            // this adapter is building access chains left to right
-            // set up the access chain to the left
+            // This adapter is building access chains left to right.
+            // Set up the access chain to the left.
             node->getLeft()->traverse(this);
 
+            int index = 0;
+            if (node->getRight()->getAsConstantUnion() == 0)
+                gla::UnsupportedFunctionality("direct index without a constant node", gla::EATContinue);
+            else 
+                index = node->getRight()->getAsConstantUnion()->getConstArray()[0].getIConst();
+
+            if (node->getLeft()->getBasicType() == glslang::EbtBlock && node->getOp() == glslang::EOpIndexDirectStruct) {
+                // This may be, e.g., an anonymous block-member selection, which generally need
+                // index remapping due to hidden members in anonymous blocks.
+                std::vector<int>& remapper = memberRemapper[node->getLeft()->getType().getStruct()];
+                if (remapper.size() == 0)
+                    gla::UnsupportedFunctionality("block without member remapping", gla::EATContinue);
+                else
+                    index = remapper[index];
+            }
+
             if (! node->getLeft()->getType().isArray() &&
-                  node->getLeft()->getType().isVector() &&
-                  node->getOp() == glslang::EOpIndexDirect) {
-                // this is essentially a hard-coded vector swizzle of size 1,
-                // so short circuit the GEP stuff with a swizzle
+                node->getLeft()->getType().isVector() &&
+                node->getOp() == glslang::EOpIndexDirect) {
+                // This is essentially a hard-coded vector swizzle of size 1,
+                // so short circuit the GEP stuff with a swizzle.
                 std::vector<int> swizzle;
                 swizzle.push_back(node->getRight()->getAsConstantUnion()->getConstArray()[0].getIConst());
                 glaBuilder->accessChainPushSwizzleRight(swizzle, convertGlslangToGlaType(node->getType()), node->getLeft()->getVectorSize());
             } else {
-                // Structure or array or indirection into a vector; will use native LLVM gep.
-                // Matrices are arrays of vectors, so will also work for a matrix.
-
-                // save it so that computing the right side doesn't trash it
-                gla::Builder::AccessChain partial = glaBuilder->getAccessChain();
-
-                // compute the next index
-                glaBuilder->clearAccessChain();
-                node->getRight()->traverse(this);
-                llvm::Value* index = glaBuilder->accessChainLoad(GetMdPrecision(node->getRight()->getType()));
-
-                // make the new access chain to date
-                glaBuilder->setAccessChain(partial);
-                glaBuilder->accessChainPushLeft(index);
+                // normal case for indexing array or structure or block
+                glaBuilder->accessChainPushLeft(gla::MakeIntConstant(context, index));
             }
+        }
+        return false;
+    case glslang::EOpIndexIndirect:
+        {
+            // This adapter is building access chains left to right.
+            // Set up the access chain to the left.
+            node->getLeft()->traverse(this);
+
+            // Structure or array or indirection into a vector; will use native LLVM gep.
+            // Matrices are arrays of vectors, so will also work for a matrix.
+
+            // save it so that computing the right side doesn't trash it
+            gla::Builder::AccessChain partial = glaBuilder->getAccessChain();
+
+            // compute the next index in the chain
+            glaBuilder->clearAccessChain();
+            node->getRight()->traverse(this);
+            llvm::Value* index = glaBuilder->accessChainLoad(GetMdPrecision(node->getRight()->getType()));
+
+            // make the new access chain to date
+            glaBuilder->setAccessChain(partial);
+            glaBuilder->accessChainPushLeft(index);
         }
         return false;
     case glslang::EOpVectorSwizzle:
@@ -564,8 +590,7 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
             std::vector<int> swizzle;
             for (int i = 0; i < (int)swizzleSequence.size(); ++i)
                 swizzle.push_back(swizzleSequence[i]->getAsConstantUnion()->getConstArray()[0].getIConst());
-            glaBuilder->accessChainPushSwizzleRight(swizzle, convertGlslangToGlaType(node->getType()),
-                                                         node->getLeft()->getVectorSize());
+            glaBuilder->accessChainPushSwizzleRight(swizzle, convertGlslangToGlaType(node->getType()), node->getLeft()->getVectorSize());
         }
         return false;
     default:
@@ -1272,8 +1297,19 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
                 glaType = structType;
             } else {
                 // Create a vector of struct types for LLVM to consume
-                for (int i = 0; i < (int)glslangStruct->size(); i++)
-                    structFields.push_back(convertGlslangToGlaType(*(*glslangStruct)[i].type));
+                int memberDelta = 0;  // how much the member's index changes from glslang to gla, normally 0, except sometimes for blocks
+                if (type.getBasicType() == glslang::EbtBlock)
+                    memberRemapper[glslangStruct].resize(glslangStruct->size());
+                for (int i = 0; i < (int)glslangStruct->size(); i++) {
+                    glslang::TType& glslangType = *(*glslangStruct)[i].type;
+                    if (glslangType.hiddenMember())
+                        ++memberDelta;
+                    else {
+                        if (type.getBasicType() == glslang::EbtBlock)
+                            memberRemapper[glslangStruct][i] = i - memberDelta;
+                        structFields.push_back(convertGlslangToGlaType(glslangType));
+                    }
+                }
                 structType = llvm::StructType::create(context, structFields, type.getTypeName().c_str());
                 structMap[glslangStruct] = structType;
                 glaType = structType;
@@ -2303,7 +2339,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
         if (gepChain.size() == 0)
             gepChain.push_back(gla::MakeIntConstant(context, 0));
         for (int field = 0; field < (int)typeList->size(); ++field) {
-            gepChain.push_back(gla::MakeIntConstant(context, field));            
+            gepChain.push_back(gla::MakeIntConstant(context, field));
             createPipelineSubread(*(*typeList)[field].type, storage, gepChain, slot, md, name, method, location);
             gepChain.pop_back();
         }
@@ -2570,8 +2606,11 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type)
     const glslang::TTypeList* typeList = type.getStruct();
     if (typeList) {
         for (int t = 0; t < (int)typeList->size(); ++t) {
-            // name of member
             const glslang::TType* fieldType = (*typeList)[t].type;
+            if (fieldType->hiddenMember())
+                continue;
+
+            // name of member
             mdArgs.push_back(llvm::MDString::get(context, fieldType->getFieldName().c_str()));
             
             // type of member
