@@ -108,6 +108,14 @@ namespace  {
         return builder.CreateBinOp(op, arg, llvmConstant);
     }
 
+    llvm::Value* OperateWithConstant(IRBuilder<>& builder, Instruction::BinaryOps op, double constant, llvm::Value* arg)
+    {
+        llvm::Constant* scalar = MakeFloatConstant(builder.getContext(), (float)constant);
+        llvm::Constant* llvmConstant = VectorizeConstant(GetComponentCount(arg), scalar);
+
+        return builder.CreateBinOp(op, llvmConstant, arg);
+    }
+
     llvm::Value* MultiplyByConstant(IRBuilder<>& builder, llvm::Value* arg, double constant)
     {
         return OperateWithConstant(builder, llvm::BinaryOperator::FMul, arg, constant);
@@ -116,6 +124,11 @@ namespace  {
     llvm::Value* AddWithConstant(IRBuilder<>& builder, llvm::Value* arg, double constant)
     {
         return OperateWithConstant(builder, llvm::BinaryOperator::FAdd, arg, constant);
+    }
+
+    llvm::Value* SubFromConstant(IRBuilder<>& builder, double constant, llvm::Value* arg)
+    {
+        return OperateWithConstant(builder, llvm::BinaryOperator::FSub, constant, arg);
     }
 
     llvm::Function* GetDotIntrinsic(Module* module, Type* argTypes[])
@@ -448,8 +461,33 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             break;
         case Intrinsic::gla_fSmoothStep:
             if (backEnd->decomposeIntrinsic(EDiSmoothStep)) {
-                UnsupportedFunctionality("decomposition of gla_fSmoothStep");
-                //changed = true;
+                //
+                // smoothstep (edge0, edge1, x) is defined to be
+                //
+                //   t = clamp((x – edge0) / (edge1 – edge0), 0, 1)
+                //   t * t * (3 – 2 * t)
+                //
+                // where edge* can be scalar even if x is vector.
+                //
+                llvm::Value* smeared0 = Smear(builder, module, arg0, arg2);
+                llvm::Value* smeared1 = Smear(builder, module, arg1, arg2);
+                llvm::Value* numerator   = builder.CreateFSub(arg2, smeared0, "numerator");
+                llvm::Value* denominator = builder.CreateFSub(smeared1, smeared0, "denominator");
+                llvm::Value* quotient    = builder.CreateFDiv(numerator, denominator, "quotient");
+                llvm::Value* zero = MakeFloatConstant(module->getContext(), 0.0);
+                llvm::Value* one  = MakeFloatConstant(module->getContext(), 1.0);
+                Type* newArgTypes[] = { quotient->getType(), quotient->getType(), zero->getType(), one->getType() };
+                Function* clamp = Intrinsic::getDeclaration(module, Intrinsic::gla_fClamp, newArgTypes);
+                llvm::Value* t = builder.CreateCall3(clamp, quotient, zero, one);
+                newInst = MultiplyByConstant(builder, t, 2.0);
+                newInst = SubFromConstant(builder, 3.0, newInst);
+                newInst = builder.CreateFMul(t, newInst);
+                newInst = builder.CreateFMul(t, newInst);
+                
+                // Make next iteration revisit this decomposition, in case clamp is
+                // decomposed.
+                instI = inst;
+                ++instI;
             }
             break;
         case Intrinsic::gla_fIsNan:
