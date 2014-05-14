@@ -1,11 +1,9 @@
 
-***Unsupported functionality: block without member remapping
-
 Top IR:
 ; ModuleID = 'Glslang'
 
 %gl_PerVertex = type { <4 x float>, float, [1 x float] }
-%gl_PerVertex.0 = type { <4 x float>, float, [1 x float] }
+%gl_PerVertex.0 = type { <4 x float>, float, [3 x float] }
 %testblb = type { i32 }
 %testbld = type { i32 }
 
@@ -15,7 +13,7 @@ Top IR:
 @TessCoord_shadow = internal global <3 x float> zeroinitializer
 @TessLevelOuter_shadow = internal global [4 x float] zeroinitializer
 @TessLevelInner_shadow = internal global [2 x float] zeroinitializer
-@"anon@1_shadow" = internal global %gl_PerVertex.0 zeroinitializer
+@"anon@0_shadow" = internal global %gl_PerVertex.0 zeroinitializer
 @patchIn_shadow = internal global <4 x float> zeroinitializer
 @inb_shadow = internal global [32 x <2 x float>] zeroinitializer
 @ind_shadow = internal global [32 x <2 x float>] zeroinitializer
@@ -648,18 +646,20 @@ entry:
   %tli299 = load float* getelementptr inbounds ([2 x float]* @TessLevelInner_shadow, i32 0, i32 1)
   store float %tli299, float* %tli
   %0 = load <4 x float>* %p
-  store <4 x float> %0, <4 x float>* getelementptr inbounds (%gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 0)
+  store <4 x float> %0, <4 x float>* getelementptr inbounds (%gl_PerVertex.0* @"anon@0_shadow", i32 0, i32 0)
   %1 = load float* %ps
-  store float %1, float* getelementptr inbounds (%gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 1)
+  store float %1, float* getelementptr inbounds (%gl_PerVertex.0* @"anon@0_shadow", i32 0, i32 1)
   %2 = load float* %cd
-  store float %2, float* getelementptr (%gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 2, i32 2)
+  store float %2, float* getelementptr inbounds (%gl_PerVertex.0* @"anon@0_shadow", i32 0, i32 2, i32 2)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %3 = load <4 x float>* getelementptr inbounds (%gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 0)
+  %3 = load <4 x float>* getelementptr inbounds (%gl_PerVertex.0* @"anon@0_shadow", i32 0, i32 0)
   call void @llvm.gla.fWriteData.v4f32(i32 1129, i32 -1, <4 x float> %3), !gla.output !36
-  %4 = load float* getelementptr inbounds (%gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 1)
+  %4 = load float* getelementptr inbounds (%gl_PerVertex.0* @"anon@0_shadow", i32 0, i32 1)
   call void @llvm.gla.fWriteData.f32(i32 1130, i32 -1, float %4), !gla.output !36
+  %5 = load float* getelementptr inbounds (%gl_PerVertex.0* @"anon@0_shadow", i32 0, i32 2, i32 2)
+  call void @llvm.gla.fWriteData.f32(i32 1133, i32 -1, float %5), !gla.output !36
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -717,22 +717,22 @@ attributes #1 = { nounwind }
 !18 = metadata !{metadata !"gl_TessLevelInner", i32 1, [2 x float]* @TessLevelInner_shadow_typeProxy, metadata !19}
 !19 = metadata !{i32 0, i32 0, i32 1127, null, i32 0}
 !20 = metadata !{metadata !"patchIn", i32 1, <4 x float>* @patchIn_shadow_typeProxy, metadata !21}
-!21 = metadata !{i32 0, i32 0, i32 1132, null, i32 0}
+!21 = metadata !{i32 0, i32 0, i32 1134, null, i32 0}
 !22 = metadata !{metadata !"inb", i32 1, [32 x <2 x float>]* @inb_shadow_typeProxy, metadata !23}
-!23 = metadata !{i32 0, i32 0, i32 1133, null, i32 0}
+!23 = metadata !{i32 0, i32 0, i32 1135, null, i32 0}
 !24 = metadata !{metadata !"ind", i32 1, [32 x <2 x float>]* @ind_shadow_typeProxy, metadata !25}
-!25 = metadata !{i32 0, i32 0, i32 1165, null, i32 0}
+!25 = metadata !{i32 0, i32 0, i32 1167, null, i32 0}
 !26 = metadata !{metadata !"blb", i32 17, [32 x %testblb]* @blb_shadow_typeProxy, metadata !27, metadata !28}
-!27 = metadata !{i32 0, i32 0, i32 1197, null, i32 0}
+!27 = metadata !{i32 0, i32 0, i32 1199, null, i32 0}
 !28 = metadata !{metadata !"testblb", metadata !8, metadata !"f", metadata !9}
 !29 = metadata !{metadata !"bld", i32 17, [32 x %testbld]* @bld_shadow_typeProxy, metadata !30, metadata !31}
-!30 = metadata !{i32 0, i32 0, i32 1229, null, i32 0}
+!30 = metadata !{i32 0, i32 0, i32 1231, null, i32 0}
 !31 = metadata !{metadata !"testbld", metadata !8, metadata !"f", metadata !9}
 !32 = metadata !{metadata !"ivla", i32 1, [32 x <4 x float>]* @ivla_shadow_typeProxy, metadata !33}
 !33 = metadata !{i32 0, i32 0, i32 23, null, i32 0}
 !34 = metadata !{metadata !"ivlb", i32 1, [32 x <4 x float>]* @ivlb_shadow_typeProxy, metadata !35}
 !35 = metadata !{i32 0, i32 0, i32 24, null, i32 0}
-!36 = metadata !{metadata !"", i32 16, %gl_PerVertex.0* @"anon@1_shadow_typeProxy", metadata !37, metadata !7}
+!36 = metadata !{metadata !"", i32 16, %gl_PerVertex.0* @"anon@0_shadow_typeProxy", metadata !37, metadata !7}
 !37 = metadata !{i32 0, i32 0, i32 1129, null, i32 0}
 !38 = metadata !{metadata !"ovla", i32 7, [2 x <4 x float>]* @ovla_shadow_typeProxy, metadata !33}
 
@@ -741,10 +741,10 @@ Bottom IR:
 ; ModuleID = 'Glslang'
 
 %gl_PerVertex = type { <4 x float>, float, [1 x float] }
-%gl_PerVertex.0 = type { <4 x float>, float, [1 x float] }
+%gl_PerVertex.0 = type { <4 x float>, float, [3 x float] }
 
 @in_shadow = internal unnamed_addr global [32 x %gl_PerVertex] zeroinitializer
-@"anon@1_shadow" = internal unnamed_addr global %gl_PerVertex.0 zeroinitializer
+@"anon@0_shadow" = internal unnamed_addr global %gl_PerVertex.0 zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -1617,15 +1617,19 @@ entry:
   %gla_constGEP588 = getelementptr [32 x %gl_PerVertex]* @in_shadow, i32 0, i32 31, i32 2, i32 0
   store float %gl_in289, float* %gla_constGEP588, align 4
   %cd290 = load float* getelementptr ([32 x %gl_PerVertex]* @in_shadow, i32 0, i32 1, i32 2, i32 2), align 4
-  %gla_constGEP589 = getelementptr %gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 0
+  %gla_constGEP589 = getelementptr %gl_PerVertex.0* @"anon@0_shadow", i32 0, i32 0
   store <4 x float> %p96, <4 x float>* %gla_constGEP589, align 16
-  %gla_constGEP590 = getelementptr %gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 1
+  %gla_constGEP590 = getelementptr %gl_PerVertex.0* @"anon@0_shadow", i32 0, i32 1
   store float %ps193, float* %gla_constGEP590, align 16
-  store float %cd290, float* getelementptr (%gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 2, i32 2), align 4
+  %gla_constGEP591 = getelementptr %gl_PerVertex.0* @"anon@0_shadow", i32 0, i32 2, i32 2
+  store float %cd290, float* %gla_constGEP591, align 4
   call void @llvm.gla.fWriteData.v4f32(i32 1129, i32 -1, <4 x float> %p96), !gla.output !36
-  %gla_constGEP591 = getelementptr %gl_PerVertex.0* @"anon@1_shadow", i32 0, i32 1
-  %0 = load float* %gla_constGEP591, align 16
+  %gla_constGEP592 = getelementptr %gl_PerVertex.0* @"anon@0_shadow", i32 0, i32 1
+  %0 = load float* %gla_constGEP592, align 16
   call void @llvm.gla.fWriteData.f32(i32 1130, i32 -1, float %0), !gla.output !36
+  %gla_constGEP593 = getelementptr %gl_PerVertex.0* @"anon@0_shadow", i32 0, i32 2, i32 2
+  %1 = load float* %gla_constGEP593, align 4
+  call void @llvm.gla.fWriteData.f32(i32 1133, i32 -1, float %1), !gla.output !36
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -1680,22 +1684,22 @@ attributes #1 = { nounwind }
 !18 = metadata !{metadata !"gl_TessLevelInner", i32 1, [2 x float]* @TessLevelInner_shadow_typeProxy, metadata !19}
 !19 = metadata !{i32 0, i32 0, i32 1127, null, i32 0}
 !20 = metadata !{metadata !"patchIn", i32 1, <4 x float>* @patchIn_shadow_typeProxy, metadata !21}
-!21 = metadata !{i32 0, i32 0, i32 1132, null, i32 0}
+!21 = metadata !{i32 0, i32 0, i32 1134, null, i32 0}
 !22 = metadata !{metadata !"inb", i32 1, [32 x <2 x float>]* @inb_shadow_typeProxy, metadata !23}
-!23 = metadata !{i32 0, i32 0, i32 1133, null, i32 0}
+!23 = metadata !{i32 0, i32 0, i32 1135, null, i32 0}
 !24 = metadata !{metadata !"ind", i32 1, [32 x <2 x float>]* @ind_shadow_typeProxy, metadata !25}
-!25 = metadata !{i32 0, i32 0, i32 1165, null, i32 0}
+!25 = metadata !{i32 0, i32 0, i32 1167, null, i32 0}
 !26 = metadata !{metadata !"blb", i32 17, [32 x %testblb]* @blb_shadow_typeProxy, metadata !27, metadata !28}
-!27 = metadata !{i32 0, i32 0, i32 1197, null, i32 0}
+!27 = metadata !{i32 0, i32 0, i32 1199, null, i32 0}
 !28 = metadata !{metadata !"testblb", metadata !8, metadata !"f", metadata !9}
 !29 = metadata !{metadata !"bld", i32 17, [32 x %testbld]* @bld_shadow_typeProxy, metadata !30, metadata !31}
-!30 = metadata !{i32 0, i32 0, i32 1229, null, i32 0}
+!30 = metadata !{i32 0, i32 0, i32 1231, null, i32 0}
 !31 = metadata !{metadata !"testbld", metadata !8, metadata !"f", metadata !9}
 !32 = metadata !{metadata !"ivla", i32 1, [32 x <4 x float>]* @ivla_shadow_typeProxy, metadata !33}
 !33 = metadata !{i32 0, i32 0, i32 23, null, i32 0}
 !34 = metadata !{metadata !"ivlb", i32 1, [32 x <4 x float>]* @ivlb_shadow_typeProxy, metadata !35}
 !35 = metadata !{i32 0, i32 0, i32 24, null, i32 0}
-!36 = metadata !{metadata !"", i32 16, %gl_PerVertex.0* @"anon@1_shadow_typeProxy", metadata !37, metadata !7}
+!36 = metadata !{metadata !"", i32 16, %gl_PerVertex.0* @"anon@0_shadow_typeProxy", metadata !37, metadata !7}
 !37 = metadata !{i32 0, i32 0, i32 1129, null, i32 0}
 !38 = metadata !{metadata !"ovla", i32 7, [2 x <4 x float>]* @ovla_shadow_typeProxy, metadata !33}
 #version 400 core
@@ -1723,11 +1727,11 @@ layout(location=24) in vec4 ivlb[32];
 out gl_PerVertex {
     vec4 gl_Position;
     float gl_PointSize;
-    float gl_ClipDistance[1];
+    float gl_ClipDistance[3];
 } ;
 layout(location=23) out vec4 ovla[2];
 gl_PerVertex in_shadow[32];
-gl_PerVertex_0__goo anon_1_shadow__goo;
+gl_PerVertex_0__goo anon_0_shadow__goo;
 
 void main()
 {
@@ -2019,11 +2023,12 @@ void main()
     in_shadow[31].gl_Position = gl_in[31].gl_Position;
     in_shadow[31].gl_PointSize = gl_in[31].gl_PointSize;
     in_shadow[31].gl_ClipDistance[0] = gl_in[31].gl_ClipDistance[0];
-    anon_1_shadow__goo.gl_Position = in_shadow[1].gl_Position;
-    anon_1_shadow__goo.gl_PointSize = in_shadow[1].gl_PointSize;
-    anon_1_shadow__goo.gl_ClipDistance[2] = in_shadow[1].gl_ClipDistance[2];
+    anon_0_shadow__goo.gl_Position = in_shadow[1].gl_Position;
+    anon_0_shadow__goo.gl_PointSize = in_shadow[1].gl_PointSize;
+    anon_0_shadow__goo.gl_ClipDistance[2] = in_shadow[1].gl_ClipDistance[2];
     gl_Position = in_shadow[1].gl_Position;
-    gl_PointSize = anon_1_shadow__goo.gl_PointSize;
+    gl_PointSize = anon_0_shadow__goo.gl_PointSize;
+    gl_ClipDistance[2] = anon_0_shadow__goo.gl_ClipDistance[2];
     
 }
 

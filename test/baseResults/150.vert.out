@@ -259,7 +259,7 @@ struct s2 {
 struct goo__gl_PerVertex {
     vec4 member0;
     float member1;
-    float member2[1];
+    float member2[3];
     vec4 member3;
     vec4 member4;
     vec4 member5;
@@ -274,7 +274,7 @@ uniform int ui;
 in vec4 iv4;
 out s2 s2out;
 s2 s2out_shadow;
-goo__gl_PerVertex anon_1_shadow__goo;
+goo__gl_PerVertex anon_0_shadow__goo;
 s2 s2out_shadow1;
 
 void main()
@@ -282,15 +282,16 @@ void main()
     vec4 temp21 = s2out_shadow.d[0].b[2];
     temp21.w = ps;
     s2out_shadow.d[0].b[2] = temp21;
-    anon_1_shadow__goo.member0 = iv4;
-    anon_1_shadow__goo.member1 = ps;
-    anon_1_shadow__goo.member2[2] = iv4.x;
+    anon_0_shadow__goo.member0 = iv4;
+    anon_0_shadow__goo.member1 = ps;
+    anon_0_shadow__goo.member2[2] = iv4.x;
     s2out_shadow1.d[0].b[2] = temp21;
     s2out_shadow1.d[1].b[2] = s2out_shadow.d[1].b[2];
     s2out_shadow1.d[2].b[2] = s2out_shadow.d[2].b[2];
     s2out_shadow1.d[3].b[2] = s2out_shadow.d[3].b[2];
     gl_Position = iv4;
-    gl_PointSize = anon_1_shadow__goo.member1;
+    gl_PointSize = anon_0_shadow__goo.member1;
+    gl_ClipDistance[2] = anon_0_shadow__goo.member2[2];
     s2out.d[0].b[2] = s2out_shadow1.d[0].b[2];
     s2out.d[1].b[2] = s2out_shadow1.d[1].b[2];
     s2out.d[2].b[2] = s2out_shadow1.d[2].b[2];
