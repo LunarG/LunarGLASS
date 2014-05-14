@@ -3216,33 +3216,31 @@ void gla::GlslTarget::emitConstantInitializer(std::ostringstream& out, const llv
 
             int numElements = 0;
             llvm::Constant* splatValue = 0;
-            const llvm::ConstantDataVector* dataVector = 0;
+            // ConstantDataSequential handles both ConstantDataVector and ConstantDataArray,
+            // except getSplatValue(), which is present for ConstantDataSequential,
+            // only actually works for ConstantDataVector.
+            const llvm::ConstantDataSequential* dataSequential = llvm::dyn_cast<llvm::ConstantDataSequential>(constant);
+            if (dataSequential && llvm::isa<llvm::ConstantDataVector>(dataSequential))
+                splatValue = dataSequential->getSplatValue();
 
             if (const llvm::VectorType* vectorType = llvm::dyn_cast<llvm::VectorType>(type)) {
-                if (! isZero) {
+                if (! isZero && ! llvm::isa<llvm::ConstantDataVector>(constant)) {
                     // If all vector elements are equal, we only need to emit one
                     bool same = true;
-                    dataVector = llvm::dyn_cast<llvm::ConstantDataVector>(constant);
-                    if (dataVector) {
-                        splatValue = dataVector->getSplatValue();
-                        if (! splatValue)
+                    for (int op = 1; op < (int)vectorType->getNumElements(); ++op) {
+                        if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {  // ?? why cast?
                             same = false;
-                    } else if (! isZero) {
-                        for (int op = 1; op < (int)vectorType->getNumElements(); ++op) {
-                            if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
-                                same = false;
-                                break;
-                            }
+                            break;
                         }
-
-                        if (same)
-                            splatValue = llvm::dyn_cast<llvm::Constant>(constant->getOperand(0));
                     }
+
+                    if (same)
+                        splatValue = llvm::dyn_cast<llvm::Constant>(constant->getOperand(0));
                 }
                 numElements = vectorType->getNumElements();
-            } else if (const llvm::ArrayType*  arrayType = llvm::dyn_cast<llvm::ArrayType>(type))
+            } else if (const llvm::ArrayType*  arrayType = llvm::dyn_cast<llvm::ArrayType>(type)) {
                 numElements = (int)arrayType->getNumElements();
-            else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(type))
+            } else if (const llvm::StructType* structType = llvm::dyn_cast<llvm::StructType>(type))
                 numElements = (int)structType->getNumElements();
             else
                 assert(0 && "Constant aggregate type");
@@ -3255,8 +3253,8 @@ void gla::GlslTarget::emitConstantInitializer(std::ostringstream& out, const llv
                         out << ", ";
 
                     const llvm::Constant* constElement;
-                    if (dataVector)
-                        constElement = dataVector->getElementAsConstant(op);
+                    if (dataSequential)
+                        constElement = dataSequential->getElementAsConstant(op);
                     else
                         constElement = llvm::dyn_cast<llvm::Constant>(constant->getOperand(op));
 
