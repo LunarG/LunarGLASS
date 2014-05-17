@@ -314,6 +314,7 @@ public:
     llvm::Function* getIntrinsic(llvm::Intrinsic::ID, llvm::Type*, llvm::Type*, llvm::Type*);
     llvm::Function* getIntrinsic(llvm::Intrinsic::ID, llvm::Type*, llvm::Type*, llvm::Type*, llvm::Type*);
     llvm::Function* getIntrinsic(llvm::Intrinsic::ID, llvm::Type*, llvm::Type*, llvm::Type*, llvm::Type*, llvm::Type*);
+    llvm::Function* getIntrinsic(llvm::Intrinsic::ID, llvm::Type*, llvm::Type*, llvm::Type*, llvm::Type*, llvm::Type*, llvm::Type*);
 
     // Can smear a scalar to a vector for the following forms:
     //   - promoteScalar(scalar, vector)  // smear scalar to width of vector
@@ -500,6 +501,7 @@ protected:
     static const int minMatrixSize = 2;
     static const int maxMatrixSize = 4;
     llvm::Type* matrixTypeCache[maxMatrixSize-minMatrixSize+1][maxMatrixSize-minMatrixSize+1];
+    bool useColumnBasedMatrixIntrinsics() const;
 };  // end Builder class
 
 };  // end gla namespace

@@ -334,6 +334,14 @@ namespace gla {
             return false;
         }
 
+        // Should the front end generate matrix operations with intrinsics
+        // listing the matrix's columns rather than as re-expression in
+        // LLVM native types?
+        virtual bool useColumnBasedMatrixIntrinsics()
+        {
+            return false;
+        }
+
     protected:
         bool decompose[EDiCount];
 

@@ -47,16 +47,20 @@
 
 // LunarGLASS includes
 #include "LunarGLASSManager.h"
-#include "Backend.h"
 
 namespace gla {
 
+    class BackEndTranslator;
     class BackEnd;
 
     class PrivateManager : public gla::Manager {
     public:
         virtual ~PrivateManager() { }
         virtual void clear() = 0;
+
+        virtual const PrivateManager* getPrivateManager() const { return this; }
+
+        virtual gla::BackEnd* const getBackEnd() const { return backEnd; }
 
         virtual void translateTopToBottom();
         virtual void translateBottomToTarget();

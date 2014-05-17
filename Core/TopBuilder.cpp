@@ -40,9 +40,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Exceptions.h"
-#include "TopBuilder.h"
-
 // LLVM includes
 #pragma warning(push, 1)
 #include "llvm/IR/BasicBlock.h"
@@ -56,6 +53,12 @@
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/Support/CFG.h"
 #pragma warning(pop)
+
+// LunarGLASS includes
+#include "Exceptions.h"
+#include "TopBuilder.h"
+#include "PrivateManager.h"
+#include "Backend.h"
 
 #ifndef _WIN32
     #include <cstdio>
@@ -1186,8 +1189,38 @@ llvm::Value* Builder::createMatrixTimesVector(gla::EMdPrecision precision, llvm:
 {
     assert(GetNumColumns(matrix) == GetComponentCount(rvector));
 
+    llvm::Type* resultType = llvm::VectorType::get(rvector->getType()->getContainedType(0), GetNumRows(matrix));
+
+    if (useColumnBasedMatrixIntrinsics()) {
+        // Keep the matrix operation as an intrinsic.
+
+        llvm::Type* columnType = matrix->getType()->getContainedType(0);
+
+        llvm::Value* columns[4];
+        for (int col = 0; col < GetNumColumns(matrix); ++col)
+            columns[col] = builder.CreateExtractValue(matrix, col, "column");
+
+        llvm::Function* mul;
+        switch (GetNumColumns(matrix)) {
+        case 2: 
+            mul = getIntrinsic(llvm::Intrinsic::gla_fMatrix2TimesVector, resultType, columnType, columnType, rvector->getType());
+            return builder.CreateCall3(mul, columns[0], columns[1], rvector, "mat2vec");
+        case 3: 
+            mul = getIntrinsic(llvm::Intrinsic::gla_fMatrix3TimesVector, resultType, columnType, columnType, columnType, rvector->getType());
+            return builder.CreateCall4(mul, columns[0], columns[1], columns[2], rvector, "mat3vec");
+        case 4:
+            mul = getIntrinsic(llvm::Intrinsic::gla_fMatrix4TimesVector, resultType, columnType, columnType, columnType, columnType, rvector->getType());
+            return builder.CreateCall5(mul, columns[0], columns[1], columns[2], columns[3], rvector, "mat4vec");
+        default: 
+            UnsupportedFunctionality("matrix size");
+            break;
+        }
+    }
+
+    // Decompose the matrix operation into native LLVM operations.
+
     // Allocate a vector to build the result in
-    llvm::Value* result = createEntryAlloca(llvm::VectorType::get(rvector->getType()->getContainedType(0), GetNumRows(matrix)));
+    llvm::Value* result = createEntryAlloca(resultType);
     result = builder.CreateLoad(result);
 
     // Cache the components of the vector; they'll be revisited multiple times
@@ -1223,6 +1256,35 @@ llvm::Value* Builder::createMatrixTimesVector(gla::EMdPrecision precision, llvm:
 
 llvm::Value* Builder::createVectorTimesMatrix(gla::EMdPrecision precision, llvm::Value* lvector, llvm::Value* matrix)
 {
+    if (useColumnBasedMatrixIntrinsics()) {
+        // Keep the matrix operation as an intrinsic.
+
+        llvm::Type* resultType = llvm::VectorType::get(lvector->getType()->getContainedType(0), GetNumColumns(matrix));
+        llvm::Type* columnType = matrix->getType()->getContainedType(0);
+
+        llvm::Value* columns[4];
+        for (int col = 0; col < GetNumColumns(matrix); ++col)
+            columns[col] = builder.CreateExtractValue(matrix, col, "column");
+
+        llvm::Function* mul;
+        switch (GetNumColumns(matrix)) {
+        case 2: 
+            mul = getIntrinsic(llvm::Intrinsic::gla_fVectorTimesMatrix2, resultType, lvector->getType(), columnType, columnType);
+            return builder.CreateCall3(mul, lvector, columns[0], columns[1], "vec2mat");
+        case 3: 
+            mul = getIntrinsic(llvm::Intrinsic::gla_fVectorTimesMatrix3, resultType, lvector->getType(), columnType, columnType, columnType);
+            return builder.CreateCall4(mul, lvector, columns[0], columns[1], columns[2], "vec3mat");
+        case 4:
+            mul = getIntrinsic(llvm::Intrinsic::gla_fVectorTimesMatrix4, resultType, lvector->getType(), columnType, columnType, columnType, columnType);
+            return builder.CreateCall5(mul, lvector, columns[0], columns[1], columns[2], columns[3], "vec4mat");
+        default: 
+            UnsupportedFunctionality("matrix size");
+            break;
+        }
+    }
+
+    // Decompose the matrix operation into native LLVM operations.
+
     // Get the dot product intrinsic for these operands
     llvm::Intrinsic::ID dotIntrinsic;
     switch (GetNumRows(matrix)) {
@@ -1444,6 +1506,20 @@ llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, llvm::Type* type1,
         type3,
         type4,
         type5};
+
+    // Look up the intrinsic
+    return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes);
+}
+
+llvm::Function* Builder::getIntrinsic(llvm::Intrinsic::ID ID, llvm::Type* type1, llvm::Type* type2, llvm::Type* type3, llvm::Type* type4, llvm::Type* type5, llvm::Type* type6)
+{
+    llvm::Type* intrinsicTypes[] = {
+        type1,
+        type2,
+        type3,
+        type4,
+        type5,
+        type6};
 
     // Look up the intrinsic
     return llvm::Intrinsic::getDeclaration(module, ID, intrinsicTypes);
@@ -2355,6 +2431,13 @@ void Builder::closeLoop()
     builder.SetInsertPoint(ld.exit);
 
     loops.pop();
+}
+
+bool Builder::useColumnBasedMatrixIntrinsics() const
+{
+    // Note: if we knew all users of managers really derived from PrivateManager,
+    // we wouldn't need the first test.
+    return manager->getPrivateManager() && manager->getPrivateManager()->getBackEnd()->useColumnBasedMatrixIntrinsics();
 }
 
 }; // end gla namespace

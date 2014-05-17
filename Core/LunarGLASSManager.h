@@ -65,17 +65,21 @@ namespace llvm {
 
 namespace gla {
 
+    class PrivateManager;
+
     // Abstract class of external manager of translations within LunarGLASS.
     // Use getManager() to get a concrete manager, which should be derived
     // from gla::PrivateManager.
+
     class Manager {
     public:
         virtual ~Manager() { }    // the concrete class is expected to allocate and delete everything
         virtual void clear() = 0; // implement per-compile clear, so a manager object can be re-used
 
+        virtual const PrivateManager* getPrivateManager() const { return 0; }
+
         virtual void createContext() = 0;  // use this to get the LLVM 'context' you want: global, or new'd up, etc.
                                            // most likely something like "context = new llvm::LLVMContext;"
-
         virtual llvm::LLVMContext& getContext() const { return *context; }
 
         virtual void setModule(llvm::Module* m) { module = m; }

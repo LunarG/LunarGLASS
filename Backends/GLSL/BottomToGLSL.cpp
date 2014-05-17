@@ -133,6 +133,11 @@ public:
     {
         return false;
     }
+
+    //virtual bool useColumnBasedMatrixIntrinsics()
+    //{
+    //    return true;
+    //}
 };
 
 //
@@ -2411,6 +2416,46 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         break;
     }
 
+    // Handle matrix intrinsics
+    int numCols = 0;
+    bool matLeft;
+    switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_fMatrix2TimesVector: numCols = 2; matLeft = true;  break;
+    case llvm::Intrinsic::gla_fMatrix3TimesVector: numCols = 3; matLeft = true;  break;
+    case llvm::Intrinsic::gla_fMatrix4TimesVector: numCols = 4; matLeft = true;  break;
+    case llvm::Intrinsic::gla_fVectorTimesMatrix2: numCols = 2; matLeft = false; break;
+    case llvm::Intrinsic::gla_fVectorTimesMatrix3: numCols = 3; matLeft = false; break;
+    case llvm::Intrinsic::gla_fVectorTimesMatrix4: numCols = 4; matLeft = false; break;
+    default: break;
+    }
+    if (numCols) {
+        newLine();
+        emitGlaValue(llvmInstruction);
+        shader << " = ";
+        
+        int argBias = 0;
+        if (! matLeft) {
+            emitGlaOperand(llvmInstruction->getOperand(0));
+            shader << " * ";
+            argBias = 1;
+        }
+
+        shader << "mat" << numCols << "x" << GetComponentCount(llvmInstruction->getOperand(1)) << "(";
+        for (int col = 0; col < numCols; ++col) {
+            if (col > 0)
+                shader << ", ";
+            emitGlaOperand(llvmInstruction->getOperand(col + argBias));
+        }
+        shader << ")";
+
+        if (matLeft) {
+            shader << " * ";
+            emitGlaOperand(llvmInstruction->getOperand(numCols));
+        }
+        shader << ";" << std::endl;
+        return;
+    }
+
     // Handle fixedTransform
     if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fFixedTransform) {
         newLine();
@@ -2580,7 +2625,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     newLine();
 
     if (llvmInstruction->getType()->getTypeID() != llvm::Type::VoidTyID) {
-        // Save the the result on the the left-side of an "="
+        // Save the result on the left-side of an "="
         emitGlaValue(llvmInstruction);
         if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fModF)
             shader << "; " << valueMap[llvmInstruction]->c_str() << ".member0";
