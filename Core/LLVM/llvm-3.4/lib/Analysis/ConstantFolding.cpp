@@ -53,9 +53,6 @@ static Constant *FoldBitCast(Constant *C, Type *DestTy,
   if (DestTy->isDoubleTy() && C->getType()->isVectorTy() && C->getType()->getContainedType(0)->isFloatTy() &&
       C->getNumOperands() == 2 && TD.isLittleEndian()) {
     if (isa<ConstantVector>(C)) {
-      unsigned FPWidth = DestTy->getPrimitiveSizeInBits();
-      const Type *DestITy = IntegerType::get(C->getContext(), FPWidth);
-      llvm::SmallVector<Constant*, 2> elements;
       const llvm::ConstantFP *element0 = dyn_cast<ConstantFP>(C->getAggregateElement(0U));
       const llvm::ConstantFP *element1 = dyn_cast<ConstantFP>(C->getAggregateElement(1U));
       if (element0 && element1) {
@@ -894,7 +891,7 @@ Constant *llvm::ConstantFoldInstruction(Instruction *I,
       Constant* C1 = dyn_cast<Constant>(I->getOperand(1));
 
       // Return the constant that is (+/-)0
-      if (!C0 && C1 || C0 && !C1) { // C1 xor C2
+      if ((!C0 && C1) || (C0 && !C1)) { // C1 xor C2
           if (C0 && (C0->isNullValue() || C0->isNegativeZeroValue()))
               return C0;
 
@@ -1729,6 +1726,8 @@ static Constant *ConstantFoldGlaScalarCall(Function* F, ArrayRef<Constant *> Ope
   }
 
   // TODO: non-unary ops
+
+  return 0;
 }
 
 static int GetNumElements(const Type* Ty)
@@ -1749,7 +1748,6 @@ static Constant *ConstantFoldGlaMiscCall(Function *F, ArrayRef<Constant *> Opera
 static Constant *ConstantFoldGlaCall(Function *F, ArrayRef<Constant *> Operands)
 {
   const Type* Ty = F->getReturnType();
-  unsigned IntrID = F->getIntrinsicID();
 
   if (Ty->isStructTy())
     return ConstantFoldGlaMiscCall(F, Operands);

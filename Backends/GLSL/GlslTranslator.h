@@ -42,7 +42,7 @@
 
 // LunarGLASS includes
 #include "Core/PrivateManager.h"
-#include "Core/BackEnd.h"
+#include "Core/Backend.h"
 
 namespace gla {
 
