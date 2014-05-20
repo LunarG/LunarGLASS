@@ -1009,7 +1009,7 @@ llvm::Value* Builder::createMatrixTranspose(EMdPrecision precision, llvm::Value*
     // 2. copy it, transposed
 
     // Step 1, copy out
-    llvm::Value* elements[4][4];
+    llvm::Value* elements[maxMatrixSize][maxMatrixSize];
     for (int col = 0; col < GetNumColumns(matrix); ++col) {
         llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
         for (int row = 0; row < GetNumRows(matrix); ++row) {
@@ -1045,7 +1045,7 @@ llvm::Value* Builder::createMatrixInverse(gla::EMdPrecision precision, llvm::Val
     int size = GetNumColumns(matrix);
 
     // Copy the elements out, switching notation to [row][col], to match normal mathematic treatment
-    llvm::Value* elements[4][4];
+    llvm::Value* elements[maxMatrixSize][maxMatrixSize];
     for (int col = 0; col < size; ++col) {
         llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
         setInstructionPrecision(column, precision);
@@ -1056,12 +1056,12 @@ llvm::Value* Builder::createMatrixInverse(gla::EMdPrecision precision, llvm::Val
     }
 
     // Create the adjugate (the transpose of the cofactors)
-    llvm::Value* adjugate[4][4];
+    llvm::Value* adjugate[maxMatrixSize][maxMatrixSize];
     for (int row = 0; row < size; ++row) {
        for (int col = 0; col < size; ++col) {
 
            // compute the cofactor
-           llvm::Value* minor[4][4];
+           llvm::Value* minor[maxMatrixSize][maxMatrixSize];
            makeMatrixMinor(elements, minor, row, col, size);
            llvm::Value* cofactor = createMatrixDeterminant(precision, minor, size-1);
            if ((row + col) & 0x1) {
@@ -1111,7 +1111,7 @@ llvm::Value* Builder::createMatrixDeterminant(gla::EMdPrecision precision, llvm:
     assert(GetNumColumns(matrix) == GetNumRows(matrix));
     int size = GetNumColumns(matrix);
 
-    llvm::Value* elements[4][4];
+    llvm::Value* elements[maxMatrixSize][maxMatrixSize];
     for (int col = 0; col < size; ++col) {
         llvm::Value* column = builder.CreateExtractValue(matrix, col, "column");
         setInstructionPrecision(column, precision);
@@ -1126,7 +1126,7 @@ llvm::Value* Builder::createMatrixDeterminant(gla::EMdPrecision precision, llvm:
 }
 
 // Comments in header
-llvm::Value* Builder::createMatrixDeterminant(gla::EMdPrecision precision, llvm::Value* (&matrix)[4][4], int size)
+llvm::Value* Builder::createMatrixDeterminant(gla::EMdPrecision precision, llvm::Value* (&matrix)[maxMatrixSize][maxMatrixSize], int size)
 {
     if (size == 1)
         return matrix[0][0];
@@ -1145,7 +1145,7 @@ llvm::Value* Builder::createMatrixDeterminant(gla::EMdPrecision precision, llvm:
         for (int cofactor = 0; cofactor < size; ++cofactor) {
 
             // make the minor matrix
-            llvm::Value* minor[4][4]; // will hold only 2x2 and 3x3 matrices
+            llvm::Value* minor[maxMatrixSize][maxMatrixSize]; // will hold only 2x2 and 3x3 matrices
             makeMatrixMinor(matrix, minor, 0, cofactor, size);
 
             // accumulate the term into the result (alternating +,-,+,...)
@@ -1166,7 +1166,7 @@ llvm::Value* Builder::createMatrixDeterminant(gla::EMdPrecision precision, llvm:
 }
 
 // 'size' is the size of the input matrix, not the output matrix
-void Builder::makeMatrixMinor(llvm::Value* (&matrix)[4][4], llvm::Value* (&minor)[4][4], int mRow, int mCol, int size)
+void Builder::makeMatrixMinor(llvm::Value* (&matrix)[maxMatrixSize][maxMatrixSize], llvm::Value* (&minor)[maxMatrixSize][maxMatrixSize], int mRow, int mCol, int size)
 {
     int resRow = 0;
     for (int row = 0; row < size; ++row) {
@@ -1196,10 +1196,11 @@ llvm::Value* Builder::createMatrixTimesVector(gla::EMdPrecision precision, llvm:
 
         llvm::Type* columnType = matrix->getType()->getContainedType(0);
 
-        llvm::Value* columns[4];
+        llvm::Value* columns[maxMatrixSize];
         for (int col = 0; col < GetNumColumns(matrix); ++col)
             columns[col] = builder.CreateExtractValue(matrix, col, "column");
 
+        // TODO: matrix functionality:             setInstructionPrecision(result, precision);
         llvm::Function* mul;
         switch (GetNumColumns(matrix)) {
         case 2: 
@@ -1224,7 +1225,7 @@ llvm::Value* Builder::createMatrixTimesVector(gla::EMdPrecision precision, llvm:
     result = builder.CreateLoad(result);
 
     // Cache the components of the vector; they'll be revisited multiple times
-    llvm::Value* components[4];
+    llvm::Value* components[maxMatrixSize];
     for (int comp = 0; comp < GetComponentCount(rvector); ++comp) {
         components[comp] = builder.CreateExtractElement(rvector,  MakeUnsignedConstant(context, comp), "component");
         setInstructionPrecision(components[comp], precision);
@@ -1262,9 +1263,11 @@ llvm::Value* Builder::createVectorTimesMatrix(gla::EMdPrecision precision, llvm:
         llvm::Type* resultType = llvm::VectorType::get(lvector->getType()->getContainedType(0), GetNumColumns(matrix));
         llvm::Type* columnType = matrix->getType()->getContainedType(0);
 
-        llvm::Value* columns[4];
+        llvm::Value* columns[maxMatrixSize];
         for (int col = 0; col < GetNumColumns(matrix); ++col)
             columns[col] = builder.CreateExtractValue(matrix, col, "column");
+
+        // TODO: matrix functionality:             setInstructionPrecision(result, precision);
 
         llvm::Function* mul;
         switch (GetNumColumns(matrix)) {
@@ -1380,6 +1383,86 @@ llvm::Value* Builder::createMatrixTimesMatrix(gla::EMdPrecision precision, llvm:
     int columns =  GetNumColumns(right);
     llvm::Value* result = createEntryAlloca(getMatrixType(GetMatrixElementType(left->getType()), columns, rows));
     result = builder.CreateLoad(result, "resultMatrix");
+
+    if (useColumnBasedMatrixIntrinsics()) {
+        // Keep the matrix operation as an intrinsic.
+
+        llvm::Type*  leftColumnType =  left->getType()->getContainedType(0);
+        llvm::Type* rightColumnType = right->getType()->getContainedType(0);
+
+        // Set up the intrinsic's types for overloading
+        std::vector<llvm::Type*> intrinsicTypes;
+        // return values
+        for (int col = 0; col < GetNumColumns(right); ++col)
+            intrinsicTypes.push_back(leftColumnType);
+        // left matrix
+        for (int col = 0; col < GetNumColumns(left); ++col)
+            intrinsicTypes.push_back(leftColumnType);
+        // right matrix
+        for (int col = 0; col < GetNumColumns(right); ++col)
+            intrinsicTypes.push_back(rightColumnType);
+
+        // Get the intrinsic ID and get the right declaration
+        llvm::Intrinsic::ID matTimesMatID;
+        switch (GetNumColumns(left)) {
+        case 2:
+            switch (GetNumColumns(right)) {
+            case 2:                           matTimesMatID = llvm::Intrinsic::gla_fMatrix2TimesMatrix2; break;
+            case 3:                           matTimesMatID = llvm::Intrinsic::gla_fMatrix2TimesMatrix3; break;
+            case 4:                           matTimesMatID = llvm::Intrinsic::gla_fMatrix2TimesMatrix4; break;
+            default: 
+                UnsupportedFunctionality("matrix size");
+                break;
+            }
+            break;
+        case 3:
+            switch (GetNumColumns(right)) {
+            case 2:                           matTimesMatID = llvm::Intrinsic::gla_fMatrix3TimesMatrix2; break;
+            case 3:                           matTimesMatID = llvm::Intrinsic::gla_fMatrix3TimesMatrix3; break;
+            case 4:                           matTimesMatID = llvm::Intrinsic::gla_fMatrix3TimesMatrix4; break;
+            default: 
+                UnsupportedFunctionality("matrix size");
+                break;
+            }
+            break;
+        case 4:
+            switch (GetNumColumns(right)) {
+            case 2:                           matTimesMatID = llvm::Intrinsic::gla_fMatrix4TimesMatrix2; break;
+            case 3:                           matTimesMatID = llvm::Intrinsic::gla_fMatrix4TimesMatrix3; break;
+            case 4:                           matTimesMatID = llvm::Intrinsic::gla_fMatrix4TimesMatrix4; break;
+            default: 
+                UnsupportedFunctionality("matrix size");
+                break;
+            }
+            break;
+        default: 
+            UnsupportedFunctionality("matrix size");
+            break;
+        }
+        llvm::Function* mulFunction = llvm::Intrinsic::getDeclaration(module, matTimesMatID, intrinsicTypes);
+
+        // Put together the arguments
+        std::vector<llvm::Value*> args;
+        // left matrix
+        for (int col = 0; col < GetNumColumns(left); ++col)
+            args.push_back(builder.CreateExtractValue(left, col, "lcolumn"));
+        // right matrix
+        for (int col = 0; col < GetNumColumns(right); ++col)
+            args.push_back(builder.CreateExtractValue(right, col, "rcolumn"));
+
+        // Make the call
+        llvm::Value* mulCall = builder.CreateCall(mulFunction, args);
+        setInstructionPrecision(mulCall, precision);
+
+        // Fill in the new matrix (which is an array) from the result of the call (which is as struct)
+        for (int col = 0; col < GetNumColumns(result); ++col) {
+            llvm::Value* column = builder.CreateExtractValue(mulCall, col, "memberColumn");
+            result = builder.CreateInsertValue(result, column, col, "resultMatrix");
+            setInstructionPrecision(result, precision);
+        }
+
+        return result;
+    }
 
     // Allocate a column for intermediate results
     llvm::Value* column = createEntryAlloca(llvm::VectorType::get(GetMatrixElementType(left->getType()), rows));
@@ -2146,7 +2229,7 @@ llvm::Value* Builder::createMatrixConstructor(gla::EMdPrecision precision, const
     // Step 1.
 
     // initialize the array to the identity matrix
-    llvm::Value* values[4][4];
+    llvm::Value* values[maxMatrixSize][maxMatrixSize];
     llvm::Value*  one = gla::MakeFloatConstant(context, 1.0);
     llvm::Value* zero = gla::MakeFloatConstant(context, 0.0);
     for (int col = 0; col < 4; ++col) {

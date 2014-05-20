@@ -81,6 +81,18 @@ let TargetPrefix = "gla" in {
   def int_gla_fVectorTimesMatrix3 : Intrinsic<[llvm_anyvector_ty], [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
   def int_gla_fMatrix4TimesVector : Intrinsic<[llvm_anyvector_ty], [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
   def int_gla_fVectorTimesMatrix4 : Intrinsic<[llvm_anyvector_ty], [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
+
+  def int_gla_fMatrix2TimesMatrix2 : Intrinsic<[llvm_anyvector_ty, llvm_anyvector_ty],                                       [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
+  def int_gla_fMatrix2TimesMatrix3 : Intrinsic<[llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty],                    [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
+  def int_gla_fMatrix2TimesMatrix4 : Intrinsic<[llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
+  
+  def int_gla_fMatrix3TimesMatrix2 : Intrinsic<[llvm_anyvector_ty, llvm_anyvector_ty],                                       [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
+  def int_gla_fMatrix3TimesMatrix3 : Intrinsic<[llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty],                    [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
+  def int_gla_fMatrix3TimesMatrix4 : Intrinsic<[llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
+  
+  def int_gla_fMatrix4TimesMatrix2 : Intrinsic<[llvm_anyvector_ty, llvm_anyvector_ty],                                       [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
+  def int_gla_fMatrix4TimesMatrix3 : Intrinsic<[llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty],                    [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
+  def int_gla_fMatrix4TimesMatrix4 : Intrinsic<[llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty, llvm_anyvector_ty], [IntrNoMem]>;
 }
 
 // Floating-Point Only Operations

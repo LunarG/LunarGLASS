@@ -2416,7 +2416,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         break;
     }
 
-    // Handle matrix intrinsics
+    // Handle matrix * vector and vector * matrix intrinsics
     int numCols = 0;
     bool matLeft;
     switch (llvmInstruction->getIntrinsicID()) {
@@ -2453,6 +2453,50 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
             emitGlaOperand(llvmInstruction->getOperand(numCols));
         }
         shader << ";" << std::endl;
+        return;
+    }
+
+    // Handle matrix * matrix intrinsics
+    int numLeftCols = 0;
+    int numRightCols = 0;
+    switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_fMatrix2TimesMatrix2: numLeftCols = 2; numRightCols = 2; break;
+    case llvm::Intrinsic::gla_fMatrix2TimesMatrix3: numLeftCols = 2; numRightCols = 3; break;
+    case llvm::Intrinsic::gla_fMatrix2TimesMatrix4: numLeftCols = 2; numRightCols = 4; break;
+    case llvm::Intrinsic::gla_fMatrix3TimesMatrix2: numLeftCols = 3; numRightCols = 2; break;
+    case llvm::Intrinsic::gla_fMatrix3TimesMatrix3: numLeftCols = 3; numRightCols = 3; break;
+    case llvm::Intrinsic::gla_fMatrix3TimesMatrix4: numLeftCols = 3; numRightCols = 4; break;
+    case llvm::Intrinsic::gla_fMatrix4TimesMatrix2: numLeftCols = 4; numRightCols = 2; break;
+    case llvm::Intrinsic::gla_fMatrix4TimesMatrix3: numLeftCols = 4; numRightCols = 3; break;
+    case llvm::Intrinsic::gla_fMatrix4TimesMatrix4: numLeftCols = 4; numRightCols = 4; break;
+    default: break;
+    }
+    if (numLeftCols) {
+        // First, we have to make a temp. matrix, because LLVM is making a struct: TODO: finish this
+        newLine();
+//        shader << "mat" << numLeftCols << " ";
+        emitGlaValue(llvmInstruction);
+//        shader << "StructMat = ";
+
+        shader << " = mat" << numLeftCols << "x" << numRightCols << "(";
+        for (int col = 0; col < numLeftCols; ++col) {
+            if (col > 0)
+                shader << ", ";
+            emitGlaOperand(llvmInstruction->getOperand(col));
+        }
+        shader << ") * mat" << numRightCols << "x" << numLeftCols << "(";
+        for (int col = 0; col < numRightCols; ++col) {
+            if (col > 0)
+                shader << ", ";
+            emitGlaOperand(llvmInstruction->getOperand(col + numLeftCols));
+        }
+        shader << ");" << std::endl;
+
+        // Now we can set up the original instruction's value
+        //newLine();
+        //emitGlaValue(llvmInstruction);
+        //shader << 
+
         return;
     }
 
