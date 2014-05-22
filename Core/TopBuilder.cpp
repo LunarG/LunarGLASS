@@ -473,8 +473,8 @@ llvm::Constant* Builder::getConstant(llvm::ArrayRef<llvm::Constant*> constants, 
 
 // Comments in header
 llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int storageInstance,
-                                            llvm::Type* type, llvm::Constant* initializer, const std::string* annotation,
-                                            llvm::StringRef name)
+                                     llvm::Type* type, llvm::Constant* initializer, const std::string* annotation,
+                                     llvm::StringRef name)
 {
     std::string annotatedName;
     if (annotation != 0) {
@@ -541,8 +541,7 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
 
     llvm::Value* value;
     if (global) {
-        llvm::GlobalVariable* globalValue = new llvm::GlobalVariable(*module, type, readOnly, linkage, initializer, annotatedName, 0, llvm::GlobalVariable::NotThreadLocal, addressSpace);
-        value = globalValue;
+        value = new llvm::GlobalVariable(*module, type, readOnly, linkage, initializer, annotatedName, 0, llvm::GlobalVariable::NotThreadLocal, addressSpace);
 
         if (storageQualifier == ESQOutput) {
             // Track the value that must be copied out to the pipeline at

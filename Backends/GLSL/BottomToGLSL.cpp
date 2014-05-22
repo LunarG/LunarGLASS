@@ -405,7 +405,6 @@ protected:
     void emitGlaValueDeclaration(const llvm::Value* value, bool forceGlobal = false);
     void emitGlaValue(const llvm::Value* value);
     void emitNonconvertedGlaValue(const llvm::Value* value);
-    void emitGlaStructName(std::ostringstream& out, const llvm::Type* structType);
     std::string* mapGlaValueAndEmitDeclaration(const llvm::Value* value);
     void emitFloatConstant(std::ostringstream& out, float f);
     void emitConstantInitializer(std::ostringstream& out, const llvm::Constant* constant, llvm::Type* type);
@@ -450,11 +449,22 @@ protected:
     // optimization: just for uint/matrix I/O names that need conversion, preserve the non-converted form in case that can be used
     std::map<const llvm::Value*, std::string*> nonConvertedMap;
 
-    // map to track structure names tracked in the module
+    // map to track block names tracked in the module
+    std::map<const llvm::Type*, std::string> blockNameMap;
+
+    // Map to track structure names tracked in the module.  This could 
+    // replicate a block entry if the block's type was reused to declare
+    // a shadow variable.
     std::map<const llvm::Type*, std::string> structNameMap;
 
-    // map from type names to the mdAggregate nodes that describe their types
-    std::map<const llvm::Type*, const llvm::MDNode*> typenameMdAggregateMap;
+    // Shadowed variables for a block will have the same type as the block,
+    // but the block name cannot be used to declare the shadow and the member
+    // names are likely not reusable.  So, use this to track such types
+    // so that at the right points, legal GLSL can be produced.
+    std::set<const llvm::Type*> shadowingBlock;
+
+    // map from llvm type to the mdAggregate nodes that describe their types
+    std::map<const llvm::Type*, const llvm::MDNode*> typeMdAggregateMap;
 
     // set to track what globals are already declared,
     // it potentially only includes globals that are in danger of multiple declaration
@@ -1412,6 +1422,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         llvm::MDNode* mdUniform = llvmInstruction->getMetadata(UniformMdName);
         std::string name;
         EMdTypeLayout mdType;
+        EMdTypeLayout* mdTypePointer = &mdType;
         if (mdUniform) {
             mdType = GetMdTypeLayout(mdUniform);
             name = mdUniform->getOperand(0)->getName();
@@ -1427,13 +1438,14 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
                 // (Normally, everything should be in registers.)
                 // TODO: LunarGOO: Find a way to eliminate global undefs so there are not extra "var = global-aggregete" statements
                 //       in the created output.
+                mdTypePointer = 0;  // This is not a uniform, so don't process any metadata for it.
             } else
                 UnsupportedFunctionality("missing metadata on load", 0, name.c_str(), EATContinue);
         }
 
         if (gepInstr) {
             // traverse the dereference chain and store it.
-            name.append(traverseGep(gepInstr, &mdType));
+            name.append(traverseGep(gepInstr, mdTypePointer));
 
             // an anonymous block will leave a name starting with "."; remove it
             if (name[0] == '.')
@@ -1946,15 +1958,26 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, 
     // this is mutually recursive with emitGlaType
 
     if (name.size() > 0) {
-        // track the mapping between LLVM's structure type and GLSL's name for it,
-        // and only declare it once
-        if (structNameMap.find(structType) != structNameMap.end())
-            return;
-        structNameMap[structType] = name;
+        // Track the mapping between LLVM's structure type and GLSL's name for it,
+        // and only declare it once.
+        // Note that a shadow for a block could be declared after it was declared as a block,
+        // and we track that in shadowingBlock.
+        if (block) {
+            if (blockNameMap.find(structType) != blockNameMap.end())
+                return;
+            blockNameMap[structType] = name;
+        } else {
+            if (structNameMap.find(structType) != structNameMap.end())
+                return;
+            structNameMap[structType] = name;
+
+            if (blockNameMap.find(structType) != blockNameMap.end())
+                shadowingBlock.insert(structType);
+        }
         
-        // track the mapping between the type name and it's metadata type
+        // track the mapping between the type and its metadata type
         if (mdAggregate)
-            typenameMdAggregateMap[structType] = mdAggregate;
+            typeMdAggregateMap[structType] = mdAggregate;
     }
 
     // For nested struct types, we have to output the nested one
@@ -3229,13 +3252,6 @@ void gla::GlslTarget::emitNonconvertedGlaValue(const llvm::Value* value)
         emitGlaValue(value);
 }
 
-void gla::GlslTarget::emitGlaStructName(std::ostringstream& out, const llvm::Type* structType)
-{
-    std::string name = structNameMap[structType];
-    assert(name.c_str());
-    out << name;
-}
-
 std::string* gla::GlslTarget::mapGlaValueAndEmitDeclaration(const llvm::Value* value)
 {
     emitGlaValueDeclaration(value);
@@ -3669,7 +3685,9 @@ std::string gla::GlslTarget::traverseGep(const llvm::Instruction* instr, EMdType
     llvm::Type* aggregateType = instr->getOperand(0)->getType();
     while (aggregateType->getTypeID() == llvm::Type::PointerTyID || aggregateType->getTypeID() == llvm::Type::ArrayTyID)
         aggregateType = aggregateType->getContainedType(0);
-    const llvm::MDNode* mdAggregate = typenameMdAggregateMap[aggregateType];
+    const llvm::MDNode* mdAggregate = 0;
+    if (shadowingBlock.find(aggregateType) == shadowingBlock.end())
+        mdAggregate = typeMdAggregateMap[aggregateType];
 
     if (const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(instr)) {
         // Start at operand 2 since indices 0 and 1 give you the base and are handled before traverseGep

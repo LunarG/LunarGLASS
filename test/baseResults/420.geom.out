@@ -225,6 +225,10 @@ layout(triangles) in;
 layout(invocations = 4) in;
 layout(line_strip) out;
 layout(max_vertices = 127) out;
+struct goo__gl_PerVertex_0 {
+    float member0;
+};
+
 uniform sampler2D s2D;
 uniform int i;
 uniform vec4 v4;
@@ -235,19 +239,19 @@ in vec2 coord[3];
 out gl_PerVertex {
     float gl_PointSize;
 } ;
-gl_PerVertex_0__goo anon_0_shadow__goo;
+goo__gl_PerVertex_0 anon_0_shadow__goo;
 const int const21i_1 = 1;
 const int const22i_0 = 0;
 const int const23i_7 = 7;
 
 void main()
 {
-    anon_0_shadow__goo.gl_PointSize = gl_in[1].gl_PointSize;
+    anon_0_shadow__goo.member0 = gl_in[1].gl_PointSize;
     unknownIntrinsic(const21i_1);
     unknownIntrinsic(const22i_0);
     EmitVertex();
     EndPrimitive();
-    gl_PointSize = anon_0_shadow__goo.gl_PointSize;
+    gl_PointSize = anon_0_shadow__goo.member0;
     gl_ViewportIndex = const23i_7;
     
 }
@@ -255,7 +259,9 @@ void main()
 
 tempglsl.geom
 Warning, version 420 is not yet complete; most version-specific features are present, but some are missing.
-ERROR: 0:17: '' :  syntax error
-ERROR: 1 compilation errors.  No code generated.
+WARNING: 0:21: 'anon_0_shadow__goo' : identifiers containing consecutive underscores ("__") are reserved 
+ERROR: 0:29: 'unknownIntrinsic' : no matching overloaded function found 
+ERROR: 0:30: 'unknownIntrinsic' : no matching overloaded function found 
+ERROR: 2 compilation errors.  No code generated.
 
 

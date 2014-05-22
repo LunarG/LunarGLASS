@@ -244,6 +244,10 @@ attributes #1 = { nounwind }
 !33 = metadata !{i32 0, i32* @sampb4_typeProxy, i32 1, i1 false, i1 false, i32 0}
 #version 430 core
 // LunarGOO output
+struct goo__gl_PerVertex {
+    float member0[3];
+};
+
 uniform float f;
 uniform vec4 uv4;
 uniform boundblock {
@@ -262,7 +266,7 @@ out gl_PerVertex {
 } ;
 flat out vec4 badorder3;
 out vec4 badorder2;
-gl_PerVertex anon_0_shadow__goo;
+goo__gl_PerVertex anon_0_shadow__goo;
 const float const22 = 3.7;
 const float const24 = 4.2;
 const vec4 const25 = vec4(0.0);
@@ -270,24 +274,65 @@ invariant badorder2 ;
 void main()
 {
     vec4 badorder3_shadow20_0__goo;
-    anon_0_shadow__goo.gl_ClipDistance[2] = const22;
+    anon_0_shadow__goo.member0[2] = const22;
     bool temp23 = bad[0].x == const24;
     badorder3_shadow20_0__goo = const25;
     if (temp23) {
         badorder3_shadow20_0__goo = bad[0];
     }
     
-    anon_0_shadow__goo.gl_ClipDistance[0] = f;
+    anon_0_shadow__goo.member0[0] = f;
     gl_ClipDistance[0] = f;
-    gl_ClipDistance[2] = anon_0_shadow__goo.gl_ClipDistance[2];
+    gl_ClipDistance[2] = anon_0_shadow__goo.member0[2];
     badorder3 = badorder3_shadow20_0__goo;
     
 }
 
 
-tempglsl.vert
-Warning, version 430 is not yet complete; most version-specific features are present, but some are missing.
-ERROR: 0:21: '' :  syntax error
-ERROR: 1 compilation errors.  No code generated.
+#version 430 core
+// LunarGOO output
+struct goo__gl_PerVertex {
+    float member0[3];
+};
+
+uniform float f;
+uniform vec4 uv4;
+uniform boundblock {
+    int aoeu;
+} boundInst;
+uniform anonblock {
+    int aoeu;
+} ;
+uniform sampler2D sampb1;
+uniform sampler2D sampb2[10];
+uniform sampler2D sampb4;
+in vec4 bad[10];
+in vec4 badorder;
+out gl_PerVertex {
+    float gl_ClipDistance[3];
+} ;
+flat out vec4 badorder3;
+out vec4 badorder2;
+goo__gl_PerVertex anon_1_shadow__goo;
+const float const23 = 4.2;
+const vec4 const24 = vec4(0.0);
+const float const25 = 3.7;
+
+void main()
+{
+    vec4 badorder3_shadow20_0__goo_0;
+    bool temp2310 = bad[0].x == const23;
+    badorder3_shadow20_0__goo_0 = const24;
+    if (temp2310) {
+        badorder3_shadow20_0__goo_0 = bad[0];
+    }
+    
+    anon_1_shadow__goo.member0[0] = f;
+    anon_1_shadow__goo.member0[2] = const25;
+    gl_ClipDistance[0] = f;
+    gl_ClipDistance[2] = anon_1_shadow__goo.member0[2];
+    badorder3 = badorder3_shadow20_0__goo_0;
+    
+}
 
 
