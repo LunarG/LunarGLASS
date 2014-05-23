@@ -1326,14 +1326,20 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         return;
 
     case llvm::Instruction::Call: // includes intrinsics...
+        // Sometimes instrinsics seem to invalidly cast to an intrinsic that has
+        // no valid intrinsic ID.  This seems like a bug somewhere, but protect
+        // against it here.
         if (const llvm::IntrinsicInst* intrinsic = llvm::dyn_cast<llvm::IntrinsicInst>(llvmInstruction)) {
-            emitGlaIntrinsic(intrinsic);
+            if (intrinsic->getIntrinsicID() == llvm::Intrinsic::ID::not_intrinsic)
+                UnsupportedFunctionality("intrinsic without valid intrinsic ID", EATContinue);
+            else
+                emitGlaIntrinsic(intrinsic);
         } else {
             const llvm::CallInst* call = llvm::dyn_cast<llvm::CallInst>(llvmInstruction);
             assert(call);
             emitGlaCall(call);
         }
-        
+
         return;
 
     case llvm::Instruction::FRem:
@@ -2673,8 +2679,8 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     // Geometry
     case llvm::Intrinsic::gla_emitVertex:                 callString = "EmitVertex";                 break;
     case llvm::Intrinsic::gla_endPrimitive:               callString = "EndPrimitive";               break;
-    case llvm::Intrinsic::gla_emitStreamVertex:           callString = "emitStringVertex";           break;
-    case llvm::Intrinsic::gla_endStreamPrimitive:         callString = "emitStringVertex";           break;
+    case llvm::Intrinsic::gla_emitStreamVertex:           callString = "EmitStreamVertex";           break;
+    case llvm::Intrinsic::gla_endStreamPrimitive:         callString = "EmitStreamVertex";           break;
 
     default: break;
     }

@@ -216,9 +216,9 @@ attributes #1 = { nounwind }
 !20 = metadata !{metadata !"i", i32 12, i32* @i_typeProxy, metadata !7}
 !21 = metadata !{metadata !"v4", i32 12, <4 x float>* @v4_typeProxy, metadata !7}
 
-***Unsupported functionality: Intrinsic in Bottom IR
+***Unsupported functionality: intrinsic without valid intrinsic ID
 
-***Unsupported functionality: Intrinsic in Bottom IR
+***Unsupported functionality: intrinsic without valid intrinsic ID
 #version 420 core
 // LunarGOO output
 layout(triangles) in;
@@ -240,28 +240,50 @@ out gl_PerVertex {
     float gl_PointSize;
 } ;
 goo__gl_PerVertex_0 anon_0_shadow__goo;
-const int const21i_1 = 1;
-const int const22i_0 = 0;
-const int const23i_7 = 7;
+const int const21i_7 = 7;
 
 void main()
 {
     anon_0_shadow__goo.member0 = gl_in[1].gl_PointSize;
-    unknownIntrinsic(const21i_1);
-    unknownIntrinsic(const22i_0);
     EmitVertex();
     EndPrimitive();
     gl_PointSize = anon_0_shadow__goo.member0;
-    gl_ViewportIndex = const23i_7;
+    gl_ViewportIndex = const21i_7;
     
 }
 
 
-tempglsl.geom
-Warning, version 420 is not yet complete; most version-specific features are present, but some are missing.
-WARNING: 0:21: 'anon_0_shadow__goo' : identifiers containing consecutive underscores ("__") are reserved 
-ERROR: 0:29: 'unknownIntrinsic' : no matching overloaded function found 
-ERROR: 0:30: 'unknownIntrinsic' : no matching overloaded function found 
-ERROR: 2 compilation errors.  No code generated.
+#version 420 core
+// LunarGOO output
+layout(triangles) in;
+layout(invocations = 4) in;
+layout(line_strip) out;
+layout(max_vertices = 127) out;
+struct goo__gl_PerVertex_0 {
+    float member0;
+};
+
+uniform sampler2D s2D;
+uniform int i;
+uniform vec4 v4;
+in gl_PerVertex {
+    float gl_PointSize;
+} gl_in[3];
+in vec2 coord[3];
+out gl_PerVertex {
+    float gl_PointSize;
+} ;
+goo__gl_PerVertex_0 anon_0_shadow__goo;
+const int const21i_7 = 7;
+
+void main()
+{
+    anon_0_shadow__goo.member0 = gl_in[1].gl_PointSize;
+    EmitVertex();
+    EndPrimitive();
+    gl_PointSize = anon_0_shadow__goo.member0;
+    gl_ViewportIndex = const21i_7;
+    
+}
 
 
