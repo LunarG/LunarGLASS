@@ -1330,7 +1330,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         // no valid intrinsic ID.  This seems like a bug somewhere, but protect
         // against it here.
         if (const llvm::IntrinsicInst* intrinsic = llvm::dyn_cast<llvm::IntrinsicInst>(llvmInstruction)) {
-            if (intrinsic->getIntrinsicID() == llvm::Intrinsic::ID::not_intrinsic)
+            if (intrinsic->getIntrinsicID() == llvm::Intrinsic::not_intrinsic)
                 UnsupportedFunctionality("intrinsic without valid intrinsic ID", EATContinue);
             else
                 emitGlaIntrinsic(intrinsic);
