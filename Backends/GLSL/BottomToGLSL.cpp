@@ -968,28 +968,35 @@ void MakeParseable(std::string& name)
 {
     // LLVM uses "." for phi'd symbols, change to _ so it's parseable by GLSL
     // Also, glslang uses @ for an internal name.
-    // If the name changes, add a "__" so that it's not coincidentally a user name.
+    // If the name changes, add a "__goo" so that it's not coincidentally a user name.
 
     bool changed = false;
-    bool hasDoubleUnderscore = false;
+    // bool hasDoubleUnderscore = false; // use this once "__" is accepted everywhere
     for (int c = 0; c < (int)name.length(); ++c) {
         if (name[c] == '.' || name[c] == '-' || name[c] == '@') {
             name[c] = '_';
             changed = true;
         }
 
-        if (c > 0 && name[c-1] == '_' && name[c] == '_')
-            hasDoubleUnderscore = true;
+        if (c > 0 && name[c-1] == '_' && name[c] == '_') {
+            // TODO: want to only say:  hasDoubleUnderscore = true;
+            // but, for now change things because not all compilers accept "__".
+            // Use "_" when possible, because it is much more readable.
+            name[c] = 'u';
+        }
     }
 
-    if (changed && ! hasDoubleUnderscore)
-        name.append("__goo");
+    // use this once "__" is accepted everywhere
+    //if (changed && ! hasDoubleUnderscore)
+    //    name.append("_goo");
 }
 
 void MakeNonbuiltinName(std::string& name)
 {
+    // TODO: using "goo_" in the meantime, switch to "goo__" when all compilers accept it.
+
     if (name.compare(0, 3, "gl_") == 0)
-        name.insert(0, "goo__");
+        name.insert(0, "goo_");
 }
 
 // Whether the given intrinsic's specified operand is the same as the passed

@@ -1681,13 +1681,13 @@ attributes #1 = { nounwind readonly }
 // LunarGOO output
 #extension GL_ARB_separate_shader_objects : enable
 layout(vertices = 4) out;
-struct goo__gl_PerVertex {
+struct goo_gl_PerVertex {
     vec4 member0;
     float member1;
     float member2[1];
 };
 
-struct goo__gl_PerVertex_0 {
+struct goo_gl_PerVertex_0 {
     vec4 member0;
     float member1;
     float member2[1];
@@ -1710,8 +1710,8 @@ out gl_PerVertex {
 out vec4 patchOut;
 layout(location=3) out vec4 ovla[4];
 layout(location=4) out vec4 ovlb[4];
-goo__gl_PerVertex in_shadow[32];
-goo__gl_PerVertex_0 out_shadow[4];
+goo_gl_PerVertex in_shadow[32];
+goo_gl_PerVertex_0 out_shadow[4];
 float TessLevelOuter_shadow[4];
 float TessLevelInner_shadow[2];
 const float const21 = 3.2;

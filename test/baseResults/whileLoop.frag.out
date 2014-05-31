@@ -142,14 +142,14 @@ varying vec4 BaseColor;
 
 void main()
 {
-    vec4 color_0__goo;
-    color_0__goo = BaseColor;
-    while (! (color_0__goo.x >= d)){
-        vec4 color2 = color_0__goo + bigColor;
-        color_0__goo = color2;
+    vec4 color_0;
+    color_0 = BaseColor;
+    while (! (color_0.x >= d)){
+        vec4 color2 = color_0 + bigColor;
+        color_0 = color2;
     }
     
-    gl_FragColor = color_0__goo;
+    gl_FragColor = color_0;
     
 }
 
@@ -162,14 +162,14 @@ varying vec4 BaseColor;
 
 void main()
 {
-    vec4 color_0__goo_0;
-    color_0__goo_0 = BaseColor;
-    while (color_0__goo_0.x < d){
-        vec4 color22 = color_0__goo_0 + bigColor;
-        color_0__goo_0 = color22;
+    vec4 color_0_0;
+    color_0_0 = BaseColor;
+    while (color_0_0.x < d){
+        vec4 color22 = color_0_0 + bigColor;
+        color_0_0 = color22;
     }
     
-    gl_FragColor = color_0__goo_0;
+    gl_FragColor = color_0_0;
     
 }
 

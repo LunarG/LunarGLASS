@@ -140,16 +140,16 @@ vec4 color2;
 
 void main()
 {
-    vec4 color_0__goo;
-    color_0__goo = BaseColor;
+    vec4 color_0;
+    color_0 = BaseColor;
     while (true) {
-        color2 = color_0__goo + bigColor;
+        color2 = color_0 + bigColor;
         bool temp23 = color2.x >= d;
         if (temp23) {
             break;
         }
         
-        color_0__goo = color2;
+        color_0 = color2;
     }
     
     gl_FragColor = color2;
@@ -166,16 +166,16 @@ vec4 color2;
 
 void main()
 {
-    vec4 color_0__goo_0;
-    color_0__goo_0 = BaseColor;
+    vec4 color_0_0;
+    color_0_0 = BaseColor;
     while (true) {
-        color2 = color_0__goo_0 + bigColor;
+        color2 = color_0_0 + bigColor;
         bool temp232 = color2.x < d;
         if (! temp232) {
             break;
         }
         
-        color_0__goo_0 = color2;
+        color_0_0 = color2;
     }
     
     gl_FragColor = color2;

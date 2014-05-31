@@ -149,23 +149,23 @@ const int const27i_1 = 1;
 
 void main()
 {
-    int i_0__goo;
-    vec4 color_0__goo;
-    i_0__goo = const23i_0;
-    color_0__goo = BaseColor;
+    int i_0;
+    vec4 color_0;
+    i_0 = const23i_0;
+    color_0 = BaseColor;
     while (true) {
-        bool temp24 = i_0__goo < Count;
+        bool temp24 = i_0 < Count;
         if (! temp24) {
             break;
         }
         
-        vec4 color2 = color_0__goo + bigColor;
-        int temp26 = i_0__goo + const27i_1;
-        i_0__goo = temp26;
-        color_0__goo = color2;
+        vec4 color2 = color_0 + bigColor;
+        int temp26 = i_0 + const27i_1;
+        i_0 = temp26;
+        color_0 = color2;
     }
     
-    gl_FragColor = color_0__goo;
+    gl_FragColor = color_0;
     
 }
 
@@ -180,23 +180,23 @@ const int const27i_1 = 1;
 
 void main()
 {
-    vec4 color_0__goo_0;
-    int i_0__goo_0;
-    color_0__goo_0 = BaseColor;
-    i_0__goo_0 = const23i_0;
+    vec4 color_0_0;
+    int i_0_0;
+    color_0_0 = BaseColor;
+    i_0_0 = const23i_0;
     while (true) {
-        bool temp24 = i_0__goo_0 < Count;
+        bool temp24 = i_0_0 < Count;
         if (! temp24) {
             break;
         }
         
-        vec4 color26 = color_0__goo_0 + bigColor;
-        int temp267 = i_0__goo_0 + const27i_1;
-        color_0__goo_0 = color26;
-        i_0__goo_0 = temp267;
+        vec4 color26 = color_0_0 + bigColor;
+        int temp267 = i_0_0 + const27i_1;
+        color_0_0 = color26;
+        i_0_0 = temp267;
     }
     
-    gl_FragColor = color_0__goo_0;
+    gl_FragColor = color_0_0;
     
 }
 

@@ -776,9 +776,10 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
             else
                 result = handleBuiltinFunctionCall(node);
 
-            if (! result)
+            if (! result) {
+                // TODO: Error recovery: substitute a zero aggregate to allow contituation without crashing
                 gla::UnsupportedFunctionality("glslang function call", gla::EATContinue);
-            else {
+            } else {
                 glaBuilder->clearAccessChain();
                 glaBuilder->setAccessChainRValue(result);
 

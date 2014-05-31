@@ -315,7 +315,7 @@ attributes #1 = { nounwind readonly }
 layout(triangles_adjacency) in;
 layout(triangle_strip) out;
 layout(max_vertices = 30) out;
-struct goo__gl_PerVertex {
+struct goo_gl_PerVertex {
     vec4 member0;
     float member1;
     float member2[1];
@@ -330,18 +330,18 @@ out fromVertex {
 out toFragment {
     vec3 color;
 } toF;
-goo__gl_PerVertex anon_1_shadow__goo;
+goo_gl_PerVertex anon_1_shadow;
 const int const21i_2 = 2;
 
 void main()
 {
     EmitVertex();
     EndPrimitive();
-    anon_1_shadow__goo.member0 = gl_in[0].gl_Position;
-    anon_1_shadow__goo.member1 = gl_in[3].gl_PointSize;
+    anon_1_shadow.member0 = gl_in[0].gl_Position;
+    anon_1_shadow.member1 = gl_in[3].gl_PointSize;
     color = fromV[0].color;
-    gl_Position = anon_1_shadow__goo.member0;
-    gl_PointSize = anon_1_shadow__goo.member1;
+    gl_Position = anon_1_shadow.member0;
+    gl_PointSize = anon_1_shadow.member1;
     gl_PrimitiveID = gl_PrimitiveIDIn;
     gl_Layer = const21i_2;
     
@@ -353,7 +353,7 @@ void main()
 layout(triangles_adjacency) in;
 layout(triangle_strip) out;
 layout(max_vertices = 30) out;
-struct goo__gl_PerVertex_1 {
+struct goo_gl_PerVertex_1 {
     vec4 member0;
     float member1;
     float member2[1];
@@ -368,18 +368,18 @@ out fromVertex {
 out toFragment {
     vec3 color;
 } toF;
-goo__gl_PerVertex_1 anon_1_shadow__goo;
+goo_gl_PerVertex_1 anon_1_shadow;
 const int const21i_2 = 2;
 
 void main()
 {
     EmitVertex();
     EndPrimitive();
-    anon_1_shadow__goo.member0 = gl_in[0].gl_Position;
-    anon_1_shadow__goo.member1 = gl_in[3].gl_PointSize;
+    anon_1_shadow.member0 = gl_in[0].gl_Position;
+    anon_1_shadow.member1 = gl_in[3].gl_PointSize;
     color = fromV[0].color;
-    gl_Position = anon_1_shadow__goo.member0;
-    gl_PointSize = anon_1_shadow__goo.member1;
+    gl_Position = anon_1_shadow.member0;
+    gl_PointSize = anon_1_shadow.member1;
     gl_PrimitiveID = gl_PrimitiveIDIn;
     gl_Layer = const21i_2;
     

@@ -200,8 +200,8 @@ const int const22i_0 = 0;
 void main()
 {
     bool temp21 = foo3.s2_1.i > const22i_0;
-    float locals2_2_1_0__goo = temp21 ? foo3.s2_1.s1_1.f : foo2.s1_1.f;
-    vec4 temp24 = vec4(locals2_2_1_0__goo);
+    float locals2_2_1_0 = temp21 ? foo3.s2_1.s1_1.f : foo2.s1_1.f;
+    vec4 temp24 = vec4(locals2_2_1_0);
     vec4 temp25 = texture(sampler, coord);
     vec4 FragColor_shadow = temp25 * temp24;
     gl_FragColor = FragColor_shadow;
@@ -239,8 +239,8 @@ const int const22i_0 = 0;
 void main()
 {
     bool temp211 = foo3.s2_1.i > const22i_0;
-    float ternary_0__goo = temp211 ? foo3.s2_1.s1_1.f : foo2.s1_1.f;
-    vec4 temp24 = vec4(ternary_0__goo);
+    float ternary_0 = temp211 ? foo3.s2_1.s1_1.f : foo2.s1_1.f;
+    vec4 temp24 = vec4(ternary_0);
     vec4 temp256 = texture(sampler, coord);
     vec4 FragColor_shadow7 = temp256 * temp24;
     gl_FragColor = FragColor_shadow7;

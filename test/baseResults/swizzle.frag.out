@@ -321,8 +321,8 @@ void main()
     float temp36 = t.x * const37;
     float temp38 = temp34 ? temp36 : t.x;
     bool temp39 = temp38 > const40;
-    vec4 rep_0__goo = temp39 ? const42 : const43;
-    vec4 FragColor_shadow27 = FragColor_shadow + rep_0__goo;
+    vec4 rep_0 = temp39 ? const42 : const43;
+    vec4 FragColor_shadow27 = FragColor_shadow + rep_0;
     gl_FragColor = FragColor_shadow27;
     
 }

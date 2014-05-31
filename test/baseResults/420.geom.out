@@ -225,7 +225,7 @@ layout(triangles) in;
 layout(invocations = 4) in;
 layout(line_strip) out;
 layout(max_vertices = 127) out;
-struct goo__gl_PerVertex_0 {
+struct goo_gl_PerVertex_0 {
     float member0;
 };
 
@@ -239,15 +239,15 @@ in vec2 coord[3];
 out gl_PerVertex {
     float gl_PointSize;
 } ;
-goo__gl_PerVertex_0 anon_0_shadow__goo;
+goo_gl_PerVertex_0 anon_0_shadow;
 const int const21i_7 = 7;
 
 void main()
 {
-    anon_0_shadow__goo.member0 = gl_in[1].gl_PointSize;
+    anon_0_shadow.member0 = gl_in[1].gl_PointSize;
     EmitVertex();
     EndPrimitive();
-    gl_PointSize = anon_0_shadow__goo.member0;
+    gl_PointSize = anon_0_shadow.member0;
     gl_ViewportIndex = const21i_7;
     
 }
@@ -259,7 +259,7 @@ layout(triangles) in;
 layout(invocations = 4) in;
 layout(line_strip) out;
 layout(max_vertices = 127) out;
-struct goo__gl_PerVertex_0 {
+struct goo_gl_PerVertex_0 {
     float member0;
 };
 
@@ -273,15 +273,15 @@ in vec2 coord[3];
 out gl_PerVertex {
     float gl_PointSize;
 } ;
-goo__gl_PerVertex_0 anon_0_shadow__goo;
+goo_gl_PerVertex_0 anon_0_shadow;
 const int const21i_7 = 7;
 
 void main()
 {
-    anon_0_shadow__goo.member0 = gl_in[1].gl_PointSize;
+    anon_0_shadow.member0 = gl_in[1].gl_PointSize;
     EmitVertex();
     EndPrimitive();
-    gl_PointSize = anon_0_shadow__goo.member0;
+    gl_PointSize = anon_0_shadow.member0;
     gl_ViewportIndex = const21i_7;
     
 }

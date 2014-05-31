@@ -168,12 +168,12 @@ attributes #2 = { nounwind readnone }
 // LunarGOO output
 in mediump float ps;
 const highp int const22i_2 = 2;
-const highp int const24i__10 = -10;
+const highp int const24i_u10 = -10;
 invariant gl_Position ;
 void main()
 {
     int temp21 = gl_VertexID << const22i_2;
-    int temp23 = temp21 + const24i__10;
+    int temp23 = temp21 + const24i_u10;
     vec4 temp25 = vec4(ps);
     highp float temp26 = float(temp23);
     vec4 temp27 = vec4(temp26);
@@ -189,12 +189,12 @@ void main()
 // LunarGOO output
 in mediump float ps;
 const highp int const22i_2 = 2;
-const highp int const24i__10 = -10;
+const highp int const24i_u10 = -10;
 invariant gl_Position ;
 void main()
 {
     int temp211 = gl_VertexID << const22i_2;
-    highp int temp232 = temp211 + const24i__10;
+    highp int temp232 = temp211 + const24i_u10;
     vec4 temp25 = vec4(ps);
     highp float temp264 = float(temp232);
     vec4 temp27 = vec4(temp264);

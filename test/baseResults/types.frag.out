@@ -609,7 +609,7 @@ const vec4 const70 = vec4(1.0);
 
 void main()
 {
-    vec4 ternary_0__goo;
+    vec4 ternary_0;
     bool temp22 = u_b && i_b;
     bool temp23 = u_b2.x && i_b2.x;
     bool temp24 = temp23 && u_b2.y;
@@ -659,13 +659,13 @@ void main()
         float temp67 = temp43.z + temp66;
         float temp68 = temp43.w + temp67;
         vec4 temp69 = vec4(temp68);
-        ternary_0__goo = temp69;
+        ternary_0 = temp69;
     }
     else {
-        ternary_0__goo = const70;
+        ternary_0 = const70;
     }
     
-    gl_FragColor = ternary_0__goo;
+    gl_FragColor = ternary_0;
     
 }
 
@@ -700,7 +700,7 @@ const vec4 const70 = vec4(1.0);
 
 void main()
 {
-    vec4 ternary_0__goo_0;
+    vec4 ternary_0_0;
     bool temp221 = u_b && i_b;
     bool temp232 = u_b2.x && i_b2.x;
     bool temp243 = temp232 && u_b2.y;
@@ -750,13 +750,13 @@ void main()
         float temp6746 = temp4322.z + temp6645;
         float temp6847 = temp4322.w + temp6746;
         vec4 temp69 = vec4(temp6847);
-        ternary_0__goo_0 = temp69;
+        ternary_0_0 = temp69;
     }
     else {
-        ternary_0__goo_0 = const70;
+        ternary_0_0 = const70;
     }
     
-    gl_FragColor = ternary_0__goo_0;
+    gl_FragColor = ternary_0_0;
     
 }
 
