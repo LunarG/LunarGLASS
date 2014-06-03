@@ -798,8 +798,15 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
             break;
         case Intrinsic::gla_fFilterWidth:
             if (backEnd->decomposeIntrinsic(EDiFilterWidth)) {
-                UnsupportedFunctionality("decomposition of gla_fFilterWidth");
-                //changed = true;
+                // filterWidth = abs(dFdx(p)) + abs(dFdy(p))
+                Function* dFdx = Intrinsic::getDeclaration(module, Intrinsic::gla_fDFdx, makeArrayRef(argTypes, 2));
+                Function* dFdy = Intrinsic::getDeclaration(module, Intrinsic::gla_fDFdy, makeArrayRef(argTypes, 2));
+                Function*  abs = Intrinsic::getDeclaration(module, Intrinsic::gla_fAbs,  makeArrayRef(instTypes, 2));
+                llvm::Value* dx = builder.CreateCall(dFdx, arg0);
+                llvm::Value* dy = builder.CreateCall(dFdy, arg0);
+                dx = builder.CreateCall(abs, dx);
+                dy = builder.CreateCall(abs, dy);
+                newInst = builder.CreateFAdd(dx, dy);
             }
             break;
         case Intrinsic::gla_fFixedTransform:
