@@ -777,14 +777,15 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
                 result = handleBuiltinFunctionCall(node);
 
             if (! result) {
-                // TODO: Error recovery: substitute a zero aggregate to allow contituation without crashing
                 gla::UnsupportedFunctionality("glslang function call", gla::EATContinue);
-            } else {
-                glaBuilder->clearAccessChain();
-                glaBuilder->setAccessChainRValue(result);
-
-                return false;
+                glslang::TConstUnionArray emptyConsts;
+                int nextConst = 0;
+                result = createLLVMConstant(node->getType(), emptyConsts, nextConst);
             }
+            glaBuilder->clearAccessChain();
+            glaBuilder->setAccessChainRValue(result);
+
+            return false;
         }
 
         return true;
@@ -2442,6 +2443,12 @@ llvm::Value* TGlslangToTopTraverser::getSymbolStorage(const glslang::TIntermSymb
     return storage;
 }
 
+// Use 'consts' as the flattened glslang source of scalar constants to recursively
+// build the hierarchical LLVM constant.
+//
+// If there are not enough elements present in 'consts', 0 will be substituted;
+// an empty 'consts' can be used to create a fully zeroed LLVM constant.
+//
 llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& glslangType, const glslang::TConstUnionArray& consts, int& nextConst)
 {
     // vector of constants for LLVM
@@ -2471,18 +2478,22 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& gl
         // this is where we actually consume the constants, rather than walk a tree
 
         for (unsigned int i = 0; i < (unsigned int)glslangType.getVectorSize(); ++i) {
-            switch (consts[nextConst].getType()) {
+            bool zero = nextConst >= consts.size();
+            switch (glslangType.getBasicType()) {
             case glslang::EbtInt:
-                llvmConsts.push_back(gla::MakeIntConstant(context, consts[nextConst].getIConst()));
+                llvmConsts.push_back(gla::MakeIntConstant(context, zero ? 0 : consts[nextConst].getIConst()));
                 break;
             case glslang::EbtUint:
-                llvmConsts.push_back(gla::MakeUnsignedConstant(context, consts[nextConst].getUConst()));
+                llvmConsts.push_back(gla::MakeUnsignedConstant(context, zero ? 0 : consts[nextConst].getUConst()));
+                break;
+            case glslang::EbtFloat:
+                llvmConsts.push_back(gla::MakeFloatConstant(context, zero ? 0.0f : (float)consts[nextConst].getDConst()));
                 break;
             case glslang::EbtDouble:
-                llvmConsts.push_back(gla::MakeFloatConstant(context, (float)consts[nextConst].getDConst()));
+                llvmConsts.push_back(gla::MakeDoubleConstant(context, zero ? 0.0 : consts[nextConst].getDConst()));
                 break;
             case glslang::EbtBool:
-                llvmConsts.push_back(gla::MakeBoolConstant(context, consts[nextConst].getBConst()));
+                llvmConsts.push_back(gla::MakeBoolConstant(context, zero ? false : consts[nextConst].getBConst()));
                 break;
             default:
                 gla::UnsupportedFunctionality("scalar or vector element type");

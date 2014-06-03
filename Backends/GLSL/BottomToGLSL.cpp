@@ -93,6 +93,7 @@ public:
         //decompose[gla::EDiMax] = true;
         //decompose[gla::EDiMin] = true;
         //decompose[gla::EDiSmoothStep] = true;
+        //decompose[gla::EDiFilterWidth] = true;
     }
     virtual ~GlslBackEnd() { }
 
