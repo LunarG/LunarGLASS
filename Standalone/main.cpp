@@ -39,7 +39,7 @@
 #include "glslang/Public/ShaderLang.h"
 
 // glslang StandAlone include
-#include "Standalone/Worklist.h"
+#include "StandAlone/Worklist.h"
 #include "osinclude.h"
 
 // LunarGLASS includes
