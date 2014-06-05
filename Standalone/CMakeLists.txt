@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
 
 include_directories(.. ../Core ${GLSLANGINCLUDES} ${LLVMINCLUDES})
+if(WIN32)
+    include_directories(${GLSLANG_PATH}/glslang/OSDependent/Windows)
+elseif(UNIX)
+    include_directories(${GLSLANG_PATH}/glslang/OSDependent/Linux)
+else(WIN32)
+    message("unkown platform")
+endif(WIN32)
 
 set(SOURCES
     main.cpp

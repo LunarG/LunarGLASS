@@ -76,6 +76,8 @@ namespace gla {
         virtual ~Manager() { }    // the concrete class is expected to allocate and delete everything
         virtual void clear() = 0; // implement per-compile clear, so a manager object can be re-used
 
+        static bool startMultithreaded();
+
         virtual const PrivateManager* getPrivateManager() const { return 0; }
 
         virtual void createContext() = 0;  // use this to get the LLVM 'context' you want: global, or new'd up, etc.

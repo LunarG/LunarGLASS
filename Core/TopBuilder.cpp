@@ -66,6 +66,11 @@
 
 namespace gla {
 
+bool Manager::startMultithreaded()
+{
+    return LLVMStartMultithreaded();
+}
+
 Builder::Builder(llvm::IRBuilder<>& b, gla::Manager* m, Metadata md) :
     accessRightToLeft(true),
     builder(b),

@@ -38,6 +38,10 @@
 #include "glslang/Include/ShHandle.h"
 #include "glslang/Public/ShaderLang.h"
 
+// glslang StandAlone include
+#include "Standalone/Worklist.h"
+#include "osinclude.h"
+
 // LunarGLASS includes
 #include "Frontends/glslang/GlslangToTop.h"
 #include "Core/Options.h"
@@ -204,7 +208,7 @@ void usage(bool advanced)
                "    .frag for a fragment shader\n"
                "    .comp for a compute shader\n"
                "\n"
-               "Standard Output will receive new shader.\n"
+               "Standard Output will receive one shader per linked stage (but see -t option).\n"
                "Standard Error will receive an information log.\n", ExecutableName);
 
         printf("\n");
@@ -213,6 +217,7 @@ void usage(bool advanced)
                "  -o  obfuscate\n"
                "  -r  relaxed semantic error-checking mode\n"
                "  -s  silent mode\n"
+               "  -t  multi-threaded: each argument is treated separately, not linked together\n"
                "  -w  suppress warnings (except as required by #extension : warn)\n"
                "  -z  see developer options\n");
     }
@@ -293,6 +298,9 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
                 break;
             case 's':
                 Options |= gla::EOptionSilent;
+                break;
+            case 't':
+                Options |= gla::EOptionMultiThreaded;
                 break;
             case 'w':
                 Options |= gla::EOptionSuppressWarnings;
@@ -473,16 +481,21 @@ bool CompileFile(const char *fileName, ShHandle compiler, int Options, const TBu
 
 #endif
 
+TBuiltInResource Resources;
+EShMessages Messages;
+
 //
 // Uses the new glslang C++ interface instead of the old handle-based interface.
 //
-void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResource *resources)
+// This will do all translations single threaded, but links together all input shaders,
+// producing one translation per stage, not one translation per input shader.
+//
+// See TranslateShadersMultithreaded() for another mode of operation.
+//
+void TranslateLinkedShaders(const std::vector<const char*>& names)
 {
     // keep track of what to free
     std::list<glslang::TShader*> shaders;
-    
-    EShMessages messages = EShMsgDefault;
-    SetMessageOptions(messages);
 
     //
     // Per-shader front-end processing...
@@ -493,7 +506,7 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
         EShLanguage stage = FindLanguage(names[n]);
         glslang::TShader* shader = new glslang::TShader(stage);
         shaders.push_back(shader);
-    
+
         char** shaderStrings = ReadFileData(names[n]);
         if (! shaderStrings) {
             usage(false);
@@ -502,7 +515,7 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
 
         shader->setStrings(shaderStrings, 1);
 
-        if (! shader->parse(resources, 100, false, messages)) {
+        if (! shader->parse(&Resources, 100, false, Messages)) {
             CompileFailed = true;
             if (! (Options & gla::EOptionSilent)) {
                 puts(names[n]);
@@ -512,7 +525,7 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
 
         if (CompileFailed)
             return;
-        
+
         program.addShader(shader);
 
         FreeFileData(shaderStrings);
@@ -522,7 +535,7 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
     // Program-level front-end processing...
     //
 
-    if (! program.link(messages)) {
+    if (! program.link(Messages)) {
         LinkFailed = true;
         if (! (Options & gla::EOptionSilent))
             puts(program.getInfoLog());
@@ -601,10 +614,171 @@ void TranslateShaders(const std::vector<const char*>& names, const TBuiltInResou
     }
 }
 
+//
+// Uses the new glslang C++ interface.
+//
+// This will do one shader translation for the multi-threaded mode for 
+// TranslateShadersMultithreaded()
+//
+void TranslateSingleShader(glslang::TWorkItem* workItem)
+{
+    //
+    // Front-end compilation...
+    //
+
+    EShLanguage stage = FindLanguage(workItem->name.c_str());
+    glslang::TShader* shader = new glslang::TShader(stage);
+
+    char** shaderStrings = ReadFileData(workItem->name.c_str());
+    if (! shaderStrings) {
+        usage(false);
+        return;
+    }
+
+    shader->setStrings(shaderStrings, 1);
+
+    if (! shader->parse(&Resources, 100, false, Messages)) {
+        CompileFailed = true;
+        if (! (Options & gla::EOptionSilent)) {
+            puts(workItem->name.c_str());
+            puts(shader->getInfoLog());
+        }
+    }
+
+    if (CompileFailed)
+        return;
+
+    glslang::TProgram& program = *new glslang::TProgram;
+    program.addShader(shader);
+
+    FreeFileData(shaderStrings);
+
+    //
+    // Front-end linking (single compilation unit) ...
+    //
+
+    if (! program.link(Messages)) {
+        LinkFailed = true;
+        if (! (Options & gla::EOptionSilent))
+            puts(program.getInfoLog());
+
+        return;
+    }
+
+    //
+    // Translate the linked result through to the back end...
+    //
+
+    const glslang::TIntermediate* intermediate = program.getIntermediate((EShLanguage)stage);
+    gla::GlslManager manager;
+
+    // Generate the Top IR
+    TranslateGlslangToTop(*intermediate, manager);
+
+    // Optionally override any versioning/extensions here.
+    // (If this is not done, it will inherit from the original shader source.)
+    if (TargetDefinitionVersion != 0)
+        manager.setVersion(TargetDefinitionVersion);
+    if (TargetDefinitionProfile != EBadProfile)
+        manager.setProfile(TargetDefinitionProfile);
+
+    if (Options & gla::EOptionAssembly)
+        manager.dump("\nTop IR:\n");
+
+    // Generate the Bottom IR
+    manager.translateTopToBottom();
+    
+    if (Options & gla::EOptionAssembly)
+        manager.dump("\n\nBottom IR:\n");
+
+    // Generate the GLSL output
+    manager.translateBottomToTarget();
+    workItem->results = manager.getGeneratedShader();
+
+    // Free everything up, the glslang program has to go before the shader.
+    delete &program;
+    delete shader;
+}
+
+glslang::TWorklist Worklist;
+const int NumThreads = 1;
+
+// Multi-threaded entry point for TranslateShadersMultithreaded().
+//
+// Return 0 for failure, 1 for success.
+unsigned int
+#ifdef _WIN32
+    __stdcall
+#endif
+TranslateShaders(void*)
+{
+    glslang::TWorkItem* workItem;
+    while (Worklist.remove(workItem))
+        TranslateSingleShader(workItem);
+
+    return 0;
+}
+
+//
+// Uses the new glslang C++ interface.
+//
+// This will do all translations multi-threaded, without linking input shaders together,
+// producing one translation per input shader, not one per stage.
+//
+void TranslateShadersMultithreaded(const std::vector<const char*>& names)
+{
+    // Get LunarGLASS into multi-threading mode
+    if (! gla::Manager::startMultithreaded())
+        printf("ERROR: could not start multi-threaded mode.\n");
+
+    // Enqueue all the work items
+    const int overWorkFactor = 1;
+    glslang::TWorkItem** work = new glslang::TWorkItem*[names.size() * overWorkFactor];
+    int workCount = 0;
+    for (int n = 0; n < (int)names.size(); ++n) {
+        for (int replicate = 0; replicate < overWorkFactor; ++replicate) {
+            work[workCount] = new glslang::TWorkItem(names[n]);
+            Worklist.add(work[workCount]);
+            ++workCount;
+        }
+    }
+
+    // Create threads that will now do all the transalations
+    void* threads[NumThreads];
+    for (int t = 0; t < NumThreads; ++t) {
+        threads[t] = glslang::OS_CreateThread(&TranslateShaders);
+        if (! threads[t]) {
+            printf("ERROR: Failed to create thread.\n");
+            CompileFailed = true;
+            return;
+        }
+    }
+    glslang::OS_WaitForAllThreads(threads, NumThreads);
+
+    // Print out all the results
+    for (int w = 0; w < workCount; ++w) {
+        puts(work[w]->name.c_str());
+        puts(work[w]->results.c_str());
+        delete work[w];
+    }
+}
+
+void TranslateShaders(const std::vector<const char*>& names)
+{
+    EShMessages messages = EShMsgDefault;
+    SetMessageOptions(messages);
+
+    if (Options & gla::EOptionMultiThreaded)
+        TranslateShadersMultithreaded(names);
+    else
+        TranslateLinkedShaders(names);
+}
+
 void InfoLogMsg(const char* msg, const char* name, const int num)
 {
     fprintf(stderr, num >= 0 ? "#### %s %s %d INFO LOG ####\n" :
-           "#### %s %s INFO LOG ####\n", msg, name, num);
+                               "#### %s %s INFO LOG ####\n",
+                               msg, name, num);
 }
 
 }; // end anonymous namespace
@@ -655,10 +829,9 @@ int C_DECL main(int argc, char* argv[])
 
     glslang::InitializeProcess();
 
-    TBuiltInResource resources;
-    GenerateResources(resources);
+    GenerateResources(Resources);
 
-    TranslateShaders(names, &resources);
+    TranslateShaders(names);
 
     glslang::FinalizeProcess();
 
