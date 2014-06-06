@@ -1446,15 +1446,19 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
                 name = gepInstr->getOperand(0)->getName();
             else
                 name = llvmInstruction->getOperand(0)->getName();
-            MakeParseable(name);
             if (MapGlaAddressSpace(llvmInstruction->getOperand(0)) == EVQGlobal) {
                 // This is could be a path for a hoisted "undef" aggregate.  See hoistUndefOps().
                 // (Normally, everything should be in registers.)
                 // TODO: LunarGOO: Find a way to eliminate global undefs so there are not extra "var = global-aggregete" statements
                 //       in the created output.
                 mdTypePointer = 0;  // This is not a uniform, so don't process any metadata for it.
-            } else
+            } else {
                 UnsupportedFunctionality("missing metadata on load", 0, name.c_str(), EATContinue);
+                // Attempt recovery
+                if (name.compare(0, 5, "anon@") == 0)
+                    name = "";
+            }
+            MakeParseable(name);
         }
 
         if (gepInstr) {
