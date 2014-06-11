@@ -168,10 +168,6 @@ namespace {
         // For nextBB that are relevant for curBB
         void addPhiCopies(const BasicBlock* curBB, const BasicBlock* nextBB);
 
-        // For all the given phis
-        template<unsigned Size>
-        void addPhiCopies(SmallPtrSet<const PHINode*, Size>& phis, const BasicBlock* curBB);
-
         // For the specified phi node for currBB
         void addPhiCopy(const PHINode* phi, const BasicBlock* curBB);
 
@@ -317,50 +313,110 @@ namespace {
 
     };
 
-} // end namespace
+    // TODO: memory model: worry about loads for address spaces that can be written to, as identical loads could read different values?
+    // TODO: more phi aliasing: should this generalize to catch other cases?
+    bool SameLoad(const Value* value1, const Value* value2)
+    {
+        // They are most likely instructions, so dyn_cast has no real performance loss
+        const Instruction* inst1 = dyn_cast<const Instruction>(value1);
+        const Instruction* inst2 = dyn_cast<const Instruction>(value2);
 
-static void CreateSimpleInductiveLoop(LoopWrapper& loop, gla::BackEndTranslator& bet)
-{
-    const PHINode* pn  = loop.getCanonicalInductionVariable();
-    assert(pn);
+        if (! inst1 || inst1->getOpcode() != Instruction::Load ||
+            ! inst2 || inst2->getOpcode() != Instruction::Load)
+            return false;
 
-    // tripCount for the header block will be 1
-    // higher than the inductive loop's true trip count. This is
-    // because it is counting the number of times that the exit
-    // condition may be tested, which is 1 + the number of times the
-    // exit condition fails.
+        // We have two load instructions, see if they match
+        if (inst1->getNumOperands() == inst2->getNumOperands()) {
+            for (unsigned op = 0; op < inst1->getNumOperands(); ++op)
+                if (inst1->getOperand(op) != inst2->getOperand(op))
+                    return false;
 
-    unsigned int tripCount = loop.getTripCount();   
-    if (gla::Options.debug && ! gla::Options.bottomIROnly) {
-        errs() << "\ninductive variable:"   << *pn;
-        errs() << "\n  trip count:      "   << tripCount;
-        errs() << "\n  increment:       "   << *loop.getIncrement();
-        errs() << "\n  exit condition:  "   << *loop.getInductiveExitCondition();
-        errs() << "\n";
+            return true;
+        }
     }
 
-    // tripCount of 0 means not a known constant count
-    if (tripCount == 0) {
-        // TODO LLVM 3.4: the second argument below needs to be an LLVM value
-        // representing the non-constant trip count
-        gla::UnsupportedFunctionality("non-constant trip count on simple-inductive loop", gla::EATContinue);
-        bet.beginSimpleInductiveLoop(pn, 1);
-    } else
-        bet.beginSimpleInductiveLoop(pn, tripCount - 1);
-}
+    bool IsAliasingPhi(const PHINode* phi)
+    {
+        // Find out if all the sources of the phi are really the same thing, in which case 
+        // we only want to add an alias for that thing.  This is important, for example,
+        // in cases like phi'ing a sampler, and going to a high-level language, we don't want
+        // this IR
+        //
+        //    if (...)
+        //        %3 = load X
+        //        texture(%3...
+        //    else
+        //        %4 = load X
+        //    %5 = phi(%3, %4)
+        //    texture(%5...
+        //
+        // to turn into this high-level code
+        //
+        //    if (...) {
+        //        textureGrad(g_tColor, ...
+        //        t1 = g_tColor;
+        //    }  else {
+        //        t1 = g_tColor;
+        //    }
+        //    texture(t1, ...
+        //
+        // Rather, we want the back end to know t1 is an alias for g_tColor (which was a load
+        // from a uniform address space), so it can use g_tColor when it sees t1.
+        bool alias = true;
+        for (unsigned incoming = 1; incoming < phi->getNumIncomingValues(); ++incoming) {
+            if (! SameLoad(phi->getIncomingValue(0), phi->getIncomingValue(incoming))) {
+                alias = false;
+                break;
+            }
+        }
 
-static void CreateSimpleConditionalLoop(LoopWrapper& loop, const Value& condition, gla::BackEndTranslator& bet)
-{
-    BasicBlock* header = loop.getHeader();
-    assert(loop.isLoopExiting(header) && (loop.contains(GetSuccessor(0, header))
-                                          || loop.contains(GetSuccessor(1, header))));
+        return alias;
+    }
 
-    const CmpInst* cmp = dyn_cast<CmpInst>(&condition);
-    assert(cmp && cmp->getNumOperands() == 2 && cmp == GetCondition(header));
+    void CreateSimpleInductiveLoop(LoopWrapper& loop, gla::BackEndTranslator& bet)
+    {
+        const PHINode* pn  = loop.getCanonicalInductionVariable();
+        assert(pn);
 
-    bet.beginSimpleConditionalLoop(cmp, cmp->getOperand(0), cmp->getOperand(1),
-                                   loop.contains(GetSuccessor(1, header)));
-}
+        // tripCount for the header block will be 1
+        // higher than the inductive loop's true trip count. This is
+        // because it is counting the number of times that the exit
+        // condition may be tested, which is 1 + the number of times the
+        // exit condition fails.
+
+        unsigned int tripCount = loop.getTripCount();   
+        if (gla::Options.debug && ! gla::Options.bottomIROnly) {
+            errs() << "\ninductive variable:"   << *pn;
+            errs() << "\n  trip count:      "   << tripCount;
+            errs() << "\n  increment:       "   << *loop.getIncrement();
+            errs() << "\n  exit condition:  "   << *loop.getInductiveExitCondition();
+            errs() << "\n";
+        }
+
+        // tripCount of 0 means not a known constant count
+        if (tripCount == 0) {
+            // TODO LLVM 3.4: the second argument below needs to be an LLVM value
+            // representing the non-constant trip count
+            gla::UnsupportedFunctionality("non-constant trip count on simple-inductive loop", gla::EATContinue);
+            bet.beginSimpleInductiveLoop(pn, 1);
+        } else
+            bet.beginSimpleInductiveLoop(pn, tripCount - 1);
+    }
+
+    void CreateSimpleConditionalLoop(LoopWrapper& loop, const Value& condition, gla::BackEndTranslator& bet)
+    {
+        BasicBlock* header = loop.getHeader();
+        assert(loop.isLoopExiting(header) && (loop.contains(GetSuccessor(0, header))
+                                              || loop.contains(GetSuccessor(1, header))));
+
+        const CmpInst* cmp = dyn_cast<CmpInst>(&condition);
+        assert(cmp && cmp->getNumOperands() == 2 && cmp == GetCondition(header));
+
+        bet.beginSimpleConditionalLoop(cmp, cmp->getOperand(0), cmp->getOperand(1),
+                                       loop.contains(GetSuccessor(1, header)));
+    }
+
+} // end namespace
 
 void BottomTranslator::declarePhiCopies(const Function* function)
 {
@@ -374,8 +430,12 @@ void BottomTranslator::declarePhiCopies(const Function* function)
         for (BasicBlock::const_iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
             const Instruction* llvmInstruction = i;
 
-            if (llvmInstruction->getOpcode() == Instruction::PHI)
-                backEndTranslator->declarePhiCopy(llvmInstruction);
+            if (llvmInstruction->getOpcode() == Instruction::PHI) {
+                if (IsAliasingPhi(dyn_cast<PHINode>(llvmInstruction)))
+                    backEndTranslator->declarePhiAlias(llvmInstruction);
+                else
+                    backEndTranslator->declarePhiCopy(llvmInstruction);
+            }
         }
     }
 }
@@ -402,24 +462,23 @@ void BottomTranslator::addPhiCopies(const BasicBlock* curBB, const BasicBlock* n
     }
 }
 
-template<unsigned Size>
-void BottomTranslator::addPhiCopies(SmallPtrSet<const PHINode*, Size>& phis, const BasicBlock* curBB)
-{
-    for (typename SmallPtrSet<const PHINode*,Size>::iterator i = phis.begin(), e = phis.end(); i != e; ++i)
-        addPhiCopy(*i, curBB);
-}
-
 void BottomTranslator::addPhiCopy(const PHINode* phi, const BasicBlock* curBB)
 {
     // Exclude phi copies for our inductive variables
     if (! loops.empty() && loops.top()->isSimpleInductive() && phi == loops.top()->getCanonicalInductionVariable())
         return;
 
+    bool alias = IsAliasingPhi(phi);
+
     // Find the operand whose predecessor is curBB.
     int predIndex = phi->getBasicBlockIndex(curBB);
     if (predIndex >= 0) {
         // then we found ourselves
-        backEndTranslator->addPhiCopy(phi, phi->getIncomingValue(predIndex));
+
+        if (alias)
+            backEndTranslator->addPhiAlias(phi, phi->getIncomingValue(predIndex));
+        else
+            backEndTranslator->addPhiCopy(phi, phi->getIncomingValue(predIndex));
     }
 }
 

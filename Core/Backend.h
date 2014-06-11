@@ -165,12 +165,20 @@ namespace gla {
         // structured flow control and eliminate phi functions.
         //
 
-        // This must get called soon enough that it is before the split that
-        // makes the phi.  It is then referred to in addPhiCopy().
+        // These will be called before the flow-control split that makes the phi.
+        // See addPhiCopy() and addPhiAlias().
+        // Override declarePhiAlias() and addPhiAlias() only if you want to handle aliases differently.
+        // Also see comment in IsAliasingPhi().
         virtual void declarePhiCopy(const llvm::Value* dst) { }
+        virtual void declarePhiAlias(const llvm::Value* dst) { declarePhiCopy(dst); }
 
-        // Called for Phi elimination.
+        // These are called for Phi elimination, during the flow-control split.
+        // addPhiCopy() when not all phi sources are the same operation, and
+        // addPhiAlias() when all the phi sources are the same operation.
+        // If addPhiCopy() will be called, then declarePhiCopy() will be called.
+        // If addPhiAlias() will be called, then declarePhiAlias() will be called.
         virtual void addPhiCopy(const llvm::Value* dst, const llvm::Value* src) = 0;
+        virtual void addPhiAlias(const llvm::Value* dst, const llvm::Value* src) { addPhiCopy(dst, src); }
 
         // Called to build structured flow control.
         virtual void addIf(const llvm::Value* cond, bool invert=false) = 0;

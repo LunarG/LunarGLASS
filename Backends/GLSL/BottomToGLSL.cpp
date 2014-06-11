@@ -357,7 +357,9 @@ public:
     void addInstruction(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope=false);
 
     void declarePhiCopy(const llvm::Value* dst);
+    void declarePhiAlias(const llvm::Value* dst) { }  // since we will do aliasing, there is no need to declare the intermediate variable
     void addPhiCopy(const llvm::Value* dst, const llvm::Value* src);
+    void addPhiAlias(const llvm::Value* dst, const llvm::Value* src);
     void addIf(const llvm::Value* cond, bool invert = false);
     void addElse();
     void addEndif();
@@ -1717,6 +1719,21 @@ void gla::GlslTarget::addPhiCopy(const llvm::Value* dst, const llvm::Value* src)
     shader << " = ";
     emitGlaOperand(src);
     shader << ";";
+}
+
+void gla::GlslTarget::addPhiAlias(const llvm::Value* dst, const llvm::Value* src)
+{
+    // the phi node is combining identical operations, so don't issue the copies, just
+    // make the result be the same as the source.
+
+    // will get called more than once, but only allocate the memory once
+    if (valueMap[dst])
+        return;
+
+    assert(valueMap[src]);
+
+    // make a copy of the name so that deleting in the destructor stays simple (there are very few of these)
+    valueMap[dst] = new std::string(*valueMap[src]);
 }
 
 void gla::GlslTarget::addIf(const llvm::Value* cond, bool invert)
