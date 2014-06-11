@@ -693,7 +693,7 @@ void main()
     vec4 color38 = color36 + temp86;
     vec4 color39 = color38 + temp89;
     float temp92 = blend * const28;
-    vec4 color42 = temp26 + color39;
+    vec4 color42 = color39 + temp26;
     vec4 FragColor_shadow = mix(color42, u, temp92);
     gl_FragColor = FragColor_shadow;
     
@@ -732,7 +732,7 @@ void main()
     vec4 temp26 = vec4(temp257);
     vec4 temp3011 = texture(texSampler1D, const28);
     vec4 temp2710 = texture(texSampler1D, const28, const30);
-    vec4 color214 = temp3011 + temp2710;
+    vec4 color214 = temp2710 + temp3011;
     vec4 temp3113 = textureProj(texSampler1D, coords2D);
     vec4 color316 = color214 + temp3113;
     vec4 temp3315 = textureProj(texSampler1D, const35);
@@ -789,7 +789,7 @@ void main()
     vec4 color3875 = color3673 + temp8672;
     vec4 temp8974 = textureProjGradOffset(texSampler2D, const46, gradX301, gradY323, const88);
     vec4 color3976 = color3875 + temp8974;
-    vec4 color4278 = temp26 + color3976;
+    vec4 color4278 = color3976 + temp26;
     float temp9277 = blend * const28;
     vec4 FragColor_shadow79 = mix(color4278, u, temp9277);
     gl_FragColor = FragColor_shadow79;

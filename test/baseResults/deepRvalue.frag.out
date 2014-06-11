@@ -262,7 +262,7 @@ void main()
     bool temp23 = temp21.y > const24;
     float temp25 = temp23 ? const26 : const27;
     float temp28 = temp21.y + temp25;
-    float temp29 = temp28 + const26;
+    float temp29 = const26 + temp28;
     vec4 temp30 = const31;
     temp30.w = temp29;
     gl_FragColor = temp30;
@@ -285,7 +285,7 @@ void main()
     bool temp232 = temp211.y > const24;
     float temp25 = temp232 ? const26 : const27;
     float temp284 = temp211.y + temp25;
-    float temp295 = temp284 + const26;
+    float temp295 = const26 + temp284;
     vec4 temp30 = const31;
     temp30.w = temp295;
     gl_FragColor = temp30;

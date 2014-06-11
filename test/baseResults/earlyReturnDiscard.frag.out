@@ -436,7 +436,7 @@ void main()
                     
                 }
                 
-                vec4 FragColor_shadow = otherColor * color_1;
+                vec4 FragColor_shadow = color_1 * otherColor;
                 FragColor_shadow32_0 = FragColor_shadow;
                 gl_FragColor = FragColor_shadow32_0;
                 return;
@@ -483,7 +483,7 @@ void main()
     vec4 FragColor_shadow51_0;
     bool temp231 = c > d;
     vec4 ternary_0 = temp231 ? bigColor : smallColor;
-    vec4 color_05 = ternary_0 + BaseColor;
+    vec4 color_05 = BaseColor + ternary_0;
     bool temp266 = color_05.z < minimum;
     if (temp266) {
         FragColor_shadow51_0 = const27;

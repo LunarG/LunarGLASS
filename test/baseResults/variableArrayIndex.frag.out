@@ -279,7 +279,7 @@ void main()
     vec2[3] constructed;
     bool temp22 = foo3.s2_1[1].i > const23i_0;
     int iLocal2 = Count + const25i_3;
-    int temp26 = iLocal2 + foo3.s2_1[foo.i].i;
+    int temp26 = foo3.s2_1[foo.i].i + iLocal2;
     float select = temp22 ? float uniform28 : float gla_constGEP17;
     vec4 temp30 = vec4(select);
     vec2 temp31 = vec2(select);

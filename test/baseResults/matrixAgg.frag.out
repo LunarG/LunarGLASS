@@ -236,12 +236,12 @@ varying vec3 v;
 
 void main()
 {
-    vec3 column5 = us.sm[i][0] + am[4][0];
-    vec3 column39 = us.sm[i][1] + am[4][1];
+    vec3 column5 = am[4][0] + us.sm[i][0];
+    vec3 column39 = am[4][1] + us.sm[i][1];
     float dotres6 = dot(v, column5);
-    vec3 column614 = us.sm[i][2] + am[4][2];
+    vec3 column614 = am[4][2] + us.sm[i][2];
     float dotres1211 = dot(v, column39);
-    vec3 column917 = us.sm[i][3] + am[4][3];
+    vec3 column917 = am[4][3] + us.sm[i][3];
     float dotres1416 = dot(v, column614);
     float dotres1619 = dot(v, column917);
     vec4 temp29 = vec4(dotres6, dotres1211, dotres1416, dotres1619);

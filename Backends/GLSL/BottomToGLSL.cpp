@@ -355,6 +355,7 @@ public:
     void startFunctionBody();
     void endFunctionBody();
     void addInstruction(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope=false);
+    bool needCanonicalSwap(const llvm::Instruction* instr) const;
 
     void declarePhiCopy(const llvm::Value* dst);
     void declarePhiAlias(const llvm::Value* dst) { }  // since we will do aliasing, there is no need to declare the intermediate variable
@@ -1261,10 +1262,11 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
     // Handle the binary ops
     if (! charOp.empty() && unaryOperand == -1) {
+        bool swapOperands = needCanonicalSwap(llvmInstruction);
         newLine();
         emitGlaValue(llvmInstruction);
         shader << " = ";
-        emitGlaOperand(llvmInstruction->getOperand(0));
+        emitGlaOperand(llvmInstruction->getOperand(swapOperands ? 1 : 0));
 
         // special case << to multiply, etc., for early versions
         int multiplier = -1;
@@ -1296,7 +1298,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         
         shader << " " << charOp << " ";
         if (multiplier == -1)
-            emitGlaOperand(llvmInstruction->getOperand(1));
+            emitGlaOperand(llvmInstruction->getOperand(swapOperands ? 0 : 1));
         else
             shader << multiplier;
         shader << ";";
@@ -1703,6 +1705,33 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         UnsupportedFunctionality("Opcode in Bottom IR: ", llvmInstruction->getOpcode(), EATContinue);
         break;
     }
+}
+
+// See if this is an instruction with a symmetric operator that could
+// randomly get its operands swapped.
+//
+// Return true if swapping the operands is okay and puts the into 
+// alphabetical order.
+bool gla::GlslTarget::needCanonicalSwap(const llvm::Instruction* instr) const
+{
+    switch (instr->getOpcode()) {
+    case llvm::Instruction:: Add:
+    case llvm::Instruction::FAdd:
+    case llvm::Instruction:: Mul:
+    case llvm::Instruction::FMul:
+        break;
+    default:
+        return false;
+    }
+    
+    std::map<const llvm::Value*, std::string*>::const_iterator it0 = valueMap.find(instr->getOperand(0));
+    std::map<const llvm::Value*, std::string*>::const_iterator it1 = valueMap.find(instr->getOperand(1));
+
+    if (it0 == valueMap.end() || it0->second == 0 ||
+        it1 == valueMap.end() || it1->second == 0)
+        return false;
+
+    return *it0->second > *it1->second;
 }
 
 void gla::GlslTarget::declarePhiCopy(const llvm::Value* dst)

@@ -146,7 +146,7 @@ out vec2 uv;
 void main()
 {
     vec4 temp21 = ftransform();
-    vec4 Position_shadow = temp21 + position;
+    vec4 Position_shadow = position + temp21;
     uv = uv_in;
     gl_Position = Position_shadow;
     

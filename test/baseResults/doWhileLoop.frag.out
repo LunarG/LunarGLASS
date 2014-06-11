@@ -143,7 +143,7 @@ void main()
     vec4 color_0;
     color_0 = BaseColor;
     while (true) {
-        color2 = color_0 + bigColor;
+        color2 = bigColor + color_0;
         bool temp23 = color2.x >= d;
         if (temp23) {
             break;
@@ -169,7 +169,7 @@ void main()
     vec4 color_0_0;
     color_0_0 = BaseColor;
     while (true) {
-        color2 = color_0_0 + bigColor;
+        color2 = bigColor + color_0_0;
         bool temp232 = color2.x < d;
         if (! temp232) {
             break;

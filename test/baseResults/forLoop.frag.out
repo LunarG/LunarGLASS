@@ -159,7 +159,7 @@ void main()
             break;
         }
         
-        vec4 color2 = color_0 + bigColor;
+        vec4 color2 = bigColor + color_0;
         int temp26 = i_0 + const27i_1;
         i_0 = temp26;
         color_0 = color2;
@@ -190,7 +190,7 @@ void main()
             break;
         }
         
-        vec4 color26 = color_0_0 + bigColor;
+        vec4 color26 = bigColor + color_0_0;
         int temp267 = i_0_0 + const27i_1;
         color_0_0 = color26;
         i_0_0 = temp267;

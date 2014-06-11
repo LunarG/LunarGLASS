@@ -180,7 +180,7 @@ void main()
     vec4 temp21 = vec4(s.f);
     mediump vec4 temp22 = pos * temp21;
     p_shadow[1] = temp22;
-    mediump vec3 c_shadow = s.c + color;
+    mediump vec3 c_shadow = color + s.c;
     c = c_shadow;
     p[1] = p_shadow[1];
     
@@ -208,7 +208,7 @@ void main()
     vec4 temp21 = vec4(s.f);
     mediump vec4 temp223 = pos * temp21;
     p_shadow1[1] = temp223;
-    mediump vec3 c_shadow6 = s.c + color;
+    mediump vec3 c_shadow6 = color + s.c;
     c = c_shadow6;
     p[1] = p_shadow1[1];
     

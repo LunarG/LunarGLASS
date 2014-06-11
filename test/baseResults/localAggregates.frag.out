@@ -347,13 +347,13 @@ void main()
     float select99 = temp25 ? coord.x : const28;
     float temp29 = temp21 ? coord.x : const30;
     float temp31 = select + temp29;
-    float temp32 = temp31 + coord.x;
-    float temp33 = temp32 + select99;
+    float temp32 = coord.x + temp31;
+    float temp33 = select99 + temp32;
     vec4 temp34 = vec4(temp33);
     vec4 temp35 = color;
     temp35.z = coord.y;
     vec4 temp36 = texture(sampler, coord);
-    vec4 temp37 = temp35 * temp34;
+    vec4 temp37 = temp34 * temp35;
     vec4 FragColor_shadow = temp36 * temp37;
     gl_FragColor = FragColor_shadow;
     
@@ -403,12 +403,12 @@ void main()
     float select = temp254 ? coord.x : const28;
     float select34 = temp211 ? coord.x : const30;
     float temp3119 = select33 + select34;
-    float temp3221 = temp3119 + coord.x;
+    float temp3221 = coord.x + temp3119;
     float temp3322 = select + temp3221;
     vec4 temp34 = vec4(temp3322);
     vec4 temp35 = color;
     temp35.z = coord.y;
-    vec4 temp3729 = temp35 * temp34;
+    vec4 temp3729 = temp34 * temp35;
     vec4 temp3628 = texture(sampler, coord);
     vec4 FragColor_shadow30 = temp3628 * temp3729;
     gl_FragColor = FragColor_shadow30;

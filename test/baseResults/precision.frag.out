@@ -334,15 +334,15 @@ void main()
     vec4 temp25 = vec4(temp24);
     mediump vec4 temp26 = temp25 + const27;
     highp vec4 mediumfout_shadow = temp23 + temp26;
-    int _lhs = uniform_low * uniform_high;
+    int _lhs = uniform_high * uniform_low;
     int factor = uniform_high * const31i_3;
     highp int sum1 = uniform_medium + const33i_4;
     highp int sum2 = sum1 + uniform_low;
-    lowp int sum3 = sum2 + _lhs;
-    lowp int sum11 = sum3 + factor;
+    lowp int sum3 = _lhs + sum2;
+    lowp int sum11 = factor + sum3;
     mediump float temp37 = float(sum11);
     vec4 temp38 = vec4(temp37);
-    mediump vec4 mediumfout_shadow13 = temp38 + mediumfout_shadow;
+    mediump vec4 mediumfout_shadow13 = mediumfout_shadow + temp38;
     bvec2 temp40 = equal(ub2, const41);
     bool temp42 = all(temp40);
     mediump vec4 mediumfout_shadow15 = mediumfout_shadow13 + const44;
@@ -356,8 +356,8 @@ void main()
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 
-uniform lowp int uniform_low;
 uniform highp int uniform_high;
+uniform lowp int uniform_low;
 uniform mediump int uniform_medium;
 uniform bvec2 ub2;
 in lowp float lowfin;

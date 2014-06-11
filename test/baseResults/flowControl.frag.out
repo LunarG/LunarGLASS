@@ -165,7 +165,7 @@ void main()
     bool temp21 = c > d;
     vec4 _pn = temp21 ? bigColor : smallColor;
     vec4 color_0 = BaseColor + _pn;
-    vec4 FragColor_shadow = otherColor * color_0;
+    vec4 FragColor_shadow = color_0 * otherColor;
     gl_FragColor = FragColor_shadow;
     
 }
@@ -185,7 +185,7 @@ void main()
     bool temp211 = c > d;
     vec4 ternary_0 = temp211 ? bigColor : smallColor;
     vec4 color_05 = BaseColor + ternary_0;
-    vec4 FragColor_shadow6 = otherColor * color_05;
+    vec4 FragColor_shadow6 = color_05 * otherColor;
     gl_FragColor = FragColor_shadow6;
     
 }

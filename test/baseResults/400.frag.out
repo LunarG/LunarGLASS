@@ -370,7 +370,7 @@ void main()
     vec4 temp26 = gl_FragCoord + vl2;
     vec4 outp_shadow10 = outp_shadow6 + temp26;
     float temp28 = textureProjGradOffset(u2drs, outp_shadow10, const29, const29, const30);
-    float temp31 = temp28 + outp_shadow10.x;
+    float temp31 = outp_shadow10.x + temp28;
     vec4 temp32 = outp_shadow10;
     temp32.x = temp31;
     ivec4 temp33 = textureGatherOffset(isamp2DA, const34, const35, const36i_3);

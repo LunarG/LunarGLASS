@@ -205,10 +205,10 @@ out vec4 outVi;
 invariant outVi ;
 void main()
 {
-    vec4 temp21 = inVs + inVc;
-    vec4 temp22 = temp21 + inVf;
-    vec4 temp23 = temp22 + inVn;
-    vec4 outVi_shadow = temp23 + inVcn;
+    vec4 temp21 = inVc + inVs;
+    vec4 temp22 = inVf + temp21;
+    vec4 temp23 = inVn + temp22;
+    vec4 outVi_shadow = inVcn + temp23;
     outVi = outVi_shadow;
     
 }
@@ -223,8 +223,8 @@ uniform image2D imageVr;
 uniform image2D imageVro;
 uniform image2D imageVwo;
 uniform image2D imageVall;
-in vec4 inVs;
 centroid in vec4 inVc;
+in vec4 inVs;
 flat in vec4 inVf;
 noperspective in vec4 inVn;
 centroid noperspective in vec4 inVcn;
@@ -234,9 +234,9 @@ invariant outVi ;
 void main()
 {
     vec4 temp211 = inVc + inVs;
-    vec4 temp222 = temp211 + inVf;
-    vec4 temp233 = temp222 + inVn;
-    vec4 outVi_shadow4 = temp233 + inVcn;
+    vec4 temp222 = inVf + temp211;
+    vec4 temp233 = inVn + temp222;
+    vec4 outVi_shadow4 = inVcn + temp233;
     outVi = outVi_shadow4;
     
 }

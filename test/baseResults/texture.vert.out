@@ -358,7 +358,7 @@ void main()
 {
     vec4 temp232 = textureLod(texSampler1D, const22, const23);
     vec4 temp211 = textureProjLod(texSampler1D, coords2D, const23);
-    vec4 color24 = temp232 + temp211;
+    vec4 color24 = temp211 + temp232;
     vec4 temp253 = textureProjLod(texSampler1D, const27, const23);
     vec4 color37 = color24 + temp253;
     vec4 temp286 = textureLod(texSampler2D, coords2D, const23);

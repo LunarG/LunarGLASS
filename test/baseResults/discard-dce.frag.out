@@ -229,8 +229,8 @@ void main()
 {
     float temp21 = tex_coord.x * const22;
     float temp23 = temp21 + const24;
-    float temp25 = tex_coord.y * const22;
-    float temp26 = temp25 + const24;
+    float temp25 = const22 * tex_coord.y;
+    float temp26 = const24 + temp25;
     float temp27 = temp23 * temp23;
     float temp28 = temp26 * temp26;
     float temp29 = temp27 + temp28;
@@ -267,8 +267,8 @@ void main()
 {
     float temp211 = tex_coord.x * const22;
     float temp232 = temp211 + const24;
-    float temp254 = tex_coord.y * const22;
-    float temp265 = temp254 + const24;
+    float temp254 = const22 * tex_coord.y;
+    float temp265 = const24 + temp254;
     float temp276 = temp232 * temp232;
     float temp287 = temp265 * temp265;
     float temp298 = temp276 + temp287;
