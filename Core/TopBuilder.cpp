@@ -68,7 +68,7 @@ namespace gla {
 
 bool Manager::startMultithreaded()
 {
-    return LLVMStartMultithreaded();
+    return LLVMStartMultithreaded() != 0;
 }
 
 Builder::Builder(llvm::IRBuilder<>& b, gla::Manager* m, Metadata md) :
