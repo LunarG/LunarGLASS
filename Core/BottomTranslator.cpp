@@ -326,13 +326,14 @@ namespace {
             return false;
 
         // We have two load instructions, see if they match
-        if (inst1->getNumOperands() == inst2->getNumOperands()) {
-            for (unsigned op = 0; op < inst1->getNumOperands(); ++op)
-                if (inst1->getOperand(op) != inst2->getOperand(op))
-                    return false;
+        if (inst1->getNumOperands() != inst2->getNumOperands())
+            return false;
 
-            return true;
-        }
+        for (unsigned op = 0; op < inst1->getNumOperands(); ++op)
+            if (inst1->getOperand(op) != inst2->getOperand(op))
+                return false;
+
+        return true;
     }
 
     bool IsAliasingPhi(const PHINode* phi)
