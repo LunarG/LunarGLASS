@@ -382,11 +382,12 @@ protected:
     void leaveScope();
 
     void addStructType(std::ostringstream& out, std::string& name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block);
-    bool addVariable(const llvm::Value* value, std::string& name);
-    void getNewVariableName(const llvm::Value* value, std::string& name);
-    void getNewVariableName(const char* base, std::string& name);
-    void getObfuscatedName(std::string& name);
-    void mapExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str);
+    void mapVariableName(const llvm::Value* value, std::string& name);
+    void mapExpressionString(const llvm::Value* value, const std::string& name);
+    void makeNewVariableName(const llvm::Value* value, std::string& name);
+    void makeNewVariableName(const char* base, std::string& name);
+    void makeObfuscatedName(std::string& name);
+    void makeExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str);
 
     void emitGlaIntrinsic(const llvm::IntrinsicInst*);
     void emitGlaCall(const llvm::CallInst*);
@@ -1138,8 +1139,7 @@ void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
 
     std::string name = global->getName();
 
-    MakeParseable(name);
-    addVariable(global, name);
+    mapVariableName(global, name);
     emitVariableDeclaration(EMpNone, type, name, MapGlaAddressSpace(global));
 
     if (global->hasInitializer()) {
@@ -1245,9 +1245,9 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     for (llvm::Instruction::const_op_iterator i = llvmInstruction->op_begin(), e = llvmInstruction->op_end(); i != e; ++i) {
         llvm::Instruction* inst = llvm::dyn_cast<llvm::Instruction>(*i);
         if (inst) {
-            if (valueMap[*i] == 0)
+            if (valueMap.find(*i) == valueMap.end())
                 addInstruction(inst, lastBlock);
-            }
+        }
     }
 
     // If the instruction is referenced outside of the current scope
@@ -1427,7 +1427,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     {
         // We want phis to use the same variable name created during phi declaration
         if (llvm::isa<llvm::PHINode>(llvmInstruction->getOperand(0))) {
-            addVariable(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
+            mapExpressionString(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
 
             return;
         }
@@ -1484,7 +1484,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             }
             ConversionWrap(name, llvmInstruction->getType(), false);
         }
-        addVariable(llvmInstruction, name);
+        mapExpressionString(llvmInstruction, name);
 
         return;
     }
@@ -1506,16 +1506,15 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
             // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
             // For GEP, which always returns a pointer, traverse the dereference chain and store it.
-            std::string* prevName = valueMap[gepInstr];
             std::string name;
-            if (prevName)
-                name = *prevName;
+            if (valueMap.find(gepInstr) != valueMap.end())
+                name = *valueMap[gepInstr];
             else {
                 name = gepInstr->getOperand(0)->getName();
                 MakeParseable(name);
                 name.append(traverseGep(gepInstr));
             }
-            addVariable(gepInstr, name);
+            mapExpressionString(gepInstr, name);
         }
 
         newLine();
@@ -1532,23 +1531,13 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
         // copy propagate, by name string, the extracted component
         std::string swizzled;
-        mapExtractElementStr(llvmInstruction, swizzled);
-
-        // If we're globally referenced, then we should have a name for
-        // ourselves inside valueMap. In that case, update it to be our
-        // propagated swizzle name
-        if (referencedOutsideScope)
-            valueMap[llvmInstruction] = new std::string(swizzled);
-        else
-            addVariable(llvmInstruction, swizzled);
+        makeExtractElementStr(llvmInstruction, swizzled);
+        mapExpressionString(llvmInstruction, swizzled);
 
         return;
     }
 
     case llvm::Instruction::InsertElement:
-        // copy propagate, by name string the, the starting name of the object
-        // addVariable(llvmInstruction, valueMap[llvmInstruction->getOperand(0)]->c_str());
-
         // first, copy whole the structure "inserted into" to the resulting "value" of the insert
         newLine();
         emitGlaValue(llvmInstruction);
@@ -1639,8 +1628,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
         // propagate aggregate name
         llvm::Value* dest = llvmInstruction->getOperand(0);
-        //valueMap[llvmInstruction] = valueMap[dest];
-        addVariable(llvmInstruction, *valueMap[dest]);
+        mapExpressionString(llvmInstruction, *valueMap[dest]);
 
         return;
     }
@@ -1727,8 +1715,7 @@ bool gla::GlslTarget::needCanonicalSwap(const llvm::Instruction* instr) const
     std::map<const llvm::Value*, std::string*>::const_iterator it0 = valueMap.find(instr->getOperand(0));
     std::map<const llvm::Value*, std::string*>::const_iterator it1 = valueMap.find(instr->getOperand(1));
 
-    if (it0 == valueMap.end() || it0->second == 0 ||
-        it1 == valueMap.end() || it1->second == 0)
+    if (it0 == valueMap.end() || it1 == valueMap.end())
         return false;
 
     return *it0->second > *it1->second;
@@ -1752,17 +1739,10 @@ void gla::GlslTarget::addPhiCopy(const llvm::Value* dst, const llvm::Value* src)
 
 void gla::GlslTarget::addPhiAlias(const llvm::Value* dst, const llvm::Value* src)
 {
-    // the phi node is combining identical operations, so don't issue the copies, just
+    // The phi node is combining identical operations, so don't issue the copies, just
     // make the result be the same as the source.
-
-    // will get called more than once, but only allocate the memory once
-    if (valueMap[dst])
-        return;
-
     assert(valueMap[src]);
-
-    // make a copy of the name so that deleting in the destructor stays simple (there are very few of these)
-    valueMap[dst] = new std::string(*valueMap[src]);
+    mapExpressionString(dst, *valueMap[src]);
 }
 
 void gla::GlslTarget::addIf(const llvm::Value* cond, bool invert)
@@ -1820,7 +1800,7 @@ void gla::GlslTarget::beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const
         shader << "! (";
 
     if (const llvm::Instruction* opInst1 = llvm::dyn_cast<llvm::Instruction>(op1)) {
-        mapExtractElementStr(opInst1, str);
+        makeExtractElementStr(opInst1, str);
         if (! str.empty())
             shader << str;
         else
@@ -1832,7 +1812,7 @@ void gla::GlslTarget::beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const
     shader << " " << opStr << " ";
 
     if (const llvm::Instruction* opInst2 = llvm::dyn_cast<llvm::Instruction>(op2)) {
-        mapExtractElementStr(opInst2, str);
+        makeExtractElementStr(opInst2, str);
         if (! str.empty())
             shader << str;
         else
@@ -2087,27 +2067,40 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, 
     }
 }
 
-bool gla::GlslTarget::addVariable(const llvm::Value* value, std::string& name)
+// Add mapping for LLVM-Value -> variable-name.  The name must be a legal
+// variable name, but illegal characters are allowed in 'name' and are fixed.
+void gla::GlslTarget::mapVariableName(const llvm::Value* value, std::string& name)
 {
-    if (valueMap[value] == 0) {
-        // make a copy so caller can pass in temporary variables
-        valueMap[value] = new std::string(name);
-
-        return true;
-    } else {
-        assert(name == *valueMap[value]);
-
-        return false;
-    }
+    MakeParseable(name);
+    mapExpressionString(value, name);
 }
 
-void gla::GlslTarget::getNewVariableName(const llvm::Value* value, std::string& name)
+// Add mapping for LLVM-Value -> expression-string.  This expression can
+// contain non-variable characters like expression operators, so is not
+// expected to be a legal variable name.
+void gla::GlslTarget::mapExpressionString(const llvm::Value* value, const std::string& name)
+{
+    std::map<const llvm::Value*, std::string*>::const_iterator it = valueMap.find(value);
+    if (it != valueMap.end()) {
+        // If the mapping is already established, don't do anything
+        if (*it->second == name)
+            return;
+
+        // There are a few places that want to replace the mapping
+        delete it->second;
+    }
+
+    // Make a copy so caller can pass in temporary variables
+    valueMap[value] = new std::string(name);
+}
+
+void gla::GlslTarget::makeNewVariableName(const llvm::Value* value, std::string& name)
 {
     ++lastVariable;
     const size_t bufSize = 20;
     char buf[bufSize];
     if (obfuscate) {
-        getObfuscatedName(name);
+        makeObfuscatedName(name);
     } else {
         if (IsTempName(value->getName())) {
             name.append(MapGlaToQualifierString(version, stage, MapGlaAddressSpace(value)));
@@ -2134,8 +2127,6 @@ void gla::GlslTarget::getNewVariableName(const llvm::Value* value, std::string& 
             name.append(value->getName());
         }
 
-        MakeParseable(name);
-
         // Variables starting with gl_ are illegal in GLSL
         if (name.substr(0,3) == std::string("gl_")) {
             name.insert(0, "gla_");
@@ -2143,13 +2134,13 @@ void gla::GlslTarget::getNewVariableName(const llvm::Value* value, std::string& 
     }
 }
 
-void gla::GlslTarget::getNewVariableName(const char* base, std::string& name)
+void gla::GlslTarget::makeNewVariableName(const char* base, std::string& name)
 {
     ++lastVariable;
     const size_t bufSize = 20;
     char buf[bufSize];
     if (obfuscate) {
-        getObfuscatedName(name);
+        makeObfuscatedName(name);
     } else {
         name.append(base);
         snprintf(buf, bufSize, "%d", lastVariable);
@@ -2157,7 +2148,7 @@ void gla::GlslTarget::getNewVariableName(const char* base, std::string& name)
     }
 }
 
-void gla::GlslTarget::getObfuscatedName(std::string& name)
+void gla::GlslTarget::makeObfuscatedName(std::string& name)
 {
     int i;
     for (i = 0; i <= lastVariable-4; i += 4) {
@@ -2178,10 +2169,10 @@ void gla::GlslTarget::getObfuscatedName(std::string& name)
     }
 }
 
-// Gets a string representation for the given swizzling ExtractElement
+// Makes a string representation for the given swizzling ExtractElement
 // instruction, and sets str to it. Does nothing if passed something that
-// isn't an ExtractElement
-void gla::GlslTarget::mapExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str)
+// isn't an ExtractElement.
+void gla::GlslTarget::makeExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str)
 {
     if (! llvm::isa<llvm::ExtractElementInst>(llvmInstruction))
         return;
@@ -2384,7 +2375,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
 
                 // declare a new const to hold the array (the array was lost when setting the intrinsic arguments)
                 std::string name;
-                getNewVariableName("offsets_", name);
+                makeNewVariableName("offsets_", name);
                 globalDeclarations << "const ivec2[4] " << name << " = ivec2[4](";
                 for (int i = 0; i < 4; ++i) {
                     if (i > 0)
@@ -3261,37 +3252,37 @@ void gla::GlslTarget::emitGlaConstructor(std::ostringstream& out, llvm::Type* ty
     emitGlaArraySize(out, arraySize);
 }
 
-// If valueMap has no entry for value, generate a name and declaration, and
-// store it in valueMap. If forceGlobal is true, then it will make the
-// declaration occur as a global.
+// If valueMap has no entry for value, generate a name and declaration.
+// If forceGlobal is true, then it will make the declaration occur as a global.
 void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, bool forceGlobal)
 {
-    if (valueMap[value] == 0) {
-        // Figure out where our declaration should go
-        EVariableQualifier evq;
-        if (forceGlobal)
-            evq = gla::EVQGlobal;
-        else if (llvm::isa<llvm::PointerType>(value->getType()))
-            evq = gla::EVQTemporary;
-        else
-            evq = MapGlaAddressSpace(value);
+    if (valueMap.find(value) != valueMap.end())
+        return;
 
-        std::string* newName = new std::string;
-        getNewVariableName(value, *newName);
-        EMdPrecision precision = GetPrecision(value);
-        const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
+    // Figure out where our declaration should go
+    EVariableQualifier evq;
+    if (forceGlobal)
+        evq = gla::EVQGlobal;
+    else if (llvm::isa<llvm::PointerType>(value->getType()))
+        evq = gla::EVQTemporary;
+    else
+        evq = MapGlaAddressSpace(value);
 
-        // Integer and floating-point constants have no precision, use highp to avoid precision loss across translations
-        if (precision == gla::EMpNone && constant && profile == EEsProfile)
-            if (! gla::IsBoolean(value->getType()))
-                precision = gla::EMpHigh;
+    std::string* newName = new std::string;
+    makeNewVariableName(value, *newName);
+    mapVariableName(value, *newName);
+    EMdPrecision precision = GetPrecision(value);
+    const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
 
-        if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
-            emitVariableDeclaration(precision, pointerType->getContainedType(0), *newName, evq);
-        } else {
-            emitVariableDeclaration(precision, value->getType(), *newName, evq, constant);
-        }
-        valueMap[value] = newName;
+    // Integer and floating-point constants have no precision, use highp to avoid precision loss across translations
+    if (precision == gla::EMpNone && constant && profile == EEsProfile)
+        if (! gla::IsBoolean(value->getType()))
+            precision = gla::EMpHigh;
+
+    if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
+        emitVariableDeclaration(precision, pointerType->getContainedType(0), *newName, evq);
+    } else {
+        emitVariableDeclaration(precision, value->getType(), *newName, evq, constant);
     }
 }
 
@@ -3398,7 +3389,7 @@ void gla::GlslTarget::emitConstantInitializer(std::ostringstream& out, const llv
                     // If all vector elements are equal, we only need to emit one
                     bool same = true;
                     for (int op = 1; op < (int)vectorType->getNumElements(); ++op) {
-                        if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {  // ?? why cast?
+                        if (llvm::dyn_cast<const llvm::Constant>(constant->getOperand(0)) != llvm::dyn_cast<const llvm::Constant>(constant->getOperand(op))) {
                             same = false;
                             break;
                         }
@@ -3655,8 +3646,6 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
     const llvm::MDNode* dummySampler;
     const llvm::MDNode* mdNode = llvmInstruction->getMetadata(input ? gla::InputMdName : gla::OutputMdName);
     int interpMode;
-    EInterpolationMethod interpMethod;
-    EInterpolationLocation interpLocation;
     if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode)) {
         // This path should not exist; it is a backup path for missing metadata.
         UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
@@ -3668,13 +3657,7 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
         mdPrecision = EMpNone;
         layoutLocation = gla::MaxUserLayoutLocation;
         mdAggregate = 0;
-        interpLocation = EILFragment;
-        if (gla::GetBasicType(llvmInstruction->getType())->isFloatTy())
-            interpMethod = EIMSmooth;
-        else
-            interpMethod = EIMNone;
-    } else
-        CrackInterpolationMode(interpMode, interpMethod, interpLocation);
+    }
 
     // add the dereference syntax
     // TODO: Goo functionality: outputs don't yet have layout slot bases, so indexing into big things will be incorrect
@@ -3710,15 +3693,7 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
         if (notSigned)
             ConversionWrap(derefName, llvmInstruction->getType(), false);
 
-        if (addVariable(llvmInstruction, derefName)) {
-
-            if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fReadInterpolant) {
-                EInterpolationMode mode = GetConstantInt(llvmInstruction->getOperand(2));
-                CrackInterpolationMode(mode, interpMethod, interpLocation);
-            } else
-                interpMethod = EIMNone;   // needed for 'flat' with non-interpolation 'in'
-        }
-
+        mapExpressionString(llvmInstruction, derefName);
         break;
     default:
         UnsupportedFunctionality("IO Intrinsic");
