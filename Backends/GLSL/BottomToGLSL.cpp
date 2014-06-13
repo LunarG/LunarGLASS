@@ -384,6 +384,7 @@ protected:
     void addStructType(std::ostringstream& out, std::string& name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block);
     void mapVariableName(const llvm::Value* value, std::string& name);
     void mapExpressionString(const llvm::Value* value, const std::string& name);
+    bool getExpressionString(const llvm::Value* value, std::string& name) const;
     void makeNewVariableName(const llvm::Value* value, std::string& name);
     void makeNewVariableName(const char* base, std::string& name);
     void makeObfuscatedName(std::string& name);
@@ -1127,24 +1128,26 @@ bool SamplerIsUint(llvm::Value* sampler)
 
 void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
 {
-    // skip uniforms and other objects, just get the regular global variables
-    if (MapGlaAddressSpace(global) != EVQGlobal)
-        return;
-
-    llvm::Type* type;
-    if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType()))
-        type = pointer->getContainedType(0);
-    else
-        type = global->getType();
-
+    // For uniforms and regular globals, map their LLVM Value* to their GLSL name.
+    EVariableQualifier qualifier = MapGlaAddressSpace(global);
     std::string name = global->getName();
-
     mapVariableName(global, name);
-    emitVariableDeclaration(EMpNone, type, name, MapGlaAddressSpace(global));
 
-    if (global->hasInitializer()) {
-        const llvm::Constant* constant = global->getInitializer();
-        emitInitializeAggregate(globalInitializers, name, constant);
+    // For regular globals, emit their declaration now.  Uniforms will be
+    // declared in addIoDeclaration.
+    if (qualifier == EVQGlobal) {
+        llvm::Type* type;
+        if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType()))
+            type = pointer->getContainedType(0);
+        else
+            type = global->getType();
+
+        emitVariableDeclaration(EMpNone, type, name, MapGlaAddressSpace(global));
+
+        if (global->hasInitializer()) {
+            const llvm::Constant* constant = global->getInitializer();
+            emitInitializeAggregate(globalInitializers, name, constant);
+        }
     }
 }
 
@@ -1252,9 +1255,8 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
     // If the instruction is referenced outside of the current scope
     // (e.g. inside a loop body), then add a (global) declaration for it.
-    if (referencedOutsideScope) {
+    if (referencedOutsideScope)
         emitGlaValueDeclaration(llvmInstruction, referencedOutsideScope);
-    }
 
     bool nested;
     bool emulateBitwise;
@@ -1441,15 +1443,23 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         std::string name;
         EMdTypeLayout mdType;
         EMdTypeLayout* mdTypePointer = &mdType;
+        bool gepExpressionMapped = false;
         if (mdUniform) {
             mdType = GetMdTypeLayout(mdUniform);
             name = mdUniform->getOperand(0)->getName();
         } else {
             mdType = EMtlNone;
-            if (gepInstr)
-                name = gepInstr->getOperand(0)->getName();
-            else
-                name = llvmInstruction->getOperand(0)->getName();
+            if (gepInstr) {
+                if (getExpressionString(gepInstr, name))
+                    gepExpressionMapped = true;
+                else {
+                    if (! getExpressionString(gepInstr->getOperand(0), name))
+                        UnsupportedFunctionality("GLSL back end gep load base missing value->string mapping", 0, name.c_str(), EATContinue);
+                }
+            } else {
+                if (! getExpressionString(llvmInstruction->getOperand(0), name))
+                    UnsupportedFunctionality("GLSL back end load missing value->string mapping", 0, name.c_str(), EATContinue);
+            }
             if (MapGlaAddressSpace(llvmInstruction->getOperand(0)) == EVQGlobal) {
                 // This is could be a path for a hoisted "undef" aggregate.  See hoistUndefOps().
                 // (Normally, everything should be in registers.)
@@ -1461,17 +1471,18 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
                 // Attempt recovery
                 if (name.compare(0, 5, "anon@") == 0)
                     name = "";
+                gepExpressionMapped = false;
             }
-            MakeParseable(name);
         }
 
-        if (gepInstr) {
+        if (gepInstr && ! gepExpressionMapped) {
             // traverse the dereference chain and store it.
             name.append(traverseGep(gepInstr, mdTypePointer));
 
             // an anonymous block will leave a name starting with "."; remove it
             if (name[0] == '.')
                 name = name.substr(1, std::string::npos);
+            mapExpressionString(gepInstr, name);
         }
 
         // conversion-wrap it and make the whole thing the name of a variable
@@ -1499,7 +1510,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     {
         llvm::Value* target = llvmInstruction->getOperand(1);
         assert(llvm::isa<llvm::PointerType>(target->getType()));
-     
+
         llvm::GetElementPtrInst* gepInstr = getGepAsInst(target);
         if (gepInstr) {
             target = gepInstr;
@@ -1507,14 +1518,17 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
             // For GEP, which always returns a pointer, traverse the dereference chain and store it.
             std::string name;
-            if (valueMap.find(gepInstr) != valueMap.end())
-                name = *valueMap[gepInstr];
-            else {
-                name = gepInstr->getOperand(0)->getName();
-                MakeParseable(name);
+            if (! getExpressionString(gepInstr, name)) {
+                // Make a new expression string for this gep.
+
+                // The base should already have a mapping from value -> string, so get that
+                // and then add on the dereference syntax to form a new name for the GEP
+                // as a whole.
+                if (! getExpressionString(gepInstr->getOperand(0), name))
+                    UnsupportedFunctionality("GLSL back end gep store missing value->string mapping", EATContinue);
                 name.append(traverseGep(gepInstr));
+                mapExpressionString(gepInstr, name);
             }
-            mapExpressionString(gepInstr, name);
         }
 
         newLine();
@@ -1627,8 +1641,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         shader << ";";
 
         // propagate aggregate name
-        llvm::Value* dest = llvmInstruction->getOperand(0);
-        mapExpressionString(llvmInstruction, *valueMap[dest]);
+        mapExpressionString(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
 
         return;
     }
@@ -1711,7 +1724,7 @@ bool gla::GlslTarget::needCanonicalSwap(const llvm::Instruction* instr) const
     default:
         return false;
     }
-    
+
     std::map<const llvm::Value*, std::string*>::const_iterator it0 = valueMap.find(instr->getOperand(0));
     std::map<const llvm::Value*, std::string*>::const_iterator it1 = valueMap.find(instr->getOperand(1));
 
@@ -1741,8 +1754,11 @@ void gla::GlslTarget::addPhiAlias(const llvm::Value* dst, const llvm::Value* src
 {
     // The phi node is combining identical operations, so don't issue the copies, just
     // make the result be the same as the source.
-    assert(valueMap[src]);
-    mapExpressionString(dst, *valueMap[src]);
+    std::string name;
+    if (getExpressionString(src, name))
+        mapExpressionString(dst, name);
+    else
+        UnsupportedFunctionality("GLSL back end phi alias of non-mapped source", EATContinue);
 }
 
 void gla::GlslTarget::addIf(const llvm::Value* cond, bool invert)
@@ -2092,6 +2108,24 @@ void gla::GlslTarget::mapExpressionString(const llvm::Value* value, const std::s
 
     // Make a copy so caller can pass in temporary variables
     valueMap[value] = new std::string(name);
+}
+
+// Look up a previous (supposedly) mapping from Value to string.
+// Substitute a guess if not found.
+// Return true if found, false if guessing.
+bool gla::GlslTarget::getExpressionString(const llvm::Value* value, std::string& name) const
+{
+    std::map<const llvm::Value*, std::string*>::const_iterator it = valueMap.find(value);
+    if (it != valueMap.end()) {
+        name = *it->second;
+        return true;
+    }
+
+    // Emulate the missing name.
+    name = value->getName();
+    MakeParseable(name);
+
+    return false;
 }
 
 void gla::GlslTarget::makeNewVariableName(const llvm::Value* value, std::string& name)
@@ -3289,7 +3323,6 @@ void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, bool for
 void gla::GlslTarget::emitGlaValue(const llvm::Value* value)
 {
     assert(! llvm::isa<llvm::ConstantExpr>(value));
-
     emitGlaValueDeclaration(value);
     shader << valueMap[value]->c_str();
 }
