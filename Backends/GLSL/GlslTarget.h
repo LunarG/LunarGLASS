@@ -43,7 +43,7 @@
 
 namespace gla {
 
-    GlslTranslator* GetGlslTranslator(Manager*, bool obfuscate);
+    GlslTranslator* GetGlslTranslator(Manager*, bool obfuscate, bool filterInactive = false);
     void ReleaseGlslTranslator(gla::BackEndTranslator*);
 
     gla::BackEnd* GetGlslBackEnd();

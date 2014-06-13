@@ -47,19 +47,21 @@
 namespace gla {
     // Command-line options
     enum CommandOptions {
-	    EOptionNone               = 0x000,
-	    EOptionIntermediate       = 0x001,
-	    EOptionSilent             = 0x002,
-	    EOptionMemoryLeakMode     = 0x004,
-        EOptionRelaxedErrors      = 0x008,
-        EOptionGiveWarnings       = 0x010,
-        EOptionsLinkProgram       = 0x020,
-        EOptionMultiThreaded      = 0x040,
-        EOptionDumpConfig         = 0x080,
-        EOptionDumpReflection     = 0x100,
-        EOptionSuppressWarnings   = 0x200,
-        EOptionDumpVersions       = 0x400,
-        EOptionAssembly           = 0x800,
+	    EOptionNone               = 0x0000,
+	    EOptionIntermediate       = 0x0001,
+	    EOptionSilent             = 0x0002,
+	    EOptionMemoryLeakMode     = 0x0004,
+        EOptionRelaxedErrors      = 0x0008,
+        EOptionGiveWarnings       = 0x0010,
+        EOptionsLinkProgram       = 0x0020,
+        EOptionMultiThreaded      = 0x0040,
+        EOptionDumpConfig         = 0x0080,
+        EOptionDumpReflection     = 0x0100,
+        EOptionSuppressWarnings   = 0x0200,
+        EOptionDumpVersions       = 0x0400,
+        EOptionAssembly           = 0x0800,
+        EOptionObfuscate          = 0x1000,
+        EOptionFilterInactive     = 0x2000,
     };
 
     enum BackendOption { GLSL      // GLSL backed

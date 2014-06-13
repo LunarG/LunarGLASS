@@ -176,7 +176,7 @@ public:
 
 class gla::GlslTarget : public gla::GlslTranslator {
 public:
-    GlslTarget(Manager* m, bool obfuscate) : GlslTranslator(m, obfuscate), appendInitializers(false), indentLevel(0), lastVariable(20), canonCounter(0)
+    GlslTarget(Manager* m, bool obfuscate, bool filterInactive) : GlslTranslator(m, obfuscate, filterInactive), appendInitializers(false), indentLevel(0), lastVariable(20), canonCounter(0)
     {
         #ifdef _WIN32
             unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
@@ -206,6 +206,13 @@ public:
         profile = (EProfile)manager->getProfile();
         stage = (EShLanguage)manager->getStage();
         usingSso = version >= 410 || manager->getRequestedExtensions().find("GL_ARB_separate_shader_objects") != manager->getRequestedExtensions().end();
+
+        // Set up noStaticUse() cache
+        const llvm::NamedMDNode* mdList = module.getNamedMetadata(NoStaticUseMdName);
+        if (mdList) {
+            for (unsigned int m = 0; m < mdList->getNumOperands(); ++m)
+                noStaticUseSet.insert(mdList->getOperand(m));
+        }
 
         // Get the top-levels modes for this shader.
         int mdInt;
@@ -377,6 +384,8 @@ public:
     void print();
 
 protected:
+    bool filteringIoNode(const llvm::MDNode*);
+
     void newLine();
     void newScope();
     void leaveScope();
@@ -447,6 +456,9 @@ protected:
     std::string traverseGep(const llvm::Instruction* instr, EMdTypeLayout* mdTypeLayout = 0);
     void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout = 0);
 
+    // set of all IO mdNodes in the noStaticUse list
+    std::set<const llvm::MDNode*> noStaticUseSet;
+
     // list of llvm Values to free on exit
     std::vector<llvm::Value*> toDelete;
 
@@ -496,9 +508,9 @@ protected:
 // Factory for GLSL back-end translator
 //
 
-gla::GlslTranslator* gla::GetGlslTranslator(Manager* manager, bool obfuscate)
+gla::GlslTranslator* gla::GetGlslTranslator(Manager* manager, bool obfuscate, bool filterInactive)
 {
-    return new gla::GlslTarget(manager, obfuscate);
+    return new gla::GlslTarget(manager, obfuscate, filterInactive);
 }
 
 void gla::ReleaseGlslTranslator(gla::BackEndTranslator* target)
@@ -1155,6 +1167,9 @@ void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
 
 void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode)
 {
+    if (filteringIoNode(mdNode))
+        return;
+
     std::string instanceName = mdNode->getOperand(0)->getName();
 
     bool declarationAllowed = true;
@@ -1983,6 +1998,11 @@ void gla::GlslTarget::end(llvm::Module& module)
 void gla::GlslTarget::print()
 {
     printf("%s", getGeneratedShader());
+}
+
+bool gla::GlslTarget::filteringIoNode(const llvm::MDNode* mdNode)
+{
+    return filterInactive && noStaticUseSet.find(mdNode) != noStaticUseSet.end();
 }
 
 void gla::GlslTarget::newLine()
@@ -3763,14 +3783,28 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
 void gla::GlslTarget::emitInvariantDeclarations(llvm::Module& module)
 {
     const llvm::NamedMDNode* mdList = module.getNamedMetadata(gla::InvariantListMdName);
+
+    // first, see if we have any
+    bool found = false;
     if (mdList && mdList->getNumOperands() > 0) {
-        globalDeclarations << "invariant ";
         for (unsigned int m = 0; m < mdList->getNumOperands(); ++m) {
-            const llvm::MDNode* mdNode = mdList->getOperand(m);
-            globalDeclarations << mdNode->getOperand(0)->getName().str().c_str() << " ";
+            if (! filteringIoNode(mdList->getOperand(m))) {
+                found = true;
+                break;
+            }
         }
-        globalDeclarations << ";";
     }
+    if (! found)
+        return;
+
+    // we've got some; declare them...
+    globalDeclarations << "invariant ";
+    for (unsigned int m = 0; m < mdList->getNumOperands(); ++m) {
+        const llvm::MDNode* mdNode = mdList->getOperand(m);
+        if (! filteringIoNode(mdNode))
+            globalDeclarations << mdNode->getOperand(0)->getName().str().c_str() << " ";
+    }
+    globalDeclarations << ";";
 }
 
 // Traverse the indices used in either GEP or Insert/ExtractValue, and return a string representing

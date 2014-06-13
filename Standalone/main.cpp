@@ -214,6 +214,7 @@ void usage(bool advanced)
         printf("\n");
         printf("Basic options:\n"
                "-<version>: set output version, where <version> is 100, 110, ..., 300es, ..., 430core, 430compatibility \n"
+               "  -f  filter out inactive IO variable declarations\n"
                "  -o  obfuscate\n"
                "  -r  relaxed semantic error-checking mode\n"
                "  -s  silent mode\n"
@@ -284,6 +285,9 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
             case 'a':
                 Options |= gla::EOptionAssembly;
                 break;
+            case 'f':
+                Options |= gla::EOptionFilterInactive;
+                break;
             case 'i': 
                 Options |= gla::EOptionIntermediate;       
                 break;
@@ -291,7 +295,7 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
                 Options |= gla::EOptionMemoryLeakMode;
                 break;
             case 'o':
-                gla::Options.obfuscate = true;
+                Options |= gla::EOptionObfuscate;
                 break;
             case 'r':
                 Options |= gla::EOptionRelaxedErrors;
@@ -564,7 +568,7 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
 
         for (int i = 0; i < ((Options & gla::EOptionMemoryLeakMode) ? 100 : 1); ++i) {
             for (int j = 0; j < ((Options & gla::EOptionMemoryLeakMode) ? 100 : 1); ++j) {
-                gla::GlslManager manager;
+                gla::GlslManager manager(Options & gla::EOptionObfuscate, Options & gla::EOptionFilterInactive);
 
                 // Generate the Top IR
                 TranslateGlslangToTop(*intermediate, manager);
