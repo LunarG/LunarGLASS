@@ -136,23 +136,23 @@ attributes #1 = { nounwind }
 uniform vec4 bigColor;
 uniform float d;
 varying vec4 BaseColor;
-vec4 color2;
+vec4 color_c2;
 
 void main()
 {
-    vec4 color_0;
-    color_0 = BaseColor;
+    vec4 color_uc1;
+    color_uc1 = BaseColor;
     while (true) {
-        color2 = bigColor + color_0;
-        bool temp23 = color2.x >= d;
+        color_c2 = bigColor + color_uc1;
+        bool temp23 = color_c2.x >= d;
         if (temp23) {
             break;
         }
         
-        color_0 = color2;
+        color_uc1 = color_c2;
     }
     
-    gl_FragColor = color2;
+    gl_FragColor = color_c2;
     
 }
 
@@ -162,23 +162,23 @@ void main()
 uniform vec4 bigColor;
 uniform float d;
 varying vec4 BaseColor;
-vec4 color2;
+vec4 color_c2;
 
 void main()
 {
-    vec4 color_0_0;
-    color_0_0 = BaseColor;
+    vec4 color_uc_c1;
+    color_uc_c1 = BaseColor;
     while (true) {
-        color2 = bigColor + color_0_0;
-        bool temp232 = color2.x < d;
-        if (! temp232) {
+        color_c2 = bigColor + color_uc_c1;
+        bool temp_c3 = color_c2.x < d;
+        if (! temp_c3) {
             break;
         }
         
-        color_0_0 = color2;
+        color_uc_c1 = color_c2;
     }
     
-    gl_FragColor = color2;
+    gl_FragColor = color_c2;
     
 }
 

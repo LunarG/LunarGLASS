@@ -432,17 +432,17 @@ void main()
 {
     mediump int temp21 = ivec2(t).y + const22i_3;
     mediump vec2 temp23 = tc + const24;
-    mediump ivec4 c_shadow22 = ivec4(texture(usampler, temp23));
+    mediump ivec4 c_shadow_c1 = ivec4(texture(usampler, temp23));
     bool temp26 = ivec2(t).x > const27i_4;
-    mediump float af30 = float(temp21);
-    bool ab31 = temp21 != const30i_0;
-    mediump int temp31 = int(uint(af30));
-    mediump int temp32 = int(ab31);
+    mediump float af_c2 = float(temp21);
+    bool ab_c3 = temp21 != const30i_0;
+    mediump int temp31 = int(uint(af_c2));
+    mediump int temp32 = int(ab_c3);
     ivec4 temp33 = ivec4(temp31, temp32, temp21, const34i_462);
-    mediump ivec4 c_shadow33 = c_shadow22 + temp33;
-    ivec4 select = temp26 ? c_shadow33 : c_shadow22;
-    mediump ivec4 c_shadow61 = select + const38;
-    c = uvec4(c_shadow61);
+    mediump ivec4 c_shadow_c4 = c_shadow_c1 + temp33;
+    ivec4 select_c5 = temp26 ? c_shadow_c4 : c_shadow_c1;
+    mediump ivec4 c_shadow_c6 = select_c5 + const38;
+    c = uvec4(c_shadow_c6);
     
 }
 
@@ -468,19 +468,19 @@ const highp ivec4 const38 = ivec4(341413380);
 
 void main()
 {
-    highp int temp211 = ivec2(t).y + const22i_3;
-    highp vec2 temp232 = tc + const24;
-    mediump ivec4 c_shadow223 = ivec4(texture(usampler, temp232));
-    bool temp265 = ivec2(t).x > const27i_4;
-    mediump float af306 = float(temp211);
-    mediump int temp318 = int(uint(af306));
-    bool ab317 = temp211 != const31i_0;
-    mediump int temp329 = int(ab317);
-    ivec4 temp33 = ivec4(temp318, temp329, temp211, const34i_462);
-    mediump ivec4 c_shadow3311 = c_shadow223 + temp33;
-    ivec4 select = temp265 ? c_shadow3311 : c_shadow223;
-    highp ivec4 c_shadow6115 = select + const38;
-    c = uvec4(c_shadow6115);
+    highp int temp_c1 = ivec2(t).y + const22i_3;
+    highp vec2 temp_c2 = tc + const24;
+    mediump ivec4 c_shadow_c3 = ivec4(texture(usampler, temp_c2));
+    bool temp_c4 = ivec2(t).x > const27i_4;
+    mediump float af_c5 = float(temp_c1);
+    mediump int temp_c6 = int(uint(af_c5));
+    bool ab_c7 = temp_c1 != const31i_0;
+    mediump int temp_c8 = int(ab_c7);
+    ivec4 temp33 = ivec4(temp_c6, temp_c8, temp_c1, const34i_462);
+    mediump ivec4 c_shadow_c9 = c_shadow_c3 + temp33;
+    ivec4 select_c10 = temp_c4 ? c_shadow_c9 : c_shadow_c3;
+    highp ivec4 c_shadow_c11 = select_c10 + const38;
+    c = uvec4(c_shadow_c11);
     
 }
 

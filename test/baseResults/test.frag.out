@@ -208,8 +208,8 @@ void main()
     vec4 temp25 = texture3D(texSampler3D, coords);
     float temp26 = blend * const27;
     vec4 temp28 = temp24 + temp25;
-    vec4 FragColor_shadow = mix(temp28, u, temp26);
-    gl_FragColor = FragColor_shadow;
+    vec4 FragColor_shadow_c1 = mix(temp28, u, temp26);
+    gl_FragColor = FragColor_shadow_c1;
     
 }
 
@@ -227,15 +227,15 @@ const float const28 = 1.789;
 
 void main()
 {
-    vec2 temp211 = scale + t;
-    vec2 temp222 = temp211 / scale;
-    vec4 temp233 = texture2D(texSampler2D, temp222);
-    vec4 temp24 = temp233.wzyx;
-    vec4 temp255 = texture3D(texSampler3D, coords);
-    vec4 temp287 = temp24 + temp255;
-    float temp266 = blend * const28;
-    vec4 FragColor_shadow8 = mix(temp287, u, temp266);
-    gl_FragColor = FragColor_shadow8;
+    vec2 temp_c1 = scale + t;
+    vec2 temp_c2 = temp_c1 / scale;
+    vec4 temp_c3 = texture2D(texSampler2D, temp_c2);
+    vec4 temp24 = temp_c3.wzyx;
+    vec4 temp_c4 = texture3D(texSampler3D, coords);
+    vec4 temp_c5 = temp24 + temp_c4;
+    float temp_c6 = blend * const28;
+    vec4 FragColor_shadow_c7 = mix(temp_c5, u, temp_c6);
+    gl_FragColor = FragColor_shadow_c7;
     
 }
 

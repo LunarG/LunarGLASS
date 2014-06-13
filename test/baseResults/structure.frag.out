@@ -183,11 +183,11 @@ const int const22i_0 = 0;
 void main()
 {
     bool temp21 = foo2[3].i[4] > const22i_0;
-    float select = temp21 ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
-    vec4 temp24 = vec4(select);
+    float select_c1 = temp21 ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
+    vec4 temp24 = vec4(select_c1);
     vec4 temp25 = texture(sampler, coord);
-    vec4 FragColor_shadow = temp24 * temp25;
-    gl_FragColor = FragColor_shadow;
+    vec4 FragColor_shadow_c2 = temp24 * temp25;
+    gl_FragColor = FragColor_shadow_c2;
     
 }
 
@@ -214,12 +214,12 @@ const int const22i_0 = 0;
 
 void main()
 {
-    bool temp211 = foo2[3].i[4] > const22i_0;
-    float select = temp211 ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
-    vec4 temp24 = vec4(select);
-    vec4 temp256 = texture(sampler, coord);
-    vec4 FragColor_shadow7 = temp24 * temp256;
-    gl_FragColor = FragColor_shadow7;
+    bool temp_c1 = foo2[3].i[4] > const22i_0;
+    float select_c2 = temp_c1 ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
+    vec4 temp24 = vec4(select_c2);
+    vec4 temp_c3 = texture(sampler, coord);
+    vec4 FragColor_shadow_c4 = temp24 * temp_c3;
+    gl_FragColor = FragColor_shadow_c4;
     
 }
 

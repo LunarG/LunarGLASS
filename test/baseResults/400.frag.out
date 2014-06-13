@@ -365,22 +365,22 @@ void main()
     vec4 temp21 = texture(arrayedSampler[i], c2D);
     vec4 temp22 = vec4(gl_ClipDistance[1], temp21.y, temp21.z, temp21.w);
     vec4 temp23 = textureGather(arrayedSampler[0], c2D);
-    vec4 outp_shadow6 = temp22 + temp23;
+    vec4 outp_shadow_c1 = temp22 + temp23;
     ivec2 temp25 = ivec2(i);
     vec4 temp26 = gl_FragCoord + vl2;
-    vec4 outp_shadow10 = outp_shadow6 + temp26;
-    float temp28 = textureProjGradOffset(u2drs, outp_shadow10, const29, const29, const30);
-    float temp31 = outp_shadow10.x + temp28;
-    vec4 temp32 = outp_shadow10;
+    vec4 outp_shadow_c2 = outp_shadow_c1 + temp26;
+    float temp28 = textureProjGradOffset(u2drs, outp_shadow_c2, const29, const29, const30);
+    float temp31 = outp_shadow_c2.x + temp28;
+    vec4 temp32 = outp_shadow_c2;
     temp32.x = temp31;
     ivec4 temp33 = textureGatherOffset(isamp2DA, const34, const35, const36i_3);
     ivec4 temp37 = textureGatherOffset(isamp2DA, const34, temp25);
-    ivec4 ioutp_shadow7 = temp33 << const39;
-    ivec4 ioutp_shadow9 = ioutp_shadow7 + temp37;
-    ivec4 uoutp_shadow = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_42, const43i_2));
+    ivec4 ioutp_shadow_c3 = temp33 << const39;
+    ivec4 ioutp_shadow_c4 = ioutp_shadow_c3 + temp37;
+    ivec4 uoutp_shadow_c5 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_42, const43i_2));
     outp = temp32;
-    uoutp = uvec4(uoutp_shadow);
-    ioutp = ioutp_shadow9;
+    uoutp = uvec4(uoutp_shadow_c5);
+    ioutp = ioutp_shadow_c4;
     
 }
 
@@ -410,25 +410,25 @@ const int const41i_2 = 2;
 
 void main()
 {
-    vec4 temp211 = texture(arrayedSampler[i], c2D);
-    vec4 temp22 = vec4(gl_ClipDistance[1], temp211.y, temp211.z, temp211.w);
-    vec4 temp235 = textureGather(arrayedSampler[0], c2D);
-    vec4 outp_shadow66 = temp22 + temp235;
+    vec4 temp_c1 = texture(arrayedSampler[i], c2D);
+    vec4 temp22 = vec4(gl_ClipDistance[1], temp_c1.y, temp_c1.z, temp_c1.w);
+    vec4 temp_c2 = textureGather(arrayedSampler[0], c2D);
+    vec4 outp_shadow_c3 = temp22 + temp_c2;
     ivec2 temp25 = ivec2(i);
-    vec4 temp2610 = gl_FragCoord + vl2;
-    vec4 outp_shadow1011 = outp_shadow66 + temp2610;
-    ivec4 temp3316 = textureGatherOffset(isamp2DA, const29, const30, const31i_3);
-    float temp2812 = textureProjGradOffset(u2drs, outp_shadow1011, const33, const33, const34);
-    ivec4 ioutp_shadow718 = temp3316 << const36;
-    ivec4 temp3717 = textureGatherOffset(isamp2DA, const29, temp25);
-    float temp3113 = outp_shadow1011.x + temp2812;
-    ivec4 uoutp_shadow21 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_40, const41i_2));
-    ivec4 ioutp_shadow919 = ioutp_shadow718 + temp3717;
-    vec4 temp43 = outp_shadow1011;
-    temp43.x = temp3113;
+    vec4 temp_c4 = gl_FragCoord + vl2;
+    vec4 outp_shadow_c5 = outp_shadow_c3 + temp_c4;
+    ivec4 temp_c6 = textureGatherOffset(isamp2DA, const29, const30, const31i_3);
+    float temp_c7 = textureProjGradOffset(u2drs, outp_shadow_c5, const33, const33, const34);
+    ivec4 ioutp_shadow_c8 = temp_c6 << const36;
+    ivec4 temp_c9 = textureGatherOffset(isamp2DA, const29, temp25);
+    float temp_c10 = outp_shadow_c5.x + temp_c7;
+    ivec4 uoutp_shadow_c11 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_40, const41i_2));
+    ivec4 ioutp_shadow_c12 = ioutp_shadow_c8 + temp_c9;
+    vec4 temp43 = outp_shadow_c5;
+    temp43.x = temp_c10;
     outp = temp43;
-    uoutp = uvec4(uoutp_shadow21);
-    ioutp = ioutp_shadow919;
+    uoutp = uvec4(uoutp_shadow_c11);
+    ioutp = ioutp_shadow_c12;
     
 }
 

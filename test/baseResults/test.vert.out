@@ -146,9 +146,9 @@ out vec2 uv;
 void main()
 {
     vec4 temp21 = ftransform();
-    vec4 Position_shadow = position + temp21;
+    vec4 Position_shadow_c1 = position + temp21;
     uv = uv_in;
-    gl_Position = Position_shadow;
+    gl_Position = Position_shadow_c1;
     
 }
 
@@ -162,10 +162,10 @@ out vec2 uv;
 
 void main()
 {
-    vec4 temp211 = ftransform();
-    vec4 Position_shadow2 = position + temp211;
+    vec4 temp_c1 = ftransform();
+    vec4 Position_shadow_c2 = position + temp_c1;
     uv = uv_in;
-    gl_Position = Position_shadow2;
+    gl_Position = Position_shadow_c2;
     
 }
 

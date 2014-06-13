@@ -242,7 +242,7 @@ attributes #1 = { nounwind }
 !16 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !17}
 !17 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
 
-***Unsupported functionality: missing metadata on load 0 select
+***Unsupported functionality: missing metadata on load 0 select_c3
 #version 130
 // LunarGOO output
 struct lunarStruct1 {
@@ -276,22 +276,22 @@ const vec2 const32 = vec2(1.0, 2.0);
 
 void main()
 {
-    vec2[3] constructed;
+    vec2[3] constructed_c1;
     bool temp22 = foo3.s2_1[1].i > const23i_0;
-    int iLocal2 = Count + const25i_3;
-    int temp26 = foo3.s2_1[foo.i].i + iLocal2;
-    float select = temp22 ? float uniform28 : float gla_constGEP17;
-    vec4 temp30 = vec4(select);
-    vec2 temp31 = vec2(select);
+    int iLocal_c2 = Count + const25i_3;
+    int temp26 = foo3.s2_1[foo.i].i + iLocal_c2;
+    float select_c3 = temp22 ? float uniform28 : float gla_constGEP_c4;
+    vec4 temp30 = vec4(select_c3);
+    vec2 temp31 = vec2(select_c3);
     gla_globalAgg[0] = coord;
     gla_globalAgg[1] = temp31;
     gla_globalAgg[2] = const32;
-    constructed = gla_globalAgg;
-    vec4 temp33 = constructed[foo.i].xyxy;
+    constructed_c1 = gla_globalAgg;
+    vec4 temp33 = constructed_c1[foo.i].xyxy;
     vec4 temp34 = texture(sampler, coord);
-    vec4 FragColor_shadow = temp30 * temp34;
-    vec4 FragColor_shadow10 = FragColor_shadow + temp33;
-    gl_FragColor = FragColor_shadow10;
+    vec4 FragColor_shadow_c5 = temp30 * temp34;
+    vec4 FragColor_shadow_c6 = FragColor_shadow_c5 + temp33;
+    gl_FragColor = FragColor_shadow_c6;
     
 }
 

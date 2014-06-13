@@ -328,26 +328,26 @@ const highp vec4 const44 = vec4(1.0);
 void main()
 {
     mediump float temp21 = distance(lowfin, mediumfin);
-    highp float global_highp5 = length(highfin);
-    vec4 temp23 = vec4(global_highp5);
+    highp float global_highp_c1 = length(highfin);
+    vec4 temp23 = vec4(global_highp_c1);
     lowp float temp24 = sin(temp21);
     vec4 temp25 = vec4(temp24);
     mediump vec4 temp26 = temp25 + const27;
-    highp vec4 mediumfout_shadow = temp23 + temp26;
-    int _lhs = uniform_high * uniform_low;
-    int factor = uniform_high * const31i_3;
-    highp int sum1 = uniform_medium + const33i_4;
-    highp int sum2 = sum1 + uniform_low;
-    lowp int sum3 = _lhs + sum2;
-    lowp int sum11 = factor + sum3;
-    mediump float temp37 = float(sum11);
+    highp vec4 mediumfout_shadow_c2 = temp23 + temp26;
+    int _lhs_c3 = uniform_high * uniform_low;
+    int factor_c4 = uniform_high * const31i_3;
+    highp int sum_c5 = uniform_medium + const33i_4;
+    highp int sum_c6 = sum_c5 + uniform_low;
+    lowp int sum_c7 = _lhs_c3 + sum_c6;
+    lowp int sum_c8 = factor_c4 + sum_c7;
+    mediump float temp37 = float(sum_c8);
     vec4 temp38 = vec4(temp37);
-    mediump vec4 mediumfout_shadow13 = mediumfout_shadow + temp38;
+    mediump vec4 mediumfout_shadow_c9 = mediumfout_shadow_c2 + temp38;
     bvec2 temp40 = equal(ub2, const41);
     bool temp42 = all(temp40);
-    mediump vec4 mediumfout_shadow15 = mediumfout_shadow13 + const44;
-    vec4 select = temp42 ? mediumfout_shadow15 : mediumfout_shadow13;
-    mediumfout = select;
+    mediump vec4 mediumfout_shadow_c10 = mediumfout_shadow_c9 + const44;
+    vec4 select_c11 = temp42 ? mediumfout_shadow_c10 : mediumfout_shadow_c9;
+    mediumfout = select_c11;
     
 }
 
@@ -372,26 +372,26 @@ const highp vec4 const43 = vec4(1.0);
 
 void main()
 {
-    mediump float temp211 = distance(lowfin, mediumfin);
-    highp float global_highp52 = length(highfin);
-    vec4 temp23 = vec4(global_highp52);
-    mediump float temp244 = sin(temp211);
-    vec4 temp25 = vec4(temp244);
-    highp vec4 temp267 = temp25 + const27;
-    mediump vec4 mediumfout_shadow8 = temp23 + temp267;
-    int tmp = uniform_low + const30i_3;
-    int tmp27 = tmp * uniform_high;
-    highp int sum212 = uniform_low + const33i_4;
-    highp int sum313 = sum212 + uniform_medium;
-    mediump int sum1114 = sum313 + tmp27;
-    mediump float temp3715 = float(sum1114);
-    vec4 temp37 = vec4(temp3715);
-    highp vec4 mediumfout_shadow1318 = mediumfout_shadow8 + temp37;
-    bvec2 temp4019 = equal(ub2, const40);
-    bool temp4220 = all(temp4019);
-    highp vec4 mediumfout_shadow1521 = mediumfout_shadow1318 + const43;
-    vec4 select = temp4220 ? mediumfout_shadow1521 : mediumfout_shadow1318;
-    mediumfout = select;
+    mediump float temp_c1 = distance(lowfin, mediumfin);
+    highp float global_highp_c2 = length(highfin);
+    vec4 temp23 = vec4(global_highp_c2);
+    mediump float temp_c3 = sin(temp_c1);
+    vec4 temp25 = vec4(temp_c3);
+    highp vec4 temp_c4 = temp25 + const27;
+    mediump vec4 mediumfout_shadow_c5 = temp23 + temp_c4;
+    int tmp_c6 = uniform_low + const30i_3;
+    int tmp_c7 = tmp_c6 * uniform_high;
+    highp int sum_c8 = uniform_low + const33i_4;
+    highp int sum_c9 = sum_c8 + uniform_medium;
+    mediump int sum_c10 = sum_c9 + tmp_c7;
+    mediump float temp_c11 = float(sum_c10);
+    vec4 temp37 = vec4(temp_c11);
+    highp vec4 mediumfout_shadow_c12 = mediumfout_shadow_c5 + temp37;
+    bvec2 temp_c13 = equal(ub2, const40);
+    bool temp_c14 = all(temp_c13);
+    highp vec4 mediumfout_shadow_c15 = mediumfout_shadow_c12 + const43;
+    vec4 select_c16 = temp_c14 ? mediumfout_shadow_c15 : mediumfout_shadow_c12;
+    mediumfout = select_c16;
     
 }
 

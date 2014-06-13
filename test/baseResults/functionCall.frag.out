@@ -243,8 +243,8 @@ void main()
     
     vec4 temp32 = vec4(temp21);
     vec4 temp33 = temp23 * temp29;
-    vec4 FragColor_shadow = temp32 * temp33;
-    gl_FragColor = FragColor_shadow;
+    vec4 FragColor_shadow_c1 = temp32 * temp33;
+    gl_FragColor = FragColor_shadow_c1;
     
 }
 
@@ -261,17 +261,17 @@ const float const31 = 0.0;
 
 void main()
 {
-    float temp222 = BaseColor.x + BaseColor.y;
-    vec4 temp22 = vec4(temp222);
-    bool temp244 = d < const24;
-    float temp25 = temp244 ? const26 : const27;
+    float temp_c1 = BaseColor.x + BaseColor.y;
+    vec4 temp22 = vec4(temp_c1);
+    bool temp_c2 = d < const24;
+    float temp25 = temp_c2 ? const26 : const27;
     vec4 temp28 = vec4(temp25);
-    bool temp308 = d < const27;
-    float temp21_0 = temp308 ? d : const31;
-    vec4 temp32 = vec4(temp21_0);
-    vec4 temp3315 = temp22 * temp28;
-    vec4 FragColor_shadow16 = temp32 * temp3315;
-    gl_FragColor = FragColor_shadow16;
+    bool temp_c3 = d < const27;
+    float temp_c4 = temp_c3 ? d : const31;
+    vec4 temp32 = vec4(temp_c4);
+    vec4 temp_c5 = temp22 * temp28;
+    vec4 FragColor_shadow_c6 = temp32 * temp_c5;
+    gl_FragColor = FragColor_shadow_c6;
     
 }
 

@@ -281,13 +281,13 @@ const vec4 const31 = vec4(361.0, 841.0, 5.0, 0.0);
 
 void main()
 {
-    vec4 temp211 = texture2D(sampler, const22);
-    bool temp232 = temp211.y > const24;
-    float temp25 = temp232 ? const26 : const27;
-    float temp284 = temp211.y + temp25;
-    float temp295 = const26 + temp284;
+    vec4 temp_c1 = texture2D(sampler, const22);
+    bool temp_c2 = temp_c1.y > const24;
+    float temp25 = temp_c2 ? const26 : const27;
+    float temp_c3 = temp25 + temp_c1.y;
+    float temp_c4 = const26 + temp_c3;
     vec4 temp30 = const31;
-    temp30.w = temp295;
+    temp30.w = temp_c4;
     gl_FragColor = temp30;
     
 }

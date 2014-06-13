@@ -312,18 +312,18 @@ void main()
     temp27.x = t.x;
     vec4 temp28 = u;
     temp28.x = t.y;
-    vec4 select29 = p ? temp27 : temp28;
+    vec4 select_c1 = p ? temp27 : temp28;
     vec4 temp30 = temp22 * temp23;
     vec4 temp31 = temp26 * temp30;
-    vec4 temp32 = select29 * temp31;
-    vec4 FragColor_shadow = mix(temp24, temp21, temp32);
+    vec4 temp32 = select_c1 * temp31;
+    vec4 FragColor_shadow_c2 = mix(temp24, temp21, temp32);
     bool temp34 = t.x < const35;
     float temp36 = t.x * const37;
     float temp38 = temp34 ? temp36 : t.x;
     bool temp39 = temp38 > const40;
-    vec4 rep_0 = temp39 ? const42 : const43;
-    vec4 FragColor_shadow27 = FragColor_shadow + rep_0;
-    gl_FragColor = FragColor_shadow27;
+    vec4 rep_uc3 = temp39 ? const42 : const43;
+    vec4 FragColor_shadow_c4 = FragColor_shadow_c2 + rep_uc3;
+    gl_FragColor = FragColor_shadow_c4;
     
 }
 
@@ -355,18 +355,18 @@ void main()
     temp27.x = t.x;
     vec4 temp28 = u;
     temp28.x = t.y;
-    vec4 select = p ? temp27 : temp28;
-    vec4 temp3019 = temp21 * temp23;
-    vec4 temp3120 = temp26 * temp3019;
-    vec4 temp3221 = select * temp3120;
-    vec4 FragColor_shadow22 = mix(temp24, temp22, temp3221);
-    bool temp3424 = t.x < const35;
-    float temp3626 = t.x * const37;
-    float select44 = temp3424 ? temp3626 : t.x;
-    bool temp3935 = select44 > const40;
-    vec4 temp41 = temp3935 ? const42 : const43;
-    vec4 FragColor_shadow2741 = FragColor_shadow22 + temp41;
-    gl_FragColor = FragColor_shadow2741;
+    vec4 select_c1 = p ? temp27 : temp28;
+    vec4 temp_c2 = temp21 * temp23;
+    vec4 temp_c3 = temp26 * temp_c2;
+    vec4 temp_c4 = select_c1 * temp_c3;
+    vec4 FragColor_shadow_c5 = mix(temp24, temp22, temp_c4);
+    bool temp_c6 = t.x < const35;
+    float temp_c7 = t.x * const37;
+    float select_c8 = temp_c6 ? temp_c7 : t.x;
+    bool temp_c9 = select_c8 > const40;
+    vec4 temp41 = temp_c9 ? const42 : const43;
+    vec4 FragColor_shadow_c10 = FragColor_shadow_c5 + temp41;
+    gl_FragColor = FragColor_shadow_c10;
     
 }
 

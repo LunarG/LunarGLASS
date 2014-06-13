@@ -273,18 +273,18 @@ const vec4 const25 = vec4(0.0);
 invariant badorder2 ;
 void main()
 {
-    vec4 badorder3_shadow20_0;
+    vec4 badorder_c1;
     anon_0_shadow.member0[2] = const22;
     bool temp23 = bad[0].x == const24;
-    badorder3_shadow20_0 = const25;
+    badorder_c1 = const25;
     if (temp23) {
-        badorder3_shadow20_0 = bad[0];
+        badorder_c1 = bad[0];
     }
     
     anon_0_shadow.member0[0] = f;
     gl_ClipDistance[0] = f;
     gl_ClipDistance[2] = anon_0_shadow.member0[2];
-    badorder3 = badorder3_shadow20_0;
+    badorder3 = badorder_c1;
     
 }
 
@@ -320,18 +320,18 @@ const float const25 = 3.7;
 
 void main()
 {
-    vec4 badorder3_shadow20_0_0;
-    bool temp2310 = bad[0].x == const23;
-    badorder3_shadow20_0_0 = const24;
-    if (temp2310) {
-        badorder3_shadow20_0_0 = bad[0];
+    vec4 badorder_c1;
+    bool temp_c2 = bad[0].x == const23;
+    badorder_c1 = const24;
+    if (temp_c2) {
+        badorder_c1 = bad[0];
     }
     
     anon_1_shadow.member0[0] = f;
     anon_1_shadow.member0[2] = const25;
     gl_ClipDistance[0] = f;
     gl_ClipDistance[2] = anon_1_shadow.member0[2];
-    badorder3 = badorder3_shadow20_0_0;
+    badorder3 = badorder_c1;
     
 }
 

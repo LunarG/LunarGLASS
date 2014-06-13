@@ -300,14 +300,14 @@ void main()
     ClipDistance_shadow[2] = gl_ClipDistance[2];
     ClipDistance_shadow[3] = gl_ClipDistance[3];
     ClipDistance_shadow[4] = gl_ClipDistance[4];
-    ivec2 temp2145 = textureSize(sampR);
-    int temp2347 = int(i.x);
-    int temp2246 = textureSize(sampB);
-    int temp2448 = temp2145.x + temp2246;
-    float temp2549 = float(temp2448);
-    float temp2650 = temp2549 / const27;
+    ivec2 temp_c1 = textureSize(sampR);
+    int temp_c2 = int(i.x);
+    int temp_c3 = textureSize(sampB);
+    int temp_c4 = temp_c1.x + temp_c3;
+    float temp_c5 = float(temp_c4);
+    float temp_c6 = temp_c5 / const27;
     vec4 temp28 = const29;
-    temp28.yzw = vec3(gl_ClipDistance[2], ClipDistance_shadow[temp2347], temp2650);
+    temp28.yzw = vec3(gl_ClipDistance[2], ClipDistance_shadow[temp_c2], temp_c6);
     o = temp28;
     
 }

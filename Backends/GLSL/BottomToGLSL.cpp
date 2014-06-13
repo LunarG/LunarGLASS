@@ -176,7 +176,7 @@ public:
 
 class gla::GlslTarget : public gla::GlslTranslator {
 public:
-    GlslTarget(Manager* m, bool obfuscate) : GlslTranslator(m, obfuscate), appendInitializers(false), indentLevel(0), lastVariable(20)
+    GlslTarget(Manager* m, bool obfuscate) : GlslTranslator(m, obfuscate), appendInitializers(false), indentLevel(0), lastVariable(20), canonCounter(0)
     {
         #ifdef _WIN32
             unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
@@ -388,6 +388,7 @@ protected:
     void makeNewVariableName(const llvm::Value* value, std::string& name);
     void makeNewVariableName(const char* base, std::string& name);
     void makeObfuscatedName(std::string& name);
+    void canonicalizeName(std::string& name);
     void makeExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str);
 
     void emitGlaIntrinsic(const llvm::IntrinsicInst*);
@@ -488,6 +489,7 @@ protected:
     EProfile profile;
     EShLanguage stage;
     bool usingSso;
+    int canonCounter;
 };
 
 //
@@ -2159,6 +2161,7 @@ void gla::GlslTarget::makeNewVariableName(const llvm::Value* value, std::string&
             }
         } else {
             name.append(value->getName());
+            canonicalizeName(name);
         }
 
         // Variables starting with gl_ are illegal in GLSL
@@ -2201,6 +2204,29 @@ void gla::GlslTarget::makeObfuscatedName(std::string& name)
     case 3:   name.append("w"); break;
     default:                    break;
     }
+}
+
+// Make variable names more predictable across runs, compromising
+// between preserving the original name (which might have included a number)
+// and always getting the same name now (replacing numbers added by LLVM).
+void gla::GlslTarget::canonicalizeName(std::string& name)
+{
+    // remove any existing counting, from where it starts, all the way to the end of the name
+    unsigned alpha = 1;
+    while (alpha < name.size() && name[alpha] < '0' || name[alpha] > '9')
+        ++alpha;
+
+    if (alpha > 2 && name[alpha-2] == '_' && name[alpha-1] == 'c')
+        alpha -= 2;
+
+    name.resize(alpha);
+
+    // add our own numbering scheme
+    ++canonCounter;
+    const size_t bufSize = 20;
+    char buf[bufSize];
+    snprintf(buf, bufSize, "_c%d", canonCounter);
+    name.append(buf);
 }
 
 // Makes a string representation for the given swizzling ExtractElement

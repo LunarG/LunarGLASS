@@ -162,14 +162,14 @@ const vec4 const23 = vec4(0.1, 0.2, 0.3, 0.4);
 
 void main()
 {
-    vec4 temp211 = texture2D(tex, coord);
-    bvec4 temp222 = equal(temp211, const23);
-    bool temp243 = all(temp222);
-    if (temp243) {
+    vec4 temp_c1 = texture2D(tex, coord);
+    bvec4 temp_c2 = equal(temp_c1, const23);
+    bool temp_c3 = all(temp_c2);
+    if (temp_c3) {
         discard;
     }
     
-    gl_FragColor = temp211;
+    gl_FragColor = temp_c1;
     
 }
 

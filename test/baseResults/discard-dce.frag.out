@@ -234,20 +234,20 @@ void main()
     float temp27 = temp23 * temp23;
     float temp28 = temp26 * temp26;
     float temp29 = temp27 + temp28;
-    float radius5 = sqrt(temp29);
-    bool temp31 = radius5 > const32;
+    float radius_c1 = sqrt(temp29);
+    bool temp31 = radius_c1 > const32;
     if (temp31) {
         discard;
     }
     
-    bool temp33 = radius5 < const34;
-    float temp35 = pow(radius5, const36);
+    bool temp33 = radius_c1 < const34;
+    float temp35 = pow(radius_c1, const36);
     float temp37 = temp35 * const38;
     float temp39 = abs(temp37);
     vec4 temp40 = vec4(temp39);
-    vec4 color13 = const42 - temp40;
-    vec4 select = temp33 ? const42 : color13;
-    gl_FragColor = select;
+    vec4 color_c2 = const42 - temp40;
+    vec4 select_c3 = temp33 ? const42 : color_c2;
+    gl_FragColor = select_c3;
     
 }
 
@@ -265,27 +265,27 @@ const vec4 const42 = vec4(1.0);
 
 void main()
 {
-    float temp211 = tex_coord.x * const22;
-    float temp232 = temp211 + const24;
-    float temp254 = const22 * tex_coord.y;
-    float temp265 = const24 + temp254;
-    float temp276 = temp232 * temp232;
-    float temp287 = temp265 * temp265;
-    float temp298 = temp276 + temp287;
-    float radius59 = sqrt(temp298);
-    bool temp3110 = radius59 > const32;
-    if (temp3110) {
+    float temp_c1 = tex_coord.x * const22;
+    float temp_c2 = temp_c1 + const24;
+    float temp_c3 = const22 * tex_coord.y;
+    float temp_c4 = const24 + temp_c3;
+    float temp_c5 = temp_c2 * temp_c2;
+    float temp_c6 = temp_c4 * temp_c4;
+    float temp_c7 = temp_c5 + temp_c6;
+    float radius_c8 = sqrt(temp_c7);
+    bool temp_c9 = radius_c8 > const32;
+    if (temp_c9) {
         discard;
     }
     
-    bool temp3311 = radius59 < const34;
-    float temp3512 = pow(radius59, const36);
-    float temp3713 = temp3512 * const38;
-    float temp3914 = abs(temp3713);
-    vec4 temp40 = vec4(temp3914);
-    vec4 color1316 = const42 - temp40;
-    vec4 select = temp3311 ? const42 : color1316;
-    gl_FragColor = select;
+    bool temp_c10 = radius_c8 < const34;
+    float temp_c11 = pow(radius_c8, const36);
+    float temp_c12 = temp_c11 * const38;
+    float temp_c13 = abs(temp_c12);
+    vec4 temp40 = vec4(temp_c13);
+    vec4 color_c14 = const42 - temp40;
+    vec4 select_c15 = temp_c10 ? const42 : color_c14;
+    gl_FragColor = select_c15;
     
 }
 
