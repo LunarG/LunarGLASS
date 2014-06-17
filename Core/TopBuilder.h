@@ -183,7 +183,7 @@ public:
     // which will copy out to the pipeline all the cached output variables.
     void leaveFunction(bool main);
 
-    // Make the main function. Returns the entry block
+    // Make the main function. Returns the entry block.
     llvm::BasicBlock* makeMain();
 
     // Close the main function.

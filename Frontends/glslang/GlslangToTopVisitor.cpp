@@ -96,6 +96,7 @@ protected:
     llvm::Type* convertGlslangToGlaType(const glslang::TType& type);
 
     bool isShaderEntrypoint(const glslang::TIntermAggregate* node);
+    void setMainInsertPoint();
     void makeFunctions(const glslang::TIntermSequence&);
     void handleFunctionEntry(const glslang::TIntermAggregate* node);
     void translateArguments(const glslang::TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments);
@@ -746,7 +747,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
         if (visit == glslang::EvPreVisit) {
             if (isShaderEntrypoint(node)) {
                 inMain = true;
-                llvmBuilder.SetInsertPoint(shaderEntry);
+                setMainInsertPoint();
                 metadata.addMdEntrypoint("main");
             } else {
                 handleFunctionEntry(node);
@@ -757,10 +758,8 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
             glaBuilder->leaveFunction(inMain);
             inMain = false;
 
-            // earlier code between functions could have had flow control, so bump up shader entry
-            // to the end of that code, ready for the next one
-            llvm::BasicBlock* lastMainBlock = &shaderEntry->getParent()->getBasicBlockList().back();
-            llvmBuilder.SetInsertPoint(lastMainBlock);
+            // Initializers after main go into the beginning of main().
+            setMainInsertPoint();
         }
 
         return true;
@@ -1347,6 +1346,18 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
 bool TGlslangToTopTraverser::isShaderEntrypoint(const glslang::TIntermAggregate* node)
 {
     return node->getName() == "main(";
+}
+
+void TGlslangToTopTraverser::setMainInsertPoint()
+{
+    // Initializers between functions could have flow control, so bump up shader entry
+    // to the end of that code.
+
+    // TODO: Functionality: this does not yet correctly handle flow control
+    //       initializers between main and subsequent functionality.
+
+    llvm::BasicBlock* lastMainBlock = &shaderEntry->getParent()->getBasicBlockList().back();
+    llvmBuilder.SetInsertPoint(lastMainBlock);
 }
 
 void TGlslangToTopTraverser::makeFunctions(const glslang::TIntermSequence& glslFunctions)

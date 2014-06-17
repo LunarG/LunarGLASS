@@ -1,7 +1,10 @@
 
+***Unsupported functionality: glslang function call
+
 Top IR:
 ; ModuleID = 'Glslang'
 
+@FrontFacing_shadow = internal global i1 false
 @low = external addrspace(2) constant i32
 @high = external addrspace(2) constant i32
 @FragColor_shadow = internal global <4 x float> zeroinitializer
@@ -10,56 +13,89 @@ define fastcc void @main() {
 entry:
   %constructed = alloca <4 x float>
   %z = alloca i32
-  store i32 3, i32* %z
-  %0 = load i32 addrspace(2)* @low, !gla.uniform !1
-  %1 = mul i32 2, %0, !gla.precision !6
-  %2 = add i32 %1, 1, !gla.precision !6
-  %3 = load i32 addrspace(2)* @high, !gla.uniform !3
-  %4 = icmp slt i32 %2, %3
-  br i1 %4, label %then, label %ifmerge
+  %ternary = alloca float
+  %face1 = alloca float
+  %gl_FrontFacing = call i1 @llvm.gla.readData.i1(i32 1024, i32 -1), !gla.input !0
+  store i1 %gl_FrontFacing, i1* @FrontFacing_shadow
+  %0 = load i1* @FrontFacing_shadow
+  br i1 %0, label %then, label %else
 
 then:                                             ; preds = %entry
-  %5 = load i32* %z
-  %z1 = add i32 %5, 1, !gla.precision !6
-  store i32 %z1, i32* %z
+  store float -1.000000e+00, float* %ternary
   br label %ifmerge
 
-ifmerge:                                          ; preds = %entry, %then
+else:                                             ; preds = %entry
+  store float 1.000000e+00, float* %ternary
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %face11 = load float* %ternary
+  store float %face11, float* %face1
+  store i32 3, i32* %z
+  %1 = load i32 addrspace(2)* @low, !gla.uniform !3
+  %2 = mul i32 2, %1, !gla.precision !8
+  %3 = add i32 %2, 1, !gla.precision !8
+  %4 = load i32 addrspace(2)* @high, !gla.uniform !5
+  %5 = icmp slt i32 %3, %4
+  br i1 %5, label %then2, label %ifmerge4
+
+then2:                                            ; preds = %ifmerge
   %6 = load i32* %z
-  %7 = sitofp i32 %6 to float, !gla.precision !6
-  %8 = load <4 x float>* %constructed
-  %9 = insertelement <4 x float> undef, float %7, i32 0, !gla.precision !6
-  %10 = insertelement <4 x float> %9, float %7, i32 1, !gla.precision !6
-  %11 = insertelement <4 x float> %10, float %7, i32 2, !gla.precision !6
-  %FragColor_shadow = insertelement <4 x float> %11, float %7, i32 3, !gla.precision !6
+  %z3 = add i32 %6, 1, !gla.precision !8
+  store i32 %z3, i32* %z
+  br label %ifmerge4
+
+ifmerge4:                                         ; preds = %ifmerge, %then2
+  %7 = load float* %face1
+  %8 = load i32* %z
+  %9 = sitofp i32 %8 to float, !gla.precision !9
+  %10 = load <4 x float>* %constructed
+  %11 = insertelement <4 x float> undef, float %9, i32 0, !gla.precision !9
+  %12 = insertelement <4 x float> %11, float %9, i32 1, !gla.precision !9
+  %13 = insertelement <4 x float> %12, float %9, i32 2, !gla.precision !9
+  %14 = insertelement <4 x float> %13, float %9, i32 3, !gla.precision !9
+  %15 = insertelement <4 x float> undef, float %7, i32 0, !gla.precision !9
+  %16 = insertelement <4 x float> %15, float %7, i32 1, !gla.precision !9
+  %17 = insertelement <4 x float> %16, float %7, i32 2, !gla.precision !9
+  %18 = insertelement <4 x float> %17, float %7, i32 3, !gla.precision !9
+  %19 = fmul <4 x float> %18, %14, !gla.precision !9
+  %FragColor_shadow = fadd <4 x float> %19, zeroinitializer, !gla.precision !9
   store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge
-  %12 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %12), !gla.output !4
+stage-epilogue:                                   ; preds = %ifmerge4
+  %20 = load <4 x float>* @FragColor_shadow
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %20), !gla.output !6
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
+; Function Attrs: nounwind readonly
+declare i1 @llvm.gla.readData.i1(i32, i32) #0
+
 ; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #0
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
 
-attributes #0 = { nounwind }
+attributes #0 = { nounwind readonly }
+attributes #1 = { nounwind }
 
-!gla.entrypoint = !{!0}
-!gla.uniforms = !{!1, !3}
-!gla.outputs = !{!4}
+!gla.inputs = !{!0}
+!gla.entrypoint = !{!2}
+!gla.uniforms = !{!3, !5}
+!gla.outputs = !{!6}
 
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"low", i32 12, i32* @low_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 2, i32 1024, null}
-!3 = metadata !{metadata !"high", i32 12, i32* @high_typeProxy, metadata !2}
-!4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1024, null, i32 0}
-!6 = metadata !{i32 2}
+!0 = metadata !{metadata !"gl_FrontFacing", i32 4, i1* @FrontFacing_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!2 = metadata !{metadata !"main", i32 15}
+!3 = metadata !{metadata !"low", i32 12, i32* @low_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 2, i32 1024, null}
+!5 = metadata !{metadata !"high", i32 12, i32* @high_typeProxy, metadata !4}
+!6 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 2, i32 1025, null, i32 0}
+!8 = metadata !{i32 2}
+!9 = metadata !{i32 1}
 
 
 Bottom IR:
@@ -70,14 +106,18 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %0 = load i32 addrspace(2)* @low, align 4, !gla.uniform !1
-  %1 = shl i32 %0, 1
-  %2 = or i32 %1, 1
-  %3 = load i32 addrspace(2)* @high, align 4, !gla.uniform !3
-  %4 = icmp slt i32 %2, %3
-  %. = select i1 %4, float 4.000000e+00, float 3.000000e+00
-  %5 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %., <4 x i32> zeroinitializer)
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %5), !gla.output !4
+  %gl_FrontFacing = call i1 @llvm.gla.readData.i1(i32 1024, i32 -1), !gla.input !0
+  %. = select i1 %gl_FrontFacing, float -1.000000e+00, float 1.000000e+00
+  %0 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %., <4 x i32> zeroinitializer)
+  %1 = load i32 addrspace(2)* @low, align 4, !gla.uniform !3
+  %2 = shl i32 %1, 1
+  %3 = or i32 %2, 1
+  %4 = load i32 addrspace(2)* @high, align 4, !gla.uniform !5
+  %5 = icmp slt i32 %3, %4
+  %z.0 = select i1 %5, float 4.000000e+00, float 3.000000e+00
+  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %z.0, <4 x i32> zeroinitializer)
+  %7 = fmul <4 x float> %0, %6, !gla.precision !8
+  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %7), !gla.output !6
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -87,25 +127,33 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
+; Function Attrs: nounwind readonly
+declare i1 @llvm.gla.readData.i1(i32, i32) #0
+
 ; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #0
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
 
 ; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #1
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #2
 
-attributes #0 = { nounwind }
-attributes #1 = { nounwind readnone }
+attributes #0 = { nounwind readonly }
+attributes #1 = { nounwind }
+attributes #2 = { nounwind readnone }
 
-!gla.entrypoint = !{!0}
-!gla.uniforms = !{!1, !3}
-!gla.outputs = !{!4}
+!gla.inputs = !{!0}
+!gla.entrypoint = !{!2}
+!gla.uniforms = !{!3, !5}
+!gla.outputs = !{!6}
 
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"low", i32 12, i32* @low_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 2, i32 1024, null}
-!3 = metadata !{metadata !"high", i32 12, i32* @high_typeProxy, metadata !2}
-!4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1024, null, i32 0}
+!0 = metadata !{metadata !"gl_FrontFacing", i32 4, i1* @FrontFacing_shadow_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!2 = metadata !{metadata !"main", i32 15}
+!3 = metadata !{metadata !"low", i32 12, i32* @low_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 2, i32 1024, null}
+!5 = metadata !{metadata !"high", i32 12, i32* @high_typeProxy, metadata !4}
+!6 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
+!7 = metadata !{i32 0, i32 2, i32 1025, null, i32 0}
+!8 = metadata !{i32 1}
 
 ***Unsupported functionality: bit-wise OR in version 100
 #version 100
@@ -114,18 +162,23 @@ precision mediump float; // this will be almost entirely overridden by individua
 
 uniform mediump int low;
 uniform mediump int high;
-const highp int const23i_1 = 1;
-const highp float const26 = 4.0;
-const highp float const27 = 3.0;
+const highp float const22 = -1.0;
+const highp float const23 = 1.0;
+const highp int const27i_1 = 1;
+const highp float const30 = 4.0;
+const highp float const31 = 3.0;
 
 void main()
 {
-    int temp21 = low * 2;
-    int temp22 = temp21 + const23i_1;
-    bool temp24 = temp22 < high;
-    float temp25 = temp24 ? const26 : const27;
-    vec4 temp28 = vec4(temp25);
-    gl_FragColor = temp28;
+    float temp21 = gl_FrontFacing ? const22 : const23;
+    vec4 temp24 = vec4(temp21);
+    int temp25 = low * 2;
+    int temp26 = temp25 + const27i_1;
+    bool temp28 = temp26 < high;
+    float z_uc1 = temp28 ? const30 : const31;
+    vec4 temp32 = vec4(z_uc1);
+    lowp vec4 temp33 = temp24 * temp32;
+    gl_FragColor = temp33;
     
 }
 
@@ -136,18 +189,23 @@ precision mediump float; // this will be almost entirely overridden by individua
 
 uniform mediump int low;
 uniform mediump int high;
-const highp int const23i_1 = 1;
-const highp float const26 = 4.0;
-const highp float const27 = 3.0;
+const highp float const22 = -1.0;
+const highp float const23 = 1.0;
+const highp int const27i_1 = 1;
+const highp float const30 = 4.0;
+const highp float const31 = 3.0;
 
 void main()
 {
+    float temp21 = gl_FrontFacing ? const22 : const23;
+    vec4 temp24 = vec4(temp21);
     int temp_c1 = low * 2;
-    int temp_c2 = temp_c1 + const23i_1;
+    int temp_c2 = temp_c1 + const27i_1;
     bool temp_c3 = temp_c2 < high;
-    float temp25 = temp_c3 ? const26 : const27;
-    vec4 temp28 = vec4(temp25);
-    gl_FragColor = temp28;
+    float ternary_c4 = temp_c3 ? const30 : const31;
+    vec4 temp32 = vec4(ternary_c4);
+    mediump vec4 temp_c5 = temp24 * temp32;
+    gl_FragColor = temp_c5;
     
 }
 
