@@ -87,7 +87,7 @@
 //   an if-then-else construct, it will then call the addElse interface and
 //   handle the else block. Finally, it calls the addEndIf interface.
 //
-// * handleSwitchBlock TODO ??
+// * TODO: functionality: handleSwitchBlock
 //
 // * handleReturnBlock handles it's instructions, and calls the
 //   handleReturnBlock interface
@@ -246,7 +246,7 @@ namespace {
                 return;
             }
 
-            // TODO: update the below to work with nested loops. Basically, it
+            // TODO: loops: update the below to work with nested loops. Basically, it
             // will have to find the loop on the stack that corresponds to inst,
             // and query it rather than the top one.
             bool externallyReferenced = forceGlobal || (! loops.empty() && loops.top()->isExternallyReferenced(inst));
@@ -314,7 +314,7 @@ namespace {
     };
 
     // TODO: memory model: worry about loads for address spaces that can be written to, as identical loads could read different values?
-    // TODO: more phi aliasing: should this generalize to catch other cases?
+    // TODO: code quality: more phi aliasing: should this generalize to catch other cases?
     bool SameLoad(const Value* value1, const Value* value2)
     {
         // They are most likely instructions, so dyn_cast has no real performance loss
@@ -396,7 +396,7 @@ namespace {
 
         // tripCount of 0 means not a known constant count
         if (tripCount == 0) {
-            // TODO LLVM 3.4: the second argument below needs to be an LLVM value
+            // TODO: loops: LLVM 3.4: the second argument below needs to be an LLVM value
             // representing the non-constant trip count
             gla::UnsupportedFunctionality("non-constant trip count on simple-inductive loop", gla::EATContinue);
             bet.beginSimpleInductiveLoop(pn, 1);
@@ -556,7 +556,7 @@ void BottomTranslator::handleLoopBlock(const BasicBlock* bb, bool instructionsHa
 {
     assert(loops.size() != 0 && "handleLoopBlock called on a new loop without newLoop being called");
 
-    // TODO: Test nested loops thoroughly
+    // TODO: loops: Test nested loops thoroughly
 
     const Value* condition = GetCondition(bb);
 
@@ -571,7 +571,7 @@ void BottomTranslator::handleLoopBlock(const BasicBlock* bb, bool instructionsHa
 
     bool simpleLatch = loop->isSimpleLatching();
 
-    // TODO: have calculating exit merge take into account when some of the
+    // TODO: loops: have calculating exit merge take into account when some of the
     // exit blocks merge into a return (that is, you can have return statements
     // inside loops, with some exiting blocks going to it).
 
@@ -803,7 +803,7 @@ void BottomTranslator::handleBlock(const BasicBlock* bb)
 
     // If handleBlock is called on a non-simple latch, then force its output
     // to happen.
-    // TODO: keep around a "lastLoopBlock" analog so that final continues need
+    // TODO: loops: keep around a "lastLoopBlock" analog so that final continues need
     // not be printed out
     if (! loops.empty() && loops.top()->getLatch() == bb && !loops.top()->isSimpleLatching()) {
         assert(IsUnconditional(bb));
@@ -820,7 +820,7 @@ void BottomTranslator::handleBlock(const BasicBlock* bb)
     if (handledBlocks.size() == numBBs)
         lastBlock = true;
 
-    // TODO: We have a notion of exiting block, so we want to treat it
+    // TODO: loops: We have a notion of exiting block, so we want to treat it
     // specially, we could also have a notion of latching/returning/discarding
     // block, something that is either a latch/return/discard, or may branch to
     // one. Consider if there's value to this notion, e.g. it can be used as
@@ -891,8 +891,8 @@ void BottomTranslator::setUpLoopBegin(const Value* condition)
     assert(loops.size() != 0);
     LoopWrapper* loop = loops.top();
 
-    // TODO: add more loop constructs here
-    // TODO: stick body in here
+    // TODO: loops: add more loop constructs here
+    // TODO: loops: stick body in here
     if (loop->isSimpleInductive()) {
         CreateSimpleInductiveLoop(*loop, *backEndTranslator);
     } else if (loop->isSimpleConditional()) {

@@ -59,7 +59,7 @@ namespace gla_llvm {
     using namespace llvm;
     class LoopStack;
 
-    // TODO LLVM 3.2: Remove the need for the dominance frontier, it's
+    // TODO: loops LLVM 3.4: Remove the need for the dominance frontier, it's
     // only used for the merges and testing for returns/discards. The second
     // purpose can be generalized elsewhere.
 
@@ -151,7 +151,7 @@ namespace gla_llvm {
             for (Value::const_use_iterator i = inst->use_begin(), e = inst->use_end(); i != e; ++i) {
                 const Instruction* use = dyn_cast<const Instruction>(*i);
                 assert(use);
-                // TODO: in some cases, it can appear in PHINodes where the phi
+                // TODO: loops: in some cases, it can appear in PHINodes where the phi
                 // copies will be added prior to exiting the loop. Figure out
                 // logic for this
                 if (! contains(use))
@@ -192,7 +192,7 @@ namespace gla_llvm {
         // Note, we may want to move away from only wrapping LoopInfo and wrap
         // ScalarEvolution as well
 
-        // TODO: cache the results of the more complicated queries (implemented
+        // TODO: loops: cache the results of the more complicated queries (implemented
         // for isSimpleConditional())
 
         // Is the loop simple inductive one. A simple inductive loop is one
@@ -201,7 +201,7 @@ namespace gla_llvm {
         // or continues)
         bool isSimpleInductive() const
         {
-            // TODO: extend functionality to support early exit
+            // TODO: loops: extend functionality to support early exit
             return inductiveVar && tripCount && uniqueExiting;
         }
 
@@ -239,7 +239,7 @@ namespace gla_llvm {
                     if (inst->getParent() == header)
                         ++count;
             }
-            // TODO: handle when the cmp's arguments are phis
+            // TODO: loops: handle when the cmp's arguments are phis
 
             // Add up the phis to the count
             for (BasicBlock::const_iterator i = header->begin(), e = header->end(); i != e; ++i) {
@@ -296,7 +296,7 @@ namespace gla_llvm {
             return dyn_cast<Instruction>(inductiveVar->getIncomingValue(index));
         }
 
-        // TODO: refactor into mask or enum or interface
+        // TODO: loops: refactor into mask or enum or interface
         // Returns the successor number (0 or 1) of the exiting edge from an exiting
         // block. Returns -1 if none exit, and 2 if they both exit.
         int exitSuccNumber(const BasicBlock* bb) const

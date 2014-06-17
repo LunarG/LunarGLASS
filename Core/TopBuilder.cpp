@@ -282,7 +282,7 @@ void Builder::accessChainStore(llvm::Value* value)
         source = shadowVector;
     }
 
-    // TODO: functionality: store to variable vector component?
+    // TODO: functionality: store to variable-component of vector
     if (accessChain.component)
         UnsupportedFunctionality("store to variable vector channel");
 
@@ -316,7 +316,7 @@ llvm::Value* Builder::accessChainLoad(EMdPrecision precision)
         value = createLoad(collapseAccessChain(), accessChain.metadataKind, accessChain.mdNode);
     }
 
-    // TODO: functionality: read from variable vector component?
+    // TODO: functionality: read from variable-component of vector
     if (accessChain.component)
         UnsupportedFunctionality("extract from variable vector component");
 
@@ -425,7 +425,7 @@ void Builder::makeDiscard(bool isMain)
         createAndSetNoPredecessorBlock("post-discard");
     } else {
         // A discard in a function cannot branch te the exit block of main.
-        // TODO: Would it help DCE of code following a discard in a function to label the discard intrinsic with IntrNoReturn?
+        // TODO: generated code quality: Would it help DCE of code following a discard in a function to label the discard intrinsic with IntrNoReturn?
     }
 }
 
@@ -1204,7 +1204,7 @@ llvm::Value* Builder::createMatrixTimesVector(gla::EMdPrecision precision, llvm:
         for (int col = 0; col < GetNumColumns(matrix); ++col)
             columns[col] = builder.CreateExtractValue(matrix, col, "column");
 
-        // TODO: matrix functionality:             setInstructionPrecision(result, precision);
+        // TODO: ES functionality: matrix precision            setInstructionPrecision(result, precision);
         llvm::Function* mul;
         switch (GetNumColumns(matrix)) {
         case 2: 
@@ -1271,8 +1271,7 @@ llvm::Value* Builder::createVectorTimesMatrix(gla::EMdPrecision precision, llvm:
         for (int col = 0; col < GetNumColumns(matrix); ++col)
             columns[col] = builder.CreateExtractValue(matrix, col, "column");
 
-        // TODO: matrix functionality:             setInstructionPrecision(result, precision);
-
+        // TODO: ES functionality: matrix precision            setInstructionPrecision(result, precision);
         llvm::Function* mul;
         switch (GetNumColumns(matrix)) {
         case 2: 
@@ -1351,7 +1350,7 @@ llvm::Value* Builder::createComponentWiseMatrixOp(gla::EMdPrecision precision, l
 
 llvm::Value* Builder::createSmearedMatrixOp(gla::EMdPrecision precision, llvm::Instruction::BinaryOps op, llvm::Value* matrix, llvm::Value* scalar, bool reverseOrder)
 {
-    // TODO: optimization: better to smear the scalar to a column-like vector, and apply that vector multiple times
+    // TODO: generated code performance: better to smear the scalar to a column-like vector, and apply that vector multiple times
     // Allocate a matrix to build the result in
     llvm::Value* result = createEntryAlloca(matrix->getType());
     result = builder.CreateLoad(result);

@@ -119,7 +119,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
 {
     VerifyModule(module);
 
-    // TODO: When we have backend support for shuffles, or we canonicalize
+    // TODO: generate code performance: When we have backend support for shuffles, or we canonicalize
     // shuffles into multiinserts, we can replace the InstSimplify passes with
     // InstCombine passes.
 
@@ -140,7 +140,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     VerifyModule(module);
 
     // Set up the function-level optimizations we want
-    // TODO: explore ordering of passes more
+    // TODO: generated code performance: explore ordering of passes more
     llvm::FunctionPassManager passManager(module);
 
 
@@ -157,7 +157,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(gla_llvm::createBackEndPointerPass(backEnd));
 
     // TODO: explore SimplifyLibCalls
-    // TODO: see if we can avoid running gvn/sccp multiple times
+    // TODO: compile-time performance: see if we can avoid running gvn/sccp multiple times
 
     // Early, simple optimizations to enable others/make others more efficient
     passManager.add(llvm::createScalarReplAggregatesPass());
@@ -201,7 +201,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createIndVarSimplifyPass());
     passManager.add(llvm::createLoopRotatePass());
     passManager.add(llvm::createIndVarSimplifyPass());
-    passManager.add(llvm::createLoopUnrollPass(350));
+    passManager.add(llvm::createLoopUnrollPass(350));          // TODO: soon: allow control over this and other optimizations that are likely target dependent
     passManager.add(llvm::createLoopStrengthReducePass());
     passManager.add(llvm::createAggressiveDCEPass());
 
@@ -218,7 +218,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createGVNPass());
     passManager.add(llvm::createSCCPPass());
 
-    // TODO: Consider if we really want it. For some reason StandardPasses.h
+    // TODO: generated code: Consider if we really want it. For some reason StandardPasses.h
     // doesn't have it listed.
     // passManager.add(llvm::createSinkingPass());
 
@@ -248,14 +248,14 @@ void gla::PrivateManager::runLLVMOptimizations1()
     pm.add(llvm::createAggressiveDCEPass());
     pm.add(llvm::createStripDeadPrototypesPass());
     
-    // TODO: Consider using the below in the presense of functions
+    // TODO: function-call functionality: Consider using the below in the presense of functions
     // pm.add(llvm::createGlobalDCEPass());
 
     pm.run(*module);
 
     VerifyModule(module);
 
-    // TODO: Refactor the below use of GlobalOpt. Perhaps we want to repeat our
+    // TODO: soon: Refactor the below use of GlobalOpt. Perhaps we want to repeat our
     // some function passes?
 
     llvm::PassManager modulePassManager;

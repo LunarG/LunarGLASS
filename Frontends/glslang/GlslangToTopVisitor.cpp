@@ -837,7 +837,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
                                                                         convertGlslangToGlaType(node->getType()),
                                                                         0, 0, "constructed");
             if (node->getOp() == glslang::EOpConstructStruct || node->getType().isArray()) {
-                //TODO: clean up: is there a more direct way to set a whole LLVM structure?
+                // TODO: clean up: is there a more direct way to set a whole LLVM structure?
                 //                if not, move this inside Top Builder; too many indirections
 
                 std::vector<llvm::Value*> gepChain;
@@ -2325,7 +2325,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
         int arraySize = glaType.getArraySize();
 
         glslang::TType elementType;
-        elementType.shallowCopy(glaType);  // TODO: desktop arrays will need a deeper copy to avoid modifying the original
+        elementType.shallowCopy(glaType);  // TODO: desktop arrays of arrays functionality will need a deeper copy to avoid modifying the original
         elementType.dereference();
 
         if (gepChain.size() == 0)
@@ -2388,7 +2388,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
 //
 // Ensure enough slots are consumed to cover the size of the data represented by the node symbol.
 //
-// TODO: strip one-level of arrayness off for "arrayed" I/O in geometry and tessellation shaders.
+// TODO: soon: strip one-level of arrayness off for "arrayed" I/O in geometry and tessellation shaders.
 //
 int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input, int& numSlots)
 {
@@ -2459,7 +2459,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& gl
 
     if (glslangType.isArray()) {
         glslang::TType elementType;
-        elementType.shallowCopy(glslangType);   // TODO: desktop arrays will need a deeper copy to avoid modifying the original
+        elementType.shallowCopy(glslangType);   // TODO: desktop arrays of arrays functionality will need a deeper copy to avoid modifying the original
         elementType.dereference();
         for (int i = 0; i < glslangType.getArraySize(); ++i)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(elementType, consts, nextConst)));

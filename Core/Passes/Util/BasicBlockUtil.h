@@ -250,8 +250,8 @@ namespace gla_llvm {
     // Remove bb if it's a no-predecessor block, and continue on to its
     // successors. Returns the number removed. If a DominatorTree is passes in,
     // it will update it as it removes blocks.
-    // TODO: extract into .cpp file if it remains big (and no-inline).
-    // TODO: document complexity
+    // TODO: code cleanup: extract into .cpp file if it remains big (and no-inline).
+    // TODO: code cleanup: document complexity
     inline bool RecursivelyRemoveNoPredecessorBlocks(BasicBlock* bb, DominatorTree* dt = 0)
     {
         if (! IsNoPredecessorBlock(bb))
@@ -347,7 +347,7 @@ namespace gla_llvm {
         return br->getSuccessor(i);
     }
 
-    // TODO LLVM 3.2: refine to compute the needed partial dominance
+    // TODO: loops: LLVM 3.4: refine to compute the needed partial dominance
     // frontier, and use it.
 
     // Add all the merge points of the given basic blocks to the (empty) merges

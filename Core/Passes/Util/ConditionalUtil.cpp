@@ -205,7 +205,7 @@ bool Conditional::eliminateCrossEdges()
         if (! noDupMerge)
             gla::UnsupportedFunctionality("unable to remove the dup-merge block");
 
-        // TODO: Update the dom tree as we go instead of having to recalculate
+        // TODO: compile-time performance: Update the dom tree as we go instead of having to recalculate
         domTree->DT->recalculate(*duplicate->getParent());
     } else if (false /* able to determine conditions */) {
     } else {

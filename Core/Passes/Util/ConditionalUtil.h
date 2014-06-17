@@ -99,7 +99,7 @@ namespace gla_llvm {
 
         // Recalculate all the analysis information (e.g. if the CFG has been
         // modified so as to render it incorrect).
-        // TODO: figure out interaction with stale domfront/domtree info
+        // TODO: loops: figure out interaction with stale domfront/domtree info
         void recalculate();
 
         // Whether there is no "then" block, only an "else" one. This may be
@@ -193,7 +193,7 @@ namespace gla_llvm {
         // recalculated.
         bool splitSharedMerge()
         {
-            // TODO: Overhaul the conditionals system so that recalculation
+            // TODO: compile-time performance: Overhaul the conditionals system so that recalculation
             // doesn't have to happen as often
             recalculate();
 
@@ -245,7 +245,7 @@ namespace gla_llvm {
         // conditionals containing this one may need to recalculate themselves.
         // Currently doesn't do anything if the merge block has phis in it, so
         // be sure to run createMergeSelects() first.
-        // TODO: Be able to handle phis in the merge block that don't depend on
+        // TODO: loops: Be able to handle phis in the merge block that don't depend on
         // any part of the conditional in any way.
         bool removeIfEmpty()
         {

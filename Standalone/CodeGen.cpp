@@ -48,7 +48,7 @@
 #include "glslang/Include/ShHandle.h"
 
 // LunarGLASS includes
-// TODO: merge glslang and LunarGLASS option handling
+// TODO: soon: merge glslang and LunarGLASS option handling
 //#include "StandAlone/OptionParse.h"
 #include "Core/Options.h"
 #include "Frontends/glslang/GlslangToTop.h"

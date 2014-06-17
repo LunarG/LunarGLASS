@@ -999,7 +999,7 @@ void MakeParseable(std::string& name)
         }
 
         if (c > 0 && name[c-1] == '_' && name[c] == '_') {
-            // TODO: want to only say:  hasDoubleUnderscore = true;
+            // TODO: cleanliness: want to only say:  hasDoubleUnderscore = true;
             // but, for now change things because not all compilers accept "__".
             // Use "_" when possible, because it is much more readable.
             name[c] = 'u';
@@ -1013,7 +1013,7 @@ void MakeParseable(std::string& name)
 
 void MakeNonbuiltinName(std::string& name)
 {
-    // TODO: using "goo_" in the meantime, switch to "goo__" when all compilers accept it.
+    // TODO: cleanliness: using "goo_" in the meantime, switch to "goo__" when all compilers accept it.
 
     if (name.compare(0, 3, "gl_") == 0)
         name.insert(0, "goo_");
@@ -1121,7 +1121,7 @@ void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNo
 
 bool SamplerIsUint(llvm::Value* sampler)
 {
-    // TODO: nested uint samplers: this only works for non-nested sampler types, need a pretty different way
+    // TODO: uint functionality: nested uint samplers: this only works for non-nested sampler types, need a pretty different way
     // for nested types
     if (llvm::Instruction* samplerInst = llvm::dyn_cast<llvm::Instruction>(sampler)) {
         llvm::MDNode* md = samplerInst->getMetadata(UniformMdName);
@@ -1219,7 +1219,7 @@ void gla::GlslTarget::startFunctionDeclaration(const llvm::Type* type, llvm::Str
     newLine();
     int arraySize = emitGlaType(shader, EMpNone, EVQNone, type->getContainedType(0));        
     emitGlaArraySize(shader, arraySize);
-    // TODO: Goo: ES functionality: how do we know the precision or unsignedness of a function declaration?
+    // TODO: ES functionality: how do we know the precision or unsignedness of a function declaration?
     shader << " " << name.str() << "(";
 
     if (name == std::string("main"))
@@ -1261,7 +1261,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     std::string charOp;
     int unaryOperand = -1;
 
-    // TODO: Goo:  This loop will disappear when conditional loops in BottomToGLSL properly updates valueMap
+    // TODO: loops: This loop will disappear when conditional loops in BottomToGLSL properly updates valueMap
     for (llvm::Instruction::const_op_iterator i = llvmInstruction->op_begin(), e = llvmInstruction->op_end(); i != e; ++i) {
         llvm::Instruction* inst = llvm::dyn_cast<llvm::Instruction>(*i);
         if (inst) {
@@ -1480,7 +1480,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             if (MapGlaAddressSpace(llvmInstruction->getOperand(0)) == EVQGlobal) {
                 // This is could be a path for a hoisted "undef" aggregate.  See hoistUndefOps().
                 // (Normally, everything should be in registers.)
-                // TODO: LunarGOO: Find a way to eliminate global undefs so there are not extra "var = global-aggregete" statements
+                // TODO: output code quality: Find a way to eliminate global undefs so there are not extra "var = global-aggregete" statements
                 //       in the created output.
                 mdTypePointer = 0;  // This is not a uniform, so don't process any metadata for it.
             } else {
@@ -1815,14 +1815,14 @@ void gla::GlslTarget::beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const
     std::string opStr;
     int pos = -1;
     bool nested;
-    bool emulateBitwise; // TODO: handle this
+    bool emulateBitwise; // TODO: loops
     GetOp(cmp, version >= 130, opStr, pos, nested, emulateBitwise);
 
     bool binOp = false;
     if (pos == -1)
         binOp = true;
 
-    // TODO: Goo: loops: add support for unary ops (and xor)
+    // TODO: loops: add support for unary ops (and xor)
 
     if (! binOp)
         UnsupportedFunctionality("unary op for simple conditional loops");
@@ -2328,7 +2328,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         return;
 
     //case llvm::Intrinsic::gla_queryTextureLevels:
-    // TODO: Goo: 430 Functionality: textureQueryLevels()
+    // TODO: 430 Functionality: textureQueryLevels()
 
     case llvm::Intrinsic::gla_texelGather:
     case llvm::Intrinsic::gla_fTexelGather:
@@ -2630,7 +2630,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
     default: break;
     }
     if (numLeftCols) {
-        // First, we have to make a temp. matrix, because LLVM is making a struct: TODO: finish this
+        // First, we have to make a temp. matrix, because LLVM is making a struct: TODO: matrix intrinsics
         newLine();
 //        shader << "mat" << numLeftCols << " ";
         emitGlaValue(llvmInstruction);
@@ -3739,7 +3739,7 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
     }
 
     // add the dereference syntax
-    // TODO: Goo functionality: outputs don't yet have layout slot bases, so indexing into big things will be incorrect
+    // TODO: output code correctness: outputs don't yet have layout slot bases, so indexing into big things will be incorrect
     std::string derefName = name;
     int slotOffset = GetConstantInt(llvmInstruction->getOperand(0)) - layoutLocation;
     DereferenceName(derefName, type, mdAggregate, slotOffset, mdLayout);

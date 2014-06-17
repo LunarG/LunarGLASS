@@ -131,7 +131,7 @@ namespace gla_llvm {
     }
 
     // Set-wise intersection: stores A n B into A.
-    // TODO: specialization for sets (e.g. std::set) that prefer erasing iterators.
+    // TODO: compile-time performance: specialization for sets (e.g. std::set) that prefer erasing iterators.
     // O(n*query(B))
     template <typename T, unsigned S, typename BTy>
     inline void SetIntersect(SmallPtrSet<T,S>& a, BTy& b)

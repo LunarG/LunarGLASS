@@ -273,7 +273,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
         case Intrinsic::gla_fAcos:
             if (backEnd->decomposeIntrinsic(EDiAcos))
             {
-                // TODO: Do we need to handle domain errors?  (E.g., bad input value)
+                // TODO: functionality: Do we need to handle domain errors?  (E.g., bad input value)
                 //
                 // acos(x) ~= sqrt(1-x)*(a + x*(b + x*(c + x*d)))
                 // where  a =  1.57079632679
@@ -951,6 +951,7 @@ void DecomposeInsts::decomposeIntrinsics(BasicBlock* bb)
                     }
 
                     // declare the new intrinsic
+                    // TODO: functionality: texturing correctness: is this getting the correct non-projective form?
                     Function* texture = Intrinsic::getDeclaration(module, intrinsic->getIntrinsicID(), types);
 
                     // modify arguments to match new intrinsic

@@ -42,8 +42,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-// TODO: consider name change
-
 #ifndef GLA_PASS_SUPPORT_H
 #define GLA_PASS_SUPPORT_H
 

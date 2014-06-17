@@ -81,7 +81,7 @@ namespace gla_llvm {
     // vectors.
     inline void GetElements(const Constant* c, SmallVectorImpl<Constant*>& res)
     {
-        // TODO LLVM 3.2: handle ConstantDataVector
+        // TODO: LLVM 3.4: handle ConstantDataVector
         for (int i = 0; i < gla::GetComponentCount(c); ++i)
             res.push_back(c->getAggregateElement((unsigned)i));
     }

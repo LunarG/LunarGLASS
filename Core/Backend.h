@@ -188,11 +188,11 @@ namespace gla {
 
         // Specialized loop constructs
 
-        // TODO: add more loop constructs here
+        // TODO: loops: add more loop constructs here
 
-        // TODO: add backend queries for each of these forms
+        // TODO: loops: add backend queries for each of these forms
 
-        // TODO: figure out how to name things, as this for now simpleInductive
+        // TODO: loops: figure out how to name things, as this for now simpleInductive
         // really means "simpleStaticInductive". Alternatively, you could remove
         // all the static constraints.
 
@@ -220,7 +220,7 @@ namespace gla {
 
         // Generic loop constructs
 
-        // TODO: change name to be generic loop
+        // TODO: loop: change name to be generic loop
         // Add a generic looping construct (e.g. while (true))
         virtual void beginLoop() = 0;
 
