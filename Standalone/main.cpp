@@ -90,6 +90,27 @@ enum TFailCode {
     EFailLinkerCreate
 };
 
+//
+// Command-line options
+//
+enum CommandOptions {
+	EOptionNone               = 0x0000,
+	EOptionIntermediate       = 0x0001,
+	EOptionSilent             = 0x0002,
+	EOptionMemoryLeakMode     = 0x0004,
+    EOptionRelaxedErrors      = 0x0008,
+    EOptionGiveWarnings       = 0x0010,
+    EOptionsLinkProgram       = 0x0020,
+    EOptionMultiThreaded      = 0x0040,
+    EOptionDumpConfig         = 0x0080,
+    EOptionDumpReflection     = 0x0100,
+    EOptionSuppressWarnings   = 0x0200,
+    EOptionDumpVersions       = 0x0400,
+    EOptionAssembly           = 0x0800,
+    EOptionObfuscate          = 0x1000,
+    EOptionFilterInactive     = 0x2000,
+};
+
 int Options = 0;                       // the non-manager options
 gla::TransformOptions ManagerOptions;  // the manager-held options
 const char* ExecutableName;
@@ -294,31 +315,31 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
                 break;
             }
             case 'a':
-                Options |= gla::EOptionAssembly;
+                Options |= EOptionAssembly;
                 break;
             case 'f':
-                Options |= gla::EOptionFilterInactive;
+                Options |= EOptionFilterInactive;
                 break;
             case 'i': 
-                Options |= gla::EOptionIntermediate;       
+                Options |= EOptionIntermediate;       
                 break;
             case 'm':
-                Options |= gla::EOptionMemoryLeakMode;
+                Options |= EOptionMemoryLeakMode;
                 break;
             case 'o':
-                Options |= gla::EOptionObfuscate;
+                Options |= EOptionObfuscate;
                 break;
             case 'r':
-                Options |= gla::EOptionRelaxedErrors;
+                Options |= EOptionRelaxedErrors;
                 break;
             case 's':
-                Options |= gla::EOptionSilent;
+                Options |= EOptionSilent;
                 break;
             case 't':
-                Options |= gla::EOptionMultiThreaded;
+                Options |= EOptionMultiThreaded;
                 break;
             case 'w':
-                Options |= gla::EOptionSuppressWarnings;
+                Options |= EOptionSuppressWarnings;
                 break;
             case 'z':
                 usage(true);
@@ -336,11 +357,11 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
 
 void SetMessageOptions(EShMessages& messages)
 {
-    if (Options & gla::EOptionRelaxedErrors)
+    if (Options & EOptionRelaxedErrors)
         messages = (EShMessages)(messages | EShMsgRelaxedErrors);
-    if (Options & gla::EOptionIntermediate)
+    if (Options & EOptionIntermediate)
         messages = (EShMessages)(messages | EShMsgAST);
-    if (Options & gla::EOptionSuppressWarnings)
+    if (Options & EOptionSuppressWarnings)
         messages = (EShMessages)(messages | EShMsgSuppressWarnings);
 }
 
@@ -532,7 +553,7 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
 
         if (! shader->parse(&Resources, 100, false, Messages)) {
             CompileFailed = true;
-            if (! (Options & gla::EOptionSilent)) {
+            if (! (Options & EOptionSilent)) {
                 puts(names[n]);
                 puts(shader->getInfoLog());
             }
@@ -552,13 +573,13 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
 
     if (! program.link(Messages)) {
         LinkFailed = true;
-        if (! (Options & gla::EOptionSilent))
+        if (! (Options & EOptionSilent))
             puts(program.getInfoLog());
 
         return;
     }
 
-    if (Options & gla::EOptionDumpReflection) {
+    if (Options & EOptionDumpReflection) {
         program.buildReflection();
         program.dumpReflection();
     }
@@ -572,14 +593,14 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
             continue;
 
         // Dump the post-link AST from the glslang front end
-        if (Options & gla::EOptionIntermediate) {
+        if (Options & EOptionIntermediate) {
             puts(glslang::StageName((EShLanguage)stage));
             puts(program.getInfoDebugLog());     // This holds the AST
         }
 
-        for (int i = 0; i < ((Options & gla::EOptionMemoryLeakMode) ? 100 : 1); ++i) {
-            for (int j = 0; j < ((Options & gla::EOptionMemoryLeakMode) ? 100 : 1); ++j) {
-                gla::GlslManager manager((Options & gla::EOptionObfuscate) != 0, (Options & gla::EOptionFilterInactive) != 0);
+        for (int i = 0; i < ((Options & EOptionMemoryLeakMode) ? 100 : 1); ++i) {
+            for (int j = 0; j < ((Options & EOptionMemoryLeakMode) ? 100 : 1); ++j) {
+                gla::GlslManager manager((Options & EOptionObfuscate) != 0, (Options & EOptionFilterInactive) != 0);
                 manager.options = ManagerOptions;
 
                 // Generate the Top IR
@@ -592,25 +613,25 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
                 if (TargetDefinitionProfile != EBadProfile)
                     manager.setProfile(TargetDefinitionProfile);
 
-                if (Options & gla::EOptionAssembly)
+                if (Options & EOptionAssembly)
                     manager.dump("\nTop IR:\n");
 
                 // Generate the Bottom IR
                 manager.translateTopToBottom();
     
-                if (Options & gla::EOptionAssembly)
+                if (Options & EOptionAssembly)
                     manager.dump("\n\nBottom IR:\n");
 
                 // Generate the GLSL output
                 manager.translateBottomToTarget();
 
                 // Get and print the generated GLSL output
-                if (! (Options & gla::EOptionMemoryLeakMode) && ! (Options & gla::EOptionSilent))
+                if (! (Options & EOptionMemoryLeakMode) && ! (Options & EOptionSilent))
                     if (manager.getGeneratedShader())
                         printf("%s\n", manager.getGeneratedShader());
             }
             #ifdef _WIN32
-                if (Options & gla::EOptionMemoryLeakMode) {
+                if (Options & EOptionMemoryLeakMode) {
                     PROCESS_MEMORY_COUNTERS counters;
                     GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters));
                     printf("Working set size: %d\n", counters.WorkingSetSize);
@@ -655,7 +676,7 @@ void TranslateSingleShader(glslang::TWorkItem* workItem)
 
     if (! shader->parse(&Resources, 100, false, Messages)) {
         CompileFailed = true;
-        if (! (Options & gla::EOptionSilent)) {
+        if (! (Options & EOptionSilent)) {
             puts(workItem->name.c_str());
             puts(shader->getInfoLog());
         }
@@ -675,7 +696,7 @@ void TranslateSingleShader(glslang::TWorkItem* workItem)
 
     if (! program.link(Messages)) {
         LinkFailed = true;
-        if (! (Options & gla::EOptionSilent))
+        if (! (Options & EOptionSilent))
             puts(program.getInfoLog());
 
         return;
@@ -699,13 +720,13 @@ void TranslateSingleShader(glslang::TWorkItem* workItem)
     if (TargetDefinitionProfile != EBadProfile)
         manager.setProfile(TargetDefinitionProfile);
 
-    if (Options & gla::EOptionAssembly)
+    if (Options & EOptionAssembly)
         manager.dump("\nTop IR:\n");
 
     // Generate the Bottom IR
     manager.translateTopToBottom();
     
-    if (Options & gla::EOptionAssembly)
+    if (Options & EOptionAssembly)
         manager.dump("\n\nBottom IR:\n");
 
     // Generate the GLSL output
@@ -785,7 +806,7 @@ void TranslateShaders(const std::vector<const char*>& names)
     EShMessages messages = EShMsgDefault;
     SetMessageOptions(messages);
 
-    if (Options & gla::EOptionMultiThreaded)
+    if (Options & EOptionMultiThreaded)
         TranslateShadersMultithreaded(names);
     else
         TranslateLinkedShaders(names);
