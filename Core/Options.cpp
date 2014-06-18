@@ -38,30 +38,15 @@
 //
 // Global run-time options
 //
+// Note: Options need to be part of the manager, not global, 
+// for multi-threading and to be API (rather than command line) driven.
+// This is now handled between the manager and OptionParse.cpp.
+//
 //===----------------------------------------------------------------------===//
 
 #include "Options.h"
 #include <string>
 
 namespace gla {
-    // Optimizations opts = { true   // adce
-    //                      , true   // coalesce
-    //                      , true   // gvn
-    //                      , true   // mem2reg
-    //                      , true   // reassociate
-    //                      , true   // verify
-    //                      , false  // crossStage
-    //                      };
 
-    // Global Options
-    OptionsType Options = { false   // Debug info
-                          , false   // Iterate
-                          , false   // Obfuscate
-                          , false   // No revision
-                          , GLSL    // Backend
-                          , DefaultBackendVersion    // no backend version yet
-                          , false   // Bottom IR Only
-                          // , opts    // Optimizations
-                          };
 } // end namespace gla
-

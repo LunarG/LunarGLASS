@@ -40,61 +40,42 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "options.h"
 #include "OptionParse.h"
-#include "Options.h"
 
 #include <iostream>
 #include <vector>
 #include <cstdio>
 #include <cstdlib>
 
-// Description and usage information
-const std::string Description = "\
-Description: The LunarGLASS stand-alone shader compiler\n\
-";
-
-const std::string Usage = "\
-Usage: ./StandAlone[.exe] [options] file1.frag ...\n\
-\n\
-       Options:\n\
-         -h, --help                 Print out this Usage info\n\
-         -d, --debug                Print out debugging info\n\
-         -b, --bottom-ir-only       Only print out Bottom IR\n\
-         --glsl                     Use the glsl backend (default)\n\
-         --tgsi                     Use the TGSI backed\n\
-         --dummy                    Use the Dummy backed\n\
-\n\
-       GLSL-backed options:\n\
-         -i --iterate               Iterate LunarGLASS 1000 times\n\
-         -f --obfuscate             Obfuscate the output\n\
-         -n, --no-revision          Don't put the revision in the output\n\
-\n\
-";
-
-/*
-          --disable <optimization>   Disable the optimization (see below)\n\
-          --enable <optimization>    Enable the optimization (see below)\n\
-*/
-
-
-/*
-        Optimizations/transformations that can be enabled/disabled. Default is \n\
-        to enable them all\n\
-          adce                       Aggressive dead code elimination\n\
-          coalesce                   Coalesce Inserts into MultiInserts\n\
-          gvn                        Global Value Numbering\n\
-          mem2reg                    Promote memory to registers\n\
-          reassociate                Reassociate/commute expressions\n\
-          verify                     Verification passes\n\
-          cross-stage                Do cross-stage optimizations\n\
-*/
+const std::string Usage =
+//"    back-end options:\n"
+//"\n"
+//"         --glsl                     Use the glsl backend (default)\n"
+//"         --tgsi                     Use the TGSI backed\n"
+//"         --dummy                    Use the Dummy backed\n"
+//"\n"
+"Optimization controls (which must appear first, before any other options or arguments):\n"
+"  --disable <optimization>   Disable the optimization (see below)\n"
+"  --enable  <optimization>   Enable the optimization (see below)\n"
+"  Where <optimization> is one of\n"
+"    adce            Aggressive dead-code elimination\n"
+"    coalesce        Coalesce Inserts into MultiInserts\n"
+"    gvn             Global Value Numbering\n"
+"    reassociate     Reassociate/commute expressions\n"
+"    cross-stage     Do cross-stage optimizations\n"
+"    inline          Inline all function calls\n"
+"    unroll          Unroll loops\n"
+"    hoist           Hoist instructions when flattening conditionals\n"
+"  Currently, all are enabled by default.\n"
+;
 
 namespace gla {
 
-    // Is the string an option/flagged argument?
-    bool IsOption(std::string s)
+    // Is the string a transform option?  Only handling "--" options here, the others are handled by main().
+    bool IsTransformOption(std::string s)
     {
-        return !s.compare(0, 1, "-");
+        return s.compare(0, 2, "--") == 0;
     }
 
     // Is the string setting an option that takes an argument?
@@ -105,56 +86,62 @@ namespace gla {
 
 
     // Print out description and help
-    void PrintHelp()
+    void PrintTransformOptionsHelp()
     {
-        std::cout << Description << Usage;
+        std::cout << Usage;
     }
 
-    // // Given a string and a bool, assign the option
-    // void AssignOptimization(std::string opt, bool val)
-    // {
-    //     if (opt == "adce") {
-    //         Options.optimizations.adce        = val;
-    //     } else if (opt == "coalesce") {
-    //         Options.optimizations.coalesce    = val;
-    //     } else if (opt == "gvn") {
-    //         Options.optimizations.gvn         = val;
-    //     } else if (opt == "mem2reg") {
-    //         Options.optimizations.mem2reg     = val;
-    //     } else if (opt == "reassociate") {
-    //         Options.optimizations.reassociate = val;
-    //     } else if (opt == "verify") {
-    //         Options.optimizations.verify      = val;
-    //     } else if (opt == "cross-stage") {
-    //         Options.optimizations.crossStage  = val;
-    //     } else {
-    //         std::cout << "Unkown optimization" << opt << std::endl;
-    //         PrintHelp();
-    //         exit(1);
-    //     }
+     // Given a string and a bool, assign the option
+    void AssignOptimization(std::string opt, bool val, TransformOptions& options)
+    {
+        if (opt == "adce") {
+            options.optimizations.adce        = val;
+        } else if (opt == "coalesce") {
+            options.optimizations.coalesce    = val;
+        } else if (opt == "gvn") {
+            options.optimizations.gvn         = val;
+        } else if (opt == "reassociate") {
+            options.optimizations.reassociate = val;
+        } else if (opt == "cross-stage") {
+            options.optimizations.crossStage  = val;
+        } else if (opt == "inline") {
+            options.optimizations.inlineThreshold       = val ? options.optimizations.inlineThreshold       : 0;
+        } else if (opt == "unroll") {
+            options.optimizations.loopUnrollThreshold   = val ? options.optimizations.loopUnrollThreshold   : 0;
+        } else if (opt == "hoist") {
+            options.optimizations.flattenHoistThreshold = val ? options.optimizations.flattenHoistThreshold : 0;
+        } else {
+            std::cout << "Unkown optimization: " << opt << std::endl;
+            PrintTransformOptionsHelp();
+            exit(1);
+        }
 
-    //     return;
-    // }
+        return;
+    }
 
     // Returns the index of the first non-flag argument
+    // Returns -1 for an error.
     // Assumes that all option/flagged arguments come before non-flagged arguments
-    int HandleArgs(int argc, char **argv)
+    int HandleTransformOptions(int argc, char **argv, TransformOptions& options)
     {
         using std::vector;
         using std::string;
         using std::iterator;
 
-        int argIndex = 0;
+        int argIndex = 1;
 
         // Load up the flagged options
         vector<string> flaggedArgs;
         flaggedArgs.clear();
         for (int i = 1; i < argc; ++i) {
-            if (IsOption((string) argv[i])) {
+            if (IsTransformOption((string) argv[i])) {
                 flaggedArgs.push_back(argv[i]);
                 if (IsArgumentOption((string) argv[i])) {
                     ++i;
-                    flaggedArgs.push_back(argv[i]);
+                    if (i < argc)
+                        flaggedArgs.push_back(argv[i]);
+                    else
+                        return -1;
                 }
             } else {
                 argIndex = i;
@@ -164,35 +151,22 @@ namespace gla {
 
         // Handle each option
         for (vector<string>::iterator i = flaggedArgs.begin(), e = flaggedArgs.end(); i != e; ++i) {
-            if (*i == "-h" || *i == "--help") {
-                PrintHelp();
-                exit(0);
-            } else if (*i == "-d" || *i == "--debug") {
-                Options.debug = true;
-            } else if (*i == "--glsl") {
-                Options.backend = GLSL;
-            } else if (*i == "--tgsi") {
-                Options.backend = TGSI;
-            } else if (*i == "--dummy") {
-                Options.backend = Dummy;
-            } else if (*i == "-i" || *i == "--iterate") {
-                Options.iterate = true;
-            } else if (*i == "-f" || *i == "--obfuscate") {
-                Options.obfuscate = true;
-            } else if (*i == "-n" || *i == "--no-revision") {
-                Options.noRevision = true;
-            } else if (*i == "-b" || *i == "--bottom-ir-only") {
-                Options.bottomIROnly = true;
-            // } else if (*i == "--disable") {
-            //     ++i;
-            //     AssignOptimization(*i, false);
-            // } else if (*i == "--enable") {
-            //     ++i;
-            //     AssignOptimization(*i, true);
-            } else {
-                std::cout << "Unknown option: " << *i << std::endl;
-                PrintHelp();
-                exit(1);
+            if (*i == "--help") {
+                return -1;
+            //} else if (*i == "--glsl") {
+            //    options.backend = GLSL;
+            //} else if (*i == "--tgsi") {
+            //    options.backend = TGSI;
+            //} else if (*i == "--dummy") {
+            //    options.backend = Dummy;
+            } else if (*i == "--enable") {
+                ++i;
+                AssignOptimization(*i, true, options);
+            } else if (*i == "--disable") {
+                ++i;
+                AssignOptimization(*i, false, options);
+            } else if ((*i).compare(0, 2, "--") == 0) {
+                return -1;
             }
         }
 

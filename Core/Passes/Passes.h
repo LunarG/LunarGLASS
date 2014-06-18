@@ -63,7 +63,7 @@ namespace gla_llvm {
     // Flatten conditional assignments into select instructions. Currently only
     // simplifies instructions, deletes dead code, and then removes empty
     // conditionals
-    FunctionPass* createFlattenConditionalAssignmentsPass();
+    FunctionPass* createFlattenConditionalAssignmentsPass(int threshold);
 
     // Canonicalize the CFG for LunarGLASS
     FunctionPass* createCanonicalizeCFGPass();

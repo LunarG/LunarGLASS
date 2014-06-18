@@ -130,12 +130,13 @@ void gla::PrivateManager::runLLVMOptimizations1()
     globalPM.add(llvm::createIPSCCPPass());
     globalPM.add(llvm::createConstantMergePass());
     globalPM.add(llvm::createInstructionSimplifierPass());
-    globalPM.add(llvm::createAlwaysInlinerPass());
+    if (options.optimizations.inlineThreshold)
+        globalPM.add(llvm::createAlwaysInlinerPass());
     globalPM.add(llvm::createPromoteMemoryToRegisterPass());
     globalPM.run(*module);
 
     // Next, do interprocedural passes
-    // Future work: If we ever have non-inlined functions, we'll want to add some
+    // TODO: generated code performance: If we ever have non-inlined functions, we'll want to add some interprocedural passes
 
     VerifyModule(module);
 
@@ -170,7 +171,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
     passManager.add(gla_llvm::createDecomposeInstsPass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
-    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass());
+    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
 
     int innerAoS, outerSoA;
@@ -179,21 +180,25 @@ void gla::PrivateManager::runLLVMOptimizations1()
         passManager.add(gla_llvm::createScalarizePass());
     }
 
-    passManager.add(llvm::createReassociatePass());
+    if (options.optimizations.reassociate)
+        passManager.add(llvm::createReassociatePass());
     passManager.add(llvm::createInstructionCombiningPass());
 
-    passManager.add(llvm::createGVNPass());
+    if (options.optimizations.gvn)
+        passManager.add(llvm::createGVNPass());
     passManager.add(llvm::createSCCPPass());
 
     passManager.add(llvm::createLoopSimplifyPass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
-    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass());
+    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
 
     // Make multiinsert intrinsics, and clean up afterwards
     passManager.add(llvm::createInstructionCombiningPass());
-    passManager.add(gla_llvm::createCoalesceInsertsPass());
-    passManager.add(llvm::createAggressiveDCEPass());
+    if (options.optimizations.coalesce)
+        passManager.add(gla_llvm::createCoalesceInsertsPass());
+    if (options.optimizations.adce)
+        passManager.add(llvm::createAggressiveDCEPass());
     passManager.add(llvm::createInstructionCombiningPass());
 
     // Loop optimizations, and clean up afterwards
@@ -201,12 +206,15 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createIndVarSimplifyPass());
     passManager.add(llvm::createLoopRotatePass());
     passManager.add(llvm::createIndVarSimplifyPass());
-    passManager.add(llvm::createLoopUnrollPass(350));          // TODO: soon: allow control over this and other optimizations that are likely target dependent
+    if (options.optimizations.loopUnrollThreshold)
+        passManager.add(llvm::createLoopUnrollPass(options.optimizations.loopUnrollThreshold));
     passManager.add(llvm::createLoopStrengthReducePass());
-    passManager.add(llvm::createAggressiveDCEPass());
+    if (options.optimizations.adce)
+        passManager.add(llvm::createAggressiveDCEPass());
 
     passManager.add(llvm::createInstructionCombiningPass());
-    passManager.add(llvm::createGVNPass());
+    if (options.optimizations.gvn)
+        passManager.add(llvm::createGVNPass());
     passManager.add(llvm::createSCCPPass());
 
     // Run intrinisic combining
@@ -215,7 +223,8 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(gla_llvm::createIntrinsicCombinePass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
 
-    passManager.add(llvm::createGVNPass());
+    if (options.optimizations.gvn)
+        passManager.add(llvm::createGVNPass());
     passManager.add(llvm::createSCCPPass());
 
     // TODO: generated code: Consider if we really want it. For some reason StandardPasses.h
@@ -226,16 +235,18 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createScalarReplAggregatesPass());
     passManager.add(llvm::createInstructionCombiningPass());
     passManager.add(llvm::createCorrelatedValuePropagationPass());
-    passManager.add(llvm::createAggressiveDCEPass());
+    if (options.optimizations.adce)
+        passManager.add(llvm::createAggressiveDCEPass());
 
     // LunarGLASS CFG optimizations
     passManager.add(llvm::createLoopSimplifyPass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
-    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass());
+    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
 
     passManager.add(llvm::createInstructionCombiningPass());
-    passManager.add(llvm::createAggressiveDCEPass());
+    if (options.optimizations.adce)
+        passManager.add(llvm::createAggressiveDCEPass());
 
     RunOnModule(passManager, module);
 
@@ -245,7 +256,8 @@ void gla::PrivateManager::runLLVMOptimizations1()
     llvm::PassManager pm;
     pm.add(llvm::createInstructionCombiningPass());
     pm.add(llvm::createDeadStoreEliminationPass());
-    pm.add(llvm::createAggressiveDCEPass());
+    if (options.optimizations.adce)
+        pm.add(llvm::createAggressiveDCEPass());
     pm.add(llvm::createStripDeadPrototypesPass());
     
     // TODO: function-call functionality: Consider using the below in the presense of functions
@@ -253,9 +265,9 @@ void gla::PrivateManager::runLLVMOptimizations1()
 
     pm.run(*module);
 
-    VerifyModule(module);
+        VerifyModule(module);
 
-    // TODO: soon: Refactor the below use of GlobalOpt. Perhaps we want to repeat our
+    // TODO: Refactor the below use of GlobalOpt. Perhaps we want to repeat our
     // some function passes?
 
     llvm::PassManager modulePassManager;

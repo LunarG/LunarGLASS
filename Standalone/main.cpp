@@ -45,6 +45,7 @@
 // LunarGLASS includes
 #include "Frontends/glslang/GlslangToTop.h"
 #include "Core/Options.h"
+#include "OptionParse.h"
 #include "Backends/GLSL/GlslManager.h"
 
 #include <string.h>
@@ -89,7 +90,8 @@ enum TFailCode {
     EFailLinkerCreate
 };
 
-int Options = 0;
+int Options = 0;                       // the non-manager options
+gla::TransformOptions ManagerOptions;  // the manager-held options
 const char* ExecutableName;
 
 // Globally track if any compile or link failure.
@@ -227,7 +229,8 @@ void usage(bool advanced)
         printf("Developer options:\n"
                "  -a  dump LunarGLASS Top IR and Bottom IR\n"
                "  -i  intermediate tree (glslang AST) is printed out\n"
-               "  -m  memory leak mode\n");
+               "  -m  memory leak mode\n\n");
+        gla::PrintTransformOptionsHelp();
     }
 }
 
@@ -246,10 +249,18 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
         return EFailUsage;
     }
 
-    argc--;
-    argv++;
+    // This will handle all "--" options, currently correlated with the options that go inside the manager.
+    int handledOptions = gla::HandleTransformOptions(argc, argv, ManagerOptions);
+    if (handledOptions < 0) {
+        usage(false);
+        return EFailUsage;
+    }
+
+    argc -= handledOptions;
+    argv += handledOptions;
     for (; argc >= 1; argc--, argv++) {
-        if (argv[0][0] == '-') {
+        if (argv[0][0] == '-' && argv[0][1] != '-') {
+            // Handle all "-" here; the "--" options are handled in HandleTransformOptions()
             switch (argv[0][1]) {
             case '1':
             case '2':
@@ -316,7 +327,7 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
                 usage(false);
                 return EFailUsage;
             }
-        } else
+        } else if (argv[0][0] != '-')
             names.push_back(argv[0]);
     }
 
@@ -568,7 +579,8 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
 
         for (int i = 0; i < ((Options & gla::EOptionMemoryLeakMode) ? 100 : 1); ++i) {
             for (int j = 0; j < ((Options & gla::EOptionMemoryLeakMode) ? 100 : 1); ++j) {
-                gla::GlslManager manager(Options & gla::EOptionObfuscate, Options & gla::EOptionFilterInactive);
+                gla::GlslManager manager((Options & gla::EOptionObfuscate) != 0, (Options & gla::EOptionFilterInactive) != 0);
+                manager.options = ManagerOptions;
 
                 // Generate the Top IR
                 TranslateGlslangToTop(*intermediate, manager);
@@ -675,6 +687,7 @@ void TranslateSingleShader(glslang::TWorkItem* workItem)
 
     const glslang::TIntermediate* intermediate = program.getIntermediate((EShLanguage)stage);
     gla::GlslManager manager;
+    manager.options = ManagerOptions;
 
     // Generate the Top IR
     TranslateGlslangToTop(*intermediate, manager);

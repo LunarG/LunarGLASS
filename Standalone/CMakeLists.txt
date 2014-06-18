@@ -15,7 +15,10 @@ set(SOURCES
     CodeGen.cpp
     Link.cpp)
 
-add_executable(LunarGOO ${SOURCES})
+set(HEADERS
+    OptionParse.h)
+
+add_executable(LunarGOO ${SOURCES} ${HEADERS})
 
 if(WIN32)
     source_group("Source" REGULAR_EXPRESSION "[^/]*")

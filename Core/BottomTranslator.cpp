@@ -379,20 +379,18 @@ namespace {
         const PHINode* pn  = loop.getCanonicalInductionVariable();
         assert(pn);
 
-        // tripCount for the header block will be 1
+        // The tripCount for the header block will be 1
         // higher than the inductive loop's true trip count. This is
         // because it is counting the number of times that the exit
         // condition may be tested, which is 1 + the number of times the
         // exit condition fails.
 
         unsigned int tripCount = loop.getTripCount();   
-        if (gla::Options.debug && ! gla::Options.bottomIROnly) {
-            errs() << "\ninductive variable:"   << *pn;
-            errs() << "\n  trip count:      "   << tripCount;
-            errs() << "\n  increment:       "   << *loop.getIncrement();
-            errs() << "\n  exit condition:  "   << *loop.getInductiveExitCondition();
-            errs() << "\n";
-        }
+        //errs() << "\ninductive variable:"   << *pn;
+        //errs() << "\n  trip count:      "   << tripCount;
+        //errs() << "\n  increment:       "   << *loop.getIncrement();
+        //errs() << "\n  exit condition:  "   << *loop.getInductiveExitCondition();
+        //errs() << "\n";
 
         // tripCount of 0 means not a known constant count
         if (tripCount == 0) {
@@ -1098,10 +1096,8 @@ INITIALIZE_PASS_END(BottomTranslator,
 
 void gla::PrivateManager::translateBottomToTarget()
 {
-    if (! Options.bottomIROnly) {
-        PassManager passManager;
-        // llvm will delete what we pass to add, so that has be newed
-        passManager.add(new BottomTranslator(backEndTranslator, backEnd, this));
-        passManager.run(*module);
-    }
+    PassManager passManager;
+    // llvm will delete what we pass to add, so that has be newed
+    passManager.add(new BottomTranslator(backEndTranslator, backEnd, this));
+    passManager.run(*module);
 }

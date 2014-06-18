@@ -48,7 +48,6 @@
 #include "glslang/Include/ShHandle.h"
 
 // LunarGLASS includes
-// TODO: soon: merge glslang and LunarGLASS option handling
 //#include "StandAlone/OptionParse.h"
 #include "Core/Options.h"
 #include "Frontends/glslang/GlslangToTop.h"
@@ -62,36 +61,32 @@
 extern int TargetDefinitionVersion;
 extern EProfile TargetDefinitionProfile;
 
-#ifndef USE_LUNARGLASS_CORE
+class AdapterOnlyManager : public gla::Manager {
+public:
+    AdapterOnlyManager() { }
+    virtual ~AdapterOnlyManager() { delete context; }
 
-    class AdapterOnlyManager : public gla::Manager {
-    public:
-        AdapterOnlyManager() { }
-        virtual ~AdapterOnlyManager() { delete context; }
+    virtual void clear() 
+    {
+        delete module;
+        module = 0;
+    }
 
-        virtual void clear() 
-        {
-            delete module;
-            module = 0;
-        }
+    virtual void createContext()
+    {
+        context = new llvm::LLVMContext;
+    }
 
-        virtual void createContext()
-        {
-            context = new llvm::LLVMContext;
-        }
-
-        virtual void translateTopToBottom() { }
-        virtual void translateBottomToTarget() { }
-    };
-
-#endif  // USE_LUNARGLASS_CORE
+    virtual void translateTopToBottom() { }
+    virtual void translateBottomToTarget() { }
+};
 
 //
 // Here is where real machine specific high-level data would be defined.
 //
 class TGenericCompiler : public TCompiler {
 public:
-    TGenericCompiler(EShLanguage l, int dOptions) : TCompiler(l, infoSink), debugOptions(dOptions), targetVersion(0), targetProfile(EBadProfile) { }
+    TGenericCompiler(EShLanguage l, int dOptions) : TCompiler(l, infoSink), targetVersion(0), targetProfile(EBadProfile) { }
     virtual bool compile(TIntermNode* root, int version = 0, EProfile profile = ENoProfile);
     void setTargetVersion(int tv) { targetVersion = tv; }
     void setTargetProfile(EProfile tp) { targetProfile = tp; }
@@ -100,7 +95,6 @@ public:
 
 protected:
     TInfoSink infoSink;
-    int debugOptions;
     int targetVersion;
     EProfile targetProfile;
 };
@@ -132,8 +126,6 @@ void DeleteCompiler(TCompiler* compiler)
 //
 bool TGenericCompiler::compile(TIntermNode *root, int version, EProfile profile)
 {
-    gla::Options.debug = true;
-
     haveValidObjectCode = false;
 
     // Pick up the target versioning from the source, if it was not specified
@@ -142,32 +134,13 @@ bool TGenericCompiler::compile(TIntermNode *root, int version, EProfile profile)
     if (targetVersion == 0)
         targetVersion = version;
 
-#ifdef USE_LUNARGLASS_CORE
-    gla::Manager* glaManager = gla::getManager();
-#else
     gla::Manager* glaManager = new AdapterOnlyManager();
-#endif
     assert(EShLangCount < 256 && targetProfile < 256);
     glaManager->setVersion(static_cast<int>(language) << 24 | static_cast<int>(targetProfile) << 16 | targetVersion);
 
     TranslateGlslangToTop(root, glaManager);
 
-    if (! (debugOptions & gla::EOptionMemoryLeakMode)) {
-        if (debugOptions & gla::EOptionAssembly)
-            glaManager->dump("\nTop IR:\n");
-
-#ifdef USE_LUNARGLASS_CORE
-        glaManager->translateTopToBottom();
-
-        if (debugOptions & gla::EOptionAssembly)
-            glaManager->dump("\n\nBottom IR:\n");
-
-        glaManager->translateBottomToTarget();
-#endif
-    }
-
     glaManager->clear();
-
     delete glaManager;
 
     haveValidObjectCode = true;

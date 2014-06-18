@@ -54,7 +54,7 @@
 #include <string>
 #include <set>
 
-//#define USE_LUNARGLASS_CORE
+#include "Options.h"
 
 namespace llvm {
     class LLVMContext;
@@ -101,6 +101,8 @@ namespace gla {
         virtual int getStage() const { return stage; }
         virtual void setRequestedExtensions(const std::set<std::string>& exts) { requestedExtensions = exts; }
         const std::set<std::string>& getRequestedExtensions() const { return requestedExtensions; }
+
+        TransformOptions options; 
 
     protected:
         Manager() : context(0), module(0), version(0), profile(0) { }

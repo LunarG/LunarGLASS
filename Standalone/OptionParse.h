@@ -47,9 +47,8 @@
 #include <string>
 
 namespace gla {
-    extern bool IsOption(std::string);
-    extern void PrintHelp();
-    extern int HandleArgs(int, char**);
+    void PrintTransformOptionsHelp();
+    int HandleTransformOptions(int, char**, TransformOptions&);
 };
 
 #endif // OPTIONPARSE_H

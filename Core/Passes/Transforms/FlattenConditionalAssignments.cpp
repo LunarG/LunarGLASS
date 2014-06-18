@@ -93,7 +93,7 @@ namespace  {
         // Standard pass stuff
         static char ID;
 
-        FlattenCondAssn() : FunctionPass(ID)
+        FlattenCondAssn(int threshold = 20) : FunctionPass(ID), threshold(threshold)
         {
             initializeFlattenCondAssnPass(*PassRegistry::getPassRegistry());
         }
@@ -125,17 +125,13 @@ namespace  {
         }
 
         // Whether we should hoist instructions for this conditional, i.e. if
-        // it's a simple conditional that's under the threshHold.
+        // it's a simple conditional that's under the threshold.
         bool shouldHoist(Conditional* c) const
         {
             if (! c->isSimpleConditional())
                 return false;
 
-            // TODO: soon: Make more robust, more intrinsic aware, and guided by
-            // backend queries
-            int threshHold = 20;
-
-            return  checkHoistableInstructions(c) && checkThreshHold(c, threshHold);
+            return  checkHoistableInstructions(c) && checkThreshold(c);
 
         }
 
@@ -144,13 +140,13 @@ namespace  {
         void hoistInsts(Conditional*);
 
         // Whether the given conditional's then and else block sizes are
-        // less than the threshHold
-        bool checkThreshHold(Conditional* c, int threshHold) const
+        // less than the threshold
+        bool checkThreshold(Conditional* c) const
         {
             int thenSize = c->isIfElse() ? 0 : c->getThenBlock()->size() - 1;
             int elseSize = c->isIfThen() ? 0 : c->getElseBlock()->size() - 1;
 
-            return threshHold > thenSize + elseSize;
+            return threshold > thenSize + elseSize;
         }
 
         // Whether the given conditional's then and else blocks' instructions
@@ -163,6 +159,7 @@ namespace  {
             return thenOk && elseOk;
         }
 
+        int threshold;
     };
 } // end namespace
 
@@ -215,8 +212,7 @@ bool FlattenCondAssn::flattenConds()
             continue;
         }
 
-        // Check to see if we should hoist instructions, and if so then hoist
-        // them
+        // Check to see if we should hoist instructions, and if so then hoist them
         if (shouldHoist(cond))
             hoistInsts(cond);
 
@@ -265,7 +261,7 @@ INITIALIZE_PASS_END(FlattenCondAssn,
                     false,  // Whether it looks only at CFG
                     false); // Whether it is an analysis pass
 
-FunctionPass* gla_llvm::createFlattenConditionalAssignmentsPass()
+FunctionPass* gla_llvm::createFlattenConditionalAssignmentsPass(int threshold)
 {
-    return new FlattenCondAssn();
+    return new FlattenCondAssn(threshold);
 }
