@@ -40,7 +40,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "options.h"
+#include "Options.h"
 #include "OptionParse.h"
 
 #include <iostream>
