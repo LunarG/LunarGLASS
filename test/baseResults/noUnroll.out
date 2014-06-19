@@ -1,0 +1,657 @@
+doWhileLoop.frag
+#version 110
+// LunarGOO output
+uniform vec4 bigColor;
+uniform float d;
+varying vec4 BaseColor;
+vec4 color_c2;
+
+void main()
+{
+    vec4 color_uc1;
+    color_uc1 = BaseColor;
+    while (true) {
+        color_c2 = bigColor + color_uc1;
+        bool temp23 = color_c2.x >= d;
+        if (temp23) {
+            break;
+        }
+        
+        color_uc1 = color_c2;
+    }
+    
+    gl_FragColor = color_c2;
+    
+}
+
+
+forLoop.frag
+#version 120
+// LunarGOO output
+uniform int Count;
+uniform vec4 bigColor;
+varying vec4 BaseColor;
+const int const23i_0 = 0;
+const int const27i_1 = 1;
+
+void main()
+{
+    int i_uc1;
+    vec4 color_uc2;
+    i_uc1 = const23i_0;
+    color_uc2 = BaseColor;
+    while (true) {
+        bool temp24 = i_uc1 < Count;
+        if (! temp24) {
+            break;
+        }
+        
+        vec4 color_c3 = bigColor + color_uc2;
+        int temp26 = i_uc1 + const27i_1;
+        i_uc1 = temp26;
+        color_uc2 = color_c3;
+    }
+    
+    gl_FragColor = color_uc2;
+    
+}
+
+
+loops.frag
+#version 130
+// LunarGOO output
+uniform float d;
+uniform vec4 bigColor;
+uniform vec4 bigColor1_1;
+uniform float d2;
+uniform float d3;
+uniform vec4 bigColor1_2;
+uniform vec4 bigColor1_3;
+uniform float d4;
+uniform int Count;
+uniform vec4 bigColor2;
+uniform vec4 bigColor3;
+uniform vec4 bigColor4;
+uniform vec4 bigColor5;
+uniform float d5;
+uniform float d6;
+uniform vec4 bigColor6;
+uniform float d7;
+uniform vec4 bigColor7;
+uniform float d8;
+uniform float d9;
+uniform float d10;
+uniform float d11;
+uniform float d12;
+uniform vec4 bigColor8;
+uniform float d14;
+uniform float d15;
+uniform float d16;
+uniform float d18;
+uniform float d17;
+uniform float d13;
+uniform float d19;
+uniform float d20;
+uniform float d21;
+uniform float d22;
+uniform float d23;
+uniform float d24;
+uniform float d25;
+uniform float d26;
+uniform float d27;
+uniform float d28;
+uniform float d29;
+uniform float d30;
+uniform float d31;
+uniform float d32;
+uniform float d33;
+uniform float d34;
+in vec4 BaseColor;
+const float const68 = 0.33;
+const float const70 = 0.66;
+const vec4 const72 = vec4(0.66);
+const vec4 const73 = vec4(0.33);
+const float const81 = 42.0;
+const vec4 const83 = vec4(1.0);
+vec4 color_c53;
+const int const91i_0 = 0;
+const int const95i_1 = 1;
+vec4 color_c56;
+vec4 temp99;
+const float const101 = 20.0;
+const float const103 = 1.0;
+const int const115i_41 = 41;
+vec4 temp127;
+vec4 select_c62;
+vec4 select_c64;
+float temp146;
+vec4 color_c66;
+const float const158 = 0.0;
+vec4 color_c67;
+vec4 color_c69;
+const float const169 = 2.0;
+vec4 color_c71;
+const float const180 = 5.0;
+vec4 temp184;
+const float const194 = 10.0;
+vec4 color_c82;
+
+void main()
+{
+    vec4 color_uc1;
+    vec4 color_uc2;
+    vec4 color_uc3;
+    vec4 color_uc4;
+    vec4 color_uc5;
+    vec4 color_uc6;
+    vec4 color_uc7;
+    int i_uc8;
+    vec4 color_uc9;
+    int temp30;
+    vec4 color_uc10;
+    vec4 color_uc11;
+    int temp33;
+    vec4 color_uc12;
+    int temp35;
+    vec4 color_uc13;
+    int temp37;
+    vec4 color_uc14;
+    int temp39;
+    vec4 color_uc15;
+    vec4 color_uc16;
+    vec4 color_uc17;
+    vec4 color_uc18;
+    vec4 color_uc19;
+    vec4 color_uc20;
+    vec4 color_uc21;
+    vec4 color_uc22;
+    vec4 color_uc23;
+    vec4 color_uc24;
+    vec4 color_uc25;
+    vec4 color_uc26;
+    vec4 color_uc27;
+    vec4 color_uc28;
+    vec4 color_uc29;
+    vec4 color_uc30;
+    vec4 color_uc31;
+    vec4 color_uc32;
+    vec4 color_uc33;
+    vec4 color_uc34;
+    vec4 color_uc35;
+    vec4 color_uc36;
+    vec4 color_uc37;
+    vec4 color_uc38;
+    vec4 color_uc39;
+    vec4 color_uc40;
+    vec4 FragColor_shadow_c41;
+    bool temp67 = BaseColor.x < const68;
+    bool temp69 = BaseColor.x < const70;
+    vec4 select_c42 = temp69 ? const72 : const73;
+    vec4 select_c43 = temp67 ? const73 : select_c42;
+    vec4 select_c44 = BaseColor + select_c43;
+    color_uc1 = select_c44;
+    while (! (color_uc1.x >= d)){
+        vec4 color_c45 = bigColor + color_uc1;
+        color_uc1 = color_c45;
+    }
+    
+    color_uc2 = color_uc1;
+    while (! (color_uc2.z >= d)){
+        vec4 color_c46 = bigColor1_1 + color_uc2;
+        bool temp78 = color_c46.w < d;
+        vec4 color_c47 = bigColor1_1 + color_c46;
+        vec4 select_c48 = temp78 ? color_c46 : color_c47;
+        color_uc2 = select_c48;
+    }
+    
+    color_uc3 = color_uc2;
+    while (! (color_uc3.x >= const81)){
+        vec4 color_c49 = color_uc3 + const83;
+        color_uc3 = color_c49;
+    }
+    
+    color_uc4 = color_uc3;
+    while (true) {
+        bool notlhs_c50 = color_uc4.w >= d2;
+        bool notrhs_c51 = color_uc4.y >= d3;
+        bool temp86 = notrhs_c51 || notlhs_c50;
+        if (temp86) {
+            break;
+        }
+        
+        vec4 color_c52 = bigColor1_2 + color_uc4;
+        color_uc4 = color_c52;
+    }
+    
+    color_uc5 = color_uc4;
+    while (! (color_uc5.z >= d3)){
+        color_c53 = bigColor1_3 + color_uc5;
+        bool temp89 = color_c53.y < d4;
+        if (temp89) {
+            color_uc6 = color_c53;
+            break;
+        }
+        
+        vec4 color_c54 = bigColor1_3 + color_c53;
+        color_uc5 = color_c54;
+    }
+    
+    color_uc6 = color_uc5;
+    color_uc7 = color_uc6;
+    i_uc8 = const91i_0;
+    while (true) {
+        bool temp92 = i_uc8 < Count;
+        if (! temp92) {
+            break;
+        }
+        
+        vec4 color_c55 = bigColor2 + color_uc7;
+        int temp94 = i_uc8 + const95i_1;
+        color_uc7 = color_c55;
+        i_uc8 = temp94;
+    }
+    
+    color_uc9 = color_uc7;
+    while (true) {
+        color_c56 = bigColor3 + color_uc9;
+        bool temp97 = color_c56.x >= d2;
+        if (temp97) {
+            break;
+        }
+        
+        color_uc9 = color_c56;
+    }
+    
+    temp30 = const91i_0;
+    color_uc10 = color_c56;
+    for (temp30 = 0; temp30 < 41; ++temp30) {
+        float temp98 = color_uc10.z + d3;
+        temp99 = color_uc10;
+        temp99.z = temp98;
+        color_uc10 = temp99;
+    }
+    
+    color_uc11 = temp99;
+    temp33 = const91i_0;
+    for (temp33 = 0; temp33 < 100; ++temp33) {
+        bool temp100 = color_uc11.z < const101;
+        float temp102 = color_uc11.x + const103;
+        vec4 temp104 = color_uc11;
+        temp104.x = temp102;
+        float temp105 = color_uc11.y + const103;
+        vec4 temp106 = color_uc11;
+        temp106.y = temp105;
+        vec4 select_c57 = temp100 ? temp104 : temp106;
+        color_uc11 = select_c57;
+    }
+    
+    color_uc12 = color_uc11;
+    temp35 = const91i_0;
+    for (temp35 = 0; temp35 < 120; ++temp35) {
+        bool temp108 = color_uc12.z < const101;
+        float temp109 = color_uc12.x + const103;
+        vec4 temp110 = color_uc12;
+        temp110.x = temp109;
+        float temp111 = color_uc12.y + const103;
+        vec4 temp112 = color_uc12;
+        temp112.y = temp111;
+        vec4 select_c58 = temp108 ? temp110 : temp112;
+        color_uc12 = select_c58;
+    }
+    
+    color_uc13 = color_uc12;
+    temp37 = const91i_0;
+    while (true) {
+        bool temp114 = temp37 > const115i_41;
+        if (temp114) {
+            break;
+        }
+        
+        float temp116 = color_uc13.z + d3;
+        vec4 temp117 = color_uc13;
+        temp117.z = temp116;
+        bool temp118 = color_uc13.x < d4;
+        float temp119 = color_uc13.w + const103;
+        vec4 temp120 = color_uc13;
+        temp120.zw = vec2(temp116, temp119);
+        vec4 select_c59 = temp118 ? temp117 : temp120;
+        int temp122 = int(temp118);
+        int temp123 = temp122 ^ const95i_1;
+        int select_c60 = temp123 + temp37;
+        color_uc13 = select_c59;
+        temp37 = select_c60;
+    }
+    
+    color_uc14 = color_uc13;
+    temp39 = const91i_0;
+    while (true) {
+        bool temp125 = temp39 > const115i_41;
+        if (temp125) {
+            color_uc15 = color_uc14;
+            break;
+        }
+        
+        float temp126 = color_uc14.z + d3;
+        temp127 = color_uc14;
+        temp127.z = temp126;
+        bool temp128 = color_uc14.x < d4;
+        if (temp128) {
+            color_uc15 = temp127;
+            break;
+        }
+        
+        float temp129 = color_uc14.w + const103;
+        vec4 temp130 = temp127;
+        temp130.w = temp129;
+        int temp131 = const95i_1 + temp39;
+        color_uc14 = temp130;
+        temp39 = temp131;
+    }
+    
+    color_uc16 = color_uc15;
+    while (true) {
+        vec4 color_c61 = bigColor4 + color_uc16;
+        bool temp133 = color_c61.x < d4;
+        if (temp133) {
+            color_uc17 = color_c61;
+        }
+        else {
+            bool temp134 = color_c61.y < d4;
+            float temp135 = color_c61.y + d4;
+            vec4 temp136 = color_c61;
+            temp136.y = temp135;
+            float temp137 = color_c61.x + d4;
+            vec4 temp138 = color_c61;
+            temp138.x = temp137;
+            select_c62 = temp134 ? temp136 : temp138;
+            bool temp140 = select_c62.z >= d4;
+            if (temp140) {
+                break;
+            }
+            
+            color_uc17 = select_c62;
+        }
+        
+        color_uc16 = color_uc17;
+    }
+    
+    color_uc18 = select_c62;
+    while (true) {
+        vec4 color_c63 = bigColor5 + color_uc18;
+        bool temp142 = color_c63.y < d5;
+        float temp143 = color_c63.y + d5;
+        vec4 temp144 = color_c63;
+        temp144.y = temp143;
+        select_c64 = temp142 ? temp144 : color_c63;
+        bool temp147 = select_c64.x >= d5;
+        if (temp147) {
+            break;
+        }
+        
+        color_uc18 = select_c64;
+    }
+    
+    bool temp148 = select_c64.x < d6;
+    if (temp148) {
+        color_uc19 = select_c64;
+        while (! (color_uc19.y >= d6)){
+            vec4 color_c65 = bigColor6 + color_uc19;
+            color_uc19 = color_c65;
+        }
+        
+        color_uc21 = color_uc19;
+    }
+    else {
+        color_uc20 = select_c64;
+        while (! (color_uc20.z >= d6)){
+            float temp150 = bigColor6.z + color_uc20.z;
+            vec4 temp151 = color_uc20;
+            temp151.z = temp150;
+            color_uc20 = temp151;
+        }
+        
+        color_uc21 = color_uc20;
+    }
+    
+    bool temp152 = color_uc21.x < d6;
+    if (temp152) {
+        bool temp153 = d7 < const103;
+        color_uc22 = color_uc21;
+        while (! (color_uc22.y >= d6)){
+            color_c66 = bigColor6 + color_uc22;
+            if (temp153) {
+                color_uc23 = color_c66;
+                break;
+            }
+            
+            color_uc22 = color_c66;
+        }
+        
+        color_uc23 = color_uc22;
+        color_uc25 = color_uc23;
+    }
+    else {
+        color_uc24 = color_uc21;
+        while (! (color_uc24.z >= d6)){
+            float temp155 = bigColor6.z + color_uc24.z;
+            vec4 temp156 = color_uc24;
+            temp156.z = temp155;
+            color_uc24 = temp156;
+        }
+        
+        color_uc25 = color_uc24;
+    }
+    
+    bool temp157 = d7 < const158;
+    bool temp159 = d7 < const103;
+    color_uc26 = color_uc25;
+    while (true) {
+        if (temp157) {
+            color_uc27 = color_uc26;
+            break;
+        }
+        
+        color_c67 = bigColor7 + color_uc26;
+        if (temp159) {
+            float temp161 = color_c67.z + const103;
+            vec4 temp162 = color_c67;
+            temp162.z = temp161;
+            color_uc27 = temp162;
+            break;
+        }
+        
+        vec4 color_c68 = BaseColor + color_c67;
+        color_uc26 = color_c68;
+    }
+    
+    bool temp164 = d8 < const158;
+    bool temp165 = d8 < const103;
+    color_uc28 = color_uc27;
+    while (true) {
+        if (temp164) {
+            color_uc29 = color_uc28;
+            break;
+        }
+        
+        color_c69 = bigColor7 + color_uc28;
+        if (temp165) {
+            float temp167 = color_c69.z + const103;
+            bool temp168 = d8 < const169;
+            float temp170 = color_c69.y + const103;
+            vec4 temp171 = color_c69;
+            temp171.yz = vec2(temp170, temp167);
+            float temp172 = color_c69.x + const103;
+            vec4 temp173 = color_c69;
+            temp173.xz = vec2(temp172, temp167);
+            vec4 select_c70 = temp168 ? temp171 : temp173;
+            color_uc29 = select_c70;
+            break;
+        }
+        
+        color_c71 = BaseColor + color_c69;
+        bool temp176 = color_c71.z >= d8;
+        if (temp176) {
+            color_uc29 = color_c71;
+            break;
+        }
+        
+        color_uc28 = color_c71;
+    }
+    
+    bool temp177 = d9 > d8;
+    color_uc30 = color_uc29;
+    while (! (color_uc30.w >= d9)){
+        color_uc32 = color_uc30;
+        if (temp177) {
+            bool temp178 = color_uc30.x > d7;
+            color_uc31 = color_uc30;
+            if (! temp178) {
+                bool temp179 = color_uc30.z == const180;
+                if (! temp179) {
+                    break;
+                }
+                
+                float temp181 = color_uc30.w + const103;
+                vec4 temp182 = color_uc30;
+                temp182.w = temp181;
+                color_uc31 = temp182;
+            }
+            
+            color_uc32 = color_uc31;
+        }
+        
+        color_uc30 = color_uc32;
+    }
+    
+    color_uc33 = color_uc30;
+    while (! (color_uc33.z >= d10)){
+        float temp183 = color_uc33.y + const103;
+        temp184 = color_uc33;
+        temp184.y = temp183;
+        bool temp185 = temp183 < d11;
+        if (! temp185) {
+            vec4 color_c72 = const83 + temp184;
+            color_uc34 = color_c72;
+            break;
+        }
+        
+        float temp187 = color_uc33.z + const103;
+        bool temp188 = color_uc33.w < d12;
+        float temp189 = color_uc33.w + const103;
+        vec4 temp190 = temp184;
+        temp190.zw = vec2(temp187, temp189);
+        float temp191 = color_uc33.x + const103;
+        vec4 temp192 = temp184;
+        temp192.xz = vec2(temp191, temp187);
+        vec4 select_c73 = temp188 ? temp190 : temp192;
+        color_uc33 = select_c73;
+    }
+    
+    color_uc34 = color_uc33;
+    color_uc35 = color_uc34;
+    while (! (color_uc35.x >= const194)){
+        vec4 color_c74 = bigColor8 + color_uc35;
+        bool temp196 = color_c74.z < d8;
+        bool temp197 = color_c74.w < d6;
+        float temp198 = bigColor8.x + color_c74.y;
+        vec4 temp199 = color_c74;
+        temp199.y = temp198;
+        vec4 select_c75 = temp197 ? color_c74 : temp199;
+        vec4 select_c76 = temp196 ? select_c75 : temp199;
+        color_uc35 = select_c76;
+    }
+    
+    vec4 color_c77 = color_uc35 + const83;
+    color_uc36 = color_c77;
+    while (! (color_uc36.x >= d14)){
+        bool temp203 = color_uc36.y < d15;
+        if (temp203) {
+            FragColor_shadow_c41 = color_c77;
+            gl_FragColor = FragColor_shadow_c41;
+            return;
+        }
+        
+        vec4 color_c78 = color_uc36 + const83;
+        color_uc36 = color_c78;
+    }
+    
+    vec4 color_c79 = color_uc36 + const83;
+    color_uc37 = color_c79;
+    while (! (color_uc37.w >= d16)){
+        float temp206 = color_uc37.w + const103;
+        vec4 temp207 = color_uc37;
+        temp207.w = temp206;
+        color_uc37 = temp207;
+    }
+    
+    color_uc38 = color_uc37;
+    while (true) {
+        bool notlhs_c80 = color_uc38.w >= d2;
+        bool notrhs_c81 = color_uc38.y >= d3;
+        bool temp210 = notrhs_c81 || notlhs_c80;
+        if (temp210) {
+            color_uc39 = color_uc38;
+            while (! (color_uc39.y < d18)){
+                color_c82 = color_uc39 + const83;
+                bool temp212 = color_c82.x >= d17;
+                if (temp212) {
+                    color_uc40 = color_c82;
+                    while (! (color_uc40.y >= d16)){
+                        bool temp213 = color_uc40.w < d16;
+                        if (temp213) {
+                            discard;
+                        }
+                        
+                        vec4 color_c83 = color_uc40 + const83;
+                        color_uc40 = color_c83;
+                    }
+                    
+                    vec4 color_c84 = color_uc40 + const83;
+                    FragColor_shadow_c41 = color_c84;
+                    gl_FragColor = FragColor_shadow_c41;
+                    return;
+                }
+                
+                color_uc39 = color_c82;
+            }
+            
+            FragColor_shadow_c41 = color_c77;
+            gl_FragColor = FragColor_shadow_c41;
+            return;
+        }
+        
+        vec4 color_c85 = bigColor1_2 + color_uc38;
+        bool temp217 = color_c85.z < d3;
+        if (temp217) {
+            FragColor_shadow_c41 = color_c77;
+            gl_FragColor = FragColor_shadow_c41;
+            
+        }
+        
+        color_uc38 = color_c85;
+    }
+    
+}
+
+
+whileLoop.frag
+#version 110
+// LunarGOO output
+uniform float d;
+uniform vec4 bigColor;
+varying vec4 BaseColor;
+
+void main()
+{
+    vec4 color_uc1;
+    color_uc1 = BaseColor;
+    while (! (color_uc1.x >= d)){
+        vec4 color_c2 = bigColor + color_uc1;
+        color_uc1 = color_c2;
+    }
+    
+    gl_FragColor = color_uc1;
+    
+}
+
+

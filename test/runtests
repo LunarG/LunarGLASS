@@ -10,17 +10,12 @@ Usage: ./run [options]
          -h --help                 Print out this Usage info
          -o --enable-obfuscate     Do obfuscation tests
          -t --testfile <testfile>  Run on a single test file
-         -v --verbose              Prints more info
 "
 
-# Add more tests here as they are created
-TESTS=(test.frag               \
-       flowControl.frag        \
-       deepRvalue.frag         \
+# Individual isolated tests, which will also catch the IRs, but slower than doing multithreaded
+ISOLATEDTESTS=(flowControl.frag \
        Operations.frag         \
-       block.frag              \
        conversion.frag         \
-       length.frag             \
        prepost.frag            \
        swizzle.frag            \
        simpleFunctionCall.frag \
@@ -39,12 +34,9 @@ TESTS=(test.frag               \
        dataOutIndirect.vert    \
        varyingArray.frag       \
        varyingArrayIndirect.frag \
-       uniformArray.frag       \
        variableArrayIndex.frag \
        simpleMat.vert          \
        matrix.frag             \
-       matrix2.frag            \
-       matrixAgg.frag          \
        matFun.vert             \
        nonSquare.vert          \
        structure.frag          \
@@ -52,19 +44,12 @@ TESTS=(test.frag               \
        structDeref.frag        \
        localAggregates.frag    \
        aggOps.frag             \
-       texture.frag            \
-       texture.vert            \
-       newTexture.frag         \
        types.frag              \
        uint.frag               \
-       test.vert               \
        conditionalDiscard.frag \
        qualifiers.vert         \
-       qualifiers.frag         \
        precision.frag          \
        100ops.frag             \
-       300BuiltIns.frag        \
-       300BuiltIns.vert        \
        300layout.vert          \
        300layout.frag          \
        switch.frag             \
@@ -86,13 +71,24 @@ TESTS=(test.frag               \
 
 # $1 is the test
 # Rest are options to the runcommand
-function runSingleTest {
-    $RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > temp.stdout 2> temp.errout
-#   $RUNCMD ${OPTIONS[@]} ${@:2:${#@}} $1 > /dev/null 2>&1
+
+function runParallelTests {
+    printf "Running Parallel tests\n"
+
+    $RUNCMD -t test.frag test.vert deepRvalue.frag block.frag length.frag matrix2.frag matrixAgg.frag texture.frag texture.vert \
+               300BuiltIns.frag 300BuiltIns.vert uniformArray.frag newTexture.frag qualifiers.frag > localResults/parallel.out
+    diff -b baseResults/parallel.out localResults
+
+    $RUNCMD --disable unroll -t doWhileLoop.frag forLoop.frag loops.frag whileLoop.frag > localResults/noUnroll.out
+    diff -b baseResults/noUnroll.out localResults
 }
 
-function runTests {
-    for t in ${TESTS[@]}; do
+function runSingleTest {
+    $RUNCMD -a ${@:2:${#@}} $1 > temp.stdout 2> temp.errout
+}
+
+function runIsolatedTests {
+    for t in ${ISOLATEDTESTS[@]}; do
         printf "Running $t\n"
         
         runSingleTest $t 
@@ -111,11 +107,9 @@ function runTests {
 }
 
 RUNCMD=../build/install/bin/LunarGOO
-OPTIONS=(-a)
 GLSL_OP="--glsl"
 OBFUSCATE_OP="-f"
 DO_OBFUSCATE=""
-VERBOSE=""
 
 # Command-line argument Handling
 
@@ -125,18 +119,6 @@ while [ $# -gt 0 ]; do
         -h|--h)
             showHelp
             exit 0
-            ;;
-        -t|--testfile)
-            TESTS=("$2")
-            if [ ! -e "$2" ]
-            then
-                echo "Error: testfile $2 not found"
-                exit 1
-            fi
-            shift
-            ;;
-        -v|--verbose)
-            VERBOSE="true"
             ;;
         -o|--do-obfuscate)
             DO_OBFUSCATE="true"
@@ -150,4 +132,5 @@ while [ $# -gt 0 ]; do
 done
 
 mkdir -p localResults
-runTests
+runParallelTests
+runIsolatedTests

@@ -739,7 +739,7 @@ void TranslateSingleShader(glslang::TWorkItem* workItem)
 }
 
 glslang::TWorklist Worklist;
-const int NumThreads = 1;
+const int NumThreads = 16;
 
 // Multi-threaded entry point for TranslateShadersMultithreaded().
 //
@@ -781,6 +781,7 @@ void TranslateShadersMultithreaded(const std::vector<const char*>& names)
         }
     }
 
+#ifdef _WIN32
     // Create threads that will now do all the transalations
     void* threads[NumThreads];
     for (int t = 0; t < NumThreads; ++t) {
@@ -792,6 +793,9 @@ void TranslateShadersMultithreaded(const std::vector<const char*>& names)
         }
     }
     glslang::OS_WaitForAllThreads(threads, NumThreads);
+#else
+    TranslateShaders(0);
+#endif
 
     // Print out all the results
     for (int w = 0; w < workCount; ++w) {

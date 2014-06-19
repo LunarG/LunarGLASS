@@ -1,0 +1,1047 @@
+test.frag
+#version 110
+// LunarGOO output
+uniform sampler2D texSampler2D;
+uniform vec2 scale;
+uniform sampler3D texSampler3D;
+uniform vec4 u;
+uniform float blend;
+varying vec2 t;
+varying vec3 coords;
+const float const27 = 1.789;
+
+void main()
+{
+    vec2 temp21 = scale + t;
+    vec2 temp22 = temp21 / scale;
+    vec4 temp23 = texture2D(texSampler2D, temp22);
+    vec4 temp24 = temp23.wzyx;
+    vec4 temp25 = texture3D(texSampler3D, coords);
+    float temp26 = blend * const27;
+    vec4 temp28 = temp24 + temp25;
+    vec4 FragColor_shadow_c1 = mix(temp28, u, temp26);
+    gl_FragColor = FragColor_shadow_c1;
+    
+}
+
+
+test.vert
+#version 130
+// LunarGOO output
+uniform mat4 transform;
+in vec2 uv_in;
+in vec4 position;
+out vec2 uv;
+
+void main()
+{
+    vec4 temp21 = ftransform();
+    vec4 Position_shadow_c1 = position + temp21;
+    uv = uv_in;
+    gl_Position = Position_shadow_c1;
+    
+}
+
+
+deepRvalue.frag
+#version 120
+// LunarGOO output
+uniform sampler2D sampler;
+const vec2 const22 = vec2(0.5);
+const float const24 = 0.1;
+const float const26 = 7.0;
+const float const27 = 19.0;
+const vec4 const31 = vec4(361.0, 841.0, 5.0, 0.0);
+
+void main()
+{
+    vec4 temp21 = texture2D(sampler, const22);
+    bool temp23 = temp21.y > const24;
+    float temp25 = temp23 ? const26 : const27;
+    float temp28 = temp21.y + temp25;
+    float temp29 = const26 + temp28;
+    vec4 temp30 = const31;
+    temp30.w = temp29;
+    gl_FragColor = temp30;
+    
+}
+
+
+block.frag
+#version 300 es
+// LunarGOO output
+precision mediump float; // this will be almost entirely overridden by individual declarations
+
+struct S {
+    mediump vec4 u;
+    mediump uvec4 v;
+    lowp isampler2D sampler;
+    mediump vec3 w;
+    mediump mat3 m3a[5];
+};
+
+uniform S s;
+uniform fooBlock {
+    mediump vec4 bu;
+    mediump vec2 bw;
+    mediump uvec4 bv;
+    S bs;
+    mediump mat2 bm2;
+    mediump mat4 m4a[8];
+} ;
+uniform barBlock {
+    mediump vec4 nbu;
+    mediump mat3 nbm;
+    mediump uvec4 nbv;
+    mediump int ni;
+} inst[4];
+out mediump vec4 color;
+
+void main()
+{
+    mediump ivec4 temp21 = texture(s.sampler, bw);
+    mediump vec4 temp22 = vec4(temp21);
+    mediump vec4 temp23 = inst[3].nbu + temp22;
+    mediump vec4 color_shadow_c1 = bu + temp23;
+    color = color_shadow_c1;
+    
+}
+
+
+length.frag
+#version 120
+// LunarGOO output
+uniform vec4 u[3];
+varying vec2 v[2];
+const vec4 const21 = vec4(30.0);
+
+void main()
+{
+    gl_FragColor = const21;
+    
+}
+
+
+matrix2.frag
+#version 150 core
+// LunarGOO output
+uniform mat3x4 un34;
+uniform mat4x3 um43;
+uniform mat4 um4;
+uniform mat2 um2;
+uniform mat3 um3;
+uniform mat3 colorTransform;
+uniform mat4 m;
+uniform mat4 n;
+in vec4 v;
+in vec3 u;
+in vec3 Color;
+out vec4 FragColor;
+const vec4 const37 = vec4(4.3, 0.0, 0.0, 0.0);
+const vec4 const39 = vec4(0.0, 4.3, 0.0, 0.0);
+const vec4 const41 = vec4(0.0, 0.0, 4.3, 0.0);
+const float const43 = 1.0;
+const vec4 const156 = vec4(0.0, 0.0, 0.0, 1.0);
+const float const158 = 0.0;
+const float const281 = 0.0;
+
+void main()
+{
+    float element_c1 = u.x * v.x;
+    float element_c2 = u.x * v.y;
+    float element_c3 = u.x * v.z;
+    float element_c4 = u.x * v.w;
+    vec4 temp25 = vec4(element_c1, element_c2, element_c3, element_c4);
+    float element_c5 = u.y * v.x;
+    float element_c6 = u.y * v.y;
+    float element_c7 = u.y * v.z;
+    float element_c8 = u.y * v.w;
+    vec4 temp30 = vec4(element_c5, element_c6, element_c7, element_c8);
+    float element_c9 = u.z * v.x;
+    float element_c10 = u.z * v.y;
+    float element_c11 = u.z * v.z;
+    float element_c12 = u.z * v.w;
+    vec4 temp35 = vec4(element_c9, element_c10, element_c11, element_c12);
+    vec4 column_c13 = temp25 + const37;
+    vec4 column_c14 = temp30 + const39;
+    vec4 column_c15 = temp35 + const41;
+    vec4 temp42 = vec4(Color.x, Color.y, Color.z, const43);
+    float dotres_c16 = dot(temp42, column_c13);
+    float dotres_c17 = dot(temp42, column_c14);
+    float dotres_c18 = dot(temp42, column_c15);
+    vec4 temp47 = vec4(dotres_c16, dotres_c17, dotres_c18, const43);
+    vec4 FragColor_shadow_c19 = temp42 * temp47;
+    float temp49 = column_c13.x * v.x;
+    float temp50 = column_c13.y * v.x;
+    float temp51 = column_c13.z * v.x;
+    float temp52 = column_c13.w * v.x;
+    float temp53 = column_c14.x * v.x;
+    float temp54 = column_c14.y * v.x;
+    float temp55 = column_c14.z * v.x;
+    float temp56 = column_c14.w * v.x;
+    float temp57 = column_c15.x * v.x;
+    float temp58 = column_c15.y * v.x;
+    float temp59 = column_c15.z * v.x;
+    float temp60 = column_c15.w * v.x;
+    vec4 column_c20 = un34[0];
+    vec4 column_c21 = un34[1];
+    vec4 column_c22 = un34[2];
+    vec3 rightColumn_c23 = um43[0];
+    float product_c24 = rightColumn_c23.x * temp49;
+    float product_c25 = rightColumn_c23.y * temp53;
+    float dotProduct_c26 = product_c24 + product_c25;
+    float product_c27 = rightColumn_c23.z * temp57;
+    float dotProduct_c28 = dotProduct_c26 + product_c27;
+    float product_c29 = rightColumn_c23.x * temp50;
+    float product_c30 = rightColumn_c23.y * temp54;
+    float dotProduct_c31 = product_c29 + product_c30;
+    float product_c32 = rightColumn_c23.z * temp58;
+    float dotProduct_c33 = dotProduct_c31 + product_c32;
+    float product_c34 = rightColumn_c23.x * temp51;
+    float product_c35 = rightColumn_c23.y * temp55;
+    float dotProduct_c36 = product_c34 + product_c35;
+    float product_c37 = rightColumn_c23.z * temp59;
+    float dotProduct_c38 = dotProduct_c36 + product_c37;
+    float product_c39 = rightColumn_c23.x * temp52;
+    float product_c40 = rightColumn_c23.y * temp56;
+    float dotProduct_c41 = product_c39 + product_c40;
+    float product_c42 = rightColumn_c23.z * temp60;
+    float dotProduct_c43 = dotProduct_c41 + product_c42;
+    vec4 temp85 = vec4(dotProduct_c28, dotProduct_c33, dotProduct_c38, dotProduct_c43);
+    vec3 rightColumn_c44 = um43[1];
+    float product_c45 = rightColumn_c44.x * temp49;
+    float product_c46 = rightColumn_c44.y * temp53;
+    float dotProduct_c47 = product_c45 + product_c46;
+    float product_c48 = rightColumn_c44.z * temp57;
+    float dotProduct_c49 = dotProduct_c47 + product_c48;
+    float product_c50 = rightColumn_c44.x * temp50;
+    float product_c51 = rightColumn_c44.y * temp54;
+    float dotProduct_c52 = product_c50 + product_c51;
+    float product_c53 = rightColumn_c44.z * temp58;
+    float dotProduct_c54 = dotProduct_c52 + product_c53;
+    float product_c55 = rightColumn_c44.x * temp51;
+    float product_c56 = rightColumn_c44.y * temp55;
+    float dotProduct_c57 = product_c55 + product_c56;
+    float product_c58 = rightColumn_c44.z * temp59;
+    float dotProduct_c59 = dotProduct_c57 + product_c58;
+    float product_c60 = rightColumn_c44.x * temp52;
+    float product_c61 = rightColumn_c44.y * temp56;
+    float dotProduct_c62 = product_c60 + product_c61;
+    float product_c63 = rightColumn_c44.z * temp60;
+    float dotProduct_c64 = dotProduct_c62 + product_c63;
+    vec4 temp107 = vec4(dotProduct_c49, dotProduct_c54, dotProduct_c59, dotProduct_c64);
+    vec3 rightColumn_c65 = um43[2];
+    float product_c66 = rightColumn_c65.x * temp49;
+    float product_c67 = rightColumn_c65.y * temp53;
+    float dotProduct_c68 = product_c66 + product_c67;
+    float product_c69 = rightColumn_c65.z * temp57;
+    float dotProduct_c70 = dotProduct_c68 + product_c69;
+    float product_c71 = rightColumn_c65.x * temp50;
+    float product_c72 = rightColumn_c65.y * temp54;
+    float dotProduct_c73 = product_c71 + product_c72;
+    float product_c74 = rightColumn_c65.z * temp58;
+    float dotProduct_c75 = dotProduct_c73 + product_c74;
+    float product_c76 = rightColumn_c65.x * temp51;
+    float product_c77 = rightColumn_c65.y * temp55;
+    float dotProduct_c78 = product_c76 + product_c77;
+    float product_c79 = rightColumn_c65.z * temp59;
+    float dotProduct_c80 = dotProduct_c78 + product_c79;
+    float product_c81 = rightColumn_c65.x * temp52;
+    float product_c82 = rightColumn_c65.y * temp56;
+    float dotProduct_c83 = product_c81 + product_c82;
+    float product_c84 = rightColumn_c65.z * temp60;
+    float dotProduct_c85 = dotProduct_c83 + product_c84;
+    vec4 temp129 = vec4(dotProduct_c70, dotProduct_c75, dotProduct_c80, dotProduct_c85);
+    vec3 rightColumn_c86 = um43[3];
+    float product_c87 = rightColumn_c86.x * temp49;
+    float product_c88 = rightColumn_c86.y * temp53;
+    float dotProduct_c89 = product_c87 + product_c88;
+    float product_c90 = rightColumn_c86.z * temp57;
+    float dotProduct_c91 = dotProduct_c89 + product_c90;
+    float product_c92 = rightColumn_c86.x * temp50;
+    float product_c93 = rightColumn_c86.y * temp54;
+    float dotProduct_c94 = product_c92 + product_c93;
+    float product_c95 = rightColumn_c86.z * temp58;
+    float dotProduct_c96 = dotProduct_c94 + product_c95;
+    float product_c97 = rightColumn_c86.x * temp51;
+    float product_c98 = rightColumn_c86.y * temp55;
+    float dotProduct_c99 = product_c97 + product_c98;
+    float product_c100 = rightColumn_c86.z * temp59;
+    float dotProduct_c101 = dotProduct_c99 + product_c100;
+    float product_c102 = rightColumn_c86.x * temp52;
+    float product_c103 = rightColumn_c86.y * temp56;
+    float dotProduct_c104 = product_c102 + product_c103;
+    float product_c105 = rightColumn_c86.z * temp60;
+    float dotProduct_c106 = dotProduct_c104 + product_c105;
+    vec4 temp151 = vec4(dotProduct_c91, dotProduct_c96, dotProduct_c101, dotProduct_c106);
+    vec4 column_c107 = column_c20 + temp85;
+    vec4 column_c108 = column_c21 + temp107;
+    vec4 column_c109 = column_c22 + temp129;
+    vec4 column_c110 = temp151 + const156;
+    float temp157 = const158 - column_c107.x;
+    float temp159 = const158 - column_c107.y;
+    float temp160 = const158 - column_c107.z;
+    float temp161 = const158 - column_c107.w;
+    float temp162 = const158 - column_c108.x;
+    float temp163 = const158 - column_c108.y;
+    float temp164 = const158 - column_c108.z;
+    float temp165 = const158 - column_c108.w;
+    float temp166 = const158 - column_c109.x;
+    float temp167 = const158 - column_c109.y;
+    float temp168 = const158 - column_c109.z;
+    float temp169 = const158 - column_c109.w;
+    float temp170 = const158 - column_c110.x;
+    float temp171 = const158 - column_c110.y;
+    float temp172 = const158 - column_c110.z;
+    float temp173 = const158 - column_c110.w;
+    float product_c111 = temp157 * v.x;
+    float product_c112 = temp162 * v.y;
+    float dotProduct_c113 = product_c111 + product_c112;
+    float product_c114 = temp166 * v.z;
+    float dotProduct_c115 = dotProduct_c113 + product_c114;
+    float product_c116 = temp170 * v.w;
+    float dotProduct_c117 = dotProduct_c115 + product_c116;
+    float product_c118 = temp159 * v.x;
+    float product_c119 = temp163 * v.y;
+    float dotProduct_c120 = product_c118 + product_c119;
+    float product_c121 = temp167 * v.z;
+    float dotProduct_c122 = dotProduct_c120 + product_c121;
+    float product_c123 = temp171 * v.w;
+    float dotProduct_c124 = dotProduct_c122 + product_c123;
+    float product_c125 = temp160 * v.x;
+    float product_c126 = temp164 * v.y;
+    float dotProduct_c127 = product_c125 + product_c126;
+    float product_c128 = temp168 * v.z;
+    float dotProduct_c129 = dotProduct_c127 + product_c128;
+    float product_c130 = temp172 * v.w;
+    float dotProduct_c131 = dotProduct_c129 + product_c130;
+    float product_c132 = temp161 * v.x;
+    float product_c133 = temp165 * v.y;
+    float dotProduct_c134 = product_c132 + product_c133;
+    float product_c135 = temp169 * v.z;
+    float dotProduct_c136 = dotProduct_c134 + product_c135;
+    float product_c137 = temp173 * v.w;
+    float dotProduct_c138 = dotProduct_c136 + product_c137;
+    vec4 temp202 = vec4(dotProduct_c117, dotProduct_c124, dotProduct_c131, dotProduct_c138);
+    vec4 FragColor_shadow_c139 = FragColor_shadow_c19 + temp202;
+    vec4 column_c140 = column_c107 * column_c107;
+    vec4 column_c141 = column_c108 * column_c108;
+    vec4 column_c142 = column_c109 * column_c109;
+    vec4 column_c143 = column_c110 * column_c110;
+    float dotres_c144 = dot(FragColor_shadow_c139, column_c140);
+    float dotres_c145 = dot(FragColor_shadow_c139, column_c141);
+    float dotres_c146 = dot(FragColor_shadow_c139, column_c142);
+    float dotres_c147 = dot(FragColor_shadow_c139, column_c143);
+    vec4 temp212 = vec4(dotres_c144, dotres_c145, dotres_c146, dotres_c147);
+    vec4 temp213 = vec4(rightColumn_c23.x, rightColumn_c44.x, rightColumn_c65.x, rightColumn_c86.x);
+    vec4 temp214 = vec4(rightColumn_c23.y, rightColumn_c44.y, rightColumn_c65.y, rightColumn_c86.y);
+    vec4 temp215 = vec4(rightColumn_c23.z, rightColumn_c44.z, rightColumn_c65.z, rightColumn_c86.z);
+    float dotres_c148 = dot(temp212, temp213);
+    float dotres_c149 = dot(temp212, temp214);
+    float dotres_c150 = dot(temp212, temp215);
+    vec4 temp219 = vec4(dotres_c148, dotres_c149, dotres_c150, const43);
+    vec4 FragColor_shadow_c151 = temp212 * temp219;
+    vec4 column_c152 = um4[0];
+    vec4 column_c153 = um4[1];
+    vec4 column_c154 = um4[2];
+    vec4 column_c155 = um4[3];
+    float temp225 = column_c154.z * column_c155.w;
+    float temp226 = column_c154.w * column_c155.z;
+    float temp227 = temp225 - temp226;
+    float temp228 = column_c153.y * temp227;
+    float temp229 = column_c153.z * column_c155.w;
+    float temp230 = column_c153.w * column_c155.z;
+    float temp231 = temp229 - temp230;
+    float temp232 = column_c154.y * temp231;
+    float temp233 = temp228 - temp232;
+    float temp234 = column_c153.z * column_c154.w;
+    float temp235 = column_c153.w * column_c154.z;
+    float temp236 = temp234 - temp235;
+    float temp237 = column_c155.y * temp236;
+    float temp238 = temp233 + temp237;
+    float temp239 = column_c152.x * temp238;
+    float temp240 = column_c152.y * temp227;
+    float temp241 = column_c152.z * column_c155.w;
+    float temp242 = column_c152.w * column_c155.z;
+    float temp243 = temp241 - temp242;
+    float temp244 = column_c154.y * temp243;
+    float temp245 = temp240 - temp244;
+    float temp246 = column_c152.z * column_c154.w;
+    float temp247 = column_c152.w * column_c154.z;
+    float temp248 = temp246 - temp247;
+    float temp249 = column_c155.y * temp248;
+    float temp250 = temp245 + temp249;
+    float temp251 = column_c153.x * temp250;
+    float temp252 = temp239 - temp251;
+    float temp253 = column_c152.y * temp231;
+    float temp254 = column_c153.y * temp243;
+    float temp255 = temp253 - temp254;
+    float temp256 = column_c152.z * column_c153.w;
+    float temp257 = column_c152.w * column_c153.z;
+    float temp258 = temp256 - temp257;
+    float temp259 = column_c155.y * temp258;
+    float temp260 = temp255 + temp259;
+    float temp261 = column_c154.x * temp260;
+    float temp262 = temp252 + temp261;
+    float temp263 = column_c152.y * temp236;
+    float temp264 = column_c153.y * temp248;
+    float temp265 = temp263 - temp264;
+    float temp266 = column_c154.y * temp258;
+    float temp267 = temp265 + temp266;
+    float temp268 = column_c155.x * temp267;
+    float temp269 = temp262 - temp268;
+    vec4 temp270 = vec4(temp269);
+    vec4 FragColor_shadow_c156 = FragColor_shadow_c151 * temp270;
+    vec2 column_c157 = um2[0];
+    vec2 column_c158 = um2[1];
+    float temp274 = column_c157.x * column_c158.y;
+    float temp275 = column_c157.y * column_c158.x;
+    float temp276 = temp274 - temp275;
+    float temp277 = const43 / temp276;
+    float temp278 = column_c158.y * temp277;
+    float temp279 = column_c158.x * temp277;
+    float temp280 = const281 - temp279;
+    float temp282 = column_c157.y * temp277;
+    float temp283 = const281 - temp282;
+    float temp284 = column_c157.x * temp277;
+    vec4 temp285 = vec4(temp278, temp280, temp283, temp284);
+    vec4 FragColor_shadow_c159 = FragColor_shadow_c156 * temp285;
+    vec3 column_c160 = um3[0];
+    vec3 column_c161 = um3[1];
+    vec3 column_c162 = um3[2];
+    float temp290 = column_c160.x * column_c162.y;
+    float temp291 = column_c160.y * column_c162.x;
+    float temp292 = temp290 - temp291;
+    float temp293 = column_c161.y * column_c162.z;
+    float temp294 = column_c161.z * column_c162.y;
+    float temp295 = temp293 - temp294;
+    float temp296 = column_c160.x * temp295;
+    float temp297 = column_c160.y * column_c162.z;
+    float temp298 = column_c160.z * column_c162.y;
+    float temp299 = temp297 - temp298;
+    float temp300 = column_c161.x * temp299;
+    float temp301 = temp296 - temp300;
+    float temp302 = column_c160.y * column_c161.z;
+    float temp303 = column_c160.z * column_c161.y;
+    float temp304 = temp302 - temp303;
+    float temp305 = column_c162.x * temp304;
+    float temp306 = temp301 + temp305;
+    float temp307 = const43 / temp306;
+    float temp308 = temp292 * temp307;
+    float temp309 = const281 - temp308;
+    vec4 temp310 = vec4(temp309);
+    vec4 FragColor_shadow_c163 = FragColor_shadow_c159 * temp310;
+    float temp312 = column_c153.x * temp227;
+    float temp313 = column_c154.x * temp231;
+    float temp314 = temp312 - temp313;
+    float temp315 = column_c155.x * temp236;
+    float temp316 = temp314 + temp315;
+    float temp317 = column_c152.x * temp227;
+    float temp318 = column_c154.x * temp243;
+    float temp319 = temp317 - temp318;
+    float temp320 = column_c155.x * temp248;
+    float temp321 = temp319 + temp320;
+    float temp322 = column_c152.x * temp231;
+    float temp323 = column_c153.x * temp243;
+    float temp324 = temp322 - temp323;
+    float temp325 = column_c155.x * temp258;
+    float temp326 = temp324 + temp325;
+    float temp327 = column_c152.x * temp236;
+    float temp328 = column_c153.x * temp248;
+    float temp329 = temp327 - temp328;
+    float temp330 = column_c154.x * temp258;
+    float temp331 = temp329 + temp330;
+    float temp332 = column_c154.y * column_c155.w;
+    float temp333 = column_c154.w * column_c155.y;
+    float temp334 = temp332 - temp333;
+    float temp335 = column_c153.x * temp334;
+    float temp336 = column_c153.y * column_c155.w;
+    float temp337 = column_c153.w * column_c155.y;
+    float temp338 = temp336 - temp337;
+    float temp339 = column_c154.x * temp338;
+    float temp340 = temp335 - temp339;
+    float temp341 = column_c153.y * column_c154.w;
+    float temp342 = column_c153.w * column_c154.y;
+    float temp343 = temp341 - temp342;
+    float temp344 = column_c155.x * temp343;
+    float temp345 = temp340 + temp344;
+    float temp346 = column_c152.x * temp334;
+    float temp347 = column_c152.y * column_c155.w;
+    float temp348 = column_c152.w * column_c155.y;
+    float temp349 = temp347 - temp348;
+    float temp350 = column_c154.x * temp349;
+    float temp351 = temp346 - temp350;
+    float temp352 = column_c152.y * column_c154.w;
+    float temp353 = column_c152.w * column_c154.y;
+    float temp354 = temp352 - temp353;
+    float temp355 = column_c155.x * temp354;
+    float temp356 = temp351 + temp355;
+    float temp357 = column_c152.x * temp338;
+    float temp358 = column_c153.x * temp349;
+    float temp359 = temp357 - temp358;
+    float temp360 = column_c152.y * column_c153.w;
+    float temp361 = column_c152.w * column_c153.y;
+    float temp362 = temp360 - temp361;
+    float temp363 = column_c155.x * temp362;
+    float temp364 = temp359 + temp363;
+    float temp365 = column_c152.x * temp343;
+    float temp366 = column_c153.x * temp354;
+    float temp367 = temp365 - temp366;
+    float temp368 = column_c154.x * temp362;
+    float temp369 = temp367 + temp368;
+    float temp370 = column_c154.y * column_c155.z;
+    float temp371 = column_c154.z * column_c155.y;
+    float temp372 = temp370 - temp371;
+    float temp373 = column_c153.x * temp372;
+    float temp374 = column_c153.y * column_c155.z;
+    float temp375 = column_c153.z * column_c155.y;
+    float temp376 = temp374 - temp375;
+    float temp377 = column_c154.x * temp376;
+    float temp378 = temp373 - temp377;
+    float temp379 = column_c153.y * column_c154.z;
+    float temp380 = column_c153.z * column_c154.y;
+    float temp381 = temp379 - temp380;
+    float temp382 = column_c155.x * temp381;
+    float temp383 = temp378 + temp382;
+    float temp384 = column_c152.x * temp372;
+    float temp385 = column_c152.y * column_c155.z;
+    float temp386 = column_c152.z * column_c155.y;
+    float temp387 = temp385 - temp386;
+    float temp388 = column_c154.x * temp387;
+    float temp389 = temp384 - temp388;
+    float temp390 = column_c152.y * column_c154.z;
+    float temp391 = column_c152.z * column_c154.y;
+    float temp392 = temp390 - temp391;
+    float temp393 = column_c155.x * temp392;
+    float temp394 = temp389 + temp393;
+    float temp395 = column_c152.x * temp376;
+    float temp396 = column_c153.x * temp387;
+    float temp397 = temp395 - temp396;
+    float temp398 = column_c152.y * column_c153.z;
+    float temp399 = column_c152.z * column_c153.y;
+    float temp400 = temp398 - temp399;
+    float temp401 = column_c155.x * temp400;
+    float temp402 = temp397 + temp401;
+    float temp403 = column_c152.x * temp381;
+    float temp404 = column_c153.x * temp392;
+    float temp405 = temp403 - temp404;
+    float temp406 = column_c154.x * temp400;
+    float temp407 = temp405 + temp406;
+    float temp408 = const43 / temp269;
+    float temp409 = temp238 * temp408;
+    float temp410 = temp316 * temp408;
+    float temp411 = const281 - temp410;
+    float temp412 = temp345 * temp408;
+    float temp413 = temp383 * temp408;
+    float temp414 = const281 - temp413;
+    float temp415 = temp250 * temp408;
+    float temp416 = const281 - temp415;
+    float temp417 = temp321 * temp408;
+    float temp418 = temp356 * temp408;
+    float temp419 = const281 - temp418;
+    float temp420 = temp394 * temp408;
+    float temp421 = temp260 * temp408;
+    float temp422 = temp326 * temp408;
+    float temp423 = const281 - temp422;
+    float temp424 = temp364 * temp408;
+    float temp425 = temp402 * temp408;
+    float temp426 = const281 - temp425;
+    float temp427 = temp267 * temp408;
+    float temp428 = const281 - temp427;
+    float temp429 = temp331 * temp408;
+    float temp430 = temp369 * temp408;
+    float temp431 = const281 - temp430;
+    float temp432 = temp407 * temp408;
+    vec4 temp433 = vec4(temp409, temp416, temp421, temp428);
+    vec4 temp434 = vec4(temp411, temp417, temp423, temp429);
+    vec4 temp435 = vec4(temp412, temp419, temp424, temp431);
+    vec4 temp436 = vec4(temp414, temp420, temp426, temp432);
+    float dotres_c164 = dot(FragColor_shadow_c163, temp433);
+    float dotres_c165 = dot(FragColor_shadow_c163, temp434);
+    float dotres_c166 = dot(FragColor_shadow_c163, temp435);
+    float dotres_c167 = dot(FragColor_shadow_c163, temp436);
+    vec4 temp441 = vec4(dotres_c164, dotres_c165, dotres_c166, dotres_c167);
+    vec4 column_c168 = column_c20 * column_c20;
+    float dotres_c169 = dot(temp441, column_c168);
+    vec4 column_c170 = column_c21 * column_c21;
+    float dotres_c171 = dot(temp441, column_c170);
+    vec4 column_c172 = column_c22 * column_c22;
+    float dotres_c173 = dot(temp441, column_c172);
+    vec4 temp448 = vec4(dotres_c169, dotres_c171, dotres_c173, dotres_c167);
+    FragColor = temp448;
+    
+}
+
+
+matrixAgg.frag
+#version 120
+// LunarGOO output
+struct s {
+    int count;
+    mat4x3 sm[12];
+};
+
+uniform s us;
+uniform int i;
+uniform mat4x3 am[8];
+uniform mat4x3 m;
+varying vec3 v;
+
+void main()
+{
+    vec3 rightColumn_c1 = am[4][0];
+    vec3 leftColumn_c2 = us.sm[i][0];
+    vec3 rightColumn_c3 = am[4][1];
+    vec3 leftColumn_c4 = us.sm[i][1];
+    vec3 column_c5 = leftColumn_c2 + rightColumn_c1;
+    float dotres_c6 = dot(v, column_c5);
+    vec3 rightColumn_c7 = am[4][2];
+    vec3 leftColumn_c8 = us.sm[i][2];
+    vec3 column_c9 = leftColumn_c4 + rightColumn_c3;
+    float dotres_c10 = dot(v, column_c9);
+    vec3 rightColumn_c11 = am[4][3];
+    vec3 leftColumn_c12 = us.sm[i][3];
+    vec3 column_c13 = leftColumn_c8 + rightColumn_c7;
+    float dotres_c14 = dot(v, column_c13);
+    vec3 column_c15 = leftColumn_c12 + rightColumn_c11;
+    float dotres_c16 = dot(v, column_c15);
+    vec4 temp37 = vec4(dotres_c6, dotres_c10, dotres_c14, dotres_c16);
+    gl_FragColor = temp37;
+    
+}
+
+
+texture.frag
+#version 130
+// LunarGOO output
+uniform sampler1D texSampler1D;
+uniform sampler2D texSampler2D;
+uniform sampler3D texSampler3D;
+uniform samplerCube texSamplerCube;
+uniform sampler1DShadow shadowSampler1D;
+uniform sampler2DShadow shadowSampler2D;
+uniform vec4 u;
+uniform float blend;
+uniform vec2 scale;
+in vec2 coords2D;
+in vec2 t;
+const float const24 = 3.0;
+const float const28 = 1.789;
+const float const29 = 2.0;
+const vec4 const34 = vec4(1.789, 2.718, 3.453, 2.0);
+const vec3 const45 = vec3(1.789, 2.718, 3.453);
+const ivec2 const78 = ivec2(0, 5);
+const int const79i_1 = 1;
+const ivec2 const87 = ivec2(3, -7);
+
+void main()
+{
+    vec2 gradX_c1 = dFdx(coords2D);
+    vec2 gradY_c2 = dFdy(coords2D);
+    vec3 temp23;
+    temp23.xyz = vec3(coords2D.x, coords2D.y, const24);
+    float temp25 = textureGrad(shadowSampler2D, temp23, gradX_c1, gradY_c2);
+    vec4 temp26 = vec4(temp25);
+    vec4 temp27 = texture(texSampler1D, const28, const29);
+    vec4 temp30 = texture(texSampler1D, const28);
+    vec4 temp31 = textureProj(texSampler1D, coords2D);
+    vec4 color_c3 = temp27 + temp30;
+    vec4 temp33 = textureProj(texSampler1D, const34);
+    vec4 color_c4 = color_c3 + temp31;
+    vec4 temp36 = textureProj(texSampler1D, coords2D, const29);
+    vec4 color_c5 = color_c4 + temp33;
+    vec4 temp38 = textureProj(texSampler1D, const34, const29);
+    vec4 color_c6 = color_c5 + temp36;
+    vec4 temp40 = texture(texSampler2D, coords2D);
+    vec4 color_c7 = color_c6 + temp38;
+    vec4 temp42 = texture(texSampler2D, coords2D, const29);
+    vec4 color_c8 = color_c7 + temp40;
+    vec4 temp44 = textureProj(texSampler2D, const45);
+    vec4 color_c9 = color_c8 + temp42;
+    vec4 temp47 = textureProj(texSampler2D, const34, const29);
+    vec4 color_c10 = color_c9 + temp44;
+    vec4 temp49 = texture(texSampler3D, const45);
+    vec4 color_c11 = color_c10 + temp47;
+    vec4 temp51 = texture(texSampler3D, const45, const29);
+    vec4 color_c12 = color_c11 + temp49;
+    vec4 temp53 = textureProj(texSampler3D, const34);
+    vec4 color_c13 = color_c12 + temp51;
+    vec4 temp55 = textureProj(texSampler3D, const34, const29);
+    vec4 color_c14 = color_c13 + temp53;
+    vec4 temp57 = texture(texSamplerCube, const45);
+    vec4 color_c15 = color_c14 + temp55;
+    vec4 temp59 = texture(texSamplerCube, const45, const29);
+    vec4 color_c16 = color_c15 + temp57;
+    vec4 temp61 = shadow1D(shadowSampler1D, const45);
+    vec4 color_c17 = color_c16 + temp59;
+    vec4 temp63 = shadow1D(shadowSampler1D, const45, const29);
+    vec4 color_c18 = color_c17 + temp61;
+    vec4 temp65 = shadow2D(shadowSampler2D, const45);
+    vec4 color_c19 = color_c18 + temp63;
+    vec4 temp67 = shadow2D(shadowSampler2D, const45, const29);
+    vec4 color_c20 = color_c19 + temp65;
+    vec4 temp69 = shadow1DProj(shadowSampler1D, const34);
+    vec4 color_c21 = color_c20 + temp67;
+    vec4 temp71 = shadow1DProj(shadowSampler1D, const34, const29);
+    vec4 color_c22 = color_c21 + temp69;
+    vec4 temp73 = shadow2DProj(shadowSampler2D, const34);
+    vec4 color_c23 = color_c22 + temp71;
+    vec4 temp75 = shadow2DProj(shadowSampler2D, const34, const29);
+    vec4 color_c24 = color_c23 + temp73;
+    vec4 temp77 = texelFetch(texSampler2D, const78, const79i_1);
+    vec4 color_c25 = color_c24 + temp75;
+    vec3 temp81;
+    temp81.xyz = vec3(coords2D.x, coords2D.y, const29);
+    vec4 temp82 = textureGrad(texSampler2D, coords2D, gradX_c1, gradY_c2);
+    vec4 color_c26 = color_c25 + temp77;
+    vec4 temp84 = textureProjGrad(texSampler2D, temp81, gradX_c1, gradY_c2);
+    vec4 color_c27 = color_c26 + temp82;
+    vec4 temp86 = textureGradOffset(texSampler2D, coords2D, gradX_c1, gradY_c2, const87);
+    vec4 color_c28 = color_c27 + temp84;
+    vec4 temp89 = textureProjGradOffset(texSampler2D, const45, gradX_c1, gradY_c2, const87);
+    vec4 color_c29 = color_c28 + temp86;
+    vec4 color_c30 = color_c29 + temp89;
+    float temp92 = blend * const28;
+    vec4 color_c31 = color_c30 + temp26;
+    vec4 FragColor_shadow_c32 = mix(color_c31, u, temp92);
+    gl_FragColor = FragColor_shadow_c32;
+    
+}
+
+
+texture.vert
+#version 130
+// LunarGOO output
+uniform sampler1D texSampler1D;
+uniform sampler2D texSampler2D;
+uniform sampler3D texSampler3D;
+uniform samplerCube texSamplerCube;
+uniform sampler1DShadow shadowSampler1D;
+uniform sampler2DShadow shadowSampler2D;
+in vec2 coords2D;
+const float const22 = 3.0;
+const float const24 = 1.789;
+const vec4 const26 = vec4(1.789, 2.718, 3.453, 2.0);
+const vec3 const31 = vec3(1.789, 2.718, 3.453);
+
+void main()
+{
+    vec4 temp21 = textureProjLod(texSampler1D, coords2D, const22);
+    vec4 temp23 = textureLod(texSampler1D, const24, const22);
+    vec4 temp25 = textureProjLod(texSampler1D, const26, const22);
+    vec4 color_c1 = temp21 + temp23;
+    vec4 temp28 = textureLod(texSampler2D, coords2D, const22);
+    vec4 color_c2 = color_c1 + temp25;
+    vec4 temp30 = textureProjLod(texSampler2D, const31, const22);
+    vec4 color_c3 = color_c2 + temp28;
+    vec4 temp33 = textureProjLod(texSampler2D, const26, const22);
+    vec4 color_c4 = color_c3 + temp30;
+    vec4 temp35 = textureLod(texSampler3D, const31, const22);
+    vec4 color_c5 = color_c4 + temp33;
+    vec4 temp37 = textureProjLod(texSampler3D, const26, const22);
+    vec4 color_c6 = color_c5 + temp35;
+    vec4 temp39 = textureLod(texSamplerCube, const31, const22);
+    vec4 color_c7 = color_c6 + temp37;
+    vec4 temp41 = shadow1DLod(shadowSampler1D, const31, const22);
+    vec4 color_c8 = color_c7 + temp39;
+    vec4 temp43 = shadow2DLod(shadowSampler2D, const31, const22);
+    vec4 color_c9 = color_c8 + temp41;
+    vec4 temp45 = shadow1DProjLod(shadowSampler1D, const26, const22);
+    vec4 color_c10 = color_c9 + temp43;
+    vec4 temp47 = shadow2DProjLod(shadowSampler2D, const26, const22);
+    vec4 color_c11 = color_c10 + temp45;
+    vec4 color_c12 = color_c11 + temp47;
+    gl_Position = color_c12;
+    
+}
+
+
+300BuiltIns.frag
+#version 300 es
+// LunarGOO output
+precision mediump float; // this will be almost entirely overridden by individual declarations
+
+uniform bvec3 bv;
+uniform mediump int imin;
+uniform mediump int imax;
+uniform mediump uint umin;
+uniform mediump uint umax;
+in mediump vec3 x;
+in mediump vec3 y;
+flat in mediump ivec4 iv4a;
+flat in mediump ivec4 iv4b;
+flat in mediump uvec2 uv2x;
+flat in mediump uvec2 uv2y;
+flat in mediump uvec4 uv4y;
+flat in mediump uint uy;
+flat in mediump ivec3 iv3a;
+flat in mediump ivec3 iv3b;
+flat in mediump uvec2 uv2c;
+in mediump float f;
+in mediump vec2 v2a;
+in mediump vec4 v4;
+in mediump vec2 v2b;
+out mediump vec4 result;
+const highp vec2 const42 = vec2(2.0);
+const highp int const52i_0 = 0;
+const highp float const55 = 0.0;
+const highp float const103 = 0.1;
+
+void main()
+{
+    mediump vec3 temp21 = mix(x, y, bv);
+    mediump ivec2 temp22 = min(ivec2(uv2x), ivec2(uv2y));
+    mediump ivec3 temp23 = max(iv3a, iv3b);
+    mediump ivec2 temp24 = max(ivec2(uv2x), ivec2(uv2y));
+    mediump ivec2 temp25 = max(ivec2(uv2x), int(uy));
+    mediump ivec2 temp26 = clamp(ivec2(uv2x), ivec2(uv2y), ivec2(uv2c));
+    struct  {
+    vec3 member0;
+    vec3 member1;
+} temp27; temp27.member0 = modf(x, temp27.member1);
+    vec3 temp28 = temp27.member0;
+    mediump float temp29 = trunc(f);
+    vec4 temp30 = vec4(temp29);
+    mediump vec2 temp31 = round(v2a);
+    mediump vec2 temp32 = roundEven(v2a);
+    bvec2 temp33 = isnan(v2a);
+    mediump ivec2 temp34 = ivec2(temp33);
+    mediump int temp35 = floatBitsToInt(f);
+    ivec4 temp36 = ivec4(temp35);
+    mediump vec2 temp37 = intBitsToFloat(ivec2(uv2c));
+    highp vec2 temp38 = unpackSnorm2x16(uint(int(uy)));
+    highp vec2 temp39 = unpackUnorm2x16(uint(int(uy)));
+    mediump vec2 temp40 = unpackHalf2x16(uint(int(uy)));
+    mediump vec2 temp41 = gl_PointCoord * const42;
+    mediump ivec4 temp43 = sign(iv4a);
+    mediump ivec4 isum_c1 = abs(iv4a);
+    vec3 modfOut_c2 = temp27.member1;
+    mediump ivec4 temp46 = min(iv4a, iv4b);
+    mediump ivec4 isum_c3 = isum_c1 + temp43;
+    mediump ivec4 temp48 = min(iv4a, imin);
+    mediump ivec4 isum_c4 = isum_c3 + temp46;
+    vec4 temp50 = vec4(temp28.x, temp28.y, temp28.z, modfOut_c2.x);
+    ivec4 temp51 = ivec4(temp23.x, temp23.y, temp23.z, const52i_0);
+    mediump ivec4 isum_c5 = isum_c4 + temp48;
+    vec4 temp54 = vec4(temp21.x, temp21.y, temp21.z, const55);
+    mediump vec4 sum_c6 = temp50 + temp54;
+    mediump ivec4 temp57 = max(iv4a, imax);
+    mediump ivec4 isum_c7 = isum_c5 + temp51;
+    mediump ivec4 temp59 = min(ivec4(uv4y), int(uy));
+    ivec4 temp60 = ivec4(temp22.x, temp22.y, const52i_0, const52i_0);
+    highp int temp61 = int(packSnorm2x16(v2a));
+    bvec4 temp62 = isinf(v4);
+    vec4 temp63 = vec4(temp31.x, temp31.y, temp32.x, temp32.y);
+    mediump vec4 sum_c8 = sum_c6 + temp30;
+    mediump ivec4 temp65 = clamp(iv4a, iv4a, iv4b);
+    ivec4 temp66 = ivec4(temp24.x, temp24.y, temp25.x, temp25.y);
+    mediump ivec4 isum_c9 = isum_c7 + temp57;
+    mediump ivec4 usum_c10 = temp59 + temp60;
+    highp int temp69 = int(packUnorm2x16(v2a));
+    mediump vec4 temp70 = intBitsToFloat(iv4a);
+    mediump ivec4 temp71 = ivec4(temp62);
+    mediump vec4 sum_c11 = sum_c8 + temp63;
+    ivec4 temp73 = ivec4(temp26.x, temp26.y, const52i_0, const52i_0);
+    mediump ivec4 temp74 = clamp(iv4a, imin, imax);
+    mediump ivec4 isum_c12 = isum_c9 + temp65;
+    mediump ivec4 usum_c13 = temp66 + usum_c10;
+    highp int temp77 = int(packHalf2x16(v2b));
+    vec4 temp78 = vec4(temp37.x, temp37.y, const55, const55);
+    mediump vec4 sum_c14 = sum_c11 + temp70;
+    ivec4 temp80 = ivec4(temp34.x, temp34.y, temp71.x, temp71.y);
+    mediump ivec4 temp81 = clamp(ivec4(uv4y), int(umin), int(umax));
+    mediump ivec4 usum_c15 = temp73 + usum_c13;
+    mediump ivec4 isum_c16 = isum_c12 + temp74;
+    vec4 temp84 = vec4(temp38.x, temp38.y, temp39.x, temp39.y);
+    mediump vec4 sum_c17 = sum_c14 + temp78;
+    mediump ivec4 temp86 = floatBitsToInt(v4);
+    mediump ivec4 isum_c18 = isum_c16 + temp80;
+    mediump ivec4 usum_c19 = temp81 + usum_c15;
+    vec4 temp89 = vec4(temp40.x, temp40.y, const55, const55);
+    mediump vec4 sum_c20 = sum_c17 + temp84;
+    ivec4 temp91 = ivec4(temp61, temp69, temp77, const52i_0);
+    mediump ivec4 usum_c21 = temp86 + usum_c19;
+    mediump ivec4 isum_c22 = isum_c18 + temp36;
+    mediump vec4 temp94 = vec4(isum_c22);
+    mediump vec4 sum_c23 = sum_c20 + temp89;
+    mediump ivec4 usum_c24 = temp91 + usum_c21;
+    vec4 temp97 = vec4(gl_PointCoord.x, gl_PointCoord.y, temp41.x, temp41.y);
+    mediump vec4 temp98 = vec4(usum_c24);
+    mediump vec4 temp99 = sum_c23 + temp94;
+    highp vec4 temp100 = gl_FragCoord + temp97;
+    mediump vec4 result_shadow_c25 = temp98 + temp99;
+    highp float FragDepth_shadow_c26 = f + const103;
+    highp vec4 result_shadow_c27 = result_shadow_c25 + temp100;
+    result = result_shadow_c27;
+    gl_FragDepth = FragDepth_shadow_c26;
+    
+}
+
+
+300BuiltIns.vert
+#version 300 es
+// LunarGOO output
+in mediump float ps;
+const highp int const22i_2 = 2;
+const highp int const24i_u10 = -10;
+invariant gl_Position ;
+void main()
+{
+    int temp21 = gl_VertexID << const22i_2;
+    int temp23 = temp21 + const24i_u10;
+    vec4 temp25 = vec4(ps);
+    highp float temp26 = float(temp23);
+    vec4 temp27 = vec4(temp26);
+    highp float PointSize_shadow_c1 = ps * temp26;
+    highp vec4 Position_shadow_c2 = temp25 * temp27;
+    gl_Position = Position_shadow_c2;
+    gl_PointSize = PointSize_shadow_c1;
+    
+}
+
+
+uniformArray.frag
+#version 130
+// LunarGOO output
+uniform vec4 color[6];
+uniform vec3 inColor;
+uniform float alpha[16];
+uniform sampler2D texSampler2D;
+
+void main()
+{
+    vec4 texColor_c1 = color[1] + color[1];
+    vec3 temp22 = vec3(texColor_c1);
+    vec3 temp23 = inColor + temp22;
+    float temp24 = alpha[12] + texColor_c1.w;
+    vec4 temp25 = vec4(temp23.x, temp23.y, temp23.z, temp24);
+    gl_FragColor = temp25;
+    
+}
+
+
+newTexture.frag
+#version 430 core
+// LunarGOO output
+uniform sampler2D s2D;
+uniform sampler3D s3D;
+uniform sampler2DArray s2DArray;
+uniform sampler2DShadow s2DShadow;
+uniform samplerCube sCube;
+uniform sampler2DArrayShadow s2DArrayShadow;
+uniform isampler2D is2D;
+uniform isampler3D is3D;
+uniform isamplerCube isCube;
+uniform isampler2DArray is2DArray;
+uniform samplerCubeShadow sCubeShadow;
+uniform isampler2D is2Dms;
+uniform usampler2D us2D;
+uniform usampler3D us3D;
+uniform usamplerCube usCube;
+uniform usampler2DArray us2DArray;
+in vec2 c2D;
+in vec4 c4D;
+in vec3 c3D;
+in float c1D;
+flat in ivec3 ic3D;
+flat in int ic1D;
+flat in ivec2 ic2D;
+flat in ivec4 ic4D;
+out vec4 FragData;
+const float const25 = 1.2;
+const ivec2 const28 = ivec2(3);
+const int const34i_4 = 4;
+const int const44i_2 = 2;
+const float const63 = 4.2;
+const float const75 = 0.0;
+
+void main()
+{
+    vec4 temp21 = texture(s2D, c2D);
+    vec4 temp22 = textureProj(s3D, c4D);
+    vec4 temp23 = temp21 + temp22;
+    vec4 temp24 = textureLod(s2DArray, c3D, const25);
+    vec4 temp26 = temp23 + temp24;
+    float temp27 = textureOffset(s2DShadow, c3D, const28, c1D);
+    float temp29 = temp26.y + temp27;
+    vec4 temp30 = temp26;
+    temp30.y = temp29;
+    vec4 temp31 = texelFetch(s3D, ic3D, ic1D);
+    vec4 temp32 = temp30 + temp31;
+    vec4 temp33 = texelFetchOffset(s2D, ic2D, const34i_4, ic2D);
+    vec4 temp35 = temp32 + temp33;
+    float temp36 = textureLodOffset(s2DShadow, c3D, c1D, const28);
+    float temp37 = temp35.y + temp36;
+    vec4 temp38 = temp35;
+    temp38.y = temp37;
+    vec4 temp39 = textureProjLodOffset(s2D, c3D, c1D, const28);
+    vec4 temp40 = temp38 + temp39;
+    vec4 temp41 = textureGrad(sCube, c3D, c3D, c3D);
+    vec4 temp42 = temp40 + temp41;
+    ivec2 iv_c1 = textureSize(sCubeShadow, const44i_2);
+    vec2 temp45 = vec2(iv_c1);
+    float temp46 = textureGradOffset(s2DArrayShadow, c4D, c2D, c2D, const28);
+    float temp47 = temp42.x + temp46;
+    vec4 temp48 = textureProjGrad(s3D, c4D, c3D, c3D);
+    vec4 temp49 = temp42;
+    temp49.x = temp47;
+    ivec4 iv_c2 = texture(is2D, c2D);
+    vec4 temp51 = textureProjGradOffset(s2D, c3D, c2D, c2D, const28);
+    vec4 temp52 = temp48 + temp49;
+    ivec4 iv_c3 = textureProjOffset(is2D, c4D, const28);
+    vec4 temp54 = vec4(iv_c2);
+    vec4 temp55 = temp51 + temp52;
+    ivec4 iv_c4 = textureProjLod(is2D, c3D, c1D);
+    vec4 temp57 = vec4(iv_c3);
+    vec4 temp58 = temp54 + temp55;
+    ivec4 iv_c5 = textureProjGrad(is2D, c3D, c2D, c2D);
+    vec4 temp60 = vec4(iv_c4);
+    vec4 temp61 = temp57 + temp58;
+    ivec4 iv_c6 = texture(is3D, c3D, const63);
+    vec4 temp64 = vec4(iv_c5);
+    vec4 temp65 = temp60 + temp61;
+    ivec4 iv_c7 = textureLod(isCube, c3D, c1D);
+    vec4 temp67 = vec4(iv_c6);
+    vec4 temp68 = temp64 + temp65;
+    ivec4 iv_c8 = texelFetch(is2DArray, ic3D, ic1D);
+    vec4 temp70 = vec4(iv_c7);
+    vec4 temp71 = temp67 + temp68;
+    vec4 temp72 = vec4(iv_c8);
+    vec4 temp73 = temp70 + temp71;
+    vec4 temp74 = vec4(temp45.x, temp45.y, const75, const75);
+    vec4 temp76 = temp72 + temp73;
+    vec4 FragData_shadow_c9 = temp74 + temp76;
+    FragData = FragData_shadow_c9;
+    
+}
+
+
+qualifiers.frag
+#version 430 core
+// LunarGOO output
+uniform vec4 buf;
+uniform image2D imageVc;
+uniform image2D imageVv;
+uniform image2D imageVr;
+uniform image2D imageVro;
+uniform image2D imageVwo;
+uniform image2D imageVall;
+centroid in vec4 inVc;
+in vec4 inVs;
+flat in vec4 inVf;
+noperspective in vec4 inVn;
+centroid noperspective in vec4 inVcn;
+sample in vec4 inV;
+out vec4 outVi;
+invariant outVi ;
+void main()
+{
+    vec4 temp21 = inVc + inVs;
+    vec4 temp22 = inVf + temp21;
+    vec4 temp23 = inVn + temp22;
+    vec4 outVi_shadow_c1 = inVcn + temp23;
+    outVi = outVi_shadow_c1;
+    
+}
+
+
