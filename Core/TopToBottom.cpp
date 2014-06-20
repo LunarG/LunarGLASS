@@ -204,11 +204,14 @@ void gla::PrivateManager::runLLVMOptimizations1()
     // Loop optimizations, and clean up afterwards
     passManager.add(llvm::createLICMPass());
     passManager.add(llvm::createIndVarSimplifyPass());
-    passManager.add(llvm::createLoopRotatePass());
-    passManager.add(llvm::createIndVarSimplifyPass());
     // TODO: loops: should we also do LLVM's "Canonicalize Induction Variables"?
-    if (options.optimizations.loopUnrollThreshold)
+    if (options.optimizations.loopUnrollThreshold) {
+        // Loop rotation creates a less desirable loop form for loops that do not get unrolled,
+        // but is needed if a loop will be unrolled.
+        passManager.add(llvm::createLoopRotatePass(options.optimizations.loopUnrollThreshold));
+        passManager.add(llvm::createIndVarSimplifyPass());
         passManager.add(llvm::createLoopUnrollPass(options.optimizations.loopUnrollThreshold));
+    }
     passManager.add(llvm::createLoopStrengthReducePass());
     if (options.optimizations.adce)
         passManager.add(llvm::createAggressiveDCEPass());

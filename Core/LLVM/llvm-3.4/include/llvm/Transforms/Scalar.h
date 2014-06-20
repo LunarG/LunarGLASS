@@ -5,6 +5,8 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
+// Changes Copyright (C) 2014 LunarG, Inc.
+//
 //===----------------------------------------------------------------------===//
 //
 // This header file defines prototypes for accessor functions that expose passes
@@ -153,7 +155,7 @@ Pass *createLoopRerollPass();
 //
 // LoopRotate - This pass is a simple loop rotating pass.
 //
-Pass *createLoopRotatePass();
+Pass *createLoopRotatePass(int Threshold = -1);
 
 //===----------------------------------------------------------------------===//
 //

@@ -5,7 +5,7 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
-// Changes Copyright (C) 2011-2013 LunarG, Inc.
+// Changes Copyright (C) 2011-2014 LunarG, Inc.
 //
 //===----------------------------------------------------------------------===//
 //
@@ -40,7 +40,7 @@ namespace {
   class LoopRotate : public LoopPass {
   public:
     static char ID; // Pass ID, replacement for typeid
-    LoopRotate() : LoopPass(ID) {
+    LoopRotate(int Threshold = -1) : LoopPass(ID), Threshold(Threshold) {
       initializeLoopRotatePass(*PassRegistry::getPassRegistry());
     }
 
@@ -68,6 +68,7 @@ namespace {
   private:
     LoopInfo *LI;
     const TargetTransformInfo *TTI;
+    int Threshold;
   };
 }
 
@@ -83,7 +84,7 @@ INITIALIZE_PASS_DEPENDENCY(ScalarEvolution)
 
 INITIALIZE_PASS_END(LoopRotate, "loop-rotate", "Rotate Loops", false, false)
 
-Pass *llvm::createLoopRotatePass() { return new LoopRotate(); }
+Pass *llvm::createLoopRotatePass(int Threshold) { return new LoopRotate(Threshold); }
 
 /// Rotate Loop L as many times as possible. Return true if
 /// the loop is rotated at least once.
@@ -355,20 +356,21 @@ bool LoopRotate::rotateLoop(Loop *L, bool SimplifiedLatch) {
   // in its header will soon be invalidated.
   if (ScalarEvolution *SE = getAnalysisIfAvailable<ScalarEvolution>()) {
     // LunarGLASS: We're only interested in loop-rotation if we have the potential
-    // to unroll the loop
-    // LunarGLASS TODO: pass the threshold as an argument to this pass.
-    SmallVector<BasicBlock*, 8> ExitBlocks;
-    L->getExitBlocks(ExitBlocks);
-    BasicBlock* Exiting = ExitBlocks.front()->getUniquePredecessor();
-    if (! Exiting)
-      return false;
-
-    unsigned int C = SE->getSmallConstantTripCount(L, Exiting);
-    unsigned NumInlineCandidates;
-    bool notDuplicatable;
-    if (C == 0 || (C-1) * ApproximateLoopSize(L, NumInlineCandidates, notDuplicatable, *TTI) >= 350)
-      return false;
-
+    // to unroll the loop.
+    if (Threshold > 0) {
+      SmallVector<BasicBlock*, 8> ExitBlocks;
+      L->getExitBlocks(ExitBlocks);
+      BasicBlock* Exiting = ExitBlocks.front()->getUniquePredecessor();
+      if (! Exiting)
+        return false;
+  
+      unsigned int C = SE->getSmallConstantTripCount(L, Exiting);
+      unsigned NumInlineCandidates;
+      bool notDuplicatable;
+      if (C == 0 || (C-1) * ApproximateLoopSize(L, NumInlineCandidates, notDuplicatable, *TTI) >= (unsigned int)Threshold)
+        return false;
+    }
+  
     SE->forgetLoop(L);
   } else {
     // LunarGLASS: We need scalar evolution available

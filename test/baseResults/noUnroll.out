@@ -117,7 +117,6 @@ vec4 color_c53;
 const int const91i_0 = 0;
 const int const95i_1 = 1;
 vec4 color_c56;
-vec4 temp99;
 const float const101 = 20.0;
 const float const103 = 1.0;
 const int const115i_41 = 41;
@@ -147,8 +146,8 @@ void main()
     vec4 color_uc7;
     int i_uc8;
     vec4 color_uc9;
-    int temp30;
     vec4 color_uc10;
+    int temp31;
     vec4 color_uc11;
     int temp33;
     vec4 color_uc12;
@@ -262,16 +261,16 @@ void main()
         color_uc9 = color_c56;
     }
     
-    temp30 = const91i_0;
     color_uc10 = color_c56;
-    for (temp30 = 0; temp30 != 42; ++temp30) {
+    temp31 = const91i_0;
+    for (temp31 = 0; temp31 != 42; ++temp31) {
         float temp98 = color_uc10.z + d3;
-        temp99 = color_uc10;
+        vec4 temp99 = color_uc10;
         temp99.z = temp98;
         color_uc10 = temp99;
     }
     
-    color_uc11 = temp99;
+    color_uc11 = color_uc10;
     temp33 = const91i_0;
     for (temp33 = 0; temp33 != 100; ++temp33) {
         bool temp100 = color_uc11.z < const101;
@@ -625,7 +624,7 @@ void main()
         if (temp217) {
             FragColor_shadow_c41 = color_c77;
             gl_FragColor = FragColor_shadow_c41;
-            
+            return;
         }
         
         color_uc38 = color_c85;

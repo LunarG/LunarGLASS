@@ -379,14 +379,6 @@ namespace {
         const PHINode* pn  = loop.getCanonicalInductionVariable();
         assert(pn);
 
-        // The tripCount for the header block will be 1
-        // higher than the inductive loop's true trip count. This is
-        // because it is counting the number of times that the exit
-        // condition may be tested, which is 1 + the number of times the
-        // exit condition fails.
-
-        // TODO: loops: should we do LLVM's "Canonicalize Induction Variables"?
-
         unsigned int tripCount = loop.getTripCount();   
         //errs() << "\ninductive variable:"   << *pn;
         //errs() << "\n  trip count:      "   << tripCount;
@@ -398,9 +390,10 @@ namespace {
         assert(tripCount);
 
         // The tripCount is sometimes the same as the exit condition's comparison
-        // value and sometimes one different than the exit condition's comparison value.
-        // In these cases, the comparison value is the correct value to pass to
-        // beginSimpleInductiveLoop().
+        // value and sometimes one different than the exit condition's comparison value,
+        // depending on whether the exit is at the top or rotated to the bottom.
+        // In both cases, the comparison value is the correct value to pass to
+        // beginSimpleInductiveLoop(), which expects a body trip count.
         // (Both values are off-by-one when the loop body becomes dead code.)
         if (loop.getInductiveExitCondition()->getOpcode() == llvm::Instruction::ICmp &&
                 dyn_cast<CmpInst>(loop.getInductiveExitCondition())->getPredicate() == ICmpInst::ICMP_EQ)
