@@ -195,7 +195,7 @@ namespace gla_llvm {
         // TODO: loops: cache the results of the more complicated queries (implemented
         // for isSimpleConditional())
 
-        // Is the loop simple inductive one. A simple inductive loop is one
+        // Is the loop a simple inductive one? A simple inductive loop is one
         // where the backedge is simple, a canonical induction variable exists,
         // and the execution count is known statically (e.g. there are no breaks
         // or continues)
@@ -205,7 +205,7 @@ namespace gla_llvm {
             return inductiveVar && tripCount && uniqueExiting;
         }
 
-        // Is the loop a simple conditional loop. A simple conditional loop is a
+        // Is the loop a simple conditional loop? A simple conditional loop is a
         // loop whose header is a conditionally exiting block, and the condition
         // is some comparison operator whose operands are extracts, constants,
         // or loads. Furthermore, all other instructions in the header can only

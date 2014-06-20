@@ -264,7 +264,7 @@ void main()
     
     temp30 = const91i_0;
     color_uc10 = color_c56;
-    for (temp30 = 0; temp30 < 41; ++temp30) {
+    for (temp30 = 0; temp30 != 42; ++temp30) {
         float temp98 = color_uc10.z + d3;
         temp99 = color_uc10;
         temp99.z = temp98;
@@ -273,7 +273,7 @@ void main()
     
     color_uc11 = temp99;
     temp33 = const91i_0;
-    for (temp33 = 0; temp33 < 100; ++temp33) {
+    for (temp33 = 0; temp33 != 100; ++temp33) {
         bool temp100 = color_uc11.z < const101;
         float temp102 = color_uc11.x + const103;
         vec4 temp104 = color_uc11;
@@ -287,7 +287,7 @@ void main()
     
     color_uc12 = color_uc11;
     temp35 = const91i_0;
-    for (temp35 = 0; temp35 < 120; ++temp35) {
+    for (temp35 = 0; temp35 != 120; ++temp35) {
         bool temp108 = color_uc12.z < const101;
         float temp109 = color_uc12.x + const103;
         vec4 temp110 = color_uc12;

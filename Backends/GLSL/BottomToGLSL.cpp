@@ -1872,7 +1872,7 @@ void gla::GlslTarget::beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigne
     shader << " = 0; ";
 
     emitGlaValue(phi);
-    shader << " < " << count;
+    shader << " != " << count;
 
     shader << "; ++";
     emitGlaValue(phi);

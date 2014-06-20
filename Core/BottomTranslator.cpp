@@ -385,6 +385,8 @@ namespace {
         // condition may be tested, which is 1 + the number of times the
         // exit condition fails.
 
+        // TODO: loops: should we do LLVM's "Canonicalize Induction Variables"?
+
         unsigned int tripCount = loop.getTripCount();   
         //errs() << "\ninductive variable:"   << *pn;
         //errs() << "\n  trip count:      "   << tripCount;
@@ -392,14 +394,21 @@ namespace {
         //errs() << "\n  exit condition:  "   << *loop.getInductiveExitCondition();
         //errs() << "\n";
 
-        // tripCount of 0 means not a known constant count
-        if (tripCount == 0) {
-            // TODO: loops: LLVM 3.4: the second argument below needs to be an LLVM value
-            // representing the non-constant trip count
-            gla::UnsupportedFunctionality("non-constant trip count on simple-inductive loop", gla::EATContinue);
-            bet.beginSimpleInductiveLoop(pn, 1);
-        } else
-            bet.beginSimpleInductiveLoop(pn, tripCount - 1);
+        // tripCount of 0 means not a known constant count, which means we should not be here
+        assert(tripCount);
+
+        // The tripCount is sometimes the same as the exit condition's comparison
+        // value and sometimes one different than the exit condition's comparison value.
+        // In these cases, the comparison value is the correct value to pass to
+        // beginSimpleInductiveLoop().
+        // (Both values are off-by-one when the loop body becomes dead code.)
+        if (loop.getInductiveExitCondition()->getOpcode() == llvm::Instruction::ICmp &&
+                dyn_cast<CmpInst>(loop.getInductiveExitCondition())->getPredicate() == ICmpInst::ICMP_EQ)
+            tripCount = (unsigned int)gla::GetConstantInt(loop.getInductiveExitCondition()->getOperand(1));
+        else
+            gla::UnsupportedFunctionality("unrecognized exit condition for inductive loop", gla::EATContinue);
+
+        bet.beginSimpleInductiveLoop(pn, tripCount);
     }
 
     void CreateSimpleConditionalLoop(LoopWrapper& loop, const Value& condition, gla::BackEndTranslator& bet)
