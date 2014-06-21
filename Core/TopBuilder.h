@@ -160,6 +160,9 @@ public:
     // push swizzle onto the right of any existing swizzle
     void accessChainPushSwizzleRight(llvm::ArrayRef<int> swizzle, llvm::Type* type, int width);
 
+    // push a variable component selection onto the access chain; supporting only one, so unsided
+    void accessChainPushComponent(llvm::Value* component) { accessChain.component = component; }
+
     // set pipeline input as an r-value, when pushing onto the left, meaning
     // the swizzle is yet to be consumed, but the access chain had to have been
     // collapsed already and consumed in order to create the passed in value

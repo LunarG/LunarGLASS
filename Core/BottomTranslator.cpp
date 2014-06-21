@@ -476,10 +476,13 @@ void BottomTranslator::addPhiCopy(const PHINode* phi, const BasicBlock* curBB)
     if (predIndex >= 0) {
         // then we found ourselves
 
-        if (alias)
-            backEndTranslator->addPhiAlias(phi, phi->getIncomingValue(predIndex));
-        else
-            backEndTranslator->addPhiCopy(phi, phi->getIncomingValue(predIndex));
+        Value* src = phi->getIncomingValue(predIndex);
+        if (! gla::IsUndef(src)) {
+            if (alias)
+                backEndTranslator->addPhiAlias(phi, src);
+            else
+                backEndTranslator->addPhiCopy(phi, src);
+        }
     }
 }
 

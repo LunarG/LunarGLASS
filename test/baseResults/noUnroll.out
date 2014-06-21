@@ -26,33 +26,63 @@ void main()
 
 
 forLoop.frag
-#version 120
+#version 130
 // LunarGOO output
 uniform int Count;
 uniform vec4 bigColor;
-varying vec4 BaseColor;
-const int const23i_0 = 0;
-const int const27i_1 = 1;
+uniform uvec4 v4;
+in vec4 BaseColor;
+vec4 gla_globalAgg;
+const int const27i_0 = 0;
+const int const31i_1 = 1;
+const float const32 = 0.0;
+vec4 temp33;
+const int const37i_2 = 2;
 
 void main()
 {
     int i_uc1;
     vec4 color_uc2;
-    i_uc1 = const23i_0;
+    float sum_uc3;
+    int temp24;
+    int temp25;
+    vec4 tv_c4;
+    i_uc1 = const27i_0;
     color_uc2 = BaseColor;
     while (true) {
-        bool temp24 = i_uc1 < Count;
-        if (! temp24) {
+        bool temp28 = i_uc1 < Count;
+        if (! temp28) {
             break;
         }
         
-        vec4 color_c3 = bigColor + color_uc2;
-        int temp26 = i_uc1 + const27i_1;
-        i_uc1 = temp26;
-        color_uc2 = color_c3;
+        vec4 color_c5 = bigColor + color_uc2;
+        int temp30 = i_uc1 + const31i_1;
+        i_uc1 = temp30;
+        color_uc2 = color_c5;
     }
     
-    gl_FragColor = color_uc2;
+    sum_uc3 = const32;
+    temp24 = const27i_0;
+    for (temp24 = 0; temp24 != 4; ++temp24) {
+        temp33 = vec4(sum_uc3);
+        float temp34 = float(ivec4(v4)[temp24]);
+        float sum_c6 = sum_uc3 + temp34;
+        sum_uc3 = sum_c6;
+    }
+    
+    temp25 = const27i_0;
+    tv_c4 = gla_globalAgg;
+    for (temp25 = 0; temp25 != 4; ++temp25) {
+        int temp36 = ivec4(v4)[temp25] << const37i_2;
+        float temp38 = float(temp36);
+        vec4 tv_c7 = tv_c4;
+        tv_c7[temp25] = temp38;
+        tv_c4 = tv_c7;
+    }
+    
+    vec4 temp40 = temp33 + tv_c4;
+    vec4 FragColor_shadow_c8 = color_uc2 + temp40;
+    gl_FragColor = FragColor_shadow_c8;
     
 }
 

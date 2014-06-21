@@ -564,12 +564,14 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
         return false;
     case glslang::EOpIndexIndirect:
         {
+            // Structure or array or vector indirection.
+            // Will use native LLVM gep for struct and array indirection;
+            // matrices are arrays of vectors, so will also work for a matrix.
+            // Will use the access chain's 'component' for variable index into a vector.
+
             // This adapter is building access chains left to right.
             // Set up the access chain to the left.
             node->getLeft()->traverse(this);
-
-            // Structure or array or indirection into a vector; will use native LLVM gep.
-            // Matrices are arrays of vectors, so will also work for a matrix.
 
             // save it so that computing the right side doesn't trash it
             gla::Builder::AccessChain partial = glaBuilder->getAccessChain();
@@ -579,9 +581,13 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
             node->getRight()->traverse(this);
             llvm::Value* index = glaBuilder->accessChainLoad(GetMdPrecision(node->getRight()->getType()));
 
-            // make the new access chain to date
+            // restore the saved access chain
             glaBuilder->setAccessChain(partial);
-            glaBuilder->accessChainPushLeft(index);
+
+            if (! node->getLeft()->getType().isArray() && node->getLeft()->getType().isVector())
+                glaBuilder->accessChainPushComponent(index);
+            else
+                glaBuilder->accessChainPushLeft(index);
         }
         return false;
     case glslang::EOpVectorSwizzle:

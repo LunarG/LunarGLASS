@@ -1569,6 +1569,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     }
 
     case llvm::Instruction::InsertElement:
+    {
         // first, copy whole the structure "inserted into" to the resulting "value" of the insert
         newLine();
         emitGlaValue(llvmInstruction);
@@ -1580,14 +1581,23 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         // second, overwrite the element being inserted
         newLine();
         emitGlaValue(llvmInstruction);
-        shader << ".";
-        emitComponentToSwizzle(GetConstantInt(llvmInstruction->getOperand(2)));
+
+        llvm::Value* element = llvmInstruction->getOperand(2);
+        if (llvm::isa<llvm::Constant>(element)) {
+            shader << ".";
+            emitComponentToSwizzle(GetConstantInt(element));
+        } else {
+            shader << "[";
+            emitGlaOperand(element);
+            shader << "]";
+        }
+
         shader << " = ";
         emitGlaOperand(llvmInstruction->getOperand(1));
         shader << ";";
 
         return;
-
+    }
     case llvm::Instruction::Select:
     {
         // Using ?: is okay for single component, but need to use 
@@ -2258,7 +2268,11 @@ void gla::GlslTarget::makeExtractElementStr(const llvm::Instruction* llvmInstruc
         return;
 
     str.assign(*valueMap[llvmInstruction->getOperand(0)]);
-    str.append(".").append(MapComponentToSwizzleChar(GetConstantInt(llvmInstruction->getOperand(1))));
+    llvm::Value* element = llvmInstruction->getOperand(1);
+    if (llvm::isa<llvm::Constant>(element))
+        str.append(".").append(MapComponentToSwizzleChar(GetConstantInt(llvmInstruction->getOperand(1))));
+    else
+        str.append("[").append(*valueMap[element]).append("]");
 }
 
 //

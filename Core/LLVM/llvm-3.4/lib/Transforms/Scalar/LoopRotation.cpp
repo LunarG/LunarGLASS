@@ -269,7 +269,7 @@ bool LoopRotate::simplifyLoopLatch(Loop *L) {
 }
 
 // LunarGLASS: Take this from LoopUnrollPass so as to enable us to only rotate a
-// loop that we will later inline
+// loop that we will later unroll.
 /// ApproximateLoopSize - Approximate the size of the loop.
 static unsigned ApproximateLoopSize(const Loop *L, unsigned &NumCalls,
                                     bool &NotDuplicatable,
@@ -283,7 +283,7 @@ static unsigned ApproximateLoopSize(const Loop *L, unsigned &NumCalls,
 
   unsigned LoopSize = Metrics.NumInsts;
 
-  // Don't allow an estimate of size zero.  This would allows unrolling of loops
+  // Don't allow an estimate of size zero.  This would allow unrolling of loops
   // with huge iteration counts, which is a compile time problem even if it's
   // not a problem for code quality.
   if (LoopSize == 0) LoopSize = 1;

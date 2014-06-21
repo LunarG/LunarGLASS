@@ -280,11 +280,10 @@ void Builder::accessChainStore(llvm::Value* value)
         }
 
         source = shadowVector;
+    } else if (accessChain.component) {
+        llvm::Value* shadowVector = createLoad(base);
+        source = builder.CreateInsertElement(shadowVector, value, accessChain.component);
     }
-
-    // TODO: functionality: store to variable-component of vector
-    if (accessChain.component)
-        UnsupportedFunctionality("store to variable vector channel");
 
     createStore(source, base);
 }
@@ -316,11 +315,9 @@ llvm::Value* Builder::accessChainLoad(EMdPrecision precision)
         value = createLoad(collapseAccessChain(), accessChain.metadataKind, accessChain.mdNode);
     }
 
-    // TODO: functionality: read from variable-component of vector
     if (accessChain.component)
-        UnsupportedFunctionality("extract from variable vector component");
-
-    if (accessChain.swizzle.size())
+        value = builder.CreateExtractElement(value, accessChain.component);
+    else if (accessChain.swizzle.size())
         value = createSwizzle(precision, value, accessChain.swizzle, accessChain.swizzleResultType);
 
     return value;

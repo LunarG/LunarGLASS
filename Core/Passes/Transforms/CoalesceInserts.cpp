@@ -224,30 +224,24 @@ namespace {
 } // end namespace
 
 // Helpers
+// Predicate for whether the instruction is an insert with a compile-time known component
+static bool IsInsertElement(Instruction* i)
+{
+    return isa<InsertElementInst>(i) && isa<llvm::Constant>(i->getOperand(2));
+}
+
+// Predicate for whether the instruction is an extract with a compile-time known component
+static bool IsExtractElement(Instruction* i)
+{
+    return isa<ExtractElementInst>(i) && isa<llvm::Constant>(i->getOperand(1));
+}
+
 // Predicate for whether the instruction constructs a vector. Currently handles
 // inserts and shuffles.
-static bool IsVectorConstructor(Value* i)
+static bool IsVectorConstructor(Instruction* i)
 {
-    return isa<InsertElementInst>(i) || (isa<ShuffleVectorInst>(i) && gla::GetComponentCount(i) <= 4);
+    return IsInsertElement(i) || (isa<ShuffleVectorInst>(i) && gla::GetComponentCount(i) <= 4);
 }
-
-// Predicate for whether the instruction is an insert
-static bool IsInsertElement(Value* i)
-{
-    return isa<InsertElementInst>(i);
-}
-
-// Predicate for whether the instruction is an extract
-static bool IsExtractElement(Value* i)
-{
-    return isa<ExtractElementInst>(i);
-}
-
-// Predicate telling whether the instruction is an insert or extract
-//static bool IsEitherIE(Value* i) 
-//{
-//    return IsInsertElement(i) || IsExtractElement(i);
-//}
 
 // Given a value, get the underlying offset and value. If the value is a
 // scalar, return 0 and the scalar. If the value is an extract of a vector,
@@ -492,7 +486,7 @@ void MultiInsertIntrinsic::buildFromGroup()
             Value* value;
             unsigned offset;
 
-            // If we're refering to the second op, adjust the offset, and use that
+            // If we're referring to the second op, adjust the offset, and use that
             // value, otherwise use the first operand.
             if (shuffleOffset > sourceSize - 1) {
                 value  = toReplace->getOperand(1);
