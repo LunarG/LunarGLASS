@@ -235,7 +235,6 @@ bool IntrinsicCombine::hoistDiscards(Function& F)
     IRBuilder<> builder(*context);
     for (DiscardList::iterator i = discards.begin(), e = discards.end(); i != e; ++i) {
         SmallVector<BasicBlock*, 1> postDomFront;
-        // TODO: loops: LLVM 3.4: need to fix dominance frontiers
         ComputeDominanceFrontier((*i)->getParent(), *postDomTree->DT, postDomFront);
         if (postDomFront.size() != 1) {
             UnsupportedFunctionality("multiple post-dominance frontier entries for a discarding block");

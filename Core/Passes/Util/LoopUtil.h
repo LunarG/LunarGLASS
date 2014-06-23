@@ -59,10 +59,6 @@ namespace gla_llvm {
     using namespace llvm;
     class LoopStack;
 
-    // TODO: loops LLVM 3.4: Remove the need for the dominance frontier, it's
-    // only used for the merges and testing for returns/discards. The second
-    // purpose can be generalized elsewhere.
-
     // Loop wrapper providing more queries/information
     class LoopWrapper {
     public:
@@ -321,7 +317,13 @@ namespace gla_llvm {
 
     protected:
         // LoopInfo* loopInfo;
+
+        // Note: LLVM's DominanceFrontier is deprecated, go in the direction of not needing it.
+        // TODO: Remove the need for the dominance frontier, it's
+        // only used for the merges and testing for returns/discards. The second
+        // purpose can be generalized elsewhere.
         DominanceFrontier* domFront;
+
         ScalarEvolution* scalarEvo;
 
         bool simpleLatch;

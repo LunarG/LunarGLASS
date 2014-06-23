@@ -91,12 +91,15 @@ void Conditional::recalculate()
     rightChildren.clear();
 
     // Re-calculate the dominance frontiers for the left and right children
+    // Note: LLVM's DominanceFrontier is deprecated, go in the direction of not needing it
+    // TODO: is there any issue with a stale domTree?
     DominanceFrontier::DomSetType& leftDomFront  = domFront->find(left)->second;
     DominanceFrontier::DomSetType& rightDomFront = domFront->find(right)->second;
     leftDomFront.clear();
     rightDomFront.clear();
 
     // For nodes with no predecessor blocks, the domTree has no entry.
+    // TODO: is there any issue with a stale domTree?
     if (domTree->getNode(left))
         domFront->calculate(*domTree, domTree->getNode(left));
     if (domTree->getNode(right))

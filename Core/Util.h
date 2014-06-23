@@ -55,7 +55,6 @@
 namespace llvm {
     class BasicBlock;
     class Loop;
-    class DominanceFrontier;
 } // end namespace llvm
 
 namespace gla {

@@ -47,7 +47,7 @@
 #pragma warning(push, 1)
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/PostDominators.h"
-#include "llvm/Analysis/DominanceFrontier.h"
+#include "llvm/Analysis/DominanceFrontier.h" // Note: LLVM's DominanceFrontier is deprecated, go in the direction of not needing it
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Local.h"
@@ -99,7 +99,6 @@ namespace gla_llvm {
 
         // Recalculate all the analysis information (e.g. if the CFG has been
         // modified so as to render it incorrect).
-        // TODO: loops: figure out interaction with stale domfront/domtree info
         void recalculate();
 
         // Whether there is no "then" block, only an "else" one. This may be
@@ -304,7 +303,7 @@ namespace gla_llvm {
         BasicBlock* left;
         BasicBlock* right;
 
-        DominanceFrontier* domFront;
+        DominanceFrontier* domFront; // Note: LLVM's DominanceFrontier is deprecated, go in the direction of not needing it
         DominatorTree* domTree;
         PostDominatorTree* postDomTree;
         LoopInfo* loopInfo;

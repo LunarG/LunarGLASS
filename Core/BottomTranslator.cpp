@@ -104,11 +104,9 @@
 #include "llvm/Pass.h"
 #include "llvm/PassManager.h"
 #include "llvm/ADT/SmallVector.h"
-#include "llvm/Analysis/DominanceFrontier.h"
+#include "llvm/Analysis/DominanceFrontier.h"  // Note: this is deprecated, go in the direction of not needing it
 #include "llvm/Analysis/Dominators.h"
-#include "llvm/Analysis/LazyValueInfo.h"
 #include "llvm/Analysis/PostDominators.h"
-#include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Analysis/Verifier.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/IR/IRBuilder.h"
@@ -188,10 +186,8 @@ namespace {
         bool inMain;
 
         DominatorTree* domTree;
-        DominanceFrontier* domFront;
+        DominanceFrontier* domFront;  // Note: this is deprecated, go in the direction of not needing it
         IdentifyStructures* idStructs;
-        ScalarEvolution* scalarEvo;
-        LazyValueInfo* lazyInfo;
 
         bool lastBlock;
 
@@ -586,7 +582,7 @@ void BottomTranslator::handleLoopBlock(const BasicBlock* bb, bool instructionsHa
 
     // If the branch is conditional and not a latch nor exiting, we're dealing
     // with conditional (e.g. if-then-else) flow control from a header.
-    // Otherwise handle it's instructions ourselves.
+    // Otherwise handle its instructions ourselves.
     if (condition && ! (isLatch || isExiting)) {
         assert(idStructs->getConditional(bb));
         handleBranchingBlock(bb);
@@ -1021,7 +1017,7 @@ bool BottomTranslator::runOnModule(Module& module)
 
             // Get/set the loop info
             domTree   = &getAnalysis<DominatorTree>        (*function);
-            domFront  = &getAnalysis<DominanceFrontier>    (*function);
+            domFront  = &getAnalysis<DominanceFrontier>    (*function);  // Note: this is deprecated, go in the direction of not needing it
             idStructs = &getAnalysis<IdentifyStructures>   (*function);
 
             // Set up the function info
@@ -1074,10 +1070,8 @@ bool BottomTranslator::runOnModule(Module& module)
 void BottomTranslator::getAnalysisUsage(AnalysisUsage& AU) const
 {
     AU.addRequired<DominatorTree>();
-    AU.addRequired<DominanceFrontier>();
+    AU.addRequired<DominanceFrontier>();  // Note: this is deprecated, go in the direction of not needing it
     AU.addRequired<IdentifyStructures>();
-    // AU.addRequired<ScalarEvolution>();
-    // AU.addRequired<LazyValueInfo>();
 
     AU.setPreservesAll();
 }
@@ -1089,7 +1083,7 @@ INITIALIZE_PASS_BEGIN(BottomTranslator,
                       false,  // Whether it looks only at CFG
                       false); // Whether it is an analysis pass
 INITIALIZE_PASS_DEPENDENCY(DominatorTree)
-// INITIALIZE_PASS_DEPENDENCY(DominanceFrontier)
+INITIALIZE_PASS_DEPENDENCY(DominanceFrontier)
 INITIALIZE_PASS_DEPENDENCY(IdentifyStructures)
 INITIALIZE_PASS_END(BottomTranslator,
                     "bottom-transl",

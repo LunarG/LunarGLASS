@@ -65,7 +65,7 @@ using namespace llvm;
 bool IdentifyStructures::runOnFunction(Function &F)
 {
     loopInfo                       = &getAnalysis<LoopInfo>();
-    DominanceFrontier& domFront    = getAnalysis<DominanceFrontier>();
+    DominanceFrontier& domFront    = getAnalysis<DominanceFrontier>();  // Note: this is deprecated, go in the direction of not needing it
     DominatorTree& domTree         = getAnalysis<DominatorTree>();
     PostDominatorTree& postDomTree = getAnalysis<PostDominatorTree>();
     ScalarEvolution& scalarEvo     = getAnalysis<ScalarEvolution>();
@@ -131,7 +131,7 @@ bool IdentifyStructures::runOnFunction(Function &F)
 
 void IdentifyStructures::getAnalysisUsage(AnalysisUsage& AU) const
 {
-    AU.addRequired<DominanceFrontier>();
+    AU.addRequired<DominanceFrontier>();  // Note: this is deprecated, go in the direction of not needing it
     AU.addRequired<DominatorTree>();
     AU.addRequired<PostDominatorTree>();
     AU.addRequired<LoopInfo>();

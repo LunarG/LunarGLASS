@@ -49,7 +49,7 @@
 #include "llvm/ADT/DepthFirstIterator.h"
 #include "llvm/ADT/PostOrderIterator.h"
 #include "llvm/ADT/SmallPtrSet.h"
-#include "llvm/Analysis/DominanceFrontier.h"
+#include "llvm/Analysis/DominanceFrontier.h" // Note: this is deprecated, go in the direction of not needing it
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Support/CFG.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
@@ -283,6 +283,7 @@ namespace gla_llvm {
     // Whether bb's dominance frontier contains any of the targets, and only the
     // targets. It must contain at least 1.
     // TODO: document complexity
+    // Note: LLVM's DominanceFrontier is deprecated, go in the direction of not needing it
     inline bool ContainedDominanceFrontier(const BasicBlock* bb, SmallVectorImpl<const BasicBlock*>& targets, DominanceFrontier& df)
     {
         int num = 0;
@@ -347,9 +348,6 @@ namespace gla_llvm {
         return br->getSuccessor(i);
     }
 
-    // TODO: loops: LLVM 3.4: refine to compute the needed partial dominance
-    // frontier, and use it.
-
     // Add all the merge points of the given basic blocks to the (empty) merges
     // set. Clears merges first if non-empty.
     // Note: body must appear in this header file, or else explicit
@@ -372,8 +370,8 @@ namespace gla_llvm {
             return;
         }
 
-        // Initialize merges to contain the first domFront (and the first
-        // element)
+        // Initialize merges to contain the first domFront (and the first element)
+        // Note: LLVM's DominanceFrontier is deprecated, go in the direction of not needing it
         DominanceFrontier::DomSetType firstDomFront = (*domFront.find(bbVec[0])).second;
         for (DominanceFrontier::DomSetType::iterator i = firstDomFront.begin(), e = firstDomFront.end(); i != e; ++i) {
             merges.insert(*i);
