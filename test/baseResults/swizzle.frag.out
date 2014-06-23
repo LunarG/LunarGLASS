@@ -222,10 +222,10 @@ entry:
   %6 = load i1 addrspace(2)* @p, align 1, !gla.uniform !3
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
   %8 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %t, i32 1, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
-  %select29 = select i1 %6, <4 x float> %7, <4 x float> %8
+  %select = select i1 %6, <4 x float> %7, <4 x float> %8
   %9 = fmul <4 x float> %1, %3
   %10 = fmul <4 x float> %9, %5
-  %11 = fmul <4 x float> %select29, %10
+  %11 = fmul <4 x float> %select, %10
   %FragColor_shadow = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %4, <4 x float> %0, <4 x float> %11)
   %12 = fcmp olt float %2, 0.000000e+00
   %13 = fmul float %2, -1.000000e+00

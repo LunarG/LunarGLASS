@@ -147,6 +147,7 @@ protected:
     std::map<const glslang::TTypeList*, llvm::StructType*> structMap;
     std::map<const glslang::TTypeList*, std::vector<int> > memberRemapper;  // for mapping glslang block indices to llvm indices (e.g., due to hidden members)
     std::stack<bool> breakForLoop;  // false means break for switch
+    std::stack<glslang::TIntermTyped*> loopTerminal;  // code from the last part of a for loop: for(...; ...; terminal), needed for e.g., continue statements
 };
 
 namespace {
@@ -1126,10 +1127,12 @@ void TGlslangToTopTraverser::visitConstantUnion(glslang::TIntermConstantUnion* n
 
 bool TGlslangToTopTraverser::visitLoop(glslang::TVisit /* visit */, glslang::TIntermLoop* node)
 {
-    bool bodyOut = false;
+    // body emission needs to know what the for-loop terminal is when it sees a "continue"
+    loopTerminal.push(node->getTerminal());
 
     glaBuilder->makeNewLoop();
 
+    bool bodyOut = false;
     if (! node->testFirst()) {
         if (node->getBody()) {
             breakForLoop.push(true);
@@ -1159,11 +1162,13 @@ bool TGlslangToTopTraverser::visitLoop(glslang::TVisit /* visit */, glslang::TIn
         breakForLoop.pop();
     }
 
-    if (node->getTerminal())
-        node->getTerminal()->traverse(this);
+    if (loopTerminal.top())
+        loopTerminal.top()->traverse(this);
 
     glaBuilder->makeLoopBackEdge();
     glaBuilder->closeLoop();
+
+    loopTerminal.pop();
 
     return false;
 }
@@ -1184,6 +1189,8 @@ bool TGlslangToTopTraverser::visitBranch(glslang::TVisit /* visit */, glslang::T
             glaBuilder->addSwitchBreak();
         break;
     case glslang::EOpContinue:
+        if (loopTerminal.top())
+            loopTerminal.top()->traverse(this);
         glaBuilder->makeLoopBackEdge();
         break;
     case glslang::EOpReturn:
