@@ -1484,9 +1484,11 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
                 //       in the created output.
                 mdTypePointer = 0;  // This is not a uniform, so don't process any metadata for it.
             } else {
-                UnsupportedFunctionality("missing metadata on load", 0, name.c_str(), EATContinue);
+                // We have probably have an optimized away metadata on a uniform load
                 // Attempt recovery
-                if (name.compare(0, 5, "anon@") == 0)
+                std::string& rawName = gepInstr ? gepInstr->getOperand(0)->getName().str() : llvmInstruction->getName().str();
+                UnsupportedFunctionality("missing metadata on load", 0, rawName.c_str(), EATContinue);
+                if (rawName.compare(0, 5, "anon@") == 0)
                     name = "";
                 gepExpressionMapped = false;
             }
