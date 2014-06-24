@@ -1486,7 +1486,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             } else {
                 // We have probably have an optimized away metadata on a uniform load
                 // Attempt recovery
-                std::string& rawName = gepInstr ? gepInstr->getOperand(0)->getName().str() : llvmInstruction->getName().str();
+                const std::string& rawName = gepInstr ? gepInstr->getOperand(0)->getName().str() : llvmInstruction->getName().str();
                 UnsupportedFunctionality("missing metadata on load", 0, rawName.c_str(), EATContinue);
                 if (rawName.compare(0, 5, "anon@") == 0)
                     name = "";
