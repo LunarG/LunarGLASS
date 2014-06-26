@@ -19,8 +19,6 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  call void @llvm.gla.emitVertex()
-  call void @llvm.gla.endPrimitive()
   %fromV = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1025, i32 -1), !gla.input !20
   store <3 x float> %fromV, <3 x float>* getelementptr inbounds ([6 x %fromVertex.0]* @fromV_shadow, i32 0, i32 0, i32 0)
   %fromV1 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1026, i32 -1), !gla.input !20
@@ -116,9 +114,6 @@ entry:
   %PrimitiveID_shadow = load i32* @PrimitiveIDIn_shadow
   store i32 %PrimitiveID_shadow, i32* @PrimitiveID_shadow
   store i32 2, i32* @Layer_shadow
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %entry
   %3 = load <3 x float>* getelementptr inbounds (%fromVertex* @"anon@0_shadow", i32 0, i32 0)
   call void @llvm.gla.fWriteData.v3f32(i32 1024, i32 -1, <3 x float> %3), !gla.output !5
   %4 = load <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@1_shadow", i32 0, i32 0)
@@ -129,44 +124,159 @@ stage-epilogue:                                   ; preds = %entry
   call void @llvm.gla.writeData.i32(i32 1052, i32 -1, i32 %6), !gla.output !13
   %7 = load i32* @Layer_shadow
   call void @llvm.gla.writeData.i32(i32 1054, i32 -1, i32 %7), !gla.output !15
+  call void @llvm.gla.emitVertex()
+  %fromV41 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1025, i32 -1), !gla.input !20
+  store <3 x float> %fromV41, <3 x float>* getelementptr inbounds ([6 x %fromVertex.0]* @fromV_shadow, i32 0, i32 0, i32 0)
+  %fromV42 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1026, i32 -1), !gla.input !20
+  store <3 x float> %fromV42, <3 x float>* getelementptr inbounds ([6 x %fromVertex.0]* @fromV_shadow, i32 0, i32 1, i32 0)
+  %fromV43 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1027, i32 -1), !gla.input !20
+  store <3 x float> %fromV43, <3 x float>* getelementptr inbounds ([6 x %fromVertex.0]* @fromV_shadow, i32 0, i32 2, i32 0)
+  %fromV44 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1028, i32 -1), !gla.input !20
+  store <3 x float> %fromV44, <3 x float>* getelementptr inbounds ([6 x %fromVertex.0]* @fromV_shadow, i32 0, i32 3, i32 0)
+  %fromV45 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1029, i32 -1), !gla.input !20
+  store <3 x float> %fromV45, <3 x float>* getelementptr inbounds ([6 x %fromVertex.0]* @fromV_shadow, i32 0, i32 4, i32 0)
+  %fromV46 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1030, i32 -1), !gla.input !20
+  store <3 x float> %fromV46, <3 x float>* getelementptr inbounds ([6 x %fromVertex.0]* @fromV_shadow, i32 0, i32 5, i32 0)
+  %8 = load <3 x float>* getelementptr inbounds ([6 x %fromVertex.0]* @fromV_shadow, i32 0, i32 0, i32 0)
+  %9 = fmul <3 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, %8
+  store <3 x float> %9, <3 x float>* getelementptr inbounds (%fromVertex* @"anon@0_shadow", i32 0, i32 0)
+  %gl_in47 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1034, i32 -1), !gla.input !22
+  store <4 x float> %gl_in47, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 0, i32 0)
+  %gl_in48 = call float @llvm.gla.fReadData.f32(i32 1035, i32 -1), !gla.input !22
+  store float %gl_in48, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 0, i32 1)
+  %gl_in49 = call float @llvm.gla.fReadData.f32(i32 1036, i32 -1), !gla.input !22
+  store float %gl_in49, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 0, i32 2, i32 0)
+  %gl_in50 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !22
+  store <4 x float> %gl_in50, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 1, i32 0)
+  %gl_in51 = call float @llvm.gla.fReadData.f32(i32 1038, i32 -1), !gla.input !22
+  store float %gl_in51, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 1, i32 1)
+  %gl_in52 = call float @llvm.gla.fReadData.f32(i32 1039, i32 -1), !gla.input !22
+  store float %gl_in52, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 1, i32 2, i32 0)
+  %gl_in53 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1040, i32 -1), !gla.input !22
+  store <4 x float> %gl_in53, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 2, i32 0)
+  %gl_in54 = call float @llvm.gla.fReadData.f32(i32 1041, i32 -1), !gla.input !22
+  store float %gl_in54, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 2, i32 1)
+  %gl_in55 = call float @llvm.gla.fReadData.f32(i32 1042, i32 -1), !gla.input !22
+  store float %gl_in55, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 2, i32 2, i32 0)
+  %gl_in56 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1043, i32 -1), !gla.input !22
+  store <4 x float> %gl_in56, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 3, i32 0)
+  %gl_in57 = call float @llvm.gla.fReadData.f32(i32 1044, i32 -1), !gla.input !22
+  store float %gl_in57, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 3, i32 1)
+  %gl_in58 = call float @llvm.gla.fReadData.f32(i32 1045, i32 -1), !gla.input !22
+  store float %gl_in58, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 3, i32 2, i32 0)
+  %gl_in59 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1046, i32 -1), !gla.input !22
+  store <4 x float> %gl_in59, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 4, i32 0)
+  %gl_in60 = call float @llvm.gla.fReadData.f32(i32 1047, i32 -1), !gla.input !22
+  store float %gl_in60, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 4, i32 1)
+  %gl_in61 = call float @llvm.gla.fReadData.f32(i32 1048, i32 -1), !gla.input !22
+  store float %gl_in61, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 4, i32 2, i32 0)
+  %gl_in62 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1049, i32 -1), !gla.input !22
+  store <4 x float> %gl_in62, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 5, i32 0)
+  %gl_in63 = call float @llvm.gla.fReadData.f32(i32 1050, i32 -1), !gla.input !22
+  store float %gl_in63, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 5, i32 1)
+  %gl_in64 = call float @llvm.gla.fReadData.f32(i32 1051, i32 -1), !gla.input !22
+  store float %gl_in64, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 5, i32 2, i32 0)
+  %10 = load <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 0, i32 0)
+  %11 = fmul <4 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, %10
+  store <4 x float> %11, <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@1_shadow", i32 0, i32 0)
+  %gl_in65 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1034, i32 -1), !gla.input !22
+  store <4 x float> %gl_in65, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 0, i32 0)
+  %gl_in66 = call float @llvm.gla.fReadData.f32(i32 1035, i32 -1), !gla.input !22
+  store float %gl_in66, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 0, i32 1)
+  %gl_in67 = call float @llvm.gla.fReadData.f32(i32 1036, i32 -1), !gla.input !22
+  store float %gl_in67, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 0, i32 2, i32 0)
+  %gl_in68 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1037, i32 -1), !gla.input !22
+  store <4 x float> %gl_in68, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 1, i32 0)
+  %gl_in69 = call float @llvm.gla.fReadData.f32(i32 1038, i32 -1), !gla.input !22
+  store float %gl_in69, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 1, i32 1)
+  %gl_in70 = call float @llvm.gla.fReadData.f32(i32 1039, i32 -1), !gla.input !22
+  store float %gl_in70, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 1, i32 2, i32 0)
+  %gl_in71 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1040, i32 -1), !gla.input !22
+  store <4 x float> %gl_in71, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 2, i32 0)
+  %gl_in72 = call float @llvm.gla.fReadData.f32(i32 1041, i32 -1), !gla.input !22
+  store float %gl_in72, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 2, i32 1)
+  %gl_in73 = call float @llvm.gla.fReadData.f32(i32 1042, i32 -1), !gla.input !22
+  store float %gl_in73, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 2, i32 2, i32 0)
+  %gl_in74 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1043, i32 -1), !gla.input !22
+  store <4 x float> %gl_in74, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 3, i32 0)
+  %gl_in75 = call float @llvm.gla.fReadData.f32(i32 1044, i32 -1), !gla.input !22
+  store float %gl_in75, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 3, i32 1)
+  %gl_in76 = call float @llvm.gla.fReadData.f32(i32 1045, i32 -1), !gla.input !22
+  store float %gl_in76, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 3, i32 2, i32 0)
+  %gl_in77 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1046, i32 -1), !gla.input !22
+  store <4 x float> %gl_in77, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 4, i32 0)
+  %gl_in78 = call float @llvm.gla.fReadData.f32(i32 1047, i32 -1), !gla.input !22
+  store float %gl_in78, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 4, i32 1)
+  %gl_in79 = call float @llvm.gla.fReadData.f32(i32 1048, i32 -1), !gla.input !22
+  store float %gl_in79, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 4, i32 2, i32 0)
+  %gl_in80 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1049, i32 -1), !gla.input !22
+  store <4 x float> %gl_in80, <4 x float>* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 5, i32 0)
+  %gl_in81 = call float @llvm.gla.fReadData.f32(i32 1050, i32 -1), !gla.input !22
+  store float %gl_in81, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 5, i32 1)
+  %gl_in82 = call float @llvm.gla.fReadData.f32(i32 1051, i32 -1), !gla.input !22
+  store float %gl_in82, float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 5, i32 2, i32 0)
+  %12 = load float* getelementptr inbounds ([6 x %gl_PerVertex.1]* @in_shadow, i32 0, i32 3, i32 1)
+  %13 = fmul float 2.000000e+00, %12
+  store float %13, float* getelementptr inbounds (%gl_PerVertex* @"anon@1_shadow", i32 0, i32 1)
+  %gl_PrimitiveIDIn83 = call i32 @llvm.gla.readData.i32(i32 1053, i32 -1), !gla.input !24
+  store i32 %gl_PrimitiveIDIn83, i32* @PrimitiveIDIn_shadow
+  %14 = load i32* @PrimitiveIDIn_shadow
+  %PrimitiveID_shadow84 = add i32 %14, 1
+  store i32 %PrimitiveID_shadow84, i32* @PrimitiveID_shadow
+  store i32 3, i32* @Layer_shadow
+  %15 = load <3 x float>* getelementptr inbounds (%fromVertex* @"anon@0_shadow", i32 0, i32 0)
+  call void @llvm.gla.fWriteData.v3f32(i32 1024, i32 -1, <3 x float> %15), !gla.output !5
+  %16 = load <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@1_shadow", i32 0, i32 0)
+  call void @llvm.gla.fWriteData.v4f32(i32 1031, i32 -1, <4 x float> %16), !gla.output !10
+  %17 = load float* getelementptr inbounds (%gl_PerVertex* @"anon@1_shadow", i32 0, i32 1)
+  call void @llvm.gla.fWriteData.f32(i32 1032, i32 -1, float %17), !gla.output !10
+  %18 = load i32* @PrimitiveID_shadow
+  call void @llvm.gla.writeData.i32(i32 1052, i32 -1, i32 %18), !gla.output !13
+  %19 = load i32* @Layer_shadow
+  call void @llvm.gla.writeData.i32(i32 1054, i32 -1, i32 %19), !gla.output !15
+  call void @llvm.gla.emitVertex()
+  call void @llvm.gla.endPrimitive()
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-; Function Attrs: nounwind
-declare void @llvm.gla.emitVertex() #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.endPrimitive() #0
+; Function Attrs: nounwind readonly
+declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) #0
 
 ; Function Attrs: nounwind readonly
-declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) #1
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #0
 
 ; Function Attrs: nounwind readonly
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #1
+declare float @llvm.gla.fReadData.f32(i32, i32) #0
 
 ; Function Attrs: nounwind readonly
-declare float @llvm.gla.fReadData.f32(i32, i32) #1
-
-; Function Attrs: nounwind readonly
-declare i32 @llvm.gla.readData.i32(i32, i32) #1
+declare i32 @llvm.gla.readData.i32(i32, i32) #0
 
 ; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) #0
+declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) #1
 
 ; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #0
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
 
 ; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.f32(i32, i32, float) #0
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) #1
 
 ; Function Attrs: nounwind
-declare void @llvm.gla.writeData.i32(i32, i32, i32) #0
+declare void @llvm.gla.writeData.i32(i32, i32, i32) #1
 
-attributes #0 = { nounwind }
-attributes #1 = { nounwind readonly }
+; Function Attrs: nounwind
+declare void @llvm.gla.emitVertex() #1
+
+; Function Attrs: nounwind
+declare void @llvm.gla.endPrimitive() #1
+
+attributes #0 = { nounwind readonly }
+attributes #1 = { nounwind }
 
 !gla.invocations = !{!0}
 !gla.numVertices = !{!1}
@@ -214,25 +324,47 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  call void @llvm.gla.emitVertex()
-  call void @llvm.gla.endPrimitive()
   %fromV = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1025, i32 -1), !gla.input !20
   %gl_in = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1034, i32 -1), !gla.input !22
   %gla_constGEP = getelementptr %gl_PerVertex* @"anon@1_shadow", i32 0, i32 0
   store <4 x float> %gl_in, <4 x float>* %gla_constGEP, align 16
   %gl_in33 = call float @llvm.gla.fReadData.f32(i32 1044, i32 -1), !gla.input !22
-  %gla_constGEP42 = getelementptr %gl_PerVertex* @"anon@1_shadow", i32 0, i32 1
-  store float %gl_in33, float* %gla_constGEP42, align 16
+  %gla_constGEP86 = getelementptr %gl_PerVertex* @"anon@1_shadow", i32 0, i32 1
+  store float %gl_in33, float* %gla_constGEP86, align 16
   %gl_PrimitiveIDIn = call i32 @llvm.gla.readData.i32(i32 1053, i32 -1), !gla.input !24
   call void @llvm.gla.fWriteData.v3f32(i32 1024, i32 -1, <3 x float> %fromV), !gla.output !5
-  %gla_constGEP43 = getelementptr %gl_PerVertex* @"anon@1_shadow", i32 0, i32 0
-  %0 = load <4 x float>* %gla_constGEP43, align 16
+  %gla_constGEP87 = getelementptr %gl_PerVertex* @"anon@1_shadow", i32 0, i32 0
+  %0 = load <4 x float>* %gla_constGEP87, align 16
   call void @llvm.gla.fWriteData.v4f32(i32 1031, i32 -1, <4 x float> %0), !gla.output !10
-  %gla_constGEP44 = getelementptr %gl_PerVertex* @"anon@1_shadow", i32 0, i32 1
-  %1 = load float* %gla_constGEP44, align 16
+  %gla_constGEP88 = getelementptr %gl_PerVertex* @"anon@1_shadow", i32 0, i32 1
+  %1 = load float* %gla_constGEP88, align 16
   call void @llvm.gla.fWriteData.f32(i32 1032, i32 -1, float %1), !gla.output !10
   call void @llvm.gla.writeData.i32(i32 1052, i32 -1, i32 %gl_PrimitiveIDIn), !gla.output !13
   call void @llvm.gla.writeData.i32(i32 1054, i32 -1, i32 2), !gla.output !15
+  call void @llvm.gla.emitVertex()
+  %fromV41 = call <3 x float> @llvm.gla.fReadData.v3f32(i32 1025, i32 -1), !gla.input !20
+  %2 = fmul <3 x float> %fromV41, <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>
+  %gl_in47 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1034, i32 -1), !gla.input !22
+  %3 = fmul <4 x float> %gl_in47, <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>
+  %gla_constGEP89 = getelementptr %gl_PerVertex* @"anon@1_shadow", i32 0, i32 0
+  store <4 x float> %3, <4 x float>* %gla_constGEP89, align 16
+  %gl_in75 = call float @llvm.gla.fReadData.f32(i32 1044, i32 -1), !gla.input !22
+  %4 = fmul float %gl_in75, 2.000000e+00
+  %gla_constGEP90 = getelementptr %gl_PerVertex* @"anon@1_shadow", i32 0, i32 1
+  store float %4, float* %gla_constGEP90, align 16
+  %gl_PrimitiveIDIn83 = call i32 @llvm.gla.readData.i32(i32 1053, i32 -1), !gla.input !24
+  %PrimitiveID_shadow84 = add i32 %gl_PrimitiveIDIn83, 1
+  call void @llvm.gla.fWriteData.v3f32(i32 1024, i32 -1, <3 x float> %2), !gla.output !5
+  %gla_constGEP91 = getelementptr %gl_PerVertex* @"anon@1_shadow", i32 0, i32 0
+  %5 = load <4 x float>* %gla_constGEP91, align 16
+  call void @llvm.gla.fWriteData.v4f32(i32 1031, i32 -1, <4 x float> %5), !gla.output !10
+  %gla_constGEP92 = getelementptr %gl_PerVertex* @"anon@1_shadow", i32 0, i32 1
+  %6 = load float* %gla_constGEP92, align 16
+  call void @llvm.gla.fWriteData.f32(i32 1032, i32 -1, float %6), !gla.output !10
+  call void @llvm.gla.writeData.i32(i32 1052, i32 -1, i32 %PrimitiveID_shadow84), !gla.output !13
+  call void @llvm.gla.writeData.i32(i32 1054, i32 -1, i32 3), !gla.output !15
+  call void @llvm.gla.emitVertex()
+  call void @llvm.gla.endPrimitive()
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -242,38 +374,38 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-; Function Attrs: nounwind
-declare void @llvm.gla.emitVertex() #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.endPrimitive() #0
+; Function Attrs: nounwind readonly
+declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) #0
 
 ; Function Attrs: nounwind readonly
-declare <3 x float> @llvm.gla.fReadData.v3f32(i32, i32) #1
+declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #0
 
 ; Function Attrs: nounwind readonly
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #1
+declare float @llvm.gla.fReadData.f32(i32, i32) #0
 
 ; Function Attrs: nounwind readonly
-declare float @llvm.gla.fReadData.f32(i32, i32) #1
-
-; Function Attrs: nounwind readonly
-declare i32 @llvm.gla.readData.i32(i32, i32) #1
+declare i32 @llvm.gla.readData.i32(i32, i32) #0
 
 ; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) #0
+declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) #1
 
 ; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #0
+declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
 
 ; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.f32(i32, i32, float) #0
+declare void @llvm.gla.fWriteData.f32(i32, i32, float) #1
 
 ; Function Attrs: nounwind
-declare void @llvm.gla.writeData.i32(i32, i32, i32) #0
+declare void @llvm.gla.writeData.i32(i32, i32, i32) #1
 
-attributes #0 = { nounwind }
-attributes #1 = { nounwind readonly }
+; Function Attrs: nounwind
+declare void @llvm.gla.emitVertex() #1
+
+; Function Attrs: nounwind
+declare void @llvm.gla.endPrimitive() #1
+
+attributes #0 = { nounwind readonly }
+attributes #1 = { nounwind }
 
 !gla.invocations = !{!0}
 !gla.numVertices = !{!1}
@@ -332,11 +464,14 @@ out toFragment {
 } toF;
 goo_gl_PerVertex anon_1_shadow;
 const int const21i_2 = 2;
+const vec3 const23 = vec3(2.0);
+const vec4 const25 = vec4(2.0);
+const float const27 = 2.0;
+const int const29i_1 = 1;
+const int const30i_3 = 3;
 
 void main()
 {
-    EmitVertex();
-    EndPrimitive();
     anon_1_shadow.member0 = gl_in[0].gl_Position;
     anon_1_shadow.member1 = gl_in[3].gl_PointSize;
     color = fromV[0].color;
@@ -344,6 +479,20 @@ void main()
     gl_PointSize = anon_1_shadow.member1;
     gl_PrimitiveID = gl_PrimitiveIDIn;
     gl_Layer = const21i_2;
+    EmitVertex();
+    vec3 temp22 = fromV[0].color * const23;
+    vec4 temp24 = gl_in[0].gl_Position * const25;
+    anon_1_shadow.member0 = temp24;
+    float temp26 = gl_in[3].gl_PointSize * const27;
+    anon_1_shadow.member1 = temp26;
+    int PrimitiveID_shadow_c1 = gl_PrimitiveIDIn + const29i_1;
+    color = temp22;
+    gl_Position = anon_1_shadow.member0;
+    gl_PointSize = anon_1_shadow.member1;
+    gl_PrimitiveID = PrimitiveID_shadow_c1;
+    gl_Layer = const30i_3;
+    EmitVertex();
+    EndPrimitive();
     
 }
 
@@ -370,11 +519,14 @@ out toFragment {
 } toF;
 goo_gl_PerVertex_1 anon_1_shadow;
 const int const21i_2 = 2;
+const vec3 const23 = vec3(2.0);
+const vec4 const25 = vec4(2.0);
+const float const27 = 2.0;
+const int const29i_1 = 1;
+const int const30i_3 = 3;
 
 void main()
 {
-    EmitVertex();
-    EndPrimitive();
     anon_1_shadow.member0 = gl_in[0].gl_Position;
     anon_1_shadow.member1 = gl_in[3].gl_PointSize;
     color = fromV[0].color;
@@ -382,6 +534,20 @@ void main()
     gl_PointSize = anon_1_shadow.member1;
     gl_PrimitiveID = gl_PrimitiveIDIn;
     gl_Layer = const21i_2;
+    EmitVertex();
+    vec3 temp_c1 = fromV[0].color * const23;
+    vec4 temp_c2 = gl_in[0].gl_Position * const25;
+    float temp_c3 = gl_in[3].gl_PointSize * const27;
+    int PrimitiveID_shadow_c4 = gl_PrimitiveIDIn + const29i_1;
+    anon_1_shadow.member0 = temp_c2;
+    anon_1_shadow.member1 = temp_c3;
+    color = temp_c1;
+    gl_Position = anon_1_shadow.member0;
+    gl_PointSize = anon_1_shadow.member1;
+    gl_PrimitiveID = PrimitiveID_shadow_c4;
+    gl_Layer = const30i_3;
+    EmitVertex();
+    EndPrimitive();
     
 }
 

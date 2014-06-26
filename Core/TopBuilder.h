@@ -258,6 +258,8 @@ public:
     // automatically by closeMain() or leaveFunction(true) for main.
     void copyOutPipeline();
 
+    void setExplicitPipelineCopyOut() { explicitPipelineCopyout = true; }
+
     // Write to the pipeline directly, without caching through variables
     // (User likely needs to select between the variable/copyOutPipeline
     //  model and the writePipeline model.)
@@ -498,6 +500,7 @@ protected:
     llvm::Function*   mainFunction;
     llvm::BasicBlock* stageEpilogue;
     llvm::BasicBlock* stageExit;
+    bool explicitPipelineCopyout;
 
     // This data structure below is not a matrix... 
     // it's a cache of types for all possible matrix sizes.

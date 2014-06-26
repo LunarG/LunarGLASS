@@ -18,13 +18,22 @@ out fromVertex {
 
 void main()
 {
-    EmitVertex();
-    EndPrimitive();
-
     color = fromV[0].color;
     //?? gl_ClipDistance[3] = gl_in[1].gl_ClipDistance[2];
     gl_Position = gl_in[0].gl_Position;
     gl_PointSize = gl_in[3].gl_PointSize;
     gl_PrimitiveID = gl_PrimitiveIDIn;
     gl_Layer = 2;
+
+    EmitVertex();
+
+    color = 2 * fromV[0].color;
+    gl_Position = 2.0 * gl_in[0].gl_Position;
+    gl_PointSize = 2.0 * gl_in[3].gl_PointSize;
+    gl_PrimitiveID = gl_PrimitiveIDIn + 1;
+    gl_Layer = 3;
+
+    EmitVertex();
+
+    EndPrimitive();
 }

@@ -80,7 +80,8 @@ Builder::Builder(llvm::IRBuilder<>& b, gla::Manager* m, Metadata md) :
     metadata(md),
     mainFunction(0),
     stageEpilogue(0),
-    stageExit(0)
+    stageExit(0),
+    explicitPipelineCopyout(false)
 {
     clearAccessChain();
     int cacheSize = maxMatrixSize - minMatrixSize + 1;
@@ -385,7 +386,8 @@ void Builder::closeMain()
 {
     // Add our instructions to stageEpilogue, and stageExit
     builder.SetInsertPoint(stageEpilogue);
-    copyOutPipeline();
+    if (! explicitPipelineCopyout)
+        copyOutPipeline();
     builder.CreateBr(stageExit);
 
     builder.SetInsertPoint(stageExit);

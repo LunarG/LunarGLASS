@@ -1249,7 +1249,7 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const glslang::TIntermSy
     case glslang::EvqUniform:
     case glslang::EvqBuffer:
         storageQualifier = gla::Builder::ESQUniform;
-        // TODO: linker functionality: uniform buffers? need to generalize to N objects (constant buffers) for higher shader models
+        // TODO: uniform buffers? need to generalize to N objects (constant buffers) for higher shader models
         constantBuffer = 0;
         break;
     case glslang::EvqIn:
@@ -2146,6 +2146,8 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
         break;
 
     case glslang::EOpEmitStreamVertex:
+        glaBuilder->setExplicitPipelineCopyOut();
+        glaBuilder->copyOutPipeline();
         intrinsicID = llvm::Intrinsic::gla_emitStreamVertex;
         break;
     case glslang::EOpEndStreamPrimitive:
@@ -2285,6 +2287,8 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op)
 
     switch (op) {
     case glslang::EOpEmitVertex:
+        glaBuilder->setExplicitPipelineCopyOut();
+        glaBuilder->copyOutPipeline();
         intrinsicID = llvm::Intrinsic::gla_emitVertex;
         break;
     case glslang::EOpEndPrimitive:
