@@ -2416,18 +2416,22 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
 //
 // Ensure enough slots are consumed to cover the size of the data represented by the node symbol.
 //
-// TODO: soon: strip one-level of arrayness off for "arrayed" I/O in geometry and tessellation shaders.
-//
 int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input, int& numSlots)
 {
     // Base the numbers of slots on the front-end's computation, if possible, otherwise estimate it.
-    if (glslangIntermediate)
-        numSlots = glslangIntermediate->computeTypeLocationSize(node->getType());
-    else {
+    const glslang::TType& type = node->getType();
+    if (glslangIntermediate) {
+        // Use the array element type if this variable has an extra layer of arrayness
+        if (type.isArray() && type.getQualifier().isArrayedIo(glslangIntermediate->getStage())) {
+            glslang::TType elementType(type, 0);
+            numSlots = glslangIntermediate->computeTypeLocationSize(elementType);
+        } else
+            numSlots = glslangIntermediate->computeTypeLocationSize(type);
+    } else {
         numSlots = 1;
-        if (node->getType().isArray())
-            numSlots = node->getType().getArraySize();
-        if (node->getType().isStruct() || node->getType().isMatrix() || node->getType().getBasicType() == glslang::EbtDouble)
+        if (type.isArray() && ! type.getQualifier().isArrayedIo(glslangIntermediate->getStage()))
+            numSlots = type.getArraySize();
+        if (type.isStruct() || type.isMatrix() || type.getBasicType() == glslang::EbtDouble)
             gla::UnsupportedFunctionality("complex I/O type; use new glslang C++ interface", gla::EATContinue);
     }
 
