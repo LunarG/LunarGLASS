@@ -1,19 +1,21 @@
 Note: Also see the front-end TODO list; this is not a complete list for the front end, just the adapter.
 
 LunarGLASS/GOO LLVM
-  - Loop issues for LunarGLASS core
+  + Loop issues for LunarGLASS core
   - handle all derived classes of constant
   + move to LLVM 3.4
 
 Adapters and Common Builder
-  - read/write from variably chosen vector component
-  - discard from a function
-  - fModf() support
-  - test thread safety
-  - some parts of code don't handle complex nesting within in/out structures
+  + read/write from variably chosen vector component
+  + discard from a function
+  + fModf() support
+  + test thread safety
+  + some parts of code don't handle complex nesting within in/out structures
   - do different declaration decorations reusing the same structure need to replicate the heirarchical decorations?
 
 Performance
+v - handle variable indexing of IO arrays without copying entire shadow array
+v - preserve more inductive loop forms?
   - fix difference between fReadData and fReadInterpolant: LLVM is optimizing multiple uses of one but not the other
 
 Delivery checklist
@@ -35,18 +37,18 @@ Shader Functionality to Implement/Finish
     GLSL 1.5 (Non-ES)
       - Added gl_FragCoord qualifiers origin_upper_left, and pixel_center_integer to modify the values returned by gl_FragCoord (and have no affect on any other aspect of the pipeline or language).
       - Added support for multi-sample textures through sampler2DMS and sampler2DMSArray support in texelFetch() and textureSize().
-v     - Broadened interface blocks from just uniforms to in and out interfaces as well.
+      + Broadened interface blocks from just uniforms to in and out interfaces as well.
       - Broaden array usage to include vertex shader inputs (vertex in).
-v     - Added geometry shaders.  This includes targeting layers in FBO rendering.
-v       - geometry shader built-ins
-v       - geometry shader layouts: they must be declared, telling the system the primitive input and output types and maximum number of vertices.
-v       - other geometry shader features?
+      + Added geometry shaders.  This includes targeting layers in FBO rendering.
+        + geometry shader built-ins
+        + geometry shader layouts: they must be declared, telling the system the primitive input and output types and maximum number of vertices.
+        + other geometry shader features?
     GLSL 4.0
-v     - tessellation control stage and tessellation evaluation stage. Includes barrier() built-in for synchronization.
-v       - patch in, patch out
-v       - input/output arrays
-v       - built-in variables, functions, and constants
-v       - layout qualifiers for primitive types
+      + tessellation control stage and tessellation evaluation stage. Includes barrier() built-in for synchronization.
+        + patch in, patch out
+        + input/output arrays
+        + built-in variables, functions, and constants
+        + layout qualifiers for primitive types
       - Polymorphic functions: Run-time selection of what function gets called, through the new keyword subroutine.
       - 64bit floating point numbers with the new type keyword double.  Built-in functions extended for doubles, and new function matching rules are added to both allow implicit conversions when calling a function and preserve most existing function matching once doubles are included. 
       - Cube map array textures and texture functions texture(), textureSize(), textureLod(), and textureGrad().
@@ -68,18 +70,18 @@ v       - layout qualifiers for primitive types
          + textureGather()
          + textureGatherOffset()
          + textureGatherOffsets()
-v     - Add streams out from geometry shader. Output can be directed to streams through
-v        - EmitStreamVertex() and EndStreamPrimitive().
+      + Add streams out from geometry shader. Output can be directed to streams through
+         + EmitStreamVertex() and EndStreamPrimitive().
     GLSL 4.1
-v     - Support for partitioning shaders into multiple programs to provide light-weight mixing of different shader stages.
+      + Support for partitioning shaders into multiple programs to provide light-weight mixing of different shader stages.
             (GL_ARB_separate_shader_objects)
-v       - Layout qualifiers to provide cross-stage interfacing
-v       - redeclaration of built-in input/output blocks
-v       - ...other SSO features?
+        + Layout qualifiers to provide cross-stage interfacing
+        + redeclaration of built-in input/output blocks
+        + ...other SSO features?
       - Add 64-bit floating-point attributes for vertex shader inputs.
     GLSL 4.2
-v     - binding qualifier for uniform blocks
-v     - binding qualifier for samplers
+      + binding qualifier for uniform blocks
+      + binding qualifier for samplers
       - Add image types (GL_ARB_shader_image_load_store)
         - 33 new types, all with “image” in their name, correspond to the non-shadow texture types
         - addition of memory qualifiers: coherent,volatile, restrict, readonly, and writeonly

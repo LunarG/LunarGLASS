@@ -222,22 +222,25 @@ namespace gla_llvm {
             if (! cond)
                 return false;
 
-            // There can't be any other non-phi instructions in the block, so
+            // There can't be any other non-phi instructions in the header, so
             // keep track of the number of instructions we've seen.
             int count = 2;      // Already looked at the branch and condition
 
-            // They have to be constants, extracts (vector swizzle), or loads
-            // (uniforms). Add them to our count if they are in the header
+            // They have to be phis, constants, extracts (vector swizzle), or loads
+            // (uniforms).  Add non-phis to our count if they are in the header.
             for (Instruction::const_op_iterator i = cond->op_begin(), e = cond->op_end(); i != e; ++i) {
-                if (! (isa<ExtractElementInst>(i) || isa<LoadInst>(i) || isa<Constant>(i)))
+                if (isa<PHINode>(i)) {
+                    // phis are okay
+                } else if (isa<ExtractElementInst>(i) || isa<LoadInst>(i) || isa<Constant>(i)) {
+                    // these are all okay
+                    if (Instruction* inst = dyn_cast<Instruction>(i))
+                        if (inst->getParent() == header)
+                            ++count;
+                } else
                     return false;
-                if (Instruction* inst = dyn_cast<Instruction>(i))
-                    if (inst->getParent() == header)
-                        ++count;
             }
-            // TODO: loops: handle when the cmp's arguments are phis
 
-            // Add up the phis to the count
+            // Add up the header's phis to the count
             for (BasicBlock::const_iterator i = header->begin(), e = header->end(); i != e; ++i) {
                 if (! isa<PHINode>(i))
                     break;

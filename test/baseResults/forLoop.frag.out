@@ -268,8 +268,8 @@ uniform uvec4 v4;
 in vec4 BaseColor;
 vec4 gla_globalAgg;
 const int const23i_0 = 0;
-const int const27i_1 = 1;
-const int const37i_2 = 2;
+const int const26i_1 = 1;
+const int const36i_2 = 2;
 
 void main()
 {
@@ -277,44 +277,39 @@ void main()
     vec4 color_uc2;
     i_uc1 = const23i_0;
     color_uc2 = BaseColor;
-    while (true) {
-        bool temp24 = i_uc1 < Count;
-        if (! temp24) {
-            break;
-        }
-        
+    while (i_uc1 < Count) {
         vec4 color_c3 = bigColor + color_uc2;
-        int temp26 = i_uc1 + const27i_1;
-        i_uc1 = temp26;
+        int temp25 = i_uc1 + const26i_1;
+        i_uc1 = temp25;
         color_uc2 = color_c3;
     }
     
-    float temp28 = float(ivec4(v4).x);
-    float temp29 = float(ivec4(v4).y);
-    float sum_c4 = temp28 + temp29;
-    float temp31 = float(ivec4(v4).z);
-    float sum_c5 = sum_c4 + temp31;
-    float temp33 = float(ivec4(v4).w);
-    float sum_c6 = sum_c5 + temp33;
-    vec4 temp35 = vec4(sum_c6);
-    int temp36 = ivec4(v4).x << const37i_2;
-    float temp38 = float(temp36);
+    float temp27 = float(ivec4(v4).x);
+    float temp28 = float(ivec4(v4).y);
+    float sum_c4 = temp27 + temp28;
+    float temp30 = float(ivec4(v4).z);
+    float sum_c5 = sum_c4 + temp30;
+    float temp32 = float(ivec4(v4).w);
+    float sum_c6 = sum_c5 + temp32;
+    vec4 temp34 = vec4(sum_c6);
+    int temp35 = ivec4(v4).x << const36i_2;
+    float temp37 = float(temp35);
     vec4 tv_c7 = gla_globalAgg;
-    tv_c7.x = temp38;
-    int temp40 = ivec4(v4).y << const37i_2;
-    float temp41 = float(temp40);
+    tv_c7.x = temp37;
+    int temp39 = ivec4(v4).y << const36i_2;
+    float temp40 = float(temp39);
     vec4 tv_c8 = tv_c7;
-    tv_c8.y = temp41;
-    int temp43 = ivec4(v4).z << const37i_2;
-    float temp44 = float(temp43);
+    tv_c8.y = temp40;
+    int temp42 = ivec4(v4).z << const36i_2;
+    float temp43 = float(temp42);
     vec4 tv_c9 = tv_c8;
-    tv_c9.z = temp44;
-    int temp46 = ivec4(v4).w << const37i_2;
-    float temp47 = float(temp46);
+    tv_c9.z = temp43;
+    int temp45 = ivec4(v4).w << const36i_2;
+    float temp46 = float(temp45);
     vec4 tv_c10 = tv_c9;
-    tv_c10.w = temp47;
-    vec4 temp49 = temp35 + tv_c10;
-    vec4 FragColor_shadow_c11 = color_uc2 + temp49;
+    tv_c10.w = temp46;
+    vec4 temp48 = temp34 + tv_c10;
+    vec4 FragColor_shadow_c11 = color_uc2 + temp48;
     gl_FragColor = FragColor_shadow_c11;
     
 }
@@ -327,8 +322,8 @@ uniform vec4 bigColor;
 uniform uvec4 v4;
 in vec4 BaseColor;
 const int const23i_0 = 0;
-const int const27i_1 = 1;
-const int const37i_2 = 2;
+const int const26i_1 = 1;
+const int const36i_2 = 2;
 
 void main()
 {
@@ -336,14 +331,9 @@ void main()
     int i_uc_c2;
     color_uc_c1 = BaseColor;
     i_uc_c2 = const23i_0;
-    while (true) {
-        bool temp24 = i_uc_c2 < Count;
-        if (! temp24) {
-            break;
-        }
-        
+    while (i_uc_c2 < Count) {
         vec4 color_c3 = bigColor + color_uc_c1;
-        int temp_c4 = i_uc_c2 + const27i_1;
+        int temp_c4 = i_uc_c2 + const26i_1;
         color_uc_c1 = color_c3;
         i_uc_c2 = temp_c4;
     }
@@ -355,17 +345,17 @@ void main()
     float sum_c9 = sum_c7 + temp_c8;
     float temp_c10 = float(ivec4(v4).w);
     float sum_c11 = sum_c9 + temp_c10;
-    vec4 temp35 = vec4(sum_c11);
-    int temp_c12 = ivec4(v4).x << const37i_2;
-    int temp_c13 = ivec4(v4).y << const37i_2;
+    vec4 temp34 = vec4(sum_c11);
+    int temp_c12 = ivec4(v4).x << const36i_2;
+    int temp_c13 = ivec4(v4).y << const36i_2;
     float temp_c14 = float(temp_c12);
-    int temp_c15 = ivec4(v4).z << const37i_2;
+    int temp_c15 = ivec4(v4).z << const36i_2;
     float temp_c16 = float(temp_c13);
-    int temp_c17 = ivec4(v4).w << const37i_2;
+    int temp_c17 = ivec4(v4).w << const36i_2;
     float temp_c18 = float(temp_c15);
     float temp_c19 = float(temp_c17);
-    vec4 temp45 = vec4(temp_c14, temp_c16, temp_c18, temp_c19);
-    vec4 temp_c20 = temp35 + temp45;
+    vec4 temp44 = vec4(temp_c14, temp_c16, temp_c18, temp_c19);
+    vec4 temp_c20 = temp34 + temp44;
     vec4 FragColor_shadow_c21 = color_uc_c1 + temp_c20;
     gl_FragColor = FragColor_shadow_c21;
     

@@ -933,6 +933,24 @@ void GetOp(const llvm::Instruction* llvmInstruction, bool allowBitwise, std::str
     }
 }
 
+void InvertOp(std::string& op)
+{
+    if (op == "==")
+        op = "!=";
+    else if (op == "!=")
+        op = "==";
+    else if (op == ">")
+        op = "<=";
+    else if (op == "<=")
+        op = ">";
+    else if (op == "<")
+        op = ">=";
+    else if (op == ">=")
+        op = "<";
+    else
+        gla::UnsupportedFunctionality("unknown op to invert", EATContinue);
+}
+
 EMdPrecision GetPrecision(const llvm::Value* value)
 {
     EMdPrecision precision = EMpNone;
@@ -1842,7 +1860,7 @@ void gla::GlslTarget::beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const
     shader << "while (";
 
     if (invert)
-        shader << "! (";
+        InvertOp(opStr);
 
     if (const llvm::Instruction* opInst1 = llvm::dyn_cast<llvm::Instruction>(op1)) {
         makeExtractElementStr(opInst1, str);
@@ -1866,10 +1884,7 @@ void gla::GlslTarget::beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const
         emitGlaValue(op2);
     str.clear();
 
-    if (invert)
-        shader << ")";
-
-    shader << ")";
+    shader << ") ";
 
     newScope();
 }
