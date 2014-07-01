@@ -34,10 +34,9 @@ uniform uvec4 v4;
 in vec4 BaseColor;
 vec4 gla_globalAgg;
 const int const27i_0 = 0;
-const int const30i_1 = 1;
-const float const31 = 0.0;
-vec4 temp32;
-const int const36i_2 = 2;
+const float const29 = 0.0;
+vec4 temp30;
+const int const34i_2 = 2;
 
 void main()
 {
@@ -49,34 +48,32 @@ void main()
     vec4 tv_c4;
     i_uc1 = const27i_0;
     color_uc2 = BaseColor;
-    while (i_uc1 < Count) {
+    for (i_uc1 = 0; i_uc1 < Count; ++i_uc1) {
         vec4 color_c5 = bigColor + color_uc2;
-        int temp29 = i_uc1 + const30i_1;
-        i_uc1 = temp29;
         color_uc2 = color_c5;
     }
     
-    sum_uc3 = const31;
+    sum_uc3 = const29;
     temp24 = const27i_0;
     for (temp24 = 0; temp24 != 4; ++temp24) {
-        temp32 = vec4(sum_uc3);
-        float temp33 = float(ivec4(v4)[temp24]);
-        float sum_c6 = sum_uc3 + temp33;
+        temp30 = vec4(sum_uc3);
+        float temp31 = float(ivec4(v4)[temp24]);
+        float sum_c6 = sum_uc3 + temp31;
         sum_uc3 = sum_c6;
     }
     
     temp25 = const27i_0;
     tv_c4 = gla_globalAgg;
     for (temp25 = 0; temp25 != 4; ++temp25) {
-        int temp35 = ivec4(v4)[temp25] << const36i_2;
-        float temp37 = float(temp35);
+        int temp33 = ivec4(v4)[temp25] << const34i_2;
+        float temp35 = float(temp33);
         vec4 tv_c7 = tv_c4;
-        tv_c7[temp25] = temp37;
+        tv_c7[temp25] = temp35;
         tv_c4 = tv_c7;
     }
     
-    vec4 temp39 = temp32 + tv_c4;
-    vec4 FragColor_shadow_c8 = color_uc2 + temp39;
+    vec4 temp37 = temp30 + tv_c4;
+    vec4 FragColor_shadow_c8 = color_uc2 + temp37;
     gl_FragColor = FragColor_shadow_c8;
     
 }
@@ -140,24 +137,24 @@ const float const81 = 42.0;
 const vec4 const83 = vec4(1.0);
 vec4 color_c53;
 const int const91i_0 = 0;
-const int const94i_1 = 1;
 vec4 color_c56;
-const float const100 = 20.0;
-const float const102 = 1.0;
-const int const119i_41 = 41;
-vec4 temp121;
+const float const98 = 20.0;
+const float const100 = 1.0;
+const int const117i_41 = 41;
+vec4 temp119;
+const int const124i_1 = 1;
 vec4 select_c61;
 vec4 select_c63;
-float temp140;
+float temp139;
 vec4 color_c65;
-const float const152 = 0.0;
+const float const151 = 0.0;
 vec4 color_c66;
 vec4 color_c68;
-const float const163 = 2.0;
+const float const162 = 2.0;
 vec4 color_c70;
-const float const174 = 5.0;
-vec4 temp178;
-const float const188 = 10.0;
+const float const173 = 5.0;
+vec4 temp177;
+const float const187 = 10.0;
 vec4 color_c81;
 
 void main()
@@ -263,18 +260,16 @@ void main()
     color_uc6 = color_uc5;
     color_uc7 = color_uc6;
     i_uc8 = const91i_0;
-    while (i_uc8 < Count) {
+    for (i_uc8 = 0; i_uc8 < Count; ++i_uc8) {
         vec4 color_c55 = bigColor2 + color_uc7;
-        int temp93 = i_uc8 + const94i_1;
         color_uc7 = color_c55;
-        i_uc8 = temp93;
     }
     
     color_uc9 = color_uc7;
     while (true) {
         color_c56 = bigColor3 + color_uc9;
-        bool temp96 = color_c56.x >= d2;
-        if (temp96) {
+        bool temp94 = color_c56.x >= d2;
+        if (temp94) {
             break;
         }
         
@@ -284,93 +279,93 @@ void main()
     color_uc10 = color_c56;
     temp31 = const91i_0;
     for (temp31 = 0; temp31 != 42; ++temp31) {
-        float temp97 = color_uc10.z + d3;
-        vec4 temp98 = color_uc10;
-        temp98.z = temp97;
-        color_uc10 = temp98;
+        float temp95 = color_uc10.z + d3;
+        vec4 temp96 = color_uc10;
+        temp96.z = temp95;
+        color_uc10 = temp96;
     }
     
     color_uc11 = color_uc10;
     temp33 = const91i_0;
     for (temp33 = 0; temp33 != 100; ++temp33) {
-        bool temp99 = color_uc11.z < const100;
-        float temp101 = color_uc11.x + const102;
+        bool temp97 = color_uc11.z < const98;
+        float temp99 = color_uc11.x + const100;
+        vec4 temp101 = color_uc11;
+        temp101.x = temp99;
+        float temp102 = color_uc11.y + const100;
         vec4 temp103 = color_uc11;
-        temp103.x = temp101;
-        float temp104 = color_uc11.y + const102;
-        vec4 temp105 = color_uc11;
-        temp105.y = temp104;
-        vec4 select_c57 = temp99 ? temp103 : temp105;
+        temp103.y = temp102;
+        vec4 select_c57 = temp97 ? temp101 : temp103;
         color_uc11 = select_c57;
     }
     
     color_uc12 = color_uc11;
     temp35 = const91i_0;
     for (temp35 = 0; temp35 != 120; ++temp35) {
-        bool temp107 = color_uc12.z < const100;
-        float temp108 = color_uc12.x + const102;
+        bool temp105 = color_uc12.z < const98;
+        float temp106 = color_uc12.x + const100;
+        vec4 temp107 = color_uc12;
+        temp107.x = temp106;
+        float temp108 = color_uc12.y + const100;
         vec4 temp109 = color_uc12;
-        temp109.x = temp108;
-        float temp110 = color_uc12.y + const102;
-        vec4 temp111 = color_uc12;
-        temp111.y = temp110;
-        vec4 select_c58 = temp107 ? temp109 : temp111;
+        temp109.y = temp108;
+        vec4 select_c58 = temp105 ? temp107 : temp109;
         color_uc12 = select_c58;
     }
     
     color_uc13 = color_uc12;
     temp37 = const91i_0;
     for (temp37 = 0; temp37 != 42; ++temp37) {
-        float temp113 = color_uc13.z + d3;
-        vec4 temp114 = color_uc13;
-        temp114.z = temp113;
-        bool temp115 = color_uc13.x < d4;
-        float temp116 = color_uc13.w + const102;
-        vec4 temp117 = color_uc13;
-        temp117.zw = vec2(temp113, temp116);
-        vec4 select_c59 = temp115 ? temp114 : temp117;
+        float temp111 = color_uc13.z + d3;
+        vec4 temp112 = color_uc13;
+        temp112.z = temp111;
+        bool temp113 = color_uc13.x < d4;
+        float temp114 = color_uc13.w + const100;
+        vec4 temp115 = color_uc13;
+        temp115.zw = vec2(temp111, temp114);
+        vec4 select_c59 = temp113 ? temp112 : temp115;
         color_uc13 = select_c59;
     }
     
     color_uc14 = color_uc13;
     temp39 = const91i_0;
-    while (temp39 <= const119i_41) {
-        float temp120 = color_uc14.z + d3;
-        temp121 = color_uc14;
-        temp121.z = temp120;
-        bool temp122 = color_uc14.x < d4;
-        if (temp122) {
-            color_uc15 = temp121;
+    while (temp39 <= const117i_41) {
+        float temp118 = color_uc14.z + d3;
+        temp119 = color_uc14;
+        temp119.z = temp118;
+        bool temp120 = color_uc14.x < d4;
+        if (temp120) {
+            color_uc15 = temp119;
             break;
         }
         
-        float temp123 = color_uc14.w + const102;
-        vec4 temp124 = temp121;
-        temp124.w = temp123;
-        int temp125 = const94i_1 + temp39;
-        color_uc14 = temp124;
-        temp39 = temp125;
+        float temp121 = color_uc14.w + const100;
+        vec4 temp122 = temp119;
+        temp122.w = temp121;
+        int temp123 = temp39 + const124i_1;
+        color_uc14 = temp122;
+        temp39 = temp123;
     }
     
     color_uc15 = color_uc14;
     color_uc16 = color_uc15;
     while (true) {
         vec4 color_c60 = bigColor4 + color_uc16;
-        bool temp127 = color_c60.x < d4;
-        if (temp127) {
+        bool temp126 = color_c60.x < d4;
+        if (temp126) {
             color_uc17 = color_c60;
         }
         else {
-            bool temp128 = color_c60.y < d4;
-            float temp129 = color_c60.y + d4;
-            vec4 temp130 = color_c60;
-            temp130.y = temp129;
-            float temp131 = color_c60.x + d4;
-            vec4 temp132 = color_c60;
-            temp132.x = temp131;
-            select_c61 = temp128 ? temp130 : temp132;
-            bool temp134 = select_c61.z >= d4;
-            if (temp134) {
+            bool temp127 = color_c60.y < d4;
+            float temp128 = color_c60.y + d4;
+            vec4 temp129 = color_c60;
+            temp129.y = temp128;
+            float temp130 = color_c60.x + d4;
+            vec4 temp131 = color_c60;
+            temp131.x = temp130;
+            select_c61 = temp127 ? temp129 : temp131;
+            bool temp133 = select_c61.z >= d4;
+            if (temp133) {
                 break;
             }
             
@@ -383,21 +378,21 @@ void main()
     color_uc18 = select_c61;
     while (true) {
         vec4 color_c62 = bigColor5 + color_uc18;
-        bool temp136 = color_c62.y < d5;
-        float temp137 = color_c62.y + d5;
-        vec4 temp138 = color_c62;
-        temp138.y = temp137;
-        select_c63 = temp136 ? temp138 : color_c62;
-        bool temp141 = select_c63.x >= d5;
-        if (temp141) {
+        bool temp135 = color_c62.y < d5;
+        float temp136 = color_c62.y + d5;
+        vec4 temp137 = color_c62;
+        temp137.y = temp136;
+        select_c63 = temp135 ? temp137 : color_c62;
+        bool temp140 = select_c63.x >= d5;
+        if (temp140) {
             break;
         }
         
         color_uc18 = select_c63;
     }
     
-    bool temp142 = select_c63.x < d6;
-    if (temp142) {
+    bool temp141 = select_c63.x < d6;
+    if (temp141) {
         color_uc19 = select_c63;
         while (color_uc19.y < d6) {
             vec4 color_c64 = bigColor6 + color_uc19;
@@ -409,22 +404,22 @@ void main()
     else {
         color_uc20 = select_c63;
         while (color_uc20.z < d6) {
-            float temp144 = bigColor6.z + color_uc20.z;
-            vec4 temp145 = color_uc20;
-            temp145.z = temp144;
-            color_uc20 = temp145;
+            float temp143 = bigColor6.z + color_uc20.z;
+            vec4 temp144 = color_uc20;
+            temp144.z = temp143;
+            color_uc20 = temp144;
         }
         
         color_uc21 = color_uc20;
     }
     
-    bool temp146 = color_uc21.x < d6;
-    if (temp146) {
-        bool temp147 = d7 < const102;
+    bool temp145 = color_uc21.x < d6;
+    if (temp145) {
+        bool temp146 = d7 < const100;
         color_uc22 = color_uc21;
         while (color_uc22.y < d6) {
             color_c65 = bigColor6 + color_uc22;
-            if (temp147) {
+            if (temp146) {
                 color_uc23 = color_c65;
                 break;
             }
@@ -438,30 +433,30 @@ void main()
     else {
         color_uc24 = color_uc21;
         while (color_uc24.z < d6) {
-            float temp149 = bigColor6.z + color_uc24.z;
-            vec4 temp150 = color_uc24;
-            temp150.z = temp149;
-            color_uc24 = temp150;
+            float temp148 = bigColor6.z + color_uc24.z;
+            vec4 temp149 = color_uc24;
+            temp149.z = temp148;
+            color_uc24 = temp149;
         }
         
         color_uc25 = color_uc24;
     }
     
-    bool temp151 = d7 < const152;
-    bool temp153 = d7 < const102;
+    bool temp150 = d7 < const151;
+    bool temp152 = d7 < const100;
     color_uc26 = color_uc25;
     while (true) {
-        if (temp151) {
+        if (temp150) {
             color_uc27 = color_uc26;
             break;
         }
         
         color_c66 = bigColor7 + color_uc26;
-        if (temp153) {
-            float temp155 = color_c66.z + const102;
-            vec4 temp156 = color_c66;
-            temp156.z = temp155;
-            color_uc27 = temp156;
+        if (temp152) {
+            float temp154 = color_c66.z + const100;
+            vec4 temp155 = color_c66;
+            temp155.z = temp154;
+            color_uc27 = temp155;
             break;
         }
         
@@ -469,33 +464,33 @@ void main()
         color_uc26 = color_c67;
     }
     
-    bool temp158 = d8 < const152;
-    bool temp159 = d8 < const102;
+    bool temp157 = d8 < const151;
+    bool temp158 = d8 < const100;
     color_uc28 = color_uc27;
     while (true) {
-        if (temp158) {
+        if (temp157) {
             color_uc29 = color_uc28;
             break;
         }
         
         color_c68 = bigColor7 + color_uc28;
-        if (temp159) {
-            float temp161 = color_c68.z + const102;
-            bool temp162 = d8 < const163;
-            float temp164 = color_c68.y + const102;
-            vec4 temp165 = color_c68;
-            temp165.yz = vec2(temp164, temp161);
-            float temp166 = color_c68.x + const102;
-            vec4 temp167 = color_c68;
-            temp167.xz = vec2(temp166, temp161);
-            vec4 select_c69 = temp162 ? temp165 : temp167;
+        if (temp158) {
+            float temp160 = color_c68.z + const100;
+            bool temp161 = d8 < const162;
+            float temp163 = color_c68.y + const100;
+            vec4 temp164 = color_c68;
+            temp164.yz = vec2(temp163, temp160);
+            float temp165 = color_c68.x + const100;
+            vec4 temp166 = color_c68;
+            temp166.xz = vec2(temp165, temp160);
+            vec4 select_c69 = temp161 ? temp164 : temp166;
             color_uc29 = select_c69;
             break;
         }
         
         color_c70 = BaseColor + color_c68;
-        bool temp170 = color_c70.z >= d8;
-        if (temp170) {
+        bool temp169 = color_c70.z >= d8;
+        if (temp169) {
             color_uc29 = color_c70;
             break;
         }
@@ -503,23 +498,23 @@ void main()
         color_uc28 = color_c70;
     }
     
-    bool temp171 = d9 > d8;
+    bool temp170 = d9 > d8;
     color_uc30 = color_uc29;
     while (color_uc30.w < d9) {
         color_uc32 = color_uc30;
-        if (temp171) {
-            bool temp172 = color_uc30.x > d7;
+        if (temp170) {
+            bool temp171 = color_uc30.x > d7;
             color_uc31 = color_uc30;
-            if (! temp172) {
-                bool temp173 = color_uc30.z == const174;
-                if (! temp173) {
+            if (! temp171) {
+                bool temp172 = color_uc30.z == const173;
+                if (! temp172) {
                     break;
                 }
                 
-                float temp175 = color_uc30.w + const102;
-                vec4 temp176 = color_uc30;
-                temp176.w = temp175;
-                color_uc31 = temp176;
+                float temp174 = color_uc30.w + const100;
+                vec4 temp175 = color_uc30;
+                temp175.w = temp174;
+                color_uc31 = temp175;
             }
             
             color_uc32 = color_uc31;
@@ -530,47 +525,47 @@ void main()
     
     color_uc33 = color_uc30;
     while (color_uc33.z < d10) {
-        float temp177 = color_uc33.y + const102;
-        temp178 = color_uc33;
-        temp178.y = temp177;
-        bool temp179 = temp177 < d11;
-        if (! temp179) {
-            vec4 color_c71 = const83 + temp178;
+        float temp176 = color_uc33.y + const100;
+        temp177 = color_uc33;
+        temp177.y = temp176;
+        bool temp178 = temp176 < d11;
+        if (! temp178) {
+            vec4 color_c71 = const83 + temp177;
             color_uc34 = color_c71;
             break;
         }
         
-        float temp181 = color_uc33.z + const102;
-        bool temp182 = color_uc33.w < d12;
-        float temp183 = color_uc33.w + const102;
-        vec4 temp184 = temp178;
-        temp184.zw = vec2(temp181, temp183);
-        float temp185 = color_uc33.x + const102;
-        vec4 temp186 = temp178;
-        temp186.xz = vec2(temp185, temp181);
-        vec4 select_c72 = temp182 ? temp184 : temp186;
+        float temp180 = color_uc33.z + const100;
+        bool temp181 = color_uc33.w < d12;
+        float temp182 = color_uc33.w + const100;
+        vec4 temp183 = temp177;
+        temp183.zw = vec2(temp180, temp182);
+        float temp184 = color_uc33.x + const100;
+        vec4 temp185 = temp177;
+        temp185.xz = vec2(temp184, temp180);
+        vec4 select_c72 = temp181 ? temp183 : temp185;
         color_uc33 = select_c72;
     }
     
     color_uc34 = color_uc33;
     color_uc35 = color_uc34;
-    while (color_uc35.x < const188) {
+    while (color_uc35.x < const187) {
         vec4 color_c73 = bigColor8 + color_uc35;
-        bool temp190 = color_c73.z < d8;
-        bool temp191 = color_c73.w < d6;
-        float temp192 = bigColor8.x + color_c73.y;
-        vec4 temp193 = color_c73;
-        temp193.y = temp192;
-        vec4 select_c74 = temp191 ? color_c73 : temp193;
-        vec4 select_c75 = temp190 ? select_c74 : temp193;
+        bool temp189 = color_c73.z < d8;
+        bool temp190 = color_c73.w < d6;
+        float temp191 = bigColor8.x + color_c73.y;
+        vec4 temp192 = color_c73;
+        temp192.y = temp191;
+        vec4 select_c74 = temp190 ? color_c73 : temp192;
+        vec4 select_c75 = temp189 ? select_c74 : temp192;
         color_uc35 = select_c75;
     }
     
     vec4 color_c76 = color_uc35 + const83;
     color_uc36 = color_c76;
     while (color_uc36.x < d14) {
-        bool temp197 = color_uc36.y < d15;
-        if (temp197) {
+        bool temp196 = color_uc36.y < d15;
+        if (temp196) {
             FragColor_shadow_c41 = color_c76;
             gl_FragColor = FragColor_shadow_c41;
             return;
@@ -583,27 +578,27 @@ void main()
     vec4 color_c78 = color_uc36 + const83;
     color_uc37 = color_c78;
     while (color_uc37.w < d16) {
-        float temp200 = color_uc37.w + const102;
-        vec4 temp201 = color_uc37;
-        temp201.w = temp200;
-        color_uc37 = temp201;
+        float temp199 = color_uc37.w + const100;
+        vec4 temp200 = color_uc37;
+        temp200.w = temp199;
+        color_uc37 = temp200;
     }
     
     color_uc38 = color_uc37;
     while (true) {
         bool notlhs_c79 = color_uc38.w >= d2;
         bool notrhs_c80 = color_uc38.y >= d3;
-        bool temp204 = notrhs_c80 || notlhs_c79;
-        if (temp204) {
+        bool temp203 = notrhs_c80 || notlhs_c79;
+        if (temp203) {
             color_uc39 = color_uc38;
             while (color_uc39.y >= d18) {
                 color_c81 = color_uc39 + const83;
-                bool temp206 = color_c81.x >= d17;
-                if (temp206) {
+                bool temp205 = color_c81.x >= d17;
+                if (temp205) {
                     color_uc40 = color_c81;
                     while (color_uc40.y < d16) {
-                        bool temp207 = color_uc40.w < d16;
-                        if (temp207) {
+                        bool temp206 = color_uc40.w < d16;
+                        if (temp206) {
                             discard;
                         }
                         
@@ -626,8 +621,8 @@ void main()
         }
         
         vec4 color_c84 = bigColor1_2 + color_uc38;
-        bool temp211 = color_c84.z < d3;
-        if (temp211) {
+        bool temp210 = color_c84.z < d3;
+        if (temp210) {
             FragColor_shadow_c41 = color_c76;
             gl_FragColor = FragColor_shadow_c41;
             return;

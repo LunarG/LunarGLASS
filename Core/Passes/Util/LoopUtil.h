@@ -48,6 +48,7 @@
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Analysis/ScalarEvolution.h"
+#include "llvm/Analysis/ScalarEvolutionExpressions.h"
 #pragma warning(pop)
 
 #include "Passes/Util/ADT.h"
@@ -77,6 +78,7 @@ namespace gla_llvm {
             // condition may be tested, and the exit block could be at the
             // top or rotated to the bottom.
             , tripCount(scalarEvo->getSmallConstantTripCount(loop, header))
+            , upperBound(0)
             , loopDepth(loop->getLoopDepth())
             , simpleConditional(-1)
             , function(loop->getHeader()->getParent())
@@ -116,6 +118,26 @@ namespace gla_llvm {
             else
                 exitMerge = NULL;
 
+            if (! tripCount) {
+                // Get exit condition for loops that are simple inductive except for not statically
+                // knowing their trip count.
+                // This is currently a very narrow dive into a common case, but hopefully there
+                // is a more generic way of dealing with loop bounds.
+                // TODO: loops: generalize and/or use better encapsulation of this way of finding 
+                // a loop bound.
+                if (inductiveVar && uniqueExiting) {
+                    const SCEV* exitCount = scalarEvo->getExitCount(loop, uniqueExiting);
+                    if (! isa<SCEVCouldNotCompute>(exitCount)) {
+                        const SCEVNAryExpr* expr = dyn_cast<SCEVNAryExpr>(exitCount);
+                        //errs() << *expr << " SCEVNaryExpr\n";
+                        if (expr && expr->getNumOperands() == 2 && exitCount->getSCEVType() == scSMaxExpr) {
+                            const SCEV* op1 = expr->getOperand(1);
+                            if (op1->getSCEVType() == scUnknown)
+                                upperBound = cast<SCEVUnknown>(op1)->getValue();
+                        }
+                    }
+                }
+            }
         }
 
         // Accessors
@@ -172,6 +194,7 @@ namespace gla_llvm {
         bool     contains(const BasicBlock* bb)  const { return blocks.count(bb); }
         bool     contains(const Instruction* i)  const { return blocks.count(i->getParent()); }
         unsigned int getTripCount()              const { return tripCount; }
+        const Value* getUpperBound()             const { return upperBound; }
 
         const SmallPtrSet<const BasicBlock*,16>& getBlocks() const { return blocks; }
 
@@ -198,7 +221,7 @@ namespace gla_llvm {
         bool isSimpleInductive() const
         {
             // TODO: loops: extend functionality to support early exit
-            return inductiveVar && tripCount && uniqueExiting;
+            return inductiveVar && uniqueExiting && (tripCount || upperBound);
         }
 
         // Is the loop a simple conditional loop? A simple conditional loop is a
@@ -340,6 +363,7 @@ namespace gla_llvm {
 
         PHINode* inductiveVar;
         unsigned int tripCount;
+        Value* upperBound;
 
         unsigned loopDepth;
 
@@ -362,7 +386,6 @@ namespace gla_llvm {
     private:
         LoopWrapper(const LoopWrapper&);       // do not implement
         void operator=(const LoopWrapper&);    // do not implement
-
     };
 
 } // end namespace llvm_gla

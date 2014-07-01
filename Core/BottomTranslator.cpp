@@ -376,28 +376,21 @@ namespace {
         assert(pn);
 
         unsigned int tripCount = loop.getTripCount();   
-        //errs() << "\ninductive variable:"   << *pn;
-        //errs() << "\n  trip count:      "   << tripCount;
-        //errs() << "\n  increment:       "   << *loop.getIncrement();
-        //errs() << "\n  exit condition:  "   << *loop.getInductiveExitCondition();
-        //errs() << "\n";
-
-        // tripCount of 0 means not a known constant count, which means we should not be here
-        assert(tripCount);
-
-        // The tripCount is sometimes the same as the exit condition's comparison
-        // value and sometimes one different than the exit condition's comparison value,
-        // depending on whether the exit is at the top or rotated to the bottom.
-        // In both cases, the comparison value is the correct value to pass to
-        // beginSimpleInductiveLoop(), which expects a body trip count.
-        // (Both values are off-by-one when the loop body becomes dead code.)
-        if (loop.getInductiveExitCondition()->getOpcode() == llvm::Instruction::ICmp &&
-                dyn_cast<CmpInst>(loop.getInductiveExitCondition())->getPredicate() == ICmpInst::ICMP_EQ)
-            tripCount = (unsigned int)gla::GetConstantInt(loop.getInductiveExitCondition()->getOperand(1));
-        else
-            gla::UnsupportedFunctionality("unrecognized exit condition for inductive loop", gla::EATContinue);
-
-        bet.beginSimpleInductiveLoop(pn, tripCount);
+        if (tripCount) {
+            // The tripCount is sometimes the same as the exit condition's comparison
+            // value and sometimes one different than the exit condition's comparison value,
+            // depending on whether the exit is at the top or rotated to the bottom.
+            // In both cases, the comparison value is the correct value to pass to
+            // beginSimpleInductiveLoop(), which expects a body trip count.
+            // (Both values are off-by-one when the loop body becomes dead code.)
+            if (loop.getInductiveExitCondition()->getOpcode() == llvm::Instruction::ICmp &&
+                    dyn_cast<CmpInst>(loop.getInductiveExitCondition())->getPredicate() == ICmpInst::ICMP_EQ)
+                tripCount = (unsigned int)gla::GetConstantInt(loop.getInductiveExitCondition()->getOperand(1));
+            else
+                gla::UnsupportedFunctionality("unrecognized exit condition for inductive loop", gla::EATContinue);
+            bet.beginSimpleInductiveLoop(pn, tripCount);
+        } else
+            bet.beginSimpleInductiveLoop(pn, loop.getUpperBound());
     }
 
     void CreateSimpleConditionalLoop(LoopWrapper& loop, const Value& condition, gla::BackEndTranslator& bet)
@@ -896,7 +889,6 @@ void BottomTranslator::setUpLoopBegin(const Value* condition)
         CreateSimpleInductiveLoop(*loop, *backEndTranslator);
     } else if (loop->isSimpleConditional()) {
         CreateSimpleConditionalLoop(*loop, *condition, *backEndTranslator);
-
     } else {
         backEndTranslator->beginLoop();
     }
@@ -909,7 +901,7 @@ void BottomTranslator::setUpLoopExit(const Value* condition, const BasicBlock* b
 
     assert(loop->isExiting(bb));
 
-    // Don't output if it's simple-conditional(and the header) or
+    // Don't output if it's simple-conditional (and the header) or
     // simple-inductive (and given the inductive exit condition)
     bool shouldOutput = ! ((loop->isSimpleInductive() && condition == loop->getInductiveExitCondition())
                         || (loop->isSimpleConditional() && loop->isHeader(bb) ));
