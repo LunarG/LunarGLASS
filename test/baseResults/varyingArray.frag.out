@@ -220,6 +220,7 @@ attributes #1 = { nounwind }
 #version 130
 // LunarGOO output
 uniform sampler2D texSampler2D;
+in vec4 gl_TexCoord[6];
 in vec4 color;
 in float alpha;
 in vec4 foo[3];
@@ -243,6 +244,7 @@ void main()
 #version 130
 // LunarGOO output
 uniform sampler2D texSampler2D;
+in vec4 gl_TexCoord[6];
 in vec4 foo[3];
 in vec4 color;
 in float alpha;

@@ -16,6 +16,8 @@ Adapters and Common Builder
 Performance
 v - handle variable indexing of IO arrays without copying entire shadow array
 v - preserve more inductive loop forms?
+v - create fewer additional overlapping lifetimes by phi-removal:  need better out-of-SSA algorithm
+v - finish functionality in recent tests; e.g. 400.tesc not working right (and differently between windows and linux)
   - fix difference between fReadData and fReadInterpolant: LLVM is optimizing multiple uses of one but not the other
 
 Delivery checklist

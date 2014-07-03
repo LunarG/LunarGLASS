@@ -485,7 +485,7 @@ protected:
     // map from llvm type to the mdAggregate nodes that describe their types
     std::map<const llvm::Type*, const llvm::MDNode*> typeMdAggregateMap;
 
-    // set to track what globals are already declared,
+    // set to track what globals are already declared;
     // it potentially only includes globals that are in danger of multiple declaration
     std::set<std::string> globallyDeclared;
 
@@ -692,24 +692,38 @@ EVariableQualifier MapGlaAddressSpace(const llvm::Value* value)
 const char* MapGlaToQualifierString(int version, EShLanguage stage, EVariableQualifier vq)
 {
     switch (vq) {
-    case EVQUniform:         return "uniform";
-    case EVQGlobal:          return "global";
+    case EVQUniform:                      return "uniform";
+
     case EVQInput:
-        if (version >= 130)
-            return "in";
-        else if (stage == EShLangVertex)
-            return "attribute";
-        else
-            return "varying";
+        if (version >= 130)               return "in";
+        else if (stage == EShLangVertex)  return "attribute";
+        else                              return "varying";
+
     case EVQOutput:
-        if (version >= 130)
-            return "out";
-        else
-            return "varying";
-    case EVQTemporary:       return "temp";
-    case EVQConstant:        return "const";
+        if (version >= 130)               return "out";
+        else                              return "varying";
+
+    case EVQConstant:                     return "const";
+
+    case EVQNone:
+    case EVQGlobal:
+    case EVQTemporary:
+    case EVQUndef:                        return "";
+
     default:
+        UnsupportedFunctionality("Unknown EVariableQualifier", EATContinue);
         return "";
+    }
+}
+
+const char* MapGlaToAnnotationString(int version, EShLanguage stage, EVariableQualifier vq)
+{
+    switch (vq) {
+    case EVQGlobal:      return "global";
+    case EVQTemporary:   return "temp";
+    case EVQUndef:       return "undef";
+    default:
+        return MapGlaToQualifierString(version, stage, vq);
     }
 }
 
@@ -1185,10 +1199,13 @@ void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
 
 void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode)
 {
+    std::string instanceName = mdNode->getOperand(0)->getName();
+
+    // This will prevent the IO globals from being declared again later.
+    globallyDeclared.insert(instanceName);
+
     if (filteringIoNode(mdNode))
         return;
-
-    std::string instanceName = mdNode->getOperand(0)->getName();
 
     bool declarationAllowed = true;
 
@@ -1216,7 +1233,7 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
         }
     } else if (instanceName.substr(0,3) == std::string("gl_")) {
         declarationAllowed = false;
-        if (instanceName == "gl_ClipDistance")
+        if (instanceName == "gl_ClipDistance" || instanceName == "gl_TexCoord")
             declarationAllowed = true;
         else if (usingSso && (instanceName == "gl_in" ||
                               instanceName == "gl_out"))
@@ -2186,7 +2203,7 @@ void gla::GlslTarget::makeNewVariableName(const llvm::Value* value, std::string&
         makeObfuscatedName(name);
     } else {
         if (IsTempName(value->getName())) {
-            name.append(MapGlaToQualifierString(version, stage, MapGlaAddressSpace(value)));
+            name.append(MapGlaToAnnotationString(version, stage, MapGlaAddressSpace(value)));
             snprintf(buf, bufSize, "%d", lastVariable);
             name.append(buf);
 
@@ -3044,7 +3061,8 @@ void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type
     // no initializer
     switch (qualifier) {
     case EVQConstant:
-        // Make sure we only declare globals once
+    case EVQGlobal:
+        // Make sure we only declare globals once.
         if (globallyDeclared.find(name) != globallyDeclared.end())
             return;
         else
@@ -3055,20 +3073,14 @@ void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type
         emitGlaArraySize(globalDeclarations, arraySize);
         globalDeclarations << ";" << std::endl;
         break;
-    case EVQGlobal:
-        arraySize = emitGlaType(globalDeclarations, precision, EVQNone, type);
-        globalDeclarations << " " << name;
-        emitGlaArraySize(globalDeclarations, arraySize);
-        globalDeclarations << ";" << std::endl;
-        break;
     case EVQTemporary:
-        arraySize = emitGlaType(shader, precision, EVQNone, type);
+        arraySize = emitGlaType(shader, precision, qualifier, type);
         emitGlaArraySize(shader, arraySize);
         shader << " ";
         break;
     case EVQUndef:
         newLine();
-        emitGlaType(shader, precision, EVQNone, type);
+        emitGlaType(shader, precision, qualifier, type);
         shader << " " << name << ";";
         emitInitializeAggregate(shader, name, constant);
         break;
