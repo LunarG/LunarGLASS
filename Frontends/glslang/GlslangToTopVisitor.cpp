@@ -2416,6 +2416,11 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
 //
 // Ensure enough slots are consumed to cover the size of the data represented by the node symbol.
 //
+// Note (and TODO): The design is inherently contradictory for "arrayed io", like output from 
+// a tessellation control shader, where the number of visible locations to use is based on 
+// ignoring the outer layer of arrayness, but the number of vec4s to keep track of for dumping
+// on exit to main has to be the full number.
+//
 int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input, int& numSlots)
 {
     // Base the numbers of slots on the front-end's computation, if possible, otherwise estimate it.
@@ -2423,8 +2428,11 @@ int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input,
     if (glslangIntermediate) {
         // Use the array element type if this variable has an extra layer of arrayness
         if (type.isArray() && type.getQualifier().isArrayedIo(glslangIntermediate->getStage())) {
-            glslang::TType elementType(type, 0);
-            numSlots = glslangIntermediate->computeTypeLocationSize(elementType);
+            // See note above.
+            //glslang::TType elementType(type, 0);
+            //numSlots = glslangIntermediate->computeTypeLocationSize(elementType);
+            gla::UnsupportedFunctionality("arrayed IO in physical IO mode (use logical IO instead)", gla::EATContinue);
+            numSlots = glslangIntermediate->computeTypeLocationSize(type);
         } else
             numSlots = glslangIntermediate->computeTypeLocationSize(type);
     } else {
