@@ -241,8 +241,6 @@ attributes #1 = { nounwind }
 !15 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 !16 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !17}
 !17 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
-
-***Unsupported functionality: missing metadata on load 0 scale.0
 #version 130
 // LunarGOO output
 struct lunarStruct1 {
@@ -272,7 +270,7 @@ in vec2 coord;
 vec2 gla_globalAgg[3];
 const int const23i_0 = 0;
 const int const25i_3 = 3;
-const vec2 const32 = vec2(1.0, 2.0);
+const vec2 const30 = vec2(1.0, 2.0);
 
 void main()
 {
@@ -280,24 +278,72 @@ void main()
     bool temp22 = foo3.s2_1[1].i > const23i_0;
     int iLocal_c2 = Count + const25i_3;
     int temp26 = foo3.s2_1[foo.i].i + iLocal_c2;
-    float select_c3 = temp22 ? float uniform28 : float gla_constGEP_c4;
-    vec4 temp30 = vec4(select_c3);
-    vec2 temp31 = vec2(select_c3);
+    float select_c3 = temp22 ? foo2[temp26].s1_1.f : foo3.s2_1[0].s1_1.f;
+    vec4 temp28 = vec4(select_c3);
+    vec2 temp29 = vec2(select_c3);
     gla_globalAgg[0] = coord;
-    gla_globalAgg[1] = temp31;
-    gla_globalAgg[2] = const32;
+    gla_globalAgg[1] = temp29;
+    gla_globalAgg[2] = const30;
     constructed_c1 = gla_globalAgg;
-    vec4 temp33 = constructed_c1[foo.i].xyxy;
-    vec4 temp34 = texture(sampler, coord);
-    vec4 FragColor_shadow_c5 = temp30 * temp34;
-    vec4 FragColor_shadow_c6 = FragColor_shadow_c5 + temp33;
-    gl_FragColor = FragColor_shadow_c6;
+    vec4 temp31 = constructed_c1[foo.i].xyxy;
+    vec4 temp32 = texture(sampler, coord);
+    vec4 FragColor_shadow_c4 = temp28 * temp32;
+    vec4 FragColor_shadow_c5 = FragColor_shadow_c4 + temp31;
+    gl_FragColor = FragColor_shadow_c5;
     
 }
 
 
-tempglsl.frag
-ERROR: 0:38: '' :  syntax error
-ERROR: 1 compilation errors.  No code generated.
+#version 130
+// LunarGOO output
+struct lunarStruct1 {
+    int i;
+    float f;
+};
+
+struct lunarStruct2 {
+    int i;
+    float f;
+    lunarStruct1 s1_1;
+};
+
+struct lunarStruct3 {
+    lunarStruct2 s2_1[3];
+    int i;
+    float f;
+    lunarStruct1 s1_1;
+};
+
+uniform lunarStruct3 foo3;
+uniform int Count;
+uniform lunarStruct1 foo;
+uniform lunarStruct2 foo2[5];
+uniform sampler2D sampler;
+in vec2 coord;
+vec2 gla_globalAgg[3];
+const int const23i_0 = 0;
+const int const25i_3 = 3;
+const vec2 const30 = vec2(1.0, 2.0);
+
+void main()
+{
+    vec2[3] constructed_c1;
+    bool temp_c2 = foo3.s2_1[1].i > const23i_0;
+    int iLocal_c3 = Count + const25i_3;
+    int temp_c4 = foo3.s2_1[foo.i].i + iLocal_c3;
+    float select_c5 = temp_c2 ? foo2[temp_c4].s1_1.f : foo3.s2_1[0].s1_1.f;
+    vec4 temp28 = vec4(select_c5);
+    vec2 temp29 = vec2(select_c5);
+    gla_globalAgg[0] = coord;
+    gla_globalAgg[1] = temp29;
+    gla_globalAgg[2] = const30;
+    constructed_c1 = gla_globalAgg;
+    vec4 temp31 = constructed_c1[foo.i].xyxy;
+    vec4 temp_c6 = texture(sampler, coord);
+    vec4 FragColor_shadow_c7 = temp28 * temp_c6;
+    vec4 FragColor_shadow_c8 = FragColor_shadow_c7 + temp31;
+    gl_FragColor = FragColor_shadow_c8;
+    
+}
 
 

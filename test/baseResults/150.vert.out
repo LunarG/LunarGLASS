@@ -265,7 +265,7 @@ void main()
     anon_0_shadow.member2[2] = iv4.x;
     vec4 temp21 = s2out_shadow.d[0].b[2];
     temp21.w = ps;
-    s2out_shadow.d[0].b[2] = temp21;
+    vec4 global22 = temp21;
     gl_Position = iv4;
     gl_PointSize = anon_0_shadow.member1;
     gl_ClipDistance[2] = anon_0_shadow.member2[2];
@@ -307,22 +307,19 @@ uniform float ps;
 uniform int ui;
 in vec4 iv4;
 out s2 s2out;
-s2 s2out_shadow;
 goo_gl_PerVertex anon_0_shadow;
 s2 s2out_shadow1;
+const vec4 const21 = vec4(0.0);
 
 void main()
 {
-    vec4 temp21 = s2out_shadow.d[0].b[2];
-    temp21.w = ps;
-    s2out_shadow.d[0].b[2] = temp21;
     anon_0_shadow.member0 = iv4;
     anon_0_shadow.member1 = ps;
     anon_0_shadow.member2[2] = iv4.x;
-    s2out_shadow1.d[0].b[2] = temp21;
-    s2out_shadow1.d[1].b[2] = s2out_shadow.d[1].b[2];
-    s2out_shadow1.d[2].b[2] = s2out_shadow.d[2].b[2];
-    s2out_shadow1.d[3].b[2] = s2out_shadow.d[3].b[2];
+    s2out_shadow1.d[0].b[2] = const21;
+    s2out_shadow1.d[1].b[2] = const21;
+    s2out_shadow1.d[2].b[2] = const21;
+    s2out_shadow1.d[3].b[2] = const21;
     gl_Position = iv4;
     gl_PointSize = anon_0_shadow.member1;
     gl_ClipDistance[2] = anon_0_shadow.member2[2];

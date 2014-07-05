@@ -399,6 +399,7 @@ protected:
     void makeObfuscatedName(std::string& name);
     void canonicalizeName(std::string& name);
     void makeExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str);
+    void makePointerExpression(const llvm::Instruction*, const llvm::Value* ptr, std::string&);
 
     void emitGlaIntrinsic(const llvm::IntrinsicInst*);
     void emitGlaCall(const llvm::CallInst*);
@@ -421,6 +422,7 @@ protected:
     void emitGlaValueDeclaration(const llvm::Value* value, bool forceGlobal = false);
     void emitGlaValue(const llvm::Value* value);
     void emitNonconvertedGlaValue(const llvm::Value* value);
+    void propagateNonconvertedGlaValue(const llvm::Value* dst, const llvm::Value* src);
     std::string* mapGlaValueAndEmitDeclaration(const llvm::Value* value);
     void emitFloatConstant(std::ostringstream& out, float f);
     void emitConstantInitializer(std::ostringstream& out, const llvm::Constant* constant, llvm::Type* type);
@@ -437,15 +439,16 @@ protected:
     // 'gep' is potentially a gep, either an instruction or a constantExpr.
     // See which one, if any, and return it.
     // Return 0 if not a gep.
-    llvm::GetElementPtrInst* getGepAsInst(llvm::Value* gep)
+    const llvm::GetElementPtrInst* getGepAsInst(const llvm::Value* gep)
     {
-        llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(gep);
+        const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<const llvm::GetElementPtrInst>(gep);
         if (gepInst)
             return gepInst;
 
-        llvm::ConstantExpr *constantGep = llvm::dyn_cast<llvm::ConstantExpr>(gep);
+        const llvm::ConstantExpr *constantGep = llvm::dyn_cast<const llvm::ConstantExpr>(gep);
         if (constantGep) {
-            llvm::Instruction *instruction = constantGep->getAsInstruction();
+            // seems LLVM's "Instruction *ConstantExpr::getAsInstruction()" is declared wrong that constantGEP can't be const
+            llvm::Instruction *instruction = const_cast<llvm::ConstantExpr*>(constantGep)->getAsInstruction();
             toDelete.push_back(instruction);
             gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(instruction);
         }
@@ -465,7 +468,10 @@ protected:
     // mapping from LLVM values to Glsl variables
     std::map<const llvm::Value*, std::string*> valueMap;
 
-    // optimization: just for uint/matrix I/O names that need conversion, preserve the non-converted form in case that can be used
+    // Map from IO-related global variables, by name, to their mdNodes describing them.
+    std::map<std::string, const llvm::MDNode*> mdMap;
+
+    // optimization: just for uint/matrix I/O names that need conversion, preserve the non-converted expression in case that can be used
     std::map<const llvm::Value*, std::string*> nonConvertedMap;
 
     // map to track block names tracked in the module
@@ -1177,11 +1183,11 @@ void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
     // For uniforms and regular globals, map their LLVM Value* to their GLSL name.
     EVariableQualifier qualifier = MapGlaAddressSpace(global);
     std::string name = global->getName();
-    mapVariableName(global, name);
 
     // For regular globals, emit their declaration now.  Uniforms will be
-    // declared in addIoDeclaration.
+    // declared in addIoDeclaration().
     if (qualifier == EVQGlobal) {
+        mapVariableName(global, name);
         llvm::Type* type;
         if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType()))
             type = pointer->getContainedType(0);
@@ -1207,6 +1213,7 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
     if (filteringIoNode(mdNode))
         return;
 
+
     bool declarationAllowed = true;
 
     // Names starting "gl_" are
@@ -1231,6 +1238,17 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
             if (blockName.substr(0,3) == std::string("gl_") && ! usingSso)
                 declarationAllowed = false;
         }
+        // Strip off the "_typeProxy" to get the shader name:
+        // TODO: formalize a better way of getting this; this results from a design change.
+        llvm::StringRef anonProxyName = mdNode->getOperand(2)->getName();
+        int pos = anonProxyName.find_last_of("_TypeProxy");
+        if (pos == llvm::StringRef::npos) {
+            UnsupportedFunctionality("can't find name in addIoDeclaration", EATContinue);
+            mdMap[anonProxyName] = mdNode;
+        } else {
+            std::string anonName(anonProxyName.str(), 0, pos-9);
+            mdMap[anonName] = mdNode;
+        }
     } else if (instanceName.substr(0,3) == std::string("gl_")) {
         declarationAllowed = false;
         if (instanceName == "gl_ClipDistance" || instanceName == "gl_TexCoord")
@@ -1238,6 +1256,9 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
         else if (usingSso && (instanceName == "gl_in" ||
                               instanceName == "gl_out"))
             declarationAllowed = true;
+        mdMap[instanceName] = mdNode;
+    } else {
+        mdMap[instanceName] = mdNode;
     }
 
     if (! declarationAllowed)
@@ -1477,6 +1498,21 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         return;
     }
 
+    case llvm::Instruction::GetElementPtr:
+    {
+        // Make a single GLSL string for the whole expression represented by the GEP, and map it
+        // to this instruction.
+
+        const llvm::GetElementPtrInst* gepInstr = getGepAsInst(llvmInstruction);
+        if (! gepInstr)
+            UnsupportedFunctionality("GetElementPtr received unhandled form of GEP\n");
+
+        std::string expression;
+        makePointerExpression(llvmInstruction, gepInstr, expression);
+        mapExpressionString(llvmInstruction, expression);
+
+        return;
+    }
     case llvm::Instruction::Load:
     {
         // We want phis to use the same variable name created during phi declaration
@@ -1487,101 +1523,35 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         }
 
         // Lookup whether this load is using the results of a GEP instruction (or constantExpr GEP), 
-        // and process both instructions (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier).
-        const llvm::GetElementPtrInst* gepInstr = getGepAsInst(llvmInstruction->getOperand(0));
-
-        // See if we have metadata describing a uniform variable to declare
-        llvm::MDNode* mdUniform = llvmInstruction->getMetadata(UniformMdName);
-        std::string name;
-        EMdTypeLayout mdType;
-        EMdTypeLayout* mdTypePointer = &mdType;
-        bool gepExpressionMapped = false;
-        if (mdUniform) {
-            mdType = GetMdTypeLayout(mdUniform);
-            name = mdUniform->getOperand(0)->getName();
+        // and just pick up the previously computed result.
+        std::string expression;
+        if (! getExpressionString(llvmInstruction->getOperand(0), expression)) {
+            // This might be an embedded GEP, so never seen before, or it could be a simple pointer.
+            makePointerExpression(llvmInstruction, llvmInstruction->getOperand(0), expression);
         } else {
-            mdType = EMtlNone;
-            if (gepInstr) {
-                if (getExpressionString(gepInstr, name))
-                    gepExpressionMapped = true;
-                else {
-                    if (! getExpressionString(gepInstr->getOperand(0), name))
-                        UnsupportedFunctionality("GLSL back end gep load base missing value->string mapping", 0, name.c_str(), EATContinue);
-                }
-            } else {
-                if (! getExpressionString(llvmInstruction->getOperand(0), name))
-                    UnsupportedFunctionality("GLSL back end load missing value->string mapping", 0, name.c_str(), EATContinue);
-            }
-            if (MapGlaAddressSpace(llvmInstruction->getOperand(0)) == EVQGlobal) {
-                // This is could be a path for a hoisted "undef" aggregate.  See hoistUndefOps().
-                // (Normally, everything should be in registers.)
-                // TODO: output code quality: Find a way to eliminate global undefs so there are not extra "var = global-aggregete" statements
-                //       in the created output.
-                mdTypePointer = 0;  // This is not a uniform, so don't process any metadata for it.
-            } else {
-                // We have probably have an optimized away metadata on a uniform load
-                // Attempt recovery
-                const std::string& rawName = gepInstr ? gepInstr->getOperand(0)->getName().str() : llvmInstruction->getName().str();
-                UnsupportedFunctionality("missing metadata on load", 0, rawName.c_str(), EATContinue);
-                if (rawName.compare(0, 5, "anon@") == 0)
-                    name = "";
-                gepExpressionMapped = false;
-            }
+            // If the already existing mapping included a non-converted view, propogate that
+            // association to this load as well.
+            propagateNonconvertedGlaValue(llvmInstruction, llvmInstruction->getOperand(0));
         }
 
-        if (gepInstr && ! gepExpressionMapped) {
-            // traverse the dereference chain and store it.
-            name.append(traverseGep(gepInstr, mdTypePointer));
-
-            // an anonymous block will leave a name starting with "."; remove it
-            if (name[0] == '.')
-                name = name.substr(1, std::string::npos);
-            mapExpressionString(gepInstr, name);
-        }
-
-        // conversion-wrap it and make the whole thing the name of a variable
-        if (mdType == EMtlUnsigned || mdType == EMtlRowMajorMatrix || mdType == EMtlColMajorMatrix) {
-            if (mdType != EMtlUnsigned) {
-                // Optimization:  Will keep both a converted and non-converted version, in case
-                // at a future point we can tell the non-converted one is okay; e.g., a matrix
-                // dereference never had to be constructed into an array of arrays
-                nonConvertedMap[llvmInstruction] = new std::string(name);
-            }
-            ConversionWrap(name, llvmInstruction->getType(), false);
-        }
-        mapExpressionString(llvmInstruction, name);
+        mapExpressionString(llvmInstruction, expression);
 
         return;
     }
-    case llvm::Instruction::Alloca:
-        newLine();
-        emitGlaValue(llvmInstruction);
-        shader << ";";
-
-        return;
-
     case llvm::Instruction::Store:
     {
-        llvm::Value* target = llvmInstruction->getOperand(1);
+        const llvm::Value* target = llvmInstruction->getOperand(1);
         assert(llvm::isa<llvm::PointerType>(target->getType()));
 
-        llvm::GetElementPtrInst* gepInstr = getGepAsInst(target);
+        const llvm::GetElementPtrInst* gepInstr = getGepAsInst(target);
         if (gepInstr) {
             target = gepInstr;
 
-            // Process the base (we skipped "case llvm::Instruction::GetElementPtr" when called with that earlier)
-            // For GEP, which always returns a pointer, traverse the dereference chain and store it.
-            std::string name;
-            if (! getExpressionString(gepInstr, name)) {
-                // Make a new expression string for this gep.
-
-                // The base should already have a mapping from value -> string, so get that
-                // and then add on the dereference syntax to form a new name for the GEP
-                // as a whole.
-                if (! getExpressionString(gepInstr->getOperand(0), name))
-                    UnsupportedFunctionality("GLSL back end gep store missing value->string mapping", EATContinue);
-                name.append(traverseGep(gepInstr));
-                mapExpressionString(gepInstr, name);
+            // Lookup the previously deduced expression string for this GEP.
+            std::string expression;
+            if (! getExpressionString(gepInstr, expression)) {
+                // it could be an embedded GEP
+                makePointerExpression(gepInstr, gepInstr, expression);
             }
         }
 
@@ -1593,6 +1563,14 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
         return;
     }
+
+    case llvm::Instruction::Alloca:
+        newLine();
+        emitGlaValue(llvmInstruction);
+        shader << ";";
+
+        return;
+
     case llvm::Instruction::ExtractElement:
     {
         emitGlaValueDeclaration(llvmInstruction->getOperand(0));
@@ -1661,13 +1639,6 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             emitGlaValue(si->getCondition());
             shader << ");";
         }
-
-        return;
-    }
-    case llvm::Instruction::GetElementPtr:
-    {
-        // For GEP, defer processing until we see it in a load, because
-        // that's where the metadata went
 
         return;
     }
@@ -2307,6 +2278,59 @@ void gla::GlslTarget::makeExtractElementStr(const llvm::Instruction* llvmInstruc
         str.append(".").append(MapComponentToSwizzleChar(GetConstantInt(llvmInstruction->getOperand(1))));
     else
         str.append("[").append(*valueMap[element]).append("]");
+}
+
+// Turn a gep instruction or pointer for load operand into a full GLSL expression
+// representing the dereference of it.
+// 'instruction' is the instruction to check mappings for
+// 'ptr' is the thing getting an expression built for it 
+void gla::GlslTarget::makePointerExpression(const llvm::Instruction* llvmInstruction, const llvm::Value* ptr, std::string& expression)
+{
+    const llvm::GetElementPtrInst* gepInst = getGepAsInst(ptr);
+
+    // There is extra processing if it represents an external (interface) access,
+    // based on the metadata associated with this globally visible name.
+    const llvm::MDNode* mdNode;
+    EMdTypeLayout mdType;
+    EMdTypeLayout* mdTypePointer;
+    if (MapGlaAddressSpace(ptr) == EVQGlobal) {
+        // This could be a path for a hoisted "undef" aggregate.  See hoistUndefOps().
+        // (Normally, everything should be in registers.)
+        // TODO: output code quality: Find a way to eliminate global undefs so there are not extra "var = global-aggregete" statements
+        //       in the created output.
+        mdNode = 0;
+        mdType = EMtlNone;
+        mdTypePointer = 0;   // This is not a uniform, so don't process any metadata for it.
+        if (gepInst && ! getExpressionString(gepInst->getOperand(0), expression))
+            UnsupportedFunctionality("GLSL back end gep missing value->string mapping", 0, expression.c_str(), EATContinue);
+    } else {
+        const llvm::StringRef name = llvmInstruction->getOperand(0)->getName();
+        mdNode = mdMap[name];
+        if (! mdNode)
+            UnsupportedFunctionality("missing metadata for makePointerExpression\n", 0, name.str().c_str());
+        mdType = GetMdTypeLayout(mdNode);
+        mdTypePointer = &mdType;
+        expression = mdNode->getOperand(0)->getName();
+    }
+
+    // traverse the dereference chain and store it.
+    if (gepInst)
+        expression.append(traverseGep(gepInst, mdTypePointer));
+
+    // an anonymous block will leave an expression starting with "."; remove it
+    if (expression[0] == '.')
+        expression = expression.substr(1, std::string::npos);
+
+    // conversion-wrap it and make the whole thing the expression of a variable
+    if (mdType == EMtlUnsigned || mdType == EMtlRowMajorMatrix || mdType == EMtlColMajorMatrix) {
+        if (mdType != EMtlUnsigned) {
+            // Optimization:  Will keep both a converted and non-converted version, in case
+            // at a future point we can tell the non-converted one is okay; e.g., a matrix
+            // dereference never had to be constructed into an array of arrays
+            nonConvertedMap[llvmInstruction] = new std::string(expression);
+        }
+        ConversionWrap(expression, ptr->getType()->getContainedType(0), false);
+    }
 }
 
 //
@@ -3422,11 +3446,17 @@ void gla::GlslTarget::emitGlaValue(const llvm::Value* value)
 // the normal one.
 void gla::GlslTarget::emitNonconvertedGlaValue(const llvm::Value* value)
 {
-    std::string* name = nonConvertedMap[value];
-    if (name)
-        shader << name->c_str();
+    if (nonConvertedMap.find(value) != nonConvertedMap.end())
+        shader << nonConvertedMap[value]->c_str();
     else
         emitGlaValue(value);
+}
+
+// Propagate a nonconverted form from one value to another
+void gla::GlslTarget::propagateNonconvertedGlaValue(const llvm::Value* dst, const llvm::Value* src)
+{
+    if (nonConvertedMap.find(src) != nonConvertedMap.end())
+        nonConvertedMap[dst] = new std::string(*nonConvertedMap[src]);  // rare enough to not worry about sharing the pointer; they all get deleted
 }
 
 std::string* gla::GlslTarget::mapGlaValueAndEmitDeclaration(const llvm::Value* value)
@@ -3767,6 +3797,7 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
     const llvm::MDNode* mdAggregate;
     const llvm::MDNode* dummySampler;
     const llvm::MDNode* mdNode = llvmInstruction->getMetadata(input ? gla::InputMdName : gla::OutputMdName);
+
     int interpMode;
     if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode)) {
         // This path should not exist; it is a backup path for missing metadata.
