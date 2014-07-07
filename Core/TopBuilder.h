@@ -258,6 +258,9 @@ public:
     // automatically by closeMain() or leaveFunction(true) for main.
     void copyOutPipeline();
 
+    // Calling this will turn off implicit copy out when exiting the shader, and require
+    // that copyOutPipeline() be called at each point where the outputs should be copied
+    // out.
     void setExplicitPipelineCopyOut() { explicitPipelineCopyout = true; }
 
     // Write to the pipeline directly, without caching through variables

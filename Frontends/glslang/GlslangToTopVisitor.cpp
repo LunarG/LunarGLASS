@@ -2416,10 +2416,11 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
 //
 // Ensure enough slots are consumed to cover the size of the data represented by the node symbol.
 //
-// Note (and TODO): The design is inherently contradictory for "arrayed io", like output from 
+// 'numSlots' means number of GLSL locations when using logical IO.  Note: The design, when used
+// for physical-IO slot writes, is inherently contradictory for "arrayed io", like output from 
 // a tessellation control shader, where the number of visible locations to use is based on 
 // ignoring the outer layer of arrayness, but the number of vec4s to keep track of for dumping
-// on exit to main has to be the full number.
+// on exit to main has to be the full number.  This is tested for and a message given.
 //
 int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input, int& numSlots)
 {

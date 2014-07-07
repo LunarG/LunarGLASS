@@ -988,6 +988,7 @@ bool BottomTranslator::runOnModule(Module& module)
     //
 
     // add metadata
+    // Do this before addGlobal(), so the back end knows what globals are really logical IO.
     addIoDeclarations(module, gla::EVQUniform, gla::UniformListMdName);
     addIoDeclarations(module, gla::EVQInput,   gla::InputListMdName);
     addIoDeclarations(module, gla::EVQOutput,  gla::OutputListMdName);
