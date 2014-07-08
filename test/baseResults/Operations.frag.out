@@ -7,7 +7,7 @@ Top IR:
 @uf = external addrspace(2) constant float
 @ub41 = external addrspace(2) constant <4 x i1>
 @ub42 = external addrspace(2) constant <4 x i1>
-@FragColor_shadow = internal global <4 x float> zeroinitializer
+@gl_FragColor = global <4 x float> zeroinitializer
 @uiv4 = external addrspace(2) constant <4 x i32>
 @ub = external addrspace(2) constant i1
 
@@ -482,13 +482,11 @@ else:                                             ; preds = %ifmerge65
   br label %ifmerge78
 
 ifmerge78:                                        ; preds = %else, %then74
-  %FragColor_shadow = load <4 x float>* %ternary
-  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
+  %gl_FragColor = load <4 x float>* %ternary
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge78
-  %295 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %295), !gla.output !9
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -636,11 +634,7 @@ declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 ; Function Attrs: nounwind readnone
 declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>) #0
 
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
 attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3, !4, !5, !6, !7, !8}
@@ -656,7 +650,7 @@ attributes #1 = { nounwind }
 !6 = metadata !{metadata !"ub42", i32 12, <4 x i1>* @ub42_typeProxy, metadata !2}
 !7 = metadata !{metadata !"uiv4", i32 12, <4 x i32>* @uiv4_typeProxy, metadata !2}
 !8 = metadata !{metadata !"ub", i32 12, i1* @ub_typeProxy, metadata !2}
-!9 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
+!9 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !10}
 !10 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 
 
@@ -668,6 +662,7 @@ Bottom IR:
 @uf = external addrspace(2) constant float
 @ub41 = external addrspace(2) constant <4 x i1>
 @ub42 = external addrspace(2) constant <4 x i1>
+@gl_FragColor = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -815,8 +810,8 @@ entry:
   %80 = and i1 %78, %79
   %81 = or i1 %77, %80
   %f64 = fadd float %f62, 1.000000e+00
-  %select80 = select i1 %81, float %f64, float %f62
-  %82 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select80, <4 x i32> zeroinitializer)
+  %select79 = select i1 %81, float %f64, float %f62
+  %82 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select79, <4 x i32> zeroinitializer)
   %83 = load i32 addrspace(2)* @ui, align 4, !gla.uniform !3
   %i66 = and i32 %83, %.i56
   %i67 = or i32 %i66, 66
@@ -827,10 +822,10 @@ entry:
   %i72 = xor i32 %i71, -1
   %84 = sitofp i32 %i72 to float
   %85 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %84, <4 x i32> zeroinitializer)
-  %86 = fadd <4 x float> %85, %82
+  %86 = fadd <4 x float> %82, %85
   %ternary76 = fadd <4 x float> %v44, %86
   %select = select i1 %b53, <4 x float> %v44, <4 x float> %ternary76
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %select), !gla.output !9
+  store <4 x float> %select, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -972,9 +967,6 @@ declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
 ; Function Attrs: nounwind readnone
 declare <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float>, <3 x float>) #0
 
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
 ; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>) #0
 
@@ -985,7 +977,6 @@ declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>)
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
 
 attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3, !4, !5, !6, !7, !8}
@@ -1001,7 +992,7 @@ attributes #1 = { nounwind }
 !6 = metadata !{metadata !"ub42", i32 12, <4 x i1>* @ub42_typeProxy, metadata !2}
 !7 = metadata !{metadata !"uiv4", i32 12, <4 x i32>* @uiv4_typeProxy, metadata !2}
 !8 = metadata !{metadata !"ub", i32 12, i1* @ub_typeProxy, metadata !2}
-!9 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !10}
+!9 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !10}
 !10 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 #version 130
 // LunarGOO output

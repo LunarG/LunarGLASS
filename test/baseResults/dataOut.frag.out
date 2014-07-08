@@ -2,53 +2,44 @@
 Top IR:
 ; ModuleID = 'Glslang'
 
-@FragData_shadow = internal global [32 x <4 x float>] zeroinitializer
-@Color_shadow = internal global <4 x float> zeroinitializer
+@gl_FragData = global [32 x <4 x float>] zeroinitializer
+@Color = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !gla.input !3
-  store <4 x float> %Color, <4 x float>* @Color_shadow
-  %0 = load <4 x float>* @Color_shadow
-  store <4 x float> %0, <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 1)
+  %0 = load <4 x float>* @Color
+  store <4 x float> %0, <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @gl_FragData, i32 0, i32 1)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %1 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 1)
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %1), !gla.output !1
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
-attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
-
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}
 !gla.inputs = !{!3}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @FragData_shadow_typeProxy, metadata !2}
+!1 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @gl_FragData_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
-!3 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_shadow_typeProxy, metadata !4}
+!3 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1056, null, i32 1}
 
 
 Bottom IR:
 ; ModuleID = 'Glslang'
 
+@gl_FragData = global [32 x <4 x float>] zeroinitializer
+@Color = global <4 x float> zeroinitializer
+
 define fastcc void @main() {
 entry:
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !gla.input !3
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %Color), !gla.output !1
+  %0 = load <4 x float>* @Color, align 16
+  %gla_constGEP = getelementptr [32 x <4 x float>]* @gl_FragData, i32 0, i32 1
+  store <4 x float> %0, <4 x float>* %gla_constGEP, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -58,23 +49,14 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
-attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
-
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}
 !gla.inputs = !{!3}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @FragData_shadow_typeProxy, metadata !2}
+!1 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @gl_FragData_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
-!3 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_shadow_typeProxy, metadata !4}
+!3 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1056, null, i32 1}
 #version 130
 // LunarGOO output

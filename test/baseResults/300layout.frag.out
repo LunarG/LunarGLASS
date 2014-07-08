@@ -4,87 +4,53 @@ Top IR:
 
 %S = type { <3 x float>, float }
 
-@c_shadow = internal global <3 x float> zeroinitializer
-@color_shadow = internal global <3 x float> zeroinitializer
-@s_shadow = internal global %S zeroinitializer
-@p_shadow = internal global [2 x <4 x float>] zeroinitializer
-@pos_shadow = internal global <4 x float> zeroinitializer
+@c = global <3 x float> zeroinitializer
+@color = global <3 x float> zeroinitializer
+@s = global %S zeroinitializer
+@p = global [2 x <4 x float>] zeroinitializer
+@pos = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
-  %color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !gla.input !5, !gla.precision !15
-  store <3 x float> %color, <3 x float>* @color_shadow
-  %0 = load <3 x float>* @color_shadow
-  %s = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !gla.input !7, !gla.precision !15
-  store <3 x float> %s, <3 x float>* getelementptr inbounds (%S* @s_shadow, i32 0, i32 0)
-  %s1 = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !gla.input !7, !gla.precision !15
-  store float %s1, float* getelementptr inbounds (%S* @s_shadow, i32 0, i32 1)
-  %1 = load <3 x float>* getelementptr inbounds (%S* @s_shadow, i32 0, i32 0)
-  %c_shadow = fadd <3 x float> %0, %1, !gla.precision !15
-  store <3 x float> %c_shadow, <3 x float>* @c_shadow
-  %pos = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !gla.input !13, !gla.precision !15
-  store <4 x float> %pos, <4 x float>* @pos_shadow
-  %2 = load <4 x float>* @pos_shadow
-  %s2 = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !gla.input !7, !gla.precision !15
-  store <3 x float> %s2, <3 x float>* getelementptr inbounds (%S* @s_shadow, i32 0, i32 0)
-  %s3 = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !gla.input !7, !gla.precision !15
-  store float %s3, float* getelementptr inbounds (%S* @s_shadow, i32 0, i32 1)
-  %3 = load float* getelementptr inbounds (%S* @s_shadow, i32 0, i32 1)
+  %0 = load <3 x float>* @color
+  %1 = load <3 x float>* getelementptr inbounds (%S* @s, i32 0, i32 0)
+  %c = fadd <3 x float> %0, %1, !gla.precision !15
+  store <3 x float> %c, <3 x float>* @c
+  %2 = load <4 x float>* @pos
+  %3 = load float* getelementptr inbounds (%S* @s, i32 0, i32 1)
   %4 = insertelement <4 x float> undef, float %3, i32 0, !gla.precision !15
   %5 = insertelement <4 x float> %4, float %3, i32 1, !gla.precision !15
   %6 = insertelement <4 x float> %5, float %3, i32 2, !gla.precision !15
   %7 = insertelement <4 x float> %6, float %3, i32 3, !gla.precision !15
   %8 = fmul <4 x float> %2, %7, !gla.precision !15
-  store <4 x float> %8, <4 x float>* getelementptr inbounds ([2 x <4 x float>]* @p_shadow, i32 0, i32 1)
+  store <4 x float> %8, <4 x float>* getelementptr inbounds ([2 x <4 x float>]* @p, i32 0, i32 1)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %9 = load <3 x float>* @c_shadow
-  call void @llvm.gla.fWriteData.v3f32(i32 7, i32 -1, <3 x float> %9), !gla.output !1
-  %10 = load <4 x float>* getelementptr inbounds ([2 x <4 x float>]* @p_shadow, i32 0, i32 1)
-  call void @llvm.gla.fWriteData.v4f32(i32 4, i32 -1, <4 x float> %10), !gla.output !3
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-; Function Attrs: nounwind readnone
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind readnone
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) #1
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
-attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
-
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1, !3}
 !gla.inputs = !{!5, !7, !13}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"c", i32 7, <3 x float>* @c_shadow_typeProxy, metadata !2}
+!1 = metadata !{metadata !"c", i32 7, <3 x float>* @c_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 2, i32 7, null, i32 0}
-!3 = metadata !{metadata !"p", i32 7, [2 x <4 x float>]* @p_shadow_typeProxy, metadata !4}
+!3 = metadata !{metadata !"p", i32 7, [2 x <4 x float>]* @p_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 2, i32 3, null, i32 0}
-!5 = metadata !{metadata !"color", i32 1, <3 x float>* @color_shadow_typeProxy, metadata !6}
+!5 = metadata !{metadata !"color", i32 1, <3 x float>* @color_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 2, i32 1024, null, i32 1}
-!7 = metadata !{metadata !"s", i32 1, %S* @s_shadow_typeProxy, metadata !8, metadata !9}
+!7 = metadata !{metadata !"s", i32 1, %S* @s_typeProxy, metadata !8, metadata !9}
 !8 = metadata !{i32 4, i32 0, i32 1025, null, i32 1}
 !9 = metadata !{metadata !"S", metadata !10, metadata !"c", metadata !11, metadata !"f", metadata !11}
 !10 = metadata !{i32 4, i32 0, i32 1024, null}
 !11 = metadata !{metadata !"", metadata !12}
 !12 = metadata !{i32 0, i32 2, i32 1024, null}
-!13 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_shadow_typeProxy, metadata !14}
+!13 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 2, i32 1027, null, i32 1}
 !15 = metadata !{i32 2}
 
@@ -92,23 +58,28 @@ attributes #1 = { nounwind }
 Bottom IR:
 ; ModuleID = 'Glslang'
 
-@p_shadow = internal unnamed_addr global [2 x <4 x float>] zeroinitializer
+%S = type { <3 x float>, float }
+
+@c = global <3 x float> zeroinitializer
+@color = global <3 x float> zeroinitializer
+@s = global %S zeroinitializer
+@p = global [2 x <4 x float>] zeroinitializer
+@pos = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
-  %s = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1025, i32 -1, i32 1), !gla.input !7, !gla.precision !15
-  %s1 = call float @llvm.gla.fReadInterpolant.f32(i32 1026, i32 -1, i32 1), !gla.input !7, !gla.precision !15
-  %0 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %s1, <4 x i32> zeroinitializer)
-  %pos = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1027, i32 -1, i32 1), !gla.input !13, !gla.precision !15
-  %1 = fmul <4 x float> %pos, %0, !gla.precision !15
-  %gla_constGEP = getelementptr [2 x <4 x float>]* @p_shadow, i32 0, i32 1
-  store <4 x float> %1, <4 x float>* %gla_constGEP, align 16
-  %color = call <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32 1024, i32 -1, i32 1), !gla.input !5, !gla.precision !15
-  %c_shadow = fadd <3 x float> %s, %color, !gla.precision !15
-  call void @llvm.gla.fWriteData.v3f32(i32 7, i32 -1, <3 x float> %c_shadow), !gla.output !1
-  %gla_constGEP5 = getelementptr [2 x <4 x float>]* @p_shadow, i32 0, i32 1
-  %2 = load <4 x float>* %gla_constGEP5, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 4, i32 -1, <4 x float> %2), !gla.output !3
+  %0 = load <3 x float>* @color, align 16
+  %gla_constGEP = getelementptr %S* @s, i32 0, i32 0
+  %1 = load <3 x float>* %gla_constGEP, align 16
+  %c = fadd <3 x float> %0, %1, !gla.precision !15
+  store <3 x float> %c, <3 x float>* @c, align 16
+  %2 = load <4 x float>* @pos, align 16
+  %gla_constGEP1 = getelementptr %S* @s, i32 0, i32 1
+  %3 = load float* %gla_constGEP1, align 16
+  %4 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %3, <4 x i32> zeroinitializer)
+  %5 = fmul <4 x float> %2, %4, !gla.precision !15
+  %gla_constGEP2 = getelementptr [2 x <4 x float>]* @p, i32 0, i32 1
+  store <4 x float> %5, <4 x float>* %gla_constGEP2, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -119,44 +90,28 @@ stage-exit:                                       ; preds = %stage-epilogue
 }
 
 ; Function Attrs: nounwind readnone
-declare <3 x float> @llvm.gla.fReadInterpolant.v3f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind readnone
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v3f32(i32, i32, <3 x float>) #1
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
-; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
 
 attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1, !3}
 !gla.inputs = !{!5, !7, !13}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"c", i32 7, <3 x float>* @c_shadow_typeProxy, metadata !2}
+!1 = metadata !{metadata !"c", i32 7, <3 x float>* @c_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 2, i32 7, null, i32 0}
-!3 = metadata !{metadata !"p", i32 7, [2 x <4 x float>]* @p_shadow_typeProxy, metadata !4}
+!3 = metadata !{metadata !"p", i32 7, [2 x <4 x float>]* @p_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 2, i32 3, null, i32 0}
-!5 = metadata !{metadata !"color", i32 1, <3 x float>* @color_shadow_typeProxy, metadata !6}
+!5 = metadata !{metadata !"color", i32 1, <3 x float>* @color_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 2, i32 1024, null, i32 1}
-!7 = metadata !{metadata !"s", i32 1, %S* @s_shadow_typeProxy, metadata !8, metadata !9}
+!7 = metadata !{metadata !"s", i32 1, %S* @s_typeProxy, metadata !8, metadata !9}
 !8 = metadata !{i32 4, i32 0, i32 1025, null, i32 1}
 !9 = metadata !{metadata !"S", metadata !10, metadata !"c", metadata !11, metadata !"f", metadata !11}
 !10 = metadata !{i32 4, i32 0, i32 1024, null}
 !11 = metadata !{metadata !"", metadata !12}
 !12 = metadata !{i32 0, i32 2, i32 1024, null}
-!13 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_shadow_typeProxy, metadata !14}
+!13 = metadata !{metadata !"pos", i32 1, <4 x float>* @pos_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 2, i32 1027, null, i32 1}
 !15 = metadata !{i32 2}
 #version 300 es
@@ -173,16 +128,14 @@ in S s;
 in mediump vec4 pos;
 layout(location=7) out mediump vec3 c;
 layout(location=3) out mediump vec4 p[2];
-vec4 p_shadow[2];
 
 void main()
 {
-    vec4 temp21 = vec4(s.f);
-    mediump vec4 temp22 = pos * temp21;
-    p_shadow[1] = temp22;
-    mediump vec3 c_shadow_c1 = color + s.c;
-    c = c_shadow_c1;
-    p[1] = p_shadow[1];
+    mediump vec3 temp21 = color + s.c;
+    c = temp21;
+    vec4 temp22 = vec4(s.f);
+    mediump vec4 temp23 = pos * temp22;
+    p[1] = temp23;
     
 }
 
@@ -196,21 +149,19 @@ struct S {
     mediump float f;
 };
 
+in mediump vec3 color;
 in S s;
 in mediump vec4 pos;
-in mediump vec3 color;
 layout(location=7) out mediump vec3 c;
 layout(location=3) out mediump vec4 p[2];
-vec4 p_shadow1[2];
 
 void main()
 {
-    vec4 temp21 = vec4(s.f);
-    mediump vec4 temp_c1 = pos * temp21;
-    p_shadow1[1] = temp_c1;
-    mediump vec3 c_shadow_c2 = color + s.c;
-    c = c_shadow_c2;
-    p[1] = p_shadow1[1];
+    mediump vec3 temp_c1 = color + s.c;
+    c = temp_c1;
+    vec4 temp22 = vec4(s.f);
+    mediump vec4 temp_c2 = pos * temp22;
+    p[1] = temp_c2;
     
 }
 

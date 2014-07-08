@@ -3,16 +3,14 @@ Top IR:
 ; ModuleID = 'Glslang'
 
 @tex = external addrspace(1) constant i32
-@coord_shadow = internal global <2 x float> zeroinitializer
-@FragColor_shadow = internal global <4 x float> zeroinitializer
+@coord = global <2 x float> zeroinitializer
+@gl_FragColor = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
   %v = alloca <4 x float>
   %0 = load i32 addrspace(1)* @tex, !gla.uniform !1
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !4
-  store <2 x float> %coord, <2 x float>* @coord_shadow
-  %1 = load <2 x float>* @coord_shadow
+  %1 = load <2 x float>* @coord
   %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1)
   store <4 x float> %v1, <4 x float>* %v
   %2 = load <4 x float>* %v
@@ -28,21 +26,16 @@ post-discard:                                     ; No predecessors!
   br label %ifmerge
 
 ifmerge:                                          ; preds = %entry, %post-discard
-  %FragColor_shadow = load <4 x float>* %v
-  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
+  %gl_FragColor = load <4 x float>* %v
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
-  %5 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %5), !gla.output !6
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %then
   ret void
 }
-
-; Function Attrs: nounwind readnone
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
 
 ; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
@@ -52,9 +45,6 @@ declare i1 @llvm.gla.all.v4i1(<4 x i1>) #0
 
 ; Function Attrs: nounwind
 declare void @llvm.gla.discard() #1
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
 
 attributes #0 = { nounwind readnone }
 attributes #1 = { nounwind }
@@ -68,9 +58,9 @@ attributes #1 = { nounwind }
 !1 = metadata !{metadata !"tex", i32 12, i32* @tex_typeProxy, metadata !2}
 !2 = metadata !{i32 5, i32 0, i32 1024, metadata !3}
 !3 = metadata !{i32 0, i32* @tex_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!4 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !5}
+!4 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_typeProxy, metadata !5}
 !5 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
-!6 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
+!6 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 
 
@@ -78,22 +68,24 @@ Bottom IR:
 ; ModuleID = 'Glslang'
 
 @tex = external addrspace(1) constant i32
+@coord = global <2 x float> zeroinitializer
+@gl_FragColor = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(1)* @tex, align 4, !gla.uniform !1
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !4
-  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %coord)
-  %1 = fcmp oeq <4 x float> %v1, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
-  %2 = call i1 @llvm.gla.all.v4i1(<4 x i1> %1)
-  br i1 %2, label %then, label %ifmerge
+  %1 = load <2 x float>* @coord, align 8
+  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1)
+  %2 = fcmp oeq <4 x float> %v1, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
+  %3 = call i1 @llvm.gla.all.v4i1(<4 x i1> %2)
+  br i1 %3, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
   call void @llvm.gla.discard()
   br label %stage-exit
 
 ifmerge:                                          ; preds = %entry
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %v1), !gla.output !6
+  store <4 x float> %v1, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -104,9 +96,6 @@ stage-exit:                                       ; preds = %stage-epilogue, %th
 }
 
 ; Function Attrs: nounwind readnone
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
 
 ; Function Attrs: nounwind readnone
@@ -114,9 +103,6 @@ declare i1 @llvm.gla.all.v4i1(<4 x i1>) #0
 
 ; Function Attrs: nounwind
 declare void @llvm.gla.discard() #1
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
 
 attributes #0 = { nounwind readnone }
 attributes #1 = { nounwind }
@@ -130,9 +116,9 @@ attributes #1 = { nounwind }
 !1 = metadata !{metadata !"tex", i32 12, i32* @tex_typeProxy, metadata !2}
 !2 = metadata !{i32 5, i32 0, i32 1024, metadata !3}
 !3 = metadata !{i32 0, i32* @tex_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!4 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !5}
+!4 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_typeProxy, metadata !5}
 !5 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
-!6 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !7}
+!6 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !7}
 !7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 #version 110
 // LunarGOO output

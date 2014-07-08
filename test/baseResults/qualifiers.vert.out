@@ -2,64 +2,35 @@
 Top IR:
 ; ModuleID = 'Glslang'
 
-@outVc_shadow = internal global <4 x float> zeroinitializer
-@inV_shadow = internal global <4 x float> zeroinitializer
-@outVs_shadow = internal global <4 x float> zeroinitializer
-@outVf_shadow = internal global <4 x float> zeroinitializer
-@outVn_shadow = internal global <4 x float> zeroinitializer
-@outVcn_shadow = internal global <4 x float> zeroinitializer
-@VertexID_shadow = internal global i32 0
-@InstanceID_shadow = internal global i32 0
+@outVc = global <4 x float> zeroinitializer
+@inV = global <4 x float> zeroinitializer
+@outVs = global <4 x float> zeroinitializer
+@outVf = global <4 x float> zeroinitializer
+@outVn = global <4 x float> zeroinitializer
+@outVcn = global <4 x float> zeroinitializer
+@gl_VertexID = global i32 0
+@gl_InstanceID = global i32 0
 
 define fastcc void @main() {
 entry:
-  %inV = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
-  store <4 x float> %inV, <4 x float>* @inV_shadow
-  %outVc_shadow = load <4 x float>* @inV_shadow
-  store <4 x float> %outVc_shadow, <4 x float>* @outVc_shadow
-  %inV1 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
-  store <4 x float> %inV1, <4 x float>* @inV_shadow
-  %outVs_shadow = load <4 x float>* @inV_shadow
-  store <4 x float> %outVs_shadow, <4 x float>* @outVs_shadow
-  %inV2 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
-  store <4 x float> %inV2, <4 x float>* @inV_shadow
-  %outVf_shadow = load <4 x float>* @inV_shadow
-  store <4 x float> %outVf_shadow, <4 x float>* @outVf_shadow
-  %inV3 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
-  store <4 x float> %inV3, <4 x float>* @inV_shadow
-  %outVn_shadow = load <4 x float>* @inV_shadow
-  store <4 x float> %outVn_shadow, <4 x float>* @outVn_shadow
-  %inV4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
-  store <4 x float> %inV4, <4 x float>* @inV_shadow
-  %outVcn_shadow = load <4 x float>* @inV_shadow
-  store <4 x float> %outVcn_shadow, <4 x float>* @outVcn_shadow
+  %outVc = load <4 x float>* @inV
+  store <4 x float> %outVc, <4 x float>* @outVc
+  %outVs = load <4 x float>* @inV
+  store <4 x float> %outVs, <4 x float>* @outVs
+  %outVf = load <4 x float>* @inV
+  store <4 x float> %outVf, <4 x float>* @outVf
+  %outVn = load <4 x float>* @inV
+  store <4 x float> %outVn, <4 x float>* @outVn
+  %outVcn = load <4 x float>* @inV
+  store <4 x float> %outVcn, <4 x float>* @outVcn
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %0 = load <4 x float>* @outVc_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %0), !gla.output !1
-  %1 = load <4 x float>* @outVs_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %1), !gla.output !3
-  %2 = load <4 x float>* @outVf_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %2), !gla.output !5
-  %3 = load <4 x float>* @outVn_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %3), !gla.output !7
-  %4 = load <4 x float>* @outVcn_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1029, i32 -1, <4 x float> %4), !gla.output !9
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
-
-; Function Attrs: nounwind readonly
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
-attributes #0 = { nounwind readonly }
-attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1, !3, !5, !7, !9}
@@ -67,35 +38,44 @@ attributes #1 = { nounwind }
 !gla.noStaticUse = !{!13, !15}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"outVc", i32 7, <4 x float>* @outVc_shadow_typeProxy, metadata !2}
+!1 = metadata !{metadata !"outVc", i32 7, <4 x float>* @outVc_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 513}
-!3 = metadata !{metadata !"outVs", i32 7, <4 x float>* @outVs_shadow_typeProxy, metadata !4}
+!3 = metadata !{metadata !"outVs", i32 7, <4 x float>* @outVs_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
-!5 = metadata !{metadata !"outVf", i32 7, <4 x float>* @outVf_shadow_typeProxy, metadata !6}
+!5 = metadata !{metadata !"outVf", i32 7, <4 x float>* @outVf_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
-!7 = metadata !{metadata !"outVn", i32 7, <4 x float>* @outVn_shadow_typeProxy, metadata !8}
+!7 = metadata !{metadata !"outVn", i32 7, <4 x float>* @outVn_typeProxy, metadata !8}
 !8 = metadata !{i32 0, i32 0, i32 1028, null, i32 2}
-!9 = metadata !{metadata !"outVcn", i32 7, <4 x float>* @outVcn_shadow_typeProxy, metadata !10}
+!9 = metadata !{metadata !"outVcn", i32 7, <4 x float>* @outVcn_typeProxy, metadata !10}
 !10 = metadata !{i32 0, i32 0, i32 1029, null, i32 514}
-!11 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_shadow_typeProxy, metadata !12}
+!11 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_typeProxy, metadata !12}
 !12 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-!13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !14}
+!13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @gl_VertexID_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
-!15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !16}
+!15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, metadata !16}
 !16 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
 
 
 Bottom IR:
 ; ModuleID = 'Glslang'
 
+@outVc = global <4 x float> zeroinitializer
+@inV = global <4 x float> zeroinitializer
+@outVs = global <4 x float> zeroinitializer
+@outVf = global <4 x float> zeroinitializer
+@outVn = global <4 x float> zeroinitializer
+@outVcn = global <4 x float> zeroinitializer
+@gl_VertexID = global i32 0
+@gl_InstanceID = global i32 0
+
 define fastcc void @main() {
 entry:
-  %inV4 = call <4 x float> @llvm.gla.fReadData.v4f32(i32 1025, i32 -1), !gla.input !11
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %inV4), !gla.output !1
-  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %inV4), !gla.output !3
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %inV4), !gla.output !5
-  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %inV4), !gla.output !7
-  call void @llvm.gla.fWriteData.v4f32(i32 1029, i32 -1, <4 x float> %inV4), !gla.output !9
+  %outVc = load <4 x float>* @inV, align 16
+  store <4 x float> %outVc, <4 x float>* @outVc, align 16
+  store <4 x float> %outVc, <4 x float>* @outVs, align 16
+  store <4 x float> %outVc, <4 x float>* @outVf, align 16
+  store <4 x float> %outVc, <4 x float>* @outVn, align 16
+  store <4 x float> %outVc, <4 x float>* @outVcn, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -105,36 +85,27 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-; Function Attrs: nounwind readonly
-declare <4 x float> @llvm.gla.fReadData.v4f32(i32, i32) #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
-attributes #0 = { nounwind readonly }
-attributes #1 = { nounwind }
-
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1, !3, !5, !7, !9}
 !gla.inputs = !{!11, !13, !15}
 !gla.noStaticUse = !{!13, !15}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"outVc", i32 7, <4 x float>* @outVc_shadow_typeProxy, metadata !2}
+!1 = metadata !{metadata !"outVc", i32 7, <4 x float>* @outVc_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 513}
-!3 = metadata !{metadata !"outVs", i32 7, <4 x float>* @outVs_shadow_typeProxy, metadata !4}
+!3 = metadata !{metadata !"outVs", i32 7, <4 x float>* @outVs_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
-!5 = metadata !{metadata !"outVf", i32 7, <4 x float>* @outVf_shadow_typeProxy, metadata !6}
+!5 = metadata !{metadata !"outVf", i32 7, <4 x float>* @outVf_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
-!7 = metadata !{metadata !"outVn", i32 7, <4 x float>* @outVn_shadow_typeProxy, metadata !8}
+!7 = metadata !{metadata !"outVn", i32 7, <4 x float>* @outVn_typeProxy, metadata !8}
 !8 = metadata !{i32 0, i32 0, i32 1028, null, i32 2}
-!9 = metadata !{metadata !"outVcn", i32 7, <4 x float>* @outVcn_shadow_typeProxy, metadata !10}
+!9 = metadata !{metadata !"outVcn", i32 7, <4 x float>* @outVcn_typeProxy, metadata !10}
 !10 = metadata !{i32 0, i32 0, i32 1029, null, i32 514}
-!11 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_shadow_typeProxy, metadata !12}
+!11 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_typeProxy, metadata !12}
 !12 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
-!13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @VertexID_shadow_typeProxy, metadata !14}
+!13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @gl_VertexID_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
-!15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @InstanceID_shadow_typeProxy, metadata !16}
+!15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, metadata !16}
 !16 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
 #version 430 core
 // LunarGOO output

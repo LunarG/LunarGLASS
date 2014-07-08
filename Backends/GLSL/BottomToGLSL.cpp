@@ -82,6 +82,10 @@
 #include "llvm/IR/Module.h"
 #pragma warning(pop)
 
+namespace {
+    bool UseLogicalIO = true;
+};
+
 //
 // Implement the GLSL backend
 //
@@ -139,6 +143,11 @@ public:
     //{
     //    return true;
     //}
+
+    virtual bool useLogicalIo()
+    {
+        return UseLogicalIO;
+    }
 };
 
 //
@@ -399,7 +408,7 @@ protected:
     void makeObfuscatedName(std::string& name);
     void canonicalizeName(std::string& name);
     void makeExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str);
-    void mapPointerExpression(const llvm::Instruction*, const llvm::Value* ptr);
+    void mapPointerExpression(const llvm::Value* ptr, const llvm::Value* additionalToMap = 0);
 
     void emitGlaIntrinsic(const llvm::IntrinsicInst*);
     void emitGlaCall(const llvm::CallInst*);
@@ -471,7 +480,7 @@ protected:
     // Map from IO-related global variables, by name, to their mdNodes describing them.
     std::map<std::string, const llvm::MDNode*> mdMap;
 
-    // optimization: just for uint/matrix I/O names that need conversion, preserve the non-converted expression in case that can be used
+    // For uint/matrix I/O names that need conversion, preserve the non-converted expression.
     std::map<const llvm::Value*, std::string*> nonConvertedMap;
 
     // map to track block names tracked in the module
@@ -486,6 +495,7 @@ protected:
     // but the block name cannot be used to declare the shadow and the member
     // names are likely not reusable.  So, use this to track such types
     // so that at the right points, legal GLSL can be produced.
+    // Note: these only matter for non-logical IO mode
     std::set<const llvm::Type*> shadowingBlock;
 
     // map from llvm type to the mdAggregate nodes that describe their types
@@ -556,6 +566,9 @@ bool IsIdentitySwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
 // Create the start of a scalar/vector conversion, but not for matrices.
 void ConversionStart(std::ostringstream& out, llvm::Type* type, bool toIO)
 {
+    if (! IsInteger(type))
+        return;
+
     if (GetComponentCount(type) == 1)
         out << (toIO ? "uint(" : "int(");
     else {
@@ -569,8 +582,11 @@ void ConversionStart(std::ostringstream& out, llvm::Type* type, bool toIO)
     }
 }
 
-void ConversionStop(std::ostringstream& out)
+void ConversionStop(std::ostringstream& out, llvm::Type* type)
 {
+    if (! IsInteger(type))
+        return;
+
     out << ")";
 }
 
@@ -584,7 +600,7 @@ void ConversionWrap(std::string& name, llvm::Type* type, bool toIO)
     if (IsInteger(type)) {
         ConversionStart(wrapped, type, toIO);
         wrapped << name;
-        ConversionStop(wrapped);
+        ConversionStop(wrapped, type);
     } else if (CouldBeMatrix(type)) {
         llvm::ArrayType* array = llvm::dyn_cast<llvm::ArrayType>(type);
         llvm::VectorType* vector = llvm::dyn_cast<llvm::VectorType>(array->getContainedType(0));
@@ -1225,6 +1241,13 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
 
     bool declarationAllowed = true;
 
+    llvm::Type* type = 0;
+    CrackIOMdType(mdNode, type);
+    if (type->getTypeID() == llvm::Type::PointerTyID)
+        type = type->getContainedType(0);
+
+    std::string mappingName;
+
     // Names starting "gl_" are
     //  - an error to declare explicitly, as they are built-in, or
     //  - okay to declare (e.g., gl_ClipDistance) if something is added, like array size ('invariant' is handled elsewhere), or
@@ -1233,11 +1256,6 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
     if (instanceName.size() == 0) {
         // This is an anonymous block, we'll want to decide name-based skipping based
         // on the name of the block, not the name of the instance.
-        llvm::Type* type = 0;
-        CrackIOMdType(mdNode, type);
-
-        if (type->getTypeID() == llvm::Type::PointerTyID)
-            type = type->getContainedType(0);
 
         if (type->getTypeID() == llvm::Type::StructTyID) {
             const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
@@ -1249,16 +1267,9 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
         }
         // Strip off the "_typeProxy" to get the shader name:
         // TODO: formalize a better way of getting this; this results from a design change.
-        std::string name = mdNode->getOperand(2)->getName();
-        StripSuffix(name, "_typeProxy");
-        // Strip off the "_shadow" to get the shader name:
-        // TODO: formalize a better way of getting this; this results from a design change.  ?? really, a user variable could end in "_shadow"
-        StripSuffix(name, "_shadow");
-        mdMap[name] = mdNode;
+        mappingName = mdNode->getOperand(2)->getName();
+        StripSuffix(mappingName, "_typeProxy");
     } else {
-        // This will prevent the IO globals from being declared again later.
-        globallyDeclared.insert(instanceName);
-
         if (instanceName.substr(0,3) == std::string("gl_")) {
             declarationAllowed = false;
             if (instanceName == "gl_ClipDistance" || instanceName == "gl_TexCoord")
@@ -1267,11 +1278,26 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
                                   instanceName == "gl_out"))
                 declarationAllowed = true;
         }
-        mdMap[instanceName] = mdNode;
+        mappingName = instanceName;
     }
 
-    if (! declarationAllowed)
+    mdMap[mappingName] = mdNode;
+    // This will prevent the IO globals from being declared again later.
+    globallyDeclared.insert(mappingName);
+
+    if (! declarationAllowed) {
+        if ((type->getTypeID() == llvm::Type::StructTyID || type->getTypeID() == llvm::Type::ArrayTyID) && mdNode->getNumOperands() >= 5) {
+            // We don't want to spit out a declaration (below), but we do want to establish the mapping
+            // between LLVM's type and the mdAggregate.
+            // Arrays will be dereferenced before lookup, so dereference the key now too.
+            const llvm::Type* aggType = type;
+            while (aggType->getTypeID() == llvm::Type::ArrayTyID)
+                aggType = aggType->getContainedType(0);
+            typeMdAggregateMap[aggType] = llvm::dyn_cast<llvm::MDNode>(mdNode->getOperand(4));
+        }
+
         return;
+    }
 
     int arraySize = emitGlaType(globalDeclarations, EMpCount, qualifier, 0, true, mdNode);
     globalDeclarations << " " << std::string(instanceName);
@@ -1512,12 +1538,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         // Make a single GLSL string for the whole expression represented by the GEP, and map it
         // to this instruction.  This includes gep-chain traversal, but not conversion wrapping.
 
-        const llvm::GetElementPtrInst* gepInstr = getGepAsInst(llvmInstruction);
-        if (! gepInstr)
-            UnsupportedFunctionality("GetElementPtr received unhandled form of GEP\n");
-
-        std::string expression;
-        mapPointerExpression(llvmInstruction, gepInstr);
+        mapPointerExpression(llvmInstruction);
 
         return;
     }
@@ -1535,7 +1556,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         std::string expression;
         if (! getExpressionString(llvmInstruction->getOperand(0), expression)) {
             // This might be an embedded GEP, so never seen before, or it could be a simple pointer.
-            mapPointerExpression(llvmInstruction, llvmInstruction->getOperand(0));
+            mapPointerExpression(llvmInstruction->getOperand(0), llvmInstruction);
         } else {
             // If the already existing mapping existed, propogate that
             // association to this load as well, including non-conversion view.
@@ -1551,21 +1572,28 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         assert(llvm::isa<llvm::PointerType>(target->getType()));
 
         const llvm::GetElementPtrInst* gepInstr = getGepAsInst(target);
-        if (gepInstr) {
+        if (gepInstr)
             target = gepInstr;
-
-            // Lookup the previously deduced expression string for this GEP.
-            std::string expression;
-            if (! getExpressionString(gepInstr, expression)) {
-                // it could be an embedded GEP
-                mapPointerExpression(gepInstr, gepInstr);
-            }
+        std::string expression;  // The expression could be conversion wrapped, so we won't actually use it
+        if (! getExpressionString(target, expression)) {
+            // it could be an embedded GEP
+            mapPointerExpression(target);
         }
 
         newLine();
-        emitGlaValue(target);
+        std::map<const llvm::Value*, std::string*>::const_iterator it = nonConvertedMap.find(target);
+        // If uint/matrix IO conversions are needed, they actually have to have the
+        // opposite conversion applied to the rhs.
+        if (it != nonConvertedMap.end())
+            shader << it->second->c_str();
+        else
+            emitGlaValue(target);
         shader << " = ";
+        if (it != nonConvertedMap.end())
+            ConversionStart(shader, target->getType()->getContainedType(0), true);
         emitGlaOperand(llvmInstruction->getOperand(0));
+        if (it != nonConvertedMap.end())
+            ConversionStop(shader, target->getType()->getContainedType(0));
         shader << ";";
 
         return;
@@ -2075,7 +2103,7 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, 
                 return;
             structNameMap[structType] = name;
 
-            if (blockNameMap.find(structType) != blockNameMap.end())
+            if (! UseLogicalIO && blockNameMap.find(structType) != blockNameMap.end())
                 shadowingBlock.insert(structType);
         }
         
@@ -2289,23 +2317,26 @@ void gla::GlslTarget::makeExtractElementStr(const llvm::Instruction* llvmInstruc
 
 // Turn a gep instruction or pointer for load operand into a full GLSL expression
 // representing the dereference of it.
-// 'instruction' is the instruction to check mappings for
-// 'ptr' is the thing getting an expression built for it
-void gla::GlslTarget::mapPointerExpression(const llvm::Instruction* llvmInstruction, const llvm::Value* ptr)
+// 'ptr' is the thing getting an expression built for it and mapped to
+// 'additionalToMap' is a secondary value to also map to the same results
+void gla::GlslTarget::mapPointerExpression(const llvm::Value* ptr, const llvm::Value* additionalToMap)
 {
-    const llvm::GetElementPtrInst* gepInst = getGepAsInst(ptr);
-
     // There is extra processing if it represents an external (interface) access,
     // based on the metadata associated with this globally visible name.
     const llvm::MDNode* mdNode;
     EMdTypeLayout mdType;
     EMdTypeLayout* mdTypePointer;
 
-    //?? why doesn't this pick up local variable names that coincidentally match a global name?  
-    const llvm::StringRef name = llvmInstruction->getOperand(0)->getName();
+    // TODO: correctness: make sure this doesn't pick up local variable names that coincidentally match a global name
+    const llvm::GetElementPtrInst* gepInst = getGepAsInst(ptr);
+    llvm::StringRef name;
+    if (gepInst)
+        name = gepInst->getOperand(0)->getName();
+    else
+        name = ptr->getName();
     std::string expression;
     if (mdMap.find(name) != mdMap.end()) {
-        mdNode = mdMap[name];  //?? is this inefficient?
+        mdNode = mdMap[name];
         mdType = GetMdTypeLayout(mdNode);
         mdTypePointer = &mdType;
         expression = mdNode->getOperand(0)->getName();
@@ -2333,18 +2364,21 @@ void gla::GlslTarget::mapPointerExpression(const llvm::Instruction* llvmInstruct
     if (expression[0] == '.')
         expression = expression.substr(1, std::string::npos);
 
-    // conversion-wrap it and make the whole thing the expression of a variable
+    // Conversion-wrap it and make the whole thing the expression of a variable
+    // (correct for r-values, but not for l-values, hence the need for nonConvertedMap).
     if (mdType == EMtlUnsigned || mdType == EMtlRowMajorMatrix || mdType == EMtlColMajorMatrix) {
-        if (mdType != EMtlUnsigned) {
-            // Optimization:  Will keep both a converted and non-converted version, in case
-            // at a future point we can tell the non-converted one is okay; e.g., a matrix
-            // dereference never had to be constructed into an array of arrays
-            nonConvertedMap[llvmInstruction] = new std::string(expression);
-        }
+        // Keep the non-converted version.  L-values need this.  Also useful as an optimization if
+        // at a future point we can tell the non-converted one is okay; e.g., a matrix
+        // dereference never had to be constructed into an array of arrays
+        nonConvertedMap[ptr] = new std::string(expression);
+        if (additionalToMap)
+            nonConvertedMap[additionalToMap] = new std::string(expression);
         ConversionWrap(expression, ptr->getType()->getContainedType(0), false);
     }
 
-    mapExpressionString(llvmInstruction, expression);
+    mapExpressionString(ptr, expression);
+    if (additionalToMap)
+        mapExpressionString(additionalToMap, expression);
 }
 
 //
@@ -2566,7 +2600,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         }
 
         if (needConversion)
-            ConversionStop(shader);
+            ConversionStop(shader, llvmInstruction->getType());
         shader << ");";
 
         return;
@@ -2938,7 +2972,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
         if (forceWidth && forceWidth < GetComponentCount(llvmInstruction->getOperand(arg)))
             emitComponentCountToSwizzle(forceWidth);
         if (convertArgsToUint) 
-            ConversionStop(shader);
+            ConversionStop(shader, llvmInstruction->getOperand(arg)->getType());
     }
 
     // Some special case arguments
@@ -2949,7 +2983,7 @@ void gla::GlslTarget::emitGlaIntrinsic(const llvm::IntrinsicInst* llvmInstructio
 
     // Finish it off
     if (convertResultToInt)
-        ConversionStop(shader);
+        ConversionStop(shader, llvmInstruction->getType());
     shader << ");";
 }
 
@@ -3470,7 +3504,7 @@ void gla::GlslTarget::emitNonconvertedGlaValue(const llvm::Value* value)
 void gla::GlslTarget::propagateNonconvertedGlaValue(const llvm::Value* dst, const llvm::Value* src)
 {
     if (nonConvertedMap.find(src) != nonConvertedMap.end())
-        nonConvertedMap[dst] = new std::string(*nonConvertedMap[src]);  // rare enough to not worry about sharing the pointer; they all get deleted
+        nonConvertedMap[dst] = new std::string(*nonConvertedMap[src]);  // rare enough to not worry about sharing the pointer (they all get deleted)
 }
 
 std::string* gla::GlslTarget::mapGlaValueAndEmitDeclaration(const llvm::Value* value)
@@ -3906,7 +3940,7 @@ std::string gla::GlslTarget::traverseGep(const llvm::Instruction* instr, EMdType
     while (aggregateType->getTypeID() == llvm::Type::PointerTyID || aggregateType->getTypeID() == llvm::Type::ArrayTyID)
         aggregateType = aggregateType->getContainedType(0);
     const llvm::MDNode* mdAggregate = 0;
-    if (shadowingBlock.find(aggregateType) == shadowingBlock.end())
+    if (UseLogicalIO || shadowingBlock.find(aggregateType) == shadowingBlock.end())
         mdAggregate = typeMdAggregateMap[aggregateType];
 
     if (const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(instr)) {

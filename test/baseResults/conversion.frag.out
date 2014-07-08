@@ -4,13 +4,13 @@ Top IR:
 
 @u_i = external addrspace(2) constant i32
 @u_f = external addrspace(2) constant float
-@i_i_shadow = internal global i32 0
-@i_f_shadow = internal global float 0.000000e+00
+@i_i = global i32 0
+@i_f = global float 0.000000e+00
 @u_f2 = external addrspace(2) constant <2 x float>
 @u_f3 = external addrspace(2) constant <3 x float>
 @u_f4 = external addrspace(2) constant <4 x float>
-@i_i4_shadow = internal global <4 x i32> zeroinitializer
-@FragColor_shadow = internal global <4 x float> zeroinitializer
+@i_i4 = global <4 x i32> zeroinitializer
+@gl_FragColor = global <4 x float> zeroinitializer
 @u_b = external addrspace(2) constant i1
 @u_b2 = external addrspace(2) constant <2 x i1>
 @u_b3 = external addrspace(2) constant <3 x i1>
@@ -22,30 +22,30 @@ Top IR:
 @i_b2 = external addrspace(2) constant <2 x i1>
 @i_b3 = external addrspace(2) constant <3 x i1>
 @i_b4 = external addrspace(2) constant <4 x i1>
-@i_i2_shadow = internal global <2 x i32> zeroinitializer
-@i_i3_shadow = internal global <3 x i32> zeroinitializer
-@i_f2_shadow = internal global <2 x float> zeroinitializer
-@i_f3_shadow = internal global <3 x float> zeroinitializer
-@i_f4_shadow = internal global <4 x float> zeroinitializer
+@i_i2 = global <2 x i32> zeroinitializer
+@i_i3 = global <3 x i32> zeroinitializer
+@i_f2 = global <2 x float> zeroinitializer
+@i_f3 = global <3 x float> zeroinitializer
+@i_f4 = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
-  %constructed59 = alloca float
+  %constructed58 = alloca float
   %cv5 = alloca <4 x i1>
   %cv2 = alloca <4 x i32>
-  %constructed54 = alloca <4 x float>
-  %ternary52 = alloca <4 x float>
-  %ternary44 = alloca float
+  %constructed53 = alloca <4 x float>
+  %ternary51 = alloca <4 x float>
+  %ternary43 = alloca float
   %ternary = alloca float
-  %constructed39 = alloca <4 x i32>
-  %constructed37 = alloca <3 x i32>
-  %constructed35 = alloca <2 x i32>
-  %constructed33 = alloca <4 x float>
-  %constructed31 = alloca <3 x float>
-  %constructed29 = alloca <2 x float>
-  %constructed27 = alloca <4 x float>
-  %constructed25 = alloca <3 x float>
-  %constructed23 = alloca <2 x float>
+  %constructed38 = alloca <4 x i32>
+  %constructed36 = alloca <3 x i32>
+  %constructed34 = alloca <2 x i32>
+  %constructed32 = alloca <4 x float>
+  %constructed30 = alloca <3 x float>
+  %constructed28 = alloca <2 x float>
+  %constructed26 = alloca <4 x float>
+  %constructed24 = alloca <3 x float>
+  %constructed22 = alloca <2 x float>
   %f4 = alloca <4 x float>
   %f3 = alloca <3 x float>
   %f2 = alloca <2 x float>
@@ -54,7 +54,7 @@ entry:
   %i3 = alloca <3 x i32>
   %i2 = alloca <2 x i32>
   %i = alloca i32
-  %constructed6 = alloca <4 x i1>
+  %constructed5 = alloca <4 x i1>
   %b4 = alloca <4 x i1>
   %constructed3 = alloca <3 x i1>
   %b3 = alloca <3 x i1>
@@ -79,9 +79,7 @@ entry:
   %11 = icmp ne i32 %10, 0
   %12 = load float addrspace(2)* @u_f, !gla.uniform !3
   %13 = fcmp one float %12, 0.000000e+00
-  %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !18
-  store i32 %i_i, i32* @i_i_shadow
-  %14 = load i32* @i_i_shadow
+  %14 = load i32* @i_i
   %15 = icmp ne i32 %14, 0
   %16 = load <3 x i1>* %constructed3
   %17 = insertelement <3 x i1> %16, i1 %11, i32 0
@@ -92,135 +90,129 @@ entry:
   %20 = icmp ne i32 %19, 0
   %21 = load float addrspace(2)* @u_f, !gla.uniform !3
   %22 = fcmp one float %21, 0.000000e+00
-  %i_i5 = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !18
-  store i32 %i_i5, i32* @i_i_shadow
-  %23 = load i32* @i_i_shadow
+  %23 = load i32* @i_i
   %24 = icmp ne i32 %23, 0
-  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !20
-  store float %i_f, float* @i_f_shadow
-  %25 = load float* @i_f_shadow
+  %25 = load float* @i_f
   %26 = fcmp one float %25, 0.000000e+00
-  %27 = load <4 x i1>* %constructed6
+  %27 = load <4 x i1>* %constructed5
   %28 = insertelement <4 x i1> %27, i1 %20, i32 0
   %29 = insertelement <4 x i1> %28, i1 %22, i32 1
   %30 = insertelement <4 x i1> %29, i1 %24, i32 2
-  %b47 = insertelement <4 x i1> %30, i1 %26, i32 3
-  store <4 x i1> %b47, <4 x i1>* %b4
+  %b46 = insertelement <4 x i1> %30, i1 %26, i32 3
+  store <4 x i1> %b46, <4 x i1>* %b4
   %31 = load float addrspace(2)* @u_f, !gla.uniform !3
   %32 = fptosi float %31 to i32
   %33 = load i1* %b
   %34 = zext i1 %33 to i32
-  %i8 = add i32 %32, %34
-  store i32 %i8, i32* %i
+  %i7 = add i32 %32, %34
+  store i32 %i7, i32* %i
   %35 = load <2 x float> addrspace(2)* @u_f2, !gla.uniform !4
   %36 = fptosi <2 x float> %35 to <2 x i32>
   %37 = load <2 x i1>* %b2
   %38 = zext <2 x i1> %37 to <2 x i32>
-  %i29 = add <2 x i32> %36, %38
-  store <2 x i32> %i29, <2 x i32>* %i2
+  %i28 = add <2 x i32> %36, %38
+  store <2 x i32> %i28, <2 x i32>* %i2
   %39 = load <3 x float> addrspace(2)* @u_f3, !gla.uniform !5
   %40 = fptosi <3 x float> %39 to <3 x i32>
   %41 = load <3 x i1>* %b3
   %42 = zext <3 x i1> %41 to <3 x i32>
-  %i310 = add <3 x i32> %40, %42
-  store <3 x i32> %i310, <3 x i32>* %i3
+  %i39 = add <3 x i32> %40, %42
+  store <3 x i32> %i39, <3 x i32>* %i3
   %43 = load <4 x float> addrspace(2)* @u_f4, !gla.uniform !6
   %44 = fptosi <4 x float> %43 to <4 x i32>
   %45 = load <4 x i1>* %b4
   %46 = zext <4 x i1> %45 to <4 x i32>
-  %i411 = add <4 x i32> %44, %46
-  store <4 x i32> %i411, <4 x i32>* %i4
+  %i410 = add <4 x i32> %44, %46
+  store <4 x i32> %i410, <4 x i32>* %i4
   %47 = load i32* %i
-  %f12 = sitofp i32 %47 to float
-  store float %f12, float* %f
+  %f11 = sitofp i32 %47 to float
+  store float %f11, float* %f
   %48 = load <2 x i32>* %i2
-  %f213 = sitofp <2 x i32> %48 to <2 x float>
-  store <2 x float> %f213, <2 x float>* %f2
+  %f212 = sitofp <2 x i32> %48 to <2 x float>
+  store <2 x float> %f212, <2 x float>* %f2
   %49 = load <3 x i32>* %i3
-  %f314 = sitofp <3 x i32> %49 to <3 x float>
-  store <3 x float> %f314, <3 x float>* %f3
+  %f313 = sitofp <3 x i32> %49 to <3 x float>
+  store <3 x float> %f313, <3 x float>* %f3
   %50 = load <4 x i32>* %i4
-  %f415 = sitofp <4 x i32> %50 to <4 x float>
-  store <4 x float> %f415, <4 x float>* %f4
+  %f414 = sitofp <4 x i32> %50 to <4 x float>
+  store <4 x float> %f414, <4 x float>* %f4
   %51 = load i32* %i
   %52 = sitofp i32 %51 to float
   %53 = load i1* %b
   %54 = uitofp i1 %53 to float
   %55 = fadd float %52, %54
   %56 = load float* %f
-  %f16 = fadd float %56, %55
-  store float %f16, float* %f
+  %f15 = fadd float %56, %55
+  store float %f15, float* %f
   %57 = load <2 x i32>* %i2
   %58 = sitofp <2 x i32> %57 to <2 x float>
   %59 = load <2 x i1>* %b2
   %60 = uitofp <2 x i1> %59 to <2 x float>
   %61 = fadd <2 x float> %58, %60
   %62 = load <2 x float>* %f2
-  %f217 = fsub <2 x float> %62, %61
-  store <2 x float> %f217, <2 x float>* %f2
+  %f216 = fsub <2 x float> %62, %61
+  store <2 x float> %f216, <2 x float>* %f2
   %63 = load <3 x i32>* %i3
   %64 = sitofp <3 x i32> %63 to <3 x float>
   %65 = load <3 x i1>* %b3
   %66 = uitofp <3 x i1> %65 to <3 x float>
   %67 = fadd <3 x float> %64, %66
   %68 = load <3 x float>* %f3
-  %f318 = fdiv <3 x float> %68, %67
-  store <3 x float> %f318, <3 x float>* %f3
+  %f317 = fdiv <3 x float> %68, %67
+  store <3 x float> %f317, <3 x float>* %f3
   %69 = load <4 x i32>* %i4
   %70 = sitofp <4 x i32> %69 to <4 x float>
   %71 = load <4 x i1>* %b4
   %72 = uitofp <4 x i1> %71 to <4 x float>
   %73 = fadd <4 x float> %70, %72
   %74 = load <4 x float>* %f4
-  %f419 = fadd <4 x float> %74, %73
-  store <4 x float> %f419, <4 x float>* %f4
-  %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !22
-  store <4 x i32> %i_i4, <4 x i32>* @i_i4_shadow
-  %75 = load <4 x i32>* @i_i4_shadow
+  %f418 = fadd <4 x float> %74, %73
+  store <4 x float> %f418, <4 x float>* %f4
+  %75 = load <4 x i32>* @i_i4
   %76 = icmp ne <4 x i32> %75, zeroinitializer
   %77 = uitofp <4 x i1> %76 to <4 x float>
   %78 = load <4 x float>* %f4
-  %f420 = fadd <4 x float> %78, %77
-  store <4 x float> %f420, <4 x float>* %f4
+  %f419 = fadd <4 x float> %78, %77
+  store <4 x float> %f419, <4 x float>* %f4
   %79 = load <4 x float> addrspace(2)* @u_f4, !gla.uniform !6
   %80 = fcmp one <4 x float> %79, zeroinitializer
   %81 = uitofp <4 x i1> %80 to <4 x float>
   %82 = load <4 x float>* %f4
-  %f421 = fadd <4 x float> %82, %81
-  store <4 x float> %f421, <4 x float>* %f4
+  %f420 = fadd <4 x float> %82, %81
+  store <4 x float> %f420, <4 x float>* %f4
   %83 = load float* %f
   %84 = load i32* %i
   %85 = sitofp i32 %84 to float
   %86 = fsub float %83, %85
   %87 = load float* %f
-  %f22 = fadd float %87, %86
-  store float %f22, float* %f
+  %f21 = fadd float %87, %86
+  store float %f21, float* %f
   %88 = load float* %f
   %89 = load i32* %i
   %90 = sitofp i32 %89 to float
-  %91 = load <2 x float>* %constructed23
+  %91 = load <2 x float>* %constructed22
   %92 = insertelement <2 x float> %91, float %88, i32 0
   %93 = insertelement <2 x float> %92, float %90, i32 1
   %94 = load <2 x i32>* %i2
   %95 = sitofp <2 x i32> %94 to <2 x float>
   %96 = fadd <2 x float> %93, %95
   %97 = load <2 x float>* %f2
-  %f224 = fadd <2 x float> %97, %96
-  store <2 x float> %f224, <2 x float>* %f2
+  %f223 = fadd <2 x float> %97, %96
+  store <2 x float> %f223, <2 x float>* %f2
   %98 = load <3 x i32>* %i3
   %99 = sitofp <3 x i32> %98 to <3 x float>
   %100 = load float* %f
   %101 = load i32* %i
   %102 = sitofp i32 %101 to float
   %103 = load float* %f
-  %104 = load <3 x float>* %constructed25
+  %104 = load <3 x float>* %constructed24
   %105 = insertelement <3 x float> %104, float %100, i32 0
   %106 = insertelement <3 x float> %105, float %102, i32 1
   %107 = insertelement <3 x float> %106, float %103, i32 2
   %108 = fadd <3 x float> %99, %107
   %109 = load <3 x float>* %f3
-  %f326 = fadd <3 x float> %109, %108
-  store <3 x float> %f326, <3 x float>* %f3
+  %f325 = fadd <3 x float> %109, %108
+  store <3 x float> %f325, <3 x float>* %f3
   %110 = load i1* %b
   %111 = uitofp i1 %110 to float
   %112 = load i32* %i
@@ -228,7 +220,7 @@ entry:
   %114 = load float* %f
   %115 = load i32* %i
   %116 = sitofp i32 %115 to float
-  %117 = load <4 x float>* %constructed27
+  %117 = load <4 x float>* %constructed26
   %118 = insertelement <4 x float> %117, float %111, i32 0
   %119 = insertelement <4 x float> %118, float %113, i32 1
   %120 = insertelement <4 x float> %119, float %114, i32 2
@@ -237,12 +229,12 @@ entry:
   %123 = sitofp <4 x i32> %122 to <4 x float>
   %124 = fadd <4 x float> %121, %123
   %125 = load <4 x float>* %f4
-  %f428 = fadd <4 x float> %125, %124
-  store <4 x float> %f428, <4 x float>* %f4
+  %f427 = fadd <4 x float> %125, %124
+  store <4 x float> %f427, <4 x float>* %f4
   %126 = load float* %f
   %127 = load i32* %i
   %128 = sitofp i32 %127 to float
-  %129 = load <2 x float>* %constructed29
+  %129 = load <2 x float>* %constructed28
   %130 = insertelement <2 x float> %129, float %126, i32 0
   %131 = insertelement <2 x float> %130, float %128, i32 1
   %132 = load i32* %i
@@ -251,13 +243,13 @@ entry:
   %135 = insertelement <2 x float> %134, float %133, i32 1
   %136 = fmul <2 x float> %131, %135
   %137 = load <2 x float>* %f2
-  %f230 = fadd <2 x float> %137, %136
-  store <2 x float> %f230, <2 x float>* %f2
+  %f229 = fadd <2 x float> %137, %136
+  store <2 x float> %f229, <2 x float>* %f2
   %138 = load float* %f
   %139 = load i32* %i
   %140 = sitofp i32 %139 to float
   %141 = load float* %f
-  %142 = load <3 x float>* %constructed31
+  %142 = load <3 x float>* %constructed30
   %143 = insertelement <3 x float> %142, float %138, i32 0
   %144 = insertelement <3 x float> %143, float %140, i32 1
   %145 = insertelement <3 x float> %144, float %141, i32 2
@@ -268,8 +260,8 @@ entry:
   %150 = insertelement <3 x float> %149, float %147, i32 2
   %151 = fadd <3 x float> %145, %150
   %152 = load <3 x float>* %f3
-  %f332 = fadd <3 x float> %152, %151
-  store <3 x float> %f332, <3 x float>* %f3
+  %f331 = fadd <3 x float> %152, %151
+  store <3 x float> %f331, <3 x float>* %f3
   %153 = load i32* %i
   %154 = sitofp i32 %153 to float
   %155 = load i1* %b
@@ -279,7 +271,7 @@ entry:
   %159 = load float* %f
   %160 = load i32* %i
   %161 = sitofp i32 %160 to float
-  %162 = load <4 x float>* %constructed33
+  %162 = load <4 x float>* %constructed32
   %163 = insertelement <4 x float> %162, float %156, i32 0
   %164 = insertelement <4 x float> %163, float %158, i32 1
   %165 = insertelement <4 x float> %164, float %159, i32 2
@@ -290,43 +282,43 @@ entry:
   %170 = insertelement <4 x float> %169, float %154, i32 3
   %171 = fsub <4 x float> %170, %166
   %172 = load <4 x float>* %f4
-  %f434 = fadd <4 x float> %172, %171
-  store <4 x float> %f434, <4 x float>* %f4
+  %f433 = fadd <4 x float> %172, %171
+  store <4 x float> %f433, <4 x float>* %f4
   %173 = load float* %f
   %174 = fptosi float %173 to i32
   %175 = load i32* %i
-  %176 = load <2 x i32>* %constructed35
+  %176 = load <2 x i32>* %constructed34
   %177 = insertelement <2 x i32> %176, i32 %174, i32 0
   %178 = insertelement <2 x i32> %177, i32 %175, i32 1
   %179 = load <2 x i32>* %i2
-  %i236 = add <2 x i32> %179, %178
-  store <2 x i32> %i236, <2 x i32>* %i2
+  %i235 = add <2 x i32> %179, %178
+  store <2 x i32> %i235, <2 x i32>* %i2
   %180 = load float* %f
   %181 = fptosi float %180 to i32
   %182 = load i32* %i
   %183 = load float* %f
   %184 = fptosi float %183 to i32
-  %185 = load <3 x i32>* %constructed37
+  %185 = load <3 x i32>* %constructed36
   %186 = insertelement <3 x i32> %185, i32 %181, i32 0
   %187 = insertelement <3 x i32> %186, i32 %182, i32 1
   %188 = insertelement <3 x i32> %187, i32 %184, i32 2
   %189 = load <3 x i32>* %i3
-  %i338 = add <3 x i32> %189, %188
-  store <3 x i32> %i338, <3 x i32>* %i3
+  %i337 = add <3 x i32> %189, %188
+  store <3 x i32> %i337, <3 x i32>* %i3
   %190 = load i1* %b
   %191 = zext i1 %190 to i32
   %192 = load i32* %i
   %193 = load float* %f
   %194 = fptosi float %193 to i32
   %195 = load i32* %i
-  %196 = load <4 x i32>* %constructed39
+  %196 = load <4 x i32>* %constructed38
   %197 = insertelement <4 x i32> %196, i32 %191, i32 0
   %198 = insertelement <4 x i32> %197, i32 %192, i32 1
   %199 = insertelement <4 x i32> %198, i32 %194, i32 2
   %200 = insertelement <4 x i32> %199, i32 %195, i32 3
   %201 = load <4 x i32>* %i4
-  %i440 = add <4 x i32> %201, %200
-  store <4 x i32> %i440, <4 x i32>* %i4
+  %i439 = add <4 x i32> %201, %200
+  store <4 x i32> %i439, <4 x i32>* %i4
   %202 = load float* %f
   %203 = load i32* %i
   %204 = sitofp i32 %203 to float
@@ -348,50 +340,50 @@ entry:
   %220 = fcmp one <3 x float> %218, %219
   %221 = call i1 @llvm.gla.any.v3i1(<3 x i1> %220)
   %222 = or i1 %216, %221
-  br i1 %222, label %then, label %ifmerge51
+  br i1 %222, label %then, label %ifmerge50
 
 then:                                             ; preds = %entry
   %223 = load i1* %b
-  br i1 %223, label %then41, label %else
+  br i1 %223, label %then40, label %else
 
-then41:                                           ; preds = %then
+then40:                                           ; preds = %then
   %224 = load i32* %i
-  %ternary42 = sitofp i32 %224 to float
-  store float %ternary42, float* %ternary
+  %ternary41 = sitofp i32 %224 to float
+  store float %ternary41, float* %ternary
   br label %ifmerge
 
 else:                                             ; preds = %then
   %225 = load <2 x float>* %f2
-  %ternary43 = extractelement <2 x float> %225, i32 0
-  store float %ternary43, float* %ternary
+  %ternary42 = extractelement <2 x float> %225, i32 0
+  store float %ternary42, float* %ternary
   br label %ifmerge
 
-ifmerge:                                          ; preds = %else, %then41
+ifmerge:                                          ; preds = %else, %then40
   %226 = load float* %ternary
   %227 = load <2 x i1>* %b2
   %228 = extractelement <2 x i1> %227, i32 0
-  br i1 %228, label %then45, label %else47
+  br i1 %228, label %then44, label %else46
 
-then45:                                           ; preds = %ifmerge
+then44:                                           ; preds = %ifmerge
   %229 = load <3 x float>* %f3
-  %ternary4446 = extractelement <3 x float> %229, i32 0
-  store float %ternary4446, float* %ternary44
-  br label %ifmerge49
+  %ternary4345 = extractelement <3 x float> %229, i32 0
+  store float %ternary4345, float* %ternary43
+  br label %ifmerge48
 
-else47:                                           ; preds = %ifmerge
+else46:                                           ; preds = %ifmerge
   %230 = load <2 x i32>* %i2
   %231 = extractelement <2 x i32> %230, i32 1
-  %ternary4448 = sitofp i32 %231 to float
-  store float %ternary4448, float* %ternary44
-  br label %ifmerge49
+  %ternary4347 = sitofp i32 %231 to float
+  store float %ternary4347, float* %ternary43
+  br label %ifmerge48
 
-ifmerge49:                                        ; preds = %else47, %then45
-  %232 = load float* %ternary44
-  %f50 = fadd float %226, %232
-  store float %f50, float* %f
-  br label %ifmerge51
+ifmerge48:                                        ; preds = %else46, %then44
+  %232 = load float* %ternary43
+  %f49 = fadd float %226, %232
+  store float %f49, float* %f
+  br label %ifmerge50
 
-ifmerge51:                                        ; preds = %entry, %ifmerge49
+ifmerge50:                                        ; preds = %entry, %ifmerge48
   %233 = load i1* %b
   %234 = load <2 x i1>* %b2
   %235 = extractelement <2 x i1> %234, i32 0
@@ -420,9 +412,9 @@ ifmerge51:                                        ; preds = %entry, %ifmerge49
   %258 = load <4 x i1>* %b4
   %259 = extractelement <4 x i1> %258, i32 3
   %260 = or i1 %257, %259
-  br i1 %260, label %then53, label %else56
+  br i1 %260, label %then52, label %else55
 
-then53:                                           ; preds = %ifmerge51
+then52:                                           ; preds = %ifmerge50
   %261 = load i32* %i
   %262 = load <2 x i32>* %i2
   %263 = extractelement <2 x i32> %262, i32 0
@@ -481,68 +473,52 @@ then53:                                           ; preds = %ifmerge51
   %316 = load <4 x float>* %f4
   %317 = extractelement <4 x float> %316, i32 3
   %318 = fadd float %315, %317
-  %319 = load <4 x float>* %constructed54
+  %319 = load <4 x float>* %constructed53
   %320 = insertelement <4 x float> undef, float %318, i32 0
   %321 = insertelement <4 x float> %320, float %318, i32 1
   %322 = insertelement <4 x float> %321, float %318, i32 2
-  %ternary5255 = insertelement <4 x float> %322, float %318, i32 3
-  store <4 x float> %ternary5255, <4 x float>* %ternary52
-  br label %ifmerge57
+  %ternary5154 = insertelement <4 x float> %322, float %318, i32 3
+  store <4 x float> %ternary5154, <4 x float>* %ternary51
+  br label %ifmerge56
 
-else56:                                           ; preds = %ifmerge51
-  store <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float>* %ternary52
-  br label %ifmerge57
+else55:                                           ; preds = %ifmerge50
+  store <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float>* %ternary51
+  br label %ifmerge56
 
-ifmerge57:                                        ; preds = %else56, %then53
-  %FragColor_shadow = load <4 x float>* %ternary52
-  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
+ifmerge56:                                        ; preds = %else55, %then52
+  %gl_FragColor = load <4 x float>* %ternary51
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   store <4 x i32> <i32 1, i32 1, i32 1, i32 1>, <4 x i32>* %cv2
   %323 = load <4 x i32>* %cv2
-  %cv558 = icmp ne <4 x i32> %323, zeroinitializer
-  store <4 x i1> %cv558, <4 x i1>* %cv5
+  %cv557 = icmp ne <4 x i32> %323, zeroinitializer
+  store <4 x i1> %cv557, <4 x i1>* %cv5
   %324 = load <4 x i1>* %cv5
   %325 = uitofp <4 x i1> %324 to <4 x float>
-  %326 = load float* %constructed59
+  %326 = load float* %constructed58
   %327 = extractelement <4 x float> %325, i32 0
-  %328 = load <4 x float>* @FragColor_shadow
+  %328 = load <4 x float>* @gl_FragColor
   %329 = insertelement <4 x float> undef, float %327, i32 0
   %330 = insertelement <4 x float> %329, float %327, i32 1
   %331 = insertelement <4 x float> %330, float %327, i32 2
   %332 = insertelement <4 x float> %331, float %327, i32 3
-  %FragColor_shadow60 = fadd <4 x float> %328, %332
-  store <4 x float> %FragColor_shadow60, <4 x float>* @FragColor_shadow
+  %gl_FragColor59 = fadd <4 x float> %328, %332
+  store <4 x float> %gl_FragColor59, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge57
-  %333 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %333), !gla.output !34
+stage-epilogue:                                   ; preds = %ifmerge56
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-; Function Attrs: nounwind readonly
-declare i32 @llvm.gla.readData.i32(i32, i32) #0
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.all.v2i1(<2 x i1>) #0
 
 ; Function Attrs: nounwind readnone
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #1
+declare i1 @llvm.gla.any.v3i1(<3 x i1>) #0
 
-; Function Attrs: nounwind readonly
-declare <4 x i32> @llvm.gla.readData.v4i32(i32, i32) #0
-
-; Function Attrs: nounwind readnone
-declare i1 @llvm.gla.all.v2i1(<2 x i1>) #1
-
-; Function Attrs: nounwind readnone
-declare i1 @llvm.gla.any.v3i1(<3 x i1>) #1
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
-
-attributes #0 = { nounwind readonly }
-attributes #1 = { nounwind readnone }
-attributes #2 = { nounwind }
+attributes #0 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3, !4, !5, !6, !7, !8, !9, !10, !11, !12, !13, !14, !15, !16, !17}
@@ -568,23 +544,23 @@ attributes #2 = { nounwind }
 !15 = metadata !{metadata !"i_b2", i32 12, <2 x i1>* @i_b2_typeProxy, metadata !2}
 !16 = metadata !{metadata !"i_b3", i32 12, <3 x i1>* @i_b3_typeProxy, metadata !2}
 !17 = metadata !{metadata !"i_b4", i32 12, <4 x i1>* @i_b4_typeProxy, metadata !2}
-!18 = metadata !{metadata !"i_i", i32 1, i32* @i_i_shadow_typeProxy, metadata !19}
+!18 = metadata !{metadata !"i_i", i32 1, i32* @i_i_typeProxy, metadata !19}
 !19 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
-!20 = metadata !{metadata !"i_f", i32 1, float* @i_f_shadow_typeProxy, metadata !21}
+!20 = metadata !{metadata !"i_f", i32 1, float* @i_f_typeProxy, metadata !21}
 !21 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
-!22 = metadata !{metadata !"i_i4", i32 1, <4 x i32>* @i_i4_shadow_typeProxy, metadata !23}
+!22 = metadata !{metadata !"i_i4", i32 1, <4 x i32>* @i_i4_typeProxy, metadata !23}
 !23 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
-!24 = metadata !{metadata !"i_i2", i32 1, <2 x i32>* @i_i2_shadow_typeProxy, metadata !25}
+!24 = metadata !{metadata !"i_i2", i32 1, <2 x i32>* @i_i2_typeProxy, metadata !25}
 !25 = metadata !{i32 0, i32 0, i32 1028, null, i32 0}
-!26 = metadata !{metadata !"i_i3", i32 1, <3 x i32>* @i_i3_shadow_typeProxy, metadata !27}
+!26 = metadata !{metadata !"i_i3", i32 1, <3 x i32>* @i_i3_typeProxy, metadata !27}
 !27 = metadata !{i32 0, i32 0, i32 1029, null, i32 0}
-!28 = metadata !{metadata !"i_f2", i32 1, <2 x float>* @i_f2_shadow_typeProxy, metadata !29}
+!28 = metadata !{metadata !"i_f2", i32 1, <2 x float>* @i_f2_typeProxy, metadata !29}
 !29 = metadata !{i32 0, i32 0, i32 1030, null, i32 1}
-!30 = metadata !{metadata !"i_f3", i32 1, <3 x float>* @i_f3_shadow_typeProxy, metadata !31}
+!30 = metadata !{metadata !"i_f3", i32 1, <3 x float>* @i_f3_typeProxy, metadata !31}
 !31 = metadata !{i32 0, i32 0, i32 1031, null, i32 1}
-!32 = metadata !{metadata !"i_f4", i32 1, <4 x float>* @i_f4_shadow_typeProxy, metadata !33}
+!32 = metadata !{metadata !"i_f4", i32 1, <4 x float>* @i_f4_typeProxy, metadata !33}
 !33 = metadata !{i32 0, i32 0, i32 1032, null, i32 1}
-!34 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !35}
+!34 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !35}
 !35 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
 
 
@@ -593,9 +569,18 @@ Bottom IR:
 
 @u_i = external addrspace(2) constant i32
 @u_f = external addrspace(2) constant float
+@i_i = global i32 0
+@i_f = global float 0.000000e+00
 @u_f2 = external addrspace(2) constant <2 x float>
 @u_f3 = external addrspace(2) constant <3 x float>
 @u_f4 = external addrspace(2) constant <4 x float>
+@i_i4 = global <4 x i32> zeroinitializer
+@gl_FragColor = global <4 x float> zeroinitializer
+@i_i2 = global <2 x i32> zeroinitializer
+@i_i3 = global <3 x i32> zeroinitializer
+@i_f2 = global <2 x float> zeroinitializer
+@i_f3 = global <3 x float> zeroinitializer
+@i_f4 = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -605,211 +590,197 @@ entry:
   %3 = fcmp one float %2, 0.000000e+00
   %b1 = xor i1 %1, %3
   %4 = call <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1> undef, i32 3, i1 %1, i32 0, i1 %3, i32 0, i1 undef, i32 undef, i1 undef, i32 undef)
-  %i_i = call i32 @llvm.gla.readData.i32(i32 1024, i32 -1), !gla.input !18
-  %5 = icmp ne i32 %i_i, 0
-  %6 = call <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1> undef, i32 7, i1 %1, i32 0, i1 %3, i32 0, i1 %5, i32 0, i1 undef, i32 undef)
-  %i_f = call float @llvm.gla.fReadInterpolant.f32(i32 1025, i32 -1, i32 1), !gla.input !20
-  %7 = fcmp one float %i_f, 0.000000e+00
-  %8 = call <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1> undef, i32 15, i1 %1, i32 0, i1 %3, i32 0, i1 %5, i32 0, i1 %7, i32 0)
-  %9 = fptosi float %2 to i32
-  %10 = zext i1 %b1 to i32
-  %i8 = add i32 %10, %9
-  %11 = load <2 x float> addrspace(2)* @u_f2, align 8, !gla.uniform !4
-  %12 = fptosi <2 x float> %11 to <2 x i32>
-  %13 = zext <2 x i1> %4 to <2 x i32>
-  %i29 = add <2 x i32> %12, %13
-  %14 = load <3 x float> addrspace(2)* @u_f3, align 16, !gla.uniform !5
-  %15 = fptosi <3 x float> %14 to <3 x i32>
-  %16 = zext <3 x i1> %6 to <3 x i32>
-  %i310 = add <3 x i32> %15, %16
-  %17 = load <4 x float> addrspace(2)* @u_f4, align 16, !gla.uniform !6
-  %18 = fptosi <4 x float> %17 to <4 x i32>
-  %19 = zext <4 x i1> %8 to <4 x i32>
-  %i411 = add <4 x i32> %18, %19
-  %f12 = sitofp i32 %i8 to float
-  %20 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %f12, <4 x i32> zeroinitializer)
-  %21 = call <3 x float> @llvm.gla.fSwizzle.v3f32.f32.v3i32(float %f12, <3 x i32> zeroinitializer)
-  %22 = call <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float %f12, <2 x i32> zeroinitializer)
-  %f213 = sitofp <2 x i32> %i29 to <2 x float>
-  %f314 = sitofp <3 x i32> %i310 to <3 x float>
-  %f415 = sitofp <4 x i32> %i411 to <4 x float>
-  %23 = uitofp i1 %b1 to float
-  %24 = fadd float %23, %f12
-  %f16 = fadd float %f12, %24
-  %25 = uitofp <2 x i1> %4 to <2 x float>
-  %26 = fadd <2 x float> %25, %f213
-  %f217 = fsub <2 x float> %f213, %26
-  %27 = uitofp <3 x i1> %6 to <3 x float>
-  %28 = fadd <3 x float> %27, %f314
-  %f318 = fdiv <3 x float> %f314, %28
-  %29 = uitofp <4 x i1> %8 to <4 x float>
-  %30 = fadd <4 x float> %29, %f415
-  %f419 = fadd <4 x float> %f415, %30
-  %i_i4 = call <4 x i32> @llvm.gla.readData.v4i32(i32 1026, i32 -1), !gla.input !22
-  %31 = icmp ne <4 x i32> %i_i4, zeroinitializer
-  %32 = uitofp <4 x i1> %31 to <4 x float>
-  %f420 = fadd <4 x float> %32, %f419
-  %33 = fcmp one <4 x float> %17, zeroinitializer
-  %34 = uitofp <4 x i1> %33 to <4 x float>
-  %f421 = fadd <4 x float> %34, %f420
-  %35 = fsub float %f16, %f12
-  %f22 = fadd float %f16, %35
-  %36 = call <2 x float> @llvm.gla.fMultiInsert.v2f32.v2f32.f32.f32.f32.f32(<2 x float> undef, i32 3, float %f22, i32 0, float %f12, i32 0, float undef, i32 undef, float undef, i32 undef)
-  %37 = fadd <2 x float> %f213, %36
-  %f224 = fadd <2 x float> %f217, %37
-  %38 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %f22, i32 0, float %f12, i32 0, float %f22, i32 0, float undef, i32 undef)
-  %39 = fadd <3 x float> %f314, %38
-  %f326 = fadd <3 x float> %f318, %39
-  %40 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %23, i32 0, float %f12, i32 0, float %f22, i32 0, float %f12, i32 0)
-  %41 = fadd <4 x float> %f415, %40
-  %f428 = fadd <4 x float> %f421, %41
-  %42 = fmul <2 x float> %22, %36
-  %f230 = fadd <2 x float> %42, %f224
-  %43 = fadd <3 x float> %21, %38
-  %f332 = fadd <3 x float> %43, %f326
-  %44 = fsub <4 x float> %20, %40
-  %f434 = fadd <4 x float> %44, %f428
-  %45 = fptosi float %f22 to i32
-  %46 = call <2 x i32> @llvm.gla.multiInsert.v2i32.v2i32.i32.i32.i32.i32(<2 x i32> undef, i32 3, i32 %45, i32 0, i32 %i8, i32 0, i32 undef, i32 undef, i32 undef, i32 undef)
-  %i236 = add <2 x i32> %i29, %46
-  %47 = call <3 x i32> @llvm.gla.multiInsert.v3i32.v3i32.i32.i32.i32.i32(<3 x i32> undef, i32 7, i32 %45, i32 0, i32 %i8, i32 0, i32 %45, i32 0, i32 undef, i32 undef)
-  %i338 = add <3 x i32> %i310, %47
-  %48 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32> undef, i32 15, i32 %10, i32 0, i32 %i8, i32 0, i32 %45, i32 0, i32 %i8, i32 0)
-  %i440 = add <4 x i32> %i411, %48
-  %49 = or i1 %1, %3
-  %50 = or i1 %49, %5
-  %51 = or i1 %50, %7
-  br i1 %51, label %then53, label %else56
+  %5 = load i32* @i_i, align 4
+  %6 = icmp ne i32 %5, 0
+  %7 = call <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1> undef, i32 7, i1 %1, i32 0, i1 %3, i32 0, i1 %6, i32 0, i1 undef, i32 undef)
+  %8 = load float* @i_f, align 4
+  %9 = fcmp one float %8, 0.000000e+00
+  %10 = call <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1> undef, i32 15, i1 %1, i32 0, i1 %3, i32 0, i1 %6, i32 0, i1 %9, i32 0)
+  %11 = fptosi float %2 to i32
+  %12 = zext i1 %b1 to i32
+  %i7 = add i32 %12, %11
+  %13 = load <2 x float> addrspace(2)* @u_f2, align 8, !gla.uniform !4
+  %14 = fptosi <2 x float> %13 to <2 x i32>
+  %15 = zext <2 x i1> %4 to <2 x i32>
+  %i28 = add <2 x i32> %14, %15
+  %16 = load <3 x float> addrspace(2)* @u_f3, align 16, !gla.uniform !5
+  %17 = fptosi <3 x float> %16 to <3 x i32>
+  %18 = zext <3 x i1> %7 to <3 x i32>
+  %i39 = add <3 x i32> %17, %18
+  %19 = load <4 x float> addrspace(2)* @u_f4, align 16, !gla.uniform !6
+  %20 = fptosi <4 x float> %19 to <4 x i32>
+  %21 = zext <4 x i1> %10 to <4 x i32>
+  %i410 = add <4 x i32> %20, %21
+  %f11 = sitofp i32 %i7 to float
+  %22 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %f11, <4 x i32> zeroinitializer)
+  %23 = call <3 x float> @llvm.gla.fSwizzle.v3f32.f32.v3i32(float %f11, <3 x i32> zeroinitializer)
+  %24 = call <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float %f11, <2 x i32> zeroinitializer)
+  %f212 = sitofp <2 x i32> %i28 to <2 x float>
+  %f313 = sitofp <3 x i32> %i39 to <3 x float>
+  %f414 = sitofp <4 x i32> %i410 to <4 x float>
+  %25 = uitofp i1 %b1 to float
+  %26 = fadd float %25, %f11
+  %f15 = fadd float %f11, %26
+  %27 = uitofp <2 x i1> %4 to <2 x float>
+  %28 = fadd <2 x float> %27, %f212
+  %f216 = fsub <2 x float> %f212, %28
+  %29 = uitofp <3 x i1> %7 to <3 x float>
+  %30 = fadd <3 x float> %29, %f313
+  %f317 = fdiv <3 x float> %f313, %30
+  %31 = uitofp <4 x i1> %10 to <4 x float>
+  %32 = fadd <4 x float> %31, %f414
+  %f418 = fadd <4 x float> %f414, %32
+  %33 = load <4 x i32>* @i_i4, align 16
+  %34 = icmp ne <4 x i32> %33, zeroinitializer
+  %35 = uitofp <4 x i1> %34 to <4 x float>
+  %f419 = fadd <4 x float> %35, %f418
+  %36 = fcmp one <4 x float> %19, zeroinitializer
+  %37 = uitofp <4 x i1> %36 to <4 x float>
+  %f420 = fadd <4 x float> %37, %f419
+  %38 = fsub float %f15, %f11
+  %f21 = fadd float %f15, %38
+  %39 = call <2 x float> @llvm.gla.fMultiInsert.v2f32.v2f32.f32.f32.f32.f32(<2 x float> undef, i32 3, float %f21, i32 0, float %f11, i32 0, float undef, i32 undef, float undef, i32 undef)
+  %40 = fadd <2 x float> %f212, %39
+  %f223 = fadd <2 x float> %f216, %40
+  %41 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %f21, i32 0, float %f11, i32 0, float %f21, i32 0, float undef, i32 undef)
+  %42 = fadd <3 x float> %f313, %41
+  %f325 = fadd <3 x float> %f317, %42
+  %43 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %25, i32 0, float %f11, i32 0, float %f21, i32 0, float %f11, i32 0)
+  %44 = fadd <4 x float> %f414, %43
+  %f427 = fadd <4 x float> %f420, %44
+  %45 = fmul <2 x float> %24, %39
+  %f229 = fadd <2 x float> %45, %f223
+  %46 = fadd <3 x float> %23, %41
+  %f331 = fadd <3 x float> %46, %f325
+  %47 = fsub <4 x float> %22, %43
+  %f433 = fadd <4 x float> %47, %f427
+  %48 = fptosi float %f21 to i32
+  %49 = call <2 x i32> @llvm.gla.multiInsert.v2i32.v2i32.i32.i32.i32.i32(<2 x i32> undef, i32 3, i32 %48, i32 0, i32 %i7, i32 0, i32 undef, i32 undef, i32 undef, i32 undef)
+  %i235 = add <2 x i32> %i28, %49
+  %50 = call <3 x i32> @llvm.gla.multiInsert.v3i32.v3i32.i32.i32.i32.i32(<3 x i32> undef, i32 7, i32 %48, i32 0, i32 %i7, i32 0, i32 %48, i32 0, i32 undef, i32 undef)
+  %i337 = add <3 x i32> %i39, %50
+  %51 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32> undef, i32 15, i32 %12, i32 0, i32 %i7, i32 0, i32 %48, i32 0, i32 %i7, i32 0)
+  %i439 = add <4 x i32> %i410, %51
+  %52 = or i1 %1, %3
+  %53 = or i1 %52, %6
+  %54 = or i1 %53, %9
+  br i1 %54, label %then52, label %else55
 
-then53:                                           ; preds = %entry
-  %52 = sitofp <2 x i32> %i236 to <2 x float>
-  %53 = extractelement <2 x i32> %i236, i32 1
-  %54 = sitofp <3 x i32> %i338 to <3 x float>
-  %55 = fcmp oeq <2 x float> %f230, %52
-  %ternary4448 = sitofp i32 %53 to float
-  %ternary4446 = extractelement <3 x float> %f332, i32 0
-  %ternary43 = extractelement <2 x float> %f230, i32 0
-  %56 = fcmp one <3 x float> %54, %f332
-  %57 = call i1 @llvm.gla.all.v2i1(<2 x i1> %55)
-  %58 = fcmp one float %f22, %f12
-  %select = select i1 %1, float %ternary4446, float %ternary4448
-  %select62 = select i1 %b1, float %f12, float %ternary43
-  %59 = call i1 @llvm.gla.any.v3i1(<3 x i1> %56)
-  %60 = or i1 %58, %57
-  %f50 = fadd float %select62, %select
-  %61 = or i1 %60, %59
-  %select63 = select i1 %61, float %f50, float %f22
-  %62 = extractelement <2 x i32> %i236, i32 0
-  %63 = add i32 %62, %i8
-  %64 = add i32 %63, %53
-  %65 = extractelement <3 x i32> %i338, i32 0
-  %66 = extractelement <3 x i32> %i338, i32 1
-  %67 = extractelement <3 x i32> %i338, i32 2
-  %68 = extractelement <4 x i32> %i440, i32 0
-  %69 = extractelement <4 x i32> %i440, i32 1
-  %70 = extractelement <4 x i32> %i440, i32 2
-  %71 = extractelement <4 x i32> %i440, i32 3
-  %72 = add i32 %64, %68
-  %73 = add i32 %72, %69
-  %74 = add i32 %73, %70
-  %75 = add i32 %74, %71
-  %76 = add i32 %75, %65
-  %77 = add i32 %76, %66
-  %78 = add i32 %77, %67
-  %79 = sitofp i32 %78 to float
-  %80 = fadd float %select63, %79
-  %81 = fadd float %ternary43, %80
-  %82 = extractelement <2 x float> %f230, i32 1
-  %83 = fadd float %82, %81
-  %84 = fadd float %ternary4446, %83
-  %85 = extractelement <3 x float> %f332, i32 1
+then52:                                           ; preds = %entry
+  %55 = sitofp <2 x i32> %i235 to <2 x float>
+  %56 = extractelement <2 x i32> %i235, i32 1
+  %57 = sitofp <3 x i32> %i337 to <3 x float>
+  %58 = fcmp oeq <2 x float> %f229, %55
+  %ternary4347 = sitofp i32 %56 to float
+  %ternary4345 = extractelement <3 x float> %f331, i32 0
+  %ternary42 = extractelement <2 x float> %f229, i32 0
+  %59 = fcmp one <3 x float> %57, %f331
+  %60 = call i1 @llvm.gla.all.v2i1(<2 x i1> %58)
+  %61 = fcmp one float %f21, %f11
+  %select60 = select i1 %1, float %ternary4345, float %ternary4347
+  %select = select i1 %b1, float %f11, float %ternary42
+  %62 = call i1 @llvm.gla.any.v3i1(<3 x i1> %59)
+  %63 = or i1 %61, %60
+  %f49 = fadd float %select, %select60
+  %64 = or i1 %63, %62
+  %select61 = select i1 %64, float %f49, float %f21
+  %65 = extractelement <2 x i32> %i235, i32 0
+  %66 = add i32 %65, %i7
+  %67 = add i32 %66, %56
+  %68 = extractelement <3 x i32> %i337, i32 0
+  %69 = extractelement <3 x i32> %i337, i32 1
+  %70 = extractelement <3 x i32> %i337, i32 2
+  %71 = extractelement <4 x i32> %i439, i32 0
+  %72 = extractelement <4 x i32> %i439, i32 1
+  %73 = extractelement <4 x i32> %i439, i32 2
+  %74 = extractelement <4 x i32> %i439, i32 3
+  %75 = add i32 %67, %71
+  %76 = add i32 %75, %72
+  %77 = add i32 %76, %73
+  %78 = add i32 %77, %74
+  %79 = add i32 %78, %68
+  %80 = add i32 %79, %69
+  %81 = add i32 %80, %70
+  %82 = sitofp i32 %81 to float
+  %83 = fadd float %82, %select61
+  %84 = fadd float %ternary42, %83
+  %85 = extractelement <2 x float> %f229, i32 1
   %86 = fadd float %85, %84
-  %87 = extractelement <3 x float> %f332, i32 2
-  %88 = fadd float %87, %86
-  %89 = extractelement <4 x float> %f434, i32 0
-  %90 = fadd float %89, %88
-  %91 = extractelement <4 x float> %f434, i32 1
-  %92 = fadd float %91, %90
-  %93 = extractelement <4 x float> %f434, i32 2
-  %94 = fadd float %93, %92
-  %95 = extractelement <4 x float> %f434, i32 3
-  %96 = fadd float %95, %94
-  %97 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %96, <4 x i32> zeroinitializer)
-  %phitmp = fadd <4 x float> %97, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  br label %ifmerge57
+  %87 = fadd float %ternary4345, %86
+  %88 = extractelement <3 x float> %f331, i32 1
+  %89 = fadd float %88, %87
+  %90 = extractelement <3 x float> %f331, i32 2
+  %91 = fadd float %90, %89
+  %92 = extractelement <4 x float> %f433, i32 0
+  %93 = fadd float %92, %91
+  %94 = extractelement <4 x float> %f433, i32 1
+  %95 = fadd float %94, %93
+  %96 = extractelement <4 x float> %f433, i32 2
+  %97 = fadd float %96, %95
+  %98 = extractelement <4 x float> %f433, i32 3
+  %99 = fadd float %98, %97
+  %100 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %99, <4 x i32> zeroinitializer)
+  %phitmp = fadd <4 x float> %100, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  br label %ifmerge56
 
-else56:                                           ; preds = %entry
-  br label %ifmerge57
+else55:                                           ; preds = %entry
+  br label %ifmerge56
 
-ifmerge57:                                        ; preds = %else56, %then53
-  %ternary52.0 = phi <4 x float> [ %phitmp, %then53 ], [ <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, %else56 ]
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %ternary52.0), !gla.output !34
+ifmerge56:                                        ; preds = %else55, %then52
+  %ternary51.0 = phi <4 x float> [ %phitmp, %then52 ], [ <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, %else55 ]
+  store <4 x float> %ternary51.0, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge57
+stage-epilogue:                                   ; preds = %ifmerge56
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-; Function Attrs: nounwind readonly
-declare i32 @llvm.gla.readData.i32(i32, i32) #0
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.all.v2i1(<2 x i1>) #0
 
 ; Function Attrs: nounwind readnone
-declare float @llvm.gla.fReadInterpolant.f32(i32, i32, i32) #1
-
-; Function Attrs: nounwind readonly
-declare <4 x i32> @llvm.gla.readData.v4i32(i32, i32) #0
+declare i1 @llvm.gla.any.v3i1(<3 x i1>) #0
 
 ; Function Attrs: nounwind readnone
-declare i1 @llvm.gla.all.v2i1(<2 x i1>) #1
+declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare i1 @llvm.gla.any.v3i1(<3 x i1>) #1
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
+declare <3 x i32> @llvm.gla.multiInsert.v3i32.v3i32.i32.i32.i32.i32(<3 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare <2 x i32> @llvm.gla.multiInsert.v2i32.v2i32.i32.i32.i32.i32(<2 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare <3 x i32> @llvm.gla.multiInsert.v3i32.v3i32.i32.i32.i32.i32(<3 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare <2 x i32> @llvm.gla.multiInsert.v2i32.v2i32.i32.i32.i32.i32(<2 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #1
+declare <2 x float> @llvm.gla.fMultiInsert.v2f32.v2f32.f32.f32.f32.f32(<2 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) #1
+declare <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare <2 x float> @llvm.gla.fMultiInsert.v2f32.v2f32.f32.f32.f32.f32(<2 x float>, i32, float, i32, float, i32, float, i32, float, i32) #1
+declare <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare <4 x i1> @llvm.gla.multiInsert.v4i1.v4i1.i1.i1.i1.i1(<4 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) #1
+declare <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) #0
 
 ; Function Attrs: nounwind readnone
-declare <3 x i1> @llvm.gla.multiInsert.v3i1.v3i1.i1.i1.i1.i1(<3 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) #1
+declare <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float, <2 x i32>) #0
 
 ; Function Attrs: nounwind readnone
-declare <2 x i1> @llvm.gla.multiInsert.v2i1.v2i1.i1.i1.i1.i1(<2 x i1>, i32, i1, i32, i1, i32, i1, i32, i1, i32) #1
+declare <3 x float> @llvm.gla.fSwizzle.v3f32.f32.v3i32(float, <3 x i32>) #0
 
 ; Function Attrs: nounwind readnone
-declare <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float, <2 x i32>) #1
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
 
-; Function Attrs: nounwind readnone
-declare <3 x float> @llvm.gla.fSwizzle.v3f32.f32.v3i32(float, <3 x i32>) #1
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #1
-
-attributes #0 = { nounwind readonly }
-attributes #1 = { nounwind readnone }
-attributes #2 = { nounwind }
+attributes #0 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !3, !4, !5, !6, !7, !8, !9, !10, !11, !12, !13, !14, !15, !16, !17}
@@ -835,23 +806,23 @@ attributes #2 = { nounwind }
 !15 = metadata !{metadata !"i_b2", i32 12, <2 x i1>* @i_b2_typeProxy, metadata !2}
 !16 = metadata !{metadata !"i_b3", i32 12, <3 x i1>* @i_b3_typeProxy, metadata !2}
 !17 = metadata !{metadata !"i_b4", i32 12, <4 x i1>* @i_b4_typeProxy, metadata !2}
-!18 = metadata !{metadata !"i_i", i32 1, i32* @i_i_shadow_typeProxy, metadata !19}
+!18 = metadata !{metadata !"i_i", i32 1, i32* @i_i_typeProxy, metadata !19}
 !19 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
-!20 = metadata !{metadata !"i_f", i32 1, float* @i_f_shadow_typeProxy, metadata !21}
+!20 = metadata !{metadata !"i_f", i32 1, float* @i_f_typeProxy, metadata !21}
 !21 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
-!22 = metadata !{metadata !"i_i4", i32 1, <4 x i32>* @i_i4_shadow_typeProxy, metadata !23}
+!22 = metadata !{metadata !"i_i4", i32 1, <4 x i32>* @i_i4_typeProxy, metadata !23}
 !23 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
-!24 = metadata !{metadata !"i_i2", i32 1, <2 x i32>* @i_i2_shadow_typeProxy, metadata !25}
+!24 = metadata !{metadata !"i_i2", i32 1, <2 x i32>* @i_i2_typeProxy, metadata !25}
 !25 = metadata !{i32 0, i32 0, i32 1028, null, i32 0}
-!26 = metadata !{metadata !"i_i3", i32 1, <3 x i32>* @i_i3_shadow_typeProxy, metadata !27}
+!26 = metadata !{metadata !"i_i3", i32 1, <3 x i32>* @i_i3_typeProxy, metadata !27}
 !27 = metadata !{i32 0, i32 0, i32 1029, null, i32 0}
-!28 = metadata !{metadata !"i_f2", i32 1, <2 x float>* @i_f2_shadow_typeProxy, metadata !29}
+!28 = metadata !{metadata !"i_f2", i32 1, <2 x float>* @i_f2_typeProxy, metadata !29}
 !29 = metadata !{i32 0, i32 0, i32 1030, null, i32 1}
-!30 = metadata !{metadata !"i_f3", i32 1, <3 x float>* @i_f3_shadow_typeProxy, metadata !31}
+!30 = metadata !{metadata !"i_f3", i32 1, <3 x float>* @i_f3_typeProxy, metadata !31}
 !31 = metadata !{i32 0, i32 0, i32 1031, null, i32 1}
-!32 = metadata !{metadata !"i_f4", i32 1, <4 x float>* @i_f4_shadow_typeProxy, metadata !33}
+!32 = metadata !{metadata !"i_f4", i32 1, <4 x float>* @i_f4_typeProxy, metadata !33}
 !33 = metadata !{i32 0, i32 0, i32 1032, null, i32 1}
-!34 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !35}
+!34 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !35}
 !35 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
 #version 130
 // LunarGOO output
@@ -1136,14 +1107,14 @@ void main()
         bvec3 temp_c65 = notEqual(temp_c63, temp_c52);
         bool temp_c66 = all(temp_c64);
         bool temp_c67 = temp_c42 != temp_c19;
-        float ternary_c68 = float(temp_c56.y);
-        float select_c69 = temp_c2 ? temp_c52.x : ternary_c68;
-        float select_c70 = temp_c4 ? temp_c19 : temp_c50.x;
-        bool temp_c71 = any(temp_c65);
-        bool temp_c72 = temp_c67 || temp_c66;
-        bool temp_c73 = temp_c72 || temp_c71;
-        float temp_c74 = select_c69 + select_c70;
-        float select_c75 = temp_c73 ? temp_c74 : temp_c42;
+        bool temp_c68 = any(temp_c65);
+        bool temp_c69 = temp_c67 || temp_c66;
+        bool temp_c70 = temp_c69 || temp_c68;
+        float ternary_c71 = float(temp_c56.y);
+        float select_c72 = temp_c4 ? temp_c19 : temp_c50.x;
+        float select_c73 = temp_c2 ? temp_c52.x : ternary_c71;
+        float temp_c74 = select_c72 + select_c73;
+        float select_c75 = temp_c70 ? temp_c74 : temp_c42;
         int temp_c76 = temp_c56.x + temp_c9;
         int temp_c77 = temp_c56.y + temp_c76;
         int temp_c78 = temp_c58.x + temp_c77;

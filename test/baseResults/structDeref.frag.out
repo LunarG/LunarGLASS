@@ -10,10 +10,10 @@ Top IR:
 
 @foo3 = external addrspace(2) constant %s3
 @foo1 = external addrspace(2) constant %s1
-@coord_shadow = internal global <2 x float> zeroinitializer
+@coord = global <2 x float> zeroinitializer
 @foo0 = external addrspace(2) constant %s0
 @foo00 = external addrspace(2) constant %s00
-@FragColor_shadow = internal global <4 x float> zeroinitializer
+@gl_FragColor = global <4 x float> zeroinitializer
 @sampler = external addrspace(1) constant i32
 @foo2 = external addrspace(2) constant %s2
 
@@ -43,15 +43,11 @@ then:                                             ; preds = %entry
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !17
-  store <2 x float> %coord, <2 x float>* @coord_shadow
-  %6 = load <2 x float>* @coord_shadow
+  %6 = load <2 x float>* @coord
   %7 = extractelement <2 x float> %6, i32 0
   %8 = getelementptr %s2* %locals2, i32 0, i32 1
   store float %7, float* %8
-  %coord1 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !17
-  store <2 x float> %coord1, <2 x float>* @coord_shadow
-  %9 = load <2 x float>* @coord_shadow
+  %9 = load <2 x float>* @coord
   %10 = extractelement <2 x float> %9, i32 1
   %11 = load %s0 addrspace(2)* @foo0, !gla.uniform !10
   %12 = getelementptr %s1* %constructed, i32 0, i32 0
@@ -68,25 +64,25 @@ else:                                             ; preds = %entry
   %18 = load %s1* %17
   %19 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
   store %s1 %18, %s1* %19
-  %locals02 = load %s0 addrspace(2)* getelementptr inbounds (%s1 addrspace(2)* @foo1, i32 0, i32 2), !gla.uniform !9
-  store %s0 %locals02, %s0* %locals0
-  %locals003 = load %s00 addrspace(2)* @foo00, !gla.uniform !11
-  store %s00 %locals003, %s00* %locals00
+  %locals01 = load %s0 addrspace(2)* getelementptr inbounds (%s1 addrspace(2)* @foo1, i32 0, i32 2), !gla.uniform !9
+  store %s0 %locals01, %s0* %locals0
+  %locals002 = load %s00 addrspace(2)* @foo00, !gla.uniform !11
+  store %s00 %locals002, %s00* %locals00
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
   %20 = getelementptr %s0* %locals0, i32 0, i32 0
   %21 = load i32* %20
   %22 = icmp sgt i32 %21, 5
-  br i1 %22, label %then4, label %ifmerge6
+  br i1 %22, label %then3, label %ifmerge5
 
-then4:                                            ; preds = %ifmerge
+then3:                                            ; preds = %ifmerge
   %23 = getelementptr %s00* %locals00, i32 0, i32 0
-  %locals05 = load %s0* %23
-  store %s0 %locals05, %s0* %locals0
-  br label %ifmerge6
+  %locals04 = load %s0* %23
+  store %s0 %locals04, %s0* %locals0
+  br label %ifmerge5
 
-ifmerge6:                                         ; preds = %ifmerge, %then4
+ifmerge5:                                         ; preds = %ifmerge, %then3
   %24 = getelementptr %s0* %locals0, i32 0, i32 0
   %25 = load i32* %24
   %26 = sitofp i32 %25 to float
@@ -100,21 +96,17 @@ ifmerge6:                                         ; preds = %ifmerge, %then4
   %34 = load float* %33
   %35 = fadd float %32, %34
   %36 = load i32 addrspace(1)* @sampler, !gla.uniform !13
-  %coord7 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !17
-  store <2 x float> %coord7, <2 x float>* @coord_shadow
-  %37 = load <2 x float>* @coord_shadow
+  %37 = load <2 x float>* @coord
   %38 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %36, i32 0, <2 x float> %37)
   %39 = insertelement <4 x float> undef, float %35, i32 0
   %40 = insertelement <4 x float> %39, float %35, i32 1
   %41 = insertelement <4 x float> %40, float %35, i32 2
   %42 = insertelement <4 x float> %41, float %35, i32 3
-  %FragColor_shadow = fmul <4 x float> %42, %38
-  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
+  %gl_FragColor = fmul <4 x float> %42, %38
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge6
-  %43 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %43), !gla.output !19
+stage-epilogue:                                   ; preds = %ifmerge5
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -122,16 +114,9 @@ stage-exit:                                       ; preds = %stage-epilogue
 }
 
 ; Function Attrs: nounwind readnone
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
 
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
 attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !9, !10, !11, !13, !16}
@@ -156,9 +141,9 @@ attributes #1 = { nounwind }
 !14 = metadata !{i32 5, i32 0, i32 1024, metadata !15}
 !15 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !16 = metadata !{metadata !"foo2", i32 12, %s2* @foo2_typeProxy, metadata !2, metadata !4}
-!17 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !18}
+!17 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_typeProxy, metadata !18}
 !18 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
-!19 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !20}
+!19 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !20}
 !20 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 
 
@@ -173,8 +158,10 @@ Bottom IR:
 
 @foo3 = external addrspace(2) constant %s3
 @foo1 = external addrspace(2) constant %s1
+@coord = global <2 x float> zeroinitializer
 @foo0 = external addrspace(2) constant %s0
 @foo00 = external addrspace(2) constant %s00
+@gl_FragColor = global <4 x float> zeroinitializer
 @sampler = external addrspace(1) constant i32
 
 define fastcc void @main() {
@@ -182,30 +169,30 @@ entry:
   %gla_constGEP = getelementptr %s3 addrspace(2)* @foo3, i32 0, i32 0, i32 9, i32 0
   %0 = load i32 addrspace(2)* %gla_constGEP, align 4, !gla.uniform !1
   %1 = icmp sgt i32 %0, 0
-  %gla_constGEP47 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 1
-  %2 = load float addrspace(2)* %gla_constGEP47, align 4
-  %coord1 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1024, i32 -1, i32 1), !gla.input !17
-  %3 = extractelement <2 x float> %coord1, i32 1
-  %gla_constGEP48 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
-  %4 = load i32 addrspace(2)* %gla_constGEP48, align 4
-  %gla_constGEP49 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0, i32 0
-  %5 = load i32 addrspace(2)* %gla_constGEP49, align 4
+  %gla_constGEP44 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 1
+  %2 = load float addrspace(2)* %gla_constGEP44, align 4
+  %3 = load <2 x float>* @coord, align 8
+  %4 = extractelement <2 x float> %3, i32 1
+  %gla_constGEP45 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
+  %5 = load i32 addrspace(2)* %gla_constGEP45, align 4
+  %gla_constGEP46 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0, i32 0
+  %6 = load i32 addrspace(2)* %gla_constGEP46, align 4
   %select = select i1 %1, float 0.000000e+00, float 3.000000e+00
-  %select43 = select i1 %1, i32 0, i32 %4
-  %select44 = select i1 %1, i32 0, i32 %5
-  %select45 = select i1 %1, float 1.000000e+00, float %3
-  %select46 = select i1 %1, float %2, float %3
-  %6 = icmp sgt i32 %select43, 5
-  %locals00.0.0.0.locals0.0.0 = select i1 %6, i32 %select44, i32 %select43
-  %7 = sitofp i32 %locals00.0.0.0.locals0.0.0 to float
-  %8 = fadd float %select46, %7
-  %9 = fadd float %select, %8
-  %10 = fadd float %select45, %9
-  %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %10, <4 x i32> zeroinitializer)
-  %12 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !13
-  %13 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %12, i32 0, <2 x float> %coord1)
-  %FragColor_shadow = fmul <4 x float> %11, %13
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %FragColor_shadow), !gla.output !19
+  %select40 = select i1 %1, i32 0, i32 %5
+  %select41 = select i1 %1, i32 0, i32 %6
+  %select42 = select i1 %1, float 1.000000e+00, float %4
+  %select43 = select i1 %1, float %2, float %4
+  %7 = icmp sgt i32 %select40, 5
+  %locals00.0.0.0.locals0.0.0 = select i1 %7, i32 %select41, i32 %select40
+  %8 = sitofp i32 %locals00.0.0.0.locals0.0.0 to float
+  %9 = fadd float %select43, %8
+  %10 = fadd float %select, %9
+  %11 = fadd float %select42, %10
+  %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %11, <4 x i32> zeroinitializer)
+  %13 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !13
+  %14 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %13, i32 0, <2 x float> %3)
+  %gl_FragColor = fmul <4 x float> %12, %14
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -216,19 +203,12 @@ stage-exit:                                       ; preds = %stage-epilogue
 }
 
 ; Function Attrs: nounwind readnone
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
 
 ; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
 
 attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.uniforms = !{!1, !9, !10, !11, !13, !16}
@@ -253,9 +233,9 @@ attributes #1 = { nounwind }
 !14 = metadata !{i32 5, i32 0, i32 1024, metadata !15}
 !15 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !16 = metadata !{metadata !"foo2", i32 12, %s2* @foo2_typeProxy, metadata !2, metadata !4}
-!17 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !18}
+!17 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_typeProxy, metadata !18}
 !18 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
-!19 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !20}
+!19 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !20}
 !20 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 #version 130
 // LunarGOO output
@@ -315,8 +295,8 @@ void main()
     float temp37 = select_c4 + temp36;
     vec4 temp38 = vec4(temp37);
     vec4 temp39 = texture(sampler, coord);
-    vec4 FragColor_shadow_c7 = temp38 * temp39;
-    gl_FragColor = FragColor_shadow_c7;
+    vec4 gla_gl_FragColor_c7 = temp38 * temp39;
+    gl_FragColor = gla_gl_FragColor_c7;
     
 }
 
@@ -379,8 +359,8 @@ void main()
     float temp_c11 = select_c4 + temp_c10;
     vec4 temp38 = vec4(temp_c11);
     vec4 temp_c12 = texture(sampler, coord);
-    vec4 FragColor_shadow_c13 = temp38 * temp_c12;
-    gl_FragColor = FragColor_shadow_c13;
+    vec4 gla_gl_FragColor_c13 = temp38 * temp_c12;
+    gl_FragColor = gla_gl_FragColor_c13;
     
 }
 

@@ -2329,6 +2329,9 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op)
 // Set up to recursively traverse the structure to read, while flattening it into slots
 void TGlslangToTopTraverser::createPipelineRead(glslang::TIntermSymbol* node, llvm::Value* storage, int firstSlot, llvm::MDNode* md)
 {
+    if (glaBuilder->useLogicalIo())
+        return;
+
     gla::EInterpolationMethod method;
     gla::EInterpolationLocation location;
     GetInterpolationLocationMethod(node->getType(), method, location);
@@ -2432,7 +2435,8 @@ int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input,
             // See note above.
             //glslang::TType elementType(type, 0);
             //numSlots = glslangIntermediate->computeTypeLocationSize(elementType);
-            gla::UnsupportedFunctionality("arrayed IO in physical IO mode (use logical IO instead)", gla::EATContinue);
+            if (! glaBuilder->useLogicalIo())
+                gla::UnsupportedFunctionality("arrayed IO in physical IO mode (use logical IO instead)", gla::EATContinue);
             numSlots = glslangIntermediate->computeTypeLocationSize(type);
         } else
             numSlots = glslangIntermediate->computeTypeLocationSize(type);

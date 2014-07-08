@@ -2,20 +2,18 @@
 Top IR:
 ; ModuleID = 'Glslang'
 
-@BaseColor_shadow = internal global <4 x float> zeroinitializer
-@FragColor_shadow = internal global <4 x float> zeroinitializer
+@BaseColor = global <4 x float> zeroinitializer
+@gl_FragColor = global <4 x float> zeroinitializer
 @bigColor = external addrspace(2) constant <4 x float>
 @d = external addrspace(2) constant float
 
 define fastcc void @main() {
 entry:
-  %FragColor_shadow = call <4 x float> @"foo("()
-  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
+  %gl_FragColor = call <4 x float> @"foo("()
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %0 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %0), !gla.output !3
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -25,24 +23,14 @@ stage-exit:                                       ; preds = %stage-epilogue
 ; Function Attrs: alwaysinline
 define internal fastcc <4 x float> @"foo("() #0 {
 entry:
-  %BaseColor = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !0
-  store <4 x float> %BaseColor, <4 x float>* @BaseColor_shadow
-  %0 = load <4 x float>* @BaseColor_shadow
+  %0 = load <4 x float>* @BaseColor
   ret <4 x float> %0
 
 post-return:                                      ; No predecessors!
   unreachable
 }
 
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #1
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #2
-
 attributes #0 = { alwaysinline }
-attributes #1 = { nounwind readnone }
-attributes #2 = { nounwind }
 
 !gla.inputs = !{!0}
 !gla.entrypoint = !{!2}
@@ -50,10 +38,10 @@ attributes #2 = { nounwind }
 !gla.uniforms = !{!5, !7}
 !gla.noStaticUse = !{!5, !7}
 
-!0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
+!0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !2 = metadata !{metadata !"main", i32 15}
-!3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !4}
+!3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 !5 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1024, null}
@@ -63,10 +51,13 @@ attributes #2 = { nounwind }
 Bottom IR:
 ; ModuleID = 'Glslang'
 
+@BaseColor = global <4 x float> zeroinitializer
+@gl_FragColor = global <4 x float> zeroinitializer
+
 define fastcc void @main() {
 entry:
-  %BaseColor.i = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !0
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %BaseColor.i), !gla.output !3
+  %0 = load <4 x float>* @BaseColor, align 16
+  store <4 x float> %0, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -76,25 +67,16 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
-attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
-
 !gla.inputs = !{!0}
 !gla.entrypoint = !{!2}
 !gla.outputs = !{!3}
 !gla.uniforms = !{!5, !7}
 !gla.noStaticUse = !{!5, !7}
 
-!0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_shadow_typeProxy, metadata !1}
+!0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !2 = metadata !{metadata !"main", i32 15}
-!3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !4}
+!3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 !5 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1024, null}

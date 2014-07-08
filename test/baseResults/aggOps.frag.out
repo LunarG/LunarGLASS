@@ -5,172 +5,146 @@ Top IR:
 %s2 = type { i32, float, %s1 }
 %s1 = type { i32, float }
 
-@u_shadow = internal global <4 x float> zeroinitializer
-@w_shadow = internal global <4 x float> zeroinitializer
+@u = global <4 x float> zeroinitializer
+@w = global <4 x float> zeroinitializer
 @foo2a = external addrspace(2) constant %s2
 @foo2b = external addrspace(2) constant %s2
 @sampler = external addrspace(1) constant i32
-@coord_shadow = internal global <2 x float> zeroinitializer
-@FragColor_shadow = internal global <4 x float> zeroinitializer
+@coord = global <2 x float> zeroinitializer
+@gl_FragColor = global <4 x float> zeroinitializer
 @foo1 = external addrspace(2) constant %s1
 
 define fastcc void @main() {
 entry:
   %v = alloca <4 x float>
-  %constructed12 = alloca [3 x %s1]
-  %constructed11 = alloca %s1
-  %constructed8 = alloca %s1
-  %b = alloca [3 x %s1]
-  %constructed5 = alloca [3 x %s1]
+  %constructed6 = alloca [3 x %s1]
+  %constructed5 = alloca %s1
   %constructed4 = alloca %s1
+  %b = alloca [3 x %s1]
+  %constructed2 = alloca [3 x %s1]
+  %constructed1 = alloca %s1
   %constructed = alloca %s1
   %a = alloca [3 x %s1]
-  %u = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !1
-  store <4 x float> %u, <4 x float>* @u_shadow
-  %0 = load <4 x float>* @u_shadow
+  %0 = load <4 x float>* @u
   %1 = extractelement <4 x float> %0, i32 0
   %2 = fptosi float %1 to i32
-  %u1 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !1
-  store <4 x float> %u1, <4 x float>* @u_shadow
-  %3 = load <4 x float>* @u_shadow
+  %3 = load <4 x float>* @u
   %4 = extractelement <4 x float> %3, i32 1
   %5 = getelementptr %s1* %constructed, i32 0, i32 0
   store i32 %2, i32* %5
   %6 = getelementptr %s1* %constructed, i32 0, i32 1
   store float %4, float* %6
   %7 = load %s1* %constructed
-  %u2 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !1
-  store <4 x float> %u2, <4 x float>* @u_shadow
-  %8 = load <4 x float>* @u_shadow
+  %8 = load <4 x float>* @u
   %9 = extractelement <4 x float> %8, i32 2
   %10 = fptosi float %9 to i32
-  %u3 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !1
-  store <4 x float> %u3, <4 x float>* @u_shadow
-  %11 = load <4 x float>* @u_shadow
+  %11 = load <4 x float>* @u
   %12 = extractelement <4 x float> %11, i32 3
-  %13 = getelementptr %s1* %constructed4, i32 0, i32 0
+  %13 = getelementptr %s1* %constructed1, i32 0, i32 0
   store i32 %10, i32* %13
-  %14 = getelementptr %s1* %constructed4, i32 0, i32 1
+  %14 = getelementptr %s1* %constructed1, i32 0, i32 1
   store float %12, float* %14
-  %15 = load %s1* %constructed4
-  %16 = getelementptr [3 x %s1]* %constructed5, i32 0, i32 0
+  %15 = load %s1* %constructed1
+  %16 = getelementptr [3 x %s1]* %constructed2, i32 0, i32 0
   store %s1 %7, %s1* %16
-  %17 = getelementptr [3 x %s1]* %constructed5, i32 0, i32 1
+  %17 = getelementptr [3 x %s1]* %constructed2, i32 0, i32 1
   store %s1 %15, %s1* %17
-  %18 = getelementptr [3 x %s1]* %constructed5, i32 0, i32 2
+  %18 = getelementptr [3 x %s1]* %constructed2, i32 0, i32 2
   store %s1 { i32 14, float 1.400000e+01 }, %s1* %18
-  %a6 = load [3 x %s1]* %constructed5
-  store [3 x %s1] %a6, [3 x %s1]* %a
-  %w = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !3
-  store <4 x float> %w, <4 x float>* @w_shadow
-  %19 = load <4 x float>* @w_shadow
+  %a3 = load [3 x %s1]* %constructed2
+  store [3 x %s1] %a3, [3 x %s1]* %a
+  %19 = load <4 x float>* @w
   %20 = extractelement <4 x float> %19, i32 0
   %21 = fptosi float %20 to i32
-  %w7 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !3
-  store <4 x float> %w7, <4 x float>* @w_shadow
-  %22 = load <4 x float>* @w_shadow
+  %22 = load <4 x float>* @w
   %23 = extractelement <4 x float> %22, i32 1
-  %24 = getelementptr %s1* %constructed8, i32 0, i32 0
+  %24 = getelementptr %s1* %constructed4, i32 0, i32 0
   store i32 %21, i32* %24
-  %25 = getelementptr %s1* %constructed8, i32 0, i32 1
+  %25 = getelementptr %s1* %constructed4, i32 0, i32 1
   store float %23, float* %25
-  %26 = load %s1* %constructed8
-  %w9 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !3
-  store <4 x float> %w9, <4 x float>* @w_shadow
-  %27 = load <4 x float>* @w_shadow
+  %26 = load %s1* %constructed4
+  %27 = load <4 x float>* @w
   %28 = extractelement <4 x float> %27, i32 2
   %29 = fptosi float %28 to i32
-  %w10 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !3
-  store <4 x float> %w10, <4 x float>* @w_shadow
-  %30 = load <4 x float>* @w_shadow
+  %30 = load <4 x float>* @w
   %31 = extractelement <4 x float> %30, i32 3
-  %32 = getelementptr %s1* %constructed11, i32 0, i32 0
+  %32 = getelementptr %s1* %constructed5, i32 0, i32 0
   store i32 %29, i32* %32
-  %33 = getelementptr %s1* %constructed11, i32 0, i32 1
+  %33 = getelementptr %s1* %constructed5, i32 0, i32 1
   store float %31, float* %33
-  %34 = load %s1* %constructed11
-  %35 = getelementptr [3 x %s1]* %constructed12, i32 0, i32 0
+  %34 = load %s1* %constructed5
+  %35 = getelementptr [3 x %s1]* %constructed6, i32 0, i32 0
   store %s1 { i32 17, float 1.700000e+01 }, %s1* %35
-  %36 = getelementptr [3 x %s1]* %constructed12, i32 0, i32 1
+  %36 = getelementptr [3 x %s1]* %constructed6, i32 0, i32 1
   store %s1 %26, %s1* %36
-  %37 = getelementptr [3 x %s1]* %constructed12, i32 0, i32 2
+  %37 = getelementptr [3 x %s1]* %constructed6, i32 0, i32 2
   store %s1 %34, %s1* %37
-  %b13 = load [3 x %s1]* %constructed12
-  store [3 x %s1] %b13, [3 x %s1]* %b
+  %b7 = load [3 x %s1]* %constructed6
+  store [3 x %s1] %b7, [3 x %s1]* %b
   %38 = load %s2 addrspace(2)* @foo2a, !gla.uniform !7
   %39 = load %s2 addrspace(2)* @foo2b, !gla.uniform !13
   %element1 = extractvalue %s2 %38, 0
   %element2 = extractvalue %s2 %39, 0
   %40 = icmp eq i32 %element1, %element2
-  %element114 = extractvalue %s2 %38, 1
-  %element215 = extractvalue %s2 %39, 1
-  %41 = fcmp oeq float %element114, %element215
+  %element18 = extractvalue %s2 %38, 1
+  %element29 = extractvalue %s2 %39, 1
+  %41 = fcmp oeq float %element18, %element29
   %42 = and i1 %40, %41
-  %element116 = extractvalue %s2 %38, 2
-  %element217 = extractvalue %s2 %39, 2
-  %element118 = extractvalue %s1 %element116, 0
-  %element219 = extractvalue %s1 %element217, 0
-  %43 = icmp eq i32 %element118, %element219
-  %element120 = extractvalue %s1 %element116, 1
-  %element221 = extractvalue %s1 %element217, 1
-  %44 = fcmp oeq float %element120, %element221
+  %element110 = extractvalue %s2 %38, 2
+  %element211 = extractvalue %s2 %39, 2
+  %element112 = extractvalue %s1 %element110, 0
+  %element213 = extractvalue %s1 %element211, 0
+  %43 = icmp eq i32 %element112, %element213
+  %element114 = extractvalue %s1 %element110, 1
+  %element215 = extractvalue %s1 %element211, 1
+  %44 = fcmp oeq float %element114, %element215
   %45 = and i1 %43, %44
   %46 = and i1 %42, %45
   br i1 %46, label %then, label %else
 
 then:                                             ; preds = %entry
   %47 = load i32 addrspace(1)* @sampler, !gla.uniform !14
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !5
-  store <2 x float> %coord, <2 x float>* @coord_shadow
-  %48 = load <2 x float>* @coord_shadow
-  %v22 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %47, i32 0, <2 x float> %48)
-  store <4 x float> %v22, <4 x float>* %v
+  %48 = load <2 x float>* @coord
+  %v16 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %47, i32 0, <2 x float> %48)
+  store <4 x float> %v16, <4 x float>* %v
   br label %ifmerge
 
 else:                                             ; preds = %entry
   %49 = load i32 addrspace(1)* @sampler, !gla.uniform !14
-  %coord23 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !5
-  store <2 x float> %coord23, <2 x float>* @coord_shadow
-  %50 = load <2 x float>* @coord_shadow
+  %50 = load <2 x float>* @coord
   %51 = fmul <2 x float> <float 2.000000e+00, float 2.000000e+00>, %50
-  %v24 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %49, i32 0, <2 x float> %51)
-  store <4 x float> %v24, <4 x float>* %v
+  %v17 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %49, i32 0, <2 x float> %51)
+  store <4 x float> %v17, <4 x float>* %v
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %u25 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !1
-  store <4 x float> %u25, <4 x float>* @u_shadow
-  %52 = load <4 x float>* @u_shadow
+  %52 = load <4 x float>* @u
   %53 = load <4 x float>* %v
   %54 = fcmp oeq <4 x float> %52, %53
   %55 = call i1 @llvm.gla.all.v4i1(<4 x i1> %54)
-  br i1 %55, label %then26, label %ifmerge28
+  br i1 %55, label %then18, label %ifmerge20
 
-then26:                                           ; preds = %ifmerge
+then18:                                           ; preds = %ifmerge
   %56 = load <4 x float>* %v
-  %v27 = fmul <4 x float> %56, <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>
-  store <4 x float> %v27, <4 x float>* %v
-  br label %ifmerge28
+  %v19 = fmul <4 x float> %56, <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>
+  store <4 x float> %v19, <4 x float>* %v
+  br label %ifmerge20
 
-ifmerge28:                                        ; preds = %ifmerge, %then26
-  %u29 = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !1
-  store <4 x float> %u29, <4 x float>* @u_shadow
-  %57 = load <4 x float>* @u_shadow
+ifmerge20:                                        ; preds = %ifmerge, %then18
+  %57 = load <4 x float>* @u
   %58 = load <4 x float>* %v
   %59 = fcmp one <4 x float> %57, %58
   %60 = call i1 @llvm.gla.any.v4i1(<4 x i1> %59)
-  br i1 %60, label %then30, label %ifmerge32
+  br i1 %60, label %then21, label %ifmerge23
 
-then30:                                           ; preds = %ifmerge28
+then21:                                           ; preds = %ifmerge20
   %61 = load <4 x float>* %v
-  %v31 = fmul <4 x float> %61, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
-  store <4 x float> %v31, <4 x float>* %v
-  br label %ifmerge32
+  %v22 = fmul <4 x float> %61, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
+  store <4 x float> %v22, <4 x float>* %v
+  br label %ifmerge23
 
-ifmerge32:                                        ; preds = %ifmerge28, %then30
-  %coord33 = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !5
-  store <2 x float> %coord33, <2 x float>* @coord_shadow
-  %62 = load <2 x float>* @coord_shadow
+ifmerge23:                                        ; preds = %ifmerge20, %then21
+  %62 = load <2 x float>* @coord
   %63 = load <4 x float>* %v
   %64 = extractelement <4 x float> %63, i32 1
   %65 = insertelement <2 x float> undef, float %64, i32 0
@@ -178,113 +152,105 @@ ifmerge32:                                        ; preds = %ifmerge28, %then30
   %67 = insertelement <2 x float> %65, float %66, i32 1
   %68 = fcmp oeq <2 x float> %62, %67
   %69 = call i1 @llvm.gla.all.v2i1(<2 x i1> %68)
-  br i1 %69, label %then34, label %ifmerge36
+  br i1 %69, label %then24, label %ifmerge26
 
-then34:                                           ; preds = %ifmerge32
+then24:                                           ; preds = %ifmerge23
   %70 = load <4 x float>* %v
-  %v35 = fmul <4 x float> %70, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
-  store <4 x float> %v35, <4 x float>* %v
-  br label %ifmerge36
+  %v25 = fmul <4 x float> %70, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
+  store <4 x float> %v25, <4 x float>* %v
+  br label %ifmerge26
 
-ifmerge36:                                        ; preds = %ifmerge32, %then34
+ifmerge26:                                        ; preds = %ifmerge23, %then24
   %71 = load [3 x %s1]* %a
   %72 = load [3 x %s1]* %b
-  %element137 = extractvalue [3 x %s1] %71, 0
-  %element238 = extractvalue [3 x %s1] %72, 0
-  %element139 = extractvalue %s1 %element137, 0
-  %element240 = extractvalue %s1 %element238, 0
-  %73 = icmp eq i32 %element139, %element240
-  %element141 = extractvalue %s1 %element137, 1
-  %element242 = extractvalue %s1 %element238, 1
-  %74 = fcmp oeq float %element141, %element242
+  %element127 = extractvalue [3 x %s1] %71, 0
+  %element228 = extractvalue [3 x %s1] %72, 0
+  %element129 = extractvalue %s1 %element127, 0
+  %element230 = extractvalue %s1 %element228, 0
+  %73 = icmp eq i32 %element129, %element230
+  %element131 = extractvalue %s1 %element127, 1
+  %element232 = extractvalue %s1 %element228, 1
+  %74 = fcmp oeq float %element131, %element232
   %75 = and i1 %73, %74
-  %element143 = extractvalue [3 x %s1] %71, 1
-  %element244 = extractvalue [3 x %s1] %72, 1
-  %element145 = extractvalue %s1 %element143, 0
-  %element246 = extractvalue %s1 %element244, 0
-  %76 = icmp eq i32 %element145, %element246
-  %element147 = extractvalue %s1 %element143, 1
-  %element248 = extractvalue %s1 %element244, 1
-  %77 = fcmp oeq float %element147, %element248
+  %element133 = extractvalue [3 x %s1] %71, 1
+  %element234 = extractvalue [3 x %s1] %72, 1
+  %element135 = extractvalue %s1 %element133, 0
+  %element236 = extractvalue %s1 %element234, 0
+  %76 = icmp eq i32 %element135, %element236
+  %element137 = extractvalue %s1 %element133, 1
+  %element238 = extractvalue %s1 %element234, 1
+  %77 = fcmp oeq float %element137, %element238
   %78 = and i1 %76, %77
   %79 = and i1 %75, %78
-  %element149 = extractvalue [3 x %s1] %71, 2
-  %element250 = extractvalue [3 x %s1] %72, 2
-  %element151 = extractvalue %s1 %element149, 0
-  %element252 = extractvalue %s1 %element250, 0
-  %80 = icmp eq i32 %element151, %element252
-  %element153 = extractvalue %s1 %element149, 1
-  %element254 = extractvalue %s1 %element250, 1
-  %81 = fcmp oeq float %element153, %element254
+  %element139 = extractvalue [3 x %s1] %71, 2
+  %element240 = extractvalue [3 x %s1] %72, 2
+  %element141 = extractvalue %s1 %element139, 0
+  %element242 = extractvalue %s1 %element240, 0
+  %80 = icmp eq i32 %element141, %element242
+  %element143 = extractvalue %s1 %element139, 1
+  %element244 = extractvalue %s1 %element240, 1
+  %81 = fcmp oeq float %element143, %element244
   %82 = and i1 %80, %81
   %83 = and i1 %79, %82
-  br i1 %83, label %then55, label %ifmerge57
+  br i1 %83, label %then45, label %ifmerge47
 
-then55:                                           ; preds = %ifmerge36
+then45:                                           ; preds = %ifmerge26
   %84 = load <4 x float>* %v
-  %v56 = fmul <4 x float> %84, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
-  store <4 x float> %v56, <4 x float>* %v
-  br label %ifmerge57
+  %v46 = fmul <4 x float> %84, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
+  store <4 x float> %v46, <4 x float>* %v
+  br label %ifmerge47
 
-ifmerge57:                                        ; preds = %ifmerge36, %then55
+ifmerge47:                                        ; preds = %ifmerge26, %then45
   %85 = load [3 x %s1]* %a
   %86 = load [3 x %s1]* %b
-  %element158 = extractvalue [3 x %s1] %85, 0
-  %element259 = extractvalue [3 x %s1] %86, 0
-  %element160 = extractvalue %s1 %element158, 0
-  %element261 = extractvalue %s1 %element259, 0
-  %87 = icmp ne i32 %element160, %element261
-  %element162 = extractvalue %s1 %element158, 1
-  %element263 = extractvalue %s1 %element259, 1
-  %88 = fcmp one float %element162, %element263
+  %element148 = extractvalue [3 x %s1] %85, 0
+  %element249 = extractvalue [3 x %s1] %86, 0
+  %element150 = extractvalue %s1 %element148, 0
+  %element251 = extractvalue %s1 %element249, 0
+  %87 = icmp ne i32 %element150, %element251
+  %element152 = extractvalue %s1 %element148, 1
+  %element253 = extractvalue %s1 %element249, 1
+  %88 = fcmp one float %element152, %element253
   %89 = or i1 %87, %88
-  %element164 = extractvalue [3 x %s1] %85, 1
-  %element265 = extractvalue [3 x %s1] %86, 1
-  %element166 = extractvalue %s1 %element164, 0
-  %element267 = extractvalue %s1 %element265, 0
-  %90 = icmp ne i32 %element166, %element267
-  %element168 = extractvalue %s1 %element164, 1
-  %element269 = extractvalue %s1 %element265, 1
-  %91 = fcmp one float %element168, %element269
+  %element154 = extractvalue [3 x %s1] %85, 1
+  %element255 = extractvalue [3 x %s1] %86, 1
+  %element156 = extractvalue %s1 %element154, 0
+  %element257 = extractvalue %s1 %element255, 0
+  %90 = icmp ne i32 %element156, %element257
+  %element158 = extractvalue %s1 %element154, 1
+  %element259 = extractvalue %s1 %element255, 1
+  %91 = fcmp one float %element158, %element259
   %92 = or i1 %90, %91
   %93 = or i1 %89, %92
-  %element170 = extractvalue [3 x %s1] %85, 2
-  %element271 = extractvalue [3 x %s1] %86, 2
-  %element172 = extractvalue %s1 %element170, 0
-  %element273 = extractvalue %s1 %element271, 0
-  %94 = icmp ne i32 %element172, %element273
-  %element174 = extractvalue %s1 %element170, 1
-  %element275 = extractvalue %s1 %element271, 1
-  %95 = fcmp one float %element174, %element275
+  %element160 = extractvalue [3 x %s1] %85, 2
+  %element261 = extractvalue [3 x %s1] %86, 2
+  %element162 = extractvalue %s1 %element160, 0
+  %element263 = extractvalue %s1 %element261, 0
+  %94 = icmp ne i32 %element162, %element263
+  %element164 = extractvalue %s1 %element160, 1
+  %element265 = extractvalue %s1 %element261, 1
+  %95 = fcmp one float %element164, %element265
   %96 = or i1 %94, %95
   %97 = or i1 %93, %96
-  br i1 %97, label %then76, label %ifmerge78
+  br i1 %97, label %then66, label %ifmerge68
 
-then76:                                           ; preds = %ifmerge57
+then66:                                           ; preds = %ifmerge47
   %98 = load <4 x float>* %v
-  %v77 = fmul <4 x float> %98, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>
-  store <4 x float> %v77, <4 x float>* %v
-  br label %ifmerge78
+  %v67 = fmul <4 x float> %98, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>
+  store <4 x float> %v67, <4 x float>* %v
+  br label %ifmerge68
 
-ifmerge78:                                        ; preds = %ifmerge57, %then76
-  %FragColor_shadow = load <4 x float>* %v
-  store <4 x float> %FragColor_shadow, <4 x float>* @FragColor_shadow
+ifmerge68:                                        ; preds = %ifmerge47, %then66
+  %gl_FragColor = load <4 x float>* %v
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge78
-  %99 = load <4 x float>* @FragColor_shadow
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %99), !gla.output !18
+stage-epilogue:                                   ; preds = %ifmerge68
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind readnone
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
 
 ; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
@@ -298,11 +264,7 @@ declare i1 @llvm.gla.any.v4i1(<4 x i1>) #0
 ; Function Attrs: nounwind readnone
 declare i1 @llvm.gla.all.v2i1(<2 x i1>) #0
 
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
 attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.inputs = !{!1, !3, !5}
@@ -311,11 +273,11 @@ attributes #1 = { nounwind }
 !gla.noStaticUse = !{!17}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"u", i32 1, <4 x float>* @u_shadow_typeProxy, metadata !2}
+!1 = metadata !{metadata !"u", i32 1, <4 x float>* @u_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
-!3 = metadata !{metadata !"w", i32 1, <4 x float>* @w_shadow_typeProxy, metadata !4}
+!3 = metadata !{metadata !"w", i32 1, <4 x float>* @w_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
-!5 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !6}
+!5 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
 !7 = metadata !{metadata !"foo2a", i32 12, %s2* @foo2a_typeProxy, metadata !8, metadata !9}
 !8 = metadata !{i32 4, i32 0, i32 1024, null}
@@ -328,7 +290,7 @@ attributes #1 = { nounwind }
 !15 = metadata !{i32 5, i32 0, i32 1024, metadata !16}
 !16 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !17 = metadata !{metadata !"foo1", i32 12, %s1* @foo1_typeProxy, metadata !8, metadata !12}
-!18 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !19}
+!18 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !19}
 !19 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
 
 
@@ -338,100 +300,104 @@ Bottom IR:
 %s2 = type { i32, float, %s1 }
 %s1 = type { i32, float }
 
+@u = global <4 x float> zeroinitializer
+@w = global <4 x float> zeroinitializer
 @foo2a = external addrspace(2) constant %s2
 @foo2b = external addrspace(2) constant %s2
 @sampler = external addrspace(1) constant i32
+@coord = global <2 x float> zeroinitializer
+@gl_FragColor = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
-  %u = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1024, i32 -1, i32 1), !gla.input !1
-  %0 = extractelement <4 x float> %u, i32 0
-  %1 = fptosi float %0 to i32
-  %2 = extractelement <4 x float> %u, i32 1
-  %3 = extractelement <4 x float> %u, i32 2
-  %4 = fptosi float %3 to i32
-  %5 = extractelement <4 x float> %u, i32 3
-  %w = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1025, i32 -1, i32 1), !gla.input !3
-  %6 = extractelement <4 x float> %w, i32 0
-  %7 = fptosi float %6 to i32
-  %8 = extractelement <4 x float> %w, i32 1
-  %9 = extractelement <4 x float> %w, i32 2
-  %10 = fptosi float %9 to i32
-  %11 = extractelement <4 x float> %w, i32 3
-  %12 = load %s2 addrspace(2)* @foo2a, align 4, !gla.uniform !7
-  %13 = load %s2 addrspace(2)* @foo2b, align 4, !gla.uniform !13
-  %element1 = extractvalue %s2 %12, 0
-  %element2 = extractvalue %s2 %13, 0
-  %14 = icmp eq i32 %element1, %element2
-  %element114 = extractvalue %s2 %12, 1
-  %element215 = extractvalue %s2 %13, 1
-  %15 = fcmp oeq float %element114, %element215
-  %16 = and i1 %14, %15
-  %element116 = extractvalue %s2 %12, 2
-  %element217 = extractvalue %s2 %13, 2
-  %element118 = extractvalue %s1 %element116, 0
-  %element219 = extractvalue %s1 %element217, 0
-  %17 = icmp eq i32 %element118, %element219
-  %element120 = extractvalue %s1 %element116, 1
-  %element221 = extractvalue %s1 %element217, 1
-  %18 = fcmp oeq float %element120, %element221
-  %19 = and i1 %17, %18
-  %20 = and i1 %16, %19
-  %21 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !14
-  %coord = call <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32 1026, i32 -1, i32 1), !gla.input !5
-  br i1 %20, label %then, label %else
+  %0 = load <4 x float>* @u, align 16
+  %1 = extractelement <4 x float> %0, i32 0
+  %2 = fptosi float %1 to i32
+  %3 = extractelement <4 x float> %0, i32 1
+  %4 = extractelement <4 x float> %0, i32 2
+  %5 = fptosi float %4 to i32
+  %6 = extractelement <4 x float> %0, i32 3
+  %7 = load <4 x float>* @w, align 16
+  %8 = extractelement <4 x float> %7, i32 0
+  %9 = fptosi float %8 to i32
+  %10 = extractelement <4 x float> %7, i32 1
+  %11 = extractelement <4 x float> %7, i32 2
+  %12 = fptosi float %11 to i32
+  %13 = extractelement <4 x float> %7, i32 3
+  %14 = load %s2 addrspace(2)* @foo2a, align 4, !gla.uniform !7
+  %15 = load %s2 addrspace(2)* @foo2b, align 4, !gla.uniform !13
+  %element1 = extractvalue %s2 %14, 0
+  %element2 = extractvalue %s2 %15, 0
+  %16 = icmp eq i32 %element1, %element2
+  %element18 = extractvalue %s2 %14, 1
+  %element29 = extractvalue %s2 %15, 1
+  %17 = fcmp oeq float %element18, %element29
+  %18 = and i1 %16, %17
+  %element110 = extractvalue %s2 %14, 2
+  %element211 = extractvalue %s2 %15, 2
+  %element112 = extractvalue %s1 %element110, 0
+  %element213 = extractvalue %s1 %element211, 0
+  %19 = icmp eq i32 %element112, %element213
+  %element114 = extractvalue %s1 %element110, 1
+  %element215 = extractvalue %s1 %element211, 1
+  %20 = fcmp oeq float %element114, %element215
+  %21 = and i1 %19, %20
+  %22 = and i1 %18, %21
+  %23 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !14
+  %24 = load <2 x float>* @coord, align 8
+  br i1 %22, label %then, label %else
 
 then:                                             ; preds = %entry
-  %v22 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %21, i32 0, <2 x float> %coord)
+  %v16 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %23, i32 0, <2 x float> %24)
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %22 = fmul <2 x float> %coord, <float 2.000000e+00, float 2.000000e+00>
-  %v24 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %21, i32 0, <2 x float> %22)
+  %25 = fmul <2 x float> %24, <float 2.000000e+00, float 2.000000e+00>
+  %v17 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %23, i32 0, <2 x float> %25)
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %v.0 = phi <4 x float> [ %v22, %then ], [ %v24, %else ]
-  %23 = fcmp oeq <4 x float> %u, %v.0
-  %24 = call i1 @llvm.gla.all.v4i1(<4 x i1> %23)
-  %v27 = fmul <4 x float> %v.0, <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>
-  %select139 = select i1 %24, <4 x float> %v27, <4 x float> %v.0
-  %25 = fcmp one <4 x float> %u, %select139
-  %26 = call i1 @llvm.gla.any.v4i1(<4 x i1> %25)
-  %v31 = fmul <4 x float> %select139, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
-  %select = select i1 %26, <4 x float> %v31, <4 x float> %select139
-  %27 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %select, <2 x i32> <i32 1, i32 3>)
-  %28 = fcmp oeq <2 x float> %coord, %27
-  %29 = call i1 @llvm.gla.all.v2i1(<2 x i1> %28)
-  %v35 = fmul <4 x float> %select, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
-  %select141 = select i1 %29, <4 x float> %v35, <4 x float> %select
-  %30 = icmp eq i32 %1, 17
-  %31 = fcmp oeq float %2, 1.700000e+01
-  %32 = and i1 %30, %31
-  %33 = icmp eq i32 %4, %7
-  %34 = fcmp oeq float %5, %8
+  %v.0 = phi <4 x float> [ %v16, %then ], [ %v17, %else ]
+  %26 = fcmp oeq <4 x float> %0, %v.0
+  %27 = call i1 @llvm.gla.all.v4i1(<4 x i1> %26)
+  %v19 = fmul <4 x float> %v.0, <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>
+  %select128 = select i1 %27, <4 x float> %v19, <4 x float> %v.0
+  %28 = fcmp one <4 x float> %0, %select128
+  %29 = call i1 @llvm.gla.any.v4i1(<4 x i1> %28)
+  %v22 = fmul <4 x float> %select128, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
+  %select = select i1 %29, <4 x float> %v22, <4 x float> %select128
+  %30 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %select, <2 x i32> <i32 1, i32 3>)
+  %31 = fcmp oeq <2 x float> %24, %30
+  %32 = call i1 @llvm.gla.all.v2i1(<2 x i1> %31)
+  %v25 = fmul <4 x float> %select, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
+  %select130 = select i1 %32, <4 x float> %v25, <4 x float> %select
+  %33 = icmp eq i32 %2, 17
+  %34 = fcmp oeq float %3, 1.700000e+01
   %35 = and i1 %33, %34
-  %36 = and i1 %32, %35
-  %37 = icmp eq i32 %10, 14
-  %38 = fcmp oeq float %11, 1.400000e+01
-  %39 = and i1 %37, %38
-  %40 = and i1 %36, %39
-  %v56 = fmul <4 x float> %select141, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
-  %select138 = select i1 %40, <4 x float> %v56, <4 x float> %select141
-  %41 = icmp ne i32 %1, 17
-  %42 = fcmp one float %2, 1.700000e+01
-  %43 = or i1 %41, %42
-  %44 = icmp ne i32 %4, %7
-  %45 = fcmp one float %5, %8
+  %36 = icmp eq i32 %5, %9
+  %37 = fcmp oeq float %6, %10
+  %38 = and i1 %36, %37
+  %39 = and i1 %35, %38
+  %40 = icmp eq i32 %12, 14
+  %41 = fcmp oeq float %13, 1.400000e+01
+  %42 = and i1 %40, %41
+  %43 = and i1 %39, %42
+  %v46 = fmul <4 x float> %select130, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
+  %select127 = select i1 %43, <4 x float> %v46, <4 x float> %select130
+  %44 = icmp ne i32 %2, 17
+  %45 = fcmp one float %3, 1.700000e+01
   %46 = or i1 %44, %45
-  %47 = or i1 %43, %46
-  %48 = icmp ne i32 %10, 14
-  %49 = fcmp one float %11, 1.400000e+01
-  %50 = or i1 %48, %49
-  %51 = or i1 %47, %50
-  %v77 = fmul <4 x float> %select138, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>
-  %select140 = select i1 %51, <4 x float> %v77, <4 x float> %select138
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %select140), !gla.output !18
+  %47 = icmp ne i32 %5, %9
+  %48 = fcmp one float %6, %10
+  %49 = or i1 %47, %48
+  %50 = or i1 %46, %49
+  %51 = icmp ne i32 %12, 14
+  %52 = fcmp one float %13, 1.400000e+01
+  %53 = or i1 %51, %52
+  %54 = or i1 %50, %53
+  %v67 = fmul <4 x float> %select127, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>
+  %select129 = select i1 %54, <4 x float> %v67, <4 x float> %select127
+  store <4 x float> %select129, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -442,12 +408,6 @@ stage-exit:                                       ; preds = %stage-epilogue
 }
 
 ; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind readnone
-declare <2 x float> @llvm.gla.fReadInterpolant.v2f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
 
 ; Function Attrs: nounwind readnone
@@ -459,14 +419,10 @@ declare i1 @llvm.gla.any.v4i1(<4 x i1>) #0
 ; Function Attrs: nounwind readnone
 declare i1 @llvm.gla.all.v2i1(<2 x i1>) #0
 
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
 ; Function Attrs: nounwind readnone
 declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>) #0
 
 attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.inputs = !{!1, !3, !5}
@@ -475,11 +431,11 @@ attributes #1 = { nounwind }
 !gla.noStaticUse = !{!17}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"u", i32 1, <4 x float>* @u_shadow_typeProxy, metadata !2}
+!1 = metadata !{metadata !"u", i32 1, <4 x float>* @u_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
-!3 = metadata !{metadata !"w", i32 1, <4 x float>* @w_shadow_typeProxy, metadata !4}
+!3 = metadata !{metadata !"w", i32 1, <4 x float>* @w_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1}
-!5 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_shadow_typeProxy, metadata !6}
+!5 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
 !7 = metadata !{metadata !"foo2a", i32 12, %s2* @foo2a_typeProxy, metadata !8, metadata !9}
 !8 = metadata !{i32 4, i32 0, i32 1024, null}
@@ -492,7 +448,7 @@ attributes #1 = { nounwind }
 !15 = metadata !{i32 5, i32 0, i32 1024, metadata !16}
 !16 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !17 = metadata !{metadata !"foo1", i32 12, %s1* @foo1_typeProxy, metadata !8, metadata !12}
-!18 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @FragColor_shadow_typeProxy, metadata !19}
+!18 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !19}
 !19 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
 #version 130
 // LunarGOO output

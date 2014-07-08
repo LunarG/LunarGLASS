@@ -521,11 +521,14 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
         // This isn't for the actual pipeline output, but for the variable
         // holding the value up until when the epilogue writes out to the pipe.
 
-        // both input and output will be shadowed
-
-        if (annotatedName.substr(0, 3) == "gl_")
-            annotatedName.erase(0, 3);
-        annotatedName.append("_shadow");
+        if (useLogicalIo())
+            linkage = llvm::GlobalVariable::ExternalLinkage;
+        else {
+            // both input and output will be shadowed
+            if (annotatedName.substr(0, 3) == "gl_")
+                annotatedName.erase(0, 3);
+            annotatedName.append("_shadow");
+        }
 
         // fall through, the shadows will be globals
 
@@ -547,7 +550,7 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
     if (global) {
         value = new llvm::GlobalVariable(*module, type, readOnly, linkage, initializer, annotatedName, 0, llvm::GlobalVariable::NotThreadLocal, addressSpace);
 
-        if (storageQualifier == ESQOutput) {
+        if (storageQualifier == ESQOutput && ! useLogicalIo()) {
             // Track the value that must be copied out to the pipeline at
             // the end of the shader.
             copyOut co = { value };    // the missing fields need to be filled in by calling setOutputMetadata()
@@ -618,6 +621,9 @@ llvm::Value* Builder::createInsertValue(llvm::Value* target, llvm::Value* source
 // accessChainTrackActive().
 void Builder::setActiveOutput(llvm::Value* base, std::vector<llvm::Value*>& gepChain)
 {
+    if (useLogicalIo())
+        return;
+
     // find the output
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
         if (copyOuts[out].value == base) {
@@ -685,6 +691,9 @@ void Builder::setActiveOutputSubset(copyOut& out, llvm::Type* type, int& activeI
 // Comments in header
 void Builder::setOutputMetadata(llvm::Value* value, llvm::MDNode* mdNode, int baseSlot, int numSlots)
 {
+    if (useLogicalIo())
+        return;
+
     // it's most likely the last one pushed...
     for (unsigned int out = copyOuts.size() - 1; out >= 0; ++out) {
         if (copyOuts[out].value == value) {
@@ -707,6 +716,9 @@ void Builder::setOutputMetadata(llvm::Value* value, llvm::MDNode* mdNode, int ba
 // Comments in header
 void Builder::copyOutPipeline()
 {
+    if (useLogicalIo())
+        return;
+
     std::vector<llvm::Value*> gepChain;
     for (unsigned int out = 0; out < copyOuts.size(); ++out) {
         llvm::Type* type = copyOuts[out].value->getType();
@@ -2523,6 +2535,13 @@ bool Builder::useColumnBasedMatrixIntrinsics() const
     // Note: if we knew all users of managers really derived from PrivateManager,
     // we wouldn't need the first test.
     return manager->getPrivateManager() && manager->getPrivateManager()->getBackEnd()->useColumnBasedMatrixIntrinsics();
+}
+
+bool Builder::useLogicalIo() const
+{
+    // Note: if we knew all users of managers really derived from PrivateManager,
+    // we wouldn't need the first test.
+    return manager->getPrivateManager() && manager->getPrivateManager()->getBackEnd()->useLogicalIo();
 }
 
 }; // end gla namespace

@@ -348,7 +348,20 @@ namespace gla {
         // Should the front end generate matrix operations with intrinsics
         // listing the matrix's columns rather than as re-expression in
         // LLVM native types?
+        // TODO: design: should this be part of the manager, so that Top IR is not back-end dependent?
         virtual bool useColumnBasedMatrixIntrinsics()
+        {
+            return false;
+        }
+
+        // Switch to put inputs and outputs into logical IO mode.
+        // If false, the physical set of numbered slots is used, through intrinsics, 
+        // with no variable indexing.
+        // If true, no slots or IO intrinsics are used, and it is just global variables
+        // correlated with IO metadata that identifies IO, and these can be variably
+        // indexed without loss of information.
+        // TODO: design: should this be part of the manager, so that Top IR is not back-end dependent?
+        virtual bool useLogicalIo()
         {
             return false;
         }

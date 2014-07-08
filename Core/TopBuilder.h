@@ -436,6 +436,8 @@ public:
     // Close the innermost loop that you're in
     void closeLoop();
 
+    bool useLogicalIo() const;
+
 protected:
     AccessChain accessChain;
     bool accessRightToLeft;

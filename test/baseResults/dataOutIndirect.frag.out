@@ -2,99 +2,24 @@
 Top IR:
 ; ModuleID = 'Glslang'
 
-@FragData_shadow = internal global [32 x <4 x float>] zeroinitializer
+@gl_FragData = global [32 x <4 x float>] zeroinitializer
 @i = external addrspace(2) constant i32
-@Color_shadow = internal global <4 x float> zeroinitializer
+@Color = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(2)* @i, !gla.uniform !3
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !gla.input !5
-  store <4 x float> %Color, <4 x float>* @Color_shadow
-  %1 = load <4 x float>* @Color_shadow
-  %2 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 %0
+  %1 = load <4 x float>* @Color
+  %2 = getelementptr [32 x <4 x float>]* @gl_FragData, i32 0, i32 %0
   store <4 x float> %1, <4 x float>* %2
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
-  %3 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 0)
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %3), !gla.output !1
-  %4 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 1)
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %4), !gla.output !1
-  %5 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 2)
-  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %5), !gla.output !1
-  %6 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 3)
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %6), !gla.output !1
-  %7 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 4)
-  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %7), !gla.output !1
-  %8 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 5)
-  call void @llvm.gla.fWriteData.v4f32(i32 1029, i32 -1, <4 x float> %8), !gla.output !1
-  %9 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 6)
-  call void @llvm.gla.fWriteData.v4f32(i32 1030, i32 -1, <4 x float> %9), !gla.output !1
-  %10 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 7)
-  call void @llvm.gla.fWriteData.v4f32(i32 1031, i32 -1, <4 x float> %10), !gla.output !1
-  %11 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 8)
-  call void @llvm.gla.fWriteData.v4f32(i32 1032, i32 -1, <4 x float> %11), !gla.output !1
-  %12 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 9)
-  call void @llvm.gla.fWriteData.v4f32(i32 1033, i32 -1, <4 x float> %12), !gla.output !1
-  %13 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 10)
-  call void @llvm.gla.fWriteData.v4f32(i32 1034, i32 -1, <4 x float> %13), !gla.output !1
-  %14 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 11)
-  call void @llvm.gla.fWriteData.v4f32(i32 1035, i32 -1, <4 x float> %14), !gla.output !1
-  %15 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 12)
-  call void @llvm.gla.fWriteData.v4f32(i32 1036, i32 -1, <4 x float> %15), !gla.output !1
-  %16 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 13)
-  call void @llvm.gla.fWriteData.v4f32(i32 1037, i32 -1, <4 x float> %16), !gla.output !1
-  %17 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 14)
-  call void @llvm.gla.fWriteData.v4f32(i32 1038, i32 -1, <4 x float> %17), !gla.output !1
-  %18 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 15)
-  call void @llvm.gla.fWriteData.v4f32(i32 1039, i32 -1, <4 x float> %18), !gla.output !1
-  %19 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 16)
-  call void @llvm.gla.fWriteData.v4f32(i32 1040, i32 -1, <4 x float> %19), !gla.output !1
-  %20 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 17)
-  call void @llvm.gla.fWriteData.v4f32(i32 1041, i32 -1, <4 x float> %20), !gla.output !1
-  %21 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 18)
-  call void @llvm.gla.fWriteData.v4f32(i32 1042, i32 -1, <4 x float> %21), !gla.output !1
-  %22 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 19)
-  call void @llvm.gla.fWriteData.v4f32(i32 1043, i32 -1, <4 x float> %22), !gla.output !1
-  %23 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 20)
-  call void @llvm.gla.fWriteData.v4f32(i32 1044, i32 -1, <4 x float> %23), !gla.output !1
-  %24 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 21)
-  call void @llvm.gla.fWriteData.v4f32(i32 1045, i32 -1, <4 x float> %24), !gla.output !1
-  %25 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 22)
-  call void @llvm.gla.fWriteData.v4f32(i32 1046, i32 -1, <4 x float> %25), !gla.output !1
-  %26 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 23)
-  call void @llvm.gla.fWriteData.v4f32(i32 1047, i32 -1, <4 x float> %26), !gla.output !1
-  %27 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 24)
-  call void @llvm.gla.fWriteData.v4f32(i32 1048, i32 -1, <4 x float> %27), !gla.output !1
-  %28 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 25)
-  call void @llvm.gla.fWriteData.v4f32(i32 1049, i32 -1, <4 x float> %28), !gla.output !1
-  %29 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 26)
-  call void @llvm.gla.fWriteData.v4f32(i32 1050, i32 -1, <4 x float> %29), !gla.output !1
-  %30 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 27)
-  call void @llvm.gla.fWriteData.v4f32(i32 1051, i32 -1, <4 x float> %30), !gla.output !1
-  %31 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 28)
-  call void @llvm.gla.fWriteData.v4f32(i32 1052, i32 -1, <4 x float> %31), !gla.output !1
-  %32 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 29)
-  call void @llvm.gla.fWriteData.v4f32(i32 1053, i32 -1, <4 x float> %32), !gla.output !1
-  %33 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 30)
-  call void @llvm.gla.fWriteData.v4f32(i32 1054, i32 -1, <4 x float> %33), !gla.output !1
-  %34 = load <4 x float>* getelementptr inbounds ([32 x <4 x float>]* @FragData_shadow, i32 0, i32 31)
-  call void @llvm.gla.fWriteData.v4f32(i32 1055, i32 -1, <4 x float> %34), !gla.output !1
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
-attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}
@@ -102,122 +27,27 @@ attributes #1 = { nounwind }
 !gla.inputs = !{!5}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @FragData_shadow_typeProxy, metadata !2}
+!1 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @gl_FragData_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 !3 = metadata !{metadata !"i", i32 12, i32* @i_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1024, null}
-!5 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_shadow_typeProxy, metadata !6}
+!5 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1056, null, i32 1}
 
 
 Bottom IR:
 ; ModuleID = 'Glslang'
 
-@FragData_shadow = internal unnamed_addr global [32 x <4 x float>] zeroinitializer
+@gl_FragData = global [32 x <4 x float>] zeroinitializer
 @i = external addrspace(2) constant i32
+@Color = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(2)* @i, align 4, !gla.uniform !3
-  %Color = call <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32 1056, i32 -1, i32 1), !gla.input !5
-  %1 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 %0
-  store <4 x float> %Color, <4 x float>* %1, align 16
-  %gla_constGEP = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 0
-  %2 = load <4 x float>* %gla_constGEP, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1024, i32 -1, <4 x float> %2), !gla.output !1
-  %gla_constGEP1 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 1
-  %3 = load <4 x float>* %gla_constGEP1, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1025, i32 -1, <4 x float> %3), !gla.output !1
-  %gla_constGEP2 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 2
-  %4 = load <4 x float>* %gla_constGEP2, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1026, i32 -1, <4 x float> %4), !gla.output !1
-  %gla_constGEP3 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 3
-  %5 = load <4 x float>* %gla_constGEP3, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1027, i32 -1, <4 x float> %5), !gla.output !1
-  %gla_constGEP4 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 4
-  %6 = load <4 x float>* %gla_constGEP4, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1028, i32 -1, <4 x float> %6), !gla.output !1
-  %gla_constGEP5 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 5
-  %7 = load <4 x float>* %gla_constGEP5, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1029, i32 -1, <4 x float> %7), !gla.output !1
-  %gla_constGEP6 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 6
-  %8 = load <4 x float>* %gla_constGEP6, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1030, i32 -1, <4 x float> %8), !gla.output !1
-  %gla_constGEP7 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 7
-  %9 = load <4 x float>* %gla_constGEP7, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1031, i32 -1, <4 x float> %9), !gla.output !1
-  %gla_constGEP8 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 8
-  %10 = load <4 x float>* %gla_constGEP8, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1032, i32 -1, <4 x float> %10), !gla.output !1
-  %gla_constGEP9 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 9
-  %11 = load <4 x float>* %gla_constGEP9, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1033, i32 -1, <4 x float> %11), !gla.output !1
-  %gla_constGEP10 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 10
-  %12 = load <4 x float>* %gla_constGEP10, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1034, i32 -1, <4 x float> %12), !gla.output !1
-  %gla_constGEP11 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 11
-  %13 = load <4 x float>* %gla_constGEP11, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1035, i32 -1, <4 x float> %13), !gla.output !1
-  %gla_constGEP12 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 12
-  %14 = load <4 x float>* %gla_constGEP12, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1036, i32 -1, <4 x float> %14), !gla.output !1
-  %gla_constGEP13 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 13
-  %15 = load <4 x float>* %gla_constGEP13, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1037, i32 -1, <4 x float> %15), !gla.output !1
-  %gla_constGEP14 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 14
-  %16 = load <4 x float>* %gla_constGEP14, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1038, i32 -1, <4 x float> %16), !gla.output !1
-  %gla_constGEP15 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 15
-  %17 = load <4 x float>* %gla_constGEP15, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1039, i32 -1, <4 x float> %17), !gla.output !1
-  %gla_constGEP16 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 16
-  %18 = load <4 x float>* %gla_constGEP16, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1040, i32 -1, <4 x float> %18), !gla.output !1
-  %gla_constGEP17 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 17
-  %19 = load <4 x float>* %gla_constGEP17, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1041, i32 -1, <4 x float> %19), !gla.output !1
-  %gla_constGEP18 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 18
-  %20 = load <4 x float>* %gla_constGEP18, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1042, i32 -1, <4 x float> %20), !gla.output !1
-  %gla_constGEP19 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 19
-  %21 = load <4 x float>* %gla_constGEP19, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1043, i32 -1, <4 x float> %21), !gla.output !1
-  %gla_constGEP20 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 20
-  %22 = load <4 x float>* %gla_constGEP20, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1044, i32 -1, <4 x float> %22), !gla.output !1
-  %gla_constGEP21 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 21
-  %23 = load <4 x float>* %gla_constGEP21, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1045, i32 -1, <4 x float> %23), !gla.output !1
-  %gla_constGEP22 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 22
-  %24 = load <4 x float>* %gla_constGEP22, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1046, i32 -1, <4 x float> %24), !gla.output !1
-  %gla_constGEP23 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 23
-  %25 = load <4 x float>* %gla_constGEP23, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1047, i32 -1, <4 x float> %25), !gla.output !1
-  %gla_constGEP24 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 24
-  %26 = load <4 x float>* %gla_constGEP24, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1048, i32 -1, <4 x float> %26), !gla.output !1
-  %gla_constGEP25 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 25
-  %27 = load <4 x float>* %gla_constGEP25, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1049, i32 -1, <4 x float> %27), !gla.output !1
-  %gla_constGEP26 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 26
-  %28 = load <4 x float>* %gla_constGEP26, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1050, i32 -1, <4 x float> %28), !gla.output !1
-  %gla_constGEP27 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 27
-  %29 = load <4 x float>* %gla_constGEP27, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1051, i32 -1, <4 x float> %29), !gla.output !1
-  %gla_constGEP28 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 28
-  %30 = load <4 x float>* %gla_constGEP28, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1052, i32 -1, <4 x float> %30), !gla.output !1
-  %gla_constGEP29 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 29
-  %31 = load <4 x float>* %gla_constGEP29, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1053, i32 -1, <4 x float> %31), !gla.output !1
-  %gla_constGEP30 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 30
-  %32 = load <4 x float>* %gla_constGEP30, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1054, i32 -1, <4 x float> %32), !gla.output !1
-  %gla_constGEP31 = getelementptr [32 x <4 x float>]* @FragData_shadow, i32 0, i32 31
-  %33 = load <4 x float>* %gla_constGEP31, align 16
-  call void @llvm.gla.fWriteData.v4f32(i32 1055, i32 -1, <4 x float> %33), !gla.output !1
+  %1 = load <4 x float>* @Color, align 16
+  %2 = getelementptr [32 x <4 x float>]* @gl_FragData, i32 0, i32 %0
+  store <4 x float> %1, <4 x float>* %2, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -227,68 +57,26 @@ stage-exit:                                       ; preds = %stage-epilogue
   ret void
 }
 
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fReadInterpolant.v4f32(i32, i32, i32) #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.fWriteData.v4f32(i32, i32, <4 x float>) #1
-
-attributes #0 = { nounwind readnone }
-attributes #1 = { nounwind }
-
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1}
 !gla.uniforms = !{!3}
 !gla.inputs = !{!5}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @FragData_shadow_typeProxy, metadata !2}
+!1 = metadata !{metadata !"gl_FragData", i32 7, [32 x <4 x float>]* @gl_FragData_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 !3 = metadata !{metadata !"i", i32 12, i32* @i_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1024, null}
-!5 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_shadow_typeProxy, metadata !6}
+!5 = metadata !{metadata !"Color", i32 1, <4 x float>* @Color_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1056, null, i32 1}
 #version 130
 // LunarGOO output
 uniform int i;
 in vec4 Color;
-vec4 FragData_shadow[32];
 
 void main()
 {
-    FragData_shadow[i] = Color;
-    gl_FragData[0] = FragData_shadow[0];
-    gl_FragData[1] = FragData_shadow[1];
-    gl_FragData[2] = FragData_shadow[2];
-    gl_FragData[3] = FragData_shadow[3];
-    gl_FragData[4] = FragData_shadow[4];
-    gl_FragData[5] = FragData_shadow[5];
-    gl_FragData[6] = FragData_shadow[6];
-    gl_FragData[7] = FragData_shadow[7];
-    gl_FragData[8] = FragData_shadow[8];
-    gl_FragData[9] = FragData_shadow[9];
-    gl_FragData[10] = FragData_shadow[10];
-    gl_FragData[11] = FragData_shadow[11];
-    gl_FragData[12] = FragData_shadow[12];
-    gl_FragData[13] = FragData_shadow[13];
-    gl_FragData[14] = FragData_shadow[14];
-    gl_FragData[15] = FragData_shadow[15];
-    gl_FragData[16] = FragData_shadow[16];
-    gl_FragData[17] = FragData_shadow[17];
-    gl_FragData[18] = FragData_shadow[18];
-    gl_FragData[19] = FragData_shadow[19];
-    gl_FragData[20] = FragData_shadow[20];
-    gl_FragData[21] = FragData_shadow[21];
-    gl_FragData[22] = FragData_shadow[22];
-    gl_FragData[23] = FragData_shadow[23];
-    gl_FragData[24] = FragData_shadow[24];
-    gl_FragData[25] = FragData_shadow[25];
-    gl_FragData[26] = FragData_shadow[26];
-    gl_FragData[27] = FragData_shadow[27];
-    gl_FragData[28] = FragData_shadow[28];
-    gl_FragData[29] = FragData_shadow[29];
-    gl_FragData[30] = FragData_shadow[30];
-    gl_FragData[31] = FragData_shadow[31];
+    gl_FragData[i] = Color;
     
 }
 
@@ -297,76 +85,10 @@ void main()
 // LunarGOO output
 uniform int i;
 in vec4 Color;
-vec4 FragData_shadow[32];
-vec4 FragData_shadow1[32];
 
 void main()
 {
-    FragData_shadow[i] = Color;
-    FragData_shadow1[0] = FragData_shadow[0];
-    FragData_shadow1[1] = FragData_shadow[1];
-    FragData_shadow1[2] = FragData_shadow[2];
-    FragData_shadow1[3] = FragData_shadow[3];
-    FragData_shadow1[4] = FragData_shadow[4];
-    FragData_shadow1[5] = FragData_shadow[5];
-    FragData_shadow1[6] = FragData_shadow[6];
-    FragData_shadow1[7] = FragData_shadow[7];
-    FragData_shadow1[8] = FragData_shadow[8];
-    FragData_shadow1[9] = FragData_shadow[9];
-    FragData_shadow1[10] = FragData_shadow[10];
-    FragData_shadow1[11] = FragData_shadow[11];
-    FragData_shadow1[12] = FragData_shadow[12];
-    FragData_shadow1[13] = FragData_shadow[13];
-    FragData_shadow1[14] = FragData_shadow[14];
-    FragData_shadow1[15] = FragData_shadow[15];
-    FragData_shadow1[16] = FragData_shadow[16];
-    FragData_shadow1[17] = FragData_shadow[17];
-    FragData_shadow1[18] = FragData_shadow[18];
-    FragData_shadow1[19] = FragData_shadow[19];
-    FragData_shadow1[20] = FragData_shadow[20];
-    FragData_shadow1[21] = FragData_shadow[21];
-    FragData_shadow1[22] = FragData_shadow[22];
-    FragData_shadow1[23] = FragData_shadow[23];
-    FragData_shadow1[24] = FragData_shadow[24];
-    FragData_shadow1[25] = FragData_shadow[25];
-    FragData_shadow1[26] = FragData_shadow[26];
-    FragData_shadow1[27] = FragData_shadow[27];
-    FragData_shadow1[28] = FragData_shadow[28];
-    FragData_shadow1[29] = FragData_shadow[29];
-    FragData_shadow1[30] = FragData_shadow[30];
-    FragData_shadow1[31] = FragData_shadow[31];
-    gl_FragData[0] = FragData_shadow[0];
-    gl_FragData[1] = FragData_shadow1[1];
-    gl_FragData[2] = FragData_shadow1[2];
-    gl_FragData[3] = FragData_shadow1[3];
-    gl_FragData[4] = FragData_shadow1[4];
-    gl_FragData[5] = FragData_shadow1[5];
-    gl_FragData[6] = FragData_shadow1[6];
-    gl_FragData[7] = FragData_shadow1[7];
-    gl_FragData[8] = FragData_shadow1[8];
-    gl_FragData[9] = FragData_shadow1[9];
-    gl_FragData[10] = FragData_shadow1[10];
-    gl_FragData[11] = FragData_shadow1[11];
-    gl_FragData[12] = FragData_shadow1[12];
-    gl_FragData[13] = FragData_shadow1[13];
-    gl_FragData[14] = FragData_shadow1[14];
-    gl_FragData[15] = FragData_shadow1[15];
-    gl_FragData[16] = FragData_shadow1[16];
-    gl_FragData[17] = FragData_shadow1[17];
-    gl_FragData[18] = FragData_shadow1[18];
-    gl_FragData[19] = FragData_shadow1[19];
-    gl_FragData[20] = FragData_shadow1[20];
-    gl_FragData[21] = FragData_shadow1[21];
-    gl_FragData[22] = FragData_shadow1[22];
-    gl_FragData[23] = FragData_shadow1[23];
-    gl_FragData[24] = FragData_shadow1[24];
-    gl_FragData[25] = FragData_shadow1[25];
-    gl_FragData[26] = FragData_shadow1[26];
-    gl_FragData[27] = FragData_shadow1[27];
-    gl_FragData[28] = FragData_shadow1[28];
-    gl_FragData[29] = FragData_shadow1[29];
-    gl_FragData[30] = FragData_shadow1[30];
-    gl_FragData[31] = FragData_shadow1[31];
+    gl_FragData[i] = Color;
     
 }
 
