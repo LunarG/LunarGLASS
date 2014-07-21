@@ -3399,6 +3399,14 @@ void gla::GlslTarget::emitGlaInterpolationQualifier(EVariableQualifier qualifier
                 case EIMNoperspective: globalDeclarations << "noperspective "; break;
                 default:                                                       break;
                 }
+            } else {
+                switch (interpMethod) {
+                case EIMNone:                                                  break;
+                case EIMPatch:         globalDeclarations << "patch ";         break;
+                default:
+                    UnsupportedFunctionality("unknown interpolation method", EATContinue);
+                    break;
+                }
             }
         }
     }

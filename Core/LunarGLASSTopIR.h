@@ -123,6 +123,7 @@ namespace gla {
         EIMNone,  // also for flat
         EIMSmooth,
         EIMNoperspective,
+        EIMPatch,
         EIMLast
     };
 

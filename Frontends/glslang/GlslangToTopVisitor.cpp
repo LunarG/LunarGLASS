@@ -311,6 +311,8 @@ void GetInterpolationLocationMethod(const glslang::TType& type, gla::EInterpolat
         method = gla::EIMNoperspective;
     else if (type.getQualifier().smooth)
         method = gla::EIMSmooth;
+    else if (type.getQualifier().patch)
+        method = gla::EIMPatch;
 
     location = gla::EILFragment;
     if (type.getQualifier().sample)
