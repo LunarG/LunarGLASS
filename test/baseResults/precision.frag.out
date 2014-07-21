@@ -292,7 +292,6 @@ attributes #0 = { nounwind readnone }
 #version 300 es
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
-
 uniform mediump int uniform_medium;
 uniform highp int uniform_high;
 uniform lowp int uniform_low;
@@ -301,48 +300,46 @@ in highp vec4 highfin;
 in lowp float lowfin;
 in mediump float mediumfin;
 out mediump vec4 mediumfout;
-const highp vec4 const27 = vec4(1.02391e+06);
-const highp int const31i_1 = 1;
-const highp int const33i_4 = 4;
-const bvec2 const42 = bvec2(false, true);
-const highp vec4 const45 = vec4(1.0);
+const highp vec4 L_7 = vec4(1.02391e+06);
+const highp int L_b = 1;
+const highp int L_d = 4;
+const bvec2 L_16 = bvec2(false, true);
+const highp vec4 L_19 = vec4(1.0);
 
 void main()
 {
-    mediump float temp21 = distance(lowfin, mediumfin);
-    highp float global_highp_c1 = length(highfin);
-    vec4 temp23 = vec4(global_highp_c1);
-    lowp float temp24 = sin(temp21);
-    vec4 temp25 = vec4(temp24);
-    mediump vec4 temp26 = temp25 + const27;
-    highp vec4 mediumfout_c2 = temp23 + temp26;
-    mediumfout = mediumfout_c2;
-    int _lhs_c3 = uniform_high * uniform_low;
-    int factor_c4 = uniform_high << const31i_1;
-    lowp int temp32 = uniform_medium + const33i_4;
-    highp int sum_c5 = temp32 + uniform_low;
-    highp int sum_c6 = sum_c5 + uniform_high;
-    lowp int sum_c7 = _lhs_c3 + sum_c6;
-    lowp int sum_c8 = factor_c4 + sum_c7;
-    mediump float temp38 = float(sum_c8);
-    vec4 temp39 = vec4(temp38);
-    mediump vec4 mediumfout_c9 = mediumfout_c2 + temp39;
-    mediumfout = mediumfout_c9;
-    bvec2 temp41 = equal(ub2, const42);
-    bool temp43 = all(temp41);
-    if (temp43) {
-        mediump vec4 mediumfout_c10 = mediumfout_c9 + const45;
-        mediumfout = mediumfout_c10;
-    }
-    
-    
+	mediump float L_1 = distance(lowfin, mediumfin);
+	highp float global_highp_c1 = length(highfin);
+	vec4 L_3 = vec4(global_highp_c1);
+	lowp float L_4 = sin(L_1);
+	vec4 L_5 = vec4(L_4);
+	mediump vec4 L_6 = L_5 + L_7;
+	highp vec4 mediumfout_c2 = L_3 + L_6;
+	mediumfout = mediumfout_c2;
+	int _lhs_c3 = uniform_high * uniform_low;
+	int factor_c4 = uniform_high << L_b;
+	lowp int L_c = uniform_medium + L_d;
+	highp int sum_c5 = L_c + uniform_low;
+	highp int sum_c6 = sum_c5 + uniform_high;
+	lowp int sum_c7 = _lhs_c3 + sum_c6;
+	lowp int sum_c8 = factor_c4 + sum_c7;
+	mediump float L_12 = float(sum_c8);
+	vec4 L_13 = vec4(L_12);
+	mediump vec4 mediumfout_c9 = L_13 + mediumfout_c2;
+	mediumfout = mediumfout_c9;
+	bvec2 L_15 = equal(ub2, L_16);
+	bool L_17 = all(L_15);
+	if (L_17) {
+		mediump vec4 mediumfout_c10 = mediumfout_c9 + L_19;
+		mediumfout = mediumfout_c10;
+	}
+	
+	
 }
-
 
 #version 300 es
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
-
 uniform highp int uniform_high;
 uniform lowp int uniform_low;
 uniform mediump int uniform_medium;
@@ -351,40 +348,39 @@ in lowp float lowfin;
 in mediump float mediumfin;
 in highp vec4 highfin;
 out mediump vec4 mediumfout;
-const highp vec4 const27 = vec4(1023910.0);
-const highp int const30i_2 = 2;
-const highp int const33i_4 = 4;
-const bvec2 const41 = bvec2(false, true);
-const highp vec4 const44 = vec4(1.0);
+const highp vec4 L_7 = vec4(1023910.0);
+const highp int L_a = 2;
+const highp int L_d = 4;
+const bvec2 L_15 = bvec2(false, true);
+const highp vec4 L_18 = vec4(1.0);
 
 void main()
 {
-    mediump float temp_c1 = distance(lowfin, mediumfin);
-    highp float global_highp_c2 = length(highfin);
-    vec4 temp23 = vec4(global_highp_c2);
-    mediump float temp_c3 = sin(temp_c1);
-    vec4 temp25 = vec4(temp_c3);
-    highp vec4 temp_c4 = temp25 + const27;
-    mediump vec4 mediumfout_c5 = temp23 + temp_c4;
-    mediumfout = mediumfout_c5;
-    int tmp_c6 = uniform_low + const30i_2;
-    int tmp_c7 = tmp_c6 * uniform_high;
-    lowp int sum_c8 = uniform_high + const33i_4;
-    highp int sum_c9 = sum_c8 + uniform_low;
-    highp int sum_c10 = sum_c9 + uniform_medium;
-    mediump int sum_c11 = sum_c10 + tmp_c7;
-    mediump float temp_c12 = float(sum_c11);
-    vec4 temp38 = vec4(temp_c12);
-    highp vec4 mediumfout_c13 = mediumfout_c5 + temp38;
-    mediumfout = mediumfout_c13;
-    bvec2 temp_c14 = equal(ub2, const41);
-    bool temp_c15 = all(temp_c14);
-    if (temp_c15) {
-        highp vec4 mediumfout_c16 = mediumfout_c13 + const44;
-        mediumfout = mediumfout_c16;
-    }
-    
-    
+	mediump float L_uc1 = distance(lowfin, mediumfin);
+	highp float global_highp_c2 = length(highfin);
+	vec4 L_3 = vec4(global_highp_c2);
+	mediump float L_uc3 = sin(L_uc1);
+	vec4 L_5 = vec4(L_uc3);
+	highp vec4 L_uc4 = L_5 + L_7;
+	mediump vec4 mediumfout_c5 = L_3 + L_uc4;
+	mediumfout = mediumfout_c5;
+	int tmp_c6 = uniform_low + L_a;
+	int tmp_c7 = tmp_c6 * uniform_high;
+	lowp int sum_c8 = uniform_high + L_d;
+	highp int sum_c9 = sum_c8 + uniform_low;
+	highp int sum_c10 = sum_c9 + uniform_medium;
+	mediump int sum_c11 = sum_c10 + tmp_c7;
+	mediump float L_uc12 = float(sum_c11);
+	vec4 L_12 = vec4(L_uc12);
+	highp vec4 mediumfout_c13 = L_12 + mediumfout_c5;
+	mediumfout = mediumfout_c13;
+	bvec2 L_uc14 = equal(ub2, L_15);
+	bool L_uc15 = all(L_uc14);
+	if (L_uc15) {
+		highp vec4 mediumfout_c16 = mediumfout_c13 + L_18;
+		mediumfout = mediumfout_c16;
+	}
+	
+	
 }
-
 

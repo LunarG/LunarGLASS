@@ -205,86 +205,84 @@ attributes #1 = { nounwind }
 #version 110
 // LunarGOO output
 varying vec2 tex_coord;
-const float const22 = 2.0;
-const float const24 = -1.0;
-const float const32 = 1.0;
-const float const34 = 1.1;
-const vec4 const36 = vec4(2.0);
-const vec4 const37 = vec4(1.0);
-const float const39 = 0.75;
-const float const41 = 16.0;
-const float const43 = 0.5;
+const float L_2 = 2.0;
+const float L_4 = -1.0;
+const float L_c = 1.0;
+const float L_e = 1.1;
+const vec4 L_10 = vec4(2.0);
+const vec4 L_11 = vec4(1.0);
+const float L_13 = 0.75;
+const float L_15 = 16.0;
+const float L_17 = 0.5;
 
 void main()
 {
-    float temp21 = tex_coord.x * const22;
-    float temp23 = temp21 + const24;
-    float temp25 = const22 * tex_coord.y;
-    float temp26 = const24 + temp25;
-    float temp27 = temp23 * temp23;
-    float temp28 = temp26 * temp26;
-    float temp29 = temp27 + temp28;
-    float radius_c1 = sqrt(temp29);
-    bool temp31 = radius_c1 > const32;
-    if (temp31) {
-        bool temp33 = radius_c1 > const34;
-        vec4 color_uc2 = temp33 ? const36 : const37;
-        gl_FragColor = color_uc2;
-        discard;
-    }
-    
-    bool temp38 = radius_c1 < const39;
-    float temp40 = pow(radius_c1, const41);
-    float temp42 = temp40 * const43;
-    float temp44 = abs(temp42);
-    vec4 temp45 = vec4(temp44);
-    vec4 color_c3 = const37 - temp45;
-    vec4 select_c4 = temp38 ? const37 : color_c3;
-    gl_FragColor = select_c4;
-    
+	float L_1 = tex_coord.x * L_2;
+	float L_3 = L_1 + L_4;
+	float L_5 = L_2 * tex_coord.y;
+	float L_6 = L_4 + L_5;
+	float L_7 = L_3 * L_3;
+	float L_8 = L_6 * L_6;
+	float L_9 = L_7 + L_8;
+	float radius_c1 = sqrt(L_9);
+	bool L_b = radius_c1 > L_c;
+	if (L_b) {
+		bool L_d = radius_c1 > L_e;
+		vec4 color_uc2 = L_d ? L_10 : L_11;
+		gl_FragColor = color_uc2;
+		discard;
+	}
+	
+	bool L_12 = radius_c1 < L_13;
+	float L_14 = pow(radius_c1, L_15);
+	float L_16 = L_14 * L_17;
+	float L_18 = abs(L_16);
+	vec4 L_19 = vec4(L_18);
+	vec4 color_c3 = L_11 - L_19;
+	vec4 select_c4 = L_12 ? L_11 : color_c3;
+	gl_FragColor = select_c4;
+	
 }
-
 
 #version 110
 // LunarGOO output
 varying vec2 tex_coord;
-const float const22 = 2.0;
-const float const24 = -1.0;
-const float const32 = 1.0;
-const float const34 = 1.1;
-const vec4 const36 = vec4(2.0);
-const vec4 const37 = vec4(1.0);
-const float const39 = 0.75;
-const float const41 = 16.0;
-const float const43 = 0.5;
+const float L_2 = 2.0;
+const float L_4 = -1.0;
+const float L_c = 1.0;
+const float L_e = 1.1;
+const vec4 L_10 = vec4(2.0);
+const vec4 L_11 = vec4(1.0);
+const float L_13 = 0.75;
+const float L_15 = 16.0;
+const float L_17 = 0.5;
 
 void main()
 {
-    float temp_c1 = tex_coord.x * const22;
-    float temp_c2 = temp_c1 + const24;
-    float temp_c3 = const22 * tex_coord.y;
-    float temp_c4 = const24 + temp_c3;
-    float temp_c5 = temp_c2 * temp_c2;
-    float temp_c6 = temp_c4 * temp_c4;
-    float temp_c7 = temp_c5 + temp_c6;
-    float radius_c8 = sqrt(temp_c7);
-    bool temp_c9 = radius_c8 > const32;
-    if (temp_c9) {
-        bool temp_c10 = radius_c8 > const34;
-        vec4 temp35 = temp_c10 ? const36 : const37;
-        gl_FragColor = temp35;
-        discard;
-    }
-    
-    bool temp_c11 = radius_c8 < const39;
-    float temp_c12 = pow(radius_c8, const41);
-    float temp_c13 = temp_c12 * const43;
-    float temp_c14 = abs(temp_c13);
-    vec4 temp45 = vec4(temp_c14);
-    vec4 color_c15 = const37 - temp45;
-    vec4 select_c16 = temp_c11 ? const37 : color_c15;
-    gl_FragColor = select_c16;
-    
+	float L_uc1 = tex_coord.x * L_2;
+	float L_uc2 = L_uc1 + L_4;
+	float L_uc3 = L_2 * tex_coord.y;
+	float L_uc4 = L_4 + L_uc3;
+	float L_uc5 = L_uc2 * L_uc2;
+	float L_uc6 = L_uc4 * L_uc4;
+	float L_uc7 = L_uc5 + L_uc6;
+	float radius_c8 = sqrt(L_uc7);
+	bool L_b_c9 = radius_c8 > L_c;
+	if (L_b_c9) {
+		bool L_d_c10 = radius_c8 > L_e;
+		vec4 L_f = L_d_c10 ? L_10 : L_11;
+		gl_FragColor = L_f;
+		discard;
+	}
+	
+	bool L_uc11 = radius_c8 < L_13;
+	float L_uc12 = pow(radius_c8, L_15);
+	float L_uc13 = L_uc12 * L_17;
+	float L_uc14 = abs(L_uc13);
+	vec4 L_19 = vec4(L_uc14);
+	vec4 color_c15 = L_11 - L_19;
+	vec4 select_c16 = L_uc11 ? L_11 : color_c15;
+	gl_FragColor = select_c16;
+	
 }
-
 

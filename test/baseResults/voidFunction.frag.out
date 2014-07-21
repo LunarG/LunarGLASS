@@ -123,32 +123,30 @@ attributes #0 = { nounwind readnone }
 uniform vec4 bigColor;
 uniform float d;
 varying vec4 BaseColor;
-const float const22 = 4.0;
+const float L_2 = 4.0;
 
 void main()
 {
-    float temp21 = bigColor.x + const22;
-    vec4 temp23 = bigColor;
-    temp23.x = temp21;
-    gl_FragColor = temp23;
-    
+	float L_1 = bigColor.x + L_2;
+	vec4 L_3 = bigColor;
+	L_3.x = L_1;
+	gl_FragColor = L_3;
+	
 }
-
 
 #version 120
 // LunarGOO output
 uniform vec4 bigColor;
 uniform float d;
 varying vec4 BaseColor;
-const float const22 = 4.0;
+const float L_2 = 4.0;
 
 void main()
 {
-    float temp_c1 = bigColor.x + const22;
-    vec4 temp23 = bigColor;
-    temp23.x = temp_c1;
-    gl_FragColor = temp23;
-    
+	float L_uc1 = bigColor.x + L_2;
+	vec4 L_3 = bigColor;
+	L_3.x = L_uc1;
+	gl_FragColor = L_3;
+	
 }
-
 

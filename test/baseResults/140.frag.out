@@ -179,37 +179,36 @@ uniform sampler2DRect sampR;
 uniform isamplerBuffer sampB;
 uniform sampler2D samp2Da[3];
 layout(std140) uniform bn {
-    layout(row_major) mat4 matra[4];
-    mat4 matca[4];
-    layout(row_major) mat4 matr;
-    mat4 matc;
-    layout(row_major) mat4 matrdef;
+	layout(row_major) mat4 matra[4];
+	mat4 matca[4];
+	layout(row_major) mat4 matr;
+	mat4 matc;
+	layout(row_major) mat4 matrdef;
 } ;
 in float gl_ClipDistance[5];
 in vec4 i;
 out vec4 o;
-const float const29 = 100.0;
+const float L_9 = 100.0;
 
 void main()
 {
-    vec4 temp21 = o;
-    temp21.y = gl_ClipDistance[2];
-    o = temp21;
-    int temp22 = int(i.x);
-    vec4 temp23 = o;
-    temp23.yz = vec2(gl_ClipDistance[2], gl_ClipDistance[temp22]);
-    o = temp23;
-    ivec2 temp24 = textureSize(sampR);
-    int temp25 = textureSize(sampB);
-    int temp26 = temp24.x + temp25;
-    float temp27 = float(temp26);
-    float temp28 = temp27 / const29;
-    vec4 temp30 = o;
-    temp30.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[temp22], temp28);
-    o = temp30;
-    
+	vec4 L_1 = o;
+	L_1.y = gl_ClipDistance[2];
+	o = L_1;
+	int L_2 = int(i.x);
+	vec4 L_3 = o;
+	L_3.yz = vec2(gl_ClipDistance[2], gl_ClipDistance[L_2]);
+	o = L_3;
+	ivec2 L_4 = textureSize(sampR);
+	int L_5 = textureSize(sampB);
+	int L_6 = L_4.x + L_5;
+	float L_7 = float(L_6);
+	float L_8 = L_7 / L_9;
+	vec4 L_a = o;
+	L_a.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[L_2], L_8);
+	o = L_a;
+	
 }
-
 
 #version 140
 // LunarGOO output
@@ -217,35 +216,34 @@ uniform sampler2DRect sampR;
 uniform isamplerBuffer sampB;
 uniform sampler2D samp2Da[3];
 layout(std140) uniform bn {
-    layout(row_major) mat4 matra[4];
-    mat4 matca[4];
-    layout(row_major) mat4 matr;
-    mat4 matc;
-    layout(row_major) mat4 matrdef;
+	layout(row_major) mat4 matra[4];
+	mat4 matca[4];
+	layout(row_major) mat4 matr;
+	mat4 matc;
+	layout(row_major) mat4 matrdef;
 } ;
 in float gl_ClipDistance[5];
 in vec4 i;
 out vec4 o;
-const float const29 = 100.0;
+const float L_9 = 100.0;
 
 void main()
 {
-    vec4 temp21 = o;
-    temp21.y = gl_ClipDistance[2];
-    o = temp21;
-    int temp_c1 = int(i.x);
-    vec4 temp23 = o;
-    temp23.yz = vec2(gl_ClipDistance[2], gl_ClipDistance[temp_c1]);
-    o = temp23;
-    ivec2 temp_c2 = textureSize(sampR);
-    int temp_c3 = textureSize(sampB);
-    int temp_c4 = temp_c2.x + temp_c3;
-    float temp_c5 = float(temp_c4);
-    float temp_c6 = temp_c5 / const29;
-    vec4 temp30 = o;
-    temp30.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[temp_c1], temp_c6);
-    o = temp30;
-    
+	vec4 L_1 = o;
+	L_1.y = gl_ClipDistance[2];
+	o = L_1;
+	int L_uc1 = int(i.x);
+	vec4 L_3 = o;
+	L_3.yz = vec2(gl_ClipDistance[2], gl_ClipDistance[L_uc1]);
+	o = L_3;
+	ivec2 L_uc2 = textureSize(sampR);
+	int L_uc3 = textureSize(sampB);
+	int L_uc4 = L_uc2.x + L_uc3;
+	float L_uc5 = float(L_uc4);
+	float L_uc6 = L_uc5 / L_9;
+	vec4 L_a = o;
+	L_a.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[L_uc1], L_uc6);
+	o = L_a;
+	
 }
-
 

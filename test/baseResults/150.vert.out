@@ -170,16 +170,14 @@ attributes #0 = { nounwind readnone }
 #version 150 core
 // LunarGOO output
 struct s1 {
-    int a;
-    int a2;
-    vec4 b[3];
+	int a;
+	int a2;
+	vec4 b[3];
 };
-
 struct s2 {
-    int c;
-    s1 d[4];
+	int c;
+	s1 d[4];
 };
-
 uniform float ps;
 uniform int ui;
 in vec4 iv4;
@@ -187,29 +185,26 @@ out s2 s2out;
 
 void main()
 {
-    gl_Position = iv4;
-    gl_PointSize = ps;
-    gl_ClipDistance[2] = iv4.x;
-    vec4 temp21 = s2out.d[0].b[2];
-    temp21.w = ps;
-    s2out.d[0].b[2] = temp21;
-    
+	gl_Position = iv4;
+	gl_PointSize = ps;
+	gl_ClipDistance[2] = iv4.x;
+	vec4 L_1 = s2out.d[0].b[2];
+	L_1.w = ps;
+	s2out.d[0].b[2] = L_1;
+	
 }
-
 
 #version 150 core
 // LunarGOO output
 struct s1 {
-    int a;
-    int a2;
-    vec4 b[3];
+	int a;
+	int a2;
+	vec4 b[3];
 };
-
 struct s2 {
-    int c;
-    s1 d[4];
+	int c;
+	s1 d[4];
 };
-
 uniform float ps;
 uniform int ui;
 in vec4 iv4;
@@ -217,13 +212,12 @@ out s2 s2out;
 
 void main()
 {
-    gl_Position = iv4;
-    gl_PointSize = ps;
-    gl_ClipDistance[2] = iv4.x;
-    vec4 temp21 = s2out.d[0].b[2];
-    temp21.w = ps;
-    s2out.d[0].b[2] = temp21;
-    
+	gl_Position = iv4;
+	gl_PointSize = ps;
+	gl_ClipDistance[2] = iv4.x;
+	vec4 L_1 = s2out.d[0].b[2];
+	L_1.w = ps;
+	s2out.d[0].b[2] = L_1;
+	
 }
-
 

@@ -116,14 +116,13 @@ out vec4 colorOut[6];
 
 void main()
 {
-    colorOut[1] = color;
-    colorOut[2] = color;
-    colorOut[3] = color;
-    colorOut[4] = color;
-    gl_Position = color;
-    
+	colorOut[1] = color;
+	colorOut[2] = color;
+	colorOut[3] = color;
+	colorOut[4] = color;
+	gl_Position = color;
+	
 }
-
 
 #version 130
 // LunarGOO output
@@ -132,12 +131,11 @@ out vec4 colorOut[6];
 
 void main()
 {
-    colorOut[1] = color;
-    colorOut[2] = color;
-    colorOut[3] = color;
-    colorOut[4] = color;
-    gl_Position = color;
-    
+	colorOut[1] = color;
+	colorOut[2] = color;
+	colorOut[3] = color;
+	colorOut[4] = color;
+	gl_Position = color;
+	
 }
-
 

@@ -213,43 +213,42 @@ layout(triangles_adjacency) in;
 layout(triangle_strip) out;
 layout(max_vertices = 30) out;
 in fromVertex {
-    vec3 color;
+	vec3 color;
 } fromV[6];
 out fromVertex {
-    vec3 color;
+	vec3 color;
 } ;
 out toFragment {
-    vec3 color;
+	vec3 color;
 } toF;
-const int const21i_2 = 2;
-const vec3 const23 = vec3(2.0);
-const vec4 const25 = vec4(2.0);
-const float const27 = 2.0;
-const int const29i_1 = 1;
-const int const30i_3 = 3;
+const int L_1 = 2;
+const vec3 L_3 = vec3(2.0);
+const vec4 L_5 = vec4(2.0);
+const float L_7 = 2.0;
+const int L_9 = 1;
+const int L_a = 3;
 
 void main()
 {
-    color = fromV[0].color;
-    gl_Position = gl_in[0].gl_Position;
-    gl_PointSize = gl_in[3].gl_PointSize;
-    gl_PrimitiveID = gl_PrimitiveIDIn;
-    gl_Layer = const21i_2;
-    EmitVertex();
-    vec3 temp22 = fromV[0].color * const23;
-    color = temp22;
-    vec4 temp24 = gl_in[0].gl_Position * const25;
-    gl_Position = temp24;
-    float temp26 = gl_in[3].gl_PointSize * const27;
-    gl_PointSize = temp26;
-    int gla_gl_PrimitiveID_c1 = gl_PrimitiveIDIn + const29i_1;
-    gl_PrimitiveID = gla_gl_PrimitiveID_c1;
-    gl_Layer = const30i_3;
-    EmitVertex();
-    EndPrimitive();
-    
+	color = fromV[0].color;
+	gl_Position = gl_in[0].gl_Position;
+	gl_PointSize = gl_in[3].gl_PointSize;
+	gl_PrimitiveID = gl_PrimitiveIDIn;
+	gl_Layer = L_1;
+	EmitVertex();
+	vec3 L_2 = fromV[0].color * L_3;
+	color = L_2;
+	vec4 L_4 = gl_in[0].gl_Position * L_5;
+	gl_Position = L_4;
+	float L_6 = gl_in[3].gl_PointSize * L_7;
+	gl_PointSize = L_6;
+	int Ll_PrimitiveID_c1 = gl_PrimitiveIDIn + L_9;
+	gl_PrimitiveID = Ll_PrimitiveID_c1;
+	gl_Layer = L_a;
+	EmitVertex();
+	EndPrimitive();
+	
 }
-
 
 #version 150 core
 // LunarGOO output
@@ -257,41 +256,40 @@ layout(triangles_adjacency) in;
 layout(triangle_strip) out;
 layout(max_vertices = 30) out;
 in fromVertex {
-    vec3 color;
+	vec3 color;
 } fromV[6];
 out fromVertex {
-    vec3 color;
+	vec3 color;
 } ;
 out toFragment {
-    vec3 color;
+	vec3 color;
 } toF;
-const int const21i_2 = 2;
-const vec3 const23 = vec3(2.0);
-const vec4 const25 = vec4(2.0);
-const float const27 = 2.0;
-const int const29i_1 = 1;
-const int const30i_3 = 3;
+const int L_1 = 2;
+const vec3 L_3 = vec3(2.0);
+const vec4 L_5 = vec4(2.0);
+const float L_7 = 2.0;
+const int L_9 = 1;
+const int L_a = 3;
 
 void main()
 {
-    color = fromV[0].color;
-    gl_Position = gl_in[0].gl_Position;
-    gl_PointSize = gl_in[3].gl_PointSize;
-    gl_PrimitiveID = gl_PrimitiveIDIn;
-    gl_Layer = const21i_2;
-    EmitVertex();
-    vec3 temp_c1 = fromV[0].color * const23;
-    color = temp_c1;
-    vec4 temp_c2 = gl_in[0].gl_Position * const25;
-    gl_Position = temp_c2;
-    float temp_c3 = gl_in[3].gl_PointSize * const27;
-    gl_PointSize = temp_c3;
-    int gla_gl_PrimitiveID_c4 = gl_PrimitiveIDIn + const29i_1;
-    gl_PrimitiveID = gla_gl_PrimitiveID_c4;
-    gl_Layer = const30i_3;
-    EmitVertex();
-    EndPrimitive();
-    
+	color = fromV[0].color;
+	gl_Position = gl_in[0].gl_Position;
+	gl_PointSize = gl_in[3].gl_PointSize;
+	gl_PrimitiveID = gl_PrimitiveIDIn;
+	gl_Layer = L_1;
+	EmitVertex();
+	vec3 L_uc1 = fromV[0].color * L_3;
+	color = L_uc1;
+	vec4 L_uc2 = gl_in[0].gl_Position * L_5;
+	gl_Position = L_uc2;
+	float L_uc3 = gl_in[3].gl_PointSize * L_7;
+	gl_PointSize = L_uc3;
+	int Ll_PrimitiveID_c4 = gl_PrimitiveIDIn + L_9;
+	gl_PrimitiveID = Ll_PrimitiveID_c4;
+	gl_Layer = L_a;
+	EmitVertex();
+	EndPrimitive();
+	
 }
-
 

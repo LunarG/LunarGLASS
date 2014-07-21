@@ -185,11 +185,12 @@ public:
 
 class gla::GlslTarget : public gla::GlslTranslator {
 public:
-    GlslTarget(Manager* m, bool obfuscate, bool filterInactive) : GlslTranslator(m, obfuscate, filterInactive), appendInitializers(false), indentLevel(0), lastVariable(20), canonCounter(0)
+    GlslTarget(Manager* m, bool obfuscate, bool filterInactive) : GlslTranslator(m, obfuscate, filterInactive), appendInitializers(false), indentLevel(0), lastVariable(0), canonCounter(0)
     {
         #ifdef _WIN32
             unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
         #endif
+        indentString = "\t";
     }
 
     ~GlslTarget()
@@ -356,7 +357,7 @@ public:
         case EShLangCompute:
             break;
 
-	    default:
+        default:
             UnsupportedFunctionality("shader stage", EATContinue);
             break;
         }
@@ -518,6 +519,7 @@ protected:
     EShLanguage stage;
     bool usingSso;
     int canonCounter;
+    const char* indentString;
 };
 
 //
@@ -735,17 +737,6 @@ const char* MapGlaToQualifierString(int version, EShLanguage stage, EVariableQua
     default:
         UnsupportedFunctionality("Unknown EVariableQualifier", EATContinue);
         return "";
-    }
-}
-
-const char* MapGlaToAnnotationString(int version, EShLanguage stage, EVariableQualifier vq)
-{
-    switch (vq) {
-    case EVQGlobal:      return "global";
-    case EVQTemporary:   return "temp";
-    case EVQUndef:       return "undef";
-    default:
-        return MapGlaToQualifierString(version, stage, vq);
     }
 }
 
@@ -1067,10 +1058,10 @@ void MakeParseable(std::string& name)
 
 void MakeNonbuiltinName(std::string& name)
 {
-    // TODO: cleanliness: using "goo_" in the meantime, switch to "goo__" when all compilers accept it.
+    // TODO: cleanliness: switch to using "__" when all compilers accept it.
 
     if (name.compare(0, 3, "gl_") == 0)
-        name.insert(0, "goo_");
+        name[0] = 'L';
 }
 
 // Whether the given intrinsic's specified operand is the same as the passed
@@ -1345,6 +1336,7 @@ void gla::GlslTarget::startFunctionBody()
 void gla::GlslTarget::endFunctionBody()
 {
     leaveScope();
+    newLine();
 }
 
 void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, bool lastBlock, bool referencedOutsideScope)
@@ -1847,13 +1839,14 @@ void gla::GlslTarget::addIf(const llvm::Value* cond, bool invert)
 void gla::GlslTarget::addElse()
 {
     leaveScope();
-    shader << "else ";
+    shader << " else ";
     newScope();
 }
 
 void gla::GlslTarget::addEndif()
 {
     leaveScope();
+    newLine();
 }
 
 void gla::GlslTarget::beginConditionalLoop()
@@ -1967,6 +1960,7 @@ void gla::GlslTarget::beginLoop()
 void gla::GlslTarget::endLoop()
 {
     leaveScope();
+    newLine();
 }
 
 void gla::GlslTarget::addLoopExit(const llvm::Value* condition, bool invert)
@@ -2035,10 +2029,10 @@ void gla::GlslTarget::end(llvm::Module& module)
 
     // Default precision    
     if (stage == EShLangFragment && profile == EEsProfile)
-        fullShader << "precision mediump float; // this will be almost entirely overridden by individual declarations" << std::endl << std::endl;
+        fullShader << "precision mediump float; // this will be almost entirely overridden by individual declarations" << std::endl;
 
     // Body of shader
-    fullShader << globalStructures.str().c_str() << globalDeclarations.str().c_str() << shader.str().c_str() << std::endl;
+    fullShader << globalStructures.str().c_str() << globalDeclarations.str().c_str() << shader.str().c_str();
 
     delete generatedShader;
     generatedShader = new char[fullShader.str().size() + 1];
@@ -2067,7 +2061,7 @@ void gla::GlslTarget::newLine()
     } else {
         shader << std::endl;
         for (int i = 0; i < indentLevel; ++i)
-            shader << "    ";
+            shader << indentString;
     }
 }
 
@@ -2082,7 +2076,6 @@ void gla::GlslTarget::leaveScope()
     --indentLevel;
     newLine();
     shader << "}";
-    newLine();
 }
 
 void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block)
@@ -2127,7 +2120,7 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, 
     tempStructure << " {" << std::endl;
 
     for (int index = 0; index < (int)structType->getNumContainedTypes(); ++index) {
-        tempStructure << "    ";
+        tempStructure << indentString;
         if (mdAggregate) {
             const llvm::MDNode* subMdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(GetAggregateMdSubAggregateOp(index)));
             int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index), false, subMdAggregate);
@@ -2143,7 +2136,7 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, 
 
     tempStructure << "}";
     if (! block && name.size() > 0)
-        tempStructure << ";" << std::endl << std::endl;
+        tempStructure << ";" << std::endl;
 
     if (block)
         globalDeclarations << tempStructure.str();
@@ -2209,35 +2202,17 @@ void gla::GlslTarget::makeNewVariableName(const llvm::Value* value, std::string&
         makeObfuscatedName(name);
     } else {
         if (IsTempName(value->getName())) {
-            name.append(MapGlaToAnnotationString(version, stage, MapGlaAddressSpace(value)));
-            snprintf(buf, bufSize, "%d", lastVariable);
+            name.append("L_");
+            snprintf(buf, bufSize, "%x", lastVariable);
             name.append(buf);
-
-            // If it's a constant int or float, make the name contain the value.
-            if (llvm::isa<llvm::ConstantInt>(value)) {
-                int val = GetConstantInt(value);
-
-                // If it's an i1, that is a bool, then have it say true or
-                // false, else have it have the integer value.
-                if (IsBoolean(value->getType())) {
-                    name.append("b_");
-                    snprintf(buf, bufSize, val ? "true" : "false");
-                } else {
-                    name.append("i_");
-                    snprintf(buf, bufSize, "%d", GetConstantInt(value));
-                }
-
-                name.append(buf);
-            }
         } else {
             name.append(value->getName());
             canonicalizeName(name);
         }
 
         // Variables starting with gl_ are illegal in GLSL
-        if (name.substr(0,3) == std::string("gl_")) {
-            name.insert(0, "gla_");
-        }
+        if (name.substr(0,3) == std::string("gl_"))
+            name[0] = 'L';
     }
 }
 
@@ -2250,7 +2225,7 @@ void gla::GlslTarget::makeNewVariableName(const char* base, std::string& name)
         makeObfuscatedName(name);
     } else {
         name.append(base);
-        snprintf(buf, bufSize, "%d", lastVariable);
+        snprintf(buf, bufSize, "%x", lastVariable);
         name.append(buf);
     }
 }
@@ -2352,7 +2327,7 @@ void gla::GlslTarget::mapPointerExpression(const llvm::Value* ptr, const llvm::V
             if (gepInst && ! getExpressionString(gepInst->getOperand(0), expression))
                 UnsupportedFunctionality("GLSL back end gep missing value->string mapping", 0, expression.c_str(), EATContinue);
         } else {
-            UnsupportedFunctionality("missing metadata for makePointerExpression\n", 0, name.str().c_str());
+            UnsupportedFunctionality("missing metadata for makePointerExpression", 0, name.str().c_str());
         }
     }
 
@@ -3649,7 +3624,7 @@ void gla::GlslTarget::emitInitializeAggregate(std::ostringstream& out, std::stri
         if (const llvm::ConstantVector* constVec = llvm::dyn_cast<llvm::ConstantVector>(constant)) {
             for (int op = 0; op < (int)constVec->getNumOperands(); ++op) {
                 if (IsDefined(constVec->getOperand(op))) {
-                    out << std::endl << "    " << name;
+                    out << std::endl << indentString << name;
                     out << "." << MapComponentToSwizzleChar(op) << " = ";
                     out << *mapGlaValueAndEmitDeclaration(constVec->getOperand(op));
                     out << ";";
@@ -3658,7 +3633,7 @@ void gla::GlslTarget::emitInitializeAggregate(std::ostringstream& out, std::stri
         } else if (const llvm::ConstantArray* constArray = llvm::dyn_cast<llvm::ConstantArray>(constant)) {
             for (int op = 0; op < (int)constArray->getNumOperands(); ++op) {
                 if (IsDefined(constArray->getOperand(op))) {
-                    out << std::endl << "    " << name;
+                    out << std::endl << indentString << name;
                     out << "[" << op << "] = ";
                     out << *mapGlaValueAndEmitDeclaration(constArray->getOperand(op));
                     out << ";";
@@ -3667,7 +3642,7 @@ void gla::GlslTarget::emitInitializeAggregate(std::ostringstream& out, std::stri
         } else if (const llvm::ConstantStruct* constStruct = llvm::dyn_cast<llvm::ConstantStruct>(constant)) {
             for (int op = 0; op < (int)constStruct->getNumOperands(); ++op) {
                 if (IsDefined(constStruct->getOperand(op))) {
-                    out << std::endl << "    " << name;
+                    out << std::endl << indentString << name;
                     out << "." << MapGlaStructField(constant->getType(), op) << " = ";
                     out << *mapGlaValueAndEmitDeclaration(constStruct->getOperand(op));
                     out << ";";

@@ -156,19 +156,18 @@ in vec4 foo[3];
 
 void main()
 {
-    vec4 temp21 = gl_TexCoord[4] + gl_TexCoord[5];
-    vec2 temp22 = vec2(temp21);
-    vec4 texColor_c1 = texture(texSampler2D, temp22);
-    vec4 texColor_c2 = color + texColor_c1;
-    vec4 temp25 = texColor_c2;
-    temp25.w = alpha;
-    vec4 temp26 = foo[1] + gl_TexCoord[0];
-    vec4 temp27 = gl_TexCoord[4] + temp26;
-    vec4 gla_gl_FragColor_c3 = temp25 + temp27;
-    gl_FragColor = gla_gl_FragColor_c3;
-    
+	vec4 L_1 = gl_TexCoord[4] + gl_TexCoord[5];
+	vec2 L_2 = vec2(L_1);
+	vec4 texColor_c1 = texture(texSampler2D, L_2);
+	vec4 texColor_c2 = color + texColor_c1;
+	vec4 L_5 = texColor_c2;
+	L_5.w = alpha;
+	vec4 L_6 = foo[1] + gl_TexCoord[0];
+	vec4 L_7 = L_6 + gl_TexCoord[4];
+	vec4 Ll_FragColor_c3 = L_5 + L_7;
+	gl_FragColor = Ll_FragColor_c3;
+	
 }
-
 
 #version 130
 // LunarGOO output
@@ -180,17 +179,16 @@ in vec4 foo[3];
 
 void main()
 {
-    vec4 temp_c1 = gl_TexCoord[4] + gl_TexCoord[5];
-    vec2 temp22 = vec2(temp_c1);
-    vec4 texColor_c2 = texture(texSampler2D, temp22);
-    vec4 texColor_c3 = color + texColor_c2;
-    vec4 temp25 = texColor_c3;
-    temp25.w = alpha;
-    vec4 temp_c4 = foo[1] + gl_TexCoord[0];
-    vec4 temp_c5 = gl_TexCoord[4] + temp_c4;
-    vec4 gla_gl_FragColor_c6 = temp25 + temp_c5;
-    gl_FragColor = gla_gl_FragColor_c6;
-    
+	vec4 L_uc1 = gl_TexCoord[4] + gl_TexCoord[5];
+	vec2 L_2 = vec2(L_uc1);
+	vec4 texColor_c2 = texture(texSampler2D, L_2);
+	vec4 texColor_c3 = color + texColor_c2;
+	vec4 L_5 = texColor_c3;
+	L_5.w = alpha;
+	vec4 L_uc4 = foo[1] + gl_TexCoord[0];
+	vec4 L_uc5 = L_uc4 + gl_TexCoord[4];
+	vec4 Ll_FragColor_c6 = L_5 + L_uc5;
+	gl_FragColor = Ll_FragColor_c6;
+	
 }
-
 

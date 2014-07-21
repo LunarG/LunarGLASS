@@ -256,43 +256,40 @@ attributes #1 = { nounwind readnone }
 #version 400 core
 // LunarGOO output
 uniform float u;
-const float const23 = 3.2;
-const float const24 = 1397317.0;
-const float const25 = 2397317.0;
+const float L_3 = 3.2;
+const float L_4 = 1397317.0;
+const float L_5 = 2397317.0;
 
 void main()
 {
-    float temp21;
-    bool temp22 = u > const23;
-    if (temp22) {
-        discard;
-        temp21 = const24;
-    }
-    else {
-        temp21 = const25;
-    }
-    
-    vec4 temp26 = vec4(temp21);
-    gl_FragColor = temp26;
-    
+	float L_1;
+	bool L_2 = u > L_3;
+	if (L_2) {
+		discard;
+		L_1 = L_4;
+	} else {
+		L_1 = L_5;
+	}
+	
+	vec4 L_6 = vec4(L_1);
+	gl_FragColor = L_6;
+	
 }
-
 
 #version 400 core
 // LunarGOO output
 uniform float u;
-const float const22 = 3.2;
-const vec4 const23 = vec4(2397317.0);
+const float L_2 = 3.2;
+const vec4 L_3 = vec4(2397317.0);
 
 void main()
 {
-    bool temp_c1 = u > const22;
-    if (temp_c1) {
-        discard;
-    }
-    
-    gl_FragColor = const23;
-    
+	bool L_uc1 = u > L_2;
+	if (L_uc1) {
+		discard;
+	}
+	
+	gl_FragColor = L_3;
+	
 }
-
 

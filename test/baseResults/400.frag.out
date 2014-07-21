@@ -292,42 +292,41 @@ layout(location=6) in vec4 vl2;
 out vec4 outp;
 out uvec4 uoutp;
 out ivec4 ioutp;
-const ivec2[4] offsets_25 = ivec2[4](ivec2(1, 2), ivec2(3, 4), ivec2(15, 16), ivec2(-2, 0));
-const int const26i_2 = 2;
-const vec3 const30 = vec3(0.1);
-const ivec2 const31 = ivec2(1);
-const int const32i_3 = 3;
-const ivec4 const34 = ivec4(1);
-const vec2 const40 = vec2(0.0);
-const ivec2 const41 = ivec2(3, 4);
+const ivec2[4] offsets_5 = ivec2[4](ivec2(1, 2), ivec2(3, 4), ivec2(15, 16), ivec2(-2, 0));
+const int L_6 = 2;
+const vec3 L_a = vec3(0.1);
+const ivec2 L_b = ivec2(1);
+const int L_c = 3;
+const ivec4 L_e = ivec4(1);
+const vec2 L_14 = vec2(0.0);
+const ivec2 L_15 = ivec2(3, 4);
 
 void main()
 {
-    ivec2 temp21 = ivec2(i);
-    vec4 temp22 = texture(arrayedSampler[i], c2D);
-    vec4 temp23 = vec4(gl_ClipDistance[1], temp22.y, temp22.z, temp22.w);
-    outp = temp23;
-    ivec4 uoutp_c1 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_25, const26i_2));
-    uoutp = uvec4(uoutp_c1);
-    vec4 temp27 = textureGather(arrayedSampler[0], c2D);
-    vec4 outp_c2 = temp23 + temp27;
-    outp = outp_c2;
-    ivec4 ioutp_c3 = textureGatherOffset(isamp2DA, const30, const31, const32i_3);
-    ivec4 ioutp_c4 = ioutp_c3 << const34;
-    ivec4 temp35 = textureGatherOffset(isamp2DA, const30, temp21);
-    ivec4 ioutp_c5 = ioutp_c4 + temp35;
-    ioutp = ioutp_c5;
-    vec4 temp37 = gl_FragCoord + vl2;
-    vec4 outp_c6 = outp_c2 + temp37;
-    outp = outp_c6;
-    float temp39 = textureProjGradOffset(u2drs, outp_c6, const40, const40, const41);
-    float temp42 = outp_c6.x + temp39;
-    vec4 temp43 = outp_c6;
-    temp43.x = temp42;
-    outp = temp43;
-    
+	ivec2 L_1 = ivec2(i);
+	vec4 L_2 = texture(arrayedSampler[i], c2D);
+	vec4 L_3 = vec4(gl_ClipDistance[1], L_2.y, L_2.z, L_2.w);
+	outp = L_3;
+	ivec4 uoutp_c1 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_5, L_6));
+	uoutp = uvec4(uoutp_c1);
+	vec4 L_7 = textureGather(arrayedSampler[0], c2D);
+	vec4 outp_c2 = L_3 + L_7;
+	outp = outp_c2;
+	ivec4 ioutp_c3 = textureGatherOffset(isamp2DA, L_a, L_b, L_c);
+	ivec4 ioutp_c4 = ioutp_c3 << L_e;
+	ivec4 L_f = textureGatherOffset(isamp2DA, L_a, L_1);
+	ivec4 ioutp_c5 = L_f + ioutp_c4;
+	ioutp = ioutp_c5;
+	vec4 L_11 = gl_FragCoord + vl2;
+	vec4 outp_c6 = L_11 + outp_c2;
+	outp = outp_c6;
+	float L_13 = textureProjGradOffset(u2drs, outp_c6, L_14, L_14, L_15);
+	float L_16 = L_13 + outp_c6.x;
+	vec4 L_17 = outp_c6;
+	L_17.x = L_16;
+	outp = L_17;
+	
 }
-
 
 #version 400 core
 // LunarGOO output
@@ -343,40 +342,39 @@ layout(location=6) in vec4 vl2;
 out vec4 outp;
 out uvec4 uoutp;
 out ivec4 ioutp;
-const ivec2[4] offsets_25 = ivec2[4](ivec2(1, 2), ivec2(3, 4), ivec2(15, 16), ivec2(-2, 0));
-const int const26i_2 = 2;
-const vec3 const30 = vec3(0.1);
-const ivec2 const31 = ivec2(1);
-const int const32i_3 = 3;
-const ivec4 const34 = ivec4(1);
-const vec2 const40 = vec2(0.0);
-const ivec2 const41 = ivec2(3, 4);
+const ivec2[4] offsets_5 = ivec2[4](ivec2(1, 2), ivec2(3, 4), ivec2(15, 16), ivec2(-2, 0));
+const int L_6 = 2;
+const vec3 L_a = vec3(0.1);
+const ivec2 L_b = ivec2(1);
+const int L_c = 3;
+const ivec4 L_e = ivec4(1);
+const vec2 L_14 = vec2(0.0);
+const ivec2 L_15 = ivec2(3, 4);
 
 void main()
 {
-    ivec2 temp21 = ivec2(i);
-    vec4 temp_c1 = texture(arrayedSampler[i], c2D);
-    vec4 temp23 = vec4(gl_ClipDistance[1], temp_c1.y, temp_c1.z, temp_c1.w);
-    outp = temp23;
-    ivec4 uoutp_c2 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_25, const26i_2));
-    uoutp = uvec4(uoutp_c2);
-    vec4 temp_c3 = textureGather(arrayedSampler[0], c2D);
-    vec4 outp_c4 = temp23 + temp_c3;
-    outp = outp_c4;
-    ivec4 ioutp_c5 = textureGatherOffset(isamp2DA, const30, const31, const32i_3);
-    ivec4 ioutp_c6 = ioutp_c5 << const34;
-    ivec4 temp_c7 = textureGatherOffset(isamp2DA, const30, temp21);
-    ivec4 ioutp_c8 = ioutp_c6 + temp_c7;
-    ioutp = ioutp_c8;
-    vec4 temp_c9 = gl_FragCoord + vl2;
-    vec4 outp_c10 = outp_c4 + temp_c9;
-    outp = outp_c10;
-    float temp_c11 = textureProjGradOffset(u2drs, outp_c10, const40, const40, const41);
-    float temp_c12 = outp_c10.x + temp_c11;
-    vec4 temp43 = outp_c10;
-    temp43.x = temp_c12;
-    outp = temp43;
-    
+	ivec2 L_1 = ivec2(i);
+	vec4 L_uc1 = texture(arrayedSampler[i], c2D);
+	vec4 L_3 = vec4(gl_ClipDistance[1], L_uc1.y, L_uc1.z, L_uc1.w);
+	outp = L_3;
+	ivec4 uoutp_c2 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_5, L_6));
+	uoutp = uvec4(uoutp_c2);
+	vec4 L_uc3 = textureGather(arrayedSampler[0], c2D);
+	vec4 outp_c4 = L_3 + L_uc3;
+	outp = outp_c4;
+	ivec4 ioutp_c5 = textureGatherOffset(isamp2DA, L_a, L_b, L_c);
+	ivec4 ioutp_c6 = ioutp_c5 << L_e;
+	ivec4 L_f_c7 = textureGatherOffset(isamp2DA, L_a, L_1);
+	ivec4 ioutp_c8 = L_f_c7 + ioutp_c6;
+	ioutp = ioutp_c8;
+	vec4 L_uc9 = gl_FragCoord + vl2;
+	vec4 outp_c10 = L_uc9 + outp_c4;
+	outp = outp_c10;
+	float L_uc11 = textureProjGradOffset(u2drs, outp_c10, L_14, L_14, L_15);
+	float L_uc12 = L_uc11 + outp_c10.x;
+	vec4 L_17 = outp_c10;
+	L_17.x = L_uc12;
+	outp = L_17;
+	
 }
-
 

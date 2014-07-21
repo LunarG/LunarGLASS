@@ -355,74 +355,67 @@ uniform bool b;
 uniform float threshhold3;
 varying vec4 BaseColor;
 varying float c;
-const float const27 = 1.0;
-const vec4 const31 = vec4(1.0);
+const float L_7 = 1.0;
+const vec4 L_b = vec4(1.0);
 
 void main()
 {
-    vec4 color_uc1;
-    bool temp22 = c > d;
-    vec4 _pn_c2 = temp22 ? bigColor : smallColor;
-    vec4 color_uc3 = BaseColor + _pn_c2;
-    bool temp25 = color_uc3.z < minimum;
-    if (temp25) {
-        return;
-    }
-    else {
-        float temp26 = color_uc3.z + const27;
-        bool temp28 = temp26 > threshhold;
-        if (temp28) {
-            discard;
-        }
-        
-        vec4 temp29 = color_uc3;
-        temp29.z = temp26;
-        vec4 color_c4 = temp29 + const31;
-        bool temp32 = color_c4.w > threshhold2;
-        if (temp32) {
-            bool temp33 = color_c4.z > threshhold2;
-            if (temp33) {
-                return;
-            }
-            else {
-                if (b) {
-                    float temp34 = color_c4.z + const27;
-                    vec4 temp35 = color_c4;
-                    temp35.z = temp34;
-                    color_uc1 = temp35;
-                }
-                else {
-                    bool temp36 = color_c4.x < minimum;
-                    if (temp36) {
-                        discard;
-                    }
-                    else {
-                        vec4 color_c5 = color_c4 + const31;
-                        color_uc1 = color_c5;
-                    }
-                    
-                }
-                
-                vec4 gla_gl_FragColor_c6 = color_uc1 * otherColor;
-                gl_FragColor = gla_gl_FragColor_c6;
-                return;
-            }
-            
-        }
-        else {
-            if (b) {
-                discard;
-            }
-            else {
-                
-            }
-            
-        }
-        
-    }
-    
+	vec4 color_uc1;
+	bool L_2 = c > d;
+	vec4 _pn_c2 = L_2 ? bigColor : smallColor;
+	vec4 color_uc3 = BaseColor + _pn_c2;
+	bool L_5 = color_uc3.z < minimum;
+	if (L_5) {
+		return;
+	} else {
+		float L_6 = color_uc3.z + L_7;
+		bool L_8 = L_6 > threshhold;
+		if (L_8) {
+			discard;
+		}
+		
+		vec4 L_9 = color_uc3;
+		L_9.z = L_6;
+		vec4 color_c4 = L_9 + L_b;
+		bool L_c = color_c4.w > threshhold2;
+		if (L_c) {
+			bool L_d = color_c4.z > threshhold2;
+			if (L_d) {
+				return;
+			} else {
+				if (b) {
+					float L_e = L_7 + color_c4.z;
+					vec4 L_f = color_c4;
+					L_f.z = L_e;
+					color_uc1 = L_f;
+				} else {
+					bool L_10 = color_c4.x < minimum;
+					if (L_10) {
+						discard;
+					} else {
+						vec4 color_c5 = L_b + color_c4;
+						color_uc1 = color_c5;
+					}
+					
+				}
+				
+				vec4 Ll_FragColor_c6 = color_uc1 * otherColor;
+				gl_FragColor = Ll_FragColor_c6;
+				return;
+			}
+			
+		} else {
+			if (b) {
+				discard;
+			} else {
+				
+			}
+			
+		}
+		
+	}
+	
 }
-
 
 #version 110
 // LunarGOO output
@@ -437,72 +430,65 @@ uniform vec4 otherColor;
 uniform float threshhold3;
 varying float c;
 varying vec4 BaseColor;
-const float const27 = 1.0;
-const vec4 const31 = vec4(1.0);
+const float L_7 = 1.0;
+const vec4 L_b = vec4(1.0);
 
 void main()
 {
-    vec4 color_uc_c1;
-    bool temp_c2 = c > d;
-    vec4 ternary_uc3 = temp_c2 ? bigColor : smallColor;
-    vec4 color_uc_c4 = BaseColor + ternary_uc3;
-    bool temp_c5 = color_uc_c4.z < minimum;
-    if (temp_c5) {
-        return;
-    }
-    else {
-        float temp_c6 = color_uc_c4.z + const27;
-        bool temp_c7 = temp_c6 > threshhold;
-        if (temp_c7) {
-            discard;
-        }
-        
-        vec4 temp29 = color_uc_c4;
-        temp29.z = temp_c6;
-        vec4 color_c8 = temp29 + const31;
-        bool temp_c9 = color_c8.w > threshhold2;
-        if (temp_c9) {
-            bool temp_c10 = color_c8.z > threshhold2;
-            if (temp_c10) {
-                return;
-            }
-            else {
-                if (b) {
-                    float temp_c11 = color_c8.z + const27;
-                    vec4 temp35 = color_c8;
-                    temp35.z = temp_c11;
-                    color_uc_c1 = temp35;
-                }
-                else {
-                    bool temp_c12 = color_c8.x < minimum;
-                    if (temp_c12) {
-                        discard;
-                    }
-                    else {
-                        vec4 color_c13 = color_c8 + const31;
-                        color_uc_c1 = color_c13;
-                    }
-                    
-                }
-                
-                vec4 gla_gl_FragColor_c14 = color_uc_c1 * otherColor;
-                gl_FragColor = gla_gl_FragColor_c14;
-                return;
-            }
-            
-        }
-        else {
-            if (b) {
-                discard;
-            }
-            else {
-                
-            }
-            
-        }
-        
-    }
-    
+	vec4 color_uc_c1;
+	bool L_uc2 = c > d;
+	vec4 ternary_uc3 = L_uc2 ? bigColor : smallColor;
+	vec4 color_uc_c4 = BaseColor + ternary_uc3;
+	bool L_uc5 = color_uc_c4.z < minimum;
+	if (L_uc5) {
+		return;
+	} else {
+		float L_uc6 = color_uc_c4.z + L_7;
+		bool L_uc7 = L_uc6 > threshhold;
+		if (L_uc7) {
+			discard;
+		}
+		
+		vec4 L_9 = color_uc_c4;
+		L_9.z = L_uc6;
+		vec4 color_c8 = L_9 + L_b;
+		bool L_c9 = color_c8.w > threshhold2;
+		if (L_c9) {
+			bool L_d_c10 = color_c8.z > threshhold2;
+			if (L_d_c10) {
+				return;
+			} else {
+				if (b) {
+					float L_e_c11 = L_7 + color_c8.z;
+					vec4 L_f = color_c8;
+					L_f.z = L_e_c11;
+					color_uc_c1 = L_f;
+				} else {
+					bool L_uc12 = color_c8.x < minimum;
+					if (L_uc12) {
+						discard;
+					} else {
+						vec4 color_c13 = L_b + color_c8;
+						color_uc_c1 = color_c13;
+					}
+					
+				}
+				
+				vec4 Ll_FragColor_c14 = color_uc_c1 * otherColor;
+				gl_FragColor = Ll_FragColor_c14;
+				return;
+			}
+			
+		} else {
+			if (b) {
+				discard;
+			} else {
+				
+			}
+			
+		}
+		
+	}
+	
 }
-
 

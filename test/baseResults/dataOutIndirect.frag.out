@@ -76,10 +76,9 @@ in vec4 Color;
 
 void main()
 {
-    gl_FragData[i] = Color;
-    
+	gl_FragData[i] = Color;
+	
 }
-
 
 #version 130
 // LunarGOO output
@@ -88,8 +87,7 @@ in vec4 Color;
 
 void main()
 {
-    gl_FragData[i] = Color;
-    
+	gl_FragData[i] = Color;
+	
 }
-
 

@@ -14,11 +14,21 @@ Adapters and Common Builder
   - do different declaration decorations reusing the same structure need to replicate the heirarchical decorations?
 
 Performance
-v - handle variable indexing of IO arrays without copying entire shadow array
+  + handle variable indexing of IO arrays without copying entire shadow array
+v - code motion across conditionals increasing register pressure
 v - preserve more inductive loop forms?
 v - create fewer additional overlapping lifetimes by phi-removal:  need better out-of-SSA algorithm
-v - finish functionality in recent tests; e.g. 400.tesc not working right (and differently between windows and linux)
+  + finish functionality in recent tests; e.g. 400.tesc not working right (and differently between windows and linux)
   - fix difference between fReadData and fReadInterpolant: LLVM is optimizing multiple uses of one but not the other
+
+Canonicalization
+v - filter IO that's dead after optimization .... or don't.... instead don't include IO in the canonicalization string
+v - forward substitution
+v - lhs names based on rhs content
+
+Compressibility
+v - hopefully helped by same things that help canonicalization
+v - remove most the white space and shorten the base strings like 'constX' -> 'cX', etc. (all this saves 7% in an experiment)
 
 Delivery checklist
  . update all TODO

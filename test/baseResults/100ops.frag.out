@@ -140,54 +140,50 @@ attributes #0 = { nounwind readnone }
 #version 100
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
-
 uniform mediump int low;
 uniform mediump int high;
-const highp float const22 = -1.0;
-const highp float const23 = 1.0;
-const highp int const27i_1 = 1;
-const highp float const30 = 4.0;
-const highp float const31 = 3.0;
+const highp float L_2 = -1.0;
+const highp float L_3 = 1.0;
+const highp int L_7 = 1;
+const highp float L_a = 4.0;
+const highp float L_b = 3.0;
 
 void main()
 {
-    float temp21 = gl_FrontFacing ? const22 : const23;
-    vec4 temp24 = vec4(temp21);
-    int temp25 = low * 2;
-    int temp26 = temp25 + const27i_1;
-    bool temp28 = temp26 < high;
-    float z_uc1 = temp28 ? const30 : const31;
-    vec4 temp32 = vec4(z_uc1);
-    lowp vec4 temp33 = temp24 * temp32;
-    gl_FragColor = temp33;
-    
+	float L_1 = gl_FrontFacing ? L_2 : L_3;
+	vec4 L_4 = vec4(L_1);
+	int L_5 = low * 2;
+	int L_6 = L_5 + L_7;
+	bool L_8 = L_6 < high;
+	float z_uc1 = L_8 ? L_a : L_b;
+	vec4 L_c = vec4(z_uc1);
+	lowp vec4 L_d = L_4 * L_c;
+	gl_FragColor = L_d;
+	
 }
-
 
 #version 100
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
-
 uniform mediump int low;
 uniform mediump int high;
-const highp float const22 = -1.0;
-const highp float const23 = 1.0;
-const highp int const27i_1 = 1;
-const highp float const30 = 4.0;
-const highp float const31 = 3.0;
+const highp float L_2 = -1.0;
+const highp float L_3 = 1.0;
+const highp int L_7 = 1;
+const highp float L_a = 4.0;
+const highp float L_b = 3.0;
 
 void main()
 {
-    float temp21 = gl_FrontFacing ? const22 : const23;
-    vec4 temp24 = vec4(temp21);
-    int temp_c1 = low * 2;
-    int temp_c2 = temp_c1 + const27i_1;
-    bool temp_c3 = temp_c2 < high;
-    float ternary_c4 = temp_c3 ? const30 : const31;
-    vec4 temp32 = vec4(ternary_c4);
-    mediump vec4 temp_c5 = temp24 * temp32;
-    gl_FragColor = temp_c5;
-    
+	float L_1 = gl_FrontFacing ? L_2 : L_3;
+	vec4 L_4 = vec4(L_1);
+	int L_uc1 = low * 2;
+	int L_uc2 = L_uc1 + L_7;
+	bool L_uc3 = L_uc2 < high;
+	float ternary_c4 = L_uc3 ? L_a : L_b;
+	vec4 L_c = vec4(ternary_c4);
+	mediump vec4 L_d_c5 = L_4 * L_c;
+	gl_FragColor = L_d_c5;
+	
 }
-
 

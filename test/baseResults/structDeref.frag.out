@@ -240,32 +240,27 @@ attributes #0 = { nounwind readnone }
 #version 130
 // LunarGOO output
 struct s0 {
-    int i;
+	int i;
 };
-
 struct s1 {
-    int i;
-    float f;
-    s0 s0_1;
+	int i;
+	float f;
+	s0 s0_1;
 };
-
 struct s2 {
-    int i;
-    float f;
-    s1 s1_1;
+	int i;
+	float f;
+	s1 s1_1;
 };
-
 struct s3 {
-    s2 s2_1[12];
-    int i;
-    float f;
-    s1 s1_1;
+	s2 s2_1[12];
+	int i;
+	float f;
+	s1 s1_1;
 };
-
 struct s00 {
-    s0 s0_0;
+	s0 s0_0;
 };
-
 uniform s3 foo3;
 uniform s1 foo1;
 uniform s0 foo0;
@@ -273,63 +268,57 @@ uniform s00 foo00;
 uniform sampler2D sampler;
 uniform s2 foo2;
 in vec2 coord;
-const int const22i_0 = 0;
-const float const24 = 0.0;
-const float const25 = 3.0;
-const float const29 = 1.0;
-const int const32i_5 = 5;
+const int L_2 = 0;
+const float L_4 = 0.0;
+const float L_5 = 3.0;
+const float L_9 = 1.0;
+const int L_c = 5;
 
 void main()
 {
-    bool temp21 = foo3.s2_1[9].i > const22i_0;
-    float select_c1 = temp21 ? const24 : const25;
-    int select_c2 = temp21 ? const22i_0 : foo1.s0_1.i;
-    int select_c3 = temp21 ? const22i_0 : foo00.s0_0.i;
-    float select_c4 = temp21 ? const29 : coord.y;
-    float select_c5 = temp21 ? foo1.f : coord.y;
-    bool temp31 = select_c2 > const32i_5;
-    int locals_c6 = temp31 ? select_c3 : select_c2;
-    float temp34 = float(locals_c6);
-    float temp35 = select_c5 + temp34;
-    float temp36 = select_c1 + temp35;
-    float temp37 = select_c4 + temp36;
-    vec4 temp38 = vec4(temp37);
-    vec4 temp39 = texture(sampler, coord);
-    vec4 gla_gl_FragColor_c7 = temp38 * temp39;
-    gl_FragColor = gla_gl_FragColor_c7;
-    
+	bool L_1 = foo3.s2_1[9].i > L_2;
+	float select_c1 = L_1 ? L_4 : L_5;
+	int select_c2 = L_1 ? L_2 : foo1.s0_1.i;
+	int select_c3 = L_1 ? L_2 : foo00.s0_0.i;
+	float select_c4 = L_1 ? L_9 : coord.y;
+	float select_c5 = L_1 ? foo1.f : coord.y;
+	bool L_b = select_c2 > L_c;
+	int locals_c6 = L_b ? select_c3 : select_c2;
+	float L_e = float(locals_c6);
+	float L_f = L_e + select_c5;
+	float L_10 = L_f + select_c1;
+	float L_11 = L_10 + select_c4;
+	vec4 L_12 = vec4(L_11);
+	vec4 L_13 = texture(sampler, coord);
+	vec4 Ll_FragColor_c7 = L_12 * L_13;
+	gl_FragColor = Ll_FragColor_c7;
+	
 }
-
 
 #version 130
 // LunarGOO output
 struct s0 {
-    int i;
+	int i;
 };
-
 struct s1 {
-    int i;
-    float f;
-    s0 s0_1;
+	int i;
+	float f;
+	s0 s0_1;
 };
-
 struct s2 {
-    int i;
-    float f;
-    s1 s1_1;
+	int i;
+	float f;
+	s1 s1_1;
 };
-
 struct s3 {
-    s2 s2_1[12];
-    int i;
-    float f;
-    s1 s1_1;
+	s2 s2_1[12];
+	int i;
+	float f;
+	s1 s1_1;
 };
-
 struct s00 {
-    s0 s0_0;
+	s0 s0_0;
 };
-
 uniform s3 foo3;
 uniform s1 foo1;
 uniform s00 foo00;
@@ -337,31 +326,30 @@ uniform sampler2D sampler;
 uniform s0 foo0;
 uniform s2 foo2;
 in vec2 coord;
-const int const22i_0 = 0;
-const float const24 = 0.0;
-const float const25 = 3.0;
-const float const29 = 1.0;
-const int const32i_5 = 5;
+const int L_2 = 0;
+const float L_4 = 0.0;
+const float L_5 = 3.0;
+const float L_9 = 1.0;
+const int L_c = 5;
 
 void main()
 {
-    bool temp_c1 = foo3.s2_1[9].i > const22i_0;
-    float temp23 = temp_c1 ? const24 : const25;
-    int ternary_c2 = temp_c1 ? const22i_0 : foo1.s0_1.i;
-    int ternary_c3 = temp_c1 ? const22i_0 : foo00.s0_0.i;
-    float select_c4 = temp_c1 ? const29 : coord.y;
-    float select_c5 = temp_c1 ? foo1.f : coord.y;
-    bool temp_c6 = ternary_c2 > const32i_5;
-    int ternary_c7 = temp_c6 ? ternary_c3 : ternary_c2;
-    float temp_c8 = float(ternary_c7);
-    float temp_c9 = select_c5 + temp_c8;
-    float temp_c10 = temp23 + temp_c9;
-    float temp_c11 = select_c4 + temp_c10;
-    vec4 temp38 = vec4(temp_c11);
-    vec4 temp_c12 = texture(sampler, coord);
-    vec4 gla_gl_FragColor_c13 = temp38 * temp_c12;
-    gl_FragColor = gla_gl_FragColor_c13;
-    
+	bool L_uc1 = foo3.s2_1[9].i > L_2;
+	float L_3 = L_uc1 ? L_4 : L_5;
+	int ternary_c2 = L_uc1 ? L_2 : foo1.s0_1.i;
+	int ternary_c3 = L_uc1 ? L_2 : foo00.s0_0.i;
+	float select_c4 = L_uc1 ? L_9 : coord.y;
+	float select_c5 = L_uc1 ? foo1.f : coord.y;
+	bool L_b_c6 = ternary_c2 > L_c;
+	int ternary_c7 = L_b_c6 ? ternary_c3 : ternary_c2;
+	float L_e_c8 = float(ternary_c7);
+	float L_f_c9 = L_e_c8 + select_c5;
+	float L_uc10 = L_3 + L_f_c9;
+	float L_uc11 = L_uc10 + select_c4;
+	vec4 L_12 = vec4(L_uc11);
+	vec4 L_uc12 = texture(sampler, coord);
+	vec4 Ll_FragColor_c13 = L_12 * L_uc12;
+	gl_FragColor = Ll_FragColor_c13;
+	
 }
-
 

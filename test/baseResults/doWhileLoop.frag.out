@@ -120,22 +120,21 @@ vec4 color_c2;
 
 void main()
 {
-    vec4 color_uc1;
-    color_uc1 = BaseColor;
-    while (true) {
-        color_c2 = bigColor + color_uc1;
-        bool temp23 = color_c2.x >= d;
-        if (temp23) {
-            break;
-        }
-        
-        color_uc1 = color_c2;
-    }
-    
-    gl_FragColor = color_c2;
-    
+	vec4 color_uc1;
+	color_uc1 = BaseColor;
+	while (true) {
+		color_c2 = bigColor + color_uc1;
+		bool L_3 = color_c2.x >= d;
+		if (L_3) {
+			break;
+		}
+		
+		color_uc1 = color_c2;
+	}
+	
+	gl_FragColor = color_c2;
+	
 }
-
 
 #version 110
 // LunarGOO output
@@ -146,20 +145,19 @@ vec4 color_c2;
 
 void main()
 {
-    vec4 color_uc_c1;
-    color_uc_c1 = BaseColor;
-    while (true) {
-        color_c2 = bigColor + color_uc_c1;
-        bool temp_c3 = color_c2.x < d;
-        if (! temp_c3) {
-            break;
-        }
-        
-        color_uc_c1 = color_c2;
-    }
-    
-    gl_FragColor = color_c2;
-    
+	vec4 color_uc_c1;
+	color_uc_c1 = BaseColor;
+	while (true) {
+		color_c2 = bigColor + color_uc_c1;
+		bool L_uc3 = color_c2.x < d;
+		if (! L_uc3) {
+			break;
+		}
+		
+		color_uc_c1 = color_c2;
+	}
+	
+	gl_FragColor = color_c2;
+	
 }
-
 

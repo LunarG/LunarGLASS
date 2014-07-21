@@ -217,36 +217,35 @@ layout(triangles, ccw) in;
 layout(fractional_odd_spacing) in;
 layout(point_mode) in;
 in gl_PerVertex {
-    vec4 gl_Position;
-    float gl_PointSize;
-    float gl_ClipDistance[1];
+	vec4 gl_Position;
+	float gl_PointSize;
+	float gl_ClipDistance[1];
 } gl_in[32];
 patch in vec4 patchIn;
 in vec2 inb[32];
 in vec2 ind[32];
 in testblb {
-    int f;
+	int f;
 } blb[32];
 in testbld {
-    int f;
+	int f;
 } bld[32];
 layout(location=23) in vec4 ivla[32];
 layout(location=24) in vec4 ivlb[32];
 out gl_PerVertex {
-    vec4 gl_Position;
-    float gl_PointSize;
-    float gl_ClipDistance[3];
+	vec4 gl_Position;
+	float gl_PointSize;
+	float gl_ClipDistance[3];
 } ;
 layout(location=23) out vec4 ovla[2];
 
 void main()
 {
-    gl_Position = gl_in[1].gl_Position;
-    gl_PointSize = gl_in[1].gl_PointSize;
-    gl_ClipDistance[2] = gl_in[1].gl_ClipDistance[2];
-    
+	gl_Position = gl_in[1].gl_Position;
+	gl_PointSize = gl_in[1].gl_PointSize;
+	gl_ClipDistance[2] = gl_in[1].gl_ClipDistance[2];
+	
 }
-
 
 #version 400 core
 // LunarGOO output
@@ -255,34 +254,33 @@ layout(triangles, ccw) in;
 layout(fractional_odd_spacing) in;
 layout(point_mode) in;
 in gl_PerVertex {
-    vec4 gl_Position;
-    float gl_PointSize;
-    float gl_ClipDistance[1];
+	vec4 gl_Position;
+	float gl_PointSize;
+	float gl_ClipDistance[1];
 } gl_in[32];
 patch in vec4 patchIn;
 in vec2 inb[32];
 in vec2 ind[32];
 in testblb {
-    int f;
+	int f;
 } blb[32];
 in testbld {
-    int f;
+	int f;
 } bld[32];
 layout(location=23) in vec4 ivla[32];
 layout(location=24) in vec4 ivlb[32];
 out gl_PerVertex {
-    vec4 gl_Position;
-    float gl_PointSize;
-    float gl_ClipDistance[3];
+	vec4 gl_Position;
+	float gl_PointSize;
+	float gl_ClipDistance[3];
 } ;
 layout(location=23) out vec4 ovla[2];
 
 void main()
 {
-    gl_Position = gl_in[1].gl_Position;
-    gl_PointSize = gl_in[1].gl_PointSize;
-    gl_ClipDistance[2] = gl_in[1].gl_ClipDistance[2];
-    
+	gl_Position = gl_in[1].gl_Position;
+	gl_PointSize = gl_in[1].gl_PointSize;
+	gl_ClipDistance[2] = gl_in[1].gl_ClipDistance[2];
+	
 }
-
 

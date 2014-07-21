@@ -361,16 +361,16 @@ ifmerge:                                          ; preds = %else, %then
   %26 = fcmp oeq <4 x float> %0, %v.0
   %27 = call i1 @llvm.gla.all.v4i1(<4 x i1> %26)
   %v19 = fmul <4 x float> %v.0, <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>
-  %select128 = select i1 %27, <4 x float> %v19, <4 x float> %v.0
-  %28 = fcmp one <4 x float> %0, %select128
+  %select127 = select i1 %27, <4 x float> %v19, <4 x float> %v.0
+  %28 = fcmp one <4 x float> %0, %select127
   %29 = call i1 @llvm.gla.any.v4i1(<4 x i1> %28)
-  %v22 = fmul <4 x float> %select128, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
-  %select = select i1 %29, <4 x float> %v22, <4 x float> %select128
-  %30 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %select, <2 x i32> <i32 1, i32 3>)
+  %v22 = fmul <4 x float> %select127, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
+  %select129 = select i1 %29, <4 x float> %v22, <4 x float> %select127
+  %30 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %select129, <2 x i32> <i32 1, i32 3>)
   %31 = fcmp oeq <2 x float> %24, %30
   %32 = call i1 @llvm.gla.all.v2i1(<2 x i1> %31)
-  %v25 = fmul <4 x float> %select, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
-  %select130 = select i1 %32, <4 x float> %v25, <4 x float> %select
+  %v25 = fmul <4 x float> %select129, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
+  %select128 = select i1 %32, <4 x float> %v25, <4 x float> %select129
   %33 = icmp eq i32 %2, 17
   %34 = fcmp oeq float %3, 1.700000e+01
   %35 = and i1 %33, %34
@@ -382,8 +382,8 @@ ifmerge:                                          ; preds = %else, %then
   %41 = fcmp oeq float %13, 1.400000e+01
   %42 = and i1 %40, %41
   %43 = and i1 %39, %42
-  %v46 = fmul <4 x float> %select130, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
-  %select127 = select i1 %43, <4 x float> %v46, <4 x float> %select130
+  %v46 = fmul <4 x float> %select128, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
+  %select130 = select i1 %43, <4 x float> %v46, <4 x float> %select128
   %44 = icmp ne i32 %2, 17
   %45 = fcmp one float %3, 1.700000e+01
   %46 = or i1 %44, %45
@@ -395,9 +395,9 @@ ifmerge:                                          ; preds = %else, %then
   %52 = fcmp one float %13, 1.400000e+01
   %53 = or i1 %51, %52
   %54 = or i1 %50, %53
-  %v67 = fmul <4 x float> %select127, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>
-  %select129 = select i1 %54, <4 x float> %v67, <4 x float> %select127
-  store <4 x float> %select129, <4 x float>* @gl_FragColor, align 16
+  %v67 = fmul <4 x float> %select130, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>
+  %select = select i1 %54, <4 x float> %v67, <4 x float> %select130
+  store <4 x float> %select, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -453,16 +453,14 @@ attributes #0 = { nounwind readnone }
 #version 130
 // LunarGOO output
 struct s1 {
-    int i;
-    float f;
+	int i;
+	float f;
 };
-
 struct s2 {
-    int i;
-    float f;
-    s1 s1_1;
+	int i;
+	float f;
+	s1 s1_1;
 };
-
 uniform s2 foo2a;
 uniform s2 foo2b;
 uniform sampler2D sampler;
@@ -470,108 +468,104 @@ uniform s1 foo1;
 in vec4 u;
 in vec4 w;
 in vec2 coord;
-const vec2 const45 = vec2(2.0);
-const vec4 const50 = vec4(3.0);
-const vec4 const55 = vec4(4.0);
-const vec4 const61 = vec4(5.0);
-const int const64i_17 = 17;
-const float const66 = 17.0;
-const int const73i_14 = 14;
-const float const75 = 14.0;
-const vec4 const79 = vec4(6.0);
-const vec4 const93 = vec4(7.0);
+const vec2 L_19 = vec2(2.0);
+const vec4 L_1e = vec4(3.0);
+const vec4 L_23 = vec4(4.0);
+const vec4 L_29 = vec4(5.0);
+const int L_2c = 17;
+const float L_2e = 17.0;
+const int L_35 = 14;
+const float L_37 = 14.0;
+const vec4 L_3b = vec4(6.0);
+const vec4 L_49 = vec4(7.0);
 
 void main()
 {
-    vec4 v_uc1;
-    int temp22 = int(u.x);
-    int temp23 = int(u.z);
-    int temp24 = int(w.x);
-    int temp25 = int(w.z);
-    int element_c2 = foo2a.i;
-    int element_c3 = foo2b.i;
-    bool temp28 = element_c2 == element_c3;
-    float element_c4 = foo2a.f;
-    float element_c5 = foo2b.f;
-    bool temp31 = element_c4 == element_c5;
-    bool temp32 = temp28 && temp31;
-    s1 element_c6 = foo2a.s1_1;
-    s1 element_c7 = foo2b.s1_1;
-    int element_c8 = element_c6.i;
-    int element_c9 = element_c7.i;
-    bool temp37 = element_c8 == element_c9;
-    float element_c10 = element_c6.f;
-    float element_c11 = element_c7.f;
-    bool temp40 = element_c10 == element_c11;
-    bool temp41 = temp37 && temp40;
-    bool temp42 = temp32 && temp41;
-    if (temp42) {
-        vec4 temp43 = texture(sampler, coord);
-        v_uc1 = temp43;
-    }
-    else {
-        vec2 temp44 = coord * const45;
-        vec4 temp46 = texture(sampler, temp44);
-        v_uc1 = temp46;
-    }
-    
-    bvec4 temp47 = equal(u, v_uc1);
-    bool temp48 = all(temp47);
-    vec4 temp49 = v_uc1 * const50;
-    vec4 select_c12 = temp48 ? temp49 : v_uc1;
-    bvec4 temp52 = notEqual(u, select_c12);
-    bool temp53 = any(temp52);
-    vec4 temp54 = select_c12 * const55;
-    vec4 select_c13 = temp53 ? temp54 : select_c12;
-    vec2 temp57 = select_c13.yw;
-    bvec2 temp58 = equal(coord, temp57);
-    bool temp59 = all(temp58);
-    vec4 temp60 = select_c13 * const61;
-    vec4 select_c14 = temp59 ? temp60 : select_c13;
-    bool temp63 = temp22 == const64i_17;
-    bool temp65 = u.y == const66;
-    bool temp67 = temp63 && temp65;
-    bool temp68 = temp23 == temp24;
-    bool temp69 = u.w == w.y;
-    bool temp70 = temp68 && temp69;
-    bool temp71 = temp67 && temp70;
-    bool temp72 = temp25 == const73i_14;
-    bool temp74 = w.w == const75;
-    bool temp76 = temp72 && temp74;
-    bool temp77 = temp71 && temp76;
-    vec4 temp78 = select_c14 * const79;
-    vec4 select_c15 = temp77 ? temp78 : select_c14;
-    bool temp81 = temp22 != const64i_17;
-    bool temp82 = u.y != const66;
-    bool temp83 = temp81 || temp82;
-    bool temp84 = temp23 != temp24;
-    bool temp85 = u.w != w.y;
-    bool temp86 = temp84 || temp85;
-    bool temp87 = temp83 || temp86;
-    bool temp88 = temp25 != const73i_14;
-    bool temp89 = w.w != const75;
-    bool temp90 = temp88 || temp89;
-    bool temp91 = temp87 || temp90;
-    vec4 temp92 = select_c15 * const93;
-    vec4 select_c16 = temp91 ? temp92 : select_c15;
-    gl_FragColor = select_c16;
-    
+	vec4 v_uc1;
+	int L_2 = int(u.x);
+	int L_3 = int(u.z);
+	int L_4 = int(w.x);
+	int L_5 = int(w.z);
+	int element_c2 = foo2a.i;
+	int element_c3 = foo2b.i;
+	bool L_8 = element_c2 == element_c3;
+	float element_c4 = foo2a.f;
+	float element_c5 = foo2b.f;
+	bool L_b = element_c4 == element_c5;
+	bool L_c = L_8 && L_b;
+	s1 element_c6 = foo2a.s1_1;
+	s1 element_c7 = foo2b.s1_1;
+	int element_c8 = element_c6.i;
+	int element_c9 = element_c7.i;
+	bool L_11 = element_c8 == element_c9;
+	float element_c10 = element_c6.f;
+	float element_c11 = element_c7.f;
+	bool L_14 = element_c10 == element_c11;
+	bool L_15 = L_11 && L_14;
+	bool L_16 = L_c && L_15;
+	if (L_16) {
+		vec4 L_17 = texture(sampler, coord);
+		v_uc1 = L_17;
+	} else {
+		vec2 L_18 = coord * L_19;
+		vec4 L_1a = texture(sampler, L_18);
+		v_uc1 = L_1a;
+	}
+	
+	bvec4 L_1b = equal(u, v_uc1);
+	bool L_1c = all(L_1b);
+	vec4 L_1d = v_uc1 * L_1e;
+	vec4 select_c12 = L_1c ? L_1d : v_uc1;
+	bvec4 L_20 = notEqual(u, select_c12);
+	bool L_21 = any(L_20);
+	vec4 L_22 = select_c12 * L_23;
+	vec4 select_c13 = L_21 ? L_22 : select_c12;
+	vec2 L_25 = select_c13.yw;
+	bvec2 L_26 = equal(coord, L_25);
+	bool L_27 = all(L_26);
+	vec4 L_28 = select_c13 * L_29;
+	vec4 select_c14 = L_27 ? L_28 : select_c13;
+	bool L_2b = L_2 == L_2c;
+	bool L_2d = u.y == L_2e;
+	bool L_2f = L_2b && L_2d;
+	bool L_30 = L_3 == L_4;
+	bool L_31 = u.w == w.y;
+	bool L_32 = L_30 && L_31;
+	bool L_33 = L_2f && L_32;
+	bool L_34 = L_5 == L_35;
+	bool L_36 = w.w == L_37;
+	bool L_38 = L_34 && L_36;
+	bool L_39 = L_33 && L_38;
+	vec4 L_3a = select_c14 * L_3b;
+	vec4 select_c15 = L_39 ? L_3a : select_c14;
+	bool L_3d = L_2 != L_2c;
+	bool L_3e = u.y != L_2e;
+	bool L_3f = L_3d || L_3e;
+	bool L_40 = L_3 != L_4;
+	bool L_41 = u.w != w.y;
+	bool L_42 = L_40 || L_41;
+	bool L_43 = L_3f || L_42;
+	bool L_44 = L_5 != L_35;
+	bool L_45 = w.w != L_37;
+	bool L_46 = L_44 || L_45;
+	bool L_47 = L_43 || L_46;
+	vec4 L_48 = select_c15 * L_49;
+	vec4 select_c16 = L_47 ? L_48 : select_c15;
+	gl_FragColor = select_c16;
+	
 }
-
 
 #version 130
 // LunarGOO output
 struct s1 {
-    int i;
-    float f;
+	int i;
+	float f;
 };
-
 struct s2 {
-    int i;
-    float f;
-    s1 s1_1;
+	int i;
+	float f;
+	s1 s1_1;
 };
-
 uniform s2 foo2a;
 uniform s2 foo2b;
 uniform sampler2D sampler;
@@ -579,86 +573,84 @@ uniform s1 foo1;
 in vec4 u;
 in vec4 w;
 in vec2 coord;
-const vec2 const39 = vec2(2.0);
-const vec4 const44 = vec4(3.0);
-const vec4 const49 = vec4(4.0);
-const vec4 const55 = vec4(5.0);
-const int const58i_17 = 17;
-const float const60 = 17.0;
-const int const67i_14 = 14;
-const float const69 = 14.0;
-const vec4 const73 = vec4(6.0);
-const vec4 const87 = vec4(7.0);
+const vec2 L_13 = vec2(2.0);
+const vec4 L_18 = vec4(3.0);
+const vec4 L_1d = vec4(4.0);
+const vec4 L_23 = vec4(5.0);
+const int L_26 = 17;
+const float L_28 = 17.0;
+const int L_2f = 14;
+const float L_31 = 14.0;
+const vec4 L_35 = vec4(6.0);
+const vec4 L_43 = vec4(7.0);
 
 void main()
 {
-    vec4 v_uc_c1;
-    int temp_c2 = int(u.x);
-    int temp_c3 = int(u.z);
-    int temp_c4 = int(w.x);
-    int temp_c5 = int(w.z);
-    bool temp_c6 = foo2a.i == foo2b.i;
-    bool temp_c7 = foo2a.f == foo2b.f;
-    bool temp_c8 = temp_c6 && temp_c7;
-    int element_c9 = foo2a.s1_1.i;
-    float element_c10 = foo2a.s1_1.f;
-    int element_c11 = foo2b.s1_1.i;
-    float element_c12 = foo2b.s1_1.f;
-    bool temp_c13 = element_c9 == element_c11;
-    bool temp_c14 = element_c10 == element_c12;
-    bool temp_c15 = temp_c13 && temp_c14;
-    bool temp_c16 = temp_c8 && temp_c15;
-    if (temp_c16) {
-        vec4 temp_c17 = texture(sampler, coord);
-        v_uc_c1 = temp_c17;
-    }
-    else {
-        vec2 temp_c18 = coord * const39;
-        vec4 temp_c19 = texture(sampler, temp_c18);
-        v_uc_c1 = temp_c19;
-    }
-    
-    bvec4 temp_c20 = equal(u, v_uc_c1);
-    bool temp_c21 = all(temp_c20);
-    vec4 temp_c22 = v_uc_c1 * const44;
-    vec4 select_c23 = temp_c21 ? temp_c22 : v_uc_c1;
-    bvec4 temp_c24 = notEqual(u, select_c23);
-    bool temp_c25 = any(temp_c24);
-    vec4 temp_c26 = select_c23 * const49;
-    vec4 select_c27 = temp_c25 ? temp_c26 : select_c23;
-    vec2 temp51 = select_c27.yw;
-    bvec2 temp_c28 = equal(coord, temp51);
-    bool temp_c29 = all(temp_c28);
-    vec4 temp_c30 = select_c27 * const55;
-    vec4 select_c31 = temp_c29 ? temp_c30 : select_c27;
-    bool temp_c32 = temp_c2 == const58i_17;
-    bool temp_c33 = u.y == const60;
-    bool temp_c34 = temp_c32 && temp_c33;
-    bool temp_c35 = temp_c3 == temp_c4;
-    bool temp_c36 = u.w == w.y;
-    bool temp_c37 = temp_c35 && temp_c36;
-    bool temp_c38 = temp_c34 && temp_c37;
-    bool temp_c39 = temp_c5 == const67i_14;
-    bool temp_c40 = w.w == const69;
-    bool temp_c41 = temp_c39 && temp_c40;
-    bool temp_c42 = temp_c38 && temp_c41;
-    vec4 temp_c43 = select_c31 * const73;
-    vec4 select_c44 = temp_c42 ? temp_c43 : select_c31;
-    bool temp_c45 = temp_c2 != const58i_17;
-    bool temp_c46 = u.y != const60;
-    bool temp_c47 = temp_c45 || temp_c46;
-    bool temp_c48 = temp_c3 != temp_c4;
-    bool temp_c49 = u.w != w.y;
-    bool temp_c50 = temp_c48 || temp_c49;
-    bool temp_c51 = temp_c47 || temp_c50;
-    bool temp_c52 = temp_c5 != const67i_14;
-    bool temp_c53 = w.w != const69;
-    bool temp_c54 = temp_c52 || temp_c53;
-    bool temp_c55 = temp_c51 || temp_c54;
-    vec4 temp_c56 = select_c44 * const87;
-    vec4 select_c57 = temp_c55 ? temp_c56 : select_c44;
-    gl_FragColor = select_c57;
-    
+	vec4 v_uc_c1;
+	int L_uc2 = int(u.x);
+	int L_uc3 = int(u.z);
+	int L_uc4 = int(w.x);
+	int L_uc5 = int(w.z);
+	bool L_uc6 = foo2a.i == foo2b.i;
+	bool L_b_c7 = foo2a.f == foo2b.f;
+	bool L_c8 = L_uc6 && L_b_c7;
+	int element_c9 = foo2a.s1_1.i;
+	float element_c10 = foo2a.s1_1.f;
+	int element_c11 = foo2b.s1_1.i;
+	float element_c12 = foo2b.s1_1.f;
+	bool L_uc13 = element_c9 == element_c11;
+	bool L_uc14 = element_c10 == element_c12;
+	bool L_uc15 = L_uc13 && L_uc14;
+	bool L_uc16 = L_c8 && L_uc15;
+	if (L_uc16) {
+		vec4 L_uc17 = texture(sampler, coord);
+		v_uc_c1 = L_uc17;
+	} else {
+		vec2 L_uc18 = coord * L_13;
+		vec4 L_uc19 = texture(sampler, L_uc18);
+		v_uc_c1 = L_uc19;
+	}
+	
+	bvec4 L_uc20 = equal(u, v_uc_c1);
+	bool L_uc21 = all(L_uc20);
+	vec4 L_uc22 = v_uc_c1 * L_18;
+	vec4 select_c23 = L_uc21 ? L_uc22 : v_uc_c1;
+	bvec4 L_uc24 = notEqual(u, select_c23);
+	bool L_uc25 = any(L_uc24);
+	vec4 L_uc26 = select_c23 * L_1d;
+	vec4 select_c27 = L_uc25 ? L_uc26 : select_c23;
+	vec2 L_1f = select_c27.yw;
+	bvec2 L_uc28 = equal(coord, L_1f);
+	bool L_uc29 = all(L_uc28);
+	vec4 L_uc30 = select_c27 * L_23;
+	vec4 select_c31 = L_uc29 ? L_uc30 : select_c27;
+	bool L_uc32 = L_uc2 == L_26;
+	bool L_uc33 = u.y == L_28;
+	bool L_uc34 = L_uc32 && L_uc33;
+	bool L_uc35 = L_uc3 == L_uc4;
+	bool L_uc36 = u.w == w.y;
+	bool L_uc37 = L_uc35 && L_uc36;
+	bool L_uc38 = L_uc34 && L_uc37;
+	bool L_uc39 = L_uc5 == L_2f;
+	bool L_uc40 = w.w == L_31;
+	bool L_uc41 = L_uc39 && L_uc40;
+	bool L_uc42 = L_uc38 && L_uc41;
+	vec4 L_uc43 = select_c31 * L_35;
+	vec4 select_c44 = L_uc42 ? L_uc43 : select_c31;
+	bool L_uc45 = L_uc2 != L_26;
+	bool L_uc46 = u.y != L_28;
+	bool L_uc47 = L_uc45 || L_uc46;
+	bool L_uc48 = L_uc3 != L_uc4;
+	bool L_uc49 = u.w != w.y;
+	bool L_uc50 = L_uc48 || L_uc49;
+	bool L_uc51 = L_uc47 || L_uc50;
+	bool L_uc52 = L_uc5 != L_2f;
+	bool L_uc53 = w.w != L_31;
+	bool L_uc54 = L_uc52 || L_uc53;
+	bool L_uc55 = L_uc51 || L_uc54;
+	vec4 L_uc56 = select_c44 * L_43;
+	vec4 select_c57 = L_uc55 ? L_uc56 : select_c44;
+	gl_FragColor = select_c57;
+	
 }
-
 

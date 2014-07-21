@@ -124,39 +124,37 @@ attributes #1 = { nounwind }
 // LunarGOO output
 uniform sampler2D tex;
 varying vec2 coord;
-const vec4 const23 = vec4(0.1, 0.2, 0.3, 0.4);
+const vec4 L_3 = vec4(0.1, 0.2, 0.3, 0.4);
 
 void main()
 {
-    vec4 temp21 = texture2D(tex, coord);
-    bvec4 temp22 = equal(temp21, const23);
-    bool temp24 = all(temp22);
-    if (temp24) {
-        discard;
-    }
-    
-    gl_FragColor = temp21;
-    
+	vec4 L_1 = texture2D(tex, coord);
+	bvec4 L_2 = equal(L_1, L_3);
+	bool L_4 = all(L_2);
+	if (L_4) {
+		discard;
+	}
+	
+	gl_FragColor = L_1;
+	
 }
-
 
 #version 110
 // LunarGOO output
 uniform sampler2D tex;
 varying vec2 coord;
-const vec4 const23 = vec4(0.1, 0.2, 0.3, 0.4);
+const vec4 L_3 = vec4(0.1, 0.2, 0.3, 0.4);
 
 void main()
 {
-    vec4 temp_c1 = texture2D(tex, coord);
-    bvec4 temp_c2 = equal(temp_c1, const23);
-    bool temp_c3 = all(temp_c2);
-    if (temp_c3) {
-        discard;
-    }
-    
-    gl_FragColor = temp_c1;
-    
+	vec4 L_uc1 = texture2D(tex, coord);
+	bvec4 L_uc2 = equal(L_uc1, L_3);
+	bool L_uc3 = all(L_uc2);
+	if (L_uc3) {
+		discard;
+	}
+	
+	gl_FragColor = L_uc1;
+	
 }
-
 

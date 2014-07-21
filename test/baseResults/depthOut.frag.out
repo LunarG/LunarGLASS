@@ -80,11 +80,10 @@ in vec4 Color;
 
 void main()
 {
-    gl_FragDepth = Depth;
-    gl_FragColor = Color;
-    
+	gl_FragDepth = Depth;
+	gl_FragColor = Color;
+	
 }
-
 
 #version 130
 // LunarGOO output
@@ -93,9 +92,8 @@ in vec4 Color;
 
 void main()
 {
-    gl_FragDepth = Depth;
-    gl_FragColor = Color;
-    
+	gl_FragDepth = Depth;
+	gl_FragColor = Color;
+	
 }
-
 

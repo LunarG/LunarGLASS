@@ -153,78 +153,70 @@ attributes #0 = { nounwind readnone }
 #version 130
 // LunarGOO output
 struct lunarStruct1 {
-    int i;
-    float f;
+	int i;
+	float f;
 };
-
 struct lunarStruct2 {
-    int i;
-    float f;
-    lunarStruct1 s1_1;
+	int i;
+	float f;
+	lunarStruct1 s1_1;
 };
-
 struct lunarStruct3 {
-    lunarStruct2 s2_1;
-    int i;
-    float f;
-    lunarStruct1 s1_1;
+	lunarStruct2 s2_1;
+	int i;
+	float f;
+	lunarStruct1 s1_1;
 };
-
 uniform lunarStruct3 foo3;
 uniform lunarStruct2 foo2;
 uniform sampler2D sampler;
 uniform lunarStruct1 foo;
 in vec2 coord;
-const int const22i_0 = 0;
+const int L_2 = 0;
 
 void main()
 {
-    bool temp21 = foo3.s2_1.i > const22i_0;
-    float locals_c1 = temp21 ? foo3.s2_1.s1_1.f : foo2.s1_1.f;
-    vec4 temp24 = vec4(locals_c1);
-    vec4 temp25 = texture(sampler, coord);
-    vec4 gla_gl_FragColor_c2 = temp24 * temp25;
-    gl_FragColor = gla_gl_FragColor_c2;
-    
+	bool L_1 = foo3.s2_1.i > L_2;
+	float locals_c1 = L_1 ? foo3.s2_1.s1_1.f : foo2.s1_1.f;
+	vec4 L_4 = vec4(locals_c1);
+	vec4 L_5 = texture(sampler, coord);
+	vec4 Ll_FragColor_c2 = L_4 * L_5;
+	gl_FragColor = Ll_FragColor_c2;
+	
 }
-
 
 #version 130
 // LunarGOO output
 struct lunarStruct1 {
-    int i;
-    float f;
+	int i;
+	float f;
 };
-
 struct lunarStruct2 {
-    int i;
-    float f;
-    lunarStruct1 s1_1;
+	int i;
+	float f;
+	lunarStruct1 s1_1;
 };
-
 struct lunarStruct3 {
-    lunarStruct2 s2_1;
-    int i;
-    float f;
-    lunarStruct1 s1_1;
+	lunarStruct2 s2_1;
+	int i;
+	float f;
+	lunarStruct1 s1_1;
 };
-
 uniform lunarStruct3 foo3;
 uniform lunarStruct2 foo2;
 uniform sampler2D sampler;
 uniform lunarStruct1 foo;
 in vec2 coord;
-const int const22i_0 = 0;
+const int L_2 = 0;
 
 void main()
 {
-    bool temp_c1 = foo3.s2_1.i > const22i_0;
-    float ternary_uc2 = temp_c1 ? foo3.s2_1.s1_1.f : foo2.s1_1.f;
-    vec4 temp24 = vec4(ternary_uc2);
-    vec4 temp_c3 = texture(sampler, coord);
-    vec4 gla_gl_FragColor_c4 = temp24 * temp_c3;
-    gl_FragColor = gla_gl_FragColor_c4;
-    
+	bool L_uc1 = foo3.s2_1.i > L_2;
+	float ternary_uc2 = L_uc1 ? foo3.s2_1.s1_1.f : foo2.s1_1.f;
+	vec4 L_4 = vec4(ternary_uc2);
+	vec4 L_uc3 = texture(sampler, coord);
+	vec4 Ll_FragColor_c4 = L_4 * L_uc3;
+	gl_FragColor = Ll_FragColor_c4;
+	
 }
-
 

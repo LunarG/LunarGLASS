@@ -1525,15 +1525,15 @@ entry:
   %0 = extractelement <4 x float> %color1, i32 0
   %1 = fcmp olt float %0, 0x3FD51EB860000000
   %2 = fcmp olt float %0, 0x3FE51EB860000000
-  %select332.v = select i1 %2, <4 x float> <float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000>, <4 x float> <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>
-  %select342.v = select i1 %1, <4 x float> <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>, <4 x float> %select332.v
-  %select342 = fadd <4 x float> %color1, %select342.v
+  %select334.v = select i1 %2, <4 x float> <float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000, float 0x3FE51EB860000000>, <4 x float> <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>
+  %select341.v = select i1 %1, <4 x float> <float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000, float 0x3FD51EB860000000>, <4 x float> %select334.v
+  %select341 = fadd <4 x float> %color1, %select341.v
   %.pre = load float addrspace(2)* @d, align 4, !gla.uniform !3
   %3 = load <4 x float> addrspace(2)* @bigColor, align 16, !gla.uniform !5
   br label %loop-header12
 
 loop-header12:                                    ; preds = %ifmerge15, %entry
-  %color.1 = phi <4 x float> [ %select342, %entry ], [ %color16, %ifmerge15 ]
+  %color.1 = phi <4 x float> [ %select341, %entry ], [ %color16, %ifmerge15 ]
   %4 = extractelement <4 x float> %color.1, i32 0
   %5 = fcmp uge float %4, %.pre
   br i1 %5, label %then13, label %ifmerge15
@@ -1547,7 +1547,7 @@ ifmerge15:                                        ; preds = %loop-header12
   br label %loop-header12
 
 loop-header19:                                    ; preds = %ifmerge22, %then13
-  %color.2 = phi <4 x float> [ %color.1, %then13 ], [ %select335, %ifmerge22 ]
+  %color.2 = phi <4 x float> [ %color.1, %then13 ], [ %select331, %ifmerge22 ]
   %7 = extractelement <4 x float> %color.2, i32 2
   %8 = fcmp uge float %7, %.pre
   br i1 %8, label %then20, label %ifmerge22
@@ -1560,7 +1560,7 @@ ifmerge22:                                        ; preds = %loop-header19
   %9 = extractelement <4 x float> %color23, i32 3
   %10 = fcmp olt float %9, %.pre
   %color27 = fadd <4 x float> %6, %color23
-  %select335 = select i1 %10, <4 x float> %color23, <4 x float> %color27
+  %select331 = select i1 %10, <4 x float> %color23, <4 x float> %color27
   br label %loop-header19
 
 loop-header30:                                    ; preds = %ifmerge33, %then20
@@ -1777,7 +1777,7 @@ then65:                                           ; preds = %loop-header63
   br label %loop-header80
 
 loop-header80:                                    ; preds = %ifmerge83, %then65
-  %color.10 = phi <4 x float> [ %152, %then65 ], [ %select336, %ifmerge83 ]
+  %color.10 = phi <4 x float> [ %152, %then65 ], [ %select332, %ifmerge83 ]
   %i79.0 = phi i32 [ 0, %then65 ], [ %i7992, %ifmerge83 ]
   %exitcond391 = icmp eq i32 %i79.0, 100
   br i1 %exitcond391, label %then81, label %ifmerge83
@@ -1794,12 +1794,12 @@ ifmerge83:                                        ; preds = %loop-header80
   %158 = extractelement <4 x float> %color.10, i32 1
   %159 = fadd float %158, 1.000000e+00
   %160 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.10, i32 2, float undef, i32 undef, float %159, i32 0, float undef, i32 undef, float undef, i32 undef)
-  %select336 = select i1 %154, <4 x float> %157, <4 x float> %160
+  %select332 = select i1 %154, <4 x float> %157, <4 x float> %160
   %i7992 = add i32 %i79.0, 1
   br label %loop-header80
 
 loop-header96:                                    ; preds = %ifmerge99, %then81
-  %color.12 = phi <4 x float> [ %color.10, %then81 ], [ %select338, %ifmerge99 ]
+  %color.12 = phi <4 x float> [ %color.10, %then81 ], [ %select333, %ifmerge99 ]
   %i95.0 = phi i32 [ 0, %then81 ], [ %i95105, %ifmerge99 ]
   %exitcond390 = icmp eq i32 %i95.0, 120
   br i1 %exitcond390, label %then97, label %ifmerge99
@@ -1817,13 +1817,13 @@ ifmerge99:                                        ; preds = %loop-header96
   %167 = extractelement <4 x float> %color.12, i32 1
   %168 = fadd float %167, 1.000000e+00
   %169 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.12, i32 2, float undef, i32 undef, float %168, i32 0, float undef, i32 undef, float undef, i32 undef)
-  %select338 = select i1 %163, <4 x float> %166, <4 x float> %169
+  %select333 = select i1 %163, <4 x float> %166, <4 x float> %169
   %i95105 = add i32 %i95.0, 1
   br label %loop-header96
 
 loop-header109:                                   ; preds = %ifmerge112, %then97
-  %color.14 = phi <4 x float> [ %color.12, %then97 ], [ %select339, %ifmerge112 ]
-  %i108.0 = phi i32 [ 0, %then97 ], [ %select340, %ifmerge112 ]
+  %color.14 = phi <4 x float> [ %color.12, %then97 ], [ %select336, %ifmerge112 ]
+  %i108.0 = phi i32 [ 0, %then97 ], [ %select337, %ifmerge112 ]
   %exitcond = icmp eq i32 %i108.0, 42
   br i1 %exitcond, label %then110, label %ifmerge112
 
@@ -1839,8 +1839,8 @@ ifmerge112:                                       ; preds = %loop-header109
   %175 = extractelement <4 x float> %color.14, i32 3
   %176 = fadd float %175, 1.000000e+00
   %177 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color.14, i32 12, float undef, i32 undef, float undef, i32 undef, float %171, i32 0, float %176, i32 0)
-  %select339 = select i1 %174, <4 x float> %172, <4 x float> %177
-  %select340 = add i32 %i108.0, 1
+  %select336 = select i1 %174, <4 x float> %172, <4 x float> %177
+  %select337 = add i32 %i108.0, 1
   br label %loop-header109
 
 loop-header123:                                   ; preds = %ifmerge130, %then110
@@ -1886,7 +1886,7 @@ then137:                                          ; preds = %loop-header135
   br label %loop-header135.backedge
 
 loop-header135.backedge:                          ; preds = %then137, %ifmerge147
-  %color.17.be = phi <4 x float> [ %color136, %then137 ], [ %select334, %ifmerge147 ]
+  %color.17.be = phi <4 x float> [ %color136, %then137 ], [ %select, %ifmerge147 ]
   br label %loop-header135
 
 ifmerge139:                                       ; preds = %loop-header135
@@ -1896,8 +1896,8 @@ ifmerge139:                                       ; preds = %loop-header135
   %192 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color136, i32 2, float undef, i32 undef, float %191, i32 0, float undef, i32 undef, float undef, i32 undef)
   %193 = fadd float %161, %187
   %194 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color136, i32 1, float %193, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
-  %select334 = select i1 %190, <4 x float> %192, <4 x float> %194
-  %195 = extractelement <4 x float> %select334, i32 2
+  %select = select i1 %190, <4 x float> %192, <4 x float> %194
+  %195 = extractelement <4 x float> %select, i32 2
   %196 = fcmp uge float %195, %161
   br i1 %196, label %then145, label %ifmerge147
 
@@ -1910,14 +1910,14 @@ ifmerge147:                                       ; preds = %ifmerge139
   br label %loop-header135.backedge
 
 loop-header150:                                   ; preds = %loop-header150, %then145
-  %color.19 = phi <4 x float> [ %select334, %then145 ], [ %select341, %loop-header150 ]
+  %color.19 = phi <4 x float> [ %select, %then145 ], [ %select338, %loop-header150 ]
   %color151 = fadd <4 x float> %color.19, %.pre349
   %197 = extractelement <4 x float> %color151, i32 1
   %198 = fcmp olt float %197, %.pre350
   %199 = fadd float %.pre350, %197
   %200 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color151, i32 2, float undef, i32 undef, float %199, i32 0, float undef, i32 undef, float undef, i32 undef)
-  %select341 = select i1 %198, <4 x float> %200, <4 x float> %color151
-  %201 = extractelement <4 x float> %select341, i32 0
+  %select338 = select i1 %198, <4 x float> %200, <4 x float> %color151
+  %201 = extractelement <4 x float> %select338, i32 0
   %202 = fcmp uge float %201, %.pre350
   br i1 %202, label %then155, label %loop-header150
 
@@ -1931,7 +1931,7 @@ then160:                                          ; preds = %then155
   br label %loop-header161
 
 loop-header161:                                   ; preds = %ifmerge164, %then160
-  %color.21 = phi <4 x float> [ %select341, %then160 ], [ %color165, %ifmerge164 ]
+  %color.21 = phi <4 x float> [ %select338, %then160 ], [ %color165, %ifmerge164 ]
   %206 = extractelement <4 x float> %color.21, i32 1
   %207 = fcmp uge float %206, %203
   br i1 %207, label %then162, label %ifmerge164
@@ -1949,7 +1949,7 @@ else168:                                          ; preds = %then155
   br label %loop-header169
 
 loop-header169:                                   ; preds = %ifmerge172, %else168
-  %color.22 = phi <4 x float> [ %select341, %else168 ], [ %213, %ifmerge172 ]
+  %color.22 = phi <4 x float> [ %select338, %else168 ], [ %213, %ifmerge172 ]
   %210 = extractelement <4 x float> %color.22, i32 2
   %211 = fcmp uge float %210, %203
   br i1 %211, label %then170, label %ifmerge172
@@ -2069,7 +2069,7 @@ then217:                                          ; preds = %ifmerge215
   %240 = extractelement <4 x float> %color216, i32 0
   %241 = fadd float %240, 1.000000e+00
   %242 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color216, i32 5, float %241, i32 0, float undef, i32 undef, float %235, i32 0, float undef, i32 undef)
-  %select333 = select i1 %236, <4 x float> %239, <4 x float> %242
+  %select335 = select i1 %236, <4 x float> %239, <4 x float> %242
   br label %loop-merge231
 
 ifmerge225:                                       ; preds = %ifmerge215
@@ -2082,7 +2082,7 @@ then227:                                          ; preds = %ifmerge225
   br label %loop-merge231
 
 loop-merge231:                                    ; preds = %then227, %then217, %then213
-  %color.32 = phi <4 x float> [ %color.30, %then213 ], [ %select333, %then217 ], [ %color226, %then227 ]
+  %color.32 = phi <4 x float> [ %color.30, %then213 ], [ %select335, %then217 ], [ %color226, %then227 ]
   %.pre353 = load float addrspace(2)* @d9, align 4, !gla.uniform !23
   %245 = fcmp ogt float %.pre353, %.pre352
   br label %loop-header232
@@ -2132,7 +2132,7 @@ loop-merge246:                                    ; preds = %else240, %then233
   br label %loop-header247
 
 loop-header247:                                   ; preds = %then252, %loop-merge246
-  %color.36 = phi <4 x float> [ %color.33, %loop-merge246 ], [ %select, %then252 ]
+  %color.36 = phi <4 x float> [ %color.33, %loop-merge246 ], [ %select339, %then252 ]
   %256 = extractelement <4 x float> %color.36, i32 2
   %257 = fcmp uge float %256, %.pre354
   br i1 %257, label %then248, label %ifmerge250
@@ -2156,7 +2156,7 @@ then252:                                          ; preds = %ifmerge250
   %267 = extractelement <4 x float> %color.36, i32 0
   %268 = fadd float %267, 1.000000e+00
   %269 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %260, i32 5, float %268, i32 0, float undef, i32 undef, float %262, i32 0, float undef, i32 undef)
-  %select = select i1 %264, <4 x float> %266, <4 x float> %269
+  %select339 = select i1 %264, <4 x float> %266, <4 x float> %269
   br label %loop-header247
 
 ifmerge260:                                       ; preds = %ifmerge250
@@ -2170,7 +2170,7 @@ loop-merge264:                                    ; preds = %ifmerge260, %then24
   br label %loop-header265
 
 loop-header265:                                   ; preds = %ifmerge268, %loop-merge264
-  %color.39 = phi <4 x float> [ %color.38, %loop-merge264 ], [ %select337, %ifmerge268 ]
+  %color.39 = phi <4 x float> [ %color.38, %loop-merge264 ], [ %select342, %ifmerge268 ]
   %272 = extractelement <4 x float> %color.39, i32 0
   %273 = fcmp uge float %272, 1.000000e+01
   br i1 %273, label %then266, label %ifmerge268
@@ -2191,8 +2191,8 @@ ifmerge268:                                       ; preds = %loop-header265
   %279 = extractelement <4 x float> %color269, i32 1
   %280 = fadd float %279, %271
   %281 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %color269, i32 2, float undef, i32 undef, float %280, i32 0, float undef, i32 undef, float undef, i32 undef)
-  %select331 = select i1 %278, <4 x float> %color269, <4 x float> %281
-  %select337 = select i1 %276, <4 x float> %select331, <4 x float> %281
+  %select340 = select i1 %278, <4 x float> %color269, <4 x float> %281
+  %select342 = select i1 %276, <4 x float> %select340, <4 x float> %281
   br label %loop-header265
 
 loop-header279:                                   ; preds = %else284, %then266
@@ -2421,618 +2421,614 @@ uniform float d32;
 uniform float d33;
 uniform float d34;
 in vec4 BaseColor;
-const float const65 = 0.33;
-const float const67 = 0.66;
-const vec4 const69 = vec4(0.66);
-const vec4 const70 = vec4(0.33);
-const float const78 = 42.0;
-const vec4 const80 = vec4(1.0);
+const float L_2d = 0.33;
+const float L_2f = 0.66;
+const vec4 L_31 = vec4(0.66);
+const vec4 L_32 = vec4(0.33);
+const float L_3a = 42.0;
+const vec4 L_3c = vec4(1.0);
 vec4 color_c51;
-const int const88i_0 = 0;
+const int L_44 = 0;
 vec4 color_c54;
-const float const177 = 20.0;
-const float const179 = 1.0;
-const int const196i_41 = 41;
-vec4 temp198;
-const int const203i_1 = 1;
+const float L_9d = 20.0;
+const float L_9f = 1.0;
+const int L_b0 = 41;
+vec4 L_b2;
+const int L_b7 = 1;
 vec4 select_c59;
 vec4 select_c61;
-float temp218;
+float L_c6;
 vec4 color_c63;
-const float const230 = 0.0;
+const float L_d2 = 0.0;
 vec4 color_c64;
 vec4 color_c66;
-const float const241 = 2.0;
+const float L_dd = 2.0;
 vec4 color_c68;
-const float const252 = 5.0;
-vec4 temp256;
-const float const266 = 10.0;
+const float L_e8 = 5.0;
+vec4 L_ec;
+const float L_f6 = 10.0;
 vec4 color_c79;
 
 void main()
 {
-    vec4 color_uc1;
-    vec4 color_uc2;
-    vec4 color_uc3;
-    vec4 color_uc4;
-    vec4 color_uc5;
-    vec4 color_uc6;
-    vec4 color_uc7;
-    int i_uc8;
-    vec4 color_uc9;
-    vec4 color_uc10;
-    int temp31;
-    vec4 color_uc11;
-    int temp33;
-    vec4 color_uc12;
-    int temp35;
-    vec4 color_uc13;
-    int temp37;
-    vec4 color_uc14;
-    vec4 color_uc15;
-    vec4 color_uc16;
-    vec4 color_uc17;
-    vec4 color_uc18;
-    vec4 color_uc19;
-    vec4 color_uc20;
-    vec4 color_uc21;
-    vec4 color_uc22;
-    vec4 color_uc23;
-    vec4 color_uc24;
-    vec4 color_uc25;
-    vec4 color_uc26;
-    vec4 color_uc27;
-    vec4 color_uc28;
-    vec4 color_uc29;
-    vec4 color_uc30;
-    vec4 color_uc31;
-    vec4 color_uc32;
-    vec4 color_uc33;
-    vec4 color_uc34;
-    vec4 color_uc35;
-    vec4 color_uc36;
-    vec4 color_uc37;
-    vec4 color_uc38;
-    vec4 color_uc39;
-    bool temp64 = BaseColor.x < const65;
-    bool temp66 = BaseColor.x < const67;
-    vec4 select_c40 = temp66 ? const69 : const70;
-    vec4 select_c41 = temp64 ? const70 : select_c40;
-    vec4 select_c42 = BaseColor + select_c41;
-    color_uc1 = select_c42;
-    while (color_uc1.x < d) {
-        vec4 color_c43 = bigColor + color_uc1;
-        color_uc1 = color_c43;
-    }
-    
-    color_uc2 = color_uc1;
-    while (color_uc2.z < d) {
-        vec4 color_c44 = bigColor1_1 + color_uc2;
-        bool temp75 = color_c44.w < d;
-        vec4 color_c45 = bigColor1_1 + color_c44;
-        vec4 select_c46 = temp75 ? color_c44 : color_c45;
-        color_uc2 = select_c46;
-    }
-    
-    color_uc3 = color_uc2;
-    while (color_uc3.x < const78) {
-        vec4 color_c47 = color_uc3 + const80;
-        color_uc3 = color_c47;
-    }
-    
-    color_uc4 = color_uc3;
-    while (true) {
-        bool notlhs_c48 = color_uc4.w >= d2;
-        bool notrhs_c49 = color_uc4.y >= d3;
-        bool temp83 = notrhs_c49 || notlhs_c48;
-        if (temp83) {
-            break;
-        }
-        
-        vec4 color_c50 = bigColor1_2 + color_uc4;
-        color_uc4 = color_c50;
-    }
-    
-    color_uc5 = color_uc4;
-    while (color_uc5.z < d3) {
-        color_c51 = bigColor1_3 + color_uc5;
-        bool temp86 = color_c51.y < d4;
-        if (temp86) {
-            color_uc6 = color_c51;
-            break;
-        }
-        
-        vec4 color_c52 = bigColor1_3 + color_c51;
-        color_uc5 = color_c52;
-    }
-    
-    color_uc6 = color_uc5;
-    color_uc7 = color_uc6;
-    i_uc8 = const88i_0;
-    for (i_uc8 = 0; i_uc8 < Count; ++i_uc8) {
-        vec4 color_c53 = bigColor2 + color_uc7;
-        color_uc7 = color_c53;
-    }
-    
-    color_uc9 = color_uc7;
-    while (true) {
-        color_c54 = bigColor3 + color_uc9;
-        bool temp91 = color_c54.x >= d2;
-        if (temp91) {
-            break;
-        }
-        
-        color_uc9 = color_c54;
-    }
-    
-    float temp92 = color_c54.z + d3;
-    vec4 temp93 = color_c54;
-    temp93.z = temp92;
-    float temp94 = d3 + temp93.z;
-    vec4 temp95 = temp93;
-    temp95.z = temp94;
-    float temp96 = d3 + temp95.z;
-    vec4 temp97 = temp95;
-    temp97.z = temp96;
-    float temp98 = d3 + temp97.z;
-    vec4 temp99 = temp97;
-    temp99.z = temp98;
-    float temp100 = d3 + temp99.z;
-    vec4 temp101 = temp99;
-    temp101.z = temp100;
-    float temp102 = d3 + temp101.z;
-    vec4 temp103 = temp101;
-    temp103.z = temp102;
-    float temp104 = d3 + temp103.z;
-    vec4 temp105 = temp103;
-    temp105.z = temp104;
-    float temp106 = d3 + temp105.z;
-    vec4 temp107 = temp105;
-    temp107.z = temp106;
-    float temp108 = d3 + temp107.z;
-    vec4 temp109 = temp107;
-    temp109.z = temp108;
-    float temp110 = d3 + temp109.z;
-    vec4 temp111 = temp109;
-    temp111.z = temp110;
-    float temp112 = d3 + temp111.z;
-    vec4 temp113 = temp111;
-    temp113.z = temp112;
-    float temp114 = d3 + temp113.z;
-    vec4 temp115 = temp113;
-    temp115.z = temp114;
-    float temp116 = d3 + temp115.z;
-    vec4 temp117 = temp115;
-    temp117.z = temp116;
-    float temp118 = d3 + temp117.z;
-    vec4 temp119 = temp117;
-    temp119.z = temp118;
-    float temp120 = d3 + temp119.z;
-    vec4 temp121 = temp119;
-    temp121.z = temp120;
-    float temp122 = d3 + temp121.z;
-    vec4 temp123 = temp121;
-    temp123.z = temp122;
-    float temp124 = d3 + temp123.z;
-    vec4 temp125 = temp123;
-    temp125.z = temp124;
-    float temp126 = d3 + temp125.z;
-    vec4 temp127 = temp125;
-    temp127.z = temp126;
-    float temp128 = d3 + temp127.z;
-    vec4 temp129 = temp127;
-    temp129.z = temp128;
-    float temp130 = d3 + temp129.z;
-    vec4 temp131 = temp129;
-    temp131.z = temp130;
-    float temp132 = d3 + temp131.z;
-    vec4 temp133 = temp131;
-    temp133.z = temp132;
-    float temp134 = d3 + temp133.z;
-    vec4 temp135 = temp133;
-    temp135.z = temp134;
-    float temp136 = d3 + temp135.z;
-    vec4 temp137 = temp135;
-    temp137.z = temp136;
-    float temp138 = d3 + temp137.z;
-    vec4 temp139 = temp137;
-    temp139.z = temp138;
-    float temp140 = d3 + temp139.z;
-    vec4 temp141 = temp139;
-    temp141.z = temp140;
-    float temp142 = d3 + temp141.z;
-    vec4 temp143 = temp141;
-    temp143.z = temp142;
-    float temp144 = d3 + temp143.z;
-    vec4 temp145 = temp143;
-    temp145.z = temp144;
-    float temp146 = d3 + temp145.z;
-    vec4 temp147 = temp145;
-    temp147.z = temp146;
-    float temp148 = d3 + temp147.z;
-    vec4 temp149 = temp147;
-    temp149.z = temp148;
-    float temp150 = d3 + temp149.z;
-    vec4 temp151 = temp149;
-    temp151.z = temp150;
-    float temp152 = d3 + temp151.z;
-    vec4 temp153 = temp151;
-    temp153.z = temp152;
-    float temp154 = d3 + temp153.z;
-    vec4 temp155 = temp153;
-    temp155.z = temp154;
-    float temp156 = d3 + temp155.z;
-    vec4 temp157 = temp155;
-    temp157.z = temp156;
-    float temp158 = d3 + temp157.z;
-    vec4 temp159 = temp157;
-    temp159.z = temp158;
-    float temp160 = d3 + temp159.z;
-    vec4 temp161 = temp159;
-    temp161.z = temp160;
-    float temp162 = d3 + temp161.z;
-    vec4 temp163 = temp161;
-    temp163.z = temp162;
-    float temp164 = d3 + temp163.z;
-    vec4 temp165 = temp163;
-    temp165.z = temp164;
-    float temp166 = d3 + temp165.z;
-    vec4 temp167 = temp165;
-    temp167.z = temp166;
-    float temp168 = d3 + temp167.z;
-    vec4 temp169 = temp167;
-    temp169.z = temp168;
-    float temp170 = d3 + temp169.z;
-    vec4 temp171 = temp169;
-    temp171.z = temp170;
-    float temp172 = d3 + temp171.z;
-    vec4 temp173 = temp171;
-    temp173.z = temp172;
-    float temp174 = d3 + temp173.z;
-    vec4 temp175 = temp173;
-    temp175.z = temp174;
-    color_uc10 = temp175;
-    temp31 = const88i_0;
-    for (temp31 = 0; temp31 != 100; ++temp31) {
-        bool temp176 = color_uc10.z < const177;
-        float temp178 = color_uc10.x + const179;
-        vec4 temp180 = color_uc10;
-        temp180.x = temp178;
-        float temp181 = color_uc10.y + const179;
-        vec4 temp182 = color_uc10;
-        temp182.y = temp181;
-        vec4 select_c55 = temp176 ? temp180 : temp182;
-        color_uc10 = select_c55;
-    }
-    
-    color_uc11 = color_uc10;
-    temp33 = const88i_0;
-    for (temp33 = 0; temp33 != 120; ++temp33) {
-        bool temp184 = color_uc11.z < const177;
-        float temp185 = color_uc11.x + const179;
-        vec4 temp186 = color_uc11;
-        temp186.x = temp185;
-        float temp187 = color_uc11.y + const179;
-        vec4 temp188 = color_uc11;
-        temp188.y = temp187;
-        vec4 select_c56 = temp184 ? temp186 : temp188;
-        color_uc11 = select_c56;
-    }
-    
-    color_uc12 = color_uc11;
-    temp35 = const88i_0;
-    for (temp35 = 0; temp35 != 42; ++temp35) {
-        float temp190 = color_uc12.z + d3;
-        vec4 temp191 = color_uc12;
-        temp191.z = temp190;
-        bool temp192 = color_uc12.x < d4;
-        float temp193 = color_uc12.w + const179;
-        vec4 temp194 = color_uc12;
-        temp194.zw = vec2(temp190, temp193);
-        vec4 select_c57 = temp192 ? temp191 : temp194;
-        color_uc12 = select_c57;
-    }
-    
-    color_uc13 = color_uc12;
-    temp37 = const88i_0;
-    while (temp37 <= const196i_41) {
-        float temp197 = color_uc13.z + d3;
-        temp198 = color_uc13;
-        temp198.z = temp197;
-        bool temp199 = color_uc13.x < d4;
-        if (temp199) {
-            color_uc14 = temp198;
-            break;
-        }
-        
-        float temp200 = color_uc13.w + const179;
-        vec4 temp201 = temp198;
-        temp201.w = temp200;
-        int temp202 = temp37 + const203i_1;
-        color_uc13 = temp201;
-        temp37 = temp202;
-    }
-    
-    color_uc14 = color_uc13;
-    color_uc15 = color_uc14;
-    while (true) {
-        vec4 color_c58 = bigColor4 + color_uc15;
-        bool temp205 = color_c58.x < d4;
-        if (temp205) {
-            color_uc16 = color_c58;
-        }
-        else {
-            bool temp206 = color_c58.y < d4;
-            float temp207 = color_c58.y + d4;
-            vec4 temp208 = color_c58;
-            temp208.y = temp207;
-            float temp209 = color_c58.x + d4;
-            vec4 temp210 = color_c58;
-            temp210.x = temp209;
-            select_c59 = temp206 ? temp208 : temp210;
-            bool temp212 = select_c59.z >= d4;
-            if (temp212) {
-                break;
-            }
-            
-            color_uc16 = select_c59;
-        }
-        
-        color_uc15 = color_uc16;
-    }
-    
-    color_uc17 = select_c59;
-    while (true) {
-        vec4 color_c60 = bigColor5 + color_uc17;
-        bool temp214 = color_c60.y < d5;
-        float temp215 = color_c60.y + d5;
-        vec4 temp216 = color_c60;
-        temp216.y = temp215;
-        select_c61 = temp214 ? temp216 : color_c60;
-        bool temp219 = select_c61.x >= d5;
-        if (temp219) {
-            break;
-        }
-        
-        color_uc17 = select_c61;
-    }
-    
-    bool temp220 = select_c61.x < d6;
-    if (temp220) {
-        color_uc18 = select_c61;
-        while (color_uc18.y < d6) {
-            vec4 color_c62 = bigColor6 + color_uc18;
-            color_uc18 = color_c62;
-        }
-        
-        color_uc20 = color_uc18;
-    }
-    else {
-        color_uc19 = select_c61;
-        while (color_uc19.z < d6) {
-            float temp222 = bigColor6.z + color_uc19.z;
-            vec4 temp223 = color_uc19;
-            temp223.z = temp222;
-            color_uc19 = temp223;
-        }
-        
-        color_uc20 = color_uc19;
-    }
-    
-    bool temp224 = color_uc20.x < d6;
-    if (temp224) {
-        bool temp225 = d7 < const179;
-        color_uc21 = color_uc20;
-        while (color_uc21.y < d6) {
-            color_c63 = bigColor6 + color_uc21;
-            if (temp225) {
-                color_uc22 = color_c63;
-                break;
-            }
-            
-            color_uc21 = color_c63;
-        }
-        
-        color_uc22 = color_uc21;
-        color_uc24 = color_uc22;
-    }
-    else {
-        color_uc23 = color_uc20;
-        while (color_uc23.z < d6) {
-            float temp227 = bigColor6.z + color_uc23.z;
-            vec4 temp228 = color_uc23;
-            temp228.z = temp227;
-            color_uc23 = temp228;
-        }
-        
-        color_uc24 = color_uc23;
-    }
-    
-    bool temp229 = d7 < const230;
-    bool temp231 = d7 < const179;
-    color_uc25 = color_uc24;
-    while (true) {
-        if (temp229) {
-            color_uc26 = color_uc25;
-            break;
-        }
-        
-        color_c64 = bigColor7 + color_uc25;
-        if (temp231) {
-            float temp233 = color_c64.z + const179;
-            vec4 temp234 = color_c64;
-            temp234.z = temp233;
-            color_uc26 = temp234;
-            break;
-        }
-        
-        vec4 color_c65 = BaseColor + color_c64;
-        color_uc25 = color_c65;
-    }
-    
-    bool temp236 = d8 < const230;
-    bool temp237 = d8 < const179;
-    color_uc27 = color_uc26;
-    while (true) {
-        if (temp236) {
-            color_uc28 = color_uc27;
-            break;
-        }
-        
-        color_c66 = bigColor7 + color_uc27;
-        if (temp237) {
-            float temp239 = color_c66.z + const179;
-            bool temp240 = d8 < const241;
-            float temp242 = color_c66.y + const179;
-            vec4 temp243 = color_c66;
-            temp243.yz = vec2(temp242, temp239);
-            float temp244 = color_c66.x + const179;
-            vec4 temp245 = color_c66;
-            temp245.xz = vec2(temp244, temp239);
-            vec4 select_c67 = temp240 ? temp243 : temp245;
-            color_uc28 = select_c67;
-            break;
-        }
-        
-        color_c68 = BaseColor + color_c66;
-        bool temp248 = color_c68.z >= d8;
-        if (temp248) {
-            color_uc28 = color_c68;
-            break;
-        }
-        
-        color_uc27 = color_c68;
-    }
-    
-    bool temp249 = d9 > d8;
-    color_uc29 = color_uc28;
-    while (color_uc29.w < d9) {
-        color_uc31 = color_uc29;
-        if (temp249) {
-            bool temp250 = color_uc29.x > d7;
-            color_uc30 = color_uc29;
-            if (! temp250) {
-                bool temp251 = color_uc29.z == const252;
-                if (! temp251) {
-                    break;
-                }
-                
-                float temp253 = color_uc29.w + const179;
-                vec4 temp254 = color_uc29;
-                temp254.w = temp253;
-                color_uc30 = temp254;
-            }
-            
-            color_uc31 = color_uc30;
-        }
-        
-        color_uc29 = color_uc31;
-    }
-    
-    color_uc32 = color_uc29;
-    while (color_uc32.z < d10) {
-        float temp255 = color_uc32.y + const179;
-        temp256 = color_uc32;
-        temp256.y = temp255;
-        bool temp257 = temp255 < d11;
-        if (! temp257) {
-            vec4 color_c69 = const80 + temp256;
-            color_uc33 = color_c69;
-            break;
-        }
-        
-        float temp259 = color_uc32.z + const179;
-        bool temp260 = color_uc32.w < d12;
-        float temp261 = color_uc32.w + const179;
-        vec4 temp262 = temp256;
-        temp262.zw = vec2(temp259, temp261);
-        float temp263 = color_uc32.x + const179;
-        vec4 temp264 = temp256;
-        temp264.xz = vec2(temp263, temp259);
-        vec4 select_c70 = temp260 ? temp262 : temp264;
-        color_uc32 = select_c70;
-    }
-    
-    color_uc33 = color_uc32;
-    color_uc34 = color_uc33;
-    while (color_uc34.x < const266) {
-        vec4 color_c71 = bigColor8 + color_uc34;
-        bool temp268 = color_c71.z < d8;
-        bool temp269 = color_c71.w < d6;
-        float temp270 = bigColor8.x + color_c71.y;
-        vec4 temp271 = color_c71;
-        temp271.y = temp270;
-        vec4 select_c72 = temp269 ? color_c71 : temp271;
-        vec4 select_c73 = temp268 ? select_c72 : temp271;
-        color_uc34 = select_c73;
-    }
-    
-    vec4 color_c74 = color_uc34 + const80;
-    gl_FragColor = color_c74;
-    color_uc35 = color_c74;
-    while (color_uc35.x < d14) {
-        bool temp275 = color_uc35.y < d15;
-        if (temp275) {
-            return;
-        }
-        
-        vec4 color_c75 = color_uc35 + const80;
-        color_uc35 = color_c75;
-    }
-    
-    vec4 color_c76 = color_uc35 + const80;
-    color_uc36 = color_c76;
-    while (color_uc36.w < d16) {
-        float temp278 = color_uc36.w + const179;
-        vec4 temp279 = color_uc36;
-        temp279.w = temp278;
-        color_uc36 = temp279;
-    }
-    
-    color_uc37 = color_uc36;
-    while (true) {
-        bool notlhs_c77 = color_uc37.w >= d2;
-        bool notrhs_c78 = color_uc37.y >= d3;
-        bool temp282 = notrhs_c78 || notlhs_c77;
-        if (temp282) {
-            color_uc38 = color_uc37;
-            while (color_uc38.y >= d18) {
-                color_c79 = color_uc38 + const80;
-                bool temp284 = color_c79.x >= d17;
-                if (temp284) {
-                    color_uc39 = color_c79;
-                    while (color_uc39.y < d16) {
-                        bool temp285 = color_uc39.w < d16;
-                        if (temp285) {
-                            discard;
-                        }
-                        
-                        vec4 color_c80 = color_uc39 + const80;
-                        color_uc39 = color_c80;
-                    }
-                    
-                    vec4 color_c81 = color_uc39 + const80;
-                    gl_FragColor = color_c81;
-                    return;
-                }
-                
-                color_uc38 = color_c79;
-            }
-            
-            return;
-        }
-        
-        vec4 color_c82 = bigColor1_2 + color_uc37;
-        bool temp289 = color_c82.z < d3;
-        if (temp289) {
-            
-        }
-        
-        color_uc37 = color_c82;
-    }
-    
+	vec4 color_uc1;
+	vec4 color_uc2;
+	vec4 color_uc3;
+	vec4 color_uc4;
+	vec4 color_uc5;
+	vec4 color_uc6;
+	vec4 color_uc7;
+	int i_uc8;
+	vec4 color_uc9;
+	vec4 color_uc10;
+	int L_b;
+	vec4 color_uc11;
+	int L_d;
+	vec4 color_uc12;
+	int L_f;
+	vec4 color_uc13;
+	int L_11;
+	vec4 color_uc14;
+	vec4 color_uc15;
+	vec4 color_uc16;
+	vec4 color_uc17;
+	vec4 color_uc18;
+	vec4 color_uc19;
+	vec4 color_uc20;
+	vec4 color_uc21;
+	vec4 color_uc22;
+	vec4 color_uc23;
+	vec4 color_uc24;
+	vec4 color_uc25;
+	vec4 color_uc26;
+	vec4 color_uc27;
+	vec4 color_uc28;
+	vec4 color_uc29;
+	vec4 color_uc30;
+	vec4 color_uc31;
+	vec4 color_uc32;
+	vec4 color_uc33;
+	vec4 color_uc34;
+	vec4 color_uc35;
+	vec4 color_uc36;
+	vec4 color_uc37;
+	vec4 color_uc38;
+	vec4 color_uc39;
+	bool L_2c = BaseColor.x < L_2d;
+	bool L_2e = BaseColor.x < L_2f;
+	vec4 select_c40 = L_2e ? L_31 : L_32;
+	vec4 select_c41 = L_2c ? L_32 : select_c40;
+	vec4 select_c42 = BaseColor + select_c41;
+	color_uc1 = select_c42;
+	while (color_uc1.x < d) {
+		vec4 color_c43 = bigColor + color_uc1;
+		color_uc1 = color_c43;
+	}
+	
+	color_uc2 = color_uc1;
+	while (color_uc2.z < d) {
+		vec4 color_c44 = bigColor1_1 + color_uc2;
+		bool L_37 = color_c44.w < d;
+		vec4 color_c45 = bigColor1_1 + color_c44;
+		vec4 select_c46 = L_37 ? color_c44 : color_c45;
+		color_uc2 = select_c46;
+	}
+	
+	color_uc3 = color_uc2;
+	while (color_uc3.x < L_3a) {
+		vec4 color_c47 = color_uc3 + L_3c;
+		color_uc3 = color_c47;
+	}
+	
+	color_uc4 = color_uc3;
+	while (true) {
+		bool notlhs_c48 = color_uc4.w >= d2;
+		bool notrhs_c49 = color_uc4.y >= d3;
+		bool L_3f = notrhs_c49 || notlhs_c48;
+		if (L_3f) {
+			break;
+		}
+		
+		vec4 color_c50 = bigColor1_2 + color_uc4;
+		color_uc4 = color_c50;
+	}
+	
+	color_uc5 = color_uc4;
+	while (color_uc5.z < d3) {
+		color_c51 = bigColor1_3 + color_uc5;
+		bool L_42 = color_c51.y < d4;
+		if (L_42) {
+			color_uc6 = color_c51;
+			break;
+		}
+		
+		vec4 color_c52 = bigColor1_3 + color_c51;
+		color_uc5 = color_c52;
+	}
+	
+	color_uc6 = color_uc5;
+	color_uc7 = color_uc6;
+	i_uc8 = L_44;
+	for (i_uc8 = 0; i_uc8 < Count; ++i_uc8) {
+		vec4 color_c53 = bigColor2 + color_uc7;
+		color_uc7 = color_c53;
+	}
+	
+	color_uc9 = color_uc7;
+	while (true) {
+		color_c54 = bigColor3 + color_uc9;
+		bool L_47 = color_c54.x >= d2;
+		if (L_47) {
+			break;
+		}
+		
+		color_uc9 = color_c54;
+	}
+	
+	float L_48 = color_c54.z + d3;
+	vec4 L_49 = color_c54;
+	L_49.z = L_48;
+	float L_4a = L_49.z + d3;
+	vec4 L_4b = L_49;
+	L_4b.z = L_4a;
+	float L_4c = L_4b.z + d3;
+	vec4 L_4d = L_4b;
+	L_4d.z = L_4c;
+	float L_4e = L_4d.z + d3;
+	vec4 L_4f = L_4d;
+	L_4f.z = L_4e;
+	float L_50 = L_4f.z + d3;
+	vec4 L_51 = L_4f;
+	L_51.z = L_50;
+	float L_52 = L_51.z + d3;
+	vec4 L_53 = L_51;
+	L_53.z = L_52;
+	float L_54 = L_53.z + d3;
+	vec4 L_55 = L_53;
+	L_55.z = L_54;
+	float L_56 = L_55.z + d3;
+	vec4 L_57 = L_55;
+	L_57.z = L_56;
+	float L_58 = L_57.z + d3;
+	vec4 L_59 = L_57;
+	L_59.z = L_58;
+	float L_5a = L_59.z + d3;
+	vec4 L_5b = L_59;
+	L_5b.z = L_5a;
+	float L_5c = L_5b.z + d3;
+	vec4 L_5d = L_5b;
+	L_5d.z = L_5c;
+	float L_5e = L_5d.z + d3;
+	vec4 L_5f = L_5d;
+	L_5f.z = L_5e;
+	float L_60 = L_5f.z + d3;
+	vec4 L_61 = L_5f;
+	L_61.z = L_60;
+	float L_62 = L_61.z + d3;
+	vec4 L_63 = L_61;
+	L_63.z = L_62;
+	float L_64 = L_63.z + d3;
+	vec4 L_65 = L_63;
+	L_65.z = L_64;
+	float L_66 = L_65.z + d3;
+	vec4 L_67 = L_65;
+	L_67.z = L_66;
+	float L_68 = L_67.z + d3;
+	vec4 L_69 = L_67;
+	L_69.z = L_68;
+	float L_6a = L_69.z + d3;
+	vec4 L_6b = L_69;
+	L_6b.z = L_6a;
+	float L_6c = L_6b.z + d3;
+	vec4 L_6d = L_6b;
+	L_6d.z = L_6c;
+	float L_6e = L_6d.z + d3;
+	vec4 L_6f = L_6d;
+	L_6f.z = L_6e;
+	float L_70 = L_6f.z + d3;
+	vec4 L_71 = L_6f;
+	L_71.z = L_70;
+	float L_72 = L_71.z + d3;
+	vec4 L_73 = L_71;
+	L_73.z = L_72;
+	float L_74 = L_73.z + d3;
+	vec4 L_75 = L_73;
+	L_75.z = L_74;
+	float L_76 = L_75.z + d3;
+	vec4 L_77 = L_75;
+	L_77.z = L_76;
+	float L_78 = L_77.z + d3;
+	vec4 L_79 = L_77;
+	L_79.z = L_78;
+	float L_7a = L_79.z + d3;
+	vec4 L_7b = L_79;
+	L_7b.z = L_7a;
+	float L_7c = L_7b.z + d3;
+	vec4 L_7d = L_7b;
+	L_7d.z = L_7c;
+	float L_7e = L_7d.z + d3;
+	vec4 L_7f = L_7d;
+	L_7f.z = L_7e;
+	float L_80 = L_7f.z + d3;
+	vec4 L_81 = L_7f;
+	L_81.z = L_80;
+	float L_82 = L_81.z + d3;
+	vec4 L_83 = L_81;
+	L_83.z = L_82;
+	float L_84 = L_83.z + d3;
+	vec4 L_85 = L_83;
+	L_85.z = L_84;
+	float L_86 = L_85.z + d3;
+	vec4 L_87 = L_85;
+	L_87.z = L_86;
+	float L_88 = L_87.z + d3;
+	vec4 L_89 = L_87;
+	L_89.z = L_88;
+	float L_8a = L_89.z + d3;
+	vec4 L_8b = L_89;
+	L_8b.z = L_8a;
+	float L_8c = L_8b.z + d3;
+	vec4 L_8d = L_8b;
+	L_8d.z = L_8c;
+	float L_8e = L_8d.z + d3;
+	vec4 L_8f = L_8d;
+	L_8f.z = L_8e;
+	float L_90 = L_8f.z + d3;
+	vec4 L_91 = L_8f;
+	L_91.z = L_90;
+	float L_92 = L_91.z + d3;
+	vec4 L_93 = L_91;
+	L_93.z = L_92;
+	float L_94 = L_93.z + d3;
+	vec4 L_95 = L_93;
+	L_95.z = L_94;
+	float L_96 = L_95.z + d3;
+	vec4 L_97 = L_95;
+	L_97.z = L_96;
+	float L_98 = L_97.z + d3;
+	vec4 L_99 = L_97;
+	L_99.z = L_98;
+	float L_9a = L_99.z + d3;
+	vec4 L_9b = L_99;
+	L_9b.z = L_9a;
+	color_uc10 = L_9b;
+	L_b = L_44;
+	for (L_b = 0; L_b != 100; ++L_b) {
+		bool L_9c = color_uc10.z < L_9d;
+		float L_9e = color_uc10.x + L_9f;
+		vec4 L_a0 = color_uc10;
+		L_a0.x = L_9e;
+		float L_a1 = L_9f + color_uc10.y;
+		vec4 L_a2 = color_uc10;
+		L_a2.y = L_a1;
+		vec4 select_c55 = L_9c ? L_a0 : L_a2;
+		color_uc10 = select_c55;
+	}
+	
+	color_uc11 = color_uc10;
+	L_d = L_44;
+	for (L_d = 0; L_d != 120; ++L_d) {
+		bool L_a4 = color_uc11.z < L_9d;
+		float L_a5 = L_9f + color_uc11.x;
+		vec4 L_a6 = color_uc11;
+		L_a6.x = L_a5;
+		float L_a7 = L_9f + color_uc11.y;
+		vec4 L_a8 = color_uc11;
+		L_a8.y = L_a7;
+		vec4 select_c56 = L_a4 ? L_a6 : L_a8;
+		color_uc11 = select_c56;
+	}
+	
+	color_uc12 = color_uc11;
+	L_f = L_44;
+	for (L_f = 0; L_f != 42; ++L_f) {
+		float L_aa = color_uc12.z + d3;
+		vec4 L_ab = color_uc12;
+		L_ab.z = L_aa;
+		bool L_ac = color_uc12.x < d4;
+		float L_ad = L_9f + color_uc12.w;
+		vec4 L_ae = color_uc12;
+		L_ae.zw = vec2(L_aa, L_ad);
+		vec4 select_c57 = L_ac ? L_ab : L_ae;
+		color_uc12 = select_c57;
+	}
+	
+	color_uc13 = color_uc12;
+	L_11 = L_44;
+	while (L_11 <= L_b0) {
+		float L_b1 = color_uc13.z + d3;
+		L_b2 = color_uc13;
+		L_b2.z = L_b1;
+		bool L_b3 = color_uc13.x < d4;
+		if (L_b3) {
+			color_uc14 = L_b2;
+			break;
+		}
+		
+		float L_b4 = L_9f + color_uc13.w;
+		vec4 L_b5 = L_b2;
+		L_b5.w = L_b4;
+		int L_b6 = L_11 + L_b7;
+		color_uc13 = L_b5;
+		L_11 = L_b6;
+	}
+	
+	color_uc14 = color_uc13;
+	color_uc15 = color_uc14;
+	while (true) {
+		vec4 color_c58 = bigColor4 + color_uc15;
+		bool L_b9 = color_c58.x < d4;
+		if (L_b9) {
+			color_uc16 = color_c58;
+		} else {
+			bool L_ba = color_c58.y < d4;
+			float L_bb = color_c58.y + d4;
+			vec4 L_bc = color_c58;
+			L_bc.y = L_bb;
+			float L_bd = color_c58.x + d4;
+			vec4 L_be = color_c58;
+			L_be.x = L_bd;
+			select_c59 = L_ba ? L_bc : L_be;
+			bool L_c0 = select_c59.z >= d4;
+			if (L_c0) {
+				break;
+			}
+			
+			color_uc16 = select_c59;
+		}
+		
+		color_uc15 = color_uc16;
+	}
+	
+	color_uc17 = select_c59;
+	while (true) {
+		vec4 color_c60 = bigColor5 + color_uc17;
+		bool L_c2 = color_c60.y < d5;
+		float L_c3 = color_c60.y + d5;
+		vec4 L_c4 = color_c60;
+		L_c4.y = L_c3;
+		select_c61 = L_c2 ? L_c4 : color_c60;
+		bool L_c7 = select_c61.x >= d5;
+		if (L_c7) {
+			break;
+		}
+		
+		color_uc17 = select_c61;
+	}
+	
+	bool L_c8 = select_c61.x < d6;
+	if (L_c8) {
+		color_uc18 = select_c61;
+		while (color_uc18.y < d6) {
+			vec4 color_c62 = bigColor6 + color_uc18;
+			color_uc18 = color_c62;
+		}
+		
+		color_uc20 = color_uc18;
+	} else {
+		color_uc19 = select_c61;
+		while (color_uc19.z < d6) {
+			float L_ca = bigColor6.z + color_uc19.z;
+			vec4 L_cb = color_uc19;
+			L_cb.z = L_ca;
+			color_uc19 = L_cb;
+		}
+		
+		color_uc20 = color_uc19;
+	}
+	
+	bool L_cc = color_uc20.x < d6;
+	if (L_cc) {
+		bool L_cd = d7 < L_9f;
+		color_uc21 = color_uc20;
+		while (color_uc21.y < d6) {
+			color_c63 = bigColor6 + color_uc21;
+			if (L_cd) {
+				color_uc22 = color_c63;
+				break;
+			}
+			
+			color_uc21 = color_c63;
+		}
+		
+		color_uc22 = color_uc21;
+		color_uc24 = color_uc22;
+	} else {
+		color_uc23 = color_uc20;
+		while (color_uc23.z < d6) {
+			float L_cf = bigColor6.z + color_uc23.z;
+			vec4 L_d0 = color_uc23;
+			L_d0.z = L_cf;
+			color_uc23 = L_d0;
+		}
+		
+		color_uc24 = color_uc23;
+	}
+	
+	bool L_d1 = d7 < L_d2;
+	bool L_d3 = d7 < L_9f;
+	color_uc25 = color_uc24;
+	while (true) {
+		if (L_d1) {
+			color_uc26 = color_uc25;
+			break;
+		}
+		
+		color_c64 = bigColor7 + color_uc25;
+		if (L_d3) {
+			float L_d5 = L_9f + color_c64.z;
+			vec4 L_d6 = color_c64;
+			L_d6.z = L_d5;
+			color_uc26 = L_d6;
+			break;
+		}
+		
+		vec4 color_c65 = BaseColor + color_c64;
+		color_uc25 = color_c65;
+	}
+	
+	bool L_d8 = d8 < L_d2;
+	bool L_d9 = d8 < L_9f;
+	color_uc27 = color_uc26;
+	while (true) {
+		if (L_d8) {
+			color_uc28 = color_uc27;
+			break;
+		}
+		
+		color_c66 = bigColor7 + color_uc27;
+		if (L_d9) {
+			float L_db = L_9f + color_c66.z;
+			bool L_dc = d8 < L_dd;
+			float L_de = L_9f + color_c66.y;
+			vec4 L_df = color_c66;
+			L_df.yz = vec2(L_de, L_db);
+			float L_e0 = L_9f + color_c66.x;
+			vec4 L_e1 = color_c66;
+			L_e1.xz = vec2(L_e0, L_db);
+			vec4 select_c67 = L_dc ? L_df : L_e1;
+			color_uc28 = select_c67;
+			break;
+		}
+		
+		color_c68 = BaseColor + color_c66;
+		bool L_e4 = color_c68.z >= d8;
+		if (L_e4) {
+			color_uc28 = color_c68;
+			break;
+		}
+		
+		color_uc27 = color_c68;
+	}
+	
+	bool L_e5 = d9 > d8;
+	color_uc29 = color_uc28;
+	while (color_uc29.w < d9) {
+		color_uc31 = color_uc29;
+		if (L_e5) {
+			bool L_e6 = color_uc29.x > d7;
+			color_uc30 = color_uc29;
+			if (! L_e6) {
+				bool L_e7 = color_uc29.z == L_e8;
+				if (! L_e7) {
+					break;
+				}
+				
+				float L_e9 = L_9f + color_uc29.w;
+				vec4 L_ea = color_uc29;
+				L_ea.w = L_e9;
+				color_uc30 = L_ea;
+			}
+			
+			color_uc31 = color_uc30;
+		}
+		
+		color_uc29 = color_uc31;
+	}
+	
+	color_uc32 = color_uc29;
+	while (color_uc32.z < d10) {
+		float L_eb = L_9f + color_uc32.y;
+		L_ec = color_uc32;
+		L_ec.y = L_eb;
+		bool L_ed = L_eb < d11;
+		if (! L_ed) {
+			vec4 color_c69 = L_3c + L_ec;
+			color_uc33 = color_c69;
+			break;
+		}
+		
+		float L_ef = L_9f + color_uc32.z;
+		bool L_f0 = color_uc32.w < d12;
+		float L_f1 = L_9f + color_uc32.w;
+		vec4 L_f2 = L_ec;
+		L_f2.zw = vec2(L_ef, L_f1);
+		float L_f3 = L_9f + color_uc32.x;
+		vec4 L_f4 = L_ec;
+		L_f4.xz = vec2(L_f3, L_ef);
+		vec4 select_c70 = L_f0 ? L_f2 : L_f4;
+		color_uc32 = select_c70;
+	}
+	
+	color_uc33 = color_uc32;
+	color_uc34 = color_uc33;
+	while (color_uc34.x < L_f6) {
+		vec4 color_c71 = bigColor8 + color_uc34;
+		bool L_f8 = color_c71.z < d8;
+		bool L_f9 = color_c71.w < d6;
+		float L_fa = bigColor8.x + color_c71.y;
+		vec4 L_fb = color_c71;
+		L_fb.y = L_fa;
+		vec4 select_c72 = L_f9 ? color_c71 : L_fb;
+		vec4 select_c73 = L_f8 ? select_c72 : L_fb;
+		color_uc34 = select_c73;
+	}
+	
+	vec4 color_c74 = L_3c + color_uc34;
+	gl_FragColor = color_c74;
+	color_uc35 = color_c74;
+	while (color_uc35.x < d14) {
+		bool L_ff = color_uc35.y < d15;
+		if (L_ff) {
+			return;
+		}
+		
+		vec4 color_c75 = L_3c + color_uc35;
+		color_uc35 = color_c75;
+	}
+	
+	vec4 color_c76 = L_3c + color_uc35;
+	color_uc36 = color_c76;
+	while (color_uc36.w < d16) {
+		float L_102 = L_9f + color_uc36.w;
+		vec4 L_103 = color_uc36;
+		L_103.w = L_102;
+		color_uc36 = L_103;
+	}
+	
+	color_uc37 = color_uc36;
+	while (true) {
+		bool notlhs_c77 = color_uc37.w >= d2;
+		bool notrhs_c78 = color_uc37.y >= d3;
+		bool L_106 = notrhs_c78 || notlhs_c77;
+		if (L_106) {
+			color_uc38 = color_uc37;
+			while (color_uc38.y >= d18) {
+				color_c79 = L_3c + color_uc38;
+				bool L_108 = color_c79.x >= d17;
+				if (L_108) {
+					color_uc39 = color_c79;
+					while (color_uc39.y < d16) {
+						bool L_109 = color_uc39.w < d16;
+						if (L_109) {
+							discard;
+						}
+						
+						vec4 color_c80 = L_3c + color_uc39;
+						color_uc39 = color_c80;
+					}
+					
+					vec4 color_c81 = L_3c + color_uc39;
+					gl_FragColor = color_c81;
+					return;
+				}
+				
+				color_uc38 = color_c79;
+			}
+			
+			return;
+		}
+		
+		vec4 color_c82 = bigColor1_2 + color_uc37;
+		bool L_10d = color_c82.z < d3;
+		if (L_10d) {
+			
+		}
+		
+		color_uc37 = color_c82;
+	}
+	
 }
-
 
 #version 130
 // LunarGOO output
@@ -3083,507 +3079,503 @@ uniform float d32;
 uniform float d33;
 uniform float d34;
 in vec4 BaseColor;
-const float const61 = 0.33;
-const float const63 = 0.66;
-const vec4 const65 = vec4(0.66);
-const vec4 const66 = vec4(0.33);
-const float const74 = 42.0;
-const vec4 const76 = vec4(1.0);
-const int const84i_0 = 0;
+const float L_29 = 0.33;
+const float L_2b = 0.66;
+const vec4 L_2d = vec4(0.66);
+const vec4 L_2e = vec4(0.33);
+const float L_36 = 42.0;
+const vec4 L_38 = vec4(1.0);
+const int L_40 = 0;
 vec4 color_c58;
-const float const132 = 20.0;
-const float const134 = 1.0;
-const int const151i_41 = 41;
-const int const157i_1 = 1;
+const float L_70 = 20.0;
+const float L_72 = 1.0;
+const int L_83 = 41;
+const int L_89 = 1;
 vec4 select_c123;
 vec4 select_c128;
-float temp172;
-const float const184 = 0.0;
+float L_98;
+const float L_a4 = 0.0;
 vec4 color_c139;
 vec4 color_c144;
-const float const195 = 2.0;
+const float L_af = 2.0;
 vec4 color_c150;
-const float const206 = 5.0;
-const float const219 = 10.0;
+const float L_ba = 5.0;
+const float L_c7 = 10.0;
 vec4 color_c175;
 
 void main()
 {
-    vec4 color_uc_c1;
-    vec4 color_uc_c2;
-    vec4 color_uc_c3;
-    vec4 color_uc_c4;
-    vec4 color_uc_c5;
-    int i_uc_c6;
-    vec4 color_uc_c7;
-    vec4 color_uc_c8;
-    int temp_c9;
-    vec4 color_uc_c10;
-    int temp_c11;
-    vec4 color_uc_c12;
-    int temp_c13;
-    vec4 color_uc_c14;
-    int temp_c15;
-    vec4 color_uc_c16;
-    vec4 color_uc_c17;
-    vec4 color_uc_c18;
-    vec4 color_uc_c19;
-    vec4 color_uc_c20;
-    vec4 color_uc_c21;
-    vec4 color_uc_c22;
-    vec4 color_uc_c23;
-    vec4 color_uc_c24;
-    vec4 color_uc_c25;
-    vec4 color_uc_c26;
-    vec4 color_uc_c27;
-    vec4 color_uc_c28;
-    vec4 color_uc_c29;
-    vec4 color_uc_c30;
-    vec4 color_uc_c31;
-    vec4 color_uc_c32;
-    vec4 color_uc_c33;
-    vec4 color_uc_c34;
-    vec4 color_uc_c35;
-    vec4 color_uc_c36;
-    vec4 color_uc_c37;
-    vec4 color_uc_c38;
-    vec4 color_uc_c39;
-    bool temp_c40 = BaseColor.x < const61;
-    bool temp_c41 = BaseColor.x < const63;
-    vec4 temp64 = temp_c41 ? const65 : const66;
-    vec4 ternary_c42 = temp_c40 ? const66 : temp64;
-    vec4 select_c43 = BaseColor + ternary_c42;
-    color_uc_c1 = select_c43;
-    while (color_uc_c1.x < d) {
-        vec4 color_c44 = bigColor + color_uc_c1;
-        color_uc_c1 = color_c44;
-    }
-    
-    color_uc_c2 = color_uc_c1;
-    while (color_uc_c2.z < d) {
-        vec4 color_c45 = bigColor1_1 + color_uc_c2;
-        bool temp_c46 = color_c45.w < d;
-        vec4 color_c47 = bigColor1_1 + color_c45;
-        vec4 select_c48 = temp_c46 ? color_c45 : color_c47;
-        color_uc_c2 = select_c48;
-    }
-    
-    color_uc_c3 = color_uc_c2;
-    while (color_uc_c3.x < const74) {
-        vec4 color_c49 = color_uc_c3 + const76;
-        color_uc_c3 = color_c49;
-    }
-    
-    color_uc_c4 = color_uc_c3;
-    while (true) {
-        bool notlhs_c50 = color_uc_c4.w >= d2;
-        bool notrhs_c51 = color_uc_c4.y >= d3;
-        bool temp_c52 = notrhs_c51 || notlhs_c50;
-        if (temp_c52) {
-            break;
-        }
-        
-        vec4 color_c53 = bigColor1_2 + color_uc_c4;
-        color_uc_c4 = color_c53;
-    }
-    
-    color_uc_c5 = color_uc_c4;
-    while (color_uc_c5.z < d3) {
-        vec4 color_c54 = bigColor1_3 + color_uc_c5;
-        bool temp_c55 = color_c54.y < d4;
-        if (temp_c55) {
-            break;
-        }
-        
-        vec4 color_c56 = bigColor1_3 + color_c54;
-        color_uc_c5 = color_c56;
-    }
-    
-    i_uc_c6 = const84i_0;
-    color_uc_c7 = color_uc_c5;
-    for (i_uc_c6 = 0; i_uc_c6 < Count; ++i_uc_c6) {
-        vec4 color_c57 = bigColor2 + color_uc_c7;
-        color_uc_c7 = color_c57;
-    }
-    
-    color_uc_c8 = color_uc_c7;
-    while (true) {
-        color_c58 = bigColor3 + color_uc_c8;
-        bool temp_c59 = color_c58.x < d2;
-        if (! temp_c59) {
-            break;
-        }
-        
-        color_uc_c8 = color_c58;
-    }
-    
-    float temp_c60 = color_c58.z + d3;
-    float temp_c61 = d3 + temp_c60;
-    float temp_c62 = d3 + temp_c61;
-    float temp_c63 = d3 + temp_c62;
-    float temp_c64 = d3 + temp_c63;
-    float temp_c65 = d3 + temp_c64;
-    float temp_c66 = d3 + temp_c65;
-    float temp_c67 = d3 + temp_c66;
-    float temp_c68 = d3 + temp_c67;
-    float temp_c69 = d3 + temp_c68;
-    float temp_c70 = d3 + temp_c69;
-    float temp_c71 = d3 + temp_c70;
-    float temp_c72 = d3 + temp_c71;
-    float temp_c73 = d3 + temp_c72;
-    float temp_c74 = d3 + temp_c73;
-    float temp_c75 = d3 + temp_c74;
-    float temp_c76 = d3 + temp_c75;
-    float temp_c77 = d3 + temp_c76;
-    float temp_c78 = d3 + temp_c77;
-    float temp_c79 = d3 + temp_c78;
-    float temp_c80 = d3 + temp_c79;
-    float temp_c81 = d3 + temp_c80;
-    float temp_c82 = d3 + temp_c81;
-    float temp_c83 = d3 + temp_c82;
-    float temp_c84 = d3 + temp_c83;
-    float temp_c85 = d3 + temp_c84;
-    float temp_c86 = d3 + temp_c85;
-    float temp_c87 = d3 + temp_c86;
-    float temp_c88 = d3 + temp_c87;
-    float temp_c89 = d3 + temp_c88;
-    float temp_c90 = d3 + temp_c89;
-    float temp_c91 = d3 + temp_c90;
-    float temp_c92 = d3 + temp_c91;
-    float temp_c93 = d3 + temp_c92;
-    float temp_c94 = d3 + temp_c93;
-    float temp_c95 = d3 + temp_c94;
-    float temp_c96 = d3 + temp_c95;
-    float temp_c97 = d3 + temp_c96;
-    float temp_c98 = d3 + temp_c97;
-    float temp_c99 = d3 + temp_c98;
-    float temp_c100 = d3 + temp_c99;
-    float temp_c101 = d3 + temp_c100;
-    vec4 temp130 = color_c58;
-    temp130.z = temp_c101;
-    temp_c9 = const84i_0;
-    color_uc_c10 = temp130;
-    for (temp_c9 = 0; temp_c9 != 100; ++temp_c9) {
-        bool temp_c102 = color_uc_c10.z < const132;
-        float temp_c103 = color_uc_c10.x + const134;
-        vec4 temp135 = color_uc_c10;
-        temp135.x = temp_c103;
-        float temp_c104 = color_uc_c10.y + const134;
-        vec4 temp137 = color_uc_c10;
-        temp137.y = temp_c104;
-        vec4 select_c105 = temp_c102 ? temp135 : temp137;
-        color_uc_c10 = select_c105;
-    }
-    
-    temp_c11 = const84i_0;
-    color_uc_c12 = color_uc_c10;
-    for (temp_c11 = 0; temp_c11 != 120; ++temp_c11) {
-        bool temp_c106 = color_uc_c12.z < const132;
-        float temp_c107 = color_uc_c12.x + const134;
-        vec4 temp141 = color_uc_c12;
-        temp141.x = temp_c107;
-        float temp_c108 = color_uc_c12.y + const134;
-        vec4 temp143 = color_uc_c12;
-        temp143.y = temp_c108;
-        vec4 select_c109 = temp_c106 ? temp141 : temp143;
-        color_uc_c12 = select_c109;
-    }
-    
-    temp_c13 = const84i_0;
-    color_uc_c14 = color_uc_c12;
-    for (temp_c13 = 0; temp_c13 != 42; ++temp_c13) {
-        float temp_c110 = color_uc_c14.z + d3;
-        bool temp_c111 = color_uc_c14.x < d4;
-        vec4 temp147 = color_uc_c14;
-        temp147.z = temp_c110;
-        float temp_c112 = color_uc_c14.w + const134;
-        vec4 temp149 = color_uc_c14;
-        temp149.zw = vec2(temp_c110, temp_c112);
-        vec4 select_c113 = temp_c111 ? temp147 : temp149;
-        color_uc_c14 = select_c113;
-    }
-    
-    temp_c15 = const84i_0;
-    color_uc_c16 = color_uc_c14;
-    while (temp_c15 <= const151i_41) {
-        bool temp_c114 = color_uc_c16.x < d4;
-        if (temp_c114) {
-            break;
-        }
-        
-        float temp_c115 = color_uc_c16.z + d3;
-        float temp_c116 = color_uc_c16.w + const134;
-        vec4 temp155 = color_uc_c16;
-        temp155.zw = vec2(temp_c115, temp_c116);
-        int temp_c117 = temp_c15 + const157i_1;
-        temp_c15 = temp_c117;
-        color_uc_c16 = temp155;
-    }
-    
-    color_uc_c17 = color_uc_c16;
-    while (true) {
-        vec4 color_c118 = bigColor4 + color_uc_c17;
-        bool temp_c119 = color_c118.x < d4;
-        if (temp_c119) {
-            color_uc_c18 = color_c118;
-        }
-        else {
-            bool temp_c120 = color_c118.y < d4;
-            float temp_c121 = color_c118.y + d4;
-            vec4 temp162 = color_c118;
-            temp162.y = temp_c121;
-            float temp_c122 = color_c118.x + d4;
-            vec4 temp164 = color_c118;
-            temp164.x = temp_c122;
-            select_c123 = temp_c120 ? temp162 : temp164;
-            bool temp_c124 = select_c123.z < d4;
-            if (! temp_c124) {
-                break;
-            }
-            
-            color_uc_c18 = select_c123;
-        }
-        
-        color_uc_c17 = color_uc_c18;
-    }
-    
-    color_uc_c19 = select_c123;
-    while (true) {
-        vec4 color_c125 = bigColor5 + color_uc_c19;
-        bool temp_c126 = color_c125.y < d5;
-        float temp_c127 = color_c125.y + d5;
-        vec4 temp170 = color_c125;
-        temp170.y = temp_c127;
-        select_c128 = temp_c126 ? temp170 : color_c125;
-        bool temp_c129 = select_c128.x < d5;
-        if (! temp_c129) {
-            break;
-        }
-        
-        color_uc_c19 = select_c128;
-    }
-    
-    bool temp_c130 = select_c128.x < d6;
-    if (temp_c130) {
-        color_uc_c20 = select_c128;
-        while (color_uc_c20.y < d6) {
-            vec4 color_c131 = bigColor6 + color_uc_c20;
-            color_uc_c20 = color_c131;
-        }
-        
-        color_uc_c22 = color_uc_c20;
-    }
-    else {
-        color_uc_c21 = select_c128;
-        while (color_uc_c21.z < d6) {
-            float temp_c132 = bigColor6.z + color_uc_c21.z;
-            vec4 temp177 = color_uc_c21;
-            temp177.z = temp_c132;
-            color_uc_c21 = temp177;
-        }
-        
-        color_uc_c22 = color_uc_c21;
-    }
-    
-    bool temp_c133 = color_uc_c22.x < d6;
-    if (temp_c133) {
-        bool temp_c134 = d7 < const134;
-        color_uc_c23 = color_uc_c22;
-        while (color_uc_c23.y < d6) {
-            if (temp_c134) {
-                break;
-            }
-            
-            vec4 color_c135 = bigColor6 + color_uc_c23;
-            color_uc_c23 = color_c135;
-        }
-        
-        color_uc_c25 = color_uc_c23;
-    }
-    else {
-        color_uc_c24 = color_uc_c22;
-        while (color_uc_c24.z < d6) {
-            float temp_c136 = bigColor6.z + color_uc_c24.z;
-            vec4 temp182 = color_uc_c24;
-            temp182.z = temp_c136;
-            color_uc_c24 = temp182;
-        }
-        
-        color_uc_c25 = color_uc_c24;
-    }
-    
-    bool temp_c137 = d7 < const184;
-    bool temp_c138 = d7 < const134;
-    color_uc_c26 = color_uc_c25;
-    while (true) {
-        if (temp_c137) {
-            color_uc_c27 = color_uc_c26;
-            break;
-        }
-        
-        color_c139 = bigColor7 + color_uc_c26;
-        if (temp_c138) {
-            float temp_c140 = color_c139.z + const134;
-            vec4 temp188 = color_c139;
-            temp188.z = temp_c140;
-            color_uc_c27 = temp188;
-            break;
-        }
-        
-        vec4 color_c141 = BaseColor + color_c139;
-        color_uc_c26 = color_c141;
-    }
-    
-    bool temp_c142 = d8 < const184;
-    bool temp_c143 = d8 < const134;
-    color_uc_c28 = color_uc_c27;
-    while (true) {
-        if (temp_c142) {
-            color_uc_c29 = color_uc_c28;
-            break;
-        }
-        
-        color_c144 = bigColor7 + color_uc_c28;
-        if (temp_c143) {
-            float temp_c145 = color_c144.z + const134;
-            bool temp_c146 = d8 < const195;
-            float temp_c147 = color_c144.y + const134;
-            vec4 temp197 = color_c144;
-            temp197.yz = vec2(temp_c147, temp_c145);
-            float temp_c148 = color_c144.x + const134;
-            vec4 temp199 = color_c144;
-            temp199.xz = vec2(temp_c148, temp_c145);
-            vec4 select_c149 = temp_c146 ? temp197 : temp199;
-            color_uc_c29 = select_c149;
-            break;
-        }
-        
-        color_c150 = BaseColor + color_c144;
-        bool temp_c151 = color_c150.z < d8;
-        if (! temp_c151) {
-            color_uc_c29 = color_c150;
-            break;
-        }
-        
-        color_uc_c28 = color_c150;
-    }
-    
-    bool temp_c152 = d9 > d8;
-    color_uc_c30 = color_uc_c29;
-    while (color_uc_c30.w < d9) {
-        color_uc_c32 = color_uc_c30;
-        if (temp_c152) {
-            bool temp204 = color_uc_c30.x <= d7;
-            color_uc_c31 = color_uc_c30;
-            if (temp204) {
-                bool temp205 = color_uc_c30.z != const206;
-                if (temp205) {
-                    break;
-                }
-                
-                float temp_c153 = color_uc_c30.w + const134;
-                vec4 temp208 = color_uc_c30;
-                temp208.w = temp_c153;
-                color_uc_c31 = temp208;
-            }
-            
-            color_uc_c32 = color_uc_c31;
-        }
-        
-        color_uc_c30 = color_uc_c32;
-    }
-    
-    color_uc_c33 = color_uc_c30;
-    while (color_uc_c33.z < d10) {
-        float temp_c154 = color_uc_c33.y + const134;
-        vec4 temp210 = color_uc_c33;
-        temp210.y = temp_c154;
-        bool temp211 = temp_c154 >= d11;
-        if (temp211) {
-            break;
-        }
-        
-        float temp_c155 = color_uc_c33.z + const134;
-        bool temp_c156 = color_uc_c33.w < d12;
-        float temp_c157 = color_uc_c33.w + const134;
-        vec4 temp215 = temp210;
-        temp215.zw = vec2(temp_c155, temp_c157);
-        float temp_c158 = color_uc_c33.x + const134;
-        vec4 temp217 = temp210;
-        temp217.xz = vec2(temp_c158, temp_c155);
-        vec4 select_c159 = temp_c156 ? temp215 : temp217;
-        color_uc_c33 = select_c159;
-    }
-    
-    color_uc_c34 = color_uc_c33;
-    while (color_uc_c34.x < const219) {
-        vec4 color_c160 = bigColor8 + color_uc_c34;
-        bool temp_c161 = color_c160.z < d8;
-        bool temp_c162 = color_c160.w < d6;
-        float temp_c163 = bigColor8.x + color_c160.y;
-        vec4 temp224 = color_c160;
-        temp224.y = temp_c163;
-        vec4 color_c164 = temp_c162 ? color_c160 : temp224;
-        vec4 ternary_c165 = temp_c161 ? color_c164 : temp224;
-        color_uc_c34 = ternary_c165;
-    }
-    
-    vec4 color_c166 = color_uc_c34 + const76;
-    gl_FragColor = color_c166;
-    color_uc_c35 = color_c166;
-    while (color_uc_c35.x < d14) {
-        bool temp_c167 = color_uc_c35.y < d15;
-        if (temp_c167) {
-            return;
-        }
-        
-        vec4 color_c168 = color_uc_c35 + const76;
-        color_uc_c35 = color_c168;
-    }
-    
-    vec4 color_c169 = color_uc_c35 + const76;
-    color_uc_c36 = color_c169;
-    while (color_uc_c36.w < d16) {
-        float temp_c170 = color_uc_c36.w + const134;
-        vec4 temp232 = color_uc_c36;
-        temp232.w = temp_c170;
-        color_uc_c36 = temp232;
-    }
-    
-    color_uc_c37 = color_uc_c36;
-    while (true) {
-        bool notlhs_c171 = color_uc_c37.w >= d2;
-        bool notrhs_c172 = color_uc_c37.y >= d3;
-        bool temp_c173 = notrhs_c172 || notlhs_c171;
-        vec4 color_c174 = bigColor1_2 + color_uc_c37;
-        color_uc_c37 = color_c174;
-    }
-    
-    color_uc_c38 = color_uc_c37;
-    while (color_uc_c38.y >= d18) {
-        color_c175 = color_uc_c38 + const76;
-        bool temp_c176 = color_c175.x < d17;
-        if (! temp_c176) {
-            color_uc_c39 = color_c175;
-            while (color_uc_c39.y < d16) {
-                bool temp_c177 = color_uc_c39.w < d16;
-                if (temp_c177) {
-                    discard;
-                }
-                
-                vec4 color_c178 = color_uc_c39 + const76;
-                color_uc_c39 = color_c178;
-            }
-            
-            vec4 color_c179 = color_uc_c39 + const76;
-            gl_FragColor = color_c179;
-            return;
-        }
-        
-        color_uc_c38 = color_c175;
-    }
-    
-    
+	vec4 color_uc_c1;
+	vec4 color_uc_c2;
+	vec4 color_uc_c3;
+	vec4 color_uc_c4;
+	vec4 color_uc_c5;
+	int i_uc_c6;
+	vec4 color_uc_c7;
+	vec4 color_uc_c8;
+	int L_b_uc9;
+	vec4 color_uc_c10;
+	int L_d_uc11;
+	vec4 color_uc_c12;
+	int L_f_uc13;
+	vec4 color_uc_c14;
+	int L_uc15;
+	vec4 color_uc_c16;
+	vec4 color_uc_c17;
+	vec4 color_uc_c18;
+	vec4 color_uc_c19;
+	vec4 color_uc_c20;
+	vec4 color_uc_c21;
+	vec4 color_uc_c22;
+	vec4 color_uc_c23;
+	vec4 color_uc_c24;
+	vec4 color_uc_c25;
+	vec4 color_uc_c26;
+	vec4 color_uc_c27;
+	vec4 color_uc_c28;
+	vec4 color_uc_c29;
+	vec4 color_uc_c30;
+	vec4 color_uc_c31;
+	vec4 color_uc_c32;
+	vec4 color_uc_c33;
+	vec4 color_uc_c34;
+	vec4 color_uc_c35;
+	vec4 color_uc_c36;
+	vec4 color_uc_c37;
+	vec4 color_uc_c38;
+	vec4 color_uc_c39;
+	bool L_uc40 = BaseColor.x < L_29;
+	bool L_uc41 = BaseColor.x < L_2b;
+	vec4 L_2c = L_uc41 ? L_2d : L_2e;
+	vec4 ternary_c42 = L_uc40 ? L_2e : L_2c;
+	vec4 select_c43 = BaseColor + ternary_c42;
+	color_uc_c1 = select_c43;
+	while (color_uc_c1.x < d) {
+		vec4 color_c44 = bigColor + color_uc_c1;
+		color_uc_c1 = color_c44;
+	}
+	
+	color_uc_c2 = color_uc_c1;
+	while (color_uc_c2.z < d) {
+		vec4 color_c45 = bigColor1_1 + color_uc_c2;
+		bool L_uc46 = color_c45.w < d;
+		vec4 color_c47 = bigColor1_1 + color_c45;
+		vec4 select_c48 = L_uc46 ? color_c45 : color_c47;
+		color_uc_c2 = select_c48;
+	}
+	
+	color_uc_c3 = color_uc_c2;
+	while (color_uc_c3.x < L_36) {
+		vec4 color_c49 = color_uc_c3 + L_38;
+		color_uc_c3 = color_c49;
+	}
+	
+	color_uc_c4 = color_uc_c3;
+	while (true) {
+		bool notlhs_c50 = color_uc_c4.w >= d2;
+		bool notrhs_c51 = color_uc_c4.y >= d3;
+		bool L_uc52 = notrhs_c51 || notlhs_c50;
+		if (L_uc52) {
+			break;
+		}
+		
+		vec4 color_c53 = bigColor1_2 + color_uc_c4;
+		color_uc_c4 = color_c53;
+	}
+	
+	color_uc_c5 = color_uc_c4;
+	while (color_uc_c5.z < d3) {
+		vec4 color_c54 = bigColor1_3 + color_uc_c5;
+		bool L_uc55 = color_c54.y < d4;
+		if (L_uc55) {
+			break;
+		}
+		
+		vec4 color_c56 = bigColor1_3 + color_c54;
+		color_uc_c5 = color_c56;
+	}
+	
+	i_uc_c6 = L_40;
+	color_uc_c7 = color_uc_c5;
+	for (i_uc_c6 = 0; i_uc_c6 < Count; ++i_uc_c6) {
+		vec4 color_c57 = bigColor2 + color_uc_c7;
+		color_uc_c7 = color_c57;
+	}
+	
+	color_uc_c8 = color_uc_c7;
+	while (true) {
+		color_c58 = bigColor3 + color_uc_c8;
+		bool L_uc59 = color_c58.x < d2;
+		if (! L_uc59) {
+			break;
+		}
+		
+		color_uc_c8 = color_c58;
+	}
+	
+	float L_uc60 = color_c58.z + d3;
+	float L_uc61 = L_uc60 + d3;
+	float L_uc62 = L_uc61 + d3;
+	float L_uc63 = L_uc62 + d3;
+	float L_uc64 = L_uc63 + d3;
+	float L_uc65 = L_uc64 + d3;
+	float L_uc66 = L_uc65 + d3;
+	float L_uc67 = L_uc66 + d3;
+	float L_uc68 = L_uc67 + d3;
+	float L_uc69 = L_uc68 + d3;
+	float L_uc70 = L_uc69 + d3;
+	float L_uc71 = L_uc70 + d3;
+	float L_uc72 = L_uc71 + d3;
+	float L_uc73 = L_uc72 + d3;
+	float L_uc74 = L_uc73 + d3;
+	float L_uc75 = L_uc74 + d3;
+	float L_uc76 = L_uc75 + d3;
+	float L_uc77 = L_uc76 + d3;
+	float L_uc78 = L_uc77 + d3;
+	float L_uc79 = L_uc78 + d3;
+	float L_uc80 = L_uc79 + d3;
+	float L_uc81 = L_uc80 + d3;
+	float L_uc82 = L_uc81 + d3;
+	float L_uc83 = L_uc82 + d3;
+	float L_uc84 = L_uc83 + d3;
+	float L_uc85 = L_uc84 + d3;
+	float L_uc86 = L_uc85 + d3;
+	float L_uc87 = L_uc86 + d3;
+	float L_uc88 = L_uc87 + d3;
+	float L_uc89 = L_uc88 + d3;
+	float L_uc90 = L_uc89 + d3;
+	float L_uc91 = L_uc90 + d3;
+	float L_uc92 = L_uc91 + d3;
+	float L_uc93 = L_uc92 + d3;
+	float L_uc94 = L_uc93 + d3;
+	float L_uc95 = L_uc94 + d3;
+	float L_uc96 = L_uc95 + d3;
+	float L_uc97 = L_uc96 + d3;
+	float L_uc98 = L_uc97 + d3;
+	float L_uc99 = L_uc98 + d3;
+	float L_uc100 = L_uc99 + d3;
+	float L_uc101 = L_uc100 + d3;
+	vec4 L_6e = color_c58;
+	L_6e.z = L_uc101;
+	L_b_uc9 = L_40;
+	color_uc_c10 = L_6e;
+	for (L_b_uc9 = 0; L_b_uc9 != 100; ++L_b_uc9) {
+		bool L_uc102 = color_uc_c10.z < L_70;
+		float L_uc103 = color_uc_c10.x + L_72;
+		vec4 L_73 = color_uc_c10;
+		L_73.x = L_uc103;
+		float L_a_c104 = L_72 + color_uc_c10.y;
+		vec4 L_75 = color_uc_c10;
+		L_75.y = L_a_c104;
+		vec4 select_c105 = L_uc102 ? L_73 : L_75;
+		color_uc_c10 = select_c105;
+	}
+	
+	L_d_uc11 = L_40;
+	color_uc_c12 = color_uc_c10;
+	for (L_d_uc11 = 0; L_d_uc11 != 120; ++L_d_uc11) {
+		bool L_a_c106 = color_uc_c12.z < L_70;
+		float L_a_c107 = L_72 + color_uc_c12.x;
+		vec4 L_79 = color_uc_c12;
+		L_79.x = L_a_c107;
+		float L_a_c108 = L_72 + color_uc_c12.y;
+		vec4 L_7b = color_uc_c12;
+		L_7b.y = L_a_c108;
+		vec4 select_c109 = L_a_c106 ? L_79 : L_7b;
+		color_uc_c12 = select_c109;
+	}
+	
+	L_f_uc13 = L_40;
+	color_uc_c14 = color_uc_c12;
+	for (L_f_uc13 = 0; L_f_uc13 != 42; ++L_f_uc13) {
+		float L_aa_c110 = color_uc_c14.z + d3;
+		bool L_ac_c111 = color_uc_c14.x < d4;
+		vec4 L_7f = color_uc_c14;
+		L_7f.z = L_aa_c110;
+		float L_ad_c112 = L_72 + color_uc_c14.w;
+		vec4 L_81 = color_uc_c14;
+		L_81.zw = vec2(L_aa_c110, L_ad_c112);
+		vec4 select_c113 = L_ac_c111 ? L_7f : L_81;
+		color_uc_c14 = select_c113;
+	}
+	
+	L_uc15 = L_40;
+	color_uc_c16 = color_uc_c14;
+	while (L_uc15 <= L_83) {
+		bool L_b_c114 = color_uc_c16.x < d4;
+		if (L_b_c114) {
+			break;
+		}
+		
+		float L_b_c115 = color_uc_c16.z + d3;
+		float L_b_c116 = L_72 + color_uc_c16.w;
+		vec4 L_87 = color_uc_c16;
+		L_87.zw = vec2(L_b_c115, L_b_c116);
+		int L_b_c117 = L_uc15 + L_89;
+		L_uc15 = L_b_c117;
+		color_uc_c16 = L_87;
+	}
+	
+	color_uc_c17 = color_uc_c16;
+	while (true) {
+		vec4 color_c118 = bigColor4 + color_uc_c17;
+		bool L_b_c119 = color_c118.x < d4;
+		if (L_b_c119) {
+			color_uc_c18 = color_c118;
+		} else {
+			bool L_ba_c120 = color_c118.y < d4;
+			float L_bb_c121 = color_c118.y + d4;
+			vec4 L_8e = color_c118;
+			L_8e.y = L_bb_c121;
+			float L_bd_c122 = color_c118.x + d4;
+			vec4 L_90 = color_c118;
+			L_90.x = L_bd_c122;
+			select_c123 = L_ba_c120 ? L_8e : L_90;
+			bool L_c124 = select_c123.z < d4;
+			if (! L_c124) {
+				break;
+			}
+			
+			color_uc_c18 = select_c123;
+		}
+		
+		color_uc_c17 = color_uc_c18;
+	}
+	
+	color_uc_c19 = select_c123;
+	while (true) {
+		vec4 color_c125 = bigColor5 + color_uc_c19;
+		bool L_c126 = color_c125.y < d5;
+		float L_c127 = color_c125.y + d5;
+		vec4 L_96 = color_c125;
+		L_96.y = L_c127;
+		select_c128 = L_c126 ? L_96 : color_c125;
+		bool L_c129 = select_c128.x < d5;
+		if (! L_c129) {
+			break;
+		}
+		
+		color_uc_c19 = select_c128;
+	}
+	
+	bool L_c130 = select_c128.x < d6;
+	if (L_c130) {
+		color_uc_c20 = select_c128;
+		while (color_uc_c20.y < d6) {
+			vec4 color_c131 = bigColor6 + color_uc_c20;
+			color_uc_c20 = color_c131;
+		}
+		
+		color_uc_c22 = color_uc_c20;
+	} else {
+		color_uc_c21 = select_c128;
+		while (color_uc_c21.z < d6) {
+			float L_ca_c132 = bigColor6.z + color_uc_c21.z;
+			vec4 L_9d = color_uc_c21;
+			L_9d.z = L_ca_c132;
+			color_uc_c21 = L_9d;
+		}
+		
+		color_uc_c22 = color_uc_c21;
+	}
+	
+	bool L_cc_c133 = color_uc_c22.x < d6;
+	if (L_cc_c133) {
+		bool L_cd_c134 = d7 < L_72;
+		color_uc_c23 = color_uc_c22;
+		while (color_uc_c23.y < d6) {
+			if (L_cd_c134) {
+				break;
+			}
+			
+			vec4 color_c135 = bigColor6 + color_uc_c23;
+			color_uc_c23 = color_c135;
+		}
+		
+		color_uc_c25 = color_uc_c23;
+	} else {
+		color_uc_c24 = color_uc_c22;
+		while (color_uc_c24.z < d6) {
+			float L_cf_c136 = bigColor6.z + color_uc_c24.z;
+			vec4 L_a2 = color_uc_c24;
+			L_a2.z = L_cf_c136;
+			color_uc_c24 = L_a2;
+		}
+		
+		color_uc_c25 = color_uc_c24;
+	}
+	
+	bool L_d_c137 = d7 < L_a4;
+	bool L_d_c138 = d7 < L_72;
+	color_uc_c26 = color_uc_c25;
+	while (true) {
+		if (L_d_c137) {
+			color_uc_c27 = color_uc_c26;
+			break;
+		}
+		
+		color_c139 = bigColor7 + color_uc_c26;
+		if (L_d_c138) {
+			float L_d_c140 = L_72 + color_c139.z;
+			vec4 L_a8 = color_c139;
+			L_a8.z = L_d_c140;
+			color_uc_c27 = L_a8;
+			break;
+		}
+		
+		vec4 color_c141 = BaseColor + color_c139;
+		color_uc_c26 = color_c141;
+	}
+	
+	bool L_d_c142 = d8 < L_a4;
+	bool L_d_c143 = d8 < L_72;
+	color_uc_c28 = color_uc_c27;
+	while (true) {
+		if (L_d_c142) {
+			color_uc_c29 = color_uc_c28;
+			break;
+		}
+		
+		color_c144 = bigColor7 + color_uc_c28;
+		if (L_d_c143) {
+			float L_db_c145 = L_72 + color_c144.z;
+			bool L_dc_c146 = d8 < L_af;
+			float L_de_c147 = L_72 + color_c144.y;
+			vec4 L_b1 = color_c144;
+			L_b1.yz = vec2(L_de_c147, L_db_c145);
+			float L_e_c148 = L_72 + color_c144.x;
+			vec4 L_b3 = color_c144;
+			L_b3.xz = vec2(L_e_c148, L_db_c145);
+			vec4 select_c149 = L_dc_c146 ? L_b1 : L_b3;
+			color_uc_c29 = select_c149;
+			break;
+		}
+		
+		color_c150 = BaseColor + color_c144;
+		bool L_e_c151 = color_c150.z < d8;
+		if (! L_e_c151) {
+			color_uc_c29 = color_c150;
+			break;
+		}
+		
+		color_uc_c28 = color_c150;
+	}
+	
+	bool L_e_c152 = d9 > d8;
+	color_uc_c30 = color_uc_c29;
+	while (color_uc_c30.w < d9) {
+		color_uc_c32 = color_uc_c30;
+		if (L_e_c152) {
+			bool L_b8 = color_uc_c30.x <= d7;
+			color_uc_c31 = color_uc_c30;
+			if (L_b8) {
+				bool L_b9 = color_uc_c30.z != L_ba;
+				if (L_b9) {
+					break;
+				}
+				
+				float L_e_c153 = L_72 + color_uc_c30.w;
+				vec4 L_bc = color_uc_c30;
+				L_bc.w = L_e_c153;
+				color_uc_c31 = L_bc;
+			}
+			
+			color_uc_c32 = color_uc_c31;
+		}
+		
+		color_uc_c30 = color_uc_c32;
+	}
+	
+	color_uc_c33 = color_uc_c30;
+	while (color_uc_c33.z < d10) {
+		float L_eb_c154 = L_72 + color_uc_c33.y;
+		vec4 L_be = color_uc_c33;
+		L_be.y = L_eb_c154;
+		bool L_bf = L_eb_c154 >= d11;
+		if (L_bf) {
+			break;
+		}
+		
+		float L_ef_c155 = L_72 + color_uc_c33.z;
+		bool L_f_c156 = color_uc_c33.w < d12;
+		float L_f_c157 = L_72 + color_uc_c33.w;
+		vec4 L_c3 = L_be;
+		L_c3.zw = vec2(L_ef_c155, L_f_c157);
+		float L_f_c158 = L_72 + color_uc_c33.x;
+		vec4 L_c5 = L_be;
+		L_c5.xz = vec2(L_f_c158, L_ef_c155);
+		vec4 select_c159 = L_f_c156 ? L_c3 : L_c5;
+		color_uc_c33 = select_c159;
+	}
+	
+	color_uc_c34 = color_uc_c33;
+	while (color_uc_c34.x < L_c7) {
+		vec4 color_c160 = bigColor8 + color_uc_c34;
+		bool L_f_c161 = color_c160.z < d8;
+		bool L_f_c162 = color_c160.w < d6;
+		float L_fa_c163 = bigColor8.x + color_c160.y;
+		vec4 L_cc = color_c160;
+		L_cc.y = L_fa_c163;
+		vec4 color_c164 = L_f_c162 ? color_c160 : L_cc;
+		vec4 ternary_c165 = L_f_c161 ? color_c164 : L_cc;
+		color_uc_c34 = ternary_c165;
+	}
+	
+	vec4 color_c166 = L_38 + color_uc_c34;
+	gl_FragColor = color_c166;
+	color_uc_c35 = color_c166;
+	while (color_uc_c35.x < d14) {
+		bool L_ff_c167 = color_uc_c35.y < d15;
+		if (L_ff_c167) {
+			return;
+		}
+		
+		vec4 color_c168 = L_38 + color_uc_c35;
+		color_uc_c35 = color_c168;
+	}
+	
+	vec4 color_c169 = L_38 + color_uc_c35;
+	color_uc_c36 = color_c169;
+	while (color_uc_c36.w < d16) {
+		float L_uc170 = L_72 + color_uc_c36.w;
+		vec4 L_d4 = color_uc_c36;
+		L_d4.w = L_uc170;
+		color_uc_c36 = L_d4;
+	}
+	
+	color_uc_c37 = color_uc_c36;
+	while (true) {
+		bool notlhs_c171 = color_uc_c37.w >= d2;
+		bool notrhs_c172 = color_uc_c37.y >= d3;
+		bool L_uc173 = notrhs_c172 || notlhs_c171;
+		vec4 color_c174 = bigColor1_2 + color_uc_c37;
+		color_uc_c37 = color_c174;
+	}
+	
+	color_uc_c38 = color_uc_c37;
+	while (color_uc_c38.y >= d18) {
+		color_c175 = L_38 + color_uc_c38;
+		bool L_uc176 = color_c175.x < d17;
+		if (! L_uc176) {
+			color_uc_c39 = color_c175;
+			while (color_uc_c39.y < d16) {
+				bool L_uc177 = color_uc_c39.w < d16;
+				if (L_uc177) {
+					discard;
+				}
+				
+				vec4 color_c178 = L_38 + color_uc_c39;
+				color_uc_c39 = color_c178;
+			}
+			
+			vec4 color_c179 = L_38 + color_uc_c39;
+			gl_FragColor = color_c179;
+			return;
+		}
+		
+		color_uc_c38 = color_c175;
+	}
+	
+	
 }
-
 

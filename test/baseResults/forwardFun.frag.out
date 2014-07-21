@@ -159,48 +159,44 @@ attributes #0 = { nounwind readnone }
 #version 100
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
-
 uniform mediump float d;
 uniform mediump vec4 bigColor;
 varying mediump vec4 BaseColor;
-const highp float const24 = 4.2;
-const highp float const26 = 1.2;
-const highp float const27 = 4.5;
+const highp float L_4 = 4.2;
+const highp float L_6 = 1.2;
+const highp float L_7 = 4.5;
 
 void main()
 {
-    mediump float temp21 = BaseColor.x + BaseColor.y;
-    vec4 temp22 = vec4(temp21);
-    bool temp23 = d < const24;
-    float temp25 = temp23 ? const26 : const27;
-    vec4 temp28 = vec4(temp25);
-    mediump vec4 gla_gl_FragColor_c1 = temp22 * temp28;
-    gl_FragColor = gla_gl_FragColor_c1;
-    
+	mediump float L_1 = BaseColor.x + BaseColor.y;
+	vec4 L_2 = vec4(L_1);
+	bool L_3 = d < L_4;
+	float L_5 = L_3 ? L_6 : L_7;
+	vec4 L_8 = vec4(L_5);
+	mediump vec4 Ll_FragColor_c1 = L_2 * L_8;
+	gl_FragColor = Ll_FragColor_c1;
+	
 }
-
 
 #version 100
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
-
 uniform mediump float d;
 uniform mediump vec4 bigColor;
 varying mediump vec4 BaseColor;
-const highp float const24 = 4.2;
-const highp float const26 = 1.2;
-const highp float const27 = 4.5;
+const highp float L_4 = 4.2;
+const highp float L_6 = 1.2;
+const highp float L_7 = 4.5;
 
 void main()
 {
-    mediump float temp_c1 = BaseColor.x + BaseColor.y;
-    vec4 temp22 = vec4(temp_c1);
-    bool temp_c2 = d < const24;
-    float temp25 = temp_c2 ? const26 : const27;
-    vec4 temp28 = vec4(temp25);
-    mediump vec4 gla_gl_FragColor_c3 = temp22 * temp28;
-    gl_FragColor = gla_gl_FragColor_c3;
-    
+	mediump float L_uc1 = BaseColor.x + BaseColor.y;
+	vec4 L_2 = vec4(L_uc1);
+	bool L_uc2 = d < L_4;
+	float L_5 = L_uc2 ? L_6 : L_7;
+	vec4 L_8 = vec4(L_5);
+	mediump vec4 Ll_FragColor_c3 = L_2 * L_8;
+	gl_FragColor = Ll_FragColor_c3;
+	
 }
-
 

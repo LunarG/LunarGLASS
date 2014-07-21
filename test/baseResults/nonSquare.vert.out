@@ -382,63 +382,62 @@ attributes #0 = { nounwind readnone }
 uniform mat3x2 m32;
 attribute vec3 v3;
 attribute vec4 v4;
-const float const40 = 0.0;
-const float const42 = 3.0;
-const float const44 = 9.0;
-const float const47 = 15.0;
-const float const50 = 21.0;
-const float const53 = 6.0;
-const float const55 = 12.0;
-const float const58 = 18.0;
-const float const61 = 24.0;
-const vec4 const66 = vec4(50.0, 110.0, 170.0, 230.0);
-const vec4 const68 = vec4(30.0, 60.0, 0.0, 0.0);
-const vec4 const70 = vec4(20.0, 10.0, 6.0, 5.0);
+const float L_14 = 0.0;
+const float L_16 = 3.0;
+const float L_18 = 9.0;
+const float L_1b = 15.0;
+const float L_1e = 21.0;
+const float L_21 = 6.0;
+const float L_23 = 12.0;
+const float L_26 = 18.0;
+const float L_29 = 24.0;
+const vec4 L_2e = vec4(50.0, 110.0, 170.0, 230.0);
+const vec4 L_30 = vec4(30.0, 60.0, 0.0, 0.0);
+const vec4 L_32 = vec4(20.0, 10.0, 6.0, 5.0);
 
 void main()
 {
-    vec2 rightColumn_c1 = m32[0];
-    float product_c2 = rightColumn_c1.x * 
-    float undef23;undef23;
-    float product_c3 = rightColumn_c1.y * undef23;
-    float dotProduct_c4 = product_c2 + product_c3;
-    vec2 rightColumn_c5 = m32[1];
-    float product_c6 = rightColumn_c5.x * undef23;
-    float product_c7 = rightColumn_c5.y * undef23;
-    float dotProduct_c8 = product_c6 + product_c7;
-    vec2 rightColumn_c9 = m32[2];
-    float product_c10 = rightColumn_c9.x * undef23;
-    float product_c11 = rightColumn_c9.y * undef23;
-    float dotProduct_c12 = product_c10 + product_c11;
-    float product_c13 = dotProduct_c4 * v3.x;
-    float product_c14 = dotProduct_c8 * v3.y;
-    float dotProduct_c15 = product_c13 + product_c14;
-    float product_c16 = dotProduct_c12 * v3.z;
-    float dotProduct_c17 = dotProduct_c15 + product_c16;
-    vec4 temp39 = vec4(dotProduct_c17, dotProduct_c17, dotProduct_c17, const40);
-    float product_c18 = v4.x * const42;
-    float product_c19 = v4.y * const44;
-    float dotProduct_c20 = product_c18 + product_c19;
-    float product_c21 = v4.z * const47;
-    float dotProduct_c22 = dotProduct_c20 + product_c21;
-    float product_c23 = v4.w * const50;
-    float dotProduct_c24 = dotProduct_c22 + product_c23;
-    float product_c25 = v4.x * const53;
-    float product_c26 = v4.y * const55;
-    float dotProduct_c27 = product_c25 + product_c26;
-    float product_c28 = v4.z * const58;
-    float dotProduct_c29 = dotProduct_c27 + product_c28;
-    float product_c30 = v4.w * const61;
-    float dotProduct_c31 = dotProduct_c29 + product_c30;
-    vec4 temp63 = vec4(dotProduct_c24, dotProduct_c31, const40, const40);
-    vec4 temp64 = temp39 + temp63;
-    vec4 temp65 = temp64 + const66;
-    vec4 temp67 = temp65 + const68;
-    vec4 gla_gl_Position_c32 = temp67 + const70;
-    gl_Position = gla_gl_Position_c32;
-    
+	vec2 rightColumn_c1 = m32[0];
+	float product_c2 = rightColumn_c1.x * 
+	float L_3;L_3;
+	float product_c3 = L_3 * rightColumn_c1.y;
+	float dotProduct_c4 = product_c2 + product_c3;
+	vec2 rightColumn_c5 = m32[1];
+	float product_c6 = L_3 * rightColumn_c5.x;
+	float product_c7 = L_3 * rightColumn_c5.y;
+	float dotProduct_c8 = product_c6 + product_c7;
+	vec2 rightColumn_c9 = m32[2];
+	float product_c10 = L_3 * rightColumn_c9.x;
+	float product_c11 = L_3 * rightColumn_c9.y;
+	float dotProduct_c12 = product_c10 + product_c11;
+	float product_c13 = dotProduct_c4 * v3.x;
+	float product_c14 = dotProduct_c8 * v3.y;
+	float dotProduct_c15 = product_c13 + product_c14;
+	float product_c16 = dotProduct_c12 * v3.z;
+	float dotProduct_c17 = dotProduct_c15 + product_c16;
+	vec4 L_13 = vec4(dotProduct_c17, dotProduct_c17, dotProduct_c17, L_14);
+	float product_c18 = v4.x * L_16;
+	float product_c19 = v4.y * L_18;
+	float dotProduct_c20 = product_c18 + product_c19;
+	float product_c21 = v4.z * L_1b;
+	float dotProduct_c22 = dotProduct_c20 + product_c21;
+	float product_c23 = v4.w * L_1e;
+	float dotProduct_c24 = dotProduct_c22 + product_c23;
+	float product_c25 = v4.x * L_21;
+	float product_c26 = v4.y * L_23;
+	float dotProduct_c27 = product_c25 + product_c26;
+	float product_c28 = v4.z * L_26;
+	float dotProduct_c29 = dotProduct_c27 + product_c28;
+	float product_c30 = v4.w * L_29;
+	float dotProduct_c31 = dotProduct_c29 + product_c30;
+	vec4 L_2b = vec4(dotProduct_c24, dotProduct_c31, L_14, L_14);
+	vec4 L_2c = L_13 + L_2b;
+	vec4 L_2d = L_2c + L_2e;
+	vec4 L_2f = L_2d + L_30;
+	vec4 Ll_Position_c32 = L_2f + L_32;
+	gl_Position = Ll_Position_c32;
+	
 }
-
 
 tempglsl.vert
 ERROR: 0:23: '' :  syntax error

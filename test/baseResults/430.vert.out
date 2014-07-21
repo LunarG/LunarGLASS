@@ -178,10 +178,10 @@ stage-exit:                                       ; preds = %stage-epilogue
 uniform float f;
 uniform vec4 uv4;
 uniform boundblock {
-    int aoeu;
+	int aoeu;
 } boundInst;
 uniform anonblock {
-    int aoeu;
+	int aoeu;
 } ;
 uniform sampler2D sampb1;
 uniform sampler2D sampb2[10];
@@ -189,35 +189,34 @@ uniform sampler2D sampb4;
 in vec4 bad[10];
 in vec4 badorder;
 out gl_PerVertex {
-    float gl_ClipDistance[3];
+	float gl_ClipDistance[3];
 } ;
 flat out vec4 badorder3;
 out vec4 badorder2;
-const float const21 = 3.7;
-const float const23 = 4.2;
+const float L_1 = 3.7;
+const float L_3 = 4.2;
 invariant badorder2 ;
 void main()
 {
-    gl_ClipDistance[2] = const21;
-    bool temp22 = bad[0].x == const23;
-    if (temp22) {
-        badorder3 = bad[0];
-    }
-    
-    gl_ClipDistance[0] = f;
-    
+	gl_ClipDistance[2] = L_1;
+	bool L_2 = bad[0].x == L_3;
+	if (L_2) {
+		badorder3 = bad[0];
+	}
+	
+	gl_ClipDistance[0] = f;
+	
 }
-
 
 #version 430 core
 // LunarGOO output
 uniform float f;
 uniform vec4 uv4;
 uniform boundblock {
-    int aoeu;
+	int aoeu;
 } boundInst;
 uniform anonblock {
-    int aoeu;
+	int aoeu;
 } ;
 uniform sampler2D sampb1;
 uniform sampler2D sampb2[10];
@@ -225,23 +224,22 @@ uniform sampler2D sampb4;
 in vec4 bad[10];
 in vec4 badorder;
 out gl_PerVertex {
-    float gl_ClipDistance[3];
+	float gl_ClipDistance[3];
 } ;
 flat out vec4 badorder3;
 out vec4 badorder2;
-const float const21 = 3.7;
-const float const23 = 4.2;
+const float L_1 = 3.7;
+const float L_3 = 4.2;
 
 void main()
 {
-    gl_ClipDistance[2] = const21;
-    bool temp_c1 = bad[0].x == const23;
-    if (temp_c1) {
-        badorder3 = bad[0];
-    }
-    
-    gl_ClipDistance[0] = f;
-    
+	gl_ClipDistance[2] = L_1;
+	bool L_uc1 = bad[0].x == L_3;
+	if (L_uc1) {
+		badorder3 = bad[0];
+	}
+	
+	gl_ClipDistance[0] = f;
+	
 }
-
 

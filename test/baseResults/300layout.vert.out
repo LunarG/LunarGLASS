@@ -422,25 +422,24 @@ attributes #0 = { nounwind readnone }
 #version 300 es
 // LunarGOO output
 struct S {
-    highp vec3 c;
-    highp float f;
+	highp vec3 c;
+	highp float f;
 };
-
 layout(std140) uniform Transform {
-    layout(row_major) highp mat4 M1;
-    highp mat4 M2;
-    layout(row_major) highp mat3 N1;
-    highp int iuin;
+	layout(row_major) highp mat4 M1;
+	highp mat4 M2;
+	layout(row_major) highp mat3 N1;
+	highp int iuin;
 } tblock;
 uniform T3 {
-    highp mat4 M3;
-    layout(row_major) highp mat4 M4;
-    highp mat2x3 N2;
-    highp uvec3 uv3a[4];
+	highp mat4 M3;
+	layout(row_major) highp mat4 M4;
+	highp mat2x3 N2;
+	highp uvec3 uv3a[4];
 } ;
 uniform T2 {
-    bool b;
-    layout(row_major) highp mat4 t2m;
+	bool b;
+	layout(row_major) highp mat4 t2m;
 } ;
 uniform highp uint uiuin;
 layout(location=3) in highp vec4 p;
@@ -450,103 +449,101 @@ out highp vec4 pos;
 out highp vec3 color;
 flat out highp int iout;
 out S s;
-const highp vec3 const72 = vec3(1.0);
-const highp ivec3 const75 = ivec3(5);
+const highp vec3 L_34 = vec3(1.0);
+const highp ivec3 L_37 = ivec3(5);
 
 void main()
 {
-    highp vec4 leftColumn_c1 = tblock.M1[0];
-    highp vec4 rightColumn_c2 = tblock.M2[0];
-    highp vec4 column_c3 = leftColumn_c1 + rightColumn_c2;
-    highp vec4 leftColumn_c4 = tblock.M1[1];
-    highp vec4 rightColumn_c5 = tblock.M2[1];
-    highp vec4 column_c6 = leftColumn_c4 + rightColumn_c5;
-    highp vec4 leftColumn_c7 = tblock.M1[2];
-    highp vec4 rightColumn_c8 = tblock.M2[2];
-    highp vec4 column_c9 = leftColumn_c7 + rightColumn_c8;
-    highp vec4 leftColumn_c10 = tblock.M1[3];
-    highp vec4 rightColumn_c11 = tblock.M2[3];
-    highp vec4 column_c12 = leftColumn_c10 + rightColumn_c11;
-    highp vec4 rightColumn_c13 = M4[0];
-    highp vec4 column_c14 = column_c3 + rightColumn_c13;
-    highp vec4 rightColumn_c15 = M4[1];
-    highp vec4 column_c16 = column_c6 + rightColumn_c15;
-    highp vec4 rightColumn_c17 = M4[2];
-    highp vec4 column_c18 = column_c9 + rightColumn_c17;
-    highp vec4 rightColumn_c19 = M4[3];
-    highp vec4 column_c20 = column_c12 + rightColumn_c19;
-    highp vec4 rightColumn_c21 = M3[0];
-    highp vec4 column_c22 = column_c14 + rightColumn_c21;
-    highp vec4 rightColumn_c23 = M3[1];
-    highp vec4 column_c24 = column_c16 + rightColumn_c23;
-    highp vec4 rightColumn_c25 = M3[2];
-    highp vec4 column_c26 = column_c18 + rightColumn_c25;
-    highp vec4 rightColumn_c27 = M3[3];
-    highp vec4 column_c28 = column_c20 + rightColumn_c27;
-    highp vec4 rightColumn_c29 = t2m[0];
-    highp vec4 column_c30 = column_c22 + rightColumn_c29;
-    highp vec4 rightColumn_c31 = t2m[1];
-    highp vec4 column_c32 = column_c24 + rightColumn_c31;
-    highp vec4 rightColumn_c33 = t2m[2];
-    highp vec4 column_c34 = column_c26 + rightColumn_c33;
-    highp vec4 rightColumn_c35 = t2m[3];
-    highp vec4 column_c36 = column_c28 + rightColumn_c35;
-    highp float dotres_c37 = dot(p, column_c30);
-    highp float dotres_c38 = dot(p, column_c32);
-    highp float dotres_c39 = dot(p, column_c34);
-    highp float dotres_c40 = dot(p, column_c36);
-    vec4 temp61 = vec4(dotres_c37, dotres_c38, dotres_c39, dotres_c40);
-    pos = temp61;
-    highp vec3 column_c41 = tblock.N1[0];
-    highp float dotres_c42 = dot(c, column_c41);
-    highp vec3 column_c43 = tblock.N1[1];
-    highp float dotres_c44 = dot(c, column_c43);
-    highp vec3 column_c45 = tblock.N1[2];
-    highp float dotres_c46 = dot(c, column_c45);
-    vec3 temp68;
-    temp68.xyz = vec3(dotres_c42, dotres_c44, dotres_c46);
-    color = temp68;
-    highp int temp69 = int(uiuin) + tblock.iuin;
-    highp int iout_c47 = aiv2.y + temp69;
-    iout = iout_c47;
-    s.c = c;
-    s.f = p.x;
-    bvec3 temp71 = notEqual(N2[1], const72);
-    bool temp73 = any(temp71);
-    bvec3 temp74 = notEqual(ivec3(uv3a[2]), const75);
-    bool temp76 = any(temp74);
-    bool temp77 = temp73 || temp76;
-    if (temp77) {
-        highp vec3 temp78 = c + const72;
-        s.c = temp78;
-    }
-    
-    
+	highp vec4 leftColumn_c1 = tblock.M1[0];
+	highp vec4 rightColumn_c2 = tblock.M2[0];
+	highp vec4 column_c3 = leftColumn_c1 + rightColumn_c2;
+	highp vec4 leftColumn_c4 = tblock.M1[1];
+	highp vec4 rightColumn_c5 = tblock.M2[1];
+	highp vec4 column_c6 = leftColumn_c4 + rightColumn_c5;
+	highp vec4 leftColumn_c7 = tblock.M1[2];
+	highp vec4 rightColumn_c8 = tblock.M2[2];
+	highp vec4 column_c9 = leftColumn_c7 + rightColumn_c8;
+	highp vec4 leftColumn_c10 = tblock.M1[3];
+	highp vec4 rightColumn_c11 = tblock.M2[3];
+	highp vec4 column_c12 = leftColumn_c10 + rightColumn_c11;
+	highp vec4 rightColumn_c13 = M4[0];
+	highp vec4 column_c14 = column_c3 + rightColumn_c13;
+	highp vec4 rightColumn_c15 = M4[1];
+	highp vec4 column_c16 = column_c6 + rightColumn_c15;
+	highp vec4 rightColumn_c17 = M4[2];
+	highp vec4 column_c18 = column_c9 + rightColumn_c17;
+	highp vec4 rightColumn_c19 = M4[3];
+	highp vec4 column_c20 = column_c12 + rightColumn_c19;
+	highp vec4 rightColumn_c21 = M3[0];
+	highp vec4 column_c22 = column_c14 + rightColumn_c21;
+	highp vec4 rightColumn_c23 = M3[1];
+	highp vec4 column_c24 = column_c16 + rightColumn_c23;
+	highp vec4 rightColumn_c25 = M3[2];
+	highp vec4 column_c26 = column_c18 + rightColumn_c25;
+	highp vec4 rightColumn_c27 = M3[3];
+	highp vec4 column_c28 = column_c20 + rightColumn_c27;
+	highp vec4 rightColumn_c29 = t2m[0];
+	highp vec4 column_c30 = column_c22 + rightColumn_c29;
+	highp vec4 rightColumn_c31 = t2m[1];
+	highp vec4 column_c32 = column_c24 + rightColumn_c31;
+	highp vec4 rightColumn_c33 = t2m[2];
+	highp vec4 column_c34 = column_c26 + rightColumn_c33;
+	highp vec4 rightColumn_c35 = t2m[3];
+	highp vec4 column_c36 = column_c28 + rightColumn_c35;
+	highp float dotres_c37 = dot(p, column_c30);
+	highp float dotres_c38 = dot(p, column_c32);
+	highp float dotres_c39 = dot(p, column_c34);
+	highp float dotres_c40 = dot(p, column_c36);
+	vec4 L_29 = vec4(dotres_c37, dotres_c38, dotres_c39, dotres_c40);
+	pos = L_29;
+	highp vec3 column_c41 = tblock.N1[0];
+	highp float dotres_c42 = dot(c, column_c41);
+	highp vec3 column_c43 = tblock.N1[1];
+	highp float dotres_c44 = dot(c, column_c43);
+	highp vec3 column_c45 = tblock.N1[2];
+	highp float dotres_c46 = dot(c, column_c45);
+	vec3 L_30;
+	L_30.xyz = vec3(dotres_c42, dotres_c44, dotres_c46);
+	color = L_30;
+	highp int L_31 = int(uiuin) + tblock.iuin;
+	highp int iout_c47 = L_31 + aiv2.y;
+	iout = iout_c47;
+	s.c = c;
+	s.f = p.x;
+	bvec3 L_33 = notEqual(N2[1], L_34);
+	bool L_35 = any(L_33);
+	bvec3 L_36 = notEqual(ivec3(uv3a[2]), L_37);
+	bool L_38 = any(L_36);
+	bool L_39 = L_35 || L_38;
+	if (L_39) {
+		highp vec3 L_3a = L_34 + c;
+		s.c = L_3a;
+	}
+	
+	
 }
-
 
 #version 300 es
 // LunarGOO output
 struct S {
-    highp vec3 c;
-    highp float f;
+	highp vec3 c;
+	highp float f;
 };
-
 layout(std140) uniform Transform {
-    layout(row_major) highp mat4 M1;
-    highp mat4 M2;
-    layout(row_major) highp mat3 N1;
-    highp int iuin;
+	layout(row_major) highp mat4 M1;
+	highp mat4 M2;
+	layout(row_major) highp mat3 N1;
+	highp int iuin;
 } tblock;
 uniform T3 {
-    highp mat4 M3;
-    layout(row_major) highp mat4 M4;
-    highp mat2x3 N2;
-    highp uvec3 uv3a[4];
+	highp mat4 M3;
+	layout(row_major) highp mat4 M4;
+	highp mat2x3 N2;
+	highp uvec3 uv3a[4];
 } ;
 uniform T2 {
-    bool b;
-    layout(row_major) highp mat4 t2m;
+	bool b;
+	layout(row_major) highp mat4 t2m;
 } ;
 uniform highp uint uiuin;
 layout(location=3) in highp vec4 p;
@@ -556,55 +553,54 @@ out highp vec4 pos;
 out highp vec3 color;
 flat out highp int iout;
 out S s;
-const highp vec3 const49 = vec3(1.0);
-const highp ivec3 const52 = ivec3(5);
+const highp vec3 L_1d = vec3(1.0);
+const highp ivec3 L_20 = ivec3(5);
 
 void main()
 {
-    highp vec4 column_c1 = tblock.M1[0] + tblock.M2[0];
-    highp vec4 column_c2 = tblock.M1[1] + tblock.M2[1];
-    highp vec4 column_c3 = tblock.M1[2] + tblock.M2[2];
-    highp vec4 column_c4 = tblock.M1[3] + tblock.M2[3];
-    highp vec4 column_c5 = M4[0] + column_c1;
-    highp vec4 column_c6 = M4[1] + column_c2;
-    highp vec4 column_c7 = M4[2] + column_c3;
-    highp vec4 column_c8 = M4[3] + column_c4;
-    highp vec4 column_c9 = M3[0] + column_c5;
-    highp vec4 column_c10 = M3[1] + column_c6;
-    highp vec4 column_c11 = M3[2] + column_c7;
-    highp vec4 column_c12 = M3[3] + column_c8;
-    highp vec4 column_c13 = column_c9 + t2m[0];
-    highp vec4 column_c14 = column_c10 + t2m[1];
-    highp vec4 column_c15 = column_c11 + t2m[2];
-    highp vec4 column_c16 = column_c12 + t2m[3];
-    highp float dotres_c17 = dot(p, column_c13);
-    highp float dotres_c18 = dot(p, column_c14);
-    highp float dotres_c19 = dot(p, column_c15);
-    highp float dotres_c20 = dot(p, column_c16);
-    vec4 temp41 = vec4(dotres_c17, dotres_c18, dotres_c19, dotres_c20);
-    pos = temp41;
-    highp float dotres_c21 = dot(c, tblock.N1[0]);
-    highp float dotres_c22 = dot(c, tblock.N1[1]);
-    highp float dotres_c23 = dot(c, tblock.N1[2]);
-    vec3 temp45;
-    temp45.xyz = vec3(dotres_c21, dotres_c22, dotres_c23);
-    color = temp45;
-    highp int temp_c24 = int(uiuin) + tblock.iuin;
-    highp int iout_c25 = aiv2.y + temp_c24;
-    iout = iout_c25;
-    s.c = c;
-    s.f = p.x;
-    bvec3 temp_c26 = notEqual(N2[1], const49);
-    bool temp_c27 = any(temp_c26);
-    bvec3 temp_c28 = notEqual(ivec3(uv3a[2]), const52);
-    bool temp_c29 = any(temp_c28);
-    bool temp_c30 = temp_c27 || temp_c29;
-    if (temp_c30) {
-        highp vec3 temp_c31 = c + const49;
-        s.c = temp_c31;
-    }
-    
-    
+	highp vec4 column_c1 = tblock.M1[0] + tblock.M2[0];
+	highp vec4 column_c2 = tblock.M1[1] + tblock.M2[1];
+	highp vec4 column_c3 = tblock.M1[2] + tblock.M2[2];
+	highp vec4 column_c4 = tblock.M1[3] + tblock.M2[3];
+	highp vec4 column_c5 = M4[0] + column_c1;
+	highp vec4 column_c6 = M4[1] + column_c2;
+	highp vec4 column_c7 = M4[2] + column_c3;
+	highp vec4 column_c8 = M4[3] + column_c4;
+	highp vec4 column_c9 = M3[0] + column_c5;
+	highp vec4 column_c10 = M3[1] + column_c6;
+	highp vec4 column_c11 = M3[2] + column_c7;
+	highp vec4 column_c12 = M3[3] + column_c8;
+	highp vec4 column_c13 = column_c9 + t2m[0];
+	highp vec4 column_c14 = column_c10 + t2m[1];
+	highp vec4 column_c15 = column_c11 + t2m[2];
+	highp vec4 column_c16 = column_c12 + t2m[3];
+	highp float dotres_c17 = dot(p, column_c13);
+	highp float dotres_c18 = dot(p, column_c14);
+	highp float dotres_c19 = dot(p, column_c15);
+	highp float dotres_c20 = dot(p, column_c16);
+	vec4 L_15 = vec4(dotres_c17, dotres_c18, dotres_c19, dotres_c20);
+	pos = L_15;
+	highp float dotres_c21 = dot(c, tblock.N1[0]);
+	highp float dotres_c22 = dot(c, tblock.N1[1]);
+	highp float dotres_c23 = dot(c, tblock.N1[2]);
+	vec3 L_19;
+	L_19.xyz = vec3(dotres_c21, dotres_c22, dotres_c23);
+	color = L_19;
+	highp int L_uc24 = int(uiuin) + tblock.iuin;
+	highp int iout_c25 = L_uc24 + aiv2.y;
+	iout = iout_c25;
+	s.c = c;
+	s.f = p.x;
+	bvec3 L_uc26 = notEqual(N2[1], L_1d);
+	bool L_uc27 = any(L_uc26);
+	bvec3 L_uc28 = notEqual(ivec3(uv3a[2]), L_20);
+	bool L_uc29 = any(L_uc28);
+	bool L_uc30 = L_uc27 || L_uc29;
+	if (L_uc30) {
+		highp vec3 L_uc31 = L_1d + c;
+		s.c = L_uc31;
+	}
+	
+	
 }
-
 

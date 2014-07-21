@@ -188,23 +188,22 @@ uniform sampler2D s2D;
 uniform int i;
 uniform vec4 v4;
 in gl_PerVertex {
-    float gl_PointSize;
+	float gl_PointSize;
 } gl_in[3];
 in vec2 coord[3];
 out gl_PerVertex {
-    float gl_PointSize;
+	float gl_PointSize;
 } ;
-const int const21i_7 = 7;
+const int L_1 = 7;
 
 void main()
 {
-    gl_PointSize = gl_in[1].gl_PointSize;
-    gl_ViewportIndex = const21i_7;
-    EmitVertex();
-    EndPrimitive();
-    
+	gl_PointSize = gl_in[1].gl_PointSize;
+	gl_ViewportIndex = L_1;
+	EmitVertex();
+	EndPrimitive();
+	
 }
-
 
 #version 420 core
 // LunarGOO output
@@ -216,21 +215,20 @@ uniform sampler2D s2D;
 uniform int i;
 uniform vec4 v4;
 in gl_PerVertex {
-    float gl_PointSize;
+	float gl_PointSize;
 } gl_in[3];
 in vec2 coord[3];
 out gl_PerVertex {
-    float gl_PointSize;
+	float gl_PointSize;
 } ;
-const int const21i_7 = 7;
+const int L_1 = 7;
 
 void main()
 {
-    gl_PointSize = gl_in[1].gl_PointSize;
-    gl_ViewportIndex = const21i_7;
-    EmitVertex();
-    EndPrimitive();
-    
+	gl_PointSize = gl_in[1].gl_PointSize;
+	gl_ViewportIndex = L_1;
+	EmitVertex();
+	EndPrimitive();
+	
 }
-
 

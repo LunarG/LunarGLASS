@@ -131,14 +131,13 @@ varying float c;
 
 void main()
 {
-    bool temp21 = c > d;
-    vec4 _pn_c1 = temp21 ? bigColor : smallColor;
-    vec4 color_uc2 = BaseColor + _pn_c1;
-    vec4 gla_gl_FragColor_c3 = color_uc2 * otherColor;
-    gl_FragColor = gla_gl_FragColor_c3;
-    
+	bool L_1 = c > d;
+	vec4 _pn_c1 = L_1 ? bigColor : smallColor;
+	vec4 color_uc2 = BaseColor + _pn_c1;
+	vec4 Ll_FragColor_c3 = color_uc2 * otherColor;
+	gl_FragColor = Ll_FragColor_c3;
+	
 }
-
 
 #version 120
 // LunarGOO output
@@ -151,12 +150,11 @@ varying vec4 BaseColor;
 
 void main()
 {
-    bool temp_c1 = c > d;
-    vec4 ternary_uc2 = temp_c1 ? bigColor : smallColor;
-    vec4 color_uc_c3 = BaseColor + ternary_uc2;
-    vec4 gla_gl_FragColor_c4 = color_uc_c3 * otherColor;
-    gl_FragColor = gla_gl_FragColor_c4;
-    
+	bool L_uc1 = c > d;
+	vec4 ternary_uc2 = L_uc1 ? bigColor : smallColor;
+	vec4 color_uc_c3 = BaseColor + ternary_uc2;
+	vec4 Ll_FragColor_c4 = color_uc_c3 * otherColor;
+	gl_FragColor = Ll_FragColor_c4;
+	
 }
-
 

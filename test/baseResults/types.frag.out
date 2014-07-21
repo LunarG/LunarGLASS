@@ -536,70 +536,68 @@ in float i_f;
 in vec2 i_f2;
 in vec3 i_f3;
 in vec4 i_f4;
-const vec4 const70 = vec4(1.0);
+const vec4 L_32 = vec4(1.0);
 
 void main()
 {
-    vec4 ternary_uc1;
-    bool temp22 = u_b && i_b;
-    bool temp23 = u_b2.x && i_b2.x;
-    bool temp24 = temp23 && u_b2.y;
-    bool temp25 = temp24 && i_b2.y;
-    bool temp26 = u_b3.x && i_b3.x;
-    bool temp27 = temp26 && u_b3.y;
-    bool temp28 = temp27 && i_b3.y;
-    bool temp29 = temp28 && u_b3.z;
-    bool temp30 = temp29 && i_b3.z;
-    bool temp31 = u_b4.x && i_b4.x;
-    bool temp32 = temp31 && u_b4.y;
-    bool temp33 = temp32 && i_b4.y;
-    bool temp34 = temp33 && u_b4.z;
-    bool temp35 = temp34 && i_b4.z;
-    bool temp36 = temp35 && u_b4.w;
-    bool temp37 = temp36 && i_b4.w;
-    ivec2 temp38 = i_i2 + u_i2;
-    ivec3 temp39 = i_i3 + u_i3;
-    ivec4 temp40 = i_i4 + u_i4;
-    vec2 temp41 = i_f2 + u_f2;
-    vec3 temp42 = i_f3 + u_f3;
-    vec4 temp43 = i_f4 + u_f4;
-    bool temp44 = temp22 || temp25;
-    bool temp45 = temp44 || temp30;
-    bool temp46 = temp45 || temp37;
-    if (temp46) {
-        float temp47 = i_f + u_f;
-        int temp48 = temp38.x + temp38.y;
-        int temp49 = temp39.x + temp48;
-        int temp50 = temp39.y + temp49;
-        int temp51 = temp39.z + temp50;
-        int temp52 = temp40.x + temp51;
-        int temp53 = temp40.y + temp52;
-        int temp54 = temp40.z + temp53;
-        int temp55 = temp40.w + temp54;
-        int temp56 = i_i + temp55;
-        int temp57 = temp56 + u_i;
-        float temp58 = float(temp57);
-        float temp59 = temp47 + temp58;
-        float temp60 = temp41.x + temp59;
-        float temp61 = temp41.y + temp60;
-        float temp62 = temp42.x + temp61;
-        float temp63 = temp42.y + temp62;
-        float temp64 = temp42.z + temp63;
-        float temp65 = temp43.x + temp64;
-        float temp66 = temp43.y + temp65;
-        float temp67 = temp43.z + temp66;
-        float temp68 = temp43.w + temp67;
-        vec4 temp69 = vec4(temp68);
-        ternary_uc1 = temp69;
-    }
-    else {
-        ternary_uc1 = const70;
-    }
-    
-    gl_FragColor = ternary_uc1;
-    
+	vec4 ternary_uc1;
+	bool L_2 = u_b && i_b;
+	bool L_3 = u_b2.x && i_b2.x;
+	bool L_4 = L_3 && u_b2.y;
+	bool L_5 = L_4 && i_b2.y;
+	bool L_6 = u_b3.x && i_b3.x;
+	bool L_7 = L_6 && u_b3.y;
+	bool L_8 = L_7 && i_b3.y;
+	bool L_9 = L_8 && u_b3.z;
+	bool L_a = L_9 && i_b3.z;
+	bool L_b = u_b4.x && i_b4.x;
+	bool L_c = L_b && u_b4.y;
+	bool L_d = L_c && i_b4.y;
+	bool L_e = L_d && u_b4.z;
+	bool L_f = L_e && i_b4.z;
+	bool L_10 = L_f && u_b4.w;
+	bool L_11 = L_10 && i_b4.w;
+	ivec2 L_12 = i_i2 + u_i2;
+	ivec3 L_13 = i_i3 + u_i3;
+	ivec4 L_14 = i_i4 + u_i4;
+	vec2 L_15 = i_f2 + u_f2;
+	vec3 L_16 = i_f3 + u_f3;
+	vec4 L_17 = i_f4 + u_f4;
+	bool L_18 = L_2 || L_5;
+	bool L_19 = L_18 || L_a;
+	bool L_1a = L_19 || L_11;
+	if (L_1a) {
+		float L_1b = i_f + u_f;
+		int L_1c = L_12.x + L_12.y;
+		int L_1d = L_13.x + L_1c;
+		int L_1e = L_13.y + L_1d;
+		int L_1f = L_13.z + L_1e;
+		int L_20 = L_14.x + L_1f;
+		int L_21 = L_14.y + L_20;
+		int L_22 = L_14.z + L_21;
+		int L_23 = L_14.w + L_22;
+		int L_24 = L_23 + i_i;
+		int L_25 = L_24 + u_i;
+		float L_26 = float(L_25);
+		float L_27 = L_1b + L_26;
+		float L_28 = L_15.x + L_27;
+		float L_29 = L_15.y + L_28;
+		float L_2a = L_16.x + L_29;
+		float L_2b = L_16.y + L_2a;
+		float L_2c = L_16.z + L_2b;
+		float L_2d = L_17.x + L_2c;
+		float L_2e = L_17.y + L_2d;
+		float L_2f = L_17.z + L_2e;
+		float L_30 = L_17.w + L_2f;
+		vec4 L_31 = vec4(L_30);
+		ternary_uc1 = L_31;
+	} else {
+		ternary_uc1 = L_32;
+	}
+	
+	gl_FragColor = ternary_uc1;
+	
 }
-
 
 #version 130
 // LunarGOO output
@@ -627,68 +625,66 @@ in vec3 i_f3;
 in vec4 i_f4;
 in float i_f;
 flat in int i_i;
-const vec4 const70 = vec4(1.0);
+const vec4 L_32 = vec4(1.0);
 
 void main()
 {
-    vec4 ternary_uc_c1;
-    bool temp_c2 = u_b && i_b;
-    bool temp_c3 = u_b2.x && i_b2.x;
-    bool temp_c4 = temp_c3 && u_b2.y;
-    bool temp_c5 = temp_c4 && i_b2.y;
-    bool temp_c6 = u_b3.x && i_b3.x;
-    bool temp_c7 = temp_c6 && u_b3.y;
-    bool temp_c8 = temp_c7 && i_b3.y;
-    bool temp_c9 = temp_c8 && u_b3.z;
-    bool temp_c10 = temp_c9 && i_b3.z;
-    bool temp_c11 = u_b4.x && i_b4.x;
-    bool temp_c12 = temp_c11 && u_b4.y;
-    bool temp_c13 = temp_c12 && i_b4.y;
-    bool temp_c14 = temp_c13 && u_b4.z;
-    bool temp_c15 = temp_c14 && i_b4.z;
-    bool temp_c16 = temp_c15 && u_b4.w;
-    bool temp_c17 = temp_c16 && i_b4.w;
-    ivec2 temp_c18 = i_i2 + u_i2;
-    ivec3 temp_c19 = i_i3 + u_i3;
-    ivec4 temp_c20 = i_i4 + u_i4;
-    vec2 temp_c21 = i_f2 + u_f2;
-    vec3 temp_c22 = i_f3 + u_f3;
-    vec4 temp_c23 = i_f4 + u_f4;
-    bool temp_c24 = temp_c2 || temp_c5;
-    bool temp_c25 = temp_c24 || temp_c10;
-    bool temp_c26 = temp_c25 || temp_c17;
-    if (temp_c26) {
-        float temp_c27 = i_f + u_f;
-        int temp_c28 = temp_c18.x + temp_c18.y;
-        int temp_c29 = temp_c19.x + temp_c28;
-        int temp_c30 = temp_c19.y + temp_c29;
-        int temp_c31 = temp_c19.z + temp_c30;
-        int temp_c32 = temp_c20.x + temp_c31;
-        int temp_c33 = temp_c20.y + temp_c32;
-        int temp_c34 = temp_c20.z + temp_c33;
-        int temp_c35 = temp_c20.w + temp_c34;
-        int temp_c36 = i_i + temp_c35;
-        int temp_c37 = temp_c36 + u_i;
-        float temp_c38 = float(temp_c37);
-        float temp_c39 = temp_c27 + temp_c38;
-        float temp_c40 = temp_c21.x + temp_c39;
-        float temp_c41 = temp_c21.y + temp_c40;
-        float temp_c42 = temp_c22.x + temp_c41;
-        float temp_c43 = temp_c22.y + temp_c42;
-        float temp_c44 = temp_c22.z + temp_c43;
-        float temp_c45 = temp_c23.x + temp_c44;
-        float temp_c46 = temp_c23.y + temp_c45;
-        float temp_c47 = temp_c23.z + temp_c46;
-        float temp_c48 = temp_c23.w + temp_c47;
-        vec4 temp69 = vec4(temp_c48);
-        ternary_uc_c1 = temp69;
-    }
-    else {
-        ternary_uc_c1 = const70;
-    }
-    
-    gl_FragColor = ternary_uc_c1;
-    
+	vec4 ternary_uc_c1;
+	bool L_uc2 = u_b && i_b;
+	bool L_uc3 = u_b2.x && i_b2.x;
+	bool L_uc4 = L_uc3 && u_b2.y;
+	bool L_uc5 = L_uc4 && i_b2.y;
+	bool L_uc6 = u_b3.x && i_b3.x;
+	bool L_uc7 = L_uc6 && u_b3.y;
+	bool L_uc8 = L_uc7 && i_b3.y;
+	bool L_uc9 = L_uc8 && u_b3.z;
+	bool L_a_c10 = L_uc9 && i_b3.z;
+	bool L_b_c11 = u_b4.x && i_b4.x;
+	bool L_c12 = L_b_c11 && u_b4.y;
+	bool L_d_c13 = L_c12 && i_b4.y;
+	bool L_e_c14 = L_d_c13 && u_b4.z;
+	bool L_f_c15 = L_e_c14 && i_b4.z;
+	bool L_uc16 = L_f_c15 && u_b4.w;
+	bool L_uc17 = L_uc16 && i_b4.w;
+	ivec2 L_uc18 = i_i2 + u_i2;
+	ivec3 L_uc19 = i_i3 + u_i3;
+	ivec4 L_uc20 = i_i4 + u_i4;
+	vec2 L_uc21 = i_f2 + u_f2;
+	vec3 L_uc22 = i_f3 + u_f3;
+	vec4 L_uc23 = i_f4 + u_f4;
+	bool L_uc24 = L_uc2 || L_uc5;
+	bool L_uc25 = L_uc24 || L_a_c10;
+	bool L_uc26 = L_uc25 || L_uc17;
+	if (L_uc26) {
+		float L_uc27 = i_f + u_f;
+		int L_uc28 = L_uc18.x + L_uc18.y;
+		int L_uc29 = L_uc19.x + L_uc28;
+		int L_uc30 = L_uc19.y + L_uc29;
+		int L_uc31 = L_uc19.z + L_uc30;
+		int L_uc32 = L_uc20.x + L_uc31;
+		int L_uc33 = L_uc20.y + L_uc32;
+		int L_uc34 = L_uc20.z + L_uc33;
+		int L_uc35 = L_uc20.w + L_uc34;
+		int L_uc36 = L_uc35 + i_i;
+		int L_uc37 = L_uc36 + u_i;
+		float L_uc38 = float(L_uc37);
+		float L_uc39 = L_uc27 + L_uc38;
+		float L_uc40 = L_uc21.x + L_uc39;
+		float L_uc41 = L_uc21.y + L_uc40;
+		float L_uc42 = L_uc22.x + L_uc41;
+		float L_uc43 = L_uc22.y + L_uc42;
+		float L_uc44 = L_uc22.z + L_uc43;
+		float L_uc45 = L_uc23.x + L_uc44;
+		float L_uc46 = L_uc23.y + L_uc45;
+		float L_uc47 = L_uc23.z + L_uc46;
+		float L_uc48 = L_uc23.w + L_uc47;
+		vec4 L_31 = vec4(L_uc48);
+		ternary_uc_c1 = L_31;
+	} else {
+		ternary_uc_c1 = L_32;
+	}
+	
+	gl_FragColor = ternary_uc_c1;
+	
 }
-
 

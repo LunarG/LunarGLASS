@@ -381,7 +381,6 @@ attributes #0 = { nounwind readnone }
 #version 300 es
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
-
 uniform mediump usampler2D usampler;
 uniform mediump uvec4 v;
 uniform mediump int i;
@@ -390,36 +389,34 @@ flat in mediump uvec2 t;
 in mediump vec2 tc;
 in mediump float f;
 out mediump uvec4 c;
-const highp int const22i_3 = 3;
-const highp vec2 const24 = vec2(1.0);
-const highp int const27i_4 = 4;
-const highp int const30i_0 = 0;
-const highp int const34i_462 = 462;
-const highp ivec4 const38 = ivec4(341413380);
+const highp int L_2 = 3;
+const highp vec2 L_4 = vec2(1.0);
+const highp int L_7 = 4;
+const highp int L_a = 0;
+const highp int L_e = 462;
+const highp ivec4 L_12 = ivec4(341413380);
 
 void main()
 {
-    mediump int temp21 = ivec2(t).y + const22i_3;
-    mediump vec2 temp23 = tc + const24;
-    mediump ivec4 temp25 = ivec4(texture(usampler, temp23));
-    bool temp26 = ivec2(t).x > const27i_4;
-    mediump float af_c1 = float(temp21);
-    bool ab_c2 = temp21 != const30i_0;
-    mediump int temp31 = int(uint(af_c1));
-    mediump int temp32 = int(ab_c2);
-    ivec4 temp33 = ivec4(temp31, temp32, temp21, const34i_462);
-    mediump ivec4 temp35 = temp25 + temp33;
-    ivec4 select_c3 = temp26 ? temp35 : temp25;
-    mediump ivec4 temp37 = select_c3 + const38;
-    c = uvec4(temp37);
-    
+	mediump int L_1 = ivec2(t).y + L_2;
+	mediump vec2 L_3 = tc + L_4;
+	mediump ivec4 L_5 = ivec4(texture(usampler, L_3));
+	bool L_6 = ivec2(t).x > L_7;
+	mediump float af_c1 = float(L_1);
+	bool ab_c2 = L_1 != L_a;
+	mediump int L_b = int(uint(af_c1));
+	mediump int L_c = int(ab_c2);
+	ivec4 L_d = ivec4(L_b, L_c, L_1, L_e);
+	mediump ivec4 L_f = L_5 + L_d;
+	ivec4 select_c3 = L_6 ? L_f : L_5;
+	mediump ivec4 L_11 = select_c3 + L_12;
+	c = uvec4(L_11);
+	
 }
-
 
 #version 300 es
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
-
 uniform mediump usampler2D usampler;
 uniform mediump uvec4 v;
 uniform mediump int i;
@@ -428,29 +425,28 @@ flat in mediump uvec2 t;
 in mediump vec2 tc;
 in mediump float f;
 out mediump uvec4 c;
-const highp int const22i_3 = 3;
-const highp vec2 const24 = vec2(1.0);
-const highp int const27i_4 = 4;
-const highp int const31i_0 = 0;
-const highp int const34i_462 = 462;
-const highp ivec4 const38 = ivec4(341413380);
+const highp int L_2 = 3;
+const highp vec2 L_4 = vec2(1.0);
+const highp int L_7 = 4;
+const highp int L_b = 0;
+const highp int L_e = 462;
+const highp ivec4 L_12 = ivec4(341413380);
 
 void main()
 {
-    highp int temp_c1 = ivec2(t).y + const22i_3;
-    highp vec2 temp_c2 = tc + const24;
-    mediump ivec4 temp_c3 = ivec4(texture(usampler, temp_c2));
-    bool temp_c4 = ivec2(t).x > const27i_4;
-    mediump float af_c5 = float(temp_c1);
-    mediump int temp_c6 = int(uint(af_c5));
-    bool ab_c7 = temp_c1 != const31i_0;
-    mediump int temp_c8 = int(ab_c7);
-    ivec4 temp33 = ivec4(temp_c6, temp_c8, temp_c1, const34i_462);
-    mediump ivec4 temp_c9 = temp33 + temp_c3;
-    ivec4 select_c10 = temp_c4 ? temp_c9 : temp_c3;
-    highp ivec4 temp_c11 = select_c10 + const38;
-    c = uvec4(temp_c11);
-    
+	highp int L_uc1 = ivec2(t).y + L_2;
+	highp vec2 L_uc2 = tc + L_4;
+	mediump ivec4 L_uc3 = ivec4(texture(usampler, L_uc2));
+	bool L_uc4 = ivec2(t).x > L_7;
+	mediump float af_c5 = float(L_uc1);
+	mediump int L_b_c6 = int(uint(af_c5));
+	bool ab_c7 = L_uc1 != L_b;
+	mediump int L_c8 = int(ab_c7);
+	ivec4 L_d = ivec4(L_b_c6, L_c8, L_uc1, L_e);
+	mediump ivec4 L_f_c9 = L_d + L_uc3;
+	ivec4 select_c10 = L_uc4 ? L_f_c9 : L_uc3;
+	highp ivec4 L_uc11 = select_c10 + L_12;
+	c = uvec4(L_uc11);
+	
 }
-
 

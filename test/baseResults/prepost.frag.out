@@ -149,23 +149,21 @@ stage-exit:                                       ; preds = %stage-epilogue
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
 #version 140
 // LunarGOO output
-const vec4 const21 = vec4(3630.0, 3630.0, 2420.0, 3630.0);
+const vec4 L_1 = vec4(3630.0, 3630.0, 2420.0, 3630.0);
 
 void main()
 {
-    gl_FragColor = const21;
-    
+	gl_FragColor = L_1;
+	
 }
-
 
 #version 140
 // LunarGOO output
-const vec4 const21 = vec4(3630.0, 3630.0, 2420.0, 3630.0);
+const vec4 L_1 = vec4(3630.0, 3630.0, 2420.0, 3630.0);
 
 void main()
 {
-    gl_FragColor = const21;
-    
+	gl_FragColor = L_1;
+	
 }
-
 
