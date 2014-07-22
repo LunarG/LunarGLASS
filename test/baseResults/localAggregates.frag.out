@@ -299,29 +299,20 @@ uniform s2 foo2;
 uniform float uFloatArray[16];
 in vec2 coord;
 in vec4 color;
-const int L_2 = 0;
-const float L_4 = 1.0;
-const int L_6 = 1;
-const float L_8 = 0.0;
-const float L_b = 2.0;
+const int L_1 = 0;
+const float L_3 = 1.0;
+const int L_4 = 1;
+const float L_5 = 0.0;
+const float L_7 = 2.0;
 
 void main()
 {
-	bool L_1 = foo3.s2_1.i > L_2;
-	float select_c1 = L_1 ? L_4 : coord.x;
-	bool L_5 = condition == L_6;
-	float select_c2 = L_5 ? coord.x : L_8;
-	vec4 L_9 = color;
-	L_9.z = coord.y;
-	float L_a = L_1 ? coord.x : L_b;
-	float L_c = L_a + select_c1;
-	float L_d = L_c + coord.x;
-	float L_e = L_d + select_c2;
-	vec4 L_f = vec4(L_e);
-	vec4 L_10 = L_9 * L_f;
-	vec4 L_11 = texture(sampler, coord);
-	vec4 Ll_FragColor_c3 = L_10 * L_11;
-	gl_FragColor = Ll_FragColor_c3;
+	bool L_2 = foo3.s2_1.i > L_1;
+	vec4 L_6 = color;
+	L_6.z = coord.y;
+	vec4 L_8 = vec4(((((L_2 ? L_3 : coord.x) + (L_2 ? coord.x : L_7)) + coord.x) + ((condition == L_4) ? coord.x : L_5)));
+	vec4 L_9 = texture(sampler, coord);
+	gl_FragColor = ((L_6 * L_8) * L_9);
 	
 }
 
@@ -349,31 +340,22 @@ uniform sampler2D sampler;
 uniform s1 foo;
 uniform s2 foo2;
 uniform float uFloatArray[16];
-in vec2 coord;
 in vec4 color;
-const int L_2 = 0;
+in vec2 coord;
+const int L_1 = 0;
 const float L_4 = 1.0;
+const float L_5 = 2.0;
 const int L_6 = 1;
-const float L_8 = 0.0;
-const float L_b = 2.0;
+const float L_7 = 0.0;
 
 void main()
 {
-	bool L_uc1 = foo3.s2_1.i > L_2;
-	float select_c2 = L_uc1 ? L_4 : coord.x;
-	bool L_uc3 = condition == L_6;
-	float select_c4 = L_uc3 ? coord.x : L_8;
-	vec4 L_9 = color;
-	L_9.z = coord.y;
-	float select_c5 = L_uc1 ? coord.x : L_b;
-	float L_c6 = select_c2 + select_c5;
-	float L_d_c7 = L_c6 + coord.x;
-	float L_e_c8 = L_d_c7 + select_c4;
-	vec4 L_f = vec4(L_e_c8);
-	vec4 L_uc9 = L_9 * L_f;
-	vec4 L_uc10 = texture(sampler, coord);
-	vec4 Ll_FragColor_c11 = L_uc10 * L_uc9;
-	gl_FragColor = Ll_FragColor_c11;
+	bool L_uc1 = foo3.s2_1.i > L_1;
+	vec4 L_3 = color;
+	L_3.z = coord.y;
+	vec4 L_8 = vec4(((((L_uc1 ? L_4 : coord.x) + (L_uc1 ? coord.x : L_5)) + coord.x) + ((condition == L_6) ? coord.x : L_7)));
+	vec4 L_uc2 = texture(sampler, coord);
+	gl_FragColor = ((L_3 * L_8) * L_uc2);
 	
 }
 

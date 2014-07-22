@@ -479,11 +479,11 @@ const vec2 L_5 = vec2(0.3);
 const ivec2 L_6 = ivec2(1);
 const vec3 L_9 = vec3(0.3);
 const float L_e = 1.3;
-const int L_11 = 2;
-const int L_14 = 3;
-const float L_18 = 0.7;
-const float L_1d = 1.7;
-const vec3 L_23 = vec3(0.1);
+const int L_10 = 2;
+const int L_13 = 3;
+const float L_17 = 0.7;
+const float L_1b = 1.7;
+const vec3 L_21 = vec3(0.1);
 
 void main()
 {
@@ -502,33 +502,28 @@ void main()
 	vec4 o_i_c2 = L_a + L_b;
 	o = o_i_c2;
 	vec4 L_d = textureGatherOffset(samp2DS, L_5, L_e, L_6);
-	vec4 L_f = L_d + o_i_c2;
-	vec4 L_10 = textureGatherOffset(samp2D, L_5, L_6, L_11);
-	vec4 L_12 = L_10 + L_f;
-	o = L_12;
-	ivec3 io_i_c3 = textureSize(Sca, L_14);
+	vec4 L_f = textureGatherOffset(samp2D, L_5, L_6, L_10);
+	vec4 L_11 = (L_d + o_i_c2) + L_f;
+	o = L_11;
+	ivec3 io_i_c3 = textureSize(Sca, L_13);
 	io = io_i_c3;
-	vec4 L_15 = texture(Sca, i);
-	vec4 o_i_c4 = L_12 + L_15;
+	vec4 L_14 = texture(Sca, i);
+	vec4 o_i_c4 = L_11 + L_14;
 	o = o_i_c4;
-	ivec4 L_17 = texture(Isca, i, L_18);
-	ivec3 L_19 = ivec3(L_17);
-	ivec3 io_c5 = L_19 + io_i_c3;
-	io = io_c5;
-	ivec4 uo_i_c6 = ivec4(texture(Usca, i));
-	uo = uvec4(uo_i_c6);
-	vec4 L_1c = textureLod(Sca, i, L_1d);
-	vec4 L_1e = L_1c + o_i_c4;
-	o = L_1e;
-	ivec3 L_1f = textureSize(Scas, L_14);
-	vec3 a_i_c7 = vec3(L_1f);
-	float L_21 = texture(Scas, i, i.y);
-	ivec4 L_22 = textureGrad(Isca, i, L_23, L_2);
-	float _rhs_c8 = float(L_22.x);
-	float L_25 = L_21 + _rhs_c8;
-	vec4 L_26 = vec4(a_i_c7.x, a_i_c7.y, a_i_c7.z, L_25);
-	vec4 L_27 = L_1e + L_26;
-	o = L_27;
+	ivec4 L_16 = texture(Isca, i, L_17);
+	ivec3 L_18 = ivec3(L_16);
+	io = (L_18 + io_i_c3);
+	ivec4 uo_i_c5 = ivec4(texture(Usca, i));
+	uo = uvec4(uo_i_c5);
+	vec4 L_1a = textureLod(Sca, i, L_1b);
+	vec4 L_1c = L_1a + o_i_c4;
+	o = L_1c;
+	ivec3 L_1d = textureSize(Scas, L_13);
+	vec3 a_i_c6 = vec3(L_1d);
+	float L_1f = texture(Scas, i, i.y);
+	ivec4 L_20 = textureGrad(Isca, i, L_21, L_2);
+	vec4 L_22 = vec4(a_i_c6.x, a_i_c6.y, a_i_c6.z, ((float(L_20.x)) + L_1f));
+	o = (L_1c + L_22);
 	
 }
 
@@ -562,11 +557,11 @@ const vec2 L_5 = vec2(0.3);
 const ivec2 L_6 = ivec2(1);
 const vec3 L_9 = vec3(0.3);
 const float L_e = 1.3;
-const int L_11 = 2;
-const int L_14 = 3;
-const float L_18 = 0.7;
-const float L_1d = 1.7;
-const vec3 L_23 = vec3(0.1);
+const int L_10 = 2;
+const int L_13 = 3;
+const float L_17 = 0.7;
+const float L_1b = 1.7;
+const vec3 L_21 = vec3(0.1);
 
 void main()
 {
@@ -585,33 +580,28 @@ void main()
 	vec4 o_i_c7 = L_a_c5 + L_b_c6;
 	o = o_i_c7;
 	vec4 L_d_c8 = textureGatherOffset(samp2DS, L_5, L_e, L_6);
-	vec4 L_f_c9 = L_d_c8 + o_i_c7;
-	vec4 L_uc10 = textureGatherOffset(samp2D, L_5, L_6, L_11);
-	vec4 L_uc11 = L_f_c9 + L_uc10;
-	o = L_uc11;
-	ivec3 io_i_c12 = textureSize(Sca, L_14);
-	io = io_i_c12;
-	vec4 L_uc13 = texture(Sca, i);
-	vec4 o_i_c14 = L_uc11 + L_uc13;
-	o = o_i_c14;
-	ivec4 L_uc15 = texture(Isca, i, L_18);
-	ivec3 L_19 = ivec3(L_uc15);
-	ivec3 io_c16 = L_19 + io_i_c12;
-	io = io_c16;
-	ivec4 uo_i_c17 = ivec4(texture(Usca, i));
-	uo = uvec4(uo_i_c17);
-	vec4 L_uc18 = textureLod(Sca, i, L_1d);
-	vec4 L_uc19 = L_uc18 + o_i_c14;
-	o = L_uc19;
-	ivec3 L_uc20 = textureSize(Scas, L_14);
-	vec3 a_i_c21 = vec3(L_uc20);
-	float L_uc22 = texture(Scas, i, i.y);
-	ivec4 L_uc23 = textureGrad(Isca, i, L_23, L_2);
-	float _rhs_c24 = float(L_uc23.x);
-	float L_uc25 = L_uc22 + _rhs_c24;
-	vec4 L_26 = vec4(a_i_c21.x, a_i_c21.y, a_i_c21.z, L_uc25);
-	vec4 L_uc26 = L_26 + L_uc19;
-	o = L_uc26;
+	vec4 L_f_c9 = textureGatherOffset(samp2D, L_5, L_6, L_10);
+	vec4 L_uc10 = (L_d_c8 + o_i_c7) + L_f_c9;
+	o = L_uc10;
+	ivec3 io_i_c11 = textureSize(Sca, L_13);
+	io = io_i_c11;
+	vec4 L_uc12 = texture(Sca, i);
+	vec4 o_i_c13 = L_uc10 + L_uc12;
+	o = o_i_c13;
+	ivec4 L_uc14 = texture(Isca, i, L_17);
+	ivec3 L_18 = ivec3(L_uc14);
+	io = (L_18 + io_i_c11);
+	ivec4 uo_i_c15 = ivec4(texture(Usca, i));
+	uo = uvec4(uo_i_c15);
+	vec4 L_uc16 = textureLod(Sca, i, L_1b);
+	vec4 L_uc17 = L_uc16 + o_i_c13;
+	o = L_uc17;
+	ivec3 L_uc18 = textureSize(Scas, L_13);
+	vec3 a_i_c19 = vec3(L_uc18);
+	float L_uc20 = texture(Scas, i, i.y);
+	ivec4 L_uc21 = textureGrad(Isca, i, L_21, L_2);
+	vec4 L_22 = vec4(a_i_c19.x, a_i_c19.y, a_i_c19.z, ((float(L_uc21.x)) + L_uc20));
+	o = (L_22 + L_uc17);
 	
 }
 

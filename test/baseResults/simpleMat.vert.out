@@ -253,41 +253,12 @@ out float f;
 void main()
 {
 	vec4 column_c1 = mvp[0];
-	float product_c2 = column_c1.x * v.x;
-	vec4 column_c3 = mvp[1];
-	float product_c4 = column_c3.x * v.y;
-	float dotProduct_c5 = product_c2 + product_c4;
-	vec4 column_c6 = mvp[2];
-	float product_c7 = column_c6.x * v.z;
-	float dotProduct_c8 = dotProduct_c5 + product_c7;
-	vec4 column_c9 = mvp[3];
-	float product_c10 = column_c9.x * v.w;
-	float dotProduct_c11 = dotProduct_c8 + product_c10;
-	float product_c12 = column_c1.y * v.x;
-	float product_c13 = column_c3.y * v.y;
-	float dotProduct_c14 = product_c12 + product_c13;
-	float product_c15 = column_c6.y * v.z;
-	float dotProduct_c16 = dotProduct_c14 + product_c15;
-	float product_c17 = column_c9.y * v.w;
-	float dotProduct_c18 = dotProduct_c16 + product_c17;
-	float product_c19 = column_c1.z * v.x;
-	float product_c20 = column_c3.z * v.y;
-	float dotProduct_c21 = product_c19 + product_c20;
-	float product_c22 = column_c6.z * v.z;
-	float dotProduct_c23 = dotProduct_c21 + product_c22;
-	float product_c24 = column_c9.z * v.w;
-	float dotProduct_c25 = dotProduct_c23 + product_c24;
-	float product_c26 = column_c1.w * v.x;
-	float product_c27 = column_c3.w * v.y;
-	float dotProduct_c28 = product_c26 + product_c27;
-	float product_c29 = column_c6.w * v.z;
-	float dotProduct_c30 = dotProduct_c28 + product_c29;
-	float product_c31 = column_c9.w * v.w;
-	float dotProduct_c32 = dotProduct_c30 + product_c31;
-	vec4 L_21 = vec4(dotProduct_c11, dotProduct_c18, dotProduct_c25, dotProduct_c32);
-	glPos = L_21;
-	float L_22 = am3[2].y + arraym[1][2].w;
-	f = L_22;
+	vec4 column_c2 = mvp[1];
+	vec4 column_c3 = mvp[2];
+	vec4 column_c4 = mvp[3];
+	vec4 L_5 = vec4(((((column_c1.x * v.x) + (column_c2.x * v.y)) + (column_c3.x * v.z)) + (column_c4.x * v.w)), ((((column_c1.y * v.x) + (column_c2.y * v.y)) + (column_c3.y * v.z)) + (column_c4.y * v.w)), ((((column_c1.z * v.x) + (column_c2.z * v.y)) + (column_c3.z * v.z)) + (column_c4.z * v.w)), ((((column_c1.w * v.x) + (column_c2.w * v.y)) + (column_c3.w * v.z)) + (column_c4.w * v.w)));
+	glPos = L_5;
+	f = (am3[2].y + arraym[1][2].w);
 	
 }
 
@@ -302,38 +273,9 @@ out float f;
 
 void main()
 {
-	float product_c1 = mvp[0].x * v.x;
-	float product_c2 = mvp[1].x * v.y;
-	float dotProduct_c3 = product_c1 + product_c2;
-	float product_c4 = mvp[2].x * v.z;
-	float dotProduct_c5 = dotProduct_c3 + product_c4;
-	float product_c6 = mvp[3].x * v.w;
-	float dotProduct_c7 = dotProduct_c5 + product_c6;
-	float product_c8 = mvp[0].y * v.x;
-	float product_c9 = mvp[1].y * v.y;
-	float dotProduct_c10 = product_c8 + product_c9;
-	float product_c11 = mvp[2].y * v.z;
-	float dotProduct_c12 = dotProduct_c10 + product_c11;
-	float product_c13 = mvp[3].y * v.w;
-	float dotProduct_c14 = dotProduct_c12 + product_c13;
-	float product_c15 = mvp[0].z * v.x;
-	float product_c16 = mvp[1].z * v.y;
-	float dotProduct_c17 = product_c15 + product_c16;
-	float product_c18 = mvp[2].z * v.z;
-	float dotProduct_c19 = dotProduct_c17 + product_c18;
-	float product_c20 = mvp[3].z * v.w;
-	float dotProduct_c21 = dotProduct_c19 + product_c20;
-	float product_c22 = mvp[0].w * v.x;
-	float product_c23 = mvp[1].w * v.y;
-	float dotProduct_c24 = product_c22 + product_c23;
-	float product_c25 = mvp[2].w * v.z;
-	float dotProduct_c26 = dotProduct_c24 + product_c25;
-	float product_c27 = mvp[3].w * v.w;
-	float dotProduct_c28 = dotProduct_c26 + product_c27;
-	vec4 L_1d = vec4(dotProduct_c7, dotProduct_c14, dotProduct_c21, dotProduct_c28);
-	glPos = L_1d;
-	float L_uc29 = am3[2].y + arraym[1][2].w;
-	f = L_uc29;
+	vec4 L_1 = vec4(((((mvp[0].x * v.x) + (mvp[1].x * v.y)) + (mvp[2].x * v.z)) + (mvp[3].x * v.w)), ((((mvp[0].y * v.x) + (mvp[1].y * v.y)) + (mvp[2].y * v.z)) + (mvp[3].y * v.w)), ((((mvp[0].z * v.x) + (mvp[1].z * v.y)) + (mvp[2].z * v.z)) + (mvp[3].z * v.w)), ((((mvp[0].w * v.x) + (mvp[1].w * v.y)) + (mvp[2].w * v.z)) + (mvp[3].w * v.w)));
+	glPos = L_1;
+	f = (am3[2].y + arraym[1][2].w);
 	
 }
 

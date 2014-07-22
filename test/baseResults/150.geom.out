@@ -222,11 +222,11 @@ out toFragment {
 	vec3 color;
 } toF;
 const int L_1 = 2;
-const vec3 L_3 = vec3(2.0);
-const vec4 L_5 = vec4(2.0);
-const float L_7 = 2.0;
-const int L_9 = 1;
-const int L_a = 3;
+const vec3 L_2 = vec3(2.0);
+const vec4 L_3 = vec4(2.0);
+const float L_4 = 2.0;
+const int L_5 = 1;
+const int L_6 = 3;
 
 void main()
 {
@@ -236,15 +236,11 @@ void main()
 	gl_PrimitiveID = gl_PrimitiveIDIn;
 	gl_Layer = L_1;
 	EmitVertex();
-	vec3 L_2 = fromV[0].color * L_3;
-	color = L_2;
-	vec4 L_4 = gl_in[0].gl_Position * L_5;
-	gl_Position = L_4;
-	float L_6 = gl_in[3].gl_PointSize * L_7;
-	gl_PointSize = L_6;
-	int Ll_PrimitiveID_c1 = gl_PrimitiveIDIn + L_9;
-	gl_PrimitiveID = Ll_PrimitiveID_c1;
-	gl_Layer = L_a;
+	color = (fromV[0].color * L_2);
+	gl_Position = (gl_in[0].gl_Position * L_3);
+	gl_PointSize = (gl_in[3].gl_PointSize * L_4);
+	gl_PrimitiveID = (gl_PrimitiveIDIn + L_5);
+	gl_Layer = L_6;
 	EmitVertex();
 	EndPrimitive();
 	
@@ -265,11 +261,11 @@ out toFragment {
 	vec3 color;
 } toF;
 const int L_1 = 2;
-const vec3 L_3 = vec3(2.0);
-const vec4 L_5 = vec4(2.0);
-const float L_7 = 2.0;
-const int L_9 = 1;
-const int L_a = 3;
+const vec3 L_2 = vec3(2.0);
+const vec4 L_3 = vec4(2.0);
+const float L_4 = 2.0;
+const int L_5 = 1;
+const int L_6 = 3;
 
 void main()
 {
@@ -279,15 +275,11 @@ void main()
 	gl_PrimitiveID = gl_PrimitiveIDIn;
 	gl_Layer = L_1;
 	EmitVertex();
-	vec3 L_uc1 = fromV[0].color * L_3;
-	color = L_uc1;
-	vec4 L_uc2 = gl_in[0].gl_Position * L_5;
-	gl_Position = L_uc2;
-	float L_uc3 = gl_in[3].gl_PointSize * L_7;
-	gl_PointSize = L_uc3;
-	int Ll_PrimitiveID_c4 = gl_PrimitiveIDIn + L_9;
-	gl_PrimitiveID = Ll_PrimitiveID_c4;
-	gl_Layer = L_a;
+	color = (fromV[0].color * L_2);
+	gl_Position = (gl_in[0].gl_Position * L_3);
+	gl_PointSize = (gl_in[3].gl_PointSize * L_4);
+	gl_PrimitiveID = (gl_PrimitiveIDIn + L_5);
+	gl_Layer = L_6;
 	EmitVertex();
 	EndPrimitive();
 	

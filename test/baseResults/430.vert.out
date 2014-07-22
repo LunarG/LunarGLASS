@@ -194,13 +194,12 @@ out gl_PerVertex {
 flat out vec4 badorder3;
 out vec4 badorder2;
 const float L_1 = 3.7;
-const float L_3 = 4.2;
+const float L_2 = 4.2;
 invariant badorder2 ;
 void main()
 {
 	gl_ClipDistance[2] = L_1;
-	bool L_2 = bad[0].x == L_3;
-	if (L_2) {
+	if ((bad[0].x == L_2)) {
 		badorder3 = bad[0];
 	}
 	
@@ -229,13 +228,12 @@ out gl_PerVertex {
 flat out vec4 badorder3;
 out vec4 badorder2;
 const float L_1 = 3.7;
-const float L_3 = 4.2;
+const float L_2 = 4.2;
 
 void main()
 {
 	gl_ClipDistance[2] = L_1;
-	bool L_uc1 = bad[0].x == L_3;
-	if (L_uc1) {
+	if ((bad[0].x == L_2)) {
 		badorder3 = bad[0];
 	}
 	

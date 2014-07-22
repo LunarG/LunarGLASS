@@ -18,6 +18,8 @@ Performance
 v - code motion across conditionals increasing register pressure
 v - preserve more inductive loop forms?
 v - create fewer additional overlapping lifetimes by phi-removal:  need better out-of-SSA algorithm
+v - matrix intrinsics
+v - forward substitute built-in calls
   + finish functionality in recent tests; e.g. 400.tesc not working right (and differently between windows and linux)
   - fix difference between fReadData and fReadInterpolant: LLVM is optimizing multiple uses of one but not the other
 

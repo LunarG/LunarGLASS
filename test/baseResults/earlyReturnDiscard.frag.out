@@ -355,52 +355,39 @@ uniform bool b;
 uniform float threshhold3;
 varying vec4 BaseColor;
 varying float c;
-const float L_7 = 1.0;
-const vec4 L_b = vec4(1.0);
+const float L_2 = 1.0;
+const vec4 L_4 = vec4(1.0);
 
 void main()
 {
 	vec4 color_uc1;
-	bool L_2 = c > d;
-	vec4 _pn_c2 = L_2 ? bigColor : smallColor;
-	vec4 color_uc3 = BaseColor + _pn_c2;
-	bool L_5 = color_uc3.z < minimum;
-	if (L_5) {
+	if (((((c > d) ? bigColor : smallColor) + BaseColor).z < minimum)) {
 		return;
 	} else {
-		float L_6 = color_uc3.z + L_7;
-		bool L_8 = L_6 > threshhold;
-		if (L_8) {
+		if ((((((c > d) ? bigColor : smallColor) + BaseColor).z + L_2) > threshhold)) {
 			discard;
 		}
 		
-		vec4 L_9 = color_uc3;
-		L_9.z = L_6;
-		vec4 color_c4 = L_9 + L_b;
-		bool L_c = color_c4.w > threshhold2;
-		if (L_c) {
-			bool L_d = color_c4.z > threshhold2;
-			if (L_d) {
+		vec4 L_3 = (((c > d) ? bigColor : smallColor) + BaseColor);
+		L_3.z = ((((c > d) ? bigColor : smallColor) + BaseColor).z + L_2);
+		if (((L_3 + L_4).w > threshhold2)) {
+			if (((L_3 + L_4).z > threshhold2)) {
 				return;
 			} else {
 				if (b) {
-					float L_e = L_7 + color_c4.z;
-					vec4 L_f = color_c4;
-					L_f.z = L_e;
-					color_uc1 = L_f;
+					vec4 L_5 = (L_3 + L_4);
+					L_5.z = ((L_3 + L_4).z + L_2);
+					color_uc1 = L_5;
 				} else {
-					bool L_10 = color_c4.x < minimum;
-					if (L_10) {
+					if (((L_3 + L_4).x < minimum)) {
 						discard;
 					} else {
-						vec4 color_c5 = L_b + color_c4;
-						color_uc1 = color_c5;
+						color_uc1 = ((L_3 + L_4) + L_4);
 					}
 					
 				}
 				
-				vec4 Ll_FragColor_c6 = color_uc1 * otherColor;
-				gl_FragColor = Ll_FragColor_c6;
+				gl_FragColor = (color_uc1 * otherColor);
 				return;
 			}
 			
@@ -430,52 +417,40 @@ uniform vec4 otherColor;
 uniform float threshhold3;
 varying float c;
 varying vec4 BaseColor;
-const float L_7 = 1.0;
-const vec4 L_b = vec4(1.0);
+const float L_2 = 1.0;
+const vec4 L_5 = vec4(1.0);
 
 void main()
 {
 	vec4 color_uc_c1;
-	bool L_uc2 = c > d;
-	vec4 ternary_uc3 = L_uc2 ? bigColor : smallColor;
-	vec4 color_uc_c4 = BaseColor + ternary_uc3;
-	bool L_uc5 = color_uc_c4.z < minimum;
-	if (L_uc5) {
+	if (((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) < minimum)) {
 		return;
 	} else {
-		float L_uc6 = color_uc_c4.z + L_7;
-		bool L_uc7 = L_uc6 > threshhold;
-		if (L_uc7) {
+		if ((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + L_2) > threshhold)) {
 			discard;
 		}
 		
-		vec4 L_9 = color_uc_c4;
-		L_9.z = L_uc6;
-		vec4 color_c8 = L_9 + L_b;
-		bool L_c9 = color_c8.w > threshhold2;
-		if (L_c9) {
-			bool L_d_c10 = color_c8.z > threshhold2;
-			if (L_d_c10) {
+		vec4 L_uc2 = ((c > d) ? bigColor : smallColor) + BaseColor;
+		vec4 L_4 = L_uc2;
+		L_4.z = ((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + L_2);
+		if (((L_2 + L_uc2.w) > threshhold2)) {
+			if (((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + L_2) + L_2) > threshhold2)) {
 				return;
 			} else {
 				if (b) {
-					float L_e_c11 = L_7 + color_c8.z;
-					vec4 L_f = color_c8;
-					L_f.z = L_e_c11;
-					color_uc_c1 = L_f;
+					vec4 L_6 = (L_4 + L_5);
+					L_6.z = ((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + L_2) + L_2) + L_2);
+					color_uc_c1 = L_6;
 				} else {
-					bool L_uc12 = color_c8.x < minimum;
-					if (L_uc12) {
+					if (((L_2 + L_uc2.x) < minimum)) {
 						discard;
 					} else {
-						vec4 color_c13 = L_b + color_c8;
-						color_uc_c1 = color_c13;
+						color_uc_c1 = ((L_4 + L_5) + L_5);
 					}
 					
 				}
 				
-				vec4 Ll_FragColor_c14 = color_uc_c1 * otherColor;
-				gl_FragColor = Ll_FragColor_c14;
+				gl_FragColor = (color_uc_c1 * otherColor);
 				return;
 			}
 			

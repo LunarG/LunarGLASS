@@ -124,8 +124,7 @@ void main()
 	color_uc1 = BaseColor;
 	while (true) {
 		color_c2 = bigColor + color_uc1;
-		bool L_3 = color_c2.x >= d;
-		if (L_3) {
+		if ((color_c2.x >= d)) {
 			break;
 		}
 		
@@ -149,8 +148,7 @@ void main()
 	color_uc_c1 = BaseColor;
 	while (true) {
 		color_c2 = bigColor + color_uc_c1;
-		bool L_uc3 = color_c2.x < d;
-		if (! L_uc3) {
+		if (! (color_c2.x < d)) {
 			break;
 		}
 		

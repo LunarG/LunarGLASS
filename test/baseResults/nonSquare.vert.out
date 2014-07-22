@@ -382,65 +382,58 @@ attributes #0 = { nounwind readnone }
 uniform mat3x2 m32;
 attribute vec3 v3;
 attribute vec4 v4;
-const float L_14 = 0.0;
-const float L_16 = 3.0;
-const float L_18 = 9.0;
-const float L_1b = 15.0;
-const float L_1e = 21.0;
-const float L_21 = 6.0;
-const float L_23 = 12.0;
-const float L_26 = 18.0;
-const float L_29 = 24.0;
-const vec4 L_2e = vec4(50.0, 110.0, 170.0, 230.0);
-const vec4 L_30 = vec4(30.0, 60.0, 0.0, 0.0);
-const vec4 L_32 = vec4(20.0, 10.0, 6.0, 5.0);
+const float L_8 = 0.0;
+const float L_9 = 3.0;
+const float L_a = 9.0;
+const float L_b = 15.0;
+const float L_c = 21.0;
+const float L_d = 6.0;
+const float L_e = 12.0;
+const float L_f = 18.0;
+const float L_10 = 24.0;
+const vec4 L_12 = vec4(50.0, 110.0, 170.0, 230.0);
+const vec4 L_13 = vec4(30.0, 60.0, 0.0, 0.0);
+const vec4 L_14 = vec4(20.0, 10.0, 6.0, 5.0);
 
 void main()
 {
 	vec2 rightColumn_c1 = m32[0];
-	float product_c2 = rightColumn_c1.x * 
-	float L_3;L_3;
-	float product_c3 = L_3 * rightColumn_c1.y;
-	float dotProduct_c4 = product_c2 + product_c3;
-	vec2 rightColumn_c5 = m32[1];
-	float product_c6 = L_3 * rightColumn_c5.x;
-	float product_c7 = L_3 * rightColumn_c5.y;
-	float dotProduct_c8 = product_c6 + product_c7;
-	vec2 rightColumn_c9 = m32[2];
-	float product_c10 = L_3 * rightColumn_c9.x;
-	float product_c11 = L_3 * rightColumn_c9.y;
-	float dotProduct_c12 = product_c10 + product_c11;
-	float product_c13 = dotProduct_c4 * v3.x;
-	float product_c14 = dotProduct_c8 * v3.y;
-	float dotProduct_c15 = product_c13 + product_c14;
-	float product_c16 = dotProduct_c12 * v3.z;
-	float dotProduct_c17 = dotProduct_c15 + product_c16;
-	vec4 L_13 = vec4(dotProduct_c17, dotProduct_c17, dotProduct_c17, L_14);
-	float product_c18 = v4.x * L_16;
-	float product_c19 = v4.y * L_18;
-	float dotProduct_c20 = product_c18 + product_c19;
-	float product_c21 = v4.z * L_1b;
-	float dotProduct_c22 = dotProduct_c20 + product_c21;
-	float product_c23 = v4.w * L_1e;
-	float dotProduct_c24 = dotProduct_c22 + product_c23;
-	float product_c25 = v4.x * L_21;
-	float product_c26 = v4.y * L_23;
-	float dotProduct_c27 = product_c25 + product_c26;
-	float product_c28 = v4.z * L_26;
-	float dotProduct_c29 = dotProduct_c27 + product_c28;
-	float product_c30 = v4.w * L_29;
-	float dotProduct_c31 = dotProduct_c29 + product_c30;
-	vec4 L_2b = vec4(dotProduct_c24, dotProduct_c31, L_14, L_14);
-	vec4 L_2c = L_13 + L_2b;
-	vec4 L_2d = L_2c + L_2e;
-	vec4 L_2f = L_2d + L_30;
-	vec4 Ll_Position_c32 = L_2f + L_32;
-	gl_Position = Ll_Position_c32;
+	float L_2;
+	vec2 rightColumn_c2 = m32[1];
+	vec2 rightColumn_c3 = m32[2];
+	float dotProduct_c4 = (((L_2 * rightColumn_c1.y) + (rightColumn_c1.x * L_2)) * v3.x) + (((L_2 * rightColumn_c2.x) + (L_2 * rightColumn_c2.y)) * v3.y);
+	float dotProduct_c5 = (((L_2 * rightColumn_c3.x) + (L_2 * rightColumn_c3.y)) * v3.z) + dotProduct_c4;
+	vec4 L_7 = vec4(dotProduct_c5, dotProduct_c5, dotProduct_c5, L_8);
+	vec4 L_11 = vec4(((((v4.x * L_9) + (v4.y * L_a)) + (v4.z * L_b)) + (v4.w * L_c)), ((((v4.x * L_d) + (v4.y * L_e)) + (v4.z * L_f)) + (v4.w * L_10)), L_8, L_8);
+	gl_Position = ((((L_11 + L_7) + L_12) + L_13) + L_14);
 	
 }
 
-tempglsl.vert
-ERROR: 0:23: '' :  syntax error
-ERROR: 1 compilation errors.  No code generated.
+#version 120
+// LunarGOO output
+uniform mat3x2 m32;
+attribute vec3 v3;
+attribute vec4 v4;
+const float L_4 = 0.0;
+const float L_5 = 3.0;
+const float L_6 = 9.0;
+const float L_7 = 15.0;
+const float L_8 = 21.0;
+const float L_9 = 6.0;
+const float L_a = 12.0;
+const float L_b = 18.0;
+const float L_c = 24.0;
+const vec4 L_e = vec4(50.0, 110.0, 170.0, 230.0);
+const vec4 L_f = vec4(30.0, 60.0, 0.0, 0.0);
+const vec4 L_10 = vec4(20.0, 10.0, 6.0, 5.0);
 
+void main()
+{
+	float L_1;
+	float dotProduct_c1 = ((((L_1 * m32[0].x) + (m32[0].y * L_1)) * v3.x) + (((L_1 * m32[1].x) + (L_1 * m32[1].y)) * v3.y)) + (((L_1 * m32[2].x) + (L_1 * m32[2].y)) * v3.z);
+	vec4 L_3 = vec4(dotProduct_c1, dotProduct_c1, dotProduct_c1, L_4);
+	vec4 L_d = vec4(((((v4.x * L_5) + (v4.y * L_6)) + (v4.z * L_7)) + (v4.w * L_8)), ((((v4.x * L_9) + (v4.y * L_a)) + (v4.z * L_b)) + (v4.w * L_c)), L_4, L_4);
+	gl_Position = ((((L_3 + L_d) + L_e) + L_f) + L_10);
+	
+}
 

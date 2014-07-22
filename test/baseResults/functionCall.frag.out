@@ -203,30 +203,24 @@ attributes #0 = { nounwind readnone }
 uniform float d;
 uniform vec4 bigColor;
 in vec4 BaseColor;
-const float L_5 = 4.2;
-const float L_7 = 1.2;
-const float L_8 = 4.5;
-const float L_b = 0.0;
+const float L_3 = 4.2;
+const float L_4 = 1.2;
+const float L_5 = 4.5;
+const float L_7 = 0.0;
 
 void main()
 {
 	float L_1;
-	float L_2 = BaseColor.x + BaseColor.y;
-	vec4 L_3 = vec4(L_2);
-	bool L_4 = d < L_5;
-	float L_6 = L_4 ? L_7 : L_8;
-	vec4 L_9 = vec4(L_6);
-	bool L_a = d < L_8;
-	if (L_a) {
+	vec4 L_2 = vec4((BaseColor.x + BaseColor.y));
+	vec4 L_6 = vec4(((d < L_3) ? L_4 : L_5));
+	if ((d < L_5)) {
 		L_1 = d;
 	} else {
-		L_1 = L_b;
+		L_1 = L_7;
 	}
 	
-	vec4 L_c = vec4(L_1);
-	vec4 L_d = L_3 * L_9;
-	vec4 Ll_FragColor_c1 = L_c * L_d;
-	gl_FragColor = Ll_FragColor_c1;
+	vec4 L_8 = vec4(L_1);
+	gl_FragColor = ((L_2 * L_6) * L_8);
 	
 }
 
@@ -235,24 +229,17 @@ void main()
 uniform float d;
 uniform vec4 bigColor;
 in vec4 BaseColor;
-const float L_4 = 4.2;
-const float L_6 = 1.2;
-const float L_7 = 4.5;
-const float L_b = 0.0;
+const float L_2 = 4.2;
+const float L_3 = 1.2;
+const float L_4 = 4.5;
+const float L_6 = 0.0;
 
 void main()
 {
-	float L_uc1 = BaseColor.x + BaseColor.y;
-	vec4 L_2 = vec4(L_uc1);
-	bool L_uc2 = d < L_4;
-	float L_5 = L_uc2 ? L_6 : L_7;
-	vec4 L_8 = vec4(L_5);
-	bool L_a_c3 = d < L_7;
-	float L_uc4 = L_a_c3 ? d : L_b;
-	vec4 L_c = vec4(L_uc4);
-	vec4 L_d_c5 = L_2 * L_8;
-	vec4 Ll_FragColor_c6 = L_c * L_d_c5;
-	gl_FragColor = Ll_FragColor_c6;
+	vec4 L_1 = vec4((BaseColor.x + BaseColor.y));
+	vec4 L_5 = vec4(((d < L_2) ? L_3 : L_4));
+	vec4 L_7 = vec4(((d < L_4) ? d : L_6));
+	gl_FragColor = ((L_1 * L_5) * L_7);
 	
 }
 

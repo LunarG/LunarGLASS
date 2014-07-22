@@ -162,19 +162,15 @@ precision mediump float; // this will be almost entirely overridden by individua
 uniform mediump float d;
 uniform mediump vec4 bigColor;
 varying mediump vec4 BaseColor;
-const highp float L_4 = 4.2;
-const highp float L_6 = 1.2;
-const highp float L_7 = 4.5;
+const highp float L_2 = 4.2;
+const highp float L_3 = 1.2;
+const highp float L_4 = 4.5;
 
 void main()
 {
-	mediump float L_1 = BaseColor.x + BaseColor.y;
-	vec4 L_2 = vec4(L_1);
-	bool L_3 = d < L_4;
-	float L_5 = L_3 ? L_6 : L_7;
-	vec4 L_8 = vec4(L_5);
-	mediump vec4 Ll_FragColor_c1 = L_2 * L_8;
-	gl_FragColor = Ll_FragColor_c1;
+	vec4 L_1 = vec4((BaseColor.x + BaseColor.y));
+	vec4 L_5 = vec4(((d < L_2) ? L_3 : L_4));
+	gl_FragColor = (L_1 * L_5);
 	
 }
 
@@ -184,19 +180,15 @@ precision mediump float; // this will be almost entirely overridden by individua
 uniform mediump float d;
 uniform mediump vec4 bigColor;
 varying mediump vec4 BaseColor;
-const highp float L_4 = 4.2;
-const highp float L_6 = 1.2;
-const highp float L_7 = 4.5;
+const highp float L_2 = 4.2;
+const highp float L_3 = 1.2;
+const highp float L_4 = 4.5;
 
 void main()
 {
-	mediump float L_uc1 = BaseColor.x + BaseColor.y;
-	vec4 L_2 = vec4(L_uc1);
-	bool L_uc2 = d < L_4;
-	float L_5 = L_uc2 ? L_6 : L_7;
-	vec4 L_8 = vec4(L_5);
-	mediump vec4 Ll_FragColor_c3 = L_2 * L_8;
-	gl_FragColor = Ll_FragColor_c3;
+	vec4 L_1 = vec4((BaseColor.x + BaseColor.y));
+	vec4 L_5 = vec4(((d < L_2) ? L_3 : L_4));
+	gl_FragColor = (L_1 * L_5);
 	
 }
 

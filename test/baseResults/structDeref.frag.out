@@ -268,30 +268,20 @@ uniform s00 foo00;
 uniform sampler2D sampler;
 uniform s2 foo2;
 in vec2 coord;
-const int L_2 = 0;
-const float L_4 = 0.0;
-const float L_5 = 3.0;
-const float L_9 = 1.0;
-const int L_c = 5;
+const int L_1 = 0;
+const float L_3 = 0.0;
+const float L_4 = 3.0;
+const float L_6 = 1.0;
+const int L_7 = 5;
 
 void main()
 {
-	bool L_1 = foo3.s2_1[9].i > L_2;
-	float select_c1 = L_1 ? L_4 : L_5;
-	int select_c2 = L_1 ? L_2 : foo1.s0_1.i;
-	int select_c3 = L_1 ? L_2 : foo00.s0_0.i;
-	float select_c4 = L_1 ? L_9 : coord.y;
-	float select_c5 = L_1 ? foo1.f : coord.y;
-	bool L_b = select_c2 > L_c;
-	int locals_c6 = L_b ? select_c3 : select_c2;
-	float L_e = float(locals_c6);
-	float L_f = L_e + select_c5;
-	float L_10 = L_f + select_c1;
-	float L_11 = L_10 + select_c4;
-	vec4 L_12 = vec4(L_11);
-	vec4 L_13 = texture(sampler, coord);
-	vec4 Ll_FragColor_c7 = L_12 * L_13;
-	gl_FragColor = Ll_FragColor_c7;
+	bool L_2 = foo3.s2_1[9].i > L_1;
+	int select_c1 = L_2 ? L_1 : foo1.s0_1.i;
+	float L_8 = (((L_2 ? foo1.f : coord.y) + (float(((select_c1 > L_7) ? (L_2 ? L_1 : foo00.s0_0.i) : select_c1)))) + (L_2 ? L_3 : L_4)) + (L_2 ? L_6 : coord.y);
+	vec4 L_9 = vec4(L_8);
+	vec4 L_a = texture(sampler, coord);
+	gl_FragColor = (L_9 * L_a);
 	
 }
 
@@ -326,30 +316,20 @@ uniform sampler2D sampler;
 uniform s0 foo0;
 uniform s2 foo2;
 in vec2 coord;
-const int L_2 = 0;
-const float L_4 = 0.0;
-const float L_5 = 3.0;
-const float L_9 = 1.0;
-const int L_c = 5;
+const int L_1 = 0;
+const int L_4 = 5;
+const float L_5 = 0.0;
+const float L_6 = 3.0;
+const float L_8 = 1.0;
 
 void main()
 {
-	bool L_uc1 = foo3.s2_1[9].i > L_2;
-	float L_3 = L_uc1 ? L_4 : L_5;
-	int ternary_c2 = L_uc1 ? L_2 : foo1.s0_1.i;
-	int ternary_c3 = L_uc1 ? L_2 : foo00.s0_0.i;
-	float select_c4 = L_uc1 ? L_9 : coord.y;
-	float select_c5 = L_uc1 ? foo1.f : coord.y;
-	bool L_b_c6 = ternary_c2 > L_c;
-	int ternary_c7 = L_b_c6 ? ternary_c3 : ternary_c2;
-	float L_e_c8 = float(ternary_c7);
-	float L_f_c9 = L_e_c8 + select_c5;
-	float L_uc10 = L_3 + L_f_c9;
-	float L_uc11 = L_uc10 + select_c4;
-	vec4 L_12 = vec4(L_uc11);
-	vec4 L_uc12 = texture(sampler, coord);
-	vec4 Ll_FragColor_c13 = L_12 * L_uc12;
-	gl_FragColor = Ll_FragColor_c13;
+	bool L_uc1 = foo3.s2_1[9].i > L_1;
+	int ternary_uc2 = L_uc1 ? L_1 : foo1.s0_1.i;
+	float L_7 = ((L_uc1 ? foo1.f : coord.y) + (float(((ternary_uc2 > L_4) ? (L_uc1 ? L_1 : foo00.s0_0.i) : ternary_uc2)))) + (L_uc1 ? L_5 : L_6);
+	vec4 L_9 = vec4(((L_uc1 ? L_8 : coord.y) + L_7));
+	vec4 L_a_c3 = texture(sampler, coord);
+	gl_FragColor = (L_9 * L_a_c3);
 	
 }
 

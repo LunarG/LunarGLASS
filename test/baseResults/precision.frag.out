@@ -300,11 +300,11 @@ in highp vec4 highfin;
 in lowp float lowfin;
 in mediump float mediumfin;
 out mediump vec4 mediumfout;
-const highp vec4 L_7 = vec4(1.02391e+06);
-const highp int L_b = 1;
-const highp int L_d = 4;
-const bvec2 L_16 = bvec2(false, true);
-const highp vec4 L_19 = vec4(1.0);
+const highp vec4 L_6 = vec4(1.02391e+06);
+const highp int L_9 = 1;
+const highp int L_a = 4;
+const bvec2 L_11 = bvec2(false, true);
+const highp vec4 L_13 = vec4(1.0);
 
 void main()
 {
@@ -313,25 +313,20 @@ void main()
 	vec4 L_3 = vec4(global_highp_c1);
 	lowp float L_4 = sin(L_1);
 	vec4 L_5 = vec4(L_4);
-	mediump vec4 L_6 = L_5 + L_7;
-	highp vec4 mediumfout_c2 = L_3 + L_6;
+	mediump vec4 L_7 = L_5 + L_6;
+	highp vec4 mediumfout_c2 = L_3 + L_7;
 	mediumfout = mediumfout_c2;
-	int _lhs_c3 = uniform_high * uniform_low;
-	int factor_c4 = uniform_high << L_b;
-	lowp int L_c = uniform_medium + L_d;
-	highp int sum_c5 = L_c + uniform_low;
-	highp int sum_c6 = sum_c5 + uniform_high;
-	lowp int sum_c7 = _lhs_c3 + sum_c6;
-	lowp int sum_c8 = factor_c4 + sum_c7;
-	mediump float L_12 = float(sum_c8);
-	vec4 L_13 = vec4(L_12);
-	mediump vec4 mediumfout_c9 = L_13 + mediumfout_c2;
-	mediumfout = mediumfout_c9;
-	bvec2 L_15 = equal(ub2, L_16);
-	bool L_17 = all(L_15);
-	if (L_17) {
-		mediump vec4 mediumfout_c10 = mediumfout_c9 + L_19;
-		mediumfout = mediumfout_c10;
+	lowp int L_b = uniform_medium + L_a;
+	highp int sum_c3 = L_b + uniform_low;
+	lowp int sum_c4 = (sum_c3 + uniform_high) + (uniform_high * uniform_low);
+	mediump float L_e = float(((uniform_high << L_9) + sum_c4));
+	vec4 L_f = vec4(L_e);
+	mediump vec4 mediumfout_c5 = L_f + mediumfout_c2;
+	mediumfout = mediumfout_c5;
+	bool L_12 = all((equal(ub2, L_11)));
+	if (L_12) {
+		mediump vec4 mediumfout_c6 = mediumfout_c5 + L_13;
+		mediumfout = mediumfout_c6;
 	}
 	
 	
@@ -340,19 +335,19 @@ void main()
 #version 300 es
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
-uniform highp int uniform_high;
-uniform lowp int uniform_low;
 uniform mediump int uniform_medium;
+uniform lowp int uniform_low;
+uniform highp int uniform_high;
 uniform bvec2 ub2;
 in lowp float lowfin;
 in mediump float mediumfin;
 in highp vec4 highfin;
 out mediump vec4 mediumfout;
-const highp vec4 L_7 = vec4(1023910.0);
-const highp int L_a = 2;
-const highp int L_d = 4;
-const bvec2 L_15 = bvec2(false, true);
-const highp vec4 L_18 = vec4(1.0);
+const highp vec4 L_6 = vec4(1023910.0);
+const highp int L_9 = 2;
+const highp int L_a = 4;
+const bvec2 L_10 = bvec2(false, true);
+const highp vec4 L_12 = vec4(1.0);
 
 void main()
 {
@@ -361,24 +356,19 @@ void main()
 	vec4 L_3 = vec4(global_highp_c2);
 	mediump float L_uc3 = sin(L_uc1);
 	vec4 L_5 = vec4(L_uc3);
-	highp vec4 L_uc4 = L_5 + L_7;
+	highp vec4 L_uc4 = L_5 + L_6;
 	mediump vec4 mediumfout_c5 = L_3 + L_uc4;
 	mediumfout = mediumfout_c5;
-	int tmp_c6 = uniform_low + L_a;
-	int tmp_c7 = tmp_c6 * uniform_high;
-	lowp int sum_c8 = uniform_high + L_d;
-	highp int sum_c9 = sum_c8 + uniform_low;
-	highp int sum_c10 = sum_c9 + uniform_medium;
-	mediump int sum_c11 = sum_c10 + tmp_c7;
-	mediump float L_uc12 = float(sum_c11);
-	vec4 L_12 = vec4(L_uc12);
-	highp vec4 mediumfout_c13 = L_12 + mediumfout_c5;
-	mediumfout = mediumfout_c13;
-	bvec2 L_uc14 = equal(ub2, L_15);
-	bool L_uc15 = all(L_uc14);
-	if (L_uc15) {
-		highp vec4 mediumfout_c16 = mediumfout_c13 + L_18;
-		mediumfout = mediumfout_c16;
+	lowp int sum_c6 = uniform_medium + L_a;
+	highp int L_c = sum_c6 + uniform_low;
+	mediump float L_e_c7 = float((((uniform_low + L_9) * uniform_high) + (L_c + uniform_high)));
+	vec4 L_e = vec4(L_e_c7);
+	highp vec4 mediumfout_c8 = L_e + mediumfout_c5;
+	mediumfout = mediumfout_c8;
+	bool L_uc9 = all((equal(ub2, L_10)));
+	if (L_uc9) {
+		highp vec4 mediumfout_c10 = mediumfout_c8 + L_12;
+		mediumfout = mediumfout_c10;
 	}
 	
 	

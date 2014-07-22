@@ -205,10 +205,10 @@ entry:
   %7 = load i1 addrspace(2)* @p, align 1, !gla.uniform !3
   %8 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %2, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
   %9 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.f32.f32.f32(<4 x float> %w1, i32 1, <2 x float> %2, i32 1, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
-  %select24 = select i1 %7, <4 x float> %8, <4 x float> %9
+  %select = select i1 %7, <4 x float> %8, <4 x float> %9
   %10 = fmul <4 x float> %1, %4
   %11 = fmul <4 x float> %10, %6
-  %12 = fmul <4 x float> %select24, %11
+  %12 = fmul <4 x float> %select, %11
   %gl_FragColor = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %5, <4 x float> %0, <4 x float> %12)
   %13 = fcmp olt float %3, 0.000000e+00
   %14 = fmul float %3, -1.000000e+00
@@ -268,11 +268,11 @@ uniform bool p;
 uniform float blend;
 varying vec2 t;
 const float L_5 = 1.789;
-const float L_f = 0.0;
-const float L_11 = -1.0;
-const float L_14 = 1.0;
-const vec4 L_16 = vec4(0.0, 0.0, 0.0, 1.0);
-const vec4 L_17 = vec4(3.4, 0.0, 0.0, 1.0);
+const float L_a = 0.0;
+const float L_b = -1.0;
+const float L_c = 1.0;
+const vec4 L_d = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 L_e = vec4(3.4, 0.0, 0.0, 1.0);
 
 void main()
 {
@@ -288,18 +288,8 @@ void main()
 	L_7.x = t.x;
 	vec4 L_8 = u;
 	L_8.x = t.y;
-	vec4 select_c1 = p ? L_7 : L_8;
-	vec4 L_a = L_2 * L_3;
-	vec4 L_b = L_6 * L_a;
-	vec4 L_c = L_b * select_c1;
-	vec4 Ll_FragColor_c2 = mix(L_4, L_1, L_c);
-	bool L_e = t.x < L_f;
-	float L_10 = t.x * L_11;
-	float L_12 = L_e ? L_10 : t.x;
-	bool L_13 = L_12 > L_14;
-	vec4 rep_uc3 = L_13 ? L_16 : L_17;
-	vec4 Ll_FragColor_c4 = Ll_FragColor_c2 + rep_uc3;
-	gl_FragColor = Ll_FragColor_c4;
+	vec4 Ll_FragColor_c1 = mix(L_4, L_1, (((L_2 * L_3) * L_6) * (p ? L_7 : L_8)));
+	gl_FragColor = (((((t.x < L_a) ? (t.x * L_b) : t.x) > L_c) ? L_d : L_e) + Ll_FragColor_c1);
 	
 }
 
@@ -310,11 +300,11 @@ uniform bool p;
 uniform float blend;
 varying vec2 t;
 const float L_5 = 1.789;
-const float L_f = 0.0;
-const float L_11 = -1.0;
-const float L_14 = 1.0;
-const vec4 L_16 = vec4(0.0, 0.0, 0.0, 1.0);
-const vec4 L_17 = vec4(3.4, 0.0, 0.0, 1.0);
+const float L_a = 0.0;
+const float L_b = -1.0;
+const float L_c = 1.0;
+const vec4 L_d = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 L_e = vec4(3.4, 0.0, 0.0, 1.0);
 
 void main()
 {
@@ -330,18 +320,8 @@ void main()
 	L_7.x = t.x;
 	vec4 L_8 = u;
 	L_8.x = t.y;
-	vec4 select_c1 = p ? L_7 : L_8;
-	vec4 L_a_c2 = L_1 * L_3;
-	vec4 L_b_c3 = L_6 * L_a_c2;
-	vec4 L_c4 = L_b_c3 * select_c1;
-	vec4 Ll_FragColor_c5 = mix(L_4, L_2, L_c4);
-	bool L_e_c6 = t.x < L_f;
-	float L_uc7 = t.x * L_11;
-	float select_c8 = L_e_c6 ? L_uc7 : t.x;
-	bool L_uc9 = select_c8 > L_14;
-	vec4 L_15 = L_uc9 ? L_16 : L_17;
-	vec4 Ll_FragColor_c10 = L_15 + Ll_FragColor_c5;
-	gl_FragColor = Ll_FragColor_c10;
+	vec4 Ll_FragColor_c1 = mix(L_4, L_2, (((L_1 * L_3) * L_6) * (p ? L_7 : L_8)));
+	gl_FragColor = (((((t.x < L_a) ? (t.x * L_b) : t.x) > L_c) ? L_d : L_e) + Ll_FragColor_c1);
 	
 }
 

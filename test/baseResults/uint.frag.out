@@ -389,28 +389,21 @@ flat in mediump uvec2 t;
 in mediump vec2 tc;
 in mediump float f;
 out mediump uvec4 c;
-const highp int L_2 = 3;
-const highp vec2 L_4 = vec2(1.0);
-const highp int L_7 = 4;
-const highp int L_a = 0;
-const highp int L_e = 462;
-const highp ivec4 L_12 = ivec4(341413380);
+const highp int L_1 = 3;
+const highp vec2 L_3 = vec2(1.0);
+const highp int L_6 = 4;
+const highp int L_7 = 0;
+const highp int L_9 = 462;
+const highp ivec4 L_a = ivec4(341413380);
 
 void main()
 {
-	mediump int L_1 = ivec2(t).y + L_2;
-	mediump vec2 L_3 = tc + L_4;
-	mediump ivec4 L_5 = ivec4(texture(usampler, L_3));
-	bool L_6 = ivec2(t).x > L_7;
-	mediump float af_c1 = float(L_1);
-	bool ab_c2 = L_1 != L_a;
-	mediump int L_b = int(uint(af_c1));
-	mediump int L_c = int(ab_c2);
-	ivec4 L_d = ivec4(L_b, L_c, L_1, L_e);
-	mediump ivec4 L_f = L_5 + L_d;
-	ivec4 select_c3 = L_6 ? L_f : L_5;
-	mediump ivec4 L_11 = select_c3 + L_12;
-	c = uvec4(L_11);
+	mediump int L_2 = ivec2(t).y + L_1;
+	mediump vec2 L_4 = tc + L_3;
+	mediump ivec4 L_5 = ivec4(texture(usampler, L_4));
+	ivec4 L_8 = ivec4((int(uint((float(L_2))))), (int((L_2 != L_7))), L_2, L_9);
+	mediump ivec4 L_b = ((ivec2(t).x > L_6) ? (L_5 + L_8) : L_5) + L_a;
+	c = uvec4(L_b);
 	
 }
 
@@ -425,28 +418,22 @@ flat in mediump uvec2 t;
 in mediump vec2 tc;
 in mediump float f;
 out mediump uvec4 c;
-const highp int L_2 = 3;
-const highp vec2 L_4 = vec2(1.0);
-const highp int L_7 = 4;
-const highp int L_b = 0;
-const highp int L_e = 462;
-const highp ivec4 L_12 = ivec4(341413380);
+const highp int L_1 = 3;
+const highp vec2 L_3 = vec2(1.0);
+const highp int L_6 = 4;
+const highp int L_8 = 0;
+const highp int L_a = 462;
+const highp ivec4 L_b = ivec4(341413380);
 
 void main()
 {
-	highp int L_uc1 = ivec2(t).y + L_2;
-	highp vec2 L_uc2 = tc + L_4;
+	highp int L_uc1 = ivec2(t).y + L_1;
+	highp vec2 L_uc2 = tc + L_3;
 	mediump ivec4 L_uc3 = ivec4(texture(usampler, L_uc2));
-	bool L_uc4 = ivec2(t).x > L_7;
-	mediump float af_c5 = float(L_uc1);
-	mediump int L_b_c6 = int(uint(af_c5));
-	bool ab_c7 = L_uc1 != L_b;
-	mediump int L_c8 = int(ab_c7);
-	ivec4 L_d = ivec4(L_b_c6, L_c8, L_uc1, L_e);
-	mediump ivec4 L_f_c9 = L_d + L_uc3;
-	ivec4 select_c10 = L_uc4 ? L_f_c9 : L_uc3;
-	highp ivec4 L_uc11 = select_c10 + L_12;
-	c = uvec4(L_uc11);
+	mediump float L_7 = float(L_uc1);
+	ivec4 L_9 = ivec4((int(uint(L_7))), (int((L_uc1 != L_8))), L_uc1, L_a);
+	highp ivec4 L_b_c4 = ((ivec2(t).x > L_6) ? (L_9 + L_uc3) : L_uc3) + L_b;
+	c = uvec4(L_b_c4);
 	
 }
 

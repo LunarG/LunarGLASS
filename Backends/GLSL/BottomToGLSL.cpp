@@ -185,7 +185,8 @@ public:
 
 class gla::GlslTarget : public gla::GlslTranslator {
 public:
-    GlslTarget(Manager* m, bool obfuscate, bool filterInactive) : GlslTranslator(m, obfuscate, filterInactive), appendInitializers(false), indentLevel(0), lastVariable(0), canonCounter(0)
+    GlslTarget(Manager* m, bool obfuscate, bool filterInactive) : GlslTranslator(m, obfuscate, filterInactive), appendInitializers(false),
+                                                                  indentLevel(0), lastVariable(0), canonCounter(0), forwardSubstitute(true)
     {
         #ifdef _WIN32
             unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
@@ -418,7 +419,7 @@ protected:
     void emitComponentCountToSwizzle(std::ostringstream&, int numComponents);
     void emitComponentToSwizzle(std::ostringstream&, int component);
     void emitMaskToSwizzle(std::ostringstream&, int mask);
-    void emitGlaSampler(std::ostringstream&, const llvm::IntrinsicInst* llvmInstruction, int texFlags);
+    void emitGlaSamplerFunction(std::ostringstream&, const llvm::IntrinsicInst* llvmInstruction, int texFlags);
     void emitVariableDeclaration(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier qualifier, 
                                  const llvm::Constant* constant = 0, const llvm::MDNode* mdIoNode = 0);
     int emitGlaType(std::ostringstream& out, EMdPrecision precision, EVariableQualifier qualifier, llvm::Type* type, 
@@ -431,7 +432,7 @@ protected:
     void emitGlaConstructor(std::ostringstream&, llvm::Type* type, int count = -1);
     void emitGlaValueDeclaration(const llvm::Value* value, bool forceGlobal = false);
     void emitGlaValue(std::ostringstream&, const llvm::Value* value);
-    void emitNonconvertedGlaValue(const llvm::Value* value);
+    void emitNonconvertedGlaValue(std::ostringstream&, const llvm::Value* value);
     void propagateNonconvertedGlaValue(const llvm::Value* dst, const llvm::Value* src);
     std::string* mapGlaValueAndEmitDeclaration(const llvm::Value* value);
     void emitFloatConstant(std::ostringstream& out, float f);
@@ -445,6 +446,7 @@ protected:
     void emitGlaMultiInsert(std::ostringstream& out, const llvm::IntrinsicInst* inst);
     void emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstruction, bool input);
     void emitInvariantDeclarations(llvm::Module&);
+    void mapOrEmitInstructionExpression(const llvm::Instruction*, const std::ostringstream&);
 
     // 'gep' is potentially a gep, either an instruction or a constantExpr.
     // See which one, if any, and return it.
@@ -468,6 +470,9 @@ protected:
 
     std::string traverseGep(const llvm::Instruction* instr, EMdTypeLayout* mdTypeLayout = 0);
     void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout = 0);
+
+    bool multipleUsesInCurrentBlock(const llvm::Instruction*);
+    bool modifiesPrecision(const llvm::Instruction*);
 
     // set of all IO mdNodes in the noStaticUse list
     std::set<const llvm::MDNode*> noStaticUseSet;
@@ -520,6 +525,7 @@ protected:
     bool usingSso;
     int canonCounter;
     const char* indentString;
+    bool forwardSubstitute;
 };
 
 //
@@ -956,7 +962,6 @@ void GetOp(const llvm::Instruction* llvmInstruction, bool allowBitwise, std::str
 
     default:
         break;
-        // fall through to check other ops
     }
 }
 
@@ -1362,13 +1367,13 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     bool emulateBitwise;
     GetOp(llvmInstruction, version >= 130, charOp, unaryOperand, nested, emulateBitwise);
 
+    std::ostringstream expression;  // to use in cases where building up the instruction's expression on the side
+
     // Handle the binary ops
     if (! charOp.empty() && unaryOperand == -1) {
         bool swapOperands = needCanonicalSwap(llvmInstruction);
-        newLine();
-        emitGlaValue(shader, llvmInstruction);
-        shader << " = ";
-        emitGlaOperand(shader, llvmInstruction->getOperand(swapOperands ? 1 : 0));
+
+        emitGlaOperand(expression, llvmInstruction->getOperand(swapOperands ? 1 : 0));
 
         // special case << to multiply, etc., for early versions
         int multiplier = -1;
@@ -1398,26 +1403,27 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             }
         }
         
-        shader << " " << charOp << " ";
+        expression << " " << charOp << " ";
         if (multiplier == -1)
-            emitGlaOperand(shader, llvmInstruction->getOperand(swapOperands ? 0 : 1));
+            emitGlaOperand(expression, llvmInstruction->getOperand(swapOperands ? 0 : 1));
         else
-            shader << multiplier;
-        shader << ";";
+            expression << multiplier;
+
+        mapOrEmitInstructionExpression(llvmInstruction, expression);
 
         return;
     }
 
     // Handle the unary ops
     if (! charOp.empty()) {
-        newLine();
-        emitGlaValue(shader, llvmInstruction);
-        shader << " = " << charOp << "(";
-        emitGlaOperand(shader, llvmInstruction->getOperand(unaryOperand));
+        expression << charOp << "(";
+        emitGlaOperand(expression, llvmInstruction->getOperand(unaryOperand));
+        expression << ")";
         if (nested)
-            shader << ")";
-        shader << ");";
-        
+            expression << ")";
+
+        mapOrEmitInstructionExpression(llvmInstruction, expression);
+
         return;
     }
 
@@ -1514,13 +1520,13 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             assert(! "Cmp vector instruction found that cannot dyncast to CmpInst");
         }
 
-        newLine();
-        emitGlaValue(shader, llvmInstruction);
-        shader << " = " << charOp << "(";
-        emitGlaOperand(shader, llvmInstruction->getOperand(0));
-        shader << ", ";
-        emitGlaOperand(shader, llvmInstruction->getOperand(1));
-        shader << ");";
+        expression << charOp << "(";
+        emitGlaOperand(expression, llvmInstruction->getOperand(0));
+        expression << ", ";
+        emitGlaOperand(expression, llvmInstruction->getOperand(1));
+        expression << ")";
+
+        mapOrEmitInstructionExpression(llvmInstruction, expression);
 
         return;
     }
@@ -1647,43 +1653,38 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
         const llvm::SelectInst* si = llvm::dyn_cast<const llvm::SelectInst>(llvmInstruction);
         assert(si);
-        newLine();
-        emitGlaValue(shader, llvmInstruction);
-        shader << " = ";
         if (GetComponentCount(si->getCondition()) == 1) {
-            emitGlaValue(shader, si->getCondition());
-            shader << " ? ";
-            emitGlaValue(shader, si->getTrueValue());
-            shader << " : ";
-            emitGlaValue(shader, si->getFalseValue());
-            shader << ";";
+            emitGlaValue(expression, si->getCondition());
+            expression << " ? ";
+            emitGlaValue(expression, si->getTrueValue());
+            expression << " : ";
+            emitGlaValue(expression, si->getFalseValue());
         } else {
-            shader << "mix(";
-            emitGlaValue(shader, si->getFalseValue());
-            shader << ",";
-            emitGlaValue(shader, si->getTrueValue());
-            shader << ",";
-            emitGlaValue(shader, si->getCondition());
-            shader << ");";
+            expression << "mix(";
+            emitGlaValue(expression, si->getFalseValue());
+            expression << ",";
+            emitGlaValue(expression, si->getTrueValue());
+            expression << ",";
+            emitGlaValue(expression, si->getCondition());
+            expression << ")";
         }
+
+        mapOrEmitInstructionExpression(llvmInstruction, expression);
 
         return;
     }
     case llvm::Instruction::ExtractValue:
     {
-        newLine();
-        emitGlaValue(shader, llvmInstruction);
-        shader << " = ";
-
         // emit base
         const llvm::ExtractValueInst* extractValueInst = llvm::dyn_cast<const llvm::ExtractValueInst>(llvmInstruction);
         // Optimization: since we are dereferencing, if the base was a converted matrix,
         // we can start with the non-converted form, knowing we are deferencing it
-        emitNonconvertedGlaValue(extractValueInst->getAggregateOperand());
+        emitNonconvertedGlaValue(expression, extractValueInst->getAggregateOperand());
 
         // emit chain
-        shader << traverseGep(extractValueInst);
-        shader << ";";
+        expression << traverseGep(extractValueInst);
+
+        mapOrEmitInstructionExpression(llvmInstruction, expression);
 
         return;
     }
@@ -1693,7 +1694,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
         //emit base
         const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(llvmInstruction);
-        emitNonconvertedGlaValue(insertValueInst->getAggregateOperand());
+        emitNonconvertedGlaValue(shader, insertValueInst->getAggregateOperand());
 
         // emit chain
         shader << traverseGep(insertValueInst);
@@ -1709,13 +1710,8 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     }
     case llvm::Instruction::ShuffleVector:
     {
-        newLine();
-        emitGlaValue(shader, llvmInstruction);
-
-        shader << " = ";
-
-        emitGlaConstructor(shader, llvmInstruction->getType());
-        shader << "(";
+        emitGlaConstructor(expression, llvmInstruction->getType());
+        expression << "(";
 
         int sourceWidth = gla::GetComponentCount(llvmInstruction->getOperand(0));
         int resultWidth = gla::GetComponentCount(llvmInstruction);
@@ -1728,13 +1724,13 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
         for (int i = 0; i < resultWidth; ++i) {
             if (i != 0)
-                shader << ", ";
+                expression << ", ";
 
             // If we're undef, then use ourselves
             if (! IsDefined(elts[i])) {
-                emitGlaValue(shader, llvmInstruction);
-                shader << ".";
-                emitComponentToSwizzle(shader, i);
+                emitGlaValue(expression, llvmInstruction);
+                expression << ".";
+                emitComponentToSwizzle(expression, i);
                 continue;
             }
 
@@ -1744,12 +1740,14 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             if (useSecond)
                 comp -= sourceWidth;
 
-            emitGlaValue(shader, llvmInstruction->getOperand(useSecond ? 1 : 0));
-            shader << ".";
-            emitComponentToSwizzle(shader, comp);
+            emitGlaValue(expression, llvmInstruction->getOperand(useSecond ? 1 : 0));
+            expression << ".";
+            emitComponentToSwizzle(expression, comp);
         }
 
-        shader << ");";
+        expression << ")";
+
+        mapOrEmitInstructionExpression(llvmInstruction, expression);
 
         return;
     }
@@ -2482,7 +2480,7 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
         bool needConversion = SamplerIsUint(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         if (needConversion)
             ConversionStart(out, llvmInstruction->getType(), false);
-        emitGlaSampler(out, llvmInstruction, GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
+        emitGlaSamplerFunction(out, llvmInstruction, GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
         out << "(";
         emitGlaOperand(out, llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         out << ", ";
@@ -3034,7 +3032,7 @@ void gla::GlslTarget::emitMaskToSwizzle(std::ostringstream& out, int mask)
             out << MapComponentToSwizzleChar(component);
 }
 
-void gla::GlslTarget::emitGlaSampler(std::ostringstream& out, const llvm::IntrinsicInst* llvmInstruction, int texFlags)
+void gla::GlslTarget::emitGlaSamplerFunction(std::ostringstream& out, const llvm::IntrinsicInst* llvmInstruction, int texFlags)
 {
     const llvm::Value* samplerType = llvmInstruction->getOperand(0);
 
@@ -3475,12 +3473,12 @@ void gla::GlslTarget::emitGlaValue(std::ostringstream& out, const llvm::Value* v
 // (converted from I/O types to internal types).
 // If there is a non-converted version, emit it, otherwise just emit
 // the normal one.
-void gla::GlslTarget::emitNonconvertedGlaValue(const llvm::Value* value)
+void gla::GlslTarget::emitNonconvertedGlaValue(std::ostringstream& out, const llvm::Value* value)
 {
     if (nonConvertedMap.find(value) != nonConvertedMap.end())
-        shader << nonConvertedMap[value]->c_str();
+        out << nonConvertedMap[value]->c_str();
     else
-        emitGlaValue(shader, value);
+        emitGlaValue(out, value);
 }
 
 // Propagate a nonconverted form from one value to another
@@ -3912,6 +3910,39 @@ void gla::GlslTarget::emitInvariantDeclarations(llvm::Module& module)
     globalDeclarations << ";";
 }
 
+void gla::GlslTarget::mapOrEmitInstructionExpression(const llvm::Instruction* llvmInstruction, const std::ostringstream& expression)
+{
+    bool doSubstitute = forwardSubstitute;
+
+    // Do these kick outs in the order of saving the most performance
+
+    if (doSubstitute && expression.str().size() > 120)
+        doSubstitute = false;
+
+    if (doSubstitute && modifiesPrecision(llvmInstruction))
+        doSubstitute = false;
+
+    if (doSubstitute && valueMap.find(llvmInstruction) != valueMap.end())
+        doSubstitute = false;
+
+    if (doSubstitute && multipleUsesInCurrentBlock(llvmInstruction))
+        doSubstitute = false;
+
+    if (doSubstitute) {
+        // map it
+        std::string parenthesized;
+        parenthesized.append("(");
+        parenthesized.append(expression.str());
+        parenthesized.append(")");
+        mapExpressionString(llvmInstruction, parenthesized);
+    } else {
+        // emit it
+        newLine();
+        emitGlaValue(shader, llvmInstruction);
+        shader << " = " << expression.str() << ";";
+    }
+}
+
 // Traverse the indices used in either GEP or Insert/ExtractValue, and return a string representing
 // it, not including the base.
 std::string gla::GlslTarget::traverseGep(const llvm::Instruction* instr, EMdTypeLayout* mdTypeLayout)
@@ -4009,4 +4040,59 @@ void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name,
         assert(0 && "Dereferencing non array/struct");
         break;
     }
+}
+
+// TODO: Compile-time performance: This is brute force; if it's a performance issue,
+// one pass per block could gather all the information at once.
+bool gla::GlslTarget::multipleUsesInCurrentBlock(const llvm::Instruction* instruction)
+{
+    const llvm::BasicBlock* bb = instruction->getParent();
+
+    llvm::BasicBlock::const_iterator it, e = bb->end();
+
+    // skip up to instruction
+    for (it = bb->begin(); it != e; ++it) {
+        const llvm::Instruction* llvmInstruction = it;
+        if (llvmInstruction == instruction)
+            break;
+    }
+
+    // count up to 2 uses
+    int uses = 0;
+    for (++it;  it != e; ++it) {
+        const llvm::Instruction* llvmInstruction = it;
+        for (int op = 0; op < (int)llvmInstruction->getNumOperands(); ++op) {
+            if (llvmInstruction->getOperand(op) == instruction) {
+                ++uses;
+                if (uses > 1)
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+// Of the set of ES precision qualifiers present, they must match the instruction's,
+// otherwise, the instruction modifies precision that would be deduced from the operands.
+bool gla::GlslTarget::modifiesPrecision(const llvm::Instruction* instruction)
+{
+    EMdPrecision precision = EMpNone;
+
+    EMdPrecision instPrec;
+    CrackPrecisionMd(instruction, instPrec);
+    if (instPrec == EMpNone)
+        return false;
+
+    for (int op = 0; op < (int)instruction->getNumOperands(); ++op) {
+        const llvm::Instruction* opInst = llvm::dyn_cast<const llvm::Instruction>(instruction->getOperand(op));
+        if (! opInst)
+            return true;
+        EMdPrecision opPrec;
+        CrackPrecisionMd(opInst, opPrec);
+        if (opPrec != EMpNone && opPrec != instPrec)
+            return true;
+    }
+
+    return false;
 }

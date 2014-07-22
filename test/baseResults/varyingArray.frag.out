@@ -156,16 +156,11 @@ in vec4 foo[3];
 
 void main()
 {
-	vec4 L_1 = gl_TexCoord[4] + gl_TexCoord[5];
-	vec2 L_2 = vec2(L_1);
-	vec4 texColor_c1 = texture(texSampler2D, L_2);
-	vec4 texColor_c2 = color + texColor_c1;
-	vec4 L_5 = texColor_c2;
-	L_5.w = alpha;
-	vec4 L_6 = foo[1] + gl_TexCoord[0];
-	vec4 L_7 = L_6 + gl_TexCoord[4];
-	vec4 Ll_FragColor_c3 = L_5 + L_7;
-	gl_FragColor = Ll_FragColor_c3;
+	vec2 L_1 = vec2((gl_TexCoord[4] + gl_TexCoord[5]));
+	vec4 texColor_c1 = texture(texSampler2D, L_1);
+	vec4 L_3 = (color + texColor_c1);
+	L_3.w = alpha;
+	gl_FragColor = (((foo[1] + gl_TexCoord[0]) + gl_TexCoord[4]) + L_3);
 	
 }
 
@@ -179,16 +174,11 @@ in vec4 foo[3];
 
 void main()
 {
-	vec4 L_uc1 = gl_TexCoord[4] + gl_TexCoord[5];
-	vec2 L_2 = vec2(L_uc1);
-	vec4 texColor_c2 = texture(texSampler2D, L_2);
-	vec4 texColor_c3 = color + texColor_c2;
-	vec4 L_5 = texColor_c3;
-	L_5.w = alpha;
-	vec4 L_uc4 = foo[1] + gl_TexCoord[0];
-	vec4 L_uc5 = L_uc4 + gl_TexCoord[4];
-	vec4 Ll_FragColor_c6 = L_5 + L_uc5;
-	gl_FragColor = Ll_FragColor_c6;
+	vec2 L_1 = vec2((gl_TexCoord[4] + gl_TexCoord[5]));
+	vec4 texColor_c1 = texture(texSampler2D, L_1);
+	vec4 L_3 = (color + texColor_c1);
+	L_3.w = alpha;
+	gl_FragColor = (((foo[1] + gl_TexCoord[0]) + gl_TexCoord[4]) + L_3);
 	
 }
 

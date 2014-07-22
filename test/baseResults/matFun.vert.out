@@ -252,32 +252,26 @@ attributes #0 = { nounwind readnone }
 uniform mat4 m4;
 uniform mat3 m3;
 in vec3 v3;
-const float L_14 = 1.0;
+const float L_e = 1.0;
 
 void main()
 {
-	vec4 param_c1 = m4[0];
-	vec3 L_2 = vec3(param_c1);
-	vec4 param_c2 = m4[1];
-	vec3 L_4 = vec3(param_c2);
-	vec4 param_c3 = m4[2];
-	vec3 L_6 = vec3(param_c3);
-	float dotres_i_c4 = dot(v3, L_2);
-	float dotres_c5 = dot(v3, L_4);
-	float dotres_c6 = dot(v3, L_6);
-	vec3 L_a;
-	L_a.xyz = vec3(dotres_i_c4, dotres_c5, dotres_c6);
-	vec3 column_i_c7 = m3[0];
-	float dotres_i_c8 = dot(v3, column_i_c7);
-	vec3 column_c9 = m3[1];
-	float dotres_c10 = dot(v3, column_c9);
-	vec3 column_c11 = m3[2];
-	float dotres_c12 = dot(v3, column_c11);
-	vec3 L_11;
-	L_11.xyz = vec3(dotres_i_c8, dotres_c10, dotres_c12);
-	vec3 L_12 = L_11 + L_a;
-	vec4 L_13 = vec4(L_12.x, L_12.y, L_12.z, L_14);
-	gl_Position = L_13;
+	vec3 L_1 = vec3((m4[0]));
+	vec3 L_2 = vec3((m4[1]));
+	vec3 L_3 = vec3((m4[2]));
+	float dotres_i_c1 = dot(v3, L_1);
+	float dotres_c2 = dot(v3, L_2);
+	float dotres_c3 = dot(v3, L_3);
+	vec3 L_7;
+	L_7.xyz = vec3(dotres_i_c1, dotres_c2, dotres_c3);
+	float dotres_i_c4 = dot(v3, (m3[0]));
+	float dotres_c5 = dot(v3, (m3[1]));
+	float dotres_c6 = dot(v3, (m3[2]));
+	vec3 L_b;
+	L_b.xyz = vec3(dotres_i_c4, dotres_c5, dotres_c6);
+	vec3 L_c = L_7 + L_b;
+	vec4 L_d = vec4(L_c.x, L_c.y, L_c.z, L_e);
+	gl_Position = L_d;
 	
 }
 
@@ -303,8 +297,8 @@ void main()
 	float dotres_c6 = dot(v3, m3[2]);
 	vec3 L_b;
 	L_b.xyz = vec3(dotres_i_c4, dotres_c5, dotres_c6);
-	vec3 L_uc7 = L_7 + L_b;
-	vec4 L_d = vec4(L_uc7.x, L_uc7.y, L_uc7.z, L_e);
+	vec3 L_c7 = L_7 + L_b;
+	vec4 L_d = vec4(L_c7.x, L_c7.y, L_c7.z, L_e);
 	gl_Position = L_d;
 	
 }
