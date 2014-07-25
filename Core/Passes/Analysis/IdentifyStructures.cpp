@@ -92,8 +92,7 @@ bool IdentifyStructures::runOnFunction(Function &F)
 
         // TODO: loops: consider extending functionality to include a LoopWrapper for
         // the loop that the conditional's entry block is in.
-        conditionals.insert(std::make_pair(bb, new Conditional(bb, left, right, domFront, domTree, postDomTree,
-                                                               *loopInfo, this)));
+        conditionals[bb->getName()] = new Conditional(bb, left, right, domFront, domTree, postDomTree, *loopInfo, this);
     }
 
     // Identify and create loopwrappers
@@ -147,7 +146,7 @@ void IdentifyStructures::print(raw_ostream&, const Module*) const
 
 void IdentifyStructures::releaseMemory()
 {
-    for (DenseMap<const BasicBlock*, Conditional*>::iterator i = conditionals.begin(), e = conditionals.end(); i != e; ++i) {
+    for (conditional_iterator i = conditionals.begin(), e = conditionals.end(); i != e; ++i) {
         delete i->second;
     }
     conditionals.clear();

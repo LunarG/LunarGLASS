@@ -74,9 +74,13 @@ namespace gla_llvm {
             , loopInfo(&li)
             , parentPass(p)
             , function(*entryBlock->getParent())
+            , selfContained(false)
+            , latch(0)
+            , exit(0)
             , isMain(IsMain(function))
             , stageExit(0)
             , stageEpilogue(0)
+            , merge(0)
         {
             if (isMain) {
                 stageExit    = GetMainExit(function);
@@ -312,7 +316,6 @@ namespace gla_llvm {
         // info, i.e. dominator tree, loop info, and dominance frontiers.
         Pass* parentPass;
 
-        bool filterExcludes;
         bool selfContained;
 
         BasicBlock* latch;
@@ -327,9 +330,7 @@ namespace gla_llvm {
         SmallPtrSet<BasicBlock*,8> merges;
 
         BasicBlock* merge;
-
-        bool incompleteMerges;
-
+        
         // Children of the left and right blocks (including the blocks themselves)
         SmallVector<BasicBlock*, 32> leftChildren;
         SmallVector<BasicBlock*, 32> rightChildren;

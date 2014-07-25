@@ -84,13 +84,21 @@ namespace gla_llvm {
         ~IdentifyStructures();
 
         // Iterators for contained conditionals
-        typedef DenseMap<const BasicBlock*, Conditional*>::iterator conditional_iterator;
+        typedef std::map<std::string, Conditional*>::iterator conditional_iterator;
+        typedef std::map<std::string, Conditional*>::const_iterator const_conditional_iterator;
         conditional_iterator conditional_begin() { return conditionals.begin(); }
         conditional_iterator conditional_end()   { return conditionals.end(); }
         bool                 conditional_empty() { return conditionals.empty(); }
 
         // Returns the Conditional that the passed BasicBlock is the entry for
-        Conditional* getConditional(const BasicBlock* entry) const { return conditionals.lookup(entry); }
+        Conditional* getConditional(const BasicBlock* entry) const
+        {
+            const_conditional_iterator it = conditionals.find(entry->getName().str());
+            if (it == conditionals.end())
+                return 0;
+            else
+                return it->second;
+        }
 
         // Returns the innermost loop that bb is in
         LoopWrapper* getLoopFor(const BasicBlock* bb) const { return loopWrappers.lookup(bb); }
@@ -113,8 +121,7 @@ namespace gla_llvm {
         void releaseMemory();
 
     private:
-        DenseMap<const BasicBlock*, Conditional*> conditionals;
-
+        std::map<std::string, Conditional*> conditionals;
         DenseMap<const BasicBlock*, LoopWrapper*> loopWrappers;
 
         LoopInfo* loopInfo;

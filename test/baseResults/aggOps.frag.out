@@ -361,16 +361,16 @@ ifmerge:                                          ; preds = %else, %then
   %26 = fcmp oeq <4 x float> %0, %v.0
   %27 = call i1 @llvm.gla.all.v4i1(<4 x i1> %26)
   %v19 = fmul <4 x float> %v.0, <float 3.000000e+00, float 3.000000e+00, float 3.000000e+00, float 3.000000e+00>
-  %select127 = select i1 %27, <4 x float> %v19, <4 x float> %v.0
-  %28 = fcmp one <4 x float> %0, %select127
+  %select = select i1 %27, <4 x float> %v19, <4 x float> %v.0
+  %28 = fcmp one <4 x float> %0, %select
   %29 = call i1 @llvm.gla.any.v4i1(<4 x i1> %28)
-  %v22 = fmul <4 x float> %select127, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
-  %select = select i1 %29, <4 x float> %v22, <4 x float> %select127
-  %30 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %select, <2 x i32> <i32 1, i32 3>)
+  %v22 = fmul <4 x float> %select, <float 4.000000e+00, float 4.000000e+00, float 4.000000e+00, float 4.000000e+00>
+  %select129 = select i1 %29, <4 x float> %v22, <4 x float> %select
+  %30 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %select129, <2 x i32> <i32 1, i32 3>)
   %31 = fcmp oeq <2 x float> %24, %30
   %32 = call i1 @llvm.gla.all.v2i1(<2 x i1> %31)
-  %v25 = fmul <4 x float> %select, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
-  %select129 = select i1 %32, <4 x float> %v25, <4 x float> %select
+  %v25 = fmul <4 x float> %select129, <float 5.000000e+00, float 5.000000e+00, float 5.000000e+00, float 5.000000e+00>
+  %select127 = select i1 %32, <4 x float> %v25, <4 x float> %select129
   %33 = icmp eq i32 %2, 17
   %34 = fcmp oeq float %3, 1.700000e+01
   %35 = and i1 %33, %34
@@ -382,8 +382,8 @@ ifmerge:                                          ; preds = %else, %then
   %41 = fcmp oeq float %13, 1.400000e+01
   %42 = and i1 %40, %41
   %43 = and i1 %39, %42
-  %v46 = fmul <4 x float> %select129, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
-  %select128 = select i1 %43, <4 x float> %v46, <4 x float> %select129
+  %v46 = fmul <4 x float> %select127, <float 6.000000e+00, float 6.000000e+00, float 6.000000e+00, float 6.000000e+00>
+  %select130 = select i1 %43, <4 x float> %v46, <4 x float> %select127
   %44 = icmp ne i32 %2, 17
   %45 = fcmp one float %3, 1.700000e+01
   %46 = or i1 %44, %45
@@ -395,9 +395,9 @@ ifmerge:                                          ; preds = %else, %then
   %52 = fcmp one float %13, 1.400000e+01
   %53 = or i1 %51, %52
   %54 = or i1 %50, %53
-  %v67 = fmul <4 x float> %select128, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>
-  %select130 = select i1 %54, <4 x float> %v67, <4 x float> %select128
-  store <4 x float> %select130, <4 x float>* @gl_FragColor, align 16
+  %v67 = fmul <4 x float> %select130, <float 7.000000e+00, float 7.000000e+00, float 7.000000e+00, float 7.000000e+00>
+  %select128 = select i1 %54, <4 x float> %v67, <4 x float> %select130
+  store <4 x float> %select128, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge

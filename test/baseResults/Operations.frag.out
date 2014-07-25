@@ -788,44 +788,44 @@ entry:
   %67 = sub i32 %66, %3
   %i54 = sdiv i32 %67, %i3
   %i55 = srem i32 %i54, %3
-  %68 = fadd float %37, %37
-  %69 = fmul float %37, %68
-  %70 = fsub float %69, %37
-  %f57 = fdiv float %70, %37
-  %71 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %v44)
-  %f58 = fadd float %f57, %71
-  %72 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v44, <4 x float> %v44)
-  %f60 = fadd float %f58, %72
-  %73 = fmul float %37, %f60
-  %f61 = fadd float %f60, %73
-  %74 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %47, <3 x float> %47)
-  %75 = extractelement <3 x float> %74, i32 0
-  %f62 = fadd float %75, %f61
-  %76 = fcmp oeq float %f62, %37
-  %77 = fcmp one float %f62, %37
-  %78 = fcmp one float %f62, 2.000000e+00
-  %79 = and i1 %77, %78
-  %80 = or i1 %76, %79
-  %f64 = fadd float %f62, 1.000000e+00
-  %select = select i1 %80, float %f64, float %f62
-  %81 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select, <4 x i32> zeroinitializer)
-  %82 = load i32 addrspace(2)* @ui, align 4, !gla.uniform !3
+  %68 = icmp eq i32 %i55, 2
   %i56 = add i32 %i55, 1
-  %83 = icmp eq i32 %i55, 2
-  %.i56 = select i1 %83, i32 0, i32 %i56
-  %i66 = and i32 %82, %.i56
+  %.i56 = select i1 %68, i32 0, i32 %i56
+  %69 = fadd float %37, %37
+  %70 = fmul float %37, %69
+  %71 = fsub float %70, %37
+  %f57 = fdiv float %71, %37
+  %72 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %v44)
+  %f58 = fadd float %f57, %72
+  %73 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v44, <4 x float> %v44)
+  %f60 = fadd float %f58, %73
+  %74 = fmul float %37, %f60
+  %f61 = fadd float %f60, %74
+  %75 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %47, <3 x float> %47)
+  %76 = extractelement <3 x float> %75, i32 0
+  %f62 = fadd float %76, %f61
+  %77 = fcmp oeq float %f62, %37
+  %78 = fcmp one float %f62, %37
+  %79 = fcmp one float %f62, 2.000000e+00
+  %80 = and i1 %78, %79
+  %81 = or i1 %77, %80
+  %f64 = fadd float %f62, 1.000000e+00
+  %select79 = select i1 %81, float %f64, float %f62
+  %82 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select79, <4 x i32> zeroinitializer)
+  %83 = load i32 addrspace(2)* @ui, align 4, !gla.uniform !3
+  %i66 = and i32 %83, %.i56
   %i67 = or i32 %i66, 66
-  %i68 = xor i32 %i67, %82
+  %i68 = xor i32 %i67, %83
   %i69 = srem i32 %i68, 17
   %i70 = ashr i32 %i69, 2
-  %i71 = shl i32 %i70, %82
+  %i71 = shl i32 %i70, %83
   %i72 = xor i32 %i71, -1
   %84 = sitofp i32 %i72 to float
   %85 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %84, <4 x i32> zeroinitializer)
-  %86 = fadd <4 x float> %81, %85
+  %86 = fadd <4 x float> %82, %85
   %ternary76 = fadd <4 x float> %v44, %86
-  %select79 = select i1 %b53, <4 x float> %v44, <4 x float> %ternary76
-  store <4 x float> %select79, <4 x float>* @gl_FragColor, align 16
+  %select = select i1 %b53, <4 x float> %v44, <4 x float> %ternary76
+  store <4 x float> %select, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -1005,11 +1005,11 @@ uniform ivec4 uiv4;
 uniform bool ub;
 const vec4 L_1 = vec4(0.0174533);
 const vec4 L_3 = vec4(57.2958);
-const float L_69 = 2.0;
-const float L_6a = 1.0;
-const int L_6c = 1;
-const int L_6d = 2;
-const int L_6e = 0;
+const int L_64 = 2;
+const int L_65 = 1;
+const int L_66 = 0;
+const float L_6c = 2.0;
+const float L_6d = 1.0;
 const int L_6f = 66;
 const int L_70 = 17;
 
@@ -1112,14 +1112,14 @@ void main()
 	bool L_61 = all(ub41);
 	bool L_62 = any((not(ub41)));
 	int L_63 = ((((L_5 + ui) * L_5) - ui) / L_5) % ui;
-	float L_64 = length(L_58);
-	float L_65 = dot(L_58, L_58);
-	float L_66 = (((((uf + uf) * uf) - uf) / uf) + L_64) + L_65;
-	vec3 L_67 = cross(L_59, L_59);
-	float L_68 = ((L_66 * uf) + L_66) + L_67.x;
-	vec4 L_6b = vec4((((L_68 == uf) || ((L_68 != uf) && (L_68 != L_69))) ? (L_68 + L_6a) : L_68));
-	vec4 L_71 = vec4((float((~(((((((ui & ((L_63 == L_6d) ? L_6e : (L_63 + L_6c))) | L_6f) ^ ui) % L_70) >> L_6d) << ui))))));
-	gl_FragColor = (((((((((L_5a && L_5b) && L_5c) && L_5d) && L_5e) && L_5f) && L_60) && L_61) && L_62) ? L_58 : ((L_6b + L_71) + L_58));
+	float L_67 = length(L_58);
+	float L_68 = dot(L_58, L_58);
+	float L_69 = (((((uf + uf) * uf) - uf) / uf) + L_67) + L_68;
+	vec3 L_6a = cross(L_59, L_59);
+	float L_6b = ((L_69 * uf) + L_69) + L_6a.x;
+	vec4 L_6e = vec4((((L_6b == uf) || ((L_6b != uf) && (L_6b != L_6c))) ? (L_6b + L_6d) : L_6b));
+	vec4 L_71 = vec4((float((~(((((((ui & ((L_63 == L_64) ? L_66 : (L_63 + L_65))) | L_6f) ^ ui) % L_70) >> L_64) << ui))))));
+	gl_FragColor = (((((((((L_5a && L_5b) && L_5c) && L_5d) && L_5e) && L_5f) && L_60) && L_61) && L_62) ? L_58 : ((L_6e + L_71) + L_58));
 	
 }
 
