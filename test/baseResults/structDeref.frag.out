@@ -191,7 +191,7 @@ entry:
   %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %11, <4 x i32> zeroinitializer)
   %13 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !13
   %14 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %13, i32 0, <2 x float> %3)
-  %gl_FragColor = fmul <4 x float> %12, %14
+  %gl_FragColor = fmul <4 x float> %14, %12
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 

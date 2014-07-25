@@ -218,7 +218,7 @@ entry:
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %6, i32 4, float undef, i32 undef, float undef, i32 undef, <2 x float> %0, i32 1, float undef, i32 undef)
   %8 = select i1 %3, float %2, float 2.000000e+00
   %9 = fadd float %select, %8
-  %10 = fadd float %9, %2
+  %10 = fadd float %2, %9
   %11 = fadd float %10, %select94
   %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %11, <4 x i32> zeroinitializer)
   %13 = fmul <4 x float> %7, %12

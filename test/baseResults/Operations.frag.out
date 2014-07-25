@@ -822,7 +822,7 @@ entry:
   %i72 = xor i32 %i71, -1
   %84 = sitofp i32 %i72 to float
   %85 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %84, <4 x i32> zeroinitializer)
-  %86 = fadd <4 x float> %82, %85
+  %86 = fadd <4 x float> %85, %82
   %ternary76 = fadd <4 x float> %v44, %86
   %select = select i1 %b53, <4 x float> %v44, <4 x float> %ternary76
   store <4 x float> %select, <4 x float>* @gl_FragColor, align 16
