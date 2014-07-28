@@ -76,6 +76,7 @@ public:
     }
 
     const char* getGeneratedShader() { return glslBackEndTranslator->getGeneratedShader(); }
+    const char* getIndexShader() { return glslBackEndTranslator->getIndexShader(); }
 
 protected:
     void createNonreusable()

@@ -448,6 +448,7 @@ protected:
     void emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstruction, bool input);
     void emitInvariantDeclarations(llvm::Module&);
     void mapOrEmitInstructionExpression(const llvm::Instruction*, const std::ostringstream&);
+    void buildFullShader();
 
     // 'gep' is potentially a gep, either an instruction or a constantExpr.
     // See which one, if any, and return it.
@@ -2006,6 +2007,18 @@ void gla::GlslTarget::end(llvm::Module& module)
     // Want 'invariant' decls after richer redeclarations, but still before shader code
     emitInvariantDeclarations(module);
 
+    buildFullShader();
+    delete generatedShader;
+    generatedShader = new char[fullShader.str().size() + 1];
+    strcpy(generatedShader, fullShader.str().c_str());
+
+    delete indexShader;
+    indexShader = new char[shader.str().size() + 1];
+    strcpy(indexShader, shader.str().c_str());
+}
+
+void gla::GlslTarget::buildFullShader()
+{
     // #version...
     fullShader << "#version " << version;
     if (version >= 150 && profile != ENoProfile) {
@@ -2041,10 +2054,6 @@ void gla::GlslTarget::end(llvm::Module& module)
 
     // Body of shader
     fullShader << globalStructures.str().c_str() << globalDeclarations.str().c_str() << shader.str().c_str();
-
-    delete generatedShader;
-    generatedShader = new char[fullShader.str().size() + 1];
-    strcpy(generatedShader, fullShader.str().c_str());
 }
 
 void gla::GlslTarget::print()

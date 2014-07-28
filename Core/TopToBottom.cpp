@@ -172,7 +172,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(gla_llvm::createDecomposeInstsPass());
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
 
-    // TODO: Compile-time performance: something goes stale in createFlattenConditionalAssignments (dom trees?).
+    // TODO: Compile-time performance: something goes stale in FlattenConditionalAssignments (dom trees?).
     //       Running it multiple times here catches more, whereas running it multiple times internally does not help.
     //       Once that's fixed, most at this level can be eliminated.
     passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));

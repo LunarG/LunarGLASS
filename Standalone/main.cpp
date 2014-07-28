@@ -109,6 +109,7 @@ enum CommandOptions {
     EOptionAssembly           = 0x0800,
     EOptionObfuscate          = 0x1000,
     EOptionFilterInactive     = 0x2000,
+    EOptionDumpIndexShader    = 0x4000,
 };
 
 int Options = 0;                       // the non-manager options
@@ -250,7 +251,8 @@ void usage(bool advanced)
         printf("Developer options:\n"
                "  -a  dump LunarGLASS Top IR and Bottom IR\n"
                "  -i  intermediate tree (glslang AST) is printed out\n"
-               "  -m  memory leak mode\n\n");
+               "  -m  memory leak mode\n"
+               "  -u  dump index shader\n\n");
         gla::PrintTransformOptionsHelp();
     }
 }
@@ -337,6 +339,9 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
                 break;
             case 't':
                 Options |= EOptionMultiThreaded;
+                break;
+            case 'u':
+                Options |= EOptionDumpIndexShader;
                 break;
             case 'w':
                 Options |= EOptionSuppressWarnings;
@@ -626,9 +631,12 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
                 manager.translateBottomToTarget();
 
                 // Get and print the generated GLSL output
-                if (! (Options & EOptionMemoryLeakMode) && ! (Options & EOptionSilent))
-                    if (manager.getGeneratedShader())
+                if (! (Options & EOptionMemoryLeakMode) && ! (Options & EOptionSilent)) {
+                    if (Options & EOptionDumpIndexShader)
+                        printf("%s\n", manager.getIndexShader());
+                    else if (manager.getGeneratedShader())
                         printf("%s\n", manager.getGeneratedShader());
+                }
             }
             #ifdef _WIN32
                 if (Options & EOptionMemoryLeakMode) {
@@ -732,6 +740,7 @@ void TranslateSingleShader(glslang::TWorkItem* workItem)
     // Generate the GLSL output
     manager.translateBottomToTarget();
     workItem->results = manager.getGeneratedShader();
+    workItem->resultsIndex = manager.getIndexShader();
 
     // Free everything up, the glslang program has to go before the shader.
     delete &program;
@@ -799,8 +808,12 @@ void TranslateShadersMultithreaded(const std::vector<const char*>& names)
 
     // Print out all the results
     for (int w = 0; w < workCount; ++w) {
-        puts(work[w]->name.c_str());
-        puts(work[w]->results.c_str());
+        if (Options & EOptionDumpIndexShader)
+            puts(work[w]->resultsIndex.c_str());
+        else {
+            puts(work[w]->name.c_str());
+            puts(work[w]->results.c_str());
+        }
         delete work[w];
     }
 }
