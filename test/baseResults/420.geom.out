@@ -11,12 +11,12 @@ Top IR:
 @gl_InvocationID = global i32 0
 @s2D = external addrspace(1) constant i32
 @coord = global [3 x <2 x float>] zeroinitializer
+@lconst = internal constant [5 x <2 x i32>] [<2 x i32> <i32 0, i32 1>, <2 x i32> <i32 1, i32 -2>, <2 x i32> <i32 0, i32 3>, <2 x i32> <i32 -3, i32 0>, <2 x i32> <i32 2, i32 1>]
 @i = external addrspace(2) constant i32
 @v4 = external addrspace(2) constant <4 x float>
 
 define fastcc void @main() {
 entry:
-  %indexable = alloca [5 x <2 x i32>]
   %v = alloca <4 x float>
   %id = alloca i32
   %p = alloca float
@@ -34,8 +34,7 @@ entry:
   %1 = load i32 addrspace(1)* @s2D, !gla.uniform !17
   %2 = load <2 x float>* getelementptr inbounds ([3 x <2 x float>]* @coord, i32 0, i32 0)
   %3 = load i32 addrspace(2)* @i, !gla.uniform !20
-  store [5 x <2 x i32>] [<2 x i32> <i32 0, i32 1>, <2 x i32> <i32 1, i32 -2>, <2 x i32> <i32 0, i32 3>, <2 x i32> <i32 -3, i32 0>, <2 x i32> <i32 2, i32 1>], [5 x <2 x i32>]* %indexable
-  %4 = getelementptr [5 x <2 x i32>]* %indexable, i32 0, i32 %3
+  %4 = getelementptr [5 x <2 x i32>]* @lconst, i32 0, i32 %3
   %5 = load <2 x i32>* %4
   %v3 = call <4 x float> @llvm.gla.fTexelGatherOffset.v4f32.v2f32(i32 2, i32 %1, i32 320, <2 x float> %2, i32 undef, float undef, <2 x i32> %5)
   store <4 x float> %v3, <4 x float>* %v

@@ -366,6 +366,7 @@ public:
     virtual void end(llvm::Module&);
 
     void addGlobal(const llvm::GlobalVariable* global);
+    void addGlobalConst(const llvm::GlobalVariable* global);
     void addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode);
     void startFunctionDeclaration(const llvm::Type* type, llvm::StringRef name);
     void addArgument(const llvm::Value* value, bool last);
@@ -708,13 +709,11 @@ EVariableQualifier MapGlaAddressSpace(const llvm::Value* value)
 
     // Check for an undef before a constant (since Undef is a
     // subclass of Constant)
-    if (AreAllUndefined(value)) {
+    if (AreAllUndefined(value))
         return EVQUndef;
-    }
 
-    if (llvm::isa<llvm::Constant>(value)) {
+    if (llvm::isa<llvm::Constant>(value))
         return EVQConstant;
-    }
 
     return EVQTemporary;
 }
@@ -1200,32 +1199,43 @@ void StripSuffix(std::string& name, const char* suffix)
 // Implement the GLSL Target
 //
 
+// For regular globals:  map their LLVM Value* to their GLSL name.
 void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
 {
-    // For uniforms and regular globals, map their LLVM Value* to their GLSL name.
-    EVariableQualifier qualifier = MapGlaAddressSpace(global);
+    // IO should already be mapped, and this will filter it out.
+    // (Uniforms were declared in addIoDeclaration().)
     std::string name = global->getName();
-
     if (globallyDeclared.find(name) != globallyDeclared.end())
         return;
 
-    // For regular globals, emit their declaration now.  Uniforms were
-    // declared in addIoDeclaration().
-    if (qualifier == EVQGlobal) {
-        mapVariableName(global, name);
-        llvm::Type* type;
-        if (const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType()))
-            type = pointer->getContainedType(0);
-        else
-            type = global->getType();
+    EVariableQualifier qualifier = MapGlaAddressSpace(global);
 
-        emitVariableDeclaration(EMpNone, type, name, MapGlaAddressSpace(global));
+    mapVariableName(global, name);
+    const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType());
+    llvm::Type* type = pointer->getContainedType(0);
 
-        if (global->hasInitializer()) {
-            const llvm::Constant* constant = global->getInitializer();
-            emitInitializeAggregate(globalInitializers, name, constant);
-        }
+    emitVariableDeclaration(EMpNone, type, name, qualifier);
+    if (global->hasInitializer()) {
+        const llvm::Constant* constant = global->getInitializer();
+        emitInitializeAggregate(globalInitializers, name, constant);
     }
+}
+
+// Map global "const xxxxx = { ..... }; \n"
+void gla::GlslTarget::addGlobalConst(const llvm::GlobalVariable* global)
+{
+    std::string name = global->getName();
+    mapVariableName(global, name);
+    const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType());
+    llvm::Type* type = pointer->getContainedType(0);
+
+    // Better not declare a "const" unless we really have an initializer
+    const llvm::Constant* constant = global->getInitializer();
+    if (constant == 0 || ! AreAllDefined(constant)) {
+        emitVariableDeclaration(EMpNone, type, name, EVQGlobal);
+        emitInitializeAggregate(globalInitializers, name, constant);
+    } else
+        emitVariableDeclaration(EMpNone, type, name, EVQConstant, constant);
 }
 
 void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode)
@@ -3561,9 +3571,12 @@ void gla::GlslTarget::emitConstantInitializer(std::ostringstream& out, const llv
             // ConstantDataSequential handles both ConstantDataVector and ConstantDataArray,
             // except getSplatValue(), which is present for ConstantDataSequential,
             // only actually works for ConstantDataVector.
-            const llvm::ConstantDataSequential* dataSequential = llvm::dyn_cast<llvm::ConstantDataSequential>(constant);
-            if (dataSequential && llvm::isa<llvm::ConstantDataVector>(dataSequential))
-                splatValue = dataSequential->getSplatValue();
+            const llvm::ConstantDataSequential* dataSequential = 0;
+            if (! isZero && constant) {
+                dataSequential = llvm::dyn_cast<llvm::ConstantDataSequential>(constant);
+                if (dataSequential && llvm::isa<llvm::ConstantDataVector>(dataSequential))
+                    splatValue = dataSequential->getSplatValue();
+            }
 
             if (const llvm::VectorType* vectorType = llvm::dyn_cast<llvm::VectorType>(type)) {
                 if (! isZero && ! llvm::isa<llvm::ConstantDataVector>(constant)) {

@@ -221,6 +221,7 @@ public:
         ESQInput,       // from a shader, not a function
         ESQOutput,      // from a shader, not a function
         ESQGlobal,      // no storage qualifier, just a global variable
+        ESQConst,
         ESQLocal,
     };
 

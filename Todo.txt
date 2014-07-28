@@ -15,13 +15,14 @@ Adapters and Common Builder
 
 Performance
   + handle variable indexing of IO arrays without copying entire shadow array
-v - code motion across conditionals increasing register pressure
+  + code motion across conditionals increasing register pressure
 v - preserve more inductive loop forms?
 v - create fewer additional overlapping lifetimes by phi-removal:  need better out-of-SSA algorithm
 v - matrix intrinsics
 v - forward substitute built-in calls
   + finish functionality in recent tests; e.g. 400.tesc not working right (and differently between windows and linux)
   - fix difference between fReadData and fReadInterpolant: LLVM is optimizing multiple uses of one but not the other
+  + remove constant-aggregate copying
 
 Canonicalization
 v - filter IO that's dead after optimization .... or don't.... instead don't include IO in the canonicalization string
@@ -30,7 +31,7 @@ v - lhs names based on rhs content
 
 Compressibility
 v - hopefully helped by same things that help canonicalization
-v - remove most the white space and shorten the base strings like 'constX' -> 'cX', etc. (all this saves 7% in an experiment)
+  + remove most the white space and shorten the base strings like 'constX' -> 'cX', etc. (all this saves 7% in an experiment)
 
 Delivery checklist
  . update all TODO

@@ -538,6 +538,12 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
             initializer = llvm::Constant::getNullValue(type);
         break;
 
+    case ESQConst:
+        global = true;
+        readOnly = true;
+        assert(initializer);
+        break;
+
     case ESQLocal:
         break;
 

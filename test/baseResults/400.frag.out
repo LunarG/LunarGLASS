@@ -10,6 +10,7 @@ Top IR:
 @gl_ClipDistance = global [2 x float] zeroinitializer
 @uoutp = global <4 x i32> zeroinitializer
 @samp2dr = external addrspace(1) constant i32
+@lconst = internal constant [4 x <2 x i32>] [<2 x i32> <i32 1, i32 2>, <2 x i32> <i32 3, i32 4>, <2 x i32> <i32 15, i32 16>, <2 x i32> <i32 -2, i32 0>]
 @ioutp = global <4 x i32> zeroinitializer
 @isamp2DA = external addrspace(1) constant i32
 @gl_FragCoord = global <4 x float> zeroinitializer
@@ -46,36 +47,41 @@ entry:
   store <4 x float> %outp2, <4 x float>* @outp
   %19 = load i32 addrspace(1)* @samp2dr, !gla.uniform !12
   %20 = load <2 x float>* @c2D
-  %uoutp = call <4 x i32> @llvm.gla.texelGatherOffsets.v4i32.v2f32(i32 5, i32 %19, i32 9536, <2 x float> %20, i32 2, float undef, <2 x i32> <i32 1, i32 2>, <2 x i32> <i32 3, i32 4>, <2 x i32> <i32 15, i32 16>, <2 x i32> <i32 -2, i32 0>)
+  %21 = load [4 x <2 x i32>]* @lconst
+  %22 = extractvalue [4 x <2 x i32>] %21, 0
+  %23 = extractvalue [4 x <2 x i32>] %21, 1
+  %24 = extractvalue [4 x <2 x i32>] %21, 2
+  %25 = extractvalue [4 x <2 x i32>] %21, 3
+  %uoutp = call <4 x i32> @llvm.gla.texelGatherOffsets.v4i32.v2f32(i32 5, i32 %19, i32 9536, <2 x float> %20, i32 2, float undef, <2 x i32> %22, <2 x i32> %23, <2 x i32> %24, <2 x i32> %25)
   store <4 x i32> %uoutp, <4 x i32>* @uoutp
-  %21 = load i32 addrspace(1)* getelementptr inbounds ([5 x i32] addrspace(1)* @arrayedSampler, i32 0, i32 0), !gla.uniform !9
-  %22 = load <2 x float>* @c2D
-  %23 = call <4 x float> @llvm.gla.fTexelGather.v4f32.v2f32(i32 2, i32 %21, i32 64, <2 x float> %22, i32 undef, float undef)
-  %24 = load <4 x float>* @outp
-  %outp3 = fadd <4 x float> %24, %23
+  %26 = load i32 addrspace(1)* getelementptr inbounds ([5 x i32] addrspace(1)* @arrayedSampler, i32 0, i32 0), !gla.uniform !9
+  %27 = load <2 x float>* @c2D
+  %28 = call <4 x float> @llvm.gla.fTexelGather.v4f32.v2f32(i32 2, i32 %26, i32 64, <2 x float> %27, i32 undef, float undef)
+  %29 = load <4 x float>* @outp
+  %outp3 = fadd <4 x float> %29, %28
   store <4 x float> %outp3, <4 x float>* @outp
-  %25 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
-  %ioutp = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %25, i32 1360, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 3, float undef, <2 x i32> <i32 1, i32 1>)
+  %30 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
+  %ioutp = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %30, i32 1360, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 3, float undef, <2 x i32> <i32 1, i32 1>)
   store <4 x i32> %ioutp, <4 x i32>* @ioutp
-  %26 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
-  %27 = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %26, i32 1360, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 3, float undef, <2 x i32> <i32 1, i32 1>)
-  %28 = load <4 x i32>* @ioutp
-  %ioutp4 = add <4 x i32> %28, %27
+  %31 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
+  %32 = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %31, i32 1360, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 3, float undef, <2 x i32> <i32 1, i32 1>)
+  %33 = load <4 x i32>* @ioutp
+  %ioutp4 = add <4 x i32> %33, %32
   store <4 x i32> %ioutp4, <4 x i32>* @ioutp
-  %29 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
-  %30 = load i32* @i
-  %31 = load <2 x i32>* %constructed
-  %32 = insertelement <2 x i32> undef, i32 %30, i32 0
-  %33 = insertelement <2 x i32> %32, i32 %30, i32 1
-  %34 = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %29, i32 336, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 undef, float undef, <2 x i32> %33)
-  %35 = load <4 x i32>* @ioutp
-  %ioutp5 = add <4 x i32> %35, %34
+  %34 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
+  %35 = load i32* @i
+  %36 = load <2 x i32>* %constructed
+  %37 = insertelement <2 x i32> undef, i32 %35, i32 0
+  %38 = insertelement <2 x i32> %37, i32 %35, i32 1
+  %39 = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %34, i32 336, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 undef, float undef, <2 x i32> %38)
+  %40 = load <4 x i32>* @ioutp
+  %ioutp5 = add <4 x i32> %40, %39
   store <4 x i32> %ioutp5, <4 x i32>* @ioutp
-  %36 = load <4 x float>* @gl_FragCoord
-  %37 = load <4 x float>* @vl2
-  %38 = fadd <4 x float> %36, %37
-  %39 = load <4 x float>* @outp
-  %outp6 = fadd <4 x float> %39, %38
+  %41 = load <4 x float>* @gl_FragCoord
+  %42 = load <4 x float>* @vl2
+  %43 = fadd <4 x float> %41, %42
+  %44 = load <4 x float>* @outp
+  %outp6 = fadd <4 x float> %44, %43
   store <4 x float> %outp6, <4 x float>* @outp
   call void @"foo23("()
   br label %stage-epilogue

@@ -994,8 +994,15 @@ bool BottomTranslator::runOnModule(Module& module)
     addIoDeclarations(module, gla::EVQOutput,  gla::OutputListMdName);
 
     // add global variables
-    for (Module::const_global_iterator global = module.global_begin(), end = module.global_end(); global != end; ++global)
-        backEndTranslator->addGlobal(global);
+    for (Module::const_global_iterator global = module.global_begin(), end = module.global_end(); global != end; ++global) {
+
+        // See if it's a global constant (not a uniform)
+        const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType());
+        if (pointer && pointer->getAddressSpace() == gla::GlobalAddressSpace && global->isConstant())
+            backEndTranslator->addGlobalConst(global);
+        else
+            backEndTranslator->addGlobal(global);
+    }
 
     //
     // Translate code.

@@ -114,7 +114,7 @@ protected:
                                std::string& name, gla::EInterpolationMethod, gla::EInterpolationLocation);
     int assignSlot(glslang::TIntermSymbol* node, bool input, int& numSlots);
     llvm::Value* getSymbolStorage(const glslang::TIntermSymbol* node, bool& firstTime);
-    llvm::Value* createLLVMConstant(const glslang::TType& type, const glslang::TConstUnionArray&, int& nextConst);
+    llvm::Constant* createLLVMConstant(const glslang::TType& type, const glslang::TConstUnionArray&, int& nextConst);
     llvm::Value* MakePermanentTypeProxy(llvm::Value*);
     llvm::MDNode* declareUniformMetadata(glslang::TIntermSymbol* node, llvm::Value*);
     llvm::MDNode* declareMdDefaultUniform(glslang::TIntermSymbol*, llvm::Value*);
@@ -1122,9 +1122,16 @@ bool TGlslangToTopTraverser::visitSwitch(glslang::TVisit /* visit */, glslang::T
 void TGlslangToTopTraverser::visitConstantUnion(glslang::TIntermConstantUnion* node)
 {
     int nextConst = 0;
-    llvm::Value* c = createLLVMConstant(node->getType(), node->getConstArray(), nextConst);
+    llvm::Constant* constant = createLLVMConstant(node->getType(), node->getConstArray(), nextConst);
     glaBuilder->clearAccessChain();
-    glaBuilder->setAccessChainRValue(c);
+    if (node->getType().isArray() || node->getType().isStruct() || node->getType().isMatrix()) {
+        // for aggregrates, make a global constant to base access chains off of
+        llvm::Value* lvalue = glaBuilder->createVariable(gla::Builder::ESQConst, 0, constant->getType(), constant, 0, "lconst");
+        glaBuilder->setAccessChainLValue(lvalue);
+    } else {
+        // for non-aggregates, just use directly;
+        glaBuilder->setAccessChainRValue(constant);
+    }
 }
 
 bool TGlslangToTopTraverser::visitLoop(glslang::TVisit /* visit */, glslang::TIntermLoop* node)
@@ -2496,7 +2503,7 @@ llvm::Value* TGlslangToTopTraverser::getSymbolStorage(const glslang::TIntermSymb
 // If there are not enough elements present in 'consts', 0 will be substituted;
 // an empty 'consts' can be used to create a fully zeroed LLVM constant.
 //
-llvm::Value* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& glslangType, const glslang::TConstUnionArray& consts, int& nextConst)
+llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType& glslangType, const glslang::TConstUnionArray& consts, int& nextConst)
 {
     // vector of constants for LLVM
     std::vector<llvm::Constant*> llvmConsts;

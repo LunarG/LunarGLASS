@@ -155,6 +155,7 @@ namespace gla {
         // All addIoDeclaration() will be done before addGlobal(), so the back end knows what globals are really logical IO.
         virtual void addIoDeclaration(EVariableQualifier, const llvm::MDNode*) { }
         virtual void addGlobal(const llvm::GlobalVariable*) { }
+        virtual void addGlobalConst(const llvm::GlobalVariable* c) { addGlobal(c); }
         
         virtual void startFunctionDeclaration(const llvm::Type*, llvm::StringRef) = 0;
         virtual void addArgument(const llvm::Value*, bool last) = 0;

@@ -9,9 +9,14 @@ Top IR:
 %s00 = type { %s0 }
 
 @foo3 = external addrspace(2) constant %s3
+@lconst = internal constant %s1 { i32 0, float 1.000000e+00, %s0 zeroinitializer }
+@lconst1 = internal constant [6 x float] zeroinitializer
 @foo1 = external addrspace(2) constant %s1
+@lconst2 = internal constant %s0 zeroinitializer
+@lconst3 = internal constant %s00 zeroinitializer
 @coord = global <2 x float> zeroinitializer
 @foo0 = external addrspace(2) constant %s0
+@lconst4 = internal constant [6 x float] [float 0.000000e+00, float 1.000000e+00, float 2.000000e+00, float 3.000000e+00, float 4.000000e+00, float 5.000000e+00]
 @foo00 = external addrspace(2) constant %s00
 @gl_FragColor = global <4 x float> zeroinitializer
 @sampler = external addrspace(1) constant i32
@@ -32,81 +37,86 @@ entry:
 then:                                             ; preds = %entry
   %2 = getelementptr %s2* %locals2, i32 0, i32 1
   store float 1.000000e+00, float* %2
-  %3 = getelementptr %s2* %locals2, i32 0, i32 2
-  store %s1 { i32 0, float 1.000000e+00, %s0 zeroinitializer }, %s1* %3
-  store [6 x float] zeroinitializer, [6 x float]* %fArray
-  %4 = load %s1 addrspace(2)* @foo1, !gla.uniform !9
-  %5 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
-  store %s1 %4, %s1* %5
-  store %s0 zeroinitializer, %s0* %locals0
-  store %s00 zeroinitializer, %s00* %locals00
+  %3 = load %s1* @lconst
+  %4 = getelementptr %s2* %locals2, i32 0, i32 2
+  store %s1 %3, %s1* %4
+  %fArray1 = load [6 x float]* @lconst1
+  store [6 x float] %fArray1, [6 x float]* %fArray
+  %5 = load %s1 addrspace(2)* @foo1, !gla.uniform !9
+  %6 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
+  store %s1 %5, %s1* %6
+  %locals02 = load %s0* @lconst2
+  store %s0 %locals02, %s0* %locals0
+  %locals003 = load %s00* @lconst3
+  store %s00 %locals003, %s00* %locals00
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  %6 = load <2 x float>* @coord
-  %7 = extractelement <2 x float> %6, i32 0
-  %8 = getelementptr %s2* %locals2, i32 0, i32 1
-  store float %7, float* %8
-  %9 = load <2 x float>* @coord
-  %10 = extractelement <2 x float> %9, i32 1
-  %11 = load %s0 addrspace(2)* @foo0, !gla.uniform !10
-  %12 = getelementptr %s1* %constructed, i32 0, i32 0
-  store i32 1, i32* %12
-  %13 = getelementptr %s1* %constructed, i32 0, i32 1
-  store float %10, float* %13
-  %14 = getelementptr %s1* %constructed, i32 0, i32 2
-  store %s0 %11, %s0* %14
-  %15 = load %s1* %constructed
-  %16 = getelementptr %s2* %locals2, i32 0, i32 2
-  store %s1 %15, %s1* %16
-  store [6 x float] [float 0.000000e+00, float 1.000000e+00, float 2.000000e+00, float 3.000000e+00, float 4.000000e+00, float 5.000000e+00], [6 x float]* %fArray
+  %7 = load <2 x float>* @coord
+  %8 = extractelement <2 x float> %7, i32 0
+  %9 = getelementptr %s2* %locals2, i32 0, i32 1
+  store float %8, float* %9
+  %10 = load <2 x float>* @coord
+  %11 = extractelement <2 x float> %10, i32 1
+  %12 = load %s0 addrspace(2)* @foo0, !gla.uniform !10
+  %13 = getelementptr %s1* %constructed, i32 0, i32 0
+  store i32 1, i32* %13
+  %14 = getelementptr %s1* %constructed, i32 0, i32 1
+  store float %11, float* %14
+  %15 = getelementptr %s1* %constructed, i32 0, i32 2
+  store %s0 %12, %s0* %15
+  %16 = load %s1* %constructed
   %17 = getelementptr %s2* %locals2, i32 0, i32 2
-  %18 = load %s1* %17
-  %19 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
-  store %s1 %18, %s1* %19
-  %locals01 = load %s0 addrspace(2)* getelementptr inbounds (%s1 addrspace(2)* @foo1, i32 0, i32 2), !gla.uniform !9
-  store %s0 %locals01, %s0* %locals0
-  %locals002 = load %s00 addrspace(2)* @foo00, !gla.uniform !11
-  store %s00 %locals002, %s00* %locals00
+  store %s1 %16, %s1* %17
+  %fArray4 = load [6 x float]* @lconst4
+  store [6 x float] %fArray4, [6 x float]* %fArray
+  %18 = getelementptr %s2* %locals2, i32 0, i32 2
+  %19 = load %s1* %18
+  %20 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
+  store %s1 %19, %s1* %20
+  %locals05 = load %s0 addrspace(2)* getelementptr inbounds (%s1 addrspace(2)* @foo1, i32 0, i32 2), !gla.uniform !9
+  store %s0 %locals05, %s0* %locals0
+  %locals006 = load %s00 addrspace(2)* @foo00, !gla.uniform !11
+  store %s00 %locals006, %s00* %locals00
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %20 = getelementptr %s0* %locals0, i32 0, i32 0
-  %21 = load i32* %20
-  %22 = icmp sgt i32 %21, 5
-  br i1 %22, label %then3, label %ifmerge5
+  %21 = getelementptr %s0* %locals0, i32 0, i32 0
+  %22 = load i32* %21
+  %23 = icmp sgt i32 %22, 5
+  br i1 %23, label %then7, label %ifmerge9
 
-then3:                                            ; preds = %ifmerge
-  %23 = getelementptr %s00* %locals00, i32 0, i32 0
-  %locals04 = load %s0* %23
-  store %s0 %locals04, %s0* %locals0
-  br label %ifmerge5
+then7:                                            ; preds = %ifmerge
+  %24 = getelementptr %s00* %locals00, i32 0, i32 0
+  %locals08 = load %s0* %24
+  store %s0 %locals08, %s0* %locals0
+  br label %ifmerge9
 
-ifmerge5:                                         ; preds = %ifmerge, %then3
-  %24 = getelementptr %s0* %locals0, i32 0, i32 0
-  %25 = load i32* %24
-  %26 = sitofp i32 %25 to float
-  %27 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6, i32 1
-  %28 = load float* %27
-  %29 = fadd float %26, %28
-  %30 = getelementptr [6 x float]* %fArray, i32 0, i32 3
-  %31 = load float* %30
-  %32 = fadd float %29, %31
-  %33 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
-  %34 = load float* %33
-  %35 = fadd float %32, %34
-  %36 = load i32 addrspace(1)* @sampler, !gla.uniform !13
-  %37 = load <2 x float>* @coord
-  %38 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %36, i32 0, <2 x float> %37)
-  %39 = insertelement <4 x float> undef, float %35, i32 0
-  %40 = insertelement <4 x float> %39, float %35, i32 1
-  %41 = insertelement <4 x float> %40, float %35, i32 2
-  %42 = insertelement <4 x float> %41, float %35, i32 3
-  %gl_FragColor = fmul <4 x float> %42, %38
+ifmerge9:                                         ; preds = %ifmerge, %then7
+  %25 = getelementptr %s0* %locals0, i32 0, i32 0
+  %26 = load i32* %25
+  %27 = sitofp i32 %26 to float
+  %28 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6, i32 1
+  %29 = load float* %28
+  %30 = fadd float %27, %29
+  %31 = getelementptr [6 x float]* %fArray, i32 0, i32 3
+  %32 = load float* %31
+  %33 = fadd float %30, %32
+  %34 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
+  %35 = load float* %34
+  %36 = fadd float %33, %35
+  %37 = load i32 addrspace(1)* @sampler, !gla.uniform !13
+  %38 = load <2 x float>* @coord
+  %39 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %37, i32 0, <2 x float> %38)
+  %40 = insertelement <4 x float> undef, float %36, i32 0
+  %41 = insertelement <4 x float> %40, float %36, i32 1
+  %42 = insertelement <4 x float> %41, float %36, i32 2
+  %43 = insertelement <4 x float> %42, float %36, i32 3
+  %gl_FragColor = fmul <4 x float> %43, %39
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge5
+stage-epilogue:                                   ; preds = %ifmerge9
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -169,25 +179,25 @@ entry:
   %gla_constGEP = getelementptr %s3 addrspace(2)* @foo3, i32 0, i32 0, i32 9, i32 0
   %0 = load i32 addrspace(2)* %gla_constGEP, align 4, !gla.uniform !1
   %1 = icmp sgt i32 %0, 0
-  %gla_constGEP44 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 1
-  %2 = load float addrspace(2)* %gla_constGEP44, align 4
+  %gla_constGEP48 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 1
+  %2 = load float addrspace(2)* %gla_constGEP48, align 4
   %3 = load <2 x float>* @coord, align 8
   %4 = extractelement <2 x float> %3, i32 1
-  %gla_constGEP45 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
-  %5 = load i32 addrspace(2)* %gla_constGEP45, align 4
-  %gla_constGEP46 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0, i32 0
-  %6 = load i32 addrspace(2)* %gla_constGEP46, align 4
+  %gla_constGEP49 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
+  %5 = load i32 addrspace(2)* %gla_constGEP49, align 4
+  %gla_constGEP50 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0, i32 0
+  %6 = load i32 addrspace(2)* %gla_constGEP50, align 4
   %select = select i1 %1, float 0.000000e+00, float 3.000000e+00
-  %select40 = select i1 %1, i32 0, i32 %5
-  %select41 = select i1 %1, i32 0, i32 %6
-  %select42 = select i1 %1, float 1.000000e+00, float %4
-  %select43 = select i1 %1, float %2, float %4
-  %7 = icmp sgt i32 %select40, 5
-  %locals00.0.0.0.locals0.0.0 = select i1 %7, i32 %select41, i32 %select40
+  %select44 = select i1 %1, i32 0, i32 %5
+  %select45 = select i1 %1, i32 0, i32 %6
+  %select46 = select i1 %1, float 1.000000e+00, float %4
+  %select47 = select i1 %1, float %2, float %4
+  %7 = icmp sgt i32 %select44, 5
+  %locals00.0.0.0.locals0.0.0 = select i1 %7, i32 %select45, i32 %select44
   %8 = sitofp i32 %locals00.0.0.0.locals0.0.0 to float
-  %9 = fadd float %select43, %8
+  %9 = fadd float %select47, %8
   %10 = fadd float %select, %9
-  %11 = fadd float %select42, %10
+  %11 = fadd float %select46, %10
   %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %11, <4 x i32> zeroinitializer)
   %13 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !13
   %14 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %13, i32 0, <2 x float> %3)
