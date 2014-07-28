@@ -454,15 +454,15 @@ const highp ivec3 L_c = ivec3(5);
 
 void main()
 {
-	highp float dotres_c1 = dot(p, (((((tblock.M1[0]) + (tblock.M2[0])) + (M4[0])) + (M3[0])) + (t2m[0])));
-	highp float dotres_c2 = dot(p, (((((tblock.M1[1]) + (tblock.M2[1])) + (M4[1])) + (M3[1])) + (t2m[1])));
-	highp float dotres_c3 = dot(p, (((((tblock.M1[2]) + (tblock.M2[2])) + (M4[2])) + (M3[2])) + (t2m[2])));
-	highp float dotres_c4 = dot(p, (((((tblock.M1[3]) + (tblock.M2[3])) + (M4[3])) + (M3[3])) + (t2m[3])));
+	highp float dotres_c1 = dot(p, ((((tblock.M1[0] + tblock.M2[0]) + M4[0]) + M3[0]) + t2m[0]));
+	highp float dotres_c2 = dot(p, ((((tblock.M1[1] + tblock.M2[1]) + M4[1]) + M3[1]) + t2m[1]));
+	highp float dotres_c3 = dot(p, ((((tblock.M1[2] + tblock.M2[2]) + M4[2]) + M3[2]) + t2m[2]));
+	highp float dotres_c4 = dot(p, ((((tblock.M1[3] + tblock.M2[3]) + M4[3]) + M3[3]) + t2m[3]));
 	vec4 L_5 = vec4(dotres_c1, dotres_c2, dotres_c3, dotres_c4);
 	pos = L_5;
-	highp float dotres_c5 = dot(c, (tblock.N1[0]));
-	highp float dotres_c6 = dot(c, (tblock.N1[1]));
-	highp float dotres_c7 = dot(c, (tblock.N1[2]));
+	highp float dotres_c5 = dot(c, tblock.N1[0]);
+	highp float dotres_c6 = dot(c, tblock.N1[1]);
+	highp float dotres_c7 = dot(c, tblock.N1[2]);
 	vec3 L_9;
 	L_9.xyz = vec3(dotres_c5, dotres_c6, dotres_c7);
 	color = L_9;

@@ -472,42 +472,39 @@ uniform s1 foo1;
 in vec4 u;
 in vec4 w;
 in vec2 coord;
-const vec2 L_6 = vec2(2.0);
-const vec4 L_9 = vec4(3.0);
-const vec4 L_c = vec4(4.0);
-const vec4 L_10 = vec4(5.0);
-const int L_12 = 17;
-const float L_13 = 17.0;
-const int L_14 = 14;
-const float L_15 = 14.0;
-const vec4 L_17 = vec4(6.0);
-const vec4 L_1a = vec4(7.0);
+const vec2 L_3 = vec2(2.0);
+const vec4 L_6 = vec4(3.0);
+const vec4 L_9 = vec4(4.0);
+const vec4 L_d = vec4(5.0);
+const int L_f = 17;
+const float L_10 = 17.0;
+const int L_11 = 14;
+const float L_12 = 14.0;
+const vec4 L_14 = vec4(6.0);
+const vec4 L_17 = vec4(7.0);
 
 void main()
 {
 	vec4 v_uc1;
-	s1 element_c2 = foo2a.s1_1;
-	s1 element_c3 = foo2b.s1_1;
-	bool L_4 = (((foo2a.i) == (foo2b.i)) && ((foo2a.f) == (foo2b.f))) && (((element_c2.i) == (element_c3.i)) && ((element_c2.f) == (element_c3.f)));
-	if (L_4) {
-		vec4 L_5 = texture(sampler, coord);
-		v_uc1 = L_5;
+	if ((((foo2a.i == foo2b.i) && (foo2a.f == foo2b.f)) && ((foo2a.s1_1.i == foo2b.s1_1.i) && (foo2a.s1_1.f == foo2b.s1_1.f)))) {
+		vec4 L_2 = texture(sampler, coord);
+		v_uc1 = L_2;
 	} else {
-		vec4 L_7 = texture(sampler, (coord * L_6));
-		v_uc1 = L_7;
+		vec4 L_4 = texture(sampler, (coord * L_3));
+		v_uc1 = L_4;
 	}
 	
-	bool L_8 = all((equal(u, v_uc1)));
-	vec4 select_c4 = L_8 ? (v_uc1 * L_9) : v_uc1;
-	bool L_b = any((notEqual(u, select_c4)));
-	vec4 select_c5 = L_b ? (select_c4 * L_c) : select_c4;
-	vec2 L_e = select_c5.yw;
-	bool L_f = all((equal(coord, L_e)));
-	vec4 select_c6 = L_f ? (select_c5 * L_10) : select_c5;
-	bool L_16 = ((((int(u.x)) == L_12) && (u.y == L_13)) && (((int(u.z)) == (int(w.x))) && (u.w == w.y))) && (((int(w.z)) == L_14) && (w.w == L_15));
-	vec4 select_c7 = L_16 ? (select_c6 * L_17) : select_c6;
-	bool L_19 = ((((int(u.x)) != L_12) || (u.y != L_13)) || (((int(u.z)) != (int(w.x))) || (u.w != w.y))) || (((int(w.z)) != L_14) || (w.w != L_15));
-	gl_FragColor = (L_19 ? (select_c7 * L_1a) : select_c7);
+	bool L_5 = all((equal(u, v_uc1)));
+	vec4 select_c2 = L_5 ? (v_uc1 * L_6) : v_uc1;
+	bool L_8 = any((notEqual(u, select_c2)));
+	vec4 select_c3 = L_8 ? (select_c2 * L_9) : select_c2;
+	vec2 L_b = select_c3.yw;
+	bool L_c = all((equal(coord, L_b)));
+	vec4 select_c4 = L_c ? (select_c3 * L_d) : select_c3;
+	bool L_13 = ((((int(u.x)) == L_f) && (u.y == L_10)) && (((int(u.z)) == (int(w.x))) && (u.w == w.y))) && (((int(w.z)) == L_11) && (w.w == L_12));
+	vec4 select_c5 = L_13 ? (select_c4 * L_14) : select_c4;
+	bool L_16 = ((((int(u.x)) != L_f) || (u.y != L_10)) || (((int(u.z)) != (int(w.x))) || (u.w != w.y))) || (((int(w.z)) != L_11) || (w.w != L_12));
+	gl_FragColor = (L_16 ? (select_c5 * L_17) : select_c5);
 	
 }
 
@@ -529,43 +526,42 @@ uniform s1 foo1;
 in vec2 coord;
 in vec4 u;
 in vec4 w;
-const vec2 L_4 = vec2(2.0);
-const vec4 L_7 = vec4(3.0);
-const vec4 L_a = vec4(4.0);
-const vec4 L_e = vec4(5.0);
-const int L_11 = 17;
-const float L_12 = 17.0;
-const int L_16 = 14;
-const float L_17 = 14.0;
-const vec4 L_18 = vec4(6.0);
-const vec4 L_1a = vec4(7.0);
+const vec2 L_3 = vec2(2.0);
+const vec4 L_6 = vec4(3.0);
+const vec4 L_9 = vec4(4.0);
+const vec4 L_d = vec4(5.0);
+const int L_10 = 17;
+const float L_11 = 17.0;
+const int L_15 = 14;
+const float L_16 = 14.0;
+const vec4 L_17 = vec4(6.0);
+const vec4 L_19 = vec4(7.0);
 
 void main()
 {
 	vec4 v_uc_c1;
-	bool L_uc2 = ((foo2a.i == foo2b.i) && (foo2a.f == foo2b.f)) && (((foo2a.s1_1.i) == (foo2b.s1_1.i)) && ((foo2a.s1_1.f) == (foo2b.s1_1.f)));
-	if (L_uc2) {
-		vec4 L_uc3 = texture(sampler, coord);
-		v_uc_c1 = L_uc3;
+	if ((((foo2a.i == foo2b.i) && (foo2a.f == foo2b.f)) && ((foo2a.s1_1.i == foo2b.s1_1.i) && (foo2a.s1_1.f == foo2b.s1_1.f)))) {
+		vec4 L_uc2 = texture(sampler, coord);
+		v_uc_c1 = L_uc2;
 	} else {
-		vec4 L_uc4 = texture(sampler, (coord * L_4));
-		v_uc_c1 = L_uc4;
+		vec4 L_uc3 = texture(sampler, (coord * L_3));
+		v_uc_c1 = L_uc3;
 	}
 	
-	bool L_uc5 = all((equal(u, v_uc_c1)));
-	vec4 select_c6 = L_uc5 ? (v_uc_c1 * L_7) : v_uc_c1;
-	bool L_b_c7 = any((notEqual(u, select_c6)));
-	vec4 select_c8 = L_b_c7 ? (select_c6 * L_a) : select_c6;
-	vec2 L_c = select_c8.yw;
-	bool L_f_c9 = all((equal(coord, L_c)));
-	vec4 select_c10 = L_f_c9 ? (select_c8 * L_e) : select_c8;
-	int L_10 = int(u.x);
-	int L_13 = int(u.z);
-	int L_14 = int(w.x);
-	int L_15 = int(w.z);
-	vec4 select_c11 = ((((L_10 == L_11) && (u.y == L_12)) && ((L_13 == L_14) && (u.w == w.y))) && ((L_15 == L_16) && (w.w == L_17))) ? (select_c10 * L_18) : select_c10;
-	vec4 select_c12 = ((((L_10 != L_11) || (u.y != L_12)) || ((L_13 != L_14) || (u.w != w.y))) || ((L_15 != L_16) || (w.w != L_17))) ? (select_c11 * L_1a) : select_c11;
-	gl_FragColor = select_c12;
+	bool L_uc4 = all((equal(u, v_uc_c1)));
+	vec4 select_c5 = L_uc4 ? (v_uc_c1 * L_6) : v_uc_c1;
+	bool L_uc6 = any((notEqual(u, select_c5)));
+	vec4 select_c7 = L_uc6 ? (select_c5 * L_9) : select_c5;
+	vec2 L_b = select_c7.yw;
+	bool L_c8 = all((equal(coord, L_b)));
+	vec4 select_c9 = L_c8 ? (select_c7 * L_d) : select_c7;
+	int L_f = int(u.x);
+	int L_12 = int(u.z);
+	int L_13 = int(w.x);
+	int L_14 = int(w.z);
+	vec4 select_c10 = ((((L_f == L_10) && (u.y == L_11)) && ((L_12 == L_13) && (u.w == w.y))) && ((L_14 == L_15) && (w.w == L_16))) ? (select_c9 * L_17) : select_c9;
+	vec4 select_c11 = ((((L_f != L_10) || (u.y != L_11)) || ((L_12 != L_13) || (u.w != w.y))) || ((L_14 != L_15) || (w.w != L_16))) ? (select_c10 * L_19) : select_c10;
+	gl_FragColor = select_c11;
 	
 }
 

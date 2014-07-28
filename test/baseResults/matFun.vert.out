@@ -256,17 +256,17 @@ const float L_e = 1.0;
 
 void main()
 {
-	vec3 L_1 = vec3((m4[0]));
-	vec3 L_2 = vec3((m4[1]));
-	vec3 L_3 = vec3((m4[2]));
+	vec3 L_1 = vec3(m4[0]);
+	vec3 L_2 = vec3(m4[1]);
+	vec3 L_3 = vec3(m4[2]);
 	float dotres_i_c1 = dot(v3, L_1);
 	float dotres_c2 = dot(v3, L_2);
 	float dotres_c3 = dot(v3, L_3);
 	vec3 L_7;
 	L_7.xyz = vec3(dotres_i_c1, dotres_c2, dotres_c3);
-	float dotres_i_c4 = dot(v3, (m3[0]));
-	float dotres_c5 = dot(v3, (m3[1]));
-	float dotres_c6 = dot(v3, (m3[2]));
+	float dotres_i_c4 = dot(v3, m3[0]);
+	float dotres_c5 = dot(v3, m3[1]);
+	float dotres_c6 = dot(v3, m3[2]);
 	vec3 L_b;
 	L_b.xyz = vec3(dotres_i_c4, dotres_c5, dotres_c6);
 	vec3 L_c = L_7 + L_b;

@@ -252,12 +252,8 @@ out float f;
 
 void main()
 {
-	vec4 column_c1 = mvp[0];
-	vec4 column_c2 = mvp[1];
-	vec4 column_c3 = mvp[2];
-	vec4 column_c4 = mvp[3];
-	vec4 L_5 = vec4(((((column_c1.x * v.x) + (column_c2.x * v.y)) + (column_c3.x * v.z)) + (column_c4.x * v.w)), ((((column_c1.y * v.x) + (column_c2.y * v.y)) + (column_c3.y * v.z)) + (column_c4.y * v.w)), ((((column_c1.z * v.x) + (column_c2.z * v.y)) + (column_c3.z * v.z)) + (column_c4.z * v.w)), ((((column_c1.w * v.x) + (column_c2.w * v.y)) + (column_c3.w * v.z)) + (column_c4.w * v.w)));
-	glPos = L_5;
+	vec4 L_1 = vec4(((((mvp[0].x * v.x) + (mvp[1].x * v.y)) + (mvp[2].x * v.z)) + (mvp[3].x * v.w)), ((((mvp[0].y * v.x) + (mvp[1].y * v.y)) + (mvp[2].y * v.z)) + (mvp[3].y * v.w)), ((((mvp[0].z * v.x) + (mvp[1].z * v.y)) + (mvp[2].z * v.z)) + (mvp[3].z * v.w)), ((((mvp[0].w * v.x) + (mvp[1].w * v.y)) + (mvp[2].w * v.z)) + (mvp[3].w * v.w)));
+	glPos = L_1;
 	f = (am3[2].y + arraym[1][2].w);
 	
 }

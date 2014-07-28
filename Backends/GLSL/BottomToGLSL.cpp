@@ -186,7 +186,7 @@ public:
 class gla::GlslTarget : public gla::GlslTranslator {
 public:
     GlslTarget(Manager* m, bool obfuscate, bool filterInactive) : GlslTranslator(m, obfuscate, filterInactive), appendInitializers(false),
-                                                                  indentLevel(0), lastVariable(0), canonCounter(0), forwardSubstitute(true)
+                                                                  indentLevel(0), lastVariable(0), canonCounter(0)
     {
         #ifdef _WIN32
             unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
@@ -473,6 +473,7 @@ protected:
     std::string traverseGep(const llvm::Instruction* instr, EMdTypeLayout* mdTypeLayout = 0);
     void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout = 0);
 
+    bool cheapExpression(const std::string&, bool& needsParens);
     bool multipleUsesInCurrentBlock(const llvm::Instruction*);
     bool modifiesPrecision(const llvm::Instruction*);
 
@@ -527,7 +528,6 @@ protected:
     bool usingSso;
     int canonCounter;
     const char* indentString;
-    bool forwardSubstitute;
 };
 
 //
@@ -1583,27 +1583,28 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         const llvm::GetElementPtrInst* gepInstr = getGepAsInst(target);
         if (gepInstr)
             target = gepInstr;
-        std::string expression;  // The expression could be conversion wrapped, so we won't actually use it
-        if (! getExpressionString(target, expression)) {
+        std::string dummyExpression;  // The expression could be conversion wrapped, so we won't actually use it
+        if (! getExpressionString(target, dummyExpression)) {
             // it could be an embedded GEP
             mapPointerExpression(target);
         }
 
-        newLine();
         std::map<const llvm::Value*, std::string*>::const_iterator it = nonConvertedMap.find(target);
+        if (it != nonConvertedMap.end())
+            ConversionStart(expression, target->getType()->getContainedType(0), true);
+        emitGlaOperand(expression, llvmInstruction->getOperand(0));
+        if (it != nonConvertedMap.end())
+            ConversionStop(expression, target->getType()->getContainedType(0));
+
+        newLine();
         // If uint/matrix IO conversions are needed, they actually have to have the
         // opposite conversion applied to the rhs.
         if (it != nonConvertedMap.end())
             shader << it->second->c_str();
         else
             emitGlaValue(shader, target);
-        shader << " = ";
-        if (it != nonConvertedMap.end())
-            ConversionStart(shader, target->getType()->getContainedType(0), true);
-        emitGlaOperand(shader, llvmInstruction->getOperand(0));
-        if (it != nonConvertedMap.end())
-            ConversionStop(shader, target->getType()->getContainedType(0));
-        shader << ";";
+
+        shader << " = " << expression.str() << ";";
 
         return;
     }
@@ -3934,28 +3935,32 @@ void gla::GlslTarget::emitInvariantDeclarations(llvm::Module& module)
 
 void gla::GlslTarget::mapOrEmitInstructionExpression(const llvm::Instruction* llvmInstruction, const std::ostringstream& expression)
 {
-    bool doSubstitute = forwardSubstitute;
+    bool doSubstitute = true;
 
-    // Do these kick outs in the order of saving the most performance
+    bool needsParens;
+    if (! cheapExpression(expression.str(), needsParens)) {
 
-    if (doSubstitute && expression.str().size() > 120)
-        doSubstitute = false;
+        if (doSubstitute && expression.str().size() > 120)
+            doSubstitute = false;
 
-    if (doSubstitute && modifiesPrecision(llvmInstruction))
-        doSubstitute = false;
+        if (doSubstitute && modifiesPrecision(llvmInstruction))
+            doSubstitute = false;
 
-    if (doSubstitute && valueMap.find(llvmInstruction) != valueMap.end())
-        doSubstitute = false;
+        if (doSubstitute && valueMap.find(llvmInstruction) != valueMap.end())
+            doSubstitute = false;
 
-    if (doSubstitute && multipleUsesInCurrentBlock(llvmInstruction))
-        doSubstitute = false;
+        if (doSubstitute && multipleUsesInCurrentBlock(llvmInstruction))
+            doSubstitute = false;
+    }
 
     if (doSubstitute) {
         // map it
         std::string parenthesized;
-        parenthesized.append("(");
+        if (needsParens)
+            parenthesized.append("(");
         parenthesized.append(expression.str());
-        parenthesized.append(")");
+        if (needsParens)
+            parenthesized.append(")");
         mapExpressionString(llvmInstruction, parenthesized);
     } else {
         // emit it
@@ -4062,6 +4067,63 @@ void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name,
         assert(0 && "Dereferencing non array/struct");
         break;
     }
+}
+
+bool gla::GlslTarget::cheapExpression(const std::string& expression, bool& needsParens)
+{
+    int c = expression[0];
+    needsParens = (c == '+' || c  == '-');
+
+    // Skip over unary stuff...
+    int pos;
+    for (pos = 0; pos < expression.size(); ++pos) {
+        int c = expression[pos];
+        bool breakLoop = false;
+        switch (c) {
+        case '+':
+        case '-':
+        case '(':
+        case '_':
+            break;
+        default:
+            breakLoop = true;
+            break;
+        }
+        if (breakLoop)
+            break;
+    }
+
+    int startPos;
+    do {
+        startPos = pos;
+
+        // Skip over name
+        for (; pos < expression.size(); ++pos) {
+            int c = expression[pos];
+            if (c == '_' || 
+                (c >= 'a' && c <= 'z') ||
+                (c >= 'A' && c <= 'Z') ||
+                (c >= '0' && c <= '9'))
+                continue;
+            else
+                break;
+        }
+
+        // Skip over indexes/members/etc., but not more opening expressions (constructors, etc.)
+        for (; pos < expression.size(); ++pos) {
+            int c = expression[pos];
+            if (c == '.' || c == '[' || c == ']' || c == ')' ||
+                (c > '0' && c < '9'))
+                continue;
+            else
+                break;
+        }
+    } while (pos > startPos);
+
+    if (pos < expression.size())
+        needsParens = true;
+
+    return pos == expression.size();
 }
 
 // TODO: Compile-time performance: This is brute force; if it's a performance issue,
