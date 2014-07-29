@@ -3114,7 +3114,7 @@ void gla::GlslTarget::emitGlaSamplerFunction(std::ostringstream& out, const llvm
         case ESampler2D:        out << "2D";     break;
         case ESampler3D:        out << "3D";     break;
         case ESamplerCube:      out << "Cube";   break;
-        case ESampler2DRect:    out << "Rect"; break;
+        case ESampler2DRect:    out << "2DRect"; break;
         default:
             UnsupportedFunctionality("Texturing in Bottom IR: ", sampler, EATContinue);
             break;
@@ -3135,6 +3135,9 @@ void gla::GlslTarget::emitGlaSamplerFunction(std::ostringstream& out, const llvm
         else
             out << "Offset";
     }
+
+    if (forceOldStyle && IsGradientTexInst(llvmInstruction) && (texFlags & ETFProjected))
+        out << "ARB";
 }
 
 void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier qualifier, 
