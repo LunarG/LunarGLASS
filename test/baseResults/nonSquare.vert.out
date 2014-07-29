@@ -416,6 +416,7 @@ attributes #0 = { nounwind readnone }
 uniform mat3x2 m32;
 attribute vec3 v3;
 attribute vec4 v4;
+float L_1;
 const float L_4 = 0.0;
 const float L_5 = 3.0;
 const float L_6 = 9.0;
@@ -431,7 +432,6 @@ const vec4 L_10 = vec4(20.0, 10.0, 6.0, 5.0);
 
 void main()
 {
-	float L_1;
 	float dotProduct_c1 = ((((L_1 * m32[0].y) + (m32[0].x * L_1)) * v3.x) + (((L_1 * m32[1].x) + (L_1 * m32[1].y)) * v3.y)) + (((L_1 * m32[2].x) + (L_1 * m32[2].y)) * v3.z);
 	vec4 L_3 = vec4(dotProduct_c1, dotProduct_c1, dotProduct_c1, L_4);
 	vec4 L_d = vec4(((((v4.x * L_5) + (v4.y * L_6)) + (v4.z * L_7)) + (v4.w * L_8)), ((((v4.x * L_9) + (v4.y * L_a)) + (v4.z * L_b)) + (v4.w * L_c)), L_4, L_4);
@@ -444,26 +444,23 @@ void main()
 uniform mat3x2 m32;
 attribute vec3 v3;
 attribute vec4 v4;
-const float L_4 = 0.0;
-const float L_5 = 3.0;
-const float L_6 = 9.0;
-const float L_7 = 15.0;
-const float L_8 = 21.0;
-const float L_9 = 6.0;
-const float L_a = 12.0;
-const float L_b = 18.0;
-const float L_c = 24.0;
-const vec4 L_e = vec4(50.0, 110.0, 170.0, 230.0);
-const vec4 L_f = vec4(30.0, 60.0, 0.0, 0.0);
-const vec4 L_10 = vec4(20.0, 10.0, 6.0, 5.0);
+const float L_1 = 3.0;
+const float L_2 = 9.0;
+const float L_3 = 15.0;
+const float L_4 = 21.0;
+const float L_5 = 6.0;
+const float L_6 = 12.0;
+const float L_7 = 18.0;
+const float L_8 = 24.0;
+const float L_a = 0.0;
+const vec4 L_b = vec4(50.0, 110.0, 170.0, 230.0);
+const vec4 L_c = vec4(30.0, 60.0, 0.0, 0.0);
+const vec4 L_d = vec4(20.0, 10.0, 6.0, 5.0);
 
 void main()
 {
-	float L_1;
-	float dotProduct_c1 = ((((L_1 * m32[0].x) + (m32[0].y * L_1)) * v3.x) + (((L_1 * m32[1].x) + (L_1 * m32[1].y)) * v3.y)) + (((L_1 * m32[2].x) + (L_1 * m32[2].y)) * v3.z);
-	vec4 L_3 = vec4(dotProduct_c1, dotProduct_c1, dotProduct_c1, L_4);
-	vec4 L_d = vec4(((((v4.x * L_5) + (v4.y * L_6)) + (v4.z * L_7)) + (v4.w * L_8)), ((((v4.x * L_9) + (v4.y * L_a)) + (v4.z * L_b)) + (v4.w * L_c)), L_4, L_4);
-	gl_Position = ((((L_3 + L_d) + L_e) + L_f) + L_10);
+	vec4 L_9 = vec4(((((v4.x * L_1) + (v4.y * L_2)) + (v4.z * L_3)) + (v4.w * L_4)), ((((v4.x * L_5) + (v4.y * L_6)) + (v4.z * L_7)) + (v4.w * L_8)), L_a, L_a);
+	gl_Position = (((L_9 + L_b) + L_c) + L_d);
 	
 }
 

@@ -1631,23 +1631,23 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     case llvm::Instruction::InsertElement:
     {
         // first, copy whole the structure "inserted into" to the resulting "value" of the insert
-        newLine();
-        emitGlaValue(shader, llvmInstruction);
+            newLine();
+            emitGlaValue(shader, llvmInstruction);
 
-        shader << " = ";
-        emitGlaOperand(shader, llvmInstruction->getOperand(0));
-        shader << ";";
+            shader << " = ";
+            emitGlaOperand(shader, llvmInstruction->getOperand(0));
+            shader << ";";
 
-        // second, overwrite the element being inserted
-        newLine();
-        emitGlaValue(shader, llvmInstruction);
+            // second, overwrite the element being inserted
+            newLine();
+            emitGlaValue(shader, llvmInstruction);
 
-        llvm::Value* element = llvmInstruction->getOperand(2);
-        if (llvm::isa<llvm::Constant>(element)) {
-            shader << ".";
-            emitComponentToSwizzle(shader, GetConstantInt(element));
-        } else {
-            shader << "[";
+            llvm::Value* element = llvmInstruction->getOperand(2);
+            if (llvm::isa<llvm::Constant>(element)) {
+                shader << ".";
+                emitComponentToSwizzle(shader, GetConstantInt(element));
+            } else {
+                shader << "[";
             emitGlaOperand(shader, element);
             shader << "]";
         }
@@ -3144,10 +3144,10 @@ void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type
         shader << " ";
         break;
     case EVQUndef:
-        newLine();
-        emitGlaType(shader, precision, qualifier, type);
-        shader << " " << name << ";";
-        emitInitializeAggregate(shader, name, constant);
+        arraySize = emitGlaType(globalDeclarations, precision, qualifier, type);
+        globalDeclarations << " " << name;
+        emitGlaArraySize(globalDeclarations, arraySize);
+        globalDeclarations << ";" << std::endl;
         break;
     default:
         assert(! "unknown VariableQualifier");
@@ -4076,7 +4076,7 @@ bool gla::GlslTarget::cheapExpression(const std::string& expression, bool& needs
 
     // Skip over unary stuff...
     int pos;
-    for (pos = 0; pos < expression.size(); ++pos) {
+    for (pos = 0; pos < (int)expression.size(); ++pos) {
         int c = expression[pos];
         bool breakLoop = false;
         switch (c) {
@@ -4098,7 +4098,7 @@ bool gla::GlslTarget::cheapExpression(const std::string& expression, bool& needs
         startPos = pos;
 
         // Skip over name
-        for (; pos < expression.size(); ++pos) {
+        for (; pos < (int)expression.size(); ++pos) {
             int c = expression[pos];
             if (c == '_' || 
                 (c >= 'a' && c <= 'z') ||
@@ -4110,7 +4110,7 @@ bool gla::GlslTarget::cheapExpression(const std::string& expression, bool& needs
         }
 
         // Skip over indexes/members/etc., but not more opening expressions (constructors, etc.)
-        for (; pos < expression.size(); ++pos) {
+        for (; pos < (int)expression.size(); ++pos) {
             int c = expression[pos];
             if (c == '.' || c == '[' || c == ']' || c == ')' ||
                 (c > '0' && c < '9'))
@@ -4120,7 +4120,7 @@ bool gla::GlslTarget::cheapExpression(const std::string& expression, bool& needs
         }
     } while (pos > startPos);
 
-    if (pos < expression.size())
+    if (pos < (int)expression.size())
         needsParens = true;
 
     return pos == expression.size();
