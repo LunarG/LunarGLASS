@@ -7,9 +7,12 @@ Top IR:
 @bigColor = external addrspace(2) constant <4 x float>
 @gl_FragColor = global <4 x float> zeroinitializer
 @v4 = external addrspace(2) constant <4 x i32>
+@f = global float 0.000000e+00
 
 define fastcc void @main() {
 entry:
+  %i24 = alloca i32
+  %r = alloca <4 x float>
   %constructed = alloca <4 x float>
   %tv4 = alloca <4 x float>
   %i13 = alloca i32
@@ -24,7 +27,7 @@ entry:
 
 loop-header:                                      ; preds = %post-loop-continue, %ifmerge, %entry
   %0 = load i32* %i
-  %1 = load i32 addrspace(2)* @Count, !gla.uniform !3
+  %1 = load i32 addrspace(2)* @Count, !gla.uniform !5
   %2 = icmp slt i32 %0, %1
   %3 = xor i1 %2, true
   br i1 %3, label %then, label %ifmerge
@@ -36,7 +39,7 @@ post-loop-break:                                  ; No predecessors!
   br label %ifmerge
 
 ifmerge:                                          ; preds = %loop-header, %post-loop-break
-  %4 = load <4 x float> addrspace(2)* @bigColor, !gla.uniform !5
+  %4 = load <4 x float> addrspace(2)* @bigColor, !gla.uniform !7
   %5 = load <4 x float>* %color
   %color2 = fadd <4 x float> %5, %4
   store <4 x float> %color2, <4 x float>* %color
@@ -69,7 +72,7 @@ post-loop-break7:                                 ; No predecessors!
 
 ifmerge8:                                         ; preds = %loop-header5, %post-loop-break7
   %10 = load i32* %i4
-  %11 = load <4 x i32> addrspace(2)* @v4, !gla.uniform !6
+  %11 = load <4 x i32> addrspace(2)* @v4, !gla.uniform !8
   %12 = extractelement <4 x i32> %11, i32 %10
   %13 = uitofp i32 %12 to float
   %14 = load float* %sum
@@ -102,7 +105,7 @@ post-loop-break16:                                ; No predecessors!
 ifmerge17:                                        ; preds = %loop-header14, %post-loop-break16
   %19 = load i32* %i13
   %20 = load i32* %i13
-  %21 = load <4 x i32> addrspace(2)* @v4, !gla.uniform !6
+  %21 = load <4 x i32> addrspace(2)* @v4, !gla.uniform !8
   %22 = extractelement <4 x i32> %21, i32 %20
   %23 = mul i32 %22, 4
   %24 = uitofp i32 %23 to float
@@ -129,9 +132,77 @@ loop-merge21:                                     ; preds = %then15
   %35 = load <4 x float>* @gl_FragColor
   %gl_FragColor22 = fadd <4 x float> %35, %34
   store <4 x float> %gl_FragColor22, <4 x float>* @gl_FragColor
+  %36 = load <4 x float>* @BaseColor
+  %37 = extractelement <4 x float> %36, i32 0
+  %38 = insertelement <3 x float> undef, float %37, i32 0
+  %39 = extractelement <4 x float> %36, i32 1
+  %40 = insertelement <3 x float> %38, float %39, i32 1
+  %41 = extractelement <4 x float> %36, i32 2
+  %42 = insertelement <3 x float> %40, float %41, i32 2
+  %43 = load <4 x float>* %r
+  %44 = extractelement <3 x float> %42, i32 0
+  %45 = insertelement <4 x float> %43, float %44, i32 0
+  %46 = extractelement <3 x float> %42, i32 1
+  %47 = insertelement <4 x float> %45, float %46, i32 1
+  %48 = extractelement <3 x float> %42, i32 2
+  %r23 = insertelement <4 x float> %47, float %48, i32 2
+  store <4 x float> %r23, <4 x float>* %r
+  store i32 0, i32* %i24
+  br label %loop-header25
+
+loop-header25:                                    ; preds = %post-loop-continue31, %ifmerge28, %loop-merge21
+  %49 = load i32* %i24
+  %50 = load i32 addrspace(2)* @Count, !gla.uniform !5
+  %51 = icmp slt i32 %49, %50
+  %52 = xor i1 %51, true
+  br i1 %52, label %then26, label %ifmerge28
+
+then26:                                           ; preds = %loop-header25
+  br label %loop-merge32
+
+post-loop-break27:                                ; No predecessors!
+  br label %ifmerge28
+
+ifmerge28:                                        ; preds = %loop-header25, %post-loop-break27
+  %53 = load float* @f
+  %54 = load <4 x float>* %r
+  %r29 = insertelement <4 x float> %54, float %53, i32 3
+  store <4 x float> %r29, <4 x float>* %r
+  %55 = load i32* %i24
+  %i2430 = add i32 %55, 1
+  store i32 %i2430, i32* %i24
+  br label %loop-header25
+
+post-loop-continue31:                             ; No predecessors!
+  br label %loop-header25
+
+loop-merge32:                                     ; preds = %then26
+  %56 = load <4 x float>* %r
+  %57 = extractelement <4 x float> %56, i32 0
+  %58 = insertelement <3 x float> undef, float %57, i32 0
+  %59 = extractelement <4 x float> %56, i32 1
+  %60 = insertelement <3 x float> %58, float %59, i32 1
+  %61 = extractelement <4 x float> %56, i32 2
+  %62 = insertelement <3 x float> %60, float %61, i32 2
+  %63 = load <4 x float>* @gl_FragColor
+  %64 = extractelement <4 x float> %63, i32 0
+  %65 = insertelement <3 x float> undef, float %64, i32 0
+  %66 = extractelement <4 x float> %63, i32 1
+  %67 = insertelement <3 x float> %65, float %66, i32 1
+  %68 = extractelement <4 x float> %63, i32 2
+  %69 = insertelement <3 x float> %67, float %68, i32 2
+  %70 = fadd <3 x float> %69, %62
+  %71 = load <4 x float>* @gl_FragColor
+  %72 = extractelement <3 x float> %70, i32 0
+  %73 = insertelement <4 x float> %71, float %72, i32 0
+  %74 = extractelement <3 x float> %70, i32 1
+  %75 = insertelement <4 x float> %73, float %74, i32 1
+  %76 = extractelement <3 x float> %70, i32 2
+  %gl_FragColor33 = insertelement <4 x float> %75, float %76, i32 2
+  store <4 x float> %gl_FragColor33, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %loop-merge21
+stage-epilogue:                                   ; preds = %loop-merge32
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -139,20 +210,22 @@ stage-exit:                                       ; preds = %stage-epilogue
 }
 
 !gla.entrypoint = !{!0}
-!gla.inputs = !{!1}
-!gla.uniforms = !{!3, !5, !6}
-!gla.outputs = !{!8}
+!gla.inputs = !{!1, !3}
+!gla.uniforms = !{!5, !7, !8}
+!gla.outputs = !{!10}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
-!3 = metadata !{metadata !"Count", i32 12, i32* @Count_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null}
-!5 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !4}
-!6 = metadata !{metadata !"v4", i32 12, <4 x i32>* @v4_typeProxy, metadata !7}
-!7 = metadata !{i32 1, i32 0, i32 1024, null}
-!8 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!3 = metadata !{metadata !"f", i32 1, float* @f_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
+!5 = metadata !{metadata !"Count", i32 12, i32* @Count_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1024, null}
+!7 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !6}
+!8 = metadata !{metadata !"v4", i32 12, <4 x i32>* @v4_typeProxy, metadata !9}
+!9 = metadata !{i32 1, i32 0, i32 1024, null}
+!10 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !11}
+!11 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 
 
 Bottom IR:
@@ -163,13 +236,14 @@ Bottom IR:
 @bigColor = external addrspace(2) constant <4 x float>
 @gl_FragColor = global <4 x float> zeroinitializer
 @v4 = external addrspace(2) constant <4 x i32>
+@f = global float 0.000000e+00
 @gla_globalAgg = internal global <4 x float> undef
 
 define fastcc void @main() {
 entry:
   %color1 = load <4 x float>* @BaseColor, align 16
-  %.pre = load i32 addrspace(2)* @Count, align 4, !gla.uniform !3
-  %0 = load <4 x float> addrspace(2)* @bigColor, align 16, !gla.uniform !5
+  %.pre = load i32 addrspace(2)* @Count, align 4, !gla.uniform !5
+  %0 = load <4 x float> addrspace(2)* @bigColor, align 16, !gla.uniform !7
   br label %loop-header
 
 loop-header:                                      ; preds = %ifmerge, %entry
@@ -180,7 +254,7 @@ loop-header:                                      ; preds = %ifmerge, %entry
 
 then:                                             ; preds = %loop-header
   store <4 x float> %1, <4 x float>* @gl_FragColor, align 16
-  %3 = load <4 x i32> addrspace(2)* @v4, align 16, !gla.uniform !6
+  %3 = load <4 x i32> addrspace(2)* @v4, align 16, !gla.uniform !8
   %4 = extractelement <4 x i32> %3, i32 0
   %5 = uitofp i32 %4 to float
   %6 = extractelement <4 x i32> %3, i32 1
@@ -208,72 +282,128 @@ then:                                             ; preds = %loop-header
   %tv418.3 = insertelement <4 x float> %tv418.2, float %20, i32 3
   %21 = fadd <4 x float> %12, %tv418.3
   %gl_FragColor22 = fadd <4 x float> %21, %1
+  %22 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %gl_FragColor22, <3 x i32> <i32 0, i32 1, i32 2>)
   store <4 x float> %gl_FragColor22, <4 x float>* @gl_FragColor, align 16
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %then
-  br label %stage-exit
-
-stage-exit:                                       ; preds = %stage-epilogue
-  ret void
+  %23 = load float* @f, align 4
+  br label %loop-header25
 
 ifmerge:                                          ; preds = %loop-header
   %color2 = fadd <4 x float> %1, %0
   %i3 = add i32 %i.0, 1
   br label %loop-header
+
+loop-header25:                                    ; preds = %ifmerge28, %then
+  %r.0 = phi <4 x float> [ %color1, %then ], [ %28, %ifmerge28 ]
+  %i24.0 = phi i32 [ 0, %then ], [ %i2430, %ifmerge28 ]
+  %24 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %r.0, <3 x i32> <i32 0, i32 1, i32 2>)
+  %25 = icmp slt i32 %i24.0, %.pre
+  br i1 %25, label %ifmerge28, label %then26
+
+then26:                                           ; preds = %loop-header25
+  %26 = fadd <3 x float> %24, %22
+  %27 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> %gl_FragColor22, i32 7, <3 x float> %26, i32 0, <3 x float> %26, i32 1, <3 x float> %26, i32 2, float undef, i32 undef)
+  store <4 x float> %27, <4 x float>* @gl_FragColor, align 16
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %then26
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+
+ifmerge28:                                        ; preds = %loop-header25
+  %28 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %r.0, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %23, i32 0)
+  %i2430 = add i32 %i24.0, 1
+  br label %loop-header25
 }
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float>, i32, <3 x float>, i32, <3 x float>, i32, <3 x float>, i32, float, i32) #0
 
 ; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
 
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float>, <3 x i32>) #0
+
 attributes #0 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
-!gla.inputs = !{!1}
-!gla.uniforms = !{!3, !5, !6}
-!gla.outputs = !{!8}
+!gla.inputs = !{!1, !3}
+!gla.uniforms = !{!5, !7, !8}
+!gla.outputs = !{!10}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
-!3 = metadata !{metadata !"Count", i32 12, i32* @Count_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null}
-!5 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !4}
-!6 = metadata !{metadata !"v4", i32 12, <4 x i32>* @v4_typeProxy, metadata !7}
-!7 = metadata !{i32 1, i32 0, i32 1024, null}
-!8 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !9}
-!9 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!3 = metadata !{metadata !"f", i32 1, float* @f_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
+!5 = metadata !{metadata !"Count", i32 12, i32* @Count_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1024, null}
+!7 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !6}
+!8 = metadata !{metadata !"v4", i32 12, <4 x i32>* @v4_typeProxy, metadata !9}
+!9 = metadata !{i32 1, i32 0, i32 1024, null}
+!10 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !11}
+!11 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 #version 130
 // LunarGOO output
 uniform int Count;
 uniform vec4 bigColor;
 uniform uvec4 v4;
 in vec4 BaseColor;
+in float f;
 vec4 gla_globalAgg;
-const int L_3 = 0;
-const int L_5 = 2;
+const int L_5 = 0;
+const int L_7 = 2;
+vec3 L_e;
+const int L_10 = 1;
 
 void main()
 {
 	vec4 L_1;
 	int i_uc1;
+	vec4 r_uc2;
+	int L_4;
 	L_1 = BaseColor;
-	i_uc1 = L_3;
+	i_uc1 = L_5;
 	for (i_uc1 = 0; i_uc1 < Count; ++i_uc1) {
 		L_1 = (L_1 + bigColor);
 	}
 	
 	gl_FragColor = L_1;
-	vec4 L_4 = vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))));
-	vec4 tv_c2 = gla_globalAgg;
-	tv_c2.x = (float((ivec4(v4).x << L_5)));
-	vec4 tv_c3 = tv_c2;
-	tv_c3.y = (float((ivec4(v4).y << L_5)));
+	vec4 L_6 = vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))));
+	vec4 tv_c3 = gla_globalAgg;
+	tv_c3.x = (float((ivec4(v4).x << L_7)));
 	vec4 tv_c4 = tv_c3;
-	tv_c4.z = (float((ivec4(v4).z << L_5)));
+	tv_c4.y = (float((ivec4(v4).y << L_7)));
 	vec4 tv_c5 = tv_c4;
-	tv_c5.w = (float((ivec4(v4).w << L_5)));
-	gl_FragColor = ((L_4 + tv_c5) + L_1);
+	tv_c5.z = (float((ivec4(v4).z << L_7)));
+	vec4 tv_c6 = tv_c5;
+	tv_c6.w = (float((ivec4(v4).w << L_7)));
+	vec4 Ll_FragColor_c7 = (L_6 + tv_c6) + L_1;
+	vec3 L_d = vec3(Ll_FragColor_c7);
+	gl_FragColor = Ll_FragColor_c7;
+	r_uc2 = BaseColor;
+	L_4 = L_5;
+	while (true) {
+		L_e = vec3(r_uc2);
+		if (! (L_4 < Count)) {
+			break;
+		}
+		
+		vec4 L_f = r_uc2;
+		L_f.w = f;
+		r_uc2 = L_f;
+		L_4 = (L_4 + L_10);
+	}
+	
+	vec3 L_11 = L_d + L_e;
+	vec4 L_12 = Ll_FragColor_c7;
+	L_12.xyz = L_11.xyz;
+	gl_FragColor = L_12;
 	
 }
 
@@ -283,23 +413,48 @@ uniform int Count;
 uniform vec4 bigColor;
 uniform uvec4 v4;
 in vec4 BaseColor;
-const int L_3 = 0;
-const int L_5 = 2;
+in float f;
+const int L_5 = 0;
+const int L_7 = 2;
+vec3 L_b;
+const int L_d = 1;
 
 void main()
 {
 	int i_uc_c1;
 	vec4 L_uc2;
-	i_uc_c1 = L_3;
+	int L_uc3;
+	vec4 r_uc_c4;
+	i_uc_c1 = L_5;
 	L_uc2 = BaseColor;
 	for (i_uc_c1 = 0; i_uc_c1 < Count; ++i_uc_c1) {
 		L_uc2 = (L_uc2 + bigColor);
 	}
 	
 	gl_FragColor = L_uc2;
-	vec4 L_4 = vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))));
-	vec4 L_6 = vec4((float((ivec4(v4).x << L_5))), (float((ivec4(v4).y << L_5))), (float((ivec4(v4).z << L_5))), (float((ivec4(v4).w << L_5))));
-	gl_FragColor = ((L_4 + L_6) + L_uc2);
+	vec4 L_6 = vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))));
+	vec4 L_8 = vec4((float((ivec4(v4).x << L_7))), (float((ivec4(v4).y << L_7))), (float((ivec4(v4).z << L_7))), (float((ivec4(v4).w << L_7))));
+	vec4 Ll_FragColor_c5 = (L_6 + L_8) + L_uc2;
+	vec3 L_a = vec3(Ll_FragColor_c5);
+	gl_FragColor = Ll_FragColor_c5;
+	L_uc3 = L_5;
+	r_uc_c4 = BaseColor;
+	while (true) {
+		L_b = vec3(r_uc_c4);
+		if (! (L_uc3 < Count)) {
+			break;
+		}
+		
+		vec4 L_c = r_uc_c4;
+		L_c.w = f;
+		L_uc3 = (L_uc3 + L_d);
+		r_uc_c4 = L_c;
+	}
+	
+	vec3 L_uc6 = L_a + L_b;
+	vec4 L_f = Ll_FragColor_c5;
+	L_f.xyz = L_uc6.xyz;
+	gl_FragColor = L_f;
 	
 }
 

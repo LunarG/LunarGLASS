@@ -2,6 +2,7 @@
 
 uniform vec4 bigColor;
 in vec4 BaseColor;
+in float f;
 
 uniform int Count;
 uniform uvec4 v4;
@@ -26,4 +27,12 @@ void main()
         tv4[i] = v4[i] * 4u;
 
     gl_FragColor += vec4(sum) + tv4;
+
+    vec4 r;
+    r.xyz = BaseColor.xyz;
+
+    for (int i = 0; i < Count; ++i)
+        r.w = f;
+
+    gl_FragColor.xyz += r.xyz;
 }

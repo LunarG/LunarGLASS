@@ -217,11 +217,12 @@ namespace gla_llvm {
         // Is the loop a simple inductive one? A simple inductive loop is one
         // where the backedge is simple, a canonical induction variable exists,
         // and the execution count is known statically (e.g. there are no breaks
-        // or continues)
+        // or continues). Or, there is a known upper bound and it would otherwise
+        // be simple conditional.
         bool isSimpleInductive() const
         {
             // TODO: loops: extend functionality to support early exit
-            return inductiveVar && uniqueExiting && (tripCount || upperBound);
+            return inductiveVar && uniqueExiting && (tripCount || (upperBound && isSimpleConditional()));
         }
 
         // Is the loop a simple conditional loop? A simple conditional loop is a
@@ -272,6 +273,7 @@ namespace gla_llvm {
 
             // Our total has to be the number of instructions in the header.
             simpleConditional = header->size() == count ? 1 : 0;
+
             return simpleConditional > 0;
         }
 
