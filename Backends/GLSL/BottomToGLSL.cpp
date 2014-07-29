@@ -476,6 +476,7 @@ protected:
     bool cheapExpression(const std::string&, bool& needsParens);
     bool multipleUsesInCurrentBlock(const llvm::Instruction*);
     bool modifiesPrecision(const llvm::Instruction*);
+    bool writeOnceAlloca(const llvm::Value*);
 
     // set of all IO mdNodes in the noStaticUse list
     std::set<const llvm::MDNode*> noStaticUseSet;
@@ -1596,15 +1597,19 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         if (it != nonConvertedMap.end())
             ConversionStop(expression, target->getType()->getContainedType(0));
 
-        newLine();
-        // If uint/matrix IO conversions are needed, they actually have to have the
-        // opposite conversion applied to the rhs.
-        if (it != nonConvertedMap.end())
-            shader << it->second->c_str();
-        else
-            emitGlaValue(shader, target);
+        if (writeOnceAlloca(target))
+            mapExpressionString(target, expression.str());
+        else {
+            newLine();
+            // If uint/matrix IO conversions are needed, they actually have to have the
+            // opposite conversion applied to the rhs.
+            if (it != nonConvertedMap.end())
+                shader << it->second->c_str();
+            else
+                emitGlaValue(shader, target);
 
-        shader << " = " << expression.str() << ";";
+            shader << " = " << expression.str() << ";";
+        }
 
         return;
     }
@@ -1630,7 +1635,10 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
     case llvm::Instruction::InsertElement:
     {
-        // first, copy whole the structure "inserted into" to the resulting "value" of the insert
+        bool sourceHasOtherUse = true; // TODO run-time optimization
+
+        if (sourceHasOtherUse) {
+            // first, copy the whole vector "inserted into" to the resulting "value" of the insert
             newLine();
             emitGlaValue(shader, llvmInstruction);
 
@@ -1648,13 +1656,38 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
                 emitComponentToSwizzle(shader, GetConstantInt(element));
             } else {
                 shader << "[";
-            emitGlaOperand(shader, element);
-            shader << "]";
-        }
+                emitGlaOperand(shader, element);
+                shader << "]";
+            }
 
-        shader << " = ";
-        emitGlaOperand(shader, llvmInstruction->getOperand(1));
-        shader << ";";
+            shader << " = ";
+            emitGlaOperand(shader, llvmInstruction->getOperand(1));
+            shader << ";";
+        } else {
+            newLine();
+            if (valueMap.find(llvmInstruction->getOperand(0)) == valueMap.end()) {
+                emitGlaValueDeclaration(llvmInstruction->getOperand(0));
+                shader << ";";
+                newLine();
+            }
+            emitNonconvertedGlaValue(shader, llvmInstruction->getOperand(0));
+
+            llvm::Value* element = llvmInstruction->getOperand(2);
+            if (llvm::isa<llvm::Constant>(element)) {
+                shader << ".";
+                emitComponentToSwizzle(shader, GetConstantInt(element));
+            } else {
+                shader << "[";
+                emitGlaOperand(shader, element);
+                shader << "]";
+            }
+
+            shader << " = ";
+            emitGlaOperand(shader, llvmInstruction->getOperand(1));
+            shader << ";";
+
+            mapExpressionString(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
+        }
 
         return;
     }
@@ -1716,6 +1749,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         shader << ";";
 
         // propagate aggregate name
+        // TODO: generated code correctness: probably not safe, if the partial struct has another use elsewhere
         mapExpressionString(llvmInstruction, *valueMap[llvmInstruction->getOperand(0)]);
 
         return;
@@ -4069,6 +4103,9 @@ void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name,
     }
 }
 
+// See if an expression string does not contain any operations
+// that would be expensive to replicate, to aid in identifying what
+// can be forward substituted.
 bool gla::GlslTarget::cheapExpression(const std::string& expression, bool& needsParens)
 {
     int c = expression[0];
@@ -4179,4 +4216,40 @@ bool gla::GlslTarget::modifiesPrecision(const llvm::Instruction* instruction)
     }
 
     return false;
+}
+
+// See if target is an alloca instruction that only has one store to it,
+// or store through a GEP to it.  This means it could be treated as an
+// alias for the one thing that is stored to it.
+bool gla::GlslTarget::writeOnceAlloca(const llvm::Value* target)
+{
+    const llvm::Instruction* targetInst = llvm::dyn_cast<const llvm::Instruction>(target);
+    if (! targetInst || targetInst->getOpcode() != llvm::Instruction::Alloca)
+        return false;
+
+    const llvm::AllocaInst* alloca = llvm::dyn_cast<const llvm::AllocaInst>(targetInst);
+
+    int stores = 0;
+    for (llvm::Value::const_use_iterator it = alloca->use_begin(); it != alloca->use_end(); ++it) {
+        const llvm::Instruction* use = llvm::dyn_cast<const llvm::Instruction>(*it);
+
+        // Check basic store use
+        if (use && use->getOpcode() == llvm::Instruction::Store)
+            ++stores;
+        if (stores > 1)
+            return false;
+
+        // Check out GEP use too
+        if (use && use->getOpcode() == llvm::Instruction::GetElementPtr) {
+            for (llvm::Value::const_use_iterator gepIt = use->use_begin(); gepIt != use->use_end(); ++gepIt) {
+                const llvm::Instruction* gepUse = llvm::dyn_cast<const llvm::Instruction>(*gepIt);
+                if (gepUse && gepUse->getOpcode() == llvm::Instruction::Store)
+                    ++stores;
+            }
+        }
+        if (stores > 1)
+            return false;
+    }
+
+    return true;
 }
