@@ -60,7 +60,6 @@
 #include <set>
 #include <vector>
 #include <cstdio>
-#include <functional>
 
 // LunarGLASS includes
 #include "Core/Revision.h"
@@ -93,6 +92,39 @@ namespace {
                (c >= 'A' && c <= 'Z') ||
                (c >= '0' && c <= '9');
     }
+
+
+    unsigned int _Hash_seq(const unsigned char *_First, unsigned int _Count)
+    {	// FNV-1a hash function for bytes in [_First, _First+_Count)
+        const unsigned int _FNV_offset_basis = 2166136261U;
+        const unsigned int _FNV_prime = 16777619U;
+
+        unsigned int _Val = _FNV_offset_basis;
+        for (unsigned int _Next = 0; _Next < _Count; ++_Next)
+        {	// fold in another byte
+            _Val ^= (unsigned int)_First[_Next];
+            _Val *= _FNV_prime;
+        }
+
+        return (_Val);
+    }
+
+    void intToString(unsigned int i, char* buf)
+    {
+        int pos = 0;
+        int radix = 36;
+        while (i > 0) {
+            unsigned int r = i % radix;
+            if (r < 10)
+                buf[pos] = '0' + r;
+            else
+                buf[pos] = 'a' + r - 10;
+            ++pos;
+            i = i / radix;
+        }
+        buf[pos] = 0;
+    }
+
 };
 
 //
@@ -3245,10 +3277,9 @@ void gla::GlslTarget::emitNamelessConstDeclaration(const llvm::Value* value, con
                     }
                 }
             } else {
-                std::hash<std::string> hashFun;
-                size_t h = hashFun(constString.str());
-                char buf[20];
-                _itoa(h, buf, 36);
+                int hash = _Hash_seq((const unsigned char*)constString.str().c_str(), constString.str().size());
+                char buf[40];
+                intToString(hash, buf);
                 name.append(buf);
             }
             constMap[constString.str()] = new std::string(name);

@@ -300,10 +300,10 @@ in highp vec4 highfin;
 in lowp float lowfin;
 in mediump float mediumfin;
 out mediump vec4 mediumfout;
-const vec4 C_8rnsmg = vec4(1.02391e+06);
+const vec4 C_gmsnr8 = vec4(1.02391e+06);
 const int C_1 = 1;
 const int C_4 = 4;
-const bvec2 C_1uqgwal = bvec2(false, true);
+const bvec2 C_lawgqu1 = bvec2(false, true);
 const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
@@ -313,7 +313,7 @@ void main()
 	vec4 L_3 = vec4(global_highp_c1);
 	lowp float L_4 = sin(L_1);
 	vec4 L_5 = vec4(L_4);
-	mediump vec4 L_6 = L_5 + C_8rnsmg;
+	mediump vec4 L_6 = L_5 + C_gmsnr8;
 	highp vec4 mediumfout_c2 = L_3 + L_6;
 	mediumfout = mediumfout_c2;
 	lowp int L_8 = uniform_medium + C_4;
@@ -323,7 +323,7 @@ void main()
 	vec4 L_c = vec4(L_b);
 	mediump vec4 mediumfout_c5 = L_c + mediumfout_c2;
 	mediumfout = mediumfout_c5;
-	bool L_e = all((equal(ub2, C_1uqgwal)));
+	bool L_e = all((equal(ub2, C_lawgqu1)));
 	if (L_e) {
 		mediump vec4 mediumfout_c6 = mediumfout_c5 + C_vec4p1d0p;
 		mediumfout = mediumfout_c6;
@@ -343,10 +343,10 @@ in lowp float lowfin;
 in mediump float mediumfin;
 in highp vec4 highfin;
 out mediump vec4 mediumfout;
-const vec4 C_xb1zho = vec4(1023910.0);
+const vec4 C_ohz1bx = vec4(1023910.0);
 const int C_2 = 2;
 const int C_4 = 4;
-const bvec2 C_1uqgwal = bvec2(false, true);
+const bvec2 C_lawgqu1 = bvec2(false, true);
 const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
@@ -356,7 +356,7 @@ void main()
 	vec4 L_3 = vec4(global_highp_c2);
 	mediump float L_uc3 = sin(L_uc1);
 	vec4 L_5 = vec4(L_uc3);
-	mediump vec4 L_uc4 = L_5 + C_xb1zho;
+	mediump vec4 L_uc4 = L_5 + C_ohz1bx;
 	mediump vec4 mediumfout_c5 = L_3 + L_uc4;
 	mediumfout = mediumfout_c5;
 	lowp int sum_c6 = uniform_medium + C_4;
@@ -365,7 +365,7 @@ void main()
 	vec4 L_b = vec4(L_b_c7);
 	highp vec4 mediumfout_c8 = L_b + mediumfout_c5;
 	mediumfout = mediumfout_c8;
-	bool L_e_c9 = all((equal(ub2, C_1uqgwal)));
+	bool L_e_c9 = all((equal(ub2, C_lawgqu1)));
 	if (L_e_c9) {
 		mediump vec4 mediumfout_c10 = mediumfout_c8 + C_vec4p1d0p;
 		mediumfout = mediumfout_c10;

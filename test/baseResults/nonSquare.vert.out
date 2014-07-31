@@ -425,16 +425,16 @@ const float C_6d0 = 6.0;
 const float C_12d0 = 12.0;
 const float C_18d0 = 18.0;
 const float C_24d0 = 24.0;
-const vec4 C_79g7xi = vec4(50.0, 110.0, 170.0, 230.0);
-const vec4 C_3t2w4n = vec4(30.0, 60.0, 0.0, 0.0);
-const vec4 C_12d6ylu = vec4(20.0, 10.0, 6.0, 5.0);
+const vec4 C_ix7g97 = vec4(50.0, 110.0, 170.0, 230.0);
+const vec4 C_n4w2t3 = vec4(30.0, 60.0, 0.0, 0.0);
+const vec4 C_uly6d21 = vec4(20.0, 10.0, 6.0, 5.0);
 
 void main()
 {
 	float dotProduct_c1 = ((((C_0d0 * m32[0].y) + (m32[0].x * C_0d0)) * v3.x) + (((C_0d0 * m32[1].x) + (C_0d0 * m32[1].y)) * v3.y)) + (((C_0d0 * m32[2].x) + (C_0d0 * m32[2].y)) * v3.z);
 	vec4 L_2 = vec4(dotProduct_c1, dotProduct_c1, dotProduct_c1, C_0d0);
 	vec4 L_3 = vec4(((((v4.x * C_3d0) + (v4.y * C_9d0)) + (v4.z * C_15d0)) + (v4.w * C_21d0)), ((((v4.x * C_6d0) + (v4.y * C_12d0)) + (v4.z * C_18d0)) + (v4.w * C_24d0)), C_0d0, C_0d0);
-	gl_Position = ((((L_2 + L_3) + C_79g7xi) + C_3t2w4n) + C_12d6ylu);
+	gl_Position = ((((L_2 + L_3) + C_ix7g97) + C_n4w2t3) + C_uly6d21);
 	
 }
 
@@ -452,14 +452,14 @@ const float C_12d0 = 12.0;
 const float C_18d0 = 18.0;
 const float C_24d0 = 24.0;
 const float C_0d0 = 0.0;
-const vec4 C_79g7xi = vec4(50.0, 110.0, 170.0, 230.0);
-const vec4 C_3t2w4n = vec4(30.0, 60.0, 0.0, 0.0);
-const vec4 C_12d6ylu = vec4(20.0, 10.0, 6.0, 5.0);
+const vec4 C_ix7g97 = vec4(50.0, 110.0, 170.0, 230.0);
+const vec4 C_n4w2t3 = vec4(30.0, 60.0, 0.0, 0.0);
+const vec4 C_uly6d21 = vec4(20.0, 10.0, 6.0, 5.0);
 
 void main()
 {
 	vec4 L_1 = vec4(((((v4.x * C_3d0) + (v4.y * C_9d0)) + (v4.z * C_15d0)) + (v4.w * C_21d0)), ((((v4.x * C_6d0) + (v4.y * C_12d0)) + (v4.z * C_18d0)) + (v4.w * C_24d0)), C_0d0, C_0d0);
-	gl_Position = (((L_1 + C_79g7xi) + C_3t2w4n) + C_12d6ylu);
+	gl_Position = (((L_1 + C_ix7g97) + C_n4w2t3) + C_uly6d21);
 	
 }
 

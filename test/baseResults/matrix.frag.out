@@ -1468,7 +1468,7 @@ in vec4 v;
 in vec4 u;
 const float C_1d0 = 1.0;
 const float C_0d0 = 0.0;
-const vec4 C_1x8wabo = vec4(0.0, 0.0, 0.0, 0.0);
+const vec4 C_obaw8x1 = vec4(0.0, 0.0, 0.0, 0.0);
 
 void main()
 {
@@ -1519,9 +1519,9 @@ void main()
 	vec4 L_1b = vec4((_pre_phi_c2 * u.x), (_pre_phi_c2 * u.y), (_pre_phi_c2 * u.z), (_pre_phi_c2 * u.w));
 	vec4 L_1c = vec4((_pre_phi_c1 * u.x), (_pre_phi_c1 * u.y), (_pre_phi_c1 * u.z), (_pre_phi_c1 * u.w));
 	vec4 L_1d = vec4(_pre_phi_c4, C_0d0, C_0d0, C_0d0);
-	vec4 L_1e = C_1x8wabo;
+	vec4 L_1e = C_obaw8x1;
 	L_1e.yzw = vec3(_pre_phi_c4, C_0d0, C_0d0);
-	vec4 L_1f = C_1x8wabo;
+	vec4 L_1f = C_obaw8x1;
 	L_1f.zw = vec2(_pre_phi_c4, C_0d0);
 	vec4 L_20 = vec4(C_0d0, C_0d0, C_0d0, v.x);
 	bool L_21 = all((equal(((L_19 + L_1d) + u), un34[0])));
@@ -1572,7 +1572,7 @@ in vec4 v;
 in vec4 u;
 const float C_1d0 = 1.0;
 const float C_0d0 = 0.0;
-const vec4 C_1x8wabo = vec4(0.0, 0.0, 0.0, 0.0);
+const vec4 C_obaw8x1 = vec4(0.0, 0.0, 0.0, 0.0);
 
 void main()
 {
@@ -1623,9 +1623,9 @@ void main()
 	vec4 L_1b = vec4((_pre_phi_c4 * u.x), (_pre_phi_c4 * u.y), (_pre_phi_c4 * u.z), (_pre_phi_c4 * u.w));
 	vec4 L_1c = vec4((_pre_phi_c5 * u.x), (_pre_phi_c5 * u.y), (_pre_phi_c5 * u.z), (_pre_phi_c5 * u.w));
 	vec4 L_1d = vec4(_pre_phi_c2, C_0d0, C_0d0, C_0d0);
-	vec4 L_1e = C_1x8wabo;
+	vec4 L_1e = C_obaw8x1;
 	L_1e.yzw = vec3(_pre_phi_c2, C_0d0, C_0d0);
-	vec4 L_1f = C_1x8wabo;
+	vec4 L_1f = C_obaw8x1;
 	L_1f.zw = vec2(_pre_phi_c2, C_0d0);
 	vec4 L_20 = vec4(C_0d0, C_0d0, C_0d0, v.x);
 	bool L_uc19 = all((equal(((L_19 + L_1d) + u), un34[0])));

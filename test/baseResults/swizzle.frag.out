@@ -271,8 +271,8 @@ const float C_1d789 = 1.789;
 const float C_0d0 = 0.0;
 const float C_a1d0 = -1.0;
 const float C_1d0 = 1.0;
-const vec4 C_1m2m1xx = vec4(0.0, 0.0, 0.0, 1.0);
-const vec4 C_16hqjeg = vec4(3.4, 0.0, 0.0, 1.0);
+const vec4 C_xx1m2m1 = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 C_gejqh61 = vec4(3.4, 0.0, 0.0, 1.0);
 
 void main()
 {
@@ -289,7 +289,7 @@ void main()
 	vec4 L_7 = u;
 	L_7.x = t.y;
 	vec4 Ll_FragColor_c1 = mix(L_4, L_1, (((L_2 * L_3) * L_5) * (p ? L_6 : L_7)));
-	gl_FragColor = (((((t.x < C_0d0) ? (t.x * C_a1d0) : t.x) > C_1d0) ? C_1m2m1xx : C_16hqjeg) + Ll_FragColor_c1);
+	gl_FragColor = (((((t.x < C_0d0) ? (t.x * C_a1d0) : t.x) > C_1d0) ? C_xx1m2m1 : C_gejqh61) + Ll_FragColor_c1);
 	
 }
 
@@ -303,8 +303,8 @@ const float C_1d789 = 1.789;
 const float C_0d0 = 0.0;
 const float C_a1d0 = -1.0;
 const float C_1d0 = 1.0;
-const vec4 C_1m2m1xx = vec4(0.0, 0.0, 0.0, 1.0);
-const vec4 C_16hqjeg = vec4(3.4, 0.0, 0.0, 1.0);
+const vec4 C_xx1m2m1 = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 C_gejqh61 = vec4(3.4, 0.0, 0.0, 1.0);
 
 void main()
 {
@@ -321,7 +321,7 @@ void main()
 	vec4 L_7 = u;
 	L_7.x = t.y;
 	vec4 Ll_FragColor_c1 = mix(L_4, L_2, (((L_1 * L_3) * L_5) * (p ? L_6 : L_7)));
-	gl_FragColor = (((((t.x < C_0d0) ? (t.x * C_a1d0) : t.x) > C_1d0) ? C_1m2m1xx : C_16hqjeg) + Ll_FragColor_c1);
+	gl_FragColor = (((((t.x < C_0d0) ? (t.x * C_a1d0) : t.x) > C_1d0) ? C_xx1m2m1 : C_gejqh61) + Ll_FragColor_c1);
 	
 }
 
