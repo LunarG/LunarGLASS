@@ -212,7 +212,7 @@ const float L_7 = 1.1;
 const vec4 L_8 = vec4(2.0);
 const vec4 L_9 = vec4(1.0);
 const float L_a = 0.75;
-const float L_c = 16.0;
+const float L_b = 16.0;
 const float L_d = 0.5;
 
 void main()
@@ -225,8 +225,8 @@ void main()
 		discard;
 	}
 	
-	float L_b = pow(radius_c1, L_c);
-	float L_e = abs((L_b * L_d));
+	float L_c = pow(radius_c1, L_b);
+	float L_e = abs((L_c * L_d));
 	vec4 L_f = vec4(L_e);
 	gl_FragColor = ((radius_c1 < L_a) ? L_9 : (L_9 - L_f));
 	
@@ -241,7 +241,7 @@ const float L_6 = 1.0;
 const float L_7 = 1.1;
 const vec4 L_8 = vec4(2.0);
 const vec4 L_9 = vec4(1.0);
-const float L_b = 16.0;
+const float L_a = 16.0;
 const float L_c = 0.5;
 const float L_f = 0.75;
 
@@ -255,8 +255,8 @@ void main()
 		discard;
 	}
 	
-	float L_b_c4 = pow(radius_c3, L_b);
-	float L_e_c5 = abs((L_b_c4 * L_c));
+	float L_c4 = pow(radius_c3, L_a);
+	float L_e_c5 = abs((L_c4 * L_c));
 	vec4 L_e = vec4(L_e_c5);
 	gl_FragColor = ((radius_c3 < L_f) ? L_9 : (L_9 - L_e));
 	

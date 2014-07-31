@@ -252,7 +252,7 @@ attributes #0 = { nounwind readnone }
 uniform mat4 m4;
 uniform mat3 m3;
 in vec3 v3;
-const float L_e = 1.0;
+const float L_d = 1.0;
 
 void main()
 {
@@ -270,8 +270,8 @@ void main()
 	vec3 L_b;
 	L_b.xyz = vec3(dotres_i_c4, dotres_c5, dotres_c6);
 	vec3 L_c = L_7 + L_b;
-	vec4 L_d = vec4(L_c.x, L_c.y, L_c.z, L_e);
-	gl_Position = L_d;
+	vec4 L_e = vec4(L_c.x, L_c.y, L_c.z, L_d);
+	gl_Position = L_e;
 	
 }
 
@@ -280,7 +280,7 @@ void main()
 uniform mat4 m4;
 uniform mat3 m3;
 in vec3 v3;
-const float L_e = 1.0;
+const float L_d = 1.0;
 
 void main()
 {
@@ -298,8 +298,8 @@ void main()
 	vec3 L_b;
 	L_b.xyz = vec3(dotres_i_c4, dotres_c5, dotres_c6);
 	vec3 L_c7 = L_7 + L_b;
-	vec4 L_d = vec4(L_c7.x, L_c7.y, L_c7.z, L_e);
-	gl_Position = L_d;
+	vec4 L_e = vec4(L_c7.x, L_c7.y, L_c7.z, L_d);
+	gl_Position = L_e;
 	
 }
 

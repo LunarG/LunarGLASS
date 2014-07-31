@@ -40,18 +40,18 @@ deepRvalue.frag
 #version 120
 // LunarGOO output
 uniform sampler2D sampler;
-const vec2 L_2 = vec2(0.5);
+const vec2 L_1 = vec2(0.5);
 const float L_3 = 0.1;
 const float L_4 = 7.0;
 const float L_5 = 19.0;
-const vec4 L_7 = vec4(361.0, 841.0, 5.0, 0.0);
+const vec4 L_6 = vec4(361.0, 841.0, 5.0, 0.0);
 
 void main()
 {
-	vec4 L_1 = texture2D(sampler, L_2);
-	vec4 L_6 = L_7;
-	L_6.w = ((((L_1.y > L_3) ? L_4 : L_5) + L_1.y) + L_4);
-	gl_FragColor = L_6;
+	vec4 L_2 = texture2D(sampler, L_1);
+	vec4 L_7 = L_6;
+	L_7.w = ((((L_2.y > L_3) ? L_4 : L_5) + L_2.y) + L_4);
+	gl_FragColor = L_7;
 	
 }
 
@@ -121,7 +121,7 @@ out vec4 FragColor;
 const vec4 L_4 = vec4(4.3, 0.0, 0.0, 0.0);
 const vec4 L_6 = vec4(0.0, 4.3, 0.0, 0.0);
 const vec4 L_8 = vec4(0.0, 0.0, 4.3, 0.0);
-const float L_b = 1.0;
+const float L_a = 1.0;
 const vec4 L_23 = vec4(0.0, 0.0, 0.0, 1.0);
 const float L_25 = 0.0;
 const float L_44 = 0.0;
@@ -134,12 +134,12 @@ void main()
 	vec4 column_c1 = L_1 + L_4;
 	vec4 column_c2 = L_2 + L_6;
 	vec4 column_c3 = L_3 + L_8;
-	vec4 L_a = vec4(Color.x, Color.y, Color.z, L_b);
-	float dotres_c4 = dot(L_a, column_c1);
-	float dotres_c5 = dot(L_a, column_c2);
-	float dotres_c6 = dot(L_a, column_c3);
-	vec4 L_f = vec4(dotres_c4, dotres_c5, dotres_c6, L_b);
-	FragColor = (L_a * L_f);
+	vec4 L_b = vec4(Color.x, Color.y, Color.z, L_a);
+	float dotres_c4 = dot(L_b, column_c1);
+	float dotres_c5 = dot(L_b, column_c2);
+	float dotres_c6 = dot(L_b, column_c3);
+	vec4 L_f = vec4(dotres_c4, dotres_c5, dotres_c6, L_a);
+	FragColor = (L_b * L_f);
 	float L_10 = column_c1.x * v.x;
 	float L_11 = column_c1.y * v.x;
 	float L_12 = column_c1.z * v.x;
@@ -178,7 +178,7 @@ void main()
 	float dotres_c20 = dot(L_30, L_31);
 	float dotres_c21 = dot(L_30, L_32);
 	float dotres_c22 = dot(L_30, L_33);
-	vec4 L_37 = vec4(dotres_c20, dotres_c21, dotres_c22, L_b);
+	vec4 L_37 = vec4(dotres_c20, dotres_c21, dotres_c22, L_a);
 	vec4 FragColor_c23 = L_30 * L_37;
 	FragColor = FragColor_c23;
 	float L_39 = (um4[2].z * um4[3].w) - (um4[2].w * um4[3].z);
@@ -192,12 +192,12 @@ void main()
 	vec4 L_41 = vec4(L_40);
 	vec4 FragColor_c24 = FragColor_c23 * L_41;
 	FragColor = FragColor_c24;
-	float L_43 = L_b / ((um2[0].x * um2[1].y) - (um2[0].y * um2[1].x));
+	float L_43 = L_a / ((um2[0].x * um2[1].y) - (um2[0].y * um2[1].x));
 	vec4 L_45 = vec4((L_43 * um2[1].y), (L_44 - (L_43 * um2[1].x)), (L_44 - (L_43 * um2[0].y)), (L_43 * um2[0].x));
 	vec4 FragColor_c25 = FragColor_c24 * L_45;
 	FragColor = FragColor_c25;
 	float L_47 = (((um3[1].y * um3[2].z) - (um3[1].z * um3[2].y)) * um3[0].x) - (((um3[0].y * um3[2].z) - (um3[0].z * um3[2].y)) * um3[1].x);
-	float L_48 = ((um3[0].x * um3[2].y) - (um3[0].y * um3[2].x)) * (L_b / ((((um3[0].y * um3[1].z) - (um3[0].z * um3[1].y)) * um3[2].x) + L_47));
+	float L_48 = ((um3[0].x * um3[2].y) - (um3[0].y * um3[2].x)) * (L_a / ((((um3[0].y * um3[1].z) - (um3[0].z * um3[1].y)) * um3[2].x) + L_47));
 	vec4 L_49 = vec4((L_44 - L_48));
 	vec4 FragColor_c26 = FragColor_c25 * L_49;
 	FragColor = FragColor_c26;
@@ -223,7 +223,7 @@ void main()
 	float L_5e = (um4[0].y * um4[3].z) - (um4[0].z * um4[3].y);
 	float L_5f = (um4[0].y * um4[2].z) - (um4[0].z * um4[2].y);
 	float L_60 = (um4[0].y * um4[1].z) - (um4[0].z * um4[1].y);
-	float L_61 = L_b / ((((L_4e * um4[0].x) - (L_51 * um4[1].x)) + (L_53 * um4[2].x)) - (L_54 * um4[3].x));
+	float L_61 = L_a / ((((L_4e * um4[0].x) - (L_51 * um4[1].x)) + (L_53 * um4[2].x)) - (L_54 * um4[3].x));
 	vec4 L_62 = vec4((L_4e * L_61), (L_44 - (L_51 * L_61)), (L_53 * L_61), (L_44 - (L_54 * L_61)));
 	vec4 L_63 = vec4((L_44 - ((((L_4b * um4[1].x) - (L_4c * um4[2].x)) + (L_4d * um4[3].x)) * L_61)), ((((L_4b * um4[0].x) - (L_4f * um4[2].x)) + (L_50 * um4[3].x)) * L_61), (L_44 - ((((L_4c * um4[0].x) - (L_4f * um4[1].x)) + (L_52 * um4[3].x)) * L_61)), ((((L_4d * um4[0].x) - (L_50 * um4[1].x)) + (L_52 * um4[2].x)) * L_61));
 	vec4 L_64 = vec4(((((L_55 * um4[1].x) - (L_56 * um4[2].x)) + (L_57 * um4[3].x)) * L_61), (L_44 - ((((L_55 * um4[0].x) - (L_58 * um4[2].x)) + (L_59 * um4[3].x)) * L_61)), ((((L_56 * um4[0].x) - (L_58 * um4[1].x)) + (L_5a * um4[3].x)) * L_61), (L_44 - ((((L_57 * um4[0].x) - (L_59 * um4[1].x)) + (L_5a * um4[2].x)) * L_61)));
@@ -280,57 +280,57 @@ uniform float blend;
 uniform vec2 scale;
 in vec2 coords2D;
 in vec2 t;
-const float L_2 = 1.789;
-const float L_4 = 2.0;
-const vec4 L_7 = vec4(1.789, 2.718, 3.453, 2.0);
-const vec3 L_d = vec3(1.789, 2.718, 3.453);
-const ivec2 L_1f = ivec2(0, 5);
-const int L_20 = 1;
-const ivec2 L_27 = ivec2(3, -7);
+const float L_1 = 1.789;
+const float L_3 = 2.0;
+const vec4 L_6 = vec4(1.789, 2.718, 3.453, 2.0);
+const vec3 L_c = vec3(1.789, 2.718, 3.453);
+const ivec2 L_1e = ivec2(0, 5);
+const int L_1f = 1;
+const ivec2 L_26 = ivec2(3, -7);
 const float L_2b = 3.0;
 
 void main()
 {
-	vec4 L_1 = texture(texSampler1D, L_2);
-	vec4 L_3 = texture(texSampler1D, L_2, L_4);
+	vec4 L_2 = texture(texSampler1D, L_1);
+	vec4 L_4 = texture(texSampler1D, L_1, L_3);
 	vec4 L_5 = textureProj(texSampler1D, coords2D);
-	vec4 L_6 = textureProj(texSampler1D, L_7);
-	vec4 L_8 = textureProj(texSampler1D, coords2D, L_4);
-	vec4 L_9 = textureProj(texSampler1D, L_7, L_4);
+	vec4 L_7 = textureProj(texSampler1D, L_6);
+	vec4 L_8 = textureProj(texSampler1D, coords2D, L_3);
+	vec4 L_9 = textureProj(texSampler1D, L_6, L_3);
 	vec4 L_a = texture(texSampler2D, coords2D);
-	vec4 L_b = texture(texSampler2D, coords2D, L_4);
-	vec4 L_c = textureProj(texSampler2D, L_d);
-	vec4 L_e = textureProj(texSampler2D, L_7, L_4);
-	vec4 L_f = texture(texSampler3D, L_d);
-	vec4 L_10 = texture(texSampler3D, L_d, L_4);
-	vec4 L_11 = textureProj(texSampler3D, L_7);
-	vec4 L_12 = textureProj(texSampler3D, L_7, L_4);
-	vec4 L_13 = texture(texSamplerCube, L_d);
-	vec4 L_14 = texture(texSamplerCube, L_d, L_4);
-	vec4 color_c1 = ((((((((((((((L_1 + L_3) + L_5) + L_6) + L_8) + L_9) + L_a) + L_b) + L_c) + L_e) + L_f) + L_10) + L_11) + L_12) + L_13) + L_14;
-	vec4 L_16 = shadow1D(shadowSampler1D, L_d);
-	vec4 L_17 = shadow1D(shadowSampler1D, L_d, L_4);
-	vec4 L_18 = shadow2D(shadowSampler2D, L_d);
-	vec4 L_19 = shadow2D(shadowSampler2D, L_d, L_4);
-	vec4 L_1a = shadow1DProj(shadowSampler1D, L_7);
-	vec4 L_1b = shadow1DProj(shadowSampler1D, L_7, L_4);
-	vec4 L_1c = shadow2DProj(shadowSampler2D, L_7);
-	vec4 L_1d = shadow2DProj(shadowSampler2D, L_7, L_4);
-	vec4 L_1e = texelFetch(texSampler2D, L_1f, L_20);
+	vec4 L_b = texture(texSampler2D, coords2D, L_3);
+	vec4 L_d = textureProj(texSampler2D, L_c);
+	vec4 L_e = textureProj(texSampler2D, L_6, L_3);
+	vec4 L_f = texture(texSampler3D, L_c);
+	vec4 L_10 = texture(texSampler3D, L_c, L_3);
+	vec4 L_11 = textureProj(texSampler3D, L_6);
+	vec4 L_12 = textureProj(texSampler3D, L_6, L_3);
+	vec4 L_13 = texture(texSamplerCube, L_c);
+	vec4 L_14 = texture(texSamplerCube, L_c, L_3);
+	vec4 color_c1 = ((((((((((((((L_2 + L_4) + L_5) + L_7) + L_8) + L_9) + L_a) + L_b) + L_d) + L_e) + L_f) + L_10) + L_11) + L_12) + L_13) + L_14;
+	vec4 L_16 = shadow1D(shadowSampler1D, L_c);
+	vec4 L_17 = shadow1D(shadowSampler1D, L_c, L_3);
+	vec4 L_18 = shadow2D(shadowSampler2D, L_c);
+	vec4 L_19 = shadow2D(shadowSampler2D, L_c, L_3);
+	vec4 L_1a = shadow1DProj(shadowSampler1D, L_6);
+	vec4 L_1b = shadow1DProj(shadowSampler1D, L_6, L_3);
+	vec4 L_1c = shadow2DProj(shadowSampler2D, L_6);
+	vec4 L_1d = shadow2DProj(shadowSampler2D, L_6, L_3);
+	vec4 L_20 = texelFetch(texSampler2D, L_1e, L_1f);
 	vec2 gradX_c2 = dFdx(coords2D);
 	vec2 gradY_c3 = dFdy(coords2D);
 	vec4 L_23 = textureGrad(texSampler2D, coords2D, gradX_c2, gradY_c3);
 	vec3 L_24;
-	L_24.xyz = vec3(coords2D.x, coords2D.y, L_4);
+	L_24.xyz = vec3(coords2D.x, coords2D.y, L_3);
 	vec4 L_25 = textureProjGrad(texSampler2D, L_24, gradX_c2, gradY_c3);
-	vec4 L_26 = textureGradOffset(texSampler2D, coords2D, gradX_c2, gradY_c3, L_27);
-	vec4 L_28 = textureProjGradOffset(texSampler2D, L_d, gradX_c2, gradY_c3, L_27);
-	vec4 color_c4 = ((((((((((((L_16 + color_c1) + L_17) + L_18) + L_19) + L_1a) + L_1b) + L_1c) + L_1d) + L_1e) + L_23) + L_25) + L_26) + L_28;
+	vec4 L_27 = textureGradOffset(texSampler2D, coords2D, gradX_c2, gradY_c3, L_26);
+	vec4 L_28 = textureProjGradOffset(texSampler2D, L_c, gradX_c2, gradY_c3, L_26);
+	vec4 color_c4 = ((((((((((((L_16 + color_c1) + L_17) + L_18) + L_19) + L_1a) + L_1b) + L_1c) + L_1d) + L_20) + L_23) + L_25) + L_27) + L_28;
 	vec3 L_2a;
 	L_2a.xyz = vec3(coords2D.x, coords2D.y, L_2b);
 	float L_2c = textureGrad(shadowSampler2D, L_2a, gradX_c2, gradY_c3);
 	vec4 L_2d = vec4(L_2c);
-	vec4 Ll_FragColor_c5 = mix((L_2d + color_c4), u, (L_2 * blend));
+	vec4 Ll_FragColor_c5 = mix((L_2d + color_c4), u, (L_1 * blend));
 	gl_FragColor = Ll_FragColor_c5;
 	
 }
@@ -345,27 +345,27 @@ uniform samplerCube texSamplerCube;
 uniform sampler1DShadow shadowSampler1D;
 uniform sampler2DShadow shadowSampler2D;
 in vec2 coords2D;
-const float L_2 = 1.789;
-const float L_3 = 3.0;
-const vec4 L_6 = vec4(1.789, 2.718, 3.453, 2.0);
-const vec3 L_9 = vec3(1.789, 2.718, 3.453);
+const float L_1 = 1.789;
+const float L_2 = 3.0;
+const vec4 L_5 = vec4(1.789, 2.718, 3.453, 2.0);
+const vec3 L_8 = vec3(1.789, 2.718, 3.453);
 
 void main()
 {
-	vec4 L_1 = textureLod(texSampler1D, L_2, L_3);
-	vec4 L_4 = textureProjLod(texSampler1D, coords2D, L_3);
-	vec4 L_5 = textureProjLod(texSampler1D, L_6, L_3);
-	vec4 L_7 = textureLod(texSampler2D, coords2D, L_3);
-	vec4 L_8 = textureProjLod(texSampler2D, L_9, L_3);
-	vec4 L_a = textureProjLod(texSampler2D, L_6, L_3);
-	vec4 L_b = textureLod(texSampler3D, L_9, L_3);
-	vec4 L_c = textureProjLod(texSampler3D, L_6, L_3);
-	vec4 L_d = textureLod(texSamplerCube, L_9, L_3);
-	vec4 L_e = shadow1DLod(shadowSampler1D, L_9, L_3);
-	vec4 L_f = shadow2DLod(shadowSampler2D, L_9, L_3);
-	vec4 L_10 = shadow1DProjLod(shadowSampler1D, L_6, L_3);
-	vec4 L_11 = shadow2DProjLod(shadowSampler2D, L_6, L_3);
-	gl_Position = ((((((((((((L_1 + L_4) + L_5) + L_7) + L_8) + L_a) + L_b) + L_c) + L_d) + L_e) + L_f) + L_10) + L_11);
+	vec4 L_3 = textureLod(texSampler1D, L_1, L_2);
+	vec4 L_4 = textureProjLod(texSampler1D, coords2D, L_2);
+	vec4 L_6 = textureProjLod(texSampler1D, L_5, L_2);
+	vec4 L_7 = textureLod(texSampler2D, coords2D, L_2);
+	vec4 L_9 = textureProjLod(texSampler2D, L_8, L_2);
+	vec4 L_a = textureProjLod(texSampler2D, L_5, L_2);
+	vec4 L_b = textureLod(texSampler3D, L_8, L_2);
+	vec4 L_c = textureProjLod(texSampler3D, L_5, L_2);
+	vec4 L_d = textureLod(texSamplerCube, L_8, L_2);
+	vec4 L_e = shadow1DLod(shadowSampler1D, L_8, L_2);
+	vec4 L_f = shadow2DLod(shadowSampler2D, L_8, L_2);
+	vec4 L_10 = shadow1DProjLod(shadowSampler1D, L_5, L_2);
+	vec4 L_11 = shadow2DProjLod(shadowSampler2D, L_5, L_2);
+	gl_Position = ((((((((((((L_3 + L_4) + L_6) + L_7) + L_9) + L_a) + L_b) + L_c) + L_d) + L_e) + L_f) + L_10) + L_11);
 	
 }
 
@@ -394,24 +394,24 @@ in mediump vec2 v2a;
 in mediump vec4 v4;
 in mediump vec2 v2b;
 out mediump vec4 result;
-const highp float L_3 = 0.0;
-const highp int L_a = 0;
+const highp float L_2 = 0.0;
+const highp int L_9 = 0;
 const highp vec2 L_34 = vec2(2.0);
 const highp float L_38 = 0.1;
 
 void main()
 {
 	mediump vec3 L_1 = mix(x, y, bv);
-	vec4 L_2 = vec4(L_1.x, L_1.y, L_1.z, L_3);
+	vec4 L_3 = vec4(L_1.x, L_1.y, L_1.z, L_2);
 	mediump ivec4 isum_c1 = abs(iv4a);
 	mediump ivec4 L_5 = sign(iv4a);
 	mediump ivec4 L_6 = min(iv4a, iv4b);
 	mediump ivec4 L_7 = min(iv4a, imin);
 	mediump ivec2 L_8 = min(ivec2(uv2x), ivec2(uv2y));
-	ivec4 L_9 = ivec4(L_8.x, L_8.y, L_a, L_a);
+	ivec4 L_a = ivec4(L_8.x, L_8.y, L_9, L_9);
 	mediump ivec4 L_b = min(ivec4(uv4y), int(uy));
 	mediump ivec3 L_c = max(iv3a, iv3b);
-	ivec4 L_d = ivec4(L_c.x, L_c.y, L_c.z, L_a);
+	ivec4 L_d = ivec4(L_c.x, L_c.y, L_c.z, L_9);
 	mediump ivec4 L_e = max(iv4a, imax);
 	mediump ivec2 L_f = max(ivec2(uv2x), ivec2(uv2y));
 	mediump ivec2 L_10 = max(ivec2(uv2x), int(uy));
@@ -419,7 +419,7 @@ void main()
 	mediump ivec4 L_12 = clamp(iv4a, iv4a, iv4b);
 	mediump ivec4 L_13 = clamp(iv4a, imin, imax);
 	mediump ivec2 L_14 = clamp(ivec2(uv2x), ivec2(uv2y), ivec2(uv2c));
-	ivec4 L_15 = ivec4(L_14.x, L_14.y, L_a, L_a);
+	ivec4 L_15 = ivec4(L_14.x, L_14.y, L_9, L_9);
 	mediump ivec4 L_16 = clamp(ivec4(uv4y), int(umin), int(umax));
 	struct  {
 	vec3 member0;
@@ -441,18 +441,18 @@ void main()
 	mediump ivec4 L_25 = floatBitsToInt(v4);
 	mediump vec4 L_26 = intBitsToFloat(iv4a);
 	mediump vec2 L_27 = intBitsToFloat(ivec2(uv2c));
-	vec4 L_28 = vec4(L_27.x, L_27.y, L_3, L_3);
+	vec4 L_28 = vec4(L_27.x, L_27.y, L_2, L_2);
 	highp int L_29 = int(packSnorm2x16(v2a));
 	highp vec2 L_2a = unpackSnorm2x16(uint(int(uy)));
 	highp int L_2b = int(packUnorm2x16(v2a));
 	highp vec2 L_2c = unpackUnorm2x16(uint(int(uy)));
 	highp int L_2d = int(packHalf2x16(v2b));
 	mediump vec2 L_2e = unpackHalf2x16(uint(int(uy)));
-	ivec4 L_2f = ivec4(L_29, L_2b, L_2d, L_a);
+	ivec4 L_2f = ivec4(L_29, L_2b, L_2d, L_9);
 	vec4 L_30 = vec4(L_2a.x, L_2a.y, L_2c.x, L_2c.y);
-	vec4 L_31 = vec4(L_2e.x, L_2e.y, L_3, L_3);
-	mediump vec4 L_32 = (((((((L_18 + L_2) + L_1a) + L_1d) + L_26) + L_28) + L_30) + L_31) + (vec4((((((((((L_5 + isum_c1) + L_6) + L_7) + L_d) + L_e) + L_12) + L_13) + L_22) + L_24)));
-	mediump vec4 result_c2 = (vec4(((((((L_9 + L_b) + L_11) + L_15) + L_16) + L_25) + L_2f))) + L_32;
+	vec4 L_31 = vec4(L_2e.x, L_2e.y, L_2, L_2);
+	mediump vec4 L_32 = (((((((L_18 + L_3) + L_1a) + L_1d) + L_26) + L_28) + L_30) + L_31) + (vec4((((((((((L_5 + isum_c1) + L_6) + L_7) + L_d) + L_e) + L_12) + L_13) + L_22) + L_24)));
+	mediump vec4 result_c2 = (vec4(((((((L_a + L_b) + L_11) + L_15) + L_16) + L_25) + L_2f))) + L_32;
 	result = result_c2;
 	mediump vec2 L_35 = gl_PointCoord * L_34;
 	vec4 L_36 = vec4(gl_PointCoord.x, gl_PointCoord.y, L_35.x, L_35.y);
@@ -526,48 +526,48 @@ flat in int ic1D;
 flat in ivec2 ic2D;
 flat in ivec4 ic4D;
 out vec4 FragData;
-const float L_4 = 1.2;
-const ivec2 L_7 = ivec2(3);
-const int L_b = 4;
-const float L_1b = 4.2;
+const float L_3 = 1.2;
+const ivec2 L_6 = ivec2(3);
+const int L_a = 4;
+const float L_1a = 4.2;
 const int L_20 = 2;
-const float L_23 = 0.0;
+const float L_22 = 0.0;
 
 void main()
 {
 	vec4 L_1 = texture(s2D, c2D);
 	vec4 L_2 = textureProj(s3D, c4D);
-	vec4 L_3 = textureLod(s2DArray, c3D, L_4);
-	vec4 L_5 = (L_1 + L_2) + L_3;
-	float L_6 = textureOffset(s2DShadow, c3D, L_7, c1D);
+	vec4 L_4 = textureLod(s2DArray, c3D, L_3);
+	vec4 L_5 = (L_1 + L_2) + L_4;
+	float L_7 = textureOffset(s2DShadow, c3D, L_6, c1D);
 	vec4 L_8 = L_5;
-	L_8.y = (L_5.y + L_6);
+	L_8.y = (L_5.y + L_7);
 	vec4 L_9 = texelFetch(s3D, ic3D, ic1D);
-	vec4 L_a = texelFetchOffset(s2D, ic2D, L_b, ic2D);
-	vec4 L_c = (L_8 + L_9) + L_a;
-	float L_d = textureLodOffset(s2DShadow, c3D, c1D, L_7);
+	vec4 L_b = texelFetchOffset(s2D, ic2D, L_a, ic2D);
+	vec4 L_c = (L_8 + L_9) + L_b;
+	float L_d = textureLodOffset(s2DShadow, c3D, c1D, L_6);
 	vec4 L_e = L_c;
 	L_e.y = (L_c.y + L_d);
-	vec4 L_f = textureProjLodOffset(s2D, c3D, c1D, L_7);
+	vec4 L_f = textureProjLodOffset(s2D, c3D, c1D, L_6);
 	vec4 L_10 = textureGrad(sCube, c3D, c3D, c3D);
 	vec4 L_11 = (L_e + L_f) + L_10;
-	float L_12 = textureGradOffset(s2DArrayShadow, c4D, c2D, c2D, L_7);
+	float L_12 = textureGradOffset(s2DArrayShadow, c4D, c2D, c2D, L_6);
 	vec4 L_13 = L_11;
 	L_13.x = (L_11.x + L_12);
 	vec4 L_14 = textureProjGrad(s3D, c4D, c3D, c3D);
-	vec4 L_15 = textureProjGradOffset(s2D, c3D, c2D, c2D, L_7);
+	vec4 L_15 = textureProjGradOffset(s2D, c3D, c2D, c2D, L_6);
 	ivec4 iv_c1 = texture(is2D, c2D);
-	ivec4 iv_c2 = textureProjOffset(is2D, c4D, L_7);
+	ivec4 iv_c2 = textureProjOffset(is2D, c4D, L_6);
 	ivec4 iv_c3 = textureProjLod(is2D, c3D, c1D);
 	ivec4 iv_c4 = textureProjGrad(is2D, c3D, c2D, c2D);
-	ivec4 iv_c5 = texture(is3D, c3D, L_1b);
+	ivec4 iv_c5 = texture(is3D, c3D, L_1a);
 	ivec4 iv_c6 = textureLod(isCube, c3D, c1D);
 	vec4 L_1d = (((((((L_13 + L_14) + L_15) + (vec4(iv_c1))) + (vec4(iv_c2))) + (vec4(iv_c3))) + (vec4(iv_c4))) + (vec4(iv_c5))) + (vec4(iv_c6));
 	ivec4 iv_c7 = texelFetch(is2DArray, ic3D, ic1D);
 	ivec2 iv_c8 = textureSize(sCubeShadow, L_20);
 	vec2 L_21 = vec2(iv_c8);
-	vec4 L_22 = vec4(L_21.x, L_21.y, L_23, L_23);
-	FragData = (((vec4(iv_c7)) + L_1d) + L_22);
+	vec4 L_23 = vec4(L_21.x, L_21.y, L_22, L_22);
+	FragData = (((vec4(iv_c7)) + L_1d) + L_23);
 	
 }
 
