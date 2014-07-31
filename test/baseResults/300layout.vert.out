@@ -449,8 +449,8 @@ out highp vec4 pos;
 out highp vec3 color;
 flat out highp int iout;
 out S s;
-const highp vec3 L_a = vec3(1.0);
-const highp ivec3 L_c = ivec3(5);
+const vec3 C_vec3p1d0p = vec3(1.0);
+const ivec3 C_ivec3p5p = ivec3(5);
 
 void main()
 {
@@ -469,11 +469,11 @@ void main()
 	iout = ((int(uiuin) + tblock.iuin) + aiv2.y);
 	s.c = c;
 	s.f = p.x;
-	bool L_b = any((notEqual(N2[1], L_a)));
-	bool L_d = any((notEqual(ivec3(uv3a[2]), L_c)));
-	if ((L_b || L_d)) {
-		highp vec3 L_e = L_a + c;
-		s.c = L_e;
+	bool L_a = any((notEqual(N2[1], C_vec3p1d0p)));
+	bool L_b = any((notEqual(ivec3(uv3a[2]), C_ivec3p5p)));
+	if ((L_a || L_b)) {
+		highp vec3 L_c = C_vec3p1d0p + c;
+		s.c = L_c;
 	}
 	
 	
@@ -509,8 +509,8 @@ out highp vec4 pos;
 out highp vec3 color;
 flat out highp int iout;
 out S s;
-const highp vec3 L_a = vec3(1.0);
-const highp ivec3 L_c = ivec3(5);
+const vec3 C_vec3p1d0p = vec3(1.0);
+const ivec3 C_ivec3p5p = ivec3(5);
 
 void main()
 {
@@ -529,11 +529,11 @@ void main()
 	iout = ((int(uiuin) + tblock.iuin) + aiv2.y);
 	s.c = c;
 	s.f = p.x;
-	bool L_b_c8 = any((notEqual(N2[1], L_a)));
-	bool L_d_c9 = any((notEqual(ivec3(uv3a[2]), L_c)));
-	if ((L_b_c8 || L_d_c9)) {
-		highp vec3 L_e_c10 = L_a + c;
-		s.c = L_e_c10;
+	bool L_a_c8 = any((notEqual(N2[1], C_vec3p1d0p)));
+	bool L_b_c9 = any((notEqual(ivec3(uv3a[2]), C_ivec3p5p)));
+	if ((L_a_c8 || L_b_c9)) {
+		highp vec3 L_c10 = C_vec3p1d0p + c;
+		s.c = L_c10;
 	}
 	
 	

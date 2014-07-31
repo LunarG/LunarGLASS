@@ -356,10 +356,10 @@ uniform uvec4 v4;
 in vec4 BaseColor;
 in float f;
 vec4 gla_globalAgg;
-const int L_5 = 0;
-const int L_7 = 2;
-vec3 L_e;
-const int L_10 = 1;
+const int C_0 = 0;
+const int C_2 = 2;
+vec3 L_c;
+const int C_1 = 1;
 
 void main()
 {
@@ -368,42 +368,42 @@ void main()
 	vec4 r_uc2;
 	int L_4;
 	L_1 = BaseColor;
-	i_uc1 = L_5;
+	i_uc1 = C_0;
 	for (i_uc1 = 0; i_uc1 < Count; ++i_uc1) {
 		L_1 = (L_1 + bigColor);
 	}
 	
 	gl_FragColor = L_1;
-	vec4 L_6 = vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))));
+	vec4 L_5 = vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))));
 	vec4 tv_c3 = gla_globalAgg;
-	tv_c3.x = (float((ivec4(v4).x << L_7)));
+	tv_c3.x = (float((ivec4(v4).x << C_2)));
 	vec4 tv_c4 = tv_c3;
-	tv_c4.y = (float((ivec4(v4).y << L_7)));
+	tv_c4.y = (float((ivec4(v4).y << C_2)));
 	vec4 tv_c5 = tv_c4;
-	tv_c5.z = (float((ivec4(v4).z << L_7)));
+	tv_c5.z = (float((ivec4(v4).z << C_2)));
 	vec4 tv_c6 = tv_c5;
-	tv_c6.w = (float((ivec4(v4).w << L_7)));
-	vec4 Ll_FragColor_c7 = (L_6 + tv_c6) + L_1;
-	vec3 L_d = vec3(Ll_FragColor_c7);
+	tv_c6.w = (float((ivec4(v4).w << C_2)));
+	vec4 Ll_FragColor_c7 = (L_5 + tv_c6) + L_1;
+	vec3 L_b = vec3(Ll_FragColor_c7);
 	gl_FragColor = Ll_FragColor_c7;
 	r_uc2 = BaseColor;
-	L_4 = L_5;
+	L_4 = C_0;
 	while (true) {
-		L_e = vec3(r_uc2);
+		L_c = vec3(r_uc2);
 		if (! (L_4 < Count)) {
 			break;
 		}
 		
-		vec4 L_f = r_uc2;
-		L_f.w = f;
-		r_uc2 = L_f;
-		L_4 = (L_4 + L_10);
+		vec4 L_d = r_uc2;
+		L_d.w = f;
+		r_uc2 = L_d;
+		L_4 = (L_4 + C_1);
 	}
 	
-	vec3 L_11 = L_d + L_e;
-	vec4 L_12 = Ll_FragColor_c7;
-	L_12.xyz = L_11.xyz;
-	gl_FragColor = L_12;
+	vec3 L_e = L_b + L_c;
+	vec4 L_f = Ll_FragColor_c7;
+	L_f.xyz = L_e.xyz;
+	gl_FragColor = L_f;
 	
 }
 
@@ -414,10 +414,10 @@ uniform vec4 bigColor;
 uniform uvec4 v4;
 in vec4 BaseColor;
 in float f;
-const int L_5 = 0;
-const int L_7 = 2;
-vec3 L_b;
-const int L_d = 1;
+const int C_0 = 0;
+const int C_2 = 2;
+vec3 L_9;
+const int C_1 = 1;
 
 void main()
 {
@@ -425,36 +425,36 @@ void main()
 	vec4 L_uc2;
 	int L_uc3;
 	vec4 r_uc_c4;
-	i_uc_c1 = L_5;
+	i_uc_c1 = C_0;
 	L_uc2 = BaseColor;
 	for (i_uc_c1 = 0; i_uc_c1 < Count; ++i_uc_c1) {
 		L_uc2 = (L_uc2 + bigColor);
 	}
 	
 	gl_FragColor = L_uc2;
-	vec4 L_6 = vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))));
-	vec4 L_8 = vec4((float((ivec4(v4).x << L_7))), (float((ivec4(v4).y << L_7))), (float((ivec4(v4).z << L_7))), (float((ivec4(v4).w << L_7))));
-	vec4 Ll_FragColor_c5 = (L_6 + L_8) + L_uc2;
-	vec3 L_a = vec3(Ll_FragColor_c5);
+	vec4 L_5 = vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))));
+	vec4 L_6 = vec4((float((ivec4(v4).x << C_2))), (float((ivec4(v4).y << C_2))), (float((ivec4(v4).z << C_2))), (float((ivec4(v4).w << C_2))));
+	vec4 Ll_FragColor_c5 = (L_5 + L_6) + L_uc2;
+	vec3 L_8 = vec3(Ll_FragColor_c5);
 	gl_FragColor = Ll_FragColor_c5;
-	L_uc3 = L_5;
+	L_uc3 = C_0;
 	r_uc_c4 = BaseColor;
 	while (true) {
-		L_b = vec3(r_uc_c4);
+		L_9 = vec3(r_uc_c4);
 		if (! (L_uc3 < Count)) {
 			break;
 		}
 		
-		vec4 L_c = r_uc_c4;
-		L_c.w = f;
-		L_uc3 = (L_uc3 + L_d);
-		r_uc_c4 = L_c;
+		vec4 L_a = r_uc_c4;
+		L_a.w = f;
+		L_uc3 = (L_uc3 + C_1);
+		r_uc_c4 = L_a;
 	}
 	
-	vec3 L_uc6 = L_a + L_b;
-	vec4 L_f = Ll_FragColor_c5;
-	L_f.xyz = L_uc6.xyz;
-	gl_FragColor = L_f;
+	vec3 L_e_c6 = L_8 + L_9;
+	vec4 L_c = Ll_FragColor_c5;
+	L_c.xyz = L_e_c6.xyz;
+	gl_FragColor = L_c;
 	
 }
 

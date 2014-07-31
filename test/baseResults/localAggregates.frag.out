@@ -299,20 +299,20 @@ uniform s2 foo2;
 uniform float uFloatArray[16];
 in vec2 coord;
 in vec4 color;
-const int L_1 = 0;
-const float L_3 = 1.0;
-const int L_4 = 1;
-const float L_5 = 0.0;
-const float L_7 = 2.0;
+const int C_0 = 0;
+const float C_1d0 = 1.0;
+const int C_1 = 1;
+const float C_0d0 = 0.0;
+const float C_2d0 = 2.0;
 
 void main()
 {
-	bool L_2 = foo3.s2_1.i > L_1;
-	vec4 L_6 = color;
-	L_6.z = coord.y;
-	vec4 L_8 = vec4(((((L_2 ? L_3 : coord.x) + (L_2 ? coord.x : L_7)) + coord.x) + ((condition == L_4) ? coord.x : L_5)));
-	vec4 L_9 = texture(sampler, coord);
-	gl_FragColor = ((L_6 * L_8) * L_9);
+	bool L_1 = foo3.s2_1.i > C_0;
+	vec4 L_2 = color;
+	L_2.z = coord.y;
+	vec4 L_3 = vec4(((((L_1 ? C_1d0 : coord.x) + (L_1 ? coord.x : C_2d0)) + coord.x) + ((condition == C_1) ? coord.x : C_0d0)));
+	vec4 L_4 = texture(sampler, coord);
+	gl_FragColor = ((L_2 * L_3) * L_4);
 	
 }
 
@@ -342,20 +342,20 @@ uniform s2 foo2;
 uniform float uFloatArray[16];
 in vec4 color;
 in vec2 coord;
-const int L_1 = 0;
-const float L_4 = 1.0;
-const float L_5 = 2.0;
-const int L_6 = 1;
-const float L_7 = 0.0;
+const int C_0 = 0;
+const float C_1d0 = 1.0;
+const float C_2d0 = 2.0;
+const int C_1 = 1;
+const float C_0d0 = 0.0;
 
 void main()
 {
-	bool L_uc1 = foo3.s2_1.i > L_1;
-	vec4 L_3 = color;
-	L_3.z = coord.y;
-	vec4 L_8 = vec4(((((L_uc1 ? L_4 : coord.x) + (L_uc1 ? coord.x : L_5)) + coord.x) + ((condition == L_6) ? coord.x : L_7)));
+	bool L_uc1 = foo3.s2_1.i > C_0;
+	vec4 L_2 = color;
+	L_2.z = coord.y;
+	vec4 L_3 = vec4(((((L_uc1 ? C_1d0 : coord.x) + (L_uc1 ? coord.x : C_2d0)) + coord.x) + ((condition == C_1) ? coord.x : C_0d0)));
 	vec4 L_uc2 = texture(sampler, coord);
-	gl_FragColor = ((L_3 * L_8) * L_uc2);
+	gl_FragColor = ((L_2 * L_3) * L_uc2);
 	
 }
 

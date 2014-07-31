@@ -1466,10 +1466,9 @@ uniform mat4 um43;
 in vec3 Color;
 in vec4 v;
 in vec4 u;
-const float L_a = 1.0;
-const float L_1e = 0.0;
-const vec4 L_20 = vec4(0.0, 0.0, 0.0, 0.0);
-const vec4 L_22 = vec4(0.0, 0.0, 0.0, 0.0);
+const float C_1d0 = 1.0;
+const float C_0d0 = 0.0;
+const vec4 C_1x8wabo = vec4(0.0, 0.0, 0.0, 0.0);
 
 void main()
 {
@@ -1483,59 +1482,59 @@ void main()
 	float dotres_c7 = dot(Color, colorTransform[0]);
 	float dotres_c8 = dot(Color, colorTransform[1]);
 	float dotres_c9 = dot(Color, colorTransform[2]);
-	vec4 L_b = vec4(dotres_c7, dotres_c8, dotres_c9, L_a);
-	gl_FragColor = (L_b + un34[1]);
-	bool L_c = any((notEqual(m[0], n[0])));
-	bool L_d = any((notEqual(m[1], n[1])));
-	bool L_e = any((notEqual(m[2], n[2])));
-	bool L_f = any((notEqual(m[3], n[3])));
-	if ((((L_c || L_d) || L_e) || L_f)) {
+	vec4 L_a = vec4(dotres_c7, dotres_c8, dotres_c9, C_1d0);
+	gl_FragColor = (L_a + un34[1]);
+	bool L_b = any((notEqual(m[0], n[0])));
+	bool L_c = any((notEqual(m[1], n[1])));
+	bool L_d = any((notEqual(m[2], n[2])));
+	bool L_e = any((notEqual(m[3], n[3])));
+	if ((((L_b || L_c) || L_d) || L_e)) {
 		_pre_phi_c1 = v.w;
 		_pre_phi_c2 = v.z;
 		_pre_phi_c3 = v.y;
 		_pre_phi_c4 = v.x;
-		storemerge_c5 = ((L_b + un34[1]) + v);
+		storemerge_c5 = ((L_a + un34[1]) + v);
 	} else {
-		vec4 L_10 = vec4(((((m[0].x * v.x) + (m[1].x * v.y)) + (m[2].x * v.z)) + (m[3].x * v.w)), ((((m[0].y * v.x) + (m[1].y * v.y)) + (m[2].y * v.z)) + (m[3].y * v.w)), ((((m[0].z * v.x) + (m[1].z * v.y)) + (m[2].z * v.z)) + (m[3].z * v.w)), ((((m[0].w * v.x) + (m[1].w * v.y)) + (m[2].w * v.z)) + (m[3].w * v.w)));
-		vec4 Ll_FragColor_c10 = (L_b + un34[1]) + L_10;
+		vec4 L_f = vec4(((((m[0].x * v.x) + (m[1].x * v.y)) + (m[2].x * v.z)) + (m[3].x * v.w)), ((((m[0].y * v.x) + (m[1].y * v.y)) + (m[2].y * v.z)) + (m[3].y * v.w)), ((((m[0].z * v.x) + (m[1].z * v.y)) + (m[2].z * v.z)) + (m[3].z * v.w)), ((((m[0].w * v.x) + (m[1].w * v.y)) + (m[2].w * v.z)) + (m[3].w * v.w)));
+		vec4 Ll_FragColor_c10 = (L_a + un34[1]) + L_f;
 		gl_FragColor = Ll_FragColor_c10;
 		float dotres_c11 = dot(v, (m[0] - n[0]));
 		float dotres_c12 = dot(v, (m[1] - n[1]));
 		float dotres_c13 = dot(v, (m[2] - n[2]));
 		float dotres_c14 = dot(v, (m[3] - n[3]));
-		vec4 L_16 = vec4(dotres_c11, dotres_c12, dotres_c13, dotres_c14);
+		vec4 L_15 = vec4(dotres_c11, dotres_c12, dotres_c13, dotres_c14);
 		_pre_phi_c1 = v.w;
 		_pre_phi_c2 = v.z;
 		_pre_phi_c3 = v.y;
 		_pre_phi_c4 = v.x;
-		storemerge_c5 = (L_16 + Ll_FragColor_c10);
+		storemerge_c5 = (L_15 + Ll_FragColor_c10);
 	}
 	
 	gl_FragColor = storemerge_c5;
-	vec4 L_17 = u.zwxx;
-	vec4 L_18 = u.wxxy;
-	vec4 L_19 = u.xxyz;
-	vec4 L_1a = vec4((_pre_phi_c4 * u.x), (_pre_phi_c4 * u.y), (_pre_phi_c4 * u.z), (_pre_phi_c4 * u.w));
-	vec4 L_1b = vec4((_pre_phi_c3 * u.x), (_pre_phi_c3 * u.y), (_pre_phi_c3 * u.z), (_pre_phi_c3 * u.w));
-	vec4 L_1c = vec4((_pre_phi_c2 * u.x), (_pre_phi_c2 * u.y), (_pre_phi_c2 * u.z), (_pre_phi_c2 * u.w));
-	vec4 L_1d = vec4((_pre_phi_c1 * u.x), (_pre_phi_c1 * u.y), (_pre_phi_c1 * u.z), (_pre_phi_c1 * u.w));
-	vec4 L_1f = vec4(_pre_phi_c4, L_1e, L_1e, L_1e);
-	vec4 L_21 = L_20;
-	L_21.yzw = vec3(_pre_phi_c4, L_1e, L_1e);
-	vec4 L_23 = L_22;
-	L_23.zw = vec2(_pre_phi_c4, L_1e);
-	vec4 L_24 = vec4(L_1e, L_1e, L_1e, v.x);
-	bool L_25 = all((equal(((L_1a + L_1f) + u), un34[0])));
-	bool L_26 = all((equal(((L_1b + L_21) + L_19), un34[1])));
-	bool L_27 = all((equal(((L_1c + L_23) + L_18), un34[2])));
-	bool L_28 = all((equal(((L_1d + L_24) + L_17), un34[3])));
-	if ((((L_25 && L_26) && L_27) && L_28)) {
-		float dotProduct_c15 = (((((L_1a + L_1f) + u).x * u.x) + (((L_1b + L_21) + L_19).x * u.y)) + (((L_1c + L_23) + L_18).x * u.z)) + (((L_1d + L_24) + L_17).x * u.w);
-		float dotProduct_c16 = (((((L_1a + L_1f) + u).y * u.x) + (((L_1b + L_21) + L_19).y * u.y)) + (((L_1c + L_23) + L_18).y * u.z)) + (((L_1d + L_24) + L_17).y * u.w);
-		float dotProduct_c17 = (((((L_1a + L_1f) + u).z * u.x) + (((L_1b + L_21) + L_19).z * u.y)) + (((L_1c + L_23) + L_18).z * u.z)) + (((L_1d + L_24) + L_17).z * u.w);
-		float dotProduct_c18 = (((((L_1a + L_1f) + u).w * u.x) + (((L_1b + L_21) + L_19).w * u.y)) + (((L_1c + L_23) + L_18).w * u.z)) + (((L_1d + L_24) + L_17).w * u.w);
-		vec4 L_2d = vec4(dotProduct_c15, dotProduct_c16, dotProduct_c17, dotProduct_c18);
-		_pn_c6 = L_2d;
+	vec4 L_16 = u.zwxx;
+	vec4 L_17 = u.wxxy;
+	vec4 L_18 = u.xxyz;
+	vec4 L_19 = vec4((_pre_phi_c4 * u.x), (_pre_phi_c4 * u.y), (_pre_phi_c4 * u.z), (_pre_phi_c4 * u.w));
+	vec4 L_1a = vec4((_pre_phi_c3 * u.x), (_pre_phi_c3 * u.y), (_pre_phi_c3 * u.z), (_pre_phi_c3 * u.w));
+	vec4 L_1b = vec4((_pre_phi_c2 * u.x), (_pre_phi_c2 * u.y), (_pre_phi_c2 * u.z), (_pre_phi_c2 * u.w));
+	vec4 L_1c = vec4((_pre_phi_c1 * u.x), (_pre_phi_c1 * u.y), (_pre_phi_c1 * u.z), (_pre_phi_c1 * u.w));
+	vec4 L_1d = vec4(_pre_phi_c4, C_0d0, C_0d0, C_0d0);
+	vec4 L_1e = C_1x8wabo;
+	L_1e.yzw = vec3(_pre_phi_c4, C_0d0, C_0d0);
+	vec4 L_1f = C_1x8wabo;
+	L_1f.zw = vec2(_pre_phi_c4, C_0d0);
+	vec4 L_20 = vec4(C_0d0, C_0d0, C_0d0, v.x);
+	bool L_21 = all((equal(((L_19 + L_1d) + u), un34[0])));
+	bool L_22 = all((equal(((L_1a + L_1e) + L_18), un34[1])));
+	bool L_23 = all((equal(((L_1b + L_1f) + L_17), un34[2])));
+	bool L_24 = all((equal(((L_1c + L_20) + L_16), un34[3])));
+	if ((((L_21 && L_22) && L_23) && L_24)) {
+		float dotProduct_c15 = (((((L_19 + L_1d) + u).x * u.x) + (((L_1a + L_1e) + L_18).x * u.y)) + (((L_1b + L_1f) + L_17).x * u.z)) + (((L_1c + L_20) + L_16).x * u.w);
+		float dotProduct_c16 = (((((L_19 + L_1d) + u).y * u.x) + (((L_1a + L_1e) + L_18).y * u.y)) + (((L_1b + L_1f) + L_17).y * u.z)) + (((L_1c + L_20) + L_16).y * u.w);
+		float dotProduct_c17 = (((((L_19 + L_1d) + u).z * u.x) + (((L_1a + L_1e) + L_18).z * u.y)) + (((L_1b + L_1f) + L_17).z * u.z)) + (((L_1c + L_20) + L_16).z * u.w);
+		float dotProduct_c18 = (((((L_19 + L_1d) + u).w * u.x) + (((L_1a + L_1e) + L_18).w * u.y)) + (((L_1b + L_1f) + L_17).w * u.z)) + (((L_1c + L_20) + L_16).w * u.w);
+		vec4 L_29 = vec4(dotProduct_c15, dotProduct_c16, dotProduct_c17, dotProduct_c18);
+		_pn_c6 = L_29;
 	} else {
 		float product_c19 = ((((um43[0].x * un34[0].x) + (um43[0].y * un34[1].x)) + (um43[0].z * un34[2].x)) + (um43[0].w * un34[3].x)) * _pre_phi_c4;
 		float product_c20 = ((((um43[1].x * un34[0].x) + (um43[1].y * un34[1].x)) + (um43[1].z * un34[2].x)) + (um43[1].w * un34[3].x)) * _pre_phi_c3;
@@ -1553,8 +1552,8 @@ void main()
 		float product_c32 = ((((um43[1].x * un34[0].w) + (um43[1].y * un34[1].w)) + (um43[1].z * un34[2].w)) + (um43[1].w * un34[3].w)) * _pre_phi_c3;
 		float product_c33 = ((((um43[2].x * un34[0].w) + (um43[2].y * un34[1].w)) + (um43[2].z * un34[2].w)) + (um43[2].w * un34[3].w)) * _pre_phi_c2;
 		float product_c34 = ((((um43[3].x * un34[0].w) + (um43[3].y * un34[1].w)) + (um43[3].z * un34[2].w)) + (um43[3].w * un34[3].w)) * _pre_phi_c1;
-		vec4 L_3e = vec4((((product_c19 + product_c20) + product_c21) + product_c22), (((product_c23 + product_c24) + product_c25) + product_c26), (((product_c27 + product_c28) + product_c29) + product_c30), (((product_c31 + product_c32) + product_c33) + product_c34));
-		_pn_c6 = L_3e;
+		vec4 L_3a = vec4((((product_c19 + product_c20) + product_c21) + product_c22), (((product_c23 + product_c24) + product_c25) + product_c26), (((product_c27 + product_c28) + product_c29) + product_c30), (((product_c31 + product_c32) + product_c33) + product_c34));
+		_pn_c6 = L_3a;
 	}
 	
 	gl_FragColor = (_pn_c6 + storemerge_c5);
@@ -1571,10 +1570,9 @@ uniform mat4 um43;
 in vec3 Color;
 in vec4 v;
 in vec4 u;
-const float L_a = 1.0;
-const float L_1e = 0.0;
-const vec4 L_20 = vec4(0.0, 0.0, 0.0, 0.0);
-const vec4 L_22 = vec4(0.0, 0.0, 0.0, 0.0);
+const float C_1d0 = 1.0;
+const float C_0d0 = 0.0;
+const vec4 C_1x8wabo = vec4(0.0, 0.0, 0.0, 0.0);
 
 void main()
 {
@@ -1588,28 +1586,28 @@ void main()
 	float dotres_c7 = dot(Color, colorTransform[0]);
 	float dotres_c8 = dot(Color, colorTransform[1]);
 	float dotres_c9 = dot(Color, colorTransform[2]);
-	vec4 L_b = vec4(dotres_c7, dotres_c8, dotres_c9, L_a);
-	gl_FragColor = (L_b + un34[1]);
-	bool L_c10 = any((notEqual(m[0], n[0])));
-	bool L_d_c11 = any((notEqual(m[1], n[1])));
-	bool L_e_c12 = any((notEqual(m[2], n[2])));
-	bool L_f_c13 = any((notEqual(m[3], n[3])));
-	if ((((L_c10 || L_d_c11) || L_e_c12) || L_f_c13)) {
-		storemerge_c1 = ((L_b + un34[1]) + v);
+	vec4 L_a = vec4(dotres_c7, dotres_c8, dotres_c9, C_1d0);
+	gl_FragColor = (L_a + un34[1]);
+	bool L_b_c10 = any((notEqual(m[0], n[0])));
+	bool L_c11 = any((notEqual(m[1], n[1])));
+	bool L_d_c12 = any((notEqual(m[2], n[2])));
+	bool L_e_c13 = any((notEqual(m[3], n[3])));
+	if ((((L_b_c10 || L_c11) || L_d_c12) || L_e_c13)) {
+		storemerge_c1 = ((L_a + un34[1]) + v);
 		_pre_phi_c2 = v.x;
 		_pre_phi_c3 = v.y;
 		_pre_phi_c4 = v.z;
 		_pre_phi_c5 = v.w;
 	} else {
-		vec4 L_10 = vec4(((((m[0].x * v.x) + (m[1].x * v.y)) + (m[2].x * v.z)) + (m[3].x * v.w)), ((((m[0].y * v.x) + (m[1].y * v.y)) + (m[2].y * v.z)) + (m[3].y * v.w)), ((((m[0].z * v.x) + (m[1].z * v.y)) + (m[2].z * v.z)) + (m[3].z * v.w)), ((((m[0].w * v.x) + (m[1].w * v.y)) + (m[2].w * v.z)) + (m[3].w * v.w)));
-		vec4 Ll_FragColor_c14 = (L_b + un34[1]) + L_10;
+		vec4 L_f = vec4(((((m[0].x * v.x) + (m[1].x * v.y)) + (m[2].x * v.z)) + (m[3].x * v.w)), ((((m[0].y * v.x) + (m[1].y * v.y)) + (m[2].y * v.z)) + (m[3].y * v.w)), ((((m[0].z * v.x) + (m[1].z * v.y)) + (m[2].z * v.z)) + (m[3].z * v.w)), ((((m[0].w * v.x) + (m[1].w * v.y)) + (m[2].w * v.z)) + (m[3].w * v.w)));
+		vec4 Ll_FragColor_c14 = (L_a + un34[1]) + L_f;
 		gl_FragColor = Ll_FragColor_c14;
 		float dotres_c15 = dot(v, (m[0] - n[0]));
 		float dotres_c16 = dot(v, (m[1] - n[1]));
 		float dotres_c17 = dot(v, (m[2] - n[2]));
 		float dotres_c18 = dot(v, (m[3] - n[3]));
-		vec4 L_16 = vec4(dotres_c15, dotres_c16, dotres_c17, dotres_c18);
-		storemerge_c1 = (L_16 + Ll_FragColor_c14);
+		vec4 L_15 = vec4(dotres_c15, dotres_c16, dotres_c17, dotres_c18);
+		storemerge_c1 = (L_15 + Ll_FragColor_c14);
 		_pre_phi_c2 = v.x;
 		_pre_phi_c3 = v.y;
 		_pre_phi_c4 = v.z;
@@ -1617,30 +1615,30 @@ void main()
 	}
 	
 	gl_FragColor = storemerge_c1;
-	vec4 L_17 = u.xxyz;
-	vec4 L_18 = u.wxxy;
-	vec4 L_19 = u.zwxx;
-	vec4 L_1a = vec4((_pre_phi_c2 * u.x), (_pre_phi_c2 * u.y), (_pre_phi_c2 * u.z), (_pre_phi_c2 * u.w));
-	vec4 L_1b = vec4((_pre_phi_c3 * u.x), (_pre_phi_c3 * u.y), (_pre_phi_c3 * u.z), (_pre_phi_c3 * u.w));
-	vec4 L_1c = vec4((_pre_phi_c4 * u.x), (_pre_phi_c4 * u.y), (_pre_phi_c4 * u.z), (_pre_phi_c4 * u.w));
-	vec4 L_1d = vec4((_pre_phi_c5 * u.x), (_pre_phi_c5 * u.y), (_pre_phi_c5 * u.z), (_pre_phi_c5 * u.w));
-	vec4 L_1f = vec4(_pre_phi_c2, L_1e, L_1e, L_1e);
-	vec4 L_21 = L_20;
-	L_21.yzw = vec3(_pre_phi_c2, L_1e, L_1e);
-	vec4 L_23 = L_22;
-	L_23.zw = vec2(_pre_phi_c2, L_1e);
-	vec4 L_24 = vec4(L_1e, L_1e, L_1e, v.x);
-	bool L_uc19 = all((equal(((L_1a + L_1f) + u), un34[0])));
-	bool L_uc20 = all((equal(((L_1b + L_21) + L_17), un34[1])));
-	bool L_uc21 = all((equal(((L_1c + L_23) + L_18), un34[2])));
-	bool L_uc22 = all((equal(((L_1d + L_24) + L_19), un34[3])));
+	vec4 L_16 = u.xxyz;
+	vec4 L_17 = u.wxxy;
+	vec4 L_18 = u.zwxx;
+	vec4 L_19 = vec4((_pre_phi_c2 * u.x), (_pre_phi_c2 * u.y), (_pre_phi_c2 * u.z), (_pre_phi_c2 * u.w));
+	vec4 L_1a = vec4((_pre_phi_c3 * u.x), (_pre_phi_c3 * u.y), (_pre_phi_c3 * u.z), (_pre_phi_c3 * u.w));
+	vec4 L_1b = vec4((_pre_phi_c4 * u.x), (_pre_phi_c4 * u.y), (_pre_phi_c4 * u.z), (_pre_phi_c4 * u.w));
+	vec4 L_1c = vec4((_pre_phi_c5 * u.x), (_pre_phi_c5 * u.y), (_pre_phi_c5 * u.z), (_pre_phi_c5 * u.w));
+	vec4 L_1d = vec4(_pre_phi_c2, C_0d0, C_0d0, C_0d0);
+	vec4 L_1e = C_1x8wabo;
+	L_1e.yzw = vec3(_pre_phi_c2, C_0d0, C_0d0);
+	vec4 L_1f = C_1x8wabo;
+	L_1f.zw = vec2(_pre_phi_c2, C_0d0);
+	vec4 L_20 = vec4(C_0d0, C_0d0, C_0d0, v.x);
+	bool L_uc19 = all((equal(((L_19 + L_1d) + u), un34[0])));
+	bool L_uc20 = all((equal(((L_1a + L_1e) + L_16), un34[1])));
+	bool L_uc21 = all((equal(((L_1b + L_1f) + L_17), un34[2])));
+	bool L_uc22 = all((equal(((L_1c + L_20) + L_18), un34[3])));
 	if ((((L_uc19 && L_uc20) && L_uc21) && L_uc22)) {
-		float L_29 = (((((_pre_phi_c2 * u.x) + _pre_phi_c2) + u.x) * u.x) + (((_pre_phi_c3 * u.x) + u.x) * u.y)) + (((_pre_phi_c4 * u.x) + u.w) * u.z);
-		float L_2a = (((((_pre_phi_c3 * u.y) + _pre_phi_c2) + u.x) * u.y) + (((_pre_phi_c2 * u.y) + u.y) * u.x)) + (((_pre_phi_c4 * u.y) + u.x) * u.z);
-		float L_2b = ((((_pre_phi_c2 * u.z) + u.z) * u.x) + (((_pre_phi_c3 * u.z) + u.y) * u.y)) + ((((_pre_phi_c4 * u.z) + _pre_phi_c2) + u.x) * u.z);
+		float L_25 = (((((_pre_phi_c2 * u.x) + _pre_phi_c2) + u.x) * u.x) + (((_pre_phi_c3 * u.x) + u.x) * u.y)) + (((_pre_phi_c4 * u.x) + u.w) * u.z);
+		float L_26 = (((((_pre_phi_c3 * u.y) + _pre_phi_c2) + u.x) * u.y) + (((_pre_phi_c2 * u.y) + u.y) * u.x)) + (((_pre_phi_c4 * u.y) + u.x) * u.z);
+		float L_27 = ((((_pre_phi_c2 * u.z) + u.z) * u.x) + (((_pre_phi_c3 * u.z) + u.y) * u.y)) + ((((_pre_phi_c4 * u.z) + _pre_phi_c2) + u.x) * u.z);
 		float dotProduct_c23 = (((((_pre_phi_c2 * u.w) + u.w) * u.x) + (((_pre_phi_c3 * u.w) + u.z) * u.y)) + (((_pre_phi_c4 * u.w) + u.y) * u.z)) + ((((_pre_phi_c5 * u.w) + v.x) + u.x) * u.w);
-		vec4 L_2d = vec4(((((_pre_phi_c5 * u.x) + u.z) * u.w) + L_29), ((((_pre_phi_c5 * u.y) + u.w) * u.w) + L_2a), ((((_pre_phi_c5 * u.z) + u.x) * u.w) + L_2b), dotProduct_c23);
-		_pn_c6 = L_2d;
+		vec4 L_29 = vec4(((((_pre_phi_c5 * u.x) + u.z) * u.w) + L_25), ((((_pre_phi_c5 * u.y) + u.w) * u.w) + L_26), ((((_pre_phi_c5 * u.z) + u.x) * u.w) + L_27), dotProduct_c23);
+		_pn_c6 = L_29;
 	} else {
 		float product_c24 = ((((um43[0].x * un34[0].x) + (um43[0].y * un34[1].x)) + (um43[0].z * un34[2].x)) + (um43[0].w * un34[3].x)) * _pre_phi_c2;
 		float product_c25 = ((((um43[1].x * un34[0].x) + (um43[1].y * un34[1].x)) + (um43[1].z * un34[2].x)) + (um43[1].w * un34[3].x)) * _pre_phi_c3;
@@ -1658,8 +1656,8 @@ void main()
 		float product_c37 = ((((um43[1].x * un34[0].w) + (um43[1].y * un34[1].w)) + (um43[1].z * un34[2].w)) + (um43[1].w * un34[3].w)) * _pre_phi_c3;
 		float product_c38 = ((((um43[2].x * un34[0].w) + (um43[2].y * un34[1].w)) + (um43[2].z * un34[2].w)) + (um43[2].w * un34[3].w)) * _pre_phi_c4;
 		float product_c39 = ((((um43[3].x * un34[0].w) + (um43[3].y * un34[1].w)) + (um43[3].z * un34[2].w)) + (um43[3].w * un34[3].w)) * _pre_phi_c5;
-		vec4 L_3e = vec4((((product_c24 + product_c25) + product_c26) + product_c27), (((product_c28 + product_c29) + product_c30) + product_c31), (((product_c32 + product_c33) + product_c34) + product_c35), (((product_c36 + product_c37) + product_c38) + product_c39));
-		_pn_c6 = L_3e;
+		vec4 L_3a = vec4((((product_c24 + product_c25) + product_c26) + product_c27), (((product_c28 + product_c29) + product_c30) + product_c31), (((product_c32 + product_c33) + product_c34) + product_c35), (((product_c36 + product_c37) + product_c38) + product_c39));
+		_pn_c6 = L_3a;
 	}
 	
 	gl_FragColor = (_pn_c6 + storemerge_c1);

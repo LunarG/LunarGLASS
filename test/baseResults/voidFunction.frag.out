@@ -123,13 +123,13 @@ attributes #0 = { nounwind readnone }
 uniform vec4 bigColor;
 uniform float d;
 varying vec4 BaseColor;
-const float L_1 = 4.0;
+const float C_4d0 = 4.0;
 
 void main()
 {
-	vec4 L_2 = bigColor;
-	L_2.x = (bigColor.x + L_1);
-	gl_FragColor = L_2;
+	vec4 L_1 = bigColor;
+	L_1.x = (bigColor.x + C_4d0);
+	gl_FragColor = L_1;
 	
 }
 
@@ -138,13 +138,13 @@ void main()
 uniform vec4 bigColor;
 uniform float d;
 varying vec4 BaseColor;
-const float L_1 = 4.0;
+const float C_4d0 = 4.0;
 
 void main()
 {
-	vec4 L_2 = bigColor;
-	L_2.x = (bigColor.x + L_1);
-	gl_FragColor = L_2;
+	vec4 L_1 = bigColor;
+	L_1.x = (bigColor.x + C_4d0);
+	gl_FragColor = L_1;
 	
 }
 

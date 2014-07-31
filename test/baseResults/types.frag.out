@@ -536,7 +536,7 @@ in float i_f;
 in vec2 i_f2;
 in vec3 i_f3;
 in vec4 i_f4;
-const vec4 L_7 = vec4(1.0);
+const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
@@ -549,7 +549,7 @@ void main()
 		vec4 L_6 = vec4(((i_f4 + u_f4).w + L_5));
 		ternary_uc1 = L_6;
 	} else {
-		ternary_uc1 = L_7;
+		ternary_uc1 = C_vec4p1d0p;
 	}
 	
 	gl_FragColor = ternary_uc1;
@@ -582,7 +582,7 @@ in float i_f;
 in vec2 i_f2;
 in vec3 i_f3;
 in vec4 i_f4;
-const vec4 L_9 = vec4(1.0);
+const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
@@ -597,7 +597,7 @@ void main()
 		vec4 L_8 = vec4((L_6.w + L_uc4));
 		ternary_uc_c1 = L_8;
 	} else {
-		ternary_uc_c1 = L_9;
+		ternary_uc_c1 = C_vec4p1d0p;
 	}
 	
 	gl_FragColor = ternary_uc_c1;

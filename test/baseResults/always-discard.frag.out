@@ -188,20 +188,20 @@ attributes #1 = { nounwind }
 #version 110
 // LunarGOO output
 varying vec2 tex_coord;
-const float L_1 = 2.0;
-const float L_2 = -1.0;
-const float L_6 = 1.0;
-const float L_7 = 1.1;
-const vec4 L_8 = vec4(2.0);
-const vec4 L_9 = vec4(1.0);
+const float C_2d0 = 2.0;
+const float C_a1d0 = -1.0;
+const float C_1d0 = 1.0;
+const float C_1d1 = 1.1;
+const vec4 C_vec4p2d0p = vec4(2.0);
+const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
-	float L_3 = (tex_coord.x * L_1) + L_2;
-	float L_4 = (L_1 * tex_coord.y) + L_2;
-	float radius_c1 = sqrt(((L_3 * L_3) + (L_4 * L_4)));
-	if ((radius_c1 > L_6)) {
-		gl_FragColor = ((radius_c1 > L_7) ? L_8 : L_9);
+	float L_1 = (tex_coord.x * C_2d0) + C_a1d0;
+	float L_2 = (C_2d0 * tex_coord.y) + C_a1d0;
+	float radius_c1 = sqrt(((L_1 * L_1) + (L_2 * L_2)));
+	if ((radius_c1 > C_1d0)) {
+		gl_FragColor = ((radius_c1 > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
 	}
 	
 	discard;
@@ -211,20 +211,20 @@ void main()
 #version 110
 // LunarGOO output
 varying vec2 tex_coord;
-const float L_1 = 2.0;
-const float L_2 = -1.0;
-const float L_6 = 1.0;
-const float L_7 = 1.1;
-const vec4 L_8 = vec4(2.0);
-const vec4 L_9 = vec4(1.0);
+const float C_2d0 = 2.0;
+const float C_a1d0 = -1.0;
+const float C_1d0 = 1.0;
+const float C_1d1 = 1.1;
+const vec4 C_vec4p2d0p = vec4(2.0);
+const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
-	float L_uc1 = (tex_coord.x * L_1) + L_2;
-	float L_uc2 = (L_1 * tex_coord.y) + L_2;
+	float L_uc1 = (tex_coord.x * C_2d0) + C_a1d0;
+	float L_uc2 = (C_2d0 * tex_coord.y) + C_a1d0;
 	float radius_c3 = sqrt(((L_uc1 * L_uc1) + (L_uc2 * L_uc2)));
-	if ((radius_c3 > L_6)) {
-		gl_FragColor = ((radius_c3 > L_7) ? L_8 : L_9);
+	if ((radius_c3 > C_1d0)) {
+		gl_FragColor = ((radius_c3 > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
 	}
 	
 	discard;

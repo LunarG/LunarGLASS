@@ -267,12 +267,12 @@ uniform vec4 u;
 uniform bool p;
 uniform float blend;
 varying vec2 t;
-const float L_5 = 1.789;
-const float L_a = 0.0;
-const float L_b = -1.0;
-const float L_c = 1.0;
-const vec4 L_d = vec4(0.0, 0.0, 0.0, 1.0);
-const vec4 L_e = vec4(3.4, 0.0, 0.0, 1.0);
+const float C_1d789 = 1.789;
+const float C_0d0 = 0.0;
+const float C_a1d0 = -1.0;
+const float C_1d0 = 1.0;
+const vec4 C_1m2m1xx = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 C_16hqjeg = vec4(3.4, 0.0, 0.0, 1.0);
 
 void main()
 {
@@ -282,14 +282,14 @@ void main()
 	vec4 L_3 = u;
 	L_3.yw = t.yx;
 	vec4 L_4 = u;
-	L_4.xyz = vec3(L_5, L_5, L_5);
-	vec4 L_6 = vec4(u.z, u.x, t.x, t.y);
+	L_4.xyz = vec3(C_1d789, C_1d789, C_1d789);
+	vec4 L_5 = vec4(u.z, u.x, t.x, t.y);
+	vec4 L_6 = u;
+	L_6.x = t.x;
 	vec4 L_7 = u;
-	L_7.x = t.x;
-	vec4 L_8 = u;
-	L_8.x = t.y;
-	vec4 Ll_FragColor_c1 = mix(L_4, L_1, (((L_2 * L_3) * L_6) * (p ? L_7 : L_8)));
-	gl_FragColor = (((((t.x < L_a) ? (t.x * L_b) : t.x) > L_c) ? L_d : L_e) + Ll_FragColor_c1);
+	L_7.x = t.y;
+	vec4 Ll_FragColor_c1 = mix(L_4, L_1, (((L_2 * L_3) * L_5) * (p ? L_6 : L_7)));
+	gl_FragColor = (((((t.x < C_0d0) ? (t.x * C_a1d0) : t.x) > C_1d0) ? C_1m2m1xx : C_16hqjeg) + Ll_FragColor_c1);
 	
 }
 
@@ -299,12 +299,12 @@ uniform vec4 u;
 uniform bool p;
 uniform float blend;
 varying vec2 t;
-const float L_5 = 1.789;
-const float L_a = 0.0;
-const float L_b = -1.0;
-const float L_c = 1.0;
-const vec4 L_d = vec4(0.0, 0.0, 0.0, 1.0);
-const vec4 L_e = vec4(3.4, 0.0, 0.0, 1.0);
+const float C_1d789 = 1.789;
+const float C_0d0 = 0.0;
+const float C_a1d0 = -1.0;
+const float C_1d0 = 1.0;
+const vec4 C_1m2m1xx = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 C_16hqjeg = vec4(3.4, 0.0, 0.0, 1.0);
 
 void main()
 {
@@ -314,14 +314,14 @@ void main()
 	vec4 L_3 = u;
 	L_3.yw = t.yx;
 	vec4 L_4 = u;
-	L_4.xyz = vec3(L_5, L_5, L_5);
-	vec4 L_6 = vec4(u.z, u.x, t.x, t.y);
+	L_4.xyz = vec3(C_1d789, C_1d789, C_1d789);
+	vec4 L_5 = vec4(u.z, u.x, t.x, t.y);
+	vec4 L_6 = u;
+	L_6.x = t.x;
 	vec4 L_7 = u;
-	L_7.x = t.x;
-	vec4 L_8 = u;
-	L_8.x = t.y;
-	vec4 Ll_FragColor_c1 = mix(L_4, L_2, (((L_1 * L_3) * L_6) * (p ? L_7 : L_8)));
-	gl_FragColor = (((((t.x < L_a) ? (t.x * L_b) : t.x) > L_c) ? L_d : L_e) + Ll_FragColor_c1);
+	L_7.x = t.y;
+	vec4 Ll_FragColor_c1 = mix(L_4, L_2, (((L_1 * L_3) * L_5) * (p ? L_6 : L_7)));
+	gl_FragColor = (((((t.x < C_0d0) ? (t.x * C_a1d0) : t.x) > C_1d0) ? C_1m2m1xx : C_16hqjeg) + Ll_FragColor_c1);
 	
 }
 

@@ -60,6 +60,7 @@
 #include <set>
 #include <vector>
 #include <cstdio>
+#include <functional>
 
 // LunarGLASS includes
 #include "Core/Revision.h"
@@ -84,6 +85,14 @@
 
 namespace {
     bool UseLogicalIO = true;
+
+    bool ValidIdentChar(int c)
+    {
+        return c == '_' || 
+               (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z') ||
+               (c >= '0' && c <= '9');
+    }
 };
 
 //
@@ -207,6 +216,8 @@ public:
         for (std::map<const llvm::Value*, std::string*>::const_iterator it = nonConvertedMap.begin(); it != nonConvertedMap.end(); ++it)
             delete it->second;
         for (std::map<const llvm::Value*, std::string*>::const_iterator it = valueMap.begin(); it != valueMap.end(); ++it)
+            delete it->second;
+        for (std::map<const std::string, const std::string*>::const_iterator it = constMap.begin(); it != constMap.end(); ++it)
             delete it->second;
     }
 
@@ -422,6 +433,7 @@ public:
     void emitComponentToSwizzle(std::ostringstream&, int component);
     void emitMaskToSwizzle(std::ostringstream&, int mask);
     void emitGlaSamplerFunction(std::ostringstream&, const llvm::IntrinsicInst* llvmInstruction, int texFlags);
+    void emitNamelessConstDeclaration(const llvm::Value*, const llvm::Constant*);
     void emitVariableDeclaration(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier qualifier, 
                                  const llvm::Constant* constant = 0, const llvm::MDNode* mdIoNode = 0);
     int emitGlaType(std::ostringstream& out, EMdPrecision precision, EVariableQualifier qualifier, llvm::Type* type, 
@@ -488,6 +500,9 @@ public:
 
     // mapping from LLVM values to Glsl variables
     std::map<const llvm::Value*, std::string*> valueMap;
+
+    // mapping of the string representation of a constant's initializer to a const variable name;
+    std::map<std::string, const std::string*> constMap;
 
     // Map from IO-related global variables, by name, to their mdNodes describing them.
     std::map<std::string, const llvm::MDNode*> mdMap;
@@ -1309,18 +1324,18 @@ void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
 // Map global "const xxxxx = { ..... }; \n"
 void gla::GlslTarget::addGlobalConst(const llvm::GlobalVariable* global)
 {
-    std::string name = global->getName();
-    mapVariableName(global, name);
     const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType());
     llvm::Type* type = pointer->getContainedType(0);
 
     // Better not declare a "const" unless we really have an initializer
     const llvm::Constant* constant = global->getInitializer();
     if (constant == 0 || ! AreAllDefined(constant)) {
+        std::string name = global->getName();
+        mapVariableName(global, name);
         emitVariableDeclaration(EMpNone, type, name, EVQGlobal);
         emitInitializeAggregate(globalInitializers, name, constant);
     } else
-        emitVariableDeclaration(EMpNone, type, name, EVQConstant, constant);
+        emitNamelessConstDeclaration(global, constant);
 }
 
 void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode)
@@ -3202,10 +3217,57 @@ void gla::GlslTarget::emitGlaSamplerFunction(std::ostringstream& out, const llvm
         out << "ARB";
 }
 
+void gla::GlslTarget::emitNamelessConstDeclaration(const llvm::Value* value, const llvm::Constant* constant)
+{
+    std::ostringstream constString;
+    emitConstantInitializer(constString, constant, constant->getType());
+    
+    std::string name;
+    if (! getExpressionString(value, name)) {
+        std::map<std::string, const std::string*>::const_iterator it = constMap.find(constString.str());
+        if (it != constMap.end()) {
+            // duplicate of some already declared constant 
+            mapExpressionString(value, *it->second);
+            return;
+        } else {
+            name = "C_";
+            if (constString.str().size() < 12) {
+                name.append(constString.str());
+                for (int i = 0; i < (int)name.size(); ++i) {
+                    if (! ValidIdentChar(name[i])) {
+                        switch (name[i]) {
+                        case ',': name[i] = 'c'; break;
+                        case '.': name[i] = 'd'; break;
+                        case '(': name[i] = 'p'; break;
+                        case ')': name[i] = 'p'; break;
+                        default:  name[i] = 'a'; break;
+                        }
+                    }
+                }
+            } else {
+                std::hash<std::string> hashFun;
+                size_t h = hashFun(constString.str());
+                char buf[20];
+                _itoa(h, buf, 36);
+                name.append(buf);
+            }
+            constMap[constString.str()] = new std::string(name);
+        }
+        mapExpressionString(value, name);
+    }
+
+    int arraySize = emitGlaType(globalDeclarations, EMpNone, EVQConstant, value->getType());
+    globalDeclarations << " " << name;
+    emitGlaArraySize(globalDeclarations, arraySize);
+    globalDeclarations << " = ";
+    globalDeclarations << constString.str();
+    globalDeclarations << ";" << std::endl;
+}
+
 void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type* type, const std::string& name, EVariableQualifier qualifier, 
                                               const llvm::Constant* constant, const llvm::MDNode* mdIoNode)
 {
-    if (name.substr(0,3) == std::string("gl_"))
+    if (name.compare(0, 3, "gl_") == 0)
         return;
 
     int arraySize;
@@ -3224,7 +3286,9 @@ void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type
 
     // no initializer
     switch (qualifier) {
-    case EVQConstant:
+    default:
+        UnsupportedFunctionality("variable declaration qualifier\n", EATContinue);
+        // fall through
     case EVQGlobal:
         // Make sure we only declare globals once.
         if (globallyDeclared.find(name) != globallyDeclared.end())
@@ -3247,9 +3311,6 @@ void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type
         globalDeclarations << " " << name;
         emitGlaArraySize(globalDeclarations, arraySize);
         globalDeclarations << ";" << std::endl;
-        break;
-    default:
-        assert(! "unknown VariableQualifier");
         break;
     }
 }
@@ -3563,11 +3624,17 @@ void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, bool for
     else
         evq = MapGlaAddressSpace(value);
 
+    const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
+    if (constant) {
+        emitNamelessConstDeclaration(value, constant);
+
+        return;
+    }
+
     std::string* newName = new std::string;
     makeNewVariableName(value, *newName);
     mapVariableName(value, *newName);
     EMdPrecision precision = GetPrecision(value);
-    const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
 
     // Integer and floating-point constants have no precision, use highp to avoid precision loss across translations
     if (precision == gla::EMpNone && constant && profile == EEsProfile)
@@ -3577,7 +3644,7 @@ void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, bool for
     if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
         emitVariableDeclaration(precision, pointerType->getContainedType(0), *newName, evq);
     } else {
-        emitVariableDeclaration(precision, value->getType(), *newName, evq, constant);
+        emitVariableDeclaration(precision, value->getType(), *newName, evq, constant);        
     }
 }
 
@@ -4169,10 +4236,7 @@ bool gla::GlslTarget::cheapExpression(const std::string& expression, bool& needs
         // Skip over name
         for (; pos < (int)expression.size(); ++pos) {
             int c = expression[pos];
-            if (c == '_' || 
-                (c >= 'a' && c <= 'z') ||
-                (c >= 'A' && c <= 'Z') ||
-                (c >= '0' && c <= '9'))
+            if (ValidIdentChar(c))
                 continue;
             else
                 break;

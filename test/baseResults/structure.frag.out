@@ -160,13 +160,13 @@ uniform lunarStruct2 foo2[5];
 uniform sampler2D sampler;
 uniform lunarStruct1 foo;
 in vec2 coord;
-const int L_1 = 0;
+const int C_0 = 0;
 
 void main()
 {
-	vec4 L_2 = vec4(((foo2[3].i[4] > L_1) ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3]));
-	vec4 L_3 = texture(sampler, coord);
-	gl_FragColor = (L_2 * L_3);
+	vec4 L_1 = vec4(((foo2[3].i[4] > C_0) ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3]));
+	vec4 L_2 = texture(sampler, coord);
+	gl_FragColor = (L_1 * L_2);
 	
 }
 
@@ -186,13 +186,13 @@ uniform lunarStruct2 foo2[5];
 uniform sampler2D sampler;
 uniform lunarStruct1 foo;
 in vec2 coord;
-const int L_1 = 0;
+const int C_0 = 0;
 
 void main()
 {
-	vec4 L_2 = vec4(((foo2[3].i[4] > L_1) ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3]));
+	vec4 L_1 = vec4(((foo2[3].i[4] > C_0) ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3]));
 	vec4 L_uc1 = texture(sampler, coord);
-	gl_FragColor = (L_2 * L_uc1);
+	gl_FragColor = (L_1 * L_uc1);
 	
 }
 

@@ -124,13 +124,13 @@ attributes #1 = { nounwind }
 // LunarGOO output
 uniform sampler2D tex;
 varying vec2 coord;
-const vec4 L_2 = vec4(0.1, 0.2, 0.3, 0.4);
+const vec4 C_18msr2o = vec4(0.1, 0.2, 0.3, 0.4);
 
 void main()
 {
 	vec4 L_1 = texture2D(tex, coord);
-	bool L_3 = all((equal(L_1, L_2)));
-	if (L_3) {
+	bool L_2 = all((equal(L_1, C_18msr2o)));
+	if (L_2) {
 		discard;
 	}
 	
@@ -142,12 +142,12 @@ void main()
 // LunarGOO output
 uniform sampler2D tex;
 varying vec2 coord;
-const vec4 L_2 = vec4(0.1, 0.2, 0.3, 0.4);
+const vec4 C_18msr2o = vec4(0.1, 0.2, 0.3, 0.4);
 
 void main()
 {
 	vec4 L_uc1 = texture2D(tex, coord);
-	bool L_uc2 = all((equal(L_uc1, L_2)));
+	bool L_uc2 = all((equal(L_uc1, C_18msr2o)));
 	if (L_uc2) {
 		discard;
 	}

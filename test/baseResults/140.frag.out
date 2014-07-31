@@ -188,7 +188,7 @@ layout(std140) uniform bn {
 in float gl_ClipDistance[5];
 in vec4 i;
 out vec4 o;
-const float L_5 = 100.0;
+const float C_100d0 = 100.0;
 
 void main()
 {
@@ -200,9 +200,9 @@ void main()
 	o = L_2;
 	ivec2 L_3 = textureSize(sampR);
 	int L_4 = textureSize(sampB);
-	vec4 L_6 = o;
-	L_6.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))], ((float((L_3.x + L_4))) / L_5));
-	o = L_6;
+	vec4 L_5 = o;
+	L_5.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))], ((float((L_3.x + L_4))) / C_100d0));
+	o = L_5;
 	
 }
 
@@ -221,7 +221,7 @@ layout(std140) uniform bn {
 in float gl_ClipDistance[5];
 in vec4 i;
 out vec4 o;
-const float L_5 = 100.0;
+const float C_100d0 = 100.0;
 
 void main()
 {
@@ -233,9 +233,9 @@ void main()
 	o = L_2;
 	ivec2 L_uc1 = textureSize(sampR);
 	int L_uc2 = textureSize(sampB);
-	vec4 L_6 = o;
-	L_6.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))], ((float((L_uc1.x + L_uc2))) / L_5));
-	o = L_6;
+	vec4 L_5 = o;
+	L_5.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))], ((float((L_uc1.x + L_uc2))) / C_100d0));
+	o = L_5;
 	
 }
 

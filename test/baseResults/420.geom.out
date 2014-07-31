@@ -193,12 +193,12 @@ in vec2 coord[3];
 out gl_PerVertex {
 	float gl_PointSize;
 } ;
-const int L_1 = 7;
+const int C_7 = 7;
 
 void main()
 {
 	gl_PointSize = gl_in[1].gl_PointSize;
-	gl_ViewportIndex = L_1;
+	gl_ViewportIndex = C_7;
 	EmitVertex();
 	EndPrimitive();
 	
@@ -220,12 +220,12 @@ in vec2 coord[3];
 out gl_PerVertex {
 	float gl_PointSize;
 } ;
-const int L_1 = 7;
+const int C_7 = 7;
 
 void main()
 {
 	gl_PointSize = gl_in[1].gl_PointSize;
-	gl_ViewportIndex = L_1;
+	gl_ViewportIndex = C_7;
 	EmitVertex();
 	EndPrimitive();
 	

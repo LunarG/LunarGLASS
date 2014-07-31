@@ -355,8 +355,8 @@ uniform bool b;
 uniform float threshhold3;
 varying vec4 BaseColor;
 varying float c;
-const float L_2 = 1.0;
-const vec4 L_4 = vec4(1.0);
+const float C_1d0 = 1.0;
+const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
@@ -364,25 +364,25 @@ void main()
 	if (((((c > d) ? bigColor : smallColor) + BaseColor).z < minimum)) {
 		return;
 	} else {
-		if ((((((c > d) ? bigColor : smallColor) + BaseColor).z + L_2) > threshhold)) {
+		if ((((((c > d) ? bigColor : smallColor) + BaseColor).z + C_1d0) > threshhold)) {
 			discard;
 		}
 		
-		vec4 L_3 = (((c > d) ? bigColor : smallColor) + BaseColor);
-		L_3.z = ((((c > d) ? bigColor : smallColor) + BaseColor).z + L_2);
-		if (((L_3 + L_4).w > threshhold2)) {
-			if (((L_3 + L_4).z > threshhold2)) {
+		vec4 L_2 = (((c > d) ? bigColor : smallColor) + BaseColor);
+		L_2.z = ((((c > d) ? bigColor : smallColor) + BaseColor).z + C_1d0);
+		if (((L_2 + C_vec4p1d0p).w > threshhold2)) {
+			if (((L_2 + C_vec4p1d0p).z > threshhold2)) {
 				return;
 			} else {
 				if (b) {
-					vec4 L_5 = (L_3 + L_4);
-					L_5.z = ((L_3 + L_4).z + L_2);
-					color_uc1 = L_5;
+					vec4 L_3 = (L_2 + C_vec4p1d0p);
+					L_3.z = ((L_2 + C_vec4p1d0p).z + C_1d0);
+					color_uc1 = L_3;
 				} else {
-					if (((L_3 + L_4).x < minimum)) {
+					if (((L_2 + C_vec4p1d0p).x < minimum)) {
 						discard;
 					} else {
-						color_uc1 = ((L_3 + L_4) + L_4);
+						color_uc1 = ((L_2 + C_vec4p1d0p) + C_vec4p1d0p);
 					}
 					
 				}
@@ -417,8 +417,8 @@ uniform vec4 otherColor;
 uniform float threshhold3;
 varying float c;
 varying vec4 BaseColor;
-const float L_2 = 1.0;
-const vec4 L_5 = vec4(1.0);
+const float C_1d0 = 1.0;
+const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
@@ -426,26 +426,26 @@ void main()
 	if (((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) < minimum)) {
 		return;
 	} else {
-		if ((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + L_2) > threshhold)) {
+		if ((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0) > threshhold)) {
 			discard;
 		}
 		
 		vec4 L_uc2 = ((c > d) ? bigColor : smallColor) + BaseColor;
-		vec4 L_4 = L_uc2;
-		L_4.z = ((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + L_2);
-		if (((L_2 + L_uc2.w) > threshhold2)) {
-			if (((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + L_2) + L_2) > threshhold2)) {
+		vec4 L_3 = L_uc2;
+		L_3.z = ((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0);
+		if (((C_1d0 + L_uc2.w) > threshhold2)) {
+			if (((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0) + C_1d0) > threshhold2)) {
 				return;
 			} else {
 				if (b) {
-					vec4 L_6 = (L_4 + L_5);
-					L_6.z = ((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + L_2) + L_2) + L_2);
-					color_uc_c1 = L_6;
+					vec4 L_4 = (L_3 + C_vec4p1d0p);
+					L_4.z = ((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0) + C_1d0) + C_1d0);
+					color_uc_c1 = L_4;
 				} else {
-					if (((L_2 + L_uc2.x) < minimum)) {
+					if (((C_1d0 + L_uc2.x) < minimum)) {
 						discard;
 					} else {
-						color_uc_c1 = ((L_4 + L_5) + L_5);
+						color_uc_c1 = ((C_vec4p1d0p + L_3) + C_vec4p1d0p);
 					}
 					
 				}

@@ -221,12 +221,12 @@ out fromVertex {
 out toFragment {
 	vec3 color;
 } toF;
-const int L_1 = 2;
-const vec3 L_2 = vec3(2.0);
-const vec4 L_3 = vec4(2.0);
-const float L_4 = 2.0;
-const int L_5 = 1;
-const int L_6 = 3;
+const int C_2 = 2;
+const vec3 C_vec3p2d0p = vec3(2.0);
+const vec4 C_vec4p2d0p = vec4(2.0);
+const float C_2d0 = 2.0;
+const int C_1 = 1;
+const int C_3 = 3;
 
 void main()
 {
@@ -234,13 +234,13 @@ void main()
 	gl_Position = gl_in[0].gl_Position;
 	gl_PointSize = gl_in[3].gl_PointSize;
 	gl_PrimitiveID = gl_PrimitiveIDIn;
-	gl_Layer = L_1;
+	gl_Layer = C_2;
 	EmitVertex();
-	color = (fromV[0].color * L_2);
-	gl_Position = (gl_in[0].gl_Position * L_3);
-	gl_PointSize = (gl_in[3].gl_PointSize * L_4);
-	gl_PrimitiveID = (gl_PrimitiveIDIn + L_5);
-	gl_Layer = L_6;
+	color = (fromV[0].color * C_vec3p2d0p);
+	gl_Position = (gl_in[0].gl_Position * C_vec4p2d0p);
+	gl_PointSize = (gl_in[3].gl_PointSize * C_2d0);
+	gl_PrimitiveID = (gl_PrimitiveIDIn + C_1);
+	gl_Layer = C_3;
 	EmitVertex();
 	EndPrimitive();
 	
@@ -260,12 +260,12 @@ out fromVertex {
 out toFragment {
 	vec3 color;
 } toF;
-const int L_1 = 2;
-const vec3 L_2 = vec3(2.0);
-const vec4 L_3 = vec4(2.0);
-const float L_4 = 2.0;
-const int L_5 = 1;
-const int L_6 = 3;
+const int C_2 = 2;
+const vec3 C_vec3p2d0p = vec3(2.0);
+const vec4 C_vec4p2d0p = vec4(2.0);
+const float C_2d0 = 2.0;
+const int C_1 = 1;
+const int C_3 = 3;
 
 void main()
 {
@@ -273,13 +273,13 @@ void main()
 	gl_Position = gl_in[0].gl_Position;
 	gl_PointSize = gl_in[3].gl_PointSize;
 	gl_PrimitiveID = gl_PrimitiveIDIn;
-	gl_Layer = L_1;
+	gl_Layer = C_2;
 	EmitVertex();
-	color = (fromV[0].color * L_2);
-	gl_Position = (gl_in[0].gl_Position * L_3);
-	gl_PointSize = (gl_in[3].gl_PointSize * L_4);
-	gl_PrimitiveID = (gl_PrimitiveIDIn + L_5);
-	gl_Layer = L_6;
+	color = (fromV[0].color * C_vec3p2d0p);
+	gl_Position = (gl_in[0].gl_Position * C_vec4p2d0p);
+	gl_PointSize = (gl_in[3].gl_PointSize * C_2d0);
+	gl_PrimitiveID = (gl_PrimitiveIDIn + C_1);
+	gl_Layer = C_3;
 	EmitVertex();
 	EndPrimitive();
 	

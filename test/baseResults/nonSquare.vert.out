@@ -416,26 +416,25 @@ attributes #0 = { nounwind readnone }
 uniform mat3x2 m32;
 attribute vec3 v3;
 attribute vec4 v4;
-float L_1;
-const float L_3 = 0.0;
-const float L_5 = 3.0;
-const float L_6 = 9.0;
-const float L_7 = 15.0;
-const float L_8 = 21.0;
-const float L_9 = 6.0;
-const float L_a = 12.0;
-const float L_b = 18.0;
-const float L_c = 24.0;
-const vec4 L_e = vec4(50.0, 110.0, 170.0, 230.0);
-const vec4 L_f = vec4(30.0, 60.0, 0.0, 0.0);
-const vec4 L_10 = vec4(20.0, 10.0, 6.0, 5.0);
+const float C_0d0 = 0.0;
+const float C_3d0 = 3.0;
+const float C_9d0 = 9.0;
+const float C_15d0 = 15.0;
+const float C_21d0 = 21.0;
+const float C_6d0 = 6.0;
+const float C_12d0 = 12.0;
+const float C_18d0 = 18.0;
+const float C_24d0 = 24.0;
+const vec4 C_79g7xi = vec4(50.0, 110.0, 170.0, 230.0);
+const vec4 C_3t2w4n = vec4(30.0, 60.0, 0.0, 0.0);
+const vec4 C_12d6ylu = vec4(20.0, 10.0, 6.0, 5.0);
 
 void main()
 {
-	float dotProduct_c1 = ((((L_1 * m32[0].y) + (m32[0].x * L_1)) * v3.x) + (((L_1 * m32[1].x) + (L_1 * m32[1].y)) * v3.y)) + (((L_1 * m32[2].x) + (L_1 * m32[2].y)) * v3.z);
-	vec4 L_4 = vec4(dotProduct_c1, dotProduct_c1, dotProduct_c1, L_3);
-	vec4 L_d = vec4(((((v4.x * L_5) + (v4.y * L_6)) + (v4.z * L_7)) + (v4.w * L_8)), ((((v4.x * L_9) + (v4.y * L_a)) + (v4.z * L_b)) + (v4.w * L_c)), L_3, L_3);
-	gl_Position = ((((L_4 + L_d) + L_e) + L_f) + L_10);
+	float dotProduct_c1 = ((((C_0d0 * m32[0].y) + (m32[0].x * C_0d0)) * v3.x) + (((C_0d0 * m32[1].x) + (C_0d0 * m32[1].y)) * v3.y)) + (((C_0d0 * m32[2].x) + (C_0d0 * m32[2].y)) * v3.z);
+	vec4 L_2 = vec4(dotProduct_c1, dotProduct_c1, dotProduct_c1, C_0d0);
+	vec4 L_3 = vec4(((((v4.x * C_3d0) + (v4.y * C_9d0)) + (v4.z * C_15d0)) + (v4.w * C_21d0)), ((((v4.x * C_6d0) + (v4.y * C_12d0)) + (v4.z * C_18d0)) + (v4.w * C_24d0)), C_0d0, C_0d0);
+	gl_Position = ((((L_2 + L_3) + C_79g7xi) + C_3t2w4n) + C_12d6ylu);
 	
 }
 
@@ -444,23 +443,23 @@ void main()
 uniform mat3x2 m32;
 attribute vec3 v3;
 attribute vec4 v4;
-const float L_1 = 3.0;
-const float L_2 = 9.0;
-const float L_3 = 15.0;
-const float L_4 = 21.0;
-const float L_5 = 6.0;
-const float L_6 = 12.0;
-const float L_7 = 18.0;
-const float L_8 = 24.0;
-const float L_9 = 0.0;
-const vec4 L_b = vec4(50.0, 110.0, 170.0, 230.0);
-const vec4 L_c = vec4(30.0, 60.0, 0.0, 0.0);
-const vec4 L_d = vec4(20.0, 10.0, 6.0, 5.0);
+const float C_3d0 = 3.0;
+const float C_9d0 = 9.0;
+const float C_15d0 = 15.0;
+const float C_21d0 = 21.0;
+const float C_6d0 = 6.0;
+const float C_12d0 = 12.0;
+const float C_18d0 = 18.0;
+const float C_24d0 = 24.0;
+const float C_0d0 = 0.0;
+const vec4 C_79g7xi = vec4(50.0, 110.0, 170.0, 230.0);
+const vec4 C_3t2w4n = vec4(30.0, 60.0, 0.0, 0.0);
+const vec4 C_12d6ylu = vec4(20.0, 10.0, 6.0, 5.0);
 
 void main()
 {
-	vec4 L_a = vec4(((((v4.x * L_1) + (v4.y * L_2)) + (v4.z * L_3)) + (v4.w * L_4)), ((((v4.x * L_5) + (v4.y * L_6)) + (v4.z * L_7)) + (v4.w * L_8)), L_9, L_9);
-	gl_Position = (((L_a + L_b) + L_c) + L_d);
+	vec4 L_1 = vec4(((((v4.x * C_3d0) + (v4.y * C_9d0)) + (v4.z * C_15d0)) + (v4.w * C_21d0)), ((((v4.x * C_6d0) + (v4.y * C_12d0)) + (v4.z * C_18d0)) + (v4.w * C_24d0)), C_0d0, C_0d0);
+	gl_Position = (((L_1 + C_79g7xi) + C_3t2w4n) + C_12d6ylu);
 	
 }
 
