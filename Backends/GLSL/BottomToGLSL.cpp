@@ -397,7 +397,7 @@ public:
     void addDiscard();
     void print();
 
-protected:
+// protected:
     bool filteringIoNode(const llvm::MDNode*);
 
     void newLine();
