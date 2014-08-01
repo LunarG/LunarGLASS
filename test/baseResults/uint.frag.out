@@ -398,12 +398,12 @@ const ivec4 C_gq0c5e = ivec4(341413380);
 
 void main()
 {
-	mediump int L_1 = ivec2(t).y + C_3;
-	mediump vec2 L_2 = tc + C_vec2p1d0p;
-	mediump ivec4 L_3 = ivec4(texture(usampler, L_2));
-	ivec4 L_4 = ivec4((int(uint((float(L_1))))), (int((L_1 != C_0))), L_1, C_462);
-	mediump ivec4 L_5 = ((ivec2(t).x > C_4) ? (L_3 + L_4) : L_3) + C_gq0c5e;
-	c = uvec4(L_5);
+	mediump int H_0zxu2h = ivec2(t).y + C_3;
+	mediump vec2 H_6jm302 = tc + C_vec2p1d0p;
+	mediump ivec4 H_jws944 = ivec4(texture(usampler, H_6jm302));
+	ivec4 H_p2w44c1 = ivec4((int(uint((float(H_0zxu2h))))), (int((H_0zxu2h != C_0))), H_0zxu2h, C_462);
+	mediump ivec4 H_85mmq31 = ((ivec2(t).x > C_4) ? (H_jws944 + H_p2w44c1) : H_jws944) + C_gq0c5e;
+	c = uvec4(H_85mmq31);
 	
 }
 
@@ -427,12 +427,12 @@ const ivec4 C_gq0c5e = ivec4(341413380);
 
 void main()
 {
-	mediump int L_uc1 = ivec2(t).y + C_3;
-	mediump vec2 L_uc2 = tc + C_vec2p1d0p;
-	mediump ivec4 L_uc3 = ivec4(texture(usampler, L_uc2));
-	ivec4 L_4 = ivec4((int(uint((float(L_uc1))))), (int((L_uc1 != C_0))), L_uc1, C_462);
-	mediump ivec4 L_uc4 = ((ivec2(t).x > C_4) ? (L_4 + L_uc3) : L_uc3) + C_gq0c5e;
-	c = uvec4(L_uc4);
+	mediump int H_uc1 = ivec2(t).y + C_3;
+	mediump vec2 H_uc2 = tc + C_vec2p1d0p;
+	mediump ivec4 H_jws_c3 = ivec4(texture(usampler, H_uc2));
+	ivec4 H_vknjpe1 = ivec4((int(uint((float(H_uc1))))), (int((H_uc1 != C_0))), H_uc1, C_462);
+	mediump ivec4 H_uc4 = ((ivec2(t).x > C_4) ? (H_jws_c3 + H_vknjpe1) : H_jws_c3) + C_gq0c5e;
+	c = uvec4(H_uc4);
 	
 }
 

@@ -308,23 +308,23 @@ const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
-	mediump float L_1 = distance(lowfin, mediumfin);
+	mediump float H_a09wcm = distance(lowfin, mediumfin);
 	highp float global_highp_c1 = length(highfin);
-	vec4 L_3 = vec4(global_highp_c1);
-	lowp float L_4 = sin(L_1);
-	vec4 L_5 = vec4(L_4);
-	mediump vec4 L_6 = L_5 + C_gmsnr8;
-	highp vec4 mediumfout_c2 = L_3 + L_6;
+	vec4 H_leeikq1 = vec4(global_highp_c1);
+	lowp float H_admieb1 = sin(H_a09wcm);
+	vec4 H_u50x4q = vec4(H_admieb1);
+	mediump vec4 H_dsteix = H_u50x4q + C_gmsnr8;
+	highp vec4 mediumfout_c2 = H_dsteix + H_leeikq1;
 	mediumfout = mediumfout_c2;
-	lowp int L_8 = uniform_medium + C_4;
-	highp int sum_c3 = L_8 + uniform_low;
+	lowp int H_watu271 = uniform_medium + C_4;
+	highp int sum_c3 = H_watu271 + uniform_low;
 	lowp int sum_c4 = (sum_c3 + uniform_high) + (uniform_high * uniform_low);
-	mediump float L_b = float(((uniform_high << C_1) + sum_c4));
-	vec4 L_c = vec4(L_b);
-	mediump vec4 mediumfout_c5 = L_c + mediumfout_c2;
+	mediump float H_4j7stt1 = float(((uniform_high << C_1) + sum_c4));
+	vec4 H_a3kx6a = vec4(H_4j7stt1);
+	mediump vec4 mediumfout_c5 = H_a3kx6a + mediumfout_c2;
 	mediumfout = mediumfout_c5;
-	bool L_e = all((equal(ub2, C_lawgqu1)));
-	if (L_e) {
+	bool H_ibj1g21 = all((equal(ub2, C_lawgqu1)));
+	if (H_ibj1g21) {
 		mediump vec4 mediumfout_c6 = mediumfout_c5 + C_vec4p1d0p;
 		mediumfout = mediumfout_c6;
 	}
@@ -351,22 +351,22 @@ const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
-	mediump float L_uc1 = distance(lowfin, mediumfin);
+	mediump float H_a_c1 = distance(lowfin, mediumfin);
 	highp float global_highp_c2 = length(highfin);
-	vec4 L_3 = vec4(global_highp_c2);
-	mediump float L_uc3 = sin(L_uc1);
-	vec4 L_5 = vec4(L_uc3);
-	mediump vec4 L_uc4 = L_5 + C_ohz1bx;
-	mediump vec4 mediumfout_c5 = L_3 + L_uc4;
+	vec4 H_q55vgf1 = vec4(global_highp_c2);
+	mediump float H_admieb_c3 = sin(H_a_c1);
+	vec4 H_2ksvnf = vec4(H_admieb_c3);
+	mediump vec4 H_dsteix_c4 = H_2ksvnf + C_ohz1bx;
+	mediump vec4 mediumfout_c5 = H_dsteix_c4 + H_q55vgf1;
 	mediumfout = mediumfout_c5;
 	lowp int sum_c6 = uniform_medium + C_4;
-	highp int L_9 = sum_c6 + uniform_low;
-	mediump float L_b_c7 = float((((uniform_low + C_2) * uniform_high) + (L_9 + uniform_high)));
-	vec4 L_b = vec4(L_b_c7);
-	highp vec4 mediumfout_c8 = L_b + mediumfout_c5;
+	highp int H_oq9ibl1 = sum_c6 + uniform_low;
+	mediump float H_uc7 = float((((uniform_low + C_2) * uniform_high) + (H_oq9ibl1 + uniform_high)));
+	vec4 H_85jb9b = vec4(H_uc7);
+	highp vec4 mediumfout_c8 = H_85jb9b + mediumfout_c5;
 	mediumfout = mediumfout_c8;
-	bool L_e_c9 = all((equal(ub2, C_lawgqu1)));
-	if (L_e_c9) {
+	bool H_ibj_c9 = all((equal(ub2, C_lawgqu1)));
+	if (H_ibj_c9) {
 		mediump vec4 mediumfout_c10 = mediumfout_c8 + C_vec4p1d0p;
 		mediumfout = mediumfout_c10;
 	}

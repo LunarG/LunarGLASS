@@ -192,17 +192,17 @@ const float C_100d0 = 100.0;
 
 void main()
 {
-	vec4 L_1 = o;
-	L_1.y = gl_ClipDistance[2];
-	o = L_1;
-	vec4 L_2 = o;
-	L_2.yz = vec2(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))]);
-	o = L_2;
-	ivec2 L_3 = textureSize(sampR);
-	int L_4 = textureSize(sampB);
-	vec4 L_5 = o;
-	L_5.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))], ((float((L_3.x + L_4))) / C_100d0));
-	o = L_5;
+	vec4 H_ad4uxs1 = o;
+	H_ad4uxs1.y = gl_ClipDistance[2];
+	o = H_ad4uxs1;
+	vec4 H_ad4uxs1r = o;
+	H_ad4uxs1r.yz = vec2(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))]);
+	o = H_ad4uxs1r;
+	ivec2 Lg_1 = textureSize(sampR);
+	int Lg_2 = textureSize(sampB);
+	vec4 H_ad4uxs1rr = o;
+	H_ad4uxs1rr.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))], ((float((Lg_1.x + Lg_2))) / C_100d0));
+	o = H_ad4uxs1rr;
 	
 }
 
@@ -225,17 +225,17 @@ const float C_100d0 = 100.0;
 
 void main()
 {
-	vec4 L_1 = o;
-	L_1.y = gl_ClipDistance[2];
-	o = L_1;
-	vec4 L_2 = o;
-	L_2.yz = vec2(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))]);
-	o = L_2;
-	ivec2 L_uc1 = textureSize(sampR);
-	int L_uc2 = textureSize(sampB);
-	vec4 L_5 = o;
-	L_5.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))], ((float((L_uc1.x + L_uc2))) / C_100d0));
-	o = L_5;
+	vec4 H_ad4uxs1 = o;
+	H_ad4uxs1.y = gl_ClipDistance[2];
+	o = H_ad4uxs1;
+	vec4 H_ad4uxs1r = o;
+	H_ad4uxs1r.yz = vec2(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))]);
+	o = H_ad4uxs1r;
+	ivec2 Lg_uc1 = textureSize(sampR);
+	int Lg_uc2 = textureSize(sampB);
+	vec4 H_ad4uxs1rr = o;
+	H_ad4uxs1rr.yzw = vec3(gl_ClipDistance[2], gl_ClipDistance[(int(i.x))], ((float((Lg_uc1.x + Lg_uc2))) / C_100d0));
+	o = H_ad4uxs1rr;
 	
 }
 

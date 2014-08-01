@@ -307,12 +307,12 @@ const float C_2d0 = 2.0;
 
 void main()
 {
-	bool L_1 = foo3.s2_1.i > C_0;
-	vec4 L_2 = color;
-	L_2.z = coord.y;
-	vec4 L_3 = vec4(((((L_1 ? C_1d0 : coord.x) + (L_1 ? coord.x : C_2d0)) + coord.x) + ((condition == C_1) ? coord.x : C_0d0)));
-	vec4 L_4 = texture(sampler, coord);
-	gl_FragColor = ((L_2 * L_3) * L_4);
+	bool H_27n3qy = foo3.s2_1.i > C_0;
+	vec4 H_sbr82h = color;
+	H_sbr82h.z = coord.y;
+	vec4 H_k7fjv2 = vec4(((((H_27n3qy ? C_1d0 : coord.x) + (H_27n3qy ? coord.x : C_2d0)) + coord.x) + ((condition == C_1) ? coord.x : C_0d0)));
+	vec4 H_0k8q2q = texture(sampler, coord);
+	gl_FragColor = ((H_k7fjv2 * H_sbr82h) * H_0k8q2q);
 	
 }
 
@@ -350,12 +350,12 @@ const float C_0d0 = 0.0;
 
 void main()
 {
-	bool L_uc1 = foo3.s2_1.i > C_0;
-	vec4 L_2 = color;
-	L_2.z = coord.y;
-	vec4 L_3 = vec4(((((L_uc1 ? C_1d0 : coord.x) + (L_uc1 ? coord.x : C_2d0)) + coord.x) + ((condition == C_1) ? coord.x : C_0d0)));
-	vec4 L_uc2 = texture(sampler, coord);
-	gl_FragColor = ((L_2 * L_3) * L_uc2);
+	bool H_uc1 = foo3.s2_1.i > C_0;
+	vec4 H_sbr82h = color;
+	H_sbr82h.z = coord.y;
+	vec4 H_kzuqc41 = vec4(((((H_uc1 ? C_1d0 : coord.x) + (H_uc1 ? coord.x : C_2d0)) + coord.x) + ((condition == C_1) ? coord.x : C_0d0)));
+	vec4 H_uc2 = texture(sampler, coord);
+	gl_FragColor = ((H_kzuqc41 * H_sbr82h) * H_uc2);
 	
 }
 

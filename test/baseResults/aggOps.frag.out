@@ -487,24 +487,24 @@ void main()
 {
 	vec4 v_uc1;
 	if ((((foo2a.i == foo2b.i) && (foo2a.f == foo2b.f)) && ((foo2a.s1_1.i == foo2b.s1_1.i) && (foo2a.s1_1.f == foo2b.s1_1.f)))) {
-		vec4 L_2 = texture(sampler, coord);
-		v_uc1 = L_2;
+		vec4 H_0k8q2q = texture(sampler, coord);
+		v_uc1 = H_0k8q2q;
 	} else {
-		vec4 L_3 = texture(sampler, (coord * C_vec2p2d0p));
-		v_uc1 = L_3;
+		vec4 H_dk0yg9 = texture(sampler, (coord * C_vec2p2d0p));
+		v_uc1 = H_dk0yg9;
 	}
 	
-	bool L_4 = all((equal(u, v_uc1)));
-	vec4 select_c2 = L_4 ? (v_uc1 * C_vec4p3d0p) : v_uc1;
-	bool L_6 = any((notEqual(u, select_c2)));
-	vec4 select_c3 = L_6 ? (select_c2 * C_vec4p4d0p) : select_c2;
-	vec2 L_8 = select_c3.yw;
-	bool L_9 = all((equal(coord, L_8)));
-	vec4 select_c4 = L_9 ? (select_c3 * C_vec4p5d0p) : select_c3;
-	bool L_b = ((((int(u.x)) == C_17) && (u.y == C_17d0)) && (((int(u.z)) == (int(w.x))) && (u.w == w.y))) && (((int(w.z)) == C_14) && (w.w == C_14d0));
-	vec4 select_c5 = L_b ? (select_c4 * C_vec4p6d0p) : select_c4;
-	bool L_d = ((((int(u.x)) != C_17) || (u.y != C_17d0)) || (((int(u.z)) != (int(w.x))) || (u.w != w.y))) || (((int(w.z)) != C_14) || (w.w != C_14d0));
-	gl_FragColor = (L_d ? (select_c5 * C_vec4p7d0p) : select_c5);
+	bool H_0jtbcs1 = all((equal(u, v_uc1)));
+	vec4 select_c2 = H_0jtbcs1 ? (v_uc1 * C_vec4p3d0p) : v_uc1;
+	bool H_k0lsjr = any((notEqual(u, select_c2)));
+	vec4 select_c3 = H_k0lsjr ? (select_c2 * C_vec4p4d0p) : select_c2;
+	vec2 H_64hit91 = select_c3.yw;
+	bool H_ew7cm01 = all((equal(coord, H_64hit91)));
+	vec4 select_c4 = H_ew7cm01 ? (select_c3 * C_vec4p5d0p) : select_c3;
+	bool H_tvfiw8 = ((((int(u.x)) == C_17) && (u.y == C_17d0)) && (((int(u.z)) == (int(w.x))) && (u.w == w.y))) && (((int(w.z)) == C_14) && (w.w == C_14d0));
+	vec4 select_c5 = H_tvfiw8 ? (select_c4 * C_vec4p6d0p) : select_c4;
+	bool H_tbakj1 = ((((int(u.x)) != C_17) || (u.y != C_17d0)) || (((int(u.z)) != (int(w.x))) || (u.w != w.y))) || (((int(w.z)) != C_14) || (w.w != C_14d0));
+	gl_FragColor = (H_tbakj1 ? (select_c5 * C_vec4p7d0p) : select_c5);
 	
 }
 
@@ -541,27 +541,28 @@ void main()
 {
 	vec4 v_uc_c1;
 	if ((((foo2a.i == foo2b.i) && (foo2a.f == foo2b.f)) && ((foo2a.s1_1.i == foo2b.s1_1.i) && (foo2a.s1_1.f == foo2b.s1_1.f)))) {
-		vec4 L_uc2 = texture(sampler, coord);
-		v_uc_c1 = L_uc2;
+		vec4 H_uc2 = texture(sampler, coord);
+		v_uc_c1 = H_uc2;
 	} else {
-		vec4 L_uc3 = texture(sampler, (coord * C_vec2p2d0p));
-		v_uc_c1 = L_uc3;
+		vec4 H_dk_c3 = texture(sampler, (coord * C_vec2p2d0p));
+		v_uc_c1 = H_dk_c3;
 	}
 	
-	bool L_uc4 = all((equal(u, v_uc_c1)));
-	vec4 select_c5 = L_uc4 ? (v_uc_c1 * C_vec4p3d0p) : v_uc_c1;
-	bool L_uc6 = any((notEqual(u, select_c5)));
-	vec4 select_c7 = L_uc6 ? (select_c5 * C_vec4p4d0p) : select_c5;
-	vec2 L_8 = select_c7.yw;
-	bool L_uc8 = all((equal(coord, L_8)));
-	vec4 select_c9 = L_uc8 ? (select_c7 * C_vec4p5d0p) : select_c7;
-	int L_b = int(u.x);
-	int L_c = int(u.z);
-	int L_d = int(w.x);
-	int L_e = int(w.z);
-	vec4 select_c10 = ((((L_b == C_17) && (u.y == C_17d0)) && ((L_c == L_d) && (u.w == w.y))) && ((L_e == C_14) && (w.w == C_14d0))) ? (select_c9 * C_vec4p6d0p) : select_c9;
-	vec4 select_c11 = ((((L_b != C_17) || (u.y != C_17d0)) || ((L_c != L_d) || (u.w != w.y))) || ((L_e != C_14) || (w.w != C_14d0))) ? (select_c10 * C_vec4p7d0p) : select_c10;
-	gl_FragColor = select_c11;
+	bool H_uc4 = all((equal(u, v_uc_c1)));
+	vec4 select_c5 = H_uc4 ? (v_uc_c1 * C_vec4p3d0p) : v_uc_c1;
+	bool H_k_c6 = any((notEqual(u, select_c5)));
+	vec4 select_c7 = H_k_c6 ? (select_c5 * C_vec4p4d0p) : select_c5;
+	vec2 H_ig0i9n = select_c7.yw;
+	bool H_ew_c8 = all((equal(coord, H_ig0i9n)));
+	vec4 select_c9 = H_ew_c8 ? (select_c7 * C_vec4p5d0p) : select_c7;
+	int H_i10j5 = int(u.x);
+	int H_wuqoop = int(u.z);
+	int H_kp7bbl = int(w.x);
+	int H_ea1gjd = int(w.z);
+	bool H_tvfiw_c10 = (((H_i10j5 == C_17) && (u.y == C_17d0)) && ((H_wuqoop == H_kp7bbl) && (u.w == w.y))) && ((H_ea1gjd == C_14) && (w.w == C_14d0));
+	vec4 select_c11 = H_tvfiw_c10 ? (select_c9 * C_vec4p6d0p) : select_c9;
+	bool H_tbakj_c12 = (((H_i10j5 != C_17) || (u.y != C_17d0)) || ((H_wuqoop != H_kp7bbl) || (u.w != w.y))) || ((H_ea1gjd != C_14) || (w.w != C_14d0));
+	gl_FragColor = (H_tbakj_c12 ? (select_c11 * C_vec4p7d0p) : select_c11);
 	
 }
 

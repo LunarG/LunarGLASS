@@ -286,12 +286,12 @@ const int C_5 = 5;
 
 void main()
 {
-	bool L_1 = foo3.s2_1[9].i > C_0;
-	int select_c1 = L_1 ? C_0 : foo1.s0_1.i;
-	float L_3 = ((L_1 ? foo1.f : coord.y) + (float(((select_c1 > C_5) ? (L_1 ? C_0 : foo00.s0_0.i) : select_c1)))) + (L_1 ? C_0d0 : C_3d0);
-	vec4 L_4 = vec4(((L_1 ? C_1d0 : coord.y) + L_3));
-	vec4 L_5 = texture(sampler, coord);
-	gl_FragColor = (L_4 * L_5);
+	bool H_vyfm0e = foo3.s2_1[9].i > C_0;
+	int select_c1 = H_vyfm0e ? C_0 : foo1.s0_1.i;
+	float H_5y1u8t = ((H_vyfm0e ? foo1.f : coord.y) + (float(((select_c1 > C_5) ? (H_vyfm0e ? C_0 : foo00.s0_0.i) : select_c1)))) + (H_vyfm0e ? C_0d0 : C_3d0);
+	vec4 H_cm4yvk = vec4(((H_vyfm0e ? C_1d0 : coord.y) + H_5y1u8t));
+	vec4 H_0k8q2q = texture(sampler, coord);
+	gl_FragColor = (H_0k8q2q * H_cm4yvk);
 	
 }
 
@@ -334,12 +334,12 @@ const float C_1d0 = 1.0;
 
 void main()
 {
-	bool L_uc1 = foo3.s2_1[9].i > C_0;
-	int ternary_uc2 = L_uc1 ? C_0 : foo1.s0_1.i;
-	float L_uc3 = ((L_uc1 ? foo1.f : coord.y) + (float(((ternary_uc2 > C_5) ? (L_uc1 ? C_0 : foo00.s0_0.i) : ternary_uc2)))) + (L_uc1 ? C_0d0 : C_3d0);
-	vec4 L_4 = vec4(((L_uc1 ? C_1d0 : coord.y) + L_uc3));
-	vec4 L_uc4 = texture(sampler, coord);
-	gl_FragColor = (L_4 * L_uc4);
+	bool H_vyfm_c1 = foo3.s2_1[9].i > C_0;
+	int ternary_uc2 = H_vyfm_c1 ? C_0 : foo1.s0_1.i;
+	float H_uc3 = ((H_vyfm_c1 ? foo1.f : coord.y) + (float(((ternary_uc2 > C_5) ? (H_vyfm_c1 ? C_0 : foo00.s0_0.i) : ternary_uc2)))) + (H_vyfm_c1 ? C_0d0 : C_3d0);
+	vec4 H_b4lh7j = vec4(((H_vyfm_c1 ? C_1d0 : coord.y) + H_uc3));
+	vec4 H_uc4 = texture(sampler, coord);
+	gl_FragColor = (H_b4lh7j * H_uc4);
 	
 }
 

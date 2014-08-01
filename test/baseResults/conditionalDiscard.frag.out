@@ -128,13 +128,13 @@ const vec4 C_o2rsm81 = vec4(0.1, 0.2, 0.3, 0.4);
 
 void main()
 {
-	vec4 L_1 = texture2D(tex, coord);
-	bool L_2 = all((equal(L_1, C_o2rsm81)));
-	if (L_2) {
+	vec4 H_zp2m0z = texture2D(tex, coord);
+	bool H_htgod7 = all((equal(H_zp2m0z, C_o2rsm81)));
+	if (H_htgod7) {
 		discard;
 	}
 	
-	gl_FragColor = L_1;
+	gl_FragColor = H_zp2m0z;
 	
 }
 
@@ -146,13 +146,13 @@ const vec4 C_o2rsm81 = vec4(0.1, 0.2, 0.3, 0.4);
 
 void main()
 {
-	vec4 L_uc1 = texture2D(tex, coord);
-	bool L_uc2 = all((equal(L_uc1, C_o2rsm81)));
-	if (L_uc2) {
+	vec4 H_zp_c1 = texture2D(tex, coord);
+	bool H_htgod_c2 = all((equal(H_zp_c1, C_o2rsm81)));
+	if (H_htgod_c2) {
 		discard;
 	}
 	
-	gl_FragColor = L_uc1;
+	gl_FragColor = H_zp_c1;
 	
 }
 

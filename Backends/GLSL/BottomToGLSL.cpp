@@ -93,7 +93,7 @@ namespace {
                (c >= '0' && c <= '9');
     }
 
-
+    // Taken from VS <function> hash:
     unsigned int _Hash_seq(const unsigned char *_First, unsigned int _Count)
     {	// FNV-1a hash function for bytes in [_First, _First+_Count)
         const unsigned int _FNV_offset_basis = 2166136261U;
@@ -109,20 +109,20 @@ namespace {
         return (_Val);
     }
 
-    void intToString(unsigned int i, char* buf)
+    void intToString(unsigned int i, std::string& string)
     {
-        int pos = 0;
+        char buf[2];
+        buf[1] = 0;
         int radix = 36;
         while (i > 0) {
             unsigned int r = i % radix;
-            if (r < 10)
-                buf[pos] = '0' + r;
+            if (r < 10) 
+                buf[0] = '0' + r;
             else
-                buf[pos] = 'a' + r - 10;
-            ++pos;
+                buf[0] = 'a' + r - 10;
+            string.append(buf);
             i = i / radix;
         }
-        buf[pos] = 0;
     }
 
 };
@@ -451,8 +451,9 @@ public:
     void mapVariableName(const llvm::Value* value, std::string& name);
     void mapExpressionString(const llvm::Value* value, const std::string& name);
     bool getExpressionString(const llvm::Value* value, std::string& name) const;
-    void makeNewVariableName(const llvm::Value* value, std::string& name);
+    void makeNewVariableName(const llvm::Value* value, std::string& name, const char* rhs);
     void makeNewVariableName(const char* base, std::string& name);
+    void makeHashName(const char* prefix, const char* key, std::string& name);
     void makeObfuscatedName(std::string& name);
     void canonicalizeName(std::string& name);
     void makeExtractElementStr(const llvm::Instruction* llvmInstruction, std::string& str);
@@ -476,8 +477,8 @@ public:
     void emitGlaInterpolationQualifier(EVariableQualifier qualifier, EInterpolationMethod interpMethod, EInterpolationLocation interpLocation);
     void emitGlaLayout(std::ostringstream&, gla::EMdTypeLayout layout, int location);
     void emitGlaConstructor(std::ostringstream&, llvm::Type* type, int count = -1);
-    void emitGlaValueDeclaration(const llvm::Value* value, bool forceGlobal = false);
-    void emitGlaValue(std::ostringstream&, const llvm::Value* value);
+    void emitGlaValueDeclaration(const llvm::Value* value, const char* rhs, bool forceGlobal = false);
+    void emitGlaValue(std::ostringstream&, const llvm::Value* value, const char* rhs);
     void emitGlaOperand(std::ostringstream&, const llvm::Value* value);
     void emitNonconvertedGlaValue(std::ostringstream&, const llvm::Value* value);
     void propagateNonconvertedGlaValue(const llvm::Value* dst, const llvm::Value* src);
@@ -535,6 +536,9 @@ public:
 
     // mapping of the string representation of a constant's initializer to a const variable name;
     std::map<std::string, const std::string*> constMap;
+
+    // all names that came from hashing, to ensure uniqueness
+    std::set<std::string> hashedNames;
 
     // Map from IO-related global variables, by name, to their mdNodes describing them.
     std::map<std::string, const llvm::MDNode*> mdMap;
@@ -598,7 +602,7 @@ public:
             // emit a declaration, no assignment
             if (target.valueMap.find(instruction) == target.valueMap.end()) {
                 target.newLine();
-                target.emitGlaValue(target.shader, instruction);
+                target.emitGlaValue(target.shader, instruction, str().c_str());
                 target.shader << ";";
             }
         }
@@ -608,9 +612,9 @@ public:
         // emit the l-value
         target.newLine();
         if (lvalue)
-            target.emitGlaValue(target.shader, instruction);
+            target.emitGlaValue(target.shader, instruction, str().c_str());
         if (member.size() > 0)
-            target.shader << "." << member;
+            target.shader << member;
         if (lvalue && str().size() > 0)
             target.shader << " = ";
 
@@ -1503,7 +1507,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     // If the instruction is referenced outside of the current scope
     // (e.g. inside a loop body), then add a (global) declaration for it.
     if (referencedOutsideScope)
-        emitGlaValueDeclaration(llvmInstruction, referencedOutsideScope);
+        emitGlaValueDeclaration(llvmInstruction, 0, referencedOutsideScope);
 
     bool nested;
     bool emulateBitwise;
@@ -1605,14 +1609,13 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         return;
 
     case llvm::Instruction::FRem:
-        newLine();
-        emitGlaValue(shader, llvmInstruction);
-        shader << " = mod(";
-        emitGlaOperand(shader, llvmInstruction->getOperand(0));
-        shader << ", ";
-        emitGlaOperand(shader, llvmInstruction->getOperand(1));
-        shader << ");";
-        
+        assignment << "mod(";
+        emitGlaOperand(assignment, llvmInstruction->getOperand(0));
+        assignment << ", ";
+        emitGlaOperand(assignment, llvmInstruction->getOperand(1));
+        assignment << ")";
+        assignment.emit();
+
         return;
 
     case llvm::Instruction::ICmp:
@@ -1737,7 +1740,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             if (it != nonConvertedMap.end())
                 shader << it->second->c_str();
             else
-                emitGlaValue(shader, target);
+                emitGlaValue(shader, target, 0);
 
             shader << " = " << expression.str() << ";";
         }
@@ -1747,14 +1750,14 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
     case llvm::Instruction::Alloca:
         newLine();
-        emitGlaValue(shader, llvmInstruction);
+        emitGlaValue(shader, llvmInstruction, 0);
         shader << ";";
 
         return;
 
     case llvm::Instruction::ExtractElement:
     {
-        emitGlaValueDeclaration(llvmInstruction->getOperand(0));
+        emitGlaValueDeclaration(llvmInstruction->getOperand(0), 0);
 
         // copy propagate, by name string, the extracted component
         std::string swizzled;
@@ -1775,26 +1778,23 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             copy.emit();
 
             // second, overwrite the element being inserted
-            newLine();
-            emitGlaValue(shader, llvmInstruction);
-
+            std::ostringstream member;
             llvm::Value* element = llvmInstruction->getOperand(2);
             if (llvm::isa<llvm::Constant>(element)) {
-                shader << ".";
-                emitComponentToSwizzle(shader, GetConstantInt(element));
+                member << ".";
+                emitComponentToSwizzle(member, GetConstantInt(element));
             } else {
-                shader << "[";
-                emitGlaOperand(shader, element);
-                shader << "]";
+                member << "[";
+                emitGlaOperand(member, element);
+                member << "]";
             }
-
-            shader << " = ";
-            emitGlaOperand(shader, llvmInstruction->getOperand(1));
-            shader << ";";
+            assignment.setMember(member.str().c_str());
+            emitGlaOperand(assignment, llvmInstruction->getOperand(1));
+            assignment.emit();
         } else {
             newLine();
             if (valueMap.find(llvmInstruction->getOperand(0)) == valueMap.end()) {
-                emitGlaValueDeclaration(llvmInstruction->getOperand(0));
+                emitGlaValueDeclaration(llvmInstruction->getOperand(0), 0);
                 shader << ";";
                 newLine();
             }
@@ -1970,7 +1970,7 @@ bool gla::GlslTarget::needCanonicalSwap(const llvm::Instruction* instr) const
 void gla::GlslTarget::declarePhiCopy(const llvm::Value* dst)
 {
     newLine();
-    emitGlaValue(shader, dst);
+    emitGlaValue(shader, dst, 0);
     shader << ";";
 }
 
@@ -2053,9 +2053,9 @@ void gla::GlslTarget::beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const
         if (! str.empty())
             shader << str;
         else
-            emitGlaValue(shader, op1);
+            emitGlaValue(shader, op1, 0);
     } else
-        emitGlaValue(shader, op1);
+        emitGlaValue(shader, op1, 0);
     str.clear();
 
     shader << " " << opStr << " ";
@@ -2080,7 +2080,7 @@ void gla::GlslTarget::beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigne
     newLine();
 
     shader << "for (";
-    emitGlaValue(shader, phi);
+    emitGlaValue(shader, phi, 0);
 
     shader << " = 0; ";
 
@@ -2099,7 +2099,7 @@ void gla::GlslTarget::beginSimpleInductiveLoop(const llvm::PHINode* phi, const l
     newLine();
 
     shader << "for (";
-    emitGlaValue(shader, phi);
+    emitGlaValue(shader, phi, 0);
 
     shader << " = 0; ";
 
@@ -2371,18 +2371,18 @@ bool gla::GlslTarget::getExpressionString(const llvm::Value* value, std::string&
     return false;
 }
 
-void gla::GlslTarget::makeNewVariableName(const llvm::Value* value, std::string& name)
+void gla::GlslTarget::makeNewVariableName(const llvm::Value* value, std::string& name, const char* rhs)
 {
-    ++lastVariable;
-    const size_t bufSize = 20;
-    char buf[bufSize];
-    if (obfuscate) {
+    if (obfuscate)
         makeObfuscatedName(name);
-    } else {
+    else {
         if (IsTempName(value->getName())) {
-            name.append("L_");
-            snprintf(buf, bufSize, "%x", lastVariable);
-            name.append(buf);
+            if (rhs && strlen(rhs) > 0)
+                makeHashName("H_", rhs, name);
+            else {                
+                name.append("Lg_");
+                intToString(++lastVariable, name);
+            }
         } else {
             name.append(value->getName());
             canonicalizeName(name);
@@ -2396,17 +2396,25 @@ void gla::GlslTarget::makeNewVariableName(const llvm::Value* value, std::string&
 
 void gla::GlslTarget::makeNewVariableName(const char* base, std::string& name)
 {
-    ++lastVariable;
     const size_t bufSize = 20;
     char buf[bufSize];
     if (obfuscate) {
         makeObfuscatedName(name);
     } else {
         name.append(base);
-        snprintf(buf, bufSize, "%x", lastVariable);
+        snprintf(buf, bufSize, "%x", ++lastVariable);
         name.append(buf);
     }
 }
+
+void gla::GlslTarget::makeHashName(const char* prefix, const char* key, std::string& name)
+{
+    name.append(prefix);
+    intToString(_Hash_seq((const unsigned char*)key, strlen(key)), name);
+    while (hashedNames.find(name) != hashedNames.end())
+        name.append("r");
+    hashedNames.insert(name);
+} 
 
 void gla::GlslTarget::makeObfuscatedName(std::string& name)
 {
@@ -2580,7 +2588,7 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_queryTextureSizeNoLod:
 
         newLine();
-        emitGlaValue(out, llvmInstruction);
+        emitGlaValue(out, llvmInstruction, 0);
         out << " = textureSize(";
         emitGlaOperand(out, llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         if (llvmInstruction->getNumArgOperands() > 2) {
@@ -2593,7 +2601,7 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_fQueryTextureLod:
 
         newLine();
-        emitGlaValue(out, llvmInstruction);
+        emitGlaValue(out, llvmInstruction, 0);
         out << " = textureQueryLod(";
         emitGlaOperand(out, llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         out << ", ";
@@ -3085,7 +3093,7 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     // deal specially with fmodf(), then treat everything else about the same.
     if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fModF) {
         newLine();
-        emitGlaValue(out, llvmInstruction);
+        emitGlaValue(out, llvmInstruction, 0);
         out << "; ";
         out << valueMap[llvmInstruction]->c_str() << ".member0";
         out << " = " << callString << "(";
@@ -3139,7 +3147,7 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
 void gla::GlslTarget::emitGlaCall(std::ostringstream& out, const llvm::CallInst* call)
 {
     newLine();
-    emitGlaValue(out, call);
+    emitGlaValue(out, call, 0);
     out << " = " << std::string(call->getCalledFunction()->getName()) << "(";
     for (int arg = 0; arg < (int)call->getNumArgOperands(); ++arg) {
         emitGlaOperand(out, call->getArgOperand(arg));
@@ -3190,6 +3198,8 @@ void gla::GlslTarget::emitComponentToSwizzle(std::ostringstream& out, int compon
 
 void gla::GlslTarget::emitMaskToSwizzle(std::ostringstream& out, int mask)
 {
+    out << ".";
+
     for (int component = 0; component < 4; ++component)
         if (mask & (1 << component))
             out << MapComponentToSwizzleChar(component);
@@ -3256,14 +3266,15 @@ void gla::GlslTarget::emitNamelessConstDeclaration(const llvm::Value* value, con
     
     std::string name;
     if (! getExpressionString(value, name)) {
+        name = "";
         std::map<std::string, const std::string*>::const_iterator it = constMap.find(constString.str());
         if (it != constMap.end()) {
             // duplicate of some already declared constant 
             mapExpressionString(value, *it->second);
             return;
         } else {
-            name = "C_";
             if (constString.str().size() < 12) {
+                name = "C_";
                 name.append(constString.str());
                 for (int i = 0; i < (int)name.size(); ++i) {
                     if (! ValidIdentChar(name[i])) {
@@ -3276,12 +3287,8 @@ void gla::GlslTarget::emitNamelessConstDeclaration(const llvm::Value* value, con
                         }
                     }
                 }
-            } else {
-                int hash = _Hash_seq((const unsigned char*)constString.str().c_str(), constString.str().size());
-                char buf[40];
-                intToString(hash, buf);
-                name.append(buf);
-            }
+            } else
+                makeHashName("C_", constString.str().c_str(), name);
             constMap[constString.str()] = new std::string(name);
         }
         mapExpressionString(value, name);
@@ -3641,7 +3648,7 @@ void gla::GlslTarget::emitGlaConstructor(std::ostringstream& out, llvm::Type* ty
 
 // If valueMap has no entry for value, generate a name and declaration.
 // If forceGlobal is true, then it will make the declaration occur as a global.
-void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, bool forceGlobal)
+void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, const char* rhs, bool forceGlobal)
 {
     if (valueMap.find(value) != valueMap.end())
         return;
@@ -3663,7 +3670,7 @@ void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, bool for
     }
 
     std::string* newName = new std::string;
-    makeNewVariableName(value, *newName);
+    makeNewVariableName(value, *newName, rhs);
     mapVariableName(value, *newName);
     EMdPrecision precision = GetPrecision(value);
 
@@ -3679,10 +3686,10 @@ void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, bool for
     }
 }
 
-void gla::GlslTarget::emitGlaValue(std::ostringstream& out, const llvm::Value* value)
+void gla::GlslTarget::emitGlaValue(std::ostringstream& out, const llvm::Value* value, const char* rhs)
 {
     assert(! llvm::isa<llvm::ConstantExpr>(value));
-    emitGlaValueDeclaration(value);
+    emitGlaValueDeclaration(value, rhs);
     out << valueMap[value]->c_str();
 }
 
@@ -3690,7 +3697,7 @@ void gla::GlslTarget::emitGlaOperand(std::ostringstream& out, const llvm::Value*
 {
     // If an operand needs a declaration, it can only be something declared elsewhere,
     // not in line here.
-    emitGlaValueDeclaration(value);
+    emitGlaValueDeclaration(value, 0);
     out << valueMap[value]->c_str();
 }
 
@@ -3703,7 +3710,7 @@ void gla::GlslTarget::emitNonconvertedGlaValue(std::ostringstream& out, const ll
     if (nonConvertedMap.find(value) != nonConvertedMap.end())
         out << nonConvertedMap[value]->c_str();
     else
-        emitGlaValue(out, value);
+        emitGlaValue(out, value, 0);
 }
 
 // Propagate a nonconverted form from one value to another
@@ -3715,7 +3722,7 @@ void gla::GlslTarget::propagateNonconvertedGlaValue(const llvm::Value* dst, cons
 
 std::string* gla::GlslTarget::mapGlaValueAndEmitDeclaration(const llvm::Value* value)
 {
-    emitGlaValueDeclaration(value);
+    emitGlaValueDeclaration(value, 0);
 
     return valueMap[value];
 }
@@ -3911,6 +3918,8 @@ void gla::GlslTarget::emitGlaSwizzle(std::ostringstream& out, const llvm::SmallV
 // passed vector.
 void gla::GlslTarget::emitGlaWriteMask(std::ostringstream& out, const llvm::SmallVectorImpl<llvm::Constant*>& elts)
 {
+    out << ".";
+
     // Output the components for all defined channels
     for (int i = 0; i < (int)elts.size(); ++i) {
         if (! IsDefined(elts[i]))
@@ -4002,8 +4011,10 @@ void gla::GlslTarget::emitGlaMultiInsert(std::ostringstream& out, const llvm::In
 
     Assignment initExpression(this, inst);
 
-    // If the writemask is full, then just initialize it, and we're done
-    if (wmask == 0xF) {
+    // If the writemask is full, then just initialize it, and we're done.
+    // Will make a set of contiguous 1s by subracting from a power of 2.
+    int comps = GetComponentCount(inst);
+    if (wmask == (1 << comps) - 1) {
         emitGlaMultiInsertRHS(initExpression, inst);
         initExpression.emit();
         return;
@@ -4077,7 +4088,7 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
     case llvm::Intrinsic::gla_fWriteData:
     {
         llvm::Value* value = llvmInstruction->getOperand(2);
-        emitGlaValueDeclaration(value);
+        emitGlaValueDeclaration(value, 0);
         std::string wrapped = *valueMap[value];
         if (notSigned)
             ConversionWrap(wrapped, value->getType(), true);

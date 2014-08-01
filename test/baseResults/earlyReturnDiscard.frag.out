@@ -368,21 +368,21 @@ void main()
 			discard;
 		}
 		
-		vec4 L_2 = (((c > d) ? bigColor : smallColor) + BaseColor);
-		L_2.z = ((((c > d) ? bigColor : smallColor) + BaseColor).z + C_1d0);
-		if (((L_2 + C_vec4p1d0p).w > threshhold2)) {
-			if (((L_2 + C_vec4p1d0p).z > threshhold2)) {
+		vec4 H_ihikko = (((c > d) ? bigColor : smallColor) + BaseColor);
+		H_ihikko.z = ((((c > d) ? bigColor : smallColor) + BaseColor).z + C_1d0);
+		if (((H_ihikko + C_vec4p1d0p).w > threshhold2)) {
+			if (((H_ihikko + C_vec4p1d0p).z > threshhold2)) {
 				return;
 			} else {
 				if (b) {
-					vec4 L_3 = (L_2 + C_vec4p1d0p);
-					L_3.z = ((L_2 + C_vec4p1d0p).z + C_1d0);
-					color_uc1 = L_3;
+					vec4 H_ky5q5l = (H_ihikko + C_vec4p1d0p);
+					H_ky5q5l.z = ((H_ihikko + C_vec4p1d0p).z + C_1d0);
+					color_uc1 = H_ky5q5l;
 				} else {
-					if (((L_2 + C_vec4p1d0p).x < minimum)) {
+					if (((H_ihikko + C_vec4p1d0p).x < minimum)) {
 						discard;
 					} else {
-						color_uc1 = ((L_2 + C_vec4p1d0p) + C_vec4p1d0p);
+						color_uc1 = ((H_ihikko + C_vec4p1d0p) + C_vec4p1d0p);
 					}
 					
 				}
@@ -430,22 +430,22 @@ void main()
 			discard;
 		}
 		
-		vec4 L_uc2 = ((c > d) ? bigColor : smallColor) + BaseColor;
-		vec4 L_3 = L_uc2;
-		L_3.z = ((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0);
-		if (((C_1d0 + L_uc2.w) > threshhold2)) {
+		vec4 H_ihikko_c2 = ((c > d) ? bigColor : smallColor) + BaseColor;
+		vec4 H_tkfn8c = H_ihikko_c2;
+		H_tkfn8c.z = ((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0);
+		if (((C_1d0 + H_ihikko_c2.w) > threshhold2)) {
 			if (((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0) + C_1d0) > threshhold2)) {
 				return;
 			} else {
 				if (b) {
-					vec4 L_4 = (L_3 + C_vec4p1d0p);
-					L_4.z = ((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0) + C_1d0) + C_1d0);
-					color_uc_c1 = L_4;
+					vec4 H_9ih4zi = (H_tkfn8c + C_vec4p1d0p);
+					H_9ih4zi.z = ((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0) + C_1d0) + C_1d0);
+					color_uc_c1 = H_9ih4zi;
 				} else {
-					if (((C_1d0 + L_uc2.x) < minimum)) {
+					if (((C_1d0 + H_ihikko_c2.x) < minimum)) {
 						discard;
 					} else {
-						color_uc_c1 = ((C_vec4p1d0p + L_3) + C_vec4p1d0p);
+						color_uc_c1 = ((C_vec4p1d0p + H_tkfn8c) + C_vec4p1d0p);
 					}
 					
 				}
