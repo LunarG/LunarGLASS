@@ -185,8 +185,7 @@ in float alpha;
 
 void main()
 {
-	vec2 H_een1jl1 = vec2(((gl_TexCoord[a] + userIn[b]) + gl_TexCoord[5]));
-	vec4 texColor_c1 = texture(texSampler2D, H_een1jl1);
+	vec4 texColor_c1 = texture(texSampler2D, ((gl_TexCoord[a] + userIn[b]) + gl_TexCoord[5]).xy);
 	vec4 H_xowbja = (color + texColor_c1);
 	H_xowbja.w = alpha;
 	gl_FragColor = (((gl_TexCoord[0] + gl_TexCoord[b]) + H_xowbja) + userIn[a]);
@@ -195,9 +194,9 @@ void main()
 
 #version 130
 // LunarGOO output
+uniform sampler2D texSampler2D;
 uniform int a;
 uniform int b;
-uniform sampler2D texSampler2D;
 in vec4 gl_TexCoord[6];
 in vec4 userIn[2];
 in vec4 color;
@@ -205,8 +204,7 @@ in float alpha;
 
 void main()
 {
-	vec2 H_een1jl1 = vec2(((gl_TexCoord[a] + userIn[b]) + gl_TexCoord[5]));
-	vec4 texColor_c1 = texture(texSampler2D, H_een1jl1);
+	vec4 texColor_c1 = texture(texSampler2D, ((gl_TexCoord[a] + userIn[b]) + gl_TexCoord[5]).xy);
 	vec4 H_xowbja = (color + texColor_c1);
 	H_xowbja.w = alpha;
 	gl_FragColor = (((gl_TexCoord[0] + gl_TexCoord[b]) + H_xowbja) + userIn[a]);

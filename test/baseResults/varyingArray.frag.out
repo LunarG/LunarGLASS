@@ -156,8 +156,7 @@ in vec4 foo[3];
 
 void main()
 {
-	vec2 H_vll5901 = vec2((gl_TexCoord[4] + gl_TexCoord[5]));
-	vec4 texColor_c1 = texture(texSampler2D, H_vll5901);
+	vec4 texColor_c1 = texture(texSampler2D, (gl_TexCoord[4] + gl_TexCoord[5]).xy);
 	vec4 H_xowbja = (color + texColor_c1);
 	H_xowbja.w = alpha;
 	gl_FragColor = (((foo[1] + gl_TexCoord[0]) + gl_TexCoord[4]) + H_xowbja);
@@ -174,8 +173,7 @@ in vec4 foo[3];
 
 void main()
 {
-	vec2 H_vll5901 = vec2((gl_TexCoord[4] + gl_TexCoord[5]));
-	vec4 texColor_c1 = texture(texSampler2D, H_vll5901);
+	vec4 texColor_c1 = texture(texSampler2D, (gl_TexCoord[4] + gl_TexCoord[5]).xy);
 	vec4 H_xowbja = (color + texColor_c1);
 	H_xowbja.w = alpha;
 	gl_FragColor = (((foo[1] + gl_TexCoord[0]) + gl_TexCoord[4]) + H_xowbja);

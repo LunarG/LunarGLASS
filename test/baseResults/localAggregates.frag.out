@@ -353,9 +353,9 @@ void main()
 	bool H_uc1 = foo3.s2_1.i > C_0;
 	vec4 H_sbr82h = color;
 	H_sbr82h.z = coord.y;
-	vec4 H_kzuqc41 = vec4(((((H_uc1 ? C_1d0 : coord.x) + (H_uc1 ? coord.x : C_2d0)) + coord.x) + ((condition == C_1) ? coord.x : C_0d0)));
 	vec4 H_uc2 = texture(sampler, coord);
-	gl_FragColor = ((H_kzuqc41 * H_sbr82h) * H_uc2);
+	vec4 H_0njgr7 = H_sbr82h * vec4(((((H_uc1 ? C_1d0 : coord.x) + (H_uc1 ? coord.x : C_2d0)) + coord.x) + ((condition == C_1) ? coord.x : C_0d0)));
+	gl_FragColor = (H_0njgr7 * H_uc2);
 	
 }
 

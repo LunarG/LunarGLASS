@@ -150,9 +150,7 @@ const float C_3d0 = 3.0;
 
 void main()
 {
-	vec4 H_gaam3a1 = vec4((gl_FrontFacing ? C_a1d0 : C_1d0));
-	vec4 H_0w4bbf = vec4(((((low * 2) + C_1) < high) ? C_4d0 : C_3d0));
-	gl_FragColor = (H_0w4bbf * H_gaam3a1);
+	gl_FragColor = (vec4(((((low * 2) + C_1) < high) ? C_4d0 : C_3d0)) * vec4((gl_FrontFacing ? C_a1d0 : C_1d0)));
 	
 }
 
@@ -161,17 +159,15 @@ void main()
 precision mediump float; // this will be almost entirely overridden by individual declarations
 uniform mediump int low;
 uniform mediump int high;
-const float C_a1d0 = -1.0;
-const float C_1d0 = 1.0;
 const int C_1 = 1;
 const float C_4d0 = 4.0;
 const float C_3d0 = 3.0;
+const float C_a1d0 = -1.0;
+const float C_1d0 = 1.0;
 
 void main()
 {
-	vec4 H_gaam3a1 = vec4((gl_FrontFacing ? C_a1d0 : C_1d0));
-	vec4 H_0w4bbf = vec4(((((low * 2) + C_1) < high) ? C_4d0 : C_3d0));
-	gl_FragColor = (H_0w4bbf * H_gaam3a1);
+	gl_FragColor = (vec4(((((low * 2) + C_1) < high) ? C_4d0 : C_3d0)) * vec4((gl_FrontFacing ? C_a1d0 : C_1d0)));
 	
 }
 

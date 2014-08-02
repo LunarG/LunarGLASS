@@ -13,10 +13,8 @@ const float C_1d789 = 1.789;
 void main()
 {
 	vec4 H_ko2w861 = texture2D(texSampler2D, ((scale + t) / scale));
-	vec4 H_gtg7es1 = H_ko2w861.wzyx;
 	vec4 H_ehrlka1 = texture3D(texSampler3D, coords);
-	vec4 Ll_FragColor_c1 = mix((H_ehrlka1 + H_gtg7es1), u, (blend * C_1d789));
-	gl_FragColor = Ll_FragColor_c1;
+	gl_FragColor = mix((H_ehrlka1 + H_ko2w861.wzyx), u, (blend * C_1d789));
 	
 }
 
@@ -134,11 +132,8 @@ void main()
 	vec4 column_c2 = H_4kqhq31 + C_rpbzb2;
 	vec4 column_c3 = H_0t1aq2 + C_1a5vcu;
 	vec4 H_f89cek1 = vec4(Color.x, Color.y, Color.z, C_1d0);
-	float dotres_c4 = dot(H_f89cek1, column_c1);
-	float dotres_c5 = dot(H_f89cek1, column_c2);
-	float dotres_c6 = dot(H_f89cek1, column_c3);
-	vec4 H_1tssqq1 = vec4(dotres_c4, dotres_c5, dotres_c6, C_1d0);
-	FragColor = (H_1tssqq1 * H_f89cek1);
+	vec4 H_9ky57s1 = vec4(dot(H_f89cek1, column_c1), dot(H_f89cek1, column_c2), dot(H_f89cek1, column_c3), C_1d0);
+	FragColor = (H_9ky57s1 * H_f89cek1);
 	float H_op71y21 = column_c1.x * v.x;
 	float H_r6wtna = column_c1.y * v.x;
 	float H_y45mdb1 = column_c1.z * v.x;
@@ -155,31 +150,24 @@ void main()
 	vec4 H_rsqt46 = vec4((((H_op71y21 * um43[1].x) + (H_xbspvi1 * um43[1].y)) + (H_qeu5zc * um43[1].z)), (((H_qvc0bk1 * um43[1].y) + (H_r6wtna * um43[1].x)) + (H_djah8n1 * um43[1].z)), (((H_nwu4ga1 * um43[1].y) + (H_y45mdb1 * um43[1].x)) + (H_ssfq2j1 * um43[1].z)), (((H_137moa * um43[1].x) + (H_cwt7ee * um43[1].y)) + (H_3t0f8f1 * um43[1].z)));
 	vec4 H_tx8do61 = vec4((((H_op71y21 * um43[2].x) + (H_xbspvi1 * um43[2].y)) + (H_qeu5zc * um43[2].z)), (((H_qvc0bk1 * um43[2].y) + (H_r6wtna * um43[2].x)) + (H_djah8n1 * um43[2].z)), (((H_nwu4ga1 * um43[2].y) + (H_y45mdb1 * um43[2].x)) + (H_ssfq2j1 * um43[2].z)), (((H_137moa * um43[2].x) + (H_cwt7ee * um43[2].y)) + (H_3t0f8f1 * um43[2].z)));
 	vec4 H_j5d04d = vec4((((H_op71y21 * um43[3].x) + (H_xbspvi1 * um43[3].y)) + (H_qeu5zc * um43[3].z)), (((H_qvc0bk1 * um43[3].y) + (H_r6wtna * um43[3].x)) + (H_djah8n1 * um43[3].z)), (((H_nwu4ga1 * um43[3].y) + (H_y45mdb1 * um43[3].x)) + (H_ssfq2j1 * um43[3].z)), (((H_137moa * um43[3].x) + (H_cwt7ee * um43[3].y)) + (H_3t0f8f1 * um43[3].z)));
-	vec4 column_c7 = H_tzdsuz + un34[0];
-	vec4 column_c8 = H_rsqt46 + un34[1];
-	vec4 column_c9 = H_tx8do61 + un34[2];
-	vec4 column_c10 = H_j5d04d + C_xx1m2m1;
-	float dotProduct_c11 = ((((C_0d0 - column_c7.x) * v.x) + ((C_0d0 - column_c8.x) * v.y)) + ((C_0d0 - column_c9.x) * v.z)) + ((C_0d0 - column_c10.x) * v.w);
-	float dotProduct_c12 = ((((C_0d0 - column_c7.y) * v.x) + ((C_0d0 - column_c8.y) * v.y)) + ((C_0d0 - column_c9.y) * v.z)) + ((C_0d0 - column_c10.y) * v.w);
-	float dotProduct_c13 = ((((C_0d0 - column_c7.z) * v.x) + ((C_0d0 - column_c8.z) * v.y)) + ((C_0d0 - column_c9.z) * v.z)) + ((C_0d0 - column_c10.z) * v.w);
-	float dotProduct_c14 = ((((C_0d0 - column_c7.w) * v.x) + ((C_0d0 - column_c8.w) * v.y)) + ((C_0d0 - column_c9.w) * v.z)) + ((C_0d0 - column_c10.w) * v.w);
-	vec4 H_4k34bg = vec4(dotProduct_c11, dotProduct_c12, dotProduct_c13, dotProduct_c14);
-	vec4 FragColor_c15 = FragColor + H_4k34bg;
-	float dotres_c16 = dot(FragColor_c15, (column_c7 * column_c7));
-	float dotres_c17 = dot(FragColor_c15, (column_c8 * column_c8));
-	float dotres_c18 = dot(FragColor_c15, (column_c9 * column_c9));
-	float dotres_c19 = dot(FragColor_c15, (column_c10 * column_c10));
-	vec4 H_srxxco = vec4(dotres_c16, dotres_c17, dotres_c18, dotres_c19);
-	FragColor = H_srxxco;
+	vec4 column_c4 = H_tzdsuz + un34[0];
+	vec4 column_c5 = H_rsqt46 + un34[1];
+	vec4 column_c6 = H_tx8do61 + un34[2];
+	vec4 column_c7 = H_j5d04d + C_xx1m2m1;
+	float dotProduct_c8 = ((((C_0d0 - column_c4.x) * v.x) + ((C_0d0 - column_c5.x) * v.y)) + ((C_0d0 - column_c6.x) * v.z)) + ((C_0d0 - column_c7.x) * v.w);
+	float dotProduct_c9 = ((((C_0d0 - column_c4.y) * v.x) + ((C_0d0 - column_c5.y) * v.y)) + ((C_0d0 - column_c6.y) * v.z)) + ((C_0d0 - column_c7.y) * v.w);
+	float dotProduct_c10 = ((((C_0d0 - column_c4.z) * v.x) + ((C_0d0 - column_c5.z) * v.y)) + ((C_0d0 - column_c6.z) * v.z)) + ((C_0d0 - column_c7.z) * v.w);
+	float dotProduct_c11 = ((((C_0d0 - column_c4.w) * v.x) + ((C_0d0 - column_c5.w) * v.y)) + ((C_0d0 - column_c6.w) * v.z)) + ((C_0d0 - column_c7.w) * v.w);
+	vec4 H_0ial8t1 = vec4(dotProduct_c8, dotProduct_c9, dotProduct_c10, dotProduct_c11);
+	vec4 FragColor_c12 = FragColor + H_0ial8t1;
+	vec4 H_sfehxf = vec4(dot(FragColor_c12, (column_c4 * column_c4)), dot(FragColor_c12, (column_c5 * column_c5)), dot(FragColor_c12, (column_c6 * column_c6)), dot(FragColor_c12, (column_c7 * column_c7)));
+	FragColor = H_sfehxf;
 	vec4 H_kwzczo = vec4(um43[0].x, um43[1].x, um43[2].x, um43[3].x);
 	vec4 H_kgu2311 = vec4(um43[0].y, um43[1].y, um43[2].y, um43[3].y);
 	vec4 H_kv20e21 = vec4(um43[0].z, um43[1].z, um43[2].z, um43[3].z);
-	float dotres_c20 = dot(H_srxxco, H_kwzczo);
-	float dotres_c21 = dot(H_srxxco, H_kgu2311);
-	float dotres_c22 = dot(H_srxxco, H_kv20e21);
-	vec4 H_74wmok = vec4(dotres_c20, dotres_c21, dotres_c22, C_1d0);
-	vec4 FragColor_c23 = H_74wmok * H_srxxco;
-	FragColor = FragColor_c23;
+	vec4 H_q8vzx01 = vec4(dot(H_sfehxf, H_kwzczo), dot(H_sfehxf, H_kgu2311), dot(H_sfehxf, H_kv20e21), C_1d0);
+	vec4 FragColor_c13 = H_q8vzx01 * H_sfehxf;
+	FragColor = FragColor_c13;
 	float H_yloywc1 = (um4[2].z * um4[3].w) - (um4[2].w * um4[3].z);
 	float H_ep8nh01 = (um4[1].z * um4[3].w) - (um4[1].w * um4[3].z);
 	float H_27ojg7 = (um4[1].z * um4[2].w) - (um4[1].w * um4[2].z);
@@ -188,18 +176,16 @@ void main()
 	float H_2mh3da1 = ((((H_yloywc1 * um4[1].y) - (H_ep8nh01 * um4[2].y)) + (H_27ojg7 * um4[3].y)) * um4[0].x) - ((((H_yloywc1 * um4[0].y) - (H_6rlt5j * um4[2].y)) + (H_2uhbt * um4[3].y)) * um4[1].x);
 	float H_6i54511 = (um4[0].z * um4[1].w) - (um4[0].w * um4[1].z);
 	float H_twzyj3 = (((((H_ep8nh01 * um4[0].y) - (H_6rlt5j * um4[1].y)) + (H_6i54511 * um4[3].y)) * um4[2].x) + H_2mh3da1) - ((((H_27ojg7 * um4[0].y) - (H_2uhbt * um4[1].y)) + (H_6i54511 * um4[2].y)) * um4[3].x);
-	vec4 H_idv1f8 = vec4(H_twzyj3);
-	vec4 FragColor_c24 = FragColor_c23 * H_idv1f8;
-	FragColor = FragColor_c24;
+	vec4 FragColor_c14 = FragColor_c13 * vec4(H_twzyj3);
+	FragColor = FragColor_c14;
 	float H_vllp48 = C_1d0 / ((um2[0].x * um2[1].y) - (um2[0].y * um2[1].x));
 	vec4 H_arfio11 = vec4((H_vllp48 * um2[1].y), (C_0d0 - (H_vllp48 * um2[1].x)), (C_0d0 - (H_vllp48 * um2[0].y)), (H_vllp48 * um2[0].x));
-	vec4 FragColor_c25 = FragColor_c24 * H_arfio11;
-	FragColor = FragColor_c25;
+	vec4 FragColor_c15 = FragColor_c14 * H_arfio11;
+	FragColor = FragColor_c15;
 	float H_1mkbji1 = (((um3[1].y * um3[2].z) - (um3[1].z * um3[2].y)) * um3[0].x) - (((um3[0].y * um3[2].z) - (um3[0].z * um3[2].y)) * um3[1].x);
 	float H_2jcvmw = ((um3[0].x * um3[2].y) - (um3[0].y * um3[2].x)) * (C_1d0 / ((((um3[0].y * um3[1].z) - (um3[0].z * um3[1].y)) * um3[2].x) + H_1mkbji1));
-	vec4 H_u05qlc1 = vec4((C_0d0 - H_2jcvmw));
-	vec4 FragColor_c26 = FragColor_c25 * H_u05qlc1;
-	FragColor = FragColor_c26;
+	vec4 FragColor_c16 = FragColor_c15 * vec4((C_0d0 - H_2jcvmw));
+	FragColor = FragColor_c16;
 	float H_yloywc1r = (um4[2].z * um4[3].w) - (um4[2].w * um4[3].z);
 	float H_ep8nh01r = (um4[1].z * um4[3].w) - (um4[1].w * um4[3].z);
 	float H_27ojg7r = (um4[1].z * um4[2].w) - (um4[1].w * um4[2].z);
@@ -227,17 +213,11 @@ void main()
 	vec4 H_sf109r1 = vec4((C_0d0 - ((((H_yloywc1r * um4[1].x) - (H_ep8nh01r * um4[2].x)) + (H_27ojg7r * um4[3].x)) * H_fax1xk1)), ((((H_yloywc1r * um4[0].x) - (H_6rlt5jr * um4[2].x)) + (H_2uhbtr * um4[3].x)) * H_fax1xk1), (C_0d0 - ((((H_ep8nh01r * um4[0].x) - (H_6rlt5jr * um4[1].x)) + (H_6i54511r * um4[3].x)) * H_fax1xk1)), ((((H_27ojg7r * um4[0].x) - (H_2uhbtr * um4[1].x)) + (H_6i54511r * um4[2].x)) * H_fax1xk1));
 	vec4 H_y0wm3y = vec4(((((H_8ublbb1 * um4[1].x) - (H_496zct1 * um4[2].x)) + (H_ci2qh9 * um4[3].x)) * H_fax1xk1), (C_0d0 - ((((H_8ublbb1 * um4[0].x) - (H_g0anmh * um4[2].x)) + (H_w0ppsb * um4[3].x)) * H_fax1xk1)), ((((H_496zct1 * um4[0].x) - (H_g0anmh * um4[1].x)) + (H_8x3jkm1 * um4[3].x)) * H_fax1xk1), (C_0d0 - ((((H_ci2qh9 * um4[0].x) - (H_w0ppsb * um4[1].x)) + (H_8x3jkm1 * um4[2].x)) * H_fax1xk1)));
 	vec4 H_y9li5l = vec4((C_0d0 - ((((H_m3wxf3 * um4[1].x) - (H_q2bufm1 * um4[2].x)) + (H_u72ps6 * um4[3].x)) * H_fax1xk1)), ((((H_m3wxf3 * um4[0].x) - (H_61h4vd1 * um4[2].x)) + (H_216jjw1 * um4[3].x)) * H_fax1xk1), (C_0d0 - ((((H_q2bufm1 * um4[0].x) - (H_61h4vd1 * um4[1].x)) + (H_e5esgq1 * um4[3].x)) * H_fax1xk1)), ((((H_u72ps6 * um4[0].x) - (H_216jjw1 * um4[1].x)) + (H_e5esgq1 * um4[2].x)) * H_fax1xk1));
-	float dotres_c27 = dot(FragColor_c26, H_6jr2cu);
-	float dotres_c28 = dot(FragColor_c26, H_sf109r1);
-	float dotres_c29 = dot(FragColor_c26, H_y0wm3y);
-	float dotres_c30 = dot(FragColor_c26, H_y9li5l);
-	vec4 H_pecqoh = vec4(dotres_c27, dotres_c28, dotres_c29, dotres_c30);
-	FragColor = H_pecqoh;
-	float dotres_c31 = dot(H_pecqoh, (un34[0] * un34[0]));
-	float dotres_c32 = dot(H_pecqoh, (un34[1] * un34[1]));
-	float dotres_c33 = dot(H_pecqoh, (un34[2] * un34[2]));
-	vec4 H_ctl1db = vec4(dotres_c31, dotres_c32, dotres_c33, dotres_c30);
-	FragColor = H_ctl1db;
+	float dotres_c17 = dot(FragColor_c16, H_y9li5l);
+	vec4 H_dshyf81 = vec4(dot(FragColor_c16, H_6jr2cu), dot(FragColor_c16, H_sf109r1), dot(FragColor_c16, H_y0wm3y), dotres_c17);
+	FragColor = H_dshyf81;
+	vec4 H_28ycva = vec4(dot(H_dshyf81, (un34[0] * un34[0])), dot(H_dshyf81, (un34[1] * un34[1])), dot(H_dshyf81, (un34[2] * un34[2])), dotres_c17);
+	FragColor = H_28ycva;
 	
 }
 
@@ -256,12 +236,8 @@ varying vec3 v;
 
 void main()
 {
-	float dotres_c1 = dot(v, (am[4][0] + us.sm[i][0]));
-	float dotres_c2 = dot(v, (am[4][1] + us.sm[i][1]));
-	float dotres_c3 = dot(v, (am[4][2] + us.sm[i][2]));
-	float dotres_c4 = dot(v, (am[4][3] + us.sm[i][3]));
-	vec4 H_44ip39 = vec4(dotres_c1, dotres_c2, dotres_c3, dotres_c4);
-	gl_FragColor = H_44ip39;
+	vec4 H_cmtuxr = vec4(dot(v, (am[4][0] + us.sm[i][0])), dot(v, (am[4][1] + us.sm[i][1])), dot(v, (am[4][2] + us.sm[i][2])), dot(v, (am[4][3] + us.sm[i][3])));
+	gl_FragColor = H_cmtuxr;
 	
 }
 
@@ -317,19 +293,15 @@ void main()
 	vec4 H_mj2lr4 = shadow2DProj(shadowSampler2D, C_gyy781);
 	vec4 H_4rdrg21 = shadow2DProj(shadowSampler2D, C_gyy781, C_2d0);
 	vec4 H_mlyi8l1 = texelFetch(texSampler2D, C_ivec2p0ca5p, C_1);
-	vec2 gradX_c3 = dFdx(coords2D);
-	vec2 gradY_c4 = dFdy(coords2D);
-	vec4 H_shtmx91 = textureGrad(texSampler2D, coords2D, gradX_c3, gradY_c4);
+	vec4 H_58znf61 = textureGrad(texSampler2D, coords2D, dFdx(coords2D), dFdy(coords2D));
 	vec3 H_qoi6ir1 = vec3(coords2D.x, coords2D.y, C_2d0);
-	vec4 H_zx88zp = textureProjGrad(texSampler2D, H_qoi6ir1, gradX_c3, gradY_c4);
-	vec4 H_xn2ckt = textureGradOffset(texSampler2D, coords2D, gradX_c3, gradY_c4, C_oezkvl1);
-	vec4 color_c5 = ((((((((H_5n7yy21 + color_c2) + H_acrfl9) + H_kpuwh81) + H_mj2lr4) + H_4rdrg21) + H_mlyi8l1) + H_shtmx91) + H_zx88zp) + H_xn2ckt;
-	vec4 H_7j0gbk = textureProjGradOffset(texSampler2D, C_t1ff8m1, gradX_c3, gradY_c4, C_oezkvl1);
+	vec4 H_6jjgmc = textureProjGrad(texSampler2D, H_qoi6ir1, dFdx(coords2D), dFdy(coords2D));
+	vec4 H_2xa0hh1 = textureGradOffset(texSampler2D, coords2D, dFdx(coords2D), dFdy(coords2D), C_oezkvl1);
+	vec4 color_c3 = ((((((((H_5n7yy21 + color_c2) + H_acrfl9) + H_kpuwh81) + H_mj2lr4) + H_4rdrg21) + H_mlyi8l1) + H_58znf61) + H_6jjgmc) + H_2xa0hh1;
+	vec4 H_4znut41 = textureProjGradOffset(texSampler2D, C_t1ff8m1, dFdx(coords2D), dFdy(coords2D), C_oezkvl1);
 	vec3 H_7u8f7h1 = vec3(coords2D.x, coords2D.y, C_3d0);
-	float H_g2bc3w1 = textureGrad(shadowSampler2D, H_7u8f7h1, gradX_c3, gradY_c4);
-	vec4 H_u294wo1 = vec4(H_g2bc3w1);
-	vec4 Ll_FragColor_c6 = mix(((H_7j0gbk + color_c5) + H_u294wo1), u, (C_1d789 * blend));
-	gl_FragColor = Ll_FragColor_c6;
+	float H_1z6kz6 = textureGrad(shadowSampler2D, H_7u8f7h1, dFdx(coords2D), dFdy(coords2D));
+	gl_FragColor = mix(((H_4znut41 + color_c3) + vec4(H_1z6kz6)), u, (C_1d789 * blend));
 	
 }
 
@@ -426,18 +398,12 @@ void main()
 } Lg_1; Lg_1.member0 = modf(x, Lg_1.member1);
 	vec4 H_ynrwua1 = vec4(Lg_1.member0.x, Lg_1.member0.y, Lg_1.member0.z, Lg_1.member1.x);
 	mediump float H_u8ukc2 = trunc(f);
-	vec4 H_7z3jvz = vec4(H_u8ukc2);
 	mediump vec2 H_z56gqk1 = round(v2a);
 	mediump vec2 H_z05d6r = roundEven(v2a);
 	vec4 H_kqw9d31 = vec4(H_z56gqk1.x, H_z56gqk1.y, H_z05d6r.x, H_z05d6r.y);
-	bvec2 H_cy3k1z = isnan(v2a);
-	bvec4 H_tx61al1 = isinf(v4);
-	mediump ivec2 H_r3r3xx = ivec2(H_cy3k1z);
-	mediump ivec4 H_tad3bu1 = ivec4(H_tx61al1);
-	ivec4 H_vxhdx71 = ivec4(H_r3r3xx.x, H_r3r3xx.y, H_tad3bu1.x, H_tad3bu1.y);
+	ivec4 H_plwp0g1 = ivec4((ivec2(isnan(v2a))).x, (ivec2(isnan(v2a))).y, (ivec4(isinf(v4))).x, (ivec4(isinf(v4))).y);
 	mediump int H_i86q1r = floatBitsToInt(f);
-	ivec4 H_vvf8zk1 = ivec4(H_i86q1r);
-	mediump ivec4 isum_c2 = ((((((((H_bh9ar6 + isum_c1) + H_75gwur) + H_vgqkyq) + H_9qn0ej1) + H_jsk1o8) + H_kqs8tt1) + H_douq0p1) + H_vxhdx71) + H_vvf8zk1;
+	mediump ivec4 isum_c2 = ((((((((H_bh9ar6 + isum_c1) + H_75gwur) + H_vgqkyq) + H_9qn0ej1) + H_jsk1o8) + H_kqs8tt1) + H_douq0p1) + H_plwp0g1) + ivec4(H_i86q1r);
 	mediump ivec4 H_4poblp1 = floatBitsToInt(v4);
 	mediump vec4 H_k2uey71 = intBitsToFloat(iv4a);
 	mediump vec2 H_awczdb = intBitsToFloat(ivec2(uv2c));
@@ -451,8 +417,8 @@ void main()
 	ivec4 H_3vcyzg = ivec4(H_aqcc2q1, H_slyzqu1, H_jzskf11, C_0);
 	vec4 H_wppdxa1 = vec4(H_bcj1fu.x, H_bcj1fu.y, H_pltztp1.x, H_pltztp1.y);
 	vec4 H_f628sr1 = vec4(H_73yecd1.x, H_73yecd1.y, C_0d0, C_0d0);
-	mediump vec4 H_ipl9vo = (((((((H_2f9m82 + H_ynrwua1) + H_7z3jvz) + H_kqw9d31) + H_k2uey71) + H_h40lmx1) + H_wppdxa1) + H_f628sr1) + (vec4(isum_c2));
-	mediump vec4 result_c3 = (vec4(((((((H_4l54vw + H_61bfck) + H_t86uxe1) + H_o4xdcc1) + H_lgj8ul1) + H_4poblp1) + H_3vcyzg))) + H_ipl9vo;
+	mediump vec4 H_5hsaaf1 = (((((((H_2f9m82 + H_ynrwua1) + vec4(H_u8ukc2)) + H_kqw9d31) + H_k2uey71) + H_h40lmx1) + H_wppdxa1) + H_f628sr1) + (vec4(isum_c2));
+	mediump vec4 result_c3 = (vec4(((((((H_4l54vw + H_61bfck) + H_t86uxe1) + H_o4xdcc1) + H_lgj8ul1) + H_4poblp1) + H_3vcyzg))) + H_5hsaaf1;
 	result = result_c3;
 	mediump vec2 H_67d0kq1 = gl_PointCoord * C_vec2p2d0p;
 	vec4 H_0wse3z = vec4(gl_PointCoord.x, gl_PointCoord.y, H_67d0kq1.x, H_67d0kq1.y);
@@ -472,11 +438,8 @@ const int C_a10 = -10;
 invariant gl_Position ;
 void main()
 {
-	vec4 H_n1bm9l1 = vec4(ps);
-	highp float H_evn9ch = float(((gl_VertexID << C_2) + C_a10));
-	vec4 H_874vdq1 = vec4(H_evn9ch);
-	gl_Position = (H_874vdq1 * H_n1bm9l1);
-	gl_PointSize = (H_evn9ch * ps);
+	gl_Position = (vec4((float(((gl_VertexID << C_2) + C_a10)))) * vec4(ps));
+	gl_PointSize = ((float(((gl_VertexID << C_2) + C_a10))) * ps);
 	
 }
 
@@ -491,10 +454,9 @@ uniform sampler2D texSampler2D;
 void main()
 {
 	vec4 texColor_c1 = color[1] + color[1];
-	vec3 H_upw3gu = vec3(texColor_c1);
-	vec3 H_ghd6au = H_upw3gu + inColor;
-	vec4 H_c79sqx = vec4(H_ghd6au.x, H_ghd6au.y, H_ghd6au.z, (alpha[12] + texColor_c1.w));
-	gl_FragColor = H_c79sqx;
+	vec3 H_4wg7yy1 = inColor + texColor_c1.xyz;
+	vec4 H_fwjaas = vec4(H_4wg7yy1.x, H_4wg7yy1.y, H_4wg7yy1.z, (alpha[12] + texColor_c1.w));
+	gl_FragColor = H_fwjaas;
 	
 }
 
@@ -565,9 +527,8 @@ void main()
 	ivec4 iv_c6 = textureLod(isCube, c3D, c1D);
 	ivec4 iv_c7 = texelFetch(is2DArray, ic3D, ic1D);
 	ivec2 iv_c8 = textureSize(sCubeShadow, C_2);
-	vec2 H_9sscc91 = vec2(iv_c8);
-	vec4 H_dxeock = vec4(H_9sscc91.x, H_9sscc91.y, C_0d0, C_0d0);
-	FragData = ((((vec4(iv_c6)) + H_vz5my) + (vec4(iv_c7))) + H_dxeock);
+	vec4 H_748b3t1 = vec4((vec2(iv_c8)).x, (vec2(iv_c8)).y, C_0d0, C_0d0);
+	FragData = ((((vec4(iv_c6)) + H_vz5my) + (vec4(iv_c7))) + H_748b3t1);
 	
 }
 

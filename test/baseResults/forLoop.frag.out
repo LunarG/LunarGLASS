@@ -374,7 +374,6 @@ void main()
 	}
 	
 	gl_FragColor = Lg_1;
-	vec4 H_cmvrgy1 = vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))));
 	vec4 tv_c3 = gla_globalAgg;
 	tv_c3.x = (float((ivec4(v4).x << C_2)));
 	vec4 tv_c4 = tv_c3;
@@ -383,13 +382,11 @@ void main()
 	tv_c5.z = (float((ivec4(v4).z << C_2)));
 	vec4 tv_c6 = tv_c5;
 	tv_c6.w = (float((ivec4(v4).w << C_2)));
-	vec4 Ll_FragColor_c7 = (H_cmvrgy1 + tv_c6) + Lg_1;
-	vec3 H_gdbmhi = vec3(Ll_FragColor_c7);
+	vec4 Ll_FragColor_c7 = (tv_c6 + vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))))) + Lg_1;
 	gl_FragColor = Ll_FragColor_c7;
 	r_uc2 = BaseColor;
 	Lg_2 = C_0;
 	while (true) {
-		Lg_3 = vec3(r_uc2);
 		if (! (Lg_2 < Count)) {
 			break;
 		}
@@ -400,9 +397,9 @@ void main()
 		Lg_2 = (Lg_2 + C_1);
 	}
 	
-	vec3 H_z3g15k1 = H_gdbmhi + Lg_3;
+	vec3 H_aa0nn11 = Ll_FragColor_c7.xyz + r_uc2.xyz;
 	vec4 H_4wymco1 = Ll_FragColor_c7;
-	H_4wymco1.xyz = H_z3g15k1.xyz;
+	H_4wymco1.xyz = H_aa0nn11.xyz;
 	gl_FragColor = H_4wymco1;
 	
 }
@@ -432,15 +429,12 @@ void main()
 	}
 	
 	gl_FragColor = Lg_uc2;
-	vec4 H_cmvrgy1 = vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))));
 	vec4 H_0v8ikr1 = vec4((float((ivec4(v4).x << C_2))), (float((ivec4(v4).y << C_2))), (float((ivec4(v4).z << C_2))), (float((ivec4(v4).w << C_2))));
-	vec4 Ll_FragColor_c5 = (H_0v8ikr1 + H_cmvrgy1) + Lg_uc2;
-	vec3 H_ay4rpa = vec3(Ll_FragColor_c5);
+	vec4 Ll_FragColor_c5 = (H_0v8ikr1 + vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))))) + Lg_uc2;
 	gl_FragColor = Ll_FragColor_c5;
 	Lg_uc3 = C_0;
 	r_uc_c4 = BaseColor;
 	while (true) {
-		Lg_1 = vec3(r_uc_c4);
 		if (! (Lg_uc3 < Count)) {
 			break;
 		}
@@ -451,9 +445,9 @@ void main()
 		r_uc_c4 = H_or427q;
 	}
 	
-	vec3 H_z_c6 = H_ay4rpa + Lg_1;
+	vec3 H_aa_c6 = Ll_FragColor_c5.xyz + r_uc_c4.xyz;
 	vec4 H_2a6mwo1 = Ll_FragColor_c5;
-	H_2a6mwo1.xyz = H_z_c6.xyz;
+	H_2a6mwo1.xyz = H_aa_c6.xyz;
 	gl_FragColor = H_2a6mwo1;
 	
 }

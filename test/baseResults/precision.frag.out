@@ -310,21 +310,17 @@ void main()
 {
 	mediump float H_a09wcm = distance(lowfin, mediumfin);
 	highp float global_highp_c1 = length(highfin);
-	vec4 H_leeikq1 = vec4(global_highp_c1);
 	lowp float H_admieb1 = sin(H_a09wcm);
-	vec4 H_u50x4q = vec4(H_admieb1);
-	mediump vec4 H_dsteix = H_u50x4q + C_gmsnr8;
-	highp vec4 mediumfout_c2 = H_dsteix + H_leeikq1;
+	mediump vec4 H_ckgv2d = vec4(H_admieb1) + C_gmsnr8;
+	highp vec4 mediumfout_c2 = H_ckgv2d + vec4(global_highp_c1);
 	mediumfout = mediumfout_c2;
 	lowp int H_watu271 = uniform_medium + C_4;
 	highp int sum_c3 = H_watu271 + uniform_low;
 	lowp int sum_c4 = (sum_c3 + uniform_high) + (uniform_high * uniform_low);
 	mediump float H_4j7stt1 = float(((uniform_high << C_1) + sum_c4));
-	vec4 H_a3kx6a = vec4(H_4j7stt1);
-	mediump vec4 mediumfout_c5 = H_a3kx6a + mediumfout_c2;
+	mediump vec4 mediumfout_c5 = mediumfout_c2 + vec4(H_4j7stt1);
 	mediumfout = mediumfout_c5;
-	bool H_ibj1g21 = all((equal(ub2, C_lawgqu1)));
-	if (H_ibj1g21) {
+	if (all(equal(ub2, C_lawgqu1))) {
 		mediump vec4 mediumfout_c6 = mediumfout_c5 + C_vec4p1d0p;
 		mediumfout = mediumfout_c6;
 	}
@@ -353,22 +349,18 @@ void main()
 {
 	mediump float H_a_c1 = distance(lowfin, mediumfin);
 	highp float global_highp_c2 = length(highfin);
-	vec4 H_q55vgf1 = vec4(global_highp_c2);
 	mediump float H_admieb_c3 = sin(H_a_c1);
-	vec4 H_2ksvnf = vec4(H_admieb_c3);
-	mediump vec4 H_dsteix_c4 = H_2ksvnf + C_ohz1bx;
-	mediump vec4 mediumfout_c5 = H_dsteix_c4 + H_q55vgf1;
+	mediump vec4 H_ckgv_c4 = vec4(H_admieb_c3) + C_ohz1bx;
+	mediump vec4 mediumfout_c5 = H_ckgv_c4 + vec4(global_highp_c2);
 	mediumfout = mediumfout_c5;
 	lowp int sum_c6 = uniform_medium + C_4;
 	highp int H_oq9ibl1 = sum_c6 + uniform_low;
 	mediump float H_uc7 = float((((uniform_low + C_2) * uniform_high) + (H_oq9ibl1 + uniform_high)));
-	vec4 H_85jb9b = vec4(H_uc7);
-	highp vec4 mediumfout_c8 = H_85jb9b + mediumfout_c5;
+	highp vec4 mediumfout_c8 = mediumfout_c5 + vec4(H_uc7);
 	mediumfout = mediumfout_c8;
-	bool H_ibj_c9 = all((equal(ub2, C_lawgqu1)));
-	if (H_ibj_c9) {
-		mediump vec4 mediumfout_c10 = mediumfout_c8 + C_vec4p1d0p;
-		mediumfout = mediumfout_c10;
+	if (all(equal(ub2, C_lawgqu1))) {
+		mediump vec4 mediumfout_c9 = mediumfout_c8 + C_vec4p1d0p;
+		mediumfout = mediumfout_c9;
 	}
 	
 	

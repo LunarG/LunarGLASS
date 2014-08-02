@@ -1479,41 +1479,28 @@ void main()
 	vec4 storemerge_c5;
 	vec4 _pn_c6;
 	gl_FragColor = un34[1];
-	float dotres_c7 = dot(Color, colorTransform[0]);
-	float dotres_c8 = dot(Color, colorTransform[1]);
-	float dotres_c9 = dot(Color, colorTransform[2]);
-	vec4 H_8drswv1 = vec4(dotres_c7, dotres_c8, dotres_c9, C_1d0);
-	gl_FragColor = (H_8drswv1 + un34[1]);
-	bool H_q4qlgw = any((notEqual(m[0], n[0])));
-	bool H_m65cfp = any((notEqual(m[1], n[1])));
-	bool H_aepng = any((notEqual(m[2], n[2])));
-	bool H_y9pd8j1 = any((notEqual(m[3], n[3])));
-	if ((((H_q4qlgw || H_m65cfp) || H_aepng) || H_y9pd8j1)) {
+	vec4 H_kowjl5 = vec4(dot(Color, colorTransform[0]), dot(Color, colorTransform[1]), dot(Color, colorTransform[2]), C_1d0);
+	vec4 Ll_FragColor_c7 = H_kowjl5 + un34[1];
+	gl_FragColor = Ll_FragColor_c7;
+	if ((((any(notEqual(m[0], n[0])) || any(notEqual(m[1], n[1]))) || any(notEqual(m[2], n[2]))) || any(notEqual(m[3], n[3])))) {
 		_pre_phi_c1 = v.w;
 		_pre_phi_c2 = v.z;
 		_pre_phi_c3 = v.y;
 		_pre_phi_c4 = v.x;
-		storemerge_c5 = ((H_8drswv1 + un34[1]) + v);
+		storemerge_c5 = (Ll_FragColor_c7 + v);
 	} else {
 		vec4 H_cce4621 = vec4(((((m[0].x * v.x) + (m[1].x * v.y)) + (m[2].x * v.z)) + (m[3].x * v.w)), ((((m[0].y * v.x) + (m[1].y * v.y)) + (m[2].y * v.z)) + (m[3].y * v.w)), ((((m[0].z * v.x) + (m[1].z * v.y)) + (m[2].z * v.z)) + (m[3].z * v.w)), ((((m[0].w * v.x) + (m[1].w * v.y)) + (m[2].w * v.z)) + (m[3].w * v.w)));
-		vec4 Ll_FragColor_c10 = (H_8drswv1 + un34[1]) + H_cce4621;
-		gl_FragColor = Ll_FragColor_c10;
-		float dotres_c11 = dot(v, (m[0] - n[0]));
-		float dotres_c12 = dot(v, (m[1] - n[1]));
-		float dotres_c13 = dot(v, (m[2] - n[2]));
-		float dotres_c14 = dot(v, (m[3] - n[3]));
-		vec4 H_8fuwui = vec4(dotres_c11, dotres_c12, dotres_c13, dotres_c14);
+		vec4 Ll_FragColor_c8 = H_cce4621 + Ll_FragColor_c7;
+		gl_FragColor = Ll_FragColor_c8;
+		vec4 H_0970qn = vec4(dot(v, (m[0] - n[0])), dot(v, (m[1] - n[1])), dot(v, (m[2] - n[2])), dot(v, (m[3] - n[3])));
 		_pre_phi_c1 = v.w;
 		_pre_phi_c2 = v.z;
 		_pre_phi_c3 = v.y;
 		_pre_phi_c4 = v.x;
-		storemerge_c5 = (H_8fuwui + Ll_FragColor_c10);
+		storemerge_c5 = (H_0970qn + Ll_FragColor_c8);
 	}
 	
 	gl_FragColor = storemerge_c5;
-	vec4 H_hf31v5 = u.zwxx;
-	vec4 H_2ojcu41 = u.wxxy;
-	vec4 H_dji32e1 = u.xxyz;
 	vec4 H_cn875n1 = vec4((_pre_phi_c4 * u.x), (_pre_phi_c4 * u.y), (_pre_phi_c4 * u.z), (_pre_phi_c4 * u.w));
 	vec4 H_k11ha1 = vec4((_pre_phi_c3 * u.x), (_pre_phi_c3 * u.y), (_pre_phi_c3 * u.z), (_pre_phi_c3 * u.w));
 	vec4 H_s6idla1 = vec4((_pre_phi_c2 * u.x), (_pre_phi_c2 * u.y), (_pre_phi_c2 * u.z), (_pre_phi_c2 * u.w));
@@ -1524,36 +1511,33 @@ void main()
 	vec4 H_5agmpir = C_obaw8x1;
 	H_5agmpir.zw = vec2(_pre_phi_c4, C_0d0);
 	vec4 H_uoyl79 = vec4(C_0d0, C_0d0, C_0d0, v.x);
-	bool H_3v04751 = all((equal(((H_cn875n1 + H_qtf67y) + u), un34[0])));
-	bool H_vn3onu = all((equal(((H_5agmpi + H_k11ha1) + H_dji32e1), un34[1])));
-	bool H_bufnbr = all((equal(((H_5agmpir + H_s6idla1) + H_2ojcu41), un34[2])));
-	bool H_14vqwn1 = all((equal(((H_k0ddx01 + H_uoyl79) + H_hf31v5), un34[3])));
-	if ((((H_3v04751 && H_vn3onu) && H_bufnbr) && H_14vqwn1)) {
-		float dotProduct_c15 = ((((H_5agmpi + H_k11ha1) + H_dji32e1).x * u.y) + (((H_cn875n1 + H_qtf67y) + u).x * u.x)) + (((H_5agmpir + H_s6idla1) + H_2ojcu41).x * u.z);
-		float dotProduct_c16 = ((((H_5agmpi + H_k11ha1) + H_dji32e1).y * u.y) + (((H_cn875n1 + H_qtf67y) + u).y * u.x)) + (((H_5agmpir + H_s6idla1) + H_2ojcu41).y * u.z);
-		float dotProduct_c17 = ((((H_5agmpi + H_k11ha1) + H_dji32e1).z * u.y) + (((H_cn875n1 + H_qtf67y) + u).z * u.x)) + (((H_5agmpir + H_s6idla1) + H_2ojcu41).z * u.z);
-		float dotProduct_c18 = ((((H_5agmpi + H_k11ha1) + H_dji32e1).w * u.y) + (((H_cn875n1 + H_qtf67y) + u).w * u.x)) + (((H_5agmpir + H_s6idla1) + H_2ojcu41).w * u.z);
-		vec4 H_ofazk7 = vec4(((((H_k0ddx01 + H_uoyl79) + H_hf31v5).x * u.w) + dotProduct_c15), ((((H_k0ddx01 + H_uoyl79) + H_hf31v5).y * u.w) + dotProduct_c16), ((((H_k0ddx01 + H_uoyl79) + H_hf31v5).z * u.w) + dotProduct_c17), ((((H_k0ddx01 + H_uoyl79) + H_hf31v5).w * u.w) + dotProduct_c18));
-		_pn_c6 = H_ofazk7;
+	vec4 column_c9 = (H_cn875n1 + H_qtf67y) + u;
+	vec4 column_c10 = (H_5agmpi + H_k11ha1) + u.xxyz;
+	vec4 column_c11 = (H_5agmpir + H_s6idla1) + u.wxxy;
+	vec4 column_c12 = (H_k0ddx01 + H_uoyl79) + u.zwxx;
+	bool H_8c1dag = ((all(equal(column_c9, un34[0])) && all(equal(column_c10, un34[1]))) && all(equal(column_c11, un34[2]))) && all(equal(column_c12, un34[3]));
+	if (H_8c1dag) {
+		vec4 H_0fwy29 = vec4(((((column_c10.x * u.y) + (column_c9.x * u.x)) + (column_c11.x * u.z)) + (column_c12.x * u.w)), ((((column_c10.y * u.y) + (column_c9.y * u.x)) + (column_c11.y * u.z)) + (column_c12.y * u.w)), ((((column_c10.z * u.y) + (column_c9.z * u.x)) + (column_c11.z * u.z)) + (column_c12.z * u.w)), ((((column_c10.w * u.y) + (column_c9.w * u.x)) + (column_c11.w * u.z)) + (column_c12.w * u.w)));
+		_pn_c6 = H_0fwy29;
 	} else {
-		float product_c19 = ((((um43[0].x * un34[0].x) + (um43[0].y * un34[1].x)) + (um43[0].z * un34[2].x)) + (um43[0].w * un34[3].x)) * _pre_phi_c4;
-		float product_c20 = ((((um43[1].x * un34[0].x) + (um43[1].y * un34[1].x)) + (um43[1].z * un34[2].x)) + (um43[1].w * un34[3].x)) * _pre_phi_c3;
-		float product_c21 = ((((um43[2].x * un34[0].x) + (um43[2].y * un34[1].x)) + (um43[2].z * un34[2].x)) + (um43[2].w * un34[3].x)) * _pre_phi_c2;
-		float product_c22 = ((((um43[3].x * un34[0].x) + (um43[3].y * un34[1].x)) + (um43[3].z * un34[2].x)) + (um43[3].w * un34[3].x)) * _pre_phi_c1;
-		float product_c23 = ((((um43[0].x * un34[0].y) + (um43[0].y * un34[1].y)) + (um43[0].z * un34[2].y)) + (um43[0].w * un34[3].y)) * _pre_phi_c4;
-		float product_c24 = ((((um43[1].x * un34[0].y) + (um43[1].y * un34[1].y)) + (um43[1].z * un34[2].y)) + (um43[1].w * un34[3].y)) * _pre_phi_c3;
-		float product_c25 = ((((um43[2].x * un34[0].y) + (um43[2].y * un34[1].y)) + (um43[2].z * un34[2].y)) + (um43[2].w * un34[3].y)) * _pre_phi_c2;
-		float product_c26 = ((((um43[3].x * un34[0].y) + (um43[3].y * un34[1].y)) + (um43[3].z * un34[2].y)) + (um43[3].w * un34[3].y)) * _pre_phi_c1;
-		float product_c27 = ((((um43[0].x * un34[0].z) + (um43[0].y * un34[1].z)) + (um43[0].z * un34[2].z)) + (um43[0].w * un34[3].z)) * _pre_phi_c4;
-		float product_c28 = ((((um43[1].x * un34[0].z) + (um43[1].y * un34[1].z)) + (um43[1].z * un34[2].z)) + (um43[1].w * un34[3].z)) * _pre_phi_c3;
-		float product_c29 = ((((um43[2].x * un34[0].z) + (um43[2].y * un34[1].z)) + (um43[2].z * un34[2].z)) + (um43[2].w * un34[3].z)) * _pre_phi_c2;
-		float product_c30 = ((((um43[3].x * un34[0].z) + (um43[3].y * un34[1].z)) + (um43[3].z * un34[2].z)) + (um43[3].w * un34[3].z)) * _pre_phi_c1;
-		float product_c31 = ((((um43[0].x * un34[0].w) + (um43[0].y * un34[1].w)) + (um43[0].z * un34[2].w)) + (um43[0].w * un34[3].w)) * _pre_phi_c4;
-		float product_c32 = ((((um43[1].x * un34[0].w) + (um43[1].y * un34[1].w)) + (um43[1].z * un34[2].w)) + (um43[1].w * un34[3].w)) * _pre_phi_c3;
-		float product_c33 = ((((um43[2].x * un34[0].w) + (um43[2].y * un34[1].w)) + (um43[2].z * un34[2].w)) + (um43[2].w * un34[3].w)) * _pre_phi_c2;
-		float product_c34 = ((((um43[3].x * un34[0].w) + (um43[3].y * un34[1].w)) + (um43[3].z * un34[2].w)) + (um43[3].w * un34[3].w)) * _pre_phi_c1;
-		vec4 H_8okeau1 = vec4((((product_c19 + product_c20) + product_c21) + product_c22), (((product_c23 + product_c24) + product_c25) + product_c26), (((product_c27 + product_c28) + product_c29) + product_c30), (((product_c31 + product_c32) + product_c33) + product_c34));
-		_pn_c6 = H_8okeau1;
+		float product_c13 = ((((um43[0].x * un34[0].x) + (um43[0].y * un34[1].x)) + (um43[0].z * un34[2].x)) + (um43[0].w * un34[3].x)) * _pre_phi_c4;
+		float product_c14 = ((((um43[1].x * un34[0].x) + (um43[1].y * un34[1].x)) + (um43[1].z * un34[2].x)) + (um43[1].w * un34[3].x)) * _pre_phi_c3;
+		float product_c15 = ((((um43[2].x * un34[0].x) + (um43[2].y * un34[1].x)) + (um43[2].z * un34[2].x)) + (um43[2].w * un34[3].x)) * _pre_phi_c2;
+		float product_c16 = ((((um43[3].x * un34[0].x) + (um43[3].y * un34[1].x)) + (um43[3].z * un34[2].x)) + (um43[3].w * un34[3].x)) * _pre_phi_c1;
+		float product_c17 = ((((um43[0].x * un34[0].y) + (um43[0].y * un34[1].y)) + (um43[0].z * un34[2].y)) + (um43[0].w * un34[3].y)) * _pre_phi_c4;
+		float product_c18 = ((((um43[1].x * un34[0].y) + (um43[1].y * un34[1].y)) + (um43[1].z * un34[2].y)) + (um43[1].w * un34[3].y)) * _pre_phi_c3;
+		float product_c19 = ((((um43[2].x * un34[0].y) + (um43[2].y * un34[1].y)) + (um43[2].z * un34[2].y)) + (um43[2].w * un34[3].y)) * _pre_phi_c2;
+		float product_c20 = ((((um43[3].x * un34[0].y) + (um43[3].y * un34[1].y)) + (um43[3].z * un34[2].y)) + (um43[3].w * un34[3].y)) * _pre_phi_c1;
+		float product_c21 = ((((um43[0].x * un34[0].z) + (um43[0].y * un34[1].z)) + (um43[0].z * un34[2].z)) + (um43[0].w * un34[3].z)) * _pre_phi_c4;
+		float product_c22 = ((((um43[1].x * un34[0].z) + (um43[1].y * un34[1].z)) + (um43[1].z * un34[2].z)) + (um43[1].w * un34[3].z)) * _pre_phi_c3;
+		float product_c23 = ((((um43[2].x * un34[0].z) + (um43[2].y * un34[1].z)) + (um43[2].z * un34[2].z)) + (um43[2].w * un34[3].z)) * _pre_phi_c2;
+		float product_c24 = ((((um43[3].x * un34[0].z) + (um43[3].y * un34[1].z)) + (um43[3].z * un34[2].z)) + (um43[3].w * un34[3].z)) * _pre_phi_c1;
+		float product_c25 = ((((um43[0].x * un34[0].w) + (um43[0].y * un34[1].w)) + (um43[0].z * un34[2].w)) + (um43[0].w * un34[3].w)) * _pre_phi_c4;
+		float product_c26 = ((((um43[1].x * un34[0].w) + (um43[1].y * un34[1].w)) + (um43[1].z * un34[2].w)) + (um43[1].w * un34[3].w)) * _pre_phi_c3;
+		float product_c27 = ((((um43[2].x * un34[0].w) + (um43[2].y * un34[1].w)) + (um43[2].z * un34[2].w)) + (um43[2].w * un34[3].w)) * _pre_phi_c2;
+		float product_c28 = ((((um43[3].x * un34[0].w) + (um43[3].y * un34[1].w)) + (um43[3].z * un34[2].w)) + (um43[3].w * un34[3].w)) * _pre_phi_c1;
+		vec4 H_xd28hh1 = vec4((((product_c13 + product_c14) + product_c15) + product_c16), (((product_c17 + product_c18) + product_c19) + product_c20), (((product_c21 + product_c22) + product_c23) + product_c24), (((product_c25 + product_c26) + product_c27) + product_c28));
+		_pn_c6 = H_xd28hh1;
 	}
 	
 	gl_FragColor = (_pn_c6 + storemerge_c5);
@@ -1583,31 +1567,21 @@ void main()
 	float _pre_phi_c5;
 	vec4 _pn_c6;
 	gl_FragColor = un34[1];
-	float dotres_c7 = dot(Color, colorTransform[0]);
-	float dotres_c8 = dot(Color, colorTransform[1]);
-	float dotres_c9 = dot(Color, colorTransform[2]);
-	vec4 H_8drswv1 = vec4(dotres_c7, dotres_c8, dotres_c9, C_1d0);
-	gl_FragColor = (H_8drswv1 + un34[1]);
-	bool H_q_c10 = any((notEqual(m[0], n[0])));
-	bool H_m_c11 = any((notEqual(m[1], n[1])));
-	bool H_aepng_c12 = any((notEqual(m[2], n[2])));
-	bool H_y_c13 = any((notEqual(m[3], n[3])));
-	if ((((H_q_c10 || H_m_c11) || H_aepng_c12) || H_y_c13)) {
-		storemerge_c1 = ((H_8drswv1 + un34[1]) + v);
+	vec4 H_kowjl5 = vec4(dot(Color, colorTransform[0]), dot(Color, colorTransform[1]), dot(Color, colorTransform[2]), C_1d0);
+	vec4 Ll_FragColor_c7 = H_kowjl5 + un34[1];
+	gl_FragColor = Ll_FragColor_c7;
+	if ((((any(notEqual(m[0], n[0])) || any(notEqual(m[1], n[1]))) || any(notEqual(m[2], n[2]))) || any(notEqual(m[3], n[3])))) {
+		storemerge_c1 = (Ll_FragColor_c7 + v);
 		_pre_phi_c2 = v.x;
 		_pre_phi_c3 = v.y;
 		_pre_phi_c4 = v.z;
 		_pre_phi_c5 = v.w;
 	} else {
 		vec4 H_cce4621 = vec4(((((m[0].x * v.x) + (m[1].x * v.y)) + (m[2].x * v.z)) + (m[3].x * v.w)), ((((m[0].y * v.x) + (m[1].y * v.y)) + (m[2].y * v.z)) + (m[3].y * v.w)), ((((m[0].z * v.x) + (m[1].z * v.y)) + (m[2].z * v.z)) + (m[3].z * v.w)), ((((m[0].w * v.x) + (m[1].w * v.y)) + (m[2].w * v.z)) + (m[3].w * v.w)));
-		vec4 Ll_FragColor_c14 = (H_8drswv1 + un34[1]) + H_cce4621;
-		gl_FragColor = Ll_FragColor_c14;
-		float dotres_c15 = dot(v, (m[0] - n[0]));
-		float dotres_c16 = dot(v, (m[1] - n[1]));
-		float dotres_c17 = dot(v, (m[2] - n[2]));
-		float dotres_c18 = dot(v, (m[3] - n[3]));
-		vec4 H_grqlq2 = vec4(dotres_c15, dotres_c16, dotres_c17, dotres_c18);
-		storemerge_c1 = (H_grqlq2 + Ll_FragColor_c14);
+		vec4 Ll_FragColor_c8 = H_cce4621 + Ll_FragColor_c7;
+		gl_FragColor = Ll_FragColor_c8;
+		vec4 H_0970qn = vec4(dot(v, (m[0] - n[0])), dot(v, (m[1] - n[1])), dot(v, (m[2] - n[2])), dot(v, (m[3] - n[3])));
+		storemerge_c1 = (H_0970qn + Ll_FragColor_c8);
 		_pre_phi_c2 = v.x;
 		_pre_phi_c3 = v.y;
 		_pre_phi_c4 = v.z;
@@ -1615,9 +1589,6 @@ void main()
 	}
 	
 	gl_FragColor = storemerge_c1;
-	vec4 H_dji32e1 = u.xxyz;
-	vec4 H_2ojcu41 = u.wxxy;
-	vec4 H_hf31v5 = u.zwxx;
 	vec4 H_s6idla1 = vec4((_pre_phi_c2 * u.x), (_pre_phi_c2 * u.y), (_pre_phi_c2 * u.z), (_pre_phi_c2 * u.w));
 	vec4 H_k11ha1 = vec4((_pre_phi_c3 * u.x), (_pre_phi_c3 * u.y), (_pre_phi_c3 * u.z), (_pre_phi_c3 * u.w));
 	vec4 H_cn875n1 = vec4((_pre_phi_c4 * u.x), (_pre_phi_c4 * u.y), (_pre_phi_c4 * u.z), (_pre_phi_c4 * u.w));
@@ -1628,36 +1599,33 @@ void main()
 	vec4 H_5agmpir = C_obaw8x1;
 	H_5agmpir.zw = vec2(_pre_phi_c2, C_0d0);
 	vec4 H_uoyl79 = vec4(C_0d0, C_0d0, C_0d0, v.x);
-	bool H_uc19 = all((equal(((H_0skn5a1 + H_s6idla1) + u), un34[0])));
-	bool H_vn_c20 = all((equal(((H_5agmpi + H_k11ha1) + H_dji32e1), un34[1])));
-	bool H_bufnbr_c21 = all((equal(((H_5agmpir + H_cn875n1) + H_2ojcu41), un34[2])));
-	bool H_uc22 = all((equal(((H_g31371 + H_uoyl79) + H_hf31v5), un34[3])));
-	if ((((H_uc19 && H_vn_c20) && H_bufnbr_c21) && H_uc22)) {
-		float dotProduct_c23 = (((((_pre_phi_c2 * u.x) + _pre_phi_c2) + u.x) * u.x) + (((_pre_phi_c3 * u.x) + u.x) * u.y)) + (((_pre_phi_c4 * u.x) + u.w) * u.z);
-		float dotProduct_c24 = (((((_pre_phi_c3 * u.y) + _pre_phi_c2) + u.x) * u.y) + (((_pre_phi_c2 * u.y) + u.y) * u.x)) + (((_pre_phi_c4 * u.y) + u.x) * u.z);
-		float dotProduct_c25 = ((((_pre_phi_c2 * u.z) + u.z) * u.x) + (((_pre_phi_c3 * u.z) + u.y) * u.y)) + ((((_pre_phi_c4 * u.z) + _pre_phi_c2) + u.x) * u.z);
-		float H_s6rlvj = (((((_pre_phi_c2 * u.w) + u.w) * u.x) + (((_pre_phi_c3 * u.w) + u.z) * u.y)) + (((_pre_phi_c4 * u.w) + u.y) * u.z)) + ((((_pre_phi_c5 * u.w) + v.x) + u.x) * u.w);
-		vec4 H_hvehvt = vec4(((((_pre_phi_c5 * u.x) + u.z) * u.w) + dotProduct_c23), ((((_pre_phi_c5 * u.y) + u.w) * u.w) + dotProduct_c24), ((((_pre_phi_c5 * u.z) + u.x) * u.w) + dotProduct_c25), H_s6rlvj);
-		_pn_c6 = H_hvehvt;
+	vec4 column_c9 = (H_0skn5a1 + H_s6idla1) + u;
+	vec4 column_c10 = (H_5agmpi + H_k11ha1) + u.xxyz;
+	vec4 column_c11 = (H_5agmpir + H_cn875n1) + u.wxxy;
+	vec4 column_c12 = (H_g31371 + H_uoyl79) + u.zwxx;
+	bool H_uc13 = ((all(equal(column_c9, un34[0])) && all(equal(column_c10, un34[1]))) && all(equal(column_c11, un34[2]))) && all(equal(column_c12, un34[3]));
+	if (H_uc13) {
+		vec4 H_0fwy29 = vec4(((((column_c10.x * u.y) + (column_c9.x * u.x)) + (column_c11.x * u.z)) + (column_c12.x * u.w)), ((((column_c10.y * u.y) + (column_c9.y * u.x)) + (column_c11.y * u.z)) + (column_c12.y * u.w)), ((((column_c10.z * u.y) + (column_c9.z * u.x)) + (column_c11.z * u.z)) + (column_c12.z * u.w)), ((((column_c10.w * u.y) + (column_c9.w * u.x)) + (column_c11.w * u.z)) + (column_c12.w * u.w)));
+		_pn_c6 = H_0fwy29;
 	} else {
-		float product_c26 = ((((um43[0].x * un34[0].x) + (um43[0].y * un34[1].x)) + (um43[0].z * un34[2].x)) + (um43[0].w * un34[3].x)) * _pre_phi_c2;
-		float product_c27 = ((((um43[1].x * un34[0].x) + (um43[1].y * un34[1].x)) + (um43[1].z * un34[2].x)) + (um43[1].w * un34[3].x)) * _pre_phi_c3;
-		float product_c28 = ((((um43[2].x * un34[0].x) + (um43[2].y * un34[1].x)) + (um43[2].z * un34[2].x)) + (um43[2].w * un34[3].x)) * _pre_phi_c4;
-		float product_c29 = ((((um43[3].x * un34[0].x) + (um43[3].y * un34[1].x)) + (um43[3].z * un34[2].x)) + (um43[3].w * un34[3].x)) * _pre_phi_c5;
-		float product_c30 = ((((um43[0].x * un34[0].y) + (um43[0].y * un34[1].y)) + (um43[0].z * un34[2].y)) + (um43[0].w * un34[3].y)) * _pre_phi_c2;
-		float product_c31 = ((((um43[1].x * un34[0].y) + (um43[1].y * un34[1].y)) + (um43[1].z * un34[2].y)) + (um43[1].w * un34[3].y)) * _pre_phi_c3;
-		float product_c32 = ((((um43[2].x * un34[0].y) + (um43[2].y * un34[1].y)) + (um43[2].z * un34[2].y)) + (um43[2].w * un34[3].y)) * _pre_phi_c4;
-		float product_c33 = ((((um43[3].x * un34[0].y) + (um43[3].y * un34[1].y)) + (um43[3].z * un34[2].y)) + (um43[3].w * un34[3].y)) * _pre_phi_c5;
-		float product_c34 = ((((um43[0].x * un34[0].z) + (um43[0].y * un34[1].z)) + (um43[0].z * un34[2].z)) + (um43[0].w * un34[3].z)) * _pre_phi_c2;
-		float product_c35 = ((((um43[1].x * un34[0].z) + (um43[1].y * un34[1].z)) + (um43[1].z * un34[2].z)) + (um43[1].w * un34[3].z)) * _pre_phi_c3;
-		float product_c36 = ((((um43[2].x * un34[0].z) + (um43[2].y * un34[1].z)) + (um43[2].z * un34[2].z)) + (um43[2].w * un34[3].z)) * _pre_phi_c4;
-		float product_c37 = ((((um43[3].x * un34[0].z) + (um43[3].y * un34[1].z)) + (um43[3].z * un34[2].z)) + (um43[3].w * un34[3].z)) * _pre_phi_c5;
-		float product_c38 = ((((um43[0].x * un34[0].w) + (um43[0].y * un34[1].w)) + (um43[0].z * un34[2].w)) + (um43[0].w * un34[3].w)) * _pre_phi_c2;
-		float product_c39 = ((((um43[1].x * un34[0].w) + (um43[1].y * un34[1].w)) + (um43[1].z * un34[2].w)) + (um43[1].w * un34[3].w)) * _pre_phi_c3;
-		float product_c40 = ((((um43[2].x * un34[0].w) + (um43[2].y * un34[1].w)) + (um43[2].z * un34[2].w)) + (um43[2].w * un34[3].w)) * _pre_phi_c4;
-		float product_c41 = ((((um43[3].x * un34[0].w) + (um43[3].y * un34[1].w)) + (um43[3].z * un34[2].w)) + (um43[3].w * un34[3].w)) * _pre_phi_c5;
-		vec4 H_gjleyr = vec4((((product_c26 + product_c27) + product_c28) + product_c29), (((product_c30 + product_c31) + product_c32) + product_c33), (((product_c34 + product_c35) + product_c36) + product_c37), (((product_c38 + product_c39) + product_c40) + product_c41));
-		_pn_c6 = H_gjleyr;
+		float product_c14 = ((((um43[0].x * un34[0].x) + (um43[0].y * un34[1].x)) + (um43[0].z * un34[2].x)) + (um43[0].w * un34[3].x)) * _pre_phi_c2;
+		float product_c15 = ((((um43[1].x * un34[0].x) + (um43[1].y * un34[1].x)) + (um43[1].z * un34[2].x)) + (um43[1].w * un34[3].x)) * _pre_phi_c3;
+		float product_c16 = ((((um43[2].x * un34[0].x) + (um43[2].y * un34[1].x)) + (um43[2].z * un34[2].x)) + (um43[2].w * un34[3].x)) * _pre_phi_c4;
+		float product_c17 = ((((um43[3].x * un34[0].x) + (um43[3].y * un34[1].x)) + (um43[3].z * un34[2].x)) + (um43[3].w * un34[3].x)) * _pre_phi_c5;
+		float product_c18 = ((((um43[0].x * un34[0].y) + (um43[0].y * un34[1].y)) + (um43[0].z * un34[2].y)) + (um43[0].w * un34[3].y)) * _pre_phi_c2;
+		float product_c19 = ((((um43[1].x * un34[0].y) + (um43[1].y * un34[1].y)) + (um43[1].z * un34[2].y)) + (um43[1].w * un34[3].y)) * _pre_phi_c3;
+		float product_c20 = ((((um43[2].x * un34[0].y) + (um43[2].y * un34[1].y)) + (um43[2].z * un34[2].y)) + (um43[2].w * un34[3].y)) * _pre_phi_c4;
+		float product_c21 = ((((um43[3].x * un34[0].y) + (um43[3].y * un34[1].y)) + (um43[3].z * un34[2].y)) + (um43[3].w * un34[3].y)) * _pre_phi_c5;
+		float product_c22 = ((((um43[0].x * un34[0].z) + (um43[0].y * un34[1].z)) + (um43[0].z * un34[2].z)) + (um43[0].w * un34[3].z)) * _pre_phi_c2;
+		float product_c23 = ((((um43[1].x * un34[0].z) + (um43[1].y * un34[1].z)) + (um43[1].z * un34[2].z)) + (um43[1].w * un34[3].z)) * _pre_phi_c3;
+		float product_c24 = ((((um43[2].x * un34[0].z) + (um43[2].y * un34[1].z)) + (um43[2].z * un34[2].z)) + (um43[2].w * un34[3].z)) * _pre_phi_c4;
+		float product_c25 = ((((um43[3].x * un34[0].z) + (um43[3].y * un34[1].z)) + (um43[3].z * un34[2].z)) + (um43[3].w * un34[3].z)) * _pre_phi_c5;
+		float product_c26 = ((((um43[0].x * un34[0].w) + (um43[0].y * un34[1].w)) + (um43[0].z * un34[2].w)) + (um43[0].w * un34[3].w)) * _pre_phi_c2;
+		float product_c27 = ((((um43[1].x * un34[0].w) + (um43[1].y * un34[1].w)) + (um43[1].z * un34[2].w)) + (um43[1].w * un34[3].w)) * _pre_phi_c3;
+		float product_c28 = ((((um43[2].x * un34[0].w) + (um43[2].y * un34[1].w)) + (um43[2].z * un34[2].w)) + (um43[2].w * un34[3].w)) * _pre_phi_c4;
+		float product_c29 = ((((um43[3].x * un34[0].w) + (um43[3].y * un34[1].w)) + (um43[3].z * un34[2].w)) + (um43[3].w * un34[3].w)) * _pre_phi_c5;
+		vec4 H_acnztq = vec4((((product_c14 + product_c15) + product_c16) + product_c17), (((product_c18 + product_c19) + product_c20) + product_c21), (((product_c22 + product_c23) + product_c24) + product_c25), (((product_c26 + product_c27) + product_c28) + product_c29));
+		_pn_c6 = H_acnztq;
 	}
 	
 	gl_FragColor = (_pn_c6 + storemerge_c1);

@@ -541,13 +541,17 @@ const vec4 C_vec4p1d0p = vec4(1.0);
 void main()
 {
 	vec4 ternary_uc1;
+	ivec2 H_ireo8q = i_i2 + u_i2;
+	ivec3 H_00u6vn1 = i_i3 + u_i3;
+	ivec4 H_2vbjw71 = i_i4 + u_i4;
+	vec2 H_0n1dm61 = i_f2 + u_f2;
+	vec3 H_ihj3yc = i_f3 + u_f3;
+	vec4 H_o7wyx6 = i_f4 + u_f4;
 	bool H_j11jmm1 = ((u_b && i_b) || (((u_b2.x && i_b2.x) && u_b2.y) && i_b2.y)) || (((((u_b3.x && i_b3.x) && u_b3.y) && i_b3.y) && u_b3.z) && i_b3.z);
 	if ((H_j11jmm1 || (((((((u_b4.x && i_b4.x) && u_b4.y) && i_b4.y) && u_b4.z) && i_b4.z) && u_b4.w) && i_b4.w))) {
-		int H_zm77qf = ((((((i_i2 + u_i2).x + (i_i2 + u_i2).y) + (i_i3 + u_i3).x) + (i_i3 + u_i3).y) + (i_i3 + u_i3).z) + (i_i4 + u_i4).x) + (i_i4 + u_i4).y;
-		float H_dch826 = (((float((((((i_i4 + u_i4).z + H_zm77qf) + (i_i4 + u_i4).w) + i_i) + u_i))) + (i_f + u_f)) + (i_f2 + u_f2).x) + (i_f2 + u_f2).y;
-		float H_qy9f8b = ((((((i_f3 + u_f3).x + H_dch826) + (i_f3 + u_f3).y) + (i_f3 + u_f3).z) + (i_f4 + u_f4).x) + (i_f4 + u_f4).y) + (i_f4 + u_f4).z;
-		vec4 H_zlozwd = vec4(((i_f4 + u_f4).w + H_qy9f8b));
-		ternary_uc1 = H_zlozwd;
+		int H_l01rff = (((((((H_ireo8q.x + H_ireo8q.y) + H_00u6vn1.x) + H_00u6vn1.y) + H_00u6vn1.z) + H_2vbjw71.x) + H_2vbjw71.y) + H_2vbjw71.z) + H_2vbjw71.w;
+		float H_hr7sv81 = ((((((float(((H_l01rff + i_i) + u_i))) + (i_f + u_f)) + H_0n1dm61.x) + H_0n1dm61.y) + H_ihj3yc.x) + H_ihj3yc.y) + H_ihj3yc.z;
+		ternary_uc1 = vec4(((((H_hr7sv81 + H_o7wyx6.x) + H_o7wyx6.y) + H_o7wyx6.z) + H_o7wyx6.w));
 	} else {
 		ternary_uc1 = C_vec4p1d0p;
 	}
@@ -558,6 +562,12 @@ void main()
 
 #version 130
 // LunarGOO output
+uniform ivec2 u_i2;
+uniform ivec3 u_i3;
+uniform ivec4 u_i4;
+uniform vec2 u_f2;
+uniform vec3 u_f3;
+uniform vec4 u_f4;
 uniform bool u_b;
 uniform bool i_b;
 uniform bvec2 u_b2;
@@ -566,36 +576,32 @@ uniform bvec3 u_b3;
 uniform bvec3 i_b3;
 uniform bvec4 u_b4;
 uniform bvec4 i_b4;
-uniform ivec2 u_i2;
-uniform ivec3 u_i3;
-uniform ivec4 u_i4;
 uniform int u_i;
 uniform float u_f;
-uniform vec2 u_f2;
-uniform vec3 u_f3;
-uniform vec4 u_f4;
 flat in ivec2 i_i2;
 flat in ivec3 i_i3;
 flat in ivec4 i_i4;
-flat in int i_i;
-in float i_f;
 in vec2 i_f2;
 in vec3 i_f3;
 in vec4 i_f4;
+flat in int i_i;
+in float i_f;
 const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
 	vec4 ternary_uc_c1;
-	bool H_j_c2 = ((u_b && i_b) || (((u_b2.x && i_b2.x) && u_b2.y) && i_b2.y)) || (((((u_b3.x && i_b3.x) && u_b3.y) && i_b3.y) && u_b3.z) && i_b3.z);
-	if ((H_j_c2 || (((((((u_b4.x && i_b4.x) && u_b4.y) && i_b4.y) && u_b4.z) && i_b4.z) && u_b4.w) && i_b4.w))) {
-		ivec4 H_2vbjw71 = i_i4 + u_i4;
-		int H_ec9m9s1 = ((((((((i_i2 + u_i2).y + (i_i2.x + u_i2.x)) + i_i3.x) + i_i3.z) + u_i3.x) + u_i3.z) + i_i4.z) + (i_i3 + u_i3).y) + i_i4.x;
-		float H_0xirp41 = ((float(((((((H_ec9m9s1 + u_i4.z) + u_i4.x) + i_i) + H_2vbjw71.y) + H_2vbjw71.w) + u_i))) + (i_f + u_f)) + (i_f2.x + u_f2.x);
-		vec4 H_o7wyx6 = i_f4 + u_f4;
-		float H_juxgjs = ((((((i_f2 + u_f2).y + H_0xirp41) + (i_f3.x + u_f3.x)) + (i_f3 + u_f3).y) + (i_f3.z + u_f3.z)) + (i_f4.x + u_f4.x)) + H_o7wyx6.y;
-		vec4 H_86h7jr = vec4((((i_f4.z + u_f4.z) + H_juxgjs) + H_o7wyx6.w));
-		ternary_uc_c1 = H_86h7jr;
+	ivec2 H_ireo_c2 = i_i2 + u_i2;
+	ivec3 H_uc3 = i_i3 + u_i3;
+	ivec4 H_uc4 = i_i4 + u_i4;
+	vec2 H_uc5 = i_f2 + u_f2;
+	vec3 H_ihj_c6 = i_f3 + u_f3;
+	vec4 H_o_c7 = i_f4 + u_f4;
+	bool H_j_c8 = ((u_b && i_b) || (((u_b2.x && i_b2.x) && u_b2.y) && i_b2.y)) || (((((u_b3.x && i_b3.x) && u_b3.y) && i_b3.y) && u_b3.z) && i_b3.z);
+	if ((H_j_c8 || (((((((u_b4.x && i_b4.x) && u_b4.y) && i_b4.y) && u_b4.z) && i_b4.z) && u_b4.w) && i_b4.w))) {
+		int H_mr34n4 = (((((((((H_ireo_c2.x + H_ireo_c2.y) + H_uc3.x) + H_uc3.y) + H_uc3.z) + H_uc4.x) + H_uc4.y) + H_uc4.z) + H_uc4.w) + i_i) + u_i;
+		float H_s8p64i1 = ((((((((float(H_mr34n4)) + (i_f + u_f)) + H_uc5.x) + H_uc5.y) + H_ihj_c6.x) + H_ihj_c6.y) + H_ihj_c6.z) + H_o_c7.x) + H_o_c7.y;
+		ternary_uc_c1 = vec4(((H_o_c7.z + H_s8p64i1) + H_o_c7.w));
 	} else {
 		ternary_uc_c1 = C_vec4p1d0p;
 	}

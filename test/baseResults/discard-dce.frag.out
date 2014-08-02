@@ -219,16 +219,13 @@ void main()
 {
 	float H_gzd21t = (tex_coord.x * C_2d0) + C_a1d0;
 	float H_3y2dfl1 = (C_2d0 * tex_coord.y) + C_a1d0;
-	float radius_c1 = sqrt(((H_3y2dfl1 * H_3y2dfl1) + (H_gzd21t * H_gzd21t)));
-	if ((radius_c1 > C_1d0)) {
-		gl_FragColor = ((radius_c1 > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
+	if ((sqrt(((H_3y2dfl1 * H_3y2dfl1) + (H_gzd21t * H_gzd21t))) > C_1d0)) {
+		gl_FragColor = ((sqrt(((H_3y2dfl1 * H_3y2dfl1) + (H_gzd21t * H_gzd21t))) > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
 		discard;
 	}
 	
-	float H_6s8r9f1 = pow(radius_c1, C_16d0);
-	float H_2vc72b1 = abs((H_6s8r9f1 * C_0d5));
-	vec4 H_cf5c58 = vec4(H_2vc72b1);
-	gl_FragColor = ((radius_c1 < C_0d75) ? C_vec4p1d0p : (C_vec4p1d0p - H_cf5c58));
+	vec4 select_c1 = (sqrt(((H_3y2dfl1 * H_3y2dfl1) + (H_gzd21t * H_gzd21t))) < C_0d75) ? C_vec4p1d0p : (C_vec4p1d0p - vec4(abs((pow(sqrt(((H_3y2dfl1 * H_3y2dfl1) + (H_gzd21t * H_gzd21t))), C_16d0) * C_0d5))));
+	gl_FragColor = select_c1;
 	
 }
 
@@ -241,24 +238,21 @@ const float C_1d0 = 1.0;
 const float C_1d1 = 1.1;
 const vec4 C_vec4p2d0p = vec4(2.0);
 const vec4 C_vec4p1d0p = vec4(1.0);
+const float C_0d75 = 0.75;
 const float C_16d0 = 16.0;
 const float C_0d5 = 0.5;
-const float C_0d75 = 0.75;
 
 void main()
 {
 	float H_gzd_c1 = (tex_coord.x * C_2d0) + C_a1d0;
 	float H_uc2 = (C_2d0 * tex_coord.y) + C_a1d0;
-	float radius_c3 = sqrt(((H_gzd_c1 * H_gzd_c1) + (H_uc2 * H_uc2)));
-	if ((radius_c3 > C_1d0)) {
-		gl_FragColor = ((radius_c3 > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
+	if ((sqrt(((H_gzd_c1 * H_gzd_c1) + (H_uc2 * H_uc2))) > C_1d0)) {
+		gl_FragColor = ((sqrt(((H_gzd_c1 * H_gzd_c1) + (H_uc2 * H_uc2))) > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
 		discard;
 	}
 	
-	float H_uc4 = pow(radius_c3, C_16d0);
-	float H_uc5 = abs((H_uc4 * C_0d5));
-	vec4 H_u3kmvb1 = vec4(H_uc5);
-	gl_FragColor = ((radius_c3 < C_0d75) ? C_vec4p1d0p : (C_vec4p1d0p - H_u3kmvb1));
+	vec4 select_c3 = (sqrt(((H_gzd_c1 * H_gzd_c1) + (H_uc2 * H_uc2))) < C_0d75) ? C_vec4p1d0p : (C_vec4p1d0p - vec4(abs((pow(sqrt(((H_gzd_c1 * H_gzd_c1) + (H_uc2 * H_uc2))), C_16d0) * C_0d5))));
+	gl_FragColor = select_c3;
 	
 }
 

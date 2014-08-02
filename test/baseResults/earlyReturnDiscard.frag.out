@@ -361,28 +361,31 @@ const vec4 C_vec4p1d0p = vec4(1.0);
 void main()
 {
 	vec4 color_uc1;
-	if (((((c > d) ? bigColor : smallColor) + BaseColor).z < minimum)) {
+	vec4 color_uc2 = ((c > d) ? bigColor : smallColor) + BaseColor;
+	if ((color_uc2.z < minimum)) {
 		return;
 	} else {
-		if ((((((c > d) ? bigColor : smallColor) + BaseColor).z + C_1d0) > threshhold)) {
+		float H_x0j0ce1 = color_uc2.z + C_1d0;
+		if ((H_x0j0ce1 > threshhold)) {
 			discard;
 		}
 		
-		vec4 H_ihikko = (((c > d) ? bigColor : smallColor) + BaseColor);
-		H_ihikko.z = ((((c > d) ? bigColor : smallColor) + BaseColor).z + C_1d0);
-		if (((H_ihikko + C_vec4p1d0p).w > threshhold2)) {
-			if (((H_ihikko + C_vec4p1d0p).z > threshhold2)) {
+		vec4 H_dhvhjs = color_uc2;
+		H_dhvhjs.z = H_x0j0ce1;
+		vec4 color_c3 = H_dhvhjs + C_vec4p1d0p;
+		if ((color_c3.w > threshhold2)) {
+			if ((color_c3.z > threshhold2)) {
 				return;
 			} else {
 				if (b) {
-					vec4 H_ky5q5l = (H_ihikko + C_vec4p1d0p);
-					H_ky5q5l.z = ((H_ihikko + C_vec4p1d0p).z + C_1d0);
-					color_uc1 = H_ky5q5l;
+					vec4 H_nzb7i71 = color_c3;
+					H_nzb7i71.z = (C_1d0 + color_c3.z);
+					color_uc1 = H_nzb7i71;
 				} else {
-					if (((H_ihikko + C_vec4p1d0p).x < minimum)) {
+					if ((color_c3.x < minimum)) {
 						discard;
 					} else {
-						color_uc1 = ((H_ihikko + C_vec4p1d0p) + C_vec4p1d0p);
+						color_uc1 = (C_vec4p1d0p + color_c3);
 					}
 					
 				}
@@ -423,29 +426,31 @@ const vec4 C_vec4p1d0p = vec4(1.0);
 void main()
 {
 	vec4 color_uc_c1;
-	if (((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) < minimum)) {
+	vec4 color_uc_c2 = ((c > d) ? bigColor : smallColor) + BaseColor;
+	if ((color_uc_c2.z < minimum)) {
 		return;
 	} else {
-		if ((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0) > threshhold)) {
+		float H_x_c3 = color_uc_c2.z + C_1d0;
+		if ((H_x_c3 > threshhold)) {
 			discard;
 		}
 		
-		vec4 H_ihikko_c2 = ((c > d) ? bigColor : smallColor) + BaseColor;
-		vec4 H_tkfn8c = H_ihikko_c2;
-		H_tkfn8c.z = ((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0);
-		if (((C_1d0 + H_ihikko_c2.w) > threshhold2)) {
-			if (((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0) + C_1d0) > threshhold2)) {
+		vec4 H_ripkei1 = color_uc_c2;
+		H_ripkei1.z = H_x_c3;
+		vec4 color_c4 = H_ripkei1 + C_vec4p1d0p;
+		if ((color_c4.w > threshhold2)) {
+			if ((color_c4.z > threshhold2)) {
 				return;
 			} else {
 				if (b) {
-					vec4 H_9ih4zi = (H_tkfn8c + C_vec4p1d0p);
-					H_9ih4zi.z = ((((((c > d) ? bigColor.z : smallColor.z) + BaseColor.z) + C_1d0) + C_1d0) + C_1d0);
-					color_uc_c1 = H_9ih4zi;
+					vec4 H_igc5w81 = color_c4;
+					H_igc5w81.z = (C_1d0 + color_c4.z);
+					color_uc_c1 = H_igc5w81;
 				} else {
-					if (((C_1d0 + H_ihikko_c2.x) < minimum)) {
+					if ((color_c4.x < minimum)) {
 						discard;
 					} else {
-						color_uc_c1 = ((C_vec4p1d0p + H_tkfn8c) + C_vec4p1d0p);
+						color_uc_c1 = (C_vec4p1d0p + color_c4);
 					}
 					
 				}

@@ -199,9 +199,8 @@ void main()
 {
 	float H_gzd21t = (tex_coord.x * C_2d0) + C_a1d0;
 	float H_3y2dfl1 = (C_2d0 * tex_coord.y) + C_a1d0;
-	float radius_c1 = sqrt(((H_3y2dfl1 * H_3y2dfl1) + (H_gzd21t * H_gzd21t)));
-	if ((radius_c1 > C_1d0)) {
-		gl_FragColor = ((radius_c1 > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
+	if ((sqrt(((H_3y2dfl1 * H_3y2dfl1) + (H_gzd21t * H_gzd21t))) > C_1d0)) {
+		gl_FragColor = ((sqrt(((H_3y2dfl1 * H_3y2dfl1) + (H_gzd21t * H_gzd21t))) > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
 	}
 	
 	discard;
@@ -222,9 +221,8 @@ void main()
 {
 	float H_gzd_c1 = (tex_coord.x * C_2d0) + C_a1d0;
 	float H_uc2 = (C_2d0 * tex_coord.y) + C_a1d0;
-	float radius_c3 = sqrt(((H_gzd_c1 * H_gzd_c1) + (H_uc2 * H_uc2)));
-	if ((radius_c3 > C_1d0)) {
-		gl_FragColor = ((radius_c3 > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
+	if ((sqrt(((H_gzd_c1 * H_gzd_c1) + (H_uc2 * H_uc2))) > C_1d0)) {
+		gl_FragColor = ((sqrt(((H_gzd_c1 * H_gzd_c1) + (H_uc2 * H_uc2))) > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
 	}
 	
 	discard;

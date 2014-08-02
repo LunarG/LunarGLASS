@@ -520,8 +520,8 @@ public:
     std::string traverseGep(const llvm::Instruction* instr, EMdTypeLayout* mdTypeLayout = 0);
     void dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout = 0);
 
-    bool cheapExpression(const std::string&, bool& needsParens);
-    bool multipleUsesInCurrentBlock(const llvm::Instruction*);
+    bool cheapExpression(const std::string&);
+    bool shouldSubstitute(const llvm::Instruction*);
     bool modifiesPrecision(const llvm::Instruction*);
     bool writeOnceAlloca(const llvm::Value*);
 
@@ -622,12 +622,41 @@ public:
         target.shader << str() << ";";
     }
 
-    void mapOrEmit()
+    bool cantMap()
     {
+        return member.size() > 0 || ! lvalue;
+    }
+
+    void map(bool needsParens)
+    {
+        if (cantMap()) {
+            emit();
+            return;
+        }
+
+        std::string parenthesized;
+        if (needsParens)
+            parenthesized.append("(");
+        parenthesized.append(str());
+        if (needsParens)
+            parenthesized.append(")");
+        target.mapExpressionString(instruction, parenthesized);
+    }
+
+    // TODO: generated-code performance: pass in false here in more places where
+    // it can be known there is not an expansion of data.  E.g., sum of two
+    // variables that die.
+    // increasesData: means it is definitely known there is more data made, so always better to forward substitute (map)
+    void mapOrEmit(bool increasesData, bool needsParens)
+    {
+        if (cantMap()) {
+            emit();
+            return;
+        }
+
         bool doSubstitute = true;
 
-        bool needsParens;
-        if (! target.cheapExpression(str(), needsParens)) {
+        if (! target.cheapExpression(str())) {
 
             if (doSubstitute && str().size() > 120)
                 doSubstitute = false;
@@ -638,20 +667,13 @@ public:
             if (doSubstitute && target.valueMap.find(instruction) != target.valueMap.end())
                 doSubstitute = false;
 
-            if (doSubstitute && target.multipleUsesInCurrentBlock(instruction))
+            if (doSubstitute && ! increasesData && ! target.shouldSubstitute(instruction))
                 doSubstitute = false;
         }
 
-        if (doSubstitute) {
-            // map it
-            std::string parenthesized;
-            if (needsParens)
-                parenthesized.append("(");
-            parenthesized.append(str());
-            if (needsParens)
-                parenthesized.append(")");
-            target.mapExpressionString(instruction, parenthesized);
-        } else
+        if (doSubstitute)
+            map(needsParens);
+        else
             emit();
     }
 
@@ -1555,7 +1577,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         else
             assignment << multiplier;
 
-        assignment.mapOrEmit();
+        assignment.mapOrEmit(false, true);
 
         return;
     }
@@ -1568,7 +1590,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         if (nested)
             assignment << ")";
 
-        assignment.mapOrEmit();
+        assignment.mapOrEmit(true, ! nested);
 
         return;
     }
@@ -1671,7 +1693,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         emitGlaOperand(assignment, llvmInstruction->getOperand(1));
         assignment << ")";
 
-        assignment.mapOrEmit();
+        assignment.mapOrEmit(false, false);
 
         return;
     }
@@ -1824,6 +1846,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         // Using ?: is okay for single component, but need to use 
         // mix(false-vector, true-vector, condition-vector) for non-scalars.
 
+        bool needsParens;
         const llvm::SelectInst* si = llvm::dyn_cast<const llvm::SelectInst>(llvmInstruction);
         assert(si);
         if (GetComponentCount(si->getCondition()) == 1) {
@@ -1832,6 +1855,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             emitGlaOperand(assignment, si->getTrueValue());
             assignment << " : ";
             emitGlaOperand(assignment, si->getFalseValue());
+            needsParens = true;
         } else {
             assignment << "mix(";
             emitGlaOperand(assignment, si->getFalseValue());
@@ -1840,9 +1864,10 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
             assignment << ",";
             emitGlaOperand(assignment, si->getCondition());
             assignment << ")";
+            needsParens = false;
         }
 
-        assignment.mapOrEmit();
+        assignment.mapOrEmit(false, needsParens);
 
         return;
     }
@@ -1857,7 +1882,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         // emit chain
         assignment << traverseGep(extractValueInst);
 
-        assignment.mapOrEmit();
+        assignment.mapOrEmit(true, false);
 
         return;
     }
@@ -1920,7 +1945,7 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         }
         assignment << ")";
 
-        assignment.mapOrEmit();
+        assignment.mapOrEmit(true, false);
 
         return;
     }
@@ -2798,7 +2823,7 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
         // use nothing, just copy
         if (srcVectorWidth == 1 && dstVectorWidth == 1) {
             emitGlaOperand(assignment, src);
-            assignment.emit();
+            assignment.mapOrEmit(true, false);
 
             return;
         }
@@ -2810,29 +2835,17 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
             assignment << "(";
             emitGlaOperand(assignment, src);
             assignment << ")";
-            assignment.emit();
+            assignment.mapOrEmit(true, false);
 
             return;
         }
 
-        // Case 2:  it's sequential .xy...  subsetting a vector.
-        // use a constructor to subset the vector to a vector
-        if (srcVectorWidth > 1 && dstVectorWidth > 1 && IsIdentitySwizzle(elts)) {
-            emitGlaType(assignment, precision, EVQNone, llvmInstruction->getType());
-            assignment << "(";
-            emitGlaOperand(assignment, src);
-            assignment << ")";
-            assignment.emit();
-
-            return;
-        }
-
-        // Case 3:  it's a non-sequential subsetting of a vector.
+        // Case 2:  it's a subsetting of a vector.
         // use GLSL swizzles
         assert(srcVectorWidth > 1);
         emitGlaOperand(assignment, src);
         emitGlaSwizzle(assignment, elts);
-        assignment.emit();
+        assignment.mapOrEmit(true, false);
         return;
     }
     default:
@@ -3138,7 +3151,12 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     if (convertResultToInt)
         ConversionStop(assignment, llvmInstruction->getType());
     assignment << ")";
-    assignment.emit();
+
+    // If amount of data is getting smaller, it's better to emit it now
+    bool increasesData = llvmInstruction->getNumArgOperands() <= 1 && 
+                         (llvmInstruction->getNumArgOperands() != 1 || GetComponentCount(llvmInstruction->getOperand(0)) <= 
+                                                                       GetComponentCount(llvmInstruction));
+    assignment.mapOrEmit(increasesData, false);
 }
 
 //
@@ -4012,7 +4030,7 @@ void gla::GlslTarget::emitGlaMultiInsert(std::ostringstream& out, const llvm::In
     Assignment initExpression(this, inst);
 
     // If the writemask is full, then just initialize it, and we're done.
-    // Will make a set of contiguous 1s by subracting from a power of 2.
+    // Will make a set of contiguous 1s by subracting 1 from a power of 2.
     int comps = GetComponentCount(inst);
     if (wmask == (1 << comps) - 1) {
         emitGlaMultiInsertRHS(initExpression, inst);
@@ -4022,21 +4040,18 @@ void gla::GlslTarget::emitGlaMultiInsert(std::ostringstream& out, const llvm::In
 
     // If the origin is defined, initialize the new instruction to be the
     // origin. If undefined, leave it declared and uninitialized.
-    llvm::Value* op = inst->getOperand(0);
-    if (IsDefined(op))
-        emitGlaOperand(initExpression, op);
-
+    if (IsDefined(inst->getOperand(0)))
+        emitGlaOperand(initExpression, inst->getOperand(0));
     initExpression.emit();
 
     Assignment expression(this, inst);
 
-    // If wmask is not all 1s, then do add an lhs swizzle    
-    if (wmask != 0xF) {
-        std::ostringstream lhsSwizzle;
-        emitMaskToSwizzle(lhsSwizzle, wmask);
-        expression.setMember(lhsSwizzle.str().c_str());
-    }
+    // Add the lhs swizzle    
+    std::ostringstream lhsSwizzle;
+    emitMaskToSwizzle(lhsSwizzle, wmask);
+    expression.setMember(lhsSwizzle.str().c_str());
 
+    // Add the rhs swizzle
     emitGlaMultiInsertRHS(expression, inst);
     
     expression.emit();
@@ -4247,10 +4262,9 @@ void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name,
 // See if an expression string does not contain any operations
 // that would be expensive to replicate, to aid in identifying what
 // can be forward substituted.
-bool gla::GlslTarget::cheapExpression(const std::string& expression, bool& needsParens)
+bool gla::GlslTarget::cheapExpression(const std::string& expression)
 {
     int c = expression[0];
-    needsParens = (c == '+' || c  == '-');
 
     // Skip over unary stuff...
     int pos;
@@ -4295,41 +4309,36 @@ bool gla::GlslTarget::cheapExpression(const std::string& expression, bool& needs
         }
     } while (pos > startPos);
 
-    if (pos < (int)expression.size())
-        needsParens = true;
-
     return pos == expression.size();
 }
 
-// TODO: Compile-time performance: This is brute force; if it's a performance issue,
-// one pass per block could gather all the information at once.
-bool gla::GlslTarget::multipleUsesInCurrentBlock(const llvm::Instruction* instruction)
+// Heuristically decide if this is something that should be 
+// substituted, based on amount of usage in the current block and 
+// in other blocks.
+bool gla::GlslTarget::shouldSubstitute(const llvm::Instruction* instruction)
 {
     const llvm::BasicBlock* bb = instruction->getParent();
 
-    llvm::BasicBlock::const_iterator it, e = bb->end();
-
-    // skip up to instruction
-    for (it = bb->begin(); it != e; ++it) {
-        const llvm::Instruction* llvmInstruction = it;
-        if (llvmInstruction == instruction)
-            break;
-    }
-
-    // count up to 2 uses
-    int uses = 0;
-    for (++it;  it != e; ++it) {
-        const llvm::Instruction* llvmInstruction = it;
-        for (int op = 0; op < (int)llvmInstruction->getNumOperands(); ++op) {
-            if (llvmInstruction->getOperand(op) == instruction) {
-                ++uses;
-                if (uses > 1)
-                    return true;
+    int usesInSameBlock = 0;
+    int usesInDifferentBlock = 0;
+    int usesInPhi = 0;
+    int otherUses = 0;
+    for (llvm::Value::const_use_iterator it = instruction->use_begin(); it != instruction->use_end(); ++it) {
+        const llvm::Instruction* use = llvm::dyn_cast<const llvm::Instruction>(*it);
+        if (use) {
+            if (llvm::isa<llvm::PHINode>(use))
+                ++usesInPhi;
+            else {
+                if (use->getParent() == bb)
+                    ++usesInSameBlock;
+                else
+                    ++usesInDifferentBlock;
             }
-        }
+        } else
+            ++otherUses;
     }
 
-    return false;
+    return usesInDifferentBlock == 0 && otherUses == 0 && usesInSameBlock <= 1;
 }
 
 // Of the set of ES precision qualifiers present, they must match the instruction's,

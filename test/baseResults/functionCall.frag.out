@@ -211,16 +211,13 @@ const float C_0d0 = 0.0;
 void main()
 {
 	float Lg_1;
-	vec4 H_xeepqq = vec4((BaseColor.x + BaseColor.y));
-	vec4 H_5kcr4 = vec4(((d < C_4d2) ? C_1d2 : C_4d5));
 	if ((d < C_4d5)) {
 		Lg_1 = d;
 	} else {
 		Lg_1 = C_0d0;
 	}
 	
-	vec4 H_zt5qpl = vec4(Lg_1);
-	gl_FragColor = ((H_5kcr4 * H_xeepqq) * H_zt5qpl);
+	gl_FragColor = ((vec4(((d < C_4d2) ? C_1d2 : C_4d5)) * vec4((BaseColor.x + BaseColor.y))) * vec4(Lg_1));
 	
 }
 
@@ -229,17 +226,14 @@ void main()
 uniform float d;
 uniform vec4 bigColor;
 in vec4 BaseColor;
-const float C_4d2 = 4.2;
-const float C_1d2 = 1.2;
 const float C_4d5 = 4.5;
 const float C_0d0 = 0.0;
+const float C_4d2 = 4.2;
+const float C_1d2 = 1.2;
 
 void main()
 {
-	vec4 H_xeepqq = vec4((BaseColor.x + BaseColor.y));
-	vec4 H_5kcr4 = vec4(((d < C_4d2) ? C_1d2 : C_4d5));
-	vec4 H_qnr2oq = vec4(((d < C_4d5) ? d : C_0d0));
-	gl_FragColor = ((H_5kcr4 * H_xeepqq) * H_qnr2oq);
+	gl_FragColor = ((vec4(((d < C_4d2) ? C_1d2 : C_4d5)) * vec4((BaseColor.x + BaseColor.y))) * vec4(((d < C_4d5) ? d : C_0d0)));
 	
 }
 

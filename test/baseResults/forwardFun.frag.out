@@ -168,9 +168,7 @@ const float C_4d5 = 4.5;
 
 void main()
 {
-	vec4 H_xeepqq = vec4((BaseColor.x + BaseColor.y));
-	vec4 H_5kcr4 = vec4(((d < C_4d2) ? C_1d2 : C_4d5));
-	gl_FragColor = (H_5kcr4 * H_xeepqq);
+	gl_FragColor = (vec4(((d < C_4d2) ? C_1d2 : C_4d5)) * vec4((BaseColor.x + BaseColor.y)));
 	
 }
 
@@ -186,9 +184,7 @@ const float C_4d5 = 4.5;
 
 void main()
 {
-	vec4 H_xeepqq = vec4((BaseColor.x + BaseColor.y));
-	vec4 H_5kcr4 = vec4(((d < C_4d2) ? C_1d2 : C_4d5));
-	gl_FragColor = (H_5kcr4 * H_xeepqq);
+	gl_FragColor = (vec4(((d < C_4d2) ? C_1d2 : C_4d5)) * vec4((BaseColor.x + BaseColor.y)));
 	
 }
 

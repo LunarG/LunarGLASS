@@ -468,9 +468,7 @@ void main()
 	iout = ((int(uiuin) + tblock.iuin) + aiv2.y);
 	s.c = c;
 	s.f = p.x;
-	bool H_2qzcgy1 = any((notEqual(N2[1], C_vec3p1d0p)));
-	bool H_yj41yd1 = any((notEqual(ivec3(uv3a[2]), C_ivec3p5p)));
-	if ((H_2qzcgy1 || H_yj41yd1)) {
+	if ((any(notEqual(N2[1], C_vec3p1d0p)) || any(notEqual(ivec3(uv3a[2]), C_ivec3p5p)))) {
 		highp vec3 H_hn1ggr = C_vec3p1d0p + c;
 		s.c = H_hn1ggr;
 	}
@@ -527,11 +525,9 @@ void main()
 	iout = ((int(uiuin) + tblock.iuin) + aiv2.y);
 	s.c = c;
 	s.f = p.x;
-	bool H_uc8 = any((notEqual(N2[1], C_vec3p1d0p)));
-	bool H_yj_c9 = any((notEqual(ivec3(uv3a[2]), C_ivec3p5p)));
-	if ((H_uc8 || H_yj_c9)) {
-		highp vec3 H_hn_c10 = C_vec3p1d0p + c;
-		s.c = H_hn_c10;
+	if ((any(notEqual(N2[1], C_vec3p1d0p)) || any(notEqual(ivec3(uv3a[2]), C_ivec3p5p)))) {
+		highp vec3 H_hn_c8 = C_vec3p1d0p + c;
+		s.c = H_hn_c8;
 	}
 	
 	
