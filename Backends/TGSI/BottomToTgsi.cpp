@@ -190,7 +190,7 @@ public:
     }
 
 
-    void beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count)
+    void beginForLoop(const llvm::PHINode* phi, llvm::ICmpInst::Predicate, unsigned bound, unsigned increment)
     {
         UnsupportedFunctionality("inductive loops");
     }

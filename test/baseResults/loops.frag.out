@@ -2633,7 +2633,7 @@ void main()
 	H_5p6eqm.z = (H_qm10ip1.z + d3);
 	color_uc10 = H_5p6eqm;
 	Lg_1 = C_0;
-	for (Lg_1 = 0; Lg_1 != 100; ++Lg_1) {
+	for ( ; Lg_1 != 100; ++Lg_1) {
 		vec4 H_gad7u3 = color_uc10;
 		H_gad7u3.x = (color_uc10.x + C_1d0);
 		vec4 H_gad7u3r = color_uc10;
@@ -2643,7 +2643,7 @@ void main()
 	
 	color_uc11 = color_uc10;
 	Lg_2 = C_0;
-	for (Lg_2 = 0; Lg_2 != 120; ++Lg_2) {
+	for ( ; Lg_2 != 120; ++Lg_2) {
 		vec4 H_fzy644 = color_uc11;
 		H_fzy644.x = (C_1d0 + color_uc11.x);
 		vec4 H_fzy644r = color_uc11;
@@ -2653,7 +2653,7 @@ void main()
 	
 	color_uc12 = color_uc11;
 	Lg_3 = C_0;
-	for (Lg_3 = 0; Lg_3 != 42; ++Lg_3) {
+	for ( ; Lg_3 != 42; ++Lg_3) {
 		float H_4u7iav = color_uc12.z + d3;
 		vec4 H_eok6e4 = color_uc12;
 		H_eok6e4.z = H_4u7iav;
@@ -3079,7 +3079,7 @@ void main()
 	H_k3m1n5.z = (((((((((H_isgzw4 + d3) + d3) + d3) + d3) + d3) + d3) + d3) + d3) + d3);
 	Lg_uc9 = C_0;
 	color_uc_c10 = H_k3m1n5;
-	for (Lg_uc9 = 0; Lg_uc9 != 100; ++Lg_uc9) {
+	for ( ; Lg_uc9 != 100; ++Lg_uc9) {
 		vec4 H_670lme = color_uc_c10;
 		H_670lme.x = (color_uc_c10.x + C_1d0);
 		vec4 H_670lmer = color_uc_c10;
@@ -3089,7 +3089,7 @@ void main()
 	
 	Lg_uc11 = C_0;
 	color_uc_c12 = color_uc_c10;
-	for (Lg_uc11 = 0; Lg_uc11 != 120; ++Lg_uc11) {
+	for ( ; Lg_uc11 != 120; ++Lg_uc11) {
 		vec4 H_8tsl2e = color_uc_c12;
 		H_8tsl2e.x = (C_1d0 + color_uc_c12.x);
 		vec4 H_8tsl2er = color_uc_c12;
@@ -3099,7 +3099,7 @@ void main()
 	
 	Lg_uc13 = C_0;
 	color_uc_c14 = color_uc_c12;
-	for (Lg_uc13 = 0; Lg_uc13 != 42; ++Lg_uc13) {
+	for ( ; Lg_uc13 != 42; ++Lg_uc13) {
 		float H_uc43 = color_uc_c14.z + d3;
 		vec4 H_aflmid = color_uc_c14;
 		H_aflmid.z = H_uc43;

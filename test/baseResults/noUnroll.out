@@ -34,9 +34,9 @@ in float f;
 vec4 gla_globalAgg;
 const int C_0 = 0;
 const float C_0d0 = 0.0;
-vec4 Lg_5;
+vec4 Lg_7;
 const int C_2 = 2;
-vec3 Lg_6;
+vec3 Lg_8;
 const int C_1 = 1;
 
 void main()
@@ -49,6 +49,8 @@ void main()
 	vec4 tv_c3;
 	vec4 r_uc4;
 	int Lg_4;
+	vec4 Lg_5;
+	int Lg_6;
 	Lg_1 = BaseColor;
 	i_uc1 = C_0;
 	for (i_uc1 = 0; i_uc1 < Count; ++i_uc1) {
@@ -58,20 +60,20 @@ void main()
 	gl_FragColor = Lg_1;
 	sum_uc2 = C_0d0;
 	Lg_2 = C_0;
-	for (Lg_2 = 0; Lg_2 != 4; ++Lg_2) {
-		Lg_5 = vec4(sum_uc2);
+	for ( ; Lg_2 != 4; ++Lg_2) {
+		Lg_7 = vec4(sum_uc2);
 		sum_uc2 = ((float(ivec4(v4)[Lg_2])) + sum_uc2);
 	}
 	
 	Lg_3 = C_0;
 	tv_c3 = gla_globalAgg;
-	for (Lg_3 = 0; Lg_3 != 4; ++Lg_3) {
+	for ( ; Lg_3 != 4; ++Lg_3) {
 		vec4 tv_c5 = tv_c3;
 		tv_c5[Lg_3] = (float((ivec4(v4)[Lg_3] << C_2)));
 		tv_c3 = tv_c5;
 	}
 	
-	vec4 Ll_FragColor_c6 = (Lg_5 + tv_c3) + Lg_1;
+	vec4 Ll_FragColor_c6 = (Lg_7 + tv_c3) + Lg_1;
 	gl_FragColor = Ll_FragColor_c6;
 	r_uc4 = BaseColor;
 	Lg_4 = C_0;
@@ -90,6 +92,13 @@ void main()
 	vec4 H_3lkmmo1 = Ll_FragColor_c6;
 	H_3lkmmo1.xyz = H_fg1kqb1.xyz;
 	gl_FragColor = H_3lkmmo1;
+	Lg_5 = H_3lkmmo1;
+	Lg_6 = C_0;
+	for ( ; Lg_6 <= 15; Lg_6 += 4) {
+		gl_FragColor = (Lg_5 * vec4(f));
+		Lg_5 = (Lg_5 * vec4(f));
+	}
+	
 	
 }
 
@@ -273,7 +282,7 @@ void main()
 	
 	color_uc10 = color_c43;
 	Lg_1 = C_0;
-	for (Lg_1 = 0; Lg_1 != 42; ++Lg_1) {
+	for ( ; Lg_1 != 42; ++Lg_1) {
 		vec4 H_gad7u3 = color_uc10;
 		H_gad7u3.z = (color_uc10.z + d3);
 		color_uc10 = H_gad7u3;
@@ -281,7 +290,7 @@ void main()
 	
 	color_uc11 = color_uc10;
 	Lg_2 = C_0;
-	for (Lg_2 = 0; Lg_2 != 100; ++Lg_2) {
+	for ( ; Lg_2 != 100; ++Lg_2) {
 		vec4 H_fzy644 = color_uc11;
 		H_fzy644.x = (color_uc11.x + C_1d0);
 		vec4 H_fzy644r = color_uc11;
@@ -291,7 +300,7 @@ void main()
 	
 	color_uc12 = color_uc11;
 	Lg_3 = C_0;
-	for (Lg_3 = 0; Lg_3 != 120; ++Lg_3) {
+	for ( ; Lg_3 != 120; ++Lg_3) {
 		vec4 H_eok6e4 = color_uc12;
 		H_eok6e4.x = (C_1d0 + color_uc12.x);
 		vec4 H_eok6e4r = color_uc12;
@@ -301,7 +310,7 @@ void main()
 	
 	color_uc13 = color_uc12;
 	Lg_4 = C_0;
-	for (Lg_4 = 0; Lg_4 != 42; ++Lg_4) {
+	for ( ; Lg_4 != 42; ++Lg_4) {
 		float H_9gp8pd1 = color_uc13.z + d3;
 		vec4 H_dd66o4 = color_uc13;
 		H_dd66o4.z = H_9gp8pd1;

@@ -219,8 +219,11 @@ namespace gla {
         // variable, and how many times the body will be executed as 
         // a compile-time constant (for static) or an LLVM value 
         // (for dynamic).
-        virtual void beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count) = 0;
         virtual void beginSimpleInductiveLoop(const llvm::PHINode* phi, const llvm::Value* count) = 0;
+
+        // Add a loop with no initializer (emitted before the loop start), the provided
+        // increment, upper bound, and predicate for comparing against the upper bound.
+        virtual void beginForLoop(const llvm::PHINode* phi, llvm::ICmpInst::Predicate, unsigned bound, unsigned increment) = 0;
 
         // Generic loop constructs
 

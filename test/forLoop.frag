@@ -35,4 +35,7 @@ void main()
         r.w = f;
 
     gl_FragColor.xyz += r.xyz;
+
+    for (int i = 0; i < 16; i += 4)
+        gl_FragColor *= f;
 }

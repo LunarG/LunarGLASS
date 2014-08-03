@@ -430,7 +430,7 @@ public:
     void addEndif();
     void beginConditionalLoop();
     void beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const llvm::Value* op1, const llvm::Value* op2, bool invert = false);
-    void beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count);
+    void beginForLoop(const llvm::PHINode* phi, llvm::ICmpInst::Predicate, unsigned bound, unsigned increment);
     void beginSimpleInductiveLoop(const llvm::PHINode* phi, const llvm::Value* count);
     void beginInductiveLoop();
     void beginLoop();
@@ -2100,20 +2100,30 @@ void gla::GlslTarget::beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const
     newScope();
 }
 
-void gla::GlslTarget::beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count)
+void gla::GlslTarget::beginForLoop(const llvm::PHINode* phi, llvm::ICmpInst::Predicate predicate, unsigned bound, unsigned increment)
 {
     newLine();
 
-    shader << "for (";
-    emitGlaValue(shader, phi, 0);
-
-    shader << " = 0; ";
+    shader << "for ( ; ";
 
     emitGlaOperand(shader, phi);
-    shader << " != " << count;
+    shader << " ";
+    switch (predicate) {
+    default:
+        UnsupportedFunctionality("loop predicate");
+    case llvm::CmpInst::ICMP_NE:   shader << "!=";  break;
+    case llvm::CmpInst::ICMP_SLE:  shader << "<=";  break;
+    case llvm::CmpInst::ICMP_SLT:  shader << "<";   break;
+    }
+    shader << " " << bound << "; ";
 
-    shader << "; ++";
-    emitGlaOperand(shader, phi);
+    if (increment == 1) {
+        shader << "++";
+        emitGlaOperand(shader, phi);
+    } else {
+        emitGlaOperand(shader, phi);
+        shader << " += " << increment;
+    }
     shader << ") ";
 
     newScope();

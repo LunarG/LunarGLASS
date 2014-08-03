@@ -372,32 +372,20 @@ namespace {
 
     void CreateSimpleInductiveLoop(LoopWrapper& loop, gla::BackEndTranslator& bet)
     {
-        const PHINode* pn  = loop.getCanonicalInductionVariable();
+        const PHINode* pn  = loop.getInductionVariable();
         assert(pn);
 
-        unsigned int tripCount = loop.getTripCount();   
-        if (tripCount) {
-            // The tripCount is sometimes the same as the exit condition's comparison
-            // value and sometimes one different than the exit condition's comparison value,
-            // depending on whether the exit is at the top or rotated to the bottom.
-            // In both cases, the comparison value is the correct value to pass to
-            // beginSimpleInductiveLoop(), which expects a body trip count.
-            // (Both values are off-by-one when the loop body becomes dead code.)
-            if (loop.getInductiveExitCondition()->getOpcode() == llvm::Instruction::ICmp &&
-                    dyn_cast<CmpInst>(loop.getInductiveExitCondition())->getPredicate() == ICmpInst::ICMP_EQ)
-                tripCount = (unsigned int)gla::GetConstantInt(loop.getInductiveExitCondition()->getOperand(1));
-            else
-                gla::UnsupportedFunctionality("unrecognized exit condition for inductive loop", gla::EATContinue);
-            bet.beginSimpleInductiveLoop(pn, tripCount);
-        } else
-            bet.beginSimpleInductiveLoop(pn, loop.getUpperBound());
+        if (loop.getTripCount())
+            bet.beginForLoop(pn, loop.getPredicate(), loop.getStaticBound(), loop.getIncrement());
+        else
+            bet.beginSimpleInductiveLoop(pn, loop.getDynamicBound());
     }
 
     void CreateSimpleConditionalLoop(LoopWrapper& loop, const Value& condition, gla::BackEndTranslator& bet)
     {
         BasicBlock* header = loop.getHeader();
-        assert(loop.isLoopExiting(header) && (loop.contains(GetSuccessor(0, header))
-                                              || loop.contains(GetSuccessor(1, header))));
+        assert(loop.isLoopExiting(header) && (loop.contains(GetSuccessor(0, header)) || 
+                                              loop.contains(GetSuccessor(1, header))));
 
         const CmpInst* cmp = dyn_cast<CmpInst>(&condition);
         assert(cmp && cmp->getNumOperands() == 2 && cmp == GetCondition(header));
@@ -455,7 +443,7 @@ void BottomTranslator::addPhiCopies(const BasicBlock* curBB, const BasicBlock* n
 void BottomTranslator::addPhiCopy(const PHINode* phi, const BasicBlock* curBB)
 {
     // Exclude phi copies for our inductive variables
-    if (! loops.empty() && loops.top()->isSimpleInductive() && phi == loops.top()->getCanonicalInductionVariable())
+    if (! loops.empty() && loops.top()->isSimpleInductive() && phi == loops.top()->getInductionVariable())
         return;
 
     bool alias = IsAliasingPhi(phi);
@@ -477,7 +465,7 @@ void BottomTranslator::addPhiCopy(const PHINode* phi, const BasicBlock* curBB)
 
 void BottomTranslator::handleInstructions(const BasicBlock* bb, bool forceGlobals)
 {
-    const LoopWrapper* loop = NULL;
+    LoopWrapper* loop = NULL;
 
     if (! loops.empty())
         loop = loops.top();
@@ -522,9 +510,8 @@ void BottomTranslator::newLoop(const BasicBlock* bb)
     loops.push(idStructs->getLoopFor(bb));
 
     // We'll have to handle the latch specially if the backedge is not simple.
-    if (! loops.top()->isSimpleLatching()) {
+    if (! loops.top()->isSimpleLatching())
         handledBlocks.insert(loops.top()->getLatch());
-    }
 }
 
 void BottomTranslator::attemptHandleDominatee(const BasicBlock* dominator, const BasicBlock* dominatee)
@@ -552,7 +539,7 @@ void BottomTranslator::handleLoopBlock(const BasicBlock* bb, bool instructionsHa
 
     const Value* condition = GetCondition(bb);
 
-    const LoopWrapper* loop  = loops.top();
+    LoopWrapper* loop  = loops.top();
     const BasicBlock* header = loop->getHeader();
     const BasicBlock* latch  = loop->getLatch();
 
@@ -861,7 +848,7 @@ void BottomTranslator::handleSimpleInductiveInstructions(const BasicBlock* bb)
     const Instruction* lastInst  = bb->getTerminator();
 
     for (BasicBlock::const_iterator i = bb->begin(); &*i != lastInst; ++i) {
-        if (&*i == loops.top()->getInductiveExitCondition() || &*i == loops.top()->getIncrement())
+        if (&*i == loops.top()->getInductiveExitCondition() || &*i == loops.top()->getIncrementInst())
             continue;
         insts.push_back(i);
     }

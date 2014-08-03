@@ -173,7 +173,7 @@ public:
     void beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const llvm::Value* op1, const llvm::Value* op2, bool invert=false)
     { counter++; }
 
-    void beginSimpleInductiveLoop(const llvm::PHINode* phi, unsigned count)
+    void beginForLoop(const llvm::PHINode* phi, llvm::ICmpInst::Predicate, unsigned bound, unsigned increment)
     { counter++; }
 
     void beginSimpleInductiveLoop(const llvm::PHINode* phi, const llvm::Value* count)

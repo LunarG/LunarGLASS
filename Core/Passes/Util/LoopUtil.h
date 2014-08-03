@@ -65,6 +65,7 @@ namespace gla_llvm {
     public:
         LoopWrapper(Loop* loop, DominanceFrontier* df, ScalarEvolution* sev, bool simpleBE)
             : domFront(df)
+            , loop(loop)
             , scalarEvo(sev)
             , simpleLatch(simpleBE)
             , header(loop->getHeader())
@@ -78,8 +79,13 @@ namespace gla_llvm {
             // condition may be tested, and the exit block could be at the
             // top or rotated to the bottom.
             , tripCount(scalarEvo->getSmallConstantTripCount(loop, header))
-            , upperBound(0)
+            , increment(1)
+            , staticBound(0)
+            , dynamicBound(0)
+            , loopCompare(0)
+            , loopPredicate(llvm::CmpInst::ICMP_NE)
             , loopDepth(loop->getLoopDepth())
+            , forLoopComputed(false)
             , simpleConditional(-1)
             , function(loop->getHeader()->getParent())
             , isMain(IsMain(*function))
@@ -117,27 +123,6 @@ namespace gla_llvm {
                 exitMerge = *merges.begin();
             else
                 exitMerge = NULL;
-
-            if (! tripCount) {
-                // Get exit condition for loops that are simple inductive except for not statically
-                // knowing their trip count.
-                // This is currently a very narrow dive into a common case, but hopefully there
-                // is a more generic way of dealing with loop bounds.
-                // TODO: loops: generalize and/or use better encapsulation of this way of finding 
-                // a loop bound.
-                if (inductiveVar && uniqueExiting) {
-                    const SCEV* exitCount = scalarEvo->getExitCount(loop, uniqueExiting);
-                    if (! isa<SCEVCouldNotCompute>(exitCount)) {
-                        const SCEVNAryExpr* expr = dyn_cast<SCEVNAryExpr>(exitCount);
-                        //errs() << *expr << " SCEVNaryExpr\n";
-                        if (expr && expr->getNumOperands() == 2 && exitCount->getSCEVType() == scSMaxExpr) {
-                            const SCEV* op1 = expr->getOperand(1);
-                            if (op1->getSCEVType() == scUnknown)
-                                upperBound = cast<SCEVUnknown>(op1)->getValue();
-                        }
-                    }
-                }
-            }
         }
 
         // Accessors
@@ -190,47 +175,153 @@ namespace gla_llvm {
 
         // Provide interfaces from the Loop class
         unsigned getLoopDepth()                  const { return loopDepth; }
-        PHINode* getCanonicalInductionVariable() const { return inductiveVar; }
+        const PHINode* getInductionVariable()    const { return inductiveVar; }
         bool     contains(const BasicBlock* bb)  const { return blocks.count(bb); }
         bool     contains(const Instruction* i)  const { return blocks.count(i->getParent()); }
         unsigned int getTripCount()              const { return tripCount; }
-        const Value* getUpperBound()             const { return upperBound; }
+        int getStaticBound()                     const { return staticBound; }
+        int getIncrement()                       const { return increment; }
+        const Value* getDynamicBound()           const { return dynamicBound; }
+        llvm::ICmpInst::Predicate getPredicate() const { return loopPredicate; }
 
         const SmallPtrSet<const BasicBlock*,16>& getBlocks() const { return blocks; }
 
         bool isLoopExiting(const BasicBlock* bb) const
         {
             for (succ_const_iterator i = succ_begin(bb), e = succ_end(bb); i != e; ++i)
-                if (!contains(*i))
+                if (! contains(*i))
                     return true;
 
             return false;
         }
 
+        void computeDynamicBound()
+        {
+            // Get exit condition for loops that are simple inductive except for not statically
+            // knowing their trip count.
+            // This is currently a very narrow dive into a common case, but hopefully there
+            // is a more generic way of dealing with loop bounds.
+            // TODO: loops: generalize and/or use better encapsulation of this way of finding 
+            // a loop bound.
+            if (! tripCount && inductiveVar && uniqueExiting) {
+                const SCEV* exitCount = scalarEvo->getExitCount(loop, uniqueExiting);
+                if (! isa<SCEVCouldNotCompute>(exitCount)) {
+                    const SCEVNAryExpr* expr = dyn_cast<SCEVNAryExpr>(exitCount);
+                    //errs() << *expr << " SCEVNaryExpr\n";
+                    if (expr && expr->getNumOperands() == 2 && exitCount->getSCEVType() == scSMaxExpr) {
+                        const SCEV* op1 = expr->getOperand(1);
+                        if (op1->getSCEVType() == scUnknown)
+                            dynamicBound = cast<SCEVUnknown>(op1)->getValue();
+                    }
+                }
+            }
+        }
 
-        // Note, we may want to move away from only wrapping LoopInfo and wrap
-        // ScalarEvolution as well
+        // See if we can find our own "inductive" variable: something that can be turned into a "for loop", possibly with a non-1 increment.
+        // (LLVM's idea of inductive may be more restrictive than this.)
+        void computeForLoop()
+        {
+            if (forLoopComputed)
+                return;
+            forLoopComputed = true;
+            
+            computeDynamicBound();
 
-        // TODO: loops: cache the results of the more complicated queries (implemented
-        // for isSimpleConditional())
+            // Dynamic bound implies incrementing up by 1 until getting to the bound
+            if (dynamicBound)
+                return;
+
+            // Get the inductive variable and the increment
+            const llvm::Value* cond = GetCondition(header);
+            if (! cond) {
+                inductiveVar = 0;
+                return;
+            }
+            const llvm::CmpInst* loopCompare = dyn_cast<CmpInst>(cond);
+            if (! loopCompare) {
+                inductiveVar = 0;
+                return;
+            }
+
+            if (! inductiveVar && uniqueExiting && isCanonical() && tripCount && isSimpleConditional()) {
+                const llvm::Value* var = loopCompare->getOperand(0);
+                const llvm::PHINode* phi = llvm::dyn_cast<llvm::PHINode>(var);
+
+                // Only consider loops that use "Add" to increment the loop variable
+                const llvm::Instruction* add = 0;
+                if (phi && isHeader(phi->getParent())) {
+                    // find argument that computes the increment
+                    const llvm::Instruction* inst = dyn_cast<llvm::Instruction>(phi->getIncomingValue(0));
+                    if (inst && inst->getOpcode() == llvm::Instruction::Add)
+                        add = inst;
+                    else {
+                        inst = dyn_cast<llvm::Instruction>(phi->getIncomingValue(1));
+                        if (inst && inst->getOpcode() == llvm::Instruction::Add)
+                            add = inst;
+                    }
+                } else {
+                    const llvm::Instruction* inst = dyn_cast<llvm::Instruction>(var);
+                    if (inst && inst->getOpcode() == llvm::Instruction::Add) {
+                        phi = dyn_cast<llvm::PHINode>(inst->getOperand(0));
+                        if (phi && isHeader(phi->getParent()))
+                            add = inst;
+                    }
+                }
+                if (add) {
+                    const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(add->getOperand(1));
+                    if (constantInt) {
+                        inductiveVar = phi;
+                        increment = (int)constantInt->getValue().getSExtValue();
+                    }
+                }
+            }
+
+            // Get the static bound
+            if (inductiveVar) {
+                // Even if the increment is one, the tripCount is sometimes the same as the exit condition's comparison
+                // value and sometimes one different than the exit condition's comparison value,
+                // depending on whether the exit is at the top or rotated to the bottom.
+                // In both cases, the comparison value is the correct value to pass to
+                // beginSimpleInductiveLoop(), which expects a body trip count.
+                // (Both values are off-by-one when the loop body becomes dead code.)
+                loopPredicate = loopCompare->getPredicate();
+                switch (loopPredicate) {
+                case llvm::CmpInst::ICMP_EQ:   loopPredicate = llvm::CmpInst::ICMP_NE;  break;
+                case llvm::CmpInst::ICMP_SGT:
+                case llvm::CmpInst::ICMP_UGT:  loopPredicate = llvm::CmpInst::ICMP_SLE; break;
+                case llvm::CmpInst::ICMP_SGE:
+                case llvm::CmpInst::ICMP_UGE:  loopPredicate = llvm::CmpInst::ICMP_SLT; break;
+                default:
+                    inductiveVar = 0;
+                    return;
+                }
+ 
+                const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(loopCompare->getOperand(1));
+                if (constantInt)
+                    staticBound = (int)constantInt->getValue().getSExtValue();
+                else
+                    inductiveVar = 0;
+            }
+        }
 
         // Is the loop a simple inductive one? A simple inductive loop is one
         // where the backedge is simple, a canonical induction variable exists,
         // and the execution count is known statically (e.g. there are no breaks
         // or continues). Or, there is a known upper bound and it would otherwise
         // be simple conditional.
-        bool isSimpleInductive() const
+        bool isSimpleInductive()
         {
-            // TODO: loops: extend functionality to support early exit
-            return inductiveVar && uniqueExiting && (tripCount || (upperBound && isSimpleConditional()));
+            computeForLoop();
+
+            return inductiveVar && uniqueExiting && (tripCount || (dynamicBound && isSimpleConditional()));
         }
 
         // Is the loop a simple conditional loop? A simple conditional loop is a
         // loop whose header is a conditionally exiting block, and the condition
         // is some comparison operator whose operands are extracts, constants,
-        // or loads. Furthermore, all other instructions in the header can only
-        // be phis.
-        bool isSimpleConditional() const
+        // or loads. Furthermore, all either other instructions in the header can only
+        // be phis or we have to know the loop is always executed more than once.
+        bool isSimpleConditional()
         {
             // Check the cache
             if (simpleConditional != -1)
@@ -245,6 +336,15 @@ namespace gla_llvm {
             CmpInst* cond = dyn_cast<CmpInst>(v);
             if (! cond)
                 return false;
+
+            if (tripCount > 0) {
+                simpleConditional = 1;
+                return true;
+            }
+
+            // If we don't know the trip count, we don't know if the simple condition might 
+            // skip the loop completely, which we can't allow if something interesting gets
+            // done in the header, before the kick out.
 
             // There can't be any other non-phi instructions in the header, so
             // keep track of the number of instructions we've seen.
@@ -286,13 +386,12 @@ namespace gla_llvm {
         // frontiers (enforces structured flow control).
         bool isCanonical() const
         {
-            return header && latch && exitMerge
-                && (IsUnconditional(latch) || isLoopExiting(latch));
+            return header && latch && exitMerge && (IsUnconditional(latch) || isLoopExiting(latch));
         }
 
         // If the loop is simple inductive, then returns the instruction
         // recomputing the exit condition, else returns NULL
-        Instruction* getInductiveExitCondition() const
+        Instruction* getInductiveExitCondition()
         {
             if (! isSimpleInductive())
                 return NULL;
@@ -308,7 +407,7 @@ namespace gla_llvm {
 
         // If the loop is simple inductive, then returns the instruction doing
         // the increment on the inductive variables, else returns NULL
-        Instruction* getIncrement() const
+        Instruction* getIncrementInst()
         {
             if (! isSimpleInductive())
                 return NULL;
@@ -344,7 +443,7 @@ namespace gla_llvm {
         ~LoopWrapper() { }
 
     protected:
-        // LoopInfo* loopInfo;
+        Loop* loop;
 
         // Note: LLVM's DominanceFrontier is deprecated, go in the direction of not needing it.
         // TODO: Remove the need for the dominance frontier, it's
@@ -363,13 +462,18 @@ namespace gla_llvm {
 
         BasicBlock* uniqueExiting;
 
-        PHINode* inductiveVar;
+        const PHINode* inductiveVar;
         unsigned int tripCount;
-        Value* upperBound;
+        int increment;
+        int staticBound;
+        Value* dynamicBound;
+        const llvm::CmpInst* loopCompare;
+        llvm::CmpInst::Predicate loopPredicate;
 
         unsigned loopDepth;
 
         // Cache
+        mutable bool forLoopComputed;
         mutable int simpleConditional;
 
         Function* function;
