@@ -129,7 +129,9 @@ const vec4 C_o2rsm81 = vec4(0.1, 0.2, 0.3, 0.4);
 void main()
 {
 	vec4 H_zp2m0z = texture2D(tex, coord);
-	if (all(equal(H_zp2m0z, C_o2rsm81))) {
+	bvec4 H_2mjw8w1 = equal(H_zp2m0z, C_o2rsm81);
+	bool H_878a09 = all(H_2mjw8w1);
+	if (H_878a09) {
 		discard;
 	}
 	
@@ -146,7 +148,9 @@ const vec4 C_o2rsm81 = vec4(0.1, 0.2, 0.3, 0.4);
 void main()
 {
 	vec4 H_zp_c1 = texture2D(tex, coord);
-	if (all(equal(H_zp_c1, C_o2rsm81))) {
+	bvec4 H_uc2 = equal(H_zp_c1, C_o2rsm81);
+	bool H_uc3 = all(H_uc2);
+	if (H_uc3) {
 		discard;
 	}
 	

@@ -541,17 +541,56 @@ const vec4 C_vec4p1d0p = vec4(1.0);
 void main()
 {
 	vec4 ternary_uc1;
+	bool H_9m173w = u_b && i_b;
+	bool H_t8jtc1 = u_b2.x && i_b2.x;
+	bool H_vqsa4m1 = H_t8jtc1 && u_b2.y;
+	bool H_svptkl = H_vqsa4m1 && i_b2.y;
+	bool H_tmnqtu = u_b3.x && i_b3.x;
+	bool H_74hydx1 = H_tmnqtu && u_b3.y;
+	bool H_959q7f = H_74hydx1 && i_b3.y;
+	bool H_myqxhf1 = H_959q7f && u_b3.z;
+	bool H_bd4zme1 = H_myqxhf1 && i_b3.z;
+	bool H_pk4vn41 = u_b4.x && i_b4.x;
+	bool H_b5urb7 = H_pk4vn41 && u_b4.y;
+	bool H_6211rh = H_b5urb7 && i_b4.y;
+	bool H_a9cplv1 = H_6211rh && u_b4.z;
+	bool H_g4yres = H_a9cplv1 && i_b4.z;
+	bool H_pqjgop1 = H_g4yres && u_b4.w;
+	bool H_n9zzio1 = H_pqjgop1 && i_b4.w;
 	ivec2 H_ireo8q = i_i2 + u_i2;
 	ivec3 H_00u6vn1 = i_i3 + u_i3;
 	ivec4 H_2vbjw71 = i_i4 + u_i4;
 	vec2 H_0n1dm61 = i_f2 + u_f2;
 	vec3 H_ihj3yc = i_f3 + u_f3;
 	vec4 H_o7wyx6 = i_f4 + u_f4;
-	bool H_j11jmm1 = ((u_b && i_b) || (((u_b2.x && i_b2.x) && u_b2.y) && i_b2.y)) || (((((u_b3.x && i_b3.x) && u_b3.y) && i_b3.y) && u_b3.z) && i_b3.z);
-	if ((H_j11jmm1 || (((((((u_b4.x && i_b4.x) && u_b4.y) && i_b4.y) && u_b4.z) && i_b4.z) && u_b4.w) && i_b4.w))) {
-		int H_l01rff = (((((((H_ireo8q.x + H_ireo8q.y) + H_00u6vn1.x) + H_00u6vn1.y) + H_00u6vn1.z) + H_2vbjw71.x) + H_2vbjw71.y) + H_2vbjw71.z) + H_2vbjw71.w;
-		float H_hr7sv81 = ((((((float(((H_l01rff + i_i) + u_i))) + (i_f + u_f)) + H_0n1dm61.x) + H_0n1dm61.y) + H_ihj3yc.x) + H_ihj3yc.y) + H_ihj3yc.z;
-		ternary_uc1 = vec4(((((H_hr7sv81 + H_o7wyx6.x) + H_o7wyx6.y) + H_o7wyx6.z) + H_o7wyx6.w));
+	bool H_n9ytkj1 = H_9m173w || H_svptkl;
+	bool H_ad9nuk1 = H_n9ytkj1 || H_bd4zme1;
+	bool H_ci3ivv = H_ad9nuk1 || H_n9zzio1;
+	if (H_ci3ivv) {
+		float H_y5x842 = i_f + u_f;
+		int H_tawenf = H_ireo8q.x + H_ireo8q.y;
+		int H_tywz0a = H_00u6vn1.x + H_tawenf;
+		int H_u0mkj81 = H_00u6vn1.y + H_tywz0a;
+		int H_28c7us = H_00u6vn1.z + H_u0mkj81;
+		int H_1ggmlh1 = H_28c7us + H_2vbjw71.x;
+		int H_htcbd71 = H_1ggmlh1 + H_2vbjw71.y;
+		int H_00b5y3 = H_2vbjw71.z + H_htcbd71;
+		int H_hazd9c = H_00b5y3 + H_2vbjw71.w;
+		int H_nhw0bx = H_hazd9c + i_i;
+		int H_da1djj1 = H_nhw0bx + u_i;
+		float H_u18e75 = float(H_da1djj1);
+		float H_tnxe1d1 = H_u18e75 + H_y5x842;
+		float H_cjxh1m = H_0n1dm61.x + H_tnxe1d1;
+		float H_fgff5g1 = H_0n1dm61.y + H_cjxh1m;
+		float H_omnqrf1 = H_fgff5g1 + H_ihj3yc.x;
+		float H_hhnfnu = H_ihj3yc.y + H_omnqrf1;
+		float H_rgv6rz = H_hhnfnu + H_ihj3yc.z;
+		float H_nniqhg = H_o7wyx6.x + H_rgv6rz;
+		float H_af95e6 = H_nniqhg + H_o7wyx6.y;
+		float H_4afzvp = H_af95e6 + H_o7wyx6.z;
+		float H_e98scx = H_4afzvp + H_o7wyx6.w;
+		vec4 H_rgw7y = vec4(H_e98scx);
+		ternary_uc1 = H_rgw7y;
 	} else {
 		ternary_uc1 = C_vec4p1d0p;
 	}
@@ -562,12 +601,6 @@ void main()
 
 #version 130
 // LunarGOO output
-uniform ivec2 u_i2;
-uniform ivec3 u_i3;
-uniform ivec4 u_i4;
-uniform vec2 u_f2;
-uniform vec3 u_f3;
-uniform vec4 u_f4;
 uniform bool u_b;
 uniform bool i_b;
 uniform bvec2 u_b2;
@@ -576,32 +609,77 @@ uniform bvec3 u_b3;
 uniform bvec3 i_b3;
 uniform bvec4 u_b4;
 uniform bvec4 i_b4;
-uniform int u_i;
+uniform ivec2 u_i2;
+uniform ivec3 u_i3;
+uniform ivec4 u_i4;
+uniform vec2 u_f2;
+uniform vec3 u_f3;
+uniform vec4 u_f4;
 uniform float u_f;
+uniform int u_i;
 flat in ivec2 i_i2;
 flat in ivec3 i_i3;
 flat in ivec4 i_i4;
 in vec2 i_f2;
 in vec3 i_f3;
 in vec4 i_f4;
-flat in int i_i;
 in float i_f;
+flat in int i_i;
 const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
 	vec4 ternary_uc_c1;
-	ivec2 H_ireo_c2 = i_i2 + u_i2;
-	ivec3 H_uc3 = i_i3 + u_i3;
-	ivec4 H_uc4 = i_i4 + u_i4;
-	vec2 H_uc5 = i_f2 + u_f2;
-	vec3 H_ihj_c6 = i_f3 + u_f3;
-	vec4 H_o_c7 = i_f4 + u_f4;
-	bool H_j_c8 = ((u_b && i_b) || (((u_b2.x && i_b2.x) && u_b2.y) && i_b2.y)) || (((((u_b3.x && i_b3.x) && u_b3.y) && i_b3.y) && u_b3.z) && i_b3.z);
-	if ((H_j_c8 || (((((((u_b4.x && i_b4.x) && u_b4.y) && i_b4.y) && u_b4.z) && i_b4.z) && u_b4.w) && i_b4.w))) {
-		int H_mr34n4 = (((((((((H_ireo_c2.x + H_ireo_c2.y) + H_uc3.x) + H_uc3.y) + H_uc3.z) + H_uc4.x) + H_uc4.y) + H_uc4.z) + H_uc4.w) + i_i) + u_i;
-		float H_s8p64i1 = ((((((((float(H_mr34n4)) + (i_f + u_f)) + H_uc5.x) + H_uc5.y) + H_ihj_c6.x) + H_ihj_c6.y) + H_ihj_c6.z) + H_o_c7.x) + H_o_c7.y;
-		ternary_uc_c1 = vec4(((H_o_c7.z + H_s8p64i1) + H_o_c7.w));
+	bool H_uc2 = u_b && i_b;
+	bool H_t_c3 = u_b2.x && i_b2.x;
+	bool H_vqsa_c4 = H_t_c3 && u_b2.y;
+	bool H_svptkl_c5 = H_vqsa_c4 && i_b2.y;
+	bool H_tmnqtu_c6 = u_b3.x && i_b3.x;
+	bool H_uc7 = H_tmnqtu_c6 && u_b3.y;
+	bool H_uc8 = H_uc7 && i_b3.y;
+	bool H_myqxhf_c9 = H_uc8 && u_b3.z;
+	bool H_bd_c10 = H_myqxhf_c9 && i_b3.z;
+	bool H_pk_c11 = u_b4.x && i_b4.x;
+	bool H_b_c12 = H_pk_c11 && u_b4.y;
+	bool H_uc13 = H_b_c12 && i_b4.y;
+	bool H_a_c14 = H_uc13 && u_b4.z;
+	bool H_g_c15 = H_a_c14 && i_b4.z;
+	bool H_pqjgop_c16 = H_g_c15 && u_b4.w;
+	bool H_n_c17 = H_pqjgop_c16 && i_b4.w;
+	ivec2 H_ireo_c18 = i_i2 + u_i2;
+	ivec3 H_uc19 = i_i3 + u_i3;
+	ivec4 H_uc20 = i_i4 + u_i4;
+	vec2 H_uc21 = i_f2 + u_f2;
+	vec3 H_ihj_c22 = i_f3 + u_f3;
+	vec4 H_o_c23 = i_f4 + u_f4;
+	bool H_n_c24 = H_uc2 || H_svptkl_c5;
+	bool H_ad_c25 = H_n_c24 || H_bd_c10;
+	bool H_ci_c26 = H_ad_c25 || H_n_c17;
+	if (H_ci_c26) {
+		float H_y_c27 = i_f + u_f;
+		int H_tawenf_c28 = H_ireo_c18.x + H_ireo_c18.y;
+		int H_tywz_c29 = H_tawenf_c28 + H_uc19.x;
+		int H_u_c30 = H_tywz_c29 + H_uc19.y;
+		int H_uc31 = H_u_c30 + H_uc19.z;
+		int H_uc32 = H_uc20.x + H_uc31;
+		int H_htcbd_c33 = H_uc20.y + H_uc32;
+		int H_uc34 = H_htcbd_c33 + H_uc20.z;
+		int H_hazd_c35 = H_uc20.w + H_uc34;
+		int H_nhw_c36 = H_hazd_c35 + i_i;
+		int H_da_c37 = H_nhw_c36 + u_i;
+		float H_u_c38 = float(H_da_c37);
+		float H_tnxe_c39 = H_u_c38 + H_y_c27;
+		float H_cjxh_c40 = H_tnxe_c39 + H_uc21.x;
+		float H_fgff_c41 = H_cjxh_c40 + H_uc21.y;
+		float H_omnqrf_c42 = H_fgff_c41 + H_ihj_c22.x;
+		float H_hhnfnu_c43 = H_ihj_c22.y + H_omnqrf_c42;
+		float H_rgv_c44 = H_hhnfnu_c43 + H_ihj_c22.z;
+		float H_nniqhg_c45 = H_o_c23.x + H_rgv_c44;
+		float H_af_c46 = H_nniqhg_c45 + H_o_c23.y;
+		float H_uc47 = H_af_c46 + H_o_c23.z;
+		float H_e_c48 = H_o_c23.w + H_uc47;
+		vec4 H_0s2fhn = vec4(H_e_c48);
+		ternary_uc_c1 = H_0s2fhn;
 	} else {
 		ternary_uc_c1 = C_vec4p1d0p;
 	}

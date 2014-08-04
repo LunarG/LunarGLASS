@@ -156,10 +156,15 @@ in vec4 foo[3];
 
 void main()
 {
-	vec4 texColor_c1 = texture(texSampler2D, (gl_TexCoord[4] + gl_TexCoord[5]).xy);
-	vec4 H_xowbja = (color + texColor_c1);
-	H_xowbja.w = alpha;
-	gl_FragColor = (((foo[1] + gl_TexCoord[0]) + gl_TexCoord[4]) + H_xowbja);
+	vec4 H_dbhkwv = gl_TexCoord[4] + gl_TexCoord[5];
+	vec4 texColor_c1 = texture(texSampler2D, H_dbhkwv.xy);
+	vec4 texColor_c2 = color + texColor_c1;
+	vec4 H_n1l2f81 = texColor_c2;
+	H_n1l2f81.w = alpha;
+	vec4 H_hokwog = foo[1] + gl_TexCoord[0];
+	vec4 H_wgnrh = H_hokwog + gl_TexCoord[4];
+	vec4 Ll_FragColor_c3 = H_n1l2f81 + H_wgnrh;
+	gl_FragColor = Ll_FragColor_c3;
 	
 }
 
@@ -173,10 +178,15 @@ in vec4 foo[3];
 
 void main()
 {
-	vec4 texColor_c1 = texture(texSampler2D, (gl_TexCoord[4] + gl_TexCoord[5]).xy);
-	vec4 H_xowbja = (color + texColor_c1);
-	H_xowbja.w = alpha;
-	gl_FragColor = (((foo[1] + gl_TexCoord[0]) + gl_TexCoord[4]) + H_xowbja);
+	vec4 H_dbhkwv_c1 = gl_TexCoord[4] + gl_TexCoord[5];
+	vec4 texColor_c2 = texture(texSampler2D, H_dbhkwv_c1.xy);
+	vec4 texColor_c3 = color + texColor_c2;
+	vec4 H_ocz2581 = texColor_c3;
+	H_ocz2581.w = alpha;
+	vec4 H_hokwog_c4 = foo[1] + gl_TexCoord[0];
+	vec4 H_wgnrh_c5 = H_hokwog_c4 + gl_TexCoord[4];
+	vec4 Ll_FragColor_c6 = H_ocz2581 + H_wgnrh_c5;
+	gl_FragColor = Ll_FragColor_c6;
 	
 }
 

@@ -131,7 +131,11 @@ varying float c;
 
 void main()
 {
-	gl_FragColor = ((((c > d) ? bigColor : smallColor) + BaseColor) * otherColor);
+	bool H_wll4g81 = c > d;
+	vec4 _pn_c1 = H_wll4g81 ? bigColor : smallColor;
+	vec4 color_uc2 = BaseColor + _pn_c1;
+	vec4 Ll_FragColor_c3 = color_uc2 * otherColor;
+	gl_FragColor = Ll_FragColor_c3;
 	
 }
 
@@ -146,7 +150,11 @@ varying vec4 BaseColor;
 
 void main()
 {
-	gl_FragColor = ((((c > d) ? bigColor : smallColor) + BaseColor) * otherColor);
+	bool H_wll_c1 = c > d;
+	vec4 ternary_uc2 = H_wll_c1 ? bigColor : smallColor;
+	vec4 color_uc_c3 = BaseColor + ternary_uc2;
+	vec4 Ll_FragColor_c4 = color_uc_c3 * otherColor;
+	gl_FragColor = Ll_FragColor_c4;
 	
 }
 

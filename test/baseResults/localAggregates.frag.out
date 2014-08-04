@@ -308,11 +308,20 @@ const float C_2d0 = 2.0;
 void main()
 {
 	bool H_27n3qy = foo3.s2_1.i > C_0;
+	float select_c1 = H_27n3qy ? C_1d0 : coord.x;
+	bool H_x8pmhw1 = condition == C_1;
+	float select_c2 = H_x8pmhw1 ? coord.x : C_0d0;
 	vec4 H_sbr82h = color;
 	H_sbr82h.z = coord.y;
-	vec4 H_k7fjv2 = vec4(((((H_27n3qy ? C_1d0 : coord.x) + (H_27n3qy ? coord.x : C_2d0)) + coord.x) + ((condition == C_1) ? coord.x : C_0d0)));
+	float H_a018tj = H_27n3qy ? coord.x : C_2d0;
+	float H_uhjdds = H_a018tj + select_c1;
+	float H_49u4er1 = H_uhjdds + coord.x;
+	float H_9vre8z = H_49u4er1 + select_c2;
+	vec4 H_zlutjz = vec4(H_9vre8z);
+	vec4 H_30w8wu1 = H_sbr82h * H_zlutjz;
 	vec4 H_0k8q2q = texture(sampler, coord);
-	gl_FragColor = ((H_k7fjv2 * H_sbr82h) * H_0k8q2q);
+	vec4 Ll_FragColor_c3 = H_0k8q2q * H_30w8wu1;
+	gl_FragColor = Ll_FragColor_c3;
 	
 }
 
@@ -340,22 +349,31 @@ uniform sampler2D sampler;
 uniform s1 foo;
 uniform s2 foo2;
 uniform float uFloatArray[16];
-in vec4 color;
 in vec2 coord;
+in vec4 color;
 const int C_0 = 0;
 const float C_1d0 = 1.0;
-const float C_2d0 = 2.0;
 const int C_1 = 1;
 const float C_0d0 = 0.0;
+const float C_2d0 = 2.0;
 
 void main()
 {
 	bool H_uc1 = foo3.s2_1.i > C_0;
+	float select_c2 = H_uc1 ? C_1d0 : coord.x;
+	bool H_x_c3 = condition == C_1;
+	float select_c4 = H_x_c3 ? coord.x : C_0d0;
 	vec4 H_sbr82h = color;
 	H_sbr82h.z = coord.y;
-	vec4 H_uc2 = texture(sampler, coord);
-	vec4 H_0njgr7 = H_sbr82h * vec4(((((H_uc1 ? C_1d0 : coord.x) + (H_uc1 ? coord.x : C_2d0)) + coord.x) + ((condition == C_1) ? coord.x : C_0d0)));
-	gl_FragColor = (H_0njgr7 * H_uc2);
+	float select_c5 = H_uc1 ? coord.x : C_2d0;
+	float H_uhjdds_c6 = select_c2 + select_c5;
+	float H_uc7 = H_uhjdds_c6 + coord.x;
+	float H_uc8 = H_uc7 + select_c4;
+	vec4 H_3a75eh1 = vec4(H_uc8);
+	vec4 H_uc9 = H_3a75eh1 * H_sbr82h;
+	vec4 H_uc10 = texture(sampler, coord);
+	vec4 Ll_FragColor_c11 = H_uc10 * H_uc9;
+	gl_FragColor = Ll_FragColor_c11;
 	
 }
 

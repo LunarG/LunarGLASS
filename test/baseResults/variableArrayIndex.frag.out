@@ -255,13 +255,20 @@ const vec2 C_7vuc471 = vec2(1.0, 2.0);
 void main()
 {
 	vec2[3] constructed_c1;
+	bool H_jntasm = foo3.s2_1[1].i > C_0;
+	int iLocal_c2 = Count + C_3;
+	int H_62t6dq1 = foo3.s2_1[foo.i].i + iLocal_c2;
+	float select_c3 = H_jntasm ? foo2[H_62t6dq1].s1_1.f : foo3.s2_1[0].s1_1.f;
+	vec2 H_twc6j61 = vec2(select_c3);
+	vec4 H_7pqgnv1 = vec4(select_c3);
 	vec4 H_0k8q2q = texture(sampler, coord);
-	vec4 Ll_FragColor_c2 = H_0k8q2q * vec4(((foo3.s2_1[1].i > C_0) ? foo2[((Count + C_3) + foo3.s2_1[foo.i].i)].s1_1.f : foo3.s2_1[0].s1_1.f));
-	gl_FragColor = Ll_FragColor_c2;
+	vec4 Ll_FragColor_c4 = H_0k8q2q * H_7pqgnv1;
+	gl_FragColor = Ll_FragColor_c4;
 	gla_globalAgg[0] = coord;
-	gla_globalAgg[1] = vec2(((foo3.s2_1[1].i > C_0) ? foo2[((Count + C_3) + foo3.s2_1[foo.i].i)].s1_1.f : foo3.s2_1[0].s1_1.f));
+	gla_globalAgg[1] = H_twc6j61;
 	gla_globalAgg[2] = C_7vuc471;
-	gl_FragColor = (Ll_FragColor_c2 + gla_globalAgg[foo.i].xyxy);
+	vec4 Ll_FragColor_c5 = Ll_FragColor_c4 + gla_globalAgg[foo.i].xyxy;
+	gl_FragColor = Ll_FragColor_c5;
 	
 }
 
@@ -282,11 +289,11 @@ struct lunarStruct3 {
 	float f;
 	lunarStruct1 s1_1;
 };
-uniform sampler2D sampler;
 uniform lunarStruct3 foo3;
-uniform lunarStruct2 foo2[5];
 uniform int Count;
 uniform lunarStruct1 foo;
+uniform lunarStruct2 foo2[5];
+uniform sampler2D sampler;
 in vec2 coord;
 vec2 gla_globalAgg[3];
 const int C_0 = 0;
@@ -295,14 +302,20 @@ const vec2 C_7vuc471 = vec2(1.0, 2.0);
 
 void main()
 {
-	vec4 H_uc1 = texture(sampler, coord);
-	float select_c2 = (foo3.s2_1[1].i > C_0) ? foo2[((Count + C_3) + foo3.s2_1[foo.i].i)].s1_1.f : foo3.s2_1[0].s1_1.f;
-	vec4 Ll_FragColor_c3 = H_uc1 * vec4(select_c2);
-	gl_FragColor = Ll_FragColor_c3;
+	bool H_jntasm_c1 = foo3.s2_1[1].i > C_0;
+	int iLocal_c2 = Count + C_3;
+	int H_uc3 = foo3.s2_1[foo.i].i + iLocal_c2;
+	float select_c4 = H_jntasm_c1 ? foo2[H_uc3].s1_1.f : foo3.s2_1[0].s1_1.f;
+	vec4 H_kcu1wx1 = vec4(select_c4);
+	vec2 H_6f6kwf = vec2(select_c4);
+	vec4 H_uc5 = texture(sampler, coord);
+	vec4 Ll_FragColor_c6 = H_kcu1wx1 * H_uc5;
+	gl_FragColor = Ll_FragColor_c6;
 	gla_globalAgg[0] = coord;
-	gla_globalAgg[1] = vec2(select_c2);
+	gla_globalAgg[1] = H_6f6kwf;
 	gla_globalAgg[2] = C_7vuc471;
-	gl_FragColor = (Ll_FragColor_c3 + gla_globalAgg[foo.i].xyxy);
+	vec4 Ll_FragColor_c7 = Ll_FragColor_c6 + gla_globalAgg[foo.i].xyxy;
+	gl_FragColor = Ll_FragColor_c7;
 	
 }
 

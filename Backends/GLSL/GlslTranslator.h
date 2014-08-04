@@ -48,8 +48,9 @@ namespace gla {
 
 class GlslTranslator : public BackEndTranslator {
 public:
-    GlslTranslator(Manager* m, bool obfuscate, bool filterInactive) :
-        BackEndTranslator(m), obfuscate(obfuscate), filterInactive(filterInactive), generatedShader(0), indexShader(0) { }
+    GlslTranslator(Manager* m, bool obfuscate, bool filterInactive, int substitutionLevel) :
+        BackEndTranslator(m), obfuscate(obfuscate), filterInactive(filterInactive), substitutionLevel(substitutionLevel),
+        generatedShader(0), indexShader(0) { }
     virtual ~GlslTranslator() { }
 
     const char* getGeneratedShader() const { return generatedShader; }
@@ -58,6 +59,7 @@ public:
 protected:
     bool obfuscate;
     bool filterInactive;
+    int substitutionLevel;
     char* generatedShader;
     char* indexShader;
 };

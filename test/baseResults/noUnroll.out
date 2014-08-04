@@ -12,7 +12,8 @@ void main()
 	color_uc1 = BaseColor;
 	while (true) {
 		color_c2 = bigColor + color_uc1;
-		if ((color_c2.x >= d)) {
+		bool H_37dgs11 = color_c2.x >= d;
+		if (H_37dgs11) {
 			break;
 		}
 		
@@ -54,7 +55,8 @@ void main()
 	Lg_1 = BaseColor;
 	i_uc1 = C_0;
 	for (i_uc1 = 0; i_uc1 < Count; ++i_uc1) {
-		Lg_1 = (Lg_1 + bigColor);
+		vec4 color_c5 = Lg_1 + bigColor;
+		Lg_1 = color_c5;
 	}
 	
 	gl_FragColor = Lg_1;
@@ -62,41 +64,50 @@ void main()
 	Lg_2 = C_0;
 	for ( ; Lg_2 != 4; ++Lg_2) {
 		Lg_7 = vec4(sum_uc2);
-		sum_uc2 = ((float(ivec4(v4)[Lg_2])) + sum_uc2);
+		float H_gmopng = float(ivec4(v4)[Lg_2]);
+		float sum_c6 = H_gmopng + sum_uc2;
+		sum_uc2 = sum_c6;
 	}
 	
 	Lg_3 = C_0;
 	tv_c3 = gla_globalAgg;
 	for ( ; Lg_3 != 4; ++Lg_3) {
-		vec4 tv_c5 = tv_c3;
-		tv_c5[Lg_3] = (float((ivec4(v4)[Lg_3] << C_2)));
-		tv_c3 = tv_c5;
+		int H_exkixg1 = ivec4(v4)[Lg_3] << C_2;
+		float H_clpxp61 = float(H_exkixg1);
+		vec4 tv_c7 = tv_c3;
+		tv_c7[Lg_3] = H_clpxp61;
+		tv_c3 = tv_c7;
 	}
 	
-	vec4 Ll_FragColor_c6 = (Lg_7 + tv_c3) + Lg_1;
-	gl_FragColor = Ll_FragColor_c6;
+	vec4 H_ivdevd1 = Lg_7 + tv_c3;
+	vec4 Ll_FragColor_c8 = H_ivdevd1 + Lg_1;
+	gl_FragColor = Ll_FragColor_c8;
+	vec4 H_wlwz58 = vec4(f);
 	r_uc4 = BaseColor;
 	Lg_4 = C_0;
 	while (true) {
-		if (! (Lg_4 < Count)) {
+		bool H_wox96k = Lg_4 < Count;
+		if (! H_wox96k) {
 			break;
 		}
 		
 		vec4 H_qbs9rg1 = r_uc4;
 		H_qbs9rg1.w = f;
+		int H_zk97sd1 = Lg_4 + C_1;
 		r_uc4 = H_qbs9rg1;
-		Lg_4 = (Lg_4 + C_1);
+		Lg_4 = H_zk97sd1;
 	}
 	
-	vec3 H_fg1kqb1 = Ll_FragColor_c6.xyz + r_uc4.xyz;
-	vec4 H_3lkmmo1 = Ll_FragColor_c6;
-	H_3lkmmo1.xyz = H_fg1kqb1.xyz;
-	gl_FragColor = H_3lkmmo1;
-	Lg_5 = H_3lkmmo1;
+	vec3 H_9w0ojg1 = Ll_FragColor_c8.xyz + r_uc4.xyz;
+	vec4 H_dnjqul1 = Ll_FragColor_c8;
+	H_dnjqul1.xyz = H_9w0ojg1.xyz;
+	gl_FragColor = H_dnjqul1;
+	Lg_5 = H_dnjqul1;
 	Lg_6 = C_0;
 	for ( ; Lg_6 <= 15; Lg_6 += 4) {
-		gl_FragColor = (Lg_5 * vec4(f));
-		Lg_5 = (Lg_5 * vec4(f));
+		vec4 Ll_FragColor_c9 = H_wlwz58 * Lg_5;
+		gl_FragColor = Ll_FragColor_c9;
+		Lg_5 = Ll_FragColor_c9;
 	}
 	
 	
@@ -158,27 +169,27 @@ const vec4 C_vec4p0d66p = vec4(0.66);
 const vec4 C_vec4p0d33p = vec4(0.33);
 const float C_42d0 = 42.0;
 const vec4 C_vec4p1d0p = vec4(1.0);
-vec4 color_c42;
+vec4 color_c52;
 const int C_0 = 0;
-vec4 color_c43;
+vec4 color_c55;
 const float C_20d0 = 20.0;
 const float C_1d0 = 1.0;
 const int C_41 = 41;
 vec4 Lg_6;
 const int C_1 = 1;
-vec4 select_c45;
-vec4 select_c47;
+vec4 select_c60;
+vec4 select_c62;
 float Lg_7;
-vec4 color_c48;
+vec4 color_c64;
 const float C_0d0 = 0.0;
-vec4 color_c49;
-vec4 color_c50;
+vec4 color_c65;
+vec4 color_c67;
 const float C_2d0 = 2.0;
-vec4 color_c51;
+vec4 color_c69;
 const float C_5d0 = 5.0;
 vec4 Lg_8;
 const float C_10d0 = 10.0;
-vec4 color_c53;
+vec4 color_c80;
 
 void main()
 {
@@ -227,85 +238,112 @@ void main()
 	vec4 color_uc38;
 	vec4 color_uc39;
 	vec4 color_uc40;
-	color_uc1 = (((BaseColor.x < C_0d33) ? C_vec4p0d33p : ((BaseColor.x < C_0d66) ? C_vec4p0d66p : C_vec4p0d33p)) + BaseColor);
+	bool H_bghf2q1 = BaseColor.x < C_0d33;
+	bool H_9j9phn = BaseColor.x < C_0d66;
+	vec4 select_c41 = H_9j9phn ? C_vec4p0d66p : C_vec4p0d33p;
+	vec4 select_c42 = H_bghf2q1 ? C_vec4p0d33p : select_c41;
+	vec4 select_c43 = BaseColor + select_c42;
+	color_uc1 = select_c43;
 	while (color_uc1.x < d) {
-		color_uc1 = (bigColor + color_uc1);
+		vec4 color_c44 = bigColor + color_uc1;
+		color_uc1 = color_c44;
 	}
 	
 	color_uc2 = color_uc1;
 	while (color_uc2.z < d) {
-		vec4 color_c41 = bigColor1_1 + color_uc2;
-		color_uc2 = ((color_c41.w < d) ? color_c41 : (bigColor1_1 + color_c41));
+		vec4 color_c45 = bigColor1_1 + color_uc2;
+		bool H_6pj6k71 = color_c45.w < d;
+		vec4 color_c46 = bigColor1_1 + color_c45;
+		vec4 select_c47 = H_6pj6k71 ? color_c45 : color_c46;
+		color_uc2 = select_c47;
 	}
 	
 	color_uc3 = color_uc2;
 	while (color_uc3.x < C_42d0) {
-		color_uc3 = (color_uc3 + C_vec4p1d0p);
+		vec4 color_c48 = color_uc3 + C_vec4p1d0p;
+		color_uc3 = color_c48;
 	}
 	
 	color_uc4 = color_uc3;
 	while (true) {
-		if (((color_uc4.y >= d3) || (color_uc4.w >= d2))) {
+		bool notlhs_c49 = color_uc4.w >= d2;
+		bool notrhs_c50 = color_uc4.y >= d3;
+		bool H_ly63lh1 = notrhs_c50 || notlhs_c49;
+		if (H_ly63lh1) {
 			break;
 		}
 		
-		color_uc4 = (bigColor1_2 + color_uc4);
+		vec4 color_c51 = bigColor1_2 + color_uc4;
+		color_uc4 = color_c51;
 	}
 	
 	color_uc5 = color_uc4;
 	while (color_uc5.z < d3) {
-		color_c42 = bigColor1_3 + color_uc5;
-		if ((color_c42.y < d4)) {
-			color_uc6 = color_c42;
+		color_c52 = bigColor1_3 + color_uc5;
+		bool H_0nm7s9 = color_c52.y < d4;
+		if (H_0nm7s9) {
+			color_uc6 = color_c52;
 			break;
 		}
 		
-		color_uc5 = (bigColor1_3 + color_c42);
+		vec4 color_c53 = bigColor1_3 + color_c52;
+		color_uc5 = color_c53;
 	}
 	
 	color_uc6 = color_uc5;
 	color_uc7 = color_uc6;
 	i_uc8 = C_0;
 	for (i_uc8 = 0; i_uc8 < Count; ++i_uc8) {
-		color_uc7 = (bigColor2 + color_uc7);
+		vec4 color_c54 = bigColor2 + color_uc7;
+		color_uc7 = color_c54;
 	}
 	
 	color_uc9 = color_uc7;
 	while (true) {
-		color_c43 = bigColor3 + color_uc9;
-		if ((color_c43.x >= d2)) {
+		color_c55 = bigColor3 + color_uc9;
+		bool H_j51g95 = color_c55.x >= d2;
+		if (H_j51g95) {
 			break;
 		}
 		
-		color_uc9 = color_c43;
+		color_uc9 = color_c55;
 	}
 	
-	color_uc10 = color_c43;
+	color_uc10 = color_c55;
 	Lg_1 = C_0;
 	for ( ; Lg_1 != 42; ++Lg_1) {
+		float H_acyhhp1 = color_uc10.z + d3;
 		vec4 H_gad7u3 = color_uc10;
-		H_gad7u3.z = (color_uc10.z + d3);
+		H_gad7u3.z = H_acyhhp1;
 		color_uc10 = H_gad7u3;
 	}
 	
 	color_uc11 = color_uc10;
 	Lg_2 = C_0;
 	for ( ; Lg_2 != 100; ++Lg_2) {
+		bool H_9rohuj1 = color_uc11.z < C_20d0;
+		float H_tpyr49 = color_uc11.x + C_1d0;
 		vec4 H_fzy644 = color_uc11;
-		H_fzy644.x = (color_uc11.x + C_1d0);
+		H_fzy644.x = H_tpyr49;
+		float H_ewbwh51 = C_1d0 + color_uc11.y;
 		vec4 H_fzy644r = color_uc11;
-		H_fzy644r.y = (C_1d0 + color_uc11.y);
-		color_uc11 = ((color_uc11.z < C_20d0) ? H_fzy644 : H_fzy644r);
+		H_fzy644r.y = H_ewbwh51;
+		vec4 select_c56 = H_9rohuj1 ? H_fzy644 : H_fzy644r;
+		color_uc11 = select_c56;
 	}
 	
 	color_uc12 = color_uc11;
 	Lg_3 = C_0;
 	for ( ; Lg_3 != 120; ++Lg_3) {
+		bool H_ixwh5x = color_uc12.z < C_20d0;
+		float H_s2boe1 = C_1d0 + color_uc12.x;
 		vec4 H_eok6e4 = color_uc12;
-		H_eok6e4.x = (C_1d0 + color_uc12.x);
+		H_eok6e4.x = H_s2boe1;
+		float H_rrwno1 = C_1d0 + color_uc12.y;
 		vec4 H_eok6e4r = color_uc12;
-		H_eok6e4r.y = (C_1d0 + color_uc12.y);
-		color_uc12 = ((color_uc12.z < C_20d0) ? H_eok6e4 : H_eok6e4r);
+		H_eok6e4r.y = H_rrwno1;
+		vec4 select_c57 = H_ixwh5x ? H_eok6e4 : H_eok6e4r;
+		color_uc12 = select_c57;
 	}
 	
 	color_uc13 = color_uc12;
@@ -314,91 +352,110 @@ void main()
 		float H_9gp8pd1 = color_uc13.z + d3;
 		vec4 H_dd66o4 = color_uc13;
 		H_dd66o4.z = H_9gp8pd1;
+		bool H_l15dou = color_uc13.x < d4;
+		float H_aiv74t = C_1d0 + color_uc13.w;
 		vec4 H_dd66o4r = color_uc13;
-		H_dd66o4r.zw = vec2(H_9gp8pd1, (C_1d0 + color_uc13.w));
-		color_uc13 = ((color_uc13.x < d4) ? H_dd66o4 : H_dd66o4r);
+		H_dd66o4r.zw = vec2(H_9gp8pd1, H_aiv74t);
+		vec4 select_c58 = H_l15dou ? H_dd66o4 : H_dd66o4r;
+		color_uc13 = select_c58;
 	}
 	
 	color_uc14 = color_uc13;
 	Lg_5 = C_0;
 	while (Lg_5 <= C_41) {
+		float H_a51bnn1 = color_uc14.z + d3;
 		Lg_6 = color_uc14;
-		Lg_6.z = (color_uc14.z + d3);
-		if ((color_uc14.x < d4)) {
+		Lg_6.z = H_a51bnn1;
+		bool H_iio4aq = color_uc14.x < d4;
+		if (H_iio4aq) {
 			color_uc15 = Lg_6;
 			break;
 		}
 		
+		float H_j14n5z = C_1d0 + color_uc14.w;
 		vec4 H_xxjjwy = Lg_6;
-		H_xxjjwy.w = (C_1d0 + color_uc14.w);
+		H_xxjjwy.w = H_j14n5z;
+		int H_cn5n1i1 = Lg_5 + C_1;
 		color_uc14 = H_xxjjwy;
-		Lg_5 = (Lg_5 + C_1);
+		Lg_5 = H_cn5n1i1;
 	}
 	
 	color_uc15 = color_uc14;
 	color_uc16 = color_uc15;
 	while (true) {
-		vec4 color_c44 = bigColor4 + color_uc16;
-		if ((color_c44.x < d4)) {
-			color_uc17 = color_c44;
+		vec4 color_c59 = bigColor4 + color_uc16;
+		bool H_ya1up11 = color_c59.x < d4;
+		if (H_ya1up11) {
+			color_uc17 = color_c59;
 		} else {
-			vec4 H_e98za7 = color_c44;
-			H_e98za7.y = (color_c44.y + d4);
-			vec4 H_e98za7r = color_c44;
-			H_e98za7r.x = (color_c44.x + d4);
-			select_c45 = (color_c44.y < d4) ? H_e98za7 : H_e98za7r;
-			if ((select_c45.z >= d4)) {
+			bool H_zim0a51 = color_c59.y < d4;
+			float H_0n0x9n1 = color_c59.y + d4;
+			vec4 H_40tys9 = color_c59;
+			H_40tys9.y = H_0n0x9n1;
+			float H_lo06l11 = color_c59.x + d4;
+			vec4 H_40tys9r = color_c59;
+			H_40tys9r.x = H_lo06l11;
+			select_c60 = H_zim0a51 ? H_40tys9 : H_40tys9r;
+			bool H_i779rp1 = select_c60.z >= d4;
+			if (H_i779rp1) {
 				break;
 			}
 			
-			color_uc17 = select_c45;
+			color_uc17 = select_c60;
 		}
 		
 		color_uc16 = color_uc17;
 	}
 	
-	color_uc18 = select_c45;
+	color_uc18 = select_c60;
 	while (true) {
-		vec4 color_c46 = bigColor5 + color_uc18;
-		vec4 H_gv00r6 = color_c46;
-		H_gv00r6.y = (color_c46.y + d5);
-		select_c47 = (color_c46.y < d5) ? H_gv00r6 : color_c46;
-		if ((select_c47.x >= d5)) {
+		vec4 color_c61 = bigColor5 + color_uc18;
+		bool H_1cwc4a1 = color_c61.y < d5;
+		float H_irfdiq1 = color_c61.y + d5;
+		vec4 H_n835jb1 = color_c61;
+		H_n835jb1.y = H_irfdiq1;
+		select_c62 = H_1cwc4a1 ? H_n835jb1 : color_c61;
+		bool H_1gipqo1 = select_c62.x >= d5;
+		if (H_1gipqo1) {
 			break;
 		}
 		
-		color_uc18 = select_c47;
+		color_uc18 = select_c62;
 	}
 	
-	if ((select_c47.x < d6)) {
-		color_uc19 = select_c47;
+	bool H_p6brdh = select_c62.x < d6;
+	if (H_p6brdh) {
+		color_uc19 = select_c62;
 		while (color_uc19.y < d6) {
-			color_uc19 = (bigColor6 + color_uc19);
+			vec4 color_c63 = bigColor6 + color_uc19;
+			color_uc19 = color_c63;
 		}
 		
 		color_uc21 = color_uc19;
 	} else {
-		color_uc20 = select_c47;
+		color_uc20 = select_c62;
 		while (color_uc20.z < d6) {
+			float H_3mkeso1 = bigColor6.z + color_uc20.z;
 			vec4 H_7vi7hz = color_uc20;
-			H_7vi7hz.z = (bigColor6.z + color_uc20.z);
+			H_7vi7hz.z = H_3mkeso1;
 			color_uc20 = H_7vi7hz;
 		}
 		
 		color_uc21 = color_uc20;
 	}
 	
-	if ((color_uc21.x < d6)) {
+	bool H_8s3gct1 = color_uc21.x < d6;
+	if (H_8s3gct1) {
 		bool H_lmykhx1 = d7 < C_1d0;
 		color_uc22 = color_uc21;
 		while (color_uc22.y < d6) {
-			color_c48 = bigColor6 + color_uc22;
+			color_c64 = bigColor6 + color_uc22;
 			if (H_lmykhx1) {
-				color_uc23 = color_c48;
+				color_uc23 = color_c64;
 				break;
 			}
 			
-			color_uc22 = color_c48;
+			color_uc22 = color_c64;
 		}
 		
 		color_uc23 = color_uc22;
@@ -406,8 +463,9 @@ void main()
 	} else {
 		color_uc24 = color_uc21;
 		while (color_uc24.z < d6) {
+			float H_ngrn8d = bigColor6.z + color_uc24.z;
 			vec4 H_3nx5l01 = color_uc24;
-			H_3nx5l01.z = (bigColor6.z + color_uc24.z);
+			H_3nx5l01.z = H_ngrn8d;
 			color_uc24 = H_3nx5l01;
 		}
 		
@@ -423,15 +481,17 @@ void main()
 			break;
 		}
 		
-		color_c49 = bigColor7 + color_uc26;
+		color_c65 = bigColor7 + color_uc26;
 		if (H_lmykhx1r) {
-			vec4 H_9q8xo8 = color_c49;
-			H_9q8xo8.z = (C_1d0 + color_c49.z);
-			color_uc27 = H_9q8xo8;
+			float H_n1nsj5 = C_1d0 + color_c65.z;
+			vec4 H_rgo6fa1 = color_c65;
+			H_rgo6fa1.z = H_n1nsj5;
+			color_uc27 = H_rgo6fa1;
 			break;
 		}
 		
-		color_uc26 = (BaseColor + color_c49);
+		vec4 color_c66 = BaseColor + color_c65;
+		color_uc26 = color_c66;
 	}
 	
 	bool H_zt4vz81 = d8 < C_0d0;
@@ -443,24 +503,29 @@ void main()
 			break;
 		}
 		
-		color_c50 = bigColor7 + color_uc28;
+		color_c67 = bigColor7 + color_uc28;
 		if (H_cokhy9) {
-			float H_jrs17j1 = C_1d0 + color_c50.z;
-			vec4 H_b5l1v7 = color_c50;
-			H_b5l1v7.yz = vec2((C_1d0 + color_c50.y), H_jrs17j1);
-			vec4 H_b5l1v7r = color_c50;
-			H_b5l1v7r.xz = vec2((C_1d0 + color_c50.x), H_jrs17j1);
-			color_uc29 = ((d8 < C_2d0) ? H_b5l1v7 : H_b5l1v7r);
+			float H_hsu5vt1 = C_1d0 + color_c67.z;
+			bool H_hrxnuy1 = d8 < C_2d0;
+			float H_kp171t1 = C_1d0 + color_c67.y;
+			vec4 H_puv5za1 = color_c67;
+			H_puv5za1.yz = vec2(H_kp171t1, H_hsu5vt1);
+			float H_jen6bt1 = C_1d0 + color_c67.x;
+			vec4 H_puv5za1r = color_c67;
+			H_puv5za1r.xz = vec2(H_jen6bt1, H_hsu5vt1);
+			vec4 select_c68 = H_hrxnuy1 ? H_puv5za1 : H_puv5za1r;
+			color_uc29 = select_c68;
 			break;
 		}
 		
-		color_c51 = BaseColor + color_c50;
-		if ((color_c51.z >= d8)) {
-			color_uc29 = color_c51;
+		color_c69 = BaseColor + color_c67;
+		bool H_k2ceax1 = color_c69.z >= d8;
+		if (H_k2ceax1) {
+			color_uc29 = color_c69;
 			break;
 		}
 		
-		color_uc28 = color_c51;
+		color_uc28 = color_c69;
 	}
 	
 	bool H_45lodh = d9 > d8;
@@ -468,14 +533,17 @@ void main()
 	while (color_uc30.w < d9) {
 		color_uc32 = color_uc30;
 		if (H_45lodh) {
+			bool H_bfcxvk1 = color_uc30.x > d7;
 			color_uc31 = color_uc30;
-			if (! (color_uc30.x > d7)) {
-				if (! (color_uc30.z == C_5d0)) {
+			if (! H_bfcxvk1) {
+				bool H_duijaq = color_uc30.z == C_5d0;
+				if (! H_duijaq) {
 					break;
 				}
 				
+				float H_hlnfwl1 = C_1d0 + color_uc30.w;
 				vec4 H_ie1uo61 = color_uc30;
-				H_ie1uo61.w = (C_1d0 + color_uc30.w);
+				H_ie1uo61.w = H_hlnfwl1;
 				color_uc31 = H_ie1uo61;
 			}
 			
@@ -490,76 +558,101 @@ void main()
 		float H_au83fv = C_1d0 + color_uc33.y;
 		Lg_8 = color_uc33;
 		Lg_8.y = H_au83fv;
-		if (! (H_au83fv < d11)) {
-			color_uc34 = (C_vec4p1d0p + Lg_8);
+		bool H_pqn74c1 = H_au83fv < d11;
+		if (! H_pqn74c1) {
+			vec4 color_c70 = C_vec4p1d0p + Lg_8;
+			color_uc34 = color_c70;
 			break;
 		}
 		
 		float H_b5n35v = C_1d0 + color_uc33.z;
+		bool H_rli1aa = color_uc33.w < d12;
+		float H_88g2zv = C_1d0 + color_uc33.w;
 		vec4 H_vbrigz = Lg_8;
-		H_vbrigz.zw = vec2(H_b5n35v, (C_1d0 + color_uc33.w));
+		H_vbrigz.zw = vec2(H_b5n35v, H_88g2zv);
+		float H_9ju2pv = C_1d0 + color_uc33.x;
 		vec4 H_vbrigzr = Lg_8;
-		H_vbrigzr.xz = vec2((C_1d0 + color_uc33.x), H_b5n35v);
-		color_uc33 = ((color_uc33.w < d12) ? H_vbrigz : H_vbrigzr);
+		H_vbrigzr.xz = vec2(H_9ju2pv, H_b5n35v);
+		vec4 select_c71 = H_rli1aa ? H_vbrigz : H_vbrigzr;
+		color_uc33 = select_c71;
 	}
 	
 	color_uc34 = color_uc33;
 	color_uc35 = color_uc34;
 	while (color_uc35.x < C_10d0) {
-		vec4 color_c52 = bigColor8 + color_uc35;
-		vec4 H_9js0f8 = color_c52;
-		H_9js0f8.y = (bigColor8.x + color_c52.y);
-		color_uc35 = ((color_c52.z < d8) ? ((color_c52.w < d6) ? color_c52 : H_9js0f8) : H_9js0f8);
+		vec4 color_c72 = bigColor8 + color_uc35;
+		bool H_9s6tqn = color_c72.z < d8;
+		bool H_2n8gj41 = color_c72.w < d6;
+		float H_yrhk0f1 = bigColor8.x + color_c72.y;
+		vec4 H_jt17dc1 = color_c72;
+		H_jt17dc1.y = H_yrhk0f1;
+		vec4 select_c73 = H_2n8gj41 ? color_c72 : H_jt17dc1;
+		vec4 select_c74 = H_9s6tqn ? select_c73 : H_jt17dc1;
+		color_uc35 = select_c74;
 	}
 	
-	gl_FragColor = (C_vec4p1d0p + color_uc35);
-	color_uc36 = (C_vec4p1d0p + color_uc35);
+	vec4 color_c75 = C_vec4p1d0p + color_uc35;
+	gl_FragColor = color_c75;
+	color_uc36 = color_c75;
 	while (color_uc36.x < d14) {
-		if ((color_uc36.y < d15)) {
+		bool H_vepnap1 = color_uc36.y < d15;
+		if (H_vepnap1) {
 			return;
 		}
 		
-		color_uc36 = (C_vec4p1d0p + color_uc36);
+		vec4 color_c76 = C_vec4p1d0p + color_uc36;
+		color_uc36 = color_c76;
 	}
 	
-	color_uc37 = (C_vec4p1d0p + color_uc36);
+	vec4 color_c77 = C_vec4p1d0p + color_uc36;
+	color_uc37 = color_c77;
 	while (color_uc37.w < d16) {
+		float H_cyuxya = C_1d0 + color_uc37.w;
 		vec4 H_nx0wa51 = color_uc37;
-		H_nx0wa51.w = (C_1d0 + color_uc37.w);
+		H_nx0wa51.w = H_cyuxya;
 		color_uc37 = H_nx0wa51;
 	}
 	
 	color_uc38 = color_uc37;
 	while (true) {
-		if (((color_uc38.y >= d3) || (color_uc38.w >= d2))) {
+		bool notlhs_c78 = color_uc38.w >= d2;
+		bool notrhs_c79 = color_uc38.y >= d3;
+		bool H_sd6zau1 = notrhs_c79 || notlhs_c78;
+		if (H_sd6zau1) {
 			color_uc39 = color_uc38;
 			while (color_uc39.y >= d18) {
-				color_c53 = C_vec4p1d0p + color_uc39;
-				if ((color_c53.x >= d17)) {
-					color_uc40 = color_c53;
+				color_c80 = C_vec4p1d0p + color_uc39;
+				bool H_dnl9pn = color_c80.x >= d17;
+				if (H_dnl9pn) {
+					color_uc40 = color_c80;
 					while (color_uc40.y < d16) {
-						if ((color_uc40.w < d16)) {
+						bool H_xdu5hw1 = color_uc40.w < d16;
+						if (H_xdu5hw1) {
 							discard;
 						}
 						
-						color_uc40 = (C_vec4p1d0p + color_uc40);
+						vec4 color_c81 = C_vec4p1d0p + color_uc40;
+						color_uc40 = color_c81;
 					}
 					
-					gl_FragColor = (C_vec4p1d0p + color_uc40);
+					vec4 color_c82 = C_vec4p1d0p + color_uc40;
+					gl_FragColor = color_c82;
 					return;
 				}
 				
-				color_uc39 = color_c53;
+				color_uc39 = color_c80;
 			}
 			
 			return;
 		}
 		
-		if (((bigColor1_2 + color_uc38).z < d3)) {
+		vec4 color_c83 = bigColor1_2 + color_uc38;
+		bool H_wqxubj1 = color_c83.z < d3;
+		if (H_wqxubj1) {
 			return;
 		}
 		
-		color_uc38 = (bigColor1_2 + color_uc38);
+		color_uc38 = color_c83;
 	}
 	
 }
@@ -576,7 +669,8 @@ void main()
 	vec4 color_uc1;
 	color_uc1 = BaseColor;
 	while (color_uc1.x < d) {
-		color_uc1 = (bigColor + color_uc1);
+		vec4 color_c2 = bigColor + color_uc1;
+		color_uc1 = color_c2;
 	}
 	
 	gl_FragColor = color_uc1;

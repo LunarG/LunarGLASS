@@ -524,6 +524,7 @@ bool CompileFile(const char *fileName, ShHandle compiler, int Options, const TBu
 
 TBuiltInResource Resources;
 EShMessages Messages;
+const int substitutionLevel = 1;
 
 //
 // Uses the new glslang C++ interface instead of the old handle-based interface.
@@ -605,7 +606,7 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
 
         for (int i = 0; i < ((Options & EOptionMemoryLeakMode) ? 100 : 1); ++i) {
             for (int j = 0; j < ((Options & EOptionMemoryLeakMode) ? 100 : 1); ++j) {
-                gla::GlslManager manager((Options & EOptionObfuscate) != 0, (Options & EOptionFilterInactive) != 0);
+                gla::GlslManager manager((Options & EOptionObfuscate) != 0, (Options & EOptionFilterInactive) != 0, substitutionLevel);
                 manager.options = ManagerOptions;
 
                 // Generate the Top IR
@@ -715,7 +716,7 @@ void TranslateSingleShader(glslang::TWorkItem* workItem)
     //
 
     const glslang::TIntermediate* intermediate = program.getIntermediate((EShLanguage)stage);
-    gla::GlslManager manager;
+    gla::GlslManager manager((Options & EOptionObfuscate) != 0, (Options & EOptionFilterInactive) != 0, substitutionLevel);
     manager.options = ManagerOptions;
 
     // Generate the Top IR

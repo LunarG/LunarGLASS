@@ -228,8 +228,10 @@ class Assignment;
 
 class gla::GlslTarget : public gla::GlslTranslator {
 public:
-    GlslTarget(Manager* m, bool obfuscate, bool filterInactive) : GlslTranslator(m, obfuscate, filterInactive), appendInitializers(false),
-                                                                  indentLevel(0), lastVariable(0), canonCounter(0)
+    GlslTarget(Manager* m, bool obfuscate, bool filterInactive, int substitutionLevel) :
+        GlslTranslator(m, obfuscate, filterInactive, substitutionLevel),
+        appendInitializers(false),
+        indentLevel(0), lastVariable(0), canonCounter(0)
     {
         #ifdef _WIN32
             unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
@@ -649,7 +651,7 @@ public:
     // increasesData: means it is definitely known there is more data made, so always better to forward substitute (map)
     void mapOrEmit(bool increasesData, bool needsParens)
     {
-        if (cantMap()) {
+        if (target.substitutionLevel == 0 || cantMap()) {
             emit();
             return;
         }
@@ -657,6 +659,9 @@ public:
         bool doSubstitute = true;
 
         if (! target.cheapExpression(str())) {
+
+            if (target.substitutionLevel < 2)
+                doSubstitute = false;
 
             if (doSubstitute && str().size() > 120)
                 doSubstitute = false;
@@ -691,9 +696,9 @@ protected:
 // Factory for GLSL back-end translator
 //
 
-gla::GlslTranslator* gla::GetGlslTranslator(Manager* manager, bool obfuscate, bool filterInactive)
+gla::GlslTranslator* gla::GetGlslTranslator(Manager* manager, bool obfuscate, bool filterInactive, int substitutionLevel)
 {
-    return new gla::GlslTarget(manager, obfuscate, filterInactive);
+    return new gla::GlslTarget(manager, obfuscate, filterInactive, substitutionLevel);
 }
 
 void gla::ReleaseGlslTranslator(gla::BackEndTranslator* target)

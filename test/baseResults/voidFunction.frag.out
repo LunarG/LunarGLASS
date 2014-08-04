@@ -127,8 +127,9 @@ const float C_4d0 = 4.0;
 
 void main()
 {
+	float H_twr4as1 = bigColor.x + C_4d0;
 	vec4 H_wr7oya = bigColor;
-	H_wr7oya.x = (bigColor.x + C_4d0);
+	H_wr7oya.x = H_twr4as1;
 	gl_FragColor = H_wr7oya;
 	
 }
@@ -142,8 +143,9 @@ const float C_4d0 = 4.0;
 
 void main()
 {
+	float H_twr_c1 = bigColor.x + C_4d0;
 	vec4 H_wr7oya = bigColor;
-	H_wr7oya.x = (bigColor.x + C_4d0);
+	H_wr7oya.x = H_twr_c1;
 	gl_FragColor = H_wr7oya;
 	
 }

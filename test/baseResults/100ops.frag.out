@@ -150,7 +150,15 @@ const float C_3d0 = 3.0;
 
 void main()
 {
-	gl_FragColor = (vec4(((((low * 2) + C_1) < high) ? C_4d0 : C_3d0)) * vec4((gl_FrontFacing ? C_a1d0 : C_1d0)));
+	float H_418d89 = gl_FrontFacing ? C_a1d0 : C_1d0;
+	vec4 H_7q8l46 = vec4(H_418d89);
+	int H_9o89th = low * 2;
+	int H_z3nldb1 = H_9o89th + C_1;
+	bool H_idtad2 = H_z3nldb1 < high;
+	float z_uc1 = H_idtad2 ? C_4d0 : C_3d0;
+	vec4 H_gq66cl1 = vec4(z_uc1);
+	lowp vec4 H_xoc9fv1 = H_7q8l46 * H_gq66cl1;
+	gl_FragColor = H_xoc9fv1;
 	
 }
 
@@ -159,15 +167,23 @@ void main()
 precision mediump float; // this will be almost entirely overridden by individual declarations
 uniform mediump int low;
 uniform mediump int high;
+const float C_a1d0 = -1.0;
+const float C_1d0 = 1.0;
 const int C_1 = 1;
 const float C_4d0 = 4.0;
 const float C_3d0 = 3.0;
-const float C_a1d0 = -1.0;
-const float C_1d0 = 1.0;
 
 void main()
 {
-	gl_FragColor = (vec4(((((low * 2) + C_1) < high) ? C_4d0 : C_3d0)) * vec4((gl_FrontFacing ? C_a1d0 : C_1d0)));
+	float H_418d89 = gl_FrontFacing ? C_a1d0 : C_1d0;
+	vec4 H_7q8l46 = vec4(H_418d89);
+	int H_uc1 = low * 2;
+	int H_z_c2 = H_uc1 + C_1;
+	bool H_idtad_c3 = H_z_c2 < high;
+	float ternary_c4 = H_idtad_c3 ? C_4d0 : C_3d0;
+	vec4 H_1xttoh = vec4(ternary_c4);
+	mediump vec4 H_xoc_c5 = H_1xttoh * H_7q8l46;
+	gl_FragColor = H_xoc_c5;
 	
 }
 

@@ -129,8 +129,11 @@ layout(location=3) out mediump vec4 p[2];
 
 void main()
 {
-	c = (color + s.c);
-	p[1] = (pos * vec4(s.f));
+	mediump vec3 H_n3hdmn = color + s.c;
+	c = H_n3hdmn;
+	vec4 H_l9788w = vec4(s.f);
+	mediump vec4 H_59uux71 = H_l9788w * pos;
+	p[1] = H_59uux71;
 	
 }
 
@@ -149,8 +152,11 @@ layout(location=3) out mediump vec4 p[2];
 
 void main()
 {
-	c = (color + s.c);
-	p[1] = (pos * vec4(s.f));
+	mediump vec3 H_n_c1 = color + s.c;
+	c = H_n_c1;
+	vec4 H_l9788w = vec4(s.f);
+	mediump vec4 H_uc2 = H_l9788w * pos;
+	p[1] = H_uc2;
 	
 }
 

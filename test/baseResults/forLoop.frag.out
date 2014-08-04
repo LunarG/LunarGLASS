@@ -409,37 +409,62 @@ void main()
 	Lg_1 = BaseColor;
 	i_uc1 = C_0;
 	for (i_uc1 = 0; i_uc1 < Count; ++i_uc1) {
-		Lg_1 = (Lg_1 + bigColor);
+		vec4 color_c3 = Lg_1 + bigColor;
+		Lg_1 = color_c3;
 	}
 	
 	gl_FragColor = Lg_1;
-	vec4 tv_c3 = gla_globalAgg;
-	tv_c3.x = (float((ivec4(v4).x << C_2)));
-	vec4 tv_c4 = tv_c3;
-	tv_c4.y = (float((ivec4(v4).y << C_2)));
-	vec4 tv_c5 = tv_c4;
-	tv_c5.z = (float((ivec4(v4).z << C_2)));
-	vec4 tv_c6 = tv_c5;
-	tv_c6.w = (float((ivec4(v4).w << C_2)));
-	vec4 Ll_FragColor_c7 = (tv_c6 + vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))))) + Lg_1;
-	gl_FragColor = Ll_FragColor_c7;
+	float H_i1jho5 = float(ivec4(v4).x);
+	float H_ry83gd = float(ivec4(v4).y);
+	float sum_c4 = H_i1jho5 + H_ry83gd;
+	float H_49uxyc1 = float(ivec4(v4).z);
+	float sum_c5 = H_49uxyc1 + sum_c4;
+	float H_dx9e2e1 = float(ivec4(v4).w);
+	float sum_c6 = H_dx9e2e1 + sum_c5;
+	vec4 H_fppcf01 = vec4(sum_c6);
+	int H_jv91f2 = ivec4(v4).x << C_2;
+	float H_nmn79w = float(H_jv91f2);
+	vec4 tv_c7 = gla_globalAgg;
+	tv_c7.x = H_nmn79w;
+	int H_ia5bsh1 = ivec4(v4).y << C_2;
+	float H_ytz9bk = float(H_ia5bsh1);
+	vec4 tv_c8 = tv_c7;
+	tv_c8.y = H_ytz9bk;
+	int H_5dx4dh = ivec4(v4).z << C_2;
+	float H_ycbb6d = float(H_5dx4dh);
+	vec4 tv_c9 = tv_c8;
+	tv_c9.z = H_ycbb6d;
+	int H_45zg0s1 = ivec4(v4).w << C_2;
+	float H_pekchw = float(H_45zg0s1);
+	vec4 tv_c10 = tv_c9;
+	tv_c10.w = H_pekchw;
+	vec4 H_6iqnxk1 = H_fppcf01 + tv_c10;
+	vec4 Ll_FragColor_c11 = H_6iqnxk1 + Lg_1;
+	gl_FragColor = Ll_FragColor_c11;
+	vec4 H_wlwz58 = vec4(f);
 	r_uc2 = BaseColor;
 	Lg_2 = C_0;
 	while (true) {
-		if (! (Lg_2 < Count)) {
+		bool H_mcxey01 = Lg_2 < Count;
+		if (! H_mcxey01) {
 			break;
 		}
 		
 		vec4 H_opz8bh1 = r_uc2;
 		H_opz8bh1.w = f;
+		int H_5l4rig = Lg_2 + C_1;
 		r_uc2 = H_opz8bh1;
-		Lg_2 = (Lg_2 + C_1);
+		Lg_2 = H_5l4rig;
 	}
 	
-	vec3 H_aa0nn11 = Ll_FragColor_c7.xyz + r_uc2.xyz;
-	vec4 H_4wymco1 = Ll_FragColor_c7;
-	H_4wymco1.xyz = H_aa0nn11.xyz;
-	gl_FragColor = ((((H_4wymco1 * vec4(f)) * vec4(f)) * vec4(f)) * vec4(f));
+	vec3 H_b3ap6m = Ll_FragColor_c11.xyz + r_uc2.xyz;
+	vec4 H_9dsdr4 = Ll_FragColor_c11;
+	H_9dsdr4.xyz = H_b3ap6m.xyz;
+	vec4 Ll_FragColor_c12 = H_9dsdr4 * H_wlwz58;
+	vec4 Ll_FragColor_c13 = H_wlwz58 * Ll_FragColor_c12;
+	vec4 Ll_FragColor_c14 = H_wlwz58 * Ll_FragColor_c13;
+	vec4 Ll_FragColor_c15 = H_wlwz58 * Ll_FragColor_c14;
+	gl_FragColor = Ll_FragColor_c15;
 	
 }
 
@@ -464,30 +489,55 @@ void main()
 	i_uc_c1 = C_0;
 	Lg_uc2 = BaseColor;
 	for (i_uc_c1 = 0; i_uc_c1 < Count; ++i_uc_c1) {
-		Lg_uc2 = (Lg_uc2 + bigColor);
+		vec4 color_c5 = Lg_uc2 + bigColor;
+		Lg_uc2 = color_c5;
 	}
 	
 	gl_FragColor = Lg_uc2;
-	vec4 H_0v8ikr1 = vec4((float((ivec4(v4).x << C_2))), (float((ivec4(v4).y << C_2))), (float((ivec4(v4).z << C_2))), (float((ivec4(v4).w << C_2))));
-	vec4 Ll_FragColor_c5 = (H_0v8ikr1 + vec4(((((float(ivec4(v4).x)) + (float(ivec4(v4).y))) + (float(ivec4(v4).z))) + (float(ivec4(v4).w))))) + Lg_uc2;
-	gl_FragColor = Ll_FragColor_c5;
+	float H_i_c6 = float(ivec4(v4).x);
+	float H_ry_c7 = float(ivec4(v4).y);
+	float sum_c8 = H_i_c6 + H_ry_c7;
+	float H_uc9 = float(ivec4(v4).z);
+	float sum_c10 = H_uc9 + sum_c8;
+	float H_dx_c11 = float(ivec4(v4).w);
+	float sum_c12 = H_dx_c11 + sum_c10;
+	vec4 H_swai5n = vec4(sum_c12);
+	int H_jv_c13 = ivec4(v4).x << C_2;
+	float H_nmn_c14 = float(H_jv_c13);
+	int H_ia_c15 = ivec4(v4).y << C_2;
+	float H_ytz_c16 = float(H_ia_c15);
+	int H_uc17 = ivec4(v4).z << C_2;
+	float H_ycbb_c18 = float(H_uc17);
+	int H_uc19 = ivec4(v4).w << C_2;
+	float H_pekchw_c20 = float(H_uc19);
+	vec4 H_xvhea21 = vec4(H_nmn_c14, H_ytz_c16, H_ycbb_c18, H_pekchw_c20);
+	vec4 H_uc21 = H_swai5n + H_xvhea21;
+	vec4 Ll_FragColor_c22 = H_uc21 + Lg_uc2;
+	gl_FragColor = Ll_FragColor_c22;
+	vec4 H_wlwz58 = vec4(f);
 	Lg_uc3 = C_0;
 	r_uc_c4 = BaseColor;
 	while (true) {
-		if (! (Lg_uc3 < Count)) {
+		bool H_x6z1i2 = Lg_uc3 < Count;
+		if (! H_x6z1i2) {
 			break;
 		}
 		
 		vec4 H_or427q = r_uc_c4;
 		H_or427q.w = f;
-		Lg_uc3 = (Lg_uc3 + C_1);
+		int H_uc23 = Lg_uc3 + C_1;
+		Lg_uc3 = H_uc23;
 		r_uc_c4 = H_or427q;
 	}
 	
-	vec3 H_aa_c6 = Ll_FragColor_c5.xyz + r_uc_c4.xyz;
-	vec4 H_2a6mwo1 = Ll_FragColor_c5;
-	H_2a6mwo1.xyz = H_aa_c6.xyz;
-	gl_FragColor = ((((H_2a6mwo1 * vec4(f)) * vec4(f)) * vec4(f)) * vec4(f));
+	vec3 H_b_c24 = Ll_FragColor_c22.xyz + r_uc_c4.xyz;
+	vec4 H_jm7e92 = Ll_FragColor_c22;
+	H_jm7e92.xyz = H_b_c24.xyz;
+	vec4 Ll_FragColor_c25 = H_jm7e92 * H_wlwz58;
+	vec4 Ll_FragColor_c26 = H_wlwz58 * Ll_FragColor_c25;
+	vec4 Ll_FragColor_c27 = H_wlwz58 * Ll_FragColor_c26;
+	vec4 Ll_FragColor_c28 = H_wlwz58 * Ll_FragColor_c27;
+	gl_FragColor = Ll_FragColor_c28;
 	
 }
 

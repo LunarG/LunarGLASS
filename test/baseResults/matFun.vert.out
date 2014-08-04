@@ -256,11 +256,17 @@ const float C_1d0 = 1.0;
 
 void main()
 {
-	vec3 H_19cdzc = vec3(dot(v3, m4[0].xyz), dot(v3, m4[1].xyz), dot(v3, m4[2].xyz));
-	vec3 H_r8ba4k1 = vec3(dot(v3, m3[0]), dot(v3, m3[1]), dot(v3, m3[2]));
-	vec3 H_hdal2h1 = H_19cdzc + H_r8ba4k1;
-	vec4 H_porfr7 = vec4(H_hdal2h1.x, H_hdal2h1.y, H_hdal2h1.z, C_1d0);
-	gl_Position = H_porfr7;
+	float dotres_i_c1 = dot(v3, m4[0].xyz);
+	float dotres_c2 = dot(v3, m4[1].xyz);
+	float dotres_c3 = dot(v3, m4[2].xyz);
+	vec3 H_itnprw1 = vec3(dotres_i_c1, dotres_c2, dotres_c3);
+	float dotres_i_c4 = dot(v3, m3[0]);
+	float dotres_c5 = dot(v3, m3[1]);
+	float dotres_c6 = dot(v3, m3[2]);
+	vec3 H_j0zprk1 = vec3(dotres_i_c4, dotres_c5, dotres_c6);
+	vec3 H_nweeas = H_itnprw1 + H_j0zprk1;
+	vec4 H_y1xihz = vec4(H_nweeas.x, H_nweeas.y, H_nweeas.z, C_1d0);
+	gl_Position = H_y1xihz;
 	
 }
 
@@ -273,11 +279,17 @@ const float C_1d0 = 1.0;
 
 void main()
 {
-	vec3 H_19cdzc = vec3(dot(v3, m4[0].xyz), dot(v3, m4[1].xyz), dot(v3, m4[2].xyz));
-	vec3 H_r8ba4k1 = vec3(dot(v3, m3[0]), dot(v3, m3[1]), dot(v3, m3[2]));
-	vec3 H_hdal_c1 = H_19cdzc + H_r8ba4k1;
-	vec4 H_lv5e92 = vec4(H_hdal_c1.x, H_hdal_c1.y, H_hdal_c1.z, C_1d0);
-	gl_Position = H_lv5e92;
+	float dotres_i_c1 = dot(v3, m4[0].xyz);
+	float dotres_c2 = dot(v3, m4[1].xyz);
+	float dotres_c3 = dot(v3, m4[2].xyz);
+	vec3 H_itnprw1 = vec3(dotres_i_c1, dotres_c2, dotres_c3);
+	float dotres_i_c4 = dot(v3, m3[0]);
+	float dotres_c5 = dot(v3, m3[1]);
+	float dotres_c6 = dot(v3, m3[2]);
+	vec3 H_j0zprk1 = vec3(dotres_i_c4, dotres_c5, dotres_c6);
+	vec3 H_nweeas_c7 = H_itnprw1 + H_j0zprk1;
+	vec4 H_ztoqvy1 = vec4(H_nweeas_c7.x, H_nweeas_c7.y, H_nweeas_c7.z, C_1d0);
+	gl_Position = H_ztoqvy1;
 	
 }
 

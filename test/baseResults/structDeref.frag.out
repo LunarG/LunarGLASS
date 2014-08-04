@@ -287,10 +287,21 @@ const int C_5 = 5;
 void main()
 {
 	bool H_vyfm0e = foo3.s2_1[9].i > C_0;
-	int select_c1 = H_vyfm0e ? C_0 : foo1.s0_1.i;
-	float H_5y1u8t = ((H_vyfm0e ? foo1.f : coord.y) + (float(((select_c1 > C_5) ? (H_vyfm0e ? C_0 : foo00.s0_0.i) : select_c1)))) + (H_vyfm0e ? C_0d0 : C_3d0);
+	float select_c1 = H_vyfm0e ? C_0d0 : C_3d0;
+	int select_c2 = H_vyfm0e ? C_0 : foo1.s0_1.i;
+	int select_c3 = H_vyfm0e ? C_0 : foo00.s0_0.i;
+	float select_c4 = H_vyfm0e ? C_1d0 : coord.y;
+	float select_c5 = H_vyfm0e ? foo1.f : coord.y;
+	bool H_s7ugcq = select_c2 > C_5;
+	int locals_c6 = H_s7ugcq ? select_c3 : select_c2;
+	float H_odxajl1 = float(locals_c6);
+	float H_p6mb8f1 = H_odxajl1 + select_c5;
+	float H_af571u = H_p6mb8f1 + select_c1;
+	float H_mzso3x = H_af571u + select_c4;
+	vec4 H_5gmr0j1 = vec4(H_mzso3x);
 	vec4 H_0k8q2q = texture(sampler, coord);
-	gl_FragColor = (H_0k8q2q * vec4(((H_vyfm0e ? C_1d0 : coord.y) + H_5y1u8t)));
+	vec4 Ll_FragColor_c7 = H_0k8q2q * H_5gmr0j1;
+	gl_FragColor = Ll_FragColor_c7;
 	
 }
 
@@ -326,18 +337,29 @@ uniform s0 foo0;
 uniform s2 foo2;
 in vec2 coord;
 const int C_0 = 0;
-const int C_5 = 5;
 const float C_0d0 = 0.0;
 const float C_3d0 = 3.0;
 const float C_1d0 = 1.0;
+const int C_5 = 5;
 
 void main()
 {
 	bool H_vyfm_c1 = foo3.s2_1[9].i > C_0;
-	int ternary_uc2 = H_vyfm_c1 ? C_0 : foo1.s0_1.i;
-	float H_uc3 = ((H_vyfm_c1 ? foo1.f : coord.y) + (float(((ternary_uc2 > C_5) ? (H_vyfm_c1 ? C_0 : foo00.s0_0.i) : ternary_uc2)))) + (H_vyfm_c1 ? C_0d0 : C_3d0);
-	vec4 H_uc4 = texture(sampler, coord);
-	gl_FragColor = (H_uc4 * vec4(((H_vyfm_c1 ? C_1d0 : coord.y) + H_uc3)));
+	float H_jt5j3f1 = H_vyfm_c1 ? C_0d0 : C_3d0;
+	int ternary_c2 = H_vyfm_c1 ? C_0 : foo1.s0_1.i;
+	int ternary_c3 = H_vyfm_c1 ? C_0 : foo00.s0_0.i;
+	float select_c4 = H_vyfm_c1 ? C_1d0 : coord.y;
+	float select_c5 = H_vyfm_c1 ? foo1.f : coord.y;
+	bool H_s_c6 = ternary_c2 > C_5;
+	int ternary_c7 = H_s_c6 ? ternary_c3 : ternary_c2;
+	float H_odxajl_c8 = float(ternary_c7);
+	float H_p_c9 = H_odxajl_c8 + select_c5;
+	float H_af_c10 = H_jt5j3f1 + H_p_c9;
+	float H_mzso_c11 = H_af_c10 + select_c4;
+	vec4 H_w0prn01 = vec4(H_mzso_c11);
+	vec4 H_uc12 = texture(sampler, coord);
+	vec4 Ll_FragColor_c13 = H_uc12 * H_w0prn01;
+	gl_FragColor = Ll_FragColor_c13;
 	
 }
 

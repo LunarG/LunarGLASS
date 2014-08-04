@@ -199,7 +199,8 @@ invariant badorder2 ;
 void main()
 {
 	gl_ClipDistance[2] = C_3d7;
-	if ((bad[0].x == C_4d2)) {
+	bool H_ixhhbt1 = bad[0].x == C_4d2;
+	if (H_ixhhbt1) {
 		badorder3 = bad[0];
 	}
 	
@@ -233,7 +234,8 @@ const float C_4d2 = 4.2;
 void main()
 {
 	gl_ClipDistance[2] = C_3d7;
-	if ((bad[0].x == C_4d2)) {
+	bool H_ixhhbt_c1 = bad[0].x == C_4d2;
+	if (H_ixhhbt_c1) {
 		badorder3 = bad[0];
 	}
 	

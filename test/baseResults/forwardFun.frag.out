@@ -168,7 +168,13 @@ const float C_4d5 = 4.5;
 
 void main()
 {
-	gl_FragColor = (vec4(((d < C_4d2) ? C_1d2 : C_4d5)) * vec4((BaseColor.x + BaseColor.y)));
+	mediump float H_9ws3cr = BaseColor.x + BaseColor.y;
+	vec4 H_qwppqe = vec4(H_9ws3cr);
+	bool H_zdlq2v = d < C_4d2;
+	float H_8iih7k1 = H_zdlq2v ? C_1d2 : C_4d5;
+	vec4 H_a1eyhf1 = vec4(H_8iih7k1);
+	mediump vec4 Ll_FragColor_c1 = H_a1eyhf1 * H_qwppqe;
+	gl_FragColor = Ll_FragColor_c1;
 	
 }
 
@@ -184,7 +190,13 @@ const float C_4d5 = 4.5;
 
 void main()
 {
-	gl_FragColor = (vec4(((d < C_4d2) ? C_1d2 : C_4d5)) * vec4((BaseColor.x + BaseColor.y)));
+	mediump float H_uc1 = BaseColor.x + BaseColor.y;
+	vec4 H_uy9f0j = vec4(H_uc1);
+	bool H_zdlq_c2 = d < C_4d2;
+	float H_q46as81 = H_zdlq_c2 ? C_1d2 : C_4d5;
+	vec4 H_x4fv2m = vec4(H_q46as81);
+	mediump vec4 Ll_FragColor_c3 = H_uy9f0j * H_x4fv2m;
+	gl_FragColor = Ll_FragColor_c3;
 	
 }
 

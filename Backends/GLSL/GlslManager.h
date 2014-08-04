@@ -51,7 +51,8 @@ namespace gla {
 
 class GlslManager : public gla::PrivateManager {
 public:
-    explicit GlslManager(bool obfuscate = false, bool filterInactive = false) : obfuscate(obfuscate), filterInactive(filterInactive)
+    explicit GlslManager(bool obfuscate = false, bool filterInactive = false, int substitutionLevel = 1) :
+        obfuscate(obfuscate), filterInactive(filterInactive), substitutionLevel(substitutionLevel)
     {
         createNonreusable();
         backEnd = gla::GetGlslBackEnd();
@@ -81,7 +82,7 @@ public:
 protected:
     void createNonreusable()
     {
-        glslBackEndTranslator = gla::GetGlslTranslator(this, obfuscate, filterInactive);
+        glslBackEndTranslator = gla::GetGlslTranslator(this, obfuscate, filterInactive, substitutionLevel);
         backEndTranslator = glslBackEndTranslator;
     }
     void freeNonreusable()
@@ -100,6 +101,7 @@ protected:
     GlslTranslator* glslBackEndTranslator;
     bool obfuscate;
     bool filterInactive;
+    int substitutionLevel;
 };
 
 } // end namespace gla

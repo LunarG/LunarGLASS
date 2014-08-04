@@ -454,21 +454,44 @@ const ivec3 C_ivec3p5p = ivec3(5);
 
 void main()
 {
-	highp float dotres_c1 = dot(p, ((((tblock.M1[0] + tblock.M2[0]) + M4[0]) + M3[0]) + t2m[0]));
-	highp float dotres_c2 = dot(p, ((((tblock.M1[1] + tblock.M2[1]) + M4[1]) + M3[1]) + t2m[1]));
-	highp float dotres_c3 = dot(p, ((((tblock.M1[2] + tblock.M2[2]) + M4[2]) + M3[2]) + t2m[2]));
-	highp float dotres_c4 = dot(p, ((((tblock.M1[3] + tblock.M2[3]) + M4[3]) + M3[3]) + t2m[3]));
-	vec4 H_44ip39 = vec4(dotres_c1, dotres_c2, dotres_c3, dotres_c4);
-	pos = H_44ip39;
-	highp float dotres_c5 = dot(c, tblock.N1[0]);
-	highp float dotres_c6 = dot(c, tblock.N1[1]);
-	highp float dotres_c7 = dot(c, tblock.N1[2]);
-	vec3 H_amzmtg1 = vec3(dotres_c5, dotres_c6, dotres_c7);
-	color = H_amzmtg1;
-	iout = ((int(uiuin) + tblock.iuin) + aiv2.y);
+	highp vec4 column_c1 = tblock.M1[0] + tblock.M2[0];
+	highp vec4 column_c2 = tblock.M1[1] + tblock.M2[1];
+	highp vec4 column_c3 = tblock.M1[2] + tblock.M2[2];
+	highp vec4 column_c4 = tblock.M1[3] + tblock.M2[3];
+	highp vec4 column_c5 = M4[0] + column_c1;
+	highp vec4 column_c6 = M4[1] + column_c2;
+	highp vec4 column_c7 = M4[2] + column_c3;
+	highp vec4 column_c8 = M4[3] + column_c4;
+	highp vec4 column_c9 = M3[0] + column_c5;
+	highp vec4 column_c10 = M3[1] + column_c6;
+	highp vec4 column_c11 = M3[2] + column_c7;
+	highp vec4 column_c12 = M3[3] + column_c8;
+	highp vec4 column_c13 = column_c9 + t2m[0];
+	highp vec4 column_c14 = column_c10 + t2m[1];
+	highp vec4 column_c15 = column_c11 + t2m[2];
+	highp vec4 column_c16 = column_c12 + t2m[3];
+	highp float dotres_c17 = dot(p, column_c13);
+	highp float dotres_c18 = dot(p, column_c14);
+	highp float dotres_c19 = dot(p, column_c15);
+	highp float dotres_c20 = dot(p, column_c16);
+	vec4 H_bfvwcy1 = vec4(dotres_c17, dotres_c18, dotres_c19, dotres_c20);
+	pos = H_bfvwcy1;
+	highp float dotres_c21 = dot(c, tblock.N1[0]);
+	highp float dotres_c22 = dot(c, tblock.N1[1]);
+	highp float dotres_c23 = dot(c, tblock.N1[2]);
+	vec3 H_4lpvsc = vec3(dotres_c21, dotres_c22, dotres_c23);
+	color = H_4lpvsc;
+	highp int H_e9imls1 = int(uiuin) + tblock.iuin;
+	highp int iout_c24 = H_e9imls1 + aiv2.y;
+	iout = iout_c24;
 	s.c = c;
 	s.f = p.x;
-	if ((any(notEqual(N2[1], C_vec3p1d0p)) || any(notEqual(ivec3(uv3a[2]), C_ivec3p5p)))) {
+	bvec3 H_kkvxkx = notEqual(N2[1], C_vec3p1d0p);
+	bool H_wowh6e1 = any(H_kkvxkx);
+	bvec3 H_4h7yvc1 = notEqual(ivec3(uv3a[2]), C_ivec3p5p);
+	bool H_r7bncz = any(H_4h7yvc1);
+	bool H_c6fwum = H_wowh6e1 || H_r7bncz;
+	if (H_c6fwum) {
 		highp vec3 H_hn1ggr = C_vec3p1d0p + c;
 		s.c = H_hn1ggr;
 	}
@@ -511,23 +534,46 @@ const ivec3 C_ivec3p5p = ivec3(5);
 
 void main()
 {
-	highp float dotres_c1 = dot(p, ((((tblock.M1[0] + tblock.M2[0]) + M4[0]) + M3[0]) + t2m[0]));
-	highp float dotres_c2 = dot(p, ((((tblock.M1[1] + tblock.M2[1]) + M4[1]) + M3[1]) + t2m[1]));
-	highp float dotres_c3 = dot(p, ((((tblock.M1[2] + tblock.M2[2]) + M4[2]) + M3[2]) + t2m[2]));
-	highp float dotres_c4 = dot(p, ((((tblock.M1[3] + tblock.M2[3]) + M4[3]) + M3[3]) + t2m[3]));
-	vec4 H_44ip39 = vec4(dotres_c1, dotres_c2, dotres_c3, dotres_c4);
-	pos = H_44ip39;
-	highp float dotres_c5 = dot(c, tblock.N1[0]);
-	highp float dotres_c6 = dot(c, tblock.N1[1]);
-	highp float dotres_c7 = dot(c, tblock.N1[2]);
-	vec3 H_amzmtg1 = vec3(dotres_c5, dotres_c6, dotres_c7);
-	color = H_amzmtg1;
-	iout = ((int(uiuin) + tblock.iuin) + aiv2.y);
+	highp vec4 column_c1 = tblock.M1[0] + tblock.M2[0];
+	highp vec4 column_c2 = tblock.M1[1] + tblock.M2[1];
+	highp vec4 column_c3 = tblock.M1[2] + tblock.M2[2];
+	highp vec4 column_c4 = tblock.M1[3] + tblock.M2[3];
+	highp vec4 column_c5 = M4[0] + column_c1;
+	highp vec4 column_c6 = M4[1] + column_c2;
+	highp vec4 column_c7 = M4[2] + column_c3;
+	highp vec4 column_c8 = M4[3] + column_c4;
+	highp vec4 column_c9 = M3[0] + column_c5;
+	highp vec4 column_c10 = M3[1] + column_c6;
+	highp vec4 column_c11 = M3[2] + column_c7;
+	highp vec4 column_c12 = M3[3] + column_c8;
+	highp vec4 column_c13 = column_c9 + t2m[0];
+	highp vec4 column_c14 = column_c10 + t2m[1];
+	highp vec4 column_c15 = column_c11 + t2m[2];
+	highp vec4 column_c16 = column_c12 + t2m[3];
+	highp float dotres_c17 = dot(p, column_c13);
+	highp float dotres_c18 = dot(p, column_c14);
+	highp float dotres_c19 = dot(p, column_c15);
+	highp float dotres_c20 = dot(p, column_c16);
+	vec4 H_bfvwcy1 = vec4(dotres_c17, dotres_c18, dotres_c19, dotres_c20);
+	pos = H_bfvwcy1;
+	highp float dotres_c21 = dot(c, tblock.N1[0]);
+	highp float dotres_c22 = dot(c, tblock.N1[1]);
+	highp float dotres_c23 = dot(c, tblock.N1[2]);
+	vec3 H_4lpvsc = vec3(dotres_c21, dotres_c22, dotres_c23);
+	color = H_4lpvsc;
+	highp int H_e_c24 = int(uiuin) + tblock.iuin;
+	highp int iout_c25 = H_e_c24 + aiv2.y;
+	iout = iout_c25;
 	s.c = c;
 	s.f = p.x;
-	if ((any(notEqual(N2[1], C_vec3p1d0p)) || any(notEqual(ivec3(uv3a[2]), C_ivec3p5p)))) {
-		highp vec3 H_hn_c8 = C_vec3p1d0p + c;
-		s.c = H_hn_c8;
+	bvec3 H_kkvxkx_c26 = notEqual(N2[1], C_vec3p1d0p);
+	bool H_wowh_c27 = any(H_kkvxkx_c26);
+	bvec3 H_uc28 = notEqual(ivec3(uv3a[2]), C_ivec3p5p);
+	bool H_r_c29 = any(H_uc28);
+	bool H_c30 = H_wowh_c27 || H_r_c29;
+	if (H_c30) {
+		highp vec3 H_hn_c31 = C_vec3p1d0p + c;
+		s.c = H_hn_c31;
 	}
 	
 	

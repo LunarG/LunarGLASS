@@ -263,14 +263,16 @@ const float C_2397317d0 = 2397317.0;
 void main()
 {
 	float Lg_1;
-	if ((u > C_3d2)) {
+	bool H_3xblpb1 = u > C_3d2;
+	if (H_3xblpb1) {
 		discard;
 		Lg_1 = C_1397317d0;
 	} else {
 		Lg_1 = C_2397317d0;
 	}
 	
-	gl_FragColor = vec4(Lg_1);
+	vec4 H_zt5qpl = vec4(Lg_1);
+	gl_FragColor = H_zt5qpl;
 	
 }
 
@@ -282,7 +284,8 @@ const vec4 C_0eo4vx1 = vec4(2397317.0);
 
 void main()
 {
-	if ((u > C_3d2)) {
+	bool H_uc1 = u > C_3d2;
+	if (H_uc1) {
 		discard;
 	}
 	

@@ -164,8 +164,12 @@ const int C_0 = 0;
 
 void main()
 {
+	bool H_l0sl9r = foo2[3].i[4] > C_0;
+	float select_c1 = H_l0sl9r ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
+	vec4 H_5uczgz = vec4(select_c1);
 	vec4 H_0k8q2q = texture(sampler, coord);
-	gl_FragColor = (H_0k8q2q * vec4(((foo2[3].i[4] > C_0) ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3])));
+	vec4 Ll_FragColor_c2 = H_0k8q2q * H_5uczgz;
+	gl_FragColor = Ll_FragColor_c2;
 	
 }
 
@@ -181,16 +185,20 @@ struct lunarStruct2 {
 	float f;
 	lunarStruct1 s1_1[7];
 };
-uniform sampler2D sampler;
 uniform lunarStruct2 foo2[5];
+uniform sampler2D sampler;
 uniform lunarStruct1 foo;
 in vec2 coord;
 const int C_0 = 0;
 
 void main()
 {
-	vec4 H_uc1 = texture(sampler, coord);
-	gl_FragColor = (H_uc1 * vec4(((foo2[3].i[4] > C_0) ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3])));
+	bool H_l_c1 = foo2[3].i[4] > C_0;
+	float select_c2 = H_l_c1 ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
+	vec4 H_27j1m6 = vec4(select_c2);
+	vec4 H_uc3 = texture(sampler, coord);
+	vec4 Ll_FragColor_c4 = H_27j1m6 * H_uc3;
+	gl_FragColor = Ll_FragColor_c4;
 	
 }
 

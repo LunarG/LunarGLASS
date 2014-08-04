@@ -197,10 +197,19 @@ const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
-	float H_gzd21t = (tex_coord.x * C_2d0) + C_a1d0;
-	float H_3y2dfl1 = (C_2d0 * tex_coord.y) + C_a1d0;
-	if ((sqrt(((H_3y2dfl1 * H_3y2dfl1) + (H_gzd21t * H_gzd21t))) > C_1d0)) {
-		gl_FragColor = ((sqrt(((H_3y2dfl1 * H_3y2dfl1) + (H_gzd21t * H_gzd21t))) > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
+	float H_wl1qbc1 = tex_coord.x * C_2d0;
+	float H_gjl0431 = H_wl1qbc1 + C_a1d0;
+	float H_73il2x1 = C_2d0 * tex_coord.y;
+	float H_n0ljhg = C_a1d0 + H_73il2x1;
+	float H_xbvmut = H_gjl0431 * H_gjl0431;
+	float H_la7j6f1 = H_n0ljhg * H_n0ljhg;
+	float H_rkd1t91 = H_la7j6f1 + H_xbvmut;
+	float radius_c1 = sqrt(H_rkd1t91);
+	bool H_v30ksu = radius_c1 > C_1d0;
+	if (H_v30ksu) {
+		bool H_weekiu = radius_c1 > C_1d1;
+		vec4 color_uc2 = H_weekiu ? C_vec4p2d0p : C_vec4p1d0p;
+		gl_FragColor = color_uc2;
 	}
 	
 	discard;
@@ -219,10 +228,19 @@ const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
-	float H_gzd_c1 = (tex_coord.x * C_2d0) + C_a1d0;
-	float H_uc2 = (C_2d0 * tex_coord.y) + C_a1d0;
-	if ((sqrt(((H_gzd_c1 * H_gzd_c1) + (H_uc2 * H_uc2))) > C_1d0)) {
-		gl_FragColor = ((sqrt(((H_gzd_c1 * H_gzd_c1) + (H_uc2 * H_uc2))) > C_1d1) ? C_vec4p2d0p : C_vec4p1d0p);
+	float H_wl_c1 = tex_coord.x * C_2d0;
+	float H_gjl_c2 = H_wl_c1 + C_a1d0;
+	float H_uc3 = C_2d0 * tex_coord.y;
+	float H_n_c4 = C_a1d0 + H_uc3;
+	float H_xbvmut_c5 = H_gjl_c2 * H_gjl_c2;
+	float H_la_c6 = H_n_c4 * H_n_c4;
+	float H_rkd_c7 = H_la_c6 + H_xbvmut_c5;
+	float radius_c8 = sqrt(H_rkd_c7);
+	bool H_v_c9 = radius_c8 > C_1d0;
+	if (H_v_c9) {
+		bool H_weekiu_c10 = radius_c8 > C_1d1;
+		vec4 H_tn6xst = H_weekiu_c10 ? C_vec4p2d0p : C_vec4p1d0p;
+		gl_FragColor = H_tn6xst;
 	}
 	
 	discard;

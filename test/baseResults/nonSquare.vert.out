@@ -431,10 +431,41 @@ const vec4 C_uly6d21 = vec4(20.0, 10.0, 6.0, 5.0);
 
 void main()
 {
-	float dotProduct_c1 = ((((C_0d0 * m32[0].y) + (m32[0].x * C_0d0)) * v3.x) + (((C_0d0 * m32[1].x) + (C_0d0 * m32[1].y)) * v3.y)) + (((C_0d0 * m32[2].x) + (C_0d0 * m32[2].y)) * v3.z);
-	vec4 H_zuqbrj1 = vec4(dotProduct_c1, dotProduct_c1, dotProduct_c1, C_0d0);
-	vec4 H_hgg03p1 = vec4(((((v4.x * C_3d0) + (v4.y * C_9d0)) + (v4.z * C_15d0)) + (v4.w * C_21d0)), ((((v4.x * C_6d0) + (v4.y * C_12d0)) + (v4.z * C_18d0)) + (v4.w * C_24d0)), C_0d0, C_0d0);
-	gl_Position = ((((H_hgg03p1 + H_zuqbrj1) + C_ix7g97) + C_n4w2t3) + C_uly6d21);
+	float product_c1 = m32[0].x * C_0d0;
+	float product_c2 = C_0d0 * m32[0].y;
+	float dotProduct_c3 = product_c1 + product_c2;
+	float product_c4 = C_0d0 * m32[1].x;
+	float product_c5 = C_0d0 * m32[1].y;
+	float dotProduct_c6 = product_c4 + product_c5;
+	float product_c7 = C_0d0 * m32[2].x;
+	float product_c8 = C_0d0 * m32[2].y;
+	float dotProduct_c9 = product_c7 + product_c8;
+	float product_c10 = dotProduct_c3 * v3.x;
+	float product_c11 = dotProduct_c6 * v3.y;
+	float dotProduct_c12 = product_c10 + product_c11;
+	float product_c13 = dotProduct_c9 * v3.z;
+	float dotProduct_c14 = dotProduct_c12 + product_c13;
+	vec4 H_d95d8m = vec4(dotProduct_c14, dotProduct_c14, dotProduct_c14, C_0d0);
+	float product_c15 = v4.x * C_3d0;
+	float product_c16 = v4.y * C_9d0;
+	float dotProduct_c17 = product_c15 + product_c16;
+	float product_c18 = v4.z * C_15d0;
+	float dotProduct_c19 = dotProduct_c17 + product_c18;
+	float product_c20 = v4.w * C_21d0;
+	float dotProduct_c21 = dotProduct_c19 + product_c20;
+	float product_c22 = v4.x * C_6d0;
+	float product_c23 = v4.y * C_12d0;
+	float dotProduct_c24 = product_c22 + product_c23;
+	float product_c25 = v4.z * C_18d0;
+	float dotProduct_c26 = dotProduct_c24 + product_c25;
+	float product_c27 = v4.w * C_24d0;
+	float dotProduct_c28 = dotProduct_c26 + product_c27;
+	vec4 H_p6318a = vec4(dotProduct_c21, dotProduct_c28, C_0d0, C_0d0);
+	vec4 H_g76j7p = H_d95d8m + H_p6318a;
+	vec4 H_x91id = H_g76j7p + C_ix7g97;
+	vec4 H_qsyf5y1 = H_x91id + C_n4w2t3;
+	vec4 Ll_Position_c29 = H_qsyf5y1 + C_uly6d21;
+	gl_Position = Ll_Position_c29;
 	
 }
 
@@ -458,8 +489,25 @@ const vec4 C_uly6d21 = vec4(20.0, 10.0, 6.0, 5.0);
 
 void main()
 {
-	vec4 H_hgg03p1 = vec4(((((v4.x * C_3d0) + (v4.y * C_9d0)) + (v4.z * C_15d0)) + (v4.w * C_21d0)), ((((v4.x * C_6d0) + (v4.y * C_12d0)) + (v4.z * C_18d0)) + (v4.w * C_24d0)), C_0d0, C_0d0);
-	gl_Position = (((H_hgg03p1 + C_ix7g97) + C_n4w2t3) + C_uly6d21);
+	float product_c1 = v4.x * C_3d0;
+	float product_c2 = v4.y * C_9d0;
+	float dotProduct_c3 = product_c1 + product_c2;
+	float product_c4 = v4.z * C_15d0;
+	float dotProduct_c5 = dotProduct_c3 + product_c4;
+	float product_c6 = v4.w * C_21d0;
+	float dotProduct_c7 = dotProduct_c5 + product_c6;
+	float product_c8 = v4.x * C_6d0;
+	float product_c9 = v4.y * C_12d0;
+	float dotProduct_c10 = product_c8 + product_c9;
+	float product_c11 = v4.z * C_18d0;
+	float dotProduct_c12 = dotProduct_c10 + product_c11;
+	float product_c13 = v4.w * C_24d0;
+	float dotProduct_c14 = dotProduct_c12 + product_c13;
+	vec4 H_a0y0071 = vec4(dotProduct_c7, dotProduct_c14, C_0d0, C_0d0);
+	vec4 H_x_c15 = H_a0y0071 + C_ix7g97;
+	vec4 H_qsyf_c16 = H_x_c15 + C_n4w2t3;
+	vec4 Ll_Position_c17 = H_qsyf_c16 + C_uly6d21;
+	gl_Position = Ll_Position_c17;
 	
 }
 
