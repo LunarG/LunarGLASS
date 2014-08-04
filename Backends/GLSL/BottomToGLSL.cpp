@@ -526,6 +526,7 @@ public:
     bool shouldSubstitute(const llvm::Instruction*);
     bool modifiesPrecision(const llvm::Instruction*);
     bool writeOnceAlloca(const llvm::Value*);
+    int getSubstitutionLevel() const { return substitutionLevel; }
 
     // set of all IO mdNodes in the noStaticUse list
     std::set<const llvm::MDNode*> noStaticUseSet;
@@ -651,7 +652,7 @@ public:
     // increasesData: means it is definitely known there is more data made, so always better to forward substitute (map)
     void mapOrEmit(bool increasesData, bool needsParens)
     {
-        if (target.substitutionLevel == 0 || cantMap()) {
+        if (target.getSubstitutionLevel() == 0 || cantMap()) {
             emit();
             return;
         }
@@ -660,7 +661,7 @@ public:
 
         if (! target.cheapExpression(str())) {
 
-            if (target.substitutionLevel < 2)
+            if (target.getSubstitutionLevel() < 2)
                 doSubstitute = false;
 
             if (doSubstitute && str().size() > 120)
