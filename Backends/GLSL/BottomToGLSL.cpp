@@ -1337,9 +1337,18 @@ bool SamplerIsUint(llvm::Value* sampler)
     // TODO: uint functionality: nested uint samplers: this only works for non-nested sampler types, need a pretty different way
     // for nested types
     if (llvm::Instruction* samplerInst = llvm::dyn_cast<llvm::Instruction>(sampler)) {
+
+        // If the sampler was phi'd, go to the source.  Just go one level deep for now.
+        // TODO: Can phi's get chained such that multiple jumps need to be made, and 
+        // can that be done recursively without causing infinite loop?
+        if (samplerInst->getOpcode() == llvm::Instruction::PHI)
+            samplerInst = llvm::dyn_cast<llvm::Instruction>(samplerInst->getOperand(0));
+
         llvm::MDNode* md = samplerInst->getMetadata(UniformMdName);
         if (md)
             return GetMdSamplerBaseType(md) == EMsbUint;
+        else
+            samplerInst->dump();
     }
 
     UnsupportedFunctionality("missing sampler base type", EATContinue);
