@@ -247,6 +247,8 @@ public:
         }
             
         delete generatedShader;
+        delete indexShader;
+
         for (std::map<const llvm::Value*, std::string*>::const_iterator it = nonConvertedMap.begin(); it != nonConvertedMap.end(); ++it)
             delete it->second;
         for (std::map<const llvm::Value*, std::string*>::const_iterator it = valueMap.begin(); it != valueMap.end(); ++it)
@@ -3712,9 +3714,9 @@ void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, const ch
         return;
     }
 
-    std::string* newName = new std::string;
-    makeNewVariableName(value, *newName, rhs);
-    mapVariableName(value, *newName);
+    std::string newName;
+    makeNewVariableName(value, newName, rhs);
+    mapVariableName(value, newName);
     EMdPrecision precision = GetPrecision(value);
 
     // Integer and floating-point constants have no precision, use highp to avoid precision loss across translations
@@ -3723,9 +3725,9 @@ void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, const ch
             precision = gla::EMpHigh;
 
     if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
-        emitVariableDeclaration(precision, pointerType->getContainedType(0), *newName, evq);
+        emitVariableDeclaration(precision, pointerType->getContainedType(0), newName, evq);
     } else {
-        emitVariableDeclaration(precision, value->getType(), *newName, evq, constant);        
+        emitVariableDeclaration(precision, value->getType(), newName, evq, constant);        
     }
 }
 

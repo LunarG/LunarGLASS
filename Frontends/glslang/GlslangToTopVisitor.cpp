@@ -2747,9 +2747,10 @@ void GlslangToTop(const glslang::TIntermediate& intermediate, gla::Manager& mana
     if (root == 0)
         return;
 
+    glslang::GetThreadPoolAllocator().push();
     TGlslangToTopTraverser it(&manager, &intermediate);
-
     root->traverse(&it);
+    glslang::GetThreadPoolAllocator().pop();
 }
 
 // Glslang deprecated interface
@@ -2758,7 +2759,8 @@ void GlslangToTop(TIntermNode* root, gla::Manager* manager)
     if (root == 0)
         return;
 
+    glslang::GetThreadPoolAllocator().push();
     TGlslangToTopTraverser it(manager, 0);
-
     root->traverse(&it);
+    glslang::GetThreadPoolAllocator().pop();
 }
