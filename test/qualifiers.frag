@@ -1,7 +1,5 @@
 #version 430 core
 
-buffer vec4 buf;
-
 invariant out vec4 outVi;
 
 centroid in vec4 inVc;
