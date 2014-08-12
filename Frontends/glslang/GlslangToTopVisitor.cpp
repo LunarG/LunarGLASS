@@ -217,6 +217,7 @@ gla::EMdTypeLayout GetMdTypeLayout(const glslang::TType& type)
         case glslang::EbtBlock:
             switch (type.getQualifier().storage) {
             case glslang::EvqUniform:
+            case glslang::EvqBuffer:
                 switch (type.getQualifier().layoutPacking) {
                 case glslang::ElpShared:  return gla::EMtlShared;
                 case glslang::ElpStd140:  return gla::EMtlStd140;
@@ -422,7 +423,7 @@ void TGlslangToTopTraverser::visitSymbol(glslang::TIntermSymbol* symbol)
 {
     bool input = symbol->getType().getQualifier().isPipeInput();
     bool output = symbol->getType().getQualifier().isPipeOutput();
-    bool uniform = symbol->getType().getQualifier().isUniform();
+    bool uniform = symbol->getType().getQualifier().isUniformOrBuffer();
 
     // Normal symbols and uniforms need a variable allocated to them,
     // we will shadow inputs by reading them in whole into a global variables, 
