@@ -357,8 +357,8 @@ public:
     llvm::Value* createSamplePositionCall(EMdPrecision, llvm::Type*, llvm::Value*);
     llvm::Value* createBitFieldExtractCall(EMdPrecision, llvm::Value*, llvm::Value*, llvm::Value*, bool isSigned);
     llvm::Value* createBitFieldInsertCall(EMdPrecision, llvm::Value*, llvm::Value*, llvm::Value*, llvm::Value*);
-    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, const char* name = 0);
-    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, const char* name = 0);
+    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID);
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, const char* name = 0);
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, const char* name = 0);
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, llvm::Value*, const char* name = 0);

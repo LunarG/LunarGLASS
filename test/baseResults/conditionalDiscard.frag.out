@@ -19,7 +19,7 @@ entry:
   br i1 %cc, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  %ical0a = call void @llvm.gla.discard()
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
@@ -81,7 +81,7 @@ entry:
   br i1 %cc, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  %ical0a = call void @llvm.gla.discard()
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 ifmerge:                                          ; preds = %entry

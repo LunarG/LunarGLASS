@@ -30,7 +30,7 @@ entry:
   %ps = alloca float
   %p = alloca <4 x float>
   %a = alloca i32
-  %barrier = call void @llvm.gla.barrier()
+  call void @llvm.gla.barrier()
   store i32 5392, i32* %a
   %p1 = load <4 x float>* getelementptr inbounds ([32 x %gl_PerVertex]* @gl_in, i32 0, i32 1, i32 0)
   store <4 x float> %p1, <4 x float>* %p
@@ -128,7 +128,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  %barrier = call void @llvm.gla.barrier()
+  call void @llvm.gla.barrier()
   %gla_constGEP = getelementptr [32 x %gl_PerVertex]* @gl_in, i32 0, i32 1, i32 0
   %p1 = load <4 x float>* %gla_constGEP, align 16
   %gla_constGEP7 = getelementptr [32 x %gl_PerVertex]* @gl_in, i32 0, i32 1, i32 1

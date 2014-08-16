@@ -173,7 +173,7 @@ entry:
   br i1 %1, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  %ical0a = call void @llvm.gla.discard()
+  call void @llvm.gla.discard()
   ret i32 1000000
 
 post-return:                                      ; No predecessors!
@@ -216,7 +216,7 @@ entry:
   br i1 %1, label %then.i, label %ifmerge.i
 
 then.i:                                           ; preds = %entry
-  %ical0a.i = call void @llvm.gla.discard()
+  call void @llvm.gla.discard()
   br label %"foo3(.exit"
 
 ifmerge.i:                                        ; preds = %entry

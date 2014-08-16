@@ -68,7 +68,7 @@ ifmerge9:                                         ; preds = %ifmerge, %then7
   br label %ifmerge10
 
 ifmerge10:                                        ; preds = %entry, %ifmerge9
-  %ical0a = call void @llvm.gla.discard()
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
@@ -157,7 +157,7 @@ then:                                             ; preds = %entry
   br label %ifmerge10
 
 ifmerge10:                                        ; preds = %entry, %then
-  %ical0a = call void @llvm.gla.discard()
+  call void @llvm.gla.discard()
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge10

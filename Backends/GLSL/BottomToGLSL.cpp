@@ -2497,12 +2497,12 @@ void gla::GlslTarget::makeObfuscatedName(std::string& name)
 void gla::GlslTarget::canonicalizeName(std::string& name)
 {
     // throw away starting from the first '.'
-    unsigned dotPos = name.find('.');
+    int dotPos = name.find('.');
     if (dotPos != std::string::npos)
         name.resize(dotPos);
 
     // remove any existing end counting and .i type things
-    unsigned pos = name.size() - 1;
+    int pos = name.size() - 1;
     while (pos > 0 && name[pos] >= '0' && name[pos] <= '9')
         --pos;
 

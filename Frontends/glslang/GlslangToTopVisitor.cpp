@@ -2179,7 +2179,7 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
     }
 
     if (intrinsicID != 0)
-        return glaBuilder->createIntrinsicCall(precision, intrinsicID, operand, leftName ? leftName : "uni");
+        return glaBuilder->createIntrinsicCall(precision, intrinsicID, operand, leftName);
 
     return 0;
 }
@@ -2277,7 +2277,7 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
     if (intrinsicID != 0) {
         switch (operands.size()) {
         case 0:
-            result = glaBuilder->createIntrinsicCall(precision, intrinsicID, leftName ? leftName : "misc0a");
+            result = glaBuilder->createIntrinsicCall(precision, intrinsicID);
             break;
         case 1:
             // should all be handled by createUnaryIntrinsic
@@ -2341,7 +2341,7 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op)
 
     // If intrinsic was assigned, then call the function and return
     if (intrinsicID != 0)
-        result = glaBuilder->createIntrinsicCall(intrinsicID, "barrier");
+        result = glaBuilder->createIntrinsicCall(intrinsicID);
 
     return result;
 }

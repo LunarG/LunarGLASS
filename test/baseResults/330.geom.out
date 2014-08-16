@@ -14,8 +14,8 @@ entry:
   store <4 x float> %0, <4 x float>* getelementptr inbounds (%gl_PerVertex* @"anon@0", i32 0, i32 0)
   %1 = load float* getelementptr inbounds ([3 x %gl_PerVertex.0]* @gl_in, i32 0, i32 1, i32 1, i32 0)
   store float %1, float* getelementptr inbounds (%gl_PerVertex* @"anon@0", i32 0, i32 1, i32 0)
-  %barrier = call void @llvm.gla.emitVertex()
-  %barrier1 = call void @llvm.gla.endPrimitive()
+  call void @llvm.gla.emitVertex()
+  call void @llvm.gla.endPrimitive()
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -68,14 +68,14 @@ define fastcc void @main() {
 entry:
   %gla_constGEP = getelementptr [3 x %gl_PerVertex.0]* @gl_in, i32 0, i32 1, i32 0
   %0 = load <4 x float>* %gla_constGEP, align 16
-  %gla_constGEP2 = getelementptr %gl_PerVertex* @"anon@0", i32 0, i32 0
-  store <4 x float> %0, <4 x float>* %gla_constGEP2, align 16
-  %gla_constGEP3 = getelementptr [3 x %gl_PerVertex.0]* @gl_in, i32 0, i32 1, i32 1, i32 0
-  %1 = load float* %gla_constGEP3, align 16
-  %gla_constGEP4 = getelementptr %gl_PerVertex* @"anon@0", i32 0, i32 1, i32 0
-  store float %1, float* %gla_constGEP4, align 16
-  %barrier = call void @llvm.gla.emitVertex()
-  %barrier1 = call void @llvm.gla.endPrimitive()
+  %gla_constGEP1 = getelementptr %gl_PerVertex* @"anon@0", i32 0, i32 0
+  store <4 x float> %0, <4 x float>* %gla_constGEP1, align 16
+  %gla_constGEP2 = getelementptr [3 x %gl_PerVertex.0]* @gl_in, i32 0, i32 1, i32 1, i32 0
+  %1 = load float* %gla_constGEP2, align 16
+  %gla_constGEP3 = getelementptr %gl_PerVertex* @"anon@0", i32 0, i32 1, i32 0
+  store float %1, float* %gla_constGEP3, align 16
+  call void @llvm.gla.emitVertex()
+  call void @llvm.gla.endPrimitive()
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry

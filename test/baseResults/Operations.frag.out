@@ -33,446 +33,446 @@ entry:
   %i5 = mul i32 %3, %4
   store i32 %i5, i32* %i
   %5 = load <4 x float>* %v
-  %uni = call <4 x float> @llvm.gla.fSin.v4f32.v4f32(<4 x float> %5)
-  %6 = load <4 x float>* %v
-  %v6 = fadd <4 x float> %6, %uni
-  store <4 x float> %v6, <4 x float>* %v
+  %6 = call <4 x float> @llvm.gla.fSin.v4f32.v4f32(<4 x float> %5)
   %7 = load <4 x float>* %v
-  %v7 = call <4 x float> @llvm.gla.fCos.v4f32.v4f32(<4 x float> %7)
+  %v6 = fadd <4 x float> %7, %6
+  store <4 x float> %v6, <4 x float>* %v
   %8 = load <4 x float>* %v
-  %v8 = fadd <4 x float> %8, %v7
-  store <4 x float> %v8, <4 x float>* %v
+  %v7 = call <4 x float> @llvm.gla.fCos.v4f32.v4f32(<4 x float> %8)
   %9 = load <4 x float>* %v
-  %v9 = call <4 x float> @llvm.gla.fTan.v4f32.v4f32(<4 x float> %9)
+  %v8 = fadd <4 x float> %9, %v7
+  store <4 x float> %v8, <4 x float>* %v
   %10 = load <4 x float>* %v
-  %v10 = fadd <4 x float> %10, %v9
-  store <4 x float> %v10, <4 x float>* %v
+  %v9 = call <4 x float> @llvm.gla.fTan.v4f32.v4f32(<4 x float> %10)
   %11 = load <4 x float>* %v
-  %v11 = call <4 x float> @llvm.gla.fAsin.v4f32.v4f32(<4 x float> %11)
+  %v10 = fadd <4 x float> %11, %v9
+  store <4 x float> %v10, <4 x float>* %v
   %12 = load <4 x float>* %v
-  %v12 = fadd <4 x float> %12, %v11
-  store <4 x float> %v12, <4 x float>* %v
+  %v11 = call <4 x float> @llvm.gla.fAsin.v4f32.v4f32(<4 x float> %12)
   %13 = load <4 x float>* %v
-  %v13 = call <4 x float> @llvm.gla.fAcos.v4f32.v4f32(<4 x float> %13)
+  %v12 = fadd <4 x float> %13, %v11
+  store <4 x float> %v12, <4 x float>* %v
   %14 = load <4 x float>* %v
-  %v14 = fadd <4 x float> %14, %v13
-  store <4 x float> %v14, <4 x float>* %v
+  %v13 = call <4 x float> @llvm.gla.fAcos.v4f32.v4f32(<4 x float> %14)
   %15 = load <4 x float>* %v
-  %v15 = call <4 x float> @llvm.gla.fAtan.v4f32.v4f32(<4 x float> %15)
+  %v14 = fadd <4 x float> %15, %v13
+  store <4 x float> %v14, <4 x float>* %v
   %16 = load <4 x float>* %v
-  %v16 = fadd <4 x float> %16, %v15
-  store <4 x float> %v16, <4 x float>* %v
+  %v15 = call <4 x float> @llvm.gla.fAtan.v4f32.v4f32(<4 x float> %16)
   %17 = load <4 x float>* %v
-  %v17 = call <4 x float> @llvm.gla.fSinh.v4f32.v4f32(<4 x float> %17)
+  %v16 = fadd <4 x float> %17, %v15
+  store <4 x float> %v16, <4 x float>* %v
   %18 = load <4 x float>* %v
-  %v18 = fadd <4 x float> %18, %v17
-  store <4 x float> %v18, <4 x float>* %v
+  %v17 = call <4 x float> @llvm.gla.fSinh.v4f32.v4f32(<4 x float> %18)
   %19 = load <4 x float>* %v
-  %v19 = call <4 x float> @llvm.gla.fCosh.v4f32.v4f32(<4 x float> %19)
+  %v18 = fadd <4 x float> %19, %v17
+  store <4 x float> %v18, <4 x float>* %v
   %20 = load <4 x float>* %v
-  %v20 = fadd <4 x float> %20, %v19
-  store <4 x float> %v20, <4 x float>* %v
+  %v19 = call <4 x float> @llvm.gla.fCosh.v4f32.v4f32(<4 x float> %20)
   %21 = load <4 x float>* %v
-  %v21 = call <4 x float> @llvm.gla.fTanh.v4f32.v4f32(<4 x float> %21)
+  %v20 = fadd <4 x float> %21, %v19
+  store <4 x float> %v20, <4 x float>* %v
   %22 = load <4 x float>* %v
-  %v22 = fadd <4 x float> %22, %v21
-  store <4 x float> %v22, <4 x float>* %v
+  %v21 = call <4 x float> @llvm.gla.fTanh.v4f32.v4f32(<4 x float> %22)
   %23 = load <4 x float>* %v
-  %v23 = call <4 x float> @llvm.gla.fAsinh.v4f32.v4f32(<4 x float> %23)
+  %v22 = fadd <4 x float> %23, %v21
+  store <4 x float> %v22, <4 x float>* %v
   %24 = load <4 x float>* %v
-  %v24 = fadd <4 x float> %24, %v23
-  store <4 x float> %v24, <4 x float>* %v
+  %v23 = call <4 x float> @llvm.gla.fAsinh.v4f32.v4f32(<4 x float> %24)
   %25 = load <4 x float>* %v
-  %v25 = call <4 x float> @llvm.gla.fAcosh.v4f32.v4f32(<4 x float> %25)
+  %v24 = fadd <4 x float> %25, %v23
+  store <4 x float> %v24, <4 x float>* %v
   %26 = load <4 x float>* %v
-  %v26 = fadd <4 x float> %26, %v25
-  store <4 x float> %v26, <4 x float>* %v
+  %v25 = call <4 x float> @llvm.gla.fAcosh.v4f32.v4f32(<4 x float> %26)
   %27 = load <4 x float>* %v
-  %v27 = call <4 x float> @llvm.gla.fAtanh.v4f32.v4f32(<4 x float> %27)
+  %v26 = fadd <4 x float> %27, %v25
+  store <4 x float> %v26, <4 x float>* %v
   %28 = load <4 x float>* %v
-  %v28 = fadd <4 x float> %28, %v27
-  store <4 x float> %v28, <4 x float>* %v
+  %v27 = call <4 x float> @llvm.gla.fAtanh.v4f32.v4f32(<4 x float> %28)
   %29 = load <4 x float>* %v
+  %v28 = fadd <4 x float> %29, %v27
+  store <4 x float> %v28, <4 x float>* %v
   %30 = load <4 x float>* %v
-  %v29 = call <4 x float> @llvm.gla.fPow.v4f32.v4f32.v4f32(<4 x float> %29, <4 x float> %30)
   %31 = load <4 x float>* %v
-  %v30 = fadd <4 x float> %31, %v29
-  store <4 x float> %v30, <4 x float>* %v
+  %v29 = call <4 x float> @llvm.gla.fPow.v4f32.v4f32.v4f32(<4 x float> %30, <4 x float> %31)
   %32 = load <4 x float>* %v
-  %v31 = call <4 x float> @llvm.gla.fExp.v4f32.v4f32(<4 x float> %32)
+  %v30 = fadd <4 x float> %32, %v29
+  store <4 x float> %v30, <4 x float>* %v
   %33 = load <4 x float>* %v
-  %v32 = fadd <4 x float> %33, %v31
-  store <4 x float> %v32, <4 x float>* %v
+  %v31 = call <4 x float> @llvm.gla.fExp.v4f32.v4f32(<4 x float> %33)
   %34 = load <4 x float>* %v
-  %v33 = call <4 x float> @llvm.gla.fLog.v4f32.v4f32(<4 x float> %34)
+  %v32 = fadd <4 x float> %34, %v31
+  store <4 x float> %v32, <4 x float>* %v
   %35 = load <4 x float>* %v
-  %v34 = fadd <4 x float> %35, %v33
-  store <4 x float> %v34, <4 x float>* %v
+  %v33 = call <4 x float> @llvm.gla.fLog.v4f32.v4f32(<4 x float> %35)
   %36 = load <4 x float>* %v
-  %v35 = call <4 x float> @llvm.gla.fExp2.v4f32.v4f32(<4 x float> %36)
+  %v34 = fadd <4 x float> %36, %v33
+  store <4 x float> %v34, <4 x float>* %v
   %37 = load <4 x float>* %v
-  %v36 = fadd <4 x float> %37, %v35
-  store <4 x float> %v36, <4 x float>* %v
+  %v35 = call <4 x float> @llvm.gla.fExp2.v4f32.v4f32(<4 x float> %37)
   %38 = load <4 x float>* %v
-  %v37 = call <4 x float> @llvm.gla.fLog2.v4f32.v4f32(<4 x float> %38)
+  %v36 = fadd <4 x float> %38, %v35
+  store <4 x float> %v36, <4 x float>* %v
   %39 = load <4 x float>* %v
-  %v38 = fadd <4 x float> %39, %v37
-  store <4 x float> %v38, <4 x float>* %v
+  %v37 = call <4 x float> @llvm.gla.fLog2.v4f32.v4f32(<4 x float> %39)
   %40 = load <4 x float>* %v
-  %v39 = call <4 x float> @llvm.gla.fSqrt.v4f32.v4f32(<4 x float> %40)
+  %v38 = fadd <4 x float> %40, %v37
+  store <4 x float> %v38, <4 x float>* %v
   %41 = load <4 x float>* %v
-  %v40 = fadd <4 x float> %41, %v39
-  store <4 x float> %v40, <4 x float>* %v
+  %v39 = call <4 x float> @llvm.gla.fSqrt.v4f32.v4f32(<4 x float> %41)
   %42 = load <4 x float>* %v
-  %v41 = call <4 x float> @llvm.gla.fInverseSqrt.v4f32.v4f32(<4 x float> %42)
+  %v40 = fadd <4 x float> %42, %v39
+  store <4 x float> %v40, <4 x float>* %v
   %43 = load <4 x float>* %v
-  %v42 = fadd <4 x float> %43, %v41
-  store <4 x float> %v42, <4 x float>* %v
+  %v41 = call <4 x float> @llvm.gla.fInverseSqrt.v4f32.v4f32(<4 x float> %43)
   %44 = load <4 x float>* %v
-  %v43 = call <4 x float> @llvm.gla.fAbs.v4f32.v4f32(<4 x float> %44)
+  %v42 = fadd <4 x float> %44, %v41
+  store <4 x float> %v42, <4 x float>* %v
   %45 = load <4 x float>* %v
-  %v44 = fadd <4 x float> %45, %v43
-  store <4 x float> %v44, <4 x float>* %v
+  %v43 = call <4 x float> @llvm.gla.fAbs.v4f32.v4f32(<4 x float> %45)
   %46 = load <4 x float>* %v
-  %v45 = call <4 x float> @llvm.gla.fSign.v4f32.v4f32(<4 x float> %46)
+  %v44 = fadd <4 x float> %46, %v43
+  store <4 x float> %v44, <4 x float>* %v
   %47 = load <4 x float>* %v
-  %v46 = fadd <4 x float> %47, %v45
-  store <4 x float> %v46, <4 x float>* %v
+  %v45 = call <4 x float> @llvm.gla.fSign.v4f32.v4f32(<4 x float> %47)
   %48 = load <4 x float>* %v
-  %v47 = call <4 x float> @llvm.gla.fFloor.v4f32.v4f32(<4 x float> %48)
+  %v46 = fadd <4 x float> %48, %v45
+  store <4 x float> %v46, <4 x float>* %v
   %49 = load <4 x float>* %v
-  %v48 = fadd <4 x float> %49, %v47
-  store <4 x float> %v48, <4 x float>* %v
+  %v47 = call <4 x float> @llvm.gla.fFloor.v4f32.v4f32(<4 x float> %49)
   %50 = load <4 x float>* %v
-  %v49 = call <4 x float> @llvm.gla.fCeiling.v4f32.v4f32(<4 x float> %50)
+  %v48 = fadd <4 x float> %50, %v47
+  store <4 x float> %v48, <4 x float>* %v
   %51 = load <4 x float>* %v
-  %v50 = fadd <4 x float> %51, %v49
-  store <4 x float> %v50, <4 x float>* %v
+  %v49 = call <4 x float> @llvm.gla.fCeiling.v4f32.v4f32(<4 x float> %51)
   %52 = load <4 x float>* %v
-  %v51 = call <4 x float> @llvm.gla.fFraction.v4f32.v4f32(<4 x float> %52)
+  %v50 = fadd <4 x float> %52, %v49
+  store <4 x float> %v50, <4 x float>* %v
   %53 = load <4 x float>* %v
-  %v52 = fadd <4 x float> %53, %v51
-  store <4 x float> %v52, <4 x float>* %v
+  %v51 = call <4 x float> @llvm.gla.fFraction.v4f32.v4f32(<4 x float> %53)
   %54 = load <4 x float>* %v
+  %v52 = fadd <4 x float> %54, %v51
+  store <4 x float> %v52, <4 x float>* %v
   %55 = load <4 x float>* %v
-  %56 = frem <4 x float> %54, %55
-  %57 = load <4 x float>* %v
-  %v53 = fadd <4 x float> %57, %56
-  store <4 x float> %v53, <4 x float>* %v
+  %56 = load <4 x float>* %v
+  %57 = frem <4 x float> %55, %56
   %58 = load <4 x float>* %v
+  %v53 = fadd <4 x float> %58, %57
+  store <4 x float> %v53, <4 x float>* %v
   %59 = load <4 x float>* %v
-  %60 = extractelement <4 x float> %59, i32 0
-  %61 = insertelement <4 x float> undef, float %60, i32 0
-  %62 = insertelement <4 x float> %61, float %60, i32 1
-  %63 = insertelement <4 x float> %62, float %60, i32 2
-  %64 = insertelement <4 x float> %63, float %60, i32 3
-  %65 = frem <4 x float> %58, %64
-  %66 = load <4 x float>* %v
-  %v54 = fadd <4 x float> %66, %65
-  store <4 x float> %v54, <4 x float>* %v
+  %60 = load <4 x float>* %v
+  %61 = extractelement <4 x float> %60, i32 0
+  %62 = insertelement <4 x float> undef, float %61, i32 0
+  %63 = insertelement <4 x float> %62, float %61, i32 1
+  %64 = insertelement <4 x float> %63, float %61, i32 2
+  %65 = insertelement <4 x float> %64, float %61, i32 3
+  %66 = frem <4 x float> %59, %65
   %67 = load <4 x float>* %v
-  %68 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
-  %v55 = call <4 x float> @llvm.gla.fMin.v4f32.v4f32.v4f32(<4 x float> %67, <4 x float> %68)
-  %69 = load <4 x float>* %v
-  %v56 = fadd <4 x float> %69, %v55
-  store <4 x float> %v56, <4 x float>* %v
+  %v54 = fadd <4 x float> %67, %66
+  store <4 x float> %v54, <4 x float>* %v
+  %68 = load <4 x float>* %v
+  %69 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
+  %v55 = call <4 x float> @llvm.gla.fMin.v4f32.v4f32.v4f32(<4 x float> %68, <4 x float> %69)
   %70 = load <4 x float>* %v
-  %71 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
-  %v57 = call <4 x float> @llvm.gla.fMax.v4f32.v4f32.v4f32(<4 x float> %70, <4 x float> %71)
-  %72 = load <4 x float>* %v
-  %v58 = fadd <4 x float> %72, %v57
-  store <4 x float> %v58, <4 x float>* %v
+  %v56 = fadd <4 x float> %70, %v55
+  store <4 x float> %v56, <4 x float>* %v
+  %71 = load <4 x float>* %v
+  %72 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
+  %v57 = call <4 x float> @llvm.gla.fMax.v4f32.v4f32.v4f32(<4 x float> %71, <4 x float> %72)
   %73 = load <4 x float>* %v
-  %74 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
+  %v58 = fadd <4 x float> %73, %v57
+  store <4 x float> %v58, <4 x float>* %v
+  %74 = load <4 x float>* %v
   %75 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
-  %v59 = call <4 x float> @llvm.gla.fClamp.v4f32.v4f32.v4f32.v4f32(<4 x float> %73, <4 x float> %74, <4 x float> %75)
-  %76 = load <4 x float>* %v
-  %v60 = fadd <4 x float> %76, %v59
-  store <4 x float> %v60, <4 x float>* %v
+  %76 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
+  %v59 = call <4 x float> @llvm.gla.fClamp.v4f32.v4f32.v4f32.v4f32(<4 x float> %74, <4 x float> %75, <4 x float> %76)
   %77 = load <4 x float>* %v
+  %v60 = fadd <4 x float> %77, %v59
+  store <4 x float> %v60, <4 x float>* %v
   %78 = load <4 x float>* %v
   %79 = load <4 x float>* %v
-  %v61 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %77, <4 x float> %78, <4 x float> %79)
   %80 = load <4 x float>* %v
-  %v62 = fadd <4 x float> %80, %v61
-  store <4 x float> %v62, <4 x float>* %v
+  %v61 = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %78, <4 x float> %79, <4 x float> %80)
   %81 = load <4 x float>* %v
+  %v62 = fadd <4 x float> %81, %v61
+  store <4 x float> %v62, <4 x float>* %v
   %82 = load <4 x float>* %v
-  %v63 = call <4 x float> @llvm.gla.fStep.v4f32.v4f32.v4f32(<4 x float> %81, <4 x float> %82)
   %83 = load <4 x float>* %v
-  %v64 = fadd <4 x float> %83, %v63
-  store <4 x float> %v64, <4 x float>* %v
+  %v63 = call <4 x float> @llvm.gla.fStep.v4f32.v4f32.v4f32(<4 x float> %82, <4 x float> %83)
   %84 = load <4 x float>* %v
+  %v64 = fadd <4 x float> %84, %v63
+  store <4 x float> %v64, <4 x float>* %v
   %85 = load <4 x float>* %v
   %86 = load <4 x float>* %v
-  %v65 = call <4 x float> @llvm.gla.fSmoothStep.v4f32.v4f32.v4f32.v4f32(<4 x float> %84, <4 x float> %85, <4 x float> %86)
   %87 = load <4 x float>* %v
-  %v66 = fadd <4 x float> %87, %v65
+  %v65 = call <4 x float> @llvm.gla.fSmoothStep.v4f32.v4f32.v4f32.v4f32(<4 x float> %85, <4 x float> %86, <4 x float> %87)
+  %88 = load <4 x float>* %v
+  %v66 = fadd <4 x float> %88, %v65
   store <4 x float> %v66, <4 x float>* %v
-  %88 = load float addrspace(2)* @uf, !gla.uniform !4
-  %89 = load <4 x float>* %v
-  %v67 = call <4 x float> @llvm.gla.fStep.v4f32.f32.v4f32(float %88, <4 x float> %89)
+  %89 = load float addrspace(2)* @uf, !gla.uniform !4
   %90 = load <4 x float>* %v
-  %v68 = fadd <4 x float> %90, %v67
+  %v67 = call <4 x float> @llvm.gla.fStep.v4f32.f32.v4f32(float %89, <4 x float> %90)
+  %91 = load <4 x float>* %v
+  %v68 = fadd <4 x float> %91, %v67
   store <4 x float> %v68, <4 x float>* %v
-  %91 = load float addrspace(2)* @uf, !gla.uniform !4
   %92 = load float addrspace(2)* @uf, !gla.uniform !4
-  %93 = load <4 x float>* %v
-  %v69 = call <4 x float> @llvm.gla.fSmoothStep.v4f32.f32.f32.v4f32(float %91, float %92, <4 x float> %93)
+  %93 = load float addrspace(2)* @uf, !gla.uniform !4
   %94 = load <4 x float>* %v
-  %v70 = fadd <4 x float> %94, %v69
-  store <4 x float> %v70, <4 x float>* %v
+  %v69 = call <4 x float> @llvm.gla.fSmoothStep.v4f32.f32.f32.v4f32(float %92, float %93, <4 x float> %94)
   %95 = load <4 x float>* %v
-  %v71 = call <4 x float> @llvm.gla.fNormalize.v4f32.v4f32(<4 x float> %95)
+  %v70 = fadd <4 x float> %95, %v69
+  store <4 x float> %v70, <4 x float>* %v
   %96 = load <4 x float>* %v
-  %v72 = fadd <4 x float> %96, %v71
-  store <4 x float> %v72, <4 x float>* %v
+  %v71 = call <4 x float> @llvm.gla.fNormalize.v4f32.v4f32(<4 x float> %96)
   %97 = load <4 x float>* %v
+  %v72 = fadd <4 x float> %97, %v71
+  store <4 x float> %v72, <4 x float>* %v
   %98 = load <4 x float>* %v
   %99 = load <4 x float>* %v
-  %v73 = call <4 x float> @llvm.gla.fFaceForward.v4f32.v4f32.v4f32.v4f32(<4 x float> %97, <4 x float> %98, <4 x float> %99)
   %100 = load <4 x float>* %v
-  %v74 = fadd <4 x float> %100, %v73
-  store <4 x float> %v74, <4 x float>* %v
+  %v73 = call <4 x float> @llvm.gla.fFaceForward.v4f32.v4f32.v4f32.v4f32(<4 x float> %98, <4 x float> %99, <4 x float> %100)
   %101 = load <4 x float>* %v
+  %v74 = fadd <4 x float> %101, %v73
+  store <4 x float> %v74, <4 x float>* %v
   %102 = load <4 x float>* %v
-  %v75 = call <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float> %101, <4 x float> %102)
   %103 = load <4 x float>* %v
-  %v76 = fadd <4 x float> %103, %v75
-  store <4 x float> %v76, <4 x float>* %v
+  %v75 = call <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float> %102, <4 x float> %103)
   %104 = load <4 x float>* %v
+  %v76 = fadd <4 x float> %104, %v75
+  store <4 x float> %v76, <4 x float>* %v
   %105 = load <4 x float>* %v
-  %106 = load float addrspace(2)* @uf, !gla.uniform !4
-  %v77 = call <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float> %104, <4 x float> %105, float %106)
-  %107 = load <4 x float>* %v
-  %v78 = fadd <4 x float> %107, %v77
-  store <4 x float> %v78, <4 x float>* %v
+  %106 = load <4 x float>* %v
+  %107 = load float addrspace(2)* @uf, !gla.uniform !4
+  %v77 = call <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float> %105, <4 x float> %106, float %107)
   %108 = load <4 x float>* %v
-  %v79 = call <4 x float> @llvm.gla.fDFdx.v4f32.v4f32(<4 x float> %108)
+  %v78 = fadd <4 x float> %108, %v77
+  store <4 x float> %v78, <4 x float>* %v
   %109 = load <4 x float>* %v
-  %v80 = fadd <4 x float> %109, %v79
-  store <4 x float> %v80, <4 x float>* %v
+  %v79 = call <4 x float> @llvm.gla.fDFdx.v4f32.v4f32(<4 x float> %109)
   %110 = load <4 x float>* %v
-  %v81 = call <4 x float> @llvm.gla.fDFdy.v4f32.v4f32(<4 x float> %110)
+  %v80 = fadd <4 x float> %110, %v79
+  store <4 x float> %v80, <4 x float>* %v
   %111 = load <4 x float>* %v
-  %v82 = fadd <4 x float> %111, %v81
-  store <4 x float> %v82, <4 x float>* %v
+  %v81 = call <4 x float> @llvm.gla.fDFdy.v4f32.v4f32(<4 x float> %111)
   %112 = load <4 x float>* %v
-  %v83 = call <4 x float> @llvm.gla.fFilterWidth.v4f32.v4f32(<4 x float> %112)
+  %v82 = fadd <4 x float> %112, %v81
+  store <4 x float> %v82, <4 x float>* %v
   %113 = load <4 x float>* %v
-  %v84 = fadd <4 x float> %113, %v83
-  store <4 x float> %v84, <4 x float>* %v
+  %v83 = call <4 x float> @llvm.gla.fFilterWidth.v4f32.v4f32(<4 x float> %113)
   %114 = load <4 x float>* %v
-  %115 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
-  %116 = fcmp olt <4 x float> %114, %115
-  %b86 = call i1 @llvm.gla.any.v4i1(<4 x i1> %116)
+  %v84 = fadd <4 x float> %114, %v83
+  store <4 x float> %v84, <4 x float>* %v
+  %115 = load <4 x float>* %v
+  %116 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
+  %117 = fcmp olt <4 x float> %115, %116
+  %b86 = call i1 @llvm.gla.any.v4i1(<4 x i1> %117)
   store i1 %b86, i1* %b
-  %117 = load i1* %b
-  %118 = load <4 x float>* %v
-  %119 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
-  %120 = fcmp ole <4 x float> %118, %119
-  %b87 = call i1 @llvm.gla.any.v4i1(<4 x i1> %120)
-  %b88 = and i1 %117, %b87
+  %118 = load i1* %b
+  %119 = load <4 x float>* %v
+  %120 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
+  %121 = fcmp ole <4 x float> %119, %120
+  %b87 = call i1 @llvm.gla.any.v4i1(<4 x i1> %121)
+  %b88 = and i1 %118, %b87
   store i1 %b88, i1* %b
-  %121 = load i1* %b
-  %122 = load <4 x float>* %v
-  %123 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
-  %124 = fcmp ogt <4 x float> %122, %123
-  %b89 = call i1 @llvm.gla.any.v4i1(<4 x i1> %124)
-  %b90 = and i1 %121, %b89
+  %122 = load i1* %b
+  %123 = load <4 x float>* %v
+  %124 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
+  %125 = fcmp ogt <4 x float> %123, %124
+  %b89 = call i1 @llvm.gla.any.v4i1(<4 x i1> %125)
+  %b90 = and i1 %122, %b89
   store i1 %b90, i1* %b
-  %125 = load i1* %b
-  %126 = load <4 x float>* %v
-  %127 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
-  %128 = fcmp oge <4 x float> %126, %127
-  %b91 = call i1 @llvm.gla.any.v4i1(<4 x i1> %128)
-  %b92 = and i1 %125, %b91
+  %126 = load i1* %b
+  %127 = load <4 x float>* %v
+  %128 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
+  %129 = fcmp oge <4 x float> %127, %128
+  %b91 = call i1 @llvm.gla.any.v4i1(<4 x i1> %129)
+  %b92 = and i1 %126, %b91
   store i1 %b92, i1* %b
-  %129 = load i1* %b
-  %130 = load <4 x i1> addrspace(2)* @ub41, !gla.uniform !5
-  %131 = load <4 x i1> addrspace(2)* @ub42, !gla.uniform !6
-  %132 = icmp eq <4 x i1> %130, %131
-  %b93 = call i1 @llvm.gla.any.v4i1(<4 x i1> %132)
-  %b94 = and i1 %129, %b93
+  %130 = load i1* %b
+  %131 = load <4 x i1> addrspace(2)* @ub41, !gla.uniform !5
+  %132 = load <4 x i1> addrspace(2)* @ub42, !gla.uniform !6
+  %133 = icmp eq <4 x i1> %131, %132
+  %b93 = call i1 @llvm.gla.any.v4i1(<4 x i1> %133)
+  %b94 = and i1 %130, %b93
   store i1 %b94, i1* %b
-  %133 = load i1* %b
-  %134 = load <4 x i1> addrspace(2)* @ub41, !gla.uniform !5
-  %135 = load <4 x i1> addrspace(2)* @ub42, !gla.uniform !6
-  %136 = icmp ne <4 x i1> %134, %135
-  %b95 = call i1 @llvm.gla.any.v4i1(<4 x i1> %136)
-  %b96 = and i1 %133, %b95
+  %134 = load i1* %b
+  %135 = load <4 x i1> addrspace(2)* @ub41, !gla.uniform !5
+  %136 = load <4 x i1> addrspace(2)* @ub42, !gla.uniform !6
+  %137 = icmp ne <4 x i1> %135, %136
+  %b95 = call i1 @llvm.gla.any.v4i1(<4 x i1> %137)
+  %b96 = and i1 %134, %b95
   store i1 %b96, i1* %b
-  %137 = load i1* %b
-  %138 = load <4 x i1> addrspace(2)* @ub41, !gla.uniform !5
-  %b97 = call i1 @llvm.gla.any.v4i1(<4 x i1> %138)
-  %b98 = and i1 %137, %b97
+  %138 = load i1* %b
+  %139 = load <4 x i1> addrspace(2)* @ub41, !gla.uniform !5
+  %b97 = call i1 @llvm.gla.any.v4i1(<4 x i1> %139)
+  %b98 = and i1 %138, %b97
   store i1 %b98, i1* %b
-  %139 = load i1* %b
-  %140 = load <4 x i1> addrspace(2)* @ub41, !gla.uniform !5
-  %b99 = call i1 @llvm.gla.all.v4i1(<4 x i1> %140)
-  %b100 = and i1 %139, %b99
+  %140 = load i1* %b
+  %141 = load <4 x i1> addrspace(2)* @ub41, !gla.uniform !5
+  %b99 = call i1 @llvm.gla.all.v4i1(<4 x i1> %141)
+  %b100 = and i1 %140, %b99
   store i1 %b100, i1* %b
-  %141 = load i1* %b
-  %142 = load <4 x i1> addrspace(2)* @ub41, !gla.uniform !5
-  %143 = xor <4 x i1> %142, <i1 true, i1 true, i1 true, i1 true>
-  %b101 = call i1 @llvm.gla.any.v4i1(<4 x i1> %143)
-  %b102 = and i1 %141, %b101
+  %142 = load i1* %b
+  %143 = load <4 x i1> addrspace(2)* @ub41, !gla.uniform !5
+  %144 = xor <4 x i1> %143, <i1 true, i1 true, i1 true, i1 true>
+  %b101 = call i1 @llvm.gla.any.v4i1(<4 x i1> %144)
+  %b102 = and i1 %142, %b101
   store i1 %b102, i1* %b
-  %144 = load i32* %i
-  %145 = load i32 addrspace(2)* @ui, !gla.uniform !3
-  %146 = add i32 %144, %145
-  %147 = load i32* %i
-  %148 = mul i32 %146, %147
-  %149 = load i32 addrspace(2)* @ui, !gla.uniform !3
-  %150 = sub i32 %148, %149
-  %151 = load i32* %i
-  %i103 = sdiv i32 %150, %151
-  store i32 %i103, i32* %i
+  %145 = load i32* %i
+  %146 = load i32 addrspace(2)* @ui, !gla.uniform !3
+  %147 = add i32 %145, %146
+  %148 = load i32* %i
+  %149 = mul i32 %147, %148
+  %150 = load i32 addrspace(2)* @ui, !gla.uniform !3
+  %151 = sub i32 %149, %150
   %152 = load i32* %i
-  %153 = load i32 addrspace(2)* @ui, !gla.uniform !3
-  %i104 = srem i32 %152, %153
+  %i103 = sdiv i32 %151, %152
+  store i32 %i103, i32* %i
+  %153 = load i32* %i
+  %154 = load i32 addrspace(2)* @ui, !gla.uniform !3
+  %i104 = srem i32 %153, %154
   store i32 %i104, i32* %i
-  %154 = load i32* %i
-  %155 = load i32 addrspace(2)* @ui, !gla.uniform !3
-  %156 = icmp eq i32 %154, %155
-  %157 = load i32* %i
-  %158 = load i32 addrspace(2)* @ui, !gla.uniform !3
-  %159 = icmp ne i32 %157, %158
-  %160 = load i32* %i
-  %161 = load i32 addrspace(2)* @ui, !gla.uniform !3
-  %162 = icmp eq i32 %160, %161
-  %163 = and i1 %159, %162
-  %164 = load i32* %i
-  %165 = icmp ne i32 %164, 2
-  %166 = xor i1 %163, %165
-  %167 = or i1 %156, %166
-  br i1 %167, label %then, label %ifmerge
+  %155 = load i32* %i
+  %156 = load i32 addrspace(2)* @ui, !gla.uniform !3
+  %157 = icmp eq i32 %155, %156
+  %158 = load i32* %i
+  %159 = load i32 addrspace(2)* @ui, !gla.uniform !3
+  %160 = icmp ne i32 %158, %159
+  %161 = load i32* %i
+  %162 = load i32 addrspace(2)* @ui, !gla.uniform !3
+  %163 = icmp eq i32 %161, %162
+  %164 = and i1 %160, %163
+  %165 = load i32* %i
+  %166 = icmp ne i32 %165, 2
+  %167 = xor i1 %164, %166
+  %168 = or i1 %157, %167
+  br i1 %168, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  %168 = load i32* %i
-  %i105 = add i32 %168, 1
+  %169 = load i32* %i
+  %i105 = add i32 %169, 1
   store i32 %i105, i32* %i
   br label %ifmerge
 
 ifmerge:                                          ; preds = %entry, %then
-  %169 = load float addrspace(2)* @uf, !gla.uniform !4
   %170 = load float addrspace(2)* @uf, !gla.uniform !4
-  %171 = fadd float %169, %170
-  %172 = load float addrspace(2)* @uf, !gla.uniform !4
-  %173 = fmul float %171, %172
-  %174 = load float addrspace(2)* @uf, !gla.uniform !4
-  %175 = fsub float %173, %174
-  %176 = load float addrspace(2)* @uf, !gla.uniform !4
-  %f106 = fdiv float %175, %176
+  %171 = load float addrspace(2)* @uf, !gla.uniform !4
+  %172 = fadd float %170, %171
+  %173 = load float addrspace(2)* @uf, !gla.uniform !4
+  %174 = fmul float %172, %173
+  %175 = load float addrspace(2)* @uf, !gla.uniform !4
+  %176 = fsub float %174, %175
+  %177 = load float addrspace(2)* @uf, !gla.uniform !4
+  %f106 = fdiv float %176, %177
   store float %f106, float* %f
-  %177 = load <4 x float>* %v
-  %f107 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %177)
-  %178 = load float* %f
-  %f108 = fadd float %178, %f107
+  %178 = load <4 x float>* %v
+  %f107 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %178)
+  %179 = load float* %f
+  %f108 = fadd float %179, %f107
   store float %f108, float* %f
-  %179 = load <4 x float>* %v
   %180 = load <4 x float>* %v
-  %f109 = call float @llvm.gla.fDistance.f32.v4f32.v4f32(<4 x float> %179, <4 x float> %180)
-  %181 = load float* %f
-  %f110 = fadd float %181, %f109
+  %181 = load <4 x float>* %v
+  %f109 = call float @llvm.gla.fDistance.f32.v4f32.v4f32(<4 x float> %180, <4 x float> %181)
+  %182 = load float* %f
+  %f110 = fadd float %182, %f109
   store float %f110, float* %f
-  %182 = load <4 x float>* %v
   %183 = load <4 x float>* %v
-  %f111 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %182, <4 x float> %183)
-  %184 = load float* %f
-  %f112 = fadd float %184, %f111
-  store float %f112, float* %f
+  %184 = load <4 x float>* %v
+  %f111 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %183, <4 x float> %184)
   %185 = load float* %f
-  %186 = load float addrspace(2)* @uf, !gla.uniform !4
-  %187 = fmul float %185, %186
-  %188 = load float* %f
-  %f113 = fadd float %188, %187
+  %f112 = fadd float %185, %f111
+  store float %f112, float* %f
+  %186 = load float* %f
+  %187 = load float addrspace(2)* @uf, !gla.uniform !4
+  %188 = fmul float %186, %187
+  %189 = load float* %f
+  %f113 = fadd float %189, %188
   store float %f113, float* %f
-  %189 = load <4 x float>* %v
-  %190 = extractelement <4 x float> %189, i32 0
-  %191 = insertelement <3 x float> undef, float %190, i32 0
-  %192 = extractelement <4 x float> %189, i32 1
-  %193 = insertelement <3 x float> %191, float %192, i32 1
-  %194 = extractelement <4 x float> %189, i32 2
-  %195 = insertelement <3 x float> %193, float %194, i32 2
-  %196 = load <4 x float>* %v
-  %197 = extractelement <4 x float> %196, i32 0
-  %198 = insertelement <3 x float> undef, float %197, i32 0
-  %199 = extractelement <4 x float> %196, i32 1
-  %200 = insertelement <3 x float> %198, float %199, i32 1
-  %201 = extractelement <4 x float> %196, i32 2
-  %202 = insertelement <3 x float> %200, float %201, i32 2
-  %f114 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %195, <3 x float> %202)
-  %203 = extractelement <3 x float> %f114, i32 0
-  %204 = load float* %f
-  %f115 = fadd float %204, %203
-  store float %f115, float* %f
+  %190 = load <4 x float>* %v
+  %191 = extractelement <4 x float> %190, i32 0
+  %192 = insertelement <3 x float> undef, float %191, i32 0
+  %193 = extractelement <4 x float> %190, i32 1
+  %194 = insertelement <3 x float> %192, float %193, i32 1
+  %195 = extractelement <4 x float> %190, i32 2
+  %196 = insertelement <3 x float> %194, float %195, i32 2
+  %197 = load <4 x float>* %v
+  %198 = extractelement <4 x float> %197, i32 0
+  %199 = insertelement <3 x float> undef, float %198, i32 0
+  %200 = extractelement <4 x float> %197, i32 1
+  %201 = insertelement <3 x float> %199, float %200, i32 1
+  %202 = extractelement <4 x float> %197, i32 2
+  %203 = insertelement <3 x float> %201, float %202, i32 2
+  %f114 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %196, <3 x float> %203)
+  %204 = extractelement <3 x float> %f114, i32 0
   %205 = load float* %f
-  %206 = load float addrspace(2)* @uf, !gla.uniform !4
-  %207 = fcmp oeq float %205, %206
-  %208 = load float* %f
-  %209 = load float addrspace(2)* @uf, !gla.uniform !4
-  %210 = fcmp one float %208, %209
-  %211 = load float* %f
-  %212 = fcmp one float %211, 2.000000e+00
-  %213 = and i1 %210, %212
-  %214 = or i1 %207, %213
-  br i1 %214, label %then116, label %ifmerge118
+  %f115 = fadd float %205, %204
+  store float %f115, float* %f
+  %206 = load float* %f
+  %207 = load float addrspace(2)* @uf, !gla.uniform !4
+  %208 = fcmp oeq float %206, %207
+  %209 = load float* %f
+  %210 = load float addrspace(2)* @uf, !gla.uniform !4
+  %211 = fcmp one float %209, %210
+  %212 = load float* %f
+  %213 = fcmp one float %212, 2.000000e+00
+  %214 = and i1 %211, %213
+  %215 = or i1 %208, %214
+  br i1 %215, label %then116, label %ifmerge118
 
 then116:                                          ; preds = %ifmerge
-  %215 = load float* %f
-  %f117 = fadd float %215, 1.000000e+00
+  %216 = load float* %f
+  %f117 = fadd float %216, 1.000000e+00
   store float %f117, float* %f
   br label %ifmerge118
 
 ifmerge118:                                       ; preds = %ifmerge, %then116
-  %216 = load i32 addrspace(2)* @ui, !gla.uniform !3
-  %217 = load i32* %i
-  %i119 = and i32 %217, %216
-  store i32 %i119, i32* %i
+  %217 = load i32 addrspace(2)* @ui, !gla.uniform !3
   %218 = load i32* %i
-  %i120 = or i32 %218, 66
+  %i119 = and i32 %218, %217
+  store i32 %i119, i32* %i
+  %219 = load i32* %i
+  %i120 = or i32 %219, 66
   store i32 %i120, i32* %i
-  %219 = load i32 addrspace(2)* @ui, !gla.uniform !3
-  %220 = load i32* %i
-  %i121 = xor i32 %220, %219
-  store i32 %i121, i32* %i
+  %220 = load i32 addrspace(2)* @ui, !gla.uniform !3
   %221 = load i32* %i
-  %i122 = srem i32 %221, 17
-  store i32 %i122, i32* %i
+  %i121 = xor i32 %221, %220
+  store i32 %i121, i32* %i
   %222 = load i32* %i
-  %i123 = ashr i32 %222, 2
+  %i122 = srem i32 %222, 17
+  store i32 %i122, i32* %i
+  %223 = load i32* %i
+  %i123 = ashr i32 %223, 2
   store i32 %i123, i32* %i
-  %223 = load i32 addrspace(2)* @ui, !gla.uniform !3
-  %224 = load i32* %i
-  %i124 = shl i32 %224, %223
-  store i32 %i124, i32* %i
+  %224 = load i32 addrspace(2)* @ui, !gla.uniform !3
   %225 = load i32* %i
-  %i125 = xor i32 %225, -1
+  %i124 = shl i32 %225, %224
+  store i32 %i124, i32* %i
+  %226 = load i32* %i
+  %i125 = xor i32 %226, -1
   store i32 %i125, i32* %i
-  %226 = load i1* %b
-  %b126 = xor i1 %226, true
-  store i1 %b126, i1* %b
   %227 = load i1* %b
-  br i1 %227, label %then127, label %else
+  %b126 = xor i1 %227, true
+  store i1 %b126, i1* %b
+  %228 = load i1* %b
+  br i1 %228, label %then127, label %else
 
 then127:                                          ; preds = %ifmerge118
-  %228 = load i32* %i
-  %229 = sitofp i32 %228 to float
-  %230 = load <4 x float>* %gl_FragColor128
-  %231 = insertelement <4 x float> undef, float %229, i32 0
-  %232 = insertelement <4 x float> %231, float %229, i32 1
-  %233 = insertelement <4 x float> %232, float %229, i32 2
-  %234 = insertelement <4 x float> %233, float %229, i32 3
-  %235 = load float* %f
-  %236 = load <4 x float>* %gl_FragColor129
-  %237 = insertelement <4 x float> undef, float %235, i32 0
-  %238 = insertelement <4 x float> %237, float %235, i32 1
-  %239 = insertelement <4 x float> %238, float %235, i32 2
-  %240 = insertelement <4 x float> %239, float %235, i32 3
-  %241 = fadd <4 x float> %234, %240
-  %242 = load <4 x float>* %v
-  %gl_FragColor130 = fadd <4 x float> %241, %242
+  %229 = load i32* %i
+  %230 = sitofp i32 %229 to float
+  %231 = load <4 x float>* %gl_FragColor128
+  %232 = insertelement <4 x float> undef, float %230, i32 0
+  %233 = insertelement <4 x float> %232, float %230, i32 1
+  %234 = insertelement <4 x float> %233, float %230, i32 2
+  %235 = insertelement <4 x float> %234, float %230, i32 3
+  %236 = load float* %f
+  %237 = load <4 x float>* %gl_FragColor129
+  %238 = insertelement <4 x float> undef, float %236, i32 0
+  %239 = insertelement <4 x float> %238, float %236, i32 1
+  %240 = insertelement <4 x float> %239, float %236, i32 2
+  %241 = insertelement <4 x float> %240, float %236, i32 3
+  %242 = fadd <4 x float> %235, %241
+  %243 = load <4 x float>* %v
+  %gl_FragColor130 = fadd <4 x float> %242, %243
   store <4 x float> %gl_FragColor130, <4 x float>* %gl_FragColor
   br label %ifmerge132
 
@@ -672,8 +672,8 @@ entry:
   %v4 = fadd <4 x float> %1, %2
   %3 = load i32 addrspace(2)* @ui, align 4, !gla.uniform !3
   %i5 = mul i32 %3, %3
-  %uni = call <4 x float> @llvm.gla.fSin.v4f32.v4f32(<4 x float> %v4)
-  %v6 = fadd <4 x float> %uni, %v4
+  %4 = call <4 x float> @llvm.gla.fSin.v4f32.v4f32(<4 x float> %v4)
+  %v6 = fadd <4 x float> %4, %v4
   %v7 = call <4 x float> @llvm.gla.fCos.v4f32.v4f32(<4 x float> %v6)
   %v8 = fadd <4 x float> %v7, %v6
   %v9 = call <4 x float> @llvm.gla.fTan.v4f32.v4f32(<4 x float> %v8)
@@ -720,11 +720,11 @@ entry:
   %v50 = fadd <4 x float> %v49, %v48
   %v51 = call <4 x float> @llvm.gla.fFraction.v4f32.v4f32(<4 x float> %v50)
   %v52 = fadd <4 x float> %v51, %v50
-  %4 = frem <4 x float> %v52, %v52
-  %v53 = fadd <4 x float> %4, %v52
-  %5 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float> %v53, <4 x i32> zeroinitializer)
-  %6 = frem <4 x float> %v53, %5
-  %v54 = fadd <4 x float> %6, %v53
+  %5 = frem <4 x float> %v52, %v52
+  %v53 = fadd <4 x float> %5, %v52
+  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float> %v53, <4 x i32> zeroinitializer)
+  %7 = frem <4 x float> %v53, %6
+  %v54 = fadd <4 x float> %7, %v53
   %v55 = call <4 x float> @llvm.gla.fMin.v4f32.v4f32.v4f32(<4 x float> %v54, <4 x float> %0)
   %v56 = fadd <4 x float> %v55, %v54
   %v57 = call <4 x float> @llvm.gla.fMax.v4f32.v4f32.v4f32(<4 x float> %v56, <4 x float> %0)
@@ -737,10 +737,10 @@ entry:
   %v64 = fadd <4 x float> %v63, %v62
   %v65 = call <4 x float> @llvm.gla.fSmoothStep.v4f32.v4f32.v4f32.v4f32(<4 x float> %v64, <4 x float> %v64, <4 x float> %v64)
   %v66 = fadd <4 x float> %v65, %v64
-  %7 = load float addrspace(2)* @uf, align 4, !gla.uniform !4
-  %v67 = call <4 x float> @llvm.gla.fStep.v4f32.f32.v4f32(float %7, <4 x float> %v66)
+  %8 = load float addrspace(2)* @uf, align 4, !gla.uniform !4
+  %v67 = call <4 x float> @llvm.gla.fStep.v4f32.f32.v4f32(float %8, <4 x float> %v66)
   %v68 = fadd <4 x float> %v66, %v67
-  %v69 = call <4 x float> @llvm.gla.fSmoothStep.v4f32.f32.f32.v4f32(float %7, float %7, <4 x float> %v68)
+  %v69 = call <4 x float> @llvm.gla.fSmoothStep.v4f32.f32.f32.v4f32(float %8, float %8, <4 x float> %v68)
   %v70 = fadd <4 x float> %v68, %v69
   %v71 = call <4 x float> @llvm.gla.fNormalize.v4f32.v4f32(<4 x float> %v70)
   %v72 = fadd <4 x float> %v70, %v71
@@ -748,7 +748,7 @@ entry:
   %v74 = fadd <4 x float> %v72, %v73
   %v75 = call <4 x float> @llvm.gla.fReflect.v4f32.v4f32.v4f32(<4 x float> %v74, <4 x float> %v74)
   %v76 = fadd <4 x float> %v74, %v75
-  %v77 = call <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float> %v76, <4 x float> %v76, float %7)
+  %v77 = call <4 x float> @llvm.gla.fRefract.v4f32.v4f32.v4f32.f32(<4 x float> %v76, <4 x float> %v76, float %8)
   %v78 = fadd <4 x float> %v76, %v77
   %v79 = call <4 x float> @llvm.gla.fDFdx.v4f32.v4f32(<4 x float> %v78)
   %v80 = fadd <4 x float> %v78, %v79
@@ -756,74 +756,74 @@ entry:
   %v82 = fadd <4 x float> %v80, %v81
   %v83 = call <4 x float> @llvm.gla.fFilterWidth.v4f32.v4f32(<4 x float> %v82)
   %v84 = fadd <4 x float> %v82, %v83
-  %8 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %v84, <3 x i32> <i32 0, i32 1, i32 2>)
-  %9 = fcmp olt <4 x float> %v84, %0
-  %b86 = call i1 @llvm.gla.any.v4i1(<4 x i1> %9)
-  %10 = fcmp ole <4 x float> %v84, %0
-  %b87 = call i1 @llvm.gla.any.v4i1(<4 x i1> %10)
+  %9 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %v84, <3 x i32> <i32 0, i32 1, i32 2>)
+  %10 = fcmp olt <4 x float> %v84, %0
+  %b86 = call i1 @llvm.gla.any.v4i1(<4 x i1> %10)
+  %11 = fcmp ole <4 x float> %v84, %0
+  %b87 = call i1 @llvm.gla.any.v4i1(<4 x i1> %11)
   %b88 = and i1 %b86, %b87
-  %11 = fcmp ogt <4 x float> %v84, %0
-  %b89 = call i1 @llvm.gla.any.v4i1(<4 x i1> %11)
+  %12 = fcmp ogt <4 x float> %v84, %0
+  %b89 = call i1 @llvm.gla.any.v4i1(<4 x i1> %12)
   %b90 = and i1 %b88, %b89
-  %12 = fcmp oge <4 x float> %v84, %0
-  %b91 = call i1 @llvm.gla.any.v4i1(<4 x i1> %12)
+  %13 = fcmp oge <4 x float> %v84, %0
+  %b91 = call i1 @llvm.gla.any.v4i1(<4 x i1> %13)
   %b92 = and i1 %b90, %b91
-  %13 = load <4 x i1> addrspace(2)* @ub41, align 4, !gla.uniform !5
-  %14 = load <4 x i1> addrspace(2)* @ub42, align 4, !gla.uniform !6
-  %15 = icmp eq <4 x i1> %13, %14
-  %b93 = call i1 @llvm.gla.any.v4i1(<4 x i1> %15)
+  %14 = load <4 x i1> addrspace(2)* @ub41, align 4, !gla.uniform !5
+  %15 = load <4 x i1> addrspace(2)* @ub42, align 4, !gla.uniform !6
+  %16 = icmp eq <4 x i1> %14, %15
+  %b93 = call i1 @llvm.gla.any.v4i1(<4 x i1> %16)
   %b94 = and i1 %b92, %b93
-  %16 = icmp ne <4 x i1> %13, %14
-  %b95 = call i1 @llvm.gla.any.v4i1(<4 x i1> %16)
+  %17 = icmp ne <4 x i1> %14, %15
+  %b95 = call i1 @llvm.gla.any.v4i1(<4 x i1> %17)
   %b96 = and i1 %b94, %b95
-  %b97 = call i1 @llvm.gla.any.v4i1(<4 x i1> %13)
+  %b97 = call i1 @llvm.gla.any.v4i1(<4 x i1> %14)
   %b98 = and i1 %b96, %b97
-  %b99 = call i1 @llvm.gla.all.v4i1(<4 x i1> %13)
+  %b99 = call i1 @llvm.gla.all.v4i1(<4 x i1> %14)
   %b100 = and i1 %b98, %b99
-  %17 = xor <4 x i1> %13, <i1 true, i1 true, i1 true, i1 true>
-  %b101 = call i1 @llvm.gla.any.v4i1(<4 x i1> %17)
+  %18 = xor <4 x i1> %14, <i1 true, i1 true, i1 true, i1 true>
+  %b101 = call i1 @llvm.gla.any.v4i1(<4 x i1> %18)
   %b102 = and i1 %b100, %b101
-  %18 = add i32 %i5, %3
-  %19 = mul i32 %18, %i5
-  %20 = sub i32 %19, %3
-  %i103 = sdiv i32 %20, %i5
+  %19 = add i32 %i5, %3
+  %20 = mul i32 %19, %i5
+  %21 = sub i32 %20, %3
+  %i103 = sdiv i32 %21, %i5
   %i104 = srem i32 %i103, %3
-  %21 = icmp eq i32 %i104, 2
+  %22 = icmp eq i32 %i104, 2
   %i105 = add i32 %i104, 1
-  %.i105 = select i1 %21, i32 0, i32 %i105
-  %22 = fadd float %7, %7
-  %23 = fmul float %7, %22
-  %24 = fsub float %23, %7
-  %f106 = fdiv float %24, %7
+  %.i105 = select i1 %22, i32 0, i32 %i105
+  %23 = fadd float %8, %8
+  %24 = fmul float %8, %23
+  %25 = fsub float %24, %8
+  %f106 = fdiv float %25, %8
   %f107 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %v84)
   %f108 = fadd float %f106, %f107
   %f111 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %v84, <4 x float> %v84)
   %f112 = fadd float %f108, %f111
-  %25 = fmul float %7, %f112
-  %f113 = fadd float %f112, %25
-  %f114 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %8, <3 x float> %8)
-  %26 = extractelement <3 x float> %f114, i32 0
-  %f115 = fadd float %26, %f113
-  %27 = fcmp oeq float %f115, %7
-  %28 = fcmp one float %f115, %7
-  %29 = fcmp one float %f115, 2.000000e+00
-  %30 = and i1 %28, %29
-  %31 = or i1 %27, %30
+  %26 = fmul float %8, %f112
+  %f113 = fadd float %f112, %26
+  %f114 = call <3 x float> @llvm.gla.fCross.v3f32.v3f32.v3f32(<3 x float> %9, <3 x float> %9)
+  %27 = extractelement <3 x float> %f114, i32 0
+  %f115 = fadd float %27, %f113
+  %28 = fcmp oeq float %f115, %8
+  %29 = fcmp one float %f115, %8
+  %30 = fcmp one float %f115, 2.000000e+00
+  %31 = and i1 %29, %30
+  %32 = or i1 %28, %31
   %f117 = fadd float %f115, 1.000000e+00
-  %select134 = select i1 %31, float %f117, float %f115
-  %32 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select134, <4 x i32> zeroinitializer)
-  %33 = load i32 addrspace(2)* @ui, align 4, !gla.uniform !3
-  %i119 = and i32 %33, %.i105
+  %select134 = select i1 %32, float %f117, float %f115
+  %33 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select134, <4 x i32> zeroinitializer)
+  %34 = load i32 addrspace(2)* @ui, align 4, !gla.uniform !3
+  %i119 = and i32 %34, %.i105
   %i120 = or i32 %i119, 66
-  %i121 = xor i32 %i120, %33
+  %i121 = xor i32 %i120, %34
   %i122 = srem i32 %i121, 17
   %i123 = ashr i32 %i122, 2
-  %i124 = shl i32 %i123, %33
+  %i124 = shl i32 %i123, %34
   %i125 = xor i32 %i124, -1
-  %34 = sitofp i32 %i125 to float
-  %35 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %34, <4 x i32> zeroinitializer)
-  %36 = fadd <4 x float> %35, %32
-  %gl_FragColor130 = fadd <4 x float> %v84, %36
+  %35 = sitofp i32 %i125 to float
+  %36 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %35, <4 x i32> zeroinitializer)
+  %37 = fadd <4 x float> %36, %33
+  %gl_FragColor130 = fadd <4 x float> %v84, %37
   %select = select i1 %b102, <4 x float> %v84, <4 x float> %gl_FragColor130
   store <4 x float> %select, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
@@ -1019,112 +1019,112 @@ void main()
 	vec4 H_rrtr9n = H_hgy73b1 * C_4bmlfm;
 	vec4 H_2u0bi2 = H_hgy73b1 + H_rrtr9n;
 	int H_h8ktht1 = ui * ui;
-	vec4 uni = sin(H_2u0bi2);
-	vec4 H_jqi9qw1 = H_2u0bi2 + uni;
-	vec4 H_0rp3gf1 = cos(H_jqi9qw1);
-	vec4 H_9vdfqt = H_0rp3gf1 + H_jqi9qw1;
-	vec4 H_wl578r1 = tan(H_9vdfqt);
-	vec4 H_yxt4l41 = H_9vdfqt + H_wl578r1;
-	vec4 H_c1j58i = asin(H_yxt4l41);
-	vec4 H_g1c7l6 = H_c1j58i + H_yxt4l41;
-	vec4 H_f1quob1 = acos(H_g1c7l6);
-	vec4 H_x6kmuu1 = H_f1quob1 + H_g1c7l6;
-	vec4 H_6al3re1 = atan(H_x6kmuu1);
-	vec4 H_pfswwj = H_6al3re1 + H_x6kmuu1;
-	vec4 H_oms0zh1 = sinh(H_pfswwj);
-	vec4 H_bn09q51 = H_oms0zh1 + H_pfswwj;
-	vec4 H_aghx9o = cosh(H_bn09q51);
-	vec4 H_2br8n4 = H_aghx9o + H_bn09q51;
-	vec4 H_40vce2 = tanh(H_2br8n4);
-	vec4 H_ina7fw = H_2br8n4 + H_40vce2;
-	vec4 H_ef89p9 = asinh(H_ina7fw);
-	vec4 H_vblhcg = H_ef89p9 + H_ina7fw;
-	vec4 H_3feejp1 = acosh(H_vblhcg);
-	vec4 H_k0rko11 = H_3feejp1 + H_vblhcg;
-	vec4 H_49cny = atanh(H_k0rko11);
-	vec4 H_knxf5j = H_49cny + H_k0rko11;
-	vec4 H_y0jli01 = pow(H_knxf5j, H_knxf5j);
-	vec4 H_bf27ak = H_knxf5j + H_y0jli01;
-	vec4 H_xrl7vd = exp(H_bf27ak);
-	vec4 H_id6sg61 = H_bf27ak + H_xrl7vd;
-	vec4 H_vn085z = log(H_id6sg61);
-	vec4 H_jew9k = H_id6sg61 + H_vn085z;
-	vec4 H_aphqlb1 = exp2(H_jew9k);
-	vec4 H_7us9ch = H_aphqlb1 + H_jew9k;
-	vec4 H_oo9eka1 = log2(H_7us9ch);
-	vec4 H_ic39w31 = H_7us9ch + H_oo9eka1;
-	vec4 H_sdhrvk = sqrt(H_ic39w31);
-	vec4 H_zhv89e1 = H_ic39w31 + H_sdhrvk;
-	vec4 H_qe4dhf = inversesqrt(H_zhv89e1);
-	vec4 H_3uovp9 = H_qe4dhf + H_zhv89e1;
-	vec4 H_l4btqc1 = abs(H_3uovp9);
-	vec4 H_drkj1k1 = H_3uovp9 + H_l4btqc1;
-	vec4 H_03wpb41 = sign(H_drkj1k1);
-	vec4 H_3s7mt51 = H_03wpb41 + H_drkj1k1;
-	vec4 H_dbzw8l = floor(H_3s7mt51);
-	vec4 H_zogea1 = H_3s7mt51 + H_dbzw8l;
-	vec4 H_vx6wk5 = ceil(H_zogea1);
-	vec4 H_sukbt41 = H_vx6wk5 + H_zogea1;
-	vec4 H_nocf5c = fract(H_sukbt41);
-	vec4 H_slrue7 = H_nocf5c + H_sukbt41;
-	vec4 H_kuqjea = mod(H_slrue7, H_slrue7);
-	vec4 H_brar7k1 = H_kuqjea + H_slrue7;
-	vec4 H_uiee6w1 = mod(H_brar7k1, H_brar7k1.xxxx);
-	vec4 H_8041qy = H_brar7k1 + H_uiee6w1;
-	vec4 H_1i5g17 = min(H_8041qy, uv4);
-	vec4 H_9aie7r1 = H_1i5g17 + H_8041qy;
-	vec4 H_ec18uy1 = max(H_9aie7r1, uv4);
-	vec4 H_4kmq4j1 = H_9aie7r1 + H_ec18uy1;
-	vec4 H_o0ojpt1 = clamp(H_4kmq4j1, uv4, uv4);
-	vec4 H_72no261 = H_4kmq4j1 + H_o0ojpt1;
-	vec4 H_is0u2s = mix(H_72no261, H_72no261, H_72no261);
-	vec4 H_tytg12 = H_72no261 + H_is0u2s;
-	vec4 H_0qrxik = step(H_tytg12, H_tytg12);
-	vec4 H_wz5n5h = H_0qrxik + H_tytg12;
-	vec4 H_ob7ze7 = smoothstep(H_wz5n5h, H_wz5n5h, H_wz5n5h);
-	vec4 H_x2zgdf1 = H_ob7ze7 + H_wz5n5h;
-	vec4 H_my1n1j1 = step(uf, H_x2zgdf1);
-	vec4 H_5czyiz = H_my1n1j1 + H_x2zgdf1;
-	vec4 H_jnf9m4 = smoothstep(uf, uf, H_5czyiz);
-	vec4 H_wz2mq41 = H_5czyiz + H_jnf9m4;
-	vec4 H_mt2btd = normalize(H_wz2mq41);
-	vec4 H_bwl1ia1 = H_mt2btd + H_wz2mq41;
-	vec4 H_6t6trb = faceforward(H_bwl1ia1, H_bwl1ia1, H_bwl1ia1);
-	vec4 H_vlzry21 = H_6t6trb + H_bwl1ia1;
-	vec4 H_r9qogq = reflect(H_vlzry21, H_vlzry21);
-	vec4 H_j8w6fe1 = H_r9qogq + H_vlzry21;
-	vec4 H_usy7m3 = refract(H_j8w6fe1, H_j8w6fe1, uf);
-	vec4 H_9t9k1s1 = H_j8w6fe1 + H_usy7m3;
-	vec4 H_njzidd = dFdx(H_9t9k1s1);
-	vec4 H_r7pm4g = H_9t9k1s1 + H_njzidd;
-	vec4 H_78sb82 = dFdy(H_r7pm4g);
-	vec4 H_bxno3 = H_78sb82 + H_r7pm4g;
-	vec4 H_xoecm3 = fwidth(H_bxno3);
-	vec4 H_lfd10t1 = H_bxno3 + H_xoecm3;
-	bvec4 H_onwjwl1 = lessThan(H_lfd10t1, uv4);
-	bool H_r5e40g1 = any(H_onwjwl1);
-	bvec4 H_e65lwf = lessThanEqual(H_lfd10t1, uv4);
-	bool H_gvb9bi1 = any(H_e65lwf);
-	bool H_zjnx131 = H_r5e40g1 && H_gvb9bi1;
-	bvec4 H_9dk8xt1 = greaterThan(H_lfd10t1, uv4);
-	bool H_a2o37e1 = any(H_9dk8xt1);
-	bool H_sf0eh91 = H_zjnx131 && H_a2o37e1;
-	bvec4 H_l9fmhx = greaterThanEqual(H_lfd10t1, uv4);
-	bool H_rfrsbm = any(H_l9fmhx);
-	bool H_f0zcop = H_sf0eh91 && H_rfrsbm;
+	vec4 H_pr406p1 = sin(H_2u0bi2);
+	vec4 H_1sil091 = H_2u0bi2 + H_pr406p1;
+	vec4 H_pm9wt4 = cos(H_1sil091);
+	vec4 H_60zb061 = H_1sil091 + H_pm9wt4;
+	vec4 H_vqt3cx1 = tan(H_60zb061);
+	vec4 H_b8e3h6 = H_60zb061 + H_vqt3cx1;
+	vec4 H_mmsxys = asin(H_b8e3h6);
+	vec4 H_fyum081 = H_b8e3h6 + H_mmsxys;
+	vec4 H_xttkch = acos(H_fyum081);
+	vec4 H_27h57a = H_fyum081 + H_xttkch;
+	vec4 H_nzxhnp1 = atan(H_27h57a);
+	vec4 H_jrwraf = H_27h57a + H_nzxhnp1;
+	vec4 H_9ccpbm = sinh(H_jrwraf);
+	vec4 H_iukhwg = H_9ccpbm + H_jrwraf;
+	vec4 H_t95rkq1 = cosh(H_iukhwg);
+	vec4 H_26o6hf = H_iukhwg + H_t95rkq1;
+	vec4 H_9d78cj = tanh(H_26o6hf);
+	vec4 H_49fyhm1 = H_26o6hf + H_9d78cj;
+	vec4 H_sricuv1 = asinh(H_49fyhm1);
+	vec4 H_bfg9ms1 = H_49fyhm1 + H_sricuv1;
+	vec4 H_onqi3g1 = acosh(H_bfg9ms1);
+	vec4 H_5yaqxs1 = H_bfg9ms1 + H_onqi3g1;
+	vec4 H_lkv4ho1 = atanh(H_5yaqxs1);
+	vec4 H_f8j5vq = H_5yaqxs1 + H_lkv4ho1;
+	vec4 H_2mywoc = pow(H_f8j5vq, H_f8j5vq);
+	vec4 H_tgc07q = H_2mywoc + H_f8j5vq;
+	vec4 H_qpu2a11 = exp(H_tgc07q);
+	vec4 H_dk4dcj = H_qpu2a11 + H_tgc07q;
+	vec4 H_9xbaf = log(H_dk4dcj);
+	vec4 H_svrpa71 = H_9xbaf + H_dk4dcj;
+	vec4 H_ac2bc21 = exp2(H_svrpa71);
+	vec4 H_katd4g1 = H_ac2bc21 + H_svrpa71;
+	vec4 H_dsrnja = log2(H_katd4g1);
+	vec4 H_2xmg6e = H_dsrnja + H_katd4g1;
+	vec4 H_qojjv81 = sqrt(H_2xmg6e);
+	vec4 H_823mgg = H_2xmg6e + H_qojjv81;
+	vec4 H_lhpqhc1 = inversesqrt(H_823mgg);
+	vec4 H_vu6cwi = H_823mgg + H_lhpqhc1;
+	vec4 H_hybov3 = abs(H_vu6cwi);
+	vec4 H_ls6j7z = H_hybov3 + H_vu6cwi;
+	vec4 H_497jwu = sign(H_ls6j7z);
+	vec4 H_8q4sa4 = H_497jwu + H_ls6j7z;
+	vec4 H_4r9tqn1 = floor(H_8q4sa4);
+	vec4 H_cq21og = H_4r9tqn1 + H_8q4sa4;
+	vec4 H_pnd8en1 = ceil(H_cq21og);
+	vec4 H_5ihndv1 = H_cq21og + H_pnd8en1;
+	vec4 H_0fqsuy1 = fract(H_5ihndv1);
+	vec4 H_0fwhsb1 = H_0fqsuy1 + H_5ihndv1;
+	vec4 H_chemma = mod(H_0fwhsb1, H_0fwhsb1);
+	vec4 H_4b0dru1 = H_0fwhsb1 + H_chemma;
+	vec4 H_6twtmm = mod(H_4b0dru1, H_4b0dru1.xxxx);
+	vec4 H_fc6qim = H_4b0dru1 + H_6twtmm;
+	vec4 H_4ynrbx1 = min(H_fc6qim, uv4);
+	vec4 H_qme0uc1 = H_4ynrbx1 + H_fc6qim;
+	vec4 H_4mh53o1 = max(H_qme0uc1, uv4);
+	vec4 H_d1n5jt = H_4mh53o1 + H_qme0uc1;
+	vec4 H_2g9xs11 = clamp(H_d1n5jt, uv4, uv4);
+	vec4 H_hnouuf = H_2g9xs11 + H_d1n5jt;
+	vec4 H_iz8nxl = mix(H_hnouuf, H_hnouuf, H_hnouuf);
+	vec4 H_o2jgoh = H_hnouuf + H_iz8nxl;
+	vec4 H_gaxasp = step(H_o2jgoh, H_o2jgoh);
+	vec4 H_3ou1m8 = H_gaxasp + H_o2jgoh;
+	vec4 H_67nxre1 = smoothstep(H_3ou1m8, H_3ou1m8, H_3ou1m8);
+	vec4 H_0t4vln1 = H_3ou1m8 + H_67nxre1;
+	vec4 H_1vz1wq = step(uf, H_0t4vln1);
+	vec4 H_xcgc5f1 = H_0t4vln1 + H_1vz1wq;
+	vec4 H_o7jeak1 = smoothstep(uf, uf, H_xcgc5f1);
+	vec4 H_b9n64q = H_o7jeak1 + H_xcgc5f1;
+	vec4 H_q3slgi = normalize(H_b9n64q);
+	vec4 H_3jo1tj1 = H_b9n64q + H_q3slgi;
+	vec4 H_lrjeix1 = faceforward(H_3jo1tj1, H_3jo1tj1, H_3jo1tj1);
+	vec4 H_tankrk = H_3jo1tj1 + H_lrjeix1;
+	vec4 H_x6ffun1 = reflect(H_tankrk, H_tankrk);
+	vec4 H_lwyi2i1 = H_tankrk + H_x6ffun1;
+	vec4 H_uubbzb = refract(H_lwyi2i1, H_lwyi2i1, uf);
+	vec4 H_bwor98 = H_lwyi2i1 + H_uubbzb;
+	vec4 H_2802gi1 = dFdx(H_bwor98);
+	vec4 H_cbjb581 = H_2802gi1 + H_bwor98;
+	vec4 H_36po411 = dFdy(H_cbjb581);
+	vec4 H_bn7jta = H_36po411 + H_cbjb581;
+	vec4 H_tzraew = fwidth(H_bn7jta);
+	vec4 H_fzc38q1 = H_bn7jta + H_tzraew;
+	bvec4 H_gnurdt = lessThan(H_fzc38q1, uv4);
+	bool H_jzivur1 = any(H_gnurdt);
+	bvec4 H_qykp4o = lessThanEqual(H_fzc38q1, uv4);
+	bool H_lxg04n1 = any(H_qykp4o);
+	bool H_e65ujj1 = H_jzivur1 && H_lxg04n1;
+	bvec4 H_po3x9e1 = greaterThan(H_fzc38q1, uv4);
+	bool H_smlg6k = any(H_po3x9e1);
+	bool H_72o0hj1 = H_e65ujj1 && H_smlg6k;
+	bvec4 H_h7acak1 = greaterThanEqual(H_fzc38q1, uv4);
+	bool H_xmtkou1 = any(H_h7acak1);
+	bool H_rio2t = H_72o0hj1 && H_xmtkou1;
 	bvec4 H_vlocan1 = equal(ub41, ub42);
 	bool H_by51mk1 = any(H_vlocan1);
-	bool H_vl8ftk = H_f0zcop && H_by51mk1;
+	bool H_dpz2rs = H_rio2t && H_by51mk1;
 	bvec4 H_e6ku4t1 = notEqual(ub41, ub42);
 	bool H_rjqzlx = any(H_e6ku4t1);
-	bool H_vpk2be1 = H_vl8ftk && H_rjqzlx;
+	bool H_1f85631 = H_dpz2rs && H_rjqzlx;
 	bool H_u0wve91 = any(ub41);
-	bool H_tlmzr21 = H_vpk2be1 && H_u0wve91;
+	bool H_8lgm1k = H_1f85631 && H_u0wve91;
 	bool H_f4b5uh1 = all(ub41);
-	bool H_8hjxpc1 = H_tlmzr21 && H_f4b5uh1;
+	bool H_2t4w5q = H_8lgm1k && H_f4b5uh1;
 	bvec4 H_db60wu = not(ub41);
 	bool H_hpec3a1 = any(H_db60wu);
-	bool H_ehd104 = H_8hjxpc1 && H_hpec3a1;
+	bool H_3ewbjk = H_2t4w5q && H_hpec3a1;
 	int H_ngz3vc1 = H_h8ktht1 + ui;
 	int H_l1vuw31 = H_h8ktht1 * H_ngz3vc1;
 	int H_2knscd = H_l1vuw31 - ui;
@@ -1137,21 +1137,21 @@ void main()
 	float H_eccx591 = H_6ra9oe1 * uf;
 	float H_my73qz = H_eccx591 - uf;
 	float H_1umaut = H_my73qz / uf;
-	float H_dur145 = length(H_lfd10t1);
-	float H_ojhehp = H_1umaut + H_dur145;
-	float H_db7xvs = dot(H_lfd10t1, H_lfd10t1);
-	float H_ywvhdx = H_db7xvs + H_ojhehp;
-	float H_rgdi2i = H_ywvhdx * uf;
-	float H_ndekpu = H_rgdi2i + H_ywvhdx;
-	vec3 H_8jxrqf = cross(H_lfd10t1.xyz, H_lfd10t1.xyz);
-	float H_k7563j1 = H_8jxrqf.x + H_ndekpu;
-	bool H_6ne9xg1 = H_k7563j1 == uf;
-	bool H_y3lk171 = H_k7563j1 != uf;
-	bool H_ztdus6 = H_k7563j1 != C_2d0;
-	bool H_tn1fc51 = H_y3lk171 && H_ztdus6;
-	bool H_tjj7jy = H_6ne9xg1 || H_tn1fc51;
-	float H_jb3bph1 = H_k7563j1 + C_1d0;
-	float select = H_tjj7jy ? H_jb3bph1 : H_k7563j1;
+	float H_pebi7n1 = length(H_fzc38q1);
+	float H_5868mb1 = H_1umaut + H_pebi7n1;
+	float H_9xgw8z = dot(H_fzc38q1, H_fzc38q1);
+	float H_ahac5a1 = H_5868mb1 + H_9xgw8z;
+	float H_7kv9h31 = H_ahac5a1 * uf;
+	float H_xz4r07 = H_7kv9h31 + H_ahac5a1;
+	vec3 H_ku1yjn1 = cross(H_fzc38q1.xyz, H_fzc38q1.xyz);
+	float H_yu4764 = H_ku1yjn1.x + H_xz4r07;
+	bool H_kot1tw1 = H_yu4764 == uf;
+	bool H_kzsh59 = H_yu4764 != uf;
+	bool H_ppnz8y = H_yu4764 != C_2d0;
+	bool H_qnzi2l = H_kzsh59 && H_ppnz8y;
+	bool H_247rn71 = H_kot1tw1 || H_qnzi2l;
+	float H_94a7zi1 = H_yu4764 + C_1d0;
+	float select = H_247rn71 ? H_94a7zi1 : H_yu4764;
 	vec4 H_c1z5nn = vec4(select);
 	int H_sigq8q1 = ui & _L;
 	int H_s9dupe1 = H_sigq8q1 | C_66;
@@ -1163,8 +1163,8 @@ void main()
 	float H_yrfrlx1 = float(H_8iiwvi1);
 	vec4 H_x2iwni1 = vec4(H_yrfrlx1);
 	vec4 H_hfe3lx = H_c1z5nn + H_x2iwni1;
-	vec4 Ll_FragColor1 = H_hfe3lx + H_lfd10t1;
-	vec4 select1 = H_ehd104 ? H_lfd10t1 : Ll_FragColor1;
+	vec4 Ll_FragColor1 = H_fzc38q1 + H_hfe3lx;
+	vec4 select1 = H_3ewbjk ? H_fzc38q1 : Ll_FragColor1;
 	gl_FragColor = select1;
 	
 }
@@ -1194,112 +1194,112 @@ void main()
 	vec4 H_rrtr9n = H_hgy73b * C_4bmlfm;
 	vec4 H_2u0bi = H_hgy73b + H_rrtr9n;
 	int H_h8ktht = ui * ui;
-	vec4 uni = sin(H_2u0bi);
-	vec4 H_jqi9qw = H_2u0bi + uni;
-	vec4 H_0rp3gf = cos(H_jqi9qw);
-	vec4 H_9vdfqt = H_0rp3gf + H_jqi9qw;
-	vec4 H_wl578r = tan(H_9vdfqt);
-	vec4 H_yxt4l = H_9vdfqt + H_wl578r;
-	vec4 H_c1j58i = asin(H_yxt4l);
-	vec4 H_g1c7l = H_c1j58i + H_yxt4l;
-	vec4 H_f1quob = acos(H_g1c7l);
-	vec4 H_x6kmuu = H_f1quob + H_g1c7l;
-	vec4 H_6al3re = atan(H_x6kmuu);
-	vec4 H_pfswwj = H_6al3re + H_x6kmuu;
-	vec4 H_oms0zh = sinh(H_pfswwj);
-	vec4 H_bn09q = H_oms0zh + H_pfswwj;
-	vec4 H_aghx9o = cosh(H_bn09q);
-	vec4 H_2br8n = H_aghx9o + H_bn09q;
-	vec4 H_40vce = tanh(H_2br8n);
-	vec4 H_ina7fw = H_2br8n + H_40vce;
-	vec4 H_ef89p = asinh(H_ina7fw);
-	vec4 H_vblhcg = H_ef89p + H_ina7fw;
-	vec4 H_3feejp = acosh(H_vblhcg);
-	vec4 H_k0rko = H_3feejp + H_vblhcg;
-	vec4 H_49cny = atanh(H_k0rko);
-	vec4 H_knxf5j = H_49cny + H_k0rko;
-	vec4 H_y0jli = pow(H_knxf5j, H_knxf5j);
-	vec4 H_bf27ak = H_knxf5j + H_y0jli;
-	vec4 H_xrl7vd = exp(H_bf27ak);
-	vec4 H_id6sg = H_bf27ak + H_xrl7vd;
-	vec4 H_vn085z = log(H_id6sg);
-	vec4 H_jew9k = H_id6sg + H_vn085z;
-	vec4 H_aphqlb = exp2(H_jew9k);
-	vec4 H_7us9ch = H_aphqlb + H_jew9k;
-	vec4 H_oo9eka = log2(H_7us9ch);
-	vec4 H_ic39w = H_7us9ch + H_oo9eka;
-	vec4 H_sdhrvk = sqrt(H_ic39w);
-	vec4 H_zhv89e = H_ic39w + H_sdhrvk;
-	vec4 H_qe4dhf = inversesqrt(H_zhv89e);
-	vec4 H_3uovp = H_qe4dhf + H_zhv89e;
-	vec4 H_l4btqc = abs(H_3uovp);
-	vec4 H_drkj1k = H_3uovp + H_l4btqc;
-	vec4 H_03wpb = sign(H_drkj1k);
-	vec4 H_3s7mt = H_03wpb + H_drkj1k;
-	vec4 H_dbzw8l = floor(H_3s7mt);
-	vec4 H_zogea = H_3s7mt + H_dbzw8l;
-	vec4 H_vx6wk = ceil(H_zogea);
-	vec4 H_sukbt = H_vx6wk + H_zogea;
-	vec4 H_nocf5c = fract(H_sukbt);
-	vec4 H_slrue = H_nocf5c + H_sukbt;
-	vec4 H_kuqjea = mod(H_slrue, H_slrue);
-	vec4 H_brar7k = H_kuqjea + H_slrue;
-	vec4 H_uiee6w = mod(H_brar7k, H_brar7k.xxxx);
-	vec4 H_8041qy = H_brar7k + H_uiee6w;
-	vec4 H_1i5g = min(H_8041qy, uv4);
-	vec4 H_9aie7r = H_1i5g + H_8041qy;
-	vec4 H_ec18uy = max(H_9aie7r, uv4);
-	vec4 H_4kmq4j = H_9aie7r + H_ec18uy;
-	vec4 H_o0ojpt = clamp(H_4kmq4j, uv4, uv4);
-	vec4 H_72no = H_4kmq4j + H_o0ojpt;
-	vec4 H_is0u2s = mix(H_72no, H_72no, H_72no);
-	vec4 H_tytg = H_72no + H_is0u2s;
-	vec4 H_0qrxik = step(H_tytg, H_tytg);
-	vec4 H_wz5n5h = H_0qrxik + H_tytg;
-	vec4 H_ob7ze = smoothstep(H_wz5n5h, H_wz5n5h, H_wz5n5h);
-	vec4 H_x2zgdf = H_ob7ze + H_wz5n5h;
-	vec4 H_my1n1j = step(uf, H_x2zgdf);
-	vec4 H_5czyiz = H_my1n1j + H_x2zgdf;
-	vec4 H_jnf9m = smoothstep(uf, uf, H_5czyiz);
-	vec4 H_wz2mq = H_5czyiz + H_jnf9m;
-	vec4 H_mt2btd = normalize(H_wz2mq);
-	vec4 H_bwl1ia = H_mt2btd + H_wz2mq;
-	vec4 H_6t6trb = faceforward(H_bwl1ia, H_bwl1ia, H_bwl1ia);
-	vec4 H_vlzry = H_6t6trb + H_bwl1ia;
-	vec4 H_r9qogq = reflect(H_vlzry, H_vlzry);
-	vec4 H_j8w6fe = H_r9qogq + H_vlzry;
-	vec4 H_usy7m = refract(H_j8w6fe, H_j8w6fe, uf);
-	vec4 H_9t9k1s = H_j8w6fe + H_usy7m;
-	vec4 H_njzidd = dFdx(H_9t9k1s);
-	vec4 H_r7pm4g = H_9t9k1s + H_njzidd;
-	vec4 H_78sb = dFdy(H_r7pm4g);
-	vec4 H_bxno = H_78sb + H_r7pm4g;
-	vec4 H_xoecm = fwidth(H_bxno);
-	vec4 H_lfd10t = H_bxno + H_xoecm;
-	bvec4 H_onwjwl = lessThan(H_lfd10t, uv4);
-	bool H_r5e40g = any(H_onwjwl);
-	bvec4 H_e65lwf = lessThanEqual(H_lfd10t, uv4);
-	bool H_gvb9bi = any(H_e65lwf);
-	bool H_zjnx = H_r5e40g && H_gvb9bi;
-	bvec4 H_9dk8xt = greaterThan(H_lfd10t, uv4);
-	bool H_a2o37e = any(H_9dk8xt);
-	bool H_sf0eh = H_zjnx && H_a2o37e;
-	bvec4 H_l9fmhx = greaterThanEqual(H_lfd10t, uv4);
-	bool H_rfrsbm = any(H_l9fmhx);
-	bool H_f0zcop = H_sf0eh && H_rfrsbm;
+	vec4 H_pr406p = sin(H_2u0bi);
+	vec4 H_1sil = H_2u0bi + H_pr406p;
+	vec4 H_pm9wt = cos(H_1sil);
+	vec4 H_60zb = H_1sil + H_pm9wt;
+	vec4 H_vqt3cx = tan(H_60zb);
+	vec4 H_b8e3h = H_60zb + H_vqt3cx;
+	vec4 H_mmsxys = asin(H_b8e3h);
+	vec4 H_fyum = H_b8e3h + H_mmsxys;
+	vec4 H_xttkch = acos(H_fyum);
+	vec4 H_27h57a = H_fyum + H_xttkch;
+	vec4 H_nzxhnp = atan(H_27h57a);
+	vec4 H_jrwraf = H_27h57a + H_nzxhnp;
+	vec4 H_9ccpbm = sinh(H_jrwraf);
+	vec4 H_iukhwg = H_9ccpbm + H_jrwraf;
+	vec4 H_t95rkq = cosh(H_iukhwg);
+	vec4 H_26o6hf = H_iukhwg + H_t95rkq;
+	vec4 H_9d78cj = tanh(H_26o6hf);
+	vec4 H_49fyhm = H_26o6hf + H_9d78cj;
+	vec4 H_sricuv = asinh(H_49fyhm);
+	vec4 H_bfg9ms = H_49fyhm + H_sricuv;
+	vec4 H_onqi3g = acosh(H_bfg9ms);
+	vec4 H_5yaqxs = H_bfg9ms + H_onqi3g;
+	vec4 H_lkv4ho = atanh(H_5yaqxs);
+	vec4 H_f8j5vq = H_5yaqxs + H_lkv4ho;
+	vec4 H_2mywoc = pow(H_f8j5vq, H_f8j5vq);
+	vec4 H_tgc07q = H_2mywoc + H_f8j5vq;
+	vec4 H_qpu2a = exp(H_tgc07q);
+	vec4 H_dk4dcj = H_qpu2a + H_tgc07q;
+	vec4 H_9xbaf = log(H_dk4dcj);
+	vec4 H_svrpa = H_9xbaf + H_dk4dcj;
+	vec4 H_ac2bc = exp2(H_svrpa);
+	vec4 H_katd4g = H_ac2bc + H_svrpa;
+	vec4 H_dsrnja = log2(H_katd4g);
+	vec4 H_2xmg6e = H_dsrnja + H_katd4g;
+	vec4 H_qojjv = sqrt(H_2xmg6e);
+	vec4 H_823mgg = H_2xmg6e + H_qojjv;
+	vec4 H_lhpqhc = inversesqrt(H_823mgg);
+	vec4 H_vu6cwi = H_823mgg + H_lhpqhc;
+	vec4 H_hybov = abs(H_vu6cwi);
+	vec4 H_ls6j7z = H_hybov + H_vu6cwi;
+	vec4 H_497jwu = sign(H_ls6j7z);
+	vec4 H_8q4sa = H_497jwu + H_ls6j7z;
+	vec4 H_4r9tqn = floor(H_8q4sa);
+	vec4 H_cq21og = H_4r9tqn + H_8q4sa;
+	vec4 H_pnd8en = ceil(H_cq21og);
+	vec4 H_5ihndv = H_cq21og + H_pnd8en;
+	vec4 H_0fqsuy = fract(H_5ihndv);
+	vec4 H_0fwhsb = H_0fqsuy + H_5ihndv;
+	vec4 H_chemma = mod(H_0fwhsb, H_0fwhsb);
+	vec4 H_4b0dru = H_0fwhsb + H_chemma;
+	vec4 H_6twtmm = mod(H_4b0dru, H_4b0dru.xxxx);
+	vec4 H_fc6qim = H_4b0dru + H_6twtmm;
+	vec4 H_4ynrbx = min(H_fc6qim, uv4);
+	vec4 H_qme0uc = H_4ynrbx + H_fc6qim;
+	vec4 H_4mh53o = max(H_qme0uc, uv4);
+	vec4 H_d1n5jt = H_4mh53o + H_qme0uc;
+	vec4 H_2g9xs = clamp(H_d1n5jt, uv4, uv4);
+	vec4 H_hnouuf = H_2g9xs + H_d1n5jt;
+	vec4 H_iz8nxl = mix(H_hnouuf, H_hnouuf, H_hnouuf);
+	vec4 H_o2jgoh = H_hnouuf + H_iz8nxl;
+	vec4 H_gaxasp = step(H_o2jgoh, H_o2jgoh);
+	vec4 H_3ou1m = H_gaxasp + H_o2jgoh;
+	vec4 H_67nxre = smoothstep(H_3ou1m, H_3ou1m, H_3ou1m);
+	vec4 H_0t4vln = H_3ou1m + H_67nxre;
+	vec4 H_1vz1wq = step(uf, H_0t4vln);
+	vec4 H_xcgc5f = H_0t4vln + H_1vz1wq;
+	vec4 H_o7jeak = smoothstep(uf, uf, H_xcgc5f);
+	vec4 H_b9n64q = H_o7jeak + H_xcgc5f;
+	vec4 H_q3slgi = normalize(H_b9n64q);
+	vec4 H_3jo1tj = H_b9n64q + H_q3slgi;
+	vec4 H_lrjeix = faceforward(H_3jo1tj, H_3jo1tj, H_3jo1tj);
+	vec4 H_tankrk = H_3jo1tj + H_lrjeix;
+	vec4 H_x6ffun = reflect(H_tankrk, H_tankrk);
+	vec4 H_lwyi2i = H_tankrk + H_x6ffun;
+	vec4 H_uubbzb = refract(H_lwyi2i, H_lwyi2i, uf);
+	vec4 H_bwor = H_lwyi2i + H_uubbzb;
+	vec4 H_2802gi = dFdx(H_bwor);
+	vec4 H_cbjb = H_2802gi + H_bwor;
+	vec4 H_36po = dFdy(H_cbjb);
+	vec4 H_bn7jta = H_36po + H_cbjb;
+	vec4 H_tzraew = fwidth(H_bn7jta);
+	vec4 H_fzc38q = H_bn7jta + H_tzraew;
+	bvec4 H_gnurdt = lessThan(H_fzc38q, uv4);
+	bool H_jzivur = any(H_gnurdt);
+	bvec4 H_qykp4o = lessThanEqual(H_fzc38q, uv4);
+	bool H_lxg04n = any(H_qykp4o);
+	bool H_e65ujj = H_jzivur && H_lxg04n;
+	bvec4 H_po3x9e = greaterThan(H_fzc38q, uv4);
+	bool H_smlg6k = any(H_po3x9e);
+	bool H_72o0hj = H_e65ujj && H_smlg6k;
+	bvec4 H_h7acak = greaterThanEqual(H_fzc38q, uv4);
+	bool H_xmtkou = any(H_h7acak);
+	bool H_rio2t = H_72o0hj && H_xmtkou;
 	bvec4 H_vlocan = equal(ub41, ub42);
 	bool H_by51mk = any(H_vlocan);
-	bool H_vl8ftk = H_f0zcop && H_by51mk;
+	bool H_dpz2rs = H_rio2t && H_by51mk;
 	bvec4 H_e6ku4t = notEqual(ub41, ub42);
 	bool H_rjqzlx = any(H_e6ku4t);
-	bool H_vpk2be = H_vl8ftk && H_rjqzlx;
+	bool H_1f = H_dpz2rs && H_rjqzlx;
 	bool H_u0wve = any(ub41);
-	bool H_tlmzr = H_vpk2be && H_u0wve;
+	bool H_8lgm1k = H_1f && H_u0wve;
 	bool H_f4b5uh = all(ub41);
-	bool H_8hjxpc = H_tlmzr && H_f4b5uh;
+	bool H_2t4w5q = H_8lgm1k && H_f4b5uh;
 	bvec4 H_db60wu = not(ub41);
 	bool H_hpec3a = any(H_db60wu);
-	bool H_ehd = H_8hjxpc && H_hpec3a;
+	bool H_3ewbjk = H_2t4w5q && H_hpec3a;
 	int H_ngz3vc = H_h8ktht + ui;
 	int H_l1vuw = H_h8ktht * H_ngz3vc;
 	int H_2knscd = H_l1vuw - ui;
@@ -1312,21 +1312,21 @@ void main()
 	float H_eccx = H_6ra9oe * uf;
 	float H_my73qz = H_eccx - uf;
 	float H_1umaut = H_my73qz / uf;
-	float H_dur = length(H_lfd10t);
-	float H_ojhehp = H_1umaut + H_dur;
-	float H_db7xvs = dot(H_lfd10t, H_lfd10t);
-	float H_ywvhdx = H_db7xvs + H_ojhehp;
-	float H_rgdi2i = H_ywvhdx * uf;
-	float H_ndekpu = H_rgdi2i + H_ywvhdx;
-	vec3 H_8jxrqf = cross(H_lfd10t.xyz, H_lfd10t.xyz);
-	float H_k7563j = H_8jxrqf.x + H_ndekpu;
-	bool H_6ne9xg = H_k7563j == uf;
-	bool H_y3lk = H_k7563j != uf;
-	bool H_ztdus = H_k7563j != C_2d0;
-	bool H_tn1fc = H_y3lk && H_ztdus;
-	bool H_tjj7jy = H_6ne9xg || H_tn1fc;
-	float H_jb3bph = H_k7563j + C_1d0;
-	float select = H_tjj7jy ? H_jb3bph : H_k7563j;
+	float H_pebi7n = length(H_fzc38q);
+	float H_5868mb = H_1umaut + H_pebi7n;
+	float H_9xgw8z = dot(H_fzc38q, H_fzc38q);
+	float H_ahac5a = H_5868mb + H_9xgw8z;
+	float H_7kv9h = H_ahac5a * uf;
+	float H_xz4r = H_7kv9h + H_ahac5a;
+	vec3 H_ku1yjn = cross(H_fzc38q.xyz, H_fzc38q.xyz);
+	float H_yu = H_ku1yjn.x + H_xz4r;
+	bool H_kot1tw = H_yu == uf;
+	bool H_kzsh = H_yu != uf;
+	bool H_ppnz8y = H_yu != C_2d0;
+	bool H_qnzi2l = H_kzsh && H_ppnz8y;
+	bool H_247rn = H_kot1tw || H_qnzi2l;
+	float H_94a7zi = H_yu + C_1d0;
+	float select = H_247rn ? H_94a7zi : H_yu;
 	vec4 H_c1z5nn = vec4(select);
 	int H_sigq8q = ui & _L;
 	int H_s9dupe = H_sigq8q | C_66;
@@ -1338,8 +1338,8 @@ void main()
 	float H_yrfrlx = float(H_8iiwvi);
 	vec4 H_upvu3e = vec4(H_yrfrlx);
 	vec4 H_hfe3lx = H_c1z5nn + H_upvu3e;
-	vec4 Ll_FragColor = H_hfe3lx + H_lfd10t;
-	vec4 select1 = H_ehd ? H_lfd10t : Ll_FragColor;
+	vec4 Ll_FragColor = H_fzc38q + H_hfe3lx;
+	vec4 select1 = H_3ewbjk ? H_fzc38q : Ll_FragColor;
 	gl_FragColor = select1;
 	
 }

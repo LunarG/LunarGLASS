@@ -1386,7 +1386,7 @@ ifmerge320:                                       ; preds = %loop-header317, %po
   br i1 %405, label %then321, label %else322
 
 then321:                                          ; preds = %ifmerge320
-  %ical0a = call void @llvm.gla.discard()
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
@@ -2291,7 +2291,7 @@ ifmerge320:                                       ; preds = %loop-header317
   br i1 %304, label %then321, label %else322
 
 then321:                                          ; preds = %ifmerge320
-  %ical0a = call void @llvm.gla.discard()
+  call void @llvm.gla.discard()
   br label %stage-exit
 
 else322:                                          ; preds = %ifmerge320

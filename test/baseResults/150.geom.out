@@ -28,7 +28,7 @@ entry:
   %gl_PrimitiveID = load i32* @gl_PrimitiveIDIn
   store i32 %gl_PrimitiveID, i32* @gl_PrimitiveID
   store i32 2, i32* @gl_Layer
-  %barrier = call void @llvm.gla.emitVertex()
+  call void @llvm.gla.emitVertex()
   %3 = load <3 x float>* getelementptr inbounds ([6 x %fromVertex.0]* @fromV, i32 0, i32 0, i32 0)
   %4 = fmul <3 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, %3
   store <3 x float> %4, <3 x float>* getelementptr inbounds (%fromVertex* @"anon@0", i32 0, i32 0)
@@ -42,8 +42,8 @@ entry:
   %gl_PrimitiveID1 = add i32 %9, 1
   store i32 %gl_PrimitiveID1, i32* @gl_PrimitiveID
   store i32 3, i32* @gl_Layer
-  %barrier2 = call void @llvm.gla.emitVertex()
-  %barrier3 = call void @llvm.gla.endPrimitive()
+  call void @llvm.gla.emitVertex()
+  call void @llvm.gla.endPrimitive()
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -120,41 +120,41 @@ define fastcc void @main() {
 entry:
   %gla_constGEP = getelementptr [6 x %fromVertex.0]* @fromV, i32 0, i32 0, i32 0
   %0 = load <3 x float>* %gla_constGEP, align 16
-  %gla_constGEP4 = getelementptr %fromVertex* @"anon@0", i32 0, i32 0
-  store <3 x float> %0, <3 x float>* %gla_constGEP4, align 16
-  %gla_constGEP5 = getelementptr [6 x %gl_PerVertex.1]* @gl_in, i32 0, i32 0, i32 0
-  %1 = load <4 x float>* %gla_constGEP5, align 16
-  %gla_constGEP6 = getelementptr %gl_PerVertex* @"anon@1", i32 0, i32 0
-  store <4 x float> %1, <4 x float>* %gla_constGEP6, align 16
-  %gla_constGEP7 = getelementptr [6 x %gl_PerVertex.1]* @gl_in, i32 0, i32 3, i32 1
-  %2 = load float* %gla_constGEP7, align 16
-  %gla_constGEP8 = getelementptr %gl_PerVertex* @"anon@1", i32 0, i32 1
-  store float %2, float* %gla_constGEP8, align 16
+  %gla_constGEP2 = getelementptr %fromVertex* @"anon@0", i32 0, i32 0
+  store <3 x float> %0, <3 x float>* %gla_constGEP2, align 16
+  %gla_constGEP3 = getelementptr [6 x %gl_PerVertex.1]* @gl_in, i32 0, i32 0, i32 0
+  %1 = load <4 x float>* %gla_constGEP3, align 16
+  %gla_constGEP4 = getelementptr %gl_PerVertex* @"anon@1", i32 0, i32 0
+  store <4 x float> %1, <4 x float>* %gla_constGEP4, align 16
+  %gla_constGEP5 = getelementptr [6 x %gl_PerVertex.1]* @gl_in, i32 0, i32 3, i32 1
+  %2 = load float* %gla_constGEP5, align 16
+  %gla_constGEP6 = getelementptr %gl_PerVertex* @"anon@1", i32 0, i32 1
+  store float %2, float* %gla_constGEP6, align 16
   %gl_PrimitiveID = load i32* @gl_PrimitiveIDIn, align 4
   store i32 %gl_PrimitiveID, i32* @gl_PrimitiveID, align 4
   store i32 2, i32* @gl_Layer, align 4
-  %barrier = call void @llvm.gla.emitVertex()
-  %gla_constGEP9 = getelementptr [6 x %fromVertex.0]* @fromV, i32 0, i32 0, i32 0
-  %3 = load <3 x float>* %gla_constGEP9, align 16
+  call void @llvm.gla.emitVertex()
+  %gla_constGEP7 = getelementptr [6 x %fromVertex.0]* @fromV, i32 0, i32 0, i32 0
+  %3 = load <3 x float>* %gla_constGEP7, align 16
   %4 = fmul <3 x float> %3, <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>
-  %gla_constGEP10 = getelementptr %fromVertex* @"anon@0", i32 0, i32 0
-  store <3 x float> %4, <3 x float>* %gla_constGEP10, align 16
-  %gla_constGEP11 = getelementptr [6 x %gl_PerVertex.1]* @gl_in, i32 0, i32 0, i32 0
-  %5 = load <4 x float>* %gla_constGEP11, align 16
+  %gla_constGEP8 = getelementptr %fromVertex* @"anon@0", i32 0, i32 0
+  store <3 x float> %4, <3 x float>* %gla_constGEP8, align 16
+  %gla_constGEP9 = getelementptr [6 x %gl_PerVertex.1]* @gl_in, i32 0, i32 0, i32 0
+  %5 = load <4 x float>* %gla_constGEP9, align 16
   %6 = fmul <4 x float> %5, <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>
-  %gla_constGEP12 = getelementptr %gl_PerVertex* @"anon@1", i32 0, i32 0
-  store <4 x float> %6, <4 x float>* %gla_constGEP12, align 16
-  %gla_constGEP13 = getelementptr [6 x %gl_PerVertex.1]* @gl_in, i32 0, i32 3, i32 1
-  %7 = load float* %gla_constGEP13, align 16
+  %gla_constGEP10 = getelementptr %gl_PerVertex* @"anon@1", i32 0, i32 0
+  store <4 x float> %6, <4 x float>* %gla_constGEP10, align 16
+  %gla_constGEP11 = getelementptr [6 x %gl_PerVertex.1]* @gl_in, i32 0, i32 3, i32 1
+  %7 = load float* %gla_constGEP11, align 16
   %8 = fmul float %7, 2.000000e+00
-  %gla_constGEP14 = getelementptr %gl_PerVertex* @"anon@1", i32 0, i32 1
-  store float %8, float* %gla_constGEP14, align 16
+  %gla_constGEP12 = getelementptr %gl_PerVertex* @"anon@1", i32 0, i32 1
+  store float %8, float* %gla_constGEP12, align 16
   %9 = load i32* @gl_PrimitiveIDIn, align 4
   %gl_PrimitiveID1 = add i32 %9, 1
   store i32 %gl_PrimitiveID1, i32* @gl_PrimitiveID, align 4
   store i32 3, i32* @gl_Layer, align 4
-  %barrier2 = call void @llvm.gla.emitVertex()
-  %barrier3 = call void @llvm.gla.endPrimitive()
+  call void @llvm.gla.emitVertex()
+  call void @llvm.gla.endPrimitive()
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
