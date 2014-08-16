@@ -34,13 +34,13 @@ ifmerge:                                          ; preds = %else, %then
   %3 = load float* %scale
   %4 = load i32 addrspace(1)* @sampler, !gla.uniform !7
   %5 = load <2 x float>* @coord
-  %6 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %5)
-  %7 = insertelement <4 x float> undef, float %3, i32 0
-  %8 = insertelement <4 x float> %7, float %3, i32 1
-  %9 = insertelement <4 x float> %8, float %3, i32 2
-  %10 = insertelement <4 x float> %9, float %3, i32 3
-  %gl_FragColor = fmul <4 x float> %10, %6
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %5)
+  %6 = insertelement <4 x float> undef, float %3, i32 0
+  %7 = insertelement <4 x float> %6, float %3, i32 1
+  %8 = insertelement <4 x float> %7, float %3, i32 2
+  %9 = insertelement <4 x float> %8, float %3, i32 3
+  %gl_FragColor3 = fmul <4 x float> %9, %gl_FragColor
+  store <4 x float> %gl_FragColor3, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -94,18 +94,18 @@ entry:
   %gla_constGEP = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 0, i32 4
   %0 = load i32 addrspace(2)* %gla_constGEP, align 16, !gla.uniform !1
   %1 = icmp sgt i32 %0, 0
-  %gla_constGEP3 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3
-  %2 = load <4 x float> addrspace(2)* %gla_constGEP3, align 16, !gla.uniform !1
+  %gla_constGEP4 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3
+  %2 = load <4 x float> addrspace(2)* %gla_constGEP4, align 16, !gla.uniform !1
   %scale1 = extractelement <4 x float> %2, i32 0
-  %gla_constGEP4 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3
-  %scale2 = load float addrspace(2)* %gla_constGEP4, align 4, !gla.uniform !1
+  %gla_constGEP5 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3
+  %scale2 = load float addrspace(2)* %gla_constGEP5, align 4, !gla.uniform !1
   %select = select i1 %1, float %scale1, float %scale2
   %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select, <4 x i32> zeroinitializer)
   %4 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !7
   %5 = load <2 x float>* @coord, align 8
-  %6 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %5)
-  %gl_FragColor = fmul <4 x float> %6, %3
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor, align 16
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %5)
+  %gl_FragColor3 = fmul <4 x float> %gl_FragColor, %3
+  store <4 x float> %gl_FragColor3, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -165,11 +165,11 @@ const int C_0 = 0;
 void main()
 {
 	bool H_l0sl9r = foo2[3].i[4] > C_0;
-	float select_c1 = H_l0sl9r ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
-	vec4 H_5uczgz = vec4(select_c1);
-	vec4 H_0k8q2q = texture(sampler, coord);
-	vec4 Ll_FragColor_c2 = H_0k8q2q * H_5uczgz;
-	gl_FragColor = Ll_FragColor_c2;
+	float select = H_l0sl9r ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
+	vec4 H_c1z5nn = vec4(select);
+	vec4 Ll_FragColor1 = texture(sampler, coord);
+	vec4 Ll_FragColor2 = H_c1z5nn * Ll_FragColor1;
+	gl_FragColor = Ll_FragColor2;
 	
 }
 
@@ -193,12 +193,12 @@ const int C_0 = 0;
 
 void main()
 {
-	bool H_l_c1 = foo2[3].i[4] > C_0;
-	float select_c2 = H_l_c1 ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
-	vec4 H_27j1m6 = vec4(select_c2);
-	vec4 H_uc3 = texture(sampler, coord);
-	vec4 Ll_FragColor_c4 = H_27j1m6 * H_uc3;
-	gl_FragColor = Ll_FragColor_c4;
+	bool H_l0sl9r = foo2[3].i[4] > C_0;
+	float select = H_l0sl9r ? foo2[3].s1_1[2].color[3].x : foo2[3].s1_1[2].f[3];
+	vec4 H_c1z5nn = vec4(select);
+	vec4 Ll_FragColor = texture(sampler, coord);
+	vec4 Ll_FragColor1 = H_c1z5nn * Ll_FragColor;
+	gl_FragColor = Ll_FragColor1;
 	
 }
 

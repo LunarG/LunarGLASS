@@ -26,7 +26,7 @@ entry:
   %5 = fmul float %4, 2.000000e+00
   %y3 = fsub float %5, 1.000000e+00
   store float %y3, float* %y
-  call void @llvm.gla.discard()
+  %ical0a = call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
@@ -65,7 +65,7 @@ Bottom IR:
 
 define fastcc void @main() {
 entry:
-  call void @llvm.gla.discard()
+  %ical0a = call void @llvm.gla.discard()
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry

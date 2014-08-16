@@ -11,15 +11,15 @@ entry:
   %v = alloca <4 x float>
   %0 = load i32 addrspace(1)* @tex, !gla.uniform !1
   %1 = load <2 x float>* @coord
-  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1)
-  store <4 x float> %v1, <4 x float>* %v
+  %v2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1)
+  store <4 x float> %v2, <4 x float>* %v
   %2 = load <4 x float>* %v
   %3 = fcmp oeq <4 x float> %2, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
-  %4 = call i1 @llvm.gla.all.v4i1(<4 x i1> %3)
-  br i1 %4, label %then, label %ifmerge
+  %cc = call i1 @llvm.gla.all.v4i1(<4 x i1> %3)
+  br i1 %cc, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  call void @llvm.gla.discard()
+  %ical0a = call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
@@ -75,17 +75,17 @@ define fastcc void @main() {
 entry:
   %0 = load i32 addrspace(1)* @tex, align 4, !gla.uniform !1
   %1 = load <2 x float>* @coord, align 8
-  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1)
-  %2 = fcmp oeq <4 x float> %v1, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
-  %3 = call i1 @llvm.gla.all.v4i1(<4 x i1> %2)
-  br i1 %3, label %then, label %ifmerge
+  %v2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1)
+  %2 = fcmp oeq <4 x float> %v2, <float 0x3FB99999A0000000, float 0x3FC99999A0000000, float 0x3FD3333340000000, float 0x3FD99999A0000000>
+  %cc = call i1 @llvm.gla.all.v4i1(<4 x i1> %2)
+  br i1 %cc, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  call void @llvm.gla.discard()
+  %ical0a = call void @llvm.gla.discard()
   br label %stage-exit
 
 ifmerge:                                          ; preds = %entry
-  store <4 x float> %v1, <4 x float>* @gl_FragColor, align 16
+  store <4 x float> %v2, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -130,8 +130,8 @@ void main()
 {
 	vec4 H_zp2m0z = texture2D(tex, coord);
 	bvec4 H_2mjw8w1 = equal(H_zp2m0z, C_o2rsm81);
-	bool H_878a09 = all(H_2mjw8w1);
-	if (H_878a09) {
+	bool cc = all(H_2mjw8w1);
+	if (cc) {
 		discard;
 	}
 	
@@ -147,14 +147,14 @@ const vec4 C_o2rsm81 = vec4(0.1, 0.2, 0.3, 0.4);
 
 void main()
 {
-	vec4 H_zp_c1 = texture2D(tex, coord);
-	bvec4 H_uc2 = equal(H_zp_c1, C_o2rsm81);
-	bool H_uc3 = all(H_uc2);
-	if (H_uc3) {
+	vec4 H_zp2m0z = texture2D(tex, coord);
+	bvec4 H_2mjw8w = equal(H_zp2m0z, C_o2rsm81);
+	bool cc = all(H_2mjw8w);
+	if (cc) {
 		discard;
 	}
 	
-	gl_FragColor = H_zp_c1;
+	gl_FragColor = H_zp2m0z;
 	
 }
 

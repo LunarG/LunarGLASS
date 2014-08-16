@@ -10,11 +10,11 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %param61 = alloca i32
-  %param60 = alloca <4 x float>
-  %param59 = alloca <4 x float>
-  %param54 = alloca i32
-  %param53 = alloca <4 x float>
+  %param74 = alloca i32
+  %param73 = alloca <4 x float>
+  %param72 = alloca <4 x float>
+  %param67 = alloca i32
+  %param66 = alloca <4 x float>
   %param = alloca <4 x float>
   %j = alloca i32
   %i = alloca i32
@@ -33,266 +33,266 @@ entry:
 
 switch-segment:                                   ; preds = %entry
   %2 = load float* @x
-  %f5 = call float @llvm.gla.fSin.f32.f32(float %2), !gla.precision !9
-  store float %f5, float* %f
+  %f6 = call float @llvm.gla.fSin.f32.f32(float %2), !gla.precision !9
+  store float %f6, float* %f
   br label %switch-merge
 
 switch-segment3:                                  ; preds = %entry
   %3 = load float* @x
-  %f6 = call float @llvm.gla.fCos.f32.f32(float %3), !gla.precision !9
-  store float %f6, float* %f
+  %f8 = call float @llvm.gla.fCos.f32.f32(float %3), !gla.precision !9
+  store float %f8, float* %f
   br label %switch-merge
 
 switch-segment4:                                  ; preds = %entry
   %4 = load float* @x
-  %f7 = call float @llvm.gla.fTan.f32.f32(float %4), !gla.precision !9
-  store float %f7, float* %f
+  %f10 = call float @llvm.gla.fTan.f32.f32(float %4), !gla.precision !9
+  store float %f10, float* %f
   br label %switch-merge
 
 switch-merge:                                     ; preds = %switch-segment4, %switch-segment3, %switch-segment
   %5 = load i32 addrspace(2)* @c, !gla.uniform !1
-  switch i32 %5, label %switch-segment10 [
-    i32 1, label %switch-segment8
-    i32 2, label %switch-segment9
+  switch i32 %5, label %switch-segment13 [
+    i32 1, label %switch-segment11
+    i32 2, label %switch-segment12
   ]
 
-switch-segment8:                                  ; preds = %switch-merge
+switch-segment11:                                 ; preds = %switch-merge
   %6 = load float* @x
-  %7 = call float @llvm.gla.fSin.f32.f32(float %6), !gla.precision !9
-  %8 = load float* %f
-  %f12 = fadd float %8, %7, !gla.precision !9
-  store float %f12, float* %f
-  br label %switch-segment9
+  %f15 = call float @llvm.gla.fSin.f32.f32(float %6), !gla.precision !9
+  %7 = load float* %f
+  %f16 = fadd float %7, %f15, !gla.precision !9
+  store float %f16, float* %f
+  br label %switch-segment12
 
-switch-segment9:                                  ; preds = %switch-segment8, %switch-merge
-  %9 = load float* @x
-  %10 = call float @llvm.gla.fCos.f32.f32(float %9), !gla.precision !9
-  %11 = load float* %f
-  %f13 = fadd float %11, %10, !gla.precision !9
-  store float %f13, float* %f
-  br label %switch-merge11
-
-switch-segment10:                                 ; preds = %switch-merge
-  %12 = load float* @x
-  %13 = call float @llvm.gla.fTan.f32.f32(float %12), !gla.precision !9
-  %14 = load float* %f
-  %f14 = fadd float %14, %13, !gla.precision !9
-  store float %f14, float* %f
-  br label %switch-merge11
-
-switch-merge11:                                   ; preds = %switch-segment10, %switch-segment9
-  %15 = load i32 addrspace(2)* @c, !gla.uniform !1
-  switch i32 %15, label %switch-merge17 [
-    i32 1, label %switch-segment15
-    i32 2, label %switch-segment16
-  ]
-
-switch-segment15:                                 ; preds = %switch-merge11
-  %16 = load float* @x
-  %17 = call float @llvm.gla.fSin.f32.f32(float %16), !gla.precision !9
-  %18 = load float* %f
-  %f18 = fadd float %18, %17, !gla.precision !9
+switch-segment12:                                 ; preds = %switch-segment11, %switch-merge
+  %8 = load float* @x
+  %f17 = call float @llvm.gla.fCos.f32.f32(float %8), !gla.precision !9
+  %9 = load float* %f
+  %f18 = fadd float %9, %f17, !gla.precision !9
   store float %f18, float* %f
-  br label %switch-merge17
+  br label %switch-merge14
 
-switch-segment16:                                 ; preds = %switch-merge11
-  %19 = load float* @x
-  %20 = call float @llvm.gla.fCos.f32.f32(float %19), !gla.precision !9
-  %21 = load float* %f
-  %f19 = fadd float %21, %20, !gla.precision !9
-  store float %f19, float* %f
-  br label %switch-merge17
+switch-segment13:                                 ; preds = %switch-merge
+  %10 = load float* @x
+  %f19 = call float @llvm.gla.fTan.f32.f32(float %10), !gla.precision !9
+  %11 = load float* %f
+  %f20 = fadd float %11, %f19, !gla.precision !9
+  store float %f20, float* %f
+  br label %switch-merge14
 
-switch-merge17:                                   ; preds = %switch-segment16, %switch-segment15, %switch-merge11
-  %22 = load i32 addrspace(2)* @c, !gla.uniform !1
-  switch i32 %22, label %switch-segment22 [
-    i32 1, label %switch-segment20
-    i32 2, label %switch-segment21
+switch-merge14:                                   ; preds = %switch-segment13, %switch-segment12
+  %12 = load i32 addrspace(2)* @c, !gla.uniform !1
+  switch i32 %12, label %switch-merge23 [
+    i32 1, label %switch-segment21
+    i32 2, label %switch-segment22
   ]
 
-switch-segment20:                                 ; preds = %switch-merge17
-  %23 = load float* @x
-  %24 = call float @llvm.gla.fSin.f32.f32(float %23), !gla.precision !9
-  %25 = load float* %f
-  %f24 = fadd float %25, %24, !gla.precision !9
-  store float %f24, float* %f
+switch-segment21:                                 ; preds = %switch-merge14
+  %13 = load float* @x
+  %f24 = call float @llvm.gla.fSin.f32.f32(float %13), !gla.precision !9
+  %14 = load float* %f
+  %f25 = fadd float %14, %f24, !gla.precision !9
+  store float %f25, float* %f
   br label %switch-merge23
 
-switch-segment21:                                 ; preds = %switch-merge17
-  %26 = load i32 addrspace(2)* @d, !gla.uniform !3
-  switch i32 %26, label %switch-merge27 [
-    i32 1, label %switch-segment25
-    i32 2, label %switch-segment26
+switch-segment22:                                 ; preds = %switch-merge14
+  %15 = load float* @x
+  %f26 = call float @llvm.gla.fCos.f32.f32(float %15), !gla.precision !9
+  %16 = load float* %f
+  %f27 = fadd float %16, %f26, !gla.precision !9
+  store float %f27, float* %f
+  br label %switch-merge23
+
+switch-merge23:                                   ; preds = %switch-segment22, %switch-segment21, %switch-merge14
+  %17 = load i32 addrspace(2)* @c, !gla.uniform !1
+  switch i32 %17, label %switch-segment30 [
+    i32 1, label %switch-segment28
+    i32 2, label %switch-segment29
   ]
 
-switch-segment22:                                 ; preds = %switch-merge17
-  %27 = load float* @x
-  %28 = call float @llvm.gla.fTan.f32.f32(float %27), !gla.precision !9
-  %29 = load float* %f
-  %f30 = fadd float %29, %28, !gla.precision !9
-  store float %f30, float* %f
-  br label %switch-merge23
+switch-segment28:                                 ; preds = %switch-merge23
+  %18 = load float* @x
+  %f32 = call float @llvm.gla.fSin.f32.f32(float %18), !gla.precision !9
+  %19 = load float* %f
+  %f33 = fadd float %19, %f32, !gla.precision !9
+  store float %f33, float* %f
+  br label %switch-merge31
 
-switch-merge23:                                   ; preds = %switch-segment22, %switch-merge27, %switch-segment20
+switch-segment29:                                 ; preds = %switch-merge23
+  %20 = load i32 addrspace(2)* @d, !gla.uniform !3
+  switch i32 %20, label %switch-merge36 [
+    i32 1, label %switch-segment34
+    i32 2, label %switch-segment35
+  ]
+
+switch-segment30:                                 ; preds = %switch-merge23
+  %21 = load float* @x
+  %f39 = call float @llvm.gla.fTan.f32.f32(float %21), !gla.precision !9
+  %22 = load float* %f
+  %f40 = fadd float %22, %f39, !gla.precision !9
+  store float %f40, float* %f
+  br label %switch-merge31
+
+switch-merge31:                                   ; preds = %switch-segment30, %switch-merge36, %switch-segment28
   store i32 0, i32* %i
   br label %loop-header
 
-switch-segment25:                                 ; preds = %switch-segment21
+switch-segment34:                                 ; preds = %switch-segment29
+  %23 = load float* @x
+  %24 = load float* @x
+  %25 = fmul float %23, %24, !gla.precision !9
+  %26 = load float* @x
+  %27 = fmul float %25, %26, !gla.precision !9
+  %28 = load float* %f
+  %f37 = fadd float %28, %27, !gla.precision !9
+  store float %f37, float* %f
+  br label %switch-merge36
+
+switch-segment35:                                 ; preds = %switch-segment29
+  %29 = load float* @x
   %30 = load float* @x
-  %31 = load float* @x
-  %32 = fmul float %30, %31, !gla.precision !9
-  %33 = load float* @x
-  %34 = fmul float %32, %33, !gla.precision !9
-  %35 = load float* %f
-  %f28 = fadd float %35, %34, !gla.precision !9
-  store float %f28, float* %f
-  br label %switch-merge27
+  %31 = fmul float %29, %30, !gla.precision !9
+  %32 = load float* %f
+  %f38 = fadd float %32, %31, !gla.precision !9
+  store float %f38, float* %f
+  br label %switch-merge36
 
-switch-segment26:                                 ; preds = %switch-segment21
-  %36 = load float* @x
-  %37 = load float* @x
-  %38 = fmul float %36, %37, !gla.precision !9
-  %39 = load float* %f
-  %f29 = fadd float %39, %38, !gla.precision !9
-  store float %f29, float* %f
-  br label %switch-merge27
+switch-merge36:                                   ; preds = %switch-segment35, %switch-segment34, %switch-segment29
+  br label %switch-merge31
 
-switch-merge27:                                   ; preds = %switch-segment26, %switch-segment25, %switch-segment21
-  br label %switch-merge23
-
-loop-header:                                      ; preds = %post-loop-continue51, %ifmerge49, %switch-merge23
-  %40 = load i32* %i
-  %41 = icmp slt i32 %40, 10
-  %42 = xor i1 %41, true
-  br i1 %42, label %then, label %ifmerge
+loop-header:                                      ; preds = %post-loop-continue64, %ifmerge62, %switch-merge31
+  %33 = load i32* %i
+  %34 = icmp slt i32 %33, 10
+  %35 = xor i1 %34, true
+  br i1 %35, label %then, label %ifmerge
 
 then:                                             ; preds = %loop-header
-  br label %loop-merge52
+  br label %loop-merge65
 
 post-loop-break:                                  ; No predecessors!
   br label %ifmerge
 
 ifmerge:                                          ; preds = %loop-header, %post-loop-break
-  %43 = load i32 addrspace(2)* @c, !gla.uniform !1
-  switch i32 %43, label %switch-segment33 [
-    i32 1, label %switch-segment31
-    i32 2, label %switch-segment32
+  %36 = load i32 addrspace(2)* @c, !gla.uniform !1
+  switch i32 %36, label %switch-segment43 [
+    i32 1, label %switch-segment41
+    i32 2, label %switch-segment42
   ]
 
-switch-segment31:                                 ; preds = %ifmerge
-  %44 = load float* @x
-  %45 = call float @llvm.gla.fSin.f32.f32(float %44), !gla.precision !9
-  %46 = load float* %f
-  %f35 = fadd float %46, %45, !gla.precision !9
-  store float %f35, float* %f
-  store i32 20, i32* %j
-  br label %loop-header36
-
-switch-segment32:                                 ; preds = %ifmerge
-  %47 = load float* @x
-  %48 = call float @llvm.gla.fCos.f32.f32(float %47), !gla.precision !9
-  %49 = load float* %f
-  %f45 = fadd float %49, %48, !gla.precision !9
-  store float %f45, float* %f
-  br label %switch-merge34
-
-switch-segment33:                                 ; preds = %ifmerge
-  %50 = load float* @x
-  %51 = call float @llvm.gla.fTan.f32.f32(float %50), !gla.precision !9
-  %52 = load float* %f
-  %f46 = fadd float %52, %51, !gla.precision !9
+switch-segment41:                                 ; preds = %ifmerge
+  %37 = load float* @x
+  %f45 = call float @llvm.gla.fSin.f32.f32(float %37), !gla.precision !9
+  %38 = load float* %f
+  %f46 = fadd float %38, %f45, !gla.precision !9
   store float %f46, float* %f
-  br label %switch-merge34
+  store i32 20, i32* %j
+  br label %loop-header47
 
-switch-merge34:                                   ; preds = %switch-segment33, %switch-segment32, %loop-merge
-  %53 = load float* %f
-  %54 = fcmp olt float %53, 0x400B70A3E0000000
-  br i1 %54, label %then47, label %ifmerge49
+switch-segment42:                                 ; preds = %ifmerge
+  %39 = load float* @x
+  %f56 = call float @llvm.gla.fCos.f32.f32(float %39), !gla.precision !9
+  %40 = load float* %f
+  %f57 = fadd float %40, %f56, !gla.precision !9
+  store float %f57, float* %f
+  br label %switch-merge44
 
-loop-header36:                                    ; preds = %post-loop-continue, %ifmerge43, %switch-segment31
-  %55 = load i32* %j
-  %56 = icmp slt i32 %55, 30
-  %57 = xor i1 %56, true
-  br i1 %57, label %then37, label %ifmerge39
+switch-segment43:                                 ; preds = %ifmerge
+  %41 = load float* @x
+  %f58 = call float @llvm.gla.fTan.f32.f32(float %41), !gla.precision !9
+  %42 = load float* %f
+  %f59 = fadd float %42, %f58, !gla.precision !9
+  store float %f59, float* %f
+  br label %switch-merge44
 
-then37:                                           ; preds = %loop-header36
+switch-merge44:                                   ; preds = %switch-segment43, %switch-segment42, %loop-merge
+  %43 = load float* %f
+  %44 = fcmp olt float %43, 0x400B70A3E0000000
+  br i1 %44, label %then60, label %ifmerge62
+
+loop-header47:                                    ; preds = %post-loop-continue, %ifmerge54, %switch-segment41
+  %45 = load i32* %j
+  %46 = icmp slt i32 %45, 30
+  %47 = xor i1 %46, true
+  br i1 %47, label %then48, label %ifmerge50
+
+then48:                                           ; preds = %loop-header47
   br label %loop-merge
 
-post-loop-break38:                                ; No predecessors!
-  br label %ifmerge39
+post-loop-break49:                                ; No predecessors!
+  br label %ifmerge50
 
-ifmerge39:                                        ; preds = %loop-header36, %post-loop-break38
-  %58 = load float* %f
-  %f40 = fadd float %58, 1.000000e+00, !gla.precision !9
-  store float %f40, float* %f
-  %59 = load float* %f
-  %60 = fcmp olt float %59, 0x40590CCCC0000000
-  br i1 %60, label %then41, label %ifmerge43
+ifmerge50:                                        ; preds = %loop-header47, %post-loop-break49
+  %48 = load float* %f
+  %f51 = fadd float %48, 1.000000e+00, !gla.precision !9
+  store float %f51, float* %f
+  %49 = load float* %f
+  %50 = fcmp olt float %49, 0x40590CCCC0000000
+  br i1 %50, label %then52, label %ifmerge54
 
-then41:                                           ; preds = %ifmerge39
+then52:                                           ; preds = %ifmerge50
   br label %loop-merge
 
-post-loop-break42:                                ; No predecessors!
-  br label %ifmerge43
+post-loop-break53:                                ; No predecessors!
+  br label %ifmerge54
 
-ifmerge43:                                        ; preds = %ifmerge39, %post-loop-break42
-  %61 = load i32* %j
-  %j44 = add i32 %61, 1, !gla.precision !9
-  store i32 %j44, i32* %j
-  br label %loop-header36
+ifmerge54:                                        ; preds = %ifmerge50, %post-loop-break53
+  %51 = load i32* %j
+  %j55 = add i32 %51, 1, !gla.precision !9
+  store i32 %j55, i32* %j
+  br label %loop-header47
 
 post-loop-continue:                               ; No predecessors!
-  br label %loop-header36
+  br label %loop-header47
 
-loop-merge:                                       ; preds = %then41, %then37
-  br label %switch-merge34
+loop-merge:                                       ; preds = %then52, %then48
+  br label %switch-merge44
 
-then47:                                           ; preds = %switch-merge34
-  br label %loop-merge52
+then60:                                           ; preds = %switch-merge44
+  br label %loop-merge65
 
-post-loop-break48:                                ; No predecessors!
-  br label %ifmerge49
+post-loop-break61:                                ; No predecessors!
+  br label %ifmerge62
 
-ifmerge49:                                        ; preds = %switch-merge34, %post-loop-break48
-  %62 = load i32* %i
-  %i50 = add i32 %62, 1, !gla.precision !9
-  store i32 %i50, i32* %i
+ifmerge62:                                        ; preds = %switch-merge44, %post-loop-break61
+  %52 = load i32* %i
+  %i63 = add i32 %52, 1, !gla.precision !9
+  store i32 %i63, i32* %i
   br label %loop-header
 
-post-loop-continue51:                             ; No predecessors!
+post-loop-continue64:                             ; No predecessors!
   br label %loop-header
 
-loop-merge52:                                     ; preds = %then47, %then
-  %63 = load float* %f
-  %64 = load i32* %local
-  %65 = sitofp i32 %64 to float, !gla.precision !9
-  %color = fadd float %63, %65, !gla.precision !9
+loop-merge65:                                     ; preds = %then60, %then
+  %53 = load float* %f
+  %54 = load i32* %local
+  %55 = sitofp i32 %54 to float, !gla.precision !9
+  %color = fadd float %53, %55, !gla.precision !9
   store float %color, float* @color
-  %param55 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
-  store <4 x float> %param55, <4 x float>* %param
-  %param5356 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
-  store <4 x float> %param5356, <4 x float>* %param53
-  %param5457 = load i32 addrspace(2)* @c, !gla.uniform !1
-  store i32 %param5457, i32* %param54
-  %66 = call <4 x float> @"foo1(vf4;vf4;i1;"(<4 x float>* %param, <4 x float>* %param53, i32* %param54)
-  %67 = extractelement <4 x float> %66, i32 1, !gla.precision !9
-  %68 = load float* @color
-  %color58 = fadd float %68, %67, !gla.precision !9
-  store float %color58, float* @color
-  %param5962 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
-  store <4 x float> %param5962, <4 x float>* %param59
-  %param6063 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
-  store <4 x float> %param6063, <4 x float>* %param60
-  %param6164 = load i32 addrspace(2)* @c, !gla.uniform !1
-  store i32 %param6164, i32* %param61
-  %69 = call <4 x float> @"foo2(vf4;vf4;i1;"(<4 x float>* %param59, <4 x float>* %param60, i32* %param61)
-  %70 = extractelement <4 x float> %69, i32 2, !gla.precision !9
-  %71 = load float* @color
-  %color65 = fadd float %71, %70, !gla.precision !9
-  store float %color65, float* @color
+  %param68 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
+  store <4 x float> %param68, <4 x float>* %param
+  %param6669 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
+  store <4 x float> %param6669, <4 x float>* %param66
+  %param6770 = load i32 addrspace(2)* @c, !gla.uniform !1
+  store i32 %param6770, i32* %param67
+  %56 = call <4 x float> @"foo1(vf4;vf4;i1;"(<4 x float>* %param, <4 x float>* %param66, i32* %param67)
+  %57 = extractelement <4 x float> %56, i32 1, !gla.precision !9
+  %58 = load float* @color
+  %color71 = fadd float %58, %57, !gla.precision !9
+  store float %color71, float* @color
+  %param7275 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
+  store <4 x float> %param7275, <4 x float>* %param72
+  %param7376 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
+  store <4 x float> %param7376, <4 x float>* %param73
+  %param7477 = load i32 addrspace(2)* @c, !gla.uniform !1
+  store i32 %param7477, i32* %param74
+  %59 = call <4 x float> @"foo2(vf4;vf4;i1;"(<4 x float>* %param72, <4 x float>* %param73, i32* %param74)
+  %60 = extractelement <4 x float> %59, i32 2, !gla.precision !9
+  %61 = load float* @color
+  %color78 = fadd float %61, %60, !gla.precision !9
+  store float %color78, float* @color
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %loop-merge52
+stage-epilogue:                                   ; preds = %loop-merge65
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -436,170 +436,170 @@ entry:
 
 switch-segment:                                   ; preds = %entry
   %0 = load float* @x, align 4
-  %f5 = call float @llvm.gla.fSin.f32.f32(float %0), !gla.precision !9
+  %f6 = call float @llvm.gla.fSin.f32.f32(float %0), !gla.precision !9
   br label %switch-merge
 
 switch-segment3:                                  ; preds = %entry
   %1 = load float* @x, align 4
-  %f6 = call float @llvm.gla.fCos.f32.f32(float %1), !gla.precision !9
+  %f8 = call float @llvm.gla.fCos.f32.f32(float %1), !gla.precision !9
   br label %switch-merge
 
 switch-segment4:                                  ; preds = %entry
   %2 = load float* @x, align 4
-  %f7 = call float @llvm.gla.fTan.f32.f32(float %2), !gla.precision !9
+  %f10 = call float @llvm.gla.fTan.f32.f32(float %2), !gla.precision !9
   br label %switch-merge
 
 switch-merge:                                     ; preds = %switch-segment4, %switch-segment3, %switch-segment
   %3 = phi float [ %2, %switch-segment4 ], [ %1, %switch-segment3 ], [ %0, %switch-segment ]
-  %f.0 = phi float [ %f7, %switch-segment4 ], [ %f6, %switch-segment3 ], [ %f5, %switch-segment ]
-  switch i32 %local1, label %switch-segment10 [
-    i32 1, label %switch-segment8
-    i32 2, label %switch-segment9
+  %f.0 = phi float [ %f10, %switch-segment4 ], [ %f8, %switch-segment3 ], [ %f6, %switch-segment ]
+  switch i32 %local1, label %switch-segment13 [
+    i32 1, label %switch-segment11
+    i32 2, label %switch-segment12
   ]
 
-switch-segment8:                                  ; preds = %switch-merge
-  %4 = call float @llvm.gla.fSin.f32.f32(float %3), !gla.precision !9
-  %f12 = fadd float %f.0, %4, !gla.precision !9
-  br label %switch-segment9
+switch-segment11:                                 ; preds = %switch-merge
+  %f15 = call float @llvm.gla.fSin.f32.f32(float %3), !gla.precision !9
+  %f16 = fadd float %f.0, %f15, !gla.precision !9
+  br label %switch-segment12
 
-switch-segment9:                                  ; preds = %switch-segment8, %switch-merge
-  %f.1 = phi float [ %f.0, %switch-merge ], [ %f12, %switch-segment8 ]
-  %5 = call float @llvm.gla.fCos.f32.f32(float %3), !gla.precision !9
-  %f13 = fadd float %f.1, %5, !gla.precision !9
-  br label %switch-merge11
+switch-segment12:                                 ; preds = %switch-segment11, %switch-merge
+  %f.1 = phi float [ %f.0, %switch-merge ], [ %f16, %switch-segment11 ]
+  %f17 = call float @llvm.gla.fCos.f32.f32(float %3), !gla.precision !9
+  %f18 = fadd float %f.1, %f17, !gla.precision !9
+  br label %switch-merge14
 
-switch-segment10:                                 ; preds = %switch-merge
-  %6 = call float @llvm.gla.fTan.f32.f32(float %3), !gla.precision !9
-  %f14 = fadd float %f.0, %6, !gla.precision !9
-  br label %switch-merge11
+switch-segment13:                                 ; preds = %switch-merge
+  %f19 = call float @llvm.gla.fTan.f32.f32(float %3), !gla.precision !9
+  %f20 = fadd float %f.0, %f19, !gla.precision !9
+  br label %switch-merge14
 
-switch-merge11:                                   ; preds = %switch-segment10, %switch-segment9
-  %f.2 = phi float [ %f14, %switch-segment10 ], [ %f13, %switch-segment9 ]
-  switch i32 %local1, label %switch-merge17 [
-    i32 1, label %switch-segment15
-    i32 2, label %switch-segment16
+switch-merge14:                                   ; preds = %switch-segment13, %switch-segment12
+  %f.2 = phi float [ %f20, %switch-segment13 ], [ %f18, %switch-segment12 ]
+  switch i32 %local1, label %switch-merge23 [
+    i32 1, label %switch-segment21
+    i32 2, label %switch-segment22
   ]
 
-switch-segment15:                                 ; preds = %switch-merge11
-  %7 = call float @llvm.gla.fSin.f32.f32(float %3), !gla.precision !9
-  %f18 = fadd float %f.2, %7, !gla.precision !9
-  br label %switch-merge17
-
-switch-segment16:                                 ; preds = %switch-merge11
-  %8 = call float @llvm.gla.fCos.f32.f32(float %3), !gla.precision !9
-  %f19 = fadd float %f.2, %8, !gla.precision !9
-  br label %switch-merge17
-
-switch-merge17:                                   ; preds = %switch-segment16, %switch-segment15, %switch-merge11
-  %f.3 = phi float [ %f.2, %switch-merge11 ], [ %f19, %switch-segment16 ], [ %f18, %switch-segment15 ]
-  switch i32 %local1, label %switch-segment22 [
-    i32 1, label %switch-segment20
-    i32 2, label %switch-segment21
-  ]
-
-switch-segment20:                                 ; preds = %switch-merge17
-  %9 = call float @llvm.gla.fSin.f32.f32(float %3), !gla.precision !9
-  %f24 = fadd float %f.3, %9, !gla.precision !9
+switch-segment21:                                 ; preds = %switch-merge14
+  %f24 = call float @llvm.gla.fSin.f32.f32(float %3), !gla.precision !9
+  %f25 = fadd float %f.2, %f24, !gla.precision !9
   br label %switch-merge23
 
-switch-segment21:                                 ; preds = %switch-merge17
-  %10 = load i32 addrspace(2)* @d, align 4, !gla.uniform !3
-  switch i32 %10, label %switch-merge27 [
-    i32 1, label %switch-segment25
-    i32 2, label %switch-segment26
-  ]
-
-switch-segment22:                                 ; preds = %switch-merge17
-  %11 = call float @llvm.gla.fTan.f32.f32(float %3), !gla.precision !9
-  %f30 = fadd float %f.3, %11, !gla.precision !9
+switch-segment22:                                 ; preds = %switch-merge14
+  %f26 = call float @llvm.gla.fCos.f32.f32(float %3), !gla.precision !9
+  %f27 = fadd float %f.2, %f26, !gla.precision !9
   br label %switch-merge23
 
-switch-merge23:                                   ; preds = %switch-segment22, %switch-merge27, %switch-segment20
-  %f.4 = phi float [ %f30, %switch-segment22 ], [ %f.5, %switch-merge27 ], [ %f24, %switch-segment20 ]
-  %12 = call float @llvm.gla.fTan.f32.f32(float %3), !gla.precision !9
-  %13 = call float @llvm.gla.fSin.f32.f32(float %3), !gla.precision !9
-  %14 = call float @llvm.gla.fCos.f32.f32(float %3), !gla.precision !9
+switch-merge23:                                   ; preds = %switch-segment22, %switch-segment21, %switch-merge14
+  %f.3 = phi float [ %f.2, %switch-merge14 ], [ %f27, %switch-segment22 ], [ %f25, %switch-segment21 ]
+  switch i32 %local1, label %switch-segment30 [
+    i32 1, label %switch-segment28
+    i32 2, label %switch-segment29
+  ]
+
+switch-segment28:                                 ; preds = %switch-merge23
+  %f32 = call float @llvm.gla.fSin.f32.f32(float %3), !gla.precision !9
+  %f33 = fadd float %f.3, %f32, !gla.precision !9
+  br label %switch-merge31
+
+switch-segment29:                                 ; preds = %switch-merge23
+  %4 = load i32 addrspace(2)* @d, align 4, !gla.uniform !3
+  switch i32 %4, label %switch-merge36 [
+    i32 1, label %switch-segment34
+    i32 2, label %switch-segment35
+  ]
+
+switch-segment30:                                 ; preds = %switch-merge23
+  %f39 = call float @llvm.gla.fTan.f32.f32(float %3), !gla.precision !9
+  %f40 = fadd float %f.3, %f39, !gla.precision !9
+  br label %switch-merge31
+
+switch-merge31:                                   ; preds = %switch-segment30, %switch-merge36, %switch-segment28
+  %f.4 = phi float [ %f40, %switch-segment30 ], [ %f.5, %switch-merge36 ], [ %f33, %switch-segment28 ]
+  %f58 = call float @llvm.gla.fTan.f32.f32(float %3), !gla.precision !9
+  %f45 = call float @llvm.gla.fSin.f32.f32(float %3), !gla.precision !9
+  %f56 = call float @llvm.gla.fCos.f32.f32(float %3), !gla.precision !9
   br label %loop-header
 
-switch-segment25:                                 ; preds = %switch-segment21
-  %15 = fmul float %3, %3, !gla.precision !9
-  %16 = fmul float %3, %15, !gla.precision !9
-  %f28 = fadd float %f.3, %16, !gla.precision !9
-  br label %switch-merge27
+switch-segment34:                                 ; preds = %switch-segment29
+  %5 = fmul float %3, %3, !gla.precision !9
+  %6 = fmul float %3, %5, !gla.precision !9
+  %f37 = fadd float %f.3, %6, !gla.precision !9
+  br label %switch-merge36
 
-switch-segment26:                                 ; preds = %switch-segment21
-  %17 = fmul float %3, %3, !gla.precision !9
-  %f29 = fadd float %f.3, %17, !gla.precision !9
-  br label %switch-merge27
+switch-segment35:                                 ; preds = %switch-segment29
+  %7 = fmul float %3, %3, !gla.precision !9
+  %f38 = fadd float %f.3, %7, !gla.precision !9
+  br label %switch-merge36
 
-switch-merge27:                                   ; preds = %switch-segment26, %switch-segment25, %switch-segment21
-  %f.5 = phi float [ %f.3, %switch-segment21 ], [ %f29, %switch-segment26 ], [ %f28, %switch-segment25 ]
-  br label %switch-merge23
+switch-merge36:                                   ; preds = %switch-segment35, %switch-segment34, %switch-segment29
+  %f.5 = phi float [ %f.3, %switch-segment29 ], [ %f38, %switch-segment35 ], [ %f37, %switch-segment34 ]
+  br label %switch-merge31
 
-loop-header:                                      ; preds = %switch-merge34, %switch-merge23
-  %i.0 = phi i32 [ 0, %switch-merge23 ], [ %i50, %switch-merge34 ]
-  %f.6 = phi float [ %f.4, %switch-merge23 ], [ %f.7, %switch-merge34 ]
-  %18 = icmp sgt i32 %i.0, 9
-  br i1 %18, label %then, label %ifmerge
+loop-header:                                      ; preds = %switch-merge44, %switch-merge31
+  %i.0 = phi i32 [ 0, %switch-merge31 ], [ %i63, %switch-merge44 ]
+  %f.6 = phi float [ %f.4, %switch-merge31 ], [ %f.7, %switch-merge44 ]
+  %8 = icmp sgt i32 %i.0, 9
+  br i1 %8, label %then, label %ifmerge
 
 then:                                             ; preds = %loop-header
-  br label %loop-merge52
+  br label %loop-merge65
 
 ifmerge:                                          ; preds = %loop-header
-  switch i32 %local1, label %switch-segment33 [
-    i32 1, label %switch-segment31
-    i32 2, label %switch-segment32
+  switch i32 %local1, label %switch-segment43 [
+    i32 1, label %switch-segment41
+    i32 2, label %switch-segment42
   ]
 
-switch-segment31:                                 ; preds = %ifmerge
-  %f35 = fadd float %f.6, %13, !gla.precision !9
-  br label %loop-header36
+switch-segment41:                                 ; preds = %ifmerge
+  %f46 = fadd float %f.6, %f45, !gla.precision !9
+  br label %loop-header47
 
-switch-segment32:                                 ; preds = %ifmerge
-  %f45 = fadd float %f.6, %14, !gla.precision !9
-  br label %switch-merge34
+switch-segment42:                                 ; preds = %ifmerge
+  %f57 = fadd float %f.6, %f56, !gla.precision !9
+  br label %switch-merge44
 
-switch-segment33:                                 ; preds = %ifmerge
-  %f46 = fadd float %f.6, %12, !gla.precision !9
-  br label %switch-merge34
+switch-segment43:                                 ; preds = %ifmerge
+  %f59 = fadd float %f.6, %f58, !gla.precision !9
+  br label %switch-merge44
 
-switch-merge34:                                   ; preds = %switch-segment33, %switch-segment32, %loop-merge
-  %f.7 = phi float [ %f46, %switch-segment33 ], [ %f45, %switch-segment32 ], [ %f.9, %loop-merge ]
-  %19 = fcmp olt float %f.7, 0x400B70A3E0000000
-  %i50 = add i32 %i.0, 1, !gla.precision !9
-  br i1 %19, label %then47, label %loop-header
+switch-merge44:                                   ; preds = %switch-segment43, %switch-segment42, %loop-merge
+  %f.7 = phi float [ %f59, %switch-segment43 ], [ %f57, %switch-segment42 ], [ %f.9, %loop-merge ]
+  %9 = fcmp olt float %f.7, 0x400B70A3E0000000
+  %i63 = add i32 %i.0, 1, !gla.precision !9
+  br i1 %9, label %then60, label %loop-header
 
-loop-header36:                                    ; preds = %ifmerge39, %switch-segment31
-  %j.0 = phi i32 [ 20, %switch-segment31 ], [ %j44, %ifmerge39 ]
-  %f.8 = phi float [ %f35, %switch-segment31 ], [ %f40, %ifmerge39 ]
-  %20 = icmp sgt i32 %j.0, 29
-  br i1 %20, label %then37, label %ifmerge39
+loop-header47:                                    ; preds = %ifmerge50, %switch-segment41
+  %j.0 = phi i32 [ 20, %switch-segment41 ], [ %j55, %ifmerge50 ]
+  %f.8 = phi float [ %f46, %switch-segment41 ], [ %f51, %ifmerge50 ]
+  %10 = icmp sgt i32 %j.0, 29
+  br i1 %10, label %then48, label %ifmerge50
 
-then37:                                           ; preds = %loop-header36
+then48:                                           ; preds = %loop-header47
   br label %loop-merge
 
-ifmerge39:                                        ; preds = %loop-header36
-  %f40 = fadd float %f.8, 1.000000e+00, !gla.precision !9
-  %21 = fcmp olt float %f40, 0x40590CCCC0000000
-  %j44 = add i32 %j.0, 1, !gla.precision !9
-  br i1 %21, label %then41, label %loop-header36
+ifmerge50:                                        ; preds = %loop-header47
+  %f51 = fadd float %f.8, 1.000000e+00, !gla.precision !9
+  %11 = fcmp olt float %f51, 0x40590CCCC0000000
+  %j55 = add i32 %j.0, 1, !gla.precision !9
+  br i1 %11, label %then52, label %loop-header47
 
-then41:                                           ; preds = %ifmerge39
+then52:                                           ; preds = %ifmerge50
   br label %loop-merge
 
-loop-merge:                                       ; preds = %then41, %then37
-  %f.9 = phi float [ %f.8, %then37 ], [ %f40, %then41 ]
-  br label %switch-merge34
+loop-merge:                                       ; preds = %then52, %then48
+  %f.9 = phi float [ %f.8, %then48 ], [ %f51, %then52 ]
+  br label %switch-merge44
 
-then47:                                           ; preds = %switch-merge34
-  br label %loop-merge52
+then60:                                           ; preds = %switch-merge44
+  br label %loop-merge65
 
-loop-merge52:                                     ; preds = %then47, %then
-  %f.10 = phi float [ %f.6, %then ], [ %f.7, %then47 ]
-  %22 = sitofp i32 %local2 to float, !gla.precision !9
-  %color = fadd float %22, %f.10, !gla.precision !9
+loop-merge65:                                     ; preds = %then60, %then
+  %f.10 = phi float [ %f.6, %then ], [ %f.7, %then60 ]
+  %12 = sitofp i32 %local2 to float, !gla.precision !9
+  %color = fadd float %12, %f.10, !gla.precision !9
   store float %color, float* @color, align 4
-  %param55 = load <4 x float> addrspace(2)* @v, align 16, !gla.uniform !4
+  %param68 = load <4 x float> addrspace(2)* @v, align 16, !gla.uniform !4
   switch i32 %local1, label %switch-merge.i [
     i32 0, label %switch-segment.i
     i32 2, label %switch-segment1.i
@@ -607,52 +607,52 @@ loop-merge52:                                     ; preds = %then47, %then
     i32 3, label %switch-segment2.i
   ]
 
-switch-segment.i:                                 ; preds = %loop-merge52
+switch-segment.i:                                 ; preds = %loop-merge65
   br label %"foo1(vf4;vf4;i1;.exit"
 
-switch-segment1.i:                                ; preds = %loop-merge52, %loop-merge52
+switch-segment1.i:                                ; preds = %loop-merge65, %loop-merge65
   br label %"foo1(vf4;vf4;i1;.exit"
 
-switch-segment2.i:                                ; preds = %loop-merge52
-  %23 = fmul <4 x float> %param55, %param55, !gla.precision !9
+switch-segment2.i:                                ; preds = %loop-merge65
+  %13 = fmul <4 x float> %param68, %param68, !gla.precision !9
   br label %"foo1(vf4;vf4;i1;.exit"
 
-switch-merge.i:                                   ; preds = %loop-merge52
+switch-merge.i:                                   ; preds = %loop-merge65
   br label %"foo1(vf4;vf4;i1;.exit"
 
 "foo1(vf4;vf4;i1;.exit":                          ; preds = %switch-merge.i, %switch-segment2.i, %switch-segment1.i, %switch-segment.i
-  %24 = phi <4 x float> [ %param55, %switch-segment.i ], [ %param55, %switch-segment1.i ], [ %23, %switch-segment2.i ], [ zeroinitializer, %switch-merge.i ]
-  %25 = extractelement <4 x float> %24, i32 1, !gla.precision !9
-  %color58 = fadd float %color, %25, !gla.precision !9
-  store float %color58, float* @color, align 4
-  switch i32 %local1, label %switch-merge.i69 [
-    i32 0, label %switch-segment.i66
-    i32 2, label %switch-segment1.i67
-    i32 1, label %switch-segment2.i68
+  %14 = phi <4 x float> [ %param68, %switch-segment.i ], [ %param68, %switch-segment1.i ], [ %13, %switch-segment2.i ], [ zeroinitializer, %switch-merge.i ]
+  %15 = extractelement <4 x float> %14, i32 1, !gla.precision !9
+  %color71 = fadd float %color, %15, !gla.precision !9
+  store float %color71, float* @color, align 4
+  switch i32 %local1, label %switch-merge.i82 [
+    i32 0, label %switch-segment.i79
+    i32 2, label %switch-segment1.i80
+    i32 1, label %switch-segment2.i81
     i32 3, label %switch-segment3.i
   ]
 
-switch-segment.i66:                               ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-segment.i79:                               ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
-switch-segment1.i67:                              ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-segment1.i80:                              ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
-switch-segment2.i68:                              ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-segment2.i81:                              ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
 switch-segment3.i:                                ; preds = %"foo1(vf4;vf4;i1;.exit"
-  %26 = fmul <4 x float> %param55, %param55, !gla.precision !9
+  %16 = fmul <4 x float> %param68, %param68, !gla.precision !9
   br label %"foo2(vf4;vf4;i1;.exit"
 
-switch-merge.i69:                                 ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-merge.i82:                                 ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
-"foo2(vf4;vf4;i1;.exit":                          ; preds = %switch-merge.i69, %switch-segment3.i, %switch-segment2.i68, %switch-segment1.i67, %switch-segment.i66
-  %27 = phi <4 x float> [ %param55, %switch-segment.i66 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %switch-segment1.i67 ], [ %param55, %switch-segment2.i68 ], [ %26, %switch-segment3.i ], [ zeroinitializer, %switch-merge.i69 ]
-  %28 = extractelement <4 x float> %27, i32 2, !gla.precision !9
-  %color65 = fadd float %color58, %28, !gla.precision !9
-  store float %color65, float* @color, align 4
+"foo2(vf4;vf4;i1;.exit":                          ; preds = %switch-merge.i82, %switch-segment3.i, %switch-segment2.i81, %switch-segment1.i80, %switch-segment.i79
+  %17 = phi <4 x float> [ %param68, %switch-segment.i79 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %switch-segment1.i80 ], [ %param68, %switch-segment2.i81 ], [ %16, %switch-segment3.i ], [ zeroinitializer, %switch-merge.i82 ]
+  %18 = extractelement <4 x float> %17, i32 2, !gla.precision !9
+  %color78 = fadd float %color71, %18, !gla.precision !9
+  store float %color78, float* @color, align 4
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %"foo2(vf4;vf4;i1;.exit"

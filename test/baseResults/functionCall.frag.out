@@ -12,24 +12,24 @@ define fastcc void @main() {
 entry:
   %g = alloca float
   %f = alloca float
-  %constructed = alloca <4 x float>
+  %color2 = alloca <4 x float>
   %param = alloca <4 x float>
   %color = alloca <4 x float>
   store float 0.000000e+00, float* @h
   %param1 = load <4 x float>* @BaseColor
   store <4 x float> %param1, <4 x float>* %param
   %0 = call float @"foo(vf4;"(<4 x float>* %param)
-  %1 = load <4 x float>* %constructed
+  %1 = load <4 x float>* %color2
   %2 = insertelement <4 x float> undef, float %0, i32 0
   %3 = insertelement <4 x float> %2, float %0, i32 1
   %4 = insertelement <4 x float> %3, float %0, i32 2
-  %color2 = insertelement <4 x float> %4, float %0, i32 3
-  store <4 x float> %color2, <4 x float>* %color
+  %color3 = insertelement <4 x float> %4, float %0, i32 3
+  store <4 x float> %color3, <4 x float>* %color
   call void @"bar("()
-  %f3 = call float @"unreachableReturn("()
-  store float %f3, float* %f
-  %g4 = call float @"missingReturn("()
-  store float %g4, float* %g
+  %f4 = call float @"unreachableReturn("()
+  store float %f4, float* %f
+  %g5 = call float @"missingReturn("()
+  store float %g5, float* %g
   %5 = load <4 x float>* %color
   %6 = load float* %f
   %7 = insertelement <4 x float> undef, float %6, i32 0
@@ -225,8 +225,8 @@ void main()
 	
 	vec4 H_zt5qpl = vec4(Lg_1);
 	vec4 H_m9v3pf = H_a1eyhf1 * H_qwppqe;
-	vec4 Ll_FragColor_c1 = H_m9v3pf * H_zt5qpl;
-	gl_FragColor = Ll_FragColor_c1;
+	vec4 Ll_FragColor1 = H_m9v3pf * H_zt5qpl;
+	gl_FragColor = Ll_FragColor1;
 	
 }
 
@@ -242,17 +242,17 @@ const float C_0d0 = 0.0;
 
 void main()
 {
-	float H_uc1 = BaseColor.x + BaseColor.y;
-	vec4 H_uy9f0j = vec4(H_uc1);
-	bool H_zdlq_c2 = d < C_4d2;
-	float H_q46as81 = H_zdlq_c2 ? C_1d2 : C_4d5;
-	vec4 H_x4fv2m = vec4(H_q46as81);
-	bool H_uc3 = d < C_4d5;
-	float Lg_uc4 = H_uc3 ? d : C_0d0;
-	vec4 H_20w8bc = vec4(Lg_uc4);
-	vec4 H_m_c5 = H_uy9f0j * H_x4fv2m;
-	vec4 Ll_FragColor_c6 = H_20w8bc * H_m_c5;
-	gl_FragColor = Ll_FragColor_c6;
+	float H_9ws3cr = BaseColor.x + BaseColor.y;
+	vec4 H_qwppqe = vec4(H_9ws3cr);
+	bool H_zdlq2v = d < C_4d2;
+	float H_8iih7k1 = H_zdlq2v ? C_1d2 : C_4d5;
+	vec4 H_a1eyhf1 = vec4(H_8iih7k1);
+	bool H_2bsr8u = d < C_4d5;
+	float Lg_ = H_2bsr8u ? d : C_0d0;
+	vec4 H_coqh0u = vec4(Lg_);
+	vec4 H_m9v3pf = H_a1eyhf1 * H_qwppqe;
+	vec4 Ll_FragColor = H_coqh0u * H_m9v3pf;
+	gl_FragColor = Ll_FragColor;
 	
 }
 

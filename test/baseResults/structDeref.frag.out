@@ -9,14 +9,14 @@ Top IR:
 %s00 = type { %s0 }
 
 @foo3 = external addrspace(2) constant %s3
-@lconst = internal constant %s1 { i32 0, float 1.000000e+00, %s0 zeroinitializer }
-@lconst1 = internal constant [6 x float] zeroinitializer
+@locals2 = internal constant %s1 { i32 0, float 1.000000e+00, %s0 zeroinitializer }
+@fArray = internal constant [6 x float] zeroinitializer
 @foo1 = external addrspace(2) constant %s1
-@lconst2 = internal constant %s0 zeroinitializer
-@lconst3 = internal constant %s00 zeroinitializer
+@locals0 = internal constant %s0 zeroinitializer
+@locals00 = internal constant %s00 zeroinitializer
 @coord = global <2 x float> zeroinitializer
 @foo0 = external addrspace(2) constant %s0
-@lconst4 = internal constant [6 x float] [float 0.000000e+00, float 1.000000e+00, float 2.000000e+00, float 3.000000e+00, float 4.000000e+00, float 5.000000e+00]
+@fArray1 = internal constant [6 x float] [float 0.000000e+00, float 1.000000e+00, float 2.000000e+00, float 3.000000e+00, float 4.000000e+00, float 5.000000e+00]
 @foo00 = external addrspace(2) constant %s00
 @gl_FragColor = global <4 x float> zeroinitializer
 @sampler = external addrspace(1) constant i32
@@ -24,7 +24,7 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %constructed = alloca %s1
+  %locals24 = alloca %s1
   %locals00 = alloca %s00
   %locals0 = alloca %s0
   %locals1Array = alloca [10 x %s1]
@@ -37,17 +37,17 @@ entry:
 then:                                             ; preds = %entry
   %2 = getelementptr %s2* %locals2, i32 0, i32 1
   store float 1.000000e+00, float* %2
-  %3 = load %s1* @lconst
+  %3 = load %s1* @locals2
   %4 = getelementptr %s2* %locals2, i32 0, i32 2
   store %s1 %3, %s1* %4
-  %fArray1 = load [6 x float]* @lconst1
+  %fArray1 = load [6 x float]* @fArray
   store [6 x float] %fArray1, [6 x float]* %fArray
   %5 = load %s1 addrspace(2)* @foo1, !gla.uniform !9
   %6 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
   store %s1 %5, %s1* %6
-  %locals02 = load %s0* @lconst2
+  %locals02 = load %s0* @locals0
   store %s0 %locals02, %s0* %locals0
-  %locals003 = load %s00* @lconst3
+  %locals003 = load %s00* @locals00
   store %s00 %locals003, %s00* %locals00
   br label %ifmerge
 
@@ -59,40 +59,40 @@ else:                                             ; preds = %entry
   %10 = load <2 x float>* @coord
   %11 = extractelement <2 x float> %10, i32 1
   %12 = load %s0 addrspace(2)* @foo0, !gla.uniform !10
-  %13 = getelementptr %s1* %constructed, i32 0, i32 0
+  %13 = getelementptr %s1* %locals24, i32 0, i32 0
   store i32 1, i32* %13
-  %14 = getelementptr %s1* %constructed, i32 0, i32 1
+  %14 = getelementptr %s1* %locals24, i32 0, i32 1
   store float %11, float* %14
-  %15 = getelementptr %s1* %constructed, i32 0, i32 2
+  %15 = getelementptr %s1* %locals24, i32 0, i32 2
   store %s0 %12, %s0* %15
-  %16 = load %s1* %constructed
+  %16 = load %s1* %locals24
   %17 = getelementptr %s2* %locals2, i32 0, i32 2
   store %s1 %16, %s1* %17
-  %fArray4 = load [6 x float]* @lconst4
-  store [6 x float] %fArray4, [6 x float]* %fArray
+  %fArray5 = load [6 x float]* @fArray1
+  store [6 x float] %fArray5, [6 x float]* %fArray
   %18 = getelementptr %s2* %locals2, i32 0, i32 2
   %19 = load %s1* %18
   %20 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
   store %s1 %19, %s1* %20
-  %locals05 = load %s0 addrspace(2)* getelementptr inbounds (%s1 addrspace(2)* @foo1, i32 0, i32 2), !gla.uniform !9
-  store %s0 %locals05, %s0* %locals0
-  %locals006 = load %s00 addrspace(2)* @foo00, !gla.uniform !11
-  store %s00 %locals006, %s00* %locals00
+  %locals06 = load %s0 addrspace(2)* getelementptr inbounds (%s1 addrspace(2)* @foo1, i32 0, i32 2), !gla.uniform !9
+  store %s0 %locals06, %s0* %locals0
+  %locals007 = load %s00 addrspace(2)* @foo00, !gla.uniform !11
+  store %s00 %locals007, %s00* %locals00
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
   %21 = getelementptr %s0* %locals0, i32 0, i32 0
   %22 = load i32* %21
   %23 = icmp sgt i32 %22, 5
-  br i1 %23, label %then7, label %ifmerge9
+  br i1 %23, label %then8, label %ifmerge10
 
-then7:                                            ; preds = %ifmerge
+then8:                                            ; preds = %ifmerge
   %24 = getelementptr %s00* %locals00, i32 0, i32 0
-  %locals08 = load %s0* %24
-  store %s0 %locals08, %s0* %locals0
-  br label %ifmerge9
+  %locals09 = load %s0* %24
+  store %s0 %locals09, %s0* %locals0
+  br label %ifmerge10
 
-ifmerge9:                                         ; preds = %ifmerge, %then7
+ifmerge10:                                        ; preds = %ifmerge, %then8
   %25 = getelementptr %s0* %locals0, i32 0, i32 0
   %26 = load i32* %25
   %27 = sitofp i32 %26 to float
@@ -107,16 +107,16 @@ ifmerge9:                                         ; preds = %ifmerge, %then7
   %36 = fadd float %33, %35
   %37 = load i32 addrspace(1)* @sampler, !gla.uniform !13
   %38 = load <2 x float>* @coord
-  %39 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %37, i32 0, <2 x float> %38)
-  %40 = insertelement <4 x float> undef, float %36, i32 0
-  %41 = insertelement <4 x float> %40, float %36, i32 1
-  %42 = insertelement <4 x float> %41, float %36, i32 2
-  %43 = insertelement <4 x float> %42, float %36, i32 3
-  %gl_FragColor = fmul <4 x float> %43, %39
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %37, i32 0, <2 x float> %38)
+  %39 = insertelement <4 x float> undef, float %36, i32 0
+  %40 = insertelement <4 x float> %39, float %36, i32 1
+  %41 = insertelement <4 x float> %40, float %36, i32 2
+  %42 = insertelement <4 x float> %41, float %36, i32 3
+  %gl_FragColor11 = fmul <4 x float> %42, %gl_FragColor
+  store <4 x float> %gl_FragColor11, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge9
+stage-epilogue:                                   ; preds = %ifmerge10
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -179,30 +179,30 @@ entry:
   %gla_constGEP = getelementptr %s3 addrspace(2)* @foo3, i32 0, i32 0, i32 9, i32 0
   %0 = load i32 addrspace(2)* %gla_constGEP, align 4, !gla.uniform !1
   %1 = icmp sgt i32 %0, 0
-  %gla_constGEP48 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 1
-  %2 = load float addrspace(2)* %gla_constGEP48, align 4
+  %gla_constGEP50 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 1
+  %2 = load float addrspace(2)* %gla_constGEP50, align 4
   %3 = load <2 x float>* @coord, align 8
   %4 = extractelement <2 x float> %3, i32 1
-  %gla_constGEP49 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
-  %5 = load i32 addrspace(2)* %gla_constGEP49, align 4
-  %gla_constGEP50 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0, i32 0
-  %6 = load i32 addrspace(2)* %gla_constGEP50, align 4
+  %gla_constGEP51 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2, i32 0
+  %5 = load i32 addrspace(2)* %gla_constGEP51, align 4
+  %gla_constGEP52 = getelementptr %s00 addrspace(2)* @foo00, i32 0, i32 0, i32 0
+  %6 = load i32 addrspace(2)* %gla_constGEP52, align 4
   %select = select i1 %1, float 0.000000e+00, float 3.000000e+00
-  %select44 = select i1 %1, i32 0, i32 %5
-  %select45 = select i1 %1, i32 0, i32 %6
-  %select46 = select i1 %1, float 1.000000e+00, float %4
-  %select47 = select i1 %1, float %2, float %4
-  %7 = icmp sgt i32 %select44, 5
-  %locals00.0.0.0.locals0.0.0 = select i1 %7, i32 %select45, i32 %select44
+  %select46 = select i1 %1, i32 0, i32 %5
+  %select47 = select i1 %1, i32 0, i32 %6
+  %select48 = select i1 %1, float 1.000000e+00, float %4
+  %select49 = select i1 %1, float %2, float %4
+  %7 = icmp sgt i32 %select46, 5
+  %locals00.0.0.0.locals0.0.0 = select i1 %7, i32 %select47, i32 %select46
   %8 = sitofp i32 %locals00.0.0.0.locals0.0.0 to float
-  %9 = fadd float %select47, %8
+  %9 = fadd float %select49, %8
   %10 = fadd float %select, %9
-  %11 = fadd float %select46, %10
+  %11 = fadd float %select48, %10
   %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %11, <4 x i32> zeroinitializer)
   %13 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !13
-  %14 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %13, i32 0, <2 x float> %3)
-  %gl_FragColor = fmul <4 x float> %14, %12
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor, align 16
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %13, i32 0, <2 x float> %3)
+  %gl_FragColor11 = fmul <4 x float> %gl_FragColor, %12
+  store <4 x float> %gl_FragColor11, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -287,21 +287,21 @@ const int C_5 = 5;
 void main()
 {
 	bool H_vyfm0e = foo3.s2_1[9].i > C_0;
-	float select_c1 = H_vyfm0e ? C_0d0 : C_3d0;
-	int select_c2 = H_vyfm0e ? C_0 : foo1.s0_1.i;
-	int select_c3 = H_vyfm0e ? C_0 : foo00.s0_0.i;
-	float select_c4 = H_vyfm0e ? C_1d0 : coord.y;
-	float select_c5 = H_vyfm0e ? foo1.f : coord.y;
-	bool H_s7ugcq = select_c2 > C_5;
-	int locals_c6 = H_s7ugcq ? select_c3 : select_c2;
-	float H_odxajl1 = float(locals_c6);
-	float H_p6mb8f1 = H_odxajl1 + select_c5;
-	float H_af571u = H_p6mb8f1 + select_c1;
-	float H_mzso3x = H_af571u + select_c4;
-	vec4 H_5gmr0j1 = vec4(H_mzso3x);
-	vec4 H_0k8q2q = texture(sampler, coord);
-	vec4 Ll_FragColor_c7 = H_0k8q2q * H_5gmr0j1;
-	gl_FragColor = Ll_FragColor_c7;
+	float select = H_vyfm0e ? C_0d0 : C_3d0;
+	int select1 = H_vyfm0e ? C_0 : foo1.s0_1.i;
+	int select2 = H_vyfm0e ? C_0 : foo00.s0_0.i;
+	float select3 = H_vyfm0e ? C_1d0 : coord.y;
+	float select4 = H_vyfm0e ? foo1.f : coord.y;
+	bool H_f9qvxm1 = select1 > C_5;
+	int locals = H_f9qvxm1 ? select2 : select1;
+	float H_yk9xn = float(locals);
+	float H_oauueo = H_yk9xn + select4;
+	float H_x6igl9 = H_oauueo + select;
+	float H_pen9sm1 = H_x6igl9 + select3;
+	vec4 H_gkqfej = vec4(H_pen9sm1);
+	vec4 Ll_FragColor1 = texture(sampler, coord);
+	vec4 Ll_FragColor2 = H_gkqfej * Ll_FragColor1;
+	gl_FragColor = Ll_FragColor2;
 	
 }
 
@@ -344,22 +344,22 @@ const int C_5 = 5;
 
 void main()
 {
-	bool H_vyfm_c1 = foo3.s2_1[9].i > C_0;
-	float H_jt5j3f1 = H_vyfm_c1 ? C_0d0 : C_3d0;
-	int ternary_c2 = H_vyfm_c1 ? C_0 : foo1.s0_1.i;
-	int ternary_c3 = H_vyfm_c1 ? C_0 : foo00.s0_0.i;
-	float select_c4 = H_vyfm_c1 ? C_1d0 : coord.y;
-	float select_c5 = H_vyfm_c1 ? foo1.f : coord.y;
-	bool H_s_c6 = ternary_c2 > C_5;
-	int ternary_c7 = H_s_c6 ? ternary_c3 : ternary_c2;
-	float H_odxajl_c8 = float(ternary_c7);
-	float H_p_c9 = H_odxajl_c8 + select_c5;
-	float H_af_c10 = H_jt5j3f1 + H_p_c9;
-	float H_mzso_c11 = H_af_c10 + select_c4;
-	vec4 H_w0prn01 = vec4(H_mzso_c11);
-	vec4 H_uc12 = texture(sampler, coord);
-	vec4 Ll_FragColor_c13 = H_uc12 * H_w0prn01;
-	gl_FragColor = Ll_FragColor_c13;
+	bool H_vyfm0e = foo3.s2_1[9].i > C_0;
+	float H_12fnic1 = H_vyfm0e ? C_0d0 : C_3d0;
+	int select = H_vyfm0e ? C_0 : foo1.s0_1.i;
+	int select1 = H_vyfm0e ? C_0 : foo00.s0_0.i;
+	float select2 = H_vyfm0e ? C_1d0 : coord.y;
+	float select3 = H_vyfm0e ? foo1.f : coord.y;
+	bool H_f9qvxm = select > C_5;
+	int select4 = H_f9qvxm ? select1 : select;
+	float H_yk9xn = float(select4);
+	float H_oauueo = H_yk9xn + select3;
+	float H_x6igl = H_12fnic1 + H_oauueo;
+	float H_pen9sm = H_x6igl + select2;
+	vec4 H_hgchnx = vec4(H_pen9sm);
+	vec4 Ll_FragColor = texture(sampler, coord);
+	vec4 Ll_FragColor1 = H_hgchnx * Ll_FragColor;
+	gl_FragColor = Ll_FragColor1;
 	
 }
 

@@ -352,23 +352,23 @@ public:
     };
 
     // Select the correct intrinsic based on all inputs, and make the call
-    llvm::Value* createTextureCall(EMdPrecision, llvm::Type*, ESamplerType, int texFlags, const TextureParameters&);
-    llvm::Value* createTextureQueryCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Type*, llvm::Constant*, llvm::Value*, llvm::Value*);
+    llvm::Value* createTextureCall(EMdPrecision, llvm::Type*, ESamplerType, int texFlags, const TextureParameters&, const char* name = 0);
+    llvm::Value* createTextureQueryCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Type*, llvm::Constant*, llvm::Value*, llvm::Value*, const char* name = 0);
     llvm::Value* createSamplePositionCall(EMdPrecision, llvm::Type*, llvm::Value*);
     llvm::Value* createBitFieldExtractCall(EMdPrecision, llvm::Value*, llvm::Value*, llvm::Value*, bool isSigned);
     llvm::Value* createBitFieldInsertCall(EMdPrecision, llvm::Value*, llvm::Value*, llvm::Value*, llvm::Value*);
-    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID);
-    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID);
-    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*);
-    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*);
-    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, llvm::Value*);
+    llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID, const char* name = 0);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, const char* name = 0);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, const char* name = 0);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, const char* name = 0);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, llvm::Value*, const char* name = 0);
     llvm::Value* createRecip(EMdPrecision, llvm::Value*);
 
     // For equal and not-equal comparisons:
     // first one is preferred form: uses innate types, works on vectors, matrices, arrays, and structures
-    llvm::Value* createCompare(EMdPrecision, llvm::Value*, llvm::Value*, bool /* true if for equal, fales if for not-equal */);
+    llvm::Value* createCompare(EMdPrecision, llvm::Value*, llvm::Value*, bool /* true if for equal, fales if for not-equal */, const char* name = 0);
     // the following is deprecated: works on vectors or scalars
-    llvm::Value* createCompare(EMdPrecision, llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned);
+    llvm::Value* createCompare(EMdPrecision, llvm::Value* lhs, llvm::Value* rhs, bool equal, bool isFloat, bool isSigned, const char* name = 0);
 
     // vector constructor
     llvm::Value* createConstructor(EMdPrecision, const std::vector<llvm::Value*>& sources, llvm::Value* constructee);

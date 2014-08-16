@@ -65,7 +65,7 @@ then7:                                            ; preds = %ifmerge
   br label %ifmerge9
 
 ifmerge9:                                         ; preds = %ifmerge, %then7
-  call void @llvm.gla.discard()
+  %ical0a = call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
@@ -74,28 +74,28 @@ post-discard:                                     ; No predecessors!
 ifmerge10:                                        ; preds = %entry, %post-discard
   %21 = load float* %radius
   %22 = fcmp oge float %21, 7.500000e-01
-  br i1 %22, label %then11, label %ifmerge13
+  br i1 %22, label %then11, label %ifmerge15
 
 then11:                                           ; preds = %ifmerge10
   %23 = load float* %radius
-  %24 = call float @llvm.gla.fPow.f32.f32.f32(float %23, float 1.600000e+01)
-  %25 = fdiv float %24, 2.000000e+00
-  %26 = call float @llvm.gla.fAbs.f32.f32(float %25)
-  %27 = load <4 x float>* %color
-  %28 = insertelement <4 x float> undef, float %26, i32 0
-  %29 = insertelement <4 x float> %28, float %26, i32 1
-  %30 = insertelement <4 x float> %29, float %26, i32 2
-  %31 = insertelement <4 x float> %30, float %26, i32 3
-  %color12 = fsub <4 x float> %27, %31
-  store <4 x float> %color12, <4 x float>* %color
-  br label %ifmerge13
+  %color12 = call float @llvm.gla.fPow.f32.f32.f32(float %23, float 1.600000e+01)
+  %24 = fdiv float %color12, 2.000000e+00
+  %color13 = call float @llvm.gla.fAbs.f32.f32(float %24)
+  %25 = load <4 x float>* %color
+  %26 = insertelement <4 x float> undef, float %color13, i32 0
+  %27 = insertelement <4 x float> %26, float %color13, i32 1
+  %28 = insertelement <4 x float> %27, float %color13, i32 2
+  %29 = insertelement <4 x float> %28, float %color13, i32 3
+  %color14 = fsub <4 x float> %25, %29
+  store <4 x float> %color14, <4 x float>* %color
+  br label %ifmerge15
 
-ifmerge13:                                        ; preds = %ifmerge10, %then11
-  %gl_FragColor14 = load <4 x float>* %color
-  store <4 x float> %gl_FragColor14, <4 x float>* @gl_FragColor
+ifmerge15:                                        ; preds = %ifmerge10, %then11
+  %gl_FragColor16 = load <4 x float>* %color
+  store <4 x float> %gl_FragColor16, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge13
+stage-epilogue:                                   ; preds = %ifmerge15
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue, %ifmerge9
@@ -154,17 +154,17 @@ then:                                             ; preds = %entry
   %9 = fcmp ogt float %radius4, 0x3FF19999A0000000
   %color.0 = select i1 %9, <4 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %color.0, <4 x float>* @gl_FragColor, align 16
-  call void @llvm.gla.discard()
+  %ical0a = call void @llvm.gla.discard()
   br label %stage-exit
 
 ifmerge10:                                        ; preds = %entry
   %10 = fcmp ult float %radius4, 7.500000e-01
-  %11 = call float @llvm.gla.fPow.f32.f32.f32(float %radius4, float 1.600000e+01)
-  %12 = fmul float %11, 5.000000e-01
-  %13 = call float @llvm.gla.fAbs.f32.f32(float %12)
-  %14 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %13, <4 x i32> zeroinitializer)
-  %color12 = fsub <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %14
-  %select = select i1 %10, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float> %color12
+  %color12 = call float @llvm.gla.fPow.f32.f32.f32(float %radius4, float 1.600000e+01)
+  %11 = fmul float %color12, 5.000000e-01
+  %color13 = call float @llvm.gla.fAbs.f32.f32(float %11)
+  %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %color13, <4 x i32> zeroinitializer)
+  %color14 = fsub <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %12
+  %select = select i1 %10, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float> %color14
   store <4 x float> %select, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
@@ -224,23 +224,23 @@ void main()
 	float H_xbvmut = H_gjl0431 * H_gjl0431;
 	float H_la7j6f1 = H_n0ljhg * H_n0ljhg;
 	float H_rkd1t91 = H_la7j6f1 + H_xbvmut;
-	float radius_c1 = sqrt(H_rkd1t91);
-	bool H_v30ksu = radius_c1 > C_1d0;
-	if (H_v30ksu) {
-		bool H_weekiu = radius_c1 > C_1d1;
-		vec4 color_uc2 = H_weekiu ? C_vec4p2d0p : C_vec4p1d0p;
-		gl_FragColor = color_uc2;
+	float radius = sqrt(H_rkd1t91);
+	bool H_4k5wsg1 = radius > C_1d0;
+	if (H_4k5wsg1) {
+		bool H_39rv2h1 = radius > C_1d1;
+		vec4 color = H_39rv2h1 ? C_vec4p2d0p : C_vec4p1d0p;
+		gl_FragColor = color;
 		discard;
 	}
 	
-	bool H_i28553 = radius_c1 < C_0d75;
-	float H_6s8r9f1 = pow(radius_c1, C_16d0);
-	float H_2jdzt7 = H_6s8r9f1 * C_0d5;
-	float H_ak6ydm1 = abs(H_2jdzt7);
-	vec4 H_8i68s31 = vec4(H_ak6ydm1);
-	vec4 color_c3 = C_vec4p1d0p - H_8i68s31;
-	vec4 select_c4 = H_i28553 ? C_vec4p1d0p : color_c3;
-	gl_FragColor = select_c4;
+	bool H_jks9vc1 = radius < C_0d75;
+	float color1 = pow(radius, C_16d0);
+	float H_0xdt4p = color1 * C_0d5;
+	float color2 = abs(H_0xdt4p);
+	vec4 H_hsq5nk = vec4(color2);
+	vec4 color3 = C_vec4p1d0p - H_hsq5nk;
+	vec4 select = H_jks9vc1 ? C_vec4p1d0p : color3;
+	gl_FragColor = select;
 	
 }
 
@@ -259,30 +259,30 @@ const float C_0d5 = 0.5;
 
 void main()
 {
-	float H_wl_c1 = tex_coord.x * C_2d0;
-	float H_gjl_c2 = H_wl_c1 + C_a1d0;
-	float H_uc3 = C_2d0 * tex_coord.y;
-	float H_n_c4 = C_a1d0 + H_uc3;
-	float H_xbvmut_c5 = H_gjl_c2 * H_gjl_c2;
-	float H_la_c6 = H_n_c4 * H_n_c4;
-	float H_rkd_c7 = H_la_c6 + H_xbvmut_c5;
-	float radius_c8 = sqrt(H_rkd_c7);
-	bool H_v_c9 = radius_c8 > C_1d0;
-	if (H_v_c9) {
-		bool H_weekiu_c10 = radius_c8 > C_1d1;
-		vec4 H_tn6xst = H_weekiu_c10 ? C_vec4p2d0p : C_vec4p1d0p;
-		gl_FragColor = H_tn6xst;
+	float H_wl1qbc = tex_coord.x * C_2d0;
+	float H_gjl = H_wl1qbc + C_a1d0;
+	float H_73il2x = C_2d0 * tex_coord.y;
+	float H_n0ljhg = C_a1d0 + H_73il2x;
+	float H_xbvmut = H_gjl * H_gjl;
+	float H_la7j6f = H_n0ljhg * H_n0ljhg;
+	float H_rkd1t = H_la7j6f + H_xbvmut;
+	float radius = sqrt(H_rkd1t);
+	bool H_4k5wsg = radius > C_1d0;
+	if (H_4k5wsg) {
+		bool H_39rv2h = radius > C_1d1;
+		vec4 H_yibhwu1 = H_39rv2h ? C_vec4p2d0p : C_vec4p1d0p;
+		gl_FragColor = H_yibhwu1;
 		discard;
 	}
 	
-	bool H_i_c11 = radius_c8 < C_0d75;
-	float H_uc12 = pow(radius_c8, C_16d0);
-	float H_uc13 = H_uc12 * C_0d5;
-	float H_ak_c14 = abs(H_uc13);
-	vec4 H_m2y9bx = vec4(H_ak_c14);
-	vec4 color_c15 = C_vec4p1d0p - H_m2y9bx;
-	vec4 select_c16 = H_i_c11 ? C_vec4p1d0p : color_c15;
-	gl_FragColor = select_c16;
+	bool H_jks9vc = radius < C_0d75;
+	float color = pow(radius, C_16d0);
+	float H_0xdt4p = color * C_0d5;
+	float color1 = abs(H_0xdt4p);
+	vec4 H_y0cidm1 = vec4(color1);
+	vec4 color2 = C_vec4p1d0p - H_y0cidm1;
+	vec4 select = H_jks9vc ? C_vec4p1d0p : color2;
+	gl_FragColor = select;
 	
 }
 

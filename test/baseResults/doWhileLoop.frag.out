@@ -116,23 +116,23 @@ stage-exit:                                       ; preds = %stage-epilogue
 uniform vec4 bigColor;
 uniform float d;
 varying vec4 BaseColor;
-vec4 color_c2;
+vec4 color1;
 
 void main()
 {
-	vec4 color_uc1;
-	color_uc1 = BaseColor;
+	vec4 color;
+	color = BaseColor;
 	while (true) {
-		color_c2 = bigColor + color_uc1;
-		bool H_37dgs11 = color_c2.x >= d;
-		if (H_37dgs11) {
+		color1 = bigColor + color;
+		bool H_6ao87e = color1.x >= d;
+		if (H_6ao87e) {
 			break;
 		}
 		
-		color_uc1 = color_c2;
+		color = color1;
 	}
 	
-	gl_FragColor = color_c2;
+	gl_FragColor = color1;
 	
 }
 
@@ -141,23 +141,23 @@ void main()
 uniform vec4 bigColor;
 uniform float d;
 varying vec4 BaseColor;
-vec4 color_c2;
+vec4 color1;
 
 void main()
 {
-	vec4 color_uc_c1;
-	color_uc_c1 = BaseColor;
+	vec4 color;
+	color = BaseColor;
 	while (true) {
-		color_c2 = bigColor + color_uc_c1;
-		bool H_uc3 = color_c2.x < d;
-		if (! H_uc3) {
+		color1 = bigColor + color;
+		bool H_6ao87e = color1.x < d;
+		if (! H_6ao87e) {
 			break;
 		}
 		
-		color_uc_c1 = color_c2;
+		color = color1;
 	}
 	
-	gl_FragColor = color_c2;
+	gl_FragColor = color1;
 	
 }
 

@@ -148,6 +148,7 @@ protected:
     std::map<const glslang::TTypeList*, std::vector<int> > memberRemapper;  // for mapping glslang block indices to llvm indices (e.g., due to hidden members)
     std::stack<bool> breakForLoop;  // false means break for switch
     std::stack<glslang::TIntermTyped*> loopTerminal;  // code from the last part of a for loop: for(...; ...; terminal), needed for e.g., continue statements
+    const char* leftName;
 };
 
 namespace {
@@ -334,7 +335,7 @@ TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager, const glsl
       manager(*manager), context(manager->getModule()->getContext()), shaderEntry(0), llvmBuilder(context),
       module(manager->getModule()), metadata(context, module),
       nextSlot(gla::MaxUserLayoutLocation), inMain(false), mainTerminated(false), linkageOnly(false),
-      glslangIntermediate(glslangIntermediate)
+      glslangIntermediate(glslangIntermediate), leftName(0)
 {
     // do this after the builder knows the module
     glaBuilder = new gla::Builder(llvmBuilder, manager, metadata);
@@ -502,6 +503,14 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
             glaBuilder->clearAccessChain();
             node->getLeft()->traverse(this);
             gla::Builder::AccessChain lValue = glaBuilder->getAccessChain();
+            TIntermNode* leftBase = node->getLeft();
+            while (! leftBase->getAsSymbolNode()) {
+                if (leftBase->getAsBinaryNode())
+                    leftBase = leftBase->getAsBinaryNode()->getLeft();
+                else
+                    break;
+            }
+            leftName = leftBase->getAsSymbolNode() ? leftBase->getAsSymbolNode()->getName().c_str() : 0;
 
             // evaluate the right
             glaBuilder->clearAccessChain();
@@ -528,6 +537,7 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
             glaBuilder->clearAccessChain();
             glaBuilder->setAccessChainRValue(rValue);
         }
+        leftName = 0;
         return false;
     case glslang::EOpIndexDirect:
     case glslang::EOpIndexDirectStruct:
@@ -844,7 +854,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
             translateArguments(node->getSequence(), arguments);
             llvm::Value* constructed = glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
                                                                         convertGlslangToGlaType(node->getType()),
-                                                                        0, 0, "constructed");
+                                                                        0, 0, leftName ? leftName : "constructed");
             if (node->getOp() == glslang::EOpConstructStruct || node->getType().isArray()) {
                 // TODO: clean up: is there a more direct way to set a whole LLVM structure?
                 //                if not, move this inside Top Builder; too many indirections
@@ -1040,7 +1050,7 @@ bool TGlslangToTopTraverser::visitSelection(glslang::TVisit /* visit */, glslang
     if (node->getBasicType() != glslang::EbtVoid) {
         // don't handle this as just on-the-fly temporaries, because there will be two names
         // and better to leave SSA to LLVM passes
-        result = glaBuilder->createVariable(gla::Builder::ESQLocal, 0, convertGlslangToGlaType(node->getType()), 0, 0, "ternary");
+        result = glaBuilder->createVariable(gla::Builder::ESQLocal, 0, convertGlslangToGlaType(node->getType()), 0, 0, leftName ? leftName : "ternary");
     }
 
     // emit the condition before doing anything with selection
@@ -1127,7 +1137,7 @@ void TGlslangToTopTraverser::visitConstantUnion(glslang::TIntermConstantUnion* n
     glaBuilder->clearAccessChain();
     if (node->getType().isArray() || node->getType().isStruct() || node->getType().isMatrix()) {
         // for aggregrates, make a global constant to base access chains off of
-        llvm::Value* lvalue = glaBuilder->createVariable(gla::Builder::ESQConst, 0, constant->getType(), constant, 0, "lconst");
+        llvm::Value* lvalue = glaBuilder->createVariable(gla::Builder::ESQConst, 0, constant->getType(), constant, 0, leftName ? leftName : "lconst");
         glaBuilder->setAccessChainLValue(lvalue);
     } else {
         // for non-aggregates, just use directly;
@@ -1489,7 +1499,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
                                                       intrinsicID,
                                                       convertGlslangToGlaType(node->getType()),
                                                       MakeIntConstant(context, samplerType),
-                                                      arguments[0], lastArg);
+                                                      arguments[0], lastArg, leftName);
         }
 
         if (node->getName().find("Query", 0) != std::string::npos) {
@@ -1499,7 +1509,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
                                                           llvm::Intrinsic::gla_fQueryTextureLod,
                                                           convertGlslangToGlaType(node->getType()), 
                                                           MakeIntConstant(context, samplerType), 
-                                                          arguments[0], arguments[1]);
+                                                          arguments[0], arguments[1], leftName);
             } else if (node->getName().find("Levels", 0) != std::string::npos) {
                 gla::UnsupportedFunctionality("textureQueryLevels");
             }
@@ -1590,7 +1600,7 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
             ++extraArgs;
         }
 
-        return glaBuilder->createTextureCall(precision, convertGlslangToGlaType(node->getType()), samplerType, texFlags, params);
+        return glaBuilder->createTextureCall(precision, convertGlslangToGlaType(node->getType()), samplerType, texFlags, params, leftName);
     }
 
     return 0;
@@ -2169,7 +2179,7 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
     }
 
     if (intrinsicID != 0)
-        return glaBuilder->createIntrinsicCall(precision, intrinsicID, operand);
+        return glaBuilder->createIntrinsicCall(precision, intrinsicID, operand, leftName ? leftName : "uni");
 
     return 0;
 }
@@ -2267,17 +2277,17 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
     if (intrinsicID != 0) {
         switch (operands.size()) {
         case 0:
-            result = glaBuilder->createIntrinsicCall(precision, intrinsicID);
+            result = glaBuilder->createIntrinsicCall(precision, intrinsicID, leftName ? leftName : "misc0a");
             break;
         case 1:
             // should all be handled by createUnaryIntrinsic
             assert(0);
             break;
         case 2:
-            result = glaBuilder->createIntrinsicCall(precision, intrinsicID, operands[0], operands[1]);
+            result = glaBuilder->createIntrinsicCall(precision, intrinsicID, operands[0], operands[1], leftName ? leftName : "misc2a");
             break;
         case 3:
-            result = glaBuilder->createIntrinsicCall(precision, intrinsicID, operands[0], operands[1], operands[2]);
+            result = glaBuilder->createIntrinsicCall(precision, intrinsicID, operands[0], operands[1], operands[2], leftName ? leftName : "misc3a");
             break;
         default:
             // These do not exist yet
@@ -2331,7 +2341,7 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op)
 
     // If intrinsic was assigned, then call the function and return
     if (intrinsicID != 0)
-        result = glaBuilder->createIntrinsicCall(intrinsicID);
+        result = glaBuilder->createIntrinsicCall(intrinsicID, "barrier");
 
     return result;
 }

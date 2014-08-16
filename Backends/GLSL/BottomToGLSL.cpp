@@ -109,7 +109,7 @@ namespace {
         return (_Val);
     }
 
-    void intToString(unsigned int i, std::string& string)
+    void IntToString(unsigned int i, std::string& string)
     {
         char buf[2];
         buf[1] = 0;
@@ -231,7 +231,7 @@ public:
     GlslTarget(Manager* m, bool obfuscate, bool filterInactive, int substitutionLevel) :
         GlslTranslator(m, obfuscate, filterInactive, substitutionLevel),
         appendInitializers(false),
-        indentLevel(0), lastVariable(0), canonCounter(0)
+        indentLevel(0), lastVariable(0)
     {
         #ifdef _WIN32
             unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
@@ -545,6 +545,8 @@ public:
     // all names that came from hashing, to ensure uniqueness
     std::set<std::string> hashedNames;
 
+    std::map<std::string, int> canonMap;
+
     // Map from IO-related global variables, by name, to their mdNodes describing them.
     std::map<std::string, const llvm::MDNode*> mdMap;
 
@@ -585,9 +587,7 @@ public:
     EProfile profile;
     EShLanguage stage;
     bool usingSso;
-    int canonCounter;
     const char* indentString;
-
     friend class Assignment;
 };
 
@@ -1465,6 +1465,8 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
     mdMap[mappingName] = mdNode;
     // This will prevent the IO globals from being declared again later.
     globallyDeclared.insert(mappingName);
+    if (canonMap.find(mappingName) == canonMap.end())
+        canonMap[mappingName] = 0;
 
     if (! declarationAllowed) {
         if ((type->getTypeID() == llvm::Type::StructTyID || type->getTypeID() == llvm::Type::ArrayTyID) && mdNode->getNumOperands() >= 5) {
@@ -2433,10 +2435,10 @@ void gla::GlslTarget::makeNewVariableName(const llvm::Value* value, std::string&
                 makeHashName("H_", rhs, name);
             else {                
                 name.append("Lg_");
-                intToString(++lastVariable, name);
+                IntToString(++lastVariable, name);
             }
         } else {
-            name.append(value->getName());
+            name = value->getName();
             canonicalizeName(name);
         }
 
@@ -2450,9 +2452,9 @@ void gla::GlslTarget::makeNewVariableName(const char* base, std::string& name)
 {
     const size_t bufSize = 20;
     char buf[bufSize];
-    if (obfuscate) {
+    if (obfuscate)
         makeObfuscatedName(name);
-    } else {
+    else {
         name.append(base);
         snprintf(buf, bufSize, "%x", ++lastVariable);
         name.append(buf);
@@ -2462,7 +2464,7 @@ void gla::GlslTarget::makeNewVariableName(const char* base, std::string& name)
 void gla::GlslTarget::makeHashName(const char* prefix, const char* key, std::string& name)
 {
     name.append(prefix);
-    intToString(_Hash_seq((const unsigned char*)key, strlen(key)), name);
+    IntToString(_Hash_seq((const unsigned char*)key, strlen(key)), name);
     while (hashedNames.find(name) != hashedNames.end())
         name.append("r");
     hashedNames.insert(name);
@@ -2494,22 +2496,27 @@ void gla::GlslTarget::makeObfuscatedName(std::string& name)
 // and always getting the same name now (replacing numbers added by LLVM).
 void gla::GlslTarget::canonicalizeName(std::string& name)
 {
-    // remove any existing counting, from where it starts, all the way to the end of the name
-    unsigned alpha = 1;
-    while (alpha < name.size() && name[alpha] < '0' || name[alpha] > '9')
-        ++alpha;
+    // throw away starting from the first '.'
+    unsigned dotPos = name.find('.');
+    if (dotPos != std::string::npos)
+        name.resize(dotPos);
 
-    if (alpha > 2 && name[alpha-2] == '_' && name[alpha-1] == 'c')
-        alpha -= 2;
+    // remove any existing end counting and .i type things
+    unsigned pos = name.size() - 1;
+    while (pos > 0 && name[pos] >= '0' && name[pos] <= '9')
+        --pos;
 
-    name.resize(alpha);
+    name.resize(pos + 1);
+    if (name.size() == 0)
+        name = "_L";
 
-    // add our own numbering scheme
-    ++canonCounter;
-    const size_t bufSize = 20;
-    char buf[bufSize];
-    snprintf(buf, bufSize, "_c%d", canonCounter);
-    name.append(buf);
+    std::map<std::string, int>::iterator it = canonMap.find(name);
+    if (it  == canonMap.end())
+        canonMap[name] = 0;
+    else {
+        ++it->second;
+        IntToString(it->second, name);
+    }
 }
 
 // Makes a string representation for the given swizzling ExtractElement
@@ -3354,6 +3361,9 @@ void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type
         return;
 
     int arraySize;
+
+    if (canonMap.find(name) == canonMap.end())
+        canonMap[name] = 0;
 
     // If it has an initializer (is a constant and not an undef)
     if (constant && ! AreAllUndefined(constant)) {

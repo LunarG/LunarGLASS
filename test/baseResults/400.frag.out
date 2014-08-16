@@ -10,7 +10,7 @@ Top IR:
 @gl_ClipDistance = global [2 x float] zeroinitializer
 @uoutp = global <4 x i32> zeroinitializer
 @samp2dr = external addrspace(1) constant i32
-@lconst = internal constant [4 x <2 x i32>] [<2 x i32> <i32 1, i32 2>, <2 x i32> <i32 3, i32 4>, <2 x i32> <i32 15, i32 16>, <2 x i32> <i32 -2, i32 0>]
+@uoutp1 = internal constant [4 x <2 x i32>] [<2 x i32> <i32 1, i32 2>, <2 x i32> <i32 3, i32 4>, <2 x i32> <i32 15, i32 16>, <2 x i32> <i32 -2, i32 0>]
 @ioutp = global <4 x i32> zeroinitializer
 @isamp2DA = external addrspace(1) constant i32
 @gl_FragCoord = global <4 x float> zeroinitializer
@@ -18,14 +18,14 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %constructed = alloca <2 x i32>
+  %ioutp8 = alloca <2 x i32>
   %v = alloca <4 x float>
   %0 = load i32* @i
   %1 = getelementptr [5 x i32] addrspace(1)* @arrayedSampler, i32 0, i32 %0
   %2 = load i32 addrspace(1)* %1, !gla.uniform !9
   %3 = load <2 x float>* @c2D
-  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %2, i32 0, <2 x float> %3)
-  store <4 x float> %v1, <4 x float>* %v
+  %v2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %2, i32 0, <2 x float> %3)
+  store <4 x float> %v2, <4 x float>* %v
   %4 = load float* getelementptr inbounds ([2 x float]* @gl_ClipDistance, i32 0, i32 1)
   %5 = load <4 x float>* @outp
   %outp = insertelement <4 x float> %5, float %4, i32 0
@@ -43,11 +43,11 @@ entry:
   %16 = extractelement <3 x float> %12, i32 1
   %17 = insertelement <4 x float> %15, float %16, i32 2
   %18 = extractelement <3 x float> %12, i32 2
-  %outp2 = insertelement <4 x float> %17, float %18, i32 3
-  store <4 x float> %outp2, <4 x float>* @outp
+  %outp3 = insertelement <4 x float> %17, float %18, i32 3
+  store <4 x float> %outp3, <4 x float>* @outp
   %19 = load i32 addrspace(1)* @samp2dr, !gla.uniform !12
   %20 = load <2 x float>* @c2D
-  %21 = load [4 x <2 x i32>]* @lconst
+  %21 = load [4 x <2 x i32>]* @uoutp1
   %22 = extractvalue [4 x <2 x i32>] %21, 0
   %23 = extractvalue [4 x <2 x i32>] %21, 1
   %24 = extractvalue [4 x <2 x i32>] %21, 2
@@ -56,33 +56,33 @@ entry:
   store <4 x i32> %uoutp, <4 x i32>* @uoutp
   %26 = load i32 addrspace(1)* getelementptr inbounds ([5 x i32] addrspace(1)* @arrayedSampler, i32 0, i32 0), !gla.uniform !9
   %27 = load <2 x float>* @c2D
-  %28 = call <4 x float> @llvm.gla.fTexelGather.v4f32.v2f32(i32 2, i32 %26, i32 64, <2 x float> %27, i32 undef, float undef)
-  %29 = load <4 x float>* @outp
-  %outp3 = fadd <4 x float> %29, %28
-  store <4 x float> %outp3, <4 x float>* @outp
-  %30 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
-  %ioutp = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %30, i32 1360, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 3, float undef, <2 x i32> <i32 1, i32 1>)
+  %outp4 = call <4 x float> @llvm.gla.fTexelGather.v4f32.v2f32(i32 2, i32 %26, i32 64, <2 x float> %27, i32 undef, float undef)
+  %28 = load <4 x float>* @outp
+  %outp5 = fadd <4 x float> %28, %outp4
+  store <4 x float> %outp5, <4 x float>* @outp
+  %29 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
+  %ioutp = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %29, i32 1360, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 3, float undef, <2 x i32> <i32 1, i32 1>)
   store <4 x i32> %ioutp, <4 x i32>* @ioutp
-  %31 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
-  %32 = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %31, i32 1360, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 3, float undef, <2 x i32> <i32 1, i32 1>)
-  %33 = load <4 x i32>* @ioutp
-  %ioutp4 = add <4 x i32> %33, %32
-  store <4 x i32> %ioutp4, <4 x i32>* @ioutp
-  %34 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
-  %35 = load i32* @i
-  %36 = load <2 x i32>* %constructed
-  %37 = insertelement <2 x i32> undef, i32 %35, i32 0
-  %38 = insertelement <2 x i32> %37, i32 %35, i32 1
-  %39 = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %34, i32 336, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 undef, float undef, <2 x i32> %38)
-  %40 = load <4 x i32>* @ioutp
-  %ioutp5 = add <4 x i32> %40, %39
-  store <4 x i32> %ioutp5, <4 x i32>* @ioutp
-  %41 = load <4 x float>* @gl_FragCoord
-  %42 = load <4 x float>* @vl2
-  %43 = fadd <4 x float> %41, %42
-  %44 = load <4 x float>* @outp
-  %outp6 = fadd <4 x float> %44, %43
-  store <4 x float> %outp6, <4 x float>* @outp
+  %30 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
+  %ioutp6 = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %30, i32 1360, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 3, float undef, <2 x i32> <i32 1, i32 1>)
+  %31 = load <4 x i32>* @ioutp
+  %ioutp7 = add <4 x i32> %31, %ioutp6
+  store <4 x i32> %ioutp7, <4 x i32>* @ioutp
+  %32 = load i32 addrspace(1)* @isamp2DA, !gla.uniform !15
+  %33 = load i32* @i
+  %34 = load <2 x i32>* %ioutp8
+  %35 = insertelement <2 x i32> undef, i32 %33, i32 0
+  %36 = insertelement <2 x i32> %35, i32 %33, i32 1
+  %ioutp9 = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %32, i32 336, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 undef, float undef, <2 x i32> %36)
+  %37 = load <4 x i32>* @ioutp
+  %ioutp10 = add <4 x i32> %37, %ioutp9
+  store <4 x i32> %ioutp10, <4 x i32>* @ioutp
+  %38 = load <4 x float>* @gl_FragCoord
+  %39 = load <4 x float>* @vl2
+  %40 = fadd <4 x float> %38, %39
+  %41 = load <4 x float>* @outp
+  %outp11 = fadd <4 x float> %41, %40
+  store <4 x float> %outp11, <4 x float>* @outp
   call void @"foo23("()
   br label %stage-epilogue
 
@@ -98,13 +98,13 @@ define internal fastcc void @"foo23("() #0 {
 entry:
   %0 = load i32 addrspace(1)* @u2drs, !gla.uniform !6
   %1 = load <4 x float>* @outp
-  %2 = call float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v4f32.v2i32.v2f32.v2f32(i32 5, i32 %0, i32 265, <4 x float> %1, float undef, float undef, <2 x i32> <i32 3, i32 4>, <2 x float> zeroinitializer, <2 x float> zeroinitializer)
-  %3 = load <4 x float>* @outp
-  %4 = extractelement <4 x float> %3, i32 0
-  %5 = fadd float %4, %2
-  %6 = load <4 x float>* @outp
-  %outp = insertelement <4 x float> %6, float %5, i32 0
-  store <4 x float> %outp, <4 x float>* @outp
+  %outp = call float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v4f32.v2i32.v2f32.v2f32(i32 5, i32 %0, i32 265, <4 x float> %1, float undef, float undef, <2 x i32> <i32 3, i32 4>, <2 x float> zeroinitializer, <2 x float> zeroinitializer)
+  %2 = load <4 x float>* @outp
+  %3 = extractelement <4 x float> %2, i32 0
+  %4 = fadd float %3, %outp
+  %5 = load <4 x float>* @outp
+  %outp1 = insertelement <4 x float> %5, float %4, i32 0
+  store <4 x float> %outp1, <4 x float>* @outp
   ret void
 }
 
@@ -185,36 +185,36 @@ entry:
   %2 = getelementptr [5 x i32] addrspace(1)* @arrayedSampler, i32 0, i32 %0
   %3 = load i32 addrspace(1)* %2, align 4, !gla.uniform !9
   %4 = load <2 x float>* @c2D, align 8
-  %v1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %3, i32 0, <2 x float> %4)
+  %v2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %3, i32 0, <2 x float> %4)
   %gla_constGEP = getelementptr [2 x float]* @gl_ClipDistance, i32 0, i32 1
   %5 = load float* %gla_constGEP, align 4
-  %6 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v4f32.v4f32.v4f32(<4 x float> undef, i32 15, float %5, i32 0, <4 x float> %v1, i32 1, <4 x float> %v1, i32 2, <4 x float> %v1, i32 3)
+  %6 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.v4f32.v4f32.v4f32(<4 x float> undef, i32 15, float %5, i32 0, <4 x float> %v2, i32 1, <4 x float> %v2, i32 2, <4 x float> %v2, i32 3)
   store <4 x float> %6, <4 x float>* @outp, align 16
   %7 = load i32 addrspace(1)* @samp2dr, align 4, !gla.uniform !12
   %uoutp = call <4 x i32> @llvm.gla.texelGatherOffsets.v4i32.v2f32(i32 5, i32 %7, i32 9536, <2 x float> %4, i32 2, float undef, <2 x i32> <i32 1, i32 2>, <2 x i32> <i32 3, i32 4>, <2 x i32> <i32 15, i32 16>, <2 x i32> <i32 -2, i32 0>)
   store <4 x i32> %uoutp, <4 x i32>* @uoutp, align 16
-  %gla_constGEP7 = getelementptr [5 x i32] addrspace(1)* @arrayedSampler, i32 0, i32 0
-  %8 = load i32 addrspace(1)* %gla_constGEP7, align 4, !gla.uniform !9
-  %9 = call <4 x float> @llvm.gla.fTexelGather.v4f32.v2f32(i32 2, i32 %8, i32 64, <2 x float> %4, i32 undef, float undef)
-  %outp3 = fadd <4 x float> %9, %6
-  store <4 x float> %outp3, <4 x float>* @outp, align 16
-  %10 = load i32 addrspace(1)* @isamp2DA, align 4, !gla.uniform !15
-  %ioutp = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %10, i32 1360, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 3, float undef, <2 x i32> <i32 1, i32 1>)
-  %ioutp4 = shl <4 x i32> %ioutp, <i32 1, i32 1, i32 1, i32 1>
-  %11 = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %10, i32 336, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 undef, float undef, <2 x i32> %1)
-  %ioutp5 = add <4 x i32> %ioutp4, %11
-  store <4 x i32> %ioutp5, <4 x i32>* @ioutp, align 16
-  %12 = load <4 x float>* @gl_FragCoord, align 16
-  %13 = load <4 x float>* @vl2, align 16
-  %14 = fadd <4 x float> %12, %13
-  %outp6 = fadd <4 x float> %outp3, %14
-  store <4 x float> %outp6, <4 x float>* @outp, align 16
-  %15 = load i32 addrspace(1)* @u2drs, align 4, !gla.uniform !6
-  %16 = call float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v4f32.v2i32.v2f32.v2f32(i32 5, i32 %15, i32 265, <4 x float> %outp6, float undef, float undef, <2 x i32> <i32 3, i32 4>, <2 x float> zeroinitializer, <2 x float> zeroinitializer)
-  %17 = extractelement <4 x float> %outp6, i32 0
-  %18 = fadd float %17, %16
-  %19 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outp6, i32 1, float %18, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
-  store <4 x float> %19, <4 x float>* @outp, align 16
+  %gla_constGEP12 = getelementptr [5 x i32] addrspace(1)* @arrayedSampler, i32 0, i32 0
+  %8 = load i32 addrspace(1)* %gla_constGEP12, align 4, !gla.uniform !9
+  %outp4 = call <4 x float> @llvm.gla.fTexelGather.v4f32.v2f32(i32 2, i32 %8, i32 64, <2 x float> %4, i32 undef, float undef)
+  %outp5 = fadd <4 x float> %outp4, %6
+  store <4 x float> %outp5, <4 x float>* @outp, align 16
+  %9 = load i32 addrspace(1)* @isamp2DA, align 4, !gla.uniform !15
+  %ioutp = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %9, i32 1360, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 3, float undef, <2 x i32> <i32 1, i32 1>)
+  %ioutp7 = shl <4 x i32> %ioutp, <i32 1, i32 1, i32 1, i32 1>
+  %ioutp9 = call <4 x i32> @llvm.gla.texelGatherOffset.v4i32.v3f32(i32 2, i32 %9, i32 336, <3 x float> <float 0x3FB99999A0000000, float 0x3FB99999A0000000, float 0x3FB99999A0000000>, i32 undef, float undef, <2 x i32> %1)
+  %ioutp10 = add <4 x i32> %ioutp7, %ioutp9
+  store <4 x i32> %ioutp10, <4 x i32>* @ioutp, align 16
+  %10 = load <4 x float>* @gl_FragCoord, align 16
+  %11 = load <4 x float>* @vl2, align 16
+  %12 = fadd <4 x float> %10, %11
+  %outp11 = fadd <4 x float> %outp5, %12
+  store <4 x float> %outp11, <4 x float>* @outp, align 16
+  %13 = load i32 addrspace(1)* @u2drs, align 4, !gla.uniform !6
+  %outp.i = call float @llvm.gla.fTextureSampleLodRefZOffsetGrad.f32.v4f32.v2i32.v2f32.v2f32(i32 5, i32 %13, i32 265, <4 x float> %outp11, float undef, float undef, <2 x i32> <i32 3, i32 4>, <2 x float> zeroinitializer, <2 x float> zeroinitializer)
+  %14 = extractelement <4 x float> %outp11, i32 0
+  %15 = fadd float %14, %outp.i
+  %16 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outp11, i32 1, float %15, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
+  store <4 x float> %16, <4 x float>* @outp, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -313,24 +313,24 @@ void main()
 	vec4 H_tyxczd = texture(arrayedSampler[i], c2D);
 	vec4 H_57obdj = vec4(gl_ClipDistance[1], H_tyxczd.y, H_tyxczd.z, H_tyxczd.w);
 	outp = H_57obdj;
-	ivec4 uoutp_c1 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_1, C_2));
-	uoutp = uvec4(uoutp_c1);
-	vec4 H_ji1k01 = textureGather(arrayedSampler[0], c2D);
-	vec4 outp_c2 = H_57obdj + H_ji1k01;
-	outp = outp_c2;
-	ivec4 ioutp_c3 = textureGatherOffset(isamp2DA, C_vec3p0d1p, C_ivec2p1p, C_3);
-	ivec4 ioutp_c4 = ioutp_c3 << C_ivec4p1p;
-	ivec4 H_ia6qho = textureGatherOffset(isamp2DA, C_vec3p0d1p, H_65cw6u1);
-	ivec4 ioutp_c5 = H_ia6qho + ioutp_c4;
-	ioutp = ioutp_c5;
+	ivec4 uoutp1 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_1, C_2));
+	uoutp = uvec4(uoutp1);
+	vec4 outp1 = textureGather(arrayedSampler[0], c2D);
+	vec4 outp2 = H_57obdj + outp1;
+	outp = outp2;
+	ivec4 ioutp1 = textureGatherOffset(isamp2DA, C_vec3p0d1p, C_ivec2p1p, C_3);
+	ivec4 ioutp2 = ioutp1 << C_ivec4p1p;
+	ivec4 ioutp3 = textureGatherOffset(isamp2DA, C_vec3p0d1p, H_65cw6u1);
+	ivec4 ioutp4 = ioutp2 + ioutp3;
+	ioutp = ioutp4;
 	vec4 H_5kba8p = gl_FragCoord + vl2;
-	vec4 outp_c6 = H_5kba8p + outp_c2;
-	outp = outp_c6;
-	float H_lv58dy = textureProjGradOffset(u2drs, outp_c6, C_vec2p0d0p, C_vec2p0d0p, C_ivec2p3ca4p);
-	float H_n6t8au1 = H_lv58dy + outp_c6.x;
-	vec4 H_7p2npo = outp_c6;
-	H_7p2npo.x = H_n6t8au1;
-	outp = H_7p2npo;
+	vec4 outp3 = H_5kba8p + outp2;
+	outp = outp3;
+	float outp4 = textureProjGradOffset(u2drs, outp3, C_vec2p0d0p, C_vec2p0d0p, C_ivec2p3ca4p);
+	float H_tkjkz91 = outp3.x + outp4;
+	vec4 H_ymttyq1 = outp3;
+	H_ymttyq1.x = H_tkjkz91;
+	outp = H_ymttyq1;
 	
 }
 
@@ -360,27 +360,27 @@ const ivec2 C_ivec2p3ca4p = ivec2(3, 4);
 void main()
 {
 	ivec2 H_65cw6u1 = ivec2(i);
-	vec4 H_tyxczd_c1 = texture(arrayedSampler[i], c2D);
-	vec4 H_iejd6w1 = vec4(gl_ClipDistance[1], H_tyxczd_c1.y, H_tyxczd_c1.z, H_tyxczd_c1.w);
-	outp = H_iejd6w1;
-	ivec4 uoutp_c2 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_1, C_2));
-	uoutp = uvec4(uoutp_c2);
-	vec4 H_ji_c3 = textureGather(arrayedSampler[0], c2D);
-	vec4 outp_c4 = H_iejd6w1 + H_ji_c3;
-	outp = outp_c4;
-	ivec4 ioutp_c5 = textureGatherOffset(isamp2DA, C_vec3p0d1p, C_ivec2p1p, C_3);
-	ivec4 ioutp_c6 = ioutp_c5 << C_ivec4p1p;
-	ivec4 H_ia_c7 = textureGatherOffset(isamp2DA, C_vec3p0d1p, H_65cw6u1);
-	ivec4 ioutp_c8 = H_ia_c7 + ioutp_c6;
-	ioutp = ioutp_c8;
-	vec4 H_uc9 = gl_FragCoord + vl2;
-	vec4 outp_c10 = H_uc9 + outp_c4;
-	outp = outp_c10;
-	float H_lv_c11 = textureProjGradOffset(u2drs, outp_c10, C_vec2p0d0p, C_vec2p0d0p, C_ivec2p3ca4p);
-	float H_n_c12 = H_lv_c11 + outp_c10.x;
-	vec4 H_6281f31 = outp_c10;
-	H_6281f31.x = H_n_c12;
-	outp = H_6281f31;
+	vec4 H_tyxczd = texture(arrayedSampler[i], c2D);
+	vec4 H_57obdj = vec4(gl_ClipDistance[1], H_tyxczd.y, H_tyxczd.z, H_tyxczd.w);
+	outp = H_57obdj;
+	ivec4 uoutp1 = ivec4(textureGatherOffsets(samp2dr, c2D, offsets_1, C_2));
+	uoutp = uvec4(uoutp1);
+	vec4 outp1 = textureGather(arrayedSampler[0], c2D);
+	vec4 outp2 = H_57obdj + outp1;
+	outp = outp2;
+	ivec4 ioutp1 = textureGatherOffset(isamp2DA, C_vec3p0d1p, C_ivec2p1p, C_3);
+	ivec4 ioutp2 = ioutp1 << C_ivec4p1p;
+	ivec4 ioutp3 = textureGatherOffset(isamp2DA, C_vec3p0d1p, H_65cw6u1);
+	ivec4 ioutp4 = ioutp2 + ioutp3;
+	ioutp = ioutp4;
+	vec4 H_5kba8p = gl_FragCoord + vl2;
+	vec4 outp3 = H_5kba8p + outp2;
+	outp = outp3;
+	float outp4 = textureProjGradOffset(u2drs, outp3, C_vec2p0d0p, C_vec2p0d0p, C_ivec2p3ca4p);
+	float H_tkjkz = outp3.x + outp4;
+	vec4 H_ymttyq1 = outp3;
+	H_ymttyq1.x = H_tkjkz;
+	outp = H_ymttyq1;
 	
 }
 

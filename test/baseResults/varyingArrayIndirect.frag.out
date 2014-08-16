@@ -13,7 +13,7 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %constructed = alloca <2 x float>
+  %texColor1 = alloca <2 x float>
   %texColor = alloca <4 x float>
   %0 = load i32 addrspace(1)* @texSampler2D, !gla.uniform !1
   %1 = load i32 addrspace(2)* @b, !gla.uniform !4
@@ -25,21 +25,21 @@ entry:
   %7 = fadd <4 x float> %3, %6
   %8 = load <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @gl_TexCoord, i32 0, i32 5)
   %9 = fadd <4 x float> %7, %8
-  %10 = load <2 x float>* %constructed
+  %10 = load <2 x float>* %texColor1
   %11 = extractelement <4 x float> %9, i32 0
   %12 = insertelement <2 x float> %10, float %11, i32 0
   %13 = extractelement <4 x float> %9, i32 1
   %14 = insertelement <2 x float> %12, float %13, i32 1
-  %texColor1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %14)
-  store <4 x float> %texColor1, <4 x float>* %texColor
+  %texColor2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %14)
+  store <4 x float> %texColor2, <4 x float>* %texColor
   %15 = load <4 x float>* @color
   %16 = load <4 x float>* %texColor
-  %texColor2 = fadd <4 x float> %16, %15
-  store <4 x float> %texColor2, <4 x float>* %texColor
+  %texColor3 = fadd <4 x float> %16, %15
+  store <4 x float> %texColor3, <4 x float>* %texColor
   %17 = load float* @alpha
   %18 = load <4 x float>* %texColor
-  %texColor3 = insertelement <4 x float> %18, float %17, i32 3
-  store <4 x float> %texColor3, <4 x float>* %texColor
+  %texColor4 = insertelement <4 x float> %18, float %17, i32 3
+  store <4 x float> %texColor4, <4 x float>* %texColor
   %19 = load <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @gl_TexCoord, i32 0, i32 0)
   %20 = load i32 addrspace(2)* @b, !gla.uniform !4
   %21 = getelementptr [6 x <4 x float>]* @gl_TexCoord, i32 0, i32 %20
@@ -116,13 +116,13 @@ entry:
   %8 = load <4 x float>* %gla_constGEP, align 16
   %9 = fadd <4 x float> %7, %8
   %10 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %9, <2 x i32> <i32 0, i32 1>)
-  %texColor1 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %10)
+  %texColor2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %10)
   %11 = load <4 x float>* @color, align 16
-  %texColor2 = fadd <4 x float> %texColor1, %11
+  %texColor3 = fadd <4 x float> %texColor2, %11
   %12 = load float* @alpha, align 4
-  %13 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor2, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %12, i32 0)
-  %gla_constGEP4 = getelementptr [6 x <4 x float>]* @gl_TexCoord, i32 0, i32 0
-  %14 = load <4 x float>* %gla_constGEP4, align 16
+  %13 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %texColor3, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %12, i32 0)
+  %gla_constGEP5 = getelementptr [6 x <4 x float>]* @gl_TexCoord, i32 0, i32 0
+  %14 = load <4 x float>* %gla_constGEP5, align 16
   %15 = getelementptr [6 x <4 x float>]* @gl_TexCoord, i32 0, i32 %1
   %16 = load <4 x float>* %15, align 16
   %17 = fadd <4 x float> %14, %16
@@ -187,14 +187,14 @@ void main()
 {
 	vec4 H_hzxbis1 = gl_TexCoord[a] + userIn[b];
 	vec4 H_vwhujo = H_hzxbis1 + gl_TexCoord[5];
-	vec4 texColor_c1 = texture(texSampler2D, H_vwhujo.xy);
-	vec4 texColor_c2 = color + texColor_c1;
-	vec4 H_n1l2f81 = texColor_c2;
-	H_n1l2f81.w = alpha;
+	vec4 texColor = texture(texSampler2D, H_vwhujo.xy);
+	vec4 texColor1 = color + texColor;
+	vec4 H_8ionn51 = texColor1;
+	H_8ionn51.w = alpha;
 	vec4 H_m5ab9a1 = gl_TexCoord[0] + gl_TexCoord[b];
-	vec4 H_s1yaxn = H_m5ab9a1 + H_n1l2f81;
-	vec4 Ll_FragColor_c3 = H_s1yaxn + userIn[a];
-	gl_FragColor = Ll_FragColor_c3;
+	vec4 H_iwzgd11 = H_8ionn51 + H_m5ab9a1;
+	vec4 Ll_FragColor1 = H_iwzgd11 + userIn[a];
+	gl_FragColor = Ll_FragColor1;
 	
 }
 
@@ -210,16 +210,16 @@ in float alpha;
 
 void main()
 {
-	vec4 H_hzxbis_c1 = gl_TexCoord[a] + userIn[b];
-	vec4 H_vwhujo_c2 = H_hzxbis_c1 + gl_TexCoord[5];
-	vec4 texColor_c3 = texture(texSampler2D, H_vwhujo_c2.xy);
-	vec4 texColor_c4 = color + texColor_c3;
-	vec4 H_h7703a1 = texColor_c4;
-	H_h7703a1.w = alpha;
-	vec4 H_m_c5 = gl_TexCoord[0] + gl_TexCoord[b];
-	vec4 H_s_c6 = H_h7703a1 + H_m_c5;
-	vec4 Ll_FragColor_c7 = H_s_c6 + userIn[a];
-	gl_FragColor = Ll_FragColor_c7;
+	vec4 H_hzxbis = gl_TexCoord[a] + userIn[b];
+	vec4 H_vwhujo = H_hzxbis + gl_TexCoord[5];
+	vec4 texColor = texture(texSampler2D, H_vwhujo.xy);
+	vec4 texColor1 = color + texColor;
+	vec4 H_8ionn51 = texColor1;
+	H_8ionn51.w = alpha;
+	vec4 H_m5ab9a = gl_TexCoord[0] + gl_TexCoord[b];
+	vec4 H_iwzgd = H_8ionn51 + H_m5ab9a;
+	vec4 Ll_FragColor = H_iwzgd + userIn[a];
+	gl_FragColor = Ll_FragColor;
 	
 }
 

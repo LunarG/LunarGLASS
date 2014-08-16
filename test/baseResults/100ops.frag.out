@@ -11,43 +11,43 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %constructed = alloca <4 x float>
+  %gl_FragColor = alloca <4 x float>
   %z = alloca i32
-  %ternary = alloca float
+  %face11 = alloca float
   %face1 = alloca float
   %0 = load i1* @gl_FrontFacing
   br i1 %0, label %then, label %else
 
 then:                                             ; preds = %entry
-  store float -1.000000e+00, float* %ternary
+  store float -1.000000e+00, float* %face11
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  store float 1.000000e+00, float* %ternary
+  store float 1.000000e+00, float* %face11
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %face11 = load float* %ternary
-  store float %face11, float* %face1
+  %face12 = load float* %face11
+  store float %face12, float* %face1
   store i32 3, i32* %z
   %1 = load i32 addrspace(2)* @low, !gla.uniform !3
   %2 = mul i32 2, %1, !gla.precision !8
   %3 = add i32 %2, 1, !gla.precision !8
   %4 = load i32 addrspace(2)* @high, !gla.uniform !5
   %5 = icmp slt i32 %3, %4
-  br i1 %5, label %then2, label %ifmerge4
+  br i1 %5, label %then3, label %ifmerge5
 
-then2:                                            ; preds = %ifmerge
+then3:                                            ; preds = %ifmerge
   %6 = load i32* %z
-  %z3 = add i32 %6, 1, !gla.precision !8
-  store i32 %z3, i32* %z
-  br label %ifmerge4
+  %z4 = add i32 %6, 1, !gla.precision !8
+  store i32 %z4, i32* %z
+  br label %ifmerge5
 
-ifmerge4:                                         ; preds = %ifmerge, %then2
+ifmerge5:                                         ; preds = %ifmerge, %then3
   %7 = load float* %face1
   %8 = load i32* %z
   %9 = sitofp i32 %8 to float, !gla.precision !9
-  %10 = load <4 x float>* %constructed
+  %10 = load <4 x float>* %gl_FragColor
   %11 = insertelement <4 x float> undef, float %9, i32 0, !gla.precision !9
   %12 = insertelement <4 x float> %11, float %9, i32 1, !gla.precision !9
   %13 = insertelement <4 x float> %12, float %9, i32 2, !gla.precision !9
@@ -57,11 +57,11 @@ ifmerge4:                                         ; preds = %ifmerge, %then2
   %17 = insertelement <4 x float> %16, float %7, i32 2, !gla.precision !9
   %18 = insertelement <4 x float> %17, float %7, i32 3, !gla.precision !9
   %19 = fmul <4 x float> %18, %14, !gla.precision !9
-  %gl_FragColor = fadd <4 x float> %19, zeroinitializer, !gla.precision !9
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %gl_FragColor6 = fadd <4 x float> %19, zeroinitializer, !gla.precision !9
+  store <4 x float> %gl_FragColor6, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge4
+stage-epilogue:                                   ; preds = %ifmerge5
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -155,10 +155,10 @@ void main()
 	int H_9o89th = low * 2;
 	int H_z3nldb1 = H_9o89th + C_1;
 	bool H_idtad2 = H_z3nldb1 < high;
-	float z_uc1 = H_idtad2 ? C_4d0 : C_3d0;
-	vec4 H_gq66cl1 = vec4(z_uc1);
-	lowp vec4 H_xoc9fv1 = H_7q8l46 * H_gq66cl1;
-	gl_FragColor = H_xoc9fv1;
+	float z = H_idtad2 ? C_4d0 : C_3d0;
+	vec4 H_cnyhf51 = vec4(z);
+	lowp vec4 H_r183b1 = H_7q8l46 * H_cnyhf51;
+	gl_FragColor = H_r183b1;
 	
 }
 
@@ -177,13 +177,13 @@ void main()
 {
 	float H_418d89 = gl_FrontFacing ? C_a1d0 : C_1d0;
 	vec4 H_7q8l46 = vec4(H_418d89);
-	int H_uc1 = low * 2;
-	int H_z_c2 = H_uc1 + C_1;
-	bool H_idtad_c3 = H_z_c2 < high;
-	float ternary_c4 = H_idtad_c3 ? C_4d0 : C_3d0;
-	vec4 H_1xttoh = vec4(ternary_c4);
-	mediump vec4 H_xoc_c5 = H_1xttoh * H_7q8l46;
-	gl_FragColor = H_xoc_c5;
+	int H_9o89th = low * 2;
+	int H_z3nldb = H_9o89th + C_1;
+	bool H_idtad = H_z3nldb < high;
+	float H_k3s2lo = H_idtad ? C_4d0 : C_3d0;
+	vec4 H_t4wtx4 = vec4(H_k3s2lo);
+	mediump vec4 H_r183b = H_7q8l46 * H_t4wtx4;
+	gl_FragColor = H_r183b;
 	
 }
 

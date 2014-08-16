@@ -11,10 +11,10 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %i34 = alloca i32
-  %i24 = alloca i32
+  %i35 = alloca i32
+  %i25 = alloca i32
   %r = alloca <4 x float>
-  %constructed = alloca <4 x float>
+  %gl_FragColor22 = alloca <4 x float>
   %tv4 = alloca <4 x float>
   %i13 = alloca i32
   %i4 = alloca i32
@@ -123,7 +123,7 @@ post-loop-continue20:                             ; No predecessors!
 
 loop-merge21:                                     ; preds = %then15
   %27 = load float* %sum
-  %28 = load <4 x float>* %constructed
+  %28 = load <4 x float>* %gl_FragColor22
   %29 = insertelement <4 x float> undef, float %27, i32 0
   %30 = insertelement <4 x float> %29, float %27, i32 1
   %31 = insertelement <4 x float> %30, float %27, i32 2
@@ -131,8 +131,8 @@ loop-merge21:                                     ; preds = %then15
   %33 = load <4 x float>* %tv4
   %34 = fadd <4 x float> %32, %33
   %35 = load <4 x float>* @gl_FragColor
-  %gl_FragColor22 = fadd <4 x float> %35, %34
-  store <4 x float> %gl_FragColor22, <4 x float>* @gl_FragColor
+  %gl_FragColor23 = fadd <4 x float> %35, %34
+  store <4 x float> %gl_FragColor23, <4 x float>* @gl_FragColor
   %36 = load <4 x float>* @BaseColor
   %37 = extractelement <4 x float> %36, i32 0
   %38 = insertelement <3 x float> undef, float %37, i32 0
@@ -146,38 +146,38 @@ loop-merge21:                                     ; preds = %then15
   %46 = extractelement <3 x float> %42, i32 1
   %47 = insertelement <4 x float> %45, float %46, i32 1
   %48 = extractelement <3 x float> %42, i32 2
-  %r23 = insertelement <4 x float> %47, float %48, i32 2
-  store <4 x float> %r23, <4 x float>* %r
-  store i32 0, i32* %i24
-  br label %loop-header25
+  %r24 = insertelement <4 x float> %47, float %48, i32 2
+  store <4 x float> %r24, <4 x float>* %r
+  store i32 0, i32* %i25
+  br label %loop-header26
 
-loop-header25:                                    ; preds = %post-loop-continue31, %ifmerge28, %loop-merge21
-  %49 = load i32* %i24
+loop-header26:                                    ; preds = %post-loop-continue32, %ifmerge29, %loop-merge21
+  %49 = load i32* %i25
   %50 = load i32 addrspace(2)* @Count, !gla.uniform !5
   %51 = icmp slt i32 %49, %50
   %52 = xor i1 %51, true
-  br i1 %52, label %then26, label %ifmerge28
+  br i1 %52, label %then27, label %ifmerge29
 
-then26:                                           ; preds = %loop-header25
-  br label %loop-merge32
+then27:                                           ; preds = %loop-header26
+  br label %loop-merge33
 
-post-loop-break27:                                ; No predecessors!
-  br label %ifmerge28
+post-loop-break28:                                ; No predecessors!
+  br label %ifmerge29
 
-ifmerge28:                                        ; preds = %loop-header25, %post-loop-break27
+ifmerge29:                                        ; preds = %loop-header26, %post-loop-break28
   %53 = load float* @f
   %54 = load <4 x float>* %r
-  %r29 = insertelement <4 x float> %54, float %53, i32 3
-  store <4 x float> %r29, <4 x float>* %r
-  %55 = load i32* %i24
-  %i2430 = add i32 %55, 1
-  store i32 %i2430, i32* %i24
-  br label %loop-header25
+  %r30 = insertelement <4 x float> %54, float %53, i32 3
+  store <4 x float> %r30, <4 x float>* %r
+  %55 = load i32* %i25
+  %i2531 = add i32 %55, 1
+  store i32 %i2531, i32* %i25
+  br label %loop-header26
 
-post-loop-continue31:                             ; No predecessors!
-  br label %loop-header25
+post-loop-continue32:                             ; No predecessors!
+  br label %loop-header26
 
-loop-merge32:                                     ; preds = %then26
+loop-merge33:                                     ; preds = %then27
   %56 = load <4 x float>* %r
   %57 = extractelement <4 x float> %56, i32 0
   %58 = insertelement <3 x float> undef, float %57, i32 0
@@ -199,44 +199,44 @@ loop-merge32:                                     ; preds = %then26
   %74 = extractelement <3 x float> %70, i32 1
   %75 = insertelement <4 x float> %73, float %74, i32 1
   %76 = extractelement <3 x float> %70, i32 2
-  %gl_FragColor33 = insertelement <4 x float> %75, float %76, i32 2
-  store <4 x float> %gl_FragColor33, <4 x float>* @gl_FragColor
-  store i32 0, i32* %i34
-  br label %loop-header35
+  %gl_FragColor34 = insertelement <4 x float> %75, float %76, i32 2
+  store <4 x float> %gl_FragColor34, <4 x float>* @gl_FragColor
+  store i32 0, i32* %i35
+  br label %loop-header36
 
-loop-header35:                                    ; preds = %post-loop-continue41, %ifmerge38, %loop-merge32
-  %77 = load i32* %i34
+loop-header36:                                    ; preds = %post-loop-continue42, %ifmerge39, %loop-merge33
+  %77 = load i32* %i35
   %78 = icmp slt i32 %77, 16
   %79 = xor i1 %78, true
-  br i1 %79, label %then36, label %ifmerge38
+  br i1 %79, label %then37, label %ifmerge39
 
-then36:                                           ; preds = %loop-header35
-  br label %loop-merge42
+then37:                                           ; preds = %loop-header36
+  br label %loop-merge43
 
-post-loop-break37:                                ; No predecessors!
-  br label %ifmerge38
+post-loop-break38:                                ; No predecessors!
+  br label %ifmerge39
 
-ifmerge38:                                        ; preds = %loop-header35, %post-loop-break37
+ifmerge39:                                        ; preds = %loop-header36, %post-loop-break38
   %80 = load float* @f
   %81 = load <4 x float>* @gl_FragColor
   %82 = insertelement <4 x float> undef, float %80, i32 0
   %83 = insertelement <4 x float> %82, float %80, i32 1
   %84 = insertelement <4 x float> %83, float %80, i32 2
   %85 = insertelement <4 x float> %84, float %80, i32 3
-  %gl_FragColor39 = fmul <4 x float> %81, %85
-  store <4 x float> %gl_FragColor39, <4 x float>* @gl_FragColor
-  %86 = load i32* %i34
-  %i3440 = add i32 %86, 4
-  store i32 %i3440, i32* %i34
-  br label %loop-header35
+  %gl_FragColor40 = fmul <4 x float> %81, %85
+  store <4 x float> %gl_FragColor40, <4 x float>* @gl_FragColor
+  %86 = load i32* %i35
+  %i3541 = add i32 %86, 4
+  store i32 %i3541, i32* %i35
+  br label %loop-header36
 
-post-loop-continue41:                             ; No predecessors!
-  br label %loop-header35
+post-loop-continue42:                             ; No predecessors!
+  br label %loop-header36
 
-loop-merge42:                                     ; preds = %then36
+loop-merge43:                                     ; preds = %then37
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %loop-merge42
+stage-epilogue:                                   ; preds = %loop-merge43
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -315,45 +315,45 @@ then:                                             ; preds = %loop-header
   %20 = uitofp i32 %19 to float
   %tv418.3 = insertelement <4 x float> %tv418.2, float %20, i32 3
   %21 = fadd <4 x float> %12, %tv418.3
-  %gl_FragColor22 = fadd <4 x float> %21, %1
-  %22 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %gl_FragColor22, <3 x i32> <i32 0, i32 1, i32 2>)
-  store <4 x float> %gl_FragColor22, <4 x float>* @gl_FragColor, align 16
+  %gl_FragColor23 = fadd <4 x float> %21, %1
+  %22 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %gl_FragColor23, <3 x i32> <i32 0, i32 1, i32 2>)
+  store <4 x float> %gl_FragColor23, <4 x float>* @gl_FragColor, align 16
   %23 = load float* @f, align 4
   %24 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %23, <4 x i32> zeroinitializer)
-  br label %loop-header25
+  br label %loop-header26
 
 ifmerge:                                          ; preds = %loop-header
   %color2 = fadd <4 x float> %1, %0
   %i3 = add i32 %i.0, 1
   br label %loop-header
 
-loop-header25:                                    ; preds = %ifmerge28, %then
-  %r.0 = phi <4 x float> [ %color1, %then ], [ %29, %ifmerge28 ]
-  %i24.0 = phi i32 [ 0, %then ], [ %i2430, %ifmerge28 ]
+loop-header26:                                    ; preds = %ifmerge29, %then
+  %r.0 = phi <4 x float> [ %color1, %then ], [ %29, %ifmerge29 ]
+  %i25.0 = phi i32 [ 0, %then ], [ %i2531, %ifmerge29 ]
   %25 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v4f32.v3i32(<4 x float> %r.0, <3 x i32> <i32 0, i32 1, i32 2>)
-  %26 = icmp slt i32 %i24.0, %.pre
-  br i1 %26, label %ifmerge28, label %then26
+  %26 = icmp slt i32 %i25.0, %.pre
+  br i1 %26, label %ifmerge29, label %then27
 
-then26:                                           ; preds = %loop-header25
+then27:                                           ; preds = %loop-header26
   %27 = fadd <3 x float> %25, %22
-  %28 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> %gl_FragColor22, i32 7, <3 x float> %27, i32 0, <3 x float> %27, i32 1, <3 x float> %27, i32 2, float undef, i32 undef)
-  %gl_FragColor39 = fmul <4 x float> %28, %24
-  %gl_FragColor39.1 = fmul <4 x float> %gl_FragColor39, %24
-  %gl_FragColor39.2 = fmul <4 x float> %gl_FragColor39.1, %24
-  %gl_FragColor39.3 = fmul <4 x float> %gl_FragColor39.2, %24
-  store <4 x float> %gl_FragColor39.3, <4 x float>* @gl_FragColor, align 16
+  %28 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> %gl_FragColor23, i32 7, <3 x float> %27, i32 0, <3 x float> %27, i32 1, <3 x float> %27, i32 2, float undef, i32 undef)
+  %gl_FragColor40 = fmul <4 x float> %28, %24
+  %gl_FragColor40.1 = fmul <4 x float> %gl_FragColor40, %24
+  %gl_FragColor40.2 = fmul <4 x float> %gl_FragColor40.1, %24
+  %gl_FragColor40.3 = fmul <4 x float> %gl_FragColor40.2, %24
+  store <4 x float> %gl_FragColor40.3, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %then26
+stage-epilogue:                                   ; preds = %then27
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
   ret void
 
-ifmerge28:                                        ; preds = %loop-header25
+ifmerge29:                                        ; preds = %loop-header26
   %29 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %r.0, i32 8, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef, float %23, i32 0)
-  %i2430 = add i32 %i24.0, 1
-  br label %loop-header25
+  %i2531 = add i32 %i25.0, 1
+  br label %loop-header26
 }
 
 ; Function Attrs: nounwind readnone
@@ -403,46 +403,46 @@ const int C_1 = 1;
 void main()
 {
 	vec4 Lg_1;
-	int i_uc1;
-	vec4 r_uc2;
+	int i;
+	vec4 r;
 	int Lg_2;
 	Lg_1 = BaseColor;
-	i_uc1 = C_0;
-	for (i_uc1 = 0; i_uc1 < Count; ++i_uc1) {
-		vec4 color_c3 = Lg_1 + bigColor;
-		Lg_1 = color_c3;
+	i = C_0;
+	for (i = 0; i < Count; ++i) {
+		vec4 color = Lg_1 + bigColor;
+		Lg_1 = color;
 	}
 	
 	gl_FragColor = Lg_1;
 	float H_i1jho5 = float(ivec4(v4).x);
 	float H_ry83gd = float(ivec4(v4).y);
-	float sum_c4 = H_i1jho5 + H_ry83gd;
+	float sum = H_i1jho5 + H_ry83gd;
 	float H_49uxyc1 = float(ivec4(v4).z);
-	float sum_c5 = H_49uxyc1 + sum_c4;
+	float sum1 = H_49uxyc1 + sum;
 	float H_dx9e2e1 = float(ivec4(v4).w);
-	float sum_c6 = H_dx9e2e1 + sum_c5;
-	vec4 H_fppcf01 = vec4(sum_c6);
+	float sum2 = H_dx9e2e1 + sum1;
+	vec4 H_9c5itt = vec4(sum2);
 	int H_jv91f2 = ivec4(v4).x << C_2;
 	float H_nmn79w = float(H_jv91f2);
-	vec4 tv_c7 = gla_globalAgg;
-	tv_c7.x = H_nmn79w;
+	vec4 tv = gla_globalAgg;
+	tv.x = H_nmn79w;
 	int H_ia5bsh1 = ivec4(v4).y << C_2;
 	float H_ytz9bk = float(H_ia5bsh1);
-	vec4 tv_c8 = tv_c7;
-	tv_c8.y = H_ytz9bk;
+	vec4 tv1 = tv;
+	tv1.y = H_ytz9bk;
 	int H_5dx4dh = ivec4(v4).z << C_2;
 	float H_ycbb6d = float(H_5dx4dh);
-	vec4 tv_c9 = tv_c8;
-	tv_c9.z = H_ycbb6d;
+	vec4 tv2 = tv1;
+	tv2.z = H_ycbb6d;
 	int H_45zg0s1 = ivec4(v4).w << C_2;
 	float H_pekchw = float(H_45zg0s1);
-	vec4 tv_c10 = tv_c9;
-	tv_c10.w = H_pekchw;
-	vec4 H_6iqnxk1 = H_fppcf01 + tv_c10;
-	vec4 Ll_FragColor_c11 = H_6iqnxk1 + Lg_1;
-	gl_FragColor = Ll_FragColor_c11;
+	vec4 tv3 = tv2;
+	tv3.w = H_pekchw;
+	vec4 H_05vrpy = H_9c5itt + tv3;
+	vec4 Ll_FragColor1 = H_05vrpy + Lg_1;
+	gl_FragColor = Ll_FragColor1;
 	vec4 H_wlwz58 = vec4(f);
-	r_uc2 = BaseColor;
+	r = BaseColor;
 	Lg_2 = C_0;
 	while (true) {
 		bool H_mcxey01 = Lg_2 < Count;
@@ -450,21 +450,21 @@ void main()
 			break;
 		}
 		
-		vec4 H_opz8bh1 = r_uc2;
-		H_opz8bh1.w = f;
+		vec4 H_xdyojw1 = r;
+		H_xdyojw1.w = f;
 		int H_5l4rig = Lg_2 + C_1;
-		r_uc2 = H_opz8bh1;
+		r = H_xdyojw1;
 		Lg_2 = H_5l4rig;
 	}
 	
-	vec3 H_b3ap6m = Ll_FragColor_c11.xyz + r_uc2.xyz;
-	vec4 H_9dsdr4 = Ll_FragColor_c11;
-	H_9dsdr4.xyz = H_b3ap6m.xyz;
-	vec4 Ll_FragColor_c12 = H_9dsdr4 * H_wlwz58;
-	vec4 Ll_FragColor_c13 = H_wlwz58 * Ll_FragColor_c12;
-	vec4 Ll_FragColor_c14 = H_wlwz58 * Ll_FragColor_c13;
-	vec4 Ll_FragColor_c15 = H_wlwz58 * Ll_FragColor_c14;
-	gl_FragColor = Ll_FragColor_c15;
+	vec3 H_bbezxw = Ll_FragColor1.xyz + r.xyz;
+	vec4 H_oazljt = Ll_FragColor1;
+	H_oazljt.xyz = H_bbezxw.xyz;
+	vec4 Ll_FragColor2 = H_oazljt * H_wlwz58;
+	vec4 Ll_FragColor3 = H_wlwz58 * Ll_FragColor2;
+	vec4 Ll_FragColor4 = H_wlwz58 * Ll_FragColor3;
+	vec4 Ll_FragColor5 = H_wlwz58 * Ll_FragColor4;
+	gl_FragColor = Ll_FragColor5;
 	
 }
 
@@ -482,62 +482,62 @@ const int C_1 = 1;
 
 void main()
 {
-	int i_uc_c1;
-	vec4 Lg_uc2;
-	int Lg_uc3;
-	vec4 r_uc_c4;
-	i_uc_c1 = C_0;
-	Lg_uc2 = BaseColor;
-	for (i_uc_c1 = 0; i_uc_c1 < Count; ++i_uc_c1) {
-		vec4 color_c5 = Lg_uc2 + bigColor;
-		Lg_uc2 = color_c5;
+	int i;
+	vec4 Lg_;
+	int Lg_1;
+	vec4 r;
+	i = C_0;
+	Lg_ = BaseColor;
+	for (i = 0; i < Count; ++i) {
+		vec4 color = Lg_ + bigColor;
+		Lg_ = color;
 	}
 	
-	gl_FragColor = Lg_uc2;
-	float H_i_c6 = float(ivec4(v4).x);
-	float H_ry_c7 = float(ivec4(v4).y);
-	float sum_c8 = H_i_c6 + H_ry_c7;
-	float H_uc9 = float(ivec4(v4).z);
-	float sum_c10 = H_uc9 + sum_c8;
-	float H_dx_c11 = float(ivec4(v4).w);
-	float sum_c12 = H_dx_c11 + sum_c10;
-	vec4 H_swai5n = vec4(sum_c12);
-	int H_jv_c13 = ivec4(v4).x << C_2;
-	float H_nmn_c14 = float(H_jv_c13);
-	int H_ia_c15 = ivec4(v4).y << C_2;
-	float H_ytz_c16 = float(H_ia_c15);
-	int H_uc17 = ivec4(v4).z << C_2;
-	float H_ycbb_c18 = float(H_uc17);
-	int H_uc19 = ivec4(v4).w << C_2;
-	float H_pekchw_c20 = float(H_uc19);
-	vec4 H_xvhea21 = vec4(H_nmn_c14, H_ytz_c16, H_ycbb_c18, H_pekchw_c20);
-	vec4 H_uc21 = H_swai5n + H_xvhea21;
-	vec4 Ll_FragColor_c22 = H_uc21 + Lg_uc2;
-	gl_FragColor = Ll_FragColor_c22;
+	gl_FragColor = Lg_;
+	float H_i1jho = float(ivec4(v4).x);
+	float H_ry83gd = float(ivec4(v4).y);
+	float sum = H_i1jho + H_ry83gd;
+	float H_49uxyc = float(ivec4(v4).z);
+	float sum1 = H_49uxyc + sum;
+	float H_dx9e2e = float(ivec4(v4).w);
+	float sum2 = H_dx9e2e + sum1;
+	vec4 H_9c5itt = vec4(sum2);
+	int H_jv91f = ivec4(v4).x << C_2;
+	float H_nmn79w = float(H_jv91f);
+	int H_ia5bsh = ivec4(v4).y << C_2;
+	float H_ytz9bk = float(H_ia5bsh);
+	int H_5dx4dh = ivec4(v4).z << C_2;
+	float H_ycbb6d = float(H_5dx4dh);
+	int H_45zg0s = ivec4(v4).w << C_2;
+	float H_pekchw = float(H_45zg0s);
+	vec4 H_5sl54o = vec4(H_nmn79w, H_ytz9bk, H_ycbb6d, H_pekchw);
+	vec4 H_05vrpy = H_5sl54o + H_9c5itt;
+	vec4 Ll_FragColor = H_05vrpy + Lg_;
+	gl_FragColor = Ll_FragColor;
 	vec4 H_wlwz58 = vec4(f);
-	Lg_uc3 = C_0;
-	r_uc_c4 = BaseColor;
+	Lg_1 = C_0;
+	r = BaseColor;
 	while (true) {
-		bool H_x6z1i2 = Lg_uc3 < Count;
-		if (! H_x6z1i2) {
+		bool H_zco224 = Lg_1 < Count;
+		if (! H_zco224) {
 			break;
 		}
 		
-		vec4 H_or427q = r_uc_c4;
-		H_or427q.w = f;
-		int H_uc23 = Lg_uc3 + C_1;
-		Lg_uc3 = H_uc23;
-		r_uc_c4 = H_or427q;
+		vec4 H_xdyojw1 = r;
+		H_xdyojw1.w = f;
+		int H_5l4rig = Lg_1 + C_1;
+		Lg_1 = H_5l4rig;
+		r = H_xdyojw1;
 	}
 	
-	vec3 H_b_c24 = Ll_FragColor_c22.xyz + r_uc_c4.xyz;
-	vec4 H_jm7e92 = Ll_FragColor_c22;
-	H_jm7e92.xyz = H_b_c24.xyz;
-	vec4 Ll_FragColor_c25 = H_jm7e92 * H_wlwz58;
-	vec4 Ll_FragColor_c26 = H_wlwz58 * Ll_FragColor_c25;
-	vec4 Ll_FragColor_c27 = H_wlwz58 * Ll_FragColor_c26;
-	vec4 Ll_FragColor_c28 = H_wlwz58 * Ll_FragColor_c27;
-	gl_FragColor = Ll_FragColor_c28;
+	vec3 H_bbezxw = Ll_FragColor.xyz + r.xyz;
+	vec4 H_xggwii = Ll_FragColor;
+	H_xggwii.xyz = H_bbezxw.xyz;
+	vec4 Ll_FragColor1 = H_wlwz58 * H_xggwii;
+	vec4 Ll_FragColor2 = H_wlwz58 * Ll_FragColor1;
+	vec4 Ll_FragColor3 = H_wlwz58 * Ll_FragColor2;
+	vec4 Ll_FragColor4 = H_wlwz58 * Ll_FragColor3;
+	gl_FragColor = Ll_FragColor4;
 	
 }
 

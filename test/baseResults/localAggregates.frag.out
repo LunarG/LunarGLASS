@@ -143,9 +143,9 @@ ifmerge9:                                         ; preds = %loop-merge, %then7
   %57 = fmul <4 x float> %39, %56
   %58 = load i32 addrspace(1)* @sampler, !gla.uniform !9
   %59 = load <2 x float>* @coord
-  %60 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %58, i32 0, <2 x float> %59)
-  %gl_FragColor = fmul <4 x float> %57, %60
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %58, i32 0, <2 x float> %59)
+  %gl_FragColor10 = fmul <4 x float> %57, %gl_FragColor
+  store <4 x float> %gl_FragColor10, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge9
@@ -213,19 +213,19 @@ entry:
   %select = select i1 %3, float 1.000000e+00, float %2
   %4 = load i32 addrspace(2)* @condition, align 4, !gla.uniform !8
   %5 = icmp eq i32 %4, 1
-  %select94 = select i1 %5, float %2, float 0.000000e+00
+  %select95 = select i1 %5, float %2, float 0.000000e+00
   %6 = load <4 x float>* @color, align 16
   %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %6, i32 4, float undef, i32 undef, float undef, i32 undef, <2 x float> %0, i32 1, float undef, i32 undef)
   %8 = select i1 %3, float %2, float 2.000000e+00
   %9 = fadd float %select, %8
   %10 = fadd float %2, %9
-  %11 = fadd float %10, %select94
+  %11 = fadd float %10, %select95
   %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %11, <4 x i32> zeroinitializer)
   %13 = fmul <4 x float> %7, %12
   %14 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !9
-  %15 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %14, i32 0, <2 x float> %0)
-  %gl_FragColor = fmul <4 x float> %15, %13
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor, align 16
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %14, i32 0, <2 x float> %0)
+  %gl_FragColor10 = fmul <4 x float> %gl_FragColor, %13
+  store <4 x float> %gl_FragColor10, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -308,20 +308,20 @@ const float C_2d0 = 2.0;
 void main()
 {
 	bool H_27n3qy = foo3.s2_1.i > C_0;
-	float select_c1 = H_27n3qy ? C_1d0 : coord.x;
+	float select = H_27n3qy ? C_1d0 : coord.x;
 	bool H_x8pmhw1 = condition == C_1;
-	float select_c2 = H_x8pmhw1 ? coord.x : C_0d0;
+	float select1 = H_x8pmhw1 ? coord.x : C_0d0;
 	vec4 H_sbr82h = color;
 	H_sbr82h.z = coord.y;
 	float H_a018tj = H_27n3qy ? coord.x : C_2d0;
-	float H_uhjdds = H_a018tj + select_c1;
-	float H_49u4er1 = H_uhjdds + coord.x;
-	float H_9vre8z = H_49u4er1 + select_c2;
-	vec4 H_zlutjz = vec4(H_9vre8z);
-	vec4 H_30w8wu1 = H_sbr82h * H_zlutjz;
-	vec4 H_0k8q2q = texture(sampler, coord);
-	vec4 Ll_FragColor_c3 = H_0k8q2q * H_30w8wu1;
-	gl_FragColor = Ll_FragColor_c3;
+	float H_1d7f21 = H_a018tj + select;
+	float H_fxgpqr = H_1d7f21 + coord.x;
+	float H_4jiaxm = H_fxgpqr + select1;
+	vec4 H_y9ers71 = vec4(H_4jiaxm);
+	vec4 H_mjsqr3 = H_sbr82h * H_y9ers71;
+	vec4 Ll_FragColor1 = texture(sampler, coord);
+	vec4 Ll_FragColor2 = H_mjsqr3 * Ll_FragColor1;
+	gl_FragColor = Ll_FragColor2;
 	
 }
 
@@ -359,21 +359,21 @@ const float C_2d0 = 2.0;
 
 void main()
 {
-	bool H_uc1 = foo3.s2_1.i > C_0;
-	float select_c2 = H_uc1 ? C_1d0 : coord.x;
-	bool H_x_c3 = condition == C_1;
-	float select_c4 = H_x_c3 ? coord.x : C_0d0;
+	bool H_27n3qy = foo3.s2_1.i > C_0;
+	float select = H_27n3qy ? C_1d0 : coord.x;
+	bool H_x8pmhw = condition == C_1;
+	float select1 = H_x8pmhw ? coord.x : C_0d0;
 	vec4 H_sbr82h = color;
 	H_sbr82h.z = coord.y;
-	float select_c5 = H_uc1 ? coord.x : C_2d0;
-	float H_uhjdds_c6 = select_c2 + select_c5;
-	float H_uc7 = H_uhjdds_c6 + coord.x;
-	float H_uc8 = H_uc7 + select_c4;
-	vec4 H_3a75eh1 = vec4(H_uc8);
-	vec4 H_uc9 = H_3a75eh1 * H_sbr82h;
-	vec4 H_uc10 = texture(sampler, coord);
-	vec4 Ll_FragColor_c11 = H_uc10 * H_uc9;
-	gl_FragColor = Ll_FragColor_c11;
+	float select2 = H_27n3qy ? coord.x : C_2d0;
+	float H_1d7f = select + select2;
+	float H_fxgpqr = H_1d7f + coord.x;
+	float H_4jiaxm = H_fxgpqr + select1;
+	vec4 H_y9ers71 = vec4(H_4jiaxm);
+	vec4 H_mjsqr = H_sbr82h * H_y9ers71;
+	vec4 Ll_FragColor = texture(sampler, coord);
+	vec4 Ll_FragColor1 = H_mjsqr * Ll_FragColor;
+	gl_FragColor = Ll_FragColor1;
 	
 }
 

@@ -16,9 +16,9 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %constructed8 = alloca <4 x float>
-  %constructed6 = alloca [3 x <2 x float>]
-  %constructed5 = alloca <2 x float>
+  %gl_FragColor9 = alloca <4 x float>
+  %constructed7 = alloca [3 x <2 x float>]
+  %constructed6 = alloca <2 x float>
   %constructed = alloca [3 x <2 x float>]
   %scale = alloca float
   %iLocal = alloca i32
@@ -51,44 +51,44 @@ ifmerge:                                          ; preds = %else, %then
   %9 = load float* %scale
   %10 = load i32 addrspace(1)* @sampler, !gla.uniform !11
   %11 = load <2 x float>* @coord
-  %12 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %10, i32 0, <2 x float> %11)
-  %13 = insertelement <4 x float> undef, float %9, i32 0
-  %14 = insertelement <4 x float> %13, float %9, i32 1
-  %15 = insertelement <4 x float> %14, float %9, i32 2
-  %16 = insertelement <4 x float> %15, float %9, i32 3
-  %gl_FragColor = fmul <4 x float> %16, %12
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
-  %17 = load <2 x float>* @coord
-  %18 = load float* %scale
-  %19 = load <2 x float>* %constructed5
-  %20 = insertelement <2 x float> undef, float %18, i32 0
-  %21 = insertelement <2 x float> %20, float %18, i32 1
-  %22 = getelementptr [3 x <2 x float>]* %constructed6, i32 0, i32 0
-  store <2 x float> %17, <2 x float>* %22
-  %23 = getelementptr [3 x <2 x float>]* %constructed6, i32 0, i32 1
-  store <2 x float> %21, <2 x float>* %23
-  %24 = getelementptr [3 x <2 x float>]* %constructed6, i32 0, i32 2
-  store <2 x float> <float 1.000000e+00, float 2.000000e+00>, <2 x float>* %24
-  %constructed7 = load [3 x <2 x float>]* %constructed6
-  store [3 x <2 x float>] %constructed7, [3 x <2 x float>]* %constructed
-  %25 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct1 addrspace(2)* @foo, i32 0, i32 0), !gla.uniform !10
-  %26 = getelementptr [3 x <2 x float>]* %constructed, i32 0, i32 %25
-  %27 = load <2 x float>* %26
-  %28 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct1 addrspace(2)* @foo, i32 0, i32 0), !gla.uniform !10
-  %29 = getelementptr [3 x <2 x float>]* %constructed, i32 0, i32 %28
-  %30 = load <2 x float>* %29
-  %31 = load <4 x float>* %constructed8
-  %32 = extractelement <2 x float> %27, i32 0
-  %33 = insertelement <4 x float> %31, float %32, i32 0
-  %34 = extractelement <2 x float> %27, i32 1
-  %35 = insertelement <4 x float> %33, float %34, i32 1
-  %36 = extractelement <2 x float> %30, i32 0
-  %37 = insertelement <4 x float> %35, float %36, i32 2
-  %38 = extractelement <2 x float> %30, i32 1
-  %39 = insertelement <4 x float> %37, float %38, i32 3
-  %40 = load <4 x float>* @gl_FragColor
-  %gl_FragColor9 = fadd <4 x float> %40, %39
-  store <4 x float> %gl_FragColor9, <4 x float>* @gl_FragColor
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %10, i32 0, <2 x float> %11)
+  %12 = insertelement <4 x float> undef, float %9, i32 0
+  %13 = insertelement <4 x float> %12, float %9, i32 1
+  %14 = insertelement <4 x float> %13, float %9, i32 2
+  %15 = insertelement <4 x float> %14, float %9, i32 3
+  %gl_FragColor5 = fmul <4 x float> %15, %gl_FragColor
+  store <4 x float> %gl_FragColor5, <4 x float>* @gl_FragColor
+  %16 = load <2 x float>* @coord
+  %17 = load float* %scale
+  %18 = load <2 x float>* %constructed6
+  %19 = insertelement <2 x float> undef, float %17, i32 0
+  %20 = insertelement <2 x float> %19, float %17, i32 1
+  %21 = getelementptr [3 x <2 x float>]* %constructed7, i32 0, i32 0
+  store <2 x float> %16, <2 x float>* %21
+  %22 = getelementptr [3 x <2 x float>]* %constructed7, i32 0, i32 1
+  store <2 x float> %20, <2 x float>* %22
+  %23 = getelementptr [3 x <2 x float>]* %constructed7, i32 0, i32 2
+  store <2 x float> <float 1.000000e+00, float 2.000000e+00>, <2 x float>* %23
+  %constructed8 = load [3 x <2 x float>]* %constructed7
+  store [3 x <2 x float>] %constructed8, [3 x <2 x float>]* %constructed
+  %24 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct1 addrspace(2)* @foo, i32 0, i32 0), !gla.uniform !10
+  %25 = getelementptr [3 x <2 x float>]* %constructed, i32 0, i32 %24
+  %26 = load <2 x float>* %25
+  %27 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct1 addrspace(2)* @foo, i32 0, i32 0), !gla.uniform !10
+  %28 = getelementptr [3 x <2 x float>]* %constructed, i32 0, i32 %27
+  %29 = load <2 x float>* %28
+  %30 = load <4 x float>* %gl_FragColor9
+  %31 = extractelement <2 x float> %26, i32 0
+  %32 = insertelement <4 x float> %30, float %31, i32 0
+  %33 = extractelement <2 x float> %26, i32 1
+  %34 = insertelement <4 x float> %32, float %33, i32 1
+  %35 = extractelement <2 x float> %29, i32 0
+  %36 = insertelement <4 x float> %34, float %35, i32 2
+  %37 = extractelement <2 x float> %29, i32 1
+  %38 = insertelement <4 x float> %36, float %37, i32 3
+  %39 = load <4 x float>* @gl_FragColor
+  %gl_FragColor10 = fadd <4 x float> %39, %38
+  store <4 x float> %gl_FragColor10, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -151,33 +151,33 @@ entry:
   %0 = load i32 addrspace(2)* %gla_constGEP, align 4, !gla.uniform !3
   %1 = icmp sgt i32 %0, 0
   %iLocal1 = load i32 addrspace(2)* @Count, align 4, !gla.uniform !1
-  %gla_constGEP14 = getelementptr %lunarStruct1 addrspace(2)* @foo, i32 0, i32 0
-  %2 = load i32 addrspace(2)* %gla_constGEP14, align 4, !gla.uniform !10
+  %gla_constGEP15 = getelementptr %lunarStruct1 addrspace(2)* @foo, i32 0, i32 0
+  %2 = load i32 addrspace(2)* %gla_constGEP15, align 4, !gla.uniform !10
   %3 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 %2, i32 0
   %4 = load i32 addrspace(2)* %3, align 4, !gla.uniform !3
   %iLocal2 = add i32 %iLocal1, 3
   %5 = add i32 %iLocal2, %4
   %6 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 %5, i32 2, i32 1
-  %gla_constGEP15 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 0, i32 2, i32 1
-  %select = select i1 %1, float addrspace(2)* %6, float addrspace(2)* %gla_constGEP15
+  %gla_constGEP16 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 0, i32 2, i32 1
+  %select = select i1 %1, float addrspace(2)* %6, float addrspace(2)* %gla_constGEP16
   %scale.0 = load float addrspace(2)* %select, align 4
   %7 = call <2 x float> @llvm.gla.fSwizzle.v2f32.f32.v2i32(float %scale.0, <2 x i32> zeroinitializer)
   %8 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %scale.0, <4 x i32> zeroinitializer)
   %9 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !11
   %10 = load <2 x float>* @coord, align 8
-  %11 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %10)
-  %gl_FragColor = fmul <4 x float> %11, %8
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor, align 16
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %9, i32 0, <2 x float> %10)
+  %gl_FragColor5 = fmul <4 x float> %gl_FragColor, %8
+  store <4 x float> %gl_FragColor5, <4 x float>* @gl_FragColor, align 16
   %aggregate = load [3 x <2 x float>]* @gla_globalAgg
   %insert = insertvalue [3 x <2 x float>] %aggregate, <2 x float> %10, 0
-  %insert11 = insertvalue [3 x <2 x float>] %insert, <2 x float> %7, 1
-  %insert13 = insertvalue [3 x <2 x float>] %insert11, <2 x float> <float 1.000000e+00, float 2.000000e+00>, 2
-  store [3 x <2 x float>] %insert13, [3 x <2 x float>]* %constructed, align 8
-  %12 = getelementptr [3 x <2 x float>]* %constructed, i32 0, i32 %2
-  %13 = load <2 x float>* %12, align 8
-  %14 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v2f32.v4i32(<2 x float> %13, <4 x i32> <i32 0, i32 1, i32 0, i32 1>)
-  %gl_FragColor9 = fadd <4 x float> %gl_FragColor, %14
-  store <4 x float> %gl_FragColor9, <4 x float>* @gl_FragColor, align 16
+  %insert12 = insertvalue [3 x <2 x float>] %insert, <2 x float> %7, 1
+  %insert14 = insertvalue [3 x <2 x float>] %insert12, <2 x float> <float 1.000000e+00, float 2.000000e+00>, 2
+  store [3 x <2 x float>] %insert14, [3 x <2 x float>]* %constructed, align 8
+  %11 = getelementptr [3 x <2 x float>]* %constructed, i32 0, i32 %2
+  %12 = load <2 x float>* %11, align 8
+  %13 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v2f32.v4i32(<2 x float> %12, <4 x i32> <i32 0, i32 1, i32 0, i32 1>)
+  %gl_FragColor10 = fadd <4 x float> %gl_FragColor5, %13
+  store <4 x float> %gl_FragColor10, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -254,21 +254,21 @@ const vec2 C_7vuc471 = vec2(1.0, 2.0);
 
 void main()
 {
-	vec2[3] constructed_c1;
+	vec2[3] constructed;
 	bool H_jntasm = foo3.s2_1[1].i > C_0;
-	int iLocal_c2 = Count + C_3;
-	int H_62t6dq1 = foo3.s2_1[foo.i].i + iLocal_c2;
-	float select_c3 = H_jntasm ? foo2[H_62t6dq1].s1_1.f : foo3.s2_1[0].s1_1.f;
-	vec2 H_twc6j61 = vec2(select_c3);
-	vec4 H_7pqgnv1 = vec4(select_c3);
-	vec4 H_0k8q2q = texture(sampler, coord);
-	vec4 Ll_FragColor_c4 = H_0k8q2q * H_7pqgnv1;
-	gl_FragColor = Ll_FragColor_c4;
+	int iLocal = Count + C_3;
+	int H_m08wui = foo3.s2_1[foo.i].i + iLocal;
+	float select = H_jntasm ? foo2[H_m08wui].s1_1.f : foo3.s2_1[0].s1_1.f;
+	vec2 H_2md4p11 = vec2(select);
+	vec4 H_c1z5nn = vec4(select);
+	vec4 Ll_FragColor1 = texture(sampler, coord);
+	vec4 Ll_FragColor2 = H_c1z5nn * Ll_FragColor1;
+	gl_FragColor = Ll_FragColor2;
 	gla_globalAgg[0] = coord;
-	gla_globalAgg[1] = H_twc6j61;
+	gla_globalAgg[1] = H_2md4p11;
 	gla_globalAgg[2] = C_7vuc471;
-	vec4 Ll_FragColor_c5 = Ll_FragColor_c4 + gla_globalAgg[foo.i].xyxy;
-	gl_FragColor = Ll_FragColor_c5;
+	vec4 Ll_FragColor3 = Ll_FragColor2 + gla_globalAgg[foo.i].xyxy;
+	gl_FragColor = Ll_FragColor3;
 	
 }
 
@@ -302,20 +302,20 @@ const vec2 C_7vuc471 = vec2(1.0, 2.0);
 
 void main()
 {
-	bool H_jntasm_c1 = foo3.s2_1[1].i > C_0;
-	int iLocal_c2 = Count + C_3;
-	int H_uc3 = foo3.s2_1[foo.i].i + iLocal_c2;
-	float select_c4 = H_jntasm_c1 ? foo2[H_uc3].s1_1.f : foo3.s2_1[0].s1_1.f;
-	vec4 H_kcu1wx1 = vec4(select_c4);
-	vec2 H_6f6kwf = vec2(select_c4);
-	vec4 H_uc5 = texture(sampler, coord);
-	vec4 Ll_FragColor_c6 = H_kcu1wx1 * H_uc5;
-	gl_FragColor = Ll_FragColor_c6;
+	bool H_jntasm = foo3.s2_1[1].i > C_0;
+	int iLocal = Count + C_3;
+	int H_m08wui = foo3.s2_1[foo.i].i + iLocal;
+	float select = H_jntasm ? foo2[H_m08wui].s1_1.f : foo3.s2_1[0].s1_1.f;
+	vec4 H_c1z5nn = vec4(select);
+	vec2 H_2md4p11 = vec2(select);
+	vec4 Ll_FragColor = texture(sampler, coord);
+	vec4 Ll_FragColor1 = H_c1z5nn * Ll_FragColor;
+	gl_FragColor = Ll_FragColor1;
 	gla_globalAgg[0] = coord;
-	gla_globalAgg[1] = H_6f6kwf;
+	gla_globalAgg[1] = H_2md4p11;
 	gla_globalAgg[2] = C_7vuc471;
-	vec4 Ll_FragColor_c7 = Ll_FragColor_c6 + gla_globalAgg[foo.i].xyxy;
-	gl_FragColor = Ll_FragColor_c7;
+	vec4 Ll_FragColor2 = Ll_FragColor1 + gla_globalAgg[foo.i].xyxy;
+	gl_FragColor = Ll_FragColor2;
 	
 }
 

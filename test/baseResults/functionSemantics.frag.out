@@ -10,7 +10,7 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %constructed = alloca <4 x float>
+  %gl_FragColor = alloca <4 x float>
   %arg = alloca float
   %tempArg = alloca i32
   %param13 = alloca i32
@@ -86,12 +86,12 @@ entry:
   store i32 %color18, i32* %color
   %27 = load i32* %color
   %28 = sitofp i32 %27 to float
-  %29 = load <4 x float>* %constructed
+  %29 = load <4 x float>* %gl_FragColor
   %30 = insertelement <4 x float> undef, float %28, i32 0
   %31 = insertelement <4 x float> %30, float %28, i32 1
   %32 = insertelement <4 x float> %31, float %28, i32 2
-  %gl_FragColor = insertelement <4 x float> %32, float %28, i32 3
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %gl_FragColor19 = insertelement <4 x float> %32, float %28, i32 3
+  store <4 x float> %gl_FragColor19, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -173,7 +173,7 @@ entry:
   br i1 %1, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  call void @llvm.gla.discard()
+  %ical0a = call void @llvm.gla.discard()
   ret i32 1000000
 
 post-return:                                      ; No predecessors!
@@ -216,7 +216,7 @@ entry:
   br i1 %1, label %then.i, label %ifmerge.i
 
 then.i:                                           ; preds = %entry
-  call void @llvm.gla.discard()
+  %ical0a.i = call void @llvm.gla.discard()
   br label %"foo3(.exit"
 
 ifmerge.i:                                        ; preds = %entry
@@ -284,8 +284,8 @@ const vec4 C_0eo4vx1 = vec4(2397317.0);
 
 void main()
 {
-	bool H_uc1 = u > C_3d2;
-	if (H_uc1) {
+	bool H_3xblpb = u > C_3d2;
+	if (H_3xblpb) {
 		discard;
 	}
 	

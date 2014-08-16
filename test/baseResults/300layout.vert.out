@@ -144,17 +144,17 @@ entry:
   store float %48, float* getelementptr inbounds (%S* @s, i32 0, i32 1)
   %49 = load <3 x float> addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @"anon@1", i32 0, i32 2, i32 1), !gla.uniform !30
   %50 = fcmp one <3 x float> %49, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  %51 = call i1 @llvm.gla.any.v3i1(<3 x i1> %50)
-  %52 = load <3 x i32> addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @"anon@1", i32 0, i32 3, i32 2), !gla.uniform !30
-  %53 = icmp ne <3 x i32> %52, <i32 5, i32 5, i32 5>
-  %54 = call i1 @llvm.gla.any.v3i1(<3 x i1> %53)
-  %55 = or i1 %51, %54
-  br i1 %55, label %then, label %ifmerge
+  %cc = call i1 @llvm.gla.any.v3i1(<3 x i1> %50)
+  %51 = load <3 x i32> addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @"anon@1", i32 0, i32 3, i32 2), !gla.uniform !30
+  %52 = icmp ne <3 x i32> %51, <i32 5, i32 5, i32 5>
+  %cc59 = call i1 @llvm.gla.any.v3i1(<3 x i1> %52)
+  %53 = or i1 %cc, %cc59
+  br i1 %53, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  %56 = load <3 x float>* getelementptr inbounds (%S* @s, i32 0, i32 0)
-  %57 = fadd <3 x float> %56, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !gla.precision !40
-  store <3 x float> %57, <3 x float>* getelementptr inbounds (%S* @s, i32 0, i32 0)
+  %54 = load <3 x float>* getelementptr inbounds (%S* @s, i32 0, i32 0)
+  %55 = fadd <3 x float> %54, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !gla.precision !40
+  store <3 x float> %55, <3 x float>* getelementptr inbounds (%S* @s, i32 0, i32 0)
   br label %ifmerge
 
 ifmerge:                                          ; preds = %entry, %then
@@ -254,8 +254,8 @@ entry:
   %0 = load <4 x float>* @p, align 16
   %gla_constGEP = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 0
   %1 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP, align 16, !gla.uniform !23
-  %gla_constGEP59 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 1
-  %2 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP59, align 16, !gla.uniform !23
+  %gla_constGEP60 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 1
+  %2 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP60, align 16, !gla.uniform !23
   %leftColumn = extractvalue [4 x <4 x float>] %1, 0, !gla.precision !40
   %rightColumn = extractvalue [4 x <4 x float>] %2, 0, !gla.precision !40
   %column = fadd <4 x float> %leftColumn, %rightColumn, !gla.precision !40
@@ -268,8 +268,8 @@ entry:
   %leftColumn7 = extractvalue [4 x <4 x float>] %1, 3, !gla.precision !40
   %rightColumn8 = extractvalue [4 x <4 x float>] %2, 3, !gla.precision !40
   %column9 = fadd <4 x float> %leftColumn7, %rightColumn8, !gla.precision !40
-  %gla_constGEP60 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 1
-  %3 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP60, align 16, !gla.uniform !30
+  %gla_constGEP61 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 1
+  %3 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP61, align 16, !gla.uniform !30
   %rightColumn11 = extractvalue [4 x <4 x float>] %3, 0, !gla.precision !40
   %column12 = fadd <4 x float> %column, %rightColumn11, !gla.precision !40
   %rightColumn14 = extractvalue [4 x <4 x float>] %3, 1, !gla.precision !40
@@ -278,8 +278,8 @@ entry:
   %column18 = fadd <4 x float> %column6, %rightColumn17, !gla.precision !40
   %rightColumn20 = extractvalue [4 x <4 x float>] %3, 3, !gla.precision !40
   %column21 = fadd <4 x float> %column9, %rightColumn20, !gla.precision !40
-  %gla_constGEP61 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 0
-  %4 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP61, align 16, !gla.uniform !30
+  %gla_constGEP62 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 0
+  %4 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP62, align 16, !gla.uniform !30
   %rightColumn23 = extractvalue [4 x <4 x float>] %4, 0, !gla.precision !40
   %column24 = fadd <4 x float> %column12, %rightColumn23, !gla.precision !40
   %rightColumn26 = extractvalue [4 x <4 x float>] %4, 1, !gla.precision !40
@@ -288,8 +288,8 @@ entry:
   %column30 = fadd <4 x float> %column18, %rightColumn29, !gla.precision !40
   %rightColumn32 = extractvalue [4 x <4 x float>] %4, 3, !gla.precision !40
   %column33 = fadd <4 x float> %column21, %rightColumn32, !gla.precision !40
-  %gla_constGEP62 = getelementptr %T2 addrspace(2)* @"anon@0", i32 0, i32 1
-  %5 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP62, align 16, !gla.uniform !35
+  %gla_constGEP63 = getelementptr %T2 addrspace(2)* @"anon@0", i32 0, i32 1
+  %5 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP63, align 16, !gla.uniform !35
   %rightColumn35 = extractvalue [4 x <4 x float>] %5, 0, !gla.precision !40
   %column36 = fadd <4 x float> %column24, %rightColumn35, !gla.precision !40
   %rightColumn38 = extractvalue [4 x <4 x float>] %5, 1, !gla.precision !40
@@ -305,8 +305,8 @@ entry:
   %6 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dotres, i32 0, float %dotres48, i32 0, float %dotres50, i32 0, float %dotres52, i32 0)
   store <4 x float> %6, <4 x float>* @pos, align 16
   %7 = load <3 x float>* @c, align 16
-  %gla_constGEP63 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 2
-  %8 = load [3 x <3 x float>] addrspace(2)* %gla_constGEP63, align 16, !gla.uniform !23
+  %gla_constGEP64 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 2
+  %8 = load [3 x <3 x float>] addrspace(2)* %gla_constGEP64, align 16, !gla.uniform !23
   %column53 = extractvalue [3 x <3 x float>] %8, 0, !gla.precision !40
   %dotres54 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %7, <3 x float> %column53), !gla.precision !40
   %column55 = extractvalue [3 x <3 x float>] %8, 1, !gla.precision !40
@@ -315,34 +315,34 @@ entry:
   %dotres58 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %7, <3 x float> %column57), !gla.precision !40
   %9 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %dotres54, i32 0, float %dotres56, i32 0, float %dotres58, i32 0, float undef, i32 undef)
   store <3 x float> %9, <3 x float>* @color, align 16
-  %gla_constGEP64 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 3
-  %10 = load i32 addrspace(2)* %gla_constGEP64, align 16, !gla.uniform !23
+  %gla_constGEP65 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 3
+  %10 = load i32 addrspace(2)* %gla_constGEP65, align 16, !gla.uniform !23
   %11 = load i32 addrspace(2)* @uiuin, align 4, !gla.uniform !39
   %12 = add i32 %11, %10, !gla.precision !40
   %13 = load <2 x i32>* @aiv2, align 8
   %14 = extractelement <2 x i32> %13, i32 1, !gla.precision !40
   %iout = add i32 %12, %14, !gla.precision !40
   store i32 %iout, i32* @iout, align 4
-  %gla_constGEP65 = getelementptr %S* @s, i32 0, i32 0
-  store <3 x float> %7, <3 x float>* %gla_constGEP65, align 16
+  %gla_constGEP66 = getelementptr %S* @s, i32 0, i32 0
+  store <3 x float> %7, <3 x float>* %gla_constGEP66, align 16
   %15 = extractelement <4 x float> %0, i32 0, !gla.precision !40
-  %gla_constGEP66 = getelementptr %S* @s, i32 0, i32 1
-  store float %15, float* %gla_constGEP66, align 16
-  %gla_constGEP67 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 2, i32 1
-  %16 = load <3 x float> addrspace(2)* %gla_constGEP67, align 16, !gla.uniform !30
+  %gla_constGEP67 = getelementptr %S* @s, i32 0, i32 1
+  store float %15, float* %gla_constGEP67, align 16
+  %gla_constGEP68 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 2, i32 1
+  %16 = load <3 x float> addrspace(2)* %gla_constGEP68, align 16, !gla.uniform !30
   %17 = fcmp one <3 x float> %16, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  %18 = call i1 @llvm.gla.any.v3i1(<3 x i1> %17)
-  %gla_constGEP68 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 3, i32 2
-  %19 = load <3 x i32> addrspace(2)* %gla_constGEP68, align 16, !gla.uniform !30
-  %20 = icmp ne <3 x i32> %19, <i32 5, i32 5, i32 5>
-  %21 = call i1 @llvm.gla.any.v3i1(<3 x i1> %20)
-  %22 = or i1 %18, %21
-  br i1 %22, label %then, label %ifmerge
+  %cc = call i1 @llvm.gla.any.v3i1(<3 x i1> %17)
+  %gla_constGEP69 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 3, i32 2
+  %18 = load <3 x i32> addrspace(2)* %gla_constGEP69, align 16, !gla.uniform !30
+  %19 = icmp ne <3 x i32> %18, <i32 5, i32 5, i32 5>
+  %cc59 = call i1 @llvm.gla.any.v3i1(<3 x i1> %19)
+  %20 = or i1 %cc, %cc59
+  br i1 %20, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  %23 = fadd <3 x float> %7, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !gla.precision !40
-  %gla_constGEP69 = getelementptr %S* @s, i32 0, i32 0
-  store <3 x float> %23, <3 x float>* %gla_constGEP69, align 16
+  %21 = fadd <3 x float> %7, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !gla.precision !40
+  %gla_constGEP70 = getelementptr %S* @s, i32 0, i32 0
+  store <3 x float> %21, <3 x float>* %gla_constGEP70, align 16
   br label %ifmerge
 
 ifmerge:                                          ; preds = %entry, %then
@@ -454,44 +454,44 @@ const ivec3 C_ivec3p5p = ivec3(5);
 
 void main()
 {
-	highp vec4 column_c1 = tblock.M1[0] + tblock.M2[0];
-	highp vec4 column_c2 = tblock.M1[1] + tblock.M2[1];
-	highp vec4 column_c3 = tblock.M1[2] + tblock.M2[2];
-	highp vec4 column_c4 = tblock.M1[3] + tblock.M2[3];
-	highp vec4 column_c5 = M4[0] + column_c1;
-	highp vec4 column_c6 = M4[1] + column_c2;
-	highp vec4 column_c7 = M4[2] + column_c3;
-	highp vec4 column_c8 = M4[3] + column_c4;
-	highp vec4 column_c9 = M3[0] + column_c5;
-	highp vec4 column_c10 = M3[1] + column_c6;
-	highp vec4 column_c11 = M3[2] + column_c7;
-	highp vec4 column_c12 = M3[3] + column_c8;
-	highp vec4 column_c13 = column_c9 + t2m[0];
-	highp vec4 column_c14 = column_c10 + t2m[1];
-	highp vec4 column_c15 = column_c11 + t2m[2];
-	highp vec4 column_c16 = column_c12 + t2m[3];
-	highp float dotres_c17 = dot(p, column_c13);
-	highp float dotres_c18 = dot(p, column_c14);
-	highp float dotres_c19 = dot(p, column_c15);
-	highp float dotres_c20 = dot(p, column_c16);
-	vec4 H_bfvwcy1 = vec4(dotres_c17, dotres_c18, dotres_c19, dotres_c20);
-	pos = H_bfvwcy1;
-	highp float dotres_c21 = dot(c, tblock.N1[0]);
-	highp float dotres_c22 = dot(c, tblock.N1[1]);
-	highp float dotres_c23 = dot(c, tblock.N1[2]);
-	vec3 H_4lpvsc = vec3(dotres_c21, dotres_c22, dotres_c23);
-	color = H_4lpvsc;
+	highp vec4 column = tblock.M1[0] + tblock.M2[0];
+	highp vec4 column1 = tblock.M1[1] + tblock.M2[1];
+	highp vec4 column2 = tblock.M1[2] + tblock.M2[2];
+	highp vec4 column3 = tblock.M1[3] + tblock.M2[3];
+	highp vec4 column4 = M4[0] + column;
+	highp vec4 column5 = M4[1] + column1;
+	highp vec4 column6 = M4[2] + column2;
+	highp vec4 column7 = M4[3] + column3;
+	highp vec4 column8 = M3[0] + column4;
+	highp vec4 column9 = M3[1] + column5;
+	highp vec4 columna = M3[2] + column6;
+	highp vec4 columnb = M3[3] + column7;
+	highp vec4 columnc = column8 + t2m[0];
+	highp vec4 columnd = column9 + t2m[1];
+	highp vec4 columne = columna + t2m[2];
+	highp vec4 columnf = columnb + t2m[3];
+	highp float dotres = dot(p, columnc);
+	highp float dotres1 = dot(p, columnd);
+	highp float dotres2 = dot(p, columne);
+	highp float dotres3 = dot(p, columnf);
+	vec4 H_siz04c = vec4(dotres, dotres1, dotres2, dotres3);
+	pos = H_siz04c;
+	highp float dotres4 = dot(c, tblock.N1[0]);
+	highp float dotres5 = dot(c, tblock.N1[1]);
+	highp float dotres6 = dot(c, tblock.N1[2]);
+	vec3 H_dr2sk8 = vec3(dotres4, dotres5, dotres6);
+	color = H_dr2sk8;
 	highp int H_e9imls1 = int(uiuin) + tblock.iuin;
-	highp int iout_c24 = H_e9imls1 + aiv2.y;
-	iout = iout_c24;
+	highp int iout1 = H_e9imls1 + aiv2.y;
+	iout = iout1;
 	s.c = c;
 	s.f = p.x;
 	bvec3 H_kkvxkx = notEqual(N2[1], C_vec3p1d0p);
-	bool H_wowh6e1 = any(H_kkvxkx);
+	bool cc = any(H_kkvxkx);
 	bvec3 H_4h7yvc1 = notEqual(ivec3(uv3a[2]), C_ivec3p5p);
-	bool H_r7bncz = any(H_4h7yvc1);
-	bool H_c6fwum = H_wowh6e1 || H_r7bncz;
-	if (H_c6fwum) {
+	bool cc1 = any(H_4h7yvc1);
+	bool H_ggzsww1 = cc || cc1;
+	if (H_ggzsww1) {
 		highp vec3 H_hn1ggr = C_vec3p1d0p + c;
 		s.c = H_hn1ggr;
 	}
@@ -534,46 +534,46 @@ const ivec3 C_ivec3p5p = ivec3(5);
 
 void main()
 {
-	highp vec4 column_c1 = tblock.M1[0] + tblock.M2[0];
-	highp vec4 column_c2 = tblock.M1[1] + tblock.M2[1];
-	highp vec4 column_c3 = tblock.M1[2] + tblock.M2[2];
-	highp vec4 column_c4 = tblock.M1[3] + tblock.M2[3];
-	highp vec4 column_c5 = M4[0] + column_c1;
-	highp vec4 column_c6 = M4[1] + column_c2;
-	highp vec4 column_c7 = M4[2] + column_c3;
-	highp vec4 column_c8 = M4[3] + column_c4;
-	highp vec4 column_c9 = M3[0] + column_c5;
-	highp vec4 column_c10 = M3[1] + column_c6;
-	highp vec4 column_c11 = M3[2] + column_c7;
-	highp vec4 column_c12 = M3[3] + column_c8;
-	highp vec4 column_c13 = column_c9 + t2m[0];
-	highp vec4 column_c14 = column_c10 + t2m[1];
-	highp vec4 column_c15 = column_c11 + t2m[2];
-	highp vec4 column_c16 = column_c12 + t2m[3];
-	highp float dotres_c17 = dot(p, column_c13);
-	highp float dotres_c18 = dot(p, column_c14);
-	highp float dotres_c19 = dot(p, column_c15);
-	highp float dotres_c20 = dot(p, column_c16);
-	vec4 H_bfvwcy1 = vec4(dotres_c17, dotres_c18, dotres_c19, dotres_c20);
-	pos = H_bfvwcy1;
-	highp float dotres_c21 = dot(c, tblock.N1[0]);
-	highp float dotres_c22 = dot(c, tblock.N1[1]);
-	highp float dotres_c23 = dot(c, tblock.N1[2]);
-	vec3 H_4lpvsc = vec3(dotres_c21, dotres_c22, dotres_c23);
-	color = H_4lpvsc;
-	highp int H_e_c24 = int(uiuin) + tblock.iuin;
-	highp int iout_c25 = H_e_c24 + aiv2.y;
-	iout = iout_c25;
+	highp vec4 column = tblock.M1[0] + tblock.M2[0];
+	highp vec4 column1 = tblock.M1[1] + tblock.M2[1];
+	highp vec4 column2 = tblock.M1[2] + tblock.M2[2];
+	highp vec4 column3 = tblock.M1[3] + tblock.M2[3];
+	highp vec4 column4 = M4[0] + column;
+	highp vec4 column5 = M4[1] + column1;
+	highp vec4 column6 = M4[2] + column2;
+	highp vec4 column7 = M4[3] + column3;
+	highp vec4 column8 = M3[0] + column4;
+	highp vec4 column9 = M3[1] + column5;
+	highp vec4 columna = M3[2] + column6;
+	highp vec4 columnb = M3[3] + column7;
+	highp vec4 columnc = column8 + t2m[0];
+	highp vec4 columnd = column9 + t2m[1];
+	highp vec4 columne = columna + t2m[2];
+	highp vec4 columnf = columnb + t2m[3];
+	highp float dotres = dot(p, columnc);
+	highp float dotres1 = dot(p, columnd);
+	highp float dotres2 = dot(p, columne);
+	highp float dotres3 = dot(p, columnf);
+	vec4 H_siz04c = vec4(dotres, dotres1, dotres2, dotres3);
+	pos = H_siz04c;
+	highp float dotres4 = dot(c, tblock.N1[0]);
+	highp float dotres5 = dot(c, tblock.N1[1]);
+	highp float dotres6 = dot(c, tblock.N1[2]);
+	vec3 H_dr2sk8 = vec3(dotres4, dotres5, dotres6);
+	color = H_dr2sk8;
+	highp int H_e9imls = int(uiuin) + tblock.iuin;
+	highp int iout1 = H_e9imls + aiv2.y;
+	iout = iout1;
 	s.c = c;
 	s.f = p.x;
-	bvec3 H_kkvxkx_c26 = notEqual(N2[1], C_vec3p1d0p);
-	bool H_wowh_c27 = any(H_kkvxkx_c26);
-	bvec3 H_uc28 = notEqual(ivec3(uv3a[2]), C_ivec3p5p);
-	bool H_r_c29 = any(H_uc28);
-	bool H_c30 = H_wowh_c27 || H_r_c29;
-	if (H_c30) {
-		highp vec3 H_hn_c31 = C_vec3p1d0p + c;
-		s.c = H_hn_c31;
+	bvec3 H_kkvxkx = notEqual(N2[1], C_vec3p1d0p);
+	bool cc = any(H_kkvxkx);
+	bvec3 H_4h7yvc = notEqual(ivec3(uv3a[2]), C_ivec3p5p);
+	bool cc1 = any(H_4h7yvc);
+	bool H_ggzsww = cc || cc1;
+	if (H_ggzsww) {
+		highp vec3 H_hn1ggr = C_vec3p1d0p + c;
+		s.c = H_hn1ggr;
 	}
 	
 	

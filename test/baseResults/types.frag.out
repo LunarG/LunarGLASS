@@ -30,8 +30,8 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %constructed15 = alloca <4 x float>
-  %ternary = alloca <4 x float>
+  %gl_FragColor16 = alloca <4 x float>
+  %gl_FragColor = alloca <4 x float>
   %f4 = alloca <4 x float>
   %f3 = alloca <3 x float>
   %f2 = alloca <2 x float>
@@ -40,11 +40,11 @@ entry:
   %i3 = alloca <3 x i32>
   %i2 = alloca <2 x i32>
   %i = alloca i32
-  %constructed5 = alloca <4 x i1>
+  %b46 = alloca <4 x i1>
   %b4 = alloca <4 x i1>
-  %constructed3 = alloca <3 x i1>
+  %b34 = alloca <3 x i1>
   %b3 = alloca <3 x i1>
-  %constructed = alloca <2 x i1>
+  %b22 = alloca <2 x i1>
   %b2 = alloca <2 x i1>
   %b = alloca i1
   %0 = load i1 addrspace(2)* @u_b, !gla.uniform !1
@@ -62,10 +62,10 @@ entry:
   %10 = load <2 x i1> addrspace(2)* @i_b2, !gla.uniform !5
   %11 = extractelement <2 x i1> %10, i32 1
   %12 = and i1 %9, %11
-  %13 = load <2 x i1>* %constructed
+  %13 = load <2 x i1>* %b22
   %14 = insertelement <2 x i1> undef, i1 %12, i32 0
-  %b22 = insertelement <2 x i1> %14, i1 %12, i32 1
-  store <2 x i1> %b22, <2 x i1>* %b2
+  %b23 = insertelement <2 x i1> %14, i1 %12, i32 1
+  store <2 x i1> %b23, <2 x i1>* %b2
   %15 = load <3 x i1> addrspace(2)* @u_b3, !gla.uniform !6
   %16 = extractelement <3 x i1> %15, i32 0
   %17 = load <3 x i1> addrspace(2)* @i_b3, !gla.uniform !7
@@ -83,11 +83,11 @@ entry:
   %29 = load <3 x i1> addrspace(2)* @i_b3, !gla.uniform !7
   %30 = extractelement <3 x i1> %29, i32 2
   %31 = and i1 %28, %30
-  %32 = load <3 x i1>* %constructed3
+  %32 = load <3 x i1>* %b34
   %33 = insertelement <3 x i1> undef, i1 %31, i32 0
   %34 = insertelement <3 x i1> %33, i1 %31, i32 1
-  %b34 = insertelement <3 x i1> %34, i1 %31, i32 2
-  store <3 x i1> %b34, <3 x i1>* %b3
+  %b35 = insertelement <3 x i1> %34, i1 %31, i32 2
+  store <3 x i1> %b35, <3 x i1>* %b3
   %35 = load <4 x i1> addrspace(2)* @u_b4, !gla.uniform !8
   %36 = extractelement <4 x i1> %35, i32 0
   %37 = load <4 x i1> addrspace(2)* @i_b4, !gla.uniform !9
@@ -111,44 +111,44 @@ entry:
   %55 = load <4 x i1> addrspace(2)* @i_b4, !gla.uniform !9
   %56 = extractelement <4 x i1> %55, i32 3
   %57 = and i1 %54, %56
-  %58 = load <4 x i1>* %constructed5
+  %58 = load <4 x i1>* %b46
   %59 = insertelement <4 x i1> undef, i1 %57, i32 0
   %60 = insertelement <4 x i1> %59, i1 %57, i32 1
   %61 = insertelement <4 x i1> %60, i1 %57, i32 2
-  %b46 = insertelement <4 x i1> %61, i1 %57, i32 3
-  store <4 x i1> %b46, <4 x i1>* %b4
+  %b47 = insertelement <4 x i1> %61, i1 %57, i32 3
+  store <4 x i1> %b47, <4 x i1>* %b4
   %62 = load i32 addrspace(2)* @u_i, !gla.uniform !10
   %63 = load i32* @i_i
-  %i7 = add i32 %62, %63
-  store i32 %i7, i32* %i
+  %i8 = add i32 %62, %63
+  store i32 %i8, i32* %i
   %64 = load <2 x i32> addrspace(2)* @u_i2, !gla.uniform !11
   %65 = load <2 x i32>* @i_i2
-  %i28 = add <2 x i32> %64, %65
-  store <2 x i32> %i28, <2 x i32>* %i2
+  %i29 = add <2 x i32> %64, %65
+  store <2 x i32> %i29, <2 x i32>* %i2
   %66 = load <3 x i32> addrspace(2)* @u_i3, !gla.uniform !12
   %67 = load <3 x i32>* @i_i3
-  %i39 = add <3 x i32> %66, %67
-  store <3 x i32> %i39, <3 x i32>* %i3
+  %i310 = add <3 x i32> %66, %67
+  store <3 x i32> %i310, <3 x i32>* %i3
   %68 = load <4 x i32> addrspace(2)* @u_i4, !gla.uniform !13
   %69 = load <4 x i32>* @i_i4
-  %i410 = add <4 x i32> %68, %69
-  store <4 x i32> %i410, <4 x i32>* %i4
+  %i411 = add <4 x i32> %68, %69
+  store <4 x i32> %i411, <4 x i32>* %i4
   %70 = load float addrspace(2)* @u_f, !gla.uniform !14
   %71 = load float* @i_f
-  %f11 = fadd float %70, %71
-  store float %f11, float* %f
+  %f12 = fadd float %70, %71
+  store float %f12, float* %f
   %72 = load <2 x float> addrspace(2)* @u_f2, !gla.uniform !15
   %73 = load <2 x float>* @i_f2
-  %f212 = fadd <2 x float> %72, %73
-  store <2 x float> %f212, <2 x float>* %f2
+  %f213 = fadd <2 x float> %72, %73
+  store <2 x float> %f213, <2 x float>* %f2
   %74 = load <3 x float> addrspace(2)* @u_f3, !gla.uniform !16
   %75 = load <3 x float>* @i_f3
-  %f313 = fadd <3 x float> %74, %75
-  store <3 x float> %f313, <3 x float>* %f3
+  %f314 = fadd <3 x float> %74, %75
+  store <3 x float> %f314, <3 x float>* %f3
   %76 = load <4 x float> addrspace(2)* @u_f4, !gla.uniform !17
   %77 = load <4 x float>* @i_f4
-  %f414 = fadd <4 x float> %76, %77
-  store <4 x float> %f414, <4 x float>* %f4
+  %f415 = fadd <4 x float> %76, %77
+  store <4 x float> %f415, <4 x float>* %f4
   %78 = load i1* %b
   %79 = load <2 x i1>* %b2
   %80 = extractelement <2 x i1> %79, i32 0
@@ -238,21 +238,21 @@ then:                                             ; preds = %entry
   %161 = load <4 x float>* %f4
   %162 = extractelement <4 x float> %161, i32 3
   %163 = fadd float %160, %162
-  %164 = load <4 x float>* %constructed15
+  %164 = load <4 x float>* %gl_FragColor16
   %165 = insertelement <4 x float> undef, float %163, i32 0
   %166 = insertelement <4 x float> %165, float %163, i32 1
   %167 = insertelement <4 x float> %166, float %163, i32 2
-  %ternary16 = insertelement <4 x float> %167, float %163, i32 3
-  store <4 x float> %ternary16, <4 x float>* %ternary
+  %gl_FragColor17 = insertelement <4 x float> %167, float %163, i32 3
+  store <4 x float> %gl_FragColor17, <4 x float>* %gl_FragColor
   br label %ifmerge
 
 else:                                             ; preds = %entry
-  store <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float>* %ternary
+  store <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float>* %gl_FragColor
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %gl_FragColor = load <4 x float>* %ternary
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  %gl_FragColor18 = load <4 x float>* %gl_FragColor
+  store <4 x float> %gl_FragColor18, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -380,22 +380,22 @@ entry:
   %40 = and i1 %38, %39
   %41 = load <2 x i32> addrspace(2)* @u_i2, align 8, !gla.uniform !11
   %42 = load <2 x i32>* @i_i2, align 8
-  %i28 = add <2 x i32> %41, %42
+  %i29 = add <2 x i32> %41, %42
   %43 = load <3 x i32> addrspace(2)* @u_i3, align 16, !gla.uniform !12
   %44 = load <3 x i32>* @i_i3, align 16
-  %i39 = add <3 x i32> %43, %44
+  %i310 = add <3 x i32> %43, %44
   %45 = load <4 x i32> addrspace(2)* @u_i4, align 16, !gla.uniform !13
   %46 = load <4 x i32>* @i_i4, align 16
-  %i410 = add <4 x i32> %45, %46
+  %i411 = add <4 x i32> %45, %46
   %47 = load <2 x float> addrspace(2)* @u_f2, align 8, !gla.uniform !15
   %48 = load <2 x float>* @i_f2, align 8
-  %f212 = fadd <2 x float> %47, %48
+  %f213 = fadd <2 x float> %47, %48
   %49 = load <3 x float> addrspace(2)* @u_f3, align 16, !gla.uniform !16
   %50 = load <3 x float>* @i_f3, align 16
-  %f313 = fadd <3 x float> %49, %50
+  %f314 = fadd <3 x float> %49, %50
   %51 = load <4 x float> addrspace(2)* @u_f4, align 16, !gla.uniform !17
   %52 = load <4 x float>* @i_f4, align 16
-  %f414 = fadd <4 x float> %51, %52
+  %f415 = fadd <4 x float> %51, %52
   %53 = or i1 %b1, %10
   %54 = or i1 %53, %23
   %55 = or i1 %54, %40
@@ -406,18 +406,18 @@ then:                                             ; preds = %entry
   %57 = load float addrspace(2)* @u_f, align 4, !gla.uniform !14
   %58 = load i32* @i_i, align 4
   %59 = load i32 addrspace(2)* @u_i, align 4, !gla.uniform !10
-  %f11 = fadd float %56, %57
-  %60 = extractelement <2 x i32> %i28, i32 0
-  %61 = extractelement <2 x i32> %i28, i32 1
-  %62 = extractelement <3 x i32> %i39, i32 0
-  %63 = extractelement <3 x i32> %i39, i32 1
-  %64 = extractelement <3 x i32> %i39, i32 2
-  %65 = extractelement <4 x i32> %i410, i32 0
-  %66 = extractelement <4 x i32> %i410, i32 1
-  %67 = extractelement <4 x i32> %i410, i32 2
-  %68 = extractelement <4 x i32> %i410, i32 3
-  %i7 = add i32 %61, %60
-  %69 = add i32 %i7, %62
+  %f12 = fadd float %56, %57
+  %60 = extractelement <2 x i32> %i29, i32 0
+  %61 = extractelement <2 x i32> %i29, i32 1
+  %62 = extractelement <3 x i32> %i310, i32 0
+  %63 = extractelement <3 x i32> %i310, i32 1
+  %64 = extractelement <3 x i32> %i310, i32 2
+  %65 = extractelement <4 x i32> %i411, i32 0
+  %66 = extractelement <4 x i32> %i411, i32 1
+  %67 = extractelement <4 x i32> %i411, i32 2
+  %68 = extractelement <4 x i32> %i411, i32 3
+  %i8 = add i32 %61, %60
+  %69 = add i32 %i8, %62
   %70 = add i32 %69, %63
   %71 = add i32 %70, %64
   %72 = add i32 %71, %65
@@ -427,24 +427,24 @@ then:                                             ; preds = %entry
   %76 = add i32 %75, %58
   %77 = add i32 %76, %59
   %78 = sitofp i32 %77 to float
-  %79 = fadd float %f11, %78
-  %80 = extractelement <2 x float> %f212, i32 0
+  %79 = fadd float %f12, %78
+  %80 = extractelement <2 x float> %f213, i32 0
   %81 = fadd float %80, %79
-  %82 = extractelement <2 x float> %f212, i32 1
+  %82 = extractelement <2 x float> %f213, i32 1
   %83 = fadd float %82, %81
-  %84 = extractelement <3 x float> %f313, i32 0
+  %84 = extractelement <3 x float> %f314, i32 0
   %85 = fadd float %84, %83
-  %86 = extractelement <3 x float> %f313, i32 1
+  %86 = extractelement <3 x float> %f314, i32 1
   %87 = fadd float %86, %85
-  %88 = extractelement <3 x float> %f313, i32 2
+  %88 = extractelement <3 x float> %f314, i32 2
   %89 = fadd float %88, %87
-  %90 = extractelement <4 x float> %f414, i32 0
+  %90 = extractelement <4 x float> %f415, i32 0
   %91 = fadd float %90, %89
-  %92 = extractelement <4 x float> %f414, i32 1
+  %92 = extractelement <4 x float> %f415, i32 1
   %93 = fadd float %92, %91
-  %94 = extractelement <4 x float> %f414, i32 2
+  %94 = extractelement <4 x float> %f415, i32 2
   %95 = fadd float %94, %93
-  %96 = extractelement <4 x float> %f414, i32 3
+  %96 = extractelement <4 x float> %f415, i32 3
   %97 = fadd float %96, %95
   %98 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %97, <4 x i32> zeroinitializer)
   br label %ifmerge
@@ -453,8 +453,8 @@ else:                                             ; preds = %entry
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
-  %ternary.0 = phi <4 x float> [ %98, %then ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %else ]
-  store <4 x float> %ternary.0, <4 x float>* @gl_FragColor, align 16
+  %gl_FragColor.0 = phi <4 x float> [ %98, %then ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %else ]
+  store <4 x float> %gl_FragColor.0, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -540,7 +540,7 @@ const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
-	vec4 ternary_uc1;
+	vec4 Ll_FragColor1;
 	bool H_9m173w = u_b && i_b;
 	bool H_t8jtc1 = u_b2.x && i_b2.x;
 	bool H_vqsa4m1 = H_t8jtc1 && u_b2.y;
@@ -590,12 +590,12 @@ void main()
 		float H_4afzvp = H_af95e6 + H_o7wyx6.z;
 		float H_e98scx = H_4afzvp + H_o7wyx6.w;
 		vec4 H_rgw7y = vec4(H_e98scx);
-		ternary_uc1 = H_rgw7y;
+		Ll_FragColor1 = H_rgw7y;
 	} else {
-		ternary_uc1 = C_vec4p1d0p;
+		Ll_FragColor1 = C_vec4p1d0p;
 	}
 	
-	gl_FragColor = ternary_uc1;
+	gl_FragColor = Ll_FragColor1;
 	
 }
 
@@ -629,62 +629,62 @@ const vec4 C_vec4p1d0p = vec4(1.0);
 
 void main()
 {
-	vec4 ternary_uc_c1;
-	bool H_uc2 = u_b && i_b;
-	bool H_t_c3 = u_b2.x && i_b2.x;
-	bool H_vqsa_c4 = H_t_c3 && u_b2.y;
-	bool H_svptkl_c5 = H_vqsa_c4 && i_b2.y;
-	bool H_tmnqtu_c6 = u_b3.x && i_b3.x;
-	bool H_uc7 = H_tmnqtu_c6 && u_b3.y;
-	bool H_uc8 = H_uc7 && i_b3.y;
-	bool H_myqxhf_c9 = H_uc8 && u_b3.z;
-	bool H_bd_c10 = H_myqxhf_c9 && i_b3.z;
-	bool H_pk_c11 = u_b4.x && i_b4.x;
-	bool H_b_c12 = H_pk_c11 && u_b4.y;
-	bool H_uc13 = H_b_c12 && i_b4.y;
-	bool H_a_c14 = H_uc13 && u_b4.z;
-	bool H_g_c15 = H_a_c14 && i_b4.z;
-	bool H_pqjgop_c16 = H_g_c15 && u_b4.w;
-	bool H_n_c17 = H_pqjgop_c16 && i_b4.w;
-	ivec2 H_ireo_c18 = i_i2 + u_i2;
-	ivec3 H_uc19 = i_i3 + u_i3;
-	ivec4 H_uc20 = i_i4 + u_i4;
-	vec2 H_uc21 = i_f2 + u_f2;
-	vec3 H_ihj_c22 = i_f3 + u_f3;
-	vec4 H_o_c23 = i_f4 + u_f4;
-	bool H_n_c24 = H_uc2 || H_svptkl_c5;
-	bool H_ad_c25 = H_n_c24 || H_bd_c10;
-	bool H_ci_c26 = H_ad_c25 || H_n_c17;
-	if (H_ci_c26) {
-		float H_y_c27 = i_f + u_f;
-		int H_tawenf_c28 = H_ireo_c18.x + H_ireo_c18.y;
-		int H_tywz_c29 = H_tawenf_c28 + H_uc19.x;
-		int H_u_c30 = H_tywz_c29 + H_uc19.y;
-		int H_uc31 = H_u_c30 + H_uc19.z;
-		int H_uc32 = H_uc20.x + H_uc31;
-		int H_htcbd_c33 = H_uc20.y + H_uc32;
-		int H_uc34 = H_htcbd_c33 + H_uc20.z;
-		int H_hazd_c35 = H_uc20.w + H_uc34;
-		int H_nhw_c36 = H_hazd_c35 + i_i;
-		int H_da_c37 = H_nhw_c36 + u_i;
-		float H_u_c38 = float(H_da_c37);
-		float H_tnxe_c39 = H_u_c38 + H_y_c27;
-		float H_cjxh_c40 = H_tnxe_c39 + H_uc21.x;
-		float H_fgff_c41 = H_cjxh_c40 + H_uc21.y;
-		float H_omnqrf_c42 = H_fgff_c41 + H_ihj_c22.x;
-		float H_hhnfnu_c43 = H_ihj_c22.y + H_omnqrf_c42;
-		float H_rgv_c44 = H_hhnfnu_c43 + H_ihj_c22.z;
-		float H_nniqhg_c45 = H_o_c23.x + H_rgv_c44;
-		float H_af_c46 = H_nniqhg_c45 + H_o_c23.y;
-		float H_uc47 = H_af_c46 + H_o_c23.z;
-		float H_e_c48 = H_o_c23.w + H_uc47;
-		vec4 H_0s2fhn = vec4(H_e_c48);
-		ternary_uc_c1 = H_0s2fhn;
+	vec4 Ll_FragColor;
+	bool H_9m173w = u_b && i_b;
+	bool H_t8jtc = u_b2.x && i_b2.x;
+	bool H_vqsa4m = H_t8jtc && u_b2.y;
+	bool H_svptkl = H_vqsa4m && i_b2.y;
+	bool H_tmnqtu = u_b3.x && i_b3.x;
+	bool H_74hydx = H_tmnqtu && u_b3.y;
+	bool H_959q7f = H_74hydx && i_b3.y;
+	bool H_myqxhf = H_959q7f && u_b3.z;
+	bool H_bd4zme = H_myqxhf && i_b3.z;
+	bool H_pk4vn = u_b4.x && i_b4.x;
+	bool H_b5urb = H_pk4vn && u_b4.y;
+	bool H_6211rh = H_b5urb && i_b4.y;
+	bool H_a9cplv = H_6211rh && u_b4.z;
+	bool H_g4yres = H_a9cplv && i_b4.z;
+	bool H_pqjgop = H_g4yres && u_b4.w;
+	bool H_n9zzio = H_pqjgop && i_b4.w;
+	ivec2 H_ireo8q = i_i2 + u_i2;
+	ivec3 H_00u6vn = i_i3 + u_i3;
+	ivec4 H_2vbjw = i_i4 + u_i4;
+	vec2 H_0n1dm = i_f2 + u_f2;
+	vec3 H_ihj3yc = i_f3 + u_f3;
+	vec4 H_o7wyx = i_f4 + u_f4;
+	bool H_n9ytkj = H_9m173w || H_svptkl;
+	bool H_ad9nuk = H_n9ytkj || H_bd4zme;
+	bool H_ci3ivv = H_ad9nuk || H_n9zzio;
+	if (H_ci3ivv) {
+		float H_y5x = i_f + u_f;
+		int H_tawenf = H_ireo8q.x + H_ireo8q.y;
+		int H_tywz0a = H_00u6vn.x + H_tawenf;
+		int H_u0mkj = H_00u6vn.y + H_tywz0a;
+		int H_28c7us = H_00u6vn.z + H_u0mkj;
+		int H_1ggmlh = H_28c7us + H_2vbjw.x;
+		int H_htcbd = H_1ggmlh + H_2vbjw.y;
+		int H_00b5y = H_2vbjw.z + H_htcbd;
+		int H_hazd9c = H_00b5y + H_2vbjw.w;
+		int H_nhw0bx = H_hazd9c + i_i;
+		int H_da1djj = H_nhw0bx + u_i;
+		float H_u18e = float(H_da1djj);
+		float H_tnxe1d = H_u18e + H_y5x;
+		float H_cjxh1m = H_0n1dm.x + H_tnxe1d;
+		float H_fgff5g = H_0n1dm.y + H_cjxh1m;
+		float H_omnqrf = H_fgff5g + H_ihj3yc.x;
+		float H_hhnfnu = H_ihj3yc.y + H_omnqrf;
+		float H_rgv6rz = H_hhnfnu + H_ihj3yc.z;
+		float H_nniqhg = H_o7wyx.x + H_rgv6rz;
+		float H_af95e = H_nniqhg + H_o7wyx.y;
+		float H_4afzvp = H_af95e + H_o7wyx.z;
+		float H_e98scx = H_4afzvp + H_o7wyx.w;
+		vec4 H_rgw7y = vec4(H_e98scx);
+		Ll_FragColor = H_rgw7y;
 	} else {
-		ternary_uc_c1 = C_vec4p1d0p;
+		Ll_FragColor = C_vec4p1d0p;
 	}
 	
-	gl_FragColor = ternary_uc_c1;
+	gl_FragColor = Ll_FragColor;
 	
 }
 

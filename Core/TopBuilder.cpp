@@ -1655,7 +1655,7 @@ llvm::Value* Builder::smearScalar(gla::EMdPrecision precision, llvm::Value* scal
 
 // Accept all parameters needed to create LunarGLASS texture intrinsics
 // Select the correct intrinsic based on the inputs, and make the call
-llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type* resultType, gla::ESamplerType samplerType, int texFlags, const TextureParameters& parameters)
+llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type* resultType, gla::ESamplerType samplerType, int texFlags, const TextureParameters& parameters, const char* name)
 {
     bool floatReturn = gla::GetBasicType(resultType)->isFloatTy();
 
@@ -1861,14 +1861,15 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
 
     assert(intrinsic);
 
-    llvm::Instruction* instr = builder.CreateCall(intrinsic, llvm::ArrayRef<llvm::Value*>(texArgs, texArgs + numArgs));
+    llvm::Instruction* instr = builder.CreateCall(intrinsic, llvm::ArrayRef<llvm::Value*>(texArgs, texArgs + numArgs), name ? name : "txt");
     setInstructionPrecision(instr, precision);
 
     return instr;
 }
 
 // Comments in header
-llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Type* returnType, llvm::Constant* samplerType, llvm::Value* sampler, llvm::Value* arg2)
+llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Type* returnType, llvm::Constant* samplerType, llvm::Value* sampler,
+                                             llvm::Value* arg2, const char* name)
 {
     llvm::Function* intrinsicName = 0;
 
@@ -1891,9 +1892,9 @@ llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::
 
     llvm::Instruction* instr;
     if (arg2)
-        instr = builder.CreateCall3(intrinsicName, samplerType, sampler, arg2);
+        instr = builder.CreateCall3(intrinsicName, samplerType, sampler, arg2, name ? name : "txtQ");
     else
-        instr = builder.CreateCall2(intrinsicName, samplerType, sampler);
+        instr = builder.CreateCall2(intrinsicName, samplerType, sampler, name ? name : "txtQ");
 
     setInstructionPrecision(instr, precision);
 
@@ -1906,7 +1907,7 @@ llvm::Value* Builder::createSamplePositionCall(gla::EMdPrecision precision, llvm
     // Return type is only flexible type
     llvm::Function* intrinsicName = getIntrinsic(llvm::Intrinsic::gla_fSamplePosition, returnType);
 
-    llvm::Instruction* instr = builder.CreateCall(intrinsicName, sampleIdx);
+    llvm::Instruction* instr = builder.CreateCall(intrinsicName, sampleIdx, "samPos");
     setInstructionPrecision(instr, precision);
 
     return instr;
@@ -1926,7 +1927,7 @@ llvm::Value* Builder::createBitFieldExtractCall(gla::EMdPrecision precision, llv
 
     assert(intrinsicName);
 
-    llvm::Instruction* instr = builder.CreateCall3(intrinsicName, value, offset, bits);
+    llvm::Instruction* instr = builder.CreateCall3(intrinsicName, value, offset, bits, "bitfe");
     setInstructionPrecision(instr, precision);
 
     return instr;
@@ -1945,7 +1946,7 @@ llvm::Value* Builder::createBitFieldInsertCall(gla::EMdPrecision precision, llvm
 
     assert(intrinsicName);
 
-    llvm::Instruction* instr = builder.CreateCall4(intrinsicName, base, insert, offset, bits);
+    llvm::Instruction* instr = builder.CreateCall4(intrinsicName, base, insert, offset, bits, "bitfi");
     setInstructionPrecision(instr, precision);
 
     return instr;
@@ -1962,14 +1963,14 @@ llvm::Value* Builder::createRecip(gla::EMdPrecision precision, llvm::Value* oper
         return 0;
     }
 
-    llvm::Value* recip = builder.CreateFDiv(llvm::ConstantFP::get(ty, 1.0), operand);
+    llvm::Value* recip = builder.CreateFDiv(llvm::ConstantFP::get(ty, 1.0), operand, "recip");
     setInstructionPrecision(recip, precision);    
 
     return recip;
 }
 
 // Comments in header
-llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* value1, llvm::Value* value2, bool equal)
+llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* value1, llvm::Value* value2, bool equal, const char* name)
 {
     if (llvm::isa<llvm::PointerType>(value1->getType()))
         value1 = builder.CreateLoad(value1);
@@ -2007,7 +2008,7 @@ llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* va
         else
             intrinsicID = llvm::Intrinsic::gla_any;
 
-        return createIntrinsicCall(precision, intrinsicID, result);
+        return createIntrinsicCall(precision, intrinsicID, result, name ? name : "cc");
     }
 
     // Recursively handle aggregates, which include matrices, arrays, and structures
@@ -2034,7 +2035,7 @@ llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* va
         llvm::Value* element2 = builder.CreateExtractValue(value2, element, "element2");
         setInstructionPrecision(element2, precision);
 
-        llvm::Value* subResult = createCompare(precision, element1, element2, equal);
+        llvm::Value* subResult = createCompare(precision, element1, element2, equal, "comp");
 
         // Accumulate intermediate comparison
         if (element == 0)
@@ -2052,24 +2053,24 @@ llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* va
 }
 
 // Comments in header
-llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID)
+llvm::Value* Builder::createIntrinsicCall(llvm::Intrinsic::ID intrinsicID, const char* name)
 {
-    llvm::Instruction* instr = builder.CreateCall(getIntrinsic(intrinsicID));
-    
+    llvm::Instruction* instr = builder.CreateCall(getIntrinsic(intrinsicID), name ? name : "ical0a");
+
     return instr;
 }
 
 // Comments in header
-llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID)
+llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, const char* name)
 {
-    llvm::Instruction* instr = builder.CreateCall(getIntrinsic(intrinsicID));
+    llvm::Instruction* instr = builder.CreateCall(getIntrinsic(intrinsicID), name ? name : "ical0a");
     setInstructionPrecision(instr, precision);
     
     return instr;
 }
 
 // Comments in header
-llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand)
+llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand, const char* name)
 {
     llvm::Function* intrinsicName = 0;
 
@@ -2128,14 +2129,14 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
 
     assert(intrinsicName);
 
-    llvm::Instruction* instr = builder.CreateCall(intrinsicName, operand);
+    llvm::Instruction* instr = builder.CreateCall(intrinsicName, operand, name ? name : "ical1a");
     setInstructionPrecision(instr, precision);
 
     return instr;
 }
 
 // Comments in header
-llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1)
+llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1, const char* name)
 {
     llvm::Function* intrinsicName = 0;
 
@@ -2164,13 +2165,13 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
 
     assert(intrinsicName);
 
-    llvm::Instruction* instr = builder.CreateCall2(intrinsicName, operand0, operand1);
+    llvm::Instruction* instr = builder.CreateCall2(intrinsicName, operand0, operand1, name ? name : "ical2a");
     setInstructionPrecision(instr, precision);
 
     return instr;
 }
 
-llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1, llvm::Value* operand2)
+llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1, llvm::Value* operand2, const char* name)
 {
     llvm::Function* intrinsicName;
 
@@ -2188,7 +2189,7 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
 
     assert(intrinsicName);
 
-    llvm::Instruction* instr = builder.CreateCall3(intrinsicName, operand0, operand1, operand2);
+    llvm::Instruction* instr = builder.CreateCall3(intrinsicName, operand0, operand1, operand2, name ? name : "ical3a");
     setInstructionPrecision(instr, precision);
 
     return instr;
