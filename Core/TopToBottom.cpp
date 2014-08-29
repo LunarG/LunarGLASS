@@ -69,6 +69,7 @@
 // LunarGLASS Passes
 #include "Passes/Passes.h"
 
+
 void gla::PrivateManager::translateTopToBottom()
 {
 #ifdef _WIN32
@@ -101,6 +102,18 @@ static inline void RunOnModule(llvm::FunctionPassManager& pm, llvm::Module* m)
     for (llvm::Module::iterator f = m->begin(), e = m->end(); f != e; ++f)
         pm.run(*f);
     pm.doFinalization();
+}
+
+static bool HasControlFlow(llvm::Module* m)
+{
+    for (llvm::Module::iterator f = m->begin(), e = m->end(); f != e; ++f) {
+        for (llvm::Function::iterator b = f->begin(), be = f->end(); b != be; ++b) {
+            if (b->getTerminator()->getNumSuccessors() > 1) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 // Verify each function
@@ -166,20 +179,25 @@ void gla::PrivateManager::runLLVMOptimizations1()
     passManager.add(llvm::createEarlyCSEPass());
     passManager.add(llvm::createCorrelatedValuePropagationPass());
 
-    passManager.add(llvm::createCFGSimplificationPass());
-    passManager.add(llvm::createLoopSimplifyPass());
-    passManager.add(gla_llvm::createCanonicalizeCFGPass());
-    passManager.add(gla_llvm::createDecomposeInstsPass());
-    passManager.add(gla_llvm::createCanonicalizeCFGPass());
+    bool hasCf = HasControlFlow(module);
 
-    // TODO: Compile-time performance: something goes stale in FlattenConditionalAssignments (dom trees?).
-    //       Running it multiple times here catches more, whereas running it multiple times internally does not help.
-    //       Once that's fixed, most at this level can be eliminated.
-    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
-    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
-    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
+    if (hasCf) {
+        passManager.add(llvm::createCFGSimplificationPass());
+        passManager.add(llvm::createLoopSimplifyPass());
+        passManager.add(gla_llvm::createCanonicalizeCFGPass());
+        passManager.add(gla_llvm::createDecomposeInstsPass());
+        passManager.add(gla_llvm::createCanonicalizeCFGPass());
 
-    passManager.add(gla_llvm::createCanonicalizeCFGPass());
+        // TODO: Compile-time performance: something goes stale in FlattenConditionalAssignments (dom trees?).
+        //       Running it multiple times here catches more, whereas running it multiple times internally does not help.
+        //       Once that's fixed, most at this level can be eliminated.
+        passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
+        passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
+        passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
+
+        passManager.add(gla_llvm::createCanonicalizeCFGPass());
+    } else        
+        passManager.add(gla_llvm::createDecomposeInstsPass());
 
     int innerAoS, outerSoA;
     backEnd->getRegisterForm(outerSoA, innerAoS);
@@ -195,11 +213,13 @@ void gla::PrivateManager::runLLVMOptimizations1()
         passManager.add(llvm::createGVNPass());
     passManager.add(llvm::createSCCPPass());
 
-    passManager.add(llvm::createLoopSimplifyPass());
-    passManager.add(gla_llvm::createCanonicalizeCFGPass());
-    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
-    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
-    passManager.add(gla_llvm::createCanonicalizeCFGPass());
+    if (hasCf) {
+        passManager.add(llvm::createLoopSimplifyPass());
+        passManager.add(gla_llvm::createCanonicalizeCFGPass());
+        passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
+        passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
+        passManager.add(gla_llvm::createCanonicalizeCFGPass());
+    }
 
     // Make multiinsert intrinsics, and clean up afterwards
     passManager.add(llvm::createInstructionCombiningPass());
@@ -209,24 +229,26 @@ void gla::PrivateManager::runLLVMOptimizations1()
         passManager.add(llvm::createAggressiveDCEPass());
     passManager.add(llvm::createInstructionCombiningPass());
 
-    // Loop optimizations, and clean up afterwards
-    passManager.add(llvm::createLICMPass());
-    passManager.add(llvm::createIndVarSimplifyPass());
-    if (options.optimizations.loopUnrollThreshold) {
-        // Loop rotation creates a less desirable loop form for loops that do not get unrolled,
-        // but is needed if a loop will be unrolled.
-        passManager.add(llvm::createLoopRotatePass(options.optimizations.loopUnrollThreshold));
+    if (hasCf) {
+        // Loop optimizations, and clean up afterwards
+        passManager.add(llvm::createLICMPass());
         passManager.add(llvm::createIndVarSimplifyPass());
-        passManager.add(llvm::createLoopUnrollPass(options.optimizations.loopUnrollThreshold));
-    }
-    passManager.add(llvm::createLoopStrengthReducePass());
-    if (options.optimizations.adce)
-        passManager.add(llvm::createAggressiveDCEPass());
+        if (options.optimizations.loopUnrollThreshold) {
+            // Loop rotation creates a less desirable loop form for loops that do not get unrolled,
+            // but is needed if a loop will be unrolled.
+            passManager.add(llvm::createLoopRotatePass(options.optimizations.loopUnrollThreshold));
+            passManager.add(llvm::createIndVarSimplifyPass());
+            passManager.add(llvm::createLoopUnrollPass(options.optimizations.loopUnrollThreshold));
+        }
+        passManager.add(llvm::createLoopStrengthReducePass());
+        if (options.optimizations.adce)
+            passManager.add(llvm::createAggressiveDCEPass());
 
-    passManager.add(llvm::createInstructionCombiningPass());
-    if (options.optimizations.gvn)
-        passManager.add(llvm::createGVNPass());
-    passManager.add(llvm::createSCCPPass());
+        passManager.add(llvm::createInstructionCombiningPass());
+        if (options.optimizations.gvn)
+            passManager.add(llvm::createGVNPass());
+        passManager.add(llvm::createSCCPPass());
+    }
 
     // Run intrinisic combining
     passManager.add(gla_llvm::createCanonicalizeCFGPass());
@@ -249,15 +271,17 @@ void gla::PrivateManager::runLLVMOptimizations1()
     if (options.optimizations.adce)
         passManager.add(llvm::createAggressiveDCEPass());
 
-    // LunarGLASS CFG optimizations
-    passManager.add(llvm::createLoopSimplifyPass());
-    passManager.add(gla_llvm::createCanonicalizeCFGPass());
-    passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
-    passManager.add(gla_llvm::createCanonicalizeCFGPass());
+    if (hasCf) {
+        // LunarGLASS CFG optimizations
+        passManager.add(llvm::createLoopSimplifyPass());
+        passManager.add(gla_llvm::createCanonicalizeCFGPass());
+        passManager.add(gla_llvm::createFlattenConditionalAssignmentsPass(options.optimizations.flattenHoistThreshold));
+        passManager.add(gla_llvm::createCanonicalizeCFGPass());
 
-    passManager.add(llvm::createInstructionCombiningPass());
-    if (options.optimizations.adce)
-        passManager.add(llvm::createAggressiveDCEPass());
+        passManager.add(llvm::createInstructionCombiningPass());
+        if (options.optimizations.adce)
+            passManager.add(llvm::createAggressiveDCEPass());
+    }
 
     RunOnModule(passManager, module);
 
@@ -276,7 +300,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
 
     pm.run(*module);
 
-        VerifyModule(module);
+    VerifyModule(module);
 
     // TODO: Refactor the below use of GlobalOpt. Perhaps we want to repeat our
     // some function passes?
