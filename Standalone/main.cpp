@@ -618,6 +618,7 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
                     manager.setVersion(TargetDefinitionVersion);
                 if (TargetDefinitionProfile != EBadProfile)
                     manager.setProfile(TargetDefinitionProfile);
+                manager.removeExtension("GL_ARB_shading_language_420pack");
 
                 if (Options & EOptionAssembly)
                     manager.dump("\nTop IR:\n");

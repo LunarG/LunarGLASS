@@ -101,6 +101,7 @@ namespace gla {
         virtual int getStage() const { return stage; }
         virtual void setRequestedExtensions(const std::set<std::string>& exts) { requestedExtensions = exts; }
         const std::set<std::string>& getRequestedExtensions() const { return requestedExtensions; }
+        virtual void removeExtension(const std::string& ext) { requestedExtensions.erase(ext); }
 
         TransformOptions options; 
 
@@ -113,7 +114,7 @@ namespace gla {
         int version;  // these three 'int' are generic types, to be used how the user of the manager wishes...
         int profile;  // ... which may include finding agreement between the front end and the back end
         int stage;
-        std::set<std::string> requestedExtensions;  // same story as for 'version'; the contents must be agreed on between frond end and back end
+        std::set<std::string> requestedExtensions;  // same story as for 'version'; the contents must be agreed on between front end and back end
     };
 
     Manager* getManager();

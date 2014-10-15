@@ -65,7 +65,7 @@ namespace gla {
 //
 //     !gla.precision -> { EMdPrecision }
 //
-//     !gla.intput ->   { name, EMdInputOutput,  Value*, !typeLayout, !aggregate }
+//     !gla.input ->   { name, EMdInputOutput,  Value*, !typeLayout, !aggregate }
 //     !gla.output ->   same as above
 //     !gla.uniform ->  same as above
 //     Notes:
