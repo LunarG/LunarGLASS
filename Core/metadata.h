@@ -87,6 +87,7 @@ namespace gla {
 //     Notes:
 //         - the type layout is how it is known if something is a matrix or unsigned integer, 
 //           because this is not in the LLVM type
+//         - for objects that take a binding, the location holds the binding number
 //         - location is the *first* location of the variable, which can span many slots/locations
 //         - location is >= MaxUserLayoutLocation for non-user specified locations, to be patched
 //           later by a linker

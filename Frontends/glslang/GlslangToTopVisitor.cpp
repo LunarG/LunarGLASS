@@ -287,6 +287,14 @@ int GetMdSlotLocation(const glslang::TType& type)
         return type.getQualifier().layoutLocation;
 }
 
+int GetMdBinding(const glslang::TType& type)
+{
+    if (type.getQualifier().layoutBinding == glslang::TQualifier::layoutBindingEnd)
+        return gla::MaxUserLayoutLocation;
+    else
+        return type.getQualifier().layoutBinding;
+}
+
 gla::EMdPrecision GetMdPrecision(const glslang::TType& type)
 {
     switch (type.getQualifier().precision) {
@@ -2629,7 +2637,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(glslang::TIntermSy
     // Make the main node
     return metadata.makeMdInputOutput(node->getName().c_str(), gla::UniformListMdName, gla::EMioDefaultUniform,
                                       MakePermanentTypeProxy(value),
-                                      layout, GetMdPrecision(type), gla::MaxUserLayoutLocation, samplerMd, structure);
+                                      layout, GetMdPrecision(type), GetMdBinding(type), samplerMd, structure);
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const glslang::TType& type, llvm::Value* value)
@@ -2660,7 +2668,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput 
 
     // Make the main node
     return metadata.makeMdInputOutput(filterMdName(node->getName().c_str()), gla::UniformListMdName, ioType, MakePermanentTypeProxy(value),
-                                      GetMdTypeLayout(type), GetMdPrecision(type), gla::MaxUserLayoutLocation, 0, block);
+                                      GetMdTypeLayout(type), GetMdPrecision(type), GetMdBinding(type), 0, block);
 }
 
 // Make a !type node as per metadata.h, recursively

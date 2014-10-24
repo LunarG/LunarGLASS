@@ -479,7 +479,7 @@ public:
     void emitGlaArraySize(std::ostringstream&, int arraySize);
     void emitGlaSamplerType(std::ostringstream&, const llvm::MDNode* mdSamplerNode);
     void emitGlaInterpolationQualifier(EVariableQualifier qualifier, EInterpolationMethod interpMethod, EInterpolationLocation interpLocation);
-    void emitGlaLayout(std::ostringstream&, gla::EMdTypeLayout layout, int location);
+    void emitGlaLayout(std::ostringstream&, gla::EMdTypeLayout layout, int location, bool binding);
     void emitGlaConstructor(std::ostringstream&, llvm::Type* type, int count = -1);
     void emitGlaValueDeclaration(const llvm::Value* value, const char* rhs, bool forceGlobal = false);
     void emitGlaValue(std::ostringstream&, const llvm::Value* value, const char* rhs);
@@ -3577,7 +3577,7 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
     metaType.notSigned = typeLayout == EMtlUnsigned;
 
     if (! arrayChild)
-        emitGlaLayout(out, typeLayout, location);
+        emitGlaLayout(out, typeLayout, location, metaType.block || metaType.mdSampler != 0);
 
     return true;
 }
@@ -3658,7 +3658,7 @@ void gla::GlslTarget::emitGlaInterpolationQualifier(EVariableQualifier qualifier
     }
 }
 
-void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location)
+void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location, bool binding)
 {
     const char* layoutStr = 0;
 
@@ -3680,17 +3680,29 @@ void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout 
     if (location >= gla::MaxUserLayoutLocation && layoutStr == 0)
         return;
 
+    // TODO: remove the following two lines when it is safe to correctly emit bindings
+    if (binding && layoutStr == 0)
+        return;
+
     bool comma = false;
     out << "layout(";
     if (layoutStr) {
         out << layoutStr;
         comma = true;
     }
-    if (location < gla::MaxUserLayoutLocation) {
-        if (comma)
-            out << ", ";
-        out << "location=" << location;
-        comma = true;
+    // TODO: remove this if test when it is safe to correctly emit bindings
+    if (! binding) {
+        if (location < gla::MaxUserLayoutLocation) {
+            if (comma)
+                out << ", ";
+        
+            if (binding)
+                out << "binding=";
+            else
+                out << "location=";
+            out << location;
+            comma = true;
+        }
     }
     out << ") ";
 }
