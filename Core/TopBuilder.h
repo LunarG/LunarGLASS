@@ -233,6 +233,9 @@ public:
     llvm::Value* createVariable(EStorageQualifier, int storageInstance, llvm::Type*,
                                 llvm::Constant* initializer, const std::string* annotation, llvm::StringRef name);
 
+    // Get a pointer type
+    llvm::Type* getPointerType(llvm::Type* elementType, EStorageQualifier, int instance);
+
     // Create an alloca in the entry block.
     // (LLVM's promote memory to registers only works when alloca is in the entry block.)
     llvm::Value* createEntryAlloca(llvm::Type*, llvm::StringRef name = "");
@@ -445,6 +448,7 @@ protected:
     llvm::Value* collapseAccessChain();
     void simplifyAccessChainSwizzle();
 
+    int mapAddressSpace(EStorageQualifier, int storageInstance) const;
     llvm::Value* createMatrixTimesVector(EMdPrecision, llvm::Value*, llvm::Value*);
     llvm::Value* createVectorTimesMatrix(EMdPrecision, llvm::Value*, llvm::Value*);
 

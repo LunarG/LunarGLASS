@@ -491,21 +491,19 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
     // Set some common default values, which the switch will override
     // Internal linkage helps with global optimizations,
     // so does having an initializer.
-    unsigned int addressSpace = gla::GlobalAddressSpace;
+    unsigned int addressSpace = mapAddressSpace(storageQualifier, storageInstance);
     llvm::GlobalValue::LinkageTypes linkage = llvm::GlobalVariable::InternalLinkage;
     bool global = false;
     bool readOnly = false;
 
     switch (storageQualifier) {
     case ESQResource:
-        addressSpace = gla::ResourceAddressSpace;
         linkage = llvm::GlobalVariable::ExternalLinkage;
         global = true;
         readOnly = true;
         break;
 
     case ESQUniform:
-        addressSpace = gla::ConstantAddressSpaceBase + storageInstance;
         linkage = llvm::GlobalVariable::ExternalLinkage;
         global = true;
         readOnly = true;
@@ -572,6 +570,30 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
     }
 
     return value;
+}
+
+llvm::Type* Builder::getPointerType(llvm::Type* elementType, EStorageQualifier storageQualifier, int instance)
+{
+    return llvm::PointerType::get(elementType, mapAddressSpace(storageQualifier, instance));
+}
+
+int Builder::mapAddressSpace(EStorageQualifier qualifier, int instance) const
+{
+    switch (qualifier) {
+    case ESQResource:
+        return gla::ResourceAddressSpace;
+    case ESQUniform:
+        return gla::ConstantAddressSpaceBase + instance;
+    case ESQInput:
+    case ESQOutput:
+    case ESQGlobal:
+    case ESQConst:
+    case ESQLocal:  // should be a don't care (valid to pass in, but result unused)
+        return gla::GlobalAddressSpace;
+    default:
+        assert(! "unhandled storage qualifier");
+        return gla::GlobalAddressSpace;
+    }
 }
 
 // Comments in header
