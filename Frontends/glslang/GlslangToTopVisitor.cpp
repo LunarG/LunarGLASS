@@ -1660,6 +1660,7 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const glslang::TInte
         }
     }
 
+    // Make the call
     llvm::Value* result = llvmBuilder.Insert(llvm::CallInst::Create(function, llvmArgs));
 
     // Copy-out time...

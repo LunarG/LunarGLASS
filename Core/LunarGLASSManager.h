@@ -101,6 +101,7 @@ namespace gla {
         virtual int getStage() const { return stage; }
         virtual void setRequestedExtensions(const std::set<std::string>& exts) { requestedExtensions = exts; }
         const std::set<std::string>& getRequestedExtensions() const { return requestedExtensions; }
+        virtual void addExtension(const char* ext) { requestedExtensions.insert(ext);}
         virtual void removeExtension(const std::string& ext) { requestedExtensions.erase(ext); }
 
         TransformOptions options; 

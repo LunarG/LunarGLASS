@@ -374,7 +374,7 @@ llvm::BasicBlock* Builder::makeMain()
     llvm::SmallVector<llvm::Type*, 1> params;
 
     stageEpilogue = llvm::BasicBlock::Create(context, "stage-epilogue");
-    stageExit    = llvm::BasicBlock::Create(context, "stage-exit");
+    stageExit     = llvm::BasicBlock::Create(context, "stage-exit");
 
     mainFunction = makeFunctionEntry(gla::GetVoidType(context), "main", params, &entry, true /* needs external visibility */);
 
