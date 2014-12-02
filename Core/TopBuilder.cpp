@@ -72,6 +72,7 @@ bool Manager::startMultithreaded()
 }
 
 Builder::Builder(llvm::IRBuilder<>& b, gla::Manager* m, Metadata md) :
+    insertNoPredecessorBlocks(true),
     accessRightToLeft(true),
     builder(b),
     manager(m),
@@ -410,7 +411,7 @@ void Builder::makeReturn(bool implicit, llvm::Value* retVal, bool isMain)
     else
         builder.CreateRetVoid();
 
-    if (! implicit)
+    if (! implicit && insertNoPredecessorBlocks)
         createAndSetNoPredecessorBlock("post-return");
 }
 
@@ -421,9 +422,10 @@ void Builder::makeDiscard(bool isMain)
 
     if (isMain) {
         builder.CreateBr(stageExit);
-        createAndSetNoPredecessorBlock("post-discard");
+        if (insertNoPredecessorBlocks)
+            createAndSetNoPredecessorBlock("post-discard");
     } else {
-        // A discard in a function cannot branch te the exit block of main.
+        // A discard in a function cannot branch to the exit block of main.
         // TODO: generated code quality: Would it help DCE of code following a discard in a function to label the discard intrinsic with IntrNoReturn?
     }
 }
@@ -2508,7 +2510,7 @@ void Builder::makeLoopBackEdge(bool implicit)
     // If we're not inductive, just branch back.
     if (! ld.isInductive) {
         builder.CreateBr(ld.header);
-        if (! implicit)
+        if (! implicit && insertNoPredecessorBlocks)
             createAndSetNoPredecessorBlock("post-loop-continue");
 
         return;
@@ -2546,9 +2548,8 @@ void Builder::makeLoopBackEdge(bool implicit)
     // the header
     builder.CreateCondBr(cmp, ld.exit, ld.header);
 
-    if (! implicit) {
+    if (! implicit && insertNoPredecessorBlocks)
         createAndSetNoPredecessorBlock("post-loop-continue");
-    }
 }
 
 // Add an exit (e.g. "break") for the innermost loop that you're in
@@ -2556,7 +2557,8 @@ void Builder::makeLoopExit()
 {
     builder.CreateBr(loops.top().exit);
 
-    createAndSetNoPredecessorBlock("post-loop-break");
+    if (insertNoPredecessorBlocks)
+        createAndSetNoPredecessorBlock("post-loop-break");
 }
 
 // Close the innermost loop that you're in

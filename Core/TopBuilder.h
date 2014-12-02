@@ -70,6 +70,18 @@ public:
     Builder(llvm::IRBuilder<>& b, Manager*, Metadata);
     ~Builder();
 
+    // Set to 'true' if "no predecessor" blocks should be inserted after
+    // flow control.  Do this when things like 'breaks' and 'returns'
+    // might still be followed by code insertions, all of which will 
+    // be dead.
+    //
+    // Set to 'false' if such blocks should not be added, due to, say,
+    // knowing all code following such branches has been eliminated
+    // and control flow is being more explicitly managed.
+    //
+    // Default is 'true'.
+    void setNoPredecessorBlocks(bool b) { insertNoPredecessorBlocks = b; }
+
     //
     // Access chain helper for an R-Value vs. L-Value design:
     //
@@ -443,6 +455,7 @@ public:
     bool useLogicalIo() const;
 
 protected:
+    bool insertNoPredecessorBlocks;            // means to insert blocks that have no predecessor
     AccessChain accessChain;
     bool accessRightToLeft;
     llvm::Value* collapseAccessChain();
