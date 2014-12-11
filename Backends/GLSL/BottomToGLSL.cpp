@@ -455,6 +455,7 @@ public:
     void mapVariableName(const llvm::Value* value, std::string& name);
     void mapExpressionString(const llvm::Value* value, const std::string& name);
     bool getExpressionString(const llvm::Value* value, std::string& name) const;
+    bool samplerIsUint(llvm::Value* sampler) const;
     void makeNewVariableName(const llvm::Value* value, std::string& name, const char* rhs);
     void makeNewVariableName(const char* base, std::string& name);
     void makeHashName(const char* prefix, const char* key, std::string& name);
@@ -1332,30 +1333,6 @@ void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNo
         DereferenceName(name, arrayType->getContainedType(0), mdAggregate, slotOffset, mdTypeLayout);
     } else if (mdAggregate)
         mdTypeLayout = GetMdTypeLayout(mdAggregate);
-}
-
-bool SamplerIsUint(llvm::Value* sampler)
-{
-    // TODO: uint functionality: nested uint samplers: this only works for non-nested sampler types, need a pretty different way
-    // for nested types
-    if (llvm::Instruction* samplerInst = llvm::dyn_cast<llvm::Instruction>(sampler)) {
-
-        // If the sampler was phi'd, go to the source.  Just go one level deep for now.
-        // TODO: Can phi's get chained such that multiple jumps need to be made, and 
-        // can that be done recursively without causing infinite loop?
-        if (samplerInst->getOpcode() == llvm::Instruction::PHI)
-            samplerInst = llvm::dyn_cast<llvm::Instruction>(samplerInst->getOperand(0));
-
-        llvm::MDNode* md = samplerInst->getMetadata(UniformMdName);
-        if (md)
-            return GetMdSamplerBaseType(md) == EMsbUint;
-        else
-            samplerInst->dump();
-    }
-
-    UnsupportedFunctionality("missing sampler base type", EATContinue);
-
-    return false;
 }
 
 void StripSuffix(std::string& name, const char* suffix)
@@ -2425,6 +2402,38 @@ bool gla::GlslTarget::getExpressionString(const llvm::Value* value, std::string&
     return false;
 }
 
+bool GlslTarget::samplerIsUint(llvm::Value* sampler) const
+{
+    // TODO: uint functionality: nested uint samplers: this only works for non-nested sampler types, need a pretty different way
+    // for nested types
+    if (llvm::Instruction* samplerInst = llvm::dyn_cast<llvm::Instruction>(sampler)) {
+
+        // If the sampler was phi'd, go to the source.  Just go one level deep for now.
+        // TODO: Can phi's get chained such that multiple jumps need to be made, and 
+        // can that be done recursively without causing infinite loop?
+        if (samplerInst->getOpcode() == llvm::Instruction::PHI)
+            samplerInst = llvm::dyn_cast<llvm::Instruction>(samplerInst->getOperand(0));
+
+        const llvm::MDNode* md = samplerInst->getMetadata(UniformMdName);
+        if (! md) {
+            // See if we can find it by name.  With disappearing metadata, this might be the proper way anyway.
+            llvm::StringRef name = samplerInst->getOperand(0)->getName();
+            std::map<std::string, const llvm::MDNode*>::const_iterator it = mdMap.find(name);
+            if (it != mdMap.end())
+                md = it->second;
+        }
+
+        if (md)
+            return GetMdSamplerBaseType(md) == EMsbUint;
+        else
+            samplerInst->dump();
+    }
+
+    UnsupportedFunctionality("missing sampler base type", EATContinue);
+
+    return false;
+}
+
 void gla::GlslTarget::makeNewVariableName(const llvm::Value* value, std::string& name, const char* rhs)
 {
     if (obfuscate)
@@ -2722,7 +2731,7 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_texelFetchOffset:
     case llvm::Intrinsic::gla_fTexelFetchOffset:
     {
-        bool needConversion = SamplerIsUint(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
+        bool needConversion = samplerIsUint(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         if (needConversion)
             ConversionStart(assignment, llvmInstruction->getType(), false);
         emitGlaSamplerFunction(assignment, llvmInstruction, GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
