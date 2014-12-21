@@ -390,7 +390,7 @@ TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager, const glsl
     case EShLangCompute:
         break;
 
-	default:
+    default:
         break;
     }
 
@@ -1069,10 +1069,10 @@ bool TGlslangToTopTraverser::visitSelection(glslang::TVisit /* visit */, glslang
 
     if (node->getTrueBlock()) {
         // emit the "then" statement
-		node->getTrueBlock()->traverse(this);
+        node->getTrueBlock()->traverse(this);
         if (result)
             glaBuilder->createStore(glaBuilder->accessChainLoad(GetMdPrecision(node->getTrueBlock()->getAsTyped()->getType())), result);
-	}
+    }
 
     if (node->getFalseBlock()) {
         ifBuilder.makeBeginElse();
@@ -1121,6 +1121,12 @@ bool TGlslangToTopTraverser::visitSwitch(glslang::TVisit /* visit */, glslang::T
             codeSegments.push_back(child);
     }
 
+
+    // handle the case where the last code segment is missing, due to no code 
+    // statements between the last case and the end of the switch statement
+    if ((int)codeSegments.size() == valueToSegment[caseValues.size() - 1])
+        codeSegments.push_back(0);
+
     // make the switch statement
     std::vector<llvm::BasicBlock*> segmentBB;
     glaBuilder->makeSwitch(condition, codeSegments.size(), caseValues, valueToSegment, defaultSegment, segmentBB);
@@ -1129,7 +1135,10 @@ bool TGlslangToTopTraverser::visitSwitch(glslang::TVisit /* visit */, glslang::T
     breakForLoop.push(false);
     for (unsigned int s = 0; s < codeSegments.size(); ++s) {
         glaBuilder->nextSwitchSegment(segmentBB, s);
-        codeSegments[s]->traverse(this);
+        if (codeSegments[s])
+            codeSegments[s]->traverse(this);
+        else
+            glaBuilder->addSwitchBreak();
     }
     breakForLoop.pop();
 

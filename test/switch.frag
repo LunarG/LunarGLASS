@@ -117,6 +117,14 @@ void main()
             break;
     }
 
+    switch (c) {
+    case 1:
+        f += sin(x);
+        break;
+    case 2:
+        // test no statements at end
+    }
+
     color = f + float(local);
 
     color += foo1(v,v,c).y;
