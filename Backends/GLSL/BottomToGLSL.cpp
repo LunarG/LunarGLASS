@@ -4256,7 +4256,7 @@ std::string gla::GlslTarget::traverseGep(const llvm::Instruction* instr, EMdType
 }
 
 // Traverse one step of a dereference chain and append to a string
-// For constant indices, pass it in index.  Otherwise, provide it through gepOp (index will not be used)
+// For constant indices, pass it in index.  Otherwise, provide it through 'operand' (index will not be used, unless 'operand' itself is a constant)
 void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout)
 {
     if (operand) {
@@ -4310,6 +4310,19 @@ void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name,
         }
 
         type = type->getContainedType(index);
+        break;
+    case llvm::Type::VectorTyID:
+        if (index >= 0) {
+            name.append(".");
+            const size_t bufSize = 10;
+            char buf[bufSize];
+            snprintf(buf, bufSize, "%c", "xyzw"[index]);
+            name.append(buf);
+        } else {
+            name.append("[");
+            name.append(*mapGlaValueAndEmitDeclaration(operand));
+            name.append("]");
+        }
         break;
     default:
         assert(0 && "Dereferencing non array/struct");
