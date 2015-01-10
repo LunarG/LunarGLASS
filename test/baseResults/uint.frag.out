@@ -134,7 +134,7 @@ then24:                                           ; preds = %ifmerge23
 ifmerge27:                                        ; preds = %ifmerge23, %then24
   %25 = load <2 x i32>* @t
   %26 = extractelement <2 x i32> %25, i32 0, !gla.precision !18
-  %27 = icmp sgt i32 %26, 4
+  %27 = icmp ugt i32 %26, 4
   br i1 %27, label %then28, label %ifmerge34
 
 then28:                                           ; preds = %ifmerge27
@@ -326,7 +326,7 @@ entry:
   %4 = fadd <2 x float> %3, <float 1.000000e+00, float 1.000000e+00>, !gla.precision !18
   %c22 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %2, i32 0, <2 x float> %4), !gla.precision !18
   %5 = extractelement <2 x i32> %0, i32 0, !gla.precision !18
-  %6 = icmp sgt i32 %5, 4
+  %6 = icmp ugt i32 %5, 4
   %af29 = uitofp i32 %u1 to float, !gla.precision !18
   %ab30 = icmp ne i32 %u1, 0
   %7 = fptoui float %af29 to i32, !gla.precision !18

@@ -648,7 +648,7 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
         result = glaBuilder->createMatrixMultiply(precision, left, right);
         break;
     default:
-        result = createBinaryOperation(node->getOp(), precision, left, right, node->getType().getBasicType() == glslang::EbtUint);
+        result = createBinaryOperation(node->getOp(), precision, left, right, node->getLeft()->getType().getBasicType() == glslang::EbtUint);
         break;
     }
 
@@ -1007,7 +1007,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
         else if (gla::IsAggregate(left) && binOp == glslang::EOpMul)
             result = glaBuilder->createMatrixOp(precision, llvm::Instruction::FMul, left, right);
         else
-            result = createBinaryOperation(binOp, precision, left, right, node->getType().getBasicType() == glslang::EbtUint, reduceComparison);
+            result = createBinaryOperation(binOp, precision, left, right, node->getSequence()[0]->getAsTyped()->getType().getBasicType() == glslang::EbtUint, reduceComparison);
 
         // code above should only make binOp that exists in createBinaryOperation
         assert(result);
