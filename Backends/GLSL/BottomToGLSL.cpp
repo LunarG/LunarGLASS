@@ -962,10 +962,39 @@ std::string MapGlaStructField(const llvm::Type* structType, int index, const llv
 // Write the string representation of an operator. If it's an xor of some
 // register and true, then unaryOperand will be set to the index for the
 // non-true operand, and s will contain "!".
-void GetOp(const llvm::Instruction* llvmInstruction, bool allowBitwise, std::string& s, int& unaryOperand, bool& nested, bool& emulateBitwise)
+void GetOp(const llvm::Instruction* llvmInstruction, bool allowBitwise, std::string& s, int& unaryOperand, bool& nested, bool& emulateBitwise, bool& unsignedOp)
 {
     nested = false;
     emulateBitwise = false;
+
+    // first, just see if we need to force an unsigned operation
+    switch (llvmInstruction->getOpcode()) {
+    case llvm::Instruction::UDiv:
+    case llvm::Instruction::URem:
+    case llvm::Instruction::LShr:
+        unsignedOp = true;
+        break;
+    case llvm::Instruction::ICmp:
+        if (const llvm::CmpInst* cmp = llvm::dyn_cast<llvm::CmpInst>(llvmInstruction)) {
+            switch (cmp->getPredicate()) {
+            case llvm::ICmpInst::ICMP_UGT:
+            case llvm::ICmpInst::ICMP_UGE:
+            case llvm::ICmpInst::ICMP_ULT:
+            case llvm::ICmpInst::ICMP_ULE:
+                unsignedOp = true;
+                break;
+            default:
+                unsignedOp = false;
+                break;
+            }
+        } else
+            assert(! "Cmp instruction found that cannot dyncast to CmpInst");
+        break;
+
+    default:
+        unsignedOp = false;
+        break;
+    }
 
     //
     // Look for binary ops, where the form would be "operand op operand"
@@ -1086,9 +1115,8 @@ void GetOp(const llvm::Instruction* llvmInstruction, bool allowBitwise, std::str
                     UnsupportedFunctionality("Comparison Operator in Bottom IR: ", cmp->getPredicate(), EATContinue);
                     break;
                 }
-            } else {
+            } else
                 assert(! "Cmp instruction found that cannot dyncast to CmpInst");
-            }
         }
         break;
 
@@ -1529,7 +1557,8 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
 
     bool nested;
     bool emulateBitwise;
-    GetOp(llvmInstruction, version >= 130, charOp, unaryOperand, nested, emulateBitwise);
+    bool unsignedOp;
+    GetOp(llvmInstruction, version >= 130, charOp, unaryOperand, nested, emulateBitwise, unsignedOp);
 
     Assignment assignment(this, llvmInstruction);
 
@@ -1537,7 +1566,19 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
     if (! charOp.empty() && unaryOperand == -1) {
         bool swapOperands = needCanonicalSwap(llvmInstruction);
 
-        emitGlaOperand(assignment, llvmInstruction->getOperand(swapOperands ? 1 : 0));
+
+        llvm::Value* operand = llvmInstruction->getOperand(swapOperands ? 1 : 0);
+
+        // reverse conversion for the whole expression
+        if (unsignedOp)
+            ConversionStart(assignment, llvmInstruction->getType(), false);
+
+        // forward conversion for the operand
+        if (unsignedOp)
+            ConversionStart(assignment, operand->getType(), true);
+        emitGlaOperand(assignment, operand);
+        if (unsignedOp) 
+            ConversionStop(assignment, operand->getType());
 
         // special case << to multiply, etc., for early versions
         int multiplier = -1;
@@ -1568,10 +1609,19 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         }
         
         assignment << " " << charOp << " ";
-        if (multiplier == -1)
-            emitGlaOperand(assignment, llvmInstruction->getOperand(swapOperands ? 0 : 1));
-        else
+        if (multiplier == -1) {
+            llvm::Value* operand = llvmInstruction->getOperand(swapOperands ? 0 : 1);
+            if (unsignedOp)
+                ConversionStart(assignment, operand->getType(), true);
+            emitGlaOperand(assignment, operand);
+            if (unsignedOp) 
+                ConversionStop(assignment, operand->getType());
+        } else
             assignment << multiplier;
+
+        // reverse conversion
+        if (unsignedOp) 
+            ConversionStop(assignment, llvmInstruction->getType());
 
         assignment.mapOrEmit(false, true);
 
@@ -2053,7 +2103,8 @@ void gla::GlslTarget::beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const
     int pos = -1;
     bool nested;
     bool emulateBitwise; // TODO: loops
-    GetOp(cmp, version >= 130, opStr, pos, nested, emulateBitwise);
+    bool unsignedOp;
+    GetOp(cmp, version >= 130, opStr, pos, nested, emulateBitwise, unsignedOp);
 
     bool binOp = false;
     if (pos == -1)
@@ -2994,9 +3045,40 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     // Handle the one-to-one mappings
     const char* callString = 0;
     int forceWidth = 0;
-    bool convertResultToInt = false;
-    bool convertArgsToUint = false;
+    
+    // see if the result will need to be converted to int
+    bool convertResultToInt;
+    switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_fPackUnorm2x16:
+    case llvm::Intrinsic::gla_fPackSnorm2x16:
+    case llvm::Intrinsic::gla_fPackHalf2x16:
+        convertResultToInt = true;
+        break;
+    default:
+        convertResultToInt = false;
+        break;
+    }
 
+    // see if the arguments need to be converted to uint
+    bool convertArgsToUint;
+    switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_uMin:
+    case llvm::Intrinsic::gla_uMax:
+    case llvm::Intrinsic::gla_uClamp:
+    case llvm::Intrinsic::gla_umulExtended:
+    case llvm::Intrinsic::gla_uBitFieldExtract:
+    case llvm::Intrinsic::gla_uFindMSB:
+    case llvm::Intrinsic::gla_fUnpackUnorm2x16:
+    case llvm::Intrinsic::gla_fUnpackSnorm2x16:
+    case llvm::Intrinsic::gla_fUnpackHalf2x16:
+        convertArgsToUint = true;
+        break;
+    default:
+        convertArgsToUint = false;
+        break;
+    }
+
+    // map the instrinsic to the right GLSL built-in
     switch (llvmInstruction->getIntrinsicID()) {
 
     // Floating-Point and Integer Operations
@@ -3079,14 +3161,14 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     // Pack and Unpack
     //case llvm::Intrinsic::gla_fFrexp:            callString = "frexp";              break;
     //case llvm::Intrinsic::gla_fLdexp:            callString = "ldexp";              break;
-    case llvm::Intrinsic::gla_fPackUnorm2x16:    callString = "packUnorm2x16";      convertResultToInt = true; break;
-    case llvm::Intrinsic::gla_fUnpackUnorm2x16:  callString = "unpackUnorm2x16";    convertArgsToUint  = true; break;
+    case llvm::Intrinsic::gla_fPackUnorm2x16:    callString = "packUnorm2x16";      break;
+    case llvm::Intrinsic::gla_fUnpackUnorm2x16:  callString = "unpackUnorm2x16";    break;
 
-    case llvm::Intrinsic::gla_fPackSnorm2x16:    callString = "packSnorm2x16";      convertResultToInt = true; break;
-    case llvm::Intrinsic::gla_fUnpackSnorm2x16:  callString = "unpackSnorm2x16";    convertArgsToUint  = true; break;
+    case llvm::Intrinsic::gla_fPackSnorm2x16:    callString = "packSnorm2x16";      break;
+    case llvm::Intrinsic::gla_fUnpackSnorm2x16:  callString = "unpackSnorm2x16";    break;
 
-    case llvm::Intrinsic::gla_fPackHalf2x16:     callString = "packHalf2x16";       convertResultToInt = true; break;        
-    case llvm::Intrinsic::gla_fUnpackHalf2x16:   callString = "unpackHalf2x16";     convertArgsToUint  = true; break;
+    case llvm::Intrinsic::gla_fPackHalf2x16:     callString = "packHalf2x16";       break;
+    case llvm::Intrinsic::gla_fUnpackHalf2x16:   callString = "unpackHalf2x16";     break;
 
     case llvm::Intrinsic::gla_fPackUnorm4x8:     callString = "packUnorm4x8";       break;
     case llvm::Intrinsic::gla_fPackSnorm4x8:     callString = "packSnorm4x8";       break;

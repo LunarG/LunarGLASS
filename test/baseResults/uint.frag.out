@@ -401,14 +401,14 @@ void main()
 	mediump int H_0zxu2h = ivec2(t).y + C_3;
 	mediump vec2 H_6jm302 = tc + C_vec2p1d0p;
 	mediump ivec4 H_jws944 = ivec4(texture(usampler, H_6jm302));
-	bool H_louqfy1 = ivec2(t).x > C_4;
+	bool H_dyh45t = uint(ivec2(t).x) > uint(C_4);
 	mediump float af = float(H_0zxu2h);
 	bool ab = H_0zxu2h != C_0;
 	mediump int H_z3q2xa1 = int(uint(af));
 	mediump int H_0idpap1 = int(ab);
 	ivec4 H_k2rdh51 = ivec4(H_z3q2xa1, H_0idpap1, H_0zxu2h, C_462);
 	mediump ivec4 H_65ybjk1 = H_jws944 + H_k2rdh51;
-	ivec4 select = H_louqfy1 ? H_65ybjk1 : H_jws944;
+	ivec4 select = H_dyh45t ? H_65ybjk1 : H_jws944;
 	mediump ivec4 H_9nsooy = select + C_gq0c5e;
 	c = uvec4(H_9nsooy);
 	
@@ -437,14 +437,14 @@ void main()
 	mediump int H_0zxu2h = ivec2(t).y + C_3;
 	mediump vec2 H_6jm = tc + C_vec2p1d0p;
 	mediump ivec4 H_jws = ivec4(texture(usampler, H_6jm));
-	bool H_louqfy = ivec2(t).x > C_4;
+	bool H_dyh45t = uint(ivec2(t).x) > uint(C_4);
 	mediump float af = float(H_0zxu2h);
 	mediump int H_z3q2xa = int(uint(af));
 	bool ab = H_0zxu2h != C_0;
 	mediump int H_0idpap = int(ab);
 	ivec4 H_0e3yes = ivec4(H_z3q2xa, H_0idpap, H_0zxu2h, C_462);
 	mediump ivec4 H_65ybjk = H_0e3yes + H_jws;
-	ivec4 select = H_louqfy ? H_65ybjk : H_jws;
+	ivec4 select = H_dyh45t ? H_65ybjk : H_jws;
 	mediump ivec4 H_9nsooy = select + C_gq0c5e;
 	c = uvec4(H_9nsooy);
 	
