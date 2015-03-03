@@ -3768,7 +3768,15 @@ void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout 
     default:  break;
     }
 
-    if (location >= gla::MaxUserLayoutLocation && layoutStr == 0)
+    int set = (unsigned)location >> 16;
+    location &= 0xFFFF;
+
+    // Unbias set, which was biased by 1 to distinguish between "set=0" and nothing.
+    bool setPresent = (set != 0);
+    if (setPresent)
+        --set;
+
+    if (! setPresent && location >= gla::MaxUserLayoutLocation && layoutStr == 0)
         return;
 
     // TODO: remove the following two lines when it is safe to correctly emit bindings
@@ -3787,9 +3795,11 @@ void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout 
             if (comma)
                 out << ", ";
         
-            if (binding)
+            if (binding) {
+                if (setPresent)
+                    out << "set=" << set << ",";
                 out << "binding=";
-            else
+            } else
                 out << "location=";
             out << location;
             comma = true;

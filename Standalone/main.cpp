@@ -37,6 +37,7 @@
 // glslang includes
 #include "glslang/Include/ShHandle.h"
 #include "glslang/Public/ShaderLang.h"
+#include "SPIRV/GlslangToSpv.h"
 
 // glslang StandAlone include
 #include "StandAlone/Worklist.h"
@@ -44,6 +45,7 @@
 
 // LunarGLASS includes
 #include "Frontends/glslang/GlslangToTop.h"
+#include "Frontends/SPIRV/SpvToTop.h"
 #include "Core/Options.h"
 #include "OptionParse.h"
 #include "Backends/GLSL/GlslManager.h"
@@ -110,6 +112,7 @@ enum CommandOptions {
     EOptionObfuscate          = 0x1000,
     EOptionFilterInactive     = 0x2000,
     EOptionDumpIndexShader    = 0x4000,
+    EOptionUseSpv             = 0x8000,
 };
 
 int Options = 0;                       // the non-manager options
@@ -243,10 +246,11 @@ void usage(bool advanced)
                "  -r  relaxed semantic error-checking mode\n"
                "  -s  silent mode\n"
                "  -t  multi-threaded: each argument is treated separately, not linked together\n"
+               "  -V  go through the SPIR-V intermediate language: glslang AST -> SPIR-V -> Top IR\n"
                "  -w  suppress warnings (except as required by #extension : warn)\n"
                "  -z  see developer options\n");
     }
-    
+
     if (advanced) {
         printf("Developer options:\n"
                "  -a  dump LunarGLASS Top IR and Bottom IR\n"
@@ -319,11 +323,14 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
             case 'a':
                 Options |= EOptionAssembly;
                 break;
+            case 'V':
+                Options |= EOptionUseSpv;
+                break;
             case 'f':
                 Options |= EOptionFilterInactive;
                 break;
             case 'i': 
-                Options |= EOptionIntermediate;       
+                Options |= EOptionIntermediate;
                 break;
             case 'm':
                 Options |= EOptionMemoryLeakMode;
@@ -610,7 +617,12 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
                 manager.options = ManagerOptions;
 
                 // Generate the Top IR
-                TranslateGlslangToTop(*intermediate, manager);
+                if (Options & EOptionUseSpv) {
+                    std::vector<unsigned int> spirv;
+                    glslang::GlslangToSpv(*intermediate, spirv);
+                    gla::SpvToTop(spirv, manager);
+                } else
+                    TranslateGlslangToTop(*intermediate, manager);
 
                 // Optionally override any versioning/extensions here.
                 // (If this is not done, it will inherit from the original shader source.)

@@ -56,7 +56,8 @@ endif(WIN32)
 set(GLSLANGLIBS
     glslang
     OSDependent
-    OGLCompiler)
+    OGLCompiler
+    SPIRV)
 
 if(WIN32)
     add_definitions(-D_SCL_SECURE_NO_WARNINGS)
