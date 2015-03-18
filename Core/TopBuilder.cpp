@@ -443,7 +443,8 @@ void Builder::createAndSetNoPredecessorBlock(llvm::StringRef name)
 llvm::Function* Builder::makeFunctionEntry(llvm::Type* type, const char* name, llvm::ArrayRef<llvm::Type*> paramTypes, llvm::BasicBlock** entry, bool external)
 {
     llvm::FunctionType *functionType = llvm::FunctionType::get(type, paramTypes, false);
-    llvm::Function *function = llvm::Function::Create(functionType, external ? llvm::Function::ExternalLinkage : llvm::Function::InternalLinkage, name, module);
+    llvm::Function *function = llvm::Function::Create(functionType, external ? llvm::Function::ExternalLinkage : llvm::Function::InternalLinkage,
+                                                      name ? name : "", module);
 
     // For shaders, we want everything passed in registers
     function->setCallingConv(llvm::CallingConv::Fast);

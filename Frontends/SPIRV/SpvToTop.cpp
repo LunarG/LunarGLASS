@@ -93,6 +93,11 @@ int GetWordCount(unsigned int word)
     return (int)(word >> spv::WordCountShift);
 }
 
+const char* NonNullName(const char* name)
+{
+    return name ? name : "";
+}
+
 //
 // Translator instance for translating a SPIR-V stream to LunarGLASS's LLVM-based Top IR.
 //
@@ -623,7 +628,8 @@ void SpvToTopTranslator::addType(spv::OpCode typeClass, spv::Id resultId, int nu
         memberTypes.resize(numOperands);
         for (int m = 0; m < numOperands; ++m)
             memberTypes[m] = commonMap[spirv[word++]].type;
-        commonMap[resultId].type = llvm::StructType::create(context, memberTypes, commonMap[resultId].metaType.name);
+        commonMap[resultId].type = commonMap[resultId].metaType.name ? llvm::StructType::create(context, memberTypes, commonMap[resultId].metaType.name)
+                                                                     : llvm::StructType::create(context, memberTypes);
         break;
     }
 
@@ -971,7 +977,7 @@ llvm::MDNode* SpvToTopTranslator::declareMdDefaultUniform(spv::Id resultId)
         structure = declareMdType(typeId, commonMap[resultId].metaType);
 
     // Make the main node
-    return metadata.makeMdInputOutput(commonMap[resultId].metaType.name, gla::UniformListMdName, gla::EMioDefaultUniform,
+    return metadata.makeMdInputOutput(NonNullName(commonMap[resultId].metaType.name), gla::UniformListMdName, gla::EMioDefaultUniform,
                                       makePermanentTypeProxy(commonMap[resultId].value),
                                       layout, commonMap[resultId].metaType.precision, packSetBinding(commonMap[resultId].metaType), samplerMd, structure);
 }
@@ -1008,7 +1014,7 @@ llvm::MDNode* SpvToTopTranslator::declareMdUniformBlock(gla::EMdInputOutput ioTy
     llvm::MDNode* block = declareMdType(typeId, commonMap[resultId].metaType);
 
     // Make the main node
-    return metadata.makeMdInputOutput(commonMap[resultId].metaType.name, gla::UniformListMdName, ioType, makePermanentTypeProxy(commonMap[resultId].value),
+    return metadata.makeMdInputOutput(NonNullName(commonMap[resultId].metaType.name), gla::UniformListMdName, ioType, makePermanentTypeProxy(commonMap[resultId].value),
                                       commonMap[typeId].metaType.layout, commonMap[resultId].metaType.precision, packSetBinding(commonMap[resultId].metaType), 0, block);
 }
 
@@ -1027,7 +1033,7 @@ llvm::MDNode* SpvToTopTranslator::declareMdType(spv::Id typeId, MetaType& metaTy
     // name of aggregate, if an aggregate (struct or block)
     gla::EMdTypeLayout typeLayout;
     if (commonMap[typeId].type->getTypeID() == llvm::Type::StructTyID) {
-        mdArgs.push_back(llvm::MDString::get(context, commonMap[typeId].metaType.name));
+        mdArgs.push_back(llvm::MDString::get(context, NonNullName(commonMap[typeId].metaType.name)));
         typeLayout = commonMap[typeId].metaType.layout;
     } else {
         mdArgs.push_back(llvm::MDString::get(context, ""));
@@ -1078,7 +1084,7 @@ llvm::MDNode* SpvToTopTranslator::makeInputOutputMetadata(spv::Id resultId, int 
     gla::EInterpolationLocation interpLocation = gla::EILFragment;
     getInterpolationLocationMethod(resultId, interpMethod, interpLocation);
 
-    return metadata.makeMdInputOutput(commonMap[resultId].metaType.name, kind, getMdQualifier(resultId), makePermanentTypeProxy(commonMap[resultId].value),
+    return metadata.makeMdInputOutput(NonNullName(commonMap[resultId].metaType.name), kind, getMdQualifier(resultId), makePermanentTypeProxy(commonMap[resultId].value),
                                       commonMap[typeId].metaType.layout, commonMap[resultId].metaType.precision, slot, 0, aggregate,
                                       gla::MakeInterpolationMode(interpMethod, interpLocation));
 }
@@ -1767,7 +1773,10 @@ void SpvToTopTranslator::handleOpFunction(spv::Id& typeId, spv::Id& resultId)
     if (inEntryPoint()) {
         // Make the entry point function in LLVM.
         shaderEntry = glaBuilder->makeMain();
-        metadata.addMdEntrypoint(commonMap[resultId].metaType.name);
+        const char* entryName = commonMap[resultId].metaType.name;
+        if (entryName == 0)
+            entryName = "main";
+        metadata.addMdEntrypoint(entryName);
         commonMap[currentFunction].function = shaderEntry->getParent();
         commonMap[firstLabelId].block = shaderEntry;
         llvmBuilder.SetInsertPoint(shaderEntry);
