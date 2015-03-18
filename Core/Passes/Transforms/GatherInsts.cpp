@@ -343,12 +343,14 @@ bool GatherInsts::matchBinOpExtended(const BinaryOperator* binOp, Value*& operan
     return true;
 }
 
-
-
 bool GatherInsts::visitMinMaxPair(IntrinsicInst* fMin, IntrinsicInst* fMax)
 {
     assert(fMin->getIntrinsicID() == Intrinsic::gla_fMin && fMax->getIntrinsicID() == Intrinsic::gla_fMax);
     assert(fMax->hasOneUse() && fMax->use_back() == fMin); //TODO: max(a, min(b,c))
+
+    if (fMin->getType() != fMax->getType() ||
+        fMin->getArgOperand(1)->getType() != fMax->getArgOperand(1)->getType())
+        return false;
 
     builder->SetInsertPoint(fMin);
 
@@ -402,13 +404,16 @@ bool GatherInsts::visitMinMaxPair(IntrinsicInst* fMin, IntrinsicInst* fMax)
     }
 
     // Make an fClamp
-    Type* tys[] = { fMin->getType(), fMin->getType(), fMin->getType(), fMin->getType() };
+    if (backEnd->decomposeIntrinsic(EDiClamp))
+        return false;
+
+    Type* tys[] = { fMin->getType(), fMin->getType(), fMin->getArgOperand(1)->getType(), fMin->getArgOperand(1)->getType() };
     Function* f = Intrinsic::getDeclaration(module, Intrinsic::gla_fClamp, tys);
     int nonfMaxOpIdx = fMin->getArgOperand(0) == fMax ? 1 : 0;
     assert(fMin->getArgOperand(nonfMaxOpIdx) != fMax && fMin->getArgOperand(!nonfMaxOpIdx) == fMax);
 
-    Instruction* clampInst = builder->CreateCall3(f, fMax->getArgOperand(0), fMax->getArgOperand(1),
-                                                  fMin->getArgOperand(nonfMaxOpIdx));
+    Instruction* clampInst = builder->CreateCall3(f, fMax->getArgOperand(0), 
+                                                     fMax->getArgOperand(1), fMin->getArgOperand(nonfMaxOpIdx));
 
     fMin->replaceAllUsesWith(clampInst);
 
