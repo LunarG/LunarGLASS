@@ -675,8 +675,12 @@ void SpvToTopTranslator::addVariable(spv::Id resultId, spv::Id typeId, spv::Stor
     if (name) {
         if (name[0] == 0)
             name = "anon@";
-    } else
-        name = "";
+    } else {
+        if (storageClass != spv::StorageFunction)
+            name = "nn";   // no name, but LLVM treats I/O as dead when there is no
+        else
+            name = "";
+    }
 
     commonMap[resultId].value = glaBuilder->createVariable(glaQualifier, constantBuffer, variableType, initializer, 0, name);
 
@@ -716,7 +720,6 @@ gla::Builder::EStorageQualifier SpvToTopTranslator::mapStorageClass(spv::Storage
         return gla::Builder::ESQGlobal;
 
     case spv::StorageWorkgroupLocal:
-    //case spv::StorageLowertime:  // TODO: finish removing
     default:
         gla::UnsupportedFunctionality("storage class");
         break;
