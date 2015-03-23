@@ -253,7 +253,7 @@ public:
             delete it->second;
         for (std::map<const llvm::Value*, std::string*>::const_iterator it = valueMap.begin(); it != valueMap.end(); ++it)
             delete it->second;
-        for (std::map<const std::string, const std::string*>::const_iterator it = constMap.begin(); it != constMap.end(); ++it)
+        for (std::map<std::string, const std::string*>::const_iterator it = constMap.begin(); it != constMap.end(); ++it)
             delete it->second;
     }
 
