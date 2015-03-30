@@ -83,9 +83,11 @@
 
 namespace {
 
-spv::OpCode GetOpCode(unsigned int word)
+const unsigned int BadValue = 0xFFFFFFFF;
+
+spv::Op GetOpCode(unsigned int word)
 {
-    return (spv::OpCode)(word & spv::OpCodeMask);
+    return (spv::Op)(word & spv::OpCodeMask);
 }
 
 int GetWordCount(unsigned int word)
@@ -112,8 +114,8 @@ protected:
     // a bag to hold type information that's lost going to LLVM (without metadata)
     struct MetaType {
         MetaType() : layout(gla::EMtlNone), precision(gla::EMpNone), set(-1), bindingOrLocation(gla::MaxUserLayoutLocation),
-                     interpolationMethod(spv::DecCount), interpolateTo(spv::DecCount),
-                     invariant(false), builtIn(spv::BuiltInCount), name(0) { }
+                     interpolationMethod((spv::Decoration)BadValue), interpolateTo((spv::Decoration)BadValue),
+                     invariant(false), builtIn((spv::BuiltIn)BadValue), name(0) { }
 
         // set of things needed for !typeLayout metadata node
         gla::EMdTypeLayout layout;              // includes matrix information
@@ -136,27 +138,27 @@ protected:
     void addDecoration(spv::Id, spv::Decoration);
     void addMemberDecoration(spv::Id, unsigned int member, spv::Decoration);
     void addMetaTypeDecoration(spv::Decoration decoration, MetaType& metaType);
-    void addType(spv::OpCode, spv::Id, int numOperands);
+    void addType(spv::Op, spv::Id, int numOperands);
     void addVariable(spv::Id resultId, spv::Id typeId, spv::StorageClass);
     gla::Builder::EStorageQualifier mapStorageClass(spv::StorageClass);
-    void addConstant(spv::OpCode, spv::Id resultId, spv::Id typeId, int numOperands);
+    void addConstant(spv::Op, spv::Id resultId, spv::Id typeId, int numOperands);
     void addConstantAggregate(spv::Id resultId, spv::Id typeId, int numOperands);
     int assignSlot(spv::Id resultId, int& numSlots);
     void decodeResult(bool type, spv::Id& typeId, spv::Id& resultId);
     const char* findAName(spv::Id choice1, spv::Id choice2 = 0);
-    void translateInstruction(spv::OpCode opCode, int numOperands);
-    llvm::Value* createUnaryOperation(spv::OpCode, gla::EMdPrecision, llvm::Type* resultType, llvm::Value* operand, bool hasSign, bool reduceComparison);
-    llvm::Value* createBinaryOperation(spv::OpCode, gla::EMdPrecision, llvm::Value* left, llvm::Value* right, bool hasSign, bool reduceComparison, const char* name = 0);
+    void translateInstruction(spv::Op opCode, int numOperands);
+    llvm::Value* createUnaryOperation(spv::Op, gla::EMdPrecision, llvm::Type* resultType, llvm::Value* operand, bool hasSign, bool reduceComparison);
+    llvm::Value* createBinaryOperation(spv::Op, gla::EMdPrecision, llvm::Value* left, llvm::Value* right, bool hasSign, bool reduceComparison, const char* name = 0);
     gla::ESamplerType convertSamplerType(spv::Id samplerTypeId);
-    llvm::Value* createSamplingCall(spv::OpCode, spv::Id type, spv::Id result, int numOperands);
-    llvm::Value* createTextureQueryCall(spv::OpCode, spv::Id type, spv::Id result, int numOperands);
+    llvm::Value* createSamplingCall(spv::Op, spv::Id type, spv::Id result, int numOperands);
+    llvm::Value* createTextureQueryCall(spv::Op, spv::Id type, spv::Id result, int numOperands);
     llvm::Value* createConstructor(spv::Id resultId, spv::Id typeId, std::vector<llvm::Value*> constituents);
     void handleOpFunction(spv::Id& typeId, spv::Id& resultId);
     llvm::Function* makeFunction(spv::Id functionId, spv::Id returnTypeId, std::vector<spv::Id>& argTypeIds);
     spv::Id getNextLabelId();
     llvm::Value* createFunctionCall(gla::EMdPrecision precision, spv::Id typeId, spv::Id resultId, int numOperands);
     llvm::Value* createExternalInstruction(gla::EMdPrecision precision, spv::Id typeId, spv::Id resultId, int numOperands, const char* name);
-    spv::OpCode getOpCode(spv::Id) const;
+    spv::Op getOpCode(spv::Id) const;
     spv::Id dereferenceTypeId(spv::Id typeId) const;
     spv::Id getArrayElementTypeId(spv::Id typeId) const;
     spv::Id getStructMemberTypeId(spv::Id typeId, int member) const;
@@ -212,9 +214,9 @@ protected:
     // TODO: optimize space down to what really is commonly needed
     unsigned int numIds;
     struct CommonAnnotations {
-        CommonAnnotations() : instructionIndex(0), typeId(spv::NoType), value(0),
-                              isBlock(false), isBuffer(false), noStaticUse(false), storageClass(spv::StorageCount), 
-                              entryPoint(spv::ModelCount), memberMetaData(0) { }
+        CommonAnnotations() : instructionIndex(0), typeId(0), value(0),
+                              isBlock(false), isBuffer(false), noStaticUse(false), storageClass((spv::StorageClass)BadValue), 
+                              entryPoint((spv::ExecutionModel)BadValue), memberMetaData(0) { }
         int instructionIndex;                   // the location in the spirv of this instruction
         union {
             spv::Id typeId;                     // typeId is valid if indexed with a resultId
@@ -241,7 +243,7 @@ SpvToTopTranslator::SpvToTopTranslator(const std::vector<unsigned int>& spirv, g
       manager(manager), context(manager.getModule()->getContext()),
       shaderEntry(0), llvmBuilder(context),
       module(manager.getModule()), metadata(context, module),
-      version(0), generator(0), currentModel(spv::ModelCount), currentFunction(spv::NoResult),
+      version(0), generator(0), currentModel((spv::ExecutionModel)BadValue), currentFunction(0),
       nextSlot(gla::MaxUserLayoutLocation)
 {
     glaBuilder = new gla::Builder(llvmBuilder, &manager, metadata);
@@ -302,7 +304,7 @@ void SpvToTopTranslator::makeTop()
         unsigned int firstWord = spirv[word];
 
         // OpCode
-        spv::OpCode opCode = GetOpCode(firstWord);
+        spv::Op opCode = GetOpCode(firstWord);
 
         // Instruction size
         int instrSize = (int)(firstWord >> 16);
@@ -325,18 +327,18 @@ void SpvToTopTranslator::makeTop()
 void SpvToTopTranslator::setEntryPoint(spv::ExecutionModel model, spv::Id entryId)
 {
     commonMap[entryId].entryPoint = model;
-    if (currentModel != spv::ModelCount)
+    if (currentModel != BadValue)
         gla::UnsupportedFunctionality("Multiple execution models in the same SPIR-V module (setting entry point)");
     currentModel = model;
 
     // Lock ourselves into a single model for now...
     switch (currentModel) {
-    case spv::ModelVertex:                  manager.setStage(EShLangVertex);         break;
-    case spv::ModelTessellationControl:     manager.setStage(EShLangTessControl);    break;
-    case spv::ModelTessellationEvaluation:  manager.setStage(EShLangTessEvaluation); break;
-    case spv::ModelGeometry:                manager.setStage(EShLangGeometry);       break;
-    case spv::ModelFragment:                manager.setStage(EShLangFragment);       break;
-    case spv::ModelGLCompute:               manager.setStage(EShLangCompute);        break;
+    case spv::ExecutionModelVertex:                  manager.setStage(EShLangVertex);         break;
+    case spv::ExecutionModelTessellationControl:     manager.setStage(EShLangTessControl);    break;
+    case spv::ExecutionModelTessellationEvaluation:  manager.setStage(EShLangTessEvaluation); break;
+    case spv::ExecutionModelGeometry:                manager.setStage(EShLangGeometry);       break;
+    case spv::ExecutionModelFragment:                manager.setStage(EShLangFragment);       break;
+    case spv::ExecutionModelGLCompute:               manager.setStage(EShLangCompute);        break;
     default:
         gla::UnsupportedFunctionality("SPIR-V execution model", model, gla::EATAbort);
     }
@@ -353,77 +355,77 @@ void SpvToTopTranslator::setExecutionMode(spv::Id entryPoint, spv::ExecutionMode
         gla::UnsupportedFunctionality("Multiple execution models in the same SPIR-V module (setting input mode)", gla::EATContinue);
 
     switch (mode) {
-    case spv::ExecutionInvocations:
+    case spv::ExecutionModeInvocations:
         metadata.makeMdNamedInt(gla::InvocationsMdName, spirv[word++]);
         break;
-    case spv::ExecutionSpacingEqual:
+    case spv::ExecutionModeSpacingEqual:
         metadata.makeMdNamedInt(gla::VertexSpacingMdName, gla::EMvsEqual);
         break;
-    case spv::ExecutionSpacingFractionalEven:
+    case spv::ExecutionModeSpacingFractionalEven:
         metadata.makeMdNamedInt(gla::VertexSpacingMdName, gla::EMvsFractionalEven);
         break;
-    case spv::ExecutionSpacingFractionalOdd:
+    case spv::ExecutionModeSpacingFractionalOdd:
         metadata.makeMdNamedInt(gla::VertexSpacingMdName, gla::EMvsFractionalOdd);
         break;
-    case spv::ExecutionVertexOrderCw:
+    case spv::ExecutionModeVertexOrderCw:
         metadata.makeMdNamedInt(gla::VertexOrderMdName, gla::EMvoCw);
         break;
-    case spv::ExecutionVertexOrderCcw:
+    case spv::ExecutionModeVertexOrderCcw:
         metadata.makeMdNamedInt(gla::VertexOrderMdName, gla::EMvoCcw);
         break;
-    case spv::ExecutionPixelCenterInteger:
+    case spv::ExecutionModePixelCenterInteger:
         metadata.makeMdNamedInt(gla::PixelCenterIntegerMdName, 1);
         break;
-    case spv::ExecutionOriginUpperLeft:
+    case spv::ExecutionModeOriginUpperLeft:
         metadata.makeMdNamedInt(gla::OriginUpperLeftMdName, 1);
         break;
-    case spv::ExecutionPointMode:
+    case spv::ExecutionModePointMode:
         metadata.makeMdNamedInt(gla::PointModeMdName, 1);
         break;
-    case spv::ExecutionInputPoints:
+    case spv::ExecutionModeInputPoints:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgPoints);
         break;
-    case spv::ExecutionInputLines:
+    case spv::ExecutionModeInputLines:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgLines);
         break;
-    case spv::ExecutionInputLinesAdjacency:
+    case spv::ExecutionModeInputLinesAdjacency:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgLinesAdjacency);
         break;
-    case spv::ExecutionInputTriangles:
+    case spv::ExecutionModeInputTriangles:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgTriangles);
         break;
-    case spv::ExecutionInputTrianglesAdjacency:
+    case spv::ExecutionModeInputTrianglesAdjacency:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgTrianglesAdjacency);
         break;
-    case spv::ExecutionInputQuads:
+    case spv::ExecutionModeInputQuads:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgQuads);
         break;
-    case spv::ExecutionInputIsolines:
+    case spv::ExecutionModeInputIsolines:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgIsolines);
         break;
-    case spv::ExecutionXfb:
+    case spv::ExecutionModeXfb:
         metadata.makeMdNamedInt(gla::XfbModeMdName, 1);
         break;
-    case spv::ExecutionOutputVertices:
+    case spv::ExecutionModeOutputVertices:
         metadata.makeMdNamedInt(gla::NumVerticesMdName, spirv[word++]);
         break;
-    case spv::ExecutionOutputPoints:
+    case spv::ExecutionModeOutputPoints:
         metadata.makeMdNamedInt(gla::OutputPrimitiveMdName, gla::EMlgPoints);
         break;
-    case spv::ExecutionOutputLineStrip:
+    case spv::ExecutionModeOutputLineStrip:
         metadata.makeMdNamedInt(gla::OutputPrimitiveMdName, gla::EMlgLineStrip);
         break;
-    case spv::ExecutionOutputTriangleStrip:
+    case spv::ExecutionModeOutputTriangleStrip:
         metadata.makeMdNamedInt(gla::OutputPrimitiveMdName, gla::EMlgTriangleStrip);
         break;
 
-    case spv::ExecutionLocalSize:
-    case spv::ExecutionEarlyFragmentTests:
-    case spv::ExecutionDepthAny:
-    case spv::ExecutionDepthGreater:
-    case spv::ExecutionDepthLess:
-    case spv::ExecutionDepthUnchanged:
-    case spv::ExecutionDepthReplacing:
+    case spv::ExecutionModeLocalSize:
+    case spv::ExecutionModeEarlyFragmentTests:
+    case spv::ExecutionModeDepthAny:
+    case spv::ExecutionModeDepthGreater:
+    case spv::ExecutionModeDepthLess:
+    case spv::ExecutionModeDepthUnchanged:
+    case spv::ExecutionModeDepthReplacing:
 
     default:
         gla::UnsupportedFunctionality("execution mode");
@@ -436,14 +438,14 @@ void SpvToTopTranslator::setExecutionMode(spv::Id entryPoint, spv::ExecutionMode
 void SpvToTopTranslator::addDecoration(spv::Id id, spv::Decoration decoration)
 {
     switch (decoration) {
-    case spv::DecBlock:
+    case spv::DecorationBlock:
         commonMap[id].isBlock = true;
         break;
-    case spv::DecBufferBlock:
+    case spv::DecorationBufferBlock:
         commonMap[id].isBlock = true;
         commonMap[id].isBuffer = true;
         break;
-    case spv::DecNoStaticUse:
+    case spv::DecorationNoStaticUse:
         commonMap[id].noStaticUse = true;
         break;
     default:
@@ -467,70 +469,70 @@ void SpvToTopTranslator::addMetaTypeDecoration(spv::Decoration decoration, MetaT
     unsigned int num;
 
     switch (decoration) {
-    case spv::DecPrecisionLow:
+    case spv::DecorationPrecisionLow:
         metaType.precision = gla::EMpLow;
         break;
-    case spv::DecPrecisionMedium:
+    case spv::DecorationPrecisionMedium:
         metaType.precision = gla::EMpMedium;
         break;
-    case spv::DecPrecisionHigh:
+    case spv::DecorationPrecisionHigh:
         metaType.precision = gla::EMpHigh;
         break;
 
-    case spv::DecSmooth:
-    case spv::DecNoperspective:
-    case spv::DecFlat:
-    case spv::DecPatch:
+    case spv::DecorationSmooth:
+    case spv::DecorationNoperspective:
+    case spv::DecorationFlat:
+    case spv::DecorationPatch:
         metaType.interpolationMethod = decoration;
         break;
 
-    case spv::DecGLSLShared:
+    case spv::DecorationGLSLShared:
         metaType.layout = gla::EMtlShared;
         break;
-    case spv::DecGLSLStd140:
+    case spv::DecorationGLSLStd140:
         metaType.layout = gla::EMtlStd140;
         break;
-    case spv::DecGLSLStd430:
+    case spv::DecorationGLSLStd430:
         metaType.layout = gla::EMtlStd430;
         break;
-    case spv::DecGLSLPacked:
+    case spv::DecorationGLSLPacked:
         metaType.layout = gla::EMtlPacked;
         break;
-    case spv::DecRowMajor:
+    case spv::DecorationRowMajor:
         metaType.layout = gla::EMtlRowMajorMatrix;
         break;
-    case spv::DecColMajor:
+    case spv::DecorationColMajor:
         metaType.layout = gla::EMtlColMajorMatrix;
         break;
 
-    case spv::DecInvariant:
+    case spv::DecorationInvariant:
         metaType.invariant = true;
         break;
 
-    case spv::DecDescriptorSet:
+    case spv::DecorationDescriptorSet:
         num = spirv[word++];
         metaType.set = num;
         break;
-    case spv::DecBinding:
-    case spv::DecLocation:
+    case spv::DecorationBinding:
+    case spv::DecorationLocation:
         num = spirv[word++];
         metaType.bindingOrLocation = num;
         break;
-    case spv::DecBuiltIn:
+    case spv::DecorationBuiltIn:
         num = spirv[word++];
         metaType.builtIn = (spv::BuiltIn)num;
         break;
-    case spv::DecStream:
-    case spv::DecComponent:
-    case spv::DecIndex:
-    case spv::DecOffset:
-    case spv::DecAlignment:
-    case spv::DecXfbBuffer:
-    case spv::DecStride:
+    case spv::DecorationStream:
+    case spv::DecorationComponent:
+    case spv::DecorationIndex:
+    case spv::DecorationOffset:
+    case spv::DecorationAlignment:
+    case spv::DecorationXfbBuffer:
+    case spv::DecorationStride:
 
-    case spv::DecCentroid:
-    case spv::DecSample:
-    case spv::DecUniform:
+    case spv::DecorationCentroid:
+    case spv::DecorationSample:
+    case spv::DecorationUniform:
     default:
         gla::UnsupportedFunctionality("metaType decoration", gla::EATContinue);
         break;
@@ -539,7 +541,7 @@ void SpvToTopTranslator::addMetaTypeDecoration(spv::Decoration decoration, MetaT
 
 // Process an OpType instruction.
 // On entry, 'word' is the index of the first operand.
-void SpvToTopTranslator::addType(spv::OpCode typeClass, spv::Id resultId, int numOperands)
+void SpvToTopTranslator::addType(spv::Op typeClass, spv::Id resultId, int numOperands)
 {
     unsigned int width;
     switch (typeClass) {
@@ -676,7 +678,7 @@ void SpvToTopTranslator::addVariable(spv::Id resultId, spv::Id typeId, spv::Stor
         if (name[0] == 0)
             name = "anon@";
     } else {
-        if (storageClass != spv::StorageFunction)
+        if (storageClass != spv::StorageClassFunction)
             name = "nn";   // no name, but LLVM treats I/O as dead when there is no
         else
             name = "";
@@ -688,15 +690,15 @@ void SpvToTopTranslator::addVariable(spv::Id resultId, spv::Id typeId, spv::Stor
     int numSlots;
     int slot;
     switch (storageClass) {
-    case spv::StorageOutput:
+    case spv::StorageClassOutput:
         slot = assignSlot(resultId, numSlots);
         makeOutputMetadata(resultId, slot, numSlots);
         break;
-    case spv::StorageInput:
+    case spv::StorageClassInput:
         slot = assignSlot(resultId, numSlots);
         makeInputMetadata(resultId, slot);
-    case spv::StorageConstantUniform:
-    case spv::StorageUniform:
+    case spv::StorageClassUniformConstant:
+    case spv::StorageClassUniform:
         declareUniformMetadata(resultId);
         break;
     default:
@@ -707,19 +709,19 @@ void SpvToTopTranslator::addVariable(spv::Id resultId, spv::Id typeId, spv::Stor
 gla::Builder::EStorageQualifier SpvToTopTranslator::mapStorageClass(spv::StorageClass storageClass)
 {
     switch (storageClass) {
-    case spv::StorageFunction:
+    case spv::StorageClassFunction:
         return gla::Builder::ESQLocal;
-    case spv::StorageConstantUniform:
-    case spv::StorageUniform:
+    case spv::StorageClassUniformConstant:
+    case spv::StorageClassUniform:
         return gla::Builder::ESQUniform;
-    case spv::StorageInput:
+    case spv::StorageClassInput:
         return gla::Builder::ESQInput;
-    case spv::StorageOutput:
+    case spv::StorageClassOutput:
         return gla::Builder::ESQOutput;
-    case spv::StoragePrivateGlobal:
+    case spv::StorageClassPrivateGlobal:
         return gla::Builder::ESQGlobal;
 
-    case spv::StorageWorkgroupLocal:
+    case spv::StorageClassWorkgroupLocal:
     default:
         gla::UnsupportedFunctionality("storage class");
         break;
@@ -730,7 +732,7 @@ gla::Builder::EStorageQualifier SpvToTopTranslator::mapStorageClass(spv::Storage
 }
 
 // Build a literal constant.
-void SpvToTopTranslator::addConstant(spv::OpCode opCode, spv::Id resultId, spv::Id typeId, int numOperands)
+void SpvToTopTranslator::addConstant(spv::Op opCode, spv::Id resultId, spv::Id typeId, int numOperands)
 {
     // vector of constants for LLVM
     std::vector<llvm::Constant*> llvmConsts;
@@ -824,11 +826,11 @@ gla::EMdInputOutput SpvToTopTranslator::getMdQualifier(spv::Id resultId) const
     if (commonMap[typeId].isBlock) {
         // storage class comes from the variable
         switch (commonMap[resultId].storageClass) {
-        case spv::StorageInput:   mdQualifier = gla::EMioPipeInBlock;        break;
-        case spv::StorageOutput:  mdQualifier = gla::EMioPipeOutBlock;       break;
-        case spv::StorageUniform: mdQualifier = gla::EMioBufferBlockMember;  break;
+        case spv::StorageClassInput:   mdQualifier = gla::EMioPipeInBlock;        break;
+        case spv::StorageClassOutput:  mdQualifier = gla::EMioPipeOutBlock;       break;
+        case spv::StorageClassUniform: mdQualifier = gla::EMioBufferBlockMember;  break;
         //case spv::Storage  mdQualifier = gla::EMioUniformBlockMember; break;
-        default:                                                               break;
+        default:                                                                  break;
         }
 
         return mdQualifier;
@@ -849,9 +851,9 @@ gla::EMdInputOutput SpvToTopTranslator::getMdQualifier(spv::Id resultId) const
     case spv::BuiltInFragDepth:   mdQualifier = gla::EMioFragmentDepth;  break;
     default:
         switch (commonMap[resultId].storageClass) {
-        case spv::StorageInput:           mdQualifier = gla::EMioPipeIn;         break;
-        case spv::StorageOutput:          mdQualifier = gla::EMioPipeOut;        break;
-        case spv::StorageConstantUniform: mdQualifier = gla::EMioDefaultUniform; break;  // TODO: verify 1:1 connection between ConstantUniform and DefaultUniform (or, that latter might not exist)
+        case spv::StorageClassInput:           mdQualifier = gla::EMioPipeIn;         break;
+        case spv::StorageClassOutput:          mdQualifier = gla::EMioPipeOut;        break;
+        case spv::StorageClassUniformConstant: mdQualifier = gla::EMioDefaultUniform; break;  // TODO: verify 1:1 connection between ConstantUniform and DefaultUniform (or, that latter might not exist)
         default:
             gla::UnsupportedFunctionality("metadata qualifier");
             break;
@@ -910,16 +912,16 @@ gla::EMdSamplerBaseType SpvToTopTranslator::getMdSamplerBaseType(spv::Id typeId)
 void SpvToTopTranslator::getInterpolationLocationMethod(spv::Id id, gla::EInterpolationMethod& method, gla::EInterpolationLocation& location)
 {
     switch (commonMap[id].metaType.interpolationMethod) {
-    case spv::DecNoperspective: method = gla::EIMNoperspective;  break;
-    case spv::DecSmooth:        method = gla::EIMSmooth;         break;
-    case spv::DecPatch:         method = gla::EIMPatch;          break;
-    default:                      method = gla::EIMNone;           break;
+    case spv::DecorationNoperspective: method = gla::EIMNoperspective;  break;
+    case spv::DecorationSmooth:        method = gla::EIMSmooth;         break;
+    case spv::DecorationPatch:         method = gla::EIMPatch;          break;
+    default:                           method = gla::EIMNone;           break;
     }
 
     switch (commonMap[id].metaType.interpolateTo) {
-    case spv::DecSample:        location = gla::EILSample;       break;
-    case spv::DecCentroid:      location = gla::EILCentroid;     break;
-    default:                      location = gla::EILFragment;     break;
+    case spv::DecorationSample:        location = gla::EILSample;       break;
+    case spv::DecorationCentroid:      location = gla::EILCentroid;     break;
+    default:                           location = gla::EILFragment;     break;
     }
 }
 
@@ -1145,7 +1147,7 @@ const char* SpvToTopTranslator::findAName(spv::Id choice1, spv::Id choice2)
         for (int i = 0; i < 200; i++) {
             if (trialInst + 5 >= (int)spirv.size())
                 break;
-            spv::OpCode opcode = GetOpCode(spirv[trialInst]);
+            spv::Op opcode = GetOpCode(spirv[trialInst]);
             switch (opcode) {
             case spv::OpStore:
                 if (spirv[trialInst + 2] == chain ||
@@ -1207,7 +1209,7 @@ const char* SpvToTopTranslator::findAName(spv::Id choice1, spv::Id choice2)
     return 0;
 }
 
-void SpvToTopTranslator::translateInstruction(spv::OpCode opCode, int numOperands)
+void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
 {
     spv::Id resultId;
     spv::Id typeId;
@@ -1219,13 +1221,13 @@ void SpvToTopTranslator::translateInstruction(spv::OpCode opCode, int numOperand
         unsigned int sourceVersion = spirv[word++];
         manager.setVersion(sourceVersion);
         switch (source) {
-        case spv::LangESSL:
+        case spv::SourceLanguageESSL:
             manager.setProfile(EEsProfile);
             break;
-        case spv::LangGLSL:
+        case spv::SourceLanguageGLSL:
             manager.setProfile(ECoreProfile);
             break;
-        case spv::LangOpenCL:
+        case spv::SourceLanguageOpenCL:
         default:
             gla::UnsupportedFunctionality("non-GL profile", gla::EATContinue);
             manager.setProfile(ECoreProfile);
@@ -1352,7 +1354,7 @@ void SpvToTopTranslator::translateInstruction(spv::OpCode opCode, int numOperand
         break;
     case spv::OpFunctionEnd:
         glaBuilder->leaveFunction(inEntryPoint());
-        currentFunction = spv::NoResult;
+        currentFunction = 0;
         break;
 
     case spv::OpIAdd:
@@ -1616,10 +1618,10 @@ void SpvToTopTranslator::translateInstruction(spv::OpCode opCode, int numOperand
         commonMap[resultId].value = createSamplingCall(opCode, typeId, resultId, numOperands);
         break;
 
-    case spv::OpTextureFetchTexel:
+    case spv::OpTextureFetchTexelLod:
     case spv::OpTextureFetchTexelOffset:
     case spv::OpTextureFetchSample:
-    case spv::OpTextureFetchBuffer:
+    case spv::OpTextureFetchTexel:
         gla::UnsupportedFunctionality("OpTextureFetch instruction");
         break;
 
@@ -2169,7 +2171,7 @@ llvm::Value* SpvToTopTranslator::createExternalInstruction(gla::EMdPrecision pre
     return result;
 }
 
-llvm::Value* SpvToTopTranslator::createUnaryOperation(spv::OpCode op, gla::EMdPrecision precision, llvm::Type* resultType, llvm::Value* operand, bool hasSign, bool reduceComparison)
+llvm::Value* SpvToTopTranslator::createUnaryOperation(spv::Op op, gla::EMdPrecision precision, llvm::Type* resultType, llvm::Value* operand, bool hasSign, bool reduceComparison)
 {
     llvm::Instruction::CastOps castOp = llvm::Instruction::CastOps(0);
     bool isFloat = gla::GetBasicTypeID(operand) == llvm::Type::FloatTyID;
@@ -2285,7 +2287,7 @@ llvm::Value* SpvToTopTranslator::createUnaryOperation(spv::OpCode op, gla::EMdPr
     return 0;
 }
 
-llvm::Value* SpvToTopTranslator::createBinaryOperation(spv::OpCode op, gla::EMdPrecision precision, llvm::Value* left, llvm::Value* right, bool hasSign, bool reduceComparison, const char* name)
+llvm::Value* SpvToTopTranslator::createBinaryOperation(spv::Op op, gla::EMdPrecision precision, llvm::Value* left, llvm::Value* right, bool hasSign, bool reduceComparison, const char* name)
 {
     llvm::Instruction::BinaryOps binOp = llvm::Instruction::BinaryOps(0);
     bool leftIsFloat = (gla::GetBasicTypeID(left) == llvm::Type::FloatTyID);
@@ -2555,7 +2557,7 @@ gla::ESamplerType SpvToTopTranslator::convertSamplerType(spv::Id samplerTypeId)
 }
 
 // Turn a SPIR-V OpTextureSample* instruction into gla texturing intrinsic.
-llvm::Value* SpvToTopTranslator::createSamplingCall(spv::OpCode opcode, spv::Id typeId, spv::Id resultId, int numOperands)
+llvm::Value* SpvToTopTranslator::createSamplingCall(spv::Op opcode, spv::Id typeId, spv::Id resultId, int numOperands)
 {
     // Information to set up to pass to the builder:
     int flags = 0;
@@ -2666,13 +2668,13 @@ llvm::Value* SpvToTopTranslator::createSamplingCall(spv::OpCode opcode, spv::Id 
 }
 
 // Turn a SPIR-V OpTextureQuery* instruction into gla texturing intrinsic.
-llvm::Value* SpvToTopTranslator::createTextureQueryCall(spv::OpCode opcode, spv::Id typeId, spv::Id resultId, int numOperands)
+llvm::Value* SpvToTopTranslator::createTextureQueryCall(spv::Op opcode, spv::Id typeId, spv::Id resultId, int numOperands)
 {
     // first operand is always the sampler
     spv::Id sampler = spirv[word++];
 
     // sometimes there is another operand, either lod or coords
-    spv::Id extraArg = spv::NoResult;
+    spv::Id extraArg = 0;
     if (numOperands > 1)
         extraArg = spirv[word++];
 
@@ -2719,7 +2721,7 @@ llvm::Value* SpvToTopTranslator::createConstructor(spv::Id resultId, spv::Id typ
     return result;
 }
 
-spv::OpCode SpvToTopTranslator::getOpCode(spv::Id id) const
+spv::Op SpvToTopTranslator::getOpCode(spv::Id id) const
 {
     return GetOpCode(spirv[commonMap[id].instructionIndex]);
 }
@@ -2750,7 +2752,7 @@ spv::Id SpvToTopTranslator::getStructMemberTypeId(spv::Id typeId, int member) co
 
 bool SpvToTopTranslator::inEntryPoint()
 {
-    return commonMap[currentFunction].entryPoint != spv::ModelCount;
+    return commonMap[currentFunction].entryPoint != BadValue;
 }
 
 void SpvToTopTranslator::makeLabelBlock(spv::Id labelId)
