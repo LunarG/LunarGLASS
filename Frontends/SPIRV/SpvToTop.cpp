@@ -349,7 +349,7 @@ void SpvToTopTranslator::setEntryPoint(spv::ExecutionModel model, spv::Id entryI
 void SpvToTopTranslator::setExecutionMode(spv::Id entryPoint, spv::ExecutionMode mode)
 {
     spv::ExecutionModel model = commonMap[entryPoint].entryPoint;
-    assert(model != spv::ModelCount);
+    assert(model != BadValue);
 
     if (currentModel != model)
         gla::UnsupportedFunctionality("Multiple execution models in the same SPIR-V module (setting input mode)", gla::EATContinue);
