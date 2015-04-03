@@ -882,9 +882,6 @@ gla::EMdInputOutput SpvToTopTranslator::getMdQualifier(spv::Id resultId) const
     case spv::BuiltInSubgroupId:
     case spv::BuiltInSubgroupLocalInvocationId:
     default:
-        //gla::UnsupportedFunctionality("metadata qualifier", commonMap[resultId].metaType.builtIn, gla::EATContinue);
-
-    case BadValue:
         switch (commonMap[resultId].storageClass) {
         case spv::StorageClassUniformConstant: mdQualifier = gla::EMioDefaultUniform;     break;
         case spv::StorageClassInput:           mdQualifier = gla::EMioPipeIn;             break;
