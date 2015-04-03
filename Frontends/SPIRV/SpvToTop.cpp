@@ -828,8 +828,8 @@ gla::EMdInputOutput SpvToTopTranslator::getMdQualifier(spv::Id resultId) const
         switch (commonMap[resultId].storageClass) {
         case spv::StorageClassInput:   mdQualifier = gla::EMioPipeInBlock;        break;
         case spv::StorageClassOutput:  mdQualifier = gla::EMioPipeOutBlock;       break;
-        case spv::StorageClassUniform: mdQualifier = gla::EMioBufferBlockMember;  break;
-        //case spv::Storage  mdQualifier = gla::EMioUniformBlockMember; break;
+        case spv::StorageClassUniform: mdQualifier = gla::EMioUniformBlockMember; break;
+        //case spv::Storage  mdQualifier = gla::EMioBufferBlockMember; break;
         default:                                                                  break;
         }
 
@@ -839,23 +839,59 @@ gla::EMdInputOutput SpvToTopTranslator::getMdQualifier(spv::Id resultId) const
     // non-blocks...
 
     switch (commonMap[resultId].metaType.builtIn) {
-    case spv::BuiltInInstanceId:  mdQualifier = gla::EMioInstanceId;     break;
-    case spv::BuiltInVertexId:    mdQualifier = gla::EMioVertexId;       break;
-    case spv::BuiltInFrontFacing: mdQualifier = gla::EMioFragmentFace;   break;
-    case spv::BuiltInPointCoord:  mdQualifier = gla::EMioPointCoord;     break;
-    case spv::BuiltInFragCoord:   mdQualifier = gla::EMioFragmentCoord;  break;
     case spv::BuiltInPosition:    mdQualifier = gla::EMioVertexPosition; break;
     case spv::BuiltInPointSize:   mdQualifier = gla::EMioPointSize;      break;
     case spv::BuiltInClipVertex:  mdQualifier = gla::EMioClipVertex;     break;
+    case spv::BuiltInInstanceId:  mdQualifier = gla::EMioInstanceId;     break;
+    case spv::BuiltInVertexId:    mdQualifier = gla::EMioVertexId;       break;
+    case spv::BuiltInFragCoord:   mdQualifier = gla::EMioFragmentCoord;  break;
+    case spv::BuiltInPointCoord:  mdQualifier = gla::EMioPointCoord;     break;
+    case spv::BuiltInFrontFacing: mdQualifier = gla::EMioFragmentFace;   break;
     case spv::BuiltInFragColor:   mdQualifier = gla::EMioPipeOut;        break;
     case spv::BuiltInFragDepth:   mdQualifier = gla::EMioFragmentDepth;  break;
+
+    case spv::BuiltInCullDistance:
+    case spv::BuiltInPrimitiveId:
+    case spv::BuiltInInvocationId:
+    case spv::BuiltInLayer:
+    case spv::BuiltInViewportIndex:
+    case spv::BuiltInTessLevelOuter:
+    case spv::BuiltInTessLevelInner:
+    case spv::BuiltInTessCoord:
+    case spv::BuiltInPatchVertices:
+    case spv::BuiltInSampleId:
+    case spv::BuiltInSamplePosition:
+    case spv::BuiltInSampleMask:
+    case spv::BuiltInHelperInvocation:
+    case spv::BuiltInNumWorkgroups:
+    case spv::BuiltInWorkgroupSize:
+    case spv::BuiltInWorkgroupId:
+    case spv::BuiltInLocalInvocationId:
+    case spv::BuiltInGlobalInvocationId:
+    case spv::BuiltInLocalInvocationIndex:
+    case spv::BuiltInWorkDim:
+    case spv::BuiltInGlobalSize:
+    case spv::BuiltInEnqueuedWorkgroupSize:
+    case spv::BuiltInGlobalOffset:
+    case spv::BuiltInGlobalLinearId:
+    case spv::BuiltInWorkgroupLinearId:
+    case spv::BuiltInSubgroupSize:
+    case spv::BuiltInSubgroupMaxSize:
+    case spv::BuiltInNumSubgroups:
+    case spv::BuiltInNumEnqueuedSubgroups:
+    case spv::BuiltInSubgroupId:
+    case spv::BuiltInSubgroupLocalInvocationId:
     default:
+        //gla::UnsupportedFunctionality("metadata qualifier", commonMap[resultId].metaType.builtIn, gla::EATContinue);
+
+    case BadValue:
         switch (commonMap[resultId].storageClass) {
-        case spv::StorageClassInput:           mdQualifier = gla::EMioPipeIn;         break;
-        case spv::StorageClassOutput:          mdQualifier = gla::EMioPipeOut;        break;
-        case spv::StorageClassUniformConstant: mdQualifier = gla::EMioDefaultUniform; break;  // TODO: verify 1:1 connection between ConstantUniform and DefaultUniform (or, that latter might not exist)
+        case spv::StorageClassUniformConstant: mdQualifier = gla::EMioDefaultUniform;     break;
+        case spv::StorageClassInput:           mdQualifier = gla::EMioPipeIn;             break;
+        case spv::StorageClassUniform:         mdQualifier = gla::EMioUniformBlockMember; break;
+        case spv::StorageClassOutput:          mdQualifier = gla::EMioPipeOut;            break;
         default:
-            gla::UnsupportedFunctionality("metadata qualifier");
+            gla::UnsupportedFunctionality("metadata storage class", commonMap[resultId].storageClass, gla::EATContinue);
             break;
         }
     }

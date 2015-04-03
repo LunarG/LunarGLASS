@@ -2632,7 +2632,7 @@ void gla::GlslTarget::mapPointerExpression(const llvm::Value* ptr, const llvm::V
             if (gepInst && ! getExpressionString(gepInst->getOperand(0), expression))
                 UnsupportedFunctionality("GLSL back end gep missing value->string mapping", 0, expression.c_str(), EATContinue);
         } else {
-            UnsupportedFunctionality("missing metadata for makePointerExpression", 0, name.str().c_str());
+            UnsupportedFunctionality("missing metadata for makePointerExpression", MapGlaAddressSpace(ptr), name.str().c_str());
         }
     }
 
