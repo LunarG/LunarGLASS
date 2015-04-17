@@ -1785,7 +1785,10 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
         }
         break;
     case spv::OpReturn:
-        glaBuilder->makeReturn();
+        if (inEntryPoint())
+            glaBuilder->makeMainReturn();
+        else
+            glaBuilder->makeReturn();
         break;
     case spv::OpReturnValue:
         glaBuilder->makeReturn(false, commonMap[spirv[word++]].value);
