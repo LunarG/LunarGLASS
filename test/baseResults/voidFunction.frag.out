@@ -12,6 +12,9 @@ define fastcc void @main() {
 entry:
   %outColor = alloca <4 x float>
   store float 2.000000e+00, float* @bar
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %outColor1 = load <4 x float> addrspace(2)* @bigColor, !gla.uniform !1
   store <4 x float> %outColor1, <4 x float>* %outColor
   call void @"foo("()
@@ -30,7 +33,7 @@ entry:
 post-return:                                      ; No predecessors!
   unreachable
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

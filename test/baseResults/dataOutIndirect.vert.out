@@ -10,10 +10,13 @@ Top IR:
 define fastcc void @main() {
 entry:
   %i = alloca i32
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   store i32 1, i32* %i
   br label %loop-header
 
-loop-header:                                      ; preds = %post-loop-continue, %ifmerge, %entry
+loop-header:                                      ; preds = %post-loop-continue, %ifmerge, %mainBody
   %0 = load i32* %i
   %1 = icmp slt i32 %0, 5
   %2 = xor i1 %1, true

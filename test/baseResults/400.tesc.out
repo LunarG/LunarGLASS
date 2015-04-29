@@ -30,6 +30,9 @@ entry:
   %ps = alloca float
   %p = alloca <4 x float>
   %a = alloca i32
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   call void @llvm.gla.barrier()
   store i32 5392, i32* %a
   %p1 = load <4 x float>* getelementptr inbounds ([32 x %gl_PerVertex]* @gl_in, i32 0, i32 1, i32 0)
@@ -54,7 +57,7 @@ entry:
   store float 0x3FF4CCCCC0000000, float* getelementptr inbounds ([2 x float]* @gl_TessLevelInner, i32 0, i32 1)
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

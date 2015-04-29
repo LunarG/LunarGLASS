@@ -54,11 +54,14 @@ Top IR:
 define fastcc void @main() {
 entry:
   %color = alloca <4 x float>
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %color1 = load <4 x float>* @BaseColor
   store <4 x float> %color1, <4 x float>* %color
   br label %loop-header
 
-loop-header:                                      ; preds = %post-loop-continue13, %ifmerge12, %then4, %entry
+loop-header:                                      ; preds = %post-loop-continue13, %ifmerge12, %then4, %mainBody
   %0 = load <4 x float> addrspace(2)* @bigColor4, !gla.uniform !3
   %1 = load <4 x float>* %color
   %color2 = fadd <4 x float> %1, %0

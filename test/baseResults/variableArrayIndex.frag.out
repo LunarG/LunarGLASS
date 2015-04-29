@@ -22,13 +22,16 @@ entry:
   %constructed = alloca [3 x <2 x float>]
   %scale = alloca float
   %iLocal = alloca i32
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %iLocal1 = load i32 addrspace(2)* @Count, !gla.uniform !1
   store i32 %iLocal1, i32* %iLocal
   %0 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 1, i32 0), !gla.uniform !3
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %2 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct1 addrspace(2)* @foo, i32 0, i32 0), !gla.uniform !10
   %3 = getelementptr %lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 %2, i32 0
   %4 = load i32 addrspace(2)* %3, !gla.uniform !3
@@ -42,7 +45,7 @@ then:                                             ; preds = %entry
   store float %scale3, float* %scale
   br label %ifmerge
 
-else:                                             ; preds = %entry
+else:                                             ; preds = %mainBody
   %scale4 = load float addrspace(2)* getelementptr inbounds (%lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 0, i32 2, i32 1), !gla.uniform !3
   store float %scale4, float* %scale
   br label %ifmerge

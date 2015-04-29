@@ -8,24 +8,27 @@ Top IR:
 @uniform_low = external addrspace(2) constant i32
 @lowfin = global float 0.000000e+00
 @mediumfin = global float 0.000000e+00
+@global_highp = internal global float 0.000000e+00
 @mediumfout = global <4 x float> zeroinitializer
 @ub2 = external addrspace(2) constant <2 x i1>
 
 define fastcc void @main() {
 entry:
   %param = alloca <2 x i1>
-  %mediumfout15 = alloca <4 x float>
-  %sum13 = alloca <2 x i32>
+  %mediumfout14 = alloca <4 x float>
   %sum12 = alloca <2 x i32>
   %sum11 = alloca <2 x i32>
-  %mediumfout9 = alloca <4 x float>
-  %local_highp7 = alloca <4 x float>
+  %sum10 = alloca <2 x i32>
+  %mediumfout8 = alloca <4 x float>
+  %local_highp6 = alloca <4 x float>
   %local_highp = alloca <4 x float>
-  %global_highp = alloca float
   %d = alloca float
   %arg2 = alloca float
   %arg1 = alloca float
   %sum = alloca i32
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %0 = load i32 addrspace(2)* @uniform_medium, !gla.uniform !7
   %1 = load i32 addrspace(2)* @uniform_high, !gla.uniform !9
   %sum1 = add i32 %0, %1, !gla.precision !17
@@ -45,18 +48,18 @@ entry:
   %d5 = call float @llvm.gla.fDistance.f32.f32.f32(float %6, float %7), !gla.precision !19
   store float %d5, float* %d
   %8 = load <4 x float>* @highfin
-  %global_highp6 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %8), !gla.precision !17
-  store float %global_highp6, float* %global_highp
-  %9 = load float* %global_highp
-  %10 = load <4 x float>* %local_highp7
+  %global_highp = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %8), !gla.precision !17
+  store float %global_highp, float* @global_highp
+  %9 = load float* @global_highp
+  %10 = load <4 x float>* %local_highp6
   %11 = insertelement <4 x float> undef, float %9, i32 0, !gla.precision !17
   %12 = insertelement <4 x float> %11, float %9, i32 1, !gla.precision !17
   %13 = insertelement <4 x float> %12, float %9, i32 2, !gla.precision !17
-  %local_highp8 = insertelement <4 x float> %13, float %9, i32 3, !gla.precision !17
-  store <4 x float> %local_highp8, <4 x float>* %local_highp
+  %local_highp7 = insertelement <4 x float> %13, float %9, i32 3, !gla.precision !17
+  store <4 x float> %local_highp7, <4 x float>* %local_highp
   %14 = load float* %d
   %mediumfout = call float @llvm.gla.fSin.f32.f32(float %14), !gla.precision !18
-  %15 = load <4 x float>* %mediumfout9
+  %15 = load <4 x float>* %mediumfout8
   %16 = insertelement <4 x float> undef, float %mediumfout, i32 0, !gla.precision !19
   %17 = insertelement <4 x float> %16, float %mediumfout, i32 1, !gla.precision !19
   %18 = insertelement <4 x float> %17, float %mediumfout, i32 2, !gla.precision !19
@@ -68,49 +71,49 @@ entry:
   %24 = insertelement <4 x float> %23, float %20, i32 3, !gla.precision !19
   %25 = fadd <4 x float> %19, %24, !gla.precision !19
   %26 = load <4 x float>* %local_highp
-  %mediumfout10 = fadd <4 x float> %25, %26, !gla.precision !17
-  store <4 x float> %mediumfout10, <4 x float>* @mediumfout
+  %mediumfout9 = fadd <4 x float> %25, %26, !gla.precision !17
+  store <4 x float> %mediumfout9, <4 x float>* @mediumfout
   %27 = load i32 addrspace(2)* @uniform_low, !gla.uniform !11
-  %28 = load <2 x i32>* %sum11
+  %28 = load <2 x i32>* %sum10
   %29 = insertelement <2 x i32> undef, i32 %27, i32 0, !gla.precision !18
   %30 = insertelement <2 x i32> %29, i32 %27, i32 1, !gla.precision !18
   %31 = load i32 addrspace(2)* @uniform_high, !gla.uniform !9
-  %32 = load <2 x i32>* %sum12
+  %32 = load <2 x i32>* %sum11
   %33 = insertelement <2 x i32> undef, i32 %31, i32 0, !gla.precision !18
   %34 = insertelement <2 x i32> %33, i32 %31, i32 1, !gla.precision !18
   %35 = mul <2 x i32> %30, %34, !gla.precision !18
   %36 = load i32 addrspace(2)* @uniform_high, !gla.uniform !9
-  %37 = load <2 x i32>* %sum13
+  %37 = load <2 x i32>* %sum12
   %38 = insertelement <2 x i32> undef, i32 %36, i32 0, !gla.precision !18
   %39 = insertelement <2 x i32> %38, i32 %36, i32 1, !gla.precision !18
   %40 = add <2 x i32> %35, %39, !gla.precision !18
   %41 = extractelement <2 x i32> %40, i32 0, !gla.precision !18
   %42 = add i32 4, %41, !gla.precision !18
   %43 = load i32* %sum
-  %sum14 = add i32 %43, %42, !gla.precision !18
-  store i32 %sum14, i32* %sum
+  %sum13 = add i32 %43, %42, !gla.precision !18
+  store i32 %sum13, i32* %sum
   %44 = load i32* %sum
   %45 = sitofp i32 %44 to float, !gla.precision !19
-  %46 = load <4 x float>* %mediumfout15
+  %46 = load <4 x float>* %mediumfout14
   %47 = insertelement <4 x float> undef, float %45, i32 0, !gla.precision !19
   %48 = insertelement <4 x float> %47, float %45, i32 1, !gla.precision !19
   %49 = insertelement <4 x float> %48, float %45, i32 2, !gla.precision !19
   %50 = insertelement <4 x float> %49, float %45, i32 3, !gla.precision !19
   %51 = load <4 x float>* @mediumfout
-  %mediumfout16 = fadd <4 x float> %51, %50, !gla.precision !19
-  store <4 x float> %mediumfout16, <4 x float>* @mediumfout
-  %param17 = load <2 x i1> addrspace(2)* @ub2, !gla.uniform !13
-  store <2 x i1> %param17, <2 x i1>* %param
+  %mediumfout15 = fadd <4 x float> %51, %50, !gla.precision !19
+  store <4 x float> %mediumfout15, <4 x float>* @mediumfout
+  %param16 = load <2 x i1> addrspace(2)* @ub2, !gla.uniform !13
+  store <2 x i1> %param16, <2 x i1>* %param
   %52 = call i1 @"boolfun(vb2;"(<2 x i1>* %param)
   br i1 %52, label %then, label %ifmerge
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %53 = load <4 x float>* @mediumfout
-  %mediumfout18 = fadd <4 x float> %53, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !gla.precision !19
-  store <4 x float> %mediumfout18, <4 x float>* @mediumfout
+  %mediumfout17 = fadd <4 x float> %53, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !gla.precision !19
+  store <4 x float> %mediumfout17, <4 x float>* @mediumfout
   br label %ifmerge
 
-ifmerge:                                          ; preds = %entry, %then
+ifmerge:                                          ; preds = %mainBody, %then
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge
@@ -209,32 +212,32 @@ entry:
   %4 = load float* @mediumfin, align 4
   %d5 = call float @llvm.gla.fDistance.f32.f32.f32(float %3, float %4), !gla.precision !17
   %5 = load <4 x float>* @highfin, align 16
-  %global_highp6 = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %5), !gla.precision !18
-  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %global_highp6, <4 x i32> zeroinitializer)
+  %global_highp = call float @llvm.gla.fLength.f32.v4f32(<4 x float> %5), !gla.precision !18
+  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %global_highp, <4 x i32> zeroinitializer)
   %mediumfout = call float @llvm.gla.fSin.f32.f32(float %d5), !gla.precision !19
   %7 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %mediumfout, <4 x i32> zeroinitializer)
   %8 = fadd <4 x float> %7, <float 0x412F3F4860000000, float 0x412F3F4860000000, float 0x412F3F4860000000, float 0x412F3F4860000000>, !gla.precision !17
-  %mediumfout10 = fadd <4 x float> %6, %8, !gla.precision !18
-  store <4 x float> %mediumfout10, <4 x float>* @mediumfout, align 16
+  %mediumfout9 = fadd <4 x float> %6, %8, !gla.precision !18
+  store <4 x float> %mediumfout9, <4 x float>* @mediumfout, align 16
   %.lhs = mul i32 %1, %2
   %factor = shl i32 %1, 1
   %9 = add i32 %0, 4, !gla.precision !19
   %sum1 = add i32 %9, %2, !gla.precision !18
   %sum2 = add i32 %sum1, %1, !gla.precision !18
   %sum3 = add i32 %sum2, %.lhs, !gla.precision !19
-  %sum14 = add i32 %sum3, %factor, !gla.precision !19
-  %10 = sitofp i32 %sum14 to float, !gla.precision !17
+  %sum13 = add i32 %sum3, %factor, !gla.precision !19
+  %10 = sitofp i32 %sum13 to float, !gla.precision !17
   %11 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %10, <4 x i32> zeroinitializer)
-  %mediumfout16 = fadd <4 x float> %mediumfout10, %11, !gla.precision !17
-  store <4 x float> %mediumfout16, <4 x float>* @mediumfout, align 16
-  %param17 = load <2 x i1> addrspace(2)* @ub2, align 2, !gla.uniform !13
-  %12 = icmp eq <2 x i1> %param17, <i1 false, i1 true>
+  %mediumfout15 = fadd <4 x float> %mediumfout9, %11, !gla.precision !17
+  store <4 x float> %mediumfout15, <4 x float>* @mediumfout, align 16
+  %param16 = load <2 x i1> addrspace(2)* @ub2, align 2, !gla.uniform !13
+  %12 = icmp eq <2 x i1> %param16, <i1 false, i1 true>
   %cc.i = call i1 @llvm.gla.all.v2i1(<2 x i1> %12)
   br i1 %cc.i, label %then, label %ifmerge
 
 then:                                             ; preds = %entry
-  %mediumfout18 = fadd <4 x float> %mediumfout16, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !gla.precision !17
-  store <4 x float> %mediumfout18, <4 x float>* @mediumfout, align 16
+  %mediumfout17 = fadd <4 x float> %mediumfout15, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !gla.precision !17
+  store <4 x float> %mediumfout17, <4 x float>* @mediumfout, align 16
   br label %ifmerge
 
 ifmerge:                                          ; preds = %entry, %then

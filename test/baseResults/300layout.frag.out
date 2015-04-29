@@ -12,6 +12,9 @@ Top IR:
 
 define fastcc void @main() {
 entry:
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %0 = load <3 x float>* @color
   %1 = load <3 x float>* getelementptr inbounds (%S* @s, i32 0, i32 0)
   %c = fadd <3 x float> %0, %1, !gla.precision !15
@@ -26,7 +29,7 @@ entry:
   store <4 x float> %8, <4 x float>* getelementptr inbounds ([2 x <4 x float>]* @p, i32 0, i32 1)
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

@@ -27,6 +27,9 @@ entry:
   %a2 = alloca %s1
   %a1 = alloca %s1
   %a = alloca [3 x %s1]
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %0 = load <4 x float>* @u
   %1 = extractelement <4 x float> %0, i32 0
   %2 = fptosi float %1 to i32
@@ -106,14 +109,14 @@ entry:
   %48 = and i1 %44, %47
   br i1 %48, label %then, label %else
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %49 = load i32 addrspace(1)* @sampler, !gla.uniform !14
   %50 = load <2 x float>* @coord
   %v18 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %49, i32 0, <2 x float> %50)
   store <4 x float> %v18, <4 x float>* %v
   br label %ifmerge
 
-else:                                             ; preds = %entry
+else:                                             ; preds = %mainBody
   %51 = load i32 addrspace(1)* @sampler, !gla.uniform !14
   %52 = load <2 x float>* @coord
   %53 = fmul <2 x float> <float 2.000000e+00, float 2.000000e+00>, %52

@@ -15,6 +15,9 @@ entry:
   %param4 = alloca [3 x <3 x float>]
   %param1 = alloca <3 x float>
   %param = alloca [4 x <4 x float>]
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %param2 = load [4 x <4 x float>] addrspace(2)* @m4, !gla.uniform !3
   store [4 x <4 x float>] %param2, [4 x <4 x float>]* %param
   %param13 = load <3 x float>* @v3
@@ -37,7 +40,7 @@ entry:
   store <4 x float> %gl_Position8, <4 x float>* @gl_Position
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

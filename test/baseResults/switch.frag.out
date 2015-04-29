@@ -20,6 +20,9 @@ entry:
   %i = alloca i32
   %f = alloca float
   %local = alloca i32
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %local1 = load i32 addrspace(2)* @c, !gla.uniform !1
   store i32 %local1, i32* %local
   %0 = load i32* %local
@@ -31,19 +34,19 @@ entry:
     i32 2, label %switch-segment3
   ]
 
-switch-segment:                                   ; preds = %entry
+switch-segment:                                   ; preds = %mainBody
   %2 = load float* @x
   %f6 = call float @llvm.gla.fSin.f32.f32(float %2), !gla.precision !9
   store float %f6, float* %f
   br label %switch-merge
 
-switch-segment3:                                  ; preds = %entry
+switch-segment3:                                  ; preds = %mainBody
   %3 = load float* @x
   %f8 = call float @llvm.gla.fCos.f32.f32(float %3), !gla.precision !9
   store float %f8, float* %f
   br label %switch-merge
 
-switch-segment4:                                  ; preds = %entry
+switch-segment4:                                  ; preds = %mainBody
   %4 = load float* @x
   %f10 = call float @llvm.gla.fTan.f32.f32(float %4), !gla.precision !9
   store float %f10, float* %f

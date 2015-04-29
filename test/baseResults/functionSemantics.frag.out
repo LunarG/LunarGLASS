@@ -27,6 +27,9 @@ entry:
   %color = alloca i32
   %f = alloca %s
   %t = alloca i32
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   store i32 2, i32* %t
   %0 = getelementptr %s* %f, i32 0, i32 0
   %1 = load <4 x i32>* %0
@@ -94,7 +97,7 @@ entry:
   store <4 x float> %gl_FragColor19, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

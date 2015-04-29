@@ -34,6 +34,9 @@ entry:
   %ps = alloca float
   %p = alloca <4 x float>
   %a = alloca i32
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   store i32 1512, i32* %a
   %p1 = load <4 x float>* getelementptr inbounds ([32 x %gl_PerVertex]* @gl_in, i32 0, i32 1, i32 0)
   store <4 x float> %p1, <4 x float>* %p
@@ -59,7 +62,7 @@ entry:
   store float %2, float* getelementptr inbounds (%gl_PerVertex.0* @"anon@0", i32 0, i32 2, i32 2)
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

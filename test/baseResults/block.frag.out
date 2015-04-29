@@ -179,9 +179,9 @@ void main()
 {
     mediump ivec4 temp21 = texture(s.sampler, bw);
     mediump vec4 temp22 = vec4(temp21);
-    mediump vec4 temp23 = inst[3].nbu + temp22;
-    mediump vec4 color_shadow_c1 = bu + temp23;
-    color = color_shadow_c1;
+    mediump vec4 temp23 = temp22 + inst[3].nbu;
+    mediump vec4 color_shadow = temp23 + bu;
+    color = color_shadow;
     
 }
 
@@ -217,11 +217,11 @@ out mediump vec4 color;
 
 void main()
 {
-    mediump ivec4 temp_c1 = texture(s.sampler, bw);
-    mediump vec4 temp_c2 = vec4(temp_c1);
-    mediump vec4 temp_c3 = inst[3].nbu + temp_c2;
-    mediump vec4 color_shadow_c4 = bu + temp_c3;
-    color = color_shadow_c4;
+    mediump ivec4 temp211 = texture(s.sampler, bw);
+    mediump vec4 temp222 = vec4(temp211);
+    mediump vec4 temp233 = temp222 + inst[3].nbu;
+    mediump vec4 color_shadow4 = temp233 + bu;
+    color = color_shadow4;
     
 }
 

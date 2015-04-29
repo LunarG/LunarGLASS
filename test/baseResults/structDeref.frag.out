@@ -30,11 +30,14 @@ entry:
   %locals1Array = alloca [10 x %s1]
   %fArray = alloca [6 x float]
   %locals2 = alloca %s2
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %0 = load i32 addrspace(2)* getelementptr inbounds (%s3 addrspace(2)* @foo3, i32 0, i32 0, i32 9, i32 0), !gla.uniform !1
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %2 = getelementptr %s2* %locals2, i32 0, i32 1
   store float 1.000000e+00, float* %2
   %3 = load %s1* @locals2
@@ -51,7 +54,7 @@ then:                                             ; preds = %entry
   store %s00 %locals003, %s00* %locals00
   br label %ifmerge
 
-else:                                             ; preds = %entry
+else:                                             ; preds = %mainBody
   %7 = load <2 x float>* @coord
   %8 = extractelement <2 x float> %7, i32 0
   %9 = getelementptr %s2* %locals2, i32 0, i32 1
@@ -345,17 +348,17 @@ const int C_5 = 5;
 void main()
 {
 	bool H_vyfm0e = foo3.s2_1[9].i > C_0;
-	float H_12fnic1 = H_vyfm0e ? C_0d0 : C_3d0;
-	int select = H_vyfm0e ? C_0 : foo1.s0_1.i;
-	int select1 = H_vyfm0e ? C_0 : foo00.s0_0.i;
-	float select2 = H_vyfm0e ? C_1d0 : coord.y;
-	float select3 = H_vyfm0e ? foo1.f : coord.y;
-	bool H_f9qvxm = select > C_5;
-	int select4 = H_f9qvxm ? select1 : select;
-	float H_yk9xn = float(select4);
-	float H_oauueo = H_yk9xn + select3;
-	float H_x6igl = H_12fnic1 + H_oauueo;
-	float H_pen9sm = H_x6igl + select2;
+	float select = H_vyfm0e ? C_0d0 : C_3d0;
+	int select1 = H_vyfm0e ? C_0 : foo1.s0_1.i;
+	int select2 = H_vyfm0e ? C_0 : foo00.s0_0.i;
+	float select3 = H_vyfm0e ? C_1d0 : coord.y;
+	float select4 = H_vyfm0e ? foo1.f : coord.y;
+	bool H_f9qvxm = select1 > C_5;
+	int select5 = H_f9qvxm ? select2 : select1;
+	float H_yk9xn = float(select5);
+	float H_oauueo = H_yk9xn + select4;
+	float H_x6igl = H_oauueo + select;
+	float H_pen9sm = H_x6igl + select3;
 	vec4 H_hgchnx = vec4(H_pen9sm);
 	vec4 Ll_FragColor = texture(sampler, coord);
 	vec4 Ll_FragColor1 = H_hgchnx * Ll_FragColor;

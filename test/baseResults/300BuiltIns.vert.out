@@ -177,10 +177,10 @@ void main()
     vec4 temp25 = vec4(ps);
     highp float temp26 = float(temp23);
     vec4 temp27 = vec4(temp26);
-    highp float PointSize_shadow_c1 = ps * temp26;
-    highp vec4 Position_shadow_c2 = temp25 * temp27;
-    gl_Position = Position_shadow_c2;
-    gl_PointSize = PointSize_shadow_c1;
+    highp float PointSize_shadow6 = ps * temp26;
+    highp vec4 Position_shadow4 = temp25 * temp27;
+    gl_Position = Position_shadow4;
+    gl_PointSize = PointSize_shadow6;
     
 }
 
@@ -193,15 +193,15 @@ const highp int const24i_u10 = -10;
 invariant gl_Position ;
 void main()
 {
-    int temp_c1 = gl_VertexID << const22i_2;
-    highp int temp_c2 = temp_c1 + const24i_u10;
+    int temp211 = gl_VertexID << const22i_2;
+    highp int temp232 = temp211 + const24i_u10;
     vec4 temp25 = vec4(ps);
-    highp float temp_c3 = float(temp_c2);
-    vec4 temp27 = vec4(temp_c3);
-    highp vec4 Position_shadow_c4 = temp25 * temp27;
-    highp float PointSize_shadow_c5 = ps * temp_c3;
-    gl_Position = Position_shadow_c4;
-    gl_PointSize = PointSize_shadow_c5;
+    highp float temp264 = float(temp232);
+    vec4 temp27 = vec4(temp264);
+    highp vec4 Position_shadow49 = temp25 * temp27;
+    highp float PointSize_shadow68 = ps * temp264;
+    gl_Position = Position_shadow49;
+    gl_PointSize = PointSize_shadow68;
     
 }
 

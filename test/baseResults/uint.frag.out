@@ -28,6 +28,9 @@ entry:
   %shiftedii = alloca i32
   %u = alloca i32
   %count = alloca i32
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   store i32 1, i32* %count
   %0 = load <2 x i32>* @t
   %1 = extractelement <2 x i32> %0, i32 1, !gla.precision !18
@@ -35,13 +38,13 @@ entry:
   store i32 %u1, i32* %u
   br i1 true, label %then, label %ifmerge
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %2 = load i32* %count
   %count2 = mul i32 %2, 2, !gla.precision !18
   store i32 %count2, i32* %count
   br label %ifmerge
 
-ifmerge:                                          ; preds = %entry, %then
+ifmerge:                                          ; preds = %mainBody, %then
   br i1 true, label %then3, label %ifmerge5
 
 then3:                                            ; preds = %ifmerge

@@ -20,6 +20,9 @@ define fastcc void @main() {
 entry:
   %ioutp8 = alloca <2 x i32>
   %v = alloca <4 x float>
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %0 = load i32* @i
   %1 = getelementptr [5 x i32] addrspace(1)* @arrayedSampler, i32 0, i32 %0
   %2 = load i32 addrspace(1)* %1, !gla.uniform !9
@@ -86,7 +89,7 @@ entry:
   call void @"foo23("()
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

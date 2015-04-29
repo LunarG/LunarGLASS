@@ -20,6 +20,9 @@ entry:
   %b = alloca i1
   %i = alloca i32
   %v = alloca <4 x float>
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %0 = load <4 x float> addrspace(2)* @uv4, !gla.uniform !1
   %v2 = call <4 x float> @llvm.gla.fRadians.v4f32.v4f32(<4 x float> %0)
   store <4 x float> %v2, <4 x float>* %v
@@ -348,13 +351,13 @@ entry:
   %168 = or i1 %157, %167
   br i1 %168, label %then, label %ifmerge
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %169 = load i32* %i
   %i105 = add i32 %169, 1
   store i32 %i105, i32* %i
   br label %ifmerge
 
-ifmerge:                                          ; preds = %entry, %then
+ifmerge:                                          ; preds = %mainBody, %then
   %170 = load float addrspace(2)* @uf, !gla.uniform !4
   %171 = load float addrspace(2)* @uf, !gla.uniform !4
   %172 = fadd float %170, %171
@@ -790,7 +793,7 @@ entry:
   %i104 = srem i32 %i103, %3
   %22 = icmp eq i32 %i104, 2
   %i105 = add i32 %i104, 1
-  %.i105 = select i1 %22, i32 0, i32 %i105
+  %i.0 = select i1 %22, i32 0, i32 %i105
   %23 = fadd float %8, %8
   %24 = fmul float %8, %23
   %25 = fsub float %24, %8
@@ -810,10 +813,10 @@ entry:
   %31 = and i1 %29, %30
   %32 = or i1 %28, %31
   %f117 = fadd float %f115, 1.000000e+00
-  %select134 = select i1 %32, float %f117, float %f115
-  %33 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select134, <4 x i32> zeroinitializer)
+  %select = select i1 %32, float %f117, float %f115
+  %33 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %select, <4 x i32> zeroinitializer)
   %34 = load i32 addrspace(2)* @ui, align 4, !gla.uniform !3
-  %i119 = and i32 %34, %.i105
+  %i119 = and i32 %34, %i.0
   %i120 = or i32 %i119, 66
   %i121 = xor i32 %i120, %34
   %i122 = srem i32 %i121, 17
@@ -824,8 +827,8 @@ entry:
   %36 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %35, <4 x i32> zeroinitializer)
   %37 = fadd <4 x float> %36, %33
   %gl_FragColor130 = fadd <4 x float> %v84, %37
-  %select = select i1 %b102, <4 x float> %v84, <4 x float> %gl_FragColor130
-  store <4 x float> %select, <4 x float>* @gl_FragColor, align 16
+  %select134 = select i1 %b102, <4 x float> %v84, <4 x float> %gl_FragColor130
+  store <4 x float> %select134, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -1132,7 +1135,7 @@ void main()
 	int H_xtc1vg = H_rq4ows % ui;
 	bool H_ry3ksp = H_xtc1vg == C_2;
 	int H_3j3nrk1 = H_xtc1vg + C_1;
-	int _L = H_ry3ksp ? C_0 : H_3j3nrk1;
+	int i = H_ry3ksp ? C_0 : H_3j3nrk1;
 	float H_6ra9oe1 = uf + uf;
 	float H_eccx591 = H_6ra9oe1 * uf;
 	float H_my73qz = H_eccx591 - uf;
@@ -1153,17 +1156,17 @@ void main()
 	float H_94a7zi1 = H_yu4764 + C_1d0;
 	float select = H_247rn71 ? H_94a7zi1 : H_yu4764;
 	vec4 H_c1z5nn = vec4(select);
-	int H_sigq8q1 = ui & _L;
-	int H_s9dupe1 = H_sigq8q1 | C_66;
-	int H_dz351k1 = H_s9dupe1 ^ ui;
-	int H_8w7dri1 = H_dz351k1 % C_17;
-	int H_qlaxc41 = H_8w7dri1 >> C_2;
-	int H_sf9rny = H_qlaxc41 << ui;
-	int H_8iiwvi1 = ~(H_sf9rny);
-	float H_yrfrlx1 = float(H_8iiwvi1);
-	vec4 H_x2iwni1 = vec4(H_yrfrlx1);
-	vec4 H_hfe3lx = H_c1z5nn + H_x2iwni1;
-	vec4 Ll_FragColor1 = H_fzc38q1 + H_hfe3lx;
+	int H_iwjrvc = ui & i;
+	int H_brcqof1 = H_iwjrvc | C_66;
+	int H_ozajq51 = H_brcqof1 ^ ui;
+	int H_6x4gkf = H_ozajq51 % C_17;
+	int H_mygnv21 = H_6x4gkf >> C_2;
+	int H_whzp2y = H_mygnv21 << ui;
+	int H_xchq5p1 = ~(H_whzp2y);
+	float H_j39eme = float(H_xchq5p1);
+	vec4 H_6aul5g1 = vec4(H_j39eme);
+	vec4 H_275ba71 = H_6aul5g1 + H_c1z5nn;
+	vec4 Ll_FragColor1 = H_275ba71 + H_fzc38q1;
 	vec4 select1 = H_3ewbjk ? H_fzc38q1 : Ll_FragColor1;
 	gl_FragColor = select1;
 	
@@ -1307,7 +1310,7 @@ void main()
 	int H_xtc1vg = H_rq4ows % ui;
 	bool H_ry3ksp = H_xtc1vg == C_2;
 	int H_3j3nrk = H_xtc1vg + C_1;
-	int _L = H_ry3ksp ? C_0 : H_3j3nrk;
+	int H_pmd3po1 = H_ry3ksp ? C_0 : H_3j3nrk;
 	float H_6ra9oe = uf + uf;
 	float H_eccx = H_6ra9oe * uf;
 	float H_my73qz = H_eccx - uf;
@@ -1328,17 +1331,17 @@ void main()
 	float H_94a7zi = H_yu + C_1d0;
 	float select = H_247rn ? H_94a7zi : H_yu;
 	vec4 H_c1z5nn = vec4(select);
-	int H_sigq8q = ui & _L;
-	int H_s9dupe = H_sigq8q | C_66;
-	int H_dz351k = H_s9dupe ^ ui;
-	int H_8w7dri = H_dz351k % C_17;
-	int H_qlaxc = H_8w7dri >> C_2;
-	int H_sf9rny = H_qlaxc << ui;
-	int H_8iiwvi = ~(H_sf9rny);
-	float H_yrfrlx = float(H_8iiwvi);
-	vec4 H_upvu3e = vec4(H_yrfrlx);
-	vec4 H_hfe3lx = H_c1z5nn + H_upvu3e;
-	vec4 Ll_FragColor = H_fzc38q + H_hfe3lx;
+	int H_iwjrvc = ui & H_pmd3po1;
+	int H_brcqof = H_iwjrvc | C_66;
+	int H_ozajq = H_brcqof ^ ui;
+	int H_6x4gkf = H_ozajq % C_17;
+	int H_mygnv = H_6x4gkf >> C_2;
+	int H_whzp2y = H_mygnv << ui;
+	int H_xchq5p = ~(H_whzp2y);
+	float H_j39eme = float(H_xchq5p);
+	vec4 H_6aul5g1 = vec4(H_j39eme);
+	vec4 H_275ba = H_6aul5g1 + H_c1z5nn;
+	vec4 Ll_FragColor = H_275ba + H_fzc38q;
 	vec4 select1 = H_3ewbjk ? H_fzc38q : Ll_FragColor;
 	gl_FragColor = select1;
 	

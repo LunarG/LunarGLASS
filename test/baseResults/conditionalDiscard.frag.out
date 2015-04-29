@@ -9,6 +9,9 @@ Top IR:
 define fastcc void @main() {
 entry:
   %v = alloca <4 x float>
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %0 = load i32 addrspace(1)* @tex, !gla.uniform !1
   %1 = load <2 x float>* @coord
   %v2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1)
@@ -18,14 +21,14 @@ entry:
   %cc = call i1 @llvm.gla.all.v4i1(<4 x i1> %3)
   br i1 %cc, label %then, label %ifmerge
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
   br label %ifmerge
 
-ifmerge:                                          ; preds = %entry, %post-discard
+ifmerge:                                          ; preds = %mainBody, %post-discard
   %gl_FragColor = load <4 x float>* %v
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue

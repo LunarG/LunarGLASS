@@ -25,13 +25,16 @@ entry:
   %localIArray = alloca [8 x i32]
   %localFArray = alloca [16 x float]
   %locals2 = alloca %s2
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %locals21 = load %s2 addrspace(2)* getelementptr inbounds (%s3 addrspace(2)* @foo3, i32 0, i32 0), !gla.uniform !1
   store %s2 %locals21, %s2* %locals2
   %0 = load i32 addrspace(2)* getelementptr inbounds (%s3 addrspace(2)* @foo3, i32 0, i32 0, i32 0), !gla.uniform !1
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %2 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
   store float 1.000000e+00, float* %2
   %3 = load <2 x float>* @coord
@@ -43,7 +46,7 @@ then:                                             ; preds = %entry
   store i32 %6, i32* %7
   br label %ifmerge
 
-else:                                             ; preds = %entry
+else:                                             ; preds = %mainBody
   %8 = load <2 x float>* @coord
   %9 = extractelement <2 x float> %8, i32 0
   %10 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1

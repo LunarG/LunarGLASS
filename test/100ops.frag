@@ -4,7 +4,7 @@ lowp float foo();
 
 uniform int low, high;
 
-lowp float face1 = gl_FrontFacing ? -1.0 : 1.0;
+lowp float face1 = 11.0;
 
 void main()
 {
@@ -16,11 +16,10 @@ void main()
     gl_FragColor = face1 * vec4(z) + foo();
 }
 
-// TODO: this doesn't work yet
-//lowp float face2 = gl_FrontFacing ? -1.0 : 1.0;
-//
-//lowp float foo()
-//{
-//    // just testing if face2 insert it's logic correctly in main
-//    return face2;
-//}
+lowp float face2 = -2.0;
+
+lowp float foo()
+{
+    // testing if face2 initializer insert logic is correct in main
+    return face2;
+}

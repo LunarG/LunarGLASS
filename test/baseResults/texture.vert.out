@@ -313,29 +313,29 @@ void main()
     vec4 temp21 = textureProjLod(texSampler1D, coords2D, const22);
     vec4 temp23 = textureLod(texSampler1D, const24, const22);
     vec4 temp25 = textureProjLod(texSampler1D, const26, const22);
-    vec4 color_c1 = temp21 + temp23;
+    vec4 color2 = temp21 + temp23;
     vec4 temp28 = textureLod(texSampler2D, coords2D, const22);
-    vec4 color_c2 = color_c1 + temp25;
+    vec4 color3 = color2 + temp25;
     vec4 temp30 = textureProjLod(texSampler2D, const31, const22);
-    vec4 color_c3 = color_c2 + temp28;
+    vec4 color5 = color3 + temp28;
     vec4 temp33 = textureProjLod(texSampler2D, const26, const22);
-    vec4 color_c4 = color_c3 + temp30;
+    vec4 color6 = color5 + temp30;
     vec4 temp35 = textureLod(texSampler3D, const31, const22);
-    vec4 color_c5 = color_c4 + temp33;
+    vec4 color7 = color6 + temp33;
     vec4 temp37 = textureProjLod(texSampler3D, const26, const22);
-    vec4 color_c6 = color_c5 + temp35;
+    vec4 color8 = color7 + temp35;
     vec4 temp39 = textureLod(texSamplerCube, const31, const22);
-    vec4 color_c7 = color_c6 + temp37;
+    vec4 color9 = color8 + temp37;
     vec4 temp41 = shadow1DLod(shadowSampler1D, const31, const22);
-    vec4 color_c8 = color_c7 + temp39;
+    vec4 color10 = color9 + temp39;
     vec4 temp43 = shadow2DLod(shadowSampler2D, const31, const22);
-    vec4 color_c9 = color_c8 + temp41;
+    vec4 color11 = color10 + temp41;
     vec4 temp45 = shadow1DProjLod(shadowSampler1D, const26, const22);
-    vec4 color_c10 = color_c9 + temp43;
+    vec4 color12 = color11 + temp43;
     vec4 temp47 = shadow2DProjLod(shadowSampler2D, const26, const22);
-    vec4 color_c11 = color_c10 + temp45;
-    vec4 color_c12 = color_c11 + temp47;
-    gl_Position = color_c12;
+    vec4 color13 = color12 + temp45;
+    vec4 color14 = color13 + temp47;
+    gl_Position = color14;
     
 }
 
@@ -356,32 +356,32 @@ const vec3 const32 = vec3(1.789, 2.718, 3.453);
 
 void main()
 {
-    vec4 temp_c1 = textureLod(texSampler1D, const22, const23);
-    vec4 temp_c2 = textureProjLod(texSampler1D, coords2D, const23);
-    vec4 color_c3 = temp_c1 + temp_c2;
-    vec4 temp_c4 = textureProjLod(texSampler1D, const27, const23);
-    vec4 color_c5 = color_c3 + temp_c4;
-    vec4 temp_c6 = textureLod(texSampler2D, coords2D, const23);
-    vec4 color_c7 = color_c5 + temp_c6;
-    vec4 temp_c8 = textureProjLod(texSampler2D, const32, const23);
-    vec4 color_c9 = color_c7 + temp_c8;
-    vec4 temp_c10 = textureProjLod(texSampler2D, const27, const23);
-    vec4 color_c11 = color_c9 + temp_c10;
-    vec4 temp_c12 = textureLod(texSampler3D, const32, const23);
-    vec4 color_c13 = color_c11 + temp_c12;
-    vec4 temp_c14 = textureProjLod(texSampler3D, const27, const23);
-    vec4 color_c15 = color_c13 + temp_c14;
-    vec4 temp_c16 = textureLod(texSamplerCube, const32, const23);
-    vec4 color_c17 = color_c15 + temp_c16;
-    vec4 temp_c18 = shadow1DLod(shadowSampler1D, const32, const23);
-    vec4 color_c19 = color_c17 + temp_c18;
-    vec4 temp_c20 = shadow2DLod(shadowSampler2D, const32, const23);
-    vec4 color_c21 = color_c19 + temp_c20;
-    vec4 temp_c22 = shadow1DProjLod(shadowSampler1D, const27, const23);
-    vec4 color_c23 = color_c21 + temp_c22;
-    vec4 temp_c24 = shadow2DProjLod(shadowSampler2D, const27, const23);
-    vec4 color_c25 = color_c23 + temp_c24;
-    gl_Position = color_c25;
+    vec4 temp232 = textureLod(texSampler1D, const22, const23);
+    vec4 temp211 = textureProjLod(texSampler1D, coords2D, const23);
+    vec4 color24 = temp232 + temp211;
+    vec4 temp253 = textureProjLod(texSampler1D, const27, const23);
+    vec4 color37 = color24 + temp253;
+    vec4 temp286 = textureLod(texSampler2D, coords2D, const23);
+    vec4 color59 = color37 + temp286;
+    vec4 temp308 = textureProjLod(texSampler2D, const32, const23);
+    vec4 color611 = color59 + temp308;
+    vec4 temp3310 = textureProjLod(texSampler2D, const27, const23);
+    vec4 color713 = color611 + temp3310;
+    vec4 temp3512 = textureLod(texSampler3D, const32, const23);
+    vec4 color815 = color713 + temp3512;
+    vec4 temp3714 = textureProjLod(texSampler3D, const27, const23);
+    vec4 color917 = color815 + temp3714;
+    vec4 temp3916 = textureLod(texSamplerCube, const32, const23);
+    vec4 color1019 = color917 + temp3916;
+    vec4 temp4118 = shadow1DLod(shadowSampler1D, const32, const23);
+    vec4 color1121 = color1019 + temp4118;
+    vec4 temp4320 = shadow2DLod(shadowSampler2D, const32, const23);
+    vec4 color1223 = color1121 + temp4320;
+    vec4 temp4522 = shadow1DProjLod(shadowSampler1D, const27, const23);
+    vec4 color1325 = color1223 + temp4522;
+    vec4 temp4724 = shadow2DProjLod(shadowSampler2D, const27, const23);
+    vec4 color1426 = color1325 + temp4724;
+    gl_Position = color1426;
     
 }
 

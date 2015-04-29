@@ -13,6 +13,9 @@ entry:
   %color = alloca <4 x float>
   %black = alloca <4 x float>
   %white = alloca <4 x float>
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   store <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float>* %white
   store <4 x float> <float 0x3FC99999A0000000, float 0x3FC99999A0000000, float 0x3FC99999A0000000, float 0x3FC99999A0000000>, <4 x float>* %black
   %color1 = load <4 x float>* %white
@@ -40,7 +43,7 @@ entry:
   %14 = fcmp ogt float %13, 1.000000e+00
   br i1 %14, label %then, label %ifmerge10
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %15 = load float* %radius
   %16 = fcmp ogt float %15, 0x3FF19999A0000000
   br i1 %16, label %then5, label %ifmerge
@@ -71,7 +74,7 @@ ifmerge9:                                         ; preds = %ifmerge, %then7
 post-discard:                                     ; No predecessors!
   br label %ifmerge10
 
-ifmerge10:                                        ; preds = %entry, %post-discard
+ifmerge10:                                        ; preds = %mainBody, %post-discard
   %21 = load float* %radius
   %22 = fcmp oge float %21, 7.500000e-01
   br i1 %22, label %then11, label %ifmerge15

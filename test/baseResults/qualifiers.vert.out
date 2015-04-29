@@ -13,6 +13,9 @@ Top IR:
 
 define fastcc void @main() {
 entry:
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %outVc = load <4 x float>* @inV
   store <4 x float> %outVc, <4 x float>* @outVc
   %outVs = load <4 x float>* @inV
@@ -25,7 +28,7 @@ entry:
   store <4 x float> %outVcn, <4 x float>* @outVcn
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

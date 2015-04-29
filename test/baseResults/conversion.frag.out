@@ -61,6 +61,9 @@ entry:
   %b22 = alloca <2 x i1>
   %b2 = alloca <2 x i1>
   %b = alloca i1
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %0 = load i32 addrspace(2)* @u_i, !gla.uniform !1
   %1 = icmp ne i32 %0, 0
   %2 = load float addrspace(2)* @u_f, !gla.uniform !3
@@ -342,7 +345,7 @@ entry:
   %220 = or i1 %215, %cc41
   br i1 %220, label %then, label %ifmerge53
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %221 = load i1* %b
   br i1 %221, label %then43, label %else
 
@@ -383,7 +386,7 @@ ifmerge51:                                        ; preds = %else49, %then47
   store float %f52, float* %f
   br label %ifmerge53
 
-ifmerge53:                                        ; preds = %entry, %ifmerge51
+ifmerge53:                                        ; preds = %mainBody, %ifmerge51
   %231 = load i1* %b
   %232 = load <2 x i1>* %b2
   %233 = extractelement <2 x i1> %232, i32 0

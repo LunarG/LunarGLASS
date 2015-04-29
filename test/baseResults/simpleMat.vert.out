@@ -14,6 +14,9 @@ Top IR:
 define fastcc void @main() {
 entry:
   %0 = alloca <4 x float>
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %1 = load [4 x <4 x float>] addrspace(2)* @mvp, !gla.uniform !5
   %2 = load <4 x float>* @v
   %3 = load <4 x float>* %0
@@ -94,7 +97,7 @@ entry:
   store float %f, float* @f
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

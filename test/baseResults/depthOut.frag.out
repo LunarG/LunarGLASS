@@ -9,13 +9,16 @@ Top IR:
 
 define fastcc void @main() {
 entry:
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %gl_FragDepth = load float* @Depth
   store float %gl_FragDepth, float* @gl_FragDepth
   %gl_FragColor = load <4 x float>* @Color
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

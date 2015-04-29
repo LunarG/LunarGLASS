@@ -25,18 +25,21 @@ define fastcc void @main() {
 entry:
   %dx = alloca float
   %cx = alloca float
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   store float 0x400D9999A0000000, float* getelementptr inbounds (%gl_PerVertex* @"anon@0", i32 0, i32 0, i32 2)
   %0 = load <4 x float>* getelementptr inbounds ([10 x <4 x float>]* @bad, i32 0, i32 0)
   %1 = extractelement <4 x float> %0, i32 0
   %2 = fcmp oeq float %1, 0x4010CCCCC0000000
   br i1 %2, label %then, label %ifmerge
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %badorder3 = load <4 x float>* getelementptr inbounds ([10 x <4 x float>]* @bad, i32 0, i32 0)
   store <4 x float> %badorder3, <4 x float>* @badorder3
   br label %ifmerge
 
-ifmerge:                                          ; preds = %entry, %then
+ifmerge:                                          ; preds = %mainBody, %then
   %3 = load float addrspace(2)* @f, !gla.uniform !18
   store float %3, float* getelementptr inbounds (%gl_PerVertex* @"anon@0", i32 0, i32 0, i32 0)
   br label %stage-epilogue

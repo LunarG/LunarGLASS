@@ -29,6 +29,9 @@ entry:
   %3 = alloca [4 x <4 x float>]
   %4 = alloca [4 x <4 x float>]
   %5 = alloca [4 x <4 x float>]
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %6 = load <4 x float>* @p
   %7 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 0), !gla.uniform !23
   %8 = load [4 x <4 x float>] addrspace(2)* getelementptr inbounds (%Transform addrspace(2)* @tblock, i32 0, i32 1), !gla.uniform !23
@@ -151,13 +154,13 @@ entry:
   %53 = or i1 %cc, %cc59
   br i1 %53, label %then, label %ifmerge
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %54 = load <3 x float>* getelementptr inbounds (%S* @s, i32 0, i32 0)
   %55 = fadd <3 x float> %54, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !gla.precision !40
   store <3 x float> %55, <3 x float>* getelementptr inbounds (%S* @s, i32 0, i32 0)
   br label %ifmerge
 
-ifmerge:                                          ; preds = %entry, %then
+ifmerge:                                          ; preds = %mainBody, %then
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %ifmerge

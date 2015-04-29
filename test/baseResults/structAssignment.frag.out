@@ -16,16 +16,19 @@ Top IR:
 define fastcc void @main() {
 entry:
   %locals2 = alloca %lunarStruct2
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %0 = load i32 addrspace(2)* getelementptr inbounds (%lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0, i32 0), !gla.uniform !1
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %locals21 = load %lunarStruct2 addrspace(2)* getelementptr inbounds (%lunarStruct3 addrspace(2)* @foo3, i32 0, i32 0), !gla.uniform !1
   store %lunarStruct2 %locals21, %lunarStruct2* %locals2
   br label %ifmerge
 
-else:                                             ; preds = %entry
+else:                                             ; preds = %mainBody
   %locals22 = load %lunarStruct2 addrspace(2)* @foo2, !gla.uniform !8
   store %lunarStruct2 %locals22, %lunarStruct2* %locals2
   br label %ifmerge

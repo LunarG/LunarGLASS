@@ -14,18 +14,21 @@ Top IR:
 define fastcc void @main() {
 entry:
   %scale = alloca float
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   store float 0.000000e+00, float* %scale
   %0 = load i32 addrspace(2)* getelementptr inbounds ([5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 0, i32 4), !gla.uniform !1
   %1 = icmp sgt i32 %0, 0
   br i1 %1, label %then, label %else
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %2 = load <4 x float> addrspace(2)* getelementptr inbounds ([5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3), !gla.uniform !1
   %scale1 = extractelement <4 x float> %2, i32 0
   store float %scale1, float* %scale
   br label %ifmerge
 
-else:                                             ; preds = %entry
+else:                                             ; preds = %mainBody
   %scale2 = load float addrspace(2)* getelementptr inbounds ([5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3), !gla.uniform !1
   store float %scale2, float* %scale
   br label %ifmerge

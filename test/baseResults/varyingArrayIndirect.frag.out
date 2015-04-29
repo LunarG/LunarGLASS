@@ -15,6 +15,9 @@ define fastcc void @main() {
 entry:
   %texColor1 = alloca <2 x float>
   %texColor = alloca <4 x float>
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %0 = load i32 addrspace(1)* @texSampler2D, !gla.uniform !1
   %1 = load i32 addrspace(2)* @b, !gla.uniform !4
   %2 = getelementptr [2 x <4 x float>]* @userIn, i32 0, i32 %1
@@ -54,7 +57,7 @@ entry:
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

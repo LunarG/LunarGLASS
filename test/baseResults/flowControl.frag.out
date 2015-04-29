@@ -14,6 +14,9 @@ define fastcc void @main() {
 entry:
   %color2 = alloca <4 x float>
   %color = alloca <4 x float>
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %color1 = load <4 x float>* @BaseColor
   store <4 x float> %color1, <4 x float>* %color
   %color22 = load <4 x float> addrspace(2)* @otherColor, !gla.uniform !5
@@ -23,14 +26,14 @@ entry:
   %2 = fcmp ogt float %0, %1
   br i1 %2, label %then, label %else
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %3 = load <4 x float> addrspace(2)* @bigColor, !gla.uniform !8
   %4 = load <4 x float>* %color
   %color3 = fadd <4 x float> %4, %3
   store <4 x float> %color3, <4 x float>* %color
   br label %ifmerge
 
-else:                                             ; preds = %entry
+else:                                             ; preds = %mainBody
   %5 = load <4 x float> addrspace(2)* @smallColor, !gla.uniform !9
   %6 = load <4 x float>* %color
   %color4 = fadd <4 x float> %6, %5

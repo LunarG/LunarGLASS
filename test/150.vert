@@ -29,11 +29,11 @@ void main()
     s2out.d[i].b[2].w = ps;
     
     // test recovery from nonsupported built-ins    
-    float n1 = noise1(2.4);
-    n1 = noise1(vec4(n1));
-    vec2 n2 = noise2(vec3(n1));
-    vec3 n3 = noise3(n2);
-    vec4 n4 = noise4(n3);
+    //float n1 = noise1(2.4);
+    //n1 = noise1(vec4(n1));
+    //vec2 n2 = noise2(vec3(n1));
+    //vec3 n3 = noise3(n2);
+    //vec4 n4 = noise4(n3);
 }
 
 out float gl_ClipDistance[4];

@@ -21,12 +21,15 @@ entry:
   %sum = alloca float
   %i = alloca i32
   %color = alloca <4 x float>
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %color1 = load <4 x float>* @BaseColor
   store <4 x float> %color1, <4 x float>* %color
   store i32 0, i32* %i
   br label %loop-header
 
-loop-header:                                      ; preds = %post-loop-continue, %ifmerge, %entry
+loop-header:                                      ; preds = %post-loop-continue, %ifmerge, %mainBody
   %0 = load i32* %i
   %1 = load i32 addrspace(2)* @Count, !gla.uniform !5
   %2 = icmp slt i32 %0, %1

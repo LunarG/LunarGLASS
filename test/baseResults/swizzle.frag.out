@@ -19,6 +19,9 @@ entry:
   %w_dep = alloca <4 x float>
   %w = alloca <4 x float>
   %blendscale = alloca float
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   store float 0x3FFC9FBE80000000, float* %blendscale
   %w1 = load <4 x float> addrspace(2)* @u, !gla.uniform !1
   store <4 x float> %w1, <4 x float>* %w
@@ -91,7 +94,7 @@ entry:
   %42 = load i1 addrspace(2)* @p, !gla.uniform !3
   br i1 %42, label %then, label %else
 
-then:                                             ; preds = %entry
+then:                                             ; preds = %mainBody
   %43 = load <2 x float>* @t
   %44 = extractelement <2 x float> %43, i32 0
   %45 = load <4 x float>* %w_flow
@@ -99,7 +102,7 @@ then:                                             ; preds = %entry
   store <4 x float> %w_flow14, <4 x float>* %w_flow
   br label %ifmerge
 
-else:                                             ; preds = %entry
+else:                                             ; preds = %mainBody
   %46 = load <2 x float>* @t
   %47 = extractelement <2 x float> %46, i32 1
   %48 = load <4 x float>* %w_flow

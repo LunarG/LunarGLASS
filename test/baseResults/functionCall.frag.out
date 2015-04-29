@@ -16,6 +16,9 @@ entry:
   %param = alloca <4 x float>
   %color = alloca <4 x float>
   store float 0.000000e+00, float* @h
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %param1 = load <4 x float>* @BaseColor
   store <4 x float> %param1, <4 x float>* %param
   %0 = call float @"foo(vf4;"(<4 x float>* %param)
@@ -46,7 +49,7 @@ entry:
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -153,8 +156,8 @@ entry:
   %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %2, <4 x i32> zeroinitializer)
   %4 = load float addrspace(2)* @d, align 4, !gla.uniform !0
   %5 = fcmp olt float %4, 0x4010CCCCC0000000
-  %. = select i1 %5, float 0x3FF3333340000000, float 4.500000e+00
-  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %., <4 x i32> zeroinitializer)
+  %f48 = select i1 %5, float 0x3FF3333340000000, float 4.500000e+00
+  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %f48, <4 x i32> zeroinitializer)
   %7 = fcmp olt float %4, 4.500000e+00
   br i1 %7, label %then.i, label %ifmerge.i
 
@@ -245,13 +248,13 @@ void main()
 	float H_9ws3cr = BaseColor.x + BaseColor.y;
 	vec4 H_qwppqe = vec4(H_9ws3cr);
 	bool H_zdlq2v = d < C_4d2;
-	float H_8iih7k1 = H_zdlq2v ? C_1d2 : C_4d5;
-	vec4 H_a1eyhf1 = vec4(H_8iih7k1);
+	float H_8iih7k = H_zdlq2v ? C_1d2 : C_4d5;
+	vec4 H_3uuahw1 = vec4(H_8iih7k);
 	bool H_2bsr8u = d < C_4d5;
-	float Lg_ = H_2bsr8u ? d : C_0d0;
-	vec4 H_coqh0u = vec4(Lg_);
-	vec4 H_m9v3pf = H_a1eyhf1 * H_qwppqe;
-	vec4 Ll_FragColor = H_coqh0u * H_m9v3pf;
+	float H_bu6uh9 = H_2bsr8u ? d : C_0d0;
+	vec4 H_a607fc = vec4(H_bu6uh9);
+	vec4 H_m9v3pf = H_3uuahw1 * H_qwppqe;
+	vec4 Ll_FragColor = H_a607fc * H_m9v3pf;
 	gl_FragColor = Ll_FragColor;
 	
 }

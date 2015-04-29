@@ -140,10 +140,10 @@ uniform sampler2D texSampler2D;
 
 void main()
 {
-    vec4 texColor_c1 = color[1] + color[1];
-    vec3 temp22 = vec3(texColor_c1);
+    vec4 texColor1 = color[1] + color[1];
+    vec3 temp22 = vec3(texColor1);
     vec3 temp23 = inColor + temp22;
-    float temp24 = alpha[12] + texColor_c1.w;
+    float temp24 = texColor1.w + alpha[12];
     vec4 temp25 = vec4(temp23.x, temp23.y, temp23.z, temp24);
     gl_FragColor = temp25;
     
@@ -159,11 +159,11 @@ uniform sampler2D texSampler2D;
 
 void main()
 {
-    vec4 texColor_c1 = color[1] + color[1];
-    vec3 temp22 = vec3(texColor_c1);
-    vec3 temp_c2 = inColor + temp22;
-    float temp_c3 = alpha[12] + texColor_c1.w;
-    vec4 temp25 = vec4(temp_c2.x, temp_c2.y, temp_c2.z, temp_c3);
+    vec4 texColor11 = color[1] + color[1];
+    vec3 temp22 = vec3(texColor11);
+    vec3 temp233 = inColor + temp22;
+    float temp244 = texColor11.w + alpha[12];
+    vec4 temp25 = vec4(temp233.x, temp233.y, temp233.z, temp244);
     gl_FragColor = temp25;
     
 }

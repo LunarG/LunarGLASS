@@ -23,6 +23,9 @@ entry:
   %5 = alloca <2 x float>
   %m23 = alloca [2 x <3 x float>]
   %a = alloca <2 x float>
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %6 = load <3 x float>* @v3
   %7 = load [2 x <3 x float>]* %m23
   %8 = load <2 x float>* %5
@@ -291,7 +294,7 @@ entry:
   store <4 x float> %gl_Position218, <4 x float>* @gl_Position
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %entry
+stage-epilogue:                                   ; preds = %mainBody
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

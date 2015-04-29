@@ -1,6 +1,6 @@
 #version 140
 
-in vec4 i;
+in vec4 k;
 out vec4 o;
 
 in float gl_ClipDistance[5];
@@ -20,9 +20,22 @@ layout(std140) uniform bn {
 uniform sampler2DRect sampR;
 uniform isamplerBuffer sampB;
 
+float foo();
+
 void main()
 {
     o.y = gl_ClipDistance[2];
-    o.z = gl_ClipDistance[int(i)];
+    o.z = gl_ClipDistance[int(k)];
     o.w = float(textureSize(sampR) + textureSize(sampB)) / 100.0;
+    o.z = foo();
+}
+
+// Test extra-function initializers
+
+float i1 = gl_FrontFacing ? -2.0 : 2.0;
+float i2 = 102;
+
+float foo()
+{
+    return i1 + i2;
 }

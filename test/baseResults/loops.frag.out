@@ -60,11 +60,14 @@ entry:
   %i70 = alloca i32
   %i = alloca i32
   %color = alloca <4 x float>
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
   %color1 = load <4 x float>* @BaseColor
   store <4 x float> %color1, <4 x float>* %color
   br label %loop-header
 
-loop-header:                                      ; preds = %post-loop-continue, %post-loop-break11, %entry
+loop-header:                                      ; preds = %post-loop-continue, %post-loop-break11, %mainBody
   br i1 false, label %then, label %ifmerge
 
 then:                                             ; preds = %loop-header
@@ -3146,9 +3149,9 @@ void main()
 	vec4 colora;
 	bool H_bghf2q = BaseColor.x < C_0d33;
 	bool H_9j9phn = BaseColor.x < C_0d66;
-	vec4 H_x805n1 = H_9j9phn ? C_vec4p0d66p : C_vec4p0d33p;
-	vec4 select = H_bghf2q ? C_vec4p0d33p : H_x805n1;
-	vec4 select1 = BaseColor + select;
+	vec4 select = H_9j9phn ? C_vec4p0d66p : C_vec4p0d33p;
+	vec4 _L = H_bghf2q ? C_vec4p0d33p : select;
+	vec4 select1 = BaseColor + _L;
 	color = select1;
 	while (color.x < d) {
 		vec4 colorb = bigColor + color;
