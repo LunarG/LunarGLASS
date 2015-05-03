@@ -109,6 +109,7 @@ void main()
         case 2:
             f += cos(x);
             break;
+            break;
         default:
             f += tan(x);
         }

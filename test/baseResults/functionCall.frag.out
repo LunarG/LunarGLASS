@@ -79,7 +79,6 @@ entry:
 ; Function Attrs: alwaysinline
 define internal fastcc float @"unreachableReturn("() #0 {
 entry:
-  %dummyReturn = alloca float
   %0 = load float addrspace(2)* @d, !gla.uniform !0
   %1 = fcmp olt float %0, 0x4010CCCCC0000000
   br i1 %1, label %then, label %else
@@ -88,17 +87,16 @@ then:                                             ; preds = %entry
   ret float 0x3FF3333340000000
 
 post-return:                                      ; No predecessors!
-  br label %ifmerge
+  unreachable
 
 else:                                             ; preds = %entry
   ret float 4.500000e+00
 
 post-return1:                                     ; No predecessors!
-  br label %ifmerge
+  unreachable
 
-ifmerge:                                          ; preds = %post-return1, %post-return
-  %2 = load float* %dummyReturn
-  ret float %2
+ifmerge:                                          ; No predecessors!
+  unreachable
 }
 
 ; Function Attrs: alwaysinline
@@ -115,9 +113,9 @@ then:                                             ; preds = %entry
   ret float 0x400F333340000000
 
 post-return:                                      ; No predecessors!
-  br label %ifmerge
+  unreachable
 
-ifmerge:                                          ; preds = %entry, %post-return
+ifmerge:                                          ; preds = %entry
   %2 = load float* %dummyReturn
   ret float %2
 }

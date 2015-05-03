@@ -180,9 +180,9 @@ then:                                             ; preds = %entry
   ret i32 1000000
 
 post-return:                                      ; No predecessors!
-  br label %ifmerge
+  unreachable
 
-ifmerge:                                          ; preds = %entry, %post-return
+ifmerge:                                          ; preds = %entry
   ret i32 2000000
 
 post-return1:                                     ; No predecessors!

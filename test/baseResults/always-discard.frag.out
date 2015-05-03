@@ -77,9 +77,9 @@ ifmerge10:                                        ; preds = %mainBody, %ifmerge9
 post-discard:                                     ; No predecessors!
   %21 = load float* %radius
   %22 = fcmp oge float %21, 7.500000e-01
-  br i1 %22, label %then11, label %ifmerge15
+  unreachable
 
-then11:                                           ; preds = %post-discard
+then11:                                           ; No predecessors!
   %23 = load float* %radius
   %color12 = call float @llvm.gla.fPow.f32.f32.f32(float %23, float 1.600000e+01)
   %24 = fdiv float %color12, 2.000000e+00
@@ -93,7 +93,7 @@ then11:                                           ; preds = %post-discard
   store <4 x float> %color14, <4 x float>* %color
   br label %ifmerge15
 
-ifmerge15:                                        ; preds = %post-discard, %then11
+ifmerge15:                                        ; preds = %then11
   %gl_FragColor16 = load <4 x float>* %color
   store <4 x float> %gl_FragColor16, <4 x float>* @gl_FragColor
   br label %stage-epilogue

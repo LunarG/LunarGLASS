@@ -26,9 +26,9 @@ then:                                             ; preds = %mainBody
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
-  br label %ifmerge
+  unreachable
 
-ifmerge:                                          ; preds = %mainBody, %post-discard
+ifmerge:                                          ; preds = %mainBody
   %gl_FragColor = load <4 x float>* %v
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue

@@ -72,9 +72,9 @@ ifmerge9:                                         ; preds = %ifmerge, %then7
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
-  br label %ifmerge10
+  unreachable
 
-ifmerge10:                                        ; preds = %mainBody, %post-discard
+ifmerge10:                                        ; preds = %mainBody
   %21 = load float* %radius
   %22 = fcmp oge float %21, 7.500000e-01
   br i1 %22, label %then11, label %ifmerge15

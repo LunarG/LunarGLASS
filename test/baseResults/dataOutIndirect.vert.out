@@ -16,7 +16,7 @@ mainBody:                                         ; preds = %entry
   store i32 1, i32* %i
   br label %loop-header
 
-loop-header:                                      ; preds = %post-loop-continue, %ifmerge, %mainBody
+loop-header:                                      ; preds = %ifmerge, %mainBody
   %0 = load i32* %i
   %1 = icmp slt i32 %0, 5
   %2 = xor i1 %1, true
@@ -26,9 +26,9 @@ then:                                             ; preds = %loop-header
   br label %loop-merge
 
 post-loop-break:                                  ; No predecessors!
-  br label %ifmerge
+  unreachable
 
-ifmerge:                                          ; preds = %loop-header, %post-loop-break
+ifmerge:                                          ; preds = %loop-header
   %3 = load i32* %i
   %4 = load <4 x float>* @color
   %5 = getelementptr [6 x <4 x float>]* @colorOut, i32 0, i32 %3
@@ -39,7 +39,7 @@ ifmerge:                                          ; preds = %loop-header, %post-
   br label %loop-header
 
 post-loop-continue:                               ; No predecessors!
-  br label %loop-header
+  unreachable
 
 loop-merge:                                       ; preds = %then
   %gl_Position = load <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @colorOut, i32 0, i32 2)

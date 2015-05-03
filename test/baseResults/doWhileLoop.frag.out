@@ -17,7 +17,7 @@ mainBody:                                         ; preds = %entry
   store <4 x float> %color1, <4 x float>* %color
   br label %loop-header
 
-loop-header:                                      ; preds = %post-loop-continue, %ifmerge, %mainBody
+loop-header:                                      ; preds = %ifmerge, %mainBody
   %0 = load <4 x float> addrspace(2)* @bigColor, !gla.uniform !3
   %1 = load <4 x float>* %color
   %color2 = fadd <4 x float> %1, %0
@@ -33,13 +33,13 @@ then:                                             ; preds = %loop-header
   br label %loop-merge
 
 post-loop-break:                                  ; No predecessors!
-  br label %ifmerge
+  unreachable
 
-ifmerge:                                          ; preds = %loop-header, %post-loop-break
+ifmerge:                                          ; preds = %loop-header
   br label %loop-header
 
 post-loop-continue:                               ; No predecessors!
-  br label %loop-header
+  unreachable
 
 loop-merge:                                       ; preds = %then
   %gl_FragColor = load <4 x float>* %color

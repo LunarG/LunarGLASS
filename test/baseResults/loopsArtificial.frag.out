@@ -61,7 +61,7 @@ mainBody:                                         ; preds = %entry
   store <4 x float> %color1, <4 x float>* %color
   br label %loop-header
 
-loop-header:                                      ; preds = %post-loop-continue13, %ifmerge12, %then4, %mainBody
+loop-header:                                      ; preds = %ifmerge12, %then4, %mainBody
   %0 = load <4 x float> addrspace(2)* @bigColor4, !gla.uniform !3
   %1 = load <4 x float>* %color
   %color2 = fadd <4 x float> %1, %0
@@ -95,9 +95,9 @@ then4:                                            ; preds = %then
   br label %loop-header
 
 post-loop-continue:                               ; No predecessors!
-  br label %ifmerge
+  unreachable
 
-ifmerge:                                          ; preds = %then, %post-loop-continue
+ifmerge:                                          ; preds = %then
   br label %ifmerge6
 
 ifmerge6:                                         ; preds = %loop-header, %ifmerge
@@ -139,18 +139,18 @@ then11:                                           ; preds = %ifmerge10
   br label %loop-merge
 
 post-loop-break:                                  ; No predecessors!
-  br label %ifmerge12
+  unreachable
 
-ifmerge12:                                        ; preds = %ifmerge10, %post-loop-break
+ifmerge12:                                        ; preds = %ifmerge10
   br label %loop-header
 
 post-loop-continue13:                             ; No predecessors!
-  br label %loop-header
+  unreachable
 
 loop-merge:                                       ; preds = %then11
   br label %loop-header14
 
-loop-header14:                                    ; preds = %post-loop-continue36, %ifmerge35, %then26, %loop-merge
+loop-header14:                                    ; preds = %ifmerge35, %then26, %loop-merge
   %37 = load <4 x float>* %color
   %38 = extractelement <4 x float> %37, i32 3
   %39 = load float addrspace(2)* @d13, !gla.uniform !6
@@ -162,9 +162,9 @@ then15:                                           ; preds = %loop-header14
   br label %loop-merge37
 
 post-loop-break16:                                ; No predecessors!
-  br label %ifmerge17
+  unreachable
 
-ifmerge17:                                        ; preds = %loop-header14, %post-loop-break16
+ifmerge17:                                        ; preds = %loop-header14
   %42 = load <4 x float>* %color
   %43 = extractelement <4 x float> %42, i32 2
   %44 = load float addrspace(2)* @d13, !gla.uniform !6
@@ -217,9 +217,9 @@ then26:                                           ; preds = %then24
   br label %loop-header14
 
 post-loop-continue28:                             ; No predecessors!
-  br label %ifmerge29
+  unreachable
 
-ifmerge29:                                        ; preds = %then24, %post-loop-continue28
+ifmerge29:                                        ; preds = %then24
   br label %ifmerge30
 
 ifmerge30:                                        ; preds = %ifmerge22, %ifmerge29
@@ -253,7 +253,7 @@ ifmerge35:                                        ; preds = %else33, %then31
   br label %loop-header14
 
 post-loop-continue36:                             ; No predecessors!
-  br label %loop-header14
+  unreachable
 
 loop-merge37:                                     ; preds = %then15
   %80 = load <4 x float>* %color

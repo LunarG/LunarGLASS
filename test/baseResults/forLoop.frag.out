@@ -29,7 +29,7 @@ mainBody:                                         ; preds = %entry
   store i32 0, i32* %i
   br label %loop-header
 
-loop-header:                                      ; preds = %post-loop-continue, %ifmerge, %mainBody
+loop-header:                                      ; preds = %ifmerge, %mainBody
   %0 = load i32* %i
   %1 = load i32 addrspace(2)* @Count, !gla.uniform !5
   %2 = icmp slt i32 %0, %1
@@ -40,9 +40,9 @@ then:                                             ; preds = %loop-header
   br label %loop-merge
 
 post-loop-break:                                  ; No predecessors!
-  br label %ifmerge
+  unreachable
 
-ifmerge:                                          ; preds = %loop-header, %post-loop-break
+ifmerge:                                          ; preds = %loop-header
   %4 = load <4 x float> addrspace(2)* @bigColor, !gla.uniform !7
   %5 = load <4 x float>* %color
   %color2 = fadd <4 x float> %5, %4
@@ -53,7 +53,7 @@ ifmerge:                                          ; preds = %loop-header, %post-
   br label %loop-header
 
 post-loop-continue:                               ; No predecessors!
-  br label %loop-header
+  unreachable
 
 loop-merge:                                       ; preds = %then
   %gl_FragColor = load <4 x float>* %color
@@ -62,7 +62,7 @@ loop-merge:                                       ; preds = %then
   store i32 0, i32* %i4
   br label %loop-header5
 
-loop-header5:                                     ; preds = %post-loop-continue11, %ifmerge8, %loop-merge
+loop-header5:                                     ; preds = %ifmerge8, %loop-merge
   %7 = load i32* %i4
   %8 = icmp slt i32 %7, 4
   %9 = xor i1 %8, true
@@ -72,9 +72,9 @@ then6:                                            ; preds = %loop-header5
   br label %loop-merge12
 
 post-loop-break7:                                 ; No predecessors!
-  br label %ifmerge8
+  unreachable
 
-ifmerge8:                                         ; preds = %loop-header5, %post-loop-break7
+ifmerge8:                                         ; preds = %loop-header5
   %10 = load i32* %i4
   %11 = load <4 x i32> addrspace(2)* @v4, !gla.uniform !8
   %12 = extractelement <4 x i32> %11, i32 %10
@@ -88,13 +88,13 @@ ifmerge8:                                         ; preds = %loop-header5, %post
   br label %loop-header5
 
 post-loop-continue11:                             ; No predecessors!
-  br label %loop-header5
+  unreachable
 
 loop-merge12:                                     ; preds = %then6
   store i32 0, i32* %i13
   br label %loop-header14
 
-loop-header14:                                    ; preds = %post-loop-continue20, %ifmerge17, %loop-merge12
+loop-header14:                                    ; preds = %ifmerge17, %loop-merge12
   %16 = load i32* %i13
   %17 = icmp slt i32 %16, 4
   %18 = xor i1 %17, true
@@ -104,9 +104,9 @@ then15:                                           ; preds = %loop-header14
   br label %loop-merge21
 
 post-loop-break16:                                ; No predecessors!
-  br label %ifmerge17
+  unreachable
 
-ifmerge17:                                        ; preds = %loop-header14, %post-loop-break16
+ifmerge17:                                        ; preds = %loop-header14
   %19 = load i32* %i13
   %20 = load i32* %i13
   %21 = load <4 x i32> addrspace(2)* @v4, !gla.uniform !8
@@ -122,7 +122,7 @@ ifmerge17:                                        ; preds = %loop-header14, %pos
   br label %loop-header14
 
 post-loop-continue20:                             ; No predecessors!
-  br label %loop-header14
+  unreachable
 
 loop-merge21:                                     ; preds = %then15
   %27 = load float* %sum
@@ -154,7 +154,7 @@ loop-merge21:                                     ; preds = %then15
   store i32 0, i32* %i25
   br label %loop-header26
 
-loop-header26:                                    ; preds = %post-loop-continue32, %ifmerge29, %loop-merge21
+loop-header26:                                    ; preds = %ifmerge29, %loop-merge21
   %49 = load i32* %i25
   %50 = load i32 addrspace(2)* @Count, !gla.uniform !5
   %51 = icmp slt i32 %49, %50
@@ -165,9 +165,9 @@ then27:                                           ; preds = %loop-header26
   br label %loop-merge33
 
 post-loop-break28:                                ; No predecessors!
-  br label %ifmerge29
+  unreachable
 
-ifmerge29:                                        ; preds = %loop-header26, %post-loop-break28
+ifmerge29:                                        ; preds = %loop-header26
   %53 = load float* @f
   %54 = load <4 x float>* %r
   %r30 = insertelement <4 x float> %54, float %53, i32 3
@@ -178,7 +178,7 @@ ifmerge29:                                        ; preds = %loop-header26, %pos
   br label %loop-header26
 
 post-loop-continue32:                             ; No predecessors!
-  br label %loop-header26
+  unreachable
 
 loop-merge33:                                     ; preds = %then27
   %56 = load <4 x float>* %r
@@ -207,7 +207,7 @@ loop-merge33:                                     ; preds = %then27
   store i32 0, i32* %i35
   br label %loop-header36
 
-loop-header36:                                    ; preds = %post-loop-continue42, %ifmerge39, %loop-merge33
+loop-header36:                                    ; preds = %ifmerge39, %loop-merge33
   %77 = load i32* %i35
   %78 = icmp slt i32 %77, 16
   %79 = xor i1 %78, true
@@ -217,9 +217,9 @@ then37:                                           ; preds = %loop-header36
   br label %loop-merge43
 
 post-loop-break38:                                ; No predecessors!
-  br label %ifmerge39
+  unreachable
 
-ifmerge39:                                        ; preds = %loop-header36, %post-loop-break38
+ifmerge39:                                        ; preds = %loop-header36
   %80 = load float* @f
   %81 = load <4 x float>* @gl_FragColor
   %82 = insertelement <4 x float> undef, float %80, i32 0
@@ -234,7 +234,7 @@ ifmerge39:                                        ; preds = %loop-header36, %pos
   br label %loop-header36
 
 post-loop-continue42:                             ; No predecessors!
-  br label %loop-header36
+  unreachable
 
 loop-merge43:                                     ; preds = %then37
   br label %stage-epilogue

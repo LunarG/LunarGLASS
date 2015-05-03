@@ -80,7 +80,7 @@ ifmerge3:                                         ; preds = %ifmerge, %then2
   store i32 0, i32* %i
   br label %loop-header
 
-loop-header:                                      ; preds = %post-loop-continue, %ifmerge5, %ifmerge3
+loop-header:                                      ; preds = %ifmerge5, %ifmerge3
   %23 = load i32* %i
   %24 = icmp slt i32 %23, 16
   %25 = xor i1 %24, true
@@ -90,9 +90,9 @@ then4:                                            ; preds = %loop-header
   br label %loop-merge
 
 post-loop-break:                                  ; No predecessors!
-  br label %ifmerge5
+  unreachable
 
-ifmerge5:                                         ; preds = %loop-header, %post-loop-break
+ifmerge5:                                         ; preds = %loop-header
   %26 = load i32* %i
   %27 = getelementptr [16 x float]* %a, i32 0, i32 %26
   store float 0.000000e+00, float* %27
@@ -102,7 +102,7 @@ ifmerge5:                                         ; preds = %loop-header, %post-
   br label %loop-header
 
 post-loop-continue:                               ; No predecessors!
-  br label %loop-header
+  unreachable
 
 loop-merge:                                       ; preds = %then4
   %29 = load i32 addrspace(2)* @condition, !gla.uniform !8

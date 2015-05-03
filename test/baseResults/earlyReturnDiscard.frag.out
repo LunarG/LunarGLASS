@@ -56,9 +56,9 @@ then5:                                            ; preds = %ifmerge
   br label %stage-epilogue
 
 post-return:                                      ; No predecessors!
-  br label %ifmerge6
+  unreachable
 
-ifmerge6:                                         ; preds = %ifmerge, %post-return
+ifmerge6:                                         ; preds = %ifmerge
   %11 = load <4 x float>* %color
   %12 = extractelement <4 x float> %11, i32 2
   %13 = fadd float %12, 1.000000e+00
@@ -76,9 +76,9 @@ then8:                                            ; preds = %ifmerge6
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
-  br label %ifmerge9
+  unreachable
 
-ifmerge9:                                         ; preds = %ifmerge6, %post-discard
+ifmerge9:                                         ; preds = %ifmerge6
   %19 = load <4 x float>* %color
   %color10 = fadd <4 x float> %19, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   store <4 x float> %color10, <4 x float>* %color
@@ -99,7 +99,7 @@ then12:                                           ; preds = %then11
   br label %stage-epilogue
 
 post-return13:                                    ; No predecessors!
-  br label %ifmerge24
+  unreachable
 
 else14:                                           ; preds = %then11
   %28 = load i1 addrspace(2)* @b, !gla.uniform !13
@@ -126,7 +126,7 @@ then18:                                           ; preds = %else17
   br label %stage-exit
 
 post-discard19:                                   ; No predecessors!
-  br label %ifmerge22
+  unreachable
 
 else20:                                           ; preds = %else17
   %37 = load <4 x float>* %color
@@ -134,13 +134,13 @@ else20:                                           ; preds = %else17
   store <4 x float> %color21, <4 x float>* %color
   br label %ifmerge22
 
-ifmerge22:                                        ; preds = %else20, %post-discard19
+ifmerge22:                                        ; preds = %else20
   br label %ifmerge23
 
 ifmerge23:                                        ; preds = %ifmerge22, %then15
   br label %ifmerge24
 
-ifmerge24:                                        ; preds = %ifmerge23, %post-return13
+ifmerge24:                                        ; preds = %ifmerge23
   br label %ifmerge31
 
 else25:                                           ; preds = %ifmerge9
@@ -152,15 +152,15 @@ then26:                                           ; preds = %else25
   br label %stage-exit
 
 post-discard27:                                   ; No predecessors!
-  br label %ifmerge30
+  unreachable
 
 else28:                                           ; preds = %else25
   br label %stage-epilogue
 
 post-return29:                                    ; No predecessors!
-  br label %ifmerge30
+  unreachable
 
-ifmerge30:                                        ; preds = %post-return29, %post-discard27
+ifmerge30:                                        ; No predecessors!
   br label %ifmerge31
 
 ifmerge31:                                        ; preds = %ifmerge30, %ifmerge24

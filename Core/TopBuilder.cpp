@@ -401,6 +401,9 @@ void Builder::closeMain()
 // Comments in header
 void Builder::makeReturn(bool implicit, llvm::Value* retVal, bool isMain)
 {
+    if (builder.GetInsertBlock()->getTerminator())
+        return;
+
     if (isMain && retVal)
         gla::UnsupportedFunctionality("return value from main()");
 
@@ -418,6 +421,9 @@ void Builder::makeReturn(bool implicit, llvm::Value* retVal, bool isMain)
 // Comments in header
 void Builder::makeDiscard(bool isMain)
 {
+    if (builder.GetInsertBlock()->getTerminator())
+        return;
+
     createIntrinsicCall(EMpNone, llvm::Intrinsic::gla_discard);
 
     if (isMain) {
@@ -435,8 +441,10 @@ void Builder::makeDiscard(bool isMain)
 // block proceeding them (e.g. instructions after a discard, etc).
 void Builder::createAndSetNoPredecessorBlock(llvm::StringRef name)
 {
-    builder.SetInsertPoint(llvm::BasicBlock::Create(context, name,
-                                                    builder.GetInsertBlock()->getParent()));
+    llvm::BasicBlock* block = llvm::BasicBlock::Create(context, name, builder.GetInsertBlock()->getParent());
+    builder.SetInsertPoint(block);
+    builder.CreateUnreachable();
+    builder.SetInsertPoint(&block->back());
 }
 
 // Comments in header
@@ -2360,7 +2368,6 @@ Builder::If::If(llvm::Value* cond, Builder* gb)
     : glaBuilder(gb)
     , condition(cond)
     , elseBB(0)
-
 {
     function = glaBuilder->builder.GetInsertBlock()->getParent();
 
@@ -2380,8 +2387,10 @@ Builder::If::If(llvm::Value* cond, Builder* gb)
 // Comments in header
 void Builder::If::makeBeginElse()
 {
-    // Close out the "then" by having it jump to the mergeBB
-    glaBuilder->builder.CreateBr(mergeBB);
+    if (! glaBuilder->builder.GetInsertBlock()->getTerminator()) {
+        // Close out the "then" by having it jump to the mergeBB
+        glaBuilder->builder.CreateBr(mergeBB);
+    }
 
     // Make the else
     elseBB = llvm::BasicBlock::Create(glaBuilder->context, "else");
@@ -2394,15 +2403,19 @@ void Builder::If::makeBeginElse()
 // Comments in header
 void Builder::If::makeEndIf()
 {
-    // jump to the merge block
-    glaBuilder->builder.CreateBr(mergeBB);
+    if (! glaBuilder->builder.GetInsertBlock()->getTerminator()) {
+        // jump to the merge block
+        glaBuilder->builder.CreateBr(mergeBB);
+    }
 
-    // Go back the the headerBB and make the flow control split
-    glaBuilder->builder.SetInsertPoint(headerBB);
-    if (elseBB)
-        glaBuilder->builder.CreateCondBr(condition, thenBB, elseBB);
-    else
-        glaBuilder->builder.CreateCondBr(condition, thenBB, mergeBB);
+    if (! headerBB->getTerminator()) {
+        // Go back the the headerBB and make the flow control split
+        glaBuilder->builder.SetInsertPoint(headerBB);
+        if (elseBB)
+            glaBuilder->builder.CreateCondBr(condition, thenBB, elseBB);
+        else
+            glaBuilder->builder.CreateCondBr(condition, thenBB, mergeBB);
+    }
 
     // add the merge block to the function
     function->getBasicBlockList().push_back(mergeBB);
@@ -2421,10 +2434,12 @@ void Builder::makeSwitch(llvm::Value* condition, int numSegments, std::vector<ll
 
     llvm::BasicBlock* mergeBlock = llvm::BasicBlock::Create(context, "switch-merge", function);
 
-    // make the switch instruction
-    llvm::SwitchInst* switchInst = builder.CreateSwitch(condition, defaultSegment >= 0 ? segmentBB[defaultSegment] : mergeBlock, caseValues.size());
-    for (int i = 0; i < (int)caseValues.size(); ++i)
-        switchInst->addCase(caseValues[i], segmentBB[valueToSegment[i]]);
+    if (! builder.GetInsertBlock()->getTerminator()) {
+        // make the switch instruction
+        llvm::SwitchInst* switchInst = builder.CreateSwitch(condition, defaultSegment >= 0 ? segmentBB[defaultSegment] : mergeBlock, caseValues.size());
+        for (int i = 0; i < (int)caseValues.size(); ++i)
+            switchInst->addCase(caseValues[i], segmentBB[valueToSegment[i]]);
+    }
 
     // push the merge block
     switches.push(mergeBlock);
@@ -2433,8 +2448,14 @@ void Builder::makeSwitch(llvm::Value* condition, int numSegments, std::vector<ll
 // Comments in header
 void Builder::addSwitchBreak()
 {
-    // branch to the top of the merge block stack
-    builder.CreateBr(switches.top());
+    if (! builder.GetInsertBlock()->getTerminator()) {
+        // branch to the top of the merge block stack
+        builder.CreateBr(switches.top());
+    }
+
+    // subsequent code is unreachable    
+    if (insertNoPredecessorBlocks)
+        createAndSetNoPredecessorBlock("post-switch-break");
 }
 
 // Comments in header
@@ -2496,8 +2517,10 @@ void Builder::makeNewLoop(llvm::Value* inductiveVariable, llvm::Constant* from, 
 
     loops.push(ld);
 
-    // Branch into the loop
-    builder.CreateBr(headerBB);
+    if (! builder.GetInsertBlock()->getTerminator()) {
+        // Branch into the loop
+        builder.CreateBr(headerBB);
+    }
 
     // Set ourselves inside the loop
     builder.SetInsertPoint(headerBB);
@@ -2506,10 +2529,16 @@ void Builder::makeNewLoop(llvm::Value* inductiveVariable, llvm::Constant* from, 
 // Add a back-edge (e.g "continue") for the innermost loop that you're in
 void Builder::makeLoopBackEdge(bool implicit)
 {
+    if (builder.GetInsertBlock()->getTerminator())
+        return;
+
     LoopData ld = loops.top();
 
     // If we're not inductive, just branch back.
     if (! ld.isInductive) {
+        if (builder.GetInsertBlock()->getTerminator())
+            return;
+
         builder.CreateBr(ld.header);
         if (! implicit && insertNoPredecessorBlocks)
             createAndSetNoPredecessorBlock("post-loop-continue");
@@ -2556,6 +2585,9 @@ void Builder::makeLoopBackEdge(bool implicit)
 // Add an exit (e.g. "break") for the innermost loop that you're in
 void Builder::makeLoopExit()
 {
+    if (builder.GetInsertBlock()->getTerminator())
+        return;
+
     builder.CreateBr(loops.top().exit);
 
     if (insertNoPredecessorBlocks)
@@ -2565,8 +2597,10 @@ void Builder::makeLoopExit()
 // Close the innermost loop that you're in
 void Builder::closeLoop()
 {
-    // Branch back through the loop
-    makeLoopBackEdge(true);
+    if (! builder.GetInsertBlock()->getTerminator()) {
+        // Branch back through the loop
+        makeLoopBackEdge(true);
+    }
 
     LoopData ld = loops.top();
 
