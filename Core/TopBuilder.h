@@ -235,6 +235,7 @@ public:
         ESQGlobal,      // no storage qualifier, just a global variable
         ESQConst,
         ESQLocal,
+        ESQShared,      // work-group shared
     };
 
     // Turn the array of constants into a proper LLVM constant type of the requested type.

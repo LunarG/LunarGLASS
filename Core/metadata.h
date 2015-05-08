@@ -119,6 +119,7 @@ namespace gla {
 //     !gla.invariant = !{ subset list of output that were declared as invariant }
 //     !gla.entrypoint = !{ list of all entry points }
 //     !gla.noStaticUse = !{ subset of input/output/uniform that were not statically referenced in the source shader }
+//     !gla.shared = !{ list of all workgroup-shared globals (the Value* of the global variables that are shared) }
 //
 //     !gla.inputPrimitive     = !{ EMdLayoutGeometry }
 //     !gla.outputPrimitive    = !{ EMdLayoutGeometry }
@@ -145,6 +146,8 @@ const char* const UniformListMdName        = "gla.uniforms";
 const char* const InvariantListMdName      = "gla.invariant";
 const char* const EntrypointListMdName     = "gla.entrypoint";
 const char* const NoStaticUseMdName        = "gla.noStaticUse";
+const char* const WorkgroupSharedMdName    = "gla.shared";
+
 const char* const InputPrimitiveMdName     = "gla.inputPrimitive";
 const char* const OutputPrimitiveMdName    = "gla.outputPrimitive";
 const char* const XfbModeMdName            = "gla.xfbMode";
@@ -638,6 +641,16 @@ public:
     void addNoStaticUse(llvm::MDNode* md)
     {
         llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(NoStaticUseMdName);
+        namedNode->addOperand(md);
+    }
+
+    void addShared(llvm::Value* shared)
+    {
+        llvm::Value* args[] = {
+            shared
+        };
+        llvm::MDNode* md = llvm::MDNode::get(context, args);
+        llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(WorkgroupSharedMdName);
         namedNode->addOperand(md);
     }
 

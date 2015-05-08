@@ -1,0 +1,112 @@
+
+Top IR:
+; ModuleID = 'Glslang'
+
+%outb = type { float }
+
+@outbname = external addrspace(2) constant %outb
+@s = global float 0.000000e+00
+@f = internal global float 0.000000e+00
+
+define fastcc void @main() {
+entry:
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
+  call void @llvm.gla.barrier()
+  %0 = load float* @s
+  store float %0, float addrspace(2)* getelementptr inbounds (%outb addrspace(2)* @outbname, i32 0, i32 0)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %mainBody
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind
+declare void @llvm.gla.barrier() #0
+
+attributes #0 = { nounwind }
+
+!gla.entrypoint = !{!0}
+!gla.uniforms = !{!1}
+!gla.shared = !{!6}
+
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"outbname", i32 14, %outb* @outbname_typeProxy, metadata !2, metadata !3}
+!2 = metadata !{i32 6, i32 0, i32 1024, null}
+!3 = metadata !{metadata !"outb", metadata !2, metadata !"f", metadata !4}
+!4 = metadata !{metadata !"", metadata !5}
+!5 = metadata !{i32 0, i32 3, i32 1024, null}
+!6 = metadata !{float* @s}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+
+%outb = type { float }
+
+@outbname = external addrspace(2) constant %outb
+@s = global float 0.000000e+00
+
+define fastcc void @main() {
+entry:
+  call void @llvm.gla.barrier()
+  %0 = load float* @s, align 4
+  %gla_constGEP = getelementptr %outb addrspace(2)* @outbname, i32 0, i32 0
+  store float %0, float addrspace(2)* %gla_constGEP, align 4
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind
+declare void @llvm.gla.barrier() #0
+
+attributes #0 = { nounwind }
+
+!gla.entrypoint = !{!0}
+!gla.uniforms = !{!1}
+!gla.shared = !{!6}
+
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"outbname", i32 14, %outb* @outbname_typeProxy, metadata !2, metadata !3}
+!2 = metadata !{i32 6, i32 0, i32 1024, null}
+!3 = metadata !{metadata !"outb", metadata !2, metadata !"f", metadata !4}
+!4 = metadata !{metadata !"", metadata !5}
+!5 = metadata !{i32 0, i32 3, i32 1024, null}
+!6 = metadata !{float* @s}
+#version 310 es
+// LunarGOO output
+buffer outb {
+	highp float f;
+} outbname;
+shared float s;
+
+void main()
+{
+	barrier();
+	outbname.f = s;
+	
+}
+
+#version 310 es
+// LunarGOO output
+buffer outb {
+	highp float f;
+} outbname;
+shared float s;
+
+void main()
+{
+	barrier();
+	outbname.f = s;
+	
+}
+

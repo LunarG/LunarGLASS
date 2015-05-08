@@ -214,12 +214,13 @@ namespace gla {
 
 class MetaType {
 public:
-    MetaType() : precision(gla::EMpNone), matrix(false), notSigned(false), block(false), mdAggregate(0), mdSampler(0) { }
+    MetaType() : precision(gla::EMpNone), matrix(false), notSigned(false), block(false), buffer(false), mdAggregate(0), mdSampler(0) { }
     std::string name;
     gla::EMdPrecision precision;
     bool matrix;
     bool notSigned;
     bool block;
+    bool buffer;
     const llvm::MDNode* mdAggregate;
     const llvm::MDNode* mdSampler;
 };
@@ -272,6 +273,13 @@ public:
         if (mdList) {
             for (unsigned int m = 0; m < mdList->getNumOperands(); ++m)
                 noStaticUseSet.insert(mdList->getOperand(m));
+        }
+
+        // Set up workgroup shared variable cache
+        mdList = module.getNamedMetadata(WorkgroupSharedMdName);
+        if (mdList) {
+            for (unsigned int m = 0; m < mdList->getNumOperands(); ++m)
+                sharedSet.insert(mdList->getOperand(m)->getOperand(0));
         }
 
         // Get the top-levels modes for this shader.
@@ -533,6 +541,9 @@ public:
 
     // set of all IO mdNodes in the noStaticUse list
     std::set<const llvm::MDNode*> noStaticUseSet;
+
+    // set of all IO mdNodes in the shared list
+    std::set<const llvm::Value*> sharedSet;
 
     // list of llvm Values to free on exit
     std::vector<llvm::Value*> toDelete;
@@ -885,10 +896,14 @@ EVariableQualifier MapGlaAddressSpace(const llvm::Value* value)
     return EVQTemporary;
 }
 
-const char* MapGlaToQualifierString(int version, EShLanguage stage, EVariableQualifier vq)
+const char* MapGlaToQualifierString(int version, EShLanguage stage, EVariableQualifier vq, MetaType metaType)
 {
     switch (vq) {
-    case EVQUniform:                      return "uniform";
+    case EVQUniform:
+        if (metaType.buffer)
+                                          return "buffer";
+        else
+                                          return "uniform";
 
     case EVQInput:
         if (version >= 130)               return "in";
@@ -1393,6 +1408,9 @@ void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
     mapVariableName(global, name);
     const llvm::PointerType* pointer = llvm::dyn_cast<llvm::PointerType>(global->getType());
     llvm::Type* type = pointer->getContainedType(0);
+
+    if (sharedSet.find(global) != sharedSet.end())
+        globalDeclarations << "shared ";
 
     emitVariableDeclaration(EMpNone, type, name, qualifier);
     if (global->hasInitializer()) {
@@ -3513,7 +3531,7 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
         precision = metaType.precision;
     }
 
-    const char* qualifierString = MapGlaToQualifierString(version, stage, qualifier);
+    const char* qualifierString = MapGlaToQualifierString(version, stage, qualifier, metaType);
     if (*qualifierString)
         out << qualifierString << " ";
 
@@ -3639,6 +3657,7 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
             metaType.block = false;
             break;
         }
+        metaType.buffer = ioKind == EMioBufferBlockMember;
 
         if (type == 0)
             type = proxyType;
@@ -3850,7 +3869,7 @@ void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, const ch
     if (const llvm::PointerType* pointerType = llvm::dyn_cast<llvm::PointerType>(value->getType())) {
         emitVariableDeclaration(precision, pointerType->getContainedType(0), newName, evq);
     } else {
-        emitVariableDeclaration(precision, value->getType(), newName, evq, constant);        
+        emitVariableDeclaration(precision, value->getType(), newName, evq, constant);
     }
 }
 

@@ -720,8 +720,9 @@ gla::Builder::EStorageQualifier SpvToTopTranslator::mapStorageClass(spv::Storage
         return gla::Builder::ESQOutput;
     case spv::StorageClassPrivateGlobal:
         return gla::Builder::ESQGlobal;
-
     case spv::StorageClassWorkgroupLocal:
+        return gla::Builder::ESQShared;
+
     default:
         gla::UnsupportedFunctionality("storage class");
         break;

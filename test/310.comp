@@ -1,0 +1,16 @@
+#version 310 es
+
+precision highp float;
+
+float f;
+shared float s;
+
+buffer outb {
+    float f;
+} outbname;
+
+void main()
+{
+    barrier();
+    outbname.f = s;
+}

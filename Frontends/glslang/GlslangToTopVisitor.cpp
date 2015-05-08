@@ -441,7 +441,6 @@ void TGlslangToTopTraverser::visitSymbol(glslang::TIntermSymbol* symbol)
 {
     bool input = symbol->getType().getQualifier().isPipeInput();
     bool output = symbol->getType().getQualifier().isPipeOutput();
-    bool uniform = symbol->getType().getQualifier().isUniformOrBuffer();
 
     // Normal symbols and uniforms need a variable allocated to them,
     // we will shadow inputs by reading them in whole into a global variables, 
@@ -449,16 +448,21 @@ void TGlslangToTopTraverser::visitSymbol(glslang::TIntermSymbol* symbol)
     // so everything gets a variable allocated; see if we've cached it.
     bool firstTime;
     llvm::Value* storage = getSymbolStorage(symbol, firstTime);
-    if (firstTime && output) {
-        // set up output metadata once for all future pipeline intrinsic writes
-        int numSlots;
-        int slot = assignSlot(symbol, input, numSlots);
-        setOutputMetadata(symbol, storage, slot, numSlots);
+    if (firstTime) {
+        if (output) {
+            // set up output metadata once for all future pipeline intrinsic writes
+            int numSlots;
+            int slot = assignSlot(symbol, input, numSlots);
+            setOutputMetadata(symbol, storage, slot, numSlots);
+        } else if (symbol->getType().getQualifier().storage == glslang::EvqShared) {
+            // workgroup shared metadata
+            metadata.addShared(storage);
+        }
     }
-    
+
     // set up uniform metadata
     llvm::MDNode* mdNode = 0;
-    if (uniform)
+    if (symbol->getType().getQualifier().isUniformOrBuffer())
         mdNode = declareUniformMetadata(symbol, storage);
 
     if (! linkageOnly) {
@@ -472,7 +476,7 @@ void TGlslangToTopTraverser::visitSymbol(glslang::TIntermSymbol* symbol)
         glaBuilder->setAccessChainLValue(storage);
 
         // Set up metadata for uniform/sampler inputs
-        if (uniform && mdNode)
+        if (mdNode)
             glaBuilder->setAccessChainMetadata(gla::UniformMdName, mdNode);
 
         // If it's an output, we also want to know which subset is live.
@@ -1277,6 +1281,9 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const glslang::TIntermSy
         break;
     case glslang::EvqGlobal:
         storageQualifier = gla::Builder::ESQGlobal;
+        break;
+    case glslang::EvqShared:
+        storageQualifier = gla::Builder::ESQShared;
         break;
     case glslang::EvqVaryingIn:
     case glslang::EvqFragCoord:

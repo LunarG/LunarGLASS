@@ -547,6 +547,13 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
             initializer = llvm::Constant::getNullValue(type);
         break;
 
+    case ESQShared:
+        global = true;
+        linkage = llvm::GlobalVariable::ExternalLinkage;
+        if (initializer == 0)
+            initializer = llvm::Constant::getNullValue(type);
+        break;
+
     case ESQConst:
         global = true;
         readOnly = true;
@@ -598,6 +605,7 @@ int Builder::mapAddressSpace(EStorageQualifier qualifier, int instance) const
     case ESQInput:
     case ESQOutput:
     case ESQGlobal:
+    case ESQShared:
     case ESQConst:
     case ESQLocal:  // should be a don't care (valid to pass in, but result unused)
         return gla::GlobalAddressSpace;
