@@ -197,8 +197,17 @@ void Builder::setAccessChainLValue(llvm::Value* lValue)
     // l-values need to be allocated somewhere, so we expect a pointer.
     assert(llvm::isa<llvm::PointerType>(lValue->getType()));
 
-    // Pointers need to push a 0 on the gep chain to dereference them.
+    // This pointer is already to the correct object, making the dereference
+    // implicit:  Push a 0 on the gep chain to dereference it.
     accessChain.indexChain.push_back(MakeIntConstant(context, 0));
+
+    accessChain.base = lValue;
+}
+
+// Comments in header
+void Builder::setAccessChainPointer(llvm::Value* lValue)
+{
+    assert(llvm::isa<llvm::PointerType>(lValue->getType()));
 
     accessChain.base = lValue;
 }
@@ -217,7 +226,9 @@ llvm::Value* Builder::collapseAccessChain()
 {
     assert(accessChain.isRValue == false);
 
-    if (accessChain.indexChain.size() > 1) {
+    // Don't emit a pointless GEP, it effects debug names
+    if (accessChain.indexChain.size() > 1 ||
+        accessChain.indexChain.size() == 1 && accessChain.indexChain.front() != MakeIntConstant(context, 0)) {
         if (accessChain.gep == 0) {
             if (accessRightToLeft)
                 std::reverse(accessChain.indexChain.begin(), accessChain.indexChain.end());
@@ -323,6 +334,16 @@ llvm::Value* Builder::accessChainLoad(EMdPrecision precision)
         value = createSwizzle(precision, value, accessChain.swizzle, accessChain.swizzleResultType);
 
     return value;
+}
+
+// Comments in header
+llvm::Value* Builder::getAccessChainPointer()
+{
+    assert(! accessChain.isRValue);
+    assert(accessChain.swizzle.size() == 0);
+    assert(accessChain.component == 0);
+
+    return collapseAccessChain();
 }
 
 // Comments in header
@@ -641,14 +662,13 @@ llvm::Value* Builder::createStore(llvm::Value* rValue, llvm::Value* lValue)
 // Comments in header
 llvm::Value* Builder::createLoad(llvm::Value* lValue, const char* metadataKind, llvm::MDNode* mdNode)
 {
-    if (llvm::isa<llvm::PointerType>(lValue->getType())) {
-        llvm::Instruction* load = builder.CreateLoad(lValue);
-        if (metadataKind)
-            load->setMetadata(metadataKind, mdNode);
+    assert(llvm::isa<llvm::PointerType>(lValue->getType()));
 
-        return load;
-    } else
-        return lValue;
+    llvm::Instruction* load = builder.CreateLoad(lValue);
+    if (metadataKind)
+        load->setMetadata(metadataKind, mdNode);
+
+    return load;
 }
 
 // Comments in header

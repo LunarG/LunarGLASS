@@ -2,20 +2,57 @@
 Top IR:
 ; ModuleID = 'Glslang'
 
-%outb = type { float }
+%outb = type { float, float, float, <3 x float> }
+%outbna = type { i32, <4 x float> }
+%outs = type { <4 x float> }
 
 @outbname = external addrspace(2) constant %outb
 @s = global float 0.000000e+00
-@f = internal global float 0.000000e+00
+@outbnamena = external addrspace(2) constant %outbna
+@i = global i32 0
+@outnames = external addrspace(2) constant %outs
+@gl_LocalInvocationID = global <3 x i32> zeroinitializer
 
 define fastcc void @main() {
 entry:
+  %gl_WorkGroupSize = alloca <3 x i32>
+  %outnames = alloca <4 x float>
+  %outbname = alloca <3 x float>
+  %outbnamena = alloca <4 x float>
   br label %mainBody
 
 mainBody:                                         ; preds = %entry
   call void @llvm.gla.barrier()
   %0 = load float* @s
   store float %0, float addrspace(2)* getelementptr inbounds (%outb addrspace(2)* @outbname, i32 0, i32 0)
+  %1 = load float* @s
+  %2 = load <4 x float>* %outbnamena
+  %3 = insertelement <4 x float> undef, float %1, i32 0, !gla.precision !14
+  %4 = insertelement <4 x float> %3, float %1, i32 1, !gla.precision !14
+  %5 = insertelement <4 x float> %4, float %1, i32 2, !gla.precision !14
+  %6 = insertelement <4 x float> %5, float %1, i32 3, !gla.precision !14
+  store <4 x float> %6, <4 x float> addrspace(2)* getelementptr inbounds (%outbna addrspace(2)* @outbnamena, i32 0, i32 1)
+  %7 = load <3 x float> addrspace(2)* getelementptr (<3 x float> addrspace(2)* getelementptr inbounds (%outb addrspace(2)* @outbname, i32 0, i32 3), i32 18)
+  %s = extractelement <3 x float> %7, i32 0, !gla.precision !14
+  store float %s, float* @s
+  %8 = load i32* @i
+  %9 = load float* @s
+  %10 = load <3 x float>* %outbname
+  %11 = insertelement <3 x float> undef, float %9, i32 0, !gla.precision !14
+  %12 = insertelement <3 x float> %11, float %9, i32 1, !gla.precision !14
+  %13 = insertelement <3 x float> %12, float %9, i32 2, !gla.precision !14
+  %14 = getelementptr <3 x float> addrspace(2)* getelementptr inbounds (%outb addrspace(2)* @outbname, i32 0, i32 3), i32 %8
+  store <3 x float> %13, <3 x float> addrspace(2)* %14
+  %15 = load <3 x i32>* @gl_LocalInvocationID
+  %16 = extractelement <3 x i32> %15, i32 0, !gla.precision !14
+  %17 = load float* @s
+  %18 = load <4 x float>* %outnames
+  %19 = insertelement <4 x float> undef, float %17, i32 0, !gla.precision !14
+  %20 = insertelement <4 x float> %19, float %17, i32 1, !gla.precision !14
+  %21 = insertelement <4 x float> %20, float %17, i32 2, !gla.precision !14
+  %22 = insertelement <4 x float> %21, float %17, i32 3, !gla.precision !14
+  %23 = getelementptr <4 x float> addrspace(2)* getelementptr inbounds (%outs addrspace(2)* @outnames, i32 0, i32 0), i32 %16
+  store <4 x float> %22, <4 x float> addrspace(2)* %23
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %mainBody
@@ -31,32 +68,64 @@ declare void @llvm.gla.barrier() #0
 attributes #0 = { nounwind }
 
 !gla.entrypoint = !{!0}
-!gla.uniforms = !{!1}
-!gla.shared = !{!6}
+!gla.uniforms = !{!1, !6, !8}
+!gla.shared = !{!10, !11}
+!gla.inputs = !{!12}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"outbname", i32 14, %outb* @outbname_typeProxy, metadata !2, metadata !3}
+!1 = metadata !{metadata !"outbname", i32 18, %outb* @outbname_typeProxy, metadata !2, metadata !3}
 !2 = metadata !{i32 6, i32 0, i32 1024, null}
-!3 = metadata !{metadata !"outb", metadata !2, metadata !"f", metadata !4}
+!3 = metadata !{metadata !"outb", metadata !2, metadata !"f", metadata !4, metadata !"g", metadata !4, metadata !"h", metadata !4, metadata !"uns", metadata !4}
 !4 = metadata !{metadata !"", metadata !5}
 !5 = metadata !{i32 0, i32 3, i32 1024, null}
-!6 = metadata !{float* @s}
+!6 = metadata !{metadata !"outbnamena", i32 14, %outbna* @outbnamena_typeProxy, metadata !2, metadata !7}
+!7 = metadata !{metadata !"outbna", metadata !2, metadata !"k", metadata !4, metadata !"na", metadata !4}
+!8 = metadata !{metadata !"outnames", i32 18, %outs* @outnames_typeProxy, metadata !2, metadata !9}
+!9 = metadata !{metadata !"outs", metadata !2, metadata !"va", metadata !4}
+!10 = metadata !{float* @s}
+!11 = metadata !{i32* @i}
+!12 = metadata !{metadata !"gl_LocalInvocationID", i32 1, <3 x i32>* @gl_LocalInvocationID_typeProxy, metadata !13}
+!13 = metadata !{i32 1, i32 3, i32 1024, null, i32 0}
+!14 = metadata !{i32 3}
 
 
 Bottom IR:
 ; ModuleID = 'Glslang'
 
-%outb = type { float }
+%outb = type { float, float, float, <3 x float> }
+%outbna = type { i32, <4 x float> }
+%outs = type { <4 x float> }
 
 @outbname = external addrspace(2) constant %outb
 @s = global float 0.000000e+00
+@outbnamena = external addrspace(2) constant %outbna
+@i = global i32 0
+@outnames = external addrspace(2) constant %outs
+@gl_LocalInvocationID = global <3 x i32> zeroinitializer
 
 define fastcc void @main() {
 entry:
   call void @llvm.gla.barrier()
   %0 = load float* @s, align 4
+  %1 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %0, <4 x i32> zeroinitializer)
   %gla_constGEP = getelementptr %outb addrspace(2)* @outbname, i32 0, i32 0
-  store float %0, float addrspace(2)* %gla_constGEP, align 4
+  store float %0, float addrspace(2)* %gla_constGEP, align 16
+  %gla_constGEP1 = getelementptr %outbna addrspace(2)* @outbnamena, i32 0, i32 1
+  store <4 x float> %1, <4 x float> addrspace(2)* %gla_constGEP1, align 16
+  %gla_constGEP2 = getelementptr %outb addrspace(2)* @outbname, i32 9, i32 3
+  %2 = load <3 x float> addrspace(2)* %gla_constGEP2, align 16
+  %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v3f32.v4i32(<3 x float> %2, <4 x i32> zeroinitializer)
+  %4 = call <3 x float> @llvm.gla.fSwizzle.v3f32.v3f32.v3i32(<3 x float> %2, <3 x i32> zeroinitializer)
+  %s = extractelement <3 x float> %2, i32 0, !gla.precision !14
+  store float %s, float* @s, align 4
+  %5 = load i32* @i, align 4
+  %gla_constGEP3 = getelementptr %outb addrspace(2)* @outbname, i32 0, i32 3
+  %6 = getelementptr <3 x float> addrspace(2)* %gla_constGEP3, i32 %5
+  store <3 x float> %4, <3 x float> addrspace(2)* %6, align 16
+  %7 = load <3 x i32>* @gl_LocalInvocationID, align 16
+  %8 = extractelement <3 x i32> %7, i32 0, !gla.precision !14
+  %9 = getelementptr inbounds %outs addrspace(2)* @outnames, i32 %8, i32 0
+  store <4 x float> %3, <4 x float> addrspace(2)* %9, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -69,44 +138,87 @@ stage-exit:                                       ; preds = %stage-epilogue
 ; Function Attrs: nounwind
 declare void @llvm.gla.barrier() #0
 
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #1
+
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fSwizzle.v3f32.v3f32.v3i32(<3 x float>, <3 x i32>) #1
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.v3f32.v4i32(<3 x float>, <4 x i32>) #1
+
 attributes #0 = { nounwind }
+attributes #1 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
-!gla.uniforms = !{!1}
-!gla.shared = !{!6}
+!gla.uniforms = !{!1, !6, !8}
+!gla.shared = !{!10, !11}
+!gla.inputs = !{!12}
 
 !0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"outbname", i32 14, %outb* @outbname_typeProxy, metadata !2, metadata !3}
+!1 = metadata !{metadata !"outbname", i32 18, %outb* @outbname_typeProxy, metadata !2, metadata !3}
 !2 = metadata !{i32 6, i32 0, i32 1024, null}
-!3 = metadata !{metadata !"outb", metadata !2, metadata !"f", metadata !4}
+!3 = metadata !{metadata !"outb", metadata !2, metadata !"f", metadata !4, metadata !"g", metadata !4, metadata !"h", metadata !4, metadata !"uns", metadata !4}
 !4 = metadata !{metadata !"", metadata !5}
 !5 = metadata !{i32 0, i32 3, i32 1024, null}
-!6 = metadata !{float* @s}
+!6 = metadata !{metadata !"outbnamena", i32 14, %outbna* @outbnamena_typeProxy, metadata !2, metadata !7}
+!7 = metadata !{metadata !"outbna", metadata !2, metadata !"k", metadata !4, metadata !"na", metadata !4}
+!8 = metadata !{metadata !"outnames", i32 18, %outs* @outnames_typeProxy, metadata !2, metadata !9}
+!9 = metadata !{metadata !"outs", metadata !2, metadata !"va", metadata !4}
+!10 = metadata !{float* @s}
+!11 = metadata !{i32* @i}
+!12 = metadata !{metadata !"gl_LocalInvocationID", i32 1, <3 x i32>* @gl_LocalInvocationID_typeProxy, metadata !13}
+!13 = metadata !{i32 1, i32 3, i32 1024, null, i32 0}
+!14 = metadata !{i32 3}
 #version 310 es
 // LunarGOO output
 buffer outb {
 	highp float f;
+	highp float g;
+	highp float h;
+	highp vec3 uns[];
 } outbname;
+buffer outbna {
+	highp int k;
+	highp vec4 na;
+} outbnamena;
+buffer outs {
+	highp vec4 va[];
+} outnames;
 shared float s;
+shared int i;
 
 void main()
 {
 	barrier();
+	vec4 H_xv6ac = vec4(s);
 	outbname.f = s;
+	outbnamena.na = H_xv6ac;
+	s = outbname[9].uns.x;
+	outbname.uns[i] = outbname[9].uns.xxx;
+	outnames[ivec3(gl_LocalInvocationID).x].va = outbname[9].uns.xxxx;
 	
 }
 
-#version 310 es
-// LunarGOO output
-buffer outb {
-	highp float f;
-} outbname;
-shared float s;
+tempglsl.comp
+Warning, version 310 is not yet complete; most version-specific features are present, but some are missing.
+ERROR: 0:25: 'outbname' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:25: 'scalar swizzle' : not supported with this profile: es
+ERROR: 0:25: 'uns' : illegal vector field selection 
+ERROR: 0:25: 'scalar swizzle' : not supported with this profile: es
+ERROR: 0:26: 'outbname' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:26: 'scalar swizzle' : not supported with this profile: es
+ERROR: 0:26: 'uns' : illegal vector field selection 
+ERROR: 0:26: 'scalar swizzle' : not supported with this profile: es
+ERROR: 0:27: 'outnames' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:27: 'scalar swizzle' : not supported with this profile: es
+ERROR: 0:27: 'va' : illegal vector field selection 
+ERROR: 0:27: 'outbname' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:27: 'scalar swizzle' : not supported with this profile: es
+ERROR: 0:27: 'uns' : illegal vector field selection 
+ERROR: 0:27: 'scalar swizzle' : not supported with this profile: es
+ERROR: 0:27: 'assign' :  l-value required (can't modify a const)
+ERROR: 0:27: 'assign' :  cannot convert from 'temp 4-component vector of float' to 'const float'
+ERROR: 17 compilation errors.  No code generated.
 
-void main()
-{
-	barrier();
-	outbname.f = s;
-	
-}
 

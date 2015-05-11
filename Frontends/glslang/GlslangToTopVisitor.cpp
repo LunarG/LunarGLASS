@@ -92,6 +92,7 @@ public:
     bool visitBranch(glslang::TVisit visit, glslang::TIntermBranch*);
 
 protected:
+    gla::Builder::EStorageQualifier mapStorageClass(const glslang::TQualifier&) const;
     llvm::Value* createLLVMVariable(const glslang::TIntermSymbol*);
     llvm::Type* convertGlslangToGlaType(const glslang::TType& type);
 
@@ -159,14 +160,27 @@ namespace {
 gla::EMdInputOutput GetMdQualifier(glslang::TIntermSymbol* node)
 {
     gla::EMdInputOutput mdQualifier = gla::EMioNone;
+    const glslang::TType& type = node->getType();
 
-    if (node->getType().getBasicType() == glslang::EbtBlock) {
-        switch (node->getQualifier().storage) {
-        default:                                                                break;
-        case glslang::EvqVaryingIn:  mdQualifier = gla::EMioPipeInBlock;        break;
-        case glslang::EvqVaryingOut: mdQualifier = gla::EMioPipeOutBlock;       break;
-        case glslang::EvqBuffer:     mdQualifier = gla::EMioBufferBlockMember;  break;
-        case glslang::EvqUniform:    mdQualifier = gla::EMioUniformBlockMember; break;
+    if (type.getBasicType() == glslang::EbtBlock) {
+        switch (type.getQualifier().storage) {
+        default:
+            break;
+        case glslang::EvqVaryingIn:
+            mdQualifier = gla::EMioPipeInBlock;
+            break;
+        case glslang::EvqVaryingOut:
+            mdQualifier = gla::EMioPipeOutBlock;
+            break;
+        case glslang::EvqBuffer:
+            if (type.getStruct()->back().type->isRuntimeSizedArray())
+                mdQualifier = gla::EMioBufferBlockMemberArrayed;
+            else
+                mdQualifier = gla::EMioBufferBlockMember;
+            break;
+        case glslang::EvqUniform:
+            mdQualifier = gla::EMioUniformBlockMember;
+            break;
         }
 
         return mdQualifier;
@@ -594,6 +608,15 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
             } else {
                 // normal case for indexing array or structure or block
                 glaBuilder->accessChainPushLeft(gla::MakeIntConstant(context, index));
+            }
+
+            // If this dereference results in a runtime-sized array, it's a pointer
+            // we don't want in the middle of an access chain, but rather the base
+            // of a new one.
+            if (node->getType().isRuntimeSizedArray()) {
+                llvm::Value* arrayBase = glaBuilder->getAccessChainPointer();
+                glaBuilder->clearAccessChain();
+                glaBuilder->setAccessChainPointer(arrayBase);
             }
         }
         return false;
@@ -1267,24 +1290,17 @@ bool TGlslangToTopTraverser::visitBranch(glslang::TVisit /* visit */, glslang::T
     return false;
 }
 
-llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const glslang::TIntermSymbol* node)
+gla::Builder::EStorageQualifier TGlslangToTopTraverser::mapStorageClass(const glslang::TQualifier& qualifier) const
 {
-    llvm::Constant* initializer = 0;
-    gla::Builder::EStorageQualifier storageQualifier;
-    int constantBuffer = 0;
-
-    switch (node->getQualifier().storage) {
+    switch (qualifier.storage) {
     case glslang::EvqTemporary:
     case glslang::EvqConstReadOnly:
     case glslang::EvqConst:
-        storageQualifier = gla::Builder::ESQLocal;
-        break;
+        return gla::Builder::ESQLocal;
     case glslang::EvqGlobal:
-        storageQualifier = gla::Builder::ESQGlobal;
-        break;
+        return gla::Builder::ESQGlobal;
     case glslang::EvqShared:
-        storageQualifier = gla::Builder::ESQShared;
-        break;
+        return gla::Builder::ESQShared;
     case glslang::EvqVaryingIn:
     case glslang::EvqFragCoord:
     case glslang::EvqPointCoord:
@@ -1294,42 +1310,38 @@ llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const glslang::TIntermSy
         // Pipeline reads: If we are here, it must be to create a shadow which
         // will shadow the actual pipeline reads, which must still be done elsewhere.
         // The top builder will make a global shadow for ESQInput.
-        storageQualifier = gla::Builder::ESQInput;
-        break;
+        return gla::Builder::ESQInput;
     case glslang::EvqVaryingOut:
     case glslang::EvqPosition:
     case glslang::EvqPointSize:
     case glslang::EvqClipVertex:
     case glslang::EvqFragColor:
     case glslang::EvqFragDepth:
-        storageQualifier = gla::Builder::ESQOutput;
-        break;
+        return gla::Builder::ESQOutput;
     case glslang::EvqUniform:
     case glslang::EvqBuffer:
-        storageQualifier = gla::Builder::ESQUniform;
-        // TODO: uniform buffers? need to generalize to N objects (constant buffers) for higher shader models
-        constantBuffer = 0;
-        break;
+        return gla::Builder::ESQUniform;
     case glslang::EvqIn:
     case glslang::EvqOut:
     case glslang::EvqInOut:
         // parameter qualifiers should not come through here
     default:
         gla::UnsupportedFunctionality("glslang qualifier", gla::EATContinue);
-        storageQualifier = gla::Builder::ESQLocal;
-        break;
+        return gla::Builder::ESQLocal;
     }
+}
 
-    if (node->getBasicType() == glslang::EbtSampler) {
+llvm::Value* TGlslangToTopTraverser::createLLVMVariable(const glslang::TIntermSymbol* node)
+{
+    gla::Builder::EStorageQualifier storageQualifier = mapStorageClass(node->getQualifier());
+    if (node->getBasicType() == glslang::EbtSampler)
         storageQualifier = gla::Builder::ESQResource;
-    }
 
     std::string name(node->getName().c_str());
 
     llvm::Type *llvmType = convertGlslangToGlaType(node->getType());
 
-    return glaBuilder->createVariable(storageQualifier, constantBuffer, llvmType,
-                                      initializer, 0, name);
+    return glaBuilder->createVariable(storageQualifier, 0, llvmType, 0, 0, name);
 }
 
 llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType& type)
@@ -1402,13 +1414,36 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
     }
 
     if (type.isArray()) {
-        int arraySize;
         if (type.isImplicitlySizedArray()) {
             gla::UnsupportedFunctionality("implicitly-sized array", gla::EATContinue);
-            arraySize = UnknownArraySize;
+            glaType = llvm::ArrayType::get(glaType, UnknownArraySize);
+        } if (type.isRuntimeSizedArray()) {
+            //
+            // Runtime array design.
+            //
+            // If this is the last member of a buffer block, it is the beginning of an array
+            // of unknown size.  That would work well as a pointer to an element of the array:
+            //
+            //    glaType = glaBuilder->getPointerType(glaType, mapStorageClass(type.getQualifier()), 0);
+            //
+            // This could then be recognized by translation code a pointer to base array calculations off of,
+            // e.g., in the middle of an access chain, encapsulating it.
+            // 
+            // However, the actual memory will be laid out with elements of the array; there
+            // won't be a member that is a pointer to the elements.  If the LLVM type reflects
+            // this, the pointer will come from computing the GEP of the first element, not from
+            // loading the member.  This can't be encapsulated; generating code will have to emit accesses
+            // in two steps; 1) to get the GEP of the first element, and 2) to compute the indexed
+            // array element.
+            //
+            // With the latter approach, the LLVM type loses the information about whether the last
+            // member is a single element or the beginning of an array of elements.  If this information
+            // is needed downstream, it will come from metadata (EMioBufferBlockMemberArrayed).
+            //
+            // With the latter approach, glaType is already the type of the element, so there is nothing to do here.
+            //
         } else
-            arraySize = type.getArraySize();
-        glaType = llvm::ArrayType::get(glaType, arraySize);
+            glaType = llvm::ArrayType::get(glaType, type.getArraySize());
     }
 
     return glaType;
@@ -2628,6 +2663,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(glslang::TIntermSym
         break;
     case gla::EMioUniformBlockMember:
     case gla::EMioBufferBlockMember:
+    case gla::EMioBufferBlockMemberArrayed:
         md = declareMdUniformBlock(ioType, node, value);
         uniformMdMap[name] = md;
         break;
@@ -2682,7 +2718,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput 
 {
     const glslang::TType& type = node->getType();
 
-    // Make hierachical type information
+    // Make hierarchical type information
     llvm::MDNode* block = declareMdType(type);
 
     // Make the main node

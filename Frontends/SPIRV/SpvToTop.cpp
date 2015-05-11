@@ -987,6 +987,7 @@ llvm::MDNode* SpvToTopTranslator::declareUniformMetadata(spv::Id resultId)
         break;
     case gla::EMioUniformBlockMember:
     case gla::EMioBufferBlockMember:
+    case gla::EMioBufferBlockMemberArrayed:
         md = declareMdUniformBlock(ioType, resultId);
         break;
     default:

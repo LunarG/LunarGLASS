@@ -214,13 +214,14 @@ namespace gla {
 
 class MetaType {
 public:
-    MetaType() : precision(gla::EMpNone), matrix(false), notSigned(false), block(false), buffer(false), mdAggregate(0), mdSampler(0) { }
+    MetaType() : precision(gla::EMpNone), matrix(false), notSigned(false), block(false), buffer(false), runtimeArrayed(false), mdAggregate(0), mdSampler(0) { }
     std::string name;
     gla::EMdPrecision precision;
     bool matrix;
     bool notSigned;
     bool block;
     bool buffer;
+    bool runtimeArrayed;
     const llvm::MDNode* mdAggregate;
     const llvm::MDNode* mdSampler;
 };
@@ -459,7 +460,7 @@ public:
     void newScope();
     void leaveScope();
 
-    void addStructType(std::ostringstream& out, std::string& name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block);
+    void addStructType(std::ostringstream& out, std::string& name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block, bool runtimeArrayed);
     void mapVariableName(const llvm::Value* value, std::string& name);
     void mapExpressionString(const llvm::Value* value, const std::string& name);
     bool getExpressionString(const llvm::Value* value, std::string& name) const;
@@ -2356,7 +2357,7 @@ void gla::GlslTarget::leaveScope()
     shader << "}";
 }
 
-void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block)
+void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block, bool runtimeArrayed)
 {
     // this is mutually recursive with emitGlaType
 
@@ -2397,12 +2398,15 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, 
         tempStructure << name;
     tempStructure << " {" << std::endl;
 
-    for (int index = 0; index < (int)structType->getNumContainedTypes(); ++index) {
+    int lastIndex = (int)structType->getNumContainedTypes() - 1;
+    for (int index = 0; index <= lastIndex; ++index) {
         tempStructure << indentString;
         if (mdAggregate) {
             const llvm::MDNode* subMdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(GetAggregateMdSubAggregateOp(index)));
             int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index), false, subMdAggregate);
             tempStructure << " " << std::string(mdAggregate->getOperand(GetAggregateMdNameOp(index))->getName());
+            if (runtimeArrayed && index == lastIndex)
+                tempStructure << "[]";
             emitGlaArraySize(tempStructure, arraySize);
         } else {
             int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index));
@@ -2649,6 +2653,16 @@ void gla::GlslTarget::mapPointerExpression(const llvm::Value* ptr, const llvm::V
             mdTypePointer = 0;   // This is not a uniform, so don't process any metadata for it.
             if (gepInst && ! getExpressionString(gepInst->getOperand(0), expression))
                 UnsupportedFunctionality("GLSL back end gep missing value->string mapping", 0, expression.c_str(), EATContinue);
+        } else if (MapGlaAddressSpace(ptr) == EVQUniform) {
+            // This includes going into a runtime array (last member of a buffer block).
+            // Piece together the base expression and this expression.
+            // TODO: If metadata is needed within the runtime array, that needs to be carried over from the
+            //       initial lookup of the base of the buffer.
+            mdNode = 0;
+            mdType = EMtlNone;
+            mdTypePointer = 0;   // TODO: haven't yet carried over the metadata
+            if (gepInst && ! getExpressionString(gepInst->getOperand(0), expression))
+                UnsupportedFunctionality("missing base expression for uniform makePointerExpression", MapGlaAddressSpace(ptr), name.str().c_str());
         } else {
             UnsupportedFunctionality("missing metadata for makePointerExpression", MapGlaAddressSpace(ptr), name.str().c_str());
         }
@@ -3573,7 +3587,7 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
         if (! metaType.block)
             MakeNonbuiltinName(structName);
         MakeParseable(structName);
-        addStructType(out, structName, structType, metaType.mdAggregate, metaType.block);
+        addStructType(out, structName, structType, metaType.mdAggregate, metaType.block, metaType.runtimeArrayed);
         if (! metaType.block) {
             if (metaType.mdAggregate)
                 out << std::string(metaType.mdAggregate->getOperand(0)->getName());
@@ -3647,6 +3661,9 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
 
         // See whether it's a block.
         switch (ioKind) {
+        case EMioBufferBlockMemberArrayed:
+            metaType.runtimeArrayed = true;
+            // fall through
         case EMioUniformBlockMember:
         case EMioBufferBlockMember:
         case EMioPipeInBlock:
@@ -3657,7 +3674,8 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
             metaType.block = false;
             break;
         }
-        metaType.buffer = ioKind == EMioBufferBlockMember;
+        metaType.buffer = (ioKind == EMioBufferBlockMember ||
+                           ioKind == EMioBufferBlockMemberArrayed);
 
         if (type == 0)
             type = proxyType;
@@ -4344,9 +4362,16 @@ std::string gla::GlslTarget::traverseGep(const llvm::Instruction* instr, EMdType
         mdAggregate = typeMdAggregateMap[aggregateType];
 
     if (const llvm::GetElementPtrInst* gepInst = llvm::dyn_cast<llvm::GetElementPtrInst>(instr)) {
-        // Start at operand 2 since indices 0 and 1 give you the base and are handled before traverseGep
-        const llvm::Type* gepType = gepInst->getPointerOperandType()->getContainedType(0);
-        for (unsigned int op = 2; op < gepInst->getNumOperands(); ++op)
+        int startOp = 1; // skip the base, it was handled before calling traverseGep
+        const llvm::ConstantInt *constantInt = llvm::dyn_cast<llvm::ConstantInt>(gepInst->getOperand(startOp));
+        const llvm::Type* gepType;
+        if (constantInt && constantInt->getValue().getSExtValue() == 0) {
+            // skip the 0 pointer dereference
+            ++startOp;
+            gepType = gepInst->getPointerOperandType()->getContainedType(0);
+        } else
+            gepType = gepInst->getPointerOperandType();
+        for (unsigned int op = startOp; op < gepInst->getNumOperands(); ++op)
             dereferenceGep(gepType, gepName, gepInst->getOperand(op), -1, mdAggregate, mdTypeLayout);
 
     } else if (const llvm::InsertValueInst* insertValueInst = llvm::dyn_cast<const llvm::InsertValueInst>(instr)) {
@@ -4384,6 +4409,7 @@ void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name,
     }
 
     switch (type->getTypeID()) {
+    case llvm::Type::PointerTyID:  // this includes runtime-sized array dereferences
     case llvm::Type::ArrayTyID:
         assert(operand || index >= 0);
 

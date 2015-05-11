@@ -119,7 +119,7 @@ namespace gla {
 //     !gla.invariant = !{ subset list of output that were declared as invariant }
 //     !gla.entrypoint = !{ list of all entry points }
 //     !gla.noStaticUse = !{ subset of input/output/uniform that were not statically referenced in the source shader }
-//     !gla.shared = !{ list of all workgroup-shared globals (the Value* of the global variables that are shared) }
+//     !gla.shared = !{ list of all workgroup-shared globals (the Value* of the global variables that are storage-qualified shared) }
 //
 //     !gla.inputPrimitive     = !{ EMdLayoutGeometry }
 //     !gla.outputPrimitive    = !{ EMdLayoutGeometry }
@@ -146,7 +146,7 @@ const char* const UniformListMdName        = "gla.uniforms";
 const char* const InvariantListMdName      = "gla.invariant";
 const char* const EntrypointListMdName     = "gla.entrypoint";
 const char* const NoStaticUseMdName        = "gla.noStaticUse";
-const char* const WorkgroupSharedMdName    = "gla.shared";
+const char* const WorkgroupSharedMdName    = "gla.shared";              // storage qualifier 'shared'
 
 const char* const InputPrimitiveMdName     = "gla.inputPrimitive";
 const char* const OutputPrimitiveMdName    = "gla.outputPrimitive";
@@ -181,7 +181,7 @@ enum EMdInputOutput {
     // uniforms
     EMioDefaultUniform,      // a uniform not in a block
     EMioUniformBlockMember,  // uniform buffer
-    EMioBufferBlockMember,   // shader storage buffer object
+    EMioBufferBlockMember,   // shader storage buffer object, with no run-time sized array, see also EMioBufferBlockMemberArrayed
 
     // Entry point into shader
     EMioEntrypoint,
@@ -189,6 +189,9 @@ enum EMdInputOutput {
     // in & out blocks
     EMioPipeOutBlock,         // output block
     EMioPipeInBlock,          // input block
+
+    // uniforms
+    EMioBufferBlockMemberArrayed, // EMioBufferBlockMember but with run-time sized array as the last member
 
     EMioCount,
 };
@@ -206,7 +209,7 @@ enum EMdTypeLayout {
     EMtlSampler,
 
     // aggregate layouts
-    EMtlShared,
+    EMtlShared,             // layout-qualifier identifier 'shared'
     EMtlStd140,
     EMtlStd430,
     EMtlPacked,

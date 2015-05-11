@@ -157,11 +157,14 @@ public:
     // say whether or not to evaluate a chain right to left (false means left to right)
     void setAccessChainDirectionRightToLeft(bool rightToLeft) { accessRightToLeft = rightToLeft; }
 
-    // set new base as an l-value base
+    // set new base as an l-value base (pointer to object to modify)
     void setAccessChainLValue(llvm::Value*);
 
-    // set new base value as an r-value
+    // set new base value as an r-value (non-pointer)
     void setAccessChainRValue(llvm::Value*);
+
+    // set new base as a pointer to an array (pointer to first element)
+    void setAccessChainPointer(llvm::Value*);
 
     // push offset onto the left end of the chain
     void accessChainPushLeft(llvm::Value* offset) { accessChain.indexChain.push_back(offset); }
@@ -185,6 +188,11 @@ public:
 
     // use accessChain and swizzle to load an r-value
     llvm::Value* accessChainLoad(EMdPrecision);
+
+    // Return the actual pointer to what the access chain computes, which would not normally
+    // be done for doing loads/stores, but rather for having a pointer to the base
+    // of an array.
+    llvm::Value* getAccessChainPointer();
 
     // return an offset representing the collection of offsets in the chain
     llvm::Value* collapseInputAccessChain();

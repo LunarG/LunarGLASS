@@ -152,7 +152,7 @@ void GenerateResources(TBuiltInResource& resources)
     resources.maxComputeWorkGroupCountY = 65535;
     resources.maxComputeWorkGroupCountZ = 65535;
     resources.maxComputeWorkGroupSizeX = 1024;
-    resources.maxComputeWorkGroupSizeX = 1024;
+    resources.maxComputeWorkGroupSizeY = 1024;
     resources.maxComputeWorkGroupSizeZ = 64;
     resources.maxComputeUniformComponents = 1024;
     resources.maxComputeTextureImageUnits = 16;
