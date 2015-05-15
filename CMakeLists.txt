@@ -50,6 +50,7 @@ elseif(UNIX)
         z
         pthread
         dl
+        tinfo
         m)
 endif(WIN32)
 
