@@ -14,7 +14,6 @@ Usage: ./run [options]
 
 # Individual isolated tests, which will also catch the IRs, but slower than doing multithreaded
 ISOLATEDTESTS=(flowControl.frag \
-       310.comp                \
        Operations.frag         \
        conversion.frag         \
        prepost.frag            \
@@ -53,6 +52,7 @@ ISOLATEDTESTS=(flowControl.frag \
        100ops.frag             \
        300layout.vert          \
        300layout.frag          \
+       310.comp                \
        switch.frag             \
        whileLoop.frag          \
        doWhileLoop.frag        \
@@ -134,7 +134,5 @@ while [ $# -gt 0 ]; do
 done
 
 mkdir -p localResults
-# runParallelTests
-runIsolatedTests
-# runParallelTests
+runParallelTests
 runIsolatedTests
