@@ -2604,7 +2604,7 @@ bool gla::GlslTarget::getExpressionString(const llvm::Value* value, std::string&
 
     // Emulate the missing name.
     name = value->getName();
-    auto bit = builtInMap.find(name);
+    std::map<std::string, std::string>::const_iterator bit = builtInMap.find(name);
     if (bit != builtInMap.end())
         name = bit->second;
     else
