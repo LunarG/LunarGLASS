@@ -203,7 +203,7 @@ attributes #1 = { nounwind }
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"main", i32 15}
 !3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 43}
 
 
 Bottom IR:
@@ -255,7 +255,7 @@ attributes #1 = { nounwind readnone }
 !1 = metadata !{i32 0, i32 0, i32 1024, null}
 !2 = metadata !{metadata !"main", i32 15}
 !3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 0}
+!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 43}
 #version 400 core
 // LunarGOO output
 uniform float u;

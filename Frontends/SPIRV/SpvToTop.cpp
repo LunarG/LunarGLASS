@@ -40,6 +40,11 @@
 // Translate SPIR-V to Top IR.
 //
 
+#define _CRT_SECURE_NO_WARNINGS
+#ifdef _WIN32
+#define snprintf _snprintf
+#endif
+
 // LLVM includes
 #pragma warning(push, 1)
 #include "llvm/Support/CFG.h"
@@ -95,6 +100,45 @@ int GetWordCount(unsigned int word)
     return (int)(word >> spv::WordCountShift);
 }
 
+gla::EMdBuiltIn GetMdBuiltIn(spv::BuiltIn builtIn)
+{
+    switch (builtIn) {
+    case spv::BuiltInNumWorkgroups:        return gla::EmbNumWorkGroups;
+    case spv::BuiltInWorkgroupSize:        return gla::EmbWorkGroupSize;
+    case spv::BuiltInWorkgroupId:          return gla::EmbWorkGroupId;
+    case spv::BuiltInLocalInvocationId:    return gla::EmbLocalInvocationId;
+    case spv::BuiltInGlobalInvocationId:   return gla::EmbGlobalInvocationId;
+    case spv::BuiltInLocalInvocationIndex: return gla::EmbLocalInvocationIndex;
+    case spv::BuiltInVertexId:             return gla::EmbVertexId;
+    case spv::BuiltInInstanceId:           return gla::EmbInstanceId;
+    case spv::BuiltInPosition:             return gla::EmbPosition;
+    case spv::BuiltInPointSize:            return gla::EmbPointSize;
+    case spv::BuiltInClipVertex:           return gla::EmbClipVertex;
+    case spv::BuiltInClipDistance:         return gla::EmbClipDistance;
+    case spv::BuiltInCullDistance:         return gla::EmbCullDistance;
+    case spv::BuiltInInvocationId:         return gla::EmbInvocationId;
+    case spv::BuiltInPrimitiveId:          return gla::EmbPrimitiveId;
+    case spv::BuiltInLayer:                return gla::EmbLayer;
+    case spv::BuiltInViewportIndex:        return gla::EmbViewportIndex;
+    case spv::BuiltInPatchVertices:        return gla::EmbPatchVertices;
+    case spv::BuiltInTessLevelOuter:       return gla::EmbTessLevelOuter;
+    case spv::BuiltInTessLevelInner:       return gla::EmbTessLevelInner;
+    case spv::BuiltInTessCoord:            return gla::EmbTessCoord;
+    case spv::BuiltInFrontFacing:          return gla::EmbFace;
+    case spv::BuiltInFragCoord:            return gla::EmbFragCoord;
+    case spv::BuiltInPointCoord:           return gla::EmbPointCoord;
+    case spv::BuiltInFragColor:            return gla::EmbFragColor;
+    case spv::BuiltInFragDepth:            return gla::EmbFragDepth;
+    case spv::BuiltInSampleId:             return gla::EmbSampleId;
+    case spv::BuiltInSamplePosition:       return gla::EmbSamplePosition;
+    case spv::BuiltInSampleMask:           return gla::EmbSampleMask;
+    case spv::BuiltInHelperInvocation:     return gla::EmbHelperInvocation;
+    default:
+        gla::UnsupportedFunctionality("built in variable", gla::EATContinue);
+        return gla::EmbNone;
+    }
+}
+
 const char* NonNullName(const char* name)
 {
     return name ? name : "";
@@ -113,13 +157,14 @@ public:
 protected:
     // a bag to hold type information that's lost going to LLVM (without metadata)
     struct MetaType {
-        MetaType() : layout(gla::EMtlNone), precision(gla::EMpNone), set(-1), bindingOrLocation(gla::MaxUserLayoutLocation),
+        MetaType() : layout(gla::EMtlNone), precision(gla::EMpNone), builtIn(gla::EmbNone), set(-1), bindingOrLocation(gla::MaxUserLayoutLocation),
                      interpolationMethod((spv::Decoration)BadValue), interpolateTo((spv::Decoration)BadValue),
-                     invariant(false), builtIn((spv::BuiltIn)BadValue), name(0) { }
+                     invariant(false), name(0) { }
 
         // set of things needed for !typeLayout metadata node
         gla::EMdTypeLayout layout;              // includes matrix information
         gla::EMdPrecision precision;
+        gla::EMdBuiltIn builtIn;
         int set;
         int bindingOrLocation;
         spv::Decoration interpolationMethod;
@@ -127,8 +172,9 @@ protected:
 
         // metadata indicated in some other way
         bool invariant;
-        spv::BuiltIn builtIn;
         const char* name;
+        static const int bufSize = 12;
+        char buf[bufSize];
     };
     void bumpMemberMetaData(std::vector<MetaType>*& memberMetaData, int member);
 
@@ -520,7 +566,7 @@ void SpvToTopTranslator::addMetaTypeDecoration(spv::Decoration decoration, MetaT
         break;
     case spv::DecorationBuiltIn:
         num = spirv[word++];
-        metaType.builtIn = (spv::BuiltIn)num;
+        metaType.builtIn = GetMdBuiltIn((spv::BuiltIn)num);
         break;
     case spv::DecorationStream:
     case spv::DecorationComponent:
@@ -678,8 +724,12 @@ void SpvToTopTranslator::addVariable(spv::Id resultId, spv::Id typeId, spv::Stor
         if (name[0] == 0)
             name = "anon@";
     } else {
-        if (storageClass != spv::StorageClassFunction)
-            name = "nn";   // no name, but LLVM treats I/O as dead when there is no
+        if (commonMap[resultId].metaType.builtIn != gla::EmbNone) {
+            snprintf(&commonMap[resultId].metaType.buf[0], MetaType::bufSize, "__glab%d_", commonMap[resultId].metaType.builtIn);
+            name = &commonMap[resultId].metaType.buf[0];
+            commonMap[resultId].metaType.name = name;
+        } else if (storageClass != spv::StorageClassFunction)
+            name = "nn";   // no name, but LLVM treats I/O as dead when there is no name
         else
             name = "";
     }
@@ -840,48 +890,17 @@ gla::EMdInputOutput SpvToTopTranslator::getMdQualifier(spv::Id resultId) const
     // non-blocks...
 
     switch (commonMap[resultId].metaType.builtIn) {
-    case spv::BuiltInPosition:    mdQualifier = gla::EMioVertexPosition; break;
-    case spv::BuiltInPointSize:   mdQualifier = gla::EMioPointSize;      break;
-    case spv::BuiltInClipVertex:  mdQualifier = gla::EMioClipVertex;     break;
-    case spv::BuiltInInstanceId:  mdQualifier = gla::EMioInstanceId;     break;
-    case spv::BuiltInVertexId:    mdQualifier = gla::EMioVertexId;       break;
-    case spv::BuiltInFragCoord:   mdQualifier = gla::EMioFragmentCoord;  break;
-    case spv::BuiltInPointCoord:  mdQualifier = gla::EMioPointCoord;     break;
-    case spv::BuiltInFrontFacing: mdQualifier = gla::EMioFragmentFace;   break;
-    case spv::BuiltInFragColor:   mdQualifier = gla::EMioPipeOut;        break;
-    case spv::BuiltInFragDepth:   mdQualifier = gla::EMioFragmentDepth;  break;
+    case gla::EmbPosition:    mdQualifier = gla::EMioVertexPosition; break;
+    case gla::EmbPointSize:   mdQualifier = gla::EMioPointSize;      break;
+    case gla::EmbClipVertex:  mdQualifier = gla::EMioClipVertex;     break;
+    case gla::EmbInstanceId:  mdQualifier = gla::EMioInstanceId;     break;
+    case gla::EmbVertexId:    mdQualifier = gla::EMioVertexId;       break;
+    case gla::EmbFragCoord:   mdQualifier = gla::EMioFragmentCoord;  break;
+    case gla::EmbPointCoord:  mdQualifier = gla::EMioPointCoord;     break;
+    case gla::EmbFace:        mdQualifier = gla::EMioFragmentFace;   break;
+    case gla::EmbFragColor:   mdQualifier = gla::EMioPipeOut;        break;
+    case gla::EmbFragDepth:   mdQualifier = gla::EMioFragmentDepth;  break;
 
-    case spv::BuiltInCullDistance:
-    case spv::BuiltInPrimitiveId:
-    case spv::BuiltInInvocationId:
-    case spv::BuiltInLayer:
-    case spv::BuiltInViewportIndex:
-    case spv::BuiltInTessLevelOuter:
-    case spv::BuiltInTessLevelInner:
-    case spv::BuiltInTessCoord:
-    case spv::BuiltInPatchVertices:
-    case spv::BuiltInSampleId:
-    case spv::BuiltInSamplePosition:
-    case spv::BuiltInSampleMask:
-    case spv::BuiltInHelperInvocation:
-    case spv::BuiltInNumWorkgroups:
-    case spv::BuiltInWorkgroupSize:
-    case spv::BuiltInWorkgroupId:
-    case spv::BuiltInLocalInvocationId:
-    case spv::BuiltInGlobalInvocationId:
-    case spv::BuiltInLocalInvocationIndex:
-    case spv::BuiltInWorkDim:
-    case spv::BuiltInGlobalSize:
-    case spv::BuiltInEnqueuedWorkgroupSize:
-    case spv::BuiltInGlobalOffset:
-    case spv::BuiltInGlobalLinearId:
-    case spv::BuiltInWorkgroupLinearId:
-    case spv::BuiltInSubgroupSize:
-    case spv::BuiltInSubgroupMaxSize:
-    case spv::BuiltInNumSubgroups:
-    case spv::BuiltInNumEnqueuedSubgroups:
-    case spv::BuiltInSubgroupId:
-    case spv::BuiltInSubgroupLocalInvocationId:
     default:
         switch (commonMap[resultId].storageClass) {
         case spv::StorageClassUniformConstant: mdQualifier = gla::EMioDefaultUniform;     break;
@@ -1019,7 +1038,8 @@ llvm::MDNode* SpvToTopTranslator::declareMdDefaultUniform(spv::Id resultId)
     // Make the main node
     return metadata.makeMdInputOutput(NonNullName(commonMap[resultId].metaType.name), gla::UniformListMdName, gla::EMioDefaultUniform,
                                       makePermanentTypeProxy(commonMap[resultId].value),
-                                      layout, commonMap[resultId].metaType.precision, packSetBinding(commonMap[resultId].metaType), samplerMd, structure);
+                                      layout, commonMap[resultId].metaType.precision, packSetBinding(commonMap[resultId].metaType), samplerMd, structure,
+                                      -1, commonMap[resultId].metaType.builtIn);
 }
 
 // Make a metadata description of a sampler's type.
@@ -1081,7 +1101,7 @@ llvm::MDNode* SpvToTopTranslator::declareMdType(spv::Id typeId, MetaType& metaTy
     }
 
     // !typeLayout
-    mdArgs.push_back(metadata.makeMdTypeLayout(typeLayout, metaType.precision, packSetBinding(metaType), samplerMd));
+    mdArgs.push_back(metadata.makeMdTypeLayout(typeLayout, metaType.precision, packSetBinding(metaType), samplerMd, -1, metaType.builtIn));
 
     if (commonMap[typeId].type->getTypeID() == llvm::Type::StructTyID) {
         int numMembers = (int)commonMap[typeId].type->getNumContainedTypes();
@@ -1126,7 +1146,7 @@ llvm::MDNode* SpvToTopTranslator::makeInputOutputMetadata(spv::Id resultId, int 
 
     return metadata.makeMdInputOutput(NonNullName(commonMap[resultId].metaType.name), kind, getMdQualifier(resultId), makePermanentTypeProxy(commonMap[resultId].value),
                                       commonMap[typeId].metaType.layout, commonMap[resultId].metaType.precision, slot, 0, aggregate,
-                                      gla::MakeInterpolationMode(interpMethod, interpLocation));
+                                      gla::MakeInterpolationMode(interpMethod, interpLocation), commonMap[resultId].metaType.builtIn);
 }
 
 // Make metadata node for an 'out' variable/block and associate it with the 

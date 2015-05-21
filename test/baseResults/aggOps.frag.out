@@ -298,7 +298,7 @@ attributes #0 = { nounwind readnone }
 !16 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !17 = metadata !{metadata !"foo1", i32 12, %s1* @foo1_typeProxy, metadata !8, metadata !12}
 !18 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !19}
-!19 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
+!19 = metadata !{i32 0, i32 0, i32 1027, null, i32 0, i32 43}
 
 
 Bottom IR:
@@ -456,7 +456,7 @@ attributes #0 = { nounwind readnone }
 !16 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !17 = metadata !{metadata !"foo1", i32 12, %s1* @foo1_typeProxy, metadata !8, metadata !12}
 !18 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !19}
-!19 = metadata !{i32 0, i32 0, i32 1027, null, i32 0}
+!19 = metadata !{i32 0, i32 0, i32 1027, null, i32 0, i32 43}
 #version 130
 // LunarGOO output
 struct s1 {

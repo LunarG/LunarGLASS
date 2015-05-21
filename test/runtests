@@ -136,3 +136,12 @@ done
 mkdir -p localResults
 runParallelTests
 runIsolatedTests
+
+if [ $HASERROR -eq 0 ]
+then
+    echo Tests Succeeded.
+else
+    echo Tests Failed.
+fi
+
+exit $HASERROR

@@ -320,6 +320,65 @@ gla::EMdPrecision GetMdPrecision(const glslang::TType& type)
     }
 }
 
+gla::EMdBuiltIn GetMdBuiltIn(const glslang::TType& type)
+{
+    switch (type.getQualifier().builtIn) {
+    case glslang::EbvNone:                 return gla::EmbNone;
+    case glslang::EbvNumWorkGroups:        return gla::EmbNumWorkGroups;
+    case glslang::EbvWorkGroupSize:        return gla::EmbWorkGroupSize;
+    case glslang::EbvWorkGroupId:          return gla::EmbWorkGroupId;
+    case glslang::EbvLocalInvocationId:    return gla::EmbLocalInvocationId;
+    case glslang::EbvGlobalInvocationId:   return gla::EmbGlobalInvocationId;
+    case glslang::EbvLocalInvocationIndex: return gla::EmbLocalInvocationIndex;
+    case glslang::EbvVertexId:             return gla::EmbVertexId;
+    case glslang::EbvInstanceId:           return gla::EmbInstanceId;
+    case glslang::EbvPosition:             return gla::EmbPosition;
+    case glslang::EbvPointSize:            return gla::EmbPointSize;
+    case glslang::EbvClipVertex:           return gla::EmbClipVertex;
+    case glslang::EbvClipDistance:         return gla::EmbClipDistance;
+    case glslang::EbvCullDistance:         return gla::EmbCullDistance;
+    case glslang::EbvNormal:               return gla::EmbNormal;
+    case glslang::EbvVertex:               return gla::EmbVertex;
+    case glslang::EbvMultiTexCoord0:       return gla::EmbMultiTexCoord0;
+    case glslang::EbvMultiTexCoord1:       return gla::EmbMultiTexCoord1;
+    case glslang::EbvMultiTexCoord2:       return gla::EmbMultiTexCoord2;
+    case glslang::EbvMultiTexCoord3:       return gla::EmbMultiTexCoord3;
+    case glslang::EbvMultiTexCoord4:       return gla::EmbMultiTexCoord4;
+    case glslang::EbvMultiTexCoord5:       return gla::EmbMultiTexCoord5;
+    case glslang::EbvMultiTexCoord6:       return gla::EmbMultiTexCoord6;
+    case glslang::EbvMultiTexCoord7:       return gla::EmbMultiTexCoord7;
+    case glslang::EbvFrontColor:           return gla::EmbFrontColor;
+    case glslang::EbvBackColor:            return gla::EmbBackColor;
+    case glslang::EbvFrontSecondaryColor:  return gla::EmbFrontSecondaryColor;
+    case glslang::EbvBackSecondaryColor:   return gla::EmbBackSecondaryColor;
+    case glslang::EbvTexCoord:             return gla::EmbTexCoord;
+    case glslang::EbvFogFragCoord:         return gla::EmbFogFragCoord;
+    case glslang::EbvInvocationId:         return gla::EmbInvocationId;
+    case glslang::EbvPrimitiveId:          return gla::EmbPrimitiveId;
+    case glslang::EbvLayer:                return gla::EmbLayer;
+    case glslang::EbvViewportIndex:        return gla::EmbViewportIndex;
+    case glslang::EbvPatchVertices:        return gla::EmbPatchVertices;
+    case glslang::EbvTessLevelOuter:       return gla::EmbTessLevelOuter;
+    case glslang::EbvTessLevelInner:       return gla::EmbTessLevelInner;
+    case glslang::EbvTessCoord:            return gla::EmbTessCoord;
+    case glslang::EbvColor:                return gla::EmbColor;
+    case glslang::EbvSecondaryColor:       return gla::EmbSecondaryColor;
+    case glslang::EbvFace:                 return gla::EmbFace;
+    case glslang::EbvFragCoord:            return gla::EmbFragCoord;
+    case glslang::EbvPointCoord:           return gla::EmbPointCoord;
+    case glslang::EbvFragColor:            return gla::EmbFragColor;
+    case glslang::EbvFragData:             return gla::EmbFragData;
+    case glslang::EbvFragDepth:            return gla::EmbFragDepth;
+    case glslang::EbvSampleId:             return gla::EmbSampleId;
+    case glslang::EbvSamplePosition:       return gla::EmbSamplePosition;
+    case glslang::EbvSampleMask:           return gla::EmbSampleMask;
+    case glslang::EbvHelperInvocation:     return gla::EmbHelperInvocation;
+    default:
+        gla::UnsupportedFunctionality("built in variable", gla::EATContinue);
+        return gla::EmbNone;
+    }
+}
+
 const char* filterMdName(const glslang::TString& name)
 {
     if (glslang::IsAnonymous(name))
@@ -2692,7 +2751,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(glslang::TIntermSy
     // Make the main node
     return metadata.makeMdInputOutput(node->getName().c_str(), gla::UniformListMdName, gla::EMioDefaultUniform,
                                       MakePermanentTypeProxy(value),
-                                      layout, GetMdPrecision(type), GetMdBinding(type), samplerMd, structure);
+                                      layout, GetMdPrecision(type), GetMdBinding(type), samplerMd, structure, -1, GetMdBuiltIn(type));
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const glslang::TType& type, llvm::Value* value)
@@ -2741,7 +2800,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type)
         mdArgs.push_back(llvm::MDString::get(context, ""));
 
     // !typeLayout
-    mdArgs.push_back(metadata.makeMdTypeLayout(GetMdTypeLayout(type), GetMdPrecision(type), GetMdSlotLocation(type), samplerMd));
+    mdArgs.push_back(metadata.makeMdTypeLayout(GetMdTypeLayout(type), GetMdPrecision(type), GetMdSlotLocation(type), samplerMd, -1, GetMdBuiltIn(type)));
 
     const glslang::TTypeList* typeList = type.getStruct();
     if (typeList) {
@@ -2777,7 +2836,7 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(glslang::TIntermSy
 
     return metadata.makeMdInputOutput(filterMdName(node->getName().c_str()), kind, GetMdQualifier(node), MakePermanentTypeProxy(value), 
                                       GetMdTypeLayout(node->getType()), GetMdPrecision(node->getType()), slot, 0, aggregate,
-                                      gla::MakeInterpolationMode(interpMethod, interpLocation));
+                                      gla::MakeInterpolationMode(interpMethod, interpLocation), GetMdBuiltIn(node->getType()));
 }
 
 // Make metadata node for an 'out' variable/block and associate it with the 

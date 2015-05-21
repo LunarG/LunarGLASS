@@ -83,9 +83,9 @@ namespace gla {
 //         - array is bool, true if it is a samplerArray
 //         - shadow is bool, true if it is a samplerShadow
 //
-//     !typeLayout -> { EMdTypeLayout, EMdPrecision, location, !sampler, interpMode }
+//     !typeLayout -> { EMdTypeLayout, EMdPrecision, location, !sampler, interpMode, EMdBuiltIn }
 //     Notes:
-//         - the type layout is how it is known if something is a matrix or unsigned integer, 
+//         - the EMdTypeLayout is how it is known if something is a matrix or unsigned integer, 
 //           because this is not in the LLVM type
 //         - for objects that take a binding, the location holds the binding number
 //         - location is the *first* location of the variable, which can span many slots/locations
@@ -94,6 +94,8 @@ namespace gla {
 //         - location is < MaxUserLayoutLocation for user-assigned locations
 //         - the intrinsic's slot can be different when reading a single slot out of the middle of a large input/output
 //         - interpMode is present for EMioPipeOut as an integer encoded for MakeInterpolationMode() and CrackInterpolationMode()
+//           it can also be present if there is an EMdBuiltIn, and will be -1 if there is no interpMode
+//         - EMdBuiltIn, if present, says what built-in variable is being represented.  It is optional.
 //
 //     !aggregate -> { name, !typeLayout, list of members: name1, !aggregate1, name2, !aggregate2, ... }
 //     Notes:
@@ -102,7 +104,7 @@ namespace gla {
 //         - the name in operand 0 is the name of the type (interface name for a block)
 //         - each contained member has a pair of operands, one for the member's name, one for the member's type
 //
-//     When aggregates are used, the starting point is always a !gla.uniform, !gla.output, or gla.input node, which will
+//     When aggregates are used, the starting point is always a !gla.uniform, !gla.output, or !gla.input node, which will
 //     supply overall information and then point to a !aggregate for the hierarchical information.
 //
 //     Blocks can have two names:  
@@ -161,7 +163,7 @@ const char* const OriginUpperLeftMdName    = "gla.originUpperLeft";
 
 // what kind of I/O:
 enum EMdInputOutput {
-    EMioNone,               // for something that is not I/O, should not show up in a metadata node
+    EMioNone,               // for something that is not I/O, or already had its EmdInputOutput in md pointing here
 
     // inputs
     EMioPipeIn,             // normal user-streamed input data: attributes, varyings, etc.
@@ -281,12 +283,66 @@ enum EMdVertexOrder {
     EMvoCount,
 };
 
+enum EMdBuiltIn {
+    EmbNone,
+    EmbNumWorkGroups,
+    EmbWorkGroupSize,
+    EmbWorkGroupId,
+    EmbLocalInvocationId,
+    EmbGlobalInvocationId,
+    EmbLocalInvocationIndex,
+    EmbVertexId,
+    EmbInstanceId,
+    EmbPosition,
+    EmbPointSize,
+    EmbClipVertex,
+    EmbClipDistance,
+    EmbCullDistance,
+    EmbNormal,
+    EmbVertex,
+    EmbMultiTexCoord0,
+    EmbMultiTexCoord1,
+    EmbMultiTexCoord2,
+    EmbMultiTexCoord3,
+    EmbMultiTexCoord4,
+    EmbMultiTexCoord5,
+    EmbMultiTexCoord6,
+    EmbMultiTexCoord7,
+    EmbFrontColor,
+    EmbBackColor,
+    EmbFrontSecondaryColor,
+    EmbBackSecondaryColor,
+    EmbTexCoord,
+    EmbFogFragCoord,
+    EmbInvocationId,
+    EmbPrimitiveId,
+    EmbLayer,
+    EmbViewportIndex,
+    EmbPatchVertices,
+    EmbTessLevelOuter,
+    EmbTessLevelInner,
+    EmbTessCoord,
+    EmbColor,
+    EmbSecondaryColor,
+    EmbFace,
+    EmbFragCoord,
+    EmbPointCoord,
+    EmbFragColor,
+    EmbFragData,
+    EmbFragDepth,
+    EmbSampleId,
+    EmbSamplePosition,
+    EmbSampleMask,
+    EmbHelperInvocation,
+    EmbCount
+};
+
 //
 // Crackers are for the consumer of the IR.
 // They take an MD node, or instruction that might point to one, and decode it, as per the enums above.
 //
 
-inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, int& interpMode)
+inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, int& interpMode, EMdBuiltIn& builtIn)
 {
     const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
     if (! constInt)
@@ -316,6 +372,13 @@ inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPr
     } else
         interpMode = 0;
 
+    if (md->getNumOperands() >= 6) {
+        const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(5));
+        if (constInt)
+            builtIn = (EMdBuiltIn)constInt->getZExtValue();
+    } else
+        builtIn = EmbNone;
+
     return true;
 }
 
@@ -330,7 +393,7 @@ inline bool CrackIOMdType(const llvm::MDNode* md, llvm::Type*& type)
 
 inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
                       EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, const llvm::MDNode*& aggregate, 
-                      int& interpMode)
+                      int& interpMode, EMdBuiltIn& builtIn)
 {
     symbolName = md->getOperand(0)->getName();
 
@@ -346,7 +409,7 @@ inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputO
     llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(3));
     if (! layoutMd)
         return false;
-    if (! CrackTypeLayout(layoutMd, layout, precision, location, sampler, interpMode))
+    if (! CrackTypeLayout(layoutMd, layout, precision, location, sampler, interpMode, builtIn))
         return false;
 
     if (md->getNumOperands() >= 5)
@@ -358,7 +421,7 @@ inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputO
 }
 
 inline bool CrackAggregateMd(const llvm::MDNode* md, std::string& symbolName, 
-                             EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler)
+                             EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, EMdBuiltIn& builtIn)
 {
     symbolName = md->getOperand(0)->getName();
     int dummyInterpMode;
@@ -366,7 +429,7 @@ inline bool CrackAggregateMd(const llvm::MDNode* md, std::string& symbolName,
     llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(1));
     if (! layoutMd)
         return false;
-    if (! CrackTypeLayout(layoutMd, layout, precision, location, sampler, dummyInterpMode))
+    if (! CrackTypeLayout(layoutMd, layout, precision, location, sampler, dummyInterpMode, builtIn))
         return false;
     
     return true;
@@ -374,39 +437,13 @@ inline bool CrackAggregateMd(const llvm::MDNode* md, std::string& symbolName,
 
 inline bool CrackIOMd(const llvm::Instruction* instruction, llvm::StringRef kind, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
                       EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, const llvm::MDNode*& aggregate,
-                      int& interpMode)
+                      int& interpMode, EMdBuiltIn& builtIn)
 {
     const llvm::MDNode* md = instruction->getMetadata(kind);
     if (! md)
         return false;
 
-    return CrackIOMd(md, symbolName, qualifier, type, layout, precision, location, sampler, aggregate, interpMode);
-}
-
-inline bool CrackInputMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
-                         EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& aggregate)
-{
-    const llvm::MDNode* dummySampler;
-    int dummyInterpMode;
-
-    return CrackIOMd(instruction, InputMdName, symbolName, qualifier, type, layout, precision, location, dummySampler, aggregate, dummyInterpMode);
-}
-
-inline bool CrackOutputMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
-                          EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& aggregate)
-{
-    const llvm::MDNode* dummySampler;
-    int dummyInterpMode;
-
-    return CrackIOMd(instruction, OutputMdName, symbolName, qualifier, type, layout, precision, location, dummySampler, aggregate, dummyInterpMode);
-}
-
-inline bool CrackUniformMd(const llvm::Instruction* instruction, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
-                           EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, const llvm::MDNode*& aggregate)
-{
-    int dummyInterpMode;
-
-    return CrackIOMd(instruction, UniformMdName, symbolName, qualifier, type, layout, precision, location, sampler, aggregate, dummyInterpMode);
+    return CrackIOMd(md, symbolName, qualifier, type, layout, precision, location, sampler, aggregate, interpMode, builtIn);
 }
 
 inline bool CrackSamplerMd(const llvm::MDNode* md, EMdSampler& sampler, llvm::Type*& type, EMdSamplerDim& dim, bool& isArray, bool& isShadow, EMdSamplerBaseType& baseType)
@@ -550,9 +587,9 @@ public:
     // "input/output/uniform ->" as per comment at top of file
     llvm::MDNode* makeMdInputOutput(llvm::StringRef symbolName, llvm::StringRef sectionName, EMdInputOutput qualifier, 
                                     llvm::Value* typeProxy, EMdTypeLayout layout, EMdPrecision precision, int location, 
-                                    llvm::MDNode* sampler = 0, llvm::MDNode* aggregate = 0, int interpMode = -1)
+                                    llvm::MDNode* sampler = 0, llvm::MDNode* aggregate = 0, int interpMode = -1, EMdBuiltIn builtIn = EmbNone)
     {
-        llvm::MDNode* layoutMd = makeMdTypeLayout(layout, precision, location, sampler, interpMode);
+        llvm::MDNode* layoutMd = makeMdTypeLayout(layout, precision, location, sampler, interpMode, builtIn);
 
         llvm::MDNode* md;
         if (aggregate) {
@@ -603,10 +640,20 @@ public:
         return precisionMd[precision];
     }
 
-    llvm::MDNode* makeMdTypeLayout(EMdTypeLayout layout, EMdPrecision precision, int location, llvm::MDNode* sampler, int interpMode = -1)
+    llvm::MDNode* makeMdTypeLayout(EMdTypeLayout layout, EMdPrecision precision, int location, llvm::MDNode* sampler, int interpMode = -1, EMdBuiltIn builtIn = EmbNone)
     {
         llvm::MDNode* md;
-        if (interpMode >= 0) {
+        if (builtIn != EmbNone) {
+            llvm::Value* layoutArgs[] = {
+                gla::MakeIntConstant(context, layout),
+                gla::MakeIntConstant(context, precision),
+                gla::MakeIntConstant(context, location),
+                sampler,
+                gla::MakeIntConstant(context, interpMode),
+                gla::MakeIntConstant(context, builtIn)
+            };
+            md = llvm::MDNode::get(context, layoutArgs);
+        } else if (interpMode >= 0) {
             llvm::Value* layoutArgs[] = {
                 gla::MakeIntConstant(context, layout),
                 gla::MakeIntConstant(context, precision),

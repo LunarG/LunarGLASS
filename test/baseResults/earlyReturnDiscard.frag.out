@@ -204,7 +204,7 @@ attributes #0 = { nounwind }
 !13 = metadata !{metadata !"b", i32 12, i1* @b_typeProxy, metadata !6}
 !14 = metadata !{metadata !"threshhold3", i32 12, float* @threshhold3_typeProxy, metadata !6}
 !15 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
+!16 = metadata !{i32 0, i32 0, i32 1026, null, i32 0, i32 43}
 
 
 Bottom IR:
@@ -344,7 +344,7 @@ attributes #1 = { nounwind readnone }
 !13 = metadata !{metadata !"b", i32 12, i1* @b_typeProxy, metadata !6}
 !14 = metadata !{metadata !"threshhold3", i32 12, float* @threshhold3_typeProxy, metadata !6}
 !15 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1026, null, i32 0}
+!16 = metadata !{i32 0, i32 0, i32 1026, null, i32 0, i32 43}
 #version 110
 // LunarGOO output
 uniform vec4 otherColor;

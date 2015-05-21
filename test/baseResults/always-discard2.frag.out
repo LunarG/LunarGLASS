@@ -57,7 +57,7 @@ attributes #0 = { nounwind }
 !1 = metadata !{metadata !"tex_coord", i32 1, <2 x float>* @tex_coord_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43}
 
 
 Bottom IR:
@@ -91,7 +91,7 @@ attributes #0 = { nounwind }
 !1 = metadata !{metadata !"tex_coord", i32 1, <2 x float>* @tex_coord_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43}
 #version 110
 // LunarGOO output
 varying vec2 tex_coord;

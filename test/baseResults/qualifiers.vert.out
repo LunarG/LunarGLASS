@@ -54,9 +54,9 @@ stage-exit:                                       ; preds = %stage-epilogue
 !11 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_typeProxy, metadata !12}
 !12 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 !13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @gl_VertexID_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
+!14 = metadata !{i32 0, i32 0, i32 1030, null, i32 0, i32 7}
 !15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
+!16 = metadata !{i32 0, i32 0, i32 1031, null, i32 0, i32 8}
 
 
 Bottom IR:
@@ -107,9 +107,9 @@ stage-exit:                                       ; preds = %stage-epilogue
 !11 = metadata !{metadata !"inV", i32 1, <4 x float>* @inV_typeProxy, metadata !12}
 !12 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
 !13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @gl_VertexID_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
+!14 = metadata !{i32 0, i32 0, i32 1030, null, i32 0, i32 7}
 !15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1031, null, i32 0}
+!16 = metadata !{i32 0, i32 0, i32 1031, null, i32 0, i32 8}
 #version 430 core
 // LunarGOO output
 in vec4 inV;

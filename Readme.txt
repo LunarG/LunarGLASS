@@ -15,7 +15,7 @@ Modes of use:
         [per compile...]
         3. Pass this manager to a front end that builds LunarGLASS Top IR and 
            saves the llvm module into the manager using manager->setModule()
-	   and saves symbol tables using manager->set*Symbols().
+           and saves symbol tables using manager->set*Symbols().
         4. Use manager->translateTopToBottom() to create bottom IR.
         5. Use manager->translateBottomToTarget() to translate that to the
            compiler's back end target language.

@@ -84,13 +84,13 @@ attributes #0 = { nounwind readnone }
 !7 = metadata !{metadata !"userIn", i32 1, [2 x <4 x float>]* @userIn_typeProxy, metadata !8}
 !8 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !9 = metadata !{metadata !"gl_TexCoord", i32 1, [6 x <4 x float>]* @gl_TexCoord_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
+!10 = metadata !{i32 0, i32 0, i32 1026, null, i32 1, i32 28}
 !11 = metadata !{metadata !"color", i32 1, <4 x float>* @color_typeProxy, metadata !12}
 !12 = metadata !{i32 0, i32 0, i32 1032, null, i32 1}
 !13 = metadata !{metadata !"alpha", i32 1, float* @alpha_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 0, i32 1033, null, i32 1}
 !15 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1034, null, i32 0}
+!16 = metadata !{i32 0, i32 0, i32 1034, null, i32 0, i32 43}
 
 
 Bottom IR:
@@ -169,13 +169,13 @@ attributes #0 = { nounwind readnone }
 !7 = metadata !{metadata !"userIn", i32 1, [2 x <4 x float>]* @userIn_typeProxy, metadata !8}
 !8 = metadata !{i32 0, i32 0, i32 1024, null, i32 1}
 !9 = metadata !{metadata !"gl_TexCoord", i32 1, [6 x <4 x float>]* @gl_TexCoord_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1026, null, i32 1}
+!10 = metadata !{i32 0, i32 0, i32 1026, null, i32 1, i32 28}
 !11 = metadata !{metadata !"color", i32 1, <4 x float>* @color_typeProxy, metadata !12}
 !12 = metadata !{i32 0, i32 0, i32 1032, null, i32 1}
 !13 = metadata !{metadata !"alpha", i32 1, float* @alpha_typeProxy, metadata !14}
 !14 = metadata !{i32 0, i32 0, i32 1033, null, i32 1}
 !15 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1034, null, i32 0}
+!16 = metadata !{i32 0, i32 0, i32 1034, null, i32 0, i32 43}
 #version 130
 // LunarGOO output
 uniform sampler2D texSampler2D;

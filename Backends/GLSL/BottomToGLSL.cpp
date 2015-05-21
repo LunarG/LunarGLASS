@@ -95,7 +95,8 @@ namespace {
 
     // Taken from VS <function> hash:
     unsigned int _Hash_seq(const unsigned char *_First, unsigned int _Count)
-    {	// FNV-1a hash function for bytes in [_First, _First+_Count)
+    {
+        // FNV-1a hash function for bytes in [_First, _First+_Count)
         const unsigned int _FNV_offset_basis = 2166136261U;
         const unsigned int _FNV_prime = 16777619U;
 
@@ -122,6 +123,120 @@ namespace {
                 buf[0] = 'a' + r - 10;
             string.append(buf);
             i = i / radix;
+        }
+    }
+
+    const char* GetBuiltInName(gla::EMdInputOutput io, EShLanguage stage, gla::EMdBuiltIn builtIn)
+    {
+        switch (io) {
+        // inputs
+        case gla::EMioPipeIn:
+        case gla::EMioVertexId:
+        case gla::EMioInstanceId:
+        case gla::EMioFragmentFace:
+        case gla::EMioFragmentCoord:
+        case gla::EMioPointCoord:
+            switch(builtIn)
+            {
+            case gla::EmbNone:                   return "";
+            case gla::EmbNumWorkGroups:          return "gl_NumWorkGroups";
+            case gla::EmbWorkGroupSize:          return "gl_WorkGroupSize";
+            case gla::EmbWorkGroupId:            return "gl_WorkGroupID";
+            case gla::EmbLocalInvocationId:      return "gl_LocalInvocationID";
+            case gla::EmbGlobalInvocationId:     return "gl_GlobalInvocationID";
+            case gla::EmbLocalInvocationIndex:   return "gl_LocalInvocationIndex";
+
+            case gla::EmbVertexId:               return "gl_VertexID";
+            case gla::EmbInstanceId:             return "gl_InstanceID";
+
+            case gla::EmbPosition:               return "gl_Position";
+            case gla::EmbPointSize:              return "gl_PointSize";
+            case gla::EmbClipVertex:             return "gl_ClipVertex";
+            case gla::EmbClipDistance:           return "gl_ClipDistance";
+            case gla::EmbCullDistance:           return "gl_CullDistance";
+
+            case gla::EmbFrontColor:             return "gl_FrontColor";
+            case gla::EmbBackColor:              return "gl_BackColor";
+            case gla::EmbFrontSecondaryColor:    return "gl_FrontSecondaryColor";
+            case gla::EmbBackSecondaryColor:     return "gl_BackSecondaryColor";
+            case gla::EmbTexCoord:               return "gl_TexCoord";
+            case gla::EmbFogFragCoord:           return "gl_FogFragCoord";
+
+            case gla::EmbPrimitiveId:            return stage == EShLangFragment ? "gl_PrimitiveID" : "gl_PrimitiveIDIn";
+            case gla::EmbInvocationId:           return "gl_InvocationID";
+
+            case gla::EmbPatchVertices:          return "gl_PatchVerticesIn";
+            case gla::EmbTessCoord:              return "gl_TessCoord";
+            case gla::EmbTessLevelOuter:         return "gl_TessLevelOuter";
+            case gla::EmbTessLevelInner:         return "gl_TessLevelInner";
+
+            case gla::EmbColor:                  return "gl_Color";
+            case gla::EmbSecondaryColor:         return "gl_SecondaryColor";
+
+            case gla::EmbFragCoord:              return "gl_FragCoord";
+            case gla::EmbFace:                   return "gl_FrontFacing";
+            case gla::EmbPointCoord:             return "gl_PointCoord";
+            case gla::EmbSampleId:               return "gl_SampleID";
+            case gla::EmbSamplePosition:         return "gl_SamplePosition";
+            case gla::EmbSampleMask:             return "gl_SampleMaskIn";
+            case gla::EmbLayer:                  return "gl_Layer";
+            case gla::EmbViewportIndex:          return "gl_ViewportIndex";
+            case gla::EmbHelperInvocation:       return "gl_HelperInvocation";
+
+            default:
+                UnsupportedFunctionality("EMdBuiltIn input value", gla::EATContinue);
+                return "";
+
+            }
+
+        // outputs
+        case gla::EMioPipeOut:
+        case gla::EMioVertexPosition:
+        case gla::EMioPointSize:
+        case gla::EMioClipVertex:
+        case gla::EMioFragmentDepth:
+            switch(builtIn)
+            {
+            case gla::EmbNone:                   return "";
+            case gla::EmbPosition:               return "gl_Position";
+            case gla::EmbPointSize:              return "gl_PointSize";
+            case gla::EmbClipVertex:             return "gl_ClipVertex";
+            case gla::EmbClipDistance:           return "gl_ClipDistance";
+            case gla::EmbCullDistance:           return "gl_CullDistance";
+            case gla::EmbNormal:                 return "gl_EmbNormal";
+            case gla::EmbVertex:                 return "gl_EmbVertex";
+            case gla::EmbMultiTexCoord0:         return "gl_EmbMultiTexCoord0";
+            case gla::EmbMultiTexCoord1:         return "gl_EmbMultiTexCoord1";
+            case gla::EmbMultiTexCoord2:         return "gl_EmbMultiTexCoord2";
+            case gla::EmbMultiTexCoord3:         return "gl_EmbMultiTexCoord3";
+            case gla::EmbMultiTexCoord4:         return "gl_EmbMultiTexCoord4";
+            case gla::EmbMultiTexCoord5:         return "gl_EmbMultiTexCoord5";
+            case gla::EmbMultiTexCoord6:         return "gl_EmbMultiTexCoord6";
+            case gla::EmbMultiTexCoord7:         return "gl_EmbMultiTexCoord7";
+            case gla::EmbFrontColor:             return "gl_EmbFrontColor";
+            case gla::EmbBackColor:              return "gl_EmbBackColor";
+            case gla::EmbFrontSecondaryColor:    return "gl_EmbFrontSecondaryColor";
+            case gla::EmbBackSecondaryColor:     return "gl_EmbBackSecondaryColor";
+            case gla::EmbTexCoord:               return "gl_EmbTexCoord";
+            case gla::EmbFogFragCoord:           return "gl_EmbFogFragCoord";
+            case gla::EmbPrimitiveId:            return "gl_PrimitiveID";
+            case gla::EmbLayer:                  return "gl_Layer";
+            case gla::EmbViewportIndex:          return "gl_ViewportIndex";
+            case gla::EmbTessLevelOuter:         return "gl_TessLevelOuter";
+            case gla::EmbTessLevelInner:         return "gl_TessLevelInner";
+
+            case gla::EmbSampleMask:             return "gl_SampleMask";
+            case gla::EmbFragColor:              return "gl_FragColor";
+            case gla::EmbFragData:               return "gl_FragData";
+            case gla::EmbFragDepth:              return "gl_FragDepth";
+
+            default:
+                UnsupportedFunctionality("EMdBuiltIn output value", gla::EATContinue);
+                return "";
+            }
+
+        default:
+            return "";
         }
     }
 
@@ -214,9 +329,10 @@ namespace gla {
 
 class MetaType {
 public:
-    MetaType() : precision(gla::EMpNone), matrix(false), notSigned(false), block(false), buffer(false), runtimeArrayed(false), mdAggregate(0), mdSampler(0) { }
+    MetaType() : precision(gla::EMpNone), builtIn(gla::EmbNone), matrix(false), notSigned(false), block(false), buffer(false), runtimeArrayed(false), mdAggregate(0), mdSampler(0) { }
     std::string name;
     gla::EMdPrecision precision;
+    gla::EMdBuiltIn builtIn;
     bool matrix;
     bool notSigned;
     bool block;
@@ -587,6 +703,9 @@ public:
     // set to track what globals are already declared;
     // it potentially only includes globals that are in danger of multiple declaration
     std::set<std::string> globallyDeclared;
+
+    // map from name in metadata to the actual built-in variable name in GLSL
+    std::map<std::string, std::string> builtInMap;
 
     std::ostringstream globalStructures;
     std::ostringstream globalDeclarations;
@@ -1401,6 +1520,8 @@ void gla::GlslTarget::addGlobal(const llvm::GlobalVariable* global)
     // IO should already be mapped, and this will filter it out.
     // (Uniforms were declared in addIoDeclaration().)
     std::string name = global->getName();
+    if (builtInMap.find(name) != builtInMap.end())
+        name = builtInMap.find(name)->second;
     if (globallyDeclared.find(name) != globallyDeclared.end())
         return;
 
@@ -1439,15 +1560,22 @@ void gla::GlslTarget::addGlobalConst(const llvm::GlobalVariable* global)
 
 void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const llvm::MDNode* mdNode)
 {
-    std::string instanceName = mdNode->getOperand(0)->getName();
-
     if (filteringIoNode(mdNode))
         return;
 
+    MetaType metaType;
+    llvm::Type* type = 0;
+    EMdInputOutput ioKind;
+    EMdTypeLayout dummyLayout;
+    int dummyLocation;
+    int dummyInterp;
+    CrackIOMd(mdNode, metaType.name, ioKind, type, dummyLayout, metaType.precision, dummyLocation, metaType.mdSampler, metaType.mdAggregate, dummyInterp, metaType.builtIn);
+    std::string builtInName = GetBuiltInName(ioKind, stage, metaType.builtIn);
+
+    std::string instanceName = mdNode->getOperand(0)->getName();
+
     bool declarationAllowed = true;
 
-    llvm::Type* type = 0;
-    CrackIOMdType(mdNode, type);
     if (type->getTypeID() == llvm::Type::PointerTyID)
         type = type->getContainedType(0);
 
@@ -1475,39 +1603,45 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
         mappingName = mdNode->getOperand(2)->getName();
         StripSuffix(mappingName, "_typeProxy");
     } else {
-        if (instanceName.substr(0,3) == std::string("gl_")) {
+        if (builtInName.size() > 0 || instanceName.substr(0, 3) == std::string("gl_")) {
             declarationAllowed = false;
-            if (instanceName == "gl_ClipDistance" || instanceName == "gl_TexCoord")
+            if (builtInName == "gl_ClipDistance" || builtInName == "gl_TexCoord")
                 declarationAllowed = true;
             else if (usingSso && (instanceName == "gl_in" ||
                                   instanceName == "gl_out"))
                 declarationAllowed = true;
         }
+        if (builtInName.size() > 0)
+            builtInMap[instanceName] = builtInName;
         mappingName = instanceName;
     }
 
     mdMap[mappingName] = mdNode;
     // This will prevent the IO globals from being declared again later.
-    globallyDeclared.insert(mappingName);
+    if (builtInName.size() > 0)
+        globallyDeclared.insert(builtInName);
+    else
+        globallyDeclared.insert(mappingName);
+
     if (canonMap.find(mappingName) == canonMap.end())
         canonMap[mappingName] = 0;
 
     if (! declarationAllowed) {
-        if ((type->getTypeID() == llvm::Type::StructTyID || type->getTypeID() == llvm::Type::ArrayTyID) && mdNode->getNumOperands() >= 5) {
+        if ((type->getTypeID() == llvm::Type::StructTyID || type->getTypeID() == llvm::Type::ArrayTyID) && metaType.mdAggregate) {
             // We don't want to spit out a declaration (below), but we do want to establish the mapping
             // between LLVM's type and the mdAggregate.
             // Arrays will be dereferenced before lookup, so dereference the key now too.
             const llvm::Type* aggType = type;
             while (aggType->getTypeID() == llvm::Type::ArrayTyID)
                 aggType = aggType->getContainedType(0);
-            typeMdAggregateMap[aggType] = llvm::dyn_cast<llvm::MDNode>(mdNode->getOperand(4));
+            typeMdAggregateMap[aggType] = metaType.mdAggregate;
         }
 
         return;
     }
 
     int arraySize = emitGlaType(globalDeclarations, EMpCount, qualifier, 0, true, mdNode);
-    globalDeclarations << " " << std::string(instanceName);
+    globalDeclarations << " " << instanceName;
     emitGlaArraySize(globalDeclarations, arraySize);
     globalDeclarations << ";" << std::endl;
 }
@@ -2470,7 +2604,11 @@ bool gla::GlslTarget::getExpressionString(const llvm::Value* value, std::string&
 
     // Emulate the missing name.
     name = value->getName();
-    MakeParseable(name);
+    auto bit = builtInMap.find(name);
+    if (bit != builtInMap.end())
+        name = bit->second;
+    else
+        MakeParseable(name);
 
     return false;
 }
@@ -2641,7 +2779,10 @@ void gla::GlslTarget::mapPointerExpression(const llvm::Value* ptr, const llvm::V
         mdNode = mdMap[name];
         mdType = GetMdTypeLayout(mdNode);
         mdTypePointer = &mdType;
-        expression = mdNode->getOperand(0)->getName();
+        if (builtInMap.find(name) != builtInMap.end())
+            expression = builtInMap[name];
+        else
+            expression = mdNode->getOperand(0)->getName();
     } else {
         if (MapGlaAddressSpace(ptr) == EVQGlobal) {
             // This could be a path for a hoisted "undef" aggregate.  See hoistUndefOps().
@@ -3654,7 +3795,7 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
         EMdInputOutput ioKind;
         llvm::Type* proxyType;
         int interpMode;
-        if (! CrackIOMd(mdNode, metaType.name, ioKind, proxyType, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.mdAggregate, interpMode)) {
+        if (! CrackIOMd(mdNode, metaType.name, ioKind, proxyType, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.mdAggregate, interpMode, metaType.builtIn)) {
             UnsupportedFunctionality("IO metadata for type");
             return false;
         }
@@ -3694,7 +3835,7 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
             emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
         }
     } else {
-        if (! CrackAggregateMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler)) {
+        if (! CrackAggregateMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.builtIn)) {
             UnsupportedFunctionality("aggregate metadata for type");
             return false;
         }
@@ -4265,7 +4406,8 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
     const llvm::MDNode* mdNode = llvmInstruction->getMetadata(input ? gla::InputMdName : gla::OutputMdName);
 
     int interpMode;
-    if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode)) {
+    EMdBuiltIn builtIn;
+    if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode, builtIn)) {
         // This path should not exist; it is a backup path for missing metadata.
         UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
 

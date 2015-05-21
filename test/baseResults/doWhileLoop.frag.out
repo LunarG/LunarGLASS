@@ -65,7 +65,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 !4 = metadata !{i32 0, i32 0, i32 1024, null}
 !5 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !4}
 !6 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43}
 
 
 Bottom IR:
@@ -113,7 +113,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 !4 = metadata !{i32 0, i32 0, i32 1024, null}
 !5 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !4}
 !6 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43}
 #version 110
 // LunarGOO output
 uniform vec4 bigColor;

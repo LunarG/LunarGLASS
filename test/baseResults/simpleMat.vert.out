@@ -124,9 +124,9 @@ stage-exit:                                       ; preds = %stage-epilogue
 !11 = metadata !{metadata !"arraym", i32 1, [3 x [4 x <4 x float>]]* @arraym_typeProxy, metadata !12}
 !12 = metadata !{i32 3, i32 0, i32 1030, null, i32 0}
 !13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @gl_VertexID_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 0, i32 1042, null, i32 0}
+!14 = metadata !{i32 0, i32 0, i32 1042, null, i32 0, i32 7}
 !15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1043, null, i32 0}
+!16 = metadata !{i32 0, i32 0, i32 1043, null, i32 0, i32 8}
 
 
 Bottom IR:
@@ -241,9 +241,9 @@ attributes #0 = { nounwind readnone }
 !11 = metadata !{metadata !"arraym", i32 1, [3 x [4 x <4 x float>]]* @arraym_typeProxy, metadata !12}
 !12 = metadata !{i32 3, i32 0, i32 1030, null, i32 0}
 !13 = metadata !{metadata !"gl_VertexID", i32 2, i32* @gl_VertexID_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 0, i32 1042, null, i32 0}
+!14 = metadata !{i32 0, i32 0, i32 1042, null, i32 0, i32 7}
 !15 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1043, null, i32 0}
+!16 = metadata !{i32 0, i32 0, i32 1043, null, i32 0, i32 8}
 #version 330 core
 // LunarGOO output
 uniform mat4 mvp;

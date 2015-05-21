@@ -91,7 +91,7 @@ namespace gla {
 
         virtual void translateTopToBottom() = 0;
         virtual void translateBottomToTarget() = 0;
-        virtual void dump(const char* heading) { }
+        virtual void dump(const char*) { }
 
         virtual void setVersion(int v) { version = v; }
         virtual int getVersion() const { return version; }

@@ -262,7 +262,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 !8 = metadata !{metadata !"v4", i32 12, <4 x i32>* @v4_typeProxy, metadata !9}
 !9 = metadata !{i32 1, i32 0, i32 1024, null}
 !10 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!11 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43}
 
 
 Bottom IR:
@@ -389,7 +389,7 @@ attributes #0 = { nounwind readnone }
 !8 = metadata !{metadata !"v4", i32 12, <4 x i32>* @v4_typeProxy, metadata !9}
 !9 = metadata !{i32 1, i32 0, i32 1024, null}
 !10 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1025, null, i32 0}
+!11 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43}
 #version 130
 // LunarGOO output
 uniform int Count;

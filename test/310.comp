@@ -12,7 +12,7 @@ buffer outb {
     float g;
     float h;
     vec3 uns[];  // this makes it look like the "second" set of 3 floats in a struct, which LLVM
-                 // takes advantage of when optimizing, giving confusing results, like
+                 // takes advantage of when optimizing, giving confusing results, like thinking
                  // &outbname.uns[18].x == &outbname[9].uns.x
 } outbname;
 
