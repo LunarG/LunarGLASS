@@ -46,11 +46,17 @@ set(LLVMLIBS
 if(WIN32)
     set(SYSTEM_LIBS "")
 elseif(UNIX)
-    set(SYSTEM_LIBS
-        z
-        pthread
-        dl
-        m)
+    # Get system library dependencies from llvm-config.
+    execute_process(COMMAND ${LLVM_BUILD}/Release+Asserts/bin/llvm-config --ldflags OUTPUT_VARIABLE LLVM_LD_FLAGS)
+    # Convert to a list of link flags.
+    string(REPLACE " " ";" LLVM_LD_FLAGS_LIST ${LLVM_LD_FLAGS})
+    foreach(LIB ${LLVM_LD_FLAGS_LIST})
+      if (${LIB} MATCHES "^-l")
+        # Get the library's name.
+        string(SUBSTRING ${LIB} 2 -1 LIBNAME)
+        list(APPEND SYSTEM_LIBS ${LIBNAME})
+      endif()
+    endforeach()
 endif(WIN32)
 
 set(GLSLANGLIBS
