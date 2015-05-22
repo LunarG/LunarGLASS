@@ -4,9 +4,9 @@ set(CMAKE_INSTALL_PREFIX "install" CACHE STRING "prefix" FORCE)
 
 project(LunarGLASS)
 
-set(LLVM_BUILD ${CMAKE_SOURCE_DIR}/Core/LLVM/llvm-3.4/build)
+set(LLVM_BUILD ${CMAKE_CURRENT_SOURCE_DIR}/Core/LLVM/llvm-3.4/build)
 
-set(GLSLANG_PATH ${CMAKE_SOURCE_DIR}/../glslang)
+set(GLSLANG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../glslang)
 
 if(WIN32)
     include(Core/LLVM/llvm-3.4/cmake/modules/ChooseMSVCCRT.cmake)
