@@ -1,5 +1,7 @@
 #version 430
 
+uniform samplerBuffer sb;
+uniform sampler2DRect sr;
 uniform sampler2D s2D;
 uniform sampler3D s3D;
 uniform samplerCube sCube;
@@ -60,6 +62,11 @@ void main()
     v += vec4(iv);
     iv = texelFetch(is2DArray, ic3D, ic1D);
     v += vec4(iv);
+
+    iv += texelFetch(is2Dms, ic2D, ic1D);
+    v += vec4(iv);
+    v += texelFetch(sb, ic1D);
+    v += texelFetch(sr, ic2D);
 
     ivec2 iv2 = textureSize(sCubeShadow, 2);
     // iv2 += textureSize(is2Dms);

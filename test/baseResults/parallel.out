@@ -939,8 +939,10 @@ uniform isampler2D is2D;
 uniform isampler3D is3D;
 uniform isamplerCube isCube;
 uniform isampler2DArray is2DArray;
-uniform samplerCubeShadow sCubeShadow;
 uniform isampler2D is2Dms;
+uniform samplerBuffer sb;
+uniform sampler2DRect sr;
+uniform samplerCubeShadow sCubeShadow;
 uniform usampler2D us2D;
 uniform usampler3D us3D;
 uniform usamplerCube usCube;
@@ -1013,10 +1015,18 @@ void main()
 	ivec4 iv6 = texelFetch(is2DArray, ic3D, ic1D);
 	vec4 H_3hnokl = vec4(iv6);
 	vec4 H_kije5n1 = H_3hnokl + H_r3pnvg1;
-	ivec2 iv7 = textureSize(sCubeShadow, C_2);
-	vec2 H_w4k3ff = vec2(iv7);
-	vec4 H_1s1qp41 = vec4(H_w4k3ff.x, H_w4k3ff.y, C_0d0, C_0d0);
-	vec4 FragData1 = H_1s1qp41 + H_kije5n1;
+	ivec4 iv7 = texelFetch(is2Dms, ic2D, ic1D);
+	ivec4 iv8 = iv6 + iv7;
+	vec4 H_5u886m1 = vec4(iv8);
+	vec4 H_hltepg1 = H_5u886m1 + H_kije5n1;
+	vec4 H_u4lqa3 = texelFetch(sb, ic1D);
+	vec4 H_rgdtlr1 = H_hltepg1 + H_u4lqa3;
+	vec4 H_77ufv6 = texelFetch(sr, ic2D);
+	vec4 H_jis6ku1 = H_77ufv6 + H_rgdtlr1;
+	ivec2 iv9 = textureSize(sCubeShadow, C_2);
+	vec2 H_iunhai1 = vec2(iv9);
+	vec4 H_duim3t = vec4(H_iunhai1.x, H_iunhai1.y, C_0d0, C_0d0);
+	vec4 FragData1 = H_duim3t + H_jis6ku1;
 	FragData = FragData1;
 	
 }

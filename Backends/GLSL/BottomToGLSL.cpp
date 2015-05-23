@@ -3558,7 +3558,7 @@ void gla::GlslTarget::emitGlaSamplerFunction(std::ostringstream& out, const llvm
         
     if (texFlags & ETFProjected)
         out << "Proj";
-    if (texFlags & ETFLod)
+    if ((texFlags & ETFLod) && ! (texFlags & ETFFetch))
         out << "Lod";
     if (IsGradientTexInst(llvmInstruction))
         out << "Grad";

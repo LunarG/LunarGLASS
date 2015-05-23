@@ -1756,7 +1756,7 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
     } else if (texFlags & ETFOffsetArg) {
         intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTextureSampleLodRefZOffset
                                     : llvm::Intrinsic::gla_textureSampleLodRefZOffset;
-    } else if (texFlags & ETFBias || texFlags & ETFLod || texFlags & ETFShadow) {
+    } else if ((texFlags & ETFBias) || (texFlags & ETFLod) || (texFlags & ETFShadow)) {
         intrinsicID = (floatReturn) ? llvm::Intrinsic::gla_fTextureSampleLodRefZ
                                     : llvm::Intrinsic::gla_textureSampleLodRefZ;
     } else {
@@ -1765,7 +1765,7 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
     }
 
     // Set fields based on argument flags
-    if (texFlags & ETFBiasLodArg || texFlags & ETFComponentArg)
+    if ((texFlags & ETFBiasLodArg) || (texFlags & ETFComponentArg))
         texArgs[GetTextureOpIndex(ETOBiasLod)] = parameters.ETPBiasLod;
 
     if (texFlags & ETFRefZArg)

@@ -1600,6 +1600,8 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
             gla::UnsupportedFunctionality("sampler type");
             break;
         }
+        if (node->getSequence()[0]->getAsTyped()->getType().getSampler().ms)
+            samplerType = gla::ESampler2DMS;
 
         if (node->getName().find("Size", 0) != std::string::npos) {
             llvm::Value* lastArg;
@@ -1650,8 +1652,21 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
                 texFlags |= gla::ETFOffsets;
         }
 
-        if (node->getName().find("Fetch", 0) != std::string::npos)
+        if (node->getName().find("Fetch", 0) != std::string::npos) {
             texFlags |= gla::ETFFetch;
+            switch (samplerType) {
+            case gla::ESampler1D:
+            case gla::ESampler2D:
+            case gla::ESampler3D:
+                texFlags |= gla::ETFLod;
+                texFlags |= gla::ETFBiasLodArg;
+                break;
+            case gla::ESampler2DMS:
+                texFlags |= gla::ETFSampleArg;
+            default:
+                break;
+            }
+        }
 
         if (node->getSequence()[0]->getAsTyped()->getType().getSampler().shadow)
             texFlags |= gla::ETFShadow;
@@ -1661,9 +1676,6 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
             if (texFlags & gla::ETFShadow)
                 texFlags |= gla::ETFRefZArg;
         }
-
-        if (node->getSequence()[0]->getAsTyped()->getType().getSampler().ms)
-            samplerType = gla::ESampler2D;
 
         if (node->getSequence()[0]->getAsTyped()->getType().getSampler().arrayed)
             texFlags |= gla::ETFArrayed;
