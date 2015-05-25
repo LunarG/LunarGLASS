@@ -101,6 +101,9 @@ protected:
     void handleFunctionEntry(const glslang::TIntermAggregate* node);
     void translateArguments(const glslang::TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments);
     llvm::Value* handleBuiltinFunctionCall(const glslang::TIntermAggregate*);
+    llvm::Value* handleTexImageQuery(const glslang::TIntermAggregate*, const std::vector<llvm::Value*>& arguments, gla::ESamplerType);
+    llvm::Value* handleImageAccess(const glslang::TIntermAggregate*, const std::vector<llvm::Value*>& arguments, gla::ESamplerType, int flags);
+    llvm::Value* handleTextureAccess(const glslang::TIntermAggregate*, const std::vector<llvm::Value*>& arguments, gla::ESamplerType, int flags);
     llvm::Value* handleUserFunctionCall(const glslang::TIntermAggregate*);
 
     llvm::Value* createBinaryOperation(glslang::TOperator op, gla::EMdPrecision, llvm::Value* left, llvm::Value* right, bool isUnsigned, bool reduceComparison = true);
@@ -260,10 +263,55 @@ gla::EMdTypeLayout GetMdTypeLayout(const glslang::TType& type)
 
 gla::EMdSampler GetMdSampler(const glslang::TType& type)
 {
-    if (type.getSampler().image)
-        return gla::EMsImage;
-    else
+    if (! type.getSampler().image)
         return gla::EMsTexture;
+
+    // The rest is for images
+
+    switch (type.getQualifier().layoutFormat) {
+    case glslang::ElfNone:             return gla::EMsImage;
+    case glslang::ElfRgba32f:          return gla::EMsRgba32f;
+    case glslang::ElfRgba16f:          return gla::EMsRgba16f;
+    case glslang::ElfR32f:             return gla::EMsR32f;
+    case glslang::ElfRgba8:            return gla::EMsRgba8;
+    case glslang::ElfRgba8Snorm:       return gla::EMsRgba8Snorm;
+    case glslang::ElfRg32f:            return gla::EMsRg32f;
+    case glslang::ElfRg16f:            return gla::EMsRg16f;
+    case glslang::ElfR11fG11fB10f:     return gla::EMsR11fG11fB10f;
+    case glslang::ElfR16f:             return gla::EMsR16f;
+    case glslang::ElfRgba16:           return gla::EMsRgba16;
+    case glslang::ElfRgb10A2:          return gla::EMsRgb10A2;
+    case glslang::ElfRg16:             return gla::EMsRg16;
+    case glslang::ElfRg8:              return gla::EMsRg8;
+    case glslang::ElfR16:              return gla::EMsR16;
+    case glslang::ElfR8:               return gla::EMsR8;
+    case glslang::ElfRgba16Snorm:      return gla::EMsRgba16Snorm;
+    case glslang::ElfRg16Snorm:        return gla::EMsRg16Snorm;
+    case glslang::ElfRg8Snorm:         return gla::EMsRg8Snorm;
+    case glslang::ElfR16Snorm:         return gla::EMsR16Snorm;
+    case glslang::ElfR8Snorm:          return gla::EMsR8Snorm;
+    case glslang::ElfRgba32i:          return gla::EMsRgba32i;
+    case glslang::ElfRgba16i:          return gla::EMsRgba16i;
+    case glslang::ElfRgba8i:           return gla::EMsRgba8i;
+    case glslang::ElfR32i:             return gla::EMsR32i;
+    case glslang::ElfRg32i:            return gla::EMsRg32i;
+    case glslang::ElfRg16i:            return gla::EMsRg16i;
+    case glslang::ElfRg8i:             return gla::EMsRg8i;
+    case glslang::ElfR16i:             return gla::EMsR16i;
+    case glslang::ElfR8i:              return gla::EMsR8i;
+    case glslang::ElfRgba32ui:         return gla::EMsRgba32ui;
+    case glslang::ElfRgba16ui:         return gla::EMsRgba16ui;
+    case glslang::ElfRgba8ui:          return gla::EMsRgba8ui;
+    case glslang::ElfR32ui:            return gla::EMsR32ui;
+    case glslang::ElfRg32ui:           return gla::EMsRg32ui;
+    case glslang::ElfRg16ui:           return gla::EMsRg16ui;
+    case glslang::ElfRg8ui:            return gla::EMsRg8ui;
+    case glslang::ElfR16ui:            return gla::EMsR16ui;
+    case glslang::ElfR8ui:             return gla::EMsR8ui;
+    default:
+        gla::UnsupportedFunctionality("unknown image format", gla::EATContinue);
+        return gla::EMsImage;
+    }
 }
 
 gla::EMdSamplerDim GetMdSamplerDim(const glslang::TType& type)
@@ -1572,8 +1620,6 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
     std::vector<llvm::Value*> arguments;
     translateArguments(node->getSequence(), arguments);
 
-    gla::EMdPrecision precision = GetMdPrecision(node->getType());
-
     if (node->getName() == "ftransform(") {
         // TODO: back-end functionality: if this needs to support decomposition, need to simulate
         // access to the external gl_Vertex and gl_ModelViewProjectionMatrix.
@@ -1584,12 +1630,14 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
         llvm::Value* matrix = glaBuilder->createVariable(gla::Builder::ESQGlobal, 0, llvm::VectorType::get(gla::GetFloatType(context), 4),
                                                                      0, 0, "gl_ModelViewProjectionMatrix_sim");
 
-        return glaBuilder->createIntrinsicCall(precision, llvm::Intrinsic::gla_fFixedTransform, glaBuilder->createLoad(vertex), glaBuilder->createLoad(matrix));
+        return glaBuilder->createIntrinsicCall(GetMdPrecision(node->getType()), llvm::Intrinsic::gla_fFixedTransform, glaBuilder->createLoad(vertex), glaBuilder->createLoad(matrix));
     }
 
-    if (node->getName().substr(0, 7) == "texture" || node->getName().substr(0, 5) == "texel" || node->getName().substr(0, 6) == "shadow") {
+    if (node->getName().substr(0, 7) == "texture" || node->getName().substr(0, 5) == "texel" || node->getName().substr(0, 6) == "shadow" ||
+        node->getName().substr(0, 5) == "image") {
+        const glslang::TSampler& sampler = node->getSequence()[0]->getAsTyped()->getType().getSampler();
         gla::ESamplerType samplerType;
-        switch (node->getSequence()[0]->getAsTyped()->getType().getSampler().dim) {
+        switch (sampler.dim) {
         case glslang::Esd1D:       samplerType = gla::ESampler1D;      break;
         case glslang::Esd2D:       samplerType = gla::ESampler2D;      break;
         case glslang::Esd3D:       samplerType = gla::ESampler3D;      break;
@@ -1600,142 +1648,199 @@ llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TI
             gla::UnsupportedFunctionality("sampler type");
             break;
         }
-        if (node->getSequence()[0]->getAsTyped()->getType().getSampler().ms)
+        if (sampler.ms)
             samplerType = gla::ESampler2DMS;
 
-        if (node->getName().find("Size", 0) != std::string::npos) {
-            llvm::Value* lastArg;
-            llvm::Intrinsic::ID intrinsicID;
-
-            if (node->getSequence()[0]->getAsTyped()->getType().getSampler().ms ||
-                samplerType == gla::ESamplerBuffer || samplerType == gla::ESampler2DRect) {
-                lastArg = 0;
-                intrinsicID = llvm::Intrinsic::gla_queryTextureSizeNoLod;
-            } else {
-                assert(arguments.size() > 1);
-                lastArg = arguments[1];
-                intrinsicID = llvm::Intrinsic::gla_queryTextureSize;
-            }
-
-            return glaBuilder->createTextureQueryCall(precision,
-                                                      intrinsicID,
-                                                      convertGlslangToGlaType(node->getType()),
-                                                      MakeIntConstant(context, samplerType),
-                                                      arguments[0], lastArg, leftName);
-        }
-
-        if (node->getName().find("Query", 0) != std::string::npos) {
-            if (node->getName().find("Lod", 0) != std::string::npos) {
-                gla::UnsupportedFunctionality("textureQueryLod");
-                return glaBuilder->createTextureQueryCall(precision,
-                                                          llvm::Intrinsic::gla_fQueryTextureLod,
-                                                          convertGlslangToGlaType(node->getType()), 
-                                                          MakeIntConstant(context, samplerType), 
-                                                          arguments[0], arguments[1], leftName);
-            } else if (node->getName().find("Levels", 0) != std::string::npos) {
-                gla::UnsupportedFunctionality("textureQueryLevels");
-            }
-        }
+        if (node->getName().find("Size", 0) != std::string::npos ||
+            node->getName().find("Query", 0) != std::string::npos)
+            return handleTexImageQuery(node, arguments, samplerType);
 
         int texFlags = 0;
-        if (node->getName().find("Lod", 0) != std::string::npos) {
-            texFlags |= gla::ETFLod;
-            texFlags |= gla::ETFBiasLodArg;
-        }
 
-        if (node->getName().find("Proj", 0) != std::string::npos)
-            texFlags |= gla::ETFProjected;
-
-        if (node->getName().find("Offset", 0) != std::string::npos) {
-            texFlags |= gla::ETFOffsetArg;
-            if (node->getName().find("Offsets", 0) != std::string::npos)
-                texFlags |= gla::ETFOffsets;
-        }
-
-        if (node->getName().find("Fetch", 0) != std::string::npos) {
-            texFlags |= gla::ETFFetch;
-            switch (samplerType) {
-            case gla::ESampler1D:
-            case gla::ESampler2D:
-            case gla::ESampler3D:
-                texFlags |= gla::ETFLod;
-                texFlags |= gla::ETFBiasLodArg;
-                break;
-            case gla::ESampler2DMS:
-                texFlags |= gla::ETFSampleArg;
-            default:
-                break;
-            }
-        }
-
-        if (node->getSequence()[0]->getAsTyped()->getType().getSampler().shadow)
-            texFlags |= gla::ETFShadow;
-        
-        if (node->getName().find("Gather", 0) != std::string::npos) {
-            texFlags |= gla::ETFGather;
-            if (texFlags & gla::ETFShadow)
-                texFlags |= gla::ETFRefZArg;
-        }
-
-        if (node->getSequence()[0]->getAsTyped()->getType().getSampler().arrayed)
+        if (sampler.arrayed)
             texFlags |= gla::ETFArrayed;
 
-        // check for bias argument
-        if (! (texFlags & gla::ETFLod) && ! (texFlags & gla::ETFGather)) {
-            int nonBiasArgCount = 2;
-            if (texFlags & gla::ETFOffsetArg)
-                ++nonBiasArgCount;
-            if (texFlags & gla::ETFBiasLodArg)
-                ++nonBiasArgCount;
-            if (node->getName().find("Grad", 0) != std::string::npos)
-                nonBiasArgCount += 2;
+        if (sampler.shadow)
+            texFlags |= gla::ETFShadow;
 
-            if ((int)arguments.size() > nonBiasArgCount) {
-                texFlags |= gla::ETFBias;
-                texFlags |= gla::ETFBiasLodArg;
-            }
-        }
-
-        // check for comp argument
-        if ((texFlags & gla::ETFGather) && ! (texFlags & gla::ETFShadow)) {
-            int nonCompArgCount = 2;
-            if (texFlags & gla::ETFOffsetArg)
-                ++nonCompArgCount;
-            if ((int)arguments.size() > nonCompArgCount)
-                texFlags |= gla::ETFComponentArg;
-        }
-
-        // set the arguments        
-        gla::Builder::TextureParameters params = {};
-        params.ETPSampler = arguments[0];
-        params.ETPCoords = arguments[1];
-        int extraArgs = 0;
-        if (texFlags & gla::ETFLod) {
-            params.ETPBiasLod = arguments[2];
-            ++extraArgs;
-        }
-        if (node->getName().find("Grad", 0) != std::string::npos) {
-            params.ETPGradX = arguments[2 + extraArgs];
-            params.ETPGradY = arguments[3 + extraArgs];
-            extraArgs += 2;
-        }
-        if (texFlags & gla::ETFRefZArg) {
-            params.ETPShadowRef = arguments[2 + extraArgs];
-            ++extraArgs;
-        }
-        if (texFlags & gla::ETFOffsetArg) {
-            params.ETPOffset = arguments[2 + extraArgs];
-            ++extraArgs;
-        }
-        if ((texFlags & gla::ETFBias) || (texFlags & gla::ETFComponentArg)) {
-            params.ETPBiasLod = arguments[2 + extraArgs];
-            ++extraArgs;
-        }
-
-        return glaBuilder->createTextureCall(precision, convertGlslangToGlaType(node->getType()), samplerType, texFlags, params, leftName);
+        if (sampler.image)
+            return handleImageAccess(node, arguments, samplerType, texFlags);
+        else
+            return handleTextureAccess(node, arguments, samplerType, texFlags);
     }
 
     return 0;
+}
+
+llvm::Value* TGlslangToTopTraverser::handleTexImageQuery(const glslang::TIntermAggregate* node, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType)
+{
+    gla::EMdPrecision precision = GetMdPrecision(node->getType());
+
+    if (node->getName().find("Size", 0) != std::string::npos) {
+        llvm::Value* lastArg;
+        llvm::Intrinsic::ID intrinsicID;
+
+        if (samplerType == gla::ESampler2DMS || samplerType == gla::ESamplerBuffer || samplerType == gla::ESampler2DRect) {
+            lastArg = 0;
+            intrinsicID = llvm::Intrinsic::gla_queryTextureSizeNoLod;
+        } else {
+            assert(arguments.size() > 1);
+            lastArg = arguments[1];
+            intrinsicID = llvm::Intrinsic::gla_queryTextureSize;
+        }
+
+        return glaBuilder->createTextureQueryCall(precision,
+                                                  intrinsicID,
+                                                  convertGlslangToGlaType(node->getType()),
+                                                  MakeIntConstant(context, samplerType),
+                                                  arguments[0], lastArg, leftName);
+    }
+
+    if (node->getName().find("Query", 0) != std::string::npos) {
+        if (node->getName().find("Lod", 0) != std::string::npos) {
+            gla::UnsupportedFunctionality("textureQueryLod");
+            return glaBuilder->createTextureQueryCall(precision,
+                                                      llvm::Intrinsic::gla_fQueryTextureLod,
+                                                      convertGlslangToGlaType(node->getType()), 
+                                                      MakeIntConstant(context, samplerType), 
+                                                      arguments[0], arguments[1], leftName);
+        } else if (node->getName().find("Levels", 0) != std::string::npos)
+            gla::UnsupportedFunctionality("textureQueryLevels");
+    }
+
+    return 0;
+}
+
+llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermAggregate* node, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType, int texFlags)
+{
+    // set the arguments
+    gla::Builder::TextureParameters params = {};
+    params.ETPSampler = arguments[0];
+    params.ETPCoords = arguments[1];
+
+    gla::EImageOp imageOp;
+    if (node->getName().find("Load", 0) != std::string::npos)
+        imageOp = gla::EImageLoad;
+    else if (node->getName().find("Store", 0) != std::string::npos)
+        imageOp = gla::EImageStore;
+    else if (node->getName().find("AtomicAdd", 0) != std::string::npos)
+        imageOp = gla::EImageAtomicAdd;
+    else if (node->getName().find("AtomicMin", 0) != std::string::npos)
+        imageOp = gla::EImageAtomicMin;
+    else if (node->getName().find("AtomicMax", 0) != std::string::npos)
+        imageOp = gla::EImageAtomicMax;
+    else if (node->getName().find("AtomicAnd", 0) != std::string::npos)
+        imageOp = gla::EImageAtomicAnd;
+    else if (node->getName().find("AtomicOr", 0) != std::string::npos)
+        imageOp = gla::EImageAtomicOr;
+    else if (node->getName().find("AtomicXor", 0) != std::string::npos)
+        imageOp = gla::EImageAtomicXor;
+    else if (node->getName().find("AtomicExchange", 0) != std::string::npos)
+        imageOp = gla::EImageAtomicExchange;
+    else if (node->getName().find("AtomicCompSwap", 0) != std::string::npos)
+        imageOp = gla::EImageAtomicCompSwap;
+    else
+        gla::UnsupportedFunctionality("image access");
+
+    texFlags |= (imageOp << gla::ImageOpShift);
+
+    if (imageOp != gla::EImageLoad)
+        params.ETPData = arguments[2];
+
+    return glaBuilder->createImageCall(GetMdPrecision(node->getType()), convertGlslangToGlaType(node->getType()), samplerType, texFlags, params, leftName);
+}
+
+llvm::Value* TGlslangToTopTraverser::handleTextureAccess(const glslang::TIntermAggregate* node, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType, int texFlags)
+{
+    if (node->getName().find("Lod", 0) != std::string::npos) {
+        texFlags |= gla::ETFLod;
+        texFlags |= gla::ETFBiasLodArg;
+    }
+
+    if (node->getName().find("Proj", 0) != std::string::npos)
+        texFlags |= gla::ETFProjected;
+
+    if (node->getName().find("Offset", 0) != std::string::npos) {
+        texFlags |= gla::ETFOffsetArg;
+        if (node->getName().find("Offsets", 0) != std::string::npos)
+            texFlags |= gla::ETFOffsets;
+    }
+
+    if (node->getName().find("Fetch", 0) != std::string::npos) {
+        texFlags |= gla::ETFFetch;
+        switch (samplerType) {
+        case gla::ESampler1D:
+        case gla::ESampler2D:
+        case gla::ESampler3D:
+            texFlags |= gla::ETFLod;
+            texFlags |= gla::ETFBiasLodArg;
+            break;
+        case gla::ESampler2DMS:
+            texFlags |= gla::ETFSampleArg;
+        default:
+            break;
+        }
+    }
+
+    if (node->getName().find("Gather", 0) != std::string::npos) {
+        texFlags |= gla::ETFGather;
+        if (texFlags & gla::ETFShadow)
+            texFlags |= gla::ETFRefZArg;
+    }
+
+    // check for bias argument
+    if (! (texFlags & gla::ETFLod) && ! (texFlags & gla::ETFGather)) {
+        int nonBiasArgCount = 2;
+        if (texFlags & gla::ETFOffsetArg)
+            ++nonBiasArgCount;
+        if (texFlags & gla::ETFBiasLodArg)
+            ++nonBiasArgCount;
+        if (node->getName().find("Grad", 0) != std::string::npos)
+            nonBiasArgCount += 2;
+
+        if ((int)arguments.size() > nonBiasArgCount) {
+            texFlags |= gla::ETFBias;
+            texFlags |= gla::ETFBiasLodArg;
+        }
+    }
+
+    // check for comp argument
+    if ((texFlags & gla::ETFGather) && ! (texFlags & gla::ETFShadow)) {
+        int nonCompArgCount = 2;
+        if (texFlags & gla::ETFOffsetArg)
+            ++nonCompArgCount;
+        if ((int)arguments.size() > nonCompArgCount)
+            texFlags |= gla::ETFComponentArg;
+    }
+
+    // set the arguments
+    gla::Builder::TextureParameters params = {};
+    params.ETPSampler = arguments[0];
+    params.ETPCoords = arguments[1];
+    int extraArgs = 0;
+    if (texFlags & gla::ETFLod) {
+        params.ETPBiasLod = arguments[2];
+        ++extraArgs;
+    }
+    if (node->getName().find("Grad", 0) != std::string::npos) {
+        params.ETPGradX = arguments[2 + extraArgs];
+        params.ETPGradY = arguments[3 + extraArgs];
+        extraArgs += 2;
+    }
+    if (texFlags & gla::ETFRefZArg) {
+        params.ETPShadowRef = arguments[2 + extraArgs];
+        ++extraArgs;
+    }
+    if (texFlags & gla::ETFOffsetArg) {
+        params.ETPOffset = arguments[2 + extraArgs];
+        ++extraArgs;
+    }
+    if ((texFlags & gla::ETFBias) || (texFlags & gla::ETFComponentArg)) {
+        params.ETPBiasLod = arguments[2 + extraArgs];
+        ++extraArgs;
+    }
+
+    return glaBuilder->createTextureCall(GetMdPrecision(node->getType()), convertGlslangToGlaType(node->getType()), samplerType, texFlags, params, leftName);
 }
 
 llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const glslang::TIntermAggregate* node)

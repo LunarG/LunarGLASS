@@ -1047,6 +1047,67 @@ const char* MapGlaToQualifierString(int version, EShLanguage stage, EVariableQua
     }
 }
 
+const char* MapGlaToImageQualifierString(MetaType metaType)
+{
+    if (metaType.mdSampler == 0)
+        return "";
+
+    // get the texture/image enum
+    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(metaType.mdSampler->getOperand(0));
+    if (constInt == 0)
+        return "";
+    EMdSampler image = (EMdSampler)constInt->getSExtValue();
+    if (image == EMsTexture || image == EMsImage)
+        return "";
+
+    switch (image) {
+    case EMsRgba32f:      return "rgba32f";
+    case EMsRgba16f:      return "rgba16f";
+    case EMsRg32f:        return "rg32f";
+    case EMsRg16f:        return "rg16f";
+    case EMsR11fG11fB10f: return "r11f_g11f_b10f";
+    case EMsR32f:         return "r32f";
+    case EMsR16f:         return "r16f";
+    case EMsRgba16:       return "rgba16";
+    case EMsRgb10A2:      return "rgb10_a2";
+    case EMsRgba8:        return "rgba8";
+    case EMsRg16:         return "rg16";
+    case EMsRg8:          return "rg8";
+    case EMsR16:          return "r16";
+    case EMsR8:           return "r8";
+    case EMsRgba16Snorm:  return "rgba16_snorm";
+    case EMsRgba8Snorm:   return "rgba8_snorm";
+    case EMsRg16Snorm:    return "rg16_snorm";
+    case EMsRg8Snorm:     return "rg8_snorm";
+    case EMsR16Snorm:     return "r16_snorm";
+    case EMsR8Snorm:      return "r8_snorm";
+
+    case EMsRgba32i:      return "rgba32i";
+    case EMsRgba16i:      return "rgba16i";
+    case EMsRgba8i:       return "rgba8i";
+    case EMsRg32i:        return "rg32i";
+    case EMsRg16i:        return "rg16i";
+    case EMsRg8i:         return "rg8i";
+    case EMsR32i:         return "r32i";
+    case EMsR16i:         return "r16i";
+    case EMsR8i:          return "r8i";
+
+    case EMsRgba32ui:     return "rgba32ui";
+    case EMsRgba16ui:     return "rgba16ui";
+    case EMsRgba8ui:      return "rgba8ui";
+    case EMsRg32ui:       return "rg32ui";
+    case EMsRg16ui:       return "rg16ui";
+    case EMsRg8ui:        return "rg8ui";
+    case EMsR32ui:        return "r32ui";
+    case EMsR16ui:        return "r16ui";
+    case EMsR8ui:         return "r8ui";
+
+    default:
+        UnsupportedFunctionality("image format", EATContinue);
+        return "";
+    }
+}
+
 const char* MapGlaToPrecisionString(EMdPrecision precision)
 {
     switch (precision) {
@@ -2871,10 +2932,13 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
 
     EMdPrecision precision = GetPrecision(llvmInstruction);
     Assignment assignment(this, llvmInstruction);
+    if (llvmInstruction->getType()->getTypeID() == llvm::Type::VoidTyID)
+        assignment.setNoLvalue();
 
     // Handle texturing
     bool gather = false;
     bool refZemitted = false;
+    bool load = false;
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_queryTextureSize:
     case llvm::Intrinsic::gla_queryTextureSizeNoLod:
@@ -2904,6 +2968,36 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     //case llvm::Intrinsic::gla_queryTextureLevels:
     // TODO: 430 Functionality: textureQueryLevels()
 
+    case llvm::Intrinsic::gla_imageLoad:
+    case llvm::Intrinsic::gla_fImageLoad:
+        load = true;
+        // fall through
+    case llvm::Intrinsic::gla_imageStoreI:
+    case llvm::Intrinsic::gla_imageStoreF:
+    case llvm::Intrinsic::gla_imageOp:
+    {
+        bool needConversion = samplerIsUint(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
+        if (needConversion)
+            ConversionStart(assignment, llvmInstruction->getType(), false);
+        emitGlaSamplerFunction(assignment, llvmInstruction, GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
+        assignment << "(";
+        emitGlaOperand(assignment, llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
+        assignment << ", ";
+        emitGlaOperand(assignment, llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
+
+        if (! load) {
+            assignment << ", ";
+            emitGlaOperand(assignment, llvmInstruction->getOperand(GetTextureOpIndex(ETOImageData)));
+        }
+
+        if (needConversion)
+            ConversionStop(assignment, llvmInstruction->getType());
+        assignment << ")";
+
+        assignment.emit();
+
+        return;
+    }
     case llvm::Intrinsic::gla_texelGather:
     case llvm::Intrinsic::gla_fTexelGather:
     case llvm::Intrinsic::gla_texelGatherOffset:
@@ -3417,9 +3511,6 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     if (callString == 0)
         UnsupportedFunctionality("Intrinsic in Bottom IR", EATContinue);
 
-    if (llvmInstruction->getType()->getTypeID() == llvm::Type::VoidTyID)
-        assignment.setNoLvalue();
-
     if (convertResultToInt)
         ConversionStart(assignment, llvmInstruction->getType(), false);
 
@@ -3526,6 +3617,27 @@ void gla::GlslTarget::emitGlaSamplerFunction(std::ostringstream& out, const llvm
     const llvm::Value* samplerType = llvmInstruction->getOperand(0);
 
     // TODO: uint functionality: See if it's a uint sampler, requiring a constructor to convert it
+
+    int imageOp = (texFlags & ETFImageOp) >> ImageOpShift;
+    if (imageOp) {
+        switch (imageOp) {
+        case EImageLoad:           out << "imageLoad";           break;
+        case EImageStore:          out << "imageStore";          break;
+        case EImageAtomicAdd:      out << "imageAtomicAdd";      break;
+        case EImageAtomicMin:      out << "imageAtomicMin";      break;
+        case EImageAtomicMax:      out << "imageAtomicMax";      break;
+        case EImageAtomicAnd:      out << "imageAtomicAnd";      break;
+        case EImageAtomicOr:       out << "imageAtomicOr";       break;
+        case EImageAtomicXor:      out << "imageAtomicXor";      break;
+        case EImageAtomicExchange: out << "imageAtomicExchange"; break;
+        case EImageAtomicCompSwap: out << "imageAtomicCompSwap"; break;
+        default:
+            UnsupportedFunctionality("image op");
+            break;
+        }
+
+        return;
+    }
 
     // Original style shadowing returns vec4 while 2nd generation returns float,
     // so, have to stick to old-style for those cases.
@@ -3689,6 +3801,9 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
     const char* qualifierString = MapGlaToQualifierString(version, stage, qualifier, metaType);
     if (*qualifierString)
         out << qualifierString << " ";
+    qualifierString = MapGlaToImageQualifierString(metaType);
+    if (*qualifierString)
+        out << "layout(" << qualifierString << ") ";
 
     if (type->getTypeID() == llvm::Type::PointerTyID)
         type = type->getContainedType(0);
@@ -3874,8 +3989,7 @@ void gla::GlslTarget::emitGlaSamplerType(std::ostringstream& out, const llvm::MD
         }
         switch (mdSampler) {
         case EMsTexture:     out << "sampler";   break;
-        case EMsImage:       out << "image";     break;
-        default:             UnsupportedFunctionality("kind of sampler");  break;
+        default:             out << "image";     break;
         }
         switch (mdSamplerDim) {
         case EMsd1D:       out << "1D";      break;

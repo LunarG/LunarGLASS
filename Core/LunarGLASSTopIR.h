@@ -60,22 +60,39 @@ namespace gla {
         ESampler2DMS,
     };
 
-    enum ETextureFlags {
-        ETFProjected    = 0x0001,
-        ETFBias         = 0x0002,
-        ETFLod          = 0x0004,
-        ETFShadow       = 0x0008,
-        ETFArrayed      = 0x0010,
-        ETFFetch        = 0x0020,
-        ETFGather       = 0x0040,
-        ETFBiasLodArg   = 0x0080,
-        ETFOffsetArg    = 0x0100,
-        ETFSampleArg    = 0x0200,
-        ETFComponentArg = 0x0400,
-        ETFRefZArg      = 0x0800,
-        ETFProjectedArg = 0x1000,
-        ETFOffsets      = 0x2000,  // means offset argument is an array that needs to be broken up
+    enum EImageOp {
+        EImageNoop,
+        EImageLoad,
+        EImageStore,
+        EImageAtomicAdd,
+        EImageAtomicMin,
+        EImageAtomicMax,
+        EImageAtomicAnd,
+        EImageAtomicOr,
+        EImageAtomicXor,
+        EImageAtomicExchange,
+        EImageAtomicCompSwap,
     };
+
+    enum ETextureFlags {
+        ETFProjected    = 0x00000001,
+        ETFBias         = 0x00000002,
+        ETFLod          = 0x00000004,
+        ETFShadow       = 0x00000008,
+        ETFArrayed      = 0x00000010,
+        ETFFetch        = 0x00000020,
+        ETFGather       = 0x00000040,
+        ETFBiasLodArg   = 0x00000080,
+        ETFOffsetArg    = 0x00000100,
+        ETFSampleArg    = 0x00000200,
+        ETFComponentArg = 0x00000400,
+        ETFRefZArg      = 0x00000800,
+        ETFProjectedArg = 0x00001000,
+        ETFOffsets      = 0x00002000,  // means offset argument is an array that needs to be broken up
+        //ETF           = 0x00008000,  // placeholder for future growth
+        ETFImageOp      = 0x000F0000,  // wide slot to hold an EImageOp value, see ImageOpShift below and EImageOp above
+    };
+    static const int ImageOpShift = 16;
 
     // Texture op, for mapping operands
     enum ETextureOperand {
@@ -89,6 +106,7 @@ namespace gla {
         ETODPdx        = 7,
         ETODPdy        = 8,
     };
+    static const ETextureOperand ETOImageData = (ETextureOperand)4;
 
     inline int GetTextureOpIndex(ETextureOperand operand, bool SoA = false, int numComps = 0, int comp = 0)
     {

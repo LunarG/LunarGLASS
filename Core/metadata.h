@@ -79,6 +79,7 @@ namespace gla {
 //
 //     !sampler -> { EMdSampler, Value*, EMdSamplerDim, array, shadow, EMdSamplerBaseType }
 //     Notes:
+//         - EMdSampler says whether it is an image or texture, and if an image what its format is
 //         - texel return value has the same type as Value*, modified by EMdSamplerBaseType (e.g., unsigned int)
 //         - array is bool, true if it is a samplerArray
 //         - shadow is bool, true if it is a samplerShadow
@@ -221,7 +222,54 @@ enum EMdTypeLayout {
 // What kind of sampler
 enum EMdSampler {
     EMsTexture,
+
+    // Image with no format
     EMsImage,
+
+    // Floating-point format image
+    EMsRgba32f,
+    EMsRgba16f,
+    EMsR32f,
+    EMsRgba8,
+    EMsRgba8Snorm,
+    EMsRg32f,
+    EMsRg16f,
+    EMsR11fG11fB10f,
+    EMsR16f,
+    EMsRgba16,
+    EMsRgb10A2,
+    EMsRg16,
+    EMsRg8,
+    EMsR16,
+    EMsR8,
+    EMsRgba16Snorm,
+    EMsRg16Snorm,
+    EMsRg8Snorm,
+    EMsR16Snorm,
+    EMsR8Snorm,
+
+    // signed-int format image
+    EMsRgba32i,
+    EMsRgba16i,
+    EMsRgba8i,
+    EMsR32i,
+    EMsRg32i,
+    EMsRg16i,
+    EMsRg8i,
+    EMsR16i,
+    EMsR8i,
+
+    // unsigned-int format image
+    EMsRgba32ui,
+    EMsRgba16ui,
+    EMsRgba8ui,
+    EMsR32ui,
+    EMsRg32ui,
+    EMsRg16ui,
+    EMsRg8ui,
+    EMsR16ui,
+    EMsR8ui,
+
     EMsCount,
 };
 

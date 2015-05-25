@@ -25,6 +25,20 @@ buffer outs {
     vec4 va[];
 } outnames;
 
+
+uniform writeonly highp iimage2DArray ii2da;
+
+layout(r32i) uniform highp iimage2D iimg2D;
+layout(rgba32i) uniform readonly highp iimage2D iimg2Drgba;
+layout(rgba32f) uniform readonly highp image3D img3Drgba;
+layout(r32ui) uniform highp uimageCube uimgCube;
+layout(rgba8_snorm) readonly uniform highp image2DArray img2DA;
+layout(rgba8) writeonly uniform highp image2DArray wimg2DA;
+layout(rgba16f) writeonly uniform highp image2D wimg2D;
+
+shared ivec2 coord2D;
+shared ivec3 coord3D;
+
 void main()
 {
     barrier();
@@ -34,4 +48,14 @@ void main()
     //outbname.uns[17] = vec3(3.0);   // TODO: see note above, this one bitcasts, which isn't handled
     outbname.uns[i] = vec3(s);
     outnames.va[gl_LocalInvocationID.x] = vec4(s);
+    
+    ivec4 iv = imageLoad(iimg2Drgba, coord2D);
+    vec4 v = imageLoad(img3Drgba, coord3D);
+    uvec4 uv = imageLoad(uimgCube, coord3D);
+    v += imageLoad(img2DA, coord3D);
+
+    imageStore(iimg2D, coord2D, iv);
+    imageStore(uimgCube, coord3D, uv);
+    imageStore(wimg2DA, coord3D, v);
+    imageStore(wimg2D, coord2D, v);
 }

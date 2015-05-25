@@ -373,10 +373,12 @@ public:
         llvm::Value* ETPSampleNum;
         llvm::Value* ETPSampler;
         llvm::Value* ETPDimensions;
+        llvm::Value* ETPData;          // for image*() data argument
     };
 
     // Select the correct intrinsic based on all inputs, and make the call
     llvm::Value* createTextureCall(EMdPrecision, llvm::Type*, ESamplerType, int texFlags, const TextureParameters&, const char* name = 0);
+    llvm::Value* createImageCall(EMdPrecision, llvm::Type*, ESamplerType, int texFlags, const TextureParameters&, const char* name = 0);
     llvm::Value* createTextureQueryCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Type*, llvm::Constant*, llvm::Value*, llvm::Value*, const char* name = 0);
     llvm::Value* createSamplePositionCall(EMdPrecision, llvm::Type*, llvm::Value*);
     llvm::Value* createBitFieldExtractCall(EMdPrecision, llvm::Value*, llvm::Value*, llvm::Value*, bool isSigned);

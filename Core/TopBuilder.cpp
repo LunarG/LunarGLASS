@@ -1714,8 +1714,8 @@ llvm::Value* Builder::smearScalar(gla::EMdPrecision precision, llvm::Value* scal
     return createSwizzle(precision, scalar, 0x00, vectorType);
 }
 
-// Accept all parameters needed to create LunarGLASS texture intrinsics
-// Select the correct intrinsic based on the inputs, and make the call
+// Accept all parameters needed to create LunarGLASS texture intrinsics.
+// Select the correct intrinsic based on the inputs, and make the call.
 llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type* resultType, gla::ESamplerType samplerType, int texFlags, const TextureParameters& parameters, const char* name)
 {
     bool floatReturn = gla::GetBasicType(resultType)->isFloatTy();
@@ -1923,6 +1923,84 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
     assert(intrinsic);
 
     llvm::Instruction* instr = builder.CreateCall(intrinsic, llvm::ArrayRef<llvm::Value*>(texArgs, texArgs + numArgs), name ? name : "txt");
+    setInstructionPrecision(instr, precision);
+
+    return instr;
+}
+
+// Accept all parameters needed to create LunarGLASS image intrinsics.
+// Select the correct intrinsic based on the inputs, and make the call.
+llvm::Value* Builder::createImageCall(gla::EMdPrecision precision, llvm::Type* resultType, gla::ESamplerType samplerType, int texFlags,
+                                      const TextureParameters& parameters, const char* name)
+{
+    name = name ? name : "image";
+
+    // Max args based on LunarGLASS TopIR, no SOA
+    static const int maxArgs = 5;
+    llvm::Value* imageArgs[maxArgs] = {};
+
+    // Base case: First arguments are fixed
+    int numArgs = 4;
+    const int dataArg = 4;
+    imageArgs[GetTextureOpIndex(ETOSamplerType)] = MakeIntConstant(context, samplerType);
+    imageArgs[GetTextureOpIndex(ETOSamplerLoc)]  = parameters.ETPSampler;
+    imageArgs[GetTextureOpIndex(ETOFlag)]        = MakeUnsignedConstant(context, *(int*)&texFlags);
+    imageArgs[GetTextureOpIndex(ETOCoord)]       = parameters.ETPCoords;
+
+    // Add the data argument if needed, and select which intrinsic to call.
+    llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::not_intrinsic;
+    switch ((texFlags & ETFImageOp) >> ImageOpShift) {
+    case EImageLoad:
+        if (gla::GetBasicType(resultType)->isFloatTy())
+            intrinsicID = llvm::Intrinsic::gla_fImageLoad;
+        else
+            intrinsicID = llvm::Intrinsic::gla_imageLoad;
+        break;
+    case EImageStore:
+        if (gla::GetBasicType(parameters.ETPData)->isFloatTy())
+            intrinsicID = llvm::Intrinsic::gla_imageStoreF;
+        else
+            intrinsicID = llvm::Intrinsic::gla_imageStoreI;
+        imageArgs[dataArg] = parameters.ETPData;
+        ++numArgs;
+        break;
+    default:
+        intrinsicID = llvm::Intrinsic::gla_imageOp;
+        break;
+    }
+
+    llvm::Function* intrinsic = 0;
+
+    // Initialize required operands based on intrinsic
+    switch (intrinsicID) {
+    case llvm::Intrinsic::gla_fImageLoad:
+    case llvm::Intrinsic::gla_imageLoad:
+        intrinsic = getIntrinsic(intrinsicID, resultType, imageArgs[GetTextureOpIndex(ETOCoord)]->getType());
+        break;
+
+    case llvm::Intrinsic::gla_imageStoreF:
+    case llvm::Intrinsic::gla_imageStoreI:
+        name = 0;
+        intrinsic = getIntrinsic(intrinsicID, imageArgs[GetTextureOpIndex(ETOCoord)]->getType());
+        break;
+
+    case llvm::Intrinsic::gla_imageOp:
+        intrinsic = getIntrinsic(intrinsicID, imageArgs[GetTextureOpIndex(ETOCoord)]->getType());
+        break;
+
+    default:
+        // caught be upcoming assert
+        break;
+    }
+
+    assert(intrinsic);
+
+    // Make the call:  Those with no return value cannot have a name argument.
+    llvm::Instruction* instr;
+    if (name)
+        instr = builder.CreateCall(intrinsic, llvm::ArrayRef<llvm::Value*>(imageArgs, imageArgs + numArgs), name);
+    else
+        instr = builder.CreateCall(intrinsic, llvm::ArrayRef<llvm::Value*>(imageArgs, imageArgs + numArgs));
     setInstructionPrecision(instr, precision);
 
     return instr;
