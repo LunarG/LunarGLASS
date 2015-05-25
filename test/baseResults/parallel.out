@@ -1034,10 +1034,10 @@ void main()
 qualifiers.frag
 #version 430 core
 // LunarGOO output
-uniform image2D imageVc;
-uniform image2D imageVv;
-uniform image2D imageVr;
-uniform image2D imageVro;
+uniform layout(rgba32f) image2D imageVc;
+uniform layout(rgba32f) image2D imageVv;
+uniform layout(rgba32f) image2D imageVr;
+uniform layout(rgba32f) image2D imageVro;
 uniform image2D imageVwo;
 uniform image2D imageVall;
 centroid in vec4 inVc;
