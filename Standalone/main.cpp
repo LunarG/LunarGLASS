@@ -37,6 +37,9 @@
 // glslang includes
 #include "glslang/Include/ShHandle.h"
 #include "glslang/Public/ShaderLang.h"
+#include "SPIRV/doc.h"
+#include "SPIRV/disassemble.h"
+#include "SPIRV/GLSL450Lib.h"
 #include "SPIRV/GlslangToSpv.h"
 
 // glslang StandAlone include
@@ -50,6 +53,7 @@
 #include "OptionParse.h"
 #include "Backends/GLSL/GlslManager.h"
 
+#include <iostream>
 #include <string.h>
 
 #ifdef _WIN32
@@ -77,6 +81,11 @@ ShBinding FixedAttributeBindings[] = {
 };
 
 ShBindingTable FixedAttributeTable = { 3, FixedAttributeBindings };
+
+// An array of names used for printing SPIR-V human-readable assembly.
+// It's accessed implicitly by spv::disassemble.
+const char* GlslStd450DebugNames[GLSL_STD_450::Count];
+
 
 namespace {
 
@@ -113,6 +122,7 @@ enum CommandOptions {
     EOptionFilterInactive     = 0x2000,
     EOptionDumpIndexShader    = 0x4000,
     EOptionUseSpv             = 0x8000,
+    EOptionHumanReadableSpv   = 0x10000,
 };
 
 int Options = 0;                       // the non-manager options
@@ -254,6 +264,7 @@ void usage(bool advanced)
     if (advanced) {
         printf("Developer options:\n"
                "  -a  dump LunarGLASS Top IR and Bottom IR\n"
+               "  -A  dump SPIR-V human readable assembly. Requires -V.\n"
                "  -i  intermediate tree (glslang AST) is printed out\n"
                "  -m  memory leak mode\n"
                "  -u  dump index shader\n\n");
@@ -352,6 +363,9 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
                 break;
             case 'w':
                 Options |= EOptionSuppressWarnings;
+                break;
+            case 'A':
+                Options |= EOptionHumanReadableSpv;
                 break;
             case 'z':
                 usage(true);
@@ -620,6 +634,12 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
                 if (Options & EOptionUseSpv) {
                     std::vector<unsigned int> spirv;
                     glslang::GlslangToSpv(*intermediate, spirv);
+                    if (Options & EOptionHumanReadableSpv) {
+                      std::cerr << "SPIR-V:" << std::endl;
+                      spv::Parameterize();
+                      GLSL_STD_450::GetDebugNames(GlslStd450DebugNames);
+                      spv::Disassemble(std::cerr, spirv);
+                    }
                     gla::SpvToTop(spirv, manager);
                 } else
                     TranslateGlslangToTop(*intermediate, manager);
