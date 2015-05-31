@@ -198,7 +198,7 @@ namespace {
             const llvm::SwitchInst* switchInst;
             bool fallthrough(const llvm::BasicBlock* b)
             {
-                for (auto it = switchInst->case_begin(); it != switchInst->case_end(); ++it)
+                for (llvm::SwitchInst::ConstCaseIt it = switchInst->case_begin(); it != switchInst->case_end(); ++it)
                     if (it.getCaseSuccessor() == b)
                         return true;
                 if (mergeBlock && mergeBlock != switchInst->getDefaultDest() && b == switchInst->getDefaultDest())
@@ -767,7 +767,7 @@ void BottomTranslator::handleBranchingBlock(const BasicBlock* bb)
         if (switchStack.size() > 0) {
             if (switchStack.back().fallthrough(succ))
                 backEndTranslator->endCase(false);
-            else if (switchStack.back().mergeBlock == nullptr) {
+            else if (switchStack.back().mergeBlock == 0) {
                 // Speculate that this branches to the merge block of a switch statement.
                 switchStack.back().mergeBlock = succ;
                 backEndTranslator->endCase(true);
