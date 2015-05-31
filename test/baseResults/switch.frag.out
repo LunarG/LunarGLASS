@@ -778,9 +778,325 @@ attributes #0 = { nounwind readnone }
 !8 = metadata !{i32 0, i32 2, i32 1025, null, i32 0}
 !9 = metadata !{i32 2}
 
-***Unsupported functionality: switch terminator
+***Unsupported functionality: switch topology
 
-Linked fragment stage:
+***Unsupported functionality: switch topology
 
-ERROR: Linking fragment stage: Missing entry point: Each stage requires one "void main()" entry point
+***Unsupported functionality: switch topology
+
+***Unsupported functionality: switch topology
+
+***Unsupported functionality: switch topology
+
+***Unsupported functionality: switch topology
+#version 300 es
+// LunarGOO output
+precision mediump float; // this will be almost entirely overridden by individual declarations
+uniform mediump int c;
+uniform mediump int d;
+uniform mediump vec4 v;
+in mediump float x;
+out mediump float color;
+const int C_1 = 1;
+const int C_0 = 0;
+const int C_9 = 9;
+const int C_20 = 20;
+const int C_29 = 29;
+mediump float Lg_3;
+const float C_1d0 = 1.0;
+const float C_100d2 = 100.2;
+const float C_3d43 = 3.43;
+const vec4 C_vec4p0d0p = vec4(0.0);
+const vec4 C_vec4p1d0p = vec4(1.0);
+
+void main()
+{
+	float f;
+	float f1;
+	float f2;
+	float f3;
+	float f4;
+	float f5;
+	int i;
+	float f6;
+	float f7;
+	int j;
+	float f8;
+	float f9;
+	float fa;
+	float fb;
+	vec4 Lg_1;
+	vec4 Lg_2;
+	mediump int local = c + C_1;
+	switch (c) {
+		case 1:
+		{
+			mediump float H_0lhnah = sin(x);
+			f = H_0lhnah;
+			break;
+			
+		}
+		case 2:
+		{
+			mediump float H_v86jke1 = cos(x);
+			f = H_v86jke1;
+			break;
+			
+		}
+		default:
+		{
+			mediump float H_3c9cke1 = tan(x);
+			f = H_3c9cke1;
+			break;
+			
+		}
+	}
+	
+	f1 = f;
+	switch (c) {
+		case 1:
+		{
+			mediump float H_0lhnahr = sin(x);
+			mediump float H_wcnmtj1 = H_0lhnahr + f;
+			f1 = H_wcnmtj1;
+			
+		}
+		case 2:
+		{
+			mediump float H_v86jke1r = cos(x);
+			mediump float H_t8w2cv = H_v86jke1r + f1;
+			f2 = H_t8w2cv;
+			break;
+			
+		}
+		default:
+		{
+			mediump float H_3c9cke1r = tan(x);
+			mediump float H_mtq1vr = H_3c9cke1r + f;
+			f2 = H_mtq1vr;
+			break;
+			
+		}
+	}
+	
+	f3 = f2;
+	switch (c) {
+		case 1:
+		{
+			mediump float H_0lhnahrr = sin(x);
+			mediump float H_27zftj = H_0lhnahrr + f2;
+			f3 = H_27zftj;
+			break;
+			
+		}
+		case 2:
+		{
+			mediump float H_v86jke1rr = cos(x);
+			mediump float H_o3mdae = H_v86jke1rr + f2;
+			f3 = H_o3mdae;
+			break;
+			
+		}
+	}
+	
+	switch (c) {
+		case 1:
+		{
+			mediump float H_0lhnahrrr = sin(x);
+			mediump float H_hu2yrb = H_0lhnahrrr + f3;
+			f4 = H_hu2yrb;
+			break;
+			
+		}
+		case 2:
+		{
+			f5 = f3;
+			switch (d) {
+				case 1:
+				{
+					mediump float H_hzby3e = x * x;
+					mediump float H_dxsdny = H_hzby3e * x;
+					mediump float H_eyk1vd = H_dxsdny + f3;
+					f5 = H_eyk1vd;
+					break;
+					
+				}
+				case 2:
+				{
+					mediump float H_hzby3er = x * x;
+					mediump float H_pzmj7i1 = H_hzby3er + f3;
+					f5 = H_pzmj7i1;
+					break;
+					
+				}
+			}
+			
+			f4 = f5;
+			default:
+			{
+				mediump float H_3c9cke1rr = tan(x);
+				mediump float H_bmyrry = H_3c9cke1rr + f3;
+				f4 = H_bmyrry;
+				break;
+				
+			}
+		}
+		
+		mediump float H_3c9cke1rrr = tan(x);
+		mediump float H_0lhnahrrrr = sin(x);
+		mediump float H_v86jke1rrr = cos(x);
+		i = C_0;
+		f6 = f4;
+		while (i <= C_9) {
+			switch (c) {
+				case 1:
+				{
+					mediump float H_q4zp4f1 = H_0lhnahrrrr + f6;
+					j = C_20;
+					f8 = H_q4zp4f1;
+					while (j <= C_29) {
+						Lg_3 = f8 + C_1d0;
+						bool H_93uqn1 = Lg_3 < C_100d2;
+						mediump int H_l69nk4 = C_1 + j;
+						if (H_93uqn1) {
+							f9 = Lg_3;
+							break;
+							
+						}
+						break;
+					}
+					
+					j = H_l69nk4;
+					f8 = Lg_3;
+				}
+				
+				f9 = f8;
+				break;
+				
+			}
+			f7 = f9;
+			case 2:
+			{
+				mediump float H_sf4otx1 = H_v86jke1rrr + f6;
+				f7 = H_sf4otx1;
+				default:
+				{
+					mediump float H_ksdj391 = H_3c9cke1rrr + f6;
+					f7 = H_ksdj391;
+				}
+				
+				bool H_amefxf1 = f7 < C_3d43;
+				mediump int H_o3goq3 = C_1 + i;
+				if (H_amefxf1) {
+					fa = f7;
+					break;
+				}
+				
+				i = H_o3goq3;
+				f6 = f7;
+			}
+			
+			fa = f6;
+			fb = fa;
+			switch (c) {
+				case 1:
+				{
+					mediump float H_jyv82r1 = H_0lhnahrrrr + fa;
+					fb = H_jyv82r1;
+					break;
+					
+				}
+				case 2:
+				{
+					fb = fa;
+					break;
+					
+				}
+			}
+			
+			mediump float H_13mhsn1 = float(local);
+			mediump float color1 = H_13mhsn1 + fb;
+			color = color1;
+			switch (c) {
+				case 0:
+				{
+					Lg_1 = v;
+					break;
+					
+				}
+				case 2:
+				{
+					Lg_1 = v;
+					break;
+					
+				}
+				case 1:
+				{
+					case 3:
+					{
+						mediump vec4 H_hno2sy = v * v;
+						Lg_1 = H_hno2sy;
+						break;
+						
+					}
+					default:
+					{
+						Lg_1 = C_vec4p0d0p;
+						break;
+						
+					}
+				}
+				
+				mediump float color2 = Lg_1.y + color1;
+				color = color2;
+				switch (c) {
+					case 0:
+					{
+						Lg_2 = v;
+						break;
+						
+					}
+					case 2:
+					{
+						Lg_2 = C_vec4p1d0p;
+						break;
+						
+					}
+					case 1:
+					{
+						Lg_2 = v;
+						break;
+						
+					}
+					case 3:
+					{
+						mediump vec4 H_hno2syr = v * v;
+						Lg_2 = H_hno2syr;
+						break;
+						
+					}
+					default:
+					{
+						Lg_2 = C_vec4p0d0p;
+						break;
+						
+					}
+				}
+				
+				mediump float color3 = Lg_2.z + color2;
+				color = color3;
+				
+			}
+			
+tempglsl.frag
+ERROR: 0:144: 'default' : cannot be nested inside control flow 
+ERROR: 0:178: 'H_l69nk4' : undeclared identifier 
+ERROR: 0:178: 'assign' :  cannot convert from 'temp float' to 'temp mediump int'
+ERROR: 0:187: 'case' : cannot be nested inside control flow 
+ERROR: 0:191: 'default' : cannot be nested inside control flow 
+ERROR: 0:244: 'case' : cannot be nested inside control flow 
+ERROR: 0:251: 'default' : cannot be nested inside control flow 
+ERROR: 0:300: '' :  syntax error
+ERROR: 8 compilation errors.  No code generated.
+
 

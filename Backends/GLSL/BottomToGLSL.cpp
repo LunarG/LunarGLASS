@@ -557,6 +557,11 @@ public:
     void addIf(const llvm::Value* cond, bool invert = false);
     void addElse();
     void addEndif();
+    void addSwitch(const llvm::Value* cond);
+    void addCase(int);
+    void addDefault();
+    void endCase(bool withBreak);
+    void endSwitch();
     void beginConditionalLoop();
     void beginSimpleConditionalLoop(const llvm::CmpInst* cmp, const llvm::Value* op1, const llvm::Value* op2, bool invert = false);
     void beginForLoop(const llvm::PHINode* phi, llvm::ICmpInst::Predicate, unsigned bound, unsigned increment);
@@ -2299,6 +2304,47 @@ void gla::GlslTarget::addElse()
 }
 
 void gla::GlslTarget::addEndif()
+{
+    leaveScope();
+    newLine();
+}
+
+void gla::GlslTarget::addSwitch(const llvm::Value* cond)
+{
+    newLine();
+    shader << "switch (";
+    emitGlaOperand(shader, cond);
+    shader << ") ";
+    newScope();
+}
+
+void gla::GlslTarget::addCase(int value)
+{
+    newLine();
+    shader << "case " << value << ":";
+    newLine();
+    newScope();
+}
+
+void gla::GlslTarget::addDefault()
+{
+    newLine();
+    shader << "default:";
+    newLine();
+    newScope();
+}
+
+void gla::GlslTarget::endCase(bool withBreak)
+{
+    if (withBreak) {
+        newLine();
+        shader << "break;";
+    }
+    newLine();
+    leaveScope();
+}
+
+void gla::GlslTarget::endSwitch()
 {
     leaveScope();
     newLine();

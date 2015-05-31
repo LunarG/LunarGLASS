@@ -87,8 +87,6 @@
 //   an if-then-else construct, it will then call the addElse interface and
 //   handle the else block. Finally, it calls the addEndIf interface.
 //
-// * TODO: functionality: handleSwitchBlock
-//
 // * handleReturnBlock handles it's instructions, and calls the
 //   handleReturnBlock interface
 //
@@ -188,6 +186,27 @@ namespace {
         DominatorTree* domTree;
         DominanceFrontier* domFront;  // Note: this is deprecated, go in the direction of not needing it
         IdentifyStructures* idStructs;
+
+        // Switch information, dynamically maintained while translating blocks
+        // for the back end, on a stack of nested switch statements.
+        // TODO: This needs fuller treatment, probably by becoming part of IdentifyStructures.
+        //       It's slightly guess work now to deduce the switch's merge point, and in complex
+        //       topologies, the heuristics used here and in handleBranchingBlock() breaks down.
+        struct switchDesc {
+            switchDesc(const llvm::BasicBlock* merge, const llvm::SwitchInst* inst) : mergeBlock(merge), switchInst(inst) { }
+            const llvm::BasicBlock* mergeBlock;
+            const llvm::SwitchInst* switchInst;
+            bool fallthrough(const llvm::BasicBlock* b)
+            {
+                for (auto it = switchInst->case_begin(); it != switchInst->case_end(); ++it)
+                    if (it.getCaseSuccessor() == b)
+                        return true;
+                if (mergeBlock && mergeBlock != switchInst->getDefaultDest() && b == switchInst->getDefaultDest())
+                    return true;
+                return false;
+            }
+        };
+        llvm::SmallVector<switchDesc, 2> switchStack;
 
         bool lastBlock;
 
@@ -293,7 +312,7 @@ namespace {
         void forceDiscard();
 
         // If dominator properly dominates dominatee, then handle it, else do nothing
-        void attemptHandleDominatee(const BasicBlock* dominator, const BasicBlock* dominatee);
+        bool attemptHandleDominatee(const BasicBlock* dominator, const BasicBlock* dominatee);
 
         // Sets up a the beginning of a loop for the loop at the top of our LoopStack.
         // Assumes there is something on top of our LoopStack.
@@ -514,21 +533,24 @@ void BottomTranslator::newLoop(const BasicBlock* bb)
         handledBlocks.insert(loops.top()->getLatch());
 }
 
-void BottomTranslator::attemptHandleDominatee(const BasicBlock* dominator, const BasicBlock* dominatee)
+// Return true if the block topology was recognized and/or handled.
+bool BottomTranslator::attemptHandleDominatee(const BasicBlock* dominator, const BasicBlock* dominatee)
 {
     // If the dominatee is a early return or a discard, then force it's output
     // accordingly
-    if (dominatee == stageExit) {
-        return;
-    }
+    if (dominatee == stageExit)
+        return true;
     if (dominatee == stageEpilogue) {
         forceReturn();
-        return;
+        return true;
     }
 
     if (ProperlyDominates(dominator, dominatee, *domTree)) {
         handleBlock(dominatee);
+        return true;
     }
+
+    return false;
 }
 
 void BottomTranslator::handleLoopBlock(const BasicBlock* bb, bool instructionsHandled)
@@ -702,7 +724,7 @@ void BottomTranslator::handleIfBlock(const BasicBlock* bb)
 
     backEndTranslator->addEndif();
 
-    // We'd like to now shedule the handling of the merge block. If there is no
+    // We'd like to now schedule the handling of the merge block. If there is no
     // merge block (e.g. there was a return/discard/break/continue), then we're
     // done.
     const BasicBlock* merge = cond->getMergeBlock();
@@ -724,7 +746,7 @@ void BottomTranslator::handleReturnBlock(const BasicBlock* bb)
 
 void BottomTranslator::handleBranchingBlock(const BasicBlock* bb)
 {
-    // Handle it's instructions and do phi node removal if appropriate
+    // Handle its instructions and do phi-node removal if appropriate
     handleInstructions(bb);
     addPhiCopies(bb);
 
@@ -733,10 +755,27 @@ void BottomTranslator::handleBranchingBlock(const BasicBlock* bb)
     if (IsUnconditional(bb)) {
         const BasicBlock* succ = GetSuccessor(0,bb);
         // If it's the (non-simple) latch, handle it, else handle it if we dominate it (also includes returns/discards)
-        if (! loops.empty() && !loops.top()->isSimpleLatching() && succ == loops.top()->getLatch())
+        if (! loops.empty() && ! loops.top()->isSimpleLatching() && succ == loops.top()->getLatch()) {
             handleBlock(succ);
-        else
-            attemptHandleDominatee(bb, succ);
+            return;
+        }
+
+        if (attemptHandleDominatee(bb, succ))
+            return;
+
+        // see if it's the end of a switch case statement
+        if (switchStack.size() > 0) {
+            if (switchStack.back().fallthrough(succ))
+                backEndTranslator->endCase(false);
+            else if (switchStack.back().mergeBlock == nullptr) {
+                // Speculate that this branches to the merge block of a switch statement.
+                switchStack.back().mergeBlock = succ;
+                backEndTranslator->endCase(true);
+            } else if (switchStack.back().mergeBlock == succ)
+                backEndTranslator->endCase(true);
+            else
+                gla::UnsupportedFunctionality("switch topology", gla::EATContinue);
+        }
 
         return;
     }
@@ -751,14 +790,49 @@ void BottomTranslator::handleBranchingBlock(const BasicBlock* bb)
     return;
 }
 
+// Handle a block that ends with a switch branch.  This includes 
+// handling each case, the default, and the merge block after the switch.
 void BottomTranslator::handleSwitchBlock(const BasicBlock* bb)
 {
-    assert(isa<SwitchInst>(bb->getTerminator()));
-
-    gla::UnsupportedFunctionality("switch terminator");
+    const SwitchInst* switchInstr = dyn_cast<SwitchInst>(bb->getTerminator());
+    assert(switchInstr);
 
     handleInstructions(bb);
-    backEndTranslator->addInstruction(bb->getTerminator(), lastBlock);
+    addPhiCopies(bb);
+
+    // open the structure switch
+    backEndTranslator->addSwitch(switchInstr->getCondition());
+
+    // Start out not knowing the merge block, but knowing we're in a switch
+    switchStack.push_back(switchDesc(0, switchInstr));
+
+    // visit each case (not the default)
+    SwitchInst::ConstCaseIt caseIt = switchInstr->case_begin();
+    for (; caseIt != switchInstr->case_end(); caseIt++) {
+        backEndTranslator->addCase((int)caseIt.getCaseValue()->getSExtValue());
+        handleBlock(caseIt.getCaseSuccessor());
+    }
+
+    // visit the default, which can be hard to distinguish from the merge block
+    // (sometimes they are two different things, sometimes not)
+    SwitchInst::ConstCaseIt defaultIt = switchInstr->case_default();
+
+    // see if the default block is not the merge block
+    const BasicBlock* defaultBlock = defaultIt.getCaseSuccessor();
+    if (switchStack.back().mergeBlock == 0)
+        switchStack.back().mergeBlock = defaultBlock;
+    else if (defaultBlock != switchStack.back().mergeBlock) {
+        backEndTranslator->addDefault();
+        handleBlock(defaultBlock);
+    }
+
+    // close out the structured switch
+    backEndTranslator->endSwitch();
+
+    // handle merge block
+    if (switchStack.back().mergeBlock)
+        handleBlock(switchStack.back().mergeBlock);
+    switchStack.pop_back();
 
     return;
 }
@@ -1042,7 +1116,8 @@ bool BottomTranslator::runOnModule(Module& module)
 
             // Only the first block should have to be handled, as every
             // subgraph knows how to handle itself.
-            assert(IsSubset(function->getBasicBlockList(), handledBlocks));
+            if (! IsSubset(function->getBasicBlockList(), handledBlocks))
+                gla::UnsupportedFunctionality("control flow: not all blocks were translated", gla::EATContinue);
 
             backEndTranslator->endFunctionBody();
         }

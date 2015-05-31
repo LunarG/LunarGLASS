@@ -188,6 +188,11 @@ namespace gla {
         virtual void addIf(const llvm::Value* cond, bool invert=false) = 0;
         virtual void addElse() = 0;
         virtual void addEndif() = 0;
+        virtual void addSwitch(const llvm::Value* cond) = 0;
+        virtual void addCase(int) = 0;
+        virtual void addDefault() = 0;
+        virtual void endCase(bool withBreak) = 0;
+        virtual void endSwitch() = 0;
 
 
         // Specialized loop constructs

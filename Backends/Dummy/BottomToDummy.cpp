@@ -167,6 +167,21 @@ public:
     void addEndif()
     { counter++; }
 
+    void addSwitch(const llvm::Value* cond)
+    { counter++; }
+
+    void addCase(int)
+    { counter++; }
+
+    void addDefault()
+    { counter++; }
+
+    void endCase(bool withBreak)
+    { counter++; }
+
+    void endSwitch()
+    { counter++; }
+
     void beginConditionalLoop()
     { counter++; }
 
