@@ -4,9 +4,9 @@ set(CMAKE_INSTALL_PREFIX "install" CACHE STRING "prefix" FORCE)
 
 project(LunarGLASS)
 
-set(LLVM_BUILD ${CMAKE_CURRENT_SOURCE_DIR}/Core/LLVM/llvm-3.4/build)
+set(LLVM_BUILD ${CMAKE_CURRENT_SOURCE_DIR}/Core/LLVM/llvm-3.4/build CACHE PATH "LLVM build directory")
 
-set(GLSLANG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../glslang)
+set(GLSLANG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../glslang CACHE PATH "glslang directory")
 
 if(WIN32)
     include(Core/LLVM/llvm-3.4/cmake/modules/ChooseMSVCCRT.cmake)
@@ -20,8 +20,8 @@ if(WIN32)
     set(GLSLANGLIBS ${GLSLANG_PATH}/build/install/lib/ CACHE PATH "glslang library directory")
     link_directories(${GLSLANGLIBS} ${LLVMLIBS})
 elseif(UNIX)
-    set(LLVMINCLUDES ${LLVM_BUILD}/include CACHE PATH "LLVM include directory")
-    set(LLVMLIBS ${LLVM_BUILD}/Release+Asserts/lib CACHE PATH "LLVM library directory") 
+    set(LLVMINCLUDES ${LLVM_BUILD}/install/usr/local/include CACHE PATH "LLVM include directory")
+    set(LLVMLIBS ${LLVM_BUILD}/install/usr/local/lib CACHE PATH "LLVM library directory") 
     set(GLSLANGLIBS ${GLSLANG_PATH}/build/install/lib/ CACHE PATH "glslang library directory")
     link_directories(${GLSLANGLIBS} ${LLVMLIBS})
 else(WIN32)
@@ -47,7 +47,7 @@ if(WIN32)
     set(SYSTEM_LIBS "")
 elseif(UNIX)
     # Get system library dependencies from llvm-config.
-    execute_process(COMMAND ${LLVM_BUILD}/Release+Asserts/bin/llvm-config --ldflags OUTPUT_VARIABLE LLVM_LD_FLAGS)
+    execute_process(COMMAND ${LLVM_BUILD}/install/usr/local/bin/llvm-config --ldflags OUTPUT_VARIABLE LLVM_LD_FLAGS)
     # Convert to a list of link flags.
     string(REPLACE " " ";" LLVM_LD_FLAGS_LIST ${LLVM_LD_FLAGS})
     foreach(LIB ${LLVM_LD_FLAGS_LIST})
@@ -68,7 +68,7 @@ set(GLSLANGLIBS
 if(WIN32)
     add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 elseif(UNIX)
-    execute_process(COMMAND ${LLVM_BUILD}/Release+Asserts/bin/llvm-config --cxxflags OUTPUT_VARIABLE LLVM_CXX_FLAGS)
+    execute_process(COMMAND ${LLVM_BUILD}/install/usr/local/bin/llvm-config --cxxflags OUTPUT_VARIABLE LLVM_CXX_FLAGS)
     add_definitions(${LLVM_CXX_FLAGS})
 endif(WIN32)
 
