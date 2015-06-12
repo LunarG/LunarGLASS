@@ -1288,7 +1288,6 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
             manager.setProfile(ECoreProfile);
             break;
         }
-        manager.setProfile(ECoreProfile);
         break;
     }
     case spv::OpSourceExtension:
