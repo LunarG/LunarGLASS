@@ -789,7 +789,7 @@ attributes #0 = { nounwind readnone }
 ***Unsupported functionality: switch topology
 
 ***Unsupported functionality: switch topology
-#version 300 es
+#version 310 es
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
 uniform mediump int c;
@@ -1089,6 +1089,7 @@ void main()
 			}
 			
 tempglsl.frag
+Warning, version 310 is not yet complete; most version-specific features are present, but some are missing.
 ERROR: 0:144: 'default' : cannot be nested inside control flow 
 ERROR: 0:178: 'H_l69nk4' : undeclared identifier 
 ERROR: 0:178: 'assign' :  cannot convert from 'temp float' to 'temp mediump int'
