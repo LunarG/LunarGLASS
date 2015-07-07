@@ -182,9 +182,9 @@ enum EMdInputOutput {
     EMioFragmentDepth,
 
     // uniforms
-    EMioDefaultUniform,      // a uniform not in a block
-    EMioUniformBlockMember,  // uniform buffer
-    EMioBufferBlockMember,   // shader storage buffer object, with no run-time sized array, see also EMioBufferBlockMemberArrayed
+    EMioDefaultUniform,      // a uniform variable not in a block
+    EMioUniformBlockMember,  // uniform buffer (uniform block)
+    EMioBufferBlockMember,   // shader storage buffer object (buffer block), with no run-time sized array, see also EMioBufferBlockMemberArrayed
 
     // Entry point into shader
     EMioEntrypoint,
