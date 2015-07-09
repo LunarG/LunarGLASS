@@ -17,31 +17,24 @@ mainBody:                                         ; preds = %entry
   store <4 x float> %color1, <4 x float>* %color
   br label %loop-header
 
-loop-header:                                      ; preds = %ifmerge, %mainBody
+loop-header:                                      ; preds = %mainBody
+  br label %loop-body
+
+loop-body:                                        ; preds = %loop-test, %loop-header
   %0 = load <4 x float> addrspace(2)* @bigColor, !gla.uniform !3
   %1 = load <4 x float>* %color
   %color2 = fadd <4 x float> %1, %0
   store <4 x float> %color2, <4 x float>* %color
+  br label %loop-test
+
+loop-test:                                        ; preds = %loop-body
   %2 = load <4 x float>* %color
   %3 = extractelement <4 x float> %2, i32 0
   %4 = load float addrspace(2)* @d, !gla.uniform !5
   %5 = fcmp olt float %3, %4
-  %6 = xor i1 %5, true
-  br i1 %6, label %then, label %ifmerge
+  br i1 %5, label %loop-body, label %loop-merge
 
-then:                                             ; preds = %loop-header
-  br label %loop-merge
-
-post-loop-break:                                  ; No predecessors!
-  unreachable
-
-ifmerge:                                          ; preds = %loop-header
-  br label %loop-header
-
-post-loop-continue:                               ; No predecessors!
-  unreachable
-
-loop-merge:                                       ; preds = %then
+loop-merge:                                       ; preds = %loop-test
   %gl_FragColor = load <4 x float>* %color
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
@@ -81,20 +74,20 @@ entry:
   %color1 = load <4 x float>* @BaseColor, align 16
   %.pre = load <4 x float> addrspace(2)* @bigColor, align 16, !gla.uniform !3
   %.pre3 = load float addrspace(2)* @d, align 4, !gla.uniform !5
-  br label %loop-header
+  br label %loop-body
 
-loop-header:                                      ; preds = %loop-header, %entry
-  %color.0 = phi <4 x float> [ %color1, %entry ], [ %color2, %loop-header ]
+loop-body:                                        ; preds = %loop-body, %entry
+  %color.0 = phi <4 x float> [ %color1, %entry ], [ %color2, %loop-body ]
   %color2 = fadd <4 x float> %color.0, %.pre
   %0 = extractelement <4 x float> %color2, i32 0
-  %1 = fcmp uge float %0, %.pre3
-  br i1 %1, label %then, label %loop-header
+  %1 = fcmp olt float %0, %.pre3
+  br i1 %1, label %loop-body, label %loop-merge
 
-then:                                             ; preds = %loop-header
+loop-merge:                                       ; preds = %loop-body
   store <4 x float> %color2, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %then
+stage-epilogue:                                   ; preds = %loop-merge
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -127,8 +120,8 @@ void main()
 	color = BaseColor;
 	while (true) {
 		color1 = bigColor + color;
-		bool H_6ao87e = color1.x >= d;
-		if (H_6ao87e) {
+		bool H_1v5ao91 = color1.x < d;
+		if (! H_1v5ao91) {
 			break;
 		}
 		
@@ -152,8 +145,8 @@ void main()
 	color = BaseColor;
 	while (true) {
 		color1 = bigColor + color;
-		bool H_6ao87e = color1.x < d;
-		if (! H_6ao87e) {
+		bool H_6ao87e = color1.x >= d;
+		if (H_6ao87e) {
 			break;
 		}
 		

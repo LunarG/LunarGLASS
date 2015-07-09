@@ -2603,8 +2603,8 @@ void Builder::makeNewLoop(llvm::Value* inductiveVariable, llvm::Constant* from, 
     llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(context, "loop-header", function);
     llvm::BasicBlock *mergeBB  = llvm::BasicBlock::Create(context, "loop-merge");
 
-    LoopData ld = { };
-    ld.exit   = mergeBB;
+    LoopData ld;
+    ld.exit = mergeBB;
     ld.header = headerBB;
     ld.counter = inductiveVariable;
     ld.finish = finish;
@@ -2632,25 +2632,81 @@ void Builder::makeNewLoop(llvm::Value* inductiveVariable, llvm::Constant* from, 
     builder.SetInsertPoint(headerBB);
 }
 
-// Add a back-edge (e.g "continue") for the innermost loop that you're in
+// Comments in header
+void Builder::makeLoopTest(llvm::Value* condition)
+{
+    if (builder.GetInsertBlock()->getTerminator())
+        return;
+
+    LoopData& loop = loops.top();
+    if (loop.endTest) {
+        assert(loop.body);
+        builder.CreateCondBr(condition, loop.endTestBody, loop.exit);
+        // depending on closeLoop() to fix the insert point
+    } else {
+        condition = builder.CreateNot(condition);
+        gla::Builder::If ifBuilder(condition, this);
+        makeLoopExit();
+        ifBuilder.makeEndIf();
+    }
+}
+
+// Comments in header
+void Builder::completeLoopHeaderWithoutTest()
+{
+    assert(loop.endTest == nullptr);
+
+    LoopData& loop = loops.top();
+    llvm::Function* function = builder.GetInsertBlock()->getParent();
+
+    loop.endTest = llvm::BasicBlock::Create(context, "loop-test");
+    loop.endTestBody = llvm::BasicBlock::Create(context, "loop-body", function);
+
+    // Branch to the loop's body
+    if (! builder.GetInsertBlock()->getTerminator())        
+        builder.CreateBr(loop.endTestBody);
+    builder.SetInsertPoint(loop.endTestBody);
+}
+
+// Comments in header
+void Builder::makeBranchToLoopEndTest()
+{
+    LoopData& loop = loops.top();
+    assert(loop.endTest != nullptr);
+
+    // branch to the loop's test
+    if (! builder.GetInsertBlock()->getTerminator())
+        builder.CreateBr(loop.endTest);
+
+    llvm::Function* function = builder.GetInsertBlock()->getParent();
+    function->getBasicBlockList().push_back(loop.endTest);
+    builder.SetInsertPoint(loop.endTest);
+}
+
+// Add a back-edge (e.g "continue") for the innermost loop
 void Builder::makeLoopBackEdge(bool implicit)
 {
     if (builder.GetInsertBlock()->getTerminator())
         return;
 
-    LoopData ld = loops.top();
+    LoopData& ld = loops.top();
 
-    // If we're not inductive, just branch back.
+    // If we're not inductive, just branch back to the header, or test, depending on loop topology.
     if (! ld.isInductive) {
-        if (builder.GetInsertBlock()->getTerminator())
-            return;
+        if (ld.endTest)
+            builder.CreateBr(ld.endTest);
+        else
+            builder.CreateBr(ld.header);
 
-        builder.CreateBr(ld.header);
+        // Set up a block for dead code.
         if (! implicit && insertNoPredecessorBlocks)
             createAndSetNoPredecessorBlock("post-loop-continue");
 
         return;
     }
+
+    // "do-while" is mutually exclusive with "inductive"
+    assert(ld.endTest == nullptr);
 
     //  Otherwise we have to (possibly) increment the inductive variable, and
     // set up a conditional exit.
@@ -2700,15 +2756,17 @@ void Builder::makeLoopExit()
         createAndSetNoPredecessorBlock("post-loop-break");
 }
 
-// Close the innermost loop that you're in
+// Close the innermost loop
 void Builder::closeLoop()
 {
-    if (! builder.GetInsertBlock()->getTerminator()) {
-        // Branch back through the loop
-        makeLoopBackEdge(true);
-    }
+    LoopData& ld = loops.top();
 
-    LoopData ld = loops.top();
+    // a loop with the test at the end already got the final branching in place during makeLoopTest()
+    if (ld.endTest == nullptr) {
+        // Branch back through the loop
+        if (! builder.GetInsertBlock()->getTerminator())        
+            makeLoopBackEdge(true);
+    }
 
     ld.function->getBasicBlockList().push_back(ld.exit);
     builder.SetInsertPoint(ld.exit);

@@ -38,9 +38,6 @@ ifmerge:                                          ; preds = %loop-header
   store i32 %i1, i32* %i
   br label %loop-header
 
-post-loop-continue:                               ; No predecessors!
-  unreachable
-
 loop-merge:                                       ; preds = %then
   %gl_Position = load <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @colorOut, i32 0, i32 2)
   store <4 x float> %gl_Position, <4 x float>* @gl_Position

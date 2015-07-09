@@ -10,11 +10,11 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %param96 = alloca i32
-  %param95 = alloca <4 x float>
+  %param95 = alloca i32
   %param94 = alloca <4 x float>
-  %param89 = alloca i32
-  %param88 = alloca <4 x float>
+  %param93 = alloca <4 x float>
+  %param88 = alloca i32
+  %param87 = alloca <4 x float>
   %param = alloca <4 x float>
   %j = alloca i32
   %i = alloca i32
@@ -206,7 +206,7 @@ loop-header:                                      ; preds = %ifmerge77, %switch-
   br i1 %35, label %then, label %ifmerge
 
 then:                                             ; preds = %loop-header
-  br label %loop-merge80
+  br label %loop-merge79
 
 post-loop-break:                                  ; No predecessors!
   unreachable
@@ -280,9 +280,6 @@ ifmerge65:                                        ; preds = %ifmerge61
   store i32 %j66, i32* %j
   br label %loop-header58
 
-post-loop-continue:                               ; No predecessors!
-  unreachable
-
 loop-merge:                                       ; preds = %then63, %then59
   br label %switch-merge55
 
@@ -299,7 +296,7 @@ post-switch-break74:                              ; No predecessors!
   unreachable
 
 then75:                                           ; preds = %switch-merge55
-  br label %loop-merge80
+  br label %loop-merge79
 
 post-loop-break76:                                ; No predecessors!
   unreachable
@@ -310,64 +307,61 @@ ifmerge77:                                        ; preds = %switch-merge55
   store i32 %i78, i32* %i
   br label %loop-header
 
-post-loop-continue79:                             ; No predecessors!
-  unreachable
-
-loop-merge80:                                     ; preds = %then75, %then
+loop-merge79:                                     ; preds = %then75, %then
   %53 = load i32 addrspace(2)* @c, !gla.uniform !1
-  switch i32 %53, label %switch-merge83 [
-    i32 1, label %switch-segment81
-    i32 2, label %switch-segment82
+  switch i32 %53, label %switch-merge82 [
+    i32 1, label %switch-segment80
+    i32 2, label %switch-segment81
   ]
 
-switch-segment81:                                 ; preds = %loop-merge80
+switch-segment80:                                 ; preds = %loop-merge79
   %54 = load float* @x
-  %f84 = call float @llvm.gla.fSin.f32.f32(float %54), !gla.precision !9
+  %f83 = call float @llvm.gla.fSin.f32.f32(float %54), !gla.precision !9
   %55 = load float* %f
-  %f85 = fadd float %55, %f84, !gla.precision !9
-  store float %f85, float* %f
-  br label %switch-merge83
+  %f84 = fadd float %55, %f83, !gla.precision !9
+  store float %f84, float* %f
+  br label %switch-merge82
 
-switch-segment82:                                 ; preds = %loop-merge80
-  br label %switch-merge83
+switch-segment81:                                 ; preds = %loop-merge79
+  br label %switch-merge82
 
-switch-merge83:                                   ; preds = %switch-segment82, %switch-segment81, %loop-merge80
+switch-merge82:                                   ; preds = %switch-segment81, %switch-segment80, %loop-merge79
   %56 = load float* %f
   %57 = load i32* %local
   %58 = sitofp i32 %57 to float, !gla.precision !9
   %color = fadd float %56, %58, !gla.precision !9
   store float %color, float* @color
-  %param90 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
-  store <4 x float> %param90, <4 x float>* %param
-  %param8891 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
-  store <4 x float> %param8891, <4 x float>* %param88
-  %param8992 = load i32 addrspace(2)* @c, !gla.uniform !1
-  store i32 %param8992, i32* %param89
-  %59 = call <4 x float> @"foo1(vf4;vf4;i1;"(<4 x float>* %param, <4 x float>* %param88, i32* %param89)
+  %param89 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
+  store <4 x float> %param89, <4 x float>* %param
+  %param8790 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
+  store <4 x float> %param8790, <4 x float>* %param87
+  %param8891 = load i32 addrspace(2)* @c, !gla.uniform !1
+  store i32 %param8891, i32* %param88
+  %59 = call <4 x float> @"foo1(vf4;vf4;i1;"(<4 x float>* %param, <4 x float>* %param87, i32* %param88)
   %60 = extractelement <4 x float> %59, i32 1, !gla.precision !9
   %61 = load float* @color
-  %color93 = fadd float %61, %60, !gla.precision !9
-  store float %color93, float* @color
+  %color92 = fadd float %61, %60, !gla.precision !9
+  store float %color92, float* @color
+  %param9396 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
+  store <4 x float> %param9396, <4 x float>* %param93
   %param9497 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
   store <4 x float> %param9497, <4 x float>* %param94
-  %param9598 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
-  store <4 x float> %param9598, <4 x float>* %param95
-  %param9699 = load i32 addrspace(2)* @c, !gla.uniform !1
-  store i32 %param9699, i32* %param96
-  %62 = call <4 x float> @"foo2(vf4;vf4;i1;"(<4 x float>* %param94, <4 x float>* %param95, i32* %param96)
+  %param9598 = load i32 addrspace(2)* @c, !gla.uniform !1
+  store i32 %param9598, i32* %param95
+  %62 = call <4 x float> @"foo2(vf4;vf4;i1;"(<4 x float>* %param93, <4 x float>* %param94, i32* %param95)
   %63 = extractelement <4 x float> %62, i32 2, !gla.precision !9
   %64 = load float* @color
-  %color100 = fadd float %64, %63, !gla.precision !9
-  store float %color100, float* @color
+  %color99 = fadd float %64, %63, !gla.precision !9
+  store float %color99, float* @color
   br label %stage-epilogue
+
+post-switch-break85:                              ; No predecessors!
+  unreachable
 
 post-switch-break86:                              ; No predecessors!
   unreachable
 
-post-switch-break87:                              ; No predecessors!
-  unreachable
-
-stage-epilogue:                                   ; preds = %switch-merge83
+stage-epilogue:                                   ; preds = %switch-merge82
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue
@@ -618,7 +612,7 @@ loop-header:                                      ; preds = %switch-merge55, %sw
   br i1 %8, label %then, label %ifmerge
 
 then:                                             ; preds = %loop-header
-  br label %loop-merge80
+  br label %loop-merge79
 
 ifmerge:                                          ; preds = %loop-header
   switch i32 %local1, label %switch-segment54 [
@@ -667,28 +661,28 @@ loop-merge:                                       ; preds = %then63, %then59
   br label %switch-merge55
 
 then75:                                           ; preds = %switch-merge55
-  br label %loop-merge80
+  br label %loop-merge79
 
-loop-merge80:                                     ; preds = %then75, %then
+loop-merge79:                                     ; preds = %then75, %then
   %f.10 = phi float [ %f.6, %then ], [ %f.7, %then75 ]
-  switch i32 %local1, label %switch-merge83 [
-    i32 1, label %switch-segment81
-    i32 2, label %switch-segment82
+  switch i32 %local1, label %switch-merge82 [
+    i32 1, label %switch-segment80
+    i32 2, label %switch-segment81
   ]
 
-switch-segment81:                                 ; preds = %loop-merge80
-  %f85 = fadd float %f.10, %f56, !gla.precision !9
-  br label %switch-merge83
+switch-segment80:                                 ; preds = %loop-merge79
+  %f84 = fadd float %f.10, %f56, !gla.precision !9
+  br label %switch-merge82
 
-switch-segment82:                                 ; preds = %loop-merge80
-  br label %switch-merge83
+switch-segment81:                                 ; preds = %loop-merge79
+  br label %switch-merge82
 
-switch-merge83:                                   ; preds = %switch-segment82, %switch-segment81, %loop-merge80
-  %f.11 = phi float [ %f.10, %loop-merge80 ], [ %f.10, %switch-segment82 ], [ %f85, %switch-segment81 ]
+switch-merge82:                                   ; preds = %switch-segment81, %switch-segment80, %loop-merge79
+  %f.11 = phi float [ %f.10, %loop-merge79 ], [ %f.10, %switch-segment81 ], [ %f84, %switch-segment80 ]
   %12 = sitofp i32 %local2 to float, !gla.precision !9
   %color = fadd float %12, %f.11, !gla.precision !9
   store float %color, float* @color, align 4
-  %param90 = load <4 x float> addrspace(2)* @v, align 16, !gla.uniform !4
+  %param89 = load <4 x float> addrspace(2)* @v, align 16, !gla.uniform !4
   switch i32 %local1, label %switch-merge.i [
     i32 0, label %switch-segment.i
     i32 2, label %switch-segment1.i
@@ -696,52 +690,52 @@ switch-merge83:                                   ; preds = %switch-segment82, %
     i32 3, label %switch-segment2.i
   ]
 
-switch-segment.i:                                 ; preds = %switch-merge83
+switch-segment.i:                                 ; preds = %switch-merge82
   br label %"foo1(vf4;vf4;i1;.exit"
 
-switch-segment1.i:                                ; preds = %switch-merge83, %switch-merge83
+switch-segment1.i:                                ; preds = %switch-merge82, %switch-merge82
   br label %"foo1(vf4;vf4;i1;.exit"
 
-switch-segment2.i:                                ; preds = %switch-merge83
-  %13 = fmul <4 x float> %param90, %param90, !gla.precision !9
+switch-segment2.i:                                ; preds = %switch-merge82
+  %13 = fmul <4 x float> %param89, %param89, !gla.precision !9
   br label %"foo1(vf4;vf4;i1;.exit"
 
-switch-merge.i:                                   ; preds = %switch-merge83
+switch-merge.i:                                   ; preds = %switch-merge82
   br label %"foo1(vf4;vf4;i1;.exit"
 
 "foo1(vf4;vf4;i1;.exit":                          ; preds = %switch-merge.i, %switch-segment2.i, %switch-segment1.i, %switch-segment.i
-  %14 = phi <4 x float> [ %param90, %switch-segment.i ], [ %param90, %switch-segment1.i ], [ %13, %switch-segment2.i ], [ zeroinitializer, %switch-merge.i ]
+  %14 = phi <4 x float> [ %param89, %switch-segment.i ], [ %param89, %switch-segment1.i ], [ %13, %switch-segment2.i ], [ zeroinitializer, %switch-merge.i ]
   %15 = extractelement <4 x float> %14, i32 1, !gla.precision !9
-  %color93 = fadd float %color, %15, !gla.precision !9
-  store float %color93, float* @color, align 4
-  switch i32 %local1, label %switch-merge.i104 [
-    i32 0, label %switch-segment.i101
-    i32 2, label %switch-segment1.i102
-    i32 1, label %switch-segment2.i103
+  %color92 = fadd float %color, %15, !gla.precision !9
+  store float %color92, float* @color, align 4
+  switch i32 %local1, label %switch-merge.i103 [
+    i32 0, label %switch-segment.i100
+    i32 2, label %switch-segment1.i101
+    i32 1, label %switch-segment2.i102
     i32 3, label %switch-segment3.i
   ]
 
-switch-segment.i101:                              ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-segment.i100:                              ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
-switch-segment1.i102:                             ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-segment1.i101:                             ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
-switch-segment2.i103:                             ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-segment2.i102:                             ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
 switch-segment3.i:                                ; preds = %"foo1(vf4;vf4;i1;.exit"
-  %16 = fmul <4 x float> %param90, %param90, !gla.precision !9
+  %16 = fmul <4 x float> %param89, %param89, !gla.precision !9
   br label %"foo2(vf4;vf4;i1;.exit"
 
-switch-merge.i104:                                ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-merge.i103:                                ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
-"foo2(vf4;vf4;i1;.exit":                          ; preds = %switch-merge.i104, %switch-segment3.i, %switch-segment2.i103, %switch-segment1.i102, %switch-segment.i101
-  %17 = phi <4 x float> [ %param90, %switch-segment.i101 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %switch-segment1.i102 ], [ %param90, %switch-segment2.i103 ], [ %16, %switch-segment3.i ], [ zeroinitializer, %switch-merge.i104 ]
+"foo2(vf4;vf4;i1;.exit":                          ; preds = %switch-merge.i103, %switch-segment3.i, %switch-segment2.i102, %switch-segment1.i101, %switch-segment.i100
+  %17 = phi <4 x float> [ %param89, %switch-segment.i100 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %switch-segment1.i101 ], [ %param89, %switch-segment2.i102 ], [ %16, %switch-segment3.i ], [ zeroinitializer, %switch-merge.i103 ]
   %18 = extractelement <4 x float> %17, i32 2, !gla.precision !9
-  %color100 = fadd float %color93, %18, !gla.precision !9
-  store float %color100, float* @color, align 4
+  %color99 = fadd float %color92, %18, !gla.precision !9
+  store float %color99, float* @color, align 4
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %"foo2(vf4;vf4;i1;.exit"

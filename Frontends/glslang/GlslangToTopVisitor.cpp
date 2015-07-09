@@ -1319,26 +1319,21 @@ bool TGlslangToTopTraverser::visitLoop(glslang::TVisit /* visit */, glslang::TIn
 
     bool bodyOut = false;
     if (! node->testFirst()) {
+        glaBuilder->completeLoopHeaderWithoutTest();
         if (node->getBody()) {
             breakForLoop.push(true);
             node->getBody()->traverse(this);
             breakForLoop.pop();
         }
         bodyOut = true;
+        glaBuilder->makeBranchToLoopEndTest();
     }
 
     if (node->getTest()) {
-        node->getTest()->traverse(this);
         // the AST only contained the test, not the branch, we have to add it
-
-        // make the following
-        //     if (! condition from test traversal)
-        //         break;
+        node->getTest()->traverse(this);
         llvm::Value* condition = glaBuilder->accessChainLoad(GetMdPrecision(node->getTest()->getType()));
-        condition = llvmBuilder.CreateNot(condition);
-        gla::Builder::If ifBuilder(condition, glaBuilder);
-        glaBuilder->makeLoopExit();
-        ifBuilder.makeEndIf();
+        glaBuilder->makeLoopTest(condition);
     }
 
     if (! bodyOut && node->getBody()) {
@@ -1350,7 +1345,6 @@ bool TGlslangToTopTraverser::visitLoop(glslang::TVisit /* visit */, glslang::TIn
     if (loopTerminal.top())
         loopTerminal.top()->traverse(this);
 
-    glaBuilder->makeLoopBackEdge();
     glaBuilder->closeLoop();
 
     loopTerminal.pop();

@@ -101,9 +101,6 @@ ifmerge5:                                         ; preds = %loop-header
   store i32 %i6, i32* %i
   br label %loop-header
 
-post-loop-continue:                               ; No predecessors!
-  unreachable
-
 loop-merge:                                       ; preds = %then4
   %29 = load i32 addrspace(2)* @condition, !gla.uniform !8
   %30 = icmp eq i32 %29, 1

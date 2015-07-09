@@ -38,9 +38,6 @@ ifmerge:                                          ; preds = %loop-header
   store <4 x float> %color2, <4 x float>* %color
   br label %loop-header
 
-post-loop-continue:                               ; No predecessors!
-  unreachable
-
 loop-merge:                                       ; preds = %then
   %gl_FragColor = load <4 x float>* %color
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor

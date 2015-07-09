@@ -454,6 +454,19 @@ public:
     void makeNewLoop(llvm::Value* inductiveVariable, llvm::Constant* from, llvm::Constant* finish,
                      llvm::Constant* increment,  bool builderDoesIncrement);
 
+    // Given an already computed 'condition' for loop continuance (loop test), generate
+    // the right branching (loop-topology dependent) for the loop test.
+    void makeLoopTest(llvm::Value* condition);
+
+    // For do-while stlye loop topology that has the test at the end, force conclusion of the
+    // header and beginning of the body.  Will make the block for the test, so continue 
+    // (makeLoopBackEdge) has something to branch to.
+    void completeLoopHeaderWithoutTest();
+
+    // For do-while stlye loop topology that has the test at the end, force conclusing of the
+    // body and branch to the test at the end of the loop.
+    void makeBranchToLoopEndTest();
+
     // Add a back-edge (e.g "continue") for the innermost loop that you're in
     void makeLoopBackEdge(bool implicit=false);
 
@@ -512,6 +525,9 @@ protected:
 
     // Data that needs to be kept in order to properly handle loops.
     struct LoopData {
+        LoopData() : header(nullptr), exit(nullptr), function(nullptr), isInductive(false), builderDoesIncrement(false), counter(nullptr), finish(nullptr),
+                     increment(nullptr), endTest(nullptr), endTestBody(nullptr) { }
+
         llvm::BasicBlock* header;
         llvm::BasicBlock* exit;
 
@@ -523,6 +539,8 @@ protected:
         llvm::Value* counter;
         llvm::Constant* finish;
         llvm::Constant* increment;
+        llvm::BasicBlock* endTest;     // only used for non-inductive loops, e.g., a do-while with the test at the end
+        llvm::BasicBlock* endTestBody; // only used in conjuction with endTest, otherwise, the body is not a tracked branch target
     };
 
     // Our loop stack.
