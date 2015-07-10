@@ -2640,7 +2640,7 @@ void Builder::makeLoopTest(llvm::Value* condition)
 
     LoopData& loop = loops.top();
     if (loop.endTest) {
-        assert(loop.body);
+        assert(loop.endTestBody);
         builder.CreateCondBr(condition, loop.endTestBody, loop.exit);
         // depending on closeLoop() to fix the insert point
     } else {
@@ -2654,9 +2654,8 @@ void Builder::makeLoopTest(llvm::Value* condition)
 // Comments in header
 void Builder::completeLoopHeaderWithoutTest()
 {
-    assert(loop.endTest == nullptr);
-
     LoopData& loop = loops.top();
+    assert(loop.endTest == nullptr);
     llvm::Function* function = builder.GetInsertBlock()->getParent();
 
     loop.endTest = llvm::BasicBlock::Create(context, "loop-test");
