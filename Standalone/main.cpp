@@ -383,6 +383,7 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
 
 void SetMessageOptions(EShMessages& messages)
 {
+    messages = EShMsgDefault;
     if (Options & EOptionRelaxedErrors)
         messages = (EShMessages)(messages | EShMsgRelaxedErrors);
     if (Options & EOptionIntermediate)
@@ -518,18 +519,13 @@ bool CompileFile(const char *fileName, ShHandle compiler, int Options, const TBu
     if (! data)
         return false;
 
-    EShMessages messages = EShMsgDefault;
-    if (! (Options & EDebugOpGiveWarnings))
-        messages = (EShMessages)(messages | EShMsgSuppressWarnings);
-    if (Options & EDebugOpRelaxedErrors)
-        messages = (EShMessages)(messages | EShMsgRelaxedErrors);
-
-    for (int i = 0; i < ((Options & EDebugOpMemoryLeakMode) ? 100 : 1); ++i) {
-        for (int j = 0; j < ((Options & EDebugOpMemoryLeakMode) ? 100 : 1); ++j)
-            ret = ShCompile(compiler, data, 1, 0, EShOptNone, resources, Options, 100, false, EShMsgDefault);
+    SetMessageOptions(Messages);
+    for (int i = 0; i < ((Options & EOptionMemoryLeakMode) ? 100 : 1); ++i) {
+        for (int j = 0; j < ((Options & EOptionMemoryLeakMode) ? 100 : 1); ++j)
+            ret = ShCompile(compiler, data, 1, 0, EShOptNone, resources, Options, 100, false, Messages);
 
 #ifdef _WIN32
-        if (Options & EDebugOpMemoryLeakMode) {
+        if (Options & EOptionMemoryLeakMode) {
             GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters));
             printf("Working set size: %d\n", counters.WorkingSetSize);
         }
@@ -544,7 +540,7 @@ bool CompileFile(const char *fileName, ShHandle compiler, int Options, const TBu
 #endif
 
 TBuiltInResource Resources;
-EShMessages Messages;
+EShMessages Messages = EShMsgDefault;
 const int substitutionLevel = 1;
 
 //
@@ -854,8 +850,7 @@ void TranslateShadersMultithreaded(const std::vector<const char*>& names)
 
 void TranslateShaders(const std::vector<const char*>& names)
 {
-    EShMessages messages = EShMsgDefault;
-    SetMessageOptions(messages);
+    SetMessageOptions(Messages);
 
     if (Options & EOptionMultiThreaded)
         TranslateShadersMultithreaded(names);
