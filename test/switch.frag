@@ -120,10 +120,10 @@ void main()
 
     switch (c) {
     case 1:
-        f += sin(x);
+        //f += sin(x);
         break;
-    case 2:
-        // test no statements at end
+    default:
+        // test no statements at end with nothing in the switch
     }
 
     color = f + float(local);

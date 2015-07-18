@@ -10,11 +10,11 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %param95 = alloca i32
-  %param94 = alloca <4 x float>
-  %param93 = alloca <4 x float>
-  %param88 = alloca i32
-  %param87 = alloca <4 x float>
+  %param93 = alloca i32
+  %param92 = alloca <4 x float>
+  %param91 = alloca <4 x float>
+  %param86 = alloca i32
+  %param85 = alloca <4 x float>
   %param = alloca <4 x float>
   %j = alloca i32
   %i = alloca i32
@@ -309,56 +309,50 @@ ifmerge77:                                        ; preds = %switch-merge55
 
 loop-merge79:                                     ; preds = %then75, %then
   %53 = load i32 addrspace(2)* @c, !gla.uniform !1
-  switch i32 %53, label %switch-merge82 [
+  switch i32 %53, label %switch-segment81 [
     i32 1, label %switch-segment80
-    i32 2, label %switch-segment81
   ]
 
 switch-segment80:                                 ; preds = %loop-merge79
-  %54 = load float* @x
-  %f83 = call float @llvm.gla.fSin.f32.f32(float %54), !gla.precision !9
-  %55 = load float* %f
-  %f84 = fadd float %55, %f83, !gla.precision !9
-  store float %f84, float* %f
   br label %switch-merge82
 
 switch-segment81:                                 ; preds = %loop-merge79
   br label %switch-merge82
 
-switch-merge82:                                   ; preds = %switch-segment81, %switch-segment80, %loop-merge79
-  %56 = load float* %f
-  %57 = load i32* %local
-  %58 = sitofp i32 %57 to float, !gla.precision !9
-  %color = fadd float %56, %58, !gla.precision !9
+switch-merge82:                                   ; preds = %switch-segment81, %switch-segment80
+  %54 = load float* %f
+  %55 = load i32* %local
+  %56 = sitofp i32 %55 to float, !gla.precision !9
+  %color = fadd float %54, %56, !gla.precision !9
   store float %color, float* @color
-  %param89 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
-  store <4 x float> %param89, <4 x float>* %param
-  %param8790 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
-  store <4 x float> %param8790, <4 x float>* %param87
-  %param8891 = load i32 addrspace(2)* @c, !gla.uniform !1
-  store i32 %param8891, i32* %param88
-  %59 = call <4 x float> @"foo1(vf4;vf4;i1;"(<4 x float>* %param, <4 x float>* %param87, i32* %param88)
-  %60 = extractelement <4 x float> %59, i32 1, !gla.precision !9
-  %61 = load float* @color
-  %color92 = fadd float %61, %60, !gla.precision !9
-  store float %color92, float* @color
-  %param9396 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
-  store <4 x float> %param9396, <4 x float>* %param93
-  %param9497 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
-  store <4 x float> %param9497, <4 x float>* %param94
-  %param9598 = load i32 addrspace(2)* @c, !gla.uniform !1
-  store i32 %param9598, i32* %param95
-  %62 = call <4 x float> @"foo2(vf4;vf4;i1;"(<4 x float>* %param93, <4 x float>* %param94, i32* %param95)
-  %63 = extractelement <4 x float> %62, i32 2, !gla.precision !9
-  %64 = load float* @color
-  %color99 = fadd float %64, %63, !gla.precision !9
-  store float %color99, float* @color
+  %param87 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
+  store <4 x float> %param87, <4 x float>* %param
+  %param8588 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
+  store <4 x float> %param8588, <4 x float>* %param85
+  %param8689 = load i32 addrspace(2)* @c, !gla.uniform !1
+  store i32 %param8689, i32* %param86
+  %57 = call <4 x float> @"foo1(vf4;vf4;i1;"(<4 x float>* %param, <4 x float>* %param85, i32* %param86)
+  %58 = extractelement <4 x float> %57, i32 1, !gla.precision !9
+  %59 = load float* @color
+  %color90 = fadd float %59, %58, !gla.precision !9
+  store float %color90, float* @color
+  %param9194 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
+  store <4 x float> %param9194, <4 x float>* %param91
+  %param9295 = load <4 x float> addrspace(2)* @v, !gla.uniform !4
+  store <4 x float> %param9295, <4 x float>* %param92
+  %param9396 = load i32 addrspace(2)* @c, !gla.uniform !1
+  store i32 %param9396, i32* %param93
+  %60 = call <4 x float> @"foo2(vf4;vf4;i1;"(<4 x float>* %param91, <4 x float>* %param92, i32* %param93)
+  %61 = extractelement <4 x float> %60, i32 2, !gla.precision !9
+  %62 = load float* @color
+  %color97 = fadd float %62, %61, !gla.precision !9
+  store float %color97, float* @color
   br label %stage-epilogue
 
-post-switch-break85:                              ; No predecessors!
+post-switch-break83:                              ; No predecessors!
   unreachable
 
-post-switch-break86:                              ; No predecessors!
+post-switch-break84:                              ; No predecessors!
   unreachable
 
 stage-epilogue:                                   ; preds = %switch-merge82
@@ -665,24 +659,10 @@ then75:                                           ; preds = %switch-merge55
 
 loop-merge79:                                     ; preds = %then75, %then
   %f.10 = phi float [ %f.6, %then ], [ %f.7, %then75 ]
-  switch i32 %local1, label %switch-merge82 [
-    i32 1, label %switch-segment80
-    i32 2, label %switch-segment81
-  ]
-
-switch-segment80:                                 ; preds = %loop-merge79
-  %f84 = fadd float %f.10, %f56, !gla.precision !9
-  br label %switch-merge82
-
-switch-segment81:                                 ; preds = %loop-merge79
-  br label %switch-merge82
-
-switch-merge82:                                   ; preds = %switch-segment81, %switch-segment80, %loop-merge79
-  %f.11 = phi float [ %f.10, %loop-merge79 ], [ %f.10, %switch-segment81 ], [ %f84, %switch-segment80 ]
   %12 = sitofp i32 %local2 to float, !gla.precision !9
-  %color = fadd float %12, %f.11, !gla.precision !9
+  %color = fadd float %12, %f.10, !gla.precision !9
   store float %color, float* @color, align 4
-  %param89 = load <4 x float> addrspace(2)* @v, align 16, !gla.uniform !4
+  %param87 = load <4 x float> addrspace(2)* @v, align 16, !gla.uniform !4
   switch i32 %local1, label %switch-merge.i [
     i32 0, label %switch-segment.i
     i32 2, label %switch-segment1.i
@@ -690,52 +670,52 @@ switch-merge82:                                   ; preds = %switch-segment81, %
     i32 3, label %switch-segment2.i
   ]
 
-switch-segment.i:                                 ; preds = %switch-merge82
+switch-segment.i:                                 ; preds = %loop-merge79
   br label %"foo1(vf4;vf4;i1;.exit"
 
-switch-segment1.i:                                ; preds = %switch-merge82, %switch-merge82
+switch-segment1.i:                                ; preds = %loop-merge79, %loop-merge79
   br label %"foo1(vf4;vf4;i1;.exit"
 
-switch-segment2.i:                                ; preds = %switch-merge82
-  %13 = fmul <4 x float> %param89, %param89, !gla.precision !9
+switch-segment2.i:                                ; preds = %loop-merge79
+  %13 = fmul <4 x float> %param87, %param87, !gla.precision !9
   br label %"foo1(vf4;vf4;i1;.exit"
 
-switch-merge.i:                                   ; preds = %switch-merge82
+switch-merge.i:                                   ; preds = %loop-merge79
   br label %"foo1(vf4;vf4;i1;.exit"
 
 "foo1(vf4;vf4;i1;.exit":                          ; preds = %switch-merge.i, %switch-segment2.i, %switch-segment1.i, %switch-segment.i
-  %14 = phi <4 x float> [ %param89, %switch-segment.i ], [ %param89, %switch-segment1.i ], [ %13, %switch-segment2.i ], [ zeroinitializer, %switch-merge.i ]
+  %14 = phi <4 x float> [ %param87, %switch-segment.i ], [ %param87, %switch-segment1.i ], [ %13, %switch-segment2.i ], [ zeroinitializer, %switch-merge.i ]
   %15 = extractelement <4 x float> %14, i32 1, !gla.precision !9
-  %color92 = fadd float %color, %15, !gla.precision !9
-  store float %color92, float* @color, align 4
-  switch i32 %local1, label %switch-merge.i103 [
-    i32 0, label %switch-segment.i100
-    i32 2, label %switch-segment1.i101
-    i32 1, label %switch-segment2.i102
+  %color90 = fadd float %color, %15, !gla.precision !9
+  store float %color90, float* @color, align 4
+  switch i32 %local1, label %switch-merge.i101 [
+    i32 0, label %switch-segment.i98
+    i32 2, label %switch-segment1.i99
+    i32 1, label %switch-segment2.i100
     i32 3, label %switch-segment3.i
   ]
 
-switch-segment.i100:                              ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-segment.i98:                               ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
-switch-segment1.i101:                             ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-segment1.i99:                              ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
-switch-segment2.i102:                             ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-segment2.i100:                             ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
 switch-segment3.i:                                ; preds = %"foo1(vf4;vf4;i1;.exit"
-  %16 = fmul <4 x float> %param89, %param89, !gla.precision !9
+  %16 = fmul <4 x float> %param87, %param87, !gla.precision !9
   br label %"foo2(vf4;vf4;i1;.exit"
 
-switch-merge.i103:                                ; preds = %"foo1(vf4;vf4;i1;.exit"
+switch-merge.i101:                                ; preds = %"foo1(vf4;vf4;i1;.exit"
   br label %"foo2(vf4;vf4;i1;.exit"
 
-"foo2(vf4;vf4;i1;.exit":                          ; preds = %switch-merge.i103, %switch-segment3.i, %switch-segment2.i102, %switch-segment1.i101, %switch-segment.i100
-  %17 = phi <4 x float> [ %param89, %switch-segment.i100 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %switch-segment1.i101 ], [ %param89, %switch-segment2.i102 ], [ %16, %switch-segment3.i ], [ zeroinitializer, %switch-merge.i103 ]
+"foo2(vf4;vf4;i1;.exit":                          ; preds = %switch-merge.i101, %switch-segment3.i, %switch-segment2.i100, %switch-segment1.i99, %switch-segment.i98
+  %17 = phi <4 x float> [ %param87, %switch-segment.i98 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %switch-segment1.i99 ], [ %param87, %switch-segment2.i100 ], [ %16, %switch-segment3.i ], [ zeroinitializer, %switch-merge.i101 ]
   %18 = extractelement <4 x float> %17, i32 2, !gla.precision !9
-  %color99 = fadd float %color92, %18, !gla.precision !9
-  store float %color99, float* @color, align 4
+  %color97 = fadd float %color90, %18, !gla.precision !9
+  store float %color97, float* @color, align 4
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %"foo2(vf4;vf4;i1;.exit"
@@ -818,7 +798,6 @@ void main()
 	float f8;
 	float f9;
 	float fa;
-	float fb;
 	vec4 Lg_1;
 	vec4 Lg_2;
 	mediump int local = c + C_1;
@@ -991,25 +970,8 @@ void main()
 			}
 			
 			fa = f6;
-			fb = fa;
-			switch (c) {
-				case 1:
-				{
-					mediump float H_jyv82r1 = H_0lhnahrrrr + fa;
-					fb = H_jyv82r1;
-					break;
-					
-				}
-				case 2:
-				{
-					fb = fa;
-					break;
-					
-				}
-			}
-			
 			mediump float H_13mhsn1 = float(local);
-			mediump float color1 = H_13mhsn1 + fb;
+			mediump float color1 = H_13mhsn1 + fa;
 			color = color1;
 			switch (c) {
 				case 0:
@@ -1084,14 +1046,14 @@ void main()
 			
 tempglsl.frag
 Warning, version 310 is not yet complete; most version-specific features are present, but some are missing.
-ERROR: 0:144: 'default' : cannot be nested inside control flow 
-ERROR: 0:178: 'H_l69nk4' : undeclared identifier 
-ERROR: 0:178: 'assign' :  cannot convert from 'temp float' to 'temp mediump int'
-ERROR: 0:187: 'case' : cannot be nested inside control flow 
-ERROR: 0:191: 'default' : cannot be nested inside control flow 
-ERROR: 0:244: 'case' : cannot be nested inside control flow 
-ERROR: 0:251: 'default' : cannot be nested inside control flow 
-ERROR: 0:300: '' :  syntax error
+ERROR: 0:143: 'default' : cannot be nested inside control flow 
+ERROR: 0:177: 'H_l69nk4' : undeclared identifier 
+ERROR: 0:177: 'assign' :  cannot convert from 'temp float' to 'temp mediump int'
+ERROR: 0:186: 'case' : cannot be nested inside control flow 
+ERROR: 0:190: 'default' : cannot be nested inside control flow 
+ERROR: 0:226: 'case' : cannot be nested inside control flow 
+ERROR: 0:233: 'default' : cannot be nested inside control flow 
+ERROR: 0:282: '' :  syntax error
 ERROR: 8 compilation errors.  No code generated.
 
 

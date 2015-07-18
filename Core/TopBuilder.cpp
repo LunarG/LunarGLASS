@@ -2532,6 +2532,8 @@ void Builder::If::makeEndIf()
 void Builder::makeSwitch(llvm::Value* condition, int numSegments, std::vector<llvm::ConstantInt*> caseValues, std::vector<int> valueToSegment, int defaultSegment,
                          std::vector<llvm::BasicBlock*>& segmentBB)
 {
+    assert(defaultSegment < numSegments);
+
     llvm::Function* function = builder.GetInsertBlock()->getParent();
 
     // make all the blocks
