@@ -329,7 +329,9 @@ namespace gla {
 
 class MetaType {
 public:
-    MetaType() : precision(gla::EMpNone), builtIn(gla::EmbNone), matrix(false), notSigned(false), block(false), buffer(false), runtimeArrayed(false), mdAggregate(0), mdSampler(0) { }
+    MetaType() : precision(gla::EMpNone), builtIn(gla::EmbNone), matrix(false), notSigned(false), 
+                 block(false), buffer(false), runtimeArrayed(false), mdAggregate(0), mdSampler(0),
+                 atomic(false) { }
     std::string name;
     gla::EMdPrecision precision;
     gla::EMdBuiltIn builtIn;
@@ -340,6 +342,7 @@ public:
     bool runtimeArrayed;
     const llvm::MDNode* mdAggregate;
     const llvm::MDNode* mdSampler;
+    bool atomic;
 };
 
 class Assignment;
@@ -3531,6 +3534,20 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_emitStreamVertex:           callString = "EmitStreamVertex";           break;
     case llvm::Intrinsic::gla_endStreamPrimitive:         callString = "EmitStreamVertex";           break;
 
+    // Atomics
+    case llvm::Intrinsic::gla_atomicCounterLoad:          callString = "atomicCounter";              break;
+    case llvm::Intrinsic::gla_atomicCounterIncrement:     callString = "atomicCounterIncrement";     break;
+    case llvm::Intrinsic::gla_atomicCounterDecrement:     callString = "atomicCounterDecrement";     break;
+
+    case llvm::Intrinsic::gla_atomicAdd:                  callString = "atomicAdd";                  break;
+    case llvm::Intrinsic::gla_atomicMin:                  callString = "atomicMin";                  break;
+    case llvm::Intrinsic::gla_atomicMax:                  callString = "atomicMax";                  break;
+    case llvm::Intrinsic::gla_atomicAnd:                  callString = "atomicAnd";                  break;
+    case llvm::Intrinsic::gla_atomicOr:                   callString = "atomicOr";                   break;
+    case llvm::Intrinsic::gla_atomicXor:                  callString = "atomicXor";                  break;
+    case llvm::Intrinsic::gla_atomicExchange:             callString = "atomicExchange";             break;
+    case llvm::Intrinsic::gla_atomicCompExchange:         callString = "atomicCompSwap";             break;
+
     default: break;
     }
 
@@ -3931,7 +3948,9 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
             else if (type == type->getInt1Ty(type->getContext()))
                 out << "bool";
             else if (type == type->getInt32Ty(type->getContext())) {
-                if (metaType.notSigned)
+                if (metaType.atomic)
+                    out << "atomic_uint";
+                else if (metaType.notSigned)
                     out << "uint";
                 else
                     out << "int";
@@ -4005,6 +4024,7 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
 
     metaType.matrix = typeLayout == EMtlRowMajorMatrix || typeLayout == EMtlColMajorMatrix;
     metaType.notSigned = typeLayout == EMtlUnsigned;
+    metaType.atomic = typeLayout == EMtlAtomicUint;
 
     if (! arrayChild)
         emitGlaLayout(out, typeLayout, location, metaType.block || metaType.mdSampler != 0);

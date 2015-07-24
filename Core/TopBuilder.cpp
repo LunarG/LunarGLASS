@@ -2260,6 +2260,14 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         // modf() will return a struct that the caller must decode
         intrinsicName = getIntrinsic(intrinsicID, operand->getType(), operand->getType(), operand->getType());
         break;
+
+    // Atomics don't have flexible types
+    case llvm::Intrinsic::gla_atomicCounterLoad:
+    case llvm::Intrinsic::gla_atomicCounterIncrement:
+    case llvm::Intrinsic::gla_atomicCounterDecrement:
+        intrinsicName = getIntrinsic(intrinsicID);
+        break;
+
     default:
         // Unary intrinsics that have operand and dest with same flexible type
         intrinsicName = getIntrinsic(intrinsicID,  operand->getType(), operand->getType());
@@ -2301,6 +2309,18 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         // first argument can be scalar, return and second argument match
         intrinsicName = getIntrinsic(intrinsicID, operand1->getType(), operand0->getType(), operand1->getType());
         break;
+
+    // atomics don't have any flexible arguments
+    case llvm::Intrinsic::gla_atomicAdd:
+    case llvm::Intrinsic::gla_atomicMin:
+    case llvm::Intrinsic::gla_atomicMax:
+    case llvm::Intrinsic::gla_atomicAnd:
+    case llvm::Intrinsic::gla_atomicOr:
+    case llvm::Intrinsic::gla_atomicXor:
+    case llvm::Intrinsic::gla_atomicExchange:
+        intrinsicName = getIntrinsic(intrinsicID);
+        break;
+
     default:
         // Binary intrinsics that have operand and dest with same flexible type
         intrinsicName = getIntrinsic(intrinsicID,  operand0->getType(), operand0->getType(), operand1->getType());
@@ -2330,6 +2350,12 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         // first argument can be scalar, return and second argument match
         intrinsicName = getIntrinsic(intrinsicID, operand2->getType(), operand0->getType(), operand1->getType(), operand2->getType());
         break;
+
+    // atomics don't have any flexible arguments
+    case llvm::Intrinsic::gla_atomicCompExchange:
+        intrinsicName = getIntrinsic(intrinsicID);
+        break;
+
     default:
         // Use operand0 type as result type
         intrinsicName =  getIntrinsic(intrinsicID, operand0->getType(), operand0->getType(), operand1->getType(), operand2->getType());

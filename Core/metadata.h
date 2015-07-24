@@ -216,6 +216,10 @@ enum EMdTypeLayout {
     EMtlStd140,
     EMtlStd430,
     EMtlPacked,
+
+    // Atomic counter
+    EMtlAtomicUint,
+
     EMtlCount,
 };
 

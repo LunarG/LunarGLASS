@@ -228,10 +228,11 @@ gla::EMdTypeLayout GetMdTypeLayout(const glslang::TType& type)
         }
     } else {
         switch (type.getBasicType()) {
-        default:                   mdType = gla::EMtlNone;       break;
-        case glslang::EbtSampler:  mdType = gla::EMtlSampler;    break;
-        case glslang::EbtStruct:   mdType = gla::EMtlAggregate;  break;
-        case glslang::EbtUint:     mdType = gla::EMtlUnsigned;   break;
+        default:                     mdType = gla::EMtlNone;       break;
+        case glslang::EbtSampler:    mdType = gla::EMtlSampler;    break;
+        case glslang::EbtStruct:     mdType = gla::EMtlAggregate;  break;
+        case glslang::EbtUint:       mdType = gla::EMtlUnsigned;   break;
+        case glslang::EbtAtomicUint: mdType = gla::EMtlAtomicUint; break;
         case glslang::EbtBlock:
             switch (type.getQualifier().storage) {
             case glslang::EvqUniform:
@@ -1465,6 +1466,7 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
         glaType = gla::GetBoolType(context);
         break;
     case glslang::EbtInt:
+    case glslang::EbtAtomicUint:
     case glslang::EbtSampler:
         glaType = gla::GetIntType(context);
         break;
@@ -2406,6 +2408,16 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
         intrinsicID = llvm::Intrinsic::gla_endStreamPrimitive;
         break;
 
+    case glslang::EOpAtomicCounterIncrement:
+        intrinsicID = llvm::Intrinsic::gla_atomicCounterIncrement;
+        break;
+    case glslang::EOpAtomicCounterDecrement:
+        intrinsicID = llvm::Intrinsic::gla_atomicCounterDecrement;
+        break;
+    case glslang::EOpAtomicCounter:
+        intrinsicID = llvm::Intrinsic::gla_atomicCounterLoad;
+        break;
+
     default:
         break;
     }
@@ -2501,6 +2513,32 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
     case glslang::EOpRefract:
         intrinsicID = llvm::Intrinsic::gla_fRefract;
         break;
+
+    case glslang::EOpAtomicAdd:
+        intrinsicID = llvm::Intrinsic::gla_atomicAdd;
+        break;
+    case glslang::EOpAtomicMin:
+        intrinsicID = llvm::Intrinsic::gla_atomicMin;
+        break;
+    case glslang::EOpAtomicMax:
+        intrinsicID = llvm::Intrinsic::gla_atomicMax;
+        break;
+    case glslang::EOpAtomicAnd:
+        intrinsicID = llvm::Intrinsic::gla_atomicAnd;
+        break;
+    case glslang::EOpAtomicOr:
+        intrinsicID = llvm::Intrinsic::gla_atomicOr;
+        break;
+    case glslang::EOpAtomicXor:
+        intrinsicID = llvm::Intrinsic::gla_atomicXor;
+        break;
+    case glslang::EOpAtomicExchange:
+        intrinsicID = llvm::Intrinsic::gla_atomicExchange;
+        break;
+    case glslang::EOpAtomicCompSwap:
+        intrinsicID = llvm::Intrinsic::gla_atomicCompExchange;
+        break;
+
     default:
         break;
     }

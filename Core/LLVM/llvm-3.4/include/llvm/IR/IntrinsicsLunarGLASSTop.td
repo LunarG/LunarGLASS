@@ -281,3 +281,19 @@ let TargetPrefix = "gla" in {
   def int_gla_memoryBarrierImage         : Intrinsic<[], [], []>;
   def int_gla_groupMemoryBarrier         : Intrinsic<[], [], []>;
 }
+
+// Atomics
+let TargetPrefix = "gla" in {
+  def int_gla_atomicCounterLoad          : Intrinsic<[llvm_i32_ty], [llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_atomicCounterIncrement     : Intrinsic<[llvm_i32_ty], [llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_atomicCounterDecrement     : Intrinsic<[llvm_i32_ty], [llvm_i32_ty], [IntrReadWriteArgMem]>;
+
+  def int_gla_atomicAdd           : Intrinsic<[llvm_i32_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_atomicMin           : Intrinsic<[llvm_i32_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_atomicMax           : Intrinsic<[llvm_i32_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_atomicAnd           : Intrinsic<[llvm_i32_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_atomicOr            : Intrinsic<[llvm_i32_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_atomicXor           : Intrinsic<[llvm_i32_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_atomicExchange      : Intrinsic<[llvm_i32_ty], [llvm_i32_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_atomicCompExchange  : Intrinsic<[llvm_i32_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
+}
