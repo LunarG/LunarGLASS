@@ -36,6 +36,7 @@
 
 // glslang includes
 #include "glslang/Include/ShHandle.h"
+#include "glslang/Include/revision.h"
 #include "glslang/Public/ShaderLang.h"
 #include "SPIRV/doc.h"
 #include "SPIRV/disassemble.h"
@@ -105,10 +106,10 @@ enum TFailCode {
 // Command-line options
 //
 enum CommandOptions {
-	EOptionNone               = 0x0000,
-	EOptionIntermediate       = 0x0001,
-	EOptionSilent             = 0x0002,
-	EOptionMemoryLeakMode     = 0x0004,
+    EOptionNone               = 0x0000,
+    EOptionIntermediate       = 0x0001,
+    EOptionSilent             = 0x0002,
+    EOptionMemoryLeakMode     = 0x0004,
     EOptionRelaxedErrors      = 0x0008,
     EOptionGiveWarnings       = 0x0010,
     EOptionsLinkProgram       = 0x0020,
@@ -256,6 +257,7 @@ void usage(bool advanced)
                "  -r  relaxed semantic error-checking mode\n"
                "  -s  silent mode\n"
                "  -t  multi-threaded: each argument is treated separately, not linked together\n"
+               "  -v  print version strings\n"
                "  -V  go through the SPIR-V intermediate language: glslang AST -> SPIR-V -> Top IR\n"
                "  -w  suppress warnings (except as required by #extension : warn)\n"
                "  -z  see developer options\n");
@@ -360,6 +362,9 @@ TFailCode ParseCommandLine(int argc, char* argv[], std::vector<const char*>& nam
                 break;
             case 'u':
                 Options |= EOptionDumpIndexShader;
+                break;
+            case 'v':
+                Options |= EOptionDumpVersions;
                 break;
             case 'w':
                 Options |= EOptionSuppressWarnings;
@@ -873,6 +878,16 @@ int C_DECL main(int argc, char* argv[])
     TFailCode failCode = ParseCommandLine(argc, argv, names);
     if (failCode)
         return failCode;
+
+    if (Options & EOptionDumpVersions) {
+        printf("Glslang Version: %s %s\n", GLSLANG_REVISION, GLSLANG_DATE);
+        printf("ESSL Version: %s\n", glslang::GetEsslVersionString());
+        printf("GLSL Version: %s\n", glslang::GetGlslVersionString());
+        std::string spirvVersion;
+        glslang::GetSpirvVersion(spirvVersion);
+        printf("SPIR-V Version %s\n", spirvVersion.c_str());
+        printf("GLSL.std.450 Version 99, Revision 1\n");
+    }
 
 #ifdef USE_DEPRECATED_GLSLANG
     int numCompilers = 0;
