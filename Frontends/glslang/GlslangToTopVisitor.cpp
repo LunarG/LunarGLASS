@@ -350,12 +350,19 @@ int GetMdSlotLocation(const glslang::TType& type)
         return type.getQualifier().layoutLocation;
 }
 
-int GetMdBinding(const glslang::TType& type)
+// Get the right binding/location/set content.
+// 
+// Location and binding are generally mutually exclusive and can share the same
+// metadata field.
+//
+int GetMdBindingLocation(const glslang::TType& type)
 {
-    if (type.getQualifier().layoutBinding == glslang::TQualifier::layoutBindingEnd)
-        return gla::MaxUserLayoutLocation;
-    else
+    if (type.getQualifier().layoutBinding != glslang::TQualifier::layoutBindingEnd)
         return type.getQualifier().layoutBinding;
+    else if (type.getQualifier().layoutLocation != glslang::TQualifier::layoutLocationEnd)
+        return type.getQualifier().layoutLocation;
+    else
+        return gla::MaxUserLayoutLocation;
 }
 
 gla::EMdPrecision GetMdPrecision(const glslang::TType& type)
@@ -2900,7 +2907,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(glslang::TIntermSy
     // Make the main node
     return metadata.makeMdInputOutput(node->getName().c_str(), gla::UniformListMdName, gla::EMioDefaultUniform,
                                       MakePermanentTypeProxy(value),
-                                      layout, GetMdPrecision(type), GetMdBinding(type), samplerMd, structure, -1, GetMdBuiltIn(type));
+                                      layout, GetMdPrecision(type), GetMdBindingLocation(type), samplerMd, structure, -1, GetMdBuiltIn(type));
 }
 
 llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const glslang::TType& type, llvm::Value* value)
@@ -2931,7 +2938,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput 
 
     // Make the main node
     return metadata.makeMdInputOutput(filterMdName(node->getName().c_str()), gla::UniformListMdName, ioType, MakePermanentTypeProxy(value),
-                                      GetMdTypeLayout(type), GetMdPrecision(type), GetMdBinding(type), 0, block);
+                                      GetMdTypeLayout(type), GetMdPrecision(type), GetMdBindingLocation(type), 0, block);
 }
 
 // Make a !type node as per metadata.h, recursively
