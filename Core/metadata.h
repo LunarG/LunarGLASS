@@ -58,6 +58,16 @@ namespace gla {
 // Only the names starting with "!gla." actually appear in the IR, the other names here are 
 // for ease of understanding the linkage between the nodes.
 //
+// NOTE: There are *two* forms the recursive type-walking metadata can appear in:
+// - Single-Walk form: A single self-recursive node, the same one used to root 
+//   !gla.input/output/uniform nodes.  This enables a single type tree walker 
+//   through the metadata nodes.
+// - Dual-Walk form: The type is rooted by a !gla.input/output/uniform node, which
+//   points to a recursive !aggregate node.  This requires walking the LLVM type
+//   in parallel with walking the metadata nodes.
+// Only one of these forms should be used in a given module.
+//
+// Node forms:
 //
 //     !gla.entrypoint -> { name, EMIoEntrypoint }
 //     Notes:
@@ -65,17 +75,31 @@ namespace gla {
 //
 //     !gla.precision -> { EMdPrecision }
 //
-//     !gla.input ->   { name, EMdInputOutput,  Value*, !typeLayout, !aggregate }
-//     !gla.output ->   same as above
-//     !gla.uniform ->  same as above
+//     !gla.io is shorthand for one of !gla.input, !gla.output, !gla.uniform
+//
+//     !gla.io -> { name, EMdInputOutput, Value*, !typeLayout, !aggregate }
+//     This is Dual-Walk form: only of 
 //     Notes:
-//         - the name is the name of the object (instance name for a block)
-//         - Value* is a proxy for getting the LLVM type
+//         - the name is the name of the object (instance-name for a block)
+//              * for a block with no instance name, the name here will be empty ("")
+//         - Value* is a proxy for getting the LLVM type of the root of the type
 //         - !aggregate is for blocks and structures
-//                it's a block when EMdInputOutput is EMio*Block*, !typeLayout will say how the block is laid out
-//                it's a structure when the EMdTypeLayout is EMtlAggregate
+//              * it's a block when EMdInputOutput is EMio*Block*, !typeLayout will say how the block is laid out
+//              * it's a structure when the EMdTypeLayout is EMtlAggregate
 //         - for blocks, the instance name is the name above, while the interface name is the name in the !aggregate
-//         - for a block with no instance name, the name here will be empty ("")
+//
+//     !gla.io: { instanceName, EMdInputOutput, Value*, !typeLayout, typeName, !gla.io, !gla.io, !gla.io, ... }
+//     This is Single-Walk form
+//         - the instanceName is the name of the object instance (instance-name for a block)
+//              * for a block with no instance name, the name here will be empty ("")
+//         - Value* is a proxy for getting the LLVM type of this root or intermediate type in the tree
+//              * this must be looked at to get the current level's arrayness information
+//         - typeName is for block interface name or struct type name
+//              * will be empty ("") if this level is not a struct or block
+//              * it's a block when EMdInputOutput is EMio*Block*, !typeLayout will say how the block is laid out
+//              * it's a structure when the EMdTypeLayout is EMtlAggregate
+//              * the !gla.io operands are the child members, in order, of the type
+//         - for blocks, the interface name is typeName
 //
 //     !sampler -> { EMdSampler, Value*, EMdSamplerDim, array, shadow, EMdSamplerBaseType }
 //     Notes:
@@ -604,7 +628,7 @@ inline EMdSamplerBaseType GetMdSamplerBaseType(const llvm::MDNode* md)
     return (EMdSamplerBaseType)constInt->getSExtValue();    
 }
 
-// Return the value the integere metadata operand to the named metadata node.
+// Return the value the integer metadata operand to the named metadata node.
 // Return 0 if the named node is missing, or was there and it's metadata node was 0 or false.
 inline int GetMdNamedInt(llvm::Module& module, const char* name)
 {
@@ -627,7 +651,7 @@ class Metadata {
 public:
     Metadata(llvm::LLVMContext& c, llvm::Module* m) : context(c), module(m)
     {
-        // Pre cache the precision qualifier nodes, there are only 4 to reuse
+        // cache the precision qualifier nodes, there are only 4 to reuse
         for (int i = 0; i < EMpCount; ++i) {
             llvm::Value* args[] = {
                 gla::MakeIntConstant(context, i),
@@ -636,7 +660,7 @@ public:
         }
     }
 
-    // "input/output/uniform ->" as per comment at top of file
+    // "!gla.input/output/uniform ->" as per comment at top of file
     llvm::MDNode* makeMdInputOutput(llvm::StringRef symbolName, llvm::StringRef sectionName, EMdInputOutput qualifier, 
                                     llvm::Value* typeProxy, EMdTypeLayout layout, EMdPrecision precision, int location, 
                                     llvm::MDNode* sampler = 0, llvm::MDNode* aggregate = 0, int interpMode = -1, EMdBuiltIn builtIn = EmbNone)
@@ -669,7 +693,26 @@ public:
         return md;
     }
 
-    // "sampler ->" as per comment at top of file
+    // "!gla.input/output/uniform ->" as per comment at top of file, for Single-Walk form
+    llvm::MDNode* makeMdSingleTypeIo(llvm::StringRef symbolName, const char* typeName, EMdInputOutput qualifier, 
+                                     llvm::Value* typeProxy, llvm::MDNode* layoutMd, llvm::ArrayRef<llvm::MDNode*> members)
+    {
+        llvm::MDNode* md;
+        llvm::SmallVector<llvm::Value*, 10> args;
+        args.push_back(llvm::MDString::get(context, symbolName));
+        args.push_back(gla::MakeIntConstant(context, qualifier));
+        args.push_back(typeProxy);
+        args.push_back(layoutMd);
+        args.push_back(llvm::MDString::get(context, typeName));
+        if (members.size() > 0) {
+            args.append(members.begin(), members.end());
+        }
+        md = llvm::MDNode::get(context, args);
+
+        return md;
+    }
+
+    // "!sampler ->" as per comment at top of file
     llvm::MDNode* makeMdSampler(EMdSampler sampler, llvm::Value* typeProxy, EMdSamplerDim dim, bool isArray, bool isShadow, EMdSamplerBaseType baseType)
     {
         llvm::Value* args[] = {

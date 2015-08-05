@@ -375,6 +375,18 @@ namespace gla {
             return false;
         }
 
+        // Set this to true to have metadata generated with:
+        //
+        // - A single self-recursive node, the same one used to root IO nodes,
+        //   rather than have the IO root node point to a self-recursive aggregate node.
+        //
+        // - Enable a single type tree walker through the nodes,
+        //   rather than have to walk the nodes and LLVM Type in parallel.
+        virtual bool useSingleTypeTree()
+        {
+            return false;
+        }
+
     protected:
         bool decompose[EDiCount];
 

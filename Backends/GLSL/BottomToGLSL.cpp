@@ -304,6 +304,11 @@ public:
     {
         return UseLogicalIO;
     }
+
+    virtual bool useSingleTypeTree()
+    {
+        return false;
+    }
 };
 
 //

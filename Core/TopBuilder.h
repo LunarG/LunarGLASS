@@ -477,6 +477,7 @@ public:
     void closeLoop();
 
     bool useLogicalIo() const;
+    bool useSingleTypeTree() const;
 
 protected:
     bool insertNoPredecessorBlocks;            // means to insert blocks that have no predecessor

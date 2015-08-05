@@ -2815,4 +2815,11 @@ bool Builder::useLogicalIo() const
     return manager->getPrivateManager() && manager->getPrivateManager()->getBackEnd()->useLogicalIo();
 }
 
+bool Builder::useSingleTypeTree() const
+{
+    // Note: if we knew all users of managers really derived from PrivateManager,
+    // we wouldn't need the first test.
+    return manager->getPrivateManager() && manager->getPrivateManager()->getBackEnd()->useSingleTypeTree();
+}
+
 }; // end gla namespace
