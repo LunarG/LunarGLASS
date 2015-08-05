@@ -120,11 +120,9 @@ protected:
     llvm::Constant* createLLVMConstant(const glslang::TType& type, const glslang::TConstUnionArray&, int& nextConst);
     llvm::Value* MakePermanentTypeProxy(llvm::Value*);
     llvm::MDNode* declareUniformMetadata(glslang::TIntermSymbol* node, llvm::Value*);
-    llvm::MDNode* declareMdDefaultUniform(glslang::TIntermSymbol*, llvm::Value*);
+    llvm::MDNode* declareMdIo(llvm::StringRef symbolName, const glslang::TType&, llvm::Value*, int slot, const char* kind);
     llvm::MDNode* makeMdSampler(const glslang::TType&, llvm::Value*);
-    llvm::MDNode* declareMdUniformBlock(gla::EMdInputOutput ioType, const glslang::TIntermSymbol* node, llvm::Value*);
     llvm::MDNode* declareMdType(const glslang::TType&);
-    llvm::MDNode* makeInputOutputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot, const char* kind);
     void setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot, int numSlots);
     llvm::MDNode* makeInputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot);
 
@@ -160,10 +158,9 @@ namespace {
 // Helper functions for translating glslang to metadata, so that information
 // not representable in LLVM does not get lost.
 
-gla::EMdInputOutput GetMdQualifier(glslang::TIntermSymbol* node)
+gla::EMdInputOutput GetMdQualifier(const glslang::TType& type)
 {
     gla::EMdInputOutput mdQualifier = gla::EMioNone;
-    const glslang::TType& type = node->getType();
 
     if (type.getBasicType() == glslang::EbtBlock) {
         switch (type.getQualifier().storage) {
@@ -191,7 +188,7 @@ gla::EMdInputOutput GetMdQualifier(glslang::TIntermSymbol* node)
 
     // non-blocks...
 
-    switch (node->getQualifier().storage) {
+    switch (type.getQualifier().storage) {
     default:                                                             break;
 
     // inputs
@@ -2862,54 +2859,6 @@ llvm::Value* TGlslangToTopTraverser::MakePermanentTypeProxy(llvm::Value* value)
     return typeProxy;
 }
 
-llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(glslang::TIntermSymbol* node, llvm::Value* value)
-{
-    llvm::MDNode* md;
-    const std::string name = node->getName().c_str();
-    md = uniformMdMap[name];
-    if (md)
-        return md;
-
-    gla::EMdInputOutput ioType = GetMdQualifier(node);
-    switch (ioType) {
-    case gla::EMioDefaultUniform:
-        md = declareMdDefaultUniform(node, value);
-        uniformMdMap[name] = md;
-        break;
-    case gla::EMioUniformBlockMember:
-    case gla::EMioBufferBlockMember:
-    case gla::EMioBufferBlockMemberArrayed:
-        md = declareMdUniformBlock(ioType, node, value);
-        uniformMdMap[name] = md;
-        break;
-    default:
-        break;
-    }
-
-    if (linkageOnly)
-        metadata.addNoStaticUse(md);
-
-    return md;
-}
-
-// Make a !gla.uniform node, as per metadata.h, for a default uniform
-llvm::MDNode* TGlslangToTopTraverser::declareMdDefaultUniform(glslang::TIntermSymbol* node, llvm::Value* value)
-{
-    const glslang::TType& type = node->getType();
-    llvm::MDNode* samplerMd = makeMdSampler(type, value);
-
-    // Create hierarchical type information if it's an aggregate
-    gla::EMdTypeLayout layout = GetMdTypeLayout(type);
-    llvm::MDNode* structure = 0;
-    if (layout == gla::EMtlAggregate)
-        structure = declareMdType(type);
-
-    // Make the main node
-    return metadata.makeMdInputOutput(node->getName().c_str(), gla::UniformListMdName, gla::EMioDefaultUniform,
-                                      MakePermanentTypeProxy(value),
-                                      layout, GetMdPrecision(type), GetMdBindingLocation(type), samplerMd, structure, -1, GetMdBuiltIn(type));
-}
-
 llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const glslang::TType& type, llvm::Value* value)
 {
     // Figure out sampler information, if it's a sampler
@@ -2928,20 +2877,7 @@ llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const glslang::TType& type, 
         return 0;
 }
 
-// Make a !gla.uniform node, as per metadata.h, for a uniform block or buffer block (depending on ioType)
-llvm::MDNode* TGlslangToTopTraverser::declareMdUniformBlock(gla::EMdInputOutput ioType, const glslang::TIntermSymbol* node, llvm::Value* value)
-{
-    const glslang::TType& type = node->getType();
-
-    // Make hierarchical type information
-    llvm::MDNode* block = declareMdType(type);
-
-    // Make the main node
-    return metadata.makeMdInputOutput(filterMdName(node->getName().c_str()), gla::UniformListMdName, ioType, MakePermanentTypeProxy(value),
-                                      GetMdTypeLayout(type), GetMdPrecision(type), GetMdBindingLocation(type), 0, block);
-}
-
-// Make a !type node as per metadata.h, recursively
+// Make an aggregate, hierarchically, in metadata, recursively, as per metadata.h.
 llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type)
 {
     // Figure out sampler information if it's a sampler
@@ -2977,29 +2913,67 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type)
     return llvm::MDNode::get(context, mdArgs);
 }
 
-// Make metadata node for either an 'in' or an 'out' variable/block
-llvm::MDNode* TGlslangToTopTraverser::makeInputOutputMetadata(glslang::TIntermSymbol* node, llvm::Value* value, int slot, const char* kind)
-{    
+// Make a !gla.uniform/input/output node, as per metadata.h, selected by "kind"
+llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, const glslang::TType& type, llvm::Value* value, int slot, const char* kind)
+{
+    llvm::MDNode* samplerMd = makeMdSampler(type, value);
     llvm::MDNode* aggregate = 0;
-    if (node->getBasicType() == glslang::EbtStruct || node->getBasicType() == glslang::EbtBlock) {
-        // Make hierarchical type information
-        aggregate = declareMdType(node->getType());
+    gla::EInterpolationMode interpolationMode = -1;
+    int location;
+    gla::EMdTypeLayout layout = GetMdTypeLayout(type);
+    gla::EMdInputOutput ioType = GetMdQualifier(type);
+
+    switch (ioType) {
+    case gla::EMioDefaultUniform:
+    case gla::EMioUniformBlockMember:
+    case gla::EMioBufferBlockMember:
+    case gla::EMioBufferBlockMemberArrayed:
+        // uniforms
+        location = GetMdBindingLocation(type);
+        break;
+
+    default:
+        // in/out
+        gla::EInterpolationMethod interpMethod;
+        gla::EInterpolationLocation interpLocation;
+        GetInterpolationLocationMethod(type, interpMethod, interpLocation);
+        interpolationMode = gla::MakeInterpolationMode(interpMethod, interpLocation);
+        location = slot;
+        break;
     }
 
-    gla::EInterpolationMethod interpMethod;
-    gla::EInterpolationLocation interpLocation;
-    GetInterpolationLocationMethod(node->getType(), interpMethod, interpLocation);
+    // Make hierarchical type information
+    if (type.getBasicType() == glslang::EbtStruct || type.getBasicType() == glslang::EbtBlock)
+        aggregate = declareMdType(type);
 
-    return metadata.makeMdInputOutput(filterMdName(node->getName().c_str()), kind, GetMdQualifier(node), MakePermanentTypeProxy(value), 
-                                      GetMdTypeLayout(node->getType()), GetMdPrecision(node->getType()), slot, 0, aggregate,
-                                      gla::MakeInterpolationMode(interpMethod, interpLocation), GetMdBuiltIn(node->getType()));
+    // Make the main node
+    return metadata.makeMdInputOutput(instanceName, kind, ioType, MakePermanentTypeProxy(value),
+                                      layout, GetMdPrecision(type), location, samplerMd, aggregate,
+                                      interpolationMode, GetMdBuiltIn(type));
+}
+
+llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(glslang::TIntermSymbol* node, llvm::Value* value)
+{
+    llvm::MDNode* md;
+    const std::string name = node->getName().c_str();
+    md = uniformMdMap[name];
+    if (md)
+        return md;
+
+    md = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), value, 0, gla::UniformListMdName);
+    uniformMdMap[name] = md;
+
+    if (linkageOnly)
+        metadata.addNoStaticUse(md);
+
+    return md;
 }
 
 // Make metadata node for an 'out' variable/block and associate it with the 
 // output-variable cache in the gla builder.
 void TGlslangToTopTraverser::setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value* storage, int slot, int numSlots)
 {
-    llvm::MDNode* md = makeInputOutputMetadata(node, storage, slot, gla::OutputListMdName);
+    llvm::MDNode* md = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), storage, slot, gla::OutputListMdName);
 
     if (node->getQualifier().invariant)
         module->getOrInsertNamedMetadata(gla::InvariantListMdName)->addOperand(md);
@@ -3015,7 +2989,7 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(glslang::TIntermSymbol* 
     llvm::MDNode* mdNode = inputMdMap[slot];
     if (mdNode == 0) {
         // set up metadata for pipeline intrinsic read
-        mdNode = makeInputOutputMetadata(node, value, slot, gla::InputListMdName);
+        mdNode = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), value, slot, gla::InputListMdName);
         inputMdMap[slot] = mdNode;
         if (linkageOnly)
             metadata.addNoStaticUse(mdNode);
