@@ -68,8 +68,10 @@
 #include <list>
 
 // Glslang includes
-#include "SPIRV/spirv.h"
-#include "SPIRV/GLSL450Lib.h"
+#include "SPIRV/spirv.hpp"
+namespace spv {
+    #include "SPIRV/GLSL.std.450.h"
+}
 
 // LunarGLASS includes
 #include "LunarGLASSTopIR.h"
@@ -113,7 +115,6 @@ gla::EMdBuiltIn GetMdBuiltIn(spv::BuiltIn builtIn)
     case spv::BuiltInInstanceId:           return gla::EmbInstanceId;
     case spv::BuiltInPosition:             return gla::EmbPosition;
     case spv::BuiltInPointSize:            return gla::EmbPointSize;
-    case spv::BuiltInClipVertex:           return gla::EmbClipVertex;
     case spv::BuiltInClipDistance:         return gla::EmbClipDistance;
     case spv::BuiltInCullDistance:         return gla::EmbCullDistance;
     case spv::BuiltInInvocationId:         return gla::EmbInvocationId;
@@ -157,12 +158,13 @@ public:
 protected:
     // a bag to hold type information that's lost going to LLVM (without metadata)
     struct MetaType {
-        MetaType() : layout(gla::EMtlNone), precision(gla::EMpNone), builtIn(gla::EmbNone), set(-1), bindingOrLocation(gla::MaxUserLayoutLocation),
+        MetaType() : layout(gla::EMtlNone), combinedImageSampler(false), precision(gla::EMpNone), builtIn(gla::EmbNone), set(-1), bindingOrLocation(gla::MaxUserLayoutLocation),
                      interpolationMethod((spv::Decoration)BadValue), interpolateTo((spv::Decoration)BadValue),
                      invariant(false), name(0) { }
 
         // set of things needed for !typeLayout metadata node
         gla::EMdTypeLayout layout;              // includes matrix information
+        bool combinedImageSampler;
         gla::EMdPrecision precision;
         gla::EMdBuiltIn builtIn;
         int set;
@@ -195,7 +197,7 @@ protected:
     void translateInstruction(spv::Op opCode, int numOperands);
     llvm::Value* createUnaryOperation(spv::Op, gla::EMdPrecision, llvm::Type* resultType, llvm::Value* operand, bool hasSign, bool reduceComparison);
     llvm::Value* createBinaryOperation(spv::Op, gla::EMdPrecision, llvm::Value* left, llvm::Value* right, bool hasSign, bool reduceComparison, const char* name = 0);
-    gla::ESamplerType convertSamplerType(spv::Id samplerTypeId);
+    gla::ESamplerType convertImageType(spv::Id imageTypeId);
     llvm::Value* createSamplingCall(spv::Op, spv::Id type, spv::Id result, int numOperands);
     llvm::Value* createTextureQueryCall(spv::Op, spv::Id type, spv::Id result, int numOperands);
     llvm::Value* createConstructor(spv::Id resultId, spv::Id typeId, std::vector<llvm::Value*> constituents);
@@ -208,6 +210,13 @@ protected:
     spv::Id dereferenceTypeId(spv::Id typeId) const;
     spv::Id getArrayElementTypeId(spv::Id typeId) const;
     spv::Id getStructMemberTypeId(spv::Id typeId, int member) const;
+    spv::Id getImageTypeId(spv::Id sampledImageTypeId) const;
+    spv::Id getImageSampledType(spv::Id typeId) const;
+    spv::Dim getImageDim(spv::Id typeId) const;
+    bool isImageArrayed(spv::Id typeId) const;
+    bool isImageDepth(spv::Id typeId) const;
+    bool isImageMS(spv::Id typeId) const;
+
     bool inEntryPoint();
     bool isMatrix(spv::Id typeId) { return commonMap[typeId].metaType.layout == gla::EMtlColMajorMatrix || 
                                              commonMap[typeId].metaType.layout == gla::EMtlRowMajorMatrix; }
@@ -425,6 +434,8 @@ void SpvToTopTranslator::setExecutionMode(spv::Id entryPoint, spv::ExecutionMode
     case spv::ExecutionModeOriginUpperLeft:
         metadata.makeMdNamedInt(gla::OriginUpperLeftMdName, 1);
         break;
+    case spv::ExecutionModeOriginLowerLeft:
+        break;
     case spv::ExecutionModePointMode:
         metadata.makeMdNamedInt(gla::PointModeMdName, 1);
         break;
@@ -515,14 +526,8 @@ void SpvToTopTranslator::addMetaTypeDecoration(spv::Decoration decoration, MetaT
     unsigned int num;
 
     switch (decoration) {
-    case spv::DecorationPrecisionLow:
-        metaType.precision = gla::EMpLow;
-        break;
-    case spv::DecorationPrecisionMedium:
+    case spv::DecorationRelaxedPrecision:
         metaType.precision = gla::EMpMedium;
-        break;
-    case spv::DecorationPrecisionHigh:
-        metaType.precision = gla::EMpHigh;
         break;
 
     case spv::DecorationSmooth:
@@ -534,12 +539,6 @@ void SpvToTopTranslator::addMetaTypeDecoration(spv::Decoration decoration, MetaT
 
     case spv::DecorationGLSLShared:
         metaType.layout = gla::EMtlShared;
-        break;
-    case spv::DecorationGLSLStd140:
-        metaType.layout = gla::EMtlStd140;
-        break;
-    case spv::DecorationGLSLStd430:
-        metaType.layout = gla::EMtlStd430;
         break;
     case spv::DecorationGLSLPacked:
         metaType.layout = gla::EMtlPacked;
@@ -568,19 +567,26 @@ void SpvToTopTranslator::addMetaTypeDecoration(spv::Decoration decoration, MetaT
         num = spirv[word++];
         metaType.builtIn = GetMdBuiltIn((spv::BuiltIn)num);
         break;
+    case spv::DecorationOffset:
+    {
+        static bool once = false;
+        if (! once) {
+            gla::UnsupportedFunctionality("member offset", gla::EATContinue);
+            once = true;
+        }
+        break;
+    }
+
     case spv::DecorationStream:
     case spv::DecorationComponent:
     case spv::DecorationIndex:
-    case spv::DecorationOffset:
-    case spv::DecorationAlignment:
     case spv::DecorationXfbBuffer:
-    case spv::DecorationStride:
 
     case spv::DecorationCentroid:
     case spv::DecorationSample:
     case spv::DecorationUniform:
     default:
-        gla::UnsupportedFunctionality("metaType decoration", gla::EATContinue);
+        gla::UnsupportedFunctionality("metaType decoration ", decoration, gla::EATContinue);
         break;
     }
 }
@@ -654,14 +660,18 @@ void SpvToTopTranslator::addType(spv::Op typeClass, spv::Id resultId, int numOpe
         break;
     }
 
-    // sampler
-    case spv::OpTypeSampler:
+    // images
+    case spv::OpTypeImage:
         commonMap[resultId].type = gla::GetIntType(context);
         commonMap[resultId].metaType.layout = gla::EMtlSampler;
         break;
-
-    case spv::OpTypeFilter:
-        gla::UnsupportedFunctionality("OpTypeFilter");
+    case spv::OpTypeSampledImage:
+        commonMap[resultId].type = gla::GetIntType(context);
+        commonMap[resultId].metaType.layout = gla::EMtlSampler;
+        commonMap[resultId].metaType.combinedImageSampler = true;
+        break;
+    case spv::OpTypeSampler:
+        gla::UnsupportedFunctionality("OpTypeSampler");
         break;
 
     // run-time array
@@ -919,24 +929,16 @@ gla::EMdInputOutput SpvToTopTranslator::getMdQualifier(spv::Id resultId) const
 // Translate a SPIR-V sampler type to the kind of image/texture needed for it in metadata.
 gla::EMdSampler SpvToTopTranslator::getMdSampler(spv::Id typeId) const
 {
-    switch (spirv[commonMap[typeId].instructionIndex + 4]) {
-    case 0:
-        gla::UnsupportedFunctionality("sampler-type content of texture with no filter", gla::EATContinue);
-        // fall through
-    case 3:
+    if (commonMap[typeId].metaType.combinedImageSampler)
+        return gla::EMsTexture;
+    else
         return gla::EMsImage;
-    case 2:
-        return gla::EMsTexture;
-    default:
-        gla::UnsupportedFunctionality("Unexpected sampler type content operand", (int)spirv[commonMap[typeId].instructionIndex + 4]);
-        return gla::EMsTexture;
-    }
 }
 
 // Translate a SPIR-V sampler type to the metadata's dimensionality.
 gla::EMdSamplerDim SpvToTopTranslator::getMdSamplerDim(spv::Id typeId) const
 {
-    switch (spirv[commonMap[typeId].instructionIndex + 3]) {
+    switch (getImageDim(typeId)) {
     case spv::Dim1D:     return gla::EMsd1D;
     case spv::Dim2D:     return gla::EMsd2D;
     case spv::Dim3D:     return gla::EMsd3D;
@@ -952,7 +954,7 @@ gla::EMdSamplerDim SpvToTopTranslator::getMdSamplerDim(spv::Id typeId) const
 // Translate a SPIR-V sampler type to return (sampled) type needed for it in metadata.
 gla::EMdSamplerBaseType SpvToTopTranslator::getMdSamplerBaseType(spv::Id typeId) const
 {
-    spv::Id sampledType = spirv[commonMap[typeId].instructionIndex + 2];
+    spv::Id sampledType = getImageSampledType(typeId);
     if (commonMap[sampledType].type->getTypeID() == llvm::Type::FloatTyID)
         return gla::EMsbFloat;
     else if (commonMap[sampledType].metaType.layout == gla::EMtlUnsigned)
@@ -1057,8 +1059,8 @@ llvm::MDNode* SpvToTopTranslator::makeMdSampler(spv::Id typeId, llvm::Value* val
     } else
         typeProxy = makePermanentTypeProxy(value);
 
-    return metadata.makeMdSampler(getMdSampler(typeId), typeProxy, getMdSamplerDim(typeId), spirv[commonMap[typeId].instructionIndex + 5] != 0,
-                                  spirv[commonMap[typeId].instructionIndex + 6] != 0, getMdSamplerBaseType(typeId));
+    return metadata.makeMdSampler(getMdSampler(typeId), typeProxy, getMdSamplerDim(typeId), isImageArrayed(typeId),
+                                  isImageDepth(typeId), getMdSamplerBaseType(typeId));
 }
 
 // Make a !gla.uniform node, as per metadata.h, for a uniform block or buffer block
@@ -1313,13 +1315,17 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
             gla::UnsupportedFunctionality("OpExecutionMode with more than two operands", gla::EATContinue);
         break;
     }
+    case spv::OpCapability:
+        break;
     case spv::OpTypeVoid:
     case spv::OpTypeBool:
     case spv::OpTypeInt:
     case spv::OpTypeFloat:
     case spv::OpTypeVector:
     case spv::OpTypeMatrix:
+    case spv::OpTypeImage:
     case spv::OpTypeSampler:
+    case spv::OpTypeSampledImage:
     case spv::OpTypeArray:
     case spv::OpTypeRuntimeArray:
     case spv::OpTypeStruct:
@@ -1435,7 +1441,7 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
     case spv::OpShiftRightArithmetic:
     case spv::OpShiftLeftLogical:
     case spv::OpLogicalOr:
-    case spv::OpLogicalXor:
+    case spv::OpLogicalNotEqual:
     case spv::OpLogicalAnd:
     case spv::OpBitwiseOr:
     case spv::OpBitwiseXor:
@@ -1650,46 +1656,37 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
         gla::UnsupportedFunctionality("OpPhi");
         break;
 
-    case spv::OpSampler:
+    case spv::OpSampledImage:
         gla::UnsupportedFunctionality("OpSampler");
         break;
 
-    case spv::OpTextureSample:
-    case spv::OpTextureSampleDref:
-    case spv::OpTextureSampleLod:
-    case spv::OpTextureSampleProj:
-    case spv::OpTextureSampleGrad:
-    case spv::OpTextureSampleOffset:
-    case spv::OpTextureSampleProjLod:
-    case spv::OpTextureSampleProjGrad:
-    case spv::OpTextureSampleLodOffset:
-    case spv::OpTextureSampleProjOffset:
-    case spv::OpTextureSampleGradOffset:
-    case spv::OpTextureSampleProjLodOffset:
-    case spv::OpTextureSampleProjGradOffset:
+    case spv::OpImageSampleImplicitLod:
+    case spv::OpImageSampleExplicitLod:
+    case spv::OpImageSampleDrefImplicitLod:
+    case spv::OpImageSampleDrefExplicitLod:
+    case spv::OpImageSampleProjImplicitLod:
+    case spv::OpImageSampleProjExplicitLod:
+    case spv::OpImageSampleProjDrefImplicitLod:
+    case spv::OpImageSampleProjDrefExplicitLod:
         decodeResult(true, typeId, resultId);
         numOperands -= 2;
         commonMap[resultId].value = createSamplingCall(opCode, typeId, resultId, numOperands);
         break;
 
-    case spv::OpTextureFetchTexelLod:
-    case spv::OpTextureFetchTexelOffset:
-    case spv::OpTextureFetchSample:
-    case spv::OpTextureFetchTexel:
+    case spv::OpImageFetch:
         gla::UnsupportedFunctionality("OpTextureFetch instruction");
         break;
 
-    case spv::OpTextureGather:
-    case spv::OpTextureGatherOffset:
-    case spv::OpTextureGatherOffsets:
+    case spv::OpImageGather:
+    case spv::OpImageDrefGather:
         gla::UnsupportedFunctionality("OpTextureGather instruction");
         break;
 
-    case spv::OpTextureQuerySizeLod:
-    case spv::OpTextureQuerySize:
-    case spv::OpTextureQueryLod:
-    case spv::OpTextureQueryLevels:
-    case spv::OpTextureQuerySamples:
+    case spv::OpImageQuerySizeLod:
+    case spv::OpImageQuerySize:
+    case spv::OpImageQueryLod:
+    case spv::OpImageQueryLevels:
+    case spv::OpImageQuerySamples:
         decodeResult(true, typeId, resultId);
         numOperands -= 2;
         commonMap[resultId].value = createTextureQueryCall(opCode, typeId, resultId, numOperands);
@@ -1698,6 +1695,7 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
     case spv::OpSNegate:
     case spv::OpFNegate:
     case spv::OpNot:
+    case spv::OpLogicalNot:
     case spv::OpAny:
     case spv::OpAll:
     case spv::OpConvertFToU:
@@ -1957,110 +1955,110 @@ llvm::Value* SpvToTopTranslator::createExternalInstruction(gla::EMdPrecision pre
     llvm::Value* result = 0;
 
     switch (instEnum) {
-    case GLSL_STD_450::Round:
+    case spv::GLSLstd450Round:
         intrinsicID = llvm::Intrinsic::gla_fRoundFast;
         break;
-    case GLSL_STD_450::RoundEven:
+    case spv::GLSLstd450RoundEven:
         intrinsicID = llvm::Intrinsic::gla_fRoundEven;
         break;
-    case GLSL_STD_450::Trunc:
+    case spv::GLSLstd450Trunc:
         intrinsicID = llvm::Intrinsic::gla_fRoundZero;
         break;
-    case GLSL_STD_450::Abs:
-        if (firstIsFloat)
-            intrinsicID = llvm::Intrinsic::gla_fAbs;
-        else
-            intrinsicID = llvm::Intrinsic::gla_abs;
+    case spv::GLSLstd450FAbs:
+        intrinsicID = llvm::Intrinsic::gla_fAbs;
         break;
-    case GLSL_STD_450::Sign:
-        if (firstIsFloat)
-            intrinsicID = llvm::Intrinsic::gla_fSign;
-        else
-            intrinsicID = llvm::Intrinsic::gla_sign;
+    case spv::GLSLstd450SAbs:
+        intrinsicID = llvm::Intrinsic::gla_abs;
         break;
-    case GLSL_STD_450::Floor:
+    case spv::GLSLstd450FSign:
+        intrinsicID = llvm::Intrinsic::gla_fSign;
+        break;
+    case spv::GLSLstd450SSign:
+        intrinsicID = llvm::Intrinsic::gla_sign;
+        break;
+    case spv::GLSLstd450Floor:
         intrinsicID = llvm::Intrinsic::gla_fFloor;
         break;
-    case GLSL_STD_450::Ceil:
+    case spv::GLSLstd450Ceil:
         intrinsicID = llvm::Intrinsic::gla_fCeiling;
         break;
-    case GLSL_STD_450::Fract:
+    case spv::GLSLstd450Fract:
         intrinsicID = llvm::Intrinsic::gla_fFraction;
         break;
-    case GLSL_STD_450::Radians:
+    case spv::GLSLstd450Radians:
         intrinsicID = llvm::Intrinsic::gla_fRadians;
         break;
-    case GLSL_STD_450::Degrees:
+    case spv::GLSLstd450Degrees:
         intrinsicID = llvm::Intrinsic::gla_fDegrees;
         break;
-    case GLSL_STD_450::Sin:
+    case spv::GLSLstd450Sin:
         intrinsicID = llvm::Intrinsic::gla_fSin;
         break;
-    case GLSL_STD_450::Cos:
+    case spv::GLSLstd450Cos:
         intrinsicID = llvm::Intrinsic::gla_fCos;
         break;
-    case GLSL_STD_450::Tan:
+    case spv::GLSLstd450Tan:
         intrinsicID = llvm::Intrinsic::gla_fTan;
         break;
-    case GLSL_STD_450::Asin:
+    case spv::GLSLstd450Asin:
         intrinsicID = llvm::Intrinsic::gla_fAsin;
         break;
-    case GLSL_STD_450::Acos:
+    case spv::GLSLstd450Acos:
         intrinsicID = llvm::Intrinsic::gla_fAcos;
         break;
-    case GLSL_STD_450::Atan:
+    case spv::GLSLstd450Atan:
         intrinsicID = llvm::Intrinsic::gla_fAtan;
         break;
-    case GLSL_STD_450::Sinh:
+    case spv::GLSLstd450Sinh:
         intrinsicID = llvm::Intrinsic::gla_fSinh;
         break;
-    case GLSL_STD_450::Cosh:
+    case spv::GLSLstd450Cosh:
         intrinsicID = llvm::Intrinsic::gla_fCosh;
         break;
-    case GLSL_STD_450::Tanh:
+    case spv::GLSLstd450Tanh:
         intrinsicID = llvm::Intrinsic::gla_fTanh;
         break;
-    case GLSL_STD_450::Asinh:
+    case spv::GLSLstd450Asinh:
         intrinsicID = llvm::Intrinsic::gla_fAsinh;
         break;
-    case GLSL_STD_450::Acosh:
+    case spv::GLSLstd450Acosh:
         intrinsicID = llvm::Intrinsic::gla_fAcosh;
         break;
-    case GLSL_STD_450::Atanh:
+    case spv::GLSLstd450Atanh:
         intrinsicID = llvm::Intrinsic::gla_fAtanh;
         break;
-    case GLSL_STD_450::Atan2:
+    case spv::GLSLstd450Atan2:
         intrinsicID = llvm::Intrinsic::gla_fAtan2;
         break;
-    case GLSL_STD_450::Pow:
+    case spv::GLSLstd450Pow:
         if (firstIsFloat)
             intrinsicID = llvm::Intrinsic::gla_fPow;
         else
             intrinsicID = llvm::Intrinsic::gla_fPowi;
         break;
-    case GLSL_STD_450::Exp:
+    case spv::GLSLstd450Exp:
         intrinsicID = llvm::Intrinsic::gla_fExp;
         break;
-    case GLSL_STD_450::Log:
+    case spv::GLSLstd450Log:
         intrinsicID = llvm::Intrinsic::gla_fLog;
         break;
-    case GLSL_STD_450::Exp2:
+    case spv::GLSLstd450Exp2:
         intrinsicID = llvm::Intrinsic::gla_fExp2;
         break;
-    case GLSL_STD_450::Log2:
+    case spv::GLSLstd450Log2:
         intrinsicID = llvm::Intrinsic::gla_fLog2;
         break;
-    case GLSL_STD_450::Sqrt:
+    case spv::GLSLstd450Sqrt:
         intrinsicID = llvm::Intrinsic::gla_fSqrt;
         break;
-    case GLSL_STD_450::InverseSqrt:
+    case spv::GLSLstd450InverseSqrt:
         intrinsicID = llvm::Intrinsic::gla_fInverseSqrt;
         break;
-    case GLSL_STD_450::Determinant:
+    case spv::GLSLstd450Determinant:
         return glaBuilder->createMatrixDeterminant(precision, operands.front());
-    case GLSL_STD_450::MatrixInverse:
+    case spv::GLSLstd450MatrixInverse:
         return glaBuilder->createMatrixInverse(precision, operands.front());
-    case GLSL_STD_450::Modf:
+    case spv::GLSLstd450Modf:
     {
         // modf()'s second operand is only an l-value to set the 2nd return value to
 
@@ -2074,129 +2072,108 @@ llvm::Value* SpvToTopTranslator::createExternalInstruction(gla::EMdPrecision pre
         // leave the first part as the function-call's value
         return llvmBuilder.CreateExtractValue(structure, 0);
     }
-    case GLSL_STD_450::Min:
-        if (firstIsFloat)
-            intrinsicID = llvm::Intrinsic::gla_fMin;
-        else if (firstHasSign)
-            intrinsicID = llvm::Intrinsic::gla_sMin;
-        else
-            intrinsicID = llvm::Intrinsic::gla_uMin;
+    case spv::GLSLstd450FMin:
+        intrinsicID = llvm::Intrinsic::gla_fMin;
         break;
-    case GLSL_STD_450::Max:
-        if (firstIsFloat)
-            intrinsicID = llvm::Intrinsic::gla_fMax;
-        else if (firstHasSign)
-            intrinsicID = llvm::Intrinsic::gla_sMax;
-        else
-            intrinsicID = llvm::Intrinsic::gla_uMax;
+    case spv::GLSLstd450SMin:
+        intrinsicID = llvm::Intrinsic::gla_sMin;
         break;
-    case GLSL_STD_450::Clamp:
-        if (firstIsFloat)
-            intrinsicID = llvm::Intrinsic::gla_fClamp;
-        else if (firstHasSign)
-            intrinsicID = llvm::Intrinsic::gla_sClamp;
-        else
-            intrinsicID = llvm::Intrinsic::gla_uClamp;
+    case spv::GLSLstd450UMin:
+        intrinsicID = llvm::Intrinsic::gla_uMin;
         break;
-    case GLSL_STD_450::Mix:
+    case spv::GLSLstd450FMax:
+        intrinsicID = llvm::Intrinsic::gla_fMax;
+        break;
+    case spv::GLSLstd450SMax:
+        intrinsicID = llvm::Intrinsic::gla_sMax;
+        break;
+    case spv::GLSLstd450UMax:
+        intrinsicID = llvm::Intrinsic::gla_uMax;
+        break;
+    case spv::GLSLstd450FClamp:
+        intrinsicID = llvm::Intrinsic::gla_fClamp;
+        break;
+    case spv::GLSLstd450SClamp:
+        intrinsicID = llvm::Intrinsic::gla_sClamp;
+        break;
+    case spv::GLSLstd450UClamp:
+        intrinsicID = llvm::Intrinsic::gla_uClamp;
+        break;
+    case spv::GLSLstd450Mix:
         if (gla::GetBasicTypeID(operands.back()) == llvm::Type::IntegerTyID)
             intrinsicID = llvm::Intrinsic::gla_fbMix;
         else
             intrinsicID = llvm::Intrinsic::gla_fMix;
         break;
         break;
-    case GLSL_STD_450::Step:
+    case spv::GLSLstd450Step:
         intrinsicID = llvm::Intrinsic::gla_fStep;
         break;
-    case GLSL_STD_450::SmoothStep:
+    case spv::GLSLstd450SmoothStep:
         intrinsicID = llvm::Intrinsic::gla_fSmoothStep;
         break;
-    case GLSL_STD_450::FloatBitsToInt:
+    case spv::GLSLstd450Fma:
         break;
-    case GLSL_STD_450::FloatBitsToUint:
+    case spv::GLSLstd450Frexp:
         break;
-    case GLSL_STD_450::IntBitsToFloat:
+    case spv::GLSLstd450Ldexp:
         break;
-    case GLSL_STD_450::UintBitsToFloat:
+    case spv::GLSLstd450PackSnorm4x8:
         break;
-    case GLSL_STD_450::Fma:
+    case spv::GLSLstd450PackUnorm4x8:
         break;
-    case GLSL_STD_450::Frexp:
+    case spv::GLSLstd450PackSnorm2x16:
         break;
-    case GLSL_STD_450::Ldexp:
+    case spv::GLSLstd450PackUnorm2x16:
         break;
-    case GLSL_STD_450::PackSnorm4x8:
+    case spv::GLSLstd450PackHalf2x16:
         break;
-    case GLSL_STD_450::PackUnorm4x8:
+    case spv::GLSLstd450PackDouble2x32:
         break;
-    case GLSL_STD_450::PackSnorm2x16:
+    case spv::GLSLstd450UnpackSnorm2x16:
         break;
-    case GLSL_STD_450::PackUnorm2x16:
+    case spv::GLSLstd450UnpackUnorm2x16:
         break;
-    case GLSL_STD_450::PackHalf2x16:
+    case spv::GLSLstd450UnpackHalf2x16:
         break;
-    case GLSL_STD_450::PackDouble2x32:
+    case spv::GLSLstd450UnpackSnorm4x8:
         break;
-    case GLSL_STD_450::UnpackSnorm2x16:
+    case spv::GLSLstd450UnpackUnorm4x8:
         break;
-    case GLSL_STD_450::UnpackUnorm2x16:
+    case spv::GLSLstd450UnpackDouble2x32:
         break;
-    case GLSL_STD_450::UnpackHalf2x16:
-        break;
-    case GLSL_STD_450::UnpackSnorm4x8:
-        break;
-    case GLSL_STD_450::UnpackUnorm4x8:
-        break;
-    case GLSL_STD_450::UnpackDouble2x32:
-        break;
-    case GLSL_STD_450::Length:
+    case spv::GLSLstd450Length:
         intrinsicID = llvm::Intrinsic::gla_fLength;
         break;
-    case GLSL_STD_450::Distance:
+    case spv::GLSLstd450Distance:
         intrinsicID = llvm::Intrinsic::gla_fDistance;
         break;
-    case GLSL_STD_450::Cross:
+    case spv::GLSLstd450Cross:
         intrinsicID = llvm::Intrinsic::gla_fCross;
         break;
-    case GLSL_STD_450::Normalize:
+    case spv::GLSLstd450Normalize:
         intrinsicID = llvm::Intrinsic::gla_fNormalize;
         break;
-    case GLSL_STD_450::Ftransform:
-        break;
-    case GLSL_STD_450::FaceForward:
+    case spv::GLSLstd450FaceForward:
         intrinsicID = llvm::Intrinsic::gla_fFaceForward;
         break;
-    case GLSL_STD_450::Reflect:
+    case spv::GLSLstd450Reflect:
         intrinsicID = llvm::Intrinsic::gla_fReflect;
         break;
-    case GLSL_STD_450::Refract:
+    case spv::GLSLstd450Refract:
         intrinsicID = llvm::Intrinsic::gla_fRefract;
         break;
-    case GLSL_STD_450::UaddCarry:
+    case spv::GLSLstd450FindILSB:
         break;
-    case GLSL_STD_450::UsubBorrow:
+    case spv::GLSLstd450FindSMSB:
         break;
-    case GLSL_STD_450::UmulExtended:
+    case spv::GLSLstd450FindUMSB:
         break;
-    case GLSL_STD_450::ImulExtended:
+    case spv::GLSLstd450InterpolateAtCentroid:
         break;
-    case GLSL_STD_450::BitfieldExtract:
+    case spv::GLSLstd450InterpolateAtSample:
         break;
-    case GLSL_STD_450::BitfieldInsert:
-        break;
-    case GLSL_STD_450::BitfieldReverse:
-        break;
-    case GLSL_STD_450::BitCount:
-        break;
-    case GLSL_STD_450::FindLSB:
-        break;
-    case GLSL_STD_450::FindMSB:
-        break;
-    case GLSL_STD_450::InterpolateAtCentroid:
-        break;
-    case GLSL_STD_450::InterpolateAtSample:
-        break;
-    case GLSL_STD_450::InterpolateAtOffset:
+    case spv::GLSLstd450InterpolateAtOffset:
         break;
     }
 
@@ -2258,7 +2235,8 @@ llvm::Value* SpvToTopTranslator::createUnaryOperation(spv::Op op, gla::EMdPrecis
         glaBuilder->setInstructionPrecision(result, precision);
         return result;
 
-    case spv::OpNot:        
+    case spv::OpNot:
+    case spv::OpLogicalNot:
         return llvmBuilder.CreateNot(operand);
     case spv::OpAny:
         intrinsicID = llvm::Intrinsic::gla_any;
@@ -2436,7 +2414,7 @@ llvm::Value* SpvToTopTranslator::createBinaryOperation(spv::Op op, gla::EMdPreci
     case spv::OpBitwiseOr:
         binOp = llvm::Instruction::Or;
         break;
-    case spv::OpLogicalXor:
+    case spv::OpLogicalNotEqual:
     case spv::OpBitwiseXor:
         binOp = llvm::Instruction::Xor;
         break;
@@ -2589,13 +2567,13 @@ llvm::Value* SpvToTopTranslator::createBinaryOperation(spv::Op op, gla::EMdPreci
 }
 
 // Change from a SPIR-V sampler type to a LunarGLASS sampler type
-gla::ESamplerType SpvToTopTranslator::convertSamplerType(spv::Id samplerTypeId)
+gla::ESamplerType SpvToTopTranslator::convertImageType(spv::Id imageTypeId)
 {
-    switch (spirv[commonMap[samplerTypeId].instructionIndex + 3]) {
+    switch (getImageDim(imageTypeId)) {
     case spv::Dim1D:
         return gla::ESampler1D;
     case spv::Dim2D:
-        if (spirv[commonMap[samplerTypeId].instructionIndex + 7] != 0)
+        if (isImageMS(imageTypeId))
             return gla::ESampler2DMS;
         else
             return gla::ESampler2D;
@@ -2616,109 +2594,117 @@ gla::ESamplerType SpvToTopTranslator::convertSamplerType(spv::Id samplerTypeId)
 // Turn a SPIR-V OpTextureSample* instruction into gla texturing intrinsic.
 llvm::Value* SpvToTopTranslator::createSamplingCall(spv::Op opcode, spv::Id typeId, spv::Id resultId, int numOperands)
 {
-    // Information to set up to pass to the builder:
+    // First, decode the instruction
+
+    // invariant fixed operands, sampled-image and coord
+    spv::Id sampledImageId = spirv[word++];
+    spv::Id coord = spirv[word++];
+    numOperands -= 2;
+
+    // Dref fixed operand
+    spv::Id dref = BadValue;
+    switch (opcode) {
+        case spv::OpImageSampleDrefImplicitLod:
+        case spv::OpImageSampleDrefExplicitLod:
+        case spv::OpImageSampleProjDrefImplicitLod:
+        case spv::OpImageSampleProjDrefExplicitLod:
+            dref = spirv[word++];
+            --numOperands;
+            break;
+        default:
+            break;
+    }
+
+    // optional SPV image operands
+    spv::Id bias = BadValue;
+    spv::Id lod = BadValue;
+    spv::Id gradx = BadValue;
+    spv::Id grady = BadValue;
+    spv::Id offset = BadValue;
+    spv::Id offsets = BadValue;
+    spv::Id sample = BadValue;
+    if (numOperands > 0) {
+        spv::ImageOperandsMask imageOperands = (spv::ImageOperandsMask)spirv[word++];
+        if (imageOperands & spv::ImageOperandsBiasMask)
+            bias = spirv[word++];
+        if (imageOperands & spv::ImageOperandsLodMask)
+            lod = spirv[word++];
+        if (imageOperands & spv::ImageOperandsGradMask) {
+            gradx = spirv[word++];
+            grady = spirv[word++];
+        }
+        if (imageOperands & spv::ImageOperandsOffsetMask ||
+            imageOperands & spv::ImageOperandsConstOffsetMask)
+            offset = spirv[word++];
+        if (imageOperands & spv::ImageOperandsConstOffsetsMask)
+            offsets = spirv[word++];
+        if (imageOperands & spv::ImageOperandsSampleMask)
+            sample = spirv[word++];
+    }
+
+    // Second, set up information to set up to pass to the builder:
+
+    // bias
     int flags = 0;
     gla::Builder::TextureParameters parameters = {};
-
-    // Bias
-    spv::Id bias = spirv[word + numOperands-1];  // not always, fixed below
-    switch (opcode) {
-    case spv::OpTextureSample:
-    case spv::OpTextureSampleProj:
-        if (numOperands == 2)
-            bias = 0;
-        break;
-    case spv::OpTextureSampleOffset:
-    case spv::OpTextureSampleProjOffset:
-        if (numOperands == 3)
-            bias = 0;
-        break;
-    default:
-        bias = 0;
-        break;
-    }
-    if (bias) {
+    if (bias != BadValue) {
         flags |= gla::ETFBias;
         parameters.ETPBiasLod = commonMap[bias].value;
     }
 
     // sampler and gla dimensionality
-    spv::Id samplerId = spirv[word++];
-    spv::Id samplerTypeId = commonMap[samplerId].typeId;
-    gla::ESamplerType glaSamplerType = convertSamplerType(samplerTypeId);
-    parameters.ETPSampler = commonMap[samplerId].value;
+    spv::Id sampledImageTypeId = commonMap[sampledImageId].typeId;
+    gla::ESamplerType glaSamplerType = convertImageType(getImageTypeId(commonMap[sampledImageId].typeId));
+    parameters.ETPSampler = commonMap[sampledImageId].value;
 
     // coord
-    spv::Id coord = spirv[word++];
     parameters.ETPCoords = commonMap[coord].value;
 
-    // flags and parameters
+    // lod
+    if (lod != BadValue) {
+        flags |= gla::ETFBiasLodArg;
+        flags |= gla::ETFLod;
+        parameters.ETPBiasLod = commonMap[lod].value;
+    }
+
+    // offset
+    if (offset != BadValue) {
+        flags |= gla::ETFOffsetArg;
+        parameters.ETPOffset = commonMap[offset].value;
+    }
+
+    // offsets
+    if (offsets != BadValue)
+        gla::UnsupportedFunctionality("image offsets");
+
+    // gradient
+    if (gradx != BadValue) {
+        parameters.ETPGradX = commonMap[gradx].value;
+        parameters.ETPGradY = commonMap[grady].value;
+    }
+
+    // proj
     switch (opcode) {
-    case spv::OpTextureSample:
-        break;
-    case spv::OpTextureSampleDref:
-        flags |= gla::ETFRefZArg;
-        parameters.ETPShadowRef = commonMap[spirv[word++]].value;
-        break;
-    case spv::OpTextureSampleLod:
-        flags |= gla::ETFBiasLodArg;
-        flags |= gla::ETFLod;
-        parameters.ETPBiasLod = commonMap[spirv[word++]].value;
-        break;
-    case spv::OpTextureSampleProj:
-        flags |= gla::ETFProjected;
-        break;
-    case spv::OpTextureSampleGrad:
-        parameters.ETPGradX = commonMap[spirv[word++]].value;
-        parameters.ETPGradY = commonMap[spirv[word++]].value;
-        break;
-    case spv::OpTextureSampleOffset:
-        flags |= gla::ETFOffsetArg;
-        parameters.ETPOffset = commonMap[spirv[word++]].value;
-        break;
-    case spv::OpTextureSampleProjLod:
-        flags |= gla::ETFBiasLodArg;
-        flags |= gla::ETFLod;
-        parameters.ETPBiasLod = commonMap[spirv[word++]].value;
-        break;
-    case spv::OpTextureSampleProjGrad:
-        flags |= gla::ETFProjected;
-        parameters.ETPGradX = commonMap[spirv[word++]].value;
-        parameters.ETPGradY = commonMap[spirv[word++]].value;
-        break;
-    case spv::OpTextureSampleLodOffset:
-        flags |= gla::ETFBiasLodArg;
-        flags |= gla::ETFLod;
-        flags |= gla::ETFOffsetArg;
-        parameters.ETPBiasLod = commonMap[spirv[word++]].value;
-        parameters.ETPOffset = commonMap[spirv[word++]].value;
-        break;
-    case spv::OpTextureSampleProjOffset:
-        flags |= gla::ETFProjected;
-        flags |= gla::ETFOffsetArg;
-        parameters.ETPOffset = commonMap[spirv[word++]].value;
-        break;
-    case spv::OpTextureSampleGradOffset:
-        flags |= gla::ETFOffsetArg;
-        parameters.ETPGradX = commonMap[spirv[word++]].value;
-        parameters.ETPGradY = commonMap[spirv[word++]].value;
-        parameters.ETPOffset = commonMap[spirv[word++]].value;
-        break;
-    case spv::OpTextureSampleProjLodOffset:
-        flags |= gla::ETFProjected;
-        flags |= gla::ETFBiasLodArg;
-        flags |= gla::ETFLod;
-        flags |= gla::ETFOffsetArg;
-        parameters.ETPBiasLod = commonMap[spirv[word++]].value;
-        parameters.ETPOffset = commonMap[spirv[word++]].value;
-        break;
-    case spv::OpTextureSampleProjGradOffset:;
-        flags |= gla::ETFProjected;
-        flags |= gla::ETFOffsetArg;
-        parameters.ETPGradX = commonMap[spirv[word++]].value;
-        parameters.ETPGradY = commonMap[spirv[word++]].value;
-        parameters.ETPOffset = commonMap[spirv[word++]].value;
-        break;
+        case spv::OpImageSampleProjImplicitLod:
+        case spv::OpImageSampleProjExplicitLod:
+        case spv::OpImageSampleProjDrefImplicitLod:
+        case spv::OpImageSampleProjDrefExplicitLod:
+            flags |= gla::ETFProjected;
+            break;
+        default:
+            break;
+    }
+
+    // Dref
+    if (dref != BadValue) {
+        // Note: for most cases, this needs to be put back with the coordinate,
+        // which for the glslang front end already holds it.
+        // TODO: do this correctly, in the general case.
+        
+        if (false /*! cube-arrayed*/) {
+            flags |= gla::ETFRefZArg;
+            parameters.ETPShadowRef = commonMap[dref].value;
+        }
     }
 
     return glaBuilder->createTextureCall(commonMap[resultId].metaType.precision, commonMap[typeId].type, glaSamplerType, flags, parameters, findAName(resultId));
@@ -2728,7 +2714,7 @@ llvm::Value* SpvToTopTranslator::createSamplingCall(spv::Op opcode, spv::Id type
 llvm::Value* SpvToTopTranslator::createTextureQueryCall(spv::Op opcode, spv::Id typeId, spv::Id resultId, int numOperands)
 {
     // first operand is always the sampler
-    spv::Id sampler = spirv[word++];
+    spv::Id image = spirv[word++];
 
     // sometimes there is another operand, either lod or coords
     spv::Id extraArg = 0;
@@ -2737,26 +2723,26 @@ llvm::Value* SpvToTopTranslator::createTextureQueryCall(spv::Op opcode, spv::Id 
 
     llvm::Intrinsic::ID intrinsicID;
     switch (opcode) {
-    case spv::OpTextureQuerySizeLod:
+    case spv::OpImageQuerySizeLod:
         intrinsicID = llvm::Intrinsic::gla_queryTextureSize;
         break;
-    case spv::OpTextureQuerySize:
+    case spv::OpImageQuerySize:
         intrinsicID = llvm::Intrinsic::gla_queryTextureSizeNoLod;
         break;
-    case spv::OpTextureQueryLod:
+    case spv::OpImageQueryLod:
         intrinsicID = llvm::Intrinsic::gla_fQueryTextureLod;
         break;
-    case spv::OpTextureQueryLevels:
-    case spv::OpTextureQuerySamples:
+    case spv::OpImageQueryLevels:
+    case spv::OpImageQuerySamples:
     default:
         gla::UnsupportedFunctionality("SPIR-V texture query op");
         break;
     }
 
-    gla::ESamplerType glaSamplerType = convertSamplerType(commonMap[sampler].typeId);
+    gla::ESamplerType glaSamplerType = convertImageType(commonMap[image].typeId);
 
     return glaBuilder->createTextureQueryCall(gla::EMpNone, intrinsicID, commonMap[typeId].type, gla::MakeIntConstant(context, glaSamplerType),
-                                              commonMap[sampler].value, commonMap[extraArg].value, findAName(resultId));
+                                              commonMap[image].value, commonMap[extraArg].value, findAName(resultId));
 }
 
 // OpCompositeConstruct
@@ -2805,6 +2791,56 @@ spv::Id SpvToTopTranslator::getStructMemberTypeId(spv::Id typeId, int member) co
     // Look back at the OpType* instruction
     const int OpTypeStructMember0Offset = 2;
     return spirv[commonMap[typeId].instructionIndex + OpTypeStructMember0Offset + member];
+}
+
+spv::Id SpvToTopTranslator::getImageTypeId(spv::Id sampledImageTypeId) const
+{
+    return spirv[commonMap[sampledImageTypeId].instructionIndex + 2];
+}
+
+// Lookup the 'Sampled Type' operand in the image type
+spv::Id SpvToTopTranslator::getImageSampledType(spv::Id typeId) const
+{
+    if (commonMap[typeId].metaType.combinedImageSampler)
+        typeId = getImageTypeId(typeId);
+
+    return spirv[commonMap[typeId].instructionIndex + 2];
+}
+
+// Lookup the 'Dim' operand in the image type
+spv::Dim SpvToTopTranslator::getImageDim(spv::Id typeId) const
+{
+    if (commonMap[typeId].metaType.combinedImageSampler)
+        typeId = getImageTypeId(typeId);
+
+    return (spv::Dim)spirv[commonMap[typeId].instructionIndex + 3];
+}
+
+// Lookup the 'depth' operand in the image type
+bool SpvToTopTranslator::isImageDepth(spv::Id typeId) const
+{
+    if (commonMap[typeId].metaType.combinedImageSampler)
+        typeId = getImageTypeId(typeId);
+
+    return spirv[commonMap[typeId].instructionIndex + 4] != 0;
+}
+
+// Lookup the 'arrayed' operand in the image type
+bool SpvToTopTranslator::isImageArrayed(spv::Id typeId) const
+{
+    if (commonMap[typeId].metaType.combinedImageSampler)
+        typeId = getImageTypeId(typeId);
+
+    return spirv[commonMap[typeId].instructionIndex + 5] != 0;
+}
+
+// Lookup the 'Dim' operand in the image type
+bool SpvToTopTranslator::isImageMS(spv::Id typeId) const
+{
+    if (commonMap[typeId].metaType.combinedImageSampler)
+        typeId = getImageTypeId(typeId);
+
+    return (spv::Dim)(spirv[commonMap[typeId].instructionIndex + 6] != 0);
 }
 
 bool SpvToTopTranslator::inEntryPoint()

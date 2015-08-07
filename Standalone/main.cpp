@@ -40,8 +40,8 @@
 #include "glslang/Public/ShaderLang.h"
 #include "SPIRV/doc.h"
 #include "SPIRV/disassemble.h"
-#include "SPIRV/GLSL450Lib.h"
 #include "SPIRV/GlslangToSpv.h"
+#include "SPIRV/GLSL.std.450.h"
 
 // glslang StandAlone include
 #include "StandAlone/Worklist.h"
@@ -82,11 +82,6 @@ ShBinding FixedAttributeBindings[] = {
 };
 
 ShBindingTable FixedAttributeTable = { 3, FixedAttributeBindings };
-
-// An array of names used for printing SPIR-V human-readable assembly.
-// It's accessed implicitly by spv::disassemble.
-const char* GlslStd450DebugNames[GLSL_STD_450::Count];
-
 
 namespace {
 
@@ -638,7 +633,6 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
                     if (Options & EOptionHumanReadableSpv) {
                       std::cerr << "SPIR-V:" << std::endl;
                       spv::Parameterize();
-                      GLSL_STD_450::GetDebugNames(GlslStd450DebugNames);
                       spv::Disassemble(std::cerr, spirv);
                     }
                     gla::SpvToTop(spirv, manager);
@@ -886,7 +880,7 @@ int C_DECL main(int argc, char* argv[])
         std::string spirvVersion;
         glslang::GetSpirvVersion(spirvVersion);
         printf("SPIR-V Version %s\n", spirvVersion.c_str());
-        printf("GLSL.std.450 Version 99, Revision 1\n");
+        printf("GLSL.std.450 Version %d, Revision %d\n", GLSLstd450Version, GLSLstd450Revision);
     }
 
 #ifdef USE_DEPRECATED_GLSLANG
