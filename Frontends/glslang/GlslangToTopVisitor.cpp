@@ -113,7 +113,7 @@ protected:
     llvm::Value* createIntrinsic(glslang::TOperator op, gla::EMdPrecision, std::vector<llvm::Value*>& operands, bool isUnsigned);
     llvm::Value* createIntrinsic(glslang::TOperator op);
     void createPipelineRead(glslang::TIntermSymbol*, llvm::Value* storage, int slot, llvm::MDNode*);
-    void createPipelineSubread(const glslang::TType& glaType, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md,
+    void createPipelineSubread(const glslang::TType&, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md,
                                std::string& name, gla::EInterpolationMethod, gla::EInterpolationLocation);
     int assignSlot(glslang::TIntermSymbol* node, bool input, int& numSlots);
     llvm::Value* getSymbolStorage(const glslang::TIntermSymbol* node, bool& firstTime);
@@ -1115,7 +1115,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
         {
             glslang::TIntermTyped* typedNode = node->getSequence()[0]->getAsTyped();
             assert(typedNode);
-            llvm::Value* length = gla::MakeIntConstant(context, typedNode->getType().getArraySize());
+            llvm::Value* length = gla::MakeIntConstant(context, typedNode->getType().getOuterArraySize());
 
             glaBuilder->clearAccessChain();
             glaBuilder->setAccessChainRValue(length);
@@ -1550,8 +1550,10 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
             //
             // With the latter approach, glaType is already the type of the element, so there is nothing to do here.
             //
-        } else
-            glaType = llvm::ArrayType::get(glaType, type.getArraySize());
+        } else {
+            for (int d = type.getArraySizes()->getNumDims() - 1; d >= 0; --d)
+                glaType = llvm::ArrayType::get(glaType, type.getArraySizes()->getDimSize(d));
+        }
     }
 
     return glaType;
@@ -2639,20 +2641,18 @@ void TGlslangToTopTraverser::createPipelineRead(glslang::TIntermSymbol* node, ll
 }
 
 // Recursively read the input structure
-void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md, 
+void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& type, llvm::Value* storage, std::vector<llvm::Value*>& gepChain, int& slot, llvm::MDNode* md, 
                                                    std::string& name, gla::EInterpolationMethod method, gla::EInterpolationLocation location)
 {
     // gla types can be both arrays and matrices or arrays and structures at the same time;
     // make sure to process arrayness first, so it is stripped to get to elements
 
-    if (glaType.isArray()) {
+    if (type.isArray()) {
         // read the array elements, recursively
 
-        int arraySize = glaType.getArraySize();
+        int arraySize = type.getOuterArraySize();
 
-        glslang::TType elementType;
-        elementType.shallowCopy(glaType);  // TODO: desktop arrays of arrays functionality will need a deeper copy to avoid modifying the original
-        elementType.dereference();
+        glslang::TType elementType(type, 0);
 
         if (gepChain.size() == 0)
             gepChain.push_back(gla::MakeIntConstant(context, 0));
@@ -2663,7 +2663,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
         }
         if (gepChain.size() == 1)
             gepChain.pop_back();
-    } else if (const glslang::TTypeList* typeList = glaType.getStruct()) {
+    } else if (const glslang::TTypeList* typeList = type.getStruct()) {
         if (gepChain.size() == 0)
             gepChain.push_back(gla::MakeIntConstant(context, 0));
         for (int field = 0; field < (int)typeList->size(); ++field) {
@@ -2674,14 +2674,12 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
         if (gepChain.size() == 1)
             gepChain.pop_back();
         
-    } else if (glaType.isMatrix()) {
+    } else if (type.isMatrix()) {
         // Read the whole matrix now, one slot at a time.
 
-        int numColumns = glaType.getMatrixCols();            
+        int numColumns = type.getMatrixCols();            
         
-        glslang::TType columnType;
-        columnType.shallowCopy(glaType);
-        columnType.dereference();
+        glslang::TType columnType(type, 0);
         llvm::Type* readType = convertGlslangToGlaType(columnType);
 
         // fill in the whole aggregate shadow, slot by slot
@@ -2689,15 +2687,15 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& glaType
             gepChain.push_back(gla::MakeIntConstant(context, 0));
         for (int column = 0; column < numColumns; ++column, ++slot) {
             gepChain.push_back(gla::MakeIntConstant(context, column));               
-            llvm::Value* pipeRead = glaBuilder->readPipeline(GetMdPrecision(glaType), readType, name, slot, md, -1 /*mask*/, method, location);
+            llvm::Value* pipeRead = glaBuilder->readPipeline(GetMdPrecision(type), readType, name, slot, md, -1 /*mask*/, method, location);
             llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));                
             gepChain.pop_back();
         }
         if (gepChain.size() == 1)
             gepChain.pop_back();
     } else {
-        llvm::Type* readType = convertGlslangToGlaType(glaType);
-        llvm::Value* pipeRead = glaBuilder->readPipeline(GetMdPrecision(glaType), readType, name, slot, md, -1 /*mask*/, method, location);
+        llvm::Type* readType = convertGlslangToGlaType(type);
+        llvm::Value* pipeRead = glaBuilder->readPipeline(GetMdPrecision(type), readType, name, slot, md, -1 /*mask*/, method, location);
         ++slot;
         if (gepChain.size() > 0)
             llvmBuilder.CreateStore(pipeRead, glaBuilder->createGEP(storage, gepChain));
@@ -2738,7 +2736,7 @@ int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input,
     } else {
         numSlots = 1;
         if (type.isArray() && ! type.getQualifier().isArrayedIo(glslangIntermediate->getStage()))
-            numSlots = type.getArraySize();
+            numSlots = type.getOuterArraySize();
         if (type.isStruct() || type.isMatrix() || type.getBasicType() == glslang::EbtDouble)
             gla::UnsupportedFunctionality("complex I/O type; use new glslang C++ interface", gla::EATContinue);
     }
@@ -2798,15 +2796,11 @@ llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType&
     llvm::Type* type = convertGlslangToGlaType(glslangType);
 
     if (glslangType.isArray()) {
-        glslang::TType elementType;
-        elementType.shallowCopy(glslangType);   // TODO: desktop arrays of arrays functionality will need a deeper copy to avoid modifying the original
-        elementType.dereference();
-        for (int i = 0; i < glslangType.getArraySize(); ++i)
+        glslang::TType elementType(glslangType, 0);
+        for (int i = 0; i < glslangType.getOuterArraySize(); ++i)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(elementType, consts, nextConst)));
     } else if (glslangType.isMatrix()) {
-        glslang::TType vectorType;
-        vectorType.shallowCopy(glslangType);
-        vectorType.dereference();
+        glslang::TType vectorType(glslangType, 0);
         for (int col = 0; col < glslangType.getMatrixCols(); ++col)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(vectorType, consts, nextConst)));
     } else if (glslangType.getStruct()) {
