@@ -120,10 +120,11 @@ protected:
     llvm::Constant* createLLVMConstant(const glslang::TType& type, const glslang::TConstUnionArray&, int& nextConst);
     llvm::Value* MakePermanentTypeProxy(llvm::Type*, llvm::StringRef name);
     llvm::MDNode* declareUniformMetadata(glslang::TIntermSymbol* node, llvm::Value*);
-    llvm::MDNode* declareMdIo(llvm::StringRef symbolName, const glslang::TType&, llvm::Type* proxyType, llvm::StringRef proxyName, int slot, const char* kind = nullptr);
-    void declareChildMdIo(const glslang::TType& type, llvm::Type* proxyType, llvm::SmallVector<llvm::MDNode*, 10>& members);
+    llvm::MDNode* declareMdIo(llvm::StringRef symbolName, const glslang::TType&, llvm::Type* proxyType, llvm::StringRef proxyName, int slot,
+                              gla::EMdTypeLayout inheritMatrix, const char* kind = nullptr);
+    void declareChildMdIo(const glslang::TType& type, llvm::Type* proxyType, llvm::SmallVector<llvm::MDNode*, 10>& members, gla::EMdTypeLayout inheritMatrix);
     llvm::MDNode* makeMdSampler(const glslang::TType&, llvm::Type*, llvm::StringRef name);
-    llvm::MDNode* declareMdType(const glslang::TType&);
+    llvm::MDNode* declareMdType(const glslang::TType&, gla::EMdTypeLayout inheritMatrix);
     void setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot, int numSlots);
     llvm::MDNode* makeInputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot);
 
@@ -215,16 +216,37 @@ gla::EMdInputOutput GetMdQualifier(const glslang::TType& type)
     return mdQualifier;
 }
 
-gla::EMdTypeLayout GetMdTypeLayout(const glslang::TType& type)
+gla::EMdTypeLayout GetMdTypeLayout(const glslang::TType& type, gla::EMdTypeLayout& inheritMatrix)
 {
     gla::EMdTypeLayout mdType;
 
     if (type.isMatrix()) {
         switch (type.getQualifier().layoutMatrix) {
-        case glslang::ElmRowMajor: mdType = gla::EMtlRowMajorMatrix;   break;
-        default:                   mdType = gla::EMtlColMajorMatrix;   break;
+        case glslang::ElmRowMajor:
+            mdType = gla::EMtlRowMajorMatrix;
+            break;
+        case glslang::ElmColumnMajor:
+            mdType = gla::EMtlColMajorMatrix;
+            break;
+        default:
+            if (inheritMatrix != gla::EMtlNone)
+                mdType = inheritMatrix;
+            else
+                mdType = gla::EMtlColMajorMatrix;
+            break;
         }
     } else {
+        switch (type.getQualifier().layoutMatrix) {
+        case glslang::ElmRowMajor:
+            inheritMatrix = gla::EMtlRowMajorMatrix;
+            break;
+        case glslang::ElmColumnMajor:
+            inheritMatrix = gla::EMtlColMajorMatrix;
+            break;
+        default:
+            break;
+        }
+
         switch (type.getBasicType()) {
         default:                     mdType = gla::EMtlNone;       break;
         case glslang::EbtSampler:    mdType = gla::EMtlSampler;    break;
@@ -2840,9 +2862,10 @@ llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType&
     return glaBuilder->getConstant(llvmConsts, type);
 }
 
+// Make a type proxy that won't be optimized away (we still want the real llvm::Value to get optimized away when it can)
 llvm::Value* TGlslangToTopTraverser::MakePermanentTypeProxy(llvm::Type* type, llvm::StringRef name)
 {
-    // Make a type proxy that won't be optimized away (we still want the real llvm::Value to get optimized away when it can)
+    // bypass pointers
     while (type->getTypeID() == llvm::Type::PointerTyID)
         type = llvm::dyn_cast<llvm::PointerType>(type)->getContainedType(0);
 
@@ -2871,8 +2894,14 @@ llvm::MDNode* TGlslangToTopTraverser::makeMdSampler(const glslang::TType& type, 
         return 0;
 }
 
-// Make a !aggregate, hierarchically, in metadata, recursively, as per metadata.h.
-llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type)
+// Make a !aggregate, hierarchically, in metadata, as per metadata.h,
+// for either a block or a structure.
+// This function walks the hierarchicy recursively.
+// If a structure is used more than once in the hierarchy, it is walked more than once,
+// giving a chance to have different majorness (e.g.) each time (LLVM reuses MD nodes when it can).
+// 'inheritMatrix' will get corrected each time a top-level block member is visited,
+// and should then stay the same while visiting the substructure of that member.
+llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type, gla::EMdTypeLayout inheritMatrix)
 {
     // Figure out sampler information if it's a sampler
     llvm::MDNode* samplerMd = makeMdSampler(type, nullptr, "");
@@ -2886,7 +2915,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type)
         mdArgs.push_back(llvm::MDString::get(context, ""));
 
     // !typeLayout
-    mdArgs.push_back(metadata.makeMdTypeLayout(GetMdTypeLayout(type), GetMdPrecision(type), GetMdSlotLocation(type), samplerMd, -1, GetMdBuiltIn(type)));
+    mdArgs.push_back(metadata.makeMdTypeLayout(GetMdTypeLayout(type, inheritMatrix), GetMdPrecision(type), GetMdSlotLocation(type), samplerMd, -1, GetMdBuiltIn(type)));
 
     const glslang::TTypeList* typeList = type.getStruct();
     if (typeList) {
@@ -2899,7 +2928,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type)
             mdArgs.push_back(llvm::MDString::get(context, fieldType->getFieldName().c_str()));
             
             // type of member
-            llvm::MDNode* mdType = declareMdType(*fieldType);
+            llvm::MDNode* mdType = declareMdType(*fieldType, inheritMatrix);
             mdArgs.push_back(mdType);
         }
     }
@@ -2908,13 +2937,15 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type)
 }
 
 // Make a !gla.uniform/input/output node, as per metadata.h, selected by "kind"
+// Called at the block level.
+// If using useSingleTypeTree(), then it is mutually recursive with declareChildMdIo.
 llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, const glslang::TType& type, llvm::Type* proxyType, llvm::StringRef proxyName,
-                                                  int slot, const char* kind)
+                                                  int slot, gla::EMdTypeLayout inheritMatrix, const char* kind)
 {
     llvm::MDNode* samplerMd = makeMdSampler(type, proxyType, proxyName);
     gla::EInterpolationMode interpolationMode = -1;
     int location;
-    gla::EMdTypeLayout layout = GetMdTypeLayout(type);
+    gla::EMdTypeLayout layout = GetMdTypeLayout(type, inheritMatrix);
     gla::EMdInputOutput ioType = GetMdQualifier(type);
 
     switch (ioType) {
@@ -2942,7 +2973,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, 
         llvm::SmallVector<llvm::MDNode*, 10> members;
         if (type.getBasicType() == glslang::EbtStruct || type.getBasicType() == glslang::EbtBlock) {
             typeName = type.getTypeName().c_str();
-            declareChildMdIo(type, proxyType, members);
+            declareChildMdIo(type, proxyType, members, inheritMatrix);
         }
 
         // Make the !typeLayout for this level
@@ -2962,7 +2993,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, 
         // Make hierarchical type information (a recursive !aggregate node)
         llvm::MDNode* aggregate = nullptr;
         if (type.getBasicType() == glslang::EbtStruct || type.getBasicType() == glslang::EbtBlock)
-            aggregate = declareMdType(type);
+            aggregate = declareMdType(type, inheritMatrix);
 
         // Make the top-level !gla.uniform/input/output node that points to the recursive !aggregate node
         return metadata.makeMdInputOutput(instanceName, kind, ioType, MakePermanentTypeProxy(proxyType, proxyName),
@@ -2972,7 +3003,12 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, 
 }
 
 // Make a !gla.uniform/input/output child node, as per metadata.h
-void TGlslangToTopTraverser::declareChildMdIo(const glslang::TType& type, llvm::Type* proxyType, llvm::SmallVector<llvm::MDNode*, 10>& members)
+// Operates mutually recursively with declareMdIo().
+// If a structure is used more than once in the hierarchy, it is walked more than once,
+// giving a chance to have different majorness (e.g.) each time (LLVM reuses MD nodes when it can).
+// 'inheritMatrix' will get corrected each time a top-level block member is visited,
+// and should then stay the same while visiting the substructure of that member.
+void TGlslangToTopTraverser::declareChildMdIo(const glslang::TType& type, llvm::Type* proxyType, llvm::SmallVector<llvm::MDNode*, 10>& members, gla::EMdTypeLayout inheritMatrix)
 {
     const glslang::TTypeList* typeList = type.getStruct();
     if (typeList) {
@@ -2989,7 +3025,7 @@ void TGlslangToTopTraverser::declareChildMdIo(const glslang::TType& type, llvm::
                 continue;
             // build a child md node and add it as an argument
             members.push_back(declareMdIo(fieldType->getFieldName().c_str(), *fieldType, structType->getContainedType(nonHiddenCount), fieldType->getFieldName().c_str(),
-                                          GetMdSlotLocation(type)));
+                                          GetMdSlotLocation(type), inheritMatrix));
             ++nonHiddenCount;
         }
     }
@@ -3003,7 +3039,8 @@ llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(glslang::TIntermSym
     if (md)
         return md;
 
-    md = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), value->getType(), value->getName(), 0, gla::UniformListMdName);
+    gla::EMdTypeLayout inheritMatrix = gla::EMtlNone;
+    md = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), value->getType(), value->getName(), 0, inheritMatrix, gla::UniformListMdName);
     uniformMdMap[name] = md;
 
     if (linkageOnly)
@@ -3016,7 +3053,8 @@ llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(glslang::TIntermSym
 // output-variable cache in the gla builder.
 void TGlslangToTopTraverser::setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value* storage, int slot, int numSlots)
 {
-    llvm::MDNode* md = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), storage->getType(), storage->getName(), slot, gla::OutputListMdName);
+    gla::EMdTypeLayout inheritMatrix = gla::EMtlNone;
+    llvm::MDNode* md = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), storage->getType(), storage->getName(), slot, inheritMatrix, gla::OutputListMdName);
 
     if (node->getQualifier().invariant)
         module->getOrInsertNamedMetadata(gla::InvariantListMdName)->addOperand(md);
@@ -3032,7 +3070,8 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(glslang::TIntermSymbol* 
     llvm::MDNode* mdNode = inputMdMap[slot];
     if (mdNode == 0) {
         // set up metadata for pipeline intrinsic read
-        mdNode = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), value->getType(), value->getName(), slot, gla::InputListMdName);
+        gla::EMdTypeLayout inheritMatrix = gla::EMtlNone;
+        mdNode = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), value->getType(), value->getName(), slot, inheritMatrix, gla::InputListMdName);
         inputMdMap[slot] = mdNode;
         if (linkageOnly)
             metadata.addNoStaticUse(mdNode);
