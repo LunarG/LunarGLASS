@@ -1,0 +1,203 @@
+
+Top IR:
+; ModuleID = 'Glslang'
+
+%inName = type { <4 x float> }
+
+@gl_Layer = global i32 0
+@gl_PrimitiveID = global i32 0
+@gl_SampleID = global i32 0
+@gl_SamplePosition = global <2 x float> zeroinitializer
+@gl_SampleMaskIn = global [1 x i32] zeroinitializer
+@gl_SampleMask = global [1 x i32] zeroinitializer
+@gl_NumSamples = external addrspace(2) constant i32
+@inInst = global %inName zeroinitializer
+
+define fastcc void @main() {
+entry:
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
+  call void @"foo_GS("()
+  call void @"goodSample("()
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %mainBody
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc void @"foo_GS("() #0 {
+entry:
+  %p = alloca i32
+  %l = alloca i32
+  %l1 = load i32* @gl_Layer
+  store i32 %l1, i32* %l
+  %p2 = load i32* @gl_PrimitiveID
+  store i32 %p2, i32* %p
+  ret void
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc void @"goodSample("() #0 {
+entry:
+  %n2 = alloca i32
+  %n1 = alloca i32
+  %a3 = alloca i32
+  %a2 = alloca <2 x float>
+  %a1 = alloca i32
+  %a11 = load i32* @gl_SampleID
+  store i32 %a11, i32* %a1
+  %a22 = load <2 x float>* @gl_SamplePosition
+  store <2 x float> %a22, <2 x float>* %a2
+  %a33 = load i32* getelementptr inbounds ([1 x i32]* @gl_SampleMaskIn, i32 0, i32 0)
+  store i32 %a33, i32* %a3
+  %0 = load i32* %a3
+  store i32 %0, i32* getelementptr inbounds ([1 x i32]* @gl_SampleMask, i32 0, i32 0)
+  store i32 0, i32* %n1
+  %n24 = load i32 addrspace(2)* @gl_NumSamples, !gla.uniform !19
+  store i32 %n24, i32* %n2
+  ret void
+}
+
+attributes #0 = { alwaysinline }
+
+!gla.entrypoint = !{!0}
+!gla.inputs = !{!1, !3, !5, !7, !9, !11}
+!gla.outputs = !{!17}
+!gla.uniforms = !{!19}
+!gla.noStaticUse = !{!11}
+
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"gl_Layer", i32 1, i32* @gl_Layer_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 3, i32 1024, null, i32 0, i32 32}
+!3 = metadata !{metadata !"gl_PrimitiveID", i32 1, i32* @gl_PrimitiveID_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 3, i32 1025, null, i32 0, i32 31}
+!5 = metadata !{metadata !"gl_SampleID", i32 1, i32* @gl_SampleID_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 1, i32 1026, null, i32 0, i32 46}
+!7 = metadata !{metadata !"gl_SamplePosition", i32 1, <2 x float>* @gl_SamplePosition_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 2, i32 1027, null, i32 1, i32 47}
+!9 = metadata !{metadata !"gl_SampleMaskIn", i32 1, [1 x i32]* @gl_SampleMaskIn_typeProxy, metadata !10}
+!10 = metadata !{i32 0, i32 3, i32 1028, null, i32 0, i32 48}
+!11 = metadata !{metadata !"inInst", i32 17, %inName* @inInst_typeProxy, metadata !12, metadata !13}
+!12 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
+!13 = metadata !{metadata !"inName", metadata !14, metadata !"color", metadata !15}
+!14 = metadata !{i32 0, i32 0, i32 1024, null}
+!15 = metadata !{metadata !"", metadata !16}
+!16 = metadata !{i32 0, i32 3, i32 1024, null}
+!17 = metadata !{metadata !"gl_SampleMask", i32 7, [1 x i32]* @gl_SampleMask_typeProxy, metadata !18}
+!18 = metadata !{i32 0, i32 3, i32 1029, null, i32 0, i32 48}
+!19 = metadata !{metadata !"gl_NumSamples", i32 12, i32* @gl_NumSamples_typeProxy, metadata !20}
+!20 = metadata !{i32 0, i32 1, i32 1024, null}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+
+%inName = type { <4 x float> }
+
+@gl_Layer = global i32 0
+@gl_PrimitiveID = global i32 0
+@gl_SampleID = global i32 0
+@gl_SamplePosition = global <2 x float> zeroinitializer
+@gl_SampleMaskIn = global [1 x i32] zeroinitializer
+@gl_SampleMask = global [1 x i32] zeroinitializer
+@inInst = global %inName zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %gla_constGEP = getelementptr [1 x i32]* @gl_SampleMaskIn, i32 0, i32 0
+  %a33.i = load i32* %gla_constGEP, align 4
+  %gla_constGEP1 = getelementptr [1 x i32]* @gl_SampleMask, i32 0, i32 0
+  store i32 %a33.i, i32* %gla_constGEP1, align 4
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+!gla.entrypoint = !{!0}
+!gla.inputs = !{!1, !3, !5, !7, !9, !11}
+!gla.outputs = !{!17}
+!gla.uniforms = !{!19}
+!gla.noStaticUse = !{!11}
+
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"gl_Layer", i32 1, i32* @gl_Layer_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 3, i32 1024, null, i32 0, i32 32}
+!3 = metadata !{metadata !"gl_PrimitiveID", i32 1, i32* @gl_PrimitiveID_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 3, i32 1025, null, i32 0, i32 31}
+!5 = metadata !{metadata !"gl_SampleID", i32 1, i32* @gl_SampleID_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 1, i32 1026, null, i32 0, i32 46}
+!7 = metadata !{metadata !"gl_SamplePosition", i32 1, <2 x float>* @gl_SamplePosition_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 2, i32 1027, null, i32 1, i32 47}
+!9 = metadata !{metadata !"gl_SampleMaskIn", i32 1, [1 x i32]* @gl_SampleMaskIn_typeProxy, metadata !10}
+!10 = metadata !{i32 0, i32 3, i32 1028, null, i32 0, i32 48}
+!11 = metadata !{metadata !"inInst", i32 17, %inName* @inInst_typeProxy, metadata !12, metadata !13}
+!12 = metadata !{i32 0, i32 0, i32 1030, null, i32 0}
+!13 = metadata !{metadata !"inName", metadata !14, metadata !"color", metadata !15}
+!14 = metadata !{i32 0, i32 0, i32 1024, null}
+!15 = metadata !{metadata !"", metadata !16}
+!16 = metadata !{i32 0, i32 3, i32 1024, null}
+!17 = metadata !{metadata !"gl_SampleMask", i32 7, [1 x i32]* @gl_SampleMask_typeProxy, metadata !18}
+!18 = metadata !{i32 0, i32 3, i32 1029, null, i32 0, i32 48}
+!19 = metadata !{metadata !"gl_NumSamples", i32 12, i32* @gl_NumSamples_typeProxy, metadata !20}
+!20 = metadata !{i32 0, i32 1, i32 1024, null}
+#version 310 es
+// LunarGOO output
+#extension GL_ANDROID_extension_pack_es31a : enable
+#extension GL_EXT_geometry_shader : enable
+#extension GL_EXT_gpu_shader5 : enable
+#extension GL_EXT_primitive_bounding_box : enable
+#extension GL_EXT_shader_io_blocks : enable
+#extension GL_EXT_tessellation_shader : enable
+#extension GL_EXT_texture_buffer : enable
+#extension GL_EXT_texture_cube_map_array : enable
+#extension GL_KHR_blend_equation_advanced : enable
+#extension GL_OES_sample_variables : enable
+#extension GL_OES_shader_image_atomic : enable
+#extension GL_OES_shader_multisample_interpolation : enable
+#extension GL_OES_texture_storage_multisample_2d_array : enable
+precision mediump float; // this will be almost entirely overridden by individual declarations
+in inName {
+	highp vec4 color;
+} inInst;
+
+void main()
+{
+	gl_SampleMask[0] = gl_SampleMaskIn[0];
+	
+}
+
+#version 310 es
+// LunarGOO output
+#extension GL_ANDROID_extension_pack_es31a : enable
+#extension GL_EXT_geometry_shader : enable
+#extension GL_EXT_gpu_shader5 : enable
+#extension GL_EXT_primitive_bounding_box : enable
+#extension GL_EXT_shader_io_blocks : enable
+#extension GL_EXT_tessellation_shader : enable
+#extension GL_EXT_texture_buffer : enable
+#extension GL_EXT_texture_cube_map_array : enable
+#extension GL_KHR_blend_equation_advanced : enable
+#extension GL_OES_sample_variables : enable
+#extension GL_OES_shader_image_atomic : enable
+#extension GL_OES_shader_multisample_interpolation : enable
+#extension GL_OES_texture_storage_multisample_2d_array : enable
+precision mediump float; // this will be almost entirely overridden by individual declarations
+in inName {
+	highp vec4 color;
+} inInst;
+
+void main()
+{
+	gl_SampleMask[0] = gl_SampleMaskIn[0];
+	
+}
+
