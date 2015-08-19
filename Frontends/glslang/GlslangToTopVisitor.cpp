@@ -100,10 +100,11 @@ protected:
     void makeFunctions(const glslang::TIntermSequence&);
     void handleFunctionEntry(const glslang::TIntermAggregate* node);
     void translateArguments(const glslang::TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments);
-    llvm::Value* handleBuiltinFunctionCall(const glslang::TIntermAggregate*);
-    llvm::Value* handleTexImageQuery(const glslang::TIntermAggregate*, const std::vector<llvm::Value*>& arguments, gla::ESamplerType);
-    llvm::Value* handleImageAccess(const glslang::TIntermAggregate*, const std::vector<llvm::Value*>& arguments, gla::ESamplerType, int flags);
-    llvm::Value* handleTextureAccess(const glslang::TIntermAggregate*, const std::vector<llvm::Value*>& arguments, gla::ESamplerType, int flags);
+    void translateArguments(glslang::TIntermUnary&, std::vector<llvm::Value*>& arguments);
+    llvm::Value* handleTextureCall(glslang::TIntermOperator*);
+    llvm::Value* handleTexImageQuery(const glslang::TIntermOperator*, const glslang::TCrackedTextureOp&, const std::vector<llvm::Value*>& arguments, gla::ESamplerType);
+    llvm::Value* handleImageAccess(const glslang::TIntermOperator*, const glslang::TCrackedTextureOp&, const std::vector<llvm::Value*>& arguments, gla::ESamplerType, int flags);
+    llvm::Value* handleTextureAccess(const glslang::TIntermOperator*, const glslang::TCrackedTextureOp&, const std::vector<llvm::Value*>& arguments, gla::ESamplerType, int flags);
     llvm::Value* handleUserFunctionCall(const glslang::TIntermAggregate*);
 
     llvm::Value* createBinaryOperation(glslang::TOperator op, gla::EMdPrecision, llvm::Value* left, llvm::Value* right, bool isUnsigned, bool reduceComparison = true);
@@ -837,6 +838,14 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
 
 bool TGlslangToTopTraverser::visitUnary(glslang::TVisit /* visit */, glslang::TIntermUnary* node)
 {
+    // try texturing first
+    llvm::Value* result = handleTextureCall(node);
+    if (result != nullptr) {
+        glaBuilder->clearAccessChain();
+        glaBuilder->setAccessChainRValue(result);
+        return false;
+    }
+
     glaBuilder->clearAccessChain();
     node->getOperand()->traverse(this);
     llvm::Value* operand = glaBuilder->accessChainLoad(GetMdPrecision(node->getOperand()->getType()));
@@ -844,7 +853,7 @@ bool TGlslangToTopTraverser::visitUnary(glslang::TVisit /* visit */, glslang::TI
     gla::EMdPrecision precision = GetMdPrecision(node->getType());
 
     // it could be a conversion
-    llvm::Value* result = createConversion(node->getOp(), precision, convertGlslangToGlaType(node->getType()), operand);
+    result = createConversion(node->getOp(), precision, convertGlslangToGlaType(node->getType()), operand);
 
     // if not, then possibly an operation
     if (! result)
@@ -903,7 +912,14 @@ bool TGlslangToTopTraverser::visitUnary(glslang::TVisit /* visit */, glslang::TI
 
 bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TIntermAggregate* node)
 {
-    llvm::Value* result;
+    // try texturing first
+    llvm::Value* result = handleTextureCall(node);
+    if (result != nullptr) {
+        glaBuilder->clearAccessChain();
+        glaBuilder->setAccessChainRValue(result);
+        return false;
+    }
+
     glslang::TOperator binOp = glslang::EOpNull;
     bool reduceComparison = true;
     bool isMatrix = false;
@@ -976,8 +992,6 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
         {
             if (node->isUserDefined())
                 result = handleUserFunctionCall(node);
-            else
-                result = handleBuiltinFunctionCall(node);
 
             if (! result) {
                 gla::UnsupportedFunctionality("glslang function call");
@@ -1141,6 +1155,23 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
 
             glaBuilder->clearAccessChain();
             glaBuilder->setAccessChainRValue(length);
+        }
+        return false;
+
+    case glslang::EOpFtransform:
+        {
+            // TODO: back-end functionality: if this needs to support decomposition, need to simulate
+            // access to the external gl_Vertex and gl_ModelViewProjectionMatrix.
+            // For now, pass in dummy arguments, which are thrown away anyway
+            // if ftransform is consumed by the backend without decomposition.
+            llvm::Value* vertex = glaBuilder->createVariable(gla::Builder::ESQGlobal, 0, llvm::VectorType::get(gla::GetFloatType(context), 4),
+                                                                         0, 0, "gl_Vertex_sim");
+            llvm::Value* matrix = glaBuilder->createVariable(gla::Builder::ESQGlobal, 0, llvm::VectorType::get(gla::GetFloatType(context), 4),
+                                                                         0, 0, "gl_ModelViewProjectionMatrix_sim");
+
+            result = glaBuilder->createIntrinsicCall(GetMdPrecision(node->getType()), llvm::Intrinsic::gla_fFixedTransform, glaBuilder->createLoad(vertex), glaBuilder->createLoad(matrix));
+            glaBuilder->clearAccessChain();
+            glaBuilder->setAccessChainRValue(result);
         }
         return false;
 
@@ -1640,68 +1671,70 @@ void TGlslangToTopTraverser::translateArguments(const glslang::TIntermSequence& 
     }
 }
 
-llvm::Value* TGlslangToTopTraverser::handleBuiltinFunctionCall(const glslang::TIntermAggregate* node)
+void TGlslangToTopTraverser::translateArguments(glslang::TIntermUnary& glslangArgument, std::vector<llvm::Value*>& arguments)
 {
-    std::vector<llvm::Value*> arguments;
-    translateArguments(node->getSequence(), arguments);
-
-    if (node->getName() == "ftransform(") {
-        // TODO: back-end functionality: if this needs to support decomposition, need to simulate
-        // access to the external gl_Vertex and gl_ModelViewProjectionMatrix.
-        // For now, pass in dummy arguments, which are thrown away anyway
-        // if ftransform is consumed by the backend without decomposition.
-        llvm::Value* vertex = glaBuilder->createVariable(gla::Builder::ESQGlobal, 0, llvm::VectorType::get(gla::GetFloatType(context), 4),
-                                                                     0, 0, "gl_Vertex_sim");
-        llvm::Value* matrix = glaBuilder->createVariable(gla::Builder::ESQGlobal, 0, llvm::VectorType::get(gla::GetFloatType(context), 4),
-                                                                     0, 0, "gl_ModelViewProjectionMatrix_sim");
-
-        return glaBuilder->createIntrinsicCall(GetMdPrecision(node->getType()), llvm::Intrinsic::gla_fFixedTransform, glaBuilder->createLoad(vertex), glaBuilder->createLoad(matrix));
-    }
-
-    if (node->getName().substr(0, 7) == "texture" || node->getName().substr(0, 5) == "texel" || node->getName().substr(0, 6) == "shadow" ||
-        node->getName().substr(0, 5) == "image") {
-        const glslang::TSampler& sampler = node->getSequence()[0]->getAsTyped()->getType().getSampler();
-        gla::ESamplerType samplerType;
-        switch (sampler.dim) {
-        case glslang::Esd1D:       samplerType = gla::ESampler1D;      break;
-        case glslang::Esd2D:       samplerType = gla::ESampler2D;      break;
-        case glslang::Esd3D:       samplerType = gla::ESampler3D;      break;
-        case glslang::EsdCube:     samplerType = gla::ESamplerCube;    break;
-        case glslang::EsdRect:     samplerType = gla::ESampler2DRect;  break;
-        case glslang::EsdBuffer:   samplerType = gla::ESamplerBuffer;  break;
-        default:
-            gla::UnsupportedFunctionality("sampler type");
-            break;
-        }
-        if (sampler.ms)
-            samplerType = gla::ESampler2DMS;
-
-        if (node->getName().find("Size", 0) != std::string::npos ||
-            node->getName().find("Query", 0) != std::string::npos)
-            return handleTexImageQuery(node, arguments, samplerType);
-
-        int texFlags = 0;
-
-        if (sampler.arrayed)
-            texFlags |= gla::ETFArrayed;
-
-        if (sampler.shadow)
-            texFlags |= gla::ETFShadow;
-
-        if (sampler.image)
-            return handleImageAccess(node, arguments, samplerType, texFlags);
-        else
-            return handleTextureAccess(node, arguments, samplerType, texFlags);
-    }
-
-    return 0;
+    glaBuilder->clearAccessChain();
+    glslangArgument.getOperand()->traverse(this);
+    arguments.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangArgument.getAsTyped()->getType())));
 }
 
-llvm::Value* TGlslangToTopTraverser::handleTexImageQuery(const glslang::TIntermAggregate* node, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType)
+llvm::Value* TGlslangToTopTraverser::handleTextureCall(glslang::TIntermOperator* node)
+{
+    if (! node->isImage() && ! node->isTexture())
+        return nullptr;
+
+    std::vector<llvm::Value*> arguments;
+    if (node->getAsAggregate())
+        translateArguments(node->getAsAggregate()->getSequence(), arguments);
+    else
+        translateArguments(*node->getAsUnaryNode(), arguments);
+
+    const glslang::TSampler sampler = node->getAsAggregate() ? node->getAsAggregate()->getSequence()[0]->getAsTyped()->getType().getSampler()
+                                                             : node->getAsUnaryNode()->getOperand()->getAsTyped()->getType().getSampler();
+
+    gla::ESamplerType samplerType;
+    switch (sampler.dim) {
+    case glslang::Esd1D:       samplerType = gla::ESampler1D;      break;
+    case glslang::Esd2D:       samplerType = gla::ESampler2D;      break;
+    case glslang::Esd3D:       samplerType = gla::ESampler3D;      break;
+    case glslang::EsdCube:     samplerType = gla::ESamplerCube;    break;
+    case glslang::EsdRect:     samplerType = gla::ESampler2DRect;  break;
+    case glslang::EsdBuffer:   samplerType = gla::ESamplerBuffer;  break;
+    default:
+        gla::UnsupportedFunctionality("sampler type");
+        break;
+    }
+    if (sampler.ms)
+        samplerType = gla::ESampler2DMS;
+
+    glslang::TCrackedTextureOp cracked;
+    node->crackTexture(cracked);
+
+    if (cracked.query || node->getOp() == glslang::EOpImageQuerySize || node->getOp() == glslang::EOpImageQuerySamples)
+        return handleTexImageQuery(node, cracked, arguments, samplerType);
+
+    int texFlags = 0;
+
+    if (sampler.arrayed)
+        texFlags |= gla::ETFArrayed;
+
+    if (sampler.shadow)
+        texFlags |= gla::ETFShadow;
+
+    if (sampler.image)
+        return handleImageAccess(node, cracked, arguments, samplerType, texFlags);
+    else
+        return handleTextureAccess(node, cracked, arguments, samplerType, texFlags);
+}
+
+llvm::Value* TGlslangToTopTraverser::handleTexImageQuery(const glslang::TIntermOperator* node, const glslang::TCrackedTextureOp& cracked, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType)
 {
     gla::EMdPrecision precision = GetMdPrecision(node->getType());
 
-    if (node->getName().find("Size", 0) != std::string::npos) {
+    switch (node->getOp()) {
+    case glslang::EOpTextureQuerySize:
+    case glslang::EOpImageQuerySize:
+    {
         llvm::Value* lastArg;
         llvm::Intrinsic::ID intrinsicID;
 
@@ -1720,52 +1753,47 @@ llvm::Value* TGlslangToTopTraverser::handleTexImageQuery(const glslang::TIntermA
                                                   MakeIntConstant(context, samplerType),
                                                   arguments[0], lastArg, leftName);
     }
-
-    if (node->getName().find("Query", 0) != std::string::npos) {
-        if (node->getName().find("Lod", 0) != std::string::npos) {
-            gla::UnsupportedFunctionality("textureQueryLod");
-            return glaBuilder->createTextureQueryCall(precision,
-                                                      llvm::Intrinsic::gla_fQueryTextureLod,
-                                                      convertGlslangToGlaType(node->getType()), 
-                                                      MakeIntConstant(context, samplerType), 
-                                                      arguments[0], arguments[1], leftName);
-        } else if (node->getName().find("Levels", 0) != std::string::npos)
-            gla::UnsupportedFunctionality("textureQueryLevels");
+    case glslang::EOpTextureQueryLod:
+    {
+        gla::UnsupportedFunctionality("textureQueryLod");
+        return glaBuilder->createTextureQueryCall(precision,
+                                                    llvm::Intrinsic::gla_fQueryTextureLod,
+                                                    convertGlslangToGlaType(node->getType()), 
+                                                    MakeIntConstant(context, samplerType), 
+                                                    arguments[0], arguments[1], leftName);
     }
-
-    return 0;
+    case glslang::EOpTextureQueryLevels:
+        gla::UnsupportedFunctionality("textureQueryLevels");
+        return nullptr;
+    default:
+        gla::UnsupportedFunctionality("texture/image query");
+        return nullptr;
+    }
 }
 
-llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermAggregate* node, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType, int texFlags)
+llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermOperator* node, const glslang::TCrackedTextureOp& cracked, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType, int texFlags)
 {
     // set the arguments
     gla::Builder::TextureParameters params = {};
     params.ETPSampler = arguments[0];
     params.ETPCoords = arguments[1];
 
-    gla::EImageOp imageOp;
-    if (node->getName().find("Load", 0) != std::string::npos)
-        imageOp = gla::EImageLoad;
-    else if (node->getName().find("Store", 0) != std::string::npos)
-        imageOp = gla::EImageStore;
-    else if (node->getName().find("AtomicAdd", 0) != std::string::npos)
-        imageOp = gla::EImageAtomicAdd;
-    else if (node->getName().find("AtomicMin", 0) != std::string::npos)
-        imageOp = gla::EImageAtomicMin;
-    else if (node->getName().find("AtomicMax", 0) != std::string::npos)
-        imageOp = gla::EImageAtomicMax;
-    else if (node->getName().find("AtomicAnd", 0) != std::string::npos)
-        imageOp = gla::EImageAtomicAnd;
-    else if (node->getName().find("AtomicOr", 0) != std::string::npos)
-        imageOp = gla::EImageAtomicOr;
-    else if (node->getName().find("AtomicXor", 0) != std::string::npos)
-        imageOp = gla::EImageAtomicXor;
-    else if (node->getName().find("AtomicExchange", 0) != std::string::npos)
-        imageOp = gla::EImageAtomicExchange;
-    else if (node->getName().find("AtomicCompSwap", 0) != std::string::npos)
-        imageOp = gla::EImageAtomicCompSwap;
-    else
+    gla::EImageOp imageOp = gla::EImageNoop;
+    switch (node->getOp()) {
+    case glslang::EOpImageLoad:           imageOp = gla::EImageLoad;           break;
+    case glslang::EOpImageStore:          imageOp = gla::EImageStore;          break;
+    case glslang::EOpImageAtomicAdd:      imageOp = gla::EImageAtomicAdd;      break;
+    case glslang::EOpImageAtomicMin:      imageOp = gla::EImageAtomicMin;      break;
+    case glslang::EOpImageAtomicMax:      imageOp = gla::EImageAtomicMax;      break;
+    case glslang::EOpImageAtomicAnd:      imageOp = gla::EImageAtomicAnd;      break;
+    case glslang::EOpImageAtomicOr:       imageOp = gla::EImageAtomicOr;       break;
+    case glslang::EOpImageAtomicXor:      imageOp = gla::EImageAtomicXor;      break;
+    case glslang::EOpImageAtomicExchange: imageOp = gla::EImageAtomicExchange; break;
+    case glslang::EOpImageAtomicCompSwap: imageOp = gla::EImageAtomicCompSwap; break;
+    default:
         gla::UnsupportedFunctionality("image access");
+        break;
+    }
 
     texFlags |= (imageOp << gla::ImageOpShift);
 
@@ -1775,23 +1803,24 @@ llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermAgg
     return glaBuilder->createImageCall(GetMdPrecision(node->getType()), convertGlslangToGlaType(node->getType()), samplerType, texFlags, params, leftName);
 }
 
-llvm::Value* TGlslangToTopTraverser::handleTextureAccess(const glslang::TIntermAggregate* node, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType, int texFlags)
+llvm::Value* TGlslangToTopTraverser::handleTextureAccess(const glslang::TIntermOperator* node, const glslang::TCrackedTextureOp& cracked, 
+                                                         const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType, int texFlags)
 {
-    if (node->getName().find("Lod", 0) != std::string::npos) {
+    if (cracked.lod) {
         texFlags |= gla::ETFLod;
         texFlags |= gla::ETFBiasLodArg;
     }
 
-    if (node->getName().find("Proj", 0) != std::string::npos)
+    if (cracked.proj)
         texFlags |= gla::ETFProjected;
 
-    if (node->getName().find("Offset", 0) != std::string::npos) {
+    if (cracked.offset || cracked.offsets) {
         texFlags |= gla::ETFOffsetArg;
-        if (node->getName().find("Offsets", 0) != std::string::npos)
+        if (cracked.offsets)
             texFlags |= gla::ETFOffsets;
     }
 
-    if (node->getName().find("Fetch", 0) != std::string::npos) {
+    if (cracked.fetch) {
         texFlags |= gla::ETFFetch;
         switch (samplerType) {
         case gla::ESampler1D:
@@ -1807,7 +1836,7 @@ llvm::Value* TGlslangToTopTraverser::handleTextureAccess(const glslang::TIntermA
         }
     }
 
-    if (node->getName().find("Gather", 0) != std::string::npos) {
+    if (cracked.gather) {
         texFlags |= gla::ETFGather;
         if (texFlags & gla::ETFShadow)
             texFlags |= gla::ETFRefZArg;
@@ -1820,7 +1849,7 @@ llvm::Value* TGlslangToTopTraverser::handleTextureAccess(const glslang::TIntermA
             ++nonBiasArgCount;
         if (texFlags & gla::ETFBiasLodArg)
             ++nonBiasArgCount;
-        if (node->getName().find("Grad", 0) != std::string::npos)
+        if (cracked.grad)
             nonBiasArgCount += 2;
 
         if ((int)arguments.size() > nonBiasArgCount) {
@@ -1847,7 +1876,7 @@ llvm::Value* TGlslangToTopTraverser::handleTextureAccess(const glslang::TIntermA
         params.ETPBiasLod = arguments[2];
         ++extraArgs;
     }
-    if (node->getName().find("Grad", 0) != std::string::npos) {
+    if (cracked.grad) {
         params.ETPGradX = arguments[2 + extraArgs];
         params.ETPGradY = arguments[3 + extraArgs];
         extraArgs += 2;
