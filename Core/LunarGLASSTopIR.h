@@ -89,10 +89,7 @@ namespace gla {
         ETFRefZArg      = 0x00000800,
         ETFProjectedArg = 0x00001000,
         ETFOffsets      = 0x00002000,  // means offset argument is an array that needs to be broken up
-        //ETF           = 0x00008000,  // placeholder for future growth
-        ETFImageOp      = 0x000F0000,  // wide slot to hold an EImageOp value, see ImageOpShift below and EImageOp above
     };
-    static const int ImageOpShift = 16;
 
     // Texture op, for mapping operands
     enum ETextureOperand {

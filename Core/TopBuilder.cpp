@@ -1714,8 +1714,7 @@ llvm::Value* Builder::smearScalar(gla::EMdPrecision precision, llvm::Value* scal
     return createSwizzle(precision, scalar, 0x00, vectorType);
 }
 
-// Accept all parameters needed to create LunarGLASS texture intrinsics.
-// Select the correct intrinsic based on the inputs, and make the call.
+// Comments in header
 llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type* resultType, gla::ESamplerType samplerType, int texFlags, const TextureParameters& parameters, const char* name)
 {
     bool floatReturn = gla::GetBasicType(resultType)->isFloatTy();
@@ -1928,40 +1927,55 @@ llvm::Value* Builder::createTextureCall(gla::EMdPrecision precision, llvm::Type*
     return instr;
 }
 
-// Accept all parameters needed to create LunarGLASS image intrinsics.
-// Select the correct intrinsic based on the inputs, and make the call.
-llvm::Value* Builder::createImageCall(gla::EMdPrecision precision, llvm::Type* resultType, gla::ESamplerType samplerType, int texFlags,
+// Comments in header
+llvm::Value* Builder::createImageCall(gla::EMdPrecision precision, llvm::Type* resultType, gla::ESamplerType samplerType, EImageOp imageOp,
                                       const TextureParameters& parameters, const char* name)
 {
     name = name ? name : "image";
 
     // Max args based on LunarGLASS TopIR, no SOA
-    static const int maxArgs = 6;
+    static const int maxArgs = 5;
     llvm::Value* imageArgs[maxArgs] = {};
 
     // Base case: First arguments are fixed
-    int numArgs = 4;
-    imageArgs[GetTextureOpIndex(ETOSamplerType)] = MakeIntConstant(context, samplerType);
-    imageArgs[GetTextureOpIndex(ETOSamplerLoc)]  = parameters.ETPSampler;
-    imageArgs[GetTextureOpIndex(ETOFlag)]        = MakeUnsignedConstant(context, *(int*)&texFlags);
-    imageArgs[GetTextureOpIndex(ETOCoord)]       = parameters.ETPCoords;
+    int numArgs = 3;
+    imageArgs[0] = MakeIntConstant(context, samplerType);
+    imageArgs[1] = parameters.ETPSampler;
+    imageArgs[2] = parameters.ETPCoords;
 
     // Add the data argument if needed, and select which intrinsic to call.
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::not_intrinsic;
-    switch ((texFlags & ETFImageOp) >> ImageOpShift) {
+    switch (imageOp) {
     case EImageAtomicAdd:
     case EImageAtomicMin:
     case EImageAtomicMax:
     case EImageAtomicAnd:
     case EImageAtomicOr:
     case EImageAtomicXor:
-    case EImageAtomicExchange:        
-        intrinsicID = llvm::Intrinsic::gla_imageOp;
+        imageArgs[numArgs] = parameters.ETPData;
+        ++numArgs;
+        switch (imageOp) {
+        case EImageAtomicAdd:   intrinsicID = llvm::Intrinsic::gla_imageAtomicAdd;  break;
+        case EImageAtomicMin:   intrinsicID = llvm::Intrinsic::gla_imageAtomicMin;  break;
+        case EImageAtomicMax:   intrinsicID = llvm::Intrinsic::gla_imageAtomicMax;  break;
+        case EImageAtomicAnd:   intrinsicID = llvm::Intrinsic::gla_imageAtomicAnd;  break;
+        case EImageAtomicOr:    intrinsicID = llvm::Intrinsic::gla_imageAtomicOr;   break;
+        case EImageAtomicXor:   intrinsicID = llvm::Intrinsic::gla_imageAtomicXor;  break;
+        default:
+            assert(0);
+            break;
+        }
+        break;
+    case EImageAtomicExchange:
+        if (gla::GetBasicType(resultType)->isFloatTy())
+            intrinsicID = llvm::Intrinsic::gla_fImageAtomicExchange;
+        else
+            intrinsicID = llvm::Intrinsic::gla_iImageAtomicExchange;
         imageArgs[numArgs] = parameters.ETPData;
         ++numArgs;
         break;
     case EImageAtomicCompSwap:
-        intrinsicID = llvm::Intrinsic::gla_imageOp;
+        intrinsicID = llvm::Intrinsic::gla_imageAtomicCompExchange;
         imageArgs[numArgs] = parameters.ETPCompare;
         ++numArgs;
         imageArgs[numArgs] = parameters.ETPData;
@@ -1990,19 +2004,27 @@ llvm::Value* Builder::createImageCall(gla::EMdPrecision precision, llvm::Type* r
 
     // Initialize required operands based on intrinsic
     switch (intrinsicID) {
+
+    // both result and coord are varying type
     case llvm::Intrinsic::gla_fImageLoad:
     case llvm::Intrinsic::gla_imageLoad:
-        intrinsic = getIntrinsic(intrinsicID, resultType, imageArgs[GetTextureOpIndex(ETOCoord)]->getType());
+        intrinsic = getIntrinsic(intrinsicID, resultType, imageArgs[2]->getType());
         break;
 
+    // only the coord is varying type
     case llvm::Intrinsic::gla_imageStoreF:
     case llvm::Intrinsic::gla_imageStoreI:
+    case llvm::Intrinsic::gla_imageAtomicAdd:
+    case llvm::Intrinsic::gla_imageAtomicMin:
+    case llvm::Intrinsic::gla_imageAtomicMax:
+    case llvm::Intrinsic::gla_imageAtomicAnd:
+    case llvm::Intrinsic::gla_imageAtomicOr: 
+    case llvm::Intrinsic::gla_imageAtomicXor:
+    case llvm::Intrinsic::gla_fImageAtomicExchange:
+    case llvm::Intrinsic::gla_iImageAtomicExchange:
+    case llvm::Intrinsic::gla_imageAtomicCompExchange:
         name = 0;
-        intrinsic = getIntrinsic(intrinsicID, imageArgs[GetTextureOpIndex(ETOCoord)]->getType());
-        break;
-
-    case llvm::Intrinsic::gla_imageOp:
-        intrinsic = getIntrinsic(intrinsicID, imageArgs[GetTextureOpIndex(ETOCoord)]->getType());
+        intrinsic = getIntrinsic(intrinsicID, imageArgs[2]->getType());
         break;
 
     default:

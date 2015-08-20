@@ -2992,7 +2992,6 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     // Handle texturing
     bool gather = false;
     bool refZemitted = false;
-    bool load = false;
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_queryTextureSize:
     case llvm::Intrinsic::gla_queryTextureSizeNoLod:
@@ -3032,22 +3031,28 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
 
     case llvm::Intrinsic::gla_imageLoad:
     case llvm::Intrinsic::gla_fImageLoad:
-        load = true;
-        // fall through
     case llvm::Intrinsic::gla_imageStoreI:
     case llvm::Intrinsic::gla_imageStoreF:
-    case llvm::Intrinsic::gla_imageOp:
+    case llvm::Intrinsic::gla_imageAtomicAdd:
+    case llvm::Intrinsic::gla_imageAtomicMin:
+    case llvm::Intrinsic::gla_imageAtomicMax:
+    case llvm::Intrinsic::gla_imageAtomicAnd:
+    case llvm::Intrinsic::gla_imageAtomicOr: 
+    case llvm::Intrinsic::gla_imageAtomicXor:
+    case llvm::Intrinsic::gla_iImageAtomicExchange:
+    case llvm::Intrinsic::gla_fImageAtomicExchange:
+    case llvm::Intrinsic::gla_imageAtomicCompExchange:
     {
         bool needConversion = samplerIsUint(llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
         if (needConversion)
             ConversionStart(assignment, llvmInstruction->getType(), false);
-        emitGlaSamplerFunction(assignment, llvmInstruction, GetConstantInt(llvmInstruction->getOperand(GetTextureOpIndex(ETOFlag))));
+        emitGlaSamplerFunction(assignment, llvmInstruction, 0);
         assignment << "(";
-        emitGlaOperand(assignment, llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
+        emitGlaOperand(assignment, llvmInstruction->getOperand(1));
         assignment << ", ";
-        emitGlaOperand(assignment, llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
+        emitGlaOperand(assignment, llvmInstruction->getOperand(2));
 
-        for (int op = GetTextureOpIndex(ETOCoord) + 1; op < (int)llvmInstruction->getNumOperands() - 1; ++op) {
+        for (int op = 3; op < (int)llvmInstruction->getNumOperands() - 1; ++op) {
             assignment << ", ";
             emitGlaOperand(assignment, llvmInstruction->getOperand(op));
         }
@@ -3694,26 +3699,23 @@ void gla::GlslTarget::emitGlaSamplerFunction(std::ostringstream& out, const llvm
 
     // TODO: uint functionality: See if it's a uint sampler, requiring a constructor to convert it
 
-    int imageOp = (texFlags & ETFImageOp) >> ImageOpShift;
-    if (imageOp) {
-        switch (imageOp) {
-        case EImageLoad:           out << "imageLoad";           break;
-        case EImageStore:          out << "imageStore";          break;
-        case EImageAtomicAdd:      out << "imageAtomicAdd";      break;
-        case EImageAtomicMin:      out << "imageAtomicMin";      break;
-        case EImageAtomicMax:      out << "imageAtomicMax";      break;
-        case EImageAtomicAnd:      out << "imageAtomicAnd";      break;
-        case EImageAtomicOr:       out << "imageAtomicOr";       break;
-        case EImageAtomicXor:      out << "imageAtomicXor";      break;
-        case EImageAtomicExchange: out << "imageAtomicExchange"; break;
-        case EImageAtomicCompSwap: out << "imageAtomicCompSwap"; break;
-        default:
-            UnsupportedFunctionality("image op");
-            break;
-        }
-
-        return;
-    }
+    switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_imageLoad:
+    case llvm::Intrinsic::gla_fImageLoad:              out << "imageLoad";           return;
+    case llvm::Intrinsic::gla_imageStoreI:
+    case llvm::Intrinsic::gla_imageStoreF:             out << "imageStore";          return;
+    case llvm::Intrinsic::gla_imageAtomicAdd:          out << "imageAtomicAdd";      return;
+    case llvm::Intrinsic::gla_imageAtomicMin:          out << "imageAtomicMin";      return;
+    case llvm::Intrinsic::gla_imageAtomicMax:          out << "imageAtomicMax";      return;
+    case llvm::Intrinsic::gla_imageAtomicAnd:          out << "imageAtomicAnd";      return;
+    case llvm::Intrinsic::gla_imageAtomicOr:           out << "imageAtomicOr";       return;
+    case llvm::Intrinsic::gla_imageAtomicXor:          out << "imageAtomicXor";      return;
+    case llvm::Intrinsic::gla_iImageAtomicExchange:
+    case llvm::Intrinsic::gla_fImageAtomicExchange:    out << "imageAtomicExchange"; return;
+    case llvm::Intrinsic::gla_imageAtomicCompExchange: out << "imageAtomicCompSwap"; return;
+    default:
+        break;
+   }
 
     // Original style shadowing returns vec4 while 2nd generation returns float,
     // so, have to stick to old-style for those cases.

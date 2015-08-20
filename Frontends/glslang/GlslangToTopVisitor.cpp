@@ -103,7 +103,7 @@ protected:
     void translateArguments(glslang::TIntermUnary&, std::vector<llvm::Value*>& arguments);
     llvm::Value* handleTextureCall(glslang::TIntermOperator*);
     llvm::Value* handleTexImageQuery(const glslang::TIntermOperator*, const glslang::TCrackedTextureOp&, const std::vector<llvm::Value*>& arguments, gla::ESamplerType);
-    llvm::Value* handleImageAccess(const glslang::TIntermOperator*, const glslang::TCrackedTextureOp&, const std::vector<llvm::Value*>& arguments, gla::ESamplerType, int flags);
+    llvm::Value* handleImageAccess(const glslang::TIntermOperator*, const std::vector<llvm::Value*>& arguments, gla::ESamplerType);
     llvm::Value* handleTextureAccess(const glslang::TIntermOperator*, const glslang::TCrackedTextureOp&, const std::vector<llvm::Value*>& arguments, gla::ESamplerType, int flags);
     llvm::Value* handleUserFunctionCall(const glslang::TIntermAggregate*);
 
@@ -1710,8 +1710,15 @@ llvm::Value* TGlslangToTopTraverser::handleTextureCall(glslang::TIntermOperator*
     glslang::TCrackedTextureOp cracked;
     node->crackTexture(cracked);
 
+    // Steer off queries
     if (cracked.query || node->getOp() == glslang::EOpImageQuerySize || node->getOp() == glslang::EOpImageQuerySamples)
         return handleTexImageQuery(node, cracked, arguments, samplerType);
+
+    // Steer off image accesses
+    if (sampler.image)
+        return handleImageAccess(node, arguments, samplerType);
+
+    // Handle texture accesses...
 
     int texFlags = 0;
 
@@ -1721,10 +1728,7 @@ llvm::Value* TGlslangToTopTraverser::handleTextureCall(glslang::TIntermOperator*
     if (sampler.shadow)
         texFlags |= gla::ETFShadow;
 
-    if (sampler.image)
-        return handleImageAccess(node, cracked, arguments, samplerType, texFlags);
-    else
-        return handleTextureAccess(node, cracked, arguments, samplerType, texFlags);
+    return handleTextureAccess(node, cracked, arguments, samplerType, texFlags);
 }
 
 llvm::Value* TGlslangToTopTraverser::handleTexImageQuery(const glslang::TIntermOperator* node, const glslang::TCrackedTextureOp& cracked, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType)
@@ -1773,7 +1777,7 @@ llvm::Value* TGlslangToTopTraverser::handleTexImageQuery(const glslang::TIntermO
     }
 }
 
-llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermOperator* node, const glslang::TCrackedTextureOp& cracked, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType, int texFlags)
+llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermOperator* node, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType)
 {
     // set the arguments
     gla::Builder::TextureParameters params = {};
@@ -1797,8 +1801,6 @@ llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermOpe
         break;
     }
 
-    texFlags |= (imageOp << gla::ImageOpShift);
-
     if (imageOp != gla::EImageLoad) {
         if (imageOp == gla::EImageAtomicCompSwap) {
             params.ETPCompare = arguments[2];
@@ -1807,7 +1809,7 @@ llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermOpe
             params.ETPData = arguments[2];
     }
 
-    return glaBuilder->createImageCall(GetMdPrecision(node->getType()), convertGlslangToGlaType(node->getType()), samplerType, texFlags, params, leftName);
+    return glaBuilder->createImageCall(GetMdPrecision(node->getType()), convertGlslangToGlaType(node->getType()), samplerType, imageOp, params, leftName);
 }
 
 llvm::Value* TGlslangToTopTraverser::handleTextureAccess(const glslang::TIntermOperator* node, const glslang::TCrackedTextureOp& cracked, 

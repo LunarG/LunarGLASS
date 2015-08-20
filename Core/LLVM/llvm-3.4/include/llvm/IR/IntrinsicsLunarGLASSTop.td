@@ -215,12 +215,21 @@ let TargetPrefix = "gla" in {
 
 // Images
 let TargetPrefix = "gla" in {
-  def int_gla_imageLoad :     Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty], [IntrReadArgMem]>;
-  def int_gla_fImageLoad:     Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty], [IntrReadArgMem]>;
-  def int_gla_imageStoreI:    Intrinsic<[], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_v4i32_ty], [IntrReadWriteArgMem]>;
-  def int_gla_imageStoreF:    Intrinsic<[], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_v4f32_ty], [IntrReadWriteArgMem]>;
-  def int_gla_imageOp:        Intrinsic<[llvm_i32_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
-  def int_gla_queryImageSize: Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
+  def int_gla_imageLoad :              Intrinsic<[llvm_anyint_ty],   [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty],                           [IntrReadArgMem]>;
+  def int_gla_fImageLoad:              Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty],                           [IntrReadArgMem]>;
+  def int_gla_imageStoreI:             Intrinsic<[],                 [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_v4i32_ty],            [IntrReadWriteArgMem]>;
+  def int_gla_imageStoreF:             Intrinsic<[],                 [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_v4f32_ty],            [IntrReadWriteArgMem]>;
+  def int_gla_imageAtomicAdd:          Intrinsic<[llvm_i32_ty],      [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty],              [IntrReadWriteArgMem]>;
+  def int_gla_imageAtomicMin:          Intrinsic<[llvm_i32_ty],      [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty],              [IntrReadWriteArgMem]>;
+  def int_gla_imageAtomicMax:          Intrinsic<[llvm_i32_ty],      [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty],              [IntrReadWriteArgMem]>;
+  def int_gla_imageAtomicAnd:          Intrinsic<[llvm_i32_ty],      [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty],              [IntrReadWriteArgMem]>;
+  def int_gla_imageAtomicOr:           Intrinsic<[llvm_i32_ty],      [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty],              [IntrReadWriteArgMem]>;
+  def int_gla_imageAtomicXor:          Intrinsic<[llvm_i32_ty],      [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty],              [IntrReadWriteArgMem]>;
+  def int_gla_iImageAtomicExchange:    Intrinsic<[llvm_i32_ty],      [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty],              [IntrReadWriteArgMem]>;
+  def int_gla_fImageAtomicExchange:    Intrinsic<[llvm_float_ty],    [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_float_ty],            [IntrReadWriteArgMem]>;
+  def int_gla_imageAtomicCompExchange: Intrinsic<[llvm_i32_ty],      [llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_queryImageSize:          Intrinsic<[llvm_anyint_ty],   [llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
+  def int_gla_queryImageSamples:       Intrinsic<[llvm_anyint_ty],   [llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
 }
 
 // Geometry

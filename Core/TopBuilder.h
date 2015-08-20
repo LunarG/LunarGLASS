@@ -377,9 +377,16 @@ public:
         llvm::Value* ETPCompare;       // for image*() comparison argument
     };
 
-    // Select the correct intrinsic based on all inputs, and make the call
+    // Accept all parameters needed to create LunarGLASS texture intrinsics.
+    // (Accessing the texture, not querying; requires a coordinate.)
+    // Select the correct intrinsic based on the inputs, and make the call.    
     llvm::Value* createTextureCall(EMdPrecision, llvm::Type*, ESamplerType, int texFlags, const TextureParameters&, const char* name = 0);
-    llvm::Value* createImageCall(EMdPrecision, llvm::Type*, ESamplerType, int texFlags, const TextureParameters&, const char* name = 0);
+
+    // Accept all parameters needed to create LunarGLASS image intrinsics (accessing the image, not querying it).
+    // (Accessing the image, not querying; requires a coordinate.)
+    // Select the correct intrinsic based on the inputs, and make the call.
+    llvm::Value* createImageCall(EMdPrecision, llvm::Type*, ESamplerType, EImageOp, const TextureParameters&, const char* name = 0);
+
     llvm::Value* createTextureQueryCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Type*, llvm::Constant*, llvm::Value*, llvm::Value*, const char* name = 0);
     llvm::Value* createSamplePositionCall(EMdPrecision, llvm::Type*, llvm::Value*);
     llvm::Value* createBitFieldExtractCall(EMdPrecision, llvm::Value*, llvm::Value*, llvm::Value*, bool isSigned);
