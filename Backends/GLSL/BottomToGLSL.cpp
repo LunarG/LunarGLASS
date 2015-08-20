@@ -3008,6 +3008,14 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
         out << ");";
         return;
 
+    case llvm::Intrinsic::gla_queryImageSize:
+        newLine();
+        emitGlaValue(out, llvmInstruction, 0);
+        out << " = imageSize(";
+        emitGlaOperand(out, llvmInstruction->getOperand(GetTextureOpIndex(ETOSamplerLoc)));
+        out << ");";
+        return;
+
     case llvm::Intrinsic::gla_fQueryTextureLod:
 
         newLine();
@@ -3039,9 +3047,9 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
         assignment << ", ";
         emitGlaOperand(assignment, llvmInstruction->getOperand(GetTextureOpIndex(ETOCoord)));
 
-        if (! load) {
+        for (int op = GetTextureOpIndex(ETOCoord) + 1; op < (int)llvmInstruction->getNumOperands() - 1; ++op) {
             assignment << ", ";
-            emitGlaOperand(assignment, llvmInstruction->getOperand(GetTextureOpIndex(ETOImageData)));
+            emitGlaOperand(assignment, llvmInstruction->getOperand(op));
         }
 
         if (needConversion)
@@ -3480,8 +3488,8 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_uFindMSB:         callString = "findMSB";          break;
 
     // Pack and Unpack
-    //case llvm::Intrinsic::gla_fFrexp:            callString = "frexp";              break;
-    //case llvm::Intrinsic::gla_fLdexp:            callString = "ldexp";              break;
+    case llvm::Intrinsic::gla_fFrexp:            callString = "frexp";              break;
+    case llvm::Intrinsic::gla_fLdexp:            callString = "ldexp";              break;
     case llvm::Intrinsic::gla_fPackUnorm2x16:    callString = "packUnorm2x16";      break;
     case llvm::Intrinsic::gla_fUnpackUnorm2x16:  callString = "unpackUnorm2x16";    break;
 

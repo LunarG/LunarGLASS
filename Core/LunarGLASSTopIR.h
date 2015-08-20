@@ -106,7 +106,6 @@ namespace gla {
         ETODPdx        = 7,
         ETODPdy        = 8,
     };
-    static const ETextureOperand ETOImageData = (ETextureOperand)4;
 
     inline int GetTextureOpIndex(ETextureOperand operand, bool SoA = false, int numComps = 0, int comp = 0)
     {

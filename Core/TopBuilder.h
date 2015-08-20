@@ -374,6 +374,7 @@ public:
         llvm::Value* ETPSampler;
         llvm::Value* ETPDimensions;
         llvm::Value* ETPData;          // for image*() data argument
+        llvm::Value* ETPCompare;       // for image*() comparison argument
     };
 
     // Select the correct intrinsic based on all inputs, and make the call

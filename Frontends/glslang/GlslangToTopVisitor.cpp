@@ -1735,10 +1735,12 @@ llvm::Value* TGlslangToTopTraverser::handleTexImageQuery(const glslang::TIntermO
     case glslang::EOpTextureQuerySize:
     case glslang::EOpImageQuerySize:
     {
-        llvm::Value* lastArg;
+        llvm::Value* lastArg = nullptr;
         llvm::Intrinsic::ID intrinsicID;
 
-        if (samplerType == gla::ESampler2DMS || samplerType == gla::ESamplerBuffer || samplerType == gla::ESampler2DRect) {
+        if (node->getOp() == glslang::EOpImageQuerySize) {
+            intrinsicID = llvm::Intrinsic::gla_queryImageSize;
+        } else if (samplerType == gla::ESampler2DMS || samplerType == gla::ESamplerBuffer || samplerType == gla::ESampler2DRect) {
             lastArg = 0;
             intrinsicID = llvm::Intrinsic::gla_queryTextureSizeNoLod;
         } else {
@@ -1797,8 +1799,13 @@ llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermOpe
 
     texFlags |= (imageOp << gla::ImageOpShift);
 
-    if (imageOp != gla::EImageLoad)
-        params.ETPData = arguments[2];
+    if (imageOp != gla::EImageLoad) {
+        if (imageOp == gla::EImageAtomicCompSwap) {
+            params.ETPCompare = arguments[2];
+            params.ETPData = arguments[3];
+        } else
+            params.ETPData = arguments[2];
+    }
 
     return glaBuilder->createImageCall(GetMdPrecision(node->getType()), convertGlslangToGlaType(node->getType()), samplerType, texFlags, params, leftName);
 }
@@ -2475,6 +2482,18 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
     case glslang::EOpAtomicCounter:
         intrinsicID = llvm::Intrinsic::gla_atomicCounterLoad;
         break;
+    case glslang::EOpBitFieldReverse:
+        intrinsicID = llvm::Intrinsic::gla_bitReverse;
+        break;
+    case glslang::EOpBitCount:
+        intrinsicID = llvm::Intrinsic::gla_bitCount;
+        break;
+    case glslang::EOpFindLSB:
+        intrinsicID = llvm::Intrinsic::gla_findLSB;
+        break;
+    case glslang::EOpFindMSB:
+        intrinsicID = llvm::Intrinsic::gla_sFindMSB;
+        break;
 
     default:
         break;
@@ -2531,6 +2550,42 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
             break;
         }
         break;
+    case glslang::EOpFma:
+        if (gla::GetBasicTypeID(operands.front()) == llvm::Type::FloatTyID)
+            intrinsicID = llvm::Intrinsic::gla_fFma;
+        else if (isUnsigned)
+            intrinsicID = llvm::Intrinsic::gla_uFma;
+        else
+            intrinsicID = llvm::Intrinsic::gla_sFma;
+        break;
+    case glslang::EOpFrexp:
+        intrinsicID = llvm::Intrinsic::gla_fFrexp;
+        break;
+    case glslang::EOpLdexp:
+        intrinsicID = llvm::Intrinsic::gla_fLdexp;
+        break;
+    case glslang::EOpAddCarry:
+        intrinsicID = llvm::Intrinsic::gla_addCarry;
+        break;
+    case glslang::EOpSubBorrow:
+        intrinsicID = llvm::Intrinsic::gla_subBorrow;
+        break;
+    case glslang::EOpUMulExtended:
+        intrinsicID = llvm::Intrinsic::gla_umulExtended;
+        break;
+    case glslang::EOpIMulExtended:
+        intrinsicID = llvm::Intrinsic::gla_smulExtended;
+        break;
+    case glslang::EOpBitfieldExtract:
+        if (isUnsigned)
+            intrinsicID = llvm::Intrinsic::gla_uBitFieldExtract;
+        else
+            intrinsicID = llvm::Intrinsic::gla_sBitFieldExtract;
+        break;
+    case glslang::EOpBitfieldInsert:
+        intrinsicID = llvm::Intrinsic::gla_bitFieldInsert;
+        break;
+
     case glslang::EOpAtan:
         intrinsicID = llvm::Intrinsic::gla_fAtan2;
         break;

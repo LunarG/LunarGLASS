@@ -1936,12 +1936,11 @@ llvm::Value* Builder::createImageCall(gla::EMdPrecision precision, llvm::Type* r
     name = name ? name : "image";
 
     // Max args based on LunarGLASS TopIR, no SOA
-    static const int maxArgs = 5;
+    static const int maxArgs = 6;
     llvm::Value* imageArgs[maxArgs] = {};
 
     // Base case: First arguments are fixed
     int numArgs = 4;
-    const int dataArg = 4;
     imageArgs[GetTextureOpIndex(ETOSamplerType)] = MakeIntConstant(context, samplerType);
     imageArgs[GetTextureOpIndex(ETOSamplerLoc)]  = parameters.ETPSampler;
     imageArgs[GetTextureOpIndex(ETOFlag)]        = MakeUnsignedConstant(context, *(int*)&texFlags);
@@ -1950,6 +1949,24 @@ llvm::Value* Builder::createImageCall(gla::EMdPrecision precision, llvm::Type* r
     // Add the data argument if needed, and select which intrinsic to call.
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::not_intrinsic;
     switch ((texFlags & ETFImageOp) >> ImageOpShift) {
+    case EImageAtomicAdd:
+    case EImageAtomicMin:
+    case EImageAtomicMax:
+    case EImageAtomicAnd:
+    case EImageAtomicOr:
+    case EImageAtomicXor:
+    case EImageAtomicExchange:        
+        intrinsicID = llvm::Intrinsic::gla_imageOp;
+        imageArgs[numArgs] = parameters.ETPData;
+        ++numArgs;
+        break;
+    case EImageAtomicCompSwap:
+        intrinsicID = llvm::Intrinsic::gla_imageOp;
+        imageArgs[numArgs] = parameters.ETPCompare;
+        ++numArgs;
+        imageArgs[numArgs] = parameters.ETPData;
+        ++numArgs;
+        break;
     case EImageLoad:
         if (gla::GetBasicType(resultType)->isFloatTy())
             intrinsicID = llvm::Intrinsic::gla_fImageLoad;
@@ -1961,11 +1978,11 @@ llvm::Value* Builder::createImageCall(gla::EMdPrecision precision, llvm::Type* r
             intrinsicID = llvm::Intrinsic::gla_imageStoreF;
         else
             intrinsicID = llvm::Intrinsic::gla_imageStoreI;
-        imageArgs[dataArg] = parameters.ETPData;
+        imageArgs[numArgs] = parameters.ETPData;
         ++numArgs;
         break;
     default:
-        intrinsicID = llvm::Intrinsic::gla_imageOp;
+        // caught by upcoming assert
         break;
     }
 
@@ -1989,7 +2006,7 @@ llvm::Value* Builder::createImageCall(gla::EMdPrecision precision, llvm::Type* r
         break;
 
     default:
-        // caught be upcoming assert
+        // caught by upcoming assert
         break;
     }
 
@@ -2013,6 +2030,7 @@ llvm::Value* Builder::createTextureQueryCall(gla::EMdPrecision precision, llvm::
     llvm::Function* intrinsicName = 0;
 
     switch (intrinsicID) {
+    case llvm::Intrinsic::gla_queryImageSize:
     case llvm::Intrinsic::gla_queryTextureSize:
         intrinsicName = getIntrinsic(intrinsicID, returnType);
         break;

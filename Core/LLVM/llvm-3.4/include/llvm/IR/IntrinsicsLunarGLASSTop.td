@@ -215,11 +215,12 @@ let TargetPrefix = "gla" in {
 
 // Images
 let TargetPrefix = "gla" in {
-  def int_gla_imageLoad :  Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty], [IntrReadArgMem]>;
-  def int_gla_fImageLoad:  Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty], [IntrReadArgMem]>;
-  def int_gla_imageStoreI: Intrinsic<[], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_v4i32_ty], [IntrReadWriteArgMem]>;
-  def int_gla_imageStoreF: Intrinsic<[], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_v4f32_ty], [IntrReadWriteArgMem]>;
-  def int_gla_imageOp:     Intrinsic<[llvm_i32_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_imageLoad :     Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty], [IntrReadArgMem]>;
+  def int_gla_fImageLoad:     Intrinsic<[llvm_anyfloat_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty], [IntrReadArgMem]>;
+  def int_gla_imageStoreI:    Intrinsic<[], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_v4i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_imageStoreF:    Intrinsic<[], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_v4f32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_imageOp:        Intrinsic<[llvm_i32_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_anyint_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
+  def int_gla_queryImageSize: Intrinsic<[llvm_anyint_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty], [IntrNoMem]>;
 }
 
 // Geometry
