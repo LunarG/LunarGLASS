@@ -1,7 +1,7 @@
 #version 310 es
 
-// + GL_EXT_geometry_shader
-// + GL_EXT_geometry_point_size
+// GL_EXT_geometry_shader
+// GL_EXT_geometry_point_size
 
 #extension GL_ANDROID_extension_pack_es31a : enable
 

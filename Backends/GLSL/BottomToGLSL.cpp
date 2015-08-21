@@ -224,6 +224,7 @@ namespace {
             case gla::EmbViewportIndex:          return "gl_ViewportIndex";
             case gla::EmbTessLevelOuter:         return "gl_TessLevelOuter";
             case gla::EmbTessLevelInner:         return "gl_TessLevelInner";
+            case gla::EmbBoundingBox:            return "gl_BoundingBoxOES";
 
             case gla::EmbSampleMask:             return "gl_SampleMask";
             case gla::EmbFragColor:              return "gl_FragColor";
@@ -4017,17 +4018,25 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
             type = proxyType;
 
         // emit interpolation qualifier, if appropriate
-        EVariableQualifier qualifier;
+        EVariableQualifier qualifier = EVQUndef;
         switch (ioKind) {
-        case EMioPipeIn:   qualifier = EVQInput;   break;
-        case EMioPipeOut:  qualifier = EVQOutput;  break;
-        default:           qualifier = EVQUndef;   break;
+        case EMioPipeIn:
+        case EMioPipeInBlock:
+            qualifier = EVQInput;
+            break;
+        case EMioPipeOut:
+        case EMioPipeOutBlock:
+            qualifier = EVQOutput;
+            break;
+        default:
+            break;
         }
         if (qualifier != EVQUndef) {
             EInterpolationMethod interpMethod;
             EInterpolationLocation interpLocation;
             CrackInterpolationMode(interpMode, interpMethod, interpLocation);
-            emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
+            if (! metaType.block || (metaType.block && interpMethod == EIMPatch))
+                emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
         }
     } else {
         if (! CrackAggregateMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.builtIn)) {

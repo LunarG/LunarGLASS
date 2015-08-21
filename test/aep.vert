@@ -2,12 +2,12 @@
 
 #extension GL_ANDROID_extension_pack_es31a : enable
 
-// + GL_OES_shader_image_atomic
-// + GL_OES_texture_storage_multisample_2d_array
-// + GL_EXT_gpu_shader5
-// + GL_EXT_shader_io_blocks
-// + GL_EXT_texture_buffer
-// + GL_EXT_texture_cube_map_array
+// GL_OES_shader_image_atomic
+// GL_OES_texture_storage_multisample_2d_array
+// GL_EXT_gpu_shader5
+// GL_EXT_shader_io_blocks
+// GL_EXT_texture_buffer
+// GL_EXT_texture_cube_map_array
 
 uniform sampler2D sArray[4];
 uniform ubName { vec2 p; } ubInst[4];
@@ -42,7 +42,7 @@ void main()
     goodImageAtom();
 }
 
-// + GL_EXT_texture_buffer
+// GL_EXT_texture_buffer
 
 uniform highp samplerBuffer  bufSamp1;          
 uniform highp isamplerBuffer bufSamp2;          
@@ -77,7 +77,7 @@ vec4 bufferT()
     return v;
 }
 
-// + GL_OES_texture_cube_map_array
+// GL_OES_texture_cube_map_array
 
 uniform highp writeonly imageCubeArray  CA1;
 uniform highp writeonly iimageCubeArray CA2;
@@ -125,7 +125,7 @@ vec4 CAT()
     return v;
 }
 
-// + GL_OES_texture_storage_multisample_2d_array
+// GL_OES_texture_storage_multisample_2d_array
 
 uniform highp sampler2DMSArray  samp2DMSA;
 uniform highp isampler2DMSArray samp2DMSAi;
@@ -146,7 +146,7 @@ vec4 MSA()
     return v;
 }
 
-// + GL_OES_shader_image_atomic
+// GL_OES_shader_image_atomic
 
 uniform layout(r32f)  highp  image2D im2Df;
 uniform layout(r32ui) highp uimage2D im2Du;

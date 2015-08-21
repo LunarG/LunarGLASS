@@ -213,6 +213,10 @@ void GenerateResources(TBuiltInResource& resources)
     resources.maxAtomicCounterBufferSize = 16384;
     resources.maxTransformFeedbackBuffers = 4;
     resources.maxTransformFeedbackInterleavedComponents = 64;
+    resources.maxCullDistances = 8;
+    resources.maxCombinedClipAndCullDistances = 8;
+    resources.maxSamples = 4;
+
     resources.limits.nonInductiveForLoops = 1;
     resources.limits.whileLoops = 1;
     resources.limits.doWhileLoops = 1;

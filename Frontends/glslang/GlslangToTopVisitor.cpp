@@ -450,6 +450,7 @@ gla::EMdBuiltIn GetMdBuiltIn(const glslang::TType& type)
     case glslang::EbvSamplePosition:       return gla::EmbSamplePosition;
     case glslang::EbvSampleMask:           return gla::EmbSampleMask;
     case glslang::EbvHelperInvocation:     return gla::EmbHelperInvocation;
+    case glslang::EbvBoundingBox:          return gla::EmbBoundingBox;
     default:
         gla::UnsupportedFunctionality("built in variable", gla::EATContinue);
         return gla::EmbNone;

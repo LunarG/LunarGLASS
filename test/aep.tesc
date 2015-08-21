@@ -2,9 +2,9 @@
 
 #extension GL_ANDROID_extension_pack_es31a : enable
 
-// - GL_EXT_tessellation_shader
-// + GL_EXT_tessellation_point_size
-// + GL_OES_primitive_bounding_box
+// GL_EXT_tessellation_shader: patch
+// GL_EXT_tessellation_point_size
+// GL_OES_primitive_bounding_box
 
 layout(vertices = 4) out;
 int outa[gl_out.length()];
@@ -13,7 +13,7 @@ patch out vec4 patchOut;
 
 void bb();
 void pointSize();
-void foop();
+float foop();
 
 void main()
 {
@@ -31,7 +31,8 @@ void main()
     gl_TessLevelInner[1] = 1.3;
     bb();
     pointSize();
-    foop();
+    patchOut = vec4(0.5);
+    patchOut *= foop();
 }
 
 in vec2 inb[];
@@ -55,24 +56,30 @@ out float okaySize[4];
 
 #extension GL_OES_tessellation_point_size : enable
 
+// GL_EXT_tessellation_point_size
+
 void pointSize()
 {
     gl_out[1].gl_PointSize = gl_in[1].gl_PointSize;
 }
 
 // for testing with gpu_shader5
+in vec3 inv[];
 precise vec3 pv3;
 
-void foop()
+float foop()
 {
     precise float d;
 
+    pv3 = inv[3];
     pv3 *= pv3;
-    // - pv3 = fma(pv3, pv3, pv3);
-    // - d = fma(d, d, d);
+    pv3 = fma(pv3, pv3, pv3);
+    d = fma(pv3.x, pv3.y, pv3.z);
+
+    return d;
 }
 
-// - GL_OES_primitive_bounding_box
+// GL_OES_primitive_bounding_box
 
 void bb()
 {

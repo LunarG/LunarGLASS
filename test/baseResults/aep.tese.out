@@ -273,7 +273,7 @@ in testbld {
 } bld[32];
 layout(location=23) in highp vec4 ivla[32];
 layout(location=24) in highp vec4 ivlb[32];
-in pinbn {
+patch in pinbn {
 	highp int a;
 } pinbi;
 in highp vec3 centr[32];
@@ -287,12 +287,47 @@ void main()
 	
 }
 
-tempglsl.tese
-Warning, version 310 is not yet complete; most version-specific features are present, but some are missing.
-WARNING: 0:3: '#extension' : extension is only partially supported: GL_ANDROID_extension_pack_es31a
-WARNING: 0:3: '#extension' : extension is only partially supported: GL_KHR_blend_equation_advanced
-WARNING: 0:3: '#extension' : extension is only partially supported: GL_OES_shader_multisample_interpolation
-ERROR: 0:31: 'in' : type must be an array: pinbi
-ERROR: 1 compilation errors.  No code generated.
+#version 310 es
+// LunarGOO output
+#extension GL_ANDROID_extension_pack_es31a : enable
+#extension GL_EXT_geometry_shader : enable
+#extension GL_EXT_gpu_shader5 : enable
+#extension GL_EXT_primitive_bounding_box : enable
+#extension GL_EXT_shader_io_blocks : enable
+#extension GL_EXT_tessellation_shader : enable
+#extension GL_EXT_texture_buffer : enable
+#extension GL_EXT_texture_cube_map_array : enable
+#extension GL_KHR_blend_equation_advanced : enable
+#extension GL_OES_sample_variables : enable
+#extension GL_OES_shader_image_atomic : enable
+#extension GL_OES_shader_multisample_interpolation : enable
+#extension GL_OES_tessellation_point_size : enable
+#extension GL_OES_texture_storage_multisample_2d_array : enable
+layout(quads) in;
+layout(fractional_odd_spacing) in;
+layout(point_mode) in;
+patch in highp vec4 patchIn;
+in highp vec2 inb[32];
+in highp vec2 ind[32];
+in testblb {
+	highp int f;
+} blb[32];
+in testbld {
+	highp int f;
+} bld[32];
+layout(location=23) in highp vec4 ivla[32];
+layout(location=24) in highp vec4 ivlb[32];
+patch in pinbn {
+	highp int a;
+} pinbi;
+in highp vec3 centr[32];
+layout(location=23) out highp vec4 ovla[2];
+out highp vec3 myColor2;
 
+void main()
+{
+	gl_Position = gl_in[1].gl_Position;
+	gl_PointSize = gl_in[1].gl_PointSize;
+	
+}
 

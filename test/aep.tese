@@ -2,8 +2,8 @@
 
 #extension GL_ANDROID_extension_pack_es31a : enable
 
-// - GL_EXT_tessellation_shader
-// + GL_EXT_tessellation_point_size
+// GL_EXT_tessellation_shader
+// GL_EXT_tessellation_point_size
 
 layout(quads, ccw) in;  // - no ccw
 

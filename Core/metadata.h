@@ -118,7 +118,7 @@ namespace gla {
 //           later by a linker
 //         - location is < MaxUserLayoutLocation for user-assigned locations
 //         - the intrinsic's slot can be different when reading a single slot out of the middle of a large input/output
-//         - interpMode is present for EMioPipeOut as an integer encoded for MakeInterpolationMode() and CrackInterpolationMode()
+//         - interpMode is present as an integer encoded for MakeInterpolationMode() and CrackInterpolationMode()
 //           it can also be present if there is an EMdBuiltIn, and will be -1 if there is no interpMode
 //         - EMdBuiltIn, if present, says what built-in variable is being represented.  It is optional.
 //
@@ -410,6 +410,7 @@ enum EMdBuiltIn {
     EmbSamplePosition,
     EmbSampleMask,
     EmbHelperInvocation,
+    EmbBoundingBox,
     EmbCount
 };
 
