@@ -2,11 +2,27 @@
  
 LunarGLASS is available via a BSD-style open source license.
 
+See more at the [LunarGLASS FAQ](http://www.lunarglass.org/faq).
+
 # Resources
 
-See http://www.lunarglass.org/ for a variety of information about LunarGLASS.
+See [LunarGLASS.org](http://www.lunarglass.org/) for a variety of information about LunarGLASS.
 
-Google code: On 8/21/2015, LunarGLASS was transfered from https://code.google.com/p/lunarglass/.
+Google code: On 8/21/2015, LunarGLASS was transfered from [Google Code](https://code.google.com/p/lunarglass/).
+
+# Goals
+
+The primary goals of the LunarGLASS project are:
+
+* Reduce the developement burden of creating advanced shader compiler stacks.
+* Increase the level of optimization achieved by real world applications.
+and do all this in a robust and modular approach that works well across a diverse set of hardware architectures.
+
+# Description
+
+LunarGLASS is an LLVM-based shader-compiler stack available to open-source developers. It brings a new approach by splitting the common shared intermediate representation (IR) into two levels; the top level is completely platform independent while the bottom level is dynamically tailorable to different families of architecture. Both levels still lend themselves to portability and sharing of tools. Together, they solve the problem of having a standard portable IR without being biased toward a specific class of target architecture.
+
+LunarGLASS is a long-term compiler stack architecture, based on establishing common intermediate representations (IRs) allowing modularity between stack layers. Each source-language front end would benefit from a common set of high- and mid-level optimizations, as would each back end, without the need to invent additional IRs. The short-term goal is to leverage investments in existing IRs while the long-term goal is to reduce the number of IRs and not require optimization difficulties caused by losing information going through an IR.
 
 # Downloading and Building
 
