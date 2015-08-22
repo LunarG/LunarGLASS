@@ -2332,7 +2332,8 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
 {
     llvm::Function* intrinsicName = 0;
 
-    // Handle special return types here.  Things that don't have same result type as parameter
+    // Handle special types here.  Things that don't have same result type as 
+    // parameter, or non-matching operands.
     switch (intrinsicID) {
     case llvm::Intrinsic::gla_fDistance:
     case llvm::Intrinsic::gla_fDot2:
@@ -2359,6 +2360,13 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     case llvm::Intrinsic::gla_atomicXor:
     case llvm::Intrinsic::gla_atomicExchange:
         intrinsicName = getIntrinsic(intrinsicID);
+        break;
+
+    // Interpolate at don't have variable type for the 2nd argument, and
+    // the return type matches arg0.
+    case llvm::Intrinsic::gla_interpolateAtSample:
+    case llvm::Intrinsic::gla_interpolateAtOffset:
+        intrinsicName = getIntrinsic(intrinsicID, operand0->getType(), operand0->getType());
         break;
 
     default:
