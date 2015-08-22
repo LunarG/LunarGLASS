@@ -2443,6 +2443,9 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
     case glslang::EOpFwidth:
         intrinsicID = llvm::Intrinsic::gla_fFilterWidth;
         break;
+    case glslang::EOpInterpolateAtCentroid:
+        intrinsicID = llvm::Intrinsic::gla_interpolateAtCentroid;
+        break;
 
     case glslang::EOpAny:
         intrinsicID = llvm::Intrinsic::gla_any;
@@ -2628,6 +2631,12 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
         break;
     case glslang::EOpRefract:
         intrinsicID = llvm::Intrinsic::gla_fRefract;
+        break;
+    case glslang::EOpInterpolateAtOffset:
+        intrinsicID = llvm::Intrinsic::gla_interpolateAtOffset;
+        break;
+    case glslang::EOpInterpolateAtSample:
+        intrinsicID = llvm::Intrinsic::gla_interpolateAtSample;
         break;
 
     case glslang::EOpAtomicAdd:

@@ -3533,6 +3533,10 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_fDFdy:        callString = "dFdy";        break;
     case llvm::Intrinsic::gla_fFilterWidth: callString = "fwidth";      break;
 
+    case llvm::Intrinsic::gla_interpolateAtCentroid: callString = "interpolateAtCentroid";  break;
+    case llvm::Intrinsic::gla_interpolateAtSample:   callString = "interpolateAtSample";    break;
+    case llvm::Intrinsic::gla_interpolateAtOffset:   callString = "interpolateAtOffset";    break;
+
     // Vector Logical
     case llvm::Intrinsic::gla_not:          callString = "not";         break;
     case llvm::Intrinsic::gla_any:          callString = "any";         break;

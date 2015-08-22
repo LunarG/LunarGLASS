@@ -13,6 +13,11 @@ Top IR:
 @gl_SampleMaskIn = global [1 x i32] zeroinitializer
 @gl_SampleMask = global [1 x i32] zeroinitializer
 @gl_NumSamples = external addrspace(2) constant i32
+@scalarIn = global float 0.000000e+00
+@sampInArray = global <3 x float> zeroinitializer
+@colorSampIn = global <4 x float> zeroinitializer
+@colorfsi = global <4 x float> zeroinitializer
+@i = external addrspace(2) constant i32
 
 define fastcc void @main() {
 entry:
@@ -22,15 +27,32 @@ mainBody:                                         ; preds = %entry
   %color = load <4 x float>* getelementptr inbounds (%inName* @inInst, i32 0, i32 0)
   store <4 x float> %color, <4 x float>* @color
   %0 = call i32 @"foo_GS("()
-  %1 = sitofp i32 %0 to float, !gla.precision !23
+  %1 = sitofp i32 %0 to float, !gla.precision !33
   %2 = load <4 x float>* @color
-  %3 = insertelement <4 x float> undef, float %1, i32 0, !gla.precision !23
-  %4 = insertelement <4 x float> %3, float %1, i32 1, !gla.precision !23
-  %5 = insertelement <4 x float> %4, float %1, i32 2, !gla.precision !23
-  %6 = insertelement <4 x float> %5, float %1, i32 3, !gla.precision !23
-  %color1 = fmul <4 x float> %2, %6, !gla.precision !23
+  %3 = insertelement <4 x float> undef, float %1, i32 0, !gla.precision !33
+  %4 = insertelement <4 x float> %3, float %1, i32 1, !gla.precision !33
+  %5 = insertelement <4 x float> %4, float %1, i32 2, !gla.precision !33
+  %6 = insertelement <4 x float> %5, float %1, i32 3, !gla.precision !33
+  %color1 = fmul <4 x float> %2, %6, !gla.precision !33
   store <4 x float> %color1, <4 x float>* @color
   call void @"goodSample("()
+  %7 = call <3 x float> @"interp("()
+  %8 = load <4 x float>* @color
+  %9 = extractelement <4 x float> %8, i32 0, !gla.precision !33
+  %10 = insertelement <3 x float> undef, float %9, i32 0, !gla.precision !33
+  %11 = extractelement <4 x float> %8, i32 1, !gla.precision !33
+  %12 = insertelement <3 x float> %10, float %11, i32 1, !gla.precision !33
+  %13 = extractelement <4 x float> %8, i32 2, !gla.precision !33
+  %14 = insertelement <3 x float> %12, float %13, i32 2, !gla.precision !33
+  %15 = fadd <3 x float> %14, %7, !gla.precision !33
+  %16 = load <4 x float>* @color
+  %17 = extractelement <3 x float> %15, i32 0
+  %18 = insertelement <4 x float> %16, float %17, i32 0
+  %19 = extractelement <3 x float> %15, i32 1
+  %20 = insertelement <4 x float> %18, float %19, i32 1
+  %21 = extractelement <3 x float> %15, i32 2
+  %color2 = insertelement <4 x float> %20, float %21, i32 2
+  store <4 x float> %color2, <4 x float>* @color
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %mainBody
@@ -51,7 +73,7 @@ entry:
   store i32 %p2, i32* %p
   %0 = load i32* %l
   %1 = load i32* %p
-  %2 = add i32 %0, %1, !gla.precision !23
+  %2 = add i32 %0, %1, !gla.precision !33
   ret i32 %2
 
 post-return:                                      ; No predecessors!
@@ -75,23 +97,23 @@ entry:
   %0 = load i32* %a3
   store i32 %0, i32* getelementptr inbounds ([1 x i32]* @gl_SampleMask, i32 0, i32 0)
   store i32 4, i32* %n1
-  %n24 = load i32 addrspace(2)* @gl_NumSamples, !gla.uniform !21
+  %n24 = load i32 addrspace(2)* @gl_NumSamples, !gla.uniform !29
   store i32 %n24, i32* %n2
   %1 = load i32* %n1
   %2 = load i32* %n2
-  %3 = add i32 %1, %2, !gla.precision !24
+  %3 = add i32 %1, %2, !gla.precision !34
   %4 = load i32* %a1
-  %5 = add i32 %3, %4, !gla.precision !24
+  %5 = add i32 %3, %4, !gla.precision !34
   %6 = load i32* getelementptr inbounds ([1 x i32]* @gl_SampleMask, i32 0, i32 0)
-  %7 = add i32 %6, %5, !gla.precision !23
+  %7 = add i32 %6, %5, !gla.precision !33
   store i32 %7, i32* getelementptr inbounds ([1 x i32]* @gl_SampleMask, i32 0, i32 0)
   %8 = load <2 x float>* %a2
   %9 = load <4 x float>* @color
-  %10 = extractelement <4 x float> %9, i32 0, !gla.precision !23
-  %11 = insertelement <2 x float> undef, float %10, i32 0, !gla.precision !23
-  %12 = extractelement <4 x float> %9, i32 1, !gla.precision !23
-  %13 = insertelement <2 x float> %11, float %12, i32 1, !gla.precision !23
-  %14 = fadd <2 x float> %13, %8, !gla.precision !23
+  %10 = extractelement <4 x float> %9, i32 0, !gla.precision !33
+  %11 = insertelement <2 x float> undef, float %10, i32 0, !gla.precision !33
+  %12 = extractelement <4 x float> %9, i32 1, !gla.precision !33
+  %13 = insertelement <2 x float> %11, float %12, i32 1, !gla.precision !33
+  %14 = fadd <2 x float> %13, %8, !gla.precision !33
   %15 = load <4 x float>* @color
   %16 = extractelement <2 x float> %14, i32 0
   %17 = insertelement <4 x float> %15, float %16, i32 0
@@ -101,12 +123,75 @@ entry:
   ret void
 }
 
+; Function Attrs: alwaysinline
+define internal fastcc <3 x float> @"interp("() #0 {
+entry:
+  %res3 = alloca <3 x float>
+  %res = alloca float
+  %0 = load float* @scalarIn
+  %res1 = call float @llvm.gla.interpolateAtCentroid.f32.f32(float %0), !gla.precision !33
+  store float %res1, float* %res
+  %1 = load <3 x float>* @sampInArray
+  %res32 = call <3 x float> @llvm.gla.interpolateAtCentroid.v3f32.v3f32(<3 x float> %1), !gla.precision !33
+  store <3 x float> %res32, <3 x float>* %res3
+  %2 = load <3 x float>* @sampInArray
+  %res33 = call <3 x float> @llvm.gla.interpolateAtSample.v3f32.v3f32.i32(<3 x float> %2, i32 0), !gla.precision !33
+  %3 = load <3 x float>* %res3
+  %res34 = fadd <3 x float> %3, %res33, !gla.precision !33
+  store <3 x float> %res34, <3 x float>* %res3
+  %4 = load float* @scalarIn
+  %res5 = call float @llvm.gla.interpolateAtSample.f32.f32.i32(float %4, i32 1), !gla.precision !33
+  %5 = load float* %res
+  %res6 = fadd float %5, %res5, !gla.precision !33
+  store float %res6, float* %res
+  %6 = load <3 x float>* @sampInArray
+  %res37 = call <3 x float> @llvm.gla.interpolateAtOffset.v3f32.v3f32.v2f32(<3 x float> %6, <2 x float> <float 0x3FC99999A0000000, float 0x3FC99999A0000000>), !gla.precision !33
+  %7 = load <3 x float>* %res3
+  %res38 = fadd <3 x float> %7, %res37, !gla.precision !33
+  store <3 x float> %res38, <3 x float>* %res3
+  %8 = load float* @scalarIn
+  %res9 = call float @llvm.gla.interpolateAtOffset.f32.f32.v2f32(float %8, <2 x float> <float 0x3FC99999A0000000, float 0x3FC99999A0000000>), !gla.precision !33
+  %9 = load float* %res
+  %res10 = fadd float %9, %res9, !gla.precision !33
+  store float %res10, float* %res
+  %10 = load float* %res
+  %11 = load <3 x float>* %res3
+  %12 = insertelement <3 x float> undef, float %10, i32 0, !gla.precision !33
+  %13 = insertelement <3 x float> %12, float %10, i32 1, !gla.precision !33
+  %14 = insertelement <3 x float> %13, float %10, i32 2, !gla.precision !33
+  %15 = fmul <3 x float> %14, %11, !gla.precision !33
+  ret <3 x float> %15
+
+post-return:                                      ; No predecessors!
+  unreachable
+}
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.interpolateAtCentroid.f32.f32(float) #1
+
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.interpolateAtCentroid.v3f32.v3f32(<3 x float>) #1
+
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.interpolateAtSample.v3f32.v3f32.i32(<3 x float>, i32) #1
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.interpolateAtSample.f32.f32.i32(float, i32) #1
+
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.interpolateAtOffset.v3f32.v3f32.v2f32(<3 x float>, <2 x float>) #1
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.interpolateAtOffset.f32.f32.v2f32(float, <2 x float>) #1
+
 attributes #0 = { alwaysinline }
+attributes #1 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1, !3}
-!gla.inputs = !{!5, !11, !13, !15, !17, !19}
-!gla.uniforms = !{!21}
+!gla.inputs = !{!5, !11, !13, !15, !17, !19, !21, !23, !25, !27}
+!gla.uniforms = !{!29, !31}
+!gla.noStaticUse = !{!25, !27, !31}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"color", i32 7, <4 x float>* @color_typeProxy, metadata !2}
@@ -129,10 +214,20 @@ attributes #0 = { alwaysinline }
 !18 = metadata !{i32 0, i32 2, i32 1029, null, i32 1, i32 47}
 !19 = metadata !{metadata !"gl_SampleMaskIn", i32 1, [1 x i32]* @gl_SampleMaskIn_typeProxy, metadata !20}
 !20 = metadata !{i32 0, i32 3, i32 1030, null, i32 0, i32 48}
-!21 = metadata !{metadata !"gl_NumSamples", i32 12, i32* @gl_NumSamples_typeProxy, metadata !22}
-!22 = metadata !{i32 0, i32 1, i32 1024, null}
-!23 = metadata !{i32 3}
-!24 = metadata !{i32 2}
+!21 = metadata !{metadata !"scalarIn", i32 1, float* @scalarIn_typeProxy, metadata !22}
+!22 = metadata !{i32 0, i32 3, i32 1032, null, i32 1}
+!23 = metadata !{metadata !"sampInArray", i32 1, <3 x float>* @sampInArray_typeProxy, metadata !24}
+!24 = metadata !{i32 0, i32 3, i32 1033, null, i32 257}
+!25 = metadata !{metadata !"colorSampIn", i32 1, <4 x float>* @colorSampIn_typeProxy, metadata !26}
+!26 = metadata !{i32 0, i32 3, i32 1034, null, i32 257}
+!27 = metadata !{metadata !"colorfsi", i32 1, <4 x float>* @colorfsi_typeProxy, metadata !28}
+!28 = metadata !{i32 0, i32 3, i32 1035, null, i32 256}
+!29 = metadata !{metadata !"gl_NumSamples", i32 12, i32* @gl_NumSamples_typeProxy, metadata !30}
+!30 = metadata !{i32 0, i32 1, i32 1024, null}
+!31 = metadata !{metadata !"i", i32 12, i32* @i_typeProxy, metadata !32}
+!32 = metadata !{i32 0, i32 2, i32 1024, null}
+!33 = metadata !{i32 3}
+!34 = metadata !{i32 2}
 
 
 Bottom IR:
@@ -149,6 +244,10 @@ Bottom IR:
 @gl_SampleMaskIn = global [1 x i32] zeroinitializer
 @gl_SampleMask = global [1 x i32] zeroinitializer
 @gl_NumSamples = external addrspace(2) constant i32
+@scalarIn = global float 0.000000e+00
+@sampInArray = global <3 x float> zeroinitializer
+@colorSampIn = global <4 x float> zeroinitializer
+@colorfsi = global <4 x float> zeroinitializer
 
 define fastcc void @main() {
 entry:
@@ -157,27 +256,45 @@ entry:
   store <4 x float> %color, <4 x float>* @color, align 16
   %l1.i = load i32* @gl_Layer, align 4
   %p2.i = load i32* @gl_PrimitiveID, align 4
-  %0 = add i32 %p2.i, %l1.i, !gla.precision !23
-  %1 = sitofp i32 %0 to float, !gla.precision !23
+  %0 = add i32 %p2.i, %l1.i, !gla.precision !33
+  %1 = sitofp i32 %0 to float, !gla.precision !33
   %2 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %1, <4 x i32> zeroinitializer)
-  %color1 = fmul <4 x float> %color, %2, !gla.precision !23
+  %color1 = fmul <4 x float> %color, %2, !gla.precision !33
   %3 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %color1, <2 x i32> <i32 0, i32 1>)
   store <4 x float> %color1, <4 x float>* @color, align 16
   %a11.i = load i32* @gl_SampleID, align 4
   %a22.i = load <2 x float>* @gl_SamplePosition, align 8
-  %gla_constGEP2 = getelementptr [1 x i32]* @gl_SampleMaskIn, i32 0, i32 0
-  %a33.i = load i32* %gla_constGEP2, align 4
-  %gla_constGEP3 = getelementptr [1 x i32]* @gl_SampleMask, i32 0, i32 0
-  store i32 %a33.i, i32* %gla_constGEP3, align 4
-  %n24.i = load i32 addrspace(2)* @gl_NumSamples, align 4, !gla.uniform !21
-  %4 = add i32 %a11.i, 4, !gla.precision !24
-  %5 = add i32 %4, %a33.i, !gla.precision !24
-  %6 = add i32 %5, %n24.i, !gla.precision !23
+  %gla_constGEP3 = getelementptr [1 x i32]* @gl_SampleMaskIn, i32 0, i32 0
+  %a33.i = load i32* %gla_constGEP3, align 4
   %gla_constGEP4 = getelementptr [1 x i32]* @gl_SampleMask, i32 0, i32 0
-  store i32 %6, i32* %gla_constGEP4, align 4
-  %7 = fadd <2 x float> %a22.i, %3, !gla.precision !23
+  store i32 %a33.i, i32* %gla_constGEP4, align 4
+  %n24.i = load i32 addrspace(2)* @gl_NumSamples, align 4, !gla.uniform !29
+  %4 = add i32 %a11.i, 4, !gla.precision !34
+  %5 = add i32 %4, %a33.i, !gla.precision !34
+  %6 = add i32 %5, %n24.i, !gla.precision !33
+  %gla_constGEP5 = getelementptr [1 x i32]* @gl_SampleMask, i32 0, i32 0
+  store i32 %6, i32* %gla_constGEP5, align 4
+  %7 = fadd <2 x float> %a22.i, %3, !gla.precision !33
   %8 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float> %color1, i32 3, <2 x float> %7, i32 0, <2 x float> %7, i32 1, float undef, i32 undef, float undef, i32 undef)
   store <4 x float> %8, <4 x float>* @color, align 16
+  %9 = load float* @scalarIn, align 4
+  %res1.i = call float @llvm.gla.interpolateAtCentroid.f32.f32(float %9), !gla.precision !33
+  %10 = load <3 x float>* @sampInArray, align 16
+  %res32.i = call <3 x float> @llvm.gla.interpolateAtCentroid.v3f32.v3f32(<3 x float> %10), !gla.precision !33
+  %res33.i = call <3 x float> @llvm.gla.interpolateAtSample.v3f32.v3f32.i32(<3 x float> %10, i32 0), !gla.precision !33
+  %res34.i = fadd <3 x float> %res32.i, %res33.i, !gla.precision !33
+  %res5.i = call float @llvm.gla.interpolateAtSample.f32.f32.i32(float %9, i32 1), !gla.precision !33
+  %res6.i = fadd float %res1.i, %res5.i, !gla.precision !33
+  %res37.i = call <3 x float> @llvm.gla.interpolateAtOffset.v3f32.v3f32.v2f32(<3 x float> %10, <2 x float> <float 0x3FC99999A0000000, float 0x3FC99999A0000000>), !gla.precision !33
+  %res38.i = fadd <3 x float> %res34.i, %res37.i, !gla.precision !33
+  %res9.i = call float @llvm.gla.interpolateAtOffset.f32.f32.v2f32(float %9, <2 x float> <float 0x3FC99999A0000000, float 0x3FC99999A0000000>), !gla.precision !33
+  %res10.i = fadd float %res6.i, %res9.i, !gla.precision !33
+  %11 = call <3 x float> @llvm.gla.fSwizzle.v3f32.f32.v3i32(float %res10.i, <3 x i32> zeroinitializer)
+  %12 = fmul <3 x float> %res38.i, %11, !gla.precision !33
+  %13 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v2f32.v2f32.v4f32.f32(<3 x float> undef, i32 7, <2 x float> %7, i32 0, <2 x float> %7, i32 1, <4 x float> %color1, i32 2, float undef, i32 undef)
+  %14 = fadd <3 x float> %13, %12, !gla.precision !33
+  %15 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> %color1, i32 7, <3 x float> %14, i32 0, <3 x float> %14, i32 1, <3 x float> %14, i32 2, float undef, i32 undef)
+  store <4 x float> %15, <4 x float>* @color, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -188,6 +305,30 @@ stage-exit:                                       ; preds = %stage-epilogue
 }
 
 ; Function Attrs: nounwind readnone
+declare float @llvm.gla.interpolateAtCentroid.f32.f32(float) #0
+
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.interpolateAtCentroid.v3f32.v3f32(<3 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.interpolateAtSample.v3f32.v3f32.i32(<3 x float>, i32) #0
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.interpolateAtSample.f32.f32.i32(float, i32) #0
+
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.interpolateAtOffset.v3f32.v3f32.v2f32(<3 x float>, <2 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.interpolateAtOffset.f32.f32.v2f32(float, <2 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float>, i32, <3 x float>, i32, <3 x float>, i32, <3 x float>, i32, float, i32) #0
+
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.v2f32.v2f32.v4f32.f32(<3 x float>, i32, <2 x float>, i32, <2 x float>, i32, <4 x float>, i32, float, i32) #0
+
+; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v2f32.v2f32.f32.f32(<4 x float>, i32, <2 x float>, i32, <2 x float>, i32, float, i32, float, i32) #0
 
 ; Function Attrs: nounwind readnone
@@ -196,12 +337,16 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
 ; Function Attrs: nounwind readnone
 declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>) #0
 
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fSwizzle.v3f32.f32.v3i32(float, <3 x i32>) #0
+
 attributes #0 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
 !gla.outputs = !{!1, !3}
-!gla.inputs = !{!5, !11, !13, !15, !17, !19}
-!gla.uniforms = !{!21}
+!gla.inputs = !{!5, !11, !13, !15, !17, !19, !21, !23, !25, !27}
+!gla.uniforms = !{!29, !31}
+!gla.noStaticUse = !{!25, !27, !31}
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"color", i32 7, <4 x float>* @color_typeProxy, metadata !2}
@@ -224,10 +369,20 @@ attributes #0 = { nounwind readnone }
 !18 = metadata !{i32 0, i32 2, i32 1029, null, i32 1, i32 47}
 !19 = metadata !{metadata !"gl_SampleMaskIn", i32 1, [1 x i32]* @gl_SampleMaskIn_typeProxy, metadata !20}
 !20 = metadata !{i32 0, i32 3, i32 1030, null, i32 0, i32 48}
-!21 = metadata !{metadata !"gl_NumSamples", i32 12, i32* @gl_NumSamples_typeProxy, metadata !22}
-!22 = metadata !{i32 0, i32 1, i32 1024, null}
-!23 = metadata !{i32 3}
-!24 = metadata !{i32 2}
+!21 = metadata !{metadata !"scalarIn", i32 1, float* @scalarIn_typeProxy, metadata !22}
+!22 = metadata !{i32 0, i32 3, i32 1032, null, i32 1}
+!23 = metadata !{metadata !"sampInArray", i32 1, <3 x float>* @sampInArray_typeProxy, metadata !24}
+!24 = metadata !{i32 0, i32 3, i32 1033, null, i32 257}
+!25 = metadata !{metadata !"colorSampIn", i32 1, <4 x float>* @colorSampIn_typeProxy, metadata !26}
+!26 = metadata !{i32 0, i32 3, i32 1034, null, i32 257}
+!27 = metadata !{metadata !"colorfsi", i32 1, <4 x float>* @colorfsi_typeProxy, metadata !28}
+!28 = metadata !{i32 0, i32 3, i32 1035, null, i32 256}
+!29 = metadata !{metadata !"gl_NumSamples", i32 12, i32* @gl_NumSamples_typeProxy, metadata !30}
+!30 = metadata !{i32 0, i32 1, i32 1024, null}
+!31 = metadata !{metadata !"i", i32 12, i32* @i_typeProxy, metadata !32}
+!32 = metadata !{i32 0, i32 2, i32 1024, null}
+!33 = metadata !{i32 3}
+!34 = metadata !{i32 2}
 #version 310 es
 // LunarGOO output
 #extension GL_ANDROID_extension_pack_es31a : enable
@@ -244,11 +399,19 @@ attributes #0 = { nounwind readnone }
 #extension GL_OES_shader_multisample_interpolation : enable
 #extension GL_OES_texture_storage_multisample_2d_array : enable
 precision mediump float; // this will be almost entirely overridden by individual declarations
+uniform mediump int i;
 in inName {
 	highp vec4 color;
 } inInst;
+in highp float scalarIn;
+sample in highp vec3 sampInArray;
+sample in highp vec4 colorSampIn;
+flat in highp vec4 colorfsi;
 out highp vec4 color;
 const int C_4 = 4;
+const int C_0 = 0;
+const int C_1 = 1;
+const vec2 C_vec2p0d2p = vec2(0.2);
 
 void main()
 {
@@ -267,6 +430,23 @@ void main()
 	vec4 H_np3y8f = color1;
 	H_np3y8f.xy = H_kbfl6m1.xy;
 	color = H_np3y8f;
+	highp float res = interpolateAtCentroid(scalarIn);
+	highp vec3 res1 = interpolateAtCentroid(sampInArray);
+	highp vec3 res2 = interpolateAtSample(sampInArray, C_0);
+	highp vec3 res3 = res1 + res2;
+	highp float res4 = interpolateAtSample(scalarIn, C_1);
+	highp float res5 = res + res4;
+	highp vec3 res6 = interpolateAtOffset(sampInArray, C_vec2p0d2p);
+	highp vec3 res7 = res3 + res6;
+	highp float res8 = interpolateAtOffset(scalarIn, C_vec2p0d2p);
+	highp float res9 = res5 + res8;
+	vec3 H_mg22iw = vec3(res9);
+	highp vec3 H_dhcv6v = H_mg22iw * res7;
+	vec3 H_eea2cn1 = vec3(H_kbfl6m1.x, H_kbfl6m1.y, color1.z);
+	highp vec3 H_gzzi4e1 = H_dhcv6v + H_eea2cn1;
+	vec4 H_np3y8fr = color1;
+	H_np3y8fr.xyz = H_gzzi4e1.xyz;
+	color = H_np3y8fr;
 	
 }
 
@@ -286,11 +466,19 @@ void main()
 #extension GL_OES_shader_multisample_interpolation : enable
 #extension GL_OES_texture_storage_multisample_2d_array : enable
 precision mediump float; // this will be almost entirely overridden by individual declarations
+uniform mediump int i;
 in inName {
 	highp vec4 color;
 } inInst;
+in highp float scalarIn;
+sample in highp vec3 sampInArray;
+sample in highp vec4 colorSampIn;
+flat in highp vec4 colorfsi;
 out highp vec4 color;
 const int C_4 = 4;
+const int C_0 = 0;
+const int C_1 = 1;
+const vec2 C_vec2p0d2p = vec2(0.2);
 
 void main()
 {
@@ -309,6 +497,23 @@ void main()
 	vec4 H_np3y8f = color1;
 	H_np3y8f.xy = H_kbfl6m.xy;
 	color = H_np3y8f;
+	highp float res = interpolateAtCentroid(scalarIn);
+	highp vec3 res1 = interpolateAtCentroid(sampInArray);
+	highp vec3 res2 = interpolateAtSample(sampInArray, C_0);
+	highp vec3 res3 = res1 + res2;
+	highp float res4 = interpolateAtSample(scalarIn, C_1);
+	highp float res5 = res + res4;
+	highp vec3 res6 = interpolateAtOffset(sampInArray, C_vec2p0d2p);
+	highp vec3 res7 = res3 + res6;
+	highp float res8 = interpolateAtOffset(scalarIn, C_vec2p0d2p);
+	highp float res9 = res5 + res8;
+	vec3 H_mg22iw = vec3(res9);
+	highp vec3 H_dhcv6v = H_mg22iw * res7;
+	vec3 H_q1vl0w = vec3(H_kbfl6m.x, H_kbfl6m.y, color1.z);
+	highp vec3 H_gzzi4e = H_dhcv6v + H_q1vl0w;
+	vec4 H_np3y8fr = color1;
+	H_np3y8fr.xyz = H_gzzi4e.xyz;
+	color = H_np3y8fr;
 	
 }
 

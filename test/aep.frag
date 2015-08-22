@@ -18,12 +18,14 @@ out vec4 color;
 
 int foo_GS();
 void goodSample();
+vec3 interp();
 
 void main()
 {
     color = inInst.color;
     color *= float(foo_GS());
     goodSample();
+    color.xyz += interp();
 }
 
 // GL_OES_geometry_shader
@@ -48,4 +50,32 @@ void goodSample()
     mediump int n2 = gl_NumSamples;
     gl_SampleMask[0] += n1 + n2 + a1;
     color.xy += a2;
+}
+
+// GL_OES_shader_multisample_interpolation
+
+#extension GL_OES_shader_multisample_interpolation : enable
+
+in float scalarIn;
+
+sample in vec4 colorSampIn;
+flat sample in vec4 colorfsi;
+sample in vec3 sampInArray;  // ??: add the array: "[4]", currently makes two "sample" come out
+uniform int i;
+
+vec3 interp()
+{
+    float res;
+    vec3 res3;
+
+    res   = interpolateAtCentroid(scalarIn);
+    res3  = interpolateAtCentroid(sampInArray/*[2]*/);
+
+    res3 += interpolateAtSample(sampInArray/*[i]*/, 0);
+    res  += interpolateAtSample(scalarIn, 1);
+
+    res3 += interpolateAtOffset(sampInArray/*[2]*/, vec2(0.2));
+    res  += interpolateAtOffset(scalarIn, vec2(0.2));
+
+    return res * res3;
 }
