@@ -536,6 +536,35 @@ public:
             if (GetMdNamedInt(module, OriginUpperLeftMdName))
                 globalStructures << "layout(origin_upper_left) in;" << std::endl;
 
+            if (GetMdNamedInt(module, BlendEquationMdName)) {
+                int blendEquations = GetMdNamedInt(module, BlendEquationMdName);
+                for (EMdBlendEquationShift be = (EMdBlendEquationShift)0; be < gla::EmeCount; be = (EMdBlendEquationShift)(be + 1)) {
+                    if (blendEquations & (1 << be)) {
+                        globalStructures << "layout(";
+                        switch (be) {
+                        case EmeMultiply:      globalStructures << "blend_support_multiply";        break;
+                        case EmeScreen:        globalStructures << "blend_support_screen";          break;
+                        case EmeOverlay:       globalStructures << "blend_support_overlay";         break;
+                        case EmeDarken:        globalStructures << "blend_support_darken";          break;
+                        case EmeLighten:       globalStructures << "blend_support_lighten";         break;
+                        case EmeColordodge:    globalStructures << "blend_support_colordodge";      break;
+                        case EmeColorburn:     globalStructures << "blend_support_colorburn";       break;
+                        case EmeHardlight:     globalStructures << "blend_support_hardlight";       break;
+                        case EmeSoftlight:     globalStructures << "blend_support_softlight";       break;
+                        case EmeDifference:    globalStructures << "blend_support_difference";      break;
+                        case EmeExclusion:     globalStructures << "blend_support_exclusion";       break;
+                        case EmeHslHue:        globalStructures << "blend_support_hsl_hue";         break;
+                        case EmeHslSaturation: globalStructures << "blend_support_hsl_saturation";  break;
+                        case EmeHslColor:      globalStructures << "blend_support_hsl_color";       break;
+                        case EmeHslLuminosity: globalStructures << "blend_support_hsl_luminosity";  break;
+                        case EmeAllEquations:  globalStructures << "blend_support_all_equations";   break;
+                        default:               globalStructures << "bad_blend";                     break;
+                        }
+                        globalStructures << ") out;" << std::endl;
+                    }
+                }
+            }
+
             break;
 
         case EShLangCompute:

@@ -158,6 +158,7 @@ namespace gla {
 //     !gla.invocations        = !{ int }
 //     !gla.pixelCenterInteger = !{ bool }
 //     !gla.originUpperLeft    = !{ bool }
+//     !gla.blendEquations     = !{ mask of bits shifted by EMdBlendEquationShift amounts }
 //
 
 // Operand names
@@ -185,6 +186,7 @@ const char* const PointModeMdName          = "gla.pointMode";
 const char* const InvocationsMdName        = "gla.invocations";
 const char* const PixelCenterIntegerMdName = "gla.pixelCenterInteger";
 const char* const OriginUpperLeftMdName    = "gla.originUpperLeft";
+const char* const BlendEquationMdName      = "gla.blendEquations";
 
 // what kind of I/O:
 enum EMdInputOutput {
@@ -412,6 +414,30 @@ enum EMdBuiltIn {
     EmbHelperInvocation,
     EmbBoundingBox,
     EmbCount
+};
+
+enum EMdBlendEquationShift {
+    // No 'EMeNone':
+    // These are used as bit-shift amounts.  A mask of such shifts will have type 'int',
+    // and in that space, 0 means no bits set, or none.  In this enum, 0 means (1 << 0), a bit is set.
+    EmeMultiply,
+    EmeScreen,
+    EmeOverlay,
+    EmeDarken,
+    EmeLighten,
+    EmeColordodge,
+    EmeColorburn,
+    EmeHardlight,
+    EmeSoftlight,
+    EmeDifference,
+    EmeExclusion,
+    EmeHslHue,
+    EmeHslSaturation,
+    EmeHslColor,
+    EmeHslLuminosity,
+    EmeAllEquations,
+
+    EmeCount
 };
 
 //

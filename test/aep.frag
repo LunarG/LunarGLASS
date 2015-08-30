@@ -79,3 +79,6 @@ vec3 interp()
 
     return res * res3;
 }
+
+layout(blend_support_darken) out;
+layout(blend_support_all_equations) out;

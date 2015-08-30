@@ -457,6 +457,31 @@ gla::EMdBuiltIn GetMdBuiltIn(const glslang::TType& type)
     }
 }
 
+gla::EMdBlendEquationShift GetMdBlendShift(glslang::TBlendEquationShift b)
+{
+    switch (b) {
+    case glslang::EBlendMultiply:      return gla::EmeMultiply;
+    case glslang::EBlendScreen:        return gla::EmeScreen;
+    case glslang::EBlendOverlay:       return gla::EmeOverlay;
+    case glslang::EBlendDarken:        return gla::EmeDarken;
+    case glslang::EBlendLighten:       return gla::EmeLighten;
+    case glslang::EBlendColordodge:    return gla::EmeColordodge;
+    case glslang::EBlendColorburn:     return gla::EmeColorburn;
+    case glslang::EBlendHardlight:     return gla::EmeHardlight;
+    case glslang::EBlendSoftlight:     return gla::EmeSoftlight;
+    case glslang::EBlendDifference:    return gla::EmeDifference;
+    case glslang::EBlendExclusion:     return gla::EmeExclusion;
+    case glslang::EBlendHslHue:        return gla::EmeHslHue;
+    case glslang::EBlendHslSaturation: return gla::EmeHslSaturation;
+    case glslang::EBlendHslColor:      return gla::EmeHslColor;
+    case glslang::EBlendHslLuminosity: return gla::EmeHslLuminosity;
+    case glslang::EBlendAllEquations:  return gla::EmeAllEquations;
+    default:
+        gla::UnsupportedFunctionality("built in variable", gla::EATContinue);
+        return gla::EmeAllEquations;
+    }
+}
+
 const char* filterMdName(const glslang::TString& name)
 {
     if (glslang::IsAnonymous(name))
@@ -539,6 +564,16 @@ TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager, const glsl
             metadata.makeMdNamedInt(gla::PixelCenterIntegerMdName, glslangIntermediate->getPixelCenterInteger());
         if (glslangIntermediate->getOriginUpperLeft())
             metadata.makeMdNamedInt(gla::OriginUpperLeftMdName, glslangIntermediate->getOriginUpperLeft());
+        if (glslangIntermediate->getBlendEquations()) {
+            int glslangBlendMask = glslangIntermediate->getBlendEquations();
+            int glaBlendMask = 0;
+            for (glslang::TBlendEquationShift be = (glslang::TBlendEquationShift)0; be < glslang::EBlendCount; be = (glslang::TBlendEquationShift)(be + 1)) {
+                if (glslangBlendMask & be)
+                    glaBlendMask |= 1 << GetMdBlendShift(be);
+            }
+
+            metadata.makeMdNamedInt(gla::BlendEquationMdName, glslangIntermediate->getBlendEquations());
+        }
         break;
 
     case EShLangCompute:
