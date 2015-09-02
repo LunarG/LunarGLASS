@@ -200,10 +200,10 @@ attributes #1 = { nounwind }
 !gla.outputs = !{!3}
 
 !0 = metadata !{metadata !"u", i32 12, float* @u_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
 !2 = metadata !{metadata !"main", i32 15}
 !3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 43}
+!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0}
 
 
 Bottom IR:
@@ -252,10 +252,10 @@ attributes #1 = { nounwind readnone }
 !gla.outputs = !{!3}
 
 !0 = metadata !{metadata !"u", i32 12, float* @u_typeProxy, metadata !1}
-!1 = metadata !{i32 0, i32 0, i32 1024, null}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
 !2 = metadata !{metadata !"main", i32 15}
 !3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 43}
+!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0}
 #version 400 core
 // LunarGOO output
 uniform float u;

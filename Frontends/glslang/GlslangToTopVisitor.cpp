@@ -161,7 +161,7 @@ namespace {
 // Helper functions for translating glslang to metadata, so that information
 // not representable in LLVM does not get lost.
 
-gla::EMdInputOutput GetMdQualifier(const glslang::TType& type)
+gla::EMdInputOutput GetMdInputOutput(const glslang::TType& type)
 {
     gla::EMdInputOutput mdQualifier = gla::EMioNone;
 
@@ -371,19 +371,38 @@ int GetMdSlotLocation(const glslang::TType& type)
         return type.getQualifier().layoutLocation;
 }
 
-// Get the right binding/location/set content.
-// 
-// Location and binding are generally mutually exclusive and can share the same
-// metadata field.
-//
-int GetMdBindingLocation(const glslang::TType& type)
+int GetMdLocation(const glslang::TType& type)
 {
-    if (type.getQualifier().layoutBinding != glslang::TQualifier::layoutBindingEnd)
-        return type.getQualifier().layoutBinding;
-    else if (type.getQualifier().layoutLocation != glslang::TQualifier::layoutLocationEnd)
+    if (type.getQualifier().layoutLocation != glslang::TQualifier::layoutLocationEnd)
         return type.getQualifier().layoutLocation;
     else
         return gla::MaxUserLayoutLocation;
+}
+
+int GetMdBinding(const glslang::TType& type)
+{
+    if (type.getQualifier().layoutBinding != glslang::TQualifier::layoutBindingEnd)
+        return type.getQualifier().layoutBinding;
+    else
+        return -1;
+}
+
+unsigned int GetMdQualifiers(const glslang::TType& type)
+{
+    unsigned int qualifiers = 0;
+
+    if (type.getQualifier().volatil)
+        qualifiers |= 1 << gla::EmqVolatile;
+    if (type.getQualifier().readonly)
+        qualifiers |= 1 << gla::EmqNonwritable;
+    if (type.getQualifier().writeonly)
+        qualifiers |= 1 << gla::EmqNonreadable;
+    if (type.getQualifier().restrict)
+        qualifiers |= 1 << gla::EmqRestrict;
+    if (type.getQualifier().coherent)
+        qualifiers |= 1 << gla::EmqCoherent;
+
+    return qualifiers;
 }
 
 gla::EMdPrecision GetMdPrecision(const glslang::TType& type)
@@ -3046,7 +3065,8 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type, 
         mdArgs.push_back(llvm::MDString::get(context, ""));
 
     // !typeLayout
-    mdArgs.push_back(metadata.makeMdTypeLayout(GetMdTypeLayout(type, inheritMatrix), GetMdPrecision(type), GetMdSlotLocation(type), samplerMd, -1, GetMdBuiltIn(type)));
+    mdArgs.push_back(metadata.makeMdTypeLayout(GetMdTypeLayout(type, inheritMatrix), GetMdPrecision(type), GetMdSlotLocation(type), samplerMd, -1, GetMdBuiltIn(type),
+                                               GetMdBinding(type), GetMdQualifiers(type)));
 
     const glslang::TTypeList* typeList = type.getStruct();
     if (typeList) {
@@ -3077,7 +3097,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, 
     gla::EInterpolationMode interpolationMode = -1;
     int location;
     gla::EMdTypeLayout layout = GetMdTypeLayout(type, inheritMatrix);
-    gla::EMdInputOutput ioType = GetMdQualifier(type);
+    gla::EMdInputOutput ioType = GetMdInputOutput(type);
 
     switch (ioType) {
     case gla::EMioDefaultUniform:
@@ -3085,7 +3105,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, 
     case gla::EMioBufferBlockMember:
     case gla::EMioBufferBlockMemberArrayed:
         // uniforms
-        location = GetMdBindingLocation(type);
+        location = GetMdLocation(type);
         break;
 
     default:
@@ -3108,7 +3128,8 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, 
         }
 
         // Make the !typeLayout for this level
-        llvm::MDNode* layoutMd = metadata.makeMdTypeLayout(layout, GetMdPrecision(type), location, samplerMd, interpolationMode, GetMdBuiltIn(type));
+        llvm::MDNode* layoutMd = metadata.makeMdTypeLayout(layout, GetMdPrecision(type), location, samplerMd, interpolationMode, GetMdBuiltIn(type),
+                                                           GetMdBinding(type), GetMdQualifiers(type));
 
         // Make the !gla.uniform/input/output for this level
         llvm::MDNode* ioMd = metadata.makeMdSingleTypeIo(instanceName, typeName, ioType, MakePermanentTypeProxy(proxyType, proxyName), layoutMd, members);
@@ -3129,7 +3150,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, 
         // Make the top-level !gla.uniform/input/output node that points to the recursive !aggregate node
         return metadata.makeMdInputOutput(instanceName, kind, ioType, MakePermanentTypeProxy(proxyType, proxyName),
                                           layout, GetMdPrecision(type), location, samplerMd, aggregate,
-                                          interpolationMode, GetMdBuiltIn(type));
+                                          interpolationMode, GetMdBuiltIn(type), GetMdBinding(type), GetMdQualifiers(type));
     }
 }
 

@@ -130,9 +130,9 @@ attributes #1 = { nounwind }
 !0 = metadata !{i32* @atomi}
 !1 = metadata !{i32* @atomu}
 !2 = metadata !{metadata !"value", i32 12, i32* @value_typeProxy, metadata !3}
-!3 = metadata !{i32 1, i32 3, i32 1024, null}
+!3 = metadata !{i32 1, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
 !4 = metadata !{metadata !"counter", i32 12, i32* @counter_typeProxy, metadata !5}
-!5 = metadata !{i32 10, i32 3, i32 0, null}
+!5 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0}
 !6 = metadata !{metadata !"countArr", i32 12, [4 x i32]* @countArr_typeProxy, metadata !5}
 !7 = metadata !{metadata !"main", i32 15}
 !8 = metadata !{i32 3}
@@ -221,17 +221,17 @@ attributes #0 = { nounwind }
 !0 = metadata !{i32* @atomi}
 !1 = metadata !{i32* @atomu}
 !2 = metadata !{metadata !"value", i32 12, i32* @value_typeProxy, metadata !3}
-!3 = metadata !{i32 1, i32 3, i32 1024, null}
+!3 = metadata !{i32 1, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
 !4 = metadata !{metadata !"counter", i32 12, i32* @counter_typeProxy, metadata !5}
-!5 = metadata !{i32 10, i32 3, i32 0, null}
+!5 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0}
 !6 = metadata !{metadata !"countArr", i32 12, [4 x i32]* @countArr_typeProxy, metadata !5}
 !7 = metadata !{metadata !"main", i32 15}
 !8 = metadata !{i32 3}
 #version 310 es
 // LunarGOO output
 uniform highp uint value;
-layout(location=0) uniform highp atomic_uint counter;
-layout(location=0) uniform highp atomic_uint countArr[4];
+layout(binding=0) uniform highp atomic_uint counter;
+layout(binding=0) uniform highp atomic_uint countArr[4];
 shared int atomi;
 shared int atomu;
 const int C_3 = 3;
@@ -257,12 +257,9 @@ void main()
 
 tempglsl.comp
 Warning, version 310 is not yet complete; most version-specific features are present, but some are missing.
-ERROR: 0:4: 'atomic_uint' : layout(binding=X) is required 
-ERROR: 0:5: 'location' : overlapping use of location 0
-ERROR: 0:5: 'atomic_uint' : layout(binding=X) is required 
 ERROR: 0:23: '=' :  cannot convert from 'global highp uint' to 'temp highp int'
 ERROR: 0:24: '=' :  cannot convert from 'global highp uint' to 'temp highp int'
 ERROR: 0:25: '=' :  cannot convert from 'global highp uint' to 'temp highp int'
-ERROR: 6 compilation errors.  No code generated.
+ERROR: 3 compilation errors.  No code generated.
 
 

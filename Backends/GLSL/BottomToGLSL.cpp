@@ -84,6 +84,7 @@
 
 namespace {
     bool UseLogicalIO = true;
+    bool HideBindings = false;
 
     bool ValidIdentChar(int c)
     {
@@ -648,7 +649,8 @@ public:
     void emitGlaArraySize(std::ostringstream&, int arraySize);
     void emitGlaSamplerType(std::ostringstream&, const llvm::MDNode* mdSamplerNode);
     void emitGlaInterpolationQualifier(EVariableQualifier qualifier, EInterpolationMethod interpMethod, EInterpolationLocation interpLocation);
-    void emitGlaLayout(std::ostringstream&, gla::EMdTypeLayout layout, int location, bool binding);
+    void emitGlaLayout(std::ostringstream&, gla::EMdTypeLayout layout, int location, int binding);
+    void emitGlaMdQualifiers(std::ostringstream&, unsigned qualifiers);
     void emitGlaConstructor(std::ostringstream&, llvm::Type* type, int count = -1);
     void emitGlaValueDeclaration(const llvm::Value* value, const char* rhs, bool forceGlobal = false);
     void emitGlaValue(std::ostringstream&, const llvm::Value* value, const char* rhs);
@@ -1673,7 +1675,10 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
     EMdTypeLayout dummyLayout;
     int dummyLocation;
     int dummyInterp;
-    CrackIOMd(mdNode, metaType.name, ioKind, type, dummyLayout, metaType.precision, dummyLocation, metaType.mdSampler, metaType.mdAggregate, dummyInterp, metaType.builtIn);
+    int dummyBinding;
+    unsigned int dummyQualifiers;
+    CrackIOMd(mdNode, metaType.name, ioKind, type, dummyLayout, metaType.precision, dummyLocation, metaType.mdSampler, metaType.mdAggregate,
+              dummyInterp, metaType.builtIn, dummyBinding, dummyQualifiers);
     std::string builtInName = GetBuiltInName(ioKind, stage, metaType.builtIn);
 
     std::string instanceName = mdNode->getOperand(0)->getName();
@@ -4019,12 +4024,15 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
 {
     EMdTypeLayout typeLayout;
     int location;
+    int binding;
+    unsigned int qualifiers;
 
     if (ioRoot) {
         EMdInputOutput ioKind;
         llvm::Type* proxyType;
         int interpMode;
-        if (! CrackIOMd(mdNode, metaType.name, ioKind, proxyType, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.mdAggregate, interpMode, metaType.builtIn)) {
+        if (! CrackIOMd(mdNode, metaType.name, ioKind, proxyType, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.mdAggregate,
+                        interpMode, metaType.builtIn, binding, qualifiers)) {
             UnsupportedFunctionality("IO metadata for type");
             return false;
         }
@@ -4072,7 +4080,7 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
                 emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
         }
     } else {
-        if (! CrackAggregateMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.builtIn)) {
+        if (! CrackAggregateMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.builtIn, binding, qualifiers)) {
             UnsupportedFunctionality("aggregate metadata for type");
             return false;
         }
@@ -4083,8 +4091,10 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
     metaType.notSigned = typeLayout == EMtlUnsigned;
     metaType.atomic = typeLayout == EMtlAtomicUint;
 
-    if (! arrayChild)
-        emitGlaLayout(out, typeLayout, location, metaType.block || metaType.mdSampler != 0);
+    if (! arrayChild) {
+        emitGlaLayout(out, typeLayout, location, binding);
+        emitGlaMdQualifiers(out, qualifiers);
+    }
 
     return true;
 }
@@ -4164,7 +4174,7 @@ void gla::GlslTarget::emitGlaInterpolationQualifier(EVariableQualifier qualifier
     }
 }
 
-void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location, bool binding)
+void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location, int binding)
 {
     const char* layoutStr = 0;
 
@@ -4183,19 +4193,21 @@ void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout 
     default:  break;
     }
 
-    int set = (unsigned)location >> 16;
-    location &= 0xFFFF;
+    if (HideBindings)
+        binding = -1;
 
-    // Unbias set, which was biased by 1 to distinguish between "set=0" and nothing.
-    bool setPresent = (set != 0);
-    if (setPresent)
-        --set;
+    bool setPresent = false;
+    int set = 0;
+    if (binding != -1) {
+        set = (unsigned)binding >> 16;
+        binding &= 0xFFFF;
+        // Unbias set, which was biased by 1 to distinguish between "set=0" and nothing.
+        setPresent = (set != 0);
+        if (setPresent)
+            --set;
+    }
 
-    if (! setPresent && location >= gla::MaxUserLayoutLocation && layoutStr == 0)
-        return;
-
-    // TODO: remove the following two lines when it is safe to correctly emit bindings
-    if (binding && layoutStr == 0)
+    if (! setPresent && location >= gla::MaxUserLayoutLocation && layoutStr == 0 && binding == -1)
         return;
 
     bool comma = false;
@@ -4204,23 +4216,42 @@ void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout 
         out << layoutStr;
         comma = true;
     }
-    // TODO: remove this if test when it is safe to correctly emit bindings
-    if (! binding) {
-        if (location < gla::MaxUserLayoutLocation) {
-            if (comma)
-                out << ", ";
-        
-            if (binding) {
-                if (setPresent)
-                    out << "set=" << set << ",";
-                out << "binding=";
-            } else
-                out << "location=";
-            out << location;
-            comma = true;
-        }
+    if (setPresent) {
+        if (comma)
+            out << ", ";
+        out << "set=" << set;
+        comma = true;
+    }
+    if (binding != -1) {
+        if (comma)
+            out << ", ";
+        out << "binding=" << binding;
+        comma = true;
+    }
+    if (location < gla::MaxUserLayoutLocation) {
+        if (comma)
+            out << ", ";
+        out << "location=" << location;
     }
     out << ") ";
+}
+
+void gla::GlslTarget::emitGlaMdQualifiers(std::ostringstream& out, unsigned qualifiers)
+{
+    if (qualifiers == 0)
+        return;
+
+    for (EMdQualifierShift qs = (EMdQualifierShift)0; qs < EmqCoherent; qs = (EMdQualifierShift)(qs + 1)) {
+        if (qualifiers & (1 << qs)) {
+            switch (qs) {
+            case EmqNonreadable:  out << " writeonly "; break;
+            case EmqNonwritable:  out << " readonly ";  break;
+            case EmqVolatile:     out << " volatile ";  break;
+            case EmqRestrict:     out << " restrict ";  break;
+            case EmqCoherent:     out << " coherent ";  break;
+            }
+        }
+    }
 }
 
 void gla::GlslTarget::emitGlaConstructor(std::ostringstream& out, llvm::Type* type, int count)
@@ -4644,7 +4675,10 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
 
     int interpMode;
     EMdBuiltIn builtIn;
-    if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode, builtIn)) {
+    int dummyBinding;
+    unsigned int dummyQualifiers;
+    if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode, builtIn,
+                                     dummyBinding, dummyQualifiers)) {
         // This path should not exist; it is a backup path for missing metadata.
         UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
 
