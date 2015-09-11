@@ -14,6 +14,7 @@ Usage: ./run [options]
 
 # Individual isolated tests, which will also catch the IRs, but slower than doing multithreaded
 ISOLATEDTESTS=(flowControl.frag \
+       AofA.frag               \
        aep.vert                \
        aep.tesc                \
        aep.tese                \

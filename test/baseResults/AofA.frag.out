@@ -1,0 +1,628 @@
+
+Top IR:
+; ModuleID = 'Glslang'
+
+%uAofA = type { [2 x [4 x float]] }
+
+@outfloat = global float 0.000000e+00
+@g4 = internal global [4 x [7 x float]] zeroinitializer
+@g5 = global [5 x [7 x float]] zeroinitializer
+@many = internal global [1 x [2 x [3 x [4 x [5 x [6 x float]]]]]] zeroinitializer
+@i = external addrspace(2) constant i32
+@j = external addrspace(2) constant i32
+@k = external addrspace(2) constant i32
+@infloat = global float 0.000000e+00
+@nameAofA = external addrspace(2) constant [3 x [5 x %uAofA]]
+
+define fastcc void @main() {
+entry:
+  %param66 = alloca [5 x [7 x float]]
+  %u = alloca [5 x [7 x float]]
+  %param2 = alloca [5 x [7 x float]]
+  %param = alloca [5 x [7 x float]]
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
+  store float 0.000000e+00, float* @outfloat
+  %param1 = load [5 x [7 x float]]* @g5
+  store [5 x [7 x float]] %param1, [5 x [7 x float]]* %param
+  %g4 = call [4 x [7 x float]] @"foo(f1[5][7];"([5 x [7 x float]]* %param)
+  store [4 x [7 x float]] %g4, [4 x [7 x float]]* @g4
+  %param23 = load [5 x [7 x float]]* @g5
+  store [5 x [7 x float]] %param23, [5 x [7 x float]]* %param2
+  %0 = call [4 x [7 x float]] @"foo(f1[5][7];"([5 x [7 x float]]* %param2)
+  %1 = load [4 x [7 x float]]* @g4
+  %element1 = extractvalue [4 x [7 x float]] %0, 0
+  %element2 = extractvalue [4 x [7 x float]] %1, 0
+  %element14 = extractvalue [7 x float] %element1, 0
+  %element25 = extractvalue [7 x float] %element2, 0
+  %2 = fcmp oeq float %element14, %element25
+  %element16 = extractvalue [7 x float] %element1, 1
+  %element27 = extractvalue [7 x float] %element2, 1
+  %3 = fcmp oeq float %element16, %element27
+  %4 = and i1 %2, %3
+  %element18 = extractvalue [7 x float] %element1, 2
+  %element29 = extractvalue [7 x float] %element2, 2
+  %5 = fcmp oeq float %element18, %element29
+  %6 = and i1 %4, %5
+  %element110 = extractvalue [7 x float] %element1, 3
+  %element211 = extractvalue [7 x float] %element2, 3
+  %7 = fcmp oeq float %element110, %element211
+  %8 = and i1 %6, %7
+  %element112 = extractvalue [7 x float] %element1, 4
+  %element213 = extractvalue [7 x float] %element2, 4
+  %9 = fcmp oeq float %element112, %element213
+  %10 = and i1 %8, %9
+  %element114 = extractvalue [7 x float] %element1, 5
+  %element215 = extractvalue [7 x float] %element2, 5
+  %11 = fcmp oeq float %element114, %element215
+  %12 = and i1 %10, %11
+  %element116 = extractvalue [7 x float] %element1, 6
+  %element217 = extractvalue [7 x float] %element2, 6
+  %13 = fcmp oeq float %element116, %element217
+  %14 = and i1 %12, %13
+  %element118 = extractvalue [4 x [7 x float]] %0, 1
+  %element219 = extractvalue [4 x [7 x float]] %1, 1
+  %element120 = extractvalue [7 x float] %element118, 0
+  %element221 = extractvalue [7 x float] %element219, 0
+  %15 = fcmp oeq float %element120, %element221
+  %element122 = extractvalue [7 x float] %element118, 1
+  %element223 = extractvalue [7 x float] %element219, 1
+  %16 = fcmp oeq float %element122, %element223
+  %17 = and i1 %15, %16
+  %element124 = extractvalue [7 x float] %element118, 2
+  %element225 = extractvalue [7 x float] %element219, 2
+  %18 = fcmp oeq float %element124, %element225
+  %19 = and i1 %17, %18
+  %element126 = extractvalue [7 x float] %element118, 3
+  %element227 = extractvalue [7 x float] %element219, 3
+  %20 = fcmp oeq float %element126, %element227
+  %21 = and i1 %19, %20
+  %element128 = extractvalue [7 x float] %element118, 4
+  %element229 = extractvalue [7 x float] %element219, 4
+  %22 = fcmp oeq float %element128, %element229
+  %23 = and i1 %21, %22
+  %element130 = extractvalue [7 x float] %element118, 5
+  %element231 = extractvalue [7 x float] %element219, 5
+  %24 = fcmp oeq float %element130, %element231
+  %25 = and i1 %23, %24
+  %element132 = extractvalue [7 x float] %element118, 6
+  %element233 = extractvalue [7 x float] %element219, 6
+  %26 = fcmp oeq float %element132, %element233
+  %27 = and i1 %25, %26
+  %28 = and i1 %14, %27
+  %element134 = extractvalue [4 x [7 x float]] %0, 2
+  %element235 = extractvalue [4 x [7 x float]] %1, 2
+  %element136 = extractvalue [7 x float] %element134, 0
+  %element237 = extractvalue [7 x float] %element235, 0
+  %29 = fcmp oeq float %element136, %element237
+  %element138 = extractvalue [7 x float] %element134, 1
+  %element239 = extractvalue [7 x float] %element235, 1
+  %30 = fcmp oeq float %element138, %element239
+  %31 = and i1 %29, %30
+  %element140 = extractvalue [7 x float] %element134, 2
+  %element241 = extractvalue [7 x float] %element235, 2
+  %32 = fcmp oeq float %element140, %element241
+  %33 = and i1 %31, %32
+  %element142 = extractvalue [7 x float] %element134, 3
+  %element243 = extractvalue [7 x float] %element235, 3
+  %34 = fcmp oeq float %element142, %element243
+  %35 = and i1 %33, %34
+  %element144 = extractvalue [7 x float] %element134, 4
+  %element245 = extractvalue [7 x float] %element235, 4
+  %36 = fcmp oeq float %element144, %element245
+  %37 = and i1 %35, %36
+  %element146 = extractvalue [7 x float] %element134, 5
+  %element247 = extractvalue [7 x float] %element235, 5
+  %38 = fcmp oeq float %element146, %element247
+  %39 = and i1 %37, %38
+  %element148 = extractvalue [7 x float] %element134, 6
+  %element249 = extractvalue [7 x float] %element235, 6
+  %40 = fcmp oeq float %element148, %element249
+  %41 = and i1 %39, %40
+  %42 = and i1 %28, %41
+  %element150 = extractvalue [4 x [7 x float]] %0, 3
+  %element251 = extractvalue [4 x [7 x float]] %1, 3
+  %element152 = extractvalue [7 x float] %element150, 0
+  %element253 = extractvalue [7 x float] %element251, 0
+  %43 = fcmp oeq float %element152, %element253
+  %element154 = extractvalue [7 x float] %element150, 1
+  %element255 = extractvalue [7 x float] %element251, 1
+  %44 = fcmp oeq float %element154, %element255
+  %45 = and i1 %43, %44
+  %element156 = extractvalue [7 x float] %element150, 2
+  %element257 = extractvalue [7 x float] %element251, 2
+  %46 = fcmp oeq float %element156, %element257
+  %47 = and i1 %45, %46
+  %element158 = extractvalue [7 x float] %element150, 3
+  %element259 = extractvalue [7 x float] %element251, 3
+  %48 = fcmp oeq float %element158, %element259
+  %49 = and i1 %47, %48
+  %element160 = extractvalue [7 x float] %element150, 4
+  %element261 = extractvalue [7 x float] %element251, 4
+  %50 = fcmp oeq float %element160, %element261
+  %51 = and i1 %49, %50
+  %element162 = extractvalue [7 x float] %element150, 5
+  %element263 = extractvalue [7 x float] %element251, 5
+  %52 = fcmp oeq float %element162, %element263
+  %53 = and i1 %51, %52
+  %element164 = extractvalue [7 x float] %element150, 6
+  %element265 = extractvalue [7 x float] %element251, 6
+  %54 = fcmp oeq float %element164, %element265
+  %55 = and i1 %53, %54
+  %56 = and i1 %42, %55
+  br i1 %56, label %then, label %ifmerge
+
+then:                                             ; preds = %mainBody
+  %57 = load float* @outfloat
+  %outfloat = fadd float %57, 1.000000e+00
+  store float %outfloat, float* @outfloat
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %mainBody, %then
+  %58 = getelementptr [5 x [7 x float]]* %u, i32 0, i32 2, i32 2
+  store float 3.000000e+00, float* %58
+  %param6667 = load [5 x [7 x float]]* %u
+  store [5 x [7 x float]] %param6667, [5 x [7 x float]]* %param66
+  %59 = call [4 x [7 x float]] @"foo(f1[5][7];"([5 x [7 x float]]* %param66)
+  %60 = load i32 addrspace(2)* @i, !gla.uniform !7
+  %61 = load i32 addrspace(2)* @j, !gla.uniform !9
+  %62 = load i32 addrspace(2)* @k, !gla.uniform !10
+  %63 = load i32 addrspace(2)* @i, !gla.uniform !7
+  %64 = load i32 addrspace(2)* @j, !gla.uniform !9
+  %65 = load i32 addrspace(2)* @k, !gla.uniform !10
+  %66 = load float* @infloat
+  %67 = getelementptr [1 x [2 x [3 x [4 x [5 x [6 x float]]]]]]* @many, i32 0, i32 %60, i32 %61, i32 %62, i32 %63, i32 %64, i32 %65
+  store float %66, float* %67
+  %68 = load i32 addrspace(2)* @j, !gla.uniform !9
+  %69 = load i32 addrspace(2)* @j, !gla.uniform !9
+  %70 = load i32 addrspace(2)* @j, !gla.uniform !9
+  %71 = load i32 addrspace(2)* @j, !gla.uniform !9
+  %72 = load i32 addrspace(2)* @j, !gla.uniform !9
+  %73 = load i32 addrspace(2)* @j, !gla.uniform !9
+  %74 = getelementptr [1 x [2 x [3 x [4 x [5 x [6 x float]]]]]]* @many, i32 0, i32 %68, i32 %69, i32 %70, i32 %71, i32 %72, i32 %73
+  %75 = load float* %74
+  %76 = load float* @outfloat
+  %outfloat68 = fadd float %76, %75
+  store float %outfloat68, float* @outfloat
+  %77 = load float addrspace(2)* getelementptr inbounds ([3 x [5 x %uAofA]] addrspace(2)* @nameAofA, i32 0, i32 1, i32 2, i32 0, i32 0, i32 3), !gla.uniform !11
+  %78 = load float* @outfloat
+  %outfloat69 = fadd float %78, %77
+  store float %outfloat69, float* @outfloat
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc [4 x [7 x float]] @"foo(f1[5][7];"([5 x [7 x float]]*) #0 {
+entry:
+  %constructed = alloca [4 x [7 x float]]
+  %r = alloca [7 x float]
+  %1 = getelementptr [5 x [7 x float]]* %0, i32 0, i32 2
+  %r1 = load [7 x float]* %1
+  store [7 x float] %r1, [7 x float]* %r
+  %2 = getelementptr [5 x [7 x float]]* %0, i32 0, i32 0
+  %3 = load [7 x float]* %2
+  %4 = getelementptr [5 x [7 x float]]* %0, i32 0, i32 1
+  %5 = load [7 x float]* %4
+  %6 = load [7 x float]* %r
+  %7 = getelementptr [5 x [7 x float]]* %0, i32 0, i32 3
+  %8 = load [7 x float]* %7
+  %9 = getelementptr [4 x [7 x float]]* %constructed, i32 0, i32 0
+  store [7 x float] %3, [7 x float]* %9
+  %10 = getelementptr [4 x [7 x float]]* %constructed, i32 0, i32 1
+  store [7 x float] %5, [7 x float]* %10
+  %11 = getelementptr [4 x [7 x float]]* %constructed, i32 0, i32 2
+  store [7 x float] %6, [7 x float]* %11
+  %12 = getelementptr [4 x [7 x float]]* %constructed, i32 0, i32 3
+  store [7 x float] %8, [7 x float]* %12
+  %13 = load [4 x [7 x float]]* %constructed
+  ret [4 x [7 x float]] %13
+
+post-return:                                      ; No predecessors!
+  unreachable
+}
+
+attributes #0 = { alwaysinline }
+
+!gla.entrypoint = !{!0}
+!gla.outputs = !{!1}
+!gla.inputs = !{!3, !5}
+!gla.uniforms = !{!7, !9, !10, !11}
+
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"outfloat", i32 7, float* @outfloat_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0}
+!3 = metadata !{metadata !"g5", i32 1, [5 x [7 x float]]* @g5_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0}
+!5 = metadata !{metadata !"infloat", i32 1, float* @infloat_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1060, null, i32 1, i32 0, i32 -1, i32 0}
+!7 = metadata !{metadata !"i", i32 12, i32* @i_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
+!9 = metadata !{metadata !"j", i32 12, i32* @j_typeProxy, metadata !8}
+!10 = metadata !{metadata !"k", i32 12, i32* @k_typeProxy, metadata !8}
+!11 = metadata !{metadata !"nameAofA", i32 13, [3 x [5 x %uAofA]]* @nameAofA_typeProxy, metadata !12, metadata !13}
+!12 = metadata !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
+!13 = metadata !{metadata !"uAofA", metadata !12, metadata !"f", metadata !14}
+!14 = metadata !{metadata !"", metadata !8}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+
+%uAofA = type { [2 x [4 x float]] }
+
+@outfloat = global float 0.000000e+00
+@g5 = global [5 x [7 x float]] zeroinitializer
+@many = internal unnamed_addr global [1 x [2 x [3 x [4 x [5 x [6 x float]]]]]] zeroinitializer
+@i = external addrspace(2) constant i32
+@j = external addrspace(2) constant i32
+@k = external addrspace(2) constant i32
+@infloat = global float 0.000000e+00
+@nameAofA = external addrspace(2) constant [3 x [5 x %uAofA]]
+
+define fastcc void @main() {
+entry:
+  %param2 = alloca [5 x [7 x float]], align 4
+  %param = alloca [5 x [7 x float]], align 4
+  store float 0.000000e+00, float* @outfloat, align 4
+  %param1 = load [5 x [7 x float]]* @g5, align 16
+  store [5 x [7 x float]] %param1, [5 x [7 x float]]* %param, align 4
+  %0 = getelementptr [5 x [7 x float]]* %param, i32 0, i32 2
+  %r1.i = load [7 x float]* %0, align 4
+  %1 = getelementptr [5 x [7 x float]]* %param, i32 0, i32 0
+  %2 = load [7 x float]* %1, align 4
+  %3 = getelementptr [5 x [7 x float]]* %param, i32 0, i32 1
+  %4 = load [7 x float]* %3, align 4
+  %5 = getelementptr [5 x [7 x float]]* %param, i32 0, i32 3
+  %6 = load [7 x float]* %5, align 4
+  store [5 x [7 x float]] %param1, [5 x [7 x float]]* %param2, align 4
+  %7 = getelementptr [5 x [7 x float]]* %param2, i32 0, i32 2
+  %r1.i73 = load [7 x float]* %7, align 4
+  %8 = getelementptr [5 x [7 x float]]* %param2, i32 0, i32 0
+  %9 = load [7 x float]* %8, align 4
+  %10 = getelementptr [5 x [7 x float]]* %param2, i32 0, i32 1
+  %11 = load [7 x float]* %10, align 4
+  %12 = getelementptr [5 x [7 x float]]* %param2, i32 0, i32 3
+  %13 = load [7 x float]* %12, align 4
+  %14 = extractvalue [7 x float] %9, 0
+  %15 = extractvalue [7 x float] %9, 1
+  %16 = extractvalue [7 x float] %9, 2
+  %17 = extractvalue [7 x float] %9, 3
+  %18 = extractvalue [7 x float] %9, 4
+  %19 = extractvalue [7 x float] %9, 5
+  %20 = extractvalue [7 x float] %9, 6
+  %21 = extractvalue [7 x float] %11, 0
+  %22 = extractvalue [7 x float] %11, 1
+  %23 = extractvalue [7 x float] %11, 2
+  %24 = extractvalue [7 x float] %11, 3
+  %25 = extractvalue [7 x float] %11, 4
+  %26 = extractvalue [7 x float] %11, 5
+  %27 = extractvalue [7 x float] %11, 6
+  %r1.i73194 = extractvalue [7 x float] %r1.i73, 0
+  %r1.i73195 = extractvalue [7 x float] %r1.i73, 1
+  %r1.i73196 = extractvalue [7 x float] %r1.i73, 2
+  %r1.i73197 = extractvalue [7 x float] %r1.i73, 3
+  %r1.i73198 = extractvalue [7 x float] %r1.i73, 4
+  %r1.i73199 = extractvalue [7 x float] %r1.i73, 5
+  %r1.i73200 = extractvalue [7 x float] %r1.i73, 6
+  %28 = extractvalue [7 x float] %13, 0
+  %29 = extractvalue [7 x float] %13, 1
+  %30 = extractvalue [7 x float] %13, 2
+  %31 = extractvalue [7 x float] %13, 3
+  %32 = extractvalue [7 x float] %13, 4
+  %33 = extractvalue [7 x float] %13, 5
+  %34 = extractvalue [7 x float] %13, 6
+  %element25 = extractvalue [7 x float] %2, 0
+  %35 = fcmp oeq float %14, %element25
+  %element27 = extractvalue [7 x float] %2, 1
+  %36 = fcmp oeq float %15, %element27
+  %37 = and i1 %35, %36
+  %element29 = extractvalue [7 x float] %2, 2
+  %38 = fcmp oeq float %16, %element29
+  %39 = and i1 %37, %38
+  %element211 = extractvalue [7 x float] %2, 3
+  %40 = fcmp oeq float %17, %element211
+  %41 = and i1 %39, %40
+  %element213 = extractvalue [7 x float] %2, 4
+  %42 = fcmp oeq float %18, %element213
+  %43 = and i1 %41, %42
+  %element215 = extractvalue [7 x float] %2, 5
+  %44 = fcmp oeq float %19, %element215
+  %45 = and i1 %43, %44
+  %element217 = extractvalue [7 x float] %2, 6
+  %46 = fcmp oeq float %20, %element217
+  %47 = and i1 %45, %46
+  %element221 = extractvalue [7 x float] %4, 0
+  %48 = fcmp oeq float %21, %element221
+  %element223 = extractvalue [7 x float] %4, 1
+  %49 = fcmp oeq float %22, %element223
+  %50 = and i1 %48, %49
+  %element225 = extractvalue [7 x float] %4, 2
+  %51 = fcmp oeq float %23, %element225
+  %52 = and i1 %50, %51
+  %element227 = extractvalue [7 x float] %4, 3
+  %53 = fcmp oeq float %24, %element227
+  %54 = and i1 %52, %53
+  %element229 = extractvalue [7 x float] %4, 4
+  %55 = fcmp oeq float %25, %element229
+  %56 = and i1 %54, %55
+  %element231 = extractvalue [7 x float] %4, 5
+  %57 = fcmp oeq float %26, %element231
+  %58 = and i1 %56, %57
+  %element233 = extractvalue [7 x float] %4, 6
+  %59 = fcmp oeq float %27, %element233
+  %60 = and i1 %58, %59
+  %61 = and i1 %47, %60
+  %element237 = extractvalue [7 x float] %r1.i, 0
+  %62 = fcmp oeq float %r1.i73194, %element237
+  %element239 = extractvalue [7 x float] %r1.i, 1
+  %63 = fcmp oeq float %r1.i73195, %element239
+  %64 = and i1 %62, %63
+  %element241 = extractvalue [7 x float] %r1.i, 2
+  %65 = fcmp oeq float %r1.i73196, %element241
+  %66 = and i1 %64, %65
+  %element243 = extractvalue [7 x float] %r1.i, 3
+  %67 = fcmp oeq float %r1.i73197, %element243
+  %68 = and i1 %66, %67
+  %element245 = extractvalue [7 x float] %r1.i, 4
+  %69 = fcmp oeq float %r1.i73198, %element245
+  %70 = and i1 %68, %69
+  %element247 = extractvalue [7 x float] %r1.i, 5
+  %71 = fcmp oeq float %r1.i73199, %element247
+  %72 = and i1 %70, %71
+  %element249 = extractvalue [7 x float] %r1.i, 6
+  %73 = fcmp oeq float %r1.i73200, %element249
+  %74 = and i1 %72, %73
+  %75 = and i1 %61, %74
+  %element253 = extractvalue [7 x float] %6, 0
+  %76 = fcmp oeq float %28, %element253
+  %element255 = extractvalue [7 x float] %6, 1
+  %77 = fcmp oeq float %29, %element255
+  %78 = and i1 %76, %77
+  %element257 = extractvalue [7 x float] %6, 2
+  %79 = fcmp oeq float %30, %element257
+  %80 = and i1 %78, %79
+  %element259 = extractvalue [7 x float] %6, 3
+  %81 = fcmp oeq float %31, %element259
+  %82 = and i1 %80, %81
+  %element261 = extractvalue [7 x float] %6, 4
+  %83 = fcmp oeq float %32, %element261
+  %84 = and i1 %82, %83
+  %element263 = extractvalue [7 x float] %6, 5
+  %85 = fcmp oeq float %33, %element263
+  %86 = and i1 %84, %85
+  %element265 = extractvalue [7 x float] %6, 6
+  %87 = fcmp oeq float %34, %element265
+  %88 = and i1 %86, %87
+  %89 = and i1 %75, %88
+  br i1 %89, label %then, label %entry.ifmerge_crit_edge
+
+entry.ifmerge_crit_edge:                          ; preds = %entry
+  %.pre = load float* @outfloat, align 4
+  br label %ifmerge
+
+then:                                             ; preds = %entry
+  %90 = load float* @outfloat, align 4
+  %outfloat = fadd float %90, 1.000000e+00
+  store float %outfloat, float* @outfloat, align 4
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %entry.ifmerge_crit_edge, %then
+  %91 = phi float [ %.pre, %entry.ifmerge_crit_edge ], [ %outfloat, %then ]
+  %92 = load i32 addrspace(2)* @i, align 4, !gla.uniform !7
+  %93 = load i32 addrspace(2)* @j, align 4, !gla.uniform !9
+  %94 = load i32 addrspace(2)* @k, align 4, !gla.uniform !10
+  %95 = load float* @infloat, align 4
+  %96 = getelementptr [1 x [2 x [3 x [4 x [5 x [6 x float]]]]]]* @many, i32 0, i32 %92, i32 %93, i32 %94, i32 %92, i32 %93, i32 %94
+  store float %95, float* %96, align 4
+  %97 = getelementptr [1 x [2 x [3 x [4 x [5 x [6 x float]]]]]]* @many, i32 0, i32 %93, i32 %93, i32 %93, i32 %93, i32 %93, i32 %93
+  %98 = load float* %97, align 4
+  %outfloat68 = fadd float %98, %91
+  store float %outfloat68, float* @outfloat, align 4
+  %gla_constGEP = getelementptr [3 x [5 x %uAofA]] addrspace(2)* @nameAofA, i32 0, i32 1, i32 2, i32 0, i32 0, i32 3
+  %99 = load float addrspace(2)* %gla_constGEP, align 4, !gla.uniform !11
+  %outfloat69 = fadd float %outfloat68, %99
+  store float %outfloat69, float* @outfloat, align 4
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+!gla.entrypoint = !{!0}
+!gla.outputs = !{!1}
+!gla.inputs = !{!3, !5}
+!gla.uniforms = !{!7, !9, !10, !11}
+
+!0 = metadata !{metadata !"main", i32 15}
+!1 = metadata !{metadata !"outfloat", i32 7, float* @outfloat_typeProxy, metadata !2}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0}
+!3 = metadata !{metadata !"g5", i32 1, [5 x [7 x float]]* @g5_typeProxy, metadata !4}
+!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0}
+!5 = metadata !{metadata !"infloat", i32 1, float* @infloat_typeProxy, metadata !6}
+!6 = metadata !{i32 0, i32 0, i32 1060, null, i32 1, i32 0, i32 -1, i32 0}
+!7 = metadata !{metadata !"i", i32 12, i32* @i_typeProxy, metadata !8}
+!8 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
+!9 = metadata !{metadata !"j", i32 12, i32* @j_typeProxy, metadata !8}
+!10 = metadata !{metadata !"k", i32 12, i32* @k_typeProxy, metadata !8}
+!11 = metadata !{metadata !"nameAofA", i32 13, [3 x [5 x %uAofA]]* @nameAofA_typeProxy, metadata !12, metadata !13}
+!12 = metadata !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
+!13 = metadata !{metadata !"uAofA", metadata !12, metadata !"f", metadata !14}
+!14 = metadata !{metadata !"", metadata !8}
+#version 430 core
+// LunarGOO output
+uniform int i;
+uniform int j;
+uniform int k;
+uniform uAofA {
+	float f[2];
+} nameAofA[3];
+in float g5[5];
+in float infloat;
+out float outfloat;
+float many[1];
+const float C_0d0 = 0.0;
+const float C_1d0 = 1.0;
+
+void main()
+{
+	float Lg_1;
+	float[5] param;
+	float[5] param1;
+	outfloat = C_0d0;
+	bool H_rd9xh3 = g5[0][0] == g5[0][0];
+	bool H_71unkc = g5[0][1] == g5[0][1];
+	bool H_mp02rm1 = H_rd9xh3 && H_71unkc;
+	bool H_vo8bfa = g5[0][2] == g5[0][2];
+	bool H_s90pc61 = H_mp02rm1 && H_vo8bfa;
+	bool H_3ul1qd1 = g5[0][3] == g5[0][3];
+	bool H_yva0hc1 = H_s90pc61 && H_3ul1qd1;
+	bool H_v88byk = g5[0][4] == g5[0][4];
+	bool H_7v4yyg = H_yva0hc1 && H_v88byk;
+	bool H_jccptz = g5[0][5] == g5[0][5];
+	bool H_xsphpo1 = H_7v4yyg && H_jccptz;
+	bool H_bp00id1 = g5[0][6] == g5[0][6];
+	bool H_o84vv3 = H_xsphpo1 && H_bp00id1;
+	bool H_3z6bs31 = g5[1][0] == g5[1][0];
+	bool H_rhnjft = g5[1][1] == g5[1][1];
+	bool H_72gw7d1 = H_3z6bs31 && H_rhnjft;
+	bool H_v7uxuv1 = g5[1][2] == g5[1][2];
+	bool H_a8mnk51 = H_72gw7d1 && H_v7uxuv1;
+	bool H_b0cw6y = g5[1][3] == g5[1][3];
+	bool H_91rgy31 = H_a8mnk51 && H_b0cw6y;
+	bool H_rpt74i1 = g5[1][4] == g5[1][4];
+	bool H_ke8uwz = H_91rgy31 && H_rpt74i1;
+	bool H_f8i49b1 = g5[1][5] == g5[1][5];
+	bool H_a67q8y1 = H_ke8uwz && H_f8i49b1;
+	bool H_jgz1e91 = g5[1][6] == g5[1][6];
+	bool H_dab7881 = H_a67q8y1 && H_jgz1e91;
+	bool H_2s5pp2 = H_o84vv3 && H_dab7881;
+	bool H_7urg9x = g5[2][0] == g5[2][0];
+	bool H_7y8jcv = g5[2][1] == g5[2][1];
+	bool H_sjpyh21 = H_7urg9x && H_7y8jcv;
+	bool H_37ytnm1 = g5[2][2] == g5[2][2];
+	bool H_3e1de41 = H_sjpyh21 && H_37ytnm1;
+	bool H_jx9gkx1 = g5[2][3] == g5[2][3];
+	bool H_yk8elv = H_3e1de41 && H_jx9gkx1;
+	bool H_f8uj851 = g5[2][4] == g5[2][4];
+	bool H_l7oppu1 = H_yk8elv && H_f8uj851;
+	bool H_fgys55 = g5[2][5] == g5[2][5];
+	bool H_oz8ms61 = H_l7oppu1 && H_fgys55;
+	bool H_nm4lqw = g5[2][6] == g5[2][6];
+	bool H_qzm9sb = H_oz8ms61 && H_nm4lqw;
+	bool H_t8ldtn1 = H_2s5pp2 && H_qzm9sb;
+	bool H_3xrxcn = g5[3][0] == g5[3][0];
+	bool H_vj4tpc1 = g5[3][1] == g5[3][1];
+	bool H_70cutz = H_3xrxcn && H_vj4tpc1;
+	bool H_b4chlv1 = g5[3][2] == g5[3][2];
+	bool H_2i9dmv1 = H_70cutz && H_b4chlv1;
+	bool H_3lvva61 = g5[3][3] == g5[3][3];
+	bool H_ywf8l11 = H_2i9dmv1 && H_3lvva61;
+	bool H_3zbw2 = g5[3][4] == g5[3][4];
+	bool H_n482tm1 = H_ywf8l11 && H_3zbw2;
+	bool H_jadmf4 = g5[3][5] == g5[3][5];
+	bool H_vetka51 = H_n482tm1 && H_jadmf4;
+	bool H_r4cqfi = g5[3][6] == g5[3][6];
+	bool H_fz982q1 = H_vetka51 && H_r4cqfi;
+	bool H_70yqt11 = H_t8ldtn1 && H_fz982q1;
+	if (H_70yqt11) {
+		float outfloat1 = outfloat + C_1d0;
+		outfloat = outfloat1;
+		Lg_1 = outfloat1;
+	} else {
+		Lg_1 = outfloat;
+	}
+	
+	many[i][j][k][i][j][k] = infloat;
+	float outfloat2 = Lg_1 + many[j][j][j][j][j][j];
+	outfloat = outfloat2;
+	float outfloat3 = nameAofA[1][2].f[0][3] + outfloat2;
+	outfloat = outfloat3;
+	
+}
+
+tempglsl.frag
+Warning, version 430 is not yet complete; most version-specific features are present, but some are missing.
+ERROR: 0:22: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:22: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:23: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:23: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:25: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:25: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:27: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:27: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:29: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:29: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:31: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:31: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:33: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:33: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:35: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:35: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:36: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:36: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:38: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:38: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:40: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:40: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:42: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:42: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:44: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:44: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:46: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:46: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:49: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:49: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:50: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:50: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:52: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:52: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:54: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:54: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:56: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:56: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:58: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:58: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:60: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:60: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:63: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:63: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:64: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:64: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:66: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:66: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:68: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:68: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:70: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:70: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:72: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:72: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:74: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:74: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:85: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:85: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:85: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:85: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:85: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:85: 'assign' :  l-value required (can't modify a const)
+ERROR: 0:86: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:86: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:86: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:86: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:86: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:88: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:88: 'f' : illegal vector field selection 
+ERROR: 0:88: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:88: 'expression' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 71 compilation errors.  No code generated.
+
+
