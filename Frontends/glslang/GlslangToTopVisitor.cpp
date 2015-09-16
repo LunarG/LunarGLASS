@@ -1763,7 +1763,7 @@ llvm::Value* TGlslangToTopTraverser::handleTextureCall(glslang::TIntermOperator*
         samplerType = gla::ESampler2DMS;
 
     glslang::TCrackedTextureOp cracked;
-    node->crackTexture(cracked);
+    node->crackTexture(sampler, cracked);
 
     // Steer off queries
     if (cracked.query || node->getOp() == glslang::EOpImageQuerySize || node->getOp() == glslang::EOpImageQuerySamples)
