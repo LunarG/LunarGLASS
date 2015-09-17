@@ -37,14 +37,14 @@ entry:
 mainBody:                                         ; preds = %entry
   call void @llvm.gla.barrier()
   %0 = load float* @s
-  store float %0, float addrspace(2)* getelementptr inbounds (%outb addrspace(2)* @outbname, i32 0, i32 0)
+  store float %0, float addrspace(2)* getelementptr inbounds (%outb addrspace(2)* @outbname, i32 0, i32 0), !gla.uniform !1
   %1 = load float* @s
   %2 = load <4 x float>* %outbnamena
   %3 = insertelement <4 x float> undef, float %1, i32 0, !gla.precision !40
   %4 = insertelement <4 x float> %3, float %1, i32 1, !gla.precision !40
   %5 = insertelement <4 x float> %4, float %1, i32 2, !gla.precision !40
   %6 = insertelement <4 x float> %5, float %1, i32 3, !gla.precision !40
-  store <4 x float> %6, <4 x float> addrspace(2)* getelementptr inbounds (%outbna addrspace(2)* @outbnamena, i32 0, i32 1)
+  store <4 x float> %6, <4 x float> addrspace(2)* getelementptr inbounds (%outbna addrspace(2)* @outbnamena, i32 0, i32 1), !gla.uniform !6
   %7 = load <3 x float> addrspace(2)* getelementptr (<3 x float> addrspace(2)* getelementptr inbounds (%outb addrspace(2)* @outbname, i32 0, i32 3), i32 18)
   %s = extractelement <3 x float> %7, i32 0, !gla.precision !40
   store float %s, float* @s
@@ -100,6 +100,10 @@ mainBody:                                         ; preds = %entry
   %43 = load <2 x i32>* @coord2D
   %44 = load <4 x float>* %v
   call void @llvm.gla.imageStoreF.v2i32(i32 2, i32 %42, <2 x i32> %43, <4 x float> %44), !gla.precision !40
+  %45 = load <4 x float> addrspace(2)* getelementptr inbounds (%outbna addrspace(2)* @outbnamena, i32 0, i32 1), !gla.uniform !6
+  %46 = insertelement <4 x float> %45, float 0x4008CCCCC0000000, i32 1
+  %47 = insertelement <4 x float> %46, float 0x4008CCCCC0000000, i32 2
+  store <4 x float> %47, <4 x float> addrspace(2)* getelementptr inbounds (%outbna addrspace(2)* @outbnamena, i32 0, i32 1), !gla.uniform !6
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %mainBody
@@ -214,9 +218,9 @@ entry:
   %0 = load float* @s, align 4
   %1 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %0, <4 x i32> zeroinitializer)
   %gla_constGEP = getelementptr %outb addrspace(2)* @outbname, i32 0, i32 0
-  store float %0, float addrspace(2)* %gla_constGEP, align 16
+  store float %0, float addrspace(2)* %gla_constGEP, align 16, !gla.uniform !1
   %gla_constGEP7 = getelementptr %outbna addrspace(2)* @outbnamena, i32 0, i32 1
-  store <4 x float> %1, <4 x float> addrspace(2)* %gla_constGEP7, align 16
+  store <4 x float> %1, <4 x float> addrspace(2)* %gla_constGEP7, align 16, !gla.uniform !6
   %gla_constGEP8 = getelementptr %outb addrspace(2)* @outbname, i32 9, i32 3
   %2 = load <3 x float> addrspace(2)* %gla_constGEP8, align 16
   %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v3f32.v4i32(<3 x float> %2, <4 x i32> zeroinitializer)
@@ -249,6 +253,11 @@ entry:
   call void @llvm.gla.imageStoreF.v3i32(i32 2, i32 %17, <3 x i32> %13, <4 x float> %v6), !gla.precision !40
   %18 = load i32 addrspace(1)* @wimg2D, align 4, !gla.uniform !28
   call void @llvm.gla.imageStoreF.v2i32(i32 2, i32 %18, <2 x i32> %11, <4 x float> %v6), !gla.precision !40
+  %gla_constGEP10 = getelementptr %outbna addrspace(2)* @outbnamena, i32 0, i32 1
+  %19 = load <4 x float> addrspace(2)* %gla_constGEP10, align 16, !gla.uniform !6
+  %20 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %19, i32 6, float undef, i32 undef, float 0x4008CCCCC0000000, i32 0, float 0x4008CCCCC0000000, i32 0, float undef, i32 undef)
+  %gla_constGEP11 = getelementptr %outbna addrspace(2)* @outbnamena, i32 0, i32 1
+  store <4 x float> %20, <4 x float> addrspace(2)* %gla_constGEP11, align 16, !gla.uniform !6
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -281,6 +290,9 @@ declare void @llvm.gla.imageStoreF.v3i32(i32, i32, <3 x i32>, <4 x float>) #0
 
 ; Function Attrs: nounwind
 declare void @llvm.gla.imageStoreF.v2i32(i32, i32, <2 x i32>, <4 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #2
 
 ; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #2
@@ -369,6 +381,7 @@ shared float s;
 shared int i;
 shared ivec2 coord2D;
 shared ivec3 coord3D;
+const float C_3d1 = 3.1;
 
 void main()
 {
@@ -388,29 +401,32 @@ void main()
 	imageStore(uimgCube, coord3D, uv);
 	imageStore(wimg2DA, coord3D, H_hlq1hy1);
 	imageStore(wimg2D, coord2D, H_hlq1hy1);
+	vec4 H_wf4e7w = outbnamena.na;
+	H_wf4e7w.yz = vec2(C_3d1, C_3d1);
+	outbnamena.na = H_wf4e7w;
 	
 }
 
 tempglsl.comp
 Warning, version 310 is not yet complete; most version-specific features are present, but some are missing.
-ERROR: 0:35: 'outbname' :  left of '[' is not of type array, matrix, or vector  
-ERROR: 0:35: 'scalar swizzle' : not supported with this profile: es
-ERROR: 0:35: 'uns' : illegal vector field selection 
-ERROR: 0:35: 'scalar swizzle' : not supported with this profile: es
 ERROR: 0:36: 'outbname' :  left of '[' is not of type array, matrix, or vector  
 ERROR: 0:36: 'scalar swizzle' : not supported with this profile: es
 ERROR: 0:36: 'uns' : illegal vector field selection 
 ERROR: 0:36: 'scalar swizzle' : not supported with this profile: es
-ERROR: 0:37: 'outnames' :  left of '[' is not of type array, matrix, or vector  
-ERROR: 0:37: 'scalar swizzle' : not supported with this profile: es
-ERROR: 0:37: 'va' : illegal vector field selection 
 ERROR: 0:37: 'outbname' :  left of '[' is not of type array, matrix, or vector  
 ERROR: 0:37: 'scalar swizzle' : not supported with this profile: es
 ERROR: 0:37: 'uns' : illegal vector field selection 
 ERROR: 0:37: 'scalar swizzle' : not supported with this profile: es
-ERROR: 0:37: 'assign' :  l-value required (can't modify a const)
-ERROR: 0:37: 'assign' :  cannot convert from 'temp 4-component vector of float' to 'const float'
-ERROR: 0:44: 'imageStore' : no matching overloaded function found 
+ERROR: 0:38: 'outnames' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:38: 'scalar swizzle' : not supported with this profile: es
+ERROR: 0:38: 'va' : illegal vector field selection 
+ERROR: 0:38: 'outbname' :  left of '[' is not of type array, matrix, or vector  
+ERROR: 0:38: 'scalar swizzle' : not supported with this profile: es
+ERROR: 0:38: 'uns' : illegal vector field selection 
+ERROR: 0:38: 'scalar swizzle' : not supported with this profile: es
+ERROR: 0:38: 'assign' :  l-value required (can't modify a const)
+ERROR: 0:38: 'assign' :  cannot convert from 'temp 4-component vector of float' to 'const float'
+ERROR: 0:45: 'imageStore' : no matching overloaded function found 
 ERROR: 18 compilation errors.  No code generated.
 
 

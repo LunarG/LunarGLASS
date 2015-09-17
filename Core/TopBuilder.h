@@ -262,7 +262,7 @@ public:
     llvm::Value* createEntryAlloca(llvm::Type*, llvm::StringRef name = "");
 
     // Store llvm::Value* into another llvm::Value* and return the l-value
-    llvm::Value* createStore(llvm::Value* rValue, llvm::Value* lValue);
+    llvm::Value* createStore(llvm::Value* rValue, llvm::Value* lValue, const char* metadataKind = 0, llvm::MDNode* metadata = 0);
 
     // Load llvm::Value* from a llvm::Value* and return it
     llvm::Value* createLoad(llvm::Value*, const char* metadataKind = 0, llvm::MDNode* metadata = 0);

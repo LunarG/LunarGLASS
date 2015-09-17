@@ -58,4 +58,7 @@ void main()
     imageStore(uimgCube, coord3D, uv);
     imageStore(wimg2DA, coord3D, v);
     imageStore(wimg2D, coord2D, v);
+
+    // test load/store from swizzle for metadata hook up
+    outbnamena.na.yz = vec2(3.1);
 }

@@ -276,7 +276,7 @@ void Builder::accessChainStore(llvm::Value* value)
     // extract and insert elements to perform writeMask and/or swizzle
     if (accessChain.swizzle.size()) {
 
-        llvm::Value* shadowVector = createLoad(base);
+        llvm::Value* shadowVector = createLoad(base, accessChain.metadataKind, accessChain.mdNode);
 
         // walk through the swizzle
         for (unsigned int i = 0; i < accessChain.swizzle.size(); ++i) {
@@ -298,7 +298,7 @@ void Builder::accessChainStore(llvm::Value* value)
         source = builder.CreateInsertElement(shadowVector, value, accessChain.component);
     }
 
-    createStore(source, base);
+    createStore(source, base, accessChain.metadataKind, accessChain.mdNode);
 }
 
 // Comments in header
@@ -647,14 +647,16 @@ llvm::Value* Builder::createEntryAlloca(llvm::Type* type, llvm::StringRef name)
 }
 
 // Comments in header
-llvm::Value* Builder::createStore(llvm::Value* rValue, llvm::Value* lValue)
+llvm::Value* Builder::createStore(llvm::Value* rValue, llvm::Value* lValue, const char* metadataKind, llvm::MDNode* mdNode)
 {
     // Retroactively change the name of the last-value temp to the name of the
     // l-value, to help debuggability, if it's just an llvm temp name.
     if (rValue->getName().size() < 2 || (rValue->getName()[1] >= '0' && rValue->getName()[1] <= '9'))
         rValue->setName(lValue->getName());
 
-    builder.CreateStore(rValue, lValue);
+    llvm::StoreInst* store = builder.CreateStore(rValue, lValue);
+    if (metadataKind)
+        store->setMetadata(metadataKind, mdNode);
 
     return lValue;
 }
