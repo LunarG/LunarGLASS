@@ -1531,8 +1531,9 @@ gla::Builder::EStorageQualifier TGlslangToTopTraverser::mapStorageClass(const gl
     case glslang::EvqFragDepth:
         return gla::Builder::ESQOutput;
     case glslang::EvqUniform:
-    case glslang::EvqBuffer:
         return gla::Builder::ESQUniform;
+    case glslang::EvqBuffer:
+        return gla::Builder::ESQBuffer;
     case glslang::EvqIn:
     case glslang::EvqOut:
     case glslang::EvqInOut:

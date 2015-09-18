@@ -237,13 +237,14 @@ public:
     //
     enum EStorageQualifier {
         ESQResource,
-        ESQUniform,
+        ESQUniform,     // uniform block or variable
         ESQInput,       // from a shader, not a function
         ESQOutput,      // from a shader, not a function
         ESQGlobal,      // no storage qualifier, just a global variable
         ESQConst,
         ESQLocal,
         ESQShared,      // work-group shared
+        ESQBuffer,      // 'buffer' block
     };
 
     // Turn the array of constants into a proper LLVM constant type of the requested type.

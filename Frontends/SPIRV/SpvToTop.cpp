@@ -188,7 +188,7 @@ protected:
     void addMetaTypeDecoration(spv::Decoration decoration, MetaType& metaType);
     void addType(spv::Op, spv::Id, int numOperands);
     void addVariable(spv::Id resultId, spv::Id typeId, spv::StorageClass);
-    gla::Builder::EStorageQualifier mapStorageClass(spv::StorageClass);
+    gla::Builder::EStorageQualifier mapStorageClass(spv::StorageClass, bool isBuffer);
     void addConstant(spv::Op, spv::Id resultId, spv::Id typeId, int numOperands);
     void addConstantAggregate(spv::Id resultId, spv::Id typeId, int numOperands);
     int assignSlot(spv::Id resultId, int& numSlots);
@@ -696,7 +696,7 @@ void SpvToTopTranslator::addType(spv::Op typeClass, spv::Id resultId, int numOpe
     {
         spv::StorageClass storageClass = (spv::StorageClass)spirv[word++];
         spv::Id pointee = spirv[word++];
-        commonMap[resultId].type = glaBuilder->getPointerType(commonMap[pointee].type, mapStorageClass(storageClass), 0);
+        commonMap[resultId].type = glaBuilder->getPointerType(commonMap[pointee].type, mapStorageClass(storageClass, commonMap[pointee].isBuffer), 0);
         break;
     }
 
@@ -727,7 +727,7 @@ void SpvToTopTranslator::addVariable(spv::Id resultId, spv::Id typeId, spv::Stor
 
     llvm::Constant* initializer = 0;
     int constantBuffer = 0;
-    gla::Builder::EStorageQualifier glaQualifier = mapStorageClass(storageClass);
+    gla::Builder::EStorageQualifier glaQualifier = mapStorageClass(storageClass, commonMap[resultId].isBuffer);
 
     const char* name = commonMap[resultId].metaType.name;
     if (name) {
@@ -766,14 +766,14 @@ void SpvToTopTranslator::addVariable(spv::Id resultId, spv::Id typeId, spv::Stor
     }
 }
 
-gla::Builder::EStorageQualifier SpvToTopTranslator::mapStorageClass(spv::StorageClass storageClass)
+gla::Builder::EStorageQualifier SpvToTopTranslator::mapStorageClass(spv::StorageClass storageClass, bool isBuffer)
 {
     switch (storageClass) {
     case spv::StorageClassFunction:
         return gla::Builder::ESQLocal;
     case spv::StorageClassUniformConstant:
     case spv::StorageClassUniform:
-        return gla::Builder::ESQUniform;
+        return isBuffer ? gla::Builder::ESQBuffer : gla::Builder::ESQUniform;
     case spv::StorageClassInput:
         return gla::Builder::ESQInput;
     case spv::StorageClassOutput:

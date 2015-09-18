@@ -126,10 +126,13 @@ namespace gla {
         return ETOCoord + numComps + 1 + (operand - ETOOffset) * numComps + comp;
     }
 
-    const unsigned int GlobalAddressSpace = 0;
-    const unsigned int ResourceAddressSpace = 1;
-    const unsigned int ConstantAddressSpaceBase = 2;  // use multiple constant spaces through...
-    // ConstantAddressSpaceBase + space, where 'space' is 0, 1, 2, ...
+    enum EAddressSpace {
+        GlobalAddressSpace = 0,
+        ResourceAddressSpace = 1,
+        ConstantAddressSpaceBase = 2,  // for uniform blocks and variables
+        SsboAddressSpace = 3,          // for 'buffer' blocks
+        SharedAddressSpace = 4,        // for 'shared' variables (workgroup)
+    };
 
     const int MaxUserLayoutLocation = 1024;  // layout locations here and above are chosen by the adapter
 

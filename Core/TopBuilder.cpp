@@ -508,6 +508,9 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
                                      llvm::Type* type, llvm::Constant* initializer, const std::string* annotation,
                                      llvm::StringRef name)
 {
+    // non-0 instances are not supported
+    assert(storageInstance == 0);
+
     std::string annotatedName;
     if (annotation != 0) {
         annotatedName = *annotation;
@@ -526,12 +529,8 @@ llvm::Value* Builder::createVariable(EStorageQualifier storageQualifier, int sto
 
     switch (storageQualifier) {
     case ESQResource:
-        linkage = llvm::GlobalVariable::ExternalLinkage;
-        global = true;
-        readOnly = true;
-        break;
-
     case ESQUniform:
+    case ESQBuffer:
         linkage = llvm::GlobalVariable::ExternalLinkage;
         global = true;
         readOnly = true;
@@ -614,18 +613,24 @@ llvm::Type* Builder::getPointerType(llvm::Type* elementType, EStorageQualifier s
 
 int Builder::mapAddressSpace(EStorageQualifier qualifier, int instance) const
 {
+    // non-0 instances are not supported
+    assert(instance == 0);
+
     switch (qualifier) {
     case ESQResource:
         return gla::ResourceAddressSpace;
     case ESQUniform:
-        return gla::ConstantAddressSpaceBase + instance;
+        return gla::ConstantAddressSpaceBase;
+    case ESQBuffer:
+        return gla::SsboAddressSpace;
     case ESQInput:
     case ESQOutput:
     case ESQGlobal:
-    case ESQShared:
     case ESQConst:
     case ESQLocal:  // should be a don't care (valid to pass in, but result unused)
         return gla::GlobalAddressSpace;
+    case ESQShared:
+        return gla::SharedAddressSpace;
     default:
         assert(! "unhandled storage qualifier");
         return gla::GlobalAddressSpace;

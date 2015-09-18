@@ -1037,11 +1037,12 @@ EVariableQualifier MapGlaAddressSpace(const llvm::Value* value)
         case ResourceAddressSpace:
             return EVQUniform;
         case GlobalAddressSpace:
+        case SharedAddressSpace:
             return EVQGlobal;
+        case ConstantAddressSpaceBase:
+        case SsboAddressSpace:
+            return EVQUniform;
         default:
-            if (pointer->getAddressSpace() >= ConstantAddressSpaceBase)
-                return EVQUniform;
-
             UnsupportedFunctionality("Address Space in Bottom IR: ", pointer->getAddressSpace());
             break;
         }
@@ -3873,7 +3874,7 @@ void gla::GlslTarget::emitVariableDeclaration(EMdPrecision precision, llvm::Type
     // no initializer
     switch (qualifier) {
     default:
-        UnsupportedFunctionality("variable declaration qualifier\n", EATContinue);
+        UnsupportedFunctionality("variable declaration qualifier\n", qualifier, EATContinue);
         // fall through
     case EVQGlobal:
         // Make sure we only declare globals once.
