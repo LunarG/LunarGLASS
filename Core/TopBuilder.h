@@ -189,10 +189,10 @@ public:
     // use accessChain and swizzle to load an r-value
     llvm::Value* accessChainLoad(EMdPrecision);
 
-    // Return the actual pointer to what the access chain computes, which would not normally
-    // be done for doing loads/stores, but rather for having a pointer to the base
-    // of an array.
-    llvm::Value* getAccessChainPointer();
+    // Evolve the access chain to be based on the pointer to a run-time array.
+    // The chain should already be set to point to the pointer.  This makes a new
+    // base that can then start as that pointer dereference.
+    void accessChainEvolveToRuntimeArrayBase();
 
     // return an offset representing the collection of offsets in the chain
     llvm::Value* collapseInputAccessChain();

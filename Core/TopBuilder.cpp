@@ -205,14 +205,6 @@ void Builder::setAccessChainLValue(llvm::Value* lValue)
 }
 
 // Comments in header
-void Builder::setAccessChainPointer(llvm::Value* lValue)
-{
-    assert(llvm::isa<llvm::PointerType>(lValue->getType()));
-
-    accessChain.base = lValue;
-}
-
-// Comments in header
 void Builder::setAccessChainPipeValue(llvm::Value* val)
 {
     // evolve the accessChain
@@ -337,13 +329,17 @@ llvm::Value* Builder::accessChainLoad(EMdPrecision precision)
 }
 
 // Comments in header
-llvm::Value* Builder::getAccessChainPointer()
+void Builder::accessChainEvolveToRuntimeArrayBase()
 {
     assert(! accessChain.isRValue);
     assert(accessChain.swizzle.size() == 0);
     assert(accessChain.component == 0);
 
-    return collapseAccessChain();
+    accessChain.base = collapseAccessChain();
+    accessChain.indexChain.clear();
+    accessChain.gep = 0;
+
+    assert(llvm::isa<llvm::PointerType>(base->getType()));
 }
 
 // Comments in header

@@ -804,11 +804,8 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
             // If this dereference results in a runtime-sized array, it's a pointer
             // we don't want in the middle of an access chain, but rather the base
             // of a new one.
-            if (node->getType().isRuntimeSizedArray()) {
-                llvm::Value* arrayBase = glaBuilder->getAccessChainPointer();
-                glaBuilder->clearAccessChain();
-                glaBuilder->setAccessChainPointer(arrayBase);
-            }
+            if (node->getType().isRuntimeSizedArray()) 
+                glaBuilder->accessChainEvolveToRuntimeArrayBase();
         }
         return false;
     case glslang::EOpIndexIndirect:
