@@ -339,7 +339,7 @@ void Builder::accessChainEvolveToRuntimeArrayBase()
     accessChain.indexChain.clear();
     accessChain.gep = 0;
 
-    assert(llvm::isa<llvm::PointerType>(base->getType()));
+    assert(llvm::isa<llvm::PointerType>(accessChain.base->getType()));
 }
 
 // Comments in header
