@@ -158,7 +158,7 @@ public:
 protected:
     // a bag to hold type information that's lost going to LLVM (without metadata)
     struct MetaType {
-        MetaType() : layout(gla::EMtlNone), combinedImageSampler(false), precision(gla::EMpNone), builtIn(gla::EmbNone), set(-1), bindingOrLocation(gla::MaxUserLayoutLocation),
+        MetaType() : layout(gla::EMtlNone), combinedImageSampler(false), precision(gla::EMpNone), builtIn(gla::EmbNone), set(-1), binding(-1), location(gla::MaxUserLayoutLocation),
                      interpolationMethod((spv::Decoration)BadValue), interpolateTo((spv::Decoration)BadValue),
                      invariant(false), name(0) { }
 
@@ -167,8 +167,11 @@ protected:
         bool combinedImageSampler;
         gla::EMdPrecision precision;
         gla::EMdBuiltIn builtIn;
-        int set;
-        int bindingOrLocation;
+        short set;
+        short matrixStride;
+        int arrayStride;
+        int binding;
+        int location;
         spv::Decoration interpolationMethod;
         spv::Decoration interpolateTo;
 
@@ -235,7 +238,7 @@ protected:
     // bias set by 1, so that we can simultaneously
     //  - tell the difference between "set=0" and nothing having been said, and
     //  - not be using the upper bits at all for all the common cases where there is no set
-    int packSetBinding(MetaType& metaType) { return ((metaType.set + 1) << 16) | metaType.bindingOrLocation; }
+    int packSetBinding(MetaType& metaType) { return ((metaType.set + 1) << 16) | metaType.binding; }
 
     llvm::Value* makePermanentTypeProxy(llvm::Value*);
     llvm::MDNode* declareUniformMetadata(spv::Id resultId);
@@ -549,6 +552,14 @@ void SpvToTopTranslator::addMetaTypeDecoration(spv::Decoration decoration, MetaT
     case spv::DecorationColMajor:
         metaType.layout = gla::EMtlColMajorMatrix;
         break;
+    case spv::DecorationMatrixStride:
+        num = spirv[word++];
+        metaType.matrixStride = (short)num;
+        break;
+    case spv::DecorationArrayStride:
+        num = spirv[word++];
+        metaType.arrayStride = (short)num;
+        break;
 
     case spv::DecorationInvariant:
         metaType.invariant = true;
@@ -559,9 +570,12 @@ void SpvToTopTranslator::addMetaTypeDecoration(spv::Decoration decoration, MetaT
         metaType.set = num;
         break;
     case spv::DecorationBinding:
+        num = spirv[word++];
+        metaType.binding = num;
+        break;
     case spv::DecorationLocation:
         num = spirv[word++];
-        metaType.bindingOrLocation = num;
+        metaType.location = num;
         break;
     case spv::DecorationBuiltIn:
         num = spirv[word++];
@@ -863,7 +877,7 @@ int SpvToTopTranslator::assignSlot(spv::Id resultId, int& numSlots)
     //    gla::UnsupportedFunctionality("complex I/O type; use new glslang C++ interface", gla::EATContinue);
     //}
 
-    int slot = commonMap[resultId].metaType.bindingOrLocation;
+    int slot = commonMap[resultId].metaType.location;
     if (slot == gla::MaxUserLayoutLocation) {
         slot = nextSlot;
         nextSlot += numSlots;
@@ -1040,8 +1054,8 @@ llvm::MDNode* SpvToTopTranslator::declareMdDefaultUniform(spv::Id resultId)
     // Make the main node
     return metadata.makeMdInputOutput(NonNullName(commonMap[resultId].metaType.name), gla::UniformListMdName, gla::EMioDefaultUniform,
                                       makePermanentTypeProxy(commonMap[resultId].value),
-                                      layout, commonMap[resultId].metaType.precision, packSetBinding(commonMap[resultId].metaType), samplerMd, structure,
-                                      -1, commonMap[resultId].metaType.builtIn);
+                                      layout, commonMap[resultId].metaType.precision, commonMap[resultId].metaType.location, samplerMd, structure,
+                                      -1, commonMap[resultId].metaType.builtIn, packSetBinding(commonMap[resultId].metaType));
 }
 
 // Make a metadata description of a sampler's type.
@@ -1077,7 +1091,8 @@ llvm::MDNode* SpvToTopTranslator::declareMdUniformBlock(gla::EMdInputOutput ioTy
 
     // Make the main node
     return metadata.makeMdInputOutput(NonNullName(commonMap[resultId].metaType.name), gla::UniformListMdName, ioType, makePermanentTypeProxy(commonMap[resultId].value),
-                                      commonMap[typeId].metaType.layout, commonMap[resultId].metaType.precision, packSetBinding(commonMap[resultId].metaType), 0, block);
+                                      commonMap[typeId].metaType.layout, commonMap[resultId].metaType.precision, commonMap[resultId].metaType.location, 0, block, -1,
+                                      gla::EmbNone, packSetBinding(commonMap[resultId].metaType));
 }
 
 // Make a !aggregate node for the object, as per metadata.h, calling declareMdType with the type
@@ -1103,7 +1118,7 @@ llvm::MDNode* SpvToTopTranslator::declareMdType(spv::Id typeId, MetaType& metaTy
     }
 
     // !typeLayout
-    mdArgs.push_back(metadata.makeMdTypeLayout(typeLayout, metaType.precision, packSetBinding(metaType), samplerMd, -1, metaType.builtIn));
+    mdArgs.push_back(metadata.makeMdTypeLayout(typeLayout, metaType.precision, metaType.location, samplerMd, -1, metaType.builtIn, packSetBinding(metaType)));
 
     if (commonMap[typeId].type->getTypeID() == llvm::Type::StructTyID) {
         int numMembers = (int)commonMap[typeId].type->getNumContainedTypes();
@@ -1650,7 +1665,8 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
         break;
     }
     case spv::OpUndef:
-        gla::UnsupportedFunctionality("OpUndef");
+        decodeResult(true, typeId, resultId);
+        commonMap[resultId].value = llvm::UndefValue::get(commonMap[typeId].type);
         break;
     case spv::OpPhi:
         gla::UnsupportedFunctionality("OpPhi");

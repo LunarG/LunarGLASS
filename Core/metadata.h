@@ -78,8 +78,7 @@ namespace gla {
 //     !gla.io is shorthand for one of !gla.input, !gla.output, !gla.uniform
 //
 //     !gla.io -> { name, EMdInputOutput, Value*, !typeLayout, !aggregate }
-//     This is Dual-Walk form: only of
-//     Notes:
+//     This is Dual-Walk form:
 //         - the name is the name of the object (instance-name for a block)
 //              * for a block with no instance name, the name here will be empty ("")
 //         - Value* is a proxy for getting the LLVM type of the root of the type
