@@ -150,17 +150,18 @@ namespace gla {
 //     !gla.noStaticUse = !{ subset of input/output/uniform that were not statically referenced in the source shader }
 //     !gla.shared = !{ list of all workgroup-shared globals (the Value* of the global variables that are storage-qualified shared) }
 //
-//     !gla.inputPrimitive     = !{ EMdLayoutGeometry }
-//     !gla.outputPrimitive    = !{ EMdLayoutGeometry }
-//     !gla.xfbMode            = !{ bool }
-//     !gla.numVertices        = !{ int }
-//     !gla.vertexSpacing      = !{ EMdVertexSpacing }
-//     !gla.vertexOrder        = !{ EMdVertexOrder }
-//     !gla.pointMode          = !{ bool }
-//     !gla.invocations        = !{ int }
-//     !gla.pixelCenterInteger = !{ bool }
-//     !gla.originUpperLeft    = !{ bool }
-//     !gla.blendEquations     = !{ mask of bits shifted by EMdBlendEquationShift amounts }
+//     !gla.inputPrimitive     = !{ !M } where !M = !{ i32 EMdLayoutGeometry }
+//     !gla.outputPrimitive    = !{ !M } where !M = !{ i32 EMdLayoutGeometry }
+//     !gla.xfbMode            = !{ !M } where !M = !{ i32 bool }
+//     !gla.numVertices        = !{ !M } where !M = !{ i32 int }
+//     !gla.vertexSpacing      = !{ !M } where !M = !{ i32 EMdVertexSpacing }
+//     !gla.vertexOrder        = !{ !M } where !M = !{ i32 EMdVertexOrder }
+//     !gla.pointMode          = !{ !M } where !M = !{ i32 bool }
+//     !gla.invocations        = !{ !M } where !M = !{ i32 int }
+//     !gla.pixelCenterInteger = !{ !M } where !M = !{ i32 bool }
+//     !gla.originUpperLeft    = !{ !M } where !M = !{ i32 bool }
+//     !gla.blendEquations     = !{ !M } where !M = !{ i32 mask of bits shifted by EMdBlendEquationShift amounts }
+//     !gla.localSize          = !{ !M } where !M = !{ i32 x-size, int y-size, int z-size }
 //
 
 // Operand names
@@ -189,6 +190,7 @@ const char* const InvocationsMdName        = "gla.invocations";
 const char* const PixelCenterIntegerMdName = "gla.pixelCenterInteger";
 const char* const OriginUpperLeftMdName    = "gla.originUpperLeft";
 const char* const BlendEquationMdName      = "gla.blendEquations";
+const char* const LocalSizeMdName          = "gla.localSize";
 
 // what kind of I/O:
 enum EMdInputOutput {
@@ -745,12 +747,12 @@ inline EMdSamplerBaseType GetMdSamplerBaseType(const llvm::MDNode* md)
     return (EMdSamplerBaseType)constInt->getSExtValue();
 }
 
-// Return the value the integer metadata operand to the named metadata node.
+// Return the value of the integer metadata operand to the named metadata node.
 // Return 0 if the named node is missing, or was there and it's metadata node was 0 or false.
 inline int GetMdNamedInt(llvm::Module& module, const char* name)
 {
     llvm::NamedMDNode* namedNode = module.getNamedMetadata(name);
-    if (namedNode == 0)
+    if (namedNode == nullptr)
         return 0;
     const llvm::MDNode* md = namedNode->getOperand(0);
     const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
@@ -760,6 +762,25 @@ inline int GetMdNamedInt(llvm::Module& module, const char* name)
     return (int)constInt->getSExtValue();
 }
 
+// Build the set of values of the integer metadata operand to the named metadata node.
+// Return false if the named node is missing, or was there and it's metadata node was 0 or false.
+inline bool GetMdNamedInts(llvm::Module& module, const char* name, std::vector<int>& ints)
+{
+    llvm::NamedMDNode* namedNode = module.getNamedMetadata(name);
+    if (namedNode == nullptr)
+        return false;
+    const llvm::MDNode* md = namedNode->getOperand(0);
+    if (md == nullptr)
+        return false;
+    for (unsigned int op = 0; op < md->getNumOperands(); ++op) {
+        const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(op));
+        if (! constInt)
+            return false;
+        ints.push_back((int)constInt->getSExtValue());
+    }
+
+    return true;
+}
 
 //
 // Metadata class is just for adapter while building the IR.
@@ -907,6 +928,15 @@ public:
     {
         llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(name);
         llvm::Value* layoutArgs[] = { gla::MakeIntConstant(context, i) };
+        namedNode->addOperand(llvm::MDNode::get(context, layoutArgs));
+    }
+
+    void makeMdNamedInt(const char* name, int i1, int i2, int i3)
+    {
+        llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(name);
+        llvm::Value* layoutArgs[] = { gla::MakeIntConstant(context, i1),
+                                      gla::MakeIntConstant(context, i2),
+                                      gla::MakeIntConstant(context, i3), };
         namedNode->addOperand(llvm::MDNode::get(context, layoutArgs));
     }
 

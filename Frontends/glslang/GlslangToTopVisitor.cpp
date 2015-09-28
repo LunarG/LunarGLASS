@@ -596,6 +596,9 @@ TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager, const glsl
         break;
 
     case EShLangCompute:
+        metadata.makeMdNamedInt(gla::LocalSizeMdName, glslangIntermediate->getLocalSize(0),
+                                                      glslangIntermediate->getLocalSize(1),
+                                                      glslangIntermediate->getLocalSize(2));
         break;
 
     default:

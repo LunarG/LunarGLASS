@@ -569,8 +569,16 @@ public:
             break;
 
         case EShLangCompute:
+        {
+            std::vector<int> sizes;
+            if (GetMdNamedInts(module, LocalSizeMdName, sizes)) {
+                globalStructures << "layout(local_size_x=" << sizes[0];
+                globalStructures << ", local_size_y=" << sizes[1];
+                globalStructures << ", local_size_z=" << sizes[2];
+                globalStructures << ") in; " << std::endl;
+            }
             break;
-
+        }
         default:
             UnsupportedFunctionality("shader stage", EATContinue);
             break;
