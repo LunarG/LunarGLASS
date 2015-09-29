@@ -2273,18 +2273,20 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     case llvm::Intrinsic::gla_fPackHalf2x16:
         intrinsicName = getIntrinsic(intrinsicID, gla::GetUintType(context), gla::GetVectorOrScalarType(gla::GetFloatType(context), 2));
         break;
+    case llvm::Intrinsic::gla_fPackSnorm4x8:
+    case llvm::Intrinsic::gla_fPackUnorm4x8:
+        intrinsicName = getIntrinsic(intrinsicID, gla::GetUintType(context), gla::GetVectorOrScalarType(gla::GetFloatType(context), 4));
+        break;
     case llvm::Intrinsic::gla_fUnpackUnorm2x16:
     case llvm::Intrinsic::gla_fUnpackSnorm2x16:
     case llvm::Intrinsic::gla_fUnpackHalf2x16:
         intrinsicName = getIntrinsic(intrinsicID, gla::GetVectorOrScalarType(gla::GetFloatType(context), 2), gla::GetUintType(context));
         break;
-
-    case llvm::Intrinsic::gla_fFrexp:
-    case llvm::Intrinsic::gla_fLdexp:
-    case llvm::Intrinsic::gla_fPackUnorm4x8:
-    case llvm::Intrinsic::gla_fPackSnorm4x8:
     case llvm::Intrinsic::gla_fUnpackUnorm4x8:
     case llvm::Intrinsic::gla_fUnpackSnorm4x8:
+        intrinsicName = getIntrinsic(intrinsicID, gla::GetVectorOrScalarType(gla::GetFloatType(context), 4), gla::GetUintType(context));
+        break;
+
     case llvm::Intrinsic::gla_fPackDouble2x32:
     case llvm::Intrinsic::gla_fUnpackDouble2x32:
         // TODO: desktop functionality: Hook these up
@@ -2303,7 +2305,18 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         // modf() will return a struct that the caller must decode
         intrinsicName = getIntrinsic(intrinsicID, operand->getType(), operand->getType(), operand->getType());
         break;
+    case llvm::Intrinsic::gla_fFrexp:
+    {
+        llvm::Type* type = operand->getType();
+        llvm::Type* intType = llvm::Type::getInt32Ty(context);
 
+        // frexp() needs an integer second member in the returned struct
+        if (type->isVectorTy())
+            intrinsicName = getIntrinsic(intrinsicID, type, llvm::VectorType::get(intType, operand->getType()->getVectorNumElements()), type);
+        else
+            intrinsicName = getIntrinsic(intrinsicID, type, intType, type);
+        break;
+    }
     // Atomics don't have flexible types
     case llvm::Intrinsic::gla_atomicCounterLoad:
     case llvm::Intrinsic::gla_atomicCounterIncrement:
@@ -2372,6 +2385,15 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         intrinsicName = getIntrinsic(intrinsicID, operand0->getType(), operand0->getType());
         break;
 
+    // These all take two operands and return a struct with two members,
+    // needing four type selectors, and all the types of everything is the same.
+    case llvm::Intrinsic::gla_subBorrow:
+    case llvm::Intrinsic::gla_addCarry:
+    case llvm::Intrinsic::gla_umulExtended:
+    case llvm::Intrinsic::gla_smulExtended:
+        intrinsicName = getIntrinsic(intrinsicID, operand0->getType(), operand0->getType(), operand0->getType(), operand0->getType());
+        break;
+
     default:
         // Binary intrinsics that have operand and dest with same flexible type
         intrinsicName = getIntrinsic(intrinsicID,  operand0->getType(), operand0->getType(), operand1->getType());
@@ -2407,6 +2429,11 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         intrinsicName = getIntrinsic(intrinsicID);
         break;
 
+    case llvm::Intrinsic::gla_sBitFieldExtract:
+    case llvm::Intrinsic::gla_uBitFieldExtract:
+        intrinsicName = getIntrinsic(intrinsicID, operand0->getType(), operand0->getType());
+        break;
+
     default:
         // Use operand0 type as result type
         intrinsicName =  getIntrinsic(intrinsicID, operand0->getType(), operand0->getType(), operand1->getType(), operand2->getType());
@@ -2420,6 +2447,34 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         instr = builder.CreateCall3(intrinsicName, operand0, operand1, operand2, name);
     else
         instr = builder.CreateCall3(intrinsicName, operand0, operand1, operand2);
+    setInstructionPrecision(instr, precision);
+
+    return instr;
+}
+
+llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1, llvm::Value* operand2, llvm::Value* operand3, const char* name)
+{
+    llvm::Function* intrinsicName;
+
+    // Handle special return types here.
+    switch (intrinsicID) {
+    case llvm::Intrinsic::gla_bitFieldInsert:
+        // last two are fixed
+        intrinsicName =  getIntrinsic(intrinsicID, operand0->getType(), operand0->getType(), operand0->getType());
+        break;
+
+    default:
+        gla::UnsupportedFunctionality("4 argument intrinsic");
+        break;
+    }
+
+    assert(intrinsicName);
+
+    llvm::Instruction* instr;
+    if (name)
+        instr = builder.CreateCall4(intrinsicName, operand0, operand1, operand2, operand3, name);
+    else
+        instr = builder.CreateCall4(intrinsicName, operand0, operand1, operand2, operand3);
     setInstructionPrecision(instr, precision);
 
     return instr;

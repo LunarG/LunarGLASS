@@ -171,7 +171,7 @@ let TargetPrefix = "gla" in {
 // Pack and Unpack
 let TargetPrefix = "gla" in {
   def int_gla_fFrexp : Intrinsic<[llvm_anyfloat_ty, llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_fLdexp : Intrinsic<[llvm_anyfloat_ty, llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
+  def int_gla_fLdexp : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyint_ty], [IntrNoMem]>;
   def int_gla_fPackUnorm2x16 : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fPackSnorm2x16 : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fPackUnorm4x8 : Intrinsic<[llvm_anyint_ty], [llvm_anyfloat_ty], [IntrNoMem]>;

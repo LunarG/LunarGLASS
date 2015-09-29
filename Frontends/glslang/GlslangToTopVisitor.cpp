@@ -107,6 +107,8 @@ protected:
     llvm::Value* handleTextureAccess(const glslang::TIntermOperator*, const glslang::TCrackedTextureOp&, const std::vector<llvm::Value*>& arguments, gla::ESamplerType, int flags);
     llvm::Value* handleUserFunctionCall(const glslang::TIntermAggregate*);
 
+    void storeResultMemberToOperand(llvm::Value* structure, int member, TIntermNode& node);
+    void storeResultMemberToReturnValue(llvm::Value* structure, int member);
     llvm::Value* createBinaryOperation(glslang::TOperator op, gla::EMdPrecision, llvm::Value* left, llvm::Value* right, bool isUnsigned, bool reduceComparison = true);
     llvm::Value* createUnaryOperation(glslang::TOperator op, gla::EMdPrecision, llvm::Value* operand);
     llvm::Value* createConversion(glslang::TOperator op, gla::EMdPrecision, llvm::Type*, llvm::Value* operand);
@@ -1179,26 +1181,86 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
         binOp = glslang::EOpMod;
         break;
     case glslang::EOpModf:
+    case glslang::EOpFrexp:
         {
-            // modf()'s second operand is only an l-value to set the 2nd return value to
+            // modf()'s and frexp()'s second operand is only an l-value to set the 2nd return value to
 
             // use a unary intrinsic form to make the call and get back the returned struct
             glslang::TIntermSequence& glslangOperands = node->getSequence();
+
+            // get 'in' operand
             glaBuilder->clearAccessChain();
             glslangOperands[0]->traverse(this);
             llvm::Value* operand0 = glaBuilder->accessChainLoad(GetMdPrecision(glslangOperands[0]->getAsTyped()->getType()));
-            llvm::Value* structure = createUnaryIntrinsic(glslang::EOpModf, precision, operand0);
+
+            // call
+            llvm::Value* structure = createUnaryIntrinsic(node->getOp(), precision, operand0);
 
             // store integer part into second operand
-            llvm::Value* intPart = llvmBuilder.CreateExtractValue(structure, 1);
-            glaBuilder->clearAccessChain();
-            glslangOperands[1]->traverse(this);
-            glaBuilder->accessChainStore(intPart);
+            storeResultMemberToOperand(structure, 1, *glslangOperands[1]);
 
             // leave the first part as the function-call's value
-            result = llvmBuilder.CreateExtractValue(structure, 0);
+            storeResultMemberToReturnValue(structure, 0);
+        }
+        return false;
+
+    case glslang::EOpAddCarry:
+    case glslang::EOpSubBorrow:
+        {
+            // addCarry()'s and subBorrow()'s third operand is only an l-value to set the 2nd return value to
+
+            // use an intrinsic with reduced operand count to make the call and get back a returned struct
+            std::vector<llvm::Value*> operands;
+            glslang::TIntermSequence& glslangOperands = node->getSequence();
+
+            // first in
             glaBuilder->clearAccessChain();
-            glaBuilder->setAccessChainRValue(result);
+            glslangOperands[0]->traverse(this);
+            operands.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangOperands[0]->getAsTyped()->getType())));
+
+            // second in
+            glaBuilder->clearAccessChain();
+            glslangOperands[1]->traverse(this);
+            operands.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangOperands[0]->getAsTyped()->getType())));
+
+            // call
+            llvm::Value* structure = createIntrinsic(node->getOp(), precision, operands, glslangOperands[0]->getAsTyped()->getBasicType() == glslang::EbtUint);
+
+            // store second struct member into third operand (out)
+            storeResultMemberToOperand(structure, 1, *glslangOperands[2]);
+
+            // leave the first member as the function-call's value
+            storeResultMemberToReturnValue(structure, 0);
+        }
+        return false;
+
+    case glslang::EOpIMulExtended:
+    case glslang::EOpUMulExtended:
+        {
+            // imulExtended()'s and umulExtended()'s third and fourth operands are only l-values, for the two return values
+
+            // use an intrinsic with reduced operand count to make the call and get back a returned struct
+            std::vector<llvm::Value*> operands;
+            glslang::TIntermSequence& glslangOperands = node->getSequence();
+
+            // first in
+            glaBuilder->clearAccessChain();
+            glslangOperands[0]->traverse(this);
+            operands.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangOperands[0]->getAsTyped()->getType())));
+
+            // second in
+            glaBuilder->clearAccessChain();
+            glslangOperands[1]->traverse(this);
+            operands.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangOperands[0]->getAsTyped()->getType())));
+
+            // call
+            llvm::Value* structure = createIntrinsic(node->getOp(), precision, operands, glslangOperands[0]->getAsTyped()->getBasicType() == glslang::EbtUint);
+
+            // store first struct member into third operand (out)
+            storeResultMemberToOperand(structure, 0, *glslangOperands[2]);
+
+            // store second struct member into fourth operand (out)
+            storeResultMemberToOperand(structure, 1, *glslangOperands[3]);
         }
         return false;
 
@@ -2025,6 +2087,25 @@ llvm::Value* TGlslangToTopTraverser::handleUserFunctionCall(const glslang::TInte
     return result;
 }
 
+// Intended for return values that are Top IR structures, but GLSL out params.
+// Move the member of the structure to the out param.
+void TGlslangToTopTraverser::storeResultMemberToOperand(llvm::Value* structure, int member, TIntermNode& node)
+{
+    llvm::Value* memberVal = llvmBuilder.CreateExtractValue(structure, member);
+    glaBuilder->clearAccessChain();
+    node.traverse(this);
+    glaBuilder->accessChainStore(memberVal);
+}
+
+// Intended for return values that are Top IR structures, but GLSL out params.
+// Move the member of the structure to the out param.
+void TGlslangToTopTraverser::storeResultMemberToReturnValue(llvm::Value* structure, int member)
+{
+    llvm::Value* result = llvmBuilder.CreateExtractValue(structure, member);
+    glaBuilder->clearAccessChain();
+    glaBuilder->setAccessChainRValue(result);
+}
+
 llvm::Value* TGlslangToTopTraverser::createBinaryOperation(glslang::TOperator op, gla::EMdPrecision precision, llvm::Value* left, llvm::Value* right, bool isUnsigned, bool reduceComparison)
 {
     llvm::Instruction::BinaryOps binOp = llvm::Instruction::BinaryOps(0);
@@ -2488,6 +2569,18 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
     case glslang::EOpUnpackHalf2x16:
         intrinsicID = llvm::Intrinsic::gla_fUnpackHalf2x16;
         break;
+    case glslang::EOpPackUnorm4x8:
+        intrinsicID = llvm::Intrinsic::gla_fPackUnorm4x8;
+        break;
+    case glslang::EOpUnpackUnorm4x8:
+        intrinsicID = llvm::Intrinsic::gla_fUnpackUnorm4x8;
+        break;
+    case glslang::EOpPackSnorm4x8:
+        intrinsicID = llvm::Intrinsic::gla_fPackSnorm4x8;
+        break;
+    case glslang::EOpUnpackSnorm4x8:
+        intrinsicID = llvm::Intrinsic::gla_fUnpackSnorm4x8;
+        break;
 
     case glslang::EOpDPdx:
         intrinsicID = llvm::Intrinsic::gla_fDFdx;
@@ -2523,6 +2616,9 @@ llvm::Value* TGlslangToTopTraverser::createUnaryIntrinsic(glslang::TOperator op,
         break;
     case glslang::EOpModf:
         intrinsicID = llvm::Intrinsic::gla_fModF;
+        break;
+    case glslang::EOpFrexp:
+        intrinsicID = llvm::Intrinsic::gla_fFrexp;
         break;
 
     case glslang::EOpEmitStreamVertex:
@@ -2618,9 +2714,6 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
             intrinsicID = llvm::Intrinsic::gla_uFma;
         else
             intrinsicID = llvm::Intrinsic::gla_sFma;
-        break;
-    case glslang::EOpFrexp:
-        intrinsicID = llvm::Intrinsic::gla_fFrexp;
         break;
     case glslang::EOpLdexp:
         intrinsicID = llvm::Intrinsic::gla_fLdexp;
@@ -2738,6 +2831,9 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
             break;
         case 3:
             result = glaBuilder->createIntrinsicCall(precision, intrinsicID, operands[0], operands[1], operands[2], leftName ? leftName : "misc3a");
+            break;
+        case 4:
+            result = glaBuilder->createIntrinsicCall(precision, intrinsicID, operands[0], operands[1], operands[2], operands[3], leftName ? leftName : "misc4a");
             break;
         default:
             // These do not exist yet

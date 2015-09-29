@@ -397,6 +397,7 @@ public:
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, const char* name = 0);
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, const char* name = 0);
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, llvm::Value*, const char* name = 0);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, llvm::Value*, llvm::Value*, const char* name = 0);
     llvm::Value* createRecip(EMdPrecision, llvm::Value*);
 
     // For equal and not-equal comparisons:

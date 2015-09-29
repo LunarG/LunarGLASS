@@ -3522,7 +3522,7 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_addCarry:     callString = "addCarry";     break;
     case llvm::Intrinsic::gla_subBorrow:    callString = "subBorrow";    break;
     case llvm::Intrinsic::gla_umulExtended: callString = "umulExtended"; break;
-    case llvm::Intrinsic::gla_smulExtended: callString = "smulExtended"; break;
+    case llvm::Intrinsic::gla_smulExtended: callString = "imulExtended"; break;
 
     // Bit Operations
     case llvm::Intrinsic::gla_fFloatBitsToInt:  callString = "floatBitsToInt";   break;
@@ -3624,8 +3624,11 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     default: break;
     }
 
-    // deal specially with fmodf(), then treat everything else about the same.
-    if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_fModF) {
+    // deal specially with built-ins having out params, 
+    // then treat everything else about the same.
+    switch (llvmInstruction->getIntrinsicID()) {
+    case llvm::Intrinsic::gla_fModF:
+    case llvm::Intrinsic::gla_fFrexp:
         newLine();
         emitGlaValue(out, llvmInstruction, 0);
         out << "; ";
@@ -3633,7 +3636,32 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
         out << " = " << callString << "(";
         emitGlaOperand(out, llvmInstruction->getOperand(0));
         out << ", " << valueMap[llvmInstruction]->c_str() << ".member1" << ");";
+        return;
+        
+    case llvm::Intrinsic::gla_addCarry:
+    case llvm::Intrinsic::gla_subBorrow:
+        newLine();
+        emitGlaValue(out, llvmInstruction, 0);
+        out << "; ";
+        out << valueMap[llvmInstruction]->c_str() << ".member0";
+        out << " = " << callString << "(";
+        emitGlaOperand(out, llvmInstruction->getOperand(0));
+        out << ", ";
+        emitGlaOperand(out, llvmInstruction->getOperand(1));
+        out << ", " << valueMap[llvmInstruction]->c_str() << ".member1" << ");";
+        return;
 
+    case llvm::Intrinsic::gla_umulExtended:
+    case llvm::Intrinsic::gla_smulExtended:
+        newLine();
+        emitGlaValue(out, llvmInstruction, 0);
+        out << "; ";
+        out << callString << "(";
+        emitGlaOperand(out, llvmInstruction->getOperand(0));
+        out << ", ";
+        emitGlaOperand(out, llvmInstruction->getOperand(1));
+        out << ", " << valueMap[llvmInstruction]->c_str() << ".member0";
+        out << ", " << valueMap[llvmInstruction]->c_str() << ".member1" << ");";
         return;
     }
 
