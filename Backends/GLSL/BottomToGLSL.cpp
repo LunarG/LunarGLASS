@@ -3519,8 +3519,8 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_fFma:         callString = "fma";         break;
 
     // Integer-Only Operations
-    case llvm::Intrinsic::gla_addCarry:     callString = "addCarry";     break;
-    case llvm::Intrinsic::gla_subBorrow:    callString = "subBorrow";    break;
+    case llvm::Intrinsic::gla_addCarry:     callString = "uaddCarry";    break;
+    case llvm::Intrinsic::gla_subBorrow:    callString = "usubBorrow";   break;
     case llvm::Intrinsic::gla_umulExtended: callString = "umulExtended"; break;
     case llvm::Intrinsic::gla_smulExtended: callString = "imulExtended"; break;
 
