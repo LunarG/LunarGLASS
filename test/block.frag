@@ -16,7 +16,6 @@ uniform fooBlock {
     vec4 bu;
     vec2 bw;
     uvec4 bv;
-    S bs;
     mat2 bm2;
     mat4 m4a[8];
 };
