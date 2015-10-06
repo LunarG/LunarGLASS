@@ -70,7 +70,7 @@ precision mediump float; // this will be almost entirely overridden by individua
 struct S {
 	mediump vec4 u;
 	mediump uvec4 v;
-	lowp isampler2D sampler;
+	lowp isampler2D samp2D;
 	mediump vec3 w;
 	mediump mat3 m3a[5];
 };
@@ -92,7 +92,7 @@ out mediump vec4 color;
 
 void main()
 {
-	mediump ivec4 color1 = texture(s.sampler, bw);
+	mediump ivec4 color1 = texture(s.samp2D, bw);
 	mediump vec4 H_y0cidm1 = vec4(color1);
 	mediump vec4 H_ovfbtf1 = H_y0cidm1 + inst[3].nbu;
 	mediump vec4 color2 = H_ovfbtf1 + bu;

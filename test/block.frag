@@ -5,7 +5,7 @@ precision mediump float;
 struct S {
     vec4 u;
     uvec4 v;
-    lowp isampler2D sampler;
+    lowp isampler2D samp2D;
     vec3 w;
     mat3 m3a[5];
 };
@@ -31,5 +31,5 @@ out vec4 color;
 
 void main()
 {
-   color = vec4(texture(s.sampler, bw)) + inst[3].nbu + bu;
+   color = vec4(texture(s.samp2D, bw)) + inst[3].nbu + bu;
 }
