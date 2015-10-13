@@ -100,10 +100,11 @@ void Conditional::recalculate()
 
     // For nodes with no predecessor blocks, the domTree has no entry.
     // TODO: is there any issue with a stale domTree?
-    if (domTree->getNode(left))
-        domFront->calculate(*domTree, domTree->getNode(left));
-    if (domTree->getNode(right))
-        domFront->calculate(*domTree, domTree->getNode(right));
+    // LLVM 3.6 TODO: calculate is gone
+    //if (domTree->getNode(left))
+    //    domFront->calculate(*domTree, domTree->getNode(left));
+    //if (domTree->getNode(right))
+    //    domFront->calculate(*domTree, domTree->getNode(right));
 
     // Calculate merges
     GetMergePoints(right, left, *domFront, merges);
@@ -209,7 +210,7 @@ bool Conditional::eliminateCrossEdges()
             gla::UnsupportedFunctionality("unable to remove the dup-merge block");
 
         // TODO: compile-time performance: Update the dom tree as we go instead of having to recalculate
-        domTree->DT->recalculate(*duplicate->getParent());
+        domTree->recalculate(*duplicate->getParent());
     } else if (false /* able to determine conditions */) {
     } else {
         return false;

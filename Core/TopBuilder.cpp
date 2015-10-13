@@ -42,16 +42,15 @@
 
 // LLVM includes
 #pragma warning(push, 1)
+#pragma warning(disable : 4291)
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/GlobalVariable.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/Module.h"
 #include "llvm/Analysis/LoopInfo.h"
-#include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/PostDominators.h"
 #include "llvm/ADT/SmallPtrSet.h"
 #include "llvm/ADT/SmallVector.h"
-#include "llvm/Support/CFG.h"
 #pragma warning(pop)
 
 // LunarGLASS includes

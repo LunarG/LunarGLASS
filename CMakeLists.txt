@@ -4,12 +4,12 @@ set(CMAKE_INSTALL_PREFIX "install" CACHE STRING "prefix" FORCE)
 
 project(LunarGLASS)
 
-set(LLVM_BUILD ${CMAKE_CURRENT_SOURCE_DIR}/Core/LLVM/llvm-3.4/build CACHE PATH "LLVM build directory")
+set(LLVM_BUILD ${CMAKE_CURRENT_SOURCE_DIR}/Core/LLVM/llvm-3.6.2/build CACHE PATH "LLVM build directory")
 
 set(GLSLANG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../glslang CACHE PATH "glslang directory")
 
 if(WIN32)
-    include(Core/LLVM/llvm-3.4/cmake/modules/ChooseMSVCCRT.cmake)
+    include(Core/LLVM/llvm-3.6.2/cmake/modules/ChooseMSVCCRT.cmake)
     foreach(build_type ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE})
         string(TOUPPER "${build_type}" build)
         message("CMAKE_CXX_FLAGS_${build} are ${CMAKE_CXX_FLAGS_${build}}")

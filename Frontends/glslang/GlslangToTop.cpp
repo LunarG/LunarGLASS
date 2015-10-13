@@ -42,11 +42,11 @@
 
 // LLVM includes
 #pragma warning(push, 1)
+#pragma warning(disable : 4291)
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/PassManager.h"
-#include "llvm/Analysis/Verifier.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/IR/IRBuilder.h"
 #pragma warning(pop)

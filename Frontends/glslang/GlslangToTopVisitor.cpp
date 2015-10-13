@@ -50,11 +50,9 @@
 #include "LunarGLASSManager.h"
 #include "Exceptions.h"
 #include "TopBuilder.h"
-#include "metadata.h"
 
 // LLVM includes
 #pragma warning(push, 1)
-#include "llvm/Support/CFG.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Intrinsics.h"
@@ -3153,7 +3151,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type, 
     // Figure out sampler information if it's a sampler
     llvm::MDNode* samplerMd = makeMdSampler(type, nullptr, "");
 
-    std::vector<llvm::Value*> mdArgs;
+    std::vector<llvm::Metadata*> mdArgs;
 
     // name of aggregate, if an aggregate (struct or block)
     if (type.getStruct())

@@ -45,7 +45,7 @@
 #define GLA_LOOP_UTIL_H
 
 #pragma warning(push, 1)
-#include "llvm/Analysis/Dominators.h"
+#pragma warning(disable : 4351)
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Analysis/ScalarEvolutionExpressions.h"
@@ -176,8 +176,8 @@ namespace gla_llvm {
         // Provide interfaces from the Loop class
         unsigned getLoopDepth()                  const { return loopDepth; }
         const PHINode* getInductionVariable()    const { return inductiveVar; }
-        bool     contains(const BasicBlock* bb)  const { return blocks.count(bb); }
-        bool     contains(const Instruction* i)  const { return blocks.count(i->getParent()); }
+        bool     contains(const BasicBlock* bb)  const { return blocks.count(bb) > 0; }
+        bool     contains(const Instruction* i)  const { return blocks.count(i->getParent()) > 0; }
         unsigned int getTripCount()              const { return tripCount; }
         int getStaticBound()                     const { return staticBound; }
         int getIncrement()                       const { return increment; }

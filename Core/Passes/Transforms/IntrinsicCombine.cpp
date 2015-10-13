@@ -74,15 +74,14 @@
 //===----------------------------------------------------------------------===//
 
 #pragma warning(push, 1)
+#pragma warning(disable : 4291)
 #include "llvm/IR/GlobalVariable.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Use.h"
 #include "llvm/IR/User.h"
 #include "llvm/Pass.h"
-#include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/PostDominators.h"
-#include "llvm/Support/CFG.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #pragma warning(pop)
@@ -207,8 +206,8 @@ bool IntrinsicCombine::discardAwareDCE(Function& F)
 
     // Build up deadList to be all the dominated and post-dominated instructions
     for (DiscardList::iterator i = discards.begin(), e = discards.end(); i != e; ++i) {
-        GetAllDominatedInstructions(*i, *domTree->DT, deadList);
-        // GetAllDominatedInstructions(*i, *postDomTree->DT, deadList); // See TODO
+        GetAllDominatedInstructions(*i, *domTree, deadList);
+        //GetAllDominatedInstructions(*i, *postDomTree->DT, deadList); // See TODO
     }
 
     bool changed = deadList.empty();
@@ -383,7 +382,7 @@ bool IntrinsicCombine::runOnFunction(Function& F)
 
     backEnd = *bep;
 
-    domTree = &getAnalysis<DominatorTree>();
+    domTree = &getAnalysis<DominatorTreeWrapperPass>().getDomTree();
     postDomTree = &getAnalysis<PostDominatorTree>();
 
     module  = F.getParent();
@@ -543,7 +542,7 @@ bool IntrinsicCombine::partiallyEvaluateMultiInsert(IntrinsicInst* miIntr)
 
 void IntrinsicCombine::getAnalysisUsage(AnalysisUsage& AU) const
 {
-    AU.addRequired<DominatorTree>();
+    AU.addRequired<DominatorTreeWrapperPass>();
     AU.addRequired<PostDominatorTree>();
     return;
 }
@@ -560,7 +559,7 @@ INITIALIZE_PASS_BEGIN(IntrinsicCombine,
                       "Combine intrinsics for LunarGLASS",
                       false,  // Whether it looks only at CFG
                       false); // Whether it is an analysis pass
-INITIALIZE_PASS_DEPENDENCY(DominatorTree)
+INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)
 INITIALIZE_PASS_DEPENDENCY(PostDominatorTree)
 INITIALIZE_PASS_END(IntrinsicCombine,
                     "intrinsic-combine",

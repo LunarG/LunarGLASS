@@ -45,6 +45,7 @@
 #define LunarGLASSTopIR_H
 
 #pragma warning(push, 1)
+#pragma warning(disable : 4291)
 #include "llvm/IR/IRBuilder.h"
 #pragma warning(pop)
 

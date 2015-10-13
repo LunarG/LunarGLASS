@@ -47,7 +47,7 @@
 
 // LLVM includes
 #pragma warning(push, 1)
-#include "llvm/Support/CFG.h"
+#pragma warning(disable : 4291)
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Intrinsics.h"
@@ -1105,7 +1105,7 @@ llvm::MDNode* SpvToTopTranslator::declareMdType(spv::Id typeId, MetaType& metaTy
 
     // Figure out sampler information if it's a sampler
     llvm::MDNode* samplerMd = makeMdSampler(typeId, 0);
-    std::vector<llvm::Value*> mdArgs;
+    std::vector<llvm::Metadata*> mdArgs;
 
     // name of aggregate, if an aggregate (struct or block)
     gla::EMdTypeLayout typeLayout;

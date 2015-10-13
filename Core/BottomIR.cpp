@@ -38,14 +38,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "BottomIR.h"
-#include "Exceptions.h"
-
-// LLVM includes
-#pragma warning(push, 1)
-#include "llvm/IR/IntrinsicInst.h"
-#pragma warning(pop)
-
 namespace gla {
 
 };  // end gla namespace

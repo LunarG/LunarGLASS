@@ -66,7 +66,7 @@ bool IdentifyStructures::runOnFunction(Function &F)
 {
     loopInfo                       = &getAnalysis<LoopInfo>();
     DominanceFrontier& domFront    = getAnalysis<DominanceFrontier>();  // Note: this is deprecated, go in the direction of not needing it
-    DominatorTree& domTree         = getAnalysis<DominatorTree>();
+    DominatorTree& domTree         = getAnalysis<DominatorTreeWrapperPass>().getDomTree();
     PostDominatorTree& postDomTree = getAnalysis<PostDominatorTree>();
     ScalarEvolution& scalarEvo     = getAnalysis<ScalarEvolution>();
 
@@ -131,7 +131,7 @@ bool IdentifyStructures::runOnFunction(Function &F)
 void IdentifyStructures::getAnalysisUsage(AnalysisUsage& AU) const
 {
     AU.addRequired<DominanceFrontier>();  // Note: this is deprecated, go in the direction of not needing it
-    AU.addRequired<DominatorTree>();
+    AU.addRequired<DominatorTreeWrapperPass>();
     AU.addRequired<PostDominatorTree>();
     AU.addRequired<LoopInfo>();
     AU.addRequired<ScalarEvolution>();
@@ -171,7 +171,7 @@ INITIALIZE_PASS_BEGIN(IdentifyStructures,
                       false,  // Whether it looks only at CFG
                       true); // Whether it is an analysis pass
 INITIALIZE_PASS_DEPENDENCY(DominanceFrontier)
-INITIALIZE_PASS_DEPENDENCY(DominatorTree)
+INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)
 INITIALIZE_PASS_DEPENDENCY(PostDominatorTree)
 INITIALIZE_PASS_DEPENDENCY(LoopInfo)
 INITIALIZE_PASS_DEPENDENCY(ScalarEvolution)

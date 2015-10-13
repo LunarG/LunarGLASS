@@ -58,12 +58,11 @@
 
 
 #pragma warning(push, 1)
+#pragma warning(disable : 4291)
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/Pass.h"
-#include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/LoopInfo.h"
-#include "llvm/Support/CFG.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Local.h"
@@ -164,7 +163,7 @@ namespace  {
 
 bool FlattenCondAssn::runOnFunction(Function& F)
 {
-    domTree = &getAnalysis<DominatorTree>();
+    domTree = &getAnalysis<DominatorTreeWrapperPass>().getDomTree();
     idStructures = &getAnalysis<IdentifyStructures>();
 
     bool changed = false;
@@ -235,7 +234,7 @@ bool FlattenCondAssn::flattenConds()
 
 void FlattenCondAssn::getAnalysisUsage(AnalysisUsage& AU) const
 {
-    AU.addRequired<DominatorTree>();
+    AU.addRequired<DominatorTreeWrapperPass>();
     AU.addRequired<IdentifyStructures>();
 
     return;
@@ -252,7 +251,7 @@ INITIALIZE_PASS_BEGIN(FlattenCondAssn,
                       "Flatten conditional assignments into select instructions",
                       false,  // Whether it looks only at CFG
                       false); // Whether it is an analysis pass
-INITIALIZE_PASS_DEPENDENCY(DominatorTree)
+INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)
 INITIALIZE_PASS_DEPENDENCY(IdentifyStructures)
 INITIALIZE_PASS_END(FlattenCondAssn,
                     "flatten-conditional-assignments",

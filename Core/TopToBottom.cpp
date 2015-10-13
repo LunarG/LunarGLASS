@@ -42,7 +42,7 @@
 
 // LLVM includes
 #pragma warning(push, 1)
-#include "llvm/Assembly/PrintModulePass.h"
+#pragma warning(disable : 4291)
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
@@ -50,7 +50,7 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/PassManager.h"
 #include "llvm/Analysis/Passes.h"
-#include "llvm/Analysis/Verifier.h"
+#include "llvm/IR/Verifier.h"
 #include "llvm/Transforms/IPO.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Support/raw_ostream.h"
@@ -160,8 +160,7 @@ void gla::PrivateManager::runLLVMOptimizations1()
 
     // Add target data to unblock optimizations that require it
     // This matches default except for endianness (little) and pointer size/alignment (32)
-    llvm::DataLayout* DL = new llvm::DataLayout("e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64");
-    passManager.add(DL);
+    module->setDataLayout("e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64");
 
     // Create immutable passes once
     passManager.add(llvm::createBasicAliasAnalysisPass());

@@ -94,6 +94,7 @@
 
 // LLVM includes
 #pragma warning(push, 1)
+#pragma warning(disable : 4291)
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/IntrinsicInst.h"
 #include "llvm/IR/Intrinsics.h"
@@ -102,10 +103,9 @@
 #include "llvm/Pass.h"
 #include "llvm/PassManager.h"
 #include "llvm/ADT/SmallVector.h"
+#include "llvm/IR/Dominators.h"
 #include "llvm/Analysis/DominanceFrontier.h"  // Note: this is deprecated, go in the direction of not needing it
-#include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/PostDominators.h"
-#include "llvm/Analysis/Verifier.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
@@ -1077,9 +1077,9 @@ bool BottomTranslator::runOnModule(Module& module)
             assert (loops.size() == 0);
 
             // Get/set the loop info
-            domTree   = &getAnalysis<DominatorTree>        (*function);
-            domFront  = &getAnalysis<DominanceFrontier>    (*function);  // Note: this is deprecated, go in the direction of not needing it
-            idStructs = &getAnalysis<IdentifyStructures>   (*function);
+            domTree   = &getAnalysis<DominatorTreeWrapperPass>(*function).getDomTree();
+            domFront  = &getAnalysis<DominanceFrontier>       (*function);  // Note: this is deprecated, go in the direction of not needing it
+            idStructs = &getAnalysis<IdentifyStructures>      (*function);
 
             // Set up the function info
             stageEpilogue = idStructs->getMainCopyOut();
@@ -1131,7 +1131,7 @@ bool BottomTranslator::runOnModule(Module& module)
 
 void BottomTranslator::getAnalysisUsage(AnalysisUsage& AU) const
 {
-    AU.addRequired<DominatorTree>();
+    AU.addRequired<DominatorTreeWrapperPass>();
     AU.addRequired<DominanceFrontier>();  // Note: this is deprecated, go in the direction of not needing it
     AU.addRequired<IdentifyStructures>();
 
@@ -1144,7 +1144,7 @@ INITIALIZE_PASS_BEGIN(BottomTranslator,
                       "LunarGLASS bottom translator pass",
                       false,  // Whether it looks only at CFG
                       false); // Whether it is an analysis pass
-INITIALIZE_PASS_DEPENDENCY(DominatorTree)
+INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)
 INITIALIZE_PASS_DEPENDENCY(DominanceFrontier)
 INITIALIZE_PASS_DEPENDENCY(IdentifyStructures)
 INITIALIZE_PASS_END(BottomTranslator,

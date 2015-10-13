@@ -53,13 +53,12 @@
 //===----------------------------------------------------------------------===//
 
 #pragma warning(push, 1)
+#pragma warning(disable : 4291)
 #include "llvm/Pass.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/IntrinsicInst.h"
 #include "llvm/ADT/SmallVector.h"
-#include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/LoopInfo.h"
-#include "llvm/Support/CFG.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
@@ -120,7 +119,7 @@ bool CanonicalizeCFG::runOnFunction(Function& F)
     bool changed = false;
 
     loopInfo  = &getAnalysis<LoopInfo>();
-    domTree   = &getAnalysis<DominatorTree>();
+    domTree   = &getAnalysis<DominatorTreeWrapperPass>().getDomTree();
     idStructs = &getAnalysis<IdentifyStructures>();
 
     changed |= convertConstantBranches(F);
@@ -319,7 +318,7 @@ void CanonicalizeCFG::getAnalysisUsage(AnalysisUsage& AU) const
     // TODO: Preservation analysis info (e.g. using BasicBlockUtils.h's methods)
 
     AU.addRequired<LoopInfo>();
-    AU.addRequired<DominatorTree>();
+    AU.addRequired<DominatorTreeWrapperPass>();
     AU.addRequired<IdentifyStructures>();
 }
 
@@ -335,7 +334,7 @@ INITIALIZE_PASS_BEGIN(CanonicalizeCFG,
                       false,  // Whether it looks only at CFG
                       false); // Whether it is an analysis pass
 INITIALIZE_PASS_DEPENDENCY(LoopInfo)
-INITIALIZE_PASS_DEPENDENCY(DominatorTree)
+INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)
 INITIALIZE_PASS_DEPENDENCY(IdentifyStructures)
 INITIALIZE_PASS_END(CanonicalizeCFG,
                     "canonicalize-cfg",

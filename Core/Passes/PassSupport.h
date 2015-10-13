@@ -46,6 +46,7 @@
 #define GLA_PASS_SUPPORT_H
 
 #pragma warning(push, 1)
+#pragma warning(disable : 4291)
 #include "llvm/PassSupport.h"
 #pragma warning(pop)
 

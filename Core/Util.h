@@ -43,13 +43,14 @@
 #ifndef Util_H
 #define Util_H
 
-#include "LunarGLASSTopIR.h"
-
 // LLVM includes
 #pragma warning(push, 1)
+#pragma warning(disable : 4291)
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/IntrinsicInst.h"
 #pragma warning(pop)
+
+#include "LunarGLASSTopIR.h"
 
 // Forward decls
 namespace llvm {

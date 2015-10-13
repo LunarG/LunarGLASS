@@ -45,7 +45,7 @@
 #define CONDITIONAL_UTIL_H
 
 #pragma warning(push, 1)
-#include "llvm/Analysis/Dominators.h"
+#pragma warning(disable : 4351)
 #include "llvm/Analysis/PostDominators.h"
 #include "llvm/Analysis/DominanceFrontier.h" // Note: LLVM's DominanceFrontier is deprecated, go in the direction of not needing it
 #include "llvm/Analysis/LoopInfo.h"

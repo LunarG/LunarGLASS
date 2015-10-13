@@ -47,6 +47,7 @@
 
 // LLVM includes
 #pragma warning(push, 1)
+#pragma warning(disable : 4291)
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Metadata.h"
 #pragma warning(pop)
@@ -460,38 +461,63 @@ enum EMdBlendEquationShift {
 // They take an MD node, or instruction that might point to one, and decode it, as per the enums above.
 //
 
+inline llvm::Value* CrackMdValue(const llvm::MDOperand &mdOp)
+{
+    return llvm::dyn_cast<llvm::ValueAsMetadata>(mdOp.get())->getValue();
+}
+
+inline llvm::Type* CrackMdType(const llvm::MDOperand &mdOp)
+{
+    return CrackMdValue(mdOp)->getType();
+}
+
+inline llvm::StringRef CrackMdName(const llvm::MDOperand &mdOp)
+{
+    return llvm::dyn_cast<llvm::MDString>(mdOp.get())->getString();
+}
+
+inline llvm::Constant* CrackMdConstant(const llvm::MDOperand &mdOp)
+{
+    return llvm::dyn_cast<llvm::ConstantAsMetadata>(mdOp.get())->getValue();
+}
+
+inline llvm::ConstantInt* CrackMdConstantInt(const llvm::MDOperand &mdOp)
+{
+    return llvm::dyn_cast<llvm::ConstantInt>(CrackMdConstant(mdOp));
+}
+
 inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, int& interpMode, EMdBuiltIn& builtIn)
 {
-    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
+    const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(0));
     if (! constInt)
         return false;
     layout = (EMdTypeLayout)constInt->getSExtValue();
 
-    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(1));
+    constInt = CrackMdConstantInt(md->getOperand(1));
     if (! constInt)
         return false;
     precision = (EMdPrecision)constInt->getSExtValue();
 
-    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(2));
+    constInt = CrackMdConstantInt(md->getOperand(2));
     if (! constInt)
         return false;
     location = (int)constInt->getSExtValue();
 
-    llvm::Value* speculativeSampler = md->getOperand(3);
+    const llvm::MDOperand& speculativeSampler = md->getOperand(3);
     if (speculativeSampler)
         sampler = llvm::dyn_cast<llvm::MDNode>(speculativeSampler);
     else
         sampler = 0;
 
     if (md->getNumOperands() >= 5) {
-        const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(4));
+        const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(4));
         if (constInt)
             interpMode = (int)constInt->getZExtValue();
     } else
         interpMode = 0;
 
     if (md->getNumOperands() >= 6) {
-        const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(5));
+        const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(5));
         if (constInt)
             builtIn = (EMdBuiltIn)constInt->getZExtValue();
     } else
@@ -505,14 +531,14 @@ inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPr
 {
     CrackTypeLayout(md, layout, precision, location, sampler, interpMode, builtIn);
     if (md->getNumOperands() >= 7) {
-        const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(6));
+        const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(6));
         if (constInt)
             binding = (int)constInt->getSExtValue();
     } else
         binding = -1;
 
     if (md->getNumOperands() >= 8) {
-        const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(7));
+        const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(7));
         if (constInt)
             qualifiers = (unsigned int)constInt->getZExtValue();
     } else
@@ -521,29 +547,20 @@ inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPr
     return true;
 }
 
-inline bool CrackIOMdType(const llvm::MDNode* md, llvm::Type*& type)
-{
-    if (! md->getOperand(2))
-        return false;
-    type = md->getOperand(2)->getType();
-
-    return true;
-}
-
 inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
                       EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, const llvm::MDNode*& aggregate,
                       int& interpMode, EMdBuiltIn& builtIn)
 {
-    symbolName = md->getOperand(0)->getName();
+    symbolName = llvm::dyn_cast<llvm::MDString>(md->getOperand(0).get())->getString();
 
-    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(1));
+    const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(1));
     if (! constInt)
         return false;
     qualifier = (EMdInputOutput)constInt->getSExtValue();
 
     if (! md->getOperand(2))
         return false;
-    type = md->getOperand(2)->getType();
+    type = CrackMdType(md->getOperand(2));
 
     llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(3));
     if (! layoutMd)
@@ -563,16 +580,16 @@ inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputO
                       EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, const llvm::MDNode*& aggregate,
                       int& interpMode, EMdBuiltIn& builtIn, int& binding, unsigned int& qualifiers)
 {
-    symbolName = md->getOperand(0)->getName();
+    symbolName = llvm::dyn_cast<llvm::MDString>(md->getOperand(0).get())->getString();
 
-    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(1));
+    const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(1));
     if (! constInt)
         return false;
     qualifier = (EMdInputOutput)constInt->getSExtValue();
 
     if (! md->getOperand(2))
         return false;
-    type = md->getOperand(2)->getType();
+    type = CrackMdType(md->getOperand(2));
 
     llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(3));
     if (! layoutMd)
@@ -591,7 +608,7 @@ inline bool CrackIOMd(const llvm::MDNode* md, std::string& symbolName, EMdInputO
 inline bool CrackAggregateMd(const llvm::MDNode* md, std::string& symbolName,
                              EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, EMdBuiltIn& builtIn)
 {
-    symbolName = md->getOperand(0)->getName();
+    symbolName = llvm::dyn_cast<llvm::MDString>(md->getOperand(0).get())->getString();
     int dummyInterpMode;
 
     llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(1));
@@ -607,7 +624,7 @@ inline bool CrackAggregateMd(const llvm::MDNode* md, std::string& symbolName,
                              EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, EMdBuiltIn& builtIn,
                              int& binding, unsigned int& qualifiers)
 {
-    symbolName = md->getOperand(0)->getName();
+    symbolName = llvm::dyn_cast<llvm::MDString>(md->getOperand(0).get())->getString();
     int dummyInterpMode;
 
     llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(1));
@@ -643,31 +660,31 @@ inline bool CrackIOMd(const llvm::Instruction* instruction, llvm::StringRef kind
 
 inline bool CrackSamplerMd(const llvm::MDNode* md, EMdSampler& sampler, llvm::Type*& type, EMdSamplerDim& dim, bool& isArray, bool& isShadow, EMdSamplerBaseType& baseType)
 {
-    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
+    const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(0));
     if (! constInt)
         return false;
     sampler = (EMdSampler)constInt->getSExtValue();
 
     if (! md->getOperand(1))
         return false;
-    type = md->getOperand(1)->getType();
+    type = CrackMdType(md->getOperand(1));
 
-    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(2));
+    constInt = CrackMdConstantInt(md->getOperand(2));
     if (! constInt)
         return false;
     dim = (EMdSamplerDim)constInt->getSExtValue();
 
-    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(3));
+    constInt = CrackMdConstantInt(md->getOperand(3));
     if (! constInt)
         return false;
     isArray = constInt->getSExtValue() != 0;
 
-    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(4));
+    constInt = CrackMdConstantInt(md->getOperand(4));
     if (! constInt)
         return false;
     isShadow = constInt->getSExtValue() != 0;
 
-    constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(5));
+    constInt = CrackMdConstantInt(md->getOperand(5));
     if (! constInt)
         return false;
     baseType = (EMdSamplerBaseType)constInt->getSExtValue();
@@ -683,7 +700,7 @@ inline bool CrackPrecisionMd(const llvm::Instruction* instruction, EMdPrecision&
     if (! md)
         return false;
 
-    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
+    const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(0));
     if (! constInt)
         return false;
     precision = (EMdPrecision)constInt->getSExtValue();
@@ -718,7 +735,7 @@ inline EMdTypeLayout GetMdTypeLayout(const llvm::MDNode *md)
             return EMtlNone;
     }
 
-    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(layoutMd->getOperand(0));
+    const llvm::ConstantInt* constInt = CrackMdConstantInt(layoutMd->getOperand(0));
     if (! constInt)
         return EMtlNone;
 
@@ -740,7 +757,7 @@ inline EMdSamplerBaseType GetMdSamplerBaseType(const llvm::MDNode* md)
     if (! md || md->getNumOperands() < 6 || md->getOperand(5) == 0)
         return EMsbFloat;
 
-    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(5));
+    const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(5));
     if (! constInt)
         return EMsbFloat;
 
@@ -755,7 +772,7 @@ inline int GetMdNamedInt(llvm::Module& module, const char* name)
     if (namedNode == nullptr)
         return 0;
     const llvm::MDNode* md = namedNode->getOperand(0);
-    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(0));
+    const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(0));
     if (! constInt)
         return 0;
 
@@ -773,7 +790,7 @@ inline bool GetMdNamedInts(llvm::Module& module, const char* name, std::vector<i
     if (md == nullptr)
         return false;
     for (unsigned int op = 0; op < md->getNumOperands(); ++op) {
-        const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(op));
+        const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(op));
         if (! constInt)
             return false;
         ints.push_back((int)constInt->getSExtValue());
@@ -791,8 +808,8 @@ public:
     {
         // cache the precision qualifier nodes, there are only 4 to reuse
         for (int i = 0; i < EMpCount; ++i) {
-            llvm::Value* args[] = {
-                gla::MakeIntConstant(context, i),
+            llvm::Metadata* args[] = {
+                llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, i)),
             };
             precisionMd[i] = llvm::MDNode::get(context, args);
         }
@@ -808,19 +825,19 @@ public:
 
         llvm::MDNode* md;
         if (aggregate) {
-            llvm::Value* args[] = {
+            llvm::Metadata* args[] = {
                 llvm::MDString::get(context, symbolName),
-                gla::MakeIntConstant(context, qualifier),
-                typeProxy,
+                llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, qualifier)),
+                llvm::ValueAsMetadata::get(typeProxy),
                 layoutMd,
                 aggregate
             };
             md = llvm::MDNode::get(context, args);
         } else  {
-            llvm::Value* args[] = {
+            llvm::Metadata* args[] = {
                 llvm::MDString::get(context, symbolName),
-                gla::MakeIntConstant(context, qualifier),
-                typeProxy,
+                llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, qualifier)),
+                llvm::ValueAsMetadata::get(typeProxy),
                 layoutMd
             };
             md = llvm::MDNode::get(context, args);
@@ -837,10 +854,10 @@ public:
                                      llvm::Value* typeProxy, llvm::MDNode* layoutMd, llvm::ArrayRef<llvm::MDNode*> members)
     {
         llvm::MDNode* md;
-        llvm::SmallVector<llvm::Value*, 10> args;
+        llvm::SmallVector<llvm::Metadata*, 10> args;
         args.push_back(llvm::MDString::get(context, symbolName));
-        args.push_back(gla::MakeIntConstant(context, qualifier));
-        args.push_back(typeProxy);
+        args.push_back(llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, qualifier)));
+        args.push_back(llvm::ValueAsMetadata::get(typeProxy));
         args.push_back(layoutMd);
         args.push_back(llvm::MDString::get(context, typeName));
         if (members.size() > 0) {
@@ -854,13 +871,13 @@ public:
     // "!sampler ->" as per comment at top of file
     llvm::MDNode* makeMdSampler(EMdSampler sampler, llvm::Value* typeProxy, EMdSamplerDim dim, bool isArray, bool isShadow, EMdSamplerBaseType baseType)
     {
-        llvm::Value* args[] = {
-            gla::MakeIntConstant(context, sampler),
-            typeProxy,
-            gla::MakeIntConstant(context, dim),
-            gla::MakeBoolConstant(context, isArray),
-            gla::MakeBoolConstant(context, isShadow),
-            gla::MakeIntConstant(context, baseType),
+        llvm::Metadata* args[] = {
+            llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, sampler)),
+            llvm::ValueAsMetadata::get(typeProxy),
+            llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, dim)),
+            llvm::ValueAsMetadata::getConstant(gla::MakeBoolConstant(context, isArray)),
+            llvm::ValueAsMetadata::getConstant(gla::MakeBoolConstant(context, isShadow)),
+            llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, baseType)),
         };
         llvm::MDNode* md = llvm::MDNode::get(context, args);
 
@@ -877,15 +894,15 @@ public:
     llvm::MDNode* makeMdTypeLayout(EMdTypeLayout layout, EMdPrecision precision, int location, llvm::MDNode* sampler, int interpMode = -1, EMdBuiltIn builtIn = EmbNone,
                                    int binding = -1, unsigned int qualifiers = 0)
     {
-        llvm::Value* args[] = {
-            gla::MakeIntConstant(context, layout),
-            gla::MakeIntConstant(context, precision),
-            gla::MakeIntConstant(context, location),
+        llvm::Metadata* args[] = {
+            llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, layout)),
+            llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, precision)),
+            llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, location)),
             sampler,
-            gla::MakeIntConstant(context, interpMode),
-            gla::MakeIntConstant(context, builtIn),
-            gla::MakeIntConstant(context, binding),
-            gla::MakeIntConstant(context, qualifiers),
+            llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, interpMode)),
+            llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, builtIn)),
+            llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, binding)),
+            llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, qualifiers)),
         };
 
         return llvm::MDNode::get(context, args);
@@ -894,9 +911,9 @@ public:
     void addMdEntrypoint(const char* name)
     {
         llvm::MDNode* md;
-        llvm::Value* args[] = {
+        llvm::Metadata* args[] = {
             llvm::MDString::get(context, name),
-            gla::MakeIntConstant(context, EMioEntrypoint),
+            llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, EMioEntrypoint)),
         };
         md = llvm::MDNode::get(context, args);
 
@@ -912,8 +929,8 @@ public:
 
     void addShared(llvm::Value* shared)
     {
-        llvm::Value* args[] = {
-            shared
+        llvm::Metadata* args[] = {
+            llvm::ValueAsMetadata::get(shared)
         };
         llvm::MDNode* md = llvm::MDNode::get(context, args);
         llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(WorkgroupSharedMdName);
@@ -927,16 +944,16 @@ public:
     void makeMdNamedInt(const char* name, int i)
     {
         llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(name);
-        llvm::Value* layoutArgs[] = { gla::MakeIntConstant(context, i) };
+        llvm::Metadata* layoutArgs[] = { llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, i)) };
         namedNode->addOperand(llvm::MDNode::get(context, layoutArgs));
     }
 
     void makeMdNamedInt(const char* name, int i1, int i2, int i3)
     {
         llvm::NamedMDNode* namedNode = module->getOrInsertNamedMetadata(name);
-        llvm::Value* layoutArgs[] = { gla::MakeIntConstant(context, i1),
-                                      gla::MakeIntConstant(context, i2),
-                                      gla::MakeIntConstant(context, i3), };
+        llvm::Metadata* layoutArgs[] = { llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, i1)),
+                                         llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, i2)),
+                                         llvm::ValueAsMetadata::getConstant(gla::MakeIntConstant(context, i3)), };
         namedNode->addOperand(llvm::MDNode::get(context, layoutArgs));
     }
 

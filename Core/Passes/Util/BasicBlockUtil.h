@@ -44,14 +44,13 @@
 #define BASICBLOCK_UTIL_H
 
 #pragma warning(push, 1)
+#pragma warning(disable : 4351)
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/ADT/DepthFirstIterator.h"
 #include "llvm/ADT/PostOrderIterator.h"
 #include "llvm/ADT/SmallPtrSet.h"
 #include "llvm/Analysis/DominanceFrontier.h" // Note: this is deprecated, go in the direction of not needing it
-#include "llvm/Analysis/Dominators.h"
-#include "llvm/Support/CFG.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #pragma warning(pop)
 
@@ -244,7 +243,7 @@ namespace gla_llvm {
             DeleteDeadBlock(toRemove);
         }
 
-        dt.getBase().recalculate(*f);
+        dt.recalculate(*f);
     }
 
     // Remove bb if it's a no-predecessor block, and continue on to its
@@ -383,7 +382,7 @@ namespace gla_llvm {
         for (/* empty */; bb != e; ++bb) {
             // If merges contains bb itself, then we need to add it to our set
             // of merge points so that each block can itself be a merge point.
-            bool contains = merges.count(*bb);
+            bool contains = merges.count(*bb) > 0;
 
             SetIntersect(merges, (*domFront.find(*bb)).second);
 

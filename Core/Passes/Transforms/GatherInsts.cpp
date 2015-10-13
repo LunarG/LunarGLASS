@@ -295,7 +295,7 @@ bool GatherInsts::matchBinOpExtended(const BinaryOperator* binOp, Value*& operan
             if (lowBits)
                 return false;
 
-            lowBits = const_cast<User*>(*i);
+            lowBits = *i;
 
             continue;
         }
@@ -333,10 +333,10 @@ bool GatherInsts::matchBinOpExtended(const BinaryOperator* binOp, Value*& operan
             return false;
 
         // The shift has to only be used by a trunc i64 -> i32
-        if (! shift->hasOneUse() || ! is64To32BitTrunc(shift->use_back()))
+        if (! shift->hasOneUse() || ! is64To32BitTrunc(shift->user_back()))
             return false;
 
-        highBits = const_cast<Instruction*>(shift->use_back());
+        highBits = const_cast<Instruction*>(shift->user_back());
     }
 
     // We've identified an extended binary op pattern
@@ -346,7 +346,7 @@ bool GatherInsts::matchBinOpExtended(const BinaryOperator* binOp, Value*& operan
 bool GatherInsts::visitMinMaxPair(IntrinsicInst* fMin, IntrinsicInst* fMax)
 {
     assert(fMin->getIntrinsicID() == Intrinsic::gla_fMin && fMax->getIntrinsicID() == Intrinsic::gla_fMax);
-    assert(fMax->hasOneUse() && fMax->use_back() == fMin); //TODO: max(a, min(b,c))
+    assert(fMax->hasOneUse() && fMax->user_back() == fMin); //TODO: max(a, min(b,c))
 
     if (fMin->getType() != fMax->getType() ||
         fMin->getArgOperand(1)->getType() != fMax->getArgOperand(1)->getType())
@@ -457,7 +457,7 @@ bool GatherInsts::visitIntrinsic(IntrinsicInst* intr)
         // TODO: handle the multiple-use case
         // TODO: also compose doubles based on backend query
         if (intr->hasOneUse() && gla::GetBasicType(intr->getType())->isFloatTy())
-            if (IntrinsicInst* useIntr = dyn_cast<IntrinsicInst>(intr->use_back()))
+            if (IntrinsicInst* useIntr = dyn_cast<IntrinsicInst>(intr->user_back()))
                 if (useIntr->getIntrinsicID() == Intrinsic::gla_fMin)
                     return visitMinMaxPair(useIntr, intr);
 

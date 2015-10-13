@@ -42,13 +42,6 @@
 
 #include "Passes/Util/InstructionUtil.h"
 
-#pragma warning(push, 1)
-#include "llvm/IR/Instructions.h"
-#pragma warning(pop)
-
-#include "LunarGLASSTopIR.h"
-#include "Util.h"
-
 #include <cmath>
 
 namespace gla_llvm {

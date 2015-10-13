@@ -77,11 +77,6 @@
 #include "glslang/Public/ShaderLang.h"
 #include "glslang/MachineIndependent/Versions.h"
 
-// LLVM includes
-#pragma warning(push, 1)
-#include "llvm/IR/Module.h"
-#pragma warning(pop)
-
 namespace {
     bool UseLogicalIO = true;
     bool HideBindings = false;
@@ -406,7 +401,7 @@ public:
         mdList = module.getNamedMetadata(WorkgroupSharedMdName);
         if (mdList) {
             for (unsigned int m = 0; m < mdList->getNumOperands(); ++m)
-                sharedSet.insert(mdList->getOperand(m)->getOperand(0));
+                sharedSet.insert(CrackMdValue(mdList->getOperand(m)->getOperand(0)));
         }
 
         // Get the top-levels modes for this shader.
@@ -1107,7 +1102,7 @@ const char* MapGlaToImageQualifierString(MetaType metaType)
         return "";
 
     // get the texture/image enum
-    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(metaType.mdSampler->getOperand(0));
+    const llvm::ConstantInt* constInt = CrackMdConstantInt(metaType.mdSampler->getOperand(0));
     if (constInt == 0)
         return "";
     EMdSampler image = (EMdSampler)constInt->getSExtValue();
@@ -1192,7 +1187,7 @@ std::string MapGlaStructField(const llvm::Type* structType, int index, const llv
     if (mdAggregate) {
         int aggOp = GetAggregateMdNameOp(index);
         if ((int)mdAggregate->getNumOperands() > aggOp) {
-            name = mdAggregate->getOperand(aggOp)->getName();
+            name = CrackMdName(mdAggregate->getOperand(aggOp));
 
             return name;
         } else
@@ -1595,7 +1590,7 @@ void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNo
         } while (true);
         if (name.size() > 0)
             name = name + ".";
-        name = name + std::string(mdAggregate->getOperand(GetAggregateMdNameOp(field))->getName());
+        name = name + std::string(CrackMdName(mdAggregate->getOperand(GetAggregateMdNameOp(field))));
         const llvm::MDNode* subMdAggregate = llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand));
         DereferenceName(name, fieldType, subMdAggregate, slotOffset, mdTypeLayout);
     } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
@@ -1690,7 +1685,7 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
               dummyInterp, metaType.builtIn, dummyBinding, dummyQualifiers);
     std::string builtInName = GetBuiltInName(ioKind, stage, metaType.builtIn);
 
-    std::string instanceName = mdNode->getOperand(0)->getName();
+    std::string instanceName = CrackMdName(mdNode->getOperand(0));
 
     bool declarationAllowed = true;
 
@@ -1718,7 +1713,7 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
         }
         // Strip off the "_typeProxy" to get the shader name:
         // TODO: formalize a better way of getting this; this results from a design change.
-        mappingName = mdNode->getOperand(2)->getName();
+        mappingName = CrackMdName(mdNode->getOperand(2));
         StripSuffix(mappingName, "_typeProxy");
     } else {
         if (builtInName.size() > 0 || instanceName.substr(0, 3) == std::string("gl_")) {
@@ -2686,7 +2681,7 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, 
     if (! block)
         tempStructure << "struct ";
     if (mdAggregate)
-        tempStructure << std::string(mdAggregate->getOperand(0)->getName());
+        tempStructure << std::string(CrackMdName(mdAggregate->getOperand(0)));
     else
         tempStructure << name;
     tempStructure << " {" << std::endl;
@@ -2697,7 +2692,7 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, 
         if (mdAggregate) {
             const llvm::MDNode* subMdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(GetAggregateMdSubAggregateOp(index)));
             int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index), false, subMdAggregate);
-            tempStructure << " " << std::string(mdAggregate->getOperand(GetAggregateMdNameOp(index))->getName());
+            tempStructure << " " << std::string(CrackMdName(mdAggregate->getOperand(GetAggregateMdNameOp(index))));
             if (runtimeArrayed && index == lastIndex)
                 tempStructure << "[]";
             emitGlaArraySize(tempStructure, arraySize);
@@ -2941,7 +2936,7 @@ void gla::GlslTarget::mapPointerExpression(const llvm::Value* ptr, const llvm::V
         if (builtInMap.find(name) != builtInMap.end())
             expression = builtInMap[name];
         else
-            expression = mdNode->getOperand(0)->getName();
+            expression = CrackMdName(mdNode->getOperand(0));
     } else {
         if (MapGlaAddressSpace(ptr) == EVQGlobal) {
             // This could be a path for a hoisted "undef" aggregate.  See hoistUndefOps().
@@ -4000,7 +3995,7 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
         addStructType(out, structName, structType, metaType.mdAggregate, metaType.block, metaType.runtimeArrayed);
         if (! metaType.block) {
             if (metaType.mdAggregate)
-                out << std::string(metaType.mdAggregate->getOperand(0)->getName());
+                out << std::string(CrackMdName(metaType.mdAggregate->getOperand(0)));
             else
                 out << structNameMap[structType];
         }
@@ -4792,7 +4787,7 @@ void gla::GlslTarget::emitInvariantDeclarations(llvm::Module& module)
     for (unsigned int m = 0; m < mdList->getNumOperands(); ++m) {
         const llvm::MDNode* mdNode = mdList->getOperand(m);
         if (! filteringIoNode(mdNode))
-            globalDeclarations << mdNode->getOperand(0)->getName().str().c_str() << " ";
+            globalDeclarations << CrackMdName(mdNode->getOperand(0)).str().c_str() << " ";
     }
     globalDeclarations << ";";
 }

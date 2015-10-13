@@ -96,7 +96,7 @@ BasicBlock* DuplicateBasicBlock(BasicBlock* toDuplicate)
             if (! userInst || internalBlocks.count(userInst->getParent()))
                 continue;
 
-            uI->replaceUsesOfWith(instI, phi);
+            userInst->replaceUsesOfWith(instI, phi);
         }
     }
 

@@ -45,7 +45,6 @@
 
 #pragma warning(push, 1)
 #include "llvm/ADT/ArrayRef.h"
-#include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/PostDominators.h"
 #pragma warning(pop)
 

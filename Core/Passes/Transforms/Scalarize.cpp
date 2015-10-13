@@ -55,6 +55,7 @@
 #pragma warning(disable : 4351)
 
 #pragma warning(push, 1)
+#pragma warning(disable : 4291)
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/PostOrderIterator.h"
 #include "llvm/IR/Function.h"
@@ -63,7 +64,7 @@
 #include "llvm/IR/IntrinsicInst.h"
 #include "llvm/IR/Module.h"
 #include "llvm/Pass.h"
-#include "llvm/Support/CFG.h"
+#include "llvm/IR/CFG.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Support/raw_ostream.h"
 #pragma warning(pop)
@@ -207,8 +208,8 @@ bool Scalarize::canGetComponent(Value* v)
         if (isa<ConstantVector>(v) || isa<ConstantDataVector>(v) || isa<ConstantAggregateZero>(v) || isa<UndefValue>(v)) {
             return true;
         } else {
-            assert(isa<Instruction>(v) && "Non-constant non-instuction?");
-            return vectorVals.count(v);
+            assert(isa<Instruction>(v) && "Non-constant non-instruction?");
+            return vectorVals.count(v) > 0;
         }
     } else {
         return true;
