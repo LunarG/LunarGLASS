@@ -654,21 +654,21 @@ void TranslateLinkedShaders(const std::vector<const char*>& names)
                     manager.dump("\nTop IR:\n");
 
                 // Generate the Bottom IR
-                manager.translateTopToBottom();
+                //manager.translateTopToBottom();
     
-                if (Options & EOptionAssembly)
-                    manager.dump("\n\nBottom IR:\n");
+                //if (Options & EOptionAssembly)
+                    //manager.dump("\n\nBottom IR:\n");
 
                 // Generate the GLSL output
-                manager.translateBottomToTarget();
+                //manager.translateBottomToTarget();
 
                 // Get and print the generated GLSL output
-                if (! (Options & EOptionMemoryLeakMode) && ! (Options & EOptionSilent)) {
-                    if (Options & EOptionDumpIndexShader)
-                        printf("%s\n", manager.getIndexShader());
-                    else if (manager.getGeneratedShader())
-                        printf("%s\n", manager.getGeneratedShader());
-                }
+                //if (! (Options & EOptionMemoryLeakMode) && ! (Options & EOptionSilent)) {
+                //    if (Options & EOptionDumpIndexShader)
+                //        printf("%s\n", manager.getIndexShader());
+                //    else if (manager.getGeneratedShader())
+                //        printf("%s\n", manager.getGeneratedShader());
+                //}
             }
             #ifdef _WIN32
                 if (Options & EOptionMemoryLeakMode) {
@@ -764,15 +764,15 @@ void TranslateSingleShader(glslang::TWorkItem* workItem)
         manager.dump("\nTop IR:\n");
 
     // Generate the Bottom IR
-    manager.translateTopToBottom();
+    //manager.translateTopToBottom();
     
-    if (Options & EOptionAssembly)
-        manager.dump("\n\nBottom IR:\n");
+    //if (Options & EOptionAssembly)
+    //    manager.dump("\n\nBottom IR:\n");
 
     // Generate the GLSL output
-    manager.translateBottomToTarget();
-    workItem->results = manager.getGeneratedShader();
-    workItem->resultsIndex = manager.getIndexShader();
+    //manager.translateBottomToTarget();
+    //workItem->results = manager.getGeneratedShader();
+    //workItem->resultsIndex = manager.getIndexShader();
 
     // Free everything up, the glslang program has to go before the shader.
     delete &program;
