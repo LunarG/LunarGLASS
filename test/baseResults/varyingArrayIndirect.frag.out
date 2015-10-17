@@ -76,21 +76,21 @@ attributes #0 = { nounwind readnone }
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"texSampler2D", i32 12, i32* @texSampler2D_typeProxy, metadata !2}
-!2 = metadata !{i32 5, i32 0, i32 1024, metadata !3, i32 -1, i32 0, i32 -1, i32 0}
+!2 = metadata !{i32 5, i32 0, i32 1024, metadata !3, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !3 = metadata !{i32 0, i32* @texSampler2D_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !4 = metadata !{metadata !"b", i32 12, i32* @b_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
+!5 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !6 = metadata !{metadata !"a", i32 12, i32* @a_typeProxy, metadata !5}
 !7 = metadata !{metadata !"userIn", i32 1, [2 x <4 x float>]* @userIn_typeProxy, metadata !8}
-!8 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0}
+!8 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !9 = metadata !{metadata !"gl_TexCoord", i32 1, [6 x <4 x float>]* @gl_TexCoord_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1026, null, i32 1, i32 28, i32 -1, i32 0}
+!10 = metadata !{i32 0, i32 0, i32 1026, null, i32 1, i32 28, i32 -1, i32 0, i32 -1}
 !11 = metadata !{metadata !"color", i32 1, <4 x float>* @color_typeProxy, metadata !12}
-!12 = metadata !{i32 0, i32 0, i32 1032, null, i32 1, i32 0, i32 -1, i32 0}
+!12 = metadata !{i32 0, i32 0, i32 1032, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !13 = metadata !{metadata !"alpha", i32 1, float* @alpha_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 0, i32 1033, null, i32 1, i32 0, i32 -1, i32 0}
+!14 = metadata !{i32 0, i32 0, i32 1033, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !15 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1034, null, i32 0, i32 43, i32 -1, i32 0}
+!16 = metadata !{i32 0, i32 0, i32 1034, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 
 
 Bottom IR:
@@ -161,21 +161,21 @@ attributes #0 = { nounwind readnone }
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"texSampler2D", i32 12, i32* @texSampler2D_typeProxy, metadata !2}
-!2 = metadata !{i32 5, i32 0, i32 1024, metadata !3, i32 -1, i32 0, i32 -1, i32 0}
+!2 = metadata !{i32 5, i32 0, i32 1024, metadata !3, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !3 = metadata !{i32 0, i32* @texSampler2D_typeProxy, i32 1, i1 false, i1 false, i32 0}
 !4 = metadata !{metadata !"b", i32 12, i32* @b_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
+!5 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !6 = metadata !{metadata !"a", i32 12, i32* @a_typeProxy, metadata !5}
 !7 = metadata !{metadata !"userIn", i32 1, [2 x <4 x float>]* @userIn_typeProxy, metadata !8}
-!8 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0}
+!8 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !9 = metadata !{metadata !"gl_TexCoord", i32 1, [6 x <4 x float>]* @gl_TexCoord_typeProxy, metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1026, null, i32 1, i32 28, i32 -1, i32 0}
+!10 = metadata !{i32 0, i32 0, i32 1026, null, i32 1, i32 28, i32 -1, i32 0, i32 -1}
 !11 = metadata !{metadata !"color", i32 1, <4 x float>* @color_typeProxy, metadata !12}
-!12 = metadata !{i32 0, i32 0, i32 1032, null, i32 1, i32 0, i32 -1, i32 0}
+!12 = metadata !{i32 0, i32 0, i32 1032, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !13 = metadata !{metadata !"alpha", i32 1, float* @alpha_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 0, i32 1033, null, i32 1, i32 0, i32 -1, i32 0}
+!14 = metadata !{i32 0, i32 0, i32 1033, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !15 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1034, null, i32 0, i32 43, i32 -1, i32 0}
+!16 = metadata !{i32 0, i32 0, i32 1034, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 #version 130
 // LunarGOO output
 uniform sampler2D texSampler2D;

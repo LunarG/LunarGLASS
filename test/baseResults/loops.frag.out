@@ -1325,9 +1325,9 @@ attributes #0 = { nounwind }
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !3 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
+!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !5 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !4}
 !6 = metadata !{metadata !"bigColor1_1", i32 12, <4 x float>* @bigColor1_1_typeProxy, metadata !4}
 !7 = metadata !{metadata !"d2", i32 12, float* @d2_typeProxy, metadata !4}
@@ -1374,7 +1374,7 @@ attributes #0 = { nounwind }
 !48 = metadata !{metadata !"d33", i32 12, float* @d33_typeProxy, metadata !4}
 !49 = metadata !{metadata !"d34", i32 12, float* @d34_typeProxy, metadata !4}
 !50 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !51}
-!51 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0}
+!51 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 
 
 Bottom IR:
@@ -2203,9 +2203,9 @@ attributes #1 = { nounwind readnone }
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !3 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
+!4 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !5 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !4}
 !6 = metadata !{metadata !"bigColor1_1", i32 12, <4 x float>* @bigColor1_1_typeProxy, metadata !4}
 !7 = metadata !{metadata !"d2", i32 12, float* @d2_typeProxy, metadata !4}
@@ -2252,7 +2252,7 @@ attributes #1 = { nounwind readnone }
 !48 = metadata !{metadata !"d33", i32 12, float* @d33_typeProxy, metadata !4}
 !49 = metadata !{metadata !"d34", i32 12, float* @d34_typeProxy, metadata !4}
 !50 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !51}
-!51 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0}
+!51 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 #version 130
 // LunarGOO output
 uniform float d;
