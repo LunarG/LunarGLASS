@@ -79,7 +79,6 @@
 
 namespace {
     bool UseLogicalIO = true;
-    bool HideBindings = false;
 
     bool ValidIdentChar(int c)
     {
@@ -4224,9 +4223,6 @@ void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout 
 
     default:  break;
     }
-
-    if (HideBindings)
-        binding = -1;
 
     bool setPresent = false;
     int set = 0;
