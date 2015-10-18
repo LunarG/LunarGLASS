@@ -547,7 +547,7 @@ inline bool CrackTypeLayout(const llvm::MDNode* md, EMdTypeLayout& layout, EMdPr
         qualifiers = 0;
 
     if (md->getNumOperands() >= 9) {
-        const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(8));
+        const llvm::ConstantInt* constInt = CrackMdConstantInt(md->getOperand(8));
         if (constInt)
             offset = (int)constInt->getSExtValue();
     } else

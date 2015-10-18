@@ -111,7 +111,7 @@ function runIsolatedTests {
         tr -d '\r' < localResults/$t.out.tmp > localResults/$t.out
         rm localResults/$t.out.tmp
         #rm tempglsl.$EXTENSION
-        #diff -b baseResults/$t.out localResults || HASERROR=1
+        diff -b baseResultsLLVM3.6/$t.out localResults || HASERROR=1
 
     done
     rm temp.stdout* temp.errout
