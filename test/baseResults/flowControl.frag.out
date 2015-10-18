@@ -61,16 +61,16 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !3 = metadata !{metadata !"c", i32 1, float* @c_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0}
+!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !5 = metadata !{metadata !"otherColor", i32 12, <4 x float>* @otherColor_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
+!6 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !7 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !6}
 !8 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !6}
 !9 = metadata !{metadata !"smallColor", i32 12, <4 x float>* @smallColor_typeProxy, metadata !6}
 !10 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1026, null, i32 0, i32 43, i32 -1, i32 0}
+!11 = metadata !{i32 0, i32 0, i32 1026, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 
 
 Bottom IR:
@@ -113,16 +113,16 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 !0 = metadata !{metadata !"main", i32 15}
 !1 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0}
+!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !3 = metadata !{metadata !"c", i32 1, float* @c_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0}
+!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !5 = metadata !{metadata !"otherColor", i32 12, <4 x float>* @otherColor_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0}
+!6 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !7 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !6}
 !8 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !6}
 !9 = metadata !{metadata !"smallColor", i32 12, <4 x float>* @smallColor_typeProxy, metadata !6}
 !10 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1026, null, i32 0, i32 43, i32 -1, i32 0}
+!11 = metadata !{i32 0, i32 0, i32 1026, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 #version 120
 // LunarGOO output
 uniform vec4 otherColor;

@@ -137,6 +137,7 @@ protected:
     llvm::IRBuilder<> llvmBuilder;
     llvm::Module* module;
     gla::Metadata metadata;
+    bool useUniformOffsets;
 
     gla::Builder* glaBuilder;
     int nextSlot;                // non-user set interpolations slots, virtual space, so inputs and outputs can both share it
@@ -405,6 +406,19 @@ unsigned int GetMdQualifiers(const glslang::TType& type)
     return qualifiers;
 }
 
+int GetMdOffset(const glslang::TType& type, bool uniformOffsets)
+{
+    // use the default if this is just offset of uniform member where it
+    // can only be the default
+    if (type.getBasicType() != glslang::EbtAtomicUint && ! uniformOffsets)
+        return -1;
+
+    if (type.getQualifier().hasOffset())
+        return type.getQualifier().layoutOffset;
+    else
+       return -1;
+}
+
 gla::EMdPrecision GetMdPrecision(const glslang::TType& type)
 {
     switch (type.getQualifier().precision) {
@@ -550,6 +564,7 @@ TGlslangToTopTraverser::TGlslangToTopTraverser(gla::Manager* manager, const glsl
     globalInitializerInsertPoint->getParent()->getBasicBlockList().push_back(mainBody);
     llvmBuilder.SetInsertPoint(globalInitializerInsertPoint);
     lastBodyBlock = globalInitializerInsertPoint;
+    useUniformOffsets = glslangIntermediate->getProfile() != EEsProfile && glslangIntermediate->getVersion() >= 420;
 
     // Add the top-level modes for this shader.
 
@@ -3161,7 +3176,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type, 
 
     // !typeLayout
     mdArgs.push_back(metadata.makeMdTypeLayout(GetMdTypeLayout(type, inheritMatrix), GetMdPrecision(type), GetMdSlotLocation(type), samplerMd, -1, GetMdBuiltIn(type),
-                                               GetMdBinding(type), GetMdQualifiers(type)));
+                                               GetMdBinding(type), GetMdQualifiers(type), GetMdOffset(type, useUniformOffsets)));
 
     const glslang::TTypeList* typeList = type.getStruct();
     if (typeList) {
@@ -3224,7 +3239,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, 
 
         // Make the !typeLayout for this level
         llvm::MDNode* layoutMd = metadata.makeMdTypeLayout(layout, GetMdPrecision(type), location, samplerMd, interpolationMode, GetMdBuiltIn(type),
-                                                           GetMdBinding(type), GetMdQualifiers(type));
+                                                           GetMdBinding(type), GetMdQualifiers(type), GetMdOffset(type, useUniformOffsets));
 
         // Make the !gla.uniform/input/output for this level
         llvm::MDNode* ioMd = metadata.makeMdSingleTypeIo(instanceName, typeName, ioType, MakePermanentTypeProxy(proxyType, proxyName), layoutMd, members);
@@ -3245,7 +3260,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, 
         // Make the top-level !gla.uniform/input/output node that points to the recursive !aggregate node
         return metadata.makeMdInputOutput(instanceName, kind, ioType, MakePermanentTypeProxy(proxyType, proxyName),
                                           layout, GetMdPrecision(type), location, samplerMd, aggregate,
-                                          interpolationMode, GetMdBuiltIn(type), GetMdBinding(type), GetMdQualifiers(type));
+                                          interpolationMode, GetMdBuiltIn(type), GetMdBinding(type), GetMdQualifiers(type), GetMdOffset(type, useUniformOffsets));
     }
 }
 

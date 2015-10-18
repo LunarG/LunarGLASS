@@ -651,7 +651,7 @@ public:
     void emitGlaArraySize(std::ostringstream&, int arraySize);
     void emitGlaSamplerType(std::ostringstream&, const llvm::MDNode* mdSamplerNode);
     void emitGlaInterpolationQualifier(EVariableQualifier qualifier, EInterpolationMethod interpMethod, EInterpolationLocation interpLocation);
-    void emitGlaLayout(std::ostringstream&, gla::EMdTypeLayout layout, int location, int binding);
+    void emitGlaLayout(std::ostringstream&, gla::EMdTypeLayout layout, int location, int binding, int offset);
     void emitGlaMdQualifiers(std::ostringstream&, unsigned qualifiers);
     void emitGlaConstructor(std::ostringstream&, llvm::Type* type, int count = -1);
     void emitGlaValueDeclaration(const llvm::Value* value, const char* rhs, bool forceGlobal = false);
@@ -1680,8 +1680,9 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
     int dummyInterp;
     int dummyBinding;
     unsigned int dummyQualifiers;
+    int dummyOffset;
     CrackIOMd(mdNode, metaType.name, ioKind, type, dummyLayout, metaType.precision, dummyLocation, metaType.mdSampler, metaType.mdAggregate,
-              dummyInterp, metaType.builtIn, dummyBinding, dummyQualifiers);
+              dummyInterp, metaType.builtIn, dummyBinding, dummyQualifiers, dummyOffset);
     std::string builtInName = GetBuiltInName(ioKind, stage, metaType.builtIn);
 
     std::string instanceName = CrackMdName(mdNode->getOperand(0));
@@ -4056,6 +4057,7 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
     EMdTypeLayout typeLayout;
     int location;
     int binding;
+    int offset;
     unsigned int qualifiers;
 
     if (ioRoot) {
@@ -4063,7 +4065,7 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
         llvm::Type* proxyType;
         int interpMode;
         if (! CrackIOMd(mdNode, metaType.name, ioKind, proxyType, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.mdAggregate,
-                        interpMode, metaType.builtIn, binding, qualifiers)) {
+                        interpMode, metaType.builtIn, binding, qualifiers, offset)) {
             UnsupportedFunctionality("IO metadata for type");
             return false;
         }
@@ -4111,7 +4113,7 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
                 emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
         }
     } else {
-        if (! CrackAggregateMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.builtIn, binding, qualifiers)) {
+        if (! CrackAggregateMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.builtIn, binding, qualifiers, offset)) {
             UnsupportedFunctionality("aggregate metadata for type");
             return false;
         }
@@ -4123,7 +4125,9 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
     metaType.atomic = typeLayout == EMtlAtomicUint;
 
     if (! arrayChild) {
-        emitGlaLayout(out, typeLayout, location, binding);
+        if (! ioRoot && (profile == EEsProfile || version < 420))
+            offset = -1;
+        emitGlaLayout(out, typeLayout, location, binding, offset);
         emitGlaMdQualifiers(out, qualifiers);
     }
 
@@ -4205,7 +4209,7 @@ void gla::GlslTarget::emitGlaInterpolationQualifier(EVariableQualifier qualifier
     }
 }
 
-void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location, int binding)
+void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout layout, int location, int binding, int offset)
 {
     const char* layoutStr = 0;
 
@@ -4260,6 +4264,11 @@ void gla::GlslTarget::emitGlaLayout(std::ostringstream& out, gla::EMdTypeLayout 
         if (comma)
             out << ", ";
         out << "location=" << location;
+    }
+    if (offset != -1) {
+        if (comma)
+            out << ", ";
+        out << "offset=" << offset;
     }
     out << ") ";
 }
@@ -4705,8 +4714,9 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
     EMdBuiltIn builtIn;
     int dummyBinding;
     unsigned int dummyQualifiers;
+    int dummyOffset;
     if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode, builtIn,
-                                     dummyBinding, dummyQualifiers)) {
+                                     dummyBinding, dummyQualifiers, dummyOffset)) {
         // This path should not exist; it is a backup path for missing metadata.
         UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
 
