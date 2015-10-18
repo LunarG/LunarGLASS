@@ -3429,7 +3429,14 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_fPackUnorm2x16:
     case llvm::Intrinsic::gla_fPackSnorm2x16:
+    case llvm::Intrinsic::gla_fPackUnorm4x8:
+    case llvm::Intrinsic::gla_fPackSnorm4x8:
     case llvm::Intrinsic::gla_fPackHalf2x16:
+    case llvm::Intrinsic::gla_fUnpackDouble2x32:
+
+    case llvm::Intrinsic::gla_uBitFieldExtract:
+    case llvm::Intrinsic::gla_uFindMSB:
+    
         convertResultToInt = true;
         break;
     default:
@@ -3444,11 +3451,17 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_uMax:
     case llvm::Intrinsic::gla_uClamp:
     case llvm::Intrinsic::gla_umulExtended:
+    case llvm::Intrinsic::gla_addCarry:
+    case llvm::Intrinsic::gla_subBorrow:
     case llvm::Intrinsic::gla_uBitFieldExtract:
     case llvm::Intrinsic::gla_uFindMSB:
+
     case llvm::Intrinsic::gla_fUnpackUnorm2x16:
     case llvm::Intrinsic::gla_fUnpackSnorm2x16:
     case llvm::Intrinsic::gla_fUnpackHalf2x16:
+    case llvm::Intrinsic::gla_fUnpackUnorm4x8:
+    case llvm::Intrinsic::gla_fUnpackSnorm4x8:
+    case llvm::Intrinsic::gla_fPackDouble2x32:
         convertArgsToUint = true;
         break;
     default:
@@ -3528,9 +3541,9 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_fFloatBitsToInt:  callString = "floatBitsToInt";   break;
     case llvm::Intrinsic::gla_fIntBitsTofloat:  callString = "intBitsToFloat";   break;
     case llvm::Intrinsic::gla_sBitFieldExtract:
-    case llvm::Intrinsic::gla_uBitFieldExtract: callString = "bitFieldExtract";  break;
-    case llvm::Intrinsic::gla_bitFieldInsert:   callString = "bitFieldInsert";   break;
-    case llvm::Intrinsic::gla_bitReverse:       callString = "bitFieldReverse";  break;
+    case llvm::Intrinsic::gla_uBitFieldExtract: callString = "bitfieldExtract";  break;
+    case llvm::Intrinsic::gla_bitFieldInsert:   callString = "bitfieldInsert";   break;
+    case llvm::Intrinsic::gla_bitReverse:       callString = "bitfieldReverse";  break;
     case llvm::Intrinsic::gla_bitCount:         callString = "bitCount";         break;
     case llvm::Intrinsic::gla_findLSB:          callString = "findLSB";          break;
     case llvm::Intrinsic::gla_sFindMSB:
@@ -3685,8 +3698,11 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
         emitGlaOperand(assignment, llvmInstruction->getOperand(arg));
         if (forceWidth && forceWidth < GetComponentCount(llvmInstruction->getOperand(arg)))
             emitComponentCountToSwizzle(assignment, forceWidth);
-        if (convertArgsToUint) 
+        if (convertArgsToUint) { 
             ConversionStop(assignment, llvmInstruction->getOperand(arg)->getType());
+            if (llvmInstruction->getIntrinsicID() == llvm::Intrinsic::gla_uBitFieldExtract)
+                convertArgsToUint = false;
+        }
     }
 
     // Some special-case arguments
