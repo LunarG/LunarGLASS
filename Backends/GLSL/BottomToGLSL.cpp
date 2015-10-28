@@ -3008,7 +3008,7 @@ void gla::GlslTarget::mapPointerExpression(const llvm::Value* ptr, const llvm::V
 //
 void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::IntrinsicInst* llvmInstruction)
 {
-    // Handle pipeline read/write and non-gla intrinsics
+    // Handle pipeline read/write, array length, and non-gla intrinsics
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_writeData:
     case llvm::Intrinsic::gla_fWriteData:
@@ -3019,6 +3019,15 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_fReadData:
     case llvm::Intrinsic::gla_fReadInterpolant:
         emitMapGlaIOIntrinsic(llvmInstruction, true);
+        return;
+
+    // Handle array length, its syntax is totally different
+    case llvm::Intrinsic::gla_arraylength:
+        newLine();
+        emitGlaValue(out, llvmInstruction, 0);
+        out << " = ";
+        emitGlaOperand(out, llvmInstruction->getOperand(0));
+        out << ".length();";
         return;
 
     case llvm::Intrinsic::invariant_end:

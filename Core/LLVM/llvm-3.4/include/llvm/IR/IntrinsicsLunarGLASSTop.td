@@ -314,3 +314,8 @@ let TargetPrefix = "gla" in {
   def int_gla_atomicExchange      : Intrinsic<[llvm_i32_ty], [llvm_anyptr_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
   def int_gla_atomicCompExchange  : Intrinsic<[llvm_i32_ty], [llvm_anyptr_ty, llvm_i32_ty, llvm_i32_ty], [IntrReadWriteArgMem]>;
 }
+
+// Array length
+let TargetPrefix = "gla" in {
+  def int_gla_arraylength         : Intrinsic<[llvm_i32_ty], [llvm_anyptr_ty], [IntrNoMem]>;
+}

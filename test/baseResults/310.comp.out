@@ -104,6 +104,8 @@ mainBody:                                         ; preds = %entry
   %46 = insertelement <4 x float> %45, float 0x4008CCCCC0000000, i32 1
   %47 = insertelement <4 x float> %46, float 0x4008CCCCC0000000, i32 2
   store <4 x float> %47, <4 x float> addrspace(3)* getelementptr inbounds (%outbna addrspace(3)* @outbnamena, i32 0, i32 1), !gla.uniform !7
+  %48 = call i32 @llvm.gla.arraylength.p3v3f32(<3 x float> addrspace(3)* getelementptr inbounds (%outb addrspace(3)* @outbname, i32 0, i32 3))
+  store i32 %48, i32 addrspace(3)* getelementptr inbounds (%outbna addrspace(3)* @outbnamena, i32 0, i32 0), !gla.uniform !7
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %mainBody
@@ -137,8 +139,12 @@ declare void @llvm.gla.imageStoreF.v3i32(i32, i32, <3 x i32>, <4 x float>) #0
 ; Function Attrs: nounwind
 declare void @llvm.gla.imageStoreF.v2i32(i32, i32, <2 x i32>, <4 x float>) #0
 
+; Function Attrs: nounwind readnone
+declare i32 @llvm.gla.arraylength.p3v3f32(<3 x float> addrspace(3)*) #2
+
 attributes #0 = { nounwind }
 attributes #1 = { nounwind readonly }
+attributes #2 = { nounwind readnone }
 
 !gla.localSize = !{!0}
 !gla.entrypoint = !{!1}
@@ -260,6 +266,10 @@ entry:
   %20 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %19, i32 6, float undef, i32 undef, float 0x4008CCCCC0000000, i32 0, float 0x4008CCCCC0000000, i32 0, float undef, i32 undef)
   %gla_constGEP11 = getelementptr %outbna addrspace(3)* @outbnamena, i32 0, i32 1
   store <4 x float> %20, <4 x float> addrspace(3)* %gla_constGEP11, align 16, !gla.uniform !7
+  %gla_constGEP12 = getelementptr %outb addrspace(3)* @outbname, i32 0, i32 3
+  %21 = call i32 @llvm.gla.arraylength.p3v3f32(<3 x float> addrspace(3)* %gla_constGEP12)
+  %gla_constGEP13 = getelementptr %outbna addrspace(3)* @outbnamena, i32 0, i32 0
+  store i32 %21, i32 addrspace(3)* %gla_constGEP13, align 16, !gla.uniform !7
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -292,6 +302,9 @@ declare void @llvm.gla.imageStoreF.v3i32(i32, i32, <3 x i32>, <4 x float>) #0
 
 ; Function Attrs: nounwind
 declare void @llvm.gla.imageStoreF.v2i32(i32, i32, <2 x i32>, <4 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare i32 @llvm.gla.arraylength.p3v3f32(<3 x float> addrspace(3)*) #2
 
 ; Function Attrs: nounwind readnone
 declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #2
@@ -409,6 +422,8 @@ void main()
 	vec4 H_wf4e7w = outbnamena.na;
 	H_wf4e7w.yz = vec2(C_3d1, C_3d1);
 	outbnamena.na = H_wf4e7w;
+	int Lg_1 = outbname.uns.length();
+	outbnamena.k = Lg_1;
 	
 }
 

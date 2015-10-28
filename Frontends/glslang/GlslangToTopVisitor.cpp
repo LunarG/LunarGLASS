@@ -918,8 +918,20 @@ bool TGlslangToTopTraverser::visitUnary(glslang::TVisit /* visit */, glslang::TI
         return false;
     }
 
+    // evaluate the operand
     glaBuilder->clearAccessChain();
     node->getOperand()->traverse(this);
+
+    // Array length needs an l-value
+    if (node->getOp() == glslang::EOpArrayLength) {
+        result = glaBuilder->createIntrinsicCall(gla::EMpNone, llvm::Intrinsic::gla_arraylength, glaBuilder->accessChainGetLValue());
+        glaBuilder->clearAccessChain();
+        glaBuilder->setAccessChainRValue(result);
+
+        return false; // done with this node
+    }
+
+    // Now we know an r-value is needed
     llvm::Value* operand = glaBuilder->accessChainLoad(GetMdPrecision(node->getOperand()->getType()));
 
     gla::EMdPrecision precision = GetMdPrecision(node->getType());
@@ -1281,6 +1293,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
 
     case glslang::EOpArrayLength:
         {
+            // This might be dead code:  array lengths of known arrays are constant propagated by the front end
             glslang::TIntermTyped* typedNode = node->getSequence()[0]->getAsTyped();
             assert(typedNode);
             llvm::Value* length = gla::MakeIntConstant(context, typedNode->getType().getOuterArraySize());

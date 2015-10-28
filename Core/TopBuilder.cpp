@@ -2289,6 +2289,9 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
 
     // Handle special return types here.  Things that don't have same result type as parameter
     switch (intrinsicID) {
+    case llvm::Intrinsic::gla_arraylength:
+        intrinsicName = getIntrinsic(intrinsicID, operand->getType());
+        break;
     case llvm::Intrinsic::gla_fIsNan:
     case llvm::Intrinsic::gla_fIsInf:
         intrinsicName = getIntrinsic(intrinsicID, gla::GetVectorOrScalarType(gla::GetBoolType(context), gla::GetComponentCount(operand)), operand->getType());
