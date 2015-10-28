@@ -1975,8 +1975,10 @@ llvm::Value* Builder::createImageCall(gla::EMdPrecision precision, llvm::Type* r
     llvm::Intrinsic::ID intrinsicID = llvm::Intrinsic::not_intrinsic;
     switch (imageOp) {
     case EImageAtomicAdd:
-    case EImageAtomicMin:
-    case EImageAtomicMax:
+    case EImageAtomicUMin:
+    case EImageAtomicSMin:
+    case EImageAtomicUMax:
+    case EImageAtomicSMax:
     case EImageAtomicAnd:
     case EImageAtomicOr:
     case EImageAtomicXor:
@@ -1984,8 +1986,10 @@ llvm::Value* Builder::createImageCall(gla::EMdPrecision precision, llvm::Type* r
         ++numArgs;
         switch (imageOp) {
         case EImageAtomicAdd:   intrinsicID = llvm::Intrinsic::gla_imageAtomicAdd;  break;
-        case EImageAtomicMin:   intrinsicID = llvm::Intrinsic::gla_imageAtomicMin;  break;
-        case EImageAtomicMax:   intrinsicID = llvm::Intrinsic::gla_imageAtomicMax;  break;
+        case EImageAtomicUMin:  intrinsicID = llvm::Intrinsic::gla_uImageAtomicMin; break;
+        case EImageAtomicSMin:  intrinsicID = llvm::Intrinsic::gla_sImageAtomicMin; break;
+        case EImageAtomicUMax:  intrinsicID = llvm::Intrinsic::gla_uImageAtomicMax; break;
+        case EImageAtomicSMax:  intrinsicID = llvm::Intrinsic::gla_sImageAtomicMax; break;
         case EImageAtomicAnd:   intrinsicID = llvm::Intrinsic::gla_imageAtomicAnd;  break;
         case EImageAtomicOr:    intrinsicID = llvm::Intrinsic::gla_imageAtomicOr;   break;
         case EImageAtomicXor:   intrinsicID = llvm::Intrinsic::gla_imageAtomicXor;  break;
@@ -2043,8 +2047,10 @@ llvm::Value* Builder::createImageCall(gla::EMdPrecision precision, llvm::Type* r
     case llvm::Intrinsic::gla_imageStoreF:
     case llvm::Intrinsic::gla_imageStoreI:
     case llvm::Intrinsic::gla_imageAtomicAdd:
-    case llvm::Intrinsic::gla_imageAtomicMin:
-    case llvm::Intrinsic::gla_imageAtomicMax:
+    case llvm::Intrinsic::gla_uImageAtomicMin:
+    case llvm::Intrinsic::gla_sImageAtomicMin:
+    case llvm::Intrinsic::gla_uImageAtomicMax:
+    case llvm::Intrinsic::gla_sImageAtomicMax:
     case llvm::Intrinsic::gla_imageAtomicAnd:
     case llvm::Intrinsic::gla_imageAtomicOr: 
     case llvm::Intrinsic::gla_imageAtomicXor:
@@ -2392,15 +2398,17 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         intrinsicName = getIntrinsic(intrinsicID, operand1->getType(), operand0->getType(), operand1->getType());
         break;
 
-    // atomics don't have any flexible arguments
+    // atomics need a flexible pointer type
     case llvm::Intrinsic::gla_atomicAdd:
-    case llvm::Intrinsic::gla_atomicMin:
-    case llvm::Intrinsic::gla_atomicMax:
+    case llvm::Intrinsic::gla_uAtomicMin:
+    case llvm::Intrinsic::gla_sAtomicMin:
+    case llvm::Intrinsic::gla_uAtomicMax:
+    case llvm::Intrinsic::gla_sAtomicMax:
     case llvm::Intrinsic::gla_atomicAnd:
     case llvm::Intrinsic::gla_atomicOr:
     case llvm::Intrinsic::gla_atomicXor:
     case llvm::Intrinsic::gla_atomicExchange:
-        intrinsicName = getIntrinsic(intrinsicID);
+        intrinsicName = getIntrinsic(intrinsicID, operand0->getType());
         break;
 
     // Interpolate at don't have variable type for the 2nd argument, and
@@ -2449,9 +2457,9 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         intrinsicName = getIntrinsic(intrinsicID, operand2->getType(), operand0->getType(), operand1->getType(), operand2->getType());
         break;
 
-    // atomics don't have any flexible arguments
+    // atomics have pointer flexible type
     case llvm::Intrinsic::gla_atomicCompExchange:
-        intrinsicName = getIntrinsic(intrinsicID);
+        intrinsicName = getIntrinsic(intrinsicID, operand0->getType());
         break;
 
     case llvm::Intrinsic::gla_sBitFieldExtract:

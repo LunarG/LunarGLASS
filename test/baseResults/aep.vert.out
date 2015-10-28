@@ -455,19 +455,19 @@ entry:
   %9 = load i32 addrspace(1)* @im2Di, !gla.uniform !71
   %10 = load <2 x i32> addrspace(2)* @P, !gla.uniform !74
   %11 = load i32* %dati
-  %12 = call i32 @llvm.gla.imageAtomicMin.v2i32(i32 2, i32 %9, <2 x i32> %10, i32 %11), !gla.precision !85
+  %12 = call i32 @llvm.gla.sImageAtomicMin.v2i32(i32 2, i32 %9, <2 x i32> %10, i32 %11), !gla.precision !85
   %13 = load i32 addrspace(1)* @im2Du, !gla.uniform !75
   %14 = load <2 x i32> addrspace(2)* @P, !gla.uniform !74
   %15 = load i32* %datu
-  %16 = call i32 @llvm.gla.imageAtomicMin.v2i32(i32 2, i32 %13, <2 x i32> %14, i32 %15), !gla.precision !85
+  %16 = call i32 @llvm.gla.uImageAtomicMin.v2i32(i32 2, i32 %13, <2 x i32> %14, i32 %15), !gla.precision !85
   %17 = load i32 addrspace(1)* @im2Di, !gla.uniform !71
   %18 = load <2 x i32> addrspace(2)* @P, !gla.uniform !74
   %19 = load i32* %dati
-  %20 = call i32 @llvm.gla.imageAtomicMax.v2i32(i32 2, i32 %17, <2 x i32> %18, i32 %19), !gla.precision !85
+  %20 = call i32 @llvm.gla.sImageAtomicMax.v2i32(i32 2, i32 %17, <2 x i32> %18, i32 %19), !gla.precision !85
   %21 = load i32 addrspace(1)* @im2Du, !gla.uniform !75
   %22 = load <2 x i32> addrspace(2)* @P, !gla.uniform !74
   %23 = load i32* %datu
-  %24 = call i32 @llvm.gla.imageAtomicMax.v2i32(i32 2, i32 %21, <2 x i32> %22, i32 %23), !gla.precision !85
+  %24 = call i32 @llvm.gla.uImageAtomicMax.v2i32(i32 2, i32 %21, <2 x i32> %22, i32 %23), !gla.precision !85
   %25 = load i32 addrspace(1)* @im2Di, !gla.uniform !71
   %26 = load <2 x i32> addrspace(2)* @P, !gla.uniform !74
   %27 = load i32* %dati
@@ -582,10 +582,16 @@ declare <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32, i32, i32, 
 declare i32 @llvm.gla.imageAtomicAdd.v2i32(i32, i32, <2 x i32>, i32) #2
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.imageAtomicMin.v2i32(i32, i32, <2 x i32>, i32) #2
+declare i32 @llvm.gla.sImageAtomicMin.v2i32(i32, i32, <2 x i32>, i32) #2
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.imageAtomicMax.v2i32(i32, i32, <2 x i32>, i32) #2
+declare i32 @llvm.gla.uImageAtomicMin.v2i32(i32, i32, <2 x i32>, i32) #2
+
+; Function Attrs: nounwind
+declare i32 @llvm.gla.sImageAtomicMax.v2i32(i32, i32, <2 x i32>, i32) #2
+
+; Function Attrs: nounwind
+declare i32 @llvm.gla.uImageAtomicMax.v2i32(i32, i32, <2 x i32>, i32) #2
 
 ; Function Attrs: nounwind
 declare i32 @llvm.gla.imageAtomicAnd.v2i32(i32, i32, <2 x i32>, i32) #2
@@ -893,10 +899,10 @@ entry:
   %62 = call i32 @llvm.gla.imageAtomicAdd.v2i32(i32 2, i32 %59, <2 x i32> %60, i32 %61), !gla.precision !85
   %63 = load i32 addrspace(1)* @im2Du, align 4, !gla.uniform !75
   %64 = call i32 @llvm.gla.imageAtomicAdd.v2i32(i32 2, i32 %63, <2 x i32> %60, i32 7), !gla.precision !85
-  %65 = call i32 @llvm.gla.imageAtomicMin.v2i32(i32 2, i32 %59, <2 x i32> %60, i32 4), !gla.precision !85
-  %66 = call i32 @llvm.gla.imageAtomicMin.v2i32(i32 2, i32 %63, <2 x i32> %60, i32 7), !gla.precision !85
-  %67 = call i32 @llvm.gla.imageAtomicMax.v2i32(i32 2, i32 %59, <2 x i32> %60, i32 4), !gla.precision !85
-  %68 = call i32 @llvm.gla.imageAtomicMax.v2i32(i32 2, i32 %63, <2 x i32> %60, i32 7), !gla.precision !85
+  %65 = call i32 @llvm.gla.sImageAtomicMin.v2i32(i32 2, i32 %59, <2 x i32> %60, i32 4), !gla.precision !85
+  %66 = call i32 @llvm.gla.uImageAtomicMin.v2i32(i32 2, i32 %63, <2 x i32> %60, i32 7), !gla.precision !85
+  %67 = call i32 @llvm.gla.sImageAtomicMax.v2i32(i32 2, i32 %59, <2 x i32> %60, i32 4), !gla.precision !85
+  %68 = call i32 @llvm.gla.uImageAtomicMax.v2i32(i32 2, i32 %63, <2 x i32> %60, i32 7), !gla.precision !85
   %69 = call i32 @llvm.gla.imageAtomicAnd.v2i32(i32 2, i32 %59, <2 x i32> %60, i32 4), !gla.precision !85
   %70 = call i32 @llvm.gla.imageAtomicAnd.v2i32(i32 2, i32 %63, <2 x i32> %60, i32 7), !gla.precision !85
   %71 = call i32 @llvm.gla.imageAtomicOr.v2i32(i32 2, i32 %59, <2 x i32> %60, i32 4), !gla.precision !85
@@ -985,10 +991,16 @@ declare <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32, i32, i32, 
 declare i32 @llvm.gla.imageAtomicAdd.v2i32(i32, i32, <2 x i32>, i32) #1
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.imageAtomicMin.v2i32(i32, i32, <2 x i32>, i32) #1
+declare i32 @llvm.gla.sImageAtomicMin.v2i32(i32, i32, <2 x i32>, i32) #1
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.imageAtomicMax.v2i32(i32, i32, <2 x i32>, i32) #1
+declare i32 @llvm.gla.uImageAtomicMin.v2i32(i32, i32, <2 x i32>, i32) #1
+
+; Function Attrs: nounwind
+declare i32 @llvm.gla.sImageAtomicMax.v2i32(i32, i32, <2 x i32>, i32) #1
+
+; Function Attrs: nounwind
+declare i32 @llvm.gla.uImageAtomicMax.v2i32(i32, i32, <2 x i32>, i32) #1
 
 ; Function Attrs: nounwind
 declare i32 @llvm.gla.imageAtomicAnd.v2i32(i32, i32, <2 x i32>, i32) #1

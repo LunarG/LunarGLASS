@@ -103,7 +103,7 @@ protected:
     bool argNeedsLValue(const glslang::TIntermOperator* node, int arg);
     llvm::Value* handleTextureCall(glslang::TIntermOperator*);
     llvm::Value* handleTexImageQuery(const glslang::TIntermOperator*, const glslang::TCrackedTextureOp&, const std::vector<llvm::Value*>& arguments, gla::ESamplerType);
-    llvm::Value* handleImageAccess(const glslang::TIntermOperator*, const std::vector<llvm::Value*>& arguments, gla::ESamplerType);
+    llvm::Value* handleImageAccess(const glslang::TIntermOperator*, const std::vector<llvm::Value*>& arguments, gla::ESamplerType, bool isUnsigned);
     llvm::Value* handleTextureAccess(const glslang::TIntermOperator*, const glslang::TCrackedTextureOp&, const std::vector<llvm::Value*>& arguments, gla::ESamplerType, int flags);
     llvm::Value* handleUserFunctionCall(const glslang::TIntermAggregate*);
 
@@ -1875,7 +1875,7 @@ llvm::Value* TGlslangToTopTraverser::handleTextureCall(glslang::TIntermOperator*
 
     // Steer off image accesses
     if (sampler.image)
-        return handleImageAccess(node, arguments, samplerType);
+        return handleImageAccess(node, arguments, samplerType, sampler.type == glslang::EbtUint);
 
     // Handle texture accesses...
 
@@ -1936,7 +1936,7 @@ llvm::Value* TGlslangToTopTraverser::handleTexImageQuery(const glslang::TIntermO
     }
 }
 
-llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermOperator* node, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType)
+llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermOperator* node, const std::vector<llvm::Value*>& arguments, gla::ESamplerType samplerType, bool isUnsigned)
 {
     // set the arguments
     gla::Builder::TextureParameters params = {};
@@ -1948,8 +1948,8 @@ llvm::Value* TGlslangToTopTraverser::handleImageAccess(const glslang::TIntermOpe
     case glslang::EOpImageLoad:           imageOp = gla::EImageLoad;           break;
     case glslang::EOpImageStore:          imageOp = gla::EImageStore;          break;
     case glslang::EOpImageAtomicAdd:      imageOp = gla::EImageAtomicAdd;      break;
-    case glslang::EOpImageAtomicMin:      imageOp = gla::EImageAtomicMin;      break;
-    case glslang::EOpImageAtomicMax:      imageOp = gla::EImageAtomicMax;      break;
+    case glslang::EOpImageAtomicMin:      imageOp = isUnsigned ? gla::EImageAtomicUMin : gla::EImageAtomicSMin; break;
+    case glslang::EOpImageAtomicMax:      imageOp = isUnsigned ? gla::EImageAtomicUMax : gla::EImageAtomicSMax; break;
     case glslang::EOpImageAtomicAnd:      imageOp = gla::EImageAtomicAnd;      break;
     case glslang::EOpImageAtomicOr:       imageOp = gla::EImageAtomicOr;       break;
     case glslang::EOpImageAtomicXor:      imageOp = gla::EImageAtomicXor;      break;
@@ -2832,10 +2832,16 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
         intrinsicID = llvm::Intrinsic::gla_atomicAdd;
         break;
     case glslang::EOpAtomicMin:
-        intrinsicID = llvm::Intrinsic::gla_atomicMin;
+        if (isUnsigned)
+            intrinsicID = llvm::Intrinsic::gla_uAtomicMin;
+        else
+            intrinsicID = llvm::Intrinsic::gla_sAtomicMin;
         break;
     case glslang::EOpAtomicMax:
-        intrinsicID = llvm::Intrinsic::gla_atomicMax;
+        if (isUnsigned)
+            intrinsicID = llvm::Intrinsic::gla_uAtomicMax;
+        else
+            intrinsicID = llvm::Intrinsic::gla_sAtomicMax;
         break;
     case glslang::EOpAtomicAnd:
         intrinsicID = llvm::Intrinsic::gla_atomicAnd;
