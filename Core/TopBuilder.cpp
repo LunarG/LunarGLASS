@@ -213,17 +213,42 @@ void Builder::setAccessChainPipeValue(llvm::Value* val)
     setAccessChainRValue(val);
 }
 
-// Comments in header
-llvm::Value* Builder::collapseAccessChain()
+llvm::Value* Builder::accessChainGetLValue()
+{
+    return collapseAccessChain(true);
+}
+
+// Turn the access chain into a GEP or just the base if possible.
+// If 'complete' is true, don't leave any pending swizzles.  This
+// obviously won't work with non-trivial swizzles.
+llvm::Value* Builder::collapseAccessChain(bool complete)
 {
     assert(accessChain.isRValue == false);
 
+    // Merge swizzle into chain, if needed
+    llvm::Value* swizValue = nullptr;
+    int chainDepth = accessChain.indexChain.size();
+    if (complete) {
+        int incremental = 0;
+        if (accessChain.component) {
+            ++incremental;
+            swizValue = accessChain.component;
+        } else if (accessChain.swizzle.size() > 0) {
+            incremental += accessChain.swizzle.size();
+            swizValue = MakeIntConstant(context, accessChain.swizzle.front());
+        }
+        assert(incremental <= 1);
+        chainDepth += incremental;
+    }
+
     // Don't emit a pointless GEP, it effects debug names
-    if (accessChain.indexChain.size() > 1 ||
-        accessChain.indexChain.size() == 1 && accessChain.indexChain.front() != MakeIntConstant(context, 0)) {
+    if (chainDepth > 1 ||
+        (accessChain.indexChain.size() == 1 && accessChain.indexChain.front() != MakeIntConstant(context, 0))) {
         if (accessChain.gep == 0) {
             if (accessRightToLeft)
                 std::reverse(accessChain.indexChain.begin(), accessChain.indexChain.end());
+            if (swizValue)
+                accessChain.indexChain.push_back(swizValue);
             accessChain.gep = createGEP(accessChain.base, accessChain.indexChain);
 
             if (accessChain.trackActive)

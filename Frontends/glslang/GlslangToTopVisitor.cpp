@@ -99,8 +99,8 @@ protected:
     bool isShaderEntrypoint(const glslang::TIntermAggregate* node);
     void makeFunctions(const glslang::TIntermSequence&);
     void handleFunctionEntry(const glslang::TIntermAggregate* node);
-    void translateArguments(const glslang::TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments);
-    void translateArguments(glslang::TIntermUnary&, std::vector<llvm::Value*>& arguments);
+    void translateArguments(glslang::TIntermOperator* node, std::vector<llvm::Value*>& arguments);
+    bool argNeedsLValue(const glslang::TIntermOperator* node, int arg);
     llvm::Value* handleTextureCall(glslang::TIntermOperator*);
     llvm::Value* handleTexImageQuery(const glslang::TIntermOperator*, const glslang::TCrackedTextureOp&, const std::vector<llvm::Value*>& arguments, gla::ESamplerType);
     llvm::Value* handleImageAccess(const glslang::TIntermOperator*, const std::vector<llvm::Value*>& arguments, gla::ESamplerType);
@@ -1121,7 +1121,7 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
     case glslang::EOpConstructStruct:
         {
             std::vector<llvm::Value*> arguments;
-            translateArguments(node->getSequence(), arguments);
+            translateArguments(node, arguments);
             llvm::Value* constructed = glaBuilder->createVariable(gla::Builder::ESQLocal, 0,
                                                                         convertGlslangToGlaType(node->getType()),
                                                                         0, 0, leftName ? leftName : "constructed");
@@ -1362,7 +1362,12 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
     for (int i = 0; i < (int)glslangOperands.size(); ++i) {
         glaBuilder->clearAccessChain();
         glslangOperands[i]->traverse(this);
-        operands.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangOperands[i]->getAsTyped()->getType())));
+        llvm::Value* arg;
+        if (argNeedsLValue(node, i))
+            arg = glaBuilder->accessChainGetLValue();
+        else
+            arg = glaBuilder->accessChainLoad(GetMdPrecision(glslangOperands[i]->getAsTyped()->getType()));
+        operands.push_back(arg);
     }
     switch (glslangOperands.size()) {
     case 0:
@@ -1795,20 +1800,44 @@ void TGlslangToTopTraverser::handleFunctionEntry(const glslang::TIntermAggregate
     llvmBuilder.SetInsertPoint(&functionBlock);
 }
 
-void TGlslangToTopTraverser::translateArguments(const glslang::TIntermSequence& glslangArguments, std::vector<llvm::Value*>& arguments)
+// If a calling node has to pass an l-value to a built-in function, return true.
+// TODO: generalize.  Today, this is only the first argument to atomic operations,
+// so that's all that is checked.
+bool TGlslangToTopTraverser::argNeedsLValue(const glslang::TIntermOperator* node, int arg)
 {
-    for (int i = 0; i < (int)glslangArguments.size(); ++i) {
-        glaBuilder->clearAccessChain();
-        glslangArguments[i]->traverse(this);
-        arguments.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangArguments[i]->getAsTyped()->getType())));
+    if (arg > 0)
+        return false;
+
+    switch (node->getOp()) {
+    case glslang::EOpAtomicAdd:
+    case glslang::EOpAtomicMin:
+    case glslang::EOpAtomicMax:
+    case glslang::EOpAtomicAnd:
+    case glslang::EOpAtomicOr:
+    case glslang::EOpAtomicXor:
+    case glslang::EOpAtomicExchange:
+    case glslang::EOpAtomicCompSwap:
+        return true;
+    default:
+        return false;
     }
 }
 
-void TGlslangToTopTraverser::translateArguments(glslang::TIntermUnary& glslangArgument, std::vector<llvm::Value*>& arguments)
+void TGlslangToTopTraverser::translateArguments(glslang::TIntermOperator* node, std::vector<llvm::Value*>& arguments)
 {
-    glaBuilder->clearAccessChain();
-    glslangArgument.getOperand()->traverse(this);
-    arguments.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangArgument.getAsTyped()->getType())));
+    if (node->getAsAggregate()) {
+        const glslang::TIntermSequence& glslangArguments = node->getAsAggregate()->getSequence();
+        for (int i = 0; i < (int)glslangArguments.size(); ++i) {
+            glaBuilder->clearAccessChain();
+            glslangArguments[i]->traverse(this);
+            arguments.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangArguments[i]->getAsTyped()->getType())));
+        }
+    } else {
+        glslang::TIntermUnary& glslangArgument = *node->getAsUnaryNode();
+        glaBuilder->clearAccessChain();
+        glslangArgument.getOperand()->traverse(this);
+        arguments.push_back(glaBuilder->accessChainLoad(GetMdPrecision(glslangArgument.getAsTyped()->getType())));
+    }
 }
 
 llvm::Value* TGlslangToTopTraverser::handleTextureCall(glslang::TIntermOperator* node)
@@ -1817,10 +1846,7 @@ llvm::Value* TGlslangToTopTraverser::handleTextureCall(glslang::TIntermOperator*
         return nullptr;
 
     std::vector<llvm::Value*> arguments;
-    if (node->getAsAggregate())
-        translateArguments(node->getAsAggregate()->getSequence(), arguments);
-    else
-        translateArguments(*node->getAsUnaryNode(), arguments);
+    translateArguments(node, arguments);
 
     const glslang::TSampler sampler = node->getAsAggregate() ? node->getAsAggregate()->getSequence()[0]->getAsTyped()->getType().getSampler()
                                                              : node->getAsUnaryNode()->getOperand()->getAsTyped()->getType().getSampler();

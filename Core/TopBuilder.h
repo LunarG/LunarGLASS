@@ -125,8 +125,8 @@ public:
         llvm::Value* base;
         std::vector<llvm::Value*> indexChain;
         llvm::Value* gep;         // cache of base+indexChain
-        std::vector<int> swizzle;
-        llvm::Value* component;
+        std::vector<int> swizzle; // statically selected components of a vector
+        llvm::Value* component;   // dynamically selected component of a vector
         llvm::Type* swizzleResultType;
         int swizzleTargetWidth;
         bool isRValue;
@@ -165,6 +165,9 @@ public:
 
     // set new base as a pointer to an array (pointer to first element)
     void setAccessChainPointer(llvm::Value*);
+
+    // get an l-value for the access chain: note this does not work if non-trivial swizzles are present
+    llvm::Value* accessChainGetLValue();
 
     // push offset onto the left end of the chain
     void accessChainPushLeft(llvm::Value* offset) { accessChain.indexChain.push_back(offset); }
@@ -493,7 +496,7 @@ protected:
     bool insertNoPredecessorBlocks;            // means to insert blocks that have no predecessor
     AccessChain accessChain;
     bool accessRightToLeft;
-    llvm::Value* collapseAccessChain();
+    llvm::Value* collapseAccessChain(bool complete = false);
     void simplifyAccessChainSwizzle();
 
     int mapAddressSpace(EStorageQualifier, int storageInstance) const;

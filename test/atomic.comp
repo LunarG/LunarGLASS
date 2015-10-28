@@ -17,6 +17,11 @@ uint func(atomic_uint c)
 shared int atomi;
 shared uint atomu;
 
+buffer bname {
+    ivec4 v;
+    int s;
+} binst;
+
 void atoms()
 {
     int origi = atomicAdd(atomi, 3);
@@ -27,6 +32,8 @@ void atoms()
     origi = atomicMax(atomi, 7);
     origi = atomicExchange(atomi, origi);
     origu = atomicCompSwap(atomu, 10u, value);
+    atomicAdd(binst.s, 1);
+    atomicXor(binst.v.y, 5);
 }
 
 void main()
