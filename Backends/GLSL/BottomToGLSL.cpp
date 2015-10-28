@@ -920,6 +920,11 @@ bool IsIdentitySwizzle(const llvm::SmallVectorImpl<llvm::Constant*>& elts)
 // Create the start of a scalar/vector conversion, but not for matrices.
 void ConversionStart(std::ostringstream& out, llvm::Type* type, bool toIO)
 {
+    // an l-value argument still needs converting, but we need to dereference
+    // its pointer first
+    if (type->getTypeID() == llvm::Type::PointerTyID)
+        type = type->getContainedType(0);
+
     if (! IsInteger(type))
         return;
 
@@ -938,6 +943,11 @@ void ConversionStart(std::ostringstream& out, llvm::Type* type, bool toIO)
 
 void ConversionStop(std::ostringstream& out, llvm::Type* type)
 {
+    // an l-value argument still needs converting, but we need to dereference
+    // its pointer first
+    if (type->getTypeID() == llvm::Type::PointerTyID)
+        type = type->getContainedType(0);
+
     if (! IsInteger(type))
         return;
 
@@ -2993,7 +3003,7 @@ void gla::GlslTarget::mapPointerExpression(const llvm::Value* ptr, const llvm::V
 //
 void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::IntrinsicInst* llvmInstruction)
 {
-    // Handle pipeline read/write and non-gla intrinsics
+    // Handle pipeline read/write, array length, and non-gla intrinsics
     switch (llvmInstruction->getIntrinsicID()) {
     case llvm::Intrinsic::gla_writeData:
     case llvm::Intrinsic::gla_fWriteData:
@@ -3004,6 +3014,15 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_fReadData:
     case llvm::Intrinsic::gla_fReadInterpolant:
         emitMapGlaIOIntrinsic(llvmInstruction, true);
+        return;
+
+    // Handle array length, its syntax is totally different
+    case llvm::Intrinsic::gla_arraylength:
+        newLine();
+        emitGlaValue(out, llvmInstruction, 0);
+        out << " = ";
+        emitGlaOperand(out, llvmInstruction->getOperand(0));
+        out << ".length();";
         return;
 
     case llvm::Intrinsic::invariant_end:
@@ -3073,8 +3092,10 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_imageStoreI:
     case llvm::Intrinsic::gla_imageStoreF:
     case llvm::Intrinsic::gla_imageAtomicAdd:
-    case llvm::Intrinsic::gla_imageAtomicMin:
-    case llvm::Intrinsic::gla_imageAtomicMax:
+    case llvm::Intrinsic::gla_uImageAtomicMin:
+    case llvm::Intrinsic::gla_sImageAtomicMin:
+    case llvm::Intrinsic::gla_uImageAtomicMax:
+    case llvm::Intrinsic::gla_sImageAtomicMax:
     case llvm::Intrinsic::gla_imageAtomicAnd:
     case llvm::Intrinsic::gla_imageAtomicOr: 
     case llvm::Intrinsic::gla_imageAtomicXor:
@@ -3431,7 +3452,14 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
 
     case llvm::Intrinsic::gla_uBitFieldExtract:
     case llvm::Intrinsic::gla_uFindMSB:
-    
+
+    case llvm::Intrinsic::gla_uAtomicMin:
+    case llvm::Intrinsic::gla_uAtomicMax:
+
+    case llvm::Intrinsic::gla_atomicCounterLoad:
+    case llvm::Intrinsic::gla_atomicCounterIncrement:
+    case llvm::Intrinsic::gla_atomicCounterDecrement:
+
         convertResultToInt = true;
         break;
     default:
@@ -3457,6 +3485,10 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_fUnpackUnorm4x8:
     case llvm::Intrinsic::gla_fUnpackSnorm4x8:
     case llvm::Intrinsic::gla_fPackDouble2x32:
+
+    case llvm::Intrinsic::gla_uAtomicMin:
+    case llvm::Intrinsic::gla_uAtomicMax:
+
         convertArgsToUint = true;
         break;
     default:
@@ -3614,8 +3646,10 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_atomicCounterDecrement:     callString = "atomicCounterDecrement";     break;
 
     case llvm::Intrinsic::gla_atomicAdd:                  callString = "atomicAdd";                  break;
-    case llvm::Intrinsic::gla_atomicMin:                  callString = "atomicMin";                  break;
-    case llvm::Intrinsic::gla_atomicMax:                  callString = "atomicMax";                  break;
+    case llvm::Intrinsic::gla_uAtomicMin:                 callString = "atomicMin";                  break;
+    case llvm::Intrinsic::gla_sAtomicMin:                 callString = "atomicMin";                  break;
+    case llvm::Intrinsic::gla_uAtomicMax:                 callString = "atomicMax";                  break;
+    case llvm::Intrinsic::gla_sAtomicMax:                 callString = "atomicMax";                  break;
     case llvm::Intrinsic::gla_atomicAnd:                  callString = "atomicAnd";                  break;
     case llvm::Intrinsic::gla_atomicOr:                   callString = "atomicOr";                   break;
     case llvm::Intrinsic::gla_atomicXor:                  callString = "atomicXor";                  break;
@@ -3792,8 +3826,10 @@ void gla::GlslTarget::emitGlaSamplerFunction(std::ostringstream& out, const llvm
     case llvm::Intrinsic::gla_imageStoreI:
     case llvm::Intrinsic::gla_imageStoreF:             out << "imageStore";          return;
     case llvm::Intrinsic::gla_imageAtomicAdd:          out << "imageAtomicAdd";      return;
-    case llvm::Intrinsic::gla_imageAtomicMin:          out << "imageAtomicMin";      return;
-    case llvm::Intrinsic::gla_imageAtomicMax:          out << "imageAtomicMax";      return;
+    case llvm::Intrinsic::gla_uImageAtomicMin:         out << "imageAtomicMin";      return;
+    case llvm::Intrinsic::gla_sImageAtomicMin:         out << "imageAtomicMin";      return;
+    case llvm::Intrinsic::gla_uImageAtomicMax:         out << "imageAtomicMax";      return;
+    case llvm::Intrinsic::gla_sImageAtomicMax:         out << "imageAtomicMax";      return;
     case llvm::Intrinsic::gla_imageAtomicAnd:          out << "imageAtomicAnd";      return;
     case llvm::Intrinsic::gla_imageAtomicOr:           out << "imageAtomicOr";       return;
     case llvm::Intrinsic::gla_imageAtomicXor:          out << "imageAtomicXor";      return;

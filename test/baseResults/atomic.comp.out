@@ -2,9 +2,12 @@
 Top IR:
 ; ModuleID = 'Glslang'
 
+%bname = type { <4 x i32>, i32 }
+
 @atomi = addrspace(4) global i32 0
 @atomu = addrspace(4) global i32 0
 @value = external addrspace(2) constant i32
+@binst = external addrspace(3) constant %bname
 @counter = external addrspace(2) constant i32
 @countArr = external addrspace(2) constant [4 x i32]
 @arrX = internal global [1 x i32] zeroinitializer
@@ -20,14 +23,14 @@ entry:
 mainBody:                                         ; preds = %entry
   call void @llvm.gla.memoryBarrierAtomicCounter()
   call void @"atoms("()
-  %param1 = load i32 addrspace(2)* @counter, !gla.uniform !5
+  %param1 = load i32 addrspace(2)* @counter, !gla.uniform !10
   store i32 %param1, i32* %param
   %0 = call i32 @"func(au1;"(i32* %param)
-  %1 = load i32 addrspace(2)* getelementptr inbounds ([4 x i32] addrspace(2)* @countArr, i32 0, i32 2), !gla.uniform !7
-  %val2 = call i32 @llvm.gla.atomicCounterLoad(i32 %1), !gla.precision !10
+  %1 = load i32 addrspace(2)* getelementptr inbounds ([4 x i32] addrspace(2)* @countArr, i32 0, i32 2), !gla.uniform !12
+  %val2 = call i32 @llvm.gla.atomicCounterLoad(i32 %1), !gla.precision !15
   store i32 %val2, i32* %val
-  %2 = load i32 addrspace(2)* @counter, !gla.uniform !5
-  %3 = call i32 @llvm.gla.atomicCounterDecrement(i32 %2), !gla.precision !10
+  %2 = load i32 addrspace(2)* @counter, !gla.uniform !10
+  %3 = call i32 @llvm.gla.atomicCounterDecrement(i32 %2), !gla.precision !15
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %mainBody
@@ -41,7 +44,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 define internal fastcc i32 @"func(au1;"(i32*) #0 {
 entry:
   %1 = load i32* %0
-  %2 = call i32 @llvm.gla.atomicCounterIncrement(i32 %1), !gla.precision !10
+  %2 = call i32 @llvm.gla.atomicCounterIncrement(i32 %1), !gla.precision !15
   ret i32 %2
 
 post-return:                                      ; No predecessors!
@@ -53,34 +56,28 @@ define internal fastcc void @"atoms("() #0 {
 entry:
   %origu = alloca i32
   %origi = alloca i32
-  %0 = load i32 addrspace(4)* @atomi
-  %origi1 = call i32 @llvm.gla.atomicAdd(i32 %0, i32 3), !gla.precision !10
+  %origi1 = call i32 @llvm.gla.atomicAdd.p4i32(i32 addrspace(4)* @atomi, i32 3), !gla.precision !15
   store i32 %origi1, i32* %origi
-  %1 = load i32 addrspace(4)* @atomu
-  %2 = load i32 addrspace(2)* @value, !gla.uniform !3
-  %origu2 = call i32 @llvm.gla.atomicAnd(i32 %1, i32 %2), !gla.precision !10
+  %0 = load i32 addrspace(2)* @value, !gla.uniform !3
+  %origu2 = call i32 @llvm.gla.atomicAnd.p4i32(i32 addrspace(4)* @atomu, i32 %0), !gla.precision !15
   store i32 %origu2, i32* %origu
-  %3 = load i32 addrspace(4)* @atomu
-  %origu3 = call i32 @llvm.gla.atomicOr(i32 %3, i32 7), !gla.precision !10
+  %origu3 = call i32 @llvm.gla.atomicOr.p4i32(i32 addrspace(4)* @atomu, i32 7), !gla.precision !15
   store i32 %origu3, i32* %origu
-  %4 = load i32 addrspace(4)* @atomu
-  %origu4 = call i32 @llvm.gla.atomicXor(i32 %4, i32 7), !gla.precision !10
+  %origu4 = call i32 @llvm.gla.atomicXor.p4i32(i32 addrspace(4)* @atomu, i32 7), !gla.precision !15
   store i32 %origu4, i32* %origu
-  %5 = load i32 addrspace(4)* @atomu
-  %6 = load i32 addrspace(2)* @value, !gla.uniform !3
-  %origu5 = call i32 @llvm.gla.atomicMin(i32 %5, i32 %6), !gla.precision !10
+  %1 = load i32 addrspace(2)* @value, !gla.uniform !3
+  %origu5 = call i32 @llvm.gla.uAtomicMin.p4i32(i32 addrspace(4)* @atomu, i32 %1), !gla.precision !15
   store i32 %origu5, i32* %origu
-  %7 = load i32 addrspace(4)* @atomi
-  %origi6 = call i32 @llvm.gla.atomicMax(i32 %7, i32 7), !gla.precision !10
+  %origi6 = call i32 @llvm.gla.sAtomicMax.p4i32(i32 addrspace(4)* @atomi, i32 7), !gla.precision !15
   store i32 %origi6, i32* %origi
-  %8 = load i32 addrspace(4)* @atomi
-  %9 = load i32* %origi
-  %origi7 = call i32 @llvm.gla.atomicExchange(i32 %8, i32 %9), !gla.precision !10
+  %2 = load i32* %origi
+  %origi7 = call i32 @llvm.gla.atomicExchange.p4i32(i32 addrspace(4)* @atomi, i32 %2), !gla.precision !15
   store i32 %origi7, i32* %origi
-  %10 = load i32 addrspace(4)* @atomu
-  %11 = load i32 addrspace(2)* @value, !gla.uniform !3
-  %origu8 = call i32 @llvm.gla.atomicCompExchange(i32 %10, i32 10, i32 %11), !gla.precision !10
+  %3 = load i32 addrspace(2)* @value, !gla.uniform !3
+  %origu8 = call i32 @llvm.gla.atomicCompExchange.p4i32(i32 addrspace(4)* @atomu, i32 10, i32 %3), !gla.precision !15
   store i32 %origu8, i32* %origu
+  %misc2a = call i32 @llvm.gla.atomicAdd.p3i32(i32 addrspace(3)* getelementptr inbounds (%bname addrspace(3)* @binst, i32 0, i32 1), i32 1), !gla.precision !15
+  %misc2a9 = call i32 @llvm.gla.atomicXor.p3i32(i32 addrspace(3)* getelementptr inbounds (%bname addrspace(3)* @binst, i32 0, i32 0, i32 1), i32 5), !gla.precision !15
   ret void
 }
 
@@ -88,28 +85,34 @@ entry:
 declare i32 @llvm.gla.atomicCounterIncrement(i32) #1
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicAdd(i32, i32) #1
+declare i32 @llvm.gla.atomicAdd.p4i32(i32 addrspace(4)*, i32) #1
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicAnd(i32, i32) #1
+declare i32 @llvm.gla.atomicAnd.p4i32(i32 addrspace(4)*, i32) #1
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicOr(i32, i32) #1
+declare i32 @llvm.gla.atomicOr.p4i32(i32 addrspace(4)*, i32) #1
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicXor(i32, i32) #1
+declare i32 @llvm.gla.atomicXor.p4i32(i32 addrspace(4)*, i32) #1
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicMin(i32, i32) #1
+declare i32 @llvm.gla.uAtomicMin.p4i32(i32 addrspace(4)*, i32) #1
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicMax(i32, i32) #1
+declare i32 @llvm.gla.sAtomicMax.p4i32(i32 addrspace(4)*, i32) #1
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicExchange(i32, i32) #1
+declare i32 @llvm.gla.atomicExchange.p4i32(i32 addrspace(4)*, i32) #1
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicCompExchange(i32, i32, i32) #1
+declare i32 @llvm.gla.atomicCompExchange.p4i32(i32 addrspace(4)*, i32, i32) #1
+
+; Function Attrs: nounwind
+declare i32 @llvm.gla.atomicAdd.p3i32(i32 addrspace(3)*, i32) #1
+
+; Function Attrs: nounwind
+declare i32 @llvm.gla.atomicXor.p3i32(i32 addrspace(3)*, i32) #1
 
 ; Function Attrs: nounwind
 declare void @llvm.gla.memoryBarrierAtomicCounter() #1
@@ -125,51 +128,61 @@ attributes #1 = { nounwind }
 
 !gla.localSize = !{!0}
 !gla.shared = !{!1, !2}
-!gla.uniforms = !{!3, !5, !7}
-!gla.entrypoint = !{!9}
+!gla.uniforms = !{!3, !5, !10, !12}
+!gla.entrypoint = !{!14}
 
 !0 = metadata !{i32 1, i32 1, i32 1}
 !1 = metadata !{i32 addrspace(4)* @atomi}
 !2 = metadata !{i32 addrspace(4)* @atomu}
 !3 = metadata !{metadata !"value", i32 12, i32* @value_typeProxy, metadata !4}
 !4 = metadata !{i32 1, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"counter", i32 12, i32* @counter_typeProxy, metadata !6}
-!6 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 0}
-!7 = metadata !{metadata !"countArr", i32 12, [4 x i32]* @countArr_typeProxy, metadata !8}
-!8 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 4}
-!9 = metadata !{metadata !"main", i32 15}
-!10 = metadata !{i32 3}
+!5 = metadata !{metadata !"binst", i32 14, %bname* @binst_typeProxy, metadata !6, metadata !7}
+!6 = metadata !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!7 = metadata !{metadata !"bname", metadata !6, metadata !"v", metadata !8, metadata !"s", metadata !8}
+!8 = metadata !{metadata !"", metadata !9}
+!9 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!10 = metadata !{metadata !"counter", i32 12, i32* @counter_typeProxy, metadata !11}
+!11 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 0}
+!12 = metadata !{metadata !"countArr", i32 12, [4 x i32]* @countArr_typeProxy, metadata !13}
+!13 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 4}
+!14 = metadata !{metadata !"main", i32 15}
+!15 = metadata !{i32 3}
 
 
 Bottom IR:
 ; ModuleID = 'Glslang'
 
+%bname = type { <4 x i32>, i32 }
+
 @atomi = addrspace(4) global i32 0
 @atomu = addrspace(4) global i32 0
 @value = external addrspace(2) constant i32
+@binst = external addrspace(3) constant %bname
 @counter = external addrspace(2) constant i32
 @countArr = external addrspace(2) constant [4 x i32]
 
 define fastcc void @main() {
 entry:
   call void @llvm.gla.memoryBarrierAtomicCounter()
-  %0 = load i32 addrspace(4)* @atomi, align 4
-  %origi1.i = call i32 @llvm.gla.atomicAdd(i32 %0, i32 3), !gla.precision !10
-  %1 = load i32 addrspace(4)* @atomu, align 4
-  %2 = load i32 addrspace(2)* @value, align 4, !gla.uniform !3
-  %origu2.i = call i32 @llvm.gla.atomicAnd(i32 %1, i32 %2), !gla.precision !10
-  %origu3.i = call i32 @llvm.gla.atomicOr(i32 %1, i32 7), !gla.precision !10
-  %origu4.i = call i32 @llvm.gla.atomicXor(i32 %1, i32 7), !gla.precision !10
-  %origu5.i = call i32 @llvm.gla.atomicMin(i32 %1, i32 %2), !gla.precision !10
-  %origi6.i = call i32 @llvm.gla.atomicMax(i32 %0, i32 7), !gla.precision !10
-  %origi7.i = call i32 @llvm.gla.atomicExchange(i32 %0, i32 %origi6.i), !gla.precision !10
-  %origu8.i = call i32 @llvm.gla.atomicCompExchange(i32 %1, i32 10, i32 %2), !gla.precision !10
-  %param1 = load i32 addrspace(2)* @counter, align 4, !gla.uniform !5
-  %3 = call i32 @llvm.gla.atomicCounterIncrement(i32 %param1), !gla.precision !10
-  %gla_constGEP = getelementptr [4 x i32] addrspace(2)* @countArr, i32 0, i32 2
-  %4 = load i32 addrspace(2)* %gla_constGEP, align 4, !gla.uniform !7
-  %val2 = call i32 @llvm.gla.atomicCounterLoad(i32 %4), !gla.precision !10
-  %5 = call i32 @llvm.gla.atomicCounterDecrement(i32 %param1), !gla.precision !10
+  %origi1.i = call i32 @llvm.gla.atomicAdd.p4i32(i32 addrspace(4)* @atomi, i32 3), !gla.precision !15
+  %0 = load i32 addrspace(2)* @value, align 4, !gla.uniform !3
+  %origu2.i = call i32 @llvm.gla.atomicAnd.p4i32(i32 addrspace(4)* @atomu, i32 %0), !gla.precision !15
+  %origu3.i = call i32 @llvm.gla.atomicOr.p4i32(i32 addrspace(4)* @atomu, i32 7), !gla.precision !15
+  %origu4.i = call i32 @llvm.gla.atomicXor.p4i32(i32 addrspace(4)* @atomu, i32 7), !gla.precision !15
+  %origu5.i = call i32 @llvm.gla.uAtomicMin.p4i32(i32 addrspace(4)* @atomu, i32 %0), !gla.precision !15
+  %origi6.i = call i32 @llvm.gla.sAtomicMax.p4i32(i32 addrspace(4)* @atomi, i32 7), !gla.precision !15
+  %origi7.i = call i32 @llvm.gla.atomicExchange.p4i32(i32 addrspace(4)* @atomi, i32 %origi6.i), !gla.precision !15
+  %origu8.i = call i32 @llvm.gla.atomicCompExchange.p4i32(i32 addrspace(4)* @atomu, i32 10, i32 %0), !gla.precision !15
+  %gla_constGEP = getelementptr %bname addrspace(3)* @binst, i32 0, i32 1
+  %misc2a.i = call i32 @llvm.gla.atomicAdd.p3i32(i32 addrspace(3)* %gla_constGEP, i32 1), !gla.precision !15
+  %gla_constGEP3 = getelementptr %bname addrspace(3)* @binst, i32 0, i32 0, i32 1
+  %misc2a9.i = call i32 @llvm.gla.atomicXor.p3i32(i32 addrspace(3)* %gla_constGEP3, i32 5), !gla.precision !15
+  %param1 = load i32 addrspace(2)* @counter, align 4, !gla.uniform !10
+  %1 = call i32 @llvm.gla.atomicCounterIncrement(i32 %param1), !gla.precision !15
+  %gla_constGEP4 = getelementptr [4 x i32] addrspace(2)* @countArr, i32 0, i32 2
+  %2 = load i32 addrspace(2)* %gla_constGEP4, align 4, !gla.uniform !12
+  %val2 = call i32 @llvm.gla.atomicCounterLoad(i32 %2), !gla.precision !15
+  %3 = call i32 @llvm.gla.atomicCounterDecrement(i32 %param1), !gla.precision !15
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %entry
@@ -183,28 +196,34 @@ stage-exit:                                       ; preds = %stage-epilogue
 declare i32 @llvm.gla.atomicCounterIncrement(i32) #0
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicAdd(i32, i32) #0
+declare i32 @llvm.gla.atomicAdd.p4i32(i32 addrspace(4)*, i32) #0
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicAnd(i32, i32) #0
+declare i32 @llvm.gla.atomicAnd.p4i32(i32 addrspace(4)*, i32) #0
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicOr(i32, i32) #0
+declare i32 @llvm.gla.atomicOr.p4i32(i32 addrspace(4)*, i32) #0
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicXor(i32, i32) #0
+declare i32 @llvm.gla.atomicXor.p4i32(i32 addrspace(4)*, i32) #0
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicMin(i32, i32) #0
+declare i32 @llvm.gla.uAtomicMin.p4i32(i32 addrspace(4)*, i32) #0
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicMax(i32, i32) #0
+declare i32 @llvm.gla.sAtomicMax.p4i32(i32 addrspace(4)*, i32) #0
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicExchange(i32, i32) #0
+declare i32 @llvm.gla.atomicExchange.p4i32(i32 addrspace(4)*, i32) #0
 
 ; Function Attrs: nounwind
-declare i32 @llvm.gla.atomicCompExchange(i32, i32, i32) #0
+declare i32 @llvm.gla.atomicCompExchange.p4i32(i32 addrspace(4)*, i32, i32) #0
+
+; Function Attrs: nounwind
+declare i32 @llvm.gla.atomicAdd.p3i32(i32 addrspace(3)*, i32) #0
+
+; Function Attrs: nounwind
+declare i32 @llvm.gla.atomicXor.p3i32(i32 addrspace(3)*, i32) #0
 
 ; Function Attrs: nounwind
 declare void @llvm.gla.memoryBarrierAtomicCounter() #0
@@ -219,24 +238,33 @@ attributes #0 = { nounwind }
 
 !gla.localSize = !{!0}
 !gla.shared = !{!1, !2}
-!gla.uniforms = !{!3, !5, !7}
-!gla.entrypoint = !{!9}
+!gla.uniforms = !{!3, !5, !10, !12}
+!gla.entrypoint = !{!14}
 
 !0 = metadata !{i32 1, i32 1, i32 1}
 !1 = metadata !{i32 addrspace(4)* @atomi}
 !2 = metadata !{i32 addrspace(4)* @atomu}
 !3 = metadata !{metadata !"value", i32 12, i32* @value_typeProxy, metadata !4}
 !4 = metadata !{i32 1, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"counter", i32 12, i32* @counter_typeProxy, metadata !6}
-!6 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 0}
-!7 = metadata !{metadata !"countArr", i32 12, [4 x i32]* @countArr_typeProxy, metadata !8}
-!8 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 4}
-!9 = metadata !{metadata !"main", i32 15}
-!10 = metadata !{i32 3}
+!5 = metadata !{metadata !"binst", i32 14, %bname* @binst_typeProxy, metadata !6, metadata !7}
+!6 = metadata !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!7 = metadata !{metadata !"bname", metadata !6, metadata !"v", metadata !8, metadata !"s", metadata !8}
+!8 = metadata !{metadata !"", metadata !9}
+!9 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!10 = metadata !{metadata !"counter", i32 12, i32* @counter_typeProxy, metadata !11}
+!11 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 0}
+!12 = metadata !{metadata !"countArr", i32 12, [4 x i32]* @countArr_typeProxy, metadata !13}
+!13 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 4}
+!14 = metadata !{metadata !"main", i32 15}
+!15 = metadata !{i32 3}
 #version 310 es
 // LunarGOO output
 layout(local_size_x=1, local_size_y=1, local_size_z=1) in; 
 uniform highp uint value;
+buffer bname {
+	highp ivec4 v;
+	highp int s;
+} binst;
 layout(binding=0, offset=0) uniform highp atomic_uint counter;
 layout(binding=0, offset=4) uniform highp atomic_uint countArr[4];
 shared int atomi;
@@ -244,6 +272,8 @@ shared int atomu;
 const int C_3 = 3;
 const int C_7 = 7;
 const int C_10 = 10;
+const int C_1 = 1;
+const int C_5 = 5;
 
 void main()
 {
@@ -252,21 +282,22 @@ void main()
 	highp int origu = atomicAnd(atomu, int(value));
 	highp int origu1 = atomicOr(atomu, C_7);
 	highp int origu2 = atomicXor(atomu, C_7);
-	highp int origu3 = atomicMin(atomu, int(value));
+	highp int origu3 = int(atomicMin(uint(atomu), uint(int(value))));
 	highp int origi1 = atomicMax(atomi, C_7);
 	highp int origi2 = atomicExchange(atomi, origi1);
 	highp int origu4 = atomicCompSwap(atomu, C_10, int(value));
-	highp int H_wxjx121 = atomicCounterIncrement(counter);
-	highp int val = atomicCounter(countArr[2]);
-	highp int H_w2ftqr = atomicCounterDecrement(counter);
+	highp int misc2a = atomicAdd(binst.s, C_1);
+	highp int misc2a1 = atomicXor(binst.v.y, C_5);
+	highp int H_80sqs71 = int(atomicCounterIncrement(counter));
+	highp int val = int(atomicCounter(countArr[2]));
+	highp int H_c2ufig1 = int(atomicCounterDecrement(counter));
 	
 }
 
 tempglsl.comp
 Warning, version 310 is not yet complete; most version-specific features are present, but some are missing.
-ERROR: 0:24: '=' :  cannot convert from 'global highp uint' to 'temp highp int'
-ERROR: 0:25: '=' :  cannot convert from 'global highp uint' to 'temp highp int'
-ERROR: 0:26: '=' :  cannot convert from 'global highp uint' to 'temp highp int'
-ERROR: 3 compilation errors.  No code generated.
+ERROR: 0:26: 'assign' :  l-value required 
+ERROR: 0:26: 'out' : Non-L-value cannot be passed for 'out' or 'inout' parameters. 
+ERROR: 2 compilation errors.  No code generated.
 
 
