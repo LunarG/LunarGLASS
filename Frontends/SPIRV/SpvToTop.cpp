@@ -487,7 +487,7 @@ void SpvToTopTranslator::setExecutionMode(spv::Id entryPoint, spv::ExecutionMode
     case spv::ExecutionModeDepthReplacing:
 
     default:
-        gla::UnsupportedFunctionality("execution mode");
+        gla::UnsupportedFunctionality("execution mode", gla::EATContinue);
         break;
     }
 }
@@ -1656,9 +1656,20 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
         commonMap[resultId].value = llvm::UndefValue::get(commonMap[typeId].type);
         break;
     case spv::OpPhi:
-        gla::UnsupportedFunctionality("OpPhi");
+    {
+        decodeResult(true, typeId, resultId);
+        numOperands -= 2;
+        llvm::PHINode* phi = llvmBuilder.CreatePHI(commonMap[typeId].type, numOperands);
+        while (numOperands >= 2) {
+            spv::Id variable = spirv[word++];
+            spv::Id parent = spirv[word++];
+            makeLabelBlock(parent);
+            numOperands -= 2;
+            phi->addIncoming(commonMap[variable].value, commonMap[parent].block);
+        }
+        commonMap[resultId].value = phi;
         break;
-
+    }
     case spv::OpSampledImage:
         gla::UnsupportedFunctionality("OpSampler");
         break;
