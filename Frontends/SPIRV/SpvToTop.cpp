@@ -128,7 +128,6 @@ gla::EMdBuiltIn GetMdBuiltIn(spv::BuiltIn builtIn)
     case spv::BuiltInFrontFacing:          return gla::EmbFace;
     case spv::BuiltInFragCoord:            return gla::EmbFragCoord;
     case spv::BuiltInPointCoord:           return gla::EmbPointCoord;
-    case spv::BuiltInFragColor:            return gla::EmbFragColor;
     case spv::BuiltInFragDepth:            return gla::EmbFragDepth;
     case spv::BuiltInSampleId:             return gla::EmbSampleId;
     case spv::BuiltInSamplePosition:       return gla::EmbSamplePosition;
@@ -450,16 +449,16 @@ void SpvToTopTranslator::setExecutionMode(spv::Id entryPoint, spv::ExecutionMode
     case spv::ExecutionModeInputLinesAdjacency:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgLinesAdjacency);
         break;
-    case spv::ExecutionModeInputTriangles:
+    case spv::ExecutionModeTriangles:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgTriangles);
         break;
     case spv::ExecutionModeInputTrianglesAdjacency:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgTrianglesAdjacency);
         break;
-    case spv::ExecutionModeInputQuads:
+    case spv::ExecutionModeQuads:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgQuads);
         break;
-    case spv::ExecutionModeInputIsolines:
+    case spv::ExecutionModeIsolines:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgIsolines);
         break;
     case spv::ExecutionModeXfb:
@@ -480,7 +479,6 @@ void SpvToTopTranslator::setExecutionMode(spv::Id entryPoint, spv::ExecutionMode
 
     case spv::ExecutionModeLocalSize:
     case spv::ExecutionModeEarlyFragmentTests:
-    case spv::ExecutionModeDepthAny:
     case spv::ExecutionModeDepthGreater:
     case spv::ExecutionModeDepthLess:
     case spv::ExecutionModeDepthUnchanged:
@@ -529,7 +527,6 @@ void SpvToTopTranslator::addMetaTypeDecoration(spv::Decoration decoration, MetaT
         metaType.precision = gla::EMpMedium;
         break;
 
-    case spv::DecorationSmooth:
     case spv::DecorationNoPerspective:
     case spv::DecorationFlat:
     case spv::DecorationPatch:
@@ -788,9 +785,9 @@ gla::Builder::EStorageQualifier SpvToTopTranslator::mapStorageClass(spv::Storage
         return gla::Builder::ESQInput;
     case spv::StorageClassOutput:
         return gla::Builder::ESQOutput;
-    case spv::StorageClassPrivateGlobal:
+    case spv::StorageClassPrivate:
         return gla::Builder::ESQGlobal;
-    case spv::StorageClassWorkgroupLocal:
+    case spv::StorageClassWorkgroup:
         return gla::Builder::ESQShared;
 
     default:
@@ -978,7 +975,6 @@ void SpvToTopTranslator::getInterpolationLocationMethod(spv::Id id, gla::EInterp
 {
     switch (commonMap[id].metaType.interpolationMethod) {
     case spv::DecorationNoPerspective: method = gla::EIMNoperspective;  break;
-    case spv::DecorationSmooth:        method = gla::EIMSmooth;         break;
     case spv::DecorationPatch:         method = gla::EIMPatch;          break;
     default:                           method = gla::EIMNone;           break;
     }
@@ -1286,7 +1282,8 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
         case spv::SourceLanguageGLSL:
             manager.setProfile(ECoreProfile);
             break;
-        case spv::SourceLanguageOpenCL:
+        case spv::SourceLanguageOpenCL_C:
+        case spv::SourceLanguageOpenCL_CPP:
         default:
             gla::UnsupportedFunctionality("non-GL profile", gla::EATContinue);
             manager.setProfile(ECoreProfile);
