@@ -45,7 +45,7 @@
 
 // glslang StandAlone include
 #include "StandAlone/Worklist.h"
-#include "osinclude.h"
+#include "glslang/OSDependent/osinclude.h"
 
 // LunarGLASS includes
 #include "Frontends/glslang/GlslangToTop.h"
@@ -786,9 +786,6 @@ const int NumThreads = 16;
 //
 // Return 0 for failure, 1 for success.
 unsigned int
-#ifdef _WIN32
-    __stdcall
-#endif
 TranslateShaders(void*)
 {
     glslang::TWorkItem* workItem;
