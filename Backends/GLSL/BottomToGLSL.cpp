@@ -504,7 +504,7 @@ public:
 
             // invocations is optional
             mdInt = GetMdNamedInt(module, gla::InvocationsMdName);
-            if (mdInt)
+            if (mdInt != 1)
                 globalStructures << "layout(invocations = " << mdInt << ") in;" << std::endl;
 
             // output primitives are not optional
