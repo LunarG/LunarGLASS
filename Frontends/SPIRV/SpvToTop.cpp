@@ -1671,6 +1671,15 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
         gla::UnsupportedFunctionality("OpSampler");
         break;
 
+    case spv::OpImage:
+    {
+        decodeResult(true, typeId, resultId);
+        numOperands -= 2;
+        unsigned int operand = spirv[word++];
+        commonMap[resultId].value = commonMap[operand].value;
+        break;
+    }
+
     case spv::OpImageSampleImplicitLod:
     case spv::OpImageSampleExplicitLod:
     case spv::OpImageSampleDrefImplicitLod:
