@@ -159,13 +159,13 @@ namespace {
         // Add phi copies if the backend wants us to:
 
         // For all the successors of bb
-        void addPhiCopies(const BasicBlock* bb);
+        void addPhiCopies(const BasicBlock* bb, const bool noConst=false);
 
         // For nextBB that are relevant for curBB
-        void addPhiCopies(const BasicBlock* curBB, const BasicBlock* nextBB);
+        void addPhiCopies(const BasicBlock* curBB, const BasicBlock* nextBB, const bool noConst=false);
 
         // For the specified phi node for currBB
-        void addPhiCopy(const PHINode* phi, const BasicBlock* curBB);
+        void addPhiCopy(const PHINode* phi, const BasicBlock* curBB, const bool noConst=false);
 
         // Module Pass implementation
         static char ID;
@@ -314,6 +314,10 @@ namespace {
         // If dominator properly dominates dominatee, then handle it, else do nothing
         bool attemptHandleDominatee(const BasicBlock* dominator, const BasicBlock* dominatee);
 
+        // True if exitBlock is just unconditional branch, it has one or more phi functions pointing to it,
+        // and the values of those phis associated with the exitBlock are all constant.
+        bool isSimpleMultiExitSearchLoopExit(const BasicBlock* exitBlock, LoopWrapper* loop);
+
         // Sets up a the beginning of a loop for the loop at the top of our LoopStack.
         // Assumes there is something on top of our LoopStack.
         void setUpLoopBegin(const Value* condition);
@@ -437,13 +441,13 @@ void BottomTranslator::declarePhiCopies(const Function* function)
     }
 }
 
-void BottomTranslator::addPhiCopies(const BasicBlock* bb)
+void BottomTranslator::addPhiCopies(const BasicBlock* bb, const bool noConst)
 {
     for (succ_const_iterator s = succ_begin(bb), e = succ_end(bb); s != e; ++s)
-        addPhiCopies(bb, *s);
+        addPhiCopies(bb, *s, noConst);
 }
 
-void BottomTranslator::addPhiCopies(const BasicBlock* curBB, const BasicBlock* nextBB)
+void BottomTranslator::addPhiCopies(const BasicBlock* curBB, const BasicBlock* nextBB, const bool noConst)
 {
     if (! backEnd->getRemovePhiFunctions())
         return;
@@ -453,13 +457,13 @@ void BottomTranslator::addPhiCopies(const BasicBlock* curBB, const BasicBlock* n
         const PHINode *phiNode = dyn_cast<PHINode>(i);
 
         if (phiNode)
-            addPhiCopy(phiNode, curBB);
+            addPhiCopy(phiNode, curBB, noConst);
         else
             break;
     }
 }
 
-void BottomTranslator::addPhiCopy(const PHINode* phi, const BasicBlock* curBB)
+void BottomTranslator::addPhiCopy(const PHINode* phi, const BasicBlock* curBB, const bool noConst)
 {
     // Exclude phi copies for our inductive variables
     if (! loops.empty() && loops.top()->isSimpleInductive() && phi == loops.top()->getInductionVariable())
@@ -473,7 +477,7 @@ void BottomTranslator::addPhiCopy(const PHINode* phi, const BasicBlock* curBB)
         // then we found ourselves
 
         Value* src = phi->getIncomingValue(predIndex);
-        if (! gla::IsUndef(src)) {
+        if (! gla::IsUndef(src) && ! ( noConst && isa<Constant>(src))) {
             if (alias)
                 backEndTranslator->addPhiAlias(phi, src);
             else
@@ -578,9 +582,28 @@ void BottomTranslator::handleLoopBlock(const BasicBlock* bb, bool instructionsHa
 
     assert(! isLatch || simpleLatch); // isLatch => simpleLatch
 
+    const BasicBlock* exitBlock = NULL;
+
+    if (isExiting) {
+        int exitPos = loop->exitSuccNumber(bb);
+        assert(exitPos != -1);
+        if (exitPos == 2)
+            gla::UnsupportedFunctionality("complex loop exits (two exit branches from same block)");
+
+        exitBlock = GetSuccessor(exitPos, bb);
+    }
+
     // If it's a loop header, have the back-end add it
-    if (isHeader)
+    bool needExitPhiCopies = false;
+    if (isHeader) {
+        if (exitBlock && isSimpleMultiExitSearchLoopExit(exitBlock, loop))
+        {
+            needExitPhiCopies = true;
+            addPhiCopies(exitBlock);
+            handledBlocks.insert(exitBlock);
+        }
         setUpLoopBegin(condition);
+    }
 
     // If the branch is conditional and not a latch nor exiting, we're dealing
     // with conditional (e.g. if-then-else) flow control from a header.
@@ -625,17 +648,6 @@ void BottomTranslator::handleLoopBlock(const BasicBlock* bb, bool instructionsHa
 
     const BasicBlock* exitMerge = loop->getExitMerge();
 
-    const BasicBlock* exitBlock = NULL;
-
-    if (isExiting) {
-        int exitPos = loop->exitSuccNumber(bb);
-        assert(exitPos != -1);
-        if (exitPos == 2)
-            gla::UnsupportedFunctionality("complex loop exits (two exit branches from same block)");
-
-        exitBlock = GetSuccessor(exitPos, bb);
-    }
-
     // Simple conditional loops should have exitBlock defined for them
     assert(! loop->isSimpleConditional() || exitBlock); // simple-conditional => exitBlock
 
@@ -645,13 +657,19 @@ void BottomTranslator::handleLoopBlock(const BasicBlock* bb, bool instructionsHa
     // must be the loop-merge, and must be equivalent to exitBlock
     assert((! loop->isSimpleConditional() || ! exitMerge || AreEquivalent(exitBlock, exitMerge)) && "unstructured conditional loop");
 
+    // Add exit phis before back edge; only need non-constant copies here
+    if (needExitPhiCopies)
+        addPhiCopies(exitBlock, true);
+
     backEndTranslator->endLoop();
     closeLoop();
 
     const BasicBlock* loopMerge = loop->isSimpleConditional() && ! exitMerge ? exitBlock : exitMerge;
 
     // Handle the exitBlock, if it's not the loopMerge
-    if (exitBlock && loopMerge != exitBlock) {
+    if (exitBlock && loopMerge != exitBlock && !handledBlocks.count(exitBlock)) {
+        if (loopMerge && pred_begin(loopMerge) != pred_end(loopMerge) && isSimpleMultiExitSearchLoopExit(exitBlock, loop))
+            gla::UnsupportedFunctionality("control flow: exitBlock handled before multi-pred loopMerge", gla::EATContinue);
         handleBlock(exitBlock);
     }
 
@@ -937,6 +955,42 @@ void BottomTranslator::setUpSimpleLatch()
 
     // Add phi copies (if applicable)
     addPhiCopies(loops.top()->getLatch(), loops.top()->getHeader());
+}
+
+bool BottomTranslator::isSimpleMultiExitSearchLoopExit(const BasicBlock* exitBlock, LoopWrapper* loop)
+{
+    // If not simple, return false
+    if (!loop->isSimpleInductive() && !loop->isSimpleConditional())
+        return false;
+
+    // If not multi-exit, return false
+    const BasicBlock* exitMerge = loop->getExitMerge();
+    if (!exitMerge || exitMerge == exitBlock)
+        return false;
+
+    // if exitBlock is not single unconditional branch, return false
+    if (exitBlock->size() != 1 )
+        return false;
+
+    if (!IsUnconditional(exitBlock))
+        return false;
+
+    // If any phi values for exitBlock are not constant, return false
+    bool saw_phi_val = false;
+    const BasicBlock* nextBB = *succ_begin(exitBlock);
+    for (BasicBlock::const_iterator i = nextBB->begin(), e = nextBB->end(); i != e; ++i) {
+        const PHINode *phi = dyn_cast<PHINode>(i);
+        if (!phi)
+            return saw_phi_val;
+
+        // Find the operand whose predecessor is exitBlock.
+        int predIndex = phi->getBasicBlockIndex(exitBlock);
+        if (predIndex >= 0) {
+            saw_phi_val = true;
+        }
+    }
+
+    return saw_phi_val;
 }
 
 void BottomTranslator::setUpLoopBegin(const Value* condition)

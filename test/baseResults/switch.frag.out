@@ -761,8 +761,6 @@ attributes #0 = { nounwind readnone }
 ***Unsupported functionality: switch topology
 
 ***Unsupported functionality: switch topology
-
-***Unsupported functionality: switch topology
 #version 310 es
 // LunarGOO output
 precision mediump float; // this will be almost entirely overridden by individual declarations
@@ -920,6 +918,7 @@ void main()
 		mediump float H_v86jke1rrr = cos(x);
 		i = C_0;
 		f6 = f4;
+		fa = f6;
 		while (i <= C_9) {
 			switch (c) {
 				case 1:
@@ -927,6 +926,7 @@ void main()
 					mediump float H_q4zp4f1 = H_0lhnahrrrr + f6;
 					j = C_20;
 					f8 = H_q4zp4f1;
+					f9 = f8;
 					while (j <= C_29) {
 						Lg_3 = f8 + C_1d0;
 						bool H_93uqn1 = Lg_3 < C_100d2;
@@ -941,119 +941,115 @@ void main()
 					
 					j = H_l69nk4;
 					f8 = Lg_3;
+					f9 = f8;
 				}
 				
-				f9 = f8;
-				break;
-				
-			}
-			f7 = f9;
-			case 2:
-			{
-				mediump float H_sf4otx1 = H_v86jke1rrr + f6;
-				f7 = H_sf4otx1;
-				default:
-				{
-					mediump float H_ksdj391 = H_3c9cke1rrr + f6;
-					f7 = H_ksdj391;
-				}
-				
-				bool H_amefxf1 = f7 < C_3d43;
-				mediump int H_o3goq3 = C_1 + i;
-				if (H_amefxf1) {
-					fa = f7;
-					break;
-				}
-				
-				i = H_o3goq3;
-				f6 = f7;
-			}
-			
-			fa = f6;
-			mediump float H_13mhsn1 = float(local);
-			mediump float color1 = H_13mhsn1 + fa;
-			color = color1;
-			switch (c) {
-				case 0:
-				{
-					Lg_1 = v;
-					break;
-					
-				}
+				f7 = f9;
 				case 2:
 				{
-					Lg_1 = v;
-					break;
-					
-				}
-				case 1:
-				{
-					case 3:
-					{
-						mediump vec4 H_hno2sy = v * v;
-						Lg_1 = H_hno2sy;
-						break;
-						
-					}
+					mediump float H_sf4otx1 = H_v86jke1rrr + f6;
+					f7 = H_sf4otx1;
 					default:
 					{
-						Lg_1 = C_vec4p0d0p;
-						break;
-						
+						mediump float H_ksdj391 = H_3c9cke1rrr + f6;
+						f7 = H_ksdj391;
 					}
+					
+					bool H_amefxf1 = f7 < C_3d43;
+					mediump int H_o3goq3 = C_1 + i;
+					if (H_amefxf1) {
+						fa = f7;
+						break;
+					}
+					
+					i = H_o3goq3;
+					f6 = f7;
+					fa = f6;
 				}
 				
-				mediump float color2 = Lg_1.y + color1;
-				color = color2;
+				mediump float H_13mhsn1 = float(local);
+				mediump float color1 = H_13mhsn1 + fa;
+				color = color1;
 				switch (c) {
 					case 0:
 					{
-						Lg_2 = v;
+						Lg_1 = v;
 						break;
 						
 					}
 					case 2:
 					{
-						Lg_2 = C_vec4p1d0p;
+						Lg_1 = v;
 						break;
 						
 					}
 					case 1:
 					{
-						Lg_2 = v;
-						break;
-						
+						case 3:
+						{
+							mediump vec4 H_hno2sy = v * v;
+							Lg_1 = H_hno2sy;
+							break;
+							
+						}
+						default:
+						{
+							Lg_1 = C_vec4p0d0p;
+							break;
+							
+						}
 					}
-					case 3:
-					{
-						mediump vec4 H_hno2syr = v * v;
-						Lg_2 = H_hno2syr;
-						break;
-						
+					
+					mediump float color2 = Lg_1.y + color1;
+					color = color2;
+					switch (c) {
+						case 0:
+						{
+							Lg_2 = v;
+							break;
+							
+						}
+						case 2:
+						{
+							Lg_2 = C_vec4p1d0p;
+							break;
+							
+						}
+						case 1:
+						{
+							Lg_2 = v;
+							break;
+							
+						}
+						case 3:
+						{
+							mediump vec4 H_hno2syr = v * v;
+							Lg_2 = H_hno2syr;
+							break;
+							
+						}
+						default:
+						{
+							Lg_2 = C_vec4p0d0p;
+							break;
+							
+						}
 					}
-					default:
-					{
-						Lg_2 = C_vec4p0d0p;
-						break;
-						
-					}
+					
+					mediump float color3 = Lg_2.z + color2;
+					color = color3;
+					
 				}
 				
-				mediump float color3 = Lg_2.z + color2;
-				color = color3;
-				
-			}
-			
 tempglsl.frag
 Warning, version 310 is not yet complete; most version-specific features are present, but some are missing.
 ERROR: 0:143: 'default' : cannot be nested inside control flow 
-ERROR: 0:177: 'H_l69nk4' : undeclared identifier 
-ERROR: 0:177: 'assign' :  cannot convert from 'temp float' to 'temp mediump int'
-ERROR: 0:186: 'case' : cannot be nested inside control flow 
-ERROR: 0:190: 'default' : cannot be nested inside control flow 
-ERROR: 0:226: 'case' : cannot be nested inside control flow 
-ERROR: 0:233: 'default' : cannot be nested inside control flow 
-ERROR: 0:282: '' :  syntax error
-ERROR: 8 compilation errors.  No code generated.
+ERROR: 0:179: 'H_l69nk4' : undeclared identifier 
+ERROR: 0:179: 'assign' :  cannot convert from 'temp float' to 'temp mediump int'
+ERROR: 0:189: 'default' : cannot be nested inside control flow 
+ERROR: 0:225: 'case' : cannot be nested inside control flow 
+ERROR: 0:232: 'default' : cannot be nested inside control flow 
+ERROR: 0:281: '' :  syntax error
+ERROR: 7 compilation errors.  No code generated.
 
 

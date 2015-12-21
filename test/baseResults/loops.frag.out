@@ -2414,6 +2414,7 @@ void main()
 	}
 	
 	color4 = color3;
+	color5 = color4;
 	while (color4.z < d3) {
 		color61 = bigColor1_3 + color4;
 		bool H_cp7uj51 = color61.y < d4;
@@ -2424,9 +2425,9 @@ void main()
 		
 		vec4 color71 = bigColor1_3 + color61;
 		color4 = color71;
+		color5 = color4;
 	}
 	
-	color5 = color4;
 	color6 = color5;
 	i = C_0;
 	for (i = 0; i < Count; ++i) {
@@ -2615,6 +2616,7 @@ void main()
 	
 	colorb = colora;
 	Lg_4 = C_0;
+	colorc = colorb;
 	while (Lg_4 <= C_41) {
 		float H_0f3y181 = colorb.z + d3;
 		Lg_5 = colorb;
@@ -2631,9 +2633,9 @@ void main()
 		int H_zk97sd1 = Lg_4 + C_1;
 		colorb = H_0vqk2y;
 		Lg_4 = H_zk97sd1;
+		colorc = colorb;
 	}
 	
-	colorc = colorb;
 	colord = colorc;
 	while (true) {
 		vec4 colora1 = bigColor4 + colord;
@@ -2696,6 +2698,7 @@ void main()
 	if (H_s3gwv91) {
 		bool H_lmykhx1 = d7 < C_1d0;
 		colori = colorh;
+		colorj = colori;
 		while (colori.y < d6) {
 			colord1 = bigColor6 + colori;
 			if (H_lmykhx1) {
@@ -2704,9 +2707,9 @@ void main()
 			}
 			
 			colori = colord1;
+			colorj = colori;
 		}
 		
-		colorj = colori;
 		colorl = colorj;
 	} else {
 		colork = colorh;
@@ -2802,6 +2805,7 @@ void main()
 	}
 	
 	colort = colorq;
+	coloru = colort;
 	while (colort.z < d10) {
 		float H_906no3 = C_1d0 + colort.y;
 		Lg_7 = colort;
@@ -2823,9 +2827,9 @@ void main()
 		H_y8yjmyr.xz = vec2(H_abkne3, H_cxcou2);
 		vec4 selectb = H_c8m0ti ? H_y8yjmy : H_y8yjmyr;
 		colort = selectb;
+		coloru = colort;
 	}
 	
-	coloru = colort;
 	colorv = coloru;
 	while (colorv.x < C_10d0) {
 		vec4 colorj1 = bigColor8 + colorv;
@@ -2960,21 +2964,25 @@ const vec4 C_vec4p0d66p = vec4(0.66);
 const vec4 C_vec4p0d33p = vec4(0.33);
 const float C_42d0 = 42.0;
 const vec4 C_vec4p1d0p = vec4(1.0);
+vec4 colorg;
 const int C_0 = 0;
-vec4 colori;
+vec4 colorj;
 const float C_20d0 = 20.0;
 const float C_1d0 = 1.0;
 const int C_41 = 41;
+vec4 Lg_1;
 const int C_1 = 1;
 vec4 colora2;
 vec4 select7;
-float Lg_1;
+float Lg_2;
+vec4 colord1;
 const float C_0d0 = 0.0;
 vec4 colore1;
 vec4 colorg1;
 const float C_2d0 = 2.0;
 vec4 colorh1;
 const float C_5d0 = 5.0;
+vec4 Lg_3;
 const float C_10d0 = 10.0;
 vec4 colorn1;
 
@@ -2985,23 +2993,26 @@ void main()
 	vec4 color2;
 	vec4 color3;
 	vec4 color4;
-	int i;
 	vec4 color5;
+	int i;
 	vec4 color6;
-	int Lg_;
 	vec4 color7;
-	int Lg_1;
+	int Lg_;
 	vec4 color8;
+	int Lg_1;
+	vec4 color9;
 	int Lg_2;
 	vec4 colora;
+	vec4 colorc;
 	int Lg_3;
-	vec4 colorb;
+	vec4 colorc1;
 	vec4 colord;
 	vec4 colore;
 	vec4 colorf;
 	vec4 colorg;
 	vec4 colorh;
-	vec4 colori;
+	vec4 colorj;
+	vec4 colorj1;
 	vec4 colork;
 	vec4 colorl;
 	vec4 colorm;
@@ -3012,12 +3023,13 @@ void main()
 	vec4 colorr;
 	vec4 colors;
 	vec4 colort;
+	vec4 coloru;
 	vec4 colorv;
 	vec4 colorw;
 	vec4 colorx;
 	vec4 colory;
 	vec4 colorz;
-	vec4 color9;
+	vec4 colora;
 	bool H_bghf2q = BaseColor.x < C_0d33;
 	bool H_9j9phn = BaseColor.x < C_0d66;
 	vec4 select = H_9j9phn ? C_vec4p0d66p : C_vec4p0d33p;
@@ -3025,23 +3037,23 @@ void main()
 	vec4 select1 = BaseColor + _L;
 	color = select1;
 	while (color.x < d) {
-		vec4 colora = bigColor + color;
-		color = colora;
+		vec4 colorb = bigColor + color;
+		color = colorb;
 	}
 	
 	color1 = color;
 	while (color1.z < d) {
-		vec4 colorb = bigColor1_1 + color1;
-		bool H_28748h = colorb.w < d;
-		vec4 colorc = bigColor1_1 + colorb;
-		vec4 select2 = H_28748h ? colorb : colorc;
+		vec4 colorc = bigColor1_1 + color1;
+		bool H_28748h = colorc.w < d;
+		vec4 colord = bigColor1_1 + colorc;
+		vec4 select2 = H_28748h ? colorc : colord;
 		color1 = select2;
 	}
 	
 	color2 = color1;
 	while (color2.x < C_42d0) {
-		vec4 colord = color2 + C_vec4p1d0p;
-		color2 = colord;
+		vec4 colore = color2 + C_vec4p1d0p;
+		color2 = colore;
 	}
 	
 	color3 = color2;
@@ -3053,41 +3065,44 @@ void main()
 			break;
 		}
 		
-		vec4 colore = bigColor1_2 + color3;
-		color3 = colore;
+		vec4 colorf = bigColor1_2 + color3;
+		color3 = colorf;
 	}
 	
 	color4 = color3;
+	color5 = color4;
 	while (color4.z < d3) {
-		vec4 colorf = bigColor1_3 + color4;
-		bool H_cp7uj = colorf.y < d4;
+		colorg = bigColor1_3 + color4;
+		bool H_cp7uj = colorg.y < d4;
 		if (H_cp7uj) {
+			color5 = colorg;
 			break;
 		}
 		
-		vec4 colorg = bigColor1_3 + colorf;
-		color4 = colorg;
+		vec4 colorh = bigColor1_3 + colorg;
+		color4 = colorh;
+		color5 = color4;
 	}
 	
 	i = C_0;
-	color5 = color4;
-	for (i = 0; i < Count; ++i) {
-		vec4 colorh = bigColor2 + color5;
-		color5 = colorh;
-	}
-	
 	color6 = color5;
-	while (true) {
-		colori = bigColor3 + color6;
-		bool H_s8h3qa = colori.x >= d2;
-		if (H_s8h3qa) {
-			break;
-		}
-		
+	for (i = 0; i < Count; ++i) {
+		vec4 colori = bigColor2 + color6;
 		color6 = colori;
 	}
 	
-	float H_whexx = colori.z + d3;
+	color7 = color6;
+	while (true) {
+		colorj = bigColor3 + color7;
+		bool H_946xso1 = colorj.x >= d2;
+		if (H_946xso1) {
+			break;
+		}
+		
+		color7 = colorj;
+	}
+	
+	float H_whexx = colorj.z + d3;
 	float H_r8jpbt = H_whexx + d3;
 	float H_jm = H_r8jpbt + d3;
 	float H_teod = H_jm + d3;
@@ -3129,38 +3144,38 @@ void main()
 	float H_vb1m6c = H_5zwnye + d3;
 	float H_kljeh = H_vb1m6c + d3;
 	float H_ack95d = H_kljeh + d3;
-	vec4 H_bueoqy1 = colori;
-	H_bueoqy1.z = H_ack95d;
+	vec4 H_aj0o0z1 = colorj;
+	H_aj0o0z1.z = H_ack95d;
 	Lg_ = C_0;
-	color7 = H_bueoqy1;
+	color8 = H_aj0o0z1;
 	for ( ; Lg_ != 100; ++Lg_) {
-		bool H_ouigu = color7.z < C_20d0;
-		float H_i27ik = color7.x + C_1d0;
-		vec4 H_hvpvwg = color7;
-		H_hvpvwg.x = H_i27ik;
-		float H_tyie6w = C_1d0 + color7.y;
-		vec4 H_hvpvwgr = color7;
-		H_hvpvwgr.y = H_tyie6w;
-		vec4 select3 = H_ouigu ? H_hvpvwg : H_hvpvwgr;
-		color7 = select3;
+		bool H_ouigu = color8.z < C_20d0;
+		float H_i27ik = color8.x + C_1d0;
+		vec4 H_wgo1rc = color8;
+		H_wgo1rc.x = H_i27ik;
+		float H_tyie6w = C_1d0 + color8.y;
+		vec4 H_wgo1rcr = color8;
+		H_wgo1rcr.y = H_tyie6w;
+		vec4 select3 = H_ouigu ? H_wgo1rc : H_wgo1rcr;
+		color8 = select3;
 	}
 	
 	Lg_1 = C_0;
-	color8 = color7;
+	color9 = color8;
 	for ( ; Lg_1 != 120; ++Lg_1) {
-		bool H_dkcc0l = color8.z < C_20d0;
-		float H_5t8tep = C_1d0 + color8.x;
-		vec4 H_wgo1rc = color8;
-		H_wgo1rc.x = H_5t8tep;
-		float H_64nt4p = C_1d0 + color8.y;
-		vec4 H_wgo1rcr = color8;
-		H_wgo1rcr.y = H_64nt4p;
-		vec4 select4 = H_dkcc0l ? H_wgo1rc : H_wgo1rcr;
-		color8 = select4;
+		bool H_dkcc0l = color9.z < C_20d0;
+		float H_5t8tep = C_1d0 + color9.x;
+		vec4 H_v5a11d = color9;
+		H_v5a11d.x = H_5t8tep;
+		float H_64nt4p = C_1d0 + color9.y;
+		vec4 H_v5a11dr = color9;
+		H_v5a11dr.y = H_64nt4p;
+		vec4 select4 = H_dkcc0l ? H_v5a11d : H_v5a11dr;
+		color9 = select4;
 	}
 	
 	Lg_2 = C_0;
-	colora = color8;
+	colora = color9;
 	for ( ; Lg_2 != 42; ++Lg_2) {
 		float H_bthy3g = colora.z + d3;
 		bool H_nda4t = colora.x < d4;
@@ -3173,24 +3188,29 @@ void main()
 		colora = select5;
 	}
 	
+	colorc = colora;
 	Lg_3 = C_0;
-	colorb = colora;
+	colorc1 = colorc;
 	while (Lg_3 <= C_41) {
-		bool H_0rnct = colorb.x < d4;
+		float H_0f3y = colorc.z + d3;
+		Lg_1 = colorc;
+		Lg_1.z = H_0f3y;
+		bool H_0rnct = colorc.x < d4;
 		if (H_0rnct) {
+			colorc1 = Lg_1;
 			break;
 		}
 		
-		float H_0f3y = colorb.z + d3;
-		float H_heycbr = C_1d0 + colorb.w;
-		vec4 H_y3sg72 = colorb;
-		H_y3sg72.zw = vec2(H_0f3y, H_heycbr);
+		float H_heycbr = C_1d0 + colorc.w;
+		vec4 H_43cmyw = Lg_1;
+		H_43cmyw.w = H_heycbr;
 		int H_zk97sd = Lg_3 + C_1;
+		colorc = H_43cmyw;
 		Lg_3 = H_zk97sd;
-		colorb = H_y3sg72;
+		colorc1 = colorc;
 	}
 	
-	colord = colorb;
+	colord = colorc1;
 	while (true) {
 		vec4 colora1 = bigColor4 + colord;
 		bool H_wfbsrv = colora1.x < d4;
@@ -3231,8 +3251,8 @@ void main()
 	if (H_8l0mbn) {
 		colorf = select7;
 		while (colorf.y < d6) {
-			vec4 colorc1 = bigColor6 + colorf;
-			colorf = colorc1;
+			vec4 colorc2 = bigColor6 + colorf;
+			colorf = colorc2;
 		}
 		
 		colorh = colorf;
@@ -3251,17 +3271,20 @@ void main()
 	bool H_s3gwv = colorh.x < d6;
 	if (H_s3gwv) {
 		bool H_lmykhx = d7 < C_1d0;
-		colori = colorh;
-		while (colori.y < d6) {
+		colorj = colorh;
+		colorj1 = colorj;
+		while (colorj.y < d6) {
+			colord1 = bigColor6 + colorj;
 			if (H_lmykhx) {
+				colorj1 = colord1;
 				break;
 			}
 			
-			vec4 colord1 = bigColor6 + colori;
-			colori = colord1;
+			colorj = colord1;
+			colorj1 = colorj;
 		}
 		
-		colorl = colori;
+		colorl = colorj1;
 	} else {
 		colork = colorh;
 		while (colork.z < d6) {
@@ -3356,37 +3379,41 @@ void main()
 	}
 	
 	colort = colorq;
+	coloru = colort;
 	while (colort.z < d10) {
 		float H_906no = C_1d0 + colort.y;
-		vec4 H_gdeqcx1 = colort;
-		H_gdeqcx1.y = H_906no;
+		Lg_3 = colort;
+		Lg_3.y = H_906no;
 		bool H_91q1tp1 = H_906no >= d11;
 		if (H_91q1tp1) {
+			vec4 colori1 = C_vec4p1d0p + Lg_3;
+			coloru = colori1;
 			break;
 		}
 		
 		float H_cxcou = C_1d0 + colort.z;
 		bool H_c8m0ti = colort.w < d12;
 		float H_zx6jg = C_1d0 + colort.w;
-		vec4 H_hoos0v1 = H_gdeqcx1;
-		H_hoos0v1.zw = vec2(H_cxcou, H_zx6jg);
+		vec4 H_2hjlix = Lg_3;
+		H_2hjlix.zw = vec2(H_cxcou, H_zx6jg);
 		float H_abkne = C_1d0 + colort.x;
-		vec4 H_hoos0v1r = H_gdeqcx1;
-		H_hoos0v1r.xz = vec2(H_abkne, H_cxcou);
-		vec4 select9 = H_c8m0ti ? H_hoos0v1 : H_hoos0v1r;
+		vec4 H_2hjlixr = Lg_3;
+		H_2hjlixr.xz = vec2(H_abkne, H_cxcou);
+		vec4 select9 = H_c8m0ti ? H_2hjlix : H_2hjlixr;
 		colort = select9;
+		coloru = colort;
 	}
 	
-	colorv = colort;
+	colorv = coloru;
 	while (colorv.x < C_10d0) {
-		vec4 colorj = bigColor8 + colorv;
-		bool H_f99dxf = colorj.z < d8;
-		bool H_sm96gh = colorj.w < d6;
-		float H_8im07j = bigColor8.x + colorj.y;
-		vec4 H_aj0o0z1 = colorj;
-		H_aj0o0z1.y = H_8im07j;
-		vec4 colorj1 = H_sm96gh ? colorj : H_aj0o0z1;
-		vec4 selectd = H_f99dxf ? colorj1 : H_aj0o0z1;
+		vec4 colorj2 = bigColor8 + colorv;
+		bool H_f99dxf = colorj2.z < d8;
+		bool H_sm96gh = colorj2.w < d6;
+		float H_8im07j = bigColor8.x + colorj2.y;
+		vec4 H_4quxmv = colorj2;
+		H_4quxmv.y = H_8im07j;
+		vec4 colorj3 = H_sm96gh ? colorj2 : H_4quxmv;
+		vec4 selectd = H_f99dxf ? colorj3 : H_4quxmv;
 		colorv = selectd;
 	}
 	
@@ -3426,18 +3453,18 @@ void main()
 		colorn1 = C_vec4p1d0p + colorz;
 		bool H_0dzijc1 = colorn1.x >= d17;
 		if (H_0dzijc1) {
-			color9 = colorn1;
-			while (color9.y < d16) {
-				bool H_z37o2g = color9.w < d16;
+			colora = colorn1;
+			while (colora.y < d16) {
+				bool H_z37o2g = colora.w < d16;
 				if (H_z37o2g) {
 					discard;
 				}
 				
-				vec4 coloro1 = C_vec4p1d0p + color9;
-				color9 = coloro1;
+				vec4 coloro1 = C_vec4p1d0p + colora;
+				colora = coloro1;
 			}
 			
-			vec4 colorp1 = C_vec4p1d0p + color9;
+			vec4 colorp1 = C_vec4p1d0p + colora;
 			gl_FragColor = colorp1;
 			return;
 		}
