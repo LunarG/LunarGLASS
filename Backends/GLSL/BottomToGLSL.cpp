@@ -706,6 +706,8 @@ public:
     bool shouldSubstitute(const llvm::Instruction*);
     bool modifiesPrecision(const llvm::Instruction*);
     bool writeOnceAlloca(const llvm::Value*);
+    bool isaGEPLoad(const llvm::Value*);
+    void remapGEPs(const llvm::Value*);
     int getSubstitutionLevel() const { return substitutionLevel; }
 
     // set of all IO mdNodes in the noStaticUse list
@@ -2080,9 +2082,13 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         if (it != nonConvertedMap.end())
             ConversionStop(expression, target->getType()->getContainedType(0));
 
-        if (writeOnceAlloca(target))
+        const llvm::Value* src = llvmInstruction->getOperand(0);
+
+        // Only map target if src is simple rhs
+        if (writeOnceAlloca(target) && !isaGEPLoad(src)) {
             mapExpressionString(target, expression.str());
-        else {
+            remapGEPs(target);
+        } else {
             newLine();
             // If uint/matrix IO conversions are needed, they actually have to have the
             // opposite conversion applied to the rhs.
@@ -5115,4 +5121,37 @@ bool gla::GlslTarget::writeOnceAlloca(const llvm::Value* target)
     }
 
     return true;
+}
+
+// Remap GEPs that have already been mapped. Do this when an alloca variable
+// has been mapped through a Store.
+void gla::GlslTarget::remapGEPs(const llvm::Value* target)
+{
+    const llvm::Instruction* targetInst = llvm::dyn_cast<const llvm::Instruction>(target);
+    if (! targetInst || targetInst->getOpcode() != llvm::Instruction::Alloca)
+        return;
+
+    const llvm::AllocaInst* alloca = llvm::dyn_cast<const llvm::AllocaInst>(targetInst);
+
+    for (llvm::Value::const_use_iterator it = alloca->use_begin(); it != alloca->use_end(); ++it) {
+        const llvm::Instruction* use = llvm::dyn_cast<const llvm::Instruction>(*it);
+
+        if (use && use->getOpcode() == llvm::Instruction::GetElementPtr) {
+            std::string dummyExpression; 
+            if (getExpressionString(use, dummyExpression)) {
+                mapPointerExpression(use);
+            }
+        }
+    }
+}
+
+bool gla::GlslTarget::isaGEPLoad(const llvm::Value* src)
+{
+    const llvm::Instruction* srcInst = llvm::dyn_cast<const llvm::Instruction>(src);
+    if (! srcInst || srcInst->getOpcode() != llvm::Instruction::Load)
+        return false;
+
+    const llvm::Instruction* op0Inst = llvm::dyn_cast<const llvm::Instruction>(srcInst->getOperand(0));
+
+    return (op0Inst && op0Inst->getOpcode() == llvm::Instruction::GetElementPtr);
 }
