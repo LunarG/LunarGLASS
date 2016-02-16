@@ -533,7 +533,7 @@ public:
             if (GetMdNamedInt(module, PixelCenterIntegerMdName))
                 globalStructures << "layout(pixel_center_integer) in;" << std::endl;
 
-            if (GetMdNamedInt(module, OriginUpperLeftMdName))
+            if (GetMdNamedInt(module, OriginUpperLeftMdName) && (version >= 150))
                 globalStructures << "layout(origin_upper_left) in;" << std::endl;
 
             if (GetMdNamedInt(module, BlendEquationMdName)) {
