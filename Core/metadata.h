@@ -202,6 +202,8 @@ enum EMdInputOutput {
     EMioPipeIn,             // normal user-streamed input data: attributes, varyings, etc.
     EMioVertexId,
     EMioInstanceId,
+    EMioVertexIndex,
+    EMioInstanceIndex,
     EMioFragmentFace,
     EMioFragmentCoord,
     EMioPointCoord,
@@ -419,6 +421,8 @@ enum EMdBuiltIn {
     EmbSampleMask,
     EmbHelperInvocation,
     EmbBoundingBox,
+    EmbVertexIndex,
+    EmbInstanceIndex,
     EmbCount
 };
 

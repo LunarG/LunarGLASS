@@ -134,18 +134,18 @@ attributes #1 = { nounwind }
 !0 = metadata !{i32 1, i32 1, i32 1}
 !1 = metadata !{i32 addrspace(4)* @atomi}
 !2 = metadata !{i32 addrspace(4)* @atomu}
-!3 = metadata !{metadata !"value", i32 12, i32* @value_typeProxy, metadata !4}
+!3 = metadata !{metadata !"value", i32 14, i32* @value_typeProxy, metadata !4}
 !4 = metadata !{i32 1, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"binst", i32 14, %bname* @binst_typeProxy, metadata !6, metadata !7}
+!5 = metadata !{metadata !"binst", i32 16, %bname* @binst_typeProxy, metadata !6, metadata !7}
 !6 = metadata !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !7 = metadata !{metadata !"bname", metadata !6, metadata !"v", metadata !8, metadata !"s", metadata !8}
 !8 = metadata !{metadata !"", metadata !9}
 !9 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!10 = metadata !{metadata !"counter", i32 12, i32* @counter_typeProxy, metadata !11}
+!10 = metadata !{metadata !"counter", i32 14, i32* @counter_typeProxy, metadata !11}
 !11 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 0}
-!12 = metadata !{metadata !"countArr", i32 12, [4 x i32]* @countArr_typeProxy, metadata !13}
+!12 = metadata !{metadata !"countArr", i32 14, [4 x i32]* @countArr_typeProxy, metadata !13}
 !13 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 4}
-!14 = metadata !{metadata !"main", i32 15}
+!14 = metadata !{metadata !"main", i32 17}
 !15 = metadata !{i32 3}
 
 
@@ -244,18 +244,18 @@ attributes #0 = { nounwind }
 !0 = metadata !{i32 1, i32 1, i32 1}
 !1 = metadata !{i32 addrspace(4)* @atomi}
 !2 = metadata !{i32 addrspace(4)* @atomu}
-!3 = metadata !{metadata !"value", i32 12, i32* @value_typeProxy, metadata !4}
+!3 = metadata !{metadata !"value", i32 14, i32* @value_typeProxy, metadata !4}
 !4 = metadata !{i32 1, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"binst", i32 14, %bname* @binst_typeProxy, metadata !6, metadata !7}
+!5 = metadata !{metadata !"binst", i32 16, %bname* @binst_typeProxy, metadata !6, metadata !7}
 !6 = metadata !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !7 = metadata !{metadata !"bname", metadata !6, metadata !"v", metadata !8, metadata !"s", metadata !8}
 !8 = metadata !{metadata !"", metadata !9}
 !9 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!10 = metadata !{metadata !"counter", i32 12, i32* @counter_typeProxy, metadata !11}
+!10 = metadata !{metadata !"counter", i32 14, i32* @counter_typeProxy, metadata !11}
 !11 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 0}
-!12 = metadata !{metadata !"countArr", i32 12, [4 x i32]* @countArr_typeProxy, metadata !13}
+!12 = metadata !{metadata !"countArr", i32 14, [4 x i32]* @countArr_typeProxy, metadata !13}
 !13 = metadata !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 4}
-!14 = metadata !{metadata !"main", i32 15}
+!14 = metadata !{metadata !"main", i32 17}
 !15 = metadata !{i32 3}
 #version 310 es
 // LunarGOO output
