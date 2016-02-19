@@ -114,6 +114,7 @@ gla::EMdBuiltIn GetMdBuiltIn(spv::BuiltIn builtIn)
     case spv::BuiltInVertexId:             return gla::EmbVertexId;
     case spv::BuiltInVertexIndex:          return gla::EmbVertexIndex;
     case spv::BuiltInInstanceId:           return gla::EmbInstanceId;
+    case spv::BuiltInInstanceIndex:        return gla::EmbInstanceIndex;
     case spv::BuiltInPosition:             return gla::EmbPosition;
     case spv::BuiltInPointSize:            return gla::EmbPointSize;
     case spv::BuiltInClipDistance:         return gla::EmbClipDistance;
@@ -912,6 +913,7 @@ gla::EMdInputOutput SpvToTopTranslator::getMdQualifier(spv::Id resultId) const
     case gla::EmbPointSize:   mdQualifier = gla::EMioPointSize;      break;
     case gla::EmbClipVertex:  mdQualifier = gla::EMioClipVertex;     break;
     case gla::EmbInstanceId:  mdQualifier = gla::EMioInstanceId;     break;
+    case gla::EmbInstanceIndex: mdQualifier = gla::EMioPipeIn;         break;
     case gla::EmbVertexId:    mdQualifier = gla::EMioVertexId;       break;
     case gla::EmbVertexIndex: mdQualifier = gla::EMioPipeIn;         break;
     case gla::EmbFragCoord:   mdQualifier = gla::EMioFragmentCoord;  break;
