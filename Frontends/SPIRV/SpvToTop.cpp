@@ -112,7 +112,9 @@ gla::EMdBuiltIn GetMdBuiltIn(spv::BuiltIn builtIn)
     case spv::BuiltInGlobalInvocationId:   return gla::EmbGlobalInvocationId;
     case spv::BuiltInLocalInvocationIndex: return gla::EmbLocalInvocationIndex;
     case spv::BuiltInVertexId:             return gla::EmbVertexId;
+    case spv::BuiltInVertexIndex:          return gla::EmbVertexIndex;
     case spv::BuiltInInstanceId:           return gla::EmbInstanceId;
+    case spv::BuiltInInstanceIndex:        return gla::EmbInstanceIndex;
     case spv::BuiltInPosition:             return gla::EmbPosition;
     case spv::BuiltInPointSize:            return gla::EmbPointSize;
     case spv::BuiltInClipDistance:         return gla::EmbClipDistance;

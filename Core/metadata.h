@@ -419,6 +419,8 @@ enum EMdBuiltIn {
     EmbSampleMask,
     EmbHelperInvocation,
     EmbBoundingBox,
+    EmbVertexIndex,
+    EmbInstanceIndex,
     EmbCount
 };
 
