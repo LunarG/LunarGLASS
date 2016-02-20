@@ -913,9 +913,7 @@ gla::EMdInputOutput SpvToTopTranslator::getMdQualifier(spv::Id resultId) const
     case gla::EmbPointSize:   mdQualifier = gla::EMioPointSize;      break;
     case gla::EmbClipVertex:  mdQualifier = gla::EMioClipVertex;     break;
     case gla::EmbInstanceId:  mdQualifier = gla::EMioInstanceId;     break;
-    case gla::EmbInstanceIndex: mdQualifier = gla::EMioPipeIn;         break;
     case gla::EmbVertexId:    mdQualifier = gla::EMioVertexId;       break;
-    case gla::EmbVertexIndex: mdQualifier = gla::EMioPipeIn;         break;
     case gla::EmbFragCoord:   mdQualifier = gla::EMioFragmentCoord;  break;
     case gla::EmbPointCoord:  mdQualifier = gla::EMioPointCoord;     break;
     case gla::EmbFace:        mdQualifier = gla::EMioFragmentFace;   break;
