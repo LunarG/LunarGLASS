@@ -4122,11 +4122,12 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
     int binding;
     int offset;
     unsigned int qualifiers;
+    EVariableQualifier qualifier = EVQUndef;
+    int interpMode = -1;
 
     if (ioRoot) {
         EMdInputOutput ioKind;
         llvm::Type* proxyType;
-        int interpMode;
         if (! CrackIOMd(mdNode, metaType.name, ioKind, proxyType, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.mdAggregate,
                         interpMode, metaType.builtIn, binding, qualifiers, offset)) {
             UnsupportedFunctionality("IO metadata for type");
@@ -4155,7 +4156,6 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
             type = proxyType;
 
         // emit interpolation qualifier, if appropriate
-        EVariableQualifier qualifier = EVQUndef;
         switch (ioKind) {
         case EMioPipeIn:
         case EMioPipeInBlock:
@@ -4167,13 +4167,6 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
             break;
         default:
             break;
-        }
-        if (qualifier != EVQUndef) {
-            EInterpolationMethod interpMethod;
-            EInterpolationLocation interpLocation;
-            CrackInterpolationMode(interpMode, interpMethod, interpLocation);
-            if (! metaType.block || (metaType.block && interpMethod == EIMPatch))
-                emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
         }
     } else {
         if (! CrackAggregateMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.builtIn, binding, qualifiers, offset)) {
@@ -4191,6 +4184,14 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
         if (! ioRoot && (profile == EEsProfile || version < 420))
             offset = -1;
         emitGlaLayout(out, typeLayout, location, binding, offset);
+        if (qualifier != EVQUndef) {
+            EInterpolationMethod interpMethod;
+            EInterpolationLocation interpLocation;
+            CrackInterpolationMode(interpMode, interpMethod, interpLocation);
+            if (! metaType.block || (metaType.block && interpMethod == EIMPatch))
+                emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
+        }
+
         emitGlaMdQualifiers(out, qualifiers);
     }
 
