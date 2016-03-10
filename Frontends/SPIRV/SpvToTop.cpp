@@ -949,7 +949,7 @@ gla::EMdSamplerDim SpvToTopTranslator::getMdSamplerDim(spv::Id typeId) const
 {
     switch (getImageDim(typeId)) {
     case spv::Dim1D:     return gla::EMsd1D;
-    case spv::Dim2D:     return gla::EMsd2D;
+    case spv::Dim2D:     return isImageMS(typeId) ? gla::EMsd2DMS : gla::EMsd2D;
     case spv::Dim3D:     return gla::EMsd3D;
     case spv::DimCube:   return gla::EMsdCube;
     case spv::DimRect:   return gla::EMsdRect;

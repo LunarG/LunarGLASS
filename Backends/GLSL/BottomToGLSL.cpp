@@ -4230,6 +4230,7 @@ void gla::GlslTarget::emitGlaSamplerType(std::ostringstream& out, const llvm::MD
         case EMsdCube:     out << "Cube";    break;
         case EMsdRect:     out << "2DRect";  break;
         case EMsdBuffer:   out << "Buffer";  break;
+        case EMsd2DMS:     out << "2DMS";    break;
         default:           UnsupportedFunctionality("kind of sampler");  break;
         }
         if (isArray)

@@ -685,13 +685,13 @@ attributes #2 = { nounwind }
 !61 = metadata !{i32 1, i32* @CA3_typeProxy, i32 3, i1 true, i1 false, i32 2}
 !62 = metadata !{metadata !"samp2DMSA", i32 12, i32* @samp2DMSA_typeProxy, metadata !63}
 !63 = metadata !{i32 5, i32 3, i32 1024, metadata !64, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!64 = metadata !{i32 0, i32* @samp2DMSA_typeProxy, i32 1, i1 true, i1 false, i32 0}
+!64 = metadata !{i32 0, i32* @samp2DMSA_typeProxy, i32 6, i1 true, i1 false, i32 0}
 !65 = metadata !{metadata !"samp2DMSAi", i32 12, i32* @samp2DMSAi_typeProxy, metadata !66}
 !66 = metadata !{i32 5, i32 3, i32 1024, metadata !67, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!67 = metadata !{i32 0, i32* @samp2DMSAi_typeProxy, i32 1, i1 true, i1 false, i32 1}
+!67 = metadata !{i32 0, i32* @samp2DMSAi_typeProxy, i32 6, i1 true, i1 false, i32 1}
 !68 = metadata !{metadata !"samp2DMSAu", i32 12, i32* @samp2DMSAu_typeProxy, metadata !69}
 !69 = metadata !{i32 5, i32 3, i32 1024, metadata !70, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!70 = metadata !{i32 0, i32* @samp2DMSAu_typeProxy, i32 1, i1 true, i1 false, i32 2}
+!70 = metadata !{i32 0, i32* @samp2DMSAu_typeProxy, i32 6, i1 true, i1 false, i32 2}
 !71 = metadata !{metadata !"im2Di", i32 12, i32* @im2Di_typeProxy, metadata !72}
 !72 = metadata !{i32 5, i32 3, i32 1024, metadata !73, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !73 = metadata !{i32 25, i32* @im2Di_typeProxy, i32 1, i1 false, i1 false, i32 1}
@@ -1099,13 +1099,13 @@ attributes #1 = { nounwind }
 !61 = metadata !{i32 1, i32* @CA3_typeProxy, i32 3, i1 true, i1 false, i32 2}
 !62 = metadata !{metadata !"samp2DMSA", i32 12, i32* @samp2DMSA_typeProxy, metadata !63}
 !63 = metadata !{i32 5, i32 3, i32 1024, metadata !64, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!64 = metadata !{i32 0, i32* @samp2DMSA_typeProxy, i32 1, i1 true, i1 false, i32 0}
+!64 = metadata !{i32 0, i32* @samp2DMSA_typeProxy, i32 6, i1 true, i1 false, i32 0}
 !65 = metadata !{metadata !"samp2DMSAi", i32 12, i32* @samp2DMSAi_typeProxy, metadata !66}
 !66 = metadata !{i32 5, i32 3, i32 1024, metadata !67, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!67 = metadata !{i32 0, i32* @samp2DMSAi_typeProxy, i32 1, i1 true, i1 false, i32 1}
+!67 = metadata !{i32 0, i32* @samp2DMSAi_typeProxy, i32 6, i1 true, i1 false, i32 1}
 !68 = metadata !{metadata !"samp2DMSAu", i32 12, i32* @samp2DMSAu_typeProxy, metadata !69}
 !69 = metadata !{i32 5, i32 3, i32 1024, metadata !70, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!70 = metadata !{i32 0, i32* @samp2DMSAu_typeProxy, i32 1, i1 true, i1 false, i32 2}
+!70 = metadata !{i32 0, i32* @samp2DMSAu_typeProxy, i32 6, i1 true, i1 false, i32 2}
 !71 = metadata !{metadata !"im2Di", i32 12, i32* @im2Di_typeProxy, metadata !72}
 !72 = metadata !{i32 5, i32 3, i32 1024, metadata !73, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !73 = metadata !{i32 25, i32* @im2Di_typeProxy, i32 1, i1 false, i1 false, i32 1}
@@ -1155,9 +1155,9 @@ uniform highp usamplerCubeArray CA7;
  writeonly uniform highp imageCubeArray CA1;
  writeonly uniform highp iimageCubeArray CA2;
  writeonly uniform highp uimageCubeArray CA3;
-uniform highp sampler2DArray samp2DMSA;
-uniform highp isampler2DArray samp2DMSAi;
-uniform highp usampler2DArray samp2DMSAu;
+uniform highp sampler2DMSArray samp2DMSA;
+uniform highp isampler2DMSArray samp2DMSAi;
+uniform highp usampler2DMSArray samp2DMSAu;
 uniform layout(r32i) highp iimage2D im2Di;
 uniform highp ivec2 P;
 uniform layout(r32ui) highp uimage2D im2Du;
@@ -1330,12 +1330,6 @@ void main()
 
 tempglsl.vert
 Warning, version 310 is not yet complete; most version-specific features are present, but some are missing.
-ERROR: 0:171: 'textureSize' : no matching overloaded function found 
-ERROR: 0:171: '=' :  cannot convert from 'const float' to 'temp highp 3-component vector of int'
-ERROR: 0:172: 'textureSize' : no matching overloaded function found 
-ERROR: 0:172: '=' :  cannot convert from 'const float' to 'temp highp 3-component vector of int'
-ERROR: 0:174: 'textureSize' : no matching overloaded function found 
-ERROR: 0:174: '=' :  cannot convert from 'const float' to 'temp highp 3-component vector of int'
 ERROR: 0:189: 'imageAtomicAdd' : no matching overloaded function found 
 ERROR: 0:191: 'imageAtomicMin' : no matching overloaded function found 
 ERROR: 0:193: 'imageAtomicMax' : no matching overloaded function found 
@@ -1344,6 +1338,6 @@ ERROR: 0:197: 'imageAtomicOr' : no matching overloaded function found
 ERROR: 0:199: 'imageAtomicXor' : no matching overloaded function found 
 ERROR: 0:201: 'imageAtomicExchange' : no matching overloaded function found 
 ERROR: 0:204: 'imageAtomicCompSwap' : no matching overloaded function found 
-ERROR: 14 compilation errors.  No code generated.
+ERROR: 8 compilation errors.  No code generated.
 
 

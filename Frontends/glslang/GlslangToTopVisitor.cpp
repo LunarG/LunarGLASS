@@ -343,7 +343,7 @@ gla::EMdSamplerDim GetMdSamplerDim(const glslang::TType& type)
 {
     switch (type.getSampler().dim) {
     case glslang::Esd1D:     return gla::EMsd1D;
-    case glslang::Esd2D:     return gla::EMsd2D;
+    case glslang::Esd2D:     return type.getSampler().ms ? gla::EMsd2DMS : gla::EMsd2D;
     case glslang::Esd3D:     return gla::EMsd3D;
     case glslang::EsdCube:   return gla::EMsdCube;
     case glslang::EsdRect:   return gla::EMsdRect;

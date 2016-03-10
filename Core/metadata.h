@@ -317,6 +317,7 @@ enum EMdSamplerDim {
     EMsdCube,
     EMsdRect,
     EMsdBuffer,
+    EMsd2DMS,
     EMsdCount,
 };
 
