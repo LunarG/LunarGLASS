@@ -411,18 +411,18 @@ entry:
   %v8 = insertelement <4 x float> %14, float 1.000000e+00, i32 3, !gla.precision !85
   store <4 x float> %v8, <4 x float>* %v
   %15 = load i32 addrspace(1)* @samp2DMSA, !gla.uniform !62
-  %v9 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v3i32.i32.i32(i32 6, i32 %15, i32 690, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
+  %v9 = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v3i32.i32.i32(i32 6, i32 %15, i32 688, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
   %16 = load <4 x float>* %v
   %v10 = fmul <4 x float> %16, %v9, !gla.precision !85
   store <4 x float> %v10, <4 x float>* %v
   %17 = load i32 addrspace(1)* @samp2DMSAi, !gla.uniform !65
-  %v11 = call <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32 6, i32 %17, i32 690, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
+  %v11 = call <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32 6, i32 %17, i32 688, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
   %18 = sitofp <4 x i32> %v11 to <4 x float>, !gla.precision !85
   %19 = load <4 x float>* %v
   %v12 = fmul <4 x float> %19, %18, !gla.precision !85
   store <4 x float> %v12, <4 x float>* %v
   %20 = load i32 addrspace(1)* @samp2DMSAu, !gla.uniform !68
-  %v13 = call <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32 6, i32 %20, i32 690, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
+  %v13 = call <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32 6, i32 %20, i32 688, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
   %21 = uitofp <4 x i32> %v13 to <4 x float>, !gla.precision !85
   %22 = load <4 x float>* %v
   %v14 = fmul <4 x float> %22, %21, !gla.precision !85
@@ -882,12 +882,12 @@ entry:
   %iv6.i = add <3 x i32> %iv4.i, %iv5.i, !gla.precision !85
   %54 = sitofp <3 x i32> %iv6.i to <3 x float>, !gla.precision !85
   %55 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.v3f32.v3f32.v3f32.f32(<4 x float> undef, i32 15, <3 x float> %54, i32 0, <3 x float> %54, i32 1, <3 x float> %54, i32 2, float 1.000000e+00, i32 0)
-  %v9.i = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v3i32.i32.i32(i32 6, i32 %51, i32 690, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
+  %v9.i = call <4 x float> @llvm.gla.fTexelFetchOffset.v4f32.v3i32.i32.i32(i32 6, i32 %51, i32 688, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
   %v10.i = fmul <4 x float> %v9.i, %55, !gla.precision !85
-  %v11.i = call <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32 6, i32 %52, i32 690, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
+  %v11.i = call <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32 6, i32 %52, i32 688, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
   %56 = sitofp <4 x i32> %v11.i to <4 x float>, !gla.precision !85
   %v12.i8 = fmul <4 x float> %56, %v10.i, !gla.precision !85
-  %v13.i = call <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32 6, i32 %53, i32 690, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
+  %v13.i = call <4 x i32> @llvm.gla.texelFetchOffset.v4i32.v3i32.i32.i32(i32 6, i32 %53, i32 688, <3 x i32> <i32 5, i32 5, i32 5>, i32 2, float undef, i32 undef), !gla.precision !85
   %57 = uitofp <4 x i32> %v13.i to <4 x float>, !gla.precision !85
   %v14.i = fmul <4 x float> %57, %v12.i8, !gla.precision !85
   %58 = fadd <4 x float> %50, %v14.i, !gla.precision !85
