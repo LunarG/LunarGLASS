@@ -86,8 +86,9 @@ ISOLATEDTESTS=(flowControl.frag \
 function runParallelTests {
     printf "Running Parallel tests\n"
 
-    $RUNCMD -t test.frag test.vert deepRvalue.frag block.frag length.frag matrix2.frag matrixAgg.frag texture.frag texture.vert \
-               300BuiltIns.frag 300BuiltIns.vert uniformArray.frag newTexture.frag qualifiers.frag > localResults/parallel.out
+    $RUNCMD -a -t test.frag test.vert deepRvalue.frag block.frag length.frag matrix2.frag matrixAgg.frag texture.frag texture.vert \
+               300BuiltIns.frag 300BuiltIns.vert uniformArray.frag newTexture.frag qualifiers.frag > temp.stdout 2> temp.errout
+    cat temp.errout temp.stdout > localResults/parallel.out
     diff -b baseResults/parallel.out localResults || HASERROR=1
 
     #$RUNCMD --disable unroll -t doWhileLoop.frag forLoop.frag loops.frag whileLoop.frag > localResults/noUnroll.out
