@@ -136,324 +136,53 @@ attributes #2 = { nounwind readnone }
 !gla.outputs = !{!28, !30, !32, !34, !36, !38, !39, !40, !45, !47}
 !gla.noStaticUse = !{!18, !20, !22, !24, !38, !39, !40, !45, !26, !47}
 
-!0 = metadata !{i32 4}
-!1 = metadata !{metadata !"main", i32 15}
-!2 = metadata !{metadata !"gl_in", i32 17, [32 x %gl_PerVertex]* @gl_in_typeProxy, metadata !3, metadata !4}
-!3 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!4 = metadata !{metadata !"gl_PerVertex", metadata !5, metadata !"gl_Position", metadata !6, metadata !"gl_PointSize", metadata !8}
-!5 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!6 = metadata !{metadata !"", metadata !7}
-!7 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 9, i32 -1, i32 0, i32 -1}
-!8 = metadata !{metadata !"", metadata !9}
-!9 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 10, i32 -1, i32 0, i32 -1}
-!10 = metadata !{metadata !"gl_PatchVerticesIn", i32 1, i32* @gl_PatchVerticesIn_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 3, i32 1088, null, i32 0, i32 34, i32 -1, i32 0, i32 -1}
-!12 = metadata !{metadata !"gl_PrimitiveID", i32 1, i32* @gl_PrimitiveID_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 3, i32 1089, null, i32 0, i32 31, i32 -1, i32 0, i32 -1}
-!14 = metadata !{metadata !"gl_InvocationID", i32 1, i32* @gl_InvocationID_typeProxy, metadata !15}
-!15 = metadata !{i32 0, i32 3, i32 1090, null, i32 0, i32 30, i32 -1, i32 0, i32 -1}
-!16 = metadata !{metadata !"inv", i32 1, [32 x <3 x float>]* @inv_typeProxy, metadata !17}
-!17 = metadata !{i32 0, i32 3, i32 1106, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!18 = metadata !{metadata !"inb", i32 1, [32 x <2 x float>]* @inb_typeProxy, metadata !19}
-!19 = metadata !{i32 0, i32 3, i32 1140, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!20 = metadata !{metadata !"ind", i32 1, [32 x <2 x float>]* @ind_typeProxy, metadata !21}
-!21 = metadata !{i32 0, i32 3, i32 1172, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!22 = metadata !{metadata !"ivla", i32 1, [32 x <4 x float>]* @ivla_typeProxy, metadata !23}
-!23 = metadata !{i32 0, i32 3, i32 3, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!24 = metadata !{metadata !"ivlb", i32 1, [32 x <4 x float>]* @ivlb_typeProxy, metadata !25}
-!25 = metadata !{i32 0, i32 3, i32 4, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!26 = metadata !{metadata !"centr", i32 1, [32 x <3 x float>]* @centr_typeProxy, metadata !27}
-!27 = metadata !{i32 0, i32 3, i32 1209, null, i32 512, i32 0, i32 -1, i32 0, i32 -1}
-!28 = metadata !{metadata !"gl_out", i32 16, [4 x %gl_PerVertex.0]* @gl_out_typeProxy, metadata !29, metadata !4}
-!29 = metadata !{i32 0, i32 0, i32 1091, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!30 = metadata !{metadata !"gl_TessLevelOuter", i32 7, [4 x float]* @gl_TessLevelOuter_typeProxy, metadata !31}
-!31 = metadata !{i32 0, i32 3, i32 1099, null, i32 3, i32 35, i32 -1, i32 0, i32 -1}
-!32 = metadata !{metadata !"gl_TessLevelInner", i32 7, [2 x float]* @gl_TessLevelInner_typeProxy, metadata !33}
-!33 = metadata !{i32 0, i32 3, i32 1103, null, i32 3, i32 36, i32 -1, i32 0, i32 -1}
-!34 = metadata !{metadata !"patchOut", i32 7, <4 x float>* @patchOut_typeProxy, metadata !35}
-!35 = metadata !{i32 0, i32 3, i32 1105, null, i32 3, i32 0, i32 -1, i32 0, i32 -1}
-!36 = metadata !{metadata !"gl_BoundingBoxOES", i32 7, [2 x <4 x float>]* @gl_BoundingBoxOES_typeProxy, metadata !37}
-!37 = metadata !{i32 0, i32 3, i32 1138, null, i32 3, i32 50, i32 -1, i32 0, i32 -1}
-!38 = metadata !{metadata !"ovla", i32 7, [4 x <4 x float>]* @ovla_typeProxy, metadata !23}
-!39 = metadata !{metadata !"ovlb", i32 7, [4 x <4 x float>]* @ovlb_typeProxy, metadata !25}
-!40 = metadata !{metadata !"pinbi", i32 16, %pinbn* @pinbi_typeProxy, metadata !41, metadata !42}
-!41 = metadata !{i32 0, i32 0, i32 1204, null, i32 3, i32 0, i32 -1, i32 0, i32 -1}
-!42 = metadata !{metadata !"pinbn", metadata !5, metadata !"a", metadata !43}
-!43 = metadata !{metadata !"", metadata !44}
-!44 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!45 = metadata !{metadata !"myColor2", i32 7, [4 x <3 x float>]* @myColor2_typeProxy, metadata !46}
-!46 = metadata !{i32 0, i32 3, i32 1205, null, i32 512, i32 0, i32 -1, i32 0, i32 -1}
-!47 = metadata !{metadata !"okaySize", i32 7, [4 x float]* @okaySize_typeProxy, metadata !48}
-!48 = metadata !{i32 0, i32 3, i32 1241, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!49 = metadata !{i32 3}
-
-
-Bottom IR:
-; ModuleID = 'Glslang'
-
-%gl_PerVertex = type { <4 x float>, float }
-%gl_PerVertex.0 = type { <4 x float>, float }
-%pinbn = type { i32 }
-
-@gl_in = global [32 x %gl_PerVertex] zeroinitializer
-@gl_PatchVerticesIn = global i32 0
-@gl_PrimitiveID = global i32 0
-@gl_InvocationID = global i32 0
-@gl_out = global [4 x %gl_PerVertex.0] zeroinitializer
-@gl_TessLevelOuter = global [4 x float] zeroinitializer
-@gl_TessLevelInner = global [2 x float] zeroinitializer
-@patchOut = global <4 x float> zeroinitializer
-@inv = global [32 x <3 x float>] zeroinitializer
-@gl_BoundingBoxOES = global [2 x <4 x float>] zeroinitializer
-@inb = global [32 x <2 x float>] zeroinitializer
-@ind = global [32 x <2 x float>] zeroinitializer
-@ivla = global [32 x <4 x float>] zeroinitializer
-@ivlb = global [32 x <4 x float>] zeroinitializer
-@ovla = global [4 x <4 x float>] zeroinitializer
-@ovlb = global [4 x <4 x float>] zeroinitializer
-@pinbi = global %pinbn zeroinitializer
-@myColor2 = global [4 x <3 x float>] zeroinitializer
-@centr = global [32 x <3 x float>] zeroinitializer
-@okaySize = global [4 x float] zeroinitializer
-
-define fastcc void @main() {
-entry:
-  call void @llvm.gla.barrier()
-  %gla_constGEP = getelementptr [32 x %gl_PerVertex]* @gl_in, i32 0, i32 1, i32 0
-  %p1 = load <4 x float>* %gla_constGEP, align 16
-  %gla_constGEP5 = getelementptr [4 x %gl_PerVertex.0]* @gl_out, i32 0, i32 1, i32 0
-  store <4 x float> %p1, <4 x float>* %gla_constGEP5, align 16
-  %gla_constGEP6 = getelementptr [4 x float]* @gl_TessLevelOuter, i32 0, i32 3
-  store float 0x40099999A0000000, float* %gla_constGEP6, align 4
-  %gla_constGEP7 = getelementptr [2 x float]* @gl_TessLevelInner, i32 0, i32 1
-  store float 0x3FF4CCCCC0000000, float* %gla_constGEP7, align 4
-  %gla_constGEP8 = getelementptr [2 x <4 x float>]* @gl_BoundingBoxOES, i32 0, i32 0
-  store <4 x float> zeroinitializer, <4 x float>* %gla_constGEP8, align 16
-  %gla_constGEP9 = getelementptr [2 x <4 x float>]* @gl_BoundingBoxOES, i32 0, i32 1
-  store <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, <4 x float>* %gla_constGEP9, align 16
-  %gla_constGEP10 = getelementptr [32 x %gl_PerVertex]* @gl_in, i32 0, i32 1, i32 1
-  %0 = load float* %gla_constGEP10, align 16
-  %gla_constGEP11 = getelementptr [4 x %gl_PerVertex.0]* @gl_out, i32 0, i32 1, i32 1
-  store float %0, float* %gla_constGEP11, align 16
-  store <4 x float> <float 5.000000e-01, float 5.000000e-01, float 5.000000e-01, float 5.000000e-01>, <4 x float>* @patchOut, align 16
-  %gla_constGEP12 = getelementptr [32 x <3 x float>]* @inv, i32 0, i32 3
-  %pv31.i = load <3 x float>* %gla_constGEP12, align 16
-  %pv32.i = fmul <3 x float> %pv31.i, %pv31.i, !gla.precision !49
-  %pv33.i = call <3 x float> @llvm.gla.fFma.v3f32.v3f32.v3f32.v3f32(<3 x float> %pv32.i, <3 x float> %pv32.i, <3 x float> %pv32.i), !gla.precision !49
-  %1 = extractelement <3 x float> %pv33.i, i32 0, !gla.precision !49
-  %2 = extractelement <3 x float> %pv33.i, i32 1, !gla.precision !49
-  %3 = extractelement <3 x float> %pv33.i, i32 2, !gla.precision !49
-  %d5.i = call float @llvm.gla.fFma.f32.f32.f32.f32(float %1, float %2, float %3), !gla.precision !49
-  %4 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %d5.i, <4 x i32> zeroinitializer)
-  %patchOut = fmul <4 x float> %4, <float 5.000000e-01, float 5.000000e-01, float 5.000000e-01, float 5.000000e-01>, !gla.precision !49
-  store <4 x float> %patchOut, <4 x float>* @patchOut, align 16
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %entry
-  br label %stage-exit
-
-stage-exit:                                       ; preds = %stage-epilogue
-  ret void
-}
-
-; Function Attrs: nounwind
-declare void @llvm.gla.barrier() #0
-
-; Function Attrs: nounwind readnone
-declare <3 x float> @llvm.gla.fFma.v3f32.v3f32.v3f32.v3f32(<3 x float>, <3 x float>, <3 x float>) #1
-
-; Function Attrs: nounwind readnone
-declare float @llvm.gla.fFma.f32.f32.f32.f32(float, float, float) #1
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #1
-
-attributes #0 = { nounwind }
-attributes #1 = { nounwind readnone }
-
-!gla.numVertices = !{!0}
-!gla.entrypoint = !{!1}
-!gla.inputs = !{!2, !10, !12, !14, !16, !18, !20, !22, !24, !26}
-!gla.outputs = !{!28, !30, !32, !34, !36, !38, !39, !40, !45, !47}
-!gla.noStaticUse = !{!18, !20, !22, !24, !38, !39, !40, !45, !26, !47}
-
-!0 = metadata !{i32 4}
-!1 = metadata !{metadata !"main", i32 15}
-!2 = metadata !{metadata !"gl_in", i32 17, [32 x %gl_PerVertex]* @gl_in_typeProxy, metadata !3, metadata !4}
-!3 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!4 = metadata !{metadata !"gl_PerVertex", metadata !5, metadata !"gl_Position", metadata !6, metadata !"gl_PointSize", metadata !8}
-!5 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!6 = metadata !{metadata !"", metadata !7}
-!7 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 9, i32 -1, i32 0, i32 -1}
-!8 = metadata !{metadata !"", metadata !9}
-!9 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 10, i32 -1, i32 0, i32 -1}
-!10 = metadata !{metadata !"gl_PatchVerticesIn", i32 1, i32* @gl_PatchVerticesIn_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 3, i32 1088, null, i32 0, i32 34, i32 -1, i32 0, i32 -1}
-!12 = metadata !{metadata !"gl_PrimitiveID", i32 1, i32* @gl_PrimitiveID_typeProxy, metadata !13}
-!13 = metadata !{i32 0, i32 3, i32 1089, null, i32 0, i32 31, i32 -1, i32 0, i32 -1}
-!14 = metadata !{metadata !"gl_InvocationID", i32 1, i32* @gl_InvocationID_typeProxy, metadata !15}
-!15 = metadata !{i32 0, i32 3, i32 1090, null, i32 0, i32 30, i32 -1, i32 0, i32 -1}
-!16 = metadata !{metadata !"inv", i32 1, [32 x <3 x float>]* @inv_typeProxy, metadata !17}
-!17 = metadata !{i32 0, i32 3, i32 1106, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!18 = metadata !{metadata !"inb", i32 1, [32 x <2 x float>]* @inb_typeProxy, metadata !19}
-!19 = metadata !{i32 0, i32 3, i32 1140, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!20 = metadata !{metadata !"ind", i32 1, [32 x <2 x float>]* @ind_typeProxy, metadata !21}
-!21 = metadata !{i32 0, i32 3, i32 1172, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!22 = metadata !{metadata !"ivla", i32 1, [32 x <4 x float>]* @ivla_typeProxy, metadata !23}
-!23 = metadata !{i32 0, i32 3, i32 3, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!24 = metadata !{metadata !"ivlb", i32 1, [32 x <4 x float>]* @ivlb_typeProxy, metadata !25}
-!25 = metadata !{i32 0, i32 3, i32 4, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!26 = metadata !{metadata !"centr", i32 1, [32 x <3 x float>]* @centr_typeProxy, metadata !27}
-!27 = metadata !{i32 0, i32 3, i32 1209, null, i32 512, i32 0, i32 -1, i32 0, i32 -1}
-!28 = metadata !{metadata !"gl_out", i32 16, [4 x %gl_PerVertex.0]* @gl_out_typeProxy, metadata !29, metadata !4}
-!29 = metadata !{i32 0, i32 0, i32 1091, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!30 = metadata !{metadata !"gl_TessLevelOuter", i32 7, [4 x float]* @gl_TessLevelOuter_typeProxy, metadata !31}
-!31 = metadata !{i32 0, i32 3, i32 1099, null, i32 3, i32 35, i32 -1, i32 0, i32 -1}
-!32 = metadata !{metadata !"gl_TessLevelInner", i32 7, [2 x float]* @gl_TessLevelInner_typeProxy, metadata !33}
-!33 = metadata !{i32 0, i32 3, i32 1103, null, i32 3, i32 36, i32 -1, i32 0, i32 -1}
-!34 = metadata !{metadata !"patchOut", i32 7, <4 x float>* @patchOut_typeProxy, metadata !35}
-!35 = metadata !{i32 0, i32 3, i32 1105, null, i32 3, i32 0, i32 -1, i32 0, i32 -1}
-!36 = metadata !{metadata !"gl_BoundingBoxOES", i32 7, [2 x <4 x float>]* @gl_BoundingBoxOES_typeProxy, metadata !37}
-!37 = metadata !{i32 0, i32 3, i32 1138, null, i32 3, i32 50, i32 -1, i32 0, i32 -1}
-!38 = metadata !{metadata !"ovla", i32 7, [4 x <4 x float>]* @ovla_typeProxy, metadata !23}
-!39 = metadata !{metadata !"ovlb", i32 7, [4 x <4 x float>]* @ovlb_typeProxy, metadata !25}
-!40 = metadata !{metadata !"pinbi", i32 16, %pinbn* @pinbi_typeProxy, metadata !41, metadata !42}
-!41 = metadata !{i32 0, i32 0, i32 1204, null, i32 3, i32 0, i32 -1, i32 0, i32 -1}
-!42 = metadata !{metadata !"pinbn", metadata !5, metadata !"a", metadata !43}
-!43 = metadata !{metadata !"", metadata !44}
-!44 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!45 = metadata !{metadata !"myColor2", i32 7, [4 x <3 x float>]* @myColor2_typeProxy, metadata !46}
-!46 = metadata !{i32 0, i32 3, i32 1205, null, i32 512, i32 0, i32 -1, i32 0, i32 -1}
-!47 = metadata !{metadata !"okaySize", i32 7, [4 x float]* @okaySize_typeProxy, metadata !48}
-!48 = metadata !{i32 0, i32 3, i32 1241, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!49 = metadata !{i32 3}
-#version 310 es
-// LunarGOO output
-#extension GL_ANDROID_extension_pack_es31a : enable
-#extension GL_ARB_separate_shader_objects : enable
-#extension GL_EXT_geometry_shader : enable
-#extension GL_EXT_gpu_shader5 : enable
-#extension GL_EXT_primitive_bounding_box : enable
-#extension GL_EXT_shader_io_blocks : enable
-#extension GL_EXT_tessellation_shader : enable
-#extension GL_EXT_texture_buffer : enable
-#extension GL_EXT_texture_cube_map_array : enable
-#extension GL_KHR_blend_equation_advanced : enable
-#extension GL_OES_sample_variables : enable
-#extension GL_OES_shader_image_atomic : enable
-#extension GL_OES_shader_multisample_interpolation : enable
-#extension GL_OES_tessellation_point_size : enable
-#extension GL_OES_texture_storage_multisample_2d_array : enable
-layout(vertices = 4) out;
-in gl_PerVertex {
-	highp vec4 gl_Position;
-	highp float gl_PointSize;
-} gl_in[32];
-in highp vec3 inv[32];
-in highp vec2 inb[32];
-in highp vec2 ind[32];
-layout(location=3) in highp vec4 ivla[32];
-layout(location=4) in highp vec4 ivlb[32];
-in highp vec3 centr[32];
-out gl_PerVertex {
-	highp vec4 gl_Position;
-	highp float gl_PointSize;
-} gl_out[4];
-patch out highp vec4 patchOut;
-layout(location=3) out highp vec4 ovla[4];
-layout(location=4) out highp vec4 ovlb[4];
-patch out pinbn {
-	highp int a;
-} pinbi;
-out highp vec3 myColor2[4];
-out highp float okaySize[4];
-const float C_3d2 = 3.2;
-const float C_1d3 = 1.3;
-const vec4 C_vec4p0d0p = vec4(0.0);
-const vec4 C_vec4p1d0p = vec4(1.0);
-const vec4 C_vec4p0d5p = vec4(0.5);
-
-void main()
-{
-	barrier();
-	gl_out[1].gl_Position = gl_in[1].gl_Position;
-	gl_TessLevelOuter[3] = C_3d2;
-	gl_TessLevelInner[1] = C_1d3;
-	gl_BoundingBoxOES[0] = C_vec4p0d0p;
-	gl_BoundingBoxOES[1] = C_vec4p1d0p;
-	gl_out[1].gl_PointSize = gl_in[1].gl_PointSize;
-	patchOut = C_vec4p0d5p;
-	highp vec3 pv = inv[3] * inv[3];
-	highp vec3 pv1 = fma(pv, pv, pv);
-	highp float H_0ow2u2 = fma(pv1.x, pv1.y, pv1.z);
-	vec4 H_iquwvs = vec4(H_0ow2u2);
-	highp vec4 patchOut1 = C_vec4p0d5p * H_iquwvs;
-	patchOut = patchOut1;
-	
-}
-
-#version 310 es
-// LunarGOO output
-#extension GL_ANDROID_extension_pack_es31a : enable
-#extension GL_ARB_separate_shader_objects : enable
-#extension GL_EXT_geometry_shader : enable
-#extension GL_EXT_gpu_shader5 : enable
-#extension GL_EXT_primitive_bounding_box : enable
-#extension GL_EXT_shader_io_blocks : enable
-#extension GL_EXT_tessellation_shader : enable
-#extension GL_EXT_texture_buffer : enable
-#extension GL_EXT_texture_cube_map_array : enable
-#extension GL_KHR_blend_equation_advanced : enable
-#extension GL_OES_sample_variables : enable
-#extension GL_OES_shader_image_atomic : enable
-#extension GL_OES_shader_multisample_interpolation : enable
-#extension GL_OES_tessellation_point_size : enable
-#extension GL_OES_texture_storage_multisample_2d_array : enable
-layout(vertices = 4) out;
-in gl_PerVertex {
-	highp vec4 gl_Position;
-	highp float gl_PointSize;
-} gl_in[32];
-in highp vec3 inv[32];
-in highp vec2 inb[32];
-in highp vec2 ind[32];
-layout(location=3) in highp vec4 ivla[32];
-layout(location=4) in highp vec4 ivlb[32];
-in highp vec3 centr[32];
-out gl_PerVertex {
-	highp vec4 gl_Position;
-	highp float gl_PointSize;
-} gl_out[4];
-patch out highp vec4 patchOut;
-layout(location=3) out highp vec4 ovla[4];
-layout(location=4) out highp vec4 ovlb[4];
-patch out pinbn {
-	highp int a;
-} pinbi;
-out highp vec3 myColor2[4];
-out highp float okaySize[4];
-const float C_3d2 = 3.2;
-const float C_1d3 = 1.3;
-const vec4 C_vec4p0d0p = vec4(0.0);
-const vec4 C_vec4p1d0p = vec4(1.0);
-const vec4 C_vec4p0d5p = vec4(0.5);
-
-void main()
-{
-	barrier();
-	gl_out[1].gl_Position = gl_in[1].gl_Position;
-	gl_TessLevelOuter[3] = C_3d2;
-	gl_TessLevelInner[1] = C_1d3;
-	gl_BoundingBoxOES[0] = C_vec4p0d0p;
-	gl_BoundingBoxOES[1] = C_vec4p1d0p;
-	gl_out[1].gl_PointSize = gl_in[1].gl_PointSize;
-	patchOut = C_vec4p0d5p;
-	highp vec3 pv = inv[3] * inv[3];
-	highp vec3 pv1 = fma(pv, pv, pv);
-	highp float H_0ow2u = fma(pv1.x, pv1.y, pv1.z);
-	vec4 H_elkc6c1 = vec4(H_0ow2u);
-	highp vec4 patchOut1 = C_vec4p0d5p * H_elkc6c1;
-	patchOut = patchOut1;
-	
-}
-
+!0 = !{i32 4}
+!1 = !{!"main", i32 15}
+!2 = !{!"gl_in", i32 17, [32 x %gl_PerVertex]* @gl_in_typeProxy, !3, !4}
+!3 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!4 = !{!"gl_PerVertex", !5, !"gl_Position", !6, !"gl_PointSize", !8}
+!5 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!6 = !{!"", !7}
+!7 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 9, i32 -1, i32 0, i32 -1}
+!8 = !{!"", !9}
+!9 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 10, i32 -1, i32 0, i32 -1}
+!10 = !{!"gl_PatchVerticesIn", i32 1, i32* @gl_PatchVerticesIn_typeProxy, !11}
+!11 = !{i32 0, i32 3, i32 1088, null, i32 0, i32 34, i32 -1, i32 0, i32 -1}
+!12 = !{!"gl_PrimitiveID", i32 1, i32* @gl_PrimitiveID_typeProxy, !13}
+!13 = !{i32 0, i32 3, i32 1089, null, i32 0, i32 31, i32 -1, i32 0, i32 -1}
+!14 = !{!"gl_InvocationID", i32 1, i32* @gl_InvocationID_typeProxy, !15}
+!15 = !{i32 0, i32 3, i32 1090, null, i32 0, i32 30, i32 -1, i32 0, i32 -1}
+!16 = !{!"inv", i32 1, [32 x <3 x float>]* @inv_typeProxy, !17}
+!17 = !{i32 0, i32 3, i32 1106, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!18 = !{!"inb", i32 1, [32 x <2 x float>]* @inb_typeProxy, !19}
+!19 = !{i32 0, i32 3, i32 1140, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!20 = !{!"ind", i32 1, [32 x <2 x float>]* @ind_typeProxy, !21}
+!21 = !{i32 0, i32 3, i32 1172, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!22 = !{!"ivla", i32 1, [32 x <4 x float>]* @ivla_typeProxy, !23}
+!23 = !{i32 0, i32 3, i32 3, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!24 = !{!"ivlb", i32 1, [32 x <4 x float>]* @ivlb_typeProxy, !25}
+!25 = !{i32 0, i32 3, i32 4, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!26 = !{!"centr", i32 1, [32 x <3 x float>]* @centr_typeProxy, !27}
+!27 = !{i32 0, i32 3, i32 1209, null, i32 512, i32 0, i32 -1, i32 0, i32 -1}
+!28 = !{!"gl_out", i32 16, [4 x %gl_PerVertex.0]* @gl_out_typeProxy, !29, !4}
+!29 = !{i32 0, i32 0, i32 1091, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!30 = !{!"gl_TessLevelOuter", i32 7, [4 x float]* @gl_TessLevelOuter_typeProxy, !31}
+!31 = !{i32 0, i32 3, i32 1099, null, i32 3, i32 35, i32 -1, i32 0, i32 -1}
+!32 = !{!"gl_TessLevelInner", i32 7, [2 x float]* @gl_TessLevelInner_typeProxy, !33}
+!33 = !{i32 0, i32 3, i32 1103, null, i32 3, i32 36, i32 -1, i32 0, i32 -1}
+!34 = !{!"patchOut", i32 7, <4 x float>* @patchOut_typeProxy, !35}
+!35 = !{i32 0, i32 3, i32 1105, null, i32 3, i32 0, i32 -1, i32 0, i32 -1}
+!36 = !{!"gl_BoundingBoxOES", i32 7, [2 x <4 x float>]* @gl_BoundingBoxOES_typeProxy, !37}
+!37 = !{i32 0, i32 3, i32 1138, null, i32 3, i32 50, i32 -1, i32 0, i32 -1}
+!38 = !{!"ovla", i32 7, [4 x <4 x float>]* @ovla_typeProxy, !23}
+!39 = !{!"ovlb", i32 7, [4 x <4 x float>]* @ovlb_typeProxy, !25}
+!40 = !{!"pinbi", i32 16, %pinbn* @pinbi_typeProxy, !41, !42}
+!41 = !{i32 0, i32 0, i32 1204, null, i32 3, i32 0, i32 -1, i32 0, i32 -1}
+!42 = !{!"pinbn", !5, !"a", !43}
+!43 = !{!"", !44}
+!44 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!45 = !{!"myColor2", i32 7, [4 x <3 x float>]* @myColor2_typeProxy, !46}
+!46 = !{i32 0, i32 3, i32 1205, null, i32 512, i32 0, i32 -1, i32 0, i32 -1}
+!47 = !{!"okaySize", i32 7, [4 x float]* @okaySize_typeProxy, !48}
+!48 = !{i32 0, i32 3, i32 1241, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!49 = !{i32 3}

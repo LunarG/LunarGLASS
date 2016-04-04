@@ -77,107 +77,11 @@ attributes #0 = { alwaysinline }
 !gla.uniforms = !{!1, !3}
 !gla.outputs = !{!4}
 
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"low", i32 12, i32* @low_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"high", i32 12, i32* @high_typeProxy, metadata !2}
-!4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-!6 = metadata !{i32 2}
-!7 = metadata !{i32 1}
-
-
-Bottom IR:
-; ModuleID = 'Glslang'
-
-@low = external addrspace(2) constant i32
-@high = external addrspace(2) constant i32
-@gl_FragColor = global <4 x float> zeroinitializer
-
-define fastcc void @main() {
-entry:
-  %0 = load i32 addrspace(2)* @low, align 4, !gla.uniform !1
-  %1 = shl i32 %0, 1
-  %2 = or i32 %1, 1
-  %3 = load i32 addrspace(2)* @high, align 4, !gla.uniform !3
-  %4 = icmp slt i32 %2, %3
-  %z.0 = select i1 %4, float 4.000000e+00, float 3.000000e+00
-  %5 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %z.0, <4 x i32> zeroinitializer)
-  %6 = fmul <4 x float> %5, <float 1.100000e+01, float 1.100000e+01, float 1.100000e+01, float 1.100000e+01>, !gla.precision !6
-  %gl_FragColor2 = fadd <4 x float> %6, <float -2.000000e+00, float -2.000000e+00, float -2.000000e+00, float -2.000000e+00>, !gla.precision !6
-  store <4 x float> %gl_FragColor2, <4 x float>* @gl_FragColor, align 16
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %entry
-  br label %stage-exit
-
-stage-exit:                                       ; preds = %stage-epilogue
-  ret void
-}
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
-
-attributes #0 = { nounwind readnone }
-
-!gla.entrypoint = !{!0}
-!gla.uniforms = !{!1, !3}
-!gla.outputs = !{!4}
-
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"low", i32 12, i32* @low_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"high", i32 12, i32* @high_typeProxy, metadata !2}
-!4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 2, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-!6 = metadata !{i32 1}
-
-***Unsupported functionality: bit-wise OR in version 100
-#version 100
-// LunarGOO output
-precision mediump float; // this will be almost entirely overridden by individual declarations
-uniform mediump int low;
-uniform mediump int high;
-const int C_1 = 1;
-const float C_4d0 = 4.0;
-const float C_3d0 = 3.0;
-const vec4 C_vec4p11d0p = vec4(11.0);
-const vec4 C_vec4pa2d0p = vec4(-2.0);
-
-void main()
-{
-	int H_9o89th = low * 2;
-	int H_z3nldb1 = H_9o89th + C_1;
-	bool H_idtad2 = H_z3nldb1 < high;
-	float z = H_idtad2 ? C_4d0 : C_3d0;
-	vec4 H_cnyhf51 = vec4(z);
-	lowp vec4 H_w12xj81 = H_cnyhf51 * C_vec4p11d0p;
-	lowp vec4 Ll_FragColor1 = H_w12xj81 + C_vec4pa2d0p;
-	gl_FragColor = Ll_FragColor1;
-	
-}
-
-#version 100
-// LunarGOO output
-precision mediump float; // this will be almost entirely overridden by individual declarations
-uniform mediump int low;
-uniform mediump int high;
-const int C_1 = 1;
-const float C_4d0 = 4.0;
-const float C_3d0 = 3.0;
-const vec4 C_vec4p11d0p = vec4(11.0);
-const vec4 C_vec4pa2d0p = vec4(-2.0);
-
-void main()
-{
-	int H_9o89th = low * 2;
-	int H_z3nldb = H_9o89th + C_1;
-	bool H_idtad = H_z3nldb < high;
-	float H_k3s2lo = H_idtad ? C_4d0 : C_3d0;
-	vec4 H_t4wtx4 = vec4(H_k3s2lo);
-	mediump vec4 H_w12xj = H_t4wtx4 * C_vec4p11d0p;
-	mediump vec4 Ll_FragColor = H_w12xj + C_vec4pa2d0p;
-	gl_FragColor = Ll_FragColor;
-	
-}
-
+!0 = !{!"main", i32 15}
+!1 = !{!"low", i32 12, i32* @low_typeProxy, !2}
+!2 = !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"high", i32 12, i32* @high_typeProxy, !2}
+!4 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !5}
+!5 = !{i32 0, i32 2, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+!6 = !{i32 2}
+!7 = !{i32 1}

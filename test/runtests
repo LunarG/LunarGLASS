@@ -88,7 +88,7 @@ function runParallelTests {
 
     $RUNCMD -t test.frag test.vert deepRvalue.frag block.frag length.frag matrix2.frag matrixAgg.frag texture.frag texture.vert \
                300BuiltIns.frag 300BuiltIns.vert uniformArray.frag newTexture.frag qualifiers.frag > localResults/parallel.out
-    #diff -b baseResults/parallel.out localResults || HASERROR=1
+    diff -b baseResults/parallel.out localResults || HASERROR=1
 
     #$RUNCMD --disable unroll -t doWhileLoop.frag forLoop.frag loops.frag whileLoop.frag > localResults/noUnroll.out
     #diff -b baseResults/noUnroll.out localResults || HASERROR=1
@@ -111,7 +111,7 @@ function runIsolatedTests {
         tr -d '\r' < localResults/$t.out.tmp > localResults/$t.out
         rm localResults/$t.out.tmp
         #rm tempglsl.$EXTENSION
-        diff -b baseResultsLLVM3.6/$t.out localResults || HASERROR=1
+        diff -b baseResults/$t.out localResults || HASERROR=1
 
     done
     rm temp.stdout* temp.errout

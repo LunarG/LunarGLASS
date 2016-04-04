@@ -69,87 +69,11 @@ attributes #0 = { alwaysinline }
 !gla.inputs = !{!6}
 !gla.noStaticUse = !{!6, !3}
 
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !2}
-!4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-!6 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-
-
-Bottom IR:
-; ModuleID = 'Glslang'
-
-@bigColor = external addrspace(2) constant <4 x float>
-@gl_FragColor = global <4 x float> zeroinitializer
-@BaseColor = global <4 x float> zeroinitializer
-
-define fastcc void @main() {
-entry:
-  %outColor1 = load <4 x float> addrspace(2)* @bigColor, align 16, !gla.uniform !1
-  %0 = extractelement <4 x float> %outColor1, i32 0
-  %1 = fadd float %0, 4.000000e+00
-  %2 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> %outColor1, i32 1, float %1, i32 0, float undef, i32 undef, float undef, i32 undef, float undef, i32 undef)
-  store <4 x float> %2, <4 x float>* @gl_FragColor, align 16
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %entry
-  br label %stage-exit
-
-stage-exit:                                       ; preds = %stage-epilogue
-  ret void
-}
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
-
-attributes #0 = { nounwind readnone }
-
-!gla.entrypoint = !{!0}
-!gla.uniforms = !{!1, !3}
-!gla.outputs = !{!4}
-!gla.inputs = !{!6}
-!gla.noStaticUse = !{!6, !3}
-
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !2}
-!4 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !5}
-!5 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-!6 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !7}
-!7 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-#version 120
-// LunarGOO output
-uniform vec4 bigColor;
-uniform float d;
-varying vec4 BaseColor;
-const float C_4d0 = 4.0;
-
-void main()
-{
-	float H_twr4as1 = bigColor.x + C_4d0;
-	vec4 H_wr7oya = bigColor;
-	H_wr7oya.x = H_twr4as1;
-	gl_FragColor = H_wr7oya;
-	
-}
-
-#version 120
-// LunarGOO output
-uniform vec4 bigColor;
-uniform float d;
-varying vec4 BaseColor;
-const float C_4d0 = 4.0;
-
-void main()
-{
-	float H_twr4as = bigColor.x + C_4d0;
-	vec4 H_wr7oya = bigColor;
-	H_wr7oya.x = H_twr4as;
-	gl_FragColor = H_wr7oya;
-	
-}
-
+!0 = !{!"main", i32 15}
+!1 = !{!"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, !2}
+!2 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"d", i32 12, float* @d_typeProxy, !2}
+!4 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !5}
+!5 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+!6 = !{!"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, !7}
+!7 = !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}

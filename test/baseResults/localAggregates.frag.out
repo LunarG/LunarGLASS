@@ -166,214 +166,24 @@ attributes #0 = { nounwind readnone }
 !gla.outputs = !{!19}
 !gla.noStaticUse = !{!12, !13, !14}
 
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"foo3", i32 12, %s3* @foo3_typeProxy, metadata !2, metadata !3}
-!2 = metadata !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"s3", metadata !2, metadata !"s2_1", metadata !4, metadata !"i", metadata !5, metadata !"f", metadata !5, metadata !"s1_1", metadata !7}
-!4 = metadata !{metadata !"s2", metadata !2, metadata !"i", metadata !5, metadata !"f", metadata !5, metadata !"s1_1", metadata !7, metadata !"bleh", metadata !5}
-!5 = metadata !{metadata !"", metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"s1", metadata !2, metadata !"i", metadata !5, metadata !"f", metadata !5}
-!8 = metadata !{metadata !"condition", i32 12, i32* @condition_typeProxy, metadata !6}
-!9 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !10}
-!10 = metadata !{i32 5, i32 0, i32 1024, metadata !11, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!11 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!12 = metadata !{metadata !"foo", i32 12, %s1* @foo_typeProxy, metadata !2, metadata !7}
-!13 = metadata !{metadata !"foo2", i32 12, %s2* @foo2_typeProxy, metadata !2, metadata !4}
-!14 = metadata !{metadata !"uFloatArray", i32 12, [16 x float]* @uFloatArray_typeProxy, metadata !6}
-!15 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!17 = metadata !{metadata !"color", i32 1, <4 x float>* @color_typeProxy, metadata !18}
-!18 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!19 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !20}
-!20 = metadata !{i32 0, i32 0, i32 1026, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-
-
-Bottom IR:
-; ModuleID = 'Glslang'
-
-%s3 = type { %s2, i32, float, %s1 }
-%s2 = type { i32, float, %s1, <4 x float> }
-%s1 = type { i32, float }
-
-@foo3 = external addrspace(2) constant %s3
-@coord = global <2 x float> zeroinitializer
-@condition = external addrspace(2) constant i32
-@color = global <4 x float> zeroinitializer
-@gl_FragColor = global <4 x float> zeroinitializer
-@sampler = external addrspace(1) constant i32
-
-define fastcc void @main() {
-entry:
-  %0 = load <2 x float>* @coord, align 8
-  %gla_constGEP = getelementptr %s3 addrspace(2)* @foo3, i32 0, i32 0, i32 0
-  %1 = load i32 addrspace(2)* %gla_constGEP, align 16, !gla.uniform !1
-  %2 = extractelement <2 x float> %0, i32 0
-  %3 = icmp sgt i32 %1, 0
-  %select = select i1 %3, float 1.000000e+00, float %2
-  %4 = load i32 addrspace(2)* @condition, align 4, !gla.uniform !8
-  %5 = icmp eq i32 %4, 1
-  %select95 = select i1 %5, float %2, float 0.000000e+00
-  %6 = load <4 x float>* @color, align 16
-  %7 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float> %6, i32 4, float undef, i32 undef, float undef, i32 undef, <2 x float> %0, i32 1, float undef, i32 undef)
-  %8 = select i1 %3, float %2, float 2.000000e+00
-  %9 = fadd float %select, %8
-  %10 = fadd float %2, %9
-  %11 = fadd float %10, %select95
-  %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %11, <4 x i32> zeroinitializer)
-  %13 = fmul <4 x float> %7, %12
-  %14 = load i32 addrspace(1)* @sampler, align 4, !gla.uniform !9
-  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %14, i32 0, <2 x float> %0)
-  %gl_FragColor10 = fmul <4 x float> %gl_FragColor, %13
-  store <4 x float> %gl_FragColor10, <4 x float>* @gl_FragColor, align 16
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %entry
-  br label %stage-exit
-
-stage-exit:                                       ; preds = %stage-epilogue
-  ret void
-}
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.v2f32.f32(<4 x float>, i32, float, i32, float, i32, <2 x float>, i32, float, i32) #0
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
-
-attributes #0 = { nounwind readnone }
-
-!gla.entrypoint = !{!0}
-!gla.uniforms = !{!1, !8, !9, !12, !13, !14}
-!gla.inputs = !{!15, !17}
-!gla.outputs = !{!19}
-!gla.noStaticUse = !{!12, !13, !14}
-
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"foo3", i32 12, %s3* @foo3_typeProxy, metadata !2, metadata !3}
-!2 = metadata !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"s3", metadata !2, metadata !"s2_1", metadata !4, metadata !"i", metadata !5, metadata !"f", metadata !5, metadata !"s1_1", metadata !7}
-!4 = metadata !{metadata !"s2", metadata !2, metadata !"i", metadata !5, metadata !"f", metadata !5, metadata !"s1_1", metadata !7, metadata !"bleh", metadata !5}
-!5 = metadata !{metadata !"", metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"s1", metadata !2, metadata !"i", metadata !5, metadata !"f", metadata !5}
-!8 = metadata !{metadata !"condition", i32 12, i32* @condition_typeProxy, metadata !6}
-!9 = metadata !{metadata !"sampler", i32 12, i32* @sampler_typeProxy, metadata !10}
-!10 = metadata !{i32 5, i32 0, i32 1024, metadata !11, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!11 = metadata !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!12 = metadata !{metadata !"foo", i32 12, %s1* @foo_typeProxy, metadata !2, metadata !7}
-!13 = metadata !{metadata !"foo2", i32 12, %s2* @foo2_typeProxy, metadata !2, metadata !4}
-!14 = metadata !{metadata !"uFloatArray", i32 12, [16 x float]* @uFloatArray_typeProxy, metadata !6}
-!15 = metadata !{metadata !"coord", i32 1, <2 x float>* @coord_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!17 = metadata !{metadata !"color", i32 1, <4 x float>* @color_typeProxy, metadata !18}
-!18 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!19 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !20}
-!20 = metadata !{i32 0, i32 0, i32 1026, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-#version 130
-// LunarGOO output
-struct s1 {
-	int i;
-	float f;
-};
-struct s2 {
-	int i;
-	float f;
-	s1 s1_1;
-	vec4 bleh;
-};
-struct s3 {
-	s2 s2_1;
-	int i;
-	float f;
-	s1 s1_1;
-};
-uniform s3 foo3;
-uniform int condition;
-uniform sampler2D sampler;
-uniform s1 foo;
-uniform s2 foo2;
-uniform float uFloatArray[16];
-in vec2 coord;
-in vec4 color;
-const int C_0 = 0;
-const float C_1d0 = 1.0;
-const int C_1 = 1;
-const float C_0d0 = 0.0;
-const float C_2d0 = 2.0;
-
-void main()
-{
-	bool H_27n3qy = foo3.s2_1.i > C_0;
-	float select = H_27n3qy ? C_1d0 : coord.x;
-	bool H_x8pmhw1 = condition == C_1;
-	float select1 = H_x8pmhw1 ? coord.x : C_0d0;
-	vec4 H_sbr82h = color;
-	H_sbr82h.z = coord.y;
-	float H_a018tj = H_27n3qy ? coord.x : C_2d0;
-	float H_1d7f21 = H_a018tj + select;
-	float H_fxgpqr = H_1d7f21 + coord.x;
-	float H_4jiaxm = H_fxgpqr + select1;
-	vec4 H_y9ers71 = vec4(H_4jiaxm);
-	vec4 H_mjsqr3 = H_sbr82h * H_y9ers71;
-	vec4 Ll_FragColor1 = texture(sampler, coord);
-	vec4 Ll_FragColor2 = H_mjsqr3 * Ll_FragColor1;
-	gl_FragColor = Ll_FragColor2;
-	
-}
-
-#version 130
-// LunarGOO output
-struct s1 {
-	int i;
-	float f;
-};
-struct s2 {
-	int i;
-	float f;
-	s1 s1_1;
-	vec4 bleh;
-};
-struct s3 {
-	s2 s2_1;
-	int i;
-	float f;
-	s1 s1_1;
-};
-uniform s3 foo3;
-uniform int condition;
-uniform sampler2D sampler;
-uniform s1 foo;
-uniform s2 foo2;
-uniform float uFloatArray[16];
-in vec2 coord;
-in vec4 color;
-const int C_0 = 0;
-const float C_1d0 = 1.0;
-const int C_1 = 1;
-const float C_0d0 = 0.0;
-const float C_2d0 = 2.0;
-
-void main()
-{
-	bool H_27n3qy = foo3.s2_1.i > C_0;
-	float select = H_27n3qy ? C_1d0 : coord.x;
-	bool H_x8pmhw = condition == C_1;
-	float select1 = H_x8pmhw ? coord.x : C_0d0;
-	vec4 H_sbr82h = color;
-	H_sbr82h.z = coord.y;
-	float select2 = H_27n3qy ? coord.x : C_2d0;
-	float H_1d7f = select + select2;
-	float H_fxgpqr = H_1d7f + coord.x;
-	float H_4jiaxm = H_fxgpqr + select1;
-	vec4 H_y9ers71 = vec4(H_4jiaxm);
-	vec4 H_mjsqr = H_sbr82h * H_y9ers71;
-	vec4 Ll_FragColor = texture(sampler, coord);
-	vec4 Ll_FragColor1 = H_mjsqr * Ll_FragColor;
-	gl_FragColor = Ll_FragColor1;
-	
-}
-
+!0 = !{!"main", i32 15}
+!1 = !{!"foo3", i32 12, %s3* @foo3_typeProxy, !2, !3}
+!2 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"s3", !2, !"s2_1", !4, !"i", !5, !"f", !5, !"s1_1", !7}
+!4 = !{!"s2", !2, !"i", !5, !"f", !5, !"s1_1", !7, !"bleh", !5}
+!5 = !{!"", !6}
+!6 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"s1", !2, !"i", !5, !"f", !5}
+!8 = !{!"condition", i32 12, i32* @condition_typeProxy, !6}
+!9 = !{!"sampler", i32 12, i32* @sampler_typeProxy, !10}
+!10 = !{i32 5, i32 0, i32 1024, !11, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!11 = !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!12 = !{!"foo", i32 12, %s1* @foo_typeProxy, !2, !7}
+!13 = !{!"foo2", i32 12, %s2* @foo2_typeProxy, !2, !4}
+!14 = !{!"uFloatArray", i32 12, [16 x float]* @uFloatArray_typeProxy, !6}
+!15 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !16}
+!16 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!17 = !{!"color", i32 1, <4 x float>* @color_typeProxy, !18}
+!18 = !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!19 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !20}
+!20 = !{i32 0, i32 0, i32 1026, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
