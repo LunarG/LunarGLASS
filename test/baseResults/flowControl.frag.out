@@ -59,105 +59,15 @@ stage-exit:                                       ; preds = %stage-epilogue
 !gla.uniforms = !{!5, !7, !8, !9}
 !gla.outputs = !{!10}
 
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"c", i32 1, float* @c_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"otherColor", i32 12, <4 x float>* @otherColor_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !6}
-!8 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !6}
-!9 = metadata !{metadata !"smallColor", i32 12, <4 x float>* @smallColor_typeProxy, metadata !6}
-!10 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1026, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-
-
-Bottom IR:
-; ModuleID = 'Glslang'
-
-@BaseColor = global <4 x float> zeroinitializer
-@otherColor = external addrspace(2) constant <4 x float>
-@c = global float 0.000000e+00
-@d = external addrspace(2) constant float
-@bigColor = external addrspace(2) constant <4 x float>
-@smallColor = external addrspace(2) constant <4 x float>
-@gl_FragColor = global <4 x float> zeroinitializer
-
-define fastcc void @main() {
-entry:
-  %color1 = load <4 x float>* @BaseColor, align 16
-  %color22 = load <4 x float> addrspace(2)* @otherColor, align 16, !gla.uniform !5
-  %0 = load float* @c, align 4
-  %1 = load float addrspace(2)* @d, align 4, !gla.uniform !7
-  %2 = fcmp ogt float %0, %1
-  %bigColor.val = load <4 x float> addrspace(2)* @bigColor, align 16
-  %smallColor.val = load <4 x float> addrspace(2)* @smallColor, align 16
-  %.pn = select i1 %2, <4 x float> %bigColor.val, <4 x float> %smallColor.val
-  %color.0 = fadd <4 x float> %color1, %.pn
-  %gl_FragColor = fmul <4 x float> %color22, %color.0
-  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor, align 16
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %entry
-  br label %stage-exit
-
-stage-exit:                                       ; preds = %stage-epilogue
-  ret void
-}
-
-!gla.entrypoint = !{!0}
-!gla.inputs = !{!1, !3}
-!gla.uniforms = !{!5, !7, !8, !9}
-!gla.outputs = !{!10}
-
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"c", i32 1, float* @c_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"otherColor", i32 12, <4 x float>* @otherColor_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !6}
-!8 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !6}
-!9 = metadata !{metadata !"smallColor", i32 12, <4 x float>* @smallColor_typeProxy, metadata !6}
-!10 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !11}
-!11 = metadata !{i32 0, i32 0, i32 1026, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-#version 120
-// LunarGOO output
-uniform vec4 otherColor;
-uniform float d;
-uniform vec4 bigColor;
-uniform vec4 smallColor;
-varying vec4 BaseColor;
-varying float c;
-
-void main()
-{
-	bool H_wll4g81 = c > d;
-	vec4 _L = H_wll4g81 ? bigColor : smallColor;
-	vec4 color = BaseColor + _L;
-	vec4 Ll_FragColor1 = color * otherColor;
-	gl_FragColor = Ll_FragColor1;
-	
-}
-
-#version 120
-// LunarGOO output
-uniform float d;
-uniform vec4 bigColor;
-uniform vec4 smallColor;
-uniform vec4 otherColor;
-varying float c;
-varying vec4 BaseColor;
-
-void main()
-{
-	bool H_wll4g = c > d;
-	vec4 _L = H_wll4g ? bigColor : smallColor;
-	vec4 color = BaseColor + _L;
-	vec4 Ll_FragColor = color * otherColor;
-	gl_FragColor = Ll_FragColor;
-	
-}
-
+!0 = !{!"main", i32 15}
+!1 = !{!"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, !2}
+!2 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"c", i32 1, float* @c_typeProxy, !4}
+!4 = !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!5 = !{!"otherColor", i32 12, <4 x float>* @otherColor_typeProxy, !6}
+!6 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"d", i32 12, float* @d_typeProxy, !6}
+!8 = !{!"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, !6}
+!9 = !{!"smallColor", i32 12, <4 x float>* @smallColor_typeProxy, !6}
+!10 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !11}
+!11 = !{i32 0, i32 0, i32 1026, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}

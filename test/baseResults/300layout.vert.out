@@ -187,398 +187,44 @@ attributes #0 = { nounwind readnone }
 !gla.uniforms = !{!23, !30, !35, !39}
 !gla.noStaticUse = !{!19, !21}
 
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"pos", i32 7, <4 x float>* @pos_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 3, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"color", i32 7, <3 x float>* @color_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 3, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"iout", i32 7, i32* @iout_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 3, i32 1026, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"s", i32 7, %S* @s_typeProxy, metadata !8, metadata !9}
-!8 = metadata !{i32 4, i32 0, i32 1027, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!9 = metadata !{metadata !"S", metadata !10, metadata !"c", metadata !11, metadata !"f", metadata !11}
-!10 = metadata !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!11 = metadata !{metadata !"", metadata !12}
-!12 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!13 = metadata !{metadata !"p", i32 1, <4 x float>* @p_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 3, i32 3, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!15 = metadata !{metadata !"c", i32 1, <3 x float>* @c_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 3, i32 7, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!17 = metadata !{metadata !"aiv2", i32 1, <2 x i32>* @aiv2_typeProxy, metadata !18}
-!18 = metadata !{i32 0, i32 3, i32 9, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!19 = metadata !{metadata !"gl_VertexID", i32 2, i32* @gl_VertexID_typeProxy, metadata !20}
-!20 = metadata !{i32 0, i32 3, i32 1029, null, i32 0, i32 7, i32 -1, i32 0, i32 -1}
-!21 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, metadata !22}
-!22 = metadata !{i32 0, i32 3, i32 1030, null, i32 0, i32 8, i32 -1, i32 0, i32 -1}
-!23 = metadata !{metadata !"tblock", i32 13, %Transform* @tblock_typeProxy, metadata !24, metadata !25}
-!24 = metadata !{i32 7, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!25 = metadata !{metadata !"Transform", metadata !24, metadata !"M1", metadata !26, metadata !"M2", metadata !28, metadata !"N1", metadata !26, metadata !"iuin", metadata !11}
-!26 = metadata !{metadata !"", metadata !27}
-!27 = metadata !{i32 2, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!28 = metadata !{metadata !"", metadata !29}
-!29 = metadata !{i32 3, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!30 = metadata !{metadata !"", i32 13, %T3* @"anon@1_typeProxy", metadata !31, metadata !32}
-!31 = metadata !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!32 = metadata !{metadata !"T3", metadata !31, metadata !"M3", metadata !28, metadata !"M4", metadata !26, metadata !"N2", metadata !28, metadata !"uv3a", metadata !33}
-!33 = metadata !{metadata !"", metadata !34}
-!34 = metadata !{i32 1, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!35 = metadata !{metadata !"", i32 13, %T2* @"anon@0_typeProxy", metadata !31, metadata !36}
-!36 = metadata !{metadata !"T2", metadata !31, metadata !"b", metadata !37, metadata !"t2m", metadata !26}
-!37 = metadata !{metadata !"", metadata !38}
-!38 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!39 = metadata !{metadata !"uiuin", i32 12, i32* @uiuin_typeProxy, metadata !34}
-!40 = metadata !{i32 3}
-
-
-Bottom IR:
-; ModuleID = 'Glslang'
-
-%Transform = type { [4 x <4 x float>], [4 x <4 x float>], [3 x <3 x float>], i32 }
-%T3 = type { [4 x <4 x float>], [4 x <4 x float>], [2 x <3 x float>], [4 x <3 x i32>] }
-%T2 = type { i1, [4 x <4 x float>] }
-%S = type { <3 x float>, float }
-
-@pos = global <4 x float> zeroinitializer
-@p = global <4 x float> zeroinitializer
-@tblock = external addrspace(2) constant %Transform
-@"anon@1" = external addrspace(2) constant %T3
-@"anon@0" = external addrspace(2) constant %T2
-@color = global <3 x float> zeroinitializer
-@c = global <3 x float> zeroinitializer
-@iout = global i32 0
-@uiuin = external addrspace(2) constant i32
-@aiv2 = global <2 x i32> zeroinitializer
-@s = global %S zeroinitializer
-@gl_VertexID = global i32 0
-@gl_InstanceID = global i32 0
-
-define fastcc void @main() {
-entry:
-  %0 = load <4 x float>* @p, align 16
-  %gla_constGEP = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 0
-  %1 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP, align 16, !gla.uniform !23
-  %gla_constGEP60 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 1
-  %2 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP60, align 16, !gla.uniform !23
-  %leftColumn = extractvalue [4 x <4 x float>] %1, 0, !gla.precision !40
-  %rightColumn = extractvalue [4 x <4 x float>] %2, 0, !gla.precision !40
-  %column = fadd <4 x float> %leftColumn, %rightColumn, !gla.precision !40
-  %leftColumn1 = extractvalue [4 x <4 x float>] %1, 1, !gla.precision !40
-  %rightColumn2 = extractvalue [4 x <4 x float>] %2, 1, !gla.precision !40
-  %column3 = fadd <4 x float> %leftColumn1, %rightColumn2, !gla.precision !40
-  %leftColumn4 = extractvalue [4 x <4 x float>] %1, 2, !gla.precision !40
-  %rightColumn5 = extractvalue [4 x <4 x float>] %2, 2, !gla.precision !40
-  %column6 = fadd <4 x float> %leftColumn4, %rightColumn5, !gla.precision !40
-  %leftColumn7 = extractvalue [4 x <4 x float>] %1, 3, !gla.precision !40
-  %rightColumn8 = extractvalue [4 x <4 x float>] %2, 3, !gla.precision !40
-  %column9 = fadd <4 x float> %leftColumn7, %rightColumn8, !gla.precision !40
-  %gla_constGEP61 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 1
-  %3 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP61, align 16, !gla.uniform !30
-  %rightColumn11 = extractvalue [4 x <4 x float>] %3, 0, !gla.precision !40
-  %column12 = fadd <4 x float> %column, %rightColumn11, !gla.precision !40
-  %rightColumn14 = extractvalue [4 x <4 x float>] %3, 1, !gla.precision !40
-  %column15 = fadd <4 x float> %column3, %rightColumn14, !gla.precision !40
-  %rightColumn17 = extractvalue [4 x <4 x float>] %3, 2, !gla.precision !40
-  %column18 = fadd <4 x float> %column6, %rightColumn17, !gla.precision !40
-  %rightColumn20 = extractvalue [4 x <4 x float>] %3, 3, !gla.precision !40
-  %column21 = fadd <4 x float> %column9, %rightColumn20, !gla.precision !40
-  %gla_constGEP62 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 0
-  %4 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP62, align 16, !gla.uniform !30
-  %rightColumn23 = extractvalue [4 x <4 x float>] %4, 0, !gla.precision !40
-  %column24 = fadd <4 x float> %column12, %rightColumn23, !gla.precision !40
-  %rightColumn26 = extractvalue [4 x <4 x float>] %4, 1, !gla.precision !40
-  %column27 = fadd <4 x float> %column15, %rightColumn26, !gla.precision !40
-  %rightColumn29 = extractvalue [4 x <4 x float>] %4, 2, !gla.precision !40
-  %column30 = fadd <4 x float> %column18, %rightColumn29, !gla.precision !40
-  %rightColumn32 = extractvalue [4 x <4 x float>] %4, 3, !gla.precision !40
-  %column33 = fadd <4 x float> %column21, %rightColumn32, !gla.precision !40
-  %gla_constGEP63 = getelementptr %T2 addrspace(2)* @"anon@0", i32 0, i32 1
-  %5 = load [4 x <4 x float>] addrspace(2)* %gla_constGEP63, align 16, !gla.uniform !35
-  %rightColumn35 = extractvalue [4 x <4 x float>] %5, 0, !gla.precision !40
-  %column36 = fadd <4 x float> %column24, %rightColumn35, !gla.precision !40
-  %rightColumn38 = extractvalue [4 x <4 x float>] %5, 1, !gla.precision !40
-  %column39 = fadd <4 x float> %column27, %rightColumn38, !gla.precision !40
-  %rightColumn41 = extractvalue [4 x <4 x float>] %5, 2, !gla.precision !40
-  %column42 = fadd <4 x float> %column30, %rightColumn41, !gla.precision !40
-  %rightColumn44 = extractvalue [4 x <4 x float>] %5, 3, !gla.precision !40
-  %column45 = fadd <4 x float> %column33, %rightColumn44, !gla.precision !40
-  %dotres = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column36), !gla.precision !40
-  %dotres48 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column39), !gla.precision !40
-  %dotres50 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column42), !gla.precision !40
-  %dotres52 = call float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float> %0, <4 x float> %column45), !gla.precision !40
-  %6 = call <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float> undef, i32 15, float %dotres, i32 0, float %dotres48, i32 0, float %dotres50, i32 0, float %dotres52, i32 0)
-  store <4 x float> %6, <4 x float>* @pos, align 16
-  %7 = load <3 x float>* @c, align 16
-  %gla_constGEP64 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 2
-  %8 = load [3 x <3 x float>] addrspace(2)* %gla_constGEP64, align 16, !gla.uniform !23
-  %column53 = extractvalue [3 x <3 x float>] %8, 0, !gla.precision !40
-  %dotres54 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %7, <3 x float> %column53), !gla.precision !40
-  %column55 = extractvalue [3 x <3 x float>] %8, 1, !gla.precision !40
-  %dotres56 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %7, <3 x float> %column55), !gla.precision !40
-  %column57 = extractvalue [3 x <3 x float>] %8, 2, !gla.precision !40
-  %dotres58 = call float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float> %7, <3 x float> %column57), !gla.precision !40
-  %9 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %dotres54, i32 0, float %dotres56, i32 0, float %dotres58, i32 0, float undef, i32 undef)
-  store <3 x float> %9, <3 x float>* @color, align 16
-  %gla_constGEP65 = getelementptr %Transform addrspace(2)* @tblock, i32 0, i32 3
-  %10 = load i32 addrspace(2)* %gla_constGEP65, align 16, !gla.uniform !23
-  %11 = load i32 addrspace(2)* @uiuin, align 4, !gla.uniform !39
-  %12 = add i32 %11, %10, !gla.precision !40
-  %13 = load <2 x i32>* @aiv2, align 8
-  %14 = extractelement <2 x i32> %13, i32 1, !gla.precision !40
-  %iout = add i32 %12, %14, !gla.precision !40
-  store i32 %iout, i32* @iout, align 4
-  %gla_constGEP66 = getelementptr %S* @s, i32 0, i32 0
-  store <3 x float> %7, <3 x float>* %gla_constGEP66, align 16
-  %15 = extractelement <4 x float> %0, i32 0, !gla.precision !40
-  %gla_constGEP67 = getelementptr %S* @s, i32 0, i32 1
-  store float %15, float* %gla_constGEP67, align 16
-  %gla_constGEP68 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 2, i32 1
-  %16 = load <3 x float> addrspace(2)* %gla_constGEP68, align 16, !gla.uniform !30
-  %17 = fcmp one <3 x float> %16, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  %cc = call i1 @llvm.gla.any.v3i1(<3 x i1> %17)
-  %gla_constGEP69 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 3, i32 2
-  %18 = load <3 x i32> addrspace(2)* %gla_constGEP69, align 16, !gla.uniform !30
-  %19 = icmp ne <3 x i32> %18, <i32 5, i32 5, i32 5>
-  %cc59 = call i1 @llvm.gla.any.v3i1(<3 x i1> %19)
-  %20 = or i1 %cc, %cc59
-  br i1 %20, label %then, label %ifmerge
-
-then:                                             ; preds = %entry
-  %21 = fadd <3 x float> %7, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, !gla.precision !40
-  %gla_constGEP70 = getelementptr %S* @s, i32 0, i32 0
-  store <3 x float> %21, <3 x float>* %gla_constGEP70, align 16
-  br label %ifmerge
-
-ifmerge:                                          ; preds = %entry, %then
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %ifmerge
-  br label %stage-exit
-
-stage-exit:                                       ; preds = %stage-epilogue
-  ret void
-}
-
-; Function Attrs: nounwind readnone
-declare float @llvm.gla.fDot4.f32.v4f32.v4f32(<4 x float>, <4 x float>) #0
-
-; Function Attrs: nounwind readnone
-declare float @llvm.gla.fDot3.f32.v3f32.v3f32(<3 x float>, <3 x float>) #0
-
-; Function Attrs: nounwind readnone
-declare i1 @llvm.gla.any.v3i1(<3 x i1>) #0
-
-; Function Attrs: nounwind readnone
-declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
-
-; Function Attrs: nounwind readnone
-declare <4 x float> @llvm.gla.fMultiInsert.v4f32.v4f32.f32.f32.f32.f32(<4 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
-
-attributes #0 = { nounwind readnone }
-
-!gla.entrypoint = !{!0}
-!gla.outputs = !{!1, !3, !5, !7}
-!gla.inputs = !{!13, !15, !17, !19, !21}
-!gla.uniforms = !{!23, !30, !35, !39}
-!gla.noStaticUse = !{!19, !21}
-
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"pos", i32 7, <4 x float>* @pos_typeProxy, metadata !2}
-!2 = metadata !{i32 0, i32 3, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"color", i32 7, <3 x float>* @color_typeProxy, metadata !4}
-!4 = metadata !{i32 0, i32 3, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"iout", i32 7, i32* @iout_typeProxy, metadata !6}
-!6 = metadata !{i32 0, i32 3, i32 1026, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"s", i32 7, %S* @s_typeProxy, metadata !8, metadata !9}
-!8 = metadata !{i32 4, i32 0, i32 1027, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!9 = metadata !{metadata !"S", metadata !10, metadata !"c", metadata !11, metadata !"f", metadata !11}
-!10 = metadata !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!11 = metadata !{metadata !"", metadata !12}
-!12 = metadata !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!13 = metadata !{metadata !"p", i32 1, <4 x float>* @p_typeProxy, metadata !14}
-!14 = metadata !{i32 0, i32 3, i32 3, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!15 = metadata !{metadata !"c", i32 1, <3 x float>* @c_typeProxy, metadata !16}
-!16 = metadata !{i32 0, i32 3, i32 7, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!17 = metadata !{metadata !"aiv2", i32 1, <2 x i32>* @aiv2_typeProxy, metadata !18}
-!18 = metadata !{i32 0, i32 3, i32 9, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!19 = metadata !{metadata !"gl_VertexID", i32 2, i32* @gl_VertexID_typeProxy, metadata !20}
-!20 = metadata !{i32 0, i32 3, i32 1029, null, i32 0, i32 7, i32 -1, i32 0, i32 -1}
-!21 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, metadata !22}
-!22 = metadata !{i32 0, i32 3, i32 1030, null, i32 0, i32 8, i32 -1, i32 0, i32 -1}
-!23 = metadata !{metadata !"tblock", i32 13, %Transform* @tblock_typeProxy, metadata !24, metadata !25}
-!24 = metadata !{i32 7, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!25 = metadata !{metadata !"Transform", metadata !24, metadata !"M1", metadata !26, metadata !"M2", metadata !28, metadata !"N1", metadata !26, metadata !"iuin", metadata !11}
-!26 = metadata !{metadata !"", metadata !27}
-!27 = metadata !{i32 2, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!28 = metadata !{metadata !"", metadata !29}
-!29 = metadata !{i32 3, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!30 = metadata !{metadata !"", i32 13, %T3* @"anon@1_typeProxy", metadata !31, metadata !32}
-!31 = metadata !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!32 = metadata !{metadata !"T3", metadata !31, metadata !"M3", metadata !28, metadata !"M4", metadata !26, metadata !"N2", metadata !28, metadata !"uv3a", metadata !33}
-!33 = metadata !{metadata !"", metadata !34}
-!34 = metadata !{i32 1, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!35 = metadata !{metadata !"", i32 13, %T2* @"anon@0_typeProxy", metadata !31, metadata !36}
-!36 = metadata !{metadata !"T2", metadata !31, metadata !"b", metadata !37, metadata !"t2m", metadata !26}
-!37 = metadata !{metadata !"", metadata !38}
-!38 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!39 = metadata !{metadata !"uiuin", i32 12, i32* @uiuin_typeProxy, metadata !34}
-!40 = metadata !{i32 3}
-#version 300 es
-// LunarGOO output
-struct S {
-	highp vec3 c;
-	highp float f;
-};
-layout(std140) uniform Transform {
-	layout(row_major) highp mat4 M1;
-	highp mat4 M2;
-	layout(row_major) highp mat3 N1;
-	highp int iuin;
-} tblock;
-uniform T3 {
-	highp mat4 M3;
-	layout(row_major) highp mat4 M4;
-	highp mat2x3 N2;
-	highp uvec3 uv3a[4];
-} ;
-uniform T2 {
-	bool b;
-	layout(row_major) highp mat4 t2m;
-} ;
-uniform highp uint uiuin;
-layout(location=3) in highp vec4 p;
-layout(location=7) in highp vec3 c;
-layout(location=9) in highp ivec2 aiv2;
-out highp vec4 pos;
-out highp vec3 color;
-flat out highp int iout;
-out S s;
-const vec3 C_vec3p1d0p = vec3(1.0);
-const ivec3 C_ivec3p5p = ivec3(5);
-
-void main()
-{
-	highp vec4 column = tblock.M1[0] + tblock.M2[0];
-	highp vec4 column1 = tblock.M1[1] + tblock.M2[1];
-	highp vec4 column2 = tblock.M1[2] + tblock.M2[2];
-	highp vec4 column3 = tblock.M1[3] + tblock.M2[3];
-	highp vec4 column4 = M4[0] + column;
-	highp vec4 column5 = M4[1] + column1;
-	highp vec4 column6 = M4[2] + column2;
-	highp vec4 column7 = M4[3] + column3;
-	highp vec4 column8 = M3[0] + column4;
-	highp vec4 column9 = M3[1] + column5;
-	highp vec4 columna = M3[2] + column6;
-	highp vec4 columnb = M3[3] + column7;
-	highp vec4 columnc = column8 + t2m[0];
-	highp vec4 columnd = column9 + t2m[1];
-	highp vec4 columne = columna + t2m[2];
-	highp vec4 columnf = columnb + t2m[3];
-	highp float dotres = dot(p, columnc);
-	highp float dotres1 = dot(p, columnd);
-	highp float dotres2 = dot(p, columne);
-	highp float dotres3 = dot(p, columnf);
-	vec4 H_siz04c = vec4(dotres, dotres1, dotres2, dotres3);
-	pos = H_siz04c;
-	highp float dotres4 = dot(c, tblock.N1[0]);
-	highp float dotres5 = dot(c, tblock.N1[1]);
-	highp float dotres6 = dot(c, tblock.N1[2]);
-	vec3 H_dr2sk8 = vec3(dotres4, dotres5, dotres6);
-	color = H_dr2sk8;
-	highp int H_e9imls1 = int(uiuin) + tblock.iuin;
-	highp int iout1 = H_e9imls1 + aiv2.y;
-	iout = iout1;
-	s.c = c;
-	s.f = p.x;
-	bvec3 H_kkvxkx = notEqual(N2[1], C_vec3p1d0p);
-	bool cc = any(H_kkvxkx);
-	bvec3 H_4h7yvc1 = notEqual(ivec3(uv3a[2]), C_ivec3p5p);
-	bool cc1 = any(H_4h7yvc1);
-	bool H_ggzsww1 = cc || cc1;
-	if (H_ggzsww1) {
-		highp vec3 H_hn1ggr = C_vec3p1d0p + c;
-		s.c = H_hn1ggr;
-	}
-	
-	
-}
-
-#version 300 es
-// LunarGOO output
-struct S {
-	highp vec3 c;
-	highp float f;
-};
-layout(std140) uniform Transform {
-	layout(row_major) highp mat4 M1;
-	highp mat4 M2;
-	layout(row_major) highp mat3 N1;
-	highp int iuin;
-} tblock;
-uniform T3 {
-	highp mat4 M3;
-	layout(row_major) highp mat4 M4;
-	highp mat2x3 N2;
-	highp uvec3 uv3a[4];
-} ;
-uniform T2 {
-	bool b;
-	layout(row_major) highp mat4 t2m;
-} ;
-uniform highp uint uiuin;
-layout(location=3) in highp vec4 p;
-layout(location=7) in highp vec3 c;
-layout(location=9) in highp ivec2 aiv2;
-out highp vec4 pos;
-out highp vec3 color;
-flat out highp int iout;
-out S s;
-const vec3 C_vec3p1d0p = vec3(1.0);
-const ivec3 C_ivec3p5p = ivec3(5);
-
-void main()
-{
-	highp vec4 column = tblock.M1[0] + tblock.M2[0];
-	highp vec4 column1 = tblock.M1[1] + tblock.M2[1];
-	highp vec4 column2 = tblock.M1[2] + tblock.M2[2];
-	highp vec4 column3 = tblock.M1[3] + tblock.M2[3];
-	highp vec4 column4 = M4[0] + column;
-	highp vec4 column5 = M4[1] + column1;
-	highp vec4 column6 = M4[2] + column2;
-	highp vec4 column7 = M4[3] + column3;
-	highp vec4 column8 = M3[0] + column4;
-	highp vec4 column9 = M3[1] + column5;
-	highp vec4 columna = M3[2] + column6;
-	highp vec4 columnb = M3[3] + column7;
-	highp vec4 columnc = column8 + t2m[0];
-	highp vec4 columnd = column9 + t2m[1];
-	highp vec4 columne = columna + t2m[2];
-	highp vec4 columnf = columnb + t2m[3];
-	highp float dotres = dot(p, columnc);
-	highp float dotres1 = dot(p, columnd);
-	highp float dotres2 = dot(p, columne);
-	highp float dotres3 = dot(p, columnf);
-	vec4 H_siz04c = vec4(dotres, dotres1, dotres2, dotres3);
-	pos = H_siz04c;
-	highp float dotres4 = dot(c, tblock.N1[0]);
-	highp float dotres5 = dot(c, tblock.N1[1]);
-	highp float dotres6 = dot(c, tblock.N1[2]);
-	vec3 H_dr2sk8 = vec3(dotres4, dotres5, dotres6);
-	color = H_dr2sk8;
-	highp int H_e9imls = int(uiuin) + tblock.iuin;
-	highp int iout1 = H_e9imls + aiv2.y;
-	iout = iout1;
-	s.c = c;
-	s.f = p.x;
-	bvec3 H_kkvxkx = notEqual(N2[1], C_vec3p1d0p);
-	bool cc = any(H_kkvxkx);
-	bvec3 H_4h7yvc = notEqual(ivec3(uv3a[2]), C_ivec3p5p);
-	bool cc1 = any(H_4h7yvc);
-	bool H_ggzsww = cc || cc1;
-	if (H_ggzsww) {
-		highp vec3 H_hn1ggr = C_vec3p1d0p + c;
-		s.c = H_hn1ggr;
-	}
-	
-	
-}
-
+!0 = !{!"main", i32 15}
+!1 = !{!"pos", i32 7, <4 x float>* @pos_typeProxy, !2}
+!2 = !{i32 0, i32 3, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"color", i32 7, <3 x float>* @color_typeProxy, !4}
+!4 = !{i32 0, i32 3, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!5 = !{!"iout", i32 7, i32* @iout_typeProxy, !6}
+!6 = !{i32 0, i32 3, i32 1026, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"s", i32 7, %S* @s_typeProxy, !8, !9}
+!8 = !{i32 4, i32 0, i32 1027, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!9 = !{!"S", !10, !"c", !11, !"f", !11}
+!10 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!11 = !{!"", !12}
+!12 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!13 = !{!"p", i32 1, <4 x float>* @p_typeProxy, !14}
+!14 = !{i32 0, i32 3, i32 3, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!15 = !{!"c", i32 1, <3 x float>* @c_typeProxy, !16}
+!16 = !{i32 0, i32 3, i32 7, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!17 = !{!"aiv2", i32 1, <2 x i32>* @aiv2_typeProxy, !18}
+!18 = !{i32 0, i32 3, i32 9, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!19 = !{!"gl_VertexID", i32 2, i32* @gl_VertexID_typeProxy, !20}
+!20 = !{i32 0, i32 3, i32 1029, null, i32 0, i32 7, i32 -1, i32 0, i32 -1}
+!21 = !{!"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, !22}
+!22 = !{i32 0, i32 3, i32 1030, null, i32 0, i32 8, i32 -1, i32 0, i32 -1}
+!23 = !{!"tblock", i32 13, %Transform* @tblock_typeProxy, !24, !25}
+!24 = !{i32 7, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!25 = !{!"Transform", !24, !"M1", !26, !"M2", !28, !"N1", !26, !"iuin", !11}
+!26 = !{!"", !27}
+!27 = !{i32 2, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!28 = !{!"", !29}
+!29 = !{i32 3, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!30 = !{!"", i32 13, %T3* @"anon@1_typeProxy", !31, !32}
+!31 = !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!32 = !{!"T3", !31, !"M3", !28, !"M4", !26, !"N2", !28, !"uv3a", !33}
+!33 = !{!"", !34}
+!34 = !{i32 1, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!35 = !{!"", i32 13, %T2* @"anon@0_typeProxy", !31, !36}
+!36 = !{!"T2", !31, !"b", !37, !"t2m", !26}
+!37 = !{!"", !38}
+!38 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!39 = !{!"uiuin", i32 12, i32* @uiuin_typeProxy, !34}
+!40 = !{i32 3}

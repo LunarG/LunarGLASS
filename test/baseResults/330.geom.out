@@ -44,129 +44,18 @@ attributes #0 = { nounwind }
 !gla.outputs = !{!5}
 !gla.inputs = !{!13}
 
-!0 = metadata !{i32 0}
-!1 = metadata !{i32 3}
-!2 = metadata !{i32 5}
-!3 = metadata !{i32 7}
-!4 = metadata !{metadata !"main", i32 15}
-!5 = metadata !{metadata !"", i32 16, %gl_PerVertex* @"anon@0_typeProxy", metadata !6, metadata !7}
-!6 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"gl_PerVertex", metadata !8, metadata !"gl_Position", metadata !9, metadata !"gl_ClipDistance", metadata !11}
-!8 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!9 = metadata !{metadata !"", metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 9, i32 -1, i32 0, i32 -1}
-!11 = metadata !{metadata !"", metadata !12}
-!12 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 12, i32 -1, i32 0, i32 -1}
-!13 = metadata !{metadata !"gl_in", i32 17, [3 x %gl_PerVertex.0]* @gl_in_typeProxy, metadata !14, metadata !7}
-!14 = metadata !{i32 0, i32 0, i32 1027, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-
-
-Bottom IR:
-; ModuleID = 'Glslang'
-
-%gl_PerVertex = type { <4 x float>, [1 x float] }
-%gl_PerVertex.0 = type { <4 x float>, [1 x float] }
-
-@"anon@0" = global %gl_PerVertex zeroinitializer
-@gl_in = global [3 x %gl_PerVertex.0] zeroinitializer
-
-define fastcc void @main() {
-entry:
-  %gla_constGEP = getelementptr [3 x %gl_PerVertex.0]* @gl_in, i32 0, i32 1, i32 0
-  %0 = load <4 x float>* %gla_constGEP, align 16
-  %gla_constGEP1 = getelementptr %gl_PerVertex* @"anon@0", i32 0, i32 0
-  store <4 x float> %0, <4 x float>* %gla_constGEP1, align 16
-  %gla_constGEP2 = getelementptr [3 x %gl_PerVertex.0]* @gl_in, i32 0, i32 1, i32 1, i32 0
-  %1 = load float* %gla_constGEP2, align 16
-  %gla_constGEP3 = getelementptr %gl_PerVertex* @"anon@0", i32 0, i32 1, i32 0
-  store float %1, float* %gla_constGEP3, align 16
-  call void @llvm.gla.emitVertex()
-  call void @llvm.gla.endPrimitive()
-  br label %stage-epilogue
-
-stage-epilogue:                                   ; preds = %entry
-  br label %stage-exit
-
-stage-exit:                                       ; preds = %stage-epilogue
-  ret void
-}
-
-; Function Attrs: nounwind
-declare void @llvm.gla.emitVertex() #0
-
-; Function Attrs: nounwind
-declare void @llvm.gla.endPrimitive() #0
-
-attributes #0 = { nounwind }
-
-!gla.invocations = !{!0}
-!gla.numVertices = !{!1}
-!gla.inputPrimitive = !{!2}
-!gla.outputPrimitive = !{!3}
-!gla.entrypoint = !{!4}
-!gla.outputs = !{!5}
-!gla.inputs = !{!13}
-
-!0 = metadata !{i32 0}
-!1 = metadata !{i32 3}
-!2 = metadata !{i32 5}
-!3 = metadata !{i32 7}
-!4 = metadata !{metadata !"main", i32 15}
-!5 = metadata !{metadata !"", i32 16, %gl_PerVertex* @"anon@0_typeProxy", metadata !6, metadata !7}
-!6 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"gl_PerVertex", metadata !8, metadata !"gl_Position", metadata !9, metadata !"gl_ClipDistance", metadata !11}
-!8 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!9 = metadata !{metadata !"", metadata !10}
-!10 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 9, i32 -1, i32 0, i32 -1}
-!11 = metadata !{metadata !"", metadata !12}
-!12 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 12, i32 -1, i32 0, i32 -1}
-!13 = metadata !{metadata !"gl_in", i32 17, [3 x %gl_PerVertex.0]* @gl_in_typeProxy, metadata !14, metadata !7}
-!14 = metadata !{i32 0, i32 0, i32 1027, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-#version 330 core
-// LunarGOO output
-#extension GL_ARB_separate_shader_objects : enable
-layout(triangles) in;
-layout(triangle_strip) out;
-layout(max_vertices = 3) out;
-in gl_PerVertex {
-	vec4 gl_Position;
-	float gl_ClipDistance[1];
-} gl_in[3];
-out gl_PerVertex {
-	vec4 gl_Position;
-	float gl_ClipDistance[1];
-} ;
-
-void main()
-{
-	gl_Position = gl_in[1].gl_Position;
-	gl_ClipDistance[0] = gl_in[1].gl_ClipDistance[0];
-	EmitVertex();
-	EndPrimitive();
-	
-}
-
-#version 330 core
-// LunarGOO output
-#extension GL_ARB_separate_shader_objects : enable
-layout(triangles) in;
-layout(triangle_strip) out;
-layout(max_vertices = 3) out;
-in gl_PerVertex {
-	vec4 gl_Position;
-	float gl_ClipDistance[1];
-} gl_in[3];
-out gl_PerVertex {
-	vec4 gl_Position;
-	float gl_ClipDistance[1];
-} ;
-
-void main()
-{
-	gl_Position = gl_in[1].gl_Position;
-	gl_ClipDistance[0] = gl_in[1].gl_ClipDistance[0];
-	EmitVertex();
-	EndPrimitive();
-	
-}
-
+!0 = !{i32 0}
+!1 = !{i32 3}
+!2 = !{i32 5}
+!3 = !{i32 7}
+!4 = !{!"main", i32 15}
+!5 = !{!"", i32 16, %gl_PerVertex* @"anon@0_typeProxy", !6, !7}
+!6 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"gl_PerVertex", !8, !"gl_Position", !9, !"gl_ClipDistance", !11}
+!8 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!9 = !{!"", !10}
+!10 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 9, i32 -1, i32 0, i32 -1}
+!11 = !{!"", !12}
+!12 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 12, i32 -1, i32 0, i32 -1}
+!13 = !{!"gl_in", i32 17, [3 x %gl_PerVertex.0]* @gl_in_typeProxy, !14, !7}
+!14 = !{i32 0, i32 0, i32 1027, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
