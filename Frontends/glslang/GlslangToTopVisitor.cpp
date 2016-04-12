@@ -2808,7 +2808,9 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
             intrinsicID = llvm::Intrinsic::gla_sClamp;
         break;
     case glslang::EOpMix:
-        if (gla::GetBasicTypeID(operands.back()) == llvm::Type::IntegerTyID)
+        if (gla::GetBasicTypeID(operands.front()) == llvm::Type::IntegerTyID)
+            intrinsicID = llvm::Intrinsic::gla_ibMix;
+        else if (gla::GetBasicTypeID(operands.back()) == llvm::Type::IntegerTyID)
             intrinsicID = llvm::Intrinsic::gla_fbMix;
         else
             intrinsicID = llvm::Intrinsic::gla_fMix;

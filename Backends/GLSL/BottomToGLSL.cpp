@@ -3563,6 +3563,7 @@ void gla::GlslTarget::emitGlaIntrinsic(std::ostringstream& out, const llvm::Intr
     case llvm::Intrinsic::gla_fModF:        callString = "modf";        break;
     case llvm::Intrinsic::gla_fMix:         callString = "mix";         break;
     case llvm::Intrinsic::gla_fbMix:        callString = "mix";         break;
+    case llvm::Intrinsic::gla_ibMix:        callString = "mix";         break;
     case llvm::Intrinsic::gla_fStep:        callString = "step";        break;
     case llvm::Intrinsic::gla_fSmoothStep:  callString = "smoothstep";  break;
     case llvm::Intrinsic::gla_fIsNan:       callString = "isnan";       break;
