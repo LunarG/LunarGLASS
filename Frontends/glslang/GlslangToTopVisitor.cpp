@@ -1390,7 +1390,12 @@ bool TGlslangToTopTraverser::visitAggregate(glslang::TVisit visit, glslang::TInt
         result = createUnaryIntrinsic(node->getOp(), precision, operands.front());
         break;
     default:
-        result = createIntrinsic(node->getOp(), precision, operands, glslangOperands.front()->getAsTyped()->getBasicType() == glslang::EbtUint);
+        // Check first for intrinsics that can be done natively
+        if (node->getOp() == glslang::EOpMix && 
+              gla::GetBasicTypeID(operands.front()) == llvm::Type::IntegerTyID)
+            result = llvmBuilder.CreateSelect(operands[2], operands[1], operands[0]);
+        else
+            result = createIntrinsic(node->getOp(), precision, operands, glslangOperands.front()->getAsTyped()->getBasicType() == glslang::EbtUint);
         break;
     }
 
@@ -2809,7 +2814,7 @@ llvm::Value* TGlslangToTopTraverser::createIntrinsic(glslang::TOperator op, gla:
         break;
     case glslang::EOpMix:
         if (gla::GetBasicTypeID(operands.front()) == llvm::Type::IntegerTyID)
-            intrinsicID = llvm::Intrinsic::gla_ibMix;
+            assert(0 && "integer type mix handled with intrinsic");
         else if (gla::GetBasicTypeID(operands.back()) == llvm::Type::IntegerTyID)
             intrinsicID = llvm::Intrinsic::gla_fbMix;
         else
