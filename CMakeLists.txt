@@ -61,6 +61,7 @@ endif(WIN32)
 
 set(GLSLANGLIBS
     glslang
+    HLSL
     OSDependent
     OGLCompiler
     SPIRV)
