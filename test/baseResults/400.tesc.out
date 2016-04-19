@@ -47,12 +47,18 @@ mainBody:                                         ; preds = %entry
   store i32 %pid5, i32* %pid
   %iid6 = load i32* @gl_InvocationID
   store i32 %iid6, i32* %iid
-  %0 = load <4 x float>* %p
-  store <4 x float> %0, <4 x float>* getelementptr inbounds ([4 x %gl_PerVertex.0]* @gl_out, i32 0, i32 1, i32 0)
-  %1 = load float* %ps
-  store float %1, float* getelementptr inbounds ([4 x %gl_PerVertex.0]* @gl_out, i32 0, i32 1, i32 1)
-  %2 = load float* %cd
-  store float %2, float* getelementptr ([4 x %gl_PerVertex.0]* @gl_out, i32 0, i32 1, i32 2, i32 1)
+  %0 = load i32* @gl_InvocationID
+  %1 = load <4 x float>* %p
+  %2 = getelementptr [4 x %gl_PerVertex.0]* @gl_out, i32 0, i32 %0, i32 0
+  store <4 x float> %1, <4 x float>* %2
+  %3 = load i32* @gl_InvocationID
+  %4 = load float* %ps
+  %5 = getelementptr [4 x %gl_PerVertex.0]* @gl_out, i32 0, i32 %3, i32 1
+  store float %4, float* %5
+  %6 = load i32* @gl_InvocationID
+  %7 = load float* %cd
+  %8 = getelementptr [4 x %gl_PerVertex.0]* @gl_out, i32 0, i32 %6, i32 2, i32 1
+  store float %7, float* %8
   store float 0x40099999A0000000, float* getelementptr inbounds ([4 x float]* @gl_TessLevelOuter, i32 0, i32 3)
   store float 0x3FF4CCCCC0000000, float* getelementptr inbounds ([2 x float]* @gl_TessLevelInner, i32 0, i32 1)
   br label %stage-epilogue

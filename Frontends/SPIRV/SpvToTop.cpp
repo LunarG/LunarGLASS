@@ -112,7 +112,9 @@ gla::EMdBuiltIn GetMdBuiltIn(spv::BuiltIn builtIn)
     case spv::BuiltInGlobalInvocationId:   return gla::EmbGlobalInvocationId;
     case spv::BuiltInLocalInvocationIndex: return gla::EmbLocalInvocationIndex;
     case spv::BuiltInVertexId:             return gla::EmbVertexId;
+    case spv::BuiltInVertexIndex:          return gla::EmbVertexIndex;
     case spv::BuiltInInstanceId:           return gla::EmbInstanceId;
+    case spv::BuiltInInstanceIndex:        return gla::EmbInstanceIndex;
     case spv::BuiltInPosition:             return gla::EmbPosition;
     case spv::BuiltInPointSize:            return gla::EmbPointSize;
     case spv::BuiltInClipDistance:         return gla::EmbClipDistance;
@@ -128,7 +130,6 @@ gla::EMdBuiltIn GetMdBuiltIn(spv::BuiltIn builtIn)
     case spv::BuiltInFrontFacing:          return gla::EmbFace;
     case spv::BuiltInFragCoord:            return gla::EmbFragCoord;
     case spv::BuiltInPointCoord:           return gla::EmbPointCoord;
-    case spv::BuiltInFragColor:            return gla::EmbFragColor;
     case spv::BuiltInFragDepth:            return gla::EmbFragDepth;
     case spv::BuiltInSampleId:             return gla::EmbSampleId;
     case spv::BuiltInSamplePosition:       return gla::EmbSamplePosition;
@@ -222,7 +223,7 @@ protected:
 
     bool inEntryPoint();
     bool isMatrix(spv::Id typeId) { return commonMap[typeId].metaType.layout == gla::EMtlColMajorMatrix || 
-                                             commonMap[typeId].metaType.layout == gla::EMtlRowMajorMatrix; }
+                                           commonMap[typeId].metaType.layout == gla::EMtlRowMajorMatrix; }
     void makeLabelBlock(spv::Id labelId);
     void createSwitch(int numOperands);
 
@@ -273,7 +274,7 @@ protected:
     unsigned int numIds;
     struct CommonAnnotations {
         CommonAnnotations() : instructionIndex(0), typeId(0), value(0),
-                              isBlock(false), isBuffer(false), noStaticUse(false), storageClass((spv::StorageClass)BadValue), 
+                              isBlock(false), isBuffer(false), storageClass((spv::StorageClass)BadValue),
                               entryPoint((spv::ExecutionModel)BadValue), memberMetaData(0) { }
         int instructionIndex;                   // the location in the spirv of this instruction
         union {
@@ -288,7 +289,6 @@ protected:
         MetaType metaType;
         bool isBlock;
         bool isBuffer;        // SSBO
-        bool noStaticUse;
         spv::StorageClass storageClass;
         spv::ExecutionModel entryPoint;
         std::vector<MetaType> *memberMetaData;
@@ -451,16 +451,16 @@ void SpvToTopTranslator::setExecutionMode(spv::Id entryPoint, spv::ExecutionMode
     case spv::ExecutionModeInputLinesAdjacency:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgLinesAdjacency);
         break;
-    case spv::ExecutionModeInputTriangles:
+    case spv::ExecutionModeTriangles:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgTriangles);
         break;
     case spv::ExecutionModeInputTrianglesAdjacency:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgTrianglesAdjacency);
         break;
-    case spv::ExecutionModeInputQuads:
+    case spv::ExecutionModeQuads:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgQuads);
         break;
-    case spv::ExecutionModeInputIsolines:
+    case spv::ExecutionModeIsolines:
         metadata.makeMdNamedInt(gla::InputPrimitiveMdName, gla::EMlgIsolines);
         break;
     case spv::ExecutionModeXfb:
@@ -481,14 +481,13 @@ void SpvToTopTranslator::setExecutionMode(spv::Id entryPoint, spv::ExecutionMode
 
     case spv::ExecutionModeLocalSize:
     case spv::ExecutionModeEarlyFragmentTests:
-    case spv::ExecutionModeDepthAny:
     case spv::ExecutionModeDepthGreater:
     case spv::ExecutionModeDepthLess:
     case spv::ExecutionModeDepthUnchanged:
     case spv::ExecutionModeDepthReplacing:
 
     default:
-        gla::UnsupportedFunctionality("execution mode");
+        gla::UnsupportedFunctionality("execution mode", gla::EATContinue);
         break;
     }
 }
@@ -504,9 +503,6 @@ void SpvToTopTranslator::addDecoration(spv::Id id, spv::Decoration decoration)
     case spv::DecorationBufferBlock:
         commonMap[id].isBlock = true;
         commonMap[id].isBuffer = true;
-        break;
-    case spv::DecorationNoStaticUse:
-        commonMap[id].noStaticUse = true;
         break;
     default:
         addMetaTypeDecoration(decoration, commonMap[id].metaType);
@@ -533,8 +529,7 @@ void SpvToTopTranslator::addMetaTypeDecoration(spv::Decoration decoration, MetaT
         metaType.precision = gla::EMpMedium;
         break;
 
-    case spv::DecorationSmooth:
-    case spv::DecorationNoperspective:
+    case spv::DecorationNoPerspective:
     case spv::DecorationFlat:
     case spv::DecorationPatch:
         metaType.interpolationMethod = decoration;
@@ -792,9 +787,9 @@ gla::Builder::EStorageQualifier SpvToTopTranslator::mapStorageClass(spv::Storage
         return gla::Builder::ESQInput;
     case spv::StorageClassOutput:
         return gla::Builder::ESQOutput;
-    case spv::StorageClassPrivateGlobal:
+    case spv::StorageClassPrivate:
         return gla::Builder::ESQGlobal;
-    case spv::StorageClassWorkgroupLocal:
+    case spv::StorageClassWorkgroup:
         return gla::Builder::ESQShared;
 
     default:
@@ -954,7 +949,7 @@ gla::EMdSamplerDim SpvToTopTranslator::getMdSamplerDim(spv::Id typeId) const
 {
     switch (getImageDim(typeId)) {
     case spv::Dim1D:     return gla::EMsd1D;
-    case spv::Dim2D:     return gla::EMsd2D;
+    case spv::Dim2D:     return isImageMS(typeId) ? gla::EMsd2DMS : gla::EMsd2D;
     case spv::Dim3D:     return gla::EMsd3D;
     case spv::DimCube:   return gla::EMsdCube;
     case spv::DimRect:   return gla::EMsdRect;
@@ -981,8 +976,7 @@ gla::EMdSamplerBaseType SpvToTopTranslator::getMdSamplerBaseType(spv::Id typeId)
 void SpvToTopTranslator::getInterpolationLocationMethod(spv::Id id, gla::EInterpolationMethod& method, gla::EInterpolationLocation& location)
 {
     switch (commonMap[id].metaType.interpolationMethod) {
-    case spv::DecorationNoperspective: method = gla::EIMNoperspective;  break;
-    case spv::DecorationSmooth:        method = gla::EIMSmooth;         break;
+    case spv::DecorationNoPerspective: method = gla::EIMNoperspective;  break;
     case spv::DecorationPatch:         method = gla::EIMPatch;          break;
     default:                           method = gla::EIMNone;           break;
     }
@@ -1028,9 +1022,6 @@ llvm::MDNode* SpvToTopTranslator::declareUniformMetadata(spv::Id resultId)
     default:
         return 0;
     }
-
-    if (commonMap[resultId].noStaticUse)
-        metadata.addNoStaticUse(md);
 
     return md;
 }
@@ -1174,17 +1165,11 @@ void SpvToTopTranslator::makeOutputMetadata(spv::Id resultId, int slot, int numS
 
     if (commonMap[resultId].metaType.invariant)
         module->getOrInsertNamedMetadata(gla::InvariantListMdName)->addOperand(md);
-
-    if (commonMap[resultId].noStaticUse)
-        metadata.addNoStaticUse(md);
 }
 
 llvm::MDNode* SpvToTopTranslator::makeInputMetadata(spv::Id resultId, int slot)
 {
     llvm::MDNode* mdNode = makeInputOutputMetadata(resultId, slot, gla::InputListMdName);
-
-    if (commonMap[resultId].noStaticUse)
-        metadata.addNoStaticUse(mdNode);
 
     return mdNode;
 }
@@ -1299,7 +1284,8 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
         case spv::SourceLanguageGLSL:
             manager.setProfile(ECoreProfile);
             break;
-        case spv::SourceLanguageOpenCL:
+        case spv::SourceLanguageOpenCL_C:
+        case spv::SourceLanguageOpenCL_CPP:
         default:
             gla::UnsupportedFunctionality("non-GL profile", gla::EATContinue);
             manager.setProfile(ECoreProfile);
@@ -1669,12 +1655,32 @@ void SpvToTopTranslator::translateInstruction(spv::Op opCode, int numOperands)
         commonMap[resultId].value = llvm::UndefValue::get(commonMap[typeId].type);
         break;
     case spv::OpPhi:
-        gla::UnsupportedFunctionality("OpPhi");
+    {
+        decodeResult(true, typeId, resultId);
+        numOperands -= 2;
+        llvm::PHINode* phi = llvmBuilder.CreatePHI(commonMap[typeId].type, numOperands);
+        while (numOperands >= 2) {
+            spv::Id variable = spirv[word++];
+            spv::Id parent = spirv[word++];
+            makeLabelBlock(parent);
+            numOperands -= 2;
+            phi->addIncoming(commonMap[variable].value, commonMap[parent].block);
+        }
+        commonMap[resultId].value = phi;
         break;
-
+    }
     case spv::OpSampledImage:
         gla::UnsupportedFunctionality("OpSampler");
         break;
+
+    case spv::OpImage:
+    {
+        decodeResult(true, typeId, resultId);
+        numOperands -= 2;
+        unsigned int operand = spirv[word++];
+        commonMap[resultId].value = commonMap[operand].value;
+        break;
+    }
 
     case spv::OpImageSampleImplicitLod:
     case spv::OpImageSampleExplicitLod:
@@ -2115,12 +2121,11 @@ llvm::Value* SpvToTopTranslator::createExternalInstruction(gla::EMdPrecision pre
     case spv::GLSLstd450UClamp:
         intrinsicID = llvm::Intrinsic::gla_uClamp;
         break;
-    case spv::GLSLstd450Mix:
-        if (gla::GetBasicTypeID(operands.back()) == llvm::Type::IntegerTyID)
-            intrinsicID = llvm::Intrinsic::gla_fbMix;
-        else
-            intrinsicID = llvm::Intrinsic::gla_fMix;
+    case spv::GLSLstd450FMix:
+        intrinsicID = llvm::Intrinsic::gla_fMix;
         break;
+    case spv::GLSLstd450IMix:
+        gla::UnsupportedFunctionality("integer mix");
         break;
     case spv::GLSLstd450Step:
         intrinsicID = llvm::Intrinsic::gla_fStep;
@@ -2179,11 +2184,11 @@ llvm::Value* SpvToTopTranslator::createExternalInstruction(gla::EMdPrecision pre
     case spv::GLSLstd450Refract:
         intrinsicID = llvm::Intrinsic::gla_fRefract;
         break;
-    case spv::GLSLstd450FindILSB:
+    case spv::GLSLstd450FindILsb:
         break;
-    case spv::GLSLstd450FindSMSB:
+    case spv::GLSLstd450FindSMsb:
         break;
-    case spv::GLSLstd450FindUMSB:
+    case spv::GLSLstd450FindUMsb:
         break;
     case spv::GLSLstd450InterpolateAtCentroid:
         break;

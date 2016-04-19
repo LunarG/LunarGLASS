@@ -318,6 +318,7 @@ enum EMdSamplerDim {
     EMsdCube,
     EMsdRect,
     EMsdBuffer,
+    EMsd2DMS,
     EMsdCount,
 };
 
@@ -420,6 +421,8 @@ enum EMdBuiltIn {
     EmbSampleMask,
     EmbHelperInvocation,
     EmbBoundingBox,
+    EmbVertexIndex,
+    EmbInstanceIndex,
     EmbCount
 };
 

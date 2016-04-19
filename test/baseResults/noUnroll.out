@@ -277,6 +277,7 @@ void main()
 	}
 	
 	color4 = color3;
+	color5 = color4;
 	while (color4.z < d3) {
 		color71 = bigColor1_3 + color4;
 		bool H_r8iyb71 = color71.y < d4;
@@ -287,9 +288,9 @@ void main()
 		
 		vec4 color81 = bigColor1_3 + color71;
 		color4 = color81;
+		color5 = color4;
 	}
 	
-	color5 = color4;
 	color6 = color5;
 	i = C_0;
 	for (i = 0; i < Count; ++i) {
@@ -361,6 +362,7 @@ void main()
 	
 	colorc = colorb;
 	Lg_5 = C_0;
+	colord = colorc;
 	while (Lg_5 <= C_41) {
 		float H_hmpflb = colorc.z + d3;
 		Lg_6 = colorc;
@@ -377,9 +379,9 @@ void main()
 		int H_cn5n1i1 = Lg_5 + C_1;
 		colorc = H_xxjjwy;
 		Lg_5 = H_cn5n1i1;
+		colord = colorc;
 	}
 	
-	colord = colorc;
 	colore = colord;
 	while (true) {
 		vec4 colorb1 = bigColor4 + colore;
@@ -442,6 +444,7 @@ void main()
 	if (H_p4jfbx1) {
 		bool H_lmykhx1 = d7 < C_1d0;
 		colorj = colori;
+		colork = colorj;
 		while (colorj.y < d6) {
 			colore1 = bigColor6 + colorj;
 			if (H_lmykhx1) {
@@ -450,9 +453,9 @@ void main()
 			}
 			
 			colorj = colore1;
+			colork = colorj;
 		}
 		
-		colork = colorj;
 		colorm = colork;
 	} else {
 		colorl = colori;
@@ -548,6 +551,7 @@ void main()
 	}
 	
 	coloru = colorr;
+	colorv = coloru;
 	while (coloru.z < d10) {
 		float H_imrx301 = C_1d0 + coloru.y;
 		Lg_8 = coloru;
@@ -569,9 +573,9 @@ void main()
 		H_vbrigzr.xz = vec2(H_hbdxd01, H_jx5ytz);
 		vec4 selectb = H_j3w65o1 ? H_vbrigz : H_vbrigzr;
 		coloru = selectb;
+		colorv = coloru;
 	}
 	
-	colorv = coloru;
 	colorw = colorv;
 	while (colorw.x < C_10d0) {
 		vec4 colork1 = bigColor8 + colorw;

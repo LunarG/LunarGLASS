@@ -499,7 +499,7 @@ public:
 
             // invocations is optional
             mdInt = GetMdNamedInt(module, gla::InvocationsMdName);
-            if (mdInt)
+            if (mdInt != 1)
                 globalStructures << "layout(invocations = " << mdInt << ") in;" << std::endl;
 
             // output primitives are not optional
@@ -528,7 +528,7 @@ public:
             if (GetMdNamedInt(module, PixelCenterIntegerMdName))
                 globalStructures << "layout(pixel_center_integer) in;" << std::endl;
 
-            if (GetMdNamedInt(module, OriginUpperLeftMdName))
+            if (GetMdNamedInt(module, OriginUpperLeftMdName) && (version >= 150))
                 globalStructures << "layout(origin_upper_left) in;" << std::endl;
 
             if (GetMdNamedInt(module, BlendEquationMdName)) {
@@ -701,6 +701,8 @@ public:
     bool shouldSubstitute(const llvm::Instruction*);
     bool modifiesPrecision(const llvm::Instruction*);
     bool writeOnceAlloca(const llvm::Value*);
+    bool isaGEPLoad(const llvm::Value*);
+    void remapGEPs(const llvm::Value*);
     int getSubstitutionLevel() const { return substitutionLevel; }
 
     // set of all IO mdNodes in the noStaticUse list
@@ -2075,9 +2077,13 @@ void gla::GlslTarget::addInstruction(const llvm::Instruction* llvmInstruction, b
         if (it != nonConvertedMap.end())
             ConversionStop(expression, target->getType()->getContainedType(0));
 
-        if (writeOnceAlloca(target))
+        const llvm::Value* src = llvmInstruction->getOperand(0);
+
+        // Only map target if src is simple rhs
+        if (writeOnceAlloca(target) && !isaGEPLoad(src)) {
             mapExpressionString(target, expression.str());
-        else {
+            remapGEPs(target);
+        } else {
             newLine();
             // If uint/matrix IO conversions are needed, they actually have to have the
             // opposite conversion applied to the rhs.
@@ -4111,11 +4117,12 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
     int binding;
     int offset;
     unsigned int qualifiers;
+    EVariableQualifier qualifier = EVQUndef;
+    int interpMode = -1;
 
     if (ioRoot) {
         EMdInputOutput ioKind;
         llvm::Type* proxyType;
-        int interpMode;
         if (! CrackIOMd(mdNode, metaType.name, ioKind, proxyType, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.mdAggregate,
                         interpMode, metaType.builtIn, binding, qualifiers, offset)) {
             UnsupportedFunctionality("IO metadata for type");
@@ -4144,7 +4151,6 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
             type = proxyType;
 
         // emit interpolation qualifier, if appropriate
-        EVariableQualifier qualifier = EVQUndef;
         switch (ioKind) {
         case EMioPipeIn:
         case EMioPipeInBlock:
@@ -4156,13 +4162,6 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
             break;
         default:
             break;
-        }
-        if (qualifier != EVQUndef) {
-            EInterpolationMethod interpMethod;
-            EInterpolationLocation interpLocation;
-            CrackInterpolationMode(interpMode, interpMethod, interpLocation);
-            if (! metaType.block || (metaType.block && interpMethod == EIMPatch))
-                emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
         }
     } else {
         if (! CrackAggregateMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.builtIn, binding, qualifiers, offset)) {
@@ -4180,6 +4179,14 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
         if (! ioRoot && (profile == EEsProfile || version < 420))
             offset = -1;
         emitGlaLayout(out, typeLayout, location, binding, offset);
+        if (qualifier != EVQUndef) {
+            EInterpolationMethod interpMethod;
+            EInterpolationLocation interpLocation;
+            CrackInterpolationMode(interpMode, interpMethod, interpLocation);
+            if (! metaType.block || (metaType.block && interpMethod == EIMPatch))
+                emitGlaInterpolationQualifier(qualifier, interpMethod, interpLocation);
+        }
+
         emitGlaMdQualifiers(out, qualifiers);
     }
 
@@ -4218,6 +4225,7 @@ void gla::GlslTarget::emitGlaSamplerType(std::ostringstream& out, const llvm::MD
         case EMsdCube:     out << "Cube";    break;
         case EMsdRect:     out << "2DRect";  break;
         case EMsdBuffer:   out << "Buffer";  break;
+        case EMsd2DMS:     out << "2DMS";    break;
         default:           UnsupportedFunctionality("kind of sampler");  break;
         }
         if (isArray)
@@ -5110,4 +5118,37 @@ bool gla::GlslTarget::writeOnceAlloca(const llvm::Value* target)
     }
 
     return true;
+}
+
+// Remap GEPs that have already been mapped. Do this when an alloca variable
+// has been mapped through a Store.
+void gla::GlslTarget::remapGEPs(const llvm::Value* target)
+{
+    const llvm::Instruction* targetInst = llvm::dyn_cast<const llvm::Instruction>(target);
+    if (! targetInst || targetInst->getOpcode() != llvm::Instruction::Alloca)
+        return;
+
+    const llvm::AllocaInst* alloca = llvm::dyn_cast<const llvm::AllocaInst>(targetInst);
+
+    for (llvm::Value::const_use_iterator it = alloca->use_begin(); it != alloca->use_end(); ++it) {
+        const llvm::Instruction* use = llvm::dyn_cast<const llvm::Instruction>(*it);
+
+        if (use && use->getOpcode() == llvm::Instruction::GetElementPtr) {
+            std::string dummyExpression; 
+            if (getExpressionString(use, dummyExpression)) {
+                mapPointerExpression(use);
+            }
+        }
+    }
+}
+
+bool gla::GlslTarget::isaGEPLoad(const llvm::Value* src)
+{
+    const llvm::Instruction* srcInst = llvm::dyn_cast<const llvm::Instruction>(src);
+    if (! srcInst || srcInst->getOpcode() != llvm::Instruction::Load)
+        return false;
+
+    const llvm::Instruction* op0Inst = llvm::dyn_cast<const llvm::Instruction>(srcInst->getOperand(0));
+
+    return (op0Inst && op0Inst->getOpcode() == llvm::Instruction::GetElementPtr);
 }

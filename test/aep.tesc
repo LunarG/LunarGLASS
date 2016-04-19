@@ -25,7 +25,7 @@ void main()
     int pid = gl_PrimitiveID;
     int iid = gl_InvocationID;
 
-    gl_out[1].gl_Position = p;
+    gl_out[gl_InvocationID].gl_Position = p;
 
     gl_TessLevelOuter[3] = 3.2;
     gl_TessLevelInner[1] = 1.3;
@@ -60,7 +60,7 @@ out float okaySize[4];
 
 void pointSize()
 {
-    gl_out[1].gl_PointSize = gl_in[1].gl_PointSize;
+    gl_out[gl_InvocationID].gl_PointSize = gl_in[1].gl_PointSize;
 }
 
 // for testing with gpu_shader5

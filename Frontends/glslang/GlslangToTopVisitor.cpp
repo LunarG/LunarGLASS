@@ -341,7 +341,7 @@ gla::EMdSamplerDim GetMdSamplerDim(const glslang::TType& type)
 {
     switch (type.getSampler().dim) {
     case glslang::Esd1D:     return gla::EMsd1D;
-    case glslang::Esd2D:     return gla::EMsd2D;
+    case glslang::Esd2D:     return type.getSampler().ms ? gla::EMsd2DMS : gla::EMsd2D;
     case glslang::Esd3D:     return gla::EMsd3D;
     case glslang::EsdCube:   return gla::EMsdCube;
     case glslang::EsdRect:   return gla::EMsdRect;
@@ -2010,6 +2010,7 @@ llvm::Value* TGlslangToTopTraverser::handleTextureAccess(const glslang::TIntermO
             break;
         case gla::ESampler2DMS:
             texFlags |= gla::ETFSampleArg;
+            texFlags |= gla::ETFBiasLodArg;
         default:
             break;
         }
@@ -2022,7 +2023,7 @@ llvm::Value* TGlslangToTopTraverser::handleTextureAccess(const glslang::TIntermO
     }
 
     // check for bias argument
-    if (! (texFlags & gla::ETFLod) && ! (texFlags & gla::ETFGather)) {
+    if (! (texFlags & gla::ETFLod) && ! (texFlags & gla::ETFGather) && ! (texFlags & gla::ETFSampleArg)) {
         int nonBiasArgCount = 2;
         if (texFlags & gla::ETFOffsetArg)
             ++nonBiasArgCount;
@@ -2051,7 +2052,7 @@ llvm::Value* TGlslangToTopTraverser::handleTextureAccess(const glslang::TIntermO
     params.ETPSampler = arguments[0];
     params.ETPCoords = arguments[1];
     int extraArgs = 0;
-    if (texFlags & gla::ETFLod) {
+    if ((texFlags & gla::ETFLod) || (texFlags & gla::ETFSampleArg)) {
         params.ETPBiasLod = arguments[2];
         ++extraArgs;
     }
