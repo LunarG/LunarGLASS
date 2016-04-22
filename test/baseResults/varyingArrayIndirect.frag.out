@@ -40,9 +40,8 @@ mainBody:                                         ; preds = %entry
   %texColor3 = fadd <4 x float> %16, %15
   store <4 x float> %texColor3, <4 x float>* %texColor
   %17 = load float* @alpha
-  %18 = load <4 x float>* %texColor
-  %texColor4 = insertelement <4 x float> %18, float %17, i32 3
-  store <4 x float> %texColor4, <4 x float>* %texColor
+  %18 = getelementptr <4 x float>* %texColor, i32 0, i32 3
+  store float %17, float* %18
   %19 = load <4 x float>* getelementptr inbounds ([6 x <4 x float>]* @gl_TexCoord, i32 0, i32 0)
   %20 = load i32 addrspace(2)* @b, !gla.uniform !4
   %21 = getelementptr [6 x <4 x float>]* @gl_TexCoord, i32 0, i32 %20

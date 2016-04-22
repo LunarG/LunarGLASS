@@ -117,34 +117,32 @@ ifmerge9:                                         ; preds = %loop-merge, %then7
   store <4 x float> %31, <4 x float>* %32
   %33 = load <2 x float>* @coord
   %34 = extractelement <2 x float> %33, i32 1
-  %35 = getelementptr %s2* %locals2, i32 0, i32 3
-  %36 = load <4 x float>* %35
-  %37 = insertelement <4 x float> %36, float %34, i32 2
-  store <4 x float> %37, <4 x float>* %35
-  %38 = getelementptr %s2* %locals2, i32 0, i32 3
-  %39 = load <4 x float>* %38
-  %40 = getelementptr [16 x float]* %localFArray, i32 0, i32 4
+  %35 = getelementptr %s2* %locals2, i32 0, i32 3, i32 2
+  store float %34, float* %35
+  %36 = getelementptr %s2* %locals2, i32 0, i32 3
+  %37 = load <4 x float>* %36
+  %38 = getelementptr [16 x float]* %localFArray, i32 0, i32 4
+  %39 = load float* %38
+  %40 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
   %41 = load float* %40
-  %42 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
-  %43 = load float* %42
-  %44 = fadd float %41, %43
-  %45 = load i32* %x
-  %46 = getelementptr [16 x float]* %localArray, i32 0, i32 %45
-  %47 = load float* %46
-  %48 = fadd float %44, %47
-  %49 = load i32* %x
-  %50 = getelementptr [16 x float]* %a, i32 0, i32 %49
-  %51 = load float* %50
-  %52 = fadd float %48, %51
-  %53 = insertelement <4 x float> undef, float %52, i32 0
-  %54 = insertelement <4 x float> %53, float %52, i32 1
-  %55 = insertelement <4 x float> %54, float %52, i32 2
-  %56 = insertelement <4 x float> %55, float %52, i32 3
-  %57 = fmul <4 x float> %39, %56
-  %58 = load i32 addrspace(1)* @sampler, !gla.uniform !9
-  %59 = load <2 x float>* @coord
-  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %58, i32 0, <2 x float> %59)
-  %gl_FragColor10 = fmul <4 x float> %57, %gl_FragColor
+  %42 = fadd float %39, %41
+  %43 = load i32* %x
+  %44 = getelementptr [16 x float]* %localArray, i32 0, i32 %43
+  %45 = load float* %44
+  %46 = fadd float %42, %45
+  %47 = load i32* %x
+  %48 = getelementptr [16 x float]* %a, i32 0, i32 %47
+  %49 = load float* %48
+  %50 = fadd float %46, %49
+  %51 = insertelement <4 x float> undef, float %50, i32 0
+  %52 = insertelement <4 x float> %51, float %50, i32 1
+  %53 = insertelement <4 x float> %52, float %50, i32 2
+  %54 = insertelement <4 x float> %53, float %50, i32 3
+  %55 = fmul <4 x float> %37, %54
+  %56 = load i32 addrspace(1)* @sampler, !gla.uniform !9
+  %57 = load <2 x float>* @coord
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %56, i32 0, <2 x float> %57)
+  %gl_FragColor10 = fmul <4 x float> %55, %gl_FragColor
   store <4 x float> %gl_FragColor10, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 

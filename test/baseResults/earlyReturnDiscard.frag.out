@@ -62,118 +62,116 @@ ifmerge6:                                         ; preds = %ifmerge
   %11 = load <4 x float>* %color
   %12 = extractelement <4 x float> %11, i32 2
   %13 = fadd float %12, 1.000000e+00
-  %14 = load <4 x float>* %color
-  %color7 = insertelement <4 x float> %14, float %13, i32 2
-  store <4 x float> %color7, <4 x float>* %color
+  %14 = getelementptr <4 x float>* %color, i32 0, i32 2
+  store float %13, float* %14
   %15 = load <4 x float>* %color
   %16 = extractelement <4 x float> %15, i32 2
   %17 = load float addrspace(2)* @threshhold, !gla.uniform !11
   %18 = fcmp ogt float %16, %17
-  br i1 %18, label %then8, label %ifmerge9
+  br i1 %18, label %then7, label %ifmerge8
 
-then8:                                            ; preds = %ifmerge6
+then7:                                            ; preds = %ifmerge6
   call void @llvm.gla.discard()
   br label %stage-exit
 
 post-discard:                                     ; No predecessors!
   unreachable
 
-ifmerge9:                                         ; preds = %ifmerge6
+ifmerge8:                                         ; preds = %ifmerge6
   %19 = load <4 x float>* %color
-  %color10 = fadd <4 x float> %19, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  store <4 x float> %color10, <4 x float>* %color
+  %color9 = fadd <4 x float> %19, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color9, <4 x float>* %color
   %20 = load <4 x float>* %color
   %21 = extractelement <4 x float> %20, i32 3
   %22 = load float addrspace(2)* @threshhold2, !gla.uniform !12
   %23 = fcmp ogt float %21, %22
-  br i1 %23, label %then11, label %else25
+  br i1 %23, label %then10, label %else23
 
-then11:                                           ; preds = %ifmerge9
+then10:                                           ; preds = %ifmerge8
   %24 = load <4 x float>* %color
   %25 = extractelement <4 x float> %24, i32 2
   %26 = load float addrspace(2)* @threshhold2, !gla.uniform !12
   %27 = fcmp ogt float %25, %26
-  br i1 %27, label %then12, label %else14
+  br i1 %27, label %then11, label %else13
 
-then12:                                           ; preds = %then11
+then11:                                           ; preds = %then10
   br label %stage-epilogue
 
-post-return13:                                    ; No predecessors!
+post-return12:                                    ; No predecessors!
   unreachable
 
-else14:                                           ; preds = %then11
+else13:                                           ; preds = %then10
   %28 = load i1 addrspace(2)* @b, !gla.uniform !13
-  br i1 %28, label %then15, label %else17
+  br i1 %28, label %then14, label %else15
 
-then15:                                           ; preds = %else14
+then14:                                           ; preds = %else13
   %29 = load <4 x float>* %color
   %30 = extractelement <4 x float> %29, i32 2
   %31 = fadd float %30, 1.000000e+00
-  %32 = load <4 x float>* %color
-  %color16 = insertelement <4 x float> %32, float %31, i32 2
-  store <4 x float> %color16, <4 x float>* %color
-  br label %ifmerge23
+  %32 = getelementptr <4 x float>* %color, i32 0, i32 2
+  store float %31, float* %32
+  br label %ifmerge21
 
-else17:                                           ; preds = %else14
+else15:                                           ; preds = %else13
   %33 = load <4 x float>* %color
   %34 = extractelement <4 x float> %33, i32 0
   %35 = load float addrspace(2)* @minimum, !gla.uniform !10
   %36 = fcmp olt float %34, %35
-  br i1 %36, label %then18, label %else20
+  br i1 %36, label %then16, label %else18
 
-then18:                                           ; preds = %else17
+then16:                                           ; preds = %else15
   call void @llvm.gla.discard()
   br label %stage-exit
 
-post-discard19:                                   ; No predecessors!
+post-discard17:                                   ; No predecessors!
   unreachable
 
-else20:                                           ; preds = %else17
+else18:                                           ; preds = %else15
   %37 = load <4 x float>* %color
-  %color21 = fadd <4 x float> %37, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
-  store <4 x float> %color21, <4 x float>* %color
+  %color19 = fadd <4 x float> %37, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color19, <4 x float>* %color
+  br label %ifmerge20
+
+ifmerge20:                                        ; preds = %else18
+  br label %ifmerge21
+
+ifmerge21:                                        ; preds = %ifmerge20, %then14
   br label %ifmerge22
 
-ifmerge22:                                        ; preds = %else20
-  br label %ifmerge23
+ifmerge22:                                        ; preds = %ifmerge21
+  br label %ifmerge29
 
-ifmerge23:                                        ; preds = %ifmerge22, %then15
-  br label %ifmerge24
-
-ifmerge24:                                        ; preds = %ifmerge23
-  br label %ifmerge31
-
-else25:                                           ; preds = %ifmerge9
+else23:                                           ; preds = %ifmerge8
   %38 = load i1 addrspace(2)* @b, !gla.uniform !13
-  br i1 %38, label %then26, label %else28
+  br i1 %38, label %then24, label %else26
 
-then26:                                           ; preds = %else25
+then24:                                           ; preds = %else23
   call void @llvm.gla.discard()
   br label %stage-exit
 
-post-discard27:                                   ; No predecessors!
+post-discard25:                                   ; No predecessors!
   unreachable
 
-else28:                                           ; preds = %else25
+else26:                                           ; preds = %else23
   br label %stage-epilogue
 
-post-return29:                                    ; No predecessors!
+post-return27:                                    ; No predecessors!
   unreachable
 
-ifmerge30:                                        ; No predecessors!
-  br label %ifmerge31
+ifmerge28:                                        ; No predecessors!
+  br label %ifmerge29
 
-ifmerge31:                                        ; preds = %ifmerge30, %ifmerge24
+ifmerge29:                                        ; preds = %ifmerge28, %ifmerge22
   %39 = load <4 x float>* %color
   %40 = load <4 x float>* %color2
   %gl_FragColor = fmul <4 x float> %39, %40
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %ifmerge31, %else28, %then12, %then5
+stage-epilogue:                                   ; preds = %ifmerge29, %else26, %then11, %then5
   br label %stage-exit
 
-stage-exit:                                       ; preds = %stage-epilogue, %then26, %then18, %then8
+stage-exit:                                       ; preds = %stage-epilogue, %then24, %then16, %then7
   ret void
 }
 

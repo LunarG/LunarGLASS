@@ -11,10 +11,10 @@ Top IR:
 
 define fastcc void @main() {
 entry:
-  %i32 = alloca i32
-  %i23 = alloca i32
+  %i28 = alloca i32
+  %i21 = alloca i32
   %r = alloca <4 x float>
-  %gl_FragColor20 = alloca <4 x float>
+  %gl_FragColor19 = alloca <4 x float>
   %tv4 = alloca <4 x float>
   %i12 = alloca i32
   %i4 = alloca i32
@@ -95,7 +95,7 @@ loop-header13:                                    ; preds = %ifmerge16, %loop-me
   br i1 %18, label %then14, label %ifmerge16
 
 then14:                                           ; preds = %loop-header13
-  br label %loop-merge19
+  br label %loop-merge18
 
 post-loop-break15:                                ; No predecessors!
   unreachable
@@ -107,17 +107,16 @@ ifmerge16:                                        ; preds = %loop-header13
   %22 = extractelement <4 x i32> %21, i32 %20
   %23 = mul i32 %22, 4
   %24 = uitofp i32 %23 to float
-  %25 = load <4 x float>* %tv4
-  %tv417 = insertelement <4 x float> %25, float %24, i32 %19
-  store <4 x float> %tv417, <4 x float>* %tv4
+  %25 = getelementptr <4 x float>* %tv4, i32 0, i32 %19
+  store float %24, float* %25
   %26 = load i32* %i12
-  %i1218 = add i32 %26, 1
-  store i32 %i1218, i32* %i12
+  %i1217 = add i32 %26, 1
+  store i32 %i1217, i32* %i12
   br label %loop-header13
 
-loop-merge19:                                     ; preds = %then14
+loop-merge18:                                     ; preds = %then14
   %27 = load float* %sum
-  %28 = load <4 x float>* %gl_FragColor20
+  %28 = load <4 x float>* %gl_FragColor19
   %29 = insertelement <4 x float> undef, float %27, i32 0
   %30 = insertelement <4 x float> %29, float %27, i32 1
   %31 = insertelement <4 x float> %30, float %27, i32 2
@@ -125,8 +124,8 @@ loop-merge19:                                     ; preds = %then14
   %33 = load <4 x float>* %tv4
   %34 = fadd <4 x float> %32, %33
   %35 = load <4 x float>* @gl_FragColor
-  %gl_FragColor21 = fadd <4 x float> %35, %34
-  store <4 x float> %gl_FragColor21, <4 x float>* @gl_FragColor
+  %gl_FragColor20 = fadd <4 x float> %35, %34
+  store <4 x float> %gl_FragColor20, <4 x float>* @gl_FragColor
   %36 = load <4 x float>* @BaseColor
   %37 = extractelement <4 x float> %36, i32 0
   %38 = insertelement <3 x float> undef, float %37, i32 0
@@ -134,41 +133,41 @@ loop-merge19:                                     ; preds = %then14
   %40 = insertelement <3 x float> %38, float %39, i32 1
   %41 = extractelement <4 x float> %36, i32 2
   %42 = insertelement <3 x float> %40, float %41, i32 2
-  %43 = load <4 x float>* %r
-  %44 = extractelement <3 x float> %42, i32 0
-  %45 = insertelement <4 x float> %43, float %44, i32 0
-  %46 = extractelement <3 x float> %42, i32 1
-  %47 = insertelement <4 x float> %45, float %46, i32 1
-  %48 = extractelement <3 x float> %42, i32 2
-  %r22 = insertelement <4 x float> %47, float %48, i32 2
-  store <4 x float> %r22, <4 x float>* %r
-  store i32 0, i32* %i23
-  br label %loop-header24
+  %43 = extractelement <3 x float> %42, i32 0
+  %44 = getelementptr <4 x float>* %r, i32 0, i32 0
+  store float %43, float* %44
+  %45 = extractelement <3 x float> %42, i32 1
+  %46 = getelementptr <4 x float>* %r, i32 0, i32 1
+  store float %45, float* %46
+  %47 = extractelement <3 x float> %42, i32 2
+  %48 = getelementptr <4 x float>* %r, i32 0, i32 2
+  store float %47, float* %48
+  store i32 0, i32* %i21
+  br label %loop-header22
 
-loop-header24:                                    ; preds = %ifmerge27, %loop-merge19
-  %49 = load i32* %i23
+loop-header22:                                    ; preds = %ifmerge25, %loop-merge18
+  %49 = load i32* %i21
   %50 = load i32 addrspace(2)* @Count, !gla.uniform !5
   %51 = icmp slt i32 %49, %50
   %52 = xor i1 %51, true
-  br i1 %52, label %then25, label %ifmerge27
+  br i1 %52, label %then23, label %ifmerge25
 
-then25:                                           ; preds = %loop-header24
-  br label %loop-merge30
+then23:                                           ; preds = %loop-header22
+  br label %loop-merge27
 
-post-loop-break26:                                ; No predecessors!
+post-loop-break24:                                ; No predecessors!
   unreachable
 
-ifmerge27:                                        ; preds = %loop-header24
+ifmerge25:                                        ; preds = %loop-header22
   %53 = load float* @f
-  %54 = load <4 x float>* %r
-  %r28 = insertelement <4 x float> %54, float %53, i32 3
-  store <4 x float> %r28, <4 x float>* %r
-  %55 = load i32* %i23
-  %i2329 = add i32 %55, 1
-  store i32 %i2329, i32* %i23
-  br label %loop-header24
+  %54 = getelementptr <4 x float>* %r, i32 0, i32 3
+  store float %53, float* %54
+  %55 = load i32* %i21
+  %i2126 = add i32 %55, 1
+  store i32 %i2126, i32* %i21
+  br label %loop-header22
 
-loop-merge30:                                     ; preds = %then25
+loop-merge27:                                     ; preds = %then23
   %56 = load <4 x float>* %r
   %57 = extractelement <4 x float> %56, i32 0
   %58 = insertelement <3 x float> undef, float %57, i32 0
@@ -184,47 +183,45 @@ loop-merge30:                                     ; preds = %then25
   %68 = extractelement <4 x float> %63, i32 2
   %69 = insertelement <3 x float> %67, float %68, i32 2
   %70 = fadd <3 x float> %69, %62
-  %71 = load <4 x float>* @gl_FragColor
-  %72 = extractelement <3 x float> %70, i32 0
-  %73 = insertelement <4 x float> %71, float %72, i32 0
-  %74 = extractelement <3 x float> %70, i32 1
-  %75 = insertelement <4 x float> %73, float %74, i32 1
-  %76 = extractelement <3 x float> %70, i32 2
-  %gl_FragColor31 = insertelement <4 x float> %75, float %76, i32 2
-  store <4 x float> %gl_FragColor31, <4 x float>* @gl_FragColor
-  store i32 0, i32* %i32
-  br label %loop-header33
+  %71 = extractelement <3 x float> %70, i32 0
+  store float %71, float* getelementptr inbounds (<4 x float>* @gl_FragColor, i32 0, i32 0)
+  %72 = extractelement <3 x float> %70, i32 1
+  store float %72, float* getelementptr inbounds (<4 x float>* @gl_FragColor, i32 0, i32 1)
+  %73 = extractelement <3 x float> %70, i32 2
+  store float %73, float* getelementptr inbounds (<4 x float>* @gl_FragColor, i32 0, i32 2)
+  store i32 0, i32* %i28
+  br label %loop-header29
 
-loop-header33:                                    ; preds = %ifmerge36, %loop-merge30
-  %77 = load i32* %i32
-  %78 = icmp slt i32 %77, 16
-  %79 = xor i1 %78, true
-  br i1 %79, label %then34, label %ifmerge36
+loop-header29:                                    ; preds = %ifmerge32, %loop-merge27
+  %74 = load i32* %i28
+  %75 = icmp slt i32 %74, 16
+  %76 = xor i1 %75, true
+  br i1 %76, label %then30, label %ifmerge32
 
-then34:                                           ; preds = %loop-header33
-  br label %loop-merge39
+then30:                                           ; preds = %loop-header29
+  br label %loop-merge35
 
-post-loop-break35:                                ; No predecessors!
+post-loop-break31:                                ; No predecessors!
   unreachable
 
-ifmerge36:                                        ; preds = %loop-header33
-  %80 = load float* @f
-  %81 = load <4 x float>* @gl_FragColor
-  %82 = insertelement <4 x float> undef, float %80, i32 0
-  %83 = insertelement <4 x float> %82, float %80, i32 1
-  %84 = insertelement <4 x float> %83, float %80, i32 2
-  %85 = insertelement <4 x float> %84, float %80, i32 3
-  %gl_FragColor37 = fmul <4 x float> %81, %85
-  store <4 x float> %gl_FragColor37, <4 x float>* @gl_FragColor
-  %86 = load i32* %i32
-  %i3238 = add i32 %86, 4
-  store i32 %i3238, i32* %i32
-  br label %loop-header33
+ifmerge32:                                        ; preds = %loop-header29
+  %77 = load float* @f
+  %78 = load <4 x float>* @gl_FragColor
+  %79 = insertelement <4 x float> undef, float %77, i32 0
+  %80 = insertelement <4 x float> %79, float %77, i32 1
+  %81 = insertelement <4 x float> %80, float %77, i32 2
+  %82 = insertelement <4 x float> %81, float %77, i32 3
+  %gl_FragColor33 = fmul <4 x float> %78, %82
+  store <4 x float> %gl_FragColor33, <4 x float>* @gl_FragColor
+  %83 = load i32* %i28
+  %i2834 = add i32 %83, 4
+  store i32 %i2834, i32* %i28
+  br label %loop-header29
 
-loop-merge39:                                     ; preds = %then34
+loop-merge35:                                     ; preds = %then30
   br label %stage-epilogue
 
-stage-epilogue:                                   ; preds = %loop-merge39
+stage-epilogue:                                   ; preds = %loop-merge35
   br label %stage-exit
 
 stage-exit:                                       ; preds = %stage-epilogue

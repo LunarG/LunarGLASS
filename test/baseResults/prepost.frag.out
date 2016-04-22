@@ -87,21 +87,17 @@ mainBody:                                         ; preds = %entry
   %30 = load <4 x float>* %v
   %31 = extractelement <4 x float> %30, i32 2
   %32 = fsub float %31, 1.000000e+00
-  %33 = load <4 x float>* %v
-  %v15 = insertelement <4 x float> %33, float %32, i32 2
-  store <4 x float> %v15, <4 x float>* %v
-  %34 = load <4 x float>* %v
-  %v16 = insertelement <4 x float> %34, float %31, i32 1
-  store <4 x float> %v16, <4 x float>* %v
+  %33 = getelementptr <4 x float>* %v, i32 0, i32 2
+  store float %32, float* %33
+  %34 = getelementptr <4 x float>* %v, i32 0, i32 1
+  store float %31, float* %34
   %35 = load <4 x float>* %v
   %36 = extractelement <4 x float> %35, i32 3
   %37 = fsub float %36, 1.000000e+00
-  %38 = load <4 x float>* %v
-  %v17 = insertelement <4 x float> %38, float %37, i32 3
-  store <4 x float> %v17, <4 x float>* %v
-  %39 = load <4 x float>* %v
-  %v18 = insertelement <4 x float> %39, float %37, i32 0
-  store <4 x float> %v18, <4 x float>* %v
+  %38 = getelementptr <4 x float>* %v, i32 0, i32 3
+  store float %37, float* %38
+  %39 = getelementptr <4 x float>* %v, i32 0, i32 0
+  store float %37, float* %39
   %40 = load float* %z
   %41 = load <4 x float>* %v
   %42 = insertelement <4 x float> undef, float %40, i32 0

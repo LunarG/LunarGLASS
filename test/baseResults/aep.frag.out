@@ -45,14 +45,12 @@ mainBody:                                         ; preds = %entry
   %13 = extractelement <4 x float> %8, i32 2, !gla.precision !34
   %14 = insertelement <3 x float> %12, float %13, i32 2, !gla.precision !34
   %15 = fadd <3 x float> %14, %7, !gla.precision !34
-  %16 = load <4 x float>* @color
-  %17 = extractelement <3 x float> %15, i32 0
-  %18 = insertelement <4 x float> %16, float %17, i32 0
-  %19 = extractelement <3 x float> %15, i32 1
-  %20 = insertelement <4 x float> %18, float %19, i32 1
-  %21 = extractelement <3 x float> %15, i32 2
-  %color2 = insertelement <4 x float> %20, float %21, i32 2
-  store <4 x float> %color2, <4 x float>* @color
+  %16 = extractelement <3 x float> %15, i32 0
+  store float %16, float* getelementptr inbounds (<4 x float>* @color, i32 0, i32 0)
+  %17 = extractelement <3 x float> %15, i32 1
+  store float %17, float* getelementptr inbounds (<4 x float>* @color, i32 0, i32 1)
+  %18 = extractelement <3 x float> %15, i32 2
+  store float %18, float* getelementptr inbounds (<4 x float>* @color, i32 0, i32 2)
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %mainBody
@@ -114,12 +112,10 @@ entry:
   %12 = extractelement <4 x float> %9, i32 1, !gla.precision !34
   %13 = insertelement <2 x float> %11, float %12, i32 1, !gla.precision !34
   %14 = fadd <2 x float> %13, %8, !gla.precision !34
-  %15 = load <4 x float>* @color
-  %16 = extractelement <2 x float> %14, i32 0
-  %17 = insertelement <4 x float> %15, float %16, i32 0
-  %18 = extractelement <2 x float> %14, i32 1
-  %color = insertelement <4 x float> %17, float %18, i32 1
-  store <4 x float> %color, <4 x float>* @color
+  %15 = extractelement <2 x float> %14, i32 0
+  store float %15, float* getelementptr inbounds (<4 x float>* @color, i32 0, i32 0)
+  %16 = extractelement <2 x float> %14, i32 1
+  store float %16, float* getelementptr inbounds (<4 x float>* @color, i32 0, i32 1)
   ret void
 }
 
