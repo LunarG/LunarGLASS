@@ -1,0 +1,27 @@
+#version 310 es
+layout(local_size_x = 1) in;
+
+struct S
+{
+	highp ivec3 a;
+	highp vec4 c;
+};
+layout(std430, binding = 0) buffer Block
+{
+	lowp uint u;
+	mediump vec4 v;
+	S s[][2];
+} block[3];
+
+layout(binding = 0) uniform atomic_uint ac_numPassed;
+
+bool compare_ivec3    (highp ivec3 a, highp ivec3 b)  { return a == b; }
+
+void main (void)
+{
+	bool allOk = true;
+	allOk = allOk && compare_ivec3(block[0].s[0][0].a, ivec3(0, 0, 0));
+	if (allOk)
+		block[0].u = 0U;
+}
+

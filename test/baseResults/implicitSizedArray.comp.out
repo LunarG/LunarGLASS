@@ -1,0 +1,82 @@
+
+Top IR:
+; ModuleID = 'Glslang'
+
+%Block = type { i32, <4 x float>, [2 x %S] }
+%S = type { <3 x i32>, <4 x float> }
+
+@block = external addrspace(3) constant [3 x %Block]
+@ac_numPassed = external addrspace(2) constant i32
+
+define fastcc void @main() {
+entry:
+  %param1 = alloca <3 x i32>
+  %param = alloca <3 x i32>
+  %allOk = alloca i1
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
+  store i1 true, i1* %allOk
+  %0 = load i1* %allOk
+  %param2 = load <3 x i32> addrspace(3)* getelementptr inbounds ([3 x %Block] addrspace(3)* @block, i32 0, i32 0, i32 2, i32 0, i32 0), !gla.uniform !2
+  store <3 x i32> %param2, <3 x i32>* %param
+  store <3 x i32> zeroinitializer, <3 x i32>* %param1
+  %1 = call i1 @"compare_ivec3(vi3;vi3;"(<3 x i32>* %param, <3 x i32>* %param1)
+  %allOk3 = and i1 %0, %1
+  store i1 %allOk3, i1* %allOk
+  %2 = load i1* %allOk
+  br i1 %2, label %then, label %ifmerge
+
+then:                                             ; preds = %mainBody
+  store i32 0, i32 addrspace(3)* getelementptr inbounds ([3 x %Block] addrspace(3)* @block, i32 0, i32 0, i32 0), !gla.uniform !2
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %mainBody, %then
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc i1 @"compare_ivec3(vi3;vi3;"(<3 x i32>*, <3 x i32>*) #0 {
+entry:
+  %2 = load <3 x i32>* %0
+  %3 = load <3 x i32>* %1
+  %4 = icmp eq <3 x i32> %2, %3
+  %cc = call i1 @llvm.gla.all.v3i1(<3 x i1> %4)
+  ret i1 %cc
+
+post-return:                                      ; No predecessors!
+  unreachable
+}
+
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.all.v3i1(<3 x i1>) #1
+
+attributes #0 = { alwaysinline }
+attributes #1 = { nounwind readnone }
+
+!gla.localSize = !{!0}
+!gla.entrypoint = !{!1}
+!gla.uniforms = !{!2, !13}
+!gla.noStaticUse = !{!13}
+
+!0 = !{i32 1, i32 1, i32 1}
+!1 = !{!"main", i32 15}
+!2 = !{!"block", i32 18, [3 x %Block]* @block_typeProxy, !3, !4}
+!3 = !{i32 8, i32 0, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 -1}
+!4 = !{!"Block", !3, !"u", !5, !"v", !7, !"s", !9}
+!5 = !{!"", !6}
+!6 = !{i32 1, i32 1, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"", !8}
+!8 = !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!9 = !{!"S", !10, !"a", !11, !"c", !11}
+!10 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!11 = !{!"", !12}
+!12 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!13 = !{!"ac_numPassed", i32 12, i32* @ac_numPassed_typeProxy, !14}
+!14 = !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 0}

@@ -1727,7 +1727,7 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
         if (type.isImplicitlySizedArray()) {
             gla::UnsupportedFunctionality("implicitly-sized array", gla::EATContinue);
             glaType = llvm::ArrayType::get(glaType, UnknownArraySize);
-        } if (type.isRuntimeSizedArray()) {
+        } else if (type.isRuntimeSizedArray()) {
             //
             // Runtime array design.
             //
@@ -1750,8 +1750,10 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
             // member is a single element or the beginning of an array of elements.  If this information
             // is needed downstream, it will come from metadata (EMioBufferBlockMemberArrayed).
             //
-            // With the latter approach, glaType is already the type of the element, so there is nothing to do here.
+            // With the latter approach, build up the array type excluding the last dimension.
             //
+            for (int d = type.getArraySizes()->getNumDims() - 1; d > 0; --d)
+                glaType = llvm::ArrayType::get(glaType, type.getArraySizes()->getDimSize(d));
         } else {
             for (int d = type.getArraySizes()->getNumDims() - 1; d >= 0; --d)
                 glaType = llvm::ArrayType::get(glaType, type.getArraySizes()->getDimSize(d));
