@@ -285,14 +285,9 @@ void Builder::accessChainStore(llvm::Value* value)
 {
     assert(accessChain.isRValue == false);
 
-    llvm::Value* base = collapseAccessChain();
-    llvm::Value* source = value;
-
-    // if swizzle exists, it is out-of-order or not full, we must load the target vector,
-    // extract and insert elements to perform writeMask and/or swizzle
-    if (accessChain.swizzle.size()) {
-
-        llvm::Value* shadowVector = createLoad(base, accessChain.metadataKind, accessChain.mdNode);
+    // if swizzle exists, it is out-of-order or not full, we must
+    // extract and store each element to perform writeMask and/or swizzle
+    if (accessChain.swizzle.size() > 1) {
 
         // walk through the swizzle
         for (unsigned int i = 0; i < accessChain.swizzle.size(); ++i) {
@@ -301,20 +296,27 @@ void Builder::accessChainStore(llvm::Value* value)
             llvm::Value* component = value;
             if (IsVector(component))
                 component = builder.CreateExtractElement(value, MakeIntConstant(context, i));
-
             assert(IsScalar(component));
 
-            // insert to our target at swizzled index
-            shadowVector = builder.CreateInsertElement(shadowVector, component, MakeIntConstant(context, accessChain.swizzle[i]));
+            assert(accessChain.component == 0);
+
+            llvm::Value* swizValue = MakeIntConstant(context, accessChain.swizzle[i]);
+            accessChain.gep = 0;
+            accessChain.component = swizValue;
+            llvm::Value* compPtr = collapseAccessChain(true);
+            createStore(component, compPtr, accessChain.metadataKind, accessChain.mdNode);
+            accessChain.indexChain.pop_back();
+            accessChain.component = 0;
+            accessChain.gep = 0;
         }
 
-        source = shadowVector;
-    } else if (accessChain.component) {
-        llvm::Value* shadowVector = createLoad(base);
-        source = builder.CreateInsertElement(shadowVector, value, accessChain.component);
-    }
+    } else if (accessChain.component || accessChain.swizzle.size() == 1) {
+        llvm::Value* base = collapseAccessChain(true);
+        createStore(value, base, accessChain.metadataKind, accessChain.mdNode);
 
-    createStore(source, base, accessChain.metadataKind, accessChain.mdNode);
+    } else {
+        createStore(value, collapseAccessChain(), accessChain.metadataKind, accessChain.mdNode);
+    }
 }
 
 // Comments in header

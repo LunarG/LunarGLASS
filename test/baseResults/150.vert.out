@@ -29,10 +29,8 @@ mainBody:                                         ; preds = %entry
   store float %3, float* getelementptr inbounds (%gl_PerVertex* @"anon@0", i32 0, i32 2, i32 2)
   %4 = load i32* %i
   %5 = load float addrspace(2)* @ps, !gla.uniform !37
-  %6 = getelementptr %s2* @s2out, i32 0, i32 1, i32 %4, i32 2, i32 2
-  %7 = load <4 x float>* %6
-  %8 = insertelement <4 x float> %7, float %5, i32 3
-  store <4 x float> %8, <4 x float>* %6
+  %6 = getelementptr %s2* @s2out, i32 0, i32 1, i32 %4, i32 2, i32 2, i32 3
+  store float %5, float* %6
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %mainBody

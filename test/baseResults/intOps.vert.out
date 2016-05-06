@@ -47,314 +47,270 @@ mainBody:                                         ; preds = %entry
   %6 = extractelement <4 x i32> %3, i32 1, !gla.precision !35
   %7 = insertelement <2 x i32> %5, i32 %6, i32 1, !gla.precision !35
   %8 = add <2 x i32> %7, %2, !gla.precision !35
-  %9 = load <4 x i32>* @uout
-  %10 = extractelement <2 x i32> %8, i32 0
-  %11 = insertelement <4 x i32> %9, i32 %10, i32 0
-  %12 = extractelement <2 x i32> %8, i32 1
-  %uout2 = insertelement <4 x i32> %11, i32 %12, i32 1
-  store <4 x i32> %uout2, <4 x i32>* @uout
-  %13 = load <2 x i32>* %u2out
-  %14 = load <4 x i32>* @uout
-  %15 = extractelement <4 x i32> %14, i32 0, !gla.precision !35
-  %16 = insertelement <2 x i32> undef, i32 %15, i32 0, !gla.precision !35
-  %17 = extractelement <4 x i32> %14, i32 1, !gla.precision !35
-  %18 = insertelement <2 x i32> %16, i32 %17, i32 1, !gla.precision !35
-  %19 = add <2 x i32> %18, %13, !gla.precision !35
-  %20 = load <4 x i32>* @uout
-  %21 = extractelement <2 x i32> %19, i32 0
-  %22 = insertelement <4 x i32> %20, i32 %21, i32 0
-  %23 = extractelement <2 x i32> %19, i32 1
-  %uout3 = insertelement <4 x i32> %22, i32 %23, i32 1
-  store <4 x i32> %uout3, <4 x i32>* @uout
-  %24 = load i32* @u1
-  %25 = load i32* @u1
-  %uout4 = call { i32, i32 } @llvm.gla.subBorrow.i32.i32.i32.i32(i32 %24, i32 %25), !gla.precision !35
-  %u1out5 = extractvalue { i32, i32 } %uout4, 1
-  store i32 %u1out5, i32* %u1out
-  %26 = extractvalue { i32, i32 } %uout4, 0
+  %9 = extractelement <2 x i32> %8, i32 0
+  store i32 %9, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 0)
+  %10 = extractelement <2 x i32> %8, i32 1
+  store i32 %10, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 1)
+  %11 = load <2 x i32>* %u2out
+  %12 = load <4 x i32>* @uout
+  %13 = extractelement <4 x i32> %12, i32 0, !gla.precision !35
+  %14 = insertelement <2 x i32> undef, i32 %13, i32 0, !gla.precision !35
+  %15 = extractelement <4 x i32> %12, i32 1, !gla.precision !35
+  %16 = insertelement <2 x i32> %14, i32 %15, i32 1, !gla.precision !35
+  %17 = add <2 x i32> %16, %11, !gla.precision !35
+  %18 = extractelement <2 x i32> %17, i32 0
+  store i32 %18, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 0)
+  %19 = extractelement <2 x i32> %17, i32 1
+  store i32 %19, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 1)
+  %20 = load i32* @u1
+  %21 = load i32* @u1
+  %uout2 = call { i32, i32 } @llvm.gla.subBorrow.i32.i32.i32.i32(i32 %20, i32 %21), !gla.precision !35
+  %u1out3 = extractvalue { i32, i32 } %uout2, 1
+  store i32 %u1out3, i32* %u1out
+  %22 = extractvalue { i32, i32 } %uout2, 0
+  %23 = load <4 x i32>* @uout
+  %24 = extractelement <4 x i32> %23, i32 0, !gla.precision !35
+  %25 = add i32 %24, %22, !gla.precision !35
+  store i32 %25, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 0)
+  %26 = load i32* %u1out
   %27 = load <4 x i32>* @uout
   %28 = extractelement <4 x i32> %27, i32 0, !gla.precision !35
   %29 = add i32 %28, %26, !gla.precision !35
-  %30 = load <4 x i32>* @uout
-  %uout6 = insertelement <4 x i32> %30, i32 %29, i32 0
+  store i32 %29, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 0)
+  %30 = load <4 x i32>* @u4
+  %31 = load <4 x i32>* @u4
+  %misc2a = call { <4 x i32>, <4 x i32> } @llvm.gla.umulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %30, <4 x i32> %31)
+  %u4out4 = extractvalue { <4 x i32>, <4 x i32> } %misc2a, 0
+  store <4 x i32> %u4out4, <4 x i32>* %u4out
+  %u4out5 = extractvalue { <4 x i32>, <4 x i32> } %misc2a, 1
+  store <4 x i32> %u4out5, <4 x i32>* %u4out
+  %32 = load <4 x i32>* %u4out
+  %33 = load <4 x i32>* @uout
+  %uout6 = add <4 x i32> %33, %32, !gla.precision !35
   store <4 x i32> %uout6, <4 x i32>* @uout
-  %31 = load i32* %u1out
-  %32 = load <4 x i32>* @uout
-  %33 = extractelement <4 x i32> %32, i32 0, !gla.precision !35
-  %34 = add i32 %33, %31, !gla.precision !35
-  %35 = load <4 x i32>* @uout
-  %uout7 = insertelement <4 x i32> %35, i32 %34, i32 0
-  store <4 x i32> %uout7, <4 x i32>* @uout
-  %36 = load <4 x i32>* @u4
-  %37 = load <4 x i32>* @u4
-  %misc2a = call { <4 x i32>, <4 x i32> } @llvm.gla.umulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %36, <4 x i32> %37)
-  %u4out8 = extractvalue { <4 x i32>, <4 x i32> } %misc2a, 0
-  store <4 x i32> %u4out8, <4 x i32>* %u4out
-  %u4out9 = extractvalue { <4 x i32>, <4 x i32> } %misc2a, 1
-  store <4 x i32> %u4out9, <4 x i32>* %u4out
-  %38 = load <4 x i32>* %u4out
-  %39 = load <4 x i32>* @uout
-  %uout10 = add <4 x i32> %39, %38, !gla.precision !35
-  store <4 x i32> %uout10, <4 x i32>* @uout
-  %40 = load <4 x i32>* @i4
-  %41 = load <4 x i32>* @i4
-  %misc2a11 = call { <4 x i32>, <4 x i32> } @llvm.gla.smulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %40, <4 x i32> %41)
-  %i4out112 = extractvalue { <4 x i32>, <4 x i32> } %misc2a11, 0
-  store <4 x i32> %i4out112, <4 x i32>* %i4out1
-  %i4out213 = extractvalue { <4 x i32>, <4 x i32> } %misc2a11, 1
-  store <4 x i32> %i4out213, <4 x i32>* %i4out2
-  %42 = load <4 x i32>* %i4out1
-  %43 = load <4 x i32>* %i4out2
-  %44 = add <4 x i32> %42, %43, !gla.precision !35
-  %45 = load <4 x i32>* @iout
-  %iout = add <4 x i32> %45, %44, !gla.precision !35
+  %34 = load <4 x i32>* @i4
+  %35 = load <4 x i32>* @i4
+  %misc2a7 = call { <4 x i32>, <4 x i32> } @llvm.gla.smulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %34, <4 x i32> %35)
+  %i4out18 = extractvalue { <4 x i32>, <4 x i32> } %misc2a7, 0
+  store <4 x i32> %i4out18, <4 x i32>* %i4out1
+  %i4out29 = extractvalue { <4 x i32>, <4 x i32> } %misc2a7, 1
+  store <4 x i32> %i4out29, <4 x i32>* %i4out2
+  %36 = load <4 x i32>* %i4out1
+  %37 = load <4 x i32>* %i4out2
+  %38 = add <4 x i32> %36, %37, !gla.precision !35
+  %39 = load <4 x i32>* @iout
+  %iout = add <4 x i32> %39, %38, !gla.precision !35
   store <4 x i32> %iout, <4 x i32>* @iout
-  %46 = load i32* @i1
-  %iout14 = call i32 @llvm.gla.sBitFieldExtract.i32.i32(i32 %46, i32 4, i32 5), !gla.precision !35
-  %47 = load <4 x i32>* @iout
-  %48 = extractelement <4 x i32> %47, i32 0, !gla.precision !35
-  %49 = add i32 %48, %iout14, !gla.precision !35
-  %50 = load <4 x i32>* @iout
-  %iout15 = insertelement <4 x i32> %50, i32 %49, i32 0
-  store <4 x i32> %iout15, <4 x i32>* @iout
-  %51 = load <3 x i32>* @u3
-  %uout16 = call <3 x i32> @llvm.gla.uBitFieldExtract.v3i32.v3i32(<3 x i32> %51, i32 4, i32 5), !gla.precision !35
-  %52 = load <4 x i32>* @uout
-  %53 = extractelement <4 x i32> %52, i32 0, !gla.precision !35
-  %54 = insertelement <3 x i32> undef, i32 %53, i32 0, !gla.precision !35
-  %55 = extractelement <4 x i32> %52, i32 1, !gla.precision !35
-  %56 = insertelement <3 x i32> %54, i32 %55, i32 1, !gla.precision !35
-  %57 = extractelement <4 x i32> %52, i32 2, !gla.precision !35
-  %58 = insertelement <3 x i32> %56, i32 %57, i32 2, !gla.precision !35
-  %59 = add <3 x i32> %58, %uout16, !gla.precision !35
-  %60 = load <4 x i32>* @uout
-  %61 = extractelement <3 x i32> %59, i32 0
-  %62 = insertelement <4 x i32> %60, i32 %61, i32 0
-  %63 = extractelement <3 x i32> %59, i32 1
-  %64 = insertelement <4 x i32> %62, i32 %63, i32 1
-  %65 = extractelement <3 x i32> %59, i32 2
-  %uout17 = insertelement <4 x i32> %64, i32 %65, i32 2
-  store <4 x i32> %uout17, <4 x i32>* @uout
-  %66 = load <3 x i32>* @i3
-  %67 = load <3 x i32>* @i3
-  %iout18 = call <3 x i32> @llvm.gla.bitFieldInsert.v3i32.v3i32.v3i32(<3 x i32> %66, <3 x i32> %67, i32 4, i32 5), !gla.precision !35
-  %68 = load <4 x i32>* @iout
-  %69 = extractelement <4 x i32> %68, i32 0, !gla.precision !35
-  %70 = insertelement <3 x i32> undef, i32 %69, i32 0, !gla.precision !35
-  %71 = extractelement <4 x i32> %68, i32 1, !gla.precision !35
-  %72 = insertelement <3 x i32> %70, i32 %71, i32 1, !gla.precision !35
-  %73 = extractelement <4 x i32> %68, i32 2, !gla.precision !35
-  %74 = insertelement <3 x i32> %72, i32 %73, i32 2, !gla.precision !35
-  %75 = add <3 x i32> %74, %iout18, !gla.precision !35
-  %76 = load <4 x i32>* @iout
-  %77 = extractelement <3 x i32> %75, i32 0
-  %78 = insertelement <4 x i32> %76, i32 %77, i32 0
-  %79 = extractelement <3 x i32> %75, i32 1
-  %80 = insertelement <4 x i32> %78, i32 %79, i32 1
-  %81 = extractelement <3 x i32> %75, i32 2
-  %iout19 = insertelement <4 x i32> %80, i32 %81, i32 2
-  store <4 x i32> %iout19, <4 x i32>* @iout
-  %82 = load i32* @u1
-  %83 = load i32* @u1
-  %uout20 = call i32 @llvm.gla.bitFieldInsert.i32.i32.i32(i32 %82, i32 %83, i32 4, i32 5), !gla.precision !35
+  %40 = load i32* @i1
+  %iout10 = call i32 @llvm.gla.sBitFieldExtract.i32.i32(i32 %40, i32 4, i32 5), !gla.precision !35
+  %41 = load <4 x i32>* @iout
+  %42 = extractelement <4 x i32> %41, i32 0, !gla.precision !35
+  %43 = add i32 %42, %iout10, !gla.precision !35
+  store i32 %43, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 0)
+  %44 = load <3 x i32>* @u3
+  %uout11 = call <3 x i32> @llvm.gla.uBitFieldExtract.v3i32.v3i32(<3 x i32> %44, i32 4, i32 5), !gla.precision !35
+  %45 = load <4 x i32>* @uout
+  %46 = extractelement <4 x i32> %45, i32 0, !gla.precision !35
+  %47 = insertelement <3 x i32> undef, i32 %46, i32 0, !gla.precision !35
+  %48 = extractelement <4 x i32> %45, i32 1, !gla.precision !35
+  %49 = insertelement <3 x i32> %47, i32 %48, i32 1, !gla.precision !35
+  %50 = extractelement <4 x i32> %45, i32 2, !gla.precision !35
+  %51 = insertelement <3 x i32> %49, i32 %50, i32 2, !gla.precision !35
+  %52 = add <3 x i32> %51, %uout11, !gla.precision !35
+  %53 = extractelement <3 x i32> %52, i32 0
+  store i32 %53, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 0)
+  %54 = extractelement <3 x i32> %52, i32 1
+  store i32 %54, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 1)
+  %55 = extractelement <3 x i32> %52, i32 2
+  store i32 %55, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 2)
+  %56 = load <3 x i32>* @i3
+  %57 = load <3 x i32>* @i3
+  %iout12 = call <3 x i32> @llvm.gla.bitFieldInsert.v3i32.v3i32.v3i32(<3 x i32> %56, <3 x i32> %57, i32 4, i32 5), !gla.precision !35
+  %58 = load <4 x i32>* @iout
+  %59 = extractelement <4 x i32> %58, i32 0, !gla.precision !35
+  %60 = insertelement <3 x i32> undef, i32 %59, i32 0, !gla.precision !35
+  %61 = extractelement <4 x i32> %58, i32 1, !gla.precision !35
+  %62 = insertelement <3 x i32> %60, i32 %61, i32 1, !gla.precision !35
+  %63 = extractelement <4 x i32> %58, i32 2, !gla.precision !35
+  %64 = insertelement <3 x i32> %62, i32 %63, i32 2, !gla.precision !35
+  %65 = add <3 x i32> %64, %iout12, !gla.precision !35
+  %66 = extractelement <3 x i32> %65, i32 0
+  store i32 %66, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 0)
+  %67 = extractelement <3 x i32> %65, i32 1
+  store i32 %67, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 1)
+  %68 = extractelement <3 x i32> %65, i32 2
+  store i32 %68, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 2)
+  %69 = load i32* @u1
+  %70 = load i32* @u1
+  %uout13 = call i32 @llvm.gla.bitFieldInsert.i32.i32.i32(i32 %69, i32 %70, i32 4, i32 5), !gla.precision !35
+  %71 = load <4 x i32>* @uout
+  %72 = extractelement <4 x i32> %71, i32 0, !gla.precision !35
+  %73 = add i32 %72, %uout13, !gla.precision !35
+  store i32 %73, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 0)
+  %74 = load <2 x i32>* @i2
+  %iout14 = call <2 x i32> @llvm.gla.bitReverse.v2i32.v2i32(<2 x i32> %74), !gla.precision !35
+  %75 = load <4 x i32>* @iout
+  %76 = extractelement <4 x i32> %75, i32 0, !gla.precision !35
+  %77 = insertelement <2 x i32> undef, i32 %76, i32 0, !gla.precision !35
+  %78 = extractelement <4 x i32> %75, i32 1, !gla.precision !35
+  %79 = insertelement <2 x i32> %77, i32 %78, i32 1, !gla.precision !35
+  %80 = add <2 x i32> %79, %iout14, !gla.precision !35
+  %81 = extractelement <2 x i32> %80, i32 0
+  store i32 %81, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 0)
+  %82 = extractelement <2 x i32> %80, i32 1
+  store i32 %82, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 1)
+  %83 = load <4 x i32>* @u4
+  %uout15 = call <4 x i32> @llvm.gla.bitReverse.v4i32.v4i32(<4 x i32> %83), !gla.precision !35
   %84 = load <4 x i32>* @uout
-  %85 = extractelement <4 x i32> %84, i32 0, !gla.precision !35
-  %86 = add i32 %85, %uout20, !gla.precision !35
-  %87 = load <4 x i32>* @uout
-  %uout21 = insertelement <4 x i32> %87, i32 %86, i32 0
-  store <4 x i32> %uout21, <4 x i32>* @uout
-  %88 = load <2 x i32>* @i2
-  %iout22 = call <2 x i32> @llvm.gla.bitReverse.v2i32.v2i32(<2 x i32> %88), !gla.precision !35
-  %89 = load <4 x i32>* @iout
-  %90 = extractelement <4 x i32> %89, i32 0, !gla.precision !35
-  %91 = insertelement <2 x i32> undef, i32 %90, i32 0, !gla.precision !35
-  %92 = extractelement <4 x i32> %89, i32 1, !gla.precision !35
-  %93 = insertelement <2 x i32> %91, i32 %92, i32 1, !gla.precision !35
-  %94 = add <2 x i32> %93, %iout22, !gla.precision !35
-  %95 = load <4 x i32>* @iout
-  %96 = extractelement <2 x i32> %94, i32 0
-  %97 = insertelement <4 x i32> %95, i32 %96, i32 0
-  %98 = extractelement <2 x i32> %94, i32 1
-  %iout23 = insertelement <4 x i32> %97, i32 %98, i32 1
-  store <4 x i32> %iout23, <4 x i32>* @iout
-  %99 = load <4 x i32>* @u4
-  %uout24 = call <4 x i32> @llvm.gla.bitReverse.v4i32.v4i32(<4 x i32> %99), !gla.precision !35
-  %100 = load <4 x i32>* @uout
-  %uout25 = add <4 x i32> %100, %uout24, !gla.precision !35
-  store <4 x i32> %uout25, <4 x i32>* @uout
-  %101 = load i32* @i1
-  %iout26 = call i32 @llvm.gla.bitCount.i32.i32(i32 %101), !gla.precision !35
+  %uout16 = add <4 x i32> %84, %uout15, !gla.precision !35
+  store <4 x i32> %uout16, <4 x i32>* @uout
+  %85 = load i32* @i1
+  %iout17 = call i32 @llvm.gla.bitCount.i32.i32(i32 %85), !gla.precision !35
+  %86 = load <4 x i32>* @iout
+  %87 = extractelement <4 x i32> %86, i32 0, !gla.precision !35
+  %88 = add i32 %87, %iout17, !gla.precision !35
+  store i32 %88, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 0)
+  %89 = load <3 x i32>* @u3
+  %iout18 = call <3 x i32> @llvm.gla.bitCount.v3i32.v3i32(<3 x i32> %89), !gla.precision !35
+  %90 = load <4 x i32>* @iout
+  %91 = extractelement <4 x i32> %90, i32 0, !gla.precision !35
+  %92 = insertelement <3 x i32> undef, i32 %91, i32 0, !gla.precision !35
+  %93 = extractelement <4 x i32> %90, i32 1, !gla.precision !35
+  %94 = insertelement <3 x i32> %92, i32 %93, i32 1, !gla.precision !35
+  %95 = extractelement <4 x i32> %90, i32 2, !gla.precision !35
+  %96 = insertelement <3 x i32> %94, i32 %95, i32 2, !gla.precision !35
+  %97 = add <3 x i32> %96, %iout18, !gla.precision !35
+  %98 = extractelement <3 x i32> %97, i32 0
+  store i32 %98, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 0)
+  %99 = extractelement <3 x i32> %97, i32 1
+  store i32 %99, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 1)
+  %100 = extractelement <3 x i32> %97, i32 2
+  store i32 %100, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 2)
+  %101 = load <2 x i32>* @i2
+  %iout19 = call <2 x i32> @llvm.gla.findLSB.v2i32.v2i32(<2 x i32> %101), !gla.precision !35
   %102 = load <4 x i32>* @iout
   %103 = extractelement <4 x i32> %102, i32 0, !gla.precision !35
-  %104 = add i32 %103, %iout26, !gla.precision !35
-  %105 = load <4 x i32>* @iout
-  %iout27 = insertelement <4 x i32> %105, i32 %104, i32 0
-  store <4 x i32> %iout27, <4 x i32>* @iout
-  %106 = load <3 x i32>* @u3
-  %iout28 = call <3 x i32> @llvm.gla.bitCount.v3i32.v3i32(<3 x i32> %106), !gla.precision !35
-  %107 = load <4 x i32>* @iout
-  %108 = extractelement <4 x i32> %107, i32 0, !gla.precision !35
-  %109 = insertelement <3 x i32> undef, i32 %108, i32 0, !gla.precision !35
-  %110 = extractelement <4 x i32> %107, i32 1, !gla.precision !35
-  %111 = insertelement <3 x i32> %109, i32 %110, i32 1, !gla.precision !35
-  %112 = extractelement <4 x i32> %107, i32 2, !gla.precision !35
-  %113 = insertelement <3 x i32> %111, i32 %112, i32 2, !gla.precision !35
-  %114 = add <3 x i32> %113, %iout28, !gla.precision !35
-  %115 = load <4 x i32>* @iout
-  %116 = extractelement <3 x i32> %114, i32 0
-  %117 = insertelement <4 x i32> %115, i32 %116, i32 0
-  %118 = extractelement <3 x i32> %114, i32 1
-  %119 = insertelement <4 x i32> %117, i32 %118, i32 1
-  %120 = extractelement <3 x i32> %114, i32 2
-  %iout29 = insertelement <4 x i32> %119, i32 %120, i32 2
-  store <4 x i32> %iout29, <4 x i32>* @iout
-  %121 = load <2 x i32>* @i2
-  %iout30 = call <2 x i32> @llvm.gla.findLSB.v2i32.v2i32(<2 x i32> %121), !gla.precision !35
-  %122 = load <4 x i32>* @iout
-  %123 = extractelement <4 x i32> %122, i32 0, !gla.precision !35
-  %124 = insertelement <2 x i32> undef, i32 %123, i32 0, !gla.precision !35
-  %125 = extractelement <4 x i32> %122, i32 1, !gla.precision !35
-  %126 = insertelement <2 x i32> %124, i32 %125, i32 1, !gla.precision !35
-  %127 = add <2 x i32> %126, %iout30, !gla.precision !35
-  %128 = load <4 x i32>* @iout
-  %129 = extractelement <2 x i32> %127, i32 0
-  %130 = insertelement <4 x i32> %128, i32 %129, i32 0
-  %131 = extractelement <2 x i32> %127, i32 1
-  %iout31 = insertelement <4 x i32> %130, i32 %131, i32 1
-  store <4 x i32> %iout31, <4 x i32>* @iout
-  %132 = load <4 x i32>* @u4
-  %iout32 = call <4 x i32> @llvm.gla.findLSB.v4i32.v4i32(<4 x i32> %132), !gla.precision !35
-  %133 = load <4 x i32>* @iout
-  %iout33 = add <4 x i32> %133, %iout32, !gla.precision !35
-  store <4 x i32> %iout33, <4 x i32>* @iout
-  %134 = load i32* @i1
-  %iout34 = call i32 @llvm.gla.sFindMSB.i32.i32(i32 %134), !gla.precision !35
-  %135 = load <4 x i32>* @iout
-  %136 = extractelement <4 x i32> %135, i32 0, !gla.precision !35
-  %137 = add i32 %136, %iout34, !gla.precision !35
-  %138 = load <4 x i32>* @iout
-  %iout35 = insertelement <4 x i32> %138, i32 %137, i32 0
-  store <4 x i32> %iout35, <4 x i32>* @iout
-  %139 = load <2 x i32>* @u2
-  %iout36 = call <2 x i32> @llvm.gla.sFindMSB.v2i32.v2i32(<2 x i32> %139), !gla.precision !35
-  %140 = load <4 x i32>* @iout
-  %141 = extractelement <4 x i32> %140, i32 0, !gla.precision !35
-  %142 = insertelement <2 x i32> undef, i32 %141, i32 0, !gla.precision !35
-  %143 = extractelement <4 x i32> %140, i32 1, !gla.precision !35
-  %144 = insertelement <2 x i32> %142, i32 %143, i32 1, !gla.precision !35
-  %145 = add <2 x i32> %144, %iout36, !gla.precision !35
-  %146 = load <4 x i32>* @iout
-  %147 = extractelement <2 x i32> %145, i32 0
-  %148 = insertelement <4 x i32> %146, i32 %147, i32 0
-  %149 = extractelement <2 x i32> %145, i32 1
-  %iout37 = insertelement <4 x i32> %148, i32 %149, i32 1
-  store <4 x i32> %iout37, <4 x i32>* @iout
-  %150 = load <3 x float>* @v3
-  %fout = call { <3 x float>, <3 x i32> } @llvm.gla.fFrexp.v3f32.v3i32.v3f32(<3 x float> %150), !gla.precision !35
-  %i3out38 = extractvalue { <3 x float>, <3 x i32> } %fout, 1
-  store <3 x i32> %i3out38, <3 x i32>* %i3out
-  %151 = extractvalue { <3 x float>, <3 x i32> } %fout, 0
+  %104 = insertelement <2 x i32> undef, i32 %103, i32 0, !gla.precision !35
+  %105 = extractelement <4 x i32> %102, i32 1, !gla.precision !35
+  %106 = insertelement <2 x i32> %104, i32 %105, i32 1, !gla.precision !35
+  %107 = add <2 x i32> %106, %iout19, !gla.precision !35
+  %108 = extractelement <2 x i32> %107, i32 0
+  store i32 %108, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 0)
+  %109 = extractelement <2 x i32> %107, i32 1
+  store i32 %109, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 1)
+  %110 = load <4 x i32>* @u4
+  %iout20 = call <4 x i32> @llvm.gla.findLSB.v4i32.v4i32(<4 x i32> %110), !gla.precision !35
+  %111 = load <4 x i32>* @iout
+  %iout21 = add <4 x i32> %111, %iout20, !gla.precision !35
+  store <4 x i32> %iout21, <4 x i32>* @iout
+  %112 = load i32* @i1
+  %iout22 = call i32 @llvm.gla.sFindMSB.i32.i32(i32 %112), !gla.precision !35
+  %113 = load <4 x i32>* @iout
+  %114 = extractelement <4 x i32> %113, i32 0, !gla.precision !35
+  %115 = add i32 %114, %iout22, !gla.precision !35
+  store i32 %115, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 0)
+  %116 = load <2 x i32>* @u2
+  %iout23 = call <2 x i32> @llvm.gla.sFindMSB.v2i32.v2i32(<2 x i32> %116), !gla.precision !35
+  %117 = load <4 x i32>* @iout
+  %118 = extractelement <4 x i32> %117, i32 0, !gla.precision !35
+  %119 = insertelement <2 x i32> undef, i32 %118, i32 0, !gla.precision !35
+  %120 = extractelement <4 x i32> %117, i32 1, !gla.precision !35
+  %121 = insertelement <2 x i32> %119, i32 %120, i32 1, !gla.precision !35
+  %122 = add <2 x i32> %121, %iout23, !gla.precision !35
+  %123 = extractelement <2 x i32> %122, i32 0
+  store i32 %123, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 0)
+  %124 = extractelement <2 x i32> %122, i32 1
+  store i32 %124, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 1)
+  %125 = load <3 x float>* @v3
+  %fout = call { <3 x float>, <3 x i32> } @llvm.gla.fFrexp.v3f32.v3i32.v3f32(<3 x float> %125), !gla.precision !35
+  %i3out24 = extractvalue { <3 x float>, <3 x i32> } %fout, 1
+  store <3 x i32> %i3out24, <3 x i32>* %i3out
+  %126 = extractvalue { <3 x float>, <3 x i32> } %fout, 0
+  %127 = load <4 x float>* @fout
+  %128 = extractelement <4 x float> %127, i32 0, !gla.precision !35
+  %129 = insertelement <3 x float> undef, float %128, i32 0, !gla.precision !35
+  %130 = extractelement <4 x float> %127, i32 1, !gla.precision !35
+  %131 = insertelement <3 x float> %129, float %130, i32 1, !gla.precision !35
+  %132 = extractelement <4 x float> %127, i32 2, !gla.precision !35
+  %133 = insertelement <3 x float> %131, float %132, i32 2, !gla.precision !35
+  %134 = fadd <3 x float> %133, %126, !gla.precision !35
+  %135 = extractelement <3 x float> %134, i32 0
+  store float %135, float* getelementptr inbounds (<4 x float>* @fout, i32 0, i32 0)
+  %136 = extractelement <3 x float> %134, i32 1
+  store float %136, float* getelementptr inbounds (<4 x float>* @fout, i32 0, i32 1)
+  %137 = extractelement <3 x float> %134, i32 2
+  store float %137, float* getelementptr inbounds (<4 x float>* @fout, i32 0, i32 2)
+  %138 = load <3 x i32>* %i3out
+  %139 = load <4 x i32>* @iout
+  %140 = extractelement <4 x i32> %139, i32 0, !gla.precision !35
+  %141 = insertelement <3 x i32> undef, i32 %140, i32 0, !gla.precision !35
+  %142 = extractelement <4 x i32> %139, i32 1, !gla.precision !35
+  %143 = insertelement <3 x i32> %141, i32 %142, i32 1, !gla.precision !35
+  %144 = extractelement <4 x i32> %139, i32 2, !gla.precision !35
+  %145 = insertelement <3 x i32> %143, i32 %144, i32 2, !gla.precision !35
+  %146 = add <3 x i32> %145, %138, !gla.precision !35
+  %147 = extractelement <3 x i32> %146, i32 0
+  store i32 %147, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 0)
+  %148 = extractelement <3 x i32> %146, i32 1
+  store i32 %148, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 1)
+  %149 = extractelement <3 x i32> %146, i32 2
+  store i32 %149, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 2)
+  %150 = load float* @v1
+  %fout25 = call { float, i32 } @llvm.gla.fFrexp.f32.i32.f32(float %150), !gla.precision !35
+  %i1out26 = extractvalue { float, i32 } %fout25, 1
+  store i32 %i1out26, i32* %i1out
+  %151 = extractvalue { float, i32 } %fout25, 0
   %152 = load <4 x float>* @fout
   %153 = extractelement <4 x float> %152, i32 0, !gla.precision !35
-  %154 = insertelement <3 x float> undef, float %153, i32 0, !gla.precision !35
-  %155 = extractelement <4 x float> %152, i32 1, !gla.precision !35
-  %156 = insertelement <3 x float> %154, float %155, i32 1, !gla.precision !35
-  %157 = extractelement <4 x float> %152, i32 2, !gla.precision !35
-  %158 = insertelement <3 x float> %156, float %157, i32 2, !gla.precision !35
-  %159 = fadd <3 x float> %158, %151, !gla.precision !35
-  %160 = load <4 x float>* @fout
-  %161 = extractelement <3 x float> %159, i32 0
-  %162 = insertelement <4 x float> %160, float %161, i32 0
-  %163 = extractelement <3 x float> %159, i32 1
-  %164 = insertelement <4 x float> %162, float %163, i32 1
-  %165 = extractelement <3 x float> %159, i32 2
-  %fout39 = insertelement <4 x float> %164, float %165, i32 2
-  store <4 x float> %fout39, <4 x float>* @fout
-  %166 = load <3 x i32>* %i3out
-  %167 = load <4 x i32>* @iout
-  %168 = extractelement <4 x i32> %167, i32 0, !gla.precision !35
-  %169 = insertelement <3 x i32> undef, i32 %168, i32 0, !gla.precision !35
-  %170 = extractelement <4 x i32> %167, i32 1, !gla.precision !35
-  %171 = insertelement <3 x i32> %169, i32 %170, i32 1, !gla.precision !35
-  %172 = extractelement <4 x i32> %167, i32 2, !gla.precision !35
-  %173 = insertelement <3 x i32> %171, i32 %172, i32 2, !gla.precision !35
-  %174 = add <3 x i32> %173, %166, !gla.precision !35
-  %175 = load <4 x i32>* @iout
-  %176 = extractelement <3 x i32> %174, i32 0
-  %177 = insertelement <4 x i32> %175, i32 %176, i32 0
-  %178 = extractelement <3 x i32> %174, i32 1
-  %179 = insertelement <4 x i32> %177, i32 %178, i32 1
-  %180 = extractelement <3 x i32> %174, i32 2
-  %iout40 = insertelement <4 x i32> %179, i32 %180, i32 2
-  store <4 x i32> %iout40, <4 x i32>* @iout
-  %181 = load float* @v1
-  %fout41 = call { float, i32 } @llvm.gla.fFrexp.f32.i32.f32(float %181), !gla.precision !35
-  %i1out42 = extractvalue { float, i32 } %fout41, 1
-  store i32 %i1out42, i32* %i1out
-  %182 = extractvalue { float, i32 } %fout41, 0
+  %154 = fadd float %153, %151, !gla.precision !35
+  store float %154, float* getelementptr inbounds (<4 x float>* @fout, i32 0, i32 0)
+  %155 = load i32* %i1out
+  %156 = load <4 x i32>* @iout
+  %157 = extractelement <4 x i32> %156, i32 0, !gla.precision !35
+  %158 = add i32 %157, %155, !gla.precision !35
+  store i32 %158, i32* getelementptr inbounds (<4 x i32>* @iout, i32 0, i32 0)
+  %159 = load <2 x float>* @v2
+  %160 = load <2 x i32>* @i2
+  %fout27 = call <2 x float> @llvm.gla.fLdexp.v2f32.v2f32.v2i32(<2 x float> %159, <2 x i32> %160), !gla.precision !35
+  %161 = load <4 x float>* @fout
+  %162 = extractelement <4 x float> %161, i32 0, !gla.precision !35
+  %163 = insertelement <2 x float> undef, float %162, i32 0, !gla.precision !35
+  %164 = extractelement <4 x float> %161, i32 1, !gla.precision !35
+  %165 = insertelement <2 x float> %163, float %164, i32 1, !gla.precision !35
+  %166 = fadd <2 x float> %165, %fout27, !gla.precision !35
+  %167 = extractelement <2 x float> %166, i32 0
+  store float %167, float* getelementptr inbounds (<4 x float>* @fout, i32 0, i32 0)
+  %168 = extractelement <2 x float> %166, i32 1
+  store float %168, float* getelementptr inbounds (<4 x float>* @fout, i32 0, i32 1)
+  %169 = load float* @v1
+  %170 = load i32* @i1
+  %fout28 = call float @llvm.gla.fLdexp.f32.f32.i32(float %169, i32 %170), !gla.precision !35
+  %171 = load <4 x float>* @fout
+  %172 = extractelement <4 x float> %171, i32 0, !gla.precision !35
+  %173 = fadd float %172, %fout28, !gla.precision !35
+  store float %173, float* getelementptr inbounds (<4 x float>* @fout, i32 0, i32 0)
+  %174 = load <4 x float>* @v4
+  %uout29 = call i32 @llvm.gla.fPackUnorm4x8.i32.v4f32(<4 x float> %174), !gla.precision !35
+  %175 = load <4 x i32>* @uout
+  %176 = extractelement <4 x i32> %175, i32 0, !gla.precision !35
+  %177 = add i32 %176, %uout29, !gla.precision !35
+  store i32 %177, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 0)
+  %178 = load <4 x float>* @v4
+  %uout30 = call i32 @llvm.gla.fPackSnorm4x8.i32.v4f32(<4 x float> %178), !gla.precision !35
+  %179 = load <4 x i32>* @uout
+  %180 = extractelement <4 x i32> %179, i32 0, !gla.precision !35
+  %181 = add i32 %180, %uout30, !gla.precision !35
+  store i32 %181, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 0)
+  %182 = load i32* @u1
+  %fout31 = call <4 x float> @llvm.gla.fUnpackUnorm4x8.v4f32.i32(i32 %182), !gla.precision !36
   %183 = load <4 x float>* @fout
-  %184 = extractelement <4 x float> %183, i32 0, !gla.precision !35
-  %185 = fadd float %184, %182, !gla.precision !35
-  %186 = load <4 x float>* @fout
-  %fout43 = insertelement <4 x float> %186, float %185, i32 0
-  store <4 x float> %fout43, <4 x float>* @fout
-  %187 = load i32* %i1out
-  %188 = load <4 x i32>* @iout
-  %189 = extractelement <4 x i32> %188, i32 0, !gla.precision !35
-  %190 = add i32 %189, %187, !gla.precision !35
-  %191 = load <4 x i32>* @iout
-  %iout44 = insertelement <4 x i32> %191, i32 %190, i32 0
-  store <4 x i32> %iout44, <4 x i32>* @iout
-  %192 = load <2 x float>* @v2
-  %193 = load <2 x i32>* @i2
-  %fout45 = call <2 x float> @llvm.gla.fLdexp.v2f32.v2f32.v2i32(<2 x float> %192, <2 x i32> %193), !gla.precision !35
-  %194 = load <4 x float>* @fout
-  %195 = extractelement <4 x float> %194, i32 0, !gla.precision !35
-  %196 = insertelement <2 x float> undef, float %195, i32 0, !gla.precision !35
-  %197 = extractelement <4 x float> %194, i32 1, !gla.precision !35
-  %198 = insertelement <2 x float> %196, float %197, i32 1, !gla.precision !35
-  %199 = fadd <2 x float> %198, %fout45, !gla.precision !35
-  %200 = load <4 x float>* @fout
-  %201 = extractelement <2 x float> %199, i32 0
-  %202 = insertelement <4 x float> %200, float %201, i32 0
-  %203 = extractelement <2 x float> %199, i32 1
-  %fout46 = insertelement <4 x float> %202, float %203, i32 1
-  store <4 x float> %fout46, <4 x float>* @fout
-  %204 = load float* @v1
-  %205 = load i32* @i1
-  %fout47 = call float @llvm.gla.fLdexp.f32.f32.i32(float %204, i32 %205), !gla.precision !35
-  %206 = load <4 x float>* @fout
-  %207 = extractelement <4 x float> %206, i32 0, !gla.precision !35
-  %208 = fadd float %207, %fout47, !gla.precision !35
-  %209 = load <4 x float>* @fout
-  %fout48 = insertelement <4 x float> %209, float %208, i32 0
-  store <4 x float> %fout48, <4 x float>* @fout
-  %210 = load <4 x float>* @v4
-  %uout49 = call i32 @llvm.gla.fPackUnorm4x8.i32.v4f32(<4 x float> %210), !gla.precision !35
-  %211 = load <4 x i32>* @uout
-  %212 = extractelement <4 x i32> %211, i32 0, !gla.precision !35
-  %213 = add i32 %212, %uout49, !gla.precision !35
-  %214 = load <4 x i32>* @uout
-  %uout50 = insertelement <4 x i32> %214, i32 %213, i32 0
-  store <4 x i32> %uout50, <4 x i32>* @uout
-  %215 = load <4 x float>* @v4
-  %uout51 = call i32 @llvm.gla.fPackSnorm4x8.i32.v4f32(<4 x float> %215), !gla.precision !35
-  %216 = load <4 x i32>* @uout
-  %217 = extractelement <4 x i32> %216, i32 0, !gla.precision !35
-  %218 = add i32 %217, %uout51, !gla.precision !35
-  %219 = load <4 x i32>* @uout
-  %uout52 = insertelement <4 x i32> %219, i32 %218, i32 0
-  store <4 x i32> %uout52, <4 x i32>* @uout
-  %220 = load i32* @u1
-  %fout53 = call <4 x float> @llvm.gla.fUnpackUnorm4x8.v4f32.i32(i32 %220), !gla.precision !36
-  %221 = load <4 x float>* @fout
-  %fout54 = fadd <4 x float> %221, %fout53, !gla.precision !35
-  store <4 x float> %fout54, <4 x float>* @fout
-  %222 = load i32* @u1
-  %fout55 = call <4 x float> @llvm.gla.fUnpackSnorm4x8.v4f32.i32(i32 %222), !gla.precision !36
-  %223 = load <4 x float>* @fout
-  %fout56 = fadd <4 x float> %223, %fout55, !gla.precision !35
-  store <4 x float> %fout56, <4 x float>* @fout
+  %fout32 = fadd <4 x float> %183, %fout31, !gla.precision !35
+  store <4 x float> %fout32, <4 x float>* @fout
+  %184 = load i32* @u1
+  %fout33 = call <4 x float> @llvm.gla.fUnpackSnorm4x8.v4f32.i32(i32 %184), !gla.precision !36
+  %185 = load <4 x float>* @fout
+  %fout34 = fadd <4 x float> %185, %fout33, !gla.precision !35
+  store <4 x float> %fout34, <4 x float>* @fout
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %mainBody
