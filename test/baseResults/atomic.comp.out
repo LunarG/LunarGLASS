@@ -76,8 +76,8 @@ entry:
   %3 = load i32 addrspace(2)* @value, !gla.uniform !3
   %origu8 = call i32 @llvm.gla.atomicCompExchange.p4i32(i32 addrspace(4)* @atomu, i32 10, i32 %3), !gla.precision !15
   store i32 %origu8, i32* %origu
-  %misc2a = call i32 @llvm.gla.atomicAdd.p3i32(i32 addrspace(3)* getelementptr inbounds (%bname addrspace(3)* @binst, i32 0, i32 1), i32 1), !gla.precision !15
-  %misc2a9 = call i32 @llvm.gla.atomicXor.p3i32(i32 addrspace(3)* getelementptr inbounds (%bname addrspace(3)* @binst, i32 0, i32 0, i32 1), i32 5), !gla.precision !15
+  %misc2a = call i32 @llvm.gla.atomicAdd.p3i32(i32 addrspace(3)* getelementptr inbounds (%bname addrspace(3)* @binst, i32 0, i32 1), i32 1), !gla.precision !15, !gla.uniform !5
+  %misc2a9 = call i32 @llvm.gla.atomicXor.p3i32(i32 addrspace(3)* getelementptr inbounds (%bname addrspace(3)* @binst, i32 0, i32 0, i32 1), i32 5), !gla.precision !15, !gla.uniform !5
   ret void
 }
 

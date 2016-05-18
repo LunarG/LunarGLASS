@@ -148,11 +148,17 @@ public:
     // clear accessChain
     void clearAccessChain();
 
-    // store metadata in the access chain for future tagging of the load/store instruction
+    // store metadata in the access chain for future tagging of load/store/atomic instruction
     void setAccessChainMetadata(const char* mdk, llvm::MDNode* md)    
     { 
         accessChain.metadataKind = mdk;
         accessChain.mdNode = md; 
+    }
+
+    // retrieve metadata from the access chain for tagging of load/store/atomic instruction
+    llvm::MDNode* getAccessChainMetadata()    
+    { 
+        return accessChain.mdNode;
     }
 
     // say whether or not to evaluate a chain right to left (false means left to right)
@@ -399,8 +405,8 @@ public:
     llvm::Value* createIntrinsicCall(llvm::Intrinsic::ID);
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID);
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, const char* name = 0);
-    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, const char* name = 0);
-    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, llvm::Value*, const char* name = 0);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, const char* name = 0, llvm::MDNode* md = 0);
+    llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, llvm::Value*, const char* name = 0, llvm::MDNode* md = 0);
     llvm::Value* createIntrinsicCall(EMdPrecision, llvm::Intrinsic::ID, llvm::Value*, llvm::Value*, llvm::Value*, llvm::Value*, const char* name = 0);
     llvm::Value* createRecip(EMdPrecision, llvm::Value*);
 

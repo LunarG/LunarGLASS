@@ -2379,7 +2379,7 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
 }
 
 // Comments in header
-llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1, const char* name)
+llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1, const char* name, llvm::MDNode* md)
 {
     llvm::Function* intrinsicName = 0;
 
@@ -2447,10 +2447,13 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
 
     setInstructionPrecision(instr, precision);
 
+    if (md)
+        instr->setMetadata(gla::UniformMdName, md);
+
     return instr;
 }
 
-llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1, llvm::Value* operand2, const char* name)
+llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Intrinsic::ID intrinsicID, llvm::Value* operand0, llvm::Value* operand1, llvm::Value* operand2, const char* name, llvm::MDNode* md)
 {
     llvm::Function* intrinsicName;
 
@@ -2485,6 +2488,9 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     else
         instr = builder.CreateCall3(intrinsicName, operand0, operand1, operand2);
     setInstructionPrecision(instr, precision);
+
+    if (md)
+        instr->setMetadata(gla::UniformMdName, md);
 
     return instr;
 }
