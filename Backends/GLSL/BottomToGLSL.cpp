@@ -1725,7 +1725,7 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
         }
         // Strip off the "_typeProxy" to get the shader name:
         // TODO: formalize a better way of getting this; this results from a design change.
-        mappingName = CrackMdName(mdNode->getOperand(2));
+        mappingName = CrackMdValue(mdNode->getOperand(2))->getName();
         StripSuffix(mappingName, "_typeProxy");
     } else {
         if (builtInName.size() > 0 || instanceName.substr(0, 3) == std::string("gl_")) {
