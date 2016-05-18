@@ -132,3 +132,157 @@ attributes #0 = { alwaysinline }
 !48 = !{!"ovla", i32 7, [2 x <4 x float>]* @ovla_typeProxy, !38}
 !49 = !{!"myColor2", i32 7, <3 x float>* @myColor2_typeProxy, !50}
 !50 = !{i32 0, i32 3, i32 1229, null, i32 512, i32 0, i32 -1, i32 0, i32 -1}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+%gl_PerVertex = type { <4 x float>, float }
+%gl_PerVertex.0 = type { <4 x float>, float }
+%testblb = type { i32 }
+%testbld = type { i32 }
+%pinbn = type { i32 }
+
+@gl_in = global [32 x %gl_PerVertex] zeroinitializer
+@gl_PatchVerticesIn = global i32 0
+@gl_PrimitiveID = global i32 0
+@gl_TessCoord = global <3 x float> zeroinitializer
+@gl_TessLevelOuter = global [4 x float] zeroinitializer
+@gl_TessLevelInner = global [2 x float] zeroinitializer
+@"anon@1" = global %gl_PerVertex.0 zeroinitializer
+@patchIn = global <4 x float> zeroinitializer
+@inb = global [32 x <2 x float>] zeroinitializer
+@ind = global [32 x <2 x float>] zeroinitializer
+@blb = global [32 x %testblb] zeroinitializer
+@bld = global [32 x %testbld] zeroinitializer
+@ivla = global [32 x <4 x float>] zeroinitializer
+@ivlb = global [32 x <4 x float>] zeroinitializer
+@ovla = global [2 x <4 x float>] zeroinitializer
+@pinbi = global %pinbn zeroinitializer
+@myColor2 = global <3 x float> zeroinitializer
+@centr = global [32 x <3 x float>] zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %gla_constGEP = getelementptr [32 x %gl_PerVertex]* @gl_in, i32 0, i32 1, i32 0
+  %p1 = load <4 x float>* %gla_constGEP
+  %gla_constGEP7 = getelementptr %gl_PerVertex.0* @"anon@1", i32 0, i32 0
+  store <4 x float> %p1, <4 x float>* %gla_constGEP7
+  %gla_constGEP8 = getelementptr [32 x %gl_PerVertex]* @gl_in, i32 0, i32 1, i32 1
+  %0 = load float* %gla_constGEP8
+  %gla_constGEP9 = getelementptr %gl_PerVertex.0* @"anon@1", i32 0, i32 1
+  store float %0, float* %gla_constGEP9
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+!gla.inputPrimitive = !{!0}
+!gla.vertexSpacing = !{!1}
+!gla.vertexOrder = !{!2}
+!gla.pointMode = !{!3}
+!gla.entrypoint = !{!4}
+!gla.inputs = !{!5, !13, !15, !17, !19, !21, !23, !25, !27, !29, !34, !37, !39, !41, !44}
+!gla.outputs = !{!46, !48, !49}
+!gla.noStaticUse = !{!23, !25, !27, !29, !34, !37, !39, !48, !41, !49, !44}
+
+!0 = !{i32 8}
+!1 = !{i32 3}
+!2 = !{i32 2}
+!3 = !{i32 1}
+!4 = !{!"main", i32 15}
+!5 = !{!"gl_in", i32 17, [32 x %gl_PerVertex]* @gl_in_typeProxy, !6, !7}
+!6 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"gl_PerVertex", !8, !"gl_Position", !9, !"gl_PointSize", !11}
+!8 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!9 = !{!"", !10}
+!10 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 9, i32 -1, i32 0, i32 -1}
+!11 = !{!"", !12}
+!12 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 10, i32 -1, i32 0, i32 -1}
+!13 = !{!"gl_PatchVerticesIn", i32 1, i32* @gl_PatchVerticesIn_typeProxy, !14}
+!14 = !{i32 0, i32 3, i32 1088, null, i32 0, i32 34, i32 -1, i32 0, i32 -1}
+!15 = !{!"gl_PrimitiveID", i32 1, i32* @gl_PrimitiveID_typeProxy, !16}
+!16 = !{i32 0, i32 3, i32 1089, null, i32 0, i32 31, i32 -1, i32 0, i32 -1}
+!17 = !{!"gl_TessCoord", i32 1, <3 x float>* @gl_TessCoord_typeProxy, !18}
+!18 = !{i32 0, i32 3, i32 1090, null, i32 0, i32 37, i32 -1, i32 0, i32 -1}
+!19 = !{!"gl_TessLevelOuter", i32 1, [4 x float]* @gl_TessLevelOuter_typeProxy, !20}
+!20 = !{i32 0, i32 3, i32 1091, null, i32 3, i32 35, i32 -1, i32 0, i32 -1}
+!21 = !{!"gl_TessLevelInner", i32 1, [2 x float]* @gl_TessLevelInner_typeProxy, !22}
+!22 = !{i32 0, i32 3, i32 1095, null, i32 3, i32 36, i32 -1, i32 0, i32 -1}
+!23 = !{!"patchIn", i32 1, <4 x float>* @patchIn_typeProxy, !24}
+!24 = !{i32 0, i32 3, i32 1099, null, i32 3, i32 0, i32 -1, i32 0, i32 -1}
+!25 = !{!"inb", i32 1, [32 x <2 x float>]* @inb_typeProxy, !26}
+!26 = !{i32 0, i32 3, i32 1100, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!27 = !{!"ind", i32 1, [32 x <2 x float>]* @ind_typeProxy, !28}
+!28 = !{i32 0, i32 3, i32 1132, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!29 = !{!"blb", i32 17, [32 x %testblb]* @blb_typeProxy, !30, !31}
+!30 = !{i32 0, i32 0, i32 1164, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!31 = !{!"testblb", !8, !"f", !32}
+!32 = !{!"", !33}
+!33 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!34 = !{!"bld", i32 17, [32 x %testbld]* @bld_typeProxy, !35, !36}
+!35 = !{i32 0, i32 0, i32 1196, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!36 = !{!"testbld", !8, !"f", !32}
+!37 = !{!"ivla", i32 1, [32 x <4 x float>]* @ivla_typeProxy, !38}
+!38 = !{i32 0, i32 3, i32 23, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!39 = !{!"ivlb", i32 1, [32 x <4 x float>]* @ivlb_typeProxy, !40}
+!40 = !{i32 0, i32 3, i32 24, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!41 = !{!"pinbi", i32 17, %pinbn* @pinbi_typeProxy, !42, !43}
+!42 = !{i32 0, i32 0, i32 1228, null, i32 3, i32 0, i32 -1, i32 0, i32 -1}
+!43 = !{!"pinbn", !8, !"a", !32}
+!44 = !{!"centr", i32 1, [32 x <3 x float>]* @centr_typeProxy, !45}
+!45 = !{i32 0, i32 3, i32 1230, null, i32 512, i32 0, i32 -1, i32 0, i32 -1}
+!46 = !{!"", i32 16, %gl_PerVertex.0* @"anon@1_typeProxy", !47, !7}
+!47 = !{i32 0, i32 0, i32 1097, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!48 = !{!"ovla", i32 7, [2 x <4 x float>]* @ovla_typeProxy, !38}
+!49 = !{!"myColor2", i32 7, <3 x float>* @myColor2_typeProxy, !50}
+!50 = !{i32 0, i32 3, i32 1229, null, i32 512, i32 0, i32 -1, i32 0, i32 -1}
+#version 310 es
+// LunarGOO output
+#extension GL_ANDROID_extension_pack_es31a : enable
+#extension GL_EXT_geometry_shader : enable
+#extension GL_EXT_gpu_shader5 : enable
+#extension GL_EXT_primitive_bounding_box : enable
+#extension GL_EXT_shader_io_blocks : enable
+#extension GL_EXT_tessellation_shader : enable
+#extension GL_EXT_texture_buffer : enable
+#extension GL_EXT_texture_cube_map_array : enable
+#extension GL_KHR_blend_equation_advanced : enable
+#extension GL_OES_sample_variables : enable
+#extension GL_OES_shader_image_atomic : enable
+#extension GL_OES_shader_multisample_interpolation : enable
+#extension GL_OES_tessellation_point_size : enable
+#extension GL_OES_texture_storage_multisample_2d_array : enable
+layout(quads) in;
+layout(fractional_odd_spacing) in;
+layout(point_mode) in;
+patch in highp vec4 patchIn;
+in highp vec2 inb[32];
+in highp vec2 ind[32];
+in testblb {
+	highp int f;
+} blb[32];
+in testbld {
+	highp int f;
+} bld[32];
+layout(location=23) in highp vec4 ivla[32];
+layout(location=24) in highp vec4 ivlb[32];
+patch in pinbn {
+	highp int a;
+} pinbi;
+in highp vec3 centr[32];
+layout(location=23) out highp vec4 ovla[2];
+out highp vec3 myColor2;
+
+void main()
+{
+	gl_Position = gl_in[1].gl_Position;
+	gl_PointSize = gl_in[1].gl_PointSize;
+	
+}
+

@@ -250,3 +250,367 @@ attributes #0 = { alwaysinline }
 !12 = !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !13 = !{!"uAofA", !12, !"f", !14}
 !14 = !{!"", !8}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+%uAofA = type { [2 x [4 x float]] }
+
+@outfloat = global float 0.000000e+00
+@g5 = global [5 x [7 x float]] zeroinitializer
+@many = internal unnamed_addr global [1 x [2 x [3 x [4 x [5 x [6 x float]]]]]] zeroinitializer
+@i = external addrspace(2) constant i32
+@j = external addrspace(2) constant i32
+@k = external addrspace(2) constant i32
+@infloat = global float 0.000000e+00
+@nameAofA = external addrspace(2) constant [3 x [5 x %uAofA]]
+
+define fastcc void @main() {
+entry:
+  %constructed.i = alloca [4 x [7 x float]]
+  %param66 = alloca [5 x [7 x float]]
+  %u = alloca [5 x [7 x float]]
+  %param2 = alloca [5 x [7 x float]]
+  %param = alloca [5 x [7 x float]]
+  store float 0.000000e+00, float* @outfloat
+  %param1 = load [5 x [7 x float]]* @g5
+  store [5 x [7 x float]] %param1, [5 x [7 x float]]* %param
+  %0 = bitcast [4 x [7 x float]]* %constructed.i to i8*
+  call void @llvm.lifetime.start(i64 -1, i8* %0)
+  %1 = getelementptr [5 x [7 x float]]* %param, i32 0, i32 2
+  %r1.i = load [7 x float]* %1
+  %2 = getelementptr [5 x [7 x float]]* %param, i32 0, i32 0
+  %3 = load [7 x float]* %2
+  %4 = getelementptr [5 x [7 x float]]* %param, i32 0, i32 1
+  %5 = load [7 x float]* %4
+  %6 = getelementptr [5 x [7 x float]]* %param, i32 0, i32 3
+  %7 = load [7 x float]* %6
+  %8 = getelementptr [4 x [7 x float]]* %constructed.i, i32 0, i32 0
+  store [7 x float] %3, [7 x float]* %8
+  %9 = getelementptr [4 x [7 x float]]* %constructed.i, i32 0, i32 1
+  store [7 x float] %5, [7 x float]* %9
+  %10 = getelementptr [4 x [7 x float]]* %constructed.i, i32 0, i32 2
+  store [7 x float] %r1.i, [7 x float]* %10
+  %11 = getelementptr [4 x [7 x float]]* %constructed.i, i32 0, i32 3
+  store [7 x float] %7, [7 x float]* %11
+  %12 = load [4 x [7 x float]]* %constructed.i
+  call void @llvm.lifetime.end(i64 -1, i8* %0)
+  store [5 x [7 x float]] %param1, [5 x [7 x float]]* %param2
+  call void @llvm.lifetime.start(i64 -1, i8* %0)
+  %13 = getelementptr [5 x [7 x float]]* %param2, i32 0, i32 2
+  %r1.i73 = load [7 x float]* %13
+  %14 = getelementptr [5 x [7 x float]]* %param2, i32 0, i32 0
+  %15 = load [7 x float]* %14
+  %16 = getelementptr [5 x [7 x float]]* %param2, i32 0, i32 1
+  %17 = load [7 x float]* %16
+  %18 = getelementptr [5 x [7 x float]]* %param2, i32 0, i32 3
+  %19 = load [7 x float]* %18
+  store [7 x float] %15, [7 x float]* %8
+  store [7 x float] %17, [7 x float]* %9
+  store [7 x float] %r1.i73, [7 x float]* %10
+  store [7 x float] %19, [7 x float]* %11
+  %20 = load [4 x [7 x float]]* %constructed.i
+  call void @llvm.lifetime.end(i64 -1, i8* %0)
+  %element1 = extractvalue [4 x [7 x float]] %20, 0
+  %element2 = extractvalue [4 x [7 x float]] %12, 0
+  %element14 = extractvalue [7 x float] %element1, 0
+  %element25 = extractvalue [7 x float] %element2, 0
+  %21 = fcmp oeq float %element14, %element25
+  %element16 = extractvalue [7 x float] %element1, 1
+  %element27 = extractvalue [7 x float] %element2, 1
+  %22 = fcmp oeq float %element16, %element27
+  %23 = and i1 %21, %22
+  %element18 = extractvalue [7 x float] %element1, 2
+  %element29 = extractvalue [7 x float] %element2, 2
+  %24 = fcmp oeq float %element18, %element29
+  %25 = and i1 %24, %23
+  %element110 = extractvalue [7 x float] %element1, 3
+  %element211 = extractvalue [7 x float] %element2, 3
+  %26 = fcmp oeq float %element110, %element211
+  %27 = and i1 %26, %25
+  %element112 = extractvalue [7 x float] %element1, 4
+  %element213 = extractvalue [7 x float] %element2, 4
+  %28 = fcmp oeq float %element112, %element213
+  %29 = and i1 %28, %27
+  %element114 = extractvalue [7 x float] %element1, 5
+  %element215 = extractvalue [7 x float] %element2, 5
+  %30 = fcmp oeq float %element114, %element215
+  %31 = and i1 %30, %29
+  %element116 = extractvalue [7 x float] %element1, 6
+  %element217 = extractvalue [7 x float] %element2, 6
+  %32 = fcmp oeq float %element116, %element217
+  %33 = and i1 %32, %31
+  %element118 = extractvalue [4 x [7 x float]] %20, 1
+  %element219 = extractvalue [4 x [7 x float]] %12, 1
+  %element120 = extractvalue [7 x float] %element118, 0
+  %element221 = extractvalue [7 x float] %element219, 0
+  %34 = fcmp oeq float %element120, %element221
+  %element122 = extractvalue [7 x float] %element118, 1
+  %element223 = extractvalue [7 x float] %element219, 1
+  %35 = fcmp oeq float %element122, %element223
+  %36 = and i1 %34, %35
+  %element124 = extractvalue [7 x float] %element118, 2
+  %element225 = extractvalue [7 x float] %element219, 2
+  %37 = fcmp oeq float %element124, %element225
+  %38 = and i1 %37, %36
+  %element126 = extractvalue [7 x float] %element118, 3
+  %element227 = extractvalue [7 x float] %element219, 3
+  %39 = fcmp oeq float %element126, %element227
+  %40 = and i1 %39, %38
+  %element128 = extractvalue [7 x float] %element118, 4
+  %element229 = extractvalue [7 x float] %element219, 4
+  %41 = fcmp oeq float %element128, %element229
+  %42 = and i1 %41, %40
+  %element130 = extractvalue [7 x float] %element118, 5
+  %element231 = extractvalue [7 x float] %element219, 5
+  %43 = fcmp oeq float %element130, %element231
+  %44 = and i1 %43, %42
+  %element132 = extractvalue [7 x float] %element118, 6
+  %element233 = extractvalue [7 x float] %element219, 6
+  %45 = fcmp oeq float %element132, %element233
+  %46 = and i1 %45, %44
+  %47 = and i1 %33, %46
+  %element134 = extractvalue [4 x [7 x float]] %20, 2
+  %element235 = extractvalue [4 x [7 x float]] %12, 2
+  %element136 = extractvalue [7 x float] %element134, 0
+  %element237 = extractvalue [7 x float] %element235, 0
+  %48 = fcmp oeq float %element136, %element237
+  %element138 = extractvalue [7 x float] %element134, 1
+  %element239 = extractvalue [7 x float] %element235, 1
+  %49 = fcmp oeq float %element138, %element239
+  %50 = and i1 %48, %49
+  %element140 = extractvalue [7 x float] %element134, 2
+  %element241 = extractvalue [7 x float] %element235, 2
+  %51 = fcmp oeq float %element140, %element241
+  %52 = and i1 %51, %50
+  %element142 = extractvalue [7 x float] %element134, 3
+  %element243 = extractvalue [7 x float] %element235, 3
+  %53 = fcmp oeq float %element142, %element243
+  %54 = and i1 %53, %52
+  %element144 = extractvalue [7 x float] %element134, 4
+  %element245 = extractvalue [7 x float] %element235, 4
+  %55 = fcmp oeq float %element144, %element245
+  %56 = and i1 %55, %54
+  %element146 = extractvalue [7 x float] %element134, 5
+  %element247 = extractvalue [7 x float] %element235, 5
+  %57 = fcmp oeq float %element146, %element247
+  %58 = and i1 %57, %56
+  %element148 = extractvalue [7 x float] %element134, 6
+  %element249 = extractvalue [7 x float] %element235, 6
+  %59 = fcmp oeq float %element148, %element249
+  %60 = and i1 %59, %58
+  %61 = and i1 %60, %47
+  %element150 = extractvalue [4 x [7 x float]] %20, 3
+  %element251 = extractvalue [4 x [7 x float]] %12, 3
+  %element152 = extractvalue [7 x float] %element150, 0
+  %element253 = extractvalue [7 x float] %element251, 0
+  %62 = fcmp oeq float %element152, %element253
+  %element154 = extractvalue [7 x float] %element150, 1
+  %element255 = extractvalue [7 x float] %element251, 1
+  %63 = fcmp oeq float %element154, %element255
+  %64 = and i1 %62, %63
+  %element156 = extractvalue [7 x float] %element150, 2
+  %element257 = extractvalue [7 x float] %element251, 2
+  %65 = fcmp oeq float %element156, %element257
+  %66 = and i1 %65, %64
+  %element158 = extractvalue [7 x float] %element150, 3
+  %element259 = extractvalue [7 x float] %element251, 3
+  %67 = fcmp oeq float %element158, %element259
+  %68 = and i1 %67, %66
+  %element160 = extractvalue [7 x float] %element150, 4
+  %element261 = extractvalue [7 x float] %element251, 4
+  %69 = fcmp oeq float %element160, %element261
+  %70 = and i1 %69, %68
+  %element162 = extractvalue [7 x float] %element150, 5
+  %element263 = extractvalue [7 x float] %element251, 5
+  %71 = fcmp oeq float %element162, %element263
+  %72 = and i1 %71, %70
+  %element164 = extractvalue [7 x float] %element150, 6
+  %element265 = extractvalue [7 x float] %element251, 6
+  %73 = fcmp oeq float %element164, %element265
+  %74 = and i1 %73, %72
+  %75 = and i1 %74, %61
+  br i1 %75, label %then, label %entry.ifmerge_crit_edge
+
+entry.ifmerge_crit_edge:                          ; preds = %entry
+  %.pre = load float* @outfloat
+  br label %ifmerge
+
+then:                                             ; preds = %entry
+  %76 = load float* @outfloat
+  %outfloat = fadd float %76, 1.000000e+00
+  store float %outfloat, float* @outfloat
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %entry.ifmerge_crit_edge, %then
+  %77 = phi float [ %.pre, %entry.ifmerge_crit_edge ], [ %outfloat, %then ]
+  %78 = getelementptr [5 x [7 x float]]* %u, i32 0, i32 2, i32 2
+  store float 3.000000e+00, float* %78
+  %param6667 = load [5 x [7 x float]]* %u
+  store [5 x [7 x float]] %param6667, [5 x [7 x float]]* %param66
+  call void @llvm.lifetime.start(i64 -1, i8* %0)
+  %79 = getelementptr [5 x [7 x float]]* %param66, i32 0, i32 2
+  %r1.i71 = load [7 x float]* %79
+  %80 = getelementptr [5 x [7 x float]]* %param66, i32 0, i32 0
+  %81 = load [7 x float]* %80
+  %82 = getelementptr [5 x [7 x float]]* %param66, i32 0, i32 1
+  %83 = load [7 x float]* %82
+  %84 = getelementptr [5 x [7 x float]]* %param66, i32 0, i32 3
+  %85 = load [7 x float]* %84
+  store [7 x float] %81, [7 x float]* %8
+  store [7 x float] %83, [7 x float]* %9
+  store [7 x float] %r1.i71, [7 x float]* %10
+  store [7 x float] %85, [7 x float]* %11
+  call void @llvm.lifetime.end(i64 -1, i8* %0)
+  %86 = load i32 addrspace(2)* @i, !gla.uniform !7
+  %87 = load i32 addrspace(2)* @j
+  %88 = load i32 addrspace(2)* @k, !gla.uniform !10
+  %89 = load float* @infloat
+  %90 = getelementptr [1 x [2 x [3 x [4 x [5 x [6 x float]]]]]]* @many, i32 0, i32 %86, i32 %87, i32 %88, i32 %86, i32 %87, i32 %88
+  store float %89, float* %90
+  %91 = getelementptr [1 x [2 x [3 x [4 x [5 x [6 x float]]]]]]* @many, i32 0, i32 %87, i32 %87, i32 %87, i32 %87, i32 %87, i32 %87
+  %92 = load float* %91
+  %outfloat68 = fadd float %92, %77
+  store float %outfloat68, float* @outfloat
+  %gla_constGEP = getelementptr [3 x [5 x %uAofA]] addrspace(2)* @nameAofA, i32 0, i32 1, i32 2, i32 0, i32 0, i32 3
+  %93 = load float addrspace(2)* %gla_constGEP, !gla.uniform !11
+  %outfloat69 = fadd float %outfloat68, %93
+  store float %outfloat69, float* @outfloat
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind
+declare void @llvm.lifetime.start(i64, i8* nocapture) #0
+
+; Function Attrs: nounwind
+declare void @llvm.lifetime.end(i64, i8* nocapture) #0
+
+attributes #0 = { nounwind }
+
+!gla.entrypoint = !{!0}
+!gla.outputs = !{!1}
+!gla.inputs = !{!3, !5}
+!gla.uniforms = !{!7, !9, !10, !11}
+
+!0 = !{!"main", i32 15}
+!1 = !{!"outfloat", i32 7, float* @outfloat_typeProxy, !2}
+!2 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"g5", i32 1, [5 x [7 x float]]* @g5_typeProxy, !4}
+!4 = !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!5 = !{!"infloat", i32 1, float* @infloat_typeProxy, !6}
+!6 = !{i32 0, i32 0, i32 1060, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"i", i32 12, i32* @i_typeProxy, !8}
+!8 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!9 = !{!"j", i32 12, i32* @j_typeProxy, !8}
+!10 = !{!"k", i32 12, i32* @k_typeProxy, !8}
+!11 = !{!"nameAofA", i32 13, [3 x [5 x %uAofA]]* @nameAofA_typeProxy, !12, !13}
+!12 = !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!13 = !{!"uAofA", !12, !"f", !14}
+!14 = !{!"", !8}
+
+***Unsupported functionality: control flow: not all blocks were translated
+#version 430 core
+// LunarGOO output
+uniform int i;
+uniform int j;
+uniform int k;
+uniform uAofA {
+	float f[2];
+} nameAofA[3];
+in float g5[5];
+in float infloat;
+out float outfloat;
+float many[1];
+const float C_0d0 = 0.0;
+const float C_1d0 = 1.0;
+
+void main()
+{
+	float Lg_1;
+	float[4] constructed;
+	float[5] param;
+	float[5] Lg_2;
+	float[5] param1;
+	float[5] param2;
+	outfloat = C_0d0;
+	constructed[0] = g5[0];
+	constructed[1] = g5[1];
+	constructed[2] = g5[2];
+	constructed[3] = g5[3];
+	constructed[0] = g5[0];
+	constructed[1] = g5[1];
+	constructed[2] = g5[2];
+	constructed[3] = g5[3];
+	bool H_v6c37i = constructed[0][0] == constructed[0][0];
+	bool H_pj67td = constructed[0][1] == constructed[0][1];
+	bool H_26qihn = H_v6c37i && H_pj67td;
+	bool H_ji7t4t = constructed[0][2] == constructed[0][2];
+	bool H_rvxocd1 = H_ji7t4t && H_26qihn;
+	bool H_11zptt1 = constructed[0][3] == constructed[0][3];
+	bool H_n9eiog = H_11zptt1 && H_rvxocd1;
+	bool H_nat3ey = constructed[0][4] == constructed[0][4];
+	bool H_io2v7p1 = H_nat3ey && H_n9eiog;
+	bool H_xx8ziv1 = constructed[0][5] == constructed[0][5];
+	bool H_tmi56r = H_xx8ziv1 && H_io2v7p1;
+	bool H_79aeiu1 = constructed[0][6] == constructed[0][6];
+	bool H_zflvrc = H_79aeiu1 && H_tmi56r;
+	bool H_xku9jn1 = constructed[1][0] == constructed[1][0];
+	bool H_fy3c05 = constructed[1][1] == constructed[1][1];
+	bool H_j9r5vs = H_xku9jn1 && H_fy3c05;
+	bool H_15pw4s = constructed[1][2] == constructed[1][2];
+	bool H_sl7kg9 = H_15pw4s && H_j9r5vs;
+	bool H_7a060w1 = constructed[1][3] == constructed[1][3];
+	bool H_i4syid = H_7a060w1 && H_sl7kg9;
+	bool H_lnkqyj1 = constructed[1][4] == constructed[1][4];
+	bool H_98pgt61 = H_lnkqyj1 && H_i4syid;
+	bool H_rrztdd1 = constructed[1][5] == constructed[1][5];
+	bool H_x5giob1 = H_rrztdd1 && H_98pgt61;
+	bool H_9p8xrv = constructed[1][6] == constructed[1][6];
+	bool H_xg7e4o1 = H_9p8xrv && H_x5giob1;
+	bool H_7b8hdo1 = H_zflvrc && H_xg7e4o1;
+	bool H_jmryji1 = constructed[2][0] == constructed[2][0];
+	bool H_h4aaed1 = constructed[2][1] == constructed[2][1];
+	bool H_1cucon = H_jmryji1 && H_h4aaed1;
+	bool H_r7lcxr1 = constructed[2][2] == constructed[2][2];
+	bool H_r6gsnt1 = H_r7lcxr1 && H_1cucon;
+	bool H_lparfs1 = constructed[2][3] == constructed[2][3];
+	bool H_5o894i = H_lparfs1 && H_r6gsnt1;
+	bool H_rce4y8 = constructed[2][4] == constructed[2][4];
+	bool H_2dfggt1 = H_rce4y8 && H_5o894i;
+	bool H_ll8tbr = constructed[2][5] == constructed[2][5];
+	bool H_mxi2dl1 = H_ll8tbr && H_2dfggt1;
+	bool H_vghl4 = constructed[2][6] == constructed[2][6];
+	bool H_9q39rd1 = H_vghl4 && H_mxi2dl1;
+	bool H_x1pv361 = H_9q39rd1 && H_7b8hdo1;
+	bool H_lttfw21 = constructed[3][0] == constructed[3][0];
+	bool H_fe3qs51 = constructed[3][1] == constructed[3][1];
+	bool H_5narkq = H_lttfw21 && H_fe3qs51;
+	bool H_tyn91q = constructed[3][2] == constructed[3][2];
+	bool H_tmburf = H_tyn91q && H_5narkq;
+	bool H_b71z2z = constructed[3][3] == constructed[3][3];
+	bool H_7oc2ii = H_b71z2z && H_tmburf;
+	bool H_tp4ynt = constructed[3][4] == constructed[3][4];
+	bool H_dumqtl1 = H_tp4ynt && H_7oc2ii;
+	bool H_jf62vs1 = constructed[3][5] == constructed[3][5];
+	bool H_lxgag91 = H_jf62vs1 && H_dumqtl1;
+	bool H_t2obpq1 = constructed[3][6] == constructed[3][6];
+	bool H_51iyry1 = H_t2obpq1 && H_lxgag91;
+	bool H_sin342 = H_51iyry1 && H_x1pv361;
+	if (H_sin342) {
+		float outfloat1 = outfloat + C_1d0;
+		outfloat = outfloat1;
+		Lg_1 = outfloat1;
+	} else {
+		Lg_1 = outfloat;
+	}
+	
+}
+

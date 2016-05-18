@@ -80,3 +80,83 @@ attributes #1 = { nounwind readnone }
 !12 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !13 = !{!"ac_numPassed", i32 12, i32* @ac_numPassed_typeProxy, !14}
 !14 = !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 0}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+%Block = type { i32, <4 x float>, [2 x %S] }
+%S = type { <3 x i32>, <4 x float> }
+
+@block = external addrspace(3) constant [3 x %Block]
+
+define fastcc void @main() {
+entry:
+  %gla_constGEP = getelementptr [3 x %Block] addrspace(3)* @block, i32 0, i32 0, i32 2, i32 0, i32 0
+  %param2 = load <3 x i32> addrspace(3)* %gla_constGEP, !gla.uniform !2
+  %0 = icmp eq <3 x i32> %param2, zeroinitializer
+  %cc.i = call i1 @llvm.gla.all.v3i1(<3 x i1> %0)
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br i1 %cc.i, label %then, label %stage-exit
+
+then:                                             ; preds = %stage-epilogue
+  %gla_constGEP4 = getelementptr [3 x %Block] addrspace(3)* @block, i32 0, i32 0, i32 0
+  store i32 0, i32 addrspace(3)* %gla_constGEP4, !gla.uniform !2
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue, %then
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare i1 @llvm.gla.all.v3i1(<3 x i1>) #0
+
+attributes #0 = { nounwind readnone }
+
+!gla.localSize = !{!0}
+!gla.entrypoint = !{!1}
+!gla.uniforms = !{!2, !13}
+!gla.noStaticUse = !{!13}
+
+!0 = !{i32 1, i32 1, i32 1}
+!1 = !{!"main", i32 15}
+!2 = !{!"block", i32 18, [3 x %Block]* @block_typeProxy, !3, !4}
+!3 = !{i32 8, i32 0, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 -1}
+!4 = !{!"Block", !3, !"u", !5, !"v", !7, !"s", !9}
+!5 = !{!"", !6}
+!6 = !{i32 1, i32 1, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"", !8}
+!8 = !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!9 = !{!"S", !10, !"a", !11, !"c", !11}
+!10 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!11 = !{!"", !12}
+!12 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!13 = !{!"ac_numPassed", i32 12, i32* @ac_numPassed_typeProxy, !14}
+!14 = !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 0}
+
+***Unsupported functionality: control flow: not all blocks were translated
+#version 310 es
+// LunarGOO output
+layout(local_size_x=1, local_size_y=1, local_size_z=1) in; 
+struct S {
+	highp ivec3 a;
+	highp vec4 c;
+};
+layout(std430, binding=0) buffer Block {
+	lowp uint u;
+	mediump vec4 v;
+	S s[][2];
+} block[3];
+layout(binding=0, offset=0) uniform highp atomic_uint ac_numPassed;
+const ivec3 C_ivec3p0p = ivec3(0);
+
+void main()
+{
+	bvec3 H_bbum8x1 = equal(block[0].s[0].a, C_ivec3p0p);
+	bool cc = all(H_bbum8x1);
+	return;
+}
+

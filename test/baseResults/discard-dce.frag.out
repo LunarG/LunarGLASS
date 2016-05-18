@@ -129,3 +129,135 @@ attributes #1 = { nounwind }
 !2 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !3 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !4}
 !4 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+@tex_coord = global <2 x float> zeroinitializer
+@gl_FragColor = global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %0 = load <2 x float>* @tex_coord
+  %1 = extractelement <2 x float> %0, i32 0
+  %2 = fmul float %1, 2.000000e+00
+  %x2 = fadd float %2, -1.000000e+00
+  %3 = extractelement <2 x float> %0, i32 1
+  %4 = fmul float %3, 2.000000e+00
+  %y3 = fadd float %4, -1.000000e+00
+  %5 = fmul float %x2, %x2
+  %6 = fmul float %y3, %y3
+  %7 = fadd float %5, %6
+  %radius4 = call float @llvm.gla.fSqrt.f32.f32(float %7)
+  %8 = fcmp ogt float %radius4, 1.000000e+00
+  br i1 %8, label %then, label %ifmerge10
+
+then:                                             ; preds = %entry
+  %9 = fcmp ogt float %radius4, 0x3FF19999A0000000
+  %color.0 = select i1 %9, <4 x float> <float 2.000000e+00, float 2.000000e+00, float 2.000000e+00, float 2.000000e+00>, <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  store <4 x float> %color.0, <4 x float>* @gl_FragColor
+  call void @llvm.gla.discard()
+  br label %stage-exit
+
+ifmerge10:                                        ; preds = %entry
+  %10 = fcmp ult float %radius4, 7.500000e-01
+  br i1 %10, label %ifmerge15, label %then11
+
+then11:                                           ; preds = %ifmerge10
+  %color12 = call float @llvm.gla.fPow.f32.f32.f32(float %radius4, float 1.600000e+01)
+  %11 = fmul float %color12, 5.000000e-01
+  %color13 = call float @llvm.gla.fAbs.f32.f32(float %11)
+  %12 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %color13, <4 x i32> zeroinitializer)
+  %color14 = fsub <4 x float> <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %12
+  br label %ifmerge15
+
+ifmerge15:                                        ; preds = %ifmerge10, %then11
+  %color.1 = phi <4 x float> [ %color14, %then11 ], [ <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>, %ifmerge10 ]
+  store <4 x float> %color.1, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge15
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue, %then
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fSqrt.f32.f32(float) #0
+
+; Function Attrs: nounwind
+declare void @llvm.gla.discard() #1
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fPow.f32.f32.f32(float, float) #0
+
+; Function Attrs: nounwind readnone
+declare float @llvm.gla.fAbs.f32.f32(float) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
+
+!gla.entrypoint = !{!0}
+!gla.inputs = !{!1}
+!gla.outputs = !{!3}
+
+!0 = !{!"main", i32 15}
+!1 = !{!"tex_coord", i32 1, <2 x float>* @tex_coord_typeProxy, !2}
+!2 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !4}
+!4 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+#version 110
+// LunarGOO output
+varying vec2 tex_coord;
+const float C_2d0 = 2.0;
+const float C_a1d0 = -1.0;
+const float C_1d0 = 1.0;
+const float C_1d1 = 1.1;
+const vec4 C_vec4p2d0p = vec4(2.0);
+const vec4 C_vec4p1d0p = vec4(1.0);
+const float C_0d75 = 0.75;
+const float C_16d0 = 16.0;
+const float C_0d5 = 0.5;
+
+void main()
+{
+	vec4 color;
+	float H_wl1qbc1 = tex_coord.x * C_2d0;
+	float H_gjl0431 = H_wl1qbc1 + C_a1d0;
+	float H_73il2x1 = C_2d0 * tex_coord.y;
+	float H_n0ljhg = C_a1d0 + H_73il2x1;
+	float H_xbvmut = H_gjl0431 * H_gjl0431;
+	float H_la7j6f1 = H_n0ljhg * H_n0ljhg;
+	float H_rkd1t91 = H_la7j6f1 + H_xbvmut;
+	float radius = sqrt(H_rkd1t91);
+	bool H_4k5wsg1 = radius > C_1d0;
+	if (H_4k5wsg1) {
+		bool H_39rv2h1 = radius > C_1d1;
+		vec4 color1 = H_39rv2h1 ? C_vec4p2d0p : C_vec4p1d0p;
+		gl_FragColor = color1;
+		discard;
+	} else {
+		bool H_jks9vc1 = radius < C_0d75;
+		color = C_vec4p1d0p;
+		if (H_jks9vc1) {
+			gl_FragColor = color;
+			return;
+		} else {
+			float color2 = pow(radius, C_16d0);
+			float H_dv3s1t = color2 * C_0d5;
+			float color3 = abs(H_dv3s1t);
+			vec4 H_8v0kvc = vec4(color3);
+			vec4 color4 = C_vec4p1d0p - H_8v0kvc;
+			color = color4;
+		}
+		
+	}
+	
+}
+

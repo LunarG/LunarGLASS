@@ -178,3 +178,181 @@ attributes #0 = { nounwind readnone }
 !6 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !7 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !8}
 !8 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+@u = external addrspace(2) constant <4 x float>
+@t = global <2 x float> zeroinitializer
+@p = external addrspace(2) constant i1
+@gl_FragColor = global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %rep = alloca <4 x float>
+  %c = alloca <2 x float>
+  %w_undef = alloca <4 x float>
+  %w_flow = alloca <4 x float>
+  %w_reorder = alloca <4 x float>
+  %w_dep = alloca <4 x float>
+  %w = alloca <4 x float>
+  %w1 = load <4 x float> addrspace(2)* @u
+  %0 = call <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float> %w1, <4 x i32> <i32 2, i32 3, i32 0, i32 1>)
+  store <4 x float> %w1, <4 x float>* %w
+  store <4 x float> %w1, <4 x float>* %w_dep
+  store <4 x float> %w1, <4 x float>* %w_reorder
+  store <4 x float> %w1, <4 x float>* %w_flow
+  %1 = getelementptr <4 x float>* %w_reorder, i32 0, i32 2
+  store float 0x3FFC9FBE80000000, float* %1
+  %2 = load <2 x float>* @t
+  %3 = extractelement <2 x float> %2, i32 0
+  %4 = getelementptr <4 x float>* %w, i32 0, i32 3
+  store float %3, float* %4
+  %5 = extractelement <2 x float> %2, i32 1
+  %6 = getelementptr <4 x float>* %w, i32 0, i32 1
+  store float %5, float* %6
+  %7 = getelementptr <4 x float>* %w_reorder, i32 0, i32 0
+  store float 0x3FFC9FBE80000000, float* %7
+  %8 = getelementptr <4 x float>* %w_reorder, i32 0, i32 1
+  store float 0x3FFC9FBE80000000, float* %8
+  %9 = extractelement <4 x float> %w1, i32 2
+  %10 = getelementptr <4 x float>* %w_dep, i32 0, i32 0
+  store float %9, float* %10
+  %11 = extractelement <4 x float> %w1, i32 0
+  %12 = getelementptr <4 x float>* %w_dep, i32 0, i32 1
+  store float %11, float* %12
+  %13 = getelementptr <4 x float>* %w_dep, i32 0, i32 2
+  store float %3, float* %13
+  %14 = getelementptr <4 x float>* %w_dep, i32 0, i32 3
+  store float %5, float* %14
+  %15 = getelementptr <4 x float>* %w_undef, i32 0, i32 0
+  store float %9, float* %15
+  %16 = extractelement <4 x float> %w1, i32 3
+  %17 = getelementptr <4 x float>* %w_undef, i32 0, i32 1
+  store float %16, float* %17
+  %18 = load i1 addrspace(2)* @p, !gla.uniform !3
+  br i1 %18, label %then, label %else
+
+then:                                             ; preds = %entry
+  %19 = getelementptr <4 x float>* %w_flow, i32 0, i32 0
+  store float %3, float* %19
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %20 = getelementptr <4 x float>* %w_flow, i32 0, i32 0
+  store float %5, float* %20
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %21 = load <4 x float>* %w_reorder
+  %22 = load <4 x float>* %w_undef
+  %23 = load <4 x float>* %w
+  %24 = fmul <4 x float> %0, %23
+  %25 = load <4 x float>* %w_dep
+  %26 = fmul <4 x float> %24, %25
+  %27 = load <4 x float>* %w_flow
+  %28 = fmul <4 x float> %26, %27
+  %gl_FragColor = call <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float> %21, <4 x float> %22, <4 x float> %28)
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  store <2 x float> %2, <2 x float>* %c
+  store <4 x float> <float 0.000000e+00, float 0.000000e+00, float 0.000000e+00, float 1.000000e+00>, <4 x float>* %rep
+  %29 = fcmp olt float %3, 0.000000e+00
+  br i1 %29, label %then8, label %ifmerge9
+
+then8:                                            ; preds = %ifmerge
+  %30 = fsub float -0.000000e+00, %3
+  %31 = getelementptr <2 x float>* %c, i32 0, i32 0
+  store float %30, float* %31
+  %.pre = load <2 x float>* %c
+  br label %ifmerge9
+
+ifmerge9:                                         ; preds = %ifmerge, %then8
+  %32 = phi <2 x float> [ %2, %ifmerge ], [ %.pre, %then8 ]
+  %33 = extractelement <2 x float> %32, i32 0
+  %34 = fcmp ugt float %33, 1.000000e+00
+  br i1 %34, label %ifmerge11, label %then10
+
+then10:                                           ; preds = %ifmerge9
+  %35 = getelementptr <4 x float>* %rep, i32 0, i32 0
+  store float 0x400B333340000000, float* %35
+  %.pre13 = load <4 x float>* %rep
+  br label %ifmerge11
+
+ifmerge11:                                        ; preds = %ifmerge9, %then10
+  %36 = phi <4 x float> [ <float 0.000000e+00, float 0.000000e+00, float 0.000000e+00, float 1.000000e+00>, %ifmerge9 ], [ %.pre13, %then10 ]
+  %gl_FragColor12 = fadd <4 x float> %36, %gl_FragColor
+  store <4 x float> %gl_FragColor12, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge11
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fMix.v4f32.v4f32.v4f32.v4f32(<4 x float>, <4 x float>, <4 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.v4f32.v4i32(<4 x float>, <4 x i32>) #0
+
+attributes #0 = { nounwind readnone }
+
+!gla.entrypoint = !{!0}
+!gla.uniforms = !{!1, !3, !4}
+!gla.inputs = !{!5}
+!gla.outputs = !{!7}
+!gla.noStaticUse = !{!4}
+
+!0 = !{!"main", i32 15}
+!1 = !{!"u", i32 12, <4 x float>* @u_typeProxy, !2}
+!2 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"p", i32 12, i1* @p_typeProxy, !2}
+!4 = !{!"blend", i32 12, float* @blend_typeProxy, !2}
+!5 = !{!"t", i32 1, <2 x float>* @t_typeProxy, !6}
+!6 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !8}
+!8 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+
+***Unsupported functionality: control flow: not all blocks were translated
+#version 110
+// LunarGOO output
+uniform vec4 u;
+uniform bool p;
+uniform float blend;
+varying vec2 t;
+const float C_1d789 = 1.789;
+
+void main()
+{
+	vec2 Lg_1;
+	vec4 Lg_2;
+	vec4 rep;
+	vec2 Lg_3;
+	vec4 w_undef;
+	vec4 w_flow;
+	vec4 w_reorder;
+	vec4 w_dep;
+	vec4 Lg_4;
+	u.z = C_1d789;
+	u.w = t.x;
+	u.y = t.y;
+	u.x = C_1d789;
+	u.y = C_1d789;
+	u.x = u.z;
+	u.y = u.x;
+	u.z = t.x;
+	u.w = t.y;
+	w_undef.x = u.z;
+	w_undef.y = u.w;
+	if (p) {
+		u.x = t.x;
+	} else {
+		u.x = t.y;
+	}
+	
+}
+

@@ -79,3 +79,113 @@ attributes #0 = { nounwind readnone }
 !12 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 !13 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !14}
 !14 = !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+%lunarStruct2 = type { [5 x i32], float, [7 x %lunarStruct1] }
+%lunarStruct1 = type { i32, [4 x float], [5 x <4 x float>] }
+
+@foo2 = external addrspace(2) constant [5 x %lunarStruct2]
+@gl_FragColor = global <4 x float> zeroinitializer
+@sampler = external addrspace(1) constant i32
+@coord = global <2 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %gla_constGEP = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 0, i32 4
+  %0 = load i32 addrspace(2)* %gla_constGEP, !gla.uniform !1
+  %1 = icmp sgt i32 %0, 0
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %entry
+  %gla_constGEP4 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 2, i32 3
+  %2 = load <4 x float> addrspace(2)* %gla_constGEP4, !gla.uniform !1
+  %scale1 = extractelement <4 x float> %2, i32 0
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %gla_constGEP5 = getelementptr [5 x %lunarStruct2] addrspace(2)* @foo2, i32 0, i32 3, i32 2, i32 2, i32 1, i32 3
+  %scale2 = load float addrspace(2)* %gla_constGEP5, !gla.uniform !1
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %scale.0 = phi float [ %scale1, %then ], [ %scale2, %else ]
+  %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %scale.0, <4 x i32> zeroinitializer)
+  %4 = load i32 addrspace(1)* @sampler, !gla.uniform !7
+  %5 = load <2 x float>* @coord
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %5)
+  %gl_FragColor3 = fmul <4 x float> %gl_FragColor, %3
+  store <4 x float> %gl_FragColor3, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
+
+attributes #0 = { nounwind readnone }
+
+!gla.entrypoint = !{!0}
+!gla.uniforms = !{!1, !7, !10}
+!gla.outputs = !{!11}
+!gla.inputs = !{!13}
+!gla.noStaticUse = !{!10}
+
+!0 = !{!"main", i32 15}
+!1 = !{!"foo2", i32 12, [5 x %lunarStruct2]* @foo2_typeProxy, !2, !3}
+!2 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"lunarStruct2", !2, !"i", !4, !"f", !4, !"s1_1", !6}
+!4 = !{!"", !5}
+!5 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!6 = !{!"lunarStruct1", !2, !"i", !4, !"f", !4, !"color", !4}
+!7 = !{!"sampler", i32 12, i32* @sampler_typeProxy, !8}
+!8 = !{i32 5, i32 0, i32 1024, !9, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!9 = !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!10 = !{!"foo", i32 12, %lunarStruct1* @foo_typeProxy, !2, !6}
+!11 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !12}
+!12 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+!13 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !14}
+!14 = !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+
+***Unsupported functionality: control flow: not all blocks were translated
+#version 130
+// LunarGOO output
+struct lunarStruct1 {
+	int i;
+	float f[4];
+	vec4 color[5];
+};
+struct lunarStruct2 {
+	int i[5];
+	float f;
+	lunarStruct1 s1_1[7];
+};
+uniform lunarStruct2 foo2[5];
+uniform sampler2D sampler;
+uniform lunarStruct1 foo;
+in vec2 coord;
+const int C_0 = 0;
+
+void main()
+{
+	float scale;
+	bool H_l0sl9r = foo2[3].i[4] > C_0;
+	if (H_l0sl9r) {
+		scale = foo2[3].s1_1[2].color[3].x;
+	} else {
+		scale = foo2[3].s1_1[2].f[3];
+	}
+	
+}
+

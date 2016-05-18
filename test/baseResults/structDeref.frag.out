@@ -158,3 +158,220 @@ attributes #0 = { nounwind readnone }
 !18 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !19 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !20}
 !20 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+%s3 = type { [12 x %s2], i32, float, %s1 }
+%s2 = type { i32, float, %s1 }
+%s1 = type { i32, float, %s0 }
+%s0 = type { i32 }
+%s00 = type { %s0 }
+
+@foo3 = external addrspace(2) constant %s3
+@foo1 = external addrspace(2) constant %s1
+@coord = global <2 x float> zeroinitializer
+@foo0 = external addrspace(2) constant %s0
+@foo00 = external addrspace(2) constant %s00
+@gl_FragColor = global <4 x float> zeroinitializer
+@sampler = external addrspace(1) constant i32
+
+define fastcc void @main() {
+entry:
+  %locals24 = alloca %s1
+  %locals00 = alloca %s00
+  %locals0 = alloca %s0
+  %locals1Array = alloca [10 x %s1]
+  %fArray = alloca [6 x float]
+  %locals2 = alloca %s2
+  %gla_constGEP = getelementptr %s3 addrspace(2)* @foo3, i32 0, i32 0, i32 9, i32 0
+  %0 = load i32 addrspace(2)* %gla_constGEP, !gla.uniform !1
+  %1 = icmp sgt i32 %0, 0
+  br i1 %1, label %then, label %else
+
+then:                                             ; preds = %entry
+  %2 = getelementptr %s2* %locals2, i32 0, i32 1
+  store float 1.000000e+00, float* %2
+  %3 = getelementptr %s2* %locals2, i32 0, i32 2
+  store %s1 { i32 0, float 1.000000e+00, %s0 zeroinitializer }, %s1* %3
+  store [6 x float] zeroinitializer, [6 x float]* %fArray
+  %4 = load %s1 addrspace(2)* @foo1, !gla.uniform !9
+  %5 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
+  store %s1 %4, %s1* %5
+  store %s0 zeroinitializer, %s0* %locals0
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  %6 = load <2 x float>* @coord
+  %7 = extractelement <2 x float> %6, i32 0
+  %8 = getelementptr %s2* %locals2, i32 0, i32 1
+  store float %7, float* %8
+  %9 = extractelement <2 x float> %6, i32 1
+  %10 = load %s0 addrspace(2)* @foo0, !gla.uniform !10
+  %11 = getelementptr %s1* %locals24, i32 0, i32 0
+  store i32 1, i32* %11
+  %12 = getelementptr %s1* %locals24, i32 0, i32 1
+  store float %9, float* %12
+  %13 = getelementptr %s1* %locals24, i32 0, i32 2
+  store %s0 %10, %s0* %13
+  %14 = load %s1* %locals24
+  %15 = getelementptr %s2* %locals2, i32 0, i32 2
+  store %s1 %14, %s1* %15
+  store [6 x float] [float 0.000000e+00, float 1.000000e+00, float 2.000000e+00, float 3.000000e+00, float 4.000000e+00, float 5.000000e+00], [6 x float]* %fArray
+  %16 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
+  store %s1 %14, %s1* %16
+  %gla_constGEP12 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2
+  %locals06 = load %s0 addrspace(2)* %gla_constGEP12, !gla.uniform !9
+  store %s0 %locals06, %s0* %locals0
+  %locals007 = load %s00 addrspace(2)* @foo00, !gla.uniform !11
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %storemerge = phi %s00 [ %locals007, %else ], [ zeroinitializer, %then ]
+  store %s00 %storemerge, %s00* %locals00
+  %17 = getelementptr %s0* %locals0, i32 0, i32 0
+  %18 = load i32* %17
+  %19 = icmp sgt i32 %18, 5
+  br i1 %19, label %then8, label %ifmerge10
+
+then8:                                            ; preds = %ifmerge
+  %20 = getelementptr %s00* %locals00, i32 0, i32 0
+  %locals09 = load %s0* %20
+  store %s0 %locals09, %s0* %locals0
+  %.pre = load i32* %17
+  br label %ifmerge10
+
+ifmerge10:                                        ; preds = %ifmerge, %then8
+  %21 = phi i32 [ %18, %ifmerge ], [ %.pre, %then8 ]
+  %22 = sitofp i32 %21 to float
+  %23 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6, i32 1
+  %24 = load float* %23
+  %25 = fadd float %22, %24
+  %26 = getelementptr [6 x float]* %fArray, i32 0, i32 3
+  %27 = load float* %26
+  %28 = fadd float %25, %27
+  %29 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
+  %30 = load float* %29
+  %31 = fadd float %28, %30
+  %32 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %31, <4 x i32> zeroinitializer)
+  %33 = load i32 addrspace(1)* @sampler, !gla.uniform !13
+  %34 = load <2 x float>* @coord
+  %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %33, i32 0, <2 x float> %34)
+  %gl_FragColor11 = fmul <4 x float> %gl_FragColor, %32
+  store <4 x float> %gl_FragColor11, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %ifmerge10
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
+
+attributes #0 = { nounwind readnone }
+
+!gla.entrypoint = !{!0}
+!gla.uniforms = !{!1, !9, !10, !11, !13, !16}
+!gla.inputs = !{!17}
+!gla.outputs = !{!19}
+!gla.noStaticUse = !{!16}
+
+!0 = !{!"main", i32 15}
+!1 = !{!"foo3", i32 12, %s3* @foo3_typeProxy, !2, !3}
+!2 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"s3", !2, !"s2_1", !4, !"i", !5, !"f", !5, !"s1_1", !7}
+!4 = !{!"s2", !2, !"i", !5, !"f", !5, !"s1_1", !7}
+!5 = !{!"", !6}
+!6 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"s1", !2, !"i", !5, !"f", !5, !"s0_1", !8}
+!8 = !{!"s0", !2, !"i", !5}
+!9 = !{!"foo1", i32 12, %s1* @foo1_typeProxy, !2, !7}
+!10 = !{!"foo0", i32 12, %s0* @foo0_typeProxy, !2, !8}
+!11 = !{!"foo00", i32 12, %s00* @foo00_typeProxy, !2, !12}
+!12 = !{!"s00", !2, !"s0_0", !8}
+!13 = !{!"sampler", i32 12, i32* @sampler_typeProxy, !14}
+!14 = !{i32 5, i32 0, i32 1024, !15, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!15 = !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!16 = !{!"foo2", i32 12, %s2* @foo2_typeProxy, !2, !4}
+!17 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !18}
+!18 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!19 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !20}
+!20 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+
+***Unsupported functionality: control flow: not all blocks were translated
+#version 130
+// LunarGOO output
+struct s0 {
+	int i;
+};
+struct s1 {
+	int i;
+	float f;
+	s0 s0_1;
+};
+struct s2 {
+	int i;
+	float f;
+	s1 s1_1;
+};
+struct s3 {
+	s2 s2_1[12];
+	int i;
+	float f;
+	s1 s1_1;
+};
+struct s00 {
+	s0 s0_0;
+};
+uniform s3 foo3;
+uniform s1 foo1;
+uniform s0 foo0;
+uniform s00 foo00;
+uniform sampler2D sampler;
+uniform s2 foo2;
+in vec2 coord;
+const int C_0 = 0;
+const float C_1d0 = 1.0;
+const s1 C_r5bkdh1 = s1(0, 1.0, s0(0));
+const float C_0fpd21[6] = float[6](0.0);
+const s0 C_s0p0p = s0(0);
+const s00 C_s00ps0p0pp = s00(s0(0));
+const int C_1 = 1;
+const float C_x9gr9h[6] = float[6](0.0, 1.0, 2.0, 3.0, 4.0, 5.0);
+
+void main()
+{
+	s00 storemerge;
+	s1 locals;
+	s00 locals1;
+	s0 locals2;
+	s1[10] locals1Array;
+	float[6] fArray;
+	s2 locals3;
+	bool H_vyfm0e = foo3.s2_1[9].i > C_0;
+	if (H_vyfm0e) {
+		locals3.f = C_1d0;
+		locals3.s1_1 = C_r5bkdh1;
+		locals1Array[6] = foo1;
+		storemerge = C_s00ps0p0pp;
+	} else {
+		locals3.f = coord.x;
+		locals.i = C_1;
+		locals.f = coord.y;
+		locals.s0_1 = foo0;
+		locals3.s1_1 = locals;
+		locals1Array[6] = locals;
+		C_s0p0p = foo1.s0_1;
+		storemerge = foo00;
+	}
+	
+}
+

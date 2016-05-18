@@ -308,3 +308,125 @@ attributes #0 = { nounwind readnone }
 !16 = !{!"b", i32 12, i1* @b_typeProxy, !17}
 !17 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !18 = !{i32 2}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+@t = global <2 x i32> zeroinitializer
+@c = global <4 x i32> zeroinitializer
+@usampler = external addrspace(1) constant i32
+@tc = global <2 x float> zeroinitializer
+@f = global float 0.000000e+00
+
+define fastcc void @main() {
+entry:
+  %0 = load <2 x i32>* @t
+  %1 = extractelement <2 x i32> %0, i32 1, !gla.precision !18
+  %u1 = add i32 %1, 3, !gla.precision !18
+  %2 = load i32 addrspace(1)* @usampler, !gla.uniform !9
+  %3 = load <2 x float>* @tc
+  %4 = fadd <2 x float> %3, <float 1.000000e+00, float 1.000000e+00>, !gla.precision !18
+  %c22 = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %2, i32 0, <2 x float> %4), !gla.precision !18
+  %5 = extractelement <2 x i32> %0, i32 0, !gla.precision !18
+  %6 = icmp ugt i32 %5, 4
+  br i1 %6, label %then28, label %then35
+
+then28:                                           ; preds = %entry
+  %af29 = uitofp i32 %u1 to float, !gla.precision !18
+  %ab30 = icmp ne i32 %u1, 0
+  %7 = fptoui float %af29 to i32, !gla.precision !18
+  %8 = zext i1 %ab30 to i32, !gla.precision !18
+  %9 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32> undef, i32 15, i32 %7, i32 0, i32 %8, i32 0, i32 %u1, i32 0, i32 462, i32 0)
+  %c33 = add <4 x i32> %9, %c22, !gla.precision !18
+  br label %then35
+
+then35:                                           ; preds = %then28, %entry
+  %10 = phi <4 x i32> [ %c33, %then28 ], [ %c22, %entry ]
+  %c61 = add <4 x i32> %10, <i32 341413380, i32 341413380, i32 341413380, i32 341413380>, !gla.precision !18
+  store <4 x i32> %c61, <4 x i32>* @c
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %then35
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32, i32, i32, <2 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32>, i32, i32, i32, i32, i32, i32, i32, i32, i32) #0
+
+attributes #0 = { nounwind readnone }
+
+!gla.entrypoint = !{!0}
+!gla.inputs = !{!1, !3, !5}
+!gla.outputs = !{!7}
+!gla.uniforms = !{!9, !12, !14, !16}
+!gla.noStaticUse = !{!5, !12, !14, !16}
+
+!0 = !{!"main", i32 15}
+!1 = !{!"t", i32 1, <2 x i32>* @t_typeProxy, !2}
+!2 = !{i32 1, i32 2, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"tc", i32 1, <2 x float>* @tc_typeProxy, !4}
+!4 = !{i32 0, i32 2, i32 1026, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!5 = !{!"f", i32 1, float* @f_typeProxy, !6}
+!6 = !{i32 0, i32 2, i32 1027, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"c", i32 7, <4 x i32>* @c_typeProxy, !8}
+!8 = !{i32 1, i32 2, i32 1025, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!9 = !{!"usampler", i32 12, i32* @usampler_typeProxy, !10}
+!10 = !{i32 5, i32 2, i32 1024, !11, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!11 = !{i32 0, i32* @usampler_typeProxy, i32 1, i1 false, i1 false, i32 2}
+!12 = !{!"v", i32 12, <4 x i32>* @v_typeProxy, !13}
+!13 = !{i32 1, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!14 = !{!"i", i32 12, i32* @i_typeProxy, !15}
+!15 = !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!16 = !{!"b", i32 12, i1* @b_typeProxy, !17}
+!17 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!18 = !{i32 2}
+#version 300 es
+// LunarGOO output
+precision mediump float; // this will be almost entirely overridden by individual declarations
+uniform mediump usampler2D usampler;
+uniform mediump uvec4 v;
+uniform mediump int i;
+uniform bool b;
+flat in mediump uvec2 t;
+in mediump vec2 tc;
+in mediump float f;
+out mediump uvec4 c;
+const int C_3 = 3;
+const vec2 C_vec2p1d0p = vec2(1.0);
+const int C_4 = 4;
+const int C_0 = 0;
+const int C_462 = 462;
+const ivec4 C_gq0c5e = ivec4(341413380);
+
+void main()
+{
+	ivec4 Lg_1;
+	mediump int H_0zxu2h = ivec2(t).y + C_3;
+	mediump vec2 H_6jm302 = tc + C_vec2p1d0p;
+	mediump ivec4 H_jws944 = ivec4(texture(usampler, H_6jm302));
+	bool H_dyh45t = uint(ivec2(t).x) > uint(C_4);
+	Lg_1 = H_jws944;
+	if (H_dyh45t) {
+		mediump float af = float(H_0zxu2h);
+		bool ab = H_0zxu2h != C_0;
+		mediump int H_z3q2xa1 = int(uint(af));
+		mediump int H_0idpap1 = int(ab);
+		ivec4 H_k2rdh51 = ivec4(H_z3q2xa1, H_0idpap1, H_0zxu2h, C_462);
+		mediump ivec4 H_65ybjk1 = H_jws944 + H_k2rdh51;
+		Lg_1 = H_65ybjk1;
+	} else {
+		mediump ivec4 H_iyuda6 = Lg_1 + C_gq0c5e;
+		c = uvec4(H_iyuda6);
+		
+	}
+	
+}
+

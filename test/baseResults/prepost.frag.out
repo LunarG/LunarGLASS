@@ -121,3 +121,65 @@ stage-exit:                                       ; preds = %stage-epilogue
 !0 = !{!"main", i32 15}
 !1 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !2}
 !2 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+@gl_FragColor = global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %v = alloca <4 x float>
+  store <4 x float> <float 1.000000e+00, float 2.000000e+00, float 3.000000e+00, float 4.000000e+00>, <4 x float>* %v
+  %0 = getelementptr <4 x float>* %v, i32 0, i32 2
+  store float 2.000000e+00, float* %0
+  %1 = getelementptr <4 x float>* %v, i32 0, i32 1
+  store float 3.000000e+00, float* %1
+  %2 = load <4 x float>* %v
+  %3 = extractelement <4 x float> %2, i32 3
+  %4 = fadd float %3, -1.000000e+00
+  %5 = getelementptr <4 x float>* %v, i32 0, i32 3
+  store float %4, float* %5
+  %6 = getelementptr <4 x float>* %v, i32 0, i32 0
+  store float %4, float* %6
+  %7 = load <4 x float>* %v
+  %gl_FragColor = fmul <4 x float> %7, <float 1.210000e+03, float 1.210000e+03, float 1.210000e+03, float 1.210000e+03>
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+!gla.entrypoint = !{!0}
+!gla.outputs = !{!1}
+
+!0 = !{!"main", i32 15}
+!1 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !2}
+!2 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+#version 140
+// LunarGOO output
+const vec4 C_0ci24t1 = vec4(1.0, 2.0, 3.0, 4.0);
+const float C_2d0 = 2.0;
+const float C_3d0 = 3.0;
+const float C_a1d0 = -1.0;
+const vec4 C_wol4dn = vec4(1210.0);
+
+void main()
+{
+	vec4 Lg_1;
+	C_0ci24t1.z = C_2d0;
+	C_0ci24t1.y = C_3d0;
+	float H_e90t8c = C_0ci24t1.w + C_a1d0;
+	C_0ci24t1.w = H_e90t8c;
+	C_0ci24t1.x = H_e90t8c;
+	vec4 Ll_FragColor1 = C_0ci24t1 * C_wol4dn;
+	gl_FragColor = Ll_FragColor1;
+	
+}
+
