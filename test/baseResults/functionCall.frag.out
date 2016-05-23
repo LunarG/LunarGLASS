@@ -128,13 +128,13 @@ attributes #0 = { alwaysinline }
 !gla.outputs = !{!6}
 !gla.noStaticUse = !{!2}
 
-!0 = !{!"d", i32 12, float* @d_typeProxy, !1}
+!0 = !{!"d", i32 12, float* @d_typeProxy, !1, !""}
 !1 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!2 = !{!"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, !1}
+!2 = !{!"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, !1, !""}
 !3 = !{!"main", i32 15}
-!4 = !{!"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, !5}
+!4 = !{!"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, !5, !""}
 !5 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!6 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !7}
+!6 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !7, !""}
 !7 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 
 
@@ -189,13 +189,13 @@ attributes #0 = { nounwind readnone }
 !gla.outputs = !{!6}
 !gla.noStaticUse = !{!2}
 
-!0 = !{!"d", i32 12, float* @d_typeProxy, !1}
+!0 = !{!"d", i32 12, float* @d_typeProxy, !1, !""}
 !1 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!2 = !{!"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, !1}
+!2 = !{!"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, !1, !""}
 !3 = !{!"main", i32 15}
-!4 = !{!"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, !5}
+!4 = !{!"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, !5, !""}
 !5 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!6 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !7}
+!6 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !7, !""}
 !7 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 #version 130
 // LunarGOO output

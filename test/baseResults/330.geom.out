@@ -42,23 +42,23 @@ attributes #0 = { nounwind }
 !gla.outputPrimitive = !{!3}
 !gla.entrypoint = !{!4}
 !gla.outputs = !{!5}
-!gla.inputs = !{!13}
+!gla.inputs = !{!11}
 
 !0 = !{i32 1}
 !1 = !{i32 3}
 !2 = !{i32 5}
 !3 = !{i32 7}
 !4 = !{!"main", i32 15}
-!5 = !{!"", i32 16, %gl_PerVertex* @"anon@0_typeProxy", !6, !7}
+!5 = !{!"", i32 16, %gl_PerVertex* @"anon@0_typeProxy", !6, !"gl_PerVertex", !7, !9}
 !6 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!7 = !{!"gl_PerVertex", !8, !"gl_Position", !9, !"gl_ClipDistance", !11}
-!8 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!9 = !{!"", !10}
-!10 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 9, i32 -1, i32 0, i32 -1}
-!11 = !{!"", !12}
-!12 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 12, i32 -1, i32 0, i32 -1}
-!13 = !{!"gl_in", i32 17, [3 x %gl_PerVertex.0]* @gl_in_typeProxy, !14, !7}
-!14 = !{i32 0, i32 0, i32 1027, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"gl_Position", i32 8, <4 x float>* @gl_Position_typeProxy, !8, !""}
+!8 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 9, i32 -1, i32 0, i32 -1}
+!9 = !{!"gl_ClipDistance", i32 7, [1 x float]* @gl_ClipDistance_typeProxy, !10, !""}
+!10 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 12, i32 -1, i32 0, i32 -1}
+!11 = !{!"gl_in", i32 17, [3 x %gl_PerVertex.0]* @gl_in_typeProxy, !12, !"gl_PerVertex", !13, !14}
+!12 = !{i32 0, i32 0, i32 1027, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!13 = !{!"gl_Position", i32 1, <4 x float>* @gl_Position_typeProxy, !8, !""}
+!14 = !{!"gl_ClipDistance", i32 1, [1 x float]* @gl_ClipDistance_typeProxy, !10, !""}
 
 
 Bottom IR:
@@ -106,23 +106,23 @@ attributes #0 = { nounwind }
 !gla.outputPrimitive = !{!3}
 !gla.entrypoint = !{!4}
 !gla.outputs = !{!5}
-!gla.inputs = !{!13}
+!gla.inputs = !{!11}
 
 !0 = !{i32 1}
 !1 = !{i32 3}
 !2 = !{i32 5}
 !3 = !{i32 7}
 !4 = !{!"main", i32 15}
-!5 = !{!"", i32 16, %gl_PerVertex* @"anon@0_typeProxy", !6, !7}
+!5 = !{!"", i32 16, %gl_PerVertex* @"anon@0_typeProxy", !6, !"gl_PerVertex", !7, !9}
 !6 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
-!7 = !{!"gl_PerVertex", !8, !"gl_Position", !9, !"gl_ClipDistance", !11}
-!8 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!9 = !{!"", !10}
-!10 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 9, i32 -1, i32 0, i32 -1}
-!11 = !{!"", !12}
-!12 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 12, i32 -1, i32 0, i32 -1}
-!13 = !{!"gl_in", i32 17, [3 x %gl_PerVertex.0]* @gl_in_typeProxy, !14, !7}
-!14 = !{i32 0, i32 0, i32 1027, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"gl_Position", i32 8, <4 x float>* @gl_Position_typeProxy, !8, !""}
+!8 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 9, i32 -1, i32 0, i32 -1}
+!9 = !{!"gl_ClipDistance", i32 7, [1 x float]* @gl_ClipDistance_typeProxy, !10, !""}
+!10 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 12, i32 -1, i32 0, i32 -1}
+!11 = !{!"gl_in", i32 17, [3 x %gl_PerVertex.0]* @gl_in_typeProxy, !12, !"gl_PerVertex", !13, !14}
+!12 = !{i32 0, i32 0, i32 1027, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!13 = !{!"gl_Position", i32 1, <4 x float>* @gl_Position_typeProxy, !8, !""}
+!14 = !{!"gl_ClipDistance", i32 1, [1 x float]* @gl_ClipDistance_typeProxy, !10, !""}
 #version 330 core
 // LunarGOO output
 #extension GL_ARB_separate_shader_objects : enable

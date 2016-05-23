@@ -303,7 +303,7 @@ public:
 
     virtual bool useSingleTypeTree()
     {
-        return false;
+        return true;
     }
 };
 
@@ -1191,15 +1191,15 @@ const char* MapComponentToSwizzleChar(int component)
     return "x";
 }
 
-std::string MapGlaStructField(const llvm::Type* structType, int index, const llvm::MDNode* mdAggregate = 0)
+std::string MapGlaStructField(const llvm::Type* structType, int index, const llvm::MDNode* mdIo = 0)
 {
     std::string name;
 
-    if (mdAggregate) {
-        int aggOp = GetAggregateMdNameOp(index);
-        if ((int)mdAggregate->getNumOperands() > aggOp) {
-            name = CrackMdName(mdAggregate->getOperand(aggOp));
-
+    if (mdIo) {
+        int ioOp = GetIoMdOp(index);
+        if ((int)mdIo->getNumOperands() > ioOp) {
+            const llvm::MDNode* subMdIo = llvm::dyn_cast<const llvm::MDNode>(mdIo->getOperand(ioOp));
+            name = CrackMdName(subMdIo->getOperand(0));
             return name;
         } else
             UnsupportedFunctionality("missing name in aggregate", EATContinue);
@@ -1573,23 +1573,23 @@ int CountSlots(const llvm::Type* type)
 //
 // *Textually* dereference a name string down to a single I/O slot.
 //
-void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNode* mdAggregate, int slotOffset, EMdTypeLayout& mdTypeLayout)
+void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNode* mdIo, int slotOffset, EMdTypeLayout& mdTypeLayout)
 {
     // Operates recursively...
 
     if (type->getTypeID() == llvm::Type::PointerTyID) {
         type = type->getContainedType(0);
 
-        DereferenceName(name, type, mdAggregate, slotOffset, mdTypeLayout);
+        DereferenceName(name, type, mdIo, slotOffset, mdTypeLayout);
     } else if (type->getTypeID() == llvm::Type::StructTyID) {
         int field = 0;
         int operand;
         const llvm::StructType* structType = llvm::dyn_cast<const llvm::StructType>(type);
         const llvm::Type* fieldType;
         do {
-            operand = GetAggregateMdSubAggregateOp(field);
-            if (operand >= (int)mdAggregate->getNumOperands()) {
-                assert(operand < (int)mdAggregate->getNumOperands());
+            operand = GetIoMdOp(field);
+            if (operand >= (int)mdIo->getNumOperands()) {
+                assert(operand < (int)mdIo->getNumOperands());
                 return;
             }
             fieldType = structType->getContainedType(field);
@@ -1601,9 +1601,9 @@ void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNo
         } while (true);
         if (name.size() > 0)
             name = name + ".";
-        name = name + std::string(CrackMdName(mdAggregate->getOperand(GetAggregateMdNameOp(field))));
-        const llvm::MDNode* subMdAggregate = llvm::dyn_cast<const llvm::MDNode>(mdAggregate->getOperand(operand));
-        DereferenceName(name, fieldType, subMdAggregate, slotOffset, mdTypeLayout);
+        const llvm::MDNode* subMdIo = llvm::dyn_cast<const llvm::MDNode>(mdIo->getOperand(operand));
+        name = name + std::string(CrackMdName(subMdIo->getOperand(0)));
+        DereferenceName(name, fieldType, subMdIo, slotOffset, mdTypeLayout);
     } else if (type->getTypeID() == llvm::Type::ArrayTyID) {
         const llvm::ArrayType* arrayType = llvm::dyn_cast<const llvm::ArrayType>(type);
         int elementSize = CountSlots(arrayType->getContainedType(0));
@@ -1614,9 +1614,9 @@ void DereferenceName(std::string& name, const llvm::Type* type, const llvm::MDNo
         snprintf(buf, sizeof(buf), "%d", element);
         name = name + "[" + buf + "]";
         
-        DereferenceName(name, arrayType->getContainedType(0), mdAggregate, slotOffset, mdTypeLayout);
-    } else if (mdAggregate)
-        mdTypeLayout = GetMdTypeLayout(mdAggregate);
+        DereferenceName(name, arrayType->getContainedType(0), mdIo, slotOffset, mdTypeLayout);
+    } else if (mdIo)
+        mdTypeLayout = GetIoMdTypeLayout(mdIo);
 }
 
 void StripSuffix(std::string& name, const char* suffix)
@@ -1693,8 +1693,10 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
     int dummyBinding;
     unsigned int dummyQualifiers;
     int dummyOffset;
-    CrackIOMd(mdNode, metaType.name, ioKind, type, dummyLayout, metaType.precision, dummyLocation, metaType.mdSampler, metaType.mdAggregate,
-              dummyInterp, metaType.builtIn, dummyBinding, dummyQualifiers, dummyOffset);
+    assert(manager->getPrivateManager() && manager->getPrivateManager()->getBackEnd()->useSingleTypeTree() && "single walk io metadata");
+    std::string dummyName;
+    CrackSingleTypeIOMd(mdNode, metaType.name, ioKind, type, dummyLayout, metaType.precision, dummyLocation, metaType.mdSampler, dummyName,
+                        dummyInterp, metaType.builtIn, dummyBinding, dummyQualifiers, dummyOffset);
     std::string builtInName = GetBuiltInName(ioKind, stage, metaType.builtIn);
 
     std::string instanceName = CrackMdName(mdNode->getOperand(0));
@@ -1752,14 +1754,14 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
         canonMap[mappingName] = 0;
 
     if (! declarationAllowed) {
-        if ((type->getTypeID() == llvm::Type::StructTyID || type->getTypeID() == llvm::Type::ArrayTyID) && metaType.mdAggregate) {
+        if (type->getTypeID() == llvm::Type::StructTyID || type->getTypeID() == llvm::Type::ArrayTyID) {
             // We don't want to spit out a declaration (below), but we do want to establish the mapping
             // between LLVM's type and the mdAggregate.
             // Arrays will be dereferenced before lookup, so dereference the key now too.
             const llvm::Type* aggType = type;
             while (aggType->getTypeID() == llvm::Type::ArrayTyID)
                 aggType = aggType->getContainedType(0);
-            typeMdAggregateMap[aggType] = metaType.mdAggregate;
+            typeMdAggregateMap[aggType] = mdNode;
         }
 
         return;
@@ -2661,7 +2663,7 @@ void gla::GlslTarget::leaveScope()
     shader << "}";
 }
 
-void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, const llvm::Type* structType, const llvm::MDNode* mdAggregate, bool block, bool runtimeArrayed)
+void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, const llvm::Type* structType, const llvm::MDNode* mdIo, bool block, bool runtimeArrayed)
 {
     // this is mutually recursive with emitGlaType
 
@@ -2684,8 +2686,8 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, 
         }
         
         // track the mapping between the type and its metadata type
-        if (mdAggregate)
-            typeMdAggregateMap[structType] = mdAggregate;
+        if (mdIo)
+            typeMdAggregateMap[structType] = mdIo;
     }
 
     // For nested struct types, we have to output the nested one
@@ -2696,8 +2698,8 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, 
 
     if (! block)
         tempStructure << "struct ";
-    if (mdAggregate)
-        tempStructure << std::string(CrackMdName(mdAggregate->getOperand(0)));
+    if (mdIo)
+        tempStructure << std::string(CrackMdName(mdIo->getOperand(4)));
     else
         tempStructure << name;
     tempStructure << " {" << std::endl;
@@ -2705,10 +2707,10 @@ void gla::GlslTarget::addStructType(std::ostringstream& out, std::string& name, 
     int lastIndex = (int)structType->getNumContainedTypes() - 1;
     for (int index = 0; index <= lastIndex; ++index) {
         tempStructure << indentString;
-        if (mdAggregate) {
-            const llvm::MDNode* subMdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(GetAggregateMdSubAggregateOp(index)));
-            int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index), false, subMdAggregate);
-            tempStructure << " " << std::string(CrackMdName(mdAggregate->getOperand(GetAggregateMdNameOp(index))));
+        if (mdIo) {
+            const llvm::MDNode* subMdIo = llvm::dyn_cast<llvm::MDNode>(mdIo->getOperand(GetIoMdOp(index)));
+            int arraySize = emitGlaType(tempStructure, EMpNone, EVQNone, structType->getContainedType(index), false, subMdIo);
+            tempStructure << " " << std::string(CrackMdName(subMdIo->getOperand(0)));
             if (runtimeArrayed && index == lastIndex)
                 tempStructure << "[]";
             emitGlaArraySize(tempStructure, arraySize);
@@ -4053,7 +4055,7 @@ int gla::GlslTarget::emitGlaType(std::ostringstream& out, EMdPrecision precision
         addStructType(out, structName, structType, metaType.mdAggregate, metaType.block, metaType.runtimeArrayed);
         if (! metaType.block) {
             if (metaType.mdAggregate)
-                out << std::string(CrackMdName(metaType.mdAggregate->getOperand(0)));
+                out << std::string(CrackMdName(metaType.mdAggregate->getOperand(4)));
             else
                 out << structNameMap[structType];
         }
@@ -4123,7 +4125,8 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
     if (ioRoot) {
         EMdInputOutput ioKind;
         llvm::Type* proxyType;
-        if (! CrackIOMd(mdNode, metaType.name, ioKind, proxyType, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.mdAggregate,
+        std::string dummyName;
+        if (! CrackSingleTypeIOMd(mdNode, metaType.name, ioKind, proxyType, typeLayout, metaType.precision, location, metaType.mdSampler, dummyName,
                         interpMode, metaType.builtIn, binding, qualifiers, offset)) {
             UnsupportedFunctionality("IO metadata for type");
             return false;
@@ -4163,8 +4166,9 @@ bool gla::GlslTarget::decodeMdTypesEmitMdQualifiers(std::ostringstream& out, boo
         default:
             break;
         }
+        metaType.mdAggregate = mdNode;
     } else {
-        if (! CrackAggregateMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.builtIn, binding, qualifiers, offset)) {
+        if (! CrackSubIoMd(mdNode, metaType.name, typeLayout, metaType.precision, location, metaType.mdSampler, metaType.builtIn, binding, qualifiers, offset)) {
             UnsupportedFunctionality("aggregate metadata for type");
             return false;
         }
@@ -4766,7 +4770,6 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
     int layoutLocation;
     EMdPrecision mdPrecision;
     EMdTypeLayout mdLayout;
-    const llvm::MDNode* mdAggregate;
     const llvm::MDNode* dummySampler;
     const llvm::MDNode* mdNode = llvmInstruction->getMetadata(input ? gla::InputMdName : gla::OutputMdName);
 
@@ -4775,8 +4778,9 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
     int dummyBinding;
     unsigned int dummyQualifiers;
     int dummyOffset;
-    if (! mdNode || ! gla::CrackIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, mdAggregate, interpMode, builtIn,
-                                     dummyBinding, dummyQualifiers, dummyOffset)) {
+    std::string dummyName;
+    if (! mdNode || ! gla::CrackSingleTypeIOMd(mdNode, name, mdQual, type, mdLayout, mdPrecision, layoutLocation, dummySampler, dummyName, interpMode, builtIn,
+                                               dummyBinding, dummyQualifiers, dummyOffset)) {
         // This path should not exist; it is a backup path for missing metadata.
         UnsupportedFunctionality("couldn't get metadata for input instruction", EATContinue);
 
@@ -4786,14 +4790,13 @@ void gla::GlslTarget::emitMapGlaIOIntrinsic(const llvm::IntrinsicInst* llvmInstr
         mdLayout = EMtlNone;
         mdPrecision = EMpNone;
         layoutLocation = gla::MaxUserLayoutLocation;
-        mdAggregate = 0;
     }
 
     // add the dereference syntax
     // TODO: output code correctness: outputs don't yet have layout slot bases, so indexing into big things will be incorrect
     std::string derefName = name;
     int slotOffset = GetConstantInt(llvmInstruction->getOperand(0)) - layoutLocation;
-    DereferenceName(derefName, type, mdAggregate, slotOffset, mdLayout);
+    DereferenceName(derefName, type, mdNode, slotOffset, mdLayout);
     bool notSigned = mdLayout == EMtlUnsigned;
 
     switch (llvmInstruction->getIntrinsicID()) {
@@ -4904,7 +4907,7 @@ std::string gla::GlslTarget::traverseGep(const llvm::Instruction* instr, EMdType
 
 // Traverse one step of a dereference chain and append to a string
 // For constant indices, pass it in index.  Otherwise, provide it through 'operand' (index will not be used, unless 'operand' itself is a constant)
-void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdAggregate, EMdTypeLayout* mdTypeLayout)
+void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name, llvm::Value* operand, int index, const llvm::MDNode*& mdIo, EMdTypeLayout* mdTypeLayout)
 {
     if (operand) {
         if (llvm::isa<llvm::UndefValue>(operand)) {
@@ -4942,19 +4945,19 @@ void gla::GlslTarget::dereferenceGep(const llvm::Type*& type, std::string& name,
         assert(index >= 0);
 
         name.append(".");
-        name.append(MapGlaStructField(type, index, mdAggregate));
+        name.append(MapGlaStructField(type, index, mdIo));
 
         // Deference the metadata aggregate 
-        if (mdAggregate) {
-            int aggOp = GetAggregateMdSubAggregateOp(index);
-            if ((int)mdAggregate->getNumOperands() <= aggOp) {
+        if (mdIo) {
+            int ioOp = GetIoMdOp(index);
+            if ((int)mdIo->getNumOperands() <= ioOp) {
                 UnsupportedFunctionality("not enough mdAggregate operands", EATContinue);
-                mdAggregate = 0;
+                mdIo = 0;
             } else 
-                mdAggregate = llvm::dyn_cast<llvm::MDNode>(mdAggregate->getOperand(aggOp));
+                mdIo = llvm::dyn_cast<llvm::MDNode>(mdIo->getOperand(ioOp));
 
-            if (mdAggregate && mdTypeLayout)
-                *mdTypeLayout = GetMdTypeLayout(mdAggregate);
+            if (mdIo && mdTypeLayout)
+                *mdTypeLayout = GetIoMdTypeLayout(mdIo);
         }
 
         type = type->getContainedType(index);

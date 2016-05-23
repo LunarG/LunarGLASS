@@ -648,6 +648,22 @@ inline bool CrackAggregateMd(const llvm::MDNode* md, std::string& symbolName,
     return true;
 }
 
+inline bool CrackSubIoMd(const llvm::MDNode* md, std::string& symbolName,
+                             EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, EMdBuiltIn& builtIn,
+                             int& binding, unsigned int& qualifiers, int& offset)
+{
+    symbolName = llvm::dyn_cast<llvm::MDString>(md->getOperand(4).get())->getString();
+    int dummyInterpMode;
+
+    llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(3));
+    if (! layoutMd)
+        return false;
+    if (! CrackTypeLayout(layoutMd, layout, precision, location, sampler, dummyInterpMode, builtIn, binding, qualifiers, offset))
+        return false;
+
+    return true;
+}
+
 inline bool CrackIOMd(const llvm::Instruction* instruction, llvm::StringRef kind, std::string& symbolName, EMdInputOutput& qualifier, llvm::Type*& type,
                       EMdTypeLayout& layout, EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, const llvm::MDNode*& aggregate,
                       int& interpMode, EMdBuiltIn& builtIn)
@@ -668,6 +684,129 @@ inline bool CrackIOMd(const llvm::Instruction* instruction, llvm::StringRef kind
         return false;
 
     return CrackIOMd(md, symbolName, qualifier, type, layout, precision, location, sampler, aggregate, interpMode, builtIn, binding, qualifiers, offset);
+}
+
+inline bool CrackSingleTypeIOMd(const llvm::MDNode* md, std::string& symbolName, gla::EMdInputOutput& qualifier, llvm::Type*& type,
+                                gla::EMdTypeLayout& layout, gla::EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, std::string& typeName,
+                                int& interpMode, gla::EMdBuiltIn& builtIn)
+{
+#if defined(LLVM_VERSION_MAJOR) && defined(LLVM_VERSION_MINOR) && LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR == 6
+    symbolName = llvm::dyn_cast<llvm::MDString>(md->getOperand(0))->getString();
+#else
+    symbolName = md->getOperand(0)->getName();
+#endif
+
+#if defined(LLVM_VERSION_MAJOR) && defined(LLVM_VERSION_MINOR) && LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR == 6
+    const llvm::ConstantInt* constInt = llvm::mdconst::dyn_extract<llvm::ConstantInt>(md->getOperand(1));
+#else
+    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(1));
+#endif
+
+    if (! constInt)
+        return false;
+
+    qualifier = (gla::EMdInputOutput)constInt->getSExtValue();
+
+    if (! md->getOperand(2))
+        return false;
+
+#if defined(LLVM_VERSION_MAJOR) && defined(LLVM_VERSION_MINOR) && LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR == 6
+    type = llvm::dyn_cast<llvm::ValueAsMetadata>(md->getOperand(2))->getType();
+#else
+    type = md->getOperand(2)->getType();
+#endif
+
+    llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(3));
+
+    if (! layoutMd)
+        return false;
+
+    if (! CrackTypeLayout(layoutMd, layout, precision, location, sampler, interpMode, builtIn))
+        return false;
+
+#if defined(LLVM_VERSION_MAJOR) && defined(LLVM_VERSION_MINOR) && LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR == 6
+    typeName = llvm::dyn_cast<llvm::MDString>(md->getOperand(4))->getString();
+#else
+    typeName = md->getOperand(4)->getName();
+#endif
+
+    return true;
+}
+
+ 
+
+inline bool CrackSingleTypeIOMd(const llvm::MDNode* md, std::string& symbolName, gla::EMdInputOutput& qualifier, llvm::Type*& type,
+
+                                gla::EMdTypeLayout& layout, gla::EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, std::string& typeName,
+
+                                int& interpMode, gla::EMdBuiltIn& builtIn, int& binding, unsigned int& qualifiers, int& offset)
+{
+#if defined(LLVM_VERSION_MAJOR) && defined(LLVM_VERSION_MINOR) && LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR == 6
+    symbolName = llvm::dyn_cast<llvm::MDString>(md->getOperand(0))->getString();
+#else
+    symbolName = md->getOperand(0)->getName();
+#endif
+
+#if defined(LLVM_VERSION_MAJOR) && defined(LLVM_VERSION_MINOR) && LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR == 6
+    const llvm::ConstantInt* constInt = llvm::mdconst::dyn_extract<llvm::ConstantInt>(md->getOperand(1));
+#else
+    const llvm::ConstantInt* constInt = llvm::dyn_cast<llvm::ConstantInt>(md->getOperand(1));
+#endif
+
+    if (! constInt)
+        return false;
+
+    qualifier = (gla::EMdInputOutput)constInt->getSExtValue();
+
+    if (! md->getOperand(2))
+        return false;
+
+#if defined(LLVM_VERSION_MAJOR) && defined(LLVM_VERSION_MINOR) && LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR == 6
+    type = llvm::dyn_cast<llvm::ValueAsMetadata>(md->getOperand(2))->getType();
+#else
+    type = md->getOperand(2)->getType();
+#endif
+
+    llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(md->getOperand(3));
+
+    if (! layoutMd)
+        return false;
+
+    if (! CrackTypeLayout(layoutMd, layout, precision, location, sampler, interpMode, builtIn, binding, qualifiers, offset))
+        return false;
+
+#if defined(LLVM_VERSION_MAJOR) && defined(LLVM_VERSION_MINOR) && LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR == 6
+    typeName = llvm::dyn_cast<llvm::MDString>(md->getOperand(4))->getString();
+#else
+    typeName = md->getOperand(4)->getName();
+#endif
+
+    return true;
+}
+
+inline bool CrackSingleTypeIOMd(const llvm::Instruction* instruction, llvm::StringRef kind, std::string& symbolName, gla::EMdInputOutput& qualifier, llvm::Type*& type,
+                                gla::EMdTypeLayout& layout, gla::EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, std::string& typeName,
+                                int& interpMode, gla::EMdBuiltIn& builtIn)
+{
+    const llvm::MDNode* md = instruction->getMetadata(kind);
+
+    if (! md)
+        return false;
+
+    return CrackSingleTypeIOMd(md, symbolName, qualifier, type, layout, precision, location, sampler, typeName, interpMode, builtIn);
+}
+
+inline bool CrackSingleTypeIOMd(const llvm::Instruction* instruction, llvm::StringRef kind, std::string& symbolName, gla::EMdInputOutput& qualifier, llvm::Type*& type,
+                                gla::EMdTypeLayout& layout, gla::EMdPrecision& precision, int& location, const llvm::MDNode*& sampler, std::string& typeName,
+                                int& interpMode, gla::EMdBuiltIn& builtIn, int& binding, unsigned int& qualifiers, int& offset)
+{
+    const llvm::MDNode* md = instruction->getMetadata(kind);
+
+    if (! md)
+        return false;
+
+    return CrackSingleTypeIOMd(md, symbolName, qualifier, type, layout, precision, location, sampler, typeName, interpMode, builtIn, binding, qualifiers, offset);
+
 }
 
 inline bool CrackSamplerMd(const llvm::MDNode* md, EMdSampler& sampler, llvm::Type*& type, EMdSamplerDim& dim, bool& isArray, bool& isShadow, EMdSamplerBaseType& baseType)
@@ -731,6 +870,12 @@ inline int GetAggregateMdSubAggregateOp(int index)
     return 2 + 2 * index + 1;
 }
 
+// translate from 0-based counting to io operand number
+inline int GetIoMdOp(int index)
+{
+    return 5 + index;
+}
+
 // Just a short cut for when only the type is cared about, rather than cracking all the operands.
 // It looks for both forms of whether this is a deferenced aggregate or a top-level interface md.
 inline EMdTypeLayout GetMdTypeLayout(const llvm::MDNode *md)
@@ -746,6 +891,24 @@ inline EMdTypeLayout GetMdTypeLayout(const llvm::MDNode *md)
         if (! layoutMd)
             return EMtlNone;
     }
+
+    const llvm::ConstantInt* constInt = CrackMdConstantInt(layoutMd->getOperand(0));
+    if (! constInt)
+        return EMtlNone;
+
+    return (EMdTypeLayout)constInt->getSExtValue();
+}
+
+// Just a short cut for when only the type is cared about, rather than cracking all the operands.
+inline EMdTypeLayout GetIoMdTypeLayout(const llvm::MDNode *mdIo)
+{
+    if (! mdIo)
+        return EMtlNone;
+
+    // check for aggregate member form first
+    llvm::MDNode* layoutMd = llvm::dyn_cast<llvm::MDNode>(mdIo->getOperand(3));
+    if (! layoutMd)
+        return EMtlNone;
 
     const llvm::ConstantInt* constInt = CrackMdConstantInt(layoutMd->getOperand(0));
     if (! constInt)

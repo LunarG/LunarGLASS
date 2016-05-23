@@ -384,7 +384,7 @@ namespace gla {
         //   rather than have to walk the nodes and LLVM Type in parallel.
         virtual bool useSingleTypeTree()
         {
-            return false;
+            return true;
         }
 
     protected:

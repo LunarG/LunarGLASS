@@ -74,21 +74,21 @@ attributes #0 = { nounwind readnone }
 !gla.outputs = !{!15}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"texSampler2D", i32 12, i32* @texSampler2D_typeProxy, !2}
+!1 = !{!"texSampler2D", i32 12, i32* @texSampler2D_typeProxy, !2, !""}
 !2 = !{i32 5, i32 0, i32 1024, !3, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !3 = !{i32 0, i32* @texSampler2D_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!4 = !{!"b", i32 12, i32* @b_typeProxy, !5}
+!4 = !{!"b", i32 12, i32* @b_typeProxy, !5, !""}
 !5 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!6 = !{!"a", i32 12, i32* @a_typeProxy, !5}
-!7 = !{!"userIn", i32 1, [2 x <4 x float>]* @userIn_typeProxy, !8}
+!6 = !{!"a", i32 12, i32* @a_typeProxy, !5, !""}
+!7 = !{!"userIn", i32 1, [2 x <4 x float>]* @userIn_typeProxy, !8, !""}
 !8 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!9 = !{!"gl_TexCoord", i32 1, [6 x <4 x float>]* @gl_TexCoord_typeProxy, !10}
+!9 = !{!"gl_TexCoord", i32 1, [6 x <4 x float>]* @gl_TexCoord_typeProxy, !10, !""}
 !10 = !{i32 0, i32 0, i32 1026, null, i32 1, i32 28, i32 -1, i32 0, i32 -1}
-!11 = !{!"color", i32 1, <4 x float>* @color_typeProxy, !12}
+!11 = !{!"color", i32 1, <4 x float>* @color_typeProxy, !12, !""}
 !12 = !{i32 0, i32 0, i32 1032, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!13 = !{!"alpha", i32 1, float* @alpha_typeProxy, !14}
+!13 = !{!"alpha", i32 1, float* @alpha_typeProxy, !14, !""}
 !14 = !{i32 0, i32 0, i32 1033, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!15 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !16}
+!15 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !16, !""}
 !16 = !{i32 0, i32 0, i32 1034, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 
 
@@ -162,21 +162,21 @@ attributes #0 = { nounwind readnone }
 !gla.outputs = !{!15}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"texSampler2D", i32 12, i32* @texSampler2D_typeProxy, !2}
+!1 = !{!"texSampler2D", i32 12, i32* @texSampler2D_typeProxy, !2, !""}
 !2 = !{i32 5, i32 0, i32 1024, !3, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !3 = !{i32 0, i32* @texSampler2D_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!4 = !{!"b", i32 12, i32* @b_typeProxy, !5}
+!4 = !{!"b", i32 12, i32* @b_typeProxy, !5, !""}
 !5 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!6 = !{!"a", i32 12, i32* @a_typeProxy, !5}
-!7 = !{!"userIn", i32 1, [2 x <4 x float>]* @userIn_typeProxy, !8}
+!6 = !{!"a", i32 12, i32* @a_typeProxy, !5, !""}
+!7 = !{!"userIn", i32 1, [2 x <4 x float>]* @userIn_typeProxy, !8, !""}
 !8 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!9 = !{!"gl_TexCoord", i32 1, [6 x <4 x float>]* @gl_TexCoord_typeProxy, !10}
+!9 = !{!"gl_TexCoord", i32 1, [6 x <4 x float>]* @gl_TexCoord_typeProxy, !10, !""}
 !10 = !{i32 0, i32 0, i32 1026, null, i32 1, i32 28, i32 -1, i32 0, i32 -1}
-!11 = !{!"color", i32 1, <4 x float>* @color_typeProxy, !12}
+!11 = !{!"color", i32 1, <4 x float>* @color_typeProxy, !12, !""}
 !12 = !{i32 0, i32 0, i32 1032, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!13 = !{!"alpha", i32 1, float* @alpha_typeProxy, !14}
+!13 = !{!"alpha", i32 1, float* @alpha_typeProxy, !14, !""}
 !14 = !{i32 0, i32 0, i32 1033, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!15 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !16}
+!15 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !16, !""}
 !16 = !{i32 0, i32 0, i32 1034, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 #version 130
 // LunarGOO output

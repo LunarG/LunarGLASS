@@ -119,7 +119,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 !gla.outputs = !{!1}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !2}
+!1 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !2, !""}
 !2 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 
 
@@ -160,7 +160,7 @@ stage-exit:                                       ; preds = %stage-epilogue
 !gla.outputs = !{!1}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !2}
+!1 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !2, !""}
 !2 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 #version 140
 // LunarGOO output

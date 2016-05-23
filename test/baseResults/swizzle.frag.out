@@ -170,13 +170,13 @@ attributes #0 = { nounwind readnone }
 !gla.noStaticUse = !{!4}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"u", i32 12, <4 x float>* @u_typeProxy, !2}
+!1 = !{!"u", i32 12, <4 x float>* @u_typeProxy, !2, !""}
 !2 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = !{!"p", i32 12, i1* @p_typeProxy, !2}
-!4 = !{!"blend", i32 12, float* @blend_typeProxy, !2}
-!5 = !{!"t", i32 1, <2 x float>* @t_typeProxy, !6}
+!3 = !{!"p", i32 12, i1* @p_typeProxy, !2, !""}
+!4 = !{!"blend", i32 12, float* @blend_typeProxy, !2, !""}
+!5 = !{!"t", i32 1, <2 x float>* @t_typeProxy, !6, !""}
 !6 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !8}
+!7 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !8, !""}
 !8 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 
 
@@ -308,13 +308,13 @@ attributes #0 = { nounwind readnone }
 !gla.noStaticUse = !{!4}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"u", i32 12, <4 x float>* @u_typeProxy, !2}
+!1 = !{!"u", i32 12, <4 x float>* @u_typeProxy, !2, !""}
 !2 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = !{!"p", i32 12, i1* @p_typeProxy, !2}
-!4 = !{!"blend", i32 12, float* @blend_typeProxy, !2}
-!5 = !{!"t", i32 1, <2 x float>* @t_typeProxy, !6}
+!3 = !{!"p", i32 12, i1* @p_typeProxy, !2, !""}
+!4 = !{!"blend", i32 12, float* @blend_typeProxy, !2, !""}
+!5 = !{!"t", i32 1, <2 x float>* @t_typeProxy, !6, !""}
 !6 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !8}
+!7 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !8, !""}
 !8 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 
 ***Unsupported functionality: control flow: not all blocks were translated

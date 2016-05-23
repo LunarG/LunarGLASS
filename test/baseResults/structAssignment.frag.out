@@ -29,14 +29,14 @@ then:                                             ; preds = %mainBody
   br label %ifmerge
 
 else:                                             ; preds = %mainBody
-  %locals22 = load %lunarStruct2 addrspace(2)* @foo2, !gla.uniform !8
+  %locals22 = load %lunarStruct2 addrspace(2)* @foo2, !gla.uniform !16
   store %lunarStruct2 %locals22, %lunarStruct2* %locals2
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
   %2 = getelementptr %lunarStruct2* %locals2, i32 0, i32 2, i32 1
   %3 = load float* %2
-  %4 = load i32 addrspace(1)* @sampler, !gla.uniform !9
+  %4 = load i32 addrspace(1)* @sampler, !gla.uniform !22
   %5 = load <2 x float>* @coord
   %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %4, i32 0, <2 x float> %5)
   %6 = insertelement <4 x float> undef, float %3, i32 0
@@ -60,28 +60,43 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 attributes #0 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
-!gla.uniforms = !{!1, !8, !9, !12}
-!gla.outputs = !{!13}
-!gla.inputs = !{!15}
-!gla.noStaticUse = !{!12}
+!gla.uniforms = !{!1, !16, !22, !25}
+!gla.outputs = !{!28}
+!gla.inputs = !{!30}
+!gla.noStaticUse = !{!25}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"foo3", i32 12, %lunarStruct3* @foo3_typeProxy, !2, !3}
+!1 = !{!"foo3", i32 12, %lunarStruct3* @foo3_typeProxy, !2, !"lunarStruct3", !3, !11, !12, !13}
 !2 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = !{!"lunarStruct3", !2, !"s2_1", !4, !"i", !5, !"f", !5, !"s1_1", !7}
-!4 = !{!"lunarStruct2", !2, !"i", !5, !"f", !5, !"s1_1", !7}
-!5 = !{!"", !6}
-!6 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = !{!"lunarStruct1", !2, !"i", !5, !"f", !5}
-!8 = !{!"foo2", i32 12, %lunarStruct2* @foo2_typeProxy, !2, !4}
-!9 = !{!"sampler", i32 12, i32* @sampler_typeProxy, !10}
-!10 = !{i32 5, i32 0, i32 1024, !11, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!11 = !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!12 = !{!"foo", i32 12, %lunarStruct1* @foo_typeProxy, !2, !7}
-!13 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !14}
-!14 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-!15 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !16}
-!16 = !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"s2_1", i32 0, %lunarStruct2* @s2_1_typeProxy, !4, !"lunarStruct2", !5, !7, !8}
+!4 = !{i32 4, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!5 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!6 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!8 = !{!"s1_1", i32 0, %lunarStruct1* @s1_1_typeProxy, !4, !"lunarStruct1", !9, !10}
+!9 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!10 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!11 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!12 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!13 = !{!"s1_1", i32 0, %lunarStruct1* @s1_1_typeProxy, !4, !"lunarStruct1", !14, !15}
+!14 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!15 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!16 = !{!"foo2", i32 12, %lunarStruct2* @foo2_typeProxy, !2, !"lunarStruct2", !17, !18, !19}
+!17 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!18 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!19 = !{!"s1_1", i32 0, %lunarStruct1* @s1_1_typeProxy, !4, !"lunarStruct1", !20, !21}
+!20 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!21 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!22 = !{!"sampler", i32 12, i32* @sampler_typeProxy, !23, !""}
+!23 = !{i32 5, i32 0, i32 1024, !24, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!24 = !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!25 = !{!"foo", i32 12, %lunarStruct1* @foo_typeProxy, !2, !"lunarStruct1", !26, !27}
+!26 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!27 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!28 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !29, !""}
+!29 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+!30 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !31, !""}
+!31 = !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 
 
 Bottom IR:
@@ -111,7 +126,7 @@ entry:
   %2 = getelementptr %lunarStruct2* %locals2, i32 0, i32 2, i32 1
   %3 = load float* %2
   %4 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %3, <4 x i32> zeroinitializer)
-  %5 = load i32 addrspace(1)* @sampler, !gla.uniform !9
+  %5 = load i32 addrspace(1)* @sampler, !gla.uniform !22
   %6 = load <2 x float>* @coord
   %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %5, i32 0, <2 x float> %6)
   %gl_FragColor3 = fmul <4 x float> %gl_FragColor, %4
@@ -134,26 +149,41 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
 attributes #0 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
-!gla.uniforms = !{!1, !8, !9, !12}
-!gla.outputs = !{!13}
-!gla.inputs = !{!15}
-!gla.noStaticUse = !{!12}
+!gla.uniforms = !{!1, !16, !22, !25}
+!gla.outputs = !{!28}
+!gla.inputs = !{!30}
+!gla.noStaticUse = !{!25}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"foo3", i32 12, %lunarStruct3* @foo3_typeProxy, !2, !3}
+!1 = !{!"foo3", i32 12, %lunarStruct3* @foo3_typeProxy, !2, !"lunarStruct3", !3, !11, !12, !13}
 !2 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = !{!"lunarStruct3", !2, !"s2_1", !4, !"i", !5, !"f", !5, !"s1_1", !7}
-!4 = !{!"lunarStruct2", !2, !"i", !5, !"f", !5, !"s1_1", !7}
-!5 = !{!"", !6}
-!6 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = !{!"lunarStruct1", !2, !"i", !5, !"f", !5}
-!8 = !{!"foo2", i32 12, %lunarStruct2* @foo2_typeProxy, !2, !4}
-!9 = !{!"sampler", i32 12, i32* @sampler_typeProxy, !10}
-!10 = !{i32 5, i32 0, i32 1024, !11, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!11 = !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!12 = !{!"foo", i32 12, %lunarStruct1* @foo_typeProxy, !2, !7}
-!13 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !14}
-!14 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-!15 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !16}
-!16 = !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-LunarGOO: /home/greg/ss/LunarGLASS.36/Backends/GLSL/BottomToGLSL.cpp:4559: void gla::GlslTarget::emitConstantInitializer(std::ostringstream&, const llvm::Constant*, llvm::Type*): Assertion `0 && "Constant type in Bottom IR"' failed.
+!3 = !{!"s2_1", i32 0, %lunarStruct2* @s2_1_typeProxy, !4, !"lunarStruct2", !5, !7, !8}
+!4 = !{i32 4, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!5 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!6 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!8 = !{!"s1_1", i32 0, %lunarStruct1* @s1_1_typeProxy, !4, !"lunarStruct1", !9, !10}
+!9 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!10 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!11 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!12 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!13 = !{!"s1_1", i32 0, %lunarStruct1* @s1_1_typeProxy, !4, !"lunarStruct1", !14, !15}
+!14 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!15 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!16 = !{!"foo2", i32 12, %lunarStruct2* @foo2_typeProxy, !2, !"lunarStruct2", !17, !18, !19}
+!17 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!18 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!19 = !{!"s1_1", i32 0, %lunarStruct1* @s1_1_typeProxy, !4, !"lunarStruct1", !20, !21}
+!20 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!21 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!22 = !{!"sampler", i32 12, i32* @sampler_typeProxy, !23, !""}
+!23 = !{i32 5, i32 0, i32 1024, !24, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!24 = !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!25 = !{!"foo", i32 12, %lunarStruct1* @foo_typeProxy, !2, !"lunarStruct1", !26, !27}
+!26 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!27 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!28 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !29, !""}
+!29 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+!30 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !31, !""}
+!31 = !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+LunarGOO: /home/greg/ss/LunarGLASS.36/Backends/GLSL/BottomToGLSL.cpp:4563: void gla::GlslTarget::emitConstantInitializer(std::ostringstream&, const llvm::Constant*, llvm::Type*): Assertion `0 && "Constant type in Bottom IR"' failed.
