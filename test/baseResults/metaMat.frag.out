@@ -53,3 +53,84 @@ stage-exit:                                       ; preds = %stage-epilogue
 !20 = !{!"S2", !7, !"i", !11, !"S2m", !4}
 !21 = !{!"Si2", !7, !"g", !8, !"s2", !22}
 !22 = !{!"S2", !7, !"i", !11, !"S2m", !15}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+define fastcc void @main() {
+entry:
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+!gla.entrypoint = !{!0}
+!gla.uniforms = !{!1, !13}
+!gla.noStaticUse = !{!1, !13}
+
+!0 = !{!"main", i32 15}
+!1 = !{!"BNAI", i32 13, %BNA* @BNAI_typeProxy, !2, !3}
+!2 = !{i32 6, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"BNA", !2, !"BNAm", !4, !"si1", !6}
+!4 = !{!"", !5}
+!5 = !{i32 3, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!6 = !{!"Si1", !7, !"f", !8, !"s1", !10}
+!7 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!8 = !{!"", !9}
+!9 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!10 = !{!"S1", !7, !"i", !11, !"S1m", !4}
+!11 = !{!"", !12}
+!12 = !{i32 1, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!13 = !{!"BNBI", i32 13, %BNB* @BNBI_typeProxy, !2, !14}
+!14 = !{!"BNB", !2, !"BNBm3", !15, !"si1", !17, !"si21", !19, !"si22", !21, !"BNBm41", !4, !"BNBm42", !15}
+!15 = !{!"", !16}
+!16 = !{i32 2, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!17 = !{!"Si1", !7, !"f", !8, !"s1", !18}
+!18 = !{!"S1", !7, !"i", !11, !"S1m", !15}
+!19 = !{!"Si2", !7, !"g", !8, !"s2", !20}
+!20 = !{!"S2", !7, !"i", !11, !"S2m", !4}
+!21 = !{!"Si2", !7, !"g", !8, !"s2", !22}
+!22 = !{!"S2", !7, !"i", !11, !"S2m", !15}
+#version 300 es
+// LunarGOO output
+precision mediump float; // this will be almost entirely overridden by individual declarations
+struct S1 {
+	mediump uint i;
+	highp mat2x3 S1m;
+};
+struct Si1 {
+	highp float f;
+	S1 s1;
+};
+struct S2 {
+	mediump uint i;
+	highp mat2x3 S2m;
+};
+struct Si2 {
+	highp float g;
+	S2 s2;
+};
+uniform BNA {
+	highp mat3x4 BNAm;
+	Si1 si1;
+} BNAI;
+uniform BNB {
+	layout(row_major) highp mat3 BNBm3;
+	Si1 si1;
+	Si2 si21;
+	Si2 si22;
+	highp mat4 BNBm41;
+	layout(row_major) highp mat4 BNBm42;
+} BNBI;
+
+void main()
+{
+	
+}
+

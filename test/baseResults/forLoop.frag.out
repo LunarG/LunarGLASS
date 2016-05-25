@@ -245,3 +245,4 @@ stage-exit:                                       ; preds = %stage-epilogue
 !9 = !{i32 1, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !10 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !11}
 !11 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+LunarGOO: /home/greg/ss/LunarGLASS.36/Core/LLVM/llvm-3.6.2/lib/Analysis/ScalarEvolution.cpp:4391: unsigned int llvm::ScalarEvolution::getSmallConstantTripCount(llvm::Loop*, llvm::BasicBlock*): Assertion `L->isLoopExiting(ExitingBlock) && "Exiting block must actually branch out of the loop!"' failed.

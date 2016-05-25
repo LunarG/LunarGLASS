@@ -75,3 +75,101 @@ attributes #0 = { nounwind readnone }
 !11 = !{i32 0, i32 0, i32 1033, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !12 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !13}
 !13 = !{i32 0, i32 0, i32 1032, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+@texSampler2D = external addrspace(1) constant i32
+@gl_TexCoord = global [6 x <4 x float>] zeroinitializer
+@color = global <4 x float> zeroinitializer
+@alpha = global float 0.000000e+00
+@gl_FragColor = global <4 x float> zeroinitializer
+@foo = global [3 x <4 x float>] zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %texColor = alloca <4 x float>
+  %0 = load i32 addrspace(1)* @texSampler2D, !gla.uniform !1
+  %gla_constGEP = getelementptr [6 x <4 x float>]* @gl_TexCoord, i32 0, i32 4
+  %1 = load <4 x float>* %gla_constGEP
+  %gla_constGEP4 = getelementptr [6 x <4 x float>]* @gl_TexCoord, i32 0, i32 5
+  %2 = load <4 x float>* %gla_constGEP4
+  %3 = fadd <4 x float> %1, %2
+  %4 = call <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float> %3, <2 x i32> <i32 0, i32 1>)
+  %texColor2 = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %4)
+  store <4 x float> %texColor2, <4 x float>* %texColor
+  %5 = load <4 x float>* @color
+  %texColor3 = fadd <4 x float> %texColor2, %5
+  store <4 x float> %texColor3, <4 x float>* %texColor
+  %6 = load float* @alpha
+  %7 = getelementptr <4 x float>* %texColor, i32 0, i32 3
+  store float %6, float* %7
+  %gla_constGEP5 = getelementptr [3 x <4 x float>]* @foo, i32 0, i32 1
+  %8 = load <4 x float>* %gla_constGEP5
+  %gla_constGEP6 = getelementptr [6 x <4 x float>]* @gl_TexCoord, i32 0, i32 0
+  %9 = load <4 x float>* %gla_constGEP6
+  %10 = fadd <4 x float> %8, %9
+  %11 = fadd <4 x float> %10, %1
+  %12 = load <4 x float>* %texColor
+  %gl_FragColor = fadd <4 x float> %11, %12
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x float>) #0
+
+; Function Attrs: nounwind readnone
+declare <2 x float> @llvm.gla.fSwizzle.v2f32.v4f32.v2i32(<4 x float>, <2 x i32>) #0
+
+attributes #0 = { nounwind readnone }
+
+!gla.entrypoint = !{!0}
+!gla.uniforms = !{!1}
+!gla.inputs = !{!4, !6, !8, !10}
+!gla.outputs = !{!12}
+
+!0 = !{!"main", i32 15}
+!1 = !{!"texSampler2D", i32 12, i32* @texSampler2D_typeProxy, !2}
+!2 = !{i32 5, i32 0, i32 1024, !3, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{i32 0, i32* @texSampler2D_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!4 = !{!"gl_TexCoord", i32 1, [6 x <4 x float>]* @gl_TexCoord_typeProxy, !5}
+!5 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 28, i32 -1, i32 0, i32 -1}
+!6 = !{!"color", i32 1, <4 x float>* @color_typeProxy, !7}
+!7 = !{i32 0, i32 0, i32 1030, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!8 = !{!"alpha", i32 1, float* @alpha_typeProxy, !9}
+!9 = !{i32 0, i32 0, i32 1031, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!10 = !{!"foo", i32 1, [3 x <4 x float>]* @foo_typeProxy, !11}
+!11 = !{i32 0, i32 0, i32 1033, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!12 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !13}
+!13 = !{i32 0, i32 0, i32 1032, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+#version 130
+// LunarGOO output
+uniform sampler2D texSampler2D;
+in vec4 gl_TexCoord[6];
+in vec4 color;
+in float alpha;
+in vec4 foo[3];
+
+void main()
+{
+	vec4 texColor;
+	vec4 H_dbhkwv = gl_TexCoord[4] + gl_TexCoord[5];
+	vec4 texColor1 = texture(texSampler2D, H_dbhkwv.xy);
+	vec4 texColor2 = color + texColor1;
+	texColor2.w = alpha;
+	vec4 H_hokwog = foo[1] + gl_TexCoord[0];
+	vec4 H_wgnrh = H_hokwog + gl_TexCoord[4];
+	vec4 Ll_FragColor1 = H_wgnrh + texColor2;
+	gl_FragColor = Ll_FragColor1;
+	
+}
+
