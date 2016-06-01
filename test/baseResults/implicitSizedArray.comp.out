@@ -67,18 +67,18 @@ attributes #1 = { nounwind readnone }
 
 !0 = !{i32 1, i32 1, i32 1}
 !1 = !{!"main", i32 15}
-!2 = !{!"block", i32 18, [3 x %Block]* @block_typeProxy, !3, !4}
+!2 = !{!"block", i32 18, [3 x %Block]* @block_typeProxy, !3, !"Block", !4, !6, !8}
 !3 = !{i32 8, i32 0, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 -1}
-!4 = !{!"Block", !3, !"u", !5, !"v", !7, !"s", !9}
-!5 = !{!"", !6}
-!6 = !{i32 1, i32 1, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = !{!"", !8}
-!8 = !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!9 = !{!"S", !10, !"a", !11, !"c", !11}
-!10 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!11 = !{!"", !12}
-!12 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!13 = !{!"ac_numPassed", i32 12, i32* @ac_numPassed_typeProxy, !14}
+!4 = !{!"u", i32 0, i32* @u_typeProxy, !5, !""}
+!5 = !{i32 1, i32 1, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!6 = !{!"v", i32 0, <4 x float>* @v_typeProxy, !7, !""}
+!7 = !{i32 0, i32 2, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!8 = !{!"s", i32 0, [2 x %S]* @s_typeProxy, !9, !"S", !10, !12}
+!9 = !{i32 4, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!10 = !{!"a", i32 0, <3 x i32>* @a_typeProxy, !11, !""}
+!11 = !{i32 0, i32 3, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!12 = !{!"c", i32 0, <4 x float>* @c_typeProxy, !11, !""}
+!13 = !{!"ac_numPassed", i32 12, i32* @ac_numPassed_typeProxy, !14, !""}
 !14 = !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 0}
 
 
@@ -123,18 +123,18 @@ attributes #0 = { nounwind readnone }
 
 !0 = !{i32 1, i32 1, i32 1}
 !1 = !{!"main", i32 15}
-!2 = !{!"block", i32 18, [3 x %Block]* @block_typeProxy, !3, !4}
+!2 = !{!"block", i32 18, [3 x %Block]* @block_typeProxy, !3, !"Block", !4, !6, !8}
 !3 = !{i32 8, i32 0, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 -1}
-!4 = !{!"Block", !3, !"u", !5, !"v", !7, !"s", !9}
-!5 = !{!"", !6}
-!6 = !{i32 1, i32 1, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = !{!"", !8}
-!8 = !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!9 = !{!"S", !10, !"a", !11, !"c", !11}
-!10 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!11 = !{!"", !12}
-!12 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!13 = !{!"ac_numPassed", i32 12, i32* @ac_numPassed_typeProxy, !14}
+!4 = !{!"u", i32 0, i32* @u_typeProxy, !5, !""}
+!5 = !{i32 1, i32 1, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!6 = !{!"v", i32 0, <4 x float>* @v_typeProxy, !7, !""}
+!7 = !{i32 0, i32 2, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!8 = !{!"s", i32 0, [2 x %S]* @s_typeProxy, !9, !"S", !10, !12}
+!9 = !{i32 4, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!10 = !{!"a", i32 0, <3 x i32>* @a_typeProxy, !11, !""}
+!11 = !{i32 0, i32 3, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!12 = !{!"c", i32 0, <4 x float>* @c_typeProxy, !11, !""}
+!13 = !{!"ac_numPassed", i32 12, i32* @ac_numPassed_typeProxy, !14, !""}
 !14 = !{i32 10, i32 3, i32 1024, null, i32 -1, i32 0, i32 0, i32 0, i32 0}
 
 ***Unsupported functionality: control flow: not all blocks were translated

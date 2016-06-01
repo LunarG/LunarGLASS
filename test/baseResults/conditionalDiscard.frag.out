@@ -58,12 +58,12 @@ attributes #1 = { nounwind }
 !gla.outputs = !{!6}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"tex", i32 12, i32* @tex_typeProxy, !2}
+!1 = !{!"tex", i32 12, i32* @tex_typeProxy, !2, !""}
 !2 = !{i32 5, i32 0, i32 1024, !3, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !3 = !{i32 0, i32* @tex_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!4 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !5}
+!4 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !5, !""}
 !5 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!6 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !7}
+!6 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !7, !""}
 !7 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 
 
@@ -117,12 +117,12 @@ attributes #1 = { nounwind }
 !gla.outputs = !{!6}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"tex", i32 12, i32* @tex_typeProxy, !2}
+!1 = !{!"tex", i32 12, i32* @tex_typeProxy, !2, !""}
 !2 = !{i32 5, i32 0, i32 1024, !3, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
 !3 = !{i32 0, i32* @tex_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!4 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !5}
+!4 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !5, !""}
 !5 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!6 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !7}
+!6 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !7, !""}
 !7 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 #version 110
 // LunarGOO output

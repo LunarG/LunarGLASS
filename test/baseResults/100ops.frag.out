@@ -78,10 +78,10 @@ attributes #0 = { alwaysinline }
 !gla.outputs = !{!4}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"low", i32 12, i32* @low_typeProxy, !2}
+!1 = !{!"low", i32 12, i32* @low_typeProxy, !2, !""}
 !2 = !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = !{!"high", i32 12, i32* @high_typeProxy, !2}
-!4 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !5}
+!3 = !{!"high", i32 12, i32* @high_typeProxy, !2, !""}
+!4 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !5, !""}
 !5 = !{i32 0, i32 2, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 !6 = !{i32 2}
 !7 = !{i32 1}
@@ -126,10 +126,10 @@ attributes #0 = { nounwind readnone }
 !gla.outputs = !{!4}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"low", i32 12, i32* @low_typeProxy, !2}
+!1 = !{!"low", i32 12, i32* @low_typeProxy, !2, !""}
 !2 = !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = !{!"high", i32 12, i32* @high_typeProxy, !2}
-!4 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !5}
+!3 = !{!"high", i32 12, i32* @high_typeProxy, !2, !""}
+!4 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !5, !""}
 !5 = !{i32 0, i32 2, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 !6 = !{i32 1}
 

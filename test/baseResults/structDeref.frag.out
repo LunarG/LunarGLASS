@@ -45,7 +45,7 @@ then:                                             ; preds = %mainBody
   store %s1 %3, %s1* %4
   %fArray1 = load [6 x float]* @fArray
   store [6 x float] %fArray1, [6 x float]* %fArray
-  %5 = load %s1 addrspace(2)* @foo1, !gla.uniform !9
+  %5 = load %s1 addrspace(2)* @foo1, !gla.uniform !20
   %6 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
   store %s1 %5, %s1* %6
   %locals02 = load %s0* @locals0
@@ -61,7 +61,7 @@ else:                                             ; preds = %mainBody
   store float %8, float* %9
   %10 = load <2 x float>* @coord
   %11 = extractelement <2 x float> %10, i32 1
-  %12 = load %s0 addrspace(2)* @foo0, !gla.uniform !10
+  %12 = load %s0 addrspace(2)* @foo0, !gla.uniform !25
   %13 = getelementptr %s1* %locals24, i32 0, i32 0
   store i32 1, i32* %13
   %14 = getelementptr %s1* %locals24, i32 0, i32 1
@@ -77,9 +77,9 @@ else:                                             ; preds = %mainBody
   %19 = load %s1* %18
   %20 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
   store %s1 %19, %s1* %20
-  %locals06 = load %s0 addrspace(2)* getelementptr inbounds (%s1 addrspace(2)* @foo1, i32 0, i32 2), !gla.uniform !9
+  %locals06 = load %s0 addrspace(2)* getelementptr inbounds (%s1 addrspace(2)* @foo1, i32 0, i32 2), !gla.uniform !20
   store %s0 %locals06, %s0* %locals0
-  %locals007 = load %s00 addrspace(2)* @foo00, !gla.uniform !11
+  %locals007 = load %s00 addrspace(2)* @foo00, !gla.uniform !27
   store %s00 %locals007, %s00* %locals00
   br label %ifmerge
 
@@ -108,7 +108,7 @@ ifmerge10:                                        ; preds = %ifmerge, %then8
   %34 = getelementptr %s2* %locals2, i32 0, i32 2, i32 1
   %35 = load float* %34
   %36 = fadd float %33, %35
-  %37 = load i32 addrspace(1)* @sampler, !gla.uniform !13
+  %37 = load i32 addrspace(1)* @sampler, !gla.uniform !30
   %38 = load <2 x float>* @coord
   %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %37, i32 0, <2 x float> %38)
   %39 = insertelement <4 x float> undef, float %36, i32 0
@@ -132,32 +132,56 @@ declare <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32, i32, i32, <2 x flo
 attributes #0 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
-!gla.uniforms = !{!1, !9, !10, !11, !13, !16}
-!gla.inputs = !{!17}
-!gla.outputs = !{!19}
-!gla.noStaticUse = !{!16}
+!gla.uniforms = !{!1, !20, !25, !27, !30, !33}
+!gla.inputs = !{!41}
+!gla.outputs = !{!43}
+!gla.noStaticUse = !{!33}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"foo3", i32 12, %s3* @foo3_typeProxy, !2, !3}
+!1 = !{!"foo3", i32 12, %s3* @foo3_typeProxy, !2, !"s3", !3, !13, !14, !15}
 !2 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = !{!"s3", !2, !"s2_1", !4, !"i", !5, !"f", !5, !"s1_1", !7}
-!4 = !{!"s2", !2, !"i", !5, !"f", !5, !"s1_1", !7}
-!5 = !{!"", !6}
-!6 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = !{!"s1", !2, !"i", !5, !"f", !5, !"s0_1", !8}
-!8 = !{!"s0", !2, !"i", !5}
-!9 = !{!"foo1", i32 12, %s1* @foo1_typeProxy, !2, !7}
-!10 = !{!"foo0", i32 12, %s0* @foo0_typeProxy, !2, !8}
-!11 = !{!"foo00", i32 12, %s00* @foo00_typeProxy, !2, !12}
-!12 = !{!"s00", !2, !"s0_0", !8}
-!13 = !{!"sampler", i32 12, i32* @sampler_typeProxy, !14}
-!14 = !{i32 5, i32 0, i32 1024, !15, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!15 = !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!16 = !{!"foo2", i32 12, %s2* @foo2_typeProxy, !2, !4}
-!17 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !18}
-!18 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!19 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !20}
-!20 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+!3 = !{!"s2_1", i32 0, [12 x %s2]* @s2_1_typeProxy, !4, !"s2", !5, !7, !8}
+!4 = !{i32 4, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!5 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!6 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!8 = !{!"s1_1", i32 0, %s1* @s1_1_typeProxy, !4, !"s1", !9, !10, !11}
+!9 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!10 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!11 = !{!"s0_1", i32 0, %s0* @s0_1_typeProxy, !4, !"s0", !12}
+!12 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!13 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!14 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!15 = !{!"s1_1", i32 0, %s1* @s1_1_typeProxy, !4, !"s1", !16, !17, !18}
+!16 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!17 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!18 = !{!"s0_1", i32 0, %s0* @s0_1_typeProxy, !4, !"s0", !19}
+!19 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!20 = !{!"foo1", i32 12, %s1* @foo1_typeProxy, !2, !"s1", !21, !22, !23}
+!21 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!22 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!23 = !{!"s0_1", i32 0, %s0* @s0_1_typeProxy, !4, !"s0", !24}
+!24 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!25 = !{!"foo0", i32 12, %s0* @foo0_typeProxy, !2, !"s0", !26}
+!26 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!27 = !{!"foo00", i32 12, %s00* @foo00_typeProxy, !2, !"s00", !28}
+!28 = !{!"s0_0", i32 0, %s0* @s0_0_typeProxy, !4, !"s0", !29}
+!29 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!30 = !{!"sampler", i32 12, i32* @sampler_typeProxy, !31, !""}
+!31 = !{i32 5, i32 0, i32 1024, !32, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!32 = !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!33 = !{!"foo2", i32 12, %s2* @foo2_typeProxy, !2, !"s2", !34, !35, !36}
+!34 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!35 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!36 = !{!"s1_1", i32 0, %s1* @s1_1_typeProxy, !4, !"s1", !37, !38, !39}
+!37 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!38 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!39 = !{!"s0_1", i32 0, %s0* @s0_1_typeProxy, !4, !"s0", !40}
+!40 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!41 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !42, !""}
+!42 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!43 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !44, !""}
+!44 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 
 
 Bottom IR:
@@ -197,7 +221,7 @@ then:                                             ; preds = %entry
   %3 = getelementptr %s2* %locals2, i32 0, i32 2
   store %s1 { i32 0, float 1.000000e+00, %s0 zeroinitializer }, %s1* %3
   store [6 x float] zeroinitializer, [6 x float]* %fArray
-  %4 = load %s1 addrspace(2)* @foo1, !gla.uniform !9
+  %4 = load %s1 addrspace(2)* @foo1, !gla.uniform !20
   %5 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
   store %s1 %4, %s1* %5
   store %s0 zeroinitializer, %s0* %locals0
@@ -209,7 +233,7 @@ else:                                             ; preds = %entry
   %8 = getelementptr %s2* %locals2, i32 0, i32 1
   store float %7, float* %8
   %9 = extractelement <2 x float> %6, i32 1
-  %10 = load %s0 addrspace(2)* @foo0, !gla.uniform !10
+  %10 = load %s0 addrspace(2)* @foo0, !gla.uniform !25
   %11 = getelementptr %s1* %locals24, i32 0, i32 0
   store i32 1, i32* %11
   %12 = getelementptr %s1* %locals24, i32 0, i32 1
@@ -223,9 +247,9 @@ else:                                             ; preds = %entry
   %16 = getelementptr [10 x %s1]* %locals1Array, i32 0, i32 6
   store %s1 %14, %s1* %16
   %gla_constGEP12 = getelementptr %s1 addrspace(2)* @foo1, i32 0, i32 2
-  %locals06 = load %s0 addrspace(2)* %gla_constGEP12, !gla.uniform !9
+  %locals06 = load %s0 addrspace(2)* %gla_constGEP12, !gla.uniform !20
   store %s0 %locals06, %s0* %locals0
-  %locals007 = load %s00 addrspace(2)* @foo00, !gla.uniform !11
+  %locals007 = load %s00 addrspace(2)* @foo00, !gla.uniform !27
   br label %ifmerge
 
 ifmerge:                                          ; preds = %else, %then
@@ -256,7 +280,7 @@ ifmerge10:                                        ; preds = %ifmerge, %then8
   %30 = load float* %29
   %31 = fadd float %28, %30
   %32 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %31, <4 x i32> zeroinitializer)
-  %33 = load i32 addrspace(1)* @sampler, !gla.uniform !13
+  %33 = load i32 addrspace(1)* @sampler, !gla.uniform !30
   %34 = load <2 x float>* @coord
   %gl_FragColor = call <4 x float> @llvm.gla.fTextureSample.v4f32.v2f32(i32 2, i32 %33, i32 0, <2 x float> %34)
   %gl_FragColor11 = fmul <4 x float> %gl_FragColor, %32
@@ -279,32 +303,56 @@ declare <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float, <4 x i32>) #0
 attributes #0 = { nounwind readnone }
 
 !gla.entrypoint = !{!0}
-!gla.uniforms = !{!1, !9, !10, !11, !13, !16}
-!gla.inputs = !{!17}
-!gla.outputs = !{!19}
-!gla.noStaticUse = !{!16}
+!gla.uniforms = !{!1, !20, !25, !27, !30, !33}
+!gla.inputs = !{!41}
+!gla.outputs = !{!43}
+!gla.noStaticUse = !{!33}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"foo3", i32 12, %s3* @foo3_typeProxy, !2, !3}
+!1 = !{!"foo3", i32 12, %s3* @foo3_typeProxy, !2, !"s3", !3, !13, !14, !15}
 !2 = !{i32 4, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = !{!"s3", !2, !"s2_1", !4, !"i", !5, !"f", !5, !"s1_1", !7}
-!4 = !{!"s2", !2, !"i", !5, !"f", !5, !"s1_1", !7}
-!5 = !{!"", !6}
-!6 = !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = !{!"s1", !2, !"i", !5, !"f", !5, !"s0_1", !8}
-!8 = !{!"s0", !2, !"i", !5}
-!9 = !{!"foo1", i32 12, %s1* @foo1_typeProxy, !2, !7}
-!10 = !{!"foo0", i32 12, %s0* @foo0_typeProxy, !2, !8}
-!11 = !{!"foo00", i32 12, %s00* @foo00_typeProxy, !2, !12}
-!12 = !{!"s00", !2, !"s0_0", !8}
-!13 = !{!"sampler", i32 12, i32* @sampler_typeProxy, !14}
-!14 = !{i32 5, i32 0, i32 1024, !15, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!15 = !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
-!16 = !{!"foo2", i32 12, %s2* @foo2_typeProxy, !2, !4}
-!17 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !18}
-!18 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!19 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !20}
-!20 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+!3 = !{!"s2_1", i32 0, [12 x %s2]* @s2_1_typeProxy, !4, !"s2", !5, !7, !8}
+!4 = !{i32 4, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!5 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!6 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!7 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!8 = !{!"s1_1", i32 0, %s1* @s1_1_typeProxy, !4, !"s1", !9, !10, !11}
+!9 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!10 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!11 = !{!"s0_1", i32 0, %s0* @s0_1_typeProxy, !4, !"s0", !12}
+!12 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!13 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!14 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!15 = !{!"s1_1", i32 0, %s1* @s1_1_typeProxy, !4, !"s1", !16, !17, !18}
+!16 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!17 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!18 = !{!"s0_1", i32 0, %s0* @s0_1_typeProxy, !4, !"s0", !19}
+!19 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!20 = !{!"foo1", i32 12, %s1* @foo1_typeProxy, !2, !"s1", !21, !22, !23}
+!21 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!22 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!23 = !{!"s0_1", i32 0, %s0* @s0_1_typeProxy, !4, !"s0", !24}
+!24 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!25 = !{!"foo0", i32 12, %s0* @foo0_typeProxy, !2, !"s0", !26}
+!26 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!27 = !{!"foo00", i32 12, %s00* @foo00_typeProxy, !2, !"s00", !28}
+!28 = !{!"s0_0", i32 0, %s0* @s0_0_typeProxy, !4, !"s0", !29}
+!29 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!30 = !{!"sampler", i32 12, i32* @sampler_typeProxy, !31, !""}
+!31 = !{i32 5, i32 0, i32 1024, !32, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!32 = !{i32 0, i32* @sampler_typeProxy, i32 1, i1 false, i1 false, i32 0}
+!33 = !{!"foo2", i32 12, %s2* @foo2_typeProxy, !2, !"s2", !34, !35, !36}
+!34 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!35 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!36 = !{!"s1_1", i32 0, %s1* @s1_1_typeProxy, !4, !"s1", !37, !38, !39}
+!37 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!38 = !{!"f", i32 0, float* @f_typeProxy, !6, !""}
+!39 = !{!"s0_1", i32 0, %s0* @s0_1_typeProxy, !4, !"s0", !40}
+!40 = !{!"i", i32 0, i32* @i_typeProxy, !6, !""}
+!41 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !42, !""}
+!42 = !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
+!43 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !44, !""}
+!44 = !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 
 ***Unsupported functionality: control flow: not all blocks were translated
 #version 130
