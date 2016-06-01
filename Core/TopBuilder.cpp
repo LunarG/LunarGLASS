@@ -1069,7 +1069,6 @@ llvm::Value* Builder::createMatrixMultiply(gla::EMdPrecision precision, llvm::Va
 
     // matrix times matrix
     if (IsAggregate(left) && IsAggregate(right)) {
-        assert(GetNumRows(left)    == GetNumColumns(right));
         assert(GetNumColumns(left) == GetNumRows(right));
 
         return createMatrixTimesMatrix(precision, left, right);

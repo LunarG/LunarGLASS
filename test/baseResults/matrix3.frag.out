@@ -1,0 +1,329 @@
+
+Top IR:
+; ModuleID = 'Glslang'
+
+@a = external addrspace(2) constant [3 x <3 x float>]
+@b = external addrspace(2) constant [2 x <3 x float>]
+@o = global <3 x float> zeroinitializer
+@d = external addrspace(2) constant <2 x float>
+
+define fastcc void @main() {
+entry:
+  %0 = alloca <3 x float>
+  %1 = alloca <3 x float>
+  %2 = alloca [2 x <3 x float>]
+  %c = alloca [2 x <3 x float>]
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
+  %3 = load [3 x <3 x float>] addrspace(2)* @a, !gla.uniform !1
+  %4 = load [2 x <3 x float>] addrspace(2)* @b, !gla.uniform !3
+  %resultMatrix = load [2 x <3 x float>]* %2
+  %tempColumn = load <3 x float>* %1
+  %rightColumn = extractvalue [2 x <3 x float>] %4, 0, !gla.precision !8
+  %leftColumn = extractvalue [3 x <3 x float>] %3, 0, !gla.precision !8
+  %leftComp = extractelement <3 x float> %leftColumn, i32 0, !gla.precision !8
+  %rightComp = extractelement <3 x float> %rightColumn, i32 0, !gla.precision !8
+  %product = fmul float %leftComp, %rightComp, !gla.precision !8
+  %leftColumn1 = extractvalue [3 x <3 x float>] %3, 1, !gla.precision !8
+  %leftComp2 = extractelement <3 x float> %leftColumn1, i32 0, !gla.precision !8
+  %rightComp3 = extractelement <3 x float> %rightColumn, i32 1, !gla.precision !8
+  %product4 = fmul float %leftComp2, %rightComp3, !gla.precision !8
+  %dotProduct = fadd float %product, %product4, !gla.precision !8
+  %leftColumn5 = extractvalue [3 x <3 x float>] %3, 2, !gla.precision !8
+  %leftComp6 = extractelement <3 x float> %leftColumn5, i32 0, !gla.precision !8
+  %rightComp7 = extractelement <3 x float> %rightColumn, i32 2, !gla.precision !8
+  %product8 = fmul float %leftComp6, %rightComp7, !gla.precision !8
+  %dotProduct9 = fadd float %dotProduct, %product8, !gla.precision !8
+  %column = insertelement <3 x float> %tempColumn, float %dotProduct9, i32 0, !gla.precision !8
+  %leftColumn10 = extractvalue [3 x <3 x float>] %3, 0, !gla.precision !8
+  %leftComp11 = extractelement <3 x float> %leftColumn10, i32 1, !gla.precision !8
+  %rightComp12 = extractelement <3 x float> %rightColumn, i32 0, !gla.precision !8
+  %product13 = fmul float %leftComp11, %rightComp12, !gla.precision !8
+  %leftColumn14 = extractvalue [3 x <3 x float>] %3, 1, !gla.precision !8
+  %leftComp15 = extractelement <3 x float> %leftColumn14, i32 1, !gla.precision !8
+  %rightComp16 = extractelement <3 x float> %rightColumn, i32 1, !gla.precision !8
+  %product17 = fmul float %leftComp15, %rightComp16, !gla.precision !8
+  %dotProduct18 = fadd float %product13, %product17, !gla.precision !8
+  %leftColumn19 = extractvalue [3 x <3 x float>] %3, 2, !gla.precision !8
+  %leftComp20 = extractelement <3 x float> %leftColumn19, i32 1, !gla.precision !8
+  %rightComp21 = extractelement <3 x float> %rightColumn, i32 2, !gla.precision !8
+  %product22 = fmul float %leftComp20, %rightComp21, !gla.precision !8
+  %dotProduct23 = fadd float %dotProduct18, %product22, !gla.precision !8
+  %column24 = insertelement <3 x float> %column, float %dotProduct23, i32 1, !gla.precision !8
+  %leftColumn25 = extractvalue [3 x <3 x float>] %3, 0, !gla.precision !8
+  %leftComp26 = extractelement <3 x float> %leftColumn25, i32 2, !gla.precision !8
+  %rightComp27 = extractelement <3 x float> %rightColumn, i32 0, !gla.precision !8
+  %product28 = fmul float %leftComp26, %rightComp27, !gla.precision !8
+  %leftColumn29 = extractvalue [3 x <3 x float>] %3, 1, !gla.precision !8
+  %leftComp30 = extractelement <3 x float> %leftColumn29, i32 2, !gla.precision !8
+  %rightComp31 = extractelement <3 x float> %rightColumn, i32 1, !gla.precision !8
+  %product32 = fmul float %leftComp30, %rightComp31, !gla.precision !8
+  %dotProduct33 = fadd float %product28, %product32, !gla.precision !8
+  %leftColumn34 = extractvalue [3 x <3 x float>] %3, 2, !gla.precision !8
+  %leftComp35 = extractelement <3 x float> %leftColumn34, i32 2, !gla.precision !8
+  %rightComp36 = extractelement <3 x float> %rightColumn, i32 2, !gla.precision !8
+  %product37 = fmul float %leftComp35, %rightComp36, !gla.precision !8
+  %dotProduct38 = fadd float %dotProduct33, %product37, !gla.precision !8
+  %column39 = insertelement <3 x float> %column24, float %dotProduct38, i32 2, !gla.precision !8
+  %resultMatrix40 = insertvalue [2 x <3 x float>] %resultMatrix, <3 x float> %column39, 0, !gla.precision !8
+  %rightColumn41 = extractvalue [2 x <3 x float>] %4, 1, !gla.precision !8
+  %leftColumn42 = extractvalue [3 x <3 x float>] %3, 0, !gla.precision !8
+  %leftComp43 = extractelement <3 x float> %leftColumn42, i32 0, !gla.precision !8
+  %rightComp44 = extractelement <3 x float> %rightColumn41, i32 0, !gla.precision !8
+  %product45 = fmul float %leftComp43, %rightComp44, !gla.precision !8
+  %leftColumn46 = extractvalue [3 x <3 x float>] %3, 1, !gla.precision !8
+  %leftComp47 = extractelement <3 x float> %leftColumn46, i32 0, !gla.precision !8
+  %rightComp48 = extractelement <3 x float> %rightColumn41, i32 1, !gla.precision !8
+  %product49 = fmul float %leftComp47, %rightComp48, !gla.precision !8
+  %dotProduct50 = fadd float %product45, %product49, !gla.precision !8
+  %leftColumn51 = extractvalue [3 x <3 x float>] %3, 2, !gla.precision !8
+  %leftComp52 = extractelement <3 x float> %leftColumn51, i32 0, !gla.precision !8
+  %rightComp53 = extractelement <3 x float> %rightColumn41, i32 2, !gla.precision !8
+  %product54 = fmul float %leftComp52, %rightComp53, !gla.precision !8
+  %dotProduct55 = fadd float %dotProduct50, %product54, !gla.precision !8
+  %column56 = insertelement <3 x float> %column39, float %dotProduct55, i32 0, !gla.precision !8
+  %leftColumn57 = extractvalue [3 x <3 x float>] %3, 0, !gla.precision !8
+  %leftComp58 = extractelement <3 x float> %leftColumn57, i32 1, !gla.precision !8
+  %rightComp59 = extractelement <3 x float> %rightColumn41, i32 0, !gla.precision !8
+  %product60 = fmul float %leftComp58, %rightComp59, !gla.precision !8
+  %leftColumn61 = extractvalue [3 x <3 x float>] %3, 1, !gla.precision !8
+  %leftComp62 = extractelement <3 x float> %leftColumn61, i32 1, !gla.precision !8
+  %rightComp63 = extractelement <3 x float> %rightColumn41, i32 1, !gla.precision !8
+  %product64 = fmul float %leftComp62, %rightComp63, !gla.precision !8
+  %dotProduct65 = fadd float %product60, %product64, !gla.precision !8
+  %leftColumn66 = extractvalue [3 x <3 x float>] %3, 2, !gla.precision !8
+  %leftComp67 = extractelement <3 x float> %leftColumn66, i32 1, !gla.precision !8
+  %rightComp68 = extractelement <3 x float> %rightColumn41, i32 2, !gla.precision !8
+  %product69 = fmul float %leftComp67, %rightComp68, !gla.precision !8
+  %dotProduct70 = fadd float %dotProduct65, %product69, !gla.precision !8
+  %column71 = insertelement <3 x float> %column56, float %dotProduct70, i32 1, !gla.precision !8
+  %leftColumn72 = extractvalue [3 x <3 x float>] %3, 0, !gla.precision !8
+  %leftComp73 = extractelement <3 x float> %leftColumn72, i32 2, !gla.precision !8
+  %rightComp74 = extractelement <3 x float> %rightColumn41, i32 0, !gla.precision !8
+  %product75 = fmul float %leftComp73, %rightComp74, !gla.precision !8
+  %leftColumn76 = extractvalue [3 x <3 x float>] %3, 1, !gla.precision !8
+  %leftComp77 = extractelement <3 x float> %leftColumn76, i32 2, !gla.precision !8
+  %rightComp78 = extractelement <3 x float> %rightColumn41, i32 1, !gla.precision !8
+  %product79 = fmul float %leftComp77, %rightComp78, !gla.precision !8
+  %dotProduct80 = fadd float %product75, %product79, !gla.precision !8
+  %leftColumn81 = extractvalue [3 x <3 x float>] %3, 2, !gla.precision !8
+  %leftComp82 = extractelement <3 x float> %leftColumn81, i32 2, !gla.precision !8
+  %rightComp83 = extractelement <3 x float> %rightColumn41, i32 2, !gla.precision !8
+  %product84 = fmul float %leftComp82, %rightComp83, !gla.precision !8
+  %dotProduct85 = fadd float %dotProduct80, %product84, !gla.precision !8
+  %column86 = insertelement <3 x float> %column71, float %dotProduct85, i32 2, !gla.precision !8
+  %resultMatrix87 = insertvalue [2 x <3 x float>] %resultMatrix40, <3 x float> %column86, 1, !gla.precision !8
+  store [2 x <3 x float>] %resultMatrix87, [2 x <3 x float>]* %c
+  %5 = load [2 x <3 x float>]* %c
+  %6 = load <2 x float> addrspace(2)* @d, !gla.uniform !4
+  %7 = load <3 x float>* %0
+  %component = extractelement <2 x float> %6, i32 0, !gla.precision !8
+  %component88 = extractelement <2 x float> %6, i32 1, !gla.precision !8
+  %column89 = extractvalue [2 x <3 x float>] %5, 0, !gla.precision !8
+  %element = extractelement <3 x float> %column89, i32 0, !gla.precision !8
+  %product90 = fmul float %element, %component, !gla.precision !8
+  %column91 = extractvalue [2 x <3 x float>] %5, 1, !gla.precision !8
+  %element92 = extractelement <3 x float> %column91, i32 0, !gla.precision !8
+  %product93 = fmul float %element92, %component88, !gla.precision !8
+  %dotProduct94 = fadd float %product90, %product93, !gla.precision !8
+  %8 = insertelement <3 x float> %7, float %dotProduct94, i32 0, !gla.precision !8
+  %column95 = extractvalue [2 x <3 x float>] %5, 0, !gla.precision !8
+  %element96 = extractelement <3 x float> %column95, i32 1, !gla.precision !8
+  %product97 = fmul float %element96, %component, !gla.precision !8
+  %column98 = extractvalue [2 x <3 x float>] %5, 1, !gla.precision !8
+  %element99 = extractelement <3 x float> %column98, i32 1, !gla.precision !8
+  %product100 = fmul float %element99, %component88, !gla.precision !8
+  %dotProduct101 = fadd float %product97, %product100, !gla.precision !8
+  %9 = insertelement <3 x float> %8, float %dotProduct101, i32 1, !gla.precision !8
+  %column102 = extractvalue [2 x <3 x float>] %5, 0, !gla.precision !8
+  %element103 = extractelement <3 x float> %column102, i32 2, !gla.precision !8
+  %product104 = fmul float %element103, %component, !gla.precision !8
+  %column105 = extractvalue [2 x <3 x float>] %5, 1, !gla.precision !8
+  %element106 = extractelement <3 x float> %column105, i32 2, !gla.precision !8
+  %product107 = fmul float %element106, %component88, !gla.precision !8
+  %dotProduct108 = fadd float %product104, %product107, !gla.precision !8
+  %o = insertelement <3 x float> %9, float %dotProduct108, i32 2, !gla.precision !8
+  store <3 x float> %o, <3 x float>* @o
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %mainBody
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+!gla.entrypoint = !{!0}
+!gla.uniforms = !{!1, !3, !4}
+!gla.outputs = !{!6}
+
+!0 = !{!"main", i32 15}
+!1 = !{!"a", i32 12, [3 x <3 x float>]* @a_typeProxy, !2}
+!2 = !{i32 3, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"b", i32 12, [2 x <3 x float>]* @b_typeProxy, !2}
+!4 = !{!"d", i32 12, <2 x float>* @d_typeProxy, !5}
+!5 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!6 = !{!"o", i32 7, <3 x float>* @o_typeProxy, !7}
+!7 = !{i32 0, i32 3, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!8 = !{i32 3}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+target datalayout = "e-p:32:32"
+
+@a = external addrspace(2) constant [3 x <3 x float>]
+@b = external addrspace(2) constant [2 x <3 x float>]
+@o = global <3 x float> zeroinitializer
+@d = external addrspace(2) constant <2 x float>
+
+define fastcc void @main() {
+entry:
+  %0 = load [3 x <3 x float>] addrspace(2)* @a, !gla.uniform !1
+  %1 = load [2 x <3 x float>] addrspace(2)* @b, !gla.uniform !3
+  %rightColumn = extractvalue [2 x <3 x float>] %1, 0, !gla.precision !8
+  %leftColumn = extractvalue [3 x <3 x float>] %0, 0, !gla.precision !8
+  %leftComp = extractelement <3 x float> %leftColumn, i32 0, !gla.precision !8
+  %rightComp = extractelement <3 x float> %rightColumn, i32 0, !gla.precision !8
+  %product = fmul float %leftComp, %rightComp, !gla.precision !8
+  %leftColumn1 = extractvalue [3 x <3 x float>] %0, 1, !gla.precision !8
+  %leftComp2 = extractelement <3 x float> %leftColumn1, i32 0, !gla.precision !8
+  %rightComp3 = extractelement <3 x float> %rightColumn, i32 1, !gla.precision !8
+  %product4 = fmul float %leftComp2, %rightComp3, !gla.precision !8
+  %dotProduct = fadd float %product, %product4, !gla.precision !8
+  %leftColumn5 = extractvalue [3 x <3 x float>] %0, 2, !gla.precision !8
+  %leftComp6 = extractelement <3 x float> %leftColumn5, i32 0, !gla.precision !8
+  %rightComp7 = extractelement <3 x float> %rightColumn, i32 2, !gla.precision !8
+  %product8 = fmul float %leftComp6, %rightComp7, !gla.precision !8
+  %dotProduct9 = fadd float %product8, %dotProduct, !gla.precision !8
+  %leftComp11 = extractelement <3 x float> %leftColumn, i32 1, !gla.precision !8
+  %product13 = fmul float %leftComp11, %rightComp, !gla.precision !8
+  %leftComp15 = extractelement <3 x float> %leftColumn1, i32 1, !gla.precision !8
+  %product17 = fmul float %leftComp15, %rightComp3, !gla.precision !8
+  %dotProduct18 = fadd float %product13, %product17, !gla.precision !8
+  %leftComp20 = extractelement <3 x float> %leftColumn5, i32 1, !gla.precision !8
+  %product22 = fmul float %leftComp20, %rightComp7, !gla.precision !8
+  %dotProduct23 = fadd float %product22, %dotProduct18, !gla.precision !8
+  %leftComp26 = extractelement <3 x float> %leftColumn, i32 2, !gla.precision !8
+  %product28 = fmul float %leftComp26, %rightComp, !gla.precision !8
+  %leftComp30 = extractelement <3 x float> %leftColumn1, i32 2, !gla.precision !8
+  %product32 = fmul float %leftComp30, %rightComp3, !gla.precision !8
+  %dotProduct33 = fadd float %product28, %product32, !gla.precision !8
+  %leftComp35 = extractelement <3 x float> %leftColumn5, i32 2, !gla.precision !8
+  %product37 = fmul float %leftComp35, %rightComp7, !gla.precision !8
+  %dotProduct38 = fadd float %product37, %dotProduct33, !gla.precision !8
+  %rightColumn41 = extractvalue [2 x <3 x float>] %1, 1, !gla.precision !8
+  %rightComp44 = extractelement <3 x float> %rightColumn41, i32 0, !gla.precision !8
+  %product45 = fmul float %leftComp, %rightComp44, !gla.precision !8
+  %rightComp48 = extractelement <3 x float> %rightColumn41, i32 1, !gla.precision !8
+  %product49 = fmul float %leftComp2, %rightComp48, !gla.precision !8
+  %dotProduct50 = fadd float %product45, %product49, !gla.precision !8
+  %rightComp53 = extractelement <3 x float> %rightColumn41, i32 2, !gla.precision !8
+  %product54 = fmul float %leftComp6, %rightComp53, !gla.precision !8
+  %dotProduct55 = fadd float %product54, %dotProduct50, !gla.precision !8
+  %product60 = fmul float %leftComp11, %rightComp44, !gla.precision !8
+  %product64 = fmul float %leftComp15, %rightComp48, !gla.precision !8
+  %dotProduct65 = fadd float %product60, %product64, !gla.precision !8
+  %product69 = fmul float %leftComp20, %rightComp53, !gla.precision !8
+  %dotProduct70 = fadd float %product69, %dotProduct65, !gla.precision !8
+  %product75 = fmul float %leftComp26, %rightComp44, !gla.precision !8
+  %product79 = fmul float %leftComp30, %rightComp48, !gla.precision !8
+  %dotProduct80 = fadd float %product75, %product79, !gla.precision !8
+  %product84 = fmul float %leftComp35, %rightComp53, !gla.precision !8
+  %dotProduct85 = fadd float %product84, %dotProduct80, !gla.precision !8
+  %2 = load <2 x float> addrspace(2)* @d, !gla.uniform !4
+  %component = extractelement <2 x float> %2, i32 0, !gla.precision !8
+  %component88 = extractelement <2 x float> %2, i32 1, !gla.precision !8
+  %product90 = fmul float %component, %dotProduct9, !gla.precision !8
+  %product93 = fmul float %component88, %dotProduct55, !gla.precision !8
+  %dotProduct94 = fadd float %product90, %product93, !gla.precision !8
+  %product97 = fmul float %component, %dotProduct23, !gla.precision !8
+  %product100 = fmul float %component88, %dotProduct70, !gla.precision !8
+  %dotProduct101 = fadd float %product97, %product100, !gla.precision !8
+  %product104 = fmul float %component, %dotProduct38, !gla.precision !8
+  %product107 = fmul float %component88, %dotProduct85, !gla.precision !8
+  %dotProduct108 = fadd float %product104, %product107, !gla.precision !8
+  %3 = call <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float> undef, i32 7, float %dotProduct94, i32 0, float %dotProduct101, i32 0, float %dotProduct108, i32 0, float undef, i32 undef)
+  store <3 x float> %3, <3 x float>* @o
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare <3 x float> @llvm.gla.fMultiInsert.v3f32.v3f32.f32.f32.f32.f32(<3 x float>, i32, float, i32, float, i32, float, i32, float, i32) #0
+
+attributes #0 = { nounwind readnone }
+
+!gla.entrypoint = !{!0}
+!gla.uniforms = !{!1, !3, !4}
+!gla.outputs = !{!6}
+
+!0 = !{!"main", i32 15}
+!1 = !{!"a", i32 12, [3 x <3 x float>]* @a_typeProxy, !2}
+!2 = !{i32 3, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!3 = !{!"b", i32 12, [2 x <3 x float>]* @b_typeProxy, !2}
+!4 = !{!"d", i32 12, <2 x float>* @d_typeProxy, !5}
+!5 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!6 = !{!"o", i32 7, <3 x float>* @o_typeProxy, !7}
+!7 = !{i32 0, i32 3, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
+!8 = !{i32 3}
+#version 300 es
+// LunarGOO output
+precision mediump float; // this will be almost entirely overridden by individual declarations
+uniform highp mat3 a;
+uniform highp mat2x3 b;
+uniform highp vec2 d;
+out highp vec3 o;
+
+void main()
+{
+	highp float product = a[0].x * b[0].x;
+	highp float product1 = a[1].x * b[0].y;
+	highp float dotProduct = product + product1;
+	highp float product2 = a[2].x * b[0].z;
+	highp float dotProduct1 = dotProduct + product2;
+	highp float product3 = a[0].y * b[0].x;
+	highp float product4 = a[1].y * b[0].y;
+	highp float dotProduct2 = product3 + product4;
+	highp float product5 = a[2].y * b[0].z;
+	highp float dotProduct3 = dotProduct2 + product5;
+	highp float product6 = a[0].z * b[0].x;
+	highp float product7 = a[1].z * b[0].y;
+	highp float dotProduct4 = product6 + product7;
+	highp float product8 = a[2].z * b[0].z;
+	highp float dotProduct5 = dotProduct4 + product8;
+	highp float product9 = a[0].x * b[1].x;
+	highp float producta = a[1].x * b[1].y;
+	highp float dotProduct6 = product9 + producta;
+	highp float productb = a[2].x * b[1].z;
+	highp float dotProduct7 = dotProduct6 + productb;
+	highp float productc = a[0].y * b[1].x;
+	highp float productd = a[1].y * b[1].y;
+	highp float dotProduct8 = productc + productd;
+	highp float producte = a[2].y * b[1].z;
+	highp float dotProduct9 = dotProduct8 + producte;
+	highp float productf = a[0].z * b[1].x;
+	highp float productg = a[1].z * b[1].y;
+	highp float dotProducta = productf + productg;
+	highp float producth = a[2].z * b[1].z;
+	highp float dotProductb = dotProducta + producth;
+	highp float producti = d.x * dotProduct1;
+	highp float productj = d.y * dotProduct7;
+	highp float dotProductc = producti + productj;
+	highp float productk = d.x * dotProduct3;
+	highp float productl = d.y * dotProduct9;
+	highp float dotProductd = productk + productl;
+	highp float productm = d.x * dotProduct5;
+	highp float productn = d.y * dotProductb;
+	highp float dotProducte = productm + productn;
+	vec3 H_1q1ytm1 = vec3(dotProductc, dotProductd, dotProducte);
+	o = H_1q1ytm1;
+	
+}
+
