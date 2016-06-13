@@ -2311,7 +2311,7 @@ llvm::Value* TGlslangToTopTraverser::createBinaryOperation(glslang::TOperator op
             pred = llvm::FCmpInst::FCMP_OEQ;
             break;
         case glslang::EOpNotEqual:
-            pred = llvm::FCmpInst::FCMP_ONE;
+            pred = llvm::FCmpInst::FCMP_UNE;
             break;
         default:
             break;
