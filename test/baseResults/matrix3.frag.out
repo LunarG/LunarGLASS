@@ -159,12 +159,12 @@ stage-exit:                                       ; preds = %stage-epilogue
 !gla.outputs = !{!6}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"a", i32 12, [3 x <3 x float>]* @a_typeProxy, !2}
+!1 = !{!"a", i32 12, [3 x <3 x float>]* @a_typeProxy, !2, !""}
 !2 = !{i32 3, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = !{!"b", i32 12, [2 x <3 x float>]* @b_typeProxy, !2}
-!4 = !{!"d", i32 12, <2 x float>* @d_typeProxy, !5}
+!3 = !{!"b", i32 12, [2 x <3 x float>]* @b_typeProxy, !2, !""}
+!4 = !{!"d", i32 12, <2 x float>* @d_typeProxy, !5, !""}
 !5 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!6 = !{!"o", i32 7, <3 x float>* @o_typeProxy, !7}
+!6 = !{!"o", i32 7, <3 x float>* @o_typeProxy, !7, !""}
 !7 = !{i32 0, i32 3, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
 !8 = !{i32 3}
 
@@ -265,12 +265,12 @@ attributes #0 = { nounwind readnone }
 !gla.outputs = !{!6}
 
 !0 = !{!"main", i32 15}
-!1 = !{!"a", i32 12, [3 x <3 x float>]* @a_typeProxy, !2}
+!1 = !{!"a", i32 12, [3 x <3 x float>]* @a_typeProxy, !2, !""}
 !2 = !{i32 3, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = !{!"b", i32 12, [2 x <3 x float>]* @b_typeProxy, !2}
-!4 = !{!"d", i32 12, <2 x float>* @d_typeProxy, !5}
+!3 = !{!"b", i32 12, [2 x <3 x float>]* @b_typeProxy, !2, !""}
+!4 = !{!"d", i32 12, <2 x float>* @d_typeProxy, !5, !""}
 !5 = !{i32 0, i32 3, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!6 = !{!"o", i32 7, <3 x float>* @o_typeProxy, !7}
+!6 = !{!"o", i32 7, <3 x float>* @o_typeProxy, !7, !""}
 !7 = !{i32 0, i32 3, i32 1024, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
 !8 = !{i32 3}
 #version 300 es
