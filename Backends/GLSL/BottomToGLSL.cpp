@@ -49,7 +49,7 @@
 //===----------------------------------------------------------------------===//
 
 #define _CRT_SECURE_NO_WARNINGS
-#ifdef _WIN32
+#if defined( _WIN32 ) && ( _MSC_VER < 1900 )
 #define snprintf _snprintf
 #endif
 
@@ -360,7 +360,7 @@ public:
         appendInitializers(false),
         indentLevel(0), lastVariable(0)
     {
-        #ifdef _WIN32
+		#if defined( _WIN32 ) && ( _MSC_VER < 1900 )
             unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
         #endif
         indentString = "\t";
