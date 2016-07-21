@@ -72,13 +72,13 @@
 
 void gla::PrivateManager::translateTopToBottom()
 {
-#ifdef _WIN32
+#if defined( _WIN32 ) && ( _MSC_VER < 1900 )
     unsigned int oldFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
 
     runLLVMOptimizations1();
 
-#ifdef _WIN32
+#if defined( _WIN32 ) && ( _MSC_VER < 1900 )
     _set_output_format(oldFormat);
 #endif
 
