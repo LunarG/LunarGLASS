@@ -140,7 +140,7 @@ then21:                                           ; preds = %ifmerge
 ifmerge23:                                        ; preds = %ifmerge, %then21
   %58 = load <4 x float>* @u
   %59 = load <4 x float>* %v
-  %60 = fcmp one <4 x float> %58, %59
+  %60 = fcmp une <4 x float> %58, %59
   %cc24 = call i1 @llvm.gla.any.v4i1(<4 x i1> %60)
   br i1 %cc24, label %then25, label %ifmerge27
 
@@ -217,7 +217,7 @@ ifmerge52:                                        ; preds = %ifmerge31, %then50
   %86 = icmp ne i32 %element155, %element256
   %element157 = extractvalue %s1 %element153, 1
   %element258 = extractvalue %s1 %element254, 1
-  %87 = fcmp one float %element157, %element258
+  %87 = fcmp une float %element157, %element258
   %88 = or i1 %86, %87
   %element159 = extractvalue [3 x %s1] %84, 1
   %element260 = extractvalue [3 x %s1] %85, 1
@@ -226,7 +226,7 @@ ifmerge52:                                        ; preds = %ifmerge31, %then50
   %89 = icmp ne i32 %element161, %element262
   %element163 = extractvalue %s1 %element159, 1
   %element264 = extractvalue %s1 %element260, 1
-  %90 = fcmp one float %element163, %element264
+  %90 = fcmp une float %element163, %element264
   %91 = or i1 %89, %90
   %92 = or i1 %88, %91
   %element165 = extractvalue [3 x %s1] %84, 2
@@ -236,7 +236,7 @@ ifmerge52:                                        ; preds = %ifmerge31, %then50
   %93 = icmp ne i32 %element167, %element268
   %element169 = extractvalue %s1 %element165, 1
   %element270 = extractvalue %s1 %element266, 1
-  %94 = fcmp one float %element169, %element270
+  %94 = fcmp une float %element169, %element270
   %95 = or i1 %93, %94
   %96 = or i1 %92, %95
   br i1 %96, label %then71, label %ifmerge73
@@ -422,7 +422,7 @@ then21:                                           ; preds = %ifmerge
 
 ifmerge23:                                        ; preds = %ifmerge, %then21
   %v.1 = phi <4 x float> [ %v22, %then21 ], [ %v18, %ifmerge ]
-  %45 = fcmp one <4 x float> %0, %v.1
+  %45 = fcmp une <4 x float> %0, %v.1
   %cc24 = call i1 @llvm.gla.any.v4i1(<4 x i1> %45)
   br i1 %cc24, label %then25, label %ifmerge27
 
@@ -481,14 +481,14 @@ then50:                                           ; preds = %ifmerge31
 ifmerge52:                                        ; preds = %ifmerge31, %then50
   %v.4 = phi <4 x float> [ %v51, %then50 ], [ %v.3, %ifmerge31 ]
   %59 = icmp ne i32 %element134, %element235
-  %60 = fcmp one float %element136, %element237
+  %60 = fcmp une float %element136, %element237
   %61 = or i1 %59, %60
   %62 = icmp ne i32 %element140, %element241
-  %63 = fcmp one float %element142, %element243
+  %63 = fcmp une float %element142, %element243
   %64 = or i1 %62, %63
   %65 = or i1 %61, %64
   %66 = icmp ne i32 %element146, %element247
-  %67 = fcmp one float %element148, %element249
+  %67 = fcmp une float %element148, %element249
   %68 = or i1 %66, %67
   %69 = or i1 %68, %65
   br i1 %69, label %then71, label %ifmerge73

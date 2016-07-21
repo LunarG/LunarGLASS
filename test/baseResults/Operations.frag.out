@@ -415,9 +415,9 @@ ifmerge:                                          ; preds = %mainBody, %then
   %208 = fcmp oeq float %206, %207
   %209 = load float* %f
   %210 = load float addrspace(2)* @uf, !gla.uniform !4
-  %211 = fcmp one float %209, %210
+  %211 = fcmp une float %209, %210
   %212 = load float* %f
-  %213 = fcmp one float %212, 2.000000e+00
+  %213 = fcmp une float %212, 2.000000e+00
   %214 = and i1 %211, %213
   %215 = or i1 %208, %214
   br i1 %215, label %then116, label %ifmerge118
@@ -810,8 +810,8 @@ entry:
   %27 = extractelement <3 x float> %f114, i32 0
   %f115 = fadd float %27, %f113
   %28 = fcmp oeq float %f115, %8
-  %29 = fcmp one float %f115, %8
-  %30 = fcmp one float %f115, 2.000000e+00
+  %29 = fcmp une float %f115, %8
+  %30 = fcmp une float %f115, 2.000000e+00
   %31 = and i1 %29, %30
   %32 = or i1 %28, %31
   br i1 %32, label %then116, label %ifmerge118

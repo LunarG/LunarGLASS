@@ -1299,7 +1299,7 @@ gla::Builder::SuperValue GlslToTopVisitor::createBinaryOperation(ir_expression_o
             pred = llvm::FCmpInst::FCMP_OEQ;
             break;
         case ir_binop_nequal:
-            pred = llvm::FCmpInst::FCMP_ONE;
+            pred = llvm::FCmpInst::FCMP_UNE;
             break;
         }
 

@@ -2199,7 +2199,7 @@ llvm::Value* Builder::createCompare(gla::EMdPrecision precision, llvm::Value* va
             if (equal)
                 result = builder.CreateFCmpOEQ(value1, value2);
             else
-                result = builder.CreateFCmpONE(value1, value2);
+                result = builder.CreateFCmpUNE(value1, value2);
         } else {
             if (equal)
                 result = builder.CreateICmpEQ(value1, value2);

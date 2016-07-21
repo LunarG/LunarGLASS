@@ -146,7 +146,7 @@ mainBody:                                         ; preds = %entry
   %48 = extractelement <4 x float> %47, i32 0, !gla.precision !43
   store float %48, float* getelementptr inbounds (%S* @s, i32 0, i32 1)
   %49 = load <3 x float> addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @"anon@1", i32 0, i32 2, i32 1), !gla.uniform !31
-  %50 = fcmp one <3 x float> %49, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  %50 = fcmp une <3 x float> %49, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   %cc = call i1 @llvm.gla.any.v3i1(<3 x i1> %50)
   %51 = load <3 x i32> addrspace(2)* getelementptr inbounds (%T3 addrspace(2)* @"anon@1", i32 0, i32 3, i32 2), !gla.uniform !31
   %52 = icmp ne <3 x i32> %51, <i32 5, i32 5, i32 5>
@@ -337,7 +337,7 @@ entry:
   store float %15, float* %gla_constGEP67
   %gla_constGEP68 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 2, i32 1
   %16 = load <3 x float> addrspace(2)* %gla_constGEP68, !gla.uniform !31
-  %17 = fcmp one <3 x float> %16, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
+  %17 = fcmp une <3 x float> %16, <float 1.000000e+00, float 1.000000e+00, float 1.000000e+00>
   %cc = call i1 @llvm.gla.any.v3i1(<3 x i1> %17)
   %gla_constGEP69 = getelementptr %T3 addrspace(2)* @"anon@1", i32 0, i32 3, i32 2
   %18 = load <3 x i32> addrspace(2)* %gla_constGEP69, !gla.uniform !31

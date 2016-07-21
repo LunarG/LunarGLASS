@@ -2523,7 +2523,7 @@ llvm::Value* SpvToTopTranslator::createBinaryOperation(spv::Op op, gla::EMdPreci
         ipred = llvm::ICmpInst::ICMP_NE;
         break;
     case spv::OpFOrdNotEqual:
-        fpred = llvm::FCmpInst::FCMP_ONE;
+        fpred = llvm::FCmpInst::FCMP_UNE;
         break;
     case spv::OpULessThan:
         ipred = llvm::ICmpInst::ICMP_ULT;
