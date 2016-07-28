@@ -370,11 +370,11 @@ mainBody:                                         ; preds = %entry
   %0 = load i32 addrspace(2)* getelementptr inbounds (%S addrspace(2)* @s, i32 0, i32 2), !gla.uniform !3
   %1 = load <2 x float> addrspace(2)* getelementptr inbounds (%fooBlock addrspace(2)* @"anon@0", i32 0, i32 1), !gla.uniform !14
   %color = call <4 x i32> @llvm.gla.textureSample.v4i32.v2f32(i32 2, i32 %0, i32 0, <2 x float> %1), !gla.precision !29
-  %2 = sitofp <4 x i32> %color to <4 x float>, !gla.precision !29
+  %2 = sitofp <4 x i32> %color to <4 x float>, !gla.precision !30
   %3 = load <4 x float> addrspace(2)* getelementptr inbounds ([4 x %barBlock] addrspace(2)* @inst, i32 0, i32 3, i32 0), !gla.uniform !24
-  %4 = fadd <4 x float> %2, %3, !gla.precision !29
+  %4 = fadd <4 x float> %2, %3, !gla.precision !30
   %5 = load <4 x float> addrspace(2)* getelementptr inbounds (%fooBlock addrspace(2)* @"anon@0", i32 0, i32 0), !gla.uniform !14
-  %color1 = fadd <4 x float> %4, %5, !gla.precision !29
+  %color1 = fadd <4 x float> %4, %5, !gla.precision !30
   store <4 x float> %color1, <4 x float>* @color
   br label %stage-epilogue
 
@@ -423,7 +423,8 @@ attributes #0 = { nounwind readnone }
 !26 = !{!"nbm", i32 12, [3 x <3 x float>]* @nbm_typeProxy, !22, !""}
 !27 = !{!"nbv", i32 12, <4 x i32>* @nbv_typeProxy, !20, !""}
 !28 = !{!"ni", i32 12, i32* @ni_typeProxy, !17, !""}
-!29 = !{i32 2}
+!29 = !{i32 1}
+!30 = !{i32 2}
 
 Top IR:
 ; ModuleID = 'Glslang'
@@ -2821,7 +2822,7 @@ mainBody:                                         ; preds = %entry
   %isum59 = add <4 x i32> %139, %138, !gla.precision !47
   store <4 x i32> %isum59, <4 x i32>* %isum
   %140 = load float* @f
-  %i61 = call i32 @llvm.gla.fFloatBitsToInt.i32.f32(float %140), !gla.precision !47
+  %i61 = call i32 @llvm.gla.fFloatBitsToInt.i32.f32(float %140), !gla.precision !48
   store i32 %i61, i32* %i
   %141 = load i32* %i
   %142 = load <4 x i32>* %isum62
@@ -2833,17 +2834,17 @@ mainBody:                                         ; preds = %entry
   %isum63 = add <4 x i32> %147, %146, !gla.precision !47
   store <4 x i32> %isum63, <4 x i32>* %isum
   %148 = load <4 x float>* @v4
-  %usum64 = call <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float> %148), !gla.precision !47
+  %usum64 = call <4 x i32> @llvm.gla.fFloatBitsToInt.v4i32.v4f32(<4 x float> %148), !gla.precision !48
   %149 = load <4 x i32>* %usum
-  %usum65 = add <4 x i32> %149, %usum64, !gla.precision !47
+  %usum65 = add <4 x i32> %149, %usum64, !gla.precision !48
   store <4 x i32> %usum65, <4 x i32>* %usum
   %150 = load <4 x i32>* @iv4a
-  %sum66 = call <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32> %150), !gla.precision !47
+  %sum66 = call <4 x float> @llvm.gla.fIntBitsTofloat.v4f32.v4i32(<4 x i32> %150), !gla.precision !48
   %151 = load <4 x float>* %sum
-  %sum67 = fadd <4 x float> %151, %sum66, !gla.precision !47
+  %sum67 = fadd <4 x float> %151, %sum66, !gla.precision !48
   store <4 x float> %sum67, <4 x float>* %sum
   %152 = load <2 x i32>* @uv2c
-  %v1569 = call <2 x float> @llvm.gla.fIntBitsTofloat.v2f32.v2i32(<2 x i32> %152), !gla.precision !47
+  %v1569 = call <2 x float> @llvm.gla.fIntBitsTofloat.v2f32.v2i32(<2 x i32> %152), !gla.precision !48
   store <2 x float> %v1569, <2 x float>* %v15
   %153 = load <2 x float>* %v15
   %154 = load <4 x float>* %sum70
@@ -2860,7 +2861,7 @@ mainBody:                                         ; preds = %entry
   %u1973 = call i32 @llvm.gla.fPackSnorm2x16.i32.v2f32(<2 x float> %162), !gla.precision !48
   store i32 %u1973, i32* %u19
   %163 = load i32* @uy
-  %v2075 = call <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32 %163), !gla.precision !48
+  %v2075 = call <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32 %163), !gla.precision !47
   store <2 x float> %v2075, <2 x float>* %v20
   %164 = load <2 x float>* @v2a
   %u1577 = call i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float> %164), !gla.precision !48

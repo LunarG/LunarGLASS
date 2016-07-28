@@ -11,7 +11,7 @@
 
 uniform sampler2D sArray[4];
 uniform ubName { vec2 p; } ubInst[4];
-uniform writeonly image2D iArray[5];
+uniform writeonly lowp image2D iArray[5];
 uniform int index;
 
 const ivec2 constOffsets[4] = ivec2[4](ivec2(1), ivec2(2), ivec2(3), ivec2(4));

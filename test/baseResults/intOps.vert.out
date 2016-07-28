@@ -302,12 +302,12 @@ mainBody:                                         ; preds = %entry
   %181 = add i32 %180, %uout30, !gla.precision !35
   store i32 %181, i32* getelementptr inbounds (<4 x i32>* @uout, i32 0, i32 0)
   %182 = load i32* @u1
-  %fout31 = call <4 x float> @llvm.gla.fUnpackUnorm4x8.v4f32.i32(i32 %182), !gla.precision !36
+  %fout31 = call <4 x float> @llvm.gla.fUnpackUnorm4x8.v4f32.i32(i32 %182), !gla.precision !35
   %183 = load <4 x float>* @fout
   %fout32 = fadd <4 x float> %183, %fout31, !gla.precision !35
   store <4 x float> %fout32, <4 x float>* @fout
   %184 = load i32* @u1
-  %fout33 = call <4 x float> @llvm.gla.fUnpackSnorm4x8.v4f32.i32(i32 %184), !gla.precision !36
+  %fout33 = call <4 x float> @llvm.gla.fUnpackSnorm4x8.v4f32.i32(i32 %184), !gla.precision !35
   %185 = load <4 x float>* @fout
   %fout34 = fadd <4 x float> %185, %fout33, !gla.precision !35
   store <4 x float> %fout34, <4 x float>* @fout
@@ -435,7 +435,6 @@ attributes #0 = { nounwind readnone }
 !33 = !{!"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, !34, !""}
 !34 = !{i32 0, i32 3, i32 1040, null, i32 0, i32 8, i32 -1, i32 0, i32 -1}
 !35 = !{i32 3}
-!36 = !{i32 2}
 
 
 Bottom IR:
@@ -686,10 +685,10 @@ entry:
   %gla_constGEP71 = getelementptr <4 x i32>* @uout, i32 0, i32 0
   store i32 %107, i32* %gla_constGEP71
   %108 = load i32* @u1
-  %fout31 = call <4 x float> @llvm.gla.fUnpackUnorm4x8.v4f32.i32(i32 %108), !gla.precision !36
+  %fout31 = call <4 x float> @llvm.gla.fUnpackUnorm4x8.v4f32.i32(i32 %108), !gla.precision !35
   %109 = load <4 x float>* @fout
   %fout32 = fadd <4 x float> %fout31, %109, !gla.precision !35
-  %fout33 = call <4 x float> @llvm.gla.fUnpackSnorm4x8.v4f32.i32(i32 %108), !gla.precision !36
+  %fout33 = call <4 x float> @llvm.gla.fUnpackSnorm4x8.v4f32.i32(i32 %108), !gla.precision !35
   %fout34 = fadd <4 x float> %fout32, %fout33, !gla.precision !35
   store <4 x float> %fout34, <4 x float>* @fout
   br label %stage-epilogue
@@ -828,7 +827,6 @@ attributes #0 = { nounwind readnone }
 !33 = !{!"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, !34, !""}
 !34 = !{i32 0, i32 3, i32 1040, null, i32 0, i32 8, i32 -1, i32 0, i32 -1}
 !35 = !{i32 3}
-!36 = !{i32 2}
 #version 310 es
 // LunarGOO output
 in highp uvec2 u2;
@@ -964,9 +962,9 @@ void main()
 	highp int uout9 = int(packSnorm4x8(v4));
 	highp int H_xwosts = ivec4(uout).x + uout9;
 	uout.x = uint(H_xwosts);
-	mediump vec4 fout5 = unpackUnorm4x8(uint(int(u1)));
+	highp vec4 fout5 = unpackUnorm4x8(uint(int(u1)));
 	highp vec4 fout6 = fout + fout5;
-	mediump vec4 fout7 = unpackSnorm4x8(uint(int(u1)));
+	highp vec4 fout7 = unpackSnorm4x8(uint(int(u1)));
 	highp vec4 fout8 = fout6 + fout7;
 	fout = fout8;
 	
