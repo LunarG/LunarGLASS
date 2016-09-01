@@ -256,9 +256,9 @@ let TargetPrefix = "gla" in {
   def int_gla_fDFdy : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fFilterWidth : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty], [IntrNoMem]>;
   def int_gla_fFixedTransform : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_anyfloat_ty], [IntrNoMem]>;
-  def int_gla_interpolateAtCentroid : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty],                [IntrNoMem]>;
-  def int_gla_interpolateAtSample   : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_i32_ty],   [IntrNoMem]>;
-  def int_gla_interpolateAtOffset   : Intrinsic<[llvm_anyfloat_ty], [llvm_anyfloat_ty, llvm_v2f32_ty], [IntrNoMem]>;
+  def int_gla_interpolateAtCentroid : Intrinsic<[llvm_anyfloat_ty], [llvm_anyptr_ty],                [IntrReadArgMem]>;
+  def int_gla_interpolateAtSample   : Intrinsic<[llvm_anyfloat_ty], [llvm_anyptr_ty, llvm_i32_ty],   [IntrReadArgMem]>;
+  def int_gla_interpolateAtOffset   : Intrinsic<[llvm_anyfloat_ty], [llvm_anyptr_ty, llvm_v2f32_ty], [IntrReadArgMem]>;
 }
 
 // Comparison

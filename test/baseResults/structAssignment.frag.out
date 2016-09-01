@@ -186,4 +186,39 @@ attributes #0 = { nounwind readnone }
 !29 = !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
 !30 = !{!"coord", i32 1, <2 x float>* @coord_typeProxy, !31, !""}
 !31 = !{i32 0, i32 0, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-LunarGOO: /home/greg/ss/LunarGLASS.36/Backends/GLSL/BottomToGLSL.cpp:4563: void gla::GlslTarget::emitConstantInitializer(std::ostringstream&, const llvm::Constant*, llvm::Type*): Assertion `0 && "Constant type in Bottom IR"' failed.
+#version 130
+// LunarGOO output
+struct lunarStruct1 {
+	int i;
+	float f;
+};
+struct lunarStruct2 {
+	int i;
+	float f;
+	lunarStruct1 s1_1;
+};
+struct lunarStruct3 {
+	lunarStruct2 s2_1;
+	int i;
+	float f;
+	lunarStruct1 s1_1;
+};
+uniform lunarStruct3 foo3;
+uniform lunarStruct2 foo2;
+uniform sampler2D sampler;
+uniform lunarStruct1 foo;
+in vec2 coord;
+const int C_0 = 0;
+
+void main()
+{
+	lunarStruct2 locals;
+	bool H_27n3qy = foo3.s2_1.i > C_0;
+	lunarStruct2 storemerge = H_27n3qy ? foo3.s2_1 : foo2;
+	vec4 H_v4jh0a = vec4(storemerge.s1_1.f);
+	vec4 Ll_FragColor1 = texture(sampler, coord);
+	vec4 Ll_FragColor2 = H_v4jh0a * Ll_FragColor1;
+	gl_FragColor = Ll_FragColor2;
+	
+}
+
