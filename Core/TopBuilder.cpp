@@ -2358,6 +2358,10 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
         intrinsicName = getIntrinsic(intrinsicID);
         break;
 
+    case llvm::Intrinsic::gla_interpolateAtCentroid:
+        intrinsicName = getIntrinsic(intrinsicID,  operand->getType()->getContainedType(0), operand->getType());
+        break;
+
     default:
         // Unary intrinsics that have operand and dest with same flexible type
         intrinsicName = getIntrinsic(intrinsicID,  operand->getType(), operand->getType());
@@ -2418,7 +2422,7 @@ llvm::Value* Builder::createIntrinsicCall(gla::EMdPrecision precision, llvm::Int
     // the return type matches arg0.
     case llvm::Intrinsic::gla_interpolateAtSample:
     case llvm::Intrinsic::gla_interpolateAtOffset:
-        intrinsicName = getIntrinsic(intrinsicID, operand0->getType(), operand0->getType());
+        intrinsicName = getIntrinsic(intrinsicID, operand0->getType()->getContainedType(0), operand0->getType());
         break;
 
     // These all take two operands and return a struct with two members,

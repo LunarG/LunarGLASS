@@ -4379,7 +4379,10 @@ void gla::GlslTarget::emitGlaValueDeclaration(const llvm::Value* value, const ch
 
     const llvm::Constant* constant = llvm::dyn_cast<llvm::Constant>(value);
     if (constant) {
-        emitNamelessConstDeclaration(value, constant);
+        if (llvm::isa<llvm::PointerType>(value->getType()))
+            mapPointerExpression(value);
+        else
+            emitNamelessConstDeclaration(value, constant);
 
         return;
     }

@@ -123,4 +123,22 @@ stage-exit:                                       ; preds = %stage-epilogue
 !9 = !{!"smallColor", i32 12, <4 x float>* @smallColor_typeProxy, !6, !""}
 !10 = !{!"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, !11, !""}
 !11 = !{i32 0, i32 0, i32 1026, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-LunarGOO: /home/greg/ss/LunarGLASS.36/Backends/GLSL/BottomToGLSL.cpp:4563: void gla::GlslTarget::emitConstantInitializer(std::ostringstream&, const llvm::Constant*, llvm::Type*): Assertion `0 && "Constant type in Bottom IR"' failed.
+#version 120
+// LunarGOO output
+uniform vec4 otherColor;
+uniform float d;
+uniform vec4 bigColor;
+uniform vec4 smallColor;
+varying vec4 BaseColor;
+varying float c;
+
+void main()
+{
+	bool H_wll4g81 = c > d;
+	vec4 _L = H_wll4g81 ? bigColor : smallColor;
+	vec4 color = BaseColor + _L;
+	vec4 Ll_FragColor1 = color * otherColor;
+	gl_FragColor = Ll_FragColor1;
+	
+}
+

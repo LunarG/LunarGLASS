@@ -920,9 +920,17 @@ bool TGlslangToTopTraverser::visitUnary(glslang::TVisit /* visit */, glslang::TI
     glaBuilder->clearAccessChain();
     node->getOperand()->traverse(this);
 
+    gla::EMdPrecision precision = GetMdPrecision(node->getType());
+
     // Array length needs an l-value
     if (node->getOp() == glslang::EOpArrayLength) {
         result = glaBuilder->createIntrinsicCall(gla::EMpNone, llvm::Intrinsic::gla_arraylength, glaBuilder->accessChainGetLValue());
+        glaBuilder->clearAccessChain();
+        glaBuilder->setAccessChainRValue(result);
+
+        return false; // done with this node
+    } else if (node->getOp() == glslang::EOpInterpolateAtCentroid) {
+        result = glaBuilder->createIntrinsicCall(precision, llvm::Intrinsic::gla_interpolateAtCentroid, glaBuilder->accessChainGetLValue(), leftName);
         glaBuilder->clearAccessChain();
         glaBuilder->setAccessChainRValue(result);
 
@@ -931,8 +939,6 @@ bool TGlslangToTopTraverser::visitUnary(glslang::TVisit /* visit */, glslang::TI
 
     // Now we know an r-value is needed
     llvm::Value* operand = glaBuilder->accessChainLoad(GetMdPrecision(node->getOperand()->getType()));
-
-    gla::EMdPrecision precision = GetMdPrecision(node->getType());
 
     // it could be a conversion
     result = createConversion(node->getOp(), precision, convertGlslangToGlaType(node->getType()), operand);
@@ -1838,6 +1844,8 @@ bool TGlslangToTopTraverser::argNeedsLValue(const glslang::TIntermOperator* node
     case glslang::EOpAtomicXor:
     case glslang::EOpAtomicExchange:
     case glslang::EOpAtomicCompSwap:
+    case glslang::EOpInterpolateAtSample:
+    case glslang::EOpInterpolateAtOffset:
         return true;
     default:
         return false;
