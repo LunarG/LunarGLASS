@@ -58,6 +58,8 @@ namespace llvm {
 
     void initializeCoalesceInsertsPass(PassRegistry&);
 
+    void initializeEarlyReturnElimPass(PassRegistry&);
+
     void initializeFlattenCondAssnPass(PassRegistry&);
 
     void initializeIdentifyConditionalsPass(PassRegistry&);

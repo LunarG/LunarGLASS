@@ -116,6 +116,42 @@ static bool HasControlFlow(llvm::Module* m)
     return false;
 }
 
+static bool HasSwitch(llvm::Module* m)
+{
+    for (llvm::Module::iterator f = m->begin(), e = m->end(); f != e; ++f) {
+        for (llvm::Function::iterator b = f->begin(), be = f->end(); b != be; ++b) {
+            if (dynamic_cast<llvm::SwitchInst *>(b->getTerminator()))
+                return true;
+        }
+    }
+    return false;
+}
+
+
+static bool HasEarlyReturn(llvm::Module* m)
+{
+    for (llvm::Module::iterator f = m->begin(), e = m->end(); f != e; ++f) {
+        if (f->getName().equals("main"))
+            continue;
+        bool seenReturn = false;
+        for (llvm::Function::iterator b = f->begin(), be = f->end(); b != be; ++b) {
+            llvm::ReturnInst *retInst = dynamic_cast<llvm::ReturnInst *>(b->getTerminator());
+            if (! retInst)
+                continue;
+
+            // Remember final return block, but do not process it unless early
+            // returns are found
+            if (! seenReturn) {
+                seenReturn = true;
+                continue;
+            }
+            
+            return true;
+        }
+    }
+    return false;
+}
+
 // Verify each function
 static inline void VerifyModule(llvm::Module* module)
 {
@@ -143,6 +179,12 @@ void gla::PrivateManager::runLLVMOptimizations1()
     globalPM.add(llvm::createIPSCCPPass());
     globalPM.add(llvm::createConstantMergePass());
     globalPM.add(llvm::createInstructionSimplifierPass());
+    // TODO: Upgrade EarlyReturnElim to handle switches
+    if (HasEarlyReturn(module) && ! HasSwitch(module)) {
+        globalPM.add(llvm::createCFGSimplificationPass());
+        globalPM.add(llvm::createLoopSimplifyPass());
+        globalPM.add(gla_llvm::createEarlyReturnElimPass());
+    }
     if (options.optimizations.inlineThreshold)
         globalPM.add(llvm::createAlwaysInlinerPass());
     globalPM.add(llvm::createPromoteMemoryToRegisterPass());
