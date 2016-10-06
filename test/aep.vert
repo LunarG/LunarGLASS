@@ -9,6 +9,8 @@
 // GL_EXT_texture_buffer
 // GL_EXT_texture_cube_map_array
 
+precision lowp image2D;
+
 uniform sampler2D sArray[4];
 uniform ubName { vec2 p; } ubInst[4];
 uniform writeonly image2D iArray[5];
