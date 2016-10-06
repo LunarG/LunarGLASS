@@ -92,7 +92,7 @@ out mediump vec4 color;
 
 void main()
 {
-	mediump ivec4 color1 = texture(s.samp2D, bw);
+	lowp ivec4 color1 = texture(s.samp2D, bw);
 	mediump vec4 H_y0cidm1 = vec4(color1);
 	mediump vec4 H_ovfbtf1 = H_y0cidm1 + inst[3].nbu;
 	mediump vec4 color2 = H_ovfbtf1 + bu;
@@ -849,14 +849,14 @@ void main()
 	mediump ivec4 H_tad3bu1 = ivec4(H_tx61al1);
 	ivec4 H_vxhdx71 = ivec4(H_r3r3xx.x, H_r3r3xx.y, H_tad3bu1.x, H_tad3bu1.y);
 	mediump ivec4 isume = H_vxhdx71 + isumd;
-	mediump int H_i86q1r = floatBitsToInt(f);
+	highp int H_i86q1r = floatBitsToInt(f);
 	ivec4 H_vvf8zk1 = ivec4(H_i86q1r);
 	mediump ivec4 isumf = H_vvf8zk1 + isume;
-	mediump ivec4 usum6 = floatBitsToInt(v4);
-	mediump ivec4 usum7 = usum5 + usum6;
-	mediump vec4 sum5 = intBitsToFloat(iv4a);
-	mediump vec4 sum6 = sum4 + sum5;
-	mediump vec2 H_awczdb = intBitsToFloat(ivec2(uv2c));
+	highp ivec4 usum6 = floatBitsToInt(v4);
+	highp ivec4 usum7 = usum5 + usum6;
+	highp vec4 sum5 = intBitsToFloat(iv4a);
+	highp vec4 sum6 = sum4 + sum5;
+	highp vec2 H_awczdb = intBitsToFloat(ivec2(uv2c));
 	vec4 H_h40lmx1 = vec4(H_awczdb.x, H_awczdb.y, C_0d0, C_0d0);
 	mediump vec4 sum7 = H_h40lmx1 + sum6;
 	highp int H_aqcc2q1 = int(packSnorm2x16(v2a));

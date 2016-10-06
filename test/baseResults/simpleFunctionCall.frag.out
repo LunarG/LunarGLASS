@@ -43,12 +43,12 @@ attributes #0 = { alwaysinline }
 
 !0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!2 = metadata !{metadata !"main", i32 15}
-!3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
+!2 = metadata !{metadata !"main", i32 17}
+!3 = metadata !{metadata !"gl_FragColor", i32 9, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !6}
+!5 = metadata !{metadata !"bigColor", i32 14, <4 x float>* @bigColor_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !6}
+!7 = metadata !{metadata !"d", i32 14, float* @d_typeProxy, metadata !6}
 
 
 Bottom IR:
@@ -78,12 +78,12 @@ stage-exit:                                       ; preds = %stage-epilogue
 
 !0 = metadata !{metadata !"BaseColor", i32 1, <4 x float>* @BaseColor_typeProxy, metadata !1}
 !1 = metadata !{i32 0, i32 0, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!2 = metadata !{metadata !"main", i32 15}
-!3 = metadata !{metadata !"gl_FragColor", i32 7, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
+!2 = metadata !{metadata !"main", i32 17}
+!3 = metadata !{metadata !"gl_FragColor", i32 9, <4 x float>* @gl_FragColor_typeProxy, metadata !4}
 !4 = metadata !{i32 0, i32 0, i32 1025, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"bigColor", i32 12, <4 x float>* @bigColor_typeProxy, metadata !6}
+!5 = metadata !{metadata !"bigColor", i32 14, <4 x float>* @bigColor_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"d", i32 12, float* @d_typeProxy, metadata !6}
+!7 = metadata !{metadata !"d", i32 14, float* @d_typeProxy, metadata !6}
 #version 150 core
 // LunarGOO output
 uniform vec4 bigColor;

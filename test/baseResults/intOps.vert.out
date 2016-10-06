@@ -87,7 +87,7 @@ mainBody:                                         ; preds = %entry
   store <4 x i32> %uout7, <4 x i32>* @uout
   %36 = load <4 x i32>* @u4
   %37 = load <4 x i32>* @u4
-  %misc2a = call { <4 x i32>, <4 x i32> } @llvm.gla.umulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %36, <4 x i32> %37)
+  %misc2a = call { <4 x i32>, <4 x i32> } @llvm.gla.umulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %36, <4 x i32> %37), !gla.precision !35
   %u4out8 = extractvalue { <4 x i32>, <4 x i32> } %misc2a, 0
   store <4 x i32> %u4out8, <4 x i32>* %u4out
   %u4out9 = extractvalue { <4 x i32>, <4 x i32> } %misc2a, 1
@@ -98,7 +98,7 @@ mainBody:                                         ; preds = %entry
   store <4 x i32> %uout10, <4 x i32>* @uout
   %40 = load <4 x i32>* @i4
   %41 = load <4 x i32>* @i4
-  %misc2a11 = call { <4 x i32>, <4 x i32> } @llvm.gla.smulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %40, <4 x i32> %41)
+  %misc2a11 = call { <4 x i32>, <4 x i32> } @llvm.gla.smulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %40, <4 x i32> %41), !gla.precision !35
   %i4out112 = extractvalue { <4 x i32>, <4 x i32> } %misc2a11, 0
   store <4 x i32> %i4out112, <4 x i32>* %i4out1
   %i4out213 = extractvalue { <4 x i32>, <4 x i32> } %misc2a11, 1
@@ -183,7 +183,7 @@ mainBody:                                         ; preds = %entry
   %uout25 = add <4 x i32> %100, %uout24, !gla.precision !35
   store <4 x i32> %uout25, <4 x i32>* @uout
   %101 = load i32* @i1
-  %iout26 = call i32 @llvm.gla.bitCount.i32.i32(i32 %101), !gla.precision !35
+  %iout26 = call i32 @llvm.gla.bitCount.i32.i32(i32 %101), !gla.precision !36
   %102 = load <4 x i32>* @iout
   %103 = extractelement <4 x i32> %102, i32 0, !gla.precision !35
   %104 = add i32 %103, %iout26, !gla.precision !35
@@ -191,7 +191,7 @@ mainBody:                                         ; preds = %entry
   %iout27 = insertelement <4 x i32> %105, i32 %104, i32 0
   store <4 x i32> %iout27, <4 x i32>* @iout
   %106 = load <3 x i32>* @u3
-  %iout28 = call <3 x i32> @llvm.gla.bitCount.v3i32.v3i32(<3 x i32> %106), !gla.precision !35
+  %iout28 = call <3 x i32> @llvm.gla.bitCount.v3i32.v3i32(<3 x i32> %106), !gla.precision !36
   %107 = load <4 x i32>* @iout
   %108 = extractelement <4 x i32> %107, i32 0, !gla.precision !35
   %109 = insertelement <3 x i32> undef, i32 %108, i32 0, !gla.precision !35
@@ -209,7 +209,7 @@ mainBody:                                         ; preds = %entry
   %iout29 = insertelement <4 x i32> %119, i32 %120, i32 2
   store <4 x i32> %iout29, <4 x i32>* @iout
   %121 = load <2 x i32>* @i2
-  %iout30 = call <2 x i32> @llvm.gla.findLSB.v2i32.v2i32(<2 x i32> %121), !gla.precision !35
+  %iout30 = call <2 x i32> @llvm.gla.findLSB.v2i32.v2i32(<2 x i32> %121), !gla.precision !36
   %122 = load <4 x i32>* @iout
   %123 = extractelement <4 x i32> %122, i32 0, !gla.precision !35
   %124 = insertelement <2 x i32> undef, i32 %123, i32 0, !gla.precision !35
@@ -223,12 +223,12 @@ mainBody:                                         ; preds = %entry
   %iout31 = insertelement <4 x i32> %130, i32 %131, i32 1
   store <4 x i32> %iout31, <4 x i32>* @iout
   %132 = load <4 x i32>* @u4
-  %iout32 = call <4 x i32> @llvm.gla.findLSB.v4i32.v4i32(<4 x i32> %132), !gla.precision !35
+  %iout32 = call <4 x i32> @llvm.gla.findLSB.v4i32.v4i32(<4 x i32> %132), !gla.precision !36
   %133 = load <4 x i32>* @iout
   %iout33 = add <4 x i32> %133, %iout32, !gla.precision !35
   store <4 x i32> %iout33, <4 x i32>* @iout
   %134 = load i32* @i1
-  %iout34 = call i32 @llvm.gla.sFindMSB.i32.i32(i32 %134), !gla.precision !35
+  %iout34 = call i32 @llvm.gla.sFindMSB.i32.i32(i32 %134), !gla.precision !36
   %135 = load <4 x i32>* @iout
   %136 = extractelement <4 x i32> %135, i32 0, !gla.precision !35
   %137 = add i32 %136, %iout34, !gla.precision !35
@@ -236,7 +236,7 @@ mainBody:                                         ; preds = %entry
   %iout35 = insertelement <4 x i32> %138, i32 %137, i32 0
   store <4 x i32> %iout35, <4 x i32>* @iout
   %139 = load <2 x i32>* @u2
-  %iout36 = call <2 x i32> @llvm.gla.sFindMSB.v2i32.v2i32(<2 x i32> %139), !gla.precision !35
+  %iout36 = call <2 x i32> @llvm.gla.sFindMSB.v2i32.v2i32(<2 x i32> %139), !gla.precision !36
   %140 = load <4 x i32>* @iout
   %141 = extractelement <4 x i32> %140, i32 0, !gla.precision !35
   %142 = insertelement <2 x i32> undef, i32 %141, i32 0, !gla.precision !35
@@ -346,12 +346,12 @@ mainBody:                                         ; preds = %entry
   %uout52 = insertelement <4 x i32> %219, i32 %218, i32 0
   store <4 x i32> %uout52, <4 x i32>* @uout
   %220 = load i32* @u1
-  %fout53 = call <4 x float> @llvm.gla.fUnpackUnorm4x8.v4f32.i32(i32 %220), !gla.precision !36
+  %fout53 = call <4 x float> @llvm.gla.fUnpackUnorm4x8.v4f32.i32(i32 %220), !gla.precision !37
   %221 = load <4 x float>* @fout
   %fout54 = fadd <4 x float> %221, %fout53, !gla.precision !35
   store <4 x float> %fout54, <4 x float>* @fout
   %222 = load i32* @u1
-  %fout55 = call <4 x float> @llvm.gla.fUnpackSnorm4x8.v4f32.i32(i32 %222), !gla.precision !36
+  %fout55 = call <4 x float> @llvm.gla.fUnpackSnorm4x8.v4f32.i32(i32 %222), !gla.precision !37
   %223 = load <4 x float>* @fout
   %fout56 = fadd <4 x float> %223, %fout55, !gla.precision !35
   store <4 x float> %fout56, <4 x float>* @fout
@@ -443,12 +443,12 @@ attributes #0 = { nounwind readnone }
 !gla.inputs = !{!7, !9, !11, !13, !15, !17, !19, !21, !23, !25, !27, !29, !31, !33}
 !gla.noStaticUse = !{!31, !33}
 
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"iout", i32 7, <4 x i32>* @iout_typeProxy, metadata !2}
+!0 = metadata !{metadata !"main", i32 17}
+!1 = metadata !{metadata !"iout", i32 9, <4 x i32>* @iout_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 3, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"uout", i32 7, <4 x i32>* @uout_typeProxy, metadata !4}
+!3 = metadata !{metadata !"uout", i32 9, <4 x i32>* @uout_typeProxy, metadata !4}
 !4 = metadata !{i32 1, i32 3, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"fout", i32 7, <4 x float>* @fout_typeProxy, metadata !6}
+!5 = metadata !{metadata !"fout", i32 9, <4 x float>* @fout_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 3, i32 1026, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !7 = metadata !{metadata !"u2", i32 1, <2 x i32>* @u2_typeProxy, metadata !8}
 !8 = metadata !{i32 1, i32 3, i32 1027, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
@@ -479,7 +479,8 @@ attributes #0 = { nounwind readnone }
 !33 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, metadata !34}
 !34 = metadata !{i32 0, i32 3, i32 1040, null, i32 0, i32 8, i32 -1, i32 0, i32 -1}
 !35 = metadata !{i32 3}
-!36 = metadata !{i32 2}
+!36 = metadata !{i32 1}
+!37 = metadata !{i32 2}
 
 
 Bottom IR:
@@ -526,13 +527,13 @@ entry:
   %10 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.v2i32.i32.i32(<4 x i32> <i32 undef, i32 undef, i32 0, i32 0>, i32 3, i32 %9, i32 0, <2 x i32> %3, i32 1, i32 undef, i32 undef, i32 undef, i32 undef)
   store <4 x i32> %10, <4 x i32>* @uout, align 16
   %11 = load <4 x i32>* @u4, align 16
-  %misc2a = call { <4 x i32>, <4 x i32> } @llvm.gla.umulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %11, <4 x i32> %11)
+  %misc2a = call { <4 x i32>, <4 x i32> } @llvm.gla.umulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %11, <4 x i32> %11), !gla.precision !35
   %u4out9 = extractvalue { <4 x i32>, <4 x i32> } %misc2a, 1
   %uout10 = add <4 x i32> %10, %u4out9, !gla.precision !35
   %12 = call <3 x i32> @llvm.gla.swizzle.v3i32.v4i32.v3i32(<4 x i32> %uout10, <3 x i32> <i32 0, i32 1, i32 2>)
   store <4 x i32> %uout10, <4 x i32>* @uout, align 16
   %13 = load <4 x i32>* @i4, align 16
-  %misc2a11 = call { <4 x i32>, <4 x i32> } @llvm.gla.smulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %13, <4 x i32> %13)
+  %misc2a11 = call { <4 x i32>, <4 x i32> } @llvm.gla.smulExtended.v4i32.v4i32.v4i32.v4i32(<4 x i32> %13, <4 x i32> %13), !gla.precision !35
   %i4out112 = extractvalue { <4 x i32>, <4 x i32> } %misc2a11, 0
   %i4out213 = extractvalue { <4 x i32>, <4 x i32> } %misc2a11, 1
   %14 = add <4 x i32> %i4out112, %i4out213, !gla.precision !35
@@ -569,23 +570,23 @@ entry:
   %uout24 = call <4 x i32> @llvm.gla.bitReverse.v4i32.v4i32(<4 x i32> %11), !gla.precision !35
   %uout25 = add <4 x i32> %29, %uout24, !gla.precision !35
   store <4 x i32> %uout25, <4 x i32>* @uout, align 16
-  %iout26 = call i32 @llvm.gla.bitCount.i32.i32(i32 %15), !gla.precision !35
+  %iout26 = call i32 @llvm.gla.bitCount.i32.i32(i32 %15), !gla.precision !36
   %34 = add i32 %32, %iout26, !gla.precision !35
-  %iout28 = call <3 x i32> @llvm.gla.bitCount.v3i32.v3i32(<3 x i32> %19), !gla.precision !35
+  %iout28 = call <3 x i32> @llvm.gla.bitCount.v3i32.v3i32(<3 x i32> %19), !gla.precision !36
   %35 = call <3 x i32> @llvm.gla.multiInsert.v3i32.v3i32.i32.v2i32.v3i32.i32(<3 x i32> undef, i32 7, i32 %34, i32 0, <2 x i32> %31, i32 1, <3 x i32> %25, i32 2, i32 undef, i32 undef)
   %36 = add <3 x i32> %35, %iout28, !gla.precision !35
   %37 = call <2 x i32> @llvm.gla.swizzle.v2i32.v3i32.v2i32(<3 x i32> %36, <2 x i32> <i32 0, i32 1>)
   %38 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v3i32.v3i32.v3i32.i32(<4 x i32> %14, i32 7, <3 x i32> %36, i32 0, <3 x i32> %36, i32 1, <3 x i32> %36, i32 2, i32 undef, i32 undef)
   store <4 x i32> %38, <4 x i32>* @iout, align 16
-  %iout30 = call <2 x i32> @llvm.gla.findLSB.v2i32.v2i32(<2 x i32> %30), !gla.precision !35
+  %iout30 = call <2 x i32> @llvm.gla.findLSB.v2i32.v2i32(<2 x i32> %30), !gla.precision !36
   %39 = add <2 x i32> %37, %iout30, !gla.precision !35
   %40 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.v3i32.i32(<4 x i32> %14, i32 7, <2 x i32> %39, i32 0, <2 x i32> %39, i32 1, <3 x i32> %36, i32 2, i32 undef, i32 undef)
-  %iout32 = call <4 x i32> @llvm.gla.findLSB.v4i32.v4i32(<4 x i32> %11), !gla.precision !35
+  %iout32 = call <4 x i32> @llvm.gla.findLSB.v4i32.v4i32(<4 x i32> %11), !gla.precision !36
   %iout33 = add <4 x i32> %40, %iout32, !gla.precision !35
-  %iout34 = call i32 @llvm.gla.sFindMSB.i32.i32(i32 %15), !gla.precision !35
+  %iout34 = call i32 @llvm.gla.sFindMSB.i32.i32(i32 %15), !gla.precision !36
   %41 = extractelement <4 x i32> %iout33, i32 0, !gla.precision !35
   %42 = add i32 %41, %iout34, !gla.precision !35
-  %iout36 = call <2 x i32> @llvm.gla.sFindMSB.v2i32.v2i32(<2 x i32> %1), !gla.precision !35
+  %iout36 = call <2 x i32> @llvm.gla.sFindMSB.v2i32.v2i32(<2 x i32> %1), !gla.precision !36
   %43 = call <2 x i32> @llvm.gla.multiInsert.v2i32.v2i32.i32.v4i32.i32.i32(<2 x i32> undef, i32 3, i32 %42, i32 0, <4 x i32> %iout33, i32 1, i32 undef, i32 undef, i32 undef, i32 undef)
   %44 = add <2 x i32> %43, %iout36, !gla.precision !35
   %45 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.v2i32.v2i32.i32.i32(<4 x i32> %iout33, i32 3, <2 x i32> %44, i32 0, <2 x i32> %44, i32 1, i32 undef, i32 undef, i32 undef, i32 undef)
@@ -631,9 +632,9 @@ entry:
   %71 = call <4 x i32> @llvm.gla.multiInsert.v4i32.v4i32.i32.i32.i32.i32(<4 x i32> %uout25, i32 1, i32 %70, i32 0, i32 undef, i32 undef, i32 undef, i32 undef, i32 undef, i32 undef)
   store <4 x i32> %71, <4 x i32>* @uout, align 16
   %72 = load i32* @u1, align 4
-  %fout53 = call <4 x float> @llvm.gla.fUnpackUnorm4x8.v4f32.i32(i32 %72), !gla.precision !36
+  %fout53 = call <4 x float> @llvm.gla.fUnpackUnorm4x8.v4f32.i32(i32 %72), !gla.precision !37
   %fout54 = fadd <4 x float> %fout53, %66, !gla.precision !35
-  %fout55 = call <4 x float> @llvm.gla.fUnpackSnorm4x8.v4f32.i32(i32 %72), !gla.precision !36
+  %fout55 = call <4 x float> @llvm.gla.fUnpackSnorm4x8.v4f32.i32(i32 %72), !gla.precision !37
   %fout56 = fadd <4 x float> %fout54, %fout55, !gla.precision !35
   store <4 x float> %fout56, <4 x float>* @fout, align 16
   br label %stage-epilogue
@@ -775,12 +776,12 @@ attributes #0 = { nounwind readnone }
 !gla.inputs = !{!7, !9, !11, !13, !15, !17, !19, !21, !23, !25, !27, !29, !31, !33}
 !gla.noStaticUse = !{!31, !33}
 
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"iout", i32 7, <4 x i32>* @iout_typeProxy, metadata !2}
+!0 = metadata !{metadata !"main", i32 17}
+!1 = metadata !{metadata !"iout", i32 9, <4 x i32>* @iout_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 3, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"uout", i32 7, <4 x i32>* @uout_typeProxy, metadata !4}
+!3 = metadata !{metadata !"uout", i32 9, <4 x i32>* @uout_typeProxy, metadata !4}
 !4 = metadata !{i32 1, i32 3, i32 1025, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!5 = metadata !{metadata !"fout", i32 7, <4 x float>* @fout_typeProxy, metadata !6}
+!5 = metadata !{metadata !"fout", i32 9, <4 x float>* @fout_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 3, i32 1026, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
 !7 = metadata !{metadata !"u2", i32 1, <2 x i32>* @u2_typeProxy, metadata !8}
 !8 = metadata !{i32 1, i32 3, i32 1027, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
@@ -811,7 +812,8 @@ attributes #0 = { nounwind readnone }
 !33 = metadata !{metadata !"gl_InstanceID", i32 3, i32* @gl_InstanceID_typeProxy, metadata !34}
 !34 = metadata !{i32 0, i32 3, i32 1040, null, i32 0, i32 8, i32 -1, i32 0, i32 -1}
 !35 = metadata !{i32 3}
-!36 = metadata !{i32 2}
+!36 = metadata !{i32 1}
+!37 = metadata !{i32 2}
 #version 310 es
 // LunarGOO output
 in highp uvec2 u2;
@@ -898,23 +900,23 @@ void main()
 	highp ivec4 uout6 = bitfieldReverse(ivec4(u4));
 	highp ivec4 uout7 = H_50wjtdr + uout6;
 	uout = uvec4(uout7);
-	highp int iout4 = bitCount(i1);
+	lowp int iout4 = bitCount(i1);
 	highp int H_hhm4rn = H_x5cl0z1.x + iout4;
-	highp ivec3 iout5 = bitCount(ivec3(u3));
+	lowp ivec3 iout5 = bitCount(ivec3(u3));
 	ivec3 H_5ozawu = ivec3(H_hhm4rn, H_x5cl0z1.y, H_nesf6d1.z);
 	highp ivec3 H_4tquu91 = H_5ozawu + iout5;
 	ivec4 H_b06t6drrr = H_xh9cfj1;
 	H_b06t6drrr.xyz = H_4tquu91.xyz;
 	iout = H_b06t6drrr;
-	highp ivec2 iout6 = findLSB(i2);
+	lowp ivec2 iout6 = findLSB(i2);
 	highp ivec2 H_suq9me = H_4tquu91.xy + iout6;
 	ivec4 H_b06t6drrrr = H_xh9cfj1;
 	H_b06t6drrrr.xyz = ivec3(H_suq9me.x, H_suq9me.y, H_4tquu91.z);
-	highp ivec4 iout7 = findLSB(ivec4(u4));
+	lowp ivec4 iout7 = findLSB(ivec4(u4));
 	highp ivec4 iout8 = H_b06t6drrrr + iout7;
-	highp int iout9 = findMSB(i1);
+	lowp int iout9 = findMSB(i1);
 	highp int H_zj1xfg = iout8.x + iout9;
-	highp ivec2 iouta = findMSB(ivec2(u2));
+	lowp ivec2 iouta = findMSB(ivec2(u2));
 	ivec2 H_q7rzji1 = ivec2(H_zj1xfg, iout8.y);
 	highp ivec2 H_h1vj6m = H_q7rzji1 + iouta;
 	ivec4 H_43g0lv1 = iout8;
@@ -972,9 +974,7 @@ tempglsl.vert
 Warning, version 310 is not yet complete; most version-specific features are present, but some are missing.
 ERROR: 0:32: 'uaddCarry' : no matching overloaded function found 
 ERROR: 0:32: 'assign' :  cannot convert from 'const float' to 'temp highp 2-component vector of int'
-ERROR: 0:40: 'usubBorrow' : no matching overloaded function found 
-ERROR: 0:40: 'assign' :  cannot convert from 'const float' to 'temp highp int'
-ERROR: 0:49: 'umulExtended' : no matching overloaded function found 
-ERROR: 5 compilation errors.  No code generated.
+ERROR: 0:32: '' : compilation terminated 
+ERROR: 3 compilation errors.  No code generated.
 
 

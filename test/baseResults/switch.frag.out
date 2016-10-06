@@ -467,14 +467,14 @@ attributes #1 = { nounwind readnone }
 !gla.inputs = !{!5}
 !gla.outputs = !{!7}
 
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"c", i32 12, i32* @c_typeProxy, metadata !2}
+!0 = metadata !{metadata !"main", i32 17}
+!1 = metadata !{metadata !"c", i32 14, i32* @c_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"d", i32 12, i32* @d_typeProxy, metadata !2}
-!4 = metadata !{metadata !"v", i32 12, <4 x float>* @v_typeProxy, metadata !2}
+!3 = metadata !{metadata !"d", i32 14, i32* @d_typeProxy, metadata !2}
+!4 = metadata !{metadata !"v", i32 14, <4 x float>* @v_typeProxy, metadata !2}
 !5 = metadata !{metadata !"x", i32 1, float* @x_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 2, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"color", i32 7, float* @color_typeProxy, metadata !8}
+!7 = metadata !{metadata !"color", i32 9, float* @color_typeProxy, metadata !8}
 !8 = metadata !{i32 0, i32 2, i32 1025, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
 !9 = metadata !{i32 2}
 
@@ -741,14 +741,14 @@ attributes #0 = { nounwind readnone }
 !gla.inputs = !{!5}
 !gla.outputs = !{!7}
 
-!0 = metadata !{metadata !"main", i32 15}
-!1 = metadata !{metadata !"c", i32 12, i32* @c_typeProxy, metadata !2}
+!0 = metadata !{metadata !"main", i32 17}
+!1 = metadata !{metadata !"c", i32 14, i32* @c_typeProxy, metadata !2}
 !2 = metadata !{i32 0, i32 2, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
-!3 = metadata !{metadata !"d", i32 12, i32* @d_typeProxy, metadata !2}
-!4 = metadata !{metadata !"v", i32 12, <4 x float>* @v_typeProxy, metadata !2}
+!3 = metadata !{metadata !"d", i32 14, i32* @d_typeProxy, metadata !2}
+!4 = metadata !{metadata !"v", i32 14, <4 x float>* @v_typeProxy, metadata !2}
 !5 = metadata !{metadata !"x", i32 1, float* @x_typeProxy, metadata !6}
 !6 = metadata !{i32 0, i32 2, i32 1024, null, i32 1, i32 0, i32 -1, i32 0, i32 -1}
-!7 = metadata !{metadata !"color", i32 7, float* @color_typeProxy, metadata !8}
+!7 = metadata !{metadata !"color", i32 9, float* @color_typeProxy, metadata !8}
 !8 = metadata !{i32 0, i32 2, i32 1025, null, i32 0, i32 0, i32 -1, i32 0, i32 -1}
 !9 = metadata !{i32 2}
 
@@ -1044,12 +1044,7 @@ void main()
 tempglsl.frag
 Warning, version 310 is not yet complete; most version-specific features are present, but some are missing.
 ERROR: 0:143: 'default' : cannot be nested inside control flow 
-ERROR: 0:179: 'H_l69nk4' : undeclared identifier 
-ERROR: 0:179: 'assign' :  cannot convert from 'temp float' to 'temp mediump int'
-ERROR: 0:189: 'default' : cannot be nested inside control flow 
-ERROR: 0:225: 'case' : cannot be nested inside control flow 
-ERROR: 0:232: 'default' : cannot be nested inside control flow 
-ERROR: 0:281: '' :  syntax error
-ERROR: 7 compilation errors.  No code generated.
+ERROR: 0:143: '' : compilation terminated 
+ERROR: 2 compilation errors.  No code generated.
 
 
