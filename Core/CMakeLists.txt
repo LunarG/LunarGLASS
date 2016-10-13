@@ -17,6 +17,7 @@ set(SOURCES
     Passes/Transforms/CanonicalizeInsts.cpp
     Passes/Transforms/CoalesceInserts.cpp
     Passes/Transforms/DecomposeInsts.cpp
+    Passes/Transforms/EarlyReturnElim.cpp
     Passes/Transforms/FlattenConditionalAssignments.cpp
     Passes/Transforms/GatherInsts.cpp
     Passes/Transforms/IntrinsicCombine.cpp

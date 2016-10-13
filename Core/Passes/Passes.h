@@ -60,6 +60,10 @@ namespace gla_llvm {
     // Coalesce insert/extracts into multiInserts
     FunctionPass* createCoalesceInsertsPass();
 
+    // Transform early returns into equivalent control flow in non-main 
+    // functions.
+    FunctionPass* createEarlyReturnElimPass();
+
     // Flatten conditional assignments into select instructions. Currently only
     // simplifies instructions, deletes dead code, and then removes empty
     // conditionals

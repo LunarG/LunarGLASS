@@ -124,8 +124,8 @@ entry:
   %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %2, <4 x i32> zeroinitializer)
   %4 = load float addrspace(2)* @d, align 4, !gla.uniform !5
   %5 = fcmp olt float %4, 0x4010CCCCC0000000
-  %f45 = select i1 %5, float 0x3FF3333340000000, float 4.500000e+00
-  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %f45, <4 x i32> zeroinitializer)
+  %merge.i = select i1 %5, float 0x3FF3333340000000, float 4.500000e+00
+  %6 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %merge.i, <4 x i32> zeroinitializer)
   %gl_FragColor = fmul <4 x float> %3, %6, !gla.precision !8
   store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
@@ -172,9 +172,9 @@ void main()
 	mediump float H_9ws3cr = BaseColor.x + BaseColor.y;
 	vec4 H_qwppqe = vec4(H_9ws3cr);
 	bool H_zdlq2v = d < C_4d2;
-	float H_8iih7k1 = H_zdlq2v ? C_1d2 : C_4d5;
-	vec4 H_a1eyhf1 = vec4(H_8iih7k1);
-	mediump vec4 Ll_FragColor1 = H_a1eyhf1 * H_qwppqe;
+	float merge = H_zdlq2v ? C_1d2 : C_4d5;
+	vec4 H_yhyg771 = vec4(merge);
+	mediump vec4 Ll_FragColor1 = H_qwppqe * H_yhyg771;
 	gl_FragColor = Ll_FragColor1;
 	
 }
@@ -194,9 +194,9 @@ void main()
 	mediump float H_9ws3cr = BaseColor.x + BaseColor.y;
 	vec4 H_qwppqe = vec4(H_9ws3cr);
 	bool H_zdlq2v = d < C_4d2;
-	float H_8iih7k = H_zdlq2v ? C_1d2 : C_4d5;
-	vec4 H_3uuahw1 = vec4(H_8iih7k);
-	mediump vec4 Ll_FragColor = H_3uuahw1 * H_qwppqe;
+	float merge = H_zdlq2v ? C_1d2 : C_4d5;
+	vec4 H_yhyg771 = vec4(merge);
+	mediump vec4 Ll_FragColor = H_qwppqe * H_yhyg771;
 	gl_FragColor = Ll_FragColor;
 	
 }

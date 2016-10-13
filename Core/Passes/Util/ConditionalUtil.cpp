@@ -176,6 +176,39 @@ void Conditional::recalculate()
 
     if (! isIfThen())
         GetDominatedChildren(*domTree, right, rightChildren);
+
+    // calculate the exit
+    exit = 0;
+    bool multipleExits = false;
+    DominanceFrontier::DomSetType& condDomFront = domFront->find(entry)->second;
+    if (condDomFront.size() > 0) {
+        for (SmallVectorImpl<BasicBlock*>::iterator i = leftChildren.begin(), e = leftChildren.end(); i != e; ++i) {
+            BasicBlock *ebb = *i;
+            const BranchInst* br = dyn_cast<BranchInst>(ebb->getTerminator());
+            if (!br || !br->isUnconditional())
+                continue;
+            if (condDomFront.count(ebb->getTerminator()->getSuccessor(0)) > 0) {
+                if (!exit)
+                    exit = ebb;
+                else if (exit != ebb)
+                    multipleExits = true;
+            }
+        }
+        for (SmallVectorImpl<BasicBlock*>::iterator i = rightChildren.begin(), e = rightChildren.end(); i != e; ++i) {
+            BasicBlock *ebb = *i;
+            const BranchInst* br = dyn_cast<BranchInst>(ebb->getTerminator());
+            if (!br || !br->isUnconditional())
+                continue;
+            if (condDomFront.count(ebb->getTerminator()->getSuccessor(0)) > 0) {
+                if (!exit)
+                    exit = ebb;
+                else if (exit != ebb)
+                    multipleExits = true;
+            }
+        }
+    }
+    if (multipleExits)
+        exit = 0;
 }
 
 // Eliminate cross-edges, if feasible

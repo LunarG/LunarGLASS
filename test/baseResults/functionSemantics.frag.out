@@ -225,10 +225,10 @@ then.i:                                           ; preds = %entry
 ifmerge.i:                                        ; preds = %entry
   br label %"foo3(.exit"
 
-"foo3(.exit":                                     ; preds = %ifmerge.i, %then.i
-  %2 = phi float [ 1.397317e+06, %then.i ], [ 2.397317e+06, %ifmerge.i ]
-  %3 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %2, <4 x i32> zeroinitializer)
-  store <4 x float> %3, <4 x float>* @gl_FragColor, align 16
+"foo3(.exit":                                     ; preds = %then.i, %ifmerge.i
+  %earlyretval.0.i = phi float [ 1.397317e+06, %then.i ], [ 2.397317e+06, %ifmerge.i ]
+  %2 = call <4 x float> @llvm.gla.fSwizzle.v4f32.f32.v4i32(float %earlyretval.0.i, <4 x i32> zeroinitializer)
+  store <4 x float> %2, <4 x float>* @gl_FragColor, align 16
   br label %stage-epilogue
 
 stage-epilogue:                                   ; preds = %"foo3(.exit"
@@ -265,17 +265,17 @@ const float C_2397317d0 = 2397317.0;
 
 void main()
 {
-	float Lg_1;
+	float earlyretval;
 	bool H_3xblpb1 = u > C_3d2;
 	if (H_3xblpb1) {
 		discard;
-		Lg_1 = C_1397317d0;
+		earlyretval = C_1397317d0;
 	} else {
-		Lg_1 = C_2397317d0;
+		earlyretval = C_2397317d0;
 	}
 	
-	vec4 H_zt5qpl = vec4(Lg_1);
-	gl_FragColor = H_zt5qpl;
+	vec4 H_xtkctx = vec4(earlyretval);
+	gl_FragColor = H_xtkctx;
 	
 }
 

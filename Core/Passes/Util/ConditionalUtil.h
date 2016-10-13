@@ -147,10 +147,24 @@ namespace gla_llvm {
             return isSelfContained() && AreEmptyBB(leftChildren) && AreEmptyBB(rightChildren);
         }
 
-        bool contains(BasicBlock* bb) const
+        bool hasChild(BasicBlock* bb) 
         {
-            return entry == bb || merge == bb
-                || Has(leftChildren, bb) || Has(rightChildren, bb);
+            for (SmallVectorImpl<BasicBlock*>::iterator i = leftChildren.begin(), e = leftChildren.end(); i != e; ++i) {
+                if (bb == *i)
+                    return true;
+            }
+
+            for (SmallVectorImpl<BasicBlock*>::iterator i = rightChildren.begin(), e = rightChildren.end(); i != e; ++i) {
+                if (bb == *i)
+                    return true;
+            }
+
+            return false;
+        }
+
+        bool contains(BasicBlock* bb)
+        {
+            return entry == bb || merge == bb || hasChild(bb);
         }
 
         // Whether the given conditional might have a cross-edge in it.
@@ -159,6 +173,9 @@ namespace gla_llvm {
         // Accessors.
         const BasicBlock* getEntryBlock() const { return entry; }
               BasicBlock* getEntryBlock()       { return entry; }
+
+        const BasicBlock* getExitBlock()  const { return exit; }
+              BasicBlock* getExitBlock()        { return exit; }
 
         const BasicBlock* getMergeBlock() const { return merge; }
               BasicBlock* getMergeBlock()       { return merge; }

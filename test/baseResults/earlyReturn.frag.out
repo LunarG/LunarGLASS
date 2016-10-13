@@ -1,0 +1,239 @@
+
+Top IR:
+; ModuleID = 'Glslang'
+
+@g_nDebugMode = external addrspace(2) constant i32
+@result0 = external addrspace(2) constant <4 x float>
+@result1 = external addrspace(2) constant <4 x float>
+@g_flTest = external addrspace(2) constant float
+@g_nTest = external addrspace(2) constant i32
+@result2 = external addrspace(2) constant <4 x float>
+@result3 = external addrspace(2) constant <4 x float>
+@gl_FragColor = global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  br label %mainBody
+
+mainBody:                                         ; preds = %entry
+  %gl_FragColor = call <4 x float> @"foo("()
+  store <4 x float> %gl_FragColor, <4 x float>* @gl_FragColor
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %mainBody
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc <4 x float> @"ApplyDebugMode(b1;"(i1*) #0 {
+entry:
+  %vResult = alloca <4 x float>
+  %1 = load i32 addrspace(2)* @g_nDebugMode, !gla.uniform !0
+  %2 = icmp eq i32 %1, 0
+  br i1 %2, label %then, label %else
+
+then:                                             ; preds = %entry
+  store i1 true, i1* %0
+  %vResult1 = load <4 x float> addrspace(2)* @result0, !gla.uniform !2
+  store <4 x float> %vResult1, <4 x float>* %vResult
+  br label %ifmerge
+
+else:                                             ; preds = %entry
+  store i1 false, i1* %0
+  %vResult2 = load <4 x float> addrspace(2)* @result1, !gla.uniform !3
+  store <4 x float> %vResult2, <4 x float>* %vResult
+  br label %ifmerge
+
+ifmerge:                                          ; preds = %else, %then
+  %3 = load <4 x float>* %vResult
+  ret <4 x float> %3
+
+post-return:                                      ; No predecessors!
+  unreachable
+}
+
+; Function Attrs: alwaysinline
+define internal fastcc <4 x float> @"foo("() #0 {
+entry:
+  %param = alloca i1
+  %vOutColor = alloca <4 x float>
+  %bReturn = alloca i1
+  %0 = load i32 addrspace(2)* @g_nDebugMode, !gla.uniform !0
+  %1 = icmp ne i32 %0, 1
+  br i1 %1, label %then, label %ifmerge4
+
+then:                                             ; preds = %entry
+  store i1 true, i1* %bReturn
+  %vOutColor2 = call <4 x float> @"ApplyDebugMode(b1;"(i1* %param)
+  %bReturn1 = load i1* %param
+  store i1 %bReturn1, i1* %bReturn
+  store <4 x float> %vOutColor2, <4 x float>* %vOutColor
+  %2 = load i1* %bReturn
+  br i1 %2, label %then3, label %ifmerge
+
+then3:                                            ; preds = %then
+  %3 = load <4 x float>* %vOutColor
+  ret <4 x float> %3
+
+post-return:                                      ; No predecessors!
+  unreachable
+
+ifmerge:                                          ; preds = %then
+  br label %ifmerge4
+
+ifmerge4:                                         ; preds = %entry, %ifmerge
+  %4 = load float addrspace(2)* @g_flTest, !gla.uniform !4
+  %5 = fcmp ogt float %4, 0.000000e+00
+  br i1 %5, label %then5, label %ifmerge10
+
+then5:                                            ; preds = %ifmerge4
+  %6 = load i32 addrspace(2)* @g_nTest, !gla.uniform !5
+  %7 = icmp sgt i32 %6, 0
+  br i1 %7, label %then6, label %else
+
+then6:                                            ; preds = %then5
+  %vOutColor7 = load <4 x float> addrspace(2)* @result2, !gla.uniform !6
+  store <4 x float> %vOutColor7, <4 x float>* %vOutColor
+  br label %ifmerge9
+
+else:                                             ; preds = %then5
+  %vOutColor8 = load <4 x float> addrspace(2)* @result3, !gla.uniform !7
+  store <4 x float> %vOutColor8, <4 x float>* %vOutColor
+  br label %ifmerge9
+
+ifmerge9:                                         ; preds = %else, %then6
+  br label %ifmerge10
+
+ifmerge10:                                        ; preds = %ifmerge4, %ifmerge9
+  %8 = load <4 x float>* %vOutColor
+  ret <4 x float> %8
+
+post-return11:                                    ; No predecessors!
+  unreachable
+}
+
+attributes #0 = { alwaysinline }
+
+!gla.uniforms = !{!0, !2, !3, !4, !5, !6, !7}
+!gla.entrypoint = !{!8}
+!gla.outputs = !{!9}
+
+!0 = metadata !{metadata !"g_nDebugMode", i32 14, i32* @g_nDebugMode_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!2 = metadata !{metadata !"result0", i32 14, <4 x float>* @result0_typeProxy, metadata !1}
+!3 = metadata !{metadata !"result1", i32 14, <4 x float>* @result1_typeProxy, metadata !1}
+!4 = metadata !{metadata !"g_flTest", i32 14, float* @g_flTest_typeProxy, metadata !1}
+!5 = metadata !{metadata !"g_nTest", i32 14, i32* @g_nTest_typeProxy, metadata !1}
+!6 = metadata !{metadata !"result2", i32 14, <4 x float>* @result2_typeProxy, metadata !1}
+!7 = metadata !{metadata !"result3", i32 14, <4 x float>* @result3_typeProxy, metadata !1}
+!8 = metadata !{metadata !"main", i32 17}
+!9 = metadata !{metadata !"gl_FragColor", i32 9, <4 x float>* @gl_FragColor_typeProxy, metadata !10}
+!10 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+
+
+Bottom IR:
+; ModuleID = 'Glslang'
+
+@g_nDebugMode = external addrspace(2) constant i32
+@result0 = external addrspace(2) constant <4 x float>
+@result1 = external addrspace(2) constant <4 x float>
+@g_flTest = external addrspace(2) constant float
+@g_nTest = external addrspace(2) constant i32
+@result2 = external addrspace(2) constant <4 x float>
+@result3 = external addrspace(2) constant <4 x float>
+@gl_FragColor = global <4 x float> zeroinitializer
+
+define fastcc void @main() {
+entry:
+  %0 = load i32 addrspace(2)* @g_nDebugMode, align 4, !gla.uniform !0
+  %1 = icmp eq i32 %0, 0
+  %result0.val = load <4 x float> addrspace(2)* @result0, align 16
+  %result1.val = load <4 x float> addrspace(2)* @result1, align 16
+  %vResult.0.i.i = select i1 %1, <4 x float> %result0.val, <4 x float> %result1.val
+  %2 = load float addrspace(2)* @g_flTest, align 4, !gla.uniform !4
+  %3 = fcmp ogt float %2, 0.000000e+00
+  %4 = load i32 addrspace(2)* @g_nTest, align 4, !gla.uniform !5
+  %5 = icmp sgt i32 %4, 0
+  %result2.val = load <4 x float> addrspace(2)* @result2, align 16
+  %result3.val = load <4 x float> addrspace(2)* @result3, align 16
+  %vOutColor.1.i = select i1 %5, <4 x float> %result2.val, <4 x float> %result3.val
+  %select = select i1 %3, <4 x float> %vOutColor.1.i, <4 x float> %vResult.0.i.i
+  %select2 = select i1 %1, <4 x float> %result0.val, <4 x float> %select
+  store <4 x float> %select2, <4 x float>* @gl_FragColor, align 16
+  br label %stage-epilogue
+
+stage-epilogue:                                   ; preds = %entry
+  br label %stage-exit
+
+stage-exit:                                       ; preds = %stage-epilogue
+  ret void
+}
+
+!gla.uniforms = !{!0, !2, !3, !4, !5, !6, !7}
+!gla.entrypoint = !{!8}
+!gla.outputs = !{!9}
+
+!0 = metadata !{metadata !"g_nDebugMode", i32 14, i32* @g_nDebugMode_typeProxy, metadata !1}
+!1 = metadata !{i32 0, i32 0, i32 1024, null, i32 -1, i32 0, i32 -1, i32 0, i32 -1}
+!2 = metadata !{metadata !"result0", i32 14, <4 x float>* @result0_typeProxy, metadata !1}
+!3 = metadata !{metadata !"result1", i32 14, <4 x float>* @result1_typeProxy, metadata !1}
+!4 = metadata !{metadata !"g_flTest", i32 14, float* @g_flTest_typeProxy, metadata !1}
+!5 = metadata !{metadata !"g_nTest", i32 14, i32* @g_nTest_typeProxy, metadata !1}
+!6 = metadata !{metadata !"result2", i32 14, <4 x float>* @result2_typeProxy, metadata !1}
+!7 = metadata !{metadata !"result3", i32 14, <4 x float>* @result3_typeProxy, metadata !1}
+!8 = metadata !{metadata !"main", i32 17}
+!9 = metadata !{metadata !"gl_FragColor", i32 9, <4 x float>* @gl_FragColor_typeProxy, metadata !10}
+!10 = metadata !{i32 0, i32 0, i32 1024, null, i32 0, i32 43, i32 -1, i32 0, i32 -1}
+#version 140
+// LunarGOO output
+uniform int g_nDebugMode;
+uniform vec4 result0;
+uniform vec4 result1;
+uniform float g_flTest;
+uniform int g_nTest;
+uniform vec4 result2;
+uniform vec4 result3;
+const int C_0 = 0;
+const float C_0d0 = 0.0;
+
+void main()
+{
+	bool H_zlpyes = g_nDebugMode == C_0;
+	vec4 vResult = H_zlpyes ? result0 : result1;
+	bool H_x8n3bu1 = g_flTest > C_0d0;
+	bool H_bkvenx = g_nTest > C_0;
+	vec4 vOutColor = H_bkvenx ? result2 : result3;
+	vec4 select = H_x8n3bu1 ? vOutColor : vResult;
+	vec4 select1 = H_zlpyes ? result0 : select;
+	gl_FragColor = select1;
+	
+}
+
+#version 140
+// LunarGOO output
+uniform int g_nDebugMode;
+uniform vec4 result0;
+uniform vec4 result1;
+uniform float g_flTest;
+uniform int g_nTest;
+uniform vec4 result2;
+uniform vec4 result3;
+const int C_0 = 0;
+const float C_0d0 = 0.0;
+
+void main()
+{
+	bool H_zlpyes = g_nDebugMode == C_0;
+	vec4 vResult = H_zlpyes ? result0 : result1;
+	bool H_x8n3bu = g_flTest > C_0d0;
+	bool H_bkvenx = g_nTest > C_0;
+	vec4 vOutColor = H_bkvenx ? result2 : result3;
+	vec4 vOutColor1 = H_x8n3bu ? vOutColor : vResult;
+	vec4 select = H_zlpyes ? result0 : vOutColor1;
+	gl_FragColor = select;
+	
+}
+
