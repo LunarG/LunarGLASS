@@ -90,7 +90,7 @@ namespace  {
             initializeEarlyReturnElimPass(*PassRegistry::getPassRegistry());
         }
 
-        virtual bool runOnFunction(Function&)  __attribute__((optimize(0)));
+        virtual bool runOnFunction(Function&);
         void print(raw_ostream&, const Module* = 0) const;
         virtual void getAnalysisUsage(AnalysisUsage&) const;
 
