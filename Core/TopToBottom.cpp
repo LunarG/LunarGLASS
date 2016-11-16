@@ -54,6 +54,7 @@
 #include "llvm/Transforms/IPO.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/Casting.h"
 #include <cstdio>
 #include <string>
 #include <map>
@@ -120,7 +121,7 @@ static bool HasSwitch(llvm::Module* m)
 {
     for (llvm::Module::iterator f = m->begin(), e = m->end(); f != e; ++f) {
         for (llvm::Function::iterator b = f->begin(), be = f->end(); b != be; ++b) {
-            if (dynamic_cast<llvm::SwitchInst *>(b->getTerminator()))
+            if (llvm::dyn_cast_or_null<llvm::SwitchInst>(b->getTerminator()))
                 return true;
         }
     }
@@ -135,7 +136,7 @@ static bool HasEarlyReturn(llvm::Module* m)
             continue;
         bool seenReturn = false;
         for (llvm::Function::iterator b = f->begin(), be = f->end(); b != be; ++b) {
-            llvm::ReturnInst *retInst = dynamic_cast<llvm::ReturnInst *>(b->getTerminator());
+            llvm::ReturnInst *retInst = llvm::dyn_cast_or_null<llvm::ReturnInst>(b->getTerminator());
             if (! retInst)
                 continue;
 
