@@ -515,14 +515,6 @@ gla::EMdBlendEquationShift GetMdBlendShift(glslang::TBlendEquationShift b)
     }
 }
 
-const char* filterMdName(const glslang::TString& name)
-{
-    if (glslang::IsAnonymous(name))
-        return "";
-    else
-        return name.c_str();
-}
-
 void GetInterpolationLocationMethod(const glslang::TType& type, gla::EInterpolationMethod& method, gla::EInterpolationLocation& location)
 {
     method = gla::EIMNone;
@@ -3368,7 +3360,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(glslang::TIntermSym
         return md;
 
     gla::EMdTypeLayout inheritMatrix = gla::EMtlNone;
-    md = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), value->getType(), value->getName(), 0, inheritMatrix, gla::UniformListMdName);
+    md = declareMdIo(node->getName().c_str(), node->getType(), value->getType(), value->getName(), 0, inheritMatrix, gla::UniformListMdName);
     uniformMdMap[name] = md;
 
     if (linkageOnly)
@@ -3382,7 +3374,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareUniformMetadata(glslang::TIntermSym
 void TGlslangToTopTraverser::setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value* storage, int slot, int numSlots)
 {
     gla::EMdTypeLayout inheritMatrix = gla::EMtlNone;
-    llvm::MDNode* md = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), storage->getType(), storage->getName(), slot, inheritMatrix, gla::OutputListMdName);
+    llvm::MDNode* md = declareMdIo(node->getName().c_str(), node->getType(), storage->getType(), storage->getName(), slot, inheritMatrix, gla::OutputListMdName);
 
     if (node->getQualifier().invariant)
         module->getOrInsertNamedMetadata(gla::InvariantListMdName)->addOperand(md);
@@ -3399,7 +3391,7 @@ llvm::MDNode* TGlslangToTopTraverser::makeInputMetadata(glslang::TIntermSymbol* 
     if (mdNode == 0) {
         // set up metadata for pipeline intrinsic read
         gla::EMdTypeLayout inheritMatrix = gla::EMtlNone;
-        mdNode = declareMdIo(filterMdName(node->getName().c_str()), node->getType(), value->getType(), value->getName(), slot, inheritMatrix, gla::InputListMdName);
+        mdNode = declareMdIo(node->getName().c_str(), node->getType(), value->getType(), value->getName(), slot, inheritMatrix, gla::InputListMdName);
         inputMdMap[slot] = mdNode;
         if (linkageOnly)
             metadata.addNoStaticUse(mdNode);
