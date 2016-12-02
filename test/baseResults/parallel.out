@@ -2861,7 +2861,7 @@ mainBody:                                         ; preds = %entry
   %u1973 = call i32 @llvm.gla.fPackSnorm2x16.i32.v2f32(<2 x float> %162), !gla.precision !48
   store i32 %u1973, i32* %u19
   %163 = load i32* @uy
-  %v2075 = call <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32 %163), !gla.precision !47
+  %v2075 = call <2 x float> @llvm.gla.fUnpackSnorm2x16.v2f32.i32(i32 %163), !gla.precision !48
   store <2 x float> %v2075, <2 x float>* %v20
   %164 = load <2 x float>* @v2a
   %u1577 = call i32 @llvm.gla.fPackUnorm2x16.i32.v2f32(<2 x float> %164), !gla.precision !48
