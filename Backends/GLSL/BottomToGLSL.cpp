@@ -76,6 +76,7 @@
 // glslang includes
 #include "glslang/Public/ShaderLang.h"
 #include "glslang/MachineIndependent/Versions.h"
+#include "glslang/MachineIndependent/SymbolTable.h"
 
 namespace {
     bool UseLogicalIO = true;
@@ -1700,6 +1701,8 @@ void gla::GlslTarget::addIoDeclaration(gla::EVariableQualifier qualifier, const 
     std::string builtInName = GetBuiltInName(ioKind, stage, metaType.builtIn);
 
     std::string instanceName = CrackMdName(mdNode->getOperand(0));
+    if (glslang::IsAnonymous(instanceName.c_str())) 
+        instanceName = std::string("");
 
     bool declarationAllowed = true;
 
@@ -2953,8 +2956,11 @@ void gla::GlslTarget::mapPointerExpression(const llvm::Value* ptr, const llvm::V
         mdTypePointer = &mdType;
         if (builtInMap.find(name) != builtInMap.end())
             expression = builtInMap[name];
-        else
+        else {
             expression = CrackMdName(mdNode->getOperand(0));
+            if (glslang::IsAnonymous(expression.c_str()))
+                expression = std::string("");
+        }
     } else {
         if (MapGlaAddressSpace(ptr) == EVQGlobal) {
             // This could be a path for a hoisted "undef" aggregate.  See hoistUndefOps().
