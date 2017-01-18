@@ -148,6 +148,8 @@ namespace {
 
             case gla::EmbVertexId:               return "gl_VertexID";
             case gla::EmbInstanceId:             return "gl_InstanceID";
+            case gla::EmbVertexIndex:            return "gl_VertexIndex";
+            case gla::EmbInstanceIndex:          return "gl_InstanceIndex";
 
             case gla::EmbPosition:               return "gl_Position";
             case gla::EmbPointSize:              return "gl_PointSize";

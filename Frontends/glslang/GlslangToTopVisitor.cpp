@@ -444,6 +444,8 @@ gla::EMdBuiltIn GetMdBuiltIn(const glslang::TType& type)
     case glslang::EbvLocalInvocationIndex: return gla::EmbLocalInvocationIndex;
     case glslang::EbvVertexId:             return gla::EmbVertexId;
     case glslang::EbvInstanceId:           return gla::EmbInstanceId;
+    case glslang::EbvVertexIndex:          return gla::EmbVertexIndex;
+    case glslang::EbvInstanceIndex:        return gla::EmbInstanceIndex;
     case glslang::EbvPosition:             return gla::EmbPosition;
     case glslang::EbvPointSize:            return gla::EmbPointSize;
     case glslang::EbvClipVertex:           return gla::EmbClipVertex;
