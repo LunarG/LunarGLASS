@@ -174,6 +174,8 @@ namespace gla_llvm {
         const BasicBlock* getEntryBlock() const { return entry; }
               BasicBlock* getEntryBlock()       { return entry; }
 
+              void setEntryBlock(BasicBlock* eb)       { entry = eb; }
+
         const BasicBlock* getExitBlock()  const { return exit; }
               BasicBlock* getExitBlock()        { return exit; }
 

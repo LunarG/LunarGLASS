@@ -225,7 +225,20 @@ bool FlattenCondAssn::flattenConds()
             changed = true;
 
         // Remove empty conditionals.
-        if (removeEmptyConditional(cond)) {
+        cond->recalculate();
+        BasicBlock* mergeblk = cond->getMergeBlock();
+        BasicBlock* entryblk = cond->getEntryBlock();
+        if (cond->removeIfEmpty()) {
+            // Fixup any remaining conditionals whose entry block was the deleted merge block.
+            // Should now be entry block.
+            for (IdentifyStructures::conditional_iterator fi = idStructures->conditional_begin(), fe = idStructures->conditional_end(); fi != fe; ++fi) {
+                Conditional* fcond = fi->second;
+                if (fcond->getEntryBlock() == mergeblk)
+                    fcond->setEntryBlock(entryblk);
+            }
+            changed = true;
+        }
+        else if (cond->removeIfUnconditional()) {
             changed = true;
         }
     }
