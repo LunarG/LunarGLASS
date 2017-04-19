@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 
 option(ENABLE_AMD_EXTENSIONS "Enables support of AMD-specific extensions" ON)
+option(ENABLE_NV_EXTENSIONS "Enables support of NV-specific extensions" ON)
+option(ENABLE_HLSL "Enables HLSL input support" ON)
 
 set(CMAKE_INSTALL_PREFIX "install" CACHE STRING "prefix" FORCE)
 
@@ -9,6 +11,14 @@ project(LunarGLASS)
 if(ENABLE_AMD_EXTENSIONS)
     add_definitions(-DAMD_EXTENSIONS)
 endif(ENABLE_AMD_EXTENSIONS)
+
+if(ENABLE_NV_EXTENSIONS)
+    add_definitions(-DNV_EXTENSIONS)
+endif(ENABLE_NV_EXTENSIONS)
+
+if(ENABLE_HLSL)
+    add_definitions(-DENABLE_HLSL)
+endif(ENABLE_HLSL)
 
 set(LLVM_BUILD ${CMAKE_CURRENT_SOURCE_DIR}/Core/LLVM/llvm-3.4/build CACHE PATH "LLVM build directory")
 
