@@ -60,6 +60,9 @@
 #ifdef _WIN32
     #include <windows.h>
     #include <psapi.h>
+    #include <array>
+    #include <memory>
+    #include <thread>
 #else
     #include <cstdlib>
 #endif
@@ -779,17 +782,16 @@ void TranslateSingleShader(glslang::TWorkItem* workItem)
     delete shader;
 }
 
-glslang::TWorklist Worklist;
 const int NumThreads = 16;
 
 // Multi-threaded entry point for TranslateShadersMultithreaded().
 //
 // Return 0 for failure, 1 for success.
 unsigned int
-TranslateShaders(void*)
+TranslateShadersThread(glslang::TWorklist& worklist)
 {
     glslang::TWorkItem* workItem;
-    while (Worklist.remove(workItem))
+    while (worklist.remove(workItem))
         TranslateSingleShader(workItem);
 
     return 0;
@@ -803,6 +805,8 @@ TranslateShaders(void*)
 //
 void TranslateShadersMultithreaded(const std::vector<const char*>& names)
 {
+    glslang::TWorklist Worklist;
+
     // Get LunarGLASS into multi-threading mode
     if (! gla::Manager::startMultithreaded())
         printf("ERROR: could not start multi-threaded mode.\n");
@@ -821,18 +825,21 @@ void TranslateShadersMultithreaded(const std::vector<const char*>& names)
 
 #ifdef _WIN32
     // Create threads that will now do all the transalations
-    void* threads[NumThreads];
-    for (int t = 0; t < NumThreads; ++t) {
-        threads[t] = glslang::OS_CreateThread(&TranslateShaders);
-        if (! threads[t]) {
+    std::array<std::thread, 16> threads;
+    for (unsigned int t = 0; t < threads.size(); ++t)
+    {
+        threads[t] = std::thread(TranslateShadersThread, std::ref(Worklist));
+        if (threads[t].get_id() == std::thread::id())
+        {
             printf("ERROR: Failed to create thread.\n");
             CompileFailed = true;
             return;
         }
     }
-    glslang::OS_WaitForAllThreads(threads, NumThreads);
+
+    std::for_each(threads.begin(), threads.end(), [](std::thread& t) { t.join(); });
 #else
-    TranslateShaders(0);
+    TranslateShadersThread(Worklist);
 #endif
 
     // Print out all the results
