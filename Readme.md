@@ -62,7 +62,8 @@ Use CMake, building in the directory PathOfYourChoice/glslang/build:
   
   ```
   cmake -DCMAKE_INSTALL_PREFIX="" ..
-  make DESTDIR=.
+  make
+  make install DESTDIR=.
   ```
 
 ### Building LLVM
