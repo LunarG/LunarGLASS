@@ -58,7 +58,12 @@ LunarGLASS must be built after glslang and LLVM have been built.
 
 ### Building glslang
 
-Use CMake, building in the directory PathOfYourChoice/glslang/build.
+Use CMake, building in the directory PathOfYourChoice/glslang/build:
+  
+  ```
+  cmake -DCMAKE_INSTALL_PREFIX="" ..
+  make DESTDIR=.
+  ```
 
 ### Building LLVM
 
