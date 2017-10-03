@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 option(ENABLE_AMD_EXTENSIONS "Enables support of AMD-specific extensions" ON)
 option(ENABLE_NV_EXTENSIONS "Enables support of NV-specific extensions" ON)
 option(ENABLE_HLSL "Enables HLSL input support" ON)
+option(ENABLE_OPT "Enables spirv-opt capability" ON)
 
 set(CMAKE_INSTALL_PREFIX "install" CACHE STRING "prefix" FORCE)
 
@@ -81,6 +82,10 @@ set(GLSLANGLIBS
     OSDependent
     OGLCompiler
     SPIRV)
+
+if(ENABLE_OPT)
+    append(GLSLANGLIBS SPVRemapper SPIRV-Tools SPIRV-Tools-opt)
+endif()
 
 if(WIN32)
     add_definitions(-D_SCL_SECURE_NO_WARNINGS)
