@@ -84,7 +84,7 @@ set(GLSLANGLIBS
     SPIRV)
 
 if(ENABLE_OPT)
-    append(GLSLANGLIBS SPVRemapper SPIRV-Tools SPIRV-Tools-opt)
+    list(APPEND GLSLANGLIBS SPVRemapper SPIRV-Tools SPIRV-Tools-opt)
 endif()
 
 if(WIN32)
