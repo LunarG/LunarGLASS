@@ -131,6 +131,8 @@ protected:
     void setOutputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot, int numSlots);
     llvm::MDNode* makeInputMetadata(glslang::TIntermSymbol* node, llvm::Value*, int slot);
 
+    const glslang::TTypeList* getStructIfIsStruct(const glslang::TType& type) const { return type.isStruct() ? type.getStruct() : nullptr; }
+
     gla::Manager& manager;
     llvm::LLVMContext &context;
     llvm::BasicBlock* globalInitializerInsertPoint; // the last block of the global initializers, which start at beginning of the entry point
@@ -179,7 +181,7 @@ gla::EMdInputOutput GetMdInputOutput(const glslang::TType& type)
             mdQualifier = gla::EMioPipeOutBlock;
             break;
         case glslang::EvqBuffer:
-            if (type.getStruct()->back().type->isRuntimeSizedArray())
+            if (type.getStruct()->back().type->isArray() && type.getStruct()->back().type->getOuterArraySize() == glslang::UnsizedArraySize && type.getStruct()->back().type->getQualifier().storage == glslang::EvqBuffer)
                 mdQualifier = gla::EMioBufferBlockMemberArrayed;
             else
                 mdQualifier = gla::EMioBufferBlockMember;
@@ -826,7 +828,7 @@ bool TGlslangToTopTraverser::visitBinary(glslang::TVisit /* visit */, glslang::T
             // If this dereference results in a runtime-sized array, it's a pointer
             // we don't want in the middle of an access chain, but rather the base
             // of a new one.
-            if (node->getType().isRuntimeSizedArray()) 
+            if (node->getType().isArray() && node->getType().getOuterArraySize() == glslang::UnsizedArraySize && node->getType().getQualifier().storage == glslang::EvqBuffer)
                 glaBuilder->accessChainEvolveToRuntimeArrayBase();
         }
         return false;
@@ -1733,10 +1735,10 @@ llvm::Type* TGlslangToTopTraverser::convertGlslangToGlaType(const glslang::TType
     }
 
     if (type.isArray()) {
-        if (type.isImplicitlySizedArray()) {
+        if (type.isArray() && type.getOuterArraySize() == glslang::UnsizedArraySize && type.getQualifier().storage != glslang::EvqBuffer) {
             gla::UnsupportedFunctionality("implicitly-sized array", gla::EATContinue);
             glaType = llvm::ArrayType::get(glaType, UnknownArraySize);
-        } if (type.isRuntimeSizedArray()) {
+        } if (type.isArray() && type.getOuterArraySize() == glslang::UnsizedArraySize && type.getQualifier().storage == glslang::EvqBuffer) {
             //
             // Runtime array design.
             //
@@ -3002,7 +3004,7 @@ void TGlslangToTopTraverser::createPipelineSubread(const glslang::TType& type, l
         }
         if (gepChain.size() == 1)
             gepChain.pop_back();
-    } else if (const glslang::TTypeList* typeList = type.getStruct()) {
+    } else if (const glslang::TTypeList* typeList = getStructIfIsStruct(type)) {
         if (gepChain.size() == 0)
             gepChain.push_back(gla::MakeIntConstant(context, 0));
         for (int field = 0; field < (int)typeList->size(); ++field) {
@@ -3069,9 +3071,9 @@ int TGlslangToTopTraverser::assignSlot(glslang::TIntermSymbol* node, bool input,
             //numSlots = glslangIntermediate->computeTypeLocationSize(elementType);
             if (! glaBuilder->useLogicalIo())
                 gla::UnsupportedFunctionality("arrayed IO in physical IO mode (use logical IO instead)", gla::EATContinue);
-            numSlots = glslangIntermediate->computeTypeLocationSize(type);
+            numSlots = glslangIntermediate->computeTypeLocationSize(type, glslangIntermediate->getStage());
         } else
-            numSlots = glslangIntermediate->computeTypeLocationSize(type);
+            numSlots = glslangIntermediate->computeTypeLocationSize(type, glslangIntermediate->getStage());
     } else {
         numSlots = 1;
         if (type.isArray() && ! type.getQualifier().isArrayedIo(glslangIntermediate->getStage()))
@@ -3142,7 +3144,7 @@ llvm::Constant* TGlslangToTopTraverser::createLLVMConstant(const glslang::TType&
         glslang::TType vectorType(glslangType, 0);
         for (int col = 0; col < glslangType.getMatrixCols(); ++col)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(vectorType, consts, nextConst)));
-    } else if (glslangType.getStruct()) {
+    } else if (glslangType.isStruct()) {
         glslang::TVector<glslang::TTypeLoc>::const_iterator iter;
         for (iter = glslangType.getStruct()->begin(); iter != glslangType.getStruct()->end(); ++iter)
             llvmConsts.push_back(llvm::dyn_cast<llvm::Constant>(createLLVMConstant(*iter->type, consts, nextConst)));
@@ -3226,7 +3228,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type, 
     std::vector<llvm::Value*> mdArgs;
 
     // name of aggregate, if an aggregate (struct or block)
-    if (type.getStruct())
+    if (type.isStruct())
         mdArgs.push_back(llvm::MDString::get(context, type.getTypeName().c_str()));
     else
         mdArgs.push_back(llvm::MDString::get(context, ""));
@@ -3235,7 +3237,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdType(const glslang::TType& type, 
     mdArgs.push_back(metadata.makeMdTypeLayout(GetMdTypeLayout(type, inheritMatrix), GetMdPrecision(type), GetMdSlotLocation(type), samplerMd, -1, GetMdBuiltIn(type),
                                                GetMdBinding(type), GetMdQualifiers(type), GetMdOffset(type, useUniformOffsets)));
 
-    const glslang::TTypeList* typeList = type.getStruct();
+    const glslang::TTypeList* typeList = getStructIfIsStruct(type);
     if (typeList) {
         for (int t = 0; t < (int)typeList->size(); ++t) {
             const glslang::TType* fieldType = (*typeList)[t].type;
@@ -3329,7 +3331,7 @@ llvm::MDNode* TGlslangToTopTraverser::declareMdIo(llvm::StringRef instanceName, 
 // and should then stay the same while visiting the substructure of that member.
 void TGlslangToTopTraverser::declareChildMdIo(const glslang::TType& type, llvm::Type* proxyType, llvm::SmallVector<llvm::MDNode*, 10>& members, gla::EMdTypeLayout inheritMatrix)
 {
-    const glslang::TTypeList* typeList = type.getStruct();
+    const glslang::TTypeList* typeList = getStructIfIsStruct(type);
     if (typeList) {
         // Get the llvm type of the struct holding the members (bypassing arrays and pointers)
         llvm::Type* structType = proxyType;
