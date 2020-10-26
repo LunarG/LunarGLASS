@@ -1,14 +1,6 @@
 # Licensing
  
-LunarGLASS is available via a BSD-style open source license.
-
-See more at the [LunarGLASS FAQ](http://www.lunarglass.org/faq).
-
-# Resources
-
-See [LunarGLASS.org](http://www.lunarglass.org/) for a variety of information about LunarGLASS.
-
-Google code: On 8/21/2015, LunarGLASS was transfered from [Google Code](https://code.google.com/p/lunarglass/).
+LunarGLASS is available via a three clause BSD-style open source license.
 
 # Goals
 
